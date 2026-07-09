@@ -38,7 +38,8 @@ def run_cases():
     # --- reverse_complement ---
     record("reverse_complement", s.reverse_complement())
     record("reverse_complement_rna", s.reverse_complement_rna())
-    record("reverse_ACGT", Seq("ACGT").reverse())
+    # Note: BioPython removed Seq.reverse(); use slicing [::-1] instead.
+    record("reverse_ACGT", Seq("ACGT")[::-1])
 
     # --- transcribe / back_transcribe ---
     record("transcribe", s.transcribe())
