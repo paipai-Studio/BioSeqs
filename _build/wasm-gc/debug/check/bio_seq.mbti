@@ -1,0 +1,52 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "biolab/bio_seq"
+
+// Values
+
+// Errors
+pub suberror SeqError {
+  SeqError(String)
+}
+
+// Types and methods
+pub struct Seq {
+  data : String
+} derive(Eq, Hash)
+pub fn Seq::add(Self, Self) -> Self
+pub fn Seq::add_str(Self, String) -> Self
+pub fn Seq::back_transcribe(Self) -> Self
+pub fn Seq::complement(Self) -> Self
+pub fn Seq::complement_rna(Self) -> Self
+pub fn Seq::contains(Self, String) -> Bool
+pub fn Seq::count(Self, String) -> Int
+pub fn Seq::count_overlap(Self, String) -> Int
+pub fn Seq::endswith(Self, String) -> Bool
+pub fn Seq::find(Self, String) -> Int
+pub fn Seq::from_str(String) -> Self
+pub fn Seq::get_char(Self, Int) -> Char?
+pub fn Seq::join(Self, Array[Self]) -> Self
+pub fn Seq::length(Self) -> Int
+pub fn Seq::lower(Self) -> Self
+pub fn Seq::lstrip(Self, chars? : String) -> Self
+pub fn Seq::mul(Self, Int) -> Self
+pub fn Seq::new(String) -> Self
+pub fn Seq::replace(Self, old~ : String, new~ : String) -> Self
+pub fn Seq::repr(Self) -> String
+pub fn Seq::reverse(Self) -> Self
+pub fn Seq::reverse_complement(Self) -> Self
+pub fn Seq::reverse_complement_rna(Self) -> Self
+pub fn Seq::rfind(Self, String) -> Int
+pub fn Seq::rstrip(Self, chars? : String) -> Self
+pub fn Seq::slice(Self, start~ : Int, end~ : Int) -> Self
+pub fn Seq::split(Self, String) -> Array[Self]
+pub fn Seq::startswith(Self, String) -> Bool
+pub fn Seq::strip(Self, chars? : String) -> Self
+pub fn Seq::to_string(Self) -> String
+pub fn Seq::transcribe(Self) -> Self
+pub fn Seq::translate(Self, stop_symbol? : Char, to_stop? : Bool, cds? : Bool, gap? : Char) -> Self raise SeqError
+pub fn Seq::upper(Self) -> Self
+
+// Type aliases
+
+// Traits
+
