@@ -12,7 +12,6 @@ pub suberror SeqError {
 pub struct Seq {
   data : String
 } derive(Eq, Hash)
-pub fn Seq::add(Self, Self) -> Self
 pub fn Seq::add_str(Self, String) -> Self
 pub fn Seq::back_transcribe(Self) -> Self
 pub fn Seq::complement(Self) -> Self
@@ -45,6 +44,7 @@ pub fn Seq::to_string(Self) -> String
 pub fn Seq::transcribe(Self) -> Self
 pub fn Seq::translate(Self, stop_symbol? : Char, to_stop? : Bool, cds? : Bool, gap? : Char) -> Self raise SeqError
 pub fn Seq::upper(Self) -> Self
+pub impl Add for Seq
 
 // Type aliases
 

@@ -6,6 +6,7 @@ package "biolab/bio_seq/cmd/main"
 // Errors
 
 // Types and methods
+type Case
 
 // Type aliases
 

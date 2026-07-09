@@ -7,6 +7,11 @@
     },
     {
       "root": "biolab/bio_seq",
+      "rel": "cmd/bench",
+      "artifact": "/home/developer/Documents/1/_build/wasm-gc/debug/check/cmd/bench/bench.mi"
+    },
+    {
+      "root": "biolab/bio_seq",
       "rel": "cmd/main",
       "artifact": "/home/developer/Documents/1/_build/wasm-gc/debug/check/cmd/main/main.mi"
     },
