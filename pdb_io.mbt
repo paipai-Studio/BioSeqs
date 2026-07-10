@@ -15,12 +15,15 @@ pub fn parse_pdb(content : String) -> Structure {
   let mut current_hetfield = " "
   
   for line in lines {
-    let trimmed = line.trim().to_string()
-    if trimmed.length() < 6 {
+    let n = line.length()
+    if n < 6 {
       continue
     }
     
-    let record_type = trimmed[0:6].trim().to_string()
+    let record_type = line[0:6]
+    if record_type[0:4] != "ATOM" && record_type[0:6] != "HETATM" && record_type[0:5] != "MODEL" && record_type[0:3] != "TER" && record_type[0:6] != "ENDMDL" {
+      continue
+    }
     
     if record_type == "MODEL" {
       if current_residue_atoms.length() > 0 {
@@ -38,8 +41,8 @@ pub fn parse_pdb(content : String) -> Structure {
         models.push(m)
         current_model_chains = Array::new()
       }
-    } else if record_type == "ATOM" || record_type == "HETATM" {
-      let atom = parse_atom_line(trimmed, record_type == "HETATM")
+    } else if record_type[0:4] == "ATOM" || record_type == "HETATM" {
+      let atom = parse_atom_line(line, record_type == "HETATM")
       
       if current_residue_atoms.length() > 0 && (atom.chainid != current_chainid || atom.resseq != current_resseq) {
         let r = Residue::new(resname=current_resname, chainid=current_chainid, resseq=current_resseq, atoms=current_residue_atoms, hetfield=current_hetfield)
@@ -106,29 +109,90 @@ pub fn parse_pdb(content : String) -> Structure {
 
 ///|
 /// Parse an ATOM or HETATM line into an Atom.
-fn parse_atom_line(line : String, _is_hetatm : Bool) -> Atom {
-  let name = if line.length() >= 16 { line[12:16].trim().to_string() } else { "" }
-  let resname = if line.length() >= 20 { line[17:20].trim().to_string() } else { "UNK" }
-  let chainid = if line.length() > 21 { line.get_char(21).unwrap_or(' ') } else { ' ' }
-  let resseq_str = if line.length() >= 26 { line[22:26].trim().to_string() } else { "1" }
-  let resseq = pdb_parse_int(resseq_str).unwrap_or(1)
+fn parse_atom_line(line : StringView, _is_hetatm : Bool) -> Atom {
+  let n = line.length()
   
-  let x_str = if line.length() >= 38 { line[30:38].trim().to_string() } else { "0.0" }
-  let y_str = if line.length() >= 46 { line[38:46].trim().to_string() } else { "0.0" }
-  let z_str = if line.length() >= 54 { line[46:54].trim().to_string() } else { "0.0" }
-  let x = pdb_parse_double(x_str).unwrap_or(0.0)
-  let y = pdb_parse_double(y_str).unwrap_or(0.0)
-  let z = pdb_parse_double(z_str).unwrap_or(0.0)
+  let name = if n >= 16 { pdb_trim_string(line[12:16]) } else { "" }
+  let resname = if n >= 20 { pdb_trim_string(line[17:20]) } else { "UNK" }
+  let chainid = if n > 21 { line.get_char(21).unwrap_or(' ') } else { ' ' }
+  let resseq = if n >= 26 { pdb_parse_int_fast(line[22:26]) } else { 1 }
   
-  let occupancy_str = if line.length() >= 60 { line[54:60].trim().to_string() } else { "1.0" }
-  let occupancy = pdb_parse_double(occupancy_str).unwrap_or(1.0)
+  let x = if n >= 38 { pdb_parse_double_fast(line[30:38]) } else { 0.0 }
+  let y = if n >= 46 { pdb_parse_double_fast(line[38:46]) } else { 0.0 }
+  let z = if n >= 54 { pdb_parse_double_fast(line[46:54]) } else { 0.0 }
   
-  let bfactor_str = if line.length() >= 66 { line[60:66].trim().to_string() } else { "0.0" }
-  let bfactor = pdb_parse_double(bfactor_str).unwrap_or(0.0)
+  let occupancy = if n >= 60 { pdb_parse_double_fast(line[54:60]) } else { 1.0 }
+  let bfactor = if n >= 66 { pdb_parse_double_fast(line[60:66]) } else { 0.0 }
   
-  let element = if line.length() >= 78 { line[76:78].trim().to_string() } else { "" }
+  let element = if n >= 78 { pdb_trim_string(line[76:78]) } else { "" }
   
   Atom::new(name=name, coord=Vector3::new(x, y, z), resname=resname, chainid=chainid, resseq=resseq, occupancy=occupancy, bfactor=bfactor, element=element, charge=0)
+}
+
+///|
+/// Trim whitespace from both ends of a string view and return String.
+fn pdb_trim_string(s : StringView) -> String {
+  let n = s.length()
+  if n == 0 {
+    return ""
+  }
+  
+  let mut start = 0
+  while start < n {
+    let c = s.unsafe_get(start).to_int()
+    if c != 32 && c != 9 && c != 10 && c != 13 {
+      break
+    }
+    start = start + 1
+  }
+  
+  if start >= n {
+    return ""
+  }
+  
+  let mut end = n - 1
+  while end >= start {
+    let c = s.unsafe_get(end).to_int()
+    if c != 32 && c != 9 && c != 10 && c != 13 {
+      break
+    }
+    end = end - 1
+  }
+  
+  s[start:end + 1].to_string()
+}
+
+///|
+/// Fast integer parser for PDB format (no error checking).
+fn pdb_parse_int_fast(s : StringView) -> Int {
+  let n = s.length()
+  if n == 0 {
+    return 0
+  }
+  
+  let mut result = 0
+  let zero = '0'.to_int()
+  let mut i = 0
+  let mut is_negative = false
+  
+  if s.unsafe_get(0).to_int() == 45 {
+    is_negative = true
+    i = 1
+  }
+  
+  while i < n {
+    let c = s.unsafe_get(i).to_int()
+    if c >= zero && c <= zero + 9 {
+      result = result * 10 + (c - zero)
+    }
+    i = i + 1
+  }
+  
+  if is_negative {
+    -result
+  } else {
+    result
+  }
 }
 
 ///|
@@ -162,6 +226,59 @@ fn pdb_parse_int(s : String) -> Int? {
     } else {
       Some(result)
     }
+  }
+}
+
+///|
+/// Fast double parser for PDB format (no error checking).
+fn pdb_parse_double_fast(s : StringView) -> Double {
+  let n = s.length()
+  if n == 0 {
+    return 0.0
+  }
+  
+  let mut result = 0.0
+  let mut decimal = 0.0
+  let mut decimal_places = 0
+  let mut is_negative = false
+  let zero = '0'.to_int()
+  let mut i = 0
+  
+  if s.unsafe_get(0).to_int() == 45 {
+    is_negative = true
+    i = 1
+  }
+  
+  while i < n {
+    let c = s.unsafe_get(i).to_int()
+    if c == 46 {
+      i = i + 1
+      while i < n {
+        let dc = s.unsafe_get(i).to_int()
+        if dc >= zero && dc <= zero + 9 {
+          decimal = decimal * 10.0 + (dc - zero).to_double()
+          decimal_places = decimal_places + 1
+        }
+        i = i + 1
+      }
+      break
+    }
+    if c >= zero && c <= zero + 9 {
+      result = result * 10.0 + (c - zero).to_double()
+    }
+    i = i + 1
+  }
+  
+  while decimal_places > 0 {
+    decimal = decimal / 10.0
+    decimal_places = decimal_places - 1
+  }
+  
+  let final_result = result + decimal
+  if is_negative {
+    -final_result
+  } else {
+    final_result
   }
 }
 

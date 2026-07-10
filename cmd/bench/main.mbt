@@ -461,6 +461,105 @@ fn main {
     }),
   )
 
+  // ---------------------------------------------------------------------------
+  // Bio.PDB benchmarks
+  // ---------------------------------------------------------------------------
+  println("")
+  println("=== MoonBit Bio.PDB benchmark ===")
+  println("")
+
+  // Generate PDB content
+  let pdb_buf = StringBuilder::new()
+  pdb_buf.write_string("MODEL     1\n")
+  for i = 0; i < 100; i = i + 1 {
+    pdb_buf.write_string("ATOM      1  N   ALA A   ")
+    pdb_buf.write_string((i + 1).to_string())
+    pdb_buf.write_string("      0.000   0.000   0.000  1.00  0.00           N\n")
+    pdb_buf.write_string("ATOM      2  CA  ALA A   ")
+    pdb_buf.write_string((i + 1).to_string())
+    pdb_buf.write_string("      1.500   0.000   0.000  1.00  0.00           C\n")
+    pdb_buf.write_string("ATOM      3  C   ALA A   ")
+    pdb_buf.write_string((i + 1).to_string())
+    pdb_buf.write_string("      3.000   0.000   0.000  1.00  0.00           C\n")
+  }
+  pdb_buf.write_string("ENDMDL\n")
+  pdb_buf.write_string("END\n")
+  let pdb_content = pdb_buf.to_string()
+
+  // PDB parsing
+  ignore(
+    bench("parse_pdb (300 atoms)", iters_small, fn() {
+      ignore(@lib.parse_pdb(pdb_content))
+    }),
+  )
+
+  // PDB writing
+  let pdb_struct = @lib.parse_pdb(pdb_content)
+  ignore(
+    bench("write_pdb (300 atoms)", iters_small, fn() {
+      ignore(@lib.write_pdb(pdb_struct))
+    }),
+  )
+
+  // Structure traversal
+  ignore(
+    bench("Structure::get_atoms", iters_find, fn() {
+      ignore(pdb_struct.get_atoms())
+    }),
+  )
+
+  ignore(
+    bench("Structure::get_residues", iters_find, fn() {
+      ignore(pdb_struct.get_residues())
+    }),
+  )
+
+  ignore(
+    bench("Structure::get_chains", iters_find, fn() {
+      ignore(pdb_struct.get_chains())
+    }),
+  )
+
+  // Distance calculation
+  let atoms = pdb_struct.get_atoms()
+  if atoms.length() >= 2 {
+    let atom1 = atoms[0]
+    let atom2 = atoms[1]
+    ignore(
+      bench("Atom::distance", iters_find, fn() {
+        ignore(atom1.distance(atom2))
+      }),
+    )
+  }
+
+  // Center of mass
+  let residues = pdb_struct.get_residues()
+  if residues.length() > 0 {
+    let residue = residues[0]
+    ignore(
+      bench("Residue::center_of_mass", iters_find, fn() {
+        ignore(residue.center_of_mass())
+      }),
+    )
+  }
+
+  // Find atom by name
+  if residues.length() > 0 {
+    let residue = residues[0]
+    ignore(
+      bench("Residue::find_atom", iters_find, fn() {
+        ignore(residue.find_atom("CA"))
+      }),
+    )
+  }
+
+  // Structure distance
+  ignore(
+    bench("Structure::distance", iters_find, fn() {
+      ignore(pdb_struct.distance("CA", "N"))
+    }),
+  )
+
   println("")
   println("done.")
 }
