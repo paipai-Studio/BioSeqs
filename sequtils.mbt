@@ -3,6 +3,30 @@
 
 ///|
 /// CheckSum module
+let crc32_table : Array[Int] = make_crc32_table()
+
+///|
+fn make_crc32_table() -> Array[Int] {
+  let table = Array::new()
+  let mut i = 0
+  while i < 256 {
+    let mut c = i & 0xFFFFFFFF
+    let mut j = 0
+    while j < 8 {
+      if (c & 1) != 0 {
+        c = ((c >> 1) & 0x7FFFFFFF) ^ 0xEDB88320
+      } else {
+        c = (c >> 1) & 0x7FFFFFFF
+      }
+      j = j + 1
+    }
+    table.push(c & 0xFFFFFFFF)
+    i = i + 1
+  }
+  table
+}
+
+///|
 pub fn crc32(seq : String) -> Int {
   let mut crc = 0xFFFFFFFF
   let mut i = 0
@@ -10,17 +34,8 @@ pub fn crc32(seq : String) -> Int {
     match seq.get_char(i) {
       Some(c) => {
         let byte = c.to_int() & 0xFF
-        let mut c_val = (crc ^ byte) & 0xFFFFFFFF
-        let mut j = 0
-        while j < 8 {
-          let bit = c_val & 1
-          c_val = (c_val >> 1) & 0x7FFFFFFF
-          if bit == 1 {
-            c_val = c_val ^ 0xEDB88320
-          }
-          j = j + 1
-        }
-        crc = c_val
+        let index = (crc ^ byte) & 0xFF
+        crc = crc32_table[index] ^ ((crc >> 8) & 0x00FFFFFF)
       }
       None => ()
     }
@@ -31,15 +46,20 @@ pub fn crc32(seq : String) -> Int {
 
 ///|
 pub fn gcg(seq : String) -> Int {
-  let seq_upper = seq.to_upper()
   let mut index = 0
   let mut checksum = 0
   let mut i = 0
-  while i < seq_upper.length() {
-    match seq_upper.get_char(i) {
+  while i < seq.length() {
+    match seq.get_char(i) {
       Some(c) => {
+        let code = c.to_int()
+        let upper_code = if code >= 97 && code <= 122 {
+          code - 32
+        } else {
+          code
+        }
         index = index + 1
-        checksum = checksum + index * c.to_int()
+        checksum = checksum + index * upper_code
         if index == 57 {
           index = 0
         }
@@ -56,13 +76,13 @@ pub fn seguid(seq : String) -> String {
   let seq_upper = seq.to_upper()
   let hash_result = sha1_string(seq_upper)
   let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-  let mut result = ""
+  let buf = StringBuilder::new()
   let mut i = 0
   while i < hash_result.length() {
     let byte = hash_result[i]
     let idx1 = byte >> 2
     match chars.get_char(idx1) {
-      Some(ch) => result = result + ch.to_string()
+      Some(ch) => buf.write_char(ch)
       None => ()
     }
     let rem = byte & 0x03
@@ -71,7 +91,7 @@ pub fn seguid(seq : String) -> String {
       let byte2 = hash_result[i]
       let idx2 = (rem << 4) | (byte2 >> 4)
       match chars.get_char(idx2) {
-        Some(ch) => result = result + ch.to_string()
+        Some(ch) => buf.write_char(ch)
         None => ()
       }
       let rem2 = byte2 & 0x0F
@@ -80,42 +100,31 @@ pub fn seguid(seq : String) -> String {
         let byte3 = hash_result[i]
         let idx3 = (rem2 << 2) | (byte3 >> 6)
         match chars.get_char(idx3) {
-          Some(ch) => result = result + ch.to_string()
+          Some(ch) => buf.write_char(ch)
           None => ()
         }
         let idx4 = byte3 & 0x3F
         match chars.get_char(idx4) {
-          Some(ch) => result = result + ch.to_string()
+          Some(ch) => buf.write_char(ch)
           None => ()
         }
         i = i + 1
       } else {
         let idx3 = rem2 << 2
         match chars.get_char(idx3) {
-          Some(ch) => result = result + ch.to_string()
+          Some(ch) => buf.write_char(ch)
           None => ()
         }
-        result = result + "="
       }
     } else {
       let idx2 = rem << 4
       match chars.get_char(idx2) {
-        Some(ch) => result = result + ch.to_string()
+        Some(ch) => buf.write_char(ch)
         None => ()
       }
-      result = result + "=="
     }
   }
-  let mut final_result = ""
-  let mut j = 0
-  while j < result.length() {
-    match result.get_char(j) {
-      Some(c) => if c != '=' { final_result = final_result + c.to_string() }
-      None => ()
-    }
-    j = j + 1
-  }
-  final_result
+  buf.to_string()
 }
 
 ///|
@@ -142,13 +151,13 @@ pub fn string_to_bytes(s : String) -> Array[Int] {
 ///|
 pub fn bytes_to_base64(bytes : Array[Int]) -> String {
   let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-  let mut result = ""
+  let buf = StringBuilder::new()
   let mut i = 0
   while i < bytes.length() {
     let byte = bytes[i]
     let idx1 = byte >> 2
     match chars.get_char(idx1) {
-      Some(ch) => result = result + ch.to_string()
+      Some(ch) => buf.write_char(ch)
       None => ()
     }
     let rem = byte & 0x03
@@ -157,7 +166,7 @@ pub fn bytes_to_base64(bytes : Array[Int]) -> String {
       let byte2 = bytes[i]
       let idx2 = (rem << 4) | (byte2 >> 4)
       match chars.get_char(idx2) {
-        Some(ch) => result = result + ch.to_string()
+        Some(ch) => buf.write_char(ch)
         None => ()
       }
       let rem2 = byte2 & 0x0F
@@ -166,81 +175,31 @@ pub fn bytes_to_base64(bytes : Array[Int]) -> String {
         let byte3 = bytes[i]
         let idx3 = (rem2 << 2) | (byte3 >> 6)
         match chars.get_char(idx3) {
-          Some(ch) => result = result + ch.to_string()
+          Some(ch) => buf.write_char(ch)
           None => ()
         }
         let idx4 = byte3 & 0x3F
         match chars.get_char(idx4) {
-          Some(ch) => result = result + ch.to_string()
+          Some(ch) => buf.write_char(ch)
           None => ()
         }
         i = i + 1
       } else {
         let idx3 = rem2 << 2
         match chars.get_char(idx3) {
-          Some(ch) => result = result + ch.to_string()
+          Some(ch) => buf.write_char(ch)
           None => ()
         }
-        result = result + "="
       }
     } else {
       let idx2 = rem << 4
       match chars.get_char(idx2) {
-        Some(ch) => result = result + ch.to_string()
+        Some(ch) => buf.write_char(ch)
         None => ()
       }
-      result = result + "=="
     }
   }
-  let mut final_result = ""
-  let mut j = 0
-  while j < result.length() {
-    match result.get_char(j) {
-      Some(c) => if c != '=' { final_result = final_result + c.to_string() }
-      None => ()
-    }
-    j = j + 1
-  }
-  final_result
-}
-
-///|
-fn bytes_to_word(b0 : Int, b1 : Int, b2 : Int, b3 : Int) -> Int {
-  let w0 = b0 & 255
-  let w1 = b1 & 255
-  let w2 = b2 & 255
-  let w3 = b3 & 255
-  (w0 << 24) | (w1 << 16) | (w2 << 8) | w3
-}
-
-///|
-fn word_to_bytes(w : Int) -> (Int, Int, Int, Int) {
-  ((w >> 24) & 255, (w >> 16) & 255, (w >> 8) & 255, w & 255)
-}
-
-///|
-fn u32_add(a : Int, b : Int) -> Int {
-  (a + b) & 0xFFFFFFFF
-}
-
-///|
-fn u32_and(a : Int, b : Int) -> Int {
-  a & b & 0xFFFFFFFF
-}
-
-///|
-fn u32_or(a : Int, b : Int) -> Int {
-  (a | b) & 0xFFFFFFFF
-}
-
-///|
-fn u32_xor(a : Int, b : Int) -> Int {
-  (a ^ b) & 0xFFFFFFFF
-}
-
-///|
-fn u32_not(x : Int) -> Int {
-  u32_xor(x, -1)
+  buf.to_string()
 }
 
 ///|
@@ -405,16 +364,20 @@ pub fn sha1(message : Array[Int]) -> Array[Int] {
 pub fn gc(seq : String) -> Double {
   let mut gc = 0
   let mut total = 0
-  let seq_upper = seq.to_upper()
   let mut i = 0
-  while i < seq_upper.length() {
-    match seq_upper.get_char(i) {
+  while i < seq.length() {
+    match seq.get_char(i) {
       Some(c) => {
         let code = c.to_int()
-        if code == 71 || code == 67 || code == 83 {
+        let upper_code = if code >= 97 && code <= 122 {
+          code - 32
+        } else {
+          code
+        }
+        if upper_code == 71 || upper_code == 67 || upper_code == 83 {
           gc = gc + 1
         }
-        if code >= 65 && code <= 90 {
+        if upper_code >= 65 && upper_code <= 90 {
           total = total + 1
         }
       }
@@ -585,17 +548,21 @@ pub fn ProteinAnalysis::gravy(self : ProteinAnalysis) -> Double {
 ///|
 /// Melting temperature calculations
 pub fn tm_wallace(seq : String) -> Double {
-  let seq_upper = seq.to_upper()
   let mut at = 0
   let mut gc = 0
   let mut i = 0
-  while i < seq_upper.length() {
-    match seq_upper.get_char(i) {
+  while i < seq.length() {
+    match seq.get_char(i) {
       Some(c) => {
         let code = c.to_int()
-        if code == 65 || code == 84 {
+        let upper_code = if code >= 97 && code <= 122 {
+          code - 32
+        } else {
+          code
+        }
+        if upper_code == 65 || upper_code == 84 {
           at = at + 1
-        } else if code == 71 || code == 67 {
+        } else if upper_code == 71 || upper_code == 67 {
           gc = gc + 1
         }
       }

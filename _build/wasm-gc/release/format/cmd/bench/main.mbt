@@ -285,6 +285,51 @@ fn main {
     }),
   )
 
+  // ---------------------------------------------------------------------------
+  // SeqUtils benchmarks
+  // ---------------------------------------------------------------------------
+  println("")
+  println("=== MoonBit SeqUtils benchmark ===")
+  println("")
+
+  let dna_seq = gen_dna(10000)
+
+  // CheckSum
+  ignore(bench("crc32", iters_find, fn() { ignore(@lib.crc32(dna_seq)) }))
+  ignore(bench("gcg", iters_find, fn() { ignore(@lib.gcg(dna_seq)) }))
+  ignore(bench("seguid", iters_small, fn() { ignore(@lib.seguid(dna_seq)) }))
+
+  // GC content
+  ignore(bench("gc", iters_find, fn() { ignore(@lib.gc(dna_seq)) }))
+
+  // ProteinAnalysis
+  let protein_seq = "MAEGEITTFTALTEKFNLPPGNYKKPKLLYCSNGGHFLRILPDGTVDGTRDRSDQHIQLQLSAESVGEVYIKSTETGQYLAMDTSGLLYGSQTPSEECLFLERLEENHYNTYTSKKHAEKNWFVGLKKNGSCKRGPRTHYGQKAILFLPLPV"
+  let pa = @lib.ProteinAnalysis::new(protein_seq)
+  ignore(
+    bench("ProteinAnalysis::count_amino_acids", iters_find, fn() {
+      ignore(pa.count_amino_acids())
+    }),
+  )
+  ignore(
+    bench("ProteinAnalysis::molecular_weight", iters_find, fn() {
+      ignore(pa.molecular_weight())
+    }),
+  )
+  ignore(
+    bench("ProteinAnalysis::aromaticity", iters_find, fn() {
+      ignore(pa.aromaticity())
+    }),
+  )
+  ignore(
+    bench("ProteinAnalysis::gravy", iters_find, fn() { ignore(pa.gravy()) }),
+  )
+
+  // MeltingTemp
+  ignore(
+    bench("tm_wallace", iters_find, fn() { ignore(@lib.tm_wallace(dna_seq)) }),
+  )
+  ignore(bench("tm_gc", iters_find, fn() { ignore(@lib.tm_gc(dna_seq)) }))
+
   println("")
   println("done.")
 }
