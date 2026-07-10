@@ -2,8 +2,16 @@
 test "crc32_basic" {
   let seq = "AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC"
   let result = crc32(seq)
-  let unsigned = if result >= 0 { result } else { result + 4294967296 }
-  assert_eq(unsigned, 4247645206)
+  let expected = -47322090
+  assert_eq(result & 0xFFFFFFFF, expected & 0xFFFFFFFF)
+}
+
+///|
+test "crc32_simple" {
+  let abc_expected = -1551695032
+  let agct_expected = -1066667478
+  assert_eq(crc32("ABC") & 0xFFFFFFFF, abc_expected & 0xFFFFFFFF)
+  assert_eq(crc32("AGCT") & 0xFFFFFFFF, agct_expected & 0xFFFFFFFF)
 }
 
 ///|
@@ -18,6 +26,45 @@ test "seguid_basic" {
   let seq = "AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC"
   let result = seguid(seq)
   assert_eq(result, "kspO3Jbmvk9xX3jVv8QOSapllIo")
+}
+
+///|
+test "sha1_basic" {
+  let hash = sha1_string("abc")
+  assert_eq(hash.length(), 20)
+  assert_eq(hash[0], 169)
+  assert_eq(hash[1], 153)
+  assert_eq(hash[2], 62)
+}
+
+test "sha1_h0_after_round" {
+  let hash = sha1_string("abc")
+  let expected_h0_bytes = [169, 153, 62, 54]
+  assert_eq(hash[0], expected_h0_bytes[0])
+  assert_eq(hash[1], expected_h0_bytes[1])
+  assert_eq(hash[2], expected_h0_bytes[2])
+  assert_eq(hash[3], expected_h0_bytes[3])
+}
+
+test "sha1_raw_bytes" {
+  let bytes = [97, 98, 99]
+  let hash = sha1(bytes)
+  assert_eq(hash[0], 169)
+  assert_eq(hash[1], 153)
+  assert_eq(hash[2], 62)
+}
+
+test "base64_test" {
+  let bytes = [169, 153, 62, 54, 71, 6, 129, 106, 186, 62, 37, 113, 120, 80, 194, 108, 156, 208, 216, 157]
+  let result = bytes_to_base64(bytes)
+  assert_eq(result, "q71HzGOFBjaYuzVZUDKe7APTKFU")
+}
+
+test "string_to_bytes_test" {
+  let bytes = string_to_bytes("abc")
+  assert_eq(bytes[0], 97)
+  assert_eq(bytes[1], 98)
+  assert_eq(bytes[2], 99)
 }
 
 ///|

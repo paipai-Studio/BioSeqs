@@ -5,25 +5,29 @@
 /// CheckSum module
 
 pub fn crc32(seq : String) -> Int {
-  let mut crc = 0
+  let mut crc = 0xFFFFFFFF
   let mut i = 0
   while i < seq.length() {
     match seq.get_char(i) {
       Some(c) => {
         let byte = c.to_int() & 0xFF
-        let mut c_val = crc ^ byte
+        let mut c_val = (crc ^ byte) & 0xFFFFFFFF
         let mut j = 0
         while j < 8 {
-          c_val = (c_val >> 1) ^ (if (c_val & 1) == 1 { 0xEDB88320 } else { 0 })
+          let bit = c_val & 1
+          c_val = (c_val >> 1) & 0x7FFFFFFF
+          if bit == 1 {
+            c_val = c_val ^ 0xEDB88320
+          }
           j = j + 1
         }
-        crc = c_val & 0xFFFFFFFF
+        crc = c_val
       }
       None => ()
     }
     i = i + 1
   }
-  crc | 0
+  (crc ^ 0xFFFFFFFF) | 0
 }
 
 ///|
@@ -140,12 +144,119 @@ pub fn string_to_bytes(s : String) -> Array[Int] {
   result
 }
 
+pub fn bytes_to_base64(bytes : Array[Int]) -> String {
+  let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+  let mut result = ""
+  let mut i = 0
+  while i < bytes.length() {
+    let byte = bytes[i]
+    let idx1 = byte >> 2
+    match chars.get_char(idx1) {
+      Some(ch) => result = result + ch.to_string()
+      None => ()
+    }
+    let rem = byte & 0x03
+    i = i + 1
+    if i < bytes.length() {
+      let byte2 = bytes[i]
+      let idx2 = (rem << 4) | (byte2 >> 4)
+      match chars.get_char(idx2) {
+        Some(ch) => result = result + ch.to_string()
+        None => ()
+      }
+      let rem2 = byte2 & 0x0F
+      i = i + 1
+      if i < bytes.length() {
+        let byte3 = bytes[i]
+        let idx3 = (rem2 << 2) | (byte3 >> 6)
+        match chars.get_char(idx3) {
+          Some(ch) => result = result + ch.to_string()
+          None => ()
+        }
+        let idx4 = byte3 & 0x3F
+        match chars.get_char(idx4) {
+          Some(ch) => result = result + ch.to_string()
+          None => ()
+        }
+        i = i + 1
+      } else {
+        let idx3 = rem2 << 2
+        match chars.get_char(idx3) {
+          Some(ch) => result = result + ch.to_string()
+          None => ()
+        }
+        result = result + "="
+      }
+    } else {
+      let idx2 = rem << 4
+      match chars.get_char(idx2) {
+        Some(ch) => result = result + ch.to_string()
+        None => ()
+      }
+      result = result + "=="
+    }
+  }
+  let mut final_result = ""
+  let mut j = 0
+  while j < result.length() {
+    match result.get_char(j) {
+      Some(c) => {
+        if c != '=' {
+          final_result = final_result + c.to_string()
+        }
+      }
+      None => ()
+    }
+    j = j + 1
+  }
+  final_result
+}
+
+fn u32_and(a : Int, b : Int) -> Int {
+  (a & b) & 0xFFFFFFFF
+}
+
+fn u32_or(a : Int, b : Int) -> Int {
+  (a | b) & 0xFFFFFFFF
+}
+
+fn u32_xor(a : Int, b : Int) -> Int {
+  (a ^ b) & 0xFFFFFFFF
+}
+
+fn u32_add(a : Int, b : Int) -> Int {
+  (a + b) & 0xFFFFFFFF
+}
+
+fn u32_shl(a : Int, shift : Int) -> Int {
+  ((a & 0xFFFFFFFF) << shift) & 0xFFFFFFFF
+}
+
+fn u32_shr(a : Int, shift : Int) -> Int {
+  let x = a & 0xFFFFFFFF
+  if x >= 0 {
+    x >> shift
+  } else {
+    let shifted = x >> shift
+    let mask = (1 << (32 - shift)) - 1
+    shifted & mask
+  }
+}
+
+fn u32_rotl(x : Int, shift : Int) -> Int {
+  u32_or(u32_shl(x, shift), u32_shr(x, 32 - shift))
+}
+
+fn u32_not(x : Int) -> Int {
+  u32_xor(x, -1)
+}
+
 pub fn sha1(message : Array[Int]) -> Array[Int] {
   let mut h0 = 0x67452301
-  let mut h1 = 0xEFCDAB89
-  let mut h2 = 0x98BADCFE
+  let mut h1 = -271733879
+  let mut h2 = -1732584194
   let mut h3 = 0x10325476
-  let mut h4 = 0xC3D2E1F0
+  let mut h4 = -1009589776
 
   let original_len = message.length()
   let padded = Array::new()
@@ -154,17 +265,17 @@ pub fn sha1(message : Array[Int]) -> Array[Int] {
     padded.push(message[i])
     i = i + 1
   }
-  padded.push(0x80)
+  padded.push(128)
 
   while padded.length() % 64 != 56 {
-    padded.push(0x00)
+    padded.push(0)
   }
 
   let len_bits = original_len * 8
-  i = 0
-  while i < 8 {
-    padded.push((len_bits >> (56 - i * 8)) & 0xFF)
-    i = i + 1
+  i = 7
+  while i >= 0 {
+    padded.push((len_bits >> (i * 8)) & 255)
+    i = i - 1
   }
 
   let mut block_idx = 0
@@ -172,19 +283,20 @@ pub fn sha1(message : Array[Int]) -> Array[Int] {
     let w = Array::new()
     let mut j = 0
     while j < 16 {
-      let idx = block_idx + j
+      let idx = block_idx + j * 4
       let b0 = if idx < padded.length() { padded[idx] } else { 0 }
       let b1 = if idx + 1 < padded.length() { padded[idx + 1] } else { 0 }
       let b2 = if idx + 2 < padded.length() { padded[idx + 2] } else { 0 }
       let b3 = if idx + 3 < padded.length() { padded[idx + 3] } else { 0 }
-      w.push((b0 << 24) | (b1 << 16) | (b2 << 8) | b3)
+      let word = u32_or(u32_or(u32_or(u32_shl(b0, 24), u32_shl(b1, 16)), u32_shl(b2, 8)), b3)
+      w.push(word)
       j = j + 1
     }
 
     j = 16
     while j < 80 {
-      let s = w[j - 3] ^ w[j - 8] ^ w[j - 14] ^ w[j - 16]
-      w.push(rotate_left(s, 1))
+      let s = u32_xor(u32_xor(u32_xor(w[j - 3], w[j - 8]), w[j - 14]), w[j - 16])
+      w.push(u32_rotl(s, 1))
       j = j + 1
     }
 
@@ -199,64 +311,60 @@ pub fn sha1(message : Array[Int]) -> Array[Int] {
       let mut f = 0
       let mut k_val = 0
       if j < 20 {
-        f = (b & c) | (((0xFFFFFFFF ^ b) & 0xFFFFFFFF) & d)
+        f = u32_or(u32_and(b, c), u32_and(u32_not(b), d))
         k_val = 0x5A827999
       } else if j < 40 {
-        f = b ^ c ^ d
+        f = u32_xor(u32_xor(b, c), d)
         k_val = 0x6ED9EBA1
       } else if j < 60 {
-        f = (b & c) | (b & d) | (c & d)
-        k_val = 0x8F1BBCDC
+        f = u32_or(u32_or(u32_and(b, c), u32_and(b, d)), u32_and(c, d))
+        k_val = -1894007588
       } else {
-        f = b ^ c ^ d
-        k_val = 0xCA62C1D6
+        f = u32_xor(u32_xor(b, c), d)
+        k_val = -899497514
       }
 
       let wj = w[j]
-      let temp = rotate_left(a, 5) + f + e + k_val + wj
+      let temp = u32_add(u32_rotl(a, 5), u32_add(f, u32_add(e, u32_add(k_val, wj))))
       e = d
       d = c
-      c = rotate_left(b, 30)
+      c = u32_rotl(b, 30)
       b = a
       a = temp
       j = j + 1
     }
 
-    h0 = h0 + a
-    h1 = h1 + b
-    h2 = h2 + c
-    h3 = h3 + d
-    h4 = h4 + e
+    h0 = u32_add(h0, a)
+    h1 = u32_add(h1, b)
+    h2 = u32_add(h2, c)
+    h3 = u32_add(h3, d)
+    h4 = u32_add(h4, e)
 
     block_idx = block_idx + 64
   }
 
   let result = Array::new()
-  result.push((h0 >> 24) & 0xFF)
-  result.push((h0 >> 16) & 0xFF)
-  result.push((h0 >> 8) & 0xFF)
-  result.push(h0 & 0xFF)
-  result.push((h1 >> 24) & 0xFF)
-  result.push((h1 >> 16) & 0xFF)
-  result.push((h1 >> 8) & 0xFF)
-  result.push(h1 & 0xFF)
-  result.push((h2 >> 24) & 0xFF)
-  result.push((h2 >> 16) & 0xFF)
-  result.push((h2 >> 8) & 0xFF)
-  result.push(h2 & 0xFF)
-  result.push((h3 >> 24) & 0xFF)
-  result.push((h3 >> 16) & 0xFF)
-  result.push((h3 >> 8) & 0xFF)
-  result.push(h3 & 0xFF)
-  result.push((h4 >> 24) & 0xFF)
-  result.push((h4 >> 16) & 0xFF)
-  result.push((h4 >> 8) & 0xFF)
-  result.push(h4 & 0xFF)
+  result.push(u32_shr(h0, 24) & 255)
+  result.push(u32_shr(h0, 16) & 255)
+  result.push(u32_shr(h0, 8) & 255)
+  result.push(h0 & 255)
+  result.push(u32_shr(h1, 24) & 255)
+  result.push(u32_shr(h1, 16) & 255)
+  result.push(u32_shr(h1, 8) & 255)
+  result.push(h1 & 255)
+  result.push(u32_shr(h2, 24) & 255)
+  result.push(u32_shr(h2, 16) & 255)
+  result.push(u32_shr(h2, 8) & 255)
+  result.push(h2 & 255)
+  result.push(u32_shr(h3, 24) & 255)
+  result.push(u32_shr(h3, 16) & 255)
+  result.push(u32_shr(h3, 8) & 255)
+  result.push(h3 & 255)
+  result.push(u32_shr(h4, 24) & 255)
+  result.push(u32_shr(h4, 16) & 255)
+  result.push(u32_shr(h4, 8) & 255)
+  result.push(h4 & 255)
   result
-}
-
-fn rotate_left(x : Int, n : Int) -> Int {
-  (x << n) | ((x & 0xFFFFFFFF) >> (32 - n))
 }
 
 ///|
