@@ -22,6 +22,11 @@
     },
     {
       "root": "biolab/bio_seq",
+      "rel": "cmd/seqfeature_main",
+      "artifact": "/home/developer/Documents/1/_build/wasm-gc/debug/build/cmd/seqfeature_main/seqfeature_main.mi"
+    },
+    {
+      "root": "biolab/bio_seq",
       "rel": "cmd/seqio_main",
       "artifact": "/home/developer/Documents/1/_build/wasm-gc/debug/build/cmd/seqio_main/seqio_main.mi"
     },
