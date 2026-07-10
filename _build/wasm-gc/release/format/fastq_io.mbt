@@ -24,47 +24,86 @@ pub fn parse_fastq(content : String) -> Array[SeqRecord] raise SeqIOError {
   let lines = content.split("\n").to_array()
   let n = lines.length()
   let mut i = 0
+  let at : UInt16 = '@'.to_int().to_uint16()
+  let plus : UInt16 = '+'.to_int().to_uint16()
+  let cr : UInt16 = '\r'.to_int().to_uint16()
+
   while i + 3 < n {
-    let line0 = lines[i].trim_end(chars="\r").to_owned()
-    let line1 = lines[i + 1].trim_end(chars="\r").to_owned()
-    let line2 = lines[i + 2].trim_end(chars="\r").to_owned()
-    let line3 = lines[i + 3].trim_end(chars="\r").to_owned()
-    // Skip trailing empty lines
-    if line0.length() == 0 && i + 4 >= n {
+    let line0 = lines[i]
+    let line1 = lines[i + 1]
+    let line2 = lines[i + 2]
+    let line3 = lines[i + 3]
+
+    let len0 = line0.length()
+    let mut trimmed0 = len0
+    if len0 > 0 && line0.unsafe_get(len0 - 1) == cr {
+      trimmed0 = len0 - 1
+    }
+    if trimmed0 == 0 && i + 4 >= n {
       break
     }
-    if line0.length() == 0 || line0.unsafe_get(0) != '@'.to_int().to_uint16() {
-      raise SeqIOError("Expected '@' at start of FASTQ header, got: " + line0)
-    }
-    if line2.length() == 0 || line2.unsafe_get(0) != '+'.to_int().to_uint16() {
+    if trimmed0 == 0 || line0.unsafe_get(0) != at {
+      let line0_str = line0.to_owned()
       raise SeqIOError(
-        "Expected '+' at start of FASTQ separator, got: " + line2,
+        "Expected '@' at start of FASTQ header, got: " + line0_str,
       )
     }
-    if line1.length() != line3.length() {
+
+    let len2 = line2.length()
+    let mut trimmed2 = len2
+    if len2 > 0 && line2.unsafe_get(len2 - 1) == cr {
+      trimmed2 = len2 - 1
+    }
+    if trimmed2 == 0 || line2.unsafe_get(0) != plus {
+      let line2_str = line2.to_owned()
+      raise SeqIOError(
+        "Expected '+' at start of FASTQ separator, got: " + line2_str,
+      )
+    }
+
+    let len1 = line1.length()
+    let mut trimmed1 = len1
+    if len1 > 0 && line1.unsafe_get(len1 - 1) == cr {
+      trimmed1 = len1 - 1
+    }
+
+    let len3 = line3.length()
+    let mut trimmed3 = len3
+    if len3 > 0 && line3.unsafe_get(len3 - 1) == cr {
+      trimmed3 = len3 - 1
+    }
+
+    if trimmed1 != trimmed3 {
       raise SeqIOError(
         "Sequence length " +
-        line1.length().to_string() +
+        trimmed1.to_string() +
         " and quality length " +
-        line3.length().to_string() +
+        trimmed3.to_string() +
         " don't match in FASTQ record",
       )
     }
-    // Parse title
-    let title = line0[1:].to_owned()
+
+    let title = if trimmed0 > 1 { line0[1:trimmed0].to_owned() } else { "" }
     let (id, description) = match title.find(" ") {
       Some(pos) => (title[0:pos].to_owned(), title)
       None => (title, title)
     }
-    // Decode quality scores (Phred+33)
-    let quals = Array::new()
-    for c in line3.iter() {
-      quals.push(c.to_int() - 33)
+
+    let seq_str = if trimmed1 > 0 { line1[0:trimmed1].to_owned() } else { "" }
+
+    let quals : FixedArray[Int] = FixedArray::make(trimmed3, 0)
+    for j = 0; j < trimmed3; j = j + 1 {
+      quals[j] = line3.unsafe_get(j).to_int() - 33
     }
+    let quals_arr = Array::new()
+    for j = 0; j < trimmed3; j = j + 1 {
+      quals_arr.push(quals[j])
+    }
+
     let letter_ann : Map[String, Array[Int]] = Map([], capacity=1)
-    letter_ann["phred_quality"] = quals
+    letter_ann["phred_quality"] = quals_arr
     records.push(SeqRecord::{
-      seq: Seq::new(line1),
+      seq: Seq::new(seq_str),
       id,
       name: id,
       description,

@@ -1,0 +1,7 @@
+import {
+  "biolab/bio_seq" @lib,
+}
+
+options(
+  "is-main": true,
+)

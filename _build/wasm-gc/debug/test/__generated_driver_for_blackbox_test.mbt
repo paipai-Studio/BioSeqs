@@ -403,6 +403,8 @@ let moonbit_test_driver_internal_no_args_tests : MoonBitTestDriverInternalTestMa
   },
   "seq.mbt": {
   },
+  "phylip_io.mbt": {
+  },
   "genbank_io.mbt": {
   },
   "fastq_io.mbt": {
@@ -412,6 +414,8 @@ let moonbit_test_driver_internal_no_args_tests : MoonBitTestDriverInternalTestMa
   "complement.mbt": {
   },
   "codon_table.mbt": {
+  },
+  "clustal_io.mbt": {
   },
   "bio_seq_test.mbt": {
     0: (__test_62696f5f7365715f746573742e6d6274_0, ["construction and to_string"]),
@@ -444,6 +448,10 @@ let moonbit_test_driver_internal_no_args_tests : MoonBitTestDriverInternalTestMa
     27: (__test_62696f5f7365715f746573742e6d6274_27, ["complement_rna round trip"]),
   },
   "bio_seq.mbt": {
+  },
+  "alignio.mbt": {
+  },
+  "align.mbt": {
   },
   "README.mbt.md": {
   },

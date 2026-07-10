@@ -44,7 +44,9 @@ pub fn parse_fastq(content : String) -> Array[SeqRecord] raise SeqIOError {
     }
     if trimmed0 == 0 || line0.unsafe_get(0) != at {
       let line0_str = line0.to_owned()
-      raise SeqIOError("Expected '@' at start of FASTQ header, got: " + line0_str)
+      raise SeqIOError(
+        "Expected '@' at start of FASTQ header, got: " + line0_str,
+      )
     }
 
     let len2 = line2.length()
@@ -54,7 +56,9 @@ pub fn parse_fastq(content : String) -> Array[SeqRecord] raise SeqIOError {
     }
     if trimmed2 == 0 || line2.unsafe_get(0) != plus {
       let line2_str = line2.to_owned()
-      raise SeqIOError("Expected '+' at start of FASTQ separator, got: " + line2_str)
+      raise SeqIOError(
+        "Expected '+' at start of FASTQ separator, got: " + line2_str,
+      )
     }
 
     let len1 = line1.length()
@@ -71,8 +75,10 @@ pub fn parse_fastq(content : String) -> Array[SeqRecord] raise SeqIOError {
 
     if trimmed1 != trimmed3 {
       raise SeqIOError(
-        "Sequence length " + trimmed1.to_string() +
-        " and quality length " + trimmed3.to_string() +
+        "Sequence length " +
+        trimmed1.to_string() +
+        " and quality length " +
+        trimmed3.to_string() +
         " don't match in FASTQ record",
       )
     }

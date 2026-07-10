@@ -25,6 +25,7 @@
 /// Mirrors BioPython's SeqIO.parse(handle, "genbank").
 /// Extracts: id (VERSION), name (LOCUS), description (DEFINITION),
 /// and sequence (ORIGIN section). Multiple records separated by '//'.
+
 ///|
 /// Precomputed uppercase conversion table for ASCII letters.
 /// 0 means "pass through unchanged".
@@ -53,11 +54,12 @@ pub fn parse_genbank(content : String) -> Array[SeqRecord] {
     if len > 0 && line.unsafe_get(len - 1) == cr {
       trimmed = len - 1
     }
-    if trimmed >= 5 && line.unsafe_get(0) == 'L'.to_int().to_uint16() &&
-       line.unsafe_get(1) == 'O'.to_int().to_uint16() &&
-       line.unsafe_get(2) == 'C'.to_int().to_uint16() &&
-       line.unsafe_get(3) == 'U'.to_int().to_uint16() &&
-       line.unsafe_get(4) == 'S'.to_int().to_uint16() {
+    if trimmed >= 5 &&
+      line.unsafe_get(0) == 'L'.to_int().to_uint16() &&
+      line.unsafe_get(1) == 'O'.to_int().to_uint16() &&
+      line.unsafe_get(2) == 'C'.to_int().to_uint16() &&
+      line.unsafe_get(3) == 'U'.to_int().to_uint16() &&
+      line.unsafe_get(4) == 'S'.to_int().to_uint16() {
       let mut name = "<unknown>"
       let mut id = "<unknown id>"
       let mut description = "<unknown description>"
@@ -85,20 +87,22 @@ pub fn parse_genbank(content : String) -> Array[SeqRecord] {
         if ll > 0 && l.unsafe_get(ll - 1) == cr {
           lt = ll - 1
         }
-        if lt >= 2 && l.unsafe_get(0) == '/'.to_int().to_uint16() &&
-           l.unsafe_get(1) == '/'.to_int().to_uint16() {
+        if lt >= 2 &&
+          l.unsafe_get(0) == '/'.to_int().to_uint16() &&
+          l.unsafe_get(1) == '/'.to_int().to_uint16() {
           break
         }
-        if lt >= 10 && l.unsafe_get(0) == 'D'.to_int().to_uint16() &&
-           l.unsafe_get(1) == 'E'.to_int().to_uint16() &&
-           l.unsafe_get(2) == 'F'.to_int().to_uint16() &&
-           l.unsafe_get(3) == 'I'.to_int().to_uint16() &&
-           l.unsafe_get(4) == 'N'.to_int().to_uint16() &&
-           l.unsafe_get(5) == 'I'.to_int().to_uint16() &&
-           l.unsafe_get(6) == 'T'.to_int().to_uint16() &&
-           l.unsafe_get(7) == 'I'.to_int().to_uint16() &&
-           l.unsafe_get(8) == 'O'.to_int().to_uint16() &&
-           l.unsafe_get(9) == 'N'.to_int().to_uint16() {
+        if lt >= 10 &&
+          l.unsafe_get(0) == 'D'.to_int().to_uint16() &&
+          l.unsafe_get(1) == 'E'.to_int().to_uint16() &&
+          l.unsafe_get(2) == 'F'.to_int().to_uint16() &&
+          l.unsafe_get(3) == 'I'.to_int().to_uint16() &&
+          l.unsafe_get(4) == 'N'.to_int().to_uint16() &&
+          l.unsafe_get(5) == 'I'.to_int().to_uint16() &&
+          l.unsafe_get(6) == 'T'.to_int().to_uint16() &&
+          l.unsafe_get(7) == 'I'.to_int().to_uint16() &&
+          l.unsafe_get(8) == 'O'.to_int().to_uint16() &&
+          l.unsafe_get(9) == 'N'.to_int().to_uint16() {
           let def_part = l[10:lt]
           let mut dj = 0
           let dpl = def_part.length()
@@ -128,18 +132,19 @@ pub fn parse_genbank(content : String) -> Array[SeqRecord] {
           }
           description = def_buf.to_string()
           if description.length() > 0 &&
-             description.unsafe_get(description.length() - 1) == dot {
+            description.unsafe_get(description.length() - 1) == dot {
             description = description[0:description.length() - 1].to_owned()
           }
           continue
         }
-        if lt >= 7 && l.unsafe_get(0) == 'V'.to_int().to_uint16() &&
-           l.unsafe_get(1) == 'E'.to_int().to_uint16() &&
-           l.unsafe_get(2) == 'R'.to_int().to_uint16() &&
-           l.unsafe_get(3) == 'S'.to_int().to_uint16() &&
-           l.unsafe_get(4) == 'I'.to_int().to_uint16() &&
-           l.unsafe_get(5) == 'O'.to_int().to_uint16() &&
-           l.unsafe_get(6) == 'N'.to_int().to_uint16() {
+        if lt >= 7 &&
+          l.unsafe_get(0) == 'V'.to_int().to_uint16() &&
+          l.unsafe_get(1) == 'E'.to_int().to_uint16() &&
+          l.unsafe_get(2) == 'R'.to_int().to_uint16() &&
+          l.unsafe_get(3) == 'S'.to_int().to_uint16() &&
+          l.unsafe_get(4) == 'I'.to_int().to_uint16() &&
+          l.unsafe_get(5) == 'O'.to_int().to_uint16() &&
+          l.unsafe_get(6) == 'N'.to_int().to_uint16() {
           let ver_part = l[7:lt]
           let mut vj = 0
           let vpl = ver_part.length()
@@ -152,12 +157,13 @@ pub fn parse_genbank(content : String) -> Array[SeqRecord] {
           }
           id = ver_part[vj:vid_end].to_owned()
         }
-        if lt >= 6 && l.unsafe_get(0) == 'O'.to_int().to_uint16() &&
-           l.unsafe_get(1) == 'R'.to_int().to_uint16() &&
-           l.unsafe_get(2) == 'I'.to_int().to_uint16() &&
-           l.unsafe_get(3) == 'G'.to_int().to_uint16() &&
-           l.unsafe_get(4) == 'I'.to_int().to_uint16() &&
-           l.unsafe_get(5) == 'N'.to_int().to_uint16() {
+        if lt >= 6 &&
+          l.unsafe_get(0) == 'O'.to_int().to_uint16() &&
+          l.unsafe_get(1) == 'R'.to_int().to_uint16() &&
+          l.unsafe_get(2) == 'I'.to_int().to_uint16() &&
+          l.unsafe_get(3) == 'G'.to_int().to_uint16() &&
+          l.unsafe_get(4) == 'I'.to_int().to_uint16() &&
+          l.unsafe_get(5) == 'N'.to_int().to_uint16() {
           in_origin = true
           i = i + 1
           continue
@@ -176,7 +182,8 @@ pub fn parse_genbank(content : String) -> Array[SeqRecord] {
             if c >= 'a'.to_int().to_uint16() && c <= 'z'.to_int().to_uint16() {
               seq_buf[seq_len] = uppercase_table[c.to_int()]
               seq_len = seq_len + 1
-            } else if c >= 'A'.to_int().to_uint16() && c <= 'Z'.to_int().to_uint16() {
+            } else if c >= 'A'.to_int().to_uint16() &&
+              c <= 'Z'.to_int().to_uint16() {
               seq_buf[seq_len] = c
               seq_len = seq_len + 1
             }

@@ -35,6 +35,48 @@ fn bench(label : String, iters : Int, f : () -> Unit) -> Double {
 }
 
 ///|
+
+///|
+/// Generate a FASTA string with `n_records` records, each of length `seq_len`.
+fn gen_fasta(n_records : Int, seq_len : Int) -> String {
+  let buf = StringBuilder::new()
+  for i = 0; i < n_records; i = i + 1 {
+    buf.write_char('>')
+    buf.write_string("seq")
+    buf.write_string(i.to_string())
+    buf.write_string(" Description for sequence ")
+    buf.write_string(i.to_string())
+    buf.write_char('\n')
+    let seq = gen_dna(seq_len)
+    buf.write_string(seq)
+    buf.write_char('\n')
+  }
+  buf.to_string()
+}
+
+///|
+/// Generate a FASTQ string with `n_records` records, each of length `seq_len`.
+fn gen_fastq(n_records : Int, seq_len : Int) -> String {
+  let buf = StringBuilder::new()
+  for i = 0; i < n_records; i = i + 1 {
+    buf.write_char('@')
+    buf.write_string("seq")
+    buf.write_string(i.to_string())
+    buf.write_string(" Description ")
+    buf.write_string(i.to_string())
+    buf.write_char('\n')
+    buf.write_string(gen_dna(seq_len))
+    buf.write_char('\n')
+    buf.write_string("+\n")
+    for j = 0; j < seq_len; j = j + 1 {
+      buf.write_char('I')
+    }
+    buf.write_char('\n')
+  }
+  buf.to_string()
+}
+
+///|
 fn main {
   let dna = gen_dna(100_000)
   let rna = gen_dna(100_000).replace_all(old="T", new="U")
@@ -107,6 +149,74 @@ fn main {
   ignore(
     bench("replace A->N", iters_small, fn() {
       ignore(s.replace(old="A", new="N"))
+    }),
+  )
+
+  // ---------------------------------------------------------------------------
+  // SeqIO benchmarks
+  // ---------------------------------------------------------------------------
+  println("")
+  println("=== MoonBit SeqIO benchmark ===")
+  println("")
+
+  let fasta_content = gen_fasta(100, 1000)
+  let fastq_content = gen_fastq(100, 1000)
+
+  // FASTA parse
+  ignore(
+    bench("parse_fasta (100x1000)", iters_small, fn() {
+      ignore(@lib.parse_fasta(fasta_content))
+    }),
+  )
+
+  // FASTA write
+  let fasta_records = @lib.parse_fasta(fasta_content)
+  ignore(
+    bench("write_fasta (100x1000)", iters_small, fn() {
+      ignore(@lib.write_fasta(fasta_records))
+    }),
+  )
+
+  // FASTQ parse
+  ignore(
+    bench("parse_fastq (100x1000)", iters_small, fn() {
+      ignore(@lib.parse_fastq(fastq_content)) catch {
+        _ => ()
+      }
+    }),
+  )
+
+  // FASTQ write
+  let fq_records = @lib.parse_fastq(fastq_content) catch { _ => Array::new() }
+  ignore(
+    bench("write_fastq (100x1000)", iters_small, fn() {
+      ignore(@lib.write_fastq(fq_records)) catch {
+        _ => ()
+      }
+    }),
+  )
+
+  // seqio_parse dispatch
+  ignore(
+    bench("seqio_parse fasta", iters_small, fn() {
+      ignore(@lib.seqio_parse(fasta_content, "fasta")) catch {
+        _ => ()
+      }
+    }),
+  )
+
+  ignore(
+    bench("seqio_parse fastq", iters_small, fn() {
+      ignore(@lib.seqio_parse(fastq_content, "fastq")) catch {
+        _ => ()
+      }
+    }),
+  )
+
+  // seqio_to_dict
+  ignore(
+    bench("seqio_to_dict", iters_small, fn() {
+      ignore(@lib.seqio_to_dict(fasta_records))
     }),
   )
 

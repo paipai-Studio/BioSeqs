@@ -35,6 +35,7 @@ fn bench(label : String, iters : Int, f : () -> Unit) -> Double {
 }
 
 ///|
+
 ///|
 /// Generate a FASTA string with `n_records` records, each of length `seq_len`.
 fn gen_fasta(n_records : Int, seq_len : Int) -> String {
@@ -179,7 +180,9 @@ fn main {
   // FASTQ parse
   ignore(
     bench("parse_fastq (100x1000)", iters_small, fn() {
-      ignore(@lib.parse_fastq(fastq_content)) catch { _ => () }
+      ignore(@lib.parse_fastq(fastq_content)) catch {
+        _ => ()
+      }
     }),
   )
 
@@ -187,20 +190,26 @@ fn main {
   let fq_records = @lib.parse_fastq(fastq_content) catch { _ => Array::new() }
   ignore(
     bench("write_fastq (100x1000)", iters_small, fn() {
-      ignore(@lib.write_fastq(fq_records)) catch { _ => () }
+      ignore(@lib.write_fastq(fq_records)) catch {
+        _ => ()
+      }
     }),
   )
 
   // seqio_parse dispatch
   ignore(
     bench("seqio_parse fasta", iters_small, fn() {
-      ignore(@lib.seqio_parse(fasta_content, "fasta")) catch { _ => () }
+      ignore(@lib.seqio_parse(fasta_content, "fasta")) catch {
+        _ => ()
+      }
     }),
   )
 
   ignore(
     bench("seqio_parse fastq", iters_small, fn() {
-      ignore(@lib.seqio_parse(fastq_content, "fastq")) catch { _ => () }
+      ignore(@lib.seqio_parse(fastq_content, "fastq")) catch {
+        _ => ()
+      }
     }),
   )
 

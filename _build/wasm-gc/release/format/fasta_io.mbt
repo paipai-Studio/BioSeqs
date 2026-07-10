@@ -19,45 +19,53 @@ let fasta_line_width : Int = 60
 ///|
 /// Parse FASTA format text and return an array of SeqRecord objects.
 ///
-/// Mirrors BioPython's SimpleFastaParser + SeqIO.parse(handle, "fasta").
-/// - The title line (after '>') is split at the first whitespace: the first
-///   token becomes `id`, the whole title becomes `description`.
-/// - `name` is set equal to `id`.
-/// - Sequence lines are concatenated (whitespace stripped).
+/// Optimized: single pass over the content, minimal allocations.
+/// Uses StringBuilder for sequences instead of repeated String operations.
 pub fn parse_fasta(content : String) -> Array[SeqRecord] {
   let records = Array::new()
   let lines = content.split("\n").to_array()
   let mut current_title : String? = None
   let mut current_seq = StringBuilder::new()
-  // Walk lines; when we hit a '>' line, flush the previous record.
+  let gt : UInt16 = '>'.to_int().to_uint16()
+  let cr : UInt16 = '\r'.to_int().to_uint16()
+  let sp : UInt16 = ' '.to_int().to_uint16()
+  let tab : UInt16 = '\t'.to_int().to_uint16()
+
   for line in lines {
-    let view = line.trim_end(chars="\r")
-    let trimmed = view.to_owned()
-    if trimmed.length() > 0 && trimmed.unsafe_get(0) == '>'.to_int().to_uint16() {
-      // Flush previous record
+    let n = line.length()
+    let mut trimmed_len = n
+    if n > 0 && line.unsafe_get(n - 1) == cr {
+      trimmed_len = n - 1
+    }
+    if trimmed_len == 0 {
+      continue
+    }
+    if line.unsafe_get(0) == gt {
       match current_title {
-        Some(title) => {
-          let seq_str = current_seq.to_string()
-          records.push(fasta_title_to_record(title, seq_str))
-        }
+        Some(title) =>
+          records.push(fasta_title_to_record(title, current_seq.to_string()))
         None => ()
       }
-      current_title = Some(trimmed[1:].to_owned())
+      current_title = Some(
+        if trimmed_len > 1 {
+          line[1:trimmed_len].to_owned()
+        } else {
+          ""
+        },
+      )
       current_seq = StringBuilder::new()
     } else {
-      // Sequence line — strip all whitespace and append
-      let seq_part = trimmed.replace(old=" ", new="").replace(old="\t", new="")
-      if seq_part.length() > 0 {
-        current_seq.write_string(seq_part)
+      for i = 0; i < trimmed_len; i = i + 1 {
+        let c = line.unsafe_get(i)
+        if c != sp && c != tab {
+          current_seq.write_char(c.unsafe_to_char())
+        }
       }
     }
   }
-  // Flush last record
   match current_title {
-    Some(title) => {
-      let seq_str = current_seq.to_string()
-      records.push(fasta_title_to_record(title, seq_str))
-    }
+    Some(title) =>
+      records.push(fasta_title_to_record(title, current_seq.to_string()))
     None => ()
   }
   records

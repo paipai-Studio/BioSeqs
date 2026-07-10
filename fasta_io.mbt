@@ -42,12 +42,17 @@ pub fn parse_fasta(content : String) -> Array[SeqRecord] {
     }
     if line.unsafe_get(0) == gt {
       match current_title {
-        Some(title) => {
+        Some(title) =>
           records.push(fasta_title_to_record(title, current_seq.to_string()))
-        }
         None => ()
       }
-      current_title = Some(if trimmed_len > 1 { line[1:trimmed_len].to_owned() } else { "" })
+      current_title = Some(
+        if trimmed_len > 1 {
+          line[1:trimmed_len].to_owned()
+        } else {
+          ""
+        },
+      )
       current_seq = StringBuilder::new()
     } else {
       for i = 0; i < trimmed_len; i = i + 1 {
@@ -59,9 +64,8 @@ pub fn parse_fasta(content : String) -> Array[SeqRecord] {
     }
   }
   match current_title {
-    Some(title) => {
+    Some(title) =>
       records.push(fasta_title_to_record(title, current_seq.to_string()))
-    }
     None => ()
   }
   records

@@ -413,8 +413,14 @@ pub fn Seq::translate(
 ) -> Seq raise SeqError {
   let seq = self.data.to_upper()
   let n = seq.length()
-  let amino = StringBuilder::new(size_hint=n / 3)
-  // CDS validation (BioPython _translate_str cds branch).
+  let max_amino = n / 3
+  let amino_buf : FixedArray[UInt16] = FixedArray::make(max_amino, 0)
+  let mut amino_len = 0
+  let stop_code = stop_symbol.to_int().to_uint16()
+  let gap_code = gap.to_int().to_uint16()
+  let m_code = 'M'.to_int().to_uint16()
+  let x_code = 'X'.to_int().to_uint16()
+
   if cds {
     if !is_start_codon_at(seq, 0) {
       let first_codon = codon_to_string(seq, 0)
@@ -429,8 +435,8 @@ pub fn Seq::translate(
       let last_codon = codon_to_string(seq, n - 3)
       raise SeqError("Final codon '" + last_codon + "' is not a stop codon")
     }
-    // Skip start (M) and stop codons.
-    amino.write_char('M')
+    amino_buf[0] = m_code
+    amino_len = 1
     let mut i = 3
     let stop = n - 3
     while i < stop {
@@ -439,12 +445,17 @@ pub fn Seq::translate(
         raise SeqError("Extra in frame stop codon '" + codon + "' found.")
       }
       match lookup_codon(seq, i) {
-        Some(aa) => amino.write_char(aa)
+        Some(aa) => {
+          amino_buf[amino_len] = aa.to_int().to_uint16()
+          amino_len = amino_len + 1
+        }
         None =>
           if all_valid_letters_at(seq, i) {
-            amino.write_char('X')
+            amino_buf[amino_len] = x_code
+            amino_len = amino_len + 1
           } else if is_gap_codon_at(seq, i, gap) {
-            amino.write_char(gap)
+            amino_buf[amino_len] = gap_code
+            amino_len = amino_len + 1
           } else {
             let codon = codon_to_string(seq, i)
             raise SeqError("Codon '" + codon + "' is invalid")
@@ -452,23 +463,36 @@ pub fn Seq::translate(
       }
       i = i + 3
     }
-    return Seq::{ data: amino.to_string() }
+    let final_buf : FixedArray[UInt16] = FixedArray::make(amino_len, 0)
+    for k = 0; k < amino_len; k = k + 1 {
+      final_buf[k] = amino_buf[k]
+    }
+    return Seq::{ data: unsafe_from_uint16_fixedarray(final_buf) }
   }
-  // Non-CDS path.
   let mut i = 0
   while i < n - n % 3 {
     match lookup_codon(seq, i) {
-      Some(aa) => amino.write_char(aa)
+      Some(aa) => {
+        amino_buf[amino_len] = aa.to_int().to_uint16()
+        amino_len = amino_len + 1
+      }
       None =>
         if is_stop_codon_at(seq, i) {
           if to_stop {
-            return Seq::{ data: amino.to_string() }
+            let final_buf : FixedArray[UInt16] = FixedArray::make(amino_len, 0)
+            for k = 0; k < amino_len; k = k + 1 {
+              final_buf[k] = amino_buf[k]
+            }
+            return Seq::{ data: unsafe_from_uint16_fixedarray(final_buf) }
           }
-          amino.write_char(stop_symbol)
+          amino_buf[amino_len] = stop_code
+          amino_len = amino_len + 1
         } else if all_valid_letters_at(seq, i) {
-          amino.write_char('X')
+          amino_buf[amino_len] = x_code
+          amino_len = amino_len + 1
         } else if is_gap_codon_at(seq, i, gap) {
-          amino.write_char(gap)
+          amino_buf[amino_len] = gap_code
+          amino_len = amino_len + 1
         } else {
           let codon = codon_to_string(seq, i)
           raise SeqError("Codon '" + codon + "' is invalid")
@@ -476,7 +500,11 @@ pub fn Seq::translate(
     }
     i = i + 3
   }
-  Seq::{ data: amino.to_string() }
+  let final_buf : FixedArray[UInt16] = FixedArray::make(amino_len, 0)
+  for k = 0; k < amino_len; k = k + 1 {
+    final_buf[k] = amino_buf[k]
+  }
+  Seq::{ data: unsafe_from_uint16_fixedarray(final_buf) }
 }
 
 ///|
