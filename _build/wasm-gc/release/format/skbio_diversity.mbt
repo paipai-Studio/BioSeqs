@@ -234,11 +234,14 @@ pub fn chao1_classic(counts : Array[Double]) -> Double {
 
 ///|
 /// ACE richness estimator.
+/// Merges two traversals into one by accumulating sum_c2 in the first pass,
+/// then deriving sum_p2 = sum_c2 / n_rare^2 without a second pass.
 pub fn ace(counts : Array[Double], rare_threshold : Int) -> Double {
   let mut s_rare = 0.0
   let mut s_abund = 0.0
   let mut n_rare = 0.0
   let mut f1 = 0.0
+  let mut sum_c2 = 0.0
   let threshold = rare_threshold.to_double()
 
   for c in counts {
@@ -246,6 +249,7 @@ pub fn ace(counts : Array[Double], rare_threshold : Int) -> Double {
       if c <= threshold {
         s_rare = s_rare + 1.0
         n_rare = n_rare + c
+        sum_c2 = sum_c2 + c * c
         if c == 1.0 {
           f1 = f1 + 1.0
         }
@@ -265,13 +269,8 @@ pub fn ace(counts : Array[Double], rare_threshold : Int) -> Double {
     return s_rare + s_abund
   }
 
-  let mut sum_p2 = 0.0
-  for c in counts {
-    if c > 0.0 && c <= threshold {
-      let p = c / n_rare
-      sum_p2 = sum_p2 + p * p
-    }
-  }
+  // sum_p2 = sum((c/n_rare)^2) = sum_c2 / n_rare^2
+  let sum_p2 = sum_c2 / (n_rare * n_rare)
 
   let gamma = if c_ace > 0.0 {
     let s_rare_val = s_rare / c_ace
@@ -706,45 +705,46 @@ pub fn canberra(counts1 : Array[Double], counts2 : Array[Double]) -> Double {
 
 ///|
 /// Faith's Phylogenetic Diversity (PD).
+/// Uses HashMap for O(1) taxon lookup at tip nodes.
 pub fn faith_pd(
   counts : Array[Double],
   taxa : Array[String],
   tree : TreeNode,
 ) -> Double {
-  let present_taxa : Array[String] = Array::new()
+  let present_set : @hashmap.HashMap[String, Bool] = @hashmap.HashMap::new()
   for i in 0..<counts.length() {
     if counts[i] > 0.0 && i < taxa.length() {
-      present_taxa.push(taxa[i])
+      present_set.set(taxa[i], true)
     }
   }
 
-  if present_taxa.length() == 0 {
+  if present_set.is_empty() {
     return 0.0
   }
 
-  compute_pd(tree, present_taxa)
+  compute_pd(tree, present_set)
 }
 
 ///|
-fn compute_pd(tree : TreeNode, present : Array[String]) -> Double {
+fn compute_pd(
+  tree : TreeNode,
+  present : @hashmap.HashMap[String, Bool],
+) -> Double {
   let (pd, _) = pd_helper(tree, present)
   pd
 }
 
 ///|
-fn pd_helper(node : TreeNode, present : Array[String]) -> (Double, Bool) {
+fn pd_helper(
+  node : TreeNode,
+  present : @hashmap.HashMap[String, Bool],
+) -> (Double, Bool) {
   let mut total_pd = 0.0
   let mut has_present = false
 
   if node.is_tip() {
     match node.name {
-      Some(name) =>
-        for taxon in present {
-          if taxon == name {
-            has_present = true
-            break
-          }
-        }
+      Some(name) => has_present = present.contains(name)
       None => ()
     }
     (total_pd, has_present)
@@ -782,10 +782,10 @@ pub fn hill(counts : Array[Double], q : Double) -> Double {
     for c in counts {
       if c > 0.0 {
         let p = c / total
-        sum_pq = sum_pq + p.pow(q)
+        sum_pq = sum_pq + @math.pow(p, q)
       }
     }
-    sum_pq.pow(1.0 / (1.0 - q))
+    @math.pow(sum_pq, 1.0 / (1.0 - q))
   }
 }
 
@@ -806,7 +806,7 @@ pub fn renyi(counts : Array[Double], q : Double) -> Double {
     for c in counts {
       if c > 0.0 {
         let p = c / total
-        sum_pq = sum_pq + p.pow(q)
+        sum_pq = sum_pq + @math.pow(p, q)
       }
     }
     @math.ln(sum_pq) / (1.0 - q)
@@ -828,7 +828,7 @@ pub fn tsallis(counts : Array[Double], q : Double) -> Double {
     for c in counts {
       if c > 0.0 {
         let p = c / total
-        sum_pq = sum_pq + p.pow(q)
+        sum_pq = sum_pq + @math.pow(p, q)
       }
     }
     (1.0 - sum_pq) / (q - 1.0)

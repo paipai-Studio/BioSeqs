@@ -42,19 +42,20 @@ pub fn TreeNode::num_children(self : TreeNode) -> Int {
 
 ///|
 /// Find the lowest common ancestor of nodes by names.
-/// Uses path-based algorithm: finds paths from root to each target,
-/// then returns the last common node on all paths.
+/// Uses backtracking path search to avoid intermediate array allocations.
 pub fn TreeNode::lca(self : TreeNode, names : Array[String]) -> TreeNode? {
   if names.length() == 0 {
     return None
   }
 
-  // Find paths from root to each target node
+  // Find paths from root to each target node using backtracking
   let paths : Array[Array[TreeNode]] = Array::new()
   for name in names {
-    match self.find_path(name) {
-      Some(path) => paths.push(path)
-      None => return None
+    let path = Array::new()
+    if find_path_backtrack(self, name, path) {
+      paths.push(path)
+    } else {
+      return None
     }
   }
 
@@ -90,28 +91,36 @@ pub fn TreeNode::lca(self : TreeNode, names : Array[String]) -> TreeNode? {
 }
 
 ///|
+/// Backtracking path search: appends nodes to path as it descends,
+/// removes them if the branch doesn't contain the target.
+fn find_path_backtrack(
+  node : TreeNode,
+  name : String,
+  path : Array[TreeNode],
+) -> Bool {
+  path.push(node)
+  if node.name == Some(name) {
+    return true
+  }
+  for child in node.children {
+    if find_path_backtrack(child, name, path) {
+      return true
+    }
+  }
+  ignore(path.remove(path.length() - 1))
+  false
+}
+
+///|
 /// Find the path from this node to a node with the given name.
 /// Returns the path as an array of TreeNodes from root to target.
 pub fn TreeNode::find_path(self : TreeNode, name : String) -> Array[TreeNode]? {
-  if self.name == Some(name) {
-    let path = Array::new()
-    path.push(self)
-    return Some(path)
+  let path = Array::new()
+  if find_path_backtrack(self, name, path) {
+    Some(path)
+  } else {
+    None
   }
-  for child in self.children {
-    match child.find_path(name) {
-      Some(child_path) => {
-        let path = Array::new()
-        path.push(self)
-        for node in child_path {
-          path.push(node)
-        }
-        return Some(path)
-      }
-      None => ()
-    }
-  }
-  None
 }
 
 ///|
