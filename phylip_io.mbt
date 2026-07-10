@@ -180,6 +180,7 @@ pub fn write_phylip(align : MultipleSeqAlignment) -> String {
   let n_seqs = records.length()
   let n_cols = align.get_alignment_length()
 
+  buf.write_char(' ')
   buf.write_string(n_seqs.to_string())
   buf.write_char(' ')
   buf.write_string(n_cols.to_string())
@@ -187,6 +188,7 @@ pub fn write_phylip(align : MultipleSeqAlignment) -> String {
 
   let line_width = 60
   let name_width = 10
+  let group_size = 10
 
   let mut pos = 0
   while pos < n_cols {
@@ -198,12 +200,23 @@ pub fn write_phylip(align : MultipleSeqAlignment) -> String {
         rec.id + " ".repeat(name_width - rec.id.length())
       }
       buf.write_string(name)
-      let seq_slice = rec.seq.to_string()[pos:end].to_owned()
       buf.write_char(' ')
-      buf.write_string(seq_slice)
+      let seq_str = rec.seq.to_string()
+      let mut i = pos
+      while i < end {
+        let gend = if i + group_size < end { i + group_size } else { end }
+        buf.write_string(seq_str[i:gend].to_owned())
+        if gend < end {
+          buf.write_char(' ')
+        }
+        i = gend
+      }
+      buf.write_char(' ')
       buf.write_char('\n')
     }
-    buf.write_char('\n')
+    if pos + line_width < n_cols {
+      buf.write_char('\n')
+    }
     pos = end
   }
   buf.to_string()

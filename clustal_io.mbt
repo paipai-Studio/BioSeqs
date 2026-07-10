@@ -103,23 +103,30 @@ pub fn parse_clustal(
 /// Write a MultipleSeqAlignment to ClustalW format text.
 pub fn write_clustal(align : MultipleSeqAlignment) -> String {
   let buf = StringBuilder::new()
-  buf.write_string("CLUSTAL\n\n")
+  buf.write_string("CLUSTAL X (1.81) multiple sequence alignment\n\n\n")
 
   let records = align.iter()
   let n_cols = align.get_alignment_length()
   let line_width = 60
+  let id_padding = 36
 
   let mut pos = 0
   while pos < n_cols {
     let end = if pos + line_width < n_cols { pos + line_width } else { n_cols }
     for rec in records {
       buf.write_string(rec.id)
-      buf.write_string("        ")
+      let padding = id_padding - rec.id.length()
+      if padding > 0 {
+        buf.write_string(" ".repeat(padding))
+      } else {
+        buf.write_char(' ')
+      }
       buf.write_string(rec.seq.to_string()[pos:end].to_owned())
       buf.write_char('\n')
     }
     buf.write_char('\n')
     pos = end
   }
+  buf.write_char('\n')
   buf.to_string()
 }
