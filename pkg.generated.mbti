@@ -2,6 +2,10 @@
 package "biolab/bio_seq"
 
 // Values
+pub fn ace(Array[Double], Int) -> Double
+
+pub fn ace_default(Array[Double]) -> Double
+
 pub fn align_score(TabularMSA) -> Double
 
 pub fn alignio_parse(String, String) -> Array[MultipleSeqAlignment] raise AlignIOError
@@ -10,21 +14,77 @@ pub fn alignio_read(String, String) -> MultipleSeqAlignment raise AlignIOError
 
 pub fn alignio_write(Array[MultipleSeqAlignment], String) -> String raise AlignIOError
 
+pub fn berger_parker(Array[Double]) -> Double
+
+pub fn berger_parker_d(Array[Double]) -> Double
+
+pub fn braycurtis(Array[Double], Array[Double]) -> Double
+
+pub fn brillouin_d(Array[Double]) -> Double
+
 pub fn bytes_to_base64(Array[Int]) -> String
 
+pub fn canberra(Array[Double], Array[Double]) -> Double
+
+pub fn chao1(Array[Double]) -> Double
+
+pub fn chao1_classic(Array[Double]) -> Double
+
+pub fn chebyshev(Array[Double], Array[Double]) -> Double
+
+pub fn cosine(Array[Double], Array[Double]) -> Double
+
+pub fn cosine_distance(Array[Double], Array[Double]) -> Double
+
 pub fn crc32(String) -> Int
+
+pub fn dominance(Array[Double]) -> Double
+
+pub fn doubles(Array[Double]) -> Int
+
+pub fn euclidean(Array[Double], Array[Double]) -> Double
+
+pub fn faith_pd(Array[Double], Array[String], TreeNode) -> Double
+
+pub fn fisher_alpha(Array[Double]) -> Double
 
 pub fn gc(String) -> Double
 
 pub fn gcg(String) -> Int
 
+pub fn gini_simpson(Array[Double]) -> Double
+
 pub fn global_pairwise_align_nucleotide(DNA, DNA, gap_open_penalty? : Double, gap_extend_penalty? : Double, match_score? : Double, mismatch_score? : Double) -> (TabularMSA, Double, (Int, Int), (Int, Int)) raise AlignError
 
 pub fn global_pairwise_align_protein(Protein, Protein, gap_open_penalty? : Double, gap_extend_penalty? : Double) -> (TabularMSA, Double, (Int, Int), (Int, Int)) raise AlignError
 
+pub fn goods_coverage(Array[Double]) -> Double
+
+pub fn heip_e(Array[Double]) -> Double
+
+pub fn hill(Array[Double], Double) -> Double
+
+pub fn inv_simpson(Array[Double]) -> Double
+
+pub fn jaccard(Array[Double], Array[Double]) -> Double
+
 pub fn local_pairwise_align_nucleotide(DNA, DNA, gap_open_penalty? : Double, gap_extend_penalty? : Double, match_score? : Double, mismatch_score? : Double) -> (TabularMSA, Double, (Int, Int), (Int, Int)) raise AlignError
 
 pub fn local_pairwise_align_protein(Protein, Protein, gap_open_penalty? : Double, gap_extend_penalty? : Double) -> (TabularMSA, Double, (Int, Int), (Int, Int)) raise AlignError
+
+pub fn manhattan(Array[Double], Array[Double]) -> Double
+
+pub fn margalef(Array[Double]) -> Double
+
+pub fn mcintosh_d(Array[Double]) -> Double
+
+pub fn mcintosh_e(Array[Double]) -> Double
+
+pub fn menhinick(Array[Double]) -> Double
+
+pub fn observed_features(Array[Double]) -> Int
+
+pub fn observed_otus(Array[Double]) -> Int
 
 pub fn parse_clustal(String) -> MultipleSeqAlignment raise AlignIOError
 
@@ -42,6 +102,12 @@ pub fn parse_phylip(String) -> MultipleSeqAlignment raise AlignIOError
 
 pub fn parse_phylip_sequential(String) -> MultipleSeqAlignment raise AlignIOError
 
+pub fn pielou_e(Array[Double]) -> Double
+
+pub fn renyi(Array[Double], Double) -> Double
+
+pub fn robbins(Array[Double]) -> Double
+
 pub fn seguid(String) -> String
 
 pub fn seqio_parse(String, String) -> Array[SeqRecord] raise SeqIOError
@@ -56,11 +122,27 @@ pub fn sha1(Array[Int]) -> Array[Int]
 
 pub fn sha1_string(String) -> Array[Int]
 
+pub fn shannon(Array[Double]) -> Double
+
+pub fn shannon_base(Array[Double], Double) -> Double
+
+pub fn simpson(Array[Double]) -> Double
+
+pub fn simpson_d(Array[Double]) -> Double
+
+pub fn simpson_e(Array[Double]) -> Double
+
+pub fn singles(Array[Double]) -> Int
+
+pub fn sobs(Array[Double]) -> Int
+
 pub fn string_to_bytes(String) -> Array[Int]
 
 pub fn tm_gc(String) -> Double
 
 pub fn tm_wallace(String) -> Double
+
+pub fn tsallis(Array[Double], Double) -> Double
 
 pub fn write_clustal(MultipleSeqAlignment) -> String
 
