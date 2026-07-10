@@ -212,45 +212,6 @@ pub fn bytes_to_base64(bytes : Array[Int]) -> String {
   final_result
 }
 
-fn u32_and(a : Int, b : Int) -> Int {
-  (a & b) & 0xFFFFFFFF
-}
-
-fn u32_or(a : Int, b : Int) -> Int {
-  (a | b) & 0xFFFFFFFF
-}
-
-fn u32_xor(a : Int, b : Int) -> Int {
-  (a ^ b) & 0xFFFFFFFF
-}
-
-fn u32_add(a : Int, b : Int) -> Int {
-  (a + b) & 0xFFFFFFFF
-}
-
-fn u32_shl(a : Int, shift : Int) -> Int {
-  ((a & 0xFFFFFFFF) << shift) & 0xFFFFFFFF
-}
-
-fn u32_shr(a : Int, shift : Int) -> Int {
-  let x = a & 0xFFFFFFFF
-  if x >= 0 {
-    x >> shift
-  } else {
-    let shifted = x >> shift
-    let mask = (1 << (32 - shift)) - 1
-    shifted & mask
-  }
-}
-
-fn u32_rotl(x : Int, shift : Int) -> Int {
-  u32_or(u32_shl(x, shift), u32_shr(x, 32 - shift))
-}
-
-fn u32_not(x : Int) -> Int {
-  u32_xor(x, -1)
-}
-
 pub fn sha1(message : Array[Int]) -> Array[Int] {
   let mut h0 = 0x67452301
   let mut h1 = -271733879
@@ -288,15 +249,16 @@ pub fn sha1(message : Array[Int]) -> Array[Int] {
       let b1 = if idx + 1 < padded.length() { padded[idx + 1] } else { 0 }
       let b2 = if idx + 2 < padded.length() { padded[idx + 2] } else { 0 }
       let b3 = if idx + 3 < padded.length() { padded[idx + 3] } else { 0 }
-      let word = u32_or(u32_or(u32_or(u32_shl(b0, 24), u32_shl(b1, 16)), u32_shl(b2, 8)), b3)
+      let word = ((b0 << 24) & 0xFF000000) | ((b1 << 16) & 0x00FF0000) | ((b2 << 8) & 0x0000FF00) | (b3 & 0x000000FF)
       w.push(word)
       j = j + 1
     }
 
     j = 16
     while j < 80 {
-      let s = u32_xor(u32_xor(u32_xor(w[j - 3], w[j - 8]), w[j - 14]), w[j - 16])
-      w.push(u32_rotl(s, 1))
+      let s = (w[j - 3] ^ w[j - 8] ^ w[j - 14] ^ w[j - 16]) & 0xFFFFFFFF
+      let rot = ((s << 1) & 0xFFFFFFFF) | ((s >> 31) & 1)
+      w.push(rot)
       j = j + 1
     }
 
@@ -311,58 +273,60 @@ pub fn sha1(message : Array[Int]) -> Array[Int] {
       let mut f = 0
       let mut k_val = 0
       if j < 20 {
-        f = u32_or(u32_and(b, c), u32_and(u32_not(b), d))
+        f = ((b & c) | (((-1 ^ b) & 0xFFFFFFFF) & d)) & 0xFFFFFFFF
         k_val = 0x5A827999
       } else if j < 40 {
-        f = u32_xor(u32_xor(b, c), d)
+        f = (b ^ c ^ d) & 0xFFFFFFFF
         k_val = 0x6ED9EBA1
       } else if j < 60 {
-        f = u32_or(u32_or(u32_and(b, c), u32_and(b, d)), u32_and(c, d))
+        f = ((b & c) | (b & d) | (c & d)) & 0xFFFFFFFF
         k_val = -1894007588
       } else {
-        f = u32_xor(u32_xor(b, c), d)
+        f = (b ^ c ^ d) & 0xFFFFFFFF
         k_val = -899497514
       }
 
       let wj = w[j]
-      let temp = u32_add(u32_rotl(a, 5), u32_add(f, u32_add(e, u32_add(k_val, wj))))
+      let rot_a = (((a << 5) & 0xFFFFFFFF) | ((a >> 27) & 0x1F)) & 0xFFFFFFFF
+      let temp = (rot_a + f + e + k_val + wj) & 0xFFFFFFFF
       e = d
       d = c
-      c = u32_rotl(b, 30)
+      let rot_b = (((b << 30) & 0xFFFFFFFF) | ((b >> 2) & 0x3FFF)) & 0xFFFFFFFF
+      c = rot_b
       b = a
       a = temp
       j = j + 1
     }
 
-    h0 = u32_add(h0, a)
-    h1 = u32_add(h1, b)
-    h2 = u32_add(h2, c)
-    h3 = u32_add(h3, d)
-    h4 = u32_add(h4, e)
+    h0 = (h0 + a) & 0xFFFFFFFF
+    h1 = (h1 + b) & 0xFFFFFFFF
+    h2 = (h2 + c) & 0xFFFFFFFF
+    h3 = (h3 + d) & 0xFFFFFFFF
+    h4 = (h4 + e) & 0xFFFFFFFF
 
     block_idx = block_idx + 64
   }
 
   let result = Array::new()
-  result.push(u32_shr(h0, 24) & 255)
-  result.push(u32_shr(h0, 16) & 255)
-  result.push(u32_shr(h0, 8) & 255)
+  result.push((h0 >> 24) & 255)
+  result.push((h0 >> 16) & 255)
+  result.push((h0 >> 8) & 255)
   result.push(h0 & 255)
-  result.push(u32_shr(h1, 24) & 255)
-  result.push(u32_shr(h1, 16) & 255)
-  result.push(u32_shr(h1, 8) & 255)
+  result.push((h1 >> 24) & 255)
+  result.push((h1 >> 16) & 255)
+  result.push((h1 >> 8) & 255)
   result.push(h1 & 255)
-  result.push(u32_shr(h2, 24) & 255)
-  result.push(u32_shr(h2, 16) & 255)
-  result.push(u32_shr(h2, 8) & 255)
+  result.push((h2 >> 24) & 255)
+  result.push((h2 >> 16) & 255)
+  result.push((h2 >> 8) & 255)
   result.push(h2 & 255)
-  result.push(u32_shr(h3, 24) & 255)
-  result.push(u32_shr(h3, 16) & 255)
-  result.push(u32_shr(h3, 8) & 255)
+  result.push((h3 >> 24) & 255)
+  result.push((h3 >> 16) & 255)
+  result.push((h3 >> 8) & 255)
   result.push(h3 & 255)
-  result.push(u32_shr(h4, 24) & 255)
-  result.push(u32_shr(h4, 16) & 255)
-  result.push(u32_shr(h4, 8) & 255)
+  result.push((h4 >> 24) & 255)
+  result.push((h4 >> 16) & 255)
+  result.push((h4 >> 8) & 255)
   result.push(h4 & 255)
   result
 }
