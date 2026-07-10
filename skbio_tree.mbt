@@ -8,8 +8,7 @@ pub struct TreeNode {
   name : String?
   length : Double?
   support : Double?
-  parent : TreeNode?
-  children : Array[TreeNode]
+  pub children : Array[TreeNode]
 }
 
 ///|
@@ -18,16 +17,9 @@ pub fn TreeNode::new(
   name? : String? = None,
   length? : Double? = None,
   support? : Double? = None,
-  parent? : TreeNode? = None,
   children? : Array[TreeNode] = [],
 ) -> TreeNode {
-  TreeNode::{ name, length, support, parent, children }
-}
-
-///|
-/// Check if this node is the root of the tree.
-pub fn TreeNode::is_root(self : TreeNode) -> Bool {
-  self.parent is None
+  TreeNode::{ name, length, support, children }
 }
 
 ///|
@@ -49,168 +41,78 @@ pub fn TreeNode::num_children(self : TreeNode) -> Int {
 }
 
 ///|
-/// Add a child node to this node.
-pub fn TreeNode::add_child(self : &mut TreeNode, child : TreeNode) -> Unit {
-  let mut child_mut = child
-  child_mut.parent = Some(*self)
-  self.children.push(child_mut)
-}
-
-///|
-/// Remove a child node from this node.
-pub fn TreeNode::remove_child(self : &mut TreeNode, child : TreeNode) -> Bool {
-  let mut removed = false
-  let new_children = Array::new()
-  for c in self.children {
-    if !(c.name == child.name && c.length == child.length) {
-      new_children.push(c)
-    } else {
-      removed = true
-    }
-  }
-  self.children = new_children
-  removed
-}
-
-///|
-/// Return root of the tree which contains this node.
-pub fn TreeNode::root(self : TreeNode) -> TreeNode {
-  match self.parent {
-    Some(p) => p.root()
-    None => self
-  }
-}
-
-///|
-/// Return all nodes in a path from this node to another node.
-pub fn TreeNode::path(self : TreeNode, other : TreeNode) -> Array[TreeNode]? {
-  let self_root = self.root()
-  let other_root = other.root()
-  
-  if !(self_root.name == other_root.name && 
-       self_root.children.length() == other_root.children.length()) {
+/// Find the lowest common ancestor of nodes by names.
+pub fn TreeNode::lca(self : TreeNode, names : Array[String]) -> TreeNode? {
+  if names.length() == 0 {
     return None
   }
   
-  let ancestors_self = self.ancestors()
-  let ancestors_other = other.ancestors()
-  
-  let mut path : Array[TreeNode] = Array::new()
-  path.push(self)
-  
-  let mut found = false
-  for node in ancestors_self {
-    path.push(node)
-    if node.name == other.name {
-      found = true
-      break
+  let nodes : Array[TreeNode] = Array::new()
+  for name in names {
+    match self.find(name) {
+      Some(n) => nodes.push(n)
+      None => return None
     }
   }
   
-  if !found {
-    let mut other_path : Array[TreeNode] = Array::new()
-    for node in ancestors_other {
-      other_path.push(node)
-      if node.name == self.name {
-        break
-      }
-    }
-    for i in 0..<other_path.length() {
-      path.push(other_path[other_path.length() - 1 - i])
-    }
-  }
-  
-  Some(path)
+  find_lca(self, nodes)
 }
 
 ///|
-/// Return all ancestral nodes from this node back to the root.
-pub fn TreeNode::ancestors(self : TreeNode) -> Array[TreeNode] {
-  let result = Array::new()
-  let mut current = self.parent
-  while current is Some(_) {
-    let p = current.unwrap()
-    result.push(p)
-    current = p.parent
-  }
-  result
-}
-
-///|
-/// Return all nodes that are siblings of this node.
-pub fn TreeNode::siblings(self : TreeNode) -> Array[TreeNode] {
-  match self.parent {
-    None => Array::new()
-    Some(p) => {
-      let result = Array::new()
-      for child in p.children {
-        if !(child.name == self.name && child.length == self.length) {
-          result.push(child)
-        }
-      }
-      result
-    }
-  }
-}
-
-///|
-/// Return all nodes that are neighbors of this node.
-pub fn TreeNode::neighbors(self : TreeNode) -> Array[TreeNode] {
-  let result = Array::new()
-  match self.parent {
-    Some(p) => result.push(p)
-    None => ()
-  }
-  for child in self.children {
-    result.push(child)
-  }
-  result
-}
-
-///|
-/// Find the lowest common ancestor of a list of nodes.
-pub fn TreeNode::lca(self : TreeNode, nodes : Array[TreeNode]) -> TreeNode? {
+fn find_lca(root : TreeNode, nodes : Array[TreeNode]) -> TreeNode? {
   if nodes.length() == 0 {
     return None
   }
   
-  let mut paths : Array[Array[TreeNode]] = Array::new()
-  for node in nodes {
-    let mut path = node.ancestors()
-    path.push(node)
-    paths.push(path)
+  if nodes.length() == 1 {
+    return Some(nodes[0])
   }
   
-  let mut min_len = paths[0].length()
-  for path in paths {
-    if path.length() < min_len {
-      min_len = path.length()
+  find_lca_helper(root, nodes)
+}
+
+///|
+fn find_lca_helper(current : TreeNode, nodes : Array[TreeNode]) -> TreeNode? {
+  let mut found_all = true
+  for node in nodes {
+    if !is_descendant(current, node) {
+      found_all = false
+      break
     }
   }
   
-  let mut i = 0
-  while i < min_len {
-    let current = paths[0][paths[0].length() - 1 - i]
-    let mut all_match = true
-    for j in 1..<paths.length() {
-      let other = paths[j][paths[j].length() - 1 - i]
-      if !(current.name == other.name && 
-           current.length == other.length) {
-        all_match = false
+  if !found_all {
+    return None
+  }
+  
+  for child in current.children {
+    let mut child_has_all = true
+    for node in nodes {
+      if !is_descendant(child, node) {
+        child_has_all = false
         break
       }
     }
-    if !all_match {
-      break
+    if child_has_all {
+      return find_lca_helper(child, nodes)
     }
-    i = i + 1
   }
   
-  if i > 0 {
-    Some(paths[0][paths[0].length() - i])
-  } else {
-    None
+  Some(current)
+}
+
+///|
+fn is_descendant(ancestor : TreeNode, descendant : TreeNode) -> Bool {
+  if ancestor.name == descendant.name && 
+     ancestor.children.length() == descendant.children.length() {
+    return true
   }
+  for child in ancestor.children {
+    if is_descendant(child, descendant) {
+      return true
+    }
+  }
+  false
 }
 
 ///|
@@ -301,18 +203,39 @@ fn TreeNode::collect_non_tips(self : TreeNode, result : Array[TreeNode]) -> Unit
 }
 
 ///|
-/// Calculate the distance from this node to another node.
-pub fn TreeNode::distance(self : TreeNode, other : TreeNode) -> Double? {
-  match self.path(other) {
-    None => None
-    Some(path) => {
-      let mut dist = 0.0
-      for i in 0..<path.length() - 1 {
-        dist = dist + path[i].length.unwrap_or(0.0)
+/// Calculate the distance between two nodes by their names.
+pub fn TreeNode::distance(self : TreeNode, name1 : String, name2 : String) -> Double? {
+  match (self.find(name1), self.find(name2)) {
+    (Some(node1), Some(node2)) => {
+      let names = Array::new()
+      names.push(name1)
+      names.push(name2)
+      let lca = self.lca(names)
+      match lca {
+        Some(ancestor) => {
+          let dist1 = distance_to_ancestor(node1, ancestor, 0.0)
+          let dist2 = distance_to_ancestor(node2, ancestor, 0.0)
+          Some(dist1 + dist2)
+        }
+        None => None
       }
-      Some(dist)
+    }
+    _ => None
+  }
+}
+
+///|
+fn distance_to_ancestor(node : TreeNode, ancestor : TreeNode, current : Double) -> Double {
+  if node.name == ancestor.name && 
+     node.children.length() == ancestor.children.length() {
+    return current
+  }
+  for child in ancestor.children {
+    if is_descendant(child, node) {
+      return distance_to_ancestor(node, child, current + child.length.unwrap_or(0.0))
     }
   }
+  current
 }
 
 ///|
@@ -386,7 +309,7 @@ pub fn TreeNode::count(self : TreeNode) -> Int {
 ///|
 /// Newick format parser.
 pub fn TreeNode::from_newick(newick : String) -> TreeNode raise ParseError {
-  parse_newick(newick)
+  parse_tree_node_from_newick(newick)
 }
 
 ///|
@@ -438,14 +361,14 @@ pub suberror ParseError {
 
 ///|
 /// Parse Newick format string into TreeNode.
-fn parse_newick(input : String) -> TreeNode raise ParseError {
-  let trimmed = input.trim()
+fn parse_tree_node_from_newick(input : String) -> TreeNode raise ParseError {
+  let trimmed = input.trim().to_owned()
   
-  if !trimmed.ends_with(';') {
+  if !trimmed.has_suffix(";") {
     raise ParseError::MissingSemicolon
   }
   
-  let s = trimmed.substring(0, trimmed.length() - 1)
+  let s = trimmed[0:trimmed.length() - 1].to_owned()
   let n = s.length()
   let (root, pos) = parse_node_rec(s, 0, n)
   
@@ -460,7 +383,7 @@ fn parse_newick(input : String) -> TreeNode raise ParseError {
 fn parse_node_rec(s : String, pos : Int, len : Int) -> (TreeNode, Int) raise ParseError {
   let mut pos = skip_ws(s, pos, len)
   
-  let mut children : Array[TreeNode] = Array::new()
+  let children : Array[TreeNode] = Array::new()
   let mut name : String? = None
   let mut length : Double? = None
   
@@ -511,12 +434,6 @@ fn parse_node_rec(s : String, pos : Int, len : Int) -> (TreeNode, Int) raise Par
   
   let node = TreeNode::new(name=name, length=length, children=children)
   
-  for i = 0; i < children.length(); i = i + 1 {
-    let mut child = children[i]
-    child.parent = Some(node)
-    children[i] = child
-  }
-  
   (node, pos)
 }
 
@@ -551,8 +468,7 @@ fn parse_label_rec(s : String, pos : Int, len : Int) -> (String, Int) {
     }
   }
   
-  let s = buf.to_string()
-  (s.replace(old~="_".to_string_view(), new~=" ".to_string_view()), pos)
+  (buf.to_string(), pos)
 }
 
 ///|

@@ -397,6 +397,25 @@ fn moonbit_test_driver_internal_catch_error(
 let moonbit_test_driver_internal_no_args_tests : MoonBitTestDriverInternalTestMap[
   () -> Unit raise,
 ] = {
+  "skbio_tree_test.mbt": {
+    0: (__test_736b62696f5f747265655f746573742e6d6274_0, ["tree_node_creation"]),
+    1: (__test_736b62696f5f747265655f746573742e6d6274_1, ["tree_node_with_children"]),
+    2: (__test_736b62696f5f747265655f746573742e6d6274_2, ["newick_parse_simple"]),
+    3: (__test_736b62696f5f747265655f746573742e6d6274_3, ["newick_parse_with_lengths"]),
+    4: (__test_736b62696f5f747265655f746573742e6d6274_4, ["newick_parse_nested"]),
+    5: (__test_736b62696f5f747265655f746573742e6d6274_5, ["newick_to_newick"]),
+    6: (__test_736b62696f5f747265655f746573742e6d6274_6, ["preorder_traversal"]),
+    7: (__test_736b62696f5f747265655f746573742e6d6274_7, ["postorder_traversal"]),
+    8: (__test_736b62696f5f747265655f746573742e6d6274_8, ["levelorder_traversal"]),
+    9: (__test_736b62696f5f747265655f746573742e6d6274_9, ["tips"]),
+    10: (__test_736b62696f5f747265655f746573742e6d6274_10, ["count_tips"]),
+    11: (__test_736b62696f5f747265655f746573742e6d6274_11, ["count_nodes"]),
+    12: (__test_736b62696f5f747265655f746573742e6d6274_12, ["find_node"]),
+    13: (__test_736b62696f5f747265655f746573742e6d6274_13, ["find_not_found"]),
+    14: (__test_736b62696f5f747265655f746573742e6d6274_14, ["total_length"]),
+    15: (__test_736b62696f5f747265655f746573742e6d6274_15, ["lca"]),
+    16: (__test_736b62696f5f747265655f746573742e6d6274_16, ["distance"]),
+  },
   "skbio_tree.mbt": {
   },
   "skbio_alignment_test.mbt": {
