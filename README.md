@@ -84,6 +84,12 @@ biolab/bio_seq/
     └── bench/                  # 性能基准测试
 ```
 
+### 样例测试
+```
+moon build                                              # ✅ 成功
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 148 个测试全部通过
+```
+
 ### 模块对照表
 
 | MoonBit 文件 | 对应 Python 库 | 核心功能 |
