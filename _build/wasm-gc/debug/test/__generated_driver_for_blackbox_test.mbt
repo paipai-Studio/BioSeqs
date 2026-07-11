@@ -458,6 +458,7 @@ let moonbit_test_driver_internal_no_args_tests : MoonBitTestDriverInternalTestMa
     0: (__test_736b62696f5f706572665f6d6561737572655f746573742e6d6274_0, ["perf_measure_diversity_alpha"]),
     1: (__test_736b62696f5f706572665f6d6561737572655f746573742e6d6274_1, ["perf_measure_diversity_beta"]),
     2: (__test_736b62696f5f706572665f6d6561737572655f746573742e6d6274_2, ["perf_measure_tree_ops"]),
+    3: (__test_736b62696f5f706572665f6d6561737572655f746573742e6d6274_3, ["perf_measure_stats"]),
   },
   "skbio_diversity_test.mbt": {
     0: (__test_736b62696f5f6469766572736974795f746573742e6d6274_0, ["observed_count_basic"]),

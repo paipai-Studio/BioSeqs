@@ -278,3 +278,122 @@ test "perf_measure_tree_ops" {
 
   assert_true(true)
 }
+
+///|
+/// Generate a test distance matrix of size n.
+fn perf_gen_distance_matrix(n : Int, seed : Int) -> DistanceMatrix {
+  let data = Array::make(n * n, 0.0)
+  let mut s = seed
+  let mut i = 0
+  while i < n {
+    let mut j = i + 1
+    while j < n {
+      s = (s * 1103515245 + 12345) & 0x7FFFFFFF
+      let v = (s % 100).to_double()
+      data[i * n + j] = v
+      data[j * n + i] = v
+      j = j + 1
+    }
+    i = i + 1
+  }
+  let ids : Array[String] = Array::make(n, "")
+  let mut i = 0
+  while i < n {
+    ids[i] = "s" + i.to_string()
+    i = i + 1
+  }
+  DistanceMatrix::from_flat(data, n, ids)
+}
+
+///|
+/// Generate groups array with k groups of n samples.
+fn perf_gen_groups(n : Int, k : Int) -> Array[Int] {
+  let groups = Array::make(n, 0)
+  let mut i = 0
+  while i < n {
+    groups[i] = i % k
+    i = i + 1
+  }
+  groups
+}
+
+///|
+test "perf_measure_stats" {
+  // P-value adjustment x1000
+  let pvals = [
+    0.001, 0.005, 0.01, 0.02, 0.03, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45,
+    0.5, 0.55, 0.6, 0.65, 0.7, 0.75,
+  ]
+  let iters = 1000
+
+  let t0 = @bench.monotonic_clock_start()
+  for i = 0; i < iters; i = i + 1 {
+    let _ = p_adjust_bonferroni(pvals)
+  }
+  report_us("  p_adjust_bonferroni", @bench.monotonic_clock_end(t0), iters)
+
+  let t0 = @bench.monotonic_clock_start()
+  for i = 0; i < iters; i = i + 1 {
+    let _ = p_adjust_holm(pvals)
+  }
+  report_us("  p_adjust_holm", @bench.monotonic_clock_end(t0), iters)
+
+  let t0 = @bench.monotonic_clock_start()
+  for i = 0; i < iters; i = i + 1 {
+    let _ = p_adjust_fdr_bh(pvals)
+  }
+  report_us("  p_adjust_fdr_bh", @bench.monotonic_clock_end(t0), iters)
+
+  // Subsample counts x1000
+  let counts = perf_gen_counts(500, 42)
+  let t0 = @bench.monotonic_clock_start()
+  for i = 0; i < iters; i = i + 1 {
+    let _ = subsample_counts(counts, 200, true, i)
+  }
+  report_us("  subsample_replace", @bench.monotonic_clock_end(t0), iters)
+
+  let t0 = @bench.monotonic_clock_start()
+  for i = 0; i < iters; i = i + 1 {
+    let _ = subsample_counts(counts, 200, false, i)
+  }
+  report_us("  subsample_no_replace", @bench.monotonic_clock_end(t0), iters)
+
+  // Permutation test x100
+  let s1 = perf_gen_counts(50, 7)
+  let s2 = perf_gen_counts(50, 13)
+  let perm_iters = 100
+  let t0 = @bench.monotonic_clock_start()
+  for i = 0; i < perm_iters; i = i + 1 {
+    let _ = permutation_test(s1, s2, diff_of_means, 500, i)
+  }
+  report_us(
+    "  permutation_test_500",
+    @bench.monotonic_clock_end(t0),
+    perm_iters,
+  )
+
+  // ANOSIM x100 on 20-sample matrix
+  let dm20 = perf_gen_distance_matrix(20, 42)
+  let groups20 = perf_gen_groups(20, 2)
+  let t0 = @bench.monotonic_clock_start()
+  for i = 0; i < perm_iters; i = i + 1 {
+    let _ = anosim(dm20, groups20, 200, i)
+  }
+  report_us("  anosim_20x200", @bench.monotonic_clock_end(t0), perm_iters)
+
+  // PERMANOVA x100 on 20-sample matrix
+  let t0 = @bench.monotonic_clock_start()
+  for i = 0; i < perm_iters; i = i + 1 {
+    let _ = permanova(dm20, groups20, 200, i)
+  }
+  report_us("  permanova_20x200", @bench.monotonic_clock_end(t0), perm_iters)
+
+  // Confidence bound x1000
+  let t0 = @bench.monotonic_clock_start()
+  for i = 0; i < iters; i = i + 1 {
+    let _ = confidence_bound(5.0, 2.0, 100, 0.95)
+  }
+  report_us("  confidence_bound", @bench.monotonic_clock_end(t0), iters)
+
+  assert_true(true)
+}

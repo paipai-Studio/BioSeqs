@@ -260,42 +260,50 @@ pub fn permutation_test(
     }
   }
 
-  let combined : Array[Double] = Array::new()
-  for x in sample1 {
-    combined.push(x)
+  let n1 = sample1.length()
+  let n2 = sample2.length()
+  let n_total = n1 + n2
+
+  // Pre-allocate buffers once
+  let combined = Array::make(n_total, 0.0)
+  let mut i = 0
+  while i < n1 {
+    combined[i] = sample1[i]
+    i = i + 1
   }
-  for x in sample2 {
-    combined.push(x)
+  let mut i = 0
+  while i < n2 {
+    combined[n1 + i] = sample2[i]
+    i = i + 1
   }
 
-  let n1 = sample1.length()
-  let n_total = combined.length()
+  let s1 = Array::make(n1, 0.0)
+  let s2 = Array::make(n2, 0.0)
 
   let rng = @random.Rand::chacha8(seed=seed_to_bytes(seed))
   let mut count_ge = 0
 
   let mut i = 0
   while i < permutations {
-    let shuffled = combined.copy()
+    // Fisher-Yates shuffle in-place on combined
     let mut j = 0
     while j < n_total {
       let k = j + rng.int(limit=n_total - j)
-      let tmp = shuffled[j]
-      shuffled[j] = shuffled[k]
-      shuffled[k] = tmp
+      let tmp = combined[j]
+      combined[j] = combined[k]
+      combined[k] = tmp
       j = j + 1
     }
 
-    let s1 = Array::make(n1, 0.0)
-    let s2 = Array::make(n_total - n1, 0.0)
+    // Split into pre-allocated s1/s2
     let mut j = 0
     while j < n1 {
-      s1[j] = shuffled[j]
+      s1[j] = combined[j]
       j = j + 1
     }
-    let mut j = n1
-    while j < n_total {
-      s2[j - n1] = shuffled[j]
+    let mut j = 0
+    while j < n2 {
+      s2[j] = combined[n1 + j]
       j = j + 1
     }
 
@@ -400,7 +408,13 @@ pub fn anosim(
 ) -> ANOSIMResult {
   let n = dm.size
   let num_groups = count_unique_int(groups)
-  let orig_r = anosim_r_statistic(dm, groups)
+
+  // Precompute distances and ranks (constant across permutations)
+  let (distances, pair_indices) = anosim_precompute(dm)
+  let ranks = rank_data(distances)
+  let num_pairs = distances.length()
+
+  let orig_r = anosim_r_from_ranks(ranks, pair_indices, groups, n, num_pairs)
 
   if permutations <= 0 {
     return ANOSIMResult::{
@@ -427,7 +441,9 @@ pub fn anosim(
       j = j + 1
     }
 
-    let perm_r = anosim_r_statistic(dm, perm_groups)
+    let perm_r = anosim_r_from_ranks(
+      ranks, pair_indices, perm_groups, n, num_pairs,
+    )
     if perm_r >= orig_r {
       count_ge = count_ge + 1
     }
@@ -446,29 +462,36 @@ pub fn anosim(
 }
 
 ///|
-/// Compute ANOSIM R statistic.
-fn anosim_r_statistic(dm : DistanceMatrix, groups : Array[Int]) -> Double {
+/// Precompute distances and pair index mapping (constant across permutations).
+fn anosim_precompute(dm : DistanceMatrix) -> (Array[Double], Array[(Int, Int)]) {
   let n = dm.size
   let num_pairs = n * (n - 1) / 2
-
   let distances = Array::make(num_pairs, 0.0)
-  let is_between_arr = Array::make(num_pairs, false)
-
+  let pair_indices = Array::make(num_pairs, (0, 0))
   let mut idx = 0
   let mut i = 0
   while i < n {
     let mut j = i + 1
     while j < n {
       distances[idx] = dm.get(i, j)
-      is_between_arr[idx] = groups[i] != groups[j]
+      pair_indices[idx] = (i, j)
       idx = idx + 1
       j = j + 1
     }
     i = i + 1
   }
+  (distances, pair_indices)
+}
 
-  let ranks = rank_data(distances)
-
+///|
+/// Compute ANOSIM R statistic from precomputed ranks.
+fn anosim_r_from_ranks(
+  ranks : Array[Double],
+  pair_indices : Array[(Int, Int)],
+  groups : Array[Int],
+  n : Int,
+  num_pairs : Int,
+) -> Double {
   let mut sum_within = 0.0
   let mut count_within = 0.0
   let mut sum_between = 0.0
@@ -476,7 +499,8 @@ fn anosim_r_statistic(dm : DistanceMatrix, groups : Array[Int]) -> Double {
 
   let mut i = 0
   while i < num_pairs {
-    if is_between_arr[i] {
+    let (a, b) = pair_indices[i]
+    if groups[a] != groups[b] {
       sum_between = sum_between + ranks[i]
       count_between = count_between + 1.0
     } else {
@@ -572,8 +596,12 @@ pub fn permanova(
   let n = dm.size
   let num_groups = count_unique_int(groups)
 
-  let (f_stat, ss_bet, ss_with, ss_tot, df_bet, df_with) = permanova_f_statistic(
-    dm, groups,
+  // Precompute ss_total (constant across permutations)
+  let ss_total = permanova_ss_total(dm)
+  let group_ids = get_unique_groups(groups, num_groups)
+
+  let (f_stat, ss_bet, ss_with, df_bet, df_with) = permanova_f_from_ss(
+    dm, groups, group_ids, n, ss_total,
   )
 
   if permutations <= 0 {
@@ -587,7 +615,7 @@ pub fn permanova(
       df_within: df_with,
       ss_between: ss_bet,
       ss_within: ss_with,
-      ss_total: ss_tot,
+      ss_total,
     }
   }
 
@@ -606,7 +634,9 @@ pub fn permanova(
       j = j + 1
     }
 
-    let (perm_f, _, _, _, _, _) = permanova_f_statistic(dm, perm_groups)
+    let (perm_f, _, _, _, _) = permanova_f_from_ss(
+      dm, perm_groups, group_ids, n, ss_total,
+    )
     if perm_f >= f_stat {
       count_ge = count_ge + 1
     }
@@ -625,18 +655,14 @@ pub fn permanova(
     df_within: df_with,
     ss_between: ss_bet,
     ss_within: ss_with,
-    ss_total: ss_tot,
+    ss_total,
   }
 }
 
 ///|
-/// Compute PERMANOVA pseudo-F statistic.
-fn permanova_f_statistic(
-  dm : DistanceMatrix,
-  groups : Array[Int],
-) -> (Double, Double, Double, Double, Int, Int) {
+/// Precompute ss_total from distance matrix (constant across permutations).
+fn permanova_ss_total(dm : DistanceMatrix) -> Double {
   let n = dm.size
-
   let mut ss_total = 0.0
   let mut i = 0
   while i < n {
@@ -648,16 +674,37 @@ fn permanova_f_statistic(
     }
     i = i + 1
   }
-  ss_total = ss_total / n.to_double()
+  ss_total / n.to_double()
+}
 
+///|
+/// Extract unique group IDs without HashMap (faster for small group counts).
+fn get_unique_groups(groups : Array[Int], num_groups : Int) -> Array[Int] {
   let group_ids : Array[Int] = Array::new()
-  let group_seen : @hashmap.HashMap[Int, Bool] = @hashmap.HashMap([])
   for g in groups {
-    if !group_seen.contains(g) {
-      group_seen.set(g, true)
+    let mut found = false
+    for existing in group_ids {
+      if existing == g {
+        found = true
+        break
+      }
+    }
+    if !found {
       group_ids.push(g)
     }
   }
+  group_ids
+}
+
+///|
+/// Compute PERMANOVA pseudo-F statistic using precomputed ss_total.
+fn permanova_f_from_ss(
+  dm : DistanceMatrix,
+  groups : Array[Int],
+  group_ids : Array[Int],
+  n : Int,
+  ss_total : Double,
+) -> (Double, Double, Double, Int, Int) {
   let num_groups = group_ids.length()
 
   let mut ss_within = 0.0
@@ -695,7 +742,7 @@ fn permanova_f_statistic(
     0.0
   }
 
-  (f_stat, ss_between, ss_within, ss_total, df_between, df_within)
+  (f_stat, ss_between, ss_within, df_between, df_within)
 }
 
 // ============================================================
