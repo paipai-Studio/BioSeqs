@@ -1,10 +1,14 @@
 ///|
+/// scikit-bio Tree module - Phylogenetic tree data structures.
+
+///|
 /// A node within a phylogenetic tree.
 /// Stores links to parent and child nodes, branch length, and support value.
 pub struct TreeNode {
   name : String?
   length : Double?
   support : Double?
+  parent : TreeNode?
   children : Array[TreeNode]
 }
 
@@ -14,9 +18,20 @@ pub fn TreeNode::new(
   name? : String? = None,
   length? : Double? = None,
   support? : Double? = None,
+  parent? : TreeNode? = None,
   children? : Array[TreeNode] = [],
 ) -> TreeNode {
-  TreeNode::{ name, length, support, children }
+  let mut result = TreeNode::{ name, length, support, parent, children: [] }
+  for child in children {
+    result = result.add_child(child)
+  }
+  result
+}
+
+///|
+/// Check if this node is the root of the tree.
+pub fn TreeNode::is_root(self : TreeNode) -> Bool {
+  self.parent is None
 }
 
 ///|
@@ -38,80 +53,185 @@ pub fn TreeNode::num_children(self : TreeNode) -> Int {
 }
 
 ///|
-/// Find the lowest common ancestor of nodes by names.
-/// Uses backtracking path search to avoid intermediate array allocations.
-pub fn TreeNode::lca(self : TreeNode, names : Array[String]) -> TreeNode? {
-  if names.length() == 0 {
+/// Add a child node to this node and return new TreeNode.
+pub fn TreeNode::add_child(self : TreeNode, child : TreeNode) -> TreeNode {
+  let child_with_parent = TreeNode::{
+    name: child.name,
+    length: child.length,
+    support: child.support,
+    parent: Some(self),
+    children: child.children
+  }
+  let new_children = self.children
+  new_children.push(child_with_parent)
+  TreeNode::{
+    name: self.name,
+    length: self.length,
+    support: self.support,
+    parent: self.parent,
+    children: new_children
+  }
+}
+
+///|
+/// Remove a child node from this node and return new TreeNode.
+pub fn TreeNode::remove_child(self : TreeNode, child : TreeNode) -> (TreeNode, Bool) {
+  let mut removed = false
+  let new_children = Array::new()
+  for c in self.children {
+    if !(c.name == child.name && c.length == child.length) {
+      new_children.push(c)
+    } else {
+      removed = true
+    }
+  }
+  (TreeNode::{
+    name: self.name,
+    length: self.length,
+    support: self.support,
+    parent: self.parent,
+    children: new_children
+  }, removed)
+}
+
+///|
+/// Return root of the tree which contains this node.
+pub fn TreeNode::root(self : TreeNode) -> TreeNode {
+  match self.parent {
+    Some(p) => p.root()
+    None => self
+  }
+}
+
+///|
+/// Return all nodes in a path from this node to another node.
+pub fn TreeNode::path(self : TreeNode, other : TreeNode) -> Array[TreeNode]? {
+  let self_root = self.root()
+  let other_root = other.root()
+  
+  if !(self_root.name == other_root.name && 
+       self_root.children.length() == other_root.children.length()) {
     return None
   }
+  
+  let ancestors_self = self.ancestors()
+  let ancestors_other = other.ancestors()
+  
+  let path : Array[TreeNode] = Array::new()
+  path.push(self)
+  
+  let mut found = false
+  for node in ancestors_self {
+    path.push(node)
+    if node.name == other.name {
+      found = true
+      break
+    }
+  }
+  
+  if !found {
+    let other_path : Array[TreeNode] = Array::new()
+    for node in ancestors_other {
+      other_path.push(node)
+      if node.name == self.name {
+        break
+      }
+    }
+    let n = other_path.length()
+    for i = 0; i < n; i = i + 1 {
+      path.push(other_path[n - 1 - i])
+    }
+  }
+  
+  Some(path)
+}
+
+///|
+/// Return all ancestral nodes from this node back to the root.
+pub fn TreeNode::ancestors(self : TreeNode) -> Array[TreeNode] {
+  let result = Array::new()
+  let mut current = self.parent
+  while current is Some(_) {
+    let p = current.unwrap()
+    result.push(p)
+    current = p.parent
+  }
+  result
+}
+
+///|
+/// Return all nodes that are siblings of this node.
+pub fn TreeNode::siblings(self : TreeNode) -> Array[TreeNode] {
+  match self.parent {
+    None => Array::new()
+    Some(p) => {
+      let result = Array::new()
+      for child in p.children {
+        if !(child.name == self.name && child.length == self.length) {
+          result.push(child)
+        }
+      }
+      result
+    }
+  }
+}
+
+///|
+/// Return all nodes that are neighbors of this node.
+pub fn TreeNode::neighbors(self : TreeNode) -> Array[TreeNode] {
+  let result = Array::new()
+  match self.parent {
+    Some(p) => result.push(p)
+    None => ()
+  }
+  for child in self.children {
+    result.push(child)
+  }
+  result
+}
+
+///|
+/// Find the lowest common ancestor of a list of nodes.
+pub fn TreeNode::lca(self : TreeNode, nodes : Array[TreeNode]) -> TreeNode? {
+  if nodes.length() == 0 {
+    return None
+  }
+  
   let paths : Array[Array[TreeNode]] = Array::new()
-  for name in names {
-    let path = Array::new()
-    if find_path_backtrack(self, name, path) {
-      paths.push(path)
-    } else {
-      return None
-    }
+  for node in nodes {
+    let path = node.ancestors()
+    path.push(node)
+    paths.push(path)
   }
-  Some(paths[0][find_lca_index(paths)])
-}
-
-///|
-/// Backtracking path search: appends nodes to path as it descends,
-/// removes them if the branch doesn't contain the target.
-fn find_path_backtrack(
-  node : TreeNode,
-  name : String,
-  path : Array[TreeNode],
-) -> Bool {
-  path.push(node)
-  if node.name == Some(name) {
-    return true
-  }
-  for child in node.children {
-    if find_path_backtrack(child, name, path) {
-      return true
-    }
-  }
-  ignore(path.remove(path.length() - 1))
-  false
-}
-
-///|
-/// Find the last index at which all paths share a node with the same name.
-fn find_lca_index(paths : Array[Array[TreeNode]]) -> Int {
+  
   let mut min_len = paths[0].length()
-  for i in 1..<paths.length() {
-    if paths[i].length() < min_len {
-      min_len = paths[i].length()
+  for path in paths {
+    if path.length() < min_len {
+      min_len = path.length()
     }
   }
-  let mut idx = 0
-  for i in 0..<min_len {
-    let cand = paths[0][i].name
+  
+  let mut i = 0
+  while i < min_len {
+    let current = paths[0][paths[0].length() - 1 - i]
     let mut all_match = true
-    for j in 1..<paths.length() {
-      if paths[j][i].name != cand {
+    let m = paths.length()
+    for j = 1; j < m; j = j + 1 {
+      let other = paths[j][paths[j].length() - 1 - i]
+      if !(current.name == other.name && 
+           current.length == other.length) {
         all_match = false
         break
       }
     }
-    if all_match {
-      idx = i
-    } else {
+    if !all_match {
       break
     }
+    i = i + 1
   }
-  idx
-}
-
-///|
-/// Find the path from this node to a node with the given name.
-/// Returns the path as an array of TreeNodes from root to target.
-pub fn TreeNode::find_path(self : TreeNode, name : String) -> Array[TreeNode]? {
-  let path = Array::new()
-  if find_path_backtrack(self, name, path) {
-    Some(path)
+  
+  if i > 0 {
+    Some(paths[0][paths[0].length() - i])
   } else {
     None
   }
@@ -142,10 +262,7 @@ pub fn TreeNode::postorder(self : TreeNode) -> Array[TreeNode] {
 }
 
 ///|
-fn TreeNode::postorder_helper(
-  self : TreeNode,
-  result : Array[TreeNode],
-) -> Unit {
+fn TreeNode::postorder_helper(self : TreeNode, result : Array[TreeNode]) -> Unit {
   for child in self.children {
     child.postorder_helper(result)
   }
@@ -154,20 +271,19 @@ fn TreeNode::postorder_helper(
 
 ///|
 /// Perform level order traversal over tree starting from this node.
-/// Uses index-based queue for O(n) performance.
 pub fn TreeNode::levelorder(self : TreeNode) -> Array[TreeNode] {
   let result = Array::new()
   let queue = Array::new()
   queue.push(self)
-  let mut head = 0
-  while head < queue.length() {
-    let node = queue[head]
-    head = head + 1
+  
+  while queue.length() > 0 {
+    let node = queue.remove(0)
     result.push(node)
     for child in node.children {
       queue.push(child)
     }
   }
+  
   result
 }
 
@@ -199,10 +315,7 @@ pub fn TreeNode::non_tips(self : TreeNode) -> Array[TreeNode] {
 }
 
 ///|
-fn TreeNode::collect_non_tips(
-  self : TreeNode,
-  result : Array[TreeNode],
-) -> Unit {
+fn TreeNode::collect_non_tips(self : TreeNode, result : Array[TreeNode]) -> Unit {
   if !self.is_tip() {
     result.push(self)
     for child in self.children {
@@ -212,27 +325,18 @@ fn TreeNode::collect_non_tips(
 }
 
 ///|
-/// Calculate the distance between two nodes by their names.
-/// Uses path-based approach: finds paths to both nodes, identifies LCA,
-/// then sums branch lengths from LCA to each node.
-pub fn TreeNode::distance(
-  self : TreeNode,
-  name1 : String,
-  name2 : String,
-) -> Double? {
-  match (self.find_path(name1), self.find_path(name2)) {
-    (Some(path1), Some(path2)) => {
-      let lca_idx = find_lca_index([path1, path2])
+/// Calculate the distance from this node to another node.
+pub fn TreeNode::distance(self : TreeNode, other : TreeNode) -> Double? {
+  match self.path(other) {
+    None => None
+    Some(path) => {
       let mut dist = 0.0
-      for i in (lca_idx + 1)..<path1.length() {
-        dist = dist + path1[i].length.unwrap_or(0.0)
-      }
-      for i in (lca_idx + 1)..<path2.length() {
-        dist = dist + path2[i].length.unwrap_or(0.0)
+      let n = path.length() - 1
+      for i = 0; i < n; i = i + 1 {
+        dist = dist + path[i].length.unwrap_or(0.0)
       }
       Some(dist)
     }
-    _ => None
   }
 }
 
@@ -264,21 +368,14 @@ pub fn TreeNode::find(self : TreeNode, name : String) -> TreeNode? {
 
 ///|
 /// Find all nodes matching a name.
-pub fn TreeNode::find_by_name(
-  self : TreeNode,
-  name : String,
-) -> Array[TreeNode] {
+pub fn TreeNode::find_by_name(self : TreeNode, name : String) -> Array[TreeNode] {
   let result = Array::new()
   self.find_by_name_helper(name, result)
   result
 }
 
 ///|
-fn TreeNode::find_by_name_helper(
-  self : TreeNode,
-  name : String,
-  result : Array[TreeNode],
-) -> Unit {
+fn TreeNode::find_by_name_helper(self : TreeNode, name : String, result : Array[TreeNode]) -> Unit {
   if self.name == Some(name) {
     result.push(self)
   }
@@ -314,7 +411,7 @@ pub fn TreeNode::count(self : TreeNode) -> Int {
 ///|
 /// Newick format parser.
 pub fn TreeNode::from_newick(newick : String) -> TreeNode raise ParseError {
-  parse_tree_node_from_newick(newick)
+  skbio_parse_newick(newick)
 }
 
 ///|
@@ -340,10 +437,12 @@ fn TreeNode::to_newick_helper(self : TreeNode, buf : StringBuilder) -> Unit {
     }
     buf.write_char(')')
   }
+  
   match self.name {
     Some(n) => buf.write_string(n)
     None => ()
   }
+  
   match self.length {
     Some(l) => {
       buf.write_char(':')
@@ -364,37 +463,41 @@ pub suberror ParseError {
 
 ///|
 /// Parse Newick format string into TreeNode.
-fn parse_tree_node_from_newick(input : String) -> TreeNode raise ParseError {
-  let trimmed = input.trim().to_owned()
+fn skbio_parse_newick(input : String) -> TreeNode raise ParseError {
+  let trimmed = input.trim()
+  
   if !trimmed.has_suffix(";") {
     raise ParseError::MissingSemicolon
   }
+  
   let s = trimmed[0:trimmed.length() - 1].to_owned()
   let n = s.length()
   let (root, pos) = parse_node_rec(s, 0, n)
+  
   if pos < n {
     raise ParseError::InvalidFormat("Extra characters after root".to_string())
   }
+  
   root
 }
 
 ///|
-fn parse_node_rec(
-  s : String,
-  pos : Int,
-  len : Int,
-) -> (TreeNode, Int) raise ParseError {
+fn parse_node_rec(s : String, pos : Int, len : Int) -> (TreeNode, Int) raise ParseError {
   let mut pos = skip_ws(s, pos, len)
+  
   let children : Array[TreeNode] = Array::new()
   let mut name : String? = None
   let mut length : Double? = None
+  
   if pos < len && s.unsafe_get(pos).unsafe_to_char() == '(' {
     pos = pos + 1
     pos = skip_ws(s, pos, len)
+    
     if pos < len && s.unsafe_get(pos).unsafe_to_char() != ')' {
       let (child, new_pos) = parse_node_rec(s, pos, len)
       pos = new_pos
       children.push(child)
+      
       while pos < len && s.unsafe_get(pos).unsafe_to_char() == ',' {
         pos = pos + 1
         pos = skip_ws(s, pos, len)
@@ -404,12 +507,14 @@ fn parse_node_rec(
         pos = skip_ws(s, pos, len)
       }
     }
+    
     if pos >= len || s.unsafe_get(pos).unsafe_to_char() != ')' {
       raise ParseError::UnbalancedParentheses
     }
     pos = pos + 1
     pos = skip_ws(s, pos, len)
   }
+  
   if pos < len {
     let c = s.unsafe_get(pos).unsafe_to_char()
     if c != ':' && c != ',' && c != ')' && c != ';' {
@@ -419,6 +524,7 @@ fn parse_node_rec(
       pos = skip_ws(s, pos, len)
     }
   }
+  
   if pos < len && s.unsafe_get(pos).unsafe_to_char() == ':' {
     pos = pos + 1
     pos = skip_ws(s, pos, len)
@@ -427,20 +533,22 @@ fn parse_node_rec(
     pos = new_pos
     pos = skip_ws(s, pos, len)
   }
-  (TreeNode::new(name~, length~, children~), pos)
+  
+  let node = TreeNode::new(name=name, length=length, children=children)
+  
+  (node, pos)
 }
 
 ///|
 fn parse_label_rec(s : String, pos : Int, len : Int) -> (String, Int) {
   let buf = StringBuilder::new()
   let mut pos = pos
+  
   if pos < len && s.unsafe_get(pos).unsafe_to_char() == '\'' {
     pos = pos + 1
     while pos < len && s.unsafe_get(pos).unsafe_to_char() != '\'' {
       let c = s.unsafe_get(pos).unsafe_to_char()
-      if c == '\'' &&
-        pos + 1 < len &&
-        s.unsafe_get(pos + 1).unsafe_to_char() == '\'' {
+      if c == '\'' && pos + 1 < len && s.unsafe_get(pos + 1).unsafe_to_char() == '\'' {
         buf.write_char('\'')
         pos = pos + 1
       } else {
@@ -461,29 +569,31 @@ fn parse_label_rec(s : String, pos : Int, len : Int) -> (String, Int) {
       pos = pos + 1
     }
   }
-  (buf.to_string(), pos)
+  
+  let s = buf.to_string()
+  (s.replace(old="_".to_string_view(), new=" ".to_string_view()), pos)
 }
 
 ///|
-fn parse_number_rec(
-  s : String,
-  pos : Int,
-  len : Int,
-) -> (Double, Int) raise ParseError {
+fn parse_number_rec(s : String, pos : Int, len : Int) -> (Double, Int) raise ParseError {
   let mut pos = pos
-  let mut int_part = 0.0
-  let mut frac = 0.0
-  let mut frac_digits = 0
-  let mut neg = false
-  let mut has_exp = false
-  let mut exp_sign = 1
-  let mut exp_val = 0
+  
+  let mut result = 0.0
+  let mut decimal = 0.0
+  let mut decimal_places = 0
+  let mut is_negative = false
+  let mut is_scientific = false
+  let mut sci_sign = 1
+  let mut sci_value = 0
   let zero = '0'.to_int()
+  
   if pos < len && s.unsafe_get(pos).to_int() == 45 {
-    neg = true
+    is_negative = true
     pos = pos + 1
   }
+  
   let mut has_digit = false
+  
   while pos < len {
     let c = s.unsafe_get(pos).to_int()
     if c == 46 {
@@ -493,20 +603,20 @@ fn parse_number_rec(
         if dc < zero || dc > zero + 9 {
           break
         }
-        frac = frac * 10.0 + (dc - zero).to_double()
-        frac_digits = frac_digits + 1
+        decimal = decimal * 10.0 + (dc - zero).to_double()
+        decimal_places = decimal_places + 1
         has_digit = true
         pos = pos + 1
       }
       break
     }
     if c == 101 || c == 69 {
-      has_exp = true
+      is_scientific = true
       pos = pos + 1
       if pos < len {
         let sc = s.unsafe_get(pos).to_int()
         if sc == 45 {
-          exp_sign = -1
+          sci_sign = -1
           pos = pos + 1
         } else if sc == 43 {
           pos = pos + 1
@@ -517,7 +627,7 @@ fn parse_number_rec(
         if dc < zero || dc > zero + 9 {
           break
         }
-        exp_val = exp_val * 10 + (dc - zero)
+        sci_value = sci_value * 10 + (dc - zero)
         pos = pos + 1
       }
       break
@@ -525,32 +635,40 @@ fn parse_number_rec(
     if c < zero || c > zero + 9 {
       break
     }
-    int_part = int_part * 10.0 + (c - zero).to_double()
+    result = result * 10.0 + (c - zero).to_double()
     has_digit = true
     pos = pos + 1
   }
+  
   if !has_digit {
     raise ParseError::InvalidNumber("".to_string())
   }
-  if frac_digits > 0 {
-    let mut divisor = 1.0
-    for _ in 0..<frac_digits {
-      divisor = divisor * 10.0
-    }
-    frac = frac / divisor
+  
+  while decimal_places > 0 {
+    decimal = decimal / 10.0
+    decimal_places = decimal_places - 1
   }
-  let mut out = int_part + frac
-  if has_exp {
+  
+  let mut final_result = result + decimal
+  if is_scientific {
     let mut pow10 = 1.0
-    for _ in 0..<exp_val {
+    let mut j = 0
+    while j < sci_value {
       pow10 = pow10 * 10.0
+      j = j + 1
     }
-    out = if exp_sign == 1 { out * pow10 } else { out / pow10 }
+    if sci_sign == 1 {
+      final_result = final_result * pow10
+    } else {
+      final_result = final_result / pow10
+    }
   }
-  if neg {
-    out = -out
+  
+  if is_negative {
+    final_result = -final_result
   }
-  (out, pos)
+  
+  (final_result, pos)
 }
 
 ///|
@@ -566,3 +684,10 @@ fn skip_ws(s : String, pos : Int, len : Int) -> Int {
 fn is_whitespace(c : Char) -> Bool {
   c == ' ' || c == '\t' || c == '\n' || c == '\r'
 }
+
+///|
+fn is_digit(c : Char) -> Bool {
+  c >= '0' && c <= '9'
+}
+
+

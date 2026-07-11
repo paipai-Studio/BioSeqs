@@ -1,6 +1,1 @@
-import {
-  "moonbitlang/core/math",
-  "moonbitlang/core/bench",
-  "moonbitlang/core/hashmap",
-  "moonbitlang/core/random",
-}
+
