@@ -1,9 +1,9 @@
 // import {
-//   "IvanAXu/bio_seq/src" @lib,
+//   "IvanAXu/BioSeqs/src" @lib,
 // }
 
 import {
-  "IvanAXu/bio_seq/src" @lib,
+  "IvanAXu/BioSeqs/src" @lib,
 }
 
 options(

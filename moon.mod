@@ -9,7 +9,7 @@
 //   "moonbitlang/x@0.4.6",
 // }
 
-name = "IvanAXu/bio_seq"
+name = "IvanAXu/BioSeqs"
 
 version = "0.1.0"
 

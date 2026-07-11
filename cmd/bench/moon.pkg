@@ -1,5 +1,5 @@
 import {
-  "IvanAXu/bio_seq/src" @lib,
+  "IvanAXu/BioSeqs/src" @lib,
   "moonbitlang/core/bench" @mb,
 }
 
