@@ -460,6 +460,19 @@ let moonbit_test_driver_internal_no_args_tests : MoonBitTestDriverInternalTestMa
     2: (__test_736b62696f5f706572665f6d6561737572655f746573742e6d6274_2, ["perf_measure_tree_ops"]),
     3: (__test_736b62696f5f706572665f6d6561737572655f746573742e6d6274_3, ["perf_measure_stats"]),
   },
+  "skbio_faidx_test.mbt": {
+    0: (__test_736b62696f5f66616964785f746573742e6d6274_0, ["faidx_build"]),
+    1: (__test_736b62696f5f66616964785f746573742e6d6274_1, ["faidx_get_entry"]),
+    2: (__test_736b62696f5f66616964785f746573742e6d6274_2, ["faidx_get_length"]),
+    3: (__test_736b62696f5f66616964785f746573742e6d6274_3, ["faidx_fetch_full"]),
+    4: (__test_736b62696f5f66616964785f746573742e6d6274_4, ["faidx_fetch_subseq"]),
+    5: (__test_736b62696f5f66616964785f746573742e6d6274_5, ["faidx_complement"]),
+    6: (__test_736b62696f5f66616964785f746573742e6d6274_6, ["faidx_spaces_in_sequence"]),
+    7: (__test_736b62696f5f66616964785f746573742e6d6274_7, ["faidx_single_line_sequence"]),
+    8: (__test_736b62696f5f66616964785f746573742e6d6274_8, ["faidx_empty_sequence"]),
+  },
+  "skbio_faidx.mbt": {
+  },
   "skbio_diversity_test.mbt": {
     0: (__test_736b62696f5f6469766572736974795f746573742e6d6274_0, ["observed_count_basic"]),
     1: (__test_736b62696f5f6469766572736974795f746573742e6d6274_1, ["observed_count_all_zero"]),
