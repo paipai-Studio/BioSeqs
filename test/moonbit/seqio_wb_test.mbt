@@ -6,7 +6,7 @@
 // Run `moon test` to execute.
 
 ///|
-test "@src.parse_fasta_basic" {
+test "parse_fasta_basic" {
   let records = @src.parse_fasta(">seq1 Hello\nACGT\n>seq2\nTTTT")
   assert_eq(records.length(), 2)
   assert_eq(records[0].id, "seq1")
@@ -17,7 +17,7 @@ test "@src.parse_fasta_basic" {
 }
 
 ///|
-test "@src.parse_fasta_multiline" {
+test "parse_fasta_multiline" {
   let records = @src.parse_fasta(">m1 Multi\nACGT\nTTTT\nGGGG")
   assert_eq(records.length(), 1)
   assert_eq(records[0].id, "m1")
@@ -26,7 +26,7 @@ test "@src.parse_fasta_multiline" {
 }
 
 ///|
-test "@src.parse_fasta_no_description" {
+test "parse_fasta_no_description" {
   let records = @src.parse_fasta(">seq3\nACGT")
   assert_eq(records.length(), 1)
   assert_eq(records[0].id, "seq3")
@@ -35,7 +35,7 @@ test "@src.parse_fasta_no_description" {
 }
 
 ///|
-test "@src.parse_fasta_lowercase" {
+test "parse_fasta_lowercase" {
   let records = @src.parse_fasta(">l1 Lower\nacgtacgt")
   assert_eq(records.length(), 1)
   assert_eq(records[0].id, "l1")
@@ -43,7 +43,7 @@ test "@src.parse_fasta_lowercase" {
 }
 
 ///|
-test "@src.parse_fastq_basic" {
+test "parse_fastq_basic" {
   let records = @src.parse_fastq("@s1 Desc\nACGT\n+\nIIII")
   assert_eq(records.length(), 1)
   assert_eq(records[0].id, "s1")
@@ -56,7 +56,7 @@ test "@src.parse_fastq_basic" {
 }
 
 ///|
-test "@src.parse_fastq_multiple" {
+test "parse_fastq_multiple" {
   let records = @src.parse_fastq("@s1 Desc\nACGT\n+\nIIII\n@s2 Other\nTTTT\n+\nJJJJ")
   assert_eq(records.length(), 2)
   assert_eq(records[0].id, "s1")
@@ -74,7 +74,7 @@ test "@src.parse_fastq_multiple" {
 }
 
 ///|
-test "@src.write_fasta_basic" {
+test "write_fasta_basic" {
   let records = [
     @src.SeqRecord::new(@src.Seq::new("ACGT"), id="r1", description="r1 First record"),
     @src.SeqRecord::new(@src.Seq::new("TTTT"), id="r2", description="r2"),
@@ -87,7 +87,7 @@ test "@src.write_fasta_basic" {
 }
 
 ///|
-test "@src.write_fasta_wrapping" {
+test "write_fasta_wrapping" {
   // A 70-character sequence should wrap at 60 chars per line, producing
   // two sequence lines of 60 and 10 characters.
   let long_seq = "A".repeat(70)
@@ -99,7 +99,7 @@ test "@src.write_fasta_wrapping" {
 }
 
 ///|
-test "@src.write_fastq_basic" {
+test "write_fastq_basic" {
   let rec = @src.SeqRecord::new(@src.Seq::new("ACGT"), id="fq1", description="fq1 record").set_phred_quality([
       40, 30, 20, 10,
     ],
@@ -110,7 +110,7 @@ test "@src.write_fastq_basic" {
 }
 
 ///|
-test "@src.seqio_parse_fasta" {
+test "seqio_parse_fasta" {
   let records = @src.seqio_parse(">s1 Hello\nACGT", "fasta")
   assert_eq(records.length(), 1)
   assert_eq(records[0].id, "s1")
@@ -119,7 +119,7 @@ test "@src.seqio_parse_fasta" {
 }
 
 ///|
-test "@src.seqio_parse_fastq" {
+test "seqio_parse_fastq" {
   let records = @src.seqio_parse("@s1 Desc\nACGT\n+\nIIII", "fastq")
   assert_eq(records.length(), 1)
   assert_eq(records[0].id, "s1")
@@ -131,7 +131,7 @@ test "@src.seqio_parse_fastq" {
 }
 
 ///|
-test "@src.seqio_parse_unknown_format" {
+test "seqio_parse_unknown_format" {
   let raised = try {
     ignore(@src.seqio_parse(">s1\nACGT", "xyz_unknown"))
     false
@@ -142,7 +142,7 @@ test "@src.seqio_parse_unknown_format" {
 }
 
 ///|
-test "@src.seqio_read_single" {
+test "seqio_read_single" {
   let rec = @src.seqio_read(">only One\nACGT", "fasta")
   assert_eq(rec.id, "only")
   assert_eq(rec.description, "only One")
@@ -150,7 +150,7 @@ test "@src.seqio_read_single" {
 }
 
 ///|
-test "@src.seqio_read_multiple_error" {
+test "seqio_read_multiple_error" {
   let raised = try {
     ignore(@src.seqio_read(">s1\nACGT\n>s2\nTTTT", "fasta"))
     false
@@ -161,7 +161,7 @@ test "@src.seqio_read_multiple_error" {
 }
 
 ///|
-test "@src.seqio_read_empty_error" {
+test "seqio_read_empty_error" {
   let raised = try {
     ignore(@src.seqio_read("", "fasta"))
     false
@@ -172,7 +172,7 @@ test "@src.seqio_read_empty_error" {
 }
 
 ///|
-test "@src.seqio_to_dict" {
+test "seqio_to_dict" {
   let records = @src.parse_fasta(">a First\nACGT\n>b Second\nTTTT")
   let d = @src.seqio_to_dict(records)
   match d.get("a") {

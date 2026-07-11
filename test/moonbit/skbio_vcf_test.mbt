@@ -81,7 +81,7 @@ test "vcf_parse_filter" {
 }
 
 ///|
-test "vcf_@src.parse_samples" {
+test "vcf_parse_samples" {
   let vcf = @src.parse_vcf(test_vcf_content)
   let records = vcf.records
 

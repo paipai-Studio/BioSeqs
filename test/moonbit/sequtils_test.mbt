@@ -36,32 +36,11 @@ test "sha1_basic" {
   assert_eq(hash[0], 169)
   assert_eq(hash[1], 153)
   assert_eq(hash[2], 62)
-}
+  assert_eq(hash[3], 54)
 
-///|
-test "sha1_h0_after_round" {
-  let hash = @src.sha1_string("abc")
-  let expected_h0_bytes = [169, 153, 62, 54]
-  assert_eq(hash[0], expected_h0_bytes[0])
-  assert_eq(hash[1], expected_h0_bytes[1])
-  assert_eq(hash[2], expected_h0_bytes[2])
-  assert_eq(hash[3], expected_h0_bytes[3])
-}
-
-///|
-test "sha1_raw_bytes" {
   let bytes = [97, 98, 99]
-  let hash = @src.sha1(bytes)
-  assert_eq(hash[0], 169)
-  assert_eq(hash[1], 153)
-  assert_eq(hash[2], 62)
-}
-
-///|
-test "sha1_debug" {
-  let bytes = [97, 98, 99]
-  let hash = @src.sha1(bytes)
-  assert_eq(hash[0], 169)
+  let hash_bytes = @src.sha1(bytes)
+  assert_eq(hash_bytes, hash)
 }
 
 ///|

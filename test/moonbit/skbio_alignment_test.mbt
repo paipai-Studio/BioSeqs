@@ -37,7 +37,7 @@ test "tabular_msa_creation" {
 }
 
 ///|
-test "tabular_msa_@src.column" {
+test "tabular_msa_column" {
   let dna1 = @src.DNA::new("ACGT")
   let dna2 = @src.DNA::new("ACCT")
   let seqs : Array[@src.DNA] = Array::new()
@@ -67,7 +67,7 @@ test "tabular_msa_consensus" {
 }
 
 ///|
-test "tabular_msa_@src.conservation" {
+test "tabular_msa_conservation" {
   let dna1 = @src.DNA::new("ACGT")
   let dna2 = @src.DNA::new("ACCT")
   let dna3 = @src.DNA::new("AGGT")
@@ -120,7 +120,7 @@ test "local_pairwise_align_nucleotide" {
 }
 
 ///|
-test "@src.global_pairwise_align_protein" {
+test "global_pairwise_align_protein" {
   let seq1 = @src.Protein::new("ACDE")
   let seq2 = @src.Protein::new("ACE")
 
@@ -130,7 +130,7 @@ test "@src.global_pairwise_align_protein" {
 }
 
 ///|
-test "@src.local_pairwise_align_protein" {
+test "local_pairwise_align_protein" {
   let seq1 = @src.Protein::new("ACDEFGHI")
   let seq2 = @src.Protein::new("EFG")
 
