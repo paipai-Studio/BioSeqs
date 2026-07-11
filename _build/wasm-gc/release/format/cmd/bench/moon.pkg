@@ -1,8 +1,0 @@
-import {
-  "biolab/bio_seq" @lib,
-  "moonbitlang/core/bench" @mb,
-}
-
-options(
-  "is-main": true,
-)

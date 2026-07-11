@@ -1,0 +1,599 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "biolab/bio_seq/src"
+
+import {
+  "moonbitlang/core/debug",
+  "moonbitlang/core/hashmap",
+}
+
+// Values
+pub fn align_score(TabularMSA) -> Double
+
+pub fn alignio_parse(String, String) -> Array[MultipleSeqAlignment] raise AlignIOError
+
+pub fn alignio_read(String, String) -> MultipleSeqAlignment raise AlignIOError
+
+pub fn alignio_write(Array[MultipleSeqAlignment], String) -> String raise AlignIOError
+
+pub fn build_fai(String) -> FastaIndex
+
+pub fn bytes_to_base64(Array[Int]) -> String
+
+pub fn crc32(String) -> Int
+
+pub fn gc(String) -> Double
+
+pub fn gcg(String) -> Int
+
+pub fn global_pairwise_align_nucleotide(DNA, DNA) -> (TabularMSA, Double, (Int, Int), (Int, Int))
+
+pub fn global_pairwise_align_protein(Protein, Protein) -> (TabularMSA, Double, (Int, Int), (Int, Int))
+
+pub fn local_pairwise_align_nucleotide(DNA, DNA) -> (TabularMSA, Double, (Int, Int), (Int, Int))
+
+pub fn local_pairwise_align_protein(Protein, Protein) -> (TabularMSA, Double, (Int, Int), (Int, Int))
+
+pub fn parse_cigar(String) -> Array[CigarElement]
+
+pub fn parse_clustal(String) -> MultipleSeqAlignment raise AlignIOError
+
+pub fn parse_comma_list(String) -> Array[String]
+
+pub fn parse_double(String) -> Double?
+
+pub fn parse_fai(String) -> FastaIndex raise FastaIndexError
+
+pub fn parse_fasta(String) -> Array[SeqRecord]
+
+pub fn parse_fastq(String) -> Array[SeqRecord] raise SeqIOError
+
+pub fn parse_genbank(String) -> Array[SeqRecord]
+
+pub fn parse_int(String) -> Int
+
+pub fn parse_newick(String) -> Tree
+
+pub fn parse_pdb(String) -> Structure
+
+pub fn parse_phylip(String) -> MultipleSeqAlignment raise AlignIOError
+
+pub fn parse_phylip_sequential(String) -> MultipleSeqAlignment raise AlignIOError
+
+pub fn parse_sam(String) -> SamFile
+
+pub fn parse_semicolon_list(String) -> Array[String]
+
+pub fn parse_vcf(String) -> VcfFile
+
+pub fn seguid(String) -> String
+
+pub fn seqio_parse(String, String) -> Array[SeqRecord] raise SeqIOError
+
+pub fn seqio_read(String, String) -> SeqRecord raise SeqIOError
+
+pub fn seqio_to_dict(Array[SeqRecord]) -> Map[String, SeqRecord]
+
+pub fn seqio_write(Array[SeqRecord], String) -> String raise SeqIOError
+
+pub fn sha1(Array[Int]) -> Array[Int]
+
+pub fn sha1_string(String) -> Array[Int]
+
+pub fn split_by_char(String, Int) -> Array[String]
+
+pub fn split_by_tab(String) -> Array[String]
+
+pub fn string_to_bytes(String) -> Array[Int]
+
+pub fn tm_gc(String) -> Double
+
+pub fn tm_wallace(String) -> Double
+
+pub fn write_clustal(MultipleSeqAlignment) -> String
+
+pub fn write_fai(FastaIndex) -> String
+
+pub fn write_fasta(Array[SeqRecord]) -> String
+
+pub fn write_fastq(Array[SeqRecord]) -> String raise SeqIOError
+
+pub fn write_newick(Tree) -> String
+
+pub fn write_pdb(Structure) -> String
+
+pub fn write_phylip(MultipleSeqAlignment) -> String
+
+pub fn write_phylip_sequential(MultipleSeqAlignment) -> String
+
+// Errors
+pub suberror AlignError {
+  AlignError(String)
+}
+
+pub suberror AlignIOError {
+  AlignIOError(String)
+}
+
+pub suberror FastaIndexError {
+  FastaIndexError(String)
+}
+
+pub suberror LocationParserError {
+  LocationParserError(String)
+}
+
+pub suberror SeqError {
+  SeqError(String)
+}
+
+pub suberror SeqIOError {
+  SeqIOError(String)
+}
+
+// Types and methods
+pub struct Atom {
+  name : String
+  altloc : Char
+  resname : String
+  chainid : Char
+  resseq : Int
+  icode : Char
+  coord : Vector3
+  occupancy : Double
+  bfactor : Double
+  element : String
+  charge : Int
+}
+pub fn Atom::distance(Self, Self) -> Double
+pub fn Atom::get_coord(Self) -> Vector3
+pub fn Atom::new(name~ : String, coord~ : Vector3, resname? : String, chainid? : Char, resseq? : Int, occupancy? : Double, bfactor? : Double, element? : String, charge? : Int) -> Self
+
+pub struct Chain {
+  id : Char
+  residues : Array[Residue]
+}
+pub fn Chain::find_residue(Self, Int) -> Residue?
+pub fn Chain::get_atoms(Self) -> Array[Atom]
+pub fn Chain::get_id(Self) -> Char
+pub fn Chain::get_num_residues(Self) -> Int
+pub fn Chain::get_residues(Self) -> Array[Residue]
+pub fn Chain::new(id~ : Char, residues? : Array[Residue]) -> Self
+
+pub struct CigarElement {
+  op : CigarOp
+  length : Int
+} derive(Eq)
+
+pub enum CigarOp {
+  Match
+  Insert
+  Delete
+  Skip
+  SoftClip
+  HardClip
+  Pad
+  Equal
+  Diff
+} derive(Eq)
+
+pub struct Clade {
+  branch_length : Double?
+  name : String?
+  confidence : Double?
+  clades : Array[Clade]
+  parent : Clade?
+}
+pub fn Clade::add_child(Self, Self) -> Self
+pub fn Clade::count_terminals(Self) -> Int
+pub fn Clade::depths(Self, current_depth? : Double?) -> Array[(String, Double)]
+pub fn Clade::depths_map(Self, current_depth? : Double?) -> Map[String, Double]
+pub fn Clade::find_any(Self, name? : String?, terminal? : Bool?) -> Self?
+pub fn Clade::find_clades(Self, name? : String?, terminal? : Bool?) -> Array[Self]
+pub fn Clade::get_nonterminals(Self) -> Array[Self]
+pub fn Clade::get_path(Self, String) -> Array[Self]?
+pub fn Clade::get_terminals(Self) -> Array[Self]
+pub fn Clade::is_bifurcating(Self) -> Bool
+pub fn Clade::is_root(Self) -> Bool
+pub fn Clade::is_terminal(Self) -> Bool
+pub fn Clade::new(branch_length? : Double?, name? : String?, confidence? : Double?, clades? : Array[Self], parent? : Self?) -> Self
+
+pub struct CompoundLocation {
+  parts : Array[FeatureLocation]
+  operator : String
+  ref_seq : String?
+  ref_db : String?
+} derive(Eq)
+pub fn CompoundLocation::new(Array[FeatureLocation], operator? : String, ref_seq? : String?, ref_db? : String?) -> Self
+pub fn CompoundLocation::operator(Self) -> String
+pub fn CompoundLocation::parts(Self) -> Array[FeatureLocation]
+pub fn CompoundLocation::repr(Self) -> String
+pub fn CompoundLocation::str(Self) -> String
+
+pub struct DNA {
+  seq : Seq
+} derive(Eq)
+pub fn DNA::get_char(Self, Int) -> Char?
+pub fn DNA::length(Self) -> Int
+pub fn DNA::new(String) -> Self
+pub fn DNA::to_seq(Self) -> Seq
+pub fn DNA::to_string(Self) -> String
+
+pub struct FaiRecord {
+  name : String
+  length : Int
+  offset : Int
+  line_len : Int
+  line_blen : Int
+} derive(@debug.Debug)
+pub fn FaiRecord::new(String, Int, Int, Int, Int) -> Self
+
+pub struct Fasta {
+  content : String
+  index : FastaIndex
+} derive(@debug.Debug)
+pub fn Fasta::contains(Self, String) -> Bool
+pub fn Fasta::fetch(Self, String, Int, Int) -> Seq? raise FastaIndexError
+pub fn Fasta::from_content(String) -> Self
+pub fn Fasta::get_length(Self, String) -> Int?
+pub fn Fasta::get_names(Self) -> Array[String]
+pub fn Fasta::get_seq(Self, String) -> Seq?
+pub fn Fasta::new(String, String) -> Self raise FastaIndexError
+
+pub struct FastaIndex {
+  records : Array[FaiRecord]
+  index : Map[String, Int]
+} derive(@debug.Debug)
+pub fn FastaIndex::contains(Self, String) -> Bool
+pub fn FastaIndex::get_names(Self) -> Array[String]
+pub fn FastaIndex::get_record(Self, String) -> FaiRecord?
+pub fn FastaIndex::num_sequences(Self) -> Int
+
+pub struct FeatureLocation {
+  start : Position
+  end : Position
+  strand : Int?
+  ref_seq : String?
+  ref_db : String?
+} derive(Eq)
+pub fn FeatureLocation::end(Self) -> Position
+pub fn FeatureLocation::end_int(Self) -> Int
+pub fn FeatureLocation::extract(Self, Seq) -> Seq raise LocationParserError
+pub fn FeatureLocation::new(Position, Position, strand? : Int?, ref_seq? : String?, ref_db? : String?) -> Self raise LocationParserError
+pub fn FeatureLocation::new_exact(Int, Int, strand? : Int?) -> Self raise LocationParserError
+pub fn FeatureLocation::new_safe(Position, Position, strand? : Int?, ref_seq? : String?, ref_db? : String?) -> Self
+pub fn FeatureLocation::ref_db(Self) -> String?
+pub fn FeatureLocation::ref_seq(Self) -> String?
+pub fn FeatureLocation::repr(Self) -> String
+pub fn FeatureLocation::start(Self) -> Position
+pub fn FeatureLocation::start_int(Self) -> Int
+pub fn FeatureLocation::str(Self) -> String
+pub fn FeatureLocation::strand(Self) -> Int?
+
+pub struct Model {
+  id : Int
+  chains : Array[Chain]
+}
+pub fn Model::find_chain(Self, Char) -> Chain?
+pub fn Model::get_atoms(Self) -> Array[Atom]
+pub fn Model::get_chains(Self) -> Array[Chain]
+pub fn Model::get_id(Self) -> Int
+pub fn Model::get_num_chains(Self) -> Int
+pub fn Model::get_residues(Self) -> Array[Residue]
+pub fn Model::new(id~ : Int, chains? : Array[Chain]) -> Self
+
+pub struct MultipleSeqAlignment {
+  records : Array[SeqRecord]
+  annotations : Map[String, String]
+  column_annotations : Map[String, Array[String]]
+} derive(Eq)
+pub fn MultipleSeqAlignment::add_sequence(Self, SeqRecord) -> Self raise AlignIOError
+pub fn MultipleSeqAlignment::column(Self, Int) -> String?
+pub fn MultipleSeqAlignment::get(Self, Int) -> SeqRecord?
+pub fn MultipleSeqAlignment::get_alignment_length(Self) -> Int
+pub fn MultipleSeqAlignment::iter(Self) -> Array[SeqRecord]
+pub fn MultipleSeqAlignment::new(Array[SeqRecord], annotations? : Map[String, String], column_annotations? : Map[String, Array[String]]) -> Self raise AlignIOError
+pub fn MultipleSeqAlignment::num_records(Self) -> Int
+pub fn MultipleSeqAlignment::repr(Self) -> String
+pub fn MultipleSeqAlignment::slice(Self, row_start? : Int, row_end? : Int, col_start? : Int, col_end? : Int) -> Self
+
+pub enum Position {
+  ExactPosition(Int)
+  WithinPosition(Int, Int, Int)
+  BeforePosition(Int)
+  AfterPosition(Int)
+  UncertainPosition(Int)
+  UnknownPosition
+} derive(Eq)
+pub fn Position::new_after(Int) -> Self
+pub fn Position::new_before(Int) -> Self
+pub fn Position::new_exact(Int) -> Self
+pub fn Position::new_uncertain(Int) -> Self
+pub fn Position::new_unknown() -> Self
+pub fn Position::new_within(Int, Int, Int) -> Self raise LocationParserError
+pub fn Position::repr(Self) -> String
+pub fn Position::str(Self) -> String
+pub fn Position::to_int(Self) -> Int
+
+pub struct Protein {
+  seq : Seq
+} derive(Eq)
+pub fn Protein::get_char(Self, Int) -> Char?
+pub fn Protein::length(Self) -> Int
+pub fn Protein::new(String) -> Self
+pub fn Protein::to_seq(Self) -> Seq
+pub fn Protein::to_string(Self) -> String
+
+pub struct ProteinAnalysis {
+  sequence : String
+} derive(Eq)
+pub fn ProteinAnalysis::aromaticity(Self) -> Double
+pub fn ProteinAnalysis::count_amino_acids(Self) -> Map[Char, Int]
+pub fn ProteinAnalysis::get_amino_acids_percent(Self) -> Map[Char, Double]
+pub fn ProteinAnalysis::gravy(Self) -> Double
+pub fn ProteinAnalysis::molecular_weight(Self) -> Double
+pub fn ProteinAnalysis::new(String) -> Self
+
+pub struct RNA {
+  seq : Seq
+} derive(Eq)
+pub fn RNA::get_char(Self, Int) -> Char?
+pub fn RNA::length(Self) -> Int
+pub fn RNA::new(String) -> Self
+pub fn RNA::to_seq(Self) -> Seq
+pub fn RNA::to_string(Self) -> String
+
+pub struct Reference {
+  authors : String
+  title : String
+  journal : String
+  pubmed_id : String
+  comment : String
+} derive(Eq)
+pub fn Reference::new(authors? : String, title? : String, journal? : String, pubmed_id? : String, comment? : String) -> Self
+pub fn Reference::repr(Self) -> String
+
+pub struct Residue {
+  resname : String
+  chainid : Char
+  resseq : Int
+  icode : Char
+  atoms : Array[Atom]
+  hetfield : String
+}
+pub fn Residue::center_of_mass(Self) -> Vector3?
+pub fn Residue::find_atom(Self, String) -> Atom?
+pub fn Residue::get_atoms(Self) -> Array[Atom]
+pub fn Residue::get_ca(Self) -> Atom?
+pub fn Residue::get_num_atoms(Self) -> Int
+pub fn Residue::is_het(Self) -> Bool
+pub fn Residue::new(resname~ : String, chainid~ : Char, resseq~ : Int, atoms? : Array[Atom], hetfield? : String) -> Self
+
+pub struct SamFile {
+  headers : Array[SamHeader]
+  records : Array[SamRecord]
+}
+pub fn SamFile::get_sequence_length(Self, String) -> Int?
+pub fn SamFile::get_sequence_names(Self) -> Array[String]
+pub fn SamFile::len(Self) -> Int
+pub fn SamFile::num_headers(Self) -> Int
+
+pub struct SamHeader {
+  header_type : SamHeaderType
+  tags : @hashmap.HashMap[String, String]
+}
+
+pub enum SamHeaderType {
+  HD
+  SQ
+  RG
+  PG
+  CO
+} derive(Eq)
+
+pub struct SamRecord {
+  qname : String
+  flag : Int
+  rname : String
+  pos : Int
+  mapq : Int
+  cigar : Array[CigarElement]
+  rnext : String
+  pnext : Int
+  tlen : Int
+  seq : String
+  qual : String
+  tags : @hashmap.HashMap[String, String]
+}
+pub fn SamRecord::get_alignment_length(Self) -> Int
+pub fn SamRecord::get_end(Self) -> Int
+pub fn SamRecord::is_mate_reverse(Self) -> Bool
+pub fn SamRecord::is_mate_unmapped(Self) -> Bool
+pub fn SamRecord::is_paired(Self) -> Bool
+pub fn SamRecord::is_proper_pair(Self) -> Bool
+pub fn SamRecord::is_read1(Self) -> Bool
+pub fn SamRecord::is_read2(Self) -> Bool
+pub fn SamRecord::is_reverse(Self) -> Bool
+pub fn SamRecord::is_secondary(Self) -> Bool
+pub fn SamRecord::is_supplementary(Self) -> Bool
+pub fn SamRecord::is_unmapped(Self) -> Bool
+
+pub struct Seq {
+  data : String
+} derive(Eq, Hash)
+pub fn Seq::add_str(Self, String) -> Self
+pub fn Seq::back_transcribe(Self) -> Self
+pub fn Seq::complement(Self) -> Self
+pub fn Seq::complement_rna(Self) -> Self
+pub fn Seq::contains(Self, String) -> Bool
+pub fn Seq::count(Self, String) -> Int
+pub fn Seq::count_overlap(Self, String) -> Int
+pub fn Seq::endswith(Self, String) -> Bool
+pub fn Seq::find(Self, String) -> Int
+pub fn Seq::from_str(String) -> Self
+pub fn Seq::get_char(Self, Int) -> Char?
+pub fn Seq::join(Self, Array[Self]) -> Self
+pub fn Seq::length(Self) -> Int
+pub fn Seq::lower(Self) -> Self
+pub fn Seq::lstrip(Self, chars? : String) -> Self
+pub fn Seq::mul(Self, Int) -> Self
+pub fn Seq::new(String) -> Self
+pub fn Seq::replace(Self, old~ : String, new~ : String) -> Self
+pub fn Seq::repr(Self) -> String
+pub fn Seq::reverse(Self) -> Self
+pub fn Seq::reverse_complement(Self) -> Self
+pub fn Seq::reverse_complement_rna(Self) -> Self
+pub fn Seq::rfind(Self, String) -> Int
+pub fn Seq::rstrip(Self, chars? : String) -> Self
+pub fn Seq::slice(Self, start~ : Int, end~ : Int) -> Self
+pub fn Seq::split(Self, String) -> Array[Self]
+pub fn Seq::startswith(Self, String) -> Bool
+pub fn Seq::strip(Self, chars? : String) -> Self
+pub fn Seq::to_string(Self) -> String
+pub fn Seq::transcribe(Self) -> Self
+pub fn Seq::translate(Self, stop_symbol? : Char, to_stop? : Bool, cds? : Bool, gap? : Char) -> Self raise SeqError
+pub fn Seq::upper(Self) -> Self
+pub impl Add for Seq
+
+pub struct SeqFeature {
+  location : FeatureLocation?
+  feature_type : String
+  id : String
+  qualifiers : Map[String, Array[String]]
+  sub_features : Array[SeqFeature]
+  ref_seq : String?
+  ref_db : String?
+  strand : Int?
+} derive(Eq)
+pub fn SeqFeature::add_qualifier(Self, String, String) -> Self
+pub fn SeqFeature::extract(Self, Seq) -> Seq raise LocationParserError
+pub fn SeqFeature::feature_type(Self) -> String
+pub fn SeqFeature::id(Self) -> String
+pub fn SeqFeature::location(Self) -> FeatureLocation?
+pub fn SeqFeature::new(location? : FeatureLocation?, feature_type? : String, id? : String, qualifiers? : Map[String, Array[String]], sub_features? : Array[Self], strand? : Int?) -> Self
+pub fn SeqFeature::qualifiers(Self) -> Map[String, Array[String]]
+pub fn SeqFeature::ref_db(Self) -> String?
+pub fn SeqFeature::ref_seq(Self) -> String?
+pub fn SeqFeature::repr(Self) -> String
+pub fn SeqFeature::str(Self) -> String
+pub fn SeqFeature::strand(Self) -> Int?
+pub fn SeqFeature::sub_features(Self) -> Array[Self]
+
+pub struct SeqRecord {
+  seq : Seq
+  id : String
+  name : String
+  description : String
+  letter_annotations : Map[String, Array[Int]]
+} derive(Eq)
+pub fn SeqRecord::from_seq(Seq) -> Self
+pub fn SeqRecord::length(Self) -> Int
+pub fn SeqRecord::new(Seq, id? : String, name? : String, description? : String) -> Self
+pub fn SeqRecord::phred_quality(Self) -> Array[Int]?
+pub fn SeqRecord::repr(Self) -> String
+pub fn SeqRecord::set_phred_quality(Self, Array[Int]) -> Self
+
+pub struct Structure {
+  id : String
+  models : Array[Model]
+}
+pub fn Structure::distance(Self, String, String) -> Double?
+pub fn Structure::find_model(Self, Int) -> Model?
+pub fn Structure::get_atoms(Self) -> Array[Atom]
+pub fn Structure::get_chains(Self) -> Array[Chain]
+pub fn Structure::get_id(Self) -> String
+pub fn Structure::get_models(Self) -> Array[Model]
+pub fn Structure::get_num_atoms(Self) -> Int
+pub fn Structure::get_num_chains(Self) -> Int
+pub fn Structure::get_num_models(Self) -> Int
+pub fn Structure::get_num_residues(Self) -> Int
+pub fn Structure::get_residues(Self) -> Array[Residue]
+pub fn Structure::new(id~ : String, models? : Array[Model]) -> Self
+
+pub struct TabularMSA {
+  records : Array[SeqRecord]
+  dtype : String
+} derive(Eq)
+pub fn TabularMSA::column(Self, Int) -> String?
+pub fn TabularMSA::consensus(Self) -> DNA
+pub fn TabularMSA::conservation(Self) -> Array[Double]
+pub fn TabularMSA::from_dna(Array[DNA]) -> Self
+pub fn TabularMSA::get_alignment_length(Self) -> Int
+pub fn TabularMSA::new(Array[SeqRecord], String) -> Self
+pub fn TabularMSA::num_records(Self) -> Int
+
+pub struct Tree {
+  root : Clade
+  rooted : Bool
+  name : String?
+  weight : Double
+}
+pub fn Tree::common_ancestor(Self, Array[String]) -> Clade?
+pub fn Tree::count_terminals(Self) -> Int
+pub fn Tree::depths(Self) -> Array[(String, Double)]
+pub fn Tree::distance(Self, String, String) -> Double?
+pub fn Tree::draw_ascii(Self) -> String
+pub fn Tree::find_any(Self, name? : String?, terminal? : Bool?) -> Clade?
+pub fn Tree::find_clades(Self, name? : String?, terminal? : Bool?) -> Array[Clade]
+pub fn Tree::get_nonterminals(Self) -> Array[Clade]
+pub fn Tree::get_path(Self, String) -> Array[Clade]?
+pub fn Tree::get_root(Self) -> Clade
+pub fn Tree::get_terminals(Self) -> Array[Clade]
+pub fn Tree::is_bifurcating(Self) -> Bool
+pub fn Tree::is_rooted(Self) -> Bool
+pub fn Tree::new(Clade, rooted? : Bool, name? : String?, weight? : Double) -> Self
+pub fn Tree::repr(Self) -> String
+
+pub struct VcfFile {
+  meta_headers : Array[VcfMetaHeader]
+  fixed_header : VcfFixedHeader?
+  records : Array[VcfRecord]
+}
+pub fn VcfFile::get_sample_names(Self) -> Array[String]
+pub fn VcfFile::get_version(Self) -> String?
+pub fn VcfFile::len(Self) -> Int
+pub fn VcfFile::num_meta_headers(Self) -> Int
+
+pub struct VcfFixedHeader {
+  columns : Array[String]
+}
+
+pub enum VcfHeaderType {
+  Meta
+  Fixed
+} derive(Eq)
+
+pub struct VcfMetaHeader {
+  key : String
+  value : String
+  tags : @hashmap.HashMap[String, String]
+}
+
+pub struct VcfRecord {
+  chrom : String
+  pos : Int
+  id : Array[String]
+  ref : String
+  alt : Array[String]
+  qual : Double?
+  filter : Array[String]
+  info : @hashmap.HashMap[String, String]
+  format : Array[String]?
+  samples : @hashmap.HashMap[String, Array[String]]
+}
+pub fn VcfRecord::get_genotype(Self, String) -> Array[String]?
+pub fn VcfRecord::is_deletion(Self) -> Bool
+pub fn VcfRecord::is_insertion(Self) -> Bool
+pub fn VcfRecord::is_snp(Self) -> Bool
+
+pub struct Vector3 {
+  x : Double
+  y : Double
+  z : Double
+}
+pub fn Vector3::distance(Self, Self) -> Double
+pub fn Vector3::new(Double, Double, Double) -> Self
+
+// Type aliases
+
+// Traits
+

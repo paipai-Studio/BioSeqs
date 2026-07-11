@@ -1,5 +1,5 @@
 import {
-  "biolab/bio_seq" @lib,
+  "biolab/bio_seq/src" @lib,
   "moonbitlang/core/bench" @mb,
 }
 

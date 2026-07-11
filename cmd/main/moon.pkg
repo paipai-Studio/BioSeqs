@@ -1,9 +1,9 @@
 // import {
-//   "biolab/bio_seq" @lib,
+//   "biolab/bio_seq/src" @lib,
 // }
 
 import {
-  "biolab/bio_seq" @lib,
+  "biolab/bio_seq/src" @lib,
 }
 
 options(
