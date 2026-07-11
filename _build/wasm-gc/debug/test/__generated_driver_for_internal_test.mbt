@@ -421,6 +421,9 @@ let moonbit_test_driver_internal_no_args_tests : MoonBitTestDriverInternalTestMa
   },
   "skbio_stats.mbt": {
   },
+  "skbio_faidx_perf.mbt": {
+    0: (__test_736b62696f5f66616964785f706572662e6d6274_0, ["perf_measure_faidx"]),
+  },
   "skbio_faidx.mbt": {
   },
   "skbio_diversity.mbt": {
