@@ -711,7 +711,7 @@ pub fn faith_pd(
   taxa : Array[String],
   tree : TreeNode,
 ) -> Double {
-  let present_set : @hashmap.HashMap[String, Bool] = @hashmap.HashMap::new()
+  let present_set : @hashmap.HashMap[String, Bool] = @hashmap.HashMap([])
   for i in 0..<counts.length() {
     if counts[i] > 0.0 && i < taxa.length() {
       present_set.set(taxa[i], true)

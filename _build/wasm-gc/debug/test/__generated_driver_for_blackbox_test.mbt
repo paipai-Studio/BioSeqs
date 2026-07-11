@@ -432,6 +432,28 @@ let moonbit_test_driver_internal_no_args_tests : MoonBitTestDriverInternalTestMa
   },
   "skbio_tree.mbt": {
   },
+  "skbio_stats_test.mbt": {
+    0: (__test_736b62696f5f73746174735f746573742e6d6274_0, ["subsample_counts_with_replacement_sum"]),
+    1: (__test_736b62696f5f73746174735f746573742e6d6274_1, ["subsample_counts_without_replacement_sum"]),
+    2: (__test_736b62696f5f73746174735f746573742e6d6274_2, ["subsample_counts_without_replacement_exceeds_total"]),
+    3: (__test_736b62696f5f73746174735f746573742e6d6274_3, ["subsample_counts_negative_n"]),
+    4: (__test_736b62696f5f73746174735f746573742e6d6274_4, ["subsample_counts_zero_n"]),
+    5: (__test_736b62696f5f73746174735f746573742e6d6274_5, ["p_adjust_bonferroni_basic"]),
+    6: (__test_736b62696f5f73746174735f746573742e6d6274_6, ["p_adjust_bonferroni_empty"]),
+    7: (__test_736b62696f5f73746174735f746573742e6d6274_7, ["p_adjust_holm_basic"]),
+    8: (__test_736b62696f5f73746174735f746573742e6d6274_8, ["p_adjust_fdr_bh_basic"]),
+    9: (__test_736b62696f5f73746174735f746573742e6d6274_9, ["permutation_test_mean_diff"]),
+    10: (__test_736b62696f5f73746174735f746573742e6d6274_10, ["permutation_test_zero_permutations"]),
+    11: (__test_736b62696f5f73746174735f746573742e6d6274_11, ["diff_of_means_basic"]),
+    12: (__test_736b62696f5f73746174735f746573742e6d6274_12, ["distance_matrix_from_2d"]),
+    13: (__test_736b62696f5f73746174735f746573742e6d6274_13, ["anosim_basic"]),
+    14: (__test_736b62696f5f73746174735f746573742e6d6274_14, ["permanova_basic"]),
+    15: (__test_736b62696f5f73746174735f746573742e6d6274_15, ["confidence_bound_basic"]),
+    16: (__test_736b62696f5f73746174735f746573742e6d6274_16, ["confidence_bound_small_n"]),
+    17: (__test_736b62696f5f73746174735f746573742e6d6274_17, ["confidence_bound_zero_std"]),
+  },
+  "skbio_stats.mbt": {
+  },
   "skbio_perf_measure_test.mbt": {
     0: (__test_736b62696f5f706572665f6d6561737572655f746573742e6d6274_0, ["perf_measure_diversity_alpha"]),
     1: (__test_736b62696f5f706572665f6d6561737572655f746573742e6d6274_1, ["perf_measure_diversity_beta"]),
