@@ -2,14 +2,10 @@
 package "biolab/bio_seq"
 
 import {
-  "moonbitlang/core/random",
+  "moonbitlang/core/hashmap",
 }
 
 // Values
-pub fn ace(Array[Double], Int) -> Double
-
-pub fn ace_default(Array[Double]) -> Double
-
 pub fn align_score(TabularMSA) -> Double
 
 pub fn alignio_parse(String, String) -> Array[MultipleSeqAlignment] raise AlignIOError
@@ -18,97 +14,23 @@ pub fn alignio_read(String, String) -> MultipleSeqAlignment raise AlignIOError
 
 pub fn alignio_write(Array[MultipleSeqAlignment], String) -> String raise AlignIOError
 
-pub fn anosim(DistanceMatrix, Array[Int], Int, Int) -> ANOSIMResult
-
-pub fn berger_parker(Array[Double]) -> Double
-
-pub fn berger_parker_d(Array[Double]) -> Double
-
-pub fn braycurtis(Array[Double], Array[Double]) -> Double
-
-pub fn brillouin_d(Array[Double]) -> Double
-
 pub fn bytes_to_base64(Array[Int]) -> String
 
-pub fn canberra(Array[Double], Array[Double]) -> Double
-
-pub fn chao1(Array[Double]) -> Double
-
-pub fn chao1_classic(Array[Double]) -> Double
-
-pub fn chebyshev(Array[Double], Array[Double]) -> Double
-
-pub fn confidence_bound(Double, Double, Int, Double) -> (Double, Double)
-
-pub fn cosine(Array[Double], Array[Double]) -> Double
-
-pub fn cosine_distance(Array[Double], Array[Double]) -> Double
-
-pub fn count_if(Array[Double], (Double) -> Bool) -> Int
-
 pub fn crc32(String) -> Int
-
-pub fn diff_of_means(Array[Double], Array[Double]) -> Double
-
-pub fn dominance(Array[Double]) -> Double
-
-pub fn doubles(Array[Double]) -> Int
-
-pub fn euclidean(Array[Double], Array[Double]) -> Double
-
-pub fn faith_pd(Array[Double], Array[String], TreeNode) -> Double
-
-pub fn fisher_alpha(Array[Double]) -> Double
-
-pub fn fisher_yates_shuffle(Array[Int], @random.Rand) -> Unit
 
 pub fn gc(String) -> Double
 
 pub fn gcg(String) -> Int
 
-pub fn gini_simpson(Array[Double]) -> Double
-
 pub fn global_pairwise_align_nucleotide(DNA, DNA, gap_open_penalty? : Double, gap_extend_penalty? : Double, match_score? : Double, mismatch_score? : Double) -> (TabularMSA, Double, (Int, Int), (Int, Int)) raise AlignError
 
 pub fn global_pairwise_align_protein(Protein, Protein, gap_open_penalty? : Double, gap_extend_penalty? : Double) -> (TabularMSA, Double, (Int, Int), (Int, Int)) raise AlignError
-
-pub fn goods_coverage(Array[Double]) -> Double
-
-pub fn heip_e(Array[Double]) -> Double
-
-pub fn hill(Array[Double], Double) -> Double
-
-pub fn inv_simpson(Array[Double]) -> Double
-
-pub fn jaccard(Array[Double], Array[Double]) -> Double
 
 pub fn local_pairwise_align_nucleotide(DNA, DNA, gap_open_penalty? : Double, gap_extend_penalty? : Double, match_score? : Double, mismatch_score? : Double) -> (TabularMSA, Double, (Int, Int), (Int, Int)) raise AlignError
 
 pub fn local_pairwise_align_protein(Protein, Protein, gap_open_penalty? : Double, gap_extend_penalty? : Double) -> (TabularMSA, Double, (Int, Int), (Int, Int)) raise AlignError
 
-pub fn make_rng(Int) -> @random.Rand
-
-pub fn manhattan(Array[Double], Array[Double]) -> Double
-
-pub fn margalef(Array[Double]) -> Double
-
-pub fn mcintosh_d(Array[Double]) -> Double
-
-pub fn mcintosh_e(Array[Double]) -> Double
-
-pub fn mean_double(Array[Double]) -> Double
-
-pub fn menhinick(Array[Double]) -> Double
-
-pub fn observed_features(Array[Double]) -> Int
-
-pub fn observed_otus(Array[Double]) -> Int
-
-pub fn p_adjust_bonferroni(Array[Double]) -> Array[Double]
-
-pub fn p_adjust_fdr_bh(Array[Double]) -> Array[Double]
-
-pub fn p_adjust_holm(Array[Double]) -> Array[Double]
+pub fn parse_cigar(String) -> Array[CigarElement]
 
 pub fn parse_clustal(String) -> MultipleSeqAlignment raise AlignIOError
 
@@ -126,15 +48,9 @@ pub fn parse_phylip(String) -> MultipleSeqAlignment raise AlignIOError
 
 pub fn parse_phylip_sequential(String) -> MultipleSeqAlignment raise AlignIOError
 
-pub fn permanova(DistanceMatrix, Array[Int], Int, Int) -> PERMANOVAResult
+pub fn parse_sam(String) -> SamFile
 
-pub fn permutation_test(Array[Double], Array[Double], (Array[Double], Array[Double]) -> Double, Int, Int) -> PermutationTestResult
-
-pub fn pielou_e(Array[Double]) -> Double
-
-pub fn renyi(Array[Double], Double) -> Double
-
-pub fn robbins(Array[Double]) -> Double
+pub fn parse_vcf(String) -> VcfFile
 
 pub fn seguid(String) -> String
 
@@ -150,33 +66,11 @@ pub fn sha1(Array[Int]) -> Array[Int]
 
 pub fn sha1_string(String) -> Array[Int]
 
-pub fn shannon(Array[Double]) -> Double
-
-pub fn shannon_base(Array[Double], Double) -> Double
-
-pub fn simpson(Array[Double]) -> Double
-
-pub fn simpson_d(Array[Double]) -> Double
-
-pub fn simpson_e(Array[Double]) -> Double
-
-pub fn singles(Array[Double]) -> Int
-
-pub fn sobs(Array[Double]) -> Int
-
 pub fn string_to_bytes(String) -> Array[Int]
-
-pub fn subsample_counts(Array[Double], Int, Bool, Int) -> Array[Double]
-
-pub fn sum_double(Array[Double]) -> Double
 
 pub fn tm_gc(String) -> Double
 
 pub fn tm_wallace(String) -> Double
-
-pub fn tsallis(Array[Double], Double) -> Double
-
-pub fn upper_triangle_iter(Int, (Int, Int) -> Unit) -> Unit
 
 pub fn write_clustal(MultipleSeqAlignment) -> String
 
@@ -221,14 +115,6 @@ pub suberror SeqIOError {
 }
 
 // Types and methods
-pub struct ANOSIMResult {
-  r_statistic : Double
-  p_value : Double
-  permutations : Int
-  num_groups : Int
-  sample_size : Int
-}
-
 pub enum AlignOp {
   Match
   Insert
@@ -276,6 +162,23 @@ pub fn Chain::get_num_residues(Self) -> Int
 pub fn Chain::get_residues(Self) -> Array[Residue]
 pub fn Chain::new(id~ : Char, residues? : Array[Residue]) -> Self
 
+pub struct CigarElement {
+  op : CigarOp
+  length : Int
+} derive(Eq)
+
+pub enum CigarOp {
+  Match
+  Insert
+  Delete
+  Skip
+  SoftClip
+  HardClip
+  Pad
+  Equal
+  Diff
+} derive(Eq)
+
 pub struct Clade {
   branch_length : Double?
   name : String?
@@ -314,15 +217,6 @@ pub fn DNA::length(Self) -> Int
 pub fn DNA::new(String) -> Self
 pub fn DNA::to_seq(Self) -> Seq
 pub fn DNA::to_string(Self) -> String
-
-pub struct DistanceMatrix {
-  data : Array[Double]
-  size : Int
-  ids : Array[String]
-}
-pub fn DistanceMatrix::from_2d(Array[Array[Double]], Array[String]) -> Self
-pub fn DistanceMatrix::from_flat(Array[Double], Int, Array[String]) -> Self
-pub fn DistanceMatrix::get(Self, Int, Int) -> Double
 
 pub struct FeatureLocation {
   start : Position
@@ -371,25 +265,6 @@ pub fn MultipleSeqAlignment::new(Array[SeqRecord], annotations? : Map[String, St
 pub fn MultipleSeqAlignment::num_records(Self) -> Int
 pub fn MultipleSeqAlignment::repr(Self) -> String
 pub fn MultipleSeqAlignment::slice(Self, row_start? : Int, row_end? : Int, col_start? : Int, col_end? : Int) -> Self
-
-pub struct PERMANOVAResult {
-  f_statistic : Double
-  p_value : Double
-  permutations : Int
-  num_groups : Int
-  sample_size : Int
-  df_between : Int
-  df_within : Int
-  ss_between : Double
-  ss_within : Double
-  ss_total : Double
-}
-
-pub struct PermutationTestResult {
-  statistic : Double
-  p_value : Double
-  permutations : Int
-}
 
 pub enum Position {
   ExactPosition(Int)
@@ -462,6 +337,55 @@ pub fn Residue::get_ca(Self) -> Atom?
 pub fn Residue::get_num_atoms(Self) -> Int
 pub fn Residue::is_het(Self) -> Bool
 pub fn Residue::new(resname~ : String, chainid~ : Char, resseq~ : Int, atoms? : Array[Atom], hetfield? : String) -> Self
+
+pub struct SamFile {
+  headers : Array[SamHeader]
+  records : Array[SamRecord]
+}
+pub fn SamFile::get_sequence_length(Self, String) -> Int?
+pub fn SamFile::get_sequence_names(Self) -> Array[String]
+pub fn SamFile::len(Self) -> Int
+pub fn SamFile::num_headers(Self) -> Int
+
+pub struct SamHeader {
+  header_type : SamHeaderType
+  tags : @hashmap.HashMap[String, String]
+}
+
+pub enum SamHeaderType {
+  HD
+  SQ
+  RG
+  PG
+  CO
+} derive(Eq)
+
+pub struct SamRecord {
+  qname : String
+  flag : Int
+  rname : String
+  pos : Int
+  mapq : Int
+  cigar : Array[CigarElement]
+  rnext : String
+  pnext : Int
+  tlen : Int
+  seq : String
+  qual : String
+  tags : @hashmap.HashMap[String, String]
+}
+pub fn SamRecord::get_alignment_length(Self) -> Int
+pub fn SamRecord::get_end(Self) -> Int
+pub fn SamRecord::is_mate_reverse(Self) -> Bool
+pub fn SamRecord::is_mate_unmapped(Self) -> Bool
+pub fn SamRecord::is_paired(Self) -> Bool
+pub fn SamRecord::is_proper_pair(Self) -> Bool
+pub fn SamRecord::is_read1(Self) -> Bool
+pub fn SamRecord::is_read2(Self) -> Bool
+pub fn SamRecord::is_reverse(Self) -> Bool
+pub fn SamRecord::is_secondary(Self) -> Bool
+pub fn SamRecord::is_supplementary(Self) -> Bool
+pub fn SamRecord::is_unmapped(Self) -> Bool
 
 pub struct Seq {
   data : String
@@ -597,27 +521,77 @@ pub struct TreeNode {
   name : String?
   length : Double?
   support : Double?
+  parent : TreeNode?
   children : Array[TreeNode]
 }
+pub fn TreeNode::add_child(Self, Self) -> Self
+pub fn TreeNode::ancestors(Self) -> Array[Self]
 pub fn TreeNode::count(Self) -> Int
 pub fn TreeNode::count_tips(Self) -> Int
-pub fn TreeNode::distance(Self, String, String) -> Double?
+pub fn TreeNode::distance(Self, Self) -> Double?
 pub fn TreeNode::find(Self, String) -> Self?
 pub fn TreeNode::find_by_name(Self, String) -> Array[Self]
-pub fn TreeNode::find_path(Self, String) -> Array[Self]?
 pub fn TreeNode::from_newick(String) -> Self raise ParseError
 pub fn TreeNode::has_children(Self) -> Bool
+pub fn TreeNode::is_root(Self) -> Bool
 pub fn TreeNode::is_tip(Self) -> Bool
-pub fn TreeNode::lca(Self, Array[String]) -> Self?
+pub fn TreeNode::lca(Self, Array[Self]) -> Self?
 pub fn TreeNode::levelorder(Self) -> Array[Self]
-pub fn TreeNode::new(name? : String?, length? : Double?, support? : Double?, children? : Array[Self]) -> Self
+pub fn TreeNode::neighbors(Self) -> Array[Self]
+pub fn TreeNode::new(name? : String?, length? : Double?, support? : Double?, parent? : Self?, children? : Array[Self]) -> Self
 pub fn TreeNode::non_tips(Self) -> Array[Self]
 pub fn TreeNode::num_children(Self) -> Int
+pub fn TreeNode::path(Self, Self) -> Array[Self]?
 pub fn TreeNode::postorder(Self) -> Array[Self]
 pub fn TreeNode::preorder(Self) -> Array[Self]
+pub fn TreeNode::remove_child(Self, Self) -> (Self, Bool)
+pub fn TreeNode::root(Self) -> Self
+pub fn TreeNode::siblings(Self) -> Array[Self]
 pub fn TreeNode::tips(Self) -> Array[Self]
 pub fn TreeNode::to_newick(Self) -> String
 pub fn TreeNode::total_length(Self) -> Double
+
+pub struct VcfFile {
+  meta_headers : Array[VcfMetaHeader]
+  fixed_header : VcfFixedHeader?
+  records : Array[VcfRecord]
+}
+pub fn VcfFile::get_sample_names(Self) -> Array[String]
+pub fn VcfFile::get_version(Self) -> String?
+pub fn VcfFile::len(Self) -> Int
+pub fn VcfFile::num_meta_headers(Self) -> Int
+
+pub struct VcfFixedHeader {
+  columns : Array[String]
+}
+
+pub enum VcfHeaderType {
+  Meta
+  Fixed
+} derive(Eq)
+
+pub struct VcfMetaHeader {
+  key : String
+  value : String
+  tags : @hashmap.HashMap[String, String]
+}
+
+pub struct VcfRecord {
+  chrom : String
+  pos : Int
+  id : Array[String]
+  ref : String
+  alt : Array[String]
+  qual : Double?
+  filter : Array[String]
+  info : @hashmap.HashMap[String, String]
+  format : Array[String]?
+  samples : @hashmap.HashMap[String, Array[String]]
+}
+pub fn VcfRecord::get_genotype(Self, String) -> Array[String]?
+pub fn VcfRecord::is_deletion(Self) -> Bool
+pub fn VcfRecord::is_insertion(Self) -> Bool
+pub fn VcfRecord::is_snp(Self) -> Bool
 
 pub struct Vector3 {
   x : Double

@@ -60,7 +60,7 @@ pub fn TreeNode::add_child(self : TreeNode, child : TreeNode) -> TreeNode {
     length: child.length,
     support: child.support,
     parent: Some(self),
-    children: child.children
+    children: child.children,
   }
   let new_children = self.children
   new_children.push(child_with_parent)
@@ -69,13 +69,16 @@ pub fn TreeNode::add_child(self : TreeNode, child : TreeNode) -> TreeNode {
     length: self.length,
     support: self.support,
     parent: self.parent,
-    children: new_children
+    children: new_children,
   }
 }
 
 ///|
 /// Remove a child node from this node and return new TreeNode.
-pub fn TreeNode::remove_child(self : TreeNode, child : TreeNode) -> (TreeNode, Bool) {
+pub fn TreeNode::remove_child(
+  self : TreeNode,
+  child : TreeNode,
+) -> (TreeNode, Bool) {
   let mut removed = false
   let new_children = Array::new()
   for c in self.children {
@@ -85,13 +88,16 @@ pub fn TreeNode::remove_child(self : TreeNode, child : TreeNode) -> (TreeNode, B
       removed = true
     }
   }
-  (TreeNode::{
-    name: self.name,
-    length: self.length,
-    support: self.support,
-    parent: self.parent,
-    children: new_children
-  }, removed)
+  (
+    TreeNode::{
+      name: self.name,
+      length: self.length,
+      support: self.support,
+      parent: self.parent,
+      children: new_children,
+    },
+    removed,
+  )
 }
 
 ///|
@@ -108,18 +114,18 @@ pub fn TreeNode::root(self : TreeNode) -> TreeNode {
 pub fn TreeNode::path(self : TreeNode, other : TreeNode) -> Array[TreeNode]? {
   let self_root = self.root()
   let other_root = other.root()
-  
-  if !(self_root.name == other_root.name && 
-       self_root.children.length() == other_root.children.length()) {
+
+  if !(self_root.name == other_root.name &&
+    self_root.children.length() == other_root.children.length()) {
     return None
   }
-  
+
   let ancestors_self = self.ancestors()
   let ancestors_other = other.ancestors()
-  
+
   let path : Array[TreeNode] = Array::new()
   path.push(self)
-  
+
   let mut found = false
   for node in ancestors_self {
     path.push(node)
@@ -128,7 +134,7 @@ pub fn TreeNode::path(self : TreeNode, other : TreeNode) -> Array[TreeNode]? {
       break
     }
   }
-  
+
   if !found {
     let other_path : Array[TreeNode] = Array::new()
     for node in ancestors_other {
@@ -142,7 +148,7 @@ pub fn TreeNode::path(self : TreeNode, other : TreeNode) -> Array[TreeNode]? {
       path.push(other_path[n - 1 - i])
     }
   }
-  
+
   Some(path)
 }
 
@@ -196,21 +202,21 @@ pub fn TreeNode::lca(self : TreeNode, nodes : Array[TreeNode]) -> TreeNode? {
   if nodes.length() == 0 {
     return None
   }
-  
+
   let paths : Array[Array[TreeNode]] = Array::new()
   for node in nodes {
     let path = node.ancestors()
     path.push(node)
     paths.push(path)
   }
-  
+
   let mut min_len = paths[0].length()
   for path in paths {
     if path.length() < min_len {
       min_len = path.length()
     }
   }
-  
+
   let mut i = 0
   while i < min_len {
     let current = paths[0][paths[0].length() - 1 - i]
@@ -218,8 +224,7 @@ pub fn TreeNode::lca(self : TreeNode, nodes : Array[TreeNode]) -> TreeNode? {
     let m = paths.length()
     for j = 1; j < m; j = j + 1 {
       let other = paths[j][paths[j].length() - 1 - i]
-      if !(current.name == other.name && 
-           current.length == other.length) {
+      if !(current.name == other.name && current.length == other.length) {
         all_match = false
         break
       }
@@ -229,7 +234,7 @@ pub fn TreeNode::lca(self : TreeNode, nodes : Array[TreeNode]) -> TreeNode? {
     }
     i = i + 1
   }
-  
+
   if i > 0 {
     Some(paths[0][paths[0].length() - i])
   } else {
@@ -262,7 +267,10 @@ pub fn TreeNode::postorder(self : TreeNode) -> Array[TreeNode] {
 }
 
 ///|
-fn TreeNode::postorder_helper(self : TreeNode, result : Array[TreeNode]) -> Unit {
+fn TreeNode::postorder_helper(
+  self : TreeNode,
+  result : Array[TreeNode],
+) -> Unit {
   for child in self.children {
     child.postorder_helper(result)
   }
@@ -275,7 +283,7 @@ pub fn TreeNode::levelorder(self : TreeNode) -> Array[TreeNode] {
   let result = Array::new()
   let queue = Array::new()
   queue.push(self)
-  
+
   while queue.length() > 0 {
     let node = queue.remove(0)
     result.push(node)
@@ -283,7 +291,7 @@ pub fn TreeNode::levelorder(self : TreeNode) -> Array[TreeNode] {
       queue.push(child)
     }
   }
-  
+
   result
 }
 
@@ -315,7 +323,10 @@ pub fn TreeNode::non_tips(self : TreeNode) -> Array[TreeNode] {
 }
 
 ///|
-fn TreeNode::collect_non_tips(self : TreeNode, result : Array[TreeNode]) -> Unit {
+fn TreeNode::collect_non_tips(
+  self : TreeNode,
+  result : Array[TreeNode],
+) -> Unit {
   if !self.is_tip() {
     result.push(self)
     for child in self.children {
@@ -368,14 +379,21 @@ pub fn TreeNode::find(self : TreeNode, name : String) -> TreeNode? {
 
 ///|
 /// Find all nodes matching a name.
-pub fn TreeNode::find_by_name(self : TreeNode, name : String) -> Array[TreeNode] {
+pub fn TreeNode::find_by_name(
+  self : TreeNode,
+  name : String,
+) -> Array[TreeNode] {
   let result = Array::new()
   self.find_by_name_helper(name, result)
   result
 }
 
 ///|
-fn TreeNode::find_by_name_helper(self : TreeNode, name : String, result : Array[TreeNode]) -> Unit {
+fn TreeNode::find_by_name_helper(
+  self : TreeNode,
+  name : String,
+  result : Array[TreeNode],
+) -> Unit {
   if self.name == Some(name) {
     result.push(self)
   }
@@ -437,12 +455,12 @@ fn TreeNode::to_newick_helper(self : TreeNode, buf : StringBuilder) -> Unit {
     }
     buf.write_char(')')
   }
-  
+
   match self.name {
     Some(n) => buf.write_string(n)
     None => ()
   }
-  
+
   match self.length {
     Some(l) => {
       buf.write_char(':')
@@ -465,39 +483,43 @@ pub suberror ParseError {
 /// Parse Newick format string into TreeNode.
 fn skbio_parse_newick(input : String) -> TreeNode raise ParseError {
   let trimmed = input.trim()
-  
+
   if !trimmed.has_suffix(";") {
     raise ParseError::MissingSemicolon
   }
-  
+
   let s = trimmed[0:trimmed.length() - 1].to_owned()
   let n = s.length()
   let (root, pos) = parse_node_rec(s, 0, n)
-  
+
   if pos < n {
     raise ParseError::InvalidFormat("Extra characters after root".to_string())
   }
-  
+
   root
 }
 
 ///|
-fn parse_node_rec(s : String, pos : Int, len : Int) -> (TreeNode, Int) raise ParseError {
+fn parse_node_rec(
+  s : String,
+  pos : Int,
+  len : Int,
+) -> (TreeNode, Int) raise ParseError {
   let mut pos = skip_ws(s, pos, len)
-  
+
   let children : Array[TreeNode] = Array::new()
   let mut name : String? = None
   let mut length : Double? = None
-  
+
   if pos < len && s.unsafe_get(pos).unsafe_to_char() == '(' {
     pos = pos + 1
     pos = skip_ws(s, pos, len)
-    
+
     if pos < len && s.unsafe_get(pos).unsafe_to_char() != ')' {
       let (child, new_pos) = parse_node_rec(s, pos, len)
       pos = new_pos
       children.push(child)
-      
+
       while pos < len && s.unsafe_get(pos).unsafe_to_char() == ',' {
         pos = pos + 1
         pos = skip_ws(s, pos, len)
@@ -507,14 +529,14 @@ fn parse_node_rec(s : String, pos : Int, len : Int) -> (TreeNode, Int) raise Par
         pos = skip_ws(s, pos, len)
       }
     }
-    
+
     if pos >= len || s.unsafe_get(pos).unsafe_to_char() != ')' {
       raise ParseError::UnbalancedParentheses
     }
     pos = pos + 1
     pos = skip_ws(s, pos, len)
   }
-  
+
   if pos < len {
     let c = s.unsafe_get(pos).unsafe_to_char()
     if c != ':' && c != ',' && c != ')' && c != ';' {
@@ -524,7 +546,7 @@ fn parse_node_rec(s : String, pos : Int, len : Int) -> (TreeNode, Int) raise Par
       pos = skip_ws(s, pos, len)
     }
   }
-  
+
   if pos < len && s.unsafe_get(pos).unsafe_to_char() == ':' {
     pos = pos + 1
     pos = skip_ws(s, pos, len)
@@ -533,9 +555,9 @@ fn parse_node_rec(s : String, pos : Int, len : Int) -> (TreeNode, Int) raise Par
     pos = new_pos
     pos = skip_ws(s, pos, len)
   }
-  
-  let node = TreeNode::new(name=name, length=length, children=children)
-  
+
+  let node = TreeNode::new(name~, length~, children~)
+
   (node, pos)
 }
 
@@ -543,12 +565,14 @@ fn parse_node_rec(s : String, pos : Int, len : Int) -> (TreeNode, Int) raise Par
 fn parse_label_rec(s : String, pos : Int, len : Int) -> (String, Int) {
   let buf = StringBuilder::new()
   let mut pos = pos
-  
+
   if pos < len && s.unsafe_get(pos).unsafe_to_char() == '\'' {
     pos = pos + 1
     while pos < len && s.unsafe_get(pos).unsafe_to_char() != '\'' {
       let c = s.unsafe_get(pos).unsafe_to_char()
-      if c == '\'' && pos + 1 < len && s.unsafe_get(pos + 1).unsafe_to_char() == '\'' {
+      if c == '\'' &&
+        pos + 1 < len &&
+        s.unsafe_get(pos + 1).unsafe_to_char() == '\'' {
         buf.write_char('\'')
         pos = pos + 1
       } else {
@@ -569,15 +593,19 @@ fn parse_label_rec(s : String, pos : Int, len : Int) -> (String, Int) {
       pos = pos + 1
     }
   }
-  
+
   let s = buf.to_string()
   (s.replace(old="_".to_string_view(), new=" ".to_string_view()), pos)
 }
 
 ///|
-fn parse_number_rec(s : String, pos : Int, len : Int) -> (Double, Int) raise ParseError {
+fn parse_number_rec(
+  s : String,
+  pos : Int,
+  len : Int,
+) -> (Double, Int) raise ParseError {
   let mut pos = pos
-  
+
   let mut result = 0.0
   let mut decimal = 0.0
   let mut decimal_places = 0
@@ -586,14 +614,14 @@ fn parse_number_rec(s : String, pos : Int, len : Int) -> (Double, Int) raise Par
   let mut sci_sign = 1
   let mut sci_value = 0
   let zero = '0'.to_int()
-  
+
   if pos < len && s.unsafe_get(pos).to_int() == 45 {
     is_negative = true
     pos = pos + 1
   }
-  
+
   let mut has_digit = false
-  
+
   while pos < len {
     let c = s.unsafe_get(pos).to_int()
     if c == 46 {
@@ -639,16 +667,16 @@ fn parse_number_rec(s : String, pos : Int, len : Int) -> (Double, Int) raise Par
     has_digit = true
     pos = pos + 1
   }
-  
+
   if !has_digit {
     raise ParseError::InvalidNumber("".to_string())
   }
-  
+
   while decimal_places > 0 {
     decimal = decimal / 10.0
     decimal_places = decimal_places - 1
   }
-  
+
   let mut final_result = result + decimal
   if is_scientific {
     let mut pow10 = 1.0
@@ -663,11 +691,11 @@ fn parse_number_rec(s : String, pos : Int, len : Int) -> (Double, Int) raise Par
       final_result = final_result / pow10
     }
   }
-  
+
   if is_negative {
     final_result = -final_result
   }
-  
+
   (final_result, pos)
 }
 
@@ -689,5 +717,3 @@ fn is_whitespace(c : Char) -> Bool {
 fn is_digit(c : Char) -> Bool {
   c >= '0' && c <= '9'
 }
-
-
