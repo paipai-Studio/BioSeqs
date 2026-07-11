@@ -10,13 +10,15 @@
 #   1  one or more cases differ (or a prerequisite failed)
 #
 # Requirements:
-#   - moon (MoonBit toolchain) on PATH
+#   - moon (MoonBit toolchain) on PATH or set MOON_BIN environment variable
 #   - python3 with biopython installed (pip install biopython)
 
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
+
+MOON="${MOON_BIN:-moon}"
 
 TMPDIR="$(mktemp -d)"
 trap 'rm -rf "$TMPDIR"' EXIT
@@ -24,13 +26,13 @@ MB_JSON="$TMPDIR/moonbit.json"
 PY_JSON="$TMPDIR/biopython.json"
 
 echo "==> Building MoonBit project"
-moon build
+"$MOON" build
 
 echo "==> Running MoonBit companion program"
-moon run cmd/main > "$MB_JSON"
+"$MOON" run cmd/main/main.mbt > "$MB_JSON"
 
 echo "==> Running BioPython reference script"
-python3 tests/python_reference.py > "$PY_JSON"
+python3 test/python/python_reference.py > "$PY_JSON"
 
 echo "==> Comparing outputs"
 python3 - "$MB_JSON" "$PY_JSON" <<'PYEOF'
