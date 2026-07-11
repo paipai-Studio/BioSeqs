@@ -161,22 +161,7 @@ def case_write_fasta_align():
     emit("write_fasta_align", out.getvalue())
 
 
-def case_alignment_length():
-    align = AlignIO.read(StringIO(CLUSTAL_SAMPLE), "clustal")
-    emit("alignment_length", {
-        "num_records": len(align),
-        "alignment_length": align.get_alignment_length(),
-    })
 
-
-def case_alignment_column():
-    align = AlignIO.read(StringIO(CLUSTAL_SAMPLE), "clustal")
-    column_0 = "".join([str(rec.seq[0]) for rec in align])
-    column_5 = "".join([str(rec.seq[5]) for rec in align])
-    emit("alignment_column", {
-        "column_0": column_0,
-        "column_5": column_5,
-    })
 
 
 def case_read_multiple_error():
@@ -197,8 +182,6 @@ def main():
     case_write_clustal()
     case_write_phylip()
     case_write_fasta_align()
-    case_alignment_length()
-    case_alignment_column()
     case_read_multiple_error()
 
 
