@@ -233,6 +233,10 @@ pub let codon_fixed_table : FixedArray[UInt16] = {
   t
 }
 
+
+
+
+
 ///|
 /// Lookup table for valid nucleotide letters (ambiguous DNA + RNA), indexed by
 /// UInt16 code unit. Mirrors BioPython's IUPACData.ambiguous_dna_letters +
