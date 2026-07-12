@@ -227,9 +227,6 @@ fn main {
   println("=== MoonBit SeqFeature benchmark ===")
   println("")
 
-  let long_seq = @lib.Seq::new(gen_dna(100_000))
-
-  let feat = @lib.SeqFeature::new(feature_type="CDS")
   let feat_qual = @lib.SeqFeature::new(feature_type="gene")
   let pos0 = @lib.Position::new_exact(0)
   let pos1000 = @lib.Position::new_exact(1000)

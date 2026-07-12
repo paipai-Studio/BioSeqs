@@ -478,13 +478,13 @@ pub fn Seq::translate(
     let c1 = seq.unsafe_get(i + 1)
     let c2 = seq.unsafe_get(i + 2)
     
-    let b0 = nuc_to_2bit_table[c0.to_int()]
-    let b1 = nuc_to_2bit_table[c1.to_int()]
-    let b2 = nuc_to_2bit_table[c2.to_int()]
+    let u0 = nuc_to_2bit_table[c0.to_int()]
+    let u1 = nuc_to_2bit_table[c1.to_int()]
+    let u2 = nuc_to_2bit_table[c2.to_int()]
     
-    let combined = b0 | b1 | b2
+    let combined = u0 | u1 | u2
     if combined >= 0 && combined < 4 {
-      let idx = (b0 << 4) | (b1 << 2) | b2
+      let idx = (u0 << 4) | (u1 << 2) | u2
       let result = codon_fixed_table[idx]
       
       if result == sentinel_stop {
@@ -501,7 +501,7 @@ pub fn Seq::translate(
       }
     } else if c0 == gap_code && c1 == gap_code && c2 == gap_code {
       amino_buf[amino_len] = gap_code
-    } else if b0 >= 0 && b1 >= 0 && b2 >= 0 {
+    } else if u0 >= 0 && u1 >= 0 && u2 >= 0 {
       amino_buf[amino_len] = x_code
     } else {
       let codon = codon_to_string(seq, i)

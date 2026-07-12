@@ -341,30 +341,90 @@ let prot_names = protein_feature_names()
 
 1. **O(1) 互补查找**: 使用 `FixedArray[UInt16]` 实现直接索引的互补碱基查找表，避免 Map 查找开销
 2. **无分配字符串操作**: 使用 `unsafe_get` 和 `FixedArray` 避免中间字符串分配
-3. **密码子快速查表**: 使用整数编码（c0*65536 + c1*256 + c2）作为键的密码子翻译表
-4. **单遍扫描**: 反向互补操作使用单遍扫描，避免中间字符串分配
-5. **预分配数组**: 字符串分割函数先统计分隔符数量，再一次性分配数组
-6. **FASTA 快速索引**: 通过 .fai 索引实现 O(1) 随机访问，跳过逐行解析
+3. **密码子快速查表**: 使用 2-bit 编码（A=0, C=1, G=2, T=3）构建 64 项密码子翻译表，通过位运算 `(b0 << 4) | (b1 << 2) | b2` 计算索引
+4. **分支预测优化**: 使用 `combined = b0 | b1 | b2` 合并多条件判断，提升 CPU 分支预测效率
+5. **单遍扫描**: 反向互补和翻译操作使用单遍扫描，避免中间字符串分配
+6. **预分配数组**: 字符串分割函数先统计分隔符数量，再一次性分配数组
+7. **FASTA 快速索引**: 通过 .fai 索引实现 O(1) 随机访问，跳过逐行解析
+8. **FixedArray 替代 Array**: BAM 解析中使用 `FixedArray` 存储参考序列和 CIGAR 元素，减少动态内存分配开销
 
-### 性能基准测试 (Python 参考)
+### 性能基准测试 (MoonBit WasmGC)
+
+| 操作 | 序列长度 | 单次耗时 | 备注 |
+|------|----------|----------|------|
+| translate | 100,000 | **601 us** | 优化后，提升 32% |
+| complement | 100,000 | **836 us** | |
+| reverse_complement | 100,000 | **556 us** | |
+| transcribe | 100,000 | **485 us** | |
+| reverse | 100,000 | **415 us** | |
+| upper | 100,000 | **487 us** | |
+| lower | 100,000 | **1029 us** | |
+| replace A->N | 100,000 | **1453 us** | |
+| count AAA | 100,000 | **436 us** | |
+| contains GGG | 100,000 | **221 us** | |
+| find ACGT | 100,000 | **0.65 us** | |
+| slice 0..1000 | 100,000 | **16.6 us** | |
+
+### 性能基准测试 (SeqIO)
+
+| 操作 | 数据规模 | 单次耗时 |
+|------|----------|----------|
+| parse_fasta | 100 records × 1000 bp | **1452 us** |
+| write_fasta | 100 records × 1000 bp | **1695 us** |
+| parse_fastq | 100 records × 1000 bp | **2497 us** |
+| write_fastq | 100 records × 1000 bp | **2236 us** |
+
+### 性能基准测试 (SeqUtils)
 
 | 操作 | 序列长度 | 单次耗时 |
 |------|----------|----------|
-| complement | 100,000 | 106 us |
-| reverse_complement | 100,000 | 178 us |
-| transcribe | 100,000 | 244 us |
-| translate | 100,000 | 17.5 ms |
-| count | 100,000 | 98 us |
-| find | 100,000 | 1.1 us |
-| replace | 100,000 | 234 us |
+| gc (GC含量) | 10,000 | **92 us** |
+| crc32 | 10,000 | **97 us** |
+| seguid | 10,000 | **7370 us** |
+| tm_wallace (熔解温度) | 10,000 | **81 us** |
+| ProteinAnalysis::count_amino_acids | 99 aa | **24 us** |
+| ProteinAnalysis::molecular_weight | 99 aa | **13 us** |
+
+### 性能基准测试 (Bio.Phylo)
+
+| 操作 | 规模 | 单次耗时 |
+|------|------|----------|
+| parse_newick | simple tree | **5.7 us** |
+| Tree::count_terminals | simple tree | **0.61 us** |
+| Tree::distance | simple tree | **1.85 us** |
+| parse_newick | 50 leaves | **54.7 us** |
+
+### 性能基准测试 (Bio.PDB)
+
+| 操作 | 规模 | 单次耗时 |
+|------|------|----------|
+| parse_pdb | 300 atoms | **619 us** |
+| write_pdb | 300 atoms | **1804 us** |
+| Atom::distance | 2 atoms | **0.30 us** |
+
+### Python 参考基准测试
+
+> **注意**: BioPython 的 `complement`、`count`、`replace` 等操作使用 C 扩展实现，因此 MoonBit 在这些操作上较慢是预期的。
+
+MoonBit 的优势在于纯 WebAssembly 环境下的便携性和 `translate` 等算法密集型操作的性能。
+
+| 操作 | 序列长度 | Python (BioPython) | MoonBit (WasmGC) | 相对性能 |
+|------|----------|--------------------|------------------|----------|
+| complement | 100,000 | 106 us | 836 us | ~8× slower |
+| reverse_complement | 100,000 | 178 us | 556 us | ~3× slower |
+| transcribe | 100,000 | 244 us | 485 us | ~2× slower |
+| translate | 100,000 | 17.5 ms | 601 us | **~29× faster** |
+| count | 100,000 | 98 us | 436 us | ~4× slower |
+| find | 100,000 | 1.1 us | 0.65 us | **~1.7× faster** |
+| replace | 100,000 | 234 us | 1453 us | ~6× slower |
 
 ## 测试验证
 
 ### 测试覆盖率
 
 ```
-Total tests: 167
-Passed: 167
+Total tests: 179
+Passed: 179
 Failed: 0
 ```
 
@@ -382,6 +442,7 @@ Failed: 0
 | 比对算法 | `alignment_test.mbt` | 14 |
 | SAM 解析 | `sam_test.mbt` | 6 |
 | VCF 解析 | `vcf_test.mbt` | 7 |
+| BAM 解析 | `bam_test.mbt` | 11 |
 | FASTA 索引 | `faidx_test.mbt` | 9 |
 | 特征提取 | `feature_extraction_test.mbt` | 18 |
 
@@ -510,11 +571,13 @@ moon run cmd/bench/main.mbt
 
 ## 未来规划
 
-- [ ] 实现 BAM 二进制格式解析
+- ✅ 实现 BAM 二进制格式解析
 - [ ] 实现 CRAM 格式支持
 - [ ] 添加更多多样性指数计算
-- [ ] 优化 translate 性能
+- ✅ 添加机器学习特征提取功能
+- ✅ 优化 translate 性能（从 880 us → 601 us，提升 32%）
 - [ ] 添加 SIMD 加速支持
+- [ ] 实现 BGZF 解压缩功能，支持读取压缩的 BAM 文件
 
 ## 许可证
 
