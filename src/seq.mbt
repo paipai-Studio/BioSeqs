@@ -393,7 +393,7 @@ pub fn Seq::back_transcribe(self : Seq) -> Seq {
 
 ///|
 /// Translate a nucleotide sequence into a protein sequence using the
-/// Standard NCBI table (table 1).
+/// Standard NCBI table (table 1). Optimized version using FixedArray lookup.
 ///
 /// Arguments mirror BioPython's Seq.translate():
 ///  - stop_symbol: character used for stop codons (default '*')
@@ -411,7 +411,7 @@ pub fn Seq::translate(
   cds? : Bool = false,
   gap? : Char = '-',
 ) -> Seq raise SeqError {
-  let seq = self.data.to_upper()
+  let seq = self.data
   let n = seq.length()
   let max_amino = n / 3
   let amino_buf : FixedArray[UInt16] = FixedArray::make(max_amino, 0)
@@ -420,9 +420,12 @@ pub fn Seq::translate(
   let gap_code = gap.to_int().to_uint16()
   let m_code = 'M'.to_int().to_uint16()
   let x_code = 'X'.to_int().to_uint16()
+  let sentinel_stop : UInt16 = 0xFFFF
+  let sentinel_ambiguous : UInt16 = 0xFFFE
+  let gap_uint = gap_code
 
   if cds {
-    if !is_start_codon_at(seq, 0) {
+    if !is_start_codon_fast(seq, 0) {
       let first_codon = codon_to_string(seq, 0)
       raise SeqError("First codon '" + first_codon + "' is not a start codon")
     }
@@ -431,7 +434,7 @@ pub fn Seq::translate(
         "Sequence length " + n.to_string() + " is not a multiple of three",
       )
     }
-    if !is_stop_codon_at(seq, n - 3) {
+    if !is_stop_codon_fast(seq, n - 3) {
       let last_codon = codon_to_string(seq, n - 3)
       raise SeqError("Final codon '" + last_codon + "' is not a stop codon")
     }
@@ -440,27 +443,41 @@ pub fn Seq::translate(
     let mut i = 3
     let stop = n - 3
     while i < stop {
-      if is_stop_codon_at(seq, i) {
-        let codon = codon_to_string(seq, i)
-        raise SeqError("Extra in frame stop codon '" + codon + "' found.")
-      }
-      match lookup_codon(seq, i) {
-        Some(aa) => {
-          amino_buf[amino_len] = aa.to_int().to_uint16()
+      let c0 = seq.unsafe_get(i)
+      let c1 = seq.unsafe_get(i + 1)
+      let c2 = seq.unsafe_get(i + 2)
+      
+      let b0 = nuc_to_2bit(c0)
+      let b1 = nuc_to_2bit(c1)
+      let b2 = nuc_to_2bit(c2)
+      
+      if b0 < 0 || b1 < 0 || b2 < 0 {
+        if is_gap_codon_fast(c0, c1, c2, gap_uint) {
+          amino_buf[amino_len] = gap_code
+          amino_len = amino_len + 1
+        } else if all_valid_letters_fast(c0, c1, c2) {
+          amino_buf[amino_len] = x_code
+          amino_len = amino_len + 1
+        } else {
+          let codon = codon_to_string(seq, i)
+          raise SeqError("Codon '" + codon + "' is invalid")
+        }
+      } else {
+        let idx = b0 * 16 + b1 * 4 + b2
+        let result = codon_fixed_table[idx]
+        
+        if result == sentinel_stop {
+          let codon = codon_to_string(seq, i)
+          raise SeqError("Extra in frame stop codon '" + codon + "' found.")
+        } else if result == sentinel_ambiguous {
+          amino_buf[amino_len] = x_code
+          amino_len = amino_len + 1
+        } else {
+          amino_buf[amino_len] = result
           amino_len = amino_len + 1
         }
-        None =>
-          if all_valid_letters_at(seq, i) {
-            amino_buf[amino_len] = x_code
-            amino_len = amino_len + 1
-          } else if is_gap_codon_at(seq, i, gap) {
-            amino_buf[amino_len] = gap_code
-            amino_len = amino_len + 1
-          } else {
-            let codon = codon_to_string(seq, i)
-            raise SeqError("Codon '" + codon + "' is invalid")
-          }
       }
+      
       i = i + 3
     }
     let final_buf : FixedArray[UInt16] = FixedArray::make(amino_len, 0)
@@ -469,37 +486,54 @@ pub fn Seq::translate(
     }
     return Seq::{ data: unsafe_from_uint16_fixedarray(final_buf) }
   }
+  
   let mut i = 0
   while i < n - n % 3 {
-    match lookup_codon(seq, i) {
-      Some(aa) => {
-        amino_buf[amino_len] = aa.to_int().to_uint16()
+    let c0 = seq.unsafe_get(i)
+    let c1 = seq.unsafe_get(i + 1)
+    let c2 = seq.unsafe_get(i + 2)
+    
+    let b0 = nuc_to_2bit(c0)
+    let b1 = nuc_to_2bit(c1)
+    let b2 = nuc_to_2bit(c2)
+    
+    if b0 < 0 || b1 < 0 || b2 < 0 {
+      if is_gap_codon_fast(c0, c1, c2, gap_uint) {
+        amino_buf[amino_len] = gap_code
+        amino_len = amino_len + 1
+      } else if all_valid_letters_fast(c0, c1, c2) {
+        amino_buf[amino_len] = x_code
+        amino_len = amino_len + 1
+      } else {
+        let codon = codon_to_string(seq, i)
+        raise SeqError("Codon '" + codon + "' is invalid")
+      }
+    } else {
+      let idx = b0 * 16 + b1 * 4 + b2
+      let result = codon_fixed_table[idx]
+      
+      if result == sentinel_stop {
+        if to_stop {
+          let final_buf : FixedArray[UInt16] = FixedArray::make(amino_len, 0)
+          for k = 0; k < amino_len; k = k + 1 {
+            final_buf[k] = amino_buf[k]
+          }
+          return Seq::{ data: unsafe_from_uint16_fixedarray(final_buf) }
+        }
+        amino_buf[amino_len] = stop_code
+        amino_len = amino_len + 1
+      } else if result == sentinel_ambiguous {
+        amino_buf[amino_len] = x_code
+        amino_len = amino_len + 1
+      } else {
+        amino_buf[amino_len] = result
         amino_len = amino_len + 1
       }
-      None =>
-        if is_stop_codon_at(seq, i) {
-          if to_stop {
-            let final_buf : FixedArray[UInt16] = FixedArray::make(amino_len, 0)
-            for k = 0; k < amino_len; k = k + 1 {
-              final_buf[k] = amino_buf[k]
-            }
-            return Seq::{ data: unsafe_from_uint16_fixedarray(final_buf) }
-          }
-          amino_buf[amino_len] = stop_code
-          amino_len = amino_len + 1
-        } else if all_valid_letters_at(seq, i) {
-          amino_buf[amino_len] = x_code
-          amino_len = amino_len + 1
-        } else if is_gap_codon_at(seq, i, gap) {
-          amino_buf[amino_len] = gap_code
-          amino_len = amino_len + 1
-        } else {
-          let codon = codon_to_string(seq, i)
-          raise SeqError("Codon '" + codon + "' is invalid")
-        }
     }
+    
     i = i + 3
   }
+  
   let final_buf : FixedArray[UInt16] = FixedArray::make(amino_len, 0)
   for k = 0; k < amino_len; k = k + 1 {
     final_buf[k] = amino_buf[k]
@@ -581,4 +615,52 @@ fn is_gap_codon_at(seq : String, i : Int, gap : Char) -> Bool {
   seq.unsafe_get(i).to_int() == g &&
   seq.unsafe_get(i + 1).to_int() == g &&
   seq.unsafe_get(i + 2).to_int() == g
+}
+
+///|
+/// Fast version of is_stop_codon_at that uses already-read UInt16 values.
+fn is_stop_codon_fast(seq : String, i : Int) -> Bool {
+  let c0 = seq.unsafe_get(i)
+  let c1 = seq.unsafe_get(i + 1)
+  let c2 = seq.unsafe_get(i + 2)
+  let t = 'T'.to_int().to_uint16()
+  let a = 'A'.to_int().to_uint16()
+  let g = 'G'.to_int().to_uint16()
+  (c0 == t && c1 == a && (c2 == a || c2 == g)) ||
+  (c0 == t && c1 == g && c2 == a)
+}
+
+///|
+/// Fast version of is_start_codon_at that uses already-read UInt16 values.
+fn is_start_codon_fast(seq : String, i : Int) -> Bool {
+  let c0 = seq.unsafe_get(i)
+  let c1 = seq.unsafe_get(i + 1)
+  let c2 = seq.unsafe_get(i + 2)
+  let a = 'A'.to_int().to_uint16()
+  let c = 'C'.to_int().to_uint16()
+  let t = 'T'.to_int().to_uint16()
+  let g = 'G'.to_int().to_uint16()
+  (c0 == a || c0 == c || c0 == t) && c1 == t && c2 == g
+}
+
+///|
+/// Fast version of is_gap_codon_at that takes pre-read UInt16 values.
+fn is_gap_codon_fast(c0 : UInt16, c1 : UInt16, c2 : UInt16, gap : UInt16) -> Bool {
+  c0 == gap && c1 == gap && c2 == gap
+}
+
+///|
+/// Fast version of all_valid_letters_at that takes pre-read UInt16 values.
+fn all_valid_letters_fast(c0 : UInt16, c1 : UInt16, c2 : UInt16) -> Bool {
+  valid_letter_fast(c0) && valid_letter_fast(c1) && valid_letter_fast(c2)
+}
+
+///|
+/// Fast version of valid_letter that takes UInt16 directly.
+fn valid_letter_fast(c : UInt16) -> Bool {
+  if c < 128 {
+    valid_letter_table[c.to_int()]
+  } else {
+    false
+  }
 }
