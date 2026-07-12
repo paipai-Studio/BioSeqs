@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "biolab/bio_seq/src"
+package "IvanAXu/BioSeqs/src"
 
 import {
   "moonbitlang/core/debug",
@@ -592,28 +592,6 @@ pub struct Vector3 {
 }
 pub fn Vector3::distance(Self, Self) -> Double
 pub fn Vector3::new(Double, Double, Double) -> Self
-
-pub struct ZSet {
-  dict : Map[String, Double]
-  sorted : Array[(String, Double)]
-}
-pub fn ZSet::contains(Self, String) -> Bool
-pub fn ZSet::new() -> Self
-pub fn ZSet::to_array(Self) -> Array[(String, Double)]
-pub fn ZSet::zadd(Self, Double, String) -> Int
-pub fn ZSet::zcard(Self) -> Int
-pub fn ZSet::zcount(Self, Double, Double) -> Int
-pub fn ZSet::zincrby(Self, Double, String) -> Double
-pub fn ZSet::zpopmax(Self) -> (String, Double)?
-pub fn ZSet::zpopmin(Self) -> (String, Double)?
-pub fn ZSet::zrange(Self, Int, Int) -> Array[(String, Double)]
-pub fn ZSet::zrangebyscore(Self, Double, Double) -> Array[(String, Double)]
-pub fn ZSet::zrank(Self, String) -> Int?
-pub fn ZSet::zrem(Self, String) -> Int
-pub fn ZSet::zremrangebyrank(Self, Int, Int) -> Int
-pub fn ZSet::zremrangebyscore(Self, Double, Double) -> Int
-pub fn ZSet::zrevrank(Self, String) -> Int?
-pub fn ZSet::zscore(Self, String) -> Double?
 
 // Type aliases
 
