@@ -1,0 +1,2030 @@
+{
+  "source_dir": "/home/developer/Documents/BioSeqs",
+  "name": "IvanAXu/BioSeqs",
+  "packages": [
+    {
+      "is-main": true,
+      "is-third-party": false,
+      "root-path": "/home/developer/Documents/BioSeqs/cmd/alignio_main",
+      "root": "IvanAXu/BioSeqs",
+      "rel": "cmd/alignio_main",
+      "files": {
+        "/home/developer/Documents/BioSeqs/cmd/alignio_main/alignio_tests.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/cmd/alignio_main/main.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "IvanAXu/BioSeqs/src",
+          "alias": "lib",
+          "fspath": "/home/developer/Documents/BioSeqs/src"
+        },
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "wbtest-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "test-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "artifact": "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/alignio_main/alignio_main.mi",
+      "check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "/home/developer/Documents/BioSeqs/cmd/alignio_main/alignio_tests.mbt",
+        "/home/developer/Documents/BioSeqs/cmd/alignio_main/main.mbt",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/alignio_main/alignio_main.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/cmd/alignio_main",
+        "-is-main",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:lib",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/cmd/alignio_main:/home/developer/Documents/BioSeqs/cmd/alignio_main",
+        "-target",
+        "wasm-gc",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "wbtest-check-command": null,
+      "test-check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/cmd/alignio_main/alignio_tests.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/cmd/alignio_main/main.mbt",
+        "-include-doctests",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/alignio_main/alignio_main.blackbox_test.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/cmd/alignio_main_blackbox_test",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/alignio_main/alignio_main.mi:alignio_main",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:lib",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/cmd/alignio_main_blackbox_test:/home/developer/Documents/BioSeqs/cmd/alignio_main",
+        "-target",
+        "wasm-gc",
+        "-blackbox-test",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "supported-targets": [
+        "Wasm",
+        "WasmGC",
+        "Js",
+        "Native",
+        "LLVM"
+      ]
+    },
+    {
+      "is-main": true,
+      "is-third-party": false,
+      "root-path": "/home/developer/Documents/BioSeqs/cmd/bench",
+      "root": "IvanAXu/BioSeqs",
+      "rel": "cmd/bench",
+      "files": {
+        "/home/developer/Documents/BioSeqs/cmd/bench/main.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "IvanAXu/BioSeqs/src",
+          "alias": "lib",
+          "fspath": "/home/developer/Documents/BioSeqs/src"
+        },
+        {
+          "path": "moonbitlang/core/bench",
+          "alias": "mb",
+          "fspath": "/home/developer/.moon/lib/core/bench"
+        },
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "wbtest-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "test-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "artifact": "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/bench/bench.mi",
+      "check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "/home/developer/Documents/BioSeqs/cmd/bench/main.mbt",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/bench/bench.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/cmd/bench",
+        "-is-main",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:lib",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/bench/bench.mi:mb",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/cmd/bench:/home/developer/Documents/BioSeqs/cmd/bench",
+        "-target",
+        "wasm-gc",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "wbtest-check-command": null,
+      "test-check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/cmd/bench/main.mbt",
+        "-include-doctests",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/bench/bench.blackbox_test.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/cmd/bench_blackbox_test",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/bench/bench.mi:bench",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:lib",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/bench/bench.mi:mb",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/cmd/bench_blackbox_test:/home/developer/Documents/BioSeqs/cmd/bench",
+        "-target",
+        "wasm-gc",
+        "-blackbox-test",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "supported-targets": [
+        "Wasm",
+        "WasmGC",
+        "Js",
+        "Native",
+        "LLVM"
+      ]
+    },
+    {
+      "is-main": true,
+      "is-third-party": false,
+      "root-path": "/home/developer/Documents/BioSeqs/cmd/main",
+      "root": "IvanAXu/BioSeqs",
+      "rel": "cmd/main",
+      "files": {
+        "/home/developer/Documents/BioSeqs/cmd/main/main.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "IvanAXu/BioSeqs/src",
+          "alias": "lib",
+          "fspath": "/home/developer/Documents/BioSeqs/src"
+        },
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "wbtest-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "test-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "artifact": "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/main/main.mi",
+      "check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "/home/developer/Documents/BioSeqs/cmd/main/main.mbt",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/main/main.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/cmd/main",
+        "-is-main",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:lib",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/cmd/main:/home/developer/Documents/BioSeqs/cmd/main",
+        "-target",
+        "wasm-gc",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "wbtest-check-command": null,
+      "test-check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/cmd/main/main.mbt",
+        "-include-doctests",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/main/main.blackbox_test.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/cmd/main_blackbox_test",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:lib",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/main/main.mi:main",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/cmd/main_blackbox_test:/home/developer/Documents/BioSeqs/cmd/main",
+        "-target",
+        "wasm-gc",
+        "-blackbox-test",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "supported-targets": [
+        "Wasm",
+        "WasmGC",
+        "Js",
+        "Native",
+        "LLVM"
+      ]
+    },
+    {
+      "is-main": true,
+      "is-third-party": false,
+      "root-path": "/home/developer/Documents/BioSeqs/cmd/seqio_main",
+      "root": "IvanAXu/BioSeqs",
+      "rel": "cmd/seqio_main",
+      "files": {
+        "/home/developer/Documents/BioSeqs/cmd/seqio_main/main.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/cmd/seqio_main/seqio_tests.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "IvanAXu/BioSeqs/src",
+          "alias": "lib",
+          "fspath": "/home/developer/Documents/BioSeqs/src"
+        },
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "wbtest-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "test-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "artifact": "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/seqio_main/seqio_main.mi",
+      "check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "/home/developer/Documents/BioSeqs/cmd/seqio_main/main.mbt",
+        "/home/developer/Documents/BioSeqs/cmd/seqio_main/seqio_tests.mbt",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/seqio_main/seqio_main.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/cmd/seqio_main",
+        "-is-main",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:lib",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/cmd/seqio_main:/home/developer/Documents/BioSeqs/cmd/seqio_main",
+        "-target",
+        "wasm-gc",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "wbtest-check-command": null,
+      "test-check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/cmd/seqio_main/main.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/cmd/seqio_main/seqio_tests.mbt",
+        "-include-doctests",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/seqio_main/seqio_main.blackbox_test.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/cmd/seqio_main_blackbox_test",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:lib",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/cmd/seqio_main/seqio_main.mi:seqio_main",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/cmd/seqio_main_blackbox_test:/home/developer/Documents/BioSeqs/cmd/seqio_main",
+        "-target",
+        "wasm-gc",
+        "-blackbox-test",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "supported-targets": [
+        "Wasm",
+        "WasmGC",
+        "Js",
+        "Native",
+        "LLVM"
+      ]
+    },
+    {
+      "is-main": true,
+      "is-third-party": false,
+      "root-path": "/home/developer/Documents/BioSeqs/examples/alignment_demo",
+      "root": "IvanAXu/BioSeqs",
+      "rel": "examples/alignment_demo",
+      "files": {
+        "/home/developer/Documents/BioSeqs/examples/alignment_demo/main.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "IvanAXu/BioSeqs/src",
+          "alias": "bio",
+          "fspath": "/home/developer/Documents/BioSeqs/src"
+        },
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "wbtest-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "test-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "artifact": "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/alignment_demo/alignment_demo.mi",
+      "check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "/home/developer/Documents/BioSeqs/examples/alignment_demo/main.mbt",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/alignment_demo/alignment_demo.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/alignment_demo",
+        "-is-main",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/alignment_demo:/home/developer/Documents/BioSeqs/examples/alignment_demo",
+        "-target",
+        "wasm-gc",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "wbtest-check-command": null,
+      "test-check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/examples/alignment_demo/main.mbt",
+        "-include-doctests",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/alignment_demo/alignment_demo.blackbox_test.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/alignment_demo_blackbox_test",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/alignment_demo/alignment_demo.mi:alignment_demo",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/alignment_demo_blackbox_test:/home/developer/Documents/BioSeqs/examples/alignment_demo",
+        "-target",
+        "wasm-gc",
+        "-blackbox-test",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "supported-targets": [
+        "Wasm",
+        "WasmGC",
+        "Js",
+        "Native",
+        "LLVM"
+      ]
+    },
+    {
+      "is-main": true,
+      "is-third-party": false,
+      "root-path": "/home/developer/Documents/BioSeqs/examples/basic_seq",
+      "root": "IvanAXu/BioSeqs",
+      "rel": "examples/basic_seq",
+      "files": {
+        "/home/developer/Documents/BioSeqs/examples/basic_seq/main.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "IvanAXu/BioSeqs/src",
+          "alias": "bio",
+          "fspath": "/home/developer/Documents/BioSeqs/src"
+        },
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "wbtest-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "test-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "artifact": "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/basic_seq/basic_seq.mi",
+      "check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "/home/developer/Documents/BioSeqs/examples/basic_seq/main.mbt",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/basic_seq/basic_seq.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/basic_seq",
+        "-is-main",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/basic_seq:/home/developer/Documents/BioSeqs/examples/basic_seq",
+        "-target",
+        "wasm-gc",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "wbtest-check-command": null,
+      "test-check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/examples/basic_seq/main.mbt",
+        "-include-doctests",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/basic_seq/basic_seq.blackbox_test.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/basic_seq_blackbox_test",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/basic_seq/basic_seq.mi:basic_seq",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/basic_seq_blackbox_test:/home/developer/Documents/BioSeqs/examples/basic_seq",
+        "-target",
+        "wasm-gc",
+        "-blackbox-test",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "supported-targets": [
+        "Wasm",
+        "WasmGC",
+        "Js",
+        "Native",
+        "LLVM"
+      ]
+    },
+    {
+      "is-main": true,
+      "is-third-party": false,
+      "root-path": "/home/developer/Documents/BioSeqs/examples/faidx_demo",
+      "root": "IvanAXu/BioSeqs",
+      "rel": "examples/faidx_demo",
+      "files": {
+        "/home/developer/Documents/BioSeqs/examples/faidx_demo/main.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "IvanAXu/BioSeqs/src",
+          "alias": "bio",
+          "fspath": "/home/developer/Documents/BioSeqs/src"
+        },
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "wbtest-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "test-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "artifact": "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/faidx_demo/faidx_demo.mi",
+      "check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "/home/developer/Documents/BioSeqs/examples/faidx_demo/main.mbt",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/faidx_demo/faidx_demo.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/faidx_demo",
+        "-is-main",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/faidx_demo:/home/developer/Documents/BioSeqs/examples/faidx_demo",
+        "-target",
+        "wasm-gc",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "wbtest-check-command": null,
+      "test-check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/examples/faidx_demo/main.mbt",
+        "-include-doctests",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/faidx_demo/faidx_demo.blackbox_test.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/faidx_demo_blackbox_test",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/faidx_demo/faidx_demo.mi:faidx_demo",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/faidx_demo_blackbox_test:/home/developer/Documents/BioSeqs/examples/faidx_demo",
+        "-target",
+        "wasm-gc",
+        "-blackbox-test",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "supported-targets": [
+        "Wasm",
+        "WasmGC",
+        "Js",
+        "Native",
+        "LLVM"
+      ]
+    },
+    {
+      "is-main": true,
+      "is-third-party": false,
+      "root-path": "/home/developer/Documents/BioSeqs/examples/pdb_demo",
+      "root": "IvanAXu/BioSeqs",
+      "rel": "examples/pdb_demo",
+      "files": {
+        "/home/developer/Documents/BioSeqs/examples/pdb_demo/main.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "IvanAXu/BioSeqs/src",
+          "alias": "bio",
+          "fspath": "/home/developer/Documents/BioSeqs/src"
+        },
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "wbtest-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "test-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "artifact": "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/pdb_demo/pdb_demo.mi",
+      "check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "/home/developer/Documents/BioSeqs/examples/pdb_demo/main.mbt",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/pdb_demo/pdb_demo.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/pdb_demo",
+        "-is-main",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/pdb_demo:/home/developer/Documents/BioSeqs/examples/pdb_demo",
+        "-target",
+        "wasm-gc",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "wbtest-check-command": null,
+      "test-check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/examples/pdb_demo/main.mbt",
+        "-include-doctests",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/pdb_demo/pdb_demo.blackbox_test.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/pdb_demo_blackbox_test",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/pdb_demo/pdb_demo.mi:pdb_demo",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/pdb_demo_blackbox_test:/home/developer/Documents/BioSeqs/examples/pdb_demo",
+        "-target",
+        "wasm-gc",
+        "-blackbox-test",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "supported-targets": [
+        "Wasm",
+        "WasmGC",
+        "Js",
+        "Native",
+        "LLVM"
+      ]
+    },
+    {
+      "is-main": true,
+      "is-third-party": false,
+      "root-path": "/home/developer/Documents/BioSeqs/examples/phylo_demo",
+      "root": "IvanAXu/BioSeqs",
+      "rel": "examples/phylo_demo",
+      "files": {
+        "/home/developer/Documents/BioSeqs/examples/phylo_demo/main.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "IvanAXu/BioSeqs/src",
+          "alias": "bio",
+          "fspath": "/home/developer/Documents/BioSeqs/src"
+        },
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "wbtest-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "test-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "artifact": "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/phylo_demo/phylo_demo.mi",
+      "check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "/home/developer/Documents/BioSeqs/examples/phylo_demo/main.mbt",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/phylo_demo/phylo_demo.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/phylo_demo",
+        "-is-main",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/phylo_demo:/home/developer/Documents/BioSeqs/examples/phylo_demo",
+        "-target",
+        "wasm-gc",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "wbtest-check-command": null,
+      "test-check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/examples/phylo_demo/main.mbt",
+        "-include-doctests",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/phylo_demo/phylo_demo.blackbox_test.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/phylo_demo_blackbox_test",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/phylo_demo/phylo_demo.mi:phylo_demo",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/phylo_demo_blackbox_test:/home/developer/Documents/BioSeqs/examples/phylo_demo",
+        "-target",
+        "wasm-gc",
+        "-blackbox-test",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "supported-targets": [
+        "Wasm",
+        "WasmGC",
+        "Js",
+        "Native",
+        "LLVM"
+      ]
+    },
+    {
+      "is-main": true,
+      "is-third-party": false,
+      "root-path": "/home/developer/Documents/BioSeqs/examples/sam_vcf_demo",
+      "root": "IvanAXu/BioSeqs",
+      "rel": "examples/sam_vcf_demo",
+      "files": {
+        "/home/developer/Documents/BioSeqs/examples/sam_vcf_demo/main.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "IvanAXu/BioSeqs/src",
+          "alias": "bio",
+          "fspath": "/home/developer/Documents/BioSeqs/src"
+        },
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "wbtest-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "test-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "artifact": "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/sam_vcf_demo/sam_vcf_demo.mi",
+      "check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "/home/developer/Documents/BioSeqs/examples/sam_vcf_demo/main.mbt",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/sam_vcf_demo/sam_vcf_demo.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/sam_vcf_demo",
+        "-is-main",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/sam_vcf_demo:/home/developer/Documents/BioSeqs/examples/sam_vcf_demo",
+        "-target",
+        "wasm-gc",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "wbtest-check-command": null,
+      "test-check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/examples/sam_vcf_demo/main.mbt",
+        "-include-doctests",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/sam_vcf_demo/sam_vcf_demo.blackbox_test.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/sam_vcf_demo_blackbox_test",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/sam_vcf_demo/sam_vcf_demo.mi:sam_vcf_demo",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/sam_vcf_demo_blackbox_test:/home/developer/Documents/BioSeqs/examples/sam_vcf_demo",
+        "-target",
+        "wasm-gc",
+        "-blackbox-test",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "supported-targets": [
+        "Wasm",
+        "WasmGC",
+        "Js",
+        "Native",
+        "LLVM"
+      ]
+    },
+    {
+      "is-main": true,
+      "is-third-party": false,
+      "root-path": "/home/developer/Documents/BioSeqs/examples/seqio_demo",
+      "root": "IvanAXu/BioSeqs",
+      "rel": "examples/seqio_demo",
+      "files": {
+        "/home/developer/Documents/BioSeqs/examples/seqio_demo/main.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "IvanAXu/BioSeqs/src",
+          "alias": "bio",
+          "fspath": "/home/developer/Documents/BioSeqs/src"
+        },
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "wbtest-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "test-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "artifact": "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/seqio_demo/seqio_demo.mi",
+      "check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "/home/developer/Documents/BioSeqs/examples/seqio_demo/main.mbt",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/seqio_demo/seqio_demo.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/seqio_demo",
+        "-is-main",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/seqio_demo:/home/developer/Documents/BioSeqs/examples/seqio_demo",
+        "-target",
+        "wasm-gc",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "wbtest-check-command": null,
+      "test-check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/examples/seqio_demo/main.mbt",
+        "-include-doctests",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/seqio_demo/seqio_demo.blackbox_test.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/examples/seqio_demo_blackbox_test",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:bio",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/examples/seqio_demo/seqio_demo.mi:seqio_demo",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/examples/seqio_demo_blackbox_test:/home/developer/Documents/BioSeqs/examples/seqio_demo",
+        "-target",
+        "wasm-gc",
+        "-blackbox-test",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "supported-targets": [
+        "Wasm",
+        "WasmGC",
+        "Js",
+        "Native",
+        "LLVM"
+      ]
+    },
+    {
+      "is-main": false,
+      "is-third-party": false,
+      "root-path": "/home/developer/Documents/BioSeqs/src",
+      "root": "IvanAXu/BioSeqs",
+      "rel": "src",
+      "files": {
+        "/home/developer/Documents/BioSeqs/src/align.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/alignio.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/alignment.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/clustal_io.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/codon_table.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/complement.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/faidx.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/fasta_io.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/fastq_io.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/genbank_io.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/newick_io.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/pdb.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/pdb_io.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/phylip_io.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/phylo.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/sam.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/seq.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/seq_record.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/seqfeature.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/seqio.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/sequtils.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/utils.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/src/vcf.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        }
+      },
+      "wbtest-files": {},
+      "test-files": {},
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "moonbitlang/core/hashmap",
+          "alias": "hashmap",
+          "fspath": "/home/developer/.moon/lib/core/hashmap"
+        },
+        {
+          "path": "moonbitlang/core/math",
+          "alias": "math",
+          "fspath": "/home/developer/.moon/lib/core/math"
+        },
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "wbtest-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "test-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "artifact": "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi",
+      "check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "/home/developer/Documents/BioSeqs/src/align.mbt",
+        "/home/developer/Documents/BioSeqs/src/alignio.mbt",
+        "/home/developer/Documents/BioSeqs/src/alignment.mbt",
+        "/home/developer/Documents/BioSeqs/src/clustal_io.mbt",
+        "/home/developer/Documents/BioSeqs/src/codon_table.mbt",
+        "/home/developer/Documents/BioSeqs/src/complement.mbt",
+        "/home/developer/Documents/BioSeqs/src/faidx.mbt",
+        "/home/developer/Documents/BioSeqs/src/fasta_io.mbt",
+        "/home/developer/Documents/BioSeqs/src/fastq_io.mbt",
+        "/home/developer/Documents/BioSeqs/src/genbank_io.mbt",
+        "/home/developer/Documents/BioSeqs/src/newick_io.mbt",
+        "/home/developer/Documents/BioSeqs/src/pdb.mbt",
+        "/home/developer/Documents/BioSeqs/src/pdb_io.mbt",
+        "/home/developer/Documents/BioSeqs/src/phylip_io.mbt",
+        "/home/developer/Documents/BioSeqs/src/phylo.mbt",
+        "/home/developer/Documents/BioSeqs/src/sam.mbt",
+        "/home/developer/Documents/BioSeqs/src/seq.mbt",
+        "/home/developer/Documents/BioSeqs/src/seq_record.mbt",
+        "/home/developer/Documents/BioSeqs/src/seqfeature.mbt",
+        "/home/developer/Documents/BioSeqs/src/seqio.mbt",
+        "/home/developer/Documents/BioSeqs/src/sequtils.mbt",
+        "/home/developer/Documents/BioSeqs/src/utils.mbt",
+        "/home/developer/Documents/BioSeqs/src/vcf.mbt",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/src",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/hashmap/hashmap.mi:hashmap",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/math/math.mi:math",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/src:/home/developer/Documents/BioSeqs/src",
+        "-target",
+        "wasm-gc",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "wbtest-check-command": null,
+      "test-check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/align.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/alignio.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/alignment.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/clustal_io.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/codon_table.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/complement.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/faidx.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/fasta_io.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/fastq_io.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/genbank_io.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/newick_io.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/pdb.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/pdb_io.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/phylip_io.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/phylo.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/sam.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/seq.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/seq_record.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/seqfeature.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/seqio.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/sequtils.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/utils.mbt",
+        "-doctest-only",
+        "/home/developer/Documents/BioSeqs/src/vcf.mbt",
+        "-include-doctests",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.blackbox_test.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/src_blackbox_test",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/hashmap/hashmap.mi:hashmap",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/math/math.mi:math",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:src",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/src_blackbox_test:/home/developer/Documents/BioSeqs/src",
+        "-target",
+        "wasm-gc",
+        "-blackbox-test",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "supported-targets": [
+        "Wasm",
+        "WasmGC",
+        "Js",
+        "Native",
+        "LLVM"
+      ]
+    },
+    {
+      "is-main": false,
+      "is-third-party": false,
+      "root-path": "/home/developer/Documents/BioSeqs/test/moonbit",
+      "root": "IvanAXu/BioSeqs",
+      "rel": "test/moonbit",
+      "files": {},
+      "wbtest-files": {},
+      "test-files": {
+        "/home/developer/Documents/BioSeqs/test/moonbit/alignment_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/test/moonbit/bio_seq_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/test/moonbit/bio_seq_wb_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/test/moonbit/faidx_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/test/moonbit/pdb_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/test/moonbit/phylo_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/test/moonbit/sam_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/test/moonbit/seqfeature_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/test/moonbit/seqio_wb_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/test/moonbit/sequtils_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        },
+        "/home/developer/Documents/BioSeqs/test/moonbit/vcf_test.mbt": {
+          "backend": [
+            "Wasm",
+            "WasmGC",
+            "Js",
+            "Native",
+            "LLVM"
+          ],
+          "optlevel": [
+            "Release",
+            "Debug"
+          ]
+        }
+      },
+      "mbt-md-files": {},
+      "deps": [
+        {
+          "path": "IvanAXu/BioSeqs/src",
+          "alias": "src",
+          "fspath": "/home/developer/Documents/BioSeqs/src"
+        },
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "wbtest-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "test-deps": [
+        {
+          "path": "moonbitlang/core/prelude",
+          "alias": "prelude",
+          "fspath": "/home/developer/.moon/lib/core/prelude"
+        }
+      ],
+      "artifact": "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/test/moonbit/moonbit.mi",
+      "check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/test/moonbit/moonbit.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/test/moonbit",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:src",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/test/moonbit:/home/developer/Documents/BioSeqs/test/moonbit",
+        "-target",
+        "wasm-gc",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "wbtest-check-command": null,
+      "test-check-command": [
+        "check",
+        "-error-format",
+        "json",
+        "/home/developer/Documents/BioSeqs/test/moonbit/alignment_test.mbt",
+        "/home/developer/Documents/BioSeqs/test/moonbit/bio_seq_test.mbt",
+        "/home/developer/Documents/BioSeqs/test/moonbit/bio_seq_wb_test.mbt",
+        "/home/developer/Documents/BioSeqs/test/moonbit/faidx_test.mbt",
+        "/home/developer/Documents/BioSeqs/test/moonbit/pdb_test.mbt",
+        "/home/developer/Documents/BioSeqs/test/moonbit/phylo_test.mbt",
+        "/home/developer/Documents/BioSeqs/test/moonbit/sam_test.mbt",
+        "/home/developer/Documents/BioSeqs/test/moonbit/seqfeature_test.mbt",
+        "/home/developer/Documents/BioSeqs/test/moonbit/seqio_wb_test.mbt",
+        "/home/developer/Documents/BioSeqs/test/moonbit/sequtils_test.mbt",
+        "/home/developer/Documents/BioSeqs/test/moonbit/vcf_test.mbt",
+        "-include-doctests",
+        "-o",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/test/moonbit/moonbit.blackbox_test.mi",
+        "-pkg",
+        "IvanAXu/BioSeqs/test/moonbit_blackbox_test",
+        "-std-path",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/test/moonbit/moonbit.mi:moonbit",
+        "-i",
+        "/home/developer/.moon/lib/core/_build/wasm-gc/release/bundle/prelude/prelude.mi:prelude",
+        "-i",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/src/src.mi:src",
+        "-pkg-sources",
+        "IvanAXu/BioSeqs/test/moonbit_blackbox_test:/home/developer/Documents/BioSeqs/test/moonbit",
+        "-target",
+        "wasm-gc",
+        "-blackbox-test",
+        "-workspace-path",
+        "/home/developer/Documents/BioSeqs",
+        "-all-pkgs",
+        "/home/developer/Documents/BioSeqs/_build/wasm-gc/debug/check/all_pkgs.json"
+      ],
+      "supported-targets": [
+        "Wasm",
+        "WasmGC",
+        "Js",
+        "Native",
+        "LLVM"
+      ]
+    }
+  ],
+  "deps": [],
+  "backend": "wasm-gc",
+  "opt_level": "debug",
+  "source": null
+}
