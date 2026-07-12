@@ -7,16 +7,35 @@
 //                cds=True).
 
 ///|
+/// Nucleotide to 2-bit encoding lookup table.
+/// A=0, C=1, G=2, T/U=3, 4 for ambiguous, -1 for invalid.
+pub let nuc_to_2bit_table : FixedArray[Int] = {
+  let t = FixedArray::make(256, -1)
+  t[65] = 0; t[97] = 0   // A, a
+  t[67] = 1; t[99] = 1   // C, c
+  t[71] = 2; t[103] = 2  // G, g
+  t[84] = 3; t[116] = 3  // T, t
+  t[85] = 3; t[117] = 3  // U, u
+  t[78] = 4; t[110] = 4  // N, n - ambiguous
+  t[77] = 4; t[109] = 4  // M, m
+  t[82] = 4; t[114] = 4  // R, r
+  t[87] = 4; t[119] = 4  // W, w
+  t[83] = 4; t[115] = 4  // S, s
+  t[89] = 4; t[121] = 4  // Y, y
+  t[75] = 4; t[107] = 4  // K, k
+  t[86] = 4; t[118] = 4  // V, v
+  t[72] = 4; t[104] = 4  // H, h
+  t[68] = 4; t[100] = 4  // D, d
+  t[66] = 4; t[98] = 4   // B, b
+  t[88] = 4; t[120] = 4  // X, x
+  t
+}
+
+///|
 /// Nucleotide to 2-bit encoding: A=0, C=1, G=2, T/U=3.
 /// Handles both uppercase and lowercase. Returns -1 for invalid nucleotides.
 pub fn nuc_to_2bit(c : UInt16) -> Int {
-  match c {
-    65 | 97 => 0
-    67 | 99 => 1
-    71 | 103 => 2
-    84 | 116 | 85 | 117 => 3
-    _ => -1
-  }
+  nuc_to_2bit_table[c.to_int()]
 }
 
 ///|
