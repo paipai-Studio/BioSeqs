@@ -116,16 +116,12 @@ fn complement_chars(s : String, table : FixedArray[UInt16]) -> String {
   let n = s.length()
   let buf : FixedArray[UInt16] = FixedArray::make(n, 0)
   for i = 0; i < n; i = i + 1 {
-    let ci = s.unsafe_get(i).to_int()
-    if ci < 128 {
-      let comp = table[ci]
-      if comp != 0 {
-        buf[i] = comp
-      } else {
-        buf[i] = s.unsafe_get(i)
-      }
+    let ci = s.unsafe_get(i)
+    let comp = table[ci.to_int()]
+    if comp != 0 {
+      buf[i] = comp
     } else {
-      buf[i] = s.unsafe_get(i)
+      buf[i] = ci
     }
   }
   unsafe_from_uint16_fixedarray(buf)
@@ -139,17 +135,13 @@ fn reverse_complement_chars(s : String, table : FixedArray[UInt16]) -> String {
   let n = s.length()
   let buf : FixedArray[UInt16] = FixedArray::make(n, 0)
   for i = n - 1; i >= 0; i = i - 1 {
-    let ci = s.unsafe_get(i).to_int()
+    let ci = s.unsafe_get(i)
     let out_idx = n - 1 - i
-    if ci < 128 {
-      let comp = table[ci]
-      if comp != 0 {
-        buf[out_idx] = comp
-      } else {
-        buf[out_idx] = s.unsafe_get(i)
-      }
+    let comp = table[ci.to_int()]
+    if comp != 0 {
+      buf[out_idx] = comp
     } else {
-      buf[out_idx] = s.unsafe_get(i)
+      buf[out_idx] = ci
     }
   }
   unsafe_from_uint16_fixedarray(buf)

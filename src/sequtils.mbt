@@ -31,14 +31,9 @@ pub fn crc32(seq : String) -> Int {
   let mut crc = 0xFFFFFFFF
   let mut i = 0
   while i < seq.length() {
-    match seq.get_char(i) {
-      Some(c) => {
-        let byte = c.to_int() & 0xFF
-        let index = (crc ^ byte) & 0xFF
-        crc = crc32_table[index] ^ ((crc >> 8) & 0x00FFFFFF)
-      }
-      None => ()
-    }
+    let byte = seq.unsafe_get(i).to_int() & 0xFF
+    let index = (crc ^ byte) & 0xFF
+    crc = crc32_table[index] ^ ((crc >> 8) & 0x00FFFFFF)
     i = i + 1
   }
   (crc ^ 0xFFFFFFFF) | 0
@@ -50,21 +45,16 @@ pub fn gcg(seq : String) -> Int {
   let mut checksum = 0
   let mut i = 0
   while i < seq.length() {
-    match seq.get_char(i) {
-      Some(c) => {
-        let code = c.to_int()
-        let upper_code = if code >= 97 && code <= 122 {
-          code - 32
-        } else {
-          code
-        }
-        index = index + 1
-        checksum = checksum + index * upper_code
-        if index == 57 {
-          index = 0
-        }
-      }
-      None => ()
+    let code = seq.unsafe_get(i).to_int()
+    let upper_code = if code >= 97 && code <= 122 {
+      code - 32
+    } else {
+      code
+    }
+    index = index + 1
+    checksum = checksum + index * upper_code
+    if index == 57 {
+      index = 0
     }
     i = i + 1
   }
@@ -366,22 +356,17 @@ pub fn gc(seq : String) -> Double {
   let mut total = 0
   let mut i = 0
   while i < seq.length() {
-    match seq.get_char(i) {
-      Some(c) => {
-        let code = c.to_int()
-        let upper_code = if code >= 97 && code <= 122 {
-          code - 32
-        } else {
-          code
-        }
-        if upper_code == 71 || upper_code == 67 || upper_code == 83 {
-          gc = gc + 1
-        }
-        if upper_code >= 65 && upper_code <= 90 {
-          total = total + 1
-        }
-      }
-      None => ()
+    let code = seq.unsafe_get(i).to_int()
+    let upper_code = if code >= 97 && code <= 122 {
+      code - 32
+    } else {
+      code
+    }
+    if upper_code == 71 || upper_code == 67 || upper_code == 83 {
+      gc = gc + 1
+    }
+    if upper_code >= 65 && upper_code <= 90 {
+      total = total + 1
     }
     i = i + 1
   }
@@ -410,13 +395,10 @@ pub fn ProteinAnalysis::count_amino_acids(
   let counts = Map([], capacity=20)
   let mut i = 0
   while i < self.sequence.length() {
-    match self.sequence.get_char(i) {
-      Some(c) =>
-        match counts.get(c) {
-          Some(n) => counts[c] = n + 1
-          None => counts[c] = 1
-        }
-      None => ()
+    let c = self.sequence.unsafe_get(i).unsafe_to_char()
+    match counts.get(c) {
+      Some(n) => counts[c] = n + 1
+      None => counts[c] = 1
     }
     i = i + 1
   }
@@ -468,12 +450,9 @@ pub fn ProteinAnalysis::molecular_weight(self : ProteinAnalysis) -> Double {
   let mut weight = 0.0
   let mut i = 0
   while i < self.sequence.length() {
-    match self.sequence.get_char(i) {
-      Some(c) =>
-        match amino_acid_weights.get(c) {
-          Some(w) => weight = weight + w
-          None => ()
-        }
+    let c = self.sequence.unsafe_get(i).unsafe_to_char()
+    match amino_acid_weights.get(c) {
+      Some(w) => weight = weight + w
       None => ()
     }
     i = i + 1
@@ -532,12 +511,9 @@ pub fn ProteinAnalysis::gravy(self : ProteinAnalysis) -> Double {
   let mut score = 0.0
   let mut i = 0
   while i < self.sequence.length() {
-    match self.sequence.get_char(i) {
-      Some(c) =>
-        match gravy_values.get(c) {
-          Some(v) => score = score + v
-          None => ()
-        }
+    let c = self.sequence.unsafe_get(i).unsafe_to_char()
+    match gravy_values.get(c) {
+      Some(v) => score = score + v
       None => ()
     }
     i = i + 1
@@ -552,21 +528,16 @@ pub fn tm_wallace(seq : String) -> Double {
   let mut gc = 0
   let mut i = 0
   while i < seq.length() {
-    match seq.get_char(i) {
-      Some(c) => {
-        let code = c.to_int()
-        let upper_code = if code >= 97 && code <= 122 {
-          code - 32
-        } else {
-          code
-        }
-        if upper_code == 65 || upper_code == 84 {
-          at = at + 1
-        } else if upper_code == 71 || upper_code == 67 {
-          gc = gc + 1
-        }
-      }
-      None => ()
+    let code = seq.unsafe_get(i).to_int()
+    let upper_code = if code >= 97 && code <= 122 {
+      code - 32
+    } else {
+      code
+    }
+    if upper_code == 65 || upper_code == 84 {
+      at = at + 1
+    } else if upper_code == 71 || upper_code == 67 {
+      gc = gc + 1
     }
     i = i + 1
   }
