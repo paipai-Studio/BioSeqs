@@ -1,7 +1,7 @@
 ///|
 /// BAM format parsing example.
 ///
-/// Demonstrates parsing raw BAM binary data and accessing record information.
+/// Demonstrates parsing raw BAM binary data, BGZF decompression, and accessing record information.
 ///
 /// Run: moon run examples/bam_demo/main.mbt
 fn main {
@@ -10,7 +10,7 @@ fn main {
 
   let test_bam_base64 = "QkFNAS0AAABASEQJVk46MS42CVNPOmNvb3JkaW5hdGUKQFNRCVNOOmNocjEJTE46MTAwMAoBAAAABQAAAGNocjEA6AMAADkAAAAAAAAAZAAAAAAAAAA8AAAGAAEACAAAAP////8AAAAAAAAAAHJlYWQxAIAAAAAAAAAAAAAAAAAAAAA="
 
-  println("Parsing base64-encoded BAM data...")
+  println("1. Parsing base64-encoded BAM data...")
 
   let bam_opt = @bio.try_parse_bam_base64(test_bam_base64)
   if bam_opt is None {
@@ -71,6 +71,23 @@ fn main {
   println("=== SAM Output ===")
   let sam_str = bam.to_sam()
   println(sam_str)
+
+  println("")
+  println("=== BGZF Decompression Demo ===")
+  println("")
+
+  let bgzf_magic = "\u001f\u008b\u0008\u0004"
+  println("BGZF magic bytes detection:")
+  println("  Is BGZF (magic): \{@bio.is_bgzf(bgzf_magic)}")
+  let bam_magic = "BAM\u0001"
+  println("  Is BGZF (BAM): \{@bio.is_bgzf(bam_magic)}")
+  println("")
+
+  println("BGZF functions available:")
+  println("  - is_bgzf(data): Check if data is BGZF compressed")
+  println("  - bgzf_decompress(data): Decompress BGZF data")
+  println("  - parse_bam_from_bgzf(data): Parse BAM from BGZF compressed data")
+  println("")
 
   println("=== Done ===")
 }

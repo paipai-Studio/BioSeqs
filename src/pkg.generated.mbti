@@ -31,6 +31,8 @@ pub fn avg_polarity(String) -> Double
 
 pub fn base64_decode(String) -> String
 
+pub fn bgzf_decompress(String) -> String raise BgzfError
+
 pub fn build_fai(String) -> FastaIndex
 
 pub fn bytes_to_base64(Array[Int]) -> String
@@ -78,6 +80,10 @@ pub fn nucleotide_composition(String) -> NucleotideComposition
 pub fn parse_bam(String) -> BamFile raise BamError
 
 pub fn parse_bam_base64(String) -> BamFile raise BamError
+
+pub fn parse_bam_from_bgzf(String) -> BamFile raise BgzfError
+
+pub fn parse_bam_from_bgzf_base64(String) -> BamFile raise BgzfError
 
 pub fn parse_cigar(String) -> Array[CigarElement]
 
@@ -176,6 +182,10 @@ pub suberror AlignIOError {
 
 pub suberror BamError {
   BamError(String)
+}
+
+pub suberror BgzfError {
+  BgzfError(String)
 }
 
 pub suberror CramError {
@@ -284,6 +294,8 @@ pub struct BamReference {
   name : String
   length : Int
 } derive(Eq)
+
+type BitReader
 
 pub struct Chain {
   id : Char
@@ -516,6 +528,8 @@ pub fn FeatureLocation::start(Self) -> Position
 pub fn FeatureLocation::start_int(Self) -> Int
 pub fn FeatureLocation::str(Self) -> String
 pub fn FeatureLocation::strand(Self) -> Int?
+
+type HuffmanDecoder
 
 pub struct Model {
   id : Int
