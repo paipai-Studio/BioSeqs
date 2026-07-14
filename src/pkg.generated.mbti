@@ -39,6 +39,8 @@ pub fn bytes_to_base64(Array[Int]) -> String
 
 pub let codon_fixed_table : FixedArray[UInt16]
 
+pub fn count_overlaps(GRanges, GRanges) -> Array[Int]
+
 pub fn crc32(String) -> Int
 
 pub fn dinucleotide_frequency(String, Bool) -> Map[String, Double]
@@ -53,6 +55,8 @@ pub fn dna_feature_vector(String) -> Array[Double]
 
 pub fn dust_complexity(String) -> Double
 
+pub fn find_overlaps(GRanges, GRanges) -> Array[(Int, Int)]
+
 pub fn gc(String) -> Double
 
 pub fn gc_content_by_position(String, Int) -> Array[Double]
@@ -62,6 +66,32 @@ pub fn gcg(String) -> Int
 pub fn global_pairwise_align_nucleotide(DNA, DNA) -> (TabularMSA, Double, (Int, Int), (Int, Int))
 
 pub fn global_pairwise_align_protein(Protein, Protein) -> (TabularMSA, Double, (Int, Int), (Int, Int))
+
+pub fn granges(Array[String], Array[(Int, Int)], Array[Strand]) -> GRanges
+
+pub fn granges_disjoin(GRanges) -> GRanges
+
+pub fn granges_distance(GRanges, GRanges) -> Array[Double]
+
+pub fn granges_flank(GRanges, Int, Bool, Bool) -> GRanges
+
+pub fn granges_intersect(GRanges, GRanges) -> GRanges
+
+pub fn granges_length(GRanges) -> Int
+
+pub fn granges_narrow(GRanges, Int, Int) -> GRanges
+
+pub fn granges_reduce(GRanges, Int) -> GRanges
+
+pub fn granges_resize(GRanges, Int, String) -> GRanges
+
+pub fn granges_setdiff(GRanges, GRanges) -> GRanges
+
+pub fn granges_shift(GRanges, Int) -> GRanges
+
+pub fn granges_single(String, Int, Int, Strand) -> GRanges
+
+pub fn granges_union(GRanges, GRanges) -> GRanges
 
 pub fn is_bam_magic(String) -> Bool
 
@@ -84,6 +114,8 @@ pub fn local_pairwise_align_nucleotide(DNA, DNA) -> (TabularMSA, Double, (Int, I
 pub fn local_pairwise_align_protein(Protein, Protein) -> (TabularMSA, Double, (Int, Int), (Int, Int))
 
 pub fn molecular_weight(String) -> Double
+
+pub fn nearest(GRanges, GRanges) -> Array[Int]
 
 pub fn nedit_at(String, String, Bool) -> Int
 
@@ -168,6 +200,8 @@ pub fn shannon_entropy(String) -> Double
 pub fn split_by_char(String, Int) -> Array[String]
 
 pub fn split_by_tab(String) -> Array[String]
+
+pub fn strand_to_char(Strand) -> String
 
 pub fn string_to_bytes(String) -> Array[Int]
 
@@ -581,6 +615,14 @@ pub fn FeatureLocation::start_int(Self) -> Int
 pub fn FeatureLocation::str(Self) -> String
 pub fn FeatureLocation::strand(Self) -> Int?
 
+pub struct GRanges {
+  seqnames : Array[String]
+  starts : Array[Int]
+  ends : Array[Int]
+  strands : Array[Strand]
+  widths : Array[Int]
+}
+
 type HuffmanDecoder
 
 pub struct Model {
@@ -822,6 +864,12 @@ pub fn SeqRecord::new(Seq, id? : String, name? : String, description? : String) 
 pub fn SeqRecord::phred_quality(Self) -> Array[Int]?
 pub fn SeqRecord::repr(Self) -> String
 pub fn SeqRecord::set_phred_quality(Self, Array[Int]) -> Self
+
+pub enum Strand {
+  Plus
+  Minus
+  Star
+}
 
 pub struct Structure {
   id : String
