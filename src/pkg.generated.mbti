@@ -169,6 +169,12 @@ pub fn nearest(GRanges, GRanges) -> Array[Int]
 
 pub fn nedit_at(String, String, Bool) -> Int
 
+pub fn needleman_wunsch(String, String, NWScoring) -> NWResult
+
+pub fn needleman_wunsch_dna(String, String) -> NWResult
+
+pub fn needleman_wunsch_protein(String, String) -> NWResult
+
 pub fn nuc_to_2bit(UInt16) -> Int
 
 pub let nuc_to_2bit_table : FixedArray[Int]
@@ -757,6 +763,45 @@ pub fn MultipleSeqAlignment::new(Array[SeqRecord], annotations? : Map[String, St
 pub fn MultipleSeqAlignment::num_records(Self) -> Int
 pub fn MultipleSeqAlignment::repr(Self) -> String
 pub fn MultipleSeqAlignment::slice(Self, row_start? : Int, row_end? : Int, col_start? : Int, col_end? : Int) -> Self
+
+pub struct NWResult {
+  aligned_seq1 : String
+  aligned_seq2 : String
+  match_line : String
+  score : Double
+  score_matrix : Array[Array[Double]]
+  trace_matrix : Array[Array[NWTrace]]
+}
+pub fn NWResult::aligned1(Self) -> String
+pub fn NWResult::aligned2(Self) -> String
+pub fn NWResult::alignment_length(Self) -> Int
+pub fn NWResult::format(Self) -> String
+pub fn NWResult::format_wrapped(Self, Int) -> String
+pub fn NWResult::match_line(Self) -> String
+pub fn NWResult::num_gaps_seq1(Self) -> Int
+pub fn NWResult::num_gaps_seq2(Self) -> Int
+pub fn NWResult::num_matches(Self) -> Int
+pub fn NWResult::num_mismatches(Self) -> Int
+pub fn NWResult::percent_identity(Self) -> Double
+pub fn NWResult::score(Self) -> Double
+pub fn NWResult::score_matrix(Self) -> Array[Array[Double]]
+pub fn NWResult::trace_matrix(Self) -> Array[Array[NWTrace]]
+
+pub struct NWScoring {
+  match_reward : Double
+  mismatch_penalty : Double
+  gap_penalty : Double
+}
+pub fn NWScoring::default_dna() -> Self
+pub fn NWScoring::default_protein() -> Self
+pub fn NWScoring::new(Double, Double, Double) -> Self
+
+pub enum NWTrace {
+  Diag
+  Up
+  Left
+  Start
+} derive(Eq, Show)
 
 pub struct NucleotideComposition {
   a : Double
