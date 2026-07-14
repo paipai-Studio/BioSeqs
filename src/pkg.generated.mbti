@@ -43,6 +43,34 @@ pub fn count_overlaps(GRanges, GRanges) -> Array[Int]
 
 pub fn crc32(String) -> Int
 
+pub fn dataframe(Array[Column]) -> DataFrame
+
+pub fn dataframe_arrange(DataFrame, String, Bool) -> DataFrame
+
+pub fn dataframe_colnames(DataFrame) -> Array[String]
+
+pub fn dataframe_filter(DataFrame, (DataFrame, Int) -> Bool) -> DataFrame
+
+pub fn dataframe_get_column(DataFrame, String) -> Column?
+
+pub fn dataframe_get_column_index(DataFrame, String) -> Int?
+
+pub fn dataframe_group_by(DataFrame, String) -> Array[(String, DataFrame)]
+
+pub fn dataframe_inner_join(DataFrame, DataFrame, String) -> DataFrame
+
+pub fn dataframe_left_join(DataFrame, DataFrame, String) -> DataFrame
+
+pub fn dataframe_mutate(DataFrame, Array[(String, DataType, (DataFrame, Int) -> DataValue)]) -> DataFrame
+
+pub fn dataframe_ncol(DataFrame) -> Int
+
+pub fn dataframe_nrow(DataFrame) -> Int
+
+pub fn dataframe_select(DataFrame, Array[String]) -> DataFrame
+
+pub fn dataframe_summarize(DataFrame, String, Array[(String, (Array[DataValue]) -> DataValue)]) -> DataFrame
+
 pub fn deseq(DESeqDataSet) -> DESeqResults
 
 pub fn deseq_dataset(Array[Array[Int]], Array[String], Array[String], Array[Array[Double]]) -> DESeqDataSet
@@ -446,6 +474,12 @@ pub fn Clade::is_root(Self) -> Bool
 pub fn Clade::is_terminal(Self) -> Bool
 pub fn Clade::new(branch_length? : Double?, name? : String?, confidence? : Double?, clades? : Array[Self], parent? : Self?) -> Self
 
+pub struct Column {
+  name : String
+  dtype : DataType
+  values : Array[DataValue]
+}
+
 pub struct CompoundLocation {
   parts : Array[FeatureLocation]
   operator : String
@@ -591,6 +625,26 @@ pub fn DNA::length(Self) -> Int
 pub fn DNA::new(String) -> Self
 pub fn DNA::to_seq(Self) -> Seq
 pub fn DNA::to_string(Self) -> String
+
+pub struct DataFrame {
+  columns : Array[Column]
+  nrow : Int
+  ncol : Int
+}
+
+pub enum DataType {
+  IntType
+  DoubleType
+  StringType
+  BoolType
+}
+
+pub enum DataValue {
+  IntValue(Int)
+  DoubleValue(Double)
+  StringValue(String)
+  BoolValue(Bool)
+}
 
 pub struct FaiRecord {
   name : String
