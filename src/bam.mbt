@@ -12,9 +12,7 @@ pub suberror BamError {
 /// BAM magic number (BAM\1).
 let bam_magic : Array[Int] = [66, 65, 77, 1]
 
-///|
-/// BGZF magic number (1f 8b 08 04).
-let bgzf_magic : Array[Int] = [0x1f, 0x8b, 0x08, 0x04]
+
 
 ///|
 /// Check if data starts with BAM magic number.
@@ -36,12 +34,10 @@ pub fn is_bgzf(data : String) -> Bool {
   if data.length() < 4 {
     return false
   }
-  for i = 0; i < 4; i = i + 1 {
-    if data.unsafe_get(i).to_int() != bgzf_magic[i] {
-      return false
-    }
-  }
-  true
+  data.unsafe_get(0).to_int() == 0x1f &&
+  data.unsafe_get(1).to_int() == 0x8b &&
+  data.unsafe_get(2).to_int() == 0x08 &&
+  data.unsafe_get(3).to_int() == 0x04
 }
 
 ///|
