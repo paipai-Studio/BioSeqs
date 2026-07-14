@@ -12,8 +12,6 @@ pub suberror BamError {
 /// BAM magic number (BAM\1).
 let bam_magic : Array[Int] = [66, 65, 77, 1]
 
-
-
 ///|
 /// Check if data starts with BAM magic number.
 pub fn is_bam_magic(data : String) -> Bool {

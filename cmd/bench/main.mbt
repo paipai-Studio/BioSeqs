@@ -585,11 +585,13 @@ fn main {
   println("")
 
   let test_bam_base64 = "QkFNAS0AAABASEQJVk46MS42CVNPOmNvb3JkaW5hdGUKQFNRCVNOOmNocjEJTE46MTAwMAoBAAAABQAAAGNocjEA6AMAADkAAAAAAAAAZAAAAAAAAAA8AAAGAAEACAAAAP////8AAAAAAAAAAHJlYWQxAIAAAAAAAAAAAAAAAAAAAAA="
-  
+
   // BAM parse from base64
   ignore(
     bench_err("parse_bam_base64 (1 record)", iters_find, () => {
-      ignore(@lib.parse_bam_base64(test_bam_base64)) catch { _ => () }
+      ignore(@lib.parse_bam_base64(test_bam_base64)) catch {
+        _ => ()
+      }
     }),
   )
 
@@ -661,12 +663,16 @@ fn main {
 
   // CRAM magic check
   ignore(
-    bench("is_cram_magic", iters_find, fn() { ignore(@lib.is_cram_magic(cram_content)) }),
+    bench("is_cram_magic", iters_find, fn() {
+      ignore(@lib.is_cram_magic(cram_content))
+    }),
   )
 
   // CRAM magic check (negative)
   ignore(
-    bench("is_cram_magic (negative)", iters_find, fn() { ignore(@lib.is_cram_magic("BAMtest")) }),
+    bench("is_cram_magic (negative)", iters_find, fn() {
+      ignore(@lib.is_cram_magic("BAMtest"))
+    }),
   )
 
   println("")

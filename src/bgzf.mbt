@@ -119,7 +119,10 @@ struct HuffmanDecoder {
 
 ///|
 /// Build a Huffman decoder from code lengths.
-fn build_huffman_decoder(lengths : FixedArray[Int], max_symbols : Int) -> HuffmanDecoder {
+fn build_huffman_decoder(
+  lengths : FixedArray[Int],
+  max_symbols : Int,
+) -> HuffmanDecoder {
   let bl_count : FixedArray[Int] = FixedArray::make(16, 0)
   let mut i = 0
   while i < max_symbols {
@@ -158,7 +161,7 @@ fn build_huffman_decoder(lengths : FixedArray[Int], max_symbols : Int) -> Huffma
     i = i + 1
   }
 
-  HuffmanDecoder::{ codes }
+  HuffmanDecoder::{ codes, }
 }
 
 ///|
@@ -406,7 +409,9 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
         let num_code_len = num_code_len + 4
 
         let code_length_lengths : FixedArray[Int] = FixedArray::make(19, 0)
-        let code_order = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15]
+        let code_order = [
+          16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15,
+        ]
         let mut i = 0
         while i < num_code_len {
           let (len, r6) = bit_reader_read_bits(reader, 3)
@@ -523,7 +528,9 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
             let (dist_code, r11) = huffman_decode(dist_decoder, reader)
             reader = r11
             let extra_dist_bits = dist_extra[dist_code]
-            let (extra_dist, r12) = bit_reader_read_bits(reader, extra_dist_bits)
+            let (extra_dist, r12) = bit_reader_read_bits(
+              reader, extra_dist_bits,
+            )
             reader = r12
             let distance = dist_base[dist_code] + extra_dist
 
@@ -558,12 +565,13 @@ fn get_uint32_le(data : String, pos : Int) -> Int {
   (b0 | (b1 << 8) | (b2 << 16) | (b3 << 24)) & 0xFFFFFFFF
 }
 
-
-
 ///|
 /// Parse and decompress a single BGZF block.
 /// Returns (decompressed_data, next_block_pos).
-fn decompress_bgzf_block(data : String, pos : Int) -> (String, Int) raise BgzfError {
+fn decompress_bgzf_block(
+  data : String,
+  pos : Int,
+) -> (String, Int) raise BgzfError {
   let n = data.length()
   if pos + 18 > n {
     raise BgzfError("BGZF block too short")
@@ -675,13 +683,17 @@ pub fn bgzf_decompress(data : String) -> String raise BgzfError {
 /// Parse BAM file from BGZF-compressed data.
 pub fn parse_bam_from_bgzf(data : String) -> BamFile raise BgzfError {
   let decompressed = bgzf_decompress(data)
-  let result = parse_bam(decompressed) catch { BamError(msg) => raise BgzfError(msg) }
+  let result = parse_bam(decompressed) catch {
+    BamError(msg) => raise BgzfError(msg)
+  }
   result
 }
 
 ///|
 /// Parse BAM file from base64-encoded BGZF-compressed data.
-pub fn parse_bam_from_bgzf_base64(base64_str : String) -> BamFile raise BgzfError {
+pub fn parse_bam_from_bgzf_base64(
+  base64_str : String,
+) -> BamFile raise BgzfError {
   let raw_data = base64_decode(base64_str)
   parse_bam_from_bgzf(raw_data)
 }

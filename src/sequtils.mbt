@@ -46,11 +46,7 @@ pub fn gcg(seq : String) -> Int {
   let mut i = 0
   while i < seq.length() {
     let code = seq.unsafe_get(i).to_int()
-    let upper_code = if code >= 97 && code <= 122 {
-      code - 32
-    } else {
-      code
-    }
+    let upper_code = if code >= 97 && code <= 122 { code - 32 } else { code }
     index = index + 1
     checksum = checksum + index * upper_code
     if index == 57 {
@@ -357,11 +353,7 @@ pub fn gc(seq : String) -> Double {
   let mut i = 0
   while i < seq.length() {
     let code = seq.unsafe_get(i).to_int()
-    let upper_code = if code >= 97 && code <= 122 {
-      code - 32
-    } else {
-      code
-    }
+    let upper_code = if code >= 97 && code <= 122 { code - 32 } else { code }
     if upper_code == 71 || upper_code == 67 || upper_code == 83 {
       gc = gc + 1
     }
@@ -529,11 +521,7 @@ pub fn tm_wallace(seq : String) -> Double {
   let mut i = 0
   while i < seq.length() {
     let code = seq.unsafe_get(i).to_int()
-    let upper_code = if code >= 97 && code <= 122 {
-      code - 32
-    } else {
-      code
-    }
+    let upper_code = if code >= 97 && code <= 122 { code - 32 } else { code }
     if upper_code == 65 || upper_code == 84 {
       at = at + 1
     } else if upper_code == 71 || upper_code == 67 {

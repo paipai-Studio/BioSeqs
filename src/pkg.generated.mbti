@@ -41,6 +41,8 @@ pub let codon_fixed_table : FixedArray[UInt16]
 
 pub fn crc32(String) -> Int
 
+pub fn dinucleotide_frequency(String, Bool) -> Map[String, Double]
+
 pub fn dipeptide_composition(String) -> Map[String, Double]
 
 pub fn dna_canonical_kmer_frequency(String, Int, Bool) -> Map[String, Double]
@@ -49,7 +51,11 @@ pub fn dna_feature_names() -> Array[String]
 
 pub fn dna_feature_vector(String) -> Array[Double]
 
+pub fn dust_complexity(String) -> Double
+
 pub fn gc(String) -> Double
+
+pub fn gc_content_by_position(String, Int) -> Array[Double]
 
 pub fn gcg(String) -> Int
 
@@ -63,7 +69,15 @@ pub fn is_bgzf(String) -> Bool
 
 pub fn is_cram_magic(String) -> Bool
 
+pub fn iupac_match(String, String) -> Array[(Int, Int)]
+
+pub fn iupac_reverse_complement(String) -> String
+
 pub fn kmer_frequency(String, Int, Bool) -> Map[String, Double]
+
+pub fn letter_frequency_aa(String) -> AminoAcidFreq
+
+pub fn letter_frequency_dna(String) -> NucleotideFreq
 
 pub fn local_pairwise_align_nucleotide(DNA, DNA) -> (TabularMSA, Double, (Int, Int), (Int, Int))
 
@@ -71,11 +85,15 @@ pub fn local_pairwise_align_protein(Protein, Protein) -> (TabularMSA, Double, (I
 
 pub fn molecular_weight(String) -> Double
 
+pub fn nedit_at(String, String, Bool) -> Int
+
 pub fn nuc_to_2bit(UInt16) -> Int
 
 pub let nuc_to_2bit_table : FixedArray[Int]
 
 pub fn nucleotide_composition(String) -> NucleotideComposition
+
+pub fn oligonucleotide_frequency(String, Int, Bool) -> Map[String, Double]
 
 pub fn parse_bam(String) -> BamFile raise BamError
 
@@ -119,11 +137,15 @@ pub fn parse_semicolon_list(String) -> Array[String]
 
 pub fn parse_vcf(String) -> VcfFile
 
+pub fn percent_identity(String, String) -> Double
+
 pub fn position_specific_features(String, Int) -> Array[Double]
 
 pub fn protein_feature_names() -> Array[String]
 
 pub fn protein_feature_vector(String) -> Array[Double]
+
+pub fn rscu(String) -> Map[String, Double]
 
 pub fn secondary_structure_propensity(String) -> (Double, Double, Double)
 
@@ -141,6 +163,8 @@ pub fn sha1(Array[Int]) -> Array[Int]
 
 pub fn sha1_string(String) -> Array[Int]
 
+pub fn shannon_entropy(String) -> Double
+
 pub fn split_by_char(String, Int) -> Array[String]
 
 pub fn split_by_tab(String) -> Array[String]
@@ -149,7 +173,11 @@ pub fn string_to_bytes(String) -> Array[Int]
 
 pub fn tm_gc(String) -> Double
 
+pub fn tm_nn(String) -> Double
+
 pub fn tm_wallace(String) -> Double
+
+pub fn trinucleotide_frequency(String, Bool) -> Map[String, Double]
 
 pub fn tripeptide_composition(String) -> Map[String, Double]
 
@@ -209,6 +237,30 @@ pub suberror SeqIOError {
 }
 
 // Types and methods
+pub struct AminoAcidFreq {
+  a : Int
+  c : Int
+  d : Int
+  e : Int
+  f : Int
+  g : Int
+  h : Int
+  i : Int
+  k : Int
+  l : Int
+  m : Int
+  n : Int
+  p : Int
+  q : Int
+  r : Int
+  s : Int
+  t : Int
+  v : Int
+  w : Int
+  y : Int
+  other : Int
+}
+
 pub struct Atom {
   name : String
   altloc : Char
@@ -564,6 +616,15 @@ pub struct NucleotideComposition {
   g : Double
   c : Double
   other : Double
+}
+
+pub struct NucleotideFreq {
+  a : Int
+  c : Int
+  g : Int
+  t : Int
+  other : Int
+  n : Int
 }
 
 pub enum Position {

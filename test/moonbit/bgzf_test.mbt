@@ -13,7 +13,7 @@ test "bgzf_decompress_empty" {
 test "bgzf_is_bgzf" {
   let bgzf_magic = "\x1f\x8b\x08\x04"
   assert_true(@src.is_bgzf(bgzf_magic))
-  
+
   let not_bgzf = "BAM\x01"
   assert_true(!@src.is_bgzf(not_bgzf))
 }

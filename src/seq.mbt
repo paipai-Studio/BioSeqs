@@ -391,6 +391,7 @@ pub fn Seq::back_transcribe(self : Seq) -> Seq {
   Seq::{ data: unsafe_from_uint16_fixedarray(buf) }
 }
 
+///|
 pub fn Seq::translate(
   self : Seq,
   stop_symbol? : Char = '*',
