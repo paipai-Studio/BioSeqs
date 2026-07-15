@@ -23,6 +23,10 @@ pub fn alignio_write(Array[MultipleSeqAlignment], String) -> String raise AlignI
 
 pub fn amino_acid_composition(String) -> Map[UInt16, Double]
 
+pub fn assemble_sequences(Array[String], Int) -> String?
+
+pub fn assemble_single(String, Int) -> String?
+
 pub fn avg_charge(String) -> Double
 
 pub fn avg_hydrophobicity(String) -> Double
@@ -714,6 +718,31 @@ pub enum DataValue {
   StringValue(String)
   BoolValue(Bool)
 }
+
+pub struct DeBruijnGraph {
+  k : Int
+  edges : Map[String, Array[String]]
+  node_info : Map[String, (Int, Int)]
+  mut edge_count : Int
+}
+pub fn DeBruijnGraph::add_kmer(Self, String) -> Unit
+pub fn DeBruijnGraph::add_sequence(Self, String) -> Unit
+pub fn DeBruijnGraph::add_sequences(Self, Array[String]) -> Unit
+pub fn DeBruijnGraph::all_nodes(Self) -> Array[String]
+pub fn DeBruijnGraph::branch_nodes(Self) -> Array[String]
+pub fn DeBruijnGraph::contains_node(Self, String) -> Bool
+pub fn DeBruijnGraph::edge_count(Self) -> Int
+pub fn DeBruijnGraph::end_nodes(Self) -> Array[String]
+pub fn DeBruijnGraph::find_eulerian_path(Self) -> String?
+pub fn DeBruijnGraph::hierholzer(Self, String) -> Array[String]
+pub fn DeBruijnGraph::in_degree(Self, String) -> Int
+pub fn DeBruijnGraph::k(Self) -> Int
+pub fn DeBruijnGraph::new(Int) -> Self
+pub fn DeBruijnGraph::node_count(Self) -> Int
+pub fn DeBruijnGraph::out_degree(Self, String) -> Int
+pub fn DeBruijnGraph::outgoing(Self, String) -> Array[String]
+pub fn DeBruijnGraph::start_nodes(Self) -> Array[String]
+pub fn DeBruijnGraph::to_string(Self) -> String
 
 pub struct FMIndex {
   bwt_str : String
