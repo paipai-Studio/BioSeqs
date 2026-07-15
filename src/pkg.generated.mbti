@@ -27,6 +27,8 @@ pub fn assemble_sequences(Array[String], Int) -> String?
 
 pub fn assemble_single(String, Int) -> String?
 
+pub fn assign_clusters(Array[Array[Double]], Array[Array[Double]]) -> Array[Int]
+
 pub fn avg_charge(String) -> Double
 
 pub fn avg_hydrophobicity(String) -> Double
@@ -45,13 +47,27 @@ pub fn bwt_inverse(String) -> String
 
 pub fn bytes_to_base64(Array[Int]) -> String
 
+pub fn cluster_gene_expression(Array[Array[Double]], Int) -> KMeans
+
 pub let codon_fixed_table : FixedArray[UInt16]
 
 pub fn column(String, DataType, Array[DataValue]) -> Column
 
+pub fn compute_all_overlaps(Array[String], Int) -> Array[Overlap]
+
+pub fn compute_overlap(String, String, Int) -> Int
+
+pub fn compute_overlap_graph(Array[String], Int) -> Map[Int, Array[(Int, Int)]]
+
+pub fn correct_errors(Array[String], Int) -> Array[String]
+
+pub fn cosine_distance(Array[Double], Array[Double]) -> Double
+
 pub fn count_overlaps(GRanges, GRanges) -> Array[Int]
 
 pub fn crc32(String) -> Int
+
+pub fn create_gene_prediction_hmm() -> HMM
 
 pub fn data_type_bool() -> DataType
 
@@ -113,6 +129,14 @@ pub fn dna_feature_vector(String) -> Array[Double]
 
 pub fn dust_complexity(String) -> Double
 
+pub fn euclidean_distance(Array[Double], Array[Double]) -> Double
+
+pub fn extract_exons(Array[String], String) -> Array[String]
+
+pub fn find_layout_path(Array[String], Int) -> Array[Int]
+
+pub fn find_optimal_k(Array[Array[Double]], Int, Int) -> Int
+
 pub fn find_overlaps(GRanges, GRanges) -> Array[(Int, Int)]
 
 pub fn gc(String) -> Double
@@ -120,6 +144,8 @@ pub fn gc(String) -> Double
 pub fn gc_content_by_position(String, Int) -> Array[Double]
 
 pub fn gcg(String) -> Int
+
+pub fn generate_consensus(Array[String], Array[Int]) -> String
 
 pub fn global_pairwise_align_nucleotide(DNA, DNA) -> (TabularMSA, Double, (Int, Int), (Int, Int))
 
@@ -171,6 +197,8 @@ pub fn local_pairwise_align_nucleotide(DNA, DNA) -> (TabularMSA, Double, (Int, I
 
 pub fn local_pairwise_align_protein(Protein, Protein) -> (TabularMSA, Double, (Int, Int), (Int, Int))
 
+pub fn manhattan_distance(Array[Double], Array[Double]) -> Double
+
 pub fn molecular_weight(String) -> Double
 
 pub fn nearest(GRanges, GRanges) -> Array[Int]
@@ -189,7 +217,11 @@ pub let nuc_to_2bit_table : FixedArray[Int]
 
 pub fn nucleotide_composition(String) -> NucleotideComposition
 
+pub fn olc_assemble(Array[String], Int) -> String
+
 pub fn oligonucleotide_frequency(String, Int, Bool) -> Map[String, Double]
+
+pub fn overlap_graph_to_dot(Array[String], Int) -> String
 
 pub fn parse_bam(String) -> BamFile raise BamError
 
@@ -237,6 +269,8 @@ pub fn percent_identity(String, String) -> Double
 
 pub fn position_specific_features(String, Int) -> Array[Double]
 
+pub fn predict_genes(HMM, String) -> Array[String]
+
 pub fn protein_feature_names() -> Array[String]
 
 pub fn protein_feature_vector(String) -> Array[Double]
@@ -264,6 +298,8 @@ pub fn sha1_string(String) -> Array[Int]
 pub fn shannon_entropy(String) -> Double
 
 pub fn significant_genes(DESeqResults, Double, Double) -> Array[String]
+
+pub fn silhouette_score(Array[Array[Double]], Array[Int]) -> Double
 
 pub fn smith_waterman(String, String, Scoring) -> SWResult
 
@@ -293,11 +329,15 @@ pub fn tm_nn(String) -> Double
 
 pub fn tm_wallace(String) -> Double
 
+pub fn train_gene_hmm(HMM, Array[String], Int) -> HMM
+
 pub fn trinucleotide_frequency(String, Bool) -> Map[String, Double]
 
 pub fn tripeptide_composition(String) -> Map[String, Double]
 
 pub fn try_parse_bam_base64(String) -> BamFile?
+
+pub fn update_centroids(Array[Array[Double]], Array[Int], Int) -> Array[Array[Double]]
 
 pub fn write_clustal(MultipleSeqAlignment) -> String
 
@@ -817,7 +857,35 @@ pub struct GRanges {
   widths : Array[Int]
 }
 
+pub struct HMM {
+  states : Array[String]
+  observations : Array[String]
+  start_prob : Map[String, Double]
+  trans_prob : Map[String, Map[String, Double]]
+  emit_prob : Map[String, Map[String, Double]]
+}
+pub fn HMM::backward(Self, Array[String]) -> Map[String, Array[Double]]
+pub fn HMM::baum_welch(Self, Array[String], Int, Double) -> Self
+pub fn HMM::forward(Self, Array[String]) -> Double
+pub fn HMM::new(Array[String], Array[String], Map[String, Double], Map[String, Map[String, Double]], Map[String, Map[String, Double]]) -> Self
+pub fn HMM::viterbi(Self, Array[String]) -> Array[String]
+
 type HuffmanDecoder
+
+pub struct KMeans {
+  k : Int
+  centroids : Array[Array[Double]]
+  labels : Array[Int]
+  max_iter : Int
+  tol : Double
+}
+pub fn KMeans::fit(Self, Array[Array[Double]]) -> Self
+pub fn KMeans::get_centroids(Self) -> Array[Array[Double]]
+pub fn KMeans::get_labels(Self) -> Array[Int]
+pub fn KMeans::inertia(Self, Array[Array[Double]]) -> Double
+pub fn KMeans::new(Int, Int, Double) -> Self
+pub fn KMeans::predict(Self, Array[Array[Double]]) -> Array[Int]
+pub fn KMeans::predict_single(Self, Array[Double]) -> Int
 
 pub struct KmerCount {
   kmer : String
@@ -930,6 +998,16 @@ pub struct NucleotideFreq {
   other : Int
   n : Int
 }
+
+pub struct Overlap {
+  from : Int
+  to : Int
+  overlap_len : Int
+}
+pub fn Overlap::from(Self) -> Int
+pub fn Overlap::new(Int, Int, Int) -> Self
+pub fn Overlap::overlap_len(Self) -> Int
+pub fn Overlap::to(Self) -> Int
 
 pub enum Position {
   ExactPosition(Int)
@@ -1201,6 +1279,8 @@ pub fn SuffixArray::text(Self) -> String
 pub struct SuffixTree {
   text : String
   size : Int
+  sa : SuffixArray
+  lcp : LCPArray
 }
 pub fn SuffixTree::contains(Self, String) -> Bool
 pub fn SuffixTree::count(Self, String) -> Int
@@ -1305,6 +1385,7 @@ pub fn Vector3::distance(Self, Self) -> Double
 pub fn Vector3::new(Double, Double, Double) -> Self
 
 // Type aliases
+pub type Point = Array[Double]
 
 // Traits
 

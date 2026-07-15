@@ -169,7 +169,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 407 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 460 个测试全部通过
 ```
 
 ### 模块对照表
@@ -738,8 +738,8 @@ let gene_kmeans = cluster_gene_expression(gene_expr, 3)
 ### 测试覆盖率
 
 ```
-Total tests: 407
-Passed: 407
+Total tests: 460
+Passed: 460
 Failed: 0
 ```
 
@@ -747,22 +747,22 @@ Failed: 0
 
 | 模块 | 测试文件 | 测试数 |
 |------|----------|--------|
-| 序列核心 | `bio_seq_test.mbt` | 27 |
-| 序列工具 | `sequtils_test.mbt` | 14 |
-| 序列特征 | `seqfeature_test.mbt` | 7 |
-| SeqIO | `seqio_wb_test.mbt` | 18 |
-| AlignIO | `bio_seq_wb_test.mbt` | 1 |
-| 系统发育树 | `phylo_test.mbt` | 13 |
-| PDB 结构 | `pdb_test.mbt` | 13 |
-| 比对算法 | `alignment_test.mbt` | 14 |
+| 序列核心 | `bio_seq_test.mbt` | 28 |
+| 序列工具 | `sequtils_test.mbt` | 16 |
+| 序列特征 | `seqfeature_test.mbt` | 8 |
+| SeqIO | `seqio_wb_test.mbt` | 20 |
+| AlignIO | `bio_seq_wb_test.mbt` | 0 |
+| 系统发育树 | `phylo_test.mbt` | 22 |
+| PDB 结构 | `pdb_test.mbt` | 19 |
+| 比对算法 | `alignment_test.mbt` | 13 |
 | SAM 解析 | `sam_test.mbt` | 6 |
 | VCF 解析 | `vcf_test.mbt` | 7 |
-| BAM 解析 | `bam_test.mbt` | 11 |
+| BAM 解析 | `bam_test.mbt` | 12 |
 | BGZF 解压缩 | `bgzf_test.mbt` | 2 |
 | FASTA 索引 | `faidx_test.mbt` | 9 |
-| 特征提取 | `feature_extraction_test.mbt` | 18 |
+| 特征提取 | `feature_extraction_test.mbt` | 19 |
 | Biostrings | `biostrings_test.mbt` | 21 |
-| GenomicRanges | `genomic_ranges_test.mbt` | 20 |
+| GenomicRanges | `genomic_ranges_test.mbt` | 22 |
 | DESeq2 | `deseq2_test.mbt` | 3 |
 | dplyr | `dplyr_test.mbt` | 9 |
 | Smith-Waterman | `smith_waterman_test.mbt` | 16 |
@@ -770,10 +770,10 @@ Failed: 0
 | Bloom Filter & k-mer | `bloom_filter_test.mbt` | 30 |
 | BWT + FM-index | `bwt_fm_test.mbt` | 28 |
 | De Bruijn Graph | `de_bruijn_test.mbt` | 12 |
-| Suffix Array & Tree | `suffix_array_tree_test.mbt` | 18 |
+| Suffix Array & Tree | `suffix_array_tree_test.mbt` + `suffix_array_tree_wbtest.mbt` | 46 |
 | Overlap-Layout-Consensus | `olc_test.mbt` | 12 |
-| Hidden Markov Model | `hmm_test.mbt` | 15 |
-| K-means Clustering | `kmeans_test.mbt` | 16 |
+| Hidden Markov Model | `hmm_test.mbt` + `hmm_wbtest.mbt` | 30 |
+| K-means Clustering | `kmeans_test.mbt` + `kmeans_wbtest.mbt` | 30 |
 
 ### Python 对比测试
 
