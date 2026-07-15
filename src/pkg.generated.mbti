@@ -13,6 +13,8 @@ pub let aa_hydrophobicity : Map[UInt16, Double]
 
 pub let aa_polarity : Map[UInt16, Double]
 
+pub fn align_motifs(Motif, Motif) -> Double
+
 pub fn align_score(TabularMSA) -> Double
 
 pub fn alignio_parse(String, String) -> Array[MultipleSeqAlignment] raise AlignIOError
@@ -20,6 +22,12 @@ pub fn alignio_parse(String, String) -> Array[MultipleSeqAlignment] raise AlignI
 pub fn alignio_read(String, String) -> MultipleSeqAlignment raise AlignIOError
 
 pub fn alignio_write(Array[MultipleSeqAlignment], String) -> String raise AlignIOError
+
+pub fn allele_frequencies(Array[String]) -> Map[String, Double]
+
+pub fn allele_richness(Array[String]) -> Int
+
+pub fn ambiguity_codes(String) -> String
 
 pub fn amino_acid_composition(String) -> Map[UInt16, Double]
 
@@ -47,9 +55,13 @@ pub fn bwt_inverse(String) -> String
 
 pub fn bytes_to_base64(Array[Int]) -> String
 
+pub fn calc_norm_factors(DGEList) -> DGEList
+
 pub fn cluster_gene_expression(Array[Array[Double]], Int) -> KMeans
 
 pub let codon_fixed_table : FixedArray[UInt16]
+
+pub fn codon_usage(String) -> Map[String, Int]
 
 pub fn column(String, DataType, Array[DataValue]) -> Column
 
@@ -63,11 +75,17 @@ pub fn correct_errors(Array[String], Int) -> Array[String]
 
 pub fn cosine_distance(Array[Double], Array[Double]) -> Double
 
+pub fn count_kmers(String, Int) -> Map[String, Int]
+
+pub fn count_matrix(Array[String]) -> Array[Array[Int]]
+
 pub fn count_overlaps(GRanges, GRanges) -> Array[Int]
 
 pub fn crc32(String) -> Int
 
 pub fn create_gene_prediction_hmm() -> HMM
+
+pub fn create_motif(String, Array[String]) -> Motif
 
 pub fn data_type_bool() -> DataType
 
@@ -117,6 +135,8 @@ pub fn deseq(DESeqDataSet) -> DESeqResults
 
 pub fn deseq_dataset(Array[Array[Int]], Array[String], Array[String], Array[Array[Double]]) -> DESeqDataSet
 
+pub fn dge_list(Array[Array[Int]], Array[String], Array[String]) -> DGEList
+
 pub fn dinucleotide_frequency(String, Bool) -> Map[String, Double]
 
 pub fn dipeptide_composition(String) -> Map[String, Double]
@@ -129,7 +149,11 @@ pub fn dna_feature_vector(String) -> Array[Double]
 
 pub fn dust_complexity(String) -> Double
 
+pub fn estimate_dispersion(DGEList) -> Double
+
 pub fn euclidean_distance(Array[Double], Array[Double]) -> Double
+
+pub fn exact_test(DGEList, String, String) -> DEGEResults
 
 pub fn extract_exons(Array[String], String) -> Array[String]
 
@@ -139,13 +163,25 @@ pub fn find_optimal_k(Array[Array[Double]], Int, Int) -> Int
 
 pub fn find_overlaps(GRanges, GRanges) -> Array[(Int, Int)]
 
+pub fn fst(Array[String], Array[String]) -> Double
+
+pub fn fst_multiple(Array[Array[String]]) -> Double
+
 pub fn gc(String) -> Double
+
+pub fn gc_content(String) -> Double
 
 pub fn gc_content_by_position(String, Int) -> Array[Double]
 
 pub fn gcg(String) -> Int
 
 pub fn generate_consensus(Array[String], Array[Int]) -> String
+
+pub fn genotype_frequencies(Array[String]) -> Map[String, Double]
+
+pub fn glm_fit(DGEList, Array[Array[Double]]) -> Array[Array[Double]]
+
+pub fn glm_lrt(DGEList, Array[Array[Double]], Int) -> DEGEResults
 
 pub fn global_pairwise_align_nucleotide(DNA, DNA) -> (TabularMSA, Double, (Int, Int), (Int, Int))
 
@@ -177,11 +213,57 @@ pub fn granges_single(String, Int, Int, Strand) -> GRanges
 
 pub fn granges_union(GRanges, GRanges) -> GRanges
 
+pub fn hardy_weinberg_test(Array[String]) -> Double
+
+pub fn heterozygosity(Array[String]) -> Double
+
+pub fn inbreeding_coefficient(Array[String]) -> Double
+
+pub fn ir_count_overlaps(IRanges, IRanges) -> Array[Int]
+
+pub fn ir_disjoin(IRanges) -> IRanges
+
+pub fn ir_end(IRanges) -> Array[Int]
+
+pub fn ir_flank(IRanges, Int, Bool, Bool) -> IRanges
+
+pub fn ir_intersect(IRanges, IRanges) -> IRanges
+
+pub fn ir_length(IRanges) -> Int
+
+pub fn ir_narrow(IRanges, Int, Int) -> IRanges
+
+pub fn ir_overlaps(IRanges, IRanges) -> Array[(Int, Int)]
+
+pub fn ir_reduce(IRanges, Int) -> IRanges
+
+pub fn ir_resize(IRanges, Int, String) -> IRanges
+
+pub fn ir_setdiff(IRanges, IRanges) -> IRanges
+
+pub fn ir_shift(IRanges, Int) -> IRanges
+
+pub fn ir_start(IRanges) -> Array[Int]
+
+pub fn ir_union(IRanges, IRanges) -> IRanges
+
+pub fn ir_width(IRanges) -> Array[Int]
+
+pub fn iranges(Array[Int], Array[Int]) -> IRanges
+
+pub fn iranges_single(Int, Int) -> IRanges
+
 pub fn is_bam_magic(String) -> Bool
 
 pub fn is_bgzf(String) -> Bool
 
 pub fn is_cram_magic(String) -> Bool
+
+pub fn is_dna(String) -> Bool
+
+pub fn is_protein(String) -> Bool
+
+pub fn is_rna(String) -> Bool
 
 pub fn iupac_match(String, String) -> Array[(Int, Int)]
 
@@ -199,7 +281,19 @@ pub fn local_pairwise_align_protein(Protein, Protein) -> (TabularMSA, Double, (I
 
 pub fn manhattan_distance(Array[Double], Array[Double]) -> Double
 
+pub fn melting_temperature(String) -> Double
+
+pub fn meme_to_motif(String) -> Motif
+
+pub fn migrate_rate(Double, Int, Int) -> Double
+
 pub fn molecular_weight(String) -> Double
+
+pub fn motif_consensus(Motif) -> String
+
+pub fn motif_ic(Motif) -> Double
+
+pub fn motif_to_meme(Motif) -> String
 
 pub fn nearest(GRanges, GRanges) -> Array[Int]
 
@@ -217,11 +311,17 @@ pub let nuc_to_2bit_table : FixedArray[Int]
 
 pub fn nucleotide_composition(String) -> NucleotideComposition
 
+pub fn nucleotide_diversity(Array[String]) -> Double
+
+pub fn observed_heterozygosity(Array[String]) -> Double
+
 pub fn olc_assemble(Array[String], Int) -> String
 
 pub fn oligonucleotide_frequency(String, Int, Bool) -> Map[String, Double]
 
 pub fn overlap_graph_to_dot(Array[String], Int) -> String
+
+pub fn pairwise_fst(Array[Array[String]]) -> Array[Array[Double]]
 
 pub fn parse_bam(String) -> BamFile raise BamError
 
@@ -275,13 +375,51 @@ pub fn protein_feature_names() -> Array[String]
 
 pub fn protein_feature_vector(String) -> Array[Double]
 
+pub fn pssm_from_pwm(Array[Array[Double]], Array[Double]) -> Array[Array[Double]]
+
+pub fn pwm_from_counts(Array[Array[Int]], Double) -> Array[Array[Double]]
+
 pub fn results(DESeqDataSet) -> DESeqResults
 
+pub fn reverse_complement(String) -> String
+
 pub fn rscu(String) -> Map[String, Double]
+
+pub fn score_sequence(Array[Array[Double]], String, Array[String]) -> Double
+
+pub fn se_assay(SummarizedExperiment, String) -> Array[Array[Double]]?
+
+pub fn se_assay_names(SummarizedExperiment) -> Array[String]
+
+pub fn se_col_data(SummarizedExperiment) -> Array[Map[String, String]]
+
+pub fn se_col_means(SummarizedExperiment, String) -> Array[Double]
+
+pub fn se_merge(SummarizedExperiment, SummarizedExperiment) -> SummarizedExperiment
+
+pub fn se_metadata(SummarizedExperiment) -> Map[String, String]
+
+pub fn se_ncol(SummarizedExperiment) -> Int
+
+pub fn se_nrow(SummarizedExperiment) -> Int
+
+pub fn se_row_means(SummarizedExperiment, String) -> Array[Double]
+
+pub fn se_row_ranges(SummarizedExperiment) -> Array[(String, Int, Int)]
+
+pub fn se_subset_cols(SummarizedExperiment, Array[Int]) -> SummarizedExperiment
+
+pub fn se_subset_rows(SummarizedExperiment, Array[Int]) -> SummarizedExperiment
+
+pub fn search_motif(Motif, String, Double) -> Array[MotifHit]
 
 pub fn secondary_structure_propensity(String) -> (Double, Double, Double)
 
 pub fn seguid(String) -> String
+
+pub fn seq1(String) -> String
+
+pub fn seq3(String) -> String
 
 pub fn seqio_parse(String, String) -> Array[SeqRecord] raise SeqIOError
 
@@ -290,6 +428,10 @@ pub fn seqio_read(String, String) -> SeqRecord raise SeqIOError
 pub fn seqio_to_dict(Array[SeqRecord]) -> Map[String, SeqRecord]
 
 pub fn seqio_write(Array[SeqRecord], String) -> String raise SeqIOError
+
+pub fn sequtils_molecular_weight(String, String) -> Double
+
+pub fn sequtils_shannon_entropy(String) -> Double
 
 pub fn sha1(Array[Int]) -> Array[Int]
 
@@ -323,11 +465,17 @@ pub fn string_to_bytes(String) -> Array[Int]
 
 pub fn suffix_array(String) -> Array[Int]
 
+pub fn summarized_experiment(Map[String, Array[Array[Double]]], Array[(String, Int, Int)], Array[Map[String, String]], Map[String, String]) -> SummarizedExperiment
+
+pub fn tajima_d(Array[String]) -> Double
+
 pub fn tm_gc(String) -> Double
 
 pub fn tm_nn(String) -> Double
 
 pub fn tm_wallace(String) -> Double
+
+pub fn top_tags(DEGEResults, Int) -> DEGEResults
 
 pub fn train_gene_hmm(HMM, Array[String], Int) -> HMM
 
@@ -338,6 +486,8 @@ pub fn tripeptide_composition(String) -> Map[String, Double]
 pub fn try_parse_bam_base64(String) -> BamFile?
 
 pub fn update_centroids(Array[Array[Double]], Array[Int], Int) -> Array[Array[Double]]
+
+pub fn watterson_theta(Array[String]) -> Double
 
 pub fn write_clustal(MultipleSeqAlignment) -> String
 
@@ -716,6 +866,14 @@ pub struct CramSliceHeader {
   landmark : Int
 }
 
+pub struct DEGEResults {
+  genes : Array[String]
+  log_fc : Array[Double]
+  log_cpm : Array[Double]
+  p_value : Array[Double]
+  fdr : Array[Double]
+}
+
 pub struct DESeqDataSet {
   counts : Array[Array[Int]]
   row_names : Array[String]
@@ -728,6 +886,14 @@ pub struct DESeqResults {
   base_mean : Array[Double]
   log2_fold_change : Array[Double]
   p_value : Array[Double]
+}
+
+pub struct DGEList {
+  counts : Array[Array[Int]]
+  group : Array[String]
+  genes : Array[String]
+  lib_size : Array[Double]
+  norm_factors : Array[Double]
 }
 
 pub struct DNA {
@@ -872,6 +1038,12 @@ pub fn HMM::viterbi(Self, Array[String]) -> Array[String]
 
 type HuffmanDecoder
 
+pub struct IRanges {
+  starts : Array[Int]
+  ends : Array[Int]
+  widths : Array[Int]
+}
+
 pub struct KMeans {
   k : Int
   centroids : Array[Array[Double]]
@@ -927,6 +1099,22 @@ pub fn Model::get_id(Self) -> Int
 pub fn Model::get_num_chains(Self) -> Int
 pub fn Model::get_residues(Self) -> Array[Residue]
 pub fn Model::new(id~ : Int, chains? : Array[Chain]) -> Self
+
+pub struct Motif {
+  name : String
+  pwm : Array[Array[Double]]
+  alphabet : Array[String]
+  sites : Array[String]
+}
+pub fn Motif::new(String, Array[Array[Double]], Array[String], Array[String]) -> Self
+
+pub struct MotifHit {
+  position : Int
+  score : Double
+  strand : String
+  sequence : String
+}
+pub fn MotifHit::new(Int, Double, String, String) -> Self
 
 pub struct MultipleSeqAlignment {
   records : Array[SeqRecord]
@@ -1279,8 +1467,6 @@ pub fn SuffixArray::text(Self) -> String
 pub struct SuffixTree {
   text : String
   size : Int
-  sa : SuffixArray
-  lcp : LCPArray
 }
 pub fn SuffixTree::contains(Self, String) -> Bool
 pub fn SuffixTree::count(Self, String) -> Int
@@ -1292,6 +1478,13 @@ pub fn SuffixTree::size(Self) -> Int
 pub fn SuffixTree::text(Self) -> String
 pub fn SuffixTree::to_dot(Self) -> String
 pub fn SuffixTree::to_string(Self) -> String
+
+pub struct SummarizedExperiment {
+  assays : Map[String, Array[Array[Double]]]
+  row_ranges : Array[(String, Int, Int)]
+  col_data : Array[Map[String, String]]
+  metadata : Map[String, String]
+}
 
 pub struct TabularMSA {
   records : Array[SeqRecord]
@@ -1385,6 +1578,8 @@ pub fn Vector3::distance(Self, Self) -> Double
 pub fn Vector3::new(Double, Double, Double) -> Self
 
 // Type aliases
+pub type PSSM = Array[Array[Double]]
+
 pub type Point = Array[Double]
 
 // Traits

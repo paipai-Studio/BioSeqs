@@ -23,12 +23,7 @@ fn main {
   println("")
 
   println("3. DNA sequence assembly:")
-  let dna_reads = [
-    "ACGTACGTCCG",
-    "CGTCCGATGCA",
-    "ATGCATGCTGA",
-    "TGCTGACGTTT",
-  ]
+  let dna_reads = ["ACGTACGTCCG", "CGTCCGATGCA", "ATGCATGCTGA", "TGCTGACGTTT"]
   println("   Reads:")
   for i = 0; i < dna_reads.length(); i = i + 1 {
     println("     \{i}: \{dna_reads[i]}")
@@ -52,7 +47,9 @@ fn main {
   println("   Number of overlaps found: \{overlaps.length()}")
   for i = 0; i < overlaps.length(); i = i + 1 {
     let o = overlaps[i]
-    println("     Read \{o.from()} -> Read \{o.to()}: overlap length = \{o.overlap_len()}")
+    println(
+      "     Read \{o.from()} -> Read \{o.to()}: overlap length = \{o.overlap_len()}",
+    )
   }
   println("")
 

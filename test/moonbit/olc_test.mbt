@@ -5,10 +5,10 @@
 test "olc_compute_overlap" {
   let overlap = @src.compute_overlap("ABCDEF", "DEFXYZ", 2)
   assert_eq(overlap, 3)
-  
+
   let overlap2 = @src.compute_overlap("ABC", "DEF", 1)
   assert_eq(overlap2, 0)
-  
+
   let overlap3 = @src.compute_overlap("AAAAA", "AAABBB", 2)
   assert_eq(overlap3, 3)
 }
