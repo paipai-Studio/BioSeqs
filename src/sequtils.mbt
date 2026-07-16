@@ -439,9 +439,13 @@ let amino_acid_weights : Map[Char, Double] = Map(
 
 ///|
 pub fn ProteinAnalysis::molecular_weight(self : ProteinAnalysis) -> Double {
+  let n = self.sequence.length()
+  if n == 0 {
+    return 0.0
+  }
   let mut weight = 0.0
   let mut i = 0
-  while i < self.sequence.length() {
+  while i < n {
     let c = self.sequence.unsafe_get(i).unsafe_to_char()
     match amino_acid_weights.get(c) {
       Some(w) => weight = weight + w
@@ -449,7 +453,7 @@ pub fn ProteinAnalysis::molecular_weight(self : ProteinAnalysis) -> Double {
     }
     i = i + 1
   }
-  weight - 18.0153 * (self.sequence.length() - 1).to_double()
+  weight - 18.0153 * (n - 1).to_double()
 }
 
 ///|
