@@ -33,9 +33,9 @@ fn main {
   println("\n2. Filter Cells:")
   let filtered = @bio.filter_cells(counts, qc, 500, 1000, 3, 20.0)
   println("Filtered cells: " + filtered.length().to_string())
-  
+
   let working_data = if filtered.length() > 0 { filtered } else { counts }
-  
+
   println("\n3. Log Normalization:")
   let normalized = @bio.log_normalize(working_data, None)
   println(

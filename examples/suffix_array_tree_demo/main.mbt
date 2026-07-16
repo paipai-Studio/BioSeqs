@@ -2,23 +2,24 @@
 /// Suffix Array and Suffix Tree Demo
 fn main {
   println("=== Suffix Array and Suffix Tree Demo ===")
-  println("")
 
-  println("1. Suffix Array - Basic operations:")
+  println("\n1. Suffix Array - Basic Operations:")
+  println("===================================")
   let sa = @src.SuffixArray::new("banana")
-  println("   Text: banana")
-  println("   Suffix array length: \{sa.len()}")
-  println("   Sorted suffixes:")
+  println("Text: " + sa.text())
+  println("Suffix array length: " + sa.len().to_string())
+  println("\nSorted suffixes:")
   for i = 0; i < sa.len(); i = i + 1 {
-    println("     [\{i}] \{sa.get_sorted_suffix(i)}")
+    println("  [" + i.to_string() + "] " + sa.get_sorted_suffix(i))
   }
-  println("")
 
-  println("2. Suffix Array - Pattern matching:")
-  println("   Count of 'ana': \{sa.count("ana")}")
-  println("   Count of 'an': \{sa.count("an")}")
-  println("   Count of 'b': \{sa.count("b")}")
-  println("   Count of 'xyz': \{sa.count("xyz")}")
+  println("\n2. Suffix Array - Pattern Matching:")
+  println("===================================")
+  println("Count of 'ana': " + sa.count("ana").to_string())
+  println("Count of 'an': " + sa.count("an").to_string())
+  println("Count of 'b': " + sa.count("b").to_string())
+  println("Count of 'xyz': " + sa.count("xyz").to_string())
+
   let pos = sa.locate("ana")
   let pos_str = if pos.length() == 0 {
     "none"
@@ -32,40 +33,62 @@ fn main {
     }
     buf.to_string()
   }
-  println("   Positions of 'ana': \{pos_str}")
-  println("")
+  println("Positions of 'ana': " + pos_str)
 
-  println("3. LCP Array:")
+  println("\n3. LCP Array (Longest Common Prefix):")
+  println("=====================================")
   let lcp = @src.LCPArray::new(sa)
-  println("   LCP values: \{lcp.lcp()}")
-  println("   Max LCP: \{lcp.max_lcp()}")
-  println("")
+  println("LCP values:")
+  let lcp_values = lcp.lcp()
+  for i = 0; i < lcp_values.length(); i = i + 1 {
+    println("  [" + i.to_string() + "] " + lcp_values[i].to_string())
+  }
+  println("Max LCP: " + lcp.max_lcp().to_string())
 
-  println("4. Suffix Tree - Basic operations:")
+  println("\n4. Suffix Tree - Basic Operations:")
+  println("===================================")
   let st = @src.SuffixTree::new("banana")
-  println("   Text: banana")
-  println("   Tree size (nodes): \{st.size()}")
-  println("   Contains 'ana': \{st.contains("ana")}")
-  println("   Contains 'ban': \{st.contains("ban")}")
-  println("   Contains 'xyz': \{st.contains("xyz")}")
-  println("")
+  println("Text: " + st.text())
+  println("Tree size (nodes): " + st.size().to_string())
+  println("Contains 'ana': " + st.contains("ana").to_string())
+  println("Contains 'ban': " + st.contains("ban").to_string())
+  println("Contains 'xyz': " + st.contains("xyz").to_string())
 
-  println("5. Suffix Tree - Pattern matching:")
-  println("   Count of 'ana': \{st.count("ana")}")
-  println("   Count of 'an': \{st.count("an")}")
-  println("   Positions of 'ana': \{st.locate("ana")}")
-  println("")
+  println("\n5. Suffix Tree - Pattern Matching:")
+  println("==================================")
+  println("Count of 'ana': " + st.count("ana").to_string())
+  println("Count of 'an': " + st.count("an").to_string())
 
-  println("6. Suffix Tree - Longest repeated substring:")
-  println("   LRS of 'banana': \{st.longest_repeated_substring()}")
-  println("")
+  let st_pos = st.locate("ana")
+  let st_pos_str = if st_pos.length() == 0 {
+    "none"
+  } else {
+    let buf = StringBuilder::new()
+    for i = 0; i < st_pos.length(); i = i + 1 {
+      if i > 0 {
+        buf.write_string(", ")
+      }
+      buf.write_string(st_pos[i].to_string())
+    }
+    buf.to_string()
+  }
+  println("Positions of 'ana': " + st_pos_str)
 
-  println("7. DNA sequence example:")
+  println("\n6. Suffix Tree - Longest Repeated Substring:")
+  println("=============================================")
+  println("LRS of 'banana': " + st.longest_repeated_substring())
+
+  let st_dna = @src.SuffixTree::new("ACGTACGT")
+  println("LRS of 'ACGTACGT': " + st_dna.longest_repeated_substring())
+
+  println("\n7. DNA Sequence Example:")
+  println("=========================")
   let dna_sa = @src.SuffixArray::new("ACGTACGT")
   let dna_st = @src.SuffixTree::new("ACGTACGT")
-  println("   Text: ACGTACGT")
-  println("   SA count of 'ACGT': \{dna_sa.count("ACGT")}")
-  println("   ST count of 'ACGT': \{dna_st.count("ACGT")}")
+  println("Text: ACGTACGT")
+  println("SA count of 'ACGT': " + dna_sa.count("ACGT").to_string())
+  println("ST count of 'ACGT': " + dna_st.count("ACGT").to_string())
+
   let dna_pos = dna_sa.locate("ACGT")
   let dna_pos_str = if dna_pos.length() == 0 {
     "none"
@@ -79,10 +102,12 @@ fn main {
     }
     buf.to_string()
   }
-  println("   SA positions of 'ACGT': \{dna_pos_str}")
-  println("")
+  println("SA positions of 'ACGT': " + dna_pos_str)
 
-  println("8. Suffix Tree structure:")
+  println("\n8. Suffix Tree Structure Output:")
+  println("================================")
   let st_abc = @src.SuffixTree::new("abc")
   println(st_abc.to_string())
+
+  println("\n=== Demo Complete ===")
 }

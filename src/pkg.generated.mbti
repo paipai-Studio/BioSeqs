@@ -149,6 +149,8 @@ pub fn correct_errors(Array[String], Int) -> Array[String]
 
 pub fn cosine_distance(Array[Double], Array[Double]) -> Double
 
+pub fn count_by_year(Array[MedlineRecord]) -> Array[(String, Int)]
+
 pub fn count_codons(String) -> Map[String, Int]
 
 pub fn count_hsps(QueryResult) -> Int
@@ -259,6 +261,12 @@ pub fn exons_by_transcript(TxDb) -> Map[String, Array[Exon]]
 
 pub fn extract_exons(Array[String], String) -> Array[String]
 
+pub fn extract_pmids(Array[MedlineRecord]) -> Array[String]
+
+pub fn filter_by_author(Array[MedlineRecord], String) -> Array[MedlineRecord]
+
+pub fn filter_by_mesh(Array[MedlineRecord], String) -> Array[MedlineRecord]
+
 pub fn filter_cells(Array[Array[Double]], QCMetrics, Int, Int, Int, Double) -> Array[Array[Double]]
 
 pub fn filter_enrichment(Array[GOEnrichmentResult], Double, Int) -> Array[GOEnrichmentResult]
@@ -285,6 +293,8 @@ pub fn fishers_exact_test(Int, Int, Int, Int) -> Double
 
 pub fn five_prime_utrs(TxDb) -> GRanges
 
+pub fn format_citation_apa(MedlineRecord) -> String
+
 pub fn fragment_sizes(Array[String]) -> Array[Int]
 
 pub fn fst(Array[String], Array[String]) -> Double
@@ -307,7 +317,11 @@ pub fn genes(TxDb) -> GRanges
 
 pub fn genotype_frequencies(Array[String]) -> Map[String, Double]
 
+pub fn get_author_count(MedlineRecord) -> Int
+
 pub fn get_enzyme_by_name(String) -> RestrictionEnzyme?
+
+pub fn get_first_author(MedlineRecord) -> String
 
 pub fn get_leaf_count(TreeNode) -> Int
 
@@ -316,6 +330,8 @@ pub fn get_leaves(TreeNode) -> Array[String]
 pub fn get_matrix(MatrixType) -> SubstitutionMatrix
 
 pub fn get_node_count(TreeNode) -> Int
+
+pub fn get_publication_year(MedlineRecord) -> String
 
 pub fn get_sequence(Alignment, String) -> String?
 
@@ -364,6 +380,8 @@ pub fn granges_single(String, Int, Int, Strand) -> GRanges
 pub fn granges_union(GRanges, GRanges) -> GRanges
 
 pub fn hardy_weinberg_test(Array[String]) -> Double
+
+pub fn has_abstract(MedlineRecord) -> Bool
 
 pub fn hclust_to_newick(ClusterResult, Array[String]) -> String
 
@@ -426,6 +444,12 @@ pub fn is_rna(String) -> Bool
 pub fn iupac_match(String, String) -> Array[(Int, Int)]
 
 pub fn iupac_reverse_complement(String) -> String
+
+pub fn kegg_compound_in_pathway(KEGGCompound, String) -> Bool
+
+pub fn kegg_gene_pathway_count(KEGGGene) -> Int
+
+pub fn kegg_pathway_gene_ids(KEGGPathway) -> Array[String]
 
 pub fn kmer_frequency(String, Int, Bool) -> Map[String, Double]
 
@@ -567,7 +591,19 @@ pub fn parse_hmmer3_tab(String) -> Array[QueryResult]
 
 pub fn parse_int(String) -> Int
 
+pub fn parse_kegg_compound(String) -> KEGGCompound?
+
+pub fn parse_kegg_enzyme(String) -> KEGGEnzyme?
+
+pub fn parse_kegg_gene(String) -> KEGGGene?
+
+pub fn parse_kegg_pathway(String) -> KEGGPathway?
+
 pub fn parse_matrix(String) -> SubstitutionMatrix?
+
+pub fn parse_medline(String) -> MedlineRecord?
+
+pub fn parse_medline_records(String) -> Array[MedlineRecord]
 
 pub fn parse_newick(String) -> TreeNode
 
@@ -1659,6 +1695,52 @@ pub struct IRanges {
   widths : Array[Int]
 }
 
+pub struct KEGGCompound {
+  entry : String
+  name : String
+  formula : String
+  mass : Double
+  pathways : Array[String]
+  enzymes : Array[String]
+  reactions : Array[String]
+}
+pub fn KEGGCompound::new(String, String, String, Double, Array[String], Array[String], Array[String]) -> Self
+
+pub struct KEGGEnzyme {
+  entry : String
+  name : String
+  class : String
+  genes : Array[(String, String)]
+  pathways : Array[String]
+  reactions : Array[String]
+  cofactors : Array[String]
+}
+pub fn KEGGEnzyme::new(String, String, String, Array[(String, String)], Array[String], Array[String], Array[String]) -> Self
+
+pub struct KEGGGene {
+  entry : String
+  name : String
+  definition : String
+  orthology : String
+  organism : String
+  pathways : Array[String]
+  position : String
+  dblinks : Array[(String, String)]
+}
+pub fn KEGGGene::new(String, String, String, String, String, Array[String], String, Array[(String, String)]) -> Self
+
+pub struct KEGGPathway {
+  entry : String
+  name : String
+  definition : String
+  class : String
+  genes : Array[(String, String)]
+  compounds : Array[String]
+  enzymes : Array[String]
+  organisms : Array[String]
+}
+pub fn KEGGPathway::new(String, String, String, String, Array[(String, String)], Array[String], Array[String], Array[String]) -> Self
+
 pub struct KMeans {
   k : Int
   centroids : Array[Array[Double]]
@@ -1732,6 +1814,26 @@ pub enum MatrixType {
   PAM250
   PAM30
 }
+
+pub struct MedlineRecord {
+  pmid : String
+  title : String
+  abstract_text : String
+  authors : Array[String]
+  journal : String
+  volume : String
+  issue : String
+  pages : String
+  publication_date : String
+  mesh_terms : Array[String]
+  keywords : Array[String]
+  affiliations : Array[String]
+  language : String
+  pub_types : Array[String]
+  doi : String
+  pmc : String
+}
+pub fn MedlineRecord::new(String, String, String, Array[String], String, String, String, String, String, Array[String], Array[String], Array[String], String, Array[String], String, String) -> Self
 
 pub struct Model {
   id : Int
