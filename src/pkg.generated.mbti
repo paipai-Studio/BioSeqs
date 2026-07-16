@@ -51,6 +51,8 @@ pub fn avg_polarity(String) -> Double
 
 pub fn base64_decode(String) -> String
 
+pub fn bed_to_granges(Array[BedRecord]) -> GRanges
+
 pub fn bgzf_decompress(String) -> String raise BgzfError
 
 pub fn blosum45() -> SubstitutionMatrix
@@ -81,9 +83,31 @@ pub fn cluster_result(Array[Array[Int]], Array[Array[Double]], Array[Int]) -> Cl
 
 pub fn cluster_size(Array[Int]) -> Int
 
+pub fn codon_cai(String, Map[String, Double]) -> Double
+
+pub fn codon_cbi(String, Array[String]) -> Double
+
+pub fn codon_enc(Map[String, Int]) -> Double
+
 pub let codon_fixed_table : FixedArray[UInt16]
 
+pub fn codon_fop(String, Array[String]) -> Double
+
+pub fn codon_gc3(String) -> Double
+
+pub fn codon_optimal(Map[String, Double]) -> Map[String, Double]
+
+pub fn codon_reverse_complement(String) -> String
+
+pub fn codon_rscu(Map[String, Int]) -> Map[String, Double]
+
+pub fn codon_translate(String) -> String
+
 pub fn codon_usage(String) -> Map[String, Int]
+
+pub fn codon_usage_analysis(String) -> CodonUsageResult
+
+pub fn codon_usage_with_ref(String, String) -> CodonUsageResult
 
 pub fn column(String, DataType, Array[DataValue]) -> Column
 
@@ -102,6 +126,8 @@ pub fn consensus_sequence(Alignment) -> String
 pub fn correct_errors(Array[String], Int) -> Array[String]
 
 pub fn cosine_distance(Array[Double], Array[Double]) -> Double
+
+pub fn count_codons(String) -> Map[String, Int]
 
 pub fn count_kmers(String, Int) -> Map[String, Int]
 
@@ -255,7 +281,11 @@ pub fn get_node_count(TreeNode) -> Int
 
 pub fn get_sequence(Alignment, String) -> String?
 
+pub fn get_standard_code() -> Map[String, Array[String]]
+
 pub fn get_tree_depth(TreeNode) -> Double
+
+pub fn gff_to_granges(Array[GffRecord]) -> GRanges
 
 pub fn glm_fit(DGEList, Array[Array[Double]]) -> Array[Array[Double]]
 
@@ -437,6 +467,10 @@ pub fn parse_bam_from_bgzf(String) -> BamFile raise BgzfError
 
 pub fn parse_bam_from_bgzf_base64(String) -> BamFile raise BgzfError
 
+pub fn parse_bed(String) -> Array[BedRecord]
+
+pub fn parse_bedgraph(String) -> Array[BedGraphRecord]
+
 pub fn parse_blast_tabular(String) -> BlastRecord?
 
 pub fn parse_blast_xml(String) -> BlastRecord?
@@ -463,6 +497,8 @@ pub fn parse_fastq(String) -> Array[SeqRecord] raise SeqIOError
 
 pub fn parse_genbank(String) -> Array[SeqRecord]
 
+pub fn parse_gff(String) -> Array[GffRecord]
+
 pub fn parse_gtf(String) -> TxDb
 
 pub fn parse_int(String) -> Int
@@ -486,6 +522,8 @@ pub fn parse_semicolon_list(String) -> Array[String]
 pub fn parse_stockholm(String) -> Alignment
 
 pub fn parse_vcf(String) -> VcfFile
+
+pub fn parse_wig(String) -> Array[WigRecord]
 
 pub fn percent_identity(String, String) -> Double
 
@@ -655,6 +693,10 @@ pub fn update_centroids(Array[Array[Double]], Array[Int], Int) -> Array[Array[Do
 
 pub fn watterson_theta(Array[String]) -> Double
 
+pub fn write_bed(Array[BedRecord]) -> String
+
+pub fn write_bedgraph(Array[BedGraphRecord]) -> String
+
 pub fn write_clustal(MultipleSeqAlignment) -> String
 
 pub fn write_clustalw(Alignment) -> String
@@ -667,6 +709,8 @@ pub fn write_fasta_alignment(Alignment) -> String
 
 pub fn write_fastq(Array[SeqRecord]) -> String raise SeqIOError
 
+pub fn write_gff(Array[GffRecord]) -> String
+
 pub fn write_newick(TreeNode, Bool) -> String
 
 pub fn write_pdb(Structure) -> String
@@ -674,6 +718,8 @@ pub fn write_pdb(Structure) -> String
 pub fn write_phylip(MultipleSeqAlignment) -> String
 
 pub fn write_phylip_sequential(MultipleSeqAlignment) -> String
+
+pub fn write_wig(Array[WigRecord]) -> String
 
 // Errors
 pub suberror AlignError {
@@ -828,6 +874,28 @@ pub struct BamReference {
   name : String
   length : Int
 } derive(Eq)
+
+pub struct BedGraphRecord {
+  chrom : String
+  chrom_start : Int
+  chrom_end : Int
+  value : Double
+}
+
+pub struct BedRecord {
+  chrom : String
+  chrom_start : Int
+  chrom_end : Int
+  name : String
+  score : Int?
+  strand : Strand
+  thick_start : Int?
+  thick_end : Int?
+  item_rgb : String
+  block_count : Int?
+  block_sizes : Array[Int]
+  block_starts : Array[Int]
+}
 
 type BitArray
 
@@ -1001,6 +1069,16 @@ pub struct ClusterResult {
   distances : Array[Array[Double]]
   cluster_labels : Array[Int]
 }
+
+pub struct CodonUsageResult {
+  codon_counts : Map[String, Int]
+  rscu : Map[String, Double]
+  cai : Double
+  enc : Double
+  gc3 : Double
+  optimal_codons : Map[String, Double]
+}
+pub fn CodonUsageResult::new(Map[String, Int], Map[String, Double], Double, Double, Double, Map[String, Double]) -> Self
 
 pub struct Column {
   name : String
@@ -1309,6 +1387,18 @@ pub struct Gene {
 }
 pub fn Gene::new(String, String, Int, Int, Strand) -> Self
 
+pub struct GffRecord {
+  seqid : String
+  source : String
+  feature_type : String
+  start : Int
+  end : Int
+  score : Double?
+  strand : Strand
+  phase : Int?
+  attributes : Map[String, String]
+}
+
 pub struct HMM {
   states : Array[String]
   observations : Array[String]
@@ -1520,12 +1610,19 @@ pub fn Protein::to_string(Self) -> String
 pub struct ProteinAnalysis {
   sequence : String
 } derive(Eq)
+pub fn ProteinAnalysis::amino_acid_composition(Self) -> Map[Char, Double]
 pub fn ProteinAnalysis::aromaticity(Self) -> Double
+pub fn ProteinAnalysis::charge_at_ph(Self, Double) -> Double
 pub fn ProteinAnalysis::count_amino_acids(Self) -> Map[Char, Int]
 pub fn ProteinAnalysis::get_amino_acids_percent(Self) -> Map[Char, Double]
 pub fn ProteinAnalysis::gravy(Self) -> Double
+pub fn ProteinAnalysis::instability_index(Self) -> Double
+pub fn ProteinAnalysis::isoelectric_point(Self) -> Double
+pub fn ProteinAnalysis::length(Self) -> Int
 pub fn ProteinAnalysis::molecular_weight(Self) -> Double
 pub fn ProteinAnalysis::new(String) -> Self
+pub fn ProteinAnalysis::predict_signal_peptide(Self) -> SignalPeptideResult
+pub fn ProteinAnalysis::secondary_structure(Self) -> (Double, Double, Double)
 
 pub struct RNA {
   seq : Seq
@@ -1727,6 +1824,12 @@ pub fn SeqRecord::phred_quality(Self) -> Array[Int]?
 pub fn SeqRecord::repr(Self) -> String
 pub fn SeqRecord::set_phred_quality(Self, Array[Int]) -> Self
 
+pub struct SignalPeptideResult {
+  has_signal_peptide : Bool
+  cleavage_site : Int?
+  score : Double
+}
+
 pub enum Strand {
   Plus
   Minus
@@ -1916,6 +2019,17 @@ pub struct Vector3 {
 }
 pub fn Vector3::distance(Self, Self) -> Double
 pub fn Vector3::new(Double, Double, Double) -> Self
+
+pub struct WigRecord {
+  wig_type : WigType
+  positions : Array[Int]
+  values : Array[Double]
+}
+
+pub enum WigType {
+  VariableStep(String, Int?)
+  FixedStep(String, Int, Int)
+}
 
 // Type aliases
 pub type PSSM = Array[Array[Double]]

@@ -29,7 +29,7 @@ test "protparam_gravy" {
   let hydrophobic = @src.ProteinAnalysis::new("LLLLLL")
   let gravy = hydrophobic.gravy()
   assert_true(gravy > 3.0)
-  
+
   let hydrophilic = @src.ProteinAnalysis::new("RRRRRR")
   let gravy2 = hydrophilic.gravy()
   assert_true(gravy2 < -3.0)
@@ -47,7 +47,7 @@ test "protparam_isoelectric_point" {
   let acidic = @src.ProteinAnalysis::new("EEEEEE")
   let pi = acidic.isoelectric_point()
   assert_true(pi < 5.0)
-  
+
   let basic = @src.ProteinAnalysis::new("KKKKKK")
   let pi2 = basic.isoelectric_point()
   assert_true(pi2 > 9.0)
