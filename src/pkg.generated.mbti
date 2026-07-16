@@ -63,11 +63,15 @@ pub fn bed_to_granges(Array[BedRecord]) -> GRanges
 
 pub fn bgzf_decompress(String) -> String raise BgzfError
 
+pub fn bh_correction(Array[Double]) -> Array[Double]
+
 pub fn blast_to_searchio(Array[BlastRecord]) -> Array[QueryResult]
 
 pub fn blosum45() -> SubstitutionMatrix
 
 pub fn blosum62() -> SubstitutionMatrix
+
+pub fn bonferroni_correction(Array[Double]) -> Array[Double]
 
 pub fn build_fai(String) -> FastaIndex
 
@@ -80,6 +84,8 @@ pub fn bwt_inverse(String) -> String
 pub fn bytes_to_base64(Array[Int]) -> String
 
 pub fn calc_norm_factors(DGEList) -> DGEList
+
+pub fn calculate_qc_metrics(Array[Array[Double]], Array[String]) -> QCMetrics
 
 pub fn calculate_rmsd(Array[AtomCoordinate], Array[AtomCoordinate]) -> Double
 
@@ -253,6 +259,10 @@ pub fn exons_by_transcript(TxDb) -> Map[String, Array[Exon]]
 
 pub fn extract_exons(Array[String], String) -> Array[String]
 
+pub fn filter_cells(Array[Array[Double]], QCMetrics, Int, Int, Int, Double) -> Array[Array[Double]]
+
+pub fn filter_enrichment(Array[GOEnrichmentResult], Double, Int) -> Array[GOEnrichmentResult]
+
 pub fn find_cut_sites(String, RestrictionEnzyme) -> Array[Int]
 
 pub fn find_layout_path(Array[String], Int) -> Array[Int]
@@ -268,6 +278,10 @@ pub fn find_optimal_k(Array[Array[Double]], Int, Int) -> Int
 pub fn find_overlaps(GRanges, GRanges) -> Array[(Int, Int)]
 
 pub fn find_transcript_by_id(TxDb, String) -> Transcript?
+
+pub fn find_variable_genes(Array[Array[Double]], Int) -> Array[Int]
+
+pub fn fishers_exact_test(Int, Int, Int, Int) -> Double
 
 pub fn five_prime_utrs(TxDb) -> GRanges
 
@@ -319,6 +333,10 @@ pub fn global_pairwise_align_nucleotide(DNA, DNA) -> (TabularMSA, Double, (Int, 
 
 pub fn global_pairwise_align_protein(Protein, Protein) -> (TabularMSA, Double, (Int, Int), (Int, Int))
 
+pub fn go_enrich(Array[String], Array[GOTerm], Int) -> Array[GOEnrichmentResult]
+
+pub fn go_terms_by_namespace(Array[GOTerm], String) -> Array[GOTerm]
+
 pub fn granges(Array[String], Array[(Int, Int)], Array[Strand]) -> GRanges
 
 pub fn granges_disjoin(GRanges) -> GRanges
@@ -350,6 +368,8 @@ pub fn hardy_weinberg_test(Array[String]) -> Double
 pub fn hclust_to_newick(ClusterResult, Array[String]) -> String
 
 pub fn heterozygosity(Array[String]) -> Double
+
+pub fn hypergeometric_test(Int, Int, Int, Int) -> Double
 
 pub fn inbreeding_coefficient(Array[String]) -> Double
 
@@ -424,6 +444,8 @@ pub fn local_pairwise_align_nucleotide(DNA, DNA) -> (TabularMSA, Double, (Int, I
 pub fn local_pairwise_align_protein(Protein, Protein) -> (TabularMSA, Double, (Int, Int), (Int, Int))
 
 pub fn locate_variants(Array[VcfRecord], TxDb) -> Array[VariantAnnotation]
+
+pub fn log_normalize(Array[Array[Double]], Array[Double]?) -> Array[Array[Double]]
 
 pub fn make_contrasts(Array[Array[Double]], Matrix) -> Matrix
 
@@ -569,6 +591,8 @@ pub fn parse_wig(String) -> Array[WigRecord]
 
 pub fn pbeta(Double, Double, Double) -> Double
 
+pub fn pca_power_iteration(Array[Array[Double]], Int) -> (Array[Array[Double]], Array[Double])
+
 pub fn percent_identity(String, String) -> Double
 
 pub fn pf(Double, Double, Double) -> Double
@@ -636,6 +660,8 @@ pub fn search_motif(Motif, String, Double) -> Array[MotifHit]
 pub fn secondary_structure_propensity(String) -> (Double, Double, Double)
 
 pub fn seguid(String) -> String
+
+pub fn select_genes_by_indices(Array[Array[Double]], Array[Int]) -> Array[Array[Double]]
 
 pub fn seq1(String) -> String
 
@@ -1523,6 +1549,29 @@ pub fn GAlignments::length(Self) -> Int
 pub fn GAlignments::new(Array[String], Array[Int], Array[Int], Array[Strand], Array[String], Array[Int], Array[Int]) -> Self
 pub fn GAlignments::to_granges(Self) -> GRanges
 
+pub struct GOEnrichmentResult {
+  go_id : String
+  term_name : String
+  namespace : String
+  p_value : Double
+  mut adjusted_p_value : Double
+  odds_ratio : Double
+  gene_ratio : String
+  bg_ratio : String
+  count : Int
+  bg_count : Int
+  genes : Array[String]
+}
+pub fn GOEnrichmentResult::new(String, String, String, Double, Double, Double, String, String, Int, Int, Array[String]) -> Self
+
+pub struct GOTerm {
+  go_id : String
+  term_name : String
+  namespace : String
+  genes : Array[String]
+}
+pub fn GOTerm::new(String, String, String, Array[String]) -> Self
+
 pub struct GRanges {
   seqnames : Array[String]
   starts : Array[Int]
@@ -1862,6 +1911,13 @@ pub fn ProteinAnalysis::new(String) -> Self
 pub fn ProteinAnalysis::predict_signal_peptide(Self) -> SignalPeptideResult
 pub fn ProteinAnalysis::secondary_structure(Self) -> (Double, Double, Double)
 
+pub struct QCMetrics {
+  n_umi : Array[Double]
+  n_genes : Array[Int]
+  mito_percent : Array[Double]
+}
+pub fn QCMetrics::new(Array[Double], Array[Int], Array[Double]) -> Self
+
 pub struct QueryResult {
   id : String
   description : String
@@ -2090,6 +2146,14 @@ pub struct SignalPeptideResult {
   cleavage_site : Int?
   score : Double
 }
+
+pub struct SingleCellExperiment {
+  assays : Array[Array[Array[Double]]]
+  col_data : Array[Array[String]]
+  row_data : Array[Array[String]]
+  reduced_dimensions : Array[(String, Array[Array[Double]])]
+}
+pub fn SingleCellExperiment::new(Array[Array[Array[Double]]], Array[Array[String]], Array[Array[String]]) -> Self
 
 pub enum Strand {
   Plus
