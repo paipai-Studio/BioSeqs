@@ -96,7 +96,11 @@ pub fn parse_double(s : String) -> Double? {
 
   let mut exponent = 0
   let mut exp_sign = 1
-  if i < n && (s.unsafe_get(i).to_int() == 'e'.to_int() || s.unsafe_get(i).to_int() == 'E'.to_int()) {
+  if i < n &&
+    (
+      s.unsafe_get(i).to_int() == 'e'.to_int() ||
+      s.unsafe_get(i).to_int() == 'E'.to_int()
+    ) {
     i = i + 1
     if i < n && s.unsafe_get(i).to_int() == '-'.to_int() {
       exp_sign = -1

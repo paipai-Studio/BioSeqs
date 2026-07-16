@@ -21,7 +21,11 @@ pub fn Matrix::new(rows : Int, cols : Int, data : Array[Double]) -> Matrix {
 
 ///|
 /// Create a matrix from 2D array.
-pub fn Matrix::from_2d(rows : Int, cols : Int, data : Array[Array[Double]]) -> Matrix {
+pub fn Matrix::from_2d(
+  rows : Int,
+  cols : Int,
+  data : Array[Array[Double]],
+) -> Matrix {
   let flat = Array::make(rows * cols, 0.0)
   let mut i = 0
   while i < rows {
@@ -72,7 +76,7 @@ pub fn mat_mult(a : Matrix, b : Matrix) -> Matrix {
   if a.cols != b.rows {
     return Matrix::zeros(0, 0)
   }
-  
+
   let data = Array::make(a.rows * b.cols, 0.0)
   let mut i = 0
   while i < a.rows {
@@ -94,7 +98,7 @@ pub fn mat_mult(a : Matrix, b : Matrix) -> Matrix {
 
 ///|
 /// Matrix transpose.
-pub fn mat_transpose(a : Matrix) -> Matrix {
+pub fn matrix_transpose(a : Matrix) -> Matrix {
   let data = Array::make(a.cols * a.rows, 0.0)
   let mut i = 0
   while i < a.rows {
@@ -114,10 +118,10 @@ pub fn mat_inverse(a : Matrix) -> Matrix {
   if a.rows != a.cols {
     return Matrix::zeros(0, 0)
   }
-  
+
   let n = a.rows
   let size = 2 * n
-  
+
   let aug_data = Array::make(n * size, 0.0)
   let mut i = 0
   while i < n {
@@ -129,9 +133,9 @@ pub fn mat_inverse(a : Matrix) -> Matrix {
     aug_data[i * size + n + i] = 1.0
     i = i + 1
   }
-  
+
   let aug = Matrix::new(n, size, aug_data)
-  
+
   let mut pivot_row = 0
   while pivot_row < n {
     let mut max_row = pivot_row
@@ -145,7 +149,7 @@ pub fn mat_inverse(a : Matrix) -> Matrix {
       }
       k = k + 1
     }
-    
+
     if max_row != pivot_row {
       let mut j = 0
       while j < size {
@@ -155,18 +159,18 @@ pub fn mat_inverse(a : Matrix) -> Matrix {
         j = j + 1
       }
     }
-    
+
     let pivot_val = aug.get(pivot_row, pivot_row)
     if pivot_val.abs() < 0.0000000001 {
       return Matrix::zeros(0, 0)
     }
-    
+
     let mut j = 0
     while j < size {
       aug.set(pivot_row, j, aug.get(pivot_row, j) / pivot_val)
       j = j + 1
     }
-    
+
     let mut i = 0
     while i < n {
       if i != pivot_row {
@@ -179,10 +183,10 @@ pub fn mat_inverse(a : Matrix) -> Matrix {
       }
       i = i + 1
     }
-    
+
     pivot_row = pivot_row + 1
   }
-  
+
   let result_data = Array::make(n * n, 0.0)
   let mut i = 0
   while i < n {
@@ -217,12 +221,14 @@ pub fn vec_ss(a : Array[Double]) -> Double {
 ///|
 /// Lanczos approximation for ln(gamma(x)).
 pub fn lngamma(x : Double) -> Double {
-  let cof = [76.18009172947146, -86.50532032941677, 24.01409824083091,
-             -1.231739572450155, 0.001208650973866179, -0.000005395239384953]
+  let cof = [
+    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
+    0.001208650973866179, -0.000005395239384953,
+  ]
   let mut x1 = x
   let mut tmp = x1 + 5.5
   tmp = (x1 + 0.5) * limma_log_nat(tmp) - tmp
-  
+
   let mut ser = 1.000000000190015
   let mut j = 0
   while j < cof.length() {
@@ -230,27 +236,31 @@ pub fn lngamma(x : Double) -> Double {
     ser = ser + cof[j] / x1
     j = j + 1
   }
-  
+
   tmp + limma_log_nat(2.5066282746310005 * ser)
 }
 
 ///|
 /// Incomplete beta function ratio (regularized).
 pub fn pbeta(x : Double, a : Double, b : Double) -> Double {
-  if x <= 0.0 { return 0.0 }
-  if x >= 1.0 { return 1.0 }
-  
+  if x <= 0.0 {
+    return 0.0
+  }
+  if x >= 1.0 {
+    return 1.0
+  }
+
   let lbeta_val = lngamma(a) + lngamma(b) - lngamma(a + b)
   let mut bt = limma_log_nat(x) * a + limma_log_nat(1.0 - x) * b - lbeta_val
   bt = limma_exp(bt)
-  
+
   let mut betaf = 0.0
   if x < (a + 1.0) / (a + b + 2.0) {
     betaf = bt * betacf(x, a, b) / a
   } else {
     betaf = 1.0 - bt * betacf(1.0 - x, b, a) / b
   }
-  
+
   betaf
 }
 
@@ -259,32 +269,48 @@ pub fn pbeta(x : Double, a : Double, b : Double) -> Double {
 fn betacf(x : Double, a : Double, b : Double) -> Double {
   let max_iter = 100
   let eps = 0.0000003
-  
+
   let mut c = 1.0
   let mut d = 1.0 - (a + b) * x / (a + 1.0)
-  if d.abs() < eps { d = eps }
+  if d.abs() < eps {
+    d = eps
+  }
   d = 1.0 / d
   let mut h = d
-  
+
   let mut m = 1
   while m <= max_iter {
     let m2 = (2 * m).to_double()
-    let mut aa = m.to_double() * (b - m.to_double()) * x / ((a + m2 - 1.0) * (a + m2))
+    let mut aa = m.to_double() *
+      (b - m.to_double()) *
+      x /
+      ((a + m2 - 1.0) * (a + m2))
     d = 1.0 + aa * d
-    if d.abs() < eps { d = eps }
+    if d.abs() < eps {
+      d = eps
+    }
     c = 1.0 + aa / c
-    if c.abs() < eps { c = eps }
+    if c.abs() < eps {
+      c = eps
+    }
     d = 1.0 / d
     h = h * d * c
-    
-    aa = -(a + m.to_double()) * (a + b + m.to_double()) * x / ((a + m2) * (a + m2 + 1.0))
+
+    aa = -(a + m.to_double()) *
+      (a + b + m.to_double()) *
+      x /
+      ((a + m2) * (a + m2 + 1.0))
     d = 1.0 + aa * d
-    if d.abs() < eps { d = eps }
+    if d.abs() < eps {
+      d = eps
+    }
     c = 1.0 + aa / c
-    if c.abs() < eps { c = eps }
+    if c.abs() < eps {
+      c = eps
+    }
     d = 1.0 / d
     h = h * d * c
-    
+
     if (h - 1.0).abs() < eps {
       return h
     }
@@ -296,7 +322,9 @@ fn betacf(x : Double, a : Double, b : Double) -> Double {
 ///|
 /// F-distribution cumulative distribution function.
 pub fn pf(f : Double, df1 : Double, df2 : Double) -> Double {
-  if f <= 0.0 { return 0.0 }
+  if f <= 0.0 {
+    return 0.0
+  }
   let x = df1 * f / (df1 * f + df2)
   1.0 - pbeta(x, df1 / 2.0, df2 / 2.0)
 }
@@ -304,15 +332,19 @@ pub fn pf(f : Double, df1 : Double, df2 : Double) -> Double {
 ///|
 /// F-distribution quantile function (inverse of pf).
 pub fn qf(p : Double, df1 : Double, df2 : Double) -> Double {
-  if p <= 0.0 { return 0.0 }
-  if p >= 1.0 { return 1000000000000000000000000000000000.0 }
-  
+  if p <= 0.0 {
+    return 0.0
+  }
+  if p >= 1.0 {
+    return 1000000000000000000000000000000000.0
+  }
+
   let mut low = 0.0
   let mut high = 1.0
   while pf(high, df1, df2) < p {
     high = high * 2.0
   }
-  
+
   let mut mid = 0.0
   let mut i = 0
   while i < 50 {
@@ -327,8 +359,6 @@ pub fn qf(p : Double, df1 : Double, df2 : Double) -> Double {
   }
   mid
 }
-
-
 
 ///|
 /// Natural logarithm function.
@@ -476,14 +506,7 @@ pub fn TopTableRow::new(
   adj_p_value : Double,
   b : Double,
 ) -> TopTableRow {
-  TopTableRow::{
-    log_fc,
-    ave_exp,
-    t,
-    p_value,
-    adj_p_value,
-    b,
-  }
+  TopTableRow::{ log_fc, ave_exp, t, p_value, adj_p_value, b }
 }
 
 ///|
@@ -494,17 +517,17 @@ pub fn lm_fit(y : Matrix, design : Matrix) -> MArrayLM {
   let n_genes = y.rows
   let n_samples = y.cols
   let n_coefs = design.cols
-  
-  let xt = mat_transpose(design)
+
+  let xt = matrix_transpose(design)
   let xtx = mat_mult(xt, design)
   let xtx_inv = mat_inverse(xtx)
-  
+
   let betas_data = Array::make(n_genes * n_coefs, 0.0)
   let stdevs_data = Array::make(n_genes * n_coefs, 0.0)
   let sigma = Array::make(n_genes, 0.0)
   let effects_data = Array::make(n_genes * n_coefs, 0.0)
   let fit_vals_data = Array::make(n_genes * n_samples, 0.0)
-  
+
   let mut i = 0
   while i < n_genes {
     let y_vec = Array::make(n_samples, 0.0)
@@ -513,7 +536,7 @@ pub fn lm_fit(y : Matrix, design : Matrix) -> MArrayLM {
       y_vec[j] = y.get(i, j)
       j = j + 1
     }
-    
+
     let xt_y_data = Array::make(n_coefs, 0.0)
     let mut k = 0
     while k < n_coefs {
@@ -527,15 +550,15 @@ pub fn lm_fit(y : Matrix, design : Matrix) -> MArrayLM {
       k = k + 1
     }
     let xt_y = Matrix::new(n_coefs, 1, xt_y_data)
-    
+
     let beta = mat_mult(xtx_inv, xt_y)
-    
+
     let mut j = 0
     while j < n_coefs {
       betas_data[i * n_coefs + j] = beta.get(j, 0)
       j = j + 1
     }
-    
+
     let fitted = Array::make(n_samples, 0.0)
     let mut j = 0
     while j < n_samples {
@@ -549,25 +572,29 @@ pub fn lm_fit(y : Matrix, design : Matrix) -> MArrayLM {
       fit_vals_data[i * n_samples + j] = sum
       j = j + 1
     }
-    
+
     let residuals = Array::make(n_samples, 0.0)
     let mut j = 0
     while j < n_samples {
       residuals[j] = y_vec[j] - fitted[j]
       j = j + 1
     }
-    
+
     let ss_residual = vec_ss(residuals)
     let df_resid = n_samples - n_coefs
-    let sig = if df_resid > 0 { (ss_residual / df_resid.to_double()).sqrt() } else { 0.0 }
+    let sig = if df_resid > 0 {
+      (ss_residual / df_resid.to_double()).sqrt()
+    } else {
+      0.0
+    }
     sigma[i] = sig
-    
+
     let mut j = 0
     while j < n_coefs {
-      stdevs_data[i * n_coefs + j] = sig * (xtx_inv.get(j, j)).sqrt()
+      stdevs_data[i * n_coefs + j] = sig * xtx_inv.get(j, j).sqrt()
       j = j + 1
     }
-    
+
     let mut j = 0
     while j < n_coefs {
       let mut sum = 0.0
@@ -579,16 +606,24 @@ pub fn lm_fit(y : Matrix, design : Matrix) -> MArrayLM {
       effects_data[i * n_coefs + j] = sum
       j = j + 1
     }
-    
+
     i = i + 1
   }
-  
+
   let betas = Matrix::new(n_genes, n_coefs, betas_data)
   let stdevs = Matrix::new(n_genes, n_coefs, stdevs_data)
   let effects = Matrix::new(n_genes, n_coefs, effects_data)
   let fit_vals = Matrix::new(n_genes, n_samples, fit_vals_data)
-  
-  MArrayLM::new(betas, stdevs, sigma, n_samples - n_coefs, design, effects, fit_vals)
+
+  MArrayLM::new(
+    betas,
+    stdevs,
+    sigma,
+    n_samples - n_coefs,
+    design,
+    effects,
+    fit_vals,
+  )
 }
 
 ///|
@@ -596,16 +631,16 @@ pub fn lm_fit(y : Matrix, design : Matrix) -> MArrayLM {
 pub fn ebayes(fit : MArrayLM, proportion : Double) -> EBayesResult {
   let n_genes = fit.coefficients.rows
   let n_coefs = fit.coefficients.cols
-  
+
   let sigma_sq = Array::make(n_genes, 0.0)
   let mut i = 0
   while i < n_genes {
     sigma_sq[i] = fit.sigma[i] * fit.sigma[i]
     i = i + 1
   }
-  
+
   let df_residual = fit.df_residual.to_double()
-  
+
   let mut sum_weights = 0.0
   let mut sum_sq = 0.0
   let mut n_eff = 0.0
@@ -619,7 +654,7 @@ pub fn ebayes(fit : MArrayLM, proportion : Double) -> EBayesResult {
     }
     i = i + 1
   }
-  
+
   let (prior_var, mean_sq) = if n_eff > 1.0 {
     let mean_sq_val = sum_sq / sum_weights
     let mut sum_diffs = 0.0
@@ -637,41 +672,66 @@ pub fn ebayes(fit : MArrayLM, proportion : Double) -> EBayesResult {
   } else {
     (0.0, 0.0)
   }
-  
+
   let prior_df = if mean_sq > 0.0 && n_eff > 1.0 {
-    let val = (df_residual + 2.0) * prior_var / (mean_sq * (n_eff - 1.0) / n_eff)
-    if val < 0.0 { 0.0 } else { val }
+    let val = (df_residual + 2.0) *
+      prior_var /
+      (mean_sq * (n_eff - 1.0) / n_eff)
+    if val < 0.0 {
+      0.0
+    } else {
+      val
+    }
   } else {
     0.0
   }
-  
+
   let df_total = df_residual + prior_df
-  
+
   let t_data = Array::make(n_genes * n_coefs, 0.0)
   let p_value_data = Array::make(n_genes * n_coefs, 0.0)
   let lods_data = Array::make(n_genes * n_coefs, 0.0)
-  
+
   i = 0
   while i < n_genes {
     let mut j = 0
     while j < n_coefs {
       let beta = fit.coefficients.get(i, j)
       let se = fit.stdev_unscaled.get(i, j) * fit.sigma[i]
-      
+
       if se > 0.0 {
         let moderated_se = (se * se + prior_var).sqrt()
         let t_val = beta / moderated_se
-        
+
         let df_t = df_total
-        let p_val = 2.0 * (1.0 - pf(t_val.abs() * t_val.abs() * (df_t + 1.0) / (df_t + t_val.abs() * t_val.abs()), 1.0, df_t))
-        let p = if p_val > 1.0 { 1.0 } else if p_val < 0.0 { 0.0 } else { p_val }
-        
+        let p_val = 2.0 *
+          (
+            1.0 -
+            pf(
+              t_val.abs() *
+              t_val.abs() *
+              (df_t + 1.0) /
+              (df_t + t_val.abs() * t_val.abs()),
+              1.0,
+              df_t,
+            )
+          )
+        let p = if p_val > 1.0 {
+          1.0
+        } else if p_val < 0.0 {
+          0.0
+        } else {
+          p_val
+        }
+
         let lod = if p > 0.0 && p < 1.0 {
-          -0.5 * limma_log_nat(p) + 0.5 * limma_log_nat(1.0 - p) + limma_log_nat((1.0 - proportion) / proportion)
+          -0.5 * limma_log_nat(p) +
+          0.5 * limma_log_nat(1.0 - p) +
+          limma_log_nat((1.0 - proportion) / proportion)
         } else {
           0.0
         }
-        
+
         t_data[i * n_coefs + j] = t_val
         p_value_data[i * n_coefs + j] = p
         lods_data[i * n_coefs + j] = lod
@@ -684,14 +744,14 @@ pub fn ebayes(fit : MArrayLM, proportion : Double) -> EBayesResult {
     }
     i = i + 1
   }
-  
+
   let t = Matrix::new(n_genes, n_coefs, t_data)
   let p_value = Matrix::new(n_genes, n_coefs, p_value_data)
   let lods = Matrix::new(n_genes, n_coefs, lods_data)
-  
+
   let f = Array::make(n_genes, 0.0)
   let f_p_value = Array::make(n_genes, 0.0)
-  
+
   i = 0
   while i < n_genes {
     let mut sum_t2 = 0.0
@@ -700,22 +760,24 @@ pub fn ebayes(fit : MArrayLM, proportion : Double) -> EBayesResult {
       sum_t2 = sum_t2 + t.get(i, j) * t.get(i, j)
       j = j + 1
     }
-    
+
     let f_val = if n_coefs > 1 {
-      (sum_t2 / n_coefs.to_double()) * (df_total / (df_total - n_coefs.to_double() + 1.0))
+      sum_t2 /
+      n_coefs.to_double() *
+      (df_total / (df_total - n_coefs.to_double() + 1.0))
     } else {
       t.get(i, 0) * t.get(i, 0)
     }
-    
+
     f[i] = f_val
-    
+
     let df1 = n_coefs.to_double()
     let df2 = df_total
     f_p_value[i] = 1.0 - pf(f_val, df1, df2)
-    
+
     i = i + 1
   }
-  
+
   EBayesResult::new(
     fit.coefficients,
     fit.stdev_unscaled,
@@ -743,15 +805,18 @@ pub fn top_table(
   adjust_mode : String,
 ) -> Array[TopTableRow] {
   let n_genes = fit.coefficients.rows
-  
-  let rows = Array::make(n_genes, TopTableRow::new(0.0, 0.0, 0.0, 1.0, 1.0, 0.0))
-  
+
+  let rows = Array::make(
+    n_genes,
+    TopTableRow::new(0.0, 0.0, 0.0, 1.0, 1.0, 0.0),
+  )
+
   let mut i = 0
   while i < n_genes {
     let log_fc = fit.coefficients.get(i, coef)
     let t_val = fit.t.get(i, coef)
     let p_val = fit.p_value.get(i, coef)
-    
+
     let mut ave_exp = 0.0
     let mut n = 0
     let mut j = 0
@@ -763,18 +828,25 @@ pub fn top_table(
     if n > 0 {
       ave_exp = ave_exp / n.to_double()
     }
-    
-    rows[i] = TopTableRow::new(log_fc, ave_exp, t_val, p_val, p_val, fit.lods.get(i, coef))
+
+    rows[i] = TopTableRow::new(
+      log_fc,
+      ave_exp,
+      t_val,
+      p_val,
+      p_val,
+      fit.lods.get(i, coef),
+    )
     i = i + 1
   }
-  
+
   let sorted_indices = Array::make(n_genes, 0)
   let mut i = 0
   while i < n_genes {
     sorted_indices[i] = i
     i = i + 1
   }
-  
+
   let mut swapped = true
   let mut k = n_genes - 1
   while k > 0 && swapped {
@@ -791,33 +863,46 @@ pub fn top_table(
     }
     k = k - 1
   }
-  
+
   let p_values = Array::make(n_genes, 0.0)
   i = 0
   while i < n_genes {
     p_values[i] = rows[i].p_value
     i = i + 1
   }
-  
+
   let adj_p = adjust_p_values(p_values, adjust_mode)
-  
+
   let result_size = if number < n_genes { number } else { n_genes }
-  let result = Array::make(result_size, TopTableRow::new(0.0, 0.0, 0.0, 1.0, 1.0, 0.0))
-  
+  let result = Array::make(
+    result_size,
+    TopTableRow::new(0.0, 0.0, 0.0, 1.0, 1.0, 0.0),
+  )
+
   i = 0
   while i < result_size {
     let idx = sorted_indices[i]
     let row = rows[idx]
-    result[i] = TopTableRow::new(row.log_fc, row.ave_exp, row.t, row.p_value, adj_p[idx], row.b)
+    result[i] = TopTableRow::new(
+      row.log_fc,
+      row.ave_exp,
+      row.t,
+      row.p_value,
+      adj_p[idx],
+      row.b,
+    )
     i = i + 1
   }
-  
+
   result
 }
 
 ///|
 /// Adjust p-values for multiple testing.
-pub fn adjust_p_values(p_values : Array[Double], mode : String) -> Array[Double] {
+pub fn adjust_p_values(
+  p_values : Array[Double],
+  mode : String,
+) -> Array[Double] {
   let n = p_values.length()
   let indices = Array::make(n, 0)
   let mut i = 0
@@ -825,7 +910,7 @@ pub fn adjust_p_values(p_values : Array[Double], mode : String) -> Array[Double]
     indices[i] = i
     i = i + 1
   }
-  
+
   let mut swapped = true
   let mut k = n - 1
   while k > 0 && swapped {
@@ -842,9 +927,9 @@ pub fn adjust_p_values(p_values : Array[Double], mode : String) -> Array[Double]
     }
     k = k - 1
   }
-  
+
   let adj = Array::make(n, 0.0)
-  
+
   if mode.to_upper() == "BH" || mode.to_upper() == "FDR" {
     let mut min_adj = 1.0
     let mut i = n - 1
@@ -857,7 +942,7 @@ pub fn adjust_p_values(p_values : Array[Double], mode : String) -> Array[Double]
       adj[indices[i]] = min_adj
       i = i - 1
     }
-    
+
     i = 0
     while i < n {
       if adj[i] > 1.0 {
@@ -873,18 +958,21 @@ pub fn adjust_p_values(p_values : Array[Double], mode : String) -> Array[Double]
       i = i + 1
     }
   }
-  
+
   adj
 }
 
 ///|
 /// Create contrast matrix from design matrix.
-pub fn make_contrasts(contrasts : Array[Array[Double]], design : Matrix) -> Matrix {
+pub fn make_contrasts(
+  contrasts : Array[Array[Double]],
+  design : Matrix,
+) -> Matrix {
   let n_contrasts = contrasts.length()
   let n_coefs = design.cols
-  
+
   let data = Array::make(n_coefs * n_contrasts, 0.0)
-  
+
   let mut i = 0
   while i < n_contrasts {
     let mut j = 0
@@ -896,7 +984,7 @@ pub fn make_contrasts(contrasts : Array[Array[Double]], design : Matrix) -> Matr
     }
     i = i + 1
   }
-  
+
   Matrix::new(n_coefs, n_contrasts, data)
 }
 
@@ -905,9 +993,9 @@ pub fn make_contrasts(contrasts : Array[Array[Double]], design : Matrix) -> Matr
 pub fn contrasts_fit(fit : EBayesResult, contrasts : Matrix) -> EBayesResult {
   let n_genes = fit.coefficients.rows
   let n_contrasts = contrasts.cols
-  
+
   let coefs = mat_mult(fit.coefficients, contrasts)
-  
+
   let stdevs_data = Array::make(n_genes * n_contrasts, 0.0)
   let mut i = 0
   while i < n_genes {
@@ -920,37 +1008,56 @@ pub fn contrasts_fit(fit : EBayesResult, contrasts : Matrix) -> EBayesResult {
         sum_se = sum_se + se * se * contrasts.get(k, j) * contrasts.get(k, j)
         k = k + 1
       }
-      stdevs_data[i * n_contrasts + j] = (sum_se).sqrt() * fit.sigma[i]
+      stdevs_data[i * n_contrasts + j] = sum_se.sqrt() * fit.sigma[i]
       j = j + 1
     }
     i = i + 1
   }
   let stdevs = Matrix::new(n_genes, n_contrasts, stdevs_data)
-  
+
   let t_data = Array::make(n_genes * n_contrasts, 0.0)
   let p_value_data = Array::make(n_genes * n_contrasts, 0.0)
   let lods_data = Array::make(n_genes * n_contrasts, 0.0)
-  
+
   let df_total = fit.df_total.to_double()
-  
+
   i = 0
   while i < n_genes {
     let mut j = 0
     while j < n_contrasts {
       let beta = coefs.get(i, j)
       let se = stdevs.get(i, j)
-      
+
       if se > 0.0 {
         let t_val = beta / se
-        let p_val = 2.0 * (1.0 - pf(t_val.abs() * t_val.abs() * (df_total + 1.0) / (df_total + t_val.abs() * t_val.abs()), 1.0, df_total))
-        let p = if p_val > 1.0 { 1.0 } else if p_val < 0.0 { 0.0 } else { p_val }
-        
+        let p_val = 2.0 *
+          (
+            1.0 -
+            pf(
+              t_val.abs() *
+              t_val.abs() *
+              (df_total + 1.0) /
+              (df_total + t_val.abs() * t_val.abs()),
+              1.0,
+              df_total,
+            )
+          )
+        let p = if p_val > 1.0 {
+          1.0
+        } else if p_val < 0.0 {
+          0.0
+        } else {
+          p_val
+        }
+
         let lod = if p > 0.0 && p < 1.0 {
-          -0.5 * limma_log_nat(p) + 0.5 * limma_log_nat(1.0 - p) + limma_log_nat((1.0 - fit.proportion) / fit.proportion)
+          -0.5 * limma_log_nat(p) +
+          0.5 * limma_log_nat(1.0 - p) +
+          limma_log_nat((1.0 - fit.proportion) / fit.proportion)
         } else {
           0.0
         }
-        
+
         t_data[i * n_contrasts + j] = t_val
         p_value_data[i * n_contrasts + j] = p
         lods_data[i * n_contrasts + j] = lod
@@ -963,14 +1070,14 @@ pub fn contrasts_fit(fit : EBayesResult, contrasts : Matrix) -> EBayesResult {
     }
     i = i + 1
   }
-  
+
   let t = Matrix::new(n_genes, n_contrasts, t_data)
   let p_value = Matrix::new(n_genes, n_contrasts, p_value_data)
   let lods = Matrix::new(n_genes, n_contrasts, lods_data)
-  
+
   let f = Array::make(n_genes, 0.0)
   let f_p_value = Array::make(n_genes, 0.0)
-  
+
   i = 0
   while i < n_genes {
     let mut sum_t2 = 0.0
@@ -979,19 +1086,21 @@ pub fn contrasts_fit(fit : EBayesResult, contrasts : Matrix) -> EBayesResult {
       sum_t2 = sum_t2 + t.get(i, j) * t.get(i, j)
       j = j + 1
     }
-    
+
     let f_val = if n_contrasts > 1 {
-      (sum_t2 / n_contrasts.to_double()) * (df_total / (df_total - n_contrasts.to_double() + 1.0))
+      sum_t2 /
+      n_contrasts.to_double() *
+      (df_total / (df_total - n_contrasts.to_double() + 1.0))
     } else {
       t.get(i, 0) * t.get(i, 0)
     }
-    
+
     f[i] = f_val
     f_p_value[i] = 1.0 - pf(f_val, n_contrasts.to_double(), df_total)
-    
+
     i = i + 1
   }
-  
+
   EBayesResult::new(
     coefs,
     stdevs,
@@ -1016,7 +1125,7 @@ pub fn contrasts_fit(fit : EBayesResult, contrasts : Matrix) -> EBayesResult {
 pub fn voom(counts : Matrix, design : Matrix) -> Matrix {
   let n_genes = counts.rows
   let n_samples = counts.cols
-  
+
   let lib_sizes = Array::make(n_samples, 0.0)
   let mut j = 0
   while j < n_samples {
@@ -1029,19 +1138,27 @@ pub fn voom(counts : Matrix, design : Matrix) -> Matrix {
     lib_sizes[j] = sum
     j = j + 1
   }
-  
+
   let log_cpm = Matrix::zeros(n_genes, n_samples)
-  
+
   let mut i = 0
   while i < n_genes {
     let mut j = 0
     while j < n_samples {
       let cpm = counts.get(i, j) * 1000000.0 / lib_sizes[j]
-      log_cpm.set(i, j, if cpm > 0.0 { limma_log_nat(cpm) / limma_log_nat(2.0) } else { 0.0 })
+      log_cpm.set(
+        i,
+        j,
+        if cpm > 0.0 {
+          limma_log_nat(cpm) / limma_log_nat(2.0)
+        } else {
+          0.0
+        },
+      )
       j = j + 1
     }
     i = i + 1
   }
-  
+
   log_cpm
 }

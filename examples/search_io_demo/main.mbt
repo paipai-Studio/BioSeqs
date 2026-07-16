@@ -19,7 +19,7 @@ fn main {
     let qr = hmmer3_results[0]
     println("   Query: " + qr.id)
     println("   Hits: " + qr.hits.length().to_string())
-    
+
     let mut i = 0
     while i < qr.hits.length() {
       let hit = qr.hits[i]
@@ -41,7 +41,7 @@ fn main {
     println("   Query: " + qr.id)
     println("   Query length: " + qr.seq_len.to_string())
     println("   Hits: " + qr.hits.length().to_string())
-    
+
     let mut i = 0
     while i < qr.hits.length() {
       let hit = qr.hits[i]
@@ -60,11 +60,19 @@ fn main {
   if hmmer3_results.length() > 0 {
     let tops = @bio.top_hits(hmmer3_results[0], 2, 0.01)
     println("   Top 2 hits (E-value < 0.01):")
-    
+
     let mut i = 0
     while i < tops.length() {
       let hit = tops[i]
-      println("   " + (i + 1).to_string() + ". " + hit.id + " (E-value: " + hit.evalue.to_string() + ")")
+      println(
+        "   " +
+        (i + 1).to_string() +
+        ". " +
+        hit.id +
+        " (E-value: " +
+        hit.evalue.to_string() +
+        ")",
+      )
       i = i + 1
     }
   }

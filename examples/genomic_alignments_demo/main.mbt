@@ -9,10 +9,15 @@ fn main {
     ["chr1", "chr1", "chr1", "chr2"],
     [100, 105, 150, 200],
     [110, 115, 160, 210],
-    [@bio.strand_plus(), @bio.strand_plus(), @bio.strand_minus(), @bio.strand_plus()],
+    [
+      @bio.strand_plus(),
+      @bio.strand_plus(),
+      @bio.strand_minus(),
+      @bio.strand_plus(),
+    ],
     ["read1", "read2", "read3", "read4"],
     [30, 30, 60, 45],
-    [0, 0, 16, 0]
+    [0, 0, 16, 0],
   )
   println("Created GAlignments with \{galn.length()} alignments")
   println("")
@@ -36,21 +41,24 @@ fn main {
   let cov = @bio.coverage(galn)
   let mut i = 0
   while i < cov.length() {
-    println("  \{cov[i].seqname}: positions=\{cov[i].positions.length()}, depths=\{cov[i].depths.length()}")
+    println(
+      "  \{cov[i].seqname}: positions=\{cov[i].positions.length()}, depths=\{cov[i].depths.length()}",
+    )
     i = i + 1
   }
   println("")
 
   println("6. Summarize overlaps with genes")
-  let features = @bio.granges(
-    ["chr1", "chr1"],
-    [(100, 180), (190, 260)],
-    [@bio.strand_plus(), @bio.strand_plus()]
-  )
+  let features = @bio.granges(["chr1", "chr1"], [(100, 180), (190, 260)], [
+    @bio.strand_plus(),
+    @bio.strand_plus(),
+  ])
   let summaries = @bio.summarize_overlaps(galn, features, ["gene1", "gene2"])
   i = 0
   while i < summaries.length() {
-    println("  \{summaries[i].feature_id}: count=\{summaries[i].count}, coverage=\{summaries[i].coverage_fraction}")
+    println(
+      "  \{summaries[i].feature_id}: count=\{summaries[i].count}, coverage=\{summaries[i].coverage_fraction}",
+    )
     i = i + 1
   }
   println("")
@@ -63,12 +71,14 @@ fn main {
     [@bio.strand_plus(), @bio.strand_plus()],
     ["ACG", "ATG"],
     [30, 30],
-    [0, 0]
+    [0, 0],
   )
   let pileup = @bio.pileup(galn_pileup, @hashmap.HashMap([]))
   i = 0
   while i < pileup.length() {
-    println("  Position \{pileup[i].position}: ref=\{pileup[i].ref_base}, depth=\{pileup[i].depth}")
+    println(
+      "  Position \{pileup[i].position}: ref=\{pileup[i].ref_base}, depth=\{pileup[i].depth}",
+    )
     i = i + 1
   }
 }

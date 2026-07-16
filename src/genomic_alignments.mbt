@@ -21,7 +21,7 @@ pub fn GAlignments::new(
   strands : Array[Strand],
   qnames : Array[String],
   mapqs : Array[Int],
-  flags : Array[Int]
+  flags : Array[Int],
 ) -> GAlignments {
   let n = seqnames.length()
   let widths : Array[Int] = Array::make(n, 0)
@@ -39,7 +39,10 @@ pub fn GAlignments::length(self : GAlignments) -> Int {
 }
 
 ///|
-pub fn GAlignments::filter_by_mapq(self : GAlignments, min_mapq : Int) -> GAlignments {
+pub fn GAlignments::filter_by_mapq(
+  self : GAlignments,
+  min_mapq : Int,
+) -> GAlignments {
   let seqnames : Array[String] = Array::new()
   let starts : Array[Int] = Array::new()
   let ends : Array[Int] = Array::new()
@@ -66,7 +69,10 @@ pub fn GAlignments::filter_by_mapq(self : GAlignments, min_mapq : Int) -> GAlign
 }
 
 ///|
-pub fn GAlignments::filter_by_strand(self : GAlignments, strand : Strand) -> GAlignments {
+pub fn GAlignments::filter_by_strand(
+  self : GAlignments,
+  strand : Strand,
+) -> GAlignments {
   let seqnames : Array[String] = Array::new()
   let starts : Array[Int] = Array::new()
   let ends : Array[Int] = Array::new()
@@ -183,7 +189,7 @@ pub fn coverage(galn : GAlignments) -> Array[Coverage] {
     result.push(Coverage::{
       seqname: seqnames[l],
       positions: all_positions[l],
-      depths: all_depths[l]
+      depths: all_depths[l],
     })
     l = l + 1
   }
@@ -201,8 +207,20 @@ pub struct OverlapSummary {
 }
 
 ///|
-pub fn OverlapSummary::new(feature_id : String, count : Int, sum_width : Int, mean_width : Double, coverage_fraction : Double) -> OverlapSummary {
-  OverlapSummary::{ feature_id, count, sum_width, mean_width, coverage_fraction }
+pub fn OverlapSummary::new(
+  feature_id : String,
+  count : Int,
+  sum_width : Int,
+  mean_width : Double,
+  coverage_fraction : Double,
+) -> OverlapSummary {
+  OverlapSummary::{
+    feature_id,
+    count,
+    sum_width,
+    mean_width,
+    coverage_fraction,
+  }
 }
 
 ///|
@@ -211,9 +229,16 @@ fn ranges_overlap(start1 : Int, end1 : Int, start2 : Int, end2 : Int) -> Bool {
 }
 
 ///|
-pub fn summarize_overlaps(galn : GAlignments, features : GRanges, feature_ids : Array[String]) -> Array[OverlapSummary] {
+pub fn summarize_overlaps(
+  galn : GAlignments,
+  features : GRanges,
+  feature_ids : Array[String],
+) -> Array[OverlapSummary] {
   let n_features = granges_length(features)
-  let result : Array[OverlapSummary] = Array::make(n_features, OverlapSummary::new("", 0, 0, 0.0, 0.0))
+  let result : Array[OverlapSummary] = Array::make(
+    n_features,
+    OverlapSummary::new("", 0, 0, 0.0, 0.0),
+  )
 
   let mut i = 0
   while i < n_features {
@@ -231,12 +256,24 @@ pub fn summarize_overlaps(galn : GAlignments, features : GRanges, feature_ids : 
     let mut k = 0
     while k < n_features {
       if features.seqnames[k] == aln_seq &&
-         ranges_overlap(aln_start, aln_end, features.starts[k], features.ends[k]) &&
-         (features.strands[k] == Strand::Star || features.strands[k] == aln_strand) {
+        ranges_overlap(aln_start, aln_end, features.starts[k], features.ends[k]) &&
+        (
+          features.strands[k] == Strand::Star ||
+          features.strands[k] == aln_strand
+        ) {
         result[k].count = result[k].count + 1
-        let overlap_start = if aln_start > features.starts[k] { aln_start } else { features.starts[k] }
-        let overlap_end = if aln_end < features.ends[k] { aln_end } else { features.ends[k] }
-        result[k].sum_width = result[k].sum_width + (overlap_end - overlap_start + 1)
+        let overlap_start = if aln_start > features.starts[k] {
+          aln_start
+        } else {
+          features.starts[k]
+        }
+        let overlap_end = if aln_end < features.ends[k] {
+          aln_end
+        } else {
+          features.ends[k]
+        }
+        result[k].sum_width = result[k].sum_width +
+          (overlap_end - overlap_start + 1)
       }
       k = k + 1
     }
@@ -246,8 +283,10 @@ pub fn summarize_overlaps(galn : GAlignments, features : GRanges, feature_ids : 
   let mut l = 0
   while l < n_features {
     if result[l].count > 0 {
-      result[l].mean_width = result[l].sum_width.to_double() / result[l].count.to_double()
-      result[l].coverage_fraction = result[l].sum_width.to_double() / features.widths[l].to_double()
+      result[l].mean_width = result[l].sum_width.to_double() /
+        result[l].count.to_double()
+      result[l].coverage_fraction = result[l].sum_width.to_double() /
+        features.widths[l].to_double()
     }
     l = l + 1
   }
@@ -266,7 +305,10 @@ pub struct PileupElement {
 }
 
 ///|
-pub fn pileup(galn : GAlignments, reference : @hashmap.HashMap[String, String]) -> Array[PileupElement] {
+pub fn pileup(
+  galn : GAlignments,
+  reference : @hashmap.HashMap[String, String],
+) -> Array[PileupElement] {
   let result : Array[PileupElement] = Array::new()
 
   let mut i = 0
@@ -282,7 +324,7 @@ pub fn pileup(galn : GAlignments, reference : @hashmap.HashMap[String, String]) 
     let mut pos = start
     let mut seq_pos = 0
     while pos <= galn.ends[i] && seq_pos < seq.length() {
-      let base = seq[seq_pos:seq_pos+1].to_string()
+      let base = seq[seq_pos:seq_pos + 1].to_string()
 
       let mut found = false
       let mut j = 0
@@ -311,14 +353,19 @@ pub fn pileup(galn : GAlignments, reference : @hashmap.HashMap[String, String]) 
 
       if !found {
         let ref_base = if pos > 0 && pos <= ref_seq.length() {
-          ref_seq[pos-1:pos].to_string()
+          ref_seq[pos - 1:pos].to_string()
         } else {
           "N"
         }
         let alts = if base != ref_base { [base] } else { [] }
         let alt_counts = if base != ref_base { [1] } else { [] }
         result.push(PileupElement::{
-          seqname, position: pos, depth: 1, ref_base, alts, alt_counts
+          seqname,
+          position: pos,
+          depth: 1,
+          ref_base,
+          alts,
+          alt_counts,
         })
       }
 
@@ -334,7 +381,10 @@ pub fn pileup(galn : GAlignments, reference : @hashmap.HashMap[String, String]) 
     let mut l = k + 1
     while l < n {
       if result[k].seqname > result[l].seqname ||
-         (result[k].seqname == result[l].seqname && result[k].position > result[l].position) {
+        (
+          result[k].seqname == result[l].seqname &&
+          result[k].position > result[l].position
+        ) {
         let temp = result[k]
         result[k] = result[l]
         result[l] = temp

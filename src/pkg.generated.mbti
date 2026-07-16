@@ -15,6 +15,10 @@ pub let aa_polarity : Map[UInt16, Double]
 
 pub fn adjust_p_values(Array[Double], String) -> Array[Double]
 
+pub fn affy_batch_from_matrix(Array[String], Array[Array[Array[Double]]], Array[String]) -> AffyBatch
+
+pub fn affy_batch_summarize(AffyBatch, String) -> Array[Array[Double]]
+
 pub fn align_motifs(Motif, Motif) -> Double
 
 pub fn align_score(TabularMSA) -> Double
@@ -51,6 +55,8 @@ pub fn avg_hydrophobicity(String) -> Double
 
 pub fn avg_polarity(String) -> Double
 
+pub fn background_correct_rma(Array[Array[Double]]) -> Array[Array[Double]]
+
 pub fn base64_decode(String) -> String
 
 pub fn bed_to_granges(Array[BedRecord]) -> GRanges
@@ -74,6 +80,8 @@ pub fn bwt_inverse(String) -> String
 pub fn bytes_to_base64(Array[Int]) -> String
 
 pub fn calc_norm_factors(DGEList) -> DGEList
+
+pub fn calculate_rmsd(Array[AtomCoordinate], Array[AtomCoordinate]) -> Double
 
 pub fn cds(TxDb) -> GRanges
 
@@ -124,6 +132,8 @@ pub fn compute_all_overlaps(Array[String], Int) -> Array[Overlap]
 pub fn compute_overlap(String, String, Int) -> Int
 
 pub fn compute_overlap_graph(Array[String], Int) -> Map[Int, Array[(Int, Int)]]
+
+pub fn compute_pm_mm_difference(ProbeSet) -> Array[Array[Double]]
 
 pub fn consensus_sequence(Alignment) -> String
 
@@ -423,8 +433,6 @@ pub fn mat_inverse(Matrix) -> Matrix
 
 pub fn mat_mult(Matrix, Matrix) -> Matrix
 
-pub fn mat_transpose(Matrix) -> Matrix
-
 pub fn matrix_blosum45() -> MatrixType
 
 pub fn matrix_blosum62() -> MatrixType
@@ -432,6 +440,8 @@ pub fn matrix_blosum62() -> MatrixType
 pub fn matrix_pam250() -> MatrixType
 
 pub fn matrix_pam30() -> MatrixType
+
+pub fn matrix_transpose(Matrix) -> Matrix
 
 pub fn melting_temperature(String) -> Double
 
@@ -591,6 +601,8 @@ pub fn results(DESeqDataSet) -> DESeqResults
 
 pub fn reverse_complement(String) -> String
 
+pub fn rma_normalize(AffyBatch) -> Array[Array[Double]]
+
 pub fn rscu(String) -> Map[String, Double]
 
 pub fn score_sequence(Array[Array[Double]], String, Array[String]) -> Double
@@ -695,7 +707,11 @@ pub fn suffix_array(String) -> Array[Int]
 
 pub fn summarize_overlaps(GAlignments, GRanges, Array[String]) -> Array[OverlapSummary]
 
+pub fn summarize_probeset(ProbeSet, String) -> Array[Double]
+
 pub fn summarized_experiment(Map[String, Array[Array[Double]]], Array[(String, Int, Int)], Array[Map[String, String]], Map[String, String]) -> SummarizedExperiment
+
+pub fn superimpose(Array[AtomCoordinate], Array[AtomCoordinate]) -> (Array[AtomCoordinate], Double)
 
 pub fn tajima_d(Array[String]) -> Double
 
@@ -819,6 +835,16 @@ pub suberror SeqIOError {
 }
 
 // Types and methods
+pub struct AffyBatch {
+  probe_set_ids : Array[String]
+  probe_sets : Array[ProbeSet]
+  sample_names : Array[String]
+  n_samples : Int
+  n_probe_sets : Int
+}
+pub fn AffyBatch::n_probes_per_set(Self) -> Int
+pub fn AffyBatch::new(Array[String], Array[ProbeSet], Array[String]) -> Self
+
 pub struct Alignment {
   sequences : Array[(String, String)]
   alphabet : String
@@ -865,6 +891,15 @@ pub struct Atom {
 pub fn Atom::distance(Self, Self) -> Double
 pub fn Atom::get_coord(Self) -> Vector3
 pub fn Atom::new(name~ : String, coord~ : Vector3, resname? : String, chainid? : Char, resseq? : Int, occupancy? : Double, bfactor? : Double, element? : String, charge? : Int) -> Self
+
+pub struct AtomCoordinate {
+  x : Double
+  y : Double
+  z : Double
+}
+pub fn AtomCoordinate::distance(Self, Self) -> Double
+pub fn AtomCoordinate::new(Double, Double, Double) -> Self
+pub fn AtomCoordinate::to_array(Self) -> Array[Double]
 
 pub struct BamCigarElement {
   op : BamCigarOp
@@ -1794,6 +1829,13 @@ pub fn Position::repr(Self) -> String
 pub fn Position::str(Self) -> String
 pub fn Position::to_int(Self) -> Int
 
+pub struct ProbeSet {
+  probe_set_id : String
+  pm_intensities : Array[Array[Double]]
+  mm_intensities : Array[Array[Double]]
+}
+pub fn ProbeSet::new(String, Array[Array[Double]], Array[Array[Double]]) -> Self
+
 pub struct Protein {
   seq : Seq
 } derive(Eq)
@@ -1873,6 +1915,18 @@ pub struct RestrictionEnzyme {
   overhang_5 : String
   overhang_3 : String
 }
+
+pub struct SVDSuperimposer {
+  rot : Array[Array[Double]]
+  tran : Array[Double]
+  rmsd : Double
+}
+pub fn SVDSuperimposer::apply(Self, Array[AtomCoordinate]) -> Array[AtomCoordinate]
+pub fn SVDSuperimposer::get_rmsd(Self) -> Double
+pub fn SVDSuperimposer::get_rotation(Self) -> Array[Array[Double]]
+pub fn SVDSuperimposer::get_translation(Self) -> Array[Double]
+pub fn SVDSuperimposer::new() -> Self
+pub fn SVDSuperimposer::set(Array[AtomCoordinate], Array[AtomCoordinate]) -> Self
 
 pub struct SWResult {
   aligned_seq1 : String
@@ -2226,6 +2280,7 @@ pub enum VariantType {
   Deletion
   Indel
 }
+pub fn VariantType::show(Self) -> String
 
 pub struct VcfFile {
   meta_headers : Array[VcfMetaHeader]
