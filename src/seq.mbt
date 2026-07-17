@@ -539,11 +539,11 @@ fn is_stop_codon_at(seq : String, i : Int) -> Bool {
   let c1 = seq.unsafe_get(i + 1).to_int()
   let c2 = seq.unsafe_get(i + 2).to_int()
   let t = 'T'.to_int()
+  let u = 'U'.to_int()
   let a = 'A'.to_int()
   let g = 'G'.to_int()
-  // TAA, TAG, TGA
-  (c0 == t && c1 == a && (c2 == a || c2 == g)) ||
-  (c0 == t && c1 == g && c2 == a)
+  ((c0 == t || c0 == u) && c1 == a && (c2 == a || c2 == g)) ||
+  ((c0 == t || c0 == u) && c1 == g && c2 == a)
 }
 
 ///|
@@ -556,9 +556,9 @@ fn is_start_codon_at(seq : String, i : Int) -> Bool {
   let a = 'A'.to_int()
   let c = 'C'.to_int()
   let t = 'T'.to_int()
+  let u = 'U'.to_int()
   let g = 'G'.to_int()
-  // ATG, CTG, TTG
-  (c0 == a || c0 == c || c0 == t) && c1 == t && c2 == g
+  (c0 == a || c0 == c || c0 == t || c0 == u) && (c1 == t || c1 == u) && c2 == g
 }
 
 ///|
@@ -603,10 +603,11 @@ fn is_stop_codon_fast(seq : String, i : Int) -> Bool {
   let c1 = seq.unsafe_get(i + 1)
   let c2 = seq.unsafe_get(i + 2)
   let t = 'T'.to_int().to_uint16()
+  let u = 'U'.to_int().to_uint16()
   let a = 'A'.to_int().to_uint16()
   let g = 'G'.to_int().to_uint16()
-  (c0 == t && c1 == a && (c2 == a || c2 == g)) ||
-  (c0 == t && c1 == g && c2 == a)
+  ((c0 == t || c0 == u) && c1 == a && (c2 == a || c2 == g)) ||
+  ((c0 == t || c0 == u) && c1 == g && c2 == a)
 }
 
 ///|
@@ -618,8 +619,9 @@ fn is_start_codon_fast(seq : String, i : Int) -> Bool {
   let a = 'A'.to_int().to_uint16()
   let c = 'C'.to_int().to_uint16()
   let t = 'T'.to_int().to_uint16()
+  let u = 'U'.to_int().to_uint16()
   let g = 'G'.to_int().to_uint16()
-  (c0 == a || c0 == c || c0 == t) && c1 == t && c2 == g
+  (c0 == a || c0 == c || c0 == t || c0 == u) && (c1 == t || c1 == u) && c2 == g
 }
 
 ///|

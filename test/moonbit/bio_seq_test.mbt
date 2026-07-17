@@ -274,3 +274,59 @@ test "seq_complement_rna_round_trip" {
   let rc = dna.reverse_complement()
   assert_eq(rc.to_string(), "CGAT")
 }
+
+///|
+test "seq_translate_rna" {
+  let rna = @src.Seq::new("AUGGCCAUUGUAAUGGGCCGCUGAAAGGGUGCCCGAUAG")
+  assert_eq(rna.translate().to_string(), "MAIVMGR*KGAR*")
+}
+
+///|
+test "seq_translate_rna_to_stop" {
+  let rna = @src.Seq::new("AUGGCCAUUGUAAUGGGCCGCUGAAAGGGUGCCCGAUAG")
+  assert_eq(rna.translate(to_stop=true).to_string(), "MAIVMGR")
+}
+
+///|
+test "seq_translate_rna_cds_valid" {
+  let rna_cds = @src.Seq::new("AUGGCCAUUGGCCUGAAAGGGUGCCCCCCGUAG")
+  assert_eq(rna_cds.translate(cds=true).to_string(), "MAIGLKGCPP")
+}
+
+///|
+test "seq_translate_rna_cds_invalid_start" {
+  let bad = @src.Seq::new("AAAUUUUAG")
+  try {
+    ignore(bad.translate(cds=true))
+    fail("expected SeqError for invalid RNA start codon")
+  } catch {
+    _ => ()
+  }
+}
+
+///|
+test "seq_translate_rna_cds_invalid_stop" {
+  let bad = @src.Seq::new("AUGGCCAUUGUAAUGGGCCGCUGAAAGGGUGCCCGAUAG")
+  try {
+    ignore(bad.translate(cds=true))
+    fail("expected SeqError for internal RNA stop codon")
+  } catch {
+    _ => ()
+  }
+}
+
+///|
+test "seq_translate_mixed_dna_rna" {
+  let mixed = @src.Seq::new("ATGUCUUAG")
+  assert_eq(mixed.translate().to_string(), "MS*")
+}
+
+///|
+test "seq_translate_rna_stop_codons" {
+  let uaa = @src.Seq::new("UAA")
+  assert_eq(uaa.translate().to_string(), "*")
+  let uag = @src.Seq::new("UAG")
+  assert_eq(uag.translate().to_string(), "*")
+  let uga = @src.Seq::new("UGA")
+  assert_eq(uga.translate().to_string(), "*")
+}
