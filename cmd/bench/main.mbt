@@ -35,6 +35,22 @@ fn bench(label : String, iters : Int, f : () -> Unit) -> Double {
 }
 
 ///|
+/// Measure how long `f` takes when called `iters` times; returns total us.
+/// Supports functions that may raise errors.
+fn bench_err(label : String, iters : Int, f : () -> Unit) -> Double {
+  let ts = @mb.monotonic_clock_start()
+  for i = 0; i < iters; i = i + 1 {
+    f()
+  }
+  let elapsed_us = @mb.monotonic_clock_end(ts)
+  let per_iter = elapsed_us / iters.to_double()
+  println(
+    "\{label}: \{elapsed_us} us total, \{per_iter} us/iter (\{iters} iters)",
+  )
+  elapsed_us
+}
+
+///|
 
 ///|
 /// Generate a FASTA string with `n_records` records, each of length `seq_len`.
@@ -227,9 +243,6 @@ fn main {
   println("=== MoonBit SeqFeature benchmark ===")
   println("")
 
-  let long_seq = @lib.Seq::new(gen_dna(100_000))
-
-  let feat = @lib.SeqFeature::new(feature_type="CDS")
   let feat_qual = @lib.SeqFeature::new(feature_type="gene")
   let pos0 = @lib.Position::new_exact(0)
   let pos1000 = @lib.Position::new_exact(1000)
@@ -349,81 +362,63 @@ fn main {
 
   // Newick writing
   ignore(
-    bench("write_newick", iters_find, fn() { ignore(@lib.write_newick(tree)) }),
+    bench("write_newick", iters_find, fn() {
+      ignore(@lib.write_newick(tree, true))
+    }),
   )
 
   // Count terminals
   ignore(
-    bench("Tree::count_terminals", iters_find, fn() {
-      ignore(tree.count_terminals())
+    bench("Tree::get_leaf_count", iters_find, fn() {
+      ignore(@lib.get_leaf_count(tree))
     }),
   )
 
   // Get terminals
   ignore(
-    bench("Tree::get_terminals", iters_find, fn() {
-      ignore(tree.get_terminals())
-    }),
+    bench("Tree::get_leaves", iters_find, fn() { ignore(@lib.get_leaves(tree)) }),
   )
 
   // Get nonterminals
   ignore(
-    bench("Tree::get_nonterminals", iters_find, fn() {
-      ignore(tree.get_nonterminals())
+    bench("Tree::get_node_count - get_leaf_count", iters_find, fn() {
+      ignore(@lib.get_node_count(tree) - @lib.get_leaf_count(tree))
     }),
   )
 
-  // Find clades by name
+  // Find node by name
   ignore(
-    bench("Tree::find_clades by name", iters_find, fn() {
-      ignore(tree.find_clades(name=Some("A")))
+    bench("Tree::find_node by name", iters_find, fn() {
+      ignore(@lib.find_node(tree, "A"))
     }),
   )
 
-  // Find clades by terminal status
+  // Get tree depth
   ignore(
-    bench("Tree::find_clades terminal=true", iters_find, fn() {
-      ignore(tree.find_clades(terminal=Some(true)))
+    bench("Tree::get_tree_depth", iters_find, fn() {
+      ignore(@lib.get_tree_depth(tree))
     }),
   )
 
-  // Find any clade
+  // Total branch length
   ignore(
-    bench("Tree::find_any", iters_find, fn() {
-      ignore(tree.find_any(name=Some("A")))
+    bench("Tree::total_branch_length", iters_find, fn() {
+      ignore(@lib.total_branch_length(tree))
     }),
   )
 
-  // Get path
+  // Get node count
   ignore(
-    bench("Tree::get_path", iters_find, fn() { ignore(tree.get_path("C")) }),
-  )
-
-  // Depths
-  ignore(bench("Tree::depths", iters_find, fn() { ignore(tree.depths()) }))
-
-  // Distance
-  ignore(
-    bench("Tree::distance", iters_find, fn() { ignore(tree.distance("A", "C")) }),
-  )
-
-  // Common ancestor
-  ignore(
-    bench("Tree::common_ancestor", iters_find, fn() {
-      ignore(tree.common_ancestor(["B", "C"]))
-    }),
-  )
-
-  // Is bifurcating
-  ignore(
-    bench("Tree::is_bifurcating", iters_find, fn() {
-      ignore(tree.is_bifurcating())
+    bench("Tree::get_node_count", iters_find, fn() {
+      ignore(@lib.get_node_count(tree))
     }),
   )
 
   // Draw ASCII
   ignore(
-    bench("Tree::draw_ascii", iters_small, fn() { ignore(tree.draw_ascii()) }),
+    bench("Tree::write_newick", iters_small, fn() {
+      ignore(@lib.write_newick(tree, true))
+    }),
   )
 
   // Generate a larger tree for more meaningful benchmarks
@@ -450,14 +445,14 @@ fn main {
   )
 
   ignore(
-    bench("Tree::count_terminals (50 leaves)", iters_small, fn() {
-      ignore(large_tree.count_terminals())
+    bench("Tree::get_leaf_count (50 leaves)", iters_small, fn() {
+      ignore(@lib.get_leaf_count(large_tree))
     }),
   )
 
   ignore(
-    bench("Tree::find_clades (50 leaves)", iters_small, fn() {
-      ignore(large_tree.find_clades(terminal=Some(true)))
+    bench("Tree::get_leaves (50 leaves)", iters_small, fn() {
+      ignore(@lib.get_leaves(large_tree))
     }),
   )
 
@@ -561,6 +556,104 @@ fn main {
   ignore(
     bench("Structure::distance", iters_find, fn() {
       ignore(pdb_struct.distance("CA", "N"))
+    }),
+  )
+
+  // ---------------------------------------------------------------------------
+  // BAM benchmarks
+  // ---------------------------------------------------------------------------
+  println("")
+  println("=== MoonBit BAM benchmark ===")
+  println("")
+
+  let test_bam_base64 = "QkFNAS0AAABASEQJVk46MS42CVNPOmNvb3JkaW5hdGUKQFNRCVNOOmNocjEJTE46MTAwMAoBAAAABQAAAGNocjEA6AMAADkAAAAAAAAAZAAAAAAAAAA8AAAGAAEACAAAAP////8AAAAAAAAAAHJlYWQxAIAAAAAAAAAAAAAAAAAAAAA="
+
+  // BAM parse from base64
+  ignore(
+    bench_err("parse_bam_base64 (1 record)", iters_find, () => {
+      ignore(@lib.parse_bam_base64(test_bam_base64)) catch {
+        _ => ()
+      }
+    }),
+  )
+
+  // BAM to_sam
+  let bam_file_opt = @lib.try_parse_bam_base64(test_bam_base64)
+  if bam_file_opt.is_some() {
+    let bam_file = bam_file_opt.unwrap()
+    ignore(
+      bench("BamFile::to_sam", iters_find, fn() { ignore(bam_file.to_sam()) }),
+    )
+
+    // BAM get_reference_names
+    ignore(
+      bench("BamFile::get_reference_names", iters_find, fn() {
+        ignore(bam_file.get_reference_names())
+      }),
+    )
+
+    // BAM num_references
+    ignore(
+      bench("BamFile::num_references", iters_find, fn() {
+        ignore(bam_file.num_references())
+      }),
+    )
+
+    // BAM len
+    ignore(bench("BamFile::len", iters_find, fn() { ignore(bam_file.len()) }))
+  }
+
+  // ---------------------------------------------------------------------------
+  // CRAM benchmarks
+  // ---------------------------------------------------------------------------
+  println("")
+  println("=== MoonBit CRAM benchmark ===")
+  println("")
+
+  // Generate CRAM test data
+  let cram_buf = StringBuilder::new()
+  cram_buf.write_string("CRAM")
+  cram_buf.write_char('\u{0001}')
+  cram_buf.write_char('\u{0003}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0001}')
+  cram_buf.write_char('\u{0004}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_char('\u{0000}')
+  cram_buf.write_string("@HD\tVN:1.6\tSO:coordinate\n@SQ\tSN:chr1\tLN:1000\n")
+  let cram_content = cram_buf.to_string()
+
+  // CRAM magic check
+  ignore(
+    bench("is_cram_magic", iters_find, fn() {
+      ignore(@lib.is_cram_magic(cram_content))
+    }),
+  )
+
+  // CRAM magic check (negative)
+  ignore(
+    bench("is_cram_magic (negative)", iters_find, fn() {
+      ignore(@lib.is_cram_magic("BAMtest"))
     }),
   )
 

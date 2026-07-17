@@ -9,94 +9,53 @@ fn main {
 
   println("=== Newick Tree ===")
   println("  Input: \{newick}")
-  println("  Rooted: \{tree.is_rooted()}")
 
   // === Tree statistics ===
-  let terminals = tree.count_terminals()
+  let leaf_count = @bio.get_leaf_count(tree)
   println("\n=== Tree Statistics ===")
-  println("  Terminal nodes (leaves): \{terminals}")
+  println("  Terminal nodes (leaves): \{leaf_count}")
 
-  let nonterminals = tree.get_nonterminals()
-  println("  Non-terminal nodes: \{nonterminals.length()}")
-
-  let is_bifurcating = tree.is_bifurcating()
-  println("  Is bifurcating: \{is_bifurcating}")
+  let node_count = @bio.get_node_count(tree)
+  let nonterminals = node_count - leaf_count
+  println("  Non-terminal nodes: \{nonterminals}")
 
   // === Get terminal clades ===
-  let leaf_clades = tree.get_terminals()
+  let leaves = @bio.get_leaves(tree)
   println("\n=== Terminal Clades ===")
-  for i = 0; i < leaf_clades.length(); i = i + 1 {
-    let name = leaf_clades[i].name
-    match name {
-      Some(n) => println("  Leaf \{i}: \{n}")
-      None => println("  Leaf \{i}: (unnamed)")
-    }
+  for i = 0; i < leaves.length(); i = i + 1 {
+    println("  Leaf \{i}: \{leaves[i]}")
   }
 
-  // === Find clade by name ===
-  let found = tree.find_any(name=Some("A"))
+  // === Find node by name ===
+  let found = @bio.find_node(tree, "A")
   match found {
-    Some(c) => {
-      let name = c.name
-      match name {
-        Some(n) => println("\n=== Find Clade 'A' ===\n  Found: \{n}")
-        None => println("\n=== Find Clade 'A' ===\n  Found (unnamed)")
-      }
-    }
-    None => println("\n=== Find Clade 'A' ===\n  Not found")
+    Some(n) => println("\n=== Find Node 'A' ===\n  Found: \{n.name}")
+    None => println("\n=== Find Node 'A' ===\n  Not found")
   }
 
-  // === Get path between two taxa ===
-  let path = tree.get_path("C")
-  match path {
-    Some(p) => {
-      println("\n=== Path to C ===")
-      for i = 0; i < p.length(); i = i + 1 {
-        let name = p[i].name
-        match name {
-          Some(n) => println("  [\{i}] \{n}")
-          None => println("  [\{i}] (internal)")
-        }
-      }
-    }
-    None => println("\n=== Path to C ===\n  No path found")
-  }
+  // === Calculate tree depth ===
+  let depth = @bio.get_tree_depth(tree)
+  println("\n=== Tree Depth ===")
+  println("  Maximum depth: \{depth}")
 
-  // === Calculate tree depths ===
-  let depths = tree.depths()
-  println("\n=== Clade Depths ===")
-  for i = 0; i < depths.length(); i = i + 1 {
-    let (name, depth) = depths[i]
-    println("  \{name}: \{depth}")
-  }
-
-  // === Distance between two taxa ===
-  let dist = tree.distance("A", "B")
-  match dist {
-    Some(d) => println("\n=== Distance A <-> B ===\n  \{d}")
-    None => println("\n=== Distance A <-> B ===\n  N/A")
-  }
-
-  // === Common ancestor ===
-  let ancestor = tree.common_ancestor(["A", "B"])
-  match ancestor {
-    Some(c) => {
-      let name = c.name
-      match name {
-        Some(n) => println("\n=== Common Ancestor of A, B ===\n  \{n}")
-        None => println("\n=== Common Ancestor of A, B ===\n  (internal node)")
-      }
-    }
-    None => println("\n=== Common Ancestor of A, B ===\n  Not found")
-  }
+  // === Total branch length ===
+  let total_len = @bio.total_branch_length(tree)
+  println("\n=== Total Branch Length ===")
+  println("  \{total_len}")
 
   // === Write Newick ===
-  let newick_out = @bio.write_newick(tree)
+  let newick_out = @bio.write_newick(tree, true)
   println("\n=== Serialized Newick ===")
   println("  \{newick_out}")
 
-  // === Draw ASCII tree ===
-  let ascii = tree.draw_ascii()
-  println("\n=== ASCII Tree ===")
-  println(ascii)
+  // === Prune tree ===
+  let pruned = @bio.prune_tree(tree, ["A", "B"])
+  match pruned {
+    Some(p) => {
+      let pruned_newick = @bio.write_newick(p, true)
+      println("\n=== Pruned Tree (A, B) ===")
+      println("  \{pruned_newick}")
+    }
+    None => println("\n=== Pruned Tree ===\n  Failed")
+  }
 }

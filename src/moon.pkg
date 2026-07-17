@@ -1,4 +1,5 @@
 import {
   "moonbitlang/core/hashmap",
   "moonbitlang/core/math",
+  "moonbitlang/core/double",
 }

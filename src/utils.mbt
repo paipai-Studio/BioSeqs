@@ -20,14 +20,14 @@ pub fn split_by_char(s : String, delim : Int) -> Array[String] {
   i = 0
   while i < n {
     if s.unsafe_get(i).to_int() == delim {
-      result[idx] = s[start:i].to_owned()
+      result[idx] = s[start:i].to_string()
       idx = idx + 1
       start = i + 1
     }
     i = i + 1
   }
   if start < n {
-    result[idx] = s[start:n].to_owned()
+    result[idx] = s[start:n].to_string()
   }
   result
 }
@@ -54,7 +54,7 @@ pub fn parse_int(s : String) -> Int {
 }
 
 ///|
-/// Parse double from String.
+/// Parse double from String, supporting scientific notation (e.g., 1e-50, 1e-30).
 pub fn parse_double(s : String) -> Double? {
   if s == "." || s.length() == 0 {
     return None
@@ -78,6 +78,9 @@ pub fn parse_double(s : String) -> Double? {
       i = i + 1
       continue
     }
+    if c == 'e'.to_int() || c == 'E'.to_int() {
+      break
+    }
     if c < zero || c > zero + 9 {
       break
     }
@@ -91,8 +94,33 @@ pub fn parse_double(s : String) -> Double? {
     i = i + 1
   }
 
+  let mut exponent = 0
+  let mut exp_sign = 1
+  if i < n &&
+    (
+      s.unsafe_get(i).to_int() == 'e'.to_int() ||
+      s.unsafe_get(i).to_int() == 'E'.to_int()
+    ) {
+    i = i + 1
+    if i < n && s.unsafe_get(i).to_int() == '-'.to_int() {
+      exp_sign = -1
+      i = i + 1
+    } else if i < n && s.unsafe_get(i).to_int() == '+'.to_int() {
+      i = i + 1
+    }
+    while i < n {
+      let c = s.unsafe_get(i).to_int()
+      if c < zero || c > zero + 9 {
+        break
+      }
+      exponent = exponent * 10 + (c - zero)
+      i = i + 1
+    }
+    exponent = exponent * exp_sign
+  }
+
   if i > 0 || (sign < 0.0 && i > 1) {
-    Some(sign * result)
+    Some(sign * result * @math.pow(10.0, exponent.to_double()))
   } else {
     None
   }
@@ -120,4 +148,112 @@ pub fn parse_semicolon_list(s : String) -> Array[String] {
     return []
   }
   split_by_char(s, ';'.to_int())
+}
+
+///|
+/// Get character at position.
+pub fn char_at(s : String, idx : Int) -> String {
+  let c = s.unsafe_get(idx).to_int()
+  if c >= 'A'.to_int() && c <= 'Z'.to_int() {
+    let mut result = ""
+    for i = 0; i < 26; i = i + 1 {
+      if c == 'A'.to_int() + i {
+        result = result +
+          [
+            "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N",
+            "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+          ][i]
+        break
+      }
+    }
+    result
+  } else if c >= 'a'.to_int() && c <= 'z'.to_int() {
+    let mut result = ""
+    for i = 0; i < 26; i = i + 1 {
+      if c == 'a'.to_int() + i {
+        result = result +
+          [
+            "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
+            "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+          ][i]
+        break
+      }
+    }
+    result
+  } else if c >= '0'.to_int() && c <= '9'.to_int() {
+    let mut result = ""
+    for i = 0; i < 10; i = i + 1 {
+      if c == '0'.to_int() + i {
+        result = result + ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"][i]
+        break
+      }
+    }
+    result
+  } else if c == ' '.to_int() {
+    " "
+  } else if c == '\t'.to_int() {
+    "\t"
+  } else if c == '\n'.to_int() {
+    "\n"
+  } else if c == '\r'.to_int() {
+    "\r"
+  } else if c == '>'.to_int() {
+    ">"
+  } else if c == '#'.to_int() {
+    "#"
+  } else if c == '/'.to_int() {
+    "/"
+  } else if c == ':'.to_int() {
+    ":"
+  } else if c == ';'.to_int() {
+    ";"
+  } else if c == ','.to_int() {
+    ","
+  } else if c == '('.to_int() {
+    "("
+  } else if c == ')'.to_int() {
+    ")"
+  } else if c == '.'.to_int() {
+    "."
+  } else if c == '-'.to_int() {
+    "-"
+  } else if c == '_'.to_int() {
+    "_"
+  } else if c == '['.to_int() {
+    "["
+  } else if c == ']'.to_int() {
+    "]"
+  } else if c == '@'.to_int() {
+    "@"
+  } else if c == '&'.to_int() {
+    "&"
+  } else {
+    c.to_string()
+  }
+}
+
+///|
+/// Substring function.
+pub fn substring(s : String, start : Int, len : Int) -> String {
+  let mut result = ""
+  for i = 0; i < len && start + i < s.length(); i = i + 1 {
+    result = result + char_at(s, start + i)
+  }
+  result
+}
+
+///|
+/// Check if string starts with prefix at position.
+pub fn starts_with(s : String, pos : Int, prefix : String) -> Bool {
+  if pos + prefix.length() > s.length() {
+    return false
+  }
+
+  for i = 0; i < prefix.length(); i = i + 1 {
+    if s.unsafe_get(pos + i) != prefix.unsafe_get(i) {
+      return false
+    }
+  }
+
+  true
 }

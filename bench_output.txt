@@ -1,0 +1,98 @@
+=== MoonBit Seq benchmark ===
+sequence length: 100000 chars
+iterations (ops): 20
+
+complement: 9472.361 us total, 473.61805000000004 us/iter (20 iters)
+complement_rna: 8439.548999999999 us total, 421.97745 us/iter (20 iters)
+reverse_complement: 11335.063 us total, 566.75315 us/iter (20 iters)
+reverse: 7993.655000000001 us total, 399.68275000000006 us/iter (20 iters)
+transcribe: 8998.376 us total, 449.91880000000003 us/iter (20 iters)
+back_transcribe: 9042.507 us total, 452.12534999999997 us/iter (20 iters)
+translate: 12021.252 us total, 601.0626 us/iter (20 iters)
+upper: 9651.504 us total, 482.57520000000005 us/iter (20 iters)
+lower: 19963.485 us total, 998.17425 us/iter (20 iters)
+count AAA: 89293.583 us total, 446.467915 us/iter (200 iters)
+count_overlap AAA: 87684.11399999999 us total, 438.42056999999994 us/iter (200 iters)
+find ACGT: 133.931 us total, 0.6696550000000001 us/iter (200 iters)
+rfind ACGT: 156.93200000000002 us total, 0.7846600000000001 us/iter (200 iters)
+startswith ATG: 55.811 us total, 0.279055 us/iter (200 iters)
+endswith TAA: 71.041 us total, 0.355205 us/iter (200 iters)
+contains GGG: 44287.113000000005 us total, 221.43556500000003 us/iter (200 iters)
+slice 0..1000: 3344.919 us total, 16.724595 us/iter (200 iters)
+replace A->N: 29527.699 us total, 1476.3849500000001 us/iter (20 iters)
+
+=== MoonBit SeqIO benchmark ===
+
+parse_fasta (100x1000): 28981.642 us total, 1449.0821 us/iter (20 iters)
+write_fasta (100x1000): 33333.133 us total, 1666.6566500000001 us/iter (20 iters)
+parse_fastq (100x1000): 47503.27 us total, 2375.1634999999997 us/iter (20 iters)
+write_fastq (100x1000): 42931.657 us total, 2146.58285 us/iter (20 iters)
+seqio_parse fasta: 20609.003 us total, 1030.4501500000001 us/iter (20 iters)
+seqio_parse fastq: 41435.929000000004 us total, 2071.7964500000003 us/iter (20 iters)
+seqio_to_dict: 1002.2819999999999 us total, 50.11409999999999 us/iter (20 iters)
+
+=== MoonBit SeqFeature benchmark ===
+
+Position::new_exact: 25.101 us total, 0.125505 us/iter (200 iters)
+FeatureLocation::new_safe: 74.751 us total, 0.373755 us/iter (200 iters)
+SeqFeature::new: 69.881 us total, 0.349405 us/iter (200 iters)
+SeqFeature::new with location: 133.091 us total, 0.665455 us/iter (200 iters)
+SeqFeature::add_qualifier: 516.526 us total, 2.58263 us/iter (200 iters)
+CompoundLocation::new: 89.601 us total, 0.448005 us/iter (200 iters)
+
+=== MoonBit SeqUtils benchmark ===
+
+crc32: 19131.086 us total, 95.65543 us/iter (200 iters)
+gcg: 16094.199999999999 us total, 80.47099999999999 us/iter (200 iters)
+seguid: 154774.505 us total, 7738.72525 us/iter (20 iters)
+gc: 18522.238999999998 us total, 92.611195 us/iter (200 iters)
+ProteinAnalysis::count_amino_acids: 5169.521 us total, 25.847604999999998 us/iter (200 iters)
+ProteinAnalysis::molecular_weight: 2551.5 us total, 12.7575 us/iter (200 iters)
+ProteinAnalysis::aromaticity: 2117.695 us total, 10.588475 us/iter (200 iters)
+ProteinAnalysis::gravy: 1330.4560000000001 us total, 6.652280000000001 us/iter (200 iters)
+tm_wallace: 16284.212 us total, 81.42106 us/iter (200 iters)
+tm_gc: 17163.863 us total, 85.819315 us/iter (200 iters)
+
+=== MoonBit Bio.Phylo benchmark ===
+
+parse_newick (simple): 1279.855 us total, 6.399275 us/iter (200 iters)
+write_newick: 1156.574 us total, 5.78287 us/iter (200 iters)
+Tree::count_terminals: 134.25199999999998 us total, 0.6712599999999999 us/iter (200 iters)
+Tree::get_terminals: 163.282 us total, 0.8164100000000001 us/iter (200 iters)
+Tree::get_nonterminals: 144.20200000000003 us total, 0.7210100000000002 us/iter (200 iters)
+Tree::find_clades by name: 241.733 us total, 1.208665 us/iter (200 iters)
+Tree::find_clades terminal=true: 137.291 us total, 0.686455 us/iter (200 iters)
+Tree::find_any: 120.84100000000001 us total, 0.604205 us/iter (200 iters)
+Tree::get_path: 232.903 us total, 1.164515 us/iter (200 iters)
+Tree::depths: 442.10499999999996 us total, 2.2105249999999996 us/iter (200 iters)
+Tree::distance: 393.075 us total, 1.9653749999999999 us/iter (200 iters)
+Tree::common_ancestor: 693.508 us total, 3.46754 us/iter (200 iters)
+Tree::is_bifurcating: 86.76100000000001 us total, 0.43380500000000005 us/iter (200 iters)
+Tree::draw_ascii: 139.012 us total, 6.9506 us/iter (20 iters)
+parse_newick (50 leaves): 1258.9840000000002 us total, 62.949200000000005 us/iter (20 iters)
+Tree::count_terminals (50 leaves): 69.751 us total, 3.48755 us/iter (20 iters)
+Tree::find_clades (50 leaves): 113.211 us total, 5.66055 us/iter (20 iters)
+
+=== MoonBit Bio.PDB benchmark ===
+
+parse_pdb (300 atoms): 13592.55 us total, 679.6274999999999 us/iter (20 iters)
+write_pdb (300 atoms): 39051.191 us total, 1952.55955 us/iter (20 iters)
+Structure::get_atoms: 1783.721 us total, 8.918605 us/iter (200 iters)
+Structure::get_residues: 278.393 us total, 1.391965 us/iter (200 iters)
+Structure::get_chains: 103.161 us total, 0.515805 us/iter (200 iters)
+Atom::distance: 57.38 us total, 0.2869 us/iter (200 iters)
+Residue::center_of_mass: 82.56099999999999 us total, 0.412805 us/iter (200 iters)
+Residue::find_atom: 58 us total, 0.29 us/iter (200 iters)
+Structure::distance: 144.051 us total, 0.720255 us/iter (200 iters)
+
+=== MoonBit BAM benchmark ===
+
+parse_bam_base64 (1 record): 1429.6870000000001 us total, 7.148435000000001 us/iter (200 iters)
+BamFile::to_sam: 888.041 us total, 4.440205000000001 us/iter (200 iters)
+BamFile::get_reference_names: 311.123 us total, 1.555615 us/iter (200 iters)
+BamFile::num_references: 55.111000000000004 us total, 0.275555 us/iter (200 iters)
+BamFile::len: 52.080999999999996 us total, 0.260405 us/iter (200 iters)
+
+=== MoonBit CRAM benchmark ===
+
+is_cram_magic: 53.681000000000004 us total, 0.268405 us/iter (200 iters)

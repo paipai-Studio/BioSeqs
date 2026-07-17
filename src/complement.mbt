@@ -109,48 +109,28 @@ let rna_complement_arr : FixedArray[UInt16] = {
 
 ///|
 /// Complement every character in `s` using the given FixedArray lookup table.
-/// The table includes both uppercase and lowercase entries, so the inner loop
-/// is branch-free: just one array lookup per character. Builds the result
-/// directly in a FixedArray[UInt16] and converts to String via intrinsic.
 fn complement_chars(s : String, table : FixedArray[UInt16]) -> String {
   let n = s.length()
   let buf : FixedArray[UInt16] = FixedArray::make(n, 0)
   for i = 0; i < n; i = i + 1 {
-    let ci = s.unsafe_get(i).to_int()
-    if ci < 128 {
-      let comp = table[ci]
-      if comp != 0 {
-        buf[i] = comp
-      } else {
-        buf[i] = s.unsafe_get(i)
-      }
-    } else {
-      buf[i] = s.unsafe_get(i)
-    }
+    let ci = s.unsafe_get(i)
+    let comp = table[ci.to_int()]
+    buf[i] = if comp != 0 { comp } else { ci }
   }
   unsafe_from_uint16_fixedarray(buf)
 }
 
 ///|
 /// Reverse-complement in a single pass: read from the end of `s`, complement
-/// each character, and write to the buffer. Avoids the intermediate reversed
-/// string allocation of `complement_chars(s.rev(), table)`.
+/// each character, and write to the buffer.
 fn reverse_complement_chars(s : String, table : FixedArray[UInt16]) -> String {
   let n = s.length()
   let buf : FixedArray[UInt16] = FixedArray::make(n, 0)
   for i = n - 1; i >= 0; i = i - 1 {
-    let ci = s.unsafe_get(i).to_int()
+    let ci = s.unsafe_get(i)
     let out_idx = n - 1 - i
-    if ci < 128 {
-      let comp = table[ci]
-      if comp != 0 {
-        buf[out_idx] = comp
-      } else {
-        buf[out_idx] = s.unsafe_get(i)
-      }
-    } else {
-      buf[out_idx] = s.unsafe_get(i)
-    }
+    let comp = table[ci.to_int()]
+    buf[out_idx] = if comp != 0 { comp } else { ci }
   }
   unsafe_from_uint16_fixedarray(buf)
 }

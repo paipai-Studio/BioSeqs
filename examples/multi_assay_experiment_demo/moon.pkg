@@ -1,0 +1,8 @@
+import {
+  "IvanAXu/BioSeqs/src",
+  "moonbitlang/core/hashmap",
+}
+
+options(
+  "is-main": true,
+)
