@@ -29,7 +29,15 @@ fn main {
   while i < gene_names.length() {
     let gene_id = gene_ids[i]
     let txs = bg.get_gene_transcripts(gene_id)
-    println("  " + gene_names[i] + " (" + gene_id + "): " + txs.length().to_string() + " transcripts")
+    println(
+      "  " +
+      gene_names[i] +
+      " (" +
+      gene_id +
+      "): " +
+      txs.length().to_string() +
+      " transcripts",
+    )
     i = i + 1
   }
 
@@ -57,7 +65,7 @@ fn main {
 
   println("")
   println("Transcript-level DE results:")
-  let de_tx = @bio.stattest(bg, group, feature = "transcript")
+  let de_tx = @bio.stattest(bg, group, feature="transcript")
   i = 0
   while i < de_tx.length() {
     let r = de_tx[i]
@@ -76,7 +84,7 @@ fn main {
 
   println("")
   println("Gene-level DE results:")
-  let de_gene = @bio.stattest(bg, group, feature = "gene")
+  let de_gene = @bio.stattest(bg, group, feature="gene")
   i = 0
   while i < de_gene.length() {
     let r = de_gene[i]

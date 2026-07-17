@@ -50,15 +50,27 @@ fn main {
   println("")
   println("=== Running SVA (Surrogate Variable Analysis) ===")
   let mod = [
-    [1.0], [1.0], [1.0], [1.0], [1.0], [1.0],
-    [1.0], [1.0], [1.0], [1.0], [1.0], [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
   ]
-  let sva_result = @bio.sva(dat, mod, n_sv = 2)
+  let sva_result = @bio.sva(dat, mod, n_sv=2)
 
   println("")
   println("SVA Results:")
   println("  Number of surrogate variables: " + sva_result.n_sv.to_string())
-  println("  Number of genes tested: " + sva_result.pprob_gam.length().to_string())
+  println(
+    "  Number of genes tested: " + sva_result.pprob_gam.length().to_string(),
+  )
 
   let mut n_high = 0
   i = 0
@@ -68,7 +80,9 @@ fn main {
     }
     i = i + 1
   }
-  println("  Genes with high probability of being affected: " + n_high.to_string())
+  println(
+    "  Genes with high probability of being affected: " + n_high.to_string(),
+  )
 
   println("")
   println("=== Demo Complete ===")

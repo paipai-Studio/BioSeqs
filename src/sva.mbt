@@ -419,9 +419,15 @@ fn num_sv(dat : Array[Array[Double]], mod : Array[Array[Double]]) -> Int {
       n_sv = n_sv + 1
     }
   }
-  if n_sv == 0 { n_sv = 1 }
+  if n_sv == 0 {
+    n_sv = 1
+  }
   let max_sv = ncol - 2
-  if n_sv > max_sv { max_sv } else { n_sv }
+  if n_sv > max_sv {
+    max_sv
+  } else {
+    n_sv
+  }
 }
 
 ///|
@@ -569,16 +575,19 @@ pub fn combat_simple(
 
 ///|
 /// Sample data matrix for testing/demo purposes.
-pub fn sample_expression_matrix() -> (Array[Array[Double]], Array[String], Array[String], Array[Int]) {
+pub fn sample_expression_matrix() -> (
+  Array[Array[Double]],
+  Array[String],
+  Array[String],
+  Array[Int],
+) {
   let genes = [
-    "GeneA", "GeneB", "GeneC", "GeneD", "GeneE",
-    "GeneF", "GeneG", "GeneH", "GeneI", "GeneJ",
-    "GeneK", "GeneL", "GeneM", "GeneN", "GeneO",
-    "GeneP", "GeneQ", "GeneR", "GeneS", "GeneT",
+    "GeneA", "GeneB", "GeneC", "GeneD", "GeneE", "GeneF", "GeneG", "GeneH", "GeneI",
+    "GeneJ", "GeneK", "GeneL", "GeneM", "GeneN", "GeneO", "GeneP", "GeneQ", "GeneR",
+    "GeneS", "GeneT",
   ]
   let samples = [
-    "s1", "s2", "s3", "s4", "s5", "s6",
-    "s7", "s8", "s9", "s10", "s11", "s12",
+    "s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11", "s12",
   ]
   let batch = [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1]
 
@@ -587,7 +596,11 @@ pub fn sample_expression_matrix() -> (Array[Array[Double]], Array[String], Array
     let row : Array[Double] = []
     for j = 0; j < 12; j = j + 1 {
       let base = 5.0 + i.to_double() * 0.2
-      let batch_effect = if batch[j] == 1 { 1.5 + i.to_double() * 0.1 } else { 0.0 }
+      let batch_effect = if batch[j] == 1 {
+        1.5 + i.to_double() * 0.1
+      } else {
+        0.0
+      }
       let noise = (i * 7 + j * 13).to_double() % 10.0 / 10.0 - 0.5
       row.push(base + batch_effect + noise)
     }

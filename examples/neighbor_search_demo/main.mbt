@@ -10,22 +10,60 @@ fn main {
   println("--- 1. Create Sample Atoms ---")
 
   let atoms = [
-    @bio.Atom::new(name="CA", coord=@bio.Vector3::new(0.0, 0.0, 0.0), resname="ALA"),
-    @bio.Atom::new(name="CB", coord=@bio.Vector3::new(1.5, 0.0, 0.0), resname="ALA"),
-    @bio.Atom::new(name="CG", coord=@bio.Vector3::new(2.5, 0.5, 0.0), resname="VAL"),
-    @bio.Atom::new(name="CA", coord=@bio.Vector3::new(5.0, 0.0, 0.0), resname="GLY"),
-    @bio.Atom::new(name="CB", coord=@bio.Vector3::new(6.0, 0.5, 0.0), resname="GLY"),
-    @bio.Atom::new(name="CA", coord=@bio.Vector3::new(10.0, 0.0, 0.0), resname="SER"),
-    @bio.Atom::new(name="OG", coord=@bio.Vector3::new(10.5, 1.0, 0.0), resname="SER"),
-    @bio.Atom::new(name="CA", coord=@bio.Vector3::new(0.0, 5.0, 0.0), resname="ASP"),
-    @bio.Atom::new(name="CA", coord=@bio.Vector3::new(0.0, 0.0, 5.0), resname="LYS"),
+    @bio.Atom::new(
+      name="CA",
+      coord=@bio.Vector3::new(0.0, 0.0, 0.0),
+      resname="ALA",
+    ),
+    @bio.Atom::new(
+      name="CB",
+      coord=@bio.Vector3::new(1.5, 0.0, 0.0),
+      resname="ALA",
+    ),
+    @bio.Atom::new(
+      name="CG",
+      coord=@bio.Vector3::new(2.5, 0.5, 0.0),
+      resname="VAL",
+    ),
+    @bio.Atom::new(
+      name="CA",
+      coord=@bio.Vector3::new(5.0, 0.0, 0.0),
+      resname="GLY",
+    ),
+    @bio.Atom::new(
+      name="CB",
+      coord=@bio.Vector3::new(6.0, 0.5, 0.0),
+      resname="GLY",
+    ),
+    @bio.Atom::new(
+      name="CA",
+      coord=@bio.Vector3::new(10.0, 0.0, 0.0),
+      resname="SER",
+    ),
+    @bio.Atom::new(
+      name="OG",
+      coord=@bio.Vector3::new(10.5, 1.0, 0.0),
+      resname="SER",
+    ),
+    @bio.Atom::new(
+      name="CA",
+      coord=@bio.Vector3::new(0.0, 5.0, 0.0),
+      resname="ASP",
+    ),
+    @bio.Atom::new(
+      name="CA",
+      coord=@bio.Vector3::new(0.0, 0.0, 5.0),
+      resname="LYS",
+    ),
   ]
 
   println("  Created \{atoms.length()} atoms")
   for i = 0; i < atoms.length(); i = i + 1 {
     let a = atoms[i]
     let c = a.coord
-    println("    Atom \{i}: name=\{a.name}, res=\{a.resname}, pos=(\{c.x}, \{c.y}, \{c.z})")
+    println(
+      "    Atom \{i}: name=\{a.name}, res=\{a.resname}, pos=(\{c.x}, \{c.y}, \{c.z})",
+    )
   }
   println("")
 

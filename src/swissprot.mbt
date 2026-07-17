@@ -61,14 +61,7 @@ pub fn SwissProtReference::new(
   pubmed_id : String,
   doi : String,
 ) -> SwissProtReference {
-  SwissProtReference::{
-    number,
-    title,
-    authors,
-    journal,
-    pubmed_id,
-    doi,
-  }
+  SwissProtReference::{ number, title, authors, journal, pubmed_id, doi }
 }
 
 ///|
@@ -80,13 +73,7 @@ pub fn SwissProtFeature::new(
   end : Int,
   qualifiers : Map[String, String],
 ) -> SwissProtFeature {
-  SwissProtFeature::{
-    feature_type,
-    description,
-    start,
-    end,
-    qualifiers,
-  }
+  SwissProtFeature::{ feature_type, description, start, end, qualifiers }
 }
 
 ///|
@@ -139,13 +126,21 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
     let code = line[0:2].to_string()
 
     if code == "ID" {
-      let content = if line.length() > 5 { line[5:].trim().to_string() } else { "" }
+      let content = if line.length() > 5 {
+        line[5:].trim().to_string()
+      } else {
+        ""
+      }
       let parts = split_by_char(content, ' '.to_int())
       if parts.length() > 0 {
         entry_name = parts[0]
       }
     } else if code == "AC" {
-      let content = if line.length() > 5 { line[5:].trim().to_string() } else { "" }
+      let content = if line.length() > 5 {
+        line[5:].trim().to_string()
+      } else {
+        ""
+      }
       let acs = split_by_char(content, ';'.to_int())
       for ac in acs {
         let trimmed = ac.trim().to_string()
@@ -184,10 +179,20 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
         }
       }
     } else if code == "OS" {
-      let content = if line.length() > 5 { line[5:].trim().to_string() } else { "" }
+      let content = if line.length() > 5 {
+        line[5:].trim().to_string()
+      } else {
+        ""
+      }
       let paren_pos = find_substring(content, " (")
       let dot_pos = find_substring(content, ".")
-      let end_pos = if paren_pos >= 0 { paren_pos } else { if dot_pos >= 0 { dot_pos } else { content.length() } }
+      let end_pos = if paren_pos >= 0 {
+        paren_pos
+      } else if dot_pos >= 0 {
+        dot_pos
+      } else {
+        content.length()
+      }
       organism = content[:end_pos].trim().to_string()
     } else if code == "OX" {
       let content = if line.length() > 5 { line[5:].to_string() } else { "" }
@@ -200,7 +205,11 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
         }
       }
     } else if code == "OC" {
-      let content = if line.length() > 5 { line[5:].trim().to_string() } else { "" }
+      let content = if line.length() > 5 {
+        line[5:].trim().to_string()
+      } else {
+        ""
+      }
       let parts = split_by_char(content, ';'.to_int())
       for part in parts {
         let trimmed = part.trim().to_string()
@@ -214,7 +223,11 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
         }
       }
     } else if code == "KW" {
-      let content = if line.length() > 5 { line[5:].trim().to_string() } else { "" }
+      let content = if line.length() > 5 {
+        line[5:].trim().to_string()
+      } else {
+        ""
+      }
       let parts = split_by_char(content, ';'.to_int())
       for part in parts {
         let trimmed = part.trim().to_string()
@@ -242,9 +255,7 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
             let mut e = 0
             s = parse_int(start_str)
             e = parse_int(end_str)
-            let feat = SwissProtFeature::new(
-              ft_type, ft_desc, s, e, Map([]),
-            )
+            let feat = SwissProtFeature::new(ft_type, ft_desc, s, e, Map([]))
             features.push(feat)
           }
         }
@@ -264,9 +275,13 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
         comment_topic = "TISSUE_SPECIFICITY"
         comment_text = ""
       } else if find_substring(content, "-!-") >= 0 {
-        if in_comment && comment_topic == "FUNCTION" && comment_text.length() > 0 {
+        if in_comment &&
+          comment_topic == "FUNCTION" &&
+          comment_text.length() > 0 {
           function = comment_text.trim().to_string()
-        } else if in_comment && comment_topic == "TISSUE_SPECIFICITY" && comment_text.length() > 0 {
+        } else if in_comment &&
+          comment_topic == "TISSUE_SPECIFICITY" &&
+          comment_text.length() > 0 {
           tissue_specificity = comment_text.trim().to_string()
         }
         in_comment = false
@@ -304,12 +319,20 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
       current_ref_pubmed = ""
       current_ref_doi = ""
     } else if code == "RT" {
-      let content = if line.length() > 5 { line[5:].trim().to_string() } else { "" }
+      let content = if line.length() > 5 {
+        line[5:].trim().to_string()
+      } else {
+        ""
+      }
       if content.length() > 0 {
         current_ref_title = current_ref_title + " " + content
       }
     } else if code == "RA" {
-      let content = if line.length() > 5 { line[5:].trim().to_string() } else { "" }
+      let content = if line.length() > 5 {
+        line[5:].trim().to_string()
+      } else {
+        ""
+      }
       let authors_list = split_by_char(content, ','.to_int())
       for author in authors_list {
         let trimmed = author.trim().to_string()
@@ -318,7 +341,11 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
         }
       }
     } else if code == "RL" {
-      let content = if line.length() > 5 { line[5:].trim().to_string() } else { "" }
+      let content = if line.length() > 5 {
+        line[5:].trim().to_string()
+      } else {
+        ""
+      }
       current_ref_journal = current_ref_journal + " " + content
     } else if code == "RX" {
       let content = if line.length() > 5 { line[5:].to_string() } else { "" }
@@ -394,7 +421,9 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
       }
       if in_comment && comment_topic == "FUNCTION" && comment_text.length() > 0 {
         function = comment_text.trim().to_string()
-      } else if in_comment && comment_topic == "TISSUE_SPECIFICITY" && comment_text.length() > 0 {
+      } else if in_comment &&
+        comment_topic == "TISSUE_SPECIFICITY" &&
+        comment_text.length() > 0 {
         tissue_specificity = comment_text.trim().to_string()
       }
       in_sequence = false
@@ -541,7 +570,8 @@ pub fn SwissProtRecord::primary_gene(self : SwissProtRecord) -> String? {
 ///|
 /// Get features of a specific type.
 pub fn SwissProtRecord::get_features(
-  self : SwissProtRecord, feature_type : String,
+  self : SwissProtRecord,
+  feature_type : String,
 ) -> Array[SwissProtFeature] {
   let result : Array[SwissProtFeature] = Array::new()
   for f in self.features {
@@ -583,14 +613,16 @@ pub fn sample_swissprot_record() -> SwissProtRecord {
     organism: "Homo sapiens",
     organism_id: "9606",
     taxonomy: [
-      "Eukaryota", "Metazoa", "Chordata", "Craniata", "Vertebrata",
-      "Euteleostomi", "Mammalia", "Eutheria", "Euarchontoglires",
-      "Primates", "Haplorrhini", "Catarrhini", "Hominoidea", "Hominidae", "Homo",
+      "Eukaryota", "Metazoa", "Chordata", "Craniata", "Vertebrata", "Euteleostomi",
+      "Mammalia", "Eutheria", "Euarchontoglires", "Primates", "Haplorrhini", "Catarrhini",
+      "Hominoidea", "Hominidae", "Homo",
     ],
     sequence: seq,
     seq_length: 373,
     seq_mass: 42128.5,
-    keywords: ["ATP-binding", "Glutamine synthesis", "Mitochondrion", "Transferase"],
+    keywords: [
+      "ATP-binding", "Glutamine synthesis", "Mitochondrion", "Transferase",
+    ],
     function: "Catalyzes the synthesis of glutamine from glutamate and ammonia in an ATP-dependent reaction.",
     subcellular_location: ["Cytoplasm", "Mitochondrion matrix"],
     tissue_specificity: "Expressed in brain, liver, and kidney.",
@@ -598,7 +630,7 @@ pub fn sample_swissprot_record() -> SwissProtRecord {
     domains: ["GATase", "ATPP synthetase"],
     references: refs,
     comments: [("FUNCTION", "Catalyzes glutamine synthesis")],
-    features: features,
+    features,
     date_created: "01-NOV-1986",
     date_modified: "15-JUL-2020",
     version: 188,

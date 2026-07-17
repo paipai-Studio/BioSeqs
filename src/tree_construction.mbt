@@ -16,13 +16,7 @@ struct BuildNode {
 ///|
 /// Create a leaf build node.
 fn build_node_leaf(id : Int, name : String) -> BuildNode {
-  BuildNode::{
-    id,
-    name,
-    height: 0.0,
-    children: [],
-    branch_lengths: [],
-  }
+  BuildNode::{ id, name, height: 0.0, children: [], branch_lengths: [] }
 }
 
 ///|
@@ -50,9 +44,9 @@ fn build_node_to_clade(node : BuildNode) -> Clade {
   if node.children.length() == 0 {
     Clade::new(name=Some(node.name))
   } else {
-    let mut clade = Clade::new(name=(
-      if node.name.length() > 0 { Some(node.name) } else { None }
-    ))
+    let mut clade = Clade::new(
+      name=if node.name.length() > 0 { Some(node.name) } else { None },
+    )
     let mut i = 0
     while i < node.children.length() {
       let child_clade = build_node_to_clade(node.children[i])
@@ -79,14 +73,18 @@ pub struct DistanceCalculator {
 
 ///|
 /// Create a distance calculator with a substitution model.
-pub fn DistanceCalculator::new(model? : String = "identity") -> DistanceCalculator {
-  DistanceCalculator::{ model }
+pub fn DistanceCalculator::new(
+  model? : String = "identity",
+) -> DistanceCalculator {
+  DistanceCalculator::{ model, }
 }
 
 ///|
 /// Calculate pairwise distance between two sequences.
 pub fn DistanceCalculator::pairwise(
-  self : DistanceCalculator, seq1 : String, seq2 : String,
+  self : DistanceCalculator,
+  seq1 : String,
+  seq2 : String,
 ) -> Double {
   let len1 = seq1.length()
   let len2 = seq2.length()
@@ -118,7 +116,7 @@ pub fn DistanceCalculator::pairwise(
   if self.model == "identity" {
     p
   } else if self.model == "jc69" || self.model == "jukes-cantor" {
-    let d = 1.0 - (4.0 / 3.0) * p
+    let d = 1.0 - 4.0 / 3.0 * p
     if d <= 0.0 {
       0.0
     } else {
@@ -139,7 +137,8 @@ pub fn DistanceCalculator::pairwise(
 ///|
 /// Build a distance matrix from a set of sequences.
 pub fn DistanceCalculator::get_distance(
-  self : DistanceCalculator, sequences : Array[(String, String)],
+  self : DistanceCalculator,
+  sequences : Array[(String, String)],
 ) -> Array[Array[Double]] {
   let n = sequences.length()
   let matrix : Array[Array[Double]] = Array::new()
@@ -169,7 +168,7 @@ pub struct TreeConstructor {
 ///|
 /// Create a tree constructor with a specific method.
 pub fn TreeConstructor::new(tree_method? : String = "nj") -> TreeConstructor {
-  TreeConstructor::{ tree_method }
+  TreeConstructor::{ tree_method, }
 }
 
 ///|
@@ -190,7 +189,10 @@ pub fn TreeConstructor::build_tree(
 
 ///|
 /// UPGMA (Unweighted Pair Group Method with Arithmetic mean) tree construction.
-fn build_upgma(distances : Array[Array[Double]], names : Array[String]) -> Clade {
+fn build_upgma(
+  distances : Array[Array[Double]],
+  names : Array[String],
+) -> Clade {
   let n = names.length()
 
   if n == 0 {
@@ -232,7 +234,9 @@ fn build_upgma(distances : Array[Array[Double]], names : Array[String]) -> Clade
       if k != i && k != j {
         let size_i = count_leaves(clusters[i])
         let size_j = count_leaves(clusters[j])
-        let d = (size_i.to_double() * dist[i][k] + size_j.to_double() * dist[j][k]) /
+        let d = (
+            size_i.to_double() * dist[i][k] + size_j.to_double() * dist[j][k]
+          ) /
           (size_i.to_double() + size_j.to_double())
         new_dists_row.push(d)
       }
@@ -280,7 +284,10 @@ fn build_upgma(distances : Array[Array[Double]], names : Array[String]) -> Clade
 
 ///|
 /// WPGMA (Weighted Pair Group Method with Arithmetic mean) tree construction.
-fn build_wpgma(distances : Array[Array[Double]], names : Array[String]) -> Clade {
+fn build_wpgma(
+  distances : Array[Array[Double]],
+  names : Array[String],
+) -> Clade {
   let n = names.length()
 
   if n == 0 {
@@ -423,7 +430,8 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
     }
 
     let dij = dist[min_i][min_j]
-    let diu = dij / 2.0 + (row_sums[min_i] - row_sums[min_j]) / (2.0 * (m - 2).to_double())
+    let diu = dij / 2.0 +
+      (row_sums[min_i] - row_sums[min_j]) / (2.0 * (m - 2).to_double())
     let dju = dij - diu
 
     let new_node = build_node_internal(
@@ -483,14 +491,7 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
     let n1 = nodes[active[0]]
     let n2 = nodes[active[1]]
 
-    let root = build_node_internal(
-      next_id,
-      n1,
-      n2,
-      d / 2.0,
-      d / 2.0,
-      0.0,
-    )
+    let root = build_node_internal(next_id, n1, n2, d / 2.0, d / 2.0, 0.0)
     build_node_to_clade(root)
   } else {
     build_node_to_clade(nodes[active[0]])

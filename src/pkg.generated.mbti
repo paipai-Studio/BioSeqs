@@ -35,6 +35,8 @@ pub fn alignment_consensus(Array[String]) -> String
 
 pub fn alignment_length(Alignment) -> Int
 
+pub fn aliphatic_index(String) -> Double
+
 pub fn allele_frequencies(Array[String]) -> Map[String, Double]
 
 pub fn allele_richness(Array[String]) -> Int
@@ -178,6 +180,10 @@ pub fn codon_usage_with_ref(String, String) -> CodonUsageResult
 pub fn column(String, DataType, Array[DataValue]) -> Column
 
 pub fn column_consensus(Alignment, Int) -> String
+
+pub fn combat(Array[Array[Double]], Array[Int], mod? : Array[Array[Double]]) -> ComBatResult
+
+pub fn combat_simple(Array[Array[Double]], Array[Int]) -> Array[Array[Double]]
 
 pub fn compare_genome_builds(String, String) -> Bool
 
@@ -325,6 +331,8 @@ pub fn dna_feature_names() -> Array[String]
 
 pub fn dna_feature_vector(String) -> Array[Double]
 
+pub fn dna_molecular_weight(String) -> Double
+
 pub fn dust_complexity(String) -> Double
 
 pub fn dust_score(String) -> Double
@@ -338,6 +346,16 @@ pub fn effective_number_of_codons(String) -> Double
 pub fn egquery(String) -> Array[(String, Int)]
 
 pub fn einfo() -> Map[String, String]
+
+pub fn emboss_amino_acid_composition(String) -> Map[String, Double]
+
+pub fn emboss_at_skew(String) -> Double
+
+pub fn emboss_count_kmers(String, Int) -> Map[String, Int]
+
+pub fn emboss_gc_skew(String) -> Double
+
+pub fn emboss_reverse_complement(String) -> String
 
 pub fn entrez_db_gene() -> EntrezDB
 
@@ -377,6 +395,16 @@ pub fn extract_exons(Array[String], String) -> Array[String]
 
 pub fn extract_pmids(Array[MedlineRecord]) -> Array[String]
 
+pub fn fgsea(Array[GeneSet], Array[(String, Double)], nperm? : Int, min_size? : Int, max_size? : Int) -> Array[FgseaResult]
+
+pub fn fgsea_collapse_pathways(Array[FgseaResult], Array[GeneSet], threshold? : Double) -> Array[Array[Int]]
+
+pub fn fgsea_filter(Array[FgseaResult], padj_cutoff? : Double) -> Array[FgseaResult]
+
+pub fn fgsea_top_down(Array[FgseaResult], n? : Int) -> Array[FgseaResult]
+
+pub fn fgsea_top_up(Array[FgseaResult], n? : Int) -> Array[FgseaResult]
+
 pub fn filter_by_author(Array[MedlineRecord], String) -> Array[MedlineRecord]
 
 pub fn filter_by_mesh(Array[MedlineRecord], String) -> Array[MedlineRecord]
@@ -384,6 +412,8 @@ pub fn filter_by_mesh(Array[MedlineRecord], String) -> Array[MedlineRecord]
 pub fn filter_cells(Array[Array[Double]], QCMetrics, Int, Int, Int, Double) -> Array[Array[Double]]
 
 pub fn filter_enrichment(Array[GOEnrichmentResult], Double, Int) -> Array[GOEnrichmentResult]
+
+pub fn filter_low_expression(Ballgown, min_fpkm? : Double) -> Ballgown
 
 pub fn find_conserved_positions(Array[String], min_conservation? : Double) -> Array[(Int, Char, Double)]
 
@@ -398,6 +428,8 @@ pub fn find_min_cds_start(Array[CDS]) -> Int
 pub fn find_node(TreeNode, String) -> TreeNode?
 
 pub fn find_optimal_k(Array[Array[Double]], Int, Int) -> Int
+
+pub fn find_orfs(String, min_length? : Int) -> Array[(Int, Int, String)]
 
 pub fn find_overlaps(GRanges, GRanges) -> Array[(Int, Int)]
 
@@ -432,6 +464,8 @@ pub fn gc_content_profile(Array[String]) -> Array[Double]
 pub fn gc_skew(String) -> Double
 
 pub fn gcg(String) -> Int
+
+pub fn gene_expression(Ballgown, String) -> Array[Double]
 
 pub fn gene_ids(TxDb) -> Array[String]
 
@@ -513,6 +547,10 @@ pub fn granges_single(String, Int, Int, Strand) -> GRanges
 
 pub fn granges_union(GRanges, GRanges) -> GRanges
 
+pub fn gravy_score(String) -> Double
+
+pub fn hamming_distance(String, String) -> Int
+
 pub fn hardy_weinberg_test(Array[String]) -> Double
 
 pub fn has_abstract(MedlineRecord) -> Bool
@@ -524,6 +562,8 @@ pub fn heterozygosity(Array[String]) -> Double
 pub fn hypergeometric_test(Int, Int, Int, Int) -> Double
 
 pub fn inbreeding_coefficient(Array[String]) -> Double
+
+pub fn instability_index(String) -> Double
 
 pub fn introns_by_transcript(TxDb) -> Map[String, Array[(Int, Int)]]
 
@@ -577,6 +617,8 @@ pub fn is_rna(String) -> Bool
 
 pub fn is_stop_codon(String) -> Bool
 
+pub fn isoelectric_point(String) -> Double
+
 pub fn iupac_match(String, String) -> Array[(Int, Int)]
 
 pub fn iupac_reverse_complement(String) -> String
@@ -594,6 +636,8 @@ pub fn kmer_frequency(String, Int, Bool) -> Map[String, Double]
 pub fn letter_frequency_aa(String) -> AminoAcidFreq
 
 pub fn letter_frequency_dna(String) -> NucleotideFreq
+
+pub fn levenshtein_distance(String, String) -> Int
 
 pub fn linguistic_complexity(String, k? : Int) -> Double
 
@@ -757,7 +801,11 @@ pub fn parse_medline(String) -> MedlineRecord?
 
 pub fn parse_medline_records(String) -> Array[MedlineRecord]
 
+pub fn parse_mmcif(String) -> MmcifDataBlock
+
 pub fn parse_newick(String) -> TreeNode
+
+pub fn parse_nexus(String) -> NexusFile
 
 pub fn parse_nhx(String) -> TreeNode
 
@@ -774,6 +822,8 @@ pub fn parse_sam(String) -> SamFile
 pub fn parse_semicolon_list(String) -> Array[String]
 
 pub fn parse_stockholm(String) -> Alignment
+
+pub fn parse_swissprot(String) -> SwissProtRecord?
 
 pub fn parse_taxonomy(String) -> TaxonomyRecord?
 
@@ -819,6 +869,8 @@ pub fn ramachandran_generous() -> RamachandranRegion
 
 pub fn ramachandran_plot(Chain) -> Array[(Int, String, Double, Double)]
 
+pub fn rank_genes(Array[String], Array[Double]) -> Array[(String, Double)]
+
 pub fn remove_batch_effect(RUVSeqData, RUVFactors) -> RUVSeqData
 
 pub fn restriction_enzyme(String, String, Int, String, String) -> RestrictionEnzyme
@@ -836,6 +888,28 @@ pub fn rscu(String) -> Map[String, Double]
 pub fn ruvg(RUVSeqData, Array[String], Int) -> RUVFactors
 
 pub fn ruvs(RUVSeqData, Int) -> RUVFactors
+
+pub fn sample_ballgown() -> Ballgown
+
+pub fn sample_dna_sequence() -> String
+
+pub fn sample_expression_matrix() -> (Array[Array[Double]], Array[String], Array[String], Array[Int])
+
+pub fn sample_gene_sets() -> Array[GeneSet]
+
+pub fn sample_gene_stats() -> Array[(String, Double)]
+
+pub fn sample_mmcif_block() -> MmcifDataBlock
+
+pub fn sample_mmcif_content() -> String
+
+pub fn sample_nexus_content() -> String
+
+pub fn sample_nexus_file() -> NexusFile
+
+pub fn sample_protein_sequence() -> String
+
+pub fn sample_swissprot_record() -> SwissProtRecord
 
 pub fn score_sequence(Array[Array[Double]], String, Array[String]) -> Double
 
@@ -949,6 +1023,8 @@ pub fn standard_aa_alphabet() -> Array[String]
 
 pub fn starts_with(String, Int, String) -> Bool
 
+pub fn stattest(Ballgown, Array[Int], feature? : String) -> Array[DeResult]
+
 pub fn strand_minus() -> Strand
 
 pub fn strand_plus() -> Strand
@@ -975,13 +1051,19 @@ pub fn superimpose(Array[AtomCoordinate], Array[AtomCoordinate]) -> (Array[AtomC
 
 pub fn supported_genome_builds() -> Array[String]
 
+pub fn sva(Array[Array[Double]], Array[Array[Double]], mod0? : Array[Array[Double]], n_sv? : Int) -> SvaResult
+
 pub fn tajima_d(Array[String]) -> Double
 
 pub fn three_prime_utrs(TxDb) -> GRanges
 
 pub fn tm_gc(String) -> Double
 
+pub fn tm_nearest_neighbor(String) -> Double
+
 pub fn tm_nn(String) -> Double
+
+pub fn tm_simple(String) -> Double
 
 pub fn tm_wallace(String) -> Double
 
@@ -1004,6 +1086,8 @@ pub fn transcript_ids(TxDb) -> Array[String]
 pub fn transcripts(TxDb) -> GRanges
 
 pub fn transcripts_by_gene(TxDb) -> Map[String, Array[Transcript]]
+
+pub fn translate(String) -> String
 
 pub fn translate_codon(String) -> String
 
@@ -1207,6 +1291,20 @@ pub fn BSGenome::has_chromosome(Self, String) -> Bool
 pub fn BSGenome::new(String, String, String, String) -> Self
 pub fn BSGenome::total_length(Self) -> Int
 
+pub struct Ballgown {
+  sample_names : Array[String]
+  transcripts : Array[BgTranscript]
+  exons : Array[BgExon]
+  introns : Array[BgIntron]
+}
+pub fn Ballgown::get_cov_matrix(Self) -> Array[Array[Double]]
+pub fn Ballgown::get_fpkm_matrix(Self) -> Array[Array[Double]]
+pub fn Ballgown::get_gene_ids(Self) -> Array[String]
+pub fn Ballgown::get_gene_names(Self) -> Array[String]
+pub fn Ballgown::get_gene_transcripts(Self, String) -> Array[BgTranscript]
+pub fn Ballgown::get_transcript(Self, String) -> BgTranscript?
+pub fn Ballgown::new(Array[String], Array[BgTranscript], Array[BgExon], Array[BgIntron]) -> Self
+
 pub struct BamCigarElement {
   op : BamCigarOp
   length : Int
@@ -1297,6 +1395,38 @@ pub struct BedRecord {
   block_sizes : Array[Int]
   block_starts : Array[Int]
 }
+
+pub struct BgExon {
+  id : String
+  chr : String
+  start : Int
+  end : Int
+  strand : String
+  transcript_ids : Array[String]
+}
+pub fn BgExon::new(String, String, Int, Int, String, Array[String]) -> Self
+
+pub struct BgIntron {
+  id : String
+  chr : String
+  start : Int
+  end : Int
+  strand : String
+  transcript_ids : Array[String]
+}
+pub fn BgIntron::new(String, String, Int, Int, String, Array[String]) -> Self
+
+pub struct BgTranscript {
+  id : String
+  gene_id : String
+  gene_name : String
+  chr : String
+  strand : String
+  num_exons : Int
+  fpkm : Array[Double]
+  cov : Array[Double]
+}
+pub fn BgTranscript::new(String, String, String, String, String, Int, Array[Double], Array[Double]) -> Self
 
 pub struct BioMartDataset {
   name : String
@@ -1427,6 +1557,8 @@ pub fn BloomKmerFilter::hash_count(Self) -> Int
 pub fn BloomKmerFilter::k(Self) -> Int
 pub fn BloomKmerFilter::len(Self) -> Int
 pub fn BloomKmerFilter::new(Int, Int, Double) -> Self
+
+type BuildNode
 
 pub struct CDS {
   cds_id : String
@@ -1564,6 +1696,13 @@ pub struct Column {
   dtype : DataType
   values : Array[DataValue]
 }
+
+pub struct ComBatResult {
+  adjusted : Array[Array[Double]]
+  gamma_hat : Array[Array[Double]]
+  delta_hat : Array[Array[Double]]
+}
+pub fn ComBatResult::new(Array[Array[Double]], Array[Array[Double]], Array[Array[Double]]) -> Self
 
 pub struct CompoundLocation {
   parts : Array[FeatureLocation]
@@ -1778,12 +1917,30 @@ pub fn DeBruijnGraph::outgoing(Self, String) -> Array[String]
 pub fn DeBruijnGraph::start_nodes(Self) -> Array[String]
 pub fn DeBruijnGraph::to_string(Self) -> String
 
+pub struct DeResult {
+  feature_id : String
+  gene_id : String
+  gene_name : String
+  log2_fc : Double
+  p_value : Double
+  q_value : Double
+  mean_fpkm : Double
+}
+pub fn DeResult::new(String, String, String, Double, Double, Double, Double) -> Self
+
 pub struct DihedralAngles {
   phi : Double?
   psi : Double?
   omega : Double?
 }
 pub fn DihedralAngles::new(phi? : Double?, psi? : Double?, omega? : Double?) -> Self
+
+pub struct DistanceCalculator {
+  model : String
+}
+pub fn DistanceCalculator::get_distance(Self, Array[(String, String)]) -> Array[Array[Double]]
+pub fn DistanceCalculator::new(model? : String) -> Self
+pub fn DistanceCalculator::pairwise(Self, String, String) -> Double
 
 pub struct DnDsResult {
   dn : Double
@@ -1911,6 +2068,18 @@ pub fn FeatureLocation::start_int(Self) -> Int
 pub fn FeatureLocation::str(Self) -> String
 pub fn FeatureLocation::strand(Self) -> Int?
 
+pub struct FgseaResult {
+  pathway : String
+  pval : Double
+  padj : Double
+  es : Double
+  nes : Double
+  nMoreExtreme : Int
+  size : Int
+  leadingEdge : Array[String]
+}
+pub fn FgseaResult::new(String, Double, Double, Double, Double, Int, Int, Array[String]) -> Self
+
 pub struct GAlignments {
   seqnames : Array[String]
   starts : Array[Int]
@@ -1988,6 +2157,12 @@ pub struct GeneRecord {
   strand : String
 }
 pub fn GeneRecord::new(gene_id~ : String, symbol~ : String, description~ : String, organism~ : String, chromosome~ : String, start~ : Int, end~ : Int, strand~ : String) -> Self
+
+pub struct GeneSet {
+  name : String
+  genes : Array[String]
+}
+pub fn GeneSet::new(String, Array[String]) -> Self
 
 pub struct GenomeInfoDb {
   genome_build : String
@@ -2110,6 +2285,8 @@ pub fn InteractionSet::num_interactions(Self) -> Int
 pub fn InteractionSet::summary(Self) -> String
 pub fn InteractionSet::top_interactions(Self, Int) -> Array[GInteraction]
 pub fn InteractionSet::total_count(Self) -> Int
+
+type KDNode
 
 pub struct KEGGCompound {
   entry : String
@@ -2251,6 +2428,26 @@ pub struct MedlineRecord {
 }
 pub fn MedlineRecord::new(String, String, String, Array[String], String, String, String, String, String, Array[String], Array[String], Array[String], String, Array[String], String, String) -> Self
 
+pub struct MmcifDataBlock {
+  mut name : String
+  categories : Map[String, Array[Array[String]]]
+}
+pub fn MmcifDataBlock::get_atom_sites(Self) -> Array[Array[String]]
+pub fn MmcifDataBlock::get_category(Self, String) -> Array[Array[String]]?
+pub fn MmcifDataBlock::get_category_headers(Self, String) -> Array[String]
+pub fn MmcifDataBlock::get_category_rows(Self, String) -> Array[Array[String]]
+pub fn MmcifDataBlock::get_entity(Self) -> Array[Array[String]]
+pub fn MmcifDataBlock::get_struct(Self) -> Array[Array[String]]
+pub fn MmcifDataBlock::new(String) -> Self
+pub fn MmcifDataBlock::set_category(Self, String, Array[Array[String]]) -> Unit
+pub fn MmcifDataBlock::to_atoms(Self) -> Array[Atom]
+
+pub struct MmcifDataItem {
+  name : String
+  value : String
+}
+pub fn MmcifDataItem::new(String, String) -> Self
+
 pub struct Model {
   id : Int
   chains : Array[Chain]
@@ -2356,6 +2553,49 @@ pub enum NWTrace {
   Left
   Start
 } derive(Eq, Show)
+
+pub struct NeighborSearch {
+  atoms : Array[Atom]
+  root : KDNode?
+  atom_count : Int
+}
+pub fn NeighborSearch::nearest(Self, Vector3) -> Atom?
+pub fn NeighborSearch::new(Array[Atom]) -> Self
+pub fn NeighborSearch::search(Self, Vector3, Double) -> Array[Atom]
+pub fn NeighborSearch::search_all(Self, Double) -> Array[(Atom, Atom)]
+pub fn NeighborSearch::search_atom(Self, Atom, Double) -> Array[Atom]
+pub fn NeighborSearch::size(Self) -> Int
+
+pub struct NexusBlock {
+  block_type : NexusBlockType
+  content : String
+}
+pub fn NexusBlock::new(NexusBlockType, String) -> Self
+
+pub enum NexusBlockType {
+  Data
+  Trees
+  Distances
+  Characters
+  Taxa
+  Unknown(String)
+}
+
+pub struct NexusFile {
+  blocks : Array[NexusBlock]
+  taxa : Array[String]
+}
+pub fn NexusFile::get_data_matrix(Self) -> Array[NexusRow]
+pub fn NexusFile::get_distance_matrix(Self) -> Array[(String, Array[Double])]
+pub fn NexusFile::get_num_taxa(Self) -> Int
+pub fn NexusFile::get_trees(Self) -> Array[(String, String)]
+pub fn NexusFile::new(Array[NexusBlock], Array[String]) -> Self
+
+pub struct NexusRow {
+  taxon : String
+  data : Array[String]
+}
+pub fn NexusRow::new(String, Array[String]) -> Self
 
 pub struct NucleotideComposition {
   a : Double
@@ -2834,6 +3074,60 @@ pub struct SummarizedExperiment {
   metadata : Map[String, String]
 }
 
+pub struct SvaResult {
+  sv : Array[Array[Double]]
+  pprob_gam : Array[Double]
+  n_sv : Int
+}
+pub fn SvaResult::new(Array[Array[Double]], Array[Double], Int) -> Self
+
+pub struct SwissProtFeature {
+  feature_type : String
+  description : String
+  start : Int
+  end : Int
+  qualifiers : Map[String, String]
+}
+pub fn SwissProtFeature::new(String, String, Int, Int, Map[String, String]) -> Self
+
+pub struct SwissProtRecord {
+  entry_name : String
+  accession_numbers : Array[String]
+  protein_name : String
+  gene_names : Array[String]
+  organism : String
+  organism_id : String
+  taxonomy : Array[String]
+  sequence : String
+  seq_length : Int
+  seq_mass : Double
+  keywords : Array[String]
+  function : String
+  subcellular_location : Array[String]
+  tissue_specificity : String
+  ec_numbers : Array[String]
+  domains : Array[String]
+  references : Array[SwissProtReference]
+  comments : Array[(String, String)]
+  features : Array[SwissProtFeature]
+  date_created : String
+  date_modified : String
+  version : Int
+}
+pub fn SwissProtRecord::get_features(Self, String) -> Array[SwissProtFeature]
+pub fn SwissProtRecord::primary_accession(Self) -> String?
+pub fn SwissProtRecord::primary_gene(Self) -> String?
+
+pub struct SwissProtReference {
+  number : Int
+  title : String
+  authors : Array[String]
+  journal : String
+  pubmed_id : String
+  doi : String
+}
+pub fn SwissProtReference::new(Int, String, Array[String], String, String, String) -> Self
+
 pub struct TabularMSA {
   records : Array[SeqRecord]
   dtype : String
@@ -2910,6 +3204,12 @@ pub fn Tree::patristic_distance(Self, String, String) -> Double?
 pub fn Tree::patristic_distance_matrix(Self) -> Array[(String, String, Double)]
 pub fn Tree::repr(Self) -> String
 pub fn Tree::total_branch_length(Self) -> Double
+
+pub struct TreeConstructor {
+  tree_method : String
+}
+pub fn TreeConstructor::build_tree(Self, Array[Array[Double]], Array[String]) -> Clade
+pub fn TreeConstructor::new(tree_method? : String) -> Self
 
 pub struct TreeNode {
   name : String
@@ -3030,6 +3330,8 @@ pub enum WigType {
 }
 
 // Type aliases
+pub type NexusCell = String
+
 pub type PSSM = Array[Array[Double]]
 
 pub type Point = Array[Double]

@@ -3,14 +3,7 @@ test "ballgown_bgtranscript_new" {
   let fpkm = [1.0, 2.0, 3.0]
   let cov = [10.0, 20.0, 30.0]
   let tx = @src.BgTranscript::new(
-    "tx1",
-    "gene1",
-    "GeneA",
-    "chr1",
-    "+",
-    3,
-    fpkm,
-    cov,
+    "tx1", "gene1", "GeneA", "chr1", "+", 3, fpkm, cov,
   )
 
   assert_eq(tx.id, "tx1")
@@ -25,14 +18,7 @@ test "ballgown_bgtranscript_new" {
 
 ///|
 test "ballgown_bgexon_new" {
-  let exon = @src.BgExon::new(
-    "exon1",
-    "chr1",
-    100,
-    200,
-    "+",
-    ["tx1", "tx2"],
-  )
+  let exon = @src.BgExon::new("exon1", "chr1", 100, 200, "+", ["tx1", "tx2"])
 
   assert_eq(exon.id, "exon1")
   assert_eq(exon.chr, "chr1")
@@ -44,14 +30,7 @@ test "ballgown_bgexon_new" {
 
 ///|
 test "ballgown_bgintron_new" {
-  let intron = @src.BgIntron::new(
-    "intron1",
-    "chr1",
-    201,
-    300,
-    "+",
-    ["tx1"],
-  )
+  let intron = @src.BgIntron::new("intron1", "chr1", 201, 300, "+", ["tx1"])
 
   assert_eq(intron.id, "intron1")
   assert_eq(intron.chr, "chr1")
@@ -63,15 +42,7 @@ test "ballgown_bgintron_new" {
 
 ///|
 test "ballgown_deresult_new" {
-  let de = @src.DeResult::new(
-    "tx1",
-    "gene1",
-    "GeneA",
-    1.5,
-    0.01,
-    0.02,
-    10.0,
-  )
+  let de = @src.DeResult::new("tx1", "gene1", "GeneA", 1.5, 0.01, 0.02, 10.0)
 
   assert_eq(de.feature_id, "tx1")
   assert_eq(de.gene_id, "gene1")
@@ -152,7 +123,7 @@ test "ballgown_stattest_transcript" {
   let bg = @src.sample_ballgown()
   let group = [0, 0, 0, 1, 1, 1]
 
-  let results = @src.stattest(bg, group, feature = "transcript")
+  let results = @src.stattest(bg, group, feature="transcript")
 
   assert_eq(results.length(), bg.transcripts.length())
   for r in results {
@@ -166,7 +137,7 @@ test "ballgown_stattest_gene" {
   let bg = @src.sample_ballgown()
   let group = [0, 0, 0, 1, 1, 1]
 
-  let results = @src.stattest(bg, group, feature = "gene")
+  let results = @src.stattest(bg, group, feature="gene")
 
   assert_eq(results.length(), 5)
   for r in results {
@@ -178,7 +149,7 @@ test "ballgown_stattest_gene" {
 ///|
 test "ballgown_filter_low_expression" {
   let bg = @src.sample_ballgown()
-  let filtered = @src.filter_low_expression(bg, min_fpkm = 0.5)
+  let filtered = @src.filter_low_expression(bg, min_fpkm=0.5)
 
   assert_true(filtered.transcripts.length() <= bg.transcripts.length())
 }

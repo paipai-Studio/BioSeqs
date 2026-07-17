@@ -21,16 +21,9 @@ test "fgsea_rank_genes" {
 
 ///|
 test "fgsea_result_new" {
-  let result = @src.FgseaResult::new(
-    "pathway1",
-    0.01,
-    0.02,
-    0.5,
-    1.5,
-    5,
-    10,
-    ["GeneA", "GeneB"],
-  )
+  let result = @src.FgseaResult::new("pathway1", 0.01, 0.02, 0.5, 1.5, 5, 10, [
+    "GeneA", "GeneB",
+  ])
 
   assert_eq(result.pathway, "pathway1")
   assert_eq(result.pval, 0.01)
@@ -57,7 +50,7 @@ test "fgsea_run_fgsea" {
   let gene_sets = @src.sample_gene_sets()
   let stats = @src.sample_gene_stats()
 
-  let results = @src.fgsea(gene_sets, stats, nperm = 50)
+  let results = @src.fgsea(gene_sets, stats, nperm=50)
 
   assert_eq(results.length(), 5)
   for r in results {
@@ -71,9 +64,9 @@ test "fgsea_run_fgsea" {
 test "fgsea_filter" {
   let gene_sets = @src.sample_gene_sets()
   let stats = @src.sample_gene_stats()
-  let results = @src.fgsea(gene_sets, stats, nperm = 50)
+  let results = @src.fgsea(gene_sets, stats, nperm=50)
 
-  let filtered = @src.fgsea_filter(results, padj_cutoff = 0.5)
+  let filtered = @src.fgsea_filter(results, padj_cutoff=0.5)
 
   assert_true(filtered.length() <= results.length())
 }
@@ -82,9 +75,9 @@ test "fgsea_filter" {
 test "fgsea_top_up" {
   let gene_sets = @src.sample_gene_sets()
   let stats = @src.sample_gene_stats()
-  let results = @src.fgsea(gene_sets, stats, nperm = 50)
+  let results = @src.fgsea(gene_sets, stats, nperm=50)
 
-  let top_up = @src.fgsea_top_up(results, n = 3)
+  let top_up = @src.fgsea_top_up(results, n=3)
 
   assert_true(top_up.length() <= 3)
   for r in top_up {
@@ -96,9 +89,9 @@ test "fgsea_top_up" {
 test "fgsea_top_down" {
   let gene_sets = @src.sample_gene_sets()
   let stats = @src.sample_gene_stats()
-  let results = @src.fgsea(gene_sets, stats, nperm = 50)
+  let results = @src.fgsea(gene_sets, stats, nperm=50)
 
-  let top_down = @src.fgsea_top_down(results, n = 3)
+  let top_down = @src.fgsea_top_down(results, n=3)
 
   assert_true(top_down.length() <= 3)
   for r in top_down {

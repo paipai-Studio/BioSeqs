@@ -57,9 +57,22 @@ test "sva_combat_simple" {
 ///|
 test "sva_sva" {
   let (dat, _genes, _samples, _batch) = @src.sample_expression_matrix()
-  let mod = [[1.0], [1.0], [1.0], [1.0], [1.0], [1.0], [1.0], [1.0], [1.0], [1.0], [1.0], [1.0]]
+  let mod = [
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+    [1.0],
+  ]
 
-  let result = @src.sva(dat, mod, n_sv = 2)
+  let result = @src.sva(dat, mod, n_sv=2)
 
   assert_eq(result.n_sv, 2)
   assert_eq(result.sv.length(), 2)

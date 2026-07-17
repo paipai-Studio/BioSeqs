@@ -30,16 +30,16 @@ pub fn NeighborSearch::new(atoms : Array[Atom]) -> NeighborSearch {
     indices.push(i)
   }
   let root = build_kd_tree(atoms, indices, 0)
-  NeighborSearch::{
-    atoms,
-    root,
-    atom_count: n,
-  }
+  NeighborSearch::{ atoms, root, atom_count: n }
 }
 
 ///|
 /// Build a KD-tree from atom coordinates.
-fn build_kd_tree(atoms : Array[Atom], indices : Array[Int], depth : Int) -> KDNode? {
+fn build_kd_tree(
+  atoms : Array[Atom],
+  indices : Array[Int],
+  depth : Int,
+) -> KDNode? {
   let n = indices.length()
   if n == 0 {
     return None
@@ -67,19 +67,15 @@ fn build_kd_tree(atoms : Array[Atom], indices : Array[Int], depth : Int) -> KDNo
   let left = build_kd_tree(atoms, left_indices, depth + 1)
   let right = build_kd_tree(atoms, right_indices, depth + 1)
 
-  Some(KDNode::{
-    point: atom.coord,
-    atom_index: mid_idx,
-    left,
-    right,
-    axis,
-  })
+  Some(KDNode::{ point: atom.coord, atom_index: mid_idx, left, right, axis })
 }
 
 ///|
 /// Sort indices by the value on a given axis.
 fn sort_indices_by_axis(
-  atoms : Array[Atom], indices : Array[Int], axis : Int,
+  atoms : Array[Atom],
+  indices : Array[Int],
+  axis : Int,
 ) -> Array[Int] {
   let n = indices.length()
   let result : Array[Int] = Array::new()
@@ -123,13 +119,13 @@ fn get_coord(v : Vector3, axis : Int) -> Double {
 ///|
 /// Search for atoms within a given radius from a point.
 pub fn NeighborSearch::search(
-  self : NeighborSearch, center : Vector3, radius : Double,
+  self : NeighborSearch,
+  center : Vector3,
+  radius : Double,
 ) -> Array[Atom] {
   let result_indices : Array[Int] = Array::new()
   match self.root {
-    Some(root) => {
-      radius_search(root, center, radius, result_indices)
-    }
+    Some(root) => radius_search(root, center, radius, result_indices)
     None => ()
   }
   let result : Array[Atom] = Array::new()
@@ -159,18 +155,14 @@ fn radius_search(
 
   if diff <= radius {
     match node.right {
-      Some(right) => {
-        radius_search(right, center, radius, result)
-      }
+      Some(right) => radius_search(right, center, radius, result)
       None => ()
     }
   }
 
   if diff >= -radius {
     match node.left {
-      Some(left) => {
-        radius_search(left, center, radius, result)
-      }
+      Some(left) => radius_search(left, center, radius, result)
       None => ()
     }
   }
@@ -179,22 +171,29 @@ fn radius_search(
 ///|
 /// Search for atoms within a given radius from a query atom.
 pub fn NeighborSearch::search_atom(
-  self : NeighborSearch, query : Atom, radius : Double,
+  self : NeighborSearch,
+  query : Atom,
+  radius : Double,
 ) -> Array[Atom] {
   self.search(query.coord, radius)
 }
 
 ///|
 /// Find all pairs of atoms within a given distance.
-pub fn NeighborSearch::search_all(self : NeighborSearch, radius : Double) -> Array[(Atom, Atom)] {
+pub fn NeighborSearch::search_all(
+  self : NeighborSearch,
+  radius : Double,
+) -> Array[(Atom, Atom)] {
   let result : Array[(Atom, Atom)] = Array::new()
   let n = self.atoms.length()
   for i = 0; i < n; i = i + 1 {
     let atom = self.atoms[i]
     let neighbors = self.search(atom.coord, radius)
     for neighbor in neighbors {
-      if atom.name != neighbor.name || atom.resname != neighbor.resname ||
-         atom.resseq != neighbor.resseq || atom.chainid != neighbor.chainid {
+      if atom.name != neighbor.name ||
+        atom.resname != neighbor.resname ||
+        atom.resseq != neighbor.resseq ||
+        atom.chainid != neighbor.chainid {
         result.push((atom, neighbor))
       }
     }
@@ -211,7 +210,8 @@ pub fn NeighborSearch::size(self : NeighborSearch) -> Int {
 ///|
 /// Find the nearest neighbor to a point.
 pub fn NeighborSearch::nearest(
-  self : NeighborSearch, center : Vector3,
+  self : NeighborSearch,
+  center : Vector3,
 ) -> Atom? {
   if self.atoms.length() == 0 {
     return None

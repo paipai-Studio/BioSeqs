@@ -15,13 +15,21 @@ fn main {
   let mut i = 0
   while i < 10 && i < stats.length() {
     let (gene, stat) = stats[i]
-    println("  " + (i + 1).to_string() + ". " + gene + " (stat=" + stat.to_string() + ")")
+    println(
+      "  " +
+      (i + 1).to_string() +
+      ". " +
+      gene +
+      " (stat=" +
+      stat.to_string() +
+      ")",
+    )
     i = i + 1
   }
 
   println("")
   println("Running FGSEA with 100 permutations...")
-  let results = @bio.fgsea(gene_sets, stats, nperm = 100)
+  let results = @bio.fgsea(gene_sets, stats, nperm=100)
 
   println("")
   println("FGSEA Results:")
@@ -41,23 +49,39 @@ fn main {
     i = i + 1
   }
 
-  let top_up = @bio.fgsea_top_up(results, n = 3)
+  let top_up = @bio.fgsea_top_up(results, n=3)
   println("")
   println("Top 3 Up-regulated Pathways:")
   i = 0
   while i < top_up.length() {
     let r = top_up[i]
-    println("  " + (i + 1).to_string() + ". " + r.pathway + " (NES=" + r.nes.to_string() + ")")
+    println(
+      "  " +
+      (i + 1).to_string() +
+      ". " +
+      r.pathway +
+      " (NES=" +
+      r.nes.to_string() +
+      ")",
+    )
     i = i + 1
   }
 
-  let top_down = @bio.fgsea_top_down(results, n = 3)
+  let top_down = @bio.fgsea_top_down(results, n=3)
   println("")
   println("Top 3 Down-regulated Pathways:")
   i = 0
   while i < top_down.length() {
     let r = top_down[i]
-    println("  " + (i + 1).to_string() + ". " + r.pathway + " (NES=" + r.nes.to_string() + ")")
+    println(
+      "  " +
+      (i + 1).to_string() +
+      ". " +
+      r.pathway +
+      " (NES=" +
+      r.nes.to_string() +
+      ")",
+    )
     i = i + 1
   }
 

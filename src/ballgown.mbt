@@ -49,16 +49,7 @@ pub fn BgTranscript::new(
   fpkm : Array[Double],
   cov : Array[Double],
 ) -> BgTranscript {
-  BgTranscript::{
-    id,
-    gene_id,
-    gene_name,
-    chr,
-    strand,
-    num_exons,
-    fpkm,
-    cov,
-  }
+  BgTranscript::{ id, gene_id, gene_name, chr, strand, num_exons, fpkm, cov }
 }
 
 ///|
@@ -140,7 +131,10 @@ pub fn Ballgown::get_transcript(self : Ballgown, id : String) -> BgTranscript? {
 
 ///|
 /// Get transcripts by gene ID.
-pub fn Ballgown::get_gene_transcripts(self : Ballgown, gene_id : String) -> Array[BgTranscript] {
+pub fn Ballgown::get_gene_transcripts(
+  self : Ballgown,
+  gene_id : String,
+) -> Array[BgTranscript] {
   let result : Array[BgTranscript] = []
   for t in self.transcripts {
     if t.gene_id == gene_id {
@@ -217,7 +211,15 @@ pub fn DeResult::new(
   q_value : Double,
   mean_fpkm : Double,
 ) -> DeResult {
-  DeResult::{ feature_id, gene_id, gene_name, log2_fc, p_value, q_value, mean_fpkm }
+  DeResult::{
+    feature_id,
+    gene_id,
+    gene_name,
+    log2_fc,
+    p_value,
+    q_value,
+    mean_fpkm,
+  }
 }
 
 ///|
@@ -231,12 +233,16 @@ fn t_test_pvalue(x : Array[Double], y : Array[Double]) -> Double {
 
   let mean1 = {
     let mut sum = 0.0
-    for v in x { sum = sum + v }
+    for v in x {
+      sum = sum + v
+    }
     sum / n1.to_double()
   }
   let mean2 = {
     let mut sum = 0.0
-    for v in y { sum = sum + v }
+    for v in y {
+      sum = sum + v
+    }
     sum / n2.to_double()
   }
 
@@ -265,7 +271,13 @@ fn t_test_pvalue(x : Array[Double], y : Array[Double]) -> Double {
 
   let t_abs = t_stat.abs()
   let approx = 2.0 * (1.0 - normal_cdf(t_abs))
-  if approx < 0.0 { 0.0 } else if approx > 1.0 { 1.0 } else { approx }
+  if approx < 0.0 {
+    0.0
+  } else if approx > 1.0 {
+    1.0
+  } else {
+    approx
+  }
 }
 
 ///|
@@ -273,8 +285,17 @@ fn t_test_pvalue(x : Array[Double], y : Array[Double]) -> Double {
 fn normal_cdf(x : Double) -> Double {
   let t = 1.0 / (1.0 + 0.2316419 * x.abs())
   let d = 0.3989423 * @math.exp(-x * x / 2.0)
-  let prob = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))))
-  if x > 0.0 { 1.0 - prob } else { prob }
+  let prob = d *
+    t *
+    (
+      0.3193815 +
+      t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))
+    )
+  if x > 0.0 {
+    1.0 - prob
+  } else {
+    prob
+  }
 }
 
 ///|
@@ -348,21 +369,29 @@ pub fn stattest(
   let n2 = group2_idx.length()
 
   match feature {
-    "transcript" => {
+    "transcript" =>
       for t in bg.transcripts {
         let group1 : Array[Double] = []
         let group2 : Array[Double] = []
-        for idx in group1_idx { group1.push(t.fpkm[idx] + 0.001) }
-        for idx in group2_idx { group2.push(t.fpkm[idx] + 0.001) }
+        for idx in group1_idx {
+          group1.push(t.fpkm[idx] + 0.001)
+        }
+        for idx in group2_idx {
+          group2.push(t.fpkm[idx] + 0.001)
+        }
 
         let mean1 = {
           let mut sum = 0.0
-          for v in group1 { sum = sum + v }
+          for v in group1 {
+            sum = sum + v
+          }
           sum / n1.to_double()
         }
         let mean2 = {
           let mut sum = 0.0
-          for v in group2 { sum = sum + v }
+          for v in group2 {
+            sum = sum + v
+          }
           sum / n2.to_double()
         }
 
@@ -376,17 +405,18 @@ pub fn stattest(
         pvalues.push(p_value)
 
         let mean_fpkm = (mean1 + mean2) / 2.0
-        results.push(DeResult::new(
-          t.id,
-          t.gene_id,
-          t.gene_name,
-          log2_fc,
-          p_value,
-          0.0,
-          mean_fpkm,
-        ))
+        results.push(
+          DeResult::new(
+            t.id,
+            t.gene_id,
+            t.gene_name,
+            log2_fc,
+            p_value,
+            0.0,
+            mean_fpkm,
+          ),
+        )
       }
-    }
     "gene" => {
       let gene_ids = bg.get_gene_ids()
       for gene_id in gene_ids {
@@ -404,17 +434,25 @@ pub fn stattest(
 
           let group1 : Array[Double] = []
           let group2 : Array[Double] = []
-          for idx in group1_idx { group1.push(gene_fpkm[idx] + 0.001) }
-          for idx in group2_idx { group2.push(gene_fpkm[idx] + 0.001) }
+          for idx in group1_idx {
+            group1.push(gene_fpkm[idx] + 0.001)
+          }
+          for idx in group2_idx {
+            group2.push(gene_fpkm[idx] + 0.001)
+          }
 
           let mean1 = {
             let mut sum = 0.0
-            for v in group1 { sum = sum + v }
+            for v in group1 {
+              sum = sum + v
+            }
             sum / n1.to_double()
           }
           let mean2 = {
             let mut sum = 0.0
-            for v in group2 { sum = sum + v }
+            for v in group2 {
+              sum = sum + v
+            }
             sum / n2.to_double()
           }
 
@@ -428,15 +466,11 @@ pub fn stattest(
           pvalues.push(p_value)
 
           let mean_fpkm = (mean1 + mean2) / 2.0
-          results.push(DeResult::new(
-            gene_id,
-            gene_id,
-            gene_name,
-            log2_fc,
-            p_value,
-            0.0,
-            mean_fpkm,
-          ))
+          results.push(
+            DeResult::new(
+              gene_id, gene_id, gene_name, log2_fc, p_value, 0.0, mean_fpkm,
+            ),
+          )
         }
       }
     }
@@ -446,17 +480,25 @@ pub fn stattest(
         let t = bg.transcripts[i]
         let group1 : Array[Double] = []
         let group2 : Array[Double] = []
-        for idx in group1_idx { group1.push(t.fpkm[idx] + 0.001) }
-        for idx in group2_idx { group2.push(t.fpkm[idx] + 0.001) }
+        for idx in group1_idx {
+          group1.push(t.fpkm[idx] + 0.001)
+        }
+        for idx in group2_idx {
+          group2.push(t.fpkm[idx] + 0.001)
+        }
 
         let mean1 = {
           let mut sum = 0.0
-          for v in group1 { sum = sum + v }
+          for v in group1 {
+            sum = sum + v
+          }
           sum / n1.to_double()
         }
         let mean2 = {
           let mut sum = 0.0
-          for v in group2 { sum = sum + v }
+          for v in group2 {
+            sum = sum + v
+          }
           sum / n2.to_double()
         }
 
@@ -470,15 +512,17 @@ pub fn stattest(
         pvalues.push(p_value)
 
         let mean_fpkm = (mean1 + mean2) / 2.0
-        results.push(DeResult::new(
-          t.id,
-          t.gene_id,
-          t.gene_name,
-          log2_fc,
-          p_value,
-          0.0,
-          mean_fpkm,
-        ))
+        results.push(
+          DeResult::new(
+            t.id,
+            t.gene_id,
+            t.gene_name,
+            log2_fc,
+            p_value,
+            0.0,
+            mean_fpkm,
+          ),
+        )
         i = i + 1
       }
     }
@@ -488,15 +532,17 @@ pub fn stattest(
   let final_results : Array[DeResult] = []
   for i = 0; i < results.length(); i = i + 1 {
     let r = results[i]
-    final_results.push(DeResult::new(
-      r.feature_id,
-      r.gene_id,
-      r.gene_name,
-      r.log2_fc,
-      r.p_value,
-      qvalues[i],
-      r.mean_fpkm,
-    ))
+    final_results.push(
+      DeResult::new(
+        r.feature_id,
+        r.gene_id,
+        r.gene_name,
+        r.log2_fc,
+        r.p_value,
+        qvalues[i],
+        r.mean_fpkm,
+      ),
+    )
   }
 
   final_results
@@ -541,12 +587,7 @@ pub fn filter_low_expression(
     }
   }
 
-  Ballgown::new(
-    bg.sample_names,
-    filtered_transcripts,
-    bg.exons,
-    bg.introns,
-  )
+  Ballgown::new(bg.sample_names, filtered_transcripts, bg.exons, bg.introns)
 }
 
 ///|
@@ -563,13 +604,7 @@ pub fn sample_ballgown() -> Ballgown {
   let chrs = ["chr1", "chr1", "chr2", "chr2", "chr3"]
   let strands = ["+", "-", "+", "-", "+"]
   let tx_counts = [2, 2, 3, 1, 2]
-  let tx_exon_counts = [
-    [3, 2],
-    [4, 2],
-    [2, 3, 2],
-    [5],
-    [2, 3],
-  ]
+  let tx_exon_counts = [[3, 2], [4, 2], [2, 3, 2], [5], [2, 3]]
 
   let mut exon_counter = 1
   let mut intron_counter = 1
@@ -593,7 +628,10 @@ pub fn sample_ballgown() -> Ballgown {
       let de_effect = if gene_idx % 2 == 0 { 2.0 } else { 0.5 }
 
       for i = 0; i < 6; i = i + 1 {
-        let noise = (gene_idx * 7 + i * 13 + tx_idx * 3).to_double() % 10.0 / 10.0 - 0.5
+        let noise = (gene_idx * 7 + i * 13 + tx_idx * 3).to_double() %
+          10.0 /
+          10.0 -
+          0.5
         let expr = if group[i] == 1 {
           base_expr * de_effect + noise
         } else {
@@ -615,41 +653,30 @@ pub fn sample_ballgown() -> Ballgown {
 
         let exon_id = "exon_" + exon_counter.to_string()
         exon_counter = exon_counter + 1
-        exons.push(BgExon::new(
-          exon_id,
-          chr,
-          exon_start,
-          exon_end,
-          strand,
-          transcript_ids_for_features,
-        ))
+        exons.push(
+          BgExon::new(
+            exon_id, chr, exon_start, exon_end, strand, transcript_ids_for_features,
+          ),
+        )
 
         if e > 0 {
           let intron_start = tx_exon_ends[e - 1] + 1
           let intron_end = exon_start - 1
           let intron_id = "intron_" + intron_counter.to_string()
           intron_counter = intron_counter + 1
-          introns.push(BgIntron::new(
-            intron_id,
-            chr,
-            intron_start,
-            intron_end,
-            strand,
-            transcript_ids_for_features,
-          ))
+          introns.push(
+            BgIntron::new(
+              intron_id, chr, intron_start, intron_end, strand, transcript_ids_for_features,
+            ),
+          )
         }
       }
 
-      transcripts.push(BgTranscript::new(
-        tx_id,
-        gene_id,
-        gene_name,
-        chr,
-        strand,
-        num_exons,
-        fpkm,
-        cov,
-      ))
+      transcripts.push(
+        BgTranscript::new(
+          tx_id, gene_id, gene_name, chr, strand, num_exons, fpkm, cov,
+        ),
+      )
 
       current_pos = current_pos + num_exons * 200 + 500
     }
