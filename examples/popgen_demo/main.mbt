@@ -46,5 +46,18 @@ fn main {
   let theta = @bio.watterson_theta(sequences)
   println("   Theta: \{theta}")
 
+  println("\n10. Diversity indices:")
+  let counts = [100, 100, 100, 100, 50, 50, 30, 20, 10, 10, 10]
+  println("   Species counts: \{counts}")
+  println("   Shannon index: \{@bio.shannon_index(counts)}")
+  println("   Simpson index: \{@bio.simpson_index(counts)}")
+  println("   Simpson reciprocal: \{@bio.simpson_reciprocal(counts)}")
+  println("   Evenness: \{@bio.evenness(counts)}")
+  println("   Chao1 estimate: \{@bio.chao1(counts)}")
+  println("   ACE estimate: \{@bio.ace(counts)}")
+  println("   Fisher's alpha: \{@bio.fishers_alpha(counts)}")
+  println("   Margalef index: \{@bio.margalef_index(counts)}")
+  println("   Menhinick index: \{@bio.menhinick_index(counts)}")
+
   println("\n=== Demo Complete ===")
 }

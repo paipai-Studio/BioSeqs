@@ -3179,7 +3179,7 @@ moon run cmd/bench/main.mbt
 | kmeans_demo | K-means 聚类分析（距离计算、K-means++初始化、聚类、轮廓系数评估、最优k值搜索） | `moon run examples/kmeans_demo/main.mbt` |
 | motifs_demo | 序列模体识别（PWM构建、模体搜索、一致性序列、信息含量、MEME格式解析） | `moon run examples/motifs_demo/main.mbt` | 
 | seq_utils_demo | 序列工具函数（分子量计算、GC含量、Tm值、序列类型检测、氨基酸转换、k-mer计数） | `moon run examples/seq_utils_demo/main.mbt` | 
-| popgen_demo | 群体遗传学分析（等位基因频率、基因型频率、哈迪-温伯格检验、FST统计、Watterson's theta） | `moon run examples/popgen_demo/main.mbt` | 
+| popgen_demo | 群体遗传学分析（等位基因频率、基因型频率、哈迪-温伯格检验、FST统计、Watterson's theta、Shannon/Simpson多样性指数、Chao1/ACE丰富度估计） | `moon run examples/popgen_demo/main.mbt` | 
 | edger_demo | edgeR 差异表达分析（DGEList创建、归一化因子、分散度估计、精确检验、GLM拟合） | `moon run examples/edger_demo/main.mbt` | 
 | limma_demo | limma 差异表达分析（voom变换、线性模型拟合、经验贝叶斯、topTable、对比矩阵） | `moon run examples/limma_demo/main.mbt` | 
 | summarized_experiment_demo | SummarizedExperiment 多维数据容器（Assays、行/列操作、合并） | `moon run examples/summarized_experiment_demo/main.mbt` | 
@@ -3311,8 +3311,8 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 mmCIF格式解析（数据块解析、类别查询、原子位点提取、结构信息）
 - ✅ 实现 Nexus格式解析（数据矩阵、系统发育树、距离矩阵、分类单元）
 - ✅ 实现 EMBOSS工具接口（GC偏斜、AT偏斜、分子量、Tm值、ORF查找、距离计算）
+- ✅ 实现 群体遗传学分析（等位基因频率、基因型频率、哈迪-温伯格检验、FST统计、Watterson's theta、Shannon/Simpson多样性指数、Chao1/ACE丰富度估计）
 - [ ] 实现 CRAM 格式支持
-- [ ] 添加 更多多样性指数计算
 - [ ] 添加 SIMD 加速支持
 
 ## 许可证

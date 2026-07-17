@@ -294,3 +294,222 @@ pub fn migrate_rate(fst : Double, ne1 : Int, ne2 : Int) -> Double {
     0.0
   }
 }
+
+///|
+pub fn shannon_index(counts : Array[Int]) -> Double {
+  let mut total = 0
+  for i = 0; i < counts.length(); i = i + 1 {
+    total = total + counts[i]
+  }
+  let total_d = total.to_double()
+  if total_d == 0.0 {
+    return 0.0
+  }
+
+  let mut h = 0.0
+  for i = 0; i < counts.length(); i = i + 1 {
+    let ni = counts[i].to_double()
+    if ni > 0.0 {
+      let pi = ni / total_d
+      h = h - pi * @math.log2(pi)
+    }
+  }
+
+  h
+}
+
+///|
+pub fn simpson_index(counts : Array[Int]) -> Double {
+  let mut total = 0
+  for i = 0; i < counts.length(); i = i + 1 {
+    total = total + counts[i]
+  }
+  let total_d = total.to_double()
+  if total_d == 0.0 {
+    return 0.0
+  }
+
+  let mut d = 0.0
+  for i = 0; i < counts.length(); i = i + 1 {
+    let ni = counts[i].to_double()
+    d = d + ni * (ni - 1.0)
+  }
+
+  1.0 - d / (total_d * (total_d - 1.0))
+}
+
+///|
+pub fn simpson_reciprocal(counts : Array[Int]) -> Double {
+  let mut total = 0
+  for i = 0; i < counts.length(); i = i + 1 {
+    total = total + counts[i]
+  }
+  let total_d = total.to_double()
+  if total_d == 0.0 {
+    return 0.0
+  }
+
+  let mut sum = 0.0
+  for i = 0; i < counts.length(); i = i + 1 {
+    let ni = counts[i].to_double()
+    if ni > 0.0 {
+      sum = sum + ni / total_d * (ni / total_d)
+    }
+  }
+
+  if sum > 0.0 {
+    1.0 / sum
+  } else {
+    0.0
+  }
+}
+
+///|
+pub fn evenness(counts : Array[Int]) -> Double {
+  let h = shannon_index(counts)
+  let s = counts.filter(fn(c) { c > 0 }).length().to_double()
+  if s <= 1.0 || h == 0.0 {
+    return 0.0
+  }
+  h / @math.log2(s)
+}
+
+///|
+pub fn chao1(counts : Array[Int]) -> Double {
+  let mut total = 0
+  for i = 0; i < counts.length(); i = i + 1 {
+    total = total + counts[i]
+  }
+  if total == 0 {
+    return 0.0
+  }
+
+  let mut f1 = 0
+  let mut f2 = 0
+  let mut s_obs = 0
+  for i = 0; i < counts.length(); i = i + 1 {
+    let c = counts[i]
+    if c == 1 {
+      f1 = f1 + 1
+    } else if c == 2 {
+      f2 = f2 + 1
+    }
+    if c > 0 {
+      s_obs = s_obs + 1
+    }
+  }
+
+  let f1_d = f1.to_double()
+  let f2_d = f2.to_double()
+  let s_obs_d = s_obs.to_double()
+
+  if f2 > 0 {
+    s_obs_d + f1_d * f1_d / (2.0 * f2_d)
+  } else if f1 > 0 {
+    s_obs_d + f1_d * (f1_d - 1.0) / 2.0
+  } else {
+    s_obs_d
+  }
+}
+
+///|
+pub fn ace(counts : Array[Int]) -> Double {
+  let mut s_abundant = 0
+  let mut s_rare = 0
+  let mut f1 = 0
+  let mut sum_rare = 0.0
+  let mut sum_rare_freq = 0.0
+  for i = 0; i < counts.length(); i = i + 1 {
+    let c = counts[i]
+    let ni = c.to_double()
+    if c >= 10 {
+      s_abundant = s_abundant + 1
+    } else if c > 0 && c < 10 {
+      s_rare = s_rare + 1
+      sum_rare = sum_rare + ni
+      sum_rare_freq = sum_rare_freq + ni * ni
+    }
+    if c == 1 {
+      f1 = f1 + 1
+    }
+  }
+
+  let c_ace = if sum_rare > 0.0 { 1.0 - f1.to_double() / sum_rare } else { 0.0 }
+
+  if c_ace > 0.0 {
+    s_abundant.to_double() + s_rare.to_double() / c_ace
+  } else {
+    s_abundant.to_double() + s_rare.to_double()
+  }
+}
+
+///|
+pub fn fishers_alpha(counts : Array[Int]) -> Double {
+  let mut total = 0
+  let mut s = 0
+  for i = 0; i < counts.length(); i = i + 1 {
+    total = total + counts[i]
+    if counts[i] > 0 {
+      s = s + 1
+    }
+  }
+  let total_d = total.to_double()
+  let s_d = s.to_double()
+
+  if total <= 0 || s <= 0 {
+    return 0.0
+  }
+
+  let mut alpha = s_d / 2.0
+  let tol = 1.0e-8
+  let max_iter = 100
+
+  let mut iter = 0
+  while iter < max_iter {
+    let prev = alpha
+    let exp_val = alpha * (1.0 - (1.0 + total_d / alpha).pow(-1.0))
+    alpha = alpha + (s_d - exp_val) * alpha / total_d
+    if (alpha - prev).abs() < tol {
+      break
+    }
+    iter = iter + 1
+  }
+
+  alpha
+}
+
+///|
+pub fn margalef_index(counts : Array[Int]) -> Double {
+  let mut total = 0
+  let mut s = 0
+  for i = 0; i < counts.length(); i = i + 1 {
+    total = total + counts[i]
+    if counts[i] > 0 {
+      s = s + 1
+    }
+  }
+
+  if total <= 1 {
+    return 0.0
+  }
+
+  (s.to_double() - 1.0) / @math.log2(total.to_double())
+}
+
+///|
+pub fn menhinick_index(counts : Array[Int]) -> Double {
+  let mut total = 0
+  let mut s = 0
+  for i = 0; i < counts.length(); i = i + 1 {
+    total = total + counts[i]
+    if counts[i] > 0 {
+      s = s + 1
+    }
+  }
+
+  if total <= 0 {
+    return 0.0
+  }
+
+  s.to_double() / total.to_double().sqrt()
+}

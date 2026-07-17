@@ -13,6 +13,8 @@ pub let aa_hydrophobicity : Map[UInt16, Double]
 
 pub let aa_polarity : Map[UInt16, Double]
 
+pub fn ace(Array[Int]) -> Double
+
 pub fn adjust_p_values(Array[Double], String) -> Array[Double]
 
 pub fn affy_batch_from_matrix(Array[String], Array[Array[Array[Double]]], Array[String]) -> AffyBatch
@@ -126,6 +128,8 @@ pub fn calculate_rmsd(Array[AtomCoordinate], Array[AtomCoordinate]) -> Double
 pub fn cds(TxDb) -> GRanges
 
 pub fn cds_by_transcript(TxDb) -> Map[String, Array[CDS]]
+
+pub fn chao1(Array[Int]) -> Double
 
 pub fn chaos_game_representation(String) -> (Double, Double)
 
@@ -381,6 +385,8 @@ pub fn estimate_dispersion(DGEList) -> Double
 
 pub fn euclidean_distance(Array[Double], Array[Double]) -> Double
 
+pub fn evenness(Array[Int]) -> Double
+
 pub fn exact_test(DGEList, String, String) -> DEGEResults
 
 pub fn exon_ids(TxDb) -> Array[String]
@@ -438,6 +444,8 @@ pub fn find_transcript_by_id(TxDb, String) -> Transcript?
 pub fn find_variable_genes(Array[Array[Double]], Int) -> Array[Int]
 
 pub fn find_variable_positions(Array[String], max_conservation? : Double) -> Array[(Int, Double)]
+
+pub fn fishers_alpha(Array[Int]) -> Double
 
 pub fn fishers_exact_test(Int, Int, Int, Int) -> Double
 
@@ -661,6 +669,8 @@ pub fn make_contrasts(Array[Array[Double]], Matrix) -> Matrix
 
 pub fn manhattan_distance(Array[Double], Array[Double]) -> Double
 
+pub fn margalef_index(Array[Int]) -> Double
+
 pub fn mat_inverse(Matrix) -> Matrix
 
 pub fn mat_mult(Matrix, Matrix) -> Matrix
@@ -678,6 +688,8 @@ pub fn matrix_transpose(Matrix) -> Matrix
 pub fn melting_temperature(String) -> Double
 
 pub fn meme_to_motif(String) -> Motif
+
+pub fn menhinick_index(Array[Int]) -> Double
 
 pub fn migrate_rate(Double, Int, Int) -> Double
 
@@ -979,9 +991,15 @@ pub fn shannon_entropy(String) -> Double
 
 pub fn shannon_entropy_bits(String) -> Double
 
+pub fn shannon_index(Array[Int]) -> Double
+
 pub fn significant_genes(DESeqResults, Double, Double) -> Array[String]
 
 pub fn silhouette_score(Array[Array[Double]], Array[Int]) -> Double
+
+pub fn simpson_index(Array[Int]) -> Double
+
+pub fn simpson_reciprocal(Array[Int]) -> Double
 
 pub fn single_linkage_clustering(Array[Array[Double]], Double) -> ClusterResult
 
