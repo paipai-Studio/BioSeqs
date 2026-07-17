@@ -444,2445 +444,275 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 868 个测试全�
 
 ### 1. 序列处理 (Bio.Seq)
 
-```moonbit
-// 创建序列
-let dna = Seq::new("ACGT")
-let rna = Seq::new("ACGU")
-
-// 互补操作
-dna.complement()          // → Seq("TGCA")
-dna.reverse_complement()  // → Seq("ACGT")
-rna.complement_rna()      // → Seq("UGCA")
-
-// 转录/反转录
-dna.transcribe()          // → Seq("ACGU")
-rna.back_transcribe()     // → Seq("ACGT")
-
-// 翻译
-dna.translate()           // → Seq("T")
-dna.translate(to_stop=true)  // → 翻译到终止密码子
-dna.translate(cds=true)      // → 完整 CDS 翻译
-```
+提供完整的序列对象支持，包括 DNA、RNA 和蛋白质序列的创建与操作。支持互补、反向互补、转录、反转录和翻译等核心生物信息学操作。翻译功能支持多种模式：普通翻译、翻译到终止密码子、完整 CDS 翻译等，确保满足不同的序列分析需求。
 
 ### 2. 序列 I/O (Bio.SeqIO)
 
-```moonbit
-// 解析 FASTA
-let records = seqio_parse(fasta_content, "fasta")
-
-// 解析 FASTQ
-let records = seqio_parse(fastq_content, "fastq")
-
-// 解析 GenBank
-let record = seqio_read(genbank_content, "genbank")
-
-// 写入序列
-let text = seqio_write(records, "fasta")
-```
+实现统一的序列文件解析接口，支持 FASTA、FASTQ 和 GenBank 三种常用格式的解析与写入。通过统一的 API 设计，用户可以轻松切换不同的文件格式，无需关注底层实现细节，极大简化了序列数据的处理流程。
 
 ### 3. 比对算法 (scikit-bio)
 
-```moonbit
-// 创建类型化序列
-let dna1 = DNA::new("ACGTACGT")
-let dna2 = DNA::new("CGT")
-
-// Needleman-Wunsch 全局比对
-let (msa, score, pos) = global_pairwise_align_nucleotide(dna1, dna2)
-
-// Smith-Waterman 局部比对
-let (msa, score, pos) = local_pairwise_align_nucleotide(dna1, dna2)
-
-// 蛋白质比对
-let prot1 = Protein::new("ACDE")
-let prot2 = Protein::new("ACE")
-let (msa, score, pos) = global_pairwise_align_protein(prot1, prot2)
-```
+支持 DNA、RNA 和蛋白质序列的全局与局部比对。实现了 Needleman-Wunsch 全局比对和 Smith-Waterman 局部比对算法，支持自定义打分参数和替换矩阵（如 BLOSUM62）。返回比对结果包括多序列比对对象、比对分数和起始位置信息。
 
 ### 4. SAM 文件解析 (pysam)
 
-```moonbit
-// 解析 SAM
-let sam = parse_sam(sam_content)
-
-// 访问记录
-for record in sam.records {
-  record.qname           // 读取名
-  record.flag            // 标志位
-  record.is_paired()     // 是否配对
-  record.is_reverse()    // 是否反向互补
-  record.get_cigar()     // CIGAR 数组
-}
-```
+支持 SAM 格式比对文件的解析，提供丰富的记录访问接口。可以获取读取名、标志位、参考序列名、比对位置、比对质量、CIGAR 数组、序列和质量值等信息。提供便捷方法判断比对状态，如是否配对、是否正确配对、是否未比对、是否反向互补等。
 
 ### 5. VCF 文件解析 (pysam)
 
-```moonbit
-// 解析 VCF
-let vcf = parse_vcf(vcf_content)
-
-// 访问记录
-for record in vcf.records {
-  record.chrom           // 染色体
-  record.pos             // 位置
-  record.is_snp()        // 是否 SNP
-  record.is_indel()      // 是否插入/缺失
-  record.get_info("AC")  // INFO 字段
-}
-```
+实现 VCF 变异文件的解析功能，支持变异类型检测（SNP、插入、缺失）、变异定位和基因型查询。可以获取染色体、位置、REF/ALT 等位基因、QUAL 质量值、FILTER 过滤状态和 INFO 字段等信息，满足变异检测和分析需求。
 
 ### 6. 系统发育树 (Bio.Phylo)
 
-```moonbit
-// 解析 Newick
-let tree = parse_newick("(A:0.1,B:0.2,(C:0.3,D:0.4):0.5);")
-
-// 创建树
-let clade = Clade::new(name="root", clades=[clade1, clade2])
-
-// 操作
-tree.count_terminals()   // → 4
-tree.distance("A", "B")  // → 0.3
-tree.common_ancestor(["A", "B", "C"])
-tree.draw_ascii()        // → ASCII 树图
-```
+支持 Newick 格式树的解析与创建，提供丰富的树操作方法。可以计算终端节点数量、节点间距离、寻找共同祖先，并支持 ASCII 树图可视化。树结构基于 Clade 对象构建，支持嵌套子节点和分支长度。
 
 ### 7. PDB 结构解析 (Bio.PDB)
 
-```moonbit
-// 解析 PDB
-let structure = parse_pdb(pdb_content)
-
-// 遍历结构
-for model in structure.models {
-  for chain in model.chains {
-    for residue in chain.residues {
-      for atom in residue.atoms {
-        atom.get_coord()        // → Vector3
-        atom.distance(other)    // → Double
-      }
-    }
-  }
-}
-```
+实现蛋白质结构文件的解析，支持 Model-Chain-Residue-Atom 的四级结构层次遍历。可以获取原子坐标、计算原子间距离，支持结构叠合和 RMSD 计算。提供丰富的结构操作接口，满足蛋白质结构分析需求。
 
 ### 8. FASTA 快速索引访问 (pyfaidx)
 
-```moonbit
-// 从内容创建索引
-let fa = Fasta::from_content(fasta_content)
-
-// 获取完整序列
-let seq = fa.get_seq("chr1")       // → Seq?
-
-// 快速随机访问子序列 (0-based, [start, end))
-let sub = fa.fetch("chr1", 1000, 2000)?  // → Seq?
-
-// 获取序列长度
-let len = fa.get_length("chr1")    // → Int?
-
-// 检查序列是否存在
-fa.contains("chr1")                // → Bool
-
-// 获取所有序列名称
-fa.get_names()                     // → Array[String]
-
-// 构建并写入 .fai 索引
-let idx = build_fai(fasta_content)
-let fai_str = write_fai(idx)
-
-// 从 .fai 索引创建 Fasta
-let fa = Fasta::new(fasta_content, fai_str)?
-```
+提供 FASTA 文件的快速随机访问能力，支持 .fai 索引的构建与使用。可以获取完整序列、快速提取子序列（0-based，左闭右开区间）、获取序列长度和检查序列是否存在。支持从内容直接创建索引或从 .fai 文件加载索引。
 
 ### 9. 机器学习特征提取
 
-```moonbit
-// DNA 特征提取
-let dna_seq = "ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG"
-
-// k-mer 频率
-let kmer_freq = kmer_frequency(dna_seq, 3, true)
-
-// 规范 k-mer (考虑反向互补)
-let canonical = dna_canonical_kmer_frequency(dna_seq, 3, true)
-
-// 核苷酸组成
-let comp = nucleotide_composition(dna_seq)
-// comp.a, comp.t, comp.g, comp.c
-
-// DNA 特征向量 (42维)
-let dna_features = dna_feature_vector(dna_seq)
-let dna_names = dna_feature_names()
-
-// 蛋白质特征提取
-let prot_seq = "MKKLLLISVLLFLSSAYSR"
-
-// 氨基酸组成
-let aa_comp = amino_acid_composition(prot_seq)
-
-// 二肽/三肽组成
-let dipep = dipeptide_composition(prot_seq)
-let tripep = tripeptide_composition(prot_seq)
-
-// 理化性质
-let avg_h = avg_hydrophobicity(prot_seq)  // Kyte-Doolittle 疏水性
-let avg_c = avg_charge(prot_seq)           // 电荷
-let avg_p = avg_polarity(prot_seq)         // 极性
-let mw = molecular_weight(prot_seq)         // 分子量
-
-// 二级结构倾向 (Chou-Fasman)
-let (helix, sheet, coil) = secondary_structure_propensity(prot_seq)
-
-// 位置特异性特征
-let pos_feat = position_specific_features(prot_seq, 5)
-
-// 蛋白质特征向量 (73维)
-let prot_features = protein_feature_vector(prot_seq)
-let prot_names = protein_feature_names()
-```
+提供全面的序列特征提取功能，包括 DNA 和蛋白质特征。DNA 特征包括 k-mer 频率、规范 k-mer（考虑反向互补）、核苷酸组成和 42 维特征向量。蛋白质特征包括氨基酸组成、二肽/三肽组成、理化性质（疏水性、电荷、极性、分子量）、二级结构倾向（Chou-Fasman）和 73 维特征向量。
 
 ### 10. Biostrings 序列分析 (Bioconductor Biostrings)
 
-```moonbit
-// IUPAC 核苷酸频率
-let freq = letter_frequency_dna("ACGTN")
-// freq.a, freq.c, freq.g, freq.t, freq.n, freq.other
-
-// IUPAC 氨基酸频率
-let aa_freq = letter_frequency_aa("ACDEFGHIKLMNPQRSTVWY")
-
-// k-mer 频率 (mono-, di-, tri-nucleotide)
-let kmer_freq = oligonucleotide_frequency("AATCG", 2, false)
-
-// 相对同义密码子使用度 (RSCU)
-let rscu = rscu("ATGTGCTGAATGAA")
-
-// GC 含量 (滑动窗口)
-let gc_window = gc_content_by_position("AGCT", 1)
-
-// Shannon 熵
-let entropy = shannon_entropy("AGCT")
-
-// DUST 复杂度
-let dust_score = dust_complexity(seq)
-
-// IUPAC 模式匹配
-let matches = iupac_match("N", "A")
-
-// 最近邻法熔解温度计算
-let tm = tm_nn("AGCTAGCT")
-
-// 序列比对编辑距离
-let edits = nedit_at("AGCT", "AGTT", true)
-
-// 序列一致性百分比
-let pid = percent_identity("AGCT", "AGTT")
-
-// IUPAC 反向互补
-let rc = iupac_reverse_complement("ACGTMRWSYKVHDBN")
-```
+实现 IUPAC 核苷酸和氨基酸频率计算、k-mer 频率统计（单/双/三核苷酸）、相对同义密码子使用度（RSCU）、GC 含量（滑动窗口）、Shannon 熵、DUST 复杂度和 IUPAC 模式匹配。支持最近邻法熔解温度计算、序列比对编辑距离、序列一致性百分比和 IUPAC 反向互补操作。
 
 ### 11. GenomicRanges 基因组区间操作 (Bioconductor GenomicRanges)
 
-```moonbit
-// 创建 GRanges
-let gr = granges(
-  ["chr1", "chr1", "chr2"],
-  [(1, 10), (5, 15), (20, 30)],
-  [strand_plus(), strand_minus(), strand_star()]
-)
-
-// 区间操作
-let shifted = granges_shift(gr, 5)           // 偏移
-let narrowed = granges_narrow(gr, 3, 8)      // 缩小范围
-let resized = granges_resize(gr, 15, "center")  // 调整宽度
-let flanked = granges_flank(gr, 3, true, false) // 侧翼区域
-
-// 集合操作
-let reduced = granges_reduce(gr, 0)         // 合并重叠区间
-let disjoined = granges_disjoin(gr)         // 分割区间
-let union_result = granges_union(gr1, gr2)  // 并集
-let intersect_result = granges_intersect(gr1, gr2)  // 交集
-let diff_result = granges_setdiff(gr1, gr2) // 差集
-
-// 重叠检测
-let counts = count_overlaps(query, subject)  // 计数重叠数
-let overlaps = find_overlaps(query, subject) // 查找重叠对
-
-// 距离计算
-let distances = granges_distance(gr1, gr2)  // 区间距离
-let indices = nearest(gr1, gr2)             // 最近邻索引
-
-// Strand 转换
-let strand_char = strand_to_char(strand_plus())  // → "+"
-```
+提供 GRanges 数据结构，支持染色体、区间和链信息的存储与操作。支持区间偏移、缩小、调整宽度和侧翼区域获取。集合操作包括合并重叠区间、分割区间、并集、交集和差集。支持重叠检测和距离计算，包括计数重叠数、查找重叠对、计算区间距离和最近邻索引。
 
 ### 12. DESeq2 差异表达分析 (Bioconductor DESeq2)
 
-```moonbit
-// 创建 DESeqDataSet (原始计数矩阵)
-let counts = [
-  [100, 120, 200, 220],
-  [50, 60, 55, 45],
-  [10, 15, 80, 90]
-]
-let row_names = ["GeneA", "GeneB", "GeneC"]
-let col_names = ["Control1", "Control2", "Treat1", "Treat2"]
-let design = [[1.0, 0.0], [1.0, 0.0], [1.0, 1.0], [1.0, 1.0]]
-
-let dds = deseq_dataset(counts, row_names, col_names, design)
-
-// 运行差异表达分析
-let results = deseq(dds)  // 或 results(dds)
-
-// 访问结果
-results.base_mean           // 标准化后的平均表达量
-results.log2_fold_change    // log2 倍数变化
-results.p_value             // p 值
-
-// 筛选显著差异基因
-let sig_genes = significant_genes(results, 0.05, 1.0)
-```
+实现基于负二项分布模型的差异表达分析，支持原始计数矩阵的输入。包括 DESeqDataSet 对象创建、差异表达分析执行、结果访问（标准化平均表达量、log2 倍数变化、p 值）和显著差异基因筛选。支持 Benjamini-Hochberg 多重检验校正。
 
 ### 13. Suffix Array & Suffix Tree (libdivsufsort)
 
-```moonbit
-// 创建 Suffix Array
-let sa = SuffixArray::new("banana")
-
-// 模式匹配
-sa.contains("ana")           // → true
-sa.count("ana")              // → 2
-sa.locate("ana")             // → [1, 3]
-
-// 最长重复子串
-sa.longest_repeated_substring()  // → "ana"
-
-// LCP 数组
-let lcp = LCPArray::new(sa)
-lcp.get(0)                   // → LCP 值
-
-// 创建 Suffix Tree
-let st = SuffixTree::new("banana")
-st.contains("ban")           // → true
-st.locate("ana")             // → [1, 3]
-st.longest_repeated_substring()  // → "ana"
-```
+实现后缀数组和后缀树数据结构，采用前缀倍增算法构建。支持模式匹配（包含、计数、定位）、最长重复子串查找和 LCP 数组计算。后缀树支持高效的字符串搜索和模式定位，适用于序列比对和重复序列分析。
 
 ### 14. Overlap-Layout-Consensus 序列组装 (Celera Assembler)
 
-```moonbit
-// 简单序列组装
-let reads = ["ABCDEF", "DEFXYZ", "XYZ123"]
-let assembly = olc_assemble(reads, 2)  // → "ABCDEFXYZ123"
-
-// DNA 序列组装
-let dna_reads = [
-  "ACGTACGTCCG",
-  "CGTCCGATGCA",
-  "ATGCATGCTGA"
-]
-let dna_assembly = olc_assemble(dna_reads, 5)
-
-// 重叠检测
-let overlap = compute_overlap("ABCDEF", "DEFXYZ", 2)  // → 3
-
-// 计算所有重叠关系
-let overlaps = compute_all_overlaps(reads, 2)
-
-// 构建重叠图
-let graph = compute_overlap_graph(reads, 2)
-
-// 生成 Graphviz 可视化
-let dot = overlap_graph_to_dot(reads, 2)
-```
+实现基于重叠-布局-一致的序列组装算法。支持重叠检测、构建重叠图、哈密顿路径搜索和一致性序列生成。提供 Graphviz 可视化输出能力，便于分析组装过程和结果。支持 DNA 序列的组装和重叠关系计算。
 
 ### 15. Hidden Markov Model 基因预测 (HMMER / Augustus)
 
-```moonbit
-// 创建基因预测 HMM
-let hmm = create_gene_prediction_hmm()
-
-// 前向算法 - 计算观测序列概率
-let prob = hmm.forward(["A", "T", "C", "G"])
-
-// 后向算法 - 计算后向概率
-let beta = hmm.backward(["A", "T", "C", "G"])
-
-// 维特比算法 - 最可能状态路径
-let path = hmm.viterbi(["A", "T", "C", "G"])
-
-// 基因预测
-let dna = "AAATTTCCCGGG"
-let prediction = predict_genes(hmm, dna)
-
-// 提取外显子
-let exons = extract_exons(prediction, dna)
-
-// Baum-Welch 训练
-let trained = hmm.baum_welch(["A", "T", "C", "G"], 10, 1e-6)
-```
+实现隐马尔可夫模型，支持前向算法、后向算法和维特比算法。提供基因预测功能，可以从 DNA 序列中预测基因结构并提取外显子。支持 Baum-Welch 参数训练，可用于模型优化和定制。
 
 ### 16. TxDb 转录本数据库 (Bioconductor GenomicFeatures)
 
-```moonbit
-// 解析 GTF 文件
-let gtf_content = "chr1\tensembl\tgene\t100\t500\t.\t+\t.\tgene_id \"GeneA\";\n..."
-let txdb = parse_gtf(gtf_content)
-
-// 获取基因/转录本/外显子/CDS 作为 GRanges
-let gene_gr = genes(txdb)
-let tx_gr = transcripts(txdb)
-let exon_gr = exons(txdb)
-let cds_gr = cds(txdb)
-
-// 获取启动子区域 (200bp upstream, 50bp downstream)
-let prom_gr = promoters(txdb, 200, 50)
-
-// 获取内含子 (按转录本分组)
-let introns_map = introns_by_transcript(txdb)
-
-// 获取 5' UTR 和 3' UTR
-let five_prime_utr = five_prime_utrs(txdb)
-let three_prime_utr = three_prime_utrs(txdb)
-
-// 获取 ID 列表
-let gene_ids = gene_ids(txdb)
-let tx_ids = transcript_ids(txdb)
-let exon_ids = exon_ids(txdb)
-
-// 按基因/转录本分组外显子
-let exons_by_gene = exons_by_gene(txdb)
-let exons_by_tx = exons_by_transcript(txdb)
-let tx_by_gene = transcripts_by_gene(txdb)
-
-// 显示 TxDb 摘要
-let summary = txdb_summary(txdb)
-```
+支持 GTF 文件解析，构建转录本数据库。可以获取基因、转录本、外显子和 CDS 的 GRanges 对象，支持启动子区域提取（上游/下游长度可配置）。支持按转录本分组获取内含子、5' UTR 和 3' UTR，以及基因/转录本/外显子的 ID 列表获取。
 
 ### 17. ProtParam 蛋白质参数分析 (Bio.SeqUtils.ProtParam)
 
-```moonbit
-// 创建蛋白质分析对象
-let protein = ProteinAnalysis::new("MKKLLLISVLLFLSSAYSRGVVVDQQCGGNIFRPEQLVSGSEIHARLGVLGSGGGFRLVAVQ")
-
-// 基础属性
-protein.length()              // → 序列长度
-protein.molecular_weight()    // → 分子量 (考虑脱水)
-protein.count_amino_acids()   // → 氨基酸计数 Map
-
-// 氨基酸组成百分比
-let percent = protein.get_amino_acids_percent()
-percent.get('A')              // → Some(百分比)
-
-// 理化性质
-protein.gravy()               // → GRAVY 疏水性评分
-protein.aromaticity()         // → 芳香性
-protein.instability_index()   // → 不稳定指数 (<40 稳定, >40 不稳定)
-
-// 等电点计算
-protein.isoelectric_point()   // → 等电点 pI
-protein.charge_at_ph(7.0)     // → pH=7.0 时的电荷
-
-// 二级结构倾向 (Chou-Fasman)
-let (helix, sheet, coil) = protein.secondary_structure()
-// helix: α-螺旋倾向, sheet: β-折叠倾向, coil: 无规卷曲倾向
-
-// 信号肽预测
-let sp_result = protein.predict_signal_peptide()
-sp_result.has_signal_peptide  // → 是否有信号肽
-sp_result.cleavage_site       // → 剪切位点索引
-sp_result.score               // → 预测分数
-
-// 氨基酸组成
-let comp = protein.amino_acid_composition()
-comp.get('A')                 // → Some(0.5)
-```
+提供全面的蛋白质参数分析功能，包括序列长度、分子量（考虑脱水）、氨基酸计数和组成百分比。理化性质分析包括 GRAVY 疏水性评分、芳香性和不稳定指数。支持等电点计算、特定 pH 下的电荷计算、二级结构倾向预测（Chou-Fasman）和信号肽预测。
 
 ### 18. rtracklayer 基因组轨道格式 (Bioconductor rtracklayer)
 
-```moonbit
-// 解析 BED 格式 (3-12列)
-let bed_content = "chr1\t100\t200\tgene1\t500\t+\nchr2\t300\t400\tgene2\t700\t-"
-let bed_records = parse_bed(bed_content)
-
-// BED 转 GRanges
-let gr_from_bed = bed_to_granges(bed_records)
-
-// 写入 BED 格式
-let bed_output = write_bed(bed_records)
-
-// 解析 WIG 格式 (variableStep)
-let wig_content = "variableStep chrom=chr1 span=5\n100\t1.5\n105\t2.0\n110\t1.8"
-let wig_records = parse_wig(wig_content)
-
-// 解析 WIG 格式 (fixedStep)
-let wig_fixed = "fixedStep chrom=chr1 start=100 step=10\n1.5\n2.0\n1.8"
-let wig_fixed_records = parse_wig(wig_fixed)
-
-// 写入 WIG 格式
-let wig_output = write_wig(wig_records)
-
-// 解析 BEDGraph 格式
-let bg_content = "track type=bedGraph\nchr1\t100\t200\t1.5\nchr1\t200\t300\t2.0"
-let bg_records = parse_bedgraph(bg_content)
-
-// 写入 BEDGraph 格式
-let bg_output = write_bedgraph(bg_records)
-
-// 解析 GFF/GTF 格式
-let gff_content = "##gff-version 3\nchr1\tensembl\tgene\t100\t200\t5.5\t+\t0\tID=gene1;Name=GeneA"
-let gff_records = parse_gff(gff_content)
-
-// GFF 转 GRanges
-let gr_from_gff = gff_to_granges(gff_records)
-
-// 写入 GFF 格式
-let gff_output = write_gff(gff_records)
-```
+支持多种基因组轨道格式的解析与写入，包括 BED（3-12列）、WIG（variableStep 和 fixedStep）、BEDGraph 和 GFF/GTF。支持格式间转换，如 BED 和 GFF 转 GRanges。提供统一的解析和写入接口，便于基因组数据的处理和交换。
 
 ### 19. K-means 聚类分析 (scikit-learn)
 
-```moonbit
-// 创建 K-means 模型
-let kmeans = KMeans::new(3, 100, 1e-6)
-
-// 训练模型 (K-means++ 初始化)
-let data = [
-  [1.0, 2.0], [2.0, 1.0], [8.0, 7.0], [9.0, 8.0]
-]
-let fitted = kmeans.fit(data)
-
-// 预测新数据
-let predictions = fitted.predict([[1.5, 1.5], [8.5, 8.5]])
-
-// 单个点预测
-let cluster = fitted.predict_single([5.0, 5.5])
-
-// 获取质心和标签
-let centroids = fitted.get_centroids()
-let labels = fitted.get_labels()
-
-// 计算惯性
-let inertia = fitted.inertia(data)
-
-// 轮廓系数评估
-let score = silhouette_score(data, labels)
-
-// 寻找最优 k 值
-let optimal_k = find_optimal_k(data, 2, 5)
-
-// 基因表达聚类
-let gene_expr = [[1.2, 3.4, 2.1], [8.5, 7.2, 6.8], ...]
-let gene_kmeans = cluster_gene_expression(gene_expr, 3)
-```
+实现 K-means 聚类算法，支持 K-means++ 初始化。提供模型训练、新数据预测、质心和标签获取功能。支持惯性计算、轮廓系数评估和最优 k 值搜索。适用于基因表达数据的聚类分析和数据分组。
 
 ### 20. SearchIO 统一搜索结果 (Bio.SearchIO)
 
-```moonbit
-// 解析 HMMER3 tabular 格式
-let hmmer3_tab = "# hmmscan 3.3.2\n" +
-  "# query name           target name        accession   E-value  score  bias\n" +
-  "PF00001.28            sp|Q9Y2W8|A1BG_HUMAN  Q9Y2W8     1e-50    200    5\n" +
-  "PF00001.28            sp|P12345|ABC_HUMAN   P12345     1e-30    150    2\n"
-let results = parse_hmmer3_tab(hmmer3_tab)
-let qr = results[0]
-qr.id                    // → "PF00001.28"
-qr.hits.length()         // → 2
-
-// 解析 BLAT PSL 格式
-let psl_content = "28\t0\t0\t0\t0\t0\t0\t0\t+\tquery1\t1000\t0\t100\tchr1\t5000\t100\t200\t..."
-let psl_results = parse_blat_psl(psl_content)
-
-// 获取 top hits (按 E-value 排序)
-let top5 = top_hits(qr, 5)
-
-// 统计 HSP 数量
-let total_hsps = count_hsps(qr)
-
-// BLAST 结果转换为 SearchIO 模型
-let blast_record = parse_blast_tab(blast_content)
-let searchio_qr = blast_to_searchio(blast_record)
-```
+提供统一的搜索结果模型，支持 HMMER3 tabular 格式和 BLAT PSL 格式的解析。可以获取查询 ID、命中数、top hits（按 E-value 排序）和 HSP 数量统计。支持 BLAST 结果转换为 SearchIO 模型，便于不同搜索工具结果的统一处理。
 
 ### 21. BLAST 结果解析 (Bio.Blast)
 
-```moonbit
-// 解析 BLAST tabular 格式
-let blast_tab = "query1\tsubject1\t98.5\t100\t2\t0\t1\t100\t50\t150\t1e-50\t200\n" +
-  "query1\tsubject2\t95.0\t90\t3\t0\t10\t99\t100\t189\t1e-30\t150\n"
-let record = parse_blast_tab(blast_tab)
-record.query_id          // → "query1"
-record.hits.length()     // → 2
-
-// 解析 BLAST XML 格式
-let xml_record = parse_blast_xml(blast_xml_content)
-
-// 过滤 hits (E-value < 0.01)
-let filtered = filter_hits_by_evalue(record, 0.01)
-
-// 过滤 hits (identity > 90%)
-let high_identity = filter_hits_by_identity(record, 90.0)
-
-// 获取最佳匹配
-let best = best_hit(record)
-
-// 获取最佳 HSP
-let best_hsp = best_hsp(record)
-
-// 获取所有 HSPs
-let all_hsps = all_hsps(record)
-
-// 获取查询序列长度
-record.query_len         // → 查询序列长度
-```
+支持 BLAST tabular 和 XML 格式的解析，提供丰富的结果过滤和访问接口。可以按 E-value 和 identity 过滤 hits，获取最佳匹配和最佳 HSP。支持所有 HSPs 的获取和查询序列长度的访问。
 
 ### 22. 替换矩阵 (Bio.SubsMat)
 
-```moonbit
-// 使用内置 BLOSUM62 矩阵
-let blosum62 = get_matrix("BLOSUM62")
-
-// 查询分数
-let score = blosum62.score('A', 'A')       // → 4
-let score_mismatch = blosum62.score('A', 'D')  // → -1
-
-// 不区分大小写查询
-let score_case = blosum62.score_case_insensitive('a', 'A')  // → 4
-
-// 获取矩阵名称和尺寸
-blosum62.name()          // → "BLOSUM62"
-blosum62.size()          // → 20
-
-// 获取所有氨基酸
-let amino_acids = blosum62.amino_acids()
-
-// 解析矩阵字符串
-let matrix_str = "A  R  N  D  C  Q  E  G  H  I  L  K  M  F  P  S  T  W  Y  V\n" +
-  "A  4 -1 -2 -2  0 -1 -1  0 -2 -1 -1 -1 -1 -2 -1  1  0 -3 -2  0\n"
-let custom_matrix = parse_matrix(matrix_str)
-
-// 支持的矩阵: BLOSUM62, BLOSUM45, PAM250, PAM30
-```
+支持多种内置替换矩阵（BLOSUM62、BLOSUM45、PAM250、PAM30），提供分数查询和不区分大小写查询功能。可以获取矩阵名称、尺寸和所有氨基酸列表，支持自定义矩阵的解析和使用。
 
 ### 23. 序列模体识别 (Bio.motifs)
 
-```moonbit
-// 创建 PWM (Position Weight Matrix)
-let pwm = PWM::new([
-  [0.8, 0.1, 0.1, 0.0],
-  [0.1, 0.8, 0.1, 0.0],
-  [0.0, 0.1, 0.8, 0.1],
-  [0.1, 0.0, 0.1, 0.8]
-])
-
-// 计算序列得分
-let score = pwm.score("ACGT")
-
-// 获取共识序列
-let consensus = pwm.consensus()             // → "ACGT"
-
-// 获取最可能序列
-let most_probable = pwm.most_probable()     // → "ACGT"
-
-// 解析 MEME 格式
-let meme_content = "MEME version 4.11.2\nALPHABET= ACGT\n...\n"
-let motifs = parse_meme(meme_content)
-
-// 搜索模体
-let hits = search_motif(dna_seq, pwm, 0.8)
-```
+实现位置权重矩阵（PWM）的创建和操作，支持序列得分计算、共识序列获取和最可能序列预测。支持 MEME 格式的解析和模体搜索功能，可以在 DNA 序列中搜索特定模体的匹配位置。
 
 ### 24. 限制性内切酶分析 (Bio.Restriction)
 
-```moonbit
-// 创建酶对象
-let eco_r1 = RestrictionEnzyme::new("EcoRI", "GAATTC", [1], [1])
-let bam_h1 = RestrictionEnzyme::new("BamHI", "GGATCC", [1], [1])
-
-// 查找酶切位点
-let sites = find_sites("GAATTCTGAATTC", eco_r1)  // → [0, 7]
-
-// 酶切序列
-let fragments = cut_sequence("GAATTCTGAATTC", eco_r1)
-// → ["G", "AATTC", "T", "AATTC"]
-
-// 获取酶信息
-eco_r1.name              // → "EcoRI"
-eco_r1.recognition_site  // → "GAATTC"
-eco_r1.cut_positions()   // → [1]
-
-// 常用酶列表
-let enzymes = common_enzymes()
-```
+支持限制性内切酶的创建和酶切位点分析。可以查找酶切位点位置、酶切序列生成片段、获取酶信息（名称、识别位点、切割位置）。提供常用酶列表，便于快速访问常用内切酶。
 
 ### 25. 序列聚类分析 (Bio.Cluster)
 
-```moonbit
-// 创建距离矩阵
-let seqs = ["ACGT", "AGCT", "AAAA"]
-let dist_matrix = distance_matrix(seqs, "identity")
-
-// 层次聚类
-let tree = hierarchical_clustering(dist_matrix, "average")
-
-// 转换为 Newick 格式
-let newick = tree_to_newick(tree)
-
-// 轮廓系数评估
-let labels = [0, 0, 1]
-let score = silhouette_score(dist_matrix, labels)
-
-// 基因表达聚类
-let gene_expr = [[1.2, 3.4], [1.3, 3.5], [8.5, 7.2]]
-let clusters = cluster_gene_expression(gene_expr, 2)
-```
+实现距离矩阵计算和层次聚类算法，支持多种距离度量和聚类方法。可以将聚类结果转换为 Newick 格式，便于系统发育树工具的后续分析。支持轮廓系数评估和基因表达数据的聚类分析。
 
 ### 26. 群体遗传学 (Bio.PopGen)
 
-```moonbit
-// 计算等位基因频率
-let genotypes = ["AA", "Aa", "aa", "AA", "Aa"]
-let freq = allele_frequency(genotypes)
-// freq.a, freq.A
-
-// 哈迪-温伯格检验
-let hw_result = hardy_weinberg_test(genotypes)
-hw_result.p_value        // → p 值
-
-// FST 计算
-let pop1 = ["AA", "Aa", "aa"]
-let pop2 = ["AA", "AA", "Aa"]
-let fst = fst(pop1, pop2)
-
-// 核苷酸多样性 (π)
-let seqs = ["ACGT", "AGCT", "ATGT"]
-let pi = nucleotide_diversity(seqs)
-
-// Tajima's D
-let tajima_d = tajima_d(seqs)
-```
+提供等位基因频率计算、哈迪-温伯格检验和 FST 计算功能。支持核苷酸多样性（π）和 Tajima's D 的计算，适用于群体遗传学研究和进化分析。
 
 ### 27. 密码子使用分析 (Bio.CodonUsage)
 
-```moonbit
-// 计算 CAI (密码子适应指数)
-let cai = cai("ATGTGCTGAATGAA", "homo_sapiens")
-
-// 计算 ENC (有效密码子数)
-let enc = enc("ATGTGCTGAATGAA")
-
-// 计算 RSCU (相对同义密码子使用度)
-let rscu_result = rscu("ATGTGCTGAATGAA")
-
-// GC3 含量
-let gc3 = gc3_content("ATGTGCTGAATGAA")
-
-// CBI (密码子偏好指数)
-let cbi = cbi("ATGTGCTGAATGAA", "homo_sapiens")
-
-// Fop (最优密码子频率)
-let fop = fop("ATGTGCTGAATGAA", "homo_sapiens")
-
-// 检测最优密码子
-let optimal = detect_optimal_codons(sequences, "homo_sapiens")
-
-// 密码子翻译
-let aa = translate_codon("ATG")              // → 'M'
-```
+实现多种密码子使用指标的计算，包括 CAI（密码子适应指数）、ENC（有效密码子数）、RSCU（相对同义密码子使用度）、GC3 含量、CBI（密码子偏好指数）和 Fop（最优密码子频率）。支持最优密码子检测和密码子翻译功能。
 
 ### 28. IRanges 整数区间操作 (Bioconductor IRanges)
 
-```moonbit
-// 创建 IRanges
-let ir = iranges([1, 5, 20], [10, 15, 30])
-
-// 区间操作
-let shifted = iranges_shift(ir, 5)           // 偏移
-let resized = iranges_resize(ir, 15, "start")  // 调整宽度
-let narrowed = iranges_narrow(ir, 3, 8)      // 缩小范围
-
-// 集合操作
-let reduced = iranges_reduce(ir)             // 合并重叠区间
-let disjoined = iranges_disjoin(ir)          // 分割区间
-let union_result = iranges_union(ir1, ir2)   // 并集
-let intersect_result = iranges_intersect(ir1, ir2)  // 交集
-let diff_result = iranges_setdiff(ir1, ir2)  // 差集
-
-// 重叠检测
-let counts = count_overlaps(ir1, ir2)        // 计数重叠数
-let overlaps = find_overlaps(ir1, ir2)       // 查找重叠对
-
-// 距离计算
-let distances = iranges_distance(ir1, ir2)   // 区间距离
-let indices = nearest(ir1, ir2)              // 最近邻索引
-```
+提供整数区间的操作和集合运算，支持区间偏移、调整宽度和缩小范围。集合操作包括合并重叠区间、分割区间、并集、交集和差集。支持重叠检测和距离计算，包括计数重叠数、查找重叠对、计算区间距离和最近邻索引。
 
 ### 29. AlignIO 比对格式解析 (Bio.AlignIO)
 
-```moonbit
-// 解析 ClustalW 格式
-let clustal_content = "CLUSTAL W (1.83) multiple sequence alignment\n\n" +
-  "Seq1          ACGTACGT\n" +
-  "Seq2          AC--ACGT\n"
-let align = parse_clustal(clustal_content)
-
-// 解析 FASTA 比对格式
-let fasta_align = parse_fasta_align(fasta_align_content)
-
-// 解析 Stockholm 格式
-let stockholm_content = "# STOCKHOLM 1.0\nSeq1 ACGTACGT\nSeq2 AC--ACGT\n//\n"
-let stockholm_align = parse_stockholm(stockholm_content)
-
-// 写入比对格式
-let output = write_clustal(align)
-```
+支持 ClustalW、FASTA 和 Stockholm 三种比对格式的解析与写入。提供统一的比对对象接口，便于不同格式比对数据的处理和转换。
 
 ### 30. TreeIO 进化树格式解析 (Bio.TreeIO)
 
-```moonbit
-// 解析 Newick 格式
-let newick_tree = parse_newick("(A:0.1,B:0.2,(C:0.3,D:0.4):0.5);")
-
-// 解析 NHX 格式 (Newick + Extended)
-let nhx_tree = parse_nhx("(A[&&NHX:conf=0.9]:0.1,B[&&NHX:conf=0.8]:0.2);")
-
-// 树操作
-newick_tree.count_terminals()   // → 终端节点数
-newick_tree.distance("A", "B")  // → 节点间距离
-newick_tree.common_ancestor(["A", "B"])
-
-// 写入 Newick 格式
-let newick_str = write_newick(newick_tree)
-```
+支持 Newick 和 NHX（Newick + Extended）格式的解析，提供树操作方法（终端节点计数、节点间距离、共同祖先查找）和 Newick 格式写入功能。
 
 ### 31. edgeR 差异表达分析 (Bioconductor edgeR)
 
-```moonbit
-// 创建 DGEList
-let counts = [[100, 120, 200, 220], [50, 60, 55, 45]]
-let dge = dge_list(counts, ["GeneA", "GeneB"], ["Ctrl1", "Ctrl2", "Treat1", "Treat2"])
-
-// 计算归一化因子
-let dge_norm = calc_norm_factors(dge)
-
-// 拟合 GLM
-let design = [[1.0, 0.0], [1.0, 0.0], [1.0, 1.0], [1.0, 1.0]]
-let fit = glm_fit(dge_norm, design)
-
-// 差异表达检验
-let result = glm_lrt(fit, [0, 1])
-
-// 筛选显著差异基因
-let sig_genes = top_tags(result, 100)
-```
+实现基于 DGEList 的差异表达分析，支持归一化因子计算、GLM 拟合和差异表达检验（精确检验和似然比检验）。支持 top tags 的获取和显著差异基因的筛选。
 
 ### 32. limma 差异表达分析 (Bioconductor limma)
 
-```moonbit
-// 创建设计矩阵
-let design = [[1.0, 0.0], [1.0, 0.0], [1.0, 1.0], [1.0, 1.0]]
-
-// 拟合线性模型
-let fit = lm_fit(gene_expr, design)
-
-// 经验贝叶斯
-let fit_eb = eBayes(fit)
-
-// 差异表达检验
-let contrast = [[0.0, 1.0]]
-let result = contrasts.fit(fit_eb, contrast)
-
-// voom 变换 (RNA-seq)
-let voom_result = voom(dge_list, design)
-
-// 获取 top 差异基因
-let top_genes = top_table(result, n=100)
-```
+实现基于线性模型的差异表达分析，支持经验贝叶斯校正和 voom 变换（适用于 RNA-seq 数据）。支持设计矩阵创建、线性模型拟合、对比矩阵分析和 top 差异基因的获取。
 
 ### 33. SummarizedExperiment 多维数据容器 (Bioconductor SummarizedExperiment)
 
-```moonbit
-// 创建 SummarizedExperiment
-let assays = [[[1.0, 2.0], [3.0, 4.0]], [[5.0, 6.0], [7.0, 8.0]]]
-let row_data = [["GeneA"], ["GeneB"]]
-let col_data = [["Sample1"], ["Sample2"]]
-let se = summarized_experiment(assays, row_data, col_data)
-
-// 获取数据
-se.assays()              // → Assays 列表
-se.rows()                // → 行数据
-se.cols()                // → 列数据
-
-// 行/列操作
-let subset = se_subset(se, [0], [0])        // 子集
-let merged = se_merge(se1, se2)             // 合并
-
-// 维度信息
-se.nrow()                // → 行数
-se.ncol()                // → 列数
-se.nassays()             // → Assays 数量
-```
+提供多维基因组数据容器，支持多个 Assays（如表达矩阵、计数矩阵）、行数据（基因信息）和列数据（样本信息）的存储与操作。支持子集操作和合并功能，便于多组学数据的协调管理。
 
 ### 34. GenomicAlignments 基因组比对分析 (Bioconductor GenomicAlignments)
 
-```moonbit
-// 创建 GAlignments 对象
-let galn = GAlignments::new(
-  ["chr1", "chr1", "chr2"],
-  [100, 200, 300],
-  [1100, 1200, 1300],
-  [Strand::Plus, Strand::Minus, Strand::Plus],
-  ["read1", "read2", "read3"],
-  [60, 40, 50]
-)
-
-// 计算覆盖度
-let cov = coverage(galn)
-cov.get("chr1")            // → Coverage 对象
-
-// 按特征汇总比对数
-let features = granges(["chr1"], [(100, 1200)], [Strand::Plus])
-let summary = summarize_overlaps(galn, features, ["gene1"])
-summary[0].count           // → 比对数
-summary[0].coverage_fraction  // → 覆盖分数
-
-// Pileup 操作
-let pileup_result = pileup(galn, "chr1", 500, 600)
-
-// 按 MAPQ 过滤
-let filtered = filter_by_mapq(galn, 30)
-
-// 按 strand 过滤
-let plus_strand = filter_by_strand(galn, Strand::Plus)
-
-// 转换为 GRanges
-let gr = galn_to_granges(galn)
-```
+提供 GAlignments 对象，支持比对信息的存储和操作。可以计算覆盖度、按特征汇总比对数、执行 pileup 操作。支持按 MAPQ 和 strand 过滤，以及转换为 GRanges 对象。
 
 ### 35. VariantAnnotation 变异注释 (Bioconductor VariantAnnotation)
 
-```moonbit
-// 创建 VCF 记录
-let records = [VcfRecord {
-  chrom: "chr1",
-  pos: 100,
-  id: ".",
-  ref: "A",
-  alt: ["T"],
-  qual: 99.0,
-  filter: ["PASS"],
-  info: HashMap::new()
-}]
-
-// 检测变异类型
-let vtype = detect_variant_type("A", "T")       // → VariantType::SNP
-let vtype_ins = detect_variant_type("A", "AT")  // → VariantType::Insertion
-let vtype_del = detect_variant_type("AT", "A")  // → VariantType::Deletion
-
-// 变异定位
-let loc = locate_variants(records, txdb, "coding")
-
-// 编码效应预测
-let predictions = predict_coding(records, txdb, reference)
-for pred in predictions {
-  pred.variant_type        // → 变异类型
-  pred.effect              // → 编码效应 (synonymous/missense/nonsense)
-  pred.aa_change           // → 氨基酸变化
-}
-
-// 变异汇总
-let summary = variant_summary(records, txdb)
-summary.total_variants     // → 总变异数
-summary.snp_count          // → SNP 数量
-summary.coding_variants    // → 编码区变异数
-summary.gene_ids           // → 受影响基因
-```
+支持变异类型检测（SNP、插入、缺失）、变异定位和编码效应预测（同义/错义/无义变异）。可以获取氨基酸变化信息和变异汇总统计（总变异数、SNP 数量、编码区变异数、受影响基因）。
 
 ### 36. Affy Affymetrix芯片数据分析 (Biopython Bio.Affy)
 
-```moonbit
-// 创建探针集
-let pm = [[100.0, 150.0], [200.0, 250.0]]
-let mm = [[50.0, 75.0], [100.0, 125.0]]
-let probe_set = ProbeSet::new("probe_set_1", pm, mm)
-
-// 创建AffyBatch
-let probe_sets = [probe_set]
-let affy_batch = AffyBatch::new(["probe_set_1"], probe_sets, ["sample_1", "sample_2"])
-
-// 背景校正
-let bg_corrected = background_correct_rma(probe_set.pm_intensities)
-
-// PM-MM差异计算
-let diff = compute_pm_mm_difference(probe_set)
-
-// 探针集汇总
-let summarized = summarize_probeset(probe_set, "median")
-
-// RMA标准化 (背景校正 + log2转换 + 分位数归一化 + 中位数汇总)
-let normalized = rma_normalize(affy_batch)
-
-// 批量汇总
-let batch_summary = affy_batch_summarize(affy_batch, "mean")
-```
+支持 Affymetrix 芯片数据的处理，包括探针集创建、AffyBatch 对象管理、背景校正、PM-MM 差异计算和探针集汇总。支持 RMA 标准化流程（背景校正 + log2 转换 + 分位数归一化 + 中位数汇总）。
 
 ### 37. SVDSuperimposer SVD蛋白质结构叠合 (Biopython Bio.PDB.SVDSuperimposer)
 
-```moonbit
-// 创建原子坐标
-let atom1 = AtomCoordinate::new(1.0, 2.0, 3.0)
-let atom2 = AtomCoordinate::new(4.0, 5.0, 6.0)
-
-// 计算原子距离
-let dist = atom1.distance(atom2)
-
-// 创建原子集合
-let atoms1 = [
-  AtomCoordinate::new(1.0, 0.0, 0.0),
-  AtomCoordinate::new(0.0, 1.0, 0.0),
-  AtomCoordinate::new(0.0, 0.0, 1.0),
-]
-let atoms2 = [
-  AtomCoordinate::new(2.0, 0.0, 0.0),
-  AtomCoordinate::new(0.0, 2.0, 0.0),
-  AtomCoordinate::new(0.0, 0.0, 2.0),
-]
-
-// SVD结构叠合
-let superimposer = SVDSuperimposer::set(atoms1, atoms2)
-superimposer.rmsd              // → RMSD值
-superimposer.get_rotation()    // → 旋转矩阵
-superimposer.get_translation() // → 平移向量
-
-// 应用变换
-let transformed = superimposer.apply(atoms1)
-
-// 便捷函数: 直接叠合并获取结果
-let (aligned, rmsd) = superimpose(atoms1, atoms2)
-
-// 直接计算RMSD (不进行叠合)
-let rmsd_direct = calculate_rmsd(atoms1, atoms2)
-```
+实现基于 SVD 的蛋白质结构叠合算法，支持原子坐标的旋转和平移变换。可以计算 RMSD 值、旋转矩阵和平移向量，支持直接叠合并获取结果，以及不进行叠合的 RMSD 直接计算。
 
 ### 38. GOEnrichment GO功能富集分析 (Bioconductor GOstats/clusterProfiler)
 
-```moonbit
-// 创建 GO term
-let go_term = GOTerm::new(
-  "GO:0005515",
-  "protein binding",
-  "BP",
-  ["GeneA", "GeneB", "GeneC"]
-)
-
-// 构建 GO 注释数据库
-let go_terms = [
-  GOTerm::new("GO:0005515", "protein binding", "BP", ["GeneA", "GeneB", "GeneD"]),
-  GOTerm::new("GO:0008150", "biological process", "BP", ["GeneE", "GeneF"]),
-]
-
-// 差异表达基因列表
-let de_genes = ["GeneA", "GeneB", "GeneC"]
-
-// GO 富集分析 (超几何检验 + BH校正)
-let results = go_enrich(de_genes, go_terms, 1000)
-
-// 结果访问
-results[0].go_id              // → GO ID
-results[0].term_name          // → 术语名称
-results[0].p_value            // → P值
-results[0].adjusted_p_value   // → 校正后P值
-results[0].odds_ratio         // → 优势比
-results[0].gene_ratio        // → 基因比例
-results[0].count             // → 富集基因数
-
-// 过滤结果
-let filtered = filter_enrichment(results, 0.05, 2)
-
-// 按命名空间筛选
-let bp_terms = go_terms_by_namespace(go_terms, "BP")
-
-// 独立统计检验
-let p_hyper = hypergeometric_test(3, 10, 90, 15)
-let p_bonferroni = bonferroni_correction([0.01, 0.02, 0.05])
-let p_bh = bh_correction([0.01, 0.02, 0.05])
-```
+实现 GO 功能富集分析，支持超几何检验和 BH 校正。可以构建 GO 注释数据库、执行富集分析、过滤结果（按校正后 p 值和富集基因数）和按命名空间筛选（BP、MF、CC）。提供独立的统计检验功能，包括超几何检验、Bonferroni 校正和 BH 校正。
 
 ### 39. SingleCell 单细胞数据分析 (Bioconductor SingleCellExperiment)
 
-```moonbit
-// 创建计数矩阵 (细胞 × 基因)
-let counts = [
-  [100.0, 200.0, 50.0],
-  [120.0, 180.0, 60.0],
-]
-let gene_names = ["GeneA", "MT-CO1", "GeneB"]
-
-// 计算 QC 指标
-let qc = calculate_qc_metrics(counts, gene_names)
-qc.n_umi            // → 每个细胞的 UMI 数
-qc.n_genes          // → 每个细胞检测到的基因数
-qc.mito_percent     // → 线粒体基因比例
-
-// 细胞过滤
-let filtered = filter_cells(counts, qc, 100, 10000, 200, 20.0)
-
-// Log 标准化
-let normalized = log_normalize(filtered, None)
-let normalized_sf = log_normalize(filtered, Some([1.0, 0.8]))
-
-// 寻找高变异基因
-let top_genes = find_variable_genes(normalized, 2000)
-
-// 按基因索引筛选
-let selected = select_genes_by_indices(normalized, top_genes)
-
-// PCA 降维 (幂迭代法)
-let (pca_result, eigenvalues) = pca_power_iteration(selected, 50)
-
-// 创建 SingleCellExperiment 对象
-let sce = SingleCellExperiment::new(
-  [normalized],
-  [["Cell1"], ["Cell2"]],
-  [["GeneA"], ["GeneB"], ["GeneC"]]
-)
-```
+提供单细胞数据分析功能，包括 QC 指标计算（每个细胞的 UMI 数、检测到的基因数、线粒体基因比例）、细胞过滤、Log 标准化、高变异基因检测和 PCA 降维（幂迭代法）。支持 SingleCellExperiment 对象的创建和管理。
 
 ### 40. BAM 文件解析 (pysam)
 
-```moonbit
-// 解析 BAM 文件内容
-let bam = parse_bam(bam_content)
-
-// 访问比对记录
-for record in bam.records {
-  record.qname              // → 读取名
-  record.flag               // → 标志位
-  record.rname              // → 参考序列名
-  record.pos                // → 比对位置 (1-based)
-  record.mapq               // → 比对质量
-  record.cigar              // → CIGAR 数组
-  record.seq                // → 序列
-  record.qual               // → 质量值
-}
-
-// 判断比对状态
-record.is_paired()         // → 是否配对
-record.is_proper_pair()    // → 是否正确配对
-record.is_unmapped()       // → 是否未比对
-record.is_reverse()        // → 是否反向互补
-record.mate_is_unmapped()  // → mate 是否未比对
-
-// 计算插入片段长度
-record.tlen                // → 插入片段长度
-
-// 获取标签
-record.get_tag("NM")       // → 编辑距离
-record.get_tag("MD")       // → MD 字符串
-```
+支持 BAM 格式比对文件的解析，提供丰富的记录访问接口。可以获取读取名、标志位、参考序列名、比对位置、比对质量、CIGAR 数组、序列和质量值等信息。提供便捷方法判断比对状态和计算插入片段长度。
 
 ### 41. Bloom Filter & k-mer 计数 (Jellyfish / khmer)
 
-```moonbit
-// 创建 Bloom Filter (预估100万元素，误判率0.01)
-let bf = BloomFilter::new(1_000_000, 0.01)
-
-// 添加 k-mer
-bf.add("ACGT")
-bf.add("CGTA")
-
-// 查询
-bf.contains("ACGT")        // → true
-bf.contains("TTTT")        // → false
-
-// k-mer 精确计数
-let kmer_counter = KmerCounter::new(21, 10_000_000)
-kmer_counter.count("ACGTACGTACGTACGTACGTAC")
-let count = kmer_counter.get("ACGTACGTACGTACGTACGTAC")
-
-// 近似去重
-let unique_count = kmer_counter.approx_unique_count()
-
-// 获取所有 k-mer
-let kmers = kmer_counter.get_kmers()
-```
+实现 Bloom Filter 概率数据结构，支持 k-mer 的快速成员查询。提供 k-mer 精确计数器，支持近似去重和唯一 k-mer 数量估算。适用于大规模序列数据的快速处理和去重。
 
 ### 42. BWT + FM-index (Bowtie2 / BWA)
 
-```moonbit
-// 创建 BWT 索引
-let bwt = BWT::new("banana")
-
-// BWT 变换
-let transformed = bwt.transform()  // → "annb$aa"
-
-// 反向变换
-let original = bwt.inverse(transformed)  // → "banana"
-
-// 创建 FM-index
-let fmi = FMIndex::new("banana")
-
-// 模式匹配
-fmi.contains("ana")        // → true
-fmi.count("ana")           // → 2
-fmi.locate("ana")          // → [1, 3]
-
-// 精确模式匹配
-let positions = fmi.search("nan")  // → [2]
-```
+实现 Burrows-Wheeler Transform 和 FM-index，支持 BWT 正逆变换和高效的模式匹配。可以判断模式是否存在、计数出现次数和定位出现位置，适用于大规模序列数据的快速搜索。
 
 ### 43. De Bruijn Graph 序列组装 (SPAdes / Velvet)
 
-```moonbit
-// 创建 De Bruijn Graph (k=3)
-let dbg = DeBruijnGraph::new(3)
-
-// 添加 reads
-dbg.add_read("ACGTCCG")
-dbg.add_read("CCGATGC")
-
-// 构建图
-dbg.build()
-
-// 简化图 (去除气泡)
-dbg.simplify()
-
-// 序列组装
-let contigs = dbg.assemble()
-
-// 获取所有节点
-let nodes = dbg.get_nodes()
-
-// 获取边
-let edges = dbg.get_edges()
-```
+实现基于 De Bruijn Graph 的序列组装算法，支持 k-mer 节点构建、欧拉路径查找和序列组装。提供图简化功能（去除气泡），可以获取所有节点和边信息，适用于短读长序列的组装。
 
 ### 44. Suffix Array & Suffix Tree (libdivsufsort)
 
-```moonbit
-// 创建 Suffix Array
-let sa = SuffixArray::new("banana")
-sa.text()                    // → "banana"
-sa.len()                     // → 7 (包含终止符$)
-sa.sa()                      // → [6, 5, 3, 1, 0, 4, 2]
-
-// 获取排序后的后缀
-sa.get_sorted_suffix(0)      // → "$"
-sa.get_sorted_suffix(1)      // → "a$"
-sa.get_sorted_suffix(2)      // → "ana$"
-
-// 模式匹配
-sa.count("ana")              // → 2
-sa.count("an")               // → 2
-sa.count("xyz")              // → 0
-
-// 定位模式位置
-sa.locate("ana")             // → [1, 3]
-
-// 创建 LCP Array
-let lcp = LCPArray::new(sa)
-lcp.lcp()                    // → [0, 1, 3, 0, 0, 2, 0]
-lcp.max_lcp()                // → 3
-
-// 创建 Suffix Tree
-let st = SuffixTree::new("banana")
-st.text()                    // → "banana"
-st.size()                    // → 8
-
-// 模式匹配
-st.contains("ana")           // → true
-st.contains("xyz")           // → false
-st.count("ana")              // → 2
-st.locate("ana")             // → [1, 3]
-
-// 最长重复子串
-st.longest_repeated_substring()  // → "ana"
-
-// DNA 序列示例
-let dna_sa = SuffixArray::new("ACGTACGT")
-dna_sa.count("ACGT")         // → 2
-dna_sa.locate("ACGT")        // → [0, 4]
-
-let dna_st = SuffixTree::new("ACGTACGT")
-dna_st.longest_repeated_substring()  // → "ACGT"
-```
+实现后缀数组和后缀树数据结构，支持模式匹配（包含、计数、定位）、最长重复子串查找和 LCP 数组计算。适用于 DNA 序列的重复序列分析和模式搜索。
 
 ### 45. Smith-Waterman 局部序列比对
 
-```moonbit
-// 创建比对器
-let sw = SmithWaterman::new()
-
-// 设置打分矩阵
-sw.set_matrix("BLOSUM62")
-sw.set_gap_open(-11)
-sw.set_gap_extend(-1)
-
-// 蛋白质比对
-let (alignment, score, start_pos) = sw.align("ACDEFG", "CDE")
-
-// 获取比对结果
-alignment.query           // → 查询序列
-alignment.target          // → 目标序列
-alignment.query_start     // → 查询起始位置
-alignment.score           // → 比对分数
-
-// DNA 比对
-let sw_dna = SmithWaterman::new()
-let result = sw_dna.align_nucleotide("ACGTACGT", "CGT")
-```
+实现 Smith-Waterman 局部序列比对算法，支持自定义打分矩阵（如 BLOSUM62）和空位罚分（空位开放和空位延伸）。返回比对结果包括比对对象、分数和起始位置，支持蛋白质和 DNA 序列的比对。
 
 ### 46. Needleman-Wunsch 全局序列比对
 
-```moonbit
-// 创建比对器
-let nw = NeedlemanWunsch::new()
-
-// 设置打分参数
-nw.set_match(1)
-nw.set_mismatch(-1)
-nw.set_gap_open(-2)
-nw.set_gap_extend(-1)
-
-// DNA 全局比对
-let (alignment, score, start_pos) = nw.align("ACGTACGT", "AC--ACGT")
-
-// 蛋白质全局比对
-nw.set_matrix("BLOSUM62")
-let prot_result = nw.align("ACDEFGH", "ADEFGH")
-
-// 获取回溯矩阵
-let backtrack = nw.get_backtrack_matrix()
-```
+实现 Needleman-Wunsch 全局序列比对算法，支持自定义匹配/错配得分和空位罚分。支持蛋白质和 DNA 序列的比对，提供回溯矩阵的获取功能。
 
 ### 47. dplyr 数据操作 (R dplyr)
 
-```moonbit
-// 创建 DataFrame
-let df = DataFrame::new([
-  ["GeneA", "100", "5.2"],
-  ["GeneB", "200", "3.1"],
-  ["GeneC", "150", "4.5"]
-], ["gene", "count", "log2fc"])
-
-// 过滤
-let filtered = df.filter(|row| row.get("count").parse_int() > 120)
-
-// 选择列
-let selected = df.select(["gene", "log2fc"])
-
-// 添加新列
-let mutated = df.mutate("log10count", |row| row.get("count").parse_double().log10())
-
-// 排序
-let arranged = df.arrange("count", "desc")
-
-// 分组汇总
-let grouped = df.group_by("category").summarize("mean_count", |group| group.mean("count"))
-
-// 连接
-let merged = df.inner_join(other_df, "gene")
-```
+提供 DataFrame 数据操作功能，支持过滤、选择列、添加新列、排序、分组汇总和连接操作。采用链式调用风格，便于数据处理流程的构建和表达。
 
 ### 48. KEGG 数据库解析 (Biopython Bio.KEGG)
 
-```moonbit
-// 解析 KEGG Gene 记录
-let gene_text = "ENTRY       hsa:12345\nNAME        GeneA\nDEFINITION  Description of gene A\nORTHOLOGY   K00001\nORGANISM    Homo sapiens\nPATHWAY     path:hsa00010 Glycolysis / Gluconeogenesis\nPATHWAY     path:hsa00020 Citrate cycle\nPOSITION    1p36.11\nDBLINKS     NCBI-GeneID: 12345\nDBLINKS     UniProt: P12345"
-
-let gene = parse_kegg_gene(gene_text)
-if gene.is_some() {
-  let g = gene.unwrap()
-  g.entry              // → "hsa:12345"
-  g.name               // → "GeneA"
-  g.organism           // → "Homo sapiens"
-  g.pathways.length()  // → 2
-}
-
-// 解析 KEGG Pathway 记录
-let pathway_text = "ENTRY       path:hsa00010\nNAME        Glycolysis / Gluconeogenesis\nDEFINITION  Glycolysis is the metabolic pathway that converts glucose...\nCLASS       Carbohydrate metabolism\nGENE        hsa:12345  GeneA\nGENE        hsa:67890  GeneB\nCOMPOUND    C00033 Glucose\nCOMPOUND    C00084 Pyruvate\nENZYME      EC:2.7.1.1\nENZYME      EC:1.2.1.12"
-
-let pathway = parse_kegg_pathway(pathway_text)
-if pathway.is_some() {
-  let p = pathway.unwrap()
-  p.entry              // → "path:hsa00010"
-  p.name               // → "Glycolysis / Gluconeogenesis"
-  p.class              // → "Carbohydrate metabolism"
-  p.genes.length()     // → 3
-}
-
-// 解析 KEGG Compound 记录
-let compound_text = "ENTRY       C00033\nNAME        Glucose\nFORMULA     C6H12O6\nMASS        180.156\nPATHWAY     path:hsa00010 Glycolysis / Gluconeogenesis\nENZYME      EC:2.7.1.1\nENZYME      EC:3.2.1.20"
-
-let compound = parse_kegg_compound(compound_text)
-if compound.is_some() {
-  let c = compound.unwrap()
-  c.entry              // → "C00033"
-  c.name               // → "Glucose"
-  c.formula            // → "C6H12O6"
-  c.mass               // → 180.156
-}
-
-// 解析 KEGG Enzyme 记录
-let enzyme_text = "ENTRY       EC:2.7.1.1\nNAME        Hexokinase\nCLASS       Transferases; Transferring phosphorus-containing groups\nGENE        hsa:1234  HK1\nGENE        hsa:1235  HK2\nPATHWAY     path:hsa00010\nREACTION    R01786\nCOFACTOR    ATP\nCOFACTOR    Mg2+"
-
-let enzyme = parse_kegg_enzyme(enzyme_text)
-if enzyme.is_some() {
-  let e = enzyme.unwrap()
-  e.entry              // → "EC:2.7.1.1"
-  e.name               // → "Hexokinase"
-  e.cofactors.length() // → 2
-}
-
-// 获取通路中的基因ID
-let gene_ids = kegg_pathway_gene_ids(p)  // → ["hsa:12345", "hsa:67890", "hsa:54321"]
-
-// 计算基因参与的通路数量
-let count = kegg_gene_pathway_count(g)   // → 2
-
-// 检查化合物是否在通路中
-let in_pathway = kegg_compound_in_pathway(c, "path:hsa00010")  // → true
-```
+支持 KEGG Gene、Pathway、Compound 和 Enzyme 记录的解析，提供丰富的字段访问接口。可以获取通路中的基因 ID、计算基因参与的通路数量和检查化合物是否在特定通路中。
 
 ### 49. Medline/PubMed 文献解析 (Biopython Bio.Medline)
 
-```moonbit
-// 解析单条 Medline 记录
-let medline_text = "PMID- 12345678\nTI  - Title of the article\nAB  - Abstract text goes here.\nAU  - Author A\nAU  - Author B\nJT  - Journal Title\nMH  - MeSH Term 1\nMH  - MeSH Term 2\nDP  - 2023/01/15"
-
-let record = parse_medline(medline_text)
-if record.is_some() {
-  let r = record.unwrap()
-  r.pmid               // → "12345678"
-  r.title              // → "Title of the article"
-  r.abstract           // → "Abstract text goes here."
-  r.authors.length()   // → 2
-  r.journal            // → "Journal Title"
-  r.mesh_terms.length() // → 2
-}
-
-// 解析多条 Medline 记录
-let multiple_text = "PMID- 12345678\nTI  - Article 1\n\nPMID- 87654321\nTI  - Article 2"
-let records = parse_medline_records(multiple_text)
-records.length()       // → 2
-
-// 生成 APA 引用格式
-let citation = format_apa_citation(r)
-// → "Author A, & Author B. (2023). Title of the article. Journal Title."
-
-// 按 MeSH 术语过滤记录
-let filtered = filter_by_mesh(records, "MeSH Term 1")
-filtered.length()      // → 1
-
-// 按年份统计文献
-let year_counts = count_by_year(records)
-year_counts["2023"]    // → 2
-```
+支持 Medline/PubMed 文献记录的解析，包括单条和多条记录的解析。提供 APA 引用格式生成、按 MeSH 术语过滤记录和按年份统计文献的功能。
 
 ### 50. BSgenome 基因组序列数据库 (Bioconductor BSgenome)
 
-```moonbit
-// 创建 BSGenome 对象
-let genome = BSGenome::new("Homo sapiens", "Homo sapiens", "UCSC", "hg38")
-
-// 添加染色体序列
-let genome = genome.add_chromosome("chr1", "ACGTACGTACGTACGTACGT")
-let genome = genome.add_chromosome("chr2", "GCTAGCTAGCTAGCTAGCTA")
-
-// 获取染色体名称
-let chr_names = genome.chromosome_names()
-chr_names.length()      // → 2
-
-// 获取染色体长度
-let chr1_len = genome.chromosome_length("chr1")
-if chr1_len is Some(_) {
-  chr1_len.unwrap()     // → 20
-}
-
-// 获取完整染色体序列
-let chr1_seq = genome.chromosome_sequence("chr1")
-if chr1_seq is Some(_) {
-  chr1_seq.unwrap()     // → "ACGTACGTACGTACGTACGT"
-}
-
-// 获取子序列 (0-based, [start, end))
-let subseq = genome.get_sequence("chr1", 0, 10)
-if subseq is Some(_) {
-  subseq.unwrap()       // → "ACGTACGTAC"
-}
-
-// 提取基因 (链特异性)
-let gene_plus = genome.extract_gene("chr1", 0, 12, "+")
-if gene_plus is Some(_) {
-  gene_plus.unwrap()    // → 正链序列
-}
-
-let gene_minus = genome.extract_gene("chr1", 0, 12, "-")
-if gene_minus is Some(_) {
-  gene_minus.unwrap()   // → 负链序列 (反向互补)
-}
-
-// 检查染色体是否存在
-genome.has_chromosome("chr1")  // → true
-genome.has_chromosome("chr3")  // → false
-
-// 基因组总长度
-genome.total_length()          // → 40
-
-// 染色体数量
-genome.chromosome_count()      // → 2
-```
+提供基因组序列数据库的管理功能，支持染色体序列的添加、检索和子序列提取。支持链特异性基因提取（正链和负链）、染色体长度查询和基因组总长度计算。
 
 ### 51. biomaRt 基因ID转换和注释查询 (Bioconductor biomaRt)
 
-```moonbit
-// 创建 BioMart 数据集
-let mart = BioMartDataset::new(
-  "hsapiens_gene_ensembl",
-  "Human genes (GRCh38.p14)",
-  "https://www.ensembl.org/biomart/martservice",
-  "hsapiens_gene_ensembl"
-)
-
-// 添加基因 ID 映射
-let mart = mart.add_mapping("ENSG00000130203", "TP53")
-let mart = mart.add_mapping("ENSG00000141510", "BRCA1")
-
-// 添加基因注释
-let mart = mart.add_annotation("ENSG00000130203", [
-  ("gene_name", "TP53"),
-  ("description", "Tumor protein p53"),
-  ("chromosome", "17"),
-  ("start", "7661779"),
-  ("end", "7687550"),
-  ("strand", "-1"),
-  ("biotype", "protein_coding"),
-  ("hgnc_symbol", "TP53"),
-  ("uniprot", "P04637")
-])
-
-// 基因 ID 映射
-let mapping = mart.get_mapping("ENSG00000130203")
-if mapping is Some(_) {
-  mapping.unwrap()      // → "TP53"
-}
-
-// 批量 ID 映射
-let ids = ["ENSG00000130203", "ENSG00000141510"]
-let mappings = mart.map_ids(ids)
-mappings.length()       // → 2
-
-// 获取基因注释
-let desc = mart.get_gene_description("ENSG00000130203")
-if desc is Some(_) {
-  desc.unwrap()         // → "Tumor protein p53"
-}
-
-// 获取染色体位置
-let chr = mart.get_chromosome("ENSG00000130203")
-if chr is Some(_) {
-  chr.unwrap()          // → "17"
-}
-
-// 获取外部数据库 ID
-let uniprot = mart.get_external_db("ENSG00000130203", "uniprot")
-if uniprot is Some(_) {
-  uniprot.unwrap()      // → "P04637"
-}
-
-// 批量查询
-let query_ids = ["ENSG00000130203", "ENSG00000141510"]
-let attributes = ["gene_name", "chromosome", "biotype"]
-let results = mart.query(query_ids, attributes)
-results.length()        // → 3 (header + 2 rows)
-```
+提供基因 ID 映射和注释查询功能，支持 Ensembl 基因 ID 到基因名称的映射、批量 ID 映射和基因注释查询（描述、染色体位置、生物类型、外部数据库 ID）。支持批量查询功能，便于大规模基因注释的获取。
 
 ### 52. RUVSeq RNA-seq批次效应去除 (Bioconductor RUVSeq)
 
-```moonbit
-// 创建 RUVSeq 数据对象
-let counts : Array[Array[Double]] = [
-  [100.0, 120.0, 110.0, 200.0, 220.0, 210.0],
-  [50.0, 60.0, 55.0, 100.0, 110.0, 105.0],
-  [10.0, 15.0, 12.0, 80.0, 90.0, 85.0]
-]
-let genes = ["GeneA", "GeneB", "GeneC"]
-let samples = ["S1", "S2", "S3", "S4", "S5", "S6"]
-let batch = ["Batch1", "Batch1", "Batch1", "Batch2", "Batch2", "Batch2"]
-
-let data = RUVSeqData::new(counts, genes, samples, batch)
-
-// 数据标准化
-let normalized = data.normalize()
-normalized.normalized     // → true
-
-// Log2 转换
-let log_data = data.log2_transform()
-
-// RUVg (使用对照基因估计批次效应因子)
-let control_genes = ["GeneA", "GeneB"]
-let k_factors = 1
-let ruvg_factors = ruvg(data, control_genes, k_factors)
-ruvg_factors.k            // → 1
-
-// RUVs (使用所有基因估计批次效应因子)
-let ruvs_factors = ruvs(data, k_factors)
-ruvs_factors.k            // → 1
-
-// 去除批次效应
-let corrected = remove_batch_effect(data, ruvg_factors)
-corrected.genes.length()  // → 3
-corrected.samples.length() // → 6
-
-// 获取基因索引
-let gene_idx = data.get_gene_index("GeneA")
-if gene_idx is Some(_) {
-  gene_idx.unwrap()       // → 0
-}
-```
+实现 RNA-seq 数据的批次效应去除，支持数据标准化、log2 转换、RUVg（使用对照基因估计批次效应因子）和 RUVs（使用所有基因估计批次效应因子）方法。支持批次效应的去除和基因索引的获取。
 
 ### 53. PDB 高级结构分析 (Bio.PDB.Polypeptide / DSSP)
 
-```moonbit
-// 创建演示蛋白质结构
-let s = create_demo_structure()
-
-// 计算主链二面角 (phi, psi, omega)
-let model = s.find_model(0).unwrap()
-let chain = model.find_chain('A').unwrap()
-let dihedrals = calc_chain_dihedrals(chain)
-// → [(1, None, Some(psi1), None), (2, Some(phi2), Some(psi2), Some(omega2)), ...]
-
-// 计算四原子二面角
-let a = Vector3::new(0.0, 0.0, 0.0)
-let b = Vector3::new(1.0, 0.0, 0.0)
-let c = Vector3::new(1.0, 1.0, 0.0)
-let d = Vector3::new(1.0, 1.0, 1.0)
-let angle = calc_dihedral(a, b, c, d)  // → -90.0 (degrees)
-
-// CA 原子距离矩阵
-let matrix = calc_ca_distance_matrix(chain)
-matrix[0][0]  // → 0.0 (对角线)
-matrix[0][1]  // → CA-CA 距离
-
-// 接触图 (8 Å 阈值)
-let contact = calc_contact_map(chain, threshold=8.0)
-contact[0][1]  // → true/false
-
-// 氢键检测
-let hbonds = detect_hydrogen_bonds(chain, max_dist=3.5, min_angle=90.0)
-hbonds.length()  // → 检测到的氢键数量
-
-// 二级结构分配 (DSSP-style)
-let ss = assign_secondary_structure(chain)
-// → [(1, Coil), (2, Turn), (3, ExtendedStrand), (4, Coil)]
-
-// 二级结构统计
-let counts = count_secondary_structure(ss)
-counts.get("H")  // → Some(0) (AlphaHelix 数量)
-counts.get("E")  // → Some(1) (ExtendedStrand 数量)
-
-// 回转半径
-let rg = calc_radius_of_gyration(chain)
-rg.unwrap()  // → ~3.6 Å
-
-// Ramachandran 图数据
-let plot = ramachandran_plot(chain)
-// → [(2, "GLY", phi2, psi2), (3, "VAL", phi3, psi3)]
-
-// Ramachandran 区域分类
-classify_ramachandran(-60.0, -45.0)  // → Favored
-classify_ramachandran(-120.0, 130.0) // → Favored
-classify_ramachandran(60.0, 30.0)    // → Allowed
-```
+提供蛋白质结构的高级分析功能，包括主链二面角计算（phi、psi、omega）、四原子二面角计算、CA 原子距离矩阵和接触图生成。支持氢键检测、二级结构分配（DSSP-style）、二级结构统计、回转半径计算和 Ramachandran 图数据生成。
 
 ### 54. 系统发育树高级分析 (Bio.Phylo.TreeMetrics)
 
-```moonbit
-// 创建演示树: ((A:1, B:1):0.5, (C:1, D:1):0.5)
-let tree = create_demo_tree()
-let tree2 = create_demo_tree2()  // ((A:1, C:1):0.5, (B:1, D:1):0.5)
-
-// 总分支长度
-tree.total_branch_length()  // → 5.0
-
-// 最大深度
-tree.max_depth()  // → 1.5
-
-// 叶节点名称
-let leaves = tree.get_root().get_leaf_names()
-// → ["A", "B", "C", "D"]
-
-// Colless 平衡指数 (0 = 完全平衡)
-tree.colless_index()  // → 0
-
-// 系统发生距离 (沿路径的分支长度之和)
-let dist = tree.patristic_distance("A", "B")
-dist.unwrap()  // → 2.0
-
-let dist2 = tree.patristic_distance("A", "C")
-dist2.unwrap()  // → 3.0
-
-// 系统发生距离矩阵
-let matrix = tree.patristic_distance_matrix()
-// → [("A", "B", 2.0), ("A", "C", 3.0), ("A", "D", 3.0), ("B", "C", 3.0), ...]
-
-// 内部节点计数
-tree.count_internal()  // → 3
-
-// 二分体 (bipartitions)
-let biparts = tree.get_root().get_bipartitions()
-// → [(["A","B"], ["C","D"]), (["A"], ["B","C","D"]), ...]
-
-// Robinson-Foulds 距离 (树拓扑差异度量)
-let rf_same = robinson_foulds_distance(tree, tree)   // → 0 (相同拓扑)
-let rf_diff = robinson_foulds_distance(tree, tree2)   // → > 0 (不同拓扑)
-```
+提供系统发育树的高级分析功能，包括总分支长度计算、最大深度计算、叶节点名称获取和 Colless 平衡指数计算。支持系统发生距离计算（沿路径的分支长度之和）、距离矩阵生成、内部节点计数、二分体获取和 Robinson-Foulds 距离计算（树拓扑差异度量）。
 
 ### 55. 序列复杂度与组成分析 (Bio.SeqUtils.Complexity)
 
-```moonbit
-// Shannon 熵 (bits)
-shannon_entropy_bits("ATCGATCG")  // → ~2.0 (高复杂度)
-shannon_entropy_bits("AAAAAAAA")  // → 0.0 (零复杂度)
-
-// 语言学复杂度 (observed/max k-mers)
-linguistic_complexity("ATCGATCG", k=2)  // → > 0.5
-linguistic_complexity("ATATATAT", k=2)  // → < above
-
-// GC/AT 含量
-gc_content_percent("GCGCGCGC")  // → 100.0
-gc_content_percent("ATCGATCG") // → 50.0
-at_content("ATATATAT")         // → 100.0
-
-// GC/AT 偏斜
-gc_skew("GGGGCC")  // → 0.33 (G > C)
-gc_skew("CCCCGG")  // → -0.33 (C > G)
-at_skew("AAAATT")  // → 0.33 (A > T)
-
-// DUST 低复杂度评分 (越高越低复杂度)
-dust_score("ATGATGATGATG")  // → 重复序列，高 DUST 分数
-dust_score("ATCGATCGATCG") // → 多样序列，较低 DUST 分数
-
-// 序列签名 (k-mer 频率向量)
-let sig = sequence_signature("ATCG", k=2)
-sig.size()      // → 3 (AT, TC, CG)
-sig.get("AT")    // → Some(0.333...)
-
-// 核苷酸组成
-let (a, t, g, c) = nucleotide_frequencies("ATCG")
-// → (0.25, 0.25, 0.25, 0.25)
-
-// 混沌游戏表示 (CGR)
-let (x, y) = chaos_game_representation("AAAA")
-// → (0.0625, 0.0625) — 接近 A 角
-
-let (x2, y2) = chaos_game_representation("GGGG")
-// → (0.9375, 0.9375) — 接近 G 角
-
-// 序列相似度 (余弦相似度)
-sequence_similarity("ATCGATCG", "ATCGATCG", k=2)  // → ~1.0 (完全相同)
-sequence_similarity("ATCGATCG", "GCTAGCTA", k=2)  // → < 1.0 (不同)
-```
+提供序列复杂度和组成的分析功能，包括 Shannon 熵计算、语言学复杂度（observed/max k-mers）、GC/AT 含量计算、GC/AT 偏斜分析和 DUST 低复杂度评分。支持序列签名（k-mer 频率向量）、核苷酸组成分析、混沌游戏表示（CGR）和序列相似度计算（余弦相似度）。
 
 ### 56. AlignInfo 比对统计 (Bio.Align.AlignInfo)
 
-```moonbit
-// 多序列比对统计
-let seqs = [
-  "ATCGATCGATCG",
-  "ATGGATCGATCG",
-  "ATCGATCGATCA",
-  "ATCGATCGATCG",
-]
-
-// 生成一致性序列
-let consensus = alignment_consensus(seqs)  // → "ATCGATCGATCG"
-
-// 生成多数序列 (>=50% 共识)
-let majority = majority_sequence(seqs)    // → "ATCGATCGATCG"
-
-// 生成严格一致性序列 (100% 保守)
-let strict = strict_consensus(seqs)       // → "ATNGATCGATCN"
-
-// 保守性分析
-let profile = conservation_profile(seqs)
-// profile[0] → 1.0 (完全保守)
-// profile[2] → 0.75 (有变异)
-
-// Shannon 熵谱
-let entropy = entropy_profile(seqs)
-// entropy[0] → 0.0 (无变异)
-// entropy[2] → 0.81 (高变异)
-
-// 成对序列同一性
-let identity = pairwise_identity(seqs)
-// → [("seq0", "seq1", 91.67), ("seq0", "seq2", 91.67), ...]
-
-// 查找保守位点 (>=80% 保守)
-let conserved = find_conserved_positions(seqs, min_conservation=0.8)
-// → [(0, 'A', 1.0), (1, 'T', 1.0), ...]
-
-// 查找可变位点 (<=50% 保守)
-let variable = find_variable_positions(seqs, max_conservation=0.5)
-// → [(2, 0.81), (11, 0.81)]
-```
+提供多序列比对的统计功能，包括一致性序列生成、多数序列生成（>=50% 共识）和严格一致性序列生成（100% 保守）。支持保守性分析、Shannon 熵谱计算、成对序列同一性计算、保守位点查找（>=80% 保守）和可变位点查找（<=50% 保守）。
 
 ### 57. CodonAlign 密码子比对与选择压力分析 (Bio.codonalign)
 
-```moonbit
-// 密码子翻译 (NCBI table 1)
-let aa = codon_to_aa("ATG")  // → "M" (甲硫氨酸)
-let aa2 = codon_to_aa("TAA") // → "*" (终止密码子)
-
-// 密码子替换分类
-let sub = classify_codon_substitution("TCT", "TCC")  // → Synonymous (同义)
-let sub2 = classify_codon_substitution("TCT", "TTT") // → NonSynonymous (非同义)
-
-// 计算密码子替换数
-let counts = count_codon_substitutions("ATGTCTGAA", "ATGTCCGAA")
-// counts.synonymous, counts.nonsynonymous, counts.total
-
-// dN/dS 选择压力分析 (Nei-Gojobori 方法)
-let seq1 = "ATGTCTGAAGTGGAA"
-let seq2 = "ATGTCCGAAGTGGAA"
-let dnds = calc_dnds_nei_gojobori(seq1, seq2)
-// dnds.dn     → 非同义替换率
-// dnds.ds     → 同义替换率
-// dnds.dnds   → dN/dS 比值 (<1 纯化选择, =1 中性, >1 正选择)
-
-// Jukes-Cantor 多重命中校正
-let d = jukes_cantor_correction(0.1)  // → 0.107...
-
-// 密码子使用偏好 (RSCU)
-let bias = codon_usage_bias(seq1)
-// bias["ATG"] → 1.0 (均匀使用)
-
-// 有效密码子数 (ENC)
-let enc = effective_number_of_codons(seq1)
-// ENC 越低，密码子使用偏好越强
-
-// 同义/非同义位点计数
-let (s_sites, ns_sites) = total_codon_sites(seq1)
-```
+提供密码子比对和选择压力分析功能，包括密码子翻译、密码子替换分类（同义/非同义）、替换数计数和 dN/dS 选择压力分析（Nei-Gojobori 方法）。支持 Jukes-Cantor 多重命中校正、密码子使用偏好（RSCU）、有效密码子数（ENC）计算和同义/非同义位点计数。
 
 ### 58. Entrez NCBI 数据库访问 (Bio.Entrez)
 
-```moonbit
-// ESearch - 搜索 PubMed 数据库
-let results = esearch(entrez_db_pubmed(), "CRISPR")
-// → [SearchResult(id="37566892", title="CRISPR-Cas9...", score=98.5), ...]
-
-// EFetch - 获取完整记录
-let xml = efetch(entrez_db_pubmed(), "37566892")
-// → "<PubmedArticle><PMID>37566892</PMID>..."
-
-// 解析 PubMed 文章
-match parse_pubmed(xml) {
-  Some(article) =>
-    // article.pmid, article.title, article.journal, ...
-  None => // 解析失败
-}
-
-// 搜索 Gene 数据库
-let gene_results = esearch(entrez_db_gene(), "TP53")
-
-// 获取并解析 Gene 记录
-let gene_xml = efetch(entrez_db_gene(), "7157")
-match parse_gene(gene_xml) {
-  Some(gene) =>
-    // gene.gene_id, gene.symbol, gene.chromosome, ...
-  None => // 解析失败
-}
-
-// 获取基因信息 (模拟)
-match get_gene_info("TP53") {
-  Some(gene) => // gene.gene_id, gene.symbol, ...
-  None => // 未找到
-}
-
-// 获取分类学信息 (模拟)
-match get_taxonomy("Homo sapiens") {
-  Some(tax) =>
-    // tax.tax_id, tax.scientific_name, tax.lineage, ...
-  None => // 未找到
-}
-
-// EGQuery - 全局查询
-let global = egquery("cancer")
-// → [("pubmed", 15000), ("nuccore", 30000), ...]
-
-// EInfo - 数据库信息
-let info = einfo()
-// → {"pubmed": "PubMed bibliographic records", ...}
-```
+提供 NCBI 数据库的访问功能，包括 ESearch（搜索 PubMed、Gene 等数据库）、EFetch（获取完整记录）、EGQuery（全局查询）和 EInfo（数据库信息）。支持 PubMed 文章和 Gene 记录的解析，以及基因信息和分类学信息的获取。
 
 ### 59. GenomeInfoDb 基因组信息管理 (Bioconductor GenomeInfoDb)
 
-```moonbit
-// 加载预构建的人类基因组 hg38
-let hg38 = genome_hg38()
-// 25 条染色体 (1-22, X, Y, M)，含着丝粒位置
-
-// 获取所有染色体名称
-let names = GenomeInfoDb::seqnames(hg38)
-// → ["chr1", "chr2", ..., "chrM"]
-
-// 查询染色体长度
-match GenomeInfoDb::seqLength(hg38, "chr1") {
-  Some(len) => // len = 248956422
-  None => // 未找到
-}
-
-// 检查染色体是否为环形
-match GenomeInfoDb::is_circular(hg38, "chrM") {
-  Some(c) => // c = true (线粒体为环形)
-  None => // 未找到
-}
-
-// 获取着丝粒位置
-match GenomeInfoDb::centromere(hg38, "chr1") {
-  Some(c) => // c.start = 121535434, c.end = 124595842
-  None => // 无着丝粒数据
-}
-
-// 获取染色体臂 (p 短臂 / q 长臂 / centromere 着丝粒)
-let arm = GenomeInfoDb::get_arm(hg38, "chr1", 1000000)
-// → "p" (短臂)
-
-// 区分标准染色体和非标准染色体
-let std = GenomeInfoDb::standard_chromosomes(hg38)
-// → ["chr1", "chr2", ..., "chrM"] (排除 _random, _alt, Un 等)
-
-// 通过基因组构建查询物种
-let organism = organism_from_build("hg38")
-// → "Homo sapiens"
-
-// 获取支持的基因组构建
-let builds = supported_genome_builds()
-// → ["hg38", "hg19", "mm10", "mm9", "rn6", "danRer11", "dm6", "ce11"]
-
-// 构建自定义基因组
-let custom = GenomeInfoDb::new(genome_build="custom", organism="Test")
-  .add_chrom("chr1", 5000000)
-  .add_chrom("chr2", 4000000)
-  .add_chrom("chrM", 16000, is_circular=true)
-
-// 按模式过滤染色体
-let chr1_like = GenomeInfoDb::filter_chromosomes(hg38, "chr1")
-// → ["chr1", "chr10", "chr11", ..., "chr19"]
-
-// 加载其他预构建基因组
-let hg19 = genome_hg19()  // 人类 hg19
-let mm10 = genome_mm10()  // 小鼠 mm10
-```
+提供基因组信息的管理功能，支持预构建基因组（hg38、hg19、mm10 等）的加载和访问。可以获取染色体名称、长度、着丝粒位置和染色体臂信息（p 短臂 / q 长臂）。支持标准染色体筛选、基因组构建查询和自定义基因组构建。
 
 ### 60. InteractionSet 染色质交互数据 (Bioconductor InteractionSet)
 
-```moonbit
-// 创建锚点 (基因组区域)
-let a1 = Anchor::new(chrom="chr1", start=10000, end=20000)
-let a2 = Anchor::new(chrom="chr1", start=50000, end=60000)
-let a3 = Anchor::new(chrom="chr2", start=10000, end=20000)
-
-// 检查锚点重叠
-let overlap = anchors_overlap(a1, a2)
-// → false (chr1:10000-20000 与 chr1:50000-60000 不重叠)
-
-// 创建染色质交互 (Hi-C interaction pair)
-let i1 = GInteraction::new(anchor1=a1, anchor2=a2, count=25)
-let i2 = GInteraction::new(anchor1=a1, anchor2=a3, count=10)
-
-// 计算交互距离 (仅同染色体)
-match GInteraction::distance(i1) {
-  Some(d) => // d = 40000 (两个锚点中心之间的距离)
-  None => // 不同染色体，无距离
-}
-
-// 检查是 intra 还是 inter 染色体交互
-let is_intra = GInteraction::is_intra_chromosomal(i1)
-// → true (chr1 <-> chr1)
-let is_inter = GInteraction::is_inter_chromosomal(i2)
-// → true (chr1 <-> chr2)
-
-// 创建交互集合
-let iset = InteractionSet::new(interactions=[i1, i2])
-let total = InteractionSet::total_count(iset)
-// → 35
-
-// 按计数过滤
-let filtered = InteractionSet::filter_by_count(iset, 20)
-// → 仅保留 count >= 20 的交互
-
-// 获取 intra/inter 染色体交互
-let intra = InteractionSet::intra_chromosomal(iset)
-let inter = InteractionSet::inter_chromosomal(iset)
-
-// 获取特定染色体上的交互
-let on_chr1 = InteractionSet::interactions_on_chrom(iset, "chr1")
-
-// 构建交互矩阵 (染色体 x 染色体)
-let matrix = InteractionSet::interaction_matrix(iset, ["chr1", "chr2"])
-// → [[25, 10], [10, 0]]
-
-// 距离分布
-let dist = InteractionSet::distance_distribution(iset, 10000)
-// → [(0, 1), (40000, 1)] (距离区间和交互数)
-
-// Top N 交互
-let top = InteractionSet::top_interactions(iset, 2)
-
-// Inter 染色体交互比例
-let frac = InteractionSet::inter_fraction(iset)
-// → 0.5
-
-// 从 Hi-C 矩阵创建交互
-let bins = [(0, 1000), (1000, 2000), (2000, 3000)]
-let counts = [[5, 3, 0], [3, 8, 2], [0, 2, 6]]
-let binned = create_binned_interactions("chr1", bins, counts)
-```
+提供染色质交互数据的管理功能，支持锚点对（Anchor）和交互集合（GInteraction）的创建与操作。可以构建 Hi-C 交互矩阵、计算交互距离分布和提取 Top 交互。支持交互数据的子集操作和样本级别的交互分析。
 
 ### 61. MultiAssayExperiment 多组学数据协调 (Bioconductor MultiAssayExperiment)
 
-```moonbit
-// 从多个数据源创建多组学实验
-let rna_counts = [[10.0, 20.0, 30.0], [50.0, 60.0, 70.0]]
-let rna_genes = ["TP53", "BRCA1"]
-let rna_samples = ["rna_s1", "rna_s2", "rna_s3"]
-let chip_scores = [[1.5, 2.5]]
-let chip_peaks = ["peak1"]
-let chip_samples = ["chip_s1", "chip_s2"]
-let sample_ids = ["patient1", "patient2", "patient3"]
+提供多组学实验数据的协调管理功能，支持多个实验（Experiment）的组织和样本映射（SampleMap）。可以建立跨实验的样本对应关系，执行跨实验子集操作和数据整合。适用于多组学数据（如基因组、转录组、蛋白质组）的联合分析。
 
-let mae = create_multi_omics(
-  rna_counts, rna_genes, rna_samples,
-  chip_scores, chip_peaks, chip_samples,
-  sample_ids,
-)
-// → 包含 RNA-seq 和 ChIP-seq 两个实验
+### 62. TreeConstruction 系统发育树构建 (Bio.Phylo.TreeConstruction)
 
-// 获取所有实验名称
-let names = MultiAssayExperiment::experiment_names(mae)
-// → ["RNA-seq", "ChIP-seq"]
+提供基于距离矩阵的系统发育树构建功能，支持 UPGMA、WPGMA 和 NJ（邻接法）三种算法。支持距离计算（Jukes-Cantor、Kimura 替换模型）和树的构建，适用于分子进化和系统发育分析。
 
-// 获取特定实验
-match MultiAssayExperiment::get_experiment(mae, "RNA-seq") {
-  Some(exp) => // exp.data, exp.row_names, exp.col_names
-  None => // 未找到
-}
+### 63. NeighborSearch KD树近邻搜索 (Bio.PDB.NeighborSearch)
 
-// 获取实验维度
-let dims = MultiAssayExperiment::dims(mae)
-// → [("RNA-seq", 2, 3), ("ChIP-seq", 1, 2)]
+实现基于 KD 树的空间搜索算法，支持半径搜索、最近邻查找和原子对搜索。可以在蛋白质结构中快速查找距离在指定范围内的原子，适用于蛋白质结构分析和分子对接研究。
 
-// 获取 assay 数据
-match MultiAssayExperiment::assay(mae, "RNA-seq") {
-  Some(data) => // data = [[10.0, 20.0, 30.0], [50.0, 60.0, 70.0]]
-  None => // 未找到
-}
+### 64. SwissProt 蛋白数据库解析 (Bio.SwissProt)
 
-// 查找跨实验共有样本
-let common = MultiAssayExperiment::common_samples(mae)
+支持 Swiss-Prot/UniProt 蛋白质数据库记录的解析，包括特征注释、参考文献、关键词和序列信息的提取。可以获取蛋白质的完整信息，适用于蛋白质功能注释和数据库查询。
 
-// 按实验名子集
-let subset_exp = MultiAssayExperiment::subset_by_experiment(mae, ["RNA-seq"])
+### 65. mmCIF 格式解析 (Bio.PDB.MMCIFParser)
 
-// 按样本子集
-let subset_sample = MultiAssayExperiment::subset_by_sample(mae, ["patient1"])
+支持 mmCIF（macromolecular Crystallographic Information File）格式的解析，包括数据块（DataBlock）、类别（Category）和原子位点的提取。可以获取蛋白质结构的完整信息，适用于结构生物学研究。
 
-// 添加元数据
-let mae2 = MultiAssayExperiment::add_metadata(mae, "study", "TCGA-BRCA")
-match MultiAssayExperiment::get_metadata(mae2, "study") {
-  Some(v) => // v = "TCGA-BRCA"
-  None => // 未找到
-}
+### 66. Nexus 格式解析 (Bio.Nexus)
 
-// 获取样本的列数据 (临床信息等)
-match MultiAssayExperiment::sample_col_data(mae, "patient1") {
-  Some(d) => // Map[String, String] of metadata
-  None => // 未找到
-}
+支持 NEXUS 格式的解析，包括数据矩阵、系统发育树、距离矩阵和分类单元的提取。可以获取系统发育分析所需的完整数据，适用于进化生物学研究。
 
-// 手动构建 MultiAssayExperiment
-let rna_exp = Experiment::new(
-  name="RNA-seq", assay_type="counts",
-  data=[[100.0, 200.0]], row_names=["GAPDH"], col_names=["s1", "s2"],
-)
-let sm = SampleMap::new(
-  assays=["RNA-seq", "RNA-seq"],
-  primary_ids=["p1", "p2"],
-  colnames=["s1", "s2"],
-)
-let col_data : Array[(String, Map[String, String])] = [
-  ("p1", Map([("tissue", "tumor")])),
-  ("p2", Map([("tissue", "normal")])),
-]
-let custom_mae = MultiAssayExperiment::new(
-  experiments=[rna_exp], sample_map=sm, col_data~,
-)
-```
+### 67. EMBOSS 工具接口 (EMBOSS suite)
 
-### 62. TreeConstruction 系统发育树构建 (Biopython Bio.Phylo.TreeConstruction)
+提供 EMBOSS 生物信息学工具包的接口功能，包括 GC 偏斜、AT 偏斜、分子量计算、Tm 值计算、反向互补、翻译、ORF 查找、Hamming/Levenshtein 距离计算、k-mer 计数、等电点、脂肪族指数、GRAVY 评分、不稳定指数和氨基酸组成分析。
 
-```moonbit
-// 创建距离计算器（支持多种替换模型）
-let calc_ident = DistanceCalculator::new()                    // identity模型（默认）
-let calc_jc = DistanceCalculator::new(model="jukes_cantor")   // Jukes-Cantor模型
-let calc_kimura = DistanceCalculator::new(model="kimura")     // Kimura 2-parameter模型
+### 68. CRAM 格式解析 (pysam)
 
-// 计算两条序列的距离
-let seq1 = "ACGTACGTACGTACGT"
-let seq2 = "ACGTACGTACGTAATT"
-let dist = calc_jc.pairwise(seq1, seq2)
-
-// 从多条序列构建距离矩阵
-let sequences = [
-  ("seq1", "ACGTACGTACGTACGT"),
-  ("seq2", "ACGTACGTACGTAATT"),
-  ("seq3", "ACGTACGTAAAAAATT"),
-  ("seq4", "TTTTACGTACGTACGT"),
-]
-let matrix = calc_ident.get_distance(sequences)
-
-// UPGMA 建树（算术平均不加权组对法）
-let names = ["seq1", "seq2", "seq3", "seq4"]
-let upgma_cons = TreeConstructor::new(tree_method="upgma")
-let upgma_tree = upgma_cons.build_tree(matrix, names)
-upgma_tree.count_terminals()   // 叶子节点数
-
-// WPGMA 建树（算术平均加权组对法）
-let wpgma_cons = TreeConstructor::new(tree_method="wpgma")
-let wpgma_tree = wpgma_cons.build_tree(matrix, names)
-
-// Neighbor-Joining (NJ) 建树
-let nj_cons = TreeConstructor::new(tree_method="nj")
-let nj_tree = nj_cons.build_tree(matrix, names)
-```
-
-### 63. NeighborSearch KD树近邻搜索 (Biopython Bio.PDB.NeighborSearch)
-
-```moonbit
-// 创建原子列表
-let atoms = [
-  Atom::new(name="CA", coord=Vector3::new(0.0, 0.0, 0.0), resname="ALA"),
-  Atom::new(name="CB", coord=Vector3::new(1.5, 0.0, 0.0), resname="ALA"),
-  Atom::new(name="CG", coord=Vector3::new(2.5, 0.5, 0.0), resname="VAL"),
-  Atom::new(name="CA", coord=Vector3::new(5.0, 0.0, 0.0), resname="GLY"),
-]
-
-// 构建KD树近邻搜索
-let ns = NeighborSearch::new(atoms)
-ns.size()   // 原子数量
-
-// 半径搜索（查找指定范围内的所有原子）
-let center = Vector3::new(0.0, 0.0, 0.0)
-let radius = 3.0
-let neighbors = ns.search(center, radius)
-
-// 基于原子的半径搜索
-let atom0 = atoms[0]
-let atom_neighbors = ns.search_atom(atom0, 4.0)
-
-// 最近邻搜索
-let query = Vector3::new(3.0, 0.0, 0.0)
-let nearest = ns.nearest(query)
-match nearest {
-  Some(a) => println("Nearest: \{a.name}")
-  None => println("No atoms found")
-}
-
-// 查找指定距离内的所有原子对
-let pairs = ns.search_all(2.5)
-for (a, b) in pairs {
-  let d = a.distance(b)
-  println("\{a.name} - \{b.name}: \{d} A")
-}
-```
-
-### 64. SwissProt 蛋白数据库解析 (Biopython Bio.SwissProt)
-
-```moonbit
-// 从UniProt flat file解析记录
-let record = parse_swissprot(uniprot_text)?
-
-// 基本信息
-record.entry_name               // 条目名称
-record.protein_name             // 蛋白质名称
-record.seq_length               // 序列长度
-record.seq_mass                 // 分子量 (Da)
-record.sequence                 // 氨基酸序列
-record.organism                 // 物种名称
-record.organism_id              // NCBI分类ID
-
-// 登录号
-record.accession_numbers        // 所有登录号
-record.primary_accession()      // 主要登录号
-
-// 基因信息
-record.gene_names               // 基因名称列表
-record.primary_gene()           // 主要基因名称
-
-// 分类学
-record.taxonomy                 // 分类学谱系
-
-// 功能与定位
-record.function                 // 功能描述
-record.subcellular_location     // 亚细胞定位
-record.tissue_specificity       // 组织特异性
-
-// 关键词与EC号
-record.keywords                 // 关键词列表
-record.ec_numbers               // EC酶编号
-
-// 特征注释
-record.features.length()        // 特征总数
-let domains = record.get_features("DOMAIN")    // 获取结构域特征
-let act_sites = record.get_features("ACT_SITE") // 获取活性位点特征
-let binding = record.get_features("BINDING")    // 获取结合位点特征
-for f in domains {
-  f.description                 // 特征描述
-  f.start                       // 起始位置
-  f.end                         // 结束位置
-}
-
-// 参考文献
-record.references               // 参考文献列表
-for r in record.references {
-  r.number                      // 文献编号
-  r.title                       // 标题
-  r.authors                     // 作者列表
-  r.journal                     // 期刊
-  r.pubmed_id                   // PubMed ID
-  r.doi                         // DOI
-}
-
-// 示例记录（用于演示）
-let sample = sample_swissprot_record()
-```
-
-### 65. fgsea 快速基因集富集分析 (Bioconductor fgsea)
-
-```moonbit
-// 创建基因集
-let gene_set1 = GeneSet::new("PathwayA", ["Gene1", "Gene2", "Gene3", "Gene4", "Gene5"])
-let gene_set2 = GeneSet::new("PathwayB", ["Gene6", "Gene7", "Gene8"])
-
-// 基因排名统计 (基因名, 统计值)
-let stats = [
-  ("Gene1", 3.5), ("Gene2", 2.8), ("Gene3", 2.1),
-  ("Gene6", -2.5), ("Gene7", -1.8), ("Gene8", -1.2),
-  ("Gene4", 1.5), ("Gene5", 1.0), ("Gene9", 0.5)
-]
-
-// 运行 FGSEA (置换检验)
-let results = fgsea([gene_set1, gene_set2], stats, nperm = 1000)
-
-// 访问结果
-results[0].pathway          // → "PathwayA"
-results[0].es               // → 富集分数
-results[0].nes              // → 标准化富集分数
-results[0].pval             // → p 值
-results[0].padj             // → BH 校正后的 p 值
-results[0].size             // → 基因集大小
-results[0].leadingEdge      // → Leading Edge 基因列表
-
-// 基因排序
-let ranked = rank_genes(["Gene1", "Gene2", "Gene3"], [3.5, 2.8, -1.0])
-
-// 过滤显著结果
-let filtered = fgsea_filter(results, padj_cutoff = 0.05)
-
-// 获取上调/下调通路
-let top_up = fgsea_top_up(results, n = 5)
-let top_down = fgsea_top_down(results, n = 5)
-```
-
-### 66. sva 替代变量分析与ComBat批次校正 (Bioconductor sva)
-
-```moonbit
-// 表达矩阵 (基因 × 样本)
-let dat = [
-  [100.0, 120.0, 110.0, 200.0, 220.0, 210.0],
-  [50.0, 60.0, 55.0, 100.0, 110.0, 105.0],
-  [10.0, 15.0, 12.0, 80.0, 90.0, 85.0]
-]
-
-// 批次信息
-let batch = [0, 0, 0, 1, 1, 1]
-
-// ComBat 批次校正（经验贝叶斯方法）
-let combat_result = combat(dat, batch)
-combat_result.adjusted      // → 校正后的表达矩阵
-
-// 简单批次校正
-let simple_adj = combat_simple(dat, batch)
-
-// SVA 替代变量分析
-let mod = [
-  [1.0], [1.0], [1.0], [1.0], [1.0], [1.0]
-]
-let sva_result = sva(dat, mod, n_sv = 2)
-sva_result.n_sv             // → 替代变量数量
-sva_result.pprob_gam        // → 基因受影响概率
-```
-
-### 67. ballgown 转录组水平差异表达分析 (Bioconductor ballgown)
-
-```moonbit
-// 创建外显子和转录本
-let exon1 = BgExon::new("exon1", "chr1", 100, 200, [10.0, 12.0, 11.0, 20.0, 22.0, 21.0])
-let exon2 = BgExon::new("exon2", "chr1", 300, 400, [8.0, 9.0, 8.5, 18.0, 19.0, 18.5])
-let tx1 = BgTranscript::new("tx1", "GeneA", ["exon1", "exon2"], [18.0, 21.0, 19.5, 38.0, 41.0, 39.5])
-
-// 创建 Ballgown 对象
-let bg = Ballgown::new(
-  ["s1", "s2", "s3", "s4", "s5", "s6"],
-  [tx1],
-  [exon1, exon2],
-  []
-)
-
-// 获取 FPKM 矩阵
-let fpkm_mat = bg.get_fpkm_matrix()
-
-// 获取基因列表
-let gene_ids = bg.get_gene_ids()
-let gene_names = bg.get_gene_names()
-
-// 获取基因的转录本
-let txs = bg.get_gene_transcripts(gene_ids[0])
-
-// 转录本水平差异表达分析 (t检验)
-let group = [0, 0, 0, 1, 1, 1]
-let de_tx = stattest(bg, group, feature = "transcript")
-de_tx[0].feature_id         // → 转录本ID
-de_tx[0].log2_fc            // → log2 倍数变化
-de_tx[0].p_value            // → p 值
-de_tx[0].q_value            // → q 值
-de_tx[0].mean_fpkm          // → 平均 FPKM
-
-// 基因水平差异表达分析
-let de_gene = stattest(bg, group, feature = "gene")
-
-// 获取基因表达量
-let expr = gene_expression(bg, gene_ids[0])
-```
-
-### 68. mmCIF 格式解析 (Bio.PDB.MMCIFParser)
-
-```moonbit
-// 解析 mmCIF 内容
-let mmcif_content = "data_1ABC\n#\n_cell_length_a   50.0\n_cell_length_b   50.0\n_cell_length_c   50.0\n_atom_site.id 1\n_atom_site.type_symbol N\n_atom_site.label_atom_id N\n_atom_site.label_comp_id MET\n_atom_site.label_asym_id A\n_atom_site.label_seq_id 1\n_atom_site.Cartn_x 1.0\n_atom_site.Cartn_y 2.0\n_atom_site.Cartn_z 3.0\n"
-let block = parse_mmcif(mmcif_content)
-
-// 获取数据块名称
-block.name               // → "1ABC"
-
-// 获取原子位点
-let atom_sites = block.get_atom_sites()
-atom_sites.length()      // → 原子数量
-
-// 获取实体信息
-let entity_data = block.get_entity()
-
-// 获取结构信息
-let struct_data = block.get_struct()
-
-// 获取类别头
-let headers = block.get_category_headers("atom_site")
-
-// 获取类别数据行
-let rows = block.get_category_rows("atom_site")
-
-// 转换为 Atom 对象
-let atoms = block.to_atoms()
-atoms.length()           // → 原子数量
-```
-
-### 69. Nexus 格式解析 (Bio.Nexus)
-
-```moonbit
-// 解析 Nexus 内容
-let nexus_content = "#NEXUS\nBEGIN DATA;\nDIMENSIONS NTAX=4 NCHAR=10;\nFORMAT DATATYPE=DNA MISSING=N GAP=-;\nMATRIX\n  TaxonA  ACGTACGTAC\n  TaxonB  ACGTACGTAC\n  TaxonC  AGCTAGCTAG\n  TaxonD  AGCTAGCTAG\n;\nEND;\nBEGIN TREES;\nTREE tree1 = ((TaxonA:0.1,TaxonB:0.1):0.2,(TaxonC:0.1,TaxonD:0.1):0.2);\nEND;\n"
-let nf = parse_nexus(nexus_content)
-
-// 获取块数量
-nf.blocks.length()       // → 块数量
-
-// 获取分类单元
-nf.taxa.length()         // → 分类单元数量
-
-// 获取数据矩阵
-let matrix = nf.get_data_matrix()
-
-// 获取系统发育树
-let trees = nf.get_trees()
-trees.length()           // → 树数量
-
-// 获取距离矩阵
-let dist_matrix = nf.get_distance_matrix()
-
-// 获取分类单元数量
-nf.get_num_taxa()        // → 分类单元数量
-
-// 获取字符集
-let charset = nf.get_charset("codon1")
-```
-
-### 70. EMBOSS 工具接口 (EMBOSS suite)
-
-```moonbit
-// GC 偏斜
-let gc_skew_val = emboss_gc_skew("GGCC")    // → 0.0
-
-// AT 偏斜
-let at_skew_val = emboss_at_skew("AATT")    // → 0.0
-
-// DNA 分子量
-let mw = dna_molecular_weight("ATGC")       // → 分子量值
-
-// 简单 Tm 值
-let tm_s = tm_simple("ATGC")                // → 12.0
-
-// 最近邻法 Tm 值
-let tm_nn = tm_nearest_neighbor("ATGC")
-
-// 反向互补
-let rc = emboss_reverse_complement("ATGC")  // → "GCAT"
-
-// 翻译
-let protein = translate("ATG")              // → "M"
-
-// ORF 查找
-let orfs = find_orfs("ATGAAATAA", min_length = 3)
-orfs.length()            // → ORF 数量
-
-// Hamming 距离
-let hd = hamming_distance("ATGC", "ATGG")   // → 1
-
-// Levenshtein 距离
-let ld = levenshtein_distance("ATGC", "AGC") // → 1
-
-// k-mer 计数
-let kmers = emboss_count_kmers("ATGCAT", 2)
-
-// 等电点
-let pi = isoelectric_point("K")             // → 赖氨酸等电点
-
-// 脂肪族指数
-let ai = aliphatic_index("AVIL")
-
-// GRAVY 评分
-let gravy = gravy_score("AVIL")
-
-// 不稳定指数
-let ii = instability_index("AV")
-
-// 氨基酸组成
-let comp = emboss_amino_acid_composition("AVIL")
-```
+支持 CRAM 压缩二进制序列比对格式的解析，包括魔术数字检测、版本识别和压缩类型判断（Gzip、Bzip2、Lzma）。可以解析 CRAM 头部信息（参考序列、流信息、SAM 头部）和记录（比对位置、读取特征），支持 CRAM 到 BAM 的转换，便于与现有比对工具的互操作。
 
 
 ## 性能优化
