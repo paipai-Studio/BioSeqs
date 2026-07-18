@@ -15,6 +15,16 @@ pub let aa_polarity : Map[UInt16, Double]
 
 pub fn ace(Array[Int]) -> Double
 
+pub fn add_gene_info(AnnotationDb, GeneInfo) -> Unit
+
+pub fn add_go_terms(AnnotationDb, String, Array[AnnotationGOTerm]) -> Unit
+
+pub fn add_id_map(AnnotationDb, String, Map[String, String]) -> Unit
+
+pub fn add_kegg_terms(AnnotationDb, String, Array[AnnotationKEGGTerm]) -> Unit
+
+pub fn adjacency(WGCNAData, Double) -> WGCNAData
+
 pub fn adjust_p_values(Array[Double], String) -> Array[Double]
 
 pub fn affy_batch_from_matrix(Array[String], Array[Array[Array[Double]]], Array[String]) -> AffyBatch
@@ -49,6 +59,14 @@ pub fn amino_acid_composition(String) -> Map[UInt16, Double]
 
 pub fn anchors_overlap(Anchor, Anchor) -> Bool
 
+pub fn annotate_peaks(Array[(String, Int, Int)], TxDb) -> AnnotationResult
+
+pub fn annotation_dbi_columns(AnnotationDb) -> Array[String]
+
+pub fn annotation_dbi_get_gene_info(AnnotationDb, String) -> GeneInfo?
+
+pub fn annotation_dbi_keys(AnnotationDb) -> Array[String]
+
 pub fn assemble_sequences(Array[String], Int) -> String?
 
 pub fn assemble_single(String, Int) -> String?
@@ -82,6 +100,8 @@ pub fn bgzf_decompress(String) -> String raise BgzfError
 pub fn bh_correction(Array[Double]) -> Array[Double]
 
 pub fn blast_to_searchio(Array[BlastRecord]) -> Array[QueryResult]
+
+pub fn blockwise_modules(WGCNAData, Double, Int) -> WGCNAData
 
 pub fn blosum45() -> SubstitutionMatrix
 
@@ -233,7 +253,29 @@ pub fn count_secondary_structure(Array[(Int, SSType)]) -> Map[String, Int]
 
 pub fn coverage(GAlignments) -> Array[Coverage]
 
+pub fn cp_cnetplot(ClusterProfilerResult, Int) -> String
+
+pub fn cp_dotplot(ClusterProfilerResult, Int) -> String
+
+pub fn cp_enrich_generic(Array[String], Map[String, (String, Array[String])], Array[String], String, String) -> ClusterProfilerResult
+
+pub fn cp_enrich_go(Array[String], Map[String, (String, Array[String], String)], Array[String], String, String) -> ClusterProfilerResult
+
+pub fn cp_enrich_kegg(Array[String], Map[String, (String, Array[String])], Array[String], String) -> ClusterProfilerResult
+
+pub fn cp_enrich_map(ClusterProfilerResult) -> String
+
+pub fn cp_filter_results(ClusterProfilerResult, Double) -> ClusterProfilerResult
+
+pub fn cp_get_top_terms(ClusterProfilerResult, Int) -> Array[ClusterProfilerTerm]
+
+pub fn cp_pairwise_termsim(ClusterProfilerResult) -> Map[(String, String), Double]
+
+pub fn cp_simplify(ClusterProfilerResult, Double) -> ClusterProfilerResult
+
 pub fn crc32(String) -> Int
+
+pub fn create_annotation_db(String) -> AnnotationDb
 
 pub fn create_binned_interactions(String, Array[(Int, Int)], Array[Array[Int]]) -> InteractionSet
 
@@ -264,6 +306,8 @@ pub fn create_motif(String, Array[String]) -> Motif
 pub fn create_mouse_mart() -> BioMartDataset
 
 pub fn create_multi_omics(Array[Array[Double]], Array[String], Array[String], Array[Array[Double]], Array[String], Array[String], Array[String]) -> MultiAssayExperiment
+
+pub fn create_wgcna_data(Array[Array[Double]], Array[String], Array[String]) -> WGCNAData
 
 pub fn data_type_bool() -> DataType
 
@@ -361,6 +405,10 @@ pub fn emboss_gc_skew(String) -> Double
 
 pub fn emboss_reverse_complement(String) -> String
 
+pub fn enrich_disease(Array[String], Map[String, Array[String]], Array[String]) -> DOSEResult
+
+pub fn enrich_reactome(Array[String], Map[String, (String, Array[String], String)], Array[String]) -> ReactomeResult
+
 pub fn entrez_db_gene() -> EntrezDB
 
 pub fn entrez_db_nucleotide() -> EntrezDB
@@ -420,6 +468,8 @@ pub fn filter_cells(Array[Array[Double]], QCMetrics, Int, Int, Int, Double) -> A
 pub fn filter_enrichment(Array[GOEnrichmentResult], Double, Int) -> Array[GOEnrichmentResult]
 
 pub fn filter_low_expression(Ballgown, min_fpkm? : Double) -> Ballgown
+
+pub fn filter_results(DOSEResult, Double) -> DOSEResult
 
 pub fn find_conserved_positions(Array[String], min_conservation? : Double) -> Array[(Int, Char, Double)]
 
@@ -489,6 +539,8 @@ pub fn genome_mm10() -> GenomeInfoDb
 
 pub fn genotype_frequencies(Array[String]) -> Map[String, Double]
 
+pub fn get_annotation_statistics(AnnotationResult) -> Map[String, Double]
+
 pub fn get_author_count(MedlineRecord) -> Int
 
 pub fn get_enzyme_by_name(String) -> RestrictionEnzyme?
@@ -497,13 +549,21 @@ pub fn get_first_author(MedlineRecord) -> String
 
 pub fn get_gene_info(String, organism? : String) -> GeneRecord?
 
+pub fn get_go_annotations(AnnotationDb, Array[String]) -> Map[String, Array[AnnotationGOTerm]]
+
+pub fn get_kegg_annotations(AnnotationDb, Array[String]) -> Map[String, Array[AnnotationKEGGTerm]]
+
 pub fn get_leaf_count(TreeNode) -> Int
 
 pub fn get_leaves(TreeNode) -> Array[String]
 
 pub fn get_matrix(MatrixType) -> SubstitutionMatrix
 
+pub fn get_module_membership(WGCNAData) -> Array[GeneModuleInfo]
+
 pub fn get_node_count(TreeNode) -> Int
+
+pub fn get_promoter_annotations(AnnotationResult) -> Array[PeakAnnotation]
 
 pub fn get_publication_year(MedlineRecord) -> String
 
@@ -512,6 +572,10 @@ pub fn get_sequence(Alignment, String) -> String?
 pub fn get_standard_code() -> Map[String, Array[String]]
 
 pub fn get_taxonomy(String) -> TaxonomyRecord?
+
+pub fn get_top_pathways(ReactomeResult, Int) -> Array[ReactomePathway]
+
+pub fn get_top_terms(DOSEResult, Int) -> Array[DOSETerm]
 
 pub fn get_tree_depth(TreeNode) -> Double
 
@@ -557,6 +621,8 @@ pub fn granges_union(GRanges, GRanges) -> GRanges
 
 pub fn gravy_score(String) -> Double
 
+pub fn group_by_top_level(ReactomeResult) -> Map[String, Array[ReactomePathway]]
+
 pub fn hamming_distance(String, String) -> Int
 
 pub fn hardy_weinberg_test(Array[String]) -> Double
@@ -564,6 +630,8 @@ pub fn hardy_weinberg_test(Array[String]) -> Double
 pub fn has_abstract(MedlineRecord) -> Bool
 
 pub fn hclust_to_newick(ClusterResult, Array[String]) -> String
+
+pub fn head(AnnotationDb, Int) -> Array[GeneInfo]
 
 pub fn heterozygosity(Array[String]) -> Double
 
@@ -669,6 +737,8 @@ pub fn make_contrasts(Array[Array[Double]], Matrix) -> Matrix
 
 pub fn manhattan_distance(Array[Double], Array[Double]) -> Double
 
+pub fn map_ids(AnnotationDb, Array[String], String, String) -> Map[String, String]
+
 pub fn margalef_index(Array[Int]) -> Double
 
 pub fn mat_inverse(Matrix) -> Matrix
@@ -693,6 +763,10 @@ pub fn menhinick_index(Array[Int]) -> Double
 
 pub fn migrate_rate(Double, Int, Int) -> Double
 
+pub fn module_eigengenes(WGCNAData) -> Array[ModuleEigengene]
+
+pub fn module_trait_correlation(WGCNAData, Array[Array[Double]], Array[String]) -> Map[String, Map[String, Double]]
+
 pub fn molecular_weight(String) -> Double
 
 pub fn motif_consensus(Motif) -> String
@@ -700,6 +774,8 @@ pub fn motif_consensus(Motif) -> String
 pub fn motif_ic(Motif) -> Double
 
 pub fn motif_to_meme(Motif) -> String
+
+pub fn ncol(AnnotationDb) -> Int
 
 pub fn nearest(GRanges, GRanges) -> Array[Int]
 
@@ -716,6 +792,8 @@ pub fn needleman_wunsch_pam250(String, String, Double) -> NWResult
 pub fn needleman_wunsch_protein(String, String) -> NWResult
 
 pub fn needleman_wunsch_with_matrix(String, String, SubstitutionMatrix, Double) -> NWResult
+
+pub fn nrow(AnnotationDb) -> Int
 
 pub fn nuc_to_2bit(UInt16) -> Int
 
@@ -853,7 +931,11 @@ pub fn percent_identity(String, String) -> Double
 
 pub fn pf(Double, Double, Double) -> Double
 
+pub fn pick_soft_threshold(WGCNAData, Array[Double]) -> Double
+
 pub fn pileup(GAlignments, @hashmap.HashMap[String, String]) -> Array[PileupElement]
+
+pub fn plot_annotation(Map[String, Int]) -> String
 
 pub fn position_specific_features(String, Int) -> Array[Double]
 
@@ -884,6 +966,10 @@ pub fn ramachandran_generous() -> RamachandranRegion
 pub fn ramachandran_plot(Chain) -> Array[(Int, String, Double, Double)]
 
 pub fn rank_genes(Array[String], Array[Double]) -> Array[(String, Double)]
+
+pub fn reactome_filter_results(ReactomeResult, Double) -> ReactomeResult
+
+pub fn reactome_summarize_result(ReactomeResult) -> String
 
 pub fn remove_batch_effect(RUVSeqData, RUVFactors) -> RUVSeqData
 
@@ -960,6 +1046,8 @@ pub fn search_motif(Motif, String, Double) -> Array[MotifHit]
 pub fn secondary_structure_propensity(String) -> (Double, Double, Double)
 
 pub fn seguid(String) -> String
+
+pub fn select(AnnotationDb, Array[String], Array[String]) -> Array[Map[String, String]]
 
 pub fn select_genes_by_indices(Array[Array[Double]], Array[Int]) -> Array[Array[Double]]
 
@@ -1065,9 +1153,15 @@ pub fn substring(String, Int, Int) -> String
 
 pub fn suffix_array(String) -> Array[Int]
 
+pub fn summarize_db(AnnotationDb) -> String
+
 pub fn summarize_overlaps(GAlignments, GRanges, Array[String]) -> Array[OverlapSummary]
 
 pub fn summarize_probeset(ProbeSet, String) -> Array[Double]
+
+pub fn summarize_result(DOSEResult) -> String
+
+pub fn summarize_wgcna(WGCNAData) -> String
 
 pub fn summarized_experiment(Map[String, Array[Array[Double]]], Array[(String, Int, Int)], Array[Map[String, String]], Map[String, String]) -> SummarizedExperiment
 
@@ -1090,6 +1184,8 @@ pub fn tm_nn(String) -> Double
 pub fn tm_simple(String) -> Double
 
 pub fn tm_wallace(String) -> Double
+
+pub fn tom_similarity(WGCNAData) -> WGCNAData
 
 pub fn top_hits(QueryResult, Int, Double) -> Array[Hit]
 
@@ -1269,6 +1365,34 @@ pub struct Anchor {
 }
 pub fn Anchor::new(chrom~ : String, start~ : Int, end~ : Int) -> Self
 pub fn Anchor::width(Self) -> Int
+
+pub struct AnnotationDb {
+  gene_info : Map[String, GeneInfo]
+  id_maps : Map[String, Map[String, String]]
+  go_terms : Map[String, Array[AnnotationGOTerm]]
+  kegg_terms : Map[String, Array[AnnotationKEGGTerm]]
+  org_db : String
+}
+
+pub struct AnnotationGOTerm {
+  go_id : String
+  go_name : String
+  evidence_code : String
+  ontology : String
+}
+pub fn AnnotationGOTerm::new(String, String, String, String) -> Self
+
+pub struct AnnotationKEGGTerm {
+  kegg_id : String
+  kegg_name : String
+  pathway_type : String
+}
+pub fn AnnotationKEGGTerm::new(String, String, String) -> Self
+
+pub struct AnnotationResult {
+  annotations : Array[PeakAnnotation]
+  summary : Map[String, Int]
+}
 
 pub struct Atom {
   name : String
@@ -1670,6 +1794,26 @@ pub fn Clade::patristic_distance(Self, String, String) -> Double?
 pub fn Clade::patristic_distance_matrix(Self) -> Array[(String, String, Double)]
 pub fn Clade::total_branch_length(Self) -> Double
 
+pub struct ClusterProfilerResult {
+  terms : Array[ClusterProfilerTerm]
+  query_count : Int
+  background_count : Int
+  organism : String
+  keytype : String
+}
+
+pub struct ClusterProfilerTerm {
+  term_id : String
+  term_name : String
+  gene_count : Int
+  genes : Array[String]
+  p_value : Double
+  adjusted_p_value : Double
+  enrichment_score : Double
+  gene_ratio : Double
+  bg_ratio : Double
+}
+
 pub struct ClusterResult {
   clusters : Array[Array[Int]]
   distances : Array[Array[Double]]
@@ -1856,6 +2000,22 @@ pub fn DNA::length(Self) -> Int
 pub fn DNA::new(String) -> Self
 pub fn DNA::to_seq(Self) -> Seq
 pub fn DNA::to_string(Self) -> String
+
+pub struct DOSEResult {
+  terms : Array[DOSETerm]
+  background_count : Int
+  query_count : Int
+}
+
+pub struct DOSETerm {
+  term_id : String
+  term_name : String
+  gene_count : Int
+  genes : Array[String]
+  p_value : Double
+  adjusted_p_value : Double
+  enrichment_score : Double
+}
 
 pub struct DataFrame {
   columns : Array[Column]
@@ -2130,6 +2290,26 @@ pub struct Gene {
   strand : Strand
 }
 pub fn Gene::new(String, String, Int, Int, Strand) -> Self
+
+pub struct GeneInfo {
+  gene_id : String
+  symbol : String
+  description : String
+  chr : String
+  start : Int
+  end : Int
+  strand : String
+  biotype : String
+}
+pub fn GeneInfo::new(String, String, String, String, Int, Int, String, String) -> Self
+
+pub struct GeneModuleInfo {
+  gene_name : String
+  module_name : String
+  module_color : String
+  kme : Double
+  connectivity : Double
+}
 
 pub struct GeneRecord {
   gene_id : String
@@ -2445,6 +2625,12 @@ pub fn Model::get_num_chains(Self) -> Int
 pub fn Model::get_residues(Self) -> Array[Residue]
 pub fn Model::new(id~ : Int, chains? : Array[Chain]) -> Self
 
+pub struct ModuleEigengene {
+  module_name : String
+  eigengene : Array[Double]
+  variance_explained : Double
+}
+
 pub struct Motif {
   name : String
   pwm : Array[Array[Double]]
@@ -2618,6 +2804,17 @@ pub struct OverlapSummary {
 }
 pub fn OverlapSummary::new(String, Int, Int, Double, Double) -> Self
 
+pub struct PeakAnnotation {
+  peak_id : String
+  chr : String
+  start : Int
+  end : Int
+  annotation : String
+  gene_name : String
+  distance_to_tss : Int
+  feature_type : String
+}
+
 pub struct PileupElement {
   seqname : String
   position : Int
@@ -2740,6 +2937,23 @@ pub enum RamachandranRegion {
   Allowed
   Generous
 } derive(Eq, Show)
+
+pub struct ReactomePathway {
+  pathway_id : String
+  pathway_name : String
+  gene_count : Int
+  genes : Array[String]
+  p_value : Double
+  adjusted_p_value : Double
+  enrichment_score : Double
+  top_level_term : String
+}
+
+pub struct ReactomeResult {
+  pathways : Array[ReactomePathway]
+  background_count : Int
+  query_count : Int
+}
 
 pub struct Reference {
   authors : String
@@ -3302,6 +3516,16 @@ pub struct Vector3 {
 }
 pub fn Vector3::distance(Self, Self) -> Double
 pub fn Vector3::new(Double, Double, Double) -> Self
+
+pub struct WGCNAData {
+  expression_matrix : Array[Array[Double]]
+  gene_names : Array[String]
+  sample_names : Array[String]
+  adjacency_matrix : Array[Array[Double]]
+  tom_matrix : Array[Array[Double]]
+  modules : Map[String, Array[String]]
+  module_colors : Map[String, String]
+}
 
 pub struct WigRecord {
   wig_type : WigType

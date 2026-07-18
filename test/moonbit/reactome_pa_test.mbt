@@ -57,7 +57,7 @@ test "reactome_pa_get_top_pathways" {
   reactome_db["R-HSA-5678"] = ("DNA Repair", ["ATM"], "DNA Replication")
 
   let result = @src.enrich_reactome(gene_list, reactome_db, background_genes)
-  let top = @src.reactome_get_top_pathways(result, 2)
+  let top = @src.get_top_pathways(result, 2)
 
   assert_eq(top.length(), 2)
 }
