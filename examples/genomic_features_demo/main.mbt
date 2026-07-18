@@ -1,5 +1,5 @@
 ///|
-pub fn main() {
+fn main {
   println("=== GenomicFeatures Demo ===")
   
   let annotation = @src.create_example_annotation()
@@ -40,10 +40,9 @@ pub fn main() {
   
   println("\n6. Parse GTF content:")
   let gtf_content = 
-    "chr17\tENSEMBL\tgene\t7661779\t7687550\t.\t-\t.\tgene_id \"ENSG00000130203\"; gene_name \"TP53\"; gene_biotype \"protein_coding\";\n"
-    + "chr17\tENSEMBL\ttranscript\t7661779\t7687550\t.\t-\t.\ttranscript_id \"ENST00000357654\"; gene_id \"ENSG00000130203\";\n"
+    "chr17\tENSEMBL\tgene\t7661779\t7687550\t.\t-\t.\tgene_id \"ENSG00000130203\"; gene_name \"TP53\"; gene_biotype \"protein_coding\";\n" + "chr17\tENSEMBL\ttranscript\t7661779\t7687550\t.\t-\t.\ttranscript_id \"ENST00000357654\"; gene_id \"ENSG00000130203\";\n"
   
-  let parsed = @src.parse_gtf(gtf_content)
+  let parsed = @src.gf_parse_gtf(gtf_content)
   println("  Genes parsed: " + @src.genome_annotation_count_genes(parsed).to_string())
   println("  Transcripts parsed: " + @src.genome_annotation_count_transcripts(parsed).to_string())
   

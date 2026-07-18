@@ -1,5 +1,5 @@
 ///|
-pub fn main() {
+fn main {
   println("=== DropletUtils Demo ===")
   
   let (counts, barcodes) = @src.create_example_droplet_data()
@@ -7,7 +7,13 @@ pub fn main() {
   println("\n1. Calculate droplet statistics:")
   let stats = @src.calculate_droplet_stats(counts, barcodes)
   println("  Number of barcodes: " + stats.total_counts.length().to_string())
-  println("  Mean total counts: " + (stats.total_counts[0..10].reduce((a, b) => a + b, 0.0) / 10.0).to_string())
+  let mut sum = 0.0
+  let mut j = 0
+  while j < 10 && j < stats.total_counts.length() {
+    sum = sum + stats.total_counts[j]
+    j = j + 1
+  }
+  println("  Mean total counts: " + (sum / 10.0).to_string())
   
   println("\n2. Barcode ranking:")
   let ranked = @src.barcode_ranking(stats.total_counts)

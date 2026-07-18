@@ -32,20 +32,22 @@ pub fn compute_sum_factors(
   let n_cells = counts.length()
   let n_genes = if n_cells > 0 { counts[0].length() } else { 0 }
   
-  let mut size_factors : Array[Double] = Array::make(n_cells, 1.0)
+  let size_factors : Array[Double] = Array::make(n_cells, 1.0)
   
-  if sizes.length() == 0 {
+  let effective_sizes = if sizes.length() == 0 {
     let default_size = if n_cells > 0 { (n_cells / 20).max(10).min(100) } else { 10 }
-    sizes = [default_size]
+    [default_size]
+  } else {
+    sizes
   }
   
-  let target_size = sizes[0]
+  let target_size = effective_sizes[0]
   
-  let mut all_sfs : Array[Array[Double]] = Array::new()
+  let all_sfs : Array[Array[Double]] = Array::new()
   
   let mut iteration = 0
   while iteration < 3 {
-    let mut current_sfs : Array[Double] = Array::make(n_cells, 1.0)
+    let current_sfs : Array[Double] = Array::make(n_cells, 1.0)
     
     if iteration == 0 {
       let mut i = 0
@@ -67,7 +69,7 @@ pub fn compute_sum_factors(
       }
     }
     
-    let mut ranks : Array[Array[(Double, Int)]] = Array::new()
+    let ranks : Array[Array[(Double, Int)]] = Array::new()
     let mut i = 0
     while i < n_genes {
       let gene_ranks : Array[(Double, Int)] = Array::new()
@@ -99,11 +101,11 @@ pub fn compute_sum_factors(
       j = j + 1
     }
     
-    let mut subsets : Array[Array[Int]] = Array::new()
+    let subsets : Array[Array[Int]] = Array::new()
     let mut seed = 0
     while subsets.length() < 100 {
       let subset : Array[Int] = Array::new()
-      let mut used : Map[Int, Bool] = Map([], capacity=n_cells)
+      let used : Map[Int, Bool] = Map([], capacity=n_cells)
       
       let mut m = 0
       while m < target_size && m < n_cells {
@@ -122,7 +124,7 @@ pub fn compute_sum_factors(
       }
     }
     
-    let mut sf_subset : Array[Double] = Array::make(subsets.length(), 0.0)
+    let sf_subset : Array[Double] = Array::make(subsets.length(), 0.0)
     let mut m = 0
     while m < subsets.length() {
       let subset = subsets[m]
@@ -131,7 +133,7 @@ pub fn compute_sum_factors(
       
       let mut j = 0
       while j < n_genes {
-        let mut min_val = Double::max_value()
+        let mut min_val = 1000000000000000000000000000000.0
         let mut k = 0
         while k < subset.length() {
           let cell_idx = subset[k]
@@ -146,7 +148,7 @@ pub fn compute_sum_factors(
           k = k + 1
         }
         
-        if min_val < Double::max_value() {
+        if min_val < 1000000000000000000000000000000.0 {
           sum_subset = sum_subset + min_val
           n_non_zero = n_non_zero + 1
         }
@@ -193,7 +195,7 @@ pub fn compute_sum_factors(
     iteration = iteration + 1
   }
   
-  let mut final_sfs : Array[Double] = Array::make(n_cells, 0.0)
+  let final_sfs : Array[Double] = Array::make(n_cells, 0.0)
   let mut i = 0
   while i < n_cells {
     let mut sum = 0.0
@@ -222,7 +224,7 @@ pub fn compute_sum_factors(
 }
 
 ///|
-pub fn log_normalize(
+pub fn scran_log_normalize(
   counts : Array[Array[Int]],
   size_factors : Array[Double],
 ) -> Array[Array[Double]] {
@@ -257,8 +259,8 @@ pub fn build_snn_graph(
   let n_cells = normalized.length()
   let n_genes = if n_cells > 0 { normalized[0].length() } else { 0 }
   
-  let mut adjacency : Array[Array[Int]] = Array::make(n_cells, [])
-  let mut weights : Array[Array[Double]] = Array::make(n_cells, [])
+  let adjacency : Array[Array[Int]] = Array::make(n_cells, [])
+  let weights : Array[Array[Double]] = Array::make(n_cells, [])
   
   let mut i = 0
   while i < n_cells {
@@ -292,8 +294,8 @@ pub fn build_snn_graph(
     }
     
     let k_neighbors = if k < distances.length() { k } else { distances.length() }
-    let mut neighbors : Array[Int] = Array::new()
-    let mut neighbor_weights : Array[Double] = Array::new()
+    let neighbors : Array[Int] = Array::new()
+    let neighbor_weights : Array[Double] = Array::new()
     
     let mut j = 1
     while j < k_neighbors {
@@ -320,7 +322,7 @@ pub fn leiden_clustering(
 ) -> LeidenClusterResult {
   let n_cells = adjacency.length()
   
-  let mut clusters : Array[Int] = Array::make(n_cells, 0)
+  let clusters : Array[Int] = Array::make(n_cells, 0)
   let mut i = 0
   while i < n_cells {
     clusters[i] = i
@@ -338,7 +340,7 @@ pub fn leiden_clustering(
       let mut best_cluster = current_cluster
       let mut best_gain = 0.0
       
-      let mut considered_clusters : Map[Int, Bool] = Map([], capacity=10)
+      let considered_clusters : Map[Int, Bool] = Map([], capacity=10)
       considered_clusters[current_cluster] = true
       
       let mut j = 0
@@ -348,10 +350,16 @@ pub fn leiden_clustering(
         j = j + 1
       }
       
-      let keys = considered_clusters.keys()
+      let keys_array : Array[Int] = Array::new()
+      let keys_iter = considered_clusters.keys().collect()
+      let mut k = 0
+      while k < keys_iter.length() {
+        keys_array.push(keys_iter[k])
+        k = k + 1
+      }
       let mut m = 0
-      while m < keys.length() {
-        let cluster_id = keys[m]
+      while m < keys_array.length() {
+        let cluster_id = keys_array[m]
         let mut gain = 0.0
         let mut n_in_cluster = 0
         
@@ -419,7 +427,7 @@ pub fn leiden_clustering(
     iter = iter + 1
   }
   
-  let mut cluster_ids : Map[Int, Int] = Map([], capacity=n_cells)
+  let cluster_ids : Map[Int, Int] = Map([], capacity=n_cells)
   let mut next_id = 0
   let mut i = 0
   while i < n_cells {
@@ -448,7 +456,7 @@ pub fn score_markers(
   let n_cells = counts.length()
   let n_genes = if n_cells > 0 { counts[0].length() } else { 0 }
   
-  let mut cluster_sizes : Map[Int, Int] = Map([], capacity=10)
+  let cluster_sizes : Map[Int, Int] = Map([], capacity=10)
   let mut i = 0
   while i < n_cells {
     let current = cluster_sizes.get(clusters[i])
@@ -584,7 +592,7 @@ fn scran_hypergeometric_test(
     p
   }
   
-  p.min(1.0).max(0.0)
+  if p_val > 1.0 { 1.0 } else if p_val < 0.0 { 0.0 } else { p_val }
 }
 
 ///|
@@ -681,8 +689,8 @@ pub fn create_example_scran_data() -> (Array[Array[Int]], Array[String]) {
         base_prob = 0.1
       }
       
-      let count = if (gene_idx * 7 + cell_idx * 13).to_double() % 10.0 / 10.0 < base_prob {
-        ((gene_idx * 7 + cell_idx * 13).to_double() % 10.0 / 10.0 * 20.0).to_int()
+      let count = if (j * 7 + i * 13).to_double() % 10.0 / 10.0 < base_prob {
+        ((j * 7 + i * 13).to_double() % 10.0 / 10.0 * 20.0).to_int()
       } else {
         0
       }

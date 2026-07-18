@@ -293,7 +293,7 @@ pub fn parse_gtf_line(line : String) -> (String, String, String, Int, Int, Strin
   Some((chromosome, source, feature_type, start, end, strand, attributes))
 }
 
-pub fn parse_gtf(content : String) -> GenomeAnnotation {
+pub fn gf_parse_gtf(content : String) -> GenomeAnnotation {
   let annotation = GenomeAnnotation::new("Unknown", "Unknown", "GTF")
   let lines = split_by_char(content, '\n'.to_int())
   
@@ -347,7 +347,7 @@ pub fn parse_gtf(content : String) -> GenomeAnnotation {
 pub fn create_example_annotation() -> GenomeAnnotation {
   let annotation = GenomeAnnotation::new("Homo sapiens", "GRCh38", "Ensembl")
   
-  let mut tp53 = GFGene::new(
+  let tp53 = GFGene::new(
     "ENSG00000130203",
     "TP53",
     "protein_coding",

@@ -197,8 +197,8 @@ fn eigen_decomposition(
 ) -> (Array[Double], Array[Array[Double]]) {
   let n = matrix.length()
   
-  let mut eigenvalues : Array[Double] = Array::make(n_components, 0.0)
-  let mut eigenvectors : Array[Array[Double]] = Array::make(n_components, Array::make(n, 0.0))
+  let eigenvalues : Array[Double] = Array::make(n_components, 0.0)
+  let eigenvectors : Array[Array[Double]] = Array::make(n_components, Array::make(n, 0.0))
   
   let mut v : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
   let mut i = 0
@@ -246,7 +246,7 @@ fn eigen_decomposition(
     let cos_theta = @math.cos(theta)
     let sin_theta = @math.sin(theta)
     
-    let mut p : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+    let p : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
     i = 0
     while i < n {
       p[i][i] = 1.0
@@ -257,7 +257,7 @@ fn eigen_decomposition(
     p[max_i][max_j] = -sin_theta
     p[max_j][max_i] = sin_theta
     
-    let pt = transpose(p)
+    let pt = monocle_transpose(p)
     let pap = monocle_matmul(monocle_matmul(pt, a), p)
     let vp = monocle_matmul(v, p)
     
@@ -267,7 +267,7 @@ fn eigen_decomposition(
     iter = iter + 1
   }
   
-  let mut diag : Array[(Double, Int)] = Array::new()
+  let diag : Array[(Double, Int)] = Array::new()
   i = 0
   while i < n {
     diag.push((a[i][i], i))
@@ -334,7 +334,7 @@ fn monocle_matmul(
 }
 
 ///|
-fn transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
+fn monocle_transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
   let rows = m.length()
   let cols = if rows > 0 { m[0].length() } else { 0 }
   
@@ -365,19 +365,19 @@ pub fn reduce_dimension(
   
   if dim_method == "UMAP" || dim_method == "umap" {
     let pca_data = match get_reduced_dimension(cds, "PCA") {
-      Some(data) => data,
+      Some(data) => data
       None => {
         let preprocessed = preprocess_cds(cds, 50)
         match get_reduced_dimension(preprocessed, "PCA") {
-          Some(d) => d,
-          None => cds.normalized,
+          Some(d) => d
+          None => cds.normalized
         }
       }
     }
     
     let umap_result = umap(pca_data, num_dimensions)
     
-    let mut reduced_dims = cds.reduced_dimensions
+    let reduced_dims = cds.reduced_dimensions
     let mut found = false
     let mut i = 0
     while i < reduced_dims.length() && !found {
@@ -429,7 +429,7 @@ fn umap(
   let n_samples = data.length()
   let n_features = if n_samples > 0 { data[0].length() } else { 0 }
   
-  let mut embedding : Array[Array[Double]] = Array::make(n_samples, Array::make(n_components, 0.0))
+  let embedding : Array[Array[Double]] = Array::make(n_samples, Array::make(n_components, 0.0))
   let mut i = 0
   while i < n_samples {
     let mut j = 0
@@ -442,8 +442,8 @@ fn umap(
   
   let k = if n_samples > 15 { 15 } else { n_samples - 1 }
   
-  let mut knn_indices : Array[Array[Int]] = Array::make(n_samples, [])
-  let mut knn_distances : Array[Array[Double]] = Array::make(n_samples, [])
+  let knn_indices : Array[Array[Int]] = Array::make(n_samples, [])
+  let knn_distances : Array[Array[Double]] = Array::make(n_samples, [])
   
   i = 0
   while i < n_samples {
@@ -475,8 +475,8 @@ fn umap(
       j = j + 1
     }
     
-    let mut indices : Array[Int] = Array::new()
-    let mut dists : Array[Double] = Array::new()
+    let indices : Array[Int] = Array::new()
+    let dists : Array[Double] = Array::new()
     let mut j = 1
     while j <= k && j < distances.length() {
       indices.push(distances[j].1)
@@ -489,7 +489,7 @@ fn umap(
     i = i + 1
   }
   
-  let mut graph : Array[Array[(Int, Double)]] = Array::make(n_samples, [])
+  let graph : Array[Array[(Int, Double)]] = Array::make(n_samples, [])
   i = 0
   while i < n_samples {
     let mut j = 0
@@ -514,21 +514,20 @@ fn umap(
     i = i + 1
   }
   
-  let mut alpha = 1.0
-  let mut gamma = 1.0
+  let alpha = 1.0
+  let gamma = 1.0
   let mut learning_rate = 1.0
-  let mut n_epochs = 500
+  let n_epochs = 500
   
   let mut epoch = 0
   while epoch < n_epochs {
     let mut i = 0
     while i < n_samples {
-      let mut gradients : Array[Double] = Array::make(n_components, 0.0)
+      let gradients : Array[Double] = Array::make(n_components, 0.0)
       
       let mut j = 0
       while j < graph[i].length() {
         let neighbor = graph[i][j].0
-        let distance = graph[i][j].1
         
         let mut dist_emb = 0.0
         let mut k_idx = 0
@@ -550,7 +549,7 @@ fn umap(
         j = j + 1
       }
       
-      let mut n_neg = 5
+      let n_neg = 5
       let mut neg = 0
       while neg < n_neg {
         let rand_idx = (i * 17 + neg * 13) % n_samples
@@ -598,22 +597,22 @@ pub fn learn_graph(
   cds : CellDataSet,
 ) -> CellDataSet {
   let umap_data = match get_reduced_dimension(cds, "UMAP") {
-    Some(data) => data,
+    Some(data) => data
     None => {
       let reduced = reduce_dimension(cds, "UMAP", 2)
       match get_reduced_dimension(reduced, "UMAP") {
-        Some(d) => d,
-        None => reduced.normalized,
+        Some(d) => d
+        None => reduced.normalized
       }
     }
   }
   
   let n_cells = umap_data.length()
   
-  let mut partitions : Array[Int] = Array::make(n_cells, 0)
-  let mut num_partitions = 1
+  let partitions : Array[Int] = Array::make(n_cells, 0)
+  let num_partitions = 1
   
-  let mut centers : Array[Array[Double]] = Array::new()
+  let centers : Array[Array[Double]] = Array::new()
   let center : Array[Double] = Array::make(2, 0.0)
   let mut i = 0
   while i < n_cells {
@@ -625,12 +624,11 @@ pub fn learn_graph(
   center[1] = center[1] / n_cells.to_double()
   centers.push(center)
   
-  let mut graph_nodes : Array[Array[Double]] = Array::new()
-  let mut graph_edges : Array[(Int, Int)] = Array::new()
+  let graph_edges : Array[(Int, Int)] = Array::new()
   
   let mut j = 0
   while j < n_cells {
-    let mut min_dist = Double::max_value()
+    let mut min_dist = 1000000000000000000000000000000.0
     let mut min_idx = 0
     
     let mut k = 0
@@ -649,7 +647,7 @@ pub fn learn_graph(
     j = j + 1
   }
   
-  let mut nodes : Array[Array[Double]] = Array::new()
+  let nodes : Array[Array[Double]] = Array::new()
   let mut node_idx = 0
   while node_idx < num_partitions {
     let node : Array[Double] = Array::make(2, 0.0)
@@ -712,18 +710,18 @@ pub fn order_cells(
   root_cells : Array[Int],
 ) -> CellDataSet {
   let umap_data = match get_reduced_dimension(cds, "UMAP") {
-    Some(data) => data,
-    None => cds.normalized,
+    Some(data) => data
+    None => cds.normalized
   }
   
   let n_cells = umap_data.length()
   
-  let mut pseudotime : Array[Double] = Array::make(n_cells, -1.0)
+  let pseudotime : Array[Double] = Array::make(n_cells, -1.0)
   
-  let mut distances : Array[(Double, Int)] = Array::new()
+  let distances : Array[(Double, Int)] = Array::new()
   let mut i = 0
   while i < n_cells {
-    let mut min_dist = Double::max_value()
+    let mut min_dist = 1000000000000000000000000000000.0
     let mut j = 0
     while j < root_cells.length() {
       if root_cells[j] < n_cells {
@@ -820,8 +818,9 @@ pub fn fit_models(
       }
       
       if n_valid > 0 {
-        let slope = if n_valid * sum_pt_sq - sum_pt * sum_pt > 0.0 {
-          (n_valid * sum_expr_pt - sum_pt * sum_expr) / (n_valid * sum_pt_sq - sum_pt * sum_pt)
+        let n_valid_double = n_valid.to_double()
+        let slope = if n_valid_double * sum_pt_sq - sum_pt * sum_pt > 0.0 {
+          (n_valid_double * sum_expr_pt - sum_pt * sum_expr) / (n_valid_double * sum_pt_sq - sum_pt * sum_pt)
         } else {
           0.0
         }
@@ -893,8 +892,8 @@ pub fn create_example_monocle_data() -> (Array[Array[Int]], Array[String], Array
         base_prob = if pseudotime < 0.5 { pseudotime * 0.2 } else { (1.0 - pseudotime) * 0.2 }
       }
       
-      let count = if (gene_idx * 7 + cell_idx * 13).to_double() % 10.0 / 10.0 < base_prob {
-        ((gene_idx * 7 + cell_idx * 13).to_double() % 10.0 / 10.0 * 15.0).to_int()
+      let count = if (j * 7 + i * 13).to_double() % 10.0 / 10.0 < base_prob {
+        ((j * 7 + i * 13).to_double() % 10.0 / 10.0 * 15.0).to_int()
       } else {
         0
       }

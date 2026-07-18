@@ -1,5 +1,5 @@
 ///|
-pub fn main() {
+fn main {
   println("=== monocle3 Demo ===")
   
   let (counts, gene_names, cell_names) = @src.create_example_monocle_data()
@@ -54,7 +54,7 @@ pub fn main() {
   }
   
   println("\n8. Identify trajectory marker genes (q-value < 0.05):")
-  let mut markers : Array[String] = Array::new()
+  let markers : Array[String] = Array::new()
   i = 0
   while i < result.gene.length() {
     if result.q_value[i] < 0.05 {
@@ -67,9 +67,9 @@ pub fn main() {
   if markers.length() > 0 {
     let mut j = 0
     while j < markers.length() {
-      print(markers[j])
+      println(markers[j])
       if j < markers.length() - 1 {
-        print(", ")
+        println(", ")
       }
       j = j + 1
     }

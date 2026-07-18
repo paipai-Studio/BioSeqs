@@ -209,7 +209,13 @@ pub fn empty_drops(
         j = j + 1
       }
       
-      log_prob = log_prob - total_umi.to_double() + @math.ln(total_umi.factorial().to_double())
+      let mut fact = 1.0
+      let mut f = 1
+      while f <= total_umi && f <= 20 {
+        fact = fact * f.to_double()
+        f = f + 1
+      }
+      log_prob = log_prob - total_umi.to_double() + @math.ln(fact)
       
       let mut n_extreme = 0
       let mut iter = 0

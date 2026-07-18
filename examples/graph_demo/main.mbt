@@ -1,5 +1,5 @@
 ///|
-pub fn main() {
+fn main {
   println("=== Graph Demo ===")
   
   let ppi_graph = @src.create_example_graph()
@@ -11,9 +11,9 @@ pub fn main() {
   let tp53_neighbors = @src.graph_get_neighbors(ppi_graph, "TP53")
   let mut i = 0
   while i < tp53_neighbors.length() {
-    print(tp53_neighbors[i])
+    println(tp53_neighbors[i])
     if i < tp53_neighbors.length() - 1 {
-      print(", ")
+      println(", ")
     }
     i = i + 1
   }
@@ -31,9 +31,9 @@ pub fn main() {
     let path_arr = path.unwrap()
     i = 0
     while i < path_arr.length() {
-      print(path_arr[i])
+      println(path_arr[i])
       if i < path_arr.length() - 1 {
-        print(" -> ")
+        println(" -> ")
       }
       i = i + 1
     }
@@ -56,9 +56,9 @@ pub fn main() {
     let cc_path_arr = cell_cycle_path.unwrap()
     i = 0
     while i < cc_path_arr.length() {
-      print(cc_path_arr[i])
+      println(cc_path_arr[i])
       if i < cc_path_arr.length() - 1 {
-        print(" -> ")
+        println(" -> ")
       }
       i = i + 1
     }

@@ -1,5 +1,5 @@
 ///|
-@test "monocle3_new_cell_data_set" {
+test "monocle3_new_cell_data_set" {
   let (counts, gene_names, cell_names) = @src.create_example_monocle_data()
   let cds = @src.new_cell_data_set(counts, gene_names, cell_names)
   assert_eq(cds.counts.length(), 50)
@@ -7,7 +7,8 @@
   assert_eq(cds.cell_names.length(), 50)
 }
 
-@test "monocle3_preprocess_cds" {
+///|
+test "monocle3_preprocess_cds" {
   let (counts, gene_names, cell_names) = @src.create_example_monocle_data()
   let cds = @src.new_cell_data_set(counts, gene_names, cell_names)
   let preprocessed = @src.preprocess_cds(cds, 10)
@@ -15,14 +16,16 @@
   assert_true(preprocessed.reduced_dimensions.length() > 0)
 }
 
-@test "monocle3_reduce_dimension_pca" {
+///|
+test "monocle3_reduce_dimension_pca" {
   let (counts, gene_names, cell_names) = @src.create_example_monocle_data()
   let cds = @src.new_cell_data_set(counts, gene_names, cell_names)
   let reduced = @src.reduce_dimension(cds, "PCA", 5)
   assert_true(reduced.reduced_dimensions.length() > 0)
 }
 
-@test "monocle3_reduce_dimension_umap" {
+///|
+test "monocle3_reduce_dimension_umap" {
   let (counts, gene_names, cell_names) = @src.create_example_monocle_data()
   let cds = @src.new_cell_data_set(counts, gene_names, cell_names)
   let preprocessed = @src.preprocess_cds(cds, 10)
@@ -30,7 +33,8 @@
   assert_true(reduced.reduced_dimensions.length() >= 2)
 }
 
-@test "monocle3_learn_graph" {
+///|
+test "monocle3_learn_graph" {
   let (counts, gene_names, cell_names) = @src.create_example_monocle_data()
   let cds = @src.new_cell_data_set(counts, gene_names, cell_names)
   let preprocessed = @src.preprocess_cds(cds, 10)
@@ -40,7 +44,8 @@
   assert_true(with_graph.principal_graph.length() > 0)
 }
 
-@test "monocle3_order_cells" {
+///|
+test "monocle3_order_cells" {
   let (counts, gene_names, cell_names) = @src.create_example_monocle_data()
   let cds = @src.new_cell_data_set(counts, gene_names, cell_names)
   let preprocessed = @src.preprocess_cds(cds, 10)
@@ -50,7 +55,8 @@
   assert_eq(ordered.pseudotime.length(), 50)
 }
 
-@test "monocle3_fit_models" {
+///|
+test "monocle3_fit_models" {
   let (counts, gene_names, cell_names) = @src.create_example_monocle_data()
   let cds = @src.new_cell_data_set(counts, gene_names, cell_names)
   let preprocessed = @src.preprocess_cds(cds, 10)
@@ -61,7 +67,8 @@
   assert_true(result.gene.length() > 0)
 }
 
-@test "monocle3_create_example_data" {
+///|
+test "monocle3_create_example_data" {
   let (counts, gene_names, cell_names) = @src.create_example_monocle_data()
   assert_eq(counts.length(), 50)
   assert_eq(gene_names.length(), 100)

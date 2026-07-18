@@ -1,5 +1,5 @@
 ///|
-pub fn main() {
+fn main {
   println("=== AnnotationHub Demo ===")
   
   let hub = @src.create_example_hub()
@@ -8,7 +8,7 @@ pub fn main() {
   println(@src.annotation_hub_summarize(hub))
   
   println("\n2. Search by type (GeneModel):")
-  let gene_models = @src.annotation_hub_search_by_type(hub, @src.ResourceType::GeneModel)
+  let gene_models = @src.annotation_hub_search_by_type(hub, "GeneModel")
   let mut i = 0
   while i < gene_models.length() {
     println(gene_models[i].to_string())

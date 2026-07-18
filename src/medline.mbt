@@ -275,7 +275,7 @@ pub fn filter_by_author(
   while i < records.length() {
     let mut j = 0
     while j < records[i].authors.length() {
-      if contains(records[i].authors[j], author_name) {
+      if medline_contains(records[i].authors[j], author_name) {
         filtered.push(records[i])
         break
       }
@@ -307,7 +307,7 @@ pub fn filter_by_mesh(
   while i < records.length() {
     let mut j = 0
     while j < records[i].mesh_terms.length() {
-      if contains(records[i].mesh_terms[j], mesh_term) {
+      if medline_contains(records[i].mesh_terms[j], mesh_term) {
         filtered.push(records[i])
         break
       }
@@ -319,7 +319,7 @@ pub fn filter_by_mesh(
 }
 
 ///|
-fn contains(s : String, substr : String) -> Bool {
+fn medline_contains(s : String, substr : String) -> Bool {
   if substr.length() == 0 {
     return true
   }

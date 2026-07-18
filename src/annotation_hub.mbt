@@ -108,12 +108,12 @@ pub fn annotation_hub_add_resource(hub : AnnotationHub, resource : HubResource) 
   hub.resources.push(resource)
 }
 
-pub fn annotation_hub_search_by_type(hub : AnnotationHub, resource_type : ResourceType) -> Array[HubResource] {
+pub fn annotation_hub_search_by_type(hub : AnnotationHub, resource_type_str : String) -> Array[HubResource] {
   let results : Array[HubResource] = Array::new()
   let mut i = 0
   while i < hub.resources.length() {
     let r = hub.resources[i]
-    if r.resource_type.to_string() == resource_type.to_string() {
+    if r.resource_type.to_string() == resource_type_str {
       results.push(r)
     }
     i = i + 1
@@ -121,12 +121,12 @@ pub fn annotation_hub_search_by_type(hub : AnnotationHub, resource_type : Resour
   results
 }
 
-pub fn annotation_hub_search_by_provider(hub : AnnotationHub, provider : DataProvider) -> Array[HubResource] {
+pub fn annotation_hub_search_by_provider(hub : AnnotationHub, provider_str : String) -> Array[HubResource] {
   let results : Array[HubResource] = Array::new()
   let mut i = 0
   while i < hub.resources.length() {
     let r = hub.resources[i]
-    if r.provider.to_string() == provider.to_string() {
+    if r.provider.to_string() == provider_str {
       results.push(r)
     }
     i = i + 1

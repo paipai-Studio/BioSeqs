@@ -1,5 +1,5 @@
 ///|
-pub fn main() {
+fn main {
   println("=== scran Demo ===")
   
   let (counts, gene_names) = @src.create_example_scran_data()
@@ -16,7 +16,7 @@ pub fn main() {
   }
   
   println("\n2. Log normalize counts:")
-  let normalized = @src.log_normalize(counts, sf.factors)
+  let normalized = @src.scran_log_normalize(counts, sf.factors)
   println("  Normalized matrix shape: " + normalized.length().to_string() + " cells x " + normalized[0].length().to_string() + " genes")
   
   println("\n3. Build SNN graph:")
@@ -62,7 +62,7 @@ pub fn main() {
   println("  Marker results for " + markers.gene.length().to_string() + " gene-cluster pairs")
   
   println("\n6. Top markers for cluster 0 (by log2FC):")
-  let mut top_markers : Array[(Double, String)] = Array::new()
+  let top_markers : Array[(Double, String)] = Array::new()
   i = 0
   while i < markers.gene.length() {
     if markers.cluster[i] == 0 && markers.fdr[i] < 0.05 {
