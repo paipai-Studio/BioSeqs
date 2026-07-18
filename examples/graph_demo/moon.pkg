@@ -1,4 +1,7 @@
-///|
-depends {
-  src
+import {
+  "IvanAXu/BioSeqs/src",
 }
+
+options(
+  "is-main": true,
+)

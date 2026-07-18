@@ -1,5 +1,5 @@
 ///|
-pub struct Gene {
+pub struct GFGene {
   gene_id : String
   gene_name : String
   gene_biotype : String
@@ -8,10 +8,10 @@ pub struct Gene {
   end : Int
   strand : String
   description : String
-  transcripts : Array[Transcript]
+  transcripts : Array[GFTranscript]
 }
 
-pub fn Gene::new(
+pub fn GFGene::new(
   gene_id : String,
   gene_name : String,
   gene_biotype : String,
@@ -20,8 +20,8 @@ pub fn Gene::new(
   end : Int,
   strand : String,
   description : String,
-) -> Gene {
-  Gene::{
+) -> GFGene {
+  GFGene::{
     gene_id,
     gene_name,
     gene_biotype,
@@ -34,7 +34,7 @@ pub fn Gene::new(
   }
 }
 
-pub fn Gene::to_string(self : Gene) -> String {
+pub fn GFGene::to_string(self : GFGene) -> String {
   let mut result = self.gene_id + " (" + self.gene_name + ")\n";
   result = result + "  Biotype: " + self.gene_biotype + "\n";
   result = result + "  Location: " + self.chromosome + ":" + self.start.to_string() + "-" + self.end.to_string() + " " + self.strand + "\n";
@@ -43,7 +43,7 @@ pub fn Gene::to_string(self : Gene) -> String {
   result
 }
 
-pub struct Transcript {
+pub struct GFTranscript {
   transcript_id : String
   transcript_name : String
   gene_id : String
@@ -51,13 +51,13 @@ pub struct Transcript {
   start : Int
   end : Int
   strand : String
-  exons : Array[Exon]
-  cds : Array[Exon]
-  utr5 : Array[Exon]
-  utr3 : Array[Exon]
+  exons : Array[GFExon]
+  cds : Array[GFExon]
+  utr5 : Array[GFExon]
+  utr3 : Array[GFExon]
 }
 
-pub fn Transcript::new(
+pub fn GFTranscript::new(
   transcript_id : String,
   transcript_name : String,
   gene_id : String,
@@ -65,8 +65,8 @@ pub fn Transcript::new(
   start : Int,
   end : Int,
   strand : String,
-) -> Transcript {
-  Transcript::{
+) -> GFTranscript {
+  GFTranscript::{
     transcript_id,
     transcript_name,
     gene_id,
@@ -81,7 +81,7 @@ pub fn Transcript::new(
   }
 }
 
-pub struct Exon {
+pub struct GFExon {
   exon_id : String
   exon_number : Int
   chromosome : String
@@ -90,15 +90,15 @@ pub struct Exon {
   strand : String
 }
 
-pub fn Exon::new(
+pub fn GFExon::new(
   exon_id : String,
   exon_number : Int,
   chromosome : String,
   start : Int,
   end : Int,
   strand : String,
-) -> Exon {
-  Exon::{
+) -> GFExon {
+  GFExon::{
     exon_id,
     exon_number,
     chromosome,
@@ -109,8 +109,8 @@ pub fn Exon::new(
 }
 
 pub struct GenomeAnnotation {
-  genes : Array[Gene]
-  transcripts : Array[Transcript]
+  genes : Array[GFGene]
+  transcripts : Array[GFTranscript]
   genome : String
   version : String
   source : String
@@ -126,15 +126,15 @@ pub fn GenomeAnnotation::new(genome : String, version : String, source : String)
   }
 }
 
-pub fn genome_annotation_add_gene(annotation : GenomeAnnotation, gene : Gene) {
+pub fn genome_annotation_add_gene(annotation : GenomeAnnotation, gene : GFGene) -> Unit {
   annotation.genes.push(gene)
 }
 
-pub fn genome_annotation_add_transcript(annotation : GenomeAnnotation, transcript : Transcript) {
+pub fn genome_annotation_add_transcript(annotation : GenomeAnnotation, transcript : GFTranscript) -> Unit {
   annotation.transcripts.push(transcript)
 }
 
-pub fn genome_annotation_get_gene_by_id(annotation : GenomeAnnotation, gene_id : String) -> Gene? {
+pub fn genome_annotation_get_gene_by_id(annotation : GenomeAnnotation, gene_id : String) -> GFGene? {
   let mut i = 0
   while i < annotation.genes.length() {
     let gene = annotation.genes[i]
@@ -146,8 +146,8 @@ pub fn genome_annotation_get_gene_by_id(annotation : GenomeAnnotation, gene_id :
   None
 }
 
-pub fn genome_annotation_get_gene_by_name(annotation : GenomeAnnotation, gene_name : String) -> Array[Gene] {
-  let results : Array[Gene] = Array::new()
+pub fn genome_annotation_get_gene_by_name(annotation : GenomeAnnotation, gene_name : String) -> Array[GFGene] {
+  let results : Array[GFGene] = Array::new()
   let mut i = 0
   while i < annotation.genes.length() {
     let gene = annotation.genes[i]
@@ -159,8 +159,8 @@ pub fn genome_annotation_get_gene_by_name(annotation : GenomeAnnotation, gene_na
   results
 }
 
-pub fn genome_annotation_get_transcripts_by_gene(annotation : GenomeAnnotation, gene_id : String) -> Array[Transcript] {
-  let results : Array[Transcript] = Array::new()
+pub fn genome_annotation_get_transcripts_by_gene(annotation : GenomeAnnotation, gene_id : String) -> Array[GFTranscript] {
+  let results : Array[GFTranscript] = Array::new()
   let mut i = 0
   while i < annotation.transcripts.length() {
     let transcript = annotation.transcripts[i]
@@ -172,8 +172,8 @@ pub fn genome_annotation_get_transcripts_by_gene(annotation : GenomeAnnotation, 
   results
 }
 
-pub fn genome_annotation_genes_on_chromosome(annotation : GenomeAnnotation, chromosome : String) -> Array[Gene] {
-  let results : Array[Gene] = Array::new()
+pub fn genome_annotation_genes_on_chromosome(annotation : GenomeAnnotation, chromosome : String) -> Array[GFGene] {
+  let results : Array[GFGene] = Array::new()
   let mut i = 0
   while i < annotation.genes.length() {
     let gene = annotation.genes[i]
@@ -185,8 +185,8 @@ pub fn genome_annotation_genes_on_chromosome(annotation : GenomeAnnotation, chro
   results
 }
 
-pub fn genome_annotation_genes_in_region(annotation : GenomeAnnotation, chromosome : String, start : Int, end : Int) -> Array[Gene] {
-  let results : Array[Gene] = Array::new()
+pub fn genome_annotation_genes_in_region(annotation : GenomeAnnotation, chromosome : String, start : Int, end : Int) -> Array[GFGene] {
+  let results : Array[GFGene] = Array::new()
   let mut i = 0
   while i < annotation.genes.length() {
     let gene = annotation.genes[i]
@@ -310,7 +310,7 @@ pub fn parse_gtf(content : String) -> GenomeAnnotation {
         let gene_biotype = attributes.get("gene_biotype")
         let description = attributes.get("gene_description")
         
-        let gene = Gene::new(
+        let gene = GFGene::new(
           if gene_id.is_some() { gene_id.unwrap() } else { "unknown" },
           if gene_name.is_some() { gene_name.unwrap() } else { "unknown" },
           if gene_biotype.is_some() { gene_biotype.unwrap() } else { "protein_coding" },
@@ -326,7 +326,7 @@ pub fn parse_gtf(content : String) -> GenomeAnnotation {
         let transcript_name = attributes.get("transcript_name")
         let gene_id = attributes.get("gene_id")
         
-        let transcript = Transcript::new(
+        let transcript = GFTranscript::new(
           if transcript_id.is_some() { transcript_id.unwrap() } else { "unknown" },
           if transcript_name.is_some() { transcript_name.unwrap() } else { "unknown" },
           if gene_id.is_some() { gene_id.unwrap() } else { "unknown" },
@@ -347,7 +347,7 @@ pub fn parse_gtf(content : String) -> GenomeAnnotation {
 pub fn create_example_annotation() -> GenomeAnnotation {
   let annotation = GenomeAnnotation::new("Homo sapiens", "GRCh38", "Ensembl")
   
-  let mut tp53 = Gene::new(
+  let mut tp53 = GFGene::new(
     "ENSG00000130203",
     "TP53",
     "protein_coding",
@@ -358,7 +358,7 @@ pub fn create_example_annotation() -> GenomeAnnotation {
     "Tumor protein p53",
   )
   
-  let tp53_tx1 = Transcript::new(
+  let tp53_tx1 = GFTranscript::new(
     "ENST00000357654",
     "TP53-201",
     "ENSG00000130203",
@@ -368,8 +368,8 @@ pub fn create_example_annotation() -> GenomeAnnotation {
     "-",
   )
   
-  let tp53_exon1 = Exon::new("ENSE00001234567", 1, "chr17", 7661779, 7661933, "-")
-  let tp53_exon2 = Exon::new("ENSE00001234568", 2, "chr17", 7662125, 7662220, "-")
+  let tp53_exon1 = GFExon::new("ENSE00001234567", 1, "chr17", 7661779, 7661933, "-")
+  let tp53_exon2 = GFExon::new("ENSE00001234568", 2, "chr17", 7662125, 7662220, "-")
   tp53_tx1.exons.push(tp53_exon1)
   tp53_tx1.exons.push(tp53_exon2)
   tp53.transcripts.push(tp53_tx1)
@@ -377,7 +377,7 @@ pub fn create_example_annotation() -> GenomeAnnotation {
   genome_annotation_add_gene(annotation, tp53)
   genome_annotation_add_transcript(annotation, tp53_tx1)
   
-  let brca1 = Gene::new(
+  let brca1 = GFGene::new(
     "ENSG00000012048",
     "BRCA1",
     "protein_coding",
@@ -388,7 +388,7 @@ pub fn create_example_annotation() -> GenomeAnnotation {
     "Breast cancer type 1 susceptibility protein",
   )
   
-  let brca1_tx1 = Transcript::new(
+  let brca1_tx1 = GFTranscript::new(
     "ENST00000357655",
     "BRCA1-201",
     "ENSG00000012048",
@@ -401,7 +401,7 @@ pub fn create_example_annotation() -> GenomeAnnotation {
   genome_annotation_add_gene(annotation, brca1)
   genome_annotation_add_transcript(annotation, brca1_tx1)
   
-  let brca2 = Gene::new(
+  let brca2 = GFGene::new(
     "ENSG00000139618",
     "BRCA2",
     "protein_coding",
@@ -412,7 +412,7 @@ pub fn create_example_annotation() -> GenomeAnnotation {
     "Breast cancer type 2 susceptibility protein",
   )
   
-  let brca2_tx1 = Transcript::new(
+  let brca2_tx1 = GFTranscript::new(
     "ENST00000357656",
     "BRCA2-201",
     "ENSG00000139618",
@@ -425,7 +425,7 @@ pub fn create_example_annotation() -> GenomeAnnotation {
   genome_annotation_add_gene(annotation, brca2)
   genome_annotation_add_transcript(annotation, brca2_tx1)
   
-  let atm = Gene::new(
+  let atm = GFGene::new(
     "ENSG00000140469",
     "ATM",
     "protein_coding",
@@ -438,7 +438,7 @@ pub fn create_example_annotation() -> GenomeAnnotation {
   
   genome_annotation_add_gene(annotation, atm)
   
-  let mir123 = Gene::new(
+  let mir123 = GFGene::new(
     "ENSG00000284332",
     "MIR123",
     "miRNA",

@@ -44,6 +44,13 @@ pub enum GraphType {
   Directed
 }
 
+pub fn graph_type_is_undirected(gt : GraphType) -> Bool {
+  match gt {
+    Undirected => true
+    Directed => false
+  }
+}
+
 pub fn GraphType::to_string(self : GraphType) -> String {
   match self {
     Undirected => "Undirected"
@@ -67,15 +74,15 @@ pub fn Graph::new(name : String, graph_type : GraphType) -> Graph {
   }
 }
 
-pub fn graph_add_node(graph : Graph, node : Node) {
+pub fn graph_add_node(graph : Graph, node : Node) -> Unit {
   graph.nodes.push(node)
 }
 
-pub fn graph_add_edge(graph : Graph, edge : Edge) {
+pub fn graph_add_edge(graph : Graph, edge : Edge) -> Unit {
   graph.edges.push(edge)
 }
 
-pub fn graph_add_edge_by_id(graph : Graph, source_id : String, target_id : String, weight : Double) {
+pub fn graph_add_edge_by_id(graph : Graph, source_id : String, target_id : String, weight : Double) -> Unit {
   graph.edges.push(Edge::new(source_id, target_id, weight))
 }
 
@@ -124,7 +131,7 @@ pub fn graph_get_neighbors(graph : Graph, node_id : String) -> Array[String] {
     let edge = graph.edges[i]
     if edge.source == node_id {
       results.push(edge.target)
-    } else if edge.target == node_id && graph.graph_type == GraphType::Undirected {
+    } else if edge.target == node_id && graph_type_is_undirected(graph.graph_type) {
       results.push(edge.source)
     }
     i = i + 1
@@ -140,7 +147,7 @@ pub fn graph_get_degree(graph : Graph, node_id : String) -> Int {
     if edge.source == node_id {
       degree = degree + 1
     }
-    if edge.target == node_id && (graph.graph_type == GraphType::Undirected || edge.source != node_id) {
+    if edge.target == node_id && (graph_type_is_undirected(graph.graph_type) || edge.source != node_id) {
       degree = degree + 1
     }
     i = i + 1
@@ -163,7 +170,7 @@ pub fn graph_has_edge(graph : Graph, source_id : String, target_id : String) -> 
     if edge.source == source_id && edge.target == target_id {
       return true
     }
-    if graph.graph_type == GraphType::Undirected && edge.source == target_id && edge.target == source_id {
+    if graph_type_is_undirected(graph.graph_type) && edge.source == target_id && edge.target == source_id {
       return true
     }
     i = i + 1
@@ -317,7 +324,7 @@ pub fn graph_summarize(graph : Graph) -> String {
 }
 
 pub fn graph_to_dot(graph : Graph) -> String {
-  let mut result = if graph.graph_type == GraphType::Directed { "digraph " } else { "graph " }
+  let mut result = if graph_type_is_undirected(graph.graph_type) { "graph " } else { "digraph " }
   result = result + graph.name + " {\n"
   
   let mut i = 0
@@ -330,7 +337,7 @@ pub fn graph_to_dot(graph : Graph) -> String {
   i = 0
   while i < graph.edges.length() {
     let edge = graph.edges[i]
-    let arrow = if graph.graph_type == GraphType::Directed { " -> " } else { " -- " }
+    let arrow = if graph_type_is_undirected(graph.graph_type) { " -- " } else { " -> " }
     let weight_label = if edge.weight != 1.0 { " [label=\"" + edge.weight.to_string() + "\"]" } else { "" }
     result = result + "  " + edge.source + arrow + edge.target + weight_label + ";\n"
     i = i + 1

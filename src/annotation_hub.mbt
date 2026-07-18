@@ -104,7 +104,7 @@ pub fn AnnotationHub::new(cache_dir : String, default_genome : String) -> Annota
   }
 }
 
-pub fn annotation_hub_add_resource(hub : AnnotationHub, resource : HubResource) {
+pub fn annotation_hub_add_resource(hub : AnnotationHub, resource : HubResource) -> Unit {
   hub.resources.push(resource)
 }
 
@@ -257,7 +257,7 @@ pub fn create_example_hub() -> AnnotationHub {
     "GRCm39",
     "Mouse reference genome sequence",
     "https://hgdownload.soe.ucsc.edu/goldenPath/mm39/bigZips/",
-    3000000000,
+    300000000,
   ))
   
   annotation_hub_add_resource(hub, HubResource::new(
