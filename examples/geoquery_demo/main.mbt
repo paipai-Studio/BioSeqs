@@ -4,8 +4,7 @@ fn main {
   println("Inspired by Bioconductor GEOquery package")
   println("")
 
-  let geo_content = 
-    "!Series_geo_accession = GSE12345\n" +
+  let geo_content = "!Series_geo_accession = GSE12345\n" +
     "!Platform_geo_accession = GPL96\n" +
     "!Sample_geo_accession = GSM123456\n" +
     "!Sample_geo_accession = GSM123457\n" +
@@ -82,8 +81,7 @@ fn main {
   println("=== GEOquery SOFT Format Parsing Example ===")
   println("")
 
-  let soft_content = 
-    "^SERIES = GSE12345\n" +
+  let soft_content = "^SERIES = GSE12345\n" +
     "!Series_geo_accession = GSE12345\n" +
     "!Series_title = Example dataset\n" +
     "!Series_summary = A test dataset for GEOquery\n" +

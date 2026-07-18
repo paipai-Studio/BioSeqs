@@ -83,7 +83,9 @@ test "short_read_trim_adapter_no_match" {
 test "short_read_filter_reads_basic" {
   let sequences = ["ACGTACGT", "ACGTNNNN", "AAAAAAAA"]
   let qualities = ["IIIIIIII", "IIIIIIII", "########"]
-  let (filtered_seqs, filtered_quals) = @src.filter_reads(sequences, qualities, 30.0, 5, 2)
+  let (filtered_seqs, filtered_quals) = @src.filter_reads(
+    sequences, qualities, 30.0, 5, 2,
+  )
   assert_eq(filtered_seqs.length(), 1)
   assert_eq(filtered_quals.length(), 1)
 }
@@ -92,7 +94,9 @@ test "short_read_filter_reads_basic" {
 test "short_read_filter_reads_length" {
   let sequences = ["ACGT", "ACGTACGTACGT"]
   let qualities = ["IIII", "IIIIIIIIIIII"]
-  let (filtered_seqs, filtered_quals) = @src.filter_reads(sequences, qualities, 20.0, 8, 10)
+  let (filtered_seqs, filtered_quals) = @src.filter_reads(
+    sequences, qualities, 20.0, 8, 10,
+  )
   assert_eq(filtered_seqs.length(), 1)
 }
 

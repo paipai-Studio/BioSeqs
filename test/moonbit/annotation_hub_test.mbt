@@ -21,7 +21,9 @@ test "annotation_hub_search_by_provider" {
 ///|
 test "annotation_hub_search_by_genome" {
   let hub = @src.create_example_hub()
-  let human_resources = @src.annotation_hub_search_by_genome(hub, "Homo sapiens")
+  let human_resources = @src.annotation_hub_search_by_genome(
+    hub, "Homo sapiens",
+  )
   assert_eq(human_resources.length(), 6)
 }
 

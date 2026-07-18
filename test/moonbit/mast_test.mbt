@@ -56,7 +56,7 @@ test "mast_zlm_hurdle_basic" {
     [8.0, 4.0, 0.0, 7.0],
     [100.0, 50.0, 10.0, 80.0],
     [120.0, 60.0, 12.0, 90.0],
-    [90.0, 45.0, 9.0, 75.0]
+    [90.0, 45.0, 9.0, 75.0],
   ]
   let gene_names = ["Gene1", "Gene2", "Gene3", "Gene4"]
   let cell_names = ["C1", "C2", "C3", "C4", "C5", "C6"]
@@ -76,7 +76,7 @@ test "mast_zlm_hurdle_pval_range" {
     [8.0, 4.0, 0.0],
     [100.0, 50.0, 10.0],
     [120.0, 60.0, 12.0],
-    [90.0, 45.0, 9.0]
+    [90.0, 45.0, 9.0],
   ]
   let gene_names = ["Gene1", "Gene2", "Gene3"]
   let cell_names = ["C1", "C2", "C3", "C4", "C5", "C6"]
@@ -85,9 +85,15 @@ test "mast_zlm_hurdle_pval_range" {
   let result = @src.zlm_hurdle(data, 0, 1)
   let mut i = 0
   while i < result.gene.length() {
-    assert_true(result.discrete_pval[i] >= 0.0 && result.discrete_pval[i] <= 1.0)
-    assert_true(result.continuous_pval[i] >= 0.0 && result.continuous_pval[i] <= 1.0)
-    assert_true(result.combined_pval[i] >= 0.0 && result.combined_pval[i] <= 1.0)
+    assert_true(
+      result.discrete_pval[i] >= 0.0 && result.discrete_pval[i] <= 1.0,
+    )
+    assert_true(
+      result.continuous_pval[i] >= 0.0 && result.continuous_pval[i] <= 1.0,
+    )
+    assert_true(
+      result.combined_pval[i] >= 0.0 && result.combined_pval[i] <= 1.0,
+    )
     assert_true(result.discrete_fdr[i] >= 0.0 && result.discrete_fdr[i] <= 1.0)
     assert_true(result.combined_fdr[i] >= 0.0 && result.combined_fdr[i] <= 1.0)
     i = i + 1
@@ -102,7 +108,7 @@ test "mast_zlm_hurdle_detection_rate" {
     [8.0, 0.0, 0.0],
     [100.0, 50.0, 10.0],
     [120.0, 60.0, 12.0],
-    [90.0, 45.0, 9.0]
+    [90.0, 45.0, 9.0],
   ]
   let gene_names = ["Gene1", "Gene2", "Gene3"]
   let cell_names = ["C1", "C2", "C3", "C4", "C5", "C6"]
@@ -120,7 +126,7 @@ test "mast_summary_new" {
     [8.0, 4.0, 0.0],
     [100.0, 50.0, 10.0],
     [120.0, 60.0, 12.0],
-    [90.0, 45.0, 9.0]
+    [90.0, 45.0, 9.0],
   ]
   let gene_names = ["Gene1", "Gene2", "Gene3"]
   let cell_names = ["C1", "C2", "C3", "C4", "C5", "C6"]
@@ -142,7 +148,7 @@ test "mast_summary_top_genes" {
     [8.0, 4.0, 0.0],
     [100.0, 50.0, 10.0],
     [120.0, 60.0, 12.0],
-    [90.0, 45.0, 9.0]
+    [90.0, 45.0, 9.0],
   ]
   let gene_names = ["Gene1", "Gene2", "Gene3"]
   let cell_names = ["C1", "C2", "C3", "C4", "C5", "C6"]
@@ -170,7 +176,7 @@ test "mast_summary_to_string" {
     [8.0, 4.0, 0.0],
     [100.0, 50.0, 10.0],
     [120.0, 60.0, 12.0],
-    [90.0, 45.0, 9.0]
+    [90.0, 45.0, 9.0],
   ]
   let gene_names = ["Gene1", "Gene2", "Gene3"]
   let cell_names = ["C1", "C2", "C3", "C4", "C5", "C6"]

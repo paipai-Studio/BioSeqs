@@ -67,14 +67,7 @@ test "scater_filter_cells_custom_params" {
   let cell_ids = ["cell1", "cell2", "cell3"]
   let gene_names = ["Gene1", "Gene2", "Gene3"]
   let stats = @src.scater_calculate_qc_metrics(counts, cell_ids, gene_names)
-  let params = @src.QCFilterParams::with_params(
-    50.0, 
-    1000.0, 
-    2, 
-    100, 
-    20.0,
-    2
-  )
+  let params = @src.QCFilterParams::with_params(50.0, 1000.0, 2, 100, 20.0, 2)
   let (kept_indices, keep) = @src.scater_filter_cells(stats, params)
   assert_true(kept_indices.length() >= 1)
 }
@@ -160,7 +153,7 @@ test "scater_run_pca" {
   while i < 5 {
     let mut j = 0
     while j < 10 {
-      counts[i][j] = (i * 10 + j)
+      counts[i][j] = i * 10 + j
       j = j + 1
     }
     i = i + 1
@@ -176,7 +169,9 @@ test "scater_qc_report" {
   let counts = [[10, 20, 30], [5, 15, 25], [8, 18, 28]]
   let cell_ids = ["cell1", "cell2", "cell3"]
   let gene_names = ["Gene1", "Gene2", "mt-Atp6"]
-  let cell_stats = @src.scater_calculate_qc_metrics(counts, cell_ids, gene_names)
+  let cell_stats = @src.scater_calculate_qc_metrics(
+    counts, cell_ids, gene_names,
+  )
   let feature_stats = @src.scater_calculate_feature_qc(counts, gene_names)
   let params = @src.QCFilterParams::new()
   let report = @src.ScaterQCReport::new(cell_stats, feature_stats, params)

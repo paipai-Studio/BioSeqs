@@ -22,7 +22,11 @@ fn main {
   feature_data["chromosome"] = ["chr17", "chr17", "chr13", "chr11", "chr6"]
 
   let eset = @bio.ExpressionSet::new(
-    assay_data, pheno_data, feature_data, "Homo sapiens", Map([]),
+    assay_data,
+    pheno_data,
+    feature_data,
+    "Homo sapiens",
+    Map([]),
   )
 
   println("1. ExpressionSet Summary")

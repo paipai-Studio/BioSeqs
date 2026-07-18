@@ -8,6 +8,7 @@ pub struct GEOData {
   sample_info : Map[String, Array[String]]
 }
 
+///|
 pub struct GEOSeries {
   gse_id : String
   title : String
@@ -16,6 +17,7 @@ pub struct GEOSeries {
   sample_ids : Array[String]
 }
 
+///|
 pub struct GEOSample {
   gsm_id : String
   title : String
@@ -24,6 +26,7 @@ pub struct GEOSample {
   characteristics : Map[String, String]
 }
 
+///|
 pub struct GEOPlatform {
   gpl_id : String
   title : String
@@ -31,6 +34,7 @@ pub struct GEOPlatform {
   probe_count : Int
 }
 
+///|
 pub fn geo_data_new(
   series_id : String,
   sample_ids : Array[String],
@@ -42,6 +46,7 @@ pub fn geo_data_new(
   GEOData::{ series_id, sample_ids, platform_id, data, gene_names, sample_info }
 }
 
+///|
 pub fn geo_series_new(
   gse_id : String,
   title : String,
@@ -52,6 +57,7 @@ pub fn geo_series_new(
   GEOSeries::{ gse_id, title, description, platform_ids, sample_ids }
 }
 
+///|
 pub fn geo_sample_new(
   gsm_id : String,
   title : String,
@@ -62,6 +68,7 @@ pub fn geo_sample_new(
   GEOSample::{ gsm_id, title, description, platform_id, characteristics }
 }
 
+///|
 pub fn geo_platform_new(
   gpl_id : String,
   title : String,
@@ -71,6 +78,7 @@ pub fn geo_platform_new(
   GEOPlatform::{ gpl_id, title, organism, probe_count }
 }
 
+///|
 fn parse_geo_header_value(line : String) -> String {
   let idx = line.find("=")
   if idx.is_none() {
@@ -79,12 +87,14 @@ fn parse_geo_header_value(line : String) -> String {
   let pos = idx.unwrap() + 1
   let result = line[pos:].to_string()
   let mut start = 0
-  while start < result.length() && result.unsafe_get(start).to_int() == ' '.to_int() {
+  while start < result.length() &&
+        result.unsafe_get(start).to_int() == ' '.to_int() {
     start = start + 1
   }
   result[start:].to_string()
 }
 
+///|
 fn parse_geo_header_key_value(line : String) -> (String, String)? {
   let idx = line.find("=")
   if idx.is_none() {
@@ -94,24 +104,24 @@ fn parse_geo_header_key_value(line : String) -> (String, String)? {
   let key = line[1:pos].to_string()
   let value = line[pos + 1:].to_string()
   let mut start = 0
-  while start < value.length() && value.unsafe_get(start).to_int() == ' '.to_int() {
+  while start < value.length() &&
+        value.unsafe_get(start).to_int() == ' '.to_int() {
     start = start + 1
   }
   Some((key, value[start:].to_string()))
 }
 
-
-
+///|
 pub fn parse_geo_series_matrix(content : String) -> GEOData {
   let lines = split_by_char(content, '\n'.to_int())
-  
+
   let mut series_id = ""
   let mut platform_id = ""
   let sample_ids : Array[String] = Array::new()
   let gene_names : Array[String] = Array::new()
   let data : Array[Array[Double]] = Array::new()
   let sample_info : Map[String, Array[String]] = Map([], capacity=10)
-  
+
   let mut i = 0
   while i < lines.length() {
     let line = lines[i]
@@ -121,7 +131,8 @@ pub fn parse_geo_series_matrix(content : String) -> GEOData {
       platform_id = parse_geo_header_value(line)
     } else if line.starts_with("!Sample_geo_accession") {
       sample_ids.push(parse_geo_header_value(line))
-    } else if line.starts_with("!") && !line.starts_with("!series_matrix_table_begin") {
+    } else if line.starts_with("!") &&
+      !line.starts_with("!series_matrix_table_begin") {
       let key_value = parse_geo_header_key_value(line)
       if key_value.is_some() {
         let (key, value) = key_value.unwrap()
@@ -148,7 +159,7 @@ pub fn parse_geo_series_matrix(content : String) -> GEOData {
       if parts.length() > 1 {
         let gene_name = parts[0]
         gene_names.push(gene_name)
-        
+
         let row : Array[Double] = []
         let mut j = 1
         while j < parts.length() {
@@ -169,19 +180,22 @@ pub fn parse_geo_series_matrix(content : String) -> GEOData {
     }
     i = i + 1
   }
-  
-  geo_data_new(series_id, sample_ids, platform_id, data, gene_names, sample_info)
+
+  geo_data_new(
+    series_id, sample_ids, platform_id, data, gene_names, sample_info,
+  )
 }
 
+///|
 pub fn parse_soft_format(content : String) -> GEOSeries {
   let lines = split_by_char(content, '\n'.to_int())
-  
+
   let mut gse_id = ""
   let mut title = ""
   let mut description = ""
   let platform_ids : Array[String] = Array::new()
   let sample_ids : Array[String] = Array::new()
-  
+
   let mut i = 0
   while i < lines.length() {
     let line = lines[i]
@@ -204,12 +218,16 @@ pub fn parse_soft_format(content : String) -> GEOSeries {
     }
     i = i + 1
   }
-  
+
   geo_series_new(gse_id, title, description, platform_ids, sample_ids)
 }
 
+///|
 pub fn geo_data_to_expression_set(geo : GEOData) -> ExpressionSet {
-  let pheno_data : Map[String, Array[String]] = Map([], capacity=geo.sample_info.length())
+  let pheno_data : Map[String, Array[String]] = Map(
+    [],
+    capacity=geo.sample_info.length(),
+  )
   let pheno_keys = geo.sample_info.keys().collect()
   let mut i = 0
   while i < pheno_keys.length() {
@@ -218,13 +236,20 @@ pub fn geo_data_to_expression_set(geo : GEOData) -> ExpressionSet {
     i = i + 1
   }
   pheno_data["sample_name"] = geo.sample_ids
-  
+
   let feature_data : Map[String, Array[String]] = Map([], capacity=1)
   feature_data["feature_name"] = geo.gene_names
-  
-  ExpressionSet::new(geo.data, pheno_data, feature_data, geo.platform_id, Map([]))
+
+  ExpressionSet::new(
+    geo.data,
+    pheno_data,
+    feature_data,
+    geo.platform_id,
+    Map([]),
+  )
 }
 
+///|
 pub fn geo_data_filter_genes(
   geo : GEOData,
   min_expression : Double,
@@ -232,7 +257,7 @@ pub fn geo_data_filter_genes(
 ) -> GEOData {
   let filtered_data : Array[Array[Double]] = Array::new()
   let filtered_genes : Array[String] = Array::new()
-  
+
   let mut i = 0
   while i < geo.data.length() {
     let row = geo.data[i]
@@ -252,13 +277,21 @@ pub fn geo_data_filter_genes(
     }
     i = i + 1
   }
-  
-  geo_data_new(geo.series_id, geo.sample_ids, geo.platform_id, filtered_data, filtered_genes, geo.sample_info)
+
+  geo_data_new(
+    geo.series_id,
+    geo.sample_ids,
+    geo.platform_id,
+    filtered_data,
+    filtered_genes,
+    geo.sample_info,
+  )
 }
 
+///|
 pub fn geo_data_log2_transform(geo : GEOData) -> GEOData {
   let transformed_data : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < geo.data.length() {
     let row = geo.data[i]
@@ -275,15 +308,23 @@ pub fn geo_data_log2_transform(geo : GEOData) -> GEOData {
     transformed_data.push(new_row)
     i = i + 1
   }
-  
-  geo_data_new(geo.series_id, geo.sample_ids, geo.platform_id, transformed_data, geo.gene_names, geo.sample_info)
+
+  geo_data_new(
+    geo.series_id,
+    geo.sample_ids,
+    geo.platform_id,
+    transformed_data,
+    geo.gene_names,
+    geo.sample_info,
+  )
 }
 
+///|
 pub fn geo_data_summary(geo : GEOData) -> String {
   let ngenes = geo.gene_names.length()
   let nsamples = geo.sample_ids.length()
   let nrows = geo.data.length()
-  
+
   let mut result = "GEOData Summary\n"
   result = result + "---------------\n"
   result = result + "Series ID: " + geo.series_id + "\n"
@@ -291,7 +332,7 @@ pub fn geo_data_summary(geo : GEOData) -> String {
   result = result + "Genes: " + ngenes.to_string() + "\n"
   result = result + "Samples: " + nsamples.to_string() + "\n"
   result = result + "Data rows: " + nrows.to_string() + "\n"
-  
+
   if geo.sample_ids.length() > 0 {
     result = result + "\nSample IDs:\n"
     let mut i = 0
@@ -300,22 +341,29 @@ pub fn geo_data_summary(geo : GEOData) -> String {
       i = i + 1
     }
     if geo.sample_ids.length() > 5 {
-      result = result + "  ... and " + (geo.sample_ids.length() - 5).to_string() + " more\n"
+      result = result +
+        "  ... and " +
+        (geo.sample_ids.length() - 5).to_string() +
+        " more\n"
     }
   }
-  
+
   result
 }
 
+///|
 pub fn geo_series_summary(series : GEOSeries) -> String {
   let mut result = "GEOSeries Summary\n"
   result = result + "-----------------\n"
   result = result + "GSE ID: " + series.gse_id + "\n"
   result = result + "Title: " + series.title + "\n"
   result = result + "Description: " + series.description + "\n"
-  result = result + "Platforms: " + series.platform_ids.length().to_string() + "\n"
+  result = result +
+    "Platforms: " +
+    series.platform_ids.length().to_string() +
+    "\n"
   result = result + "Samples: " + series.sample_ids.length().to_string() + "\n"
-  
+
   if series.platform_ids.length() > 0 {
     result = result + "\nPlatform IDs:\n"
     let mut i = 0
@@ -324,7 +372,7 @@ pub fn geo_series_summary(series : GEOSeries) -> String {
       i = i + 1
     }
   }
-  
+
   if series.sample_ids.length() > 0 {
     result = result + "\nSample IDs:\n"
     let mut i = 0
@@ -333,9 +381,12 @@ pub fn geo_series_summary(series : GEOSeries) -> String {
       i = i + 1
     }
     if series.sample_ids.length() > 5 {
-      result = result + "  ... and " + (series.sample_ids.length() - 5).to_string() + " more\n"
+      result = result +
+        "  ... and " +
+        (series.sample_ids.length() - 5).to_string() +
+        " more\n"
     }
   }
-  
+
   result
 }

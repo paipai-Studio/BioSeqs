@@ -4,14 +4,12 @@ fn main {
   println("Inspired by Bioconductor tximport package")
   println("")
 
-  let quant_sf_content1 = 
-    "# Name\tLength\tEffectiveLength\tTPM\tNumReads\n" +
+  let quant_sf_content1 = "# Name\tLength\tEffectiveLength\tTPM\tNumReads\n" +
     "ENST00000357654.5\t1500\t1480\t10.5\t150\n" +
     "ENST00000357655.3\t1200\t1180\t8.3\t120\n" +
     "ENST00000357656.2\t900\t880\t6.7\t95\n"
 
-  let quant_sf_content2 = 
-    "# Name\tLength\tEffectiveLength\tTPM\tNumReads\n" +
+  let quant_sf_content2 = "# Name\tLength\tEffectiveLength\tTPM\tNumReads\n" +
     "ENST00000357654.5\t1500\t1480\t15.2\t220\n" +
     "ENST00000357655.3\t1200\t1180\t12.1\t175\n" +
     "ENST00000357656.2\t900\t880\t9.8\t140\n"
@@ -23,12 +21,18 @@ fn main {
   ]
 
   println("1. Parse quant.sf File")
-  let (tx_names, abundance, counts, length) = @bio.parse_quant_sf(quant_sf_content1)
+  let (tx_names, abundance, counts, length) = @bio.parse_quant_sf(
+    quant_sf_content1,
+  )
   println("   Transcripts: " + tx_names.length().to_string())
   println("")
 
   println("2. tx_import (multi-sample)")
-  let txi = @bio.tx_import([quant_sf_content1, quant_sf_content2], tx2gene, true)
+  let txi = @bio.tx_import(
+    [quant_sf_content1, quant_sf_content2],
+    tx2gene,
+    true,
+  )
   println(@bio.tx_import_data_summary(txi))
   println("")
 
@@ -42,7 +46,11 @@ fn main {
 
   println("4. Summarize to Gene Level")
   let gene_level = @bio.summarize_to_gene(txi, tx2gene, true)
-  println("   Gene-level data: " + gene_level.gene_names.length().to_string() + " genes")
+  println(
+    "   Gene-level data: " +
+    gene_level.gene_names.length().to_string() +
+    " genes",
+  )
   println("")
 
   println("5. Gene Names")
@@ -68,7 +76,11 @@ fn main {
 
   println("7. Filter Low Expression (min 100 counts)")
   let filtered = @bio.tx_import_filter_low_expression(txi, 100.0)
-  println("   After filtering: " + filtered.tx_names.length().to_string() + " transcripts")
+  println(
+    "   After filtering: " +
+    filtered.tx_names.length().to_string() +
+    " transcripts",
+  )
   println("")
 
   println("8. Sample Names")

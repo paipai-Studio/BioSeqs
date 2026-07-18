@@ -1,8 +1,8 @@
 ///|
 test "tximport_parse_quant_sf" {
   let content = "Name\tLength\tEffectiveLength\tTPM\tNumReads\n" +
-               "tx1\t1000\t900\t10.5\t100\n" +
-               "tx2\t2000\t1800\t20.3\t200\n"
+    "tx1\t1000\t900\t10.5\t100\n" +
+    "tx2\t2000\t1800\t20.3\t200\n"
 
   let (tx_names, abundance, counts, length) = @src.parse_quant_sf(content)
 
@@ -15,10 +15,13 @@ test "tximport_parse_quant_sf" {
 ///|
 test "tximport_tx_import" {
   let file1 = "Name\tLength\tEffectiveLength\tTPM\tNumReads\n" +
-              "tx1\t1000\t900\t10.5\t100\n" +
-              "tx2\t2000\t1800\t20.3\t200\n"
+    "tx1\t1000\t900\t10.5\t100\n" +
+    "tx2\t2000\t1800\t20.3\t200\n"
 
-  let tx2gene = [@src.tx2gene_new("tx1", "gene1", "Gene1"), @src.tx2gene_new("tx2", "gene2", "Gene2")]
+  let tx2gene = [
+    @src.tx2gene_new("tx1", "gene1", "Gene1"),
+    @src.tx2gene_new("tx2", "gene2", "Gene2"),
+  ]
 
   let txi = @src.tx_import([file1], tx2gene, false)
 
@@ -32,9 +35,19 @@ test "tximport_summarize_to_gene" {
   let counts = [[100.0, 200.0], [150.0, 250.0]]
   let length = [[900.0, 1800.0], [950.0, 1850.0]]
 
-  let txi = @src.tx_import_data_new(abundance, counts, length, ["tx1", "tx2", "tx1a", "tx2a"], ["s1", "s2"], ["Gene1", "Gene2", "Gene1", "Gene2"])
+  let txi = @src.tx_import_data_new(
+    abundance,
+    counts,
+    length,
+    ["tx1", "tx2", "tx1a", "tx2a"],
+    ["s1", "s2"],
+    ["Gene1", "Gene2", "Gene1", "Gene2"],
+  )
 
-  let tx2gene = [@src.tx2gene_new("tx1", "gene1", "Gene1"), @src.tx2gene_new("tx2", "gene2", "Gene2")]
+  let tx2gene = [
+    @src.tx2gene_new("tx1", "gene1", "Gene1"),
+    @src.tx2gene_new("tx2", "gene2", "Gene2"),
+  ]
 
   let gene_txi = @src.summarize_to_gene(txi, tx2gene, false)
 
@@ -47,7 +60,14 @@ test "tximport_filter_low_expression" {
   let abundance = [[0.5, 0.0, 0.0], [50.0, 100.0, 150.0]]
   let length = [[1000.0, 2000.0, 3000.0], [1000.0, 2000.0, 3000.0]]
 
-  let txi = @src.tx_import_data_new(abundance, counts, length, ["tx1", "tx2", "tx3"], ["s1", "s2"], ["Gene1", "Gene2", "Gene3"])
+  let txi = @src.tx_import_data_new(
+    abundance,
+    counts,
+    length,
+    ["tx1", "tx2", "tx3"],
+    ["s1", "s2"],
+    ["Gene1", "Gene2", "Gene3"],
+  )
 
   let filtered = @src.tx_import_filter_low_expression(txi, 10.0)
 
@@ -60,7 +80,14 @@ test "tximport_tx_import_data_summary" {
   let counts = [[100.0, 200.0]]
   let length = [[900.0, 1800.0]]
 
-  let txi = @src.tx_import_data_new(abundance, counts, length, ["tx1", "tx2"], ["s1"], ["Gene1", "Gene2"])
+  let txi = @src.tx_import_data_new(
+    abundance,
+    counts,
+    length,
+    ["tx1", "tx2"],
+    ["s1"],
+    ["Gene1", "Gene2"],
+  )
 
   let summary = @src.tx_import_data_summary(txi)
 

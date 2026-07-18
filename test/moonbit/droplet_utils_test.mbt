@@ -16,7 +16,14 @@ test "droplet_utils_barcode_ranking" {
 
 ///|
 test "droplet_utils_find_knee_point" {
-  let ranked = [(1000.0, 0), (900.0, 1), (800.0, 2), (200.0, 3), (100.0, 4), (50.0, 5)]
+  let ranked = [
+    (1000.0, 0),
+    (900.0, 1),
+    (800.0, 2),
+    (200.0, 3),
+    (100.0, 4),
+    (50.0, 5),
+  ]
   let knee = @src.find_knee_point(ranked)
   assert_true(knee >= 0 && knee < ranked.length())
 }
@@ -33,7 +40,9 @@ test "droplet_utils_empty_drops" {
 test "droplet_utils_filter_cells" {
   let (counts, barcodes) = @src.create_example_droplet_data()
   let result = @src.empty_drops(counts, barcodes, 10, 100)
-  let (filtered_counts, filtered_barcodes) = @src.filter_cells_by_empty_drops(counts, barcodes, result)
+  let (filtered_counts, filtered_barcodes) = @src.filter_cells_by_empty_drops(
+    counts, barcodes, result,
+  )
   assert_eq(filtered_counts.length(), filtered_barcodes.length())
 }
 

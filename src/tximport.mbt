@@ -1,19 +1,21 @@
 ///|
 pub struct TxImportData {
-  abundance : Array[Array[Double]];
-  counts : Array[Array[Double]];
-  length : Array[Array[Double]];
-  tx_names : Array[String];
-  sample_names : Array[String];
-  gene_names : Array[String];
+  abundance : Array[Array[Double]]
+  counts : Array[Array[Double]]
+  length : Array[Array[Double]]
+  tx_names : Array[String]
+  sample_names : Array[String]
+  gene_names : Array[String]
 }
 
+///|
 pub struct Tx2Gene {
-  tx_id : String;
-  gene_id : String;
-  gene_name : String;
+  tx_id : String
+  gene_id : String
+  gene_name : String
 }
 
+///|
 pub fn tx_import_data_new(
   abundance : Array[Array[Double]],
   counts : Array[Array[Double]],
@@ -22,21 +24,36 @@ pub fn tx_import_data_new(
   sample_names : Array[String],
   gene_names : Array[String],
 ) -> TxImportData {
-  TxImportData::{ abundance, counts, length, tx_names, sample_names, gene_names }
+  TxImportData::{
+    abundance,
+    counts,
+    length,
+    tx_names,
+    sample_names,
+    gene_names,
+  }
 }
 
-pub fn tx2gene_new(tx_id : String, gene_id : String, gene_name : String) -> Tx2Gene {
+///|
+pub fn tx2gene_new(
+  tx_id : String,
+  gene_id : String,
+  gene_name : String,
+) -> Tx2Gene {
   Tx2Gene::{ tx_id, gene_id, gene_name }
 }
 
-pub fn parse_quant_sf(content : String) -> (Array[String], Array[Double], Array[Double], Array[Double]) {
+///|
+pub fn parse_quant_sf(
+  content : String,
+) -> (Array[String], Array[Double], Array[Double], Array[Double]) {
   let lines = split_by_char(content, '\n'.to_int())
-  
+
   let tx_names : Array[String] = Array::new()
   let abundance : Array[Double] = Array::new()
   let counts : Array[Double] = Array::new()
   let length : Array[Double] = Array::new()
-  
+
   let mut i = 0
   while i < lines.length() {
     let line = lines[i]
@@ -44,12 +61,12 @@ pub fn parse_quant_sf(content : String) -> (Array[String], Array[Double], Array[
       i = i + 1
       continue
     }
-    
+
     if i == 0 {
       i = i + 1
       continue
     }
-    
+
     let parts = split_by_char(line, 9)
     if parts.length() >= 5 {
       tx_names.push(parts[0])
@@ -71,10 +88,11 @@ pub fn parse_quant_sf(content : String) -> (Array[String], Array[Double], Array[
     }
     i = i + 1
   }
-  
+
   (tx_names, abundance, counts, length)
 }
 
+///|
 pub fn tx_import(
   files : Array[String],
   tx2gene : Array[Tx2Gene],
@@ -84,37 +102,40 @@ pub fn tx_import(
   let all_abundance : Array[Array[Double]] = Array::new()
   let all_counts : Array[Array[Double]] = Array::new()
   let all_length : Array[Array[Double]] = Array::new()
-  
+
   let sample_names : Array[String] = Array::new()
-  
+
   let mut i = 0
   while i < files.length() {
     let file_content = files[i]
     let (tx_names, abundance, counts, length) = parse_quant_sf(file_content)
-    
+
     if i == 0 {
       all_tx_names = tx_names.clone()
     }
-    
+
     all_abundance.push(abundance)
     all_counts.push(counts)
     all_length.push(length)
-    
+
     let name = extract_sample_name(file_content)
     if name.length() > 0 {
       sample_names.push(name)
     } else {
       sample_names.push("sample_" + i.to_string())
     }
-    
+
     i = i + 1
   }
-  
+
   let gene_names = map_tx_to_gene(all_tx_names, tx2gene, ignore_tx_version)
-  
-  tx_import_data_new(all_abundance, all_counts, all_length, all_tx_names, sample_names, gene_names)
+
+  tx_import_data_new(
+    all_abundance, all_counts, all_length, all_tx_names, sample_names, gene_names,
+  )
 }
 
+///|
 fn extract_sample_name(content : String) -> String {
   let lines = split_by_char(content, '\n'.to_int())
   if lines.length() > 0 {
@@ -129,13 +150,14 @@ fn extract_sample_name(content : String) -> String {
   ""
 }
 
+///|
 fn map_tx_to_gene(
   tx_names : Array[String],
   tx2gene : Array[Tx2Gene],
   ignore_tx_version : Bool,
 ) -> Array[String] {
   let gene_map : Map[String, String] = Map([], capacity=tx2gene.length())
-  
+
   let mut i = 0
   while i < tx2gene.length() {
     let tx = tx2gene[i]
@@ -147,7 +169,7 @@ fn map_tx_to_gene(
     gene_map[tx_id] = tx.gene_name
     i = i + 1
   }
-  
+
   let gene_names : Array[String] = Array::new()
   i = 0
   while i < tx_names.length() {
@@ -163,10 +185,11 @@ fn map_tx_to_gene(
     }
     i = i + 1
   }
-  
+
   gene_names
 }
 
+///|
 fn remove_tx_version(tx_id : String) -> String {
   let idx = tx_id.find(".")
   if idx.is_some() {
@@ -176,13 +199,14 @@ fn remove_tx_version(tx_id : String) -> String {
   }
 }
 
+///|
 pub fn summarize_to_gene(
   txi : TxImportData,
   tx2gene : Array[Tx2Gene],
   ignore_tx_version : Bool,
 ) -> TxImportData {
   let gene_to_tx : Map[String, Array[Int]] = Map([], capacity=100)
-  
+
   let mut i = 0
   while i < txi.tx_names.length() {
     let tx = if ignore_tx_version {
@@ -190,7 +214,7 @@ pub fn summarize_to_gene(
     } else {
       txi.tx_names[i]
     }
-    
+
     let mut gene_name = txi.gene_names[i]
     let mut j = 0
     while j < tx2gene.length() {
@@ -206,22 +230,22 @@ pub fn summarize_to_gene(
       }
       j = j + 1
     }
-    
+
     if !gene_to_tx.contains(gene_name) {
       gene_to_tx[gene_name] = []
     }
     gene_to_tx[gene_name].push(i)
     i = i + 1
   }
-  
+
   let gene_list = gene_to_tx.keys().collect()
   let ngene = gene_list.length()
   let nsample = txi.sample_names.length()
-  
+
   let gene_abundance : Array[Array[Double]] = Array::new()
   let gene_counts : Array[Array[Double]] = Array::new()
   let gene_length : Array[Array[Double]] = Array::new()
-  
+
   let mut k = 0
   while k < nsample {
     let row_ab : Array[Double] = Array::new()
@@ -239,18 +263,18 @@ pub fn summarize_to_gene(
     gene_length.push(row_len)
     k = k + 1
   }
-  
+
   let mut g = 0
   while g < ngene {
     let gene_name = gene_list[g]
     let tx_indices = gene_to_tx[gene_name]
-    
+
     let mut k = 0
     while k < nsample {
       let mut total_abundance = 0.0
       let mut total_counts = 0.0
       let mut total_length = 0.0
-      
+
       let mut j = 0
       while j < tx_indices.length() {
         let tx_idx = tx_indices[j]
@@ -265,7 +289,7 @@ pub fn summarize_to_gene(
         }
         j = j + 1
       }
-      
+
       if tx_indices.length() > 0 {
         gene_abundance[k][g] = total_abundance
         gene_counts[k][g] = total_counts
@@ -275,11 +299,22 @@ pub fn summarize_to_gene(
     }
     g = g + 1
   }
-  
-  tx_import_data_new(gene_abundance, gene_counts, gene_length, gene_list, txi.sample_names, gene_list)
+
+  tx_import_data_new(
+    gene_abundance,
+    gene_counts,
+    gene_length,
+    gene_list,
+    txi.sample_names,
+    gene_list,
+  )
 }
 
-pub fn tx_import_data_to_expression_set(txi : TxImportData, type_ : String) -> ExpressionSet {
+///|
+pub fn tx_import_data_to_expression_set(
+  txi : TxImportData,
+  type_ : String,
+) -> ExpressionSet {
   let assay_data = if type_ == "abundance" {
     transpose(txi.abundance)
   } else if type_ == "counts" {
@@ -287,26 +322,27 @@ pub fn tx_import_data_to_expression_set(txi : TxImportData, type_ : String) -> E
   } else {
     transpose(txi.length)
   }
-  
+
   let pheno_data : Map[String, Array[String]] = Map([], capacity=1)
   pheno_data["sample_name"] = txi.sample_names
-  
+
   let feature_data : Map[String, Array[String]] = Map([], capacity=2)
   feature_data["feature_name"] = txi.gene_names
   feature_data["transcript_name"] = txi.tx_names
-  
+
   ExpressionSet::new(assay_data, pheno_data, feature_data, "tximport", Map([]))
 }
 
+///|
 pub fn tx_import_data_summary(txi : TxImportData) -> String {
   let ntx = txi.tx_names.length()
   let nsample = txi.sample_names.length()
-  
+
   let mut result = "TxImportData Summary\n"
   result = result + "--------------------\n"
   result = result + "Transcripts: " + ntx.to_string() + "\n"
   result = result + "Samples: " + nsample.to_string() + "\n"
-  
+
   if txi.sample_names.length() > 0 {
     result = result + "\nSample names:\n"
     let mut i = 0
@@ -315,18 +351,22 @@ pub fn tx_import_data_summary(txi : TxImportData) -> String {
       i = i + 1
     }
     if txi.sample_names.length() > 5 {
-      result = result + "  ... and " + (txi.sample_names.length() - 5).to_string() + " more\n"
+      result = result +
+        "  ... and " +
+        (txi.sample_names.length() - 5).to_string() +
+        " more\n"
     }
   }
-  
+
   if txi.gene_names.length() > 0 {
     let unique_genes = count_unique(txi.gene_names)
     result = result + "\nUnique genes: " + unique_genes.to_string() + "\n"
   }
-  
+
   result
 }
 
+///|
 fn count_unique(arr : Array[String]) -> Int {
   let seen : Map[String, Bool] = Map([], capacity=arr.length())
   let mut count = 0
@@ -341,13 +381,14 @@ fn count_unique(arr : Array[String]) -> Int {
   count
 }
 
+///|
 pub fn tx_import_filter_low_expression(
   txi : TxImportData,
   min_counts : Double,
 ) -> TxImportData {
   let nsample = txi.counts.length()
   let ntx = if nsample > 0 { txi.counts[0].length() } else { 0 }
-  
+
   let keep_tx : Array[Int] = Array::new()
   let mut i = 0
   while i < ntx {
@@ -364,19 +405,19 @@ pub fn tx_import_filter_low_expression(
     }
     i = i + 1
   }
-  
+
   let new_abundance : Array[Array[Double]] = Array::new()
   let new_counts : Array[Array[Double]] = Array::new()
   let new_length : Array[Array[Double]] = Array::new()
   let new_tx_names : Array[String] = Array::new()
   let new_gene_names : Array[String] = Array::new()
-  
+
   let mut k = 0
   while k < nsample {
     let row_ab : Array[Double] = Array::new()
     let row_ct : Array[Double] = Array::new()
     let row_len : Array[Double] = Array::new()
-    
+
     let mut j = 0
     while j < keep_tx.length() {
       let tx_idx = keep_tx[j]
@@ -402,7 +443,7 @@ pub fn tx_import_filter_low_expression(
     new_length.push(row_len)
     k = k + 1
   }
-  
+
   let mut j = 0
   while j < keep_tx.length() {
     let tx_idx = keep_tx[j]
@@ -414,6 +455,13 @@ pub fn tx_import_filter_low_expression(
     }
     j = j + 1
   }
-  
-  tx_import_data_new(new_abundance, new_counts, new_length, new_tx_names, txi.sample_names, new_gene_names)
+
+  tx_import_data_new(
+    new_abundance,
+    new_counts,
+    new_length,
+    new_tx_names,
+    txi.sample_names,
+    new_gene_names,
+  )
 }
