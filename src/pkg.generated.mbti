@@ -133,6 +133,84 @@ pub fn blosum62() -> SubstitutionMatrix
 
 pub fn bonferroni_correction(Array[Double]) -> Array[Double]
 
+pub fn bsseq_betainc(Double, Double, Double) -> Double
+
+pub fn bsseq_bh_fdr(Array[Double]) -> Array[Double]
+
+pub fn bsseq_bsmooth(BSData, Int) -> BSmoothResult
+
+pub fn bsseq_combine_samples(Array[BSData]) -> CovMatrix
+
+pub fn bsseq_compute_methylation_diff(Double, Double) -> Double
+
+pub fn bsseq_compute_tstat(Array[Double], Array[Double]) -> TStatResult
+
+pub fn bsseq_create_example_bsdata() -> BSData
+
+pub fn bsseq_create_example_cov_matrix() -> CovMatrix
+
+pub fn bsseq_create_example_records() -> Array[BSRecord]
+
+pub fn bsseq_dmr_test(Array[Int], Array[Int], Array[Int], Array[Int]) -> (Double, Double)
+
+pub fn bsseq_exp(Double) -> Double
+
+pub fn bsseq_filter_by_context(BSData, String) -> BSData
+
+pub fn bsseq_filter_by_coverage(BSData, Int, Int) -> BSData
+
+pub fn bsseq_find_dmr(TStatResult, Array[Int], String, Double, Int) -> BsseqDMRResult
+
+pub fn bsseq_find_hyper_dmr(BsseqDMRResult) -> Array[DMRegion]
+
+pub fn bsseq_find_hypo_dmr(BsseqDMRResult) -> Array[DMRegion]
+
+pub fn bsseq_get_coverage(BSData) -> Array[Int]
+
+pub fn bsseq_get_methylation(BSData) -> Array[Double]
+
+pub fn bsseq_get_methylation_rate(Int, Int) -> Double
+
+pub fn bsseq_ln(Double) -> Double
+
+pub fn bsseq_ln_gamma(Double) -> Double
+
+pub fn bsseq_log2(Double) -> Double
+
+pub fn bsseq_mean(Array[Double]) -> Double
+
+pub fn bsseq_median(Array[Double]) -> Double
+
+pub fn bsseq_merge_cpgs(Array[BSRecord], Int) -> Array[BSRecord]
+
+pub fn bsseq_normal_cdf(Double) -> Double
+
+pub fn bsseq_normalize(BSData, String) -> BSData
+
+pub fn bsseq_parse_bed(String) -> BSData
+
+pub fn bsseq_parse_bismark(String) -> BSData
+
+pub fn bsseq_pow(Double, Double) -> Double
+
+pub fn bsseq_region_methylation(BSData, String, Int, Int) -> Double
+
+pub fn bsseq_sd(Array[Double]) -> Double
+
+pub fn bsseq_smooth_methylation(Array[Int], Array[Int], Int) -> Array[Double]
+
+pub fn bsseq_sort_doubles(Array[Double]) -> Array[Double]
+
+pub fn bsseq_sqrt(Double) -> Double
+
+pub fn bsseq_summary(BSData) -> String
+
+pub fn bsseq_t_test(Array[Double], Array[Double]) -> (Double, Double)
+
+pub fn bsseq_t_test_pval(Double, Double) -> Double
+
+pub fn bsseq_variance(Array[Double]) -> Double
+
 pub fn build_fai(String) -> FastaIndex
 
 pub fn build_snn_graph(Array[Array[Double]], Int) -> (Array[Array[Int]], Array[Array[Double]])
@@ -634,6 +712,66 @@ pub fn fishers_exact_test(Int, Int, Int, Int) -> Double
 pub fn fit_models(CellDataSet, Array[String]) -> DiffExprResult
 
 pub fn five_prime_utrs(TxDb) -> GRanges
+
+pub fn flow_core_asinh(Double) -> Double
+
+pub fn flow_core_asinh_transform(Double, Double, Double, Double) -> Double
+
+pub fn flow_core_compensate(FlowFrame, CompensationMatrix) -> FlowFrame
+
+pub fn flow_core_compute_spillover(Array[Array[Double]]) -> Array[Double]
+
+pub fn flow_core_create_compensation_matrix(Array[String], Array[Array[Double]]) -> CompensationMatrix
+
+pub fn flow_core_create_example_compensation() -> CompensationMatrix
+
+pub fn flow_core_create_example_fcs() -> FCSFile
+
+pub fn flow_core_create_example_frame() -> FlowFrame
+
+pub fn flow_core_create_example_gate() -> Gate
+
+pub fn flow_core_create_example_set() -> FlowSet
+
+pub fn flow_core_ellipsoid_gate(FlowFrame, Gate) -> GatingResult
+
+pub fn flow_core_exp(Double) -> Double
+
+pub fn flow_core_filter_events(FlowFrame, Gate) -> GatingResult
+
+pub fn flow_core_get_markers(FlowFrame) -> Array[String]
+
+pub fn flow_core_ln(Double) -> Double
+
+pub fn flow_core_log10(Double) -> Double
+
+pub fn flow_core_log_transform(Double, Double, Double, Double) -> Double
+
+pub fn flow_core_logicle_transform(Double, Double, Double, Double, Double) -> Double
+
+pub fn flow_core_merge_frames(Array[FlowFrame]) -> FlowFrame
+
+pub fn flow_core_normalize(FlowFrame, String) -> FlowFrame
+
+pub fn flow_core_point_in_ellipse(Double, Double, (Double, Double), (Double, Double)) -> Bool
+
+pub fn flow_core_point_in_polygon(Double, Double, Array[(Double, Double)]) -> Bool
+
+pub fn flow_core_polygon_gate(FlowFrame, Gate) -> GatingResult
+
+pub fn flow_core_quadrant_gate(FlowFrame, Gate) -> GatingResult
+
+pub fn flow_core_read_fcs(String) -> FlowFrame
+
+pub fn flow_core_rectangle_gate(FlowFrame, Gate) -> GatingResult
+
+pub fn flow_core_sqrt(Double) -> Double
+
+pub fn flow_core_summary(FlowFrame) -> String
+
+pub fn flow_core_transform(FlowFrame, Transformation) -> FlowFrame
+
+pub fn flow_core_write_fcs(FlowFrame, String) -> String
 
 pub fn format_citation_apa(MedlineRecord) -> String
 
@@ -1371,6 +1509,78 @@ pub fn scater_normalize_cpm(Array[Array[Int]]) -> Array[Array[Double]]
 
 pub fn scater_run_pca(Array[Array[Double]], Int) -> Array[Array[Double]]
 
+pub fn sce_compute_deconv_size_factors(Array[Array[Double]]) -> Array[Double]
+
+pub fn sce_compute_library_size_factors(Array[Array[Double]]) -> Array[Double]
+
+pub fn sce_compute_logcounts(Array[Array[Double]], Array[Double]) -> Array[Array[Double]]
+
+pub fn sce_compute_pca(Array[Array[Double]], Int) -> ReducedDimResult
+
+pub fn sce_compute_size_factors(Array[Array[Double]], String) -> SizeFactorResult
+
+pub fn sce_compute_tsne(Array[Array[Double]], Int) -> ReducedDimResult
+
+pub fn sce_compute_umap(Array[Array[Double]], Int) -> ReducedDimResult
+
+pub fn sce_create_example() -> SingleCellExperiment
+
+pub fn sce_create_example_counts() -> Array[Array[Double]]
+
+pub fn sce_create_example_with_reduced_dims() -> SingleCellExperiment
+
+pub fn sce_exp(Double) -> Double
+
+pub fn sce_filter_cells(SingleCellExperiment, Int) -> SingleCellExperiment
+
+pub fn sce_filter_genes(SingleCellExperiment, Int) -> SingleCellExperiment
+
+pub fn sce_geometric_mean(Array[Double]) -> Double
+
+pub fn sce_get_assay(SingleCellExperiment, String) -> Array[Array[Double]]
+
+pub fn sce_get_col_data(SingleCellExperiment, String) -> Array[String]
+
+pub fn sce_get_counts(SingleCellExperiment) -> Array[Array[Double]]
+
+pub fn sce_get_logcounts(SingleCellExperiment) -> Array[Array[Double]]
+
+pub fn sce_get_n_cells(SingleCellExperiment) -> Int
+
+pub fn sce_get_n_genes(SingleCellExperiment) -> Int
+
+pub fn sce_get_reduced_dim(SingleCellExperiment, String) -> Array[Array[Double]]
+
+pub fn sce_get_row_data(SingleCellExperiment, String) -> Array[String]
+
+pub fn sce_ln(Double) -> Double
+
+pub fn sce_log2(Double) -> Double
+
+pub fn sce_mean(Array[Double]) -> Double
+
+pub fn sce_median(Array[Double]) -> Double
+
+pub fn sce_merge(Array[SingleCellExperiment]) -> SingleCellExperiment
+
+pub fn sce_normalize(SingleCellExperiment, String) -> SingleCellExperiment
+
+pub fn sce_set_assay(SingleCellExperiment, String, Array[Array[Double]]) -> SingleCellExperiment
+
+pub fn sce_set_logcounts(SingleCellExperiment, Array[Array[Double]]) -> SingleCellExperiment
+
+pub fn sce_set_reduced_dim(SingleCellExperiment, String, Array[Array[Double]]) -> SingleCellExperiment
+
+pub fn sce_sqrt(Double) -> Double
+
+pub fn sce_subset_cells(SingleCellExperiment, Array[Int]) -> SingleCellExperiment
+
+pub fn sce_subset_genes(SingleCellExperiment, Array[Int]) -> SingleCellExperiment
+
+pub fn sce_summary(SingleCellExperiment) -> String
+
+pub fn sce_variance(Array[Double]) -> Double
+
 pub fn score_markers(Array[Array[Int]], Array[Int], Array[String]) -> ScoreMarkersResult
 
 pub fn score_sequence(Array[Array[Double]], String, Array[String]) -> Double
@@ -1819,6 +2029,18 @@ pub fn AtomCoordinate::distance(Self, Self) -> Double
 pub fn AtomCoordinate::new(Double, Double, Double) -> Self
 pub fn AtomCoordinate::to_array(Self) -> Array[Double]
 
+pub struct BSData {
+  records : Array[BSRecord]
+  sample_names : Array[String]
+  chr_names : Array[String]
+  coverage : Array[Int]
+  methylation : Array[Double]
+}
+pub fn BSData::n_records(Self) -> Int
+pub fn BSData::n_samples(Self) -> Int
+pub fn BSData::new(Array[BSRecord], Array[String]) -> Self
+pub fn BSData::to_string(Self) -> String
+
 pub struct BSGenome {
   name : String
   organism : String
@@ -1839,6 +2061,30 @@ pub fn BSGenome::get_subseq(Self, String, Int, Int) -> String?
 pub fn BSGenome::has_chromosome(Self, String) -> Bool
 pub fn BSGenome::new(String, String, String, String) -> Self
 pub fn BSGenome::total_length(Self) -> Int
+
+pub struct BSRecord {
+  chr : String
+  pos : Int
+  strand : String
+  meth : Int
+  unmeth : Int
+  context : String
+}
+pub fn BSRecord::coverage(Self) -> Int
+pub fn BSRecord::new(String, Int, String, Int, Int) -> Self
+pub fn BSRecord::new_with_context(String, Int, String, Int, Int, String) -> Self
+pub fn BSRecord::rate(Self) -> Double
+pub fn BSRecord::to_string(Self) -> String
+
+pub struct BSmoothResult {
+  chr : String
+  pos : Array[Int]
+  smoothed_meth : Array[Double]
+  raw_meth : Array[Double]
+  coverage : Array[Int]
+  window_size : Int
+}
+pub fn BSmoothResult::to_string(Self) -> String
 
 pub struct Ballgown {
   sample_names : Array[String]
@@ -2107,6 +2353,15 @@ pub fn BloomKmerFilter::k(Self) -> Int
 pub fn BloomKmerFilter::len(Self) -> Int
 pub fn BloomKmerFilter::new(Int, Int, Double) -> Self
 
+pub struct BsseqDMRResult {
+  regions : Array[DMRegion]
+  n_dmr : Int
+  n_significant : Int
+  threshold : Double
+}
+pub fn BsseqDMRResult::new(Array[DMRegion], Double) -> Self
+pub fn BsseqDMRResult::to_string(Self) -> String
+
 type BuildNode
 
 pub struct CDS {
@@ -2296,6 +2551,14 @@ pub struct ComBatResult {
 }
 pub fn ComBatResult::new(Array[Array[Double]], Array[Array[Double]], Array[Array[Double]]) -> Self
 
+pub struct CompensationMatrix {
+  matrix : Array[Array[Double]]
+  fluorochromes : Array[String]
+  spillover : Array[Double]
+}
+pub fn CompensationMatrix::new(Array[Array[Double]], Array[String]) -> Self
+pub fn CompensationMatrix::to_string(Self) -> String
+
 pub struct CompoundLocation {
   parts : Array[FeatureLocation]
   operator : String
@@ -2307,6 +2570,14 @@ pub fn CompoundLocation::operator(Self) -> String
 pub fn CompoundLocation::parts(Self) -> Array[FeatureLocation]
 pub fn CompoundLocation::repr(Self) -> String
 pub fn CompoundLocation::str(Self) -> String
+
+pub struct CovMatrix {
+  chr : Array[String]
+  pos : Array[Int]
+  cov : Array[Array[Int]]
+  meth : Array[Array[Int]]
+}
+pub fn CovMatrix::to_string(Self) -> String
 
 pub struct Coverage {
   seqname : String
@@ -2486,6 +2757,19 @@ pub struct DMRResult {
 }
 pub fn DMRResult::new(Array[DMRRegion], Double) -> Self
 pub fn DMRResult::to_string(Self) -> String
+
+pub struct DMRegion {
+  chr : String
+  start : Int
+  end : Int
+  n_cpg : Int
+  mean_meth_diff : Double
+  pvalue : Double
+  fdr : Double
+  direction : String
+}
+pub fn DMRegion::new(String, Int, Int, Int, Double, Double, Double, String) -> Self
+pub fn DMRegion::to_string(Self) -> String
 
 pub struct DNA {
   seq : Seq
@@ -2695,6 +2979,19 @@ pub struct ExpressionSet {
 }
 pub fn ExpressionSet::new(Array[Array[Double]], Map[String, Array[String]], Map[String, Array[String]], String, Map[String, Array[String]]) -> Self
 
+pub struct FCSFile {
+  text_segment : Map[String, String]
+  data_segment : Array[Array[Double]]
+  analysis_segment : String
+  n_events : Int
+  n_parameters : Int
+  parameter_names : Array[String]
+  parameter_ranges : Array[(Double, Double)]
+}
+pub fn FCSFile::new() -> Self
+pub fn FCSFile::parse(String) -> Self
+pub fn FCSFile::to_string(Self) -> String
+
 pub struct FMIndex {
   bwt_str : String
   c_table : Map[Char, Int]
@@ -2813,6 +3110,25 @@ pub enum FileType {
   Unknown
 }
 pub fn FileType::to_string(Self) -> String
+
+pub struct FlowFrame {
+  exprs : Array[Array[Double]]
+  params : Array[ParameterDescription]
+  description : Map[String, String]
+  n_events : Int
+  n_params : Int
+}
+pub fn FlowFrame::from_fcs(FCSFile) -> Self
+pub fn FlowFrame::new(Array[Array[Double]], Array[ParameterDescription]) -> Self
+pub fn FlowFrame::to_string(Self) -> String
+
+pub struct FlowSet {
+  frames : Array[FlowFrame]
+  sample_names : Array[String]
+  pheno_data : Map[String, String]
+}
+pub fn FlowSet::new(Array[FlowFrame], Array[String]) -> Self
+pub fn FlowSet::to_string(Self) -> String
 
 pub struct GAlignments {
   seqnames : Array[String]
@@ -2941,6 +3257,33 @@ pub struct GRanges {
   strands : Array[Strand]
   widths : Array[Int]
 }
+
+pub struct Gate {
+  gate_type : GateType
+  parameters : Array[String]
+  coordinates : Array[(Double, Double)]
+  filter_id : String
+}
+pub fn Gate::new(GateType, Array[String], Array[(Double, Double)], String) -> Self
+pub fn Gate::to_string(Self) -> String
+
+pub enum GateType {
+  RectangleGate
+  PolygonGate
+  EllipsoidGate
+  QuadrantGate
+  BooleanGate
+} derive(Eq)
+pub fn GateType::to_string(Self) -> String
+
+pub struct GatingResult {
+  filtered_events : Array[Array[Double]]
+  n_filtered : Int
+  n_total : Int
+  percentages : Array[Double]
+}
+pub fn GatingResult::new(Array[Array[Double]], Int, Int, Array[Double]) -> Self
+pub fn GatingResult::to_string(Self) -> String
 
 pub struct Gene {
   gene_id : String
@@ -3605,6 +3948,16 @@ pub struct OverlapSummary {
 }
 pub fn OverlapSummary::new(String, Int, Int, Double, Double) -> Self
 
+pub struct ParameterDescription {
+  name : String
+  range : Double
+  min_range : Double
+  max_range : Double
+  compensation : Array[Double]
+}
+pub fn ParameterDescription::new(String, Double, Double, Double) -> Self
+pub fn ParameterDescription::to_string(Self) -> String
+
 pub struct PeakAnnotation {
   peak_id : String
   chr : String
@@ -3808,6 +4161,14 @@ pub struct ReduceResult {
 pub fn ReduceResult::new() -> Self
 pub fn ReduceResult::to_string(Self) -> String
 
+pub struct ReducedDimResult {
+  method : String
+  coordinates : Array[Array[Double]]
+  variance_explained : Array[Double]
+  n_components : Int
+}
+pub fn ReducedDimResult::to_string(Self) -> String
+
 pub struct Reference {
   authors : String
   title : String
@@ -3852,6 +4213,22 @@ pub struct RestrictionEnzyme {
   overhang_5 : String
   overhang_3 : String
 }
+
+pub struct SCEBuilder {
+  assays : Map[String, Array[Array[Double]]]
+  row_names : Array[String]
+  col_names : Array[String]
+  row_data : Map[String, Array[String]]
+  col_data : Map[String, Array[String]]
+  reduced_dims : Map[String, Array[Array[Double]]]
+  metadata : Map[String, String]
+}
+pub fn SCEBuilder::add_assay(Self, String, Array[Array[Double]]) -> Self
+pub fn SCEBuilder::add_col_data(Self, String, Array[String]) -> Self
+pub fn SCEBuilder::add_reduced_dim(Self, String, Array[Array[Double]]) -> Self
+pub fn SCEBuilder::add_row_data(Self, String, Array[String]) -> Self
+pub fn SCEBuilder::build(Self) -> SingleCellExperiment
+pub fn SCEBuilder::new() -> Self
 
 pub enum SSType {
   AlphaHelix
@@ -4093,13 +4470,33 @@ pub struct SignalPeptideResult {
   score : Double
 }
 
-pub struct SingleCellExperiment {
+pub struct SimpleSCE {
   assays : Array[Array[Array[Double]]]
   col_data : Array[Array[String]]
   row_data : Array[Array[String]]
   reduced_dimensions : Array[(String, Array[Array[Double]])]
 }
-pub fn SingleCellExperiment::new(Array[Array[Array[Double]]], Array[Array[String]], Array[Array[String]]) -> Self
+pub fn SimpleSCE::new(Array[Array[Array[Double]]], Array[Array[String]], Array[Array[String]]) -> Self
+
+pub struct SingleCellExperiment {
+  assays : Map[String, Array[Array[Double]]]
+  row_data : Map[String, Array[String]]
+  col_data : Map[String, Array[String]]
+  reduced_dims : Map[String, Array[Array[Double]]]
+  alternative_experiments : Map[String, SingleCellExperiment]
+  metadata : Map[String, String]
+  row_names : Array[String]
+  col_names : Array[String]
+}
+pub fn SingleCellExperiment::new(Array[Array[Double]], Array[String], Array[String]) -> Self
+pub fn SingleCellExperiment::to_string(Self) -> String
+
+pub struct SizeFactorResult {
+  size_factors : Array[Double]
+  method : String
+  log_means : Array[Double]
+}
+pub fn SizeFactorResult::to_string(Self) -> String
 
 pub struct SizeFactors {
   factors : Array[Double]
@@ -4233,6 +4630,14 @@ pub struct SwissProtReference {
 }
 pub fn SwissProtReference::new(Int, String, Array[String], String, String, String) -> Self
 
+pub struct TStatResult {
+  t_stat : Array[Double]
+  pvalue : Array[Double]
+  fdr : Array[Double]
+  mean_diff : Array[Double]
+}
+pub fn TStatResult::to_string(Self) -> String
+
 pub struct TabularMSA {
   records : Array[SeqRecord]
   dtype : String
@@ -4289,6 +4694,21 @@ pub struct Transcript {
   strand : Strand
 }
 pub fn Transcript::new(String, String, String, Int, Int, Strand) -> Self
+
+pub enum TransformType {
+  LogTransform
+  AsinhTransform
+  LogicleTransform
+  LinearTransform
+} derive(Eq)
+pub fn TransformType::to_string(Self) -> String
+
+pub struct Transformation {
+  transform_type : TransformType
+  parameters : Array[Double]
+}
+pub fn Transformation::new(TransformType, Array[Double]) -> Self
+pub fn Transformation::to_string(Self) -> String
 
 pub struct Tree {
   root : Clade

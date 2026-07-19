@@ -1,9 +1,11 @@
 ///|
 /// Single Cell Analysis module, inspired by Bioconductor SingleCellExperiment.
 /// Provides functions for single-cell RNA-seq data analysis.
+/// Note: The simple container struct is renamed to SimpleSCE to avoid conflict
+/// with the comprehensive SingleCellExperiment in single_cell_experiment.mbt.
 
 ///|
-pub struct SingleCellExperiment {
+pub struct SimpleSCE {
   assays : Array[Array[Array[Double]]]
   col_data : Array[Array[String]]
   row_data : Array[Array[String]]
@@ -11,17 +13,12 @@ pub struct SingleCellExperiment {
 }
 
 ///|
-pub fn SingleCellExperiment::new(
+pub fn SimpleSCE::new(
   assays : Array[Array[Array[Double]]],
   col_data : Array[Array[String]],
   row_data : Array[Array[String]],
-) -> SingleCellExperiment {
-  SingleCellExperiment::{
-    assays,
-    col_data,
-    row_data,
-    reduced_dimensions: Array::new(),
-  }
+) -> SimpleSCE {
+  SimpleSCE::{ assays, col_data, row_data, reduced_dimensions: Array::new() }
 }
 
 ///|
