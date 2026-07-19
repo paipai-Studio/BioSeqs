@@ -80,3 +80,50 @@ test "annotation_summary" {
   let summary = @src.annotation_summary(result)
   assert_true(summary.contains("Peak"))
 }
+
+///|
+test "read_peak_file" {
+  let bed_content = "chr1\t1000\t2000\tpeak1\nchr2\t3000\t4000\tpeak2\nchr3\t5000\t6000"
+  let peaks = @src.read_peak_file(bed_content)
+  assert_eq(peaks.length(), 3)
+  assert_eq(peaks[0].chr, "chr1")
+  assert_eq(peaks[0].start, 1000)
+  assert_eq(peaks[0].end, 2000)
+  assert_eq(peaks[0].peak_id, "peak1")
+}
+
+///|
+test "peak2gene" {
+  let peaks = @src.cs_create_example_peaks()
+  let txdb = @src.cs_create_example_txdb()
+  let result = @src.annotate_peaks(peaks, txdb)
+  let associations = @src.peak2gene(result)
+  assert_eq(associations.length(), 50)
+}
+
+///|
+test "get_exon_annotations" {
+  let peaks = @src.cs_create_example_peaks()
+  let txdb = @src.cs_create_example_txdb()
+  let result = @src.annotate_peaks(peaks, txdb)
+  let exons = @src.get_exon_annotations(result)
+  assert_true(exons.length() >= 0)
+}
+
+///|
+test "get_intron_annotations" {
+  let peaks = @src.cs_create_example_peaks()
+  let txdb = @src.cs_create_example_txdb()
+  let result = @src.annotate_peaks(peaks, txdb)
+  let introns = @src.get_intron_annotations(result)
+  assert_true(introns.length() >= 0)
+}
+
+///|
+test "get_utr_annotations" {
+  let peaks = @src.cs_create_example_peaks()
+  let txdb = @src.cs_create_example_txdb()
+  let result = @src.annotate_peaks(peaks, txdb)
+  let utrs = @src.get_utr_annotations(result)
+  assert_true(utrs.length() >= 0)
+}

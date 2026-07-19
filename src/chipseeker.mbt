@@ -9,6 +9,9 @@ pub struct PeakAnnotation {
   distance_to_tss : Int
   feature_type : String
   strand : String
+  transcript_id : String
+  exon_id : String
+  utr_type : String
 }
 
 ///|
@@ -22,6 +25,9 @@ pub fn PeakAnnotation::new(
   distance_to_tss : Int,
   feature_type : String,
   strand : String,
+  transcript_id : String,
+  exon_id : String,
+  utr_type : String,
 ) -> PeakAnnotation {
   PeakAnnotation::{
     peak_id,
@@ -33,6 +39,9 @@ pub fn PeakAnnotation::new(
     distance_to_tss,
     feature_type,
     strand,
+    transcript_id,
+    exon_id,
+    utr_type,
   }
 }
 
@@ -85,6 +94,60 @@ fn annotate_single_peak(peak : Peak, txdb : TxDb) -> PeakAnnotation {
 
   let (nearest_gene, distance, strand) = find_nearest_gene(peak.chr, peak_center, txdb)
 
+  let (is_utr, utr_tx_id, utr_gene_id, utr_type) = is_inside_utr(peak, txdb)
+  if is_utr {
+    return PeakAnnotation::new(
+      peak.peak_id,
+      peak.chr,
+      peak.start,
+      peak.end,
+      utr_type,
+      utr_gene_id,
+      0,
+      utr_type,
+      strand,
+      utr_tx_id,
+      "",
+      utr_type,
+    )
+  }
+
+  let (is_exon, exon_id, exon_gene_id) = is_inside_exon(peak, txdb)
+  if is_exon {
+    return PeakAnnotation::new(
+      peak.peak_id,
+      peak.chr,
+      peak.start,
+      peak.end,
+      "Exon",
+      exon_gene_id,
+      0,
+      "Exon",
+      strand,
+      "",
+      exon_id,
+      "",
+    )
+  }
+
+  let (is_intron, intron_tx_id, intron_gene_id) = is_inside_intron(peak, txdb)
+  if is_intron {
+    return PeakAnnotation::new(
+      peak.peak_id,
+      peak.chr,
+      peak.start,
+      peak.end,
+      "Intron",
+      intron_gene_id,
+      0,
+      "Intron",
+      strand,
+      intron_tx_id,
+      "",
+      "",
+    )
+  }
+
   let (annotation, feature_type) = classify_genomic_region(distance)
 
   PeakAnnotation::new(
@@ -97,6 +160,9 @@ fn annotate_single_peak(peak : Peak, txdb : TxDb) -> PeakAnnotation {
     distance,
     feature_type,
     strand,
+    "",
+    "",
+    "",
   )
 }
 
@@ -159,6 +225,97 @@ fn classify_genomic_region(distance : Int) -> (String, String) {
   } else {
     ("Intergenic (>50kb)", "Intergenic")
   }
+}
+
+///|
+fn is_inside_exon(peak : Peak, txdb : TxDb) -> (Bool, String, String) {
+  let peak_center = (peak.start + peak.end) / 2
+  
+  let mut i = 0
+  while i < txdb.exons.length() {
+    let exon = txdb.exons[i]
+    if exon.seqname == peak.chr && peak_center >= exon.start && peak_center <= exon.end {
+      return (true, exon.exon_id, exon.gene_id)
+    }
+    i = i + 1
+  }
+  
+  (false, "", "")
+}
+
+///|
+fn is_inside_intron(peak : Peak, txdb : TxDb) -> (Bool, String, String) {
+  let peak_center = (peak.start + peak.end) / 2
+  
+  let mut i = 0
+  while i < txdb.transcripts.length() {
+    let tx = txdb.transcripts[i]
+    if tx.seqname == peak.chr && peak_center >= tx.start && peak_center <= tx.end {
+      let mut inside_exon = false
+      let mut j = 0
+      while j < txdb.exons.length() {
+        let exon = txdb.exons[j]
+        if exon.transcript_id == tx.transcript_id && 
+           peak_center >= exon.start && peak_center <= exon.end {
+          inside_exon = true
+          break
+        }
+        j = j + 1
+      }
+      if !inside_exon {
+        return (true, tx.transcript_id, tx.gene_id)
+      }
+    }
+    i = i + 1
+  }
+  
+  (false, "", "")
+}
+
+///|
+fn is_inside_utr(peak : Peak, txdb : TxDb) -> (Bool, String, String, String) {
+  let peak_center = (peak.start + peak.end) / 2
+  let utr_length = 500
+  
+  let mut i = 0
+  while i < txdb.transcripts.length() {
+    let tx = txdb.transcripts[i]
+    if tx.seqname != peak.chr {
+      i = i + 1
+      continue
+    }
+    
+    match tx.strand {
+      Strand::Plus => {
+        let utr5_start = tx.start
+        let utr5_end = tx.start + utr_length
+        if peak_center >= utr5_start && peak_center <= utr5_end {
+          return (true, tx.transcript_id, tx.gene_id, "5'UTR")
+        }
+        let utr3_start = tx.end - utr_length
+        let utr3_end = tx.end
+        if peak_center >= utr3_start && peak_center <= utr3_end {
+          return (true, tx.transcript_id, tx.gene_id, "3'UTR")
+        }
+      }
+      Strand::Minus => {
+        let utr5_start = tx.end - utr_length
+        let utr5_end = tx.end
+        if peak_center >= utr5_start && peak_center <= utr5_end {
+          return (true, tx.transcript_id, tx.gene_id, "5'UTR")
+        }
+        let utr3_start = tx.start
+        let utr3_end = tx.start + utr_length
+        if peak_center >= utr3_start && peak_center <= utr3_end {
+          return (true, tx.transcript_id, tx.gene_id, "3'UTR")
+        }
+      }
+      _ => ()
+    }
+    i = i + 1
+  }
+  
+  (false, "", "", "")
 }
 
 ///|
@@ -360,12 +517,134 @@ pub fn annotation_summary(result : AnnotationResult) -> String {
   let promoters = get_promoter_annotations(result)
   let distal = get_distal_annotations(result)
   let intergenic = get_intergenic_annotations(result)
+  let exons = get_exon_annotations(result)
+  let introns = get_intron_annotations(result)
+  let utrs = get_utr_annotations(result)
 
   result_str = result_str + "\nPromoter peaks: " + promoters.length().to_string() + "\n"
+  result_str = result_str + "Exon peaks: " + exons.length().to_string() + "\n"
+  result_str = result_str + "Intron peaks: " + introns.length().to_string() + "\n"
+  result_str = result_str + "UTR peaks: " + utrs.length().to_string() + "\n"
   result_str = result_str + "Distal peaks: " + distal.length().to_string() + "\n"
   result_str = result_str + "Intergenic peaks: " + intergenic.length().to_string() + "\n"
 
   result_str
+}
+
+///|
+pub fn read_peak_file(file_content : String) -> Array[Peak] {
+  let peaks : Array[Peak] = Array::new()
+  let lines = file_content.split("\n")
+  let mut peak_id = 0
+
+  for line in lines {
+    let trimmed = line.trim()
+    if trimmed.length() == 0 || trimmed.has_prefix("#") {
+      continue
+    }
+
+    let fields_iter = trimmed.split("\t")
+    let fields : Array[String] = Array::new()
+    for f in fields_iter {
+      fields.push(f.to_string())
+    }
+
+    if fields.length() >= 3 {
+      let chr = fields[0]
+      let start = parse_int(fields[1])
+      let end = parse_int(fields[2])
+      let id = if fields.length() >= 4 { fields[3] } else { "peak_" + peak_id.to_string() }
+      peaks.push(Peak::new(chr, start, end, id))
+      peak_id = peak_id + 1
+    }
+  }
+
+  peaks
+}
+
+///|
+pub struct PeakGeneAssociation {
+  peak_id : String
+  gene_id : String
+  distance : Int
+  feature_type : String
+  strand : String
+}
+
+///|
+pub fn PeakGeneAssociation::new(
+  peak_id : String,
+  gene_id : String,
+  distance : Int,
+  feature_type : String,
+  strand : String,
+) -> PeakGeneAssociation {
+  PeakGeneAssociation::{ peak_id, gene_id, distance, feature_type, strand }
+}
+
+///|
+pub fn peak2gene(result : AnnotationResult) -> Array[PeakGeneAssociation] {
+  let associations : Array[PeakGeneAssociation] = Array::new()
+
+  for annotation in result.annotations {
+    associations.push(PeakGeneAssociation::new(
+      annotation.peak_id,
+      annotation.gene_name,
+      annotation.distance_to_tss,
+      annotation.feature_type,
+      annotation.strand,
+    ))
+  }
+
+  associations
+}
+
+///|
+pub fn get_exon_annotations(result : AnnotationResult) -> Array[PeakAnnotation] {
+  let exons : Array[PeakAnnotation] = Array::new()
+
+  let mut i = 0
+  while i < result.annotations.length() {
+    let annotation = result.annotations[i]
+    if annotation.feature_type == "Exon" {
+      exons.push(annotation)
+    }
+    i = i + 1
+  }
+
+  exons
+}
+
+///|
+pub fn get_intron_annotations(result : AnnotationResult) -> Array[PeakAnnotation] {
+  let introns : Array[PeakAnnotation] = Array::new()
+
+  let mut i = 0
+  while i < result.annotations.length() {
+    let annotation = result.annotations[i]
+    if annotation.feature_type == "Intron" {
+      introns.push(annotation)
+    }
+    i = i + 1
+  }
+
+  introns
+}
+
+///|
+pub fn get_utr_annotations(result : AnnotationResult) -> Array[PeakAnnotation] {
+  let utrs : Array[PeakAnnotation] = Array::new()
+
+  let mut i = 0
+  while i < result.annotations.length() {
+    let annotation = result.annotations[i]
+    if annotation.utr_type != "" {
+      utrs.push(annotation)
+    }
+    i = i + 1
+  }
+
+  utrs
 }
 
 ///|
@@ -408,8 +687,40 @@ pub fn cs_create_example_txdb() -> TxDb {
     Transcript::new("GAPDH-001", "GAPDH", "chr4", 90000, 110000, Strand::Minus),
   ]
 
-  let exons : Array[Exon] = []
-  let cds : Array[CDS] = []
+  let exons : Array[Exon] = [
+    Exon::new("TP53-exon1", "TP53-001", "TP53", "chr1", 10000, 11000, Strand::Plus, 1),
+    Exon::new("TP53-exon2", "TP53-001", "TP53", "chr1", 13000, 14000, Strand::Plus, 2),
+    Exon::new("TP53-exon3", "TP53-001", "TP53", "chr1", 16000, 17000, Strand::Plus, 3),
+    Exon::new("TP53-exon4", "TP53-001", "TP53", "chr1", 20000, 25000, Strand::Plus, 4),
+    Exon::new("BRCA1-exon1", "BRCA1-001", "BRCA1", "chr1", 50000, 51000, Strand::Minus, 1),
+    Exon::new("BRCA1-exon2", "BRCA1-001", "BRCA1", "chr1", 53000, 54000, Strand::Minus, 2),
+    Exon::new("BRCA1-exon3", "BRCA1-001", "BRCA1", "chr1", 65000, 70000, Strand::Minus, 3),
+    Exon::new("BRCA2-exon1", "BRCA2-001", "BRCA2", "chr2", 30000, 31000, Strand::Plus, 1),
+    Exon::new("BRCA2-exon2", "BRCA2-001", "BRCA2", "chr2", 35000, 36000, Strand::Plus, 2),
+    Exon::new("BRCA2-exon3", "BRCA2-001", "BRCA2", "chr2", 50000, 55000, Strand::Plus, 3),
+    Exon::new("ATM-exon1", "ATM-001", "ATM", "chr2", 80000, 81000, Strand::Minus, 1),
+    Exon::new("ATM-exon2", "ATM-001", "ATM", "chr2", 85000, 86000, Strand::Minus, 2),
+    Exon::new("ATM-exon3", "ATM-001", "ATM", "chr2", 95000, 100000, Strand::Minus, 3),
+    Exon::new("CDK4-exon1", "CDK4-001", "CDK4", "chr3", 20000, 21000, Strand::Plus, 1),
+    Exon::new("CDK4-exon2", "CDK4-001", "CDK4", "chr3", 25000, 26000, Strand::Plus, 2),
+    Exon::new("CDK4-exon3", "CDK4-001", "CDK4", "chr3", 30000, 35000, Strand::Plus, 3),
+    Exon::new("MYC-exon1", "MYC-001", "MYC", "chr3", 60000, 61000, Strand::Minus, 1),
+    Exon::new("MYC-exon2", "MYC-001", "MYC", "chr3", 70000, 71000, Strand::Minus, 2),
+    Exon::new("MYC-exon3", "MYC-001", "MYC", "chr3", 80000, 85000, Strand::Minus, 3),
+    Exon::new("EGFR-exon1", "EGFR-001", "EGFR", "chr4", 15000, 16000, Strand::Plus, 1),
+    Exon::new("EGFR-exon2", "EGFR-001", "EGFR", "chr4", 20000, 21000, Strand::Plus, 2),
+    Exon::new("EGFR-exon3", "EGFR-001", "EGFR", "chr4", 35000, 40000, Strand::Plus, 3),
+    Exon::new("GAPDH-exon1", "GAPDH-001", "GAPDH", "chr4", 90000, 91000, Strand::Minus, 1),
+    Exon::new("GAPDH-exon2", "GAPDH-001", "GAPDH", "chr4", 95000, 96000, Strand::Minus, 2),
+    Exon::new("GAPDH-exon3", "GAPDH-001", "GAPDH", "chr4", 105000, 110000, Strand::Minus, 3),
+  ]
+
+  let cds : Array[CDS] = [
+    CDS::new("TP53-cds1", "TP53-001", "TP53", "chr1", 10200, 11000, Strand::Plus, 1),
+    CDS::new("TP53-cds2", "TP53-001", "TP53", "chr1", 13000, 14000, Strand::Plus, 2),
+    CDS::new("TP53-cds3", "TP53-001", "TP53", "chr1", 16000, 17000, Strand::Plus, 3),
+    CDS::new("TP53-cds4", "TP53-001", "TP53", "chr1", 20000, 24800, Strand::Plus, 4),
+  ]
 
   TxDb::new(genes, transcripts, exons, cds, "hg38", "Homo sapiens")
 }
