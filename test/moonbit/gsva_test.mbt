@@ -152,3 +152,69 @@ test "gsva_utils" {
   let sqrt_val = @src.gsva_sqrt(16.0)
   assert_eq(sqrt_val, 4.0)
 }
+
+///|
+test "gsva_enrichment_map" {
+  let data = @src.gsva_create_example_data()
+  let gene_sets = @src.gsva_create_example_gene_sets()
+  let params = @src.GSVAParams::new()
+  let scores = @src.gsva_run(data, gene_sets, params)
+  let map = @src.gsva_enrichment_map(scores, gene_sets, 0.1)
+  assert_true(map.length() > 0)
+}
+
+///|
+test "gsva_phenotype_correlation" {
+  let data = @src.gsva_create_example_data()
+  let gene_sets = @src.gsva_create_example_gene_sets()
+  let params = @src.GSVAParams::new()
+  let scores = @src.gsva_run(data, gene_sets, params)
+  let phenotypes = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+  let corr = @src.gsva_phenotype_correlation(scores, phenotypes)
+  assert_eq(corr.length(), 5)
+}
+
+///|
+test "gsva_phenotype_report" {
+  let data = @src.gsva_create_example_data()
+  let gene_sets = @src.gsva_create_example_gene_sets()
+  let params = @src.GSVAParams::new()
+  let scores = @src.gsva_run(data, gene_sets, params)
+  let phenotypes = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
+  let report = @src.gsva_phenotype_report(scores, phenotypes, "Age")
+  assert_true(report.length() > 0)
+}
+
+///|
+test "gsva_survival_analysis" {
+  let data = @src.gsva_create_example_data()
+  let gene_sets = @src.gsva_create_example_gene_sets()
+  let params = @src.GSVAParams::new()
+  let scores = @src.gsva_run(data, gene_sets, params)
+  let survival_time = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0]
+  let event = [1, 1, 1, 0, 0, 1]
+  let surv = @src.gsva_survival_analysis(scores, survival_time, event)
+  assert_eq(surv.length(), 5)
+}
+
+///|
+test "gsva_survival_report" {
+  let data = @src.gsva_create_example_data()
+  let gene_sets = @src.gsva_create_example_gene_sets()
+  let params = @src.GSVAParams::new()
+  let scores = @src.gsva_run(data, gene_sets, params)
+  let survival_time = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0]
+  let event = [1, 1, 1, 0, 0, 1]
+  let report = @src.gsva_survival_report(scores, survival_time, event)
+  assert_true(report.length() > 0)
+}
+
+///|
+test "gsva_score_distribution" {
+  let data = @src.gsva_create_example_data()
+  let gene_sets = @src.gsva_create_example_gene_sets()
+  let params = @src.GSVAParams::new()
+  let scores = @src.gsva_run(data, gene_sets, params)
+  let dist = @src.gsva_score_distribution(scores)
+  assert_true(dist.length() > 0)
+}
