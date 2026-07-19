@@ -21,7 +21,15 @@ fn main {
     genes, transcripts, exons, cds, "hg38", "Homo sapiens",
   )
 
-  let result = @bio.annotate_peaks(peaks, txdb)
+  let peak_objs : Array[@bio.Peak] = Array::new()
+  let mut i = 0
+  while i < peaks.length() {
+    let (chr, start, end) = peaks[i]
+    peak_objs.push(@bio.Peak::new(chr, start, end, "peak_" + i.to_string()))
+    i = i + 1
+  }
+
+  let result = @bio.annotate_peaks(peak_objs, txdb)
 
   println("1. Peak Annotation Results")
   println("   Total annotations: \{result.annotations.length().to_string()}")
@@ -66,7 +74,7 @@ fn main {
   println("")
 
   println("5. Annotation Plot")
-  println(@bio.plot_annotation(result.summary))
+  println(@bio.plot_annotation_bar(result.summary))
   println("")
 
   println("\n")

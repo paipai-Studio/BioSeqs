@@ -87,7 +87,7 @@ pub fn amino_acid_composition(String) -> Map[UInt16, Double]
 
 pub fn anchors_overlap(Anchor, Anchor) -> Bool
 
-pub fn annotate_peaks(Array[(String, Int, Int)], TxDb) -> AnnotationResult
+pub fn annotate_peaks(Array[Peak], TxDb) -> AnnotationResult
 
 pub fn annotated_data_frame_ncol(AnnotatedDataFrame) -> Int
 
@@ -116,6 +116,8 @@ pub fn annotation_hub_search_by_provider(AnnotationHub, String) -> Array[HubReso
 pub fn annotation_hub_search_by_type(AnnotationHub, String) -> Array[HubResource]
 
 pub fn annotation_hub_summarize(AnnotationHub) -> String
+
+pub fn annotation_summary(AnnotationResult) -> String
 
 pub fn assemble_sequences(Array[String], Int) -> String?
 
@@ -590,6 +592,10 @@ pub fn create_multi_omics(Array[Array[Double]], Array[String], Array[String], Ar
 pub fn create_pathway_graph() -> Graph
 
 pub fn create_wgcna_data(Array[Array[Double]], Array[String], Array[String]) -> WGCNAData
+
+pub fn cs_create_example_peaks() -> Array[Peak]
+
+pub fn cs_create_example_txdb() -> TxDb
 
 pub fn da_col_means(DelayedArray) -> Array[Double]
 
@@ -1067,6 +1073,8 @@ pub fn get_annotation_statistics(AnnotationResult) -> Map[String, Double]
 
 pub fn get_author_count(MedlineRecord) -> Int
 
+pub fn get_distal_annotations(AnnotationResult) -> Array[PeakAnnotation]
+
 pub fn get_enzyme_by_name(String) -> RestrictionEnzyme?
 
 pub fn get_first_author(MedlineRecord) -> String
@@ -1074,6 +1082,8 @@ pub fn get_first_author(MedlineRecord) -> String
 pub fn get_gene_info(String, organism? : String) -> GeneRecord?
 
 pub fn get_go_annotations(AnnotationDb, Array[String]) -> Map[String, Array[AnnotationGOTerm]]
+
+pub fn get_intergenic_annotations(AnnotationResult) -> Array[PeakAnnotation]
 
 pub fn get_kegg_annotations(AnnotationDb, Array[String]) -> Map[String, Array[AnnotationKEGGTerm]]
 
@@ -1639,7 +1649,9 @@ pub fn pick_soft_threshold(WGCNAData, Array[Double]) -> Double
 
 pub fn pileup(GAlignments, @hashmap.HashMap[String, String]) -> Array[PileupElement]
 
-pub fn plot_annotation(Map[String, Int]) -> String
+pub fn plot_annotation_bar(Map[String, Int]) -> String
+
+pub fn plot_dist_to_tss(Array[PeakAnnotation]) -> String
 
 pub fn position_specific_features(String, Int) -> Array[Double]
 
@@ -1757,11 +1769,11 @@ pub fn scdf_compute_pca(SingleCellData, Int) -> Array[Array[Double]]
 
 pub fn scdf_create_example_data() -> SingleCellData
 
-pub fn scdf_detect_doublets(SingleCellData, Double) -> Array[String]
+pub fn scdf_detect_doublets(Array[DoubletScore], Double) -> Array[String]
 
 pub fn scdf_doublet_summary(Array[DoubletScore]) -> String
 
-pub fn scdf_filter_doublets(SingleCellData, Double) -> SingleCellData
+pub fn scdf_filter_doublets(SingleCellData, Array[DoubletScore]) -> SingleCellData
 
 pub fn scdf_find_nearest_neighbors(SingleCellData, Int, Int) -> Array[(String, Double)]
 
@@ -4423,6 +4435,14 @@ pub struct ParameterDescription {
 pub fn ParameterDescription::new(String, Double, Double, Double) -> Self
 pub fn ParameterDescription::to_string(Self) -> String
 
+pub struct Peak {
+  chr : String
+  start : Int
+  end : Int
+  peak_id : String
+}
+pub fn Peak::new(String, Int, Int, String) -> Self
+
 pub struct PeakAnnotation {
   peak_id : String
   chr : String
@@ -4432,7 +4452,9 @@ pub struct PeakAnnotation {
   gene_name : String
   distance_to_tss : Int
   feature_type : String
+  strand : String
 }
+pub fn PeakAnnotation::new(String, String, Int, Int, String, String, Int, String, String) -> Self
 
 pub enum PeakFormat {
   BedFormat
