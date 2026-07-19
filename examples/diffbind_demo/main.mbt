@@ -171,5 +171,30 @@ fn main {
     w = w + 1
   }
 
+  // 12. contrast - define comparison
+  println("\n12. contrast: define comparison (ConditionA vs ConditionB):")
+  let (c1, c2) = @src.diffbind_contrast(config, "ConditionA", "ConditionB")
+  println("  Contrast: " + c1 + " vs " + c2)
+
+  // 13. plot_pca - PCA visualization
+  println("\n13. plot_pca: PCA visualization:")
+  let pca_plot = @src.diffbind_plot_pca(config, "TMM")
+  println(pca_plot)
+
+  // 14. plot_heatmap - heatmap visualization
+  println("\n14. plot_heatmap: Heatmap visualization:")
+  let heatmap = @src.diffbind_plot_heatmap(example_result, 5)
+  println(heatmap)
+
+  // 15. plot_volcano - volcano plot visualization
+  println("\n15. plot_volcano: Volcano plot visualization:")
+  let volcano_plot = @src.diffbind_plot_volcano(example_result)
+  println(volcano_plot)
+
+  // 16. plot_ma - MA plot visualization
+  println("\n16. plot_ma: MA plot visualization:")
+  let ma_plot = @src.diffbind_plot_ma(example_result)
+  println(ma_plot)
+
   println("\nDiffBind demo completed!")
 }

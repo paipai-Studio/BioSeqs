@@ -63,5 +63,32 @@ fn main {
   }
   println("")
 
+  println("3. peak_overlap - Multiple peak set overlap analysis")
+  let peaks_set1 = [
+    @bio.Peak::new("chr1", 1000, 2000, "peak1"),
+    @bio.Peak::new("chr1", 3000, 4000, "peak2"),
+    @bio.Peak::new("chr2", 5000, 6000, "peak3"),
+  ]
+  let peaks_set2 = [
+    @bio.Peak::new("chr1", 1500, 2500, "peakA"),
+    @bio.Peak::new("chr1", 3500, 4500, "peakB"),
+    @bio.Peak::new("chr3", 7000, 8000, "peakC"),
+  ]
+  let peak_sets = [("Set1", peaks_set1), ("Set2", peaks_set2)]
+  let overlap_result = @bio.peak_overlap(peak_sets, 1)
+  println("   Overlap count: " + overlap_result.overlap_matrix[0][1].to_string())
+  println("   Union peaks: " + overlap_result.union_count.to_string())
+  println("")
+
+  println("4. plot_venn - Venn diagram visualization")
+  let venn = @bio.plot_venn(overlap_result)
+  println(venn)
+  println("")
+
+  println("5. plot_anno_pie - Annotation pie chart")
+  let pie = @bio.plot_anno_pie(result)
+  println(pie)
+  println("")
+
   println("=== Demo completed! ===")
 }

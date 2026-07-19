@@ -127,3 +127,41 @@ test "get_utr_annotations" {
   let utrs = @src.get_utr_annotations(result)
   assert_true(utrs.length() >= 0)
 }
+
+///|
+test "peak_overlap" {
+  let peaks1 = [
+    @src.Peak::new("chr1", 1000, 2000, "peak1"),
+    @src.Peak::new("chr1", 3000, 4000, "peak2"),
+    @src.Peak::new("chr2", 5000, 6000, "peak3"),
+  ]
+  let peaks2 = [
+    @src.Peak::new("chr1", 1500, 2500, "peakA"),
+    @src.Peak::new("chr1", 3500, 4500, "peakB"),
+    @src.Peak::new("chr3", 7000, 8000, "peakC"),
+  ]
+  let peak_sets = [("Set1", peaks1), ("Set2", peaks2)]
+  let result = @src.peak_overlap(peak_sets, 1)
+  assert_eq(result.overlap_matrix.length(), 2)
+  assert_eq(result.overlap_matrix[0][1], 2)
+  assert_eq(result.union_count, 6)
+}
+
+///|
+test "plot_venn" {
+  let peaks1 = [@src.Peak::new("chr1", 1000, 2000, "peak1")]
+  let peaks2 = [@src.Peak::new("chr1", 1500, 2500, "peakA")]
+  let peak_sets = [("Set1", peaks1), ("Set2", peaks2)]
+  let overlap_result = @src.peak_overlap(peak_sets, 1)
+  let venn = @src.plot_venn(overlap_result)
+  assert_true(venn.contains("Venn"))
+}
+
+///|
+test "plot_anno_pie" {
+  let peaks = @src.cs_create_example_peaks()
+  let txdb = @src.cs_create_example_txdb()
+  let result = @src.annotate_peaks(peaks, txdb)
+  let pie = @src.plot_anno_pie(result)
+  assert_true(pie.contains("Pie"))
+}

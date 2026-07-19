@@ -648,6 +648,278 @@ pub fn get_utr_annotations(result : AnnotationResult) -> Array[PeakAnnotation] {
 }
 
 ///|
+pub struct PeakOverlapResult {
+  peak_sets : Array[(String, Array[Peak])]
+  overlap_matrix : Array[Array[Int]]
+  union_count : Int
+  intersect_count : Int
+}
+
+///|
+pub fn PeakOverlapResult::new(
+  peak_sets : Array[(String, Array[Peak])],
+  overlap_matrix : Array[Array[Int]],
+  union_count : Int,
+  intersect_count : Int,
+) -> PeakOverlapResult {
+  PeakOverlapResult::{ peak_sets, overlap_matrix, union_count, intersect_count }
+}
+
+///|
+fn peaks_overlap(peak1 : Peak, peak2 : Peak, min_overlap : Int) -> Bool {
+  if peak1.chr != peak2.chr {
+    return false
+  }
+  let overlap_start = if peak1.start > peak2.start { peak1.start } else { peak2.start }
+  let overlap_end = if peak1.end < peak2.end { peak1.end } else { peak2.end }
+  overlap_end - overlap_start >= min_overlap
+}
+
+///|
+pub fn peak_overlap(peak_sets : Array[(String, Array[Peak])], min_overlap : Int) -> PeakOverlapResult {
+  let n_sets = peak_sets.length()
+  
+  let overlap_matrix : Array[Array[Int]] = Array::new()
+  let mut i = 0
+  while i < n_sets {
+    let row : Array[Int] = Array::make(n_sets, 0)
+    overlap_matrix.push(row)
+    i = i + 1
+  }
+  
+  let mut j = 0
+  while j < n_sets {
+    let (_, peaks_j) = peak_sets[j]
+    let mut k = j
+    while k < n_sets {
+      let (_, peaks_k) = peak_sets[k]
+      let mut overlap_count = 0
+      let mut l = 0
+      while l < peaks_j.length() {
+        let mut m = 0
+        while m < peaks_k.length() {
+          if peaks_overlap(peaks_j[l], peaks_k[m], min_overlap) {
+            overlap_count = overlap_count + 1
+            break
+          }
+          m = m + 1
+        }
+        l = l + 1
+      }
+      overlap_matrix[j][k] = overlap_count
+      overlap_matrix[k][j] = overlap_count
+      k = k + 1
+    }
+    j = j + 1
+  }
+  
+  let all_peaks : Array[Peak] = Array::new()
+  let mut n = 0
+  while n < n_sets {
+    let (_, peaks_n) = peak_sets[n]
+    for p in peaks_n {
+      all_peaks.push(p)
+    }
+    n = n + 1
+  }
+  
+  let union_count = all_peaks.length()
+  
+  let intersect_count = if n_sets > 0 {
+    let (_, first_peaks) = peak_sets[0]
+    let mut count = 0
+    let mut o = 0
+    while o < first_peaks.length() {
+      let mut in_all = true
+      let mut p = 1
+      while p < n_sets {
+        let (_, peaks_p) = peak_sets[p]
+        let mut found = false
+        let mut q = 0
+        while q < peaks_p.length() {
+          if peaks_overlap(first_peaks[o], peaks_p[q], min_overlap) {
+            found = true
+            break
+          }
+          q = q + 1
+        }
+        if !found {
+          in_all = false
+          break
+        }
+        p = p + 1
+      }
+      if in_all {
+        count = count + 1
+      }
+      o = o + 1
+    }
+    count
+  } else {
+    0
+  }
+  
+  PeakOverlapResult::new(peak_sets, overlap_matrix, union_count, intersect_count)
+}
+
+///|
+pub fn plot_venn(result : PeakOverlapResult) -> String {
+  let n_sets = result.peak_sets.length()
+  if n_sets > 3 {
+    return "Venn diagram only supports up to 3 peak sets\n"
+  }
+  
+  let mut diagram = "Peak Overlap Venn Diagram\n"
+  diagram = diagram + "=========================\n\n"
+  
+  let labels : Array[String] = Array::new()
+  let counts : Array[Int] = Array::new()
+  let mut i = 0
+  while i < n_sets {
+    let (label, peaks) = result.peak_sets[i]
+    labels.push(label)
+    counts.push(peaks.length())
+    i = i + 1
+  }
+  
+  if n_sets == 1 {
+    diagram = diagram + labels[0] + ": " + counts[0].to_string() + " peaks\n"
+  } else if n_sets == 2 {
+    let only_a = counts[0] - result.overlap_matrix[0][1]
+    let only_b = counts[1] - result.overlap_matrix[0][1]
+    let overlap = result.overlap_matrix[0][1]
+    diagram = diagram + "     " + labels[0] + "        " + labels[1] + "\n"
+    diagram = diagram + "    /--------\\    /--------\\\n"
+    diagram = diagram + "   /   " + only_a.to_string() + "   \\  /   " + only_b.to_string() + "   \\\n"
+    diagram = diagram + "  /            \\/            \\\n"
+    diagram = diagram + " /         " + overlap.to_string() + "          \\\n"
+    diagram = diagram + " \\                          /\n"
+    diagram = diagram + "  \\                        /\n"
+    diagram = diagram + "   \\______________________/\n"
+  } else if n_sets == 3 {
+    let ab = result.overlap_matrix[0][1]
+    let ac = result.overlap_matrix[0][2]
+    let bc = result.overlap_matrix[1][2]
+    let abc = result.intersect_count
+    let only_a = counts[0] - ab - ac + abc
+    let only_b = counts[1] - ab - bc + abc
+    let only_c = counts[2] - ac - bc + abc
+    let only_ab = ab - abc
+    let only_ac = ac - abc
+    let only_bc = bc - abc
+    
+    diagram = diagram + "             " + labels[0] + "\n"
+    diagram = diagram + "            /--------\\\n"
+    diagram = diagram + "           /   " + only_a.to_string() + "   \\\n"
+    diagram = diagram + "          /            \\\n"
+    diagram = diagram + "         /   " + only_ab.to_string() + "  \\  " + labels[1] + "\n"
+    diagram = diagram + "        /            \\/--------\\\n"
+    diagram = diagram + "       /         " + abc.to_string() + "    " + only_b.to_string() + "   \\\n"
+    diagram = diagram + "      \\            /\\            /\n"
+    diagram = diagram + "       \\   " + only_ac.to_string() + "  /  \\   " + only_bc.to_string() + "   /\n"
+    diagram = diagram + "        \\            /\\            /\n"
+    diagram = diagram + "         \\__________/  \\__________/\n"
+    diagram = diagram + "                       " + labels[2] + "\n"
+    diagram = diagram + "                      " + only_c.to_string() + "\n"
+  }
+  
+  diagram
+}
+
+///|
+pub fn plot_anno_pie(result : AnnotationResult) -> String {
+  let mut pie = "Annotation Pie Chart\n"
+  pie = pie + "===================\n\n"
+  
+  let stats = get_annotation_statistics(result)
+  let keys = stats.keys().collect()
+  
+  if keys.length() == 0 {
+    return pie + "No annotations found\n"
+  }
+  
+  let labels : Array[String] = Array::new()
+  let percentages : Array[Double] = Array::new()
+  for key in keys {
+    let value = stats.get(key)
+    if value.is_some() {
+      labels.push(key)
+      percentages.push(value.unwrap())
+    }
+  }
+  
+  let colors = ['#', '*', '+', 'o', '@', '%', '&']
+  
+  pie = pie + "    Annotation Distribution\n"
+  pie = pie + "    =======================\n\n"
+  
+  let pie_radius = 8
+  let center = pie_radius
+  
+  let mut row = 0
+  while row <= pie_radius * 2 {
+    let mut line = ""
+    
+    let y_dist = (row.to_double() - center.to_double()).abs()
+    let half_width = ((pie_radius.to_double() * pie_radius.to_double() - y_dist * y_dist).sqrt()).to_int()
+    
+    let mut col = 0
+    while col < pie_radius * 2 + 3 {
+      let x_dist = col.to_double() - center.to_double() - 1.0
+      
+      if x_dist.abs() <= half_width.to_double() + 0.5 {
+        let x_norm = if x_dist == 0.0 { 0.0 } else { x_dist / pie_radius.to_double() }
+        let y_norm = y_dist / pie_radius.to_double()
+        
+        let mut angle = 0.0
+        if x_norm >= 0.0 && y_norm >= 0.0 {
+          angle = 0.0
+        } else if x_norm < 0.0 && y_norm >= 0.0 {
+          angle = 90.0
+        } else if x_norm < 0.0 && y_norm < 0.0 {
+          angle = 180.0
+        } else {
+          angle = 270.0
+        }
+        
+        let mut current_angle = 0.0
+        let mut pixel_color = ' '
+        
+        let mut k = 0
+        while k < labels.length() {
+          let slice_angle = percentages[k] / 100.0 * 360.0
+          
+          if angle >= current_angle && angle < current_angle + slice_angle {
+            pixel_color = colors[k % colors.length()]
+            break
+          }
+          
+          current_angle = current_angle + slice_angle
+          k = k + 1
+        }
+        
+        line = line + pixel_color.to_string()
+      } else {
+        line = line + " "
+      }
+      col = col + 1
+    }
+    
+    pie = pie + "  " + line + "\n"
+    row = row + 1
+  }
+  
+  pie = pie + "\nLegend:\n"
+  let mut m = 0
+  while m < labels.length() {
+    pie = pie + "  " + colors[m % colors.length()].to_string() + " " + labels[m] + ": " + percentages[m].to_string() + "%\n"
+    m = m + 1
+  }
+  
+  pie
+}
+
+///|
 pub fn cs_create_example_peaks() -> Array[Peak] {
   let peaks : Array[Peak] = Array::new()
 
