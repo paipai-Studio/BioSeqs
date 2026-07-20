@@ -4,7 +4,7 @@ test "single_cell_experiment_new" {
   let col_data = [["Cell1"], ["Cell2"]]
   let row_data = [["Gene1"], ["Gene2"]]
 
-  let sce = @src.SingleCellExperiment::new(assays, col_data, row_data)
+  let sce = @src.SimpleSCE::new(assays, col_data, row_data)
 
   assert_eq(sce.assays.length(), 1)
   assert_eq(sce.col_data.length(), 2)

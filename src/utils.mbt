@@ -257,3 +257,62 @@ pub fn starts_with(s : String, pos : Int, prefix : String) -> Bool {
 
   true
 }
+
+///|
+/// Convert string to lowercase.
+pub fn to_lowercase(s : String) -> String {
+  let mut result = ""
+  let mut i = 0
+  while i < s.length() {
+    let c = s.unsafe_get(i).to_int()
+    if c >= 'A'.to_int() && c <= 'Z'.to_int() {
+      result = result + (c + 32).to_string()
+    } else {
+      result = result + c.to_string()
+    }
+    i = i + 1
+  }
+  result
+}
+
+///|
+/// Check if string contains substring.
+pub fn contains(s : String, substr : String) -> Bool {
+  if substr.length() == 0 {
+    return true
+  }
+  if s.length() < substr.length() {
+    return false
+  }
+  let mut i = 0
+  while i <= s.length() - substr.length() {
+    let mut match_found = true
+    let mut j = 0
+    while j < substr.length() {
+      if s.unsafe_get(i + j) != substr.unsafe_get(j) {
+        match_found = false
+        break
+      }
+      j = j + 1
+    }
+    if match_found {
+      return true
+    }
+    i = i + 1
+  }
+  false
+}
+
+///|
+/// Trim whitespace from both ends of string.
+pub fn trim(s : String) -> String {
+  let mut start = 0
+  while start < s.length() && s.unsafe_get(start).to_int() == ' '.to_int() {
+    start = start + 1
+  }
+  let mut end = s.length()
+  while end > start && s.unsafe_get(end - 1).to_int() == ' '.to_int() {
+    end = end - 1
+  }
+  s[start:end].to_string()
+}

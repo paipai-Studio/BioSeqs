@@ -1,4 +1,5 @@
 import {
-  "IvanAXu/BioSeqs/src",
+  "IvanAXu/BioSeqs/src" @bio,
+  "IvanAXu/BioSeqs/src" @src,
   "moonbitlang/core/hashmap",
 }

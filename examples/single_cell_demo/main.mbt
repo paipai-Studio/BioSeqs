@@ -82,12 +82,12 @@ fn main {
     j = j + 1
   }
 
-  println("\n6. SingleCellExperiment:")
+  println("\n6. SimpleSCE:")
   let assays = [normalized]
   let col_data = [["Cell1"], ["Cell2"], ["Cell3"], ["Cell4"], ["Cell5"]]
   let row_data = [["GeneA"], ["MT-CO1"], ["GeneB"], ["MT-ATP6"], ["GeneC"]]
 
-  let sce = @bio.SingleCellExperiment::new(assays, col_data, row_data)
+  let sce = @bio.SimpleSCE::new(assays, col_data, row_data)
   println("Assays: " + sce.assays.length().to_string())
   println("Cells: " + sce.col_data.length().to_string())
   println("Genes: " + sce.row_data.length().to_string())

@@ -253,7 +253,7 @@ pub fn parse_wig(content : String) -> Array[WigRecord] {
       continue
     }
 
-    let trimmed = trim(line)
+    let trimmed = rtracklayer_trim(line)
     if starts_with(trimmed, 0, "variableStep") ||
       starts_with(trimmed, 0, "VariableStep") {
       if positions.length() > 0 {
@@ -544,7 +544,7 @@ fn parse_gff_attributes(attr_str : String) -> Map[String, String] {
 
   let mut i = 0
   while i < parts.length() {
-    let part = trim(parts[i])
+    let part = rtracklayer_trim(parts[i])
     if part.length() == 0 {
       i = i + 1
       continue
@@ -665,7 +665,7 @@ fn extract_param(line : String, prefix : String) -> String {
 
 ///|
 /// Trim whitespace from string.
-fn trim(s : String) -> String {
+fn rtracklayer_trim(s : String) -> String {
   let mut start = 0
   while start < s.length() &&
         is_whitespace(s.unsafe_get(start).unsafe_to_char()) {

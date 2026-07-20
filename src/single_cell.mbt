@@ -1,9 +1,11 @@
 ///|
 /// Single Cell Analysis module, inspired by Bioconductor SingleCellExperiment.
 /// Provides functions for single-cell RNA-seq data analysis.
+/// Note: The simple container struct is renamed to SimpleSCE to avoid conflict
+/// with the comprehensive SingleCellExperiment in single_cell_experiment.mbt.
 
 ///|
-pub struct SingleCellExperiment {
+pub struct SimpleSCE {
   assays : Array[Array[Array[Double]]]
   col_data : Array[Array[String]]
   row_data : Array[Array[String]]
@@ -11,17 +13,12 @@ pub struct SingleCellExperiment {
 }
 
 ///|
-pub fn SingleCellExperiment::new(
+pub fn SimpleSCE::new(
   assays : Array[Array[Array[Double]]],
   col_data : Array[Array[String]],
   row_data : Array[Array[String]],
-) -> SingleCellExperiment {
-  SingleCellExperiment::{
-    assays,
-    col_data,
-    row_data,
-    reduced_dimensions: Array::new(),
-  }
+) -> SimpleSCE {
+  SimpleSCE::{ assays, col_data, row_data, reduced_dimensions: Array::new() }
 }
 
 ///|
@@ -209,7 +206,10 @@ fn matmul_vec(m : Array[Array[Double]], v : Array[Double]) -> Array[Double] {
 ///|
 fn transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
   let rows = m.length()
-  let cols = if rows > 0 { m[0].length() } else { 0 }
+  if rows == 0 {
+    return []
+  }
+  let cols = m[0].length()
 
   let result : Array[Array[Double]] = Array::new()
   let mut i = 0
@@ -217,7 +217,11 @@ fn transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
     let row : Array[Double] = Array::new()
     let mut j = 0
     while j < rows {
-      row.push(m[j][i])
+      if i < m[j].length() {
+        row.push(m[j][i])
+      } else {
+        row.push(0.0)
+      }
       j = j + 1
     }
     result.push(row)
