@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  check-build-test:
+    name: Check, Build & Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup MoonBit
+        uses: moonbitlang/setup-moonbit@v1
+        with:
+          version: latest
+
+      - name: Check MoonBit version
+        run: moon version
+
+      - name: Cache MoonBit build
+        uses: actions/cache@v4
+        with:
+          path: |
+            **/.moon
+            **/target
+          key: ${{ runner.os }}-moonbit-${{ hashFiles('**/moon.mod', '**/moon.pkg') }}
+          restore-keys: |
+            ${{ runner.os }}-moonbit-
+
+      - name: Moon check
+        run: moon check
+
+      - name: Moon build
+        run: moon build
+
+      - name: Moon test
+        run: moon test --package IvanAXu/BioSeqs/test/moonbit
