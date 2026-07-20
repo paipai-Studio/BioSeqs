@@ -14,10 +14,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup MoonBit
-        uses: moonbitlang/setup-moonbit@v1
+      - name: Cache MoonBit toolchain
+        id: cache-moonbit
+        uses: actions/cache@v4
         with:
-          version: latest
+          path: ~/.moon
+          key: ${{ runner.os }}-moonbit-toolchain
+
+      - name: Setup MoonBit
+        if: steps.cache-moonbit.outputs.cache-hit != 'true'
+        run: curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+
+      - name: Add MoonBit to PATH
+        run: echo "$HOME/.moon/bin" >> $GITHUB_PATH
 
       - name: Check MoonBit version
         run: moon version
@@ -28,9 +37,9 @@ jobs:
           path: |
             **/.moon
             **/target
-          key: ${{ runner.os }}-moonbit-${{ hashFiles('**/moon.mod', '**/moon.pkg') }}
+          key: ${{ runner.os }}-moonbit-build-${{ hashFiles('**/moon.mod', '**/moon.pkg') }}
           restore-keys: |
-            ${{ runner.os }}-moonbit-
+            ${{ runner.os }}-moonbit-build-
 
       - name: Moon check
         run: moon check
