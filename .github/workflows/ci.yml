@@ -36,8 +36,8 @@ jobs:
         with:
           path: |
             **/.moon
-            **/target
-          key: ${{ runner.os }}-moonbit-build-${{ hashFiles('**/moon.mod', '**/moon.pkg') }}
+            **/_build
+          key: ${{ runner.os }}-moonbit-build-${{ hashFiles('**/moon.mod', '**/moon.pkg', '**/*.mbt') }}
           restore-keys: |
             ${{ runner.os }}-moonbit-build-
 
