@@ -264,11 +264,39 @@ pub fn to_lowercase(s : String) -> String {
   let mut result = ""
   let mut i = 0
   while i < s.length() {
-    let c = s.unsafe_get(i).to_int()
-    if c >= 'A'.to_int() && c <= 'Z'.to_int() {
-      result = result + (c + 32).to_string()
+    let c = s.unsafe_get(i)
+    if c >= 65 && c <= 90 {
+      match c {
+        65 => result = result + "a"
+        66 => result = result + "b"
+        67 => result = result + "c"
+        68 => result = result + "d"
+        69 => result = result + "e"
+        70 => result = result + "f"
+        71 => result = result + "g"
+        72 => result = result + "h"
+        73 => result = result + "i"
+        74 => result = result + "j"
+        75 => result = result + "k"
+        76 => result = result + "l"
+        77 => result = result + "m"
+        78 => result = result + "n"
+        79 => result = result + "o"
+        80 => result = result + "p"
+        81 => result = result + "q"
+        82 => result = result + "r"
+        83 => result = result + "s"
+        84 => result = result + "t"
+        85 => result = result + "u"
+        86 => result = result + "v"
+        87 => result = result + "w"
+        88 => result = result + "x"
+        89 => result = result + "y"
+        90 => result = result + "z"
+        _ => result = result + s[i:i+1].to_string()
+      }
     } else {
-      result = result + c.to_string()
+      result = result + s[i:i+1].to_string()
     }
     i = i + 1
   }

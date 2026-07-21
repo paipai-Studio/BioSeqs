@@ -696,7 +696,7 @@ pub fn sce_compute_pca(
 ) -> ReducedDimResult {
   let n_genes = logcounts.length()
   let n_cells = if n_genes > 0 { logcounts[0].length() } else { 0 }
-  if n_cells == 0 || n_genes == 0 || n_components <= 0 {
+  if n_cells == 0 || n_genes == 0 {
     return ReducedDimResult::{
       method: "PCA",
       coordinates: [],
@@ -704,7 +704,8 @@ pub fn sce_compute_pca(
       n_components: 0,
     }
   }
-  let centered = sce_center_matrix(logcounts)
+  let transposed = sce_transpose(logcounts)
+  let centered = sce_center_matrix(transposed)
   let mut cov = sce_covariance(centered)
   let n = cov.length()
   let components : Array[Array[Double]] = Array::new()
@@ -760,7 +761,7 @@ pub fn sce_compute_pca(
     eigenvalues.push(eigenvalue)
     i = i + 1
   }
-  let projected = sce_matmul(sce_transpose(centered), components)
+  let projected = sce_matmul(centered, sce_transpose(components))
   let total_var = {
     let mut s = 0.0
     let mut x = 0

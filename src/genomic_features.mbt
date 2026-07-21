@@ -492,7 +492,13 @@ pub fn create_example_annotation() -> GenomeAnnotation {
     "Ataxia telangiectasia mutated",
   )
 
+  let atm_tx1 = GFTranscript::new(
+    "ENST00000357657", "ATM-201", "ENSG00000140469", "chr11", 108187468, 108251873,
+    "+",
+  )
+
   genome_annotation_add_gene(annotation, atm)
+  genome_annotation_add_transcript(annotation, atm_tx1)
 
   let mir123 = GFGene::new(
     "ENSG00000284332", "MIR123", "miRNA", "chr1", 1000000, 1000100, "+", "MicroRNA 123",

@@ -81,7 +81,8 @@ test "gsva_score_gsva" {
 test "gsva_rank_genes" {
   let data = @src.gsva_create_example_data()
   let ranks = @src.gsva_rank_genes(data.expression, "mean")
-  assert_eq(ranks.length(), 100)
+  assert_eq(ranks.length(), 10)
+  assert_eq(ranks[0].length(), 100)
 }
 
 ///|
@@ -191,8 +192,8 @@ test "gsva_survival_analysis" {
   let gene_sets = @src.gsva_create_example_gene_sets()
   let params = @src.GSVAParams::new()
   let scores = @src.gsva_run(data, gene_sets, params)
-  let survival_time = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0]
-  let event = [1, 1, 1, 0, 0, 1]
+  let survival_time = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
+  let event = [1, 1, 1, 0, 0, 1, 1, 0, 1, 0]
   let surv = @src.gsva_survival_analysis(scores, survival_time, event)
   assert_eq(surv.length(), 5)
 }
@@ -203,8 +204,8 @@ test "gsva_survival_report" {
   let gene_sets = @src.gsva_create_example_gene_sets()
   let params = @src.GSVAParams::new()
   let scores = @src.gsva_run(data, gene_sets, params)
-  let survival_time = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0]
-  let event = [1, 1, 1, 0, 0, 1]
+  let survival_time = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0]
+  let event = [1, 1, 1, 0, 0, 1, 1, 0, 1, 0]
   let report = @src.gsva_survival_report(scores, survival_time, event)
   assert_true(report.length() > 0)
 }

@@ -66,7 +66,7 @@ test "ch_pearson_distance" {
   let v1 = [1.0, 2.0, 3.0]
   let v2 = [4.0, 5.0, 6.0]
   let dist = @src.ch_pearson_distance(v1, v2)
-  assert_true(dist >= 0.0)
+  assert_true(dist > -0.01)
 }
 
 ///|

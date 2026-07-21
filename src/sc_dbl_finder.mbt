@@ -87,9 +87,11 @@ pub fn scdf_find_nearest_neighbors(
   let distances : Array[(String, Double)] = Array::new()
 
   let mut i = 0
-  while i < n_cells && i != cell_idx {
-    let dist = scdf_compute_distance(data.counts[cell_idx], data.counts[i])
-    distances.push((data.cell_names[i], dist))
+  while i < n_cells {
+    if i != cell_idx {
+      let dist = scdf_compute_distance(data.counts[cell_idx], data.counts[i])
+      distances.push((data.cell_names[i], dist))
+    }
     i = i + 1
   }
 

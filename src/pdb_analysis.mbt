@@ -31,7 +31,7 @@ pub enum SSType {
   Turn // T
   Bend // S
   Coil // -
-} derive(Eq, Show)
+} derive(Eq, Show, Debug)
 
 ///|
 /// Construct AlphaHelix SSType.
@@ -543,7 +543,7 @@ pub enum RamachandranRegion {
   Favored // Most favorable region
   Allowed // Allowed region
   Generous // Generous/outlier region
-} derive(Eq, Show)
+} derive(Eq, Show, Debug)
 
 ///|
 /// Construct Favored RamachandranRegion.

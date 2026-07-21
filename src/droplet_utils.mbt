@@ -406,10 +406,10 @@ pub fn create_example_droplet_data() -> (Array[Array[Int]], Array[String]) {
     while j < n_genes {
       let mut count = 0
       if i < 30 {
-        if (j * 7 + i * 13).to_double() % 10.0 / 10.0 < 0.1 {
-          count = ((j * 7 + i * 13).to_double() % 10.0 / 10.0 * 10.0).to_int()
+        if (j * 7 + i * 13).to_double() % 10.0 / 10.0 < 0.3 {
+          count = ((j * 7 + i * 13).to_double() % 10.0 / 10.0 * 20.0).to_int() + 1
         }
-      } else if (j * 7 + i * 13).to_double() % 10.0 / 10.0 < 0.01 {
+      } else if (j * 7 + i * 13).to_double() % 10.0 / 10.0 < 0.05 {
         count = ((j * 7 + i * 13).to_double() % 10.0 / 10.0 * 5.0).to_int()
       }
       row.push(count)

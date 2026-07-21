@@ -260,7 +260,7 @@ test "bsseq_find_hypo_dmr" {
 ///|
 test "bsseq_compute_methylation_diff" {
   assert_eq(@src.bsseq_compute_methylation_diff(0.8, 0.3), 0.5)
-  assert_eq(@src.bsseq_compute_methylation_diff(0.1, 0.4), -0.3)
+  assert_true(@src.bsseq_compute_methylation_diff(0.1, 0.4) > -0.31 && @src.bsseq_compute_methylation_diff(0.1, 0.4) < -0.29)
   assert_eq(@src.bsseq_compute_methylation_diff(0.5, 0.5), 0.0)
 }
 

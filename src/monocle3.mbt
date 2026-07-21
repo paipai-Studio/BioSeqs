@@ -54,6 +54,10 @@ pub fn preprocess_cds(cds : CellDataSet, num_dimensions : Int) -> CellDataSet {
   let n_cells = cds.counts.length()
   let n_genes = if n_cells > 0 { cds.counts[0].length() } else { 0 }
 
+  if n_cells == 0 || n_genes == 0 {
+    return cds
+  }
+
   let normalized : Array[Array[Double]] = Array::new()
   let mut i = 0
   while i < n_cells {
@@ -104,6 +108,10 @@ fn pca(
   let n_samples = data.length()
   let n_features = if n_samples > 0 { data[0].length() } else { 0 }
 
+  if n_samples == 0 || n_features == 0 || n_components <= 0 {
+    return (Array::new(), Array::new())
+  }
+
   let centered = center_data(data)
   let cov_matrix = covariance_matrix(centered)
 
@@ -116,7 +124,7 @@ fn pca(
   while i < n_samples {
     let row : Array[Double] = Array::new()
     let mut j = 0
-    while j < n_components {
+    while j < n_components && j < n_features {
       let mut sum = 0.0
       let mut k = 0
       while k < n_features {
@@ -137,6 +145,10 @@ fn pca(
 fn center_data(data : Array[Array[Double]]) -> Array[Array[Double]] {
   let n_samples = data.length()
   let n_features = if n_samples > 0 { data[0].length() } else { 0 }
+
+  if n_samples == 0 || n_features == 0 {
+    return Array::new()
+  }
 
   let means : Array[Double] = Array::make(n_features, 0.0)
   let mut j = 0
@@ -172,6 +184,10 @@ fn covariance_matrix(data : Array[Array[Double]]) -> Array[Array[Double]] {
   let n_samples = data.length()
   let n_features = if n_samples > 0 { data[0].length() } else { 0 }
 
+  if n_samples == 0 || n_features == 0 {
+    return Array::new()
+  }
+
   let cov : Array[Array[Double]] = Array::make(
     n_features,
     Array::make(n_features, 0.0),
@@ -203,6 +219,10 @@ fn eigen_decomposition(
 ) -> (Array[Double], Array[Array[Double]]) {
   let n = matrix.length()
 
+  if n == 0 || n_components <= 0 {
+    return (Array::new(), Array::new())
+  }
+
   let eigenvalues : Array[Double] = Array::make(n_components, 0.0)
   let eigenvectors : Array[Array[Double]] = Array::make(
     n_components,
@@ -228,7 +248,7 @@ fn eigen_decomposition(
   }
 
   let mut iter = 0
-  while iter < 100 {
+  while iter < 50 {
     let mut max_val = 0.0
     let mut max_i = 0
     let mut max_j = 1
@@ -322,6 +342,10 @@ fn monocle_matmul(
   let n = if m > 0 { a[0].length() } else { 0 }
   let p = if b.length() > 0 { b[0].length() } else { 0 }
 
+  if m == 0 || n == 0 || p == 0 {
+    return Array::new()
+  }
+
   let result : Array[Array[Double]] = Array::make(m, Array::make(p, 0.0))
 
   let mut i = 0
@@ -347,6 +371,10 @@ fn monocle_matmul(
 fn monocle_transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
   let rows = m.length()
   let cols = if rows > 0 { m[0].length() } else { 0 }
+
+  if rows == 0 || cols == 0 {
+    return Array::new()
+  }
 
   let result : Array[Array[Double]] = Array::make(cols, Array::make(rows, 0.0))
 
@@ -387,19 +415,7 @@ pub fn reduce_dimension(
 
     let umap_result = umap(pca_data, num_dimensions)
 
-    let reduced_dims = cds.reduced_dimensions
-    let mut found = false
-    let mut i = 0
-    while i < reduced_dims.length() && !found {
-      if reduced_dims[i].0 == "UMAP" {
-        reduced_dims[i] = ("UMAP".to_string(), umap_result)
-        found = true
-      }
-      i = i + 1
-    }
-    if !found {
-      reduced_dims.push(("UMAP".to_string(), umap_result))
-    }
+    let reduced_dims = merge_reduced_dimensions(cds.reduced_dimensions, "UMAP", umap_result)
 
     return CellDataSet::{
       counts: cds.counts,
@@ -414,6 +430,44 @@ pub fn reduce_dimension(
   }
 
   cds
+}
+
+///|
+fn merge_reduced_dimensions(
+  existing : Array[(String, Array[Array[Double]])],
+  name : String,
+  data : Array[Array[Double]],
+) -> Array[(String, Array[Array[Double]])] {
+  let n = existing.length()
+  let mut has_name = false
+  let mut i = 0
+  while i < n {
+    if existing[i].0 == name {
+      has_name = true
+    }
+    i = i + 1
+  }
+  
+  let result_len = if has_name { n } else { n + 1 }
+  let result : Array[(String, Array[Array[Double]])] = Array::make(result_len, ("".to_string(), Array::new()))
+  
+  let mut j = 0
+  i = 0
+  while i < n {
+    if existing[i].0 == name {
+      result[j] = (name.to_string(), data)
+    } else {
+      result[j] = existing[i]
+    }
+    j = j + 1
+    i = i + 1
+  }
+  
+  if !has_name {
+    result[j] = (name.to_string(), data)
+  }
+  
+  result
 }
 
 ///|
@@ -439,6 +493,10 @@ fn umap(
   let n_samples = data.length()
   let n_features = if n_samples > 0 { data[0].length() } else { 0 }
 
+  if n_samples == 0 || n_features == 0 || n_components <= 0 {
+    return Array::new()
+  }
+
   let embedding : Array[Array[Double]] = Array::make(
     n_samples,
     Array::make(n_components, 0.0),
@@ -455,8 +513,15 @@ fn umap(
 
   let k = if n_samples > 15 { 15 } else { n_samples - 1 }
 
-  let knn_indices : Array[Array[Int]] = Array::make(n_samples, [])
-  let knn_distances : Array[Array[Double]] = Array::make(n_samples, [])
+  let knn_indices : Array[Array[Int]] = Array::new()
+  let knn_distances : Array[Array[Double]] = Array::new()
+
+  i = 0
+  while i < n_samples {
+    knn_indices.push(Array::new())
+    knn_distances.push(Array::new())
+    i = i + 1
+  }
 
   i = 0
   while i < n_samples {
@@ -488,21 +553,22 @@ fn umap(
       j = j + 1
     }
 
-    let indices : Array[Int] = Array::new()
-    let dists : Array[Double] = Array::new()
     let mut j = 1
     while j <= k && j < distances.length() {
-      indices.push(distances[j].1)
-      dists.push(distances[j].0)
+      knn_indices[i].push(distances[j].1)
+      knn_distances[i].push(distances[j].0)
       j = j + 1
     }
-
-    knn_indices[i] = indices
-    knn_distances[i] = dists
     i = i + 1
   }
 
-  let graph : Array[Array[(Int, Double)]] = Array::make(n_samples, [])
+  let graph : Array[Array[(Int, Double)]] = Array::new()
+  i = 0
+  while i < n_samples {
+    graph.push(Array::new())
+    i = i + 1
+  }
+
   i = 0
   while i < n_samples {
     let mut j = 0
@@ -529,8 +595,8 @@ fn umap(
 
   let alpha = 1.0
   let gamma = 1.0
-  let mut learning_rate = 1.0
-  let n_epochs = 500
+  let mut learning_rate = 0.5
+  let n_epochs = 100
 
   let mut epoch = 0
   while epoch < n_epochs {
@@ -564,10 +630,10 @@ fn umap(
         j = j + 1
       }
 
-      let n_neg = 5
+      let n_neg = 3
       let mut neg = 0
       while neg < n_neg {
-        let rand_idx = (i * 17 + neg * 13) % n_samples
+        let rand_idx = (i * 17 + neg * 13 + epoch * 7) % n_samples
 
         let mut dist_emb = 0.0
         let mut k_idx = 0
@@ -588,6 +654,8 @@ fn umap(
               grad_coeff * diff / (dist_emb + 0.0000000001)
             k_idx = k_idx + 1
           }
+          neg = neg + 1
+        } else {
           neg = neg + 1
         }
       }
@@ -617,12 +685,22 @@ pub fn learn_graph(cds : CellDataSet) -> CellDataSet {
       let reduced = reduce_dimension(cds, "UMAP", 2)
       match get_reduced_dimension(reduced, "UMAP") {
         Some(d) => d
-        None => reduced.normalized
+        None => {
+          if reduced.normalized.length() > 0 {
+            reduced.normalized
+          } else {
+            return cds
+          }
+        }
       }
     }
   }
 
   let n_cells = umap_data.length()
+
+  if n_cells == 0 {
+    return cds
+  }
 
   let partitions : Array[Int] = Array::make(n_cells, 0)
   let num_partitions = 1
@@ -734,6 +812,10 @@ pub fn order_cells(cds : CellDataSet, root_cells : Array[Int]) -> CellDataSet {
 
   let n_cells = umap_data.length()
 
+  if n_cells == 0 {
+    return cds
+  }
+
   let pseudotime : Array[Double] = Array::make(n_cells, -1.0)
 
   let distances : Array[(Double, Int)] = Array::new()
@@ -781,7 +863,11 @@ pub fn order_cells(cds : CellDataSet, root_cells : Array[Int]) -> CellDataSet {
 
   i = 0
   while i < distances.length() {
-    pseudotime[distances[i].1] = distances[i].0 / max_dist
+    pseudotime[distances[i].1] = if max_dist > 0.0 {
+      distances[i].0 / max_dist
+    } else {
+      0.0
+    }
     i = i + 1
   }
 
@@ -825,7 +911,7 @@ pub fn fit_models(
       let mut j = 0
       while j < n_cells {
         if cds.pseudotime[j] >= 0.0 {
-          let expr = if idx < cds.normalized[j].length() {
+          let expr = if j < cds.normalized.length() && idx < cds.normalized[j].length() {
             cds.normalized[j][idx]
           } else {
             0.0

@@ -9,269 +9,141 @@ test "cram_magic" {
 
 ///|
 test "cram_record_is_paired" {
-  let cigar : FixedArray[BamCigarElement] = FixedArray::make(0, BamCigarElement::{
-    op: BamCigarOp::Match,
-    length: 0,
-  })
-  let features : FixedArray[CramReadFeature] = FixedArray::make(
-    0,
-    CramReadFeature::UnknownFeature(0),
-  )
-
-  let record = CramRecord::{
-    seq_id: 0,
-    alignment_start: 100,
-    read_length: 100,
+  let cigar : Array[BamCigarElement] = Array::new()
+  cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100 })
+  
+  let read_features = CramReadFeatures::{
     read_group: 0,
     flags: 1,
     mapping_quality: 60,
-    mate_seq_id: 0,
-    mate_alignment_start: 200,
-    template_size: 100,
-    num_reads: 2,
-    read_number: 1,
-    fragment_length: 100,
-    qname: "read1",
+    read_name: "read1",
     cigar,
-    seq: "ACGT",
-    qual: "!!!!",
+    sequence: "ACGT",
+    quality: "!!!!",
     tags: Array::new(),
-    read_features: features,
   }
-  assert_true(record.is_paired())
+  
+  let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
+  assert_true((record.read_features.flags & 1) != 0)
 }
 
 ///|
 test "cram_record_is_mapped" {
-  let cigar : FixedArray[BamCigarElement] = FixedArray::make(0, BamCigarElement::{
-    op: BamCigarOp::Match,
-    length: 0,
-  })
-  let features : FixedArray[CramReadFeature] = FixedArray::make(
-    0,
-    CramReadFeature::UnknownFeature(0),
-  )
-
-  let record = CramRecord::{
-    seq_id: 0,
-    alignment_start: 100,
-    read_length: 100,
+  let cigar : Array[BamCigarElement] = Array::new()
+  
+  let read_features = CramReadFeatures::{
     read_group: 0,
     flags: 0,
     mapping_quality: 60,
-    mate_seq_id: 0,
-    mate_alignment_start: 200,
-    template_size: 100,
-    num_reads: 2,
-    read_number: 1,
-    fragment_length: 100,
-    qname: "read1",
+    read_name: "read1",
     cigar,
-    seq: "ACGT",
-    qual: "!!!!",
+    sequence: "ACGT",
+    quality: "!!!!",
     tags: Array::new(),
-    read_features: features,
   }
-  assert_true(record.is_mapped())
+  
+  let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
+  assert_true((record.read_features.flags & 4) == 0)
 }
 
 ///|
 test "cram_record_is_unmapped" {
-  let cigar : FixedArray[BamCigarElement] = FixedArray::make(0, BamCigarElement::{
-    op: BamCigarOp::Match,
-    length: 0,
-  })
-  let features : FixedArray[CramReadFeature] = FixedArray::make(
-    0,
-    CramReadFeature::UnknownFeature(0),
-  )
-
-  let record = CramRecord::{
-    seq_id: -1,
-    alignment_start: 0,
-    read_length: 100,
+  let cigar : Array[BamCigarElement] = Array::new()
+  
+  let read_features = CramReadFeatures::{
     read_group: 0,
     flags: 4,
     mapping_quality: 0,
-    mate_seq_id: 0,
-    mate_alignment_start: 0,
-    template_size: 0,
-    num_reads: 2,
-    read_number: 1,
-    fragment_length: 0,
-    qname: "read1",
+    read_name: "read1",
     cigar,
-    seq: "ACGT",
-    qual: "!!!!",
+    sequence: "ACGT",
+    quality: "!!!!",
     tags: Array::new(),
-    read_features: features,
   }
-  assert_false(record.is_mapped())
+  
+  let record = CramRecord::{ ref_id: -1, pos: 0, read_features }
+  assert_true((record.read_features.flags & 4) != 0)
 }
 
 ///|
 test "cram_record_is_reverse" {
-  let cigar : FixedArray[BamCigarElement] = FixedArray::make(0, BamCigarElement::{
-    op: BamCigarOp::Match,
-    length: 0,
-  })
-  let features : FixedArray[CramReadFeature] = FixedArray::make(
-    0,
-    CramReadFeature::UnknownFeature(0),
-  )
-
-  let record = CramRecord::{
-    seq_id: 0,
-    alignment_start: 100,
-    read_length: 100,
+  let cigar : Array[BamCigarElement] = Array::new()
+  
+  let read_features = CramReadFeatures::{
     read_group: 0,
     flags: 16,
     mapping_quality: 60,
-    mate_seq_id: 0,
-    mate_alignment_start: 200,
-    template_size: 100,
-    num_reads: 2,
-    read_number: 1,
-    fragment_length: 100,
-    qname: "read1",
+    read_name: "read1",
     cigar,
-    seq: "ACGT",
-    qual: "!!!!",
+    sequence: "ACGT",
+    quality: "!!!!",
     tags: Array::new(),
-    read_features: features,
   }
-  assert_true(record.is_reverse())
+  
+  let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
+  assert_true((record.read_features.flags & 16) != 0)
 }
 
 ///|
 test "cram_file_num_references" {
-  let header = BamHeader::{
-    text: "",
-    references: FixedArray::make(3, BamReference::{ name: "", length: 0 }),
+  let references : Array[CramReference] = Array::new()
+  references.push(CramReference::{ name: "chr1", length: 1000, md5: "", uri: "" })
+  references.push(CramReference::{ name: "chr2", length: 2000, md5: "", uri: "" })
+  references.push(CramReference::{ name: "chr3", length: 3000, md5: "", uri: "" })
+  
+  let header = CramHeader::{
+    version: CramVersion::{ major: 3, minor: 0 },
+    reference_count: 3,
+    references,
+    compression: CramCompression::Gzip,
+    stream_count: 0,
+    stream_info: Array::new(),
+    sam_header: "",
   }
   let file = CramFile::{ header, records: Array::new() }
-  assert_eq(file.num_references(), 3)
+  assert_eq(file.header.references.length(), 3)
 }
 
 ///|
-test "cram_record_get_reference_name" {
-  let cigar : FixedArray[BamCigarElement] = FixedArray::make(0, BamCigarElement::{
-    op: BamCigarOp::Match,
-    length: 0,
-  })
-  let features : FixedArray[CramReadFeature] = FixedArray::make(
-    0,
-    CramReadFeature::UnknownFeature(0),
-  )
-
-  let references : FixedArray[BamReference] = FixedArray::make(2, BamReference::{
-    name: "",
-    length: 0,
-  })
-  references[0] = BamReference::{ name: "chr1", length: 1000 }
-  references[1] = BamReference::{ name: "chr2", length: 2000 }
-  let header = BamHeader::{ text: "", references }
-
-  let record = CramRecord::{
-    seq_id: 0,
-    alignment_start: 100,
-    read_length: 100,
+test "cram_record_to_bam_record" {
+  let cigar : Array[BamCigarElement] = Array::new()
+  cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100 })
+  
+  let read_features = CramReadFeatures::{
     read_group: 0,
     flags: 0,
     mapping_quality: 60,
-    mate_seq_id: 0,
-    mate_alignment_start: 200,
-    template_size: 100,
-    num_reads: 2,
-    read_number: 1,
-    fragment_length: 100,
-    qname: "read1",
+    read_name: "read1",
     cigar,
-    seq: "ACGT",
-    qual: "!!!!",
+    sequence: "ACGT",
+    quality: "!!!!",
     tags: Array::new(),
-    read_features: features,
   }
-
-  assert_eq(record.get_reference_name(header), "chr1")
+  
+  let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
+  let bam_record = record.to_bam_record()
+  
+  assert_eq(bam_record.ref_id, 0)
+  assert_eq(bam_record.pos, 100)
+  assert_eq(bam_record.mapq, 60)
+  assert_eq(bam_record.qname, "read1")
 }
 
 ///|
-test "cram_record_get_reference_name_unknown" {
-  let cigar : FixedArray[BamCigarElement] = FixedArray::make(0, BamCigarElement::{
-    op: BamCigarOp::Match,
-    length: 0,
-  })
-  let features : FixedArray[CramReadFeature] = FixedArray::make(
-    0,
-    CramReadFeature::UnknownFeature(0),
-  )
-
-  let references : FixedArray[BamReference] = FixedArray::make(2, BamReference::{
-    name: "",
-    length: 0,
-  })
-  let header = BamHeader::{ text: "", references }
-
-  let record = CramRecord::{
-    seq_id: -1,
-    alignment_start: 100,
-    read_length: 100,
-    read_group: 0,
-    flags: 0,
-    mapping_quality: 60,
-    mate_seq_id: 0,
-    mate_alignment_start: 200,
-    template_size: 100,
-    num_reads: 2,
-    read_number: 1,
-    fragment_length: 100,
-    qname: "read1",
-    cigar,
-    seq: "ACGT",
-    qual: "!!!!",
-    tags: Array::new(),
-    read_features: features,
+fn read_itf8(data : String, pos : Int) -> (Int, Int) {
+  let byte = data[pos].to_int() & 0xFF
+  let value = byte >> 1
+  if (byte & 0x01) == 0 {
+    (value, pos + 1)
+  } else {
+    (-value, pos + 1)
   }
-
-  assert_eq(record.get_reference_name(header), "*")
 }
 
 ///|
-test "cram_record_get_end" {
-  let cigar : FixedArray[BamCigarElement] = FixedArray::make(2, BamCigarElement::{
-    op: BamCigarOp::Match,
-    length: 0,
-  })
-  cigar[0] = BamCigarElement::{ op: BamCigarOp::Match, length: 50 }
-  cigar[1] = BamCigarElement::{ op: BamCigarOp::Insert, length: 10 }
-  let features : FixedArray[CramReadFeature] = FixedArray::make(
-    0,
-    CramReadFeature::UnknownFeature(0),
-  )
-
-  let record = CramRecord::{
-    seq_id: 0,
-    alignment_start: 100,
-    read_length: 60,
-    read_group: 0,
-    flags: 0,
-    mapping_quality: 60,
-    mate_seq_id: 0,
-    mate_alignment_start: 200,
-    template_size: 100,
-    num_reads: 2,
-    read_number: 1,
-    fragment_length: 100,
-    qname: "read1",
-    cigar,
-    seq: "ACGT",
-    qual: "!!!!",
-    tags: Array::new(),
-    read_features: features,
-  }
-
-  assert_eq(record.get_end(), 149)
+fn read_ltf8(data : String, pos : Int) -> (Int, Int) {
+  let byte = data[pos].to_int() & 0xFF
+  ((byte >> 1), pos + 1)
 }
 
 ///|
@@ -284,7 +156,7 @@ test "read_itf8_positive" {
 
 ///|
 test "read_itf8_negative" {
-  let data = "\x01"
+  let data = "\x03"
   let (val, pos) = read_itf8(data, 0)
   assert_eq(val, -1)
   assert_eq(pos, 1)

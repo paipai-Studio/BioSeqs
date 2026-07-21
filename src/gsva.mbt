@@ -86,7 +86,7 @@ pub fn GSVAData::new(
 /// Create default GSVA parameters.
 pub fn GSVAParams::new() -> GSVAParams {
   GSVAParams::{
-    method: "gsva",
+    method: "ssgsea",
     kcdf: "Gaussian",
     min_size: 1,
     max_size: 500,
@@ -357,7 +357,7 @@ pub fn gsva_rank_genes(
 ) -> Array[Array[Double]] {
   let n_genes = expression.length()
   let n_samples = if n_genes > 0 { expression[0].length() } else { 0 }
-  let ranks = Array::make(n_samples, [])
+  let ranks : Array[Array[Double]] = Array::new()
 
   let mut sample_idx = 0
   while sample_idx < n_samples {
@@ -399,7 +399,7 @@ pub fn gsva_rank_genes(
       rank = rank + 1.0
       j = j + 1
     }
-    ranks[sample_idx] = sample_ranks
+    ranks.push(sample_ranks)
     sample_idx = sample_idx + 1
   }
 
@@ -1315,59 +1315,28 @@ pub fn GSVAEnrichment::to_string(self : GSVAEnrichment) -> String {
 ///|
 /// Create example GSVA data for testing.
 pub fn gsva_create_example_data() -> GSVAData {
-  let genes = [
-    "CDK1", "CCNA2", "CCNB1", "CDC20", "CDKN1A", "TP53", "RB1", "E2F1", "MYC", "PCNA",
-    "MCM2", "MCM3", "ORC1", "CDC6", "CDT1", "BCL2", "BAX", "BAK1", "CASP3", "CASP8",
-    "CASP9", "FAS", "TNFRSF1A", "BAD", "BID", "BIM", "XIAP", "DIABLO", "APAF1", "GAPDH",
-    "LDHA", "PFKL", "PKM", "HK2", "PGK1", "ENO1", "ALDOA", "GLUT1", "IDH1", "SDHA",
-  ]
-
-  let samples = [
-    "Sample1", "Sample2", "Sample3", "Sample4", "Sample5", "Sample6",
-  ]
-
-  let expression = [
-    [2.5, 2.3, 2.1, 1.9, 1.7, 1.5],
-    [2.3, 2.1, 1.9, 1.7, 1.5, 1.3],
-    [2.1, 1.9, 1.7, 1.5, 1.3, 1.1],
-    [1.9, 1.7, 1.5, 1.3, 1.1, 0.9],
-    [-1.5, -1.3, -1.1, -0.9, -0.7, -0.5],
-    [-2.0, -1.8, -1.6, -1.4, -1.2, -1.0],
-    [-1.8, -1.6, -1.4, -1.2, -1.0, -0.8],
-    [1.6, 1.4, 1.2, 1.0, 0.8, 0.6],
-    [1.7, 1.5, 1.3, 1.1, 0.9, 0.7],
-    [1.4, 1.2, 1.0, 0.8, 0.6, 0.4],
-    [1.3, 1.1, 0.9, 0.7, 0.5, 0.3],
-    [1.2, 1.0, 0.8, 0.6, 0.4, 0.2],
-    [1.1, 0.9, 0.7, 0.5, 0.3, 0.1],
-    [1.0, 0.8, 0.6, 0.4, 0.2, 0.0],
-    [0.9, 0.7, 0.5, 0.3, 0.1, -0.1],
-    [-1.2, -1.0, -0.8, -0.6, -0.4, -0.2],
-    [1.8, 1.6, 1.4, 1.2, 1.0, 0.8],
-    [1.5, 1.3, 1.1, 0.9, 0.7, 0.5],
-    [2.0, 1.8, 1.6, 1.4, 1.2, 1.0],
-    [1.7, 1.5, 1.3, 1.1, 0.9, 0.7],
-    [1.6, 1.4, 1.2, 1.0, 0.8, 0.6],
-    [-0.8, -0.6, -0.4, -0.2, 0.0, 0.2],
-    [-0.6, -0.4, -0.2, 0.0, 0.2, 0.4],
-    [1.3, 1.1, 0.9, 0.7, 0.5, 0.3],
-    [1.1, 0.9, 0.7, 0.5, 0.3, 0.1],
-    [1.4, 1.2, 1.0, 0.8, 0.6, 0.4],
-    [-1.0, -0.8, -0.6, -0.4, -0.2, 0.0],
-    [0.9, 0.7, 0.5, 0.3, 0.1, -0.1],
-    [0.8, 0.6, 0.4, 0.2, 0.0, -0.2],
-    [0.5, 0.3, 0.1, -0.1, -0.3, -0.5],
-    [0.3, 0.1, -0.1, -0.3, -0.5, -0.7],
-    [0.4, 0.2, 0.0, -0.2, -0.4, -0.6],
-    [0.2, 0.0, -0.2, -0.4, -0.6, -0.8],
-    [0.6, 0.4, 0.2, 0.0, -0.2, -0.4],
-    [0.7, 0.5, 0.3, 0.1, -0.1, -0.3],
-    [-0.3, -0.1, 0.1, 0.3, 0.5, 0.7],
-    [-0.2, 0.0, 0.2, 0.4, 0.6, 0.8],
-    [0.1, 0.3, 0.5, 0.7, 0.9, 1.1],
-    [-0.4, -0.2, 0.0, 0.2, 0.4, 0.6],
-    [-0.5, -0.3, -0.1, 0.1, 0.3, 0.5],
-  ]
+  let genes : Array[String] = Array::new()
+  let samples : Array[String] = Array::new()
+  let expression : Array[Array[Double]] = Array::new()
+  
+  let mut i = 0
+  while i < 100 {
+    genes.push(("Gene".to_string() + i.to_string()))
+    let row : Array[Double] = Array::new()
+    let mut j = 0
+    while j < 10 {
+      row.push(((i % 10) - 5).to_double() + j.to_double() * 0.1)
+      j = j + 1
+    }
+    expression.push(row)
+    i = i + 1
+  }
+  
+  i = 0
+  while i < 10 {
+    samples.push(("Sample".to_string() + i.to_string()))
+    i = i + 1
+  }
 
   GSVAData::new(expression, genes, samples)
 }
@@ -1378,27 +1347,28 @@ pub fn gsva_create_example_gene_sets() -> Array[GSVAGeneSet] {
   [
     GSVAGeneSet::new(
       "CELL_CYCLE",
-      [
-        "CDK1", "CCNA2", "CCNB1", "CDC20", "CDKN1A", "TP53", "RB1", "E2F1", "MYC",
-        "PCNA", "MCM2", "MCM3", "ORC1", "CDC6", "CDT1",
-      ],
+      ["Gene0", "Gene1", "Gene2", "Gene3", "Gene4", "Gene5", "Gene6", "Gene7", "Gene8", "Gene9"],
       "Cell cycle related genes",
     ),
     GSVAGeneSet::new(
       "APOPTOSIS",
-      [
-        "BCL2", "BAX", "BAK1", "CASP3", "CASP8", "CASP9", "FAS", "TNFRSF1A", "TP53",
-        "BAD", "BID", "BIM", "XIAP", "DIABLO", "APAF1",
-      ],
+      ["Gene10", "Gene11", "Gene12", "Gene13", "Gene14", "Gene15", "Gene16", "Gene17", "Gene18", "Gene19"],
       "Apoptosis related genes",
     ),
     GSVAGeneSet::new(
       "METABOLISM",
-      [
-        "GAPDH", "LDHA", "PFKL", "PKM", "HK2", "PGK1", "ENO1", "ALDOA", "GLUT1",
-        "IDH1", "SDHA",
-      ],
+      ["Gene20", "Gene21", "Gene22", "Gene23", "Gene24", "Gene25", "Gene26", "Gene27", "Gene28", "Gene29"],
       "Metabolism related genes",
+    ),
+    GSVAGeneSet::new(
+      "IMMUNE",
+      ["Gene30", "Gene31", "Gene32", "Gene33", "Gene34", "Gene35", "Gene36", "Gene37", "Gene38", "Gene39"],
+      "Immune related genes",
+    ),
+    GSVAGeneSet::new(
+      "STEM",
+      ["Gene40", "Gene41", "Gene42", "Gene43", "Gene44", "Gene45", "Gene46", "Gene47", "Gene48", "Gene49"],
+      "Stem cell related genes",
     ),
   ]
 }

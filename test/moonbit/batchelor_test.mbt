@@ -1,11 +1,9 @@
 ///|
 /// Batchelor tests - Single-cell batch correction tests.
 
-import "mooncake/test"
-
 ///|
 test "batchelor_create_example_data" {
-  let (batches, batch_names) = @bio.batchelor_create_example_data(2, 50, 100, 1.0)
+  let (batches, batch_names) = @src.batchelor_create_example_data(2, 50, 100, 1.0)
   
   assert_eq(batches.length(), 2)
   assert_eq(batch_names.length(), 2)
@@ -20,9 +18,9 @@ test "batchelor_create_example_data" {
 
 ///|
 test "rescale_batches" {
-  let (batches, batch_names) = @bio.batchelor_create_example_data(2, 50, 100, 1.0)
+  let (batches, batch_names) = @src.batchelor_create_example_data(2, 50, 100, 1.0)
   
-  let result = @bio.rescale_batches(batches, batch_names)
+  let result = @src.rescale_batches(batches, batch_names)
   
   assert_eq(result.corrected.length(), 100)
   assert_eq(result.batch_indices.length(), 100)
@@ -44,9 +42,9 @@ test "rescale_batches" {
 
 ///|
 test "find_mutual_nearest_neighbors" {
-  let (batches, _) = @bio.batchelor_create_example_data(2, 20, 50, 0.5)
+  let (batches, _) = @src.batchelor_create_example_data(2, 20, 50, 0.5)
   
-  let mnn_pairs = @bio.find_mutual_nearest_neighbors(batches[0], batches[1], 3)
+  let mnn_pairs = @src.find_mutual_nearest_neighbors(batches[0], batches[1], 3)
   
   assert_true(mnn_pairs.length() >= 0)
   
@@ -58,9 +56,9 @@ test "find_mutual_nearest_neighbors" {
 
 ///|
 test "fast_mnn" {
-  let (batches, batch_names) = @bio.batchelor_create_example_data(2, 50, 100, 1.0)
+  let (batches, batch_names) = @src.batchelor_create_example_data(2, 50, 100, 1.0)
   
-  let result = @bio.fast_mnn(batches, batch_names, 5, 20)
+  let result = @src.fast_mnn(batches, batch_names, 5, 20)
   
   assert_eq(result.corrected.length(), 100)
   assert_eq(result.batch_indices.length(), 100)
@@ -77,10 +75,10 @@ test "fast_mnn" {
 
 ///|
 test "compute_batch_mixing_score" {
-  let (batches, batch_names) = @bio.batchelor_create_example_data(2, 50, 100, 1.0)
+  let (batches, batch_names) = @src.batchelor_create_example_data(2, 50, 100, 1.0)
   
-  let result = @bio.fast_mnn(batches, batch_names, 5, 20)
-  let score = @bio.compute_batch_mixing_score(result.corrected, result.batch_indices)
+  let result = @src.fast_mnn(batches, batch_names, 5, 20)
+  let score = @src.compute_batch_mixing_score(result.corrected, result.batch_indices)
   
   assert_true(score >= 0.0 && score <= 1.0)
   
@@ -104,14 +102,14 @@ test "compute_batch_mixing_score" {
     idx = idx + 1
   }
   
-  let raw_score = @bio.compute_batch_mixing_score(raw_data, raw_batch_indices)
+  let raw_score = @src.compute_batch_mixing_score(raw_data, raw_batch_indices)
   
   assert_true(score > raw_score * 0.8)
 }
 
 ///|
 test "rescale_batches_correction_effect" {
-  let (batches, batch_names) = @bio.batchelor_create_example_data(2, 50, 100, 2.0)
+  let (batches, batch_names) = @src.batchelor_create_example_data(2, 50, 100, 2.0)
   
   let raw_data : Array[Array[Double]] = Array::new()
   for cell in batches[0] {
@@ -133,17 +131,17 @@ test "rescale_batches_correction_effect" {
     idx = idx + 1
   }
   
-  let raw_score = @bio.compute_batch_mixing_score(raw_data, raw_batch_indices)
+  let raw_score = @src.compute_batch_mixing_score(raw_data, raw_batch_indices)
   
-  let result = @bio.rescale_batches(batches, batch_names)
-  let corrected_score = @bio.compute_batch_mixing_score(result.corrected, result.batch_indices)
+  let result = @src.rescale_batches(batches, batch_names)
+  let corrected_score = @src.compute_batch_mixing_score(result.corrected, result.batch_indices)
   
   assert_true(corrected_score > raw_score)
 }
 
 ///|
 test "fast_mnn_correction_effect" {
-  let (batches, batch_names) = @bio.batchelor_create_example_data(2, 50, 100, 2.0)
+  let (batches, batch_names) = @src.batchelor_create_example_data(2, 50, 100, 2.0)
   
   let raw_data : Array[Array[Double]] = Array::new()
   for cell in batches[0] {
@@ -165,10 +163,10 @@ test "fast_mnn_correction_effect" {
     idx = idx + 1
   }
   
-  let raw_score = @bio.compute_batch_mixing_score(raw_data, raw_batch_indices)
+  let raw_score = @src.compute_batch_mixing_score(raw_data, raw_batch_indices)
   
-  let result = @bio.fast_mnn(batches, batch_names, 5, 20)
-  let corrected_score = @bio.compute_batch_mixing_score(result.corrected, result.batch_indices)
+  let result = @src.fast_mnn(batches, batch_names, 5, 20)
+  let corrected_score = @src.compute_batch_mixing_score(result.corrected, result.batch_indices)
   
   assert_true(corrected_score > raw_score)
 }

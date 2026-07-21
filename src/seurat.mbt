@@ -314,9 +314,13 @@ fn find_neighbors_helper(
   let mut j = 0
   while j < n_cells {
     let nn : Array[Int] = Array::new()
+    let mut count = 0
     let mut n = 0
-    while n < k_param && n < n_cells && n != j {
-      nn.push(n)
+    while count < k_param && n < n_cells {
+      if n != j {
+        nn.push(n)
+        count = count + 1
+      }
       n = n + 1
     }
     neighbors.push(nn)

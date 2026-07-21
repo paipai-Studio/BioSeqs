@@ -184,7 +184,7 @@ pub fn trim_tail(
     return ("", "")
   }
 
-  let mut trim_pos = len
+  let mut trim_pos = 0
   let mut i = len - 1
   while i >= 0 {
     let q = qual_char_to_phred(quality.unsafe_get(i))
@@ -193,10 +193,6 @@ pub fn trim_tail(
       break
     }
     i = i - 1
-  }
-
-  if trim_pos <= 0 {
-    return ("", "")
   }
 
   (sequence[0:trim_pos].to_string(), quality[0:trim_pos].to_string())
