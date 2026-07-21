@@ -132,17 +132,18 @@ test "cram_record_to_bam_record" {
 ///|
 fn read_itf8(data : String, pos : Int) -> (Int, Int) {
   let byte = data[pos].to_int() & 0xFF
-  if (byte & 0x80) == 0 {
-    ((byte << 1 >> 1), pos + 1)
+  let value = byte >> 1
+  if (byte & 0x01) == 0 {
+    (value, pos + 1)
   } else {
-    (1, pos + 1)
+    (-value, pos + 1)
   }
 }
 
 ///|
 fn read_ltf8(data : String, pos : Int) -> (Int, Int) {
   let byte = data[pos].to_int() & 0xFF
-  (byte, pos + 1)
+  ((byte >> 1), pos + 1)
 }
 
 ///|
@@ -155,7 +156,7 @@ test "read_itf8_positive" {
 
 ///|
 test "read_itf8_negative" {
-  let data = "\x01"
+  let data = "\x03"
   let (val, pos) = read_itf8(data, 0)
   assert_eq(val, -1)
   assert_eq(pos, 1)
