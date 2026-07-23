@@ -3,6 +3,7 @@
 ///
 /// Demonstrates IUPAC handling, k-mer frequency, RSCU, complexity,
 /// melting temperature, and sequence identity functions.
+/// Also demonstrates advanced pattern matching with mismatches and indels.
 ///
 /// Run: moon run examples/biostrings_demo/main.mbt
 fn main {
@@ -50,4 +51,54 @@ fn main {
   let simple_seq = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
   let dust_score = @bio.dust_complexity(simple_seq)
   println("Simple sequence DUST score: \{dust_score}")
+
+  println("")
+  println("=== Pattern Matching with Mismatches ===")
+  let subject = "ACGTACGTACGTACGT"
+  let pattern = "CGT"
+  println("Subject: \{subject}")
+  println("Pattern: \{pattern}")
+
+  // Exact matching
+  let result_exact = @bio.match_pattern(pattern=pattern, subject=subject)
+  println("Exact match hits: \{result_exact.hits.length()}")
+  let mut i = 0
+  while i < result_exact.hits.length() {
+    let hit = result_exact.hits[i]
+    println("  Hit \{i}: start=\{hit.start}, end=\{hit.end}, mismatches=\{hit.mismatches}")
+    i = i + 1
+  }
+
+  // With 1 mismatch
+  let result_mm = @bio.match_pattern(
+    pattern=pattern,
+    subject=subject,
+    max_mismatches=1,
+  )
+  println("")
+  println("With max_mismatches=1 hits: \{result_mm.hits.length()}")
+
+  // With indels
+  let result_indel = @bio.match_pattern(
+    pattern="ACG",
+    subject="ACGTACGT",
+    max_mismatches=1,
+    with_indels=true,
+  )
+  println("")
+  println("With indels hits: \{result_indel.hits.length()}")
+
+  println("")
+  println("=== Finding Palindromes ===")
+  let palindrome_seq = "AAAAAAAAAACGTACGTGGGGGGGGGG"
+  println("Sequence: \{palindrome_seq}")
+  let palindromes = @bio.find_palindromes(seq=palindrome_seq, min_length=4)
+  println("Palindromes found: \{palindromes.length()}")
+
+  println("")
+  println("=== Vectorized Pattern Matching ===")
+  let subjects = ["ACGTACGT", "TGCATGCA", "AAAAAAAA"]
+  println("Subjects array: \{subjects.length()} entries")
+  let vmatch_results = @bio.vmatch_pattern(pattern="CGT", subjects=subjects)
+  println("Vectorized match results: \{vmatch_results.length()} entries")
 }

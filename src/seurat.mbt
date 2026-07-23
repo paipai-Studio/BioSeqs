@@ -414,6 +414,186 @@ fn init_umap_coords(n_cells : Int, n_components : Int) -> Array[Array[Double]] {
 }
 
 ///|
+pub struct IntegrationAnchor {
+  cell1 : Int
+  cell2 : Int
+  score : Double
+}
+
+///|
+pub fn IntegrationAnchor::new(cell1 : Int, cell2 : Int, score : Double) -> IntegrationAnchor {
+  IntegrationAnchor::{ cell1, cell2, score }
+}
+
+///|
+pub struct IntegrationAnchors {
+  anchors : Array[IntegrationAnchor]
+  reference_indices : Array[Int]
+  query_indices : Array[Int]
+}
+
+///|
+pub fn IntegrationAnchors::new(
+  anchors : Array[IntegrationAnchor],
+  reference_indices : Array[Int],
+  query_indices : Array[Int],
+) -> IntegrationAnchors {
+  IntegrationAnchors::{ anchors, reference_indices, query_indices }
+}
+
+///|
+pub fn find_integration_anchors(
+  reference_obj : SeuratObject,
+  query_obj : SeuratObject,
+  dims : Array[Int],
+) -> IntegrationAnchors {
+  let n_ref_cells = reference_obj.col_names.length()
+  let n_query_cells = query_obj.col_names.length()
+  
+  let anchors : Array[IntegrationAnchor] = Array::new()
+  let reference_indices : Array[Int] = Array::new()
+  let query_indices : Array[Int] = Array::new()
+  
+  if reference_obj.pca.length() == 0 || query_obj.pca.length() == 0 {
+    return IntegrationAnchors::new(anchors, reference_indices, query_indices)
+  }
+  
+  let n_anchors = if n_ref_cells < n_query_cells { n_ref_cells / 10 } else { n_query_cells / 10 }
+  
+  let mut i = 0
+  while i < n_anchors && i < n_ref_cells && i < n_query_cells {
+    let ref_idx = i
+    let query_idx = i
+    
+    let mut dist = 0.0
+    let mut dim_count = 0
+    
+    let mut j = 0
+    while j < dims.length() {
+      let d = dims[j]
+      if ref_idx < reference_obj.pca.length() && query_idx < query_obj.pca.length() {
+        let ref_pca = reference_obj.pca[ref_idx]
+        let query_pca = query_obj.pca[query_idx]
+        if d < ref_pca.length() && d < query_pca.length() {
+          let diff = ref_pca[d] - query_pca[d]
+          dist = dist + diff * diff
+          dim_count = dim_count + 1
+        }
+      }
+      j = j + 1
+    }
+    
+    let score = if dist > 0.0 && dim_count > 0 { 1.0 / dist.sqrt() } else { 1.0 }
+    
+    anchors.push(IntegrationAnchor::new(ref_idx, query_idx, score))
+    reference_indices.push(ref_idx)
+    query_indices.push(query_idx)
+    
+    i = i + 1
+  }
+  
+  IntegrationAnchors::new(anchors, reference_indices, query_indices)
+}
+
+///|
+pub fn integrate_data(
+  reference_obj : SeuratObject,
+  query_obj : SeuratObject,
+  anchors : IntegrationAnchors,
+) -> SeuratObject {
+  let n_ref_genes = reference_obj.row_names.length()
+  let n_query_genes = query_obj.row_names.length()
+  
+  let common_genes : Array[String] = Array::new()
+  for gene in reference_obj.row_names {
+    let mut found = false
+    let mut j = 0
+    while j < n_query_genes {
+      if query_obj.row_names[j] == gene {
+        found = true
+        break
+      }
+      j = j + 1
+    }
+    if found {
+      common_genes.push(gene)
+    }
+  }
+  
+  let n_common = common_genes.length()
+  let n_ref_cells = reference_obj.col_names.length()
+  let n_query_cells = query_obj.col_names.length()
+  let n_total_cells = n_ref_cells + n_query_cells
+  
+  let integrated_counts : Array[Array[Int]] = Array::new()
+  let row_names : Array[String] = Array::new()
+  let col_names : Array[String] = Array::new()
+  
+  let mut i = 0
+  while i < n_common {
+    let gene = common_genes[i]
+    
+    let mut ref_idx = 0
+    while ref_idx < n_ref_genes && reference_obj.row_names[ref_idx] != gene {
+      ref_idx = ref_idx + 1
+    }
+    
+    let mut query_idx = 0
+    while query_idx < n_query_genes && query_obj.row_names[query_idx] != gene {
+      query_idx = query_idx + 1
+    }
+    
+    row_names.push(gene)
+    
+    let gene_counts : Array[Int] = Array::new()
+    let mut j = 0
+    while j < n_ref_cells {
+      gene_counts.push(reference_obj.counts[ref_idx][j])
+      j = j + 1
+    }
+    let mut k = 0
+    while k < n_query_cells {
+      gene_counts.push(query_obj.counts[query_idx][k])
+      k = k + 1
+    }
+    integrated_counts.push(gene_counts)
+    
+    i = i + 1
+  }
+  
+  let mut l = 0
+  while l < n_ref_cells {
+    col_names.push("ref_" + reference_obj.col_names[l])
+    l = l + 1
+  }
+  let mut m = 0
+  while m < n_query_cells {
+    col_names.push("query_" + query_obj.col_names[m])
+    m = m + 1
+  }
+  
+  let integrated_obj = SeuratObject::new(integrated_counts, row_names, col_names)
+  
+  let clusters : Array[Int] = Array::new()
+  let mut n = 0
+  while n < n_ref_cells {
+    clusters.push(reference_obj.clusters[n])
+    n = n + 1
+  }
+  let mut o = 0
+  while o < n_query_cells {
+    let offset = if query_obj.clusters.length() > 0 { query_obj.clusters[o] + 10 } else { 10 }
+    clusters.push(offset)
+    o = o + 1
+  }
+  
+  SeuratObject::{
+    ..integrated_obj,
+    clusters,
+  }
+}
+
+///|
 pub struct MarkerResult {
   gene : String
   avg_log2_fc : Double

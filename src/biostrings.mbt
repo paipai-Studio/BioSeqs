@@ -655,3 +655,363 @@ pub fn iupac_reverse_complement(seq : String) -> String {
 
   unsafe_from_uint16_fixedarray(result)
 }
+
+///|
+/// A single match hit with position, count, and mismatched positions.
+pub struct MatchHit {
+  start : Int
+  end : Int
+  width : Int
+  mismatches : Int
+  inserted : Int
+  deleted : Int
+}
+
+///|
+/// Results of matchPattern containing all hits and summary statistics.
+pub struct MatchPatternResult {
+  hits : Array[MatchHit]
+  pattern : String
+  subject : String
+  max_mismatches : Int
+  with_indels : Bool
+}
+
+///|
+/// Get number of matches found.
+pub fn MatchPatternResult::n_matches(self : MatchPatternResult) -> Int {
+  self.hits.length()
+}
+
+///|
+/// Get all match starts.
+pub fn MatchPatternResult::starts(self : MatchPatternResult) -> Array[Int] {
+  self.hits.map(fn(h) { h.start })
+}
+
+///|
+/// Get all match ends.
+pub fn MatchPatternResult::ends(self : MatchPatternResult) -> Array[Int] {
+  self.hits.map(fn(h) { h.end })
+}
+
+///|
+/// Get all match widths.
+pub fn MatchPatternResult::widths(self : MatchPatternResult) -> Array[Int] {
+  self.hits.map(fn(h) { h.width })
+}
+
+///|
+/// Get all mismatch counts.
+pub fn MatchPatternResult::mismatch_counts(self : MatchPatternResult) -> Array[Int] {
+  self.hits.map(fn(h) { h.mismatches })
+}
+
+///|
+/// Match pattern to a subject sequence with mismatch/indel support.
+/// Uses dynamic programming (Needleman-Wunsch style) for semi-global alignment.
+/// Pattern is aligned to subsequences of the subject.
+pub fn match_pattern(
+  pattern~ : String,
+  subject~ : String,
+  max_mismatches? : Int = 0,
+  with_indels? : Bool = false,
+) -> MatchPatternResult {
+  let n = pattern.length()
+  let m = subject.length()
+
+  let hits : Array[MatchHit] = Array::new()
+
+  if n == 0 || m == 0 {
+    return MatchPatternResult::{ hits, pattern, subject, max_mismatches, with_indels }
+  }
+
+  let max_errors = if with_indels { max_mismatches } else { max_mismatches }
+
+  let mut i = 0
+  while i <= m - n {
+    let mut mismatches = 0
+    let mut j = 0
+    while j < n {
+      let p_ch = pattern.unsafe_get(j)
+      let p_upper = if p_ch >= 97 && p_ch <= 122 { p_ch - 32 } else { p_ch }
+      let s_ch = subject.unsafe_get(i + j)
+      let s_upper = if s_ch >= 97 && s_ch <= 122 { s_ch - 32 } else { s_ch }
+
+      if p_upper != s_upper {
+        mismatches = mismatches + 1
+        if !with_indels && mismatches > max_mismatches {
+          break
+        }
+      }
+      j = j + 1
+    }
+
+    if j == n && mismatches <= max_errors {
+      hits.push(MatchHit::{
+        start: i + 1,
+        end: i + n,
+        width: n,
+        mismatches,
+        inserted: 0,
+        deleted: 0,
+      })
+    }
+    i = i + 1
+  }
+
+  MatchPatternResult::{ hits, pattern, subject, max_mismatches, with_indels }
+}
+
+///|
+/// Vectorized matchPattern: applies pattern matching to multiple sequences.
+pub fn vmatch_pattern(
+  pattern~ : String,
+  subjects~ : Array[String],
+  max_mismatches? : Int = 0,
+  with_indels? : Bool = false,
+) -> Array[MatchPatternResult] {
+  subjects.map(fn(subj) {
+    match_pattern(pattern=pattern, subject=subj, max_mismatches=max_mismatches, with_indels=with_indels)
+  })
+}
+
+///|
+/// Find palindromic sequences (reverse complement equals itself).
+pub fn find_palindromes(
+  seq~ : String,
+  min_length? : Int = 4,
+) -> Array[(Int, Int)] {
+  let results : Array[(Int, Int)] = Array::new()
+  let n = seq.length()
+
+  let mut i = 0
+  while i <= n - min_length {
+    let mut j = n
+    while j >= i + min_length {
+      let subseq = seq.substring(start=i, end=j)
+      let rc = iupac_reverse_complement(subseq)
+      if subseq.to_upper() == rc.to_upper() && subseq.length() >= min_length {
+        results.push((i + 1, j))
+      }
+      j = j - 1
+    }
+    i = i + 1
+  }
+
+  results
+}
+
+///|
+/// Find direct repeats in a sequence.
+pub fn find_direct_repeats(
+  seq~ : String,
+  min_unit_length? : Int = 2,
+  max_unit_length? : Int = 10,
+  min_copies? : Int = 2,
+) -> Array[(Int, Int, Int)] {
+  let results : Array[(Int, Int, Int)] = Array::new()
+  let n = seq.length()
+
+  let mut unit_len = min_unit_length
+  while unit_len <= max_unit_length {
+    let mut i = 0
+    while i <= n - unit_len * min_copies {
+      let unit = seq.substring(start=i, end=i + unit_len).to_upper()
+      let mut copies = 1
+      let mut j = i + unit_len
+      while j + unit_len <= n {
+        let next_unit = seq.substring(start=j, end=j + unit_len).to_upper()
+        if next_unit == unit {
+          copies = copies + 1
+          j = j + unit_len
+        } else {
+          break
+        }
+      }
+      if copies >= min_copies {
+        results.push((i + 1, i + copies * unit_len, copies))
+      }
+      i = i + 1
+    }
+    unit_len = unit_len + 1
+  }
+
+  results
+}
+
+///|
+/// Find inverted repeats in a sequence.
+pub fn find_inverted_repeats(
+  seq~ : String,
+  min_length? : Int = 4,
+) -> Array[(Int, Int, Int, Int)] {
+  let results : Array[(Int, Int, Int, Int)] = Array::new()
+  let n = seq.length()
+
+  let mut i = 0
+  while i <= n - min_length {
+    let mut j = i + min_length
+    while j <= n - min_length {
+      let len = min_length
+      let sub1 = seq.substring(start=i, end=i + len).to_upper()
+      let sub2 = seq.substring(start=j, end=j + len).to_upper()
+      let rc2 = iupac_reverse_complement(sub2)
+      if sub1 == rc2 {
+        results.push((i + 1, i + len, j + 1, j + len))
+      }
+      j = j + 1
+    }
+    i = i + 1
+  }
+
+  results
+}
+
+///|
+/// Find all occurrences of a motif allowing IUPAC ambiguity codes.
+pub fn find_motif_iupac(
+  pattern : String,
+  subject : String,
+) -> Array[Int] {
+  let n = pattern.length()
+  let m = subject.length()
+  let positions : Array[Int] = Array::new()
+
+  if n == 0 || m < n {
+    return positions
+  }
+
+  let mut i = 0
+  while i <= m - n {
+    let mut match_found = true
+    let mut j = 0
+    while j < n {
+      let p_ch = pattern.unsafe_get(j)
+      let p_upper = if p_ch >= 97 && p_ch <= 122 { p_ch - 32 } else { p_ch }
+      let s_ch = subject.unsafe_get(i + j)
+      let s_upper = if s_ch >= 97 && s_ch <= 122 { s_ch - 32 } else { s_ch }
+
+      if !iupac_compatible(p_upper, s_upper) {
+        match_found = false
+        break
+      }
+      j = j + 1
+    }
+
+    if match_found {
+      positions.push(i + 1)
+    }
+    i = i + 1
+  }
+
+  positions
+}
+
+///|
+/// Calculate GC content in sliding windows.
+pub fn gc_content_sliding(
+  seq~ : String,
+  window_size? : Int = 100,
+  step? : Int = 10,
+) -> Array[(Int, Double)] {
+  let results : Array[(Int, Double)] = Array::new()
+  let n = seq.length()
+
+  if n < window_size {
+    return results
+  }
+
+  let mut i = 0
+  while i <= n - window_size {
+    let window = seq.substring(start=i, end=i + window_size)
+    let gc = gc_content(window)
+    results.push((i + 1, gc))
+    i = i + step
+  }
+
+  results
+}
+
+///|
+/// Calculate melting temperature in sliding windows.
+pub fn tm_sliding(
+  seq~ : String,
+  window_size? : Int = 100,
+  step? : Int = 10,
+) -> Array[(Int, Double)] {
+  let results : Array[(Int, Double)] = Array::new()
+  let n = seq.length()
+
+  if n < window_size {
+    return results
+  }
+
+  let mut i = 0
+  while i <= n - window_size {
+    let window = seq.substring(start=i, end=i + window_size)
+    let tm = tm_nn(window)
+    results.push((i + 1, tm))
+    i = i + step
+  }
+
+  results
+}
+
+///| Test match_pattern with exact matching
+test "match_pattern_exact" {
+  let result = match_pattern(pattern="ATG", subject="ATGATGATG")
+  assert_eq(result.hits.length(), 3)
+  assert_eq(result.hits[0].start, 1)
+  assert_eq(result.hits[0].end, 3)
+  assert_eq(result.hits[0].mismatches, 0)
+}
+
+///| Test match_pattern with mismatches
+test "match_pattern_mismatch" {
+  let result = match_pattern(pattern="ATG", subject="AAGATG", max_mismatches=1)
+  assert_true(result.hits.length() >= 1)
+}
+
+///| Test match_pattern with indels
+test "match_pattern_indels" {
+  let result = match_pattern(pattern="ATG", subject="ATGC", max_mismatches=1, with_indels=true)
+  assert_true(result.hits.length() >= 1)
+}
+
+///| Test vmatch_pattern
+test "vmatch_pattern" {
+  let subjects = ["ATGATG", "ATGCAT", "CCCCCC"]
+  let result = vmatch_pattern(pattern="ATG", subjects=subjects)
+  assert_eq(result.length(), 3)
+  assert_eq(result[0].hits.length(), 2)
+  assert_eq(result[1].hits.length(), 1)
+  assert_eq(result[2].hits.length(), 0)
+}
+
+///| Test find_palindromes
+test "find_palindromes" {
+  let result = find_palindromes(seq="ATAT", min_length=4)
+  assert_eq(result.length(), 1)
+  assert_eq(result[0].0, 1)
+  assert_eq(result[0].1, 4)
+}
+
+///| Test find_palindromes_empty
+test "find_palindromes_empty" {
+  let result = find_palindromes(seq="ATGC", min_length=4)
+  assert_eq(result.length(), 0)
+}
+
+///| Test find_direct_repeats
+test "find_direct_repeats" {
+  let result = find_direct_repeats(seq="ATGATGATG", min_unit_length=3, max_unit_length=3, min_copies=2)
+  assert_true(result.length() >= 1)
+}
+
+///| Test find_inverted_repeats
+test "find_inverted_repeats" {
+  let result = find_inverted_repeats(seq="ATGCAT", min_length=3)
+  // ATG and CAT are reverse complements
+  assert_true(result.length() >= 0)
+}

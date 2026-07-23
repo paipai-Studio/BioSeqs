@@ -294,10 +294,6 @@ pub fn deseq(dds : DESeqDataSet) -> DESeqResults {
   
   let normalized = normalize_counts(dds)
   
-  let intercept : Array[Double] = Array::new()
-  let slope : Array[Double] = Array::new()
-  let slope_se : Array[Double] = Array::new()
-  
   for i = 0; i < n_genes; i = i + 1 {
     let mut sum_x = 0.0
     let mut sum_y = 0.0
@@ -327,15 +323,14 @@ pub fn deseq(dds : DESeqDataSet) -> DESeqResults {
       sse = sse + (y - pred) * (y - pred)
     }
     
+    let disp = dds.dispersions[i]
+    let eff_var = sse / (n - 2.0) + disp * exp(2.0 * b0)
+    
     let se_b1 = if denom != 0.0 {
-      ((sse / (n - 2.0)) / denom).sqrt()
+      (eff_var / denom).sqrt()
     } else {
       1.0
     }
-    
-    intercept.push(b0)
-    slope.push(b1)
-    slope_se.push(se_b1)
     
     let mut sum_fitted = 0.0
     for j = 0; j < n_samples; j = j + 1 {

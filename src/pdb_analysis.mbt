@@ -621,3 +621,265 @@ pub fn create_demo_structure() -> Structure {
   let model = Model::new(id=0, chains=[chain])
   Structure::new(id="demo", models=[model])
 }
+
+///|
+/// Van der Waals radii for common atom types (in Angstroms).
+/// Used for SASA calculation.
+pub fn vdw_radius(atom_name : String) -> Double {
+  let name = atom_name.to_upper()
+  // Carbon atoms
+  if name == "C" || name == "CA" || name == "CB" || name == "CG" || name == "CD" || name == "CE" || name == "CZ" || name == "CZ" {
+    return 1.7
+  }
+  // Nitrogen atoms
+  if name == "N" || name == "NZ" || name == "ND" || name == "NE" || name == "NH" || name == "NZ" {
+    return 1.55
+  }
+  // Oxygen atoms
+  if name == "O" || name == "OH" || name == "OG" || name == "OD" || name == "OE" || name == "OT1" || name == "OT2" {
+    return 1.52
+  }
+  // Sulfur atoms
+  if name == "S" || name == "SG" || name == "SD" {
+    return 1.8
+  }
+  // Phosphorus
+  if name == "P" || name == "PA" {
+    return 1.8
+  }
+  // Hydrogen atoms
+  if name == "H" || name.length() > 0 && name[0:1] == "H" {
+    return 1.2
+  }
+  // Default for unknown atoms
+  1.7
+}
+
+///|
+/// Generate sphere points using the golden spiral method.
+/// Returns an array of unit vector points on a sphere.
+fn generate_sphere_points(n_points : Int) -> Array[Vector3] {
+  let points : Array[Vector3] = Array::new()
+  let golden_angle = 3.14159265358979323846 * (3.0 - 5.0.sqrt())
+  
+  let mut i = 0
+  while i < n_points {
+    let y = 1.0 - (2.0 * i.to_double()) / (n_points.to_double() - 1.0)
+    let radius_at_y = (1.0 - y * y).sqrt()
+    let theta = golden_angle * i.to_double()
+    
+    let x = @math.cos(theta) * radius_at_y
+    let z = @math.sin(theta) * radius_at_y
+    
+    points.push(Vector3::new(x, y, z))
+    i = i + 1
+  }
+  points
+}
+
+///|
+/// Calculate the Solvent Accessible Surface Area (SASA) for a chain.
+/// Uses the Shrake-Rupley algorithm.
+/// probe_radius defaults to 1.4 Angstroms (water probe).
+/// n_points defaults to 100 points per sphere.
+pub fn calc_sasa(
+  chain : Chain,
+  probe_radius? : Double = 1.4,
+  n_points? : Int = 100,
+) -> Array[(String, Double)] {
+  let result : Array[(String, Double)] = Array::new()
+  let residues = chain.get_residues()
+  
+  // Collect all atoms with radii
+  let atoms : Array[(Vector3, Double, String)] = Array::new()
+  for res in residues {
+    for atom in res.atoms {
+      let radius = vdw_radius(atom.name) + probe_radius
+      atoms.push((atom.coord, radius, atom.name))
+    }
+  }
+  
+  let n_atoms = atoms.length()
+  if n_atoms == 0 {
+    return result
+  }
+  
+  // Generate sphere points
+  let sphere_points = generate_sphere_points(n_points)
+  
+  // Calculate SASA for each atom
+  let mut i = 0
+  while i < n_atoms {
+    let (coord_i, radius_i, name_i) = atoms[i]
+    let r_sq = radius_i * radius_i
+    
+    let n_accessible = {
+      let mut count = 0
+      let mut pi = 0
+      while pi < sphere_points.length() {
+        let point = sphere_points[pi]
+        // Scale point to atom radius and translate to atom position
+        let px = point.x * radius_i + coord_i.x
+        let py = point.y * radius_i + coord_i.y
+        let pz = point.z * radius_i + coord_i.z
+        
+        // Check if this point is buried by any other atom
+        let mut buried = false
+        let mut j = 0
+        while j < n_atoms {
+          if j != i {
+            let (coord_j, radius_j, _) = atoms[j]
+            let dx = px - coord_j.x
+            let dy = py - coord_j.y
+            let dz = pz - coord_j.z
+            let dist_sq = dx * dx + dy * dy + dz * dz
+            if dist_sq < radius_j * radius_j {
+              buried = true
+              break
+            }
+          }
+          j = j + 1
+        }
+        
+        if !buried {
+          count = count + 1
+        }
+        pi = pi + 1
+      }
+      count
+    }
+    
+    // SASA contribution from this atom
+    let sphere_area = 4.0 * 3.14159265358979323846 * r_sq
+    let atom_sasa = (n_accessible.to_double() / n_points.to_double()) * sphere_area
+    
+    result.push((name_i, atom_sasa))
+    i = i + 1
+  }
+  
+  result
+}
+
+///|
+/// Calculate total SASA for a chain.
+pub fn calc_total_sasa(chain : Chain, probe_radius? : Double = 1.4) -> Double {
+  let sasa_values = calc_sasa(chain, probe_radius~)
+  let mut total = 0.0
+  for entry in sasa_values {
+    total = total + entry.1
+  }
+  total
+}
+
+///|
+/// Calculate per-residue SASA for a chain.
+/// Returns an array of (resseq, resname, sasa) tuples.
+pub fn calc_residue_sasa(chain : Chain, probe_radius? : Double = 1.4) -> Array[(Int, String, Double)] {
+  let result : Array[(Int, String, Double)] = Array::new()
+  let residues = chain.get_residues()
+  let atom_sasa = calc_sasa(chain, probe_radius~)
+  
+  // Map atoms back to residues
+  let atom_idx = {
+    let mut idx = 0
+    let res_atom_map : Map[Int, Double] = Map([], capacity=residues.length())
+    for res in residues {
+      let mut res_sasa = 0.0
+      for atom in res.atoms {
+        if idx < atom_sasa.length() {
+          let (_, sasa) = atom_sasa[idx]
+          res_sasa = res_sasa + sasa
+        }
+        idx = idx + 1
+      }
+      result.push((res.resseq, res.resname, res_sasa))
+    }
+    res_atom_map
+  }
+  
+  result
+}
+
+///|
+/// Calculate the fraction of residues in favored Ramachandran regions.
+/// Useful for protein structure quality assessment.
+pub fn ramachandran_quality(chain : Chain) -> (Double, Double, Double) {
+  let plot_data = ramachandran_plot(chain)
+  let n_total = plot_data.length().to_double()
+  
+  if n_total == 0.0 {
+    return (0.0, 0.0, 0.0)
+  }
+  
+  let mut n_favored = 0.0
+  let mut n_allowed = 0.0
+  let mut n_generous = 0.0
+  
+  for entry in plot_data {
+    let phi = entry.2
+    let psi = entry.3
+    let region = classify_ramachandran(phi, psi)
+    match region {
+      Favored => n_favored = n_favored + 1.0
+      Allowed => n_allowed = n_allowed + 1.0
+      Generous => n_generous = n_generous + 1.0
+    }
+  }
+  
+  (n_favored / n_total, n_allowed / n_total, n_generous / n_total)
+}
+
+///|
+/// Calculate the sequence distance matrix based on hydrophobicity.
+/// Uses Kyte-Doolittle hydrophobicity scale by default.
+pub fn calc_sequence_property_matrix(chain : Chain) -> Array[Array[Double]] {
+  let residues = chain.get_residues()
+  let n = residues.length()
+  let matrix : Array[Array[Double]] = Array::new()
+  
+  let mut i = 0
+  while i < n {
+    let row : Array[Double] = Array::new()
+    let prop_i = get_hydrophobicity(residues[i].resname)
+    let mut j = 0
+    while j < n {
+      let prop_j = get_hydrophobicity(residues[j].resname)
+      row.push((prop_i - prop_j).abs())
+      j = j + 1
+    }
+    matrix.push(row)
+    i = i + 1
+  }
+  
+  matrix
+}
+
+///|
+/// Get hydrophobicity value for an amino acid residue.
+/// Uses the Kyte-Doolittle hydrophobicity scale.
+pub fn get_hydrophobicity(resname : String) -> Double {
+  let name = resname.to_upper()
+  match name {
+    "ALA" => 1.8
+    "ARG" => -4.5
+    "ASN" => -3.5
+    "ASP" => -3.5
+    "CYS" => 2.5
+    "GLN" => -3.5
+    "GLU" => -3.5
+    "GLY" => -0.4
+    "HIS" => -3.2
+    "ILE" => 4.5
+    "LEU" => 3.8
+    "LYS" => -3.9
+    "MET" => 1.9
+    "PHE" => 2.8
+    "PRO" => -1.6
+    "SER" => -0.8
+    "THR" => -0.7
+    "TRP" => -0.9
+    "TYR" => -1.3
+    "VAL" => 4.2
+    _ => 0.0
+  }
+}

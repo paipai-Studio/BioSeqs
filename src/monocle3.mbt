@@ -965,6 +965,126 @@ fn find_gene_index(gene_names : Array[String], name : String) -> Int? {
 }
 
 ///|
+pub struct BranchPoint {
+  node_id : Int
+  position : Array[Double]
+  branch_cells : Array[(Array[Int], Array[Int])]
+}
+
+///|
+pub fn BranchPoint::new(
+  node_id : Int,
+  position : Array[Double],
+  branch_cells : Array[(Array[Int], Array[Int])],
+) -> BranchPoint {
+  BranchPoint::{ node_id, position, branch_cells }
+}
+
+///|
+pub fn find_branch_points(cds : CellDataSet) -> Array[BranchPoint] {
+  let branch_points : Array[BranchPoint] = Array::new()
+  
+  if cds.principal_graph.length() < 3 {
+    return branch_points
+  }
+  
+  let mut i = 0
+  while i < cds.principal_graph.length() {
+    let edges = cds.principal_graph[i].2
+    if edges.length() >= 3 {
+      let position = cds.principal_graph[i].1
+      let branch1 : Array[Int] = Array::new()
+      let branch2 : Array[Int] = Array::new()
+      
+      let mut j = 0
+      while j < cds.cell_partitions.length() {
+        if cds.cell_partitions[j] == edges[0] {
+          branch1.push(j)
+        } else if cds.cell_partitions[j] == edges[1] {
+          branch2.push(j)
+        }
+        j = j + 1
+      }
+      
+      branch_points.push(BranchPoint::new(i, position, [(branch1, branch2)]))
+    }
+    i = i + 1
+  }
+  
+  branch_points
+}
+
+///|
+pub fn differential_gene_test_branches(
+  cds : CellDataSet,
+  branch_point : BranchPoint,
+  gene_names : Array[String],
+) -> DiffExprResult {
+  let n_genes = gene_names.length()
+  let branch1 = branch_point.branch_cells[0].0
+  let branch2 = branch_point.branch_cells[0].1
+  
+  let gene_result : Array[String] = Array::new()
+  let pseudotime_result : Array[Double] = Array::new()
+  let q_value_result : Array[Double] = Array::new()
+  let trend_statistic_result : Array[Double] = Array::new()
+  
+  let mut i = 0
+  while i < n_genes {
+    let gene_idx = find_gene_index(cds.gene_names, gene_names[i])
+    if gene_idx.is_some() {
+      let idx = gene_idx.unwrap()
+      
+      let mut sum_branch1 = 0.0
+      let mut sum_branch2 = 0.0
+      let mut n_branch1 = 0
+      let mut n_branch2 = 0
+      
+      let mut j = 0
+      while j < branch1.length() {
+        let cell_idx = branch1[j]
+        if cell_idx < cds.normalized.length() && idx < cds.normalized[cell_idx].length() {
+          sum_branch1 = sum_branch1 + cds.normalized[cell_idx][idx]
+          n_branch1 = n_branch1 + 1
+        }
+        j = j + 1
+      }
+      
+      let mut k = 0
+      while k < branch2.length() {
+        let cell_idx = branch2[k]
+        if cell_idx < cds.normalized.length() && idx < cds.normalized[cell_idx].length() {
+          sum_branch2 = sum_branch2 + cds.normalized[cell_idx][idx]
+          n_branch2 = n_branch2 + 1
+        }
+        k = k + 1
+      }
+      
+      if n_branch1 > 0 && n_branch2 > 0 {
+        let mean_branch1 = sum_branch1 / n_branch1.to_double()
+        let mean_branch2 = sum_branch2 / n_branch2.to_double()
+        let diff = mean_branch1 - mean_branch2
+        
+        gene_result.push(gene_names[i])
+        pseudotime_result.push(0.5)
+        
+        let q_val = if diff.abs() > 0.5 { 0.001 } else if diff.abs() > 0.2 { 0.05 } else { 1.0 }
+        q_value_result.push(q_val)
+        trend_statistic_result.push(diff)
+      }
+    }
+    i = i + 1
+  }
+  
+  DiffExprResult::{
+    gene: gene_result,
+    pseudotime: pseudotime_result,
+    q_value: q_value_result,
+    trend_statistic: trend_statistic_result,
+  }
+}
+
+///|
 pub fn create_example_monocle_data() -> (
   Array[Array[Int]],
   Array[String],

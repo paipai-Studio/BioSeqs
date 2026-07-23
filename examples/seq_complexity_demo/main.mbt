@@ -73,16 +73,16 @@ fn main {
   let seq_a_skew = "AAAAAAAATTTTTTTT"
   let seq_t_skew = "TTTTTTTTAAAAAAAA"
   println(
-    "  " + seq_g_skew + " GC skew: " + @src.gc_skew(seq_g_skew).to_string(),
+    "  " + seq_g_skew + " GC skew: " + @src.gc_skew(seq_g_skew, 8, 1).to_string(),
   )
   println(
-    "  " + seq_c_skew + " GC skew: " + @src.gc_skew(seq_c_skew).to_string(),
+    "  " + seq_c_skew + " GC skew: " + @src.gc_skew(seq_c_skew, 8, 1).to_string(),
   )
   println(
-    "  " + seq_a_skew + " AT skew: " + @src.at_skew(seq_a_skew).to_string(),
+    "  " + seq_a_skew + " AT skew: " + @src.at_skew(seq_a_skew, 8, 1).to_string(),
   )
   println(
-    "  " + seq_t_skew + " AT skew: " + @src.at_skew(seq_t_skew).to_string(),
+    "  " + seq_t_skew + " AT skew: " + @src.at_skew(seq_t_skew, 8, 1).to_string(),
   )
 
   // === 5. DUST score ===
@@ -155,9 +155,9 @@ fn main {
   // === 9. Sequence similarity ===
   println("\n9. Sequence Similarity (cosine similarity of k-mer vectors, k=2):")
   println("=================================================================")
-  let sim_identical = @src.sequence_similarity(seq_random, seq_random, k=2)
-  let sim_similar = @src.sequence_similarity("ATCGATCG", "ATCGATCGATCG", k=2)
-  let sim_different = @src.sequence_similarity("ATCGATCG", "GCTAGCTA", k=2)
+  let sim_identical = @src.sequence_similarity_kmer(seq_random, seq_random, k=2)
+  let sim_similar = @src.sequence_similarity_kmer("ATCGATCG", "ATCGATCGATCG", k=2)
+  let sim_different = @src.sequence_similarity_kmer("ATCGATCG", "GCTAGCTA", k=2)
   println(
     "  'ATCGATCG' vs 'ATCGATCG' (identical): " + sim_identical.to_string(),
   )

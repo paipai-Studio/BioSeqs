@@ -132,52 +132,6 @@ pub fn at_content(seq : String) -> Double {
 }
 
 ///|
-/// Calculate the GC skew of a sequence.
-/// GC skew = (G - C) / (G + C)
-pub fn gc_skew(seq : String) -> Double {
-  let mut g = 0.0
-  let mut c = 0.0
-  let n = seq.length()
-  let mut i = 0
-  while i < n {
-    let ch = seq.unsafe_get(i).unsafe_to_char()
-    if ch == 'G' || ch == 'g' {
-      g = g + 1.0
-    } else if ch == 'C' || ch == 'c' {
-      c = c + 1.0
-    }
-    i = i + 1
-  }
-  if g + c == 0.0 {
-    return 0.0
-  }
-  (g - c) / (g + c)
-}
-
-///|
-/// Calculate the AT skew of a sequence.
-/// AT skew = (A - T) / (A + T)
-pub fn at_skew(seq : String) -> Double {
-  let mut a = 0.0
-  let mut t = 0.0
-  let n = seq.length()
-  let mut i = 0
-  while i < n {
-    let ch = seq.unsafe_get(i).unsafe_to_char()
-    if ch == 'A' || ch == 'a' {
-      a = a + 1.0
-    } else if ch == 'T' || ch == 't' {
-      t = t + 1.0
-    }
-    i = i + 1
-  }
-  if a + t == 0.0 {
-    return 0.0
-  }
-  (a - t) / (a + t)
-}
-
-///|
 /// Calculate the DUST score for low-complexity detection.
 /// DUST = sum(kmer_counts^2) / (length * (length-2))
 /// Higher scores indicate lower complexity.
@@ -308,7 +262,7 @@ pub fn chaos_game_representation(seq : String) -> (Double, Double) {
 ///|
 /// Calculate the similarity between two sequences based on their signatures.
 /// Uses cosine similarity of k-mer frequency vectors.
-pub fn sequence_similarity(
+pub fn sequence_similarity_kmer(
   seq1 : String,
   seq2 : String,
   k? : Int = 3,

@@ -48,19 +48,24 @@ test "seq_complexity: at_content" {
 
 ///|
 test "seq_complexity: gc_skew" {
-  let skew = @src.gc_skew("GGGGCC")
+  let skew_arr = @src.gc_skew("GGGGCC", 6, 1)
+  let skew = skew_arr[0]
   assert_true(skew > 0.0)
-  let skew2 = @src.gc_skew("CCCCGG")
+  let skew2_arr = @src.gc_skew("CCCCGG", 6, 1)
+  let skew2 = skew2_arr[0]
   assert_true(skew2 < 0.0)
-  let skew3 = @src.gc_skew("GCGC")
+  let skew3_arr = @src.gc_skew("GCGC", 4, 1)
+  let skew3 = skew3_arr[0]
   assert_true(skew3 < 0.01 && skew3 > -0.01)
 }
 
 ///|
 test "seq_complexity: at_skew" {
-  let skew = @src.at_skew("AAAATT")
+  let skew_arr = @src.at_skew("AAAATT", 6, 1)
+  let skew = skew_arr[0]
   assert_true(skew > 0.0)
-  let skew2 = @src.at_skew("TTTTAA")
+  let skew2_arr = @src.at_skew("TTTTAA", 6, 1)
+  let skew2 = skew2_arr[0]
   assert_true(skew2 < 0.0)
 }
 
@@ -111,18 +116,18 @@ test "seq_complexity: chaos_game_representation" {
 
 ///|
 test "seq_complexity: sequence_similarity_identical" {
-  let sim = @src.sequence_similarity("ATCGATCG", "ATCGATCG", k=2)
+  let sim = @src.sequence_similarity_kmer("ATCGATCG", "ATCGATCG", k=2)
   assert_true(sim > 0.99)
 }
 
 ///|
 test "seq_complexity: sequence_similarity_different" {
-  let sim = @src.sequence_similarity("ATCGATCG", "GCTAGCTA", k=2)
+  let sim = @src.sequence_similarity_kmer("ATCGATCG", "GCTAGCTA", k=2)
   assert_true(sim < 1.0)
 }
 
 ///|
 test "seq_complexity: sequence_similarity_empty" {
-  let sim = @src.sequence_similarity("", "", k=2)
+  let sim = @src.sequence_similarity_kmer("", "", k=2)
   assert_eq(sim, 0.0)
 }

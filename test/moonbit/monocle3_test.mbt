@@ -108,3 +108,30 @@ test "monocle3_full_pipeline" {
   assert_eq(cds.counts.length(), 50)
   assert_eq(result.gene.length(), 1)
 }
+
+test "monocle3_find_branch_points" {
+  let (counts, gene_names, cell_names) = @src.create_example_monocle_data()
+  let cds = @src.new_cell_data_set(counts, gene_names, cell_names)
+  let preprocessed = @src.preprocess_cds(cds, 10)
+  let reduced = @src.reduce_dimension(preprocessed, "UMAP", 2)
+  let with_graph = @src.learn_graph(reduced)
+  
+  let branch_points = @src.find_branch_points(with_graph)
+  
+  assert_eq(branch_points.length(), 0)
+}
+
+test "monocle3_differential_gene_test_branches" {
+  let (counts, gene_names, cell_names) = @src.create_example_monocle_data()
+  let cds = @src.new_cell_data_set(counts, gene_names, cell_names)
+  let preprocessed = @src.preprocess_cds(cds, 10)
+  let reduced = @src.reduce_dimension(preprocessed, "UMAP", 2)
+  let with_graph = @src.learn_graph(reduced)
+  
+  let branch_points = @src.find_branch_points(with_graph)
+  
+  if branch_points.length() > 0 {
+    let result = @src.differential_gene_test_branches(with_graph, branch_points[0], ["Gene_0", "Gene_1"])
+    assert_eq(result.gene.length(), 2)
+  }
+}
