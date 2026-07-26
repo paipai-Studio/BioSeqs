@@ -56,6 +56,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.SeqFeature (advanced) | CompoundLocation复合位点、LocationParser位点字符串解析、扩展SeqFeature修饰符 |
 | ✅ | Bio.PDB.ParsePDBHeader | PDB头部元数据解析 (HEADER/TITLE/COMPOUND/SOURCE/REMARK/AUTH/DBREF) |
 | ✅ | Bio.Phylo.PhyloXML | PhyloXML格式解析、序列化、Newick双向转换、分类单元注释 |
+| ✅ | Bio.motifs (advanced) | JASPAR PFM格式解析、TRANSFAC格式解析、模体最优比对、KL/JS散度计算、模体聚类 |
+| ✅ | Bio.Phylo.NeXML | NeXML格式解析与序列化、OTUs/Trees/Characters数据模型、Newick转换 |
+| ✅ | Bio.PDB.Dice + Selection | PDB结构切割（链/残基/原子/模型提取）、B因子过滤、几何选择、结构统计、序列提取 |
 
 ### 序列组装算法
 
@@ -76,7 +79,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 | 功能类别 | 对应工具/库 | 功能说明 | 状态 |
 | :--- | :--- | :--- | :---: |
-| **序列模体** | Biopython `Bio.motifs` | PWM、MEME格式、模体搜索、信息含量、序列Logo生成、模体富集、Pearson相关性 | ✅ |
+| **序列模体** | Biopython `Bio.motifs` | PWM、MEME格式、JASPAR PFM、TRANSFAC、模体搜索、信息含量、序列Logo、模体富集、Pearson相关性、最优比对、KL/JS散度、模体聚类 | ✅ |
 | **群体遗传学** | Biopython `Bio.PopGen` | 等位基因频率、FST、哈迪-温伯格检验 | ✅ |
 | **edgeR** | Bioconductor edgeR | 差异表达分析、DGEList、精确检验、GLM拟合 | ✅ |
 | **limma** | Bioconductor limma | 差异表达分析、线性模型拟合、经验贝叶斯、voom变换 | ✅ |
@@ -97,9 +100,11 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **序列聚类分析** | Biopython `Bio.Cluster` | 距离矩阵、层次聚类、Newick输出、轮廓系数 | ✅ |
 | **比对格式解析** | Biopython `Bio.AlignIO` | ClustalW、FASTA、Stockholm格式解析与写入 | ✅ |
 | **进化树格式解析** | Biopython `Bio.TreeIO` | Newick、NHX格式解析、树操作、修剪 | ✅ |
+| **NeXML格式** | Biopython `Bio.Phylo.NeXML` | NeXML格式解析与序列化、OTUs/Trees/Characters数据模型、Newick转换 | ✅ |
 | **蛋白质参数分析** | Biopython `Bio.SeqUtils.ProtParam` | 分子量、不稳定指数、GRAVY评分、等电点、信号肽预测 | ✅ |
 | **变异分析** | Biopython `Bio.Variation` | SNP分析、突变检测、氨基酸替换分析、BLOSUM62/Grantham矩阵 | ✅ |
 | **DSSP** | Biopython `Bio.PDB.DSSP` | 二级结构预测、溶剂可及表面积(SASA/Shrake-Rupley)、Ramachandran图、结构质量评估 | ✅ |
+| **PDB Dice + Selection** | Biopython `Bio.PDB.Dice` | PDB结构切割（链/残基/原子/模型提取）、B因子/occupancy过滤、几何选择、结构统计、序列提取 | ✅ |
 | **多肽分析** | Biopython `Bio.PDB.Polypeptide` | 氨基酸组成、疏水性分析、跨膜区域预测、等电点计算 | ✅ |
 | **基因组轨道格式** | Bioconductor rtracklayer | BED/WIG/BEDGraph/GFF解析与写入、GRanges转换 | ✅ |
 | **密码子使用分析** | Biopython `Bio.codonalign` / `Bio.CodonUsage` | CAI、ENC、RSCU、GC3、CBI、Fop、最优密码子检测 | ✅ |
@@ -245,6 +250,7 @@ IvanAXu/BioSeqs/
 │   ├── pdb_header.mbt            # Bio.PDB.ParsePDBHeader PDB头部元数据解析
 │   ├── pdb_analysis.mbt         # Bio.PDB.StructureAnalysis 结构分析 (二面角、SASA、Ramachandran图)
 │   ├── pdb_list.mbt             # Bio.PDB.PDBList PDB结构下载管理
+│   ├── pdb_dice.mbt             # Bio.PDB.Dice + Selection PDB结构切割 (链/残基/原子/模型提取、B因子过滤、几何选择、结构统计)
 │   ├── svd_superimposer.mbt    # SVDSuperimposer SVD蛋白质结构叠合 (旋转矩阵、平移向量、RMSD计算)
 │   ├── structure_alignment.mbt  # Bio.PDB.StructureAlignment 多蛋白质结构比对
 │   ├── ma_align.mbt             # Bio.PDB.MAalign 多蛋白质结构比对 (Kabsch算法)
@@ -294,6 +300,7 @@ IvanAXu/BioSeqs/
 │   ├── kmer.mbt                 # Bio.Kmer k-mer计数与频率分析
 │   ├── cluster.mbt             # 序列聚类分析 (距离矩阵、层次聚类、轮廓系数)
 │   ├── motifs.mbt              # 序列模体识别 (PWM、MEME格式、模体搜索、信息含量、序列Logo生成、模体富集、Pearson相关性)
+│   ├── motifs_advanced.mbt     # Bio.motifs高级功能 (JASPAR PFM、TRANSFAC格式、模体最优比对、KL/JS散度、模体聚类)
 │   ├── popgen.mbt              # 群体遗传学 (等位基因频率、FST、哈迪-温伯格检验)
 │   ├── restriction.mbt         # 限制性内切酶分析 (酶切位点查找、片段分析)
 │   ├── protparam.mbt           # ProtParam 蛋白质参数分析 (不稳定指数、等电点、信号肽预测、二级结构倾向)
@@ -378,6 +385,7 @@ IvanAXu/BioSeqs/
 │   ├── graphics.mbt             # Bio.Graphics 生物信息学可视化 (序列Logo、比对可视化)
 │   ├── phylo_consensus.mbt      # Phylo.Consensus 一致性树构建 (ConsensusNode/Split、多数规则树、支持度计算)
 │   ├── phylo_xml.mbt            # Bio.Phylo.PhyloXML XML系统发育树格式
+│   ├── phylo_nexml.mbt          # Bio.Phylo.NeXML NeXML格式解析与序列化 (OTUs/Trees/Characters数据模型、Newick转换)
 │   ├── phylo_metrics.mbt        # 系统发育树度量 (Colless平衡指数、Robinson-Foulds距离、距离矩阵)
 │   ├── phyloseq.mbt            # phyloseq 微生物组分析 (OTU丰度、分类学过滤)
 │   ├── consensus_cluster_plus.mbt # ConsensusClusterPlus 共识聚类 (一致性矩阵、k-means聚类、稳定性评分、最优k选择)
@@ -473,6 +481,7 @@ IvanAXu/BioSeqs/
 │   ├── ml_features/            # 机器学习特征提取示例
 │   ├── mmcif_demo/             # mmCIF格式解析示例 (数据块解析、类别查询、原子位点提取)
 │   ├── motifs_demo/            # 序列模体识别示例
+│   ├── motifs_advanced_demo/   # 模体高级功能示例 (JASPAR/TRANSFAC解析、模体比对、KL/JS散度、模体聚类)
 │   ├── multi_assay_experiment_demo/ # MultiAssayExperiment 多组学数据协调示例 (实验协调、样本映射)
 │   ├── needleman_wunsch_demo/  # Needleman-Wunsch 全局序列比对示例
 │   ├── neighbor_search_demo/   # NeighborSearch KD树近邻搜索示例 (半径搜索、最近邻、原子对搜索)
@@ -483,6 +492,7 @@ IvanAXu/BioSeqs/
 │   ├── pdb_demo/               # PDB 结构解析示例
 │   ├── pdb_list_demo/          # Bio.PDB.PDBList PDB结构下载管理示例
 │   ├── pdb_header_demo/        # Bio.PDB.ParsePDBHeader PDB头部元数据解析
+│   ├── pdb_dice_demo/          # Bio.PDB.Dice + Selection PDB结构切割示例
 │   ├── phylo_demo/             # 系统发育树示例
 │   ├── phylo_metrics_demo/     # 系统发育树高级分析示例 (Colless平衡指数、Robinson-Foulds距离、距离矩阵)
 │   ├── popgen_demo/            # 群体遗传学分析示例
@@ -560,6 +570,7 @@ IvanAXu/BioSeqs/
 │   ├── gff_demo/                 # GFF GFF3格式解析示例 (基因结构分析、属性解析、特征提取)
 │   ├── phylo_consensus_demo/     # Phylo.Consensus 一致性树构建示例 (多数规则树、分裂分析、支持度计算)
 │   ├── phylo_xml_demo/          # Bio.Phylo.PhyloXML XML系统发育树格式
+│   ├── phylo_nexml_demo/        # Bio.Phylo.NeXML NeXML格式解析与序列化示例
 │   ├── phyloseq_demo/            # phyloseq 微生物组分析示例 (OTU丰度、分类学过滤)
 │   ├── alphabet_demo/            # Bio.Alphabet IUPAC字母表示例 (DNA/RNA/蛋白质字母表、字符验证)
 │   ├── statistics_demo/          # Bio.Statistics 统计分析示例 (描述统计、假设检验、相关性分析)
@@ -1574,8 +1585,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2665 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 2229 |
-| 通过数 | 2229 |
+| 总测试数 | 2747 |
+| 通过数 | 2747 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -1631,6 +1642,7 @@ moon test --update
 | K-means Clustering | `kmeans_test.mbt` + `kmeans_wbtest.mbt` | 30 |
 | CRAM 解析 | `cram_wbtest.mbt` | 1 |
 | Sequence Motifs | `motifs_test.mbt` | 20 |
+| Motifs Advanced | `motifs_advanced_test.mbt` | 45 |
 | Sequence Utils | `seq_utils_test.mbt` | 24 |
 | Population Genetics | `popgen_test.mbt` | 13 |
 | edgeR | `edger_test.mbt` | 7 |
@@ -1641,6 +1653,7 @@ moon test --update
 | Cluster | `cluster_test.mbt` | 12 |
 | Restriction | `restriction_test.mbt` | 16 |
 | TreeIO | `tree_io_test.mbt` | 8 |
+| Phylo NeXML | `phylo_nexml_test.mbt` | 32 |
 | TxDb | `txdb_test.mbt` | 14 |
 | ProtParam | `protparam_test.mbt` | 15 |
 | rtracklayer | `rtracklayer_test.mbt` | 19 |
@@ -1649,6 +1662,7 @@ moon test --update
 | VariantAnnotation | `variant_annotation_test.mbt` | 6 |
 | Affy | `affy_test.mbt` | 8 |
 | SVDSuperimposer | `svd_superimposer_test.mbt` | 9 |
+| PDB Dice | `pdb_dice_test.mbt` | 42 |
 | GOEnrichment | `go_enrichment_test.mbt` | 8 |
 | SingleCell | `single_cell_test.mbt` | 9 |
 | KEGG | `kegg_test.mbt` | 9 |
