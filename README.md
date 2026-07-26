@@ -53,6 +53,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.Align.AlignClusterer | 渐进式多序列比对 (ClustalW算法)，基于UPGMA向导树和profile-profile比对 |
 | ✅ | Bio.SeqUtils (RNA) | RNA二级结构预测，Nussinov动态规划算法，支持发夹环/内部环/凸出环/多环识别 |
 | ✅ | Bio.PDB.MAalign | 多蛋白质结构比对，Kabsch算法实现，支持迭代结构对齐和保守性分析 |
+| ✅ | Bio.SeqFeature (advanced) | CompoundLocation复合位点、LocationParser位点字符串解析、扩展SeqFeature修饰符 |
+| ✅ | Bio.PDB.ParsePDBHeader | PDB头部元数据解析 (HEADER/TITLE/COMPOUND/SOURCE/REMARK/AUTH/DBREF) |
+| ✅ | Bio.Phylo.PhyloXML | PhyloXML格式解析、序列化、Newick双向转换、分类单元注释 |
 
 ### 序列组装算法
 
@@ -218,6 +221,7 @@ IvanAXu/BioSeqs/
 │   ├── seq.mbt                 # Seq 序列对象
 │   ├── seq_record.mbt          # SeqRecord 带注释的序列记录
 │   ├── seqfeature.mbt          # SeqFeature 序列特征
+│   ├── seqfeature_advanced.mbt  # Bio.SeqFeature CompoundLocation与LocationParser
 │   ├── seqio.mbt               # 统一序列 I/O 接口
 │   ├── fasta_io.mbt            # FASTA 格式解析
 │   ├── fastq_io.mbt            # FASTQ 格式解析
@@ -238,6 +242,7 @@ IvanAXu/BioSeqs/
 │   ├── subsmat.mbt             # 替换矩阵 (BLOSUM62/45、PAM250/30、矩阵解析、分数查询)
 │   ├── pdb.mbt                 # PDB 数据类型
 │   ├── pdb_io.mbt              # PDB 文件 I/O
+│   ├── pdb_header.mbt            # Bio.PDB.ParsePDBHeader PDB头部元数据解析
 │   ├── pdb_analysis.mbt         # Bio.PDB.StructureAnalysis 结构分析 (二面角、SASA、Ramachandran图)
 │   ├── pdb_list.mbt             # Bio.PDB.PDBList PDB结构下载管理
 │   ├── svd_superimposer.mbt    # SVDSuperimposer SVD蛋白质结构叠合 (旋转矩阵、平移向量、RMSD计算)
@@ -369,6 +374,7 @@ IvanAXu/BioSeqs/
 │   ├── gff.mbt                  # GFF GFF3格式解析 (GFFFeature/GFFRecord、属性解析、特征提取)
 │   ├── graphics.mbt             # Bio.Graphics 生物信息学可视化 (序列Logo、比对可视化)
 │   ├── phylo_consensus.mbt      # Phylo.Consensus 一致性树构建 (ConsensusNode/Split、多数规则树、支持度计算)
+│   ├── phylo_xml.mbt            # Bio.Phylo.PhyloXML XML系统发育树格式
 │   ├── phylo_metrics.mbt        # 系统发育树度量 (Colless平衡指数、Robinson-Foulds距离、距离矩阵)
 │   ├── phyloseq.mbt            # phyloseq 微生物组分析 (OTU丰度、分类学过滤)
 │   ├── consensus_cluster_plus.mbt # ConsensusClusterPlus 共识聚类 (一致性矩阵、k-means聚类、稳定性评分、最优k选择)
@@ -470,6 +476,7 @@ IvanAXu/BioSeqs/
 │   ├── pdb_analysis_demo/      # PDB 高级结构分析示例 (主链二面角、氢键检测、二级结构分配、Ramachandran图、SASA计算、疏水性分析)
 │   ├── pdb_demo/               # PDB 结构解析示例
 │   ├── pdb_list_demo/          # Bio.PDB.PDBList PDB结构下载管理示例
+│   ├── pdb_header_demo/        # Bio.PDB.ParsePDBHeader PDB头部元数据解析
 │   ├── phylo_demo/             # 系统发育树示例
 │   ├── phylo_metrics_demo/     # 系统发育树高级分析示例 (Colless平衡指数、Robinson-Foulds距离、距离矩阵)
 │   ├── popgen_demo/            # 群体遗传学分析示例
@@ -485,6 +492,7 @@ IvanAXu/BioSeqs/
 │   ├── seq_complexity_demo/    # 序列复杂度分析示例 (Shannon熵、语言学复杂度、GC偏斜、混沌游戏表示)
 │   ├── seqio_demo/             # 序列 I/O 示例
 │   ├── seq_utils_demo/         # 序列工具函数示例
+│   ├── seqfeature_advanced_demo/  # Bio.SeqFeature CompoundLocation与LocationParser
 │   ├── rna_structure_demo/       # RNA二级结构预测示例
 │   ├── single_cell_demo/       # SingleCell 单细胞数据分析示例 (QC指标、Log标准化、PCA降维、高变异基因)
 │   ├── smith_waterman_demo/    # Smith-Waterman 局部序列比对示例
@@ -545,6 +553,7 @@ IvanAXu/BioSeqs/
 │   ├── taxonomy_demo/            # Taxonomy 分类学分析示例 (分类数据库查询、谱系追踪、共同祖先计算)
 │   ├── gff_demo/                 # GFF GFF3格式解析示例 (基因结构分析、属性解析、特征提取)
 │   ├── phylo_consensus_demo/     # Phylo.Consensus 一致性树构建示例 (多数规则树、分裂分析、支持度计算)
+│   ├── phylo_xml_demo/          # Bio.Phylo.PhyloXML XML系统发育树格式
 │   ├── phyloseq_demo/            # phyloseq 微生物组分析示例 (OTU丰度、分类学过滤)
 │   ├── alphabet_demo/            # Bio.Alphabet IUPAC字母表示例 (DNA/RNA/蛋白质字母表、字符验证)
 │   ├── statistics_demo/          # Bio.Statistics 统计分析示例 (描述统计、假设检验、相关性分析)
@@ -616,6 +625,7 @@ IvanAXu/BioSeqs/
 │   │   ├── sam_test.mbt
 │   │   ├── search_io_test.mbt
 │   │   ├── seqfeature_test.mbt
+│   │   ├── seqfeature_advanced_test.mbt
 │   │   ├── seqio_wb_test.mbt
 │   │   ├── seq_utils_test.mbt
 │   │   ├── sequtils_test.mbt
@@ -717,9 +727,12 @@ IvanAXu/BioSeqs/
 │   │   ├── pathway_test.mbt
 │   │   ├── pdb_analysis_test.mbt
 │   │   ├── pdb_list_test.mbt
+│   │   ├── pdb_header_test.mbt
 │   │   ├── pdb_vectors_test.mbt
 │   │   ├── phenotype_test.mbt
 │   │   ├── phylo_consensus_test.mbt
+│   │   ├── phylo_xml_test.mbt
+│   │   ├── phylo_xml_debug_test.mbt
 │   │   ├── phylo_metrics_test.mbt
 │   │   ├── phyloseq_test.mbt
 │   │   ├── polypeptide_test.mbt
@@ -781,7 +794,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2477 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2609 个测试全部通过
 ```
 
 ### 模块对照表
@@ -793,6 +806,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2477 个测试全�
 | `seq.mbt` | BioPython `Bio.Seq` | 序列对象、互补、转录、翻译 |
 | `seq_record.mbt` | BioPython `Bio.SeqRecord` | 带注释的序列记录 |
 | `seqfeature.mbt` | BioPython `Bio.SeqFeature` | 序列特征与位置 |
+| `seqfeature_advanced.mbt` | BioPython `Bio.SeqFeature` | CompoundLocation复合位点、LocationParser位点字符串解析、扩展SeqFeature修饰符 |
 | `seqio.mbt` | BioPython `Bio.SeqIO` | 统一序列文件 I/O |
 | `fasta_io.mbt` | BioPython `Bio.SeqIO.FastaIO` | FASTA 解析 |
 | `fastq_io.mbt` | BioPython `Bio.SeqIO.QualityIO` | FASTQ 解析 |
@@ -828,6 +842,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2477 个测试全�
 | `phylo.mbt` | BioPython `Bio.Phylo` | 系统发育树 (Clade/Tree) |
 | `tree_io.mbt` | BioPython `Bio.TreeIO` | Newick/NHX 格式解析 |
 | `tree_construction.mbt` | BioPython `Bio.Phylo.TreeConstruction` | UPGMA/WPGMA/NJ 建树算法 |
+| `phylo_xml.mbt` | BioPython `Bio.Phylo.PhyloXML` | PhyloXML格式解析、序列化、Newick双向转换、分类单元注释 |
 
 #### 结构生物学
 
@@ -840,6 +855,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2477 个测试全�
 | `mmcif.mbt` | BioPython `Bio.PDB.MMCIFParser` | mmCIF 格式解析 |
 | `pdb_vectors.mbt` | BioPython `Bio.PDB.vectors` | 3D向量/旋转矩阵、叉积、Kabsch叠合、二面角 |
 | `pdb_analysis.mbt` | BioPython `Bio.PDB.StructureAnalysis` | 二面角计算、距离矩阵、接触图、氢键检测、二级结构分配、Ramachandran图、SASA计算(Shrake-Rupley)、结构质量评估、疏水性分析 |
+| `pdb_header.mbt` | BioPython `Bio.PDB.ParsePDBHeader` | PDB头部元数据解析 (HEADER/TITLE/COMPOUND/SOURCE/REMARK/AUTH/DBREF) |
 
 #### 基因组分析
 
