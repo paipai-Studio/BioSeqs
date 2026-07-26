@@ -194,6 +194,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **CNVkit** | Bioconductor CNVkit | 拷贝数变异检测、CBS（循环二元分割）分割算法、拷贝数状态判定、log2比率平滑、断点检测 | ✅ |
 | **destiny** | Bioconductor destiny | 单细胞扩散映射(Diffusion Maps)降维、距离矩阵计算、高斯核构建、特征分解、扩散分量计算 | ✅ |
 | **tradeSeq** | Bioconductor tradeSeq | 轨迹差异表达分析、GAM（广义可加模型）拟合、样条基函数、差异表达检验、BH-FDR校正 | ✅ |
+| **PROGENy** | Bioconductor PROGENy | 通路活性推断、L2正则化线性回归（Ridge回归）、通路基因集权重矩阵、样本通路活性计算 | ✅ |
+| **AUCell** | Bioconductor AUCell | 单细胞基因集评分、AUC（曲线下面积）计算、基因排序、min-max归一化、细胞/基因集评分查询 | ✅ |
+| **ggtree** | Bioconductor ggtree | 系统发育树可视化布局算法、矩形布局（phylogram）、放射状布局、无根布局、节点坐标映射、边缘/标签数据生成 | ✅ |
 
 项目致力于打造一个完整、高效的生物信息学工具库，覆盖从基础序列处理到高级序列组装的全流程。
 
@@ -217,7 +220,9 @@ IvanAXu/BioSeqs/
 │   ├── clustal_io.mbt          # Clustal 格式
 │   ├── phylip_io.mbt           # PHYLIP 格式
 │   ├── alignment.mbt           # DNA/RNA/Protein 类型及比对算法
+│   ├── application.mbt          # Bio.Application 命令行工具包装
 │   ├── align_io.mbt            # AlignIO 比对格式解析 (ClustalW/FASTA/Stockholm)
+│   ├── align_applications.mbt   # Align.Applications 比对工具包装 (ClustalW/Clustal Omega/Muscle/MAFFT)
 │   ├── phylo.mbt               # 系统发育树 (Clade/Tree)
 │   ├── tree_io.mbt             # 进化树格式解析 (Newick、NHX格式解析、树操作)
 │   ├── blast.mbt               # BLAST结果解析 (tabular/xml格式、HSP、Hit、Record、过滤)
@@ -225,7 +230,10 @@ IvanAXu/BioSeqs/
 │   ├── subsmat.mbt             # 替换矩阵 (BLOSUM62/45、PAM250/30、矩阵解析、分数查询)
 │   ├── pdb.mbt                 # PDB 数据类型
 │   ├── pdb_io.mbt              # PDB 文件 I/O
+│   ├── pdb_analysis.mbt         # Bio.PDB.StructureAnalysis 结构分析 (二面角、SASA、Ramachandran图)
+│   ├── pdb_list.mbt             # Bio.PDB.PDBList PDB结构下载管理
 │   ├── svd_superimposer.mbt    # SVDSuperimposer SVD蛋白质结构叠合 (旋转矩阵、平移向量、RMSD计算)
+│   ├── structure_alignment.mbt  # Bio.PDB.StructureAlignment 多蛋白质结构比对
 │   ├── sequtils.mbt            # 序列工具函数
 │   ├── seq_utils.mbt           # 序列工具函数 (分子量、GC含量、Tm值、氨基酸转换、GC/AT滑动窗口偏斜、序列相似度、Hamming距离、Levenshtein编辑距离)
 │   ├── complement.mbt          # 互补碱基查找表
@@ -237,15 +245,21 @@ IvanAXu/BioSeqs/
 │   ├── cram.mbt                # CRAM 格式解析 (压缩二进制序列比对格式)
 │   ├── vcf.mbt                 # VCF 格式解析
 │   ├── variant_annotation.mbt  # VariantAnnotation 变异注释 (变异类型检测、定位、编码效应预测、变异汇总)
+│   ├── variant_filtering.mbt    # Bioconductor VariantFiltering 变异过滤与遗传模式分析
 │   ├── biostrings.mbt          # Biostrings 序列分析 (IUPAC、k-mer频率、RSCU、复杂度)
+│   ├── bioc_generics.mbt        # Bioconductor 通用函数 (NA处理、排序、集合运算)
+│   ├── bioc_parallel.mbt        # Bioconductor 并行计算框架 (任务分块、并行求和)
 │   ├── genomic_ranges.mbt      # GenomicRanges 基因组区间操作 (GRanges、IRanges)
 │   ├── iranges.mbt             # IRanges 整数区间操作 (集合运算、重叠检测)
 │   ├── genomic_alignments.mbt  # GenomicAlignments 基因组比对分析 (GAlignments、coverage、summarizeOverlaps、pileup)
 │   ├── txdb.mbt                # TxDb 转录本数据库 (GTF解析、基因/转录本/外显子/CDS提取、UTR/内含子计算)
+│   ├── tximport.mbt             # Bioconductor tximport 转录本量化数据导入
 │   ├── rtracklayer.mbt         # rtracklayer 基因组轨道格式 (BED/WIG/BEDGraph/GFF解析与写入)
+│   ├── rhdf5.mbt                # Bioconductor rhdf5 HDF5文件格式支持
 │   ├── deseq2.mbt              # DESeq2 差异表达分析 (size factors归一化、分散度估计、负二项GLM拟合、Wald检验、LFC收缩)
 │   ├── edger.mbt               # edgeR 差异表达分析 (DGEList、精确检验、GLM拟合)
 │   ├── limma.mbt               # limma 差异表达分析 (线性模型、经验贝叶斯、voom变换、对比矩阵)
+│   ├── matrix.mbt               # Bioconductor Matrix 稀疏矩阵操作 (CSC/CSR格式、矩阵运算)
 │   ├── summarized_experiment.mbt # SummarizedExperiment 多维基因组数据容器
 │   ├── dplyr.mbt               # dplyr 数据操作 (DataFrame、filter、select、mutate、arrange、group_by、summarize、join)
 │   ├── smith_waterman.mbt      # Smith-Waterman 局部序列比对 (动态规划、自定义打分、回溯矩阵)
@@ -255,13 +269,16 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn.mbt           # De Bruijn Graph (k-mer节点、欧拉路径、序列组装、图简化)
 │   ├── suffix_array_tree.mbt   # Suffix Array & Suffix Tree (前缀倍增、LCP数组、模式匹配、最长重复子串)
 │   ├── olc.mbt                 # Overlap-Layout-Consensus (重叠检测、哈密顿路径、一致性序列生成)
+│   ├── paml.mbt                 # Bio.PAML 分子进化分析 (dN/dS、Jukes-Cantor校正)
 │   ├── hmm.mbt                 # Hidden Markov Model (前向/后向算法、维特比算法、Baum-Welch训练、基因预测)
 │   ├── kmeans.mbt              # K-means Clustering (距离计算、K-means++初始化、聚类、轮廓系数评估)
+│   ├── kmer.mbt                 # Bio.Kmer k-mer计数与频率分析
 │   ├── cluster.mbt             # 序列聚类分析 (距离矩阵、层次聚类、轮廓系数)
 │   ├── motifs.mbt              # 序列模体识别 (PWM、MEME格式、模体搜索、信息含量、序列Logo生成、模体富集、Pearson相关性)
 │   ├── popgen.mbt              # 群体遗传学 (等位基因频率、FST、哈迪-温伯格检验)
 │   ├── restriction.mbt         # 限制性内切酶分析 (酶切位点查找、片段分析)
 │   ├── protparam.mbt           # ProtParam 蛋白质参数分析 (不稳定指数、等电点、信号肽预测、二级结构倾向)
+│   ├── prosite.mbt              # Bio.Prosite 蛋白质模体数据库搜索
 │   ├── affy.mbt                # Affy Affymetrix芯片数据分析 (RMA标准化、背景校正、分位数归一化)
 │   ├── feature_extraction.mbt  # 机器学习特征提取
 │   ├── faidx.mbt               # FASTA 快速索引访问 (pyfaidx)
@@ -280,6 +297,7 @@ IvanAXu/BioSeqs/
 │   ├── entrez.mbt              # Entrez NCBI数据库访问 (ESearch、EFetch、PubMed/Gene/Taxonomy解析)
 │   ├── genome_info_db.mbt      # GenomeInfoDb 基因组信息管理 (染色体信息、着丝粒位置、基因组构建、染色体臂)
 │   ├── interaction_set.mbt     # InteractionSet 染色质交互数据 (Hi-C交互、锚点对、交互矩阵、距离分布)
+│   ├── isoform_switch_analyze_r.mbt # IsoformSwitchAnalyzeR 转录本异构体切换分析
 │   ├── multi_assay_experiment.mbt # MultiAssayExperiment 多组学数据协调 (实验协调、样本映射、跨实验子集)
 │   ├── tree_construction.mbt   # TreeConstruction 系统发育树构建 (UPGMA/WPGMA/NJ算法、距离计算)
 │   ├── neighbor_search.mbt     # NeighborSearch KD树近邻搜索 (空间搜索、半径搜索、最近邻)
@@ -288,6 +306,9 @@ IvanAXu/BioSeqs/
 │   ├── nexus.mbt               # Nexus格式解析 (Bio.Nexus、数据矩阵、系统发育树、距离矩阵)
 │   ├── emboss.mbt              # EMBOSS工具接口 (GC偏斜、AT偏斜、分子量、Tm值、ORF查找、距离计算)
 │   ├── chipseeker.mbt          # ChIPseeker ChIP-seq峰注释分析 (峰-基因距离计算、注释分类(启动子/外显子/内含子/UTR/基因间区)、BED格式读取、peak2gene关联分析、结果汇总与可视化)
+│   ├── enrichplot.mbt           # enrichplot 富集分析结果可视化 (dotplot/barplot/heatmap)
+│   ├── ensembldb.mbt            # ensembldb Ensembl注释数据库接口
+│   ├── expasy.mbt               # ExPASy 蛋白质分析工具接口 (Swiss-Prot解析、蛋白质参数计算)
 │   ├── dose.mbt                # DOSE 疾病本体富集分析 (超几何检验、多重检验校正、结果过滤)
 │   ├── reactome_pa.mbt         # ReactomePA Reactome通路分析 (通路富集、按顶层术语分组、结果可视化)
 │   ├── annotation_dbi.mbt      # AnnotationDbi 通用注释数据库 (基因信息存储、ID映射、GO/KEGG注释管理)
@@ -308,6 +329,7 @@ IvanAXu/BioSeqs/
 │   ├── flow_core.mbt           # flowCore 流式细胞术FCS处理 (数据变换、荧光补偿、矩形/多边形/椭球/四象限门控)
 │   ├── bsseq.mbt               # bsseq 亚硫酸氢盐测序分析 (BSmooth平滑、DMR检测、CpG合并、甲基化率计算)
 │   ├── single_cell_experiment.mbt  # SingleCellExperiment 单细胞核心容器 (多assay、PCA/tSNE/UMAP降维、size factors)
+│   ├── spatial_experiment.mbt   # SpatialExperiment 空间转录组学数据结构
 │   ├── complex_heatmap.mbt      # ComplexHeatmap 复杂热图可视化 (行/列聚类、颜色映射、热图注释、分组拆分)
 │   ├── gsva.mbt                 # GSVA 基因集变异分析 (ssGSEA/zscore/PLAGE评分、富集分析、置换检验、富集图可视化、表型相关性分析、生存分析、分数分布分析)
 │   ├── chromvar.mbt             # ChromVAR 染色质变异分析 (TF motif富集、GC偏差校正、细胞聚类、变异性分析)
@@ -333,7 +355,10 @@ IvanAXu/BioSeqs/
 │   ├── hilbertcurve.mbt         # HilbertCurve Hilbert曲线坐标映射 (编码/解码、距离计算、基因组线性化)
 │   ├── taxonomy.mbt             # Taxonomy 分类学分析 (Taxon/TaxonomyDatabase、谱系查询、共同祖先计算)
 │   ├── gff.mbt                  # GFF GFF3格式解析 (GFFFeature/GFFRecord、属性解析、特征提取)
+│   ├── graphics.mbt             # Bio.Graphics 生物信息学可视化 (序列Logo、比对可视化)
 │   ├── phylo_consensus.mbt      # Phylo.Consensus 一致性树构建 (ConsensusNode/Split、多数规则树、支持度计算)
+│   ├── phylo_metrics.mbt        # 系统发育树度量 (Colless平衡指数、Robinson-Foulds距离、距离矩阵)
+│   ├── phyloseq.mbt            # phyloseq 微生物组分析 (OTU丰度、分类学过滤)
 │   ├── consensus_cluster_plus.mbt # ConsensusClusterPlus 共识聚类 (一致性矩阵、k-means聚类、稳定性评分、最优k选择)
 │   ├── sc3.mbt                 # SC3 单细胞共识聚类 (PCA降维、共识矩阵、轮廓系数、间隙统计量)
 │   ├── genesis.mbt             # GENESIS 群体结构分析 (亲属关系矩阵、PCA分析、遗传距离计算)
@@ -348,6 +373,7 @@ IvanAXu/BioSeqs/
 │   ├── blast_applications.mbt   # Bio.Blast.Applications BLAST命令行工具包装 (8种BLAST变体、快速构建器、参数管理)
 │   ├── psea.mbt                 # Bio.PDB.PSEA 二级结构预测 (PseaAtom/PseaResult、CA-CA距离、虚拟二面角、H/E/C分配、三态到八态转换)
 │   ├── sff_io.mbt               # Bio.SeqIO.SffIO SFF二进制格式解析 (SffHeader/SffRead/SffFile、二进制编码/解码、质量修剪)
+│   ├── seq_complexity.mbt       # 序列复杂度与组成分析 (Shannon熵、GC偏斜、混沌游戏表示)
 │   ├── csaw.mbt                 # csaw ChIP-seq窗口差异分析 (滑动窗口计数、TMM归一化、窗口过滤、负二项GLM检验、差异区域检测)
 │   ├── slingshot.mbt            # slingshot 单细胞轨迹推断 (MST构建、主曲线拟合、拟时间计算、分支检测)
 │   ├── scnorm.mbt               # SCnorm 单细胞RNA-seq归一化 (分位数回归、深度依赖偏差校正、基因特异性归一化)
@@ -360,16 +386,23 @@ IvanAXu/BioSeqs/
 │   ├── cnvkit.mbt               # CNVkit 拷贝数变异检测与CBS分割 (CNVProbe、CNVSegment、CBS分割算法、拷贝数状态判定)
 │   ├── destiny.mbt              # destiny 单细胞扩散映射降维 (CellData、距离矩阵、高斯核、特征分解、扩散分量)
 │   ├── tradeseq.mbt             # tradeSeq 轨迹差异表达分析 (TrajectoryPoint、GAM拟合、样条基函数、差异检验)
+│   ├── progeny.mbt              # PROGENy 通路活性推断 (L2正则化线性回归、Ridge回归、通路基因集权重矩阵)
+│   ├── aucell.mbt               # AUCell 单细胞基因集评分 (AUC计算、基因排序、min-max归一化)
+│   ├── ggtree.mbt               # ggtree 系统发育树可视化布局 (矩形/放射状/无根布局、节点坐标映射)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
 │   ├── align_info_demo/        # AlignInfo 比对统计示例 (一致性序列、保守位点、Shannon熵、成对序列同一性)
 │   ├── align_io_demo/          # AlignIO 比对格式解析示例 (ClustalW、FASTA、Stockholm)
+│   ├── align_applications_demo/ # Align.Applications 比对工具包装示例
 │   ├── alignment_demo/         # 序列比对示例
+│   ├── application_demo/         # Bio.Application 命令行工具示例
 │   ├── ballgown_demo/          # ballgown 转录组水平差异表达分析示例 (FPKM计算、t检验)
 │   ├── bam_demo/               # BAM/BGZF 解析示例
 │   ├── basic_seq/              # 基础序列操作示例
 │   ├── biobase_demo/           # Biobase ExpressionSet示例 (多维基因组数据容器、AnnotatedDataFrame、数据归一化、log2转换)
+│   ├── bioc_generics_demo/      # Bioconductor 通用函数示例
+│   ├── bioc_parallel_demo/      # Bioconductor 并行计算示例
 │   ├── bioconductor_demo/      # Bioconductor模块综合示例 (ChIPseeker峰注释(外显子/内含子/UTR分类、peak2gene关联)、DOSE疾病富集、ReactomePA通路分析、AnnotationDbi注释数据库、clusterProfiler富集框架、WGCNA共表达网络、Batchelor单细胞批次校正、Seurat单细胞分析)
 │   ├── biomart_demo/           # biomaRt 基因ID转换和注释查询示例 (基因ID映射、注释查询、批量查询)
 │   ├── biostrings_demo/        # Biostrings 序列分析示例
@@ -378,6 +411,7 @@ IvanAXu/BioSeqs/
 │   ├── bsgenome_demo/          # BSgenome 基因组序列数据库示例 (染色体序列检索、子序列提取、链特异性基因提取)
 │   ├── bwt_fm_demo/            # BWT + FM-index 示例
 │   ├── cluster_demo/           # 序列聚类分析示例 (层次聚类、距离矩阵、轮廓系数)
+│   ├── consensus_cluster_plus_demo/ # ConsensusClusterPlus 共识聚类示例
 │   ├── codon_align_demo/       # CodonAlign 密码子比对示例 (密码子替换分类、dN/dS选择压力分析、密码子使用偏好)
 │   ├── codon_usage_demo/       # CodonUsage 密码子使用分析示例 (CAI、ENC、RSCU、GC3、CBI、Fop、最优密码子检测)
 │   ├── cram_demo/              # CRAM 格式解析示例 (压缩二进制序列比对格式、CRAM转BAM、参考序列管理)
@@ -386,6 +420,9 @@ IvanAXu/BioSeqs/
 │   ├── dplyr_demo/             # dplyr 数据操作示例
 │   ├── edger_demo/             # edgeR 差异表达分析示例
 │   ├── emboss_demo/            # EMBOSS工具接口示例 (GC偏斜、AT偏斜、分子量、ORF查找)
+│   ├── enrichplot_demo/        # enrichplot 富集分析结果可视化示例
+│   ├── ensembldb_demo/         # ensembldb Ensembl注释数据库接口示例
+│   ├── expasy_demo/            # ExPASy 蛋白质分析工具接口示例
 │   ├── entrez_demo/            # Entrez NCBI数据库访问示例 (ESearch、EFetch、PubMed/Gene/Taxonomy解析)
 │   ├── faidx_demo/             # FASTA 索引示例
 │   ├── fgsea_demo/             # fgsea 快速基因集富集分析示例 (置换检验、NES/ES计算、Leading Edge基因)
@@ -396,10 +433,13 @@ IvanAXu/BioSeqs/
 │   ├── go_enrichment_demo/     # GOEnrichment GO功能富集分析示例 (超几何检验、BH校正、富集结果过滤)
 │   ├── hmm_demo/               # Hidden Markov Model 基因预测示例
 │   ├── interaction_set_demo/   # InteractionSet 染色质交互示例 (Hi-C交互、锚点对、交互矩阵、距离分布)
+│   ├── isoform_switch_demo/    # IsoformSwitchAnalyzeR 转录本异构体切换分析示例
 │   ├── iranges_demo/           # IRanges 区间操作示例
 │   ├── kegg_demo/              # KEGG数据库解析示例 (基因、通路、化合物、酶记录)
 │   ├── kmeans_demo/            # K-means Clustering 聚类分析示例
+│   ├── kmer_demo/              # Bio.Kmer k-mer计数与频率分析示例
 │   ├── limma_demo/             # limma 差异表达分析示例 (线性模型、经验贝叶斯、voom变换)
+│   ├── matrix_demo/            # Bioconductor Matrix 稀疏矩阵操作示例
 │   ├── medline_demo/           # Medline/PubMed解析示例 (文献记录、APA引用、MeSH过滤)
 │   ├── ml_features/            # 机器学习特征提取示例
 │   ├── mmcif_demo/             # mmCIF格式解析示例 (数据块解析、类别查询、原子位点提取)
@@ -409,14 +449,19 @@ IvanAXu/BioSeqs/
 │   ├── neighbor_search_demo/   # NeighborSearch KD树近邻搜索示例 (半径搜索、最近邻、原子对搜索)
 │   ├── nexus_demo/             # Nexus格式解析示例 (数据矩阵、系统发育树、距离矩阵)
 │   ├── olc_demo/               # Overlap-Layout-Consensus 序列组装示例
+│   ├── paml_demo/              # Bio.PAML 分子进化分析示例
 │   ├── pdb_analysis_demo/      # PDB 高级结构分析示例 (主链二面角、氢键检测、二级结构分配、Ramachandran图、SASA计算、疏水性分析)
 │   ├── pdb_demo/               # PDB 结构解析示例
+│   ├── pdb_list_demo/          # Bio.PDB.PDBList PDB结构下载管理示例
 │   ├── phylo_demo/             # 系统发育树示例
 │   ├── phylo_metrics_demo/     # 系统发育树高级分析示例 (Colless平衡指数、Robinson-Foulds距离、距离矩阵)
 │   ├── popgen_demo/            # 群体遗传学分析示例
 │   ├── protparam_demo/         # ProtParam 蛋白质参数分析示例 (分子量、不稳定指数、等电点、信号肽预测、二级结构倾向)
+│   ├── prosite_demo/           # Bio.Prosite 蛋白质模体数据库搜索示例
 │   ├── restriction_demo/       # 限制性内切酶分析示例 (酶切位点查找、片段分析)
+│   ├── residue_depth_demo/    # Bio.PDB.ResidueDepth 残基深度计算示例
 │   ├── rtracklayer_demo/       # rtracklayer 基因组轨道格式示例 (BED/WIG/BEDGraph/GFF解析与写入)
+│   ├── rhdf5_demo/             # Bioconductor rhdf5 HDF5文件格式支持示例
 │   ├── ruvseq_demo/            # RUVSeq RNA-seq批次效应去除示例 (数据标准化、log2转换、RUVg/RUVs方法)
 │   ├── sam_vcf_demo/           # SAM/VCF 解析示例
 │   ├── search_io_demo/         # SearchIO 统一搜索结果示例 (HMMER3解析、BLAT PSL解析、BLAST转换)
@@ -430,11 +475,13 @@ IvanAXu/BioSeqs/
 │   ├── summarized_experiment_demo/ # SummarizedExperiment 数据容器示例
 │   ├── sva_demo/               # sva 替代变量分析与ComBat批次校正示例 (经验贝叶斯方法、PCA分析)
 │   ├── svd_superimposer_demo/  # SVDSuperimposer SVD蛋白质结构叠合示例 (旋转矩阵、平移向量、RMSD计算)
+│   ├── structure_alignment_demo/ # Bio.PDB.StructureAlignment 多蛋白质结构比对示例
 │   ├── swissprot_demo/         # SwissProt 蛋白数据库解析示例 (记录解析、特征提取、参考文献)
 │   ├── tree_construction_demo/ # TreeConstruction 系统发育树构建示例 (UPGMA/WPGMA/NJ算法)
 │   ├── txdb_demo/              # TxDb 转录本数据库示例 (GTF解析、基因/转录本/外显子/CDS/UTR/内含子提取)
 │   ├── tximport_demo/          # tximport转录本量化示例 (Salmon quant.sf解析、转录本到基因汇总、ExpressionSet转换、低表达过滤)
 │   ├── variant_annotation_demo/ # VariantAnnotation 变异注释示例 (变异类型检测、定位、编码效应预测、变异汇总)
+│   ├── variant_filtering_demo/ # Bioconductor VariantFiltering 变异过滤与遗传模式分析示例
 │   ├── annotation_hub_demo/    # AnnotationHub 中心化注释资源访问示例 (资源搜索、类型/提供者/基因组查询)
 │   ├── genomic_features_demo/  # GenomicFeatures 基因组注释示例 (GTF解析、基因/转录本/外显子查询、区域查询)
 │   ├── graph_demo/             # graph 图数据结构示例 (有向/无向图构建、最短路径、连通分量、DOT输出)
@@ -450,11 +497,13 @@ IvanAXu/BioSeqs/
 │   ├── flow_core_demo/         # flowCore 流式细胞术示例 (数据变换、荧光补偿、矩形/多边形/椭球/四象限门控)
 │   ├── bsseq_demo/             # bsseq 亚硫酸氢盐测序示例 (BSmooth平滑、DMR检测、CpG合并、甲基化率计算)
 │   ├── single_cell_experiment_demo/  # SingleCellExperiment 单细胞核心容器示例 (多assay、降维、size factors)
+│   ├── spatial_experiment_demo/ # SpatialExperiment 空间转录组学数据结构示例
 │   ├── complex_heatmap_demo/   # ComplexHeatmap 复杂热图可视化示例 (行/列聚类、颜色映射、热图注释、分组拆分)
 │   ├── gsva_demo/              # GSVA 基因集变异分析示例 (ssGSEA/zscore/PLAGE评分、富集分析、置换检验、富集图可视化、表型相关性分析、生存分析、分数分布分析)
 │   ├── chromvar_demo/          # ChromVAR 染色质变异分析示例 (TF motif富集、GC偏差校正、细胞聚类、变异性分析)
 │   ├── delayed_array_demo/     # DelayedArray 延迟计算数组示例 (懒加载操作、分块处理、行/列聚合、子集操作)
 │   ├── annotation_filter_demo/ # AnnotationFilter 基因注释过滤示例 (染色体筛选、生物类型过滤、区域重叠检测、符号模式匹配)
+│   ├── sc3_demo/                # SC3 单细胞共识聚类示例
 │   ├── sc_dbl_finder_demo/     # scDblFinder 单细胞双细胞检测示例 (Doublet评分计算、最近邻搜索、PCA降维、细胞过滤)
 │   ├── batchelor_demo/          # Batchelor 单细胞批次校正示例 (rescaleBatches、fastMNN、mutual nearest neighbor、批次混合评分)
 │   ├── seurat_demo/             # Seurat 单细胞数据分析示例 (标准化、高可变基因、PCA、聚类、UMAP、差异标志物分析、跨样本整合)
@@ -464,6 +513,7 @@ IvanAXu/BioSeqs/
 │   ├── polypeptide_demo/         # Bio.PDB.Polypeptide 多肽分析示例 (氨基酸组成、疏水性分析、跨膜区域预测)
 │   ├── s4vectors_demo/           # S4Vectors 基础数据结构示例 (Rle游程编码、S4DataFrame数据框、Hits匹配)
 │   ├── genefilter_demo/          # genefilter 基因过滤示例 (t检验、Wilcoxon秩和检验、方差过滤、CV过滤)
+│   ├── graphics_demo/            # Bio.Graphics 生物信息学可视化示例 (序列Logo、比对可视化)
 │   ├── universalmotif_demo/      # universalmotif 模体分析示例 (S4Motif结构、共识序列计算)
 │   ├── melting_temp_demo/        # MeltingTemp DNA熔解温度计算示例 (Wallace规则、GC含量法)
 │   ├── checksum_demo/            # CheckSum 序列校验和示例 (GCG校验和、SEGUID)
@@ -476,6 +526,7 @@ IvanAXu/BioSeqs/
 │   ├── taxonomy_demo/            # Taxonomy 分类学分析示例 (分类数据库查询、谱系追踪、共同祖先计算)
 │   ├── gff_demo/                 # GFF GFF3格式解析示例 (基因结构分析、属性解析、特征提取)
 │   ├── phylo_consensus_demo/     # Phylo.Consensus 一致性树构建示例 (多数规则树、分裂分析、支持度计算)
+│   ├── phyloseq_demo/            # phyloseq 微生物组分析示例 (OTU丰度、分类学过滤)
 │   ├── alphabet_demo/            # Bio.Alphabet IUPAC字母表示例 (DNA/RNA/蛋白质字母表、字符验证)
 │   ├── statistics_demo/          # Bio.Statistics 统计分析示例 (描述统计、假设检验、相关性分析)
 │   ├── freq_analysis_demo/       # Bio.FreqAnalysis 序列频率分析示例 (k-mer计数、密码子使用频率、GC含量)
@@ -493,12 +544,16 @@ IvanAXu/BioSeqs/
 │   ├── edaseq_demo/              # EDASeq RNA-seq探索性分析示例 (GC归一化、Loess校正、RPKM计算)
 │   ├── searchio_demo/            # Bio.SearchIO 统一搜索结果模型示例 (BLAST/HMMER解析、QueryResult/Hit/HSP层次结构、E-value过滤)
 │   ├── pdb_vectors_demo/         # Bio.PDB.vectors 3D向量与旋转矩阵示例 (Vector3运算、Kabsch叠合、二面角计算)
+│   ├── qcp_superimposer_demo/    # Bio.PDB.QCPSuperimposer 四元数结构叠合示例
 │   ├── circ_seq_demo/            # Bio.SeqUtils.CircSeq 环状DNA操作示例 (酶切分析、PCR引物设计、序列旋转)
 │   ├── align_abstract_demo/      # Bio.Align.AlignAbstract 抽象比对示例 (一致性序列、Shannon熵、同一性矩阵、简约信息位点)
 │   ├── maftools_demo/            # maftools 癌症基因组学示例 (MAF数据创建、突变分类、TMB计算、突变谱分析)
 │   ├── cnvkit_demo/              # CNVkit 拷贝数变异示例 (CBS分割、拷贝数判定、断点检测、log2平滑)
 │   ├── destiny_demo/             # destiny 扩散映射示例 (距离矩阵、高斯核、特征分解、嵌入坐标)
 │   ├── tradeseq_demo/            # tradeSeq 轨迹差异表达示例 (GAM拟合、基因平滑、差异检验、可视化)
+│   ├── progeny_demo/             # PROGENy 通路活性推断示例 (L2正则化回归、通路基因集、样本活性计算)
+│   ├── aucell_demo/              # AUCell 单细胞基因集评分示例 (AUC计算、归一化、细胞/基因集评分)
+│   ├── ggtree_demo/              # ggtree 系统发育树可视化示例 (矩形/放射状/无根布局、节点坐标)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -573,81 +628,108 @@ IvanAXu/BioSeqs/
 │   │   ├── neighbor_search_test.mbt
 │   │   ├── swissprot_test.mbt
 │   │   ├── mmcif_test.mbt
-│       ├── nexus_test.mbt
-│       ├── emboss_test.mbt
-│       ├── chipseeker_test.mbt
-│       ├── dose_test.mbt
-│       ├── reactome_pa_test.mbt
-│       ├── annotation_dbi_test.mbt
-│       ├── cluster_profiler_test.mbt
-│       ├── wgcna_test.mbt
-│       ├── annotation_hub_test.mbt
-│       ├── genomic_features_test.mbt
-│       ├── graph_test.mbt
-│       ├── droplet_utils_test.mbt
-│       ├── scran_test.mbt
-│       ├── monocle3_test.mbt
-│       ├── short_read_test.mbt
-│       ├── scater_test.mbt
-│       ├── mast_test.mbt
-│       ├── genomic_files_test.mbt
-│       ├── diffbind_test.mbt
-│       ├── minfi_test.mbt
-│       ├── flow_core_test.mbt
-│       ├── bsseq_test.mbt
-│       ├── single_cell_experiment_test.mbt
-│       ├── complex_heatmap_test.mbt
-│       ├── gsva_test.mbt
-│       ├── chromvar_test.mbt
-│       ├── delayed_array_test.mbt
-│       ├── annotation_filter_test.mbt
-│       ├── sc_dbl_finder_test.mbt
-│       ├── batchelor_test.mbt
-│       ├── seurat_test.mbt
-│       ├── chipseeker_test.mbt
-│       ├── variation_test.mbt
-│       ├── dssp_test.mbt
-│       ├── polypeptide_test.mbt
-│       ├── s4vectors_test.mbt
-│       ├── genefilter_test.mbt
-│       ├── universalmotif_test.mbt
-│       ├── melting_temp_test.mbt
-│       ├── checksum_test.mbt
-│       ├── hs_exposure_test.mbt
-│       ├── pathway_test.mbt
-│       ├── topgo_test.mbt
-│       ├── dexseq_test.mbt
-│       ├── consensus_cluster_plus_test.mbt
-│       ├── sc3_test.mbt
-│       └── genesis_test.mbt
-│       ├── metagenomeseq_test.mbt
-│       ├── hilbertcurve_test.mbt
-│       ├── taxonomy_test.mbt
-│       ├── gff_test.mbt
-│       ├── phylo_consensus_test.mbt
-│       ├── alphabet_test.mbt
-│       ├── statistics_test.mbt
-│       ├── freq_analysis_test.mbt
-│       └── align_analysis_test.mbt
-│       ├── bamsignals_test.mbt
-│       ├── dss_test.mbt
-│       ├── nucle_r_test.mbt
-│       ├── phenotype_test.mbt
-│       ├── blast_applications_test.mbt
-│       ├── psea_test.mbt
-│       ├── sff_io_test.mbt
-│       ├── csaw_test.mbt
-│       ├── slingshot_test.mbt
-│       ├── scnorm_test.mbt
-│       ├── edaseq_test.mbt
-│       ├── searchio_test.mbt
-│       ├── pdb_vectors_test.mbt
-│       ├── circ_seq_test.mbt
-│       ├── align_abstract_test.mbt
-│       ├── maftools_test.mbt
-│       ├── cnvkit_test.mbt
-│       ├── destiny_test.mbt
-│       └── tradeseq_test.mbt
+│   │   ├── align_abstract_test.mbt
+│   │   ├── align_analysis_test.mbt
+│   │   ├── align_applications_test.mbt
+│   │   ├── alphabet_test.mbt
+│   │   ├── annotation_dbi_test.mbt
+│   │   ├── annotation_filter_test.mbt
+│   │   ├── annotation_hub_test.mbt
+│   │   ├── application_test.mbt
+│   │   ├── aucell_test.mbt
+│   │   ├── bamsignals_test.mbt
+│   │   ├── batchelor_test.mbt
+│   │   ├── biobase_test.mbt
+│   │   ├── bioc_generics_test.mbt
+│   │   ├── bioc_parallel_test.mbt
+│   │   ├── bsseq_test.mbt
+│   │   ├── checksum_test.mbt
+│   │   ├── chipseeker_test.mbt
+│   │   ├── chromvar_test.mbt
+│   │   ├── circ_seq_test.mbt
+│   │   ├── cluster_profiler_test.mbt
+│   │   ├── cnvkit_test.mbt
+│   │   ├── complex_heatmap_test.mbt
+│   │   ├── consensus_cluster_plus_test.mbt
+│   │   ├── csaw_test.mbt
+│   │   ├── delayed_array_test.mbt
+│   │   ├── destiny_test.mbt
+│   │   ├── dexseq_test.mbt
+│   │   ├── diffbind_test.mbt
+│   │   ├── dose_test.mbt
+│   │   ├── droplet_utils_test.mbt
+│   │   ├── dss_test.mbt
+│   │   ├── dssp_test.mbt
+│   │   ├── edaseq_test.mbt
+│   │   ├── emboss_test.mbt
+│   │   ├── enrichplot_test.mbt
+│   │   ├── ensembldb_test.mbt
+│   │   ├── expasy_test.mbt
+│   │   ├── flow_core_test.mbt
+│   │   ├── freq_analysis_test.mbt
+│   │   ├── genefilter_test.mbt
+│   │   ├── genesis_test.mbt
+│   │   ├── genomic_features_test.mbt
+│   │   ├── genomic_files_test.mbt
+│   │   ├── geoquery_test.mbt
+│   │   ├── gff_test.mbt
+│   │   ├── ggtree_test.mbt
+│   │   ├── graph_test.mbt
+│   │   ├── graphics_test.mbt
+│   │   ├── gsva_test.mbt
+│   │   ├── hilbertcurve_test.mbt
+│   │   ├── hs_exposure_test.mbt
+│   │   ├── isoform_switch_analyze_r_test.mbt
+│   │   ├── kmer_test.mbt
+│   │   ├── maftools_test.mbt
+│   │   ├── mast_test.mbt
+│   │   ├── matrix_test.mbt
+│   │   ├── medline_test.mbt
+│   │   ├── melting_temp_test.mbt
+│   │   ├── metagenomeseq_test.mbt
+│   │   ├── minfi_test.mbt
+│   │   ├── monocle3_test.mbt
+│   │   ├── nexus_test.mbt
+│   │   ├── nucle_r_test.mbt
+│   │   ├── paml_test.mbt
+│   │   ├── pathway_test.mbt
+│   │   ├── pdb_analysis_test.mbt
+│   │   ├── pdb_list_test.mbt
+│   │   ├── pdb_vectors_test.mbt
+│   │   ├── phenotype_test.mbt
+│   │   ├── phylo_consensus_test.mbt
+│   │   ├── phylo_metrics_test.mbt
+│   │   ├── phyloseq_test.mbt
+│   │   ├── polypeptide_test.mbt
+│   │   ├── progeny_test.mbt
+│   │   ├── prosite_test.mbt
+│   │   ├── psea_test.mbt
+│   │   ├── qcp_superimposer_test.mbt
+│   │   ├── reactome_pa_test.mbt
+│   │   ├── residue_depth_test.mbt
+│   │   ├── rhdf5_test.mbt
+│   │   ├── s4vectors_test.mbt
+│   │   ├── sc3_test.mbt
+│   │   ├── sc_dbl_finder_test.mbt
+│   │   ├── scnorm_test.mbt
+│   │   ├── scran_test.mbt
+│   │   ├── searchio_new_test.mbt
+│   │   ├── seq_complexity_test.mbt
+│   │   ├── seurat_test.mbt
+│   │   ├── sff_io_test.mbt
+│   │   ├── short_read_test.mbt
+│   │   ├── single_cell_experiment_test.mbt
+│   │   ├── slingshot_test.mbt
+│   │   ├── spatial_experiment_test.mbt
+│   │   ├── statistics_test.mbt
+│   │   ├── structure_alignment_test.mbt
+│   │   ├── taxonomy_test.mbt
+│   │   ├── topgo_test.mbt
+│   │   ├── tradeseq_test.mbt
+│   │   ├── tximport_test.mbt
+│   │   ├── universalmotif_test.mbt
+│   │   ├── variant_filtering_test.mbt
+│   │   └── variation_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -673,7 +755,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2229 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2273 个测试全部通过
 ```
 
 ### 模块对照表
