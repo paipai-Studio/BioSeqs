@@ -50,6 +50,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **SeqUtils 高级功能** | Biopython `Bio.SeqUtils` | GC/AT滑动窗口偏斜、ORF预测、序列相似度、Hamming距离、Levenshtein编辑距离 | ✅ |
 | **Motifs 高级功能** | Biopython `Bio.motifs` | 序列Logo生成、 per-position信息含量、总信息含量、模体富集分析、Pearson相关性比较 | ✅ |
 | **PDB 结构分析高级功能** | Biopython `Bio.PDB` | SASA计算（Shrake-Rupley算法）、Ramachandran质量评估、Kyte-Doolittle疏水性量表、序列属性距离矩阵 | ✅ |
+| ✅ | Bio.Align.AlignClusterer | 渐进式多序列比对 (ClustalW算法)，基于UPGMA向导树和profile-profile比对 |
+| ✅ | Bio.SeqUtils (RNA) | RNA二级结构预测，Nussinov动态规划算法，支持发夹环/内部环/凸出环/多环识别 |
+| ✅ | Bio.PDB.MAalign | 多蛋白质结构比对，Kabsch算法实现，支持迭代结构对齐和保守性分析 |
 
 ### 序列组装算法
 
@@ -234,8 +237,10 @@ IvanAXu/BioSeqs/
 │   ├── pdb_list.mbt             # Bio.PDB.PDBList PDB结构下载管理
 │   ├── svd_superimposer.mbt    # SVDSuperimposer SVD蛋白质结构叠合 (旋转矩阵、平移向量、RMSD计算)
 │   ├── structure_alignment.mbt  # Bio.PDB.StructureAlignment 多蛋白质结构比对
+│   ├── ma_align.mbt             # Bio.PDB.MAalign 多蛋白质结构比对 (Kabsch算法)
 │   ├── sequtils.mbt            # 序列工具函数
 │   ├── seq_utils.mbt           # 序列工具函数 (分子量、GC含量、Tm值、氨基酸转换、GC/AT滑动窗口偏斜、序列相似度、Hamming距离、Levenshtein编辑距离)
+│   ├── rna_structure.mbt       # Bio.SeqUtils RNA二级结构预测 (Nussinov算法)
 │   ├── complement.mbt          # 互补碱基查找表
 │   ├── codon_table.mbt         # 密码子翻译表
 │   ├── codon_usage.mbt         # CodonUsage 密码子使用分析 (CAI、ENC、RSCU、GC3、CBI、Fop、最优密码子检测)
@@ -382,6 +387,7 @@ IvanAXu/BioSeqs/
 │   ├── pdb_vectors.mbt          # Bio.PDB.vectors 3D向量与旋转矩阵 (Vector3/RotationMatrix3、叉积、Kabsch叠合、二面角)
 │   ├── circ_seq.mbt             # Bio.SeqUtils.CircSeq 环状DNA序列操作 (circ_subseq、circ_rotate、circ_digest、限制性酶切分析)
 │   ├── align_abstract.mbt       # Bio.Align.AlignAbstract 抽象比对类型 (AbstractAlignment、一致性序列、Shannon熵、简约信息位点)
+│   ├── align_cluster.mbt        # Bio.Align.AlignClusterer 渐进式多序列比对 (ClustalW算法)
 │   ├── maftools.mbt             # maftools 癌症基因组学MAF解析与突变分析 (MAFMutation、MAFData、MutationSpectrum、TMB计算、共现分析)
 │   ├── cnvkit.mbt               # CNVkit 拷贝数变异检测与CBS分割 (CNVProbe、CNVSegment、CBS分割算法、拷贝数状态判定)
 │   ├── destiny.mbt              # destiny 单细胞扩散映射降维 (CellData、距离矩阵、高斯核、特征分解、扩散分量)
@@ -396,6 +402,7 @@ IvanAXu/BioSeqs/
 │   ├── align_io_demo/          # AlignIO 比对格式解析示例 (ClustalW、FASTA、Stockholm)
 │   ├── align_applications_demo/ # Align.Applications 比对工具包装示例
 │   ├── alignment_demo/         # 序列比对示例
+│   ├── align_cluster_demo/       # AlignClusterer 渐进式多序列比表示例
 │   ├── application_demo/         # Bio.Application 命令行工具示例
 │   ├── ballgown_demo/          # ballgown 转录组水平差异表达分析示例 (FPKM计算、t检验)
 │   ├── bam_demo/               # BAM/BGZF 解析示例
@@ -468,6 +475,7 @@ IvanAXu/BioSeqs/
 │   ├── seq_complexity_demo/    # 序列复杂度分析示例 (Shannon熵、语言学复杂度、GC偏斜、混沌游戏表示)
 │   ├── seqio_demo/             # 序列 I/O 示例
 │   ├── seq_utils_demo/         # 序列工具函数示例
+│   ├── rna_structure_demo/       # RNA二级结构预测示例
 │   ├── single_cell_demo/       # SingleCell 单细胞数据分析示例 (QC指标、Log标准化、PCA降维、高变异基因)
 │   ├── smith_waterman_demo/    # Smith-Waterman 局部序列比对示例
 │   ├── subsmat_demo/           # 替换矩阵示例 (BLOSUM62/45、PAM250/30矩阵查询、蛋白质比对打分)
@@ -476,6 +484,7 @@ IvanAXu/BioSeqs/
 │   ├── sva_demo/               # sva 替代变量分析与ComBat批次校正示例 (经验贝叶斯方法、PCA分析)
 │   ├── svd_superimposer_demo/  # SVDSuperimposer SVD蛋白质结构叠合示例 (旋转矩阵、平移向量、RMSD计算)
 │   ├── structure_alignment_demo/ # Bio.PDB.StructureAlignment 多蛋白质结构比对示例
+│   ├── ma_align_demo/            # 多蛋白质结构比对示例
 │   ├── swissprot_demo/         # SwissProt 蛋白数据库解析示例 (记录解析、特征提取、参考文献)
 │   ├── tree_construction_demo/ # TreeConstruction 系统发育树构建示例 (UPGMA/WPGMA/NJ算法)
 │   ├── txdb_demo/              # TxDb 转录本数据库示例 (GTF解析、基因/转录本/外显子/CDS/UTR/内含子提取)
@@ -729,7 +738,10 @@ IvanAXu/BioSeqs/
 │   │   ├── tximport_test.mbt
 │   │   ├── universalmotif_test.mbt
 │   │   ├── variant_filtering_test.mbt
-│   │   └── variation_test.mbt
+│   │   ├── variation_test.mbt
+│   │   ├── align_cluster_test.mbt
+│   │   ├── rna_structure_test.mbt
+│   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -755,7 +767,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2273 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2326 个测试全部通过
 ```
 
 ### 模块对照表
