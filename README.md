@@ -265,6 +265,7 @@ IvanAXu/BioSeqs/
 │   ├── bioc_generics.mbt        # Bioconductor 通用函数 (NA处理、排序、集合运算)
 │   ├── bioc_parallel.mbt        # Bioconductor 并行计算框架 (任务分块、并行求和)
 │   ├── genomic_ranges.mbt      # GenomicRanges 基因组区间操作 (GRanges、IRanges)
+│   ├── genomic_ranges_advanced.mbt # GenomicRanges tile/slidingWindows/区间运算
 │   ├── iranges.mbt             # IRanges 整数区间操作 (集合运算、重叠检测)
 │   ├── genomic_alignments.mbt  # GenomicAlignments 基因组比对分析 (GAlignments、coverage、summarizeOverlaps、pileup)
 │   ├── txdb.mbt                # TxDb 转录本数据库 (GTF解析、基因/转录本/外显子/CDS提取、UTR/内含子计算)
@@ -272,7 +273,9 @@ IvanAXu/BioSeqs/
 │   ├── rtracklayer.mbt         # rtracklayer 基因组轨道格式 (BED/WIG/BEDGraph/GFF解析与写入)
 │   ├── rhdf5.mbt                # Bioconductor rhdf5 HDF5文件格式支持
 │   ├── deseq2.mbt              # DESeq2 差异表达分析 (size factors归一化、分散度估计、负二项GLM拟合、Wald检验、LFC收缩)
+│   ├── deseq2_advanced.mbt         # DESeq2 VST方差稳定化变换、PCA可视化
 │   ├── edger.mbt               # edgeR 差异表达分析 (DGEList、精确检验、GLM拟合)
+│   ├── edger_advanced.mbt           # edgeR准似然F检验、camera/roast基因集检验
 │   ├── limma.mbt               # limma 差异表达分析 (线性模型、经验贝叶斯、voom变换、对比矩阵)
 │   ├── matrix.mbt               # Bioconductor Matrix 稀疏矩阵操作 (CSC/CSR格式、矩阵运算)
 │   ├── bioc_neighbors.mbt      # BiocNeighbors 最近邻搜索 (KMKNN/Annoy)
@@ -439,8 +442,10 @@ IvanAXu/BioSeqs/
 │   ├── cram_demo/              # CRAM 格式解析示例 (压缩二进制序列比对格式、CRAM转BAM、参考序列管理)
 │   ├── de_bruijn_demo/         # De Bruijn Graph 序列组装示例
 │   ├── deseq2_demo/            # DESeq2 差异表达分析示例
+│   ├── deseq2_advanced_demo/   # DESeq2 VST方差稳定化变换、PCA可视化示例
 │   ├── dplyr_demo/             # dplyr 数据操作示例
 │   ├── edger_demo/             # edgeR 差异表达分析示例
+│   ├── edger_advanced_demo/    # edgeR准似然F检验、camera/roast基因集检验示例
 │   ├── emboss_demo/            # EMBOSS工具接口示例 (GC偏斜、AT偏斜、分子量、ORF查找)
 │   ├── enrichplot_demo/        # enrichplot 富集分析结果可视化示例
 │   ├── ensembldb_demo/         # ensembldb Ensembl注释数据库接口示例
@@ -451,6 +456,7 @@ IvanAXu/BioSeqs/
 │   ├── genome_info_db_demo/    # GenomeInfoDb 基因组信息管理示例 (染色体信息、着丝粒位置、染色体臂)
 │   ├── genomic_alignments_demo/ # GenomicAlignments 基因组比对分析示例 (GAlignments、coverage、summarizeOverlaps、pileup)
 │   ├── genomic_ranges_demo/    # GenomicRanges 基因组区间操作示例
+│   ├── genomic_ranges_advanced_demo/ # GenomicRanges tile/slidingWindows/区间运算示例
 │   ├── geoquery_demo/          # GEOquery GEO数据库示例 (Series Matrix解析、SOFT格式解析、ExpressionSet转换、基因过滤)
 │   ├── go_enrichment_demo/     # GOEnrichment GO功能富集分析示例 (超几何检验、BH校正、富集结果过滤)
 │   ├── hmm_demo/               # Hidden Markov Model 基因预测示例
@@ -600,12 +606,15 @@ IvanAXu/BioSeqs/
 │   │   ├── codon_usage_test.mbt
 │   │   ├── de_bruijn_test.mbt
 │   │   ├── deseq2_test.mbt
+│   │   ├── deseq2_advanced_test.mbt
 │   │   ├── dplyr_test.mbt
 │   │   ├── edger_test.mbt
+│   │   ├── edger_advanced_test.mbt
 │   │   ├── faidx_test.mbt
 │   │   ├── feature_extraction_test.mbt
 │   │   ├── genomic_alignments_test.mbt
 │   │   ├── genomic_ranges_test.mbt
+│   │   ├── genomic_ranges_advanced_test.mbt
 │   │   ├── go_enrichment_test.mbt
 │   │   ├── hmm_test.mbt
 │   │   ├── hmm_wbtest.mbt
@@ -794,7 +803,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2609 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2665 个测试全部通过
 ```
 
 ### 模块对照表
@@ -867,6 +876,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2609 个测试全�
 | `vcf.mbt` | pysam | VCF 文件解析 |
 | `cram.mbt` | pysam | CRAM 格式解析 |
 | `genomic_ranges.mbt` | Bioconductor GenomicRanges | GRanges 区间操作 |
+| `genomic_ranges_advanced.mbt` | GenomicRanges Tile/Windows | tile分箱、sliding_windows滑窗、tile_genome基因组覆盖、coverage_by_window覆盖度计算、bin_genome分箱统计、promoters启动子、gaps间隙、subtract区间减法 |
 | `iranges.mbt` | Bioconductor IRanges | 整数区间操作 |
 | `genomic_alignments.mbt` | Bioconductor GenomicAlignments | GAlignments 比对分析 |
 | `variant_annotation.mbt` | Bioconductor VariantAnnotation | 变异注释 |
@@ -881,7 +891,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2609 个测试全�
 | MoonBit 文件 | 对应 Python 库 | 核心功能 |
 | :--- | :--- | :--- |
 | `deseq2.mbt` | Bioconductor DESeq2 | size factors归一化、分散度估计、负二项GLM拟合、Wald检验、LFC收缩 |
+| `deseq2_advanced.mbt` | DESeq2 VST/PCA | VST方差稳定化变换、快速VST、PCA主成分分析、高变基因筛选 |
 | `edger.mbt` | Bioconductor edgeR | DGEList 差异表达 |
+| `edger_advanced.mbt` | edgeR QLF/Camera/Roast | 准似然F检验、QL分散度估计、camera竞争性基因集检验、roast自足基因集检验 |
 | `limma.mbt` | Bioconductor limma | 线性模型与 voom 变换 |
 | `summarized_experiment.mbt` | Bioconductor SummarizedExperiment | 多维数据容器 |
 | `ballgown.mbt` | Bioconductor ballgown | 转录组水平差异表达 |
