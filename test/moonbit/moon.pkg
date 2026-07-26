@@ -2,4 +2,5 @@ import {
   "IvanAXu/BioSeqs/src" @bio,
   "IvanAXu/BioSeqs/src" @src,
   "moonbitlang/core/hashmap",
+  "moonbitlang/core/double",
 }

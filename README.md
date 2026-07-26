@@ -127,6 +127,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **AnnotationDbi** | Bioconductor AnnotationDbi | 通用注释数据库接口、基因信息存储、ID映射、GO/KEGG注释管理 | ✅ |
 | **clusterProfiler** | Bioconductor clusterProfiler | 功能富集分析统一框架、超几何检验、多重检验校正、富集结果可视化 | ✅ |
 | **WGCNA** | Bioconductor WGCNA | 加权基因共表达网络分析、邻接矩阵构建、TOM相似度、模块检测 | ✅ |
+| **BiocNeighbors** | Bioconductor BiocNeighbors | 最近邻搜索（KMKNN/Annoy/BruteForce）、欧几里得/曼哈顿/余弦距离、索引构建与查询 | ✅ |
 | **Biobase** | Bioconductor Biobase | ExpressionSet数据结构、AnnotatedDataFrame、数据归一化、log2转换 | ✅ |
 | **GEOquery** | Bioconductor GEOquery | GEO数据库数据获取、Series Matrix解析、SOFT格式解析、ExpressionSet转换 | ✅ |
 | **tximport** | Bioconductor tximport | 转录本量化数据导入、Salmon quant.sf解析、基因级别汇总、低表达过滤 | ✅ |
@@ -200,6 +201,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **PROGENy** | Bioconductor PROGENy | 通路活性推断、L2正则化线性回归（Ridge回归）、通路基因集权重矩阵、样本通路活性计算 | ✅ |
 | **AUCell** | Bioconductor AUCell | 单细胞基因集评分、AUC（曲线下面积）计算、基因排序、min-max归一化、细胞/基因集评分查询 | ✅ |
 | **ggtree** | Bioconductor ggtree | 系统发育树可视化布局算法、矩形布局（phylogram）、放射状布局、无根布局、节点坐标映射、边缘/标签数据生成 | ✅ |
+| ✅ | BiocSingular | SVD奇异值分解，支持Exact/IRLBA/Randomized三种算法，用于单细胞降维 |
+| ✅ | BiocNeighbors | KMKNN和Annoy最近邻搜索，支持欧几里得/曼哈顿/余弦距离 |
+| ✅ | mixOmics | 多组学整合方法，包括PLS回归、稀疏PLS (sPLS)、DIABLO多块整合 |
 
 项目致力于打造一个完整、高效的生物信息学工具库，覆盖从基础序列处理到高级序列组装的全流程。
 
@@ -223,6 +227,7 @@ IvanAXu/BioSeqs/
 │   ├── clustal_io.mbt          # Clustal 格式
 │   ├── phylip_io.mbt           # PHYLIP 格式
 │   ├── alignment.mbt           # DNA/RNA/Protein 类型及比对算法
+│   ├── bioc_singular.mbt       # BiocSingular SVD奇异值分解 (Exact/IRLBA/Randomized)
 │   ├── application.mbt          # Bio.Application 命令行工具包装
 │   ├── align_io.mbt            # AlignIO 比对格式解析 (ClustalW/FASTA/Stockholm)
 │   ├── align_applications.mbt   # Align.Applications 比对工具包装 (ClustalW/Clustal Omega/Muscle/MAFFT)
@@ -265,6 +270,7 @@ IvanAXu/BioSeqs/
 │   ├── edger.mbt               # edgeR 差异表达分析 (DGEList、精确检验、GLM拟合)
 │   ├── limma.mbt               # limma 差异表达分析 (线性模型、经验贝叶斯、voom变换、对比矩阵)
 │   ├── matrix.mbt               # Bioconductor Matrix 稀疏矩阵操作 (CSC/CSR格式、矩阵运算)
+│   ├── bioc_neighbors.mbt      # BiocNeighbors 最近邻搜索 (KMKNN/Annoy)
 │   ├── summarized_experiment.mbt # SummarizedExperiment 多维基因组数据容器
 │   ├── dplyr.mbt               # dplyr 数据操作 (DataFrame、filter、select、mutate、arrange、group_by、summarize、join)
 │   ├── smith_waterman.mbt      # Smith-Waterman 局部序列比对 (动态规划、自定义打分、回溯矩阵)
@@ -306,6 +312,7 @@ IvanAXu/BioSeqs/
 │   ├── multi_assay_experiment.mbt # MultiAssayExperiment 多组学数据协调 (实验协调、样本映射、跨实验子集)
 │   ├── tree_construction.mbt   # TreeConstruction 系统发育树构建 (UPGMA/WPGMA/NJ算法、距离计算)
 │   ├── neighbor_search.mbt     # NeighborSearch KD树近邻搜索 (空间搜索、半径搜索、最近邻)
+│   ├── bioc_neighbors.mbt     # BiocNeighbors 最近邻搜索 (KMKNN/Annoy/BruteForce，适用于单细胞分析)
 │   ├── swissprot.mbt           # SwissProt 蛋白数据库解析 (UniProt/Swiss-Prot记录、特征、参考文献)
 │   ├── mmcif.mbt               # mmCIF格式解析 (Bio.PDB.MMCIFParser、数据块、类别、原子位点)
 │   ├── nexus.mbt               # Nexus格式解析 (Bio.Nexus、数据矩阵、系统发育树、距离矩阵)
@@ -395,6 +402,7 @@ IvanAXu/BioSeqs/
 │   ├── progeny.mbt              # PROGENy 通路活性推断 (L2正则化线性回归、Ridge回归、通路基因集权重矩阵)
 │   ├── aucell.mbt               # AUCell 单细胞基因集评分 (AUC计算、基因排序、min-max归一化)
 │   ├── ggtree.mbt               # ggtree 系统发育树可视化布局 (矩形/放射状/无根布局、节点坐标映射)
+│   ├── mix_omics.mbt           # mixOmics 多组学整合 (PLS/sPLS/DIABLO)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -402,6 +410,7 @@ IvanAXu/BioSeqs/
 │   ├── align_io_demo/          # AlignIO 比对格式解析示例 (ClustalW、FASTA、Stockholm)
 │   ├── align_applications_demo/ # Align.Applications 比对工具包装示例
 │   ├── alignment_demo/         # 序列比对示例
+│   ├── bioc_singular_demo/       # BiocSingular SVD演示
 │   ├── align_cluster_demo/       # AlignClusterer 渐进式多序列比表示例
 │   ├── application_demo/         # Bio.Application 命令行工具示例
 │   ├── ballgown_demo/          # ballgown 转录组水平差异表达分析示例 (FPKM计算、t检验)
@@ -447,6 +456,7 @@ IvanAXu/BioSeqs/
 │   ├── kmer_demo/              # Bio.Kmer k-mer计数与频率分析示例
 │   ├── limma_demo/             # limma 差异表达分析示例 (线性模型、经验贝叶斯、voom变换)
 │   ├── matrix_demo/            # Bioconductor Matrix 稀疏矩阵操作示例
+│   ├── bioc_neighbors_demo/      # BiocNeighbors 最近邻搜索演示
 │   ├── medline_demo/           # Medline/PubMed解析示例 (文献记录、APA引用、MeSH过滤)
 │   ├── ml_features/            # 机器学习特征提取示例
 │   ├── mmcif_demo/             # mmCIF格式解析示例 (数据块解析、类别查询、原子位点提取)
@@ -563,6 +573,7 @@ IvanAXu/BioSeqs/
 │   ├── progeny_demo/             # PROGENy 通路活性推断示例 (L2正则化回归、通路基因集、样本活性计算)
 │   ├── aucell_demo/              # AUCell 单细胞基因集评分示例 (AUC计算、归一化、细胞/基因集评分)
 │   ├── ggtree_demo/              # ggtree 系统发育树可视化示例 (矩形/放射状/无根布局、节点坐标)
+│   ├── mix_omics_demo/          # mixOmics 多组学整合演示
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -635,6 +646,8 @@ IvanAXu/BioSeqs/
 │   │   ├── multi_assay_experiment_test.mbt
 │   │   ├── tree_construction_test.mbt
 │   │   ├── neighbor_search_test.mbt
+│   │   ├── bioc_neighbors_test.mbt
+│   │   ├── bioc_singular_test.mbt
 │   │   ├── swissprot_test.mbt
 │   │   ├── mmcif_test.mbt
 │   │   ├── align_abstract_test.mbt
@@ -741,6 +754,7 @@ IvanAXu/BioSeqs/
 │   │   ├── variation_test.mbt
 │   │   ├── align_cluster_test.mbt
 │   │   ├── rna_structure_test.mbt
+│   │   ├── mix_omics_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -767,7 +781,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2326 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2477 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1622,6 +1636,7 @@ moon test --update
 | MultiAssayExperiment | `multi_assay_experiment_test.mbt` | 16 |
 | TreeConstruction | `tree_construction_test.mbt` | 7 |
 | NeighborSearch | `neighbor_search_test.mbt` | 6 |
+| BiocNeighbors | `bioc_neighbors_test.mbt` | 61 |
 | SwissProt | `swissprot_test.mbt` | 8 |
 | mmCIF | `mmcif_test.mbt` | 2 |
 | Nexus | `nexus_test.mbt` | 2 |
