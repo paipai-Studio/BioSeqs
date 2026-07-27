@@ -69,6 +69,14 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.Statistics.IHW | 独立假设加权(IHW): 协变量加权Bonferroni、局部/全局加权、Storey pi0加权、多协变量支持 |
 | ✅ | Bioconductor DelayedMatrixStats | DelayedArray统计层: row/col统计(mean/var/sd/median/min/max/sum)、NA处理、子集操作 |
 | ✅ | Bioconductor gcrma | GC校正RMA芯片分析: 背景校正(IdealMM/Express)、GC校正、分位数归一化、探针组汇总 |
+| ✅ | Bio.Sequencing.Ace | ACE contig组装格式解析: reads/contigs解析、共有序列、覆盖度分析、GC含量计算 |
+| ✅ | Bio.SeqUtils.Proteomics | 蛋白质组学工具: 8种酶切(胰酶/糜酶/胃酶等)、肽段质量计算、同位素分布、b/y碎片离子 |
+| ✅ | Bio.PDB.FragmentMapper | PDB片段映射: DSSP二级结构分类、片段分配/合并/过滤、覆盖率分析 |
+| ✅ | Bio.Graphics.GenomeDiagram | 基因组图可视化: 数据模型、track/feature管理、SVG生成、样式控制 |
+| ✅ | Bioconductor Chain文件/liftOver | UCSC Chain格式解析、基因组坐标liftOver转换、链段查找、染色体间坐标映射 |
+| ✅ | Bioconductor Biostrings matchPDict | 字典模式匹配(matchPDict/vmatchPattern)、多序列模式计数、错配容忍、最佳匹配查找 |
+| ✅ | Bioconductor GenomicRanges gaps/reduce/disjoin | gaps检测、reduce合并、disjoin拆分、setdiff/交集/并集集合运算、coverage计算、promoters提取 |
+| ✅ | NGS质量修剪与接头去除 | 质量修剪(滑动窗口)、接头去除、poly-A修剪、长度/GC含量过滤、批量修剪、Fastq解析与序列化 |
 
 ### 序列组装算法
 
@@ -226,6 +234,10 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | BiocNeighbors | KMKNN和Annoy最近邻搜索，支持欧几里得/曼哈顿/余弦距离 |
 | ✅ | mixOmics | 多组学整合方法，包括PLS回归、稀疏PLS (sPLS)、DIABLO多块整合 |
 | **MAF格式解析** | Biopython `Bio.Align` | MAF多序列比对格式解析、块操作、百分比一致性、统计分析、选择/过滤/写回 | ✅ |
+| **UCSC Chain文件/liftOver** | Bioconductor rtracklayer | Chain格式解析、基因组坐标liftOver转换、链段查找、染色体间坐标映射、位置/区间转换 | ✅ |
+| **Biostrings matchPDict** | Bioconductor Biostrings | 字典模式匹配(matchPDict/vmatchPattern)、多序列模式计数(vcountPattern)、错配容忍、最佳匹配查找 | ✅ |
+| **GenomicRanges gaps/reduce/disjoin** | Bioconductor GenomicRanges | gaps检测、reduce合并、disjoin拆分、setdiff/交集/并集集合运算、coverage计算、promoters提取、trim | ✅ |
+| **NGS质量修剪与接头去除** | Bioconductor ShortRead | 质量修剪(滑动窗口)、接头去除、poly-A修剪、长度/GC含量过滤、批量修剪、Fastq解析与序列化、统计计算 | ✅ |
 | **Mauve基因组比对** | Biopython `Bio.Align` | Mauve基因组比对格式、LCB检测、倒位/断点检测、覆盖率分析、BED导出、基因组重排率 | ✅ |
 | **Stockholm格式** | Biopython `Bio.Stockholm` | Stockholm/Pfam格式解析、二级结构注释、百分比一致性、保守性、FASTA/Stockholm互转 | ✅ |
 | **高级群体遗传学** | Biopython `Bio.PopGen` | Tajima's D中性检验、Fu & Li's D/F、McDonald-Kreitman检验、等位基因频率谱、综合中性分析 | ✅ |
@@ -235,6 +247,10 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **独立假设加权(IHW)** | Bioconductor IHW | 协变量加权Bonferroni、局部/全局加权、Storey pi0加权、多协变量支持、迭代权重优化 | ✅ |
 | **DelayedMatrixStats** | Bioconductor DelayedMatrixStats | DelayedArray统计层、row/col统计(mean/var/sd/median/min/max/sum)、NA处理、子集操作 | ✅ |
 | **GC-RMA芯片分析** | Bioconductor gcrma | GC校正RMA、背景校正(IdealMM/Express)、GC查找表、分位数归一化、探针组汇总 | ✅ |
+| **ACE contig格式** | Biopython `Bio.Sequencing.Ace` | ACE组装格式解析、reads/contigs提取、共有序列生成、覆盖度分析、GC含量计算、格式化输出 | ✅ |
+| **蛋白质组学分析** | Biopython `Bio.SeqUtils.Proteomics` | 8种蛋白酶切(胰酶/糜酶/胃酶/LysC/ArgC/CNBr/GluC/AspN)、单同位素/平均质量计算、同位素分布、b/y碎片离子 | ✅ |
+| **PDB片段映射** | Biopython `Bio.PDB.FragmentMapper` | DSSP二级结构分类(H/E/S/L/T/C)、片段分配/合并/过滤、覆盖率分析、边界检测、类型转换 | ✅ |
+| **基因组图可视化** | Biopython `Bio.Graphics.GenomeDiagram` | 数据模型(Track/Feature/Diagram)、多种形状(Rectangle/Arrow/Diamond)、SVG生成、样式控制、自动标注、重叠检测 | ✅ |
 
 项目致力于打造一个完整、高效的生物信息学工具库，覆盖从基础序列处理到高级序列组装的全流程。
 
@@ -267,6 +283,7 @@ IvanAXu/BioSeqs/
 │   ├── tree_io.mbt             # 进化树格式解析 (Newick、NHX格式解析、树操作)
 │   ├── blast.mbt               # BLAST结果解析 (tabular/xml格式、HSP、Hit、Record、过滤)
 │   ├── searchio.mbt            # SearchIO 统一搜索结果模型 (HSPFragment、HSP、Hit、QueryResult、HMMER3/BLAT解析)
+│   ├── search_io.mbt           # SearchIO 统一搜索结果模型 (HMMER3解析、BLAT PSL解析、BLAST转换)
 │   ├── subsmat.mbt             # 替换矩阵 (BLOSUM62/45、PAM250/30、矩阵解析、分数查询)
 │   ├── pdb.mbt                 # PDB 数据类型
 │   ├── pdb_io.mbt              # PDB 文件 I/O
@@ -372,6 +389,7 @@ IvanAXu/BioSeqs/
 │   ├── scran.mbt               # scran 单细胞归一化与聚类 (sum_factors、SNN图、Leiden聚类、标志物分析)
 │   ├── monocle3.mbt            # monocle3 单细胞轨迹分析 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read.mbt          # ShortRead 短读序列质量控制 (QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告)
+│   ├── seq_quality_trim.mbt    # NGS质量修剪与接头去除 (质量修剪、接头去除、poly-A修剪、长度/GC过滤、批量修剪)
 │   ├── scater.mbt              # scater 单细胞质量控制 (QC指标计算、细胞/基因过滤、标准化、HVG检测、PCA)
 │   ├── mast.mbt                # MAST 单细胞差异表达分析 (Hurdle模型、离散/连续检验、BH-FDR校正)
 │   ├── genomic_files.mbt       # GenomicFiles 分布式基因组文件处理 (BAM/BED/VCF扫描、区间查询、归约、覆盖度)
@@ -458,6 +476,10 @@ IvanAXu/BioSeqs/
 │   ├── ihw.mbt                 # 独立假设加权IHW (协变量加权Bonferroni、局部/全局加权)
 │   ├── delayed_matrix_stats.mbt # DelayedArray统计层 (row/col统计、NA处理、子集操作)
 │   ├── gcrma.mbt               # GC-RMA芯片分析 (背景校正、GC校正、分位数归一化、探针组汇总)
+│   ├── ace.mbt                 # ACE contig组装格式解析 (reads/contigs、共有序列、覆盖度、GC含量)
+│   ├── proteomics.mbt          # 蛋白质组学工具 (8种酶切、肽段质量、同位素分布、b/y碎片离子)
+│   ├── fragment_mapper.mbt     # PDB片段映射 (DSSP分类、片段分配/合并/过滤、覆盖率)
+│   ├── genome_diagram.mbt      # 基因组图可视化 (数据模型、SVG生成、样式控制、自动标注)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -475,8 +497,10 @@ IvanAXu/BioSeqs/
 │   ├── bioc_generics_demo/      # Bioconductor 通用函数示例
 │   ├── bioc_parallel_demo/      # Bioconductor 并行计算示例
 │   ├── bioconductor_demo/      # Bioconductor模块综合示例 (ChIPseeker峰注释(外显子/内含子/UTR分类、peak2gene关联)、DOSE疾病富集、ReactomePA通路分析、AnnotationDbi注释数据库、clusterProfiler富集框架、WGCNA共表达网络、Batchelor单细胞批次校正、Seurat单细胞分析)
+│   ├── chain_liftover_demo/    # UCSC Chain文件解析与基因组坐标liftOver示例
 │   ├── biomart_demo/           # biomaRt 基因ID转换和注释查询示例 (基因ID映射、注释查询、批量查询)
 │   ├── biostrings_demo/        # Biostrings 序列分析示例
+│   ├── biostrings_matchdict_demo/ # Biostrings 字典模式匹配示例 (matchPDict、vcountPattern)
 │   ├── blast_demo/             # BLAST结果解析示例 (tabular/xml格式、HSP过滤、E-value/identity过滤、最佳匹配)
 │   ├── bloom_filter_demo/      # Bloom Filter & k-mer 计数示例
 │   ├── bsgenome_demo/          # BSgenome 基因组序列数据库示例 (染色体序列检索、子序列提取、链特异性基因提取)
@@ -627,7 +651,6 @@ IvanAXu/BioSeqs/
 │   ├── slingshot_demo/           # slingshot 单细胞轨迹推断示例 (MST构建、主曲线、拟时间计算)
 │   ├── scnorm_demo/              # SCnorm 单细胞RNA-seq归一化示例 (分位数回归、深度依赖校正)
 │   ├── edaseq_demo/              # EDASeq RNA-seq探索性分析示例 (GC归一化、Loess校正、RPKM计算)
-│   ├── searchio_demo/            # Bio.SearchIO 统一搜索结果模型示例 (BLAST/HMMER解析、QueryResult/Hit/HSP层次结构、E-value过滤)
 │   ├── pdb_vectors_demo/         # Bio.PDB.vectors 3D向量与旋转矩阵示例 (Vector3运算、Kabsch叠合、二面角计算)
 │   ├── qcp_superimposer_demo/    # Bio.PDB.QCPSuperimposer 四元数结构叠合示例
 │   ├── circ_seq_demo/            # Bio.SeqUtils.CircSeq 环状DNA操作示例 (酶切分析、PCR引物设计、序列旋转)
@@ -652,6 +675,10 @@ IvanAXu/BioSeqs/
 │   ├── ihw_demo/                 # 独立假设加权IHW示例 (协变量加权、局部/全局对比、多协变量)
 │   ├── delayed_matrix_stats_demo/ # DelayedArray统计层示例 (row/col统计、NA处理、子集操作)
 │   ├── gcrma_demo/               # GC-RMA芯片分析示例 (背景校正、GC校正、分位数归一化)
+│   ├── ace_demo/                 # ACE contig格式解析示例 (reads/contigs、共有序列、覆盖度、GC含量)
+│   ├── proteomics_demo/          # 蛋白质组学分析示例 (8种酶切、质量计算、同位素分布、碎片离子)
+│   ├── fragment_mapper_demo/     # PDB片段映射示例 (DSSP分类、片段分配/合并/过滤、覆盖率)
+│   ├── genome_diagram_demo/      # 基因组图可视化示例 (track/feature、SVG生成、样式、自动标注)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -833,6 +860,7 @@ IvanAXu/BioSeqs/
 │   │   ├── seurat_test.mbt
 │   │   ├── sff_io_test.mbt
 │   │   ├── short_read_test.mbt
+│   │   ├── seq_quality_trim_test.mbt
 │   │   ├── single_cell_experiment_test.mbt
 │   │   ├── slingshot_test.mbt
 │   │   ├── spatial_experiment_test.mbt
@@ -858,6 +886,10 @@ IvanAXu/BioSeqs/
 │   │   ├── ihw_test.mbt
 │   │   ├── delayed_matrix_stats_test.mbt
 │   │   ├── gcrma_test.mbt
+│   │   ├── ace_test.mbt
+│   │   ├── proteomics_test.mbt
+│   │   ├── fragment_mapper_test.mbt
+│   │   ├── genome_diagram_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -884,7 +916,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3170 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3319 个测试全部通过
 ```
 
 ### 模块对照表
@@ -955,7 +987,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3170 个测试全�
 | `bam.mbt` | pysam | BAM 文件解析 |
 | `bgzf.mbt` | pysam | BGZF 解压缩 |
 | `vcf.mbt` | pysam | VCF 文件解析 |
-| `cram.mbt` | pysam | CRAM 格式解析 |
+| `cram_wbtest.mbt` | pysam | CRAM 格式解析 |
 | `genomic_ranges.mbt` | Bioconductor GenomicRanges | GRanges 区间操作 |
 | `genomic_ranges_advanced.mbt` | GenomicRanges Tile/Windows | tile分箱、sliding_windows滑窗、tile_genome基因组覆盖、coverage_by_window覆盖度计算、bin_genome分箱统计、promoters启动子、gaps间隙、subtract区间减法 |
 | `iranges.mbt` | Bioconductor IRanges | 整数区间操作 |
@@ -1090,6 +1122,10 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3170 个测试全�
 | `ihw.mbt` | Bioconductor IHW | 独立假设加权 (协变量加权Bonferroni、局部/全局加权、多协变量支持) |
 | `delayed_matrix_stats.mbt` | Bioconductor DelayedMatrixStats | DelayedArray统计层 (row/col统计、NA处理、子集操作) |
 | `gcrma.mbt` | Bioconductor gcrma | GC-RMA芯片分析 (背景校正IdealMM/Express、GC查找表、分位数归一化、探针组汇总) |
+| `ace.mbt` | Biopython `Bio.Sequencing.Ace` | ACE contig格式解析 (reads/contigs解析、共有序列、覆盖度分析、GC含量) |
+| `proteomics.mbt` | Biopython `Bio.SeqUtils.Proteomics` | 蛋白质组学工具 (8种酶切、肽段质量、同位素分布、b/y碎片离子) |
+| `fragment_mapper.mbt` | Biopython `Bio.PDB.FragmentMapper` | PDB片段映射 (DSSP分类、片段分配/合并/过滤、覆盖率分析) |
+| `genome_diagram.mbt` | Biopython `Bio.Graphics.GenomeDiagram` | 基因组图可视化 (数据模型、SVG生成、样式控制、自动标注) |
 
 ## 核心功能实现
 
@@ -1617,6 +1653,22 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3170 个测试全�
 
 实现 GC-RMA（GC-content adjusted Robust Multi-array Average）方法，用于 Affymetrix 微阵列数据的 GC 含量校正分析。支持 GCRMAConfig 配置（背景方法、归一化开关）、GCRMAResult 结果存储（表达矩阵、探针信息、GC 校正参数）和 ProbeInfo 探针信息结构（ID、GC 计数、序列、亲和力）。支持背景校正（gcrma_background_correction），提供 IdealMM 和 Express 两种方法，均考虑 GC 含量依赖性。支持 GC 校正（gcrma_gc_correction），基于预计算的 GC 查找表对探针强度进行 GC 依赖性调整。支持 GC 查找表计算（compute_gc_lookup_table），存储 GC count 到中位亲和力的映射。支持分位数归一化（gcrma_normalize），使各样本强度分布一致。支持完整 GCRMA 流水线（gcrma_process、gcrma_process_with_config），从背景校正→GC 校正→分位数归一化一站式完成。支持探针组汇总（gcrma_summarize），通过列中位数法汇总探针组到基因水平。支持探针亲和力估计（estimate_affinity）和 GC 含量计算（oligo_gc_count、oligo_gc_fraction）。适用于 Affymetrix 芯片数据的预处理和差异表达分析。
 
+### 132. ACE contig 格式解析 (Bio.Sequencing.Ace)
+
+实现 ACE 组装格式（ACE assembly format）的解析与分析功能。ACE 格式被广泛用于基因组组装项目（如 Celera Assembler、ARACHNE 等）的 contig 数据存储。支持 AceRead（读取记录，含 read_id、sequence、quality、clip_start/end、strand、chemistry、dye）、AceContig（重叠群，含 contig_name、sequence、reads、base_qualities）、AceAlignment（比对条目）和 AceData（顶层容器）等数据结构。支持 ACE 格式解析（ace_parse），自动识别 reads 区域（RD/AQ/QA/AF 关键字）和 contigs 区域（CT/CO/MQ）。支持单独解析 reads（ace_parse_reads）和 contigs（ace_parse_contigs）。支持序列化回 ACE 格式（ace_to_string），保持格式规范。支持查询函数：ace_get_contig 按名称获取 contig、ace_contig_length 获取 contig 长度、ace_contig_reads 获取 contig 中的 reads。支持计算每个位置的读取覆盖度（ace_read_coverage）、生成共有序列（ace_consensus_sequence）和计算 contig 的 GC 含量（ace_contig_gc_content）。适用于基因组组装项目的质控和分析。
+
+### 133. 蛋白质组学工具 (Bio.SeqUtils.Proteomics)
+
+实现蛋白质组学分析的核心功能，覆盖酶切、质量计算和碎片离子分析。支持 8 种蛋白酶：Trypsin（KR，排除 KP/RP）、Chymotrypsin（FYWML，排除 XP）、Pepsin（FL）、LysC（K，排除 KP）、ArgC（R，排除 RP）、CNBr（M）、GluC（DE）、AspN（D 前切割）。支持蛋白质酶切消化（proteomics_digest），可指定酶类型和漏切次数。支持酶切位点查找（proteomics_cleavage_sites），返回所有切割位置。支持肽段质量计算（proteomics_calculate_mass），提供单同位素和平均质量两种模式。支持同位素分布计算（proteomics_isotope_pattern），基于泊松模型生成同位素峰。支持碎片离子计算（proteomics_fragment_ions），生成 b 离子和 y 离子的质量列表。支持列出可用酶（proteomics_available_enzymes）和按名称选择酶（proteomics_select_enzyme）。提供便捷的胰蛋白酶消化函数（proteomics_trypsin_digest）。适用于蛋白质组学质谱分析和肽段鉴定。
+
+### 134. PDB 片段映射 (Bio.PDB.FragmentMapper)
+
+实现蛋白质结构片段的映射和分类功能，基于 DSSP 二级结构分配标准。支持 FragmentType 枚举（Helix、Sheet、Loop、Coil、Bridge、Turn）对片段类型进行分类。支持 Fragment 和 FragmentMapperResult 等数据结构存储片段信息和映射结果。支持从 DSSP 字符串分配片段（fm_assign_fragments），将二级结构字符串解析为结构化片段。支持按类型分类（fm_classify_secondary_structure），将 DSSP 字符（H/G/I→Helix、E→Sheet、L/C/ → Loop/Coil、B/b→Bridge、T/S→Turn）映射到 FragmentType。支持片段查询（fm_get_fragment）、序列提取（fm_fragment_sequence）和边界获取（fm_fragment_boundaries）。支持片段合并（fm_merge_fragments），将相邻同类型片段合并。支持按长度过滤（fm_filter_by_length），保留超过指定长度的片段。支持覆盖率分析（fm_coverage），计算每个残基的片段覆盖率。适用于蛋白质结构分析、二级结构预测和结构域映射。
+
+### 135. 基因组图可视化 (Bio.Graphics.GenomeDiagram)
+
+实现基因组图可视化的数据模型和 SVG 生成功能。支持 FeatureShape 枚举（Rectangle、Arrow、Diamond、CrossedArrow、Terminators）定义图形形状。支持 Diagram、Track、DiagramFeature、TrackFeature 和 DiagramStyle 等数据结构构建基因组图层级数据模型。支持创建图表（gd_create_diagram）并设置起止坐标。支持添加轨道（gd_add_track）和特征（gd_add_feature、gd_add_track_feature），可指定位置、链、标签、颜色和形状。支持样式设置（gd_set_style），包括循环/线性布局、颜色方案等。支持查询特征（gd_get_features）和查找重叠特征（gd_find_overlapping_features）。支持生成 SVG 输出（gd_to_svg_string），将数据模型转换为可渲染的 SVG 字符串。支持特征着色（gd_set_feature_color）和自动标注（gd_label_features），对大于指定阈值的特征添加标签。适用于基因组注释可视化、比较基因组学和教育演示。
+
 
 ## 性能优化
 
@@ -1719,8 +1771,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3170 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 2747 |
-| 通过数 | 2747 |
+| 总测试数 | 3680 |
+| 通过数 | 3680 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
