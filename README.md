@@ -144,6 +144,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **graph** | Bioconductor graph | 图数据结构、有向/无向图、最短路径算法、连通分量检测、DOT格式输出 | ✅ |
 | **SpatialExperiment** | Bioconductor SpatialExperiment | 空间转录组学数据结构、空间坐标管理、图像数据存储、空间范围查询、spots过滤 | ✅ |
 | **phyloseq** | Bioconductor phyloseq | 微生物组分析、OTU丰度计算、分类学过滤、相对丰度计算、稀疏化处理 | ✅ |
+| **microbiome** | Bioconductor microbiome | 微生物组分析、Alpha多样性（Shannon/Simpson/Chao1/ACE/Fisher/Pielou）、Beta多样性（Bray-Curtis/Jaccard/JSD/weighted/unweighted UniFrac）、PCoA主坐标分析、差异丰度分析（Welch t检验/Wilcoxon秩和检验/BH校正） | ✅ |
 | **BiocParallel** | Bioconductor BiocParallel | 并行计算框架、任务分块、并行求和、均值计算、进度追踪 | ✅ |
 | **ensembldb** | Bioconductor ensembldb | Ensembl注释数据库接口、基因/转录本/外显子/CDS检索、染色体过滤、biotype过滤、基因长度计算 | ✅ |
 | **DropletUtils** | Bioconductor DropletUtils | 空液滴检测、barcode排序、knee点检测、emptyDrops算法、细胞过滤 | ✅ |
@@ -205,6 +206,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **maftools** | Bioconductor maftools | 癌症基因组学MAF文件解析、突变分类(SNV/Indel)、TMB计算、突变谱分析、共现分析、oncoplot数据生成 | ✅ |
 | **CNVkit** | Bioconductor CNVkit | 拷贝数变异检测、CBS（循环二元分割）分割算法、拷贝数状态判定、log2比率平滑、断点检测 | ✅ |
 | **destiny** | Bioconductor destiny | 单细胞扩散映射(Diffusion Maps)降维、距离矩阵计算、高斯核构建、特征分解、扩散分量计算 | ✅ |
+| **Rtsne** | Bioconductor Rtsne | t-SNE降维算法、成对距离计算、条件概率估计（perplexity优化）、联合概率矩阵构建、梯度下降优化（动量/early exaggeration）、Barnes-Hut近似 | ✅ |
+| **uwot** | Bioconductor uwot | UMAP降维算法、k近邻搜索、模糊单纯集构建、局部模糊集并集、低维嵌入优化（SGD/负采样）、min_dist/spread参数控制 | ✅ |
 | **tradeSeq** | Bioconductor tradeSeq | 轨迹差异表达分析、GAM（广义可加模型）拟合、样条基函数、差异表达检验、BH-FDR校正 | ✅ |
 | **PROGENy** | Bioconductor PROGENy | 通路活性推断、L2正则化线性回归（Ridge回归）、通路基因集权重矩阵、样本通路活性计算 | ✅ |
 | **AUCell** | Bioconductor AUCell | 单细胞基因集评分、AUC（曲线下面积）计算、基因排序、min-max归一化、细胞/基因集评分查询 | ✅ |
@@ -264,10 +267,12 @@ IvanAXu/BioSeqs/
 │   ├── bam.mbt                 # BAM 格式解析
 │   ├── bgzf.mbt                # BGZF 解压缩 (支持读取压缩的 BAM 文件)
 │   ├── cram.mbt                # CRAM 格式解析 (压缩二进制序列比对格式)
+│   ├── cram_wbtest.mbt         # CRAM 白盒测试 (内部函数测试、格式验证)
 │   ├── vcf.mbt                 # VCF 格式解析
 │   ├── variant_annotation.mbt  # VariantAnnotation 变异注释 (变异类型检测、定位、编码效应预测、变异汇总)
 │   ├── variant_filtering.mbt    # Bioconductor VariantFiltering 变异过滤与遗传模式分析
 │   ├── biostrings.mbt          # Biostrings 序列分析 (IUPAC、k-mer频率、RSCU、复杂度)
+│   ├── biobase.mbt             # Bioconductor 基础函数 (常用统计、数据转换、工具函数)
 │   ├── bioc_generics.mbt        # Bioconductor 通用函数 (NA处理、排序、集合运算)
 │   ├── bioc_parallel.mbt        # Bioconductor 并行计算框架 (任务分块、并行求和)
 │   ├── genomic_ranges.mbt      # GenomicRanges 基因组区间操作 (GRanges、IRanges)
@@ -302,6 +307,7 @@ IvanAXu/BioSeqs/
 │   ├── motifs.mbt              # 序列模体识别 (PWM、MEME格式、模体搜索、信息含量、序列Logo生成、模体富集、Pearson相关性)
 │   ├── motifs_advanced.mbt     # Bio.motifs高级功能 (JASPAR PFM、TRANSFAC格式、模体最优比对、KL/JS散度、模体聚类)
 │   ├── popgen.mbt              # 群体遗传学 (等位基因频率、FST、哈迪-温伯格检验)
+│   ├── residue_depth.mbt        # 残基深度分析 (晶体学B因子、溶剂可及性、埋藏度分析)
 │   ├── restriction.mbt         # 限制性内切酶分析 (酶切位点查找、片段分析)
 │   ├── protparam.mbt           # ProtParam 蛋白质参数分析 (不稳定指数、等电点、信号肽预测、二级结构倾向)
 │   ├── prosite.mbt              # Bio.Prosite 蛋白质模体数据库搜索
@@ -327,7 +333,6 @@ IvanAXu/BioSeqs/
 │   ├── multi_assay_experiment.mbt # MultiAssayExperiment 多组学数据协调 (实验协调、样本映射、跨实验子集)
 │   ├── tree_construction.mbt   # TreeConstruction 系统发育树构建 (UPGMA/WPGMA/NJ算法、距离计算)
 │   ├── neighbor_search.mbt     # NeighborSearch KD树近邻搜索 (空间搜索、半径搜索、最近邻)
-│   ├── bioc_neighbors.mbt     # BiocNeighbors 最近邻搜索 (KMKNN/Annoy/BruteForce，适用于单细胞分析)
 │   ├── swissprot.mbt           # SwissProt 蛋白数据库解析 (UniProt/Swiss-Prot记录、特征、参考文献)
 │   ├── mmcif.mbt               # mmCIF格式解析 (Bio.PDB.MMCIFParser、数据块、类别、原子位点)
 │   ├── nexus.mbt               # Nexus格式解析 (Bio.Nexus、数据矩阵、系统发育树、距离矩阵)
@@ -365,7 +370,6 @@ IvanAXu/BioSeqs/
 │   ├── sc_dbl_finder.mbt        # scDblFinder 单细胞双细胞检测 (Doublet评分计算、最近邻搜索、PCA降维、细胞过滤)
 │   ├── batchelor.mbt            # Batchelor 单细胞批次校正 (rescaleBatches、mutual nearest neighbor、fastMNN、批次混合评分)
 │   ├── seurat.mbt               # Seurat 单细胞数据分析核心 (标准化、高可变基因、PCA、聚类、UMAP、差异表达、跨样本整合)
-│   ├── chipseeker.mbt           # ChIPseeker ChIP-seq峰值注释 (基因组区域分类(启动子/外显子/内含子/UTR/基因间区)、距离TSS分布、BED格式读取、peak2gene关联分析、注释可视化、统计分析)
 │   ├── variation.mbt            # Bio.Variation 变异分析 (SNP分析、突变检测、氨基酸替换分析、BLOSUM62/Grantham矩阵)
 │   ├── dssp.mbt                 # Bio.PDB.DSSP 二级结构分析 (DSSP解析、二级结构预测、溶剂可及表面积、Ramachandran图)
 │   ├── polypeptide.mbt          # Bio.PDB.Polypeptide 多肽分析 (氨基酸组成、疏水性分析、跨膜区域预测、等电点计算)
@@ -388,6 +392,7 @@ IvanAXu/BioSeqs/
 │   ├── phylo_nexml.mbt          # Bio.Phylo.NeXML NeXML格式解析与序列化 (OTUs/Trees/Characters数据模型、Newick转换)
 │   ├── phylo_metrics.mbt        # 系统发育树度量 (Colless平衡指数、Robinson-Foulds距离、距离矩阵)
 │   ├── phyloseq.mbt            # phyloseq 微生物组分析 (OTU丰度、分类学过滤)
+│   ├── microbiome.mbt          # microbiome 微生物组分析 (Alpha/Beta多样性、PCoA、差异丰度分析)
 │   ├── consensus_cluster_plus.mbt # ConsensusClusterPlus 共识聚类 (一致性矩阵、k-means聚类、稳定性评分、最优k选择)
 │   ├── sc3.mbt                 # SC3 单细胞共识聚类 (PCA降维、共识矩阵、轮廓系数、间隙统计量)
 │   ├── genesis.mbt             # GENESIS 群体结构分析 (亲属关系矩阵、PCA分析、遗传距离计算)
@@ -400,6 +405,7 @@ IvanAXu/BioSeqs/
 │   ├── dss.mbt                  # DSS 离散度收缩与差异分析 (DSSCountData/DSSDEResult/DSSDMResult、Wald检验、DML/DMR检测)
 │   ├── phenotype.mbt            # Bio.phenotype 表型微阵列分析 (WellRecord/PlateRecord/PhenFitParams、logistic/Gompertz拟合、CSV/JSON解析)
 │   ├── blast_applications.mbt   # Bio.Blast.Applications BLAST命令行工具包装 (8种BLAST变体、快速构建器、参数管理)
+│   ├── qcp_superimposer.mbt     # QCP叠加 (四元数旋转、结构比对、RMSD计算、最优叠加)
 │   ├── psea.mbt                 # Bio.PDB.PSEA 二级结构预测 (PseaAtom/PseaResult、CA-CA距离、虚拟二面角、H/E/C分配、三态到八态转换)
 │   ├── sff_io.mbt               # Bio.SeqIO.SffIO SFF二进制格式解析 (SffHeader/SffRead/SffFile、二进制编码/解码、质量修剪)
 │   ├── seq_complexity.mbt       # 序列复杂度与组成分析 (Shannon熵、GC偏斜、混沌游戏表示)
@@ -415,9 +421,12 @@ IvanAXu/BioSeqs/
 │   ├── maftools.mbt             # maftools 癌症基因组学MAF解析与突变分析 (MAFMutation、MAFData、MutationSpectrum、TMB计算、共现分析)
 │   ├── cnvkit.mbt               # CNVkit 拷贝数变异检测与CBS分割 (CNVProbe、CNVSegment、CBS分割算法、拷贝数状态判定)
 │   ├── destiny.mbt              # destiny 单细胞扩散映射降维 (CellData、距离矩阵、高斯核、特征分解、扩散分量)
+│   ├── rtsne.mbt                # Rtsne t-SNE降维算法 (距离矩阵、条件概率、梯度下降、动量优化)
+│   ├── uwot.mbt                 # uwot UMAP降维算法 (k近邻、模糊单纯集、SGD优化、负采样)
 │   ├── tradeseq.mbt             # tradeSeq 轨迹差异表达分析 (TrajectoryPoint、GAM拟合、样条基函数、差异检验)
 │   ├── progeny.mbt              # PROGENy 通路活性推断 (L2正则化线性回归、Ridge回归、通路基因集权重矩阵)
 │   ├── aucell.mbt               # AUCell 单细胞基因集评分 (AUC计算、基因排序、min-max归一化)
+│   ├── geoquery.mbt             # GEO数据库查询 (GDS/GSE/GSM解析、数据下载、平台信息)
 │   ├── ggtree.mbt               # ggtree 系统发育树可视化布局 (矩形/放射状/无根布局、节点坐标映射)
 │   ├── mix_omics.mbt           # mixOmics 多组学整合 (PLS/sPLS/DIABLO)
 │   └── utils.mbt               # 通用工具函数
@@ -572,6 +581,7 @@ IvanAXu/BioSeqs/
 │   ├── phylo_xml_demo/          # Bio.Phylo.PhyloXML XML系统发育树格式
 │   ├── phylo_nexml_demo/        # Bio.Phylo.NeXML NeXML格式解析与序列化示例
 │   ├── phyloseq_demo/            # phyloseq 微生物组分析示例 (OTU丰度、分类学过滤)
+│   ├── microbiome_demo/          # microbiome 微生物组分析示例 (Alpha/Beta多样性、PCoA、差异丰度)
 │   ├── alphabet_demo/            # Bio.Alphabet IUPAC字母表示例 (DNA/RNA/蛋白质字母表、字符验证)
 │   ├── statistics_demo/          # Bio.Statistics 统计分析示例 (描述统计、假设检验、相关性分析)
 │   ├── freq_analysis_demo/       # Bio.FreqAnalysis 序列频率分析示例 (k-mer计数、密码子使用频率、GC含量)
@@ -595,6 +605,8 @@ IvanAXu/BioSeqs/
 │   ├── maftools_demo/            # maftools 癌症基因组学示例 (MAF数据创建、突变分类、TMB计算、突变谱分析)
 │   ├── cnvkit_demo/              # CNVkit 拷贝数变异示例 (CBS分割、拷贝数判定、断点检测、log2平滑)
 │   ├── destiny_demo/             # destiny 扩散映射示例 (距离矩阵、高斯核、特征分解、嵌入坐标)
+│   ├── rtsne_demo/               # Rtsne t-SNE降维示例 (距离矩阵、条件概率、梯度下降、动量优化)
+│   ├── uwot_demo/                # uwot UMAP降维示例 (k近邻、模糊单纯集、SGD优化、负采样)
 │   ├── tradeseq_demo/            # tradeSeq 轨迹差异表达示例 (GAM拟合、基因平滑、差异检验、可视化)
 │   ├── progeny_demo/             # PROGENy 通路活性推断示例 (L2正则化回归、通路基因集、样本活性计算)
 │   ├── aucell_demo/              # AUCell 单细胞基因集评分示例 (AUC计算、归一化、细胞/基因集评分)
@@ -706,6 +718,8 @@ IvanAXu/BioSeqs/
 │   │   ├── csaw_test.mbt
 │   │   ├── delayed_array_test.mbt
 │   │   ├── destiny_test.mbt
+│   │   ├── rtsne_test.mbt
+│   │   ├── uwot_test.mbt
 │   │   ├── dexseq_test.mbt
 │   │   ├── diffbind_test.mbt
 │   │   ├── dose_test.mbt
@@ -755,6 +769,7 @@ IvanAXu/BioSeqs/
 │   │   ├── phylo_xml_debug_test.mbt
 │   │   ├── phylo_metrics_test.mbt
 │   │   ├── phyloseq_test.mbt
+│   │   ├── microbiome_test.mbt
 │   │   ├── polypeptide_test.mbt
 │   │   ├── progeny_test.mbt
 │   │   ├── prosite_test.mbt
@@ -814,7 +829,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2665 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2767 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1007,6 +1022,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2665 个测试全�
 | `maftools.mbt` | Bioconductor maftools | 癌症基因组学MAF分析 (MAFMutation/MAFData/MutationSpectrum/TMBResult数据结构、SNV/Indel分类、TMB计算、突变谱分析、共现分析、Oncoplot数据生成、MAF文件解析) |
 | `cnvkit.mbt` | Bioconductor CNVkit | 拷贝数变异检测 (CNVProbe/CNVSegment/CNVDataset/CBSResult数据结构、CBS循环二元分割算法、拷贝数状态判定、log2比率平滑、断点检测) |
 | `destiny.mbt` | Bioconductor destiny | 单细胞扩散映射降维 (CellData/DistanceMatrix/KernelMatrix/DiffusionResult数据结构、欧氏距离矩阵、高斯核构建、Markov矩阵归一化、特征分解、扩散分量计算) |
+| `rtsne.mbt` | Bioconductor Rtsne | t-SNE降维算法 (TsneConfig/TsneResult数据结构、成对距离计算、条件概率估计与perplexity优化、联合概率矩阵构建、梯度下降优化、动量/early exaggeration调度) |
+| `uwot.mbt` | Bioconductor uwot | UMAP降维算法 (UmapConfig/UmapResult数据结构、k近邻搜索、模糊单纯集构建、局部模糊集并集、SGD低维嵌入优化、负采样、min_dist/spread参数控制) |
 | `tradeseq.mbt` | Bioconductor tradeSeq | 轨迹差异表达分析 (TrajectoryPoint/GeneExpressionData/GAMFit/DifferentialExpressionResult数据结构、GAM广义可加模型拟合、样条基函数、条件效应检验、BH-FDR校正) |
 
 ## 核心功能实现
@@ -1479,7 +1496,19 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2665 个测试全�
 
 实现单细胞数据的扩散映射（Diffusion Maps）降维分析功能。支持 CellData 数据结构存储单细胞表达数据。支持距离矩阵计算（欧氏距离），用于衡量细胞间的相似性。支持高斯核（Gaussian Kernel）构建，将距离转换为相似性矩阵。支持核矩阵归一化（Markov 矩阵），使每行和为 1，构建概率转移矩阵。支持特征分解（Eigen Decomposition），计算特征值和特征向量。支持扩散分量（Diffusion Components）计算，将细胞投影到低维空间。支持解释方差（Explained Variance）计算，评估每个分量的信息含量。支持嵌入坐标提取和可视化数据生成。适用于单细胞 RNA-seq 数据的非线性降维和轨迹分析。
 
-### 118. tradeSeq 轨迹差异表达分析 (Bioconductor tradeSeq)
+### 118. microbiome 微生物组分析 (Bioconductor microbiome)
+
+实现微生物组数据分析的完整功能，包括 Alpha 多样性、Beta 多样性、排序分析和差异丰度分析。支持 AlphaDiversity 数据结构存储多种多样性指数。Alpha 多样性指数包括：Observed OTUs、Shannon、Simpson、Inverse Simpson、Pielou evenness、Chao1、ACE 和 Fisher's alpha。Beta 多样性度量包括：Bray-Curtis 相异度、Jaccard 距离、Jensen-Shannon 散度、加权和非加权 UniFrac。支持 PCoA（主坐标分析）进行排序，采用经典 MDS（度量多维标度）算法，通过幂迭代计算特征值和特征向量。支持差异丰度分析，包括 Welch's t 检验和 Wilcoxon 秩和检验，以及 Benjamini-Hochberg 多重检验校正。支持 Alpha 多样性表计算和 Beta 多样性距离矩阵生成。适用于 16S rRNA 测序和宏基因组学数据的微生物群落分析。
+
+### 119. Rtsne t-SNE降维算法 (Bioconductor Rtsne)
+
+实现 t-Distributed Stochastic Neighbor Embedding（t-SNE）降维算法，用于高维数据的可视化和探索。支持 TsneConfig 数据结构配置算法参数（perplexity、theta、max_iter、dims、eta、exaggeration_factor、momentum、final_momentum、mom_switch_iter、stop_lying_iter、random_seed）。支持 TsneResult 数据结构存储降维结果（embedding、costs、n_iter）。核心算法包括：成对距离矩阵计算、条件概率估计（使用二分搜索优化 perplexity）、联合概率矩阵 P 构建、梯度下降优化（带动量和 early exaggeration）。支持 Barnes-Hut 近似参数配置。支持伪随机数生成和测试数据创建（3 个聚类的测试数据集）。适用于单细胞 RNA-seq、蛋白质组学等高维生物数据的非线性降维可视化。
+
+### 120. uwot UMAP降维算法 (Bioconductor uwot)
+
+实现 Uniform Manifold Approximation and Projection（UMAP）降维算法，提供快速且保留全局结构的降维方法。支持 UmapConfig 数据结构配置算法参数（n_neighbors、n_components、n_epochs、min_dist、spread、learning_rate、repulsion_strength、negative_sample_rate、random_seed、metric）。支持 UmapResult 数据结构存储降维结果（embedding、n_epochs）。核心算法包括：k 近邻搜索（KNN）、模糊单纯集构建（fuzzy simplicial set）、局部模糊集并集、低维嵌入随机梯度下降（SGD）优化、负采样（negative sampling）。支持 min_dist 和 spread 参数控制嵌入点的分布。支持测试数据创建（4 个聚类的测试数据集）。适用于单细胞转录组学、空间转录组学等大规模生物数据的快速降维和可视化。
+
+### 121. tradeSeq 轨迹差异表达分析 (Bioconductor tradeSeq)
 
 实现基于轨迹的差异表达分析功能，用于识别沿细胞分化轨迹表达变化的基因。支持 TrajectoryPoint 和 GeneExpressionData 数据结构存储拟时间和基因表达数据。支持 GAM（Generalized Additive Model，广义可加模型）拟合，使用样条基函数（Cubic Spline Basis）对基因表达沿拟时间进行平滑拟合。支持最小二乘法系数估计、拟合值计算和残差分析。支持 R-squared 计算评估模型拟合质量。支持条件效应差异检验（trade_test_condition_effect），比较不同条件下基因沿轨迹的表达差异。支持完整分析流程（run_tradeseq_analysis），包含批量基因检验和 Benjamini-Hochberg 多重检验校正。支持基因表达平滑曲线计算（calculate_gene_smooth）。适用于单细胞轨迹分析中差异表达基因的识别。
 
@@ -1720,7 +1749,52 @@ moon test --update
 | maftools | `maftools_test.mbt` | 18 |
 | CNVkit | `cnvkit_test.mbt` | 15 |
 | destiny | `destiny_test.mbt` | 12 |
+| Rtsne | `rtsne_test.mbt` | 10 |
+| uwot | `uwot_test.mbt` | 9 |
+| microbiome | `microbiome_test.mbt` | 33 |
 | tradeSeq | `tradeseq_test.mbt` | 12 |
+| QCP叠加 | `qcp_superimposer_test.mbt` | 7 |
+| 残基深度 | `residue_depth_test.mbt` | 10 |
+| 结构比对 | `structure_alignment_test.mbt` | 8 |
+| PDB向量 | `pdb_vectors_test.mbt` | 55 |
+| PhyloXML调试 | `phylo_xml_debug_test.mbt` | 8 |
+| Seurat | `seurat_test.mbt` | 12 |
+| 统计分析 | `statistics_test.mbt` | 16 |
+| topGO | `topgo_test.mbt` | 6 |
+| 字母表 | `alphabet_test.mbt` | 8 |
+| 频率分析 | `freq_analysis_test.mbt` | 13 |
+| nucleR | `nucle_r_test.mbt` | 13 |
+| 比对分析 | `align_analysis_test.mbt` | 15 |
+| bamsignals | `bamsignals_test.mbt` | 10 |
+| DSS | `dss_test.mbt` | 12 |
+| 表型分析 | `phenotype_test.mbt` | 12 |
+| BLAST应用 | `blast_applications_test.mbt` | 19 |
+| PSEA | `psea_test.mbt` | 14 |
+| SFF_IO | `sff_io_test.mbt` | 16 |
+| csaw | `csaw_test.mbt` | 9 |
+| slingshot | `slingshot_test.mbt` | 10 |
+| SCnorm | `scnorm_test.mbt` | 8 |
+| EDASeq | `edaseq_test.mbt` | 10 |
+| SearchIO新 | `searchio_new_test.mbt` | 30 |
+| SeqFeature高级 | `seqfeature_advanced_test.mbt` | 63 |
+| 空间转录组 | `spatial_experiment_test.mbt` | 4 |
+| S4Vectors | `s4vectors_test.mbt` | 7 |
+| rhdf5 | `rhdf5_test.mbt` | 12 |
+| PhyloXML | `phylo_xml_test.mbt` | 39 |
+| phyloseq | `phyloseq_test.mbt` | 5 |
+| 多肽分析 | `polypeptide_test.mbt` | 8 |
+| PROGENy | `progeny_test.mbt` | 13 |
+| Prosite | `prosite_test.mbt` | 12 |
+| SVA | `sva_test.mbt` | 6 |
+| 变异过滤 | `variant_filtering_test.mbt` | 6 |
+| 变异分析 | `variation_test.mbt` | 6 |
+| universalmotif | `universalmotif_test.mbt` | 3 |
+| SC3 | `sc3_test.mbt` | 7 |
+| clusterProfiler | `cluster_profiler_test.mbt` | 9 |
+| 渐进式比对 | `align_cluster_test.mbt` | 17 |
+| RNA结构 | `rna_structure_test.mbt` | 19 |
+| mixOmics | `mix_omics_test.mbt` | 42 |
+| MAalign | `ma_align_test.mbt` | 17 |
 
 ### Python 对比测试
 
@@ -1807,7 +1881,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 88 个示例程序，展示各模块的典型用法：
+项目提供 182 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -2026,6 +2100,9 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bio.Blast.Applications BLAST命令行工具包装（8种BLAST变体、快速构建器、参数管理、命令构建、验证）
 - ✅ 实现 Bio.PDB.PSEA 二级结构预测（CA-CA距离、虚拟键角/二面角、H/E/C分配、三态到八态转换）
 - ✅ 实现 Bio.SeqIO.SffIO SFF二进制格式解析（二进制编码/解码、质量修剪、按名称查找）
+- ✅ 实现 microbiome 微生物组分析（Alpha多样性、Beta多样性、PCoA排序、差异丰度分析）
+- ✅ 实现 Rtsne t-SNE降维算法（距离矩阵、条件概率、梯度下降、动量优化）
+- ✅ 实现 uwot UMAP降维算法（k近邻、模糊单纯集、SGD优化、负采样）
 - [ ] 添加 SIMD 加速支持
 
 ## 许可证
