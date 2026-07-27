@@ -65,6 +65,10 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.PopGen (advanced) | 高级群体遗传学统计: Tajima's D, Fu & Li's D/F, McDonald-Kreitman检验, 等位基因频率谱, 中性分析 |
 | ✅ | Bio.SeqUtils.CodonUsage (advanced) | 高级密码子分析: CAI密码子适应指数、RSCU相对同义密码子使用、ENC有效密码子数、GC3偏斜、最优/稀有密码子检测 |
 | ✅ | Bio.PDB.Packing | 蛋白质包装密度分析: 局部包装密度、SASA溶剂可及表面积计算、Lee-Richards算法、低包装区域识别、球体点生成 |
+| ✅ | Bio.Statistics.qvalue | Storey's q-value FDR方法: π₀估计、q-value计算、自助法π₀、FDR校正、显著性检验 |
+| ✅ | Bio.Statistics.IHW | 独立假设加权(IHW): 协变量加权Bonferroni、局部/全局加权、Storey pi0加权、多协变量支持 |
+| ✅ | Bioconductor DelayedMatrixStats | DelayedArray统计层: row/col统计(mean/var/sd/median/min/max/sum)、NA处理、子集操作 |
+| ✅ | Bioconductor gcrma | GC校正RMA芯片分析: 背景校正(IdealMM/Express)、GC校正、分位数归一化、探针组汇总 |
 
 ### 序列组装算法
 
@@ -227,6 +231,10 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **高级群体遗传学** | Biopython `Bio.PopGen` | Tajima's D中性检验、Fu & Li's D/F、McDonald-Kreitman检验、等位基因频率谱、综合中性分析 | ✅ |
 | **高级密码子分析** | Biopython `Bio.SeqUtils.CodonUsage` | CAI密码子适应指数、RSCU相对同义密码子使用、ENC有效密码子数、GC3偏斜、最优/稀有密码子、物种特异性参考表 | ✅ |
 | **蛋白质包装密度** | Biopython `Bio.PDB.Packing` | 局部包装密度、SASA计算(Lee-Richards)、范德华半径、低包装区域识别、球体几何分析 | ✅ |
+| **Storey q-value** | Bioconductor qvalue | π₀估计、Storey q-value计算、自助法π₀、FDR校正、显著性检验 | ✅ |
+| **独立假设加权(IHW)** | Bioconductor IHW | 协变量加权Bonferroni、局部/全局加权、Storey pi0加权、多协变量支持、迭代权重优化 | ✅ |
+| **DelayedMatrixStats** | Bioconductor DelayedMatrixStats | DelayedArray统计层、row/col统计(mean/var/sd/median/min/max/sum)、NA处理、子集操作 | ✅ |
+| **GC-RMA芯片分析** | Bioconductor gcrma | GC校正RMA、背景校正(IdealMM/Express)、GC查找表、分位数归一化、探针组汇总 | ✅ |
 
 项目致力于打造一个完整、高效的生物信息学工具库，覆盖从基础序列处理到高级序列组装的全流程。
 
@@ -258,7 +266,7 @@ IvanAXu/BioSeqs/
 │   ├── phylo.mbt               # 系统发育树 (Clade/Tree)
 │   ├── tree_io.mbt             # 进化树格式解析 (Newick、NHX格式解析、树操作)
 │   ├── blast.mbt               # BLAST结果解析 (tabular/xml格式、HSP、Hit、Record、过滤)
-│   ├── search_io.mbt           # SearchIO 统一搜索结果模型 (HSPFragment、HSP、Hit、QueryResult、HMMER3/BLAT解析)
+│   ├── searchio.mbt            # SearchIO 统一搜索结果模型 (HSPFragment、HSP、Hit、QueryResult、HMMER3/BLAT解析)
 │   ├── subsmat.mbt             # 替换矩阵 (BLOSUM62/45、PAM250/30、矩阵解析、分数查询)
 │   ├── pdb.mbt                 # PDB 数据类型
 │   ├── pdb_io.mbt              # PDB 文件 I/O
@@ -278,8 +286,7 @@ IvanAXu/BioSeqs/
 │   ├── sam.mbt                 # SAM 格式解析
 │   ├── bam.mbt                 # BAM 格式解析
 │   ├── bgzf.mbt                # BGZF 解压缩 (支持读取压缩的 BAM 文件)
-│   ├── cram.mbt                # CRAM 格式解析 (压缩二进制序列比对格式)
-│   ├── cram_wbtest.mbt         # CRAM 白盒测试 (内部函数测试、格式验证)
+│   ├── cram_wbtest.mbt         # CRAM 格式解析与白盒测试 (压缩二进制序列比对格式、内部函数测试、格式验证)
 │   ├── vcf.mbt                 # VCF 格式解析
 │   ├── variant_annotation.mbt  # VariantAnnotation 变异注释 (变异类型检测、定位、编码效应预测、变异汇总)
 │   ├── variant_filtering.mbt    # Bioconductor VariantFiltering 变异过滤与遗传模式分析
@@ -447,6 +454,10 @@ IvanAXu/BioSeqs/
 │   ├── popgen_advanced.mbt     # 高级群体遗传学统计 (Tajima's D, Fu & Li's D/F, MK检验)
 │   ├── codon_advanced.mbt      # 高级密码子分析 (CAI, RSCU, ENC, GC3)
 │   ├── pdb_packing.mbt         # 蛋白质包装密度分析 (SASA, 局部密度, Lee-Richards算法)
+│   ├── qvalue.mbt              # Storey's q-value FDR方法 (π₀估计、q-value、自助法、显著性检验)
+│   ├── ihw.mbt                 # 独立假设加权IHW (协变量加权Bonferroni、局部/全局加权)
+│   ├── delayed_matrix_stats.mbt # DelayedArray统计层 (row/col统计、NA处理、子集操作)
+│   ├── gcrma.mbt               # GC-RMA芯片分析 (背景校正、GC校正、分位数归一化、探针组汇总)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -583,6 +594,7 @@ IvanAXu/BioSeqs/
 │   ├── polypeptide_demo/         # Bio.PDB.Polypeptide 多肽分析示例 (氨基酸组成、疏水性分析、跨膜区域预测)
 │   ├── s4vectors_demo/           # S4Vectors 基础数据结构示例 (Rle游程编码、S4DataFrame数据框、Hits匹配)
 │   ├── genefilter_demo/          # genefilter 基因过滤示例 (t检验、Wilcoxon秩和检验、方差过滤、CV过滤)
+│   ├── genesis_demo/            # Genesis workflows 示例 (单细胞多组学工作流)
 │   ├── graphics_demo/            # Bio.Graphics 生物信息学可视化示例 (序列Logo、比对可视化)
 │   ├── universalmotif_demo/      # universalmotif 模体分析示例 (S4Motif结构、共识序列计算)
 │   ├── melting_temp_demo/        # MeltingTemp DNA熔解温度计算示例 (Wallace规则、GC含量法)
@@ -636,6 +648,10 @@ IvanAXu/BioSeqs/
 │   ├── popgen_advanced_demo/     # 高级群体遗传学示例 (Tajima's D、Fu & Li、MK检验、中性分析)
 │   ├── codon_advanced_demo/      # 高级密码子分析示例 (CAI、RSCU、ENC、最优/稀有密码子)
 │   ├── pdb_packing_demo/         # 蛋白质包装密度分析示例 (SASA、包装密度、低包装区域识别)
+│   ├── qvalue_demo/              # Storey's q-value FDR方法示例 (π₀估计、q-value计算、自助法)
+│   ├── ihw_demo/                 # 独立假设加权IHW示例 (协变量加权、局部/全局对比、多协变量)
+│   ├── delayed_matrix_stats_demo/ # DelayedArray统计层示例 (row/col统计、NA处理、子集操作)
+│   ├── gcrma_demo/               # GC-RMA芯片分析示例 (背景校正、GC校正、分位数归一化)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -704,9 +720,7 @@ IvanAXu/BioSeqs/
 │   │   ├── fgsea_test.mbt
 │   │   ├── sva_test.mbt
 │   │   ├── ballgown_test.mbt
-│   │   ├── align_info_test.mbt
-│   │   ├── codon_align_test.mbt
-│   │   ├── entrez_test.mbt
+│   │   ├── blast_applications_test.mbt
 │   │   ├── genome_info_db_test.mbt
 │   │   ├── interaction_set_test.mbt
 │   │   ├── multi_assay_experiment_test.mbt
@@ -777,6 +791,8 @@ IvanAXu/BioSeqs/
 │   │   ├── medline_test.mbt
 │   │   ├── melting_temp_test.mbt
 │   │   ├── metagenomeseq_test.mbt
+│   │   ├── motifs_test.mbt
+│   │   ├── motifs_advanced_test.mbt
 │   │   ├── minfi_test.mbt
 │   │   ├── monocle3_test.mbt
 │   │   ├── nexus_test.mbt
@@ -784,14 +800,17 @@ IvanAXu/BioSeqs/
 │   │   ├── paml_test.mbt
 │   │   ├── pathway_test.mbt
 │   │   ├── pdb_analysis_test.mbt
+│   │   ├── pdb_dice_test.mbt
 │   │   ├── pdb_list_test.mbt
 │   │   ├── pdb_header_test.mbt
 │   │   ├── pdb_vectors_test.mbt
 │   │   ├── phenotype_test.mbt
 │   │   ├── phylo_consensus_test.mbt
+│   │   ├── phylo_metrics_test.mbt
+│   │   ├── phylo_nexml_test.mbt
+│   │   ├── phylo_test.mbt
 │   │   ├── phylo_xml_test.mbt
 │   │   ├── phylo_xml_debug_test.mbt
-│   │   ├── phylo_metrics_test.mbt
 │   │   ├── phyloseq_test.mbt
 │   │   ├── microbiome_test.mbt
 │   │   ├── polypeptide_test.mbt
@@ -805,8 +824,10 @@ IvanAXu/BioSeqs/
 │   │   ├── s4vectors_test.mbt
 │   │   ├── sc3_test.mbt
 │   │   ├── sc_dbl_finder_test.mbt
+│   │   ├── scater_test.mbt
 │   │   ├── scnorm_test.mbt
 │   │   ├── scran_test.mbt
+│   │   ├── search_io_test.mbt
 │   │   ├── searchio_new_test.mbt
 │   │   ├── seq_complexity_test.mbt
 │   │   ├── seurat_test.mbt
@@ -833,6 +854,10 @@ IvanAXu/BioSeqs/
 │   │   ├── popgen_advanced_test.mbt
 │   │   ├── codon_advanced_test.mbt
 │   │   ├── pdb_packing_test.mbt
+│   │   ├── qvalue_test.mbt
+│   │   ├── ihw_test.mbt
+│   │   ├── delayed_matrix_stats_test.mbt
+│   │   ├── gcrma_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -859,7 +884,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3020 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3170 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1061,6 +1086,10 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3020 个测试全�
 | `popgen_advanced.mbt` | BioPython `Bio.PopGen` | 高级群体遗传学统计 (Tajima's D、Fu & Li's D/F、MK检验、等位基因频率谱) |
 | `codon_advanced.mbt` | BioPython `Bio.SeqUtils.CodonUsage` | 高级密码子分析 (CAI、RSCU、ENC、GC3、物种特异性参考表) |
 | `pdb_packing.mbt` | BioPython `Bio.PDB.Packing` | 蛋白质包装密度分析 (SASA计算、Lee-Richards算法、低包装区域识别) |
+| `qvalue.mbt` | Bioconductor qvalue | Storey's q-value FDR方法 (π₀估计、自助法、q-value计算、显著性检验) |
+| `ihw.mbt` | Bioconductor IHW | 独立假设加权 (协变量加权Bonferroni、局部/全局加权、多协变量支持) |
+| `delayed_matrix_stats.mbt` | Bioconductor DelayedMatrixStats | DelayedArray统计层 (row/col统计、NA处理、子集操作) |
+| `gcrma.mbt` | Bioconductor gcrma | GC-RMA芯片分析 (背景校正IdealMM/Express、GC查找表、分位数归一化、探针组汇总) |
 
 ## 核心功能实现
 
@@ -1571,6 +1600,22 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3020 个测试全�
 ### 127. 蛋白质包装密度分析 (Bio.PDB.Packing)
 
 实现蛋白质包装密度分析功能，用于评估蛋白质内部的紧密程度和溶剂可及性。支持 PackingAtom 和 PackingResult 等数据结构存储原子信息和密度分析结果。支持局部包装密度计算（calculate_packing_density），基于 Lee-Richards 算法通过在原子表面生成采样点来估计局部包装紧密程度。支持 per-residue 包装分析（packing_density_per_residue），计算每个残基的包装密度，识别蛋白质的埋藏区域和表面区域。支持 SASA 溶剂可及表面积计算（calculate_packing_sasa），支持自定义探针半径（默认为 1.4 Å，对应水分子）。支持范德华半径查询（get_packing_vdw_radius），覆盖常见原子类型（H、C、N、O、S、P 等）。支持球体点生成（generate_packing_sphere_points），使用黄金螺旋算法在单位球面上均匀分布采样点。支持密度标准化（normalize_packing_density）和低包装区域识别（identify_low_packing），用于发现蛋白质内部的空腔和弱包装区域。支持球体几何计算（球体积、半径互算）。适用于蛋白质结构分析、酶催化位点研究和蛋白质折叠稳定性评估。
+
+### 128. Storey's q-value FDR 方法 (Bio.Statistics.qvalue)
+
+实现 Storey's q-value FDR（错误发现率）校正方法，是多重检验校正的基础工具。支持 QValueResult 数据结构存储 p-values、q-values、π₀、λ 和显著性信息。支持 q-value 主计算（qvalue），自动选择最优 λ 值（通过自助法 MSE 最小化），估计 π₀（原假设比例），并计算 Storey q-values。支持指定 λ 的 q-value 计算（qvalue_with_lambda），允许用户控制 π₀ 估计参数。支持 π₀ 估计（qvalue_estimate_pi0），在给定 λ 下估计原假设比例。支持自助法 π₀ 估计（bootstrap_pi0），通过重复采样提高估计准确性。支持仅 FDR 校正（storey_fdr），返回 q-values 数组。支持显著性判定（qvalue_significance），按阈值获取显著性布尔数组。算法核心：按 p 值升序排序后反向计算 q-value = min(q_(k+1), p_(k) × π₀ × n / (k+1))。适用于基因组学、蛋白质组学等大规模多重检验场景。
+
+### 129. 独立假设加权 IHW (Bio.Statistics.IHW)
+
+实现 IHW（Independent Hypothesis Weighting）方法，利用协变量信息为不同假设分配不同权重，在控制 FDR 的同时提高统计功效。支持 IHWResult 数据结构存储调整后 p-values、权重和协变量信息。支持 IHW 主过程（ihw），使用默认配置（α=0.05，局部加权，最多 10 次迭代）。支持自定义配置 IHW（ihw_with_config），提供 IHWConfig 支持 α、迭代次数和加权类型（global/local）配置。支持多协变量 IHW（ihw_multiple），通过主成分合并多个协变量信息。支持 Bonferroni 基线校正（bonferroni_ihw）作为对比基准。支持 Storey 风格 IHW（storey_ihw），结合协变量加权的 π₀ 估计。支持权重提取（ihw_weights）查看各假设的分配权重。算法核心：加权 Bonferroni α_i = weight_i × α / sum(weights)，通过迭代过程从拒绝集估计最优权重。适用于具有协变量信息的大规模多重检验，如基于基因长度、GC 含量等协变量的差异表达分析。
+
+### 130. DelayedMatrixStats DelayedArray 统计层 (Bioconductor DelayedMatrixStats)
+
+实现 DelayedArray 的高效行/列统计计算层，提供对延迟计算矩阵的统计分析能力。支持 DelayedMatrix 数据结构存储矩阵数据（行名、列名、维度），MatrixStatsResult 存储统计结果。支持通用行统计（row_stats）和列统计（col_stats），涵盖 mean、var、sd、median、min、max、sum、n、nna、nn 等 10 种统计量。支持便捷的行/列均值（dms_row_means、dms_col_means）、中位数（row_medians、col_medians）、方差（dms_row_vars、col_vars）函数。支持 NA 值处理，所有统计函数自动跳过缺失值。支持行求和（row_allsums）和非 NA 值计数（row_n、col_n）。支持矩阵子集操作（delayed_matrix_subset），保留行名和列名信息。采用样本方差（n-1 分母）计算，与 Bioconductor DelayedMatrixStats 保持一致。适用于大规模基因表达矩阵的批量统计分析。
+
+### 131. GC 校正 RMA 芯片分析 (Bioconductor gcrma)
+
+实现 GC-RMA（GC-content adjusted Robust Multi-array Average）方法，用于 Affymetrix 微阵列数据的 GC 含量校正分析。支持 GCRMAConfig 配置（背景方法、归一化开关）、GCRMAResult 结果存储（表达矩阵、探针信息、GC 校正参数）和 ProbeInfo 探针信息结构（ID、GC 计数、序列、亲和力）。支持背景校正（gcrma_background_correction），提供 IdealMM 和 Express 两种方法，均考虑 GC 含量依赖性。支持 GC 校正（gcrma_gc_correction），基于预计算的 GC 查找表对探针强度进行 GC 依赖性调整。支持 GC 查找表计算（compute_gc_lookup_table），存储 GC count 到中位亲和力的映射。支持分位数归一化（gcrma_normalize），使各样本强度分布一致。支持完整 GCRMA 流水线（gcrma_process、gcrma_process_with_config），从背景校正→GC 校正→分位数归一化一站式完成。支持探针组汇总（gcrma_summarize），通过列中位数法汇总探针组到基因水平。支持探针亲和力估计（estimate_affinity）和 GC 含量计算（oligo_gc_count、oligo_gc_fraction）。适用于 Affymetrix 芯片数据的预处理和差异表达分析。
 
 
 ## 性能优化
