@@ -59,6 +59,12 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.motifs (advanced) | JASPAR PFM格式解析、TRANSFAC格式解析、模体最优比对、KL/JS散度计算、模体聚类 |
 | ✅ | Bio.Phylo.NeXML | NeXML格式解析与序列化、OTUs/Trees/Characters数据模型、Newick转换 |
 | ✅ | Bio.PDB.Dice + Selection | PDB结构切割（链/残基/原子/模型提取）、B因子过滤、几何选择、结构统计、序列提取 |
+| ✅ | Bio.Align.MAF | MAF (Multiple Alignment Format) 多序列比对格式解析、块处理、百分比一致性计算、统计分析、格式转换 |
+| ✅ | Bio.Align.Mauve | Mauve 基因组比对格式解析、LCB(共线性块)检测、倒位检测、断点检测、基因组覆盖率、BED导出 |
+| ✅ | Bio.Stockholm | Stockholm 格式解析 (Pfam/Rfam比对格式)、二级结构注释、百分比一致性、保守性分析、FASTA转换 |
+| ✅ | Bio.PopGen (advanced) | 高级群体遗传学统计: Tajima's D, Fu & Li's D/F, McDonald-Kreitman检验, 等位基因频率谱, 中性分析 |
+| ✅ | Bio.SeqUtils.CodonUsage (advanced) | 高级密码子分析: CAI密码子适应指数、RSCU相对同义密码子使用、ENC有效密码子数、GC3偏斜、最优/稀有密码子检测 |
+| ✅ | Bio.PDB.Packing | 蛋白质包装密度分析: 局部包装密度、SASA溶剂可及表面积计算、Lee-Richards算法、低包装区域识别、球体点生成 |
 
 ### 序列组装算法
 
@@ -215,6 +221,12 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | BiocSingular | SVD奇异值分解，支持Exact/IRLBA/Randomized三种算法，用于单细胞降维 |
 | ✅ | BiocNeighbors | KMKNN和Annoy最近邻搜索，支持欧几里得/曼哈顿/余弦距离 |
 | ✅ | mixOmics | 多组学整合方法，包括PLS回归、稀疏PLS (sPLS)、DIABLO多块整合 |
+| **MAF格式解析** | Biopython `Bio.Align` | MAF多序列比对格式解析、块操作、百分比一致性、统计分析、选择/过滤/写回 | ✅ |
+| **Mauve基因组比对** | Biopython `Bio.Align` | Mauve基因组比对格式、LCB检测、倒位/断点检测、覆盖率分析、BED导出、基因组重排率 | ✅ |
+| **Stockholm格式** | Biopython `Bio.Stockholm` | Stockholm/Pfam格式解析、二级结构注释、百分比一致性、保守性、FASTA/Stockholm互转 | ✅ |
+| **高级群体遗传学** | Biopython `Bio.PopGen` | Tajima's D中性检验、Fu & Li's D/F、McDonald-Kreitman检验、等位基因频率谱、综合中性分析 | ✅ |
+| **高级密码子分析** | Biopython `Bio.SeqUtils.CodonUsage` | CAI密码子适应指数、RSCU相对同义密码子使用、ENC有效密码子数、GC3偏斜、最优/稀有密码子、物种特异性参考表 | ✅ |
+| **蛋白质包装密度** | Biopython `Bio.PDB.Packing` | 局部包装密度、SASA计算(Lee-Richards)、范德华半径、低包装区域识别、球体几何分析 | ✅ |
 
 项目致力于打造一个完整、高效的生物信息学工具库，覆盖从基础序列处理到高级序列组装的全流程。
 
@@ -429,6 +441,12 @@ IvanAXu/BioSeqs/
 │   ├── geoquery.mbt             # GEO数据库查询 (GDS/GSE/GSM解析、数据下载、平台信息)
 │   ├── ggtree.mbt               # ggtree 系统发育树可视化布局 (矩形/放射状/无根布局、节点坐标映射)
 │   ├── mix_omics.mbt           # mixOmics 多组学整合 (PLS/sPLS/DIABLO)
+│   ├── maf.mbt                 # MAF (Multiple Alignment Format) 多序列比对格式解析与分析
+│   ├── mauve.mbt               # Mauve 基因组比对格式解析与重排分析
+│   ├── stockholm.mbt           # Stockholm 格式解析 (Pfam/Rfam比对) 与二级结构分析
+│   ├── popgen_advanced.mbt     # 高级群体遗传学统计 (Tajima's D, Fu & Li's D/F, MK检验)
+│   ├── codon_advanced.mbt      # 高级密码子分析 (CAI, RSCU, ENC, GC3)
+│   ├── pdb_packing.mbt         # 蛋白质包装密度分析 (SASA, 局部密度, Lee-Richards算法)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -612,6 +630,12 @@ IvanAXu/BioSeqs/
 │   ├── aucell_demo/              # AUCell 单细胞基因集评分示例 (AUC计算、归一化、细胞/基因集评分)
 │   ├── ggtree_demo/              # ggtree 系统发育树可视化示例 (矩形/放射状/无根布局、节点坐标)
 │   ├── mix_omics_demo/          # mixOmics 多组学整合演示
+│   ├── maf_demo/                 # MAF 格式解析与分析示例 (解析、统计、选择、过滤、写回)
+│   ├── mauve_demo/               # Mauve 基因组比对分析示例 (倒位检测、断点检测、覆盖率、BED导出)
+│   ├── stockholm_demo/           # Stockholm 格式解析示例 (Pfam/Rfam格式、二级结构、保守性分析)
+│   ├── popgen_advanced_demo/     # 高级群体遗传学示例 (Tajima's D、Fu & Li、MK检验、中性分析)
+│   ├── codon_advanced_demo/      # 高级密码子分析示例 (CAI、RSCU、ENC、最优/稀有密码子)
+│   ├── pdb_packing_demo/         # 蛋白质包装密度分析示例 (SASA、包装密度、低包装区域识别)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -803,6 +827,12 @@ IvanAXu/BioSeqs/
 │   │   ├── align_cluster_test.mbt
 │   │   ├── rna_structure_test.mbt
 │   │   ├── mix_omics_test.mbt
+│   │   ├── maf_test.mbt
+│   │   ├── mauve_test.mbt
+│   │   ├── stockholm_test.mbt
+│   │   ├── popgen_advanced_test.mbt
+│   │   ├── codon_advanced_test.mbt
+│   │   ├── pdb_packing_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -829,7 +859,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2767 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3020 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1025,6 +1055,12 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2767 个测试全�
 | `rtsne.mbt` | Bioconductor Rtsne | t-SNE降维算法 (TsneConfig/TsneResult数据结构、成对距离计算、条件概率估计与perplexity优化、联合概率矩阵构建、梯度下降优化、动量/early exaggeration调度) |
 | `uwot.mbt` | Bioconductor uwot | UMAP降维算法 (UmapConfig/UmapResult数据结构、k近邻搜索、模糊单纯集构建、局部模糊集并集、SGD低维嵌入优化、负采样、min_dist/spread参数控制) |
 | `tradeseq.mbt` | Bioconductor tradeSeq | 轨迹差异表达分析 (TrajectoryPoint/GeneExpressionData/GAMFit/DifferentialExpressionResult数据结构、GAM广义可加模型拟合、样条基函数、条件效应检验、BH-FDR校正) |
+| `maf.mbt` | BioPython `Bio.Align` | MAF多序列比对格式解析与分析 (块处理、百分比一致性、统计分析、选择/过滤) |
+| `mauve.mbt` | BioPython `Bio.Align` | Mauve基因组比对格式解析 (LCB检测、倒位/断点、覆盖率、BED导出) |
+| `stockholm.mbt` | BioPython `Bio.Stockholm` | Stockholm格式解析与分析 (Pfam/Rfam格式、二级结构、保守性、FASTA转换) |
+| `popgen_advanced.mbt` | BioPython `Bio.PopGen` | 高级群体遗传学统计 (Tajima's D、Fu & Li's D/F、MK检验、等位基因频率谱) |
+| `codon_advanced.mbt` | BioPython `Bio.SeqUtils.CodonUsage` | 高级密码子分析 (CAI、RSCU、ENC、GC3、物种特异性参考表) |
+| `pdb_packing.mbt` | BioPython `Bio.PDB.Packing` | 蛋白质包装密度分析 (SASA计算、Lee-Richards算法、低包装区域识别) |
 
 ## 核心功能实现
 
@@ -1511,6 +1547,30 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 2767 个测试全�
 ### 121. tradeSeq 轨迹差异表达分析 (Bioconductor tradeSeq)
 
 实现基于轨迹的差异表达分析功能，用于识别沿细胞分化轨迹表达变化的基因。支持 TrajectoryPoint 和 GeneExpressionData 数据结构存储拟时间和基因表达数据。支持 GAM（Generalized Additive Model，广义可加模型）拟合，使用样条基函数（Cubic Spline Basis）对基因表达沿拟时间进行平滑拟合。支持最小二乘法系数估计、拟合值计算和残差分析。支持 R-squared 计算评估模型拟合质量。支持条件效应差异检验（trade_test_condition_effect），比较不同条件下基因沿轨迹的表达差异。支持完整分析流程（run_tradeseq_analysis），包含批量基因检验和 Benjamini-Hochberg 多重检验校正。支持基因表达平滑曲线计算（calculate_gene_smooth）。适用于单细胞轨迹分析中差异表达基因的识别。
+
+### 122. MAF 多序列比对格式解析与分析 (Bio.Align.MAF)
+
+实现 MAF（Multiple Alignment Format）格式的完整解析与分析功能，这是基因组多序列比对的标准格式。支持 MAFAliignment、MAFBlock 和 MAFSequence 数据结构存储比对信息。支持从字符串解析 MAF 内容（parse_maf），自动识别版本号、得分、比对块和序列信息。支持 MAF 格式写回（write_maf），可将比对对象序列化为标准 MAF 字符串。支持块级分析：百分比一致性计算（maf_block_percent_identity）、块比对长度统计、块序列数量统计。支持全比对统计：平均百分比一致性、总比对长度、覆盖度分析、块长分布（最小值、最大值、中位数）。支持序列选择（maf_select_seqs）和按长度过滤（maf_filter_by_length），便于从全基因组比对中提取特定子集。支持序列覆盖率计算，评估各序列在基因组上的覆盖情况。适用于全基因组比对分析、保守区域识别和比较基因组学研究。
+
+### 123. Mauve 基因组比对格式解析与重排分析 (Bio.Align.Mauve)
+
+实现 Mauve 基因组比对格式的解析与基因组重排分析功能，用于多基因组共线性比较。支持 MauveAlignment、MauveLCB 和 MauveSequence 数据结构存储比对信息。支持 Mauve 格式解析（parse_mauve），识别 LCB（Locally Collinear Blocks，共线性块）和序列信息。支持基因组重排检测：倒位检测（detect_mauve_inversions）通过比较相邻序列的方向变化识别基因组倒位；断点检测（detect_mauve_breakpoints）通过分析 LCB 边界识别重排断点。支持基因组覆盖率计算（mauve_genome_coverage），量化各基因组在比对中的覆盖比例。支持 Mauve 摘要报告生成（mauve_summary），综合展示比对统计、倒位数量、断点数量和覆盖度信息。支持 BED 格式导出（mauve_to_bed、mauve_inversions_to_bed），便于在基因组浏览器中可视化。支持按得分过滤 LCB（mauve_filter_lcbs）和保守片段分析。支持基因组重排率计算，量化每 Mb 的断点数量。适用于比较基因组学研究、基因组结构变异分析和进化重排研究。
+
+### 124. Stockholm 格式解析与二级结构分析 (Bio.Stockholm)
+
+实现 Stockholm 格式的完整解析与分析功能，这是 Pfam 和 Rfam 数据库使用的标准比对格式。支持 StockholmAlignment、StockholmBlock 和 StockholmSequence 数据结构存储比对及注释信息。支持 Stockholm 格式解析（stockholm_parse），自动识别版本号、块结构、GF/GC/GR/GS 注释行和二级结构信息。支持 Stockholm 格式写回（stockholm_write），保留所有注释和二级结构信息。支持百分比一致性计算（stockholm_percent_identity），排除空位后计算序列间的一致性。支持每列保守性分析（stockholm_conservation），评估比对中每个位置的保守程度。支持 FASTA 格式转换（stockholm_to_fasta），便于与其他分析工具互操作。支持块合并（stockholm_merge_blocks），将多块比对合并为单一块。支持二级结构注释（#=GC SS_cons）解析，提取共识二级结构信息。适用于蛋白质家族分析、RNA 家族比对和功能保守性研究。
+
+### 125. 高级群体遗传学统计与中性检验 (Bio.PopGen Advanced)
+
+实现高级群体遗传学统计分析功能，包括核心中性检验和进化分析方法。支持 PolymorphicSite 和 NeutralityTestResult 等数据结构存储多态位点和检验结果。支持 Tajima's D 检验（popgen_tajima_d），通过比较 θ_π 和 θ_W 检测选择信号或群体人口结构变化：负值表示低频变异过量（正向选择或群体扩张），正值表示低频变异不足（平衡选择或群体收缩）。支持 Fu & Li's D 检验（fu_li_d）和 F 检验（fu_li_f），利用 singletons（单例变异）信息检测近期选择事件。支持 McDonald-Kreitman 检验（mcdonald_kreitman_test），比较种内多态性和种间固定化比率，检测适应性进化。支持 Watterson's θ 估计（popgen_watterson_theta），基于分离位点数估计种群遗传多样性。支持等位基因频率谱计算（calculate_afs），分析单例、双例等不同频率类别的变异数量。支持综合中性分析（run_neutrality_analysis），一次性运行多种检验并生成汇总报告。适用于分子进化研究、选择信号检测和群体遗传学分析。
+
+### 126. 高级密码子使用分析 (Bio.SeqUtils.CodonUsage Advanced)
+
+实现高级密码子使用分析功能，支持多种密码子偏好指标的计算。支持 CodonUsageTable 和 CAIResult 等数据结构存储密码子使用频率和分析结果。支持从 DNA 序列构建密码子使用表（codon_usage_from_sequence、codon_usage_from_sequences），统计各密码子的计数和频率。支持密码子适应指数 CAI 计算（calculate_cai），评估序列的密码子使用偏好与参考密码子表的匹配程度，CAI 值越高表示越适配宿主生物的密码子偏好。支持相对同义密码子使用 RSCU 计算（calculate_rscu），量化各密码子的使用偏离程度。支持有效密码子数 ENC 计算（calculate_enc），衡量密码子使用偏好的强度，ENC 值越低表示偏好越强。支持 GC3 含量计算（密码子第三位置 GC 含量），作为密码子偏好的指标。支持最优密码子检测（optimal_codons）和稀有密码子识别（rare_codons）。支持多种生物物种特异性参考表（高 GC、低 GC、通用）。适用于基因表达优化、密码子偏好研究和进化分析。
+
+### 127. 蛋白质包装密度分析 (Bio.PDB.Packing)
+
+实现蛋白质包装密度分析功能，用于评估蛋白质内部的紧密程度和溶剂可及性。支持 PackingAtom 和 PackingResult 等数据结构存储原子信息和密度分析结果。支持局部包装密度计算（calculate_packing_density），基于 Lee-Richards 算法通过在原子表面生成采样点来估计局部包装紧密程度。支持 per-residue 包装分析（packing_density_per_residue），计算每个残基的包装密度，识别蛋白质的埋藏区域和表面区域。支持 SASA 溶剂可及表面积计算（calculate_packing_sasa），支持自定义探针半径（默认为 1.4 Å，对应水分子）。支持范德华半径查询（get_packing_vdw_radius），覆盖常见原子类型（H、C、N、O、S、P 等）。支持球体点生成（generate_packing_sphere_points），使用黄金螺旋算法在单位球面上均匀分布采样点。支持密度标准化（normalize_packing_density）和低包装区域识别（identify_low_packing），用于发现蛋白质内部的空腔和弱包装区域。支持球体几何计算（球体积、半径互算）。适用于蛋白质结构分析、酶催化位点研究和蛋白质折叠稳定性评估。
 
 
 ## 性能优化
