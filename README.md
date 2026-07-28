@@ -73,6 +73,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.SeqUtils.Proteomics | 蛋白质组学工具: 8种酶切(胰酶/糜酶/胃酶等)、肽段质量计算、同位素分布、b/y碎片离子 |
 | ✅ | Bio.PDB.FragmentMapper | PDB片段映射: DSSP二级结构分类、片段分配/合并/过滤、覆盖率分析 |
 | ✅ | Bio.Graphics.GenomeDiagram | 基因组图可视化: 数据模型、track/feature管理、SVG生成、样式控制 |
+| ✅ | Bio.PDB.internal_coords | 蛋白质内部坐标表示: 键长/键角/扭矩角(phi/psi/omega/chi)、二面角计算、内部坐标到笛卡儿坐标转换、扩展链构建、旋转异构体库、Ramachandran区域 |
+| ✅ | Bio.GA | 遗传算法序列优化: 种群初始化、适应度函数、锦标赛/轮盘赌选择、单点/两点交叉、变异、精英保留、世代统计、进化收敛 |
+| ✅ | Bio.Graphics.Chromosome | 染色体可视化: 染色体/特征/区域/带数据模型、SVG线性/圆形染色体渲染、G带染色模式、带颜色映射、人类核型图、细菌染色体图 |
 | ✅ | Bioconductor Chain文件/liftOver | UCSC Chain格式解析、基因组坐标liftOver转换、链段查找、染色体间坐标映射 |
 | ✅ | Bioconductor Biostrings matchPDict | 字典模式匹配(matchPDict/vmatchPattern)、多序列模式计数、错配容忍、最佳匹配查找 |
 | ✅ | Bioconductor GenomicRanges gaps/reduce/disjoin | gaps检测、reduce合并、disjoin拆分、setdiff/交集/并集集合运算、coverage计算、promoters提取 |
@@ -1681,6 +1684,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3319 个测试全�
 
 实现基因组图可视化的数据模型和 SVG 生成功能。支持 FeatureShape 枚举（Rectangle、Arrow、Diamond、CrossedArrow、Terminators）定义图形形状。支持 Diagram、Track、DiagramFeature、TrackFeature 和 DiagramStyle 等数据结构构建基因组图层级数据模型。支持创建图表（gd_create_diagram）并设置起止坐标。支持添加轨道（gd_add_track）和特征（gd_add_feature、gd_add_track_feature），可指定位置、链、标签、颜色和形状。支持样式设置（gd_set_style），包括循环/线性布局、颜色方案等。支持查询特征（gd_get_features）和查找重叠特征（gd_find_overlapping_features）。支持生成 SVG 输出（gd_to_svg_string），将数据模型转换为可渲染的 SVG 字符串。支持特征着色（gd_set_feature_color）和自动标注（gd_label_features），对大于指定阈值的特征添加标签。适用于基因组注释可视化、比较基因组学和教育演示。
 
+### 136. 蛋白质内部坐标 (Bio.PDB.internal_coords)
+
+实现蛋白质结构的内部坐标表示和转换功能。支持 TorsionAngle（扭矩角）、BondLength（键长）、BondAngle（键角）等基本结构单元。支持 InternalCoordResidue 和 InternalCoordChain 表示残基和链的内部坐标。支持计算二面角（ic_dihedral_angle），通过四个原子坐标计算扭矩角。支持主链扭矩角计算：phi（C(i-1)-N(i)-CA(i)-C(i)）、psi（N(i)-CA(i)-C(i)-N(i+1)）、omega（CA(i-1)-C(i-1)-N(i)-CA(i)）。支持从内部坐标到笛卡儿坐标的转换（ic_build_extended_chain），构建扩展多肽链。支持 Rotamer 和 RotamerLibraryEntry 表示侧链旋转异构体库，覆盖 GLU、VAL、PHE、GLY、ALA、SER 等常见氨基酸。支持弧度-角度转换（ic_rad_to_deg、ic_deg_to_rad）。支持 Ramachandran 区域数据，定义允许的 phi/psi 角度区域。适用于蛋白质结构预测、结构比较和构象分析。
+
+### 137. 遗传算法 (Bio.GA)
+
+实现遗传算法用于序列优化问题。支持 GAIndividual 表示个体（包含序列、适应度、代数、ID）和 GAPopulation 表示种群。支持适应度函数作为参数传入，用于评估每个个体的优劣。支持多种选择策略：锦标赛选择（ga_tournament_select）和轮盘赌选择（ga_roulette_select）。支持单点交叉（ga_single_point_crossover）和两点交叉（ga_two_point_crossover）生成后代。支持变异操作（ga_mutate），以一定概率随机替换序列中的碱基。支持精英保留（ga_evolve_generation），每代保留最优个体。支持 GAGenerationStats 统计每代的最优适应度、平均适应度和种群多样性。支持完整的进化循环（ga_evolve），从初始种群开始，经过多代选择、交叉、变异，直到达到收敛条件或最大代数。适用于序列设计、密码子优化和生物分子工程。
+
+### 138. 染色体可视化 (Bio.Graphics.Chromosome)
+
+实现染色体可视化的数据模型和 SVG 渲染功能。支持 ChrFeature（染色体特征）、ChrRegion（染色体区域）、Chromosome（染色体）等数据结构。支持 ChrFeatureType 枚举（Exon、Intron、Promoter、Enhancer、Marker、Other）注释特征类型。支持 ChrOrientation 枚举（Forward、Reverse、None）表示特征方向。支持 ChrBand 表示染色体带型（G带染色模式）。支持添加特征（add_feature）、区域（add_region）和带（add_band）到染色体。支持特征查询：按类型筛选（features_by_type）、区域内查找（features_in_region）。支持 ChrLayout 配置 SVG 布局参数（宽高、标签显示、着丝粒显示、带显示、染色体厚度）。支持生成线性染色体 SVG（chr_chromosome_to_svg）和圆形染色体 SVG（chr_circular_chromosome_to_svg）。支持带颜色映射（chr_band_color），根据染色强度返回 SVG 颜色。支持创建人类核型图（chr_create_human_karyotype）和细菌染色体图（chr_create_bacterial_chromosome）。适用于基因组注释可视化、细胞遗传学研究和教育演示。
+
 
 ## 性能优化
 
@@ -1964,6 +1979,9 @@ moon test --update
 | RNA结构 | `rna_structure_test.mbt` | 19 |
 | mixOmics | `mix_omics_test.mbt` | 42 |
 | MAalign | `ma_align_test.mbt` | 17 |
+| 内部坐标 | `internal_coords_test.mbt` | 10 |
+| 遗传算法 | `ga_test.mbt` | 10 |
+| 染色体可视化 | `chromosome_visualization_test.mbt` | 10 |
 
 ### Python 对比测试
 
@@ -2050,7 +2068,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 182 个示例程序，展示各模块的典型用法：
+项目提供 185 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -2147,6 +2165,9 @@ moon run cmd/bench/main.mbt
 | blast_applications_demo | Bio.Blast.Applications BLAST命令行工具（8种BLAST变体、快速构建器、参数管理、命令构建） | `moon run examples/blast_applications_demo/main.mbt` |
 | psea_demo | Bio.PDB.PSEA 二级结构预测（CA-CA距离、虚拟二面角、H/E/C分配、三态到八态转换） | `moon run examples/psea_demo/main.mbt` |
 | sff_io_demo | Bio.SeqIO.SffIO SFF二进制解析（二进制编码/解码往返、质量修剪、按名称查找） | `moon run examples/sff_io_demo/main.mbt` |
+| internal_coords_demo | 蛋白质内部坐标（二面角计算、扩展链构建、Ramachandran区域、旋转异构体库） | `moon run examples/internal_coords_demo/main.mbt` |
+| ga_demo | 遗传算法序列优化（个体/种群创建、锦标赛/轮盘赌选择、单点/两点交叉、变异、进化收敛） | `moon run examples/ga_demo/main.mbt` |
+| chromosome_visualization_demo | 染色体可视化（特征/区域/带创建、SVG渲染、G带颜色映射、线性/圆形染色体） | `moon run examples/chromosome_visualization_demo/main.mbt` |
 
 ## 技术栈
 
