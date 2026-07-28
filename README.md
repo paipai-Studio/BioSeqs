@@ -174,6 +174,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **ShortRead** | Bioconductor ShortRead | 短读序列质量控制、QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告生成 | ✅ |
 | **scater** | Bioconductor scater | 单细胞质量控制、QC指标计算、细胞/基因过滤、CPM/log-CPM标准化、HVG检测、PCA降维 | ✅ |
 | **MAST** | Bioconductor MAST | 单细胞差异表达分析、Hurdle模型、离散/连续组分检验、BH-FDR校正、结果汇总 | ✅ |
+| **SingleR** | Bioconductor SingleR | 细胞类型注释、Spearman/Pearson相关性、参考图谱匹配、精细调优(Fine-tuning)、Delta score置信度评估 | ✅ |
+| **Cyclone** | Bioconductor cyclone | 细胞周期评分、基因对(Gene pairs)比较、G1/S/G2/M期相预测、相别分布统计、平均得分分析 | ✅ |
+| **dorothea** | Bioconductor dorothea | 转录因子活性预测、Regulon分析、VIPER算法、置换检验、Z-score评估、Top TF筛选 | ✅ |
 | **GenomicFiles** | Bioconductor GenomicFiles | 分布式基因组文件处理、按区间扫描BAM/BED/VCF、批量查询、归约、覆盖度计算 | ✅ |
 | **DiffBind** | Bioconductor DiffBind | ChIP-seq差异结合分析、峰值重叠、共识峰识别、TMM归一化、负二项分布检验、对比组定义(contrast)、PCA可视化、热图可视化、火山图可视化、MA图可视化 | ✅ |
 | **minfi** | Bioconductor minfi | Illumina 450K/EPIC DNA甲基化分析、NOOB/Illumina/分位数/功能归一化、β/M值计算、DMP/DMR分析 | ✅ |
@@ -422,6 +425,9 @@ IvanAXu/BioSeqs/
 │   ├── metagenomeseq.mbt        # metagenomeSeq 零膨胀模型微生物组差异丰度分析 (归一化、零膨胀概率计算)
 │   ├── hilbertcurve.mbt         # HilbertCurve Hilbert曲线坐标映射 (编码/解码、距离计算、基因组线性化)
 │   ├── taxonomy.mbt             # Taxonomy 分类学分析 (Taxon/TaxonomyDatabase、谱系查询、共同祖先计算)
+│   ├── single_r.mbt             # SingleR 细胞类型注释 (参考图谱、Spearman/Pearson相关性、精细调优)
+│   ├── cyclone.mbt              # Cyclone 细胞周期评分 (基因对比较、G1/S/G2/M期相预测)
+│   ├── dorothea.mbt             # dorothea 转录因子活性预测 (Regulon、VIPER、置换检验)
 │   ├── gff.mbt                  # GFF GFF3格式解析 (GFFFeature/GFFRecord、属性解析、特征提取)
 │   ├── graphics.mbt             # Bio.Graphics 生物信息学可视化 (序列Logo、比对可视化)
 │   ├── phylo_consensus.mbt      # Phylo.Consensus 一致性树构建 (ConsensusNode/Split、多数规则树、支持度计算)
@@ -507,12 +513,14 @@ IvanAXu/BioSeqs/
 │   ├── bwt_fm_demo/            # BWT + FM-index 示例
 │   ├── cluster_demo/           # 序列聚类分析示例 (层次聚类、距离矩阵、轮廓系数)
 │   ├── consensus_cluster_plus_demo/ # ConsensusClusterPlus 共识聚类示例
+│   ├── cyclone_demo/            # Cyclone 细胞周期评分示例 (基因对比较、G1/S/G2/M期相预测)
 │   ├── codon_align_demo/       # CodonAlign 密码子比对示例 (密码子替换分类、dN/dS选择压力分析、密码子使用偏好)
 │   ├── codon_usage_demo/       # CodonUsage 密码子使用分析示例 (CAI、ENC、RSCU、GC3、CBI、Fop、最优密码子检测)
 │   ├── cram_demo/              # CRAM 格式解析示例 (压缩二进制序列比对格式、CRAM转BAM、参考序列管理)
 │   ├── de_bruijn_demo/         # De Bruijn Graph 序列组装示例
 │   ├── deseq2_demo/            # DESeq2 差异表达分析示例
 │   ├── deseq2_advanced_demo/   # DESeq2 VST方差稳定化变换、PCA可视化示例
+│   ├── dorothea_demo/          # dorothea 转录因子活性预测示例 (Regulon、VIPER、置换检验)
 │   ├── dplyr_demo/             # dplyr 数据操作示例
 │   ├── edger_demo/             # edgeR 差异表达分析示例
 │   ├── edger_advanced_demo/    # edgeR准似然F检验、camera/roast基因集检验示例
@@ -573,6 +581,7 @@ IvanAXu/BioSeqs/
 │   ├── seqfeature_advanced_demo/  # Bio.SeqFeature CompoundLocation与LocationParser
 │   ├── rna_structure_demo/       # RNA二级结构预测示例
 │   ├── single_cell_demo/       # SingleCell 单细胞数据分析示例 (QC指标、Log标准化、PCA降维、高变异基因)
+│   ├── single_r_demo/           # SingleR 细胞类型注释示例 (参考图谱、Spearman/Pearson相关性、精细调优)
 │   ├── smith_waterman_demo/    # Smith-Waterman 局部序列比对示例
 │   ├── subsmat_demo/           # 替换矩阵示例 (BLOSUM62/45、PAM250/30矩阵查询、蛋白质比对打分)
 │   ├── suffix_array_tree_demo/ # Suffix Array & Suffix Tree 示例
@@ -695,8 +704,10 @@ IvanAXu/BioSeqs/
 │   │   ├── cluster_test.mbt
 │   │   ├── codon_usage_test.mbt
 │   │   ├── de_bruijn_test.mbt
+│   │   ├── cyclone_test.mbt
 │   │   ├── deseq2_test.mbt
 │   │   ├── deseq2_advanced_test.mbt
+│   │   ├── dorothea_test.mbt
 │   │   ├── dplyr_test.mbt
 │   │   ├── edger_test.mbt
 │   │   ├── edger_advanced_test.mbt
@@ -729,6 +740,7 @@ IvanAXu/BioSeqs/
 │   │   ├── seq_utils_test.mbt
 │   │   ├── sequtils_test.mbt
 │   │   ├── single_cell_test.mbt
+│   │   ├── single_r_test.mbt
 │   │   ├── smith_waterman_test.mbt
 │   │   ├── subsmat_test.mbt
 │   │   ├── suffix_array_tree_test.mbt
