@@ -1162,7 +1162,7 @@ pub fn flow_core_point_in_polygon(
     if cond1 {
       let x_intersect = (xj - xi) * (y - yi) / (yj - yi) + xi
       if x < x_intersect {
-        inside = not(inside)
+        inside = !inside
       }
     }
     j = i
@@ -1406,9 +1406,9 @@ pub fn flow_core_quadrant_gate(frame : FlowFrame, gate : Gate) -> GatingResult {
       if x_pos && y_pos {
         q2 = q2 + 1
         filtered.push(row)
-      } else if x_pos && not(y_pos) {
+      } else if x_pos && !y_pos {
         q4 = q4 + 1
-      } else if not(x_pos) && y_pos {
+      } else if !x_pos && y_pos {
         q1 = q1 + 1
       } else {
         q3 = q3 + 1

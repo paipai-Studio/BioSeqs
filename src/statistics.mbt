@@ -384,3 +384,158 @@ pub fn stat_unique_values(data : Array[Double]) -> Array[Double] {
   }
   result
 }
+
+///|
+/// Calculate the natural log (ln) of a number.
+fn stat_ln(x : Double) -> Double {
+  if x <= 0.0 { return 0.0 }
+  if x == 1.0 { return 0.0 }
+  let y = (x - 1.0) / (x + 1.0)
+  let y2 = y * y
+  let mut sum = y
+  let mut term = y
+  let mut i = 1
+  while i <= 20 {
+    term = term * y2
+    sum = sum + term / (2 * i + 1).to_double()
+    i = i + 1
+  }
+  2.0 * sum
+}
+
+///|
+/// Calculate the exponential of a number.
+fn stat_exp(x : Double) -> Double {
+  let mut sum = 1.0
+  let mut term = 1.0
+  let mut i = 1
+  while i <= 20 {
+    term = term * x / i.to_double()
+    sum = sum + term
+    i = i + 1
+  }
+  sum
+}
+
+///|
+/// Calculate the geometric mean of an array (only positive values).
+pub fn stat_geometric_mean(data : Array[Double]) -> Double {
+  let mut sum_log = 0.0
+  let mut n_valid = 0
+  for val in data {
+    if val > 0.0 {
+      sum_log = sum_log + stat_ln(val)
+      n_valid = n_valid + 1
+    }
+  }
+  if n_valid > 0 {
+    stat_exp(sum_log / n_valid.to_double())
+  } else {
+    0.0
+  }
+}
+
+///|
+/// Sort an array of (score, index) pairs by score descending (quicksort).
+pub fn stat_sort_indices_desc(data : Array[(Double, Int)]) -> Array[(Double, Int)] {
+  if data.length() <= 1 {
+    return data.copy()
+  }
+  let pivot = data[0]
+  let left : Array[(Double, Int)] = Array::new()
+  let right : Array[(Double, Int)] = Array::new()
+  let mut i = 1
+  while i < data.length() {
+    if data[i].0 >= pivot.0 {
+      left.push(data[i])
+    } else {
+      right.push(data[i])
+    }
+    i = i + 1
+  }
+  let result = stat_sort_indices_desc(left)
+  result.push(pivot)
+  let right_sorted = stat_sort_indices_desc(right)
+  let mut j = 0
+  while j < right_sorted.length() {
+    result.push(right_sorted[j])
+    j = j + 1
+  }
+  result
+}
+
+///|
+/// Sort an array of (score, index) pairs by score ascending (quicksort).
+pub fn stat_sort_indices_asc(data : Array[(Double, Int)]) -> Array[(Double, Int)] {
+  if data.length() <= 1 {
+    return data.copy()
+  }
+  let pivot = data[0]
+  let left : Array[(Double, Int)] = Array::new()
+  let right : Array[(Double, Int)] = Array::new()
+  let mut i = 1
+  while i < data.length() {
+    if data[i].0 <= pivot.0 {
+      left.push(data[i])
+    } else {
+      right.push(data[i])
+    }
+    i = i + 1
+  }
+  let result = stat_sort_indices_asc(left)
+  result.push(pivot)
+  let right_sorted = stat_sort_indices_asc(right)
+  let mut j = 0
+  while j < right_sorted.length() {
+    result.push(right_sorted[j])
+    j = j + 1
+  }
+  result
+}
+
+///|
+/// In-place quicksort for Double arrays (ascending).
+pub fn stat_sort_double(data : Array[Double]) -> Array[Double] {
+  let result = data.copy()
+  result.sort()
+  result
+}
+
+///|
+/// Compute mean and variance in a single pass.
+pub fn stat_mean_var(data : Array[Double]) -> (Double, Double) {
+  let n = data.length()
+  if n == 0 {
+    return (0.0, 0.0)
+  }
+  let mut sum = 0.0
+  let mut i = 0
+  while i < n {
+    sum = sum + data[i]
+    i = i + 1
+  }
+  let mean = sum / n.to_double()
+  let mut sum_sq = 0.0
+  i = 0
+  while i < n {
+    let diff = data[i] - mean
+    sum_sq = sum_sq + diff * diff
+    i = i + 1
+  }
+  let var = if n > 1 { sum_sq / (n.to_double() - 1.0) } else { 0.0 }
+  (mean, var)
+}
+
+///|
+/// Standardize an array to zero mean and unit variance (Z-score normalization).
+pub fn stat_standardize(data : Array[Double]) -> Array[Double] {
+  let (mean, var) = stat_mean_var(data)
+  let std = if var > 0.0 { var.sqrt() } else { 1.0 }
+  let result : Array[Double] = Array::new()
+  let mut i = 0
+  while i < data.length() {
+    result.push((data[i] - mean) / std)
+    i = i + 1
+  }
+  result
+}

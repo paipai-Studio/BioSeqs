@@ -545,7 +545,7 @@ pub fn fast_mnn(
               dist = dist + (pca_result[ss][uu] - pca_result[mnn_idx][uu]) * (pca_result[ss][uu] - pca_result[mnn_idx][uu])
               uu = uu + 1
             }
-            let weight = exp(-dist / (2.0 * sigma * sigma))
+            let weight = @math.exp(-dist / (2.0 * sigma * sigma))
             weight_sum = weight_sum + weight
 
             let mut vv = 0
@@ -618,7 +618,7 @@ pub fn batchelor_create_example_data(
         }
         x = x - 6.0
 
-        let base_expression = exp(x)
+        let base_expression = @math.exp(x)
         let batch_factor = 1.0 + i.to_double() * batch_effect * (if k < n_genes / 2 { 1.0 } else { -1.0 }) * 0.1
 
         cell.push(base_expression * batch_factor)

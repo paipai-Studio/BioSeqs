@@ -116,7 +116,7 @@ pub fn glm_qlf_fit(dge : DGEList) -> QLFData {
     // QL dispersion = deviance / residual_df
     let residual_df = n_samples - n_coef
     let ql_disp = if residual_df > 0 {
-      let d = deviance / residual_df.to_double()
+      let d = if deviance.is_nan() || deviance.abs() > 1.0e300 { 1.0 } else { deviance / residual_df.to_double() }
       if d < 0.0 { 0.001 } else if d > 100.0 { 100.0 } else { d }
     } else {
       1.0
@@ -127,10 +127,22 @@ pub fn glm_qlf_fit(dge : DGEList) -> QLFData {
   // Estimate trend dispersion (median of raw QL dispersions)
   let sorted_disps = sort_array(raw_ql_disp.copy())
   let trend = if n_genes > 0 {
-    if n_genes % 2 == 0 {
-      (sorted_disps[n_genes / 2 - 1] + sorted_disps[n_genes / 2]) / 2.0
+    // Filter out NaN values for median computation
+    let valid_disps : Array[Double] = Array::new()
+    for d in sorted_disps {
+      if !d.is_nan() && d.abs() <= 1.0e300 {
+        valid_disps.push(if d < 0.001 { 0.001 } else { d })
+      }
+    }
+    if valid_disps.length() > 0 {
+      let n_valid = valid_disps.length()
+      if n_valid % 2 == 0 {
+        (valid_disps[n_valid / 2 - 1] + valid_disps[n_valid / 2]) / 2.0
+      } else {
+        valid_disps[n_valid / 2]
+      }
     } else {
-      sorted_disps[n_genes / 2]
+      1.0
     }
   } else {
     1.0
@@ -142,9 +154,11 @@ pub fn glm_qlf_fit(dge : DGEList) -> QLFData {
   let residual_df = (n_samples - n_coef).to_double()
   let shrunk_ql_disp : Array[Double] = Array::new()
   for i = 0; i < n_genes; i = i + 1 {
-    let shrunk = (residual_df * raw_ql_disp[i] + prior_df * trend) /
+    let raw = if raw_ql_disp[i].is_nan() || raw_ql_disp[i].abs() > 1.0e300 { 1.0 } else { raw_ql_disp[i] }
+    let shrunk = (residual_df * raw + prior_df * trend) /
       (residual_df + prior_df)
-    shrunk_ql_disp.push(if shrunk < 0.001 { 0.001 } else { shrunk })
+    let shrunk_safe = if shrunk.is_nan() || shrunk.abs() > 1.0e300 { 1.0 } else { shrunk }
+    shrunk_ql_disp.push(if shrunk_safe < 0.001 { 0.001 } else { shrunk_safe })
   }
 
   QLFData::{
@@ -179,7 +193,7 @@ fn fit_nb_glm(
   }
   let mean_count = total / n_samples.to_double()
   let init_log_mu = if mean_count > 0.0 {
-    log_nat(mean_count)
+    @math.ln(mean_count)
   } else {
     0.0
   }
@@ -202,9 +216,20 @@ fn fit_nb_glm(
       for k = 0; k < n_coef; k = k + 1 {
         eta = eta + design[j][k] * coefs[k]
       }
-      fitted[j] = exp(eta) * eff_lib[j] / 1000000.0 // offset by library size
+      // Cap eta to prevent overflow in exp()
+      if eta > 500.0 { eta = 500.0 }
+      if eta < -500.0 { eta = -500.0 }
+      let exp_eta = @math.exp(eta)
+      if exp_eta.is_nan() || exp_eta.abs() > 1.0e300 {
+        fitted[j] = 1000000.0
+      } else {
+        fitted[j] = exp_eta * eff_lib[j] / 1000000.0 // offset by library size
+      }
       if fitted[j] < 0.001 {
         fitted[j] = 0.001
+      }
+      if fitted[j].is_nan() || fitted[j].abs() > 1.0e300 {
+        fitted[j] = 1000000.0
       }
     }
 
@@ -216,11 +241,11 @@ fn fit_nb_glm(
       let mu = fitted[j]
       let y = counts[j].to_double()
       // NB variance: mu + disp * mu^2
-      let var = mu + nb_disp * mu * mu
+      let variance = mu + nb_disp * mu * mu
       let dmu_deta = mu // since link is log, dmu/deta = mu
       let deta_dmu = 1.0 / mu
 
-      let w = dmu_deta * dmu_deta / var
+      let w = dmu_deta * dmu_deta / variance
       let z = eta_from_coefs(coefs, design[j], n_coef) + (y - mu) * deta_dmu
 
       working[j] = z
@@ -251,11 +276,22 @@ fn fit_nb_glm(
   for j = 0; j < n_samples; j = j + 1 {
     let y = counts[j].to_double()
     let mu = fitted[j]
-    if y > 0.0 && mu > 0.0 {
-      let term = y * log_nat(y / mu) - (y + 1.0 / nb_disp) * log_nat((1.0 + nb_disp * y) / (1.0 + nb_disp * mu))
-      deviance = deviance + 2.0 * term
-    } else if y == 0.0 && mu > 0.0 {
-      deviance = deviance + 2.0 * (1.0 / nb_disp) * log_nat(1.0 + nb_disp * mu)
+    if y > 0.0 && mu > 0.0 && !mu.is_nan() && mu.abs() <= 1.0e300 {
+      let term = y * @math.ln(y / mu) - (y + 1.0 / nb_disp) * @math.ln((1.0 + nb_disp * y) / (1.0 + nb_disp * mu))
+      let contrib = 2.0 * term
+      if contrib.is_nan() || contrib < 0.0 {
+        // Numerical issues, use a small positive value
+        deviance = deviance + 0.001
+      } else {
+        deviance = deviance + contrib
+      }
+    } else if y == 0.0 && mu > 0.0 && !mu.is_nan() && mu.abs() <= 1.0e300 {
+      let contrib = 2.0 * (1.0 / nb_disp) * @math.ln(1.0 + nb_disp * mu)
+      if contrib.is_nan() || contrib < 0.0 {
+        deviance = deviance + 0.001
+      } else {
+        deviance = deviance + contrib
+      }
     }
   }
 
@@ -356,7 +392,7 @@ pub fn glm_qlf_test(qlf_data : QLFData, coef? : Int = 1) -> QLFResult {
     } else {
       0.0
     }
-    log_fc.push(beta)
+    log_fc.push(if beta.is_nan() || beta.abs() > 1.0e300 { 0.0 } else { beta })
 
     // Compute LR statistic: compare full vs reduced model
     // For a simple 2-group comparison, the F-statistic is:
@@ -371,7 +407,7 @@ pub fn glm_qlf_test(qlf_data : QLFData, coef? : Int = 1) -> QLFResult {
     let mut info_coef = 0.0
     for j = 0; j < n_samples; j = j + 1 {
       let mu = qlf_data.fitted_values[i][j]
-      if mu > 0.0 {
+      if mu > 0.0 && !mu.is_nan() && mu.abs() <= 1.0e300 {
         let w = mu / (1.0 + ql * mu)
         // Design matrix: [1, x_j]
         let x_coef = if coef == 0 { 1.0 } else { if qlf_data.group[j] == qlf_data.group[0] { 0.0 } else { 1.0 } }
@@ -380,8 +416,11 @@ pub fn glm_qlf_test(qlf_data : QLFData, coef? : Int = 1) -> QLFResult {
     }
 
     let var_beta = if info_coef > 0.0 { 1.0 / info_coef } else { 1.0 }
-    let f = if ql * var_beta > 0.0 {
-      beta * beta / (ql * var_beta)
+    let f = if ql.is_nan() || ql.abs() > 1.0e300 || var_beta.is_nan() || var_beta.abs() > 1.0e300 || beta.is_nan() || beta.abs() > 1.0e300 {
+      0.0
+    } else if ql * var_beta > 0.0 {
+      let f_raw = beta * beta / (ql * var_beta)
+      if f_raw.is_nan() || f_raw.abs() > 1.0e300 { 0.0 } else { f_raw }
     } else {
       0.0
     }
@@ -390,7 +429,8 @@ pub fn glm_qlf_test(qlf_data : QLFData, coef? : Int = 1) -> QLFResult {
     // P-value from F-distribution with (1, residual_df) degrees of freedom
     let df1 = 1
     let df2 = if residual_df > 0 { residual_df } else { 1 }
-    let p = f_distribution_pvalue(f, df1, df2)
+    let p_raw = f_distribution_pvalue(f, df1, df2)
+    let p = if p_raw.is_nan() || p_raw.abs() > 1.0e300 { 1.0 } else { p_raw }
     p_value.push(p)
   }
 
@@ -444,14 +484,14 @@ fn regularized_incomplete_beta(x : Double, a : Double, b : Double) -> Double {
 
   // Log of prefactor: B(a,b) = Gamma(a)Gamma(b)/Gamma(a+b)
   let lbeta = log_gamma(a) + log_gamma(b) - log_gamma(a + b)
-  let prefactor = exp(a * log_nat(x) + b * log_nat(1.0 - x) - lbeta)
+  let prefactor = @math.exp(a * log_nat(x) + b * log_nat(1.0 - x) - lbeta)
 
   // Use symmetry: I_x(a,b) = 1 - I_{1-x}(b,a)
   if x < (a + 1.0) / (a + b + 2.0) {
     prefactor * edger_betacf(x, a, b) / a
   } else {
     // Use complement
-    let prefactor2 = exp(a * log_nat(x) + b * log_nat(1.0 - x) - lbeta)
+    let prefactor2 = @math.exp(a * log_nat(x) + b * log_nat(1.0 - x) - lbeta)
     1.0 - prefactor2 * edger_betacf(1.0 - x, b, a) / b
   }
 }
@@ -540,7 +580,7 @@ fn edger_sin(x : Double) -> Double {
 fn log_gamma(x : Double) -> Double {
   if x < 0.5 {
     // Use reflection formula: Gamma(x)Gamma(1-x) = pi/sin(pi*x)
-    return log_nat(3.141592653589793 / edger_sin(3.141592653589793 * x)) - log_gamma(1.0 - x)
+    return @math.ln(3.141592653589793 / edger_sin(3.141592653589793 * x)) - log_gamma(1.0 - x)
   }
 
   let g = 7.0
@@ -566,7 +606,7 @@ fn log_gamma(x : Double) -> Double {
     i = i + 1
   }
 
-  0.5 * log_nat(2.0 * 3.141592653589793) + (y + 0.5) * log_nat(tmp) - tmp + log_nat(sum)
+  0.5 * @math.ln(2.0 * 3.141592653589793) + (y + 0.5) * @math.ln(tmp) - tmp + @math.ln(sum)
 }
 
 ///|
@@ -585,9 +625,12 @@ fn bh_adjust(p_values : Array[Double]) -> Array[Double] {
   let mut k = n - 1
   while k >= 0 {
     let idx = indices[k]
+    let pval = if p_values[idx].is_nan() { 1.0 } else { p_values[idx] }
     let rank = (k + 1).to_double()
-    let adj = p_values[idx] * n.to_double() / rank
-    if adj < min_padj {
+    let adj = pval * n.to_double() / rank
+    if adj.is_nan() || adj > min_padj {
+      // Keep min_padj as is
+    } else {
       min_padj = adj
     }
     padj[idx] = if min_padj > 1.0 { 1.0 } else { min_padj }
@@ -620,18 +663,32 @@ fn sort_array(arr : Array[Double]) -> Array[Double] {
 
 ///|
 /// Return indices that would sort the array in ascending order.
+/// NaN values are treated as the largest (placed at the end).
 fn sort_indices(arr : Array[Double]) -> Array[Int] {
   let n = arr.length()
   let indices : Array[Int] = Array::new()
   let used : Array[Bool] = Array::make(n, false)
+  let is_nan_arr : Array[Bool] = Array::make(n, false)
+  let mut nan_count = 0
 
+  // First pass: identify NaN values
   let mut i = 0
   while i < n {
+    if arr[i].is_nan() {
+      is_nan_arr[i] = true
+      nan_count = nan_count + 1
+    }
+    i = i + 1
+  }
+
+  // Sort non-NaN values
+  let mut sorted = 0
+  while sorted < n - nan_count {
     let mut min_idx = -1
     let mut min_val = 1.0e300
     let mut j = 0
     while j < n {
-      if !used[j] && arr[j] < min_val {
+      if !used[j] && !is_nan_arr[j] && arr[j] < min_val {
         min_val = arr[j]
         min_idx = j
       }
@@ -641,7 +698,16 @@ fn sort_indices(arr : Array[Double]) -> Array[Int] {
       indices.push(min_idx)
       used[min_idx] = true
     }
-    i = i + 1
+    sorted = sorted + 1
+  }
+
+  // Add NaN indices at the end
+  let mut k = 0
+  while k < n {
+    if is_nan_arr[k] {
+      indices.push(k)
+    }
+    k = k + 1
   }
 
   indices
@@ -784,7 +850,7 @@ fn edger_normal_cdf(x : Double) -> Double {
 fn erf(x : Double) -> Double {
   let t = 1.0 / (1.0 + 0.3275911 * x.abs())
   let poly = t * (0.254829592 + t * (-0.284496736 + t * (1.421413741 + t * (-1.453152027 + t * 1.061405429))))
-  let result = 1.0 - poly * exp(-x * x)
+  let result = 1.0 - poly * @math.exp(-x * x)
   if x >= 0.0 { result } else { -result }
 }
 

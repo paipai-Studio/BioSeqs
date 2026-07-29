@@ -64,7 +64,7 @@ pub fn SubstitutionMatrix::name(self : SubstitutionMatrix) -> String {
 ///|
 /// Get matrix alphabet.
 pub fn SubstitutionMatrix::alphabet(self : SubstitutionMatrix) -> Array[String] {
-  self.alphabet.clone()
+  self.alphabet.copy()
 }
 
 ///|

@@ -86,7 +86,7 @@ fn main {
   let predictions = @bio.predict_coding(
     [rec_coding],
     txdb_short,
-    @hashmap.HashMap([]),
+    Map([], capacity=0),
   )
   println("Found \{predictions.length()} coding predictions")
   i = 0

@@ -402,7 +402,7 @@ pub fn single_r_aggregate_scores_by_type(
     i = i + 1
   }
 
-  let result : Map[String, Double] = Map([], capacity=unique_types.size())
+  let result : Map[String, Double] = Map([], capacity=unique_types.length())
   let keys = unique_types.keys()
   for key in keys {
     let vals = unique_types.get(key).unwrap_or([])
@@ -958,7 +958,7 @@ pub fn single_r_annotation_summary(result : SingleRFullResult) -> Map[String, Do
     i = i + 1
   }
 
-  let summary : Map[String, Double] = Map([], capacity=label_counts.size() + 2)
+  let summary : Map[String, Double] = Map([], capacity=label_counts.length() + 2)
   let keys = label_counts.keys()
   for key in keys {
     let count = label_counts.get(key).unwrap_or(0)

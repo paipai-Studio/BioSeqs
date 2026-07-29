@@ -111,7 +111,7 @@ pub fn tx_import(
     let (tx_names, abundance, counts, length) = parse_quant_sf(file_content)
 
     if i == 0 {
-      all_tx_names = tx_names.clone()
+      all_tx_names = tx_names.copy()
     }
 
     all_abundance.push(abundance)

@@ -108,6 +108,6 @@ test "genomic_alignments_pileup" {
     [30, 30],
     [0, 0],
   )
-  let pileup = @src.pileup(galn, @hashmap.HashMap([]))
+  let pileup = @src.pileup(galn, Map([], capacity=0))
   assert_eq(pileup.length(), 3)
 }

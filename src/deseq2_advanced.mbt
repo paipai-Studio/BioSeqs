@@ -46,7 +46,7 @@ fn vst_transform_single(mu : Double, alpha : Double) -> Double {
   }
   if alpha <= 0.0 {
     // No overdispersion: use log2(mu) with pseudocount
-    return log_nat(mu + 1.0) / log_nat(2.0)
+    return @math.ln(mu + 1.0) / @math.ln(2.0)
   }
   let sqrt_alpha = alpha.sqrt()
   let inner = alpha * mu
@@ -54,7 +54,7 @@ fn vst_transform_single(mu : Double, alpha : Double) -> Double {
   let sqrt_one_plus = (1.0 + inner).sqrt()
   let val = (sqrt_inner + sqrt_one_plus) / sqrt_alpha
   // Convert from natural log to log2
-  2.0 * log_nat(val) / log_nat(2.0)
+  2.0 * @math.ln(val) / @math.ln(2.0)
 }
 
 ///|

@@ -89,7 +89,7 @@ pub fn fa_count_kmers(sequence : String, k : Int) -> FreqAnalysisResult {
     pos = pos + 1
   }
   
-  let frequencies : Map[String, Double] = Map([], capacity=counts.size())
+  let frequencies : Map[String, Double] = Map([], capacity=counts.length())
   for key in counts.keys() {
     let count = counts.get_or_default(key, 0)
     frequencies.set(key, count.to_double() / total.to_double())
@@ -185,7 +185,7 @@ pub fn fa_codon_usage(sequence : String) -> FreqAnalysisResult {
     pos = pos + 3
   }
   
-  let frequencies : Map[String, Double] = Map([], capacity=counts.size())
+  let frequencies : Map[String, Double] = Map([], capacity=counts.length())
   for key in counts.keys() {
     let count = counts.get_or_default(key, 0)
     frequencies.set(key, count.to_double() / total.to_double())
@@ -255,7 +255,7 @@ pub fn fa_find_overrepresented(sequence : String, k : Int) -> Map[String, Double
     i = i + 1
   }
   
-  let results : Map[String, Double] = Map([], capacity=counts.size())
+  let results : Map[String, Double] = Map([], capacity=counts.length())
   for key in counts.keys() {
     let count = counts.get_or_default(key, 0)
     let obs_freq = count.to_double() / total.to_double()

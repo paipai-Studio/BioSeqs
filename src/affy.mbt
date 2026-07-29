@@ -272,7 +272,7 @@ pub fn compute_pm_mm_difference(probe_set : ProbeSet) -> Array[Array[Double]] {
 ///|
 pub fn summarize_probeset(
   probe_set : ProbeSet,
-  method : String,
+  method_name : String,
 ) -> Array[Double] {
   let pm = probe_set.pm_intensities
   let n_samples = if pm.length() > 0 { pm[0].length() } else { 0 }
@@ -287,9 +287,9 @@ pub fn summarize_probeset(
       j = j + 1
     }
 
-    let val = if method == "median" {
+    let val = if method_name == "median" {
       median(vals)
-    } else if method == "mean" {
+    } else if method_name == "mean" {
       let mut sum = 0.0
       let mut k = 0
       while k < vals.length() {
@@ -311,12 +311,12 @@ pub fn summarize_probeset(
 ///|
 pub fn affy_batch_summarize(
   affy_batch : AffyBatch,
-  method : String,
+  method_name : String,
 ) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = Array::new()
   let mut i = 0
   while i < affy_batch.probe_sets.length() {
-    result.push(summarize_probeset(affy_batch.probe_sets[i], method))
+    result.push(summarize_probeset(affy_batch.probe_sets[i], method_name))
     i = i + 1
   }
   result

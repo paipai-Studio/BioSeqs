@@ -218,7 +218,7 @@ pub fn build_consensus(trees : Array[ConsensusTree], threshold : Double) -> Cons
   
   let all_taxa = get_all_taxa(trees[0])
   
-  let split_counts : @hashmap.HashMap[String, Int] = @hashmap.HashMap([])
+  let split_counts : Map[String, Int] = Map([], capacity=0)
   
   let mut i = 0
   while i < trees.length() {
@@ -301,7 +301,7 @@ fn build_tree_from_splits(taxa : Array[String], splits : Array[Split]) -> Consen
   let sorted_splits = sort_splits_by_support(splits)
   
   let root = ConsensusNode::new("root", true)
-  let leaves : @hashmap.HashMap[String, ConsensusNode] = @hashmap.HashMap([])
+  let leaves : Map[String, ConsensusNode] = Map([], capacity=0)
   
   let mut i = 0
   while i < taxa.length() {
@@ -622,7 +622,7 @@ pub fn get_all_splits_from_trees(trees : Array[ConsensusTree]) -> Array[Split] {
   }
   
   let all_taxa = get_all_taxa(trees[0])
-  let seen : @hashmap.HashMap[String, Split] = @hashmap.HashMap([])
+  let seen : Map[String, Split] = Map([], capacity=0)
   
   let mut i = 0
   while i < trees.length() {

@@ -270,12 +270,14 @@ pub fn ChrDiagram::new(
 ///|
 /// Add a feature to a chromosome.
 pub fn Chromosome::add_feature(self : Chromosome, feature : ChrFeature) -> Chromosome {
+  let new_features = self.features.copy()
+  new_features.push(feature)
   Chromosome::{
     name: self.name,
     length: self.length,
     centromere_pos: self.centromere_pos,
     is_circular: self.is_circular,
-    features: self.features + [feature],
+    features: new_features,
     regions: self.regions,
     bands: self.bands,
   }
@@ -284,13 +286,15 @@ pub fn Chromosome::add_feature(self : Chromosome, feature : ChrFeature) -> Chrom
 ///|
 /// Add a region to a chromosome.
 pub fn Chromosome::add_region(self : Chromosome, region : ChrRegion) -> Chromosome {
+  let new_regions = self.regions.copy()
+  new_regions.push(region)
   Chromosome::{
     name: self.name,
     length: self.length,
     centromere_pos: self.centromere_pos,
     is_circular: self.is_circular,
     features: self.features,
-    regions: self.regions + [region],
+    regions: new_regions,
     bands: self.bands,
   }
 }
@@ -304,6 +308,8 @@ pub fn Chromosome::add_band(
   end : Double,
   stain : String,
 ) -> Chromosome {
+  let new_bands = self.bands.copy()
+  new_bands.push((name, start, end, stain))
   Chromosome::{
     name: self.name,
     length: self.length,
@@ -311,7 +317,7 @@ pub fn Chromosome::add_band(
     is_circular: self.is_circular,
     features: self.features,
     regions: self.regions,
-    bands: self.bands + [(name, start, end, stain)],
+    bands: new_bands,
   }
 }
 

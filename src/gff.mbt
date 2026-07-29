@@ -13,7 +13,7 @@ pub struct GFFFeature {
   score : Double?
   strand : String
   phase : Int?
-  attributes : @hashmap.HashMap[String, String]
+  attributes : Map[String, String]
 }
 
 ///|
@@ -34,7 +34,7 @@ pub fn GFFFeature::new(
     score: None,
     strand,
     phase: None,
-    attributes: @hashmap.HashMap([])
+    attributes: Map([], capacity=0)
   }
 }
 
@@ -132,7 +132,7 @@ pub fn GFFFeature::is_on_reverse_strand(self : GFFFeature) -> Bool {
 ///|
 pub struct GFFRecord {
   features : Array[GFFFeature]
-  sequences : @hashmap.HashMap[String, String]
+  sequences : Map[String, String]
   version : String
 }
 
@@ -140,7 +140,7 @@ pub struct GFFRecord {
 pub fn GFFRecord::new() -> GFFRecord {
   GFFRecord::{
     features: Array::new(),
-    sequences: @hashmap.HashMap([]),
+    sequences: Map([], capacity=0),
     version: "3"
   }
 }
@@ -304,8 +304,8 @@ pub fn GFFRecord::get_cds_for_transcript(self : GFFRecord, transcript_id : Strin
 }
 
 ///|
-pub fn parse_attributes(attr_str : String) -> @hashmap.HashMap[String, String] {
-  let attrs = @hashmap.HashMap([])
+pub fn parse_attributes(attr_str : String) -> Map[String, String] {
+  let attrs = Map([], capacity=0)
   let pairs = split_by_char(attr_str, ';'.to_int())
   
   let mut i = 0
@@ -541,7 +541,7 @@ pub fn GFFRecord::count_features(self : GFFRecord) -> Int {
 ///|
 pub fn GFFRecord::get_unique_seqids(self : GFFRecord) -> Array[String] {
   let result : Array[String] = Array::new()
-  let seen : @hashmap.HashMap[String, Bool] = @hashmap.HashMap([])
+  let seen : Map[String, Bool] = Map([], capacity=0)
   
   let mut i = 0
   while i < self.features.length() {
@@ -559,7 +559,7 @@ pub fn GFFRecord::get_unique_seqids(self : GFFRecord) -> Array[String] {
 ///|
 pub fn GFFRecord::get_unique_feature_types(self : GFFRecord) -> Array[String] {
   let result : Array[String] = Array::new()
-  let seen : @hashmap.HashMap[String, Bool] = @hashmap.HashMap([])
+  let seen : Map[String, Bool] = Map([], capacity=0)
   
   let mut i = 0
   while i < self.features.length() {

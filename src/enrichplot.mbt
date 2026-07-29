@@ -229,7 +229,7 @@ pub fn bio_enrichplot_heatmap(data : EnrichResult, top_n : Int, gene_count : Int
   
   let n = if sorted.length() < top_n { sorted.length() } else { top_n }
   
-  let gene_count_map : @hashmap.HashMap[String, Int] = @hashmap.HashMap([])
+  let gene_count_map : Map[String, Int] = Map([], capacity=0)
   let gene_counts = gene_count_map
   
   let mut i = 0
@@ -348,7 +348,7 @@ pub fn bio_enrichplot_cnetplot(data : EnrichResult, top_n : Int, title : String)
   
   let colors = ["red", "blue", "green", "purple", "orange", "cyan", "magenta", "yellow"]
   
-  let term_colors : @hashmap.HashMap[String, String] = @hashmap.HashMap([])
+  let term_colors : Map[String, String] = Map([], capacity=0)
   let color_map = term_colors
   
   let mut term_nodes : Array[String] = Array::new()
@@ -450,14 +450,14 @@ pub fn bio_enrichplot_emapplot(data : EnrichResult, similarity_threshold : Doubl
   
   let n = sorted.length()
   
-  let mut term_sets : Array[@hashmap.HashMap[String, Bool]] = Array::new()
+  let mut term_sets : Array[Map[String, Bool]] = Array::new()
   let mut term_names : Array[String] = Array::new()
   
   let mut i = 0
   while i < n {
     let term = sorted[i]
     let ts_len = term_sets.length()
-    let new_ts : Array[@hashmap.HashMap[String, Bool]] = Array::new()
+    let new_ts : Array[Map[String, Bool]] = Array::new()
     let mut j = 0
     while j < ts_len {
       new_ts.push(term_sets[j])
@@ -504,8 +504,8 @@ pub fn bio_enrichplot_emapplot(data : EnrichResult, similarity_threshold : Doubl
   result
 }
 
-fn create_gene_hashmap(genes : Array[String]) -> @hashmap.HashMap[String, Bool] {
-  let map : @hashmap.HashMap[String, Bool] = @hashmap.HashMap([])
+fn create_gene_hashmap(genes : Array[String]) -> Map[String, Bool] {
+  let map : Map[String, Bool] = Map([], capacity=0)
   let result = map
   let len = genes.length()
   let mut i = 0
@@ -516,7 +516,7 @@ fn create_gene_hashmap(genes : Array[String]) -> @hashmap.HashMap[String, Bool] 
   result
 }
 
-fn count_intersection(set1 : @hashmap.HashMap[String, Bool], set2 : @hashmap.HashMap[String, Bool]) -> Int {
+fn count_intersection(set1 : Map[String, Bool], set2 : Map[String, Bool]) -> Int {
   let entries = set1.iter().collect()
   let len = entries.length()
   let mut count = 0
@@ -531,7 +531,7 @@ fn count_intersection(set1 : @hashmap.HashMap[String, Bool], set2 : @hashmap.Has
   count
 }
 
-fn calculate_union_size(set1 : @hashmap.HashMap[String, Bool], set2 : @hashmap.HashMap[String, Bool]) -> Int {
+fn calculate_union_size(set1 : Map[String, Bool], set2 : Map[String, Bool]) -> Int {
   let entries1 = set1.iter().collect()
   let entries2 = set2.iter().collect()
   

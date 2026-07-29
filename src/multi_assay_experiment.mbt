@@ -69,7 +69,7 @@ pub fn SampleMap::primary_ids(self : SampleMap) -> Array[String] {
         found = true
       }
     }
-    if not(found) {
+    if !found {
       result.push(id)
     }
   }
@@ -159,7 +159,7 @@ pub fn MultiAssayExperiment::common_samples(
           found = true
         }
       }
-      if not(found) {
+      if !found {
         in_all = false
       }
     }

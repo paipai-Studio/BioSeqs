@@ -77,7 +77,7 @@ fn Clade::collect_bipartitions(
           }
           j = j + 1
         }
-        if not(found) {
+        if !found {
           complement.push(all_leaves[i])
         }
         i = i + 1
@@ -273,7 +273,7 @@ pub fn Clade::patristic_distance(
               }
               m = m + 1
             }
-            if not(found) {
+            if !found {
               same = false
               break
             }
@@ -282,7 +282,7 @@ pub fn Clade::patristic_distance(
         } else {
           same = false
         }
-        if not(same) {
+        if !same {
           break
         }
         i = i + 1

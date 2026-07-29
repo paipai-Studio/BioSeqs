@@ -77,7 +77,7 @@ fn main {
     let rec = vcf.records[i]
     println("  [\{i}] \{rec.chrom}:\{rec.pos}")
     println("       ID: \{rec.id}")
-    println("       REF: \{rec.ref}  ALT: \{rec.alt}")
+    println("       REF: \{rec.ref_seq}  ALT: \{rec.alt}")
     match rec.qual {
       Some(q) => println("       QUAL: \{q}")
       None => println("       QUAL: .")

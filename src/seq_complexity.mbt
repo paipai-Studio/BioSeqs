@@ -73,7 +73,7 @@ fn count_unique_chars(seq : String) -> Int {
     seen[c] = true
     i = i + 1
   }
-  seen.size()
+  seen.length()
 }
 
 ///|
@@ -90,7 +90,7 @@ fn count_unique_kmers(seq : String, k : Int) -> Int {
     seen[kmer] = true
     i = i + 1
   }
-  seen.size()
+  seen.length()
 }
 
 ///|

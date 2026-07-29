@@ -177,7 +177,7 @@ pub fn TabularMSA::consensus(self : TabularMSA) -> DNA {
   let result = StringBuilder::new()
   for col in 0..<align_len {
     let col_str = self.column(col).unwrap()
-    let counts = @hashmap.HashMap([])
+    let counts = Map([], capacity=0)
     let mut max_char = '-'
     let mut max_count = 0
     for i = 0; i < col_str.length(); i = i + 1 {
@@ -202,7 +202,7 @@ pub fn TabularMSA::conservation(self : TabularMSA) -> Array[Double] {
   let result = Array::new()
   for col in 0..<align_len {
     let col_str = self.column(col).unwrap()
-    let counts = @hashmap.HashMap([])
+    let counts = Map([], capacity=0)
     for i = 0; i < col_str.length(); i = i + 1 {
       let c = col_str.unsafe_get(i).unsafe_to_char()
       counts.set(c.to_string(), counts.get(c.to_string()).unwrap_or(0) + 1)
@@ -293,7 +293,7 @@ pub fn align_score(msa : TabularMSA) -> Double {
   let mut score = 0.0
   for col in 0..<align_len {
     let col_str = msa.column(col).unwrap()
-    let counts = @hashmap.HashMap([])
+    let counts = Map([], capacity=0)
     for i = 0; i < col_str.length(); i = i + 1 {
       let c = col_str.unsafe_get(i).unsafe_to_char()
       counts.set(c.to_string(), counts.get(c.to_string()).unwrap_or(0) + 1)

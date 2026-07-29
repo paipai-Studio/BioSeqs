@@ -40,7 +40,7 @@ pub struct TMBResult {
   tmb : Double
   coding_region_size : Double
   total_mutations : Int
-  per_sample_tmb : @hashmap.HashMap[String, Double]
+  per_sample_tmb : Map[String, Double]
 }
 
 ///|
@@ -269,8 +269,8 @@ pub fn MAFData::get_mutation_sample(self : MAFData, index : Int) -> String {
 }
 
 ///|
-pub fn get_gene_mutation_counts(maf : MAFData) -> @hashmap.HashMap[String, Int] {
-  let counts : @hashmap.HashMap[String, Int] = @hashmap.HashMap([])
+pub fn get_gene_mutation_counts(maf : MAFData) -> Map[String, Int] {
+  let counts : Map[String, Int] = Map([], capacity=0)
   let mut i = 0
   while i < maf.mutations.length() {
     let mutation = maf.mutations[i]
@@ -282,8 +282,8 @@ pub fn get_gene_mutation_counts(maf : MAFData) -> @hashmap.HashMap[String, Int] 
 }
 
 ///|
-pub fn get_sample_mutation_counts(maf : MAFData) -> @hashmap.HashMap[String, Int] {
-  let counts : @hashmap.HashMap[String, Int] = @hashmap.HashMap([])
+pub fn get_sample_mutation_counts(maf : MAFData) -> Map[String, Int] {
+  let counts : Map[String, Int] = Map([], capacity=0)
   let mut i = 0
   while i < maf.mutations.length() {
     let mutation = maf.mutations[i]
@@ -338,7 +338,7 @@ pub fn calculate_mutation_spectrum(maf : MAFData) -> MutationSpectrum {
 pub fn calculate_tmb(maf : MAFData, coding_region_size : Double) -> TMBResult {
   let mutations = maf.mutations
   let mut total_mutations = 0
-  let per_sample_tmb : @hashmap.HashMap[String, Double] = @hashmap.HashMap([])
+  let per_sample_tmb : Map[String, Double] = Map([], capacity=0)
   
   let mut i = 0
   while i < mutations.length() {
@@ -352,7 +352,7 @@ pub fn calculate_tmb(maf : MAFData, coding_region_size : Double) -> TMBResult {
     i = i + 1
   }
   
-  let result_map : @hashmap.HashMap[String, Double] = @hashmap.HashMap([])
+  let result_map : Map[String, Double] = Map([], capacity=0)
   let sample_barcodes = maf.sample_barcodes
   let mut j = 0
   while j < sample_barcodes.length() {
@@ -588,7 +588,7 @@ fn maftools_parse_int(s : String) -> Int {
   parse_int(s)
 }
 
-fn maftools_sort_by_count_desc(counts : @hashmap.HashMap[String, Int], top_n : Int) -> Array[String] {
+fn maftools_sort_by_count_desc(counts : Map[String, Int], top_n : Int) -> Array[String] {
   let entries = counts.iter().collect()
   let sorted : Array[(String, Int)] = Array::new()
   
