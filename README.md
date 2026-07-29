@@ -945,10 +945,13 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3319 个测试全�
 | `seq_record.mbt` | BioPython `Bio.SeqRecord` | 带注释的序列记录 |
 | `seqfeature.mbt` | BioPython `Bio.SeqFeature` | 序列特征与位置 |
 | `seqfeature_advanced.mbt` | BioPython `Bio.SeqFeature` | CompoundLocation复合位点、LocationParser位点字符串解析、扩展SeqFeature修饰符 |
-| `seqio.mbt` | BioPython `Bio.SeqIO` | 统一序列文件 I/O |
-| `fasta_io.mbt` | BioPython `Bio.SeqIO.FastaIO` | FASTA 解析 |
-| `fastq_io.mbt` | BioPython `Bio.SeqIO.QualityIO` | FASTQ 解析 |
-| `genbank_io.mbt` | BioPython `Bio.SeqIO.GenBankIO` | GenBank 解析 |
+| `seqio.mbt` | BioPython `Bio.SeqIO` | 统一序列文件 I/O（seqio_parse / seqio_write / seqio_convert / seqio_read / seqio_to_dict） |
+| `fasta_io.mbt` | BioPython `Bio.SeqIO.FastaIO` | FASTA 解析与写入 |
+| `fastq_io.mbt` | BioPython `Bio.SeqIO.QualityIO` | FASTQ 解析与写入 |
+| `genbank_io.mbt` | BioPython `Bio.SeqIO.GenBankIO` | GenBank 解析与写入 |
+| `embl_io.mbt` | BioPython `Bio.SeqIO.EmblIO` | EMBL 格式解析（ID / AC / DE / SQ 字段） |
+| `pir_io.mbt` | BioPython `Bio.SeqIO.PdbIO (PIR/NBRF)` | PIR / NBRF 蛋白与核酸序列格式解析 |
+| `tab_io.mbt` | BioPython `Bio.SeqIO.TabIO` | Tab 分隔（ID + 序列）解析与写入 |
 | `sequtils.mbt` | BioPython `Bio.SeqUtils` | CRC32、GC 含量、Tm 计算 |
 | `seq_utils.mbt` | BioPython `Bio.SeqUtils` | 序列工具函数、GC/AT滑动窗口偏斜、ORF预测、Hamming距离、Levenshtein编辑距离 |
 | `circ_seq.mbt` | BioPython `Bio.SeqUtils.CircSeq` | 环状DNA序列操作、酶切分析、PCR引物设计 |
@@ -1151,7 +1154,13 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3319 个测试全�
 
 ### 2. 序列 I/O (Bio.SeqIO)
 
-实现统一的序列文件解析接口，支持 FASTA、FASTQ 和 GenBank 三种常用格式的解析与写入。通过统一的 API 设计，用户可以轻松切换不同的文件格式，无需关注底层实现细节，极大简化了序列数据的处理流程。
+实现统一的序列文件解析接口，支持 **FASTA、FASTQ、GenBank、EMBL、PIR/NBRF、Tab-delimited 六种常用格式的解析与写入（部分格式仅读或仅写）。通过统一的 API 设计，用户可以轻松切换不同的文件格式，无需关注底层实现细节，极大简化了序列数据的处理流程。
+
+- **seqio_parse(content, format)**：统一读取，支持 `fasta` / `fastq` / `fastq-sanger` / `genbank` / `gb` / `embl` / `pir` / `nbrf` / `tab`
+- **seqio_write(records, format)**：统一写出，支持 `fasta` / `fastq` / `genbank` / `gb` / `tab`
+- **seqio_convert(content, in_format, out_format)**：格式直接互换（如 FASTA → Tab → GenBank 来回转换）
+- **seqio_read(content, format)**：读单条记录（多于一条时报错）
+- **seqio_to_dict(records)**：按 id 建索引 Map，方便按名字随机访问
 
 ### 3. 比对算法 (scikit-bio)
 
