@@ -633,3 +633,214 @@ fn valid_letter_fast(c : UInt16) -> Bool {
     false
   }
 }
+
+// ---------------------------------------------------------------------------
+// MutableSeq - Mutable counterpart to Seq, mirroring Bio.Seq.MutableSeq
+// ---------------------------------------------------------------------------
+
+///|
+/// A mutable biological sequence, equivalent to Bio.Seq.MutableSeq.
+/// Supports in-place modifications (insertion, deletion, item assignment).
+pub struct MutableSeq {
+  mut data : Array[Char]
+}
+
+///|
+/// Construct a MutableSeq from a String.
+pub fn MutableSeq::new(s : String) -> MutableSeq {
+  let data = Array::new()
+  let mut i = 0
+  while i < s.length() {
+    data.push(s.unsafe_get(i).unsafe_to_char())
+    i = i + 1
+  }
+  MutableSeq::{ data }
+}
+
+///|
+/// Construct a MutableSeq from a Seq.
+pub fn MutableSeq::from_seq(seq : Seq) -> MutableSeq {
+  MutableSeq::new(seq.data)
+}
+
+///|
+/// Return the underlying sequence as a String.
+pub fn MutableSeq::to_string(self : MutableSeq) -> String {
+  let buf = StringBuilder::new(size_hint=self.data.length())
+  for c in self.data {
+    buf.write_char(c)
+  }
+  buf.to_string()
+}
+
+///|
+/// Convert to an immutable Seq.
+pub fn MutableSeq::to_seq(self : MutableSeq) -> Seq {
+  Seq::{ data: self.to_string() }
+}
+
+///|
+/// Number of characters in the sequence.
+pub fn MutableSeq::length(self : MutableSeq) -> Int {
+  self.data.length()
+}
+
+///|
+/// Get the character at position `i`.
+pub fn MutableSeq::get(self : MutableSeq, i : Int) -> Char {
+  self.data[i]
+}
+
+///|
+/// Set the character at position `i`.
+pub fn MutableSeq::set(self : MutableSeq, i : Int, c : Char) -> Unit {
+  self.data[i] = c
+}
+
+///|
+/// Append a character to the end.
+pub fn MutableSeq::push(self : MutableSeq, c : Char) -> Unit {
+  self.data.push(c)
+}
+
+///|
+/// Append another sequence to the end.
+pub fn MutableSeq::append(self : MutableSeq, other : MutableSeq) -> Unit {
+  for c in other.data {
+    self.data.push(c)
+  }
+}
+
+///|
+/// Insert a character at position `i`, shifting subsequent characters.
+pub fn MutableSeq::insert(self : MutableSeq, i : Int, c : Char) -> Unit {
+  let new_data = Array::new()
+  let mut idx = 0
+  while idx < i && idx < self.data.length() {
+    new_data.push(self.data[idx])
+    idx = idx + 1
+  }
+  new_data.push(c)
+  while idx < self.data.length() {
+    new_data.push(self.data[idx])
+    idx = idx + 1
+  }
+  self.data = new_data
+}
+
+///|
+/// Delete the character at position `i`.
+pub fn MutableSeq::delete(self : MutableSeq, i : Int) -> Unit {
+  let new_data = Array::new()
+  let mut idx = 0
+  while idx < self.data.length() {
+    if idx != i {
+      new_data.push(self.data[idx])
+    }
+    idx = idx + 1
+  }
+  self.data = new_data
+}
+
+///|
+/// Delete characters in range [start, end).
+pub fn MutableSeq::delete_range(self : MutableSeq, start : Int, end : Int) -> Unit {
+  let new_data = Array::new()
+  let mut idx = 0
+  while idx < self.data.length() {
+    if idx < start || idx >= end {
+      new_data.push(self.data[idx])
+    }
+    idx = idx + 1
+  }
+  self.data = new_data
+}
+
+///|
+/// Pop the last character.
+pub fn MutableSeq::pop(self : MutableSeq) -> Char? {
+  if self.data.length() == 0 {
+    return None
+  }
+  let last = self.data[self.data.length() - 1]
+  let new_data = Array::new()
+  for i = 0; i < self.data.length() - 1; i = i + 1 {
+    new_data.push(self.data[i])
+  }
+  self.data = new_data
+  Some(last)
+}
+
+///|
+/// Return a copy (deep clone).
+pub fn MutableSeq::copy(self : MutableSeq) -> MutableSeq {
+  let new_data = Array::new()
+  for c in self.data {
+    new_data.push(c)
+  }
+  MutableSeq::{ data: new_data }
+}
+
+///|
+/// Return the complement as a new MutableSeq.
+pub fn MutableSeq::complement(self : MutableSeq) -> MutableSeq {
+  let s = self.to_seq().complement()
+  MutableSeq::new(s.data)
+}
+
+///|
+/// Return the reverse complement as a new MutableSeq.
+pub fn MutableSeq::reverse_complement(self : MutableSeq) -> MutableSeq {
+  let s = self.to_seq().reverse_complement()
+  MutableSeq::new(s.data)
+}
+
+///|
+/// Transcribe to RNA (T->U) as a new MutableSeq.
+pub fn MutableSeq::transcribe(self : MutableSeq) -> MutableSeq {
+  let s = self.to_seq().transcribe()
+  MutableSeq::new(s.data)
+}
+
+///|
+/// Back-transcribe to DNA (U->T) as a new MutableSeq.
+pub fn MutableSeq::back_transcribe(self : MutableSeq) -> MutableSeq {
+  let s = self.to_seq().back_transcribe()
+  MutableSeq::new(s.data)
+}
+
+///|
+/// Translate to protein as a new MutableSeq.
+pub fn MutableSeq::translate(
+  self : MutableSeq,
+  stop_symbol? : Char = '*',
+  to_stop? : Bool = false,
+  cds? : Bool = false,
+) -> MutableSeq raise SeqError {
+  let result = self.to_seq().translate(stop_symbol=stop_symbol, to_stop=to_stop, cds=cds)
+  MutableSeq::new(result.data)
+}
+
+///|
+/// Return an uppercased copy.
+pub fn MutableSeq::upper(self : MutableSeq) -> MutableSeq {
+  MutableSeq::new(self.to_string().to_upper())
+}
+
+///|
+/// Return a lowercased copy.
+pub fn MutableSeq::lower(self : MutableSeq) -> MutableSeq {
+  MutableSeq::new(self.to_string().to_lower())
+}
+
+///|
+/// Count non-overlapping occurrences of `sub`.
+pub fn MutableSeq::count(self : MutableSeq, sub : String) -> Int {
+  self.to_seq().count(sub)
+}
+
+///|
+/// Count overlapping occurrences of `sub`.
+pub fn MutableSeq::count_overlap(self : MutableSeq, sub : String) -> Int {
+  self.to_seq().count_overlap(sub)
+}

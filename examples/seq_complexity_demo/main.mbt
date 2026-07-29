@@ -168,5 +168,37 @@ fn main {
     "  'ATCGATCG' vs 'GCTAGCTA' (different): " + sim_different.to_string(),
   )
 
+  // === 10. Wooton-Federhen Local Compositional Complexity (LCC) ===
+  println("\n10. Wooton-Federhen Local Compositional Complexity (LCC):")
+  println("========================================================")
+  let test_seq = "ATCGATCGATCGATCGAAAA"
+  let lcc_scores = @src.lcc(test_seq, window=12, k=3)
+  println("  Sequence: " + test_seq)
+  println("  Window=12, k=3")
+  println("  LCC scores per window position:")
+  for i = 0; i < lcc_scores.length(); i = i + 1 {
+    println("    pos " + (i + 1).to_string() + ": " + lcc_scores[i].to_string())
+  }
+
+  let low_comp_regions = @src.lcc_low_complexity_regions(
+    "AAAAAAAAAAAAAACGATCGATCG",
+    window=12,
+    k=3,
+    threshold=0.15,
+  )
+  println("\n  Low-complexity regions (threshold=0.15):")
+  for i = 0; i < low_comp_regions.length(); i = i + 1 {
+    let region = low_comp_regions[i]
+    println(
+      "    Region " +
+      (i + 1).to_string() +
+      ": [" +
+      region.0.to_string() +
+      ", " +
+      region.1.to_string() +
+      "]",
+    )
+  }
+
   println("\n=== Sequence Complexity Demo Complete ===")
 }

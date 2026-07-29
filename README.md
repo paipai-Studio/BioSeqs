@@ -26,7 +26,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 | 功能类别 | 对应工具/库 | 功能范围 | 状态 |
 | :--- | :--- | :--- | :---: |
-| **序列处理** | Biopython `Bio.Seq` | 序列对象、互补、转录、翻译、序列特征 | ✅ |
+| **序列处理** | Biopython `Bio.Seq` | 序列对象、**MutableSeq可变序列**、互补、转录、翻译、序列特征 | ✅ |
 | **序列 I/O** | Biopython `Bio.SeqIO` | FASTA/FASTQ/GenBank 解析与写入 | ✅ |
 | **序列比对** | Biopython / scikit-bio | Needleman-Wunsch、Smith-Waterman、多序列比对、替换矩阵(BLOSUM/PAM) | ✅ |
 | **BLAST解析** | Biopython `Bio.Blast` | BLAST结果解析、tabular/xml格式、HSP过滤、最佳匹配 | ✅ |
@@ -45,7 +45,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **VariantFiltering** | Bioconductor VariantFiltering | 变异过滤与遗传模式分析、常染色体显性/隐性、X连锁、复合杂合子模式 |
 | **Bio.Alphabet** | Biopython `Bio.Alphabet` | IUPAC字母表定义、DNA/RNA/蛋白质字母表、简化字母表、空位字母表 | ✅ |
 | **Bio.Statistics** | scipy/stats | 描述统计、假设检验、相关性分析（Pearson/Spearman）、置信区间、Z-score、Wilcoxon/Mann-Whitney/Fisher/KS/chi2/t检验、ANOVA、log-rank生存分析、Benjamini-Hochberg/Yekutieli、Bonferroni/Holm校正 | ✅ |
-| **Bio.FreqAnalysis** | Biopython `Bio.SeqUtils` | 序列频率分析、k-mer计数、密码子使用频率、GC含量、序列复杂度 | ✅ |
+| **Bio.FreqAnalysis** | Biopython `Bio.SeqUtils` | 序列频率分析、k-mer计数、密码子使用频率、GC含量、**Wooton-Federhen局部组成复杂度(LCC)**、序列复杂度 | ✅ |
 | **Bio.Align.analysis** | Biopython `Bio.Align.analysis` | dn/ds计算（Nei-Gojobori）、进化距离（Jukes-Cantor/Kimura）、选择压力分析 | ✅ |
 | **SeqUtils 高级功能** | Biopython `Bio.SeqUtils` | GC/AT滑动窗口偏斜、ORF预测、序列相似度、Hamming距离、Levenshtein编辑距离 | ✅ |
 | **Motifs 高级功能** | Biopython `Bio.motifs` | 序列Logo生成、 per-position信息含量、总信息含量、模体富集分析、Pearson相关性比较 | ✅ |
@@ -268,7 +268,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 IvanAXu/BioSeqs/
 ├── moon.mod                    # 模块配置
 ├── src/                        # 源代码
-│   ├── seq.mbt                 # Seq 序列对象
+│   ├── seq.mbt                 # Seq / MutableSeq 序列对象
 │   ├── seq_record.mbt          # SeqRecord 带注释的序列记录
 │   ├── seqfeature.mbt          # SeqFeature 序列特征
 │   ├── seqfeature_advanced.mbt  # Bio.SeqFeature CompoundLocation与LocationParser
@@ -302,6 +302,7 @@ IvanAXu/BioSeqs/
 │   ├── ma_align.mbt             # Bio.PDB.MAalign 多蛋白质结构比对 (Kabsch算法)
 │   ├── sequtils.mbt            # 序列工具函数
 │   ├── seq_utils.mbt           # 序列工具函数 (分子量、GC含量、Tm值、氨基酸转换、GC/AT滑动窗口偏斜、序列相似度、Hamming距离、Levenshtein编辑距离)
+│   ├── seq_complexity.mbt      # 序列复杂度分析 (Shannon熵、语言学复杂度、**Wooton-Federhen LCC**、DUST分数、GC偏斜、CGR、序列签名、k-mer相似度)
 │   ├── rna_structure.mbt       # Bio.SeqUtils RNA二级结构预测 (Nussinov算法)
 │   ├── complement.mbt          # 互补碱基查找表
 │   ├── codon_table.mbt         # 密码子翻译表
@@ -501,7 +502,7 @@ IvanAXu/BioSeqs/
 │   ├── application_demo/         # Bio.Application 命令行工具示例
 │   ├── ballgown_demo/          # ballgown 转录组水平差异表达分析示例 (FPKM计算、t检验)
 │   ├── bam_demo/               # BAM/BGZF 解析示例
-│   ├── basic_seq/              # 基础序列操作示例
+│   ├── basic_seq/              # 基础序列操作示例 (含MutableSeq可变序列编辑)
 │   ├── biobase_demo/           # Biobase ExpressionSet示例 (多维基因组数据容器、AnnotatedDataFrame、数据归一化、log2转换)
 │   ├── bioc_generics_demo/      # Bioconductor 通用函数示例
 │   ├── bioc_parallel_demo/      # Bioconductor 并行计算示例
@@ -578,7 +579,7 @@ IvanAXu/BioSeqs/
 │   ├── ruvseq_demo/            # RUVSeq RNA-seq批次效应去除示例 (数据标准化、log2转换、RUVg/RUVs方法)
 │   ├── sam_vcf_demo/           # SAM/VCF 解析示例
 │   ├── search_io_demo/         # SearchIO 统一搜索结果示例 (HMMER3解析、BLAT PSL解析、BLAST转换)
-│   ├── seq_complexity_demo/    # 序列复杂度分析示例 (Shannon熵、语言学复杂度、GC偏斜、混沌游戏表示)
+│   ├── seq_complexity_demo/    # 序列复杂度分析示例 (Shannon熵、语言学复杂度、GC偏斜、**Wooton-Federhen LCC**、混沌游戏表示)
 │   ├── seqio_demo/             # 序列 I/O 示例
 │   ├── seq_utils_demo/         # 序列工具函数示例
 │   ├── seqfeature_advanced_demo/  # Bio.SeqFeature CompoundLocation与LocationParser

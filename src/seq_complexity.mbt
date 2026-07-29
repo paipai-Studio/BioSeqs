@@ -294,3 +294,64 @@ pub fn sequence_similarity_kmer(
   }
   dot / (mag1.sqrt() * mag2.sqrt())
 }
+
+///|
+/// Calculate the Wooton-Federhen local compositional complexity (LCC)
+/// of a sequence. Returns per-position complexity scores in a sliding window.
+///
+/// Reference: Wooton JC, Federhen S (1993). "Statistics of local complexity
+/// in amino acid sequences and the classification of low complexity segments."
+/// Methods in Enzymology 240:445-463.
+///
+/// The LCC score for a window is based on the number of different characters
+/// (k-words) of a given length k, normalized by the maximum possible.
+pub fn lcc(seq : String, window? : Int = 12, k? : Int = 3) -> Array[Double] {
+  let n = seq.length()
+  let result = Array::new()
+  if n < window || k <= 0 {
+    return result
+  }
+  let max_kwords = window - k + 1
+  let mut i = 0
+  while i <= n - window {
+    let window_seq = seq[i:i + window].to_owned()
+    let kwords : Map[String, Bool] = Map([], capacity=window)
+    let mut j = 0
+    while j <= window - k {
+      let kmer = window_seq[j:j + k].to_owned()
+      kwords[kmer] = true
+      j = j + 1
+    }
+    let complexity = kwords.length().to_double() / max_kwords.to_double()
+    result.push(complexity)
+    i = i + 1
+  }
+  result
+}
+
+///|
+/// Identify low-complexity regions using the Wooton-Federhen LCC method.
+/// Returns an array of (start, end) ranges where LCC score < threshold.
+pub fn lcc_low_complexity_regions(
+  seq : String,
+  window? : Int = 12,
+  k? : Int = 3,
+  threshold? : Double = 0.5,
+) -> Array[(Int, Int)] {
+  let scores = lcc(seq, window=window, k=k)
+  let regions = Array::new()
+  let mut i = 0
+  while i < scores.length() {
+    if scores[i] < threshold {
+      let start = i
+      while i < scores.length() && scores[i] < threshold {
+        i = i + 1
+      }
+      let end = i + window - 1
+      regions.push((start, end))
+    } else {
+      i = i + 1
+    }
+  }
+  regions
+}
