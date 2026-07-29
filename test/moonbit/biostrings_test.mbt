@@ -155,3 +155,78 @@ test "iupac_reverse_complement_mixed" {
   let rc = @src.iupac_reverse_complement("ACGTMRWSYKVHDBN")
   assert_eq(rc, "NVHDBMRSWYKACGT")
 }
+
+///|
+test "biostrings_translate_basic" {
+  let protein = @src.biostrings_translate("ATGGCTTAA")
+  assert_eq(protein, "MA*")
+}
+
+///|
+test "biostrings_translate_frame" {
+  let protein = @src.biostrings_translate("ATGGCTTAA", frame=1)
+  assert_eq(protein, "WL")
+}
+
+///|
+test "biostrings_translate_lowercase" {
+  let protein = @src.biostrings_translate("atggcttaa")
+  assert_eq(protein, "MA*")
+}
+
+///|
+test "biostrings_translate_empty" {
+  let protein = @src.biostrings_translate("")
+  assert_eq(protein, "")
+}
+
+///|
+test "biostrings_reverse_complement_basic" {
+  let rc = @src.biostrings_reverse_complement("ATGC")
+  assert_eq(rc, "GCAT")
+}
+
+///|
+test "biostrings_reverse_complement_iupac" {
+  let rc = @src.biostrings_reverse_complement("AR")
+  assert_eq(rc, "YT")
+}
+
+///|
+test "biostrings_reverse_complement_empty" {
+  let rc = @src.biostrings_reverse_complement("")
+  assert_eq(rc, "")
+}
+
+///|
+test "letter_frequency_matrix_basic" {
+  let matrix = @src.letter_frequency_matrix("ACGT")
+  let a_counts = matrix.get_or_default("A", Array::make(4, 0))
+  assert_eq(a_counts[0], 1)
+}
+
+///|
+test "biostrings_consensus_sequence_basic" {
+  let alignment = ["ACGT", "ACGT", "TCGA"]
+  let consensus = @src.biostrings_consensus_sequence(alignment)
+  assert_eq(consensus, "ACGT")
+}
+
+///|
+test "biostrings_consensus_sequence_empty" {
+  let alignment : Array[String] = []
+  let consensus = @src.biostrings_consensus_sequence(alignment)
+  assert_eq(consensus, "")
+}
+
+///|
+test "expected_matches_basic" {
+  let n = @src.expected_matches("ACGT", 12, 0.5)
+  assert_true(n > 0.0)
+}
+
+///|
+test "sequence_complexity_basic" {
+  let entropy = @src.sequence_complexity("ACGTACGTACGT", 2)
+  assert_true(entropy > 0.0)
+}

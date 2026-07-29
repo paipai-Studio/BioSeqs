@@ -44,7 +44,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **IsoformSwitchAnalyzeR** | Bioconductor IsoformSwitchAnalyzeR | 转录本异构体切换分析、PSI/DPSI/DIF值计算、功能后果预测 | ✅ |
 | **VariantFiltering** | Bioconductor VariantFiltering | 变异过滤与遗传模式分析、常染色体显性/隐性、X连锁、复合杂合子模式 |
 | **Bio.Alphabet** | Biopython `Bio.Alphabet` | IUPAC字母表定义、DNA/RNA/蛋白质字母表、简化字母表、空位字母表 | ✅ |
-| **Bio.Statistics** | scipy/stats | 描述统计、假设检验、相关性分析（Pearson/Spearman）、置信区间、Z-score | ✅ |
+| **Bio.Statistics** | scipy/stats | 描述统计、假设检验、相关性分析（Pearson/Spearman）、置信区间、Z-score、Wilcoxon/Mann-Whitney/Fisher/KS/chi2/t检验、ANOVA、log-rank生存分析、Benjamini-Hochberg/Yekutieli、Bonferroni/Holm校正 | ✅ |
 | **Bio.FreqAnalysis** | Biopython `Bio.SeqUtils` | 序列频率分析、k-mer计数、密码子使用频率、GC含量、序列复杂度 | ✅ |
 | **Bio.Align.analysis** | Biopython `Bio.Align.analysis` | dn/ds计算（Nei-Gojobori）、进化距离（Jukes-Cantor/Kimura）、选择压力分析 | ✅ |
 | **SeqUtils 高级功能** | Biopython `Bio.SeqUtils` | GC/AT滑动窗口偏斜、ORF预测、序列相似度、Hamming距离、Levenshtein编辑距离 | ✅ |
@@ -103,7 +103,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **序列模体** | Biopython `Bio.motifs` | PWM、MEME格式、JASPAR PFM、TRANSFAC、模体搜索、信息含量、序列Logo、模体富集、Pearson相关性、最优比对、KL/JS散度、模体聚类 | ✅ |
 | **群体遗传学** | Biopython `Bio.PopGen` | 等位基因频率、FST、哈迪-温伯格检验 | ✅ |
 | **edgeR** | Bioconductor edgeR | 差异表达分析、DGEList、精确检验、GLM拟合 | ✅ |
-| **limma** | Bioconductor limma | 差异表达分析、线性模型拟合、经验贝叶斯、voom变换 | ✅ |
+| **limma** | Bioconductor limma | 差异表达分析、线性模型拟合、经验贝叶斯、voom变换、RPKM/CPM/quantile归一化、ComBat/removeBatchEffect批次校正、treat严格检验 | ✅ |
 | **SummarizedExperiment** | Bioconductor SummarizedExperiment | 多维基因组数据容器、Assays、行/列操作 | ✅ |
 | **IRanges** | Bioconductor IRanges | 整数区间操作、集合运算、重叠检测、findOverlaps高级类型、nearest、coverage、距离矩阵计算 | ✅ |
 | **TxDb** | Bioconductor GenomicFeatures | 转录本数据库、GTF解析、基因/转录本/外显子/CDS提取、UTR/内含子计算、启动子提取 | ✅ |
@@ -329,7 +329,7 @@ IvanAXu/BioSeqs/
 │   ├── deseq2_advanced.mbt         # DESeq2 VST方差稳定化变换、PCA可视化
 │   ├── edger.mbt               # edgeR 差异表达分析 (DGEList、精确检验、GLM拟合)
 │   ├── edger_advanced.mbt           # edgeR准似然F检验、camera/roast基因集检验
-│   ├── limma.mbt               # limma 差异表达分析 (线性模型、经验贝叶斯、voom变换、对比矩阵)
+│   ├── limma.mbt               # limma 差异表达、归一化、批次校正 (线性模型、经验贝叶斯、voom、RPKM/CPM/quantile、ComBat)
 │   ├── matrix.mbt               # Bioconductor Matrix 稀疏矩阵操作 (CSC/CSR格式、矩阵运算)
 │   ├── bioc_neighbors.mbt      # BiocNeighbors 最近邻搜索 (KMKNN/Annoy)
 │   ├── summarized_experiment.mbt # SummarizedExperiment 多维基因组数据容器
@@ -1268,9 +1268,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3319 个测试全�
 
 实现基于 DGEList 的差异表达分析，支持归一化因子计算、GLM 拟合和差异表达检验（精确检验和似然比检验）。支持 top tags 的获取和显著差异基因的筛选。
 
-### 32. limma 差异表达分析 (Bioconductor limma)
+### 32. limma 差异表达分析与批次校正 (Bioconductor limma)
 
-实现基于线性模型的差异表达分析，支持经验贝叶斯校正和 voom 变换（适用于 RNA-seq 数据）。支持设计矩阵创建、线性模型拟合、对比矩阵分析和 top 差异基因的获取。
+实现基于线性模型的差异表达分析，支持经验贝叶斯校正和 voom 变换（适用于 RNA-seq 数据）。支持设计矩阵创建、线性模型拟合、对比矩阵分析和 top 差异基因的获取。新增 RPKM/CPM/quantile 归一化、ComBat 批次校正、removeBatchEffect、treat 严格检验。
 
 ### 33. SummarizedExperiment 多维数据容器 (Bioconductor SummarizedExperiment)
 
