@@ -1,0 +1,7 @@
+import {
+  "IvanAXu/BioSeqs/src" @src,
+}
+
+options(
+  "is-main": true,
+)

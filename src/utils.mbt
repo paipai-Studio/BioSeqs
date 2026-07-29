@@ -197,6 +197,8 @@ pub fn char_at(s : String, idx : Int) -> String {
     "\n"
   } else if c == '\r'.to_int() {
     "\r"
+  } else if c == '<'.to_int() {
+    "<"
   } else if c == '>'.to_int() {
     ">"
   } else if c == '#'.to_int() {
