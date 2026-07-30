@@ -258,6 +258,11 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **PDB片段映射** | Biopython `Bio.PDB.FragmentMapper` | DSSP二级结构分类(H/E/S/L/T/C)、片段分配/合并/过滤、覆盖率分析、边界检测、类型转换 | ✅ |
 | **基因组图可视化** | Biopython `Bio.Graphics.GenomeDiagram` | 数据模型(Track/Feature/Diagram)、多种形状(Rectangle/Arrow/Diamond)、SVG生成、样式控制、自动标注、重叠检测 | ✅ |
 
+| **Gviz** | Bioconductor Gviz | 基因组可视化轨道系统、多种轨道类型(AnnotationTrack/GeneRegionTrack/DataTrack/IdeogramTrack/GenomeAxisTrack/SequenceTrack)、ASCII渲染、特征查询与区域可视化 | ✅ |
+| **SeqLocation 序列位点** | Biopython `Bio.SeqFeature` | 序列位置类型系统(ExactPosition/BeforePosition/AfterPosition/OneOfPosition/WithinPosition)、SimpleLocation/CompoundLocation、链方向、位置转换(start/end/strand)、位置字符串解析与格式化 | ✅ |
+| **BioReference 文献引用** | Biopython `Bio.Reference` / `Bio.Medline` | 文献引用管理(title/authors/journal/year/pubmed_id/doi)、引用位置(locations)、引用类型(journal article/etc)、格式化输出(APA/自定义)、Medline记录解析 | ✅ |
+| **ProtDao 蛋白质无序预测** | Biopython `Bio.SeqUtils.ProtDao` | IUPred-like蛋白质无序区域预测、氨基酸无序度评分、能量评分、无序区域检测与分类、阈值可调、ASCII可视化、序列复杂度分析 | ✅ |
+
 项目致力于打造一个完整、高效的生物信息学工具库，覆盖从基础序列处理到高级序列组装的全流程。
 
 ## 架构设计
@@ -1838,6 +1843,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4248 个测试全�
 ### 154. Gviz 基因组可视化轨道 (Bioconductor Gviz)
 
 实现基因组可视化轨道系统，支持多种轨道类型和 ASCII 渲染。支持 GvizTrackType 枚举（AnnotationTrack/GeneRegionTrack/DataTrack/IdeogramTrack/GenomeAxisTrack/SequenceTrack）、GvizStrand 枚举（Forward/Reverse/Unstranded）数据结构。核心函数包括：gviz_feature 创建基因组特征、gviz_track 创建轨道、gviz_region 创建基因组区域、gviz_plot 创建绘图、gviz_sample_plot 创建示例绘图。GvizTrack 方法包括：set_color/set_label/add_feature/add_data_point/get_n_features/get_n_data_points/get_features_in_region/get_data_in_region。GvizPlot 方法包括：add_track/get_n_tracks/get_region/to_ascii/summary。ASCII 渲染支持坐标轴、特征块、数据点和核型显示。适用于基因组注释和数据的沿坐标可视化。
+
+### 155. SeqLocation 序列位点类型系统 (Bio.SeqFeature)
+
+实现序列位置和位点的完整类型系统，用于基因组特征注释的精确位置表示。支持 5 种位置类型：ExactPosition（精确位置）、BeforePosition（之前位置，如 <100）、AfterPosition（之后位置，如 >100）、OneOfPosition（多选位置，如 100^110）、WithinPosition（内部位置，如 (100)^(110)）。支持 2 种位点类型：SimpleLocation（简单位点，包含起止位置、链方向、类型）和 CompoundLocation（复合位点，包含多个子位点数组，用于外显子/内含子等断裂特征）。提供位点操作方法：start() 获取 0-based 起始位置、end() 获取 0-based 结束位置（不含）、strand() 获取链方向、reverse() 翻转链、is_overlapping() 检查重叠。支持位置字符串的解析与格式化（如 "100..110"、"complement(100..110)"、"join(100..200, 300..400)"）。适用于 GenBank/EMBL 等格式的序列特征注释解析与生成。
+
+### 156. BioReference 文献引用管理 (Bio.Reference / Bio.Medline)
+
+实现文献引用的完整管理功能，用于序列记录的参考文献追踪。支持 BioReference 结构体存储引用信息：标题(title)、作者(authors)、期刊(journal)、年份(year)、PubMed ID(pubmed_id)、DOI(doi)、引用类型(type)、引用位置(locations)、评论(comment)、数据页码(data_pgr)。提供引用操作方法：format() 按 APA 格式格式化输出、get_pubmed_id() 获取 PubMed ID、get_doi() 获取 DOI、get_authors() 获取作者列表。支持从 Medline 记录解析引用信息（parse_medline_record），自动提取标题、作者、期刊、年份、PubMed ID 等字段。支持位置信息存储（如 (1, 100) 表示引用序列的 1-100 位）。适用于 GenBank/EMBL 记录的参考文献注释和文献信息检索。
+
+### 157. ProtDao 蛋白质无序区域预测 (Bio.SeqUtils.ProtDao)
+
+实现基于 IUPred 算法的蛋白质无序区域预测功能，用于识别天然无序蛋白质区域（IDP）。支持 20 种氨基酸的无序度评分（disorder_score）和能量评分（energy_score），采用 IUPred 打分矩阵。提供 DisorderResult 结构体存储预测结果：序列(sequence)、得分数组(scores)、阈值(threshold_disordered/threshold_long)。DisorderResult 方法包括：get_scores() 获取所有位置的无序度得分、get_regions() 获取无序区域列表、get_n_regions() 获取区域数量、get_n_disordered() 获取无序残基数量、get_fraction_disordered() 获取无序残基比例、get_longest_region() 获取最长无序区域、disordered_sequence() 获取无序序列视图（* 表示无序，- 表示有序）、summary() 生成摘要报告、to_ascii() 生成 ASCII 可视化图。支持 DisorderRegion 结构体存储区域信息：起始位置(start)、结束位置(end)、长度(length)、平均得分(avg_score)、区域类型(region_type: disordered/highly disordered)。提供完整预测流程：prot_dao_predict() 一键预测、prot_dao_sample_sequence() 获取示例序列。适用于蛋白质结构预测、功能注释和天然无序区域分析。
 
 
 ## 性能优化
