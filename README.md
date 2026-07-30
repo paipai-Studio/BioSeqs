@@ -80,6 +80,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bioconductor Biostrings matchPDict | 字典模式匹配(matchPDict/vmatchPattern)、多序列模式计数、错配容忍、最佳匹配查找 |
 | ✅ | Bioconductor GenomicRanges gaps/reduce/disjoin | gaps检测、reduce合并、disjoin拆分、setdiff/交集/并集集合运算、coverage计算、promoters提取 |
 | ✅ | NGS质量修剪与接头去除 | 质量修剪(滑动窗口)、接头去除、poly-A修剪、长度/GC含量过滤、批量修剪、Fastq解析与序列化 |
+| ✅ | Bioconductor Rsubread/featureCounts | 基因特征read计数: 链特异性(Stranded/Reversed/Unstranded)、重叠长度阈值、最小比对质量过滤、多比对read处理(计数/分数计数)、配对末端fragment计数、CPM归一化、多样本矩阵 |
+| ✅ | Bioconductor DRIMSeq | 差异转录本使用分析: Dirichlet-multinomial模型、Wald检验、比例计算、counts过滤、BH-FDR校正、显著基因提取、收敛诊断 |
+| ✅ | Bioconductor RaggedExperiment | 参差突变数据结构: 突变记录(Missense/Nonsense/Frame_Shift/Splice_Site等)、基因×样本稀疏矩阵、TMB计算(每Mb)、按基因/样本/突变类型过滤、突变计数矩阵、LoF识别 |
 
 ### 序列组装算法
 
@@ -1855,6 +1858,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4248 个测试全�
 ### 157. ProtDao 蛋白质无序区域预测 (Bio.SeqUtils.ProtDao)
 
 实现基于 IUPred 算法的蛋白质无序区域预测功能，用于识别天然无序蛋白质区域（IDP）。支持 20 种氨基酸的无序度评分（disorder_score）和能量评分（energy_score），采用 IUPred 打分矩阵。提供 DisorderResult 结构体存储预测结果：序列(sequence)、得分数组(scores)、阈值(threshold_disordered/threshold_long)。DisorderResult 方法包括：get_scores() 获取所有位置的无序度得分、get_regions() 获取无序区域列表、get_n_regions() 获取区域数量、get_n_disordered() 获取无序残基数量、get_fraction_disordered() 获取无序残基比例、get_longest_region() 获取最长无序区域、disordered_sequence() 获取无序序列视图（* 表示无序，- 表示有序）、summary() 生成摘要报告、to_ascii() 生成 ASCII 可视化图。支持 DisorderRegion 结构体存储区域信息：起始位置(start)、结束位置(end)、长度(length)、平均得分(avg_score)、区域类型(region_type: disordered/highly disordered)。提供完整预测流程：prot_dao_predict() 一键预测、prot_dao_sample_sequence() 获取示例序列。适用于蛋白质结构预测、功能注释和天然无序区域分析。
+
+### 158. featureCounts 基因特征 read 计数 (Bioconductor Rsubread/featureCounts)
+
+实现 RNA-seq/DNA-seq read 在基因组特征（exon/gene/transcript）上的计数功能，参考 Bioconductor Rsubread 包的 featureCounts 算法。提供 FeatureAnnotation 结构体存储特征注释：染色体(chr)、起止位置(start/end_)、链(strand)、基因ID(gene_id)、转录本ID(transcript_id)、特征类型(feature_type)、唯一标识(feature_id)，支持 length() 计算特征长度、overlaps() 检测区间重叠、overlap_length() 计算重叠长度。提供 ReadAlignment 结构体存储 read 比对信息：read_id、染色体、起止位置、链、比对质量(mapq)、多比对数(n_alignments)、配对末端信息(is_paired/mate_chr/mate_start/fragment_length)，支持 new_paired() 创建配对末端 read、fragment_span() 获取 fragment 跨度。提供 FeatureCountsConfig 配置：最小重叠(min_overlap)、最小比对质量(min_mapq)、链特异性模式(strand_mode: Unstranded/Stranded/Reversed)、多比对计数(multi_count/frac_multi_count)、配对末端 fragment 计数(count_fragments)。核心函数 feature_counts_count() 执行计数：遍历 read、过滤低质量、查找重叠特征、处理歧义(ambiguous)、链匹配检查、分数计数。结果 FeatureCountsResult 提供：get_count() 按特征/样本获取计数、library_size() 计算 library size、cpm() 计算 CPM 归一化、get_feature_total() 跨样本特征总数、summary() 生成报告。提供链模式辅助函数 strand_unstranded()/strand_stranded()/strand_reversed() 和示例数据 feature_counts_sample_data()。适用于 RNA-seq 基因表达定量、外显子计数和多样本计数矩阵生成。
+
+### 159. DRIMSeq 差异转录本使用分析 (Bioconductor DRIMSeq)
+
+实现基于 Dirichlet-multinomial 模型的差异转录本使用（DTU）分析，参考 Bioconductor DRIMSeq 包。提供 TranscriptCount 结构体存储转录本计数：转录本ID(transcript_id)、基因ID(gene_id)、样本ID(sample_id)、条件(condition)、count、gene_count，支持 proportion() 计算转录本占比。提供 DRIMSeqConfig 配置：最小count(min_count)、最小比例(min_proportion)、收敛容差(tolerance)、最大迭代(max_iter)、显著性水平(alpha)、归一化方法(norm_method: None/TMM/Sum)。核心分析流程 drimseq_test_differential()：drimseq_aggregate_by_gene() 按基因/样本聚合计数、drimseq_compute_proportions() 计算转录本比例、drimseq_filter_counts() 过滤低表达转录本、drimseq_wald_test() 执行 Wald 检验（计算 delta、使用方差归一化统计量、卡方分布 p 值）、benjamini_hochberg_correct() 多重检验校正。结果 DRIMSeqResult 提供：get_significant() 获取显著基因、get_top_genes() 获取 top 基因、summary() 生成报告。包含 Dirichlet-multinomial 对数似然计算、Wilson-Hilferty 卡方 p 值近似、正态分布生存函数、收敛诊断。提供 DRIMSeqGeneResult 存储每基因结果：gene_id、p_value、adj_p_value、statistic、converged。提供归一化方法辅助函数 drimseq_norm_none()/drimseq_norm_tmm()/drimseq_norm_sum() 和示例数据 drimseq_sample_data()。适用于 RNA-seq 差异转录本使用分析、可变剪接研究。
+
+### 160. RaggedExperiment 参差突变数据结构 (Bioconductor RaggedExperiment)
+
+实现癌症基因组学中常见的参差（ragged）突变数据结构，参考 Bioconductor RaggedExperiment 包，用于存储基因×样本的稀疏突变矩阵。提供 MutationType 枚举覆盖 11 种突变类型：Missense_Mutation、Nonsense_Mutation、Frame_Shift_Ins/Del、In_Frame_Ins/Del、Splice_Site、Translation_Start_Site/Stop_Site、Multi_Hit_Mutation、Silent_Mutation、Other，支持 to_string() 转换和辅助构造函数 mutation_missense()/mutation_nonsense() 等。提供 MutationRecord 结构体存储突变记录：sample_id、gene_symbol、chrom、pos、ref_allele、alt_allele、mutation_type，支持 mutation_id() 生成唯一标识、is_loss_of_function() 识别 LoF 突变（Nonsense/Frame_Shift）。核心结构 RaggedExperiment 使用三层嵌套数组 data[row][col][records] 存储每个基因×样本的突变记录列表，维护 rownames(基因)、colnames(样本)、counts(突变计数缓存)、sample_tmb(样本 TMB)。方法包括：add_record() 添加突变、n_rows()/n_cols() 维度、get_records() 按基因/样本查询、get_gene_records()/get_sample_records() 按行/列查询、get_tmb() 计算 TMB、get_tmb_per_mb() 计算每 Mb TMB、get_count_matrix() 获取突变计数矩阵、genes_mutated_per_sample() 每样本突变基因数、filter_by_genes()/filter_by_samples()/filter_by_type() 按基因/样本/突变类型过滤、summary() 生成报告。提供 ragged_sample_data() 示例数据。适用于癌症基因组突变数据分析、TMB 计算、突变谱分析。
 
 
 ## 性能优化
