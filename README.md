@@ -490,6 +490,18 @@ IvanAXu/BioSeqs/
 │   ├── proteomics.mbt          # 蛋白质组学工具 (8种酶切、肽段质量、同位素分布、b/y碎片离子)
 │   ├── fragment_mapper.mbt     # PDB片段映射 (DSSP分类、片段分配/合并/过滤、覆盖率)
 │   ├── genome_diagram.mbt      # 基因组图可视化 (数据模型、SVG生成、样式控制、自动标注)
+│   ├── impute.mbt              # Bioconductor impute 缺失值插补 (KNN/mean/median/LOCF/NOCB)
+│   ├── vsn.mbt                 # Bioconductor vsn 方差稳定化归一化 (glog变换, vsn2)
+│   ├── gsea_base.mbt           # Bioconductor GSEABase 基因集管理 (GMT/GMX格式解析、集合运算)
+│   ├── pcatools.mbt            # Bioconductor PCAtools 高级PCA分析 (scree/biplot/outliers)
+│   ├── data.mbt                # Bio.Data 生物数据常量 (IUPAC、氨基酸映射、密码子表)
+│   ├── seq_approx.mbt          # Bio.Seq.Approximate 近似字符串匹配 (Levenshtein、错配/插入/缺失)
+│   ├── pairwise2.mbt           # Bio.Pairwise2 灵活双序列比对 (NW/SW算法、自定义评分)
+│   ├── compound.mbt            # Bio.Compound 化合物数据结构 (分子式解析、分子量计算)
+│   ├── enhanced_volcano.mbt    # EnhancedVolcano 火山图可视化 (差异表达基因分类、ASCII渲染)
+│   ├── reporting_tools.mbt     # ReportingTools 报告生成 (文本/表格/图形混合报告)
+│   ├── karyoploter.mbt         # karyoploteR 核型可视化 (染色体轨道、数据点、ASCII渲染)
+│   ├── system_piper.mbt        # SystemPipeR 流水线编排 (步骤管理、依赖关系、进度追踪)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -692,6 +704,18 @@ IvanAXu/BioSeqs/
 │   ├── proteomics_demo/          # 蛋白质组学分析示例 (8种酶切、质量计算、同位素分布、碎片离子)
 │   ├── fragment_mapper_demo/     # PDB片段映射示例 (DSSP分类、片段分配/合并/过滤、覆盖率)
 │   ├── genome_diagram_demo/      # 基因组图可视化示例 (track/feature、SVG生成、样式、自动标注)
+│   ├── impute_demo/              # Bioconductor impute 缺失值插补示例
+│   ├── vsn_demo/                 # Bioconductor vsn 方差稳定化归一化示例
+│   ├── gsea_base_demo/           # Bioconductor GSEABase 基因集管理示例
+│   ├── pcatools_demo/            # Bioconductor PCAtools 高级PCA分析示例
+│   ├── data_demo/                # Bio.Data 生物数据常量示例
+│   ├── seq_approx_demo/          # Bio.Seq.Approximate 近似匹配示例
+│   ├── pairwise2_demo/           # Bio.Pairwise2 双序列比对示例
+│   ├── compound_demo/            # Bio.Compound 化合物数据结构示例
+│   ├── enhanced_volcano_demo/    # EnhancedVolcano 火山图可视化示例
+│   ├── reporting_tools_demo/     # ReportingTools 报告生成示例
+│   ├── karyoploter_demo/         # karyoploteR 核型可视化示例
+│   ├── system_piper_demo/        # SystemPipeR 流水线编排示例
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -906,6 +930,18 @@ IvanAXu/BioSeqs/
 │   │   ├── proteomics_test.mbt
 │   │   ├── fragment_mapper_test.mbt
 │   │   ├── genome_diagram_test.mbt
+│   │   ├── impute_test.mbt
+│   │   ├── vsn_test.mbt
+│   │   ├── gsea_base_test.mbt
+│   │   ├── pcatools_test.mbt
+│   │   ├── data_test.mbt
+│   │   ├── seq_approx_test.mbt
+│   │   ├── pairwise2_test.mbt
+│   │   ├── compound_test.mbt
+│   │   ├── enhanced_volcano_test.mbt
+│   │   ├── reporting_tools_test.mbt
+│   │   ├── karyoploter_test.mbt
+│   │   ├── system_piper_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -932,7 +968,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3319 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3864 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1145,6 +1181,23 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3319 个测试全�
 | `proteomics.mbt` | Biopython `Bio.SeqUtils.Proteomics` | 蛋白质组学工具 (8种酶切、肽段质量、同位素分布、b/y碎片离子) |
 | `fragment_mapper.mbt` | Biopython `Bio.PDB.FragmentMapper` | PDB片段映射 (DSSP分类、片段分配/合并/过滤、覆盖率分析) |
 | `genome_diagram.mbt` | Biopython `Bio.Graphics.GenomeDiagram` | 基因组图可视化 (数据模型、SVG生成、样式控制、自动标注) |
+
+#### Bioconductor 新增扩展模块
+
+| MoonBit 文件 | 对应 Bioconductor 包 | 核心功能 |
+| :--- | :--- | :--- |
+| `impute.mbt` | `impute` | 缺失值插补（KNN / mean / median / LOCF / NOCB） |
+| `vsn.mbt` | `vsn` | 方差稳定化归一化（glog 变换, vsn2, mean-SD） |
+| `gsea_base.mbt` | `GSEABase` | 基因集数据结构 & GMT/GMX 格式解析、集合运算 |
+| `pcatools.mbt` | `PCAtools` | 高级 PCA 分析（scree/biplot/outliers/correlations） |
+| `data.mbt` | `Bio.Data` | IUPAC 碱基、氨基酸映射、密码子表、反向互补 |
+| `seq_approx.mbt` | `Bio.Seq.Approximate` | 近似字符串匹配（Levenshtein, 错配/插入/缺失） |
+| `pairwise2.mbt` | `Bio.Pairwise2` | 灵活双序列比对（Needleman-Wunsch / Smith-Waterman） |
+| `compound.mbt` | `Bio.Compound` | 化合物/反应/代谢通路数据结构、分子式解析 |
+| `enhanced_volcano.mbt` | `EnhancedVolcano` | 火山图可视化（差异表达基因分类、ASCII 渲染） |
+| `reporting_tools.mbt` | `ReportingTools` | 报告生成（文本/表格/图形混合报告、ASCII 表格） |
+| `karyoploter.mbt` | `karyoploteR` | 核型可视化（染色体轨道、数据点、ASCII 渲染） |
+| `system_piper.mbt` | `SystemPipeR` | 流水线编排（步骤管理、依赖关系、进度追踪） |
 
 ## 核心功能实现
 
@@ -1706,6 +1759,54 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3319 个测试全�
 
 实现染色体可视化的数据模型和 SVG 渲染功能。支持 ChrFeature（染色体特征）、ChrRegion（染色体区域）、Chromosome（染色体）等数据结构。支持 ChrFeatureType 枚举（Exon、Intron、Promoter、Enhancer、Marker、Other）注释特征类型。支持 ChrOrientation 枚举（Forward、Reverse、None）表示特征方向。支持 ChrBand 表示染色体带型（G带染色模式）。支持添加特征（add_feature）、区域（add_region）和带（add_band）到染色体。支持特征查询：按类型筛选（features_by_type）、区域内查找（features_in_region）。支持 ChrLayout 配置 SVG 布局参数（宽高、标签显示、着丝粒显示、带显示、染色体厚度）。支持生成线性染色体 SVG（chr_chromosome_to_svg）和圆形染色体 SVG（chr_circular_chromosome_to_svg）。支持带颜色映射（chr_band_color），根据染色强度返回 SVG 颜色。支持创建人类核型图（chr_create_human_karyotype）和细菌染色体图（chr_create_bacterial_chromosome）。适用于基因组注释可视化、细胞遗传学研究和教育演示。
 
+### 139. impute 缺失值插补 (Bioconductor impute)
+
+提供多种微阵列/RNA-seq 表达矩阵常用的缺失值插补方法。支持 KNN 插补参数（KNNImputeParam：k、by_row、eps、min_value、max_value）和 NA 统计汇总（ImputeNAStats）。实现按行均值填充（impute_by_row_mean）、按列中位数填充（impute_by_col_median）、KNN 近邻填充（impute_by_knn，基于欧氏距离加权）、LOCF（Last-Observation-Carried-Forward）、NOCB（Next-Observation-Carried-Backward）、以 0 填充（impute_na_by_zero）等方法。支持 NA 分布统计（impute_na_stats）和人类可读的 NA 汇总报告（impute_na_summary）。适用于基因表达数据分析中缺失值的预处理。
+
+### 140. vsn 方差稳定化归一化 (Bioconductor vsn)
+
+实现 vsn2 / glog（广义对数变换），用于芯片/测序计数的方差稳定化，解决 mean-variance 依赖问题。支持每列拟合的 glog 参数（VSNColParam：a、b）、vsn 拟合结果（VSNResult）和拟合超参数（VSNControl）。核心函数包括：glog 变换（asinh 形式）、glog 反函数、vsn2 一步完成拟合+变换、vsn_fit_and_report 仅拟合不做变换、vsn_denoise 去噪（vsn2 + glog_inv）、mean_sd_bins 按均值分位数分桶计算 mean-SD 曲线、mean_sd_ascii 绘制 ASCII mean-SD 诊断图。适用于基因表达数据的方差稳定化预处理。
+
+### 141. GSEABase 基因集管理 (Bioconductor GSEABase)
+
+实现 GeneSet / GeneSetCollection 数据结构，支持 GMT / GMX 格式的解析与写出，并提供基因集集合运算。支持 GmtGeneSet（单条基因集：name、description、gene_ids、collection_type、organism、id）和 GmtGeneSetCollection（基因集集合）。集合类型枚举涵盖 GO_BP/MF/CC、KEGG、Reactome、Hallmark、Canonical 等。支持集合运算：overlap、Jaccard、union、intersect、setdiff。支持 Collection 方法：by_name 查询、at 索引查询、all_sizes 大小列表、summary 摘要。I/O 支持：parse_gmt、parse_gmx、write_gmt。适用于功能富集分析和基因集研究。
+
+### 142. PCAtools 高级 PCA 分析 (Bioconductor PCAtools)
+
+基于幂迭代的 eigendecomposition，提供完整的 PCA 分析流水线。支持 FullPCAResult（scores、loadings、eigenvalues、variance_explained、cumulative_variance）和 PCAOutlierResult。核心功能包括：pcatools_run_pca 主入口（支持 z-score 标准化）、pcatools_summary 摘要、scree_plot_ascii 碎石图、pca_biplot_ascii biplot 可视化、find_pca_outliers 基于马氏距离的异常点检测、variable_correlations 变量-主成分 Pearson 相关系数矩阵。适用于基因表达数据的降维和可视化分析。
+
+### 143. Bio.Data 生物数据常量 (Biopython Bio.Data)
+
+提供 IUPAC 碱基映射、氨基酸缩写映射、标准密码子表及反向互补等分子生物学常用数据常量。支持 IUPAC 模糊碱基映射（DNA/RNA 各 11 种）、氨基酸三字母↔单字母映射（21 种）、氨基酸理化性质查询（疏水性、电荷、等电点）。实现标准密码子表（64 密码子）及反向密码子表、同义密码子数量统计、IUPAC 简并碱基反向互补。适用于序列分析和分子生物学研究的数据查询。
+
+### 144. Bio.Seq.Approximate 近似字符串匹配 (Biopython Bio.Seq.Approximate)
+
+实现基于动态规划的近似字符串匹配算法，支持错配、插入和缺失（indels）。支持 ApproxMatch（pattern、query、start、end、mismatches、score）和 ApproxWordResult 数据结构。核心函数包括：count_mismatches 等长错配计数、approx_search 无 indels 近似搜索、approx_search_with_indels 允许 indels 的近似搜索、levenshtein_distance 编辑距离、approx_find_all 查找所有近似匹配、approx_word_search 单词近似搜索、approx_best_match 基于错误率的最佳匹配。适用于 CRISPR off-target 检测和序列相似性搜索。
+
+### 145. Bio.Pairwise2 灵活双序列比对 (Biopython Bio.Pairwise2)
+
+实现 Needleman-Wunsch（全局）和 Smith-Waterman（局部）比对算法，支持自定义匹配/错配评分矩阵和开放/延伸空位罚分。支持 PairwiseAlignResult（aligned_seq1、aligned_seq2、score、mode、start/end）和 PairwiseMode 枚举。核心函数包括：pairwise_globalxx/pairwise_localxx 自定义参数比对、pairwise_global/pairwise_local 便捷比对、pairwise_globalms/pairwise_localms 基于替换矩阵的比对、simple_score/identity_score/matrix_score 评分函数创建、dna_matrix DNA 配对评分矩阵生成、alignment_summary 比对摘要（Identity/Similarity）。适用于序列比对和进化分析。
+
+### 146. Bio.Compound 化合物数据结构 (Biopython Bio.Compound)
+
+实现化合物、化学反应和代谢通路的数据结构，支持分子式解析、分子量计算以及预设模板。支持 Compound（id、name、formula、charge、smiles、aliases、pathways、reactions）、ChemicalReaction 和 CompoundPathwayMap 数据结构。核心函数包括：parse_formula 分子式解析、compound_molecular_weight 分子量计算、预设模板（葡萄糖、果糖、丙酮酸、乙酸、柠檬酸）。支持化合物属性设置（formula、charge、smiles）、别名添加、通路/反应关联。适用于代谢组学和生物化学研究。
+
+### 147. EnhancedVolcano 火山图可视化 (Bioconductor EnhancedVolcano)
+
+实现差异表达分析结果的火山图可视化功能，支持基因分类（上调/下调/不显著）、p 值与 fold-change 阈值设定以及 ASCII 渲染。支持 VolcanoClassification（Up/Down/NonSig）、VolcanoGene 和 VolcanoResult 数据结构。核心函数包括：volcano_plot 创建火山图结果、volcano_plot_default 使用默认参数、neg_log10_p 计算 -log10(p-value) 并处理 p=0、volcano_sample 创建示例数据集。VolcanoResult 方法包括：get_n_genes/get_n_up/get_n_down/get_n_nonsig 统计、get_up_genes/get_down_genes 基因列表、to_ascii ASCII 渲染、summary 文本摘要。适用于差异表达分析结果的可视化展示。
+
+### 148. ReportingTools 报告生成 (Bioconductor ReportingTools)
+
+实现生物信息学分析报告生成功能，支持文本、表格和图形的混合报告，以及 ASCII 表格渲染。支持 ReportSectionType 枚举（Text/Table/Plot/Section/Header）、ReportSection、ReportColumn、ReportTable 和 ReportDocument 数据结构。ReportDocument 方法包括：创建、set_author、add_text、add_table、add_plot、get_title/get_author/get_n_sections/get_n_tables、render 渲染为文本。ReportTable 方法包括：创建、from_columns、get_column_names/get_n_rows/get_n_columns、to_ascii ASCII 渲染。适用于生物信息学分析报告的自动化生成。
+
+### 149. karyoploteR 核型可视化 (Bioconductor karyoploteR)
+
+实现核型可视化功能，支持染色体轨道、数据点（SNP、GC 含量等）以及 ASCII 渲染。支持 TrackType 枚举（Points/Lines/Bars/Heatmap/Ideogram）、KaryotypeRegion、TrackPoint、KaryotypeTrack、IdeogramBand 和 KaryotypePlot 数据结构。KaryotypePlot 方法包括：创建（支持 hg38/hg19）、get_genome/get_chromosomes/get_chromosome_size、add_track/add_region、to_ascii ASCII 渲染指定染色体。KaryotypeTrack 方法包括：创建、add_point、set_color、set_y_range、get_data/get_n_points、filter_chromosome。适用于基因组数据的染色体级可视化。
+
+### 150. SystemPipeR 流水线编排 (Bioconductor SystemPipeR)
+
+实现生物信息学分析流水线编排功能，支持步骤管理、依赖关系、进度追踪以及 ASCII 可视化。支持 StepStatus 枚举（Pending/Running/Completed/Failed/Skipped）、PipelineStep、Pipeline 和 PipelineConfig 数据结构。Pipeline 方法包括：创建、set_description/set_param/get_param、add_step/get_step、get_id/get_name/get_n_steps/get_steps、get_completed_count/get_failed_count/get_pending_count/get_skipped_count、get_progress、can_run_step、summary、to_ascii。PipelineStep 方法包括：创建、set_description/set_args/add_dependency/add_input/add_output、get_id/get_name/get_command/get_status/get_duration/get_dependencies。PipelineConfig 方法包括：创建、set_cores、get_work_dir/get_input_dir/get_output_dir/get_cores。pipeline_sample 创建示例 RNA-seq 流水线。适用于生物信息学分析工作流的编排与管理。
+
 
 ## 性能优化
 
@@ -1808,8 +1909,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3319 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 3680 |
-| 通过数 | 3680 |
+| 总测试数 | 3864 |
+| 通过数 | 3864 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -1992,6 +2093,18 @@ moon test --update
 | 内部坐标 | `internal_coords_test.mbt` | 10 |
 | 遗传算法 | `ga_test.mbt` | 10 |
 | 染色体可视化 | `chromosome_visualization_test.mbt` | 10 |
+| impute | `impute_test.mbt` | 13 |
+| vsn | `vsn_test.mbt` | 9 |
+| GSEABase | `gsea_base_test.mbt` | 20 |
+| PCAtools | `pcatools_test.mbt` | 11 |
+| Bio.Data | `data_test.mbt` | 15 |
+| Seq.Approximate | `seq_approx_test.mbt` | 21 |
+| Pairwise2 | `pairwise2_test.mbt` | 16 |
+| Compound | `compound_test.mbt` | 22 |
+| EnhancedVolcano | `enhanced_volcano_test.mbt` | 15 |
+| ReportingTools | `reporting_tools_test.mbt` | 12 |
+| karyoploteR | `karyoploter_test.mbt` | 14 |
+| SystemPipeR | `system_piper_test.mbt` | 16 |
 
 ### Python 对比测试
 
