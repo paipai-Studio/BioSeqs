@@ -502,6 +502,10 @@ IvanAXu/BioSeqs/
 │   ├── reporting_tools.mbt     # ReportingTools 报告生成 (文本/表格/图形混合报告)
 │   ├── karyoploter.mbt         # karyoploteR 核型可视化 (染色体轨道、数据点、ASCII渲染)
 │   ├── system_piper.mbt        # SystemPipeR 流水线编排 (步骤管理、依赖关系、进度追踪)
+│   ├── muscat.mbt              # muscat 单细胞差异状态分析 (伪批量聚合、DS检验)
+│   ├── msstats.mbt             # MSstats 蛋白质显著性分析 (质谱数据归一化、汇总、组间比较)
+│   ├── noiseq.mbt              # NOISeq 噪声鲁棒差异表达 (TMM/RPKM/上四分位归一化、NOISeqBio)
+│   ├── gviz.mbt                # Gviz 基因组可视化轨道 (注释/数据/核型/序列轨道、ASCII渲染)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -716,6 +720,10 @@ IvanAXu/BioSeqs/
 │   ├── reporting_tools_demo/     # ReportingTools 报告生成示例
 │   ├── karyoploter_demo/         # karyoploteR 核型可视化示例
 │   ├── system_piper_demo/        # SystemPipeR 流水线编排示例
+│   ├── muscat_demo/             # muscat 单细胞差异状态分析示例
+│   ├── msstats_demo/            # MSstats 蛋白质显著性分析示例
+│   ├── noiseq_demo/             # NOISeq 噪声鲁棒差异表达示例
+│   ├── gviz_demo/               # Gviz 基因组可视化轨道示例
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -942,6 +950,10 @@ IvanAXu/BioSeqs/
 │   │   ├── reporting_tools_test.mbt
 │   │   ├── karyoploter_test.mbt
 │   │   ├── system_piper_test.mbt
+│   │   ├── muscat_test.mbt
+│   │   ├── msstats_test.mbt
+│   │   ├── noiseq_test.mbt
+│   │   ├── gviz_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -968,7 +980,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3864 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4248 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1198,6 +1210,10 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3864 个测试全�
 | `reporting_tools.mbt` | `ReportingTools` | 报告生成（文本/表格/图形混合报告、ASCII 表格） |
 | `karyoploter.mbt` | `karyoploteR` | 核型可视化（染色体轨道、数据点、ASCII 渲染） |
 | `system_piper.mbt` | `SystemPipeR` | 流水线编排（步骤管理、依赖关系、进度追踪） |
+| `muscat.mbt` | `muscat` | 单细胞差异状态分析（伪批量聚合、DS 检验、QC） |
+| `msstats.mbt` | `MSstats` | 蛋白质显著性分析（质谱归一化、Tukey/Linear 汇总、组间比较） |
+| `noiseq.mbt` | `NOISeq` | 噪声鲁棒差异表达（TMM/RPKM/上四分位归一化、NOISeqBio/Sim） |
+| `gviz.mbt` | `Gviz` | 基因组可视化轨道（注释/数据/核型/序列轨道、ASCII 渲染） |
 
 ## 核心功能实现
 
@@ -1807,6 +1823,22 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3864 个测试全�
 
 实现生物信息学分析流水线编排功能，支持步骤管理、依赖关系、进度追踪以及 ASCII 可视化。支持 StepStatus 枚举（Pending/Running/Completed/Failed/Skipped）、PipelineStep、Pipeline 和 PipelineConfig 数据结构。Pipeline 方法包括：创建、set_description/set_param/get_param、add_step/get_step、get_id/get_name/get_n_steps/get_steps、get_completed_count/get_failed_count/get_pending_count/get_skipped_count、get_progress、can_run_step、summary、to_ascii。PipelineStep 方法包括：创建、set_description/set_args/add_dependency/add_input/add_output、get_id/get_name/get_command/get_status/get_duration/get_dependencies。PipelineConfig 方法包括：创建、set_cores、get_work_dir/get_input_dir/get_output_dir/get_cores。pipeline_sample 创建示例 RNA-seq 流水线。适用于生物信息学分析工作流的编排与管理。
 
+### 151. muscat 单细胞差异状态分析 (Bioconductor muscat)
+
+实现单细胞 RNA-seq 差异状态（DS）分析功能，支持伪批量聚合、DS 检验以及 QC 质控。支持 AggregationMethod 枚举（Sum/Mean/Median）、DSMethod 枚举（edgeR/DESeq2/limma）、SingleCell、PseudoBulkSample、QCSummary、DSResult 和 DSResults 数据结构。核心函数包括：aggregate_cells 将单细胞数据按样本/聚类/分组聚合为伪批量、compute_qc 计算质控统计、run_ds_analysis 执行差异状态分析、muscat_sample_data 生成示例数据集。PseudoBulkSample 包含 sample_id/cluster_id/group_id/n_cells/counts 字段。DSResult 包含 gene_id/cluster_id/log2fc/p_val/p_adj/significant 字段。DSResults 方法包括：get_n_results/get_n_significant/get_top_genes/get_significant/summary。适用于单细胞转录组的伪批量差异表达分析。
+
+### 152. MSstats 蛋白质显著性分析 (Bioconductor MSstats)
+
+实现质谱定量蛋白质组学的蛋白质显著性分析功能，支持数据归一化、肽段到蛋白质汇总、组间差异比较以及样本量设计。支持 MSType 枚举（DDA/DIA/SRM/TMT）、MSNormalization 枚举（None/Median/Quantile/GlobalStandards）、MSSummarization 枚举（Tukey/Linear/LogSum）数据结构。核心函数包括：ms_data_process 数据处理（过滤/Log2转换/归一化）、ms_summarize 肽段汇总到蛋白质（Tukey 中位数平滑/线性模型/LogSum）、ms_group_comparison 组间差异比较（t 检验/BH-FDR 校正）、ms_design_sample_size 样本量计算、msstats_sample_data 示例数据集。MSGroupComparison 方法包括：get_n_results/get_n_significant/get_significant/get_top_proteins/summary。适用于定量质谱数据的蛋白质水平差异丰度分析。
+
+### 153. NOISeq 噪声鲁棒差异表达 (Bioconductor NOISeq)
+
+实现噪声鲁棒的 RNA-seq 差异表达分析功能，支持多种归一化方法和基于噪声分布的概率计算。支持 NOISeqNorm 枚举（RPKM/TMM/UpperQuartile/None）、NOISeqMethod 枚举（NOISeqBio/NOISeqSim）数据结构。核心函数包括：noiseq_normalize 数据归一化（RPKM/TMM/上四分位）、noiseq_run 差异表达分析（M 值/D 统计量/概率计算/显著性排序）、noiseq_qc 质控诊断、noiseq_sample_data 示例数据集。NOISeqSample 包含 sample_id/condition/counts 字段，方法包括 set_count/get_count/library_size/n_expressed。NOISeqResult 包含 gene_id/mean_control/mean_treatment/log2fc/divergence/prob/significant/ranking 字段。NOISeqResults 方法包括：get_top_genes/get_significant/get_up_regulated/get_down_regulated/summary。适用于数据质量感知的 RNA-seq 差异表达分析。
+
+### 154. Gviz 基因组可视化轨道 (Bioconductor Gviz)
+
+实现基因组可视化轨道系统，支持多种轨道类型和 ASCII 渲染。支持 GvizTrackType 枚举（AnnotationTrack/GeneRegionTrack/DataTrack/IdeogramTrack/GenomeAxisTrack/SequenceTrack）、GvizStrand 枚举（Forward/Reverse/Unstranded）数据结构。核心函数包括：gviz_feature 创建基因组特征、gviz_track 创建轨道、gviz_region 创建基因组区域、gviz_plot 创建绘图、gviz_sample_plot 创建示例绘图。GvizTrack 方法包括：set_color/set_label/add_feature/add_data_point/get_n_features/get_n_data_points/get_features_in_region/get_data_in_region。GvizPlot 方法包括：add_track/get_n_tracks/get_region/to_ascii/summary。ASCII 渲染支持坐标轴、特征块、数据点和核型显示。适用于基因组注释和数据的沿坐标可视化。
+
 
 ## 性能优化
 
@@ -1909,8 +1941,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 3864 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 3864 |
-| 通过数 | 3864 |
+| 总测试数 | 4248 |
+| 通过数 | 4248 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2105,6 +2137,10 @@ moon test --update
 | ReportingTools | `reporting_tools_test.mbt` | 12 |
 | karyoploteR | `karyoploter_test.mbt` | 14 |
 | SystemPipeR | `system_piper_test.mbt` | 16 |
+| muscat | `muscat_test.mbt` | 17 |
+| MSstats | `msstats_test.mbt` | 15 |
+| NOISeq | `noiseq_test.mbt` | 17 |
+| Gviz | `gviz_test.mbt` | 16 |
 
 ### Python 对比测试
 
