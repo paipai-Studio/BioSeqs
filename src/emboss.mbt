@@ -354,8 +354,8 @@ pub fn hamming_distance(seq1 : String, seq2 : String) -> Int {
 }
 
 ///|
-/// Calculate the Levenshtein distance between two sequences.
-pub fn levenshtein_distance(seq1 : String, seq2 : String) -> Int {
+/// Calculate the Levenshtein distance between two sequences (EMBOSS version).
+pub fn emboss_levenshtein_distance(seq1 : String, seq2 : String) -> Int {
   let s1 = seq1.to_upper()
   let s2 = seq2.to_upper()
   let m = s1.length()
