@@ -95,6 +95,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | GENIE3 | Bioconductor GENIE3基因调控网络推断: 回归树特征重要性、方差缩减、加权邻接矩阵、对称化网络 |
 | ✅ | decoupleR | Bioconductor decoupleR功能活性推断: WSum/WMean/Norm/ULM/MLM方法、先验知识网络(PKN)、调控子活性评分 |
 | ✅ | BayesSpace | Bioconductor BayesSpace空间转录组聚类: t分布混合模型、马尔可夫随机场(MRF)先验、EM算法、六边形/方形网格邻居 |
+| ✅ | muscat | Bioconductor muscat单细胞差异状态分析: 伪批量聚合(Sum/Mean/Median)、EdgeR/DESeq2/Limma DS检验、BH-FDR校正、样本QC指标 |
 
 ### 序列组装算法
 
@@ -1910,7 +1911,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4916 个测试全�
 
 ### 151. muscat 单细胞差异状态分析 (Bioconductor muscat)
 
-实现单细胞 RNA-seq 差异状态（DS）分析功能，支持伪批量聚合、DS 检验以及 QC 质控。支持 AggregationMethod 枚举（Sum/Mean/Median）、DSMethod 枚举（edgeR/DESeq2/limma）、SingleCell、PseudoBulkSample、QCSummary、DSResult 和 DSResults 数据结构。核心函数包括：aggregate_cells 将单细胞数据按样本/聚类/分组聚合为伪批量、compute_qc 计算质控统计、run_ds_analysis 执行差异状态分析、muscat_sample_data 生成示例数据集。PseudoBulkSample 包含 sample_id/cluster_id/group_id/n_cells/counts 字段。DSResult 包含 gene_id/cluster_id/log2fc/p_val/p_adj/significant 字段。DSResults 方法包括：get_n_results/get_n_significant/get_top_genes/get_significant/summary。适用于单细胞转录组的伪批量差异表达分析。
+实现单细胞 RNA-seq 差异状态（Differential State, DS）分析功能，参考 Bioconductor muscat 包（Crowell HL et al. 2020 Nature Communications），支持伪批量聚合、统计检验和样本级 QC。支持 AggregationMethod 枚举（Sum/Mean/Median 三种聚合方法），辅助构造函数 aggregation_sum()/aggregation_mean()/aggregation_median()。支持 DSMethod 枚举（EdgeR/DESeq2/Limma 三种检验方法），辅助构造函数 ds_method_edger()/ds_method_deseq2()/ds_method_limma()。核心数据结构：SingleCell（cell_id/sample_id/cluster_id/group_id/gene_counts 单细胞计数）、PseudoBulk（sample_id/cluster_id/group_id/n_cells/gene_counts 伪批量样本）、SampleQC（sample_id/cluster_id/n_cells/n_genes/total_counts/median_genes_per_cell QC统计）、DSResult（gene_id/cluster_id/log2fc/p_val/p_adj/mean_ctrl/mean_stim/significant 单基因检验结果）、DSResults（全局结果容器）。核心函数：aggregate_cells() 按 (sample_id, cluster_id) 分组聚合单细胞为伪批量，支持 Sum/Mean/Median 三种统计量；run_ds_analysis() 按聚类分别拆分对照组（ctrl/control）与处理组，计算 log2 fold change、Welch t 检验近似 p 值、全局 Benjamini-Hochberg FDR 校正、根据 fdr_threshold 和 log2fc_threshold 判定显著性；compute_qc() 计算伪批量样本的细胞数、基因数、总计数等 QC 指标；muscat_sample_data() 生成 4 样本 × 2 聚类 × 5 细胞 × 5 基因的示例数据集。DSResults 方法：get_n_results()/get_significant()/get_cluster_results(cluster_id)/get_top_genes(n)/summary()。PseudoBulk 方法：get_count()/total_counts()/n_expressed()。SingleCell 方法：set_count()/get_count()/total_counts()/n_expressed()。适用于单细胞转录组的亚群特异性差异表达分析、伪批量差异状态检验和实验 QC 评估。
 
 ### 152. MSstats 蛋白质显著性分析 (Bioconductor MSstats)
 
