@@ -153,6 +153,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **TreeConstruction** | Biopython `Bio.Phylo.TreeConstruction` | 距离矩阵建树、UPGMA/WPGMA/NJ算法、替换模型（Jukes-Cantor、Kimura） | ✅ |
 | **NeighborSearch** | Biopython `Bio.PDB.NeighborSearch` | KD树空间搜索、近邻查找、半径搜索、原子对搜索 | ✅ |
 | **SwissProt** | Biopython `Bio.SwissProt` | Swiss-Prot/UniProt记录解析、特征注释、参考文献、关键词 | ✅ |
+| **UniProtIO** | Biopython `Bio.SeqIO.UniprotIO` | UniProt XML格式解析、蛋白质条目提取、基因名、物种、序列、功能注释、数据库交叉引用 | ✅ |
+| **chem_utils** | Biopython `Bio.PDB.chem_utils` | 化学计算工具：范德华半径、共价半径、键长、键角、二面角、经验式、分子式量、氢键长度 | ✅ |
 | **mmCIF** | Biopython `Bio.PDB.MMCIFParser` | mmCIF格式解析、数据块、类别、原子位点提取 | ✅ |
 | **Nexus** | Biopython `Bio.Nexus` | NEXUS格式解析、数据矩阵、系统发育树、距离矩阵 | ✅ |
 | **EMBOSS** | EMBOSS suite | GC偏斜、AT偏斜、分子量、Tm值、ORF查找、距离计算、蛋白质参数 | ✅ |
@@ -391,6 +393,9 @@ IvanAXu/BioSeqs/
 │   ├── tree_construction.mbt   # TreeConstruction 系统发育树构建 (UPGMA/WPGMA/NJ算法、距离计算)
 │   ├── neighbor_search.mbt     # NeighborSearch KD树近邻搜索 (空间搜索、半径搜索、最近邻)
 │   ├── swissprot.mbt           # SwissProt 蛋白数据库解析 (UniProt/Swiss-Prot记录、特征、参考文献)
+│   ├── uniprot_io.mbt          # UniProt XML格式解析 (蛋白质条目、基因名、物种、序列、功能注释)
+│   ├── chem_utils.mbt          # 化学计算工具 (范德华半径、共价半径、键长、键角、二面角、分子式量)
+│   ├── jaspar.mbt              # JASPAR PFM格式解析 (模体矩阵、PWM转换、共有序列、序列扫描)
 │   ├── mmcif.mbt               # mmCIF格式解析 (Bio.PDB.MMCIFParser、数据块、类别、原子位点)
 │   ├── nexus.mbt               # Nexus格式解析 (Bio.Nexus、数据矩阵、系统发育树、距离矩阵)
 │   ├── emboss.mbt              # EMBOSS工具接口 (GC偏斜、AT偏斜、分子量、Tm值、ORF查找、距离计算)
@@ -628,6 +633,9 @@ IvanAXu/BioSeqs/
 │   ├── structure_alignment_demo/ # Bio.PDB.StructureAlignment 多蛋白质结构比对示例
 │   ├── ma_align_demo/            # 多蛋白质结构比对示例
 │   ├── swissprot_demo/         # SwissProt 蛋白数据库解析示例 (记录解析、特征提取、参考文献)
+│   ├── uniprot_io_demo/        # UniProt XML格式解析示例 (蛋白质条目解析、功能注释提取)
+│   ├── chem_utils_demo/        # 化学计算工具示例 (键长、键角、分子式量计算)
+│   ├── jaspar_demo/            # JASPAR PFM格式解析示例 (模体矩阵解析、共有序列、序列扫描)
 │   ├── tree_construction_demo/ # TreeConstruction 系统发育树构建示例 (UPGMA/WPGMA/NJ算法)
 │   ├── txdb_demo/              # TxDb 转录本数据库示例 (GTF解析、基因/转录本/外显子/CDS/UTR/内含子提取)
 │   ├── tximport_demo/          # tximport转录本量化示例 (Salmon quant.sf解析、转录本到基因汇总、ExpressionSet转换、低表达过滤)
@@ -1003,7 +1011,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4248 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4507 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1130,6 +1138,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4248 个测试全�
 | `medline.mbt` | BioPython `Bio.Medline` | Medline/PubMed 解析 |
 | `entrez.mbt` | BioPython `Bio.Entrez` | NCBI 数据库访问 |
 | `swissprot.mbt` | BioPython `Bio.SwissProt` | UniProt 记录解析 |
+| `uniprot_io.mbt` | BioPython `Bio.SeqIO.UniprotIO` | UniProt XML 格式解析 |
+| `chem_utils.mbt` | BioPython `Bio.PDB.chem_utils` | 化学计算工具（键长、键角、二面角、分子式量） |
+| `jaspar.mbt` | BioPython `Bio.motifs.Jaspar` | JASPAR PFM 格式解析与模体分析 |
 | `biomart.mbt` | Bioconductor biomaRt | 基因 ID 映射与注释 |
 | `nexus.mbt` | BioPython `Bio.Nexus` | NEXUS 格式解析 |
 | `emboss.mbt` | EMBOSS suite | EMBOSS 工具接口 |
@@ -2368,6 +2379,9 @@ moon run cmd/bench/main.mbt
 | tree_construction_demo | TreeConstruction 系统发育树构建（UPGMA/WPGMA/NJ算法、替换模型、距离矩阵） | `moon run examples/tree_construction_demo/main.mbt` |
 | neighbor_search_demo | NeighborSearch KD树近邻搜索（半径搜索、最近邻、原子对搜索） | `moon run examples/neighbor_search_demo/main.mbt` |
 | swissprot_demo | SwissProt 蛋白数据库解析（记录解析、特征提取、参考文献） | `moon run examples/swissprot_demo/main.mbt` |
+| uniprot_io_demo | UniProt XML格式解析（蛋白质条目解析、功能注释提取、序列转换） | `moon run examples/uniprot_io_demo/main.mbt` |
+| chem_utils_demo | 化学计算工具（键长、键角、二面角、分子式量、氢键长度） | `moon run examples/chem_utils_demo/main.mbt` |
+| jaspar_demo | JASPAR PFM格式解析（模体矩阵解析、共有序列、PWM转换、序列扫描） | `moon run examples/jaspar_demo/main.mbt` |
 | fgsea_demo | FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正） | `moon run examples/fgsea_demo/main.mbt` |
 | sva_demo | SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除） | `moon run examples/sva_demo/main.mbt` |
 | ballgown_demo | Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析） | `moon run examples/ballgown_demo/main.mbt` |
