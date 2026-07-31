@@ -83,6 +83,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bioconductor Rsubread/featureCounts | 基因特征read计数: 链特异性(Stranded/Reversed/Unstranded)、重叠长度阈值、最小比对质量过滤、多比对read处理(计数/分数计数)、配对末端fragment计数、CPM归一化、多样本矩阵 |
 | ✅ | Bioconductor DRIMSeq | 差异转录本使用分析: Dirichlet-multinomial模型、Wald检验、比例计算、counts过滤、BH-FDR校正、显著基因提取、收敛诊断 |
 | ✅ | Bioconductor RaggedExperiment | 参差突变数据结构: 突变记录(Missense/Nonsense/Frame_Shift/Splice_Site等)、基因×样本稀疏矩阵、TMB计算(每Mb)、按基因/样本/突变类型过滤、突变计数矩阵、LoF识别 |
+| ✅ | Bioconductor HTSFilter | RNA-seq count过滤: CPM归一化、按组最小样本数阈值、keep mask生成、文库大小估计、过滤矩阵导出 |
+| ✅ | Bioconductor baySeq | 贝叶斯差异表达分析: 负二项模型、分散度估计、Gamma先验、对数似然比、后验概率、MAP表达估计、差异基因判定 |
+| ✅ | Bioconductor CellChat | 细胞间通讯分析: 配体-受体互作对数据库、置换检验、互作评分、细胞类型聚合、显著性检验、FDR校正 |
 
 ### 序列组装算法
 
@@ -517,6 +520,9 @@ IvanAXu/BioSeqs/
 │   ├── msstats.mbt             # MSstats 蛋白质显著性分析 (质谱数据归一化、汇总、组间比较)
 │   ├── noiseq.mbt              # NOISeq 噪声鲁棒差异表达 (TMM/RPKM/上四分位归一化、NOISeqBio)
 │   ├── gviz.mbt                # Gviz 基因组可视化轨道 (注释/数据/核型/序列轨道、ASCII渲染)
+│   ├── htsfilter.mbt           # Bioconductor HTSFilter RNA-seq count过滤 (CPM归一化、按组最小样本阈值、keep mask)
+│   ├── bayseq.mbt              # Bioconductor baySeq 贝叶斯差异表达分析 (负二项模型、分散度估计、Gamma先验、后验概率)
+│   ├── cellchat.mbt            # Bioconductor CellChat 细胞间通讯分析 (配体-受体互作对、置换检验、互作评分、FDR校正)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -735,6 +741,9 @@ IvanAXu/BioSeqs/
 │   ├── msstats_demo/            # MSstats 蛋白质显著性分析示例
 │   ├── noiseq_demo/             # NOISeq 噪声鲁棒差异表达示例
 │   ├── gviz_demo/               # Gviz 基因组可视化轨道示例
+│   ├── htsfilter_demo/          # HTSFilter RNA-seq count过滤示例 (CPM阈值过滤、保留率分析)
+│   ├── bayseq_demo/             # baySeq 贝叶斯差异表达分析示例 (DE基因检测、后验概率)
+│   ├── cellchat_demo/           # CellChat 细胞间通讯分析示例 (配体-受体互作、置换检验)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -965,6 +974,9 @@ IvanAXu/BioSeqs/
 │   │   ├── msstats_test.mbt
 │   │   ├── noiseq_test.mbt
 │   │   ├── gviz_test.mbt
+│   │   ├── htsfilter_test.mbt
+│   │   ├── bayseq_test.mbt
+│   │   ├── cellchat_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -1886,6 +1898,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4248 个测试全�
 
 实现 1~3 阶高阶马尔可夫链建模，参考 Biopython Bio.Markov，用于生物序列的概率打分、CpG 岛检测、合成序列生成、稳态分析等。枚举 ChainType：FirstOrder / SecondOrder / ThirdOrder，辅助构造函数 markov_first_order()/markov_second_order()/markov_third_order()。结构 MarkovModel：order(Int)、chain_type(ChainType)、states(Array[String])、transition_counts(Map[context, Map[next, count]])、transition_probs(Map[context, Map[next, prob]])、initial_probs(Map[start_kmer, prob])、pseudo_count(Double)。::new() 默认 order=1, states=["A","C","G","T"], pseudo=1.0；default_dna() 相同；default_protein() states=20 氨基酸。setter：set_order(val)、set_states(states~)、set_chain_type(val~)、set_pseudo_count(val)，全部手动列出 7 字段不可变更新。训练 markov_build_model(sequences, order?, states?, pseudo_count?)：对长度 N 的序列从 i=order 到 N-1 扫描 context（seq[i-order:i]）→ next_char，累计转移计数并归一化；初始 k-mer 计数归一化为 initial_probs；states 空自动从数据推断；pseudo_count 用于后续未知 context 平滑。打分 markov_score_sequence()：初始 log P(start_kmer) + Σ_i log P(next|context)；markov_score_per_base() 返回每位置 log 概率（长度 = len - order）。未知转移概率平滑：完全未见过的 context → P = pseudo / (1 + pseudo * N)（高 pseudo 更接近均匀，因此对未知打分更高）；已知 context 但缺少 next_char → 汇总该 row 的 total，P = pseudo / (row_total + pseudo * N)。序列生成 markov_generate_sequence(model, length, seed?)：根据 initial_probs 加权采样起始 context，然后按 transition_probs 加权采样后续字符；seed 驱动简单 LCG RNG (rand = (x*1103515245+12345) & 0x7fffffff)。CpG 岛检测 markov_log_odds(cpg_model, bg_model, sequence)：log P_CpG - log P_bg，正值表示符合 CpG 统计特征。稳态 markov_stationary_distribution()：从均匀分布开始迭代 M100 次或 δ<1e-8 收敛。适用于 CpG 岛检测、DNA 组成分析、序列似然度打分、异常序列检测、合成序列生成。
 
+### 164. HTSFilter RNA-seq count过滤 (Bioconductor HTSFilter)
+
+实现基于 CPM (Count Per Million) 阈值的 RNA-seq count 过滤，参考 Bioconductor HTSFilter 包。核心函数 hts_filter_single_cpm(count, library_size) 将单基因 count 转换为 CPM 值：count / library_size × 1,000,000。hts_filter_library_sizes(counts) 计算每个样本的总文库大小（counts 行求和）。hts_filter_cpm(counts, library_sizes) 应用于整个计数矩阵，生成 CPM 矩阵。hts_filter(counts, groups, cpm_threshold, min_samples_per_group) 主过滤函数：对每个基因计算所有样本的 CPM，然后按组检查是否至少 min_samples_per_group 个样本 CPM ≥ 阈值，若任一组满足条件则保留该基因。返回 HTSFilterResult 结构：cpm_threshold、min_samples_per_group、groups、cpm_matrix、keep 掩码、n_genes_input/kept/removed。辅助函数 hts_filter_apply() 根据 keep 掩码提取过滤后的计数矩阵，hts_filter_apply_names() 同步提取基因名，hts_filter_retention_rate() 计算保留率，hts_filter_summary() 生成中文摘要。hts_filter_sample_data() 提供 20 基因 × 6 样本 (3 control + 3 treatment) 的示例数据，便于测试和演示。适用于 RNA-seq 预处理中去除低表达/噪声基因，为下游差异表达分析提供可靠输入。
+
+### 165. baySeq 贝叶斯差异表达分析 (Bioconductor baySeq)
+
+实现基于负二项模型的贝叶斯差异表达分析，参考 Bioconductor baySeq 包。核心结构 BayesGeneResult 存储每个基因的分析结果：gene_index、gene_name、log_fold_change、dispersion、posterior_prob_de、map_expression_a/map_expression_b、is_de。BayesResult 汇总所有基因结果及全局参数。bayseq_lgamma(x) 使用 Lanczos 近似计算 log-gamma 函数（g=5），支持 (0,1) 反射公式处理小值。bayseq_estimate_dispersion_gene(counts_a, counts_b) 通过基因级别估计离散度 φ：均值 ÷ 方差。bayseq_nb_log_likelihood(counts, mu, phi) 计算负二项分布的对数似然。bayseq_estimate_prior(counts, groups) 估计 Gamma 先验的 shape 和 rate 参数。bayseq_test(counts, groups, gene_names, dispersion_shape?, dispersion_rate?, alpha?) 主函数：对每个基因计算两组的 MAP 表达估计（含 Bayes 正则化项），计算对数似然比 (log_lik_ratio)，近似贝叶斯因子 → 后验概率 P(DE|data)，并根据 alpha 阈值判定显著 DE 基因。辅助函数 bayseq_get_top_de() 按 |logFC| 排序返回前 N 个 DE 基因，bayseq_get_de_genes() 提取所有显著 DE 基因，bayseq_summary() 生成分析摘要。bayseq_sample_data() 提供 20 基因 × 6 样本示例数据。适用于 RNA-seq 差异表达分析，提供基于贝叶斯框架的稳健 DE 判定。
+
+### 166. CellChat 细胞间通讯分析 (Bioconductor CellChat)
+
+实现细胞间通讯分析，参考 Bioconductor CellChat 包。核心结构 InteractionScore 存储每个配体-受体互作的评分：ligand、receptor、source_celltype、target_celltype、score、perm_mean/perm_std、p_value、p_adj、significant。CellChatResult 汇总所有互作评分、细胞类型、基因名及统计参数。LRPair 结构表示配体-受体对（ligand、receptor）。cellchat_lr_database() 返回内置 15 对配体-受体互作数据库（如 TNF→TNFR、VEGF→VEGFR、EGF→EGFR 等）。cellchat_mean_expr(expression, cell_types, celltype, gene_idx) 计算指定细胞类型在某基因上的平均表达。cellchat_analyze(expression, cell_types, gene_names, lr_pairs, n_permutations?, seed?, fdr?) 主分析流程：1) 对每个 LR 对，在所有 source→target 细胞类型组合中计算互作评分（平均配体 × 平均受体）；2) 置换检验：随机打乱细胞类型标签 N 次，生成零分布；3) 计算 p-value = (count_permuted_higher + 1) / (n_perm + 1)；4) BH-FDR 校正；5) 输出 CellChatResult。辅助函数 cellchat_get_top() 按评分排序返回前 N 个互作，cellchat_get_significant() 提取显著互作，cellchat_aggregate() 聚合每个细胞类型对的总通信强度，cellchat_summary() 生成分析摘要。cellchat_sample_data() 提供 30 细胞 × 15 基因的示例数据（3 种细胞类型）。适用于单细胞数据中细胞间通讯信号的探索和可视化。
+
 
 ## 性能优化
 
@@ -2188,6 +2212,9 @@ moon test --update
 | MSstats | `msstats_test.mbt` | 15 |
 | NOISeq | `noiseq_test.mbt` | 17 |
 | Gviz | `gviz_test.mbt` | 16 |
+| HTSFilter | `htsfilter_test.mbt` | 15 |
+| baySeq | `bayseq_test.mbt` | 18 |
+| CellChat | `cellchat_test.mbt` | 15 |
 
 ### Python 对比测试
 
