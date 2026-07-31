@@ -86,6 +86,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bioconductor HTSFilter | RNA-seq count过滤: CPM归一化、按组最小样本数阈值、keep mask生成、文库大小估计、过滤矩阵导出 |
 | ✅ | Bioconductor baySeq | 贝叶斯差异表达分析: 负二项模型、分散度估计、Gamma先验、对数似然比、后验概率、MAP表达估计、差异基因判定 |
 | ✅ | Bioconductor CellChat | 细胞间通讯分析: 配体-受体互作对数据库、置换检验、互作评分、细胞类型聚合、显著性检验、FDR校正 |
+| ✅ | Bio.File | 智能文件处理: 自动压缩格式检测(gzip/bzip2)、透明压缩读写、文件操作接口 |
+| ✅ | Bio.SeqUtils.MolWt | 分子量计算: DNA/RNA/蛋白质分子量、消光系数、吸光度、等电点(pI) |
+| ✅ | Bio.Align.Reduced | 简化氨基酸字母表: RAD/Dayhoff/CHARM/SDM12简化字母表、序列比较、简化一致性 |
 
 ### 序列组装算法
 
@@ -531,6 +534,9 @@ IvanAXu/BioSeqs/
 │   ├── mutational_patterns.mbt # Bioconductor MutationalPatterns 体细胞突变谱分析 (96通道矩阵、三核苷酸上下文、突变签名拟合)
 │   ├── gage.mbt                # Bioconductor GAGE 基因集富集分析 (fold change、t检验、BH-FDR校正、配对检验)
 │   ├── spia.mbt                # Bioconductor SPIA 信号通路影响分析 (通路图、扰动累积、超几何检验、Fisher合并p值)
+│   ├── file.mbt                # Bio.File 智能文件处理 (压缩格式检测、gzip/bzip2透明读写、文件操作接口)
+│   ├── mol_wt.mbt              # Bio.SeqUtils.MolWt 分子量计算 (DNA/RNA/蛋白质分子量、消光系数、等电点)
+│   ├── reduced.mbt             # Bio.Align.Reduced 简化氨基酸字母表 (RAD/Dayhoff/CHARM/SDM12、序列比较)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -758,6 +764,9 @@ IvanAXu/BioSeqs/
 │   ├── mutational_patterns_demo/ # MutationalPatterns 体细胞突变谱分析示例 (96通道矩阵、签名拟合)
 │   ├── gage_demo/                # GAGE 基因集富集分析示例 (fold change、t检验、配对检验)
 │   ├── spia_demo/                # SPIA 信号通路影响分析示例 (通路扰动、超几何检验、Fisher合并)
+│   ├── file_demo/                # Bio.File 智能文件处理示例 (压缩检测、透明读写、文件操作)
+│   ├── mol_wt_demo/              # Bio.SeqUtils.MolWt 分子量计算示例 (DNA/RNA/蛋白质分子量、消光系数、等电点)
+│   ├── reduced_demo/             # Bio.Align.Reduced 简化氨基酸字母表示例 (RAD/Dayhoff/CHARM字母表、序列比较)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -994,6 +1003,9 @@ IvanAXu/BioSeqs/
 │   │   ├── mutational_patterns_test.mbt
 │   │   ├── gage_test.mbt
 │   │   ├── spia_test.mbt
+│   │   ├── file_test.mbt
+│   │   ├── mol_wt_test.mbt
+│   │   ├── reduced_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -1020,7 +1032,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4507 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4657 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1260,6 +1272,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4507 个测试全�
 | `mutational_patterns.mbt` | `MutationalPatterns` | 体细胞突变谱分析（96通道矩阵、三核苷酸上下文归一化、突变签名拟合、余弦相似度） |
 | `gage.mbt` | `gage` | 基因集富集分析（fold change、t检验、BH-FDR校正、配对/非配对检验） |
 | `spia.mbt` | `SPIA` | 信号通路影响分析（通路图建模、扰动累积、超几何检验、Fisher合并p值、激活/抑制判定） |
+| `file.mbt` | `Bio.File` | 智能文件处理（压缩格式自动检测、gzip/bzip2透明读写、文件操作接口） |
+| `mol_wt.mbt` | `Bio.SeqUtils.MolWt` | 分子量计算（DNA/RNA/蛋白质分子量、消光系数、吸光度、等电点） |
+| `reduced.mbt` | `Bio.Align.Reduced` | 简化氨基酸字母表（RAD/Dayhoff/CHARM/SDM12字母表、序列比较、简化一致性） |
 
 ## 核心功能实现
 
@@ -1945,6 +1960,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4507 个测试全�
 
 实现信号通路影响分析，参考 Bioconductor SPIA 包（Tarca AL et al. 2009）。核心结构 PathwayNode 表示通路节点：gene_id、gene_name、downstream（下游靶基因列表）、upstream（上游调控基因列表）、activation（每条下游互作的激活符号 +1/-1）。SignalingPathway（id、name、nodes）表示完整通路。SpiaResult 存储每通路分析结果：n_genes、n_de、p_or（过表达 p 值）、pert_factor（扰动累积因子）、p_pert（扰动 p 值）、p_combined（合并 p 值）、p_adj、significant、activation_status（+1 激活 / -1 抑制 / 0 中性）。SpiaResults 汇总所有通路结果。PathwayNode::add_downstream(target, is_activation) 添加下游互作并记录激活/抑制符号。run_spia(pathways, de_genes, total_genes, fdr_threshold?) 主分析流程：1) 对每通路统计 DE 基因数；2) 超几何检验 p_or（hypergeometric_pvalue，使用卡方近似 N(0,1)）；3) 计算扰动累积因子 pert_factor（compute_perturbation：每个基因的扰动 = 自身 logFC + Σ 上游 DE 基因的 logFC × 激活符号，最后除以 DE 基因数归一化）；4) 扰动 p 值 p_pert（perturbation_pvalue：使用正态近似 N(0, n_de) 与 erfc 函数）；5) Fisher 合并 p_combined = -2 × (ln p_or + ln p_pert) → 卡方分布 p 值（fisher_combine）；6) BH-FDR 校正（spia_bh_adjust）；7) 根据 pert_factor 符号判定激活/抑制状态。辅助函数 SpiaResults::get_significant() / get_activated() / get_inhibited() / get_top_pathways(n) / summary() 提供结果筛选和摘要。spia_sample_pathways() 提供 2 个示例通路：MAPK Cascade（5 基因激活级联：EGFR→RAS→RAF→MEK→ERK）和 Apoptosis（3 基因含抑制：BAX→CASP3, BCL2 -| CASP3）。spia_sample_de_genes() 提供 4 个 DE 基因（Gene1, Gene2, Gene5, Gene6）。适用于差异表达数据的通路影响分析，结合过表达和扰动信号判定通路激活/抑制状态。
 
+### 170. Bio.File 智能文件处理 (Biopython Bio.File)
+
+实现智能文件处理模块，提供透明压缩格式支持。核心结构 SmartFile 表示文件句柄：path（文件路径）、format（压缩格式：Plain/Gzip/Bzip2）、mode（读写模式）、is_open（文件打开状态）、lines（缓冲行数组，用于读取）、pos（当前读取位置）、written_content（写入内容缓冲）。CompressionFormat 枚举支持三种格式：Plain（无压缩）、Gzip（gzip压缩，.gz扩展名）、Bzip2（bzip2压缩，.bz2扩展名）。自动检测逻辑：SmartFile::new(path, mode?) 根据文件扩展名自动识别压缩格式（.gz → Gzip、.bz2 → Bzip2、其他 → Plain）。支持文件打开/关闭操作（open/close）、逐行读取（read_line）、全量读取（read_all）、字符串写入（write）、追加写入（append）。提供工具函数：detect_compression(path) 检测压缩格式、has_compression_extension(path) 判断是否有压缩扩展名、strip_compression_extension(path) 去除压缩扩展名。适用于生物信息学中常见的压缩序列文件（如 .fasta.gz、.fastq.bz2）的透明读写。
+
+### 171. Bio.SeqUtils.MolWt 分子量计算 (Biopython Bio.SeqUtils.MolWt)
+
+实现分子量计算模块，支持 DNA、RNA 和蛋白质序列的理化性质分析。核心结构 AtomicWeights 存储元素原子量（H/C/N/O/P/S）。支持的计算功能包括：（1）mol_weight_dna(sequence) 计算 DNA 分子量，公式为核苷酸权重之和减去 (n-1)×水分子量（18.01524）；（2）mol_weight_rna(sequence) 计算 RNA 分子量，尿嘧啶替换胸腺嘧啶；（3）mol_weight_protein(sequence) 计算蛋白质分子量，基于氨基酸单同位素质量；（4）extinction_coefficient(sequence) 计算 280nm 消光系数（基于 Trp、Tyr、Cys 残基）；（5）absorbance_280(sequence) 计算 280nm 吸光度；（6）mol_wt_isoelectric_point(sequence) 计算等电点 pI（基于 Lehninger pK 值）。提供示例序列：mol_wt_sample_dna()、mol_wt_sample_protein()。支持序列摘要生成（mol_weight_summary）。适用于蛋白质组学和分子生物学实验中的样品定量与质控。
+
+### 172. Bio.Align.Reduced 简化氨基酸字母表 (Biopython Bio.Align.Reduced)
+
+实现简化氨基酸字母表模块，用于蛋白质序列的简化表示和比较。核心结构 ReducedAlphabet 包含：name（名称）、n_groups（分组数）、mapping（氨基酸到分组字母的映射）、groups（分组定义）。支持四种常用简化字母表：（1）RAD（Reduced Alphabet Database，6组）：(A,G)、(C)、(D,E,N,Q)、(I,L,M,V)、(F,Y,W)、(H,K,R,S,T)，来自 Wang & Wang (1999)；（2）Dayhoff（6组）：(A,G,P,S,T)、(C)、(D,E,N,Q)、(I,L,M,V)、(F,W,Y)、(H,K,R)；（3）CHARM（4组）：(A,C,F,I,L,M,V)、(G,S,T,P)、(D,E,N,Q)、(H,K,R,W,Y)，来自 Li et al. (2003)；（4）SDM12（12组）：基于结构域记忆性的12组简化。支持序列简化（reduce_sequence）、单氨基酸简化（reduce_aa）、简化序列比较（reduced_identity）和字母表摘要（summary）。适用于大规模蛋白质序列比对的预筛选、远缘同源性检测和序列聚类分析。
+
 
 ## 性能优化
 
@@ -2047,8 +2074,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4507 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 4553 |
-| 通过数 | 4553 |
+| 总测试数 | 4657 |
+| 通过数 | 4657 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2253,6 +2280,9 @@ moon test --update
 | MutationalPatterns | `mutational_patterns_test.mbt` | 19 |
 | GAGE | `gage_test.mbt` | 11 |
 | SPIA | `spia_test.mbt` | 22 |
+| Bio.File | `file_test.mbt` | 14 |
+| Bio.SeqUtils.MolWt | `mol_wt_test.mbt` | 24 |
+| Bio.Align.Reduced | `reduced_test.mbt` | 20 |
 
 ### Python 对比测试
 
@@ -2339,7 +2369,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 185 个示例程序，展示各模块的典型用法：
+项目提供 188 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -2445,6 +2475,9 @@ moon run cmd/bench/main.mbt
 | mutational_patterns_demo | MutationalPatterns 体细胞突变谱分析（96通道矩阵、突变类型识别、上下文归一化、签名拟合、余弦相似度） | `moon run examples/mutational_patterns_demo/main.mbt` |
 | gage_demo | GAGE 基因集富集分析（fold change、t检验、BH-FDR校正、配对检验、上调/下调分析） | `moon run examples/gage_demo/main.mbt` |
 | spia_demo | SPIA 信号通路影响分析（通路图、扰动累积、超几何检验、Fisher合并p值、激活/抑制判定） | `moon run examples/spia_demo/main.mbt` |
+| file_demo | Bio.File 智能文件处理（压缩检测、透明读写、文件操作接口） | `moon run examples/file_demo/main.mbt` |
+| mol_wt_demo | Bio.SeqUtils.MolWt 分子量计算（DNA/RNA/蛋白质分子量、消光系数、等电点） | `moon run examples/mol_wt_demo/main.mbt` |
+| reduced_demo | Bio.Align.Reduced 简化氨基酸字母表（RAD/Dayhoff/CHARM字母表、序列比较） | `moon run examples/reduced_demo/main.mbt` |
 
 ## 技术栈
 
