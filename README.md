@@ -89,6 +89,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.File | 智能文件处理: 自动压缩格式检测(gzip/bzip2)、透明压缩读写、文件操作接口 |
 | ✅ | Bio.SeqUtils.MolWt | 分子量计算: DNA/RNA/蛋白质分子量、消光系数、吸光度、等电点(pI) |
 | ✅ | Bio.Align.Reduced | 简化氨基酸字母表: RAD/Dayhoff/CHARM/SDM12简化字母表、序列比较、简化一致性 |
+| ✅ | Hmisc | Bioconductor Hmisc统计工具包: 相关性分析(Pearson/Spearman)、变量聚类、描述性统计、Somers' d统计、缺失值插补 |
+| ✅ | rstatix | Bioconductor rstatix tidy统计检验: T检验、Wilcoxon检验、ANOVA、Kruskal-Wallis、Friedman检验、相关性检验、BH-FDR校正、Bonferroni校正 |
+| ✅ | VennDiagram | Bioconductor VennDiagram集合分析: 集合运算、Venn区域计算、重叠统计、相似度指标(Jaccard/Dice/Overlap coefficient) |
 
 ### 序列组装算法
 
@@ -537,6 +540,9 @@ IvanAXu/BioSeqs/
 │   ├── file.mbt                # Bio.File 智能文件处理 (压缩格式检测、gzip/bzip2透明读写、文件操作接口)
 │   ├── mol_wt.mbt              # Bio.SeqUtils.MolWt 分子量计算 (DNA/RNA/蛋白质分子量、消光系数、等电点)
 │   ├── reduced.mbt             # Bio.Align.Reduced 简化氨基酸字母表 (RAD/Dayhoff/CHARM/SDM12、序列比较)
+│   ├── hmisc.mbt               # Bioconductor Hmisc 统计工具包 (相关性分析、变量聚类、描述性统计、Somers' d、缺失值插补)
+│   ├── rstatix.mbt             # Bioconductor rstatix tidy统计检验 (T检验、Wilcoxon、ANOVA、Kruskal-Wallis、Friedman、相关性检验、FDR校正)
+│   ├── venn_diagram.mbt        # Bioconductor VennDiagram 集合分析 (集合运算、Venn区域、相似度指标)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -767,6 +773,9 @@ IvanAXu/BioSeqs/
 │   ├── file_demo/                # Bio.File 智能文件处理示例 (压缩检测、透明读写、文件操作)
 │   ├── mol_wt_demo/              # Bio.SeqUtils.MolWt 分子量计算示例 (DNA/RNA/蛋白质分子量、消光系数、等电点)
 │   ├── reduced_demo/             # Bio.Align.Reduced 简化氨基酸字母表示例 (RAD/Dayhoff/CHARM字母表、序列比较)
+│   ├── hmisc_demo/               # Hmisc 统计工具包示例 (相关性分析、变量聚类、描述性统计、Somers' d、缺失值插补)
+│   ├── rstatix_demo/             # rstatix tidy统计检验示例 (T检验、Wilcoxon、ANOVA、Kruskal-Wallis、相关性检验、FDR校正)
+│   ├── venn_diagram_demo/        # VennDiagram 集合分析示例 (Venn区域计算、相似度指标、集合运算)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1006,6 +1015,9 @@ IvanAXu/BioSeqs/
 │   │   ├── file_test.mbt
 │   │   ├── mol_wt_test.mbt
 │   │   ├── reduced_test.mbt
+│   │   ├── hmisc_test.mbt
+│   │   ├── rstatix_test.mbt
+│   │   ├── venn_diagram_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -2283,6 +2295,9 @@ moon test --update
 | Bio.File | `file_test.mbt` | 14 |
 | Bio.SeqUtils.MolWt | `mol_wt_test.mbt` | 24 |
 | Bio.Align.Reduced | `reduced_test.mbt` | 20 |
+| Hmisc | `hmisc_test.mbt` | 68 |
+| rstatix | `rstatix_test.mbt` | 71 |
+| VennDiagram | `venn_diagram_test.mbt` | 68 |
 
 ### Python 对比测试
 
