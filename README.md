@@ -92,6 +92,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Hmisc | Bioconductor Hmisc统计工具包: 相关性分析(Pearson/Spearman)、变量聚类、描述性统计、Somers' d统计、缺失值插补 |
 | ✅ | rstatix | Bioconductor rstatix tidy统计检验: T检验、Wilcoxon检验、ANOVA、Kruskal-Wallis、Friedman检验、相关性检验、BH-FDR校正、Bonferroni校正 |
 | ✅ | VennDiagram | Bioconductor VennDiagram集合分析: 集合运算、Venn区域计算、重叠统计、相似度指标(Jaccard/Dice/Overlap coefficient) |
+| ✅ | GENIE3 | Bioconductor GENIE3基因调控网络推断: 回归树特征重要性、方差缩减、加权邻接矩阵、对称化网络 |
+| ✅ | decoupleR | Bioconductor decoupleR功能活性推断: WSum/WMean/Norm/ULM/MLM方法、先验知识网络(PKN)、调控子活性评分 |
+| ✅ | BayesSpace | Bioconductor BayesSpace空间转录组聚类: t分布混合模型、马尔可夫随机场(MRF)先验、EM算法、六边形/方形网格邻居 |
 
 ### 序列组装算法
 
@@ -543,6 +546,9 @@ IvanAXu/BioSeqs/
 │   ├── hmisc.mbt               # Bioconductor Hmisc 统计工具包 (相关性分析、变量聚类、描述性统计、Somers' d、缺失值插补)
 │   ├── rstatix.mbt             # Bioconductor rstatix tidy统计检验 (T检验、Wilcoxon、ANOVA、Kruskal-Wallis、Friedman、相关性检验、FDR校正)
 │   ├── venn_diagram.mbt        # Bioconductor VennDiagram 集合分析 (集合运算、Venn区域、相似度指标)
+│   ├── genie3.mbt              # Bioconductor GENIE3 基因调控网络推断 (回归树、特征重要性、邻接矩阵)
+│   ├── decoupler.mbt           # Bioconductor decoupleR 功能活性推断 (WSum/WMean/Norm/ULM/MLM、PKN)
+│   ├── bayes_space.mbt         # Bioconductor BayesSpace 空间转录组聚类 (t分布混合模型、MRF先验、EM算法)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -776,6 +782,9 @@ IvanAXu/BioSeqs/
 │   ├── hmisc_demo/               # Hmisc 统计工具包示例 (相关性分析、变量聚类、描述性统计、Somers' d、缺失值插补)
 │   ├── rstatix_demo/             # rstatix tidy统计检验示例 (T检验、Wilcoxon、ANOVA、Kruskal-Wallis、相关性检验、FDR校正)
 │   ├── venn_diagram_demo/        # VennDiagram 集合分析示例 (Venn区域计算、相似度指标、集合运算)
+│   ├── genie3_demo/              # GENIE3 基因调控网络推断示例 (回归树、特征重要性、调控边排序)
+│   ├── decoupler_demo/           # decoupleR 功能活性推断示例 (WSum/ULM/MLM方法、PKN网络、调控子评分)
+│   ├── bayes_space_demo/         # BayesSpace 空间转录组聚类示例 (六边形邻居、EM聚类、聚类可视化)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1018,6 +1027,9 @@ IvanAXu/BioSeqs/
 │   │   ├── hmisc_test.mbt
 │   │   ├── rstatix_test.mbt
 │   │   ├── venn_diagram_test.mbt
+│   │   ├── genie3_test.mbt
+│   │   ├── decoupler_test.mbt
+│   │   ├── bayes_space_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -1044,7 +1056,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4657 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4916 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1984,6 +1996,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4657 个测试全�
 
 实现简化氨基酸字母表模块，用于蛋白质序列的简化表示和比较。核心结构 ReducedAlphabet 包含：name（名称）、n_groups（分组数）、mapping（氨基酸到分组字母的映射）、groups（分组定义）。支持四种常用简化字母表：（1）RAD（Reduced Alphabet Database，6组）：(A,G)、(C)、(D,E,N,Q)、(I,L,M,V)、(F,Y,W)、(H,K,R,S,T)，来自 Wang & Wang (1999)；（2）Dayhoff（6组）：(A,G,P,S,T)、(C)、(D,E,N,Q)、(I,L,M,V)、(F,W,Y)、(H,K,R)；（3）CHARM（4组）：(A,C,F,I,L,M,V)、(G,S,T,P)、(D,E,N,Q)、(H,K,R,W,Y)，来自 Li et al. (2003)；（4）SDM12（12组）：基于结构域记忆性的12组简化。支持序列简化（reduce_sequence）、单氨基酸简化（reduce_aa）、简化序列比较（reduced_identity）和字母表摘要（summary）。适用于大规模蛋白质序列比对的预筛选、远缘同源性检测和序列聚类分析。
 
+### 173. GENIE3 基因调控网络推断 (Bioconductor GENIE3)
+
+实现 GENIE3（GEne Network Inference with Ensemble of trees）算法，参考 Huynh-Thu VA et al. (2010) PLoS ONE。核心思想：对每个目标基因，使用其他所有基因作为预测变量构建回归树，通过特征重要性（方差缩减）推断调控关系。核心结构 Genie3TreeNode 表示回归树节点：feature（分裂特征索引，-1 为叶节点）、threshold（分裂阈值）、left_idx/right_idx（子节点索引）、value（叶节点预测值）、is_leaf、importance_gain（该分裂的方差缩减量）。RegressionTree 封装节点数组，支持 predict(sample) 预测和 feature_importance(n_features) 计算特征重要性（累加内部节点的 importance_gain）。genie3_build_tree(features, target, feature_indices, max_depth?, min_samples_split?) 构建单棵回归树：递归选择最佳分裂点（遍历所有特征和阈值，最大化 SSE 减少），支持最大深度和最小样本数约束。genie3_run(expression, gene_names, max_depth?, min_samples_split?, symmetrize?) 主推理函数：1) 对每个目标基因 j 构建回归树（排除 j 自身作为预测变量）；2) 累加各树的特征重要性到权重矩阵 matrix[i][j]；3) 列归一化（每列和为1）；4) 可选对称化（matrix[i][j] 和 matrix[j][i] 取平均）；5) 收集非零边并按权重降序排列。RegulatoryEdge 结构（regulator、target、weight）表示调控边。辅助函数：genie3_top_edges(result, k) 获取前 k 条边、genie3_regulators_of(result, gene) 查询靶基因的调控子、genie3_targets_of(result, gene) 查询调控子的靶基因、genie3_sample_data() 提供示例数据（5 基因、30 样本，G1 调控 G2/G3，G2 调控 G4，G3 调控 G5）。适用于基因调控网络推断、转录因子靶基因预测和共表达网络构建。
+
+### 174. decoupleR 功能活性推断 (Bioconductor decoupleR)
+
+实现 decoupleR 功能活性推断框架，参考 Badia-i-Mompel P et al. (2022) Molecular Systems Biology。核心思想：基于先验知识网络（PKN）从组学数据推断调控子（如转录因子）的活性。PKNEdge 结构（source、target、weight）表示调控边（weight>0 激活、weight<0 抑制）。PriorKnowledgeNetwork（edges、regulators、targets）封装 PKN。pkn_from_edges(edges) 从边列表构建 PKN 并提取唯一调控子和靶基因。支持五种推理方法：（1）WSum（加权求和）：score(r,s) = Σ_t W[r][t] × expr[s][t]；（2）WMean（加权平均）：WSum 除以绝对权重和；（3）Norm（归一化均值）：WMean 的标准化版本；（4）ULM（单变量线性模型）：计算每调控子的加权求和后标准化为 z-score；（5）MLM（多变量线性模型）：对每个调控子，将其靶基因表达对其权重向量做回归，斜率即活性。DecoupleRMethod 枚举封装五种方法，通过 decoupler_run(expression, sample_names, gene_names, pkn, method?) 调用。DecoupleRResult（regulators、samples、matrix、scores、method）存储结果矩阵和逐样本评分。ActivityScore（regulator、sample、score、p_value）表示单个评分记录。辅助函数：decoupler_top_regulators(result, sample, k) 获取某样本前 k 个调控子、decoupler_filter_scores(result, threshold) 按阈值过滤评分、decoupler_sample_data() 提供示例数据（3 TF、11 基因、5 样本、7 条 PKN 边）。适用于转录因子活性推断、信号通路活性分析和单细胞调控网络分析。
+
+### 175. BayesSpace 空间转录组聚类 (Bioconductor BayesSpace)
+
+实现 BayesSpace 空间转录组聚类算法，参考 Zhao E et al. (2021) Nature Biotechnology。核心思想：使用 t 分布混合模型结合马尔可夫随机场（MRF）先验对空间转录组 spot 进行聚类，鼓励相邻 spot 共享聚类标签。SpotCoord 结构（spot_id、row、col、x、y）表示 spot 坐标。bayes_space_hex_neighbors(spots) 构建六边形网格邻居列表（6-连通：6 个候选邻居），bayes_space_square_neighbors(spots) 构建方形网格邻居列表（4-连通）。bayes_space_run(expression, spots, q, neighbors, max_iters?, gamma?, df?, seed?, tol?) 主聚类函数使用 EM 算法：1) k-means++ 初始化聚类中心（第一个中心随机选取，后续选择距已有中心最远的 spot）；2) E-step：计算每个 spot 属于每个簇的后验责任，综合 t 分布似然（bayes_space_log_t_density：多变量 t 分布对数密度）和空间先验（Potts 模型：gamma × Σ 邻居责任）；3) 通过 log-sum-exp 归一化责任；4) M-step：更新聚类中心（加权均值）、尺度（加权标准差）和混合比例；5) 计算对数似然判断收敛。BayesSpaceResult（spot_ids、clusters、q、cluster_centers、responsibilities、n_iterations、log_likelihood、converged）存储完整结果。辅助函数：bayes_space_get_cluster(result, spot_id) 按 ID 查询簇、bayes_space_spots_in_cluster(result, k) 获取簇内 spot、bayes_space_cluster_counts(result) 统计各簇大小、bayes_space_render_clusters(result, spots) 生成文本聚类图、bayes_space_sample_data() 提供 4×4 网格示例数据（左上低表达、右下高表达）。适用于空间转录组数据分析、组织区域识别和空间异质性研究。
+
 
 ## 性能优化
 
@@ -2086,8 +2110,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4657 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 4657 |
-| 通过数 | 4657 |
+| 总测试数 | 4916 |
+| 通过数 | 4916 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2298,6 +2322,9 @@ moon test --update
 | Hmisc | `hmisc_test.mbt` | 68 |
 | rstatix | `rstatix_test.mbt` | 71 |
 | VennDiagram | `venn_diagram_test.mbt` | 68 |
+| GENIE3 | `genie3_test.mbt` | 18 |
+| decoupleR | `decoupler_test.mbt` | 17 |
+| BayesSpace | `bayes_space_test.mbt` | 17 |
 
 ### Python 对比测试
 
