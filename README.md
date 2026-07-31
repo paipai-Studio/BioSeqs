@@ -96,6 +96,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | decoupleR | Bioconductor decoupleR功能活性推断: WSum/WMean/Norm/ULM/MLM方法、先验知识网络(PKN)、调控子活性评分 |
 | ✅ | BayesSpace | Bioconductor BayesSpace空间转录组聚类: t分布混合模型、马尔可夫随机场(MRF)先验、EM算法、六边形/方形网格邻居 |
 | ✅ | muscat | Bioconductor muscat单细胞差异状态分析: 伪批量聚合(Sum/Mean/Median)、EdgeR/DESeq2/Limma DS检验、BH-FDR校正、样本QC指标 |
+| ✅ | infercnv | Bioconductor infercnv单细胞拷贝数变异推断: 染色体位置排序基因、参考细胞比较、log2FC有界计算、金字塔权重基因组平滑、每细胞中位数中心化+噪声过滤、CNV分数+肿瘤细胞预测 |
+| ✅ | SCENIC | Bioconductor SCENIC单细胞调控网络推断与聚类: TF-target共表达模块(GENIE3风格)、Regulon构建(权重剪枝/cisTarget motif排名剪枝)、AUCell活性评分(recovery curve AUC)、二值化阈值(MeanStd/KMeans2/Median)、细胞状态聚类+主控调控因子识别 |
 
 ### 序列组装算法
 
@@ -532,6 +534,8 @@ IvanAXu/BioSeqs/
 │   ├── karyoploter.mbt         # karyoploteR 核型可视化 (染色体轨道、数据点、ASCII渲染)
 │   ├── system_piper.mbt        # SystemPipeR 流水线编排 (步骤管理、依赖关系、进度追踪)
 │   ├── muscat.mbt              # muscat 单细胞差异状态分析 (伪批量聚合、DS检验)
+│   ├── infercnv.mbt            # infercnv 单细胞CNV推断 (基因组位置平滑、参考细胞比较、CNV评分)
+│   ├── scenic.mbt              # SCENIC 单细胞调控网络推断 (共表达模块、Regulon构建、AUCell活性评分)
 │   ├── msstats.mbt             # MSstats 蛋白质显著性分析 (质谱数据归一化、汇总、组间比较)
 │   ├── noiseq.mbt              # NOISeq 噪声鲁棒差异表达 (TMM/RPKM/上四分位归一化、NOISeqBio)
 │   ├── gviz.mbt                # Gviz 基因组可视化轨道 (注释/数据/核型/序列轨道、ASCII渲染)
@@ -768,6 +772,8 @@ IvanAXu/BioSeqs/
 │   ├── karyoploter_demo/         # karyoploteR 核型可视化示例
 │   ├── system_piper_demo/        # SystemPipeR 流水线编排示例
 │   ├── muscat_demo/             # muscat 单细胞差异状态分析示例
+│   ├── infercnv_demo/           # infercnv 单细胞拷贝数变异推断示例
+│   ├── scenic_demo/             # SCENIC 单细胞调控网络推断示例
 │   ├── msstats_demo/            # MSstats 蛋白质显著性分析示例
 │   ├── noiseq_demo/             # NOISeq 噪声鲁棒差异表达示例
 │   ├── gviz_demo/               # Gviz 基因组可视化轨道示例
@@ -1013,6 +1019,8 @@ IvanAXu/BioSeqs/
 │   │   ├── karyoploter_test.mbt
 │   │   ├── system_piper_test.mbt
 │   │   ├── muscat_test.mbt
+│   │   ├── infercnv_test.mbt
+│   │   ├── scenic_test.mbt
 │   │   ├── msstats_test.mbt
 │   │   ├── noiseq_test.mbt
 │   │   ├── gviz_test.mbt
@@ -1291,6 +1299,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4916 个测试全�
 | `karyoploter.mbt` | `karyoploteR` | 核型可视化（染色体轨道、数据点、ASCII 渲染） |
 | `system_piper.mbt` | `SystemPipeR` | 流水线编排（步骤管理、依赖关系、进度追踪） |
 | `muscat.mbt` | `muscat` | 单细胞差异状态分析（伪批量聚合、DS 检验、QC） |
+| `infercnv.mbt` | `infercnv` | 单细胞拷贝数变异推断（基因组位置排序、参考细胞有界 LFC 计算、金字塔权重平滑、CNV 分数与恶性细胞预测） |
+| `scenic.mbt` | `SCENIC` | 单细胞调控网络推断与聚类（TF-target 共表达模块、Regulon 构建、AUCell 活性评分、二值化阈值、细胞状态与主控调控因子） |
 | `msstats.mbt` | `MSstats` | 蛋白质显著性分析（质谱归一化、Tukey/Linear 汇总、组间比较） |
 | `noiseq.mbt` | `NOISeq` | 噪声鲁棒差异表达（TMM/RPKM/上四分位归一化、NOISeqBio/Sim） |
 | `gviz.mbt` | `Gviz` | 基因组可视化轨道（注释/数据/核型/序列轨道、ASCII 渲染） |
@@ -1913,99 +1923,107 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4916 个测试全�
 
 实现单细胞 RNA-seq 差异状态（Differential State, DS）分析功能，参考 Bioconductor muscat 包（Crowell HL et al. 2020 Nature Communications），支持伪批量聚合、统计检验和样本级 QC。支持 AggregationMethod 枚举（Sum/Mean/Median 三种聚合方法），辅助构造函数 aggregation_sum()/aggregation_mean()/aggregation_median()。支持 DSMethod 枚举（EdgeR/DESeq2/Limma 三种检验方法），辅助构造函数 ds_method_edger()/ds_method_deseq2()/ds_method_limma()。核心数据结构：SingleCell（cell_id/sample_id/cluster_id/group_id/gene_counts 单细胞计数）、PseudoBulk（sample_id/cluster_id/group_id/n_cells/gene_counts 伪批量样本）、SampleQC（sample_id/cluster_id/n_cells/n_genes/total_counts/median_genes_per_cell QC统计）、DSResult（gene_id/cluster_id/log2fc/p_val/p_adj/mean_ctrl/mean_stim/significant 单基因检验结果）、DSResults（全局结果容器）。核心函数：aggregate_cells() 按 (sample_id, cluster_id) 分组聚合单细胞为伪批量，支持 Sum/Mean/Median 三种统计量；run_ds_analysis() 按聚类分别拆分对照组（ctrl/control）与处理组，计算 log2 fold change、Welch t 检验近似 p 值、全局 Benjamini-Hochberg FDR 校正、根据 fdr_threshold 和 log2fc_threshold 判定显著性；compute_qc() 计算伪批量样本的细胞数、基因数、总计数等 QC 指标；muscat_sample_data() 生成 4 样本 × 2 聚类 × 5 细胞 × 5 基因的示例数据集。DSResults 方法：get_n_results()/get_significant()/get_cluster_results(cluster_id)/get_top_genes(n)/summary()。PseudoBulk 方法：get_count()/total_counts()/n_expressed()。SingleCell 方法：set_count()/get_count()/total_counts()/n_expressed()。适用于单细胞转录组的亚群特异性差异表达分析、伪批量差异状态检验和实验 QC 评估。
 
-### 152. MSstats 蛋白质显著性分析 (Bioconductor MSstats)
+### 152. infercnv 单细胞拷贝数变异推断 (Bioconductor infercnv / infercnvpy)
+
+实现单细胞 RNA-seq 的拷贝数变异（CNV）推断功能，参考 Broad Institute inferCNV（Tirosh I et al. 2016 Science）与 infercnvpy 实现，用于识别肿瘤细胞的大片段染色体增减并分离恶性/正常细胞。支持 ReferenceMethod 枚举（GlobalMean / ReferenceCategories / Custom(ref_profile) 三种参考策略），辅助构造函数 ref_method_global_mean() / ref_method_reference_categories() / ref_method_custom(ref_profile)。核心数据结构：GenePosition（gene_id/chromosome/start/end 基因位置）、OrderedGenes（按染色体自然顺序+起点排序的基因列表）、CellAnnotation（cell_id/category 细胞注释）、InferCNVInput（n_cells/n_genes/expression[cell x gene]/annotations/ordered_genes 输入数据）、CNVParams（window_size/lfc_cap/noise_threshold/reference_method/reference_categories 参数集）、CNVResult（cnv_matrix/cell_ids/gene_ids/chromosome_boundaries/per_cell_cnv_score/per_cluster_cnv_score/params 结果）。核心算法流水线 run_infercnv()：① 染色体位置排序 + 排除 chrM/chrX/chrY 等噪声染色体；② 参考表达谱构造：GlobalMean 全体平均、ReferenceCategories 指定正常细胞类型均值、Custom 用户向量；③ 每细胞计算 log fold change（单参考=减法；多参考=有界计算：落在[min,max]区间→0、超过max→cell-max、低于min→cell-min）；④ ±lfc_cap 截断去除极值；⑤ 按染色体独立的金字塔权重滑动窗口平滑（window_size 默认 100）；⑥ 每细胞中位数中心化消除全局偏移；⑦ 噪声阈值（|x|<noise→0）去背景；⑧ 输出 per_cell_cnv_score（行平均|CNV|）与 per_cluster_cnv_score 及恶性细胞预测 predict_tumour_cells(normal_cat, factor=1.5)。辅助函数：ordered_genes() 自然染色体排序（1..22<X<Y<M）、exclude_chromosomes() 过滤、log_normalize_counts() 原始计数→log2(TP100K+1)、chromosome_boundaries() 染色体边界、infercnv_sample_data(n_tumour,n_normal,n_chr,n_genes_per_chr,seed) 合成数据集（chr1 前半段缺失、chr2 后半段扩增）。CNVResult 方法：cluster_score() / chromosome_list() / summary() / at(i,j) / predict_tumour_cells()。适用于单细胞肿瘤微环境分析中的恶性细胞识别、克隆异质性解析、CNV 负荷评估。
+
+### 153. SCENIC 单细胞调控网络推断与聚类 (Bioconductor SCENIC)
+
+实现单细胞 RNA-seq 的基因调控网络推断与细胞状态识别功能，参考 Aibar et al. 2017 Nature Methods 的 SCENIC 三步流水线。核心数据结构：CoExpressionModule（tf_name/targets/weights TF-靶基因共表达模块）、ScenicRegulon（tf_name/targets/weights/n_targets 经剪枝的调控子）、SCENICInput（n_genes/n_cells/expression[gene x cell]/gene_names/cell_names/tf_names 输入数据）、SCENICResult（regulons/auc_matrix/binary_matrix/thresholds/cell_states/master_regulators 结果）、BinarizeMethod 枚举（MeanStd/KMeans2/Median 三种二值化方法），辅助构造函数 binarize_mean_std()/binarize_kmeans2()/binarize_median()。三步算法流水线 run_scenic()：① Step 1 GRN 推断 build_coexpression_modules()：对每个 TF 计算其与所有基因的绝对 Pearson 相关系数作为重要性权重，按权重降序选取 Top-K 靶基因构建共表达模块（min_targets=10, top_k=50）；② Step 2 Regulon 构建 build_regulons()：按权重分位数剪枝共表达模块（默认保留上 75% 权重靶基因），过滤靶基因数 < min_targets 的模块；备选 prune_by_motif_ranking() 提供 cisTarget 风格的 motif 排名剪枝（保留 motif 排名前 5% 的靶基因）；③ Step 3 AUCell 活性评分 compute_regulon_activity()：对每个细胞构建基因表达排名（降序），对每个 regulon 计算其靶基因在细胞排名前 5% 位置的 recovery curve AUC（归一化到 [0,1]），输出 regulon x cell 的 AUC 矩阵；④ Step 4 二值化与细胞状态 binarize_activity() 对每个 regulon 独立计算阈值（MeanStd=均值+0.5σ、KMeans2=1D k-means 双簇中点、Median=中位数），assign_cell_states() 按最高活性 regulon 分配细胞到簇并识别主控调控因子。辅助函数：build_cell_rankings() 构建每细胞基因排名、scenic_abs_correlation() 向量绝对相关系数、scenic_sample_data(n_genes,n_cells,n_tfs,seed) 合成数据集（TF1 活跃于前半细胞、TF2 活跃于后半细胞）。SCENICResult 方法：auc_at(r,c)/binary_at(r,c)/cell_state(c)/summary()/regulon_targets(r)/top_regulons(n=5)。适用于单细胞转录因子调控网络重建、细胞状态分类、主控调控因子识别和调控异质性分析。
+
+### 154. MSstats 蛋白质显著性分析 (Bioconductor MSstats)
 
 实现质谱定量蛋白质组学的蛋白质显著性分析功能，支持数据归一化、肽段到蛋白质汇总、组间差异比较以及样本量设计。支持 MSType 枚举（DDA/DIA/SRM/TMT）、MSNormalization 枚举（None/Median/Quantile/GlobalStandards）、MSSummarization 枚举（Tukey/Linear/LogSum）数据结构。核心函数包括：ms_data_process 数据处理（过滤/Log2转换/归一化）、ms_summarize 肽段汇总到蛋白质（Tukey 中位数平滑/线性模型/LogSum）、ms_group_comparison 组间差异比较（t 检验/BH-FDR 校正）、ms_design_sample_size 样本量计算、msstats_sample_data 示例数据集。MSGroupComparison 方法包括：get_n_results/get_n_significant/get_significant/get_top_proteins/summary。适用于定量质谱数据的蛋白质水平差异丰度分析。
 
-### 153. NOISeq 噪声鲁棒差异表达 (Bioconductor NOISeq)
+### 155. NOISeq 噪声鲁棒差异表达 (Bioconductor NOISeq)
 
 实现噪声鲁棒的 RNA-seq 差异表达分析功能，支持多种归一化方法和基于噪声分布的概率计算。支持 NOISeqNorm 枚举（RPKM/TMM/UpperQuartile/None）、NOISeqMethod 枚举（NOISeqBio/NOISeqSim）数据结构。核心函数包括：noiseq_normalize 数据归一化（RPKM/TMM/上四分位）、noiseq_run 差异表达分析（M 值/D 统计量/概率计算/显著性排序）、noiseq_qc 质控诊断、noiseq_sample_data 示例数据集。NOISeqSample 包含 sample_id/condition/counts 字段，方法包括 set_count/get_count/library_size/n_expressed。NOISeqResult 包含 gene_id/mean_control/mean_treatment/log2fc/divergence/prob/significant/ranking 字段。NOISeqResults 方法包括：get_top_genes/get_significant/get_up_regulated/get_down_regulated/summary。适用于数据质量感知的 RNA-seq 差异表达分析。
 
-### 154. Gviz 基因组可视化轨道 (Bioconductor Gviz)
+### 156. Gviz 基因组可视化轨道 (Bioconductor Gviz)
 
 实现基因组可视化轨道系统，支持多种轨道类型和 ASCII 渲染。支持 GvizTrackType 枚举（AnnotationTrack/GeneRegionTrack/DataTrack/IdeogramTrack/GenomeAxisTrack/SequenceTrack）、GvizStrand 枚举（Forward/Reverse/Unstranded）数据结构。核心函数包括：gviz_feature 创建基因组特征、gviz_track 创建轨道、gviz_region 创建基因组区域、gviz_plot 创建绘图、gviz_sample_plot 创建示例绘图。GvizTrack 方法包括：set_color/set_label/add_feature/add_data_point/get_n_features/get_n_data_points/get_features_in_region/get_data_in_region。GvizPlot 方法包括：add_track/get_n_tracks/get_region/to_ascii/summary。ASCII 渲染支持坐标轴、特征块、数据点和核型显示。适用于基因组注释和数据的沿坐标可视化。
 
-### 155. SeqLocation 序列位点类型系统 (Bio.SeqFeature)
+### 157. SeqLocation 序列位点类型系统 (Bio.SeqFeature)
 
 实现序列位置和位点的完整类型系统，用于基因组特征注释的精确位置表示。支持 5 种位置类型：ExactPosition（精确位置）、BeforePosition（之前位置，如 <100）、AfterPosition（之后位置，如 >100）、OneOfPosition（多选位置，如 100^110）、WithinPosition（内部位置，如 (100)^(110)）。支持 2 种位点类型：SimpleLocation（简单位点，包含起止位置、链方向、类型）和 CompoundLocation（复合位点，包含多个子位点数组，用于外显子/内含子等断裂特征）。提供位点操作方法：start() 获取 0-based 起始位置、end() 获取 0-based 结束位置（不含）、strand() 获取链方向、reverse() 翻转链、is_overlapping() 检查重叠。支持位置字符串的解析与格式化（如 "100..110"、"complement(100..110)"、"join(100..200, 300..400)"）。适用于 GenBank/EMBL 等格式的序列特征注释解析与生成。
 
-### 156. BioReference 文献引用管理 (Bio.Reference / Bio.Medline)
+### 158. BioReference 文献引用管理 (Bio.Reference / Bio.Medline)
 
 实现文献引用的完整管理功能，用于序列记录的参考文献追踪。支持 BioReference 结构体存储引用信息：标题(title)、作者(authors)、期刊(journal)、年份(year)、PubMed ID(pubmed_id)、DOI(doi)、引用类型(type)、引用位置(locations)、评论(comment)、数据页码(data_pgr)。提供引用操作方法：format() 按 APA 格式格式化输出、get_pubmed_id() 获取 PubMed ID、get_doi() 获取 DOI、get_authors() 获取作者列表。支持从 Medline 记录解析引用信息（parse_medline_record），自动提取标题、作者、期刊、年份、PubMed ID 等字段。支持位置信息存储（如 (1, 100) 表示引用序列的 1-100 位）。适用于 GenBank/EMBL 记录的参考文献注释和文献信息检索。
 
-### 157. ProtDao 蛋白质无序区域预测 (Bio.SeqUtils.ProtDao)
+### 159. ProtDao 蛋白质无序区域预测 (Bio.SeqUtils.ProtDao)
 
 实现基于 IUPred 算法的蛋白质无序区域预测功能，用于识别天然无序蛋白质区域（IDP）。支持 20 种氨基酸的无序度评分（disorder_score）和能量评分（energy_score），采用 IUPred 打分矩阵。提供 DisorderResult 结构体存储预测结果：序列(sequence)、得分数组(scores)、阈值(threshold_disordered/threshold_long)。DisorderResult 方法包括：get_scores() 获取所有位置的无序度得分、get_regions() 获取无序区域列表、get_n_regions() 获取区域数量、get_n_disordered() 获取无序残基数量、get_fraction_disordered() 获取无序残基比例、get_longest_region() 获取最长无序区域、disordered_sequence() 获取无序序列视图（* 表示无序，- 表示有序）、summary() 生成摘要报告、to_ascii() 生成 ASCII 可视化图。支持 DisorderRegion 结构体存储区域信息：起始位置(start)、结束位置(end)、长度(length)、平均得分(avg_score)、区域类型(region_type: disordered/highly disordered)。提供完整预测流程：prot_dao_predict() 一键预测、prot_dao_sample_sequence() 获取示例序列。适用于蛋白质结构预测、功能注释和天然无序区域分析。
 
-### 158. featureCounts 基因特征 read 计数 (Bioconductor Rsubread/featureCounts)
+### 160. featureCounts 基因特征 read 计数 (Bioconductor Rsubread/featureCounts)
 
 实现 RNA-seq/DNA-seq read 在基因组特征（exon/gene/transcript）上的计数功能，参考 Bioconductor Rsubread 包的 featureCounts 算法。提供 FeatureAnnotation 结构体存储特征注释：染色体(chr)、起止位置(start/end_)、链(strand)、基因ID(gene_id)、转录本ID(transcript_id)、特征类型(feature_type)、唯一标识(feature_id)，支持 length() 计算特征长度、overlaps() 检测区间重叠、overlap_length() 计算重叠长度。提供 ReadAlignment 结构体存储 read 比对信息：read_id、染色体、起止位置、链、比对质量(mapq)、多比对数(n_alignments)、配对末端信息(is_paired/mate_chr/mate_start/fragment_length)，支持 new_paired() 创建配对末端 read、fragment_span() 获取 fragment 跨度。提供 FeatureCountsConfig 配置：最小重叠(min_overlap)、最小比对质量(min_mapq)、链特异性模式(strand_mode: Unstranded/Stranded/Reversed)、多比对计数(multi_count/frac_multi_count)、配对末端 fragment 计数(count_fragments)。核心函数 feature_counts_count() 执行计数：遍历 read、过滤低质量、查找重叠特征、处理歧义(ambiguous)、链匹配检查、分数计数。结果 FeatureCountsResult 提供：get_count() 按特征/样本获取计数、library_size() 计算 library size、cpm() 计算 CPM 归一化、get_feature_total() 跨样本特征总数、summary() 生成报告。提供链模式辅助函数 strand_unstranded()/strand_stranded()/strand_reversed() 和示例数据 feature_counts_sample_data()。适用于 RNA-seq 基因表达定量、外显子计数和多样本计数矩阵生成。
 
-### 159. DRIMSeq 差异转录本使用分析 (Bioconductor DRIMSeq)
+### 161. DRIMSeq 差异转录本使用分析 (Bioconductor DRIMSeq)
 
 实现基于 Dirichlet-multinomial 模型的差异转录本使用（DTU）分析，参考 Bioconductor DRIMSeq 包。提供 TranscriptCount 结构体存储转录本计数：转录本ID(transcript_id)、基因ID(gene_id)、样本ID(sample_id)、条件(condition)、count、gene_count，支持 proportion() 计算转录本占比。提供 DRIMSeqConfig 配置：最小count(min_count)、最小比例(min_proportion)、收敛容差(tolerance)、最大迭代(max_iter)、显著性水平(alpha)、归一化方法(norm_method: None/TMM/Sum)。核心分析流程 drimseq_test_differential()：drimseq_aggregate_by_gene() 按基因/样本聚合计数、drimseq_compute_proportions() 计算转录本比例、drimseq_filter_counts() 过滤低表达转录本、drimseq_wald_test() 执行 Wald 检验（计算 delta、使用方差归一化统计量、卡方分布 p 值）、benjamini_hochberg_correct() 多重检验校正。结果 DRIMSeqResult 提供：get_significant() 获取显著基因、get_top_genes() 获取 top 基因、summary() 生成报告。包含 Dirichlet-multinomial 对数似然计算、Wilson-Hilferty 卡方 p 值近似、正态分布生存函数、收敛诊断。提供 DRIMSeqGeneResult 存储每基因结果：gene_id、p_value、adj_p_value、statistic、converged。提供归一化方法辅助函数 drimseq_norm_none()/drimseq_norm_tmm()/drimseq_norm_sum() 和示例数据 drimseq_sample_data()。适用于 RNA-seq 差异转录本使用分析、可变剪接研究。
 
-### 160. RaggedExperiment 参差突变数据结构 (Bioconductor RaggedExperiment)
+### 162. RaggedExperiment 参差突变数据结构 (Bioconductor RaggedExperiment)
 
 实现癌症基因组学中常见的参差（ragged）突变数据结构，参考 Bioconductor RaggedExperiment 包，用于存储基因×样本的稀疏突变矩阵。提供 MutationType 枚举覆盖 11 种突变类型：Missense_Mutation、Nonsense_Mutation、Frame_Shift_Ins/Del、In_Frame_Ins/Del、Splice_Site、Translation_Start_Site/Stop_Site、Multi_Hit_Mutation、Silent_Mutation、Other，支持 to_string() 转换和辅助构造函数 mutation_missense()/mutation_nonsense() 等。提供 MutationRecord 结构体存储突变记录：sample_id、gene_symbol、chrom、pos、ref_allele、alt_allele、mutation_type，支持 mutation_id() 生成唯一标识、is_loss_of_function() 识别 LoF 突变（Nonsense/Frame_Shift）。核心结构 RaggedExperiment 使用三层嵌套数组 data[row][col][records] 存储每个基因×样本的突变记录列表，维护 rownames(基因)、colnames(样本)、counts(突变计数缓存)、sample_tmb(样本 TMB)。方法包括：add_record() 添加突变、n_rows()/n_cols() 维度、get_records() 按基因/样本查询、get_gene_records()/get_sample_records() 按行/列查询、get_tmb() 计算 TMB、get_tmb_per_mb() 计算每 Mb TMB、get_count_matrix() 获取突变计数矩阵、genes_mutated_per_sample() 每样本突变基因数、filter_by_genes()/filter_by_samples()/filter_by_type() 按基因/样本/突变类型过滤、summary() 生成报告。提供 ragged_sample_data() 示例数据。适用于癌症基因组突变数据分析、TMB 计算、突变谱分析。
 
-### 161. PairwiseAligner 统一双序列比对 (Biopython Bio.Align.PairwiseAligner)
+### 163. PairwiseAligner 统一双序列比对 (Biopython Bio.Align.PairwiseAligner)
 
 实现统一的双序列比对接口，参考 Biopython Bio.Align.PairwiseAligner，整合全局（Needleman-Wunsch）和局部（Smith-Waterman）两种模式。提供 AlignmentMode 枚举：Global（全局对齐，Needleman-Wunsch 回溯到 (0,0)）、Local（局部对齐，Smith-Waterman 零截断 + 最大分值回溯），辅助构造函数 pairaligner_global()/pairaligner_local()。提供 SubstitutionMatrixChoice 枚举：NoSubstMatrix（使用 match_score/mismatch_score）、Blosum62（蛋白质 20 标准氨基酸 BLOSUM62 替换矩阵），辅助构造函数 pairaligner_no_matrix()/pairaligner_blosum62()。核心结构 PairwiseAlignerConfig：11 字段（mode、match_score、mismatch_score、gap_open、gap_extend、target_gap_open/extend、query_gap_open/extend、submatrix、alphabet_type）；default_dna()：Global + DNA + match=1/mismatch=-1/gap_open=-1/gap_extend=-0.5；default_protein()：Global + PROTEIN + BLOSUM62 + gap_open=-10/gap_extend=-0.5；7 个 setter 全部手动列出字段实现不可变更新。核心算法 pairaligner_align() 使用 Gotoh 三矩阵仿射方案：M（匹配/错配）、Ix（target 方向空位）、Iy（query 方向空位）；支持独立的 target/query 空位 open/extend 参数；回溯时构建 match_line（"|" 匹配、"." 错配、" " 空位）。输出结构 PairwiseAlignment：aligned1()/aligned2()、score()、alignment_length()、identities()/identity_pct()、gaps_count()、target_start/end、query_start/end。提供 pairaligner_sample_data() 返回经典蛋白质测试对 HEAGAWGHEE / PAWHEAE。适用于 DNA/蛋白质双序列比对、全局同源性检测、局部 motif 查找、空位模型比较。
 
-### 162. NaiveBayes 生物序列分类器 (Biopython Bio.NaiveBayes)
+### 164. NaiveBayes 生物序列分类器 (Biopython Bio.NaiveBayes)
 
 实现基于 k-mer 频率特征的朴素贝叶斯序列分类器，参考 Biopython Bio.NaiveBayes，用于 DNA/RNA/蛋白质序列的类别预测（AT/GC 富集、蛋白质家族、物种分类等）。结构 NBClassModel：class_label、n_sequences、total_kmers、kmer_counts(Map)、class_prior。主结构 NaiveBayesClassifier：kmer_size(Int, 默认 3)、alpha(Double, 默认 1.0, Laplace 平滑系数)、vocabulary(Array[String], 所有见过的 k-mer 词汇表)、class_labels(Array[String])、models(Map[String, NBClassModel])。::new() 默认 k=3, alpha=1.0；set_kmer_size(val)、set_alpha(val) 手动列出 5 字段不可变更新。核心流程：naive_bayes_extract_kmers(sequence, k) 滑动窗口 k-mer 计数；naive_bayes_train(classifier, sequences, labels) 统计每类 k-mer 计数、总数、先验概率、词汇表；naive_bayes_predict_log_probs() 计算所有类的对数后验 ∝ log(P(class)) + Σ log(P(kmer|class))；P(kmer|class) = (count_kmer + alpha) / (total_kmers + alpha * vocab_size)（Laplace 平滑），未见过的 k-mer 使用默认平滑概率；naive_bayes_predict() 返回 (best_label, best_log_prob) argmax；naive_bayes_predict_proba() 使用 softmax(exp(log_prob - max)) 归一化为概率，总和约为 1.0；naive_bayes_top_k() 返回按概率降序前 k 类；naive_bayes_accuracy() 计算分类准确率。提供 naive_bayes_sample_data() 返回 8 条 DNA：4 条 AT_rich + 4 条 GC_rich，便于示例和快速测试。适用于 DNA/蛋白质序列分类、AT/GC 富集预测、序列家族识别、样本属性判别。
 
-### 163. Markov 高阶马尔可夫链建模 (Biopython Bio.Markov)
+### 165. Markov 高阶马尔可夫链建模 (Biopython Bio.Markov)
 
 实现 1~3 阶高阶马尔可夫链建模，参考 Biopython Bio.Markov，用于生物序列的概率打分、CpG 岛检测、合成序列生成、稳态分析等。枚举 ChainType：FirstOrder / SecondOrder / ThirdOrder，辅助构造函数 markov_first_order()/markov_second_order()/markov_third_order()。结构 MarkovModel：order(Int)、chain_type(ChainType)、states(Array[String])、transition_counts(Map[context, Map[next, count]])、transition_probs(Map[context, Map[next, prob]])、initial_probs(Map[start_kmer, prob])、pseudo_count(Double)。::new() 默认 order=1, states=["A","C","G","T"], pseudo=1.0；default_dna() 相同；default_protein() states=20 氨基酸。setter：set_order(val)、set_states(states~)、set_chain_type(val~)、set_pseudo_count(val)，全部手动列出 7 字段不可变更新。训练 markov_build_model(sequences, order?, states?, pseudo_count?)：对长度 N 的序列从 i=order 到 N-1 扫描 context（seq[i-order:i]）→ next_char，累计转移计数并归一化；初始 k-mer 计数归一化为 initial_probs；states 空自动从数据推断；pseudo_count 用于后续未知 context 平滑。打分 markov_score_sequence()：初始 log P(start_kmer) + Σ_i log P(next|context)；markov_score_per_base() 返回每位置 log 概率（长度 = len - order）。未知转移概率平滑：完全未见过的 context → P = pseudo / (1 + pseudo * N)（高 pseudo 更接近均匀，因此对未知打分更高）；已知 context 但缺少 next_char → 汇总该 row 的 total，P = pseudo / (row_total + pseudo * N)。序列生成 markov_generate_sequence(model, length, seed?)：根据 initial_probs 加权采样起始 context，然后按 transition_probs 加权采样后续字符；seed 驱动简单 LCG RNG (rand = (x*1103515245+12345) & 0x7fffffff)。CpG 岛检测 markov_log_odds(cpg_model, bg_model, sequence)：log P_CpG - log P_bg，正值表示符合 CpG 统计特征。稳态 markov_stationary_distribution()：从均匀分布开始迭代 M100 次或 δ<1e-8 收敛。适用于 CpG 岛检测、DNA 组成分析、序列似然度打分、异常序列检测、合成序列生成。
 
-### 164. HTSFilter RNA-seq count过滤 (Bioconductor HTSFilter)
+### 166. HTSFilter RNA-seq count过滤 (Bioconductor HTSFilter)
 
 实现基于 CPM (Count Per Million) 阈值的 RNA-seq count 过滤，参考 Bioconductor HTSFilter 包。核心函数 hts_filter_single_cpm(count, library_size) 将单基因 count 转换为 CPM 值：count / library_size × 1,000,000。hts_filter_library_sizes(counts) 计算每个样本的总文库大小（counts 行求和）。hts_filter_cpm(counts, library_sizes) 应用于整个计数矩阵，生成 CPM 矩阵。hts_filter(counts, groups, cpm_threshold, min_samples_per_group) 主过滤函数：对每个基因计算所有样本的 CPM，然后按组检查是否至少 min_samples_per_group 个样本 CPM ≥ 阈值，若任一组满足条件则保留该基因。返回 HTSFilterResult 结构：cpm_threshold、min_samples_per_group、groups、cpm_matrix、keep 掩码、n_genes_input/kept/removed。辅助函数 hts_filter_apply() 根据 keep 掩码提取过滤后的计数矩阵，hts_filter_apply_names() 同步提取基因名，hts_filter_retention_rate() 计算保留率，hts_filter_summary() 生成中文摘要。hts_filter_sample_data() 提供 20 基因 × 6 样本 (3 control + 3 treatment) 的示例数据，便于测试和演示。适用于 RNA-seq 预处理中去除低表达/噪声基因，为下游差异表达分析提供可靠输入。
 
-### 165. baySeq 贝叶斯差异表达分析 (Bioconductor baySeq)
+### 167. baySeq 贝叶斯差异表达分析 (Bioconductor baySeq)
 
 实现基于负二项模型的贝叶斯差异表达分析，参考 Bioconductor baySeq 包。核心结构 BayesGeneResult 存储每个基因的分析结果：gene_index、gene_name、log_fold_change、dispersion、posterior_prob_de、map_expression_a/map_expression_b、is_de。BayesResult 汇总所有基因结果及全局参数。bayseq_lgamma(x) 使用 Lanczos 近似计算 log-gamma 函数（g=5），支持 (0,1) 反射公式处理小值。bayseq_estimate_dispersion_gene(counts_a, counts_b) 通过基因级别估计离散度 φ：均值 ÷ 方差。bayseq_nb_log_likelihood(counts, mu, phi) 计算负二项分布的对数似然。bayseq_estimate_prior(counts, groups) 估计 Gamma 先验的 shape 和 rate 参数。bayseq_test(counts, groups, gene_names, dispersion_shape?, dispersion_rate?, alpha?) 主函数：对每个基因计算两组的 MAP 表达估计（含 Bayes 正则化项），计算对数似然比 (log_lik_ratio)，近似贝叶斯因子 → 后验概率 P(DE|data)，并根据 alpha 阈值判定显著 DE 基因。辅助函数 bayseq_get_top_de() 按 |logFC| 排序返回前 N 个 DE 基因，bayseq_get_de_genes() 提取所有显著 DE 基因，bayseq_summary() 生成分析摘要。bayseq_sample_data() 提供 20 基因 × 6 样本示例数据。适用于 RNA-seq 差异表达分析，提供基于贝叶斯框架的稳健 DE 判定。
 
-### 166. CellChat 细胞间通讯分析 (Bioconductor CellChat)
+### 168. CellChat 细胞间通讯分析 (Bioconductor CellChat)
 
 实现细胞间通讯分析，参考 Bioconductor CellChat 包。核心结构 InteractionScore 存储每个配体-受体互作的评分：ligand、receptor、source_celltype、target_celltype、score、perm_mean/perm_std、p_value、p_adj、significant。CellChatResult 汇总所有互作评分、细胞类型、基因名及统计参数。LRPair 结构表示配体-受体对（ligand、receptor）。cellchat_lr_database() 返回内置 15 对配体-受体互作数据库（如 TNF→TNFR、VEGF→VEGFR、EGF→EGFR 等）。cellchat_mean_expr(expression, cell_types, celltype, gene_idx) 计算指定细胞类型在某基因上的平均表达。cellchat_analyze(expression, cell_types, gene_names, lr_pairs, n_permutations?, seed?, fdr?) 主分析流程：1) 对每个 LR 对，在所有 source→target 细胞类型组合中计算互作评分（平均配体 × 平均受体）；2) 置换检验：随机打乱细胞类型标签 N 次，生成零分布；3) 计算 p-value = (count_permuted_higher + 1) / (n_perm + 1)；4) BH-FDR 校正；5) 输出 CellChatResult。辅助函数 cellchat_get_top() 按评分排序返回前 N 个互作，cellchat_get_significant() 提取显著互作，cellchat_aggregate() 聚合每个细胞类型对的总通信强度，cellchat_summary() 生成分析摘要。cellchat_sample_data() 提供 30 细胞 × 15 基因的示例数据（3 种细胞类型）。适用于单细胞数据中细胞间通讯信号的探索和可视化。
 
-### 167. MutationalPatterns 体细胞突变谱分析 (Bioconductor MutationalPatterns)
+### 168. MutationalPatterns 体细胞突变谱分析 (Bioconductor MutationalPatterns)
 
 实现体细胞突变模式分析，参考 Bioconductor MutationalPatterns 包。核心枚举 MutationCategory 定义 6 种嘧啶基准突变类型（C>A、C>G、C>T、T>A、T>C、T>G 转换/颠换），并提供构造辅助函数 mutation_c_a() / mutation_c_g() / mutation_c_t() / mutation_t_a() / mutation_t_c() / mutation_t_g() 以支持跨包构造。SomaticMutation 结构记录每条体细胞突变：chromosome、position、ref_base、alt_base、trinucleotide_context。MutationMatrix 存储 96 通道突变计数矩阵（96 行 × n 样本列），含 channel_labels（如 "A[C>A]A"）和 per-sample total_mutations。MutSigProfile 表示突变签名（id + 96 概率分布）。trinucleotide_contexts() 生成 16 种三核苷酸上下文（5'碱基 × 3'碱基）。get_channel_labels() 生成标准顺序的 96 通道标签。get_mutation_type(ref, alt) 通过嘌呤到嘧啶的反向互补转换（complement_base）确保统一使用嘧啶参考基准。normalize_context(trinucleotide) 将中间碱基为嘌呤的三核苷酸上下文反向互补为嘧啶基准。get_channel_index(ref, alt, trinucleotide) 计算 0-95 通道索引（type_idx * 16 + ctx_idx）。build_mutation_matrix(mutations, sample_ids) 主函数：构建样本索引映射、初始化 96×n 计数矩阵、按通道累加、计算 per-sample 总数。MutationMatrix::to_relative_frequencies() 将计数转为相对频率（每样本和为 1）。cosine_similarity(v1, v2) 计算两向量余弦相似度（dot / (||v1|| × ||v2||)）。MutationMatrix::sample_cosine_similarity(i, j) 比较两样本突变谱相似度。known_cosmic_signatures() 返回简化版 SBS1（CpG 位点 C>T 富集）和 SBS5（平坦分布）签名。calculate_exposure(sample_profile, signature) 通过投影计算签名暴露量。fit_signatures(sample_profile, signatures) 通过余弦相似度归一化拟合多签名贡献比例。辅助函数 all_mutation_types() 返回 6 种类型标准顺序，MutationMatrix::spectrum_summary() 生成 6 类型计数摘要，mutational_patterns_sample_data() 提供 9 条示例突变（5 条 S1 + 4 条 S2）。适用于癌症基因组体细胞突变模式分析、突变签名解析、暴露量估计。
 
-### 168. GAGE 基因集富集分析 (Bioconductor gage)
+### 170. GAGE 基因集富集分析 (Bioconductor gage)
 
 实现基于 fold change 的基因集富集分析，参考 Bioconductor gage 包。核心结构 GageGeneSet（id、name、gene_ids）定义基因集。GageResult 存储每个基因集的检验结果：gene_set_id、n_genes、mean_fc、stat（t/z 统计量）、p_val、p_adj、is_up / is_down、significant。GageResults 汇总所有结果及全局参数（n_gene_sets、n_significant、fdr_threshold、paired）。run_gage(gene_fcs, gene_sets, fdr_threshold?, paired?) 主函数：1) 对每个基因集收集成员基因的 fold change；2) 计算 mean_fc（gage_mean）；3) 计算标准误 se = sqrt(variance / n)，配对检验时方差减半（gage_se）；4) 计算统计量 stat = mean_fc / se；5) 通过正态近似（erfc_approx，使用 Abramowitz & Stegun 7.1.26 公式）计算双侧 p 值（gage_pvalue_from_z）；6) 使用 BH-FDR 校正（gage_bh_adjust：先按 p 值排序，再从大到小回填调整值，确保单调性）。辅助函数 GageResults::get_significant() 返回显著基因集，get_upregulated() / get_downregulated() 分别返回上调/下调基因集，get_top_sets(n) 按调整 p 值排序返回前 N 个，summary() 生成分析摘要。gage_sample_gene_sets() 提供 3 个示例基因集（Pathway A/B/C），gage_sample_fold_changes() 提供 7 个基因的 fold change（含正负值）。适用于 RNA-seq / 微阵列数据的通路富集分析，支持配对/非配对检验。
 
-### 169. SPIA 信号通路影响分析 (Bioconductor SPIA)
+### 171. SPIA 信号通路影响分析 (Bioconductor SPIA)
 
 实现信号通路影响分析，参考 Bioconductor SPIA 包（Tarca AL et al. 2009）。核心结构 PathwayNode 表示通路节点：gene_id、gene_name、downstream（下游靶基因列表）、upstream（上游调控基因列表）、activation（每条下游互作的激活符号 +1/-1）。SignalingPathway（id、name、nodes）表示完整通路。SpiaResult 存储每通路分析结果：n_genes、n_de、p_or（过表达 p 值）、pert_factor（扰动累积因子）、p_pert（扰动 p 值）、p_combined（合并 p 值）、p_adj、significant、activation_status（+1 激活 / -1 抑制 / 0 中性）。SpiaResults 汇总所有通路结果。PathwayNode::add_downstream(target, is_activation) 添加下游互作并记录激活/抑制符号。run_spia(pathways, de_genes, total_genes, fdr_threshold?) 主分析流程：1) 对每通路统计 DE 基因数；2) 超几何检验 p_or（hypergeometric_pvalue，使用卡方近似 N(0,1)）；3) 计算扰动累积因子 pert_factor（compute_perturbation：每个基因的扰动 = 自身 logFC + Σ 上游 DE 基因的 logFC × 激活符号，最后除以 DE 基因数归一化）；4) 扰动 p 值 p_pert（perturbation_pvalue：使用正态近似 N(0, n_de) 与 erfc 函数）；5) Fisher 合并 p_combined = -2 × (ln p_or + ln p_pert) → 卡方分布 p 值（fisher_combine）；6) BH-FDR 校正（spia_bh_adjust）；7) 根据 pert_factor 符号判定激活/抑制状态。辅助函数 SpiaResults::get_significant() / get_activated() / get_inhibited() / get_top_pathways(n) / summary() 提供结果筛选和摘要。spia_sample_pathways() 提供 2 个示例通路：MAPK Cascade（5 基因激活级联：EGFR→RAS→RAF→MEK→ERK）和 Apoptosis（3 基因含抑制：BAX→CASP3, BCL2 -| CASP3）。spia_sample_de_genes() 提供 4 个 DE 基因（Gene1, Gene2, Gene5, Gene6）。适用于差异表达数据的通路影响分析，结合过表达和扰动信号判定通路激活/抑制状态。
 
-### 170. Bio.File 智能文件处理 (Biopython Bio.File)
+### 172. Bio.File 智能文件处理 (Biopython Bio.File)
 
 实现智能文件处理模块，提供透明压缩格式支持。核心结构 SmartFile 表示文件句柄：path（文件路径）、format（压缩格式：Plain/Gzip/Bzip2）、mode（读写模式）、is_open（文件打开状态）、lines（缓冲行数组，用于读取）、pos（当前读取位置）、written_content（写入内容缓冲）。CompressionFormat 枚举支持三种格式：Plain（无压缩）、Gzip（gzip压缩，.gz扩展名）、Bzip2（bzip2压缩，.bz2扩展名）。自动检测逻辑：SmartFile::new(path, mode?) 根据文件扩展名自动识别压缩格式（.gz → Gzip、.bz2 → Bzip2、其他 → Plain）。支持文件打开/关闭操作（open/close）、逐行读取（read_line）、全量读取（read_all）、字符串写入（write）、追加写入（append）。提供工具函数：detect_compression(path) 检测压缩格式、has_compression_extension(path) 判断是否有压缩扩展名、strip_compression_extension(path) 去除压缩扩展名。适用于生物信息学中常见的压缩序列文件（如 .fasta.gz、.fastq.bz2）的透明读写。
 
-### 171. Bio.SeqUtils.MolWt 分子量计算 (Biopython Bio.SeqUtils.MolWt)
+### 173. Bio.SeqUtils.MolWt 分子量计算 (Biopython Bio.SeqUtils.MolWt)
 
 实现分子量计算模块，支持 DNA、RNA 和蛋白质序列的理化性质分析。核心结构 AtomicWeights 存储元素原子量（H/C/N/O/P/S）。支持的计算功能包括：（1）mol_weight_dna(sequence) 计算 DNA 分子量，公式为核苷酸权重之和减去 (n-1)×水分子量（18.01524）；（2）mol_weight_rna(sequence) 计算 RNA 分子量，尿嘧啶替换胸腺嘧啶；（3）mol_weight_protein(sequence) 计算蛋白质分子量，基于氨基酸单同位素质量；（4）extinction_coefficient(sequence) 计算 280nm 消光系数（基于 Trp、Tyr、Cys 残基）；（5）absorbance_280(sequence) 计算 280nm 吸光度；（6）mol_wt_isoelectric_point(sequence) 计算等电点 pI（基于 Lehninger pK 值）。提供示例序列：mol_wt_sample_dna()、mol_wt_sample_protein()。支持序列摘要生成（mol_weight_summary）。适用于蛋白质组学和分子生物学实验中的样品定量与质控。
 
-### 172. Bio.Align.Reduced 简化氨基酸字母表 (Biopython Bio.Align.Reduced)
+### 174. Bio.Align.Reduced 简化氨基酸字母表 (Biopython Bio.Align.Reduced)
 
 实现简化氨基酸字母表模块，用于蛋白质序列的简化表示和比较。核心结构 ReducedAlphabet 包含：name（名称）、n_groups（分组数）、mapping（氨基酸到分组字母的映射）、groups（分组定义）。支持四种常用简化字母表：（1）RAD（Reduced Alphabet Database，6组）：(A,G)、(C)、(D,E,N,Q)、(I,L,M,V)、(F,Y,W)、(H,K,R,S,T)，来自 Wang & Wang (1999)；（2）Dayhoff（6组）：(A,G,P,S,T)、(C)、(D,E,N,Q)、(I,L,M,V)、(F,W,Y)、(H,K,R)；（3）CHARM（4组）：(A,C,F,I,L,M,V)、(G,S,T,P)、(D,E,N,Q)、(H,K,R,W,Y)，来自 Li et al. (2003)；（4）SDM12（12组）：基于结构域记忆性的12组简化。支持序列简化（reduce_sequence）、单氨基酸简化（reduce_aa）、简化序列比较（reduced_identity）和字母表摘要（summary）。适用于大规模蛋白质序列比对的预筛选、远缘同源性检测和序列聚类分析。
 
-### 173. GENIE3 基因调控网络推断 (Bioconductor GENIE3)
+### 175. GENIE3 基因调控网络推断 (Bioconductor GENIE3)
 
 实现 GENIE3（GEne Network Inference with Ensemble of trees）算法，参考 Huynh-Thu VA et al. (2010) PLoS ONE。核心思想：对每个目标基因，使用其他所有基因作为预测变量构建回归树，通过特征重要性（方差缩减）推断调控关系。核心结构 Genie3TreeNode 表示回归树节点：feature（分裂特征索引，-1 为叶节点）、threshold（分裂阈值）、left_idx/right_idx（子节点索引）、value（叶节点预测值）、is_leaf、importance_gain（该分裂的方差缩减量）。RegressionTree 封装节点数组，支持 predict(sample) 预测和 feature_importance(n_features) 计算特征重要性（累加内部节点的 importance_gain）。genie3_build_tree(features, target, feature_indices, max_depth?, min_samples_split?) 构建单棵回归树：递归选择最佳分裂点（遍历所有特征和阈值，最大化 SSE 减少），支持最大深度和最小样本数约束。genie3_run(expression, gene_names, max_depth?, min_samples_split?, symmetrize?) 主推理函数：1) 对每个目标基因 j 构建回归树（排除 j 自身作为预测变量）；2) 累加各树的特征重要性到权重矩阵 matrix[i][j]；3) 列归一化（每列和为1）；4) 可选对称化（matrix[i][j] 和 matrix[j][i] 取平均）；5) 收集非零边并按权重降序排列。RegulatoryEdge 结构（regulator、target、weight）表示调控边。辅助函数：genie3_top_edges(result, k) 获取前 k 条边、genie3_regulators_of(result, gene) 查询靶基因的调控子、genie3_targets_of(result, gene) 查询调控子的靶基因、genie3_sample_data() 提供示例数据（5 基因、30 样本，G1 调控 G2/G3，G2 调控 G4，G3 调控 G5）。适用于基因调控网络推断、转录因子靶基因预测和共表达网络构建。
 
-### 174. decoupleR 功能活性推断 (Bioconductor decoupleR)
+### 175. decoupleR 功能活性推断 (Bioconductor decoupleR)
 
 实现 decoupleR 功能活性推断框架，参考 Badia-i-Mompel P et al. (2022) Molecular Systems Biology。核心思想：基于先验知识网络（PKN）从组学数据推断调控子（如转录因子）的活性。PKNEdge 结构（source、target、weight）表示调控边（weight>0 激活、weight<0 抑制）。PriorKnowledgeNetwork（edges、regulators、targets）封装 PKN。pkn_from_edges(edges) 从边列表构建 PKN 并提取唯一调控子和靶基因。支持五种推理方法：（1）WSum（加权求和）：score(r,s) = Σ_t W[r][t] × expr[s][t]；（2）WMean（加权平均）：WSum 除以绝对权重和；（3）Norm（归一化均值）：WMean 的标准化版本；（4）ULM（单变量线性模型）：计算每调控子的加权求和后标准化为 z-score；（5）MLM（多变量线性模型）：对每个调控子，将其靶基因表达对其权重向量做回归，斜率即活性。DecoupleRMethod 枚举封装五种方法，通过 decoupler_run(expression, sample_names, gene_names, pkn, method?) 调用。DecoupleRResult（regulators、samples、matrix、scores、method）存储结果矩阵和逐样本评分。ActivityScore（regulator、sample、score、p_value）表示单个评分记录。辅助函数：decoupler_top_regulators(result, sample, k) 获取某样本前 k 个调控子、decoupler_filter_scores(result, threshold) 按阈值过滤评分、decoupler_sample_data() 提供示例数据（3 TF、11 基因、5 样本、7 条 PKN 边）。适用于转录因子活性推断、信号通路活性分析和单细胞调控网络分析。
 
-### 175. BayesSpace 空间转录组聚类 (Bioconductor BayesSpace)
+### 177. BayesSpace 空间转录组聚类 (Bioconductor BayesSpace)
 
 实现 BayesSpace 空间转录组聚类算法，参考 Zhao E et al. (2021) Nature Biotechnology。核心思想：使用 t 分布混合模型结合马尔可夫随机场（MRF）先验对空间转录组 spot 进行聚类，鼓励相邻 spot 共享聚类标签。SpotCoord 结构（spot_id、row、col、x、y）表示 spot 坐标。bayes_space_hex_neighbors(spots) 构建六边形网格邻居列表（6-连通：6 个候选邻居），bayes_space_square_neighbors(spots) 构建方形网格邻居列表（4-连通）。bayes_space_run(expression, spots, q, neighbors, max_iters?, gamma?, df?, seed?, tol?) 主聚类函数使用 EM 算法：1) k-means++ 初始化聚类中心（第一个中心随机选取，后续选择距已有中心最远的 spot）；2) E-step：计算每个 spot 属于每个簇的后验责任，综合 t 分布似然（bayes_space_log_t_density：多变量 t 分布对数密度）和空间先验（Potts 模型：gamma × Σ 邻居责任）；3) 通过 log-sum-exp 归一化责任；4) M-step：更新聚类中心（加权均值）、尺度（加权标准差）和混合比例；5) 计算对数似然判断收敛。BayesSpaceResult（spot_ids、clusters、q、cluster_centers、responsibilities、n_iterations、log_likelihood、converged）存储完整结果。辅助函数：bayes_space_get_cluster(result, spot_id) 按 ID 查询簇、bayes_space_spots_in_cluster(result, k) 获取簇内 spot、bayes_space_cluster_counts(result) 统计各簇大小、bayes_space_render_clusters(result, spots) 生成文本聚类图、bayes_space_sample_data() 提供 4×4 网格示例数据（左上低表达、右下高表达）。适用于空间转录组数据分析、组织区域识别和空间异质性研究。
 
@@ -2308,6 +2326,8 @@ moon test --update
 | karyoploteR | `karyoploter_test.mbt` | 14 |
 | SystemPipeR | `system_piper_test.mbt` | 16 |
 | muscat | `muscat_test.mbt` | 17 |
+| infercnv | `infercnv_test.mbt` | 14 |
+| SCENIC | `scenic_test.mbt` | 22 |
 | MSstats | `msstats_test.mbt` | 15 |
 | NOISeq | `noiseq_test.mbt` | 17 |
 | Gviz | `gviz_test.mbt` | 16 |
