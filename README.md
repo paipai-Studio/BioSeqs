@@ -528,6 +528,9 @@ IvanAXu/BioSeqs/
 │   ├── htsfilter.mbt           # Bioconductor HTSFilter RNA-seq count过滤 (CPM归一化、按组最小样本阈值、keep mask)
 │   ├── bayseq.mbt              # Bioconductor baySeq 贝叶斯差异表达分析 (负二项模型、分散度估计、Gamma先验、后验概率)
 │   ├── cellchat.mbt            # Bioconductor CellChat 细胞间通讯分析 (配体-受体互作对、置换检验、互作评分、FDR校正)
+│   ├── mutational_patterns.mbt # Bioconductor MutationalPatterns 体细胞突变谱分析 (96通道矩阵、三核苷酸上下文、突变签名拟合)
+│   ├── gage.mbt                # Bioconductor GAGE 基因集富集分析 (fold change、t检验、BH-FDR校正、配对检验)
+│   ├── spia.mbt                # Bioconductor SPIA 信号通路影响分析 (通路图、扰动累积、超几何检验、Fisher合并p值)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -752,6 +755,9 @@ IvanAXu/BioSeqs/
 │   ├── htsfilter_demo/          # HTSFilter RNA-seq count过滤示例 (CPM阈值过滤、保留率分析)
 │   ├── bayseq_demo/             # baySeq 贝叶斯差异表达分析示例 (DE基因检测、后验概率)
 │   ├── cellchat_demo/           # CellChat 细胞间通讯分析示例 (配体-受体互作、置换检验)
+│   ├── mutational_patterns_demo/ # MutationalPatterns 体细胞突变谱分析示例 (96通道矩阵、签名拟合)
+│   ├── gage_demo/                # GAGE 基因集富集分析示例 (fold change、t检验、配对检验)
+│   ├── spia_demo/                # SPIA 信号通路影响分析示例 (通路扰动、超几何检验、Fisher合并)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -985,6 +991,9 @@ IvanAXu/BioSeqs/
 │   │   ├── htsfilter_test.mbt
 │   │   ├── bayseq_test.mbt
 │   │   ├── cellchat_test.mbt
+│   │   ├── mutational_patterns_test.mbt
+│   │   ├── gage_test.mbt
+│   │   ├── spia_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -1248,6 +1257,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4507 个测试全�
 | `msstats.mbt` | `MSstats` | 蛋白质显著性分析（质谱归一化、Tukey/Linear 汇总、组间比较） |
 | `noiseq.mbt` | `NOISeq` | 噪声鲁棒差异表达（TMM/RPKM/上四分位归一化、NOISeqBio/Sim） |
 | `gviz.mbt` | `Gviz` | 基因组可视化轨道（注释/数据/核型/序列轨道、ASCII 渲染） |
+| `mutational_patterns.mbt` | `MutationalPatterns` | 体细胞突变谱分析（96通道矩阵、三核苷酸上下文归一化、突变签名拟合、余弦相似度） |
+| `gage.mbt` | `gage` | 基因集富集分析（fold change、t检验、BH-FDR校正、配对/非配对检验） |
+| `spia.mbt` | `SPIA` | 信号通路影响分析（通路图建模、扰动累积、超几何检验、Fisher合并p值、激活/抑制判定） |
 
 ## 核心功能实现
 
@@ -1921,6 +1933,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4507 个测试全�
 
 实现细胞间通讯分析，参考 Bioconductor CellChat 包。核心结构 InteractionScore 存储每个配体-受体互作的评分：ligand、receptor、source_celltype、target_celltype、score、perm_mean/perm_std、p_value、p_adj、significant。CellChatResult 汇总所有互作评分、细胞类型、基因名及统计参数。LRPair 结构表示配体-受体对（ligand、receptor）。cellchat_lr_database() 返回内置 15 对配体-受体互作数据库（如 TNF→TNFR、VEGF→VEGFR、EGF→EGFR 等）。cellchat_mean_expr(expression, cell_types, celltype, gene_idx) 计算指定细胞类型在某基因上的平均表达。cellchat_analyze(expression, cell_types, gene_names, lr_pairs, n_permutations?, seed?, fdr?) 主分析流程：1) 对每个 LR 对，在所有 source→target 细胞类型组合中计算互作评分（平均配体 × 平均受体）；2) 置换检验：随机打乱细胞类型标签 N 次，生成零分布；3) 计算 p-value = (count_permuted_higher + 1) / (n_perm + 1)；4) BH-FDR 校正；5) 输出 CellChatResult。辅助函数 cellchat_get_top() 按评分排序返回前 N 个互作，cellchat_get_significant() 提取显著互作，cellchat_aggregate() 聚合每个细胞类型对的总通信强度，cellchat_summary() 生成分析摘要。cellchat_sample_data() 提供 30 细胞 × 15 基因的示例数据（3 种细胞类型）。适用于单细胞数据中细胞间通讯信号的探索和可视化。
 
+### 167. MutationalPatterns 体细胞突变谱分析 (Bioconductor MutationalPatterns)
+
+实现体细胞突变模式分析，参考 Bioconductor MutationalPatterns 包。核心枚举 MutationCategory 定义 6 种嘧啶基准突变类型（C>A、C>G、C>T、T>A、T>C、T>G 转换/颠换），并提供构造辅助函数 mutation_c_a() / mutation_c_g() / mutation_c_t() / mutation_t_a() / mutation_t_c() / mutation_t_g() 以支持跨包构造。SomaticMutation 结构记录每条体细胞突变：chromosome、position、ref_base、alt_base、trinucleotide_context。MutationMatrix 存储 96 通道突变计数矩阵（96 行 × n 样本列），含 channel_labels（如 "A[C>A]A"）和 per-sample total_mutations。MutSigProfile 表示突变签名（id + 96 概率分布）。trinucleotide_contexts() 生成 16 种三核苷酸上下文（5'碱基 × 3'碱基）。get_channel_labels() 生成标准顺序的 96 通道标签。get_mutation_type(ref, alt) 通过嘌呤到嘧啶的反向互补转换（complement_base）确保统一使用嘧啶参考基准。normalize_context(trinucleotide) 将中间碱基为嘌呤的三核苷酸上下文反向互补为嘧啶基准。get_channel_index(ref, alt, trinucleotide) 计算 0-95 通道索引（type_idx * 16 + ctx_idx）。build_mutation_matrix(mutations, sample_ids) 主函数：构建样本索引映射、初始化 96×n 计数矩阵、按通道累加、计算 per-sample 总数。MutationMatrix::to_relative_frequencies() 将计数转为相对频率（每样本和为 1）。cosine_similarity(v1, v2) 计算两向量余弦相似度（dot / (||v1|| × ||v2||)）。MutationMatrix::sample_cosine_similarity(i, j) 比较两样本突变谱相似度。known_cosmic_signatures() 返回简化版 SBS1（CpG 位点 C>T 富集）和 SBS5（平坦分布）签名。calculate_exposure(sample_profile, signature) 通过投影计算签名暴露量。fit_signatures(sample_profile, signatures) 通过余弦相似度归一化拟合多签名贡献比例。辅助函数 all_mutation_types() 返回 6 种类型标准顺序，MutationMatrix::spectrum_summary() 生成 6 类型计数摘要，mutational_patterns_sample_data() 提供 9 条示例突变（5 条 S1 + 4 条 S2）。适用于癌症基因组体细胞突变模式分析、突变签名解析、暴露量估计。
+
+### 168. GAGE 基因集富集分析 (Bioconductor gage)
+
+实现基于 fold change 的基因集富集分析，参考 Bioconductor gage 包。核心结构 GageGeneSet（id、name、gene_ids）定义基因集。GageResult 存储每个基因集的检验结果：gene_set_id、n_genes、mean_fc、stat（t/z 统计量）、p_val、p_adj、is_up / is_down、significant。GageResults 汇总所有结果及全局参数（n_gene_sets、n_significant、fdr_threshold、paired）。run_gage(gene_fcs, gene_sets, fdr_threshold?, paired?) 主函数：1) 对每个基因集收集成员基因的 fold change；2) 计算 mean_fc（gage_mean）；3) 计算标准误 se = sqrt(variance / n)，配对检验时方差减半（gage_se）；4) 计算统计量 stat = mean_fc / se；5) 通过正态近似（erfc_approx，使用 Abramowitz & Stegun 7.1.26 公式）计算双侧 p 值（gage_pvalue_from_z）；6) 使用 BH-FDR 校正（gage_bh_adjust：先按 p 值排序，再从大到小回填调整值，确保单调性）。辅助函数 GageResults::get_significant() 返回显著基因集，get_upregulated() / get_downregulated() 分别返回上调/下调基因集，get_top_sets(n) 按调整 p 值排序返回前 N 个，summary() 生成分析摘要。gage_sample_gene_sets() 提供 3 个示例基因集（Pathway A/B/C），gage_sample_fold_changes() 提供 7 个基因的 fold change（含正负值）。适用于 RNA-seq / 微阵列数据的通路富集分析，支持配对/非配对检验。
+
+### 169. SPIA 信号通路影响分析 (Bioconductor SPIA)
+
+实现信号通路影响分析，参考 Bioconductor SPIA 包（Tarca AL et al. 2009）。核心结构 PathwayNode 表示通路节点：gene_id、gene_name、downstream（下游靶基因列表）、upstream（上游调控基因列表）、activation（每条下游互作的激活符号 +1/-1）。SignalingPathway（id、name、nodes）表示完整通路。SpiaResult 存储每通路分析结果：n_genes、n_de、p_or（过表达 p 值）、pert_factor（扰动累积因子）、p_pert（扰动 p 值）、p_combined（合并 p 值）、p_adj、significant、activation_status（+1 激活 / -1 抑制 / 0 中性）。SpiaResults 汇总所有通路结果。PathwayNode::add_downstream(target, is_activation) 添加下游互作并记录激活/抑制符号。run_spia(pathways, de_genes, total_genes, fdr_threshold?) 主分析流程：1) 对每通路统计 DE 基因数；2) 超几何检验 p_or（hypergeometric_pvalue，使用卡方近似 N(0,1)）；3) 计算扰动累积因子 pert_factor（compute_perturbation：每个基因的扰动 = 自身 logFC + Σ 上游 DE 基因的 logFC × 激活符号，最后除以 DE 基因数归一化）；4) 扰动 p 值 p_pert（perturbation_pvalue：使用正态近似 N(0, n_de) 与 erfc 函数）；5) Fisher 合并 p_combined = -2 × (ln p_or + ln p_pert) → 卡方分布 p 值（fisher_combine）；6) BH-FDR 校正（spia_bh_adjust）；7) 根据 pert_factor 符号判定激活/抑制状态。辅助函数 SpiaResults::get_significant() / get_activated() / get_inhibited() / get_top_pathways(n) / summary() 提供结果筛选和摘要。spia_sample_pathways() 提供 2 个示例通路：MAPK Cascade（5 基因激活级联：EGFR→RAS→RAF→MEK→ERK）和 Apoptosis（3 基因含抑制：BAX→CASP3, BCL2 -| CASP3）。spia_sample_de_genes() 提供 4 个 DE 基因（Gene1, Gene2, Gene5, Gene6）。适用于差异表达数据的通路影响分析，结合过表达和扰动信号判定通路激活/抑制状态。
+
 
 ## 性能优化
 
@@ -2023,8 +2047,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4507 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 4248 |
-| 通过数 | 4248 |
+| 总测试数 | 4553 |
+| 通过数 | 4553 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2226,6 +2250,9 @@ moon test --update
 | HTSFilter | `htsfilter_test.mbt` | 15 |
 | baySeq | `bayseq_test.mbt` | 18 |
 | CellChat | `cellchat_test.mbt` | 15 |
+| MutationalPatterns | `mutational_patterns_test.mbt` | 19 |
+| GAGE | `gage_test.mbt` | 11 |
+| SPIA | `spia_test.mbt` | 22 |
 
 ### Python 对比测试
 
@@ -2415,6 +2442,9 @@ moon run cmd/bench/main.mbt
 | internal_coords_demo | 蛋白质内部坐标（二面角计算、扩展链构建、Ramachandran区域、旋转异构体库） | `moon run examples/internal_coords_demo/main.mbt` |
 | ga_demo | 遗传算法序列优化（个体/种群创建、锦标赛/轮盘赌选择、单点/两点交叉、变异、进化收敛） | `moon run examples/ga_demo/main.mbt` |
 | chromosome_visualization_demo | 染色体可视化（特征/区域/带创建、SVG渲染、G带颜色映射、线性/圆形染色体） | `moon run examples/chromosome_visualization_demo/main.mbt` |
+| mutational_patterns_demo | MutationalPatterns 体细胞突变谱分析（96通道矩阵、突变类型识别、上下文归一化、签名拟合、余弦相似度） | `moon run examples/mutational_patterns_demo/main.mbt` |
+| gage_demo | GAGE 基因集富集分析（fold change、t检验、BH-FDR校正、配对检验、上调/下调分析） | `moon run examples/gage_demo/main.mbt` |
+| spia_demo | SPIA 信号通路影响分析（通路图、扰动累积、超几何检验、Fisher合并p值、激活/抑制判定） | `moon run examples/spia_demo/main.mbt` |
 
 ## 技术栈
 
