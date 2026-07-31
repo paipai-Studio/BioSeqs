@@ -53,7 +53,7 @@ pub fn enrich_disease(
         gene_count: overlap,
         genes: find_overlap(gene_list, term_genes),
         p_value,
-        adjusted_p_value: p_value * disease_database.size().to_double(),
+        adjusted_p_value: p_value * disease_database.length().to_double(),
         enrichment_score,
       })
     }

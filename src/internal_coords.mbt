@@ -886,9 +886,11 @@ pub fn InternalCoordChain::add_residue(
   self : InternalCoordChain,
   res : InternalCoordResidue,
 ) -> InternalCoordChain {
+  let new_residues = self.residues.copy()
+  new_residues.push(res)
   InternalCoordChain::{
     chain_id: self.chain_id,
-    residues: self.residues + [res],
+    residues: new_residues,
   }
 }
 
@@ -898,12 +900,14 @@ pub fn InternalCoordResidue::add_torsion(
   self : InternalCoordResidue,
   torsion : TorsionAngle,
 ) -> InternalCoordResidue {
+  let new_torsions = self.torsions.copy()
+  new_torsions.push(torsion)
   InternalCoordResidue::{
     resname: self.resname,
     resseq: self.resseq,
     bond_lengths: self.bond_lengths,
     bond_angles: self.bond_angles,
-    torsions: self.torsions + [torsion],
+    torsions: new_torsions,
     start_atom: self.start_atom,
   }
 }
@@ -914,10 +918,12 @@ pub fn InternalCoordResidue::add_bond_length(
   self : InternalCoordResidue,
   bl : BondLength,
 ) -> InternalCoordResidue {
+  let new_bond_lengths = self.bond_lengths.copy()
+  new_bond_lengths.push(bl)
   InternalCoordResidue::{
     resname: self.resname,
     resseq: self.resseq,
-    bond_lengths: self.bond_lengths + [bl],
+    bond_lengths: new_bond_lengths,
     bond_angles: self.bond_angles,
     torsions: self.torsions,
     start_atom: self.start_atom,
@@ -930,11 +936,13 @@ pub fn InternalCoordResidue::add_bond_angle(
   self : InternalCoordResidue,
   ba : BondAngle,
 ) -> InternalCoordResidue {
+  let new_bond_angles = self.bond_angles.copy()
+  new_bond_angles.push(ba)
   InternalCoordResidue::{
     resname: self.resname,
     resseq: self.resseq,
     bond_lengths: self.bond_lengths,
-    bond_angles: self.bond_angles + [ba],
+    bond_angles: new_bond_angles,
     torsions: self.torsions,
     start_atom: self.start_atom,
   }

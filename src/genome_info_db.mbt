@@ -68,10 +68,12 @@ pub fn GenomeInfoDb::add_chrom(
     is_circular~,
     genome=self.genome_build,
   )
+  let new_chrom_infos = self.chrom_infos.copy()
+  new_chrom_infos.push(new_info)
   GenomeInfoDb::{
     genome_build: self.genome_build,
     organism: self.organism,
-    chrom_infos: self.chrom_infos + [new_info],
+    chrom_infos: new_chrom_infos,
     centromeres: self.centromeres,
   }
 }
@@ -85,11 +87,13 @@ pub fn GenomeInfoDb::add_centromere(
   end : Int,
 ) -> GenomeInfoDb {
   let c = Centromere::new(chrom~, start~, end~)
+  let new_centromeres = self.centromeres.copy()
+  new_centromeres.push(c)
   GenomeInfoDb::{
     genome_build: self.genome_build,
     organism: self.organism,
     chrom_infos: self.chrom_infos,
-    centromeres: self.centromeres + [c],
+    centromeres: new_centromeres,
   }
 }
 

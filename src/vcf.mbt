@@ -13,7 +13,7 @@ pub enum VcfHeaderType {
 pub struct VcfMetaHeader {
   key : String
   value : String
-  tags : @hashmap.HashMap[String, String]
+  tags : Map[String, String]
 }
 
 ///|
@@ -28,13 +28,13 @@ pub struct VcfRecord {
   chrom : String
   pos : Int
   id : Array[String]
-  ref : String
+  ref_seq : String
   alt : Array[String]
   qual : Double?
   filter : Array[String]
-  info : @hashmap.HashMap[String, String]
+  info : Map[String, String]
   format : Array[String]?
-  samples : @hashmap.HashMap[String, Array[String]]
+  samples : Map[String, Array[String]]
 }
 
 ///|
@@ -47,8 +47,8 @@ pub struct VcfFile {
 
 ///|
 /// Parse INFO field into HashMap.
-fn parse_info(info_str : String) -> @hashmap.HashMap[String, String] {
-  let result = @hashmap.HashMap([])
+fn parse_info(info_str : String) -> Map[String, String] {
+  let result = Map([], capacity=0)
   if info_str == "." || info_str.length() == 0 {
     return result
   }
@@ -104,7 +104,7 @@ fn parse_vcf_meta_header(line : String) -> VcfMetaHeader? {
   let key = content[0:pos].to_owned()
   let value_part = content[pos + 1:content.length()].to_owned()
 
-  let tags = @hashmap.HashMap([])
+  let tags = Map([], capacity=0)
   let mut value = value_part
 
   if value_part.length() > 0 &&
@@ -161,7 +161,7 @@ fn parse_vcf_record(line : String, sample_names : Array[String]) -> VcfRecord? {
   let chrom = parts[0]
   let pos = parse_int(parts[1])
   let id = parse_comma_list(parts[2])
-  let ref = parts[3]
+  let ref_seq = parts[3]
   let alt = parse_comma_list(parts[4])
   let qual = parse_double(parts[5])
   let filter = parse_comma_list(parts[6])
@@ -169,7 +169,7 @@ fn parse_vcf_record(line : String, sample_names : Array[String]) -> VcfRecord? {
 
   let format = if parts.length() > 8 { parse_format(parts[8]) } else { None }
 
-  let samples = @hashmap.HashMap([])
+  let samples = Map([], capacity=0)
   if parts.length() > 9 && format.is_some() {
     let format_cols = format.unwrap()
     let mut i = 9
@@ -189,7 +189,7 @@ fn parse_vcf_record(line : String, sample_names : Array[String]) -> VcfRecord? {
     chrom,
     pos,
     id,
-    ref,
+    ref_seq,
     alt,
     qual,
     filter,
@@ -299,7 +299,7 @@ pub fn VcfFile::get_version(self : VcfFile) -> String? {
 ///|
 /// Check if variant is a SNP (single nucleotide polymorphism).
 pub fn VcfRecord::is_snp(self : VcfRecord) -> Bool {
-  self.ref.length() == 1 && self.alt.length() == 1 && self.alt[0].length() == 1
+  self.ref_seq.length() == 1 && self.alt.length() == 1 && self.alt[0].length() == 1
 }
 
 ///|
@@ -308,7 +308,7 @@ pub fn VcfRecord::is_insertion(self : VcfRecord) -> Bool {
   if self.alt.length() == 0 {
     return false
   }
-  self.ref.length() < self.alt[0].length()
+  self.ref_seq.length() < self.alt[0].length()
 }
 
 ///|
@@ -317,7 +317,7 @@ pub fn VcfRecord::is_deletion(self : VcfRecord) -> Bool {
   if self.alt.length() == 0 {
     return false
   }
-  self.ref.length() > self.alt[0].length()
+  self.ref_seq.length() > self.alt[0].length()
 }
 
 ///|
@@ -327,7 +327,7 @@ pub fn VcfRecord::get_genotype(
   sample_name : String,
 ) -> Array[String]? {
   match self.samples.get(sample_name) {
-    Some(data) => Some(data.clone())
+    Some(data) => Some(data.copy())
     None => None
   }
 }

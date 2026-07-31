@@ -65,23 +65,6 @@ pub fn DESeqResults::new(
 }
 
 ///|
-fn geometric_mean(x : Array[Double]) -> Double {
-  let mut sum_log = 0.0
-  let mut n_valid = 0
-  for val in x {
-    if val > 0.0 {
-      sum_log = sum_log + log_nat(val)
-      n_valid = n_valid + 1
-    }
-  }
-  if n_valid > 0 {
-    exp(sum_log / n_valid.to_double())
-  } else {
-    0.0
-  }
-}
-
-///|
 pub fn estimate_size_factors(dds : DESeqDataSet) -> DESeqDataSet {
   let n_genes = dds.counts.length()
   let n_samples = dds.col_names.length()
@@ -92,7 +75,7 @@ pub fn estimate_size_factors(dds : DESeqDataSet) -> DESeqDataSet {
     for j = 0; j < n_samples; j = j + 1 {
       gene_counts.push(dds.counts[i][j].to_double())
     }
-    geo_means.push(geometric_mean(gene_counts))
+    geo_means.push(stat_geometric_mean(gene_counts))
   }
   
   let size_factors : Array[Double] = Array::new()
@@ -104,31 +87,12 @@ pub fn estimate_size_factors(dds : DESeqDataSet) -> DESeqDataSet {
       }
     }
     
-    let n_ratios = ratios.length()
-    let sorted_ratios : Array[Double] = Array::new()
-    for r in ratios {
-      sorted_ratios.push(r)
-    }
-    for i = 0; i < n_ratios - 1; i = i + 1 {
-      for k = 0; k < n_ratios - 1 - i; k = k + 1 {
-        if sorted_ratios[k] > sorted_ratios[k + 1] {
-          let tmp = sorted_ratios[k]
-          sorted_ratios[k] = sorted_ratios[k + 1]
-          sorted_ratios[k + 1] = tmp
-        }
-      }
-    }
-    
-    if n_ratios > 0 {
-      let median = if n_ratios % 2 == 0 {
-        (sorted_ratios[n_ratios / 2 - 1] + sorted_ratios[n_ratios / 2]) / 2.0
-      } else {
-        sorted_ratios[n_ratios / 2]
-      }
-      size_factors.push(median)
+    let median_val = if ratios.length() > 0 {
+      stat_median(ratios)
     } else {
-      size_factors.push(1.0)
+      1.0
     }
+    size_factors.push(median_val)
   }
   
   let mut mean_sf = 0.0
@@ -197,7 +161,7 @@ pub fn log2_cpm(dds : DESeqDataSet) -> Array[Array[Double]] {
       } else {
         0.0
       }
-      row.push(if cpm > 0.0 { log_nat(cpm) / log_nat(2.0) } else { 0.0 })
+      row.push(if cpm > 0.0 { @math.ln(cpm) / @math.ln(2.0) } else { 0.0 })
     }
     log2_cpm.push(row)
   }
@@ -217,7 +181,7 @@ pub fn estimate_dispersions(dds : DESeqDataSet) -> DESeqDataSet {
     for j = 0; j < n_samples; j = j + 1 {
       sum = sum + normalized[i][j]
     }
-    log_means.push(if sum > 0.0 { log_nat(sum / n_samples.to_double()) } else { -10.0 })
+    log_means.push(if sum > 0.0 { @math.ln(sum / n_samples.to_double()) } else { -10.0 })
   }
   
   let dispersions : Array[Double] = Array::new()
@@ -253,7 +217,7 @@ pub fn estimate_dispersions(dds : DESeqDataSet) -> DESeqDataSet {
   let final_dispersions : Array[Double] = Array::new()
   for i = 0; i < n_genes; i = i + 1 {
     let raw_disp = dispersions[i]
-    let prior_disp = alpha * exp(-beta * log_means[i])
+    let prior_disp = alpha * @math.exp(-beta * log_means[i])
     let weight = 1.0 / (1.0 / n_samples.to_double() + 1.0)
     final_dispersions.push((1.0 - weight) * prior_disp + weight * raw_disp)
   }
@@ -271,7 +235,7 @@ pub fn estimate_dispersions(dds : DESeqDataSet) -> DESeqDataSet {
 ///|
 fn pnorm(x : Double) -> Double {
   let t = 1.0 / (1.0 + 0.2316419 * x.abs())
-  let d = 0.3989423 * exp(-x * x / 2.0)
+  let d = 0.3989423 * @math.exp(-x * x / 2.0)
   let prob = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))))
   if x >= 0.0 {
     1.0 - prob
@@ -303,7 +267,7 @@ pub fn deseq(dds : DESeqDataSet) -> DESeqResults {
     
     for j = 0; j < n_samples; j = j + 1 {
       let x = dds.design[j][1]
-      let y = if normalized[i][j] > 0.0 { log_nat(normalized[i][j]) } else { 0.0 }
+      let y = if normalized[i][j] > 0.0 { @math.ln(normalized[i][j]) } else { 0.0 }
       sum_x = sum_x + x
       sum_y = sum_y + y
       sum_xy = sum_xy + x * y
@@ -318,13 +282,13 @@ pub fn deseq(dds : DESeqDataSet) -> DESeqResults {
     let mut sse = 0.0
     for j = 0; j < n_samples; j = j + 1 {
       let x = dds.design[j][1]
-      let y = if normalized[i][j] > 0.0 { log_nat(normalized[i][j]) } else { 0.0 }
+      let y = if normalized[i][j] > 0.0 { @math.ln(normalized[i][j]) } else { 0.0 }
       let pred = b0 + b1 * x
       sse = sse + (y - pred) * (y - pred)
     }
     
     let disp = dds.dispersions[i]
-    let eff_var = sse / (n - 2.0) + disp * exp(2.0 * b0)
+    let eff_var = sse / (n - 2.0) + disp * @math.exp(2.0 * b0)
     
     let se_b1 = if denom != 0.0 {
       (eff_var / denom).sqrt()
@@ -335,12 +299,12 @@ pub fn deseq(dds : DESeqDataSet) -> DESeqResults {
     let mut sum_fitted = 0.0
     for j = 0; j < n_samples; j = j + 1 {
       let x = dds.design[j][1]
-      sum_fitted = sum_fitted + exp(b0 + b1 * x)
+      sum_fitted = sum_fitted + @math.exp(b0 + b1 * x)
     }
     base_mean.push(sum_fitted / n)
     
-    log2_fold_change.push(b1 * log_nat(2.0))
-    lfc_se.push(se_b1 * log_nat(2.0))
+    log2_fold_change.push(b1 * @math.ln(2.0))
+    lfc_se.push(se_b1 * @math.ln(2.0))
     
     let t_stat = if se_b1 > 0.0 { b1 / se_b1 } else { 0.0 }
     stat.push(t_stat)

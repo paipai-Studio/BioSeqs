@@ -8,7 +8,7 @@ pub struct Variant {
   alt_allele : String
   qual : Double
   filter : String
-  info : @hashmap.HashMap[String, String]
+  info : Map[String, String]
   genotypes : Array[(String, String)]
 }
 
@@ -25,7 +25,7 @@ pub struct VariantFilteringParam {
 pub struct VariantFilterResult {
   passed_variants : Array[Variant]
   filtered_variants : Array[(Variant, String)]
-  filter_stats : @hashmap.HashMap[String, Int]
+  filter_stats : Map[String, Int]
 }
 
 pub struct GeneticModel {
@@ -37,7 +37,7 @@ pub struct GeneticModel {
 
 pub fn Variant::new(chr : String, pos : Int, id : String, ref_allele : String, 
                     alt_allele : String, qual : Double, filter : String, 
-                    info : @hashmap.HashMap[String, String], genotypes : Array[(String, String)]) -> Variant {
+                    info : Map[String, String], genotypes : Array[(String, String)]) -> Variant {
   Variant::{ chr, pos, id, ref_allele, alt_allele, qual, filter, info, genotypes }
 }
 
@@ -57,7 +57,7 @@ pub fn VariantFilterResult::new() -> VariantFilterResult {
   VariantFilterResult::{ 
     passed_variants: Array::new(), 
     filtered_variants: Array::new(), 
-    filter_stats: @hashmap.HashMap([]) 
+    filter_stats: Map([], capacity=0) 
   }
 }
 
@@ -188,7 +188,7 @@ fn join_strings(arr : Array[String], sep : String) -> String {
   result
 }
 
-fn parse_info_int(info : @hashmap.HashMap[String, String], key : String) -> Int {
+fn parse_info_int(info : Map[String, String], key : String) -> Int {
   if info.contains(key) {
     parse_int(info.get(key).unwrap())
   } else {
@@ -196,7 +196,7 @@ fn parse_info_int(info : @hashmap.HashMap[String, String], key : String) -> Int 
   }
 }
 
-fn parse_info_double(info : @hashmap.HashMap[String, String], key : String) -> Double {
+fn parse_info_double(info : Map[String, String], key : String) -> Double {
   if info.contains(key) {
     let parsed = parse_double(info.get(key).unwrap())
     if parsed.is_some() { parsed.unwrap() } else { 0.0 }
@@ -252,7 +252,7 @@ fn calculate_missing_rate(genotypes : Array[(String, String)]) -> Double {
 }
 
 pub fn bio_vfilter_check_inheritance(variant : Variant, model : GeneticModel, 
-                                      phenotypes : @hashmap.HashMap[String, Bool]) -> Bool {
+                                      phenotypes : Map[String, Bool]) -> Bool {
   if model.model_type == "autosomal_dominant" { 
     check_autosomal_dominant(variant, phenotypes) 
   } else if model.model_type == "autosomal_recessive" { 
@@ -268,7 +268,7 @@ pub fn bio_vfilter_check_inheritance(variant : Variant, model : GeneticModel,
   }
 }
 
-fn check_autosomal_dominant(variant : Variant, phenotypes : @hashmap.HashMap[String, Bool]) -> Bool {
+fn check_autosomal_dominant(variant : Variant, phenotypes : Map[String, Bool]) -> Bool {
   let mut affected_carriers = 0
   let mut unaffected_carriers = 0
   let mut affected_non_carriers = 0
@@ -294,7 +294,7 @@ fn check_autosomal_dominant(variant : Variant, phenotypes : @hashmap.HashMap[Str
   affected_non_carriers == 0 && affected_carriers >= 1
 }
 
-fn check_autosomal_recessive(variant : Variant, phenotypes : @hashmap.HashMap[String, Bool]) -> Bool {
+fn check_autosomal_recessive(variant : Variant, phenotypes : Map[String, Bool]) -> Bool {
   let mut affected_homozygous = 0
   let mut unaffected_homozygous = 0
   let mut affected_heterozygous = 0
@@ -321,7 +321,7 @@ fn check_autosomal_recessive(variant : Variant, phenotypes : @hashmap.HashMap[St
   affected_heterozygous == 0 && unaffected_homozygous == 0 && affected_homozygous >= 1
 }
 
-fn check_x_linked_dominant(variant : Variant, phenotypes : @hashmap.HashMap[String, Bool]) -> Bool {
+fn check_x_linked_dominant(variant : Variant, phenotypes : Map[String, Bool]) -> Bool {
   if !is_x_chromosome(variant.chr) {
     return false
   }
@@ -358,7 +358,7 @@ fn check_x_linked_dominant(variant : Variant, phenotypes : @hashmap.HashMap[Stri
   unaffected_males_with_mut == 0 && affected_males_with_mut >= 1
 }
 
-fn check_x_linked_recessive(variant : Variant, phenotypes : @hashmap.HashMap[String, Bool]) -> Bool {
+fn check_x_linked_recessive(variant : Variant, phenotypes : Map[String, Bool]) -> Bool {
   if !is_x_chromosome(variant.chr) {
     return false
   }
@@ -396,7 +396,7 @@ fn check_x_linked_recessive(variant : Variant, phenotypes : @hashmap.HashMap[Str
   unaffected_males_with_mut == 0 && unaffected_females_homozygous == 0 && (affected_males_with_mut >= 1 || affected_females_homozygous >= 1)
 }
 
-fn check_compound_heterozygous(variant : Variant, phenotypes : @hashmap.HashMap[String, Bool]) -> Bool {
+fn check_compound_heterozygous(variant : Variant, phenotypes : Map[String, Bool]) -> Bool {
   let mut affected_heterozygous = 0
   let mut unaffected_heterozygous = 0
   
@@ -461,7 +461,7 @@ fn contains_substring(s : String, substr : String) -> Bool {
 }
 
 pub fn bio_vfilter_filter_by_inheritance(variants : Array[Variant], model : GeneticModel, 
-                                          phenotypes : @hashmap.HashMap[String, Bool]) -> Array[Variant] {
+                                          phenotypes : Map[String, Bool]) -> Array[Variant] {
   let len = variants.length()
   let mut result : Array[Variant] = Array::new()
   let mut i = 0

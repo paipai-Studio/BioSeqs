@@ -131,3 +131,42 @@ test "seq_complexity: sequence_similarity_empty" {
   let sim = @src.sequence_similarity_kmer("", "", k=2)
   assert_eq(sim, 0.0)
 }
+
+// LCC (Wooton-Federhen) tests
+
+test "seq_complexity: lcc_basic" {
+  let scores = @src.lcc("ATCGATCGATCGATCG", window=12, k=3)
+  assert_true(scores.length() > 0)
+  // Periodic 4-mer sequence: each 12-char window has 4 unique 3-mers out of 10
+  // LCC = 4/10 = 0.4
+  for i = 0; i < scores.length(); i = i + 1 {
+    assert_true(scores[i] > 0.2 && scores[i] < 0.5)
+  }
+}
+
+test "seq_complexity: lcc_low_complexity" {
+  let scores = @src.lcc("AAAAAAAAAAAAAAAA", window=12, k=3)
+  assert_true(scores.length() > 0)
+  // Low complexity (all same char): only 1 unique 3-mer out of 10 = 0.1
+  for i = 0; i < scores.length(); i = i + 1 {
+    assert_true(scores[i] >= 0.0 && scores[i] <= 0.2)
+  }
+}
+
+test "seq_complexity: lcc_empty" {
+  let scores = @src.lcc("", window=12, k=3)
+  assert_eq(scores.length(), 0)
+}
+
+test "seq_complexity: lcc_short" {
+  let scores = @src.lcc("AC", window=12, k=3)
+  assert_eq(scores.length(), 0)
+}
+
+test "seq_complexity: lcc_low_complexity_regions" {
+  // Mix of low complexity and high complexity
+  let seq = "AAAAAAAAAAAAAACGATCGATCG"
+  let regions = @src.lcc_low_complexity_regions(seq, window=12, k=3, threshold=0.15)
+  // Should find low complexity region at the beginning
+  assert_true(regions.length() > 0)
+}

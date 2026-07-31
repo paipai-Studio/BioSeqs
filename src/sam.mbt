@@ -15,7 +15,7 @@ pub enum SamHeaderType {
 /// SAM header record.
 pub struct SamHeader {
   header_type : SamHeaderType
-  tags : @hashmap.HashMap[String, String]
+  tags : Map[String, String]
 }
 
 ///|
@@ -53,7 +53,7 @@ pub struct SamRecord {
   tlen : Int
   seq : String
   qual : String
-  tags : @hashmap.HashMap[String, String]
+  tags : Map[String, String]
 }
 
 ///|
@@ -179,7 +179,7 @@ fn parse_sam_header(line : String) -> SamHeader? {
   let header_type_str = header_part[1:header_part.length()].to_owned()
   let header_type = parse_header_type(header_type_str)
 
-  let tags = @hashmap.HashMap([])
+  let tags = Map([], capacity=0)
   let mut i = 1
   while i < parts.length() {
     let tag = parts[i]
@@ -220,7 +220,7 @@ fn parse_sam_record(line : String) -> SamRecord? {
   let seq = parts[9]
   let qual = parts[10]
 
-  let tags = @hashmap.HashMap([])
+  let tags = Map([], capacity=0)
   let mut i = 11
   while i < parts.length() {
     let tag = parts[i]

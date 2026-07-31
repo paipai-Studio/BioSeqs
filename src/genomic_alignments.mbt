@@ -307,7 +307,7 @@ pub struct PileupElement {
 ///|
 pub fn pileup(
   galn : GAlignments,
-  reference : @hashmap.HashMap[String, String],
+  reference : Map[String, String],
 ) -> Array[PileupElement] {
   let result : Array[PileupElement] = Array::new()
 

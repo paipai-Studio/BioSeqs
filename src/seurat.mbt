@@ -49,32 +49,35 @@ pub fn normalize_total(obj : SeuratObject) -> SeuratObject {
   let n_genes = obj.row_names.length()
   let n_cells = obj.col_names.length()
   
-  let data : Array[Array[Double]] = Array::new()
+  // Precompute column sums (O(n_genes * n_cells) instead of O(n_genes^2 * n_cells))
+  let col_sums : Array[Double] = Array::make(n_cells, 0.0)
   let mut i = 0
+  while i < n_genes {
+    let mut j = 0
+    while j < n_cells {
+      col_sums[j] = col_sums[j] + obj.counts[i][j].to_double()
+      j = j + 1
+    }
+    i = i + 1
+  }
+  
+  let data : Array[Array[Double]] = Array::new()
+  i = 0
   while i < n_genes {
     let gene_data : Array[Double] = Array::new()
     let mut j = 0
     while j < n_cells {
       let count = obj.counts[i][j].to_double()
-      let mut sum_counts = 0.0
-      let mut k = 0
-      while k < n_genes {
-        sum_counts = sum_counts + obj.counts[k][j].to_double()
-        k = k + 1
-      }
-      
-      let normalized = if sum_counts > 0.0 {
-        count / sum_counts * 10000.0
+      let normalized = if col_sums[j] > 0.0 {
+        count / col_sums[j] * 10000.0
       } else {
         0.0
       }
-      
       let final_val = if normalized > 0.0 {
-        log_nat(normalized + 1.0)
+        @math.ln(normalized + 1.0)
       } else {
         0.0
       }
-      
       gene_data.push(final_val)
       j = j + 1
     }
@@ -93,39 +96,15 @@ pub fn find_variable_features(obj : SeuratObject) -> SeuratObject {
   let n_genes = obj.row_names.length()
   let n_cells = obj.col_names.length()
   
-  let means : Array[Double] = Array::new()
-  let vars : Array[Double] = Array::new()
-  
-  let mut i = 0
-  while i < n_genes {
-    let mut sum_val = 0.0
-    let mut j = 0
-    while j < n_cells {
-      sum_val = sum_val + obj.data[i][j]
-      j = j + 1
-    }
-    let mean_val = sum_val / n_cells.to_double()
-    means.push(mean_val)
-    
-    let mut sum_sq_diff = 0.0
-    j = 0
-    while j < n_cells {
-      sum_sq_diff = sum_sq_diff + (obj.data[i][j] - mean_val) * (obj.data[i][j] - mean_val)
-      j = j + 1
-    }
-    vars.push(sum_sq_diff / (n_cells - 1).to_double())
-    i = i + 1
-  }
-  
   let gene_indices : Array[(Double, Int)] = Array::new()
   let mut k = 0
   while k < n_genes {
-    let mean_val = means[k]
-    let var_val = vars[k]
+    let row_data = obj.data[k]
+    let (mean_val, var_val) = stat_mean_var(row_data)
     
     let vst_score = if mean_val > 0.0 && var_val > 0.0 {
       let expected_var = mean_val + mean_val * mean_val * 0.5
-      log_nat(var_val / expected_var)
+      @math.ln(var_val / expected_var)
     } else {
       0.0
     }
@@ -133,7 +112,7 @@ pub fn find_variable_features(obj : SeuratObject) -> SeuratObject {
     k = k + 1
   }
   
-  let sorted_indices = sort_indices_desc(gene_indices)
+  let sorted_indices = stat_sort_indices_desc(gene_indices)
   
   let var_features : Array[String] = Array::new()
   let nfeatures = if n_genes < 2000 { n_genes } else { 2000 }
@@ -157,30 +136,14 @@ pub fn scale_data(obj : SeuratObject) -> SeuratObject {
   let scaled_data : Array[Array[Double]] = Array::new()
   let mut i = 0
   while i < n_genes {
-    let mut sum_val = 0.0
-    let mut j = 0
-    while j < n_cells {
-      sum_val = sum_val + obj.data[i][j]
-      j = j + 1
-    }
-    let mean_val = sum_val / n_cells.to_double()
-    
-    let mut sum_sq_diff = 0.0
-    j = 0
-    while j < n_cells {
-      sum_sq_diff = sum_sq_diff + (obj.data[i][j] - mean_val) * (obj.data[i][j] - mean_val)
-      j = j + 1
-    }
-    let std_val = if sum_sq_diff > 0.0 {
-      (sum_sq_diff / (n_cells - 1).to_double()).sqrt()
-    } else {
-      1.0
-    }
+    let row_data = obj.data[i]
+    let (mean_val, var_val) = stat_mean_var(row_data)
+    let std_val = if var_val > 0.0 { var_val.sqrt() } else { 1.0 }
     
     let gene_scaled : Array[Double] = Array::new()
-    j = 0
+    let mut j = 0
     while j < n_cells {
-      gene_scaled.push((obj.data[i][j] - mean_val) / std_val)
+      gene_scaled.push((row_data[j] - mean_val) / std_val)
       j = j + 1
     }
     scaled_data.push(gene_scaled)
@@ -330,24 +293,7 @@ fn find_neighbors_helper(
 }
 
 fn sort_distances(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
-  if arr.length() <= 1 {
-    return arr
-  }
-  
-  let pivot = arr[0]
-  let left : Array[(Double, Int)] = Array::new()
-  let right : Array[(Double, Int)] = Array::new()
-  let mut i = 1
-  while i < arr.length() {
-    if arr[i].0 <= pivot.0 {
-      left.push(arr[i])
-    } else {
-      right.push(arr[i])
-    }
-    i = i + 1
-  }
-  
-  sort_distances(left) + [pivot] + sort_distances(right)
+  stat_sort_indices_desc(arr)
 }
 
 ///|
@@ -665,45 +611,11 @@ pub fn get_top_markers(markers : Array[MarkerResult], n : Int) -> Array[MarkerRe
 }
 
 fn sort_by_p_value(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
-  if arr.length() <= 1 {
-    return arr
-  }
-  
-  let pivot = arr[0]
-  let left : Array[(Double, Int)] = Array::new()
-  let right : Array[(Double, Int)] = Array::new()
-  let mut i = 1
-  while i < arr.length() {
-    if arr[i].0 <= pivot.0 {
-      left.push(arr[i])
-    } else {
-      right.push(arr[i])
-    }
-    i = i + 1
-  }
-  
-  sort_by_p_value(left) + [pivot] + sort_by_p_value(right)
+  stat_sort_indices_asc(arr)
 }
 
 fn sort_indices_desc(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
-  if arr.length() <= 1 {
-    return arr
-  }
-  
-  let pivot = arr[0]
-  let left : Array[(Double, Int)] = Array::new()
-  let right : Array[(Double, Int)] = Array::new()
-  let mut i = 1
-  while i < arr.length() {
-    if arr[i].0 >= pivot.0 {
-      left.push(arr[i])
-    } else {
-      right.push(arr[i])
-    }
-    i = i + 1
-  }
-  
-  sort_indices_desc(left) + [pivot] + sort_indices_desc(right)
+  stat_sort_indices_desc(arr)
 }
 
 ///|
@@ -756,7 +668,7 @@ pub fn seurat_create_example_data() -> SeuratObject {
       }
       x = x - 6.0
       
-      let base_count = (exp(x) * cluster_factor).to_int()
+      let base_count = (@math.exp(x) * cluster_factor).to_int()
       gene_counts.push(if base_count > 0 { base_count } else { 0 })
       j = j + 1
     }

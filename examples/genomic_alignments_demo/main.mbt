@@ -73,7 +73,7 @@ fn main {
     [30, 30],
     [0, 0],
   )
-  let pileup = @bio.pileup(galn_pileup, @hashmap.HashMap([]))
+  let pileup = @bio.pileup(galn_pileup, Map([], capacity=0))
   i = 0
   while i < pileup.length() {
     println(

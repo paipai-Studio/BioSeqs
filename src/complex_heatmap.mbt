@@ -818,7 +818,8 @@ pub fn ch_row_split(
     let group = groups[i]
     match group_map.get(group) {
       Some(indices) => {
-        let new_indices = indices + [i]
+        let new_indices = indices.copy()
+        new_indices.push(i)
         group_map[group] = new_indices
       }
       None => group_map[group] = [i]
@@ -863,7 +864,8 @@ pub fn ch_col_split(
     let group = groups[i]
     match group_map.get(group) {
       Some(indices) => {
-        let new_indices = indices + [i]
+        let new_indices = indices.copy()
+        new_indices.push(i)
         group_map[group] = new_indices
       }
       None => group_map[group] = [i]

@@ -1,7 +1,7 @@
 ///|
 
 test "variant_filtering_create_variant" {
-  let info = @hashmap.HashMap([("DP", "20"), ("AF", "0.5")])
+  let info = Map([("DP", "20"), ("AF", "0.5")])
   let genotypes = [("sample1", "0/1:30"), ("sample2", "1/1:25")]
   
   let variant = @src.Variant::new(
@@ -19,8 +19,8 @@ test "variant_filtering_create_variant" {
 }
 
 test "variant_filtering_filter" {
-  let info_pass = @hashmap.HashMap([("DP", "20"), ("AF", "0.5")])
-  let info_fail = @hashmap.HashMap([("DP", "5"), ("AF", "0.001")])
+  let info_pass = Map([("DP", "20"), ("AF", "0.5")])
+  let info_fail = Map([("DP", "5"), ("AF", "0.001")])
   
   let variants = [
     @src.Variant::new("chr1", 1000, "rs1", "A", "T", 50.0, "PASS", info_pass, [("s1", "0/1:30")]),
@@ -43,10 +43,10 @@ test "variant_filtering_check_autosomal_dominant" {
     ("sibling", "0/0"),
   ]
   
-  let info = @hashmap.HashMap([])
+  let info = Map([], capacity=0)
   let variant = @src.Variant::new("chr1", 1000, "rs1", "A", "T", 50.0, "PASS", info, genotypes)
   
-  let phenotypes = @hashmap.HashMap([("proband", true), ("father", false), ("mother", false), ("sibling", false)])
+  let phenotypes = Map([("proband", true), ("father", false), ("mother", false), ("sibling", false)])
   let model = @src.GeneticModel::new("autosomal_dominant")
   
   let passes = @src.bio_vfilter_check_inheritance(variant, model, phenotypes)
@@ -62,10 +62,10 @@ test "variant_filtering_check_autosomal_recessive" {
     ("sibling", "0/0"),
   ]
   
-  let info = @hashmap.HashMap([])
+  let info = Map([], capacity=0)
   let variant = @src.Variant::new("chr1", 1000, "rs1", "A", "T", 50.0, "PASS", info, genotypes)
   
-  let phenotypes = @hashmap.HashMap([("proband", true), ("father", false), ("mother", false), ("sibling", false)])
+  let phenotypes = Map([("proband", true), ("father", false), ("mother", false), ("sibling", false)])
   let model = @src.GeneticModel::new("autosomal_recessive")
   
   let passes = @src.bio_vfilter_check_inheritance(variant, model, phenotypes)
@@ -74,8 +74,8 @@ test "variant_filtering_check_autosomal_recessive" {
 }
 
 test "variant_filtering_summary" {
-  let info_pass = @hashmap.HashMap([("DP", "20"), ("AF", "0.5")])
-  let info_fail = @hashmap.HashMap([("DP", "5"), ("AF", "0.001")])
+  let info_pass = Map([("DP", "20"), ("AF", "0.5")])
+  let info_fail = Map([("DP", "5"), ("AF", "0.001")])
   
   let variants = [
     @src.Variant::new("chr1", 1000, "rs1", "A", "T", 50.0, "PASS", info_pass, [("s1", "0/1:30")]),
@@ -93,7 +93,7 @@ test "variant_filtering_summary" {
 }
 
 test "variant_filtering_predict_consequence" {
-  let info = @hashmap.HashMap([])
+  let info = Map([], capacity=0)
   let genotypes = [("s1", "0/1")]
   
   let snp = @src.Variant::new("chr1", 1000, "rs1", "A", "T", 50.0, "PASS", info, genotypes)

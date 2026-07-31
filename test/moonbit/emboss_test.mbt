@@ -63,7 +63,7 @@ test "emboss_hamming_distance" {
 
 ///|
 test "emboss_levenshtein_distance" {
-  let d = @src.levenshtein_distance("ATGC", "AGC")
+  let d = @src.emboss_levenshtein_distance("ATGC", "AGC")
   assert_eq(d, 1)
 }
 

@@ -207,3 +207,155 @@ pub fn parse_genbank(content : String) -> Array[SeqRecord] {
   }
   records
 }
+
+// --- GenBank Writer ---
+
+///|
+/// Write an array of SeqRecord objects to GenBank format text.
+///
+/// Mirrors BioPython's GenBankIO writer:
+///   - LOCUS line: name + length + "bp" + molecule type + topology + division + date
+///   - DEFINITION, ACCESSION, VERSION lines
+///   - ORIGIN section with sequence wrapped at 60 chars, grouped in 10s, position labels
+///   - End with "//"
+pub fn write_genbank(records : Array[SeqRecord]) -> String {
+  let buf = StringBuilder::new()
+  for rec in records {
+    // --- LOCUS line ---
+    // LOCUS       NM_001     5028 bp    DNA    linear   PRI 21-JUN-1999
+    // Fields (fixed positions): 0-5 LOCUS, 6-11 spaces, 12-27 locus name, 28-39 length+bp,
+    // 40-47 mol_type, 48-54 topology, 55-57 division, 58- date
+    let seq_len = rec.seq.length()
+    let locus_name = if rec.name.length() > 16 { rec.name[0:16].to_owned() } else { rec.name }
+    buf.write_string("LOCUS       ")
+    buf.write_string(locus_name)
+    // Pad to position 28 (12 + 16 = 28)
+    let pad1 = 28 - (12 + locus_name.length())
+    for _j = 0; pad1 > 0 && _j < pad1; _j = _j + 1 {
+      buf.write_char(' ')
+    }
+    // Length + bp (right-aligned in 11 chars, positions 28-39)
+    let len_str = seq_len.to_string() + " bp"
+    let pad_len = 11 - len_str.length()
+    for _j = 0; pad_len > 0 && _j < pad_len; _j = _j + 1 {
+      buf.write_char(' ')
+    }
+    buf.write_string(len_str)
+    buf.write_string(" DNA ")
+    // Topology
+    buf.write_string("linear  ")
+    // Division + date (use "UNK" division and a placeholder date)
+    buf.write_string("UNK 01-JAN-2024\n")
+
+    // --- DEFINITION ---
+    let mut def_text = rec.description
+    if def_text.length() == 0 {
+      def_text = rec.id
+    }
+    // Wrap DEFINITION at ~58 chars after the keyword
+    buf.write_string("DEFINITION  ")
+    let wrapped_def = build_wrapped(def_text, 12, 58)
+    buf.write_string(wrapped_def)
+    buf.write_char('.')
+    buf.write_char('\n')
+
+    // --- ACCESSION ---
+    buf.write_string("ACCESSION   ")
+    let acc = if rec.id.length() == 0 { rec.name } else { rec.id }
+    buf.write_string(acc)
+    buf.write_char('\n')
+
+    // --- VERSION ---
+    buf.write_string("VERSION     ")
+    buf.write_string(acc)
+    buf.write_char('\n')
+
+    // --- ORIGIN ---
+    buf.write_string("ORIGIN      \n")
+    let seq_section = build_genbank_sequence(rec.seq.to_string())
+    buf.write_string(seq_section)
+
+    // End record
+    buf.write_string("//\n")
+  }
+  buf.to_string()
+}
+
+///|
+/// Build text wrapped into lines, returning the wrapped string.
+/// `indent` = chars already written (so we know where we are)
+/// `width`  = max chars per line
+fn build_wrapped(text : String, indent : Int, width : Int) -> String {
+  let buf = StringBuilder::new()
+  let total = text.length()
+  let mut pos = 0
+  let mut cur_indent = indent
+  while pos < total {
+    let remaining = total - pos
+    let avail = width - cur_indent
+    if remaining <= avail {
+      buf.write_string(text[pos:total].to_owned())
+      pos = total
+    } else {
+      // Find a space to break at, within avail
+      let mut break_at = -1
+      let check_end = if pos + avail < total { pos + avail } else { total }
+      for k = pos; k < check_end; k = k + 1 {
+        if text.unsafe_get(k) == ' '.to_int().to_uint16() {
+          break_at = k
+        }
+      }
+      if break_at == -1 {
+        // No space - hard break
+        break_at = pos + avail
+      }
+      buf.write_string(text[pos:break_at].to_owned())
+      buf.write_char('\n')
+      // Continuation indent
+      buf.write_string("            ")
+      cur_indent = 12
+      // Skip space if we broke at one
+      if break_at < total && text.unsafe_get(break_at) == ' '.to_int().to_uint16() {
+        pos = break_at + 1
+      } else {
+        pos = break_at
+      }
+    }
+  }
+  buf.to_string()
+}
+
+///|
+/// Build the ORIGIN sequence section string.
+/// Format: "      1 atgcatgcat gcatgcatgc atgcatgcat gcatgcatgc atgcatgcat gcatgcatgc"
+/// Position label: right-aligned in 9 chars
+/// Sequence: 6 groups of 10 bases per line
+fn build_genbank_sequence(seq : String) -> String {
+  let buf = StringBuilder::new()
+  let total = seq.length()
+  let mut i = 0
+  let mut line_start = 0
+  while i < total {
+    // Position label (1-indexed)
+    let pos_label = (line_start + 1).to_string()
+    let pad_pos = 9 - pos_label.length()
+    for _j = 0; pad_pos > 0 && _j < pad_pos; _j = _j + 1 {
+      buf.write_char(' ')
+    }
+    buf.write_string(pos_label)
+    buf.write_char(' ')
+
+    // Write 6 groups of 10 bases
+    let mut group = 0
+    while group < 6 && i < total {
+      let group_end = if i + 10 < total { i + 10 } else { total }
+      buf.write_string(seq[i:group_end].to_owned())
+      i = group_end
+      buf.write_char(' ')
+      group = group + 1
+    }
+    buf.write_char('\n')
+    line_start = i
+  }
+  buf.to_string()
+}

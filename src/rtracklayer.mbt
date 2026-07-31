@@ -264,8 +264,8 @@ pub fn parse_wig(content : String) -> Array[WigRecord] {
         }
         records.push(WigRecord::{
           wig_type,
-          positions: positions.clone(),
-          values: values.clone(),
+          positions: positions.copy(),
+          values: values.copy(),
         })
         positions = Array::new()
         values = Array::new()
@@ -288,8 +288,8 @@ pub fn parse_wig(content : String) -> Array[WigRecord] {
         }
         records.push(WigRecord::{
           wig_type,
-          positions: positions.clone(),
-          values: values.clone(),
+          positions: positions.copy(),
+          values: values.copy(),
         })
         positions = Array::new()
         values = Array::new()

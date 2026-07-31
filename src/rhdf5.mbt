@@ -21,7 +21,7 @@ pub struct HDF5Dataset {
   data_type : String
   dimensions : Array[Int]
   data : String
-  attributes : @hashmap.HashMap[String, HDF5Attribute]
+  attributes : Map[String, HDF5Attribute]
 }
 
 ///|
@@ -31,7 +31,7 @@ pub fn HDF5Dataset::new(name : String, data_type : String, dimensions : Array[In
     data_type,
     dimensions,
     data: "",
-    attributes: @hashmap.HashMap([])
+    attributes: Map([], capacity=0)
   }
 }
 
@@ -71,18 +71,18 @@ pub fn HDF5Dataset::get_attribute(self : HDF5Dataset, name : String) -> HDF5Attr
 ///|
 pub struct HDF5Group {
   name : String
-  groups : @hashmap.HashMap[String, HDF5Group]
-  datasets : @hashmap.HashMap[String, HDF5Dataset]
-  attributes : @hashmap.HashMap[String, HDF5Attribute]
+  groups : Map[String, HDF5Group]
+  datasets : Map[String, HDF5Dataset]
+  attributes : Map[String, HDF5Attribute]
 }
 
 ///|
 pub fn HDF5Group::new(name : String) -> HDF5Group {
   HDF5Group::{
     name,
-    groups: @hashmap.HashMap([]),
-    datasets: @hashmap.HashMap([]),
-    attributes: @hashmap.HashMap([])
+    groups: Map([], capacity=0),
+    datasets: Map([], capacity=0),
+    attributes: Map([], capacity=0)
   }
 }
 

@@ -119,9 +119,9 @@ pub fn locate_variants(
                 let va = VariantAnnotation::new(
                   rec.chrom,
                   rec.pos,
-                  rec.ref,
+                  rec.ref_seq,
                   alt,
-                  detect_variant_type(rec.ref, alt),
+                  detect_variant_type(rec.ref_seq, alt),
                   gene.gene_id,
                   gene.gene_id,
                   tx.transcript_id,
@@ -150,9 +150,9 @@ pub fn locate_variants(
         let va = VariantAnnotation::new(
           rec.chrom,
           rec.pos,
-          rec.ref,
+          rec.ref_seq,
           alt,
-          detect_variant_type(rec.ref, alt),
+          detect_variant_type(rec.ref_seq, alt),
           cds.gene_id,
           cds.gene_id,
           cds.transcript_id,
@@ -332,7 +332,7 @@ pub fn translate_codon(codon : String) -> String {
 pub fn predict_coding(
   vcf_records : Array[VcfRecord],
   txdb : TxDb,
-  reference : @hashmap.HashMap[String, String],
+  reference : Map[String, String],
 ) -> Array[CodingPrediction] {
   let result : Array[CodingPrediction] = Array::new()
 
@@ -406,7 +406,7 @@ pub fn predict_coding(
         let cp = CodingPrediction::new(
           rec.chrom,
           rec.pos,
-          rec.ref,
+          rec.ref_seq,
           alt,
           cds.gene_id,
           cds.transcript_id,
@@ -477,7 +477,7 @@ pub fn variant_summary(
   while i < vcf_records.length() {
     let rec = vcf_records[i]
     let alt = if rec.alt.length() > 0 { rec.alt[0] } else { "" }
-    let vt = detect_variant_type(rec.ref, alt)
+    let vt = detect_variant_type(rec.ref_seq, alt)
 
     if vt is VariantType::SNP {
       summary.snp_count = summary.snp_count + 1

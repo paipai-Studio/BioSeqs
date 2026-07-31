@@ -85,15 +85,15 @@ pub fn Taxon::set_lineage(self : Taxon, lineage : Array[String]) -> Taxon {
 
 ///|
 pub struct TaxonomyDatabase {
-  taxa : @hashmap.HashMap[String, Taxon]
-  name_to_taxid : @hashmap.HashMap[String, String]
+  taxa : Map[String, Taxon]
+  name_to_taxid : Map[String, String]
 }
 
 ///|
 pub fn TaxonomyDatabase::new() -> TaxonomyDatabase {
   TaxonomyDatabase::{
-    taxa: @hashmap.HashMap([]),
-    name_to_taxid: @hashmap.HashMap([])
+    taxa: Map([], capacity=0),
+    name_to_taxid: Map([], capacity=0)
   }
 }
 

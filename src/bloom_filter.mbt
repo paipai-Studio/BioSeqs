@@ -206,7 +206,7 @@ pub fn BloomFilter::contains(self : BloomFilter, key : String) -> Bool {
   let h2 = poly_hash(key)
   let positions = bloom_positions(h1, h2, self.num_hashes, self.num_bits)
   for i = 0; i < positions.length(); i = i + 1 {
-    if not(self.bit_array.get(positions[i])) {
+    if !self.bit_array.get(positions[i]) {
       return false
     }
   }
@@ -353,7 +353,7 @@ pub fn KmerCounter::total(self : KmerCounter) -> Int {
 ///|
 /// Get the number of unique k-mers.
 pub fn KmerCounter::unique(self : KmerCounter) -> Int {
-  self.counts.size()
+  self.counts.length()
 }
 
 ///|

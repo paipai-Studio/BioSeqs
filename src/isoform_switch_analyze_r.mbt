@@ -26,7 +26,7 @@ pub struct SwitchAnalyzeRlist {
   isoform_switches : Array[IsoformSwitch]
   samples : Array[String]
   conditions : Array[String]
-  gene_annotation : @hashmap.HashMap[String, String]
+  gene_annotation : Map[String, String]
 }
 
 pub fn IsoformExpression::new(isoform_id : String, gene_id : String, counts : Array[Double], 
@@ -47,7 +47,7 @@ pub fn SwitchAnalyzeRlist::new(samples : Array[String], conditions : Array[Strin
     isoform_switches: Array::new(), 
     samples: samples, 
     conditions: conditions,
-    gene_annotation: @hashmap.HashMap([])
+    gene_annotation: Map([], capacity=0)
   }
 }
 
@@ -165,7 +165,7 @@ pub fn bio_isoform_calculate_dif(isoform1 : IsoformExpression, isoform2 : Isofor
 
 pub fn bio_isoform_find_switches(data : SwitchAnalyzeRlist, dpsi_threshold : Double, 
                                   pvalue_threshold : Double) -> Array[IsoformSwitch] {
-  let gene_to_isoforms : @hashmap.HashMap[String, Array[IsoformExpression]] = @hashmap.HashMap([])
+  let gene_to_isoforms : Map[String, Array[IsoformExpression]] = Map([], capacity=0)
   let gene_map = gene_to_isoforms
   
   let expr_len = data.isoform_expression.length()
@@ -501,7 +501,7 @@ pub fn bio_isoform_switch_summary(switches : Array[IsoformSwitch]) -> String {
 }
 
 pub fn bio_isoform_plot_psi(data : SwitchAnalyzeRlist, gene_id : String) -> String {
-  let gene_to_isoforms : @hashmap.HashMap[String, Array[IsoformExpression]] = @hashmap.HashMap([])
+  let gene_to_isoforms : Map[String, Array[IsoformExpression]] = Map([], capacity=0)
   let gene_map = gene_to_isoforms
   
   let expr_len = data.isoform_expression.length()

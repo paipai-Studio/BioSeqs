@@ -40,7 +40,7 @@ pub fn DeBruijnGraph::k(self : DeBruijnGraph) -> Int {
 
 ///|
 pub fn DeBruijnGraph::node_count(self : DeBruijnGraph) -> Int {
-  self.node_info.size()
+  self.node_info.length()
 }
 
 ///|
@@ -84,7 +84,7 @@ pub fn DeBruijnGraph::add_kmer(self : DeBruijnGraph, kmer : String) -> Unit {
           break
         }
       }
-      if not(exists) {
+      if !exists {
         let new_list = list
         new_list.push(suffix)
         self.edges[prefix] = new_list
@@ -218,7 +218,7 @@ pub fn DeBruijnGraph::hierholzer(
   let edge_keys = self.edges.keys().collect()
   for i = 0; i < edge_keys.length(); i = i + 1 {
     match self.edges.get(edge_keys[i]) {
-      Some(list) => available[edge_keys[i]] = list.clone()
+      Some(list) => available[edge_keys[i]] = list.copy()
       None => ()
     }
   }

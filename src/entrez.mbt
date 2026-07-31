@@ -108,7 +108,7 @@ pub fn SearchResult::new(
 pub struct PubmedArticle {
   pmid : String
   title : String
-  abstract : String
+  abstract_text : String
   authors : Array[String]
   journal : String
   publication_date : String
@@ -120,7 +120,7 @@ pub struct PubmedArticle {
 pub fn PubmedArticle::new(
   pmid~ : String,
   title~ : String,
-  abstract~ : String,
+  abstract_text~ : String,
   authors~ : Array[String],
   journal~ : String,
   publication_date~ : String,
@@ -129,7 +129,7 @@ pub fn PubmedArticle::new(
   PubmedArticle::{
     pmid,
     title,
-    abstract,
+    abstract_text,
     authors,
     journal,
     publication_date,
@@ -433,7 +433,7 @@ pub fn parse_pubmed(xml : String) -> PubmedArticle? {
         PubmedArticle::new(
           pmid=p,
           title=t,
-          abstract=abstract_text.unwrap_or(""),
+          abstract_text=abstract_text.unwrap_or(""),
           authors~,
           journal=journal.unwrap_or(""),
           publication_date=pub_date.unwrap_or(""),

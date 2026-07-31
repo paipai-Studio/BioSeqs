@@ -330,3 +330,115 @@ test "seq_translate_rna_stop_codons" {
   let uga = @src.Seq::new("UGA")
   assert_eq(uga.translate().to_string(), "*")
 }
+
+// MutableSeq tests
+
+test "mutableseq_construction" {
+  let ms = @src.MutableSeq::new("ACGT")
+  assert_eq(ms.length(), 4)
+  assert_eq(ms.to_string(), "ACGT")
+  let s = @src.Seq::new("ATCG")
+  let ms2 = @src.MutableSeq::from_seq(s)
+  assert_eq(ms2.to_string(), "ATCG")
+}
+
+test "mutableseq_get_set" {
+  let ms = @src.MutableSeq::new("ACGT")
+  assert_eq(ms.get(0), 'A')
+  assert_eq(ms.get(3), 'T')
+  ms.set(1, 'X')
+  assert_eq(ms.to_string(), "AXGT")
+}
+
+test "mutableseq_push_append" {
+  let ms = @src.MutableSeq::new("AC")
+  ms.push('G')
+  assert_eq(ms.to_string(), "ACG")
+  let ms2 = @src.MutableSeq::new("T")
+  ms.append(ms2)
+  assert_eq(ms.to_string(), "ACGT")
+}
+
+test "mutableseq_insert" {
+  let ms = @src.MutableSeq::new("ACGT")
+  ms.insert(2, 'X')
+  assert_eq(ms.to_string(), "ACXGT")
+}
+
+test "mutableseq_delete" {
+  let ms = @src.MutableSeq::new("ACGT")
+  ms.delete(1)
+  assert_eq(ms.to_string(), "AGT")
+}
+
+test "mutableseq_delete_range" {
+  let ms = @src.MutableSeq::new("ACGTACGT")
+  ms.delete_range(2, 6)
+  assert_eq(ms.to_string(), "ACGT")
+}
+
+test "mutableseq_pop" {
+  let ms = @src.MutableSeq::new("ACGT")
+  let popped = ms.pop()
+  assert_eq(popped, Some('T'))
+  assert_eq(ms.to_string(), "ACG")
+  let empty = @src.MutableSeq::new("")
+  assert_eq(empty.pop(), None)
+}
+
+test "mutableseq_copy" {
+  let ms = @src.MutableSeq::new("ACGT")
+  let copy = ms.copy()
+  copy.set(0, 'X')
+  assert_eq(ms.to_string(), "ACGT")
+  assert_eq(copy.to_string(), "XCGT")
+}
+
+test "mutableseq_complement" {
+  let ms = @src.MutableSeq::new("ACGT")
+  let comp = ms.complement()
+  assert_eq(comp.to_string(), "TGCA")
+}
+
+test "mutableseq_reverse_complement" {
+  let ms = @src.MutableSeq::new("ACGT")
+  let rc = ms.reverse_complement()
+  assert_eq(rc.to_string(), "ACGT")
+}
+
+test "mutableseq_transcribe" {
+  let ms = @src.MutableSeq::new("ACGT")
+  let rna = ms.transcribe()
+  assert_eq(rna.to_string(), "ACGU")
+}
+
+test "mutableseq_back_transcribe" {
+  let ms = @src.MutableSeq::new("ACGU")
+  let dna = ms.back_transcribe()
+  assert_eq(dna.to_string(), "ACGT")
+}
+
+test "mutableseq_translate" {
+  let ms = @src.MutableSeq::new("ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG")
+  let protein = ms.translate()
+  assert_eq(protein.to_string(), "MAIVMGR*KGAR*")
+}
+
+test "mutableseq_to_seq" {
+  let ms = @src.MutableSeq::new("ACGT")
+  let s = ms.to_seq()
+  assert_eq(s.to_string(), "ACGT")
+}
+
+test "mutableseq_upper_lower" {
+  let ms = @src.MutableSeq::new("acgt")
+  assert_eq(ms.upper().to_string(), "ACGT")
+  let ms2 = @src.MutableSeq::new("ACGT")
+  assert_eq(ms2.lower().to_string(), "acgt")
+}
+
+test "mutableseq_count" {
+  let ms = @src.MutableSeq::new("ATATGAAATTTGAAAA")
+  assert_eq(ms.count("AAA"), 2)
+  assert_eq(ms.count_overlap("AAA"), 3)
+}

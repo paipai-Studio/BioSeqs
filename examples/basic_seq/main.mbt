@@ -82,4 +82,36 @@ fn main {
   println("\nCRC32:  \{crc}")
   println("GCG:    \{gcg_val}")
   println("SEGUID: \{seg}")
+
+  // === MutableSeq: in-place editing ===
+  println("\n=== MutableSeq (in-place editing) ===")
+  let mut_seq = @bio.MutableSeq::new("ACGTACGT")
+  println("Original:  \{mut_seq.to_string()}")
+
+  mut_seq.set(0, 'X')
+  println("set(0,'X'): \{mut_seq.to_string()}")
+
+  mut_seq.insert(3, 'Y')
+  println("insert(3,'Y'): \{mut_seq.to_string()}")
+
+  mut_seq.delete(5)
+  println("delete(5):   \{mut_seq.to_string()}")
+
+  mut_seq.push('Z')
+  println("push('Z'):   \{mut_seq.to_string()}")
+
+  let popped = mut_seq.pop()
+  let popped_str = match popped {
+    Some(c) => c.to_string()
+    None => "None"
+  }
+  println("pop():       \{popped_str} -> \{mut_seq.to_string()}")
+
+  let comp = mut_seq.complement()
+  println("Complement:  \{comp.to_string()}")
+  let rc = mut_seq.reverse_complement()
+  println("RevComp:     \{rc.to_string()}")
+
+  let rna_mut = mut_seq.transcribe()
+  println("Transcribe:  \{rna_mut.to_string()}")
 }

@@ -25,7 +25,7 @@ test "vcf_parse_record" {
   let r1 = records[0]
   assert_eq(r1.chrom, "chr1")
   assert_eq(r1.pos, 100)
-  assert_eq(r1.ref, "A")
+  assert_eq(r1.ref_seq, "A")
   assert_eq(r1.alt.length(), 1)
   assert_eq(r1.alt[0], "T")
   assert_eq(r1.qual, Some(60.5))
@@ -33,7 +33,7 @@ test "vcf_parse_record" {
   let r3 = records[2]
   assert_eq(r3.chrom, "chr2")
   assert_eq(r3.pos, 500)
-  assert_eq(r3.ref, "AT")
+  assert_eq(r3.ref_seq, "AT")
   assert_eq(r3.alt[0], "A")
 
   let r4 = records[3]

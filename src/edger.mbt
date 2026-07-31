@@ -146,18 +146,18 @@ pub fn exact_test(
     }
 
     log_cpm[i] = if sum1 + sum2 > 0.0 {
-      log_nat(
+      @math.ln(
         (sum1 + sum2) /
         (group1_indices.length() + group2_indices.length()).to_double(),
       ) /
-      log_nat(10.0) *
+      @math.ln(10.0) *
       2.0
     } else {
       0.0
     }
 
     log_fc[i] = if mean1 > 0.0 && mean2 > 0.0 {
-      log_nat(mean1 / mean2) / log_nat(2.0)
+      @math.ln(mean1 / mean2) / @math.ln(2.0)
     } else if mean1 > 0.0 {
       5.0
     } else if mean2 > 0.0 {

@@ -77,7 +77,7 @@ test "variant_annotation_predict_coding" {
   let vcf = @src.parse_vcf(vcf_content)
   let rec = vcf.records[0]
 
-  let predictions = @src.predict_coding([rec], txdb, @hashmap.HashMap([]))
+  let predictions = @src.predict_coding([rec], txdb, Map([], capacity=0))
   assert_eq(predictions.length(), 0)
 }
 

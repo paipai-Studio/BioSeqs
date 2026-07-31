@@ -54,7 +54,7 @@ pub fn enrich_reactome(
         gene_count: overlap,
         genes: reactome_find_overlap(gene_list, pathway_genes),
         p_value,
-        adjusted_p_value: p_value * reactome_database.size().to_double(),
+        adjusted_p_value: p_value * reactome_database.length().to_double(),
         enrichment_score,
         top_level_term: top_level,
       })

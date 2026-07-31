@@ -1,12 +1,17 @@
 // SeqIO: unified sequence file I/O, mirroring BioPython's Bio.SeqIO.
 //
 // Provides:
-//   - seqio_parse(content, format)   -> Array[SeqRecord]
-//   - seqio_read(content, format)   -> SeqRecord  (exactly one record)
-//   - seqio_write(records, format)   -> String
-//   - seqio_to_dict(records)          -> Map[String, SeqRecord]
+//   - seqio_parse(content, format)     -> Array[SeqRecord]
+//   - seqio_read(content, format)     -> SeqRecord  (exactly one record)
+//   - seqio_write(records, format)     -> String
+//   - seqio_convert(content, in_fmt, out_fmt) -> String
+//   - seqio_to_dict(records)            -> Map[String, SeqRecord]
 //
-// Supported formats: "fasta", "fastq" (Sanger/Phred+33).
+// Supported formats (parse):
+//   "fasta", "fastq"/"fastq-sanger", "genbank"/"gb",
+//   "embl", "pir"/"nbrf", "tab"
+// Supported formats (write):
+//   "fasta", "fastq"/"fastq-sanger", "genbank"/"gb", "tab"
 
 ///|
 /// Parse sequence file content in the given format and return all records.
@@ -20,6 +25,9 @@ pub fn seqio_parse(
     "fasta" => parse_fasta(content)
     "fastq" | "fastq-sanger" => parse_fastq(content)
     "genbank" | "gb" => parse_genbank(content)
+    "embl" => parse_embl(content)
+    "pir" | "nbrf" => parse_pir(content)
+    "tab" => parse_tab(content)
     _ => raise SeqIOError("Unknown format: " + format)
   }
 }
@@ -55,8 +63,25 @@ pub fn seqio_write(
   match format {
     "fasta" => write_fasta(records)
     "fastq" | "fastq-sanger" => write_fastq(records)
+    "genbank" | "gb" => write_genbank(records)
+    "tab" => write_tab(records)
     _ => raise SeqIOError("Unknown format: " + format)
   }
+}
+
+///|
+/// Convert sequence file content from one format to another.
+///
+/// Mirrors BioPython's `Bio.SeqIO.convert(in_handle, in_format, out_handle, out_format)`.
+/// Returns the converted text.
+/// Raises SeqIOError if either format is unsupported or parsing fails.
+pub fn seqio_convert(
+  content : String,
+  in_format : String,
+  out_format : String,
+) -> String raise SeqIOError {
+  let records = seqio_parse(content, in_format)
+  seqio_write(records, out_format)
 }
 
 ///|

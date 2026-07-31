@@ -958,6 +958,251 @@ pub fn tm_sliding(
   results
 }
 
+///|
+/// Compute per-position letter frequency matrix.
+/// Returns a map of nucleotide letters to arrays of per-position counts.
+/// Similar to Bioconductor's letterFrequency function.
+pub fn letter_frequency_matrix(seq : String) -> Map[String, Array[Int]] {
+  let n = seq.length()
+  let matrix : Map[String, Array[Int]] = Map([], capacity=8)
+
+  // Initialize for DNA alphabet
+  let bases = ["A", "C", "G", "T", "U", "N", "R", "Y", "S", "W", "K", "M", "B", "D", "H", "V"]
+  for base in bases {
+    matrix.set(base, Array::make(n, 0))
+  }
+
+  let mut i = 0
+  while i < n {
+    let ch = seq[i]
+    let letter = match ch {
+      65 => "A"
+      67 => "C"
+      71 => "G"
+      84 => "T"
+      85 => "U"
+      78 => "N"
+      82 => "R"
+      89 => "Y"
+      83 => "S"
+      87 => "W"
+      75 => "K"
+      77 => "M"
+      66 => "B"
+      68 => "D"
+      72 => "H"
+      86 => "V"
+      _ => "N"
+    }
+    let counts = matrix.get_or_default(letter, Array::make(n, 0))
+    counts[i] = counts[i] + 1
+    matrix.set(letter, counts)
+    i = i + 1
+  }
+
+  matrix
+}
+
+///|
+/// Compute consensus sequence from a multiple sequence alignment.
+/// Returns the most frequent nucleotide at each position.
+pub fn biostrings_consensus_sequence(alignment : Array[String]) -> String {
+  if alignment.length() == 0 { return "" }
+  let n_seqs = alignment.length()
+  let seq_len = alignment[0].length()
+
+  let result : FixedArray[UInt16] = FixedArray::make(seq_len, 0)
+  let mut pos = 0
+  while pos < seq_len {
+    let counts : Map[UInt16, Int] = Map([], capacity=20)
+    let mut s = 0
+    while s < n_seqs {
+      let letter = alignment[s][pos]
+      let current = counts.get_or_default(letter, 0)
+      counts.set(letter, current + 1)
+      s = s + 1
+    }
+
+    let mut max_count = 0
+    let mut best_letter : UInt16 = 65
+    for letter in counts.keys() {
+      let count = counts.get_or_default(letter, 0)
+      if count > max_count {
+        max_count = count
+        best_letter = letter
+      }
+    }
+    result[pos] = best_letter
+    pos = pos + 1
+  }
+
+  unsafe_from_uint16_fixedarray(result)
+}
+
+///|
+/// Translate DNA/RNA sequence to protein (amino acid sequence).
+/// Uses standard genetic code.
+pub fn biostrings_translate(seq : String, frame? : Int = 0) -> String {
+  let n = seq.length()
+  let offset = if frame >= 0 && frame < 3 { frame } else { 0 }
+  let aa_count = (n - offset) / 3
+  let result : FixedArray[UInt16] = FixedArray::make(aa_count, 0)
+
+  let codon_table : Map[String, UInt16] = Map([
+    ("TTT", 70), ("TTC", 70), ("TTA", 76), ("TTG", 76),
+    ("CTT", 76), ("CTC", 76), ("CTA", 76), ("CTG", 76),
+    ("ATT", 73), ("ATC", 73), ("ATA", 73), ("ATG", 77),
+    ("GTT", 86), ("GTC", 86), ("GTA", 86), ("GTG", 86),
+    ("TCT", 83), ("TCC", 83), ("TCA", 83), ("TCG", 83),
+    ("CCT", 80), ("CCC", 80), ("CCA", 80), ("CCG", 80),
+    ("ACT", 65), ("ACC", 65), ("ACA", 65), ("ACG", 65),
+    ("GCT", 65), ("GCC", 65), ("GCA", 65), ("GCG", 65),
+    ("TAT", 89), ("TAC", 89), ("TAA", 42), ("TAG", 42),
+    ("CAT", 72), ("CAC", 72), ("CAA", 81), ("CAG", 81),
+    ("AAT", 78), ("AAC", 78), ("AAA", 75), ("AAG", 75),
+    ("GAT", 68), ("GAC", 68), ("GAA", 69), ("GAG", 69),
+    ("TGT", 67), ("TGC", 67), ("TGA", 42), ("TGG", 87),
+    ("CGT", 82), ("CGC", 82), ("CGA", 82), ("CGG", 82),
+    ("AGT", 83), ("AGC", 83), ("AGA", 82), ("AGG", 82),
+    ("GGT", 71), ("GGC", 71), ("GGA", 71), ("GGG", 71),
+  ], capacity=64)
+
+  let mut i = offset
+  let mut out_idx = 0
+  while i + 3 <= n {
+    let c0 = seq[i]
+    let c1 = seq[i + 1]
+    let c2 = seq[i + 2]
+    let u0 = if c0 >= 97 && c0 <= 122 { c0 - 32 } else { c0 }
+    let u1 = if c1 >= 97 && c1 <= 122 { c1 - 32 } else { c1 }
+    let u2 = if c2 >= 97 && c2 <= 122 { c2 - 32 } else { c2 }
+    let codon_str = unsafe_from_uint16_fixedarray([u0, u1, u2])
+    let aa = codon_table.get_or_default(codon_str, 42)
+    result[out_idx] = aa
+    i = i + 3
+    out_idx = out_idx + 1
+  }
+
+  unsafe_from_uint16_fixedarray(result)
+}
+
+///|
+/// Reverse complement of a DNA/RNA sequence.
+/// Standard complement: A-T, C-G (with IUPAC support).
+pub fn biostrings_reverse_complement(seq : String) -> String {
+  let n = seq.length()
+  let result : FixedArray[UInt16] = FixedArray::make(n, 0)
+
+  let mut i = 0
+  while i < n {
+    let ch = seq[i]
+    let complement : UInt16 = match ch {
+      65 => 84
+      84 => 65
+      85 => 65
+      67 => 71
+      71 => 67
+      78 => 78
+      82 => 89
+      89 => 82
+      83 => 83
+      87 => 87
+      75 => 77
+      77 => 75
+      66 => 68
+      68 => 66
+      72 => 76
+      86 => 72
+      _ => ch
+    }
+    result[n - 1 - i] = complement
+    i = i + 1
+  }
+
+  unsafe_from_uint16_fixedarray(result)
+}
+
+///|
+/// Calculate the expected number of matches for a pattern in a sequence.
+/// Based on letter frequencies and pattern length.
+pub fn expected_matches(
+  pattern : String,
+  seq_length : Int,
+  gc_content : Double,
+) -> Double {
+  let n = pattern.length()
+  if n == 0 || seq_length <= n {
+    return 0.0
+  }
+
+  // Compute probability of the pattern based on GC content
+  let at_freq = (1.0 - gc_content) / 2.0
+  let gc_freq = gc_content / 2.0
+
+  let mut prob = 1.0
+  let mut i = 0
+  while i < n {
+    let ch = pattern[i]
+    let p = match ch {
+      65 => at_freq
+      84 => at_freq
+      85 => at_freq
+      67 => gc_freq
+      71 => gc_freq
+      82 => at_freq + gc_freq
+      89 => at_freq + gc_freq
+      78 => 1.0
+      _ => 0.25
+    }
+    prob = prob * p
+    i = i + 1
+  }
+
+  // Expected number: (seq_length - pattern_length + 1) * probability
+  let n_positions = (seq_length - n + 1).to_double()
+  if prob.is_nan() || prob < 0.0 { 0.0 } else { n_positions * prob }
+}
+
+///|
+/// Calculate sequence complexity (Shannon entropy of oligonucleotide frequencies).
+pub fn sequence_complexity(seq : String, word_size : Int) -> Double {
+  let n = seq.length()
+  if n < word_size || word_size < 1 {
+    return 0.0
+  }
+
+  let counts : Map[String, Int] = Map([], capacity=n)
+  let total_positions = n - word_size + 1
+
+  let mut i = 0
+  while i < total_positions {
+    let sub = seq.substring(start=i, end=i + word_size)
+    let buf : FixedArray[UInt16] = FixedArray::make(word_size, 0)
+    let mut j = 0
+    while j < word_size {
+      let c = sub.unsafe_get(j)
+      buf[j] = if c >= 97 && c <= 122 { c - 32 } else { c }
+      j = j + 1
+    }
+    let word = unsafe_from_uint16_fixedarray(buf)
+    let current = counts.get_or_default(word, 0)
+    counts.set(word, current + 1)
+    i = i + 1
+  }
+
+  // Shannon entropy
+  let mut entropy = 0.0
+  for word in counts.keys() {
+    let count = counts.get_or_default(word, 0)
+    let p = count.to_double() / total_positions.to_double()
+    if p > 0.0 {
+      entropy = entropy - p * @math.ln(p) / @math.ln(2.0)
+    }
+  }
+
+  entropy
+}
+
 ///| Test match_pattern with exact matching
 test "match_pattern_exact" {
   let result = match_pattern(pattern="ATG", subject="ATGATGATG")
@@ -1012,6 +1257,105 @@ test "find_direct_repeats" {
 ///| Test find_inverted_repeats
 test "find_inverted_repeats" {
   let result = find_inverted_repeats(seq="ATGCAT", min_length=3)
-  // ATG and CAT are reverse complements
   assert_true(result.length() >= 0)
+}
+
+///| Test biostrings_translate with standard genetic code
+test "biostrings_translate_basic" {
+  // ATG = M, GCT = A, TAA = *
+  let protein = biostrings_translate("ATGGCTTAA")
+  assert_eq(protein, "MA*")
+}
+
+///| Test biostrings_translate with different reading frame
+test "biostrings_translate_frame1" {
+  // Frame 1: TGG = W, CTT = L
+  let protein = biostrings_translate("ATGGCTTAA", frame=1)
+  assert_eq(protein, "WL")
+}
+
+///| Test biostrings_translate with lowercase input
+test "biostrings_translate_lowercase" {
+  let protein = biostrings_translate("atggcttaa")
+  assert_eq(protein, "MA*")
+}
+
+///| Test biostrings_translate empty sequence
+test "biostrings_translate_empty" {
+  let protein = biostrings_translate("")
+  assert_eq(protein, "")
+}
+
+///| Test biostrings_reverse_complement basic
+test "biostrings_reverse_complement_basic" {
+  let rc = biostrings_reverse_complement("ATGC")
+  assert_eq(rc, "GCAT")
+}
+
+///| Test biostrings_reverse_complement with IUPAC
+test "biostrings_reverse_complement_iupac" {
+  let rc = biostrings_reverse_complement("AR")
+  assert_eq(rc, "YT")
+}
+
+///| Test biostrings_reverse_complement with empty string
+test "biostrings_reverse_complement_empty" {
+  let rc = biostrings_reverse_complement("")
+  assert_eq(rc, "")
+}
+
+///| Test biostrings_reverse_complement palindrome
+test "biostrings_reverse_complement_palindrome" {
+  // ACGT's reverse complement is also ACGT
+  let rc = biostrings_reverse_complement("ACGT")
+  assert_eq(rc, "ACGT")
+}
+
+///| Test letter_frequency_matrix basic
+test "letter_frequency_matrix_basic" {
+  let matrix = letter_frequency_matrix("ACGT")
+  let a_counts = matrix.get_or_default("A", Array::make(4, 0))
+  assert_eq(a_counts[0], 1)
+  let c_counts = matrix.get_or_default("C", Array::make(4, 0))
+  assert_eq(c_counts[1], 1)
+  let g_counts = matrix.get_or_default("G", Array::make(4, 0))
+  assert_eq(g_counts[2], 1)
+  let t_counts = matrix.get_or_default("T", Array::make(4, 0))
+  assert_eq(t_counts[3], 1)
+}
+
+///| Test biostrings_consensus_sequence
+test "biostrings_consensus_sequence_basic" {
+  let alignment = ["ACGT", "ACGT", "TCGA"]
+  let consensus = biostrings_consensus_sequence(alignment)
+  // Position 0: A=2, T=1 -> A
+  // Position 1: C=2, C=1 -> C
+  // Position 2: G=2, G=1 -> G
+  // Position 3: T=2, A=1 -> T
+  assert_eq(consensus, "ACGT")
+}
+
+///| Test biostrings_consensus_sequence empty
+test "biostrings_consensus_sequence_empty" {
+  let alignment : Array[String] = []
+  let consensus = biostrings_consensus_sequence(alignment)
+  assert_eq(consensus, "")
+}
+
+///| Test expected_matches
+test "expected_matches_basic" {
+  let n = expected_matches("ACGT", 12, 0.5)
+  assert_true(n > 0.0)
+}
+
+///| Test sequence_complexity
+test "sequence_complexity_basic" {
+  let entropy = sequence_complexity("ACGTACGTACGT", 2)
+  assert_true(entropy > 0.0)
+}
+
+///| Test sequence_complexity with degenerate sequence
+test "sequence_complexity_degenerate" {
+  let entropy = sequence_complexity("AAAA", 2)
+  assert_true(entropy >= 0.0)
 }

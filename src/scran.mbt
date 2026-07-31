@@ -203,7 +203,7 @@ pub fn compute_sum_factors(
       i = i + 1
     }
 
-    all_sfs.push(size_factors.clone())
+    all_sfs.push(size_factors.copy())
     iteration = iteration + 1
   }
 

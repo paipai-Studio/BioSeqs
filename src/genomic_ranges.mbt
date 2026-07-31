@@ -89,11 +89,11 @@ pub fn granges_shift(gr : GRanges, shift : Int) -> GRanges {
   }
 
   GRanges::{
-    seqnames: gr.seqnames.clone(),
+    seqnames: gr.seqnames.copy(),
     starts: new_starts,
     ends: new_ends,
-    strands: gr.strands.clone(),
-    widths: gr.widths.clone(),
+    strands: gr.strands.copy(),
+    widths: gr.widths.copy(),
   }
 }
 
@@ -119,10 +119,10 @@ pub fn granges_narrow(gr : GRanges, start : Int, end : Int) -> GRanges {
   }
 
   GRanges::{
-    seqnames: gr.seqnames.clone(),
+    seqnames: gr.seqnames.copy(),
     starts: new_starts,
     ends: new_ends,
-    strands: gr.strands.clone(),
+    strands: gr.strands.copy(),
     widths: new_widths,
   }
 }
@@ -168,10 +168,10 @@ pub fn granges_resize(gr : GRanges, width : Int, fix : String) -> GRanges {
   }
 
   GRanges::{
-    seqnames: gr.seqnames.clone(),
+    seqnames: gr.seqnames.copy(),
     starts: new_starts,
     ends: new_ends,
-    strands: gr.strands.clone(),
+    strands: gr.strands.copy(),
     widths: new_widths,
   }
 }
@@ -210,10 +210,10 @@ pub fn granges_flank(
   }
 
   GRanges::{
-    seqnames: gr.seqnames.clone(),
+    seqnames: gr.seqnames.copy(),
     starts: new_starts,
     ends: new_ends,
-    strands: gr.strands.clone(),
+    strands: gr.strands.copy(),
     widths: new_widths,
   }
 }
@@ -221,7 +221,7 @@ pub fn granges_flank(
 ///|
 fn sort_ranges_by_start(ranges : Array[(Int, Int)]) -> Array[(Int, Int)] {
   let n = ranges.length()
-  let sorted = ranges.clone()
+  let sorted = ranges.copy()
 
   let mut i = 0
   while i < n - 1 {
@@ -243,7 +243,7 @@ fn sort_ranges_by_start(ranges : Array[(Int, Int)]) -> Array[(Int, Int)] {
 ///|
 fn sort_ints(arr : Array[Int]) -> Array[Int] {
   let n = arr.length()
-  let sorted = arr.clone()
+  let sorted = arr.copy()
 
   let mut i = 0
   while i < n - 1 {

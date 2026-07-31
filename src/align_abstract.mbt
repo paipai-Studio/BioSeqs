@@ -356,7 +356,7 @@ pub fn abstract_column_stats(alignment : AbstractAlignment, col_idx : Int) -> Al
     conservation,
     diversity: entropy,
     gap_fraction,
-    n_unique_chars: counts.size(),
+    n_unique_chars: counts.length(),
     consensus_char: consensus
   }
 }
@@ -570,7 +570,7 @@ fn is_singleton_site(alignment : AbstractAlignment, col : Int) -> Bool {
     }
   }
 
-  if counts.size() <= 1 {
+  if counts.length() <= 1 {
     return false
   }
 
