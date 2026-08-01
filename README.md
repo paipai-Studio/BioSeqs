@@ -104,6 +104,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.KEGG.KGML | KEGG通路图XML格式解析: pathway/entry/relation/reaction元素、graphics图形描述、组件关系、亚型(activation/inhibition)、反应底物/产物、KGML序列化往返 |
 | ✅ | Bio.SCOP | 蛋白质结构分类数据库解析: cla/des/hie三文件格式、SCOP层级树(root→class→fold→superfamily→family→protein→species→domain)、PDB残基片段解析、sunid/sid双向索引、SCCS比较 |
 | ✅ | Bio.CAPS | 酶切扩增多态性序列标记分析: 差异酶切位点检测、多序列比对中的内切酶切/阻遏分类、多酶并行扫描、双向序列比较与三方比较 |
+| ✅ | Bioconductor bumphunter | 甲基化/信号区域(bump)检测: t统计量、滑动均值平滑、候选bump识别、置换检验p值、BH-FDR校正 |
+| ✅ | Bioconductor scmap | 单细胞细胞类型注释: scmap-cluster(质心Spearman相关)、scmap-cell(k近邻投票)、阈值过滤、参考图谱投影 |
+| ✅ | Bioconductor fishpond (Swish) | 非参数差异表达分析: Mann-Whitney-Wilcoxon秩和统计、置换检验、BH-FDR校正、log2FC方向判定 |
 
 ### 序列组装算法
 
@@ -567,6 +570,9 @@ IvanAXu/BioSeqs/
 │   ├── kgml.mbt                # Bio.KEGG.KGML KEGG通路图XML解析 (pathway/entry/relation/reaction、graphics、KGML序列化)
 │   ├── scop.mbt                # Bio.SCOP 蛋白质结构分类数据库解析 (cla/des/hie三文件、SCOP层级树、PDB残基片段)
 │   ├── caps.mbt                # Bio.CAPS 酶切扩增多态性序列标记分析 (差异酶切位点检测、多酶并行扫描)
+│   ├── bumphunter.mbt          # Bioconductor bumphunter 甲基化区域检测 (t统计量、滑动均值平滑、置换检验)
+│   ├── scmap.mbt               # Bioconductor scmap 单细胞细胞类型注释 (scmap-cluster质心相关、scmap-cell近邻投票)
+│   ├── fishpond.mbt            # Bioconductor fishpond Swish非参数差异表达 (Mann-Whitney-Wilcoxon、置换检验、BH-FDR)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -812,6 +818,9 @@ IvanAXu/BioSeqs/
 │   ├── kgml_demo/                # Bio.KEGG.KGML 示例 (通路解析、条目浏览、关系查询、KGML序列化往返)
 │   ├── scop_demo/                # Bio.SCOP 示例 (cla/des/hie文件解析、层级树构建、域查询)
 │   ├── caps_demo/                # Bio.CAPS 示例 (差异酶切位点检测、双向与三方序列比较)
+│   ├── bumphunter_demo/          # bumphunter 甲基化区域检测示例 (t统计量、平滑、bump识别、置换检验)
+│   ├── scmap_demo/               # scmap 单细胞细胞类型注释示例 (cluster质心相关、cell近邻投票、阈值过滤)
+│   ├── fishpond_demo/            # fishpond Swish非参数差异表达示例 (Mann-Whitney-Wilcoxon、置换检验、FDR)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1066,6 +1075,9 @@ IvanAXu/BioSeqs/
 │   │   ├── kgml_test.mbt
 │   │   ├── scop_test.mbt
 │   │   ├── caps_test.mbt
+│   │   ├── bumphunter_test.mbt
+│   │   ├── scmap_test.mbt
+│   │   ├── fishpond_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -1092,7 +1104,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5145 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5212 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1312,6 +1324,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5145 个测试全�
 | `kgml.mbt` | Biopython `Bio.KEGG.KGML` | KEGG通路图XML解析 (pathway/entry/relation/reaction、graphics、KGML序列化) |
 | `scop.mbt` | Biopython `Bio.SCOP` | 蛋白质结构分类数据库解析 (cla/des/hie三文件、SCOP层级树、PDB残基片段) |
 | `caps.mbt` | Biopython `Bio.CAPS` | 酶切扩增多态性序列标记分析 (差异酶切位点检测、多酶并行扫描) |
+| `bumphunter.mbt` | Bioconductor `bumphunter` | 甲基化/信号区域(bump)检测 (t统计量、滑动均值平滑、候选bump识别、置换检验) |
+| `scmap.mbt` | Bioconductor `scmap` | 单细胞细胞类型注释 (scmap-cluster质心相关、scmap-cell近邻投票、阈值过滤) |
+| `fishpond.mbt` | Bioconductor `fishpond` (Swish) | 非参数差异表达分析 (Mann-Whitney-Wilcoxon秩和统计、置换检验、BH-FDR) |
 
 #### Bioconductor 新增扩展模块
 
@@ -1344,6 +1359,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5145 个测试全�
 | `file.mbt` | `Bio.File` | 智能文件处理（压缩格式自动检测、gzip/bzip2透明读写、文件操作接口） |
 | `mol_wt.mbt` | `Bio.SeqUtils.MolWt` | 分子量计算（DNA/RNA/蛋白质分子量、消光系数、吸光度、等电点） |
 | `reduced.mbt` | `Bio.Align.Reduced` | 简化氨基酸字母表（RAD/Dayhoff/CHARM/SDM12字母表、序列比较、简化一致性） |
+| `bumphunter.mbt` | `bumphunter` | 甲基化/信号区域(bump)检测（t统计量、滑动均值平滑、候选bump识别、置换检验p值、BH-FDR校正） |
+| `scmap.mbt` | `scmap` | 单细胞细胞类型注释（scmap-cluster质心Spearman相关、scmap-cell k近邻投票、阈值过滤） |
+| `fishpond.mbt` | `fishpond` (Swish) | 非参数差异表达分析（Mann-Whitney-Wilcoxon秩和统计、置换检验、BH-FDR校正、log2FC方向判定） |
 
 ## 核心功能实现
 
@@ -2089,6 +2107,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5145 个测试全�
 
 实现 CAPS（Cleaved Amplified Polymorphic Sequences）标记分析，参考 Biopython `Bio.CAPS` 及 Konieczny A, Ausubel FM (1993) Anal Biochem 204:307-310。CAPS 通过检测比对序列中的差异限制性内切酶切位点来鉴定基因型多态性。核心数据结构：CapsDifferentialCutsite（start、enzyme_name、cuts_in、blocked_in：差异切位点，cuts_in 为被酶切的序列索引列表，blocked_in 为酶切被阻断的序列索引列表）、CapsMap（sequences、sequence_names、enzymes、dcuts：分析结果容器）。核心算法 caps_digest(sequences, enzymes) 对每个酶：1) caps_digest_with() 调用 find_cut_sites()（来自 restriction.mbt）找出每条序列的切位点；2) 合并所有序列的切位点去重并排序（插入排序）；3) 对每个切位点分类序列：若酶在该序列有切点则归入 cuts_in，否则归入 blocked_in；4) 仅当 cuts_in 与 blocked_in 均非空（即存在差异切割）时记录为 CapsDifferentialCutsite。这精准捕捉"某些序列被酶切、另一些被阻断"的多态性模式，是 SNP 导致酶切位点丢失/获得的直接证据。构造函数 caps_map(sequences, enzymes) 直接从序列和酶列表创建，caps_map_named(sequences, names, enzymes) 同时绑定序列名。查询接口：get_dcuts_by_enzyme(name)（按酶名过滤）、get_dcuts_at_position(pos)（按位置过滤）、dcut_count()、has_dcuts_for_enzyme(name)。报告 to_string() 输出简洁切位点表格，report() 输出含序列名与酶名的详细报告。示例数据 caps_sample_sequences() 返回两条含 EcoRI 位点 GAATTC 的序列（其中一条第二个 EcoRI 位点因 SNP 变为 GAATTG 而被阻断），caps_sample_enzymes() 返回 EcoRI 与 HindIII。所有公共标识符以 Caps/CapsMap/caps_ 前缀命名。适用于 SNP 基因分型、品种鉴定、遗传图谱构建、分子标记辅助选择。
 
+### 185. bumphunter 甲基化/信号区域检测 (Bioconductor bumphunter)
+
+实现 bumphunter 算法，参考 Bioconductor `bumphunter` 包及 Jaffe AE, Murakami P, Lee H et al. (2012) Int J Epidemiol 41(1):200-9、Aryee MJ et al. (2014) Bioinformatics 30(10):1363-9。bumphunter 识别基因组中平滑信号（如病例-对照甲基化差异）超过阈值的连续区域（"bumps"），再通过标签置换评估显著性。核心数据结构：BumpPosition（chrom、pos、values：基因组位点及多样本测量值）、BumpRegion（chrom、start、end_、value、area、index_start、index_end：候选 bump 区域，value 为 |smoothed| 峰值，area 为平滑值累加）、BumpResult（在 BumpRegion 基础上增加 p_value、fdr：显著 bump）。核心算法分四步：1) bump_compute_t_statistics_test(positions, group1_size) 对每个位点计算两组样本的 t 统计量（组1前 group1_size 个样本、组2其余样本），分母为 sqrt(v1/n1 + v2/n2 + 1e-10) 以避免零方差除零；2) bump_smooth_test(stats, k) 以半窗口 k 做滑动均值平滑，边界处自动收缩窗口；3) bump_find_candidates_test(positions, smoothed, cutoff) 扫描 |smoothed| > cutoff 的最大连续游程，游程内染色体必须一致，记录峰值（带符号）与面积；4) bump_hunt(positions, group1_size, cutoff, smooth_k, n_permutations) 主流程：计算观测 bump 后，对每次置换用 Fisher-Yates 洗牌每个位点的样本值（LCG 随机数 seed=42+p*1009），重算 t 统计量→平滑→候选 bump，统计 |perm_bump.value| >= |observed.value| 的次数得 p 值 (perm_count+1)/(n_perm+1)，FDR 按 expected_fp/observed 估计并截断到 [0,1]。辅助函数：bump_abs() 绝对值、BumpRegion::length() 区域长度。示例数据 bump_sample_data() 生成 chr1 上 30 个 CpG 位点（8 样本：4 病例+4 对照），位点 10-20 病例甲基化升高 0.3，每个样本加 (i+s)%3*0.01 噪声确保组内方差非零。所有公共标识符以 bump_ 前缀命名。适用于 DMR（差异甲基化区域）检测、ChIP-seq 富集区识别、表观遗传流行病学研究。
+
+### 186. scmap 单细胞细胞类型注释 (Bioconductor scmap)
+
+实现 scmap 单细胞注释方法，参考 Bioconductor `scmap` 包及 Kiselev VY, Yiu C, Hemberg M (2018) Nature Methods 15:359-362。scmap 将查询细胞投影到已注释的参考图谱，避免批次效应敏感的整合。核心数据结构：ScmapReference（gene_names、cell_names、cell_types、expression：基因×细胞参考表达矩阵）、ScmapQuery（gene_names、cell_names、expression：待分类查询矩阵）、ScmapAssignment（cell_name、assigned_type、best_correlation、second_best_correlation、method：分类结果，assigned_type 为 "unassigned" 时表示低于阈值）。两种注释方法：1) scmap_cluster(reference, query, threshold) 基于 scmap-centroids 计算每种细胞类型的质心（均值向量），对每个查询细胞用 stat_spearman_correlation 与各质心算 Spearman 相关，分配最高相关类型（若 >= threshold，否则 "unassigned"），同时记录次高相关用于置信度评估；2) scmap_cell(reference, query, k_neighbours, threshold_fraction) 对每个查询细胞与所有参考细胞算 Spearman 相关，用部分选择排序取 top-k 近邻，按多数投票决定类型（若赞同比例 >= threshold_fraction 则分配，否则 "unassigned"）。辅助函数：scmap_extract_cell() 从基因×细胞矩阵提取单列细胞向量、scmap_centroids() 计算各类型质心、ScmapReference::unique_cell_types() 去重提取类型列表。汇总与输出：scmap_summary(assignments) 按分配类型统计细胞数、ScmapAssignment::to_string() 单行格式化、scmap_assignments_to_string() 全表输出（cell/assigned_type/best_corr/method）。示例数据 scmap_sample_reference() 生成 10 基因×9 细胞参考图谱（T_cell/B_cell/NK_cell 各 3 细胞，marker 基因高表达），scmap_sample_query() 生成 3 查询细胞（query_T 清晰 T、query_B 清晰 B、query_unknown 模糊）。所有公共标识符以 scmap_ 前缀命名。适用于跨数据集单细胞注释、参考图谱投影、细胞类型 QC。
+
+### 187. fishpond Swish 非参数差异表达分析 (Bioconductor fishpond)
+
+实现 Swish（SAMseq With Inferential Samples Handles）非参数差异表达分析，参考 Bioconductor `fishpond` 包及 Zhu A, Srivastava A, Ibrahim JG, Patro R, Love MI (2019) Nucleic Acids Research 47(18):e105。Swish 用 Mann-Whitney-Wilcoxon 秩和统计结合置换推断，避免对 count 数据做分布假设。核心数据结构：FishCounts（transcript_names、sample_names、condition、counts：转录本×样本 count 矩阵，condition 为每样本的 "case"/"control" 标签）、FishResult（transcript、statistic、log2_fold_change、p_value、fdr、direction：差异结果，direction 为 "up"/"down"/"ns"）。核心算法：1) fish_mann_whitney_test(case_vals, control_vals) 合并两组数据按值升序排序（冒泡排序），对相持值取平均秩，W 统计量为 case 组秩和；2) fish_log2fc_test() 计算 log2(mean_case+1) - log2(mean_control+1)（加 1 伪 count 避免 log(0)）；3) fish_swish(counts, case_label, n_permutations) 主流程：对每个转录本拆分 case/control 组，计算观测 W 统计量及偏离期望值 obs_dev=|W - n1*(n1+n2+1)/2|，再对每次置换用 Fisher-Yates 洗牌行值（LCG seed=42+t*7919+p*31），拆分前 n_case 为 case、其余为 control，重算 W 与 perm_dev，统计 perm_dev >= obs_dev 的次数得 p 值 (perm_count+1)/(n_perm+1)，最后用 stat_bh() 做 BH-FDR 校正，direction 按 fdr<0.05 且 log2FC 正负判定。辅助函数：fish_split_groups() 按条件标签拆分组别、fish_permuted_statistic() 单次置换统计、fish_abs() 绝对值。筛选与输出：fish_significant(results, fdr_threshold) 按 FDR 过滤、FishResult::to_string() 单行格式化、fish_results_to_string() 全表输出（transcript/statistic/log2FC/p_value/fdr/direction）。示例数据 fish_sample_counts() 生成 10 转录本×16 样本（8 case+8 control）：TX1-3 case 高表达（up）、TX4-6 case 低表达（down）、TX7-10 恒定值（ns，case/control 分布相同故 W=期望、p=1）。所有公共标识符以 fish_ 前缀命名。适用于小样本 RNA-seq 差异分析、转录本水平推断感知分析、非参数鲁棒 DE 检测。
+
 
 ## 性能优化
 
@@ -2191,8 +2221,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5145 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 5145 |
-| 通过数 | 5145 |
+| 总测试数 | 5212 |
+| 通过数 | 5212 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2415,6 +2445,9 @@ moon test --update
 | Bio.KEGG.KGML | `kgml_test.mbt` | 21 |
 | Bio.SCOP | `scop_test.mbt` | 43 |
 | Bio.CAPS | `caps_test.mbt` | 21 |
+| bumphunter | `bumphunter_test.mbt` | 23 |
+| scmap | `scmap_test.mbt` | 20 |
+| fishpond (Swish) | `fishpond_test.mbt` | 24 |
 
 ### Python 对比测试
 
@@ -2614,6 +2647,9 @@ moon run cmd/bench/main.mbt
 | kgml_demo | Bio.KEGG.KGML KEGG通路图解析（pathway/entry/relation/reaction解析、条目浏览、关系查询、KGML序列化往返） | `moon run examples/kgml_demo/main.mbt` |
 | scop_demo | Bio.SCOP 蛋白质结构分类（cla/des/hie文件解析、层级树构建、域查询、SCCS比较） | `moon run examples/scop_demo/main.mbt` |
 | caps_demo | Bio.CAPS 酶切扩增多态性序列标记（差异酶切位点检测、双向与三方序列比较、多酶扫描） | `moon run examples/caps_demo/main.mbt` |
+| bumphunter_demo | bumphunter 甲基化区域检测（t统计量、滑动均值平滑、候选bump识别、置换检验、高阈值对照） | `moon run examples/bumphunter_demo/main.mbt` |
+| scmap_demo | scmap 单细胞细胞类型注释（cluster质心Spearman相关、cell k近邻投票、严格阈值对照、分类汇总） | `moon run examples/scmap_demo/main.mbt` |
+| fishpond_demo | fishpond Swish非参数差异表达（Mann-Whitney-Wilcoxon统计、置换检验、BH-FDR、上下调分类） | `moon run examples/fishpond_demo/main.mbt` |
 
 ## 技术栈
 
