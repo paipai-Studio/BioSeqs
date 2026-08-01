@@ -107,6 +107,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bioconductor bumphunter | 甲基化/信号区域(bump)检测: t统计量、滑动均值平滑、候选bump识别、置换检验p值、BH-FDR校正 |
 | ✅ | Bioconductor scmap | 单细胞细胞类型注释: scmap-cluster(质心Spearman相关)、scmap-cell(k近邻投票)、阈值过滤、参考图谱投影 |
 | ✅ | Bioconductor fishpond (Swish) | 非参数差异表达分析: Mann-Whitney-Wilcoxon秩和统计、置换检验、BH-FDR校正、log2FC方向判定 |
+| ✅ | Bioconductor MatrixGenerics | 矩阵行/列汇总统计: rowMeans/colMeans、rowSums/colSums、rowVars/colVars、rowSds/colSds、rowMedians/colMedians、rowMins/colMins、rowMaxs/colMaxs、rowRanges/colRanges、rowMad/colMad、rowCounts、rowAnys/colAnys、rowAlls/colAlls、块处理 |
+| ✅ | Bioconductor beachmat | 矩阵访问API: 列/行块处理(bmat_apply_col_blocks/bmat_apply_row_blocks)、线性迭代器(BmatIterator)、子集/转置/绑定、逐元素操作、类型安全访问 |
+| ✅ | Bioconductor glmGamPoi | Gamma-Poisson广义线性模型: size factors估计、伪批量聚合、单基因拟合(IWLCS迭代加权最小二乘)、Wald差异表达检验、BH-FDR校正、线性代数求解、正态CDF与p值计算 |
 | ✅ | Bio.Sequencing.Phd | Phred碱基识别输出文件解析: BEGIN_SEQUENCE/COMMENT/DNA块、碱基-质量-峰位三元组、修剪参数、化学/染料信息 |
 | ✅ | Bio.FSSP | FSSP结构比对数据库解析: HEADER/TITLE/COMPND元数据、ALIGNMENTS区域、Z-score/RMSD/PID统计、按Z-score过滤 |
 | ✅ | Bio.Geo | GEO SOFT格式解析: ^PLATFORM/^SAMPLE/^SERIES实体标记、!属性行、#列定义、数据表、按类型/编号查询 |
@@ -576,6 +579,9 @@ IvanAXu/BioSeqs/
 │   ├── bumphunter.mbt          # Bioconductor bumphunter 甲基化区域检测 (t统计量、滑动均值平滑、置换检验)
 │   ├── scmap.mbt               # Bioconductor scmap 单细胞细胞类型注释 (scmap-cluster质心相关、scmap-cell近邻投票)
 │   ├── fishpond.mbt            # Bioconductor fishpond Swish非参数差异表达 (Mann-Whitney-Wilcoxon、置换检验、BH-FDR)
+│   ├── matrix_generics.mbt    # Bioconductor MatrixGenerics 矩阵行/列汇总统计 (rowMeans/colMeans、rowVars/colVars、rowMedians/colMedians、rowMad、块处理)
+│   ├── beachmat.mbt           # Bioconductor beachmat 矩阵访问API (列/行块处理、线性迭代器、子集/转置/绑定、逐元素操作)
+│   ├── glm_gampoi.mbt         # Bioconductor glmGamPoi Gamma-Poisson GLM (size factors、伪批量聚合、IWLCS拟合、Wald检验、BH-FDR校正)
 │   ├── phd.mbt                 # Bio.Sequencing.Phd Phred碱基识别输出解析 (BEGIN_SEQUENCE/COMMENT/DNA、碱基-质量-峰位)
 │   ├── fssp.mbt                # Bio.FSSP 结构比对数据库解析 (HEADER/TITLE/COMPND元数据、ALIGNMENTS、Z-score/RMSD/PID)
 │   ├── geo.mbt                 # Bio.Geo GEO SOFT格式解析 (^PLATFORM/^SAMPLE/^SERIES、!属性、#列定义、数据表)
@@ -827,6 +833,9 @@ IvanAXu/BioSeqs/
 │   ├── bumphunter_demo/          # bumphunter 甲基化区域检测示例 (t统计量、平滑、bump识别、置换检验)
 │   ├── scmap_demo/               # scmap 单细胞细胞类型注释示例 (cluster质心相关、cell近邻投票、阈值过滤)
 │   ├── fishpond_demo/            # fishpond Swish非参数差异表达示例 (Mann-Whitney-Wilcoxon、置换检验、FDR)
+│   ├── matrix_generics_demo/     # MatrixGenerics 矩阵汇总统计示例 (rowMeans/colMeans、rowVars/colVars、rowMedians、rowMad、块处理)
+│   ├── beachmat_demo/            # beachmat 矩阵访问API示例 (列/行块处理、迭代器、转置、绑定、逐元素操作)
+│   ├── glm_gampoi_demo/          # glmGamPoi Gamma-Poisson GLM示例 (size factors、伪批量聚合、IWLCS拟合、Wald检验、FDR校正)
 │   ├── phd_demo/                 # Phred PHD文件解析示例 (碱基-质量-峰位、注释元数据、修剪参数)
 │   ├── fssp_demo/                # FSSP结构比对数据库示例 (头部元数据、比对序列、Z-score过滤)
 │   ├── geo_demo/                 # GEO SOFT格式解析示例 (平台/样本记录、数据表、表达值比较)
@@ -1087,6 +1096,9 @@ IvanAXu/BioSeqs/
 │   │   ├── bumphunter_test.mbt
 │   │   ├── scmap_test.mbt
 │   │   ├── fishpond_test.mbt
+│   │   ├── matrix_generics_test.mbt
+│   │   ├── beachmat_test.mbt
+│   │   ├── glm_gampoi_test.mbt
 │   │   ├── phd_test.mbt
 │   │   ├── fssp_test.mbt
 │   │   ├── geo_test.mbt
@@ -1221,6 +1233,14 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5281 个测试全�
 | `slingshot.mbt` | Bioconductor slingshot | 单细胞轨迹推断、MST构建、主曲线拟合、拟时间计算 |
 | `scnorm.mbt` | Bioconductor SCnorm | 单细胞RNA-seq归一化、分位数回归、深度依赖偏差校正 |
 | `edaseq.mbt` | Bioconductor EDASeq | RNA-seq探索性分析、GC含量归一化、基因长度校正 |
+| `glm_gampoi.mbt` | Bioconductor glmGamPoi | Gamma-Poisson GLM、size factors、伪批量聚合、IWLCS拟合、Wald检验、BH-FDR校正 |
+
+#### 矩阵统计与访问
+
+| MoonBit 文件 | 对应 Python 库 | 核心功能 |
+| :--- | :--- | :--- |
+| `matrix_generics.mbt` | Bioconductor MatrixGenerics | rowMeans/colMeans、rowSums/colSums、rowVars/colVars、rowSds/colSds、rowMedians/colMedians、rowMins/colMins、rowMaxs/colMaxs、rowRanges/colRanges、rowMad/colMad、rowCounts、rowAnys/colAnys、rowAlls/colAlls、块处理 |
+| `beachmat.mbt` | Bioconductor beachmat | 列/行块处理、线性迭代器(BmatIterator)、子集/转置/绑定、逐元素操作、类型安全矩阵访问API |
 
 #### 序列组装与数据结构
 
@@ -2475,6 +2495,9 @@ moon test --update
 | bumphunter | `bumphunter_test.mbt` | 23 |
 | scmap | `scmap_test.mbt` | 20 |
 | fishpond (Swish) | `fishpond_test.mbt` | 24 |
+| MatrixGenerics | `matrix_generics_test.mbt` | 109 |
+| beachmat | `beachmat_test.mbt` | 67 |
+| glmGamPoi | `glm_gampoi_test.mbt` | 103 |
 | Bio.Sequencing.Phd | `phd_test.mbt` | 19 |
 | Bio.FSSP | `fssp_test.mbt` | 20 |
 | Bio.Geo | `geo_test.mbt` | 30 |
