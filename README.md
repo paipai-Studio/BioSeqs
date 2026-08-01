@@ -101,6 +101,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | CIBERSORT | 免疫细胞去卷积: 非负最小二乘(NNLS)求解细胞类型分数、投影梯度下降、LM22风格特征矩阵(40标记基因×10免疫细胞类型)、Pearson拟合优度+RMSE、分数归一化(Σ=1.0) |
 | ✅ | MCPcounter | 微环境细胞种群计数: 标记基因几何均值表达评分(Becht 2016)、10种细胞种群默认标记集(T/CD8/B/NK/单核/DC/中性粒/内皮/成纤维)、对数域稳健计算、多种群并行评分 |
 | ✅ | ESTIMATE | 肿瘤微环境评分: ssGSEA-style富集打分(Yoshihara 2013)、50基质基因+30免疫基因特征集、ECDF跨样本标准化、基质/免疫/ESTIMATE组合分、肿瘤纯度推断(cos公式) |
+| ✅ | Bio.KEGG.KGML | KEGG通路图XML格式解析: pathway/entry/relation/reaction元素、graphics图形描述、组件关系、亚型(activation/inhibition)、反应底物/产物、KGML序列化往返 |
+| ✅ | Bio.SCOP | 蛋白质结构分类数据库解析: cla/des/hie三文件格式、SCOP层级树(root→class→fold→superfamily→family→protein→species→domain)、PDB残基片段解析、sunid/sid双向索引、SCCS比较 |
+| ✅ | Bio.CAPS | 酶切扩增多态性序列标记分析: 差异酶切位点检测、多序列比对中的内切酶切/阻遏分类、多酶并行扫描、双向序列比较与三方比较 |
 
 ### 序列组装算法
 
@@ -561,6 +564,9 @@ IvanAXu/BioSeqs/
 │   ├── genie3.mbt              # Bioconductor GENIE3 基因调控网络推断 (回归树、特征重要性、邻接矩阵)
 │   ├── decoupler.mbt           # Bioconductor decoupleR 功能活性推断 (WSum/WMean/Norm/ULM/MLM、PKN)
 │   ├── bayes_space.mbt         # Bioconductor BayesSpace 空间转录组聚类 (t分布混合模型、MRF先验、EM算法)
+│   ├── kgml.mbt                # Bio.KEGG.KGML KEGG通路图XML解析 (pathway/entry/relation/reaction、graphics、KGML序列化)
+│   ├── scop.mbt                # Bio.SCOP 蛋白质结构分类数据库解析 (cla/des/hie三文件、SCOP层级树、PDB残基片段)
+│   ├── caps.mbt                # Bio.CAPS 酶切扩增多态性序列标记分析 (差异酶切位点检测、多酶并行扫描)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -803,6 +809,9 @@ IvanAXu/BioSeqs/
 │   ├── genie3_demo/              # GENIE3 基因调控网络推断示例 (回归树、特征重要性、调控边排序)
 │   ├── decoupler_demo/           # decoupleR 功能活性推断示例 (WSum/ULM/MLM方法、PKN网络、调控子评分)
 │   ├── bayes_space_demo/         # BayesSpace 空间转录组聚类示例 (六边形邻居、EM聚类、聚类可视化)
+│   ├── kgml_demo/                # Bio.KEGG.KGML 示例 (通路解析、条目浏览、关系查询、KGML序列化往返)
+│   ├── scop_demo/                # Bio.SCOP 示例 (cla/des/hie文件解析、层级树构建、域查询)
+│   ├── caps_demo/                # Bio.CAPS 示例 (差异酶切位点检测、双向与三方序列比较)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1054,6 +1063,9 @@ IvanAXu/BioSeqs/
 │   │   ├── genie3_test.mbt
 │   │   ├── decoupler_test.mbt
 │   │   ├── bayes_space_test.mbt
+│   │   ├── kgml_test.mbt
+│   │   ├── scop_test.mbt
+│   │   ├── caps_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -1080,7 +1092,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5060 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5145 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1297,6 +1309,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5060 个测试全�
 | `proteomics.mbt` | Biopython `Bio.SeqUtils.Proteomics` | 蛋白质组学工具 (8种酶切、肽段质量、同位素分布、b/y碎片离子) |
 | `fragment_mapper.mbt` | Biopython `Bio.PDB.FragmentMapper` | PDB片段映射 (DSSP分类、片段分配/合并/过滤、覆盖率分析) |
 | `genome_diagram.mbt` | Biopython `Bio.Graphics.GenomeDiagram` | 基因组图可视化 (数据模型、SVG生成、样式控制、自动标注) |
+| `kgml.mbt` | Biopython `Bio.KEGG.KGML` | KEGG通路图XML解析 (pathway/entry/relation/reaction、graphics、KGML序列化) |
+| `scop.mbt` | Biopython `Bio.SCOP` | 蛋白质结构分类数据库解析 (cla/des/hie三文件、SCOP层级树、PDB残基片段) |
+| `caps.mbt` | Biopython `Bio.CAPS` | 酶切扩增多态性序列标记分析 (差异酶切位点检测、多酶并行扫描) |
 
 #### Bioconductor 新增扩展模块
 
@@ -2062,6 +2077,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5060 个测试全�
 
 实现 ESTIMATE（Estimation of STromal and Immune cells in MAlignant Tumours using Expression data）算法，参考 Yoshihara K et al. (2013) Nature Communications 4:2612。从转录组数据推断肿瘤纯度及基质/免疫细胞浸润水平。核心数据结构：EstExpression（gene_names、sample_names、matrix：基因 × 样本表达矩阵）、EstSignature（stromal_genes、immune_genes：基质与免疫基因特征集）、EstSampleScore（sample_id、stromal_score、immune_score、estimate_score、tumor_purity：单样本评分）、EstResult（scores、sample_names、method_name：全样本结果）。ssGSEA 富集打分 est_ssgsea_score(expression, gene_names, gene_set) 实现 Barbie et al. (2009) 单样本 GSEA 算法：1) 按表达值降序排列基因；2) 沿排序列表行走，命中基因集内基因时 running sum 增加 |expr|/Σ|expr|（加权），命中集外基因时减少 1/(N-|set|)；3) 对 running sum 的正偏移积分（pos_acc），除以基因数 N 得到标准化得分。ECDF 跨样本标准化 est_ecdf(x, sample) 计算经验累积分布函数值，将原始 ssGSEA 得分映射到 [0,1]，再变换为 [-100, 100] 区间：(ECDF - 0.5) × 200。肿瘤纯度推断 est_purity_from_estimate(estimate_score) 使用 Yoshihara 公式 purity = cos(0.6049872018 + 0.0001627855 × ESTIMATEScore)，当参数超出 [0, π] 时返回 NaN。主函数 est_run(expr, signature?) 对每个样本：1) 提取表达列；2) 分别计算基质和免疫基因集的 ssGSEA 得分；3) ECDF 标准化；4) 组合 ESTIMATEScore = StromalScore + ImmuneScore；5) 推断肿瘤纯度。内置基因特征集：est_stromal_genes()（50 个基质相关基因：COL1A1/2/3、DCN、FBN1、BGN 等）和 est_immune_genes()（30 个免疫相关基因：CD3D/E/G、CD2、CCL3 等），基于 Yoshihara 2013 Supplementary Tables。辅助函数：est_sample_data() 生成 4 个样本（HighStromal/HighImmune/HighBoth/LowBoth，含 60 个背景基因使 ssGSEA 排名有意义），EstResult::get_score(sample_id) 查询特定样本，to_string() 格式化结果表格。所有公共标识符以 est_ 前缀命名。适用于肿瘤纯度评估、基质/免疫浸润量化、肿瘤微环境综合评分。
 
+### 182. Bio.KEGG.KGML KEGG 通路图 XML 格式解析 (Biopython Bio.KEGG.KGML)
+
+实现 KEGG Markup Language (KGML) 解析器，参考 Biopython `Bio.KEGG.KGML.KGML_parser` 及 https://www.kegg.jp/kegg/xml/ 。KGML 是 KEGG 通路图的 XML 表示格式，描述基因/化合物/通路之间的相互作用与生化反应。核心数据结构：KgmlGraphics（x、y、width、height、gtype、name、fgcolor、bgcolor：条目图形描述符）、KgmlEntry（id、name、etype、reaction、link、graphics、components：通路节点，对应 gene/compound/enzyme/map 等类型）、KgmlSubType（name、value：关系亚型，如 activation、inhibition、phosphorylation）、KgmlRelation（entry1、entry2、rtype、subtypes：两个条目间的关系，rtype 为 ECrel/PPrel、GErel、maplink 等）、KgmlReaction（name、rtype、substrates、products：生化反应，rtype 为 reversible/irreversible）、KgmlPathway（name、org、number、title、image、link、entries、relations、reactions：根元素）。解析器 parse_kgml(content : String) -> KgmlPathway? 采用手写 XML 解析：1) 定位 `<pathway` 标签并通过 kgml_attr() 提取 name/org/number/title/image/link 属性；2) kgml_parse_children() 顺序扫描子元素，根据 `<entry`/`<relation`/`<reaction` 标签分发到对应解析分支；3) 自闭合标签（以 `/` 结尾）通过 kgml_is_self_closing() 检测，非自闭合元素的内嵌子元素（如 `<entry>` 内的 `<graphics>`、`<component>`）通过递归扫描填充；4) kgml_attr_int()/kgml_attr_double() 处理数值属性解析，失败时返回默认值。查询接口：KgmlPathway::get_entry(id)、get_entries_by_type(etype)、get_relations_for_entry(id) 支持按 ID/类型/关联条目检索。序列化 kgml_to_string(pathway) 将 KgmlPathway 结构反向输出为 KGML XML 字符串，支持解析-序列化往返。示例数据 kgml_sample_pathway() 返回糖酵解通路（path:ko00010）片段。所有公共标识符以 Kgml/Kgml 前缀或 kgml_ 前缀命名。适用于 KEGG 通路可视化、通路拓扑分析、基因-代谢物互作网络构建。
+
+### 183. Bio.SCOP 蛋白质结构分类数据库解析 (Biopython Bio.SCOP)
+
+实现 SCOP（Structural Classification of Proteins）数据库解析器，参考 Biopython `Bio.SCOP` 及 Murzin AG et al. (1995) J Mol Biol 247:536-540。SCOP 以层级树分类蛋白质结构：root → class → fold → superfamily → family → protein → species → domain。三种文件格式解析：dir.cla.scop.txt（分类文件：sid → pdbid、residues、sccs、sunid、hierarchy）、dir.des.scop.txt（描述文件：sunid → nodetype、sccs、name、description）、dir.hie.scop.txt（层级文件：sunid → parent、children）。核心数据结构：ScopFragment（chain、start、end_：单链残基片段）、ScopResidues（pdbid、fragments：SCOP 域的 PDB 残基范围，如 "1bba A:10-20,B:" 表示两条链片段）、ClaRecord（sid、pdbid、residues、sccs、sunid、hierarchy：分类记录）、DesRecord（sunid、nodetype、sccs、name、description：描述记录）、HieRecord（sunid、parent、children：层级记录）、ScopNode（sunid、parent、children、sccs、nodetype、description、mut sid、mut residues、mut pdbid：层级树节点）、Scop（root、sunid_dict、sid_dict、domains：完整数据库）。残基解析 scop_parse_residues(s) 处理特殊情形：`"-"` 表示整条序列（无片段）、`"(-)"` 表示单条未命名链、`"[pdbid ]chain:start-end,..."` 格式按逗号分割多片段。Scop::new(cla_records, des_records, hie_records) 三阶段构建：1) 创建根节点（sunid=0）；2) 解析 DES 记录填充 sunid_dict（域节点同时设置 sid）；3) 解析 HIE 记录设置 parent/children（MoonBit 结构体为值类型，修改后需 sunid_dict.set 写回）；4) 解析 CLA 记录填充 residues/pdbid/sid 并建立 sid_dict → ScopNode 映射；5) 收集所有 nodetype=="px" 的域节点到 domains 数组。查询接口：get_node_by_sunid(sunid)、get_domain_by_sid(sid)、get_domains()、get_parent(node)、get_children(node)、get_ascendent(node, nodetype)（向上搜索指定类型祖先，利用 scop_node_type_order() 短路剪枝）、get_descendents(node, nodetype)（向下搜索指定类型后代）。SCCS 比较 scop_cmp_sccs(sccs1, sccs2) 按 "a.1.2.3" 格式四段比较（字母段字典序、数字段数值比较），返回 -1/0/1。序列化 write_hie()/write_des()/write_cla() 将数据库反向输出为对应文件格式。示例数据 scop_sample_des()/scop_sample_hie()/scop_sample_cla() 提供 9 条 DES、9 条 HIE、2 条 CLA 记录。所有公共标识符以 Scop/scop_ 前缀命名。适用于蛋白质结构分类查询、域-家族映射、结构演化分析。
+
+### 184. Bio.CAPS 酶切扩增多态性序列标记分析 (Biopython Bio.CAPS)
+
+实现 CAPS（Cleaved Amplified Polymorphic Sequences）标记分析，参考 Biopython `Bio.CAPS` 及 Konieczny A, Ausubel FM (1993) Anal Biochem 204:307-310。CAPS 通过检测比对序列中的差异限制性内切酶切位点来鉴定基因型多态性。核心数据结构：CapsDifferentialCutsite（start、enzyme_name、cuts_in、blocked_in：差异切位点，cuts_in 为被酶切的序列索引列表，blocked_in 为酶切被阻断的序列索引列表）、CapsMap（sequences、sequence_names、enzymes、dcuts：分析结果容器）。核心算法 caps_digest(sequences, enzymes) 对每个酶：1) caps_digest_with() 调用 find_cut_sites()（来自 restriction.mbt）找出每条序列的切位点；2) 合并所有序列的切位点去重并排序（插入排序）；3) 对每个切位点分类序列：若酶在该序列有切点则归入 cuts_in，否则归入 blocked_in；4) 仅当 cuts_in 与 blocked_in 均非空（即存在差异切割）时记录为 CapsDifferentialCutsite。这精准捕捉"某些序列被酶切、另一些被阻断"的多态性模式，是 SNP 导致酶切位点丢失/获得的直接证据。构造函数 caps_map(sequences, enzymes) 直接从序列和酶列表创建，caps_map_named(sequences, names, enzymes) 同时绑定序列名。查询接口：get_dcuts_by_enzyme(name)（按酶名过滤）、get_dcuts_at_position(pos)（按位置过滤）、dcut_count()、has_dcuts_for_enzyme(name)。报告 to_string() 输出简洁切位点表格，report() 输出含序列名与酶名的详细报告。示例数据 caps_sample_sequences() 返回两条含 EcoRI 位点 GAATTC 的序列（其中一条第二个 EcoRI 位点因 SNP 变为 GAATTG 而被阻断），caps_sample_enzymes() 返回 EcoRI 与 HindIII。所有公共标识符以 Caps/CapsMap/caps_ 前缀命名。适用于 SNP 基因分型、品种鉴定、遗传图谱构建、分子标记辅助选择。
+
 
 ## 性能优化
 
@@ -2164,8 +2191,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5060 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 5060 |
-| 通过数 | 5060 |
+| 总测试数 | 5145 |
+| 通过数 | 5145 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2385,6 +2412,9 @@ moon test --update
 | GENIE3 | `genie3_test.mbt` | 18 |
 | decoupleR | `decoupler_test.mbt` | 17 |
 | BayesSpace | `bayes_space_test.mbt` | 17 |
+| Bio.KEGG.KGML | `kgml_test.mbt` | 21 |
+| Bio.SCOP | `scop_test.mbt` | 43 |
+| Bio.CAPS | `caps_test.mbt` | 21 |
 
 ### Python 对比测试
 
@@ -2471,7 +2501,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 188 个示例程序，展示各模块的典型用法：
+项目提供 259 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -2581,6 +2611,9 @@ moon run cmd/bench/main.mbt
 | file_demo | Bio.File 智能文件处理（压缩检测、透明读写、文件操作接口） | `moon run examples/file_demo/main.mbt` |
 | mol_wt_demo | Bio.SeqUtils.MolWt 分子量计算（DNA/RNA/蛋白质分子量、消光系数、等电点） | `moon run examples/mol_wt_demo/main.mbt` |
 | reduced_demo | Bio.Align.Reduced 简化氨基酸字母表（RAD/Dayhoff/CHARM字母表、序列比较） | `moon run examples/reduced_demo/main.mbt` |
+| kgml_demo | Bio.KEGG.KGML KEGG通路图解析（pathway/entry/relation/reaction解析、条目浏览、关系查询、KGML序列化往返） | `moon run examples/kgml_demo/main.mbt` |
+| scop_demo | Bio.SCOP 蛋白质结构分类（cla/des/hie文件解析、层级树构建、域查询、SCCS比较） | `moon run examples/scop_demo/main.mbt` |
+| caps_demo | Bio.CAPS 酶切扩增多态性序列标记（差异酶切位点检测、双向与三方序列比较、多酶扫描） | `moon run examples/caps_demo/main.mbt` |
 
 ## 技术栈
 
