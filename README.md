@@ -319,6 +319,7 @@ IvanAXu/BioSeqs/
 │   ├── searchio.mbt            # SearchIO 统一搜索结果模型 (HSPFragment、HSP、Hit、QueryResult、HMMER3/BLAT解析)
 │   ├── search_io.mbt           # SearchIO 统一搜索结果模型 (HMMER3解析、BLAT PSL解析、BLAST转换)
 │   ├── subsmat.mbt             # 替换矩阵 (BLOSUM62/45、PAM250/30、矩阵解析、分数查询)
+│   ├── substitution_matrices.mbt # 现代替换矩阵基础设施 (ArrayData/SubsMatrix、矩阵注册表、频率矩阵、log-odds、Shannon熵、KL散度、NCBI解析)
 │   ├── pdb.mbt                 # PDB 数据类型
 │   ├── pdb_io.mbt              # PDB 文件 I/O
 │   ├── pdb_header.mbt            # Bio.PDB.ParsePDBHeader PDB头部元数据解析
@@ -652,6 +653,7 @@ IvanAXu/BioSeqs/
 │   ├── single_r_demo/           # SingleR 细胞类型注释示例 (参考图谱、Spearman/Pearson相关性、精细调优)
 │   ├── smith_waterman_demo/    # Smith-Waterman 局部序列比对示例
 │   ├── subsmat_demo/           # 替换矩阵示例 (BLOSUM62/45、PAM250/30矩阵查询、蛋白质比对打分)
+│   ├── substitution_matrices_demo/ # 现代替换矩阵示例 (矩阵注册表、频率矩阵计算、log-odds打分、Shannon熵、KL散度、NCBI解析)
 │   ├── suffix_array_tree_demo/ # Suffix Array & Suffix Tree 示例
 │   ├── summarized_experiment_demo/ # SummarizedExperiment 数据容器示例
 │   ├── sva_demo/               # sva 替代变量分析与ComBat批次校正示例 (经验贝叶斯方法、PCA分析)
@@ -847,6 +849,7 @@ IvanAXu/BioSeqs/
 │   │   ├── single_r_test.mbt
 │   │   ├── smith_waterman_test.mbt
 │   │   ├── subsmat_test.mbt
+│   │   ├── substitution_matrices_test.mbt
 │   │   ├── suffix_array_tree_test.mbt
 │   │   ├── suffix_array_tree_wbtest.mbt
 │   │   ├── summarized_experiment_test.mbt
@@ -1065,7 +1068,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4916 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4998 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1104,6 +1107,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4916 个测试全�
 | `clustal_io.mbt` | BioPython `Bio.AlignIO.ClustalIO` | Clustal 格式 |
 | `phylip_io.mbt` | BioPython `Bio.AlignIO.PhylipIO` | PHYLIP 格式 |
 | `subsmat.mbt` | BioPython `Bio.SubsMat` | BLOSUM/PAM 替换矩阵 |
+| `substitution_matrices.mbt` | BioPython `Bio.Align.substitution_matrices` | 现代替换矩阵基础设施 (ArrayData、矩阵注册表、频率矩阵、log-odds、Shannon熵、KL散度) |
 | `align_info.mbt` | BioPython `Bio.Align.AlignInfo` | 比对统计与一致性序列 |
 | `align_abstract.mbt` | BioPython `Bio.Align.AlignAbstract` | 抽象比对类型、Shannon熵、同一性矩阵、简约信息位点 |
 | `codon_align.mbt` | BioPython `Bio.codonalign` | 密码子比对与 dN/dS 分析 |
@@ -2027,6 +2031,10 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4916 个测试全�
 
 实现 BayesSpace 空间转录组聚类算法，参考 Zhao E et al. (2021) Nature Biotechnology。核心思想：使用 t 分布混合模型结合马尔可夫随机场（MRF）先验对空间转录组 spot 进行聚类，鼓励相邻 spot 共享聚类标签。SpotCoord 结构（spot_id、row、col、x、y）表示 spot 坐标。bayes_space_hex_neighbors(spots) 构建六边形网格邻居列表（6-连通：6 个候选邻居），bayes_space_square_neighbors(spots) 构建方形网格邻居列表（4-连通）。bayes_space_run(expression, spots, q, neighbors, max_iters?, gamma?, df?, seed?, tol?) 主聚类函数使用 EM 算法：1) k-means++ 初始化聚类中心（第一个中心随机选取，后续选择距已有中心最远的 spot）；2) E-step：计算每个 spot 属于每个簇的后验责任，综合 t 分布似然（bayes_space_log_t_density：多变量 t 分布对数密度）和空间先验（Potts 模型：gamma × Σ 邻居责任）；3) 通过 log-sum-exp 归一化责任；4) M-step：更新聚类中心（加权均值）、尺度（加权标准差）和混合比例；5) 计算对数似然判断收敛。BayesSpaceResult（spot_ids、clusters、q、cluster_centers、responsibilities、n_iterations、log_likelihood、converged）存储完整结果。辅助函数：bayes_space_get_cluster(result, spot_id) 按 ID 查询簇、bayes_space_spots_in_cluster(result, k) 获取簇内 spot、bayes_space_cluster_counts(result) 统计各簇大小、bayes_space_render_clusters(result, spots) 生成文本聚类图、bayes_space_sample_data() 提供 4×4 网格示例数据（左上低表达、右下高表达）。适用于空间转录组数据分析、组织区域识别和空间异质性研究。
 
+### 178. 现代替换矩阵基础设施 (Biopython Bio.Align.substitution_matrices)
+
+实现 Biopython `Bio.Align.substitution_matrices` 模块（2021+ 替代 `Bio.SubsMat` 的现代替换矩阵基础设施），提供完整的矩阵构建、注册、计算和分析功能。核心数据结构：ArrayData（rows、cols、data：带行列标签的 2D 数值数组）用于内部矩阵存储；SubsMatrix（name、alphabet、matrix、n_letters：替换矩阵，封装字母表与打分查询）。内置矩阵数据库包括 BLOSUM 系列（subs_blosum45_matrix、subs_blosum62_matrix、subs_blosum80_matrix、subs_blosum90_matrix）、PAM 系列（subs_pam30_matrix、subs_pam70_matrix、subs_pam250_matrix）和核苷酸矩阵（subs_nuc44_matrix：match=5/mismatch=-4）。矩阵注册表系统（register_matrix、load_matrix、list_matrices、subs_initialize_registry）支持按名称集中管理和加载矩阵。从比对计算矩阵的核心函数：calculate_frequency_matrix(alignment, alphabet) 遍历所有序列对，统计每个位置上字母对的观测频率（跳过 gap，对称计数），返回 ArrayData；calculate_substitution_matrix(alignment, alphabet, scale?) 从频率矩阵计算 log-odds 打分矩阵，公式 S(i,j) = scale × log2(q(i,j) / (p(i) × p(j)))，其中 q 为观测对频率、p 为字母边缘频率。信息论分析：subs_shannon_entropy(freq_matrix) 计算频率矩阵的 Shannon 熵 H = -Σ q·log2(q)，衡量替换多样性；subs_relative_entropy(freq_matrix) 计算观测频率与期望频率之间的 KL 散度 D = Σ q·log2(q/(p_i·p_j))，等价于对应 log-odds 矩阵的平均 bits/替换。NCBI BLAST 矩阵文件解析：parse_ncbi_matrix(content) 解析 BLAST 格式的替换矩阵文件（# 注释行、字母表头行、数据行），返回 SubsMatrix?。矩阵比较：matrix_correlation(m1, m2) 计算两个矩阵共享字母表上的 Pearson 相关系数。SubsMatrix 方法：get_score(letter1, letter2) 按字母查询分数、get_score_idx(i, j) 按索引查询、select(letters) 选取子矩阵、to_table_string() 格式化输出。所有公共标识符以 subs_ 前缀命名以避免与 motifs.mbt、variation.mbt 等模块冲突。适用于序列比对打分、替换矩阵推导与分析、信息论评估。
+
 
 ## 性能优化
 
@@ -2129,8 +2137,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4916 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 4916 |
-| 通过数 | 4916 |
+| 总测试数 | 4998 |
+| 通过数 | 4998 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2179,6 +2187,7 @@ moon test --update
 | De Bruijn Graph | `de_bruijn_test.mbt` | 12 |
 | Suffix Array & Tree | `suffix_array_tree_test.mbt` + `suffix_array_tree_wbtest.mbt` | 46 |
 | 替换矩阵 | `subsmat_test.mbt` | 13 |
+| 现代替换矩阵 | `substitution_matrices_test.mbt` | 45 |
 | BLAST解析 | `blast_test.mbt` | 10 |
 | SearchIO | `search_io_test.mbt` | 7 |
 | Overlap-Layout-Consensus | `olc_test.mbt` | 12 |
@@ -2471,6 +2480,7 @@ moon run cmd/bench/main.mbt
 | restriction_demo | 限制性内切酶分析（酶切位点查找、序列酶切、片段分析） | `moon run examples/restriction_demo/main.mbt` |
 | txdb_demo | TxDb 转录本数据库（GTF解析、基因/转录本/外显子/CDS提取、UTR/内含子计算、启动子提取） | `moon run examples/txdb_demo/main.mbt` |
 | subsmat_demo | 替换矩阵（BLOSUM62/45、PAM250/30矩阵查询、蛋白质比对打分） | `moon run examples/subsmat_demo/main.mbt` |
+| substitution_matrices_demo | 现代替换矩阵（矩阵注册表、频率矩阵计算、log-odds打分、Shannon熵、KL散度、NCBI解析） | `moon run examples/substitution_matrices_demo/main.mbt` |
 | blast_demo | BLAST结果解析（tabular/xml格式、HSP过滤、E-value/identity过滤、最佳匹配） | `moon run examples/blast_demo/main.mbt` |
 | search_io_demo | SearchIO 统一搜索结果（HMMER3 tabular解析、BLAT PSL解析、BLAST转换、top_hits、count_hsps） | `moon run examples/search_io_demo/main.mbt` |
 | protparam_demo | ProtParam 蛋白质参数分析（分子量、不稳定指数、GRAVY评分、等电点、信号肽预测、二级结构倾向） | `moon run examples/protparam_demo/main.mbt` |
