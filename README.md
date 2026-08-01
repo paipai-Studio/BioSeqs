@@ -98,6 +98,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | muscat | Bioconductor muscat单细胞差异状态分析: 伪批量聚合(Sum/Mean/Median)、EdgeR/DESeq2/Limma DS检验、BH-FDR校正、样本QC指标 |
 | ✅ | infercnv | Bioconductor infercnv单细胞拷贝数变异推断: 染色体位置排序基因、参考细胞比较、log2FC有界计算、金字塔权重基因组平滑、每细胞中位数中心化+噪声过滤、CNV分数+肿瘤细胞预测 |
 | ✅ | SCENIC | Bioconductor SCENIC单细胞调控网络推断与聚类: TF-target共表达模块(GENIE3风格)、Regulon构建(权重剪枝/cisTarget motif排名剪枝)、AUCell活性评分(recovery curve AUC)、二值化阈值(MeanStd/KMeans2/Median)、细胞状态聚类+主控调控因子识别 |
+| ✅ | CIBERSORT | 免疫细胞去卷积: 非负最小二乘(NNLS)求解细胞类型分数、投影梯度下降、LM22风格特征矩阵(40标记基因×10免疫细胞类型)、Pearson拟合优度+RMSE、分数归一化(Σ=1.0) |
+| ✅ | MCPcounter | 微环境细胞种群计数: 标记基因几何均值表达评分(Becht 2016)、10种细胞种群默认标记集(T/CD8/B/NK/单核/DC/中性粒/内皮/成纤维)、对数域稳健计算、多种群并行评分 |
+| ✅ | ESTIMATE | 肿瘤微环境评分: ssGSEA-style富集打分(Yoshihara 2013)、50基质基因+30免疫基因特征集、ECDF跨样本标准化、基质/免疫/ESTIMATE组合分、肿瘤纯度推断(cos公式) |
 
 ### 序列组装算法
 
@@ -537,6 +540,9 @@ IvanAXu/BioSeqs/
 │   ├── muscat.mbt              # muscat 单细胞差异状态分析 (伪批量聚合、DS检验)
 │   ├── infercnv.mbt            # infercnv 单细胞CNV推断 (基因组位置平滑、参考细胞比较、CNV评分)
 │   ├── scenic.mbt              # SCENIC 单细胞调控网络推断 (共表达模块、Regulon构建、AUCell活性评分)
+│   ├── cibersort.mbt           # CIBERSORT 免疫细胞去卷积 (NNLS求解、LM22风格特征矩阵、分数归一化)
+│   ├── mcp_counter.mbt         # MCPcounter 微环境细胞种群计数 (标记基因几何均值、10种细胞种群)
+│   ├── estimate_score.mbt      # ESTIMATE 肿瘤微环境评分 (ssGSEA富集、ECDF标准化、肿瘤纯度推断)
 │   ├── msstats.mbt             # MSstats 蛋白质显著性分析 (质谱数据归一化、汇总、组间比较)
 │   ├── noiseq.mbt              # NOISeq 噪声鲁棒差异表达 (TMM/RPKM/上四分位归一化、NOISeqBio)
 │   ├── gviz.mbt                # Gviz 基因组可视化轨道 (注释/数据/核型/序列轨道、ASCII渲染)
@@ -776,6 +782,9 @@ IvanAXu/BioSeqs/
 │   ├── muscat_demo/             # muscat 单细胞差异状态分析示例
 │   ├── infercnv_demo/           # infercnv 单细胞拷贝数变异推断示例
 │   ├── scenic_demo/             # SCENIC 单细胞调控网络推断示例
+│   ├── cibersort_demo/          # CIBERSORT 免疫细胞去卷积示例
+│   ├── mcp_counter_demo/        # MCPcounter 微环境细胞种群计数示例
+│   ├── estimate_score_demo/     # ESTIMATE 肿瘤微环境评分示例
 │   ├── msstats_demo/            # MSstats 蛋白质显著性分析示例
 │   ├── noiseq_demo/             # NOISeq 噪声鲁棒差异表达示例
 │   ├── gviz_demo/               # Gviz 基因组可视化轨道示例
@@ -1024,6 +1033,9 @@ IvanAXu/BioSeqs/
 │   │   ├── muscat_test.mbt
 │   │   ├── infercnv_test.mbt
 │   │   ├── scenic_test.mbt
+│   │   ├── cibersort_test.mbt
+│   │   ├── mcp_counter_test.mbt
+│   │   ├── estimate_score_test.mbt
 │   │   ├── msstats_test.mbt
 │   │   ├── noiseq_test.mbt
 │   │   ├── gviz_test.mbt
@@ -1068,7 +1080,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4998 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5060 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1305,6 +1317,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4998 个测试全�
 | `muscat.mbt` | `muscat` | 单细胞差异状态分析（伪批量聚合、DS 检验、QC） |
 | `infercnv.mbt` | `infercnv` | 单细胞拷贝数变异推断（基因组位置排序、参考细胞有界 LFC 计算、金字塔权重平滑、CNV 分数与恶性细胞预测） |
 | `scenic.mbt` | `SCENIC` | 单细胞调控网络推断与聚类（TF-target 共表达模块、Regulon 构建、AUCell 活性评分、二值化阈值、细胞状态与主控调控因子） |
+| `cibersort.mbt` | `CIBERSORT` | 免疫细胞去卷积（NNLS 求解、LM22 风格特征矩阵、Pearson 拟合优度、分数归一化） |
+| `mcp_counter.mbt` | `MCPcounter` | 微环境细胞种群计数（标记基因几何均值、10 种细胞种群默认标记集、对数域稳健计算） |
+| `estimate_score.mbt` | `estimate` | 肿瘤微环境评分（ssGSEA 富集打分、ECDF 跨样本标准化、基质/免疫/ESTIMATE 组合分、肿瘤纯度推断） |
 | `msstats.mbt` | `MSstats` | 蛋白质显著性分析（质谱归一化、Tukey/Linear 汇总、组间比较） |
 | `noiseq.mbt` | `NOISeq` | 噪声鲁棒差异表达（TMM/RPKM/上四分位归一化、NOISeqBio/Sim） |
 | `gviz.mbt` | `Gviz` | 基因组可视化轨道（注释/数据/核型/序列轨道、ASCII 渲染） |
@@ -2035,6 +2050,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4998 个测试全�
 
 实现 Biopython `Bio.Align.substitution_matrices` 模块（2021+ 替代 `Bio.SubsMat` 的现代替换矩阵基础设施），提供完整的矩阵构建、注册、计算和分析功能。核心数据结构：ArrayData（rows、cols、data：带行列标签的 2D 数值数组）用于内部矩阵存储；SubsMatrix（name、alphabet、matrix、n_letters：替换矩阵，封装字母表与打分查询）。内置矩阵数据库包括 BLOSUM 系列（subs_blosum45_matrix、subs_blosum62_matrix、subs_blosum80_matrix、subs_blosum90_matrix）、PAM 系列（subs_pam30_matrix、subs_pam70_matrix、subs_pam250_matrix）和核苷酸矩阵（subs_nuc44_matrix：match=5/mismatch=-4）。矩阵注册表系统（register_matrix、load_matrix、list_matrices、subs_initialize_registry）支持按名称集中管理和加载矩阵。从比对计算矩阵的核心函数：calculate_frequency_matrix(alignment, alphabet) 遍历所有序列对，统计每个位置上字母对的观测频率（跳过 gap，对称计数），返回 ArrayData；calculate_substitution_matrix(alignment, alphabet, scale?) 从频率矩阵计算 log-odds 打分矩阵，公式 S(i,j) = scale × log2(q(i,j) / (p(i) × p(j)))，其中 q 为观测对频率、p 为字母边缘频率。信息论分析：subs_shannon_entropy(freq_matrix) 计算频率矩阵的 Shannon 熵 H = -Σ q·log2(q)，衡量替换多样性；subs_relative_entropy(freq_matrix) 计算观测频率与期望频率之间的 KL 散度 D = Σ q·log2(q/(p_i·p_j))，等价于对应 log-odds 矩阵的平均 bits/替换。NCBI BLAST 矩阵文件解析：parse_ncbi_matrix(content) 解析 BLAST 格式的替换矩阵文件（# 注释行、字母表头行、数据行），返回 SubsMatrix?。矩阵比较：matrix_correlation(m1, m2) 计算两个矩阵共享字母表上的 Pearson 相关系数。SubsMatrix 方法：get_score(letter1, letter2) 按字母查询分数、get_score_idx(i, j) 按索引查询、select(letters) 选取子矩阵、to_table_string() 格式化输出。所有公共标识符以 subs_ 前缀命名以避免与 motifs.mbt、variation.mbt 等模块冲突。适用于序列比对打分、替换矩阵推导与分析、信息论评估。
 
+### 179. CIBERSORT 免疫细胞去卷积 (Newman AM et al. 2015)
+
+实现 CIBERSORT 细胞类型去卷积算法，从 bulk RNA-seq 表达数据推断免疫细胞组成。参考 Newman AM et al. (2015) Nature Methods 12:453-457，原算法使用 ν-SVR，本实现采用非负最小二乘（NNLS）回归，对细胞分数估计提供相似精度。核心数据结构：CibSignatureMatrix（gene_names、cell_types、matrix：基因 × 细胞类型参考表达谱）、CibMixtureMatrix（gene_names、sample_names、matrix：基因 × 样本 bulk 表达）、CibResult（sample_id、fractions、cell_types、pearson_r、rmse：单样本去卷积结果）、CibDeconvolution（results、cell_types、sample_names：全样本结果）。NNLS 求解器 cib_nnls(a, b, max_iters, tol) 使用投影梯度下降法求解 min ||Ax - b||² s.t. x ≥ 0：计算 AᵀA 和 Aᵀb，自适应步长 lr = 1/max(diag(AᵀA))，每轮将解投影到非负象限，收敛阈值 tol 控制最大变化量。主函数 cib_run(sig, mixture, max_iters?, tol?) 对每个样本：1) 找签名矩阵与混合矩阵的共有基因；2) 构建对齐的 A 矩阵和 b 向量；3) 求解 NNLS 得到细胞类型系数；4) 归一化分数使其和为 1.0；5) 计算拟合值 A·x 并评估 Pearson 相关系数和 RMSE。内置 LM22 风格特征矩阵 cib_default_signature()：40 个标记基因 × 10 种免疫细胞类型（B cells、T cells CD8、T cells CD4、NK cells、Monocytes、Macrophages M1、Macrophages M2、Dendritic cells、Neutrophils、Mast cells），每组 4 个特异性标记基因，表达值为代表性 log2(TPM+1) 水平。辅助函数：cib_sample_mixture() 生成 3 个合成混合样本（不同免疫细胞组成），CibResult::get_fraction(cell_type) 查询特定细胞类型分数，CibDeconvolution::to_string() 格式化结果表格。所有公共标识符以 cib_ 前缀命名。适用于肿瘤免疫微环境分析、免疫浸润量化、细胞类型组成比较。
+
+### 180. MCPcounter 微环境细胞种群计数 (Becht E et al. 2016)
+
+实现 MCPcounter（Microenvironment Cell Population counter）标记基因表达评分算法，参考 Becht E et al. (2016) eLife 5:e18516。核心思想：对每种细胞种群，计算其标记基因表达值的几何均值，作为该种群在每个样本中的丰度得分。无需去卷积或归一化，得分可直接跨样本比较同一细胞类型。核心数据结构：McpCellPopulation（name、markers：细胞种群名与标记基因列表）、McpResult（populations、sample_names、scores：种群 × 样本得分矩阵）。几何均值计算 mcp_geometric_mean(values) 使用对数域计算 exp(mean(log(x)))，跳过非正值（≤0），避免数值溢出并保持稳健性。主函数 mcp_run(gene_names, sample_names, expression, populations?) 对每个细胞种群和每个样本：1) 查找标记基因在表达矩阵中的位置；2) 收集该样本中所有标记基因的表达值（跳过缺失基因和零值）；3) 计算几何均值作为丰度得分。内置 10 种细胞种群默认标记集 mcp_default_populations()（基于 Becht 2016 Table S1）：T cells（CD3D/E/G、CD2、TRAC、TRBC2）、CD8+ T cells（CD8A/B、GZMK/A、CCL5、KLRG1）、Cytotoxic lymphocytes（GZMB/H、PRF1、NKG7、GNLY）、B lineage（CD19、MS4A1、CD79A/B）、NK cells（NCAM1、KLRC1/3/4）、Monocytic lineage（CD14、LYZ、S100A8/9）、Myeloid dendritic cells（ITGAX、CD1C）、Neutrophils（FCGR3B、CSF3R）、Endothelial cells（PECAM1、VWF）、Fibroblasts（COL1A1/2、DCN）。辅助函数：mcp_sample_data() 生成 3 个肿瘤样本（T 细胞富集、B 细胞富集、成纤维细胞富集），McpResult::get_score(population, sample) 和 get_population_scores(population) 查询特定得分，to_string() 格式化结果表格。McpCellPopulation::new(name, markers) 构造自定义细胞种群。所有公共标识符以 mcp_ 前缀命名。适用于肿瘤微环境细胞组成量化、免疫浸润标记基因分析、跨样本细胞种群比较。
+
+### 181. ESTIMATE 肿瘤微环境评分 (Yoshihara K et al. 2013)
+
+实现 ESTIMATE（Estimation of STromal and Immune cells in MAlignant Tumours using Expression data）算法，参考 Yoshihara K et al. (2013) Nature Communications 4:2612。从转录组数据推断肿瘤纯度及基质/免疫细胞浸润水平。核心数据结构：EstExpression（gene_names、sample_names、matrix：基因 × 样本表达矩阵）、EstSignature（stromal_genes、immune_genes：基质与免疫基因特征集）、EstSampleScore（sample_id、stromal_score、immune_score、estimate_score、tumor_purity：单样本评分）、EstResult（scores、sample_names、method_name：全样本结果）。ssGSEA 富集打分 est_ssgsea_score(expression, gene_names, gene_set) 实现 Barbie et al. (2009) 单样本 GSEA 算法：1) 按表达值降序排列基因；2) 沿排序列表行走，命中基因集内基因时 running sum 增加 |expr|/Σ|expr|（加权），命中集外基因时减少 1/(N-|set|)；3) 对 running sum 的正偏移积分（pos_acc），除以基因数 N 得到标准化得分。ECDF 跨样本标准化 est_ecdf(x, sample) 计算经验累积分布函数值，将原始 ssGSEA 得分映射到 [0,1]，再变换为 [-100, 100] 区间：(ECDF - 0.5) × 200。肿瘤纯度推断 est_purity_from_estimate(estimate_score) 使用 Yoshihara 公式 purity = cos(0.6049872018 + 0.0001627855 × ESTIMATEScore)，当参数超出 [0, π] 时返回 NaN。主函数 est_run(expr, signature?) 对每个样本：1) 提取表达列；2) 分别计算基质和免疫基因集的 ssGSEA 得分；3) ECDF 标准化；4) 组合 ESTIMATEScore = StromalScore + ImmuneScore；5) 推断肿瘤纯度。内置基因特征集：est_stromal_genes()（50 个基质相关基因：COL1A1/2/3、DCN、FBN1、BGN 等）和 est_immune_genes()（30 个免疫相关基因：CD3D/E/G、CD2、CCL3 等），基于 Yoshihara 2013 Supplementary Tables。辅助函数：est_sample_data() 生成 4 个样本（HighStromal/HighImmune/HighBoth/LowBoth，含 60 个背景基因使 ssGSEA 排名有意义），EstResult::get_score(sample_id) 查询特定样本，to_string() 格式化结果表格。所有公共标识符以 est_ 前缀命名。适用于肿瘤纯度评估、基质/免疫浸润量化、肿瘤微环境综合评分。
+
 
 ## 性能优化
 
@@ -2137,8 +2164,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 4998 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 4998 |
-| 通过数 | 4998 |
+| 总测试数 | 5060 |
+| 通过数 | 5060 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2337,6 +2364,9 @@ moon test --update
 | muscat | `muscat_test.mbt` | 17 |
 | infercnv | `infercnv_test.mbt` | 14 |
 | SCENIC | `scenic_test.mbt` | 22 |
+| CIBERSORT | `cibersort_test.mbt` | 16 |
+| MCPcounter | `mcp_counter_test.mbt` | 21 |
+| ESTIMATE | `estimate_score_test.mbt` | 25 |
 | MSstats | `msstats_test.mbt` | 15 |
 | NOISeq | `noiseq_test.mbt` | 17 |
 | Gviz | `gviz_test.mbt` | 16 |
