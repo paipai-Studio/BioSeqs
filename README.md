@@ -119,6 +119,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.UniProt.GOA | 基因本体注释GAF格式解析: 17列GAF 2.2格式、头部解析、按GO ID/aspect/evidence/taxon过滤、唯一值提取、计数统计、GAF序列化往返 |
 | ✅ | Bio.SeqIO.SeqXmlIO | SeqXML序列交换格式: XML解析/序列化、DNA/RNA/蛋白质类型、species/sourceDB元数据、property属性、SeqRecord双向转换、XML实体转义 |
 | ✅ | Bio.SeqIO.TwoBitIO | 2bit二进制基因组格式: 2位碱基编码(A/C/T/G)、N块/掩码块检测、小端序二进制序列化、hex字符串I/O、SeqRecord双向转换 |
+| ✅ | Bio.SeqIO.GfaIO | GFA基因组组装图格式: Segment/Link/Containment/Path解析、标签系统(Z/i/f类型)、图序列化往返、SeqRecord转换、反向链接 |
+| ✅ | Bio.SeqIO.XdnaIO | XDNA二进制格式(Geneious): 2位碱基编码、大端序序列化、校验和、hex字符串I/O、DNA/RNA/蛋白质类型、SeqRecord双向转换 |
+| ✅ | Bio.SeqIO.ImgtIO | IMGT免疫序列格式: 13字段管道分隔头部、HLA等位基因解析、按accession/species/gene/locus过滤、序列60字符折行、SeqRecord双向转换 |
 
 ### 序列组装算法
 
@@ -597,6 +600,9 @@ IvanAXu/BioSeqs/
 │   ├── goa.mbt                 # Bio.UniProt.GOA 基因本体注释GAF格式解析 (17列GAF 2.2、aspect/evidence/taxon过滤、计数统计)
 │   ├── seqxml_io.mbt           # Bio.SeqIO.SeqXmlIO SeqXML序列交换格式 (XML解析/序列化、DNA/RNA/蛋白质类型、SeqRecord转换)
 │   ├── twobit_io.mbt           # Bio.SeqIO.TwoBitIO 2bit二进制基因组格式 (2位碱基编码、N块/掩码块、小端序序列化)
+│   ├── gfa_io.mbt              # Bio.SeqIO.GfaIO GFA基因组组装图格式 (Segment/Link/Containment/Path、标签系统、图序列化)
+│   ├── xdna_io.mbt             # Bio.SeqIO.XdnaIO XDNA二进制格式 (2位碱基编码、大端序序列化、Geneious格式)
+│   ├── imgt_io.mbt             # Bio.SeqIO.ImgtIO IMGT免疫序列格式 (13字段管道分隔头部、HLA等位基因、序列折行)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -857,6 +863,9 @@ IvanAXu/BioSeqs/
 │   ├── survival_demo/            # 生存分析示例 (Kaplan-Meier曲线、log-rank检验、Cox比例风险模型)
 │   ├── methylkit_demo/           # methylKit甲基化分析示例 (过滤、差异甲基化、DMR识别、BED导出)
 │   ├── qfeatures_demo/           # QFeatures蛋白质组学示例 (多assay管理、聚合、log2转换、归一化)
+│   ├── gfa_demo/                 # GFA基因组组装图格式示例 (Segment/Link/Path解析、图序列化、SeqRecord转换)
+│   ├── xdna_demo/                # XDNA二进制格式示例 (碱基编码、pack/unpack、大端序序列化、hex I/O)
+│   ├── imgt_demo/                # IMGT免疫序列格式示例 (HLA等位基因解析、按基因过滤、SeqRecord转换)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1126,6 +1135,9 @@ IvanAXu/BioSeqs/
 │   │   ├── survival_test.mbt
 │   │   ├── methylkit_test.mbt
 │   │   ├── qfeatures_test.mbt
+│   │   ├── gfa_io_test.mbt
+│   │   ├── xdna_io_test.mbt
+│   │   ├── imgt_io_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -1300,6 +1312,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5281 个测试全�
 | `goa.mbt` | BioPython `Bio.UniProt.GOA` | 基因本体注释 GAF 格式解析（17列GAF 2.2、aspect/evidence/taxon过滤、计数统计） |
 | `seqxml_io.mbt` | BioPython `Bio.SeqIO.SeqXmlIO` | SeqXML 序列交换格式（XML解析/序列化、DNA/RNA/蛋白质类型、SeqRecord转换） |
 | `twobit_io.mbt` | BioPython `Bio.SeqIO.TwoBitIO` | 2bit 二进制基因组格式（2位碱基编码、N块/掩码块、小端序序列化） |
+| `gfa_io.mbt` | BioPython `Bio.SeqIO.GfaIO` | GFA 基因组组装图格式（Segment/Link/Containment/Path解析、标签系统、图序列化往返） |
+| `xdna_io.mbt` | BioPython `Bio.SeqIO.XdnaIO` | XDNA 二进制格式/Geneious（2位碱基编码、大端序序列化、校验和、hex I/O） |
+| `imgt_io.mbt` | BioPython `Bio.SeqIO.ImgtIO` | IMGT 免疫序列格式（13字段管道分隔头部、HLA等位基因解析、按accession/species/gene/locus过滤） |
 
 #### 扩展功能模块
 
@@ -2537,6 +2552,9 @@ moon test --update
 | survival | `survival_test.mbt` | 40 |
 | methylKit | `methylkit_test.mbt` | 37 |
 | QFeatures | `qfeatures_test.mbt` | 36 |
+| Bio.SeqIO.GfaIO | `gfa_io_test.mbt` | 71 |
+| Bio.SeqIO.XdnaIO | `xdna_io_test.mbt` | 62 |
+| Bio.SeqIO.ImgtIO | `imgt_io_test.mbt` | 71 |
 
 ### Python 对比测试
 
@@ -2748,6 +2766,9 @@ moon run cmd/bench/main.mbt
 | survival_demo | 生存分析（Kaplan-Meier曲线、log-rank检验、Cox比例风险模型） | `moon run examples/survival_demo/main.mbt` |
 | methylkit_demo | methylKit甲基化分析（覆盖率过滤、差异甲基化、DMR识别、BED导出） | `moon run examples/methylkit_demo/main.mbt` |
 | qfeatures_demo | QFeatures蛋白质组学（多assay管理、聚合、log2转换、归一化） | `moon run examples/qfeatures_demo/main.mbt` |
+| gfa_demo | GFA基因组组装图格式（Segment/Link/Path解析、图序列化、SeqRecord转换） | `moon run examples/gfa_demo/main.mbt` |
+| xdna_demo | XDNA二进制格式（碱基编码、pack/unpack、大端序序列化、hex I/O） | `moon run examples/xdna_demo/main.mbt` |
+| imgt_demo | IMGT免疫序列格式（HLA等位基因解析、按基因过滤、SeqRecord转换） | `moon run examples/imgt_demo/main.mbt` |
 
 ## 技术栈
 
