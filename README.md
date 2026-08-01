@@ -110,6 +110,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bioconductor MatrixGenerics | 矩阵行/列汇总统计: rowMeans/colMeans、rowSums/colSums、rowVars/colVars、rowSds/colSds、rowMedians/colMedians、rowMins/colMins、rowMaxs/colMaxs、rowRanges/colRanges、rowMad/colMad、rowCounts、rowAnys/colAnys、rowAlls/colAlls、块处理 |
 | ✅ | Bioconductor beachmat | 矩阵访问API: 列/行块处理(bmat_apply_col_blocks/bmat_apply_row_blocks)、线性迭代器(BmatIterator)、子集/转置/绑定、逐元素操作、类型安全访问 |
 | ✅ | Bioconductor glmGamPoi | Gamma-Poisson广义线性模型: size factors估计、伪批量聚合、单基因拟合(IWLCS迭代加权最小二乘)、Wald差异表达检验、BH-FDR校正、线性代数求解、正态CDF与p值计算 |
+| ✅ | Bioconductor survival | 生存分析: Kaplan-Meier估计器(Greenwood标准误)、log-rank检验(两组比较)、Cox比例风险模型(Newton-Raphson偏似然拟合、Breslow ties)、卡方p值、中位生存期 |
+| ✅ | Bioconductor methylKit | 亚硫酸氢盐测序甲基化分析: 甲基化胞嘧啶统计、覆盖率过滤/归一化、Fisher精确检验差异甲基化、BH-FDR校正、DMR识别、样本相关性/聚类、BED导出 |
+| ✅ | Bioconductor QFeatures | 定量蛋白质组学数据管理: 多assay层级容器(PSM/peptide/protein)、跨层级特征链接、聚合(sum/mean/median/max)、过滤/归一化/缺失值插补(KNN/mean/zero)、长格式转换 |
 | ✅ | Bio.Sequencing.Phd | Phred碱基识别输出文件解析: BEGIN_SEQUENCE/COMMENT/DNA块、碱基-质量-峰位三元组、修剪参数、化学/染料信息 |
 | ✅ | Bio.FSSP | FSSP结构比对数据库解析: HEADER/TITLE/COMPND元数据、ALIGNMENTS区域、Z-score/RMSD/PID统计、按Z-score过滤 |
 | ✅ | Bio.Geo | GEO SOFT格式解析: ^PLATFORM/^SAMPLE/^SERIES实体标记、!属性行、#列定义、数据表、按类型/编号查询 |
@@ -585,6 +588,9 @@ IvanAXu/BioSeqs/
 │   ├── matrix_generics.mbt    # Bioconductor MatrixGenerics 矩阵行/列汇总统计 (rowMeans/colMeans、rowVars/colVars、rowMedians/colMedians、rowMad、块处理)
 │   ├── beachmat.mbt           # Bioconductor beachmat 矩阵访问API (列/行块处理、线性迭代器、子集/转置/绑定、逐元素操作)
 │   ├── glm_gampoi.mbt         # Bioconductor glmGamPoi Gamma-Poisson GLM (size factors、伪批量聚合、IWLCS拟合、Wald检验、BH-FDR校正)
+│   ├── survival.mbt           # Bioconductor/R survival 生存分析 (Kaplan-Meier、log-rank检验、Cox比例风险模型)
+│   ├── methylkit.mbt          # Bioconductor methylKit 亚硫酸氢盐测序甲基化分析 (Fisher检验、DMR识别、相关性/聚类)
+│   ├── qfeatures.mbt          # Bioconductor QFeatures 定量蛋白质组学数据管理 (多assay层级、聚合、过滤、归一化、缺失值插补)
 │   ├── phd.mbt                 # Bio.Sequencing.Phd Phred碱基识别输出解析 (BEGIN_SEQUENCE/COMMENT/DNA、碱基-质量-峰位)
 │   ├── fssp.mbt                # Bio.FSSP 结构比对数据库解析 (HEADER/TITLE/COMPND元数据、ALIGNMENTS、Z-score/RMSD/PID)
 │   ├── geo.mbt                 # Bio.Geo GEO SOFT格式解析 (^PLATFORM/^SAMPLE/^SERIES、!属性、#列定义、数据表)
@@ -848,6 +854,9 @@ IvanAXu/BioSeqs/
 │   ├── goa_demo/                 # GOA 基因本体注释GAF格式示例 (GAF解析、aspect/evidence过滤、统计摘要、GAF序列化)
 │   ├── seqxml_demo/              # SeqXML序列交换格式示例 (XML解析/序列化、类型检测、SeqRecord转换)
 │   ├── twobit_demo/              # 2bit二进制基因组格式示例 (碱基编码、pack/unpack、二进制序列化、hex I/O)
+│   ├── survival_demo/            # 生存分析示例 (Kaplan-Meier曲线、log-rank检验、Cox比例风险模型)
+│   ├── methylkit_demo/           # methylKit甲基化分析示例 (过滤、差异甲基化、DMR识别、BED导出)
+│   ├── qfeatures_demo/           # QFeatures蛋白质组学示例 (多assay管理、聚合、log2转换、归一化)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1114,6 +1123,9 @@ IvanAXu/BioSeqs/
 │   │   ├── goa_test.mbt
 │   │   ├── seqxml_io_test.mbt
 │   │   ├── twobit_io_test.mbt
+│   │   ├── survival_test.mbt
+│   │   ├── methylkit_test.mbt
+│   │   ├── qfeatures_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -1253,6 +1265,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5281 个测试全�
 | :--- | :--- | :--- |
 | `matrix_generics.mbt` | Bioconductor MatrixGenerics | rowMeans/colMeans、rowSums/colSums、rowVars/colVars、rowSds/colSds、rowMedians/colMedians、rowMins/colMins、rowMaxs/colMaxs、rowRanges/colRanges、rowMad/colMad、rowCounts、rowAnys/colAnys、rowAlls/colAlls、块处理 |
 | `beachmat.mbt` | Bioconductor beachmat | 列/行块处理、线性迭代器(BmatIterator)、子集/转置/绑定、逐元素操作、类型安全矩阵访问API |
+| `survival.mbt` | R/Bioconductor survival | Kaplan-Meier估计器(Greenwood标准误)、log-rank检验、Cox比例风险模型(Newton-Raphson偏似然拟合) |
+| `methylkit.mbt` | Bioconductor methylKit | 亚硫酸氢盐测序甲基化分析、Fisher精确检验、BH-FDR校正、DMR识别、样本相关性/聚类 |
+| `qfeatures.mbt` | Bioconductor QFeatures | 定量蛋白质组学多assay层级容器、跨层级特征链接、聚合(sum/mean/median/max)、过滤/归一化/缺失值插补 |
 
 #### 序列组装与数据结构
 
@@ -2519,6 +2534,9 @@ moon test --update
 | Bio.UniProt.GOA | `goa_test.mbt` | 89 |
 | Bio.SeqIO.SeqXmlIO | `seqxml_io_test.mbt` | 46 |
 | Bio.SeqIO.TwoBitIO | `twobit_io_test.mbt` | 39 |
+| survival | `survival_test.mbt` | 40 |
+| methylKit | `methylkit_test.mbt` | 37 |
+| QFeatures | `qfeatures_test.mbt` | 36 |
 
 ### Python 对比测试
 
@@ -2727,6 +2745,9 @@ moon run cmd/bench/main.mbt
 | goa_demo | GOA基因本体注释GAF格式（GAF解析、aspect/evidence过滤、统计摘要、GAF序列化） | `moon run examples/goa_demo/main.mbt` |
 | seqxml_demo | SeqXML序列交换格式（XML解析/序列化、类型检测、SeqRecord转换） | `moon run examples/seqxml_demo/main.mbt` |
 | twobit_demo | 2bit二进制基因组格式（碱基编码、pack/unpack、二进制序列化、hex I/O） | `moon run examples/twobit_demo/main.mbt` |
+| survival_demo | 生存分析（Kaplan-Meier曲线、log-rank检验、Cox比例风险模型） | `moon run examples/survival_demo/main.mbt` |
+| methylkit_demo | methylKit甲基化分析（覆盖率过滤、差异甲基化、DMR识别、BED导出） | `moon run examples/methylkit_demo/main.mbt` |
+| qfeatures_demo | QFeatures蛋白质组学（多assay管理、聚合、log2转换、归一化） | `moon run examples/qfeatures_demo/main.mbt` |
 
 ## 技术栈
 
