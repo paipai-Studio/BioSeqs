@@ -113,6 +113,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.Sequencing.Phd | Phred碱基识别输出文件解析: BEGIN_SEQUENCE/COMMENT/DNA块、碱基-质量-峰位三元组、修剪参数、化学/染料信息 |
 | ✅ | Bio.FSSP | FSSP结构比对数据库解析: HEADER/TITLE/COMPND元数据、ALIGNMENTS区域、Z-score/RMSD/PID统计、按Z-score过滤 |
 | ✅ | Bio.Geo | GEO SOFT格式解析: ^PLATFORM/^SAMPLE/^SERIES实体标记、!属性行、#列定义、数据表、按类型/编号查询 |
+| ✅ | Bio.UniProt.GOA | 基因本体注释GAF格式解析: 17列GAF 2.2格式、头部解析、按GO ID/aspect/evidence/taxon过滤、唯一值提取、计数统计、GAF序列化往返 |
+| ✅ | Bio.SeqIO.SeqXmlIO | SeqXML序列交换格式: XML解析/序列化、DNA/RNA/蛋白质类型、species/sourceDB元数据、property属性、SeqRecord双向转换、XML实体转义 |
+| ✅ | Bio.SeqIO.TwoBitIO | 2bit二进制基因组格式: 2位碱基编码(A/C/T/G)、N块/掩码块检测、小端序二进制序列化、hex字符串I/O、SeqRecord双向转换 |
 
 ### 序列组装算法
 
@@ -585,6 +588,9 @@ IvanAXu/BioSeqs/
 │   ├── phd.mbt                 # Bio.Sequencing.Phd Phred碱基识别输出解析 (BEGIN_SEQUENCE/COMMENT/DNA、碱基-质量-峰位)
 │   ├── fssp.mbt                # Bio.FSSP 结构比对数据库解析 (HEADER/TITLE/COMPND元数据、ALIGNMENTS、Z-score/RMSD/PID)
 │   ├── geo.mbt                 # Bio.Geo GEO SOFT格式解析 (^PLATFORM/^SAMPLE/^SERIES、!属性、#列定义、数据表)
+│   ├── goa.mbt                 # Bio.UniProt.GOA 基因本体注释GAF格式解析 (17列GAF 2.2、aspect/evidence/taxon过滤、计数统计)
+│   ├── seqxml_io.mbt           # Bio.SeqIO.SeqXmlIO SeqXML序列交换格式 (XML解析/序列化、DNA/RNA/蛋白质类型、SeqRecord转换)
+│   ├── twobit_io.mbt           # Bio.SeqIO.TwoBitIO 2bit二进制基因组格式 (2位碱基编码、N块/掩码块、小端序序列化)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -839,6 +845,9 @@ IvanAXu/BioSeqs/
 │   ├── phd_demo/                 # Phred PHD文件解析示例 (碱基-质量-峰位、注释元数据、修剪参数)
 │   ├── fssp_demo/                # FSSP结构比对数据库示例 (头部元数据、比对序列、Z-score过滤)
 │   ├── geo_demo/                 # GEO SOFT格式解析示例 (平台/样本记录、数据表、表达值比较)
+│   ├── goa_demo/                 # GOA 基因本体注释GAF格式示例 (GAF解析、aspect/evidence过滤、统计摘要、GAF序列化)
+│   ├── seqxml_demo/              # SeqXML序列交换格式示例 (XML解析/序列化、类型检测、SeqRecord转换)
+│   ├── twobit_demo/              # 2bit二进制基因组格式示例 (碱基编码、pack/unpack、二进制序列化、hex I/O)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1102,6 +1111,9 @@ IvanAXu/BioSeqs/
 │   │   ├── phd_test.mbt
 │   │   ├── fssp_test.mbt
 │   │   ├── geo_test.mbt
+│   │   ├── goa_test.mbt
+│   │   ├── seqxml_io_test.mbt
+│   │   ├── twobit_io_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -1270,6 +1282,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5281 个测试全�
 | `biomart.mbt` | Bioconductor biomaRt | 基因 ID 映射与注释 |
 | `nexus.mbt` | BioPython `Bio.Nexus` | NEXUS 格式解析 |
 | `emboss.mbt` | EMBOSS suite | EMBOSS 工具接口 |
+| `goa.mbt` | BioPython `Bio.UniProt.GOA` | 基因本体注释 GAF 格式解析（17列GAF 2.2、aspect/evidence/taxon过滤、计数统计） |
+| `seqxml_io.mbt` | BioPython `Bio.SeqIO.SeqXmlIO` | SeqXML 序列交换格式（XML解析/序列化、DNA/RNA/蛋白质类型、SeqRecord转换） |
+| `twobit_io.mbt` | BioPython `Bio.SeqIO.TwoBitIO` | 2bit 二进制基因组格式（2位碱基编码、N块/掩码块、小端序序列化） |
 
 #### 扩展功能模块
 
@@ -2501,6 +2516,9 @@ moon test --update
 | Bio.Sequencing.Phd | `phd_test.mbt` | 19 |
 | Bio.FSSP | `fssp_test.mbt` | 20 |
 | Bio.Geo | `geo_test.mbt` | 30 |
+| Bio.UniProt.GOA | `goa_test.mbt` | 89 |
+| Bio.SeqIO.SeqXmlIO | `seqxml_io_test.mbt` | 46 |
+| Bio.SeqIO.TwoBitIO | `twobit_io_test.mbt` | 39 |
 
 ### Python 对比测试
 
@@ -2706,6 +2724,9 @@ moon run cmd/bench/main.mbt
 | phd_demo | Phred PHD文件解析（碱基-质量-峰位三元组、注释元数据、修剪参数、最小PHD解析） | `moon run examples/phd_demo/main.mbt` |
 | fssp_demo | FSSP结构比对数据库（头部元数据、参考比对、Z-score过滤、全部比对列表） | `moon run examples/fssp_demo/main.mbt` |
 | geo_demo | GEO SOFT格式解析（平台/样本记录、数据表、表达值比较、倍数变化计算） | `moon run examples/geo_demo/main.mbt` |
+| goa_demo | GOA基因本体注释GAF格式（GAF解析、aspect/evidence过滤、统计摘要、GAF序列化） | `moon run examples/goa_demo/main.mbt` |
+| seqxml_demo | SeqXML序列交换格式（XML解析/序列化、类型检测、SeqRecord转换） | `moon run examples/seqxml_demo/main.mbt` |
+| twobit_demo | 2bit二进制基因组格式（碱基编码、pack/unpack、二进制序列化、hex I/O） | `moon run examples/twobit_demo/main.mbt` |
 
 ## 技术栈
 
