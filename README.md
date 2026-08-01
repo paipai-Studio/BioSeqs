@@ -107,6 +107,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bioconductor bumphunter | 甲基化/信号区域(bump)检测: t统计量、滑动均值平滑、候选bump识别、置换检验p值、BH-FDR校正 |
 | ✅ | Bioconductor scmap | 单细胞细胞类型注释: scmap-cluster(质心Spearman相关)、scmap-cell(k近邻投票)、阈值过滤、参考图谱投影 |
 | ✅ | Bioconductor fishpond (Swish) | 非参数差异表达分析: Mann-Whitney-Wilcoxon秩和统计、置换检验、BH-FDR校正、log2FC方向判定 |
+| ✅ | Bio.Sequencing.Phd | Phred碱基识别输出文件解析: BEGIN_SEQUENCE/COMMENT/DNA块、碱基-质量-峰位三元组、修剪参数、化学/染料信息 |
+| ✅ | Bio.FSSP | FSSP结构比对数据库解析: HEADER/TITLE/COMPND元数据、ALIGNMENTS区域、Z-score/RMSD/PID统计、按Z-score过滤 |
+| ✅ | Bio.Geo | GEO SOFT格式解析: ^PLATFORM/^SAMPLE/^SERIES实体标记、!属性行、#列定义、数据表、按类型/编号查询 |
 
 ### 序列组装算法
 
@@ -573,6 +576,9 @@ IvanAXu/BioSeqs/
 │   ├── bumphunter.mbt          # Bioconductor bumphunter 甲基化区域检测 (t统计量、滑动均值平滑、置换检验)
 │   ├── scmap.mbt               # Bioconductor scmap 单细胞细胞类型注释 (scmap-cluster质心相关、scmap-cell近邻投票)
 │   ├── fishpond.mbt            # Bioconductor fishpond Swish非参数差异表达 (Mann-Whitney-Wilcoxon、置换检验、BH-FDR)
+│   ├── phd.mbt                 # Bio.Sequencing.Phd Phred碱基识别输出解析 (BEGIN_SEQUENCE/COMMENT/DNA、碱基-质量-峰位)
+│   ├── fssp.mbt                # Bio.FSSP 结构比对数据库解析 (HEADER/TITLE/COMPND元数据、ALIGNMENTS、Z-score/RMSD/PID)
+│   ├── geo.mbt                 # Bio.Geo GEO SOFT格式解析 (^PLATFORM/^SAMPLE/^SERIES、!属性、#列定义、数据表)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -821,6 +827,9 @@ IvanAXu/BioSeqs/
 │   ├── bumphunter_demo/          # bumphunter 甲基化区域检测示例 (t统计量、平滑、bump识别、置换检验)
 │   ├── scmap_demo/               # scmap 单细胞细胞类型注释示例 (cluster质心相关、cell近邻投票、阈值过滤)
 │   ├── fishpond_demo/            # fishpond Swish非参数差异表达示例 (Mann-Whitney-Wilcoxon、置换检验、FDR)
+│   ├── phd_demo/                 # Phred PHD文件解析示例 (碱基-质量-峰位、注释元数据、修剪参数)
+│   ├── fssp_demo/                # FSSP结构比对数据库示例 (头部元数据、比对序列、Z-score过滤)
+│   ├── geo_demo/                 # GEO SOFT格式解析示例 (平台/样本记录、数据表、表达值比较)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1078,6 +1087,9 @@ IvanAXu/BioSeqs/
 │   │   ├── bumphunter_test.mbt
 │   │   ├── scmap_test.mbt
 │   │   ├── fishpond_test.mbt
+│   │   ├── phd_test.mbt
+│   │   ├── fssp_test.mbt
+│   │   ├── geo_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -1104,7 +1116,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5212 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5281 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1327,6 +1339,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5212 个测试全�
 | `bumphunter.mbt` | Bioconductor `bumphunter` | 甲基化/信号区域(bump)检测 (t统计量、滑动均值平滑、候选bump识别、置换检验) |
 | `scmap.mbt` | Bioconductor `scmap` | 单细胞细胞类型注释 (scmap-cluster质心相关、scmap-cell近邻投票、阈值过滤) |
 | `fishpond.mbt` | Bioconductor `fishpond` (Swish) | 非参数差异表达分析 (Mann-Whitney-Wilcoxon秩和统计、置换检验、BH-FDR) |
+| `phd.mbt` | Biopython `Bio.Sequencing.Phd` | Phred碱基识别输出文件解析 (BEGIN_SEQUENCE/COMMENT/DNA块、碱基-质量-峰位) |
+| `fssp.mbt` | Biopython `Bio.FSSP` | FSSP结构比对数据库解析 (HEADER/TITLE/COMPND元数据、ALIGNMENTS、Z-score/RMSD/PID) |
+| `geo.mbt` | Biopython `Bio.Geo` | GEO SOFT格式解析 (^PLATFORM/^SAMPLE/^SERIES实体、!属性、#列定义、数据表) |
 
 #### Bioconductor 新增扩展模块
 
@@ -2119,6 +2134,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5212 个测试全�
 
 实现 Swish（SAMseq With Inferential Samples Handles）非参数差异表达分析，参考 Bioconductor `fishpond` 包及 Zhu A, Srivastava A, Ibrahim JG, Patro R, Love MI (2019) Nucleic Acids Research 47(18):e105。Swish 用 Mann-Whitney-Wilcoxon 秩和统计结合置换推断，避免对 count 数据做分布假设。核心数据结构：FishCounts（transcript_names、sample_names、condition、counts：转录本×样本 count 矩阵，condition 为每样本的 "case"/"control" 标签）、FishResult（transcript、statistic、log2_fold_change、p_value、fdr、direction：差异结果，direction 为 "up"/"down"/"ns"）。核心算法：1) fish_mann_whitney_test(case_vals, control_vals) 合并两组数据按值升序排序（冒泡排序），对相持值取平均秩，W 统计量为 case 组秩和；2) fish_log2fc_test() 计算 log2(mean_case+1) - log2(mean_control+1)（加 1 伪 count 避免 log(0)）；3) fish_swish(counts, case_label, n_permutations) 主流程：对每个转录本拆分 case/control 组，计算观测 W 统计量及偏离期望值 obs_dev=|W - n1*(n1+n2+1)/2|，再对每次置换用 Fisher-Yates 洗牌行值（LCG seed=42+t*7919+p*31），拆分前 n_case 为 case、其余为 control，重算 W 与 perm_dev，统计 perm_dev >= obs_dev 的次数得 p 值 (perm_count+1)/(n_perm+1)，最后用 stat_bh() 做 BH-FDR 校正，direction 按 fdr<0.05 且 log2FC 正负判定。辅助函数：fish_split_groups() 按条件标签拆分组别、fish_permuted_statistic() 单次置换统计、fish_abs() 绝对值。筛选与输出：fish_significant(results, fdr_threshold) 按 FDR 过滤、FishResult::to_string() 单行格式化、fish_results_to_string() 全表输出（transcript/statistic/log2FC/p_value/fdr/direction）。示例数据 fish_sample_counts() 生成 10 转录本×16 样本（8 case+8 control）：TX1-3 case 高表达（up）、TX4-6 case 低表达（down）、TX7-10 恒定值（ns，case/control 分布相同故 W=期望、p=1）。所有公共标识符以 fish_ 前缀命名。适用于小样本 RNA-seq 差异分析、转录本水平推断感知分析、非参数鲁棒 DE 检测。
 
+### 188. Phd Phred 碱基识别输出文件解析 (Bio.Sequencing.Phd)
+
+实现 Phred PHD 文件解析器，参考 Biopython `Bio.Sequencing.Phd` 模块及 Ewing B, Hillier L, Wendl MC, Green P (1998) Genome Res 8(3):175-85。PHD 文件由 Phred 碱基识别程序生成，存储碱基调用（base call）、每碱基质量分数和峰位置（trace index）。核心数据结构：PhdComment（chromat_file、phred_version、phred_parameter_file、trace_index_min/max、trim_start/end/prob、chemistry、dye：注释块元数据）、PhdBase（base、quality、peak_position：单碱基调用三元组）、PhdRead（name、bases、comment：完整读段）、PhdFile（reads：多读段容器）。解析流程 phd_parse(text)：1) 按换行符分割文本；2) 逐行扫描 BEGIN_SEQUENCE 标记，提取读段名；3) 在 BEGIN_COMMENT/END_COMMENT 块内解析 CHROMAT_FILE、PHRED_VERSION、TRACE_INDEX_MIN/MAX、TRIM（三字段：start end prob）、CHEMISTRY、DYE 等键值对；4) 在 BEGIN_DNA/END_DNA 块内解析每行"碱基 质量 峰位"三元组；5) 遇 END_SEQUENCE 完成一个读段。辅助函数：phd_tokenize() 空白分隔分词（支持空格和制表符）、phd_extract_value() 提取冒号后的值、phd_parse_comment() 解析注释块、phd_parse_dna() 解析 DNA 块、phd_parse_sequence() 解析单个序列块。访问器：PhdRead::sequence() 拼接碱基序列、quality() 返回质量数组、peak_positions() 返回峰位数组、length() 返回碱基数。示例数据 phd_sample_text() 生成 10 碱基的示例 PHD 文本（sample_read，含完整注释块和 DNA 块）。所有公共标识符以 phd_ 前缀命名。适用于 Sanger 测序数据分析、Phred/Phrap/Consed 流程、碱基质量控制。
+
+### 189. FSSP 结构比对数据库解析 (Bio.FSSP)
+
+实现 FSSP（Fold classification based on Structure-Structure alignment of Proteins）数据库文件解析器，参考 Biopython `Bio.FSSP` 模块及 Holm L, Sander C (1996) Science 273:595-603、Holm L, Sander C (1994) Nucleic Acids Res 22:3600-9。FSSP 数据库包含 PDB 中蛋白质的结构比对，每个 FSSP 文件有一个参考结构和一组比对结构。核心数据结构：FsspHeader（pdbid、pdbid_date、title、compound、source、author、seq_length、n_alignments、threshold：文件头元数据）、FsspAlignment（pdbid、alignment_id、start_position、aligned_sequence、z_score、rmsd、lali、pid：比对条目，z_score 为结构相似性 Z 分数、rmsd 为均方根偏差、lali 为比对长度、pid 为序列同一性百分比）、FsspData（header、alignments：顶层容器）。解析流程 fssp_parse(text)：1) fssp_parse_header() 逐行解析 HEADER（含 \_ 前缀的 PDB ID 需剥离）、TITLE、COMPND、SOURCE、AUTHOR、SEQLENGTH、ALIGNMENTS、THRESHOLD 等关键字行，遇 ## 标记停止；2) 在 ## ALIGNMENTS 区域内逐行解析比对条目（PDB_ID 起始位置 比对序列 [Z-score RMSD LALI PID]）；3) 遇 ## SEQUENCE 或其他 ## 标记停止比对解析。查询接口：FsspData::reference() 获取参考（第一条）比对、filter_by_zscore(min_zscore) 按 Z 分数过滤。辅助函数：fssp_tokenize() 空白分词、fssp_extract_after_keyword() 提取关键字后内容、fssp_parse_alignment_line() 解析单行比对。示例数据 fssp_sample_text() 生成 1dfa_A 参考 + 1csa_A/1hsd_A 两条比对的示例。所有公共标识符以 fssp_ 前缀命名。适用于蛋白质结构比较、结构-序列映射、结构基因组学。
+
+### 190. GEO SOFT 格式解析 (Bio.Geo)
+
+实现 GEO（Gene Expression Omnibus）SOFT（Simple Omnibus Format in Text）格式解析器，参考 Biopython `Bio.Geo` 模块及 Barrett T et al. (2013) Nucleic Acids Res 41:D991-5、Edgar R et al. (2002) Nucleic Acids Res 30:207-10。SOFT 格式用于 NCBI GEO 分发平台（Platform）、系列（Series）、样本（Sample）和数据集（Dataset）记录。核心数据结构：GeoEntityType（枚举：Platform/Sample/Series/Dataset/Unknown，跨包构造需用 geo_platform()/geo_sample()/geo_series()/geo_dataset()/geo_unknown() 辅助函数）、GeoAttribute（name、value：! 开头的属性行）、GeoColumnDef（name、description：# 开头的列定义行）、GeoDataTable（columns、rows：数据表，支持 column_index() 按名查列、get_column() 提取列值）、GeoRecord（entity_type、accession、attributes、data_table：完整记录）、GeoFile（records：多记录容器）。解析流程 geo_parse(text)：1) 按换行符分割；2) 逐行扫描 ^ 开头的实体标记（^PLATFORM=GPL1、^SAMPLE=GSM1 等），提取类型和编号；3) geo_parse_record() 解析实体内容：! 行→属性（name=value）、# 行→列定义、其余行→数据表行（制表符分隔），遇下一个 ^ 标记结束当前记录。查询接口：GeoFile::get_by_type() 按类型过滤、get_by_accession() 按编号查找；GeoRecord::get_attribute(name) 按名查属性、title() 搜索 title/Platform_title/Sample_title/Series_title。辅助函数：geo_split_tab() 制表符分割、geo_find_char() 查找字符位置、geo_parse_attribute_line()/geo_parse_column_line() 解析属性行/列定义行。示例数据 geo_sample_text() 生成 1 平台（GPL1，3 探针）+ 2 样本（GSM1 对照、GSM2 处理，各 3 探针表达值）的示例。所有公共标识符以 geo_ 前缀命名。适用于 GEO 数据检索、基因表达矩阵提取、芯片数据重注释。
+
 
 ## 性能优化
 
@@ -2221,8 +2248,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5212 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 5212 |
-| 通过数 | 5212 |
+| 总测试数 | 5281 |
+| 通过数 | 5281 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2448,6 +2475,9 @@ moon test --update
 | bumphunter | `bumphunter_test.mbt` | 23 |
 | scmap | `scmap_test.mbt` | 20 |
 | fishpond (Swish) | `fishpond_test.mbt` | 24 |
+| Bio.Sequencing.Phd | `phd_test.mbt` | 19 |
+| Bio.FSSP | `fssp_test.mbt` | 20 |
+| Bio.Geo | `geo_test.mbt` | 30 |
 
 ### Python 对比测试
 
@@ -2650,6 +2680,9 @@ moon run cmd/bench/main.mbt
 | bumphunter_demo | bumphunter 甲基化区域检测（t统计量、滑动均值平滑、候选bump识别、置换检验、高阈值对照） | `moon run examples/bumphunter_demo/main.mbt` |
 | scmap_demo | scmap 单细胞细胞类型注释（cluster质心Spearman相关、cell k近邻投票、严格阈值对照、分类汇总） | `moon run examples/scmap_demo/main.mbt` |
 | fishpond_demo | fishpond Swish非参数差异表达（Mann-Whitney-Wilcoxon统计、置换检验、BH-FDR、上下调分类） | `moon run examples/fishpond_demo/main.mbt` |
+| phd_demo | Phred PHD文件解析（碱基-质量-峰位三元组、注释元数据、修剪参数、最小PHD解析） | `moon run examples/phd_demo/main.mbt` |
+| fssp_demo | FSSP结构比对数据库（头部元数据、参考比对、Z-score过滤、全部比对列表） | `moon run examples/fssp_demo/main.mbt` |
+| geo_demo | GEO SOFT格式解析（平台/样本记录、数据表、表达值比较、倍数变化计算） | `moon run examples/geo_demo/main.mbt` |
 
 ## 技术栈
 
