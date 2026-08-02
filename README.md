@@ -152,6 +152,12 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.SeqIO.SnapGeneIO | SnapGene .dna二进制格式: 数据包结构(Comments/Features/Sequence/Primers/Notes)、JSON/XML解析、hex字符串I/O、大端序序列化、SeqRecord双向转换 |
 | ✅ | Bio.SeqIO.GckIO | Gene Construction Kit二进制格式: GCK_FILE魔数、大端序u16/u32读写、特征/序列解析、拓扑结构、SeqRecord双向转换 |
 | ✅ | Bio.Motifs.AlignAce | AlignACE模体发现输出格式: 位置频率矩阵(PFM)解析、参数提取、位点信息、PWM转换、信息含量计算(IC)、一致性序列、序列化往返 |
+| ✅ | MMTF | 大分子结构传输格式: 二进制高效编码(Run-Length/Integer Packing)、helix/sheet二级结构、BioAssembly组装、单位晶胞、SeqRecord转换 |
+| ✅ | NACCESS | 溶剂可及表面积深度解析: DSSP风格残基可达性、绝对/相对ASA(ASAFrac)、原子类型分类(主链/侧链/极性/非极性)、残基汇总、RSA分级 |
+| ✅ | Wise2 | 基因预测比对工具: Genewise输出解析(蛋白质-DNA比对)、ESTwise输出解析、dnamotif模式搜索、HMMER2集成、密码子翻译、内含子处理 |
+| ✅ | DNAshapeR | DNA形状预测: 二核苷酸查找表(MGW/Roll/ProT/HelT/EP)、k-mer滑动窗口、A-tract窄小沟识别、GC-rich宽小沟、热图可视化、反向互补 |
+| ✅ | HMMcopy | HMM拷贝数变异检测: GC偏差校正(LOESS分箱)、Viterbi解码、高斯发射概率、前向算法对数似然、片段合并(相邻同CN合并)、CN0/CN3区域识别 |
+| ✅ | SGSeq | 剪接变异检测: 剪接图构建(外显子/连接)、SE/A5SS/A3SS/MXE/RI五类事件检测、PSI量化、读支持过滤、STAR SJ格式解析、变异摘要 |
 
 ### 序列组装算法
 
@@ -681,6 +687,9 @@ IvanAXu/BioSeqs/
 │   ├── mmtf.mbt                # Bio.PDB.mmtf MMTF二进制大分子结构格式 (层级结构、IEEE 754浮点、MsgPack整数、RLE/Delta/Recursive编码、键/实体/晶体学信息)
 │   ├── naccess.mbt             # Bio.PDB.NACCESS NACCESS溶剂可及表面积解析 (残基/原子级ASA、绝对/相对/侧链/主链面积、链总和)
 │   ├── wise.mbt                # Bio.Wise Wise2 DNA-蛋白比对输出解析 (外显子/内含子/比对列、剪接位点相位、比特分数、参数提取)
+│   ├── dnashape.mbt            # Bioconductor DNAshapeR DNA形状预测 (MGW/Roll/ProT/HelT/EP、二核苷酸查找表、k-mer滑动窗口、A-tract窄小沟)
+│   ├── hmmcopy.mbt             # Bioconductor HMMcopy HMM拷贝数变异检测 (GC偏差校正、Viterbi解码、高斯发射、前向算法对数似然、片段合并)
+│   ├── sgseq.mbt               # Bioconductor SGSeq剪接变异检测 (剪接图构建、SE/A5SS/A3SS/MXE/RI五类事件、PSI量化、STAR SJ格式解析)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -986,6 +995,9 @@ IvanAXu/BioSeqs/
 │   ├── mmtf_demo/               # MMTF大分子结构格式示例 (层级结构、键信息、实体、晶体学信息、序列化往返)
 │   ├── naccess_demo/            # NACCESS溶剂可及表面积示例 (残基/原子级ASA、链总和、相对面积)
 │   ├── wise_demo/               # Wise2 DNA-蛋白比对示例 (外显子/内含子、剪接位点、比特分数、参数提取)
+│   ├── dnashape_demo/           # DNAshapeR DNA形状预测示例 (MGW/Roll/ProT/HelT、A-tract vs GC-rich、热图、反向互补)
+│   ├── hmmcopy_demo/            # HMMcopy拷贝数变异检测示例 (GC校正、Viterbi CNV调用、片段合并、CN0/CN3识别)
+│   ├── sgseq_demo/              # SGSeq剪接变异检测示例 (剪接图、SE/A5SS/A3SS/MXE/RI、PSI量化、STAR SJ解析)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1294,7 +1306,10 @@ IvanAXu/BioSeqs/
 │   │   ├── alignace_test.mbt
 │   │   ├── mmtf_test.mbt
 │   │   ├── naccess_test.mbt
-│   │   └── wise_test.mbt
+│   │   ├── wise_test.mbt
+│   │   ├── dnashape_test.mbt
+│   │   ├── hmmcopy_test.mbt
+│   │   └── sgseq_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1483,6 +1498,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7366 个测试全�
 | `mmtf.mbt` | BioPython `Bio.PDB.mmtf` | MMTF二进制大分子结构格式（Structure/Model/Chain/Group/Atom层级结构、IEEE 754浮点编码、MessagePack风格整数编码、Run-length/Delta/Recursive递归编码、键/实体/晶体学信息、序列化往返） |
 | `naccess.mbt` | BioPython `Bio.PDB.NACCESS` | NACCESS溶剂可及表面积输出解析（残基级 .rsa、原子级 .asa、绝对/相对/侧链/主链面积、链总和、Bio.PDB Structure互转） |
 | `wise.mbt` | BioPython `Bio.Wise` | Wise2 DNA-蛋白比对输出解析（GeneWise 外显子/内含子/比对列、剪接位点相位、比特分数、参数提取、蛋白质/DNA序列、序列化） |
+| `dnashape.mbt` | Bioconductor DNAshapeR | DNA形状预测（MGW/Roll/ProT/HelT/EP五特征、二核苷酸查找表、k-mer滑动窗口平均、A-tract窄小沟识别、GC-rich宽小沟、热图可视化、反向互补、二核苷酸组成、GC含量） |
+| `hmmcopy.mbt` | Bioconductor HMMcopy | HMM拷贝数变异检测（GC偏差LOESS分箱校正、Viterbi解码最优状态序列、高斯对数发射概率、7态CN0-CN6模型、前向算法对数似然、片段合并相邻同CN bins、CNV区域识别） |
+| `sgseq.mbt` | Bioconductor SGSeq | 剪接变异检测（剪接图构建外显子/连接、SE/A5SS/A3SS/MXE/RI五类事件、PSI百分剪入量化、读支持过滤、STAR SJ.out.tab格式解析、变异摘要统计） |
 
 #### 扩展功能模块
 
@@ -1631,6 +1649,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7366 个测试全�
 | `cluster_experiment.mbt` | Bioconductor `clusterExperiment` | 共识与序列聚类（clusterMany参数网格集成、makeConsensus共聚类矩阵+平均链接一致性聚类、makeDendrogram聚类树构建、mergeClusters Welch t-test+BH-FDR显著性合并、sequential clustering迭代小簇分离、RSEC完整流水线） |
 | `open_cyto.mbt` | Bioconductor `openCyto` | 自动化流式细胞术门控（gatingTemplate模板驱动、mindensity KDE峰谷检测、tailgate/quantileGate阈值门、flowClust t分布混合EM聚类、rangeGate CDF导数边界、拓扑排序门控层级、群体统计提取） |
 | `ms_core_utils.mbt` | Bioconductor `MsCoreUtils` | 质谱信号处理基础（refineCentroids加权均值质心精化、localMaxima峰检测、joinPeaks ppm/Da容差匹配、Savitzky-Golay/移动平均平滑、SNIP基线估计、calibrant线性/偏移校准、KNN/均值/中位数/半最小值插补、medianPolish行列聚合、TIC归一化） |
+| `dnashape.mbt` | Bioconductor `DNAshapeR` | DNA形状预测（MGW/Roll/ProT/HelT/EP五特征、二核苷酸查找表、k-mer滑动窗口平均、A-tract窄小沟识别、GC-rich宽小沟、热图可视化、反向互补、二核苷酸组成、GC含量） |
+| `hmmcopy.mbt` | Bioconductor `HMMcopy` | HMM拷贝数变异检测（GC偏差LOESS分箱校正、Viterbi解码最优状态序列、高斯对数发射概率、7态CN0-CN6模型、前向算法对数似然、片段合并相邻同CN bins、CNV区域识别） |
+| `sgseq.mbt` | Bioconductor `SGSeq` | 剪接变异检测（剪接图构建外显子/连接、SE/A5SS/A3SS/MXE/RI五类事件、PSI百分剪入量化、读支持过滤、STAR SJ.out.tab格式解析、变异摘要统计） |
 
 ## 核心功能实现
 
@@ -2525,6 +2546,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7366 个测试全�
 
 实现 Wise2 工具输出解析，参考 Biopython `Bio.Wise`。Wise2 是 Ewan Birney 开发的 DNA-蛋白质比较工具包，核心程序 GeneWise 将蛋白质序列与基因组 DNA 比对，预测基因结构（外显子/内含子/剪接位点），支持剪接位点相位（0/1/2，对应密码子位置）、移码、终止密码子检测；Genomewise 则用于组装多个 GeneWise 比对。输出格式包含：头部（Protein:、Gene: 行标识序列名）、Score 行（原始分数）、Bits 行（比特分数）、Probability 行、Exon 块（每个外显子 "Exon p: <start>-<end> (phase) score: <score>"，p: 蛋白坐标，phase: 0/1/2，score: 比对得分）、Intron 行（"Intron g: <start>-<end> phase: <phase>"，g: 基因组坐标）、Supporting 行、Alignment 块（蛋白-基因比对列，含 match/mismatch/indel/intron 标记）、Parameter 行（"Parameter <key> <value>"）。核心数据结构：WiseResult（protein_id、gene_id、score、bits_score、probability、protein_sequence、gene_sequence、exons、introns、alignment、parameters）；WiseExon（start/end 基因组坐标、phase、score、protein_start/protein_end 蛋白坐标）；WiseIntron（start/end 基因组坐标、phase）；WiseAlignmentColumn（protein_char、gene_char、column_type[MATCH/MISMATCH/INSERTION/DELETION/INTRON]）。解析函数 wise_parse(content) 逐行解析：识别 "Protein:"/"Gene:" 提取 ID、识别 "Score:"/"Bits:"/"Probability:" 提取分数、识别 "Exon p:" 解析外显子坐标+相位+分数、识别 "Intron g:" 解析内含子、识别 "Parameter" 提取参数到 Map、识别对齐块（蛋白行 "Protein " + 基因行 "Gene   "）构建比对列。wise_translate_gene(gene_seq, exons) 根据外显子拼接基因编码区并翻译为蛋白质（密码子表查表、相位偏移处理、终止密码子标记 '*'）。WiseResult 提供 get_exons/get_introns/get_alignment/get_num_exons/get_num_introns/get_parameters 查询。wise_sample_output() 提供含 3 个外显子、2 个内含子、4 个参数的示例输出。适用于基因预测、基因结构注释、蛋白质-基因组比对、可变剪接分析。
 
+### 221. DNA 形状预测 (Bioconductor DNAshapeR)
+
+实现 DNA 形状预测功能，参考 Bioconductor `DNAshapeR` 包。DNAshapeR 基于全原子蒙特卡洛模拟预计算的查找表，从 DNA 序列预测五种结构特征：小沟宽度（Minor Groove Width, MGW，5-mer，单位 Å）、Roll（二核苷酸，度）、螺旋扭转（Propeller Twist, ProT，二核苷酸，度）、螺旋扭曲（Helix Twist, HelT，5-mer，度）、静电势（Electrostatic Potential, EP，5-mer，kT/e）。核心思路：每个 k-mer 的形状值为其内部 (k-1) 个重叠二核苷酸值的平均。例如 5-mer MGW 取 4 个二核苷酸 MGW 值平均，4-mer Roll 取 3 个二核苷酸 Roll 值平均。边界位置（序列首尾 center 位置之外）输出 NaN。DNAshapeFeature 枚举（ShapeMGW/ShapeRoll/ShapeProT/ShapeHelT/ShapeEP）提供 to_string 和 kmer_size 方法。dnashape_encode_base 将 ACGT 编码为 0-3，dnashape_encode_kmer 将 k-mer 转为 base-4 索引，dnashape_decode_kmer 反向解码。dnashape_revcomp 计算反向互补。五个查找表 dnashape_get_{roll,prot,mgw,helt,ep}_table 返回 Map[Int, Double]（16 项二核苷酸索引→值），值取自文献（如 AA Roll=-6°、CG Roll=6°、AA MGW=3.5Å A-tract窄沟、AA ProT=15°、TA ProT=-2°、AA HelT=35°、AT HelT=31°）。dnashape_predict(seq, feature) 滑动窗口预测单个特征，返回 DnaShapeResult（values 数组含 NaN、positions 1-based 定义位置）。DnaShapeResult 提供 mean/min/max/get_value/length/feature_name 统计。dnashape_predict_all 一次预测全部四特征返回 DnaShapePrediction。dnashape_heatmap 生成 ASCII 热图（空格→@ 10 级灰度）。dnashape_dinuc_composition 统计 16 种二核苷酸组成，dnashape_gc_content 计算 GC 含量。A-tract（AAAAAAAAAA...）已知有窄小沟（MGW≈3.5），GC-rich（GCGCGC...）有宽小沟（MGW≈4.75）。适用于转录因子结合位点分析、DNA-蛋白相互作用建模、表观遗传学、基因调控元件识别。
+
+### 222. HMM 拷贝数变异检测 (Bioconductor HMMcopy)
+
+实现基于隐马尔可夫模型（HMM）的拷贝数变异（CNV）检测，参考 Bioconductor `HMMcopy` 包。该方法从基因组分箱（bin）的 read 覆盖度推断拷贝数状态，核心流程：GC 偏差校正→Viterbi 解码→片段合并。HMMcopyBin 结构记录每个分箱的 chr/start/end/reads/gc/mappability/corrected_reads/copy/state。GC 偏差校正 hmmcopy_correct_gc 按 GC 含量分箱（默认 20 个 GC bin），计算每个 GC bin 的平均 reads，将每个 bin 的 reads 缩放至全局均值，消除 GC 富集/贫乏区域的系统偏差。HMMcopyModel 定义 7 状态 HMM（CN0-CN6）：transition 矩阵（默认高自转移 0.999、低跨转移）、emissions（各状态期望覆盖度，CN2 单位）、variances（高斯方差）、initial（初始分布）、ploidy（倍性默认 2）。hmmcopy_log_gaussian 计算高斯对数发射概率：-0.5*(ln(2π)+ln(σ²)) - (x-μ)²/(2σ²)。hmmcopy_viterbi 实现经典 Viterbi 算法：初始化 V[0][s]=ln(initial[s])+log_emit，递归 V[t][s_to]=max_s_from(V[t-1][s_from]+ln(transition[s_from][s_to]))+log_emit，回溯得到最优状态序列。覆盖度按全局均值归一化（corrected_reads/mean_cov）使 CN2 期望≈1.0。hmmcopy_call_cnv 调用 Viterbi 设置每个 bin 的 copy/state。hmmcopy_segment 将相邻同 copy 且同 chr 的 bins 合并为 HMMcopySegment（chr/start/end/copy/state/num_bins/mean_reads）。hmmcopy_log_likelihood 使用前向算法（带缩放防下溢）计算对数似然。hmmcopy_sample_bins 生成 100 个 bin 的模拟数据，含 CN0 区域（bins 10-19，reads≈2-4）和 CN3 区域（bins 60-69，reads≈90-99），其余为 CN2（reads≈60-69）。hmmcopy_sample_model 配置 7 状态模型，CN2 初始概率 0.9，方差 0.05。适用于肿瘤 CNV 检测、染色体异常筛查、拷贝数图谱构建、LOH 分析。
+
+### 223. 剪接变异检测 (Bioconductor SGSeq)
+
+实现剪接变异检测，参考 Bioconductor `SGSeq` 包。SGSeq 从 RNA-seq split-read 比对的剪接连接（junction）构建剪接图（splice graph），识别五类可变剪接事件：外显子跳跃（Skipped Exon, SE）、可变 5' 剪接位点（A5SS）、可变 3' 剪接位点（A3SS）、互斥外显子（Mutually Exclusive Exons, MXE）、内含子保留（Retained Intron, RI）。SGSeqJunction 结构记录 chr/start（donor 5' 端）/end（acceptor 3' 端）/strand/count，提供 intron_length（end-start-1）、same_donor、same_acceptor 判断。SGSeqExon 记录 chr/start/end/strand/count/is_cassette，提供 length、contains 方法。SGSeqVariantType 枚举（VariantSE/VariantA5SS/VariantA3SS/VariantMXE/VariantRI）。SGSeqVariant 结构含 chr/start/end/strand/variant_type/inclusion_count/exclusion_count/psi/details，提供 compute_psi（inclusion/(inclusion+exclusion)）、is_significant（PSI 0.1-0.9 且总读数≥10）。sgseq_parse_junctions 解析 STAR SJ.out.tab 格式（chr\tstart\tend\tstrand[0/1/2]\tcount），0-based 转 1-based。sgseq_build_splice_graph 从 junction 构建外显子：首外显子（1→j1.start）、中间外显子（j[k].end→j[k+1].start）、末外显子（j.last.end→+1000）。sgseq_detect_se 检测 SE：查找被 skipping junction 跨越且两端有 inclusion junction 的 cassette exon，inclusion_count=两端 junction count 之和/2，exclusion_count=skipping count。sgseq_detect_a5ss 按 (chr, end) 分组找同 acceptor 不同 donor。sgseq_detect_a3ss 按 (chr, start) 分组找同 donor 不同 acceptor。sgseq_detect_mxe 检查外显子对是否有互斥包含证据（无 skip_both junction）。sgseq_detect_ri 检测低 junction count（<10）且 intron 区域有外显子覆盖的保留内含子。sgseq_detect_variants 汇总五类检测。sgseq_quantify_psi 从 junction 重新量化 PSI。sgseq_filter_variants 按最小读数过滤。sgseq_summary 按类型统计变异数。sgseq_sample_junctions 生成含 5 正常 junction + SE skipping + A5SS + A3SS 的 7 junction 示例。sgseq_sample_exons 生成 5 外显子示例。适用于可变剪接分析、转录本异构体鉴定、RNA-seq 差异剪接、基因调控研究。
+
 
 ## 性能优化
 
@@ -2627,8 +2660,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7366 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 7563 |
-| 通过数 | 7563 |
+| 总测试数 | 7657 |
+| 通过数 | 7657 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2905,6 +2938,9 @@ moon test --update
 | Bio.PDB.mmtf | `mmtf_test.mbt` | 74 |
 | Bio.PDB.NACCESS | `naccess_test.mbt` | 64 |
 | Bio.Wise | `wise_test.mbt` | 59 |
+| DNAshapeR | `dnashape_test.mbt` | 29 |
+| HMMcopy | `hmmcopy_test.mbt` | 29 |
+| SGSeq | `sgseq_test.mbt` | 36 |
 
 ### Python 对比测试
 
@@ -2991,7 +3027,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 289 个示例程序，展示各模块的典型用法：
+项目提供 292 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3152,6 +3188,9 @@ moon run cmd/bench/main.mbt
 | mmtf_demo | MMTF大分子结构二进制格式（层级结构、键信息、实体、晶体学信息、序列化往返） | `moon run examples/mmtf_demo/main.mbt` |
 | naccess_demo | NACCESS溶剂可及表面积（残基/原子级ASA、链总和、相对面积） | `moon run examples/naccess_demo/main.mbt` |
 | wise_demo | Wise2 DNA-蛋白比对输出（外显子/内含子、剪接位点、比特分数、参数提取） | `moon run examples/wise_demo/main.mbt` |
+| dnashape_demo | DNAshapeR DNA形状预测（MGW/Roll/ProT/HelT、A-tract vs GC-rich、热图、反向互补） | `moon run examples/dnashape_demo/main.mbt` |
+| hmmcopy_demo | HMMcopy拷贝数变异检测（GC校正、Viterbi CNV调用、片段合并、CN0/CN3识别） | `moon run examples/hmmcopy_demo/main.mbt` |
+| sgseq_demo | SGSeq剪接变异检测（剪接图、SE/A5SS/A3SS/MXE/RI、PSI量化、STAR SJ解析） | `moon run examples/sgseq_demo/main.mbt` |
 
 ## 技术栈
 
