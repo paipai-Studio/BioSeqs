@@ -131,6 +131,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | ChemmineR | 化学信息学工具包: SDF格式解析/序列化、分子描述符(MW/分子式/环数/重原子数)、原子对指纹、Tanimoto/Dice相似度、子结构搜索(回溯匹配) |
 | ✅ | ANCOMBC | 微生物组组成分析(偏差校正): 采样比例估计、对数比偏差校正、参考特征选择、Welch t检验差异丰度、ANCOM W统计量、BH-FDR校正 |
 | ✅ | StructuralVariantAnnotation | 结构变异注释: VCF BND断裂端解析(4种ALT格式)、SV类型推断(DEL/DUP/INV/INS/TRA/BND)、伴侣配对、基因区域重叠注释、质量/大小/类型过滤 |
+| ✅ | diffcyt | 高维流式细胞术差异分析: FlowSOM风格聚类(在线SOM更新)、负二项GLM差异丰度(DA)检验、经验贝叶斯调节t检验差异状态(DS)检验、BH-FDR校正 |
+| ✅ | HiC-DC+ | Hi-C/HiChIP显著染色质交互检测: 负二项GLM背景建模(IRLS估计)、z-score显著性检验、BH-FDR校正、方向性指数TAD边界调用、PCA A/B compartment调用 |
+| ✅ | velociraptor | 单细胞RNA velocity分析: 稳态线性回归(gamma/beta比估计)、EM算法动力学模型(alpha/beta/gamma参数估计)、velocity向量计算、KNN加权嵌入投影、根细胞识别 |
 
 ### 序列组装算法
 
@@ -633,6 +636,9 @@ IvanAXu/BioSeqs/
 │   ├── primer3.mbt             # Bio.Emboss.Primer3 PCR引物设计 (Wallace/盐校正Tm、GC含量、自互补/交叉二聚体评分、引物设计流水线)
 │   ├── freq_table.mbt          # Bio.SubsMat.FreqTable 频率表 (计数/频率构建、Shannon熵、KL散度、JS距离、归一化)
 │   ├── ig_io.mbt               # Bio.SeqIO.IgIO IntelliGenetics/MASE格式 (注释行解析、标题、序列折行/序列化、SeqRecord转换)
+│   ├── diffcyt.mbt             # diffcyt 高维流式细胞术差异分析 (FlowSOM聚类、负二项GLM DA检验、经验贝叶斯DS检验、BH-FDR)
+│   ├── hicdc.mbt               # HiC-DC+ Hi-C显著交互检测 (负二项GLM背景建模、z-score检验、方向性指数TAD调用、PCA A/B compartment)
+│   ├── velociraptor.mbt        # velociraptor 单细胞RNA velocity (稳态回归、EM动力学模型、velocity向量、KNN嵌入投影)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -914,6 +920,9 @@ IvanAXu/BioSeqs/
 │   ├── logistic_regression_demo/ # LogisticRegression逻辑回归示例 (Newton-Raphson训练、概率计算、操纵子预测)
 │   ├── max_entropy_demo/         # MaxEntropy最大熵分类示例 (IIS训练、特征函数、汽车偏好分类)
 │   ├── neural_network_demo/      # NeuralNetwork神经网络示例 (反向传播训练、XOR问题、iris分类)
+│   ├── diffcyt_demo/             # diffcyt流式细胞术差异分析示例 (FlowSOM聚类、DA/DS检验、FDR校正)
+│   ├── hicdc_demo/               # HiC-DC+ Hi-C显著交互检测示例 (背景建模、显著性检验、TAD/A-B compartment调用)
+│   ├── velociraptor_demo/        # velociraptor RNA velocity示例 (稳态/动力学模型、velocity向量、嵌入投影、根细胞识别)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1198,7 +1207,10 @@ IvanAXu/BioSeqs/
 │   │   ├── structural_variant_test.mbt
 │   │   ├── logistic_regression_test.mbt
 │   │   ├── max_entropy_test.mbt
-│   │   └── neural_network_test.mbt
+│   │   ├── neural_network_test.mbt
+│   │   ├── diffcyt_test.mbt
+│   │   ├── hicdc_test.mbt
+│   │   └── velociraptor_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1224,7 +1236,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6505 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6572 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1511,6 +1523,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6505 个测试全�
 | `chemminer.mbt` | `ChemmineR` | 化学信息学工具包（SDF格式解析/序列化、分子描述符MW/分子式/环数/重原子数、原子对指纹、Tanimoto/Dice相似度、子结构搜索回溯匹配） |
 | `ancombc.mbt` | `ANCOMBC` | 微生物组组成分析偏差校正（采样比例估计、对数比偏差校正、参考特征选择、Welch t检验差异丰度、ANCOM W统计量、BH-FDR校正） |
 | `structural_variant.mbt` | `StructuralVariantAnnotation` | 结构变异注释（VCF BND断裂端解析4种ALT格式、SV类型推断DEL/DUP/INV/INS/TRA/BND、伴侣配对、基因区域重叠注释、质量/大小/类型过滤） |
+| `diffcyt.mbt` | `diffcyt` | 高维流式细胞术差异分析（FlowSOM风格在线SOM聚类、负二项GLM差异丰度DA检验IRLS、经验贝叶斯调节t检验差异状态DS、BH-FDR校正） |
+| `hicdc.mbt` | `HiC-DC+` | Hi-C/HiChIP显著染色质交互检测（负二项GLM背景建模距离/GC/mappability、IRLS参数估计、z-score显著性检验、方向性指数TAD边界调用、PCA A/B compartment调用） |
+| `velociraptor.mbt` | `velociraptor` | 单细胞RNA velocity分析（稳态线性回归gamma/beta比、EM动力学模型alpha/beta/gamma估计、velocity向量计算、KNN加权嵌入投影、根细胞识别、转移矩阵） |
 
 ## 核心功能实现
 
@@ -2304,6 +2319,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6505 个测试全�
 
 实现前馈神经网络，参考 Biopython `Bio.NeuralNetwork.BackPropagation` 模块及 Rumelhart et al. (1986) Nature 323:533-536。核心数据结构：NnLayer（n_in 输入数、n_out 输出数、weights[n_out][n_in] 权重矩阵、biases[n_out] 偏置、last_input/last_output 缓存用于反向传播、weight_grads/bias_grads 梯度累加器）、NeuralNetwork（input_layer/hidden_layer/output_layer 三层网络、learning_rate 学习率、momentum 动量、prev_*_deltas 上一轮权重增量用于动量）。网络构造 NeuralNetwork::new(n_input, n_hidden, n_output)：初始化三层网络，权重使用 LCG 伪随机数生成器初始化为 [-0.5, 0.5)，偏置初始化为零。前向传播 nn_forward(network, input)：输入层→隐藏层（sigmoid 激活）→输出层（sigmoid 激活），缓存每层输入/输出供反向传播使用。训练 nn_train_example(network, input, target)：反向传播算法：1) 前向传播计算输出；2) 输出层 delta = (output - target) · sigmoid'(output)；3) 隐藏层 delta = (Σ_j w_ji · delta_j) · sigmoid'(hidden)；4) 权重更新 w -= lr · delta · input + momentum · prev_delta；5) 偏置更新 b -= lr · delta + momentum · prev_bias_delta；6) 返回均方误差。批量训练 nn_train(network, inputs, targets, n_epochs) 循环训练多个 epoch。预测 nn_predict(network, input) 返回 argmax 输出索引。配置：set_learning_rate(lr)、set_momentum(m) 返回新实例。辅助函数：nn_sigmoid() 溢出保护sigmoid、nn_sigmoid_deriv() sigmoid导数（a·(1-a)）、nn_random_weight() LCG伪随机权重生成。示例数据：nn_sample_xor_data() 提供 XOR 问题（4 个样本，2 输入 1 输出）、nn_sample_iris_data() 提供 iris 分类（15 个样本，2 特征 3 类别 one-hot 编码）。所有公共标识符以 nn_ 前缀命名。适用于模式识别、分类问题、函数逼近、基因预测。
 
+### 197. diffcyt 高维流式细胞术差异分析 (Bioconductor diffcyt)
+
+实现高维流式细胞术（CyTOF）差异发现分析，参考 Bioconductor `diffcyt` 包及 Weber & Robinson (2016) Nat Methods 17:792。核心数据结构：CytometryCell（cell_id、sample_id、condition、marker_values 标记表达值数组、mut cluster_id 聚类分配）、DiffcytDAResult（cluster_id、log_fc、p_value、mut fdr、mut significant 差异丰度结果）、DiffcytDSResult（cluster_id、marker_idx、marker_name、log_fc、p_value、mut fdr、mut significant 差异状态结果）。聚类 diffcyt_cluster_cells(cells, n_clusters, n_iterations)：FlowSOM 风格在线自组织映射（SOM）算法：1) LCG 随机初始化 n_clusters 个 codebook 向量；2) 在线更新：每个细胞分配到最近 codebook（欧氏距离），winner codebook 以学习率 α = α0·(1-t/T) 衰减向细胞表达值移动；3) 邻居影响：所有 codebook 以较小学习率 0.1·α 同步更新；4) 返回最终 codebook 矩阵并设置每细胞的 cluster_id。差异丰度 DA 检验 diffcyt_testDA(counts, design, contrast_col, n_clusters)：负二项广义线性模型：1) 构建设计矩阵（截距+条件列）；2) IRLS 迭代加权最小二乘：计算 mu = exp(X·β)，方差 var = mu + dispersion·mu²，权重 w = mu/var，工作响应 z = log(mu) + (y-mu)/mu；3) 加权正规方程 XᵀWX·β = XᵀWz，高斯消元求解；4) 离散度方法矩估计 dispersion = (Σ(y-mu)²/N - mean)/mean²；5) Wald 检验：z = β_j/SE，p = 2·(1-Φ(|z|))；6) BH-FDR 校正。差异状态 DS 检验 diffcyt_testDS(cells, sample_ids, conditions, n_clusters, n_markers, marker_names)：经验贝叶斯调节 t 检验：1) 按 sample×cluster 聚合细胞并计算每 marker 均值；2) 每簇每标记拟合线性模型 y = β0 + β1·condition；3) 残差标准误和自由度计算；4) 经验贝叶斯调节：收缩 s² 向 pooled s² 方差估计靠拢，先验自由度 df0 = n_clusters-1，后验方差 s²_post = (df0·s²_pool + df·s²)/(df0+df)；5) 调节 t 统计量 t = β1/SE_post；6) 正态 CDF p 值 + BH-FDR。辅助函数：diffcyt_create_design(conditions) 构建设计矩阵、diffcyt_bh_fdr(p_values) BH 校正、diffcyt_sample_data() 模拟 80 细胞 5 簇 3 标记 4 样本 2 条件数据集（含 DA/DS 信号）。所有公共标识符以 diffcyt_ 前缀命名。适用于 CyTOF 免疫表型分析、细胞群体差异丰度、细胞状态差异表达。
+
+### 198. HiC-DC+ Hi-C 显著染色质交互检测 (Bioconductor HiC-DC+)
+
+实现 Hi-C/HiChIP 显著染色质交互检测，参考 Bioconductor `HiC-DC+` 包及 Sahin M et al. (2021) Nat Commun 12:3366。核心数据结构：HiCContact（chr、bin1、bin2、mut count、distance、mut gc_content、mut mappability 染色质接触记录）、HiCDCResult（chr、bin1、bin2、observed、expected、log_fc、p_value、mut fdr、mut significant 显著性结果）、TADBoundary（chr、bin、directionality_index TAD 边界）、CompartmentCall（chr、bin、pc1、compartment A/B 染色质区室）。背景建模 hicdc_fit_background(contacts)：负二项 GLM 拟合：1) 设计矩阵 [1, log(1+distance), gc-0.5, mappability-1]；2) IRLS 迭代：mu = exp(X·β)，方差 var = mu + dispersion·mu²，权重 w = mu/var，工作响应 z = log(mu)+(y-mu)/mu；3) 加权正规方程高斯消元求解；4) 离散度方法矩估计；5) 返回 (intercept, beta_dist, beta_gc, beta_map, dispersion)。显著性检验 hicdc_test_significance(contacts, intercept, beta_dist, beta_gc, beta_map, dispersion)：1) 预测每接触期望计数 mu = exp(X·β)；2) 计算负二项 z 分数 z = (log(observed)-log(expected)+0.5·log(1+dispersion·observed))/sqrt(log(1+1/(dispersion·expected)))；3) 双侧 p 值 = 2·(1-Φ(|z|))；4) BH-FDR 校正；5) log_fc = log((observed+0.5)/(expected+0.5))。TAD 调用 hicdc_call_tads(contacts, n_bins, window, chr)：方向性指数（DI）法：1) 构建接触矩阵；2) 每 bin 计算 DI = (B-A)/(A+B)，其中 A = 上游 window 内接触和，B = 下游 window 内接触和；3) 检测 DI 符号变化（负→正）作为 TAD 边界；4) 输出边界 bin 和 DI 值。A/B compartment 调用 hicdc_call_compartments(contacts, n_bins, chr)：1) 构建对称接触矩阵；2) 计算Pearson相关矩阵；3) 幂迭代法求第一主成分 PC1；4) PC1 > 0 标记为 A compartment（活跃），PC1 < 0 标记为 B compartment（抑制）。辅助函数：hicdc_predict_expected() 预测期望计数、hicdc_mark_significant() 标记显著结果、hicdc_directionality_index() 计算DI、hicdc_run() 完整流水线、hicdc_differential() 差异交互分析、hicdc_sample_data() 模拟 20 bin 210 接触数据（含 chr1:2-8 loop 信号）、hc_normal_cdf() 正态CDF近似、hc_lower_gamma_p()/hc_upper_gamma_q() 不完全Gamma函数、hc_log_gamma() Lanczos对数Gamma、hc_sin() Taylor正弦、hc_solve() 高斯消元。所有公共标识符以 hicdc_/hc_ 前缀命名。适用于 Hi-C/HiChIP 显著交互识别、染色质三维结构分析、TAD 和 compartment 检测。
+
+### 199. velociraptor 单细胞 RNA velocity 分析 (Bioconductor velociraptor)
+
+实现单细胞 RNA velocity 分析，参考 Bioconductor `velociraptor` 包（scVelo 的 R 封装）及 La Manno G et al. (2018) Nature 560:494 和 Bergen V et al. (2020) Nat Biotechnol 38:1408。核心数据结构：VelocityGeneData（gene_name、spliced、unspliced 每基因剪接/未剪接计数）、GeneKinetics（gene_name、alpha 转录率、beta 剪接率、gamma 降解率、likelihood 似然、steady_state_u、steady_state_s 稳态值）、CellVelocity（cell_id、velocity 每基因 velocity 向量、speed 速度模长）、EmbeddingVelocity（cell_id、embedding 低维坐标、velocity_embedding 投影 velocity）。稳态模型 velocity_steady_state(spliced, unspliced)：La Manno 2018 线性回归：1) 按剪接值排序细胞；2) 选取上 20% 分位数细胞作为稳态群体；3) 最小二乘拟合 unspliced ~ spliced，斜率 = gamma/beta 比；4) 返回 (gamma_beta_ratio, ss_s, ss_u)。动力学模型 velocity_kinetic_model(gene_name, spliced, unspliced, n_iterations)：scVelo EM 算法：1) 用稳态模型初始化 alpha、beta、gamma；2) 计数归一化（除以最大值避免数值问题）；3) E-step：基于 unspliced 与期望稳态值 u_expected = (alpha-gamma·s)/beta 的偏差分配细胞阶段——偏差 < 0.1 为 steady（阶段1），偏差 > 0 为 induction（阶段0，转录激活），偏差 < 0 为 repression（阶段2，转录抑制）；4) M-step：从 steady 细胞重新估计 gamma/beta 比（最小二乘），从 induction 细胞估计 alpha = beta·u_mean + gamma·s_mean；5) 计算似然（负残差平方和）；6) 返回 GeneKinetics 含 alpha/beta/gamma/likelihood/稳态值。velocity 计算 velocity_compute(gene_data, kinetics)：每细胞每基因 v = beta·u - gamma·s（La Manno 公式），speed = ||v||₂。嵌入投影 velocity_embedding(velocities, embeddings, k)：KNN 加权平均：1) 对每细胞找 k 最近邻（欧氏距离）；2) 速度投影 = Σ_neighbors w·(emb_j - emb_i)/||emb_j - emb_i||，权重 w = 1/(distance+ε) 归一化；3) 返回 EmbeddingVelocity 含位置和投影速度向量。辅助函数：velocity_root_cell(velocities) 识别根细胞（最高 speed）、velocity_transition_matrix(velocities, embeddings, k) 计算细胞间转移矩阵（KNN+softmax）、velocity_sample_data() 模拟 4 基因 20 细胞 spliced/unspliced 数据（含诱导/抑制模式）、vr_abs/vr_sqrt/vr_log/vr_exp/vr_mean/vr_variance 数值工具。所有公共标识符以 velocity_/vr_ 前缀命名。适用于单细胞转录动力学推断、细胞命运方向预测、轨迹分析、发育谱系重建。
+
 
 ## 性能优化
 
@@ -2406,8 +2433,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6505 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 6505 |
-| 通过数 | 6505 |
+| 总测试数 | 6572 |
+| 通过数 | 6572 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2660,6 +2687,9 @@ moon test --update
 | LogisticRegression | `logistic_regression_test.mbt` | 17 |
 | MaxEntropy | `max_entropy_test.mbt` | 24 |
 | NeuralNetwork | `neural_network_test.mbt` | 27 |
+| diffcyt | `diffcyt_test.mbt` | 21 |
+| HiC-DC+ | `hicdc_test.mbt` | 22 |
+| velociraptor | `velociraptor_test.mbt` | 24 |
 
 ### Python 对比测试
 
@@ -2746,7 +2776,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 265 个示例程序，展示各模块的典型用法：
+项目提供 268 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -2883,6 +2913,9 @@ moon run cmd/bench/main.mbt
 | logistic_regression_demo | LogisticRegression逻辑回归（Newton-Raphson训练、概率计算、操纵子预测） | `moon run examples/logistic_regression_demo/main.mbt` |
 | max_entropy_demo | MaxEntropy最大熵分类（IIS训练、特征函数、汽车偏好分类） | `moon run examples/max_entropy_demo/main.mbt` |
 | neural_network_demo | NeuralNetwork神经网络（反向传播训练、XOR问题、iris分类） | `moon run examples/neural_network_demo/main.mbt` |
+| diffcyt_demo | diffcyt高维流式细胞术差异分析（FlowSOM聚类、负二项GLM DA检验、经验贝叶斯DS检验、BH-FDR校正） | `moon run examples/diffcyt_demo/main.mbt` |
+| hicdc_demo | HiC-DC+ Hi-C显著交互检测（负二项GLM背景建模、z-score显著性检验、方向性指数TAD调用、PCA A/B compartment） | `moon run examples/hicdc_demo/main.mbt` |
+| velociraptor_demo | velociraptor单细胞RNA velocity（稳态/动力学EM模型、velocity向量计算、KNN嵌入投影、根细胞识别、转移矩阵） | `moon run examples/velociraptor_demo/main.mbt` |
 
 ## 技术栈
 
