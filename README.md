@@ -318,6 +318,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **PairwiseAligner 统一比对器** | Biopython `Bio.Align.PairwiseAligner` | 全局(Needleman-Wunsch)/局部(Smith-Waterman)双序列统一比对、Gotoh仿射空位罚分(open+extend)、独立target/query gap参数、DNA打分/蛋白质BLOSUM62替换矩阵、一致/匹配线、identity%/gaps计数、target_start/end query_start/end定位 | ✅ |
 | **NaiveBayes 序列分类器** | Biopython `Bio.NaiveBayes` | 基于k-mer频率的朴素贝叶斯序列分类、Laplace平滑(alpha参数)、对数后验概率、softmax归一化概率、top-K预测、类别先验、准确率计算、AT/GC富集分类示例 | ✅ |
 | **Markov 马尔可夫链建模** | Biopython `Bio.Markov` | 1/2/3阶马尔可夫链训练、状态字母表(DNA/蛋白质)、转移概率矩阵+伪计数平滑、序列对数概率打分、单位置log-prob数组、加权采样生成序列、CpG岛log-odds检测、稳态分布迭代求解 | ✅ |
+| **LogisticRegression 逻辑回归** | Biopython `Bio.LogisticRegression` | 二分类逻辑回归、Newton-Raphson优化、步长减半防发散、高斯消元解Hessian方程、sigmoid概率、对数似然收敛判定、操纵子预测示例 | ✅ |
+| **MaxEntropy 最大熵分类器** | Biopython `Bio.MaxEntropy` | 最大熵分类、改进迭代尺度IIS训练、指示特征函数、softmax归一化、经验期望/模型期望、Newton法求解delta、汽车偏好分类示例 | ✅ |
+| **NeuralNetwork 神经网络** | Biopython `Bio.NeuralNetwork` | 前馈神经网络、反向传播训练、sigmoid激活、学习率/动量参数、权重矩阵/偏置、XOR问题/iris分类示例、权重随机初始化 | ✅ |
 
 项目致力于打造一个完整、高效的生物信息学工具库，覆盖从基础序列处理到高级序列组装的全流程。
 
@@ -476,6 +479,9 @@ IvanAXu/BioSeqs/
 │   ├── chemminer.mbt           # ChemmineR 化学信息学 (SDF解析、分子描述符、原子对指纹、Tanimoto/Dice相似度、子结构搜索)
 │   ├── ancombc.mbt             # ANCOMBC 微生物组差异丰度 (采样比例、偏差校正、Welch t检验、ANCOM W统计量、BH-FDR)
 │   ├── structural_variant.mbt  # StructuralVariantAnnotation 结构变异注释 (BND解析、SV类型推断、伴侣配对、基因重叠注释)
+│   ├── logistic_regression.mbt # Bio.LogisticRegression 逻辑回归 (Newton-Raphson优化、Hessian求解、sigmoid概率、二分类)
+│   ├── max_entropy.mbt         # Bio.MaxEntropy 最大熵分类器 (IIS训练、指示特征、softmax归一化、经验/模型期望)
+│   ├── neural_network.mbt      # Bio.NeuralNetwork 神经网络 (前馈网络、反向传播、sigmoid激活、学习率/动量)
 │   ├── flow_core.mbt           # flowCore 流式细胞术FCS处理 (数据变换、荧光补偿、矩形/多边形/椭球/四象限门控)
 │   ├── bsseq.mbt               # bsseq 亚硫酸氢盐测序分析 (BSmooth平滑、DMR检测、CpG合并、甲基化率计算)
 │   ├── single_cell_experiment.mbt  # SingleCellExperiment 单细胞核心容器 (多assay、PCA/tSNE/UMAP降维、size factors)
@@ -905,6 +911,9 @@ IvanAXu/BioSeqs/
 │   ├── chemminer_demo/           # ChemmineR化学信息学示例 (SDF解析、分子描述符、原子对指纹、Tanimoto/Dice相似度、子结构搜索)
 │   ├── ancombc_demo/             # ANCOMBC微生物组差异丰度示例 (采样比例、偏差校正、Welch t检验、ANCOM W统计量、BH-FDR)
 │   ├── sv_demo/                  # StructuralVariantAnnotation结构变异注释示例 (BND解析、SV类型推断、伴侣配对、基因重叠注释)
+│   ├── logistic_regression_demo/ # LogisticRegression逻辑回归示例 (Newton-Raphson训练、概率计算、操纵子预测)
+│   ├── max_entropy_demo/         # MaxEntropy最大熵分类示例 (IIS训练、特征函数、汽车偏好分类)
+│   ├── neural_network_demo/      # NeuralNetwork神经网络示例 (反向传播训练、XOR问题、iris分类)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1186,7 +1195,10 @@ IvanAXu/BioSeqs/
 │   │   ├── ma_align_test.mbt
 │   │   ├── chemminer_test.mbt
 │   │   ├── ancombc_test.mbt
-│   │   └── structural_variant_test.mbt
+│   │   ├── structural_variant_test.mbt
+│   │   ├── logistic_regression_test.mbt
+│   │   ├── max_entropy_test.mbt
+│   │   └── neural_network_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1212,7 +1224,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6446 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6505 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1366,6 +1378,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6446 个测试全�
 | `primer3.mbt` | BioPython `Bio.Emboss.Primer3` | PCR 引物设计（Wallace/盐校正 Tm、GC 含量、自互补/交叉二聚体评分、引物设计流水线） |
 | `freq_table.mbt` | BioPython `Bio.SubsMat.FreqTable` | 频率表（计数/频率构建、Shannon 熵、KL 散度、JS 距离、归一化） |
 | `ig_io.mbt` | BioPython `Bio.SeqIO.IgIO` | IntelliGenetics/MASE 格式（注释行解析、标题、序列折行/序列化、SeqRecord 转换） |
+| `logistic_regression.mbt` | BioPython `Bio.LogisticRegression` | 二分类逻辑回归（Newton-Raphson优化、高斯消元解Hessian方程、步长减半、对数似然收敛、sigmoid概率、操纵子预测） |
+| `max_entropy.mbt` | BioPython `Bio.MaxEntropy` | 最大熵分类器（改进迭代尺度IIS训练、指示特征函数、softmax归一化、经验/模型期望、汽车偏好分类） |
+| `neural_network.mbt` | BioPython `Bio.NeuralNetwork` | 前馈神经网络（反向传播训练、sigmoid激活、学习率/动量参数、权重随机初始化、XOR/iris分类） |
 
 #### 扩展功能模块
 
@@ -2277,6 +2292,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6446 个测试全�
 
 实现结构变异注释，参考 Bioconductor `StructuralVariantAnnotation` 包。核心数据结构：SvType（枚举：DEL 删除/DUP 重复/INV 倒位/INS 插入/TRA 染色体间易位/BND 断裂端）、SvBreakend（chrom、pos、strand、mate_chrom、mate_pos、mate_strand、mate_id：断裂端，BND 记录的两个断裂端互为伴侣）、SvRecord（id、chrom、pos、sv_type、end、svlen、breakend?、quality、filter：VCF 解析的 SV 记录）、SvGeneRegion（gene、chrom、start、end：基因区域用于重叠注释）、SvAnnotation（record、genes：注释结果）。VCF BND ALT 解析 sv_parse_bnd_alt(alt, chrom, pos)：处理 4 种 BND ALT 格式：1) t[p[ ：右侧延伸正向链；2) t]p] ：右侧延伸反向链；3) ]p]t ：左侧连接反向链；4) [p[t ：左侧连接正向链。通过括号字符识别格式，提取 mate 位置 "chrom:pos"，根据括号方向判定 strand 和 mate_strand。VCF 行解析 sv_parse_vcf_line(line)：1) 跳过 # 头部；2) 制表符分割字段；3) 解析 CHROM/POS/ID/ALT/QUAL/FILTER/INFO；4) INFO 字段解析为 Map（键值对 ; 分隔）；5) 从 SVTYPE 推断 SvType；6) 从 END/SVLEN 解析坐标；7) BND 类型或 ALT 含 [ ] 时解析断裂端。伴侣配对 sv_find_partners(records)：遍历所有 BND 记录，若记录 i 的 mate_chrom/mate_pos 匹配记录 j 的 chrom/pos 且反之亦然，则配对。基因重叠注释 sv_annotate(records, genes)：对每 SV 计算其坐标范围（BND 时含 mate 端），与基因区域比较，返回重叠基因列表。过滤：sv_filter_by_quality(records, min_qual) 按质量过滤、sv_filter_by_size(records, min_size) 按大小过滤、sv_filter_by_type(records, sv_type) 按类型过滤。统计 sv_count_by_type(records) 返回各类型计数 Map。示例数据：sv_sample_vcf() 提供 6 条 SV 记录（DEL/DUP/INV/INS + 2 条互为伴侣的 BND）、sv_sample_records() 直接提供 SvRecord 数组、sv_sample_genes() 提供 5 个基因区域（BRCA1/BRCA2/TP53/EGFR/KRAS）。所有公共标识符以 sv_ 前缀命名。适用于结构变异检测后处理、BND 伴侣配对、SV 基因注释、SV 质量控制。
 
+### 194. LogisticRegression 逻辑回归 (Biopython Bio.LogisticRegression)
+
+实现二分类逻辑回归分类器，参考 Biopython `Bio.LogisticRegression` 模块及 Chang J (2002)。核心数据结构：LogisticRegressionModel（beta 权重向量，beta[0] 为偏置项）。训练 logistic_regression_train(xs, ys)：Newton-Raphson 优化迭代：1) 构建设计矩阵 x_design（每观测前加常数 1.0 作为偏置维度）；2) 初始化 beta 为零向量；3) 迭代计算：概率 p_i = sigmoid(beta · x_i)，对数似然 llik = Σ[y·log(p) + (1-y)·log(1-p)]；4) 梯度 grad = x_design^T · (y - p)，Hessian 矩阵 H = x_design^T · W · x_design（W = diag(p·(1-p))）；5) 高斯消元法解 H · delta = grad（带部分主元选取），更新 beta += stepsize · delta；6) 步长减半策略：若对数似然下降则恢复旧 beta 并将步长减半，防止发散；7) 收敛判定：|llik - old_llik| ≤ 0.01。预测 logistic_regression_calculate(model, x) 返回 [P(class=0), P(class=1)]，logistic_regression_classify(model, x) 返回 0 或 1。辅助函数：lr_sigmoid() 溢出保护sigmoid、lr_safe_log() 安全对数、lr_dot() 点积、lr_solve() 高斯消元线性方程组求解。示例数据：logistic_regression_sample_data() 提供枯草芽孢杆菌操纵子预测数据集（17 个基因对，2 特征：基因间距离和表达评分相似度，10 个 OP + 7 个 NOP）。所有公共标识符以 logistic_regression_ 前缀命名。适用于二分类问题、操纵子结构预测、基因共表达分析。
+
+### 195. MaxEntropy 最大熵分类器 (Biopython Bio.MaxEntropy)
+
+实现最大熵分类器，参考 Biopython `Bio.MaxEntropy` 模块及 Della Pietra et al. (1997) IEEE Trans PAMI 19:380-393。核心数据结构：MaxEntFeature（attribute_index、attribute_value、class_label：指示特征，当观测值[属性索引]==属性值且类别==类标签时为1，否则0）、MaxEntropyModel（classes 类别列表、alphas 特征权重、features 特征列表）。训练 max_entropy_train(training_set, results, features)：改进迭代尺度 IIS 算法：1) 收集唯一类别列表；2) 初始化 alphas 为零；3) 预计算经验期望 E_emp[f_i] = (1/N) Σ f_i(x, y)；4) IIS 迭代：对每个特征 i，计算模型期望 E_model[f_i] = (1/N) Σ_x Σ_y P(y|x) · f_i(x, y)，其中 P(y|x) 通过 softmax 归一化计算（对数分数 = Σ alpha_j · f_j(x, y)，减最大值稳定后 exp 归一化）；5) 计算 f^#(x) = Σ_y f(x, y) 的平均值（指示特征时为0或1）；6) Newton 法求解 delta = ln(E_emp / E_model) / f^#；7) 更新 alpha_i += delta_i；8) 收敛判定：max|delta| < 1e-5。预测 max_entropy_calculate(model, observation) 返回各类别非归一化对数概率数组，max_entropy_classify(model, observation) 返回概率最高的类别。辅助函数：me_safe_exp()/me_safe_log() 溢出保护、me_f_correction() 计算 f^# 修正项。示例数据：max_entropy_sample_data() 提供汽车偏好分类数据集（10 个观测，3 属性：颜色/类型/产地，2 类别：Yes/No，12 个指示特征）。所有公共标识符以 max_entropy_/max_ent_ 前缀命名。适用于文本分类、属性数据分类、生物序列标注。
+
+### 196. NeuralNetwork 神经网络 (Biopython Bio.NeuralNetwork)
+
+实现前馈神经网络，参考 Biopython `Bio.NeuralNetwork.BackPropagation` 模块及 Rumelhart et al. (1986) Nature 323:533-536。核心数据结构：NnLayer（n_in 输入数、n_out 输出数、weights[n_out][n_in] 权重矩阵、biases[n_out] 偏置、last_input/last_output 缓存用于反向传播、weight_grads/bias_grads 梯度累加器）、NeuralNetwork（input_layer/hidden_layer/output_layer 三层网络、learning_rate 学习率、momentum 动量、prev_*_deltas 上一轮权重增量用于动量）。网络构造 NeuralNetwork::new(n_input, n_hidden, n_output)：初始化三层网络，权重使用 LCG 伪随机数生成器初始化为 [-0.5, 0.5)，偏置初始化为零。前向传播 nn_forward(network, input)：输入层→隐藏层（sigmoid 激活）→输出层（sigmoid 激活），缓存每层输入/输出供反向传播使用。训练 nn_train_example(network, input, target)：反向传播算法：1) 前向传播计算输出；2) 输出层 delta = (output - target) · sigmoid'(output)；3) 隐藏层 delta = (Σ_j w_ji · delta_j) · sigmoid'(hidden)；4) 权重更新 w -= lr · delta · input + momentum · prev_delta；5) 偏置更新 b -= lr · delta + momentum · prev_bias_delta；6) 返回均方误差。批量训练 nn_train(network, inputs, targets, n_epochs) 循环训练多个 epoch。预测 nn_predict(network, input) 返回 argmax 输出索引。配置：set_learning_rate(lr)、set_momentum(m) 返回新实例。辅助函数：nn_sigmoid() 溢出保护sigmoid、nn_sigmoid_deriv() sigmoid导数（a·(1-a)）、nn_random_weight() LCG伪随机权重生成。示例数据：nn_sample_xor_data() 提供 XOR 问题（4 个样本，2 输入 1 输出）、nn_sample_iris_data() 提供 iris 分类（15 个样本，2 特征 3 类别 one-hot 编码）。所有公共标识符以 nn_ 前缀命名。适用于模式识别、分类问题、函数逼近、基因预测。
+
 
 ## 性能优化
 
@@ -2379,8 +2406,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6446 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 6446 |
-| 通过数 | 6446 |
+| 总测试数 | 6505 |
+| 通过数 | 6505 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2630,6 +2657,9 @@ moon test --update
 | ChemmineR | `chemminer_test.mbt` | 52 |
 | ANCOMBC | `ancombc_test.mbt` | 32 |
 | StructuralVariantAnnotation | `structural_variant_test.mbt` | 42 |
+| LogisticRegression | `logistic_regression_test.mbt` | 17 |
+| MaxEntropy | `max_entropy_test.mbt` | 24 |
+| NeuralNetwork | `neural_network_test.mbt` | 27 |
 
 ### Python 对比测试
 
@@ -2716,7 +2746,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 262 个示例程序，展示各模块的典型用法：
+项目提供 265 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -2850,6 +2880,9 @@ moon run cmd/bench/main.mbt
 | chemminer_demo | ChemmineR化学信息学（SDF解析、分子描述符、原子对指纹、Tanimoto/Dice相似度、子结构搜索） | `moon run examples/chemminer_demo/main.mbt` |
 | ancombc_demo | ANCOMBC微生物组差异丰度（采样比例、偏差校正、Welch t检验、ANCOM W统计量、BH-FDR） | `moon run examples/ancombc_demo/main.mbt` |
 | sv_demo | StructuralVariantAnnotation结构变异注释（BND解析、SV类型推断、伴侣配对、基因重叠注释） | `moon run examples/sv_demo/main.mbt` |
+| logistic_regression_demo | LogisticRegression逻辑回归（Newton-Raphson训练、概率计算、操纵子预测） | `moon run examples/logistic_regression_demo/main.mbt` |
+| max_entropy_demo | MaxEntropy最大熵分类（IIS训练、特征函数、汽车偏好分类） | `moon run examples/max_entropy_demo/main.mbt` |
+| neural_network_demo | NeuralNetwork神经网络（反向传播训练、XOR问题、iris分类） | `moon run examples/neural_network_demo/main.mbt` |
 
 ## 技术栈
 
