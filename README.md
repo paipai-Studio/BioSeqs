@@ -137,6 +137,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.Compass | COMPASS profile-profile比对输出解析: 版本提取、多记录解析(SW分数/E值/百分比一致性/比对序列)、E值与一致性过滤、比对长度统计、摘要生成 |
 | ✅ | Bio.SearchIO.ExonerateIO | Exonerate比对输出解析: vulgar格式解析(比对块三元组)、cigar格式解析、格式自动检测、分数过滤、内含子统计、vulgar/cigar字符串重建 |
 | ✅ | Bio.PDB.mmcifio | mmCIF文件写入: Structure对象序列化(data block/header/atom_site loop)、20列原子坐标格式化、HETATM支持、值转义、round-trip验证 |
+| ✅ | Bio.SearchIO.InterproscanIO | InterProScan输出解析: TSV 14列格式解析(蛋白质ID/分析数据库/签名/位置/分数/IPR/GO)、按数据库/蛋白质过滤、GO条目提取、按蛋白质分组 |
+| ✅ | Bio.PDB.SASA | 溶剂可及表面积计算: Shrake-Rupley滚动球算法(Fibonacci球面采样)、范德华半径查表、逐原子/残基/链SASA、骨架/侧链拆分 |
+| ✅ | Bio.SeqIO.NibIO | nib 2-bit二进制序列格式: DNA 2-bit编码(T=0/C=1/A=2/G=3)、4碱基/字节打包、hex I/O、子序列提取、反向互补、GC含量、压缩比 |
 
 ### 序列组装算法
 
@@ -645,6 +648,9 @@ IvanAXu/BioSeqs/
 │   ├── compass.mbt             # Bio.Compass COMPASS profile-profile比对输出解析 (版本提取、多记录解析、E值/一致性过滤、摘要)
 │   ├── exonerate.mbt           # Bio.SearchIO.ExonerateIO Exonerate输出解析 (vulgar/cigar格式、比对块解析、内含子统计、字符串重建)
 │   ├── mmcifio.mbt             # Bio.PDB.mmcifio mmCIF文件写入 (Structure序列化、20列atom_site loop、HETATM支持、值转义)
+│   ├── interproscan.mbt        # Bio.SearchIO.InterproscanIO InterProScan输出解析 (TSV 14列、数据库/蛋白质过滤、GO提取、分组)
+│   ├── sasa.mbt                # Bio.PDB.SASA 溶剂可及表面积 (Shrake-Rupley滚动球、Fibonacci球面采样、VDW半径、骨架/侧链拆分)
+│   ├── nib_io.mbt              # Bio.SeqIO.NibIO nib 2-bit二进制序列 (2-bit编码T/C/A/G、4碱基/字节、hex I/O、反向互补、GC含量)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -932,6 +938,9 @@ IvanAXu/BioSeqs/
 │   ├── compass_demo/             # Bio.Compass COMPASS比对输出解析示例 (profile-profile比对解析、E值过滤、摘要)
 │   ├── exonerate_demo/           # Bio.SearchIO.ExonerateIO Exonerate输出解析示例 (vulgar/cigar解析、内含子统计、字符串重建)
 │   ├── mmcifio_demo/             # Bio.PDB.mmcifio mmCIF写入示例 (Structure序列化、atom_site loop、round-trip验证)
+│   ├── interproscan_demo/        # Bio.SearchIO.InterproscanIO InterProScan解析示例 (TSV解析、数据库过滤、GO条目、分组)
+│   ├── sasa_demo/                # Bio.PDB.SASA 溶剂可及表面积示例 (Shrake-Rupley算法、逐原子/残基SASA、骨架/侧链拆分)
+│   ├── nib_io_demo/              # Bio.SeqIO.NibIO nib 2-bit格式示例 (2-bit编码、hex I/O、子序列、反向互补、GC含量)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1222,7 +1231,10 @@ IvanAXu/BioSeqs/
 │   │   ├── velociraptor_test.mbt
 │   │   ├── compass_test.mbt
 │   │   ├── exonerate_test.mbt
-│   │   └── mmcifio_test.mbt
+│   │   ├── mmcifio_test.mbt
+│   │   ├── interproscan_test.mbt
+│   │   ├── sasa_test.mbt
+│   │   └── nib_io_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1248,7 +1260,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6672 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6824 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1541,6 +1553,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6672 个测试全�
 | `compass.mbt` | `Bio.Compass` | COMPASS profile-profile比对输出解析（版本提取、多记录解析SW分数/E值/百分比一致性/比对序列/共识行、E值与一致性过滤、比对长度统计、摘要生成） |
 | `exonerate.mbt` | `Bio.SearchIO.ExonerateIO` | Exonerate比对输出解析（vulgar格式三元组比对块解析M/I/5/3/S/G/U/V、cigar格式解析、格式自动检测、分数过滤、内含子统计、vulgar/cigar字符串重建） |
 | `mmcifio.mbt` | `Bio.PDB.mmcifio` | mmCIF文件写入（Structure对象序列化data block/header/atom_site loop、20列原子坐标格式化、HETATM支持、值转义、round-trip验证） |
+| `interproscan.mbt` | `Bio.SearchIO.InterproscanIO` | InterProScan输出解析（TSV 14列格式解析蛋白质ID/MD5/长度/分析数据库/签名/位置/分数/IPR/GO、按数据库/蛋白质过滤、GO条目提取、按蛋白质分组、摘要） |
+| `sasa.mbt` | `Bio.PDB.SASA` | 溶剂可及表面积计算（Shrake-Rupley滚动球算法、Fibonacci球面采样、范德华半径查表H/C/N/O/S/P、逐原子/残基SASA、骨架/侧链拆分、总量统计） |
+| `nib_io.mbt` | `Bio.SeqIO.NibIO` | nib 2-bit二进制序列格式（DNA 2-bit编码T=0/C=1/A=2/G=3、4碱基/字节MSB打包、hex I/O、子序列提取、反向互补、GC含量、压缩比） |
 
 ## 核心功能实现
 
@@ -2358,6 +2373,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6672 个测试全�
 
 实现蛋白质结构 mmCIF 格式写入，参考 Biopython `Bio.PDB.mmcifio` 模块及 Bourne P et al. (2004) Acta Crystallogr D 60:684。核心功能是将 Structure 对象序列化为 mmCIF 格式字符串，与现有 mmcif.mbt 解析器互补。写入 write_mmcif(structure)：1) 生成 data block 头部 `data_<id>`；2) 写入 entry category（_entry.id）；3) 写入 entity category（_entity.id/type/src_method）；4) 写入 atom_site loop（loop_ + 20 列定义 + 原子行）。atom_site 20 列：group_PDB（ATOM/HETATM）、id（序号）、type_symbol（元素符号）、label_atom_id（原子名）、label_alt_id（altloc）、label_comp_id（残基名）、label_asym_id（链ID）、label_entity_id（实体ID）、label_seq_id（序列ID）、pdbx_PDB_ins_code（插入码）、Cartn_x/y/z（坐标3位小数）、occupancy（占据率2位小数）、B_iso_or_equiv（B因子2位小数）、pdbx_formal_charge（形式电荷）、auth_seq_id、auth_comp_id、auth_asym_id、auth_atom_id。头部写入 write_mmcif_header(structure)：entry 和 entity category。atom_site 写入 write_mmcif_atom_site(structure)：遍历所有模型→链→残基→原子，通过 residue.is_het() 判断输出 ATOM 或 HETATM。格式化函数：mmcif_format_atom(atom, atom_id) 格式化单行为 20 列字符串、mmcif_format_atom_with_group(atom, atom_id, group_pdb) 支持指定组类型、mmcif_format_coord(x) 坐标3位小数、mmcif_format_bfactor(b) B因子2位小数、mmcif_escape_value(value) 值转义（空值→?、含空格→单引号包裹、含引号→双引号转义）。辅助函数：mmcif_sample_structure() 创建含 1 模型 1 链 2 残基（ALA+GLY）8 原子的样本结构。所有公共标识符以 mmcif_/mmcifio_ 前缀命名。适用于蛋白质结构文件输出、PDB 数据格式转换、结构生物信息学流水线。
 
+### 203. InterProScan 输出解析 (Bio.SearchIO.InterproscanIO)
+
+实现 InterProScan 蛋白质域注释工具输出文件解析，参考 Biopython `Bio.SearchIO.InterproscanIO` 模块及 Jones P et al. (2014) Bioinformatics 30:1236。核心数据结构：InterproScanRecord（protein_id 蛋白质ID、md5 序列MD5、seq_length 序列长度、analysis 分析数据库如Pfam/SMART/PROSITE、signature_acc 签名登录号如PF00001、signature_desc 签名描述、start_pos/stop_pos 匹配起止位置、score 分数、status 状态如T、date 日期、ipr_acc IPR登录号如IPR000001、ipr_desc IPR描述、go_terms GO条目数组）。TSV 解析 parse_interproscan(content)/parse_interproscan_tsv(content)：1) 逐行扫描，跳过 # 注释行、空行和 "No hits" 行；2) 按 Tab 分割为 14 列，短行补齐至 14 列；3) 解析各字段，IPR/GO 字段的 - 归一化为空；4) score 字段的 NaN/-/空值归一化为 0.0；5) GO 条目按管道符 | 分割；6) 每行生成一个 InterproScanRecord。过滤函数：interproscan_filter_by_analysis(records, analysis) 按分析数据库过滤、interproscan_filter_by_protein(records, protein_id) 按蛋白质ID过滤。查询函数：interproscan_get_unique_proteins(records) 去重提取蛋白质ID、interproscan_get_unique_signatures(records) 去重提取签名登录号、interproscan_get_go_terms(records) 去重提取所有GO条目。分组函数：interproscan_group_by_protein(records) 按蛋白质ID分组为 (protein_id, records) 元组数组。摘要函数：interproscan_summary(records) 生成包含记录数、蛋白质数、签名数、分析数据库数的摘要字符串。辅助函数：interproscan_sample_data() 生成含 8 条记录 3 蛋白质 5 分析数据库的 TSV 样本。所有公共标识符以 interproscan_/ips_ 前缀命名。适用于蛋白质功能注释、结构域分析、GO 术语富集分析。
+
+### 204. 溶剂可及表面积计算 (Bio.PDB.SASA)
+
+实现蛋白质溶剂可及表面积（SASA）计算，参考 Biopython `Bio.PDB.SASA` 相关功能及 Shrake S & Rupley JA (1973) J Mol Biol 79:351。采用 Shrake-Rupley 滚动球算法。核心数据结构：SasaResult（atom_index 原子序号、atom_name 原子名、resname 残基名、chainid 链ID、resseq 残基序号、sasa SASA值）、ResidueSasa（resname、chainid、resseq、total_sasa 总SASA、backbone_sasa 骨架SASA、sidechain_sasa 侧链SASA、num_atoms 原子数）、SasaSummary（total_sasa、backbone_sasa、sidechain_sasa、num_atoms、num_residues）。逐原子 SASA 计算 sasa_calc(structure, n_points, probe_radius)：1) 为每个原子生成 n_points 个 Fibonacci 球面采样点（球面半径 = 范德华半径 + 探针半径）；2) 对每个采样点检查是否被邻近原子埋藏（点与邻近原子距离 < 邻近原子的范德华半径 + 探针半径）；3) SASA = (可及点数 / 总点数) × 4πr²；4) 返回所有原子的 SasaResult 数组。球面采样 sasa_generate_sphere_points(n)：Fibonacci 螺旋算法生成均匀分布的单位球面点。范德华半径查表 sasa_vdw_radius(element)：支持 H(1.20)、C(1.70)、N(1.55)、O(1.52)、S(1.80)、P(1.80)、F(1.47)、Cl(1.75)、Br(1.85)、I(1.98)，默认 1.70。残基聚合 sasa_calc_residue(atom_results, structure)：按残基聚合原子SASA，区分骨架原子（N/CA/C/O/OXT）和侧链原子。总量统计 sasa_calc_total(atom_results)：汇总全部SASA、骨架SASA、侧链SASA和原子/残基数。辅助函数：sasa_sample_structure() 创建 ALA-GLY-SER 三肽 15 原子样本结构。所有公共标识符以 sasa_ 前缀命名。适用于蛋白质折叠分析、结合位点识别、蛋白质稳定性评估。
+
+### 205. nib 2-bit 二进制序列格式 (Bio.SeqIO.NibIO)
+
+实现 UCSC Genome Browser nib 格式的 2-bit DNA 序列编码，参考 Biopython `Bio.SeqIO.NibIO` 及 UCSC Genome Browser 文档。2-bit 编码方案：T=0(00)、C=1(01)、A=2(10)、G=3(11)，每字节打包 4 个碱基（MSB 优先：第一碱基在 bits 7-6，第二在 5-4，第三在 3-2，第四在 1-0）。核心数据结构：NibSequence（seq_id 序列ID、length 碱基数、packed_data 打包字节数组、is_uppercase 大小写标志）。编码 nib_encode(sequence)：逐碱基查表转换为 2-bit 码，每 4 个碱基打包为 1 字节，不足 4 的末尾补零。解码 nib_decode(packed, length)：逐字节解包 4 个碱基，按实际长度截断。创建 NibSequence::new(seq_id, sequence)：编码 DNA 字符串并存储。转换函数：nib_to_string(nib) 解码为 DNA 字符串（根据 is_uppercase 决定大小写）、nib_to_hex(nib) 转为 hex 字符串显示、nib_from_hex(seq_id, hex, length) 从 hex 字符串创建。操作函数：nib_get_base(nib, index) 获取单碱基、nib_subsequence(nib, start, length) 提取子序列、nib_reverse_complement(nib) 反向互补（解码→反转→互补→重编码）。统计函数：nib_size(nib) 碱基数、nib_compressed_size(nib) 打包字节数、nib_compression_ratio(nib) 压缩比（原长度/打包长度）、nib_gc_content(nib) GC含量（0.0-1.0）。辅助函数：nib_sample_data() 创建 12 碱基 ATGCATGCATGC 样本。所有公共标识符以 nib_ 前缀命名。适用于基因组序列紧凑存储、UCSC Genome Browser 数据交互、大规模序列压缩。
+
 
 ## 性能优化
 
@@ -2460,8 +2487,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6672 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 6672 |
-| 通过数 | 6672 |
+| 总测试数 | 6824 |
+| 通过数 | 6824 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2720,6 +2747,9 @@ moon test --update
 | Bio.Compass | `compass_test.mbt` | 37 |
 | Bio.SearchIO.ExonerateIO | `exonerate_test.mbt` | 29 |
 | Bio.PDB.mmcifio | `mmcifio_test.mbt` | 34 |
+| Bio.SearchIO.InterproscanIO | `interproscan_test.mbt` | 44 |
+| Bio.PDB.SASA | `sasa_test.mbt` | 31 |
+| Bio.SeqIO.NibIO | `nib_io_test.mbt` | 77 |
 
 ### Python 对比测试
 
@@ -2806,7 +2836,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 271 个示例程序，展示各模块的典型用法：
+项目提供 274 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -2949,6 +2979,9 @@ moon run cmd/bench/main.mbt
 | compass_demo | Bio.Compass COMPASS profile-profile比对输出解析（版本提取、多记录解析、E值/一致性过滤、摘要生成） | `moon run examples/compass_demo/main.mbt` |
 | exonerate_demo | Bio.SearchIO.ExonerateIO Exonerate输出解析（vulgar/cigar格式解析、比对块统计、内含子分析、字符串重建） | `moon run examples/exonerate_demo/main.mbt` |
 | mmcifio_demo | Bio.PDB.mmcifio mmCIF文件写入（Structure序列化、20列atom_site loop、HETATM支持、round-trip验证） | `moon run examples/mmcifio_demo/main.mbt` |
+| interproscan_demo | Bio.SearchIO.InterproscanIO InterProScan输出解析（TSV 14列解析、数据库/蛋白质过滤、GO条目提取、按蛋白质分组） | `moon run examples/interproscan_demo/main.mbt` |
+| sasa_demo | Bio.PDB.SASA 溶剂可及表面积（Shrake-Rupley滚动球算法、逐原子/残基SASA、骨架/侧链拆分、总量统计） | `moon run examples/sasa_demo/main.mbt` |
+| nib_io_demo | Bio.SeqIO.NibIO nib 2-bit二进制序列（2-bit编码T/C/A/G、4碱基/字节打包、hex I/O、子序列、反向互补、GC含量） | `moon run examples/nib_io_demo/main.mbt` |
 
 ## 技术栈
 
