@@ -113,6 +113,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bioconductor survival | 生存分析: Kaplan-Meier估计器(Greenwood标准误)、log-rank检验(两组比较)、Cox比例风险模型(Newton-Raphson偏似然拟合、Breslow ties)、卡方p值、中位生存期 |
 | ✅ | Bioconductor methylKit | 亚硫酸氢盐测序甲基化分析: 甲基化胞嘧啶统计、覆盖率过滤/归一化、Fisher精确检验差异甲基化、BH-FDR校正、DMR识别、样本相关性/聚类、BED导出 |
 | ✅ | Bioconductor QFeatures | 定量蛋白质组学数据管理: 多assay层级容器(PSM/peptide/protein)、跨层级特征链接、聚合(sum/mean/median/max)、过滤/归一化/缺失值插补(KNN/mean/zero)、长格式转换 |
+| ✅ | Bioconductor missMethyl | Illumina甲基化芯片差异分析: Beta/M值转换、limma t检验、BH-FDR校正、探针-基因映射偏倚校正、GO富集分析 |
+| ✅ | Bioconductor NanoString | nCounter数字条码数据分析: 阳性/阴性对照归一化、管家基因归一化、content归一化、LOQ过滤、成像QC、阳性对照线性度、差异表达分析 |
+| ✅ | Bioconductor seqLogo | 序列标识图: 位置权重矩阵(PWM)构建、信息含量计算(IC)、序列logo渲染(ASCII艺术)、一致性序列、自定义背景频率 |
 | ✅ | Bio.Sequencing.Phd | Phred碱基识别输出文件解析: BEGIN_SEQUENCE/COMMENT/DNA块、碱基-质量-峰位三元组、修剪参数、化学/染料信息 |
 | ✅ | Bio.FSSP | FSSP结构比对数据库解析: HEADER/TITLE/COMPND元数据、ALIGNMENTS区域、Z-score/RMSD/PID统计、按Z-score过滤 |
 | ✅ | Bio.Geo | GEO SOFT格式解析: ^PLATFORM/^SAMPLE/^SERIES实体标记、!属性行、#列定义、数据表、按类型/编号查询 |
@@ -458,6 +461,9 @@ IvanAXu/BioSeqs/
 │   ├── genomic_files.mbt       # GenomicFiles 分布式基因组文件处理 (BAM/BED/VCF扫描、区间查询、归约、覆盖度)
 │   ├── diffbind.mbt            # DiffBind ChIP-seq差异结合分析 (峰值重叠、共识峰、TMM归一化、NB检验)
 │   ├── minfi.mbt               # minfi DNA甲基化分析 (NOOB/Illumina/分位数/功能归一化、β/M值、DMP/DMR分析)
+│   ├── missmethyl.mbt          # missMethyl 甲基化芯片差异分析 (Beta/M值转换、t检验、BH-FDR、探针偏倚校正、GO富集)
+│   ├── nanostring.mbt          # NanoString nCounter数字条码分析 (阳性/阴性/管家基因归一化、QC、差异表达)
+│   ├── seqlogo.mbt             # seqLogo 序列标识图 (PWM构建、信息含量计算、ASCII logo渲染、一致性序列)
 │   ├── flow_core.mbt           # flowCore 流式细胞术FCS处理 (数据变换、荧光补偿、矩形/多边形/椭球/四象限门控)
 │   ├── bsseq.mbt               # bsseq 亚硫酸氢盐测序分析 (BSmooth平滑、DMR检测、CpG合并、甲基化率计算)
 │   ├── single_cell_experiment.mbt  # SingleCellExperiment 单细胞核心容器 (多assay、PCA/tSNE/UMAP降维、size factors)
@@ -594,6 +600,9 @@ IvanAXu/BioSeqs/
 │   ├── survival.mbt           # Bioconductor/R survival 生存分析 (Kaplan-Meier、log-rank检验、Cox比例风险模型)
 │   ├── methylkit.mbt          # Bioconductor methylKit 亚硫酸氢盐测序甲基化分析 (Fisher检验、DMR识别、相关性/聚类)
 │   ├── qfeatures.mbt          # Bioconductor QFeatures 定量蛋白质组学数据管理 (多assay层级、聚合、过滤、归一化、缺失值插补)
+│   ├── missmethyl.mbt         # Bioconductor missMethyl 甲基化芯片差异分析 (Beta/M值、t检验、BH-FDR、探针偏倚校正、GO富集)
+│   ├── nanostring.mbt         # Bioconductor NanoString nCounter数字条码分析 (对照归一化、QC、差异表达)
+│   ├── seqlogo.mbt            # Bioconductor seqLogo 序列标识图 (PWM、信息含量、ASCII logo、一致性序列)
 │   ├── phd.mbt                 # Bio.Sequencing.Phd Phred碱基识别输出解析 (BEGIN_SEQUENCE/COMMENT/DNA、碱基-质量-峰位)
 │   ├── fssp.mbt                # Bio.FSSP 结构比对数据库解析 (HEADER/TITLE/COMPND元数据、ALIGNMENTS、Z-score/RMSD/PID)
 │   ├── geo.mbt                 # Bio.Geo GEO SOFT格式解析 (^PLATFORM/^SAMPLE/^SERIES、!属性、#列定义、数据表)
@@ -729,6 +738,9 @@ IvanAXu/BioSeqs/
 │   ├── genomic_files_demo/     # GenomicFiles 分布式基因组文件处理示例 (BAM/BED/VCF扫描、区间查询、归约、覆盖度)
 │   ├── diffbind_demo/          # DiffBind ChIP-seq差异结合分析示例 (峰值重叠、共识峰、TMM归一化、NB检验)
 │   ├── minfi_demo/             # minfi DNA甲基化分析示例 (NOOB/Illumina/分位数/功能归一化、β/M值、DMP/DMR分析)
+│   ├── missmethyl_demo/        # missMethyl甲基化差异分析示例 (Beta/M值、DMP分析、GO富集、探针偏倚校正)
+│   ├── nanostring_demo/        # NanoString nCounter分析示例 (对照归一化、QC、差异表达)
+│   ├── seqlogo_demo/           # seqLogo序列标识图示例 (PWM、信息含量、ASCII logo、一致性序列)
 │   ├── flow_core_demo/         # flowCore 流式细胞术示例 (数据变换、荧光补偿、矩形/多边形/椭球/四象限门控)
 │   ├── bsseq_demo/             # bsseq 亚硫酸氢盐测序示例 (BSmooth平滑、DMR检测、CpG合并、甲基化率计算)
 │   ├── single_cell_experiment_demo/  # SingleCellExperiment 单细胞核心容器示例 (多assay、降维、size factors)
@@ -863,6 +875,9 @@ IvanAXu/BioSeqs/
 │   ├── survival_demo/            # 生存分析示例 (Kaplan-Meier曲线、log-rank检验、Cox比例风险模型)
 │   ├── methylkit_demo/           # methylKit甲基化分析示例 (过滤、差异甲基化、DMR识别、BED导出)
 │   ├── qfeatures_demo/           # QFeatures蛋白质组学示例 (多assay管理、聚合、log2转换、归一化)
+│   ├── missmethyl_demo/          # missMethyl甲基化差异分析示例 (Beta/M值、DMP分析、GO富集、探针偏倚校正)
+│   ├── nanostring_demo/          # NanoString nCounter分析示例 (对照归一化、QC、差异表达)
+│   ├── seqlogo_demo/             # seqLogo序列标识图示例 (PWM、信息含量、ASCII logo、一致性序列)
 │   ├── gfa_demo/                 # GFA基因组组装图格式示例 (Segment/Link/Path解析、图序列化、SeqRecord转换)
 │   ├── xdna_demo/                # XDNA二进制格式示例 (碱基编码、pack/unpack、大端序序列化、hex I/O)
 │   ├── imgt_demo/                # IMGT免疫序列格式示例 (HLA等位基因解析、按基因过滤、SeqRecord转换)
@@ -1138,6 +1153,9 @@ IvanAXu/BioSeqs/
 │   │   ├── gfa_io_test.mbt
 │   │   ├── xdna_io_test.mbt
 │   │   ├── imgt_io_test.mbt
+│   │   ├── missmethyl_test.mbt
+│   │   ├── nanostring_test.mbt
+│   │   ├── seqlogo_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -2313,8 +2331,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5281 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 5281 |
-| 通过数 | 5281 |
+| 总测试数 | 6174 |
+| 通过数 | 6174 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2555,6 +2573,9 @@ moon test --update
 | Bio.SeqIO.GfaIO | `gfa_io_test.mbt` | 71 |
 | Bio.SeqIO.XdnaIO | `xdna_io_test.mbt` | 62 |
 | Bio.SeqIO.ImgtIO | `imgt_io_test.mbt` | 71 |
+| missMethyl | `missmethyl_test.mbt` | 40 |
+| NanoString | `nanostring_test.mbt` | 35 |
+| seqLogo | `seqlogo_test.mbt` | 50 |
 
 ### Python 对比测试
 

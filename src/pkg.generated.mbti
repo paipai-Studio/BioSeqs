@@ -2730,6 +2730,52 @@ pub fn get_utr_annotations(AnnotationResult) -> Array[PeakAnnotation]
 
 pub fn gf_parse_gtf(String) -> GenomeAnnotation
 
+pub fn gfa_containment_to_line(GfaContainment) -> String
+
+pub fn gfa_get_segment(GfaGraph, String) -> GfaSegment?
+
+pub fn gfa_get_segments_as_records(GfaGraph) -> Array[SeqRecord]
+
+pub fn gfa_graph_n_links(GfaGraph) -> Int
+
+pub fn gfa_graph_n_paths(GfaGraph) -> Int
+
+pub fn gfa_graph_n_segments(GfaGraph) -> Int
+
+pub fn gfa_graph_summary(GfaGraph) -> String
+
+pub fn gfa_header_to_line(GfaHeader) -> String
+
+pub fn gfa_link_to_line(GfaLink) -> String
+
+pub fn gfa_parse(String) -> GfaGraph
+
+pub fn gfa_parse_containment(Array[String]) -> GfaContainment
+
+pub fn gfa_parse_header(Array[String]) -> GfaHeader
+
+pub fn gfa_parse_line(String) -> Unit
+
+pub fn gfa_parse_link(Array[String]) -> GfaLink
+
+pub fn gfa_parse_path(Array[String]) -> GfaPath
+
+pub fn gfa_parse_segment(Array[String]) -> GfaSegment
+
+pub fn gfa_parse_tag(String) -> GfaTag?
+
+pub fn gfa_path_to_line(GfaPath) -> String
+
+pub fn gfa_reverse_link(GfaLink) -> GfaLink
+
+pub fn gfa_sample_graph() -> GfaGraph
+
+pub fn gfa_segment_to_line(GfaSegment) -> String
+
+pub fn gfa_tag_to_string(GfaTag) -> String
+
+pub fn gfa_to_string(GfaGraph) -> String
+
 pub fn gff_to_granges(Array[GffRecord]) -> GRanges
 
 pub fn ggtree_collect_internal_ids(LayoutNode) -> Array[String]
@@ -3219,6 +3265,40 @@ pub fn ihw_multiple(Array[Double], Array[Array[Double]], Double) -> IHWResult
 pub fn ihw_weights(IHWResult) -> Array[Double]
 
 pub fn ihw_with_config(Array[Double], Array[Double], IHWConfig) -> IHWResult
+
+pub fn imgt_filter_by_locus(Array[ImgtRecord], String) -> Array[ImgtRecord]
+
+pub fn imgt_from_seq_records(Array[SeqRecord]) -> Array[ImgtRecord]
+
+pub fn imgt_get_by_accession(Array[ImgtRecord], String) -> ImgtRecord?
+
+pub fn imgt_get_by_gene(Array[ImgtRecord], String) -> Array[ImgtRecord]
+
+pub fn imgt_get_by_species(Array[ImgtRecord], String) -> Array[ImgtRecord]
+
+pub fn imgt_header_to_string(ImgtHeader) -> String
+
+pub fn imgt_n_records(Array[ImgtRecord]) -> Int
+
+pub fn imgt_parse(String) -> Array[ImgtRecord]
+
+pub fn imgt_parse_header(String) -> ImgtHeader?
+
+pub fn imgt_parse_line_to_fields(String) -> Array[String]
+
+pub fn imgt_record_to_string(ImgtRecord) -> String
+
+pub fn imgt_sample_records() -> Array[ImgtRecord]
+
+pub fn imgt_summary(Array[ImgtRecord]) -> String
+
+pub fn imgt_to_seq_records(Array[ImgtRecord]) -> Array[SeqRecord]
+
+pub fn imgt_unique_genes(Array[ImgtRecord]) -> Array[String]
+
+pub fn imgt_unique_species(Array[ImgtRecord]) -> Array[String]
+
+pub fn imgt_write(Array[ImgtRecord]) -> String
 
 pub fn impute_by_col_mean(Array[Array[Double]]) -> Array[Array[Double]]
 
@@ -3722,6 +3802,40 @@ pub fn menhinick_index(Array[Int]) -> Double
 
 pub fn merge_locations(FeatureLocation, FeatureLocation) -> FeatureLocation raise LocationParserError
 
+pub fn methylkit_bh_correct(Array[Double]) -> Array[Double]
+
+pub fn methylkit_cluster_samples(Array[MethylSample], Int) -> Array[Int]
+
+pub fn methylkit_correlation_matrix(Array[MethylSample]) -> Array[Array[Double]]
+
+pub fn methylkit_cpg_to_bed(MethylCytosine) -> String
+
+pub fn methylkit_diff_meth(MethylSample, MethylSample, MethylKitConfig) -> Array[MethylDiffResult]
+
+pub fn methylkit_diff_summary(Array[MethylDiffResult]) -> String
+
+pub fn methylkit_dmr_to_bed((String, Int, Int)) -> String
+
+pub fn methylkit_filter_sample(MethylSample, MethylKitConfig) -> MethylSample
+
+pub fn methylkit_filter_samples(Array[MethylSample], MethylKitConfig) -> Array[MethylSample]
+
+pub fn methylkit_fisher_test(MethylCytosine, MethylCytosine) -> Double
+
+pub fn methylkit_get_dmr(Array[MethylDiffResult]) -> Array[(String, Int, Int)]
+
+pub fn methylkit_normalize(MethylSample) -> MethylSample
+
+pub fn methylkit_normalize_samples(Array[MethylSample]) -> Array[MethylSample]
+
+pub fn methylkit_sample_correlation(MethylSample, MethylSample) -> Double
+
+pub fn methylkit_sample_data() -> (MethylSample, MethylSample)
+
+pub fn methylkit_sample_summary(MethylSample) -> String
+
+pub fn methylkit_tiling(Array[MethylSample], Int, Int) -> Array[MethylDiffResult]
+
 pub fn mfe_to_dot_bracket(Int, Array[(Int, Int)]) -> String
 
 pub fn mg_block_apply_cols(MgMatrix, Int, (MgMatrix) -> Array[Double]) -> Array[Double]
@@ -3879,6 +3993,36 @@ pub fn mix_scale_matrix(Array[Array[Double]], Int, Int) -> (Array[Array[Double]]
 pub fn mix_vector_norm(Array[Double]) -> Double
 
 pub fn mktest_from_sites(Array[PolymorphicSite], Array[PolymorphicSite]) -> MKTestResult
+
+pub fn mm_beta_to_m(Double) -> Double
+
+pub fn mm_bh_correct(Array[Double]) -> Array[Double]
+
+pub fn mm_dmp_analysis(Array[Array[Double]], Array[Bool], Array[MmProbeAnnotation]) -> Array[MmDmpResult]
+
+pub fn mm_filter_probes(Array[MmProbeAnnotation], String, String) -> Array[MmProbeAnnotation]
+
+pub fn mm_fisher_exact(Int, Int, Int, Int) -> Double
+
+pub fn mm_go_enrichment(Array[String], Array[String], Array[MmProbeAnnotation], MmGoDatabase) -> Array[MmGoResult]
+
+pub fn mm_go_summary(Array[MmGoResult]) -> String
+
+pub fn mm_m_to_beta(Double) -> Double
+
+pub fn mm_map_probes_to_genes(Array[String], Array[MmProbeAnnotation]) -> Array[String]
+
+pub fn mm_probe_bias_correction(Array[String], Array[String], Array[MmProbeAnnotation], MmGoDatabase) -> Array[MmGoResult]
+
+pub fn mm_sample_annotations() -> Array[MmProbeAnnotation]
+
+pub fn mm_sample_beta() -> Array[Array[Double]]
+
+pub fn mm_sample_go_database() -> MmGoDatabase
+
+pub fn mm_summary(Array[MmDmpResult]) -> String
+
+pub fn mm_t_test(Array[Double], Array[Double]) -> (Double, Double)
 
 pub fn module_eigengenes(WGCNAData) -> Array[ModuleEigengene]
 
@@ -4137,6 +4281,38 @@ pub fn normalize_packing_density(PackingResult, threshold? : Double) -> PackingR
 pub fn normalize_total(SeuratObject) -> SeuratObject
 
 pub fn nrow(AnnotationDb) -> Int
+
+pub fn ns_bh_correct(Array[Double]) -> Array[Double]
+
+pub fn ns_content_norm(NsNanostringData) -> Array[NsNormResult]
+
+pub fn ns_de_summary(Array[NsDeResult]) -> String
+
+pub fn ns_differential_expression(Array[NsNormResult], Array[Bool], Array[String]) -> Array[NsDeResult]
+
+pub fn ns_geometric_mean(Array[Double]) -> Double
+
+pub fn ns_housekeeping_norm(NsNanostringData) -> Array[NsNormResult]
+
+pub fn ns_imaging_qc(NsNanostringData, Int) -> Array[Bool]
+
+pub fn ns_log2_counts(Array[Double]) -> Array[Double]
+
+pub fn ns_loq_qc(NsNanostringData, Int) -> Array[Int]
+
+pub fn ns_negative_control_norm(NsNanostringData) -> Array[NsNormResult]
+
+pub fn ns_pos_linearity_qc(NsNanostringData) -> (Double, Double)
+
+pub fn ns_positive_control_norm(NsNanostringData) -> Array[NsNormResult]
+
+pub fn ns_qc_summary(NsNanostringData) -> String
+
+pub fn ns_sample_data() -> NsNanostringData
+
+pub fn ns_summary(NsNanostringData) -> String
+
+pub fn ns_t_test(Array[Double], Array[Double]) -> (Double, Double)
 
 pub fn nuc_calculate_occupancy(NucSignalTrack, Int, Int) -> Double
 
@@ -4691,6 +4867,44 @@ pub fn qa_summary(Array[String], Array[String]) -> FastqQualityStats
 pub fn qcp_calculate_rmsd(Array[QCPAtomCoordinate], Array[QCPAtomCoordinate], Array[Array[Double]], Array[Double]) -> Double
 
 pub fn qf(Double, Double, Double) -> Double
+
+pub fn qf_aggregate(QFeatures, String, String, Array[(Int, String)], String) -> QFeatures
+
+pub fn qf_aggregate_by_col(QFeatures, String, String, Array[String], String) -> QFeatures
+
+pub fn qf_assay_summary(QfAssay) -> String
+
+pub fn qf_count_na(QfAssay) -> Int
+
+pub fn qf_count_na_by_row(QfAssay) -> Array[Int]
+
+pub fn qf_filter_features(QFeatures, String, Array[Int]) -> QFeatures
+
+pub fn qf_filter_low_abundance(QFeatures, String, Double) -> QFeatures
+
+pub fn qf_filter_na(QFeatures, String, Double) -> QFeatures
+
+pub fn qf_filter_samples(QFeatures, String, Array[Int]) -> QFeatures
+
+pub fn qf_impute_knn(QfAssay, Int) -> QfAssay
+
+pub fn qf_impute_mean(QfAssay) -> QfAssay
+
+pub fn qf_impute_zero(QfAssay) -> QfAssay
+
+pub fn qf_is_na(Double) -> Bool
+
+pub fn qf_log_transform(QfAssay, Double, Double) -> QfAssay
+
+pub fn qf_normalize_center_scale(QfAssay, Bool, Bool) -> QfAssay
+
+pub fn qf_normalize_quantiles(QfAssay) -> QfAssay
+
+pub fn qf_sample_data() -> QFeatures
+
+pub fn qf_summary(QFeatures) -> String
+
+pub fn qf_to_long_format(QFeatures, String) -> Array[(String, String, Double)]
 
 pub fn qlf_significant_genes(QLFResult, alpha? : Double, lfc_threshold? : Double) -> Array[String]
 
@@ -5260,9 +5474,35 @@ pub fn seqio_to_dict(Array[SeqRecord]) -> Map[String, SeqRecord]
 
 pub fn seqio_write(Array[SeqRecord], String) -> String raise SeqIOError
 
+pub fn seqlogo_base_color(Char) -> String
+
 pub fn seqlogo_calculate_columns(Array[String]) -> Array[LogoColumn]
 
+pub fn seqlogo_compute_logo(SeqLogoPwm) -> SeqLogoResult
+
+pub fn seqlogo_compute_logo_bg(SeqLogoPwm, Array[Double]) -> SeqLogoResult
+
+pub fn seqlogo_consensus_sequence(SeqLogoPwm) -> String
+
 pub fn seqlogo_generate_ascii(SeqLogo) -> String
+
+pub fn seqlogo_information_content(SeqLogoPwm) -> Array[Double]
+
+pub fn seqlogo_information_content_bg(SeqLogoPwm, Array[Double]) -> Array[Double]
+
+pub fn seqlogo_logo_summary(SeqLogoResult) -> String
+
+pub fn seqlogo_max_information_content(Int) -> Double
+
+pub fn seqlogo_sample_pwm() -> SeqLogoPwm
+
+pub fn seqlogo_sample_sequences() -> Array[String]
+
+pub fn seqlogo_to_ascii(SeqLogoResult, Int) -> String
+
+pub fn seqlogo_to_text_table(SeqLogoResult) -> String
+
+pub fn seqlogo_total_information_content(SeqLogoPwm) -> Double
 
 pub fn sequence_complexity(String, Int) -> Double
 
@@ -5277,6 +5517,20 @@ pub fn sequence_similarity_kmer(String, String, k? : Int) -> Double
 pub fn sequtils_molecular_weight(String, String) -> Double
 
 pub fn sequtils_shannon_entropy(String) -> Double
+
+pub fn seqxml_entry_to_xml(SeqXmlEntry) -> String
+
+pub fn seqxml_from_seq_records(Array[SeqRecord], seq_type? : SeqXmlType) -> SeqXmlDocument
+
+pub fn seqxml_parse(String) -> SeqXmlDocument
+
+pub fn seqxml_parse_entry_id(String) -> String?
+
+pub fn seqxml_sample_document() -> SeqXmlDocument
+
+pub fn seqxml_to_seq_records(SeqXmlDocument) -> Array[SeqRecord]
+
+pub fn seqxml_to_xml(SeqXmlDocument) -> String
 
 pub fn setdiff_int(Array[Int], Array[Int]) -> Array[Int]
 
@@ -5680,6 +5934,36 @@ pub fn superimpose(Array[AtomCoordinate], Array[AtomCoordinate]) -> (Array[AtomC
 
 pub fn supported_genome_builds() -> Array[String]
 
+pub fn survival_abs(Double) -> Double
+
+pub fn survival_chi_square_p_value(Double, Int) -> Double
+
+pub fn survival_cox_fit(SurvData, Array[String]) -> CoxResult
+
+pub fn survival_cox_summary(CoxResult) -> String
+
+pub fn survival_exp(Double) -> Double
+
+pub fn survival_kaplan_meier(SurvData, String) -> KaplanMeierResult
+
+pub fn survival_km_summary(KaplanMeierResult) -> String
+
+pub fn survival_km_to_string(KaplanMeierResult) -> String
+
+pub fn survival_ln(Double) -> Double
+
+pub fn survival_log_rank(SurvData, String, String) -> LogRankResult
+
+pub fn survival_logrank_summary(LogRankResult) -> String
+
+pub fn survival_median_survival(KaplanMeierResult) -> Double?
+
+pub fn survival_normal_cdf(Double) -> Double
+
+pub fn survival_normal_p_value_two_sided(Double) -> Double
+
+pub fn survival_sample_data() -> SurvData
+
 pub fn sv_result_d(SVResult) -> Array[Double]
 
 pub fn sv_result_ncol(SVResult) -> Int
@@ -5851,6 +6135,30 @@ pub fn try_parse_bam_base64(String) -> BamFile?
 pub fn try_parse_cram_base64(String) -> CramFile?
 
 pub fn tsne(Array[Array[Double]], TsneConfig) -> TsneResult
+
+pub fn twobit_base_to_code(Char) -> Int
+
+pub fn twobit_code_to_base(Int) -> Char
+
+pub fn twobit_from_bytes(Array[Int]) -> TwoBitFile
+
+pub fn twobit_from_seq_records(Array[SeqRecord]) -> TwoBitFile
+
+pub fn twobit_get_sequence_string(TwoBitFile, String) -> String?
+
+pub fn twobit_pack_sequence(String) -> (Array[Int], Array[TwoBitNBlock], Array[TwoBitMaskBlock])
+
+pub fn twobit_read(String) -> TwoBitFile
+
+pub fn twobit_sample_file() -> TwoBitFile
+
+pub fn twobit_to_bytes(TwoBitFile) -> Array[Int]
+
+pub fn twobit_to_seq_records(TwoBitFile) -> Array[SeqRecord]
+
+pub fn twobit_unpack_sequence(Array[Int], Int, Array[TwoBitNBlock], Array[TwoBitMaskBlock]) -> String
+
+pub fn twobit_write(TwoBitFile) -> String
 
 pub fn tx2gene_new(String, String, String) -> Tx2Gene
 
@@ -6049,6 +6357,34 @@ pub fn write_phylip_sequential(MultipleSeqAlignment) -> String
 pub fn write_tab(Array[SeqRecord]) -> String
 
 pub fn write_wig(Array[WigRecord]) -> String
+
+pub fn xdna_base_to_code(Char) -> Int
+
+pub fn xdna_code_to_base(Int) -> Char
+
+pub fn xdna_from_bytes(Array[Int]) -> XdnaFile
+
+pub fn xdna_from_seq_records(Array[SeqRecord], XdnaSeqType) -> XdnaFile
+
+pub fn xdna_get_sequence_string(XdnaRecord) -> String
+
+pub fn xdna_pack_sequence(String) -> Array[Int]
+
+pub fn xdna_read(String) -> XdnaFile
+
+pub fn xdna_read_u32_be(Array[Int], Int) -> Int
+
+pub fn xdna_sample_file() -> XdnaFile
+
+pub fn xdna_to_bytes(XdnaFile) -> Array[Int]
+
+pub fn xdna_to_seq_records(XdnaFile) -> Array[SeqRecord]
+
+pub fn xdna_unpack_sequence(Array[Int], Int) -> String
+
+pub fn xdna_write(XdnaFile) -> String
+
+pub fn xdna_write_u32_be(Int) -> Array[Int]
 
 pub fn zlm_hurdle(MastData, Int, Int) -> HurdleResult
 
@@ -8105,6 +8441,18 @@ pub struct Coverage {
   seqname : String
   positions : Array[Int]
   depths : Array[Int]
+}
+
+pub struct CoxResult {
+  coefficients : Array[Double]
+  std_errors : Array[Double]
+  hazard_ratios : Array[Double]
+  z_values : Array[Double]
+  p_values : Array[Double]
+  covariate_names : Array[String]
+  log_likelihood : Double
+  n_samples : Int
+  converged : Bool
 }
 
 pub enum CramCompression {
@@ -10484,6 +10832,101 @@ pub fn GeoRecord::new(GeoEntityType, String, Array[GeoAttribute], GeoDataTable) 
 pub fn GeoRecord::title(Self) -> String
 pub fn GeoRecord::to_string(Self) -> String
 
+pub struct GfaContainment {
+  container : String
+  container_orient : String
+  contained : String
+  contained_orient : String
+  position : Int
+  overlap : String
+  tags : Array[GfaTag]
+}
+pub fn GfaContainment::contained(Self) -> String
+pub fn GfaContainment::contained_orient(Self) -> String
+pub fn GfaContainment::container(Self) -> String
+pub fn GfaContainment::container_orient(Self) -> String
+pub fn GfaContainment::new(String, String, String, String, Int, String, Array[GfaTag]) -> Self
+pub fn GfaContainment::overlap(Self) -> String
+pub fn GfaContainment::position(Self) -> Int
+pub fn GfaContainment::tags(Self) -> Array[GfaTag]
+
+pub struct GfaGraph {
+  headers : Array[GfaHeader]
+  segments : Array[GfaSegment]
+  links : Array[GfaLink]
+  containments : Array[GfaContainment]
+  paths : Array[GfaPath]
+}
+pub fn GfaGraph::add_containment(Self, GfaContainment) -> Unit
+pub fn GfaGraph::add_header(Self, GfaHeader) -> Unit
+pub fn GfaGraph::add_link(Self, GfaLink) -> Unit
+pub fn GfaGraph::add_path(Self, GfaPath) -> Unit
+pub fn GfaGraph::add_segment(Self, GfaSegment) -> Unit
+pub fn GfaGraph::containments(Self) -> Array[GfaContainment]
+pub fn GfaGraph::headers(Self) -> Array[GfaHeader]
+pub fn GfaGraph::links(Self) -> Array[GfaLink]
+pub fn GfaGraph::new() -> Self
+pub fn GfaGraph::paths(Self) -> Array[GfaPath]
+pub fn GfaGraph::segments(Self) -> Array[GfaSegment]
+
+pub struct GfaHeader {
+  version : String
+  tags : Array[GfaTag]
+}
+pub fn GfaHeader::new(String, Array[GfaTag]) -> Self
+pub fn GfaHeader::tags(Self) -> Array[GfaTag]
+pub fn GfaHeader::version(Self) -> String
+
+pub struct GfaLink {
+  from_segment : String
+  from_orient : String
+  to_segment : String
+  to_orient : String
+  overlap : String
+  tags : Array[GfaTag]
+}
+pub fn GfaLink::from_orient(Self) -> String
+pub fn GfaLink::from_segment(Self) -> String
+pub fn GfaLink::new(String, String, String, String, String, Array[GfaTag]) -> Self
+pub fn GfaLink::overlap(Self) -> String
+pub fn GfaLink::tags(Self) -> Array[GfaTag]
+pub fn GfaLink::to_orient(Self) -> String
+pub fn GfaLink::to_segment(Self) -> String
+
+pub struct GfaPath {
+  name : String
+  segment_list : Array[String]
+  overlaps : Array[String]
+  tags : Array[GfaTag]
+}
+pub fn GfaPath::name(Self) -> String
+pub fn GfaPath::new(String, Array[String], Array[String], Array[GfaTag]) -> Self
+pub fn GfaPath::overlaps(Self) -> Array[String]
+pub fn GfaPath::segment_list(Self) -> Array[String]
+pub fn GfaPath::tags(Self) -> Array[GfaTag]
+
+pub struct GfaSegment {
+  name : String
+  sequence : String
+  tags : Array[GfaTag]
+}
+pub fn GfaSegment::name(Self) -> String
+pub fn GfaSegment::new(String, String, Array[GfaTag]) -> Self
+pub fn GfaSegment::sequence(Self) -> String
+pub fn GfaSegment::tags(Self) -> Array[GfaTag]
+pub fn GfaSegment::to_string(Self) -> String
+
+pub struct GfaTag {
+  name : String
+  tag_type : String
+  value : String
+}
+pub fn GfaTag::name(Self) -> String
+pub fn GfaTag::new(String, String, String) -> Self
+pub fn GfaTag::tag_type(Self) -> String
+pub fn GfaTag::to_string(Self) -> String
+pub fn GfaTag::value(Self) -> String
+
 pub struct GffRecord {
   seqid : String
   source : String
@@ -11051,6 +11494,48 @@ pub struct IdeogramBand {
 }
 pub fn IdeogramBand::new(String, Int, Int, String, String) -> Self
 
+pub struct ImgtHeader {
+  accession : String
+  seq_id : String
+  official_name : String
+  region : String
+  date_update : String
+  date_creation : String
+  species : String
+  gene : String
+  imgt_group : String
+  locus : String
+  seq_length : String
+  seq_type : String
+  comments : String
+}
+pub fn ImgtHeader::accession(Self) -> String
+pub fn ImgtHeader::comments(Self) -> String
+pub fn ImgtHeader::date_creation(Self) -> String
+pub fn ImgtHeader::date_update(Self) -> String
+pub fn ImgtHeader::gene(Self) -> String
+pub fn ImgtHeader::imgt_group(Self) -> String
+pub fn ImgtHeader::locus(Self) -> String
+pub fn ImgtHeader::new(String, String, String, String, String, String, String, String, String, String, String, String, String) -> Self
+pub fn ImgtHeader::official_name(Self) -> String
+pub fn ImgtHeader::region(Self) -> String
+pub fn ImgtHeader::seq_id(Self) -> String
+pub fn ImgtHeader::seq_length(Self) -> String
+pub fn ImgtHeader::seq_type(Self) -> String
+pub fn ImgtHeader::species(Self) -> String
+pub fn ImgtHeader::to_string(Self) -> String
+
+pub struct ImgtRecord {
+  header : ImgtHeader
+  sequence : String
+}
+pub fn ImgtRecord::description(Self) -> String
+pub fn ImgtRecord::header(Self) -> ImgtHeader
+pub fn ImgtRecord::id(Self) -> String
+pub fn ImgtRecord::new(ImgtHeader, String) -> Self
+pub fn ImgtRecord::sequence(Self) -> String
+pub fn ImgtRecord::to_string(Self) -> String
+
 pub struct ImputeNAStats {
   total_rows : Int
   total_cols : Int
@@ -11300,6 +11785,15 @@ pub struct KNNResult {
   k : Int
 } derive(Eq, @debug.Debug)
 
+pub struct KaplanMeierResult {
+  times : Array[Double]
+  survival : Array[Double]
+  std_err : Array[Double]
+  n_at_risk : Array[Int]
+  n_events : Array[Int]
+  group : String
+}
+
 pub struct KaryotypePlot {
   genome : String
   chromosomes : Array[String]
@@ -11522,6 +12016,16 @@ pub fn Loc::start(Self) -> Int
 pub fn Loc::strand(Self) -> String
 pub fn Loc::to_one_based(Self) -> String
 pub fn Loc::to_string(Self) -> String
+
+pub struct LogRankResult {
+  chi_square : Double
+  df : Int
+  p_value : Double
+  group1 : String
+  group2 : String
+  n1 : Int
+  n2 : Int
+}
 
 pub struct LogoColumn {
   position : Int
@@ -11994,6 +12498,74 @@ pub struct MeltingTempResult {
 }
 pub fn MeltingTempResult::new(Double, String) -> Self
 
+pub struct MethylCytosine {
+  chr : String
+  position : Int
+  strand : String
+  context : String
+  methylated : Int
+  unmethylated : Int
+}
+pub fn MethylCytosine::chr(Self) -> String
+pub fn MethylCytosine::context(Self) -> String
+pub fn MethylCytosine::coverage(Self) -> Int
+pub fn MethylCytosine::methylated(Self) -> Int
+pub fn MethylCytosine::methylation_pct(Self) -> Double
+pub fn MethylCytosine::new(String, Int, String, String, Int, Int) -> Self
+pub fn MethylCytosine::position(Self) -> Int
+pub fn MethylCytosine::strand(Self) -> String
+pub fn MethylCytosine::to_string(Self) -> String
+pub fn MethylCytosine::unmethylated(Self) -> Int
+
+pub struct MethylDiffResult {
+  chr : String
+  position : Int
+  p_value : Double
+  q_value : Double
+  meth_diff : Double
+  significant : Bool
+}
+pub fn MethylDiffResult::chr(Self) -> String
+pub fn MethylDiffResult::meth_diff(Self) -> Double
+pub fn MethylDiffResult::p_value(Self) -> Double
+pub fn MethylDiffResult::position(Self) -> Int
+pub fn MethylDiffResult::q_value(Self) -> Double
+pub fn MethylDiffResult::significant(Self) -> Bool
+pub fn MethylDiffResult::to_string(Self) -> String
+
+pub struct MethylKitConfig {
+  min_coverage : Int
+  max_coverage : Int
+  context_filter : String
+  min_perc_samples : Double
+  min_diff : Double
+  q_threshold : Double
+}
+pub fn MethylKitConfig::context_filter(Self) -> String
+pub fn MethylKitConfig::max_coverage(Self) -> Int
+pub fn MethylKitConfig::min_coverage(Self) -> Int
+pub fn MethylKitConfig::min_diff(Self) -> Double
+pub fn MethylKitConfig::min_perc_samples(Self) -> Double
+pub fn MethylKitConfig::new() -> Self
+pub fn MethylKitConfig::q_threshold(Self) -> Double
+pub fn MethylKitConfig::with_params(Int, Int, String, Double, Double, Double) -> Self
+
+pub struct MethylSample {
+  sample_id : String
+  coverage : Array[MethylCytosine]
+  mut n_cpgs : Int
+}
+pub fn MethylSample::add_cytosine(Self, MethylCytosine) -> Unit
+pub fn MethylSample::coverage(Self) -> Array[MethylCytosine]
+pub fn MethylSample::filter_by_coverage(Self, Int, Int) -> Self
+pub fn MethylSample::from_coverage(String, Array[MethylCytosine]) -> Self
+pub fn MethylSample::get_cytosine(Self, String, Int) -> MethylCytosine?
+pub fn MethylSample::mean_methylation(Self) -> Double
+pub fn MethylSample::methylation_pcts(Self) -> Array[Double]
+pub fn MethylSample::n_cpgs(Self) -> Int
+pub fn MethylSample::new(String) -> Self
+pub fn MethylSample::sample_id(Self) -> String
+
 pub struct MethylSet {
   methylated : Array[Array[Double]]
   unmethylated : Array[Array[Double]]
@@ -12019,6 +12591,72 @@ pub fn MgMatrix::get_row(Self, Int) -> Array[Double]
 pub fn MgMatrix::new(Array[Array[Double]]) -> Self
 pub fn MgMatrix::set(Self, Int, Int, Double) -> Unit
 pub fn MgMatrix::zeros(Int, Int) -> Self
+
+pub struct MmDmpResult {
+  probe_id : String
+  log_fc : Double
+  t_stat : Double
+  p_value : Double
+  adj_p_value : Double
+  chr : String
+  pos : Int
+  gene : String
+}
+pub fn MmDmpResult::adj_p_value(Self) -> Double
+pub fn MmDmpResult::chr(Self) -> String
+pub fn MmDmpResult::gene(Self) -> String
+pub fn MmDmpResult::is_significant(Self, Double) -> Bool
+pub fn MmDmpResult::log_fc(Self) -> Double
+pub fn MmDmpResult::new(String, Double, Double, Double, Double, String, Int, String) -> Self
+pub fn MmDmpResult::p_value(Self) -> Double
+pub fn MmDmpResult::pos(Self) -> Int
+pub fn MmDmpResult::probe_id(Self) -> String
+pub fn MmDmpResult::t_stat(Self) -> Double
+
+pub struct MmGoDatabase {
+  entries : Array[(String, String, String, String)]
+}
+pub fn MmGoDatabase::add_entry(Self, String, String, String, String) -> Unit
+pub fn MmGoDatabase::genes_for_go(Self, String) -> Array[String]
+pub fn MmGoDatabase::go_for_gene(Self, String) -> Array[String]
+pub fn MmGoDatabase::new() -> Self
+
+pub struct MmGoResult {
+  go_id : String
+  go_term : String
+  ontology : String
+  n_probes : Int
+  n_sig_probes : Int
+  p_value : Double
+  adj_p_value : Double
+  expected : Double
+}
+pub fn MmGoResult::adj_p_value(Self) -> Double
+pub fn MmGoResult::expected(Self) -> Double
+pub fn MmGoResult::go_id(Self) -> String
+pub fn MmGoResult::go_term(Self) -> String
+pub fn MmGoResult::n_probes(Self) -> Int
+pub fn MmGoResult::n_sig_probes(Self) -> Int
+pub fn MmGoResult::new(String, String, String, Int, Int, Double, Double, Double) -> Self
+pub fn MmGoResult::ontology(Self) -> String
+pub fn MmGoResult::p_value(Self) -> Double
+
+pub struct MmProbeAnnotation {
+  probe_id : String
+  chr : String
+  pos : Int
+  gene : String
+  island_relation : String
+  probe_type : String
+}
+pub fn MmProbeAnnotation::chr(Self) -> String
+pub fn MmProbeAnnotation::gene(Self) -> String
+pub fn MmProbeAnnotation::island_relation(Self) -> String
+pub fn MmProbeAnnotation::new(String, String, Int, String, String, String) -> Self
+pub fn MmProbeAnnotation::pos(Self) -> Int
+pub fn MmProbeAnnotation::probe_id(Self) -> String
+pub fn MmProbeAnnotation::probe_type(Self) -> String
+pub fn MmProbeAnnotation::to_string(Self) -> String
 
 pub struct MmcifDataBlock {
   mut name : String
@@ -12593,6 +13231,61 @@ pub struct Node {
 }
 pub fn Node::new(String, String) -> Self
 pub fn Node::to_string(Self) -> String
+
+pub struct NsDeResult {
+  gene : String
+  log_fc : Double
+  p_value : Double
+  adj_p_value : Double
+  significant : Bool
+}
+pub fn NsDeResult::adj_p_value(Self) -> Double
+pub fn NsDeResult::gene(Self) -> String
+pub fn NsDeResult::log_fc(Self) -> Double
+pub fn NsDeResult::new(String, Double, Double, Double, Bool) -> Self
+pub fn NsDeResult::p_value(Self) -> Double
+pub fn NsDeResult::significant(Self) -> Bool
+
+pub struct NsNanostringData {
+  samples : Array[NsSample]
+  gene_names : Array[String]
+  mut n_genes : Int
+  mut n_samples : Int
+}
+pub fn NsNanostringData::add_sample(Self, NsSample) -> Unit
+pub fn NsNanostringData::gene_names(Self) -> Array[String]
+pub fn NsNanostringData::n_genes(Self) -> Int
+pub fn NsNanostringData::n_samples(Self) -> Int
+pub fn NsNanostringData::new(Array[String]) -> Self
+pub fn NsNanostringData::samples(Self) -> Array[NsSample]
+
+pub struct NsNormResult {
+  sample_id : String
+  norm_factors : Array[Double]
+  normalized_counts : Array[Double]
+  method : String
+}
+pub fn NsNormResult::method(Self) -> String
+pub fn NsNormResult::new(String, Array[Double], Array[Double], String) -> Self
+pub fn NsNormResult::norm_factors(Self) -> Array[Double]
+pub fn NsNormResult::normalized_counts(Self) -> Array[Double]
+pub fn NsNormResult::sample_id(Self) -> String
+
+pub struct NsSample {
+  sample_id : String
+  raw_counts : Array[Int]
+  positive_controls : Array[Int]
+  negative_controls : Array[Int]
+  housekeeping : Array[Int]
+  endogenous : Array[Int]
+}
+pub fn NsSample::endogenous(Self) -> Array[Int]
+pub fn NsSample::housekeeping(Self) -> Array[Int]
+pub fn NsSample::negative_controls(Self) -> Array[Int]
+pub fn NsSample::new(String, Array[Int], Array[Int], Array[Int], Array[Int], Array[Int]) -> Self
+pub fn NsSample::positive_controls(Self) -> Array[Int]
+pub fn NsSample::raw_counts(Self) -> Array[Int]
+pub fn NsSample::sample_id(Self) -> String
 
 pub struct NucCallParams {
   smooth_window : Int
@@ -13524,6 +14217,22 @@ pub struct QCReport {
 pub fn QCReport::new(Array[String], Array[Double], Array[Double], Array[Double], Array[Double], Array[Int], Array[Double], Array[String]) -> Self
 pub fn QCReport::to_string(Self) -> String
 
+pub struct QFeatures {
+  assays : Array[QfAssay]
+  links : QfFeatureLinks
+  mut n_assays : Int
+}
+pub fn QFeatures::add_assay(Self, QfAssay) -> Unit
+pub fn QFeatures::add_link(Self, String, Int, String, Int) -> Unit
+pub fn QFeatures::assay_names(Self) -> Array[String]
+pub fn QFeatures::assays(Self) -> Array[QfAssay]
+pub fn QFeatures::get_assay(Self, String) -> QfAssay?
+pub fn QFeatures::links(Self) -> QfFeatureLinks
+pub fn QFeatures::n_assays(Self) -> Int
+pub fn QFeatures::n_features(Self, String) -> Int
+pub fn QFeatures::n_samples(Self, String) -> Int
+pub fn QFeatures::new() -> Self
+
 pub struct QLFData {
   genes : Array[String]
   coefficients : Array[Array[Double]]
@@ -13561,6 +14270,53 @@ pub fn QValueResult::p_values(Self) -> Array[Double]
 pub fn QValueResult::pi0(Self) -> Double
 pub fn QValueResult::q_values(Self) -> Array[Double]
 pub fn QValueResult::significance(Self) -> Array[Bool]
+
+pub struct QfAssay {
+  name : String
+  row_names : Array[String]
+  col_names : Array[String]
+  data : Array[Array[Double]]
+  n_rows : Int
+  n_cols : Int
+}
+pub fn QfAssay::col_means(Self) -> Array[Double]
+pub fn QfAssay::col_names(Self) -> Array[String]
+pub fn QfAssay::col_sums(Self) -> Array[Double]
+pub fn QfAssay::data(Self) -> Array[Array[Double]]
+pub fn QfAssay::get(Self, Int, Int) -> Double
+pub fn QfAssay::get_col(Self, Int) -> Array[Double]
+pub fn QfAssay::get_row(Self, Int) -> Array[Double]
+pub fn QfAssay::n_cols(Self) -> Int
+pub fn QfAssay::n_rows(Self) -> Int
+pub fn QfAssay::name(Self) -> String
+pub fn QfAssay::new(String, Array[String], Array[String], Array[Array[Double]]) -> Self
+pub fn QfAssay::row_means(Self) -> Array[Double]
+pub fn QfAssay::row_names(Self) -> Array[String]
+pub fn QfAssay::row_sums(Self) -> Array[Double]
+pub fn QfAssay::set(Self, Int, Int, Double) -> Unit
+pub fn QfAssay::to_string(Self) -> String
+pub fn QfAssay::zeros(String, Int, Int) -> Self
+
+pub struct QfFeatureLink {
+  from_assay : String
+  from_row : Int
+  to_assay : String
+  to_row : Int
+}
+pub fn QfFeatureLink::from_assay(Self) -> String
+pub fn QfFeatureLink::from_row(Self) -> Int
+pub fn QfFeatureLink::new(String, Int, String, Int) -> Self
+pub fn QfFeatureLink::to_assay(Self) -> String
+pub fn QfFeatureLink::to_row(Self) -> Int
+
+pub struct QfFeatureLinks {
+  links : Array[QfFeatureLink]
+}
+pub fn QfFeatureLinks::add_link(Self, QfFeatureLink) -> Unit
+pub fn QfFeatureLinks::get_links_from(Self, String, Int) -> Array[QfFeatureLink]
+pub fn QfFeatureLinks::get_links_to(Self, String, Int) -> Array[QfFeatureLink]
+pub fn QfFeatureLinks::n_links(Self) -> Int
+pub fn QfFeatureLinks::new() -> Self
 
 pub struct QualityConfig {
   min_quality : Int
@@ -14724,6 +15480,53 @@ pub struct SeqLogo {
 }
 pub fn SeqLogo::new(Array[String]) -> Self
 
+pub struct SeqLogoColumn {
+  letters : Array[SeqLogoLetter]
+  info_content : Double
+  position : Int
+}
+pub fn SeqLogoColumn::add_letter(Self, SeqLogoLetter) -> Unit
+pub fn SeqLogoColumn::info_content(Self) -> Double
+pub fn SeqLogoColumn::letters(Self) -> Array[SeqLogoLetter]
+pub fn SeqLogoColumn::new(Int, Double) -> Self
+pub fn SeqLogoColumn::position(Self) -> Int
+
+pub struct SeqLogoLetter {
+  letter : Char
+  height : Double
+  color : String
+}
+pub fn SeqLogoLetter::color(Self) -> String
+pub fn SeqLogoLetter::height(Self) -> Double
+pub fn SeqLogoLetter::letter(Self) -> Char
+pub fn SeqLogoLetter::new(Char, Double, String) -> Self
+
+pub struct SeqLogoPwm {
+  matrix : Array[Array[Double]]
+  width : Int
+  alphabet_size : Int
+  alphabet : Array[String]
+}
+pub fn SeqLogoPwm::alphabet(Self) -> Array[String]
+pub fn SeqLogoPwm::alphabet_size(Self) -> Int
+pub fn SeqLogoPwm::from_sequences(Array[String]) -> Self
+pub fn SeqLogoPwm::get(Self, Int, Int) -> Double
+pub fn SeqLogoPwm::new(Array[Array[Double]]) -> Self
+pub fn SeqLogoPwm::to_string(Self) -> String
+pub fn SeqLogoPwm::width(Self) -> Int
+
+pub struct SeqLogoResult {
+  columns : Array[SeqLogoColumn]
+  total_ic : Double
+  width : Int
+  alphabet : Array[String]
+}
+pub fn SeqLogoResult::alphabet(Self) -> Array[String]
+pub fn SeqLogoResult::columns(Self) -> Array[SeqLogoColumn]
+pub fn SeqLogoResult::new(Array[SeqLogoColumn]) -> Self
+pub fn SeqLogoResult::total_ic(Self) -> Double
+pub fn SeqLogoResult::width(Self) -> Int
+
 pub struct SeqRecord {
   seq : Seq
   id : String
@@ -14737,6 +15540,48 @@ pub fn SeqRecord::new(Seq, id? : String, name? : String, description? : String) 
 pub fn SeqRecord::phred_quality(Self) -> Array[Int]?
 pub fn SeqRecord::repr(Self) -> String
 pub fn SeqRecord::set_phred_quality(Self, Array[Int]) -> Self
+
+pub struct SeqXmlDocument {
+  entries : Array[SeqXmlEntry]
+  mut species_name : String
+  mut species_taxid : String
+  mut source_db : String
+}
+pub fn SeqXmlDocument::add_entry(Self, SeqXmlEntry) -> Unit
+pub fn SeqXmlDocument::entries(Self) -> Array[SeqXmlEntry]
+pub fn SeqXmlDocument::n_entries(Self) -> Int
+pub fn SeqXmlDocument::new() -> Self
+pub fn SeqXmlDocument::set_source_db(Self, String) -> Unit
+pub fn SeqXmlDocument::set_species(Self, String, String) -> Unit
+pub fn SeqXmlDocument::source_db(Self) -> String
+pub fn SeqXmlDocument::species_name(Self) -> String
+pub fn SeqXmlDocument::species_taxid(Self) -> String
+
+pub struct SeqXmlEntry {
+  id : String
+  description : String
+  seq_type : SeqXmlType
+  sequence : String
+  properties : Array[(String, String)]
+}
+pub fn SeqXmlEntry::add_property(Self, String, String) -> Unit
+pub fn SeqXmlEntry::description(Self) -> String
+pub fn SeqXmlEntry::id(Self) -> String
+pub fn SeqXmlEntry::new(String, SeqXmlType, String, description? : String) -> Self
+pub fn SeqXmlEntry::properties(Self) -> Array[(String, String)]
+pub fn SeqXmlEntry::seq_type(Self) -> SeqXmlType
+pub fn SeqXmlEntry::sequence(Self) -> String
+pub fn SeqXmlEntry::to_string(Self) -> String
+
+pub enum SeqXmlType {
+  DnaType
+  RnaType
+  ProteinType
+  UnknownType
+} derive(Eq)
+pub fn SeqXmlType::description(Self) -> String
+pub fn SeqXmlType::from_tag(String) -> Self
+pub fn SeqXmlType::to_tag(Self) -> String
 
 pub struct SequenceAnnotation {
   sequence_id : String
@@ -15300,6 +16145,33 @@ pub struct SummarizedExperiment {
   metadata : Map[String, String]
 }
 
+pub struct SurvData {
+  records : Array[SurvRecord]
+  mut n_samples : Int
+  mut n_groups : Int
+  group_names : Array[String]
+}
+pub fn SurvData::add_record(Self, SurvRecord) -> Unit
+pub fn SurvData::filter_by_group(Self, String) -> Array[SurvRecord]
+pub fn SurvData::from_records(Array[SurvRecord]) -> Self
+pub fn SurvData::group_names(Self) -> Array[String]
+pub fn SurvData::n_groups(Self) -> Int
+pub fn SurvData::n_samples(Self) -> Int
+pub fn SurvData::new() -> Self
+pub fn SurvData::records(Self) -> Array[SurvRecord]
+
+pub struct SurvRecord {
+  time : Double
+  event : Bool
+  group : String
+  covariates : Array[Double]
+}
+pub fn SurvRecord::covariates(Self) -> Array[Double]
+pub fn SurvRecord::event(Self) -> Bool
+pub fn SurvRecord::group(Self) -> String
+pub fn SurvRecord::new(Double, Bool, String, Array[Double]) -> Self
+pub fn SurvRecord::time(Self) -> Double
+
 pub struct SvaResult {
   sv : Array[Array[Double]]
   pprob_gam : Array[Double]
@@ -15797,6 +16669,56 @@ pub struct TsneResult {
 }
 pub fn TsneResult::new() -> Self
 
+pub struct TwoBitFile {
+  sequences : Array[TwoBitSequence]
+  version : Int
+}
+pub fn TwoBitFile::add_sequence(Self, TwoBitSequence) -> Unit
+pub fn TwoBitFile::get_sequence(Self, String) -> TwoBitSequence?
+pub fn TwoBitFile::n_sequences(Self) -> Int
+pub fn TwoBitFile::new() -> Self
+pub fn TwoBitFile::sequence_names(Self) -> Array[String]
+pub fn TwoBitFile::sequences(Self) -> Array[TwoBitSequence]
+pub fn TwoBitFile::version(Self) -> Int
+
+pub struct TwoBitMaskBlock {
+  start : Int
+  size : Int
+}
+pub fn TwoBitMaskBlock::end(Self) -> Int
+pub fn TwoBitMaskBlock::new(Int, Int) -> Self
+pub fn TwoBitMaskBlock::size(Self) -> Int
+pub fn TwoBitMaskBlock::start(Self) -> Int
+pub fn TwoBitMaskBlock::to_string(Self) -> String
+
+pub struct TwoBitNBlock {
+  start : Int
+  size : Int
+}
+pub fn TwoBitNBlock::end(Self) -> Int
+pub fn TwoBitNBlock::new(Int, Int) -> Self
+pub fn TwoBitNBlock::size(Self) -> Int
+pub fn TwoBitNBlock::start(Self) -> Int
+pub fn TwoBitNBlock::to_string(Self) -> String
+
+pub struct TwoBitSequence {
+  name : String
+  dna_size : Int
+  mut packed_dna : Array[Int]
+  mut n_blocks : Array[TwoBitNBlock]
+  mut mask_blocks : Array[TwoBitMaskBlock]
+}
+pub fn TwoBitSequence::add_mask_block(Self, Int, Int) -> Unit
+pub fn TwoBitSequence::add_n_block(Self, Int, Int) -> Unit
+pub fn TwoBitSequence::dna_size(Self) -> Int
+pub fn TwoBitSequence::mask_block_count(Self) -> Int
+pub fn TwoBitSequence::mask_blocks(Self) -> Array[TwoBitMaskBlock]
+pub fn TwoBitSequence::n_block_count(Self) -> Int
+pub fn TwoBitSequence::n_blocks(Self) -> Array[TwoBitNBlock]
+pub fn TwoBitSequence::name(Self) -> String
+pub fn TwoBitSequence::new(String, Int) -> Self
+pub fn TwoBitSequence::packed_dna(Self) -> Array[Int]
+
 pub struct Tx2Gene {
   tx_id : String
   gene_id : String
@@ -16160,6 +17082,42 @@ pub enum WigType {
   VariableStep(String, Int?)
   FixedStep(String, Int, Int)
 }
+
+pub struct XdnaFile {
+  records : Array[XdnaRecord]
+  mut version : Int
+}
+pub fn XdnaFile::add_record(Self, XdnaRecord) -> Unit
+pub fn XdnaFile::n_records(Self) -> Int
+pub fn XdnaFile::new() -> Self
+pub fn XdnaFile::records(Self) -> Array[XdnaRecord]
+pub fn XdnaFile::version(Self) -> Int
+
+pub struct XdnaRecord {
+  name : String
+  sequence : String
+  seq_type : XdnaSeqType
+  annotations : String
+  checksum : Int
+}
+pub fn XdnaRecord::annotations(Self) -> String
+pub fn XdnaRecord::checksum(Self) -> Int
+pub fn XdnaRecord::name(Self) -> String
+pub fn XdnaRecord::new(String, String, XdnaSeqType, String, checksum? : Int) -> Self
+pub fn XdnaRecord::seq_type(Self) -> XdnaSeqType
+pub fn XdnaRecord::sequence(Self) -> String
+pub fn XdnaRecord::to_string(Self) -> String
+
+pub enum XdnaSeqType {
+  DnaType
+  RnaType
+  ProteinType
+  UnknownType
+} derive(Eq)
+pub fn XdnaSeqType::description(Self) -> String
+pub fn XdnaSeqType::from_int(Int) -> Self
+pub fn XdnaSeqType::to_int(Self) -> Int
+pub fn XdnaSeqType::to_string(Self) -> String
 
 // Type aliases
 pub type NexusCell = String
