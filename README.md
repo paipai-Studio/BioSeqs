@@ -134,6 +134,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | diffcyt | 高维流式细胞术差异分析: FlowSOM风格聚类(在线SOM更新)、负二项GLM差异丰度(DA)检验、经验贝叶斯调节t检验差异状态(DS)检验、BH-FDR校正 |
 | ✅ | HiC-DC+ | Hi-C/HiChIP显著染色质交互检测: 负二项GLM背景建模(IRLS估计)、z-score显著性检验、BH-FDR校正、方向性指数TAD边界调用、PCA A/B compartment调用 |
 | ✅ | velociraptor | 单细胞RNA velocity分析: 稳态线性回归(gamma/beta比估计)、EM算法动力学模型(alpha/beta/gamma参数估计)、velocity向量计算、KNN加权嵌入投影、根细胞识别 |
+| ✅ | Bio.Compass | COMPASS profile-profile比对输出解析: 版本提取、多记录解析(SW分数/E值/百分比一致性/比对序列)、E值与一致性过滤、比对长度统计、摘要生成 |
+| ✅ | Bio.SearchIO.ExonerateIO | Exonerate比对输出解析: vulgar格式解析(比对块三元组)、cigar格式解析、格式自动检测、分数过滤、内含子统计、vulgar/cigar字符串重建 |
+| ✅ | Bio.PDB.mmcifio | mmCIF文件写入: Structure对象序列化(data block/header/atom_site loop)、20列原子坐标格式化、HETATM支持、值转义、round-trip验证 |
 
 ### 序列组装算法
 
@@ -639,6 +642,9 @@ IvanAXu/BioSeqs/
 │   ├── diffcyt.mbt             # diffcyt 高维流式细胞术差异分析 (FlowSOM聚类、负二项GLM DA检验、经验贝叶斯DS检验、BH-FDR)
 │   ├── hicdc.mbt               # HiC-DC+ Hi-C显著交互检测 (负二项GLM背景建模、z-score检验、方向性指数TAD调用、PCA A/B compartment)
 │   ├── velociraptor.mbt        # velociraptor 单细胞RNA velocity (稳态回归、EM动力学模型、velocity向量、KNN嵌入投影)
+│   ├── compass.mbt             # Bio.Compass COMPASS profile-profile比对输出解析 (版本提取、多记录解析、E值/一致性过滤、摘要)
+│   ├── exonerate.mbt           # Bio.SearchIO.ExonerateIO Exonerate输出解析 (vulgar/cigar格式、比对块解析、内含子统计、字符串重建)
+│   ├── mmcifio.mbt             # Bio.PDB.mmcifio mmCIF文件写入 (Structure序列化、20列atom_site loop、HETATM支持、值转义)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -923,6 +929,9 @@ IvanAXu/BioSeqs/
 │   ├── diffcyt_demo/             # diffcyt流式细胞术差异分析示例 (FlowSOM聚类、DA/DS检验、FDR校正)
 │   ├── hicdc_demo/               # HiC-DC+ Hi-C显著交互检测示例 (背景建模、显著性检验、TAD/A-B compartment调用)
 │   ├── velociraptor_demo/        # velociraptor RNA velocity示例 (稳态/动力学模型、velocity向量、嵌入投影、根细胞识别)
+│   ├── compass_demo/             # Bio.Compass COMPASS比对输出解析示例 (profile-profile比对解析、E值过滤、摘要)
+│   ├── exonerate_demo/           # Bio.SearchIO.ExonerateIO Exonerate输出解析示例 (vulgar/cigar解析、内含子统计、字符串重建)
+│   ├── mmcifio_demo/             # Bio.PDB.mmcifio mmCIF写入示例 (Structure序列化、atom_site loop、round-trip验证)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1210,7 +1219,10 @@ IvanAXu/BioSeqs/
 │   │   ├── neural_network_test.mbt
 │   │   ├── diffcyt_test.mbt
 │   │   ├── hicdc_test.mbt
-│   │   └── velociraptor_test.mbt
+│   │   ├── velociraptor_test.mbt
+│   │   ├── compass_test.mbt
+│   │   ├── exonerate_test.mbt
+│   │   └── mmcifio_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1236,7 +1248,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6572 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6672 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1526,6 +1538,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6572 个测试全�
 | `diffcyt.mbt` | `diffcyt` | 高维流式细胞术差异分析（FlowSOM风格在线SOM聚类、负二项GLM差异丰度DA检验IRLS、经验贝叶斯调节t检验差异状态DS、BH-FDR校正） |
 | `hicdc.mbt` | `HiC-DC+` | Hi-C/HiChIP显著染色质交互检测（负二项GLM背景建模距离/GC/mappability、IRLS参数估计、z-score显著性检验、方向性指数TAD边界调用、PCA A/B compartment调用） |
 | `velociraptor.mbt` | `velociraptor` | 单细胞RNA velocity分析（稳态线性回归gamma/beta比、EM动力学模型alpha/beta/gamma估计、velocity向量计算、KNN加权嵌入投影、根细胞识别、转移矩阵） |
+| `compass.mbt` | `Bio.Compass` | COMPASS profile-profile比对输出解析（版本提取、多记录解析SW分数/E值/百分比一致性/比对序列/共识行、E值与一致性过滤、比对长度统计、摘要生成） |
+| `exonerate.mbt` | `Bio.SearchIO.ExonerateIO` | Exonerate比对输出解析（vulgar格式三元组比对块解析M/I/5/3/S/G/U/V、cigar格式解析、格式自动检测、分数过滤、内含子统计、vulgar/cigar字符串重建） |
+| `mmcifio.mbt` | `Bio.PDB.mmcifio` | mmCIF文件写入（Structure对象序列化data block/header/atom_site loop、20列原子坐标格式化、HETATM支持、值转义、round-trip验证） |
 
 ## 核心功能实现
 
@@ -2331,6 +2346,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6572 个测试全�
 
 实现单细胞 RNA velocity 分析，参考 Bioconductor `velociraptor` 包（scVelo 的 R 封装）及 La Manno G et al. (2018) Nature 560:494 和 Bergen V et al. (2020) Nat Biotechnol 38:1408。核心数据结构：VelocityGeneData（gene_name、spliced、unspliced 每基因剪接/未剪接计数）、GeneKinetics（gene_name、alpha 转录率、beta 剪接率、gamma 降解率、likelihood 似然、steady_state_u、steady_state_s 稳态值）、CellVelocity（cell_id、velocity 每基因 velocity 向量、speed 速度模长）、EmbeddingVelocity（cell_id、embedding 低维坐标、velocity_embedding 投影 velocity）。稳态模型 velocity_steady_state(spliced, unspliced)：La Manno 2018 线性回归：1) 按剪接值排序细胞；2) 选取上 20% 分位数细胞作为稳态群体；3) 最小二乘拟合 unspliced ~ spliced，斜率 = gamma/beta 比；4) 返回 (gamma_beta_ratio, ss_s, ss_u)。动力学模型 velocity_kinetic_model(gene_name, spliced, unspliced, n_iterations)：scVelo EM 算法：1) 用稳态模型初始化 alpha、beta、gamma；2) 计数归一化（除以最大值避免数值问题）；3) E-step：基于 unspliced 与期望稳态值 u_expected = (alpha-gamma·s)/beta 的偏差分配细胞阶段——偏差 < 0.1 为 steady（阶段1），偏差 > 0 为 induction（阶段0，转录激活），偏差 < 0 为 repression（阶段2，转录抑制）；4) M-step：从 steady 细胞重新估计 gamma/beta 比（最小二乘），从 induction 细胞估计 alpha = beta·u_mean + gamma·s_mean；5) 计算似然（负残差平方和）；6) 返回 GeneKinetics 含 alpha/beta/gamma/likelihood/稳态值。velocity 计算 velocity_compute(gene_data, kinetics)：每细胞每基因 v = beta·u - gamma·s（La Manno 公式），speed = ||v||₂。嵌入投影 velocity_embedding(velocities, embeddings, k)：KNN 加权平均：1) 对每细胞找 k 最近邻（欧氏距离）；2) 速度投影 = Σ_neighbors w·(emb_j - emb_i)/||emb_j - emb_i||，权重 w = 1/(distance+ε) 归一化；3) 返回 EmbeddingVelocity 含位置和投影速度向量。辅助函数：velocity_root_cell(velocities) 识别根细胞（最高 speed）、velocity_transition_matrix(velocities, embeddings, k) 计算细胞间转移矩阵（KNN+softmax）、velocity_sample_data() 模拟 4 基因 20 细胞 spliced/unspliced 数据（含诱导/抑制模式）、vr_abs/vr_sqrt/vr_log/vr_exp/vr_mean/vr_variance 数值工具。所有公共标识符以 velocity_/vr_ 前缀命名。适用于单细胞转录动力学推断、细胞命运方向预测、轨迹分析、发育谱系重建。
 
+### 200. COMPASS profile-profile 比对输出解析 (Bio.Compass)
+
+实现 COMPASS（Comparison of Multiple Protein Alignments with Assessment of Statistical Significance）输出文件解析，参考 Biopython `Bio.Compass` 模块及 Sadreyev R et al. (2009) J Mol Biol 387:1170。核心数据结构：CompassRecord（query_name 查询比对名、template_name 模板比对名、query_n_seqs 查询序列数、template_n_seqs 模板序列数、query_n_cols 查询列数、template_n_cols 模板列数、sw_score Smith-Waterman 分数、e_value E值、percentage_identity 百分比一致性、query_start/query_end 查询起止位置、template_start/template_end 模板起止位置、aligned_query 比对查询序列、aligned_template 比对模板序列、consensus_line 共识行）。解析 parse_compass(content)：状态机解析：1) 逐行扫描 "COMPASS version" 提取版本号；2) 识别 "Query alignment:" 和 "Template alignment:" 行提取名称；3) 解析 "Number of sequences/columns" 行提取计数；4) 解析 "Smith-Waterman score:"、"E-value:"、"Percentage identity:" 行提取统计量；5) 识别 "Query:" 和 "Template:" 行提取比对序列和位置信息，中间行作为 consensus_line；6) 每个比对块生成一个 CompassRecord。过滤函数：compass_filter_by_evalue(records, threshold) 保留 E 值 <= 阈值的记录、compass_filter_by_identity(records, threshold) 保留一致性 >= 阈值的记录。统计函数：compass_alignment_length(record) 返回比对查询序列长度、compass_summary(records) 生成人类可读摘要（记录数、最佳E值、平均一致性等）。辅助函数：compass_version(content) 提取版本字符串、compass_sample_data() 生成含 2 条记录的 COMPASS 输出样本。所有公共标识符以 compass_ 前缀命名。适用于 profile-profile 比对结果分析、蛋白质远程同源检测、序列进化分析。
+
+### 201. Exonerate 比对输出解析 (Bio.SearchIO.ExonerateIO)
+
+实现 Exonerate 比对工具输出文件解析，参考 Biopython `Bio.SearchIO.ExonerateIO` 模块及 Slater G et al. (2005) BMC Bioinformatics 6:31。核心数据结构：AlignmentBlock（code 比对块类型码、query_length 查询长度、target_length 目标长度、block_score 块分数）、ExonerateRecord（query_name/query_start/query_end/query_strand 查询信息、target_name/target_start/target_end/target_strand 目标信息、score 比对分数、alignment_blocks 比对块数组）。vulgar 格式解析 parse_exonerate_vulgar(content)：1) 识别 "vulgar:" 前缀行；2) 解析头部字段（query/target 名称、起止位置、链方向、分数）；3) 解析 vulgar 字符串的三元组（code query_len target_len score），支持类型码 M（匹配）、I（内含子）、5/3（剪接位点）、S（替换）、G（gap）、U/V（unpaired gap）、C（编码）、N（非编码）；4) 对剪接位点码（5/3）容错处理缺省分数字段。cigar 格式解析 parse_exonerate_cigar(content)：1) 识别 "cigar:" 前缀行；2) 解析 CIGAR 操作符（M/I/D 等）和长度，通过 exo_cigar_lengths 转换为 (query_length, target_length, score) 三元组。自动检测 parse_exonerate(content)：逐行根据前缀分派到 vulgar 或 cigar 解析器，支持混合输入。分析函数：exonerate_total_alignment_length(record) 统计 M 块查询长度总和、exonerate_total_intron_length(record) 统计 I 块分数（内含子长度）总和、exonerate_count_introns(record) 统计 I 块数、exonerate_count_matches(record) 统计 M 块数。重建函数：exonerate_to_vulgar_string(record) 和 exonerate_to_cigar_string(record) 从记录重建输出字符串。过滤与摘要：exonerate_filter_by_score(records, threshold) 按分数过滤、exonerate_summary(records) 生成摘要。辅助函数：exonerate_sample_data()/exonerate_sample_cigar_data() 生成测试样本。所有公共标识符以 exonerate_/exo_ 前缀命名。适用于基因预测、剪接比对分析、比较基因组学。
+
+### 202. mmCIF 文件写入 (Bio.PDB.mmcifio)
+
+实现蛋白质结构 mmCIF 格式写入，参考 Biopython `Bio.PDB.mmcifio` 模块及 Bourne P et al. (2004) Acta Crystallogr D 60:684。核心功能是将 Structure 对象序列化为 mmCIF 格式字符串，与现有 mmcif.mbt 解析器互补。写入 write_mmcif(structure)：1) 生成 data block 头部 `data_<id>`；2) 写入 entry category（_entry.id）；3) 写入 entity category（_entity.id/type/src_method）；4) 写入 atom_site loop（loop_ + 20 列定义 + 原子行）。atom_site 20 列：group_PDB（ATOM/HETATM）、id（序号）、type_symbol（元素符号）、label_atom_id（原子名）、label_alt_id（altloc）、label_comp_id（残基名）、label_asym_id（链ID）、label_entity_id（实体ID）、label_seq_id（序列ID）、pdbx_PDB_ins_code（插入码）、Cartn_x/y/z（坐标3位小数）、occupancy（占据率2位小数）、B_iso_or_equiv（B因子2位小数）、pdbx_formal_charge（形式电荷）、auth_seq_id、auth_comp_id、auth_asym_id、auth_atom_id。头部写入 write_mmcif_header(structure)：entry 和 entity category。atom_site 写入 write_mmcif_atom_site(structure)：遍历所有模型→链→残基→原子，通过 residue.is_het() 判断输出 ATOM 或 HETATM。格式化函数：mmcif_format_atom(atom, atom_id) 格式化单行为 20 列字符串、mmcif_format_atom_with_group(atom, atom_id, group_pdb) 支持指定组类型、mmcif_format_coord(x) 坐标3位小数、mmcif_format_bfactor(b) B因子2位小数、mmcif_escape_value(value) 值转义（空值→?、含空格→单引号包裹、含引号→双引号转义）。辅助函数：mmcif_sample_structure() 创建含 1 模型 1 链 2 残基（ALA+GLY）8 原子的样本结构。所有公共标识符以 mmcif_/mmcifio_ 前缀命名。适用于蛋白质结构文件输出、PDB 数据格式转换、结构生物信息学流水线。
+
 
 ## 性能优化
 
@@ -2433,8 +2460,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6572 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 6572 |
-| 通过数 | 6572 |
+| 总测试数 | 6672 |
+| 通过数 | 6672 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2690,6 +2717,9 @@ moon test --update
 | diffcyt | `diffcyt_test.mbt` | 21 |
 | HiC-DC+ | `hicdc_test.mbt` | 22 |
 | velociraptor | `velociraptor_test.mbt` | 24 |
+| Bio.Compass | `compass_test.mbt` | 37 |
+| Bio.SearchIO.ExonerateIO | `exonerate_test.mbt` | 29 |
+| Bio.PDB.mmcifio | `mmcifio_test.mbt` | 34 |
 
 ### Python 对比测试
 
@@ -2776,7 +2806,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 268 个示例程序，展示各模块的典型用法：
+项目提供 271 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -2916,6 +2946,9 @@ moon run cmd/bench/main.mbt
 | diffcyt_demo | diffcyt高维流式细胞术差异分析（FlowSOM聚类、负二项GLM DA检验、经验贝叶斯DS检验、BH-FDR校正） | `moon run examples/diffcyt_demo/main.mbt` |
 | hicdc_demo | HiC-DC+ Hi-C显著交互检测（负二项GLM背景建模、z-score显著性检验、方向性指数TAD调用、PCA A/B compartment） | `moon run examples/hicdc_demo/main.mbt` |
 | velociraptor_demo | velociraptor单细胞RNA velocity（稳态/动力学EM模型、velocity向量计算、KNN嵌入投影、根细胞识别、转移矩阵） | `moon run examples/velociraptor_demo/main.mbt` |
+| compass_demo | Bio.Compass COMPASS profile-profile比对输出解析（版本提取、多记录解析、E值/一致性过滤、摘要生成） | `moon run examples/compass_demo/main.mbt` |
+| exonerate_demo | Bio.SearchIO.ExonerateIO Exonerate输出解析（vulgar/cigar格式解析、比对块统计、内含子分析、字符串重建） | `moon run examples/exonerate_demo/main.mbt` |
+| mmcifio_demo | Bio.PDB.mmcifio mmCIF文件写入（Structure序列化、20列atom_site loop、HETATM支持、round-trip验证） | `moon run examples/mmcifio_demo/main.mbt` |
 
 ## 技术栈
 
