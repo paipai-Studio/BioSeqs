@@ -125,6 +125,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.SeqIO.GfaIO | GFA基因组组装图格式: Segment/Link/Containment/Path解析、标签系统(Z/i/f类型)、图序列化往返、SeqRecord转换、反向链接 |
 | ✅ | Bio.SeqIO.XdnaIO | XDNA二进制格式(Geneious): 2位碱基编码、大端序序列化、校验和、hex字符串I/O、DNA/RNA/蛋白质类型、SeqRecord双向转换 |
 | ✅ | Bio.SeqIO.ImgtIO | IMGT免疫序列格式: 13字段管道分隔头部、HLA等位基因解析、按accession/species/gene/locus过滤、序列60字符折行、SeqRecord双向转换 |
+| ✅ | Bio.Emboss.Primer3 | PCR引物设计: Wallace规则/盐校正Tm计算、GC含量分析、自互补/交叉二聚体评分、发夹3'端检测、引物设计流水线(正/反向候选扫描、质量评分排序) |
+| ✅ | Bio.SubsMat.FreqTable | 频率表: 计数/频率字典构建、read_count/read_freq文本解析、Shannon熵、KL散度(相对熵)、Jensen-Shannon距离、归一化、序列组成统计 |
+| ✅ | Bio.SeqIO.IgIO | IntelliGenetics/MASE序列格式: 注释行(;)解析、标题行、序列折行/序列化、1终止符处理、文件头(;;)、SeqRecord双向转换、CRLF兼容 |
 
 ### 序列组装算法
 
@@ -464,6 +467,9 @@ IvanAXu/BioSeqs/
 │   ├── missmethyl.mbt          # missMethyl 甲基化芯片差异分析 (Beta/M值转换、t检验、BH-FDR、探针偏倚校正、GO富集)
 │   ├── nanostring.mbt          # NanoString nCounter数字条码分析 (阳性/阴性/管家基因归一化、QC、差异表达)
 │   ├── seqlogo.mbt             # seqLogo 序列标识图 (PWM构建、信息含量计算、ASCII logo渲染、一致性序列)
+│   ├── primer3.mbt             # Bio.Emboss.Primer3 PCR引物设计 (Tm计算、GC含量、自互补/交叉二聚体、引物设计流水线)
+│   ├── freq_table.mbt          # Bio.SubsMat.FreqTable 频率表 (计数/频率构建、熵、KL散度、JS距离、归一化)
+│   ├── ig_io.mbt               # Bio.SeqIO.IgIO IntelliGenetics格式 (注释行、标题、序列解析/序列化、SeqRecord转换)
 │   ├── flow_core.mbt           # flowCore 流式细胞术FCS处理 (数据变换、荧光补偿、矩形/多边形/椭球/四象限门控)
 │   ├── bsseq.mbt               # bsseq 亚硫酸氢盐测序分析 (BSmooth平滑、DMR检测、CpG合并、甲基化率计算)
 │   ├── single_cell_experiment.mbt  # SingleCellExperiment 单细胞核心容器 (多assay、PCA/tSNE/UMAP降维、size factors)
@@ -612,6 +618,9 @@ IvanAXu/BioSeqs/
 │   ├── gfa_io.mbt              # Bio.SeqIO.GfaIO GFA基因组组装图格式 (Segment/Link/Containment/Path、标签系统、图序列化)
 │   ├── xdna_io.mbt             # Bio.SeqIO.XdnaIO XDNA二进制格式 (2位碱基编码、大端序序列化、Geneious格式)
 │   ├── imgt_io.mbt             # Bio.SeqIO.ImgtIO IMGT免疫序列格式 (13字段管道分隔头部、HLA等位基因、序列折行)
+│   ├── primer3.mbt             # Bio.Emboss.Primer3 PCR引物设计 (Wallace/盐校正Tm、GC含量、自互补/交叉二聚体评分、引物设计流水线)
+│   ├── freq_table.mbt          # Bio.SubsMat.FreqTable 频率表 (计数/频率构建、Shannon熵、KL散度、JS距离、归一化)
+│   ├── ig_io.mbt               # Bio.SeqIO.IgIO IntelliGenetics/MASE格式 (注释行解析、标题、序列折行/序列化、SeqRecord转换)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -741,6 +750,9 @@ IvanAXu/BioSeqs/
 │   ├── missmethyl_demo/        # missMethyl甲基化差异分析示例 (Beta/M值、DMP分析、GO富集、探针偏倚校正)
 │   ├── nanostring_demo/        # NanoString nCounter分析示例 (对照归一化、QC、差异表达)
 │   ├── seqlogo_demo/           # seqLogo序列标识图示例 (PWM、信息含量、ASCII logo、一致性序列)
+│   ├── primer3_demo/           # Primer3 PCR引物设计示例 (Tm计算、GC含量、自互补评分、引物设计流水线)
+│   ├── freq_table_demo/        # FreqTable频率表示例 (计数/频率解析、熵、KL散度、JS距离、归一化)
+│   ├── ig_demo/                # IgIO IntelliGenetics格式示例 (注释解析、序列折行、SeqRecord转换、往返验证)
 │   ├── flow_core_demo/         # flowCore 流式细胞术示例 (数据变换、荧光补偿、矩形/多边形/椭球/四象限门控)
 │   ├── bsseq_demo/             # bsseq 亚硫酸氢盐测序示例 (BSmooth平滑、DMR检测、CpG合并、甲基化率计算)
 │   ├── single_cell_experiment_demo/  # SingleCellExperiment 单细胞核心容器示例 (多assay、降维、size factors)
@@ -881,6 +893,9 @@ IvanAXu/BioSeqs/
 │   ├── gfa_demo/                 # GFA基因组组装图格式示例 (Segment/Link/Path解析、图序列化、SeqRecord转换)
 │   ├── xdna_demo/                # XDNA二进制格式示例 (碱基编码、pack/unpack、大端序序列化、hex I/O)
 │   ├── imgt_demo/                # IMGT免疫序列格式示例 (HLA等位基因解析、按基因过滤、SeqRecord转换)
+│   ├── primer3_demo/             # Primer3 PCR引物设计示例 (Tm计算、GC含量、自互补评分、引物设计流水线)
+│   ├── freq_table_demo/          # FreqTable频率表示例 (计数/频率解析、熵、KL散度、JS距离、归一化)
+│   ├── ig_demo/                  # IgIO IntelliGenetics格式示例 (注释解析、序列折行、SeqRecord转换、往返验证)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1156,6 +1171,9 @@ IvanAXu/BioSeqs/
 │   │   ├── missmethyl_test.mbt
 │   │   ├── nanostring_test.mbt
 │   │   ├── seqlogo_test.mbt
+│   │   ├── primer3_test.mbt
+│   │   ├── freq_table_test.mbt
+│   │   ├── ig_io_test.mbt
 │   │   └── ma_align_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
@@ -1182,7 +1200,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5281 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6103 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1333,6 +1351,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5281 个测试全�
 | `gfa_io.mbt` | BioPython `Bio.SeqIO.GfaIO` | GFA 基因组组装图格式（Segment/Link/Containment/Path解析、标签系统、图序列化往返） |
 | `xdna_io.mbt` | BioPython `Bio.SeqIO.XdnaIO` | XDNA 二进制格式/Geneious（2位碱基编码、大端序序列化、校验和、hex I/O） |
 | `imgt_io.mbt` | BioPython `Bio.SeqIO.ImgtIO` | IMGT 免疫序列格式（13字段管道分隔头部、HLA等位基因解析、按accession/species/gene/locus过滤） |
+| `primer3.mbt` | BioPython `Bio.Emboss.Primer3` | PCR 引物设计（Wallace/盐校正 Tm、GC 含量、自互补/交叉二聚体评分、引物设计流水线） |
+| `freq_table.mbt` | BioPython `Bio.SubsMat.FreqTable` | 频率表（计数/频率构建、Shannon 熵、KL 散度、JS 距离、归一化） |
+| `ig_io.mbt` | BioPython `Bio.SeqIO.IgIO` | IntelliGenetics/MASE 格式（注释行解析、标题、序列折行/序列化、SeqRecord 转换） |
 
 #### 扩展功能模块
 
@@ -2331,8 +2352,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 5281 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 6174 |
-| 通过数 | 6174 |
+| 总测试数 | 6103 |
+| 通过数 | 6103 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2576,6 +2597,9 @@ moon test --update
 | missMethyl | `missmethyl_test.mbt` | 40 |
 | NanoString | `nanostring_test.mbt` | 35 |
 | seqLogo | `seqlogo_test.mbt` | 50 |
+| Bio.Emboss.Primer3 | `primer3_test.mbt` | 52 |
+| Bio.SubsMat.FreqTable | `freq_table_test.mbt` | 43 |
+| Bio.SeqIO.IgIO | `ig_io_test.mbt` | 51 |
 
 ### Python 对比测试
 
@@ -2790,6 +2814,9 @@ moon run cmd/bench/main.mbt
 | gfa_demo | GFA基因组组装图格式（Segment/Link/Path解析、图序列化、SeqRecord转换） | `moon run examples/gfa_demo/main.mbt` |
 | xdna_demo | XDNA二进制格式（碱基编码、pack/unpack、大端序序列化、hex I/O） | `moon run examples/xdna_demo/main.mbt` |
 | imgt_demo | IMGT免疫序列格式（HLA等位基因解析、按基因过滤、SeqRecord转换） | `moon run examples/imgt_demo/main.mbt` |
+| primer3_demo | Primer3 PCR引物设计（Tm计算、GC含量、自互补/交叉二聚体评分、引物设计流水线） | `moon run examples/primer3_demo/main.mbt` |
+| freq_table_demo | FreqTable频率表（计数/频率解析、Shannon熵、KL散度、JS距离、归一化） | `moon run examples/freq_table_demo/main.mbt` |
+| ig_demo | IgIO IntelliGenetics格式（注释解析、序列折行、SeqRecord转换、往返验证） | `moon run examples/ig_demo/main.mbt` |
 
 ## 技术栈
 
