@@ -128,6 +128,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.Emboss.Primer3 | PCR引物设计: Wallace规则/盐校正Tm计算、GC含量分析、自互补/交叉二聚体评分、发夹3'端检测、引物设计流水线(正/反向候选扫描、质量评分排序) |
 | ✅ | Bio.SubsMat.FreqTable | 频率表: 计数/频率字典构建、read_count/read_freq文本解析、Shannon熵、KL散度(相对熵)、Jensen-Shannon距离、归一化、序列组成统计 |
 | ✅ | Bio.SeqIO.IgIO | IntelliGenetics/MASE序列格式: 注释行(;)解析、标题行、序列折行/序列化、1终止符处理、文件头(;;)、SeqRecord双向转换、CRLF兼容 |
+| ✅ | ChemmineR | 化学信息学工具包: SDF格式解析/序列化、分子描述符(MW/分子式/环数/重原子数)、原子对指纹、Tanimoto/Dice相似度、子结构搜索(回溯匹配) |
+| ✅ | ANCOMBC | 微生物组组成分析(偏差校正): 采样比例估计、对数比偏差校正、参考特征选择、Welch t检验差异丰度、ANCOM W统计量、BH-FDR校正 |
+| ✅ | StructuralVariantAnnotation | 结构变异注释: VCF BND断裂端解析(4种ALT格式)、SV类型推断(DEL/DUP/INV/INS/TRA/BND)、伴侣配对、基因区域重叠注释、质量/大小/类型过滤 |
 
 ### 序列组装算法
 
@@ -470,6 +473,9 @@ IvanAXu/BioSeqs/
 │   ├── primer3.mbt             # Bio.Emboss.Primer3 PCR引物设计 (Tm计算、GC含量、自互补/交叉二聚体、引物设计流水线)
 │   ├── freq_table.mbt          # Bio.SubsMat.FreqTable 频率表 (计数/频率构建、熵、KL散度、JS距离、归一化)
 │   ├── ig_io.mbt               # Bio.SeqIO.IgIO IntelliGenetics格式 (注释行、标题、序列解析/序列化、SeqRecord转换)
+│   ├── chemminer.mbt           # ChemmineR 化学信息学 (SDF解析、分子描述符、原子对指纹、Tanimoto/Dice相似度、子结构搜索)
+│   ├── ancombc.mbt             # ANCOMBC 微生物组差异丰度 (采样比例、偏差校正、Welch t检验、ANCOM W统计量、BH-FDR)
+│   ├── structural_variant.mbt  # StructuralVariantAnnotation 结构变异注释 (BND解析、SV类型推断、伴侣配对、基因重叠注释)
 │   ├── flow_core.mbt           # flowCore 流式细胞术FCS处理 (数据变换、荧光补偿、矩形/多边形/椭球/四象限门控)
 │   ├── bsseq.mbt               # bsseq 亚硫酸氢盐测序分析 (BSmooth平滑、DMR检测、CpG合并、甲基化率计算)
 │   ├── single_cell_experiment.mbt  # SingleCellExperiment 单细胞核心容器 (多assay、PCA/tSNE/UMAP降维、size factors)
@@ -896,6 +902,9 @@ IvanAXu/BioSeqs/
 │   ├── primer3_demo/             # Primer3 PCR引物设计示例 (Tm计算、GC含量、自互补评分、引物设计流水线)
 │   ├── freq_table_demo/          # FreqTable频率表示例 (计数/频率解析、熵、KL散度、JS距离、归一化)
 │   ├── ig_demo/                  # IgIO IntelliGenetics格式示例 (注释解析、序列折行、SeqRecord转换、往返验证)
+│   ├── chemminer_demo/           # ChemmineR化学信息学示例 (SDF解析、分子描述符、原子对指纹、Tanimoto/Dice相似度、子结构搜索)
+│   ├── ancombc_demo/             # ANCOMBC微生物组差异丰度示例 (采样比例、偏差校正、Welch t检验、ANCOM W统计量、BH-FDR)
+│   ├── sv_demo/                  # StructuralVariantAnnotation结构变异注释示例 (BND解析、SV类型推断、伴侣配对、基因重叠注释)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1174,7 +1183,10 @@ IvanAXu/BioSeqs/
 │   │   ├── primer3_test.mbt
 │   │   ├── freq_table_test.mbt
 │   │   ├── ig_io_test.mbt
-│   │   └── ma_align_test.mbt
+│   │   ├── ma_align_test.mbt
+│   │   ├── chemminer_test.mbt
+│   │   ├── ancombc_test.mbt
+│   │   └── structural_variant_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1200,7 +1212,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6103 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6446 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1481,6 +1493,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6103 个测试全�
 | `bumphunter.mbt` | `bumphunter` | 甲基化/信号区域(bump)检测（t统计量、滑动均值平滑、候选bump识别、置换检验p值、BH-FDR校正） |
 | `scmap.mbt` | `scmap` | 单细胞细胞类型注释（scmap-cluster质心Spearman相关、scmap-cell k近邻投票、阈值过滤） |
 | `fishpond.mbt` | `fishpond` (Swish) | 非参数差异表达分析（Mann-Whitney-Wilcoxon秩和统计、置换检验、BH-FDR校正、log2FC方向判定） |
+| `chemminer.mbt` | `ChemmineR` | 化学信息学工具包（SDF格式解析/序列化、分子描述符MW/分子式/环数/重原子数、原子对指纹、Tanimoto/Dice相似度、子结构搜索回溯匹配） |
+| `ancombc.mbt` | `ANCOMBC` | 微生物组组成分析偏差校正（采样比例估计、对数比偏差校正、参考特征选择、Welch t检验差异丰度、ANCOM W统计量、BH-FDR校正） |
+| `structural_variant.mbt` | `StructuralVariantAnnotation` | 结构变异注释（VCF BND断裂端解析4种ALT格式、SV类型推断DEL/DUP/INV/INS/TRA/BND、伴侣配对、基因区域重叠注释、质量/大小/类型过滤） |
 
 ## 核心功能实现
 
@@ -2250,6 +2265,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6103 个测试全�
 
 实现 GEO（Gene Expression Omnibus）SOFT（Simple Omnibus Format in Text）格式解析器，参考 Biopython `Bio.Geo` 模块及 Barrett T et al. (2013) Nucleic Acids Res 41:D991-5、Edgar R et al. (2002) Nucleic Acids Res 30:207-10。SOFT 格式用于 NCBI GEO 分发平台（Platform）、系列（Series）、样本（Sample）和数据集（Dataset）记录。核心数据结构：GeoEntityType（枚举：Platform/Sample/Series/Dataset/Unknown，跨包构造需用 geo_platform()/geo_sample()/geo_series()/geo_dataset()/geo_unknown() 辅助函数）、GeoAttribute（name、value：! 开头的属性行）、GeoColumnDef（name、description：# 开头的列定义行）、GeoDataTable（columns、rows：数据表，支持 column_index() 按名查列、get_column() 提取列值）、GeoRecord（entity_type、accession、attributes、data_table：完整记录）、GeoFile（records：多记录容器）。解析流程 geo_parse(text)：1) 按换行符分割；2) 逐行扫描 ^ 开头的实体标记（^PLATFORM=GPL1、^SAMPLE=GSM1 等），提取类型和编号；3) geo_parse_record() 解析实体内容：! 行→属性（name=value）、# 行→列定义、其余行→数据表行（制表符分隔），遇下一个 ^ 标记结束当前记录。查询接口：GeoFile::get_by_type() 按类型过滤、get_by_accession() 按编号查找；GeoRecord::get_attribute(name) 按名查属性、title() 搜索 title/Platform_title/Sample_title/Series_title。辅助函数：geo_split_tab() 制表符分割、geo_find_char() 查找字符位置、geo_parse_attribute_line()/geo_parse_column_line() 解析属性行/列定义行。示例数据 geo_sample_text() 生成 1 平台（GPL1，3 探针）+ 2 样本（GSM1 对照、GSM2 处理，各 3 探针表达值）的示例。所有公共标识符以 geo_ 前缀命名。适用于 GEO 数据检索、基因表达矩阵提取、芯片数据重注释。
 
+### 191. ChemmineR 化学信息学工具包 (Bioconductor ChemmineR)
+
+实现化学信息学工具包，参考 Bioconductor `ChemmineR` 包及 Backman TWH et al. (2011) Bioinformatics 27:2400-1。核心数据结构：SdfAtom（symbol、x/y/z 坐标、charge 形式电荷）、SdfBond（atom1、atom2 0-based 索引、bond_type 1=单键/2=双键/3=三键/4=芳香键）、SdfMolecule（name、atoms、bonds、properties 属性表）。分子描述符：chem_sdf_molecular_weight() 计算分子量（按元素符号查原子量表累加）、chem_molecular_formula() 生成分子式（按 Hill 系统排序：C 首、H 次、其余字母序）、chem_heavy_atom_count() 重原子数、chem_ring_count() 环数（基于 BFS 环检测）、chem_n_bonds() 键数。原子对指纹 chem_atom_pair_fingerprint()：1) 计算每个原子的度数和类型（按元素+度数编码 type = atomic_num * 10 + degree）；2) BFS 计算所有原子对的最短路径距离；3) 编码 hash = min(ti,tj) * 10000 + dist * 100 + max(ti,tj)；4) 去重排序输出指纹数组。相似度计算：chem_tanimoto(fp1, fp2) = |A∩B| / |A∪B|、chem_dice(fp1, fp2) = 2|A∩B| / (|A|+|B|)，交集通过双指针扫描有序数组计算。子结构搜索 chem_substructure_match(query, target)：回溯算法，将 query 原子映射到 target 原子，需满足元素相同且键类型匹配（query 键 = target 键或 target 为芳香键），递归尝试所有可能映射。SDF 解析 chem_parse_sdf(content)：1) 跳过空行；2) 读取分子名、时间戳、注释行；3) 解析 counts 行（原子数、键数固定列宽）；4) 解析原子块（x/y/z 坐标 + 元素符号 + 电荷码 1=+3,2=+2,3=+1,5=-1,6=-2,7=-3）；5) 解析键块（atom1/atom2/bond_type，1-based 转 0-based）；6) 解析属性块（"> <name>" 标记后跟值行，直到 $$$$ 终止符）。序列化 chem_molecule_to_sdf(mol) 生成符合 SDF V2000 标准的文本。示例数据：chem_sample_water()/methane()/ethanol()/benzene()/aspirin() 提供常见分子，chem_sample_sdf_text() 提供多分子 SDF 示例。所有公共标识符以 chem_ 前缀命名。适用于小分子化学信息学分析、化合物相似性搜索、子结构匹配、SDF 文件处理。
+
+### 192. ANCOMBC 微生物组差异丰度分析 (Bioconductor ANCOMBC)
+
+实现微生物组组成分析（偏差校正），参考 Bioconductor `ANCOMBC` 包及 Lin H, Peddada SD (2020) Nat Commun 11:5144。核心数据结构：AncombcFeature（name、counts 每样本计数）、AncombcSample（name、group 分组标签）、AncombcData（sample_names、sample_groups、feature_names、counts[feature][sample] 二维计数矩阵）。采样比例估计 ancombc_sampling_fractions(data)：每样本 library_size / 总 library_size，反映测序深度差异。偏差校正对数丰度 ancombc_bias_corrected_log(data)：log(count + 0.5) - log(sampling_fraction * n_features + 0.5)，其中 0.5 为对数变换伪计数，sampling_fraction * n_features 为偏差校正后的有效文库大小。参考特征选择 ancombc_reference_feature(data)：选择所有特征中方差最小的作为参考（稳定特征），用于后续对数比计算。差异丰度检验 ancombc_test(data, group1, group2, alpha)：1) 将样本按组分配；2) 计算偏差校正对数丰度；3) 选参考特征；4) 计算每特征相对参考的对数比 log_ratio[i][j] = log_data[i][j] - log_data[ref][j]；5) 对每特征用 Welch t 检验比较两组对数比，得 p 值和 log fold change；6) 计算 ANCOM W 统计量：对所有特征对 (i, j) 做 Welch t 检验，若 p < alpha 则 W[i] += 1（i 相对 j 差异显著）；7) BH-FDR 校正 p 值得 q 值；8) 显著性判定 q <= alpha 且 W > 0.7 * (n_features - 1)。结果 AncombcResult（feature、log_fold_change、w_stat、p_value、q_value、significant）。统计辅助：abc_safe_ln() 安全对数、abc_mean()/abc_variance() 均值方差、abc_welch_t() Welch t 统计量（含 Welch-Satterthwaite 自由度）、abc_t_pvalue() t 分布双侧 p 值（正态近似）、abc_bh_fdr() BH-FDR 校正（排序后从大到小回填确保单调性）。示例数据 ancombc_sample_data() 提供 6 特征（Bacteroides/Prevotella 差异，其余稳定）× 8 样本（4 对照 + 4 处理）。所有公共标识符以 ancombc_/abc_ 前缀命名。适用于微生物组差异丰度分析、组成性数据偏差校正、菌群标志物识别。
+
+### 193. StructuralVariantAnnotation 结构变异注释 (Bioconductor StructuralVariantAnnotation)
+
+实现结构变异注释，参考 Bioconductor `StructuralVariantAnnotation` 包。核心数据结构：SvType（枚举：DEL 删除/DUP 重复/INV 倒位/INS 插入/TRA 染色体间易位/BND 断裂端）、SvBreakend（chrom、pos、strand、mate_chrom、mate_pos、mate_strand、mate_id：断裂端，BND 记录的两个断裂端互为伴侣）、SvRecord（id、chrom、pos、sv_type、end、svlen、breakend?、quality、filter：VCF 解析的 SV 记录）、SvGeneRegion（gene、chrom、start、end：基因区域用于重叠注释）、SvAnnotation（record、genes：注释结果）。VCF BND ALT 解析 sv_parse_bnd_alt(alt, chrom, pos)：处理 4 种 BND ALT 格式：1) t[p[ ：右侧延伸正向链；2) t]p] ：右侧延伸反向链；3) ]p]t ：左侧连接反向链；4) [p[t ：左侧连接正向链。通过括号字符识别格式，提取 mate 位置 "chrom:pos"，根据括号方向判定 strand 和 mate_strand。VCF 行解析 sv_parse_vcf_line(line)：1) 跳过 # 头部；2) 制表符分割字段；3) 解析 CHROM/POS/ID/ALT/QUAL/FILTER/INFO；4) INFO 字段解析为 Map（键值对 ; 分隔）；5) 从 SVTYPE 推断 SvType；6) 从 END/SVLEN 解析坐标；7) BND 类型或 ALT 含 [ ] 时解析断裂端。伴侣配对 sv_find_partners(records)：遍历所有 BND 记录，若记录 i 的 mate_chrom/mate_pos 匹配记录 j 的 chrom/pos 且反之亦然，则配对。基因重叠注释 sv_annotate(records, genes)：对每 SV 计算其坐标范围（BND 时含 mate 端），与基因区域比较，返回重叠基因列表。过滤：sv_filter_by_quality(records, min_qual) 按质量过滤、sv_filter_by_size(records, min_size) 按大小过滤、sv_filter_by_type(records, sv_type) 按类型过滤。统计 sv_count_by_type(records) 返回各类型计数 Map。示例数据：sv_sample_vcf() 提供 6 条 SV 记录（DEL/DUP/INV/INS + 2 条互为伴侣的 BND）、sv_sample_records() 直接提供 SvRecord 数组、sv_sample_genes() 提供 5 个基因区域（BRCA1/BRCA2/TP53/EGFR/KRAS）。所有公共标识符以 sv_ 前缀命名。适用于结构变异检测后处理、BND 伴侣配对、SV 基因注释、SV 质量控制。
+
 
 ## 性能优化
 
@@ -2352,8 +2379,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6103 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 6103 |
-| 通过数 | 6103 |
+| 总测试数 | 6446 |
+| 通过数 | 6446 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2600,6 +2627,9 @@ moon test --update
 | Bio.Emboss.Primer3 | `primer3_test.mbt` | 52 |
 | Bio.SubsMat.FreqTable | `freq_table_test.mbt` | 43 |
 | Bio.SeqIO.IgIO | `ig_io_test.mbt` | 51 |
+| ChemmineR | `chemminer_test.mbt` | 52 |
+| ANCOMBC | `ancombc_test.mbt` | 32 |
+| StructuralVariantAnnotation | `structural_variant_test.mbt` | 42 |
 
 ### Python 对比测试
 
@@ -2686,7 +2716,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 259 个示例程序，展示各模块的典型用法：
+项目提供 262 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -2817,6 +2847,9 @@ moon run cmd/bench/main.mbt
 | primer3_demo | Primer3 PCR引物设计（Tm计算、GC含量、自互补/交叉二聚体评分、引物设计流水线） | `moon run examples/primer3_demo/main.mbt` |
 | freq_table_demo | FreqTable频率表（计数/频率解析、Shannon熵、KL散度、JS距离、归一化） | `moon run examples/freq_table_demo/main.mbt` |
 | ig_demo | IgIO IntelliGenetics格式（注释解析、序列折行、SeqRecord转换、往返验证） | `moon run examples/ig_demo/main.mbt` |
+| chemminer_demo | ChemmineR化学信息学（SDF解析、分子描述符、原子对指纹、Tanimoto/Dice相似度、子结构搜索） | `moon run examples/chemminer_demo/main.mbt` |
+| ancombc_demo | ANCOMBC微生物组差异丰度（采样比例、偏差校正、Welch t检验、ANCOM W统计量、BH-FDR） | `moon run examples/ancombc_demo/main.mbt` |
+| sv_demo | StructuralVariantAnnotation结构变异注释（BND解析、SV类型推断、伴侣配对、基因重叠注释） | `moon run examples/sv_demo/main.mbt` |
 
 ## 技术栈
 
