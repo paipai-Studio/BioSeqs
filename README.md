@@ -690,6 +690,10 @@ IvanAXu/BioSeqs/
 │   ├── dnashape.mbt            # Bioconductor DNAshapeR DNA形状预测 (MGW/Roll/ProT/HelT/EP、二核苷酸查找表、k-mer滑动窗口、A-tract窄小沟)
 │   ├── hmmcopy.mbt             # Bioconductor HMMcopy HMM拷贝数变异检测 (GC偏差校正、Viterbi解码、高斯发射、前向算法对数似然、片段合并)
 │   ├── sgseq.mbt               # Bioconductor SGSeq剪接变异检测 (剪接图构建、SE/A5SS/A3SS/MXE/RI五类事件、PSI量化、STAR SJ格式解析)
+│   ├── abi.mbt                 # Bio.SeqIO.AbiIO ABI Sanger测序trace文件解析 (ABIF二进制格式、目录条目、4通道trace、碱基/质量/峰位置)
+│   ├── meme.mbt                # Bio.Motifs.Meme MEME motif发现输出解析 (PSPM概率矩阵、E值、背景频率、共识序列、信息含量)
+│   ├── mast_motif.mbt          # Bio.Motifs.Mast MAST motif搜索输出解析 (p值/E值、序列匹配、motif图、最佳序列选择)
+│   ├── transfac.mbt            # Bio.Motifs.Transfac TRANSFAC转录因子结合谱解析 (PFM频率矩阵、AC/ID/DE/BF/CC字段、参考文献、共识序列)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -998,6 +1002,10 @@ IvanAXu/BioSeqs/
 │   ├── dnashape_demo/           # DNAshapeR DNA形状预测示例 (MGW/Roll/ProT/HelT、A-tract vs GC-rich、热图、反向互补)
 │   ├── hmmcopy_demo/            # HMMcopy拷贝数变异检测示例 (GC校正、Viterbi CNV调用、片段合并、CN0/CN3识别)
 │   ├── sgseq_demo/              # SGSeq剪接变异检测示例 (剪接图、SE/A5SS/A3SS/MXE/RI、PSI量化、STAR SJ解析)
+│   ├── abi_demo/                # ABI Sanger测序trace解析示例 (碱基/质量值、峰位置、4通道trace、二进制编解码)
+│   ├── meme_demo/               # MEME motif格式解析示例 (PSPM矩阵、共识序列、信息含量、背景频率、序列化)
+│   ├── mast_motif_demo/         # MAST motif搜索输出解析示例 (p值/E值、最佳序列、motif匹配、序列查找)
+│   ├── transfac_demo/           # TRANSFAC转录因子结合谱解析示例 (PFM矩阵、共识序列、频率计算、序列化、参考文献)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1309,7 +1317,11 @@ IvanAXu/BioSeqs/
 │   │   ├── wise_test.mbt
 │   │   ├── dnashape_test.mbt
 │   │   ├── hmmcopy_test.mbt
-│   │   └── sgseq_test.mbt
+│   │   ├── sgseq_test.mbt
+│   │   ├── abi_test.mbt
+│   │   ├── meme_test.mbt
+│   │   ├── mast_motif_test.mbt
+│   │   └── transfac_full_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1335,7 +1347,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7366 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7737 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1501,6 +1513,10 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7366 个测试全�
 | `dnashape.mbt` | Bioconductor DNAshapeR | DNA形状预测（MGW/Roll/ProT/HelT/EP五特征、二核苷酸查找表、k-mer滑动窗口平均、A-tract窄小沟识别、GC-rich宽小沟、热图可视化、反向互补、二核苷酸组成、GC含量） |
 | `hmmcopy.mbt` | Bioconductor HMMcopy | HMM拷贝数变异检测（GC偏差LOESS分箱校正、Viterbi解码最优状态序列、高斯对数发射概率、7态CN0-CN6模型、前向算法对数似然、片段合并相邻同CN bins、CNV区域识别） |
 | `sgseq.mbt` | Bioconductor SGSeq | 剪接变异检测（剪接图构建外显子/连接、SE/A5SS/A3SS/MXE/RI五类事件、PSI百分剪入量化、读支持过滤、STAR SJ.out.tab格式解析、变异摘要统计） |
+| `abi.mbt` | BioPython `Bio.SeqIO.AbiIO` | ABI Sanger测序trace文件解析（ABIF二进制格式、魔数校验、128字节目录条目、PBAS/PLOC/PCON/FWO_/DATA标签、4通道trace数据、碱基/质量/峰位置、AbiDate/AbiTime、二进制编解码往返） |
+| `meme.mbt` | BioPython `Bio.Motifs.Meme` | MEME motif发现输出解析（MEME Minimal Motif Format、位置特异性概率矩阵PSPM、letter-probability matrix头部解析、alength/w/nsites/E字段、背景字母频率、MOTIF/URL行、共识序列、信息含量bits） |
+| `mast_motif.mbt` | BioPython `Bio.Motifs.Mast` | MAST motif搜索输出解析（MAST文本格式、motif/sequence SECTION解析、combined p-value/E-value、序列匹配详情、best_sequence最佳序列选择、motif_matches跨序列聚合、序列化往返） |
+| `transfac.mbt` | BioPython `Bio.Motifs.Transfac` | TRANSFAC转录因子结合谱解析（两字母字段码AC/ID/DE/NA/OS/BF/CC/P0/XX//、位置频率矩阵PFM、参考文献RN/RA/RT/RL/RX、共识序列、频率计算、字母索引、序列化往返） |
 
 #### 扩展功能模块
 
@@ -1652,6 +1668,10 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7366 个测试全�
 | `dnashape.mbt` | Bioconductor `DNAshapeR` | DNA形状预测（MGW/Roll/ProT/HelT/EP五特征、二核苷酸查找表、k-mer滑动窗口平均、A-tract窄小沟识别、GC-rich宽小沟、热图可视化、反向互补、二核苷酸组成、GC含量） |
 | `hmmcopy.mbt` | Bioconductor `HMMcopy` | HMM拷贝数变异检测（GC偏差LOESS分箱校正、Viterbi解码最优状态序列、高斯对数发射概率、7态CN0-CN6模型、前向算法对数似然、片段合并相邻同CN bins、CNV区域识别） |
 | `sgseq.mbt` | Bioconductor `SGSeq` | 剪接变异检测（剪接图构建外显子/连接、SE/A5SS/A3SS/MXE/RI五类事件、PSI百分剪入量化、读支持过滤、STAR SJ.out.tab格式解析、变异摘要统计） |
+| `abi.mbt` | Biopython `Bio.SeqIO.AbiIO` | ABI Sanger测序trace文件解析（ABIF二进制格式、魔数校验、128字节目录条目、PBAS/PLOC/PCON/FWO_/DATA标签、4通道trace数据、碱基/质量/峰位置、AbiDate/AbiTime、二进制编解码往返） |
+| `meme.mbt` | Biopython `Bio.Motifs.Meme` | MEME motif发现输出解析（MEME Minimal Motif Format、位置特异性概率矩阵PSPM、letter-probability matrix头部解析、alength/w/nsites/E字段、背景字母频率、MOTIF/URL行、共识序列、信息含量bits） |
+| `mast_motif.mbt` | Biopython `Bio.Motifs.Mast` | MAST motif搜索输出解析（MAST文本格式、motif/sequence SECTION解析、combined p-value/E-value、序列匹配详情、best_sequence最佳序列选择、motif_matches跨序列聚合、序列化往返） |
+| `transfac.mbt` | Biopython `Bio.Motifs.Transfac` | TRANSFAC转录因子结合谱解析（两字母字段码AC/ID/DE/NA/OS/BF/CC/P0/XX//、位置频率矩阵PFM、参考文献RN/RA/RT/RL/RX、共识序列、频率计算、字母索引、序列化往返） |
 
 ## 核心功能实现
 
@@ -2558,6 +2578,22 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7366 个测试全�
 
 实现剪接变异检测，参考 Bioconductor `SGSeq` 包。SGSeq 从 RNA-seq split-read 比对的剪接连接（junction）构建剪接图（splice graph），识别五类可变剪接事件：外显子跳跃（Skipped Exon, SE）、可变 5' 剪接位点（A5SS）、可变 3' 剪接位点（A3SS）、互斥外显子（Mutually Exclusive Exons, MXE）、内含子保留（Retained Intron, RI）。SGSeqJunction 结构记录 chr/start（donor 5' 端）/end（acceptor 3' 端）/strand/count，提供 intron_length（end-start-1）、same_donor、same_acceptor 判断。SGSeqExon 记录 chr/start/end/strand/count/is_cassette，提供 length、contains 方法。SGSeqVariantType 枚举（VariantSE/VariantA5SS/VariantA3SS/VariantMXE/VariantRI）。SGSeqVariant 结构含 chr/start/end/strand/variant_type/inclusion_count/exclusion_count/psi/details，提供 compute_psi（inclusion/(inclusion+exclusion)）、is_significant（PSI 0.1-0.9 且总读数≥10）。sgseq_parse_junctions 解析 STAR SJ.out.tab 格式（chr\tstart\tend\tstrand[0/1/2]\tcount），0-based 转 1-based。sgseq_build_splice_graph 从 junction 构建外显子：首外显子（1→j1.start）、中间外显子（j[k].end→j[k+1].start）、末外显子（j.last.end→+1000）。sgseq_detect_se 检测 SE：查找被 skipping junction 跨越且两端有 inclusion junction 的 cassette exon，inclusion_count=两端 junction count 之和/2，exclusion_count=skipping count。sgseq_detect_a5ss 按 (chr, end) 分组找同 acceptor 不同 donor。sgseq_detect_a3ss 按 (chr, start) 分组找同 donor 不同 acceptor。sgseq_detect_mxe 检查外显子对是否有互斥包含证据（无 skip_both junction）。sgseq_detect_ri 检测低 junction count（<10）且 intron 区域有外显子覆盖的保留内含子。sgseq_detect_variants 汇总五类检测。sgseq_quantify_psi 从 junction 重新量化 PSI。sgseq_filter_variants 按最小读数过滤。sgseq_summary 按类型统计变异数。sgseq_sample_junctions 生成含 5 正常 junction + SE skipping + A5SS + A3SS 的 7 junction 示例。sgseq_sample_exons 生成 5 外显子示例。适用于可变剪接分析、转录本异构体鉴定、RNA-seq 差异剪接、基因调控研究。
 
+### 224. ABI Sanger 测序 trace 文件解析 (Bio.SeqIO.AbiIO)
+
+实现 ABI Sanger 测序 trace 文件（ABIF 格式）解析与编码，参考 Biopython `Bio.SeqIO.AbiIO`。ABIF（Applied Biosystems Inc. Format）是 ABI/PRISM 自动 DNA 测序仪产生的二进制格式，包含四通道原始 trace 数据、called bases、base positions（峰位置）、quality values（Phred 分数）和样本元数据。ABIF 二进制结构：4 字节魔数 "ABIF"（0x41424946）、2 字节版本（0x0200 for v1.0）、目录条目（每条 128 字节：tag name[4]/tag number[4]/element type[2]/element size[2]/num elements[4]/data size[4]/data offset[4]/inline data[4]）、数据段（由目录条目引用）。核心数据结构：AbiDirEntry（tag_name/tag_number/element_type/element_size/num_elements/data_size/data_offset/inline_data）；AbiDate（year/month/day，to_string 格式 YYYY-MM-DD）；AbiTime（hours/minutes/seconds，to_string 格式 HH:MM:SS）；AbiTrace（sample_name[SMPL]/capillary_id[CTID]/run_name[RPrN]/base_order[FWO_ 默认 GATC]/bases[PBAS]/base_positions[PLOC]/qualities[PCON]/traces[DATA 1-4 四通道]/trace_names/num_bases/num_points/run_date[RUND]/run_time[RUNT]/directory）。abi_parse(bytes) 解析二进制：校验魔数→读取目录偏移和条目数→abi_parse_directory_v2 遍历 128 字节条目→abi_find_entry 按 tag+number 查找→提取 PBAS（碱基字符串）、PLOC（2 字节 short 数组，峰位置）、PCON（1 字节 byte 数组，Phred 质量）、FWO_（4 字符 base order，如 "GATC"）、DATA 1-4（2 字节 short 数组，原始 trace 通道，按 FWO_ 顺序对应 G/A/T/C）。AbiTrace 方法：trace_for_base(base) 按 base_order 查找对应通道 trace 数组、quality_at(i) 取质量（越界返回 -1）、peak_at(i) 取峰位置、seq_length() 返回碱基数。abi_encode(trace) 将 AbiTrace 编码为二进制字节数组（写入 ABIF 头+目录条目+数据段）。abi_sample_bytes/abi_sample_trace 提供测试用示例数据。适用于 Sanger 测序数据质量评估、basecalling 结果验证、测序峰图可视化、突变验证（SNV/indel 检测）。
+
+### 225. MEME motif 发现输出解析 (Bio.Motifs.Meme)
+
+实现 MEME Minimal Motif Format 解析，参考 Biopython `Bio.Motifs.Meme`。MEME（Multiple EM for Motif Elicitation）是 Bailey & Elkan (1994) 开发的 motif 发现工具，从一组无比对序列中发现过度表示的 motif，输出位置特异性概率矩阵（Position-Specific Probability Matrix, PSPM）。MEME Minimal Motif Format 结构：版本行 "MEME version 4"、ALPHABET= 行（如 "ACGT"）、strands: 行（如 "+ -"）、Background letter frequencies 行（字母+频率对）、MOTIF 块（MOTIF 行含 name/alt_name、letter-probability matrix 行含 alength=/w=/nsites=/E= 头部字段、矩阵数据行每位置一行概率值、可选 URL 行）。核心数据结构：MemeMotif（name/alt_name/alphabet/width/nsites/evalue/pspm 二维概率矩阵/url/strands）；MemeRecord（version/alphabet/strands/background_frequencies[(letter, freq)]/motifs）。meme_parse(text) 逐行解析：识别 "MEME version" 提取版本、识别 "ALPHABET=" 提取字母表、识别 "strands:" 提取链信息、识别 "Background letter frequencies" 后解析字母-频率对、识别 "MOTIF" 开启新 motif（先保存前一个）、识别 "letter-probability matrix:" 头部解析 alength/w/nsites/E 字段（parse_meme_int_field/parse_meme_double_field 子串提取数字）、矩阵数据行按空白分词解析为 Double 数组（跳过 0 值但保留 "0"/"0.x" 格式）、达到 expected_width 行后停止矩阵模式（不立即 finalize，等待 URL 或下一 MOTIF）、识别 "URL" 行提取 URL 并 finalize motif。MemeMotif 方法：consensus() 取每位置最大概率字母生成共识序列、alphabet_to_array() 将字母表字符串转为单字符数组、probability(letter, pos) 查询特定位置字母概率、information_content() 计算信息含量（bits，∑ p*log2(p/background)）。MemeRecord 方法：num_motifs()、find(name) 按 name 或 alt_name 查找 motif。meme_motif_to_string/meme_record_to_string 序列化。meme_sample_text/meme_sample_motif 提供示例数据。适用于 motif 发现结果解析、转录因子结合位点建模、序列 motif 扫描、与 JASPAR/TRANSFAC 格式互转。
+
+### 226. MAST motif 搜索输出解析 (Bio.Motifs.Mast)
+
+实现 MAST（Motif Alignment and Search Tool）文本输出解析，参考 Biopython `Bio.Motifs.Mast`。MAST 是 Bailey & Gribskov (1998) 开发的 motif 搜索工具，在序列数据库中搜索包含给定 motif 集合的序列，报告每个序列的 combined p-value 和 E-value。MAST 文本输出结构：MAST 版本行、DATABASE 行、SECTION I（motif 信息：Motif ID、width=）、SECTION II/III（序列匹配：序列名、描述、长度、p-value、E-value）、motif diagram。核心数据结构：MastMotifMatch（motif_id/position[1-based]/length/pvalue/score/strand/sequence）；MastMotifSeq（name/description/length/combined_pvalue/combined_evalue/matches/diagram）；MastMotifInfo（id/name/width/alphabet）；MastMotifRecord（version/database/motifs/sequences/motif_count/sequence_count/hit_count）。mast_motif_parse(text) 逐行解析：识别 "MAST" + "version" 提取版本、识别 "DATABASE"/"database" 提取数据库名、识别 "SECTION" 切换解析上下文、在 MOTIF SECTION 解析 "Motif<id>" + "width=" 提取 motif 信息、在 RESULT/DETAILED SECTION 解析序列行（按空白分词，末尾两个为 E-value/p-value，倒数第三个为长度，其余为序列名+描述）。MastMotifSeq 方法：add_match(match) 添加匹配、num_matches() 匹配数、best_match() 返回最低 p-value 匹配。MastMotifRecord 方法：num_hits() 命中序列数、find_sequence(name) 按名查找序列、motif_matches(motif_id) 跨序列聚合某 motif 所有匹配、best_sequence() 返回最低 E-value 序列。mast_motif_match_to_string/mast_motif_seq_to_string/mast_motif_record_to_string 序列化。mast_motif_sample_text/mast_motif_sample_record 提供示例数据。适用于 motif 扫描结果分析、转录因子结合位点预测、启动子调控元件识别、基因组 motif 富集分析。
+
+### 227. TRANSFAC 转录因子结合谱解析 (Bio.Motifs.Transfac)
+
+实现 TRANSFAC 数据库格式解析，参考 Biopython `Bio.Motifs.Transfac`。TRANSFAC 是 Wingender et al. (2000) 发布的转录因子结合位点数据库，使用两字母字段码描述每个 motif 的元数据和位置频率矩阵（Position Frequency Matrix, PFM）。TRANSFAC 格式结构：VV 行（VERSION）、XX 行（分隔符）、// 行（记录终止）、AC（accession 编号，开启新 motif）、ID（identifier）、DE（description）、NA（name）、OS（species）、OC（taxonomic class）、BF（binding factor，可多行）、CC（comments）、P0（PFM 头部，如 "P0  A C G T"）、01/02/...（PFM 数据行，首列为行号，后为各碱基计数）、BS（binding site 序列，可多行）、RN/RA/RT/RL/RX（参考文献：编号/作者/标题/期刊/PubMed）、DR（外部数据库引用）、DT（日期）、TY（类型）。核心数据结构：TransfacReference（number/authors/title/journal/pubmed_id）；TransfacMotifFull（accession/identifier/description/binding_factors/comments/copyright/name/species/taxonomic_class/pfm[字母×位置频率矩阵]/alphabet/width/references/binding_sites/external_refs/creation_date/motif_type）；TransfacRecordFull（version/motifs）。transfac_parse_full(text) 逐行解析：取前两字符为 field code、识别 "VV" 提取版本、"XX" 跳过、"//" 终止当前 motif 并重置、"AC" 开启新 motif（先保存前一个）、各字段码分别赋值、"P0" 初始化 PFM 行数组（使用 loop push 创建独立数组避免共享引用）、数字开头的行解析为 PFM 数据（跳过行号，按碱基顺序 push 到对应行）。TransfacMotifFull 方法：consensus() 取每位置最高计数碱基、total_at(pos) 某位置总计数、frequency(base, pos) 某碱基在某位置的频率（计数/总数）、alphabet_index(letter) 字母在字母表中的索引。TransfacRecordFull 方法：num_motifs()、find(accession) 按 accession 查找。transfac_motif_full_to_string/transfac_record_full_to_string 序列化（含 P0 头部+编号数据行+XX 分隔+// 终止）。transfac_sample_text_full/transfac_sample_motif_full 提供示例数据。适用于转录因子结合位点分析、启动子调控元件识别、基因调控网络构建、与 JASPAR/MEME 格式互转。
+
 
 ## 性能优化
 
@@ -2660,8 +2696,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7366 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 7657 |
-| 通过数 | 7657 |
+| 总测试数 | 7737 |
+| 通过数 | 7737 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2941,6 +2977,10 @@ moon test --update
 | DNAshapeR | `dnashape_test.mbt` | 29 |
 | HMMcopy | `hmmcopy_test.mbt` | 29 |
 | SGSeq | `sgseq_test.mbt` | 36 |
+| Bio.SeqIO.AbiIO | `abi_test.mbt` | 20 |
+| Bio.Motifs.Meme | `meme_test.mbt` | 22 |
+| Bio.Motifs.Mast | `mast_motif_test.mbt` | 20 |
+| Bio.Motifs.Transfac | `transfac_full_test.mbt` | 18 |
 
 ### Python 对比测试
 
@@ -3027,7 +3067,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 292 个示例程序，展示各模块的典型用法：
+项目提供 296 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3191,6 +3231,10 @@ moon run cmd/bench/main.mbt
 | dnashape_demo | DNAshapeR DNA形状预测（MGW/Roll/ProT/HelT、A-tract vs GC-rich、热图、反向互补） | `moon run examples/dnashape_demo/main.mbt` |
 | hmmcopy_demo | HMMcopy拷贝数变异检测（GC校正、Viterbi CNV调用、片段合并、CN0/CN3识别） | `moon run examples/hmmcopy_demo/main.mbt` |
 | sgseq_demo | SGSeq剪接变异检测（剪接图、SE/A5SS/A3SS/MXE/RI、PSI量化、STAR SJ解析） | `moon run examples/sgseq_demo/main.mbt` |
+| abi_demo | ABI Sanger测序trace解析（碱基/质量值、峰位置、4通道trace、二进制编解码） | `moon run examples/abi_demo/main.mbt` |
+| meme_demo | MEME motif格式解析（PSPM矩阵、共识序列、信息含量、背景频率、序列化） | `moon run examples/meme_demo/main.mbt` |
+| mast_motif_demo | MAST motif搜索输出解析（p值/E值、最佳序列、motif匹配、序列查找） | `moon run examples/mast_motif_demo/main.mbt` |
+| transfac_demo | TRANSFAC转录因子结合谱解析（PFM矩阵、共识序列、频率计算、序列化、参考文献） | `moon run examples/transfac_demo/main.mbt` |
 
 ## 技术栈
 

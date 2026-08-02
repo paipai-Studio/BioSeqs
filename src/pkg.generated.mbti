@@ -14,6 +14,14 @@ pub let aa_polarity : Map[UInt16, Double]
 
 pub let aa_to_codons : Map[String, Array[String]]
 
+pub fn abi_encode(AbiTrace) -> Array[Int]
+
+pub fn abi_parse(Array[Int]) -> AbiTrace
+
+pub fn abi_sample_bytes() -> Array[Int]
+
+pub fn abi_sample_trace() -> AbiTrace
+
 pub fn absorbance_280(String) -> Double
 
 pub fn abstract_all_column_stats(AbstractAlignment) -> Array[AlignAbstractColumnStats]
@@ -1990,6 +1998,46 @@ pub fn dna_matrix(Double, Double) -> Map[String, Double]
 
 pub fn dna_molecular_weight(String) -> Double
 
+pub fn dnashape_decode_kmer(Int, Int) -> String
+
+pub fn dnashape_dinuc_composition(String) -> Array[Int]
+
+pub fn dnashape_encode_base(String) -> Int
+
+pub fn dnashape_encode_kmer(String) -> Int
+
+pub fn dnashape_gc_content(String) -> Double
+
+pub fn dnashape_get_ep_table() -> Map[Int, Double]
+
+pub fn dnashape_get_helt_table() -> Map[Int, Double]
+
+pub fn dnashape_get_mgw_table() -> Map[Int, Double]
+
+pub fn dnashape_get_prot_table() -> Map[Int, Double]
+
+pub fn dnashape_get_roll_table() -> Map[Int, Double]
+
+pub fn dnashape_heatmap(DnaShapeResult) -> String
+
+pub fn dnashape_make_feature(String) -> DnaShapeFeature
+
+pub fn dnashape_predict(String, DnaShapeFeature) -> DnaShapeResult
+
+pub fn dnashape_predict_all(String) -> DnaShapePrediction
+
+pub fn dnashape_result_to_string(DnaShapeResult) -> String
+
+pub fn dnashape_revcomp(String) -> String
+
+pub fn dnashape_sample_atract() -> String
+
+pub fn dnashape_sample_gc_rich() -> String
+
+pub fn dnashape_sample_mixed() -> String
+
+pub fn dnashape_sample_sequence() -> String
+
 pub fn dorothea_analyze_cell(Array[Double], Array[String], Array[Regulon], DorotheaParams) -> Array[TFActivityResult]
 
 pub fn dorothea_analyze_cells(Array[Array[Double]], Array[String], Array[String], Array[Regulon], DorotheaParams) -> Array[TFActivityResult]
@@ -3494,6 +3542,20 @@ pub fn hmisc_varclus(Array[Array[Double]], names? : Array[String], min_cluster_s
 
 pub fn hmisc_varclus_summary(HmiscVarClusResult) -> String
 
+pub fn hmmcopy_call_cnv(Array[HMMcopyBin], HMMcopyModel) -> Array[HMMcopyBin]
+
+pub fn hmmcopy_correct_gc(Array[HMMcopyBin], num_gc_bins? : Int) -> Array[HMMcopyBin]
+
+pub fn hmmcopy_log_likelihood(Array[HMMcopyBin], HMMcopyModel) -> Double
+
+pub fn hmmcopy_sample_bins() -> Array[HMMcopyBin]
+
+pub fn hmmcopy_sample_model() -> HMMcopyModel
+
+pub fn hmmcopy_segment(Array[HMMcopyBin]) -> Array[HMMcopySegment]
+
+pub fn hmmcopy_viterbi(Array[HMMcopyBin], HMMcopyModel) -> Array[Int]
+
 pub fn hts_count_group(Array[Int], Int) -> Int
 
 pub fn hts_filter(Array[Array[Double]], Array[Int], Double, Int) -> HTSFilterResult
@@ -4088,6 +4150,18 @@ pub fn markov_stationary_distribution(MarkovModel) -> Map[String, Double]
 
 pub fn markov_third_order() -> ChainType
 
+pub fn mast_motif_match_to_string(MastMotifMatch) -> String
+
+pub fn mast_motif_parse(String) -> MastMotifRecord
+
+pub fn mast_motif_record_to_string(MastMotifRecord) -> String
+
+pub fn mast_motif_sample_record() -> MastMotifRecord
+
+pub fn mast_motif_sample_text() -> String
+
+pub fn mast_motif_seq_to_string(MastMotifSeq) -> String
+
 pub fn mat_inverse(Matrix) -> Matrix
 
 pub fn mat_mult(Matrix, Matrix) -> Matrix
@@ -4235,6 +4309,16 @@ pub fn mean_sd_bins(Array[Array[Double]], Int) -> Array[MeanSDBin]
 pub fn mean_shift_by_element(ChemicalShiftTable, String) -> Double
 
 pub fn melting_temperature(String) -> Double
+
+pub fn meme_motif_to_string(MemeMotif) -> String
+
+pub fn meme_parse(String) -> MemeRecord
+
+pub fn meme_record_to_string(MemeRecord) -> String
+
+pub fn meme_sample_motif() -> MemeMotif
+
+pub fn meme_sample_text() -> String
 
 pub fn meme_to_motif(String) -> Motif
 
@@ -4484,6 +4568,32 @@ pub fn mmcif_format_coord(Double) -> String
 
 pub fn mmcif_sample_structure() -> Structure
 
+pub fn mmtf_chain_num_atoms(MmtfChain) -> Int
+
+pub fn mmtf_chain_sequence(MmtfChain) -> String
+
+pub fn mmtf_decode_delta(Array[Int]) -> Array[Int]
+
+pub fn mmtf_decode_run_length(Array[Int]) -> Array[Int]
+
+pub fn mmtf_encode_delta(Array[Int]) -> Array[Int]
+
+pub fn mmtf_encode_run_length(Array[Int]) -> Array[Int]
+
+pub fn mmtf_model_num_atoms(MmtfModel) -> Int
+
+pub fn mmtf_read_text(String) -> MmtfStructure
+
+pub fn mmtf_recursive_index_decode(Array[Int], Int) -> Array[Int]
+
+pub fn mmtf_sample() -> MmtfStructure
+
+pub fn mmtf_summary(MmtfStructure) -> String
+
+pub fn mmtf_to_pdb_structure(MmtfStructure) -> Structure
+
+pub fn mmtf_write_text(MmtfStructure) -> String
+
 pub fn module_eigengenes(WGCNAData) -> Array[ModuleEigengene]
 
 pub fn module_trait_correlation(WGCNAData, Array[Array[Double]], Array[String]) -> Map[String, Map[String, Double]]
@@ -4615,6 +4725,44 @@ pub fn na_omit_int(Array[Int]) -> Array[Int]
 pub fn na_omit_string(Array[String]) -> Array[String]
 
 pub fn na_string() -> String
+
+pub fn naccess_atom_to_asa(NaccessAtom) -> String
+
+pub fn naccess_buried_residues(NaccessResult, Double) -> Array[NaccessResidue]
+
+pub fn naccess_chain_total_asa(NaccessResult, String) -> Double
+
+pub fn naccess_count_exposed(NaccessResult, Double) -> Int
+
+pub fn naccess_exposed_residues(NaccessResult, Double) -> Array[NaccessResidue]
+
+pub fn naccess_get_chain_residues(NaccessResult, String) -> Array[NaccessResidue]
+
+pub fn naccess_is_exposed(NaccessResidue, Double) -> Bool
+
+pub fn naccess_mean_rel_asa(NaccessResult) -> Double
+
+pub fn naccess_parse(String, String) -> NaccessResult
+
+pub fn naccess_parse_asa(String) -> Array[NaccessAtom]
+
+pub fn naccess_parse_rsa(String) -> Array[NaccessResidue]
+
+pub fn naccess_residue_to_rsa(NaccessResidue) -> String
+
+pub fn naccess_sample() -> NaccessResult
+
+pub fn naccess_sample_asa() -> String
+
+pub fn naccess_sample_rsa() -> String
+
+pub fn naccess_standard_asa(String) -> Double
+
+pub fn naccess_summary(NaccessResult) -> String
+
+pub fn naccess_write_asa(NaccessResult) -> String
+
+pub fn naccess_write_rsa(NaccessResult) -> String
 
 pub fn naive_bayes_accuracy(NaiveBayesClassifier, Array[String], Array[String]) -> Double
 
@@ -6192,6 +6340,38 @@ pub fn sff_encode(SffFile) -> Array[Int]
 
 pub fn sff_parse(Array[Int]) -> SffFile?
 
+pub fn sgseq_build_splice_graph(Array[SGSeqJunction]) -> Array[SGSeqExon]
+
+pub fn sgseq_detect_a3ss(Array[SGSeqJunction]) -> Array[SGSeqVariant]
+
+pub fn sgseq_detect_a5ss(Array[SGSeqJunction]) -> Array[SGSeqVariant]
+
+pub fn sgseq_detect_mxe(Array[SGSeqJunction], Array[SGSeqExon]) -> Array[SGSeqVariant]
+
+pub fn sgseq_detect_ri(Array[SGSeqJunction], Array[SGSeqExon]) -> Array[SGSeqVariant]
+
+pub fn sgseq_detect_se(Array[SGSeqJunction], Array[SGSeqExon]) -> Array[SGSeqVariant]
+
+pub fn sgseq_detect_variants(Array[SGSeqJunction], Array[SGSeqExon]) -> Array[SGSeqVariant]
+
+pub fn sgseq_filter_variants(Array[SGSeqVariant], min_reads? : Int) -> Array[SGSeqVariant]
+
+pub fn sgseq_make_variant_type(String) -> SGSeqVariantType
+
+pub fn sgseq_parse_junctions(String) -> Array[SGSeqJunction]
+
+pub fn sgseq_quantify_psi(SGSeqVariant, Array[SGSeqJunction]) -> Double
+
+pub fn sgseq_sample_exons() -> Array[SGSeqExon]
+
+pub fn sgseq_sample_junctions() -> Array[SGSeqJunction]
+
+pub fn sgseq_summary(Array[SGSeqVariant]) -> Map[String, Int]
+
+pub fn sgseq_to_features(Array[SGSeqJunction], Array[SGSeqExon]) -> Array[SGSeqFeature]
+
+pub fn sgseq_variant_to_string(SGSeqVariant) -> String
+
 pub fn sha1(Array[Int]) -> Array[Int]
 
 pub fn sha1_string(String) -> Array[Int]
@@ -6822,6 +7002,16 @@ pub fn transcripts(TxDb) -> GRanges
 
 pub fn transcripts_by_gene(TxDb) -> Map[String, Array[Transcript]]
 
+pub fn transfac_motif_full_to_string(TransfacMotifFull) -> String
+
+pub fn transfac_parse_full(String) -> TransfacRecordFull
+
+pub fn transfac_record_full_to_string(TransfacRecordFull) -> String
+
+pub fn transfac_sample_motif_full() -> TransfacMotifFull
+
+pub fn transfac_sample_text_full() -> String
+
 pub fn translate(String) -> String
 
 pub fn translate_codon(String) -> String
@@ -7056,6 +7246,24 @@ pub fn which_double(Array[Double], Double) -> Array[Int]
 
 pub fn which_int(Array[Int], Int) -> Array[Int]
 
+pub fn wise_gene_structure(WiseResult) -> String
+
+pub fn wise_make_block_type(String) -> WiseBlockType
+
+pub fn wise_parse(String) -> WiseResult
+
+pub fn wise_percent_identity(WiseResult, String, String) -> Double
+
+pub fn wise_sample() -> WiseResult
+
+pub fn wise_sample_output() -> String
+
+pub fn wise_summary(WiseResult) -> String
+
+pub fn wise_translate_gene(WiseResult, String) -> String
+
+pub fn wise_write(WiseResult) -> String
+
 pub fn within_position(Int, Pos, Pos) -> Pos
 
 pub fn write_bed(Array[BedRecord]) -> String
@@ -7191,6 +7399,56 @@ pub struct AUCellResult {
 }
 pub fn AUCellResult::new(Array[String], Array[String], Array[Array[Double]]) -> Self
 
+pub struct AbiDate {
+  year : Int
+  month : Int
+  day : Int
+}
+pub fn AbiDate::new(Int, Int, Int) -> Self
+pub fn AbiDate::to_string(Self) -> String
+
+pub struct AbiDirEntry {
+  tag_name : String
+  tag_number : Int
+  element_type : Int
+  element_size : Int
+  num_elements : Int
+  data_size : Int
+  data_offset : Int
+  inline_data : Array[Int]
+}
+pub fn AbiDirEntry::new(String, Int) -> Self
+
+pub struct AbiTime {
+  hours : Int
+  minutes : Int
+  seconds : Int
+}
+pub fn AbiTime::new(Int, Int, Int) -> Self
+pub fn AbiTime::to_string(Self) -> String
+
+pub struct AbiTrace {
+  mut sample_name : String
+  mut capillary_id : String
+  mut run_name : String
+  mut base_order : String
+  mut bases : String
+  mut base_positions : Array[Int]
+  mut qualities : Array[Int]
+  traces : Array[Array[Int]]
+  mut trace_names : Array[String]
+  mut run_date : AbiDate
+  mut run_time : AbiTime
+  mut num_bases : Int
+  mut num_points : Int
+  mut directory : Array[AbiDirEntry]
+}
+pub fn AbiTrace::new() -> Self
+pub fn AbiTrace::peak_at(Self, Int) -> Int
+pub fn AbiTrace::quality_at(Self, Int) -> Int
+pub fn AbiTrace::seq_length(Self) -> Int
+pub fn AbiTrace::trace_for_base(Self, String) -> Array[Int]
+
 pub struct AbstractAlignment {
   sequences : Array[String]
   identifiers : Array[String]
@@ -7320,6 +7578,7 @@ pub struct AlignAceMotif {
   consensus : String
   sites : Array[AlignAceSite]
 }
+pub fn AlignAceMotif::add_site(Self, AlignAceSite) -> Unit
 pub fn AlignAceMotif::new(Array[Array[Int]]) -> Self
 
 pub struct AlignAceRecord {
@@ -7328,7 +7587,10 @@ pub struct AlignAceRecord {
   parameters : Map[String, String]
   motifs : Array[AlignAceMotif]
 }
+pub fn AlignAceRecord::add_motif(Self, AlignAceMotif) -> Unit
 pub fn AlignAceRecord::new() -> Self
+pub fn AlignAceRecord::set_command(Self, String) -> Unit
+pub fn AlignAceRecord::set_version(Self, String) -> Unit
 
 pub struct AlignAceSite {
   sequence_id : String
@@ -10501,6 +10763,37 @@ pub struct DnDsResult {
 }
 pub fn DnDsResult::new(dn~ : Double, ds~ : Double, dnds~ : Double, dn_std? : Double?, ds_std? : Double?) -> Self
 
+pub enum DnaShapeFeature {
+  ShapeMGW
+  ShapeRoll
+  ShapeProT
+  ShapeHelT
+  ShapeEP
+}
+pub fn DnaShapeFeature::kmer_size(Self) -> Int
+pub fn DnaShapeFeature::to_string(Self) -> String
+
+pub struct DnaShapePrediction {
+  sequence : String
+  mgw : DnaShapeResult
+  roll : DnaShapeResult
+  prot : DnaShapeResult
+  helt : DnaShapeResult
+}
+
+pub struct DnaShapeResult {
+  feature : DnaShapeFeature
+  values : Array[Double]
+  positions : Array[Int]
+}
+pub fn DnaShapeResult::feature_name(Self) -> String
+pub fn DnaShapeResult::get_value(Self, Int) -> Double
+pub fn DnaShapeResult::length(Self) -> Int
+pub fn DnaShapeResult::max(Self) -> Double
+pub fn DnaShapeResult::mean(Self) -> Double
+pub fn DnaShapeResult::min(Self) -> Double
+pub fn DnaShapeResult::new(feature~ : DnaShapeFeature, values~ : Array[Double], positions~ : Array[Int]) -> Self
+
 pub struct DorotheaParams {
   n_permutations : Int
   min_targets : Int
@@ -11806,7 +12099,12 @@ pub struct GckFile {
   mut sequence : String
   features : Array[GckFeature]
 }
+pub fn GckFile::add_feature(Self, GckFeature) -> Unit
 pub fn GckFile::new() -> Self
+pub fn GckFile::set_circular(Self, Bool) -> Unit
+pub fn GckFile::set_seq_type(Self, GckSeqType) -> Unit
+pub fn GckFile::set_sequence(Self, String) -> Unit
+pub fn GckFile::set_version(Self, Int) -> Unit
 
 pub enum GckSeqType {
   GckDna
@@ -12007,6 +12305,25 @@ pub fn GenomeInfoDb::seqLength(Self, String) -> Int?
 pub fn GenomeInfoDb::seqnames(Self) -> Array[String]
 pub fn GenomeInfoDb::standard_chromosomes(Self) -> Array[String]
 pub fn GenomeInfoDb::summary(Self) -> String
+
+pub struct GenomeWiseResult {
+  gene_id : String
+  total_score : Double
+  segments : Array[GenomeWiseSegment]
+}
+pub fn GenomeWiseResult::add_segment(Self, GenomeWiseSegment) -> Unit
+pub fn GenomeWiseResult::get_num_segments(Self) -> Int
+pub fn GenomeWiseResult::get_segments(Self) -> Array[GenomeWiseSegment]
+pub fn GenomeWiseResult::new() -> Self
+
+pub struct GenomeWiseSegment {
+  segment_id : String
+  start : Int
+  end : Int
+  score : Double
+  wise_result : WiseResult
+}
+pub fn GenomeWiseSegment::new(segment_id? : String, start? : Int, end? : Int, score? : Double) -> Self
 
 pub struct GenomicFile {
   mut file_path : String
@@ -12451,6 +12768,51 @@ pub fn HMM::baum_welch(Self, Array[String], Int, Double) -> Self
 pub fn HMM::forward(Self, Array[String]) -> Double
 pub fn HMM::new(Array[String], Array[String], Map[String, Double], Map[String, Map[String, Double]], Map[String, Map[String, Double]]) -> Self
 pub fn HMM::viterbi(Self, Array[String]) -> Array[String]
+
+pub struct HMMcopyBin {
+  chr : String
+  start : Int
+  end : Int
+  reads : Int
+  gc : Double
+  mappability : Double
+  mut corrected_reads : Double
+  mut copy : Int
+  mut state : Int
+}
+pub fn HMMcopyBin::new(chr~ : String, start~ : Int, end~ : Int, reads~ : Int, gc? : Double, mappability? : Double) -> Self
+pub fn HMMcopyBin::normalized_coverage(Self) -> Double
+pub fn HMMcopyBin::set_copy(Self, Int) -> Unit
+pub fn HMMcopyBin::set_corrected_reads(Self, Double) -> Unit
+pub fn HMMcopyBin::set_state(Self, Int) -> Unit
+pub fn HMMcopyBin::width(Self) -> Int
+
+pub struct HMMcopyModel {
+  num_states : Int
+  transition : Array[Array[Double]]
+  emissions : Array[Double]
+  variances : Array[Double]
+  initial : Array[Double]
+  ploidy : Int
+}
+pub fn HMMcopyModel::copy_to_state(Self, Int) -> Int
+pub fn HMMcopyModel::new(num_states? : Int, ploidy? : Int) -> Self
+pub fn HMMcopyModel::set_emission(Self, Int, Double) -> Unit
+pub fn HMMcopyModel::set_initial(Self, Int, Double) -> Unit
+pub fn HMMcopyModel::set_transition(Self, Int, Int, Double) -> Unit
+pub fn HMMcopyModel::set_variance(Self, Int, Double) -> Unit
+pub fn HMMcopyModel::state_to_copy(Self, Int) -> Int
+
+pub struct HMMcopySegment {
+  chr : String
+  start : Int
+  end : Int
+  copy : Int
+  state : Int
+  num_bins : Int
+  mean_reads : Double
+}
+pub fn HMMcopySegment::new(chr~ : String, start~ : Int, end~ : Int, copy~ : Int, state~ : Int, num_bins~ : Int, mean_reads~ : Double) -> Self
 
 pub struct HSExposureResult {
   residue_name : String
@@ -13682,6 +14044,54 @@ pub struct MastData {
 }
 pub fn MastData::new(Array[Array[Double]], Array[String], Array[String], Array[Int]) -> Self
 
+pub struct MastMotifInfo {
+  id : String
+  name : String
+  width : Int
+  alphabet : String
+}
+pub fn MastMotifInfo::new(String, Int) -> Self
+
+pub struct MastMotifMatch {
+  motif_id : String
+  position : Int
+  length : Int
+  pvalue : Double
+  score : Double
+  strand : String
+  sequence : String
+}
+pub fn MastMotifMatch::new(String, Int, Double) -> Self
+
+pub struct MastMotifRecord {
+  mut version : String
+  mut database : String
+  motifs : Array[MastMotifInfo]
+  sequences : Array[MastMotifSeq]
+  mut motif_count : Int
+  mut sequence_count : Int
+  mut hit_count : Int
+}
+pub fn MastMotifRecord::best_sequence(Self) -> MastMotifSeq?
+pub fn MastMotifRecord::find_sequence(Self, String) -> MastMotifSeq?
+pub fn MastMotifRecord::motif_matches(Self, String) -> Array[MastMotifMatch]
+pub fn MastMotifRecord::new() -> Self
+pub fn MastMotifRecord::num_hits(Self) -> Int
+
+pub struct MastMotifSeq {
+  name : String
+  mut description : String
+  mut length : Int
+  mut combined_pvalue : Double
+  mut combined_evalue : Double
+  matches : Array[MastMotifMatch]
+  diagram : String
+}
+pub fn MastMotifSeq::add_match(Self, MastMotifMatch) -> Unit
+pub fn MastMotifSeq::best_match(Self) -> MastMotifMatch?
+pub fn MastMotifSeq::new(String) -> Self
+pub fn MastMotifSeq::num_matches(Self) -> Int
+
 pub struct MastSummary {
   n_de_combined : Int
   n_de_discrete : Int
@@ -13886,6 +14296,34 @@ pub struct MeltingTempResult {
   method : String
 }
 pub fn MeltingTempResult::new(Double, String) -> Self
+
+pub struct MemeMotif {
+  name : String
+  mut alt_name : String
+  alphabet : String
+  mut width : Int
+  mut nsites : Int
+  mut evalue : Double
+  pspm : Array[Array[Double]]
+  mut url : String
+  mut strands : String
+}
+pub fn MemeMotif::alphabet_to_array(Self) -> Array[String]
+pub fn MemeMotif::consensus(Self) -> String
+pub fn MemeMotif::information_content(Self) -> Double
+pub fn MemeMotif::new(String, Array[Array[Double]], alphabet? : String) -> Self
+pub fn MemeMotif::probability(Self, String, Int) -> Double
+
+pub struct MemeRecord {
+  mut version : String
+  mut alphabet : String
+  mut strands : String
+  background_frequencies : Array[(String, Double)]
+  motifs : Array[MemeMotif]
+}
+pub fn MemeRecord::find(Self, String) -> MemeMotif?
+pub fn MemeRecord::new() -> Self
+pub fn MemeRecord::num_motifs(Self) -> Int
 
 pub struct MethylCytosine {
   chr : String
@@ -14124,6 +14562,151 @@ pub struct MmcifDataItem {
   value : String
 }
 pub fn MmcifDataItem::new(String, String) -> Self
+
+pub struct MmtfAtom {
+  name : String
+  serial : Int
+  alt_loc_id : String
+  x : Double
+  y : Double
+  z : Double
+  occupancy : Double
+  b_factor : Double
+  element : String
+  charge : Int
+}
+pub fn MmtfAtom::new(name~ : String, serial~ : Int, alt_loc_id? : String, x~ : Double, y~ : Double, z~ : Double, occupancy? : Double, b_factor? : Double, element? : String, charge? : Int) -> Self
+
+pub struct MmtfBond {
+  atom_index1 : Int
+  atom_index2 : Int
+  bond_order : Int
+}
+pub fn MmtfBond::new(atom_index1~ : Int, atom_index2~ : Int, bond_order? : Int) -> Self
+
+pub struct MmtfChain {
+  chain_id : String
+  chain_name : String
+  groups : Array[MmtfGroup]
+}
+pub fn MmtfChain::add_group(Self, MmtfGroup) -> Unit
+pub fn MmtfChain::get_groups(Self) -> Array[MmtfGroup]
+pub fn MmtfChain::get_num_groups(Self) -> Int
+pub fn MmtfChain::new(chain_id? : String, chain_name? : String) -> Self
+
+pub struct MmtfEntity {
+  chain_indices : Array[Int]
+  sequence : String
+  description : String
+  entity_type : MmtfEntityType
+}
+pub fn MmtfEntity::new(chain_indices? : Array[Int], sequence? : String, description? : String, entity_type? : MmtfEntityType) -> Self
+
+pub enum MmtfEntityType {
+  MmtfEntityPolymer
+  MmtfEntityNonPolymer
+  MmtfEntityWater
+  MmtfEntityBranched
+  MmtfEntityUndefined
+} derive(Eq)
+pub fn MmtfEntityType::from_string(String) -> Self
+pub fn MmtfEntityType::to_string(Self) -> String
+
+pub struct MmtfGroup {
+  group_name : String
+  group_number : Int
+  insertion_code : String
+  group_type : String
+  single_letter_code : String
+  sec_struct : MmtfSecStruct
+  sequence_index : Int
+  atoms : Array[MmtfAtom]
+}
+pub fn MmtfGroup::add_atom(Self, MmtfAtom) -> Unit
+pub fn MmtfGroup::get_atoms(Self) -> Array[MmtfAtom]
+pub fn MmtfGroup::get_num_atoms(Self) -> Int
+pub fn MmtfGroup::new(group_name~ : String, group_number~ : Int, insertion_code? : String, group_type? : String, single_letter_code? : String, sec_struct? : MmtfSecStruct, sequence_index? : Int) -> Self
+
+pub struct MmtfGroupType {
+  group_name : String
+  chem_comp_type : String
+  single_letter_code : String
+  atom_name_list : Array[String]
+  element_list : Array[String]
+  bond_atom_list : Array[Int]
+  bond_order_list : Array[Int]
+  formal_charge_list : Array[Int]
+}
+pub fn MmtfGroupType::new(group_name? : String, chem_comp_type? : String, single_letter_code? : String) -> Self
+
+pub struct MmtfHeader {
+  mut r_free : Double
+  mut r_work : Double
+  mut resolution : Double
+  mut title : String
+  mut deposition_date : String
+  mut release_date : String
+  mut experimental_methods : Array[String]
+}
+pub fn MmtfHeader::new() -> Self
+
+pub struct MmtfModel {
+  model_id : Int
+  chains : Array[MmtfChain]
+}
+pub fn MmtfModel::add_chain(Self, MmtfChain) -> Unit
+pub fn MmtfModel::get_chains(Self) -> Array[MmtfChain]
+pub fn MmtfModel::get_num_chains(Self) -> Int
+pub fn MmtfModel::new(model_id? : Int) -> Self
+
+pub enum MmtfSecStruct {
+  MmtfSecPpiHelix
+  MmtfSecBend
+  MmtfSecAlphaHelix
+  MmtfSecExtended
+  MmtfSecThreeTenHelix
+  MmtfSecBridge
+  MmtfSecTurn
+  MmtfSecCoil
+  MmtfSecUndefined
+} derive(Eq)
+pub fn MmtfSecStruct::from_int(Int) -> Self
+pub fn MmtfSecStruct::to_string(Self) -> String
+
+pub struct MmtfStructure {
+  mut structure_id : String
+  mut total_num_bonds : Int
+  mut total_num_atoms : Int
+  mut total_num_groups : Int
+  mut total_num_chains : Int
+  mut total_num_models : Int
+  mut header : MmtfHeader
+  mut xtal_info : MmtfXtalInfo
+  entities : Array[MmtfEntity]
+  bonds : Array[MmtfBond]
+  models : Array[MmtfModel]
+  group_list : Array[MmtfGroupType]
+}
+pub fn MmtfStructure::add_model(Self, MmtfModel) -> Unit
+pub fn MmtfStructure::count_atoms(Self) -> Int
+pub fn MmtfStructure::count_chains(Self) -> Int
+pub fn MmtfStructure::count_groups(Self) -> Int
+pub fn MmtfStructure::get_atoms(Self) -> Array[MmtfAtom]
+pub fn MmtfStructure::get_chains(Self) -> Array[MmtfChain]
+pub fn MmtfStructure::get_groups(Self) -> Array[MmtfGroup]
+pub fn MmtfStructure::get_header(Self) -> MmtfHeader
+pub fn MmtfStructure::get_models(Self) -> Array[MmtfModel]
+pub fn MmtfStructure::get_num_models(Self) -> Int
+pub fn MmtfStructure::get_xtal_info(Self) -> MmtfXtalInfo
+pub fn MmtfStructure::new() -> Self
+pub fn MmtfStructure::set_header(Self, MmtfHeader) -> Unit
+pub fn MmtfStructure::set_xtal_info(Self, MmtfXtalInfo) -> Unit
+
+pub struct MmtfXtalInfo {
+  mut space_group : String
+  mut unit_cell : Array[Double]
+}
+pub fn MmtfXtalInfo::new() -> Self
 
 pub struct Model {
   id : Int
@@ -14528,6 +15111,51 @@ pub enum NWTrace {
   Left
   Start
 } derive(Eq, Show)
+
+pub struct NaccessAtom {
+  atom_name : String
+  atom_num : Int
+  res_name : String
+  res_num : Int
+  chain_id : String
+  abs_asa : Double
+  rel_asa : Double
+  element : String
+}
+pub fn NaccessAtom::new(atom_name~ : String, atom_num~ : Int, res_name~ : String, res_num~ : Int, chain_id~ : String, abs_asa~ : Double, rel_asa? : Double, element? : String) -> Self
+
+pub struct NaccessResidue {
+  res_name : String
+  res_num : Int
+  chain_id : String
+  abs_all : Double
+  abs_side_chain : Double
+  abs_main_chain : Double
+  rel_all : Double
+  rel_side_chain : Double
+  rel_main_chain : Double
+  non_polar_abs : Double
+  non_polar_rel : Double
+  polar_abs : Double
+  polar_rel : Double
+}
+pub fn NaccessResidue::new(res_name~ : String, res_num~ : Int, chain_id~ : String, abs_all? : Double, abs_side_chain? : Double, abs_main_chain? : Double, rel_all? : Double, rel_side_chain? : Double, rel_main_chain? : Double, non_polar_abs? : Double, non_polar_rel? : Double, polar_abs? : Double, polar_rel? : Double) -> Self
+
+pub struct NaccessResult {
+  structure_id : String
+  residues : Array[NaccessResidue]
+  atoms : Array[NaccessAtom]
+  mut total_abs_asa : Double
+  total_rel_asa : Double
+  chain_totals : Map[String, Double]
+}
+pub fn NaccessResult::add_atom(Self, NaccessAtom) -> Unit
+pub fn NaccessResult::add_residue(Self, NaccessResidue) -> Unit
+pub fn NaccessResult::get_atoms(Self) -> Array[NaccessAtom]
+pub fn NaccessResult::get_num_atoms(Self) -> Int
+pub fn NaccessResult::get_num_residues(Self) -> Int
+pub fn NaccessResult::get_residues(Self) -> Array[NaccessResidue]
+pub fn NaccessResult::new() -> Self
 
 pub struct NaiveBayesClassifier {
   kmer_size : Int
@@ -16656,6 +17284,69 @@ pub fn SCnormResult::sc_norm_get_count(Self, Int, Int) -> Double
 pub fn SCnormResult::sc_norm_get_fit(Self, String) -> SCnormQuantFit?
 pub fn SCnormResult::sc_norm_get_gene(Self, Int) -> Array[Double]
 
+pub struct SGSeqExon {
+  chr : String
+  start : Int
+  end : Int
+  strand : String
+  count : Int
+  mut is_cassette : Bool
+}
+pub fn SGSeqExon::contains(Self, Int) -> Bool
+pub fn SGSeqExon::length(Self) -> Int
+pub fn SGSeqExon::new(chr~ : String, start~ : Int, end~ : Int, strand? : String) -> Self
+
+pub struct SGSeqFeature {
+  type_ : String
+  chr : String
+  start : Int
+  end : Int
+  strand : String
+  count : Int
+}
+pub fn SGSeqFeature::new(type_~ : String, chr~ : String, start~ : Int, end~ : Int, strand? : String, count? : Int) -> Self
+
+pub struct SGSeqJunction {
+  chr : String
+  start : Int
+  end : Int
+  strand : String
+  count : Int
+}
+pub fn SGSeqJunction::intron_length(Self) -> Int
+pub fn SGSeqJunction::new(chr~ : String, start~ : Int, end~ : Int, strand? : String, count? : Int) -> Self
+pub fn SGSeqJunction::same_acceptor(Self, Self) -> Bool
+pub fn SGSeqJunction::same_donor(Self, Self) -> Bool
+
+pub struct SGSeqVariant {
+  chr : String
+  start : Int
+  end : Int
+  strand : String
+  variant_type : SGSeqVariantType
+  mut inclusion_count : Int
+  mut exclusion_count : Int
+  mut psi : Double
+  mut details : String
+}
+pub fn SGSeqVariant::compute_psi(Self) -> Double
+pub fn SGSeqVariant::is_significant(Self) -> Bool
+pub fn SGSeqVariant::new(chr~ : String, start~ : Int, end~ : Int, strand? : String, variant_type~ : SGSeqVariantType) -> Self
+pub fn SGSeqVariant::set_details(Self, String) -> Unit
+pub fn SGSeqVariant::set_exclusion_count(Self, Int) -> Unit
+pub fn SGSeqVariant::set_inclusion_count(Self, Int) -> Unit
+pub fn SGSeqVariant::set_psi(Self, Double) -> Unit
+pub fn SGSeqVariant::type_name(Self) -> String
+
+pub enum SGSeqVariantType {
+  VariantSE
+  VariantA5SS
+  VariantA3SS
+  VariantMXE
+  VariantRI
+}
+pub fn SGSeqVariantType::to_string(Self) -> String
+
 pub struct SNP {
   position : Int
   ref_allele : String
@@ -17679,7 +18370,15 @@ pub struct SnapgeneFile {
   mut is_circular : Bool
   extra_packets : Array[(Int, Array[Int])]
 }
+pub fn SnapgeneFile::add_feature(Self, SnapgeneFeature) -> Unit
+pub fn SnapgeneFile::add_primer(Self, SnapgenePrimer) -> Unit
 pub fn SnapgeneFile::new() -> Self
+pub fn SnapgeneFile::set_circular(Self, Bool) -> Unit
+pub fn SnapgeneFile::set_comments(Self, String) -> Unit
+pub fn SnapgeneFile::set_export_version(Self, String) -> Unit
+pub fn SnapgeneFile::set_notes(Self, String) -> Unit
+pub fn SnapgeneFile::set_seq_type(Self, SnapgeneSeqType) -> Unit
+pub fn SnapgeneFile::set_sequence(Self, String) -> Unit
 
 pub struct SnapgenePrimer {
   name : String
@@ -18431,6 +19130,48 @@ pub struct TransfacMotif {
 } derive(Eq)
 pub fn TransfacMotif::new(String, String, String, String, Array[Array[Double]], Array[String], Array[String]) -> Self
 
+pub struct TransfacMotifFull {
+  accession : String
+  mut identifier : String
+  mut description : String
+  mut binding_factors : Array[String]
+  mut comments : String
+  mut copyright : String
+  mut name : String
+  mut species : String
+  mut taxonomic_class : String
+  mut pfm : Array[Array[Int]]
+  mut alphabet : Array[String]
+  mut width : Int
+  mut references : Array[TransfacReference]
+  mut binding_sites : Array[String]
+  mut external_refs : Array[String]
+  mut creation_date : String
+  mut motif_type : String
+}
+pub fn TransfacMotifFull::alphabet_index(Self, String) -> Int
+pub fn TransfacMotifFull::consensus(Self) -> String
+pub fn TransfacMotifFull::frequency(Self, String, Int) -> Double
+pub fn TransfacMotifFull::new(accession? : String) -> Self
+pub fn TransfacMotifFull::total_at(Self, Int) -> Int
+
+pub struct TransfacRecordFull {
+  mut version : String
+  motifs : Array[TransfacMotifFull]
+}
+pub fn TransfacRecordFull::find(Self, String) -> TransfacMotifFull?
+pub fn TransfacRecordFull::new() -> Self
+pub fn TransfacRecordFull::num_motifs(Self) -> Int
+
+pub struct TransfacReference {
+  mut number : String
+  mut authors : String
+  mut title : String
+  mut journal : String
+  mut pubmed_id : String
+}
+pub fn TransfacReference::new() -> Self
+
 pub enum TransformType {
   LogTransform
   AsinhTransform
@@ -18999,6 +19740,74 @@ pub enum WigType {
   VariableStep(String, Int?)
   FixedStep(String, Int, Int)
 }
+
+pub struct WiseAlignmentColumn {
+  protein_char : Char
+  gene_codon : String
+  match_type : String
+  gene_position : Int
+  protein_position : Int
+}
+pub fn WiseAlignmentColumn::new(protein_char~ : Char, gene_codon~ : String, match_type? : String, gene_position? : Int, protein_position? : Int) -> Self
+
+pub enum WiseBlockType {
+  WiseExon
+  WiseIntron
+  WiseMatch
+  WiseMismatch
+  WiseInsertion
+  WiseDeletion
+} derive(Eq)
+pub fn WiseBlockType::to_string(Self) -> String
+
+pub struct WiseExon {
+  start : Int
+  end : Int
+  phase : Int
+  end_phase : Int
+  score : Double
+  protein_start : Int
+  protein_end : Int
+}
+pub fn WiseExon::length(Self) -> Int
+pub fn WiseExon::new(start? : Int, end? : Int, phase? : Int, end_phase? : Int, score? : Double, protein_start? : Int, protein_end? : Int) -> Self
+
+pub struct WiseIntron {
+  start : Int
+  end : Int
+  donor_score : Double
+  acceptor_score : Double
+  length : Int
+}
+pub fn WiseIntron::new(start? : Int, end? : Int, donor_score? : Double, acceptor_score? : Double) -> Self
+
+pub struct WiseResult {
+  mut protein_id : String
+  mut gene_id : String
+  mut score : Double
+  mut bits_score : Double
+  probability : Double
+  protein_sequence : String
+  gene_sequence : String
+  exons : Array[WiseExon]
+  introns : Array[WiseIntron]
+  alignment : Array[WiseAlignmentColumn]
+  parameters : Map[String, String]
+}
+pub fn WiseResult::add_alignment_column(Self, WiseAlignmentColumn) -> Unit
+pub fn WiseResult::add_exon(Self, WiseExon) -> Unit
+pub fn WiseResult::add_intron(Self, WiseIntron) -> Unit
+pub fn WiseResult::get_alignment(Self) -> Array[WiseAlignmentColumn]
+pub fn WiseResult::get_exons(Self) -> Array[WiseExon]
+pub fn WiseResult::get_introns(Self) -> Array[WiseIntron]
+pub fn WiseResult::get_num_exons(Self) -> Int
+pub fn WiseResult::get_num_introns(Self) -> Int
+pub fn WiseResult::get_total_exon_length(Self) -> Int
+pub fn WiseResult::new() -> Self
+pub fn WiseResult::set_bits_score(Self, Double) -> Unit
+pub fn WiseResult::set_gene_id(Self, String) -> Unit
+pub fn WiseResult::set_protein_id(Self, String) -> Unit
+pub fn WiseResult::set_score(Self, Double) -> Unit
 
 pub struct XdnaFile {
   records : Array[XdnaRecord]
