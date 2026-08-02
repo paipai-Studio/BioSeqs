@@ -143,6 +143,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | ChIPseeker | ChIP-seq峰注释: 峰-TSS距离计算、基因组特征分配(Promoter/5'UTR/3'UTR/Exon/Intron/Downstream/Distal Intergenic)、最近基因查找、注释摘要 |
 | ✅ | MACS2 | ChIP-seq峰调用: 滑动窗口扫描、局部lambda背景估计、Poisson显著性检验(不完全Gamma函数)、峰合并、BH-FDR校正、fold enrichment |
 | ✅ | methylSeekR | 甲基化区域识别: 基因组分tile计算甲基化水平、UMR/LMR/PMD/FMR分类、滑窗PMD检测、相邻区域合并、大小过滤 |
+| ✅ | FIMO Motif Scanning | PSSM/PWM模体扫描: PWM→PSSM转换(log2似然比)、序列正向/反向互补扫描、动态规划p值计算(得分分布卷积)、匹配过滤与汇总 |
+| ✅ | Bio.NMR | NMR核磁共振数据分析: NOE距离约束解析(XPLOR/CNS表格)、二面角约束解析、化学位移表(BMRB-like)、NMRView .xpk峰列表解析、约束违反检测 |
+| ✅ | Bio.Crystal | 小分子晶体学CIF解析: 单胞参数/空间群、CIF数据块/loop解析、原子位点/化学键提取、分数坐标↔笛卡尔坐标变换、单胞体积/晶体密度计算 |
 
 ### 序列组装算法
 
@@ -657,6 +660,9 @@ IvanAXu/BioSeqs/
 │   ├── chipseeker.mbt          # ChIPseeker ChIP-seq峰注释 (TSS距离、特征分配Promoter/UTR/Exon/Intron、最近基因、摘要)
 │   ├── peak_calling.mbt        # MACS2峰调用 (滑动窗口、局部lambda、Poisson检验、峰合并、BH-FDR、fold enrichment)
 │   ├── methyl_seekr.mbt        # methylSeekR甲基化区域识别 (tile甲基化计算、UMR/LMR/PMD/FMR分类、滑窗PMD检测、区域合并)
+│   ├── motif_scan.mbt          # FIMO Motif Scanning PSSM/PWM模体扫描 (PWM→PSSM log2似然比、正反向扫描、动态规划p值、匹配汇总)
+│   ├── nmr.mbt                 # Bio.NMR NMR核磁共振数据 (NOE距离约束、二面角约束、化学位移表、NMRView .xpk峰列表、约束违反检测)
+│   ├── crystal.mbt             # Bio.Crystal 小分子晶体学CIF解析 (单胞/空间群、CIF loop、原子位点/化学键、分数↔笛卡尔坐标、体积/密度)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -950,6 +956,9 @@ IvanAXu/BioSeqs/
 │   ├── chipseeker_demo/          # ChIPseeker ChIP-seq峰注释示例 (峰-TSS距离、特征分配、最近基因、注释摘要)
 │   ├── peak_calling_demo/        # MACS2峰调用示例 (滑动窗口扫描、Poisson检验、峰合并、FDR校正)
 │   ├── methyl_seekr_demo/        # methylSeekR甲基化区域识别示例 (tile甲基化、UMR/LMR/PMD分类、区域合并)
+│   ├── motif_scan_demo/          # FIMO Motif Scanning 模体扫描示例 (PWM创建、PSSM构建、序列扫描、p值过滤、匹配汇总)
+│   ├── nmr_demo/                 # Bio.NMR NMR数据分析示例 (NOE约束违反分析、化学位移查询、峰列表解析)
+│   ├── crystal_demo/             # Bio.Crystal 晶体学CIF解析示例 (单胞体积、坐标变换、CIF解析、晶体密度)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1246,7 +1255,10 @@ IvanAXu/BioSeqs/
 │   │   ├── nib_io_test.mbt
 │   │   ├── chipseeker_test.mbt
 │   │   ├── peak_calling_test.mbt
-│   │   └── methyl_seekr_test.mbt
+│   │   ├── methyl_seekr_test.mbt
+│   │   ├── motif_scan_test.mbt
+│   │   ├── nmr_test.mbt
+│   │   └── crystal_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1272,7 +1284,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6944 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7067 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1571,6 +1583,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6944 个测试全�
 | `chipseeker.mbt` | `ChIPseeker` | ChIP-seq峰注释（峰-TSS有符号距离计算、基因组特征分配Promoter/5'UTR/3'UTR/Exon/Intron/Downstream/Distal Intergenic优先级、最近基因查找、注释摘要统计） |
 | `peak_calling.mbt` | `MACS2` | ChIP-seq峰调用（滑动窗口扫描treatment/control、局部lambda背景估计、Poisson显著性检验不完全Gamma函数、峰合并取并集、BH-FDR校正、fold enrichment） |
 | `methyl_seekr.mbt` | `methylSeekR` | 甲基化区域识别（基因组分tile计算甲基化水平methylated/(methylated+unmethylated)、UMR/LMR/PMD/FMR分类阈值alpha/beta/gamma、滑窗PMD检测、相邻同类区域合并、最小区域大小过滤） |
+| `motif_scan.mbt` | FIMO (MEME Suite) | PSSM/PWM模体扫描（PWM→PSSM log2似然比转换、序列正向/反向互补扫描、动态规划p值计算得分分布卷积、p值阈值过滤、匹配汇总） |
+| `nmr.mbt` | Biopython `Bio.NMR` | NMR核磁共振数据分析（NOE距离约束XPLOR/CNS表格解析、二面角约束解析、化学位移表BMRB-like、NMRView .xpk峰列表解析、约束违反检测、摘要统计） |
+| `crystal.mbt` | Biopython `Bio.Crystal` | 小分子晶体学CIF解析（UnitCell/SpaceGroup/CrystalAtom数据结构、CIF数据块/loop解析、原子位点/化学键提取、分数坐标↔笛卡尔坐标变换、单胞体积/晶体密度计算） |
 
 ## 核心功能实现
 
@@ -2413,6 +2428,19 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6944 个测试全�
 实现全基因组亚硫酸氢测序（WGBS）甲基化区域识别，参考 Bioconductor `methylSeekR` 包及 Burger L et al. (2013) PLoS Genet 9:e1003461。核心数据结构：CytosineSite（chr、position、methylated 甲基化读数、unmethylated 未甲基化读数）、MethylTile（chr、start、end、methylation_level 甲基化水平0.0-1.0、coverage 总读数、mut region_type 区域类型）、MethylRegion（chr、start、end、region_type、n_tiles、mean_methylation、min_methylation、max_methylation）、MethylSeekRParams（tile_size 分tile大小默认1000、min_coverage 最小覆盖默认5、alpha UMR阈值默认0.1、beta LMR阈值默认0.5、gamma PMD阈值默认0.7、min_region_size 最小区域大小默认500、pmd_window PMD检测窗口默认10000）。分tile tile_methylation(sites, params)：1) 按 tile_size 将基因组分tile；2) 每 tile 内累加 methylated 和 unmethylated 读数；3) 计算甲基化水平 = methylated/(methylated+unmethylated)；4) 覆盖不足的 tile 标记为低覆盖。分类 classify_tiles(tiles, params)：1) 覆盖 < min_coverage → FMR；2) 水平 < alpha → UMR；3) 水平 < beta → LMR；4) 其余 → FMR。PMD检测 detect_pmds(tiles, params)：滑动窗口扫描连续 FMR tile，若窗口内平均甲基化 < gamma 且连续 tile 数 ≥ pmd_window/tile_size，则标记为 PMD（不覆盖已有 UMR/LMR）。区域合并 merge_regions(tiles, params)：1) 按 (chr, start) 排序；2) 合并相邻同类 tile 为区域；3) 计算每区域的均值/最小/最大甲基化；4) 过滤小于 min_region_size 的区域。完整流水线 call_methylation_regimes(sites, params)：tile→分类→PMD检测→合并。过滤与摘要：filter_regions(regions, region_type) 按类型过滤、region_summary(regions) 生成各类型计数和覆盖摘要。辅助函数：methylation_level(site) 单点甲基化水平、methyl_seekr_sample_data() 生成含 UMR(5%)/LMR(30%)/PMD(60%)/FMR(90%) 四种模式的样本。所有公共标识符以 methyl_seekr_/msr_ 前缀命名。适用于 DNA甲基化分析、表观基因组分区、启动子甲基化研究。
 
 
+### 209. FIMO 模体扫描 (FIMO Motif Scanning)
+
+实现 FIMO (Find Individual Motif Occurrences) 风格的 PSSM/PWM 模体扫描，参考 MEME Suite 的 `fimo` 工具及 Grant CE et al. (2011) Bioinformatics 27:1017。核心数据结构：PositionWeightMatrix（motif_id、motif_name、matrix 4×L 频率矩阵 A/C/G/T 行、background 背景频率 [A,C,G,T]、strand 链方向 "+" 或 "+-"）、MotifScanPSSM（motif_id、motif_name、scores 4×L log2 似然比矩阵、background、min_score、max_score、strand）、MotifMatch（motif_id、motif_name、sequence_id、start 0-based 起始、end 结束(开区间)、strand、score log-似然得分、p_value、matched_sequence 匹配序列）。PWM→PSSM 转换 build_pssm(pwm)：对每位置每碱基计算 log2(PWM[b][i]/background[b])，并记录 min_score/max_score。从计数矩阵构建 PWM motif_scan_pwm_from_counts(counts, pseudocount, background, motif_id, motif_name, strand)：加伪计数后归一化为频率。序列扫描 scan_sequence(pssm, sequence, seq_id, pvalue_threshold)：1) 正向扫描：对每个位置 i 计算 L 长度窗口的累加 log-似然得分；2) 若 strand 含 "-"，对反向互补序列同样扫描；3) 对每个候选得分用 compute_pvalue 计算p值；4) 过滤 p ≤ pvalue_threshold 的匹配。p值计算 compute_pvalue(pssm, score)：动态规划——将得分离散化为 1000 bin，逐位置卷积得分分布（背景概率加权），累加得分 ≥ threshold 的概率质量。反向互补 motif_scan_reverse_complement(sequence)：A↔T、C↔G 互换并反转。匹配过滤 filter_matches_by_pvalue(matches, threshold)、汇总 format_motif_matches(matches) 生成表格。辅助函数：ms_make_2d(rows, cols, init) 创建独立二维数组、sample_pwm() 返回 ATGCAA 样本 PWM、sample_scan_sequences() 返回 3 条样本序列、motif_scan_summary(matches) 摘要。所有公共标识符以 motif_scan_/ms_ 前缀命名（避免与 motifs.mbt 的 PSSM/pwm_from_counts 冲突，使用 MotifScanPSSM/motif_scan_pwm_from_counts）。适用于转录因子结合位点预测、模体富集分析、启动子调控元件识别。
+
+### 210. NMR 核磁共振数据分析 (Bio.NMR)
+
+实现 NMR 数据结构与解析，参考 Biopython `Bio.NMR` 模块（NOEdata、xpktools、nmrutils）。核心数据结构：NoeRestraint（restraint_id、atom1、atom2、lower_bound、upper_bound Å、observed?、energy?）NOE 距离约束；DihedralRestraint（restraint_id、angle_name PHI/PSI/CHI1、residue、lower_bound、upper_bound 度、observed?、energy?）二面角约束；ChemicalShift（id、residue、atom_name、element H/C/N、shift_value ppm、error?）化学位移；ChemicalShiftTable（shifts）化学位移表；NmrPeak（peak_id、dimensions 每维分配、chemical_shifts 每维 ppm、intensities、volume?、merity?）NMR 峰；NmrPeakList（label、peaks）峰列表；NmrRestraintSummary（total、violated、max_violation）约束摘要。NOE 约束违反检测 noe_violation(restraint, observed)：距离 < lower 返回 (lower-observed)，> upper 返回 (observed-upper)，否则 0.0；noe_self_violation(restraint) 用自身 observed 字段；filter_violated_restraints(restraints, threshold) 过滤违反 > threshold 的约束。二面角违反检测 dihedral_violation(restraint, observed_deg)：考虑角度周期性，返回超出范围的角度距离。化学位移查询 lookup_shift(table, residue, atom_name)、shifts_for_residue(table, residue)、shifts_for_element(table, element)、mean_shift_by_element(table, element) 按元素均值。解析器：parse_noe_restraints(text) 解析 XPLOR/CNS NOE 表格（id/atom1/atom2/lower/upper/observed?/energy?，# 或 ! 开头为注释）；parse_dihedral_restraints(text) 解析二面角表格；parse_chemical_shifts(text) 解析 BMRB-like 化学位移表（id/residue/atom/element/shift/error?）；parse_nmrview_xpk(text) 解析 NMRView .xpk 峰列表（label 行、列头、peak 行）。格式化 format_noe_restraint/format_noe_restraints/format_chemical_shifts/format_peak_list。摘要 noe_restraint_summary(restraints) 统计总数/违反数/最大违反。辅助函数：nmr_split_lines、nmr_split_whitespace、nmr_parse_double、nmr_fmt。所有公共标识符以 nmr_/noe_/dihedral_ 前缀命名。适用于蛋白质 NMR 结构计算约束验证、化学位移查询、峰列表分析。
+
+### 211. 小分子晶体学 CIF 解析 (Bio.Crystal)
+
+实现小分子晶体学 CIF (Crystallographic Information File) 解析与单位胞计算，参考 Biopython `Bio.Crystal` 及 IUCr CIF 标准。核心数据结构：UnitCell（a、b、c、α、β、γ 度）单位胞；SpaceGroup（number 国际表编号1-230、symbol Hermann-Mauguin 符号）；CrystalAtom（label、element、x、y、z、occupancy、is_fractional）原子位点；CrystalBond（atom1_label、atom2_label、distance、bond_order?）化学键；CifBlock（name data_ 块名、items Map[String->String] 单值项、loops Array[CifLoop] 循环表）；CifLoop（category 类别名、columns Array[String] 列名、rows Array[Array[String]] 数据行）；CrystalStructure（name、cell、space_group、atoms、bonds、z 每单位胞分子数）晶体结构。单位胞体积 unit_cell_volume(cell)：V = a·b·c·√(1-cos²α-cos²β-cos²γ+2cosα·cosβ·cosγ)，负值钳为0。坐标变换 fractional_to_cartesian(cell, xf, yf, zf) 分数→笛卡尔（正交化矩阵：a 沿 x、b 在 xy 平面、c 由 β/γ 角定）；cartesian_to_fractional(cell, x, y, z) 笛卡尔→分数（逆矩阵）。晶体密度 crystal_density(structure)：ρ = (Z·M)/(V·Nₐ)，M 分子量 g/mol、V 单位胞体积 ų、Nₐ 阿伏伽德罗数。CIF 解析 parse_cif(text)：1) 按 data_ 块分割；2) 解析单值项 key value；3) 解析 loop_ 表（列名行 + 数据行）；4) 返回 CifBlock 数组。从 CifBlock 提取：cif_get_unit_cell(block)、cif_get_space_group(block)、cif_get_atoms(block)（从 _atom_site_* 列）、cif_get_bonds(block)（从 _geom_bond_* 列）。完整解析 parse_crystal_structure(text, name, z) 一步到位。空间群查找 space_group_by_number(number) 内置 230 空间群表（P1/P21/P21c 等）。辅助函数：crystal_is_valid_bond(bond, min, max) 按距离判断有效键、crystal_summary(structure) 摘要。所有公共标识符以 crystal_/cif_/unit_cell_/fractional_/cartesian_ 前缀命名。适用于小分子晶体结构分析、CIF 文件解析、晶体几何计算。
+
+
 ## 性能优化
 
 ### 优化策略
@@ -2514,8 +2542,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6944 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 6944 |
-| 通过数 | 6944 |
+| 总测试数 | 7067 |
+| 通过数 | 7067 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2780,6 +2808,9 @@ moon test --update
 | ChIPseeker | `chipseeker_test.mbt` | 27 |
 | MACS2 | `peak_calling_test.mbt` | 48 |
 | methylSeekR | `methyl_seekr_test.mbt` | 45 |
+| FIMO Motif Scanning | `motif_scan_test.mbt` | 38 |
+| Bio.NMR | `nmr_test.mbt` | 43 |
+| Bio.Crystal | `crystal_test.mbt` | 42 |
 
 ### Python 对比测试
 
@@ -2866,7 +2897,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 277 个示例程序，展示各模块的典型用法：
+项目提供 280 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3015,6 +3046,9 @@ moon run cmd/bench/main.mbt
 | chipseeker_demo | ChIPseeker ChIP-seq峰注释（峰-TSS距离、特征分配Promoter/UTR/Exon/Intron/Downstream、最近基因、注释摘要） | `moon run examples/chipseeker_demo/main.mbt` |
 | peak_calling_demo | MACS2峰调用（滑动窗口扫描、局部lambda背景估计、Poisson显著性检验、峰合并、BH-FDR校正） | `moon run examples/peak_calling_demo/main.mbt` |
 | methyl_seekr_demo | methylSeekR甲基化区域识别（tile甲基化计算、UMR/LMR/PMD/FMR分类、滑窗PMD检测、区域合并） | `moon run examples/methyl_seekr_demo/main.mbt` |
+| motif_scan_demo | FIMO Motif Scanning PSSM/PWM模体扫描（PWM创建、PSSM构建、序列正反向扫描、动态规划p值计算、匹配过滤汇总） | `moon run examples/motif_scan_demo/main.mbt` |
+| nmr_demo | Bio.NMR NMR核磁共振数据分析（NOE约束违反分析、化学位移查询、NMRView .xpk峰列表解析） | `moon run examples/nmr_demo/main.mbt` |
+| crystal_demo | Bio.Crystal 小分子晶体学CIF解析（单胞体积、分数↔笛卡尔坐标变换、CIF解析、晶体密度计算） | `moon run examples/crystal_demo/main.mbt` |
 
 ## 技术栈
 
