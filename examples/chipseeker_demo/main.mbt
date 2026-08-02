@@ -1,94 +1,104 @@
 ///|
+/// ChIPseeker peak annotation demo.
+///
+/// Loads sample ChIP-seq peaks and gene annotations, annotates each peak
+/// with its nearest gene and genomic feature, prints the per-peak
+/// annotations, summarizes the feature distribution, and demonstrates
+/// filtering by feature and by distance to TSS.
+
 fn main {
-  let peaks = @bio.cs_create_example_peaks()
-  let txdb = @bio.cs_create_example_txdb()
-
-  println("ChIPseeker Peak Annotation Demo")
-  println("==============================")
+  println("=== ChIPseeker Peak Annotation Demo ===")
+  println("Inspired by the Bioconductor ChIPseeker package")
   println("")
 
-  let result = @bio.annotate_peaks(peaks, txdb)
-  println("Total peaks annotated: " + result.annotations.length().to_string())
+  // 1. Load sample data.
+  println("1. Loading sample data...")
+  let peaks = @bio.chipseeker_sample_peaks()
+  let genes = @bio.chipseeker_sample_genes()
+  println("   Peaks loaded: \{peaks.length()}")
+  println("   Genes loaded: \{genes.length()}")
   println("")
 
-  let summary = @bio.annotation_summary(result)
-  println(summary)
-
-  let bar_plot = @bio.plot_annotation_bar(result.summary)
-  println("")
-  println(bar_plot)
-
-  let dist_plot = @bio.plot_dist_to_tss(result.annotations)
-  println(dist_plot)
-
-  let promoters = @bio.get_promoter_annotations(result)
-  println("Promoter peaks: " + promoters.length().to_string())
-
-  let exons = @bio.get_exon_annotations(result)
-  println("Exon peaks: " + exons.length().to_string())
-
-  let introns = @bio.get_intron_annotations(result)
-  println("Intron peaks: " + introns.length().to_string())
-
-  let utrs = @bio.get_utr_annotations(result)
-  println("UTR peaks: " + utrs.length().to_string())
-
-  let distal = @bio.get_distal_annotations(result)
-  println("Distal peaks: " + distal.length().to_string())
-
-  let intergenic = @bio.get_intergenic_annotations(result)
-  println("Intergenic peaks: " + intergenic.length().to_string())
-
-  println("")
-  println("=== Advanced Features ===")
+  // 2. Annotate peaks. Use the default promoter window of 3000bp.
+  println("2. Annotating peaks (promoter window = 3000bp)...")
+  let annotations = @bio.annotate_peaks(peaks, genes, 3000)
+  println("   Annotated \{annotations.length()} peaks")
   println("")
 
-  println("1. read_peak_file - BED format parsing")
-  let bed_content = "chr1\t10000\t11000\tTP53_promoter\nchr1\t50000\t51000\tBRCA1_peak\nchr2\t35000\t36000\tBRCA2_exon"
-  let parsed_peaks = @bio.read_peak_file(bed_content)
-  println("   Peaks parsed from BED: " + parsed_peaks.length().to_string())
-  println("")
+  // 3. Display the first few per-peak annotations.
+  println("3. Per-peak annotations (first 6):")
+  println("   -----------------------------------------------")
+  let mut i = 0
+  while i < annotations.length() && i < 6 {
+    let ann = annotations[i]
+    let p = ann.get_peak()
+    println("   Peak \{i + 1}: \{p.chr}:\{p.start}-\{p.end} (summit=\{p.summit})")
+    println("     Gene      : \{ann.gene_name} (\{ann.gene_id})")
+    println("     TSS       : \{ann.tss}")
+    println("     Distance  : \{ann.distance_to_tss} (signed, + = downstream)")
+    println("     Feature   : \{ann.feature}")
+    println("     Annotation: \{ann.annotation}")
+    println("")
+    i = i + 1
+  }
 
-  println("2. peak2gene - Peak to gene associations")
-  let associations = @bio.peak2gene(result)
-  println("   Total associations: " + associations.length().to_string())
-  if associations.length() > 0 {
-    println("   First 3 associations:")
-    let mut i = 0
-    while i < 3 && i < associations.length() {
-      let assoc = associations[i]
-      println("     Peak: " + assoc.peak_id + " -> Gene: " + assoc.gene_id + " (" + assoc.feature_type + ")")
-      i = i + 1
-    }
+  // 4. Summary statistics.
+  println("4. Annotation summary:")
+  println("   --------------------")
+  let summary = @bio.annotation_summary(annotations)
+  println(@bio.chipseeker_summary_string(summary))
+
+  // 5. Filter by feature: show promoter peaks.
+  println("5. Filtering peaks by feature: 'Promoter'")
+  let promoters = @bio.filter_by_feature(annotations, "Promoter")
+  println("   Promoter peaks: \{promoters.length()}")
+  for ann in promoters {
+    let p = ann.get_peak()
+    println("     - \{p.chr}:\{p.summit} -> \{ann.gene_name} (dist=\{ann.distance_to_tss})")
   }
   println("")
 
-  println("3. peak_overlap - Multiple peak set overlap analysis")
-  let peaks_set1 = [
-    @bio.Peak::new("chr1", 1000, 2000, "peak1"),
-    @bio.Peak::new("chr1", 3000, 4000, "peak2"),
-    @bio.Peak::new("chr2", 5000, 6000, "peak3"),
-  ]
-  let peaks_set2 = [
-    @bio.Peak::new("chr1", 1500, 2500, "peakA"),
-    @bio.Peak::new("chr1", 3500, 4500, "peakB"),
-    @bio.Peak::new("chr3", 7000, 8000, "peakC"),
-  ]
-  let peak_sets = [("Set1", peaks_set1), ("Set2", peaks_set2)]
-  let overlap_result = @bio.peak_overlap(peak_sets, 1)
-  println("   Overlap count: " + overlap_result.overlap_matrix[0][1].to_string())
-  println("   Union peaks: " + overlap_result.union_count.to_string())
+  // 6. Filter by feature: show exon peaks.
+  println("6. Filtering peaks by feature: 'Exon'")
+  let exons = @bio.filter_by_feature(annotations, "Exon")
+  println("   Exon peaks: \{exons.length()}")
+  for ann in exons {
+    let p = ann.get_peak()
+    println("     - \{p.chr}:\{p.summit} -> \{ann.gene_name} (dist=\{ann.distance_to_tss})")
+  }
   println("")
 
-  println("4. plot_venn - Venn diagram visualization")
-  let venn = @bio.plot_venn(overlap_result)
-  println(venn)
+  // 7. Filter by distance: peaks within 3000bp of a TSS.
+  println("7. Filtering peaks by distance: |distance| <= 3000")
+  let close = @bio.filter_by_distance(annotations, 3000)
+  println("   Close peaks: \{close.length()}")
+  for ann in close {
+    let p = ann.get_peak()
+    println("     - \{p.chr}:\{p.summit} -> \{ann.gene_name} (dist=\{ann.distance_to_tss}, \{ann.feature})")
+  }
   println("")
 
-  println("5. plot_anno_pie - Annotation pie chart")
-  let pie = @bio.plot_anno_pie(result)
-  println(pie)
+  // 8. Demonstrate promoter window customization. With a smaller window
+  //    (100bp), the 5'UTR of GeneA becomes accessible because the 5'UTR
+  //    no longer sits entirely inside the promoter window.
+  println("8. Promoter window customization (window=100bp):")
+  println("   Annotating a peak inside the 5'UTR of GeneA (summit=10300)...")
+  let peak_in_5utr = @bio.Peak::new(chr="chr1", start=10200, end=10400, summit=10300)
+  let ann_small_window = @bio.annotate_peak(peak_in_5utr, genes, 100)
+  println("   Feature with window=100 : \{ann_small_window.feature}")
+  let ann_large_window = @bio.annotate_peak(peak_in_5utr, genes, 3000)
+  println("   Feature with window=3000: \{ann_large_window.feature}")
+  println("   (smaller window exposes the 5'UTR assignment)")
   println("")
 
-  println("=== Demo completed! ===")
+  // 9. Edge case: peak on a chromosome with no genes.
+  println("9. Edge case: peak on a chromosome with no genes (chrZ)")
+  let orphan_peak = @bio.Peak::new(chr="chrZ", start=1000, end=2000, summit=1500)
+  let orphan_ann = @bio.annotate_peak(orphan_peak, genes, 3000)
+  println("   Gene id   : '\{orphan_ann.gene_id}' (empty -> no nearby gene)")
+  println("   Feature   : \{orphan_ann.feature}")
+  println("   Annotation: \{orphan_ann.annotation}")
+  println("")
+
+  println("=== ChIPseeker demo complete ===")
 }

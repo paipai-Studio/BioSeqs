@@ -4,77 +4,58 @@ fn main {
   println("Inspired by Bioconductor ChIPseeker package")
   println("")
 
-  let peaks = [
+  let peak_specs = [
     ("chr1", 1000, 2000),
     ("chr1", 5000, 6000),
     ("chr2", 10000, 11000),
   ]
 
-  let genes = [
-    @bio.Gene::new("gene1", "chr1", 1, 5000, @bio.strand_plus()),
-    @bio.Gene::new("gene2", "chr2", 10001, 20000, @bio.strand_minus()),
+  let gene_annots = [
+    @bio.GeneAnnotation::new(
+      gene_id="gene1", gene_name="GENE1", chr="chr1",
+      gene_start=1, gene_end=5000, strand="+",
+    ),
+    @bio.GeneAnnotation::new(
+      gene_id="gene2", gene_name="GENE2", chr="chr2",
+      gene_start=10001, gene_end=20000, strand="-",
+    ),
   ]
-  let transcripts : Array[@bio.Transcript] = []
-  let exons : Array[@bio.Exon] = []
-  let cds : Array[@bio.CDS] = []
-  let txdb = @bio.TxDb::new(
-    genes, transcripts, exons, cds, "hg38", "Homo sapiens",
-  )
 
   let peak_objs : Array[@bio.Peak] = Array::new()
   let mut i = 0
-  while i < peaks.length() {
-    let (chr, start, end) = peaks[i]
-    peak_objs.push(@bio.Peak::new(chr, start, end, "peak_" + i.to_string()))
+  while i < peak_specs.length() {
+    let (chr, start, end) = peak_specs[i]
+    peak_objs.push(@bio.Peak::new(chr=chr, start=start, end=end, summit=(start + end) / 2))
     i = i + 1
   }
 
-  let result = @bio.annotate_peaks(peak_objs, txdb)
+  let annotations = @bio.annotate_peaks(peak_objs, gene_annots, 3000)
 
   println("1. Peak Annotation Results")
-  println("   Total annotations: \{result.annotations.length().to_string()}")
+  println("   Total annotations: \{annotations.length().to_string()}")
   println("")
 
   let mut i = 0
-  while i < result.annotations.length() && i < 3 {
-    let ann = result.annotations[i]
-    println("   Peak \{i + 1}: \{ann.chr}:\{ann.start}-\{ann.end}")
+  while i < annotations.length() && i < 3 {
+    let ann = annotations[i]
+    let p = ann.get_peak()
+    println("   Peak \{i + 1}: \{ann.chr}:\{p.start}-\{p.end}")
     println("     - Annotation: \{ann.annotation}")
     println("     - Gene: \{ann.gene_name}")
     println("     - Distance to TSS: \{ann.distance_to_tss.to_string()}")
-    println("     - Feature type: \{ann.feature_type}")
+    println("     - Feature: \{ann.feature}")
     println("")
     i = i + 1
   }
 
   println("2. Annotation Summary")
-  let keys = result.summary.keys().collect()
-  let mut j = 0
-  while j < keys.length() {
-    let key = keys[j]
-    println("   \{key}: \{result.summary[key].to_string()}")
-    j = j + 1
-  }
+  let summary = @bio.annotation_summary(annotations)
+  println(@bio.chipseeker_summary_string(summary))
   println("")
 
-  println("3. Annotation Statistics")
-  let stats = @bio.get_annotation_statistics(result)
-  let stat_keys = stats.keys().collect()
-  let mut k = 0
-  while k < stat_keys.length() {
-    let stat_key = stat_keys[k]
-    println("   \{stat_key}: \{stats[stat_key].to_string()}")
-    k = k + 1
-  }
-  println("")
-
-  println("4. Promoter Annotations")
-  let promoters = @bio.get_promoter_annotations(result)
+  println("3. Promoter Annotations")
+  let promoters = @bio.filter_by_feature(annotations, "Promoter")
   println("   Promoter peaks: \{promoters.length().to_string()}")
-  println("")
-
-  println("5. Annotation Plot")
-  println(@bio.plot_annotation_bar(result.summary))
   println("")
 
   println("\n")
@@ -192,7 +173,7 @@ fn main {
   println("3. Pathways Grouped by Top Level Term")
   let groups = @bio.group_by_top_level(reactome_result)
   let group_keys = groups.keys().collect()
-  j = 0
+  let mut j = 0
   while j < group_keys.length() {
     let group_key = group_keys[j]
     println(

@@ -1,998 +1,660 @@
 ///|
-pub struct PeakAnnotation {
-  peak_id : String
-  chr : String
-  start : Int
-  end : Int
-  annotation : String
-  gene_name : String
-  distance_to_tss : Int
-  feature_type : String
-  strand : String
-  transcript_id : String
-  exon_id : String
-  utr_type : String
-}
+/// ChIPseeker - ChIP-seq peak annotation module.
+///
+/// Inspired by the Bioconductor ChIPseeker package. This implementation
+/// focuses on peak annotation: mapping ChIP-seq peaks to nearby genes and
+/// genomic features (Promoter, 5'UTR, 3'UTR, Exon, Intron, Downstream,
+/// Distal Intergenic).
+///
+/// Feature assignment uses the ChIPseeker priority order:
+///   Promoter > 5'UTR > 3'UTR > Exon > Intron > Downstream > Distal Intergenic
 
-///|
-pub fn PeakAnnotation::new(
-  peak_id : String,
-  chr : String,
-  start : Int,
-  end : Int,
-  annotation : String,
-  gene_name : String,
-  distance_to_tss : Int,
-  feature_type : String,
-  strand : String,
-  transcript_id : String,
-  exon_id : String,
-  utr_type : String,
-) -> PeakAnnotation {
-  PeakAnnotation::{
-    peak_id,
-    chr,
-    start,
-    end,
-    annotation,
-    gene_name,
-    distance_to_tss,
-    feature_type,
-    strand,
-    transcript_id,
-    exon_id,
-    utr_type,
-  }
-}
+///| Length of the 5'UTR / 3'UTR approximation (in bp).
+const CS_UTR_LENGTH : Int = 500
 
-///|
-pub struct AnnotationResult {
-  annotations : Array[PeakAnnotation]
-  summary : Map[String, Int]
-}
+///| Size of each implicit "exon" segment inside the gene body (in bp).
+const CS_EXON_SIZE : Int = 1000
 
-///|
+///| Size of the downstream region past the gene body (in bp).
+const CS_DOWNSTREAM_WINDOW : Int = 3000
+
+///| A ChIP-seq peak (genomic interval).
 pub struct Peak {
   chr : String
   start : Int
-  end : Int
-  peak_id : String
+  mut end : Int
+  summit : Int
+  fold_enrichment : Double
+  p_value : Double
 }
 
-///|
-pub fn Peak::new(chr : String, start : Int, end : Int, peak_id : String) -> Peak {
-  Peak::{ chr, start, end, peak_id }
+///| Construct a Peak. `chr` and `start` are required; all other fields
+///| are optional and default to zero (summit=0 means "use peak center").
+pub fn Peak::new(
+  chr~ : String,
+  start~ : Int,
+  end? : Int = 0,
+  summit? : Int = 0,
+  fold_enrichment? : Double = 0.0,
+  p_value? : Double = 0.0,
+) -> Peak {
+  Peak::{ chr, start, end, summit, fold_enrichment, p_value }
 }
 
-///|
-pub fn annotate_peaks(
-  peaks : Array[Peak],
-  txdb : TxDb,
-) -> AnnotationResult {
-  let annotations : Array[PeakAnnotation] = Array::new()
-  let summary = Map([], capacity=16)
-
-  let mut i = 0
-  while i < peaks.length() {
-    let peak = peaks[i]
-    let annotation = annotate_single_peak(peak, txdb)
-    annotations.push(annotation)
-
-    let feature_type = annotation.feature_type
-    let current = summary.get(feature_type)
-    summary[feature_type] = if current.is_some() { current.unwrap() + 1 } else { 1 }
-
-    i = i + 1
-  }
-
-  AnnotationResult::{ annotations, summary }
+///| Get the chromosome of the peak.
+pub fn Peak::get_chr(self : Peak) -> String {
+  self.chr
 }
 
-///|
-fn annotate_single_peak(peak : Peak, txdb : TxDb) -> PeakAnnotation {
-  let peak_center = (peak.start + peak.end) / 2
+///| Get the start position of the peak.
+pub fn Peak::get_start(self : Peak) -> Int {
+  self.start
+}
 
-  let (nearest_gene, distance, strand) = find_nearest_gene(peak.chr, peak_center, txdb)
+///| Get the end position of the peak.
+pub fn Peak::get_end(self : Peak) -> Int {
+  self.end
+}
 
-  let (is_utr, utr_tx_id, utr_gene_id, utr_type) = is_inside_utr(peak, txdb)
-  if is_utr {
-    return PeakAnnotation::new(
-      peak.peak_id,
-      peak.chr,
-      peak.start,
-      peak.end,
-      utr_type,
-      utr_gene_id,
-      0,
-      utr_type,
-      strand,
-      utr_tx_id,
-      "",
-      utr_type,
-    )
-  }
+///| Set the end position of the peak.
+pub fn Peak::set_end(self : Peak, new_end : Int) -> Unit {
+  self.end = new_end
+}
 
-  let (is_exon, exon_id, exon_gene_id) = is_inside_exon(peak, txdb)
-  if is_exon {
-    return PeakAnnotation::new(
-      peak.peak_id,
-      peak.chr,
-      peak.start,
-      peak.end,
-      "Exon",
-      exon_gene_id,
-      0,
-      "Exon",
-      strand,
-      "",
-      exon_id,
-      "",
-    )
-  }
+///| Get the summit position of the peak.
+pub fn Peak::get_summit(self : Peak) -> Int {
+  self.summit
+}
 
-  let (is_intron, intron_tx_id, intron_gene_id) = is_inside_intron(peak, txdb)
-  if is_intron {
-    return PeakAnnotation::new(
-      peak.peak_id,
-      peak.chr,
-      peak.start,
-      peak.end,
-      "Intron",
-      intron_gene_id,
-      0,
-      "Intron",
-      strand,
-      intron_tx_id,
-      "",
-      "",
-    )
-  }
+///| Get the fold enrichment of the peak.
+pub fn Peak::get_fold_enrichment(self : Peak) -> Double {
+  self.fold_enrichment
+}
 
-  let (annotation, feature_type) = classify_genomic_region(distance)
+///| Get the p-value of the peak.
+pub fn Peak::get_p_value(self : Peak) -> Double {
+  self.p_value
+}
 
-  PeakAnnotation::new(
-    peak.peak_id,
-    peak.chr,
-    peak.start,
-    peak.end,
+///| A gene annotation record used for peak annotation.
+pub struct GeneAnnotation {
+  gene_id : String
+  gene_name : String
+  chr : String
+  gene_start : Int
+  gene_end : Int
+  strand : String // "+" or "-"
+  tss : Int // transcription start site
+}
+
+///| Construct a GeneAnnotation. The TSS is auto-computed from the strand:
+///|   "+" strand -> tss = gene_start
+///|   "-" strand -> tss = gene_end
+pub fn GeneAnnotation::new(
+  gene_id~ : String,
+  gene_name~ : String,
+  chr~ : String,
+  gene_start~ : Int,
+  gene_end~ : Int,
+  strand~ : String,
+) -> GeneAnnotation {
+  let tss = if strand == "-" { gene_end } else { gene_start }
+  GeneAnnotation::{ gene_id, gene_name, chr, gene_start, gene_end, strand, tss }
+}
+
+///| Get the gene id.
+pub fn GeneAnnotation::get_gene_id(self : GeneAnnotation) -> String {
+  self.gene_id
+}
+
+///| Get the gene name.
+pub fn GeneAnnotation::get_gene_name(self : GeneAnnotation) -> String {
+  self.gene_name
+}
+
+///| Get the chromosome.
+pub fn GeneAnnotation::get_chr(self : GeneAnnotation) -> String {
+  self.chr
+}
+
+///| Get the gene start.
+pub fn GeneAnnotation::get_gene_start(self : GeneAnnotation) -> Int {
+  self.gene_start
+}
+
+///| Get the gene end.
+pub fn GeneAnnotation::get_gene_end(self : GeneAnnotation) -> Int {
+  self.gene_end
+}
+
+///| Get the strand.
+pub fn GeneAnnotation::get_strand(self : GeneAnnotation) -> String {
+  self.strand
+}
+
+///| Get the transcription start site (TSS).
+pub fn GeneAnnotation::get_tss(self : GeneAnnotation) -> Int {
+  self.tss
+}
+
+///| The result of annotating a single peak.
+pub struct PeakAnnotation {
+  peak : Peak
+  gene_id : String
+  gene_name : String
+  chr : String
+  tss : Int
+  distance_to_tss : Int
+  feature : String // "Promoter", "5'UTR", etc.
+  annotation : String // detailed annotation string
+}
+
+///| Construct a PeakAnnotation.
+pub fn PeakAnnotation::new(
+  peak~ : Peak,
+  gene_id~ : String,
+  gene_name~ : String,
+  chr~ : String,
+  tss~ : Int,
+  distance_to_tss~ : Int,
+  feature~ : String,
+  annotation~ : String,
+) -> PeakAnnotation {
+  PeakAnnotation::{
+    peak,
+    gene_id,
+    gene_name,
+    chr,
+    tss,
+    distance_to_tss,
+    feature,
     annotation,
-    nearest_gene,
-    distance,
-    feature_type,
-    strand,
-    "",
-    "",
-    "",
+  }
+}
+
+///| Get the peak.
+pub fn PeakAnnotation::get_peak(self : PeakAnnotation) -> Peak {
+  self.peak
+}
+
+///| Get the gene id.
+pub fn PeakAnnotation::get_gene_id(self : PeakAnnotation) -> String {
+  self.gene_id
+}
+
+///| Get the gene name.
+pub fn PeakAnnotation::get_gene_name(self : PeakAnnotation) -> String {
+  self.gene_name
+}
+
+///| Get the chromosome.
+pub fn PeakAnnotation::get_chr(self : PeakAnnotation) -> String {
+  self.chr
+}
+
+///| Get the TSS.
+pub fn PeakAnnotation::get_tss(self : PeakAnnotation) -> Int {
+  self.tss
+}
+
+///| Get the signed distance to TSS.
+pub fn PeakAnnotation::get_distance_to_tss(self : PeakAnnotation) -> Int {
+  self.distance_to_tss
+}
+
+///| Get the assigned feature string.
+pub fn PeakAnnotation::get_feature(self : PeakAnnotation) -> String {
+  self.feature
+}
+
+///| Get the detailed annotation string.
+pub fn PeakAnnotation::get_annotation(self : PeakAnnotation) -> String {
+  self.annotation
+}
+
+///| Summary counts of peaks assigned to each feature type.
+pub struct AnnotationSummary {
+  total_peaks : Int
+  promoter : Int
+  utr5 : Int
+  utr3 : Int
+  exon : Int
+  intron : Int
+  downstream : Int
+  distal_intergenic : Int
+}
+
+///| Construct an AnnotationSummary.
+pub fn AnnotationSummary::new(
+  total_peaks~ : Int,
+  promoter~ : Int,
+  utr5~ : Int,
+  utr3~ : Int,
+  exon~ : Int,
+  intron~ : Int,
+  downstream~ : Int,
+  distal_intergenic~ : Int,
+) -> AnnotationSummary {
+  AnnotationSummary::{
+    total_peaks,
+    promoter,
+    utr5,
+    utr3,
+    exon,
+    intron,
+    downstream,
+    distal_intergenic,
+  }
+}
+
+///| Get total peaks.
+pub fn AnnotationSummary::get_total_peaks(self : AnnotationSummary) -> Int {
+  self.total_peaks
+}
+
+///| Get promoter count.
+pub fn AnnotationSummary::get_promoter(self : AnnotationSummary) -> Int {
+  self.promoter
+}
+
+///| Get 5'UTR count.
+pub fn AnnotationSummary::get_utr5(self : AnnotationSummary) -> Int {
+  self.utr5
+}
+
+///| Get 3'UTR count.
+pub fn AnnotationSummary::get_utr3(self : AnnotationSummary) -> Int {
+  self.utr3
+}
+
+///| Get exon count.
+pub fn AnnotationSummary::get_exon(self : AnnotationSummary) -> Int {
+  self.exon
+}
+
+///| Get intron count.
+pub fn AnnotationSummary::get_intron(self : AnnotationSummary) -> Int {
+  self.intron
+}
+
+///| Get downstream count.
+pub fn AnnotationSummary::get_downstream(self : AnnotationSummary) -> Int {
+  self.downstream
+}
+
+///| Get distal intergenic count.
+pub fn AnnotationSummary::get_distal_intergenic(self : AnnotationSummary) -> Int {
+  self.distal_intergenic
+}
+
+///| Compute the effective single position used for a peak. Uses the summit
+///| if it is non-zero, otherwise the midpoint of [start, end].
+pub fn cs_peak_position(peak : Peak) -> Int {
+  if peak.summit != 0 {
+    peak.summit
+  } else {
+    (peak.start + peak.end) / 2
+  }
+}
+
+///| Build a sentinel "no gene" annotation. Used when no gene is found on
+///| the same chromosome as the peak.
+fn cs_na_gene(chr : String) -> GeneAnnotation {
+  GeneAnnotation::{
+    gene_id: "",
+    gene_name: "",
+    chr,
+    gene_start: 0,
+    gene_end: 0,
+    strand: "+",
+    tss: 0,
+  }
+}
+
+///| Compute the signed distance from a peak to a gene's TSS.
+///|
+///| Positive distance means the peak is downstream of the TSS (in the
+///| transcription direction); negative means upstream. For "-" strand
+///| genes the orientation is flipped so the sign convention still holds.
+pub fn compute_tss_distance(peak : Peak, gene : GeneAnnotation) -> Int {
+  if gene.gene_id == "" {
+    return 0
+  }
+  let peak_pos = cs_peak_position(peak)
+  if gene.strand == "-" {
+    gene.tss - peak_pos
+  } else {
+    peak_pos - gene.tss
+  }
+}
+
+///| Find the gene whose TSS is closest to the peak. Only genes on the same
+///| chromosome as the peak are considered. If no such gene exists, a
+///| sentinel annotation with empty `gene_id` is returned.
+pub fn find_nearest_gene(
+  peak : Peak,
+  genes : Array[GeneAnnotation],
+) -> GeneAnnotation {
+  let peak_pos = cs_peak_position(peak)
+  let mut nearest : GeneAnnotation = cs_na_gene(peak.chr)
+  let mut min_dist : Int = 0
+  let mut found = false
+  for gene in genes {
+    if gene.chr != peak.chr {
+      continue
+    }
+    let dist = (gene.tss - peak_pos).abs()
+    if !found || dist < min_dist {
+      min_dist = dist
+      nearest = gene
+      found = true
+    }
+  }
+  nearest
+}
+
+///| Assign a genomic feature to a peak relative to a gene, following the
+///| ChIPseeker priority:
+///|   Promoter > 5'UTR > 3'UTR > Exon > Intron > Downstream > Distal Intergenic
+pub fn assign_feature(
+  peak : Peak,
+  gene : GeneAnnotation,
+  promoter_window : Int,
+) -> String {
+  // No real gene -> everything is distal intergenic.
+  if gene.gene_id == "" || gene.chr != peak.chr {
+    return "Distal Intergenic"
+  }
+  let peak_pos = cs_peak_position(peak)
+  let distance = compute_tss_distance(peak, gene)
+  // 1. Promoter: within +/- promoter_window of the TSS.
+  if distance >= -promoter_window && distance <= promoter_window {
+    return "Promoter"
+  }
+  // Compute strand-aware region boundaries. Each gene is approximated as
+  // having a 5'UTR and 3'UTR at the two ends of the gene body, two implicit
+  // "exon" segments just inside the UTRs, and a single "intron" segment in
+  // the middle of the gene body.
+  let utr_len = CS_UTR_LENGTH
+  let exon_size = CS_EXON_SIZE
+  let (utr5_start, utr5_end, utr3_start, utr3_end, exon1_start, exon1_end, exon2_start, exon2_end, intron_start, intron_end, down_start, down_end) = if gene.strand == "-" {
+    // "-" strand: TSS = gene_end; transcription proceeds toward gene_start.
+    let utr5_s = gene.gene_end - utr_len
+    let utr5_e = gene.gene_end
+    let utr3_s = gene.gene_start
+    let utr3_e = gene.gene_start + utr_len
+    let exon1_s = gene.gene_end - utr_len - exon_size
+    let exon1_e = gene.gene_end - utr_len
+    let exon2_s = gene.gene_start + utr_len
+    let exon2_e = gene.gene_start + utr_len + exon_size
+    let intron_s = gene.gene_start + utr_len + exon_size
+    let intron_e = gene.gene_end - utr_len - exon_size
+    let down_s = gene.gene_start - CS_DOWNSTREAM_WINDOW
+    let down_e = gene.gene_start
+    (
+      utr5_s,
+      utr5_e,
+      utr3_s,
+      utr3_e,
+      exon1_s,
+      exon1_e,
+      exon2_s,
+      exon2_e,
+      intron_s,
+      intron_e,
+      down_s,
+      down_e,
+    )
+  } else {
+    // "+" strand: TSS = gene_start; transcription proceeds toward gene_end.
+    let utr5_s = gene.gene_start
+    let utr5_e = gene.gene_start + utr_len
+    let utr3_s = gene.gene_end - utr_len
+    let utr3_e = gene.gene_end
+    let exon1_s = gene.gene_start + utr_len
+    let exon1_e = gene.gene_start + utr_len + exon_size
+    let exon2_s = gene.gene_end - utr_len - exon_size
+    let exon2_e = gene.gene_end - utr_len
+    let intron_s = gene.gene_start + utr_len + exon_size
+    let intron_e = gene.gene_end - utr_len - exon_size
+    let down_s = gene.gene_end
+    let down_e = gene.gene_end + CS_DOWNSTREAM_WINDOW
+    (
+      utr5_s,
+      utr5_e,
+      utr3_s,
+      utr3_e,
+      exon1_s,
+      exon1_e,
+      exon2_s,
+      exon2_e,
+      intron_s,
+      intron_e,
+      down_s,
+      down_e,
+    )
+  }
+  // 2. 5'UTR
+  if peak_pos >= utr5_start && peak_pos <= utr5_end {
+    return "5'UTR"
+  }
+  // 3. 3'UTR
+  if peak_pos >= utr3_start && peak_pos <= utr3_end {
+    return "3'UTR"
+  }
+  // 4. Exon (either of the two implicit exon segments)
+  if (peak_pos >= exon1_start && peak_pos <= exon1_end) ||
+     (peak_pos >= exon2_start && peak_pos <= exon2_end) {
+    return "Exon"
+  }
+  // 5. Intron
+  if peak_pos >= intron_start && peak_pos <= intron_end {
+    return "Intron"
+  }
+  // 6. Downstream
+  if peak_pos >= down_start && peak_pos <= down_end {
+    return "Downstream"
+  }
+  // 7. Distal Intergenic
+  "Distal Intergenic"
+}
+
+///| Format the detailed annotation string for a peak/gene/feature triple.
+fn cs_format_annotation(
+  gene : GeneAnnotation,
+  distance : Int,
+  feature : String,
+  promoter_window : Int,
+) -> String {
+  match feature {
+    "Promoter" =>
+      "Promoter ([-\{promoter_window}, +\{promoter_window}] relative to TSS of \{gene.gene_name})"
+    "5'UTR" => "5' UTR of \{gene.gene_name}"
+    "3'UTR" => "3' UTR of \{gene.gene_name}"
+    "Exon" => "Exon of \{gene.gene_name}"
+    "Intron" => "Intron of \{gene.gene_name}"
+    "Downstream" =>
+      "Downstream (<=\{CS_DOWNSTREAM_WINDOW}bp) of \{gene.gene_name}"
+    _ => {
+      if gene.gene_id == "" {
+        "Distal Intergenic (no nearby gene on same chromosome)"
+      } else {
+        "Distal Intergenic (nearest gene: \{gene.gene_name}, distance to TSS: \{distance})"
+      }
+    }
+  }
+}
+
+///| Annotate a single peak: find the nearest gene, compute the signed
+///| distance to its TSS, assign a genomic feature, and build the detailed
+///| annotation string.
+pub fn annotate_peak(
+  peak : Peak,
+  genes : Array[GeneAnnotation],
+  promoter_window : Int,
+) -> PeakAnnotation {
+  let gene = find_nearest_gene(peak, genes)
+  let distance = compute_tss_distance(peak, gene)
+  let feature = assign_feature(peak, gene, promoter_window)
+  let annotation = cs_format_annotation(gene, distance, feature, promoter_window)
+  PeakAnnotation::new(
+    peak=peak,
+    gene_id=gene.gene_id,
+    gene_name=gene.gene_name,
+    chr=peak.chr,
+    tss=gene.tss,
+    distance_to_tss=distance,
+    feature=feature,
+    annotation=annotation,
   )
 }
 
-///|
-fn find_nearest_gene(chr : String, pos : Int, txdb : TxDb) -> (String, Int, String) {
-  let mut min_distance = 100000000
-  let mut nearest_gene = ""
-  let mut gene_strand = "."
-
-  let mut i = 0
-  while i < txdb.genes.length() {
-    let gene = txdb.genes[i]
-    if gene.seqname != chr {
-      i = i + 1
-      continue
-    }
-
-    let gene_start = gene.start
-    let gene_end = gene.end
-
-    let distance = if pos < gene_start {
-      gene_start - pos
-    } else if pos > gene_end {
-      pos - gene_end
-    } else {
-      0
-    }
-
-    if distance < min_distance {
-      min_distance = distance
-      nearest_gene = gene.gene_id
-      gene_strand = match gene.strand {
-        Strand::Plus => "+"
-        Strand::Minus => "-"
-        _ => "."
-      }
-    }
-    i = i + 1
+///| Annotate a collection of peaks against a set of gene annotations.
+pub fn annotate_peaks(
+  peaks : Array[Peak],
+  genes : Array[GeneAnnotation],
+  promoter_window : Int,
+) -> Array[PeakAnnotation] {
+  let result : Array[PeakAnnotation] = Array::new()
+  for peak in peaks {
+    result.push(annotate_peak(peak, genes, promoter_window))
   }
-
-  if nearest_gene == "" {
-    ("Intergenic", 100000000, ".")
-  } else {
-    (nearest_gene, min_distance, gene_strand)
-  }
+  result
 }
 
-///|
-fn classify_genomic_region(distance : Int) -> (String, String) {
-  if distance == 0 {
-    ("Promoter (<=0bp)", "Promoter")
-  } else if distance <= 2000 {
-    ("Promoter (0-2kb)", "Promoter")
-  } else if distance <= 5000 {
-    ("Promoter (2-5kb)", "Promoter")
-  } else if distance <= 10000 {
-    ("Distal Intergenic (5-10kb)", "Distal")
-  } else if distance <= 50000 {
-    ("Distal Intergenic (10-50kb)", "Distal")
-  } else {
-    ("Intergenic (>50kb)", "Intergenic")
-  }
-}
-
-///|
-fn is_inside_exon(peak : Peak, txdb : TxDb) -> (Bool, String, String) {
-  let peak_center = (peak.start + peak.end) / 2
-  
-  let mut i = 0
-  while i < txdb.exons.length() {
-    let exon = txdb.exons[i]
-    if exon.seqname == peak.chr && peak_center >= exon.start && peak_center <= exon.end {
-      return (true, exon.exon_id, exon.gene_id)
-    }
-    i = i + 1
-  }
-  
-  (false, "", "")
-}
-
-///|
-fn is_inside_intron(peak : Peak, txdb : TxDb) -> (Bool, String, String) {
-  let peak_center = (peak.start + peak.end) / 2
-  
-  let mut i = 0
-  while i < txdb.transcripts.length() {
-    let tx = txdb.transcripts[i]
-    if tx.seqname == peak.chr && peak_center >= tx.start && peak_center <= tx.end {
-      let mut inside_exon = false
-      let mut j = 0
-      while j < txdb.exons.length() {
-        let exon = txdb.exons[j]
-        if exon.transcript_id == tx.transcript_id && 
-           peak_center >= exon.start && peak_center <= exon.end {
-          inside_exon = true
-          break
-        }
-        j = j + 1
-      }
-      if !inside_exon {
-        return (true, tx.transcript_id, tx.gene_id)
-      }
-    }
-    i = i + 1
-  }
-  
-  (false, "", "")
-}
-
-///|
-fn is_inside_utr(peak : Peak, txdb : TxDb) -> (Bool, String, String, String) {
-  let peak_center = (peak.start + peak.end) / 2
-  let utr_length = 500
-  
-  let mut i = 0
-  while i < txdb.transcripts.length() {
-    let tx = txdb.transcripts[i]
-    if tx.seqname != peak.chr {
-      i = i + 1
-      continue
-    }
-    
-    match tx.strand {
-      Strand::Plus => {
-        let utr5_start = tx.start
-        let utr5_end = tx.start + utr_length
-        if peak_center >= utr5_start && peak_center <= utr5_end {
-          return (true, tx.transcript_id, tx.gene_id, "5'UTR")
-        }
-        let utr3_start = tx.end - utr_length
-        let utr3_end = tx.end
-        if peak_center >= utr3_start && peak_center <= utr3_end {
-          return (true, tx.transcript_id, tx.gene_id, "3'UTR")
-        }
-      }
-      Strand::Minus => {
-        let utr5_start = tx.end - utr_length
-        let utr5_end = tx.end
-        if peak_center >= utr5_start && peak_center <= utr5_end {
-          return (true, tx.transcript_id, tx.gene_id, "5'UTR")
-        }
-        let utr3_start = tx.start
-        let utr3_end = tx.start + utr_length
-        if peak_center >= utr3_start && peak_center <= utr3_end {
-          return (true, tx.transcript_id, tx.gene_id, "3'UTR")
-        }
-      }
+///| Tally the feature assignments of a list of peak annotations.
+pub fn annotation_summary(
+  annotations : Array[PeakAnnotation],
+) -> AnnotationSummary {
+  let mut promoter = 0
+  let mut utr5 = 0
+  let mut utr3 = 0
+  let mut exon = 0
+  let mut intron = 0
+  let mut downstream = 0
+  let mut distal_intergenic = 0
+  for ann in annotations {
+    match ann.feature {
+      "Promoter" => promoter = promoter + 1
+      "5'UTR" => utr5 = utr5 + 1
+      "3'UTR" => utr3 = utr3 + 1
+      "Exon" => exon = exon + 1
+      "Intron" => intron = intron + 1
+      "Downstream" => downstream = downstream + 1
+      "Distal Intergenic" => distal_intergenic = distal_intergenic + 1
       _ => ()
     }
-    i = i + 1
   }
-  
-  (false, "", "", "")
+  AnnotationSummary::new(
+    total_peaks=annotations.length(),
+    promoter=promoter,
+    utr5=utr5,
+    utr3=utr3,
+    exon=exon,
+    intron=intron,
+    downstream=downstream,
+    distal_intergenic=distal_intergenic,
+  )
 }
 
-///|
-pub fn plot_annotation_bar(summary : Map[String, Int]) -> String {
-  let mut result = "Annotation Distribution Bar Plot\n"
-  result = result + "=============================\n\n"
-
-  let keys = summary.keys().collect()
-  let mut max_count = 0
-  let mut i = 0
-  while i < keys.length() {
-    let key = keys[i]
-    let count = summary[key]
-    if count > max_count {
-      max_count = count
+///| Return only those annotations whose feature matches `feature`.
+pub fn filter_by_feature(
+  annotations : Array[PeakAnnotation],
+  feature : String,
+) -> Array[PeakAnnotation] {
+  let result : Array[PeakAnnotation] = Array::new()
+  for ann in annotations {
+    if ann.feature == feature {
+      result.push(ann)
     }
-    i = i + 1
   }
-
-  if max_count == 0 {
-    return result + "No annotations found\n"
-  }
-
-  let sorted_keys : Array[String] = Array::make(keys.length(), "")
-  let mut j = 0
-  while j < keys.length() {
-    sorted_keys[j] = keys[j]
-    j = j + 1
-  }
-
-  let mut k = 0
-  while k < sorted_keys.length() - 1 {
-    let mut l = k + 1
-    while l < sorted_keys.length() {
-      if summary[sorted_keys[k]] < summary[sorted_keys[l]] {
-        let temp = sorted_keys[k]
-        sorted_keys[k] = sorted_keys[l]
-        sorted_keys[l] = temp
-      }
-      l = l + 1
-    }
-    k = k + 1
-  }
-
-  let mut m = 0
-  while m < sorted_keys.length() {
-    let key = sorted_keys[m]
-    let count = summary[key]
-    let bar_length = (count.to_double() / max_count.to_double() * 40.0).to_int()
-    let mut bar = ""
-    let mut n = 0
-    while n < bar_length {
-      bar = bar + "="
-      n = n + 1
-    }
-    result = result + key + ": " + count.to_string() + " [" + bar + "]\n"
-    m = m + 1
-  }
-
   result
 }
 
-///|
-pub fn plot_dist_to_tss(annotations : Array[PeakAnnotation]) -> String {
-  let mut result = "Distance to TSS Distribution\n"
-  result = result + "============================\n\n"
-
-  let bins = [
-    ("0-100bp", 0, 100),
-    ("100-500bp", 100, 500),
-    ("500-1000bp", 500, 1000),
-    ("1-2kb", 1000, 2000),
-    ("2-5kb", 2000, 5000),
-    ("5-10kb", 5000, 10000),
-    (">10kb", 10000, 100000000),
-  ]
-
-  let mut max_count = 0
-  let counts : Array[Int] = Array::make(bins.length(), 0)
-
-  let mut i = 0
-  while i < annotations.length() {
-    let dist = annotations[i].distance_to_tss
-    let mut j = 0
-    while j < bins.length() {
-      let (_, low, high) = bins[j]
-      if dist >= low && dist < high {
-        counts[j] = counts[j] + 1
-        if counts[j] > max_count {
-          max_count = counts[j]
-        }
-        break
-      }
-      j = j + 1
+///| Return only those annotations whose absolute distance to TSS is at
+///| most `max_distance`.
+pub fn filter_by_distance(
+  annotations : Array[PeakAnnotation],
+  max_distance : Int,
+) -> Array[PeakAnnotation] {
+  let result : Array[PeakAnnotation] = Array::new()
+  for ann in annotations {
+    if ann.distance_to_tss.abs() <= max_distance {
+      result.push(ann)
     }
-    i = i + 1
   }
-
-  let mut k = 0
-  while k < bins.length() {
-    let (label, _, _) = bins[k]
-    let count = counts[k]
-    let bar_length = if max_count > 0 {
-      (count.to_double() / max_count.to_double() * 30.0).to_int()
-    } else {
-      0
-    }
-    let mut bar = ""
-    let mut l = 0
-    while l < bar_length {
-      bar = bar + "*"
-      l = l + 1
-    }
-    result = result + label + ": " + count.to_string() + " " + bar + "\n"
-    k = k + 1
-  }
-
   result
 }
 
-///|
-pub fn get_annotation_statistics(result : AnnotationResult) -> Map[String, Double] {
-  let stats = Map([], capacity=16)
-  let total = result.annotations.length().to_double()
-
-  for key in result.summary.keys() {
-    let value = result.summary.get(key)
-    if value.is_some() {
-      let percentage = value.unwrap().to_double() / total * 100.0
-      stats[key] = percentage
-    }
-  }
-
-  stats
+///| Format an AnnotationSummary as a human-readable string.
+pub fn chipseeker_summary_string(summary : AnnotationSummary) -> String {
+  let mut s = "ChIPseeker Annotation Summary\n"
+  s = s + "=============================\n"
+  s = s + "Total peaks: \{summary.total_peaks}\n"
+  s = s + "Promoter: \{summary.promoter}\n"
+  s = s + "5'UTR: \{summary.utr5}\n"
+  s = s + "3'UTR: \{summary.utr3}\n"
+  s = s + "Exon: \{summary.exon}\n"
+  s = s + "Intron: \{summary.intron}\n"
+  s = s + "Downstream: \{summary.downstream}\n"
+  s = s + "Distal Intergenic: \{summary.distal_intergenic}\n"
+  s
 }
 
-///|
-pub fn get_promoter_annotations(result : AnnotationResult) -> Array[PeakAnnotation] {
-  let promoters : Array[PeakAnnotation] = Array::new()
-
-  let mut i = 0
-  while i < result.annotations.length() {
-    let annotation = result.annotations[i]
-    if annotation.feature_type == "Promoter" {
-      promoters.push(annotation)
-    }
-    i = i + 1
-  }
-
-  promoters
-}
-
-///|
-pub fn get_distal_annotations(result : AnnotationResult) -> Array[PeakAnnotation] {
-  let distal : Array[PeakAnnotation] = Array::new()
-
-  let mut i = 0
-  while i < result.annotations.length() {
-    let annotation = result.annotations[i]
-    if annotation.feature_type == "Distal" {
-      distal.push(annotation)
-    }
-    i = i + 1
-  }
-
-  distal
-}
-
-///|
-pub fn get_intergenic_annotations(result : AnnotationResult) -> Array[PeakAnnotation] {
-  let intergenic : Array[PeakAnnotation] = Array::new()
-
-  let mut i = 0
-  while i < result.annotations.length() {
-    let annotation = result.annotations[i]
-    if annotation.feature_type == "Intergenic" {
-      intergenic.push(annotation)
-    }
-    i = i + 1
-  }
-
-  intergenic
-}
-
-///|
-pub fn annotation_summary(result : AnnotationResult) -> String {
-  let mut result_str = "Peak Annotation Summary\n"
-  result_str = result_str + "=======================\n"
-  result_str = result_str + "Total peaks: " + result.annotations.length().to_string() + "\n\n"
-
-  let stats = get_annotation_statistics(result)
-  for key in stats.keys() {
-    let value = stats.get(key)
-    if value.is_some() {
-      result_str = result_str + key + ": " + value.unwrap().to_string() + "%\n"
-    }
-  }
-
-  let promoters = get_promoter_annotations(result)
-  let distal = get_distal_annotations(result)
-  let intergenic = get_intergenic_annotations(result)
-  let exons = get_exon_annotations(result)
-  let introns = get_intron_annotations(result)
-  let utrs = get_utr_annotations(result)
-
-  result_str = result_str + "\nPromoter peaks: " + promoters.length().to_string() + "\n"
-  result_str = result_str + "Exon peaks: " + exons.length().to_string() + "\n"
-  result_str = result_str + "Intron peaks: " + introns.length().to_string() + "\n"
-  result_str = result_str + "UTR peaks: " + utrs.length().to_string() + "\n"
-  result_str = result_str + "Distal peaks: " + distal.length().to_string() + "\n"
-  result_str = result_str + "Intergenic peaks: " + intergenic.length().to_string() + "\n"
-
-  result_str
-}
-
-///|
-pub fn read_peak_file(file_content : String) -> Array[Peak] {
-  let peaks : Array[Peak] = Array::new()
-  let lines = file_content.split("\n")
-  let mut peak_id = 0
-
-  for line in lines {
-    let trimmed = line.trim()
-    if trimmed.length() == 0 || trimmed.has_prefix("#") {
-      continue
-    }
-
-    let fields_iter = trimmed.split("\t")
-    let fields : Array[String] = Array::new()
-    for f in fields_iter {
-      fields.push(f.to_string())
-    }
-
-    if fields.length() >= 3 {
-      let chr = fields[0]
-      let start = parse_int(fields[1])
-      let end = parse_int(fields[2])
-      let id = if fields.length() >= 4 { fields[3] } else { "peak_" + peak_id.to_string() }
-      peaks.push(Peak::new(chr, start, end, id))
-      peak_id = peak_id + 1
-    }
-  }
-
-  peaks
-}
-
-///|
-pub struct PeakGeneAssociation {
-  peak_id : String
-  gene_id : String
-  distance : Int
-  feature_type : String
-  strand : String
-}
-
-///|
-pub fn PeakGeneAssociation::new(
-  peak_id : String,
-  gene_id : String,
-  distance : Int,
-  feature_type : String,
-  strand : String,
-) -> PeakGeneAssociation {
-  PeakGeneAssociation::{ peak_id, gene_id, distance, feature_type, strand }
-}
-
-///|
-pub fn peak2gene(result : AnnotationResult) -> Array[PeakGeneAssociation] {
-  let associations : Array[PeakGeneAssociation] = Array::new()
-
-  for annotation in result.annotations {
-    associations.push(PeakGeneAssociation::new(
-      annotation.peak_id,
-      annotation.gene_name,
-      annotation.distance_to_tss,
-      annotation.feature_type,
-      annotation.strand,
-    ))
-  }
-
-  associations
-}
-
-///|
-pub fn get_exon_annotations(result : AnnotationResult) -> Array[PeakAnnotation] {
-  let exons : Array[PeakAnnotation] = Array::new()
-
-  let mut i = 0
-  while i < result.annotations.length() {
-    let annotation = result.annotations[i]
-    if annotation.feature_type == "Exon" {
-      exons.push(annotation)
-    }
-    i = i + 1
-  }
-
-  exons
-}
-
-///|
-pub fn get_intron_annotations(result : AnnotationResult) -> Array[PeakAnnotation] {
-  let introns : Array[PeakAnnotation] = Array::new()
-
-  let mut i = 0
-  while i < result.annotations.length() {
-    let annotation = result.annotations[i]
-    if annotation.feature_type == "Intron" {
-      introns.push(annotation)
-    }
-    i = i + 1
-  }
-
-  introns
-}
-
-///|
-pub fn get_utr_annotations(result : AnnotationResult) -> Array[PeakAnnotation] {
-  let utrs : Array[PeakAnnotation] = Array::new()
-
-  let mut i = 0
-  while i < result.annotations.length() {
-    let annotation = result.annotations[i]
-    if annotation.utr_type != "" {
-      utrs.push(annotation)
-    }
-    i = i + 1
-  }
-
-  utrs
-}
-
-///|
-pub struct PeakOverlapResult {
-  peak_sets : Array[(String, Array[Peak])]
-  overlap_matrix : Array[Array[Int]]
-  union_count : Int
-  intersect_count : Int
-}
-
-///|
-pub fn PeakOverlapResult::new(
-  peak_sets : Array[(String, Array[Peak])],
-  overlap_matrix : Array[Array[Int]],
-  union_count : Int,
-  intersect_count : Int,
-) -> PeakOverlapResult {
-  PeakOverlapResult::{ peak_sets, overlap_matrix, union_count, intersect_count }
-}
-
-///|
-fn peaks_overlap(peak1 : Peak, peak2 : Peak, min_overlap : Int) -> Bool {
-  if peak1.chr != peak2.chr {
-    return false
-  }
-  let overlap_start = if peak1.start > peak2.start { peak1.start } else { peak2.start }
-  let overlap_end = if peak1.end < peak2.end { peak1.end } else { peak2.end }
-  overlap_end - overlap_start >= min_overlap
-}
-
-///|
-pub fn peak_overlap(peak_sets : Array[(String, Array[Peak])], min_overlap : Int) -> PeakOverlapResult {
-  let n_sets = peak_sets.length()
-  
-  let overlap_matrix : Array[Array[Int]] = Array::new()
-  let mut i = 0
-  while i < n_sets {
-    let row : Array[Int] = Array::make(n_sets, 0)
-    overlap_matrix.push(row)
-    i = i + 1
-  }
-  
-  let mut j = 0
-  while j < n_sets {
-    let (_, peaks_j) = peak_sets[j]
-    let mut k = j
-    while k < n_sets {
-      let (_, peaks_k) = peak_sets[k]
-      let mut overlap_count = 0
-      let mut l = 0
-      while l < peaks_j.length() {
-        let mut m = 0
-        while m < peaks_k.length() {
-          if peaks_overlap(peaks_j[l], peaks_k[m], min_overlap) {
-            overlap_count = overlap_count + 1
-            break
-          }
-          m = m + 1
-        }
-        l = l + 1
-      }
-      overlap_matrix[j][k] = overlap_count
-      overlap_matrix[k][j] = overlap_count
-      k = k + 1
-    }
-    j = j + 1
-  }
-  
-  let all_peaks : Array[Peak] = Array::new()
-  let mut n = 0
-  while n < n_sets {
-    let (_, peaks_n) = peak_sets[n]
-    for p in peaks_n {
-      all_peaks.push(p)
-    }
-    n = n + 1
-  }
-  
-  let union_count = all_peaks.length()
-  
-  let intersect_count = if n_sets > 0 {
-    let (_, first_peaks) = peak_sets[0]
-    let mut count = 0
-    let mut o = 0
-    while o < first_peaks.length() {
-      let mut in_all = true
-      let mut p = 1
-      while p < n_sets {
-        let (_, peaks_p) = peak_sets[p]
-        let mut found = false
-        let mut q = 0
-        while q < peaks_p.length() {
-          if peaks_overlap(first_peaks[o], peaks_p[q], min_overlap) {
-            found = true
-            break
-          }
-          q = q + 1
-        }
-        if !found {
-          in_all = false
-          break
-        }
-        p = p + 1
-      }
-      if in_all {
-        count = count + 1
-      }
-      o = o + 1
-    }
-    count
-  } else {
-    0
-  }
-  
-  PeakOverlapResult::new(peak_sets, overlap_matrix, union_count, intersect_count)
-}
-
-///|
-pub fn plot_venn(result : PeakOverlapResult) -> String {
-  let n_sets = result.peak_sets.length()
-  if n_sets > 3 {
-    return "Venn diagram only supports up to 3 peak sets\n"
-  }
-  
-  let mut diagram = "Peak Overlap Venn Diagram\n"
-  diagram = diagram + "=========================\n\n"
-  
-  let labels : Array[String] = Array::new()
-  let counts : Array[Int] = Array::new()
-  let mut i = 0
-  while i < n_sets {
-    let (label, peaks) = result.peak_sets[i]
-    labels.push(label)
-    counts.push(peaks.length())
-    i = i + 1
-  }
-  
-  if n_sets == 1 {
-    diagram = diagram + labels[0] + ": " + counts[0].to_string() + " peaks\n"
-  } else if n_sets == 2 {
-    let only_a = counts[0] - result.overlap_matrix[0][1]
-    let only_b = counts[1] - result.overlap_matrix[0][1]
-    let overlap = result.overlap_matrix[0][1]
-    diagram = diagram + "     " + labels[0] + "        " + labels[1] + "\n"
-    diagram = diagram + "    /--------\\    /--------\\\n"
-    diagram = diagram + "   /   " + only_a.to_string() + "   \\  /   " + only_b.to_string() + "   \\\n"
-    diagram = diagram + "  /            \\/            \\\n"
-    diagram = diagram + " /         " + overlap.to_string() + "          \\\n"
-    diagram = diagram + " \\                          /\n"
-    diagram = diagram + "  \\                        /\n"
-    diagram = diagram + "   \\______________________/\n"
-  } else if n_sets == 3 {
-    let ab = result.overlap_matrix[0][1]
-    let ac = result.overlap_matrix[0][2]
-    let bc = result.overlap_matrix[1][2]
-    let abc = result.intersect_count
-    let only_a = counts[0] - ab - ac + abc
-    let only_b = counts[1] - ab - bc + abc
-    let only_c = counts[2] - ac - bc + abc
-    let only_ab = ab - abc
-    let only_ac = ac - abc
-    let only_bc = bc - abc
-    
-    diagram = diagram + "             " + labels[0] + "\n"
-    diagram = diagram + "            /--------\\\n"
-    diagram = diagram + "           /   " + only_a.to_string() + "   \\\n"
-    diagram = diagram + "          /            \\\n"
-    diagram = diagram + "         /   " + only_ab.to_string() + "  \\  " + labels[1] + "\n"
-    diagram = diagram + "        /            \\/--------\\\n"
-    diagram = diagram + "       /         " + abc.to_string() + "    " + only_b.to_string() + "   \\\n"
-    diagram = diagram + "      \\            /\\            /\n"
-    diagram = diagram + "       \\   " + only_ac.to_string() + "  /  \\   " + only_bc.to_string() + "   /\n"
-    diagram = diagram + "        \\            /\\            /\n"
-    diagram = diagram + "         \\__________/  \\__________/\n"
-    diagram = diagram + "                       " + labels[2] + "\n"
-    diagram = diagram + "                      " + only_c.to_string() + "\n"
-  }
-  
-  diagram
-}
-
-///|
-pub fn plot_anno_pie(result : AnnotationResult) -> String {
-  let mut pie = "Annotation Pie Chart\n"
-  pie = pie + "===================\n\n"
-  
-  let stats = get_annotation_statistics(result)
-  let keys = stats.keys().collect()
-  
-  if keys.length() == 0 {
-    return pie + "No annotations found\n"
-  }
-  
-  let labels : Array[String] = Array::new()
-  let percentages : Array[Double] = Array::new()
-  for key in keys {
-    let value = stats.get(key)
-    if value.is_some() {
-      labels.push(key)
-      percentages.push(value.unwrap())
-    }
-  }
-  
-  let colors = ['#', '*', '+', 'o', '@', '%', '&']
-  
-  pie = pie + "    Annotation Distribution\n"
-  pie = pie + "    =======================\n\n"
-  
-  let pie_radius = 8
-  let center = pie_radius
-  
-  let mut row = 0
-  while row <= pie_radius * 2 {
-    let mut line = ""
-    
-    let y_dist = (row.to_double() - center.to_double()).abs()
-    let half_width = ((pie_radius.to_double() * pie_radius.to_double() - y_dist * y_dist).sqrt()).to_int()
-    
-    let mut col = 0
-    while col < pie_radius * 2 + 3 {
-      let x_dist = col.to_double() - center.to_double() - 1.0
-      
-      if x_dist.abs() <= half_width.to_double() + 0.5 {
-        let x_norm = if x_dist == 0.0 { 0.0 } else { x_dist / pie_radius.to_double() }
-        let y_norm = y_dist / pie_radius.to_double()
-        
-        let mut angle = 0.0
-        if x_norm >= 0.0 && y_norm >= 0.0 {
-          angle = 0.0
-        } else if x_norm < 0.0 && y_norm >= 0.0 {
-          angle = 90.0
-        } else if x_norm < 0.0 && y_norm < 0.0 {
-          angle = 180.0
-        } else {
-          angle = 270.0
-        }
-        
-        let mut current_angle = 0.0
-        let mut pixel_color = ' '
-        
-        let mut k = 0
-        while k < labels.length() {
-          let slice_angle = percentages[k] / 100.0 * 360.0
-          
-          if angle >= current_angle && angle < current_angle + slice_angle {
-            pixel_color = colors[k % colors.length()]
-            break
-          }
-          
-          current_angle = current_angle + slice_angle
-          k = k + 1
-        }
-        
-        line = line + pixel_color.to_string()
-      } else {
-        line = line + " "
-      }
-      col = col + 1
-    }
-    
-    pie = pie + "  " + line + "\n"
-    row = row + 1
-  }
-  
-  pie = pie + "\nLegend:\n"
-  let mut m = 0
-  while m < labels.length() {
-    pie = pie + "  " + colors[m % colors.length()].to_string() + " " + labels[m] + ": " + percentages[m].to_string() + "%\n"
-    m = m + 1
-  }
-  
-  pie
-}
-
-///|
-pub fn cs_create_example_peaks() -> Array[Peak] {
-  let peaks : Array[Peak] = Array::new()
-
-  let mut i = 0
-  while i < 50 {
-    let chr = if i < 15 { "chr1" } else if i < 30 { "chr2" } else if i < 40 { "chr3" } else { "chr4" }
-    let start = i * 1000 + 10000
-    let end = start + 500
-    peaks.push(Peak::new(chr, start, end, "peak_" + i.to_string()))
-    i = i + 1
-  }
-
-  peaks
-}
-
-///|
-pub fn cs_create_example_txdb() -> TxDb {
-  let genes : Array[Gene] = [
-    Gene::new("TP53", "chr1", 10000, 25000, Strand::Plus),
-    Gene::new("BRCA1", "chr1", 50000, 70000, Strand::Minus),
-    Gene::new("BRCA2", "chr2", 30000, 55000, Strand::Plus),
-    Gene::new("ATM", "chr2", 80000, 100000, Strand::Minus),
-    Gene::new("CDK4", "chr3", 20000, 35000, Strand::Plus),
-    Gene::new("MYC", "chr3", 60000, 85000, Strand::Minus),
-    Gene::new("EGFR", "chr4", 15000, 40000, Strand::Plus),
-    Gene::new("GAPDH", "chr4", 90000, 110000, Strand::Minus),
+///| Sample ChIP-seq peaks for testing and demonstration. The peaks are
+///| laid out so that, when annotated against `chipseeker_sample_genes()`
+///| with the default promoter window (3000), they exercise every feature
+///| type except 5'UTR (which is only reachable with a smaller window
+///| because the 5'UTR sits inside the default promoter window).
+pub fn chipseeker_sample_peaks() -> Array[Peak] {
+  [
+    // chr1, GeneA (+ strand, TSS=10000, gene_end=25000)
+    Peak::new(chr="chr1", start=7900, end=8100, summit=8000), // Promoter (dist=-2000)
+    Peak::new(chr="chr1", start=11900, end=12100, summit=12000), // Promoter (dist=+2000)
+    Peak::new(chr="chr1", start=13900, end=14100, summit=14000), // Intron (dist=+4000)
+    Peak::new(chr="chr1", start=23900, end=24100, summit=24000), // Exon (dist=+14000)
+    Peak::new(chr="chr1", start=24600, end=24800, summit=24700), // 3'UTR (dist=+14700)
+    Peak::new(chr="chr1", start=25900, end=26100, summit=26000), // Downstream (dist=+16000)
+    Peak::new(chr="chr1", start=38900, end=39100, summit=39000), // Distal Intergenic
+    // chr1, GeneB (- strand, TSS=70000, gene_start=50000)
+    Peak::new(chr="chr1", start=50900, end=51100, summit=51000), // Exon (dist=+19000)
+    Peak::new(chr="chr1", start=59900, end=60100, summit=60000), // Intron (dist=+10000)
+    Peak::new(chr="chr1", start=68900, end=69100, summit=69000), // Promoter (dist=+1000)
+    Peak::new(chr="chr1", start=48900, end=49100, summit=49000), // Downstream (dist=+21000)
+    // chr2, GeneC (+ strand, TSS=20000, gene_end=40000)
+    Peak::new(chr="chr2", start=19900, end=20100, summit=20000), // Promoter (dist=0, at TSS)
+    Peak::new(chr="chr2", start=29900, end=30100, summit=30000), // Intron (dist=+10000)
+    // chr3, no gene -> Distal Intergenic with empty gene_id
+    Peak::new(chr="chr3", start=10000, end=10200, summit=10100),
   ]
+}
 
-  let transcripts : Array[Transcript] = [
-    Transcript::new("TP53-001", "TP53", "chr1", 10000, 25000, Strand::Plus),
-    Transcript::new("BRCA1-001", "BRCA1", "chr1", 50000, 70000, Strand::Minus),
-    Transcript::new("BRCA2-001", "BRCA2", "chr2", 30000, 55000, Strand::Plus),
-    Transcript::new("ATM-001", "ATM", "chr2", 80000, 100000, Strand::Minus),
-    Transcript::new("CDK4-001", "CDK4", "chr3", 20000, 35000, Strand::Plus),
-    Transcript::new("MYC-001", "MYC", "chr3", 60000, 85000, Strand::Minus),
-    Transcript::new("EGFR-001", "EGFR", "chr4", 15000, 40000, Strand::Plus),
-    Transcript::new("GAPDH-001", "GAPDH", "chr4", 90000, 110000, Strand::Minus),
+///| Sample gene annotations for testing and demonstration.
+pub fn chipseeker_sample_genes() -> Array[GeneAnnotation] {
+  [
+    GeneAnnotation::new(
+      gene_id="GENE1",
+      gene_name="GeneA",
+      chr="chr1",
+      gene_start=10000,
+      gene_end=25000,
+      strand="+",
+    ),
+    GeneAnnotation::new(
+      gene_id="GENE2",
+      gene_name="GeneB",
+      chr="chr1",
+      gene_start=50000,
+      gene_end=70000,
+      strand="-",
+    ),
+    GeneAnnotation::new(
+      gene_id="GENE3",
+      gene_name="GeneC",
+      chr="chr2",
+      gene_start=20000,
+      gene_end=40000,
+      strand="+",
+    ),
   ]
-
-  let exons : Array[Exon] = [
-    Exon::new("TP53-exon1", "TP53-001", "TP53", "chr1", 10000, 11000, Strand::Plus, 1),
-    Exon::new("TP53-exon2", "TP53-001", "TP53", "chr1", 13000, 14000, Strand::Plus, 2),
-    Exon::new("TP53-exon3", "TP53-001", "TP53", "chr1", 16000, 17000, Strand::Plus, 3),
-    Exon::new("TP53-exon4", "TP53-001", "TP53", "chr1", 20000, 25000, Strand::Plus, 4),
-    Exon::new("BRCA1-exon1", "BRCA1-001", "BRCA1", "chr1", 50000, 51000, Strand::Minus, 1),
-    Exon::new("BRCA1-exon2", "BRCA1-001", "BRCA1", "chr1", 53000, 54000, Strand::Minus, 2),
-    Exon::new("BRCA1-exon3", "BRCA1-001", "BRCA1", "chr1", 65000, 70000, Strand::Minus, 3),
-    Exon::new("BRCA2-exon1", "BRCA2-001", "BRCA2", "chr2", 30000, 31000, Strand::Plus, 1),
-    Exon::new("BRCA2-exon2", "BRCA2-001", "BRCA2", "chr2", 35000, 36000, Strand::Plus, 2),
-    Exon::new("BRCA2-exon3", "BRCA2-001", "BRCA2", "chr2", 50000, 55000, Strand::Plus, 3),
-    Exon::new("ATM-exon1", "ATM-001", "ATM", "chr2", 80000, 81000, Strand::Minus, 1),
-    Exon::new("ATM-exon2", "ATM-001", "ATM", "chr2", 85000, 86000, Strand::Minus, 2),
-    Exon::new("ATM-exon3", "ATM-001", "ATM", "chr2", 95000, 100000, Strand::Minus, 3),
-    Exon::new("CDK4-exon1", "CDK4-001", "CDK4", "chr3", 20000, 21000, Strand::Plus, 1),
-    Exon::new("CDK4-exon2", "CDK4-001", "CDK4", "chr3", 25000, 26000, Strand::Plus, 2),
-    Exon::new("CDK4-exon3", "CDK4-001", "CDK4", "chr3", 30000, 35000, Strand::Plus, 3),
-    Exon::new("MYC-exon1", "MYC-001", "MYC", "chr3", 60000, 61000, Strand::Minus, 1),
-    Exon::new("MYC-exon2", "MYC-001", "MYC", "chr3", 70000, 71000, Strand::Minus, 2),
-    Exon::new("MYC-exon3", "MYC-001", "MYC", "chr3", 80000, 85000, Strand::Minus, 3),
-    Exon::new("EGFR-exon1", "EGFR-001", "EGFR", "chr4", 15000, 16000, Strand::Plus, 1),
-    Exon::new("EGFR-exon2", "EGFR-001", "EGFR", "chr4", 20000, 21000, Strand::Plus, 2),
-    Exon::new("EGFR-exon3", "EGFR-001", "EGFR", "chr4", 35000, 40000, Strand::Plus, 3),
-    Exon::new("GAPDH-exon1", "GAPDH-001", "GAPDH", "chr4", 90000, 91000, Strand::Minus, 1),
-    Exon::new("GAPDH-exon2", "GAPDH-001", "GAPDH", "chr4", 95000, 96000, Strand::Minus, 2),
-    Exon::new("GAPDH-exon3", "GAPDH-001", "GAPDH", "chr4", 105000, 110000, Strand::Minus, 3),
-  ]
-
-  let cds : Array[CDS] = [
-    CDS::new("TP53-cds1", "TP53-001", "TP53", "chr1", 10200, 11000, Strand::Plus, 1),
-    CDS::new("TP53-cds2", "TP53-001", "TP53", "chr1", 13000, 14000, Strand::Plus, 2),
-    CDS::new("TP53-cds3", "TP53-001", "TP53", "chr1", 16000, 17000, Strand::Plus, 3),
-    CDS::new("TP53-cds4", "TP53-001", "TP53", "chr1", 20000, 24800, Strand::Plus, 4),
-  ]
-
-  TxDb::new(genes, transcripts, exons, cds, "hg38", "Homo sapiens")
 }

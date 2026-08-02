@@ -140,6 +140,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.SearchIO.InterproscanIO | InterProScan输出解析: TSV 14列格式解析(蛋白质ID/分析数据库/签名/位置/分数/IPR/GO)、按数据库/蛋白质过滤、GO条目提取、按蛋白质分组 |
 | ✅ | Bio.PDB.SASA | 溶剂可及表面积计算: Shrake-Rupley滚动球算法(Fibonacci球面采样)、范德华半径查表、逐原子/残基/链SASA、骨架/侧链拆分 |
 | ✅ | Bio.SeqIO.NibIO | nib 2-bit二进制序列格式: DNA 2-bit编码(T=0/C=1/A=2/G=3)、4碱基/字节打包、hex I/O、子序列提取、反向互补、GC含量、压缩比 |
+| ✅ | ChIPseeker | ChIP-seq峰注释: 峰-TSS距离计算、基因组特征分配(Promoter/5'UTR/3'UTR/Exon/Intron/Downstream/Distal Intergenic)、最近基因查找、注释摘要 |
+| ✅ | MACS2 | ChIP-seq峰调用: 滑动窗口扫描、局部lambda背景估计、Poisson显著性检验(不完全Gamma函数)、峰合并、BH-FDR校正、fold enrichment |
+| ✅ | methylSeekR | 甲基化区域识别: 基因组分tile计算甲基化水平、UMR/LMR/PMD/FMR分类、滑窗PMD检测、相邻区域合并、大小过滤 |
 
 ### 序列组装算法
 
@@ -651,6 +654,9 @@ IvanAXu/BioSeqs/
 │   ├── interproscan.mbt        # Bio.SearchIO.InterproscanIO InterProScan输出解析 (TSV 14列、数据库/蛋白质过滤、GO提取、分组)
 │   ├── sasa.mbt                # Bio.PDB.SASA 溶剂可及表面积 (Shrake-Rupley滚动球、Fibonacci球面采样、VDW半径、骨架/侧链拆分)
 │   ├── nib_io.mbt              # Bio.SeqIO.NibIO nib 2-bit二进制序列 (2-bit编码T/C/A/G、4碱基/字节、hex I/O、反向互补、GC含量)
+│   ├── chipseeker.mbt          # ChIPseeker ChIP-seq峰注释 (TSS距离、特征分配Promoter/UTR/Exon/Intron、最近基因、摘要)
+│   ├── peak_calling.mbt        # MACS2峰调用 (滑动窗口、局部lambda、Poisson检验、峰合并、BH-FDR、fold enrichment)
+│   ├── methyl_seekr.mbt        # methylSeekR甲基化区域识别 (tile甲基化计算、UMR/LMR/PMD/FMR分类、滑窗PMD检测、区域合并)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -941,6 +947,9 @@ IvanAXu/BioSeqs/
 │   ├── interproscan_demo/        # Bio.SearchIO.InterproscanIO InterProScan解析示例 (TSV解析、数据库过滤、GO条目、分组)
 │   ├── sasa_demo/                # Bio.PDB.SASA 溶剂可及表面积示例 (Shrake-Rupley算法、逐原子/残基SASA、骨架/侧链拆分)
 │   ├── nib_io_demo/              # Bio.SeqIO.NibIO nib 2-bit格式示例 (2-bit编码、hex I/O、子序列、反向互补、GC含量)
+│   ├── chipseeker_demo/          # ChIPseeker ChIP-seq峰注释示例 (峰-TSS距离、特征分配、最近基因、注释摘要)
+│   ├── peak_calling_demo/        # MACS2峰调用示例 (滑动窗口扫描、Poisson检验、峰合并、FDR校正)
+│   ├── methyl_seekr_demo/        # methylSeekR甲基化区域识别示例 (tile甲基化、UMR/LMR/PMD分类、区域合并)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1234,7 +1243,10 @@ IvanAXu/BioSeqs/
 │   │   ├── mmcifio_test.mbt
 │   │   ├── interproscan_test.mbt
 │   │   ├── sasa_test.mbt
-│   │   └── nib_io_test.mbt
+│   │   ├── nib_io_test.mbt
+│   │   ├── chipseeker_test.mbt
+│   │   ├── peak_calling_test.mbt
+│   │   └── methyl_seekr_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1260,7 +1272,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6824 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6944 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1556,6 +1568,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6824 个测试全�
 | `interproscan.mbt` | `Bio.SearchIO.InterproscanIO` | InterProScan输出解析（TSV 14列格式解析蛋白质ID/MD5/长度/分析数据库/签名/位置/分数/IPR/GO、按数据库/蛋白质过滤、GO条目提取、按蛋白质分组、摘要） |
 | `sasa.mbt` | `Bio.PDB.SASA` | 溶剂可及表面积计算（Shrake-Rupley滚动球算法、Fibonacci球面采样、范德华半径查表H/C/N/O/S/P、逐原子/残基SASA、骨架/侧链拆分、总量统计） |
 | `nib_io.mbt` | `Bio.SeqIO.NibIO` | nib 2-bit二进制序列格式（DNA 2-bit编码T=0/C=1/A=2/G=3、4碱基/字节MSB打包、hex I/O、子序列提取、反向互补、GC含量、压缩比） |
+| `chipseeker.mbt` | `ChIPseeker` | ChIP-seq峰注释（峰-TSS有符号距离计算、基因组特征分配Promoter/5'UTR/3'UTR/Exon/Intron/Downstream/Distal Intergenic优先级、最近基因查找、注释摘要统计） |
+| `peak_calling.mbt` | `MACS2` | ChIP-seq峰调用（滑动窗口扫描treatment/control、局部lambda背景估计、Poisson显著性检验不完全Gamma函数、峰合并取并集、BH-FDR校正、fold enrichment） |
+| `methyl_seekr.mbt` | `methylSeekR` | 甲基化区域识别（基因组分tile计算甲基化水平methylated/(methylated+unmethylated)、UMR/LMR/PMD/FMR分类阈值alpha/beta/gamma、滑窗PMD检测、相邻同类区域合并、最小区域大小过滤） |
 
 ## 核心功能实现
 
@@ -2385,6 +2400,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6824 个测试全�
 
 实现 UCSC Genome Browser nib 格式的 2-bit DNA 序列编码，参考 Biopython `Bio.SeqIO.NibIO` 及 UCSC Genome Browser 文档。2-bit 编码方案：T=0(00)、C=1(01)、A=2(10)、G=3(11)，每字节打包 4 个碱基（MSB 优先：第一碱基在 bits 7-6，第二在 5-4，第三在 3-2，第四在 1-0）。核心数据结构：NibSequence（seq_id 序列ID、length 碱基数、packed_data 打包字节数组、is_uppercase 大小写标志）。编码 nib_encode(sequence)：逐碱基查表转换为 2-bit 码，每 4 个碱基打包为 1 字节，不足 4 的末尾补零。解码 nib_decode(packed, length)：逐字节解包 4 个碱基，按实际长度截断。创建 NibSequence::new(seq_id, sequence)：编码 DNA 字符串并存储。转换函数：nib_to_string(nib) 解码为 DNA 字符串（根据 is_uppercase 决定大小写）、nib_to_hex(nib) 转为 hex 字符串显示、nib_from_hex(seq_id, hex, length) 从 hex 字符串创建。操作函数：nib_get_base(nib, index) 获取单碱基、nib_subsequence(nib, start, length) 提取子序列、nib_reverse_complement(nib) 反向互补（解码→反转→互补→重编码）。统计函数：nib_size(nib) 碱基数、nib_compressed_size(nib) 打包字节数、nib_compression_ratio(nib) 压缩比（原长度/打包长度）、nib_gc_content(nib) GC含量（0.0-1.0）。辅助函数：nib_sample_data() 创建 12 碱基 ATGCATGCATGC 样本。所有公共标识符以 nib_ 前缀命名。适用于基因组序列紧凑存储、UCSC Genome Browser 数据交互、大规模序列压缩。
 
+### 206. ChIP-seq 峰注释 (ChIPseeker)
+
+实现 ChIP-seq 峰注释，参考 Bioconductor `ChIPseeker` 包及 Yu G et al. (2015) Bioinformatics 31:2382。核心数据结构：Peak（chr、start、mut end、summit、fold_enrichment、p_value ChIP-seq峰）、GeneAnnotation（gene_id、gene_name、chr、gene_start、gene_end、strand、tss 转录起始位点，TSS 由链方向自动计算：+链=gene_start，-链=gene_end）、PeakAnnotation（peak、gene_id、gene_name、chr、tss、distance_to_tss、feature、annotation 注释详情）、AnnotationSummary（total_peaks、promoter、utr5、utr3、exon、intron、downstream、distal_intergenic 各类特征计数）。TSS 距离计算 compute_tss_distance(peak, gene)：有符号距离，TSS 下游为正、上游为负。特征分配 assign_feature(peak, gene, promoter_window)：按优先级分配——1) Promoter：峰在 TSS ±promoter_window 内；2) 5'UTR：峰在 5'UTR 区域（简化为 TSS 到基因体）；3) 3'UTR：峰在 3'UTR 区域（简化为基因末端附近）；4) Exon：峰在基因体内；5) Intron：峰在基因体内但非外显子；6) Downstream：峰在基因末端下游 promoter_window 内；7) Distal Intergenic：其他。最近基因查找 find_nearest_gene(peak, genes)：按 TSS 距离绝对值排序找最近基因。批量注释 annotate_peaks(peaks, genes, promoter_window)：逐峰注释。摘要 annotation_summary(annotations)：统计各类特征峰数。过滤函数：filter_by_feature(annotations, feature) 按特征类型过滤、filter_by_distance(annotations, max_distance) 按TSS距离过滤。辅助函数：chipseeker_sample_peaks() 生成 14 峰样本、chipseeker_sample_genes() 生成 5 基因注释、chipseeker_summary_string(summary) 格式化摘要。所有公共标识符以 chipseeker_/cs_ 前缀命名。适用于 ChIP-seq 功能注释、启动子分析、增强子-基因关联。
+
+### 207. ChIP-seq 峰调用 (MACS2)
+
+实现 MACS2 风格的 ChIP-seq 峰调用，参考 Bioconductor MACS2 算法及 Zhang Y et al. (2008) Genome Biol 9:R137。核心数据结构：ChipSeqRead（chr、position 基因组位置、strand 链方向）、CandidatePeak（chr、start、end、summit 峰顶位置、read_count 处理组读数、control_count 对照组读数、fold_enrichment 倍数变化、p_value、mut fdr、mut significant）、PeakCallingParams（window_size 滑动窗口默认500、step_size 步长默认100、local_lambda_size 局部背景窗口默认10000、pvalue_threshold 显著性阈值默认1e-5、fdr_threshold FDR阈值默认0.05、min_fold_enrichment 最小倍数变化默认2.0）。峰调用 call_peaks(treatment, control, params)：1) 枚举染色体；2) 计算缩放因子（treatment/control 总读数比）；3) 滑动窗口扫描：每窗口统计 treatment 和 control 读数；4) 局部 lambda 估计：从 control 在局部窗口内的读数密度估计期望背景；5) Poisson 显著性检验：poisson_pvalue(observed, expected) 利用正则化不完全 Gamma 函数计算 P(X≥k|λ)；6) 倍数变化计算 fold_enrichment = observed/expected；7) 候选峰过滤（p值、fold enrichment）；8) 峰合并 merge_peaks：按 (chr, start) 排序，合并重叠/相邻峰取并集跨度、高读数峰顶、累加读数、取最小p值和最大fold；9) BH-FDR 校正 apply_fdr；10) 最终过滤。Poisson 生存函数 pc_poisson_sf(k, lambda)：P(X≥k) = 1 - P(X<k) = Q(k, lambda)，利用 Lanczos 对数 Gamma 和级数/连分数展开计算正则化不完全 Gamma 函数。辅助函数：count_reads_in_window(reads, chr, start, end)、estimate_local_lambda(control, chr, center, window_size)、compute_fold_enrichment(observed, expected)、filter_peaks(peaks, params)、peak_calling_sample_data() 生成含 3 富集区域的样本、peak_calling_summary(peaks) 摘要。所有公共标识符以 peak_calling_/pc_ 前缀命名。适用于 ChIP-seq/ATAC-seq 峰调用、表观基因组富集分析。
+
+### 208. 甲基化区域识别 (methylSeekR)
+
+实现全基因组亚硫酸氢测序（WGBS）甲基化区域识别，参考 Bioconductor `methylSeekR` 包及 Burger L et al. (2013) PLoS Genet 9:e1003461。核心数据结构：CytosineSite（chr、position、methylated 甲基化读数、unmethylated 未甲基化读数）、MethylTile（chr、start、end、methylation_level 甲基化水平0.0-1.0、coverage 总读数、mut region_type 区域类型）、MethylRegion（chr、start、end、region_type、n_tiles、mean_methylation、min_methylation、max_methylation）、MethylSeekRParams（tile_size 分tile大小默认1000、min_coverage 最小覆盖默认5、alpha UMR阈值默认0.1、beta LMR阈值默认0.5、gamma PMD阈值默认0.7、min_region_size 最小区域大小默认500、pmd_window PMD检测窗口默认10000）。分tile tile_methylation(sites, params)：1) 按 tile_size 将基因组分tile；2) 每 tile 内累加 methylated 和 unmethylated 读数；3) 计算甲基化水平 = methylated/(methylated+unmethylated)；4) 覆盖不足的 tile 标记为低覆盖。分类 classify_tiles(tiles, params)：1) 覆盖 < min_coverage → FMR；2) 水平 < alpha → UMR；3) 水平 < beta → LMR；4) 其余 → FMR。PMD检测 detect_pmds(tiles, params)：滑动窗口扫描连续 FMR tile，若窗口内平均甲基化 < gamma 且连续 tile 数 ≥ pmd_window/tile_size，则标记为 PMD（不覆盖已有 UMR/LMR）。区域合并 merge_regions(tiles, params)：1) 按 (chr, start) 排序；2) 合并相邻同类 tile 为区域；3) 计算每区域的均值/最小/最大甲基化；4) 过滤小于 min_region_size 的区域。完整流水线 call_methylation_regimes(sites, params)：tile→分类→PMD检测→合并。过滤与摘要：filter_regions(regions, region_type) 按类型过滤、region_summary(regions) 生成各类型计数和覆盖摘要。辅助函数：methylation_level(site) 单点甲基化水平、methyl_seekr_sample_data() 生成含 UMR(5%)/LMR(30%)/PMD(60%)/FMR(90%) 四种模式的样本。所有公共标识符以 methyl_seekr_/msr_ 前缀命名。适用于 DNA甲基化分析、表观基因组分区、启动子甲基化研究。
+
 
 ## 性能优化
 
@@ -2487,8 +2514,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 6824 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 6824 |
-| 通过数 | 6824 |
+| 总测试数 | 6944 |
+| 通过数 | 6944 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2750,6 +2777,9 @@ moon test --update
 | Bio.SearchIO.InterproscanIO | `interproscan_test.mbt` | 44 |
 | Bio.PDB.SASA | `sasa_test.mbt` | 31 |
 | Bio.SeqIO.NibIO | `nib_io_test.mbt` | 77 |
+| ChIPseeker | `chipseeker_test.mbt` | 27 |
+| MACS2 | `peak_calling_test.mbt` | 48 |
+| methylSeekR | `methyl_seekr_test.mbt` | 45 |
 
 ### Python 对比测试
 
@@ -2836,7 +2866,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 274 个示例程序，展示各模块的典型用法：
+项目提供 277 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -2982,6 +3012,9 @@ moon run cmd/bench/main.mbt
 | interproscan_demo | Bio.SearchIO.InterproscanIO InterProScan输出解析（TSV 14列解析、数据库/蛋白质过滤、GO条目提取、按蛋白质分组） | `moon run examples/interproscan_demo/main.mbt` |
 | sasa_demo | Bio.PDB.SASA 溶剂可及表面积（Shrake-Rupley滚动球算法、逐原子/残基SASA、骨架/侧链拆分、总量统计） | `moon run examples/sasa_demo/main.mbt` |
 | nib_io_demo | Bio.SeqIO.NibIO nib 2-bit二进制序列（2-bit编码T/C/A/G、4碱基/字节打包、hex I/O、子序列、反向互补、GC含量） | `moon run examples/nib_io_demo/main.mbt` |
+| chipseeker_demo | ChIPseeker ChIP-seq峰注释（峰-TSS距离、特征分配Promoter/UTR/Exon/Intron/Downstream、最近基因、注释摘要） | `moon run examples/chipseeker_demo/main.mbt` |
+| peak_calling_demo | MACS2峰调用（滑动窗口扫描、局部lambda背景估计、Poisson显著性检验、峰合并、BH-FDR校正） | `moon run examples/peak_calling_demo/main.mbt` |
+| methyl_seekr_demo | methylSeekR甲基化区域识别（tile甲基化计算、UMR/LMR/PMD/FMR分类、滑窗PMD检测、区域合并） | `moon run examples/methyl_seekr_demo/main.mbt` |
 
 ## 技术栈
 
