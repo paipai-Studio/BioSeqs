@@ -342,6 +342,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **LogisticRegression 逻辑回归** | Biopython `Bio.LogisticRegression` | 二分类逻辑回归、Newton-Raphson优化、步长减半防发散、高斯消元解Hessian方程、sigmoid概率、对数似然收敛判定、操纵子预测示例 | ✅ |
 | **MaxEntropy 最大熵分类器** | Biopython `Bio.MaxEntropy` | 最大熵分类、改进迭代尺度IIS训练、指示特征函数、softmax归一化、经验期望/模型期望、Newton法求解delta、汽车偏好分类示例 | ✅ |
 | **NeuralNetwork 神经网络** | Biopython `Bio.NeuralNetwork` | 前馈神经网络、反向传播训练、sigmoid激活、学习率/动量参数、权重矩阵/偏置、XOR问题/iris分类示例、权重随机初始化 | ✅ |
+| **MMTF 大分子结构格式** | Biopython `Bio.PDB.mmtf` | MMTF二进制格式解析与序列化、Structure/Model/Chain/Group/Atom层级结构、IEEE 754浮点编码、MessagePack风格整数编码、Run-length/Delta/Recursive递归编码、键信息、实体、晶体学信息 | ✅ |
+| **NACCESS 溶剂可及表面积** | Biopython `Bio.PDB.NACCESS` | NACCESS .rsa/.asa输出解析、残基/原子级ASA、绝对/相对/侧链/主链面积、链总和、Bio.PDB Structure互转 | ✅ |
+| **Wise2 DNA-蛋白比对** | Biopython `Bio.Wise` | GeneWise输出解析、外显子/内含子/比对列、剪接位点相位、比特分数、参数提取、蛋白质/DNA序列、基因预测结果 | ✅ |
 
 项目致力于打造一个完整、高效的生物信息学工具库，覆盖从基础序列处理到高级序列组装的全流程。
 
@@ -675,6 +678,9 @@ IvanAXu/BioSeqs/
 │   ├── snapgene_io.mbt         # Bio.SeqIO.SnapGeneIO SnapGene .dna二进制格式 (数据包结构、JSON/XML解析、hex I/O、大端序序列化)
 │   ├── gck_io.mbt              # Bio.SeqIO.GckIO Gene Construction Kit二进制格式 (GCK_FILE魔数、大端序u16/u32、特征/序列解析)
 │   ├── alignace.mbt            # Bio.Motifs.AlignAce AlignACE模体发现输出 (PFM矩阵解析、PWM转换、信息含量IC、一致性序列)
+│   ├── mmtf.mbt                # Bio.PDB.mmtf MMTF二进制大分子结构格式 (层级结构、IEEE 754浮点、MsgPack整数、RLE/Delta/Recursive编码、键/实体/晶体学信息)
+│   ├── naccess.mbt             # Bio.PDB.NACCESS NACCESS溶剂可及表面积解析 (残基/原子级ASA、绝对/相对/侧链/主链面积、链总和)
+│   ├── wise.mbt                # Bio.Wise Wise2 DNA-蛋白比对输出解析 (外显子/内含子/比对列、剪接位点相位、比特分数、参数提取)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -977,6 +983,9 @@ IvanAXu/BioSeqs/
 │   ├── snapgene_demo/            # SnapGeneIO SnapGene .dna格式示例 (数据包解析、特征/引物、hex I/O、SeqRecord转换)
 │   ├── gck_demo/                 # GckIO Gene Construction Kit格式示例 (GCK_FILE魔数、大端序序列化、特征解析、拓扑结构)
 │   ├── alignace_demo/            # AlignACE模体发现示例 (PFM矩阵、PWM转换、信息含量IC、一致性序列、序列化往返)
+│   ├── mmtf_demo/               # MMTF大分子结构格式示例 (层级结构、键信息、实体、晶体学信息、序列化往返)
+│   ├── naccess_demo/            # NACCESS溶剂可及表面积示例 (残基/原子级ASA、链总和、相对面积)
+│   ├── wise_demo/               # Wise2 DNA-蛋白比对示例 (外显子/内含子、剪接位点、比特分数、参数提取)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1282,7 +1291,10 @@ IvanAXu/BioSeqs/
 │   │   ├── ms_core_utils_test.mbt
 │   │   ├── snapgene_io_test.mbt
 │   │   ├── gck_io_test.mbt
-│   │   └── alignace_test.mbt
+│   │   ├── alignace_test.mbt
+│   │   ├── mmtf_test.mbt
+│   │   ├── naccess_test.mbt
+│   │   └── wise_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1468,6 +1480,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7366 个测试全�
 | `snapgene_io.mbt` | BioPython `Bio.SeqIO.SnapGeneIO` | SnapGene .dna二进制格式（数据包结构Comments/Features/Sequence/Primers/Notes、JSON/XML解析、hex字符串I/O、大端序序列化、SeqRecord双向转换） |
 | `gck_io.mbt` | BioPython `Bio.SeqIO.GckIO` | Gene Construction Kit二进制格式（GCK_FILE魔数、大端序u16/u32读写、特征/序列解析、拓扑结构、SeqRecord双向转换） |
 | `alignace.mbt` | BioPython `Bio.Motifs.AlignAce` | AlignACE模体发现输出格式（位置频率矩阵PFM解析、参数提取、位点信息、PWM转换、信息含量IC计算、一致性序列、序列化往返） |
+| `mmtf.mbt` | BioPython `Bio.PDB.mmtf` | MMTF二进制大分子结构格式（Structure/Model/Chain/Group/Atom层级结构、IEEE 754浮点编码、MessagePack风格整数编码、Run-length/Delta/Recursive递归编码、键/实体/晶体学信息、序列化往返） |
+| `naccess.mbt` | BioPython `Bio.PDB.NACCESS` | NACCESS溶剂可及表面积输出解析（残基级 .rsa、原子级 .asa、绝对/相对/侧链/主链面积、链总和、Bio.PDB Structure互转） |
+| `wise.mbt` | BioPython `Bio.Wise` | Wise2 DNA-蛋白比对输出解析（GeneWise 外显子/内含子/比对列、剪接位点相位、比特分数、参数提取、蛋白质/DNA序列、序列化） |
 
 #### 扩展功能模块
 
@@ -2498,6 +2513,19 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7366 个测试全�
 实现 AlignACE 模体发现输出格式解析与分析，参考 Biopython `Bio.Motifs.AlignAce`。AlignACE（Align Nucleic Acid Conserved Elements）是基于 Gibbs 采样器的模体发现工具。输出格式包含：头部（# AlignACE version、# Command）、参数（# Parameters used:、key=value）、模体矩阵（"i" 开头的一致性行、列索引行、4 行 A/C/G/T 计数）、位点信息（# Sites: 后跟 seq_id/position/strand/sequence）。数据结构 AlignAceMotif 包含 count_matrix(4×width 矩阵)、width、num_sites、consensus、sites。AlignAceSite 包含 sequence_id、position、strand、sequence。AlignAceRecord 包含 version、command、parameters(Map)、motifs 数组。alignace_parse(text) 解析输出文本，提取版本、命令、参数和模体矩阵（跳过头部行、识别 "i" 行开始矩阵、解析 4 行 A/C/G/T 计数、解析位点信息）。alignace_consensus(count_matrix) 从计数矩阵计算一致性序列（每列取最高计数碱基）。alignace_to_pwm(motif) 将计数矩阵转换为位置权重矩阵（频率归一化，全零列默认 0.25）。alignace_information_content(motif) 计算每位置信息含量 IC(i) = 2 + Σ_b f(b,i)×log2(f(b,i))（纯模体 IC=2 bits，均匀分布 IC=0）。alignace_total_ic(motif) 计算总信息含量。alignace_write(record) 序列化为 AlignACE 格式文本。alignace_num_motifs/alignace_get_motif/alignace_summary 提供查询与摘要功能。适用于 AlignACE 模体发现工具的输出分析与模体可视化。
 
 
+### 218. MMTF 大分子结构格式 (Bio.PDB.mmtf)
+
+实现 MMTF（Macromolecular Transmission Format）二进制格式解析与序列化，参考 Biopython `Bio.PDB.mmtf`。MMTF 是 RCSB PDB 使用的高效二进制格式，采用 MessagePack 编码 + Run-length/Delta/Recursive 递归编码压缩大分子结构数据。层级结构：Structure → Models → Chains → Groups（残基）→ Atoms，与 mmCIF/PDB 文件一一对应。核心数据结构：MmtfStructure（structure_id、total_num_bonds/atoms/groups/chains/models、header、xtal_info、entities、bonds、models、group_list）；MmtfHeader（r_free/r_work/resolution/title/deposition_date/release_date/experimental_methods）；MmtfXtalInfo（space_group、unit_cell[a,b,c,α,β,γ]）；MmtfModel（model_id、chains）；MmtfChain（chain_id/asym、chain_name/auth、groups）；MmtfGroup（group_name、group_number、insertion_code、group_type、single_letter_code、sec_struct、sequence_index、atoms）；MmtfAtom（name、serial、alt_loc_id、x/y/z、occupancy、b_factor、element、charge）；MmtfBond（atom_index1、atom_index2、bond_order）；MmtfEntity（chain_indices、sequence、description、entity_type[polymer/non-polymer/water/branched]）；MmtfGroupType（group_name、chem_comp_type、atom_name_list、element_list、bond_atom_list、bond_order_list、formal_charge_list 共享组类型定义）；MmtfSecStruct 枚举（α/π/3-10 螺旋、扩展、β-桥、转角、弯曲、卷曲、未定义，含 from_int/to_string 转换）。底层编码：mmtf_write_str/write_i8/write_int32/write_float/write_int_array/write_float_array 实现 MsgPack 风格整数编码（单字节/双字节/四字节/五字节变长）、IEEE 754 浮点编码（符号位、8 位指数、23 位尾数）、字符串长度前缀编码；mmtf_encode_run_length 整数游程编码（值+计数交替）、mmtf_encode_delta 差分编码、mmtf_encode_recursive 递归分割（用于 3D 坐标 [x0,y0,z0,x1,y1,z1,...] → [x0,x1,...] → [Δx0,Δx1,...] 二级递归）。查询接口：get_models/get_chains/get_groups/get_atoms 跨层级遍历、count_atoms/count_groups/count_chains 统计、get_header/set_header、get_xtal_info/set_xtal_info。示例数据 mmtf_sample() 构建含 1 个模型、1 条链、2 个组（ALA/HOH）、3 个原子、1 个键的完整结构。mmtf_to_string(s) 序列化为十六进制字节串、mmtf_from_string(hex) 反序列化。适用于 PDB 大分子结构的二进制存储与网络传输、与 RCSB PDB 数据库对接。
+
+### 219. NACCESS 溶剂可及表面积解析 (Bio.PDB.NACCESS)
+
+实现 NACCESS 输出文件解析，参考 Biopython `Bio.PDB.NACCESS`。NACCESS（Nucleic Acid Accessible Surface Area）是 Hubbard & Thornton (1993) 编写的经典程序，基于 Lee-Richards 算法计算溶剂可及表面积（SASA），输出 .rsa（残基级）和 .asa（原子级）两个文件。残基级 .rsa 格式：每行 "RES <resname> <resnum> <chain> <abs_all> <rel_all> <abs_side_chain> <rel_side_chain> <abs_main_chain> <rel_main_chain> <abs_non_polar> <rel_non_polar> <abs_all_polar> <rel_all_polar>"，包含 8 类面积：绝对/相对×总/侧链/主链/非极性/极性。原子级 .asa 格式：每行 "<atom_serial> <atom_name> <res_name> <chain_id> <res_num> <ins_code> <abs_asa> <rel_asa>"，包含每个原子的绝对/相对 ASA。核心数据结构：NaccessResidue（res_name、res_num、chain_id、abs_all/rel_all、abs_side_chain/rel_side_chain、abs_main_chain/rel_main_chain、abs_non_polar/rel_non_polar、abs_all_polar/rel_all_polar）；NaccessAtom（serial、atom_name、res_name、chain_id、res_num、ins_code、abs_asa、rel_asa）；NaccessResult（structure_id、residues、atoms、total_abs_asa、total_rel_asa、chain_totals）。解析函数：naccess_parse_rsa(content) 解析 .rsa 文本（按 "RES " 前缀识别行、空白分词、跳过头部/不完整行）；naccess_parse_asa(content) 解析 .asa 文本（按列分词、跳过非数字开头的行）；naccess_parse(rsa, asa) 合并两者返回 NaccessResult，并计算 total_abs_asa（所有残基 abs_all 之和）、total_rel_asa（所有残基 rel_all 之和）、chain_totals（按 chain_id 累加 abs_all 的 Map）。NaccessResult 提供 get_num_residues/get_num_atoms/get_residues/get_atoms/get_chain_totals 查询。naccess_from_structure(structure) 从 Bio.PDB Structure 估算（用原子数 × 15 Å² 作为粗略面积），便于在没有 NACCESS 程序时测试流程。naccess_sample_rsa/naccess_sample_asa 提供示例输出文本（含 MET/ALA/GLY/HOH 残基）。适用于蛋白质表面性质分析、界面残基识别、突变效应预测、与 Bio.PDB 集成的结构-序列分析。
+
+### 220. Wise2 DNA-蛋白比对输出解析 (Bio.Wise)
+
+实现 Wise2 工具输出解析，参考 Biopython `Bio.Wise`。Wise2 是 Ewan Birney 开发的 DNA-蛋白质比较工具包，核心程序 GeneWise 将蛋白质序列与基因组 DNA 比对，预测基因结构（外显子/内含子/剪接位点），支持剪接位点相位（0/1/2，对应密码子位置）、移码、终止密码子检测；Genomewise 则用于组装多个 GeneWise 比对。输出格式包含：头部（Protein:、Gene: 行标识序列名）、Score 行（原始分数）、Bits 行（比特分数）、Probability 行、Exon 块（每个外显子 "Exon p: <start>-<end> (phase) score: <score>"，p: 蛋白坐标，phase: 0/1/2，score: 比对得分）、Intron 行（"Intron g: <start>-<end> phase: <phase>"，g: 基因组坐标）、Supporting 行、Alignment 块（蛋白-基因比对列，含 match/mismatch/indel/intron 标记）、Parameter 行（"Parameter <key> <value>"）。核心数据结构：WiseResult（protein_id、gene_id、score、bits_score、probability、protein_sequence、gene_sequence、exons、introns、alignment、parameters）；WiseExon（start/end 基因组坐标、phase、score、protein_start/protein_end 蛋白坐标）；WiseIntron（start/end 基因组坐标、phase）；WiseAlignmentColumn（protein_char、gene_char、column_type[MATCH/MISMATCH/INSERTION/DELETION/INTRON]）。解析函数 wise_parse(content) 逐行解析：识别 "Protein:"/"Gene:" 提取 ID、识别 "Score:"/"Bits:"/"Probability:" 提取分数、识别 "Exon p:" 解析外显子坐标+相位+分数、识别 "Intron g:" 解析内含子、识别 "Parameter" 提取参数到 Map、识别对齐块（蛋白行 "Protein " + 基因行 "Gene   "）构建比对列。wise_translate_gene(gene_seq, exons) 根据外显子拼接基因编码区并翻译为蛋白质（密码子表查表、相位偏移处理、终止密码子标记 '*'）。WiseResult 提供 get_exons/get_introns/get_alignment/get_num_exons/get_num_introns/get_parameters 查询。wise_sample_output() 提供含 3 个外显子、2 个内含子、4 个参数的示例输出。适用于基因预测、基因结构注释、蛋白质-基因组比对、可变剪接分析。
+
+
 ## 性能优化
 
 ### 优化策略
@@ -2599,8 +2627,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7366 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 7366 |
-| 通过数 | 7366 |
+| 总测试数 | 7563 |
+| 通过数 | 7563 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2874,6 +2902,9 @@ moon test --update
 | Bio.SeqIO.SnapGeneIO | `snapgene_io_test.mbt` | 31 |
 | Bio.SeqIO.GckIO | `gck_io_test.mbt` | 34 |
 | Bio.Motifs.AlignAce | `alignace_test.mbt` | 43 |
+| Bio.PDB.mmtf | `mmtf_test.mbt` | 74 |
+| Bio.PDB.NACCESS | `naccess_test.mbt` | 64 |
+| Bio.Wise | `wise_test.mbt` | 59 |
 
 ### Python 对比测试
 
@@ -2960,7 +2991,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 286 个示例程序，展示各模块的典型用法：
+项目提供 289 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3118,6 +3149,9 @@ moon run cmd/bench/main.mbt
 | snapgene_demo | SnapGeneIO SnapGene .dna二进制格式（数据包解析、特征/引物管理、hex I/O、SeqRecord转换、往返验证） | `moon run examples/snapgene_demo/main.mbt` |
 | gck_demo | GckIO Gene Construction Kit二进制格式（GCK_FILE魔数、大端序序列化、特征解析、拓扑结构、SeqRecord转换） | `moon run examples/gck_demo/main.mbt` |
 | alignace_demo | AlignACE模体发现输出（PFM矩阵解析、PWM转换、信息含量IC、一致性序列、位点信息、序列化往返） | `moon run examples/alignace_demo/main.mbt` |
+| mmtf_demo | MMTF大分子结构二进制格式（层级结构、键信息、实体、晶体学信息、序列化往返） | `moon run examples/mmtf_demo/main.mbt` |
+| naccess_demo | NACCESS溶剂可及表面积（残基/原子级ASA、链总和、相对面积） | `moon run examples/naccess_demo/main.mbt` |
+| wise_demo | Wise2 DNA-蛋白比对输出（外显子/内含子、剪接位点、比特分数、参数提取） | `moon run examples/wise_demo/main.mbt` |
 
 ## 技术栈
 
