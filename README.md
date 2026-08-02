@@ -146,6 +146,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | FIMO Motif Scanning | PSSM/PWM模体扫描: PWM→PSSM转换(log2似然比)、序列正向/反向互补扫描、动态规划p值计算(得分分布卷积)、匹配过滤与汇总 |
 | ✅ | Bio.NMR | NMR核磁共振数据分析: NOE距离约束解析(XPLOR/CNS表格)、二面角约束解析、化学位移表(BMRB-like)、NMRView .xpk峰列表解析、约束违反检测 |
 | ✅ | Bio.Crystal | 小分子晶体学CIF解析: 单胞参数/空间群、CIF数据块/loop解析、原子位点/化学键提取、分数坐标↔笛卡尔坐标变换、单胞体积/晶体密度计算 |
+| ✅ | clusterExperiment | 共识与序列聚类框架: clusterMany参数网格集成、makeConsensus共聚类矩阵+一致性聚类、makeDendrogram聚类树、mergeClusters显著性合并(Welch t-test+BH-FDR)、RSEC流水线 |
+| ✅ | openCyto | 自动化流式细胞术门控: 模板驱动门控流水线、mindensity(KDE峰谷检测)、tailgate/quantileGate阈值门、flowClust(t分布混合EM)、rangeGate(CDF导数)、拓扑排序、群体统计 |
+| ✅ | MsCoreUtils | 质谱信号处理基础: refineCentroids质心精化、localMaxima峰检测、joinPeaks m/z匹配(ppm/Da)、Savitzky-Golay平滑、SNIP基线估计、m/z校准、KNN/均值/中位数插补、medianPolish聚合 |
 
 ### 序列组装算法
 
@@ -663,6 +666,9 @@ IvanAXu/BioSeqs/
 │   ├── motif_scan.mbt          # FIMO Motif Scanning PSSM/PWM模体扫描 (PWM→PSSM log2似然比、正反向扫描、动态规划p值、匹配汇总)
 │   ├── nmr.mbt                 # Bio.NMR NMR核磁共振数据 (NOE距离约束、二面角约束、化学位移表、NMRView .xpk峰列表、约束违反检测)
 │   ├── crystal.mbt             # Bio.Crystal 小分子晶体学CIF解析 (单胞/空间群、CIF loop、原子位点/化学键、分数↔笛卡尔坐标、体积/密度)
+│   ├── cluster_experiment.mbt  # clusterExperiment 共识与序列聚类 (clusterMany集成、makeConsensus共聚类、makeDendrogram、mergeClusters显著性合并、RSEC流水线)
+│   ├── open_cyto.mbt           # openCyto 自动化流式细胞术门控 (mindensity KDD、tailgate、flowClust t混合EM、rangeGate、模板驱动门控流水线)
+│   ├── ms_core_utils.mbt       # MsCoreUtils 质谱信号处理 (refineCentroids质心精化、localMaxima峰检测、Savitzky-Golay平滑、SNIP基线、m/z校准、KNN插补)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -959,6 +965,9 @@ IvanAXu/BioSeqs/
 │   ├── motif_scan_demo/          # FIMO Motif Scanning 模体扫描示例 (PWM创建、PSSM构建、序列扫描、p值过滤、匹配汇总)
 │   ├── nmr_demo/                 # Bio.NMR NMR数据分析示例 (NOE约束违反分析、化学位移查询、峰列表解析)
 │   ├── crystal_demo/             # Bio.Crystal 晶体学CIF解析示例 (单胞体积、坐标变换、CIF解析、晶体密度)
+│   ├── cluster_experiment_demo/  # clusterExperiment 共识聚类示例 (clusterMany集成、共聚类矩阵、RSEC流水线、聚类树合并)
+│   ├── open_cyto_demo/           # openCyto 流式细胞术门控示例 (mindensity门控、flowClust聚类、模板驱动流水线、群体统计)
+│   ├── ms_core_utils_demo/       # MsCoreUtils 质谱信号处理示例 (峰检测、质心精化、平滑、基线估计、m/z校准、插补)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1258,7 +1267,10 @@ IvanAXu/BioSeqs/
 │   │   ├── methyl_seekr_test.mbt
 │   │   ├── motif_scan_test.mbt
 │   │   ├── nmr_test.mbt
-│   │   └── crystal_test.mbt
+│   │   ├── crystal_test.mbt
+│   │   ├── cluster_experiment_test.mbt
+│   │   ├── open_cyto_test.mbt
+│   │   └── ms_core_utils_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1284,7 +1296,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7067 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7258 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1586,6 +1598,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7067 个测试全�
 | `motif_scan.mbt` | FIMO (MEME Suite) | PSSM/PWM模体扫描（PWM→PSSM log2似然比转换、序列正向/反向互补扫描、动态规划p值计算得分分布卷积、p值阈值过滤、匹配汇总） |
 | `nmr.mbt` | Biopython `Bio.NMR` | NMR核磁共振数据分析（NOE距离约束XPLOR/CNS表格解析、二面角约束解析、化学位移表BMRB-like、NMRView .xpk峰列表解析、约束违反检测、摘要统计） |
 | `crystal.mbt` | Biopython `Bio.Crystal` | 小分子晶体学CIF解析（UnitCell/SpaceGroup/CrystalAtom数据结构、CIF数据块/loop解析、原子位点/化学键提取、分数坐标↔笛卡尔坐标变换、单胞体积/晶体密度计算） |
+| `cluster_experiment.mbt` | Bioconductor `clusterExperiment` | 共识与序列聚类（clusterMany参数网格集成、makeConsensus共聚类矩阵+平均链接一致性聚类、makeDendrogram聚类树构建、mergeClusters Welch t-test+BH-FDR显著性合并、sequential clustering迭代小簇分离、RSEC完整流水线） |
+| `open_cyto.mbt` | Bioconductor `openCyto` | 自动化流式细胞术门控（gatingTemplate模板驱动、mindensity KDE峰谷检测、tailgate/quantileGate阈值门、flowClust t分布混合EM聚类、rangeGate CDF导数边界、拓扑排序门控层级、群体统计提取） |
+| `ms_core_utils.mbt` | Bioconductor `MsCoreUtils` | 质谱信号处理基础（refineCentroids加权均值质心精化、localMaxima峰检测、joinPeaks ppm/Da容差匹配、Savitzky-Golay/移动平均平滑、SNIP基线估计、calibrant线性/偏移校准、KNN/均值/中位数/半最小值插补、medianPolish行列聚合、TIC归一化） |
 
 ## 核心功能实现
 
@@ -2440,6 +2455,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7067 个测试全�
 
 实现小分子晶体学 CIF (Crystallographic Information File) 解析与单位胞计算，参考 Biopython `Bio.Crystal` 及 IUCr CIF 标准。核心数据结构：UnitCell（a、b、c、α、β、γ 度）单位胞；SpaceGroup（number 国际表编号1-230、symbol Hermann-Mauguin 符号）；CrystalAtom（label、element、x、y、z、occupancy、is_fractional）原子位点；CrystalBond（atom1_label、atom2_label、distance、bond_order?）化学键；CifBlock（name data_ 块名、items Map[String->String] 单值项、loops Array[CifLoop] 循环表）；CifLoop（category 类别名、columns Array[String] 列名、rows Array[Array[String]] 数据行）；CrystalStructure（name、cell、space_group、atoms、bonds、z 每单位胞分子数）晶体结构。单位胞体积 unit_cell_volume(cell)：V = a·b·c·√(1-cos²α-cos²β-cos²γ+2cosα·cosβ·cosγ)，负值钳为0。坐标变换 fractional_to_cartesian(cell, xf, yf, zf) 分数→笛卡尔（正交化矩阵：a 沿 x、b 在 xy 平面、c 由 β/γ 角定）；cartesian_to_fractional(cell, x, y, z) 笛卡尔→分数（逆矩阵）。晶体密度 crystal_density(structure)：ρ = (Z·M)/(V·Nₐ)，M 分子量 g/mol、V 单位胞体积 ų、Nₐ 阿伏伽德罗数。CIF 解析 parse_cif(text)：1) 按 data_ 块分割；2) 解析单值项 key value；3) 解析 loop_ 表（列名行 + 数据行）；4) 返回 CifBlock 数组。从 CifBlock 提取：cif_get_unit_cell(block)、cif_get_space_group(block)、cif_get_atoms(block)（从 _atom_site_* 列）、cif_get_bonds(block)（从 _geom_bond_* 列）。完整解析 parse_crystal_structure(text, name, z) 一步到位。空间群查找 space_group_by_number(number) 内置 230 空间群表（P1/P21/P21c 等）。辅助函数：crystal_is_valid_bond(bond, min, max) 按距离判断有效键、crystal_summary(structure) 摘要。所有公共标识符以 crystal_/cif_/unit_cell_/fractional_/cartesian_ 前缀命名。适用于小分子晶体结构分析、CIF 文件解析、晶体几何计算。
 
+### 212. clusterExperiment 共识与序列聚类 (Bioconductor clusterExperiment)
+
+实现 clusterExperiment 共识与序列聚类框架，参考 Bioconductor `clusterExperiment`（Risso et al. 2018, Bioinformatics 34:1628）的 RSEC (Resampling-based Sequential Ensembling Clustering) 工作流。核心数据结构：CeClustering（labels 0-based聚类标签 -1未分配、k、reduced_dim PCA目标维度 0=不降维、subsample 子采样比例 1.0=全量）；CeDendroNode（left/right 子节点、height 高度、cluster_id 叶子簇id -1内部、members 子树簇id列表）聚类树节点；CeMergeInfo（node_id、left_cluster、right_cluster、proportion 显著特征比例、q_value Storey q值、merged 是否合并）合并诊断；ClusterExperiment（labels、cocluster n×n共聚类矩阵[0,1]、dendro 聚类树、n_clusters、merge_cutoff q阈值、merge_info）RSEC结果容器；CeRsecParams（ks候选k、reduced_dims候选PCA维度、subsamples候选子采样比例、consensus_proportion 共聚类阈值0.7、merge_cutoff q阈值0.05、sequential_alpha 0.05、sequential_beta 最小比例0.7、n_init k-means重启、max_iter 迭代次数）。数值辅助：ce_euclidean 欧氏距离、ce_mean/ce_variance/ce_sd/ce_median 统计量、ce_make_matrix 矩阵创建、ce_transpose 转置、ce_center_columns 列中心化。PCA 降维 ce_pca(data, n_components) 在样本协方差矩阵 (1/n)X^TX 上做 deflate power iteration 提取前 k 主成分。K-means ce_kmeans(data, k, n_init, max_iter) 使用 k-means++ 初始化的 Lloyd 算法，多次重启取最小 inertia。clusterMany ce_cluster_many(data, params) 在参数网格（k × reduced_dim × subsample）上集成聚类，每个组合运行 k-means 返回 CeClustering 数组。共聚类矩阵 ce_cocluster_matrix(clusterings) 统计 n×n 样本对在多次聚类中同簇的比例[0,1]。一致性聚类 ce_make_consensus(clusterings, proportion) 基于共聚类矩阵阈值构建 0/1 相似矩阵，再用层次聚类 ce_hclust_cut(dist, k)（平均链接）切分为 k 簇。聚类树 ce_make_dendrogram(labels, data) 计算簇间平均链接距离并自底向上构建 CeDendroNode 二叉树。显著性合并 ce_merge_clusters(data, labels, dendro, cutoff) 沿聚类树自底向上，对每对簇做 Welch t-test（每特征），用 ce_normal_cdf 计算p值、ce_bh_fdr 做 BH-FDR 校正，统计显著差异特征比例 < cutoff 则合并。序列聚类 ce_sequential_cluster(data, params) 迭代运行 RSEC 并用比例检验 ce_proportion_test 隔离小簇（≤β 比例则分离），直到剩余簇都显著。完整 RSEC ce_rsec(data, params) 串联 clusterMany → makeConsensus → makeDendrogram → mergeClusters → sequential。辅助：ce_count_clusters/ce_cluster_sizes/ce_summary。所有公共标识符以 ce_ 前缀命名。适用于单细胞 RNA-seq 共识聚类、参数稳健性评估、亚群发现。
+
+### 213. openCyto 自动化流式细胞术门控 (Bioconductor openCyto)
+
+实现 openCyto 自动化流式细胞术门控框架，参考 Bioconductor `openCyto`（Finak et al. 2014, BMC Bioinformatics 15:282）的模板驱动门控流水线。核心数据结构：OcGatingRule（parent 父群体名 "root"=全部、child 子群体名、method 方法名 mindensity/tailgate/quantileGate/flowClust/rangeGate、dims 通道名数组、args Map[String->Double] 方法参数）门控模板行；OcGate（dim1、dim2? None=1D门、min1/max1、min2/max2）矩形门；OcFlowSet（sample_names、channel_names、data [sample][event][channel]）流式样本集；OcGatingResult（population、sample、gate、parent_events、child_events、indices 每父事件成员标志）门控结果；OcPopStat（population、sample、count、parent_count、percent_parent、percent_total）群体统计。数值辅助：oc_mean/oc_sd/oc_median/oc_quantile/oc_ln。KDE oc_kde_evaluate(data, x, h) 高斯核密度估计 KDE(x)=(1/(n·h))·Σφ((x-xi)/h)；oc_kde_grid(data, n_points, h) 在 [min-pad, max+pad] 上网格求值；oc_bandwidth_silverman(data) Silverman 经验带宽 0.9·min(sd,IQR)·n^(-1/5)。mindensity oc_mindensity(values, dim, args) 在 KDE 上找两个最高峰，取峰间最深谷作为阈值，门为 [threshold, +∞)。tailgate oc_tailgate(values, dim, args) 取指定分位数（默认0.99）为阈值的偏态群体门。quantileGate oc_quantile_gate(values, dim, args) 取分位数（默认0.95）保留顶部 (1-q) 比例。rangeGate oc_range_gate(values, dim, args) 求经验CDF导数最大点（密度剧增处）为阈值。flowClust oc_flow_clust(values, dim, args, k) 用 t 分布混合 EM 聚类（oc_em_t_mixture_1d/oc_em_t_mixture_2d），oc_t_pdf t 分布密度（自由度+lgamma），返回最优簇的门边界。拓扑排序 oc_topo_sort(rules) 按父-子依赖关系对门控模板排序（父先于子）。门控流水线 oc_gate_flow_set(flowset, template) 对每样本：1) 拓扑排序模板；2) 从 root 开始，对每条规则在父群体事件上提取通道、调用对应方法得门、oc_event_in_gate 判定成员、生成 OcGatingResult；3) 子群体事件作为后续规则的父群体。通道解析 oc_resolve_channel(channels, name) 模糊匹配通道名。统计 oc_population_stats(flowset, results) 计算每群体计数、占父比例、占总量比例；oc_gating_summary(results) 格式化摘要。所有公共标识符以 oc_ 前缀命名。适用于流式细胞术自动化门控、免疫分型、细胞亚群定量。
+
+### 214. MsCoreUtils 质谱信号处理基础 (Bioconductor MsCoreUtils)
+
+实现 MsCoreUtils 质谱信号处理基础工具，参考 Bioconductor `MsCoreUtils`（Spectra 生态基础包）。核心功能：质心精化 mc_refine_centroids(mz, intensity, peak_indices, half_window) 对每个峰顶在 ±half_window 窗口内取强度加权 m/z 均值作为精化质心与强度。峰检测 mc_local_maxima(intensity) 返回局部极大值索引数组（平台检测：首个平台点视为峰）。m/z 匹配 mc_join_peaks(x, y, tolerance, method) 按 "ppm"（相对容差 ppm×1e-6）或 "Da"（绝对 Da）容差匹配两个峰列表，返回 (x_idx, y_idx) 对数组（一对一最近邻）。平滑 mc_smooth_moving_average(x, h) 半窗 h 的等权移动平均；mc_smooth_savitzky_golay(x, half_window, polynomial_order) Savitzky-Golay 多项式平滑（构建设计矩阵 X，最小二乘求 (X^TX)^(-1)X^Ty 系数，取中心卷积核）；mc_smooth(x, method, half_window, poly_order) 统一接口。基线估计 mc_baseline_snip(x, iterations) SNIP 算法：迭代 decreasing window 算 LLS 算子，逐步压缩峰保留基线。校准 mc_calibrate(mz, ref_mz, ref_true, method) "linear" 最小二乘线性回归 (slope, intercept)、"shift" 均值偏移，返回校准后 m/z。缺失值处理 mc_is_missing(v) NaN 检测；mc_impute(matrix, method, k) "knn" K近邻均值（欧氏距离选 k 近行填均值）、"mean" 列均值、"median" 列中位数、"halfmin" 半最小值、"zero" 填0。聚合 mc_median_polish(matrix, max_iter, eps) Tukey 中位数抛光（迭代减行/列中位数直至收敛），返回 (overall, row_effects, col_effects, residuals)；mc_robust_summary(matrix) 行稳健汇总（中位数）；mc_aggregate_rows(matrix, method, groupers) 按分组聚合行（sum/mean/median）。辅助 mc_mean/mc_median/mc_sd/mc_quantile/mc_sum/mc_dot/mc_mad（中位绝对偏差）；mc_valid_peak_list(mz, intensity) 验证 m/z 严格递增且长度一致；mc_has_missing(matrix) 检测矩阵含 NaN；mc_normalize_tic(intensity) TIC 总离子流归一化（除以总和×100）。所有公共标识符以 mc_ 前缀命名。适用于质谱 profile→centroid 转换、峰对齐、平滑去噪、基线校正、m/z 校准、缺失值填充、跨样本聚合。
+
 
 ## 性能优化
 
@@ -2542,8 +2569,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7067 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 7067 |
-| 通过数 | 7067 |
+| 总测试数 | 7258 |
+| 通过数 | 7258 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2811,6 +2838,9 @@ moon test --update
 | FIMO Motif Scanning | `motif_scan_test.mbt` | 38 |
 | Bio.NMR | `nmr_test.mbt` | 43 |
 | Bio.Crystal | `crystal_test.mbt` | 42 |
+| clusterExperiment | `cluster_experiment_test.mbt` | 60 |
+| openCyto | `open_cyto_test.mbt` | 69 |
+| MsCoreUtils | `ms_core_utils_test.mbt` | 62 |
 
 ### Python 对比测试
 
@@ -2897,7 +2927,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 280 个示例程序，展示各模块的典型用法：
+项目提供 283 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3049,6 +3079,9 @@ moon run cmd/bench/main.mbt
 | motif_scan_demo | FIMO Motif Scanning PSSM/PWM模体扫描（PWM创建、PSSM构建、序列正反向扫描、动态规划p值计算、匹配过滤汇总） | `moon run examples/motif_scan_demo/main.mbt` |
 | nmr_demo | Bio.NMR NMR核磁共振数据分析（NOE约束违反分析、化学位移查询、NMRView .xpk峰列表解析） | `moon run examples/nmr_demo/main.mbt` |
 | crystal_demo | Bio.Crystal 小分子晶体学CIF解析（单胞体积、分数↔笛卡尔坐标变换、CIF解析、晶体密度计算） | `moon run examples/crystal_demo/main.mbt` |
+| cluster_experiment_demo | clusterExperiment 共识聚类（clusterMany参数网格集成、共聚类矩阵、RSEC流水线、聚类树显著性合并） | `moon run examples/cluster_experiment_demo/main.mbt` |
+| open_cyto_demo | openCyto 流式细胞术门控（mindensity KDE门控、flowClust t混合EM聚类、模板驱动门控流水线、群体统计） | `moon run examples/open_cyto_demo/main.mbt` |
+| ms_core_utils_demo | MsCoreUtils 质谱信号处理（峰检测、质心精化、Savitzky-Golay平滑、SNIP基线估计、m/z校准、KNN插补、medianPolish聚合） | `moon run examples/ms_core_utils_demo/main.mbt` |
 
 ## 技术栈
 
