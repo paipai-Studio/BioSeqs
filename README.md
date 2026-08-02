@@ -149,6 +149,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | clusterExperiment | 共识与序列聚类框架: clusterMany参数网格集成、makeConsensus共聚类矩阵+一致性聚类、makeDendrogram聚类树、mergeClusters显著性合并(Welch t-test+BH-FDR)、RSEC流水线 |
 | ✅ | openCyto | 自动化流式细胞术门控: 模板驱动门控流水线、mindensity(KDE峰谷检测)、tailgate/quantileGate阈值门、flowClust(t分布混合EM)、rangeGate(CDF导数)、拓扑排序、群体统计 |
 | ✅ | MsCoreUtils | 质谱信号处理基础: refineCentroids质心精化、localMaxima峰检测、joinPeaks m/z匹配(ppm/Da)、Savitzky-Golay平滑、SNIP基线估计、m/z校准、KNN/均值/中位数插补、medianPolish聚合 |
+| ✅ | Bio.SeqIO.SnapGeneIO | SnapGene .dna二进制格式: 数据包结构(Comments/Features/Sequence/Primers/Notes)、JSON/XML解析、hex字符串I/O、大端序序列化、SeqRecord双向转换 |
+| ✅ | Bio.SeqIO.GckIO | Gene Construction Kit二进制格式: GCK_FILE魔数、大端序u16/u32读写、特征/序列解析、拓扑结构、SeqRecord双向转换 |
+| ✅ | Bio.Motifs.AlignAce | AlignACE模体发现输出格式: 位置频率矩阵(PFM)解析、参数提取、位点信息、PWM转换、信息含量计算(IC)、一致性序列、序列化往返 |
 
 ### 序列组装算法
 
@@ -669,6 +672,9 @@ IvanAXu/BioSeqs/
 │   ├── cluster_experiment.mbt  # clusterExperiment 共识与序列聚类 (clusterMany集成、makeConsensus共聚类、makeDendrogram、mergeClusters显著性合并、RSEC流水线)
 │   ├── open_cyto.mbt           # openCyto 自动化流式细胞术门控 (mindensity KDD、tailgate、flowClust t混合EM、rangeGate、模板驱动门控流水线)
 │   ├── ms_core_utils.mbt       # MsCoreUtils 质谱信号处理 (refineCentroids质心精化、localMaxima峰检测、Savitzky-Golay平滑、SNIP基线、m/z校准、KNN插补)
+│   ├── snapgene_io.mbt         # Bio.SeqIO.SnapGeneIO SnapGene .dna二进制格式 (数据包结构、JSON/XML解析、hex I/O、大端序序列化)
+│   ├── gck_io.mbt              # Bio.SeqIO.GckIO Gene Construction Kit二进制格式 (GCK_FILE魔数、大端序u16/u32、特征/序列解析)
+│   ├── alignace.mbt            # Bio.Motifs.AlignAce AlignACE模体发现输出 (PFM矩阵解析、PWM转换、信息含量IC、一致性序列)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -968,6 +974,9 @@ IvanAXu/BioSeqs/
 │   ├── cluster_experiment_demo/  # clusterExperiment 共识聚类示例 (clusterMany集成、共聚类矩阵、RSEC流水线、聚类树合并)
 │   ├── open_cyto_demo/           # openCyto 流式细胞术门控示例 (mindensity门控、flowClust聚类、模板驱动流水线、群体统计)
 │   ├── ms_core_utils_demo/       # MsCoreUtils 质谱信号处理示例 (峰检测、质心精化、平滑、基线估计、m/z校准、插补)
+│   ├── snapgene_demo/            # SnapGeneIO SnapGene .dna格式示例 (数据包解析、特征/引物、hex I/O、SeqRecord转换)
+│   ├── gck_demo/                 # GckIO Gene Construction Kit格式示例 (GCK_FILE魔数、大端序序列化、特征解析、拓扑结构)
+│   ├── alignace_demo/            # AlignACE模体发现示例 (PFM矩阵、PWM转换、信息含量IC、一致性序列、序列化往返)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1270,7 +1279,10 @@ IvanAXu/BioSeqs/
 │   │   ├── crystal_test.mbt
 │   │   ├── cluster_experiment_test.mbt
 │   │   ├── open_cyto_test.mbt
-│   │   └── ms_core_utils_test.mbt
+│   │   ├── ms_core_utils_test.mbt
+│   │   ├── snapgene_io_test.mbt
+│   │   ├── gck_io_test.mbt
+│   │   └── alignace_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1296,7 +1308,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7258 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7366 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1453,6 +1465,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7258 个测试全�
 | `logistic_regression.mbt` | BioPython `Bio.LogisticRegression` | 二分类逻辑回归（Newton-Raphson优化、高斯消元解Hessian方程、步长减半、对数似然收敛、sigmoid概率、操纵子预测） |
 | `max_entropy.mbt` | BioPython `Bio.MaxEntropy` | 最大熵分类器（改进迭代尺度IIS训练、指示特征函数、softmax归一化、经验/模型期望、汽车偏好分类） |
 | `neural_network.mbt` | BioPython `Bio.NeuralNetwork` | 前馈神经网络（反向传播训练、sigmoid激活、学习率/动量参数、权重随机初始化、XOR/iris分类） |
+| `snapgene_io.mbt` | BioPython `Bio.SeqIO.SnapGeneIO` | SnapGene .dna二进制格式（数据包结构Comments/Features/Sequence/Primers/Notes、JSON/XML解析、hex字符串I/O、大端序序列化、SeqRecord双向转换） |
+| `gck_io.mbt` | BioPython `Bio.SeqIO.GckIO` | Gene Construction Kit二进制格式（GCK_FILE魔数、大端序u16/u32读写、特征/序列解析、拓扑结构、SeqRecord双向转换） |
+| `alignace.mbt` | BioPython `Bio.Motifs.AlignAce` | AlignACE模体发现输出格式（位置频率矩阵PFM解析、参数提取、位点信息、PWM转换、信息含量IC计算、一致性序列、序列化往返） |
 
 #### 扩展功能模块
 
@@ -2468,6 +2483,21 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7258 个测试全�
 实现 MsCoreUtils 质谱信号处理基础工具，参考 Bioconductor `MsCoreUtils`（Spectra 生态基础包）。核心功能：质心精化 mc_refine_centroids(mz, intensity, peak_indices, half_window) 对每个峰顶在 ±half_window 窗口内取强度加权 m/z 均值作为精化质心与强度。峰检测 mc_local_maxima(intensity) 返回局部极大值索引数组（平台检测：首个平台点视为峰）。m/z 匹配 mc_join_peaks(x, y, tolerance, method) 按 "ppm"（相对容差 ppm×1e-6）或 "Da"（绝对 Da）容差匹配两个峰列表，返回 (x_idx, y_idx) 对数组（一对一最近邻）。平滑 mc_smooth_moving_average(x, h) 半窗 h 的等权移动平均；mc_smooth_savitzky_golay(x, half_window, polynomial_order) Savitzky-Golay 多项式平滑（构建设计矩阵 X，最小二乘求 (X^TX)^(-1)X^Ty 系数，取中心卷积核）；mc_smooth(x, method, half_window, poly_order) 统一接口。基线估计 mc_baseline_snip(x, iterations) SNIP 算法：迭代 decreasing window 算 LLS 算子，逐步压缩峰保留基线。校准 mc_calibrate(mz, ref_mz, ref_true, method) "linear" 最小二乘线性回归 (slope, intercept)、"shift" 均值偏移，返回校准后 m/z。缺失值处理 mc_is_missing(v) NaN 检测；mc_impute(matrix, method, k) "knn" K近邻均值（欧氏距离选 k 近行填均值）、"mean" 列均值、"median" 列中位数、"halfmin" 半最小值、"zero" 填0。聚合 mc_median_polish(matrix, max_iter, eps) Tukey 中位数抛光（迭代减行/列中位数直至收敛），返回 (overall, row_effects, col_effects, residuals)；mc_robust_summary(matrix) 行稳健汇总（中位数）；mc_aggregate_rows(matrix, method, groupers) 按分组聚合行（sum/mean/median）。辅助 mc_mean/mc_median/mc_sd/mc_quantile/mc_sum/mc_dot/mc_mad（中位绝对偏差）；mc_valid_peak_list(mz, intensity) 验证 m/z 严格递增且长度一致；mc_has_missing(matrix) 检测矩阵含 NaN；mc_normalize_tic(intensity) TIC 总离子流归一化（除以总和×100）。所有公共标识符以 mc_ 前缀命名。适用于质谱 profile→centroid 转换、峰对齐、平滑去噪、基线校正、m/z 校准、缺失值填充、跨样本聚合。
 
 
+### 215. SnapGene .dna 二进制格式 (Bio.SeqIO.SnapGeneIO)
+
+实现 SnapGene .dna 二进制格式解析与写入，参考 Biopython `Bio.SeqIO.SnapGeneIO`。SnapGene .dna 文件由一系列数据包组成，每个包包含 1 字节类型 + 4 字节大端长度 + 数据。数据结构 SnapgeneFile 包含 seq_type(DNA/RNA/protein)、comments、export_version、sequence、features、primers、notes、is_circular、extra_packets。SnapgeneFeature 包含 name、type_(CDS/promoter等)、direction(1/-1/0)、segments((start,end)数组)、qualifiers(Map)。SnapgenePrimer 包含 name、sequence、description、bind_to(1=top/2=bottom strand)、binds_at_position。数据包类型：0x00 Comments（JSON-like，提取 type/comments/exportVersion/circular）、0x01 Features（XML-like，<Feature>元素含 name/type/directionality 属性、<Segment range="start..end">、<Q name/content> 限定符）、0x02 Sequence（ASCII 碱基）、0x03 Primers（二进制：ID+name+desc+sequence+bind_to+binds_at_position）、0x05 Notes。二进制辅助函数 sg_hex_to_bytes/sg_bytes_to_hex 实现hex字符串与字节数组互转，sg_read_u32_be/sg_write_u32_be 读写大端uint32，sg_ascii_to_string/sg_string_to_ascii 实现ASCII转换。snapgene_parse(hex) 从hex字符串解析，snapgene_from_bytes(data) 从字节数组解析，snapgene_write(file) 序列化为hex字符串，snapgene_to_bytes(file) 序列化为字节数组。snapgene_to_seqrecord/gck_from_seqrecord 实现 SeqRecord 双向转换。snapgene_count_features_by_type 按类型统计特征，snapgene_seq_length 返回序列长度，snapgene_summary 生成摘要。适用于 SnapGene 软件生成的质粒/序列文件读取与写入。
+
+
+### 216. Gene Construction Kit 二进制格式 (Bio.SeqIO.GckIO)
+
+实现 Gene Construction Kit (GCK) 二进制格式解析与写入，参考 Biopython `Bio.SeqIO.GckIO`。GCK 是 Textco BioSoftware 的质粒/序列文件格式，所有多字节整数采用大端序。文件结构：8 字节魔数 "GCK_FILE"、1 字节版本号、1 字节序列类型(0=DNA/1=RNA/2=Protein)、1 字节拓扑(0=linear/1=circular)、1 字节保留、2 字节特征计数(uint16)、特征数据、4 字节序列长度(uint32)、ASCII 序列字节。GckFeature 包含 name、type_(CDS/promoter等)、direction(0=none/1=forward/2=reverse)、segments((start,end)数组)。特征结构：uint16 名称长度+名称字节、uint16 类型长度+类型字节、1 字节方向、uint16 片段计数、每片段 uint32 start + uint32 end。数据结构 GckFile 包含 version、seq_type、is_circular、sequence、features。GckSeqType 枚举支持 to_int/from_int/to_string 转换。gck_parse(hex) 从hex字符串解析，gck_from_bytes(data) 从字节数组解析（验证魔数、读取头部、解析特征、读取序列），gck_write(file) 序列化为hex字符串，gck_to_bytes(file) 序列化为字节数组。gck_to_seqrecord/gck_from_seqrecord 实现 SeqRecord 双向转换。gck_count_features_by_type 按类型统计特征，gck_seq_length 返回序列长度，gck_summary 生成摘要。适用于 Gene Construction Kit 软件生成的质粒/序列文件读取与写入。
+
+
+### 217. AlignACE 模体发现输出 (Bio.Motifs.AlignAce)
+
+实现 AlignACE 模体发现输出格式解析与分析，参考 Biopython `Bio.Motifs.AlignAce`。AlignACE（Align Nucleic Acid Conserved Elements）是基于 Gibbs 采样器的模体发现工具。输出格式包含：头部（# AlignACE version、# Command）、参数（# Parameters used:、key=value）、模体矩阵（"i" 开头的一致性行、列索引行、4 行 A/C/G/T 计数）、位点信息（# Sites: 后跟 seq_id/position/strand/sequence）。数据结构 AlignAceMotif 包含 count_matrix(4×width 矩阵)、width、num_sites、consensus、sites。AlignAceSite 包含 sequence_id、position、strand、sequence。AlignAceRecord 包含 version、command、parameters(Map)、motifs 数组。alignace_parse(text) 解析输出文本，提取版本、命令、参数和模体矩阵（跳过头部行、识别 "i" 行开始矩阵、解析 4 行 A/C/G/T 计数、解析位点信息）。alignace_consensus(count_matrix) 从计数矩阵计算一致性序列（每列取最高计数碱基）。alignace_to_pwm(motif) 将计数矩阵转换为位置权重矩阵（频率归一化，全零列默认 0.25）。alignace_information_content(motif) 计算每位置信息含量 IC(i) = 2 + Σ_b f(b,i)×log2(f(b,i))（纯模体 IC=2 bits，均匀分布 IC=0）。alignace_total_ic(motif) 计算总信息含量。alignace_write(record) 序列化为 AlignACE 格式文本。alignace_num_motifs/alignace_get_motif/alignace_summary 提供查询与摘要功能。适用于 AlignACE 模体发现工具的输出分析与模体可视化。
+
+
 ## 性能优化
 
 ### 优化策略
@@ -2569,8 +2599,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7258 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 7258 |
-| 通过数 | 7258 |
+| 总测试数 | 7366 |
+| 通过数 | 7366 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2841,6 +2871,9 @@ moon test --update
 | clusterExperiment | `cluster_experiment_test.mbt` | 60 |
 | openCyto | `open_cyto_test.mbt` | 69 |
 | MsCoreUtils | `ms_core_utils_test.mbt` | 62 |
+| Bio.SeqIO.SnapGeneIO | `snapgene_io_test.mbt` | 31 |
+| Bio.SeqIO.GckIO | `gck_io_test.mbt` | 34 |
+| Bio.Motifs.AlignAce | `alignace_test.mbt` | 43 |
 
 ### Python 对比测试
 
@@ -2927,7 +2960,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 283 个示例程序，展示各模块的典型用法：
+项目提供 286 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3082,6 +3115,9 @@ moon run cmd/bench/main.mbt
 | cluster_experiment_demo | clusterExperiment 共识聚类（clusterMany参数网格集成、共聚类矩阵、RSEC流水线、聚类树显著性合并） | `moon run examples/cluster_experiment_demo/main.mbt` |
 | open_cyto_demo | openCyto 流式细胞术门控（mindensity KDE门控、flowClust t混合EM聚类、模板驱动门控流水线、群体统计） | `moon run examples/open_cyto_demo/main.mbt` |
 | ms_core_utils_demo | MsCoreUtils 质谱信号处理（峰检测、质心精化、Savitzky-Golay平滑、SNIP基线估计、m/z校准、KNN插补、medianPolish聚合） | `moon run examples/ms_core_utils_demo/main.mbt` |
+| snapgene_demo | SnapGeneIO SnapGene .dna二进制格式（数据包解析、特征/引物管理、hex I/O、SeqRecord转换、往返验证） | `moon run examples/snapgene_demo/main.mbt` |
+| gck_demo | GckIO Gene Construction Kit二进制格式（GCK_FILE魔数、大端序序列化、特征解析、拓扑结构、SeqRecord转换） | `moon run examples/gck_demo/main.mbt` |
+| alignace_demo | AlignACE模体发现输出（PFM矩阵解析、PWM转换、信息含量IC、一致性序列、位点信息、序列化往返） | `moon run examples/alignace_demo/main.mbt` |
 
 ## 技术栈
 

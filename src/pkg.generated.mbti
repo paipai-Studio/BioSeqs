@@ -142,6 +142,26 @@ pub fn align_score(TabularMSA) -> Double
 
 pub fn align_structures(MAaligner, Array[StructureData]) -> AlignmentResult
 
+pub fn alignace_get_motif(AlignAceRecord, Int) -> AlignAceMotif?
+
+pub fn alignace_information_content(AlignAceMotif) -> Array[Double]
+
+pub fn alignace_motif_consensus(AlignAceMotif) -> String
+
+pub fn alignace_num_motifs(AlignAceRecord) -> Int
+
+pub fn alignace_parse(String) -> AlignAceRecord
+
+pub fn alignace_sample() -> AlignAceRecord
+
+pub fn alignace_summary(AlignAceRecord) -> String
+
+pub fn alignace_to_pwm(AlignAceMotif) -> Array[Array[Double]]
+
+pub fn alignace_total_ic(AlignAceMotif) -> Double
+
+pub fn alignace_write(AlignAceRecord) -> String
+
 pub fn alignio_parse(String, String) -> Array[MultipleSeqAlignment] raise AlignIOError
 
 pub fn alignio_read(String, String) -> MultipleSeqAlignment raise AlignIOError
@@ -220,7 +240,21 @@ pub fn analyze_structure_composition(Array[DSSPRecord]) -> Map[String, Int]
 
 pub fn anchors_overlap(Anchor, Anchor) -> Bool
 
-pub fn annotate_peaks(Array[Peak], TxDb) -> AnnotationResult
+pub fn ancombc_bias_corrected_log(AncombcData) -> Array[Array[Double]]
+
+pub fn ancombc_reference_feature(AncombcData) -> Int
+
+pub fn ancombc_result_summary(AncombcTestResult) -> String
+
+pub fn ancombc_sample_data() -> AncombcData
+
+pub fn ancombc_sampling_fractions(AncombcData) -> Array[Double]
+
+pub fn ancombc_test(AncombcData, String, String, Double) -> AncombcTestResult
+
+pub fn annotate_peak(Peak, Array[GeneAnnotation], Int) -> PeakAnnotation
+
+pub fn annotate_peaks(Array[Peak], Array[GeneAnnotation], Int) -> Array[PeakAnnotation]
 
 pub fn annotated_data_frame_ncol(AnnotatedDataFrame) -> Int
 
@@ -250,7 +284,7 @@ pub fn annotation_hub_search_by_type(AnnotationHub, String) -> Array[HubResource
 
 pub fn annotation_hub_summarize(AnnotationHub) -> String
 
-pub fn annotation_summary(AnnotationResult) -> String
+pub fn annotation_summary(Array[PeakAnnotation]) -> AnnotationSummary
 
 pub fn annoy_method() -> NeighborSearchMethod
 
@@ -259,6 +293,8 @@ pub fn any_na_double(Array[Double]) -> Bool
 pub fn any_na_int(Array[Int]) -> Bool
 
 pub fn any_na_string(Array[String]) -> Bool
+
+pub fn apply_fdr(Array[CandidatePeak], Double) -> Array[CandidatePeak]
 
 pub fn apply_rotation(Array[(Double, Double, Double)], (Double, Double, Double)) -> Array[(Double, Double, Double)]
 
@@ -288,6 +324,8 @@ pub fn assign_cell_states(Array[Array[Int]], Array[String], Int) -> (Array[Int],
 
 pub fn assign_clusters(Array[Array[Double]], Array[Array[Double]]) -> Array[Int]
 
+pub fn assign_feature(Peak, GeneAnnotation, Int) -> String
+
 pub fn assign_secondary_structure(Chain) -> Array[(Int, SSType)]
 
 pub fn at_content(String) -> Double
@@ -297,6 +335,10 @@ pub fn at_skew(String, Int, Int) -> Array[Double]
 pub fn at_third_fraction(String) -> Double
 
 pub fn atom_in_sphere(Array[Double], Array[Double], Double) -> Bool
+
+pub fn atoms_to_cartesian(CrystalStructure) -> Array[CrystalAtom]
+
+pub fn atoms_to_fractional(CrystalStructure) -> Array[CrystalAtom]
 
 pub fn aucell_compute_auc(Int, Array[Int], Array[Int]) -> Double
 
@@ -670,6 +712,8 @@ pub fn build_mutation_matrix(Array[SomaticMutation], Array[String]) -> MutationM
 
 pub fn build_pathway_matrix(Array[String], Array[PathwayGeneSet]) -> Array[Array[Double]]
 
+pub fn build_pssm(PositionWeightMatrix) -> MotifScanPSSM
+
 pub fn build_qcp_matrix(Array[Array[Double]]) -> Array[Array[Double]]
 
 pub fn build_regulons(Array[CoExpressionModule], weight_quantile? : Double, min_targets? : Int) -> Array[ScenicRegulon]
@@ -824,6 +868,10 @@ pub fn calculate_tmb(MAFData, Double) -> TMBResult
 
 pub fn call_copy_numbers(Array[CNVSegment], Int) -> Array[CopyNumberCall]
 
+pub fn call_methylation_regimes(Array[CytosineSite], MethylSeekRParams) -> Array[MethylRegion]
+
+pub fn call_peaks(Array[ChipSeqRead], Array[ChipSeqRead], PeakCallingParams) -> Array[CandidatePeak]
+
 pub fn camera(QLFResult, Array[String], _n_perm? : Int) -> (Double, Double, String)
 
 pub fn caps_map(Array[String], Array[RestrictionEnzyme]) -> CapsMap
@@ -833,6 +881,8 @@ pub fn caps_map_named(Array[String], Array[String], Array[RestrictionEnzyme]) ->
 pub fn caps_sample_enzymes() -> Array[RestrictionEnzyme]
 
 pub fn caps_sample_sequences() -> Array[String]
+
+pub fn cartesian_to_fractional(UnitCell, Double, Double, Double) -> (Double, Double, Double)
 
 pub fn cbind(Array[Array[Double]]) -> Array[Array[Double]]
 
@@ -862,6 +912,56 @@ pub fn cds(TxDb) -> GRanges
 
 pub fn cds_by_transcript(TxDb) -> Map[String, Array[CDS]]
 
+pub fn ce_bh_fdr(Array[Double]) -> Array[Double]
+
+pub fn ce_center_columns(Array[Array[Double]]) -> Array[Array[Double]]
+
+pub fn ce_centroid(Array[Array[Double]]) -> Array[Double]
+
+pub fn ce_cluster_many(Array[Array[Double]], CeRsecParams) -> Array[CeClustering]
+
+pub fn ce_cluster_sizes(Array[Int]) -> Array[(Int, Int)]
+
+pub fn ce_cocluster_matrix(Array[CeClustering], Int) -> Array[Array[Double]]
+
+pub fn ce_count_clusters(Array[Int]) -> Int
+
+pub fn ce_default_params() -> CeRsecParams
+
+pub fn ce_euclidean(Array[Double], Array[Double]) -> Double
+
+pub fn ce_hclust_cut(Array[Array[Double]], Int) -> Array[Int]
+
+pub fn ce_kmeans(Array[Array[Double]], Int, Int, Int) -> (Array[Int], Array[Array[Double]])
+
+pub fn ce_make_consensus(Array[Array[Double]], Int) -> Array[Int]
+
+pub fn ce_make_dendrogram(Array[Array[Double]], Array[Int]) -> CeDendroNode?
+
+pub fn ce_make_matrix(Int, Int, Double) -> Array[Array[Double]]
+
+pub fn ce_mean(Array[Double]) -> Double
+
+pub fn ce_median(Array[Double]) -> Double
+
+pub fn ce_merge_clusters(Array[Array[Double]], Array[Int], CeDendroNode?, Double) -> (Array[Int], Array[CeMergeInfo])
+
+pub fn ce_normal_cdf(Double) -> Double
+
+pub fn ce_pca(Array[Array[Double]], Int) -> Array[Array[Double]]
+
+pub fn ce_rsec(Array[Array[Double]], CeRsecParams) -> ClusterExperiment
+
+pub fn ce_sd(Array[Double]) -> Double
+
+pub fn ce_sequential_cluster(Array[Array[Double]], Array[Int], Double, Double) -> Array[Int]
+
+pub fn ce_summary(ClusterExperiment) -> String
+
+pub fn ce_transpose(Array[Array[Double]]) -> Array[Array[Double]]
+
+pub fn ce_variance(Array[Double]) -> Double
+
 pub fn cell_annotation(String, String) -> CellAnnotation
 
 pub fn cellchat_aggregate(CellChatResult) -> Map[String, Double]
@@ -881,6 +981,8 @@ pub fn cellchat_sample_data() -> (Array[Array[Double]], Array[String], Array[Str
 pub fn cellchat_summary(CellChatResult) -> String
 
 pub fn center_coordinates(Array[QCPAtomCoordinate]) -> Array[QCPAtomCoordinate]
+
+pub fn center_of_mass(CrystalStructure) -> (Double, Double, Double)
 
 pub fn ch_add_annotation(HeatmapResult, HeatmapAnnotation) -> HeatmapResult
 
@@ -970,13 +1072,19 @@ pub fn chem_aa_residue_weight(String) -> Double
 
 pub fn chem_amino_acid_elements(String) -> Map[String, Int]
 
+pub fn chem_atom_pair_fingerprint(SdfMolecule) -> Array[Int]
+
 pub fn chem_bond_angle(Array[Double], Array[Double], Array[Double]) -> Double
 
 pub fn chem_bond_length(Array[Double], Array[Double]) -> Double
 
 pub fn chem_count_atoms(String) -> Int
 
+pub fn chem_count_element(SdfMolecule, String) -> Int
+
 pub fn chem_covalent_radius(String) -> Double
+
+pub fn chem_dice(Array[Int], Array[Int]) -> Double
 
 pub fn chem_dihedral_angle(Array[Double], Array[Double], Array[Double], Array[Double]) -> Double
 
@@ -986,6 +1094,8 @@ pub fn chem_extinction_coefficient(String) -> Double
 
 pub fn chem_formula_weight(String) -> Double
 
+pub fn chem_heavy_atom_count(SdfMolecule) -> Int
+
 pub fn chem_hydrogen_bond_length(String, String) -> Double
 
 pub fn chem_ionic_radius(String, oxidation_state? : Int) -> Double
@@ -994,11 +1104,47 @@ pub fn chem_is_bonded(String, String, Double, tolerance? : Double) -> Bool
 
 pub fn chem_isoelectric_point(String, p_nterm? : Double, p_cterm? : Double) -> Double
 
+pub fn chem_molecular_formula(SdfMolecule) -> String
+
 pub fn chem_molecular_weight(Map[String, Int]) -> Double
+
+pub fn chem_molecule_summary(SdfMolecule) -> String
+
+pub fn chem_molecule_to_sdf(SdfMolecule) -> String
+
+pub fn chem_molecules_to_sdf(Array[SdfMolecule]) -> String
+
+pub fn chem_parse_sdf(String) -> Array[SdfMolecule]
+
+pub fn chem_ring_count(SdfMolecule) -> Int
+
+pub fn chem_sample_aspirin() -> SdfMolecule
+
+pub fn chem_sample_benzene() -> SdfMolecule
+
+pub fn chem_sample_ethanol() -> SdfMolecule
+
+pub fn chem_sample_methane() -> SdfMolecule
+
+pub fn chem_sample_sdf_text() -> String
+
+pub fn chem_sample_water() -> SdfMolecule
+
+pub fn chem_sdf_molecular_weight(SdfMolecule) -> Double
+
+pub fn chem_substructure_match(SdfMolecule, SdfMolecule) -> Bool
+
+pub fn chem_tanimoto(Array[Int], Array[Int]) -> Double
 
 pub fn chem_total_charge(Array[Double]) -> Double
 
 pub fn chem_vdw_radius(String) -> Double
+
+pub fn chipseeker_sample_genes() -> Array[GeneAnnotation]
+
+pub fn chipseeker_sample_peaks() -> Array[Peak]
+
+pub fn chipseeker_summary_string(AnnotationSummary) -> String
 
 pub fn chr_band_color(String) -> String
 
@@ -1100,6 +1246,8 @@ pub fn cib_run(CibSignatureMatrix, CibMixtureMatrix, max_iters? : Int, tol? : Do
 
 pub fn cib_sample_mixture() -> CibMixtureMatrix
 
+pub fn cif_block_to_crystal(CifBlock) -> CrystalStructure
+
 pub fn circ_common_restriction_sites() -> Array[(String, String)]
 
 pub fn circ_largest_fragment(Array[Int]) -> Int
@@ -1135,6 +1283,8 @@ pub fn classify_codon_substitution(String, String) -> CodonSubstitution
 pub fn classify_exposure(Double) -> String
 
 pub fn classify_ramachandran(Double, Double) -> RamachandranRegion
+
+pub fn classify_tiles(Array[MethylTile], MethylSeekRParams) -> Array[MethylTile]
 
 pub fn cluster_gene_expression(Array[Array[Double]], Int) -> KMeans
 
@@ -1224,6 +1374,18 @@ pub fn combat_simple(Array[Array[Double]], Array[Int]) -> Array[Array[Double]]
 
 pub fn compare_genome_builds(String, String) -> Bool
 
+pub fn compass_alignment_length(CompassRecord) -> Int
+
+pub fn compass_filter_by_evalue(Array[CompassRecord], Double) -> Array[CompassRecord]
+
+pub fn compass_filter_by_identity(Array[CompassRecord], Double) -> Array[CompassRecord]
+
+pub fn compass_sample_data() -> String
+
+pub fn compass_summary(Array[CompassRecord]) -> String
+
+pub fn compass_version(String) -> String
+
 pub fn complete_linkage_clustering(Array[Array[Double]], Double) -> ClusterResult
 
 pub fn compound_acetate() -> Compound
@@ -1262,6 +1424,8 @@ pub fn compute_distance_matrix(Array[CellData], String) -> DistanceMatrix
 
 pub fn compute_eigenvector(Array[Array[Double]], Double) -> Array[Double]
 
+pub fn compute_fold_enrichment(Int, Double) -> Double
+
 pub fn compute_gaussian_kernel(DistanceMatrix, Double) -> KernelMatrix
 
 pub fn compute_gc_lookup_table(Array[ProbeInfo]) -> Map[Int, Double]
@@ -1276,15 +1440,21 @@ pub fn compute_overlap_graph(Array[String], Int) -> Map[Int, Array[(Int, Int)]]
 
 pub fn compute_pm_mm_difference(ProbeSet) -> Array[Array[Double]]
 
+pub fn compute_pvalue(MotifScanPSSM, Double) -> Double
+
 pub fn compute_qc(Array[PseudoBulk]) -> Array[SampleQC]
 
 pub fn compute_regulon_activity(Array[ScenicRegulon], SCENICInput, auc_threshold_pct? : Double) -> Array[Array[Double]]
 
 pub fn compute_rmsd(Array[(Double, Double, Double)], Array[(Double, Double, Double)]) -> Double
 
+pub fn compute_score(MotifScanPSSM, String) -> Double
+
 pub fn compute_sum_factors(Array[Array[Int]], Array[Int]) -> SizeFactors
 
 pub fn compute_svd_rotation(Array[(Double, Double, Double)], Array[(Double, Double, Double)]) -> (Double, Double, Double)
+
+pub fn compute_tss_distance(Peak, GeneAnnotation) -> Int
 
 pub fn consensus_sequence(Alignment) -> String
 
@@ -1325,6 +1495,8 @@ pub fn count_mismatches(String, String) -> Int
 pub fn count_overlaps(GRanges, GRanges) -> Array[Int]
 
 pub fn count_parsimony_informative_sites(Array[String]) -> Int
+
+pub fn count_reads_in_window(Array[ChipSeqRead], String, Int, Int) -> Int
 
 pub fn count_secondary_structure(Array[(Int, SSType)]) -> Map[String, Int]
 
@@ -1508,9 +1680,17 @@ pub fn create_umap_test_data(Int, Int) -> Array[Array[Double]]
 
 pub fn create_wgcna_data(Array[Array[Double]], Array[String], Array[String]) -> WGCNAData
 
-pub fn cs_create_example_peaks() -> Array[Peak]
+pub fn crystal_atom_distance(CrystalStructure, String, String) -> Double?
 
-pub fn cs_create_example_txdb() -> TxDb
+pub fn crystal_density(UnitCell, Int, Double) -> Double
+
+pub fn crystal_sample_cif() -> String
+
+pub fn crystal_sample_structure() -> CrystalStructure
+
+pub fn crystal_summary(CrystalStructure) -> CrystalSummary
+
+pub fn cs_peak_position(Peak) -> Int
 
 pub fn csw_apply_normalization(CswDataSet, Array[Double]) -> CswDataSet
 
@@ -1668,6 +1848,8 @@ pub fn detect_mauve_inversions(MauveAlignment) -> MauveAlignment
 
 pub fn detect_mutations(String, String, String, Int, String) -> Array[Mutation]
 
+pub fn detect_pmds(Array[MethylTile], MethylSeekRParams) -> Array[MethylTile]
+
 pub fn detect_variant_type(String, String) -> VariantType
 
 pub fn dexseq_filter_results(Array[DEXSeqResult], Double, Double) -> Array[DEXSeqResult]
@@ -1746,6 +1928,34 @@ pub fn diffbind_sqrt(Double) -> Double
 
 pub fn diffbind_volcano_data(DBAResult) -> Array[(Double, Double)]
 
+pub fn diffcyt_assign_clusters(Array[CytometryCell], Array[Array[Double]]) -> Unit
+
+pub fn diffcyt_calc_counts(Array[CytometryCell], Int, Array[String]) -> Array[Array[Int]]
+
+pub fn diffcyt_calc_medians_by_cluster_marker(Array[CytometryCell], Int, Int, Array[String]) -> Array[Array[Double]]
+
+pub fn diffcyt_cluster_cells(Array[CytometryCell], Int, Int) -> Array[Array[Double]]
+
+pub fn diffcyt_create_design_matrix(Array[String], Array[String]) -> Array[Array[Double]]
+
+pub fn diffcyt_mark_significant(Array[DiffcytDAResult], Array[DiffcytDSResult], Double) -> (Array[DiffcytDAResult], Array[DiffcytDSResult])
+
+pub fn diffcyt_run(Array[CytometryCell], Int, Double) -> DiffcytSummary
+
+pub fn diffcyt_sample_data() -> Array[CytometryCell]
+
+pub fn diffcyt_testDA(Array[Array[Int]], Array[Array[Double]], Int, Int) -> Array[DiffcytDAResult]
+
+pub fn diffcyt_testDS(Array[CytometryCell], Array[String], Array[String], Int, Int, Array[String]) -> Array[DiffcytDSResult]
+
+pub fn diffcyt_top_clusters_da(Array[DiffcytDAResult], Int) -> Array[DiffcytDAResult]
+
+pub fn diffcyt_top_table_ds(Array[DiffcytDSResult], Int) -> Array[DiffcytDSResult]
+
+pub fn diffcyt_unique_conditions(Array[CytometryCell]) -> Array[String]
+
+pub fn diffcyt_unique_samples(Array[CytometryCell]) -> Array[String]
+
 pub fn differential_abundance(Array[Array[Double]], Array[String], Array[Int], Array[Int]) -> Array[DAResult]
 
 pub fn differential_gene_test_branches(CellDataSet, BranchPoint, Array[String]) -> DiffExprResult
@@ -1753,6 +1963,8 @@ pub fn differential_gene_test_branches(CellDataSet, BranchPoint, Array[String]) 
 pub fn digest(String, RestrictionEnzyme) -> Array[String]
 
 pub fn digest_with_multiple(String, Array[RestrictionEnzyme]) -> Array[String]
+
+pub fn dihedral_violation(DihedralRestraint, Double) -> Double
 
 pub fn dinucleotide_frequency(String, Bool) -> Map[String, Double]
 
@@ -1964,6 +2176,8 @@ pub fn estimate_dispersion(DGEList) -> Double
 
 pub fn estimate_dispersions(DESeqDataSet) -> DESeqDataSet
 
+pub fn estimate_local_lambda(Array[ChipSeqRead], String, Int, Int) -> Double
+
 pub fn estimate_size_factors(DESeqDataSet) -> DESeqDataSet
 
 pub fn euclidean_distance(Array[Double], Array[Double]) -> Double
@@ -1979,6 +2193,26 @@ pub fn exact_test(DGEList, String, String) -> DEGEResults
 pub fn exclude_chromosomes(OrderedGenes, Array[String]) -> OrderedGenes
 
 pub fn exon_ids(TxDb) -> Array[String]
+
+pub fn exonerate_count_introns(ExonerateRecord) -> Int
+
+pub fn exonerate_count_matches(ExonerateRecord) -> Int
+
+pub fn exonerate_filter_by_score(Array[ExonerateRecord], Double) -> Array[ExonerateRecord]
+
+pub fn exonerate_sample_cigar_data() -> String
+
+pub fn exonerate_sample_data() -> String
+
+pub fn exonerate_summary(Array[ExonerateRecord]) -> String
+
+pub fn exonerate_to_cigar_string(ExonerateRecord) -> String
+
+pub fn exonerate_to_vulgar_string(ExonerateRecord) -> String
+
+pub fn exonerate_total_alignment_length(ExonerateRecord) -> Int
+
+pub fn exonerate_total_intron_length(ExonerateRecord) -> Int
 
 pub fn exons(TxDb) -> GRanges
 
@@ -2114,6 +2348,10 @@ pub fn filter_by_author(Array[MedlineRecord], String) -> Array[MedlineRecord]
 
 pub fn filter_by_bfactor(Structure, Double, Double) -> Structure
 
+pub fn filter_by_distance(Array[PeakAnnotation], Int) -> Array[PeakAnnotation]
+
+pub fn filter_by_feature(Array[PeakAnnotation], String) -> Array[PeakAnnotation]
+
 pub fn filter_by_mesh(Array[MedlineRecord], String) -> Array[MedlineRecord]
 
 pub fn filter_by_occupancy(Structure, Double) -> Structure
@@ -2126,9 +2364,17 @@ pub fn filter_enrichment(Array[GOEnrichmentResult], Double, Int) -> Array[GOEnri
 
 pub fn filter_low_expression(Ballgown, min_fpkm? : Double) -> Ballgown
 
+pub fn filter_matches(Array[MotifMatch], Double) -> Array[MotifMatch]
+
+pub fn filter_peaks(Array[CandidatePeak], PeakCallingParams) -> Array[CandidatePeak]
+
 pub fn filter_reads(Array[String], Array[String], Double, Int, Int) -> (Array[String], Array[String])
 
+pub fn filter_regions(Array[MethylRegion], String) -> Array[MethylRegion]
+
 pub fn filter_results(DOSEResult, Double) -> DOSEResult
+
+pub fn filter_violated_restraints(Array[NoeRestraint], Double) -> Array[NoeRestraint]
 
 pub fn find_all_elements(String, String) -> Array[(Int, Int)]
 
@@ -2167,6 +2413,8 @@ pub fn find_min_cds_start(Array[CDS]) -> Int
 pub fn find_motif_iupac(String, String) -> Array[Int]
 
 pub fn find_mutual_nearest_neighbors(Array[Array[Double]], Array[Array[Double]], Int) -> Array[(Int, Int)]
+
+pub fn find_nearest_gene(Peak, Array[GeneAnnotation]) -> GeneAnnotation
 
 pub fn find_neighbors(SeuratObject) -> SeuratObject
 
@@ -2306,11 +2554,59 @@ pub fn fm_parse_fragments(String) -> FragmentMapperResult
 
 pub fn follow(GRanges, GRanges) -> Array[Int]
 
+pub fn format_chemical_shifts(ChemicalShiftTable) -> String
+
 pub fn format_citation_apa(MedlineRecord) -> String
+
+pub fn format_crystal_structure(CrystalStructure) -> String
+
+pub fn format_noe_restraint(NoeRestraint) -> String
+
+pub fn format_noe_restraints(Array[NoeRestraint]) -> String
+
+pub fn format_peak_list(PeakList) -> String
+
+pub fn format_restraint_summary(NmrRestraintSummary) -> String
 
 pub fn formula_to_string(Map[String, Int]) -> String
 
+pub fn fractional_to_cartesian(UnitCell, Double, Double, Double) -> (Double, Double, Double)
+
 pub fn fragment_sizes(Array[String]) -> Array[Int]
+
+pub fn freq_table_count_type() -> FreqTableType
+
+pub fn freq_table_entropy(FreqTable) -> Double
+
+pub fn freq_table_freq_type() -> FreqTableType
+
+pub fn freq_table_from_counts(Map[String, Int]) -> FreqTable
+
+pub fn freq_table_from_freqs(Map[String, Double]) -> FreqTable
+
+pub fn freq_table_from_sequence(String, Array[String]?) -> FreqTable
+
+pub fn freq_table_js_distance(FreqTable, FreqTable) -> Double
+
+pub fn freq_table_normalize(FreqTable) -> FreqTable
+
+pub fn freq_table_read_count(String) -> FreqTable
+
+pub fn freq_table_read_freq(String) -> FreqTable
+
+pub fn freq_table_relative_entropy(FreqTable, FreqTable) -> Double
+
+pub fn freq_table_sample_count_text() -> String
+
+pub fn freq_table_sample_dna() -> FreqTable
+
+pub fn freq_table_sample_dna_freq() -> FreqTable
+
+pub fn freq_table_sample_freq_text() -> String
+
+pub fn freq_table_sample_protein() -> FreqTable
+
+pub fn freq_table_sample_protein_count_text() -> String
 
 pub fn from_genbank_coords(Int, Int, strand? : String) -> Loc
 
@@ -2403,6 +2699,26 @@ pub fn gc_second_fraction(String) -> Double
 pub fn gc_skew(String, Int, Int) -> Array[Double]
 
 pub fn gcg(String) -> Int
+
+pub fn gck_count_features_by_type(GckFile, String) -> Int
+
+pub fn gck_from_bytes(Array[Int]) -> GckFile
+
+pub fn gck_from_seqrecord(SeqRecord) -> GckFile
+
+pub fn gck_parse(String) -> GckFile
+
+pub fn gck_sample() -> GckFile
+
+pub fn gck_seq_length(GckFile) -> Int
+
+pub fn gck_summary(GckFile) -> String
+
+pub fn gck_to_bytes(GckFile) -> Array[Int]
+
+pub fn gck_to_seqrecord(GckFile) -> SeqRecord
+
+pub fn gck_write(GckFile) -> String
 
 pub fn gcrma_background_correction(Array[Double], Array[Double], Double, String) -> Array[Double]
 
@@ -2612,8 +2928,6 @@ pub fn get_amino_acid(String) -> String
 
 pub fn get_amino_acid_composition(CodonUsageTable) -> Map[String, Double]
 
-pub fn get_annotation_statistics(AnnotationResult) -> Map[String, Double]
-
 pub fn get_atom_radius(String) -> Double
 
 pub fn get_attribute(String, String) -> String
@@ -2634,15 +2948,11 @@ pub fn get_conservation(AlignmentResult) -> Array[Double]
 
 pub fn get_default_colors() -> Map[String, String]
 
-pub fn get_distal_annotations(AnnotationResult) -> Array[PeakAnnotation]
-
 pub fn get_element_text(String) -> String
 
 pub fn get_enzyme_by_name(String) -> RestrictionEnzyme?
 
 pub fn get_example_taxa_names() -> Array[String]
-
-pub fn get_exon_annotations(AnnotationResult) -> Array[PeakAnnotation]
 
 pub fn get_feature_colors() -> Map[String, String]
 
@@ -2657,10 +2967,6 @@ pub fn get_go_annotations(AnnotationDb, Array[String]) -> Map[String, Array[Anno
 pub fn get_high_gc_reference() -> Map[String, Double]
 
 pub fn get_hydrophobicity(String) -> Double
-
-pub fn get_intergenic_annotations(AnnotationResult) -> Array[PeakAnnotation]
-
-pub fn get_intron_annotations(AnnotationResult) -> Array[PeakAnnotation]
 
 pub fn get_kegg_annotations(AnnotationDb, Array[String]) -> Map[String, Array[AnnotationKEGGTerm]]
 
@@ -2683,8 +2989,6 @@ pub fn get_node_count(TreeNode) -> Int
 pub fn get_packing_vdw_radius(String) -> Double
 
 pub fn get_pathway_activity(ProgenyResult, String) -> Array[Double]
-
-pub fn get_promoter_annotations(AnnotationResult) -> Array[PeakAnnotation]
 
 pub fn get_publication_year(MedlineRecord) -> String
 
@@ -2725,8 +3029,6 @@ pub fn get_unique_atom_names(Structure) -> Array[String]
 pub fn get_unique_chain_ids(Structure) -> Array[Char]
 
 pub fn get_unique_residue_names(Structure) -> Array[String]
-
-pub fn get_utr_annotations(AnnotationResult) -> Array[PeakAnnotation]
 
 pub fn gf_parse_gtf(String) -> GenomeAnnotation
 
@@ -3130,6 +3432,26 @@ pub fn head_string(Array[String], Int) -> Array[String]
 
 pub fn heterozygosity(Array[String]) -> Double
 
+pub fn hicdc_call_compartments(Array[HiCContact], Int, String) -> Array[CompartmentCall]
+
+pub fn hicdc_call_tads(Array[HiCContact], Int, Int, String) -> Array[TADBoundary]
+
+pub fn hicdc_differential(Array[HiCContact], Array[HiCContact], Double) -> Array[HiCDCResult]
+
+pub fn hicdc_directionality_index(Array[HiCContact], Int, Int) -> Array[Double]
+
+pub fn hicdc_fit_background(Array[HiCContact]) -> (Double, Double, Double, Double, Double)
+
+pub fn hicdc_mark_significant(Array[HiCDCResult], Double) -> Array[HiCDCResult]
+
+pub fn hicdc_predict_expected(Array[HiCContact], Double, Double, Double, Double) -> Array[Double]
+
+pub fn hicdc_run(Array[HiCContact], Double) -> Array[HiCDCResult]
+
+pub fn hicdc_sample_data() -> Array[HiCContact]
+
+pub fn hicdc_test_significance(Array[HiCContact], Double, Double, Double, Double, Double) -> Array[HiCDCResult]
+
 pub fn hilbert_decode(HilbertCurve, Int) -> Array[Int]
 
 pub fn hilbert_distance(HilbertCurve, Array[Int], Array[Int]) -> Int
@@ -3258,6 +3580,34 @@ pub fn identify_low_packing(PackingAnalysisResult, cutoff? : Double) -> Array[St
 
 pub fn identity_score() -> (String, String) -> Double
 
+pub fn ig_from_seq_record(SeqRecord) -> IgRecord
+
+pub fn ig_from_seq_records(Array[SeqRecord]) -> Array[IgRecord]
+
+pub fn ig_parse(String) -> Array[IgRecord]
+
+pub fn ig_record_to_string(IgRecord) -> String
+
+pub fn ig_record_to_string_width(IgRecord, Int) -> String
+
+pub fn ig_records_to_string(Array[IgRecord], Array[String]?) -> String
+
+pub fn ig_sample_file_header() -> Array[String]
+
+pub fn ig_sample_record() -> IgRecord
+
+pub fn ig_sample_record_2() -> IgRecord
+
+pub fn ig_sample_records() -> Array[IgRecord]
+
+pub fn ig_sample_text() -> String
+
+pub fn ig_to_seq_record(IgRecord) -> SeqRecord
+
+pub fn ig_to_seq_records(Array[IgRecord]) -> Array[SeqRecord]
+
+pub fn ig_to_string(IgRecord) -> String
+
 pub fn ihw(Array[Double], Array[Double], Double) -> IHWResult
 
 pub fn ihw_multiple(Array[Double], Array[Array[Double]], Double) -> IHWResult
@@ -3341,6 +3691,22 @@ pub fn infercnv_sample_data(n_tumour? : Int, n_normal? : Int, n_chr? : Int, n_ge
 pub fn instability_index(String) -> Double
 
 pub fn integrate_data(SeuratObject, SeuratObject, IntegrationAnchors) -> SeuratObject
+
+pub fn interproscan_filter_by_analysis(Array[InterproScanRecord], String) -> Array[InterproScanRecord]
+
+pub fn interproscan_filter_by_protein(Array[InterproScanRecord], String) -> Array[InterproScanRecord]
+
+pub fn interproscan_get_go_terms(Array[InterproScanRecord]) -> Array[String]
+
+pub fn interproscan_get_unique_proteins(Array[InterproScanRecord]) -> Array[String]
+
+pub fn interproscan_get_unique_signatures(Array[InterproScanRecord]) -> Array[String]
+
+pub fn interproscan_group_by_protein(Array[InterproScanRecord]) -> Array[(String, Array[InterproScanRecord])]
+
+pub fn interproscan_sample_data() -> String
+
+pub fn interproscan_summary(Array[InterproScanRecord]) -> String
 
 pub fn intersect_int(Array[Int], Array[Int]) -> Array[Int]
 
@@ -3620,6 +3986,18 @@ pub fn log_normalize(Array[Array[Double]], Array[Double]?) -> Array[Array[Double
 
 pub fn log_normalize_counts(Array[Array[Double]], target_sum? : Double) -> Array[Array[Double]]
 
+pub fn logistic_regression_calculate(LogisticRegressionModel, Array[Double]) -> Array[Double]
+
+pub fn logistic_regression_classify(LogisticRegressionModel, Array[Double]) -> Int
+
+pub fn logistic_regression_sample_data() -> (Array[Array[Double]], Array[Int])
+
+pub fn logistic_regression_train(Array[Array[Double]], Array[Int]) -> LogisticRegressionModel
+
+pub fn lookup_shift(ChemicalShiftTable, Int, String) -> Double?
+
+pub fn lookup_space_group(Int) -> SpaceGroup
+
 pub fn lr_pair(String, String) -> LRPair
 
 pub fn ma_align_pairwise(Array[(Double, Double, Double)], Array[(Double, Double, Double)]) -> ((Double, Double, Double), Double)
@@ -3780,6 +4158,66 @@ pub fn mauve_syntenic_regions(MauveAlignment) -> Array[Array[String]]
 
 pub fn mauve_to_bed(MauveAlignment) -> String
 
+pub fn max_ent_eval_feature(MaxEntFeature, Array[String], String) -> Int
+
+pub fn max_entropy_calculate(MaxEntropyModel, Array[String]) -> Array[Double]
+
+pub fn max_entropy_classify(MaxEntropyModel, Array[String]) -> String
+
+pub fn max_entropy_sample_data() -> (Array[Array[String]], Array[String], Array[MaxEntFeature])
+
+pub fn max_entropy_train(Array[Array[String]], Array[String], Array[MaxEntFeature]) -> MaxEntropyModel
+
+pub fn max_peak_intensity(PeakList) -> Double
+
+pub fn max_peak_volume(PeakList) -> Double
+
+pub fn mc_aggregate_rows(Array[Array[Double]], Array[Int], String) -> Array[Array[Double]]
+
+pub fn mc_baseline_snip(Array[Double], Int) -> Array[Double]
+
+pub fn mc_calibrate(Array[Double], Array[Double], Double, String) -> Array[Double]
+
+pub fn mc_dot(Array[Double], Array[Double]) -> Double
+
+pub fn mc_has_missing(Array[Array[Double]]) -> Bool
+
+pub fn mc_impute(Array[Array[Double]], String, Int) -> Array[Array[Double]]
+
+pub fn mc_is_missing(Double) -> Bool
+
+pub fn mc_join_peaks(Array[Double], Array[Double], Double, Bool) -> Array[(Int, Int)]
+
+pub fn mc_local_maxima(Array[Double]) -> Array[Int]
+
+pub fn mc_mad(Array[Double]) -> Double
+
+pub fn mc_mean(Array[Double]) -> Double
+
+pub fn mc_median(Array[Double]) -> Double
+
+pub fn mc_median_polish(Array[Array[Double]], Int, Double) -> (Array[Array[Double]], Array[Double], Array[Double], Double)
+
+pub fn mc_normalize_tic(Array[Double]) -> Array[Double]
+
+pub fn mc_quantile(Array[Double], Double) -> Double
+
+pub fn mc_refine_centroids(Array[Double], Array[Double], Array[Int], Int) -> (Array[Double], Array[Double])
+
+pub fn mc_robust_summary(Array[Array[Double]]) -> Array[Double]
+
+pub fn mc_sd(Array[Double]) -> Double
+
+pub fn mc_smooth(Array[Double], Int, String) -> Array[Double]
+
+pub fn mc_smooth_moving_average(Array[Double], Int) -> Array[Double]
+
+pub fn mc_smooth_savitzky_golay(Array[Double], Int) -> Array[Double]
+
+pub fn mc_sum(Array[Double]) -> Double
+
+pub fn mc_valid_peak_list(Array[Double], Array[Double]) -> Bool
+
 pub fn mcdonald_kreitman_test(Int, Int, Int, Int) -> MKTestResult
 
 pub fn mcp_default_populations() -> Array[McpCellPopulation]
@@ -3794,6 +4232,8 @@ pub fn mean_sd_ascii(Array[Array[Double]], n_bins? : Int) -> String
 
 pub fn mean_sd_bins(Array[Array[Double]], Int) -> Array[MeanSDBin]
 
+pub fn mean_shift_by_element(ChemicalShiftTable, String) -> Double
+
 pub fn melting_temperature(String) -> Double
 
 pub fn meme_to_motif(String) -> Motif
@@ -3801,6 +4241,14 @@ pub fn meme_to_motif(String) -> Motif
 pub fn menhinick_index(Array[Int]) -> Double
 
 pub fn merge_locations(FeatureLocation, FeatureLocation) -> FeatureLocation raise LocationParserError
+
+pub fn merge_peaks(Array[CandidatePeak], Int) -> Array[CandidatePeak]
+
+pub fn merge_regions(Array[MethylTile], MethylSeekRParams) -> Array[MethylRegion]
+
+pub fn methyl_seekr_sample_data() -> Array[CytosineSite]
+
+pub fn methylation_level(CytosineSite) -> Double
 
 pub fn methylkit_bh_correct(Array[Double]) -> Array[Double]
 
@@ -4024,6 +4472,18 @@ pub fn mm_summary(Array[MmDmpResult]) -> String
 
 pub fn mm_t_test(Array[Double], Array[Double]) -> (Double, Double)
 
+pub fn mmcif_escape_value(String) -> String
+
+pub fn mmcif_format_atom(Atom, Int) -> String
+
+pub fn mmcif_format_atom_with_group(Atom, Int, String) -> String
+
+pub fn mmcif_format_bfactor(Double) -> String
+
+pub fn mmcif_format_coord(Double) -> String
+
+pub fn mmcif_sample_structure() -> Structure
+
 pub fn module_eigengenes(WGCNAData) -> Array[ModuleEigengene]
 
 pub fn module_trait_correlation(WGCNAData, Array[Array[Double]], Array[String]) -> Map[String, Map[String, Double]]
@@ -4067,6 +4527,14 @@ pub fn motif_kl_divergence(Array[Array[Double]], Array[Array[Double]]) -> Double
 pub fn motif_pearson_correlation(Motif, Motif) -> Double
 
 pub fn motif_per_position_ic(Motif) -> Array[Double]
+
+pub fn motif_scan_pwm_from_counts(String, String, Array[Array[Int]], Double) -> PositionWeightMatrix
+
+pub fn motif_scan_sample_pwm() -> PositionWeightMatrix
+
+pub fn motif_scan_sample_sequences() -> Array[(String, String)]
+
+pub fn motif_scan_summary(Array[MotifMatch]) -> String
 
 pub fn motif_to_meme(Motif) -> String
 
@@ -4246,9 +4714,67 @@ pub fn nexml_to_xml(NeXMLDocument) -> String
 
 pub fn nexml_tree_to_newick(NeXMLTree) -> String
 
+pub fn nib_base_to_code(Char) -> Int
+
+pub fn nib_base_to_code_ci(Char) -> Int
+
+pub fn nib_code_to_base(Int) -> Char
+
+pub fn nib_compressed_size(NibSequence) -> Int
+
+pub fn nib_compression_ratio(NibSequence) -> Double
+
+pub fn nib_decode(Array[Int], Int) -> String
+
+pub fn nib_encode(String) -> Array[Int]
+
+pub fn nib_from_hex(String, String, Int) -> NibSequence
+
+pub fn nib_gc_content(NibSequence) -> Double
+
+pub fn nib_get_base(NibSequence, Int) -> String
+
+pub fn nib_reverse_complement(NibSequence) -> NibSequence
+
+pub fn nib_sample_data() -> NibSequence
+
+pub fn nib_size(NibSequence) -> Int
+
+pub fn nib_subsequence(NibSequence, Int, Int) -> String
+
+pub fn nib_to_hex(NibSequence) -> String
+
+pub fn nib_to_string(NibSequence) -> String
+
 pub fn nipals_pls(Array[Array[Double]], Array[Array[Double]], Int, Int, Int, Int, Double) -> (Array[Double], Array[Double], Array[Double], Array[Double])
 
+pub fn nmr_sample_chemical_shifts() -> ChemicalShiftTable
+
+pub fn nmr_sample_dihedral_restraints() -> Array[DihedralRestraint]
+
+pub fn nmr_sample_noe_restraints() -> Array[NoeRestraint]
+
+pub fn nmr_sample_peak_list() -> PeakList
+
+pub fn nn_forward(NeuralNetwork, Array[Double]) -> Array[Double]
+
+pub fn nn_predict(NeuralNetwork, Array[Double]) -> Int
+
+pub fn nn_sample_iris_data() -> (Array[Array[Double]], Array[Array[Double]])
+
+pub fn nn_sample_xor_data() -> (Array[Array[Double]], Array[Array[Double]])
+
+pub fn nn_train(NeuralNetwork, Array[Array[Double]], Array[Array[Double]], Int) -> Double
+
+pub fn nn_train_example(NeuralNetwork, Array[Double], Array[Double]) -> Double
+
 pub fn node_to_xml(PhyloXMLNode, Int) -> String
+
+pub fn noe_restraint_summary(Array[NoeRestraint]) -> NmrRestraintSummary
+
+pub fn noe_self_violation(NoeRestraint) -> Double?
+
+pub fn noe_violation(NoeRestraint, Double) -> Double
 
 pub fn noiseq_method_bio() -> NOISeqMethod
 
@@ -4350,6 +4876,54 @@ pub fn nussinov_traceback(Array[Array[Double]], Array[UInt16], RNAStructurePredi
 
 pub fn observed_heterozygosity(Array[String]) -> Double
 
+pub fn oc_bandwidth_silverman(Array[Double]) -> Double
+
+pub fn oc_em_t_mixture_1d(Array[Double], Int, Int) -> (Array[Double], Array[Double])
+
+pub fn oc_em_t_mixture_2d(Array[Double], Array[Double], Int, Int) -> (Array[Double], Array[Double])
+
+pub fn oc_event_in_gate(OcGate, Double, Double) -> Bool
+
+pub fn oc_extract_channel(Array[Array[Double]], Int) -> Array[Double]
+
+pub fn oc_flow_clust(Array[Double], Array[Double], String, String?, Map[String, Double], Int) -> OcGate
+
+pub fn oc_gate_flow_set(OcFlowSet, Array[OcGatingRule]) -> Array[OcGatingResult]
+
+pub fn oc_gating_summary(Array[OcGatingResult]) -> String
+
+pub fn oc_kde_evaluate(Array[Double], Double, Double) -> Double
+
+pub fn oc_kde_grid(Array[Double], Int, Double) -> (Array[Double], Array[Double])
+
+pub fn oc_lgamma(Double) -> Double
+
+pub fn oc_ln(Double) -> Double
+
+pub fn oc_mean(Array[Double]) -> Double
+
+pub fn oc_median(Array[Double]) -> Double
+
+pub fn oc_mindensity(Array[Double], String, Map[String, Double]) -> OcGate
+
+pub fn oc_population_stats(Array[OcGatingResult], Int) -> Array[OcPopStat]
+
+pub fn oc_quantile(Array[Double], Double) -> Double
+
+pub fn oc_quantile_gate(Array[Double], String, Map[String, Double]) -> OcGate
+
+pub fn oc_range_gate(Array[Double], String, Map[String, Double]) -> OcGate
+
+pub fn oc_resolve_channel(Array[String], String) -> Int
+
+pub fn oc_sd(Array[Double]) -> Double
+
+pub fn oc_t_pdf(Double, Double, Double, Double) -> Double
+
+pub fn oc_tailgate(Array[Double], String, Map[String, Double]) -> OcGate
+
+pub fn oc_topo_sort(Array[OcGatingRule]) -> Array[OcGatingRule]
+
 pub fn olc_assemble(Array[String], Int) -> String
 
 pub fn oligo_gc_count(String) -> Int
@@ -4377,6 +4951,8 @@ pub fn order_int(Array[Int]) -> Array[Int]
 pub fn ordered_genes(Array[GenePosition]) -> OrderedGenes
 
 pub fn organism_from_build(String) -> String
+
+pub fn orthogonalization_matrix(UnitCell) -> Array[Array[Double]]
 
 pub fn overlap_graph_to_dot(Array[String], Int) -> String
 
@@ -4450,6 +5026,10 @@ pub fn parse_blast_xml(String) -> BlastRecord?
 
 pub fn parse_blat_psl(String) -> Array[QueryResult]
 
+pub fn parse_chemical_shifts(String) -> ChemicalShiftTable
+
+pub fn parse_cif(String) -> Array[CifBlock]
+
 pub fn parse_cigar(String) -> Array[CigarElement]
 
 pub fn parse_clustal(String) -> MultipleSeqAlignment raise AlignIOError
@@ -4457,6 +5037,8 @@ pub fn parse_clustal(String) -> MultipleSeqAlignment raise AlignIOError
 pub fn parse_clustalw(String) -> Alignment
 
 pub fn parse_comma_list(String) -> Array[String]
+
+pub fn parse_compass(String) -> Array[CompassRecord]
 
 pub fn parse_complement_location(String) -> (ParsedLocation, Int) raise LocationParserError
 
@@ -4470,11 +5052,19 @@ pub fn parse_cram_base64(String) -> CramFile raise CramError
 
 pub fn parse_dbref_record(Array[String], Int) -> Array[DBRefEntry]
 
+pub fn parse_dihedral_restraints(String) -> Array[DihedralRestraint]
+
 pub fn parse_double(String) -> Double?
 
 pub fn parse_dssp(String) -> DSSPResult
 
 pub fn parse_embl(String) -> Array[SeqRecord]
+
+pub fn parse_exonerate(String) -> Array[ExonerateRecord]
+
+pub fn parse_exonerate_cigar(String) -> Array[ExonerateRecord]
+
+pub fn parse_exonerate_vulgar(String) -> Array[ExonerateRecord]
 
 pub fn parse_fai(String) -> FastaIndex raise FastaIndexError
 
@@ -4509,6 +5099,10 @@ pub fn parse_header_record(String) -> (String, String, String)
 pub fn parse_hmmer3_tab(String) -> Array[QueryResult]
 
 pub fn parse_int(String) -> Int
+
+pub fn parse_interproscan(String) -> Array[InterproScanRecord]
+
+pub fn parse_interproscan_tsv(String) -> Array[InterproScanRecord]
 
 pub fn parse_jaspar(String) -> Array[JasparMatrix]
 
@@ -4562,11 +5156,15 @@ pub fn parse_node_element(String) -> PhyloXMLNode
 
 pub fn parse_nodes_dmp(TaxonomyDatabase, String) -> TaxonomyDatabase
 
+pub fn parse_noe_restraints(String) -> Array[NoeRestraint]
+
 pub fn parse_pdb(String) -> Structure
 
 pub fn parse_pdb_header(String) -> PDBHeader
 
 pub fn parse_pdb_header_lines(Array[String]) -> PDBHeader
+
+pub fn parse_peak_list(String) -> PeakList
 
 pub fn parse_phylip(String) -> MultipleSeqAlignment raise AlignIOError
 
@@ -4650,9 +5248,13 @@ pub fn pcatools_summary(FullPCAResult) -> String
 
 pub fn pcoa(Array[Array[Double]]) -> PCoAResult
 
-pub fn peak2gene(AnnotationResult) -> Array[PeakGeneAssociation]
+pub fn peak_calling_sample_data() -> (Array[ChipSeqRead], Array[ChipSeqRead])
 
-pub fn peak_overlap(Array[(String, Array[Peak])], Int) -> PeakOverlapResult
+pub fn peak_calling_summary(Array[CandidatePeak]) -> String
+
+pub fn peaks_by_atom(PeakList, String, Int) -> Array[NmrPeak]
+
+pub fn peaks_by_residue(PeakList, Int, Int) -> Array[NmrPeak]
 
 pub fn percent_identity(String, String) -> Double
 
@@ -4698,23 +5300,17 @@ pub fn pkn_edge(String, String, Double) -> PKNEdge
 
 pub fn pkn_from_edges(Array[PKNEdge]) -> PriorKnowledgeNetwork
 
-pub fn plot_anno_pie(AnnotationResult) -> String
-
-pub fn plot_annotation_bar(Map[String, Int]) -> String
-
-pub fn plot_dist_to_tss(Array[PeakAnnotation]) -> String
-
 pub fn plot_mds_distances(Matrix, Int) -> Matrix
 
 pub fn plot_pca(VSTResult, ntop? : Int) -> PCAResult
-
-pub fn plot_venn(PeakOverlapResult) -> String
 
 pub fn pls_component(Array[Array[Double]], Array[Array[Double]], Int, Int, Int, Int, Double) -> (Array[Double], Array[Double], Array[Double], Array[Double], Array[Double], Array[Double])
 
 pub fn pls_new() -> PLSOptions
 
 pub fn pls_options_full(Int, String, Bool, Int, Double) -> PLSOptions
+
+pub fn poisson_pvalue(Int, Double) -> Double
 
 pub fn popgen_normal_cdf(Double) -> Double
 
@@ -4743,6 +5339,36 @@ pub fn predict_secondary_structure(String) -> String
 pub fn predict_transmembrane_regions(String, Int, Double) -> Array[TransmembraneRegion]
 
 pub fn preprocess_cds(CellDataSet, Int) -> CellDataSet
+
+pub fn primer3_amplicon_length(Int, Int, Int, Int) -> Int
+
+pub fn primer3_cross_dimer(String, String) -> Int
+
+pub fn primer3_default_config() -> Primer3Config
+
+pub fn primer3_design_primers(String, Primer3Config) -> Primer3Design
+
+pub fn primer3_design_summary(Primer3Design) -> String
+
+pub fn primer3_gc_content(String) -> Double
+
+pub fn primer3_hairpin_3prime(String, Int) -> Int
+
+pub fn primer3_pair_amplicon_length(Primer3Result, Primer3Result) -> Int
+
+pub fn primer3_sample_template() -> String
+
+pub fn primer3_score(String, Double, Double, Int, Primer3Config) -> Double
+
+pub fn primer3_self_complement(String) -> Int
+
+pub fn primer3_short_template() -> String
+
+pub fn primer3_tm(String, Double) -> Double
+
+pub fn primer3_tm_salt(String, Double) -> Double
+
+pub fn primer3_tm_wallace(String) -> Double
 
 pub fn profile_from_sequences(Array[String]) -> Array[Array[Double]]
 
@@ -4948,8 +5574,6 @@ pub fn reactome_filter_results(ReactomeResult, Double) -> ReactomeResult
 
 pub fn reactome_summarize_result(ReactomeResult) -> String
 
-pub fn read_peak_file(String) -> Array[Peak]
-
 pub fn reads_to_sequences(Array[SeqRecord]) -> (Array[String], Array[String])
 
 pub fn recommend_tm_method(String) -> String
@@ -4969,6 +5593,8 @@ pub fn ref_method_global_mean() -> ReferenceMethod
 pub fn ref_method_reference_categories() -> ReferenceMethod
 
 pub fn reference_sample_data() -> ReferenceList
+
+pub fn region_summary(Array[MethylRegion]) -> String
 
 pub fn register_matrix(String, SubsMatrix) -> Unit
 
@@ -5013,6 +5639,8 @@ pub fn reverse_codon_table() -> Map[String, Array[String]]
 pub fn reverse_complement(String) -> String
 
 pub fn reverse_complement_iupac(String) -> String
+
+pub fn reverse_complement_sequence(String) -> String
 
 pub fn rma_normalize(AffyBatch) -> Array[Array[Double]]
 
@@ -5168,6 +5796,18 @@ pub fn sample_stockholm_content() -> String
 
 pub fn sample_swissprot_record() -> SwissProtRecord
 
+pub fn sasa_calc(Structure, Int, Double) -> Array[SasaResult]
+
+pub fn sasa_calc_residue(Array[SasaResult], Structure) -> Array[ResidueSasa]
+
+pub fn sasa_calc_total(Array[SasaResult]) -> SasaSummary
+
+pub fn sasa_generate_sphere_points(Int) -> Array[Vector3]
+
+pub fn sasa_sample_structure() -> Structure
+
+pub fn sasa_vdw_radius(String) -> Double
+
 pub fn sc3_calculate_consensus_matrix(Array[Array[Double]], Int, Int) -> Array[Array[Double]]
 
 pub fn sc3_calculate_gap_statistics(Array[Array[Double]], Int) -> Array[Double]
@@ -5203,6 +5843,10 @@ pub fn sc_norm_run(Array[Array[Double]], Array[String], Array[String], SCnormPar
 pub fn sc_norm_spline_smooth(Array[Double], Array[Double], Int) -> Array[Double]
 
 pub fn scale_data(SeuratObject) -> SeuratObject
+
+pub fn scan_sequence(MotifScanPSSM, String, String, Double) -> Array[MotifMatch]
+
+pub fn scan_sequences(MotifScanPSSM, Array[(String, String)], Double) -> Array[MotifMatch]
 
 pub fn scater_calculate_feature_qc(Array[Array[Int]], Array[String]) -> FeatureQCStats
 
@@ -5558,6 +6202,10 @@ pub fn shannon_entropy_bits(String) -> Double
 
 pub fn shannon_index(Array[Int]) -> Double
 
+pub fn shifts_for_element(ChemicalShiftTable, String) -> Array[ChemicalShift]
+
+pub fn shifts_for_residue(ChemicalShiftTable, Int) -> Array[ChemicalShift]
+
 pub fn shuffle_motif_columns(Array[Array[Double]]) -> Array[Array[Double]]
 
 pub fn significant_genes(DESeqResults, alpha? : Double, lfc_threshold? : Double) -> Array[String]
@@ -5645,6 +6293,26 @@ pub fn smith_waterman_protein(String, String) -> SWResult
 pub fn smith_waterman_with_matrix(String, String, SubstitutionMatrix, Double) -> SWResult
 
 pub fn smooth_log2_ratios(Array[CNVProbe], Int) -> Array[CNVProbe]
+
+pub fn snapgene_count_features_by_type(SnapgeneFile, String) -> Int
+
+pub fn snapgene_from_bytes(Array[Int]) -> SnapgeneFile
+
+pub fn snapgene_from_seqrecord(SeqRecord) -> SnapgeneFile
+
+pub fn snapgene_parse(String) -> SnapgeneFile
+
+pub fn snapgene_sample() -> SnapgeneFile
+
+pub fn snapgene_seq_length(SnapgeneFile) -> Int
+
+pub fn snapgene_summary(SnapgeneFile) -> String
+
+pub fn snapgene_to_bytes(SnapgeneFile) -> Array[Int]
+
+pub fn snapgene_to_seqrecord(SnapgeneFile) -> SeqRecord
+
+pub fn snapgene_write(SnapgeneFile) -> String
 
 pub fn soft_threshold(Double, Double) -> Double
 
@@ -5964,6 +6632,32 @@ pub fn survival_normal_p_value_two_sided(Double) -> Double
 
 pub fn survival_sample_data() -> SurvData
 
+pub fn sv_annotate(Array[SvRecord], Array[SvGeneRegion]) -> Array[SvAnnotation]
+
+pub fn sv_annotation_summary(SvAnnotation) -> String
+
+pub fn sv_are_partners(SvRecord, SvRecord) -> Bool
+
+pub fn sv_count_by_type(Array[SvRecord]) -> Map[String, Int]
+
+pub fn sv_filter_by_quality(Array[SvRecord], Double) -> Array[SvRecord]
+
+pub fn sv_filter_by_size(Array[SvRecord], Int) -> Array[SvRecord]
+
+pub fn sv_filter_by_type(Array[SvRecord], SvType) -> Array[SvRecord]
+
+pub fn sv_find_partners(Array[SvRecord]) -> Array[(String, String)]
+
+pub fn sv_parse_bnd_alt(String, String, Int) -> SvBreakend?
+
+pub fn sv_parse_type(String) -> SvType
+
+pub fn sv_parse_vcf(String) -> Array[SvRecord]
+
+pub fn sv_parse_vcf_line(String) -> SvRecord?
+
+pub fn sv_record_summary(SvRecord) -> String
+
 pub fn sv_result_d(SVResult) -> Array[Double]
 
 pub fn sv_result_ncol(SVResult) -> Int
@@ -5977,6 +6671,26 @@ pub fn sv_result_rank(SVResult) -> Int
 pub fn sv_result_u(SVResult) -> Array[Array[Double]]
 
 pub fn sv_result_v(SVResult) -> Array[Array[Double]]
+
+pub fn sv_sample_genes() -> Array[SvGeneRegion]
+
+pub fn sv_sample_records() -> Array[SvRecord]
+
+pub fn sv_sample_vcf() -> String
+
+pub fn sv_type_bnd() -> SvType
+
+pub fn sv_type_del() -> SvType
+
+pub fn sv_type_dup() -> SvType
+
+pub fn sv_type_ins() -> SvType
+
+pub fn sv_type_inv() -> SvType
+
+pub fn sv_type_label(SvType) -> String
+
+pub fn sv_type_tra() -> SvType
 
 pub fn sva(Array[Array[Double]], Array[Array[Double]], mod0? : Array[Array[Double]], n_sv? : Int) -> SvaResult
 
@@ -6031,6 +6745,8 @@ pub fn three_to_one() -> Map[String, String]
 pub fn tile_by_ranges(GRanges, Int) -> GRanges
 
 pub fn tile_genome(Array[(String, Int)], Int) -> GRanges
+
+pub fn tile_methylation(Array[CytosineSite], MethylSeekRParams) -> Array[MethylTile]
 
 pub fn tm_gc(String) -> Double
 
@@ -6190,6 +6906,8 @@ pub fn unique_int(Array[Int]) -> Array[Int]
 
 pub fn unique_string(Array[String]) -> Array[String]
 
+pub fn unit_cell_volume(UnitCell) -> Double
+
 pub fn unweighted_unifrac(Array[Double], Array[Double]) -> Double
 
 pub fn update_centroids(Array[Array[Double]], Array[Int], Int) -> Array[Array[Double]]
@@ -6229,6 +6947,26 @@ pub fn vector_rmsd(Array[Vector3], Array[Vector3]) -> Double
 pub fn vector_superposition_rmsd(Array[Vector3], Array[Vector3]) -> Double
 
 pub fn vector_superposition_transform(Array[Vector3], Array[Vector3]) -> (RotationMatrix3, Vector3)
+
+pub fn velocity_compute(Array[VelocityGeneData], Array[GeneKinetics]) -> Array[CellVelocity]
+
+pub fn velocity_embedding(Array[CellVelocity], Array[Array[Double]], Int) -> Array[EmbeddingVelocity]
+
+pub fn velocity_find_root_cells(Array[CellVelocity], Int) -> Array[Int]
+
+pub fn velocity_gene(Array[Double], Array[Double], Double, Double) -> Array[Double]
+
+pub fn velocity_kinetic_model(String, Array[Double], Array[Double], Int) -> GeneKinetics
+
+pub fn velocity_run(Array[VelocityGeneData], Array[Array[Double]], Int) -> (Array[GeneKinetics], Array[CellVelocity], Array[EmbeddingVelocity])
+
+pub fn velocity_sample_data() -> Array[VelocityGeneData]
+
+pub fn velocity_sample_embeddings(Int) -> Array[Array[Double]]
+
+pub fn velocity_steady_state(Array[Double], Array[Double]) -> (Double, Double, Double)
+
+pub fn velocity_transition_matrix(Array[CellVelocity], Array[Array[Double]], Int, Double) -> Array[Array[Double]]
 
 pub fn venn_all_intersect(VennDiagramResult) -> Array[String]
 
@@ -6345,6 +7083,12 @@ pub fn write_gmt(GmtGeneSetCollection) -> String
 pub fn write_gmx(GmtGeneSetCollection) -> String
 
 pub fn write_maf(MAFAliignment) -> String
+
+pub fn write_mmcif(Structure) -> String
+
+pub fn write_mmcif_atom_site(Structure) -> String
+
+pub fn write_mmcif_header(Structure) -> String
 
 pub fn write_newick(TreeNode, Bool) -> String
 
@@ -6569,6 +7313,31 @@ pub enum AlignAbstractType {
   Generic
 }
 
+pub struct AlignAceMotif {
+  count_matrix : Array[Array[Int]]
+  width : Int
+  num_sites : Int
+  consensus : String
+  sites : Array[AlignAceSite]
+}
+pub fn AlignAceMotif::new(Array[Array[Int]]) -> Self
+
+pub struct AlignAceRecord {
+  mut version : String
+  mut command : String
+  parameters : Map[String, String]
+  motifs : Array[AlignAceMotif]
+}
+pub fn AlignAceRecord::new() -> Self
+
+pub struct AlignAceSite {
+  sequence_id : String
+  position : Int
+  strand : String
+  sequence : String
+}
+pub fn AlignAceSite::new(sequence_id~ : String, position~ : Int, strand~ : String, sequence~ : String) -> Self
+
 pub struct AlignClusterer {
   match_score : Double
   mismatch_score : Double
@@ -6581,6 +7350,18 @@ pub struct Alignment {
   alphabet : String
   description : String
 }
+
+pub struct AlignmentBlock {
+  code : String
+  query_length : Int
+  target_length : Int
+  block_score : Double
+}
+pub fn AlignmentBlock::block_score(Self) -> Double
+pub fn AlignmentBlock::code(Self) -> String
+pub fn AlignmentBlock::new(String, Int, Int, Double) -> Self
+pub fn AlignmentBlock::query_length(Self) -> Int
+pub fn AlignmentBlock::target_length(Self) -> Int
 
 pub struct AlignmentColumn {
   column_index : Int
@@ -6724,6 +7505,72 @@ pub struct Anchor {
 pub fn Anchor::new(chrom~ : String, start~ : Int, end~ : Int) -> Self
 pub fn Anchor::width(Self) -> Int
 
+pub struct AncombcData {
+  sample_names : Array[String]
+  sample_groups : Array[String]
+  feature_names : Array[String]
+  counts : Array[Array[Int]]
+}
+pub fn AncombcData::counts(Self) -> Array[Array[Int]]
+pub fn AncombcData::feature_names(Self) -> Array[String]
+pub fn AncombcData::get_count(Self, Int, Int) -> Int
+pub fn AncombcData::groups(Self) -> Array[String]
+pub fn AncombcData::library_sizes(Self) -> Array[Int]
+pub fn AncombcData::n_features(Self) -> Int
+pub fn AncombcData::n_samples(Self) -> Int
+pub fn AncombcData::new(Array[String], Array[String], Array[String], Array[Array[Int]]) -> Self
+pub fn AncombcData::sample_groups(Self) -> Array[String]
+pub fn AncombcData::sample_names(Self) -> Array[String]
+
+pub struct AncombcFeature {
+  name : String
+  counts : Array[Int]
+}
+pub fn AncombcFeature::counts(Self) -> Array[Int]
+pub fn AncombcFeature::name(Self) -> String
+pub fn AncombcFeature::new(String, Array[Int]) -> Self
+pub fn AncombcFeature::total(Self) -> Int
+
+pub struct AncombcResult {
+  feature : String
+  log_fold_change : Double
+  w_stat : Int
+  p_value : Double
+  q_value : Double
+  significant : Bool
+}
+pub fn AncombcResult::feature(Self) -> String
+pub fn AncombcResult::log_fold_change(Self) -> Double
+pub fn AncombcResult::new(String, Double, Int, Double, Double, Bool) -> Self
+pub fn AncombcResult::p_value(Self) -> Double
+pub fn AncombcResult::q_value(Self) -> Double
+pub fn AncombcResult::significant(Self) -> Bool
+pub fn AncombcResult::w_stat(Self) -> Int
+
+pub struct AncombcSample {
+  name : String
+  group : String
+}
+pub fn AncombcSample::group(Self) -> String
+pub fn AncombcSample::name(Self) -> String
+pub fn AncombcSample::new(String, String) -> Self
+
+pub struct AncombcTestResult {
+  results : Array[AncombcResult]
+  reference_feature : String
+  group1 : String
+  group2 : String
+  n_samples_group1 : Int
+  n_samples_group2 : Int
+  alpha : Double
+}
+pub fn AncombcTestResult::alpha(Self) -> Double
+pub fn AncombcTestResult::group1(Self) -> String
+pub fn AncombcTestResult::group2(Self) -> String
+pub fn AncombcTestResult::n_significant(Self) -> Int
+pub fn AncombcTestResult::reference_feature(Self) -> String
+pub fn AncombcTestResult::results(Self) -> Array[AncombcResult]
+
 pub struct AnnotatedDataFrame {
   data : Map[String, Array[String]]
   var_metadata : Map[String, String]
@@ -6772,10 +7619,25 @@ pub struct AnnotationKEGGTerm {
 }
 pub fn AnnotationKEGGTerm::new(String, String, String) -> Self
 
-pub struct AnnotationResult {
-  annotations : Array[PeakAnnotation]
-  summary : Map[String, Int]
+pub struct AnnotationSummary {
+  total_peaks : Int
+  promoter : Int
+  utr5 : Int
+  utr3 : Int
+  exon : Int
+  intron : Int
+  downstream : Int
+  distal_intergenic : Int
 }
+pub fn AnnotationSummary::get_distal_intergenic(Self) -> Int
+pub fn AnnotationSummary::get_downstream(Self) -> Int
+pub fn AnnotationSummary::get_exon(Self) -> Int
+pub fn AnnotationSummary::get_intron(Self) -> Int
+pub fn AnnotationSummary::get_promoter(Self) -> Int
+pub fn AnnotationSummary::get_total_peaks(Self) -> Int
+pub fn AnnotationSummary::get_utr3(Self) -> Int
+pub fn AnnotationSummary::get_utr5(Self) -> Int
+pub fn AnnotationSummary::new(total_peaks~ : Int, promoter~ : Int, utr5~ : Int, utr3~ : Int, exon~ : Int, intron~ : Int, downstream~ : Int, distal_intergenic~ : Int) -> Self
 
 pub enum AnnotationType {
   RowAnnotation
@@ -7717,6 +8579,29 @@ pub struct CNVSummary {
   neutral_count : Int
 }
 
+pub struct CandidatePeak {
+  chr : String
+  start : Int
+  end : Int
+  summit : Int
+  read_count : Int
+  control_count : Int
+  fold_enrichment : Double
+  p_value : Double
+  mut fdr : Double
+  mut significant : Bool
+}
+pub fn CandidatePeak::chr(Self) -> String
+pub fn CandidatePeak::control_count(Self) -> Int
+pub fn CandidatePeak::end(Self) -> Int
+pub fn CandidatePeak::fold_enrichment(Self) -> Double
+pub fn CandidatePeak::new(chr~ : String, start~ : Int, end~ : Int, summit~ : Int, read_count~ : Int, control_count~ : Int, fold_enrichment~ : Double, p_value~ : Double) -> Self
+pub fn CandidatePeak::p_value(Self) -> Double
+pub fn CandidatePeak::read_count(Self) -> Int
+pub fn CandidatePeak::start(Self) -> Int
+pub fn CandidatePeak::summit(Self) -> Int
+pub fn CandidatePeak::width(Self) -> Int
+
 pub struct CapsDifferentialCutsite {
   start : Int
   enzyme_name : String
@@ -7748,6 +8633,47 @@ pub fn CapsMap::sequence_names(Self) -> Array[String]
 pub fn CapsMap::sequences(Self) -> Array[String]
 pub fn CapsMap::size(Self) -> Int
 pub fn CapsMap::to_string(Self) -> String
+
+pub struct CeClustering {
+  labels : Array[Int]
+  k : Int
+  reduced_dim : Int
+  subsample : Double
+}
+pub fn CeClustering::new(labels~ : Array[Int], k~ : Int, reduced_dim~ : Int, subsample~ : Double) -> Self
+
+pub struct CeDendroNode {
+  left : CeDendroNode?
+  right : CeDendroNode?
+  height : Double
+  cluster_id : Int
+  members : Array[Int]
+}
+pub fn CeDendroNode::new(left~ : Self?, right~ : Self?, height~ : Double, cluster_id~ : Int, members~ : Array[Int]) -> Self
+
+pub struct CeMergeInfo {
+  node_id : Int
+  left_cluster : Int
+  right_cluster : Int
+  proportion : Double
+  q_value : Double
+  merged : Bool
+}
+pub fn CeMergeInfo::new(node_id~ : Int, left_cluster~ : Int, right_cluster~ : Int, proportion~ : Double, q_value~ : Double, merged~ : Bool) -> Self
+
+pub struct CeRsecParams {
+  ks : Array[Int]
+  reduced_dims : Array[Int]
+  subsamples : Array[Double]
+  consensus_proportion : Double
+  merge_cutoff : Double
+  sequential_alpha : Double
+  sequential_beta : Double
+  n_init : Int
+  max_iter : Int
+}
+
+type CeSubsample
 
 pub struct CellAnnotation {
   cell_id : String
@@ -7792,6 +8718,15 @@ pub struct CellQCStats {
 }
 pub fn CellQCStats::new(Int) -> Self
 pub fn CellQCStats::to_string(Self) -> String
+
+pub struct CellVelocity {
+  cell_id : String
+  velocity : Array[Double]
+  speed : Double
+}
+pub fn CellVelocity::cell_id(Self) -> String
+pub fn CellVelocity::speed(Self) -> Double
+pub fn CellVelocity::velocity(Self) -> Array[Double]
 
 pub struct Centromere {
   chrom : String
@@ -7874,6 +8809,31 @@ pub fn ChemicalReaction::get_substrates(Self) -> Array[String]
 pub fn ChemicalReaction::new(String, String) -> Self
 pub fn ChemicalReaction::set_direction(Self, String) -> Self
 pub fn ChemicalReaction::to_string(Self) -> String
+
+pub struct ChemicalShift {
+  id : Int
+  residue : Int
+  atom_name : String
+  element : String
+  shift_value : Double
+  error : Double?
+}
+pub fn ChemicalShift::new(id~ : Int, residue~ : Int, atom_name~ : String, element~ : String, shift_value~ : Double, error~ : Double?) -> Self
+
+pub struct ChemicalShiftTable {
+  shifts : Array[ChemicalShift]
+}
+pub fn ChemicalShiftTable::new(shifts~ : Array[ChemicalShift]) -> Self
+
+pub struct ChipSeqRead {
+  chr : String
+  position : Int
+  strand : String
+}
+pub fn ChipSeqRead::chr(Self) -> String
+pub fn ChipSeqRead::new(chr~ : String, position~ : Int, strand~ : String) -> Self
+pub fn ChipSeqRead::position(Self) -> Int
+pub fn ChipSeqRead::strand(Self) -> String
 
 pub struct ChrArm {
   arm_type : String
@@ -8048,6 +9008,22 @@ pub fn CibSignatureMatrix::gene_names(Self) -> Array[String]
 pub fn CibSignatureMatrix::matrix(Self) -> Array[Array[Double]]
 pub fn CibSignatureMatrix::new(Array[String], Array[String], Array[Array[Double]]) -> Self
 
+pub struct CifBlock {
+  name : String
+  items : Map[String, CifDataItem]
+}
+pub fn CifBlock::get_loop(Self, String) -> (Array[String], Array[Array[String]])
+pub fn CifBlock::get_scalar(Self, String) -> String
+pub fn CifBlock::keys(Self) -> Array[String]
+pub fn CifBlock::new(name~ : String) -> Self
+pub fn CifBlock::set_loop(Self, String, Array[String], Array[Array[String]]) -> Unit
+pub fn CifBlock::set_scalar(Self, String, String) -> Unit
+
+pub enum CifDataItem {
+  CifScalar(String)
+  CifLoop(Array[String], Array[Array[String]])
+}
+
 pub struct CigarElement {
   op : CigarOp
   length : Int
@@ -8171,6 +9147,16 @@ pub fn ClustalwCommandline::set_input(Self, String) -> Self
 pub fn ClustalwCommandline::set_matrix(Self, String) -> Self
 pub fn ClustalwCommandline::set_output(Self, String) -> Self
 pub fn ClustalwCommandline::set_output_format(Self, String) -> Self
+
+pub struct ClusterExperiment {
+  labels : Array[Int]
+  cocluster : Array[Array[Double]]
+  dendro : CeDendroNode?
+  n_clusters : Int
+  merge_cutoff : Double
+  merge_info : Array[CeMergeInfo]
+}
+pub fn ClusterExperiment::new(labels~ : Array[Int], cocluster~ : Array[Array[Double]], dendro~ : CeDendroNode?, n_clusters~ : Int, merge_cutoff~ : Double, merge_info~ : Array[CeMergeInfo]) -> Self
 
 pub struct ClusterProfilerResult {
   terms : Array[ClusterProfilerTerm]
@@ -8302,6 +9288,54 @@ pub struct CommandlineError {
   command : String
 }
 pub fn CommandlineError::new(String, Int, String) -> Self
+
+pub struct CompartmentCall {
+  chr : String
+  bin : Int
+  pc1 : Double
+  compartment : String
+}
+pub fn CompartmentCall::bin(Self) -> Int
+pub fn CompartmentCall::chr(Self) -> String
+pub fn CompartmentCall::compartment(Self) -> String
+pub fn CompartmentCall::pc1(Self) -> Double
+
+pub struct CompassRecord {
+  query_name : String
+  template_name : String
+  query_n_seqs : Int
+  template_n_seqs : Int
+  query_n_cols : Int
+  template_n_cols : Int
+  sw_score : Double
+  e_value : Double
+  percentage_identity : Double
+  query_start : Int
+  query_end : Int
+  template_start : Int
+  template_end : Int
+  aligned_query : String
+  aligned_template : String
+  consensus_line : String
+}
+pub fn CompassRecord::aligned_query(Self) -> String
+pub fn CompassRecord::aligned_template(Self) -> String
+pub fn CompassRecord::consensus_line(Self) -> String
+pub fn CompassRecord::e_value(Self) -> Double
+pub fn CompassRecord::new(String, String, Int, Int, Int, Int, Double, Double, Double, Int, Int, Int, Int, String, String, String) -> Self
+pub fn CompassRecord::percentage_identity(Self) -> Double
+pub fn CompassRecord::query_end(Self) -> Int
+pub fn CompassRecord::query_n_cols(Self) -> Int
+pub fn CompassRecord::query_n_seqs(Self) -> Int
+pub fn CompassRecord::query_name(Self) -> String
+pub fn CompassRecord::query_start(Self) -> Int
+pub fn CompassRecord::sw_score(Self) -> Double
+pub fn CompassRecord::template_end(Self) -> Int
+pub fn CompassRecord::template_n_cols(Self) -> Int
+pub fn CompassRecord::template_n_seqs(Self) -> Int
+pub fn CompassRecord::template_name(Self) -> String
+pub fn CompassRecord::template_start(Self) -> Int
+pub fn CompassRecord::to_string(Self) -> String
 
 pub struct CompensationMatrix {
   matrix : Array[Array[Double]]
@@ -8525,6 +9559,46 @@ pub struct CramVersion {
   minor : Int
 }
 
+pub struct CrystalAtom {
+  label : String
+  element : String
+  x : Double
+  y : Double
+  z : Double
+  occupancy : Double
+  is_fractional : Bool
+}
+pub fn CrystalAtom::new(label~ : String, element~ : String, x~ : Double, y~ : Double, z~ : Double, occupancy? : Double, is_fractional? : Bool) -> Self
+
+pub struct CrystalBond {
+  atom1 : String
+  atom2 : String
+  bond_type : String
+  distance : Double
+}
+pub fn CrystalBond::new(atom1~ : String, atom2~ : String, bond_type? : String, distance? : Double) -> Self
+
+pub struct CrystalStructure {
+  name : String
+  cell : UnitCell
+  space_group : SpaceGroup
+  atoms : Array[CrystalAtom]
+  bonds : Array[CrystalBond]
+  z : Int
+  molecular_weight : Double
+}
+pub fn CrystalStructure::new(name~ : String, cell~ : UnitCell, space_group~ : SpaceGroup, atoms~ : Array[CrystalAtom], bonds~ : Array[CrystalBond], z? : Int, molecular_weight? : Double) -> Self
+
+pub struct CrystalSummary {
+  name : String
+  n_atoms : Int
+  n_bonds : Int
+  volume : Double
+  density : Double
+  space_group : String
+  z : Int
+}
+
 pub struct CswDataSet {
   windows : Array[CswWindow]
   samples : Array[String]
@@ -8612,6 +9686,36 @@ pub struct CycloneResult {
   g2_score : Double
   m_score : Double
 }
+
+pub struct CytometryCell {
+  cell_id : String
+  sample_id : String
+  condition : String
+  marker_values : Array[Double]
+  mut cluster_id : Int
+}
+pub fn CytometryCell::cell_id(Self) -> String
+pub fn CytometryCell::cluster_id(Self) -> Int
+pub fn CytometryCell::condition(Self) -> String
+pub fn CytometryCell::marker_values(Self) -> Array[Double]
+pub fn CytometryCell::n_markers(Self) -> Int
+pub fn CytometryCell::new(String, String, String, Array[Double]) -> Self
+pub fn CytometryCell::sample_id(Self) -> String
+pub fn CytometryCell::set_cluster_id(Self, Int) -> Unit
+
+pub struct CytosineSite {
+  chr : String
+  position : Int
+  methylated : Int
+  unmethylated : Int
+}
+pub fn CytosineSite::chr(Self) -> String
+pub fn CytosineSite::coverage(Self) -> Int
+pub fn CytosineSite::methylated(Self) -> Int
+pub fn CytosineSite::new(chr~ : String, position~ : Int, methylated~ : Int, unmethylated~ : Int) -> Self
+pub fn CytosineSite::position(Self) -> Int
+pub fn CytosineSite::to_string(Self) -> String
+pub fn CytosineSite::unmethylated(Self) -> Int
 
 pub struct DAResult {
   taxa : String
@@ -9232,6 +10336,49 @@ pub struct DiffExprResult {
   trend_statistic : Array[Double]
 }
 
+pub struct DiffcytDAResult {
+  cluster_id : Int
+  log_fc : Double
+  p_value : Double
+  mut fdr : Double
+  mut significant : Bool
+}
+pub fn DiffcytDAResult::cluster_id(Self) -> Int
+pub fn DiffcytDAResult::fdr(Self) -> Double
+pub fn DiffcytDAResult::log_fc(Self) -> Double
+pub fn DiffcytDAResult::p_value(Self) -> Double
+pub fn DiffcytDAResult::significant(Self) -> Bool
+
+pub struct DiffcytDSResult {
+  cluster_id : Int
+  marker_idx : Int
+  marker_name : String
+  log_fc : Double
+  p_value : Double
+  mut fdr : Double
+  mut significant : Bool
+}
+pub fn DiffcytDSResult::cluster_id(Self) -> Int
+pub fn DiffcytDSResult::fdr(Self) -> Double
+pub fn DiffcytDSResult::log_fc(Self) -> Double
+pub fn DiffcytDSResult::marker_idx(Self) -> Int
+pub fn DiffcytDSResult::marker_name(Self) -> String
+pub fn DiffcytDSResult::p_value(Self) -> Double
+pub fn DiffcytDSResult::significant(Self) -> Bool
+
+pub struct DiffcytSummary {
+  n_cells : Int
+  n_clusters : Int
+  n_markers : Int
+  n_samples : Int
+  n_conditions : Int
+  da_results : Array[DiffcytDAResult]
+  ds_results : Array[DiffcytDSResult]
+  fdr_threshold : Double
+}
+pub fn DiffcytSummary::n_sig_da(Self) -> Int
+pub fn DiffcytSummary::n_sig_ds(Self) -> Int
+
 pub struct DifferentialExpressionResult {
   gene_id : String
   p_value : Double
@@ -9270,6 +10417,17 @@ pub struct DihedralAngles {
   omega : Double?
 }
 pub fn DihedralAngles::new(phi? : Double?, psi? : Double?, omega? : Double?) -> Self
+
+pub struct DihedralRestraint {
+  restraint_id : Int
+  angle_name : String
+  residue : Int
+  lower_bound : Double
+  upper_bound : Double
+  observed : Double?
+  energy : Double?
+}
+pub fn DihedralRestraint::new(restraint_id~ : Int, angle_name~ : String, residue~ : Int, lower_bound~ : Double, upper_bound~ : Double, observed~ : Double?, energy~ : Double?) -> Self
 
 pub struct DisjoinResult {
   seqnames : Array[String]
@@ -9480,6 +10638,14 @@ pub fn Edge::to_string(Self) -> String
 
 type EigenResult
 
+pub struct EmbeddingVelocity {
+  cell_id : String
+  embedding : Array[Double]
+  velocity_embedding : Array[Double]
+}
+pub fn EmbeddingVelocity::embedding(Self) -> Array[Double]
+pub fn EmbeddingVelocity::velocity_embedding(Self) -> Array[Double]
+
 pub struct EmptyDropsResult {
   barcode : Array[String]
   total : Array[Double]
@@ -9672,6 +10838,30 @@ pub struct ExonCount {
   counts : Array[Int]
 }
 pub fn ExonCount::new(String, String, Array[Int]) -> Self
+
+pub struct ExonerateRecord {
+  query_name : String
+  query_start : Int
+  query_end : Int
+  query_strand : String
+  target_name : String
+  target_start : Int
+  target_end : Int
+  target_strand : String
+  score : Double
+  alignment_blocks : Array[AlignmentBlock]
+}
+pub fn ExonerateRecord::alignment_blocks(Self) -> Array[AlignmentBlock]
+pub fn ExonerateRecord::new(String, Int, Int, String, String, Int, Int, String, Double, Array[AlignmentBlock]) -> Self
+pub fn ExonerateRecord::query_end(Self) -> Int
+pub fn ExonerateRecord::query_name(Self) -> String
+pub fn ExonerateRecord::query_start(Self) -> Int
+pub fn ExonerateRecord::query_strand(Self) -> String
+pub fn ExonerateRecord::score(Self) -> Double
+pub fn ExonerateRecord::target_end(Self) -> Int
+pub fn ExonerateRecord::target_name(Self) -> String
+pub fn ExonerateRecord::target_start(Self) -> Int
+pub fn ExonerateRecord::target_strand(Self) -> String
 
 pub struct Experiment {
   name : String
@@ -10015,6 +11205,29 @@ pub fn FreqAnalysisResult::fa_get_frequency(Self, String) -> Double
 pub fn FreqAnalysisResult::fa_get_patterns(Self) -> Array[String]
 pub fn FreqAnalysisResult::fa_get_total_count(Self) -> Int
 pub fn FreqAnalysisResult::new(Map[String, Double], Map[String, Int], Int) -> Self
+
+pub struct FreqTable {
+  alphabet : Array[String]
+  data : Map[String, Double]
+  count : Map[String, Int]
+}
+pub fn FreqTable::alphabet(Self) -> Array[String]
+pub fn FreqTable::contains(Self, String) -> Bool
+pub fn FreqTable::count(Self) -> Map[String, Int]
+pub fn FreqTable::count_of(Self, String) -> Int
+pub fn FreqTable::data(Self) -> Map[String, Double]
+pub fn FreqTable::frequency(Self, String) -> Double
+pub fn FreqTable::has_counts(Self) -> Bool
+pub fn FreqTable::letters(Self) -> Array[String]
+pub fn FreqTable::new(Map[String, Double], FreqTableType, Array[String]?) -> Self
+pub fn FreqTable::size(Self) -> Int
+pub fn FreqTable::to_string(Self) -> String
+pub fn FreqTable::total_count(Self) -> Int
+
+pub enum FreqTableType {
+  COUNT
+  FREQ
+}
 
 pub struct FsspAlignment {
   pdbid : String
@@ -10578,6 +11791,33 @@ pub struct GatingResult {
 pub fn GatingResult::new(Array[Array[Double]], Int, Int, Array[Double]) -> Self
 pub fn GatingResult::to_string(Self) -> String
 
+pub struct GckFeature {
+  name : String
+  type_ : String
+  direction : Int
+  segments : Array[(Int, Int)]
+}
+pub fn GckFeature::new(name~ : String, type_~ : String, direction~ : Int, segments~ : Array[(Int, Int)]) -> Self
+
+pub struct GckFile {
+  mut version : Int
+  mut seq_type : GckSeqType
+  mut is_circular : Bool
+  mut sequence : String
+  features : Array[GckFeature]
+}
+pub fn GckFile::new() -> Self
+
+pub enum GckSeqType {
+  GckDna
+  GckRna
+  GckProtein
+  GckUnknown
+} derive(Eq)
+pub fn GckSeqType::from_int(Int) -> Self
+pub fn GckSeqType::to_int(Self) -> Int
+pub fn GckSeqType::to_string(Self) -> String
+
 pub struct Gene {
   gene_id : String
   seqname : String
@@ -10586,6 +11826,24 @@ pub struct Gene {
   strand : Strand
 }
 pub fn Gene::new(String, String, Int, Int, Strand) -> Self
+
+pub struct GeneAnnotation {
+  gene_id : String
+  gene_name : String
+  chr : String
+  gene_start : Int
+  gene_end : Int
+  strand : String
+  tss : Int
+}
+pub fn GeneAnnotation::get_chr(Self) -> String
+pub fn GeneAnnotation::get_gene_end(Self) -> Int
+pub fn GeneAnnotation::get_gene_id(Self) -> String
+pub fn GeneAnnotation::get_gene_name(Self) -> String
+pub fn GeneAnnotation::get_gene_start(Self) -> Int
+pub fn GeneAnnotation::get_strand(Self) -> String
+pub fn GeneAnnotation::get_tss(Self) -> Int
+pub fn GeneAnnotation::new(gene_id~ : String, gene_name~ : String, chr~ : String, gene_start~ : Int, gene_end~ : Int, strand~ : String) -> Self
 
 pub struct GeneExpression {
   gene_ids : Array[String]
@@ -10613,6 +11871,21 @@ pub struct GeneInfo {
   biotype : String
 }
 pub fn GeneInfo::new(String, String, String, String, Int, Int, String, String) -> Self
+
+pub struct GeneKinetics {
+  gene_name : String
+  alpha : Double
+  beta : Double
+  gamma : Double
+  likelihood : Double
+  steady_state_u : Double
+  steady_state_s : Double
+}
+pub fn GeneKinetics::alpha(Self) -> Double
+pub fn GeneKinetics::beta(Self) -> Double
+pub fn GeneKinetics::gamma(Self) -> Double
+pub fn GeneKinetics::gene_name(Self) -> String
+pub fn GeneKinetics::likelihood(Self) -> Double
 
 pub struct GeneModuleInfo {
   gene_name : String
@@ -11313,6 +12586,47 @@ pub struct HeatmapResult {
 }
 pub fn HeatmapResult::to_string(Self) -> String
 
+pub struct HiCContact {
+  chr : String
+  bin1 : Int
+  bin2 : Int
+  mut count : Int
+  distance : Int
+  mut gc_content : Double
+  mut mappability : Double
+}
+pub fn HiCContact::bin1(Self) -> Int
+pub fn HiCContact::bin2(Self) -> Int
+pub fn HiCContact::chr(Self) -> String
+pub fn HiCContact::count(Self) -> Int
+pub fn HiCContact::distance(Self) -> Int
+pub fn HiCContact::gc_content(Self) -> Double
+pub fn HiCContact::mappability(Self) -> Double
+pub fn HiCContact::new(String, Int, Int, Int, Int) -> Self
+pub fn HiCContact::set_gc(Self, Double) -> Unit
+pub fn HiCContact::set_mappability(Self, Double) -> Unit
+
+pub struct HiCDCResult {
+  chr : String
+  bin1 : Int
+  bin2 : Int
+  observed : Int
+  expected : Double
+  log_fc : Double
+  p_value : Double
+  mut fdr : Double
+  mut significant : Bool
+}
+pub fn HiCDCResult::bin1(Self) -> Int
+pub fn HiCDCResult::bin2(Self) -> Int
+pub fn HiCDCResult::chr(Self) -> String
+pub fn HiCDCResult::expected(Self) -> Double
+pub fn HiCDCResult::fdr(Self) -> Double
+pub fn HiCDCResult::log_fc(Self) -> Double
+pub fn HiCDCResult::observed(Self) -> Int
+pub fn HiCDCResult::p_value(Self) -> Double
+pub fn HiCDCResult::significant(Self) -> Bool
+
 pub struct HieRecord {
   sunid : Int
   parent : Int
@@ -11494,6 +12808,21 @@ pub struct IdeogramBand {
 }
 pub fn IdeogramBand::new(String, Int, Int, String, String) -> Self
 
+pub struct IgRecord {
+  title : String
+  comment : String
+  sequence : String
+}
+pub fn IgRecord::comment(Self) -> String
+pub fn IgRecord::description(Self) -> String
+pub fn IgRecord::id(Self) -> String
+pub fn IgRecord::length(Self) -> Int
+pub fn IgRecord::name(Self) -> String
+pub fn IgRecord::new(String, String, String) -> Self
+pub fn IgRecord::sequence(Self) -> String
+pub fn IgRecord::title(Self) -> String
+pub fn IgRecord::to_string(Self) -> String
+
 pub struct ImgtHeader {
   accession : String
   seq_id : String
@@ -11632,6 +12961,39 @@ pub fn InternalCoordResidue::add_bond_angle(Self, BondAngle) -> Self
 pub fn InternalCoordResidue::add_bond_length(Self, BondLength) -> Self
 pub fn InternalCoordResidue::add_torsion(Self, TorsionAngle) -> Self
 pub fn InternalCoordResidue::new(resname~ : String, resseq~ : Int, start_atom? : String) -> Self
+
+pub struct InterproScanRecord {
+  protein_id : String
+  md5 : String
+  seq_length : Int
+  analysis : String
+  signature_acc : String
+  signature_desc : String
+  start_pos : Int
+  stop_pos : Int
+  score : Double
+  status : String
+  date : String
+  ipr_acc : String
+  ipr_desc : String
+  go_terms : Array[String]
+}
+pub fn InterproScanRecord::analysis(Self) -> String
+pub fn InterproScanRecord::date(Self) -> String
+pub fn InterproScanRecord::go_terms(Self) -> Array[String]
+pub fn InterproScanRecord::ipr_acc(Self) -> String
+pub fn InterproScanRecord::ipr_desc(Self) -> String
+pub fn InterproScanRecord::md5(Self) -> String
+pub fn InterproScanRecord::new(protein_id~ : String, md5~ : String, seq_length~ : Int, analysis~ : String, signature_acc~ : String, signature_desc~ : String, start_pos~ : Int, stop_pos~ : Int, score~ : Double, status~ : String, date~ : String, ipr_acc~ : String, ipr_desc~ : String, go_terms~ : Array[String]) -> Self
+pub fn InterproScanRecord::protein_id(Self) -> String
+pub fn InterproScanRecord::score(Self) -> Double
+pub fn InterproScanRecord::seq_length(Self) -> Int
+pub fn InterproScanRecord::signature_acc(Self) -> String
+pub fn InterproScanRecord::signature_desc(Self) -> String
+pub fn InterproScanRecord::start_pos(Self) -> Int
+pub fn InterproScanRecord::status(Self) -> String
+pub fn InterproScanRecord::stop_pos(Self) -> Int
+pub fn InterproScanRecord::to_string(Self) -> String
 
 pub struct IsoformExpression {
   isoform_id : String
@@ -12026,6 +13388,13 @@ pub struct LogRankResult {
   n1 : Int
   n2 : Int
 }
+
+pub struct LogisticRegressionModel {
+  beta : Array[Double]
+}
+pub fn LogisticRegressionModel::beta(Self) -> Array[Double]
+pub fn LogisticRegressionModel::n_weights(Self) -> Int
+pub fn LogisticRegressionModel::new(Array[Double]) -> Self
 
 pub struct LogoColumn {
   position : Int
@@ -12446,6 +13815,26 @@ pub struct MauveSequence {
   parent_id : String
 } derive(Eq)
 
+pub struct MaxEntFeature {
+  attribute_index : Int
+  attribute_value : String
+  class_label : String
+}
+pub fn MaxEntFeature::attribute_index(Self) -> Int
+pub fn MaxEntFeature::attribute_value(Self) -> String
+pub fn MaxEntFeature::class_label(Self) -> String
+pub fn MaxEntFeature::new(Int, String, String) -> Self
+
+pub struct MaxEntropyModel {
+  classes : Array[String]
+  alphas : Array[Double]
+  features : Array[MaxEntFeature]
+}
+pub fn MaxEntropyModel::alphas(Self) -> Array[Double]
+pub fn MaxEntropyModel::classes(Self) -> Array[String]
+pub fn MaxEntropyModel::features(Self) -> Array[MaxEntFeature]
+pub fn MaxEntropyModel::n_features(Self) -> Int
+
 pub struct McpCellPopulation {
   name : String
   markers : Array[String]
@@ -12550,6 +13939,28 @@ pub fn MethylKitConfig::new() -> Self
 pub fn MethylKitConfig::q_threshold(Self) -> Double
 pub fn MethylKitConfig::with_params(Int, Int, String, Double, Double, Double) -> Self
 
+pub struct MethylRegion {
+  chr : String
+  start : Int
+  end : Int
+  region_type : String
+  n_tiles : Int
+  mean_methylation : Double
+  min_methylation : Double
+  max_methylation : Double
+}
+pub fn MethylRegion::chr(Self) -> String
+pub fn MethylRegion::end(Self) -> Int
+pub fn MethylRegion::max_methylation(Self) -> Double
+pub fn MethylRegion::mean_methylation(Self) -> Double
+pub fn MethylRegion::min_methylation(Self) -> Double
+pub fn MethylRegion::n_tiles(Self) -> Int
+pub fn MethylRegion::new(chr~ : String, start~ : Int, end~ : Int, region_type~ : String, n_tiles~ : Int, mean_methylation~ : Double, min_methylation~ : Double, max_methylation~ : Double) -> Self
+pub fn MethylRegion::region_type(Self) -> String
+pub fn MethylRegion::size(Self) -> Int
+pub fn MethylRegion::start(Self) -> Int
+pub fn MethylRegion::to_string(Self) -> String
+
 pub struct MethylSample {
   sample_id : String
   coverage : Array[MethylCytosine]
@@ -12566,6 +13977,25 @@ pub fn MethylSample::n_cpgs(Self) -> Int
 pub fn MethylSample::new(String) -> Self
 pub fn MethylSample::sample_id(Self) -> String
 
+pub struct MethylSeekRParams {
+  tile_size : Int
+  min_coverage : Int
+  alpha : Double
+  beta : Double
+  gamma : Double
+  min_region_size : Int
+  pmd_window : Int
+}
+pub fn MethylSeekRParams::alpha(Self) -> Double
+pub fn MethylSeekRParams::beta(Self) -> Double
+pub fn MethylSeekRParams::default() -> Self
+pub fn MethylSeekRParams::gamma(Self) -> Double
+pub fn MethylSeekRParams::min_coverage(Self) -> Int
+pub fn MethylSeekRParams::min_region_size(Self) -> Int
+pub fn MethylSeekRParams::new(tile_size? : Int, min_coverage? : Int, alpha? : Double, beta? : Double, gamma? : Double, min_region_size? : Int, pmd_window? : Int) -> Self
+pub fn MethylSeekRParams::pmd_window(Self) -> Int
+pub fn MethylSeekRParams::tile_size(Self) -> Int
+
 pub struct MethylSet {
   methylated : Array[Array[Double]]
   unmethylated : Array[Array[Double]]
@@ -12577,6 +14007,23 @@ pub fn MethylSet::n_probes(Self) -> Int
 pub fn MethylSet::n_samples(Self) -> Int
 pub fn MethylSet::new(Array[Array[Double]], Array[Array[Double]], Array[String], Array[String]) -> Self
 pub fn MethylSet::to_string(Self) -> String
+
+pub struct MethylTile {
+  chr : String
+  start : Int
+  end : Int
+  methylation_level : Double
+  coverage : Int
+  mut region_type : String
+}
+pub fn MethylTile::chr(Self) -> String
+pub fn MethylTile::coverage(Self) -> Int
+pub fn MethylTile::end(Self) -> Int
+pub fn MethylTile::methylation_level(Self) -> Double
+pub fn MethylTile::new(chr~ : String, start~ : Int, end~ : Int, methylation_level~ : Double, coverage~ : Int, region_type? : String) -> Self
+pub fn MethylTile::region_type(Self) -> String
+pub fn MethylTile::start(Self) -> Int
+pub fn MethylTile::to_string(Self) -> String
 
 pub struct MgMatrix {
   n_rows : Int
@@ -12779,6 +14226,29 @@ pub struct MotifHit {
   sequence : String
 }
 pub fn MotifHit::new(Int, Double, String, String) -> Self
+
+pub struct MotifMatch {
+  motif_id : String
+  motif_name : String
+  sequence_id : String
+  start : Int
+  end : Int
+  strand : String
+  score : Double
+  p_value : Double
+  matched_sequence : String
+}
+pub fn MotifMatch::new(motif_id~ : String, motif_name~ : String, sequence_id~ : String, start~ : Int, end~ : Int, strand~ : String, score~ : Double, p_value~ : Double, matched_sequence~ : String) -> Self
+
+pub struct MotifScanPSSM {
+  motif_id : String
+  motif_name : String
+  scores : Array[Array[Double]]
+  min_score : Double
+  max_score : Double
+  background : Array[Double]
+  strand : String
+}
 
 pub struct MultiAssayExperiment {
   experiments : Array[Experiment]
@@ -13164,6 +14634,25 @@ pub enum NeighborSearchMethod {
   BruteForce
 } derive(Eq, @debug.Debug)
 
+pub struct NeuralNetwork {
+  input_layer : NnLayer
+  hidden_layer : NnLayer
+  output_layer : NnLayer
+  learning_rate : Double
+  momentum : Double
+  prev_hidden_deltas : Array[Array[Double]]
+  prev_output_deltas : Array[Array[Double]]
+  prev_hidden_bias_deltas : Array[Double]
+  prev_output_bias_deltas : Array[Double]
+}
+pub fn NeuralNetwork::hidden_layer(Self) -> NnLayer
+pub fn NeuralNetwork::learning_rate(Self) -> Double
+pub fn NeuralNetwork::momentum(Self) -> Double
+pub fn NeuralNetwork::new(Int, Int, Int) -> Self
+pub fn NeuralNetwork::output_layer(Self) -> NnLayer
+pub fn NeuralNetwork::set_learning_rate(Self, Double) -> Self
+pub fn NeuralNetwork::set_momentum(Self, Double) -> Self
+
 pub struct NeutralityAnalysisResult {
   tajima_d : NeutralityTestResult
   fu_li_d : NeutralityTestResult
@@ -13224,6 +14713,51 @@ pub struct NexusRow {
 }
 pub fn NexusRow::new(String, Array[String]) -> Self
 
+pub struct NibSequence {
+  seq_id : String
+  length : Int
+  packed_data : Array[Int]
+  is_uppercase : Bool
+}
+pub fn NibSequence::is_uppercase(Self) -> Bool
+pub fn NibSequence::length(Self) -> Int
+pub fn NibSequence::new(String, String) -> Self
+pub fn NibSequence::packed_data(Self) -> Array[Int]
+pub fn NibSequence::seq_id(Self) -> String
+pub fn NibSequence::to_string(Self) -> String
+
+pub struct NmrPeak {
+  peak_id : Int
+  dimensions : Array[String]
+  chemical_shifts : Array[Double]
+  intensities : Array[Double]
+  volume : Double?
+  merity : Double?
+}
+pub fn NmrPeak::new(peak_id~ : Int, dimensions~ : Array[String], chemical_shifts~ : Array[Double], intensities~ : Array[Double], volume~ : Double?, merity~ : Double?) -> Self
+
+pub struct NmrRestraintSummary {
+  total : Int
+  violated : Int
+  max_violation : Double
+}
+
+pub struct NnLayer {
+  n_in : Int
+  n_out : Int
+  weights : Array[Array[Double]]
+  biases : Array[Double]
+  last_input : Array[Double]
+  last_output : Array[Double]
+  weight_grads : Array[Array[Double]]
+  bias_grads : Array[Double]
+}
+pub fn NnLayer::biases(Self) -> Array[Double]
+pub fn NnLayer::n_in(Self) -> Int
+pub fn NnLayer::n_out(Self) -> Int
+pub fn NnLayer::new(Int, Int) -> Self
+pub fn NnLayer::weights(Self) -> Array[Array[Double]]
+
 pub struct Node {
   node_id : String
   label : String
@@ -13231,6 +14765,17 @@ pub struct Node {
 }
 pub fn Node::new(String, String) -> Self
 pub fn Node::to_string(Self) -> String
+
+pub struct NoeRestraint {
+  restraint_id : Int
+  atom1 : String
+  atom2 : String
+  lower_bound : Double
+  upper_bound : Double
+  observed : Double?
+  energy : Double?
+}
+pub fn NoeRestraint::new(restraint_id~ : Int, atom1~ : String, atom2~ : String, lower_bound~ : Double, upper_bound~ : Double, observed~ : Double?, energy~ : Double?) -> Self
 
 pub struct NsDeResult {
   gene : String
@@ -13392,6 +14937,53 @@ pub struct OTU {
   abundance : Array[Double]
 }
 pub fn OTU::new(String, Array[String], Array[Double]) -> Self
+
+pub struct OcFlowSet {
+  sample_names : Array[String]
+  channel_names : Array[String]
+  data : Array[Array[Array[Double]]]
+}
+pub fn OcFlowSet::new(sample_names~ : Array[String], channel_names~ : Array[String], data~ : Array[Array[Array[Double]]]) -> Self
+
+pub struct OcGate {
+  dim1 : String
+  dim2 : String?
+  min1 : Double
+  max1 : Double
+  min2 : Double
+  max2 : Double
+}
+pub fn OcGate::new1d(dim~ : String, min~ : Double, max~ : Double) -> Self
+pub fn OcGate::new2d(dim1~ : String, dim2~ : String, min1~ : Double, max1~ : Double, min2~ : Double, max2~ : Double) -> Self
+
+pub struct OcGatingResult {
+  population : String
+  sample : String
+  gate : OcGate
+  parent_events : Int
+  child_events : Int
+  indices : Array[Bool]
+}
+pub fn OcGatingResult::new(population~ : String, sample~ : String, gate~ : OcGate, parent_events~ : Int, child_events~ : Int, indices~ : Array[Bool]) -> Self
+
+pub struct OcGatingRule {
+  parent : String
+  child : String
+  method : String
+  dims : Array[String]
+  args : Map[String, Double]
+}
+pub fn OcGatingRule::new(parent~ : String, child~ : String, method~ : String, dims~ : Array[String], args~ : Map[String, Double]) -> Self
+
+pub struct OcPopStat {
+  population : String
+  sample : String
+  count : Int
+  parent_count : Int
+  percent_of_parent : Double
+  percent_of_total : Double
+}
+pub fn OcPopStat::new(population~ : String, sample~ : String, count~ : Int, parent_count~ : Int, percent_of_parent~ : Double, percent_of_total~ : Double) -> Self
 
 pub struct OncoplotData {
   genes : Array[String]
@@ -13698,26 +15290,50 @@ pub fn PathwayNode::new(String, String) -> Self
 pub struct Peak {
   chr : String
   start : Int
-  end : Int
-  peak_id : String
+  mut end : Int
+  summit : Int
+  fold_enrichment : Double
+  p_value : Double
 }
-pub fn Peak::new(String, Int, Int, String) -> Self
+pub fn Peak::get_chr(Self) -> String
+pub fn Peak::get_end(Self) -> Int
+pub fn Peak::get_fold_enrichment(Self) -> Double
+pub fn Peak::get_p_value(Self) -> Double
+pub fn Peak::get_start(Self) -> Int
+pub fn Peak::get_summit(Self) -> Int
+pub fn Peak::new(chr~ : String, start~ : Int, end? : Int, summit? : Int, fold_enrichment? : Double, p_value? : Double) -> Self
+pub fn Peak::set_end(Self, Int) -> Unit
 
 pub struct PeakAnnotation {
-  peak_id : String
-  chr : String
-  start : Int
-  end : Int
-  annotation : String
+  peak : Peak
+  gene_id : String
   gene_name : String
+  chr : String
+  tss : Int
   distance_to_tss : Int
-  feature_type : String
-  strand : String
-  transcript_id : String
-  exon_id : String
-  utr_type : String
+  feature : String
+  annotation : String
 }
-pub fn PeakAnnotation::new(String, String, Int, Int, String, String, Int, String, String, String, String, String) -> Self
+pub fn PeakAnnotation::get_annotation(Self) -> String
+pub fn PeakAnnotation::get_chr(Self) -> String
+pub fn PeakAnnotation::get_distance_to_tss(Self) -> Int
+pub fn PeakAnnotation::get_feature(Self) -> String
+pub fn PeakAnnotation::get_gene_id(Self) -> String
+pub fn PeakAnnotation::get_gene_name(Self) -> String
+pub fn PeakAnnotation::get_peak(Self) -> Peak
+pub fn PeakAnnotation::get_tss(Self) -> Int
+pub fn PeakAnnotation::new(peak~ : Peak, gene_id~ : String, gene_name~ : String, chr~ : String, tss~ : Int, distance_to_tss~ : Int, feature~ : String, annotation~ : String) -> Self
+
+pub struct PeakCallingParams {
+  window_size : Int
+  step_size : Int
+  local_lambda_size : Int
+  pvalue_threshold : Double
+  fdr_threshold : Double
+  min_fold_enrichment : Double
+}
+pub fn PeakCallingParams::default() -> Self
+pub fn PeakCallingParams::new(window_size? : Int, step_size? : Int, local_lambda_size? : Int, pvalue_threshold? : Double, fdr_threshold? : Double, min_fold_enrichment? : Double) -> Self
 
 pub enum PeakFormat {
   BedFormat
@@ -13727,22 +15343,12 @@ pub enum PeakFormat {
 } derive(Eq)
 pub fn PeakFormat::to_string(Self) -> String
 
-pub struct PeakGeneAssociation {
-  peak_id : String
-  gene_id : String
-  distance : Int
-  feature_type : String
-  strand : String
+pub struct PeakList {
+  label : String
+  peaks : Array[NmrPeak]
+  n_dim : Int
 }
-pub fn PeakGeneAssociation::new(String, String, Int, String, String) -> Self
-
-pub struct PeakOverlapResult {
-  peak_sets : Array[(String, Array[Peak])]
-  overlap_matrix : Array[Array[Int]]
-  union_count : Int
-  intersect_count : Int
-}
-pub fn PeakOverlapResult::new(Array[(String, Array[Peak])], Array[Array[Int]], Int, Int) -> Self
+pub fn PeakList::new(label~ : String, peaks~ : Array[NmrPeak], n_dim~ : Int) -> Self
 
 pub struct PeakSet {
   peaks : Array[(String, Int, Int)]
@@ -14007,6 +15613,74 @@ pub fn Position::new_within(Int, Int, Int) -> Self raise LocationParserError
 pub fn Position::repr(Self) -> String
 pub fn Position::str(Self) -> String
 pub fn Position::to_int(Self) -> Int
+
+pub struct PositionWeightMatrix {
+  motif_id : String
+  motif_name : String
+  matrix : Array[Array[Double]]
+  background : Array[Double]
+  strand : String
+}
+pub fn PositionWeightMatrix::new(motif_id~ : String, motif_name~ : String, matrix~ : Array[Array[Double]], background? : Array[Double], strand? : String) -> Self
+
+pub struct Primer3Config {
+  primer_length_min : Int
+  primer_length_max : Int
+  tm_min : Double
+  tm_max : Double
+  gc_min : Double
+  gc_max : Double
+  max_self_complement : Int
+  max_cross_complement : Int
+  salt_conc : Double
+  flank : Int
+}
+pub fn Primer3Config::flank(Self) -> Int
+pub fn Primer3Config::gc_max(Self) -> Double
+pub fn Primer3Config::gc_min(Self) -> Double
+pub fn Primer3Config::max_cross_complement(Self) -> Int
+pub fn Primer3Config::max_self_complement(Self) -> Int
+pub fn Primer3Config::new(Int, Int, Double, Double, Double, Double, Int, Int, Double, Int) -> Self
+pub fn Primer3Config::primer_length_max(Self) -> Int
+pub fn Primer3Config::primer_length_min(Self) -> Int
+pub fn Primer3Config::salt_conc(Self) -> Double
+pub fn Primer3Config::tm_max(Self) -> Double
+pub fn Primer3Config::tm_min(Self) -> Double
+
+pub struct Primer3Design {
+  forward : Array[Primer3Result]
+  reverse : Array[Primer3Result]
+}
+pub fn Primer3Design::best_forward(Self) -> Primer3Result?
+pub fn Primer3Design::best_pair(Self) -> (Primer3Result, Primer3Result)?
+pub fn Primer3Design::best_reverse(Self) -> Primer3Result?
+pub fn Primer3Design::forward(Self) -> Array[Primer3Result]
+pub fn Primer3Design::has_pair(Self) -> Bool
+pub fn Primer3Design::n_forward(Self) -> Int
+pub fn Primer3Design::n_reverse(Self) -> Int
+pub fn Primer3Design::new(Array[Primer3Result], Array[Primer3Result]) -> Self
+pub fn Primer3Design::reverse(Self) -> Array[Primer3Result]
+
+pub struct Primer3Result {
+  sequence : String
+  start : Int
+  length : Int
+  tm : Double
+  gc : Double
+  self_complement : Int
+  is_forward : Bool
+  score : Double
+}
+pub fn Primer3Result::gc(Self) -> Double
+pub fn Primer3Result::is_forward(Self) -> Bool
+pub fn Primer3Result::length(Self) -> Int
+pub fn Primer3Result::new(String, Int, Int, Double, Double, Int, Bool, Double) -> Self
+pub fn Primer3Result::score(Self) -> Double
+pub fn Primer3Result::self_complement(Self) -> Int
+pub fn Primer3Result::sequence(Self) -> String
+pub fn Primer3Result::start(Self) -> Int
+pub fn Primer3Result::tm(Self) -> Double
+pub fn Primer3Result::to_string(Self) -> String
 
 pub struct PriorKnowledgeNetwork {
   edges : Array[PKNEdge]
@@ -14691,6 +16365,24 @@ pub struct ResidueId {
 } derive(Eq)
 pub fn ResidueId::new(Char, Int, icode? : Char) -> Self
 
+pub struct ResidueSasa {
+  resname : String
+  chainid : Char
+  resseq : Int
+  total_sasa : Double
+  backbone_sasa : Double
+  sidechain_sasa : Double
+  num_atoms : Int
+}
+pub fn ResidueSasa::get_backbone_sasa(Self) -> Double
+pub fn ResidueSasa::get_chainid(Self) -> Char
+pub fn ResidueSasa::get_num_atoms(Self) -> Int
+pub fn ResidueSasa::get_resname(Self) -> String
+pub fn ResidueSasa::get_resseq(Self) -> Int
+pub fn ResidueSasa::get_sidechain_sasa(Self) -> Double
+pub fn ResidueSasa::get_total_sasa(Self) -> Double
+pub fn ResidueSasa::new(resname~ : String, chainid~ : Char, resseq~ : Int, total_sasa~ : Double, backbone_sasa~ : Double, sidechain_sasa~ : Double, num_atoms~ : Int) -> Self
+
 pub enum ResourceType {
   GeneModel
   Variation
@@ -15154,6 +16846,36 @@ pub struct SampleQC {
   median_genes_per_cell : Double
 }
 
+pub struct SasaResult {
+  atom_index : Int
+  atom_name : String
+  resname : String
+  chainid : Char
+  resseq : Int
+  sasa : Double
+}
+pub fn SasaResult::get_atom_index(Self) -> Int
+pub fn SasaResult::get_atom_name(Self) -> String
+pub fn SasaResult::get_chainid(Self) -> Char
+pub fn SasaResult::get_resname(Self) -> String
+pub fn SasaResult::get_resseq(Self) -> Int
+pub fn SasaResult::get_sasa(Self) -> Double
+pub fn SasaResult::new(atom_index~ : Int, atom_name~ : String, resname~ : String, chainid~ : Char, resseq~ : Int, sasa~ : Double) -> Self
+
+pub struct SasaSummary {
+  total_sasa : Double
+  backbone_sasa : Double
+  sidechain_sasa : Double
+  num_atoms : Int
+  num_residues : Int
+}
+pub fn SasaSummary::get_backbone_sasa(Self) -> Double
+pub fn SasaSummary::get_num_atoms(Self) -> Int
+pub fn SasaSummary::get_num_residues(Self) -> Int
+pub fn SasaSummary::get_sidechain_sasa(Self) -> Double
+pub fn SasaSummary::get_total_sasa(Self) -> Double
+pub fn SasaSummary::new(total_sasa~ : Double, backbone_sasa~ : Double, sidechain_sasa~ : Double, num_atoms~ : Int, num_residues~ : Int) -> Self
+
 pub struct ScanResult {
   seqname : String
   ranges : Array[(Int, Int)]
@@ -15304,6 +17026,49 @@ pub struct Scoring {
 pub fn Scoring::default_dna() -> Self
 pub fn Scoring::default_protein() -> Self
 pub fn Scoring::new(Double, Double, Double) -> Self
+
+pub struct SdfAtom {
+  symbol : String
+  x : Double
+  y : Double
+  z : Double
+  charge : Int
+}
+pub fn SdfAtom::charge(Self) -> Int
+pub fn SdfAtom::distance(Self, Self) -> Double
+pub fn SdfAtom::new(String, Double, Double, Double, Int) -> Self
+pub fn SdfAtom::symbol(Self) -> String
+pub fn SdfAtom::x(Self) -> Double
+pub fn SdfAtom::y(Self) -> Double
+pub fn SdfAtom::z(Self) -> Double
+
+pub struct SdfBond {
+  atom1 : Int
+  atom2 : Int
+  bond_type : Int
+}
+pub fn SdfBond::atom1(Self) -> Int
+pub fn SdfBond::atom2(Self) -> Int
+pub fn SdfBond::bond_label(Self) -> String
+pub fn SdfBond::bond_type(Self) -> Int
+pub fn SdfBond::new(Int, Int, Int) -> Self
+
+pub struct SdfMolecule {
+  name : String
+  atoms : Array[SdfAtom]
+  bonds : Array[SdfBond]
+  properties : Map[String, String]
+}
+pub fn SdfMolecule::atoms(Self) -> Array[SdfAtom]
+pub fn SdfMolecule::bonds(Self) -> Array[SdfBond]
+pub fn SdfMolecule::get_property(Self, String) -> String
+pub fn SdfMolecule::has_property(Self, String) -> Bool
+pub fn SdfMolecule::n_atoms(Self) -> Int
+pub fn SdfMolecule::n_bonds(Self) -> Int
+pub fn SdfMolecule::name(Self) -> String
+pub fn SdfMolecule::new(String, Array[SdfAtom], Array[SdfBond]) -> Self
+pub fn SdfMolecule::properties(Self) -> Map[String, String]
+pub fn SdfMolecule::set_property(Self, String, String) -> Unit
 
 pub enum SearchIOFormat {
   BlastXml
@@ -15894,6 +17659,46 @@ pub struct SmoothResult {
   upper_ci : Array[Double]
 }
 
+pub struct SnapgeneFeature {
+  name : String
+  type_ : String
+  direction : Int
+  segments : Array[(Int, Int)]
+  qualifiers : Map[String, String]
+}
+pub fn SnapgeneFeature::new(name~ : String, type_~ : String, direction~ : Int, segments~ : Array[(Int, Int)], qualifiers~ : Map[String, String]) -> Self
+
+pub struct SnapgeneFile {
+  mut seq_type : SnapgeneSeqType
+  mut comments : String
+  mut export_version : String
+  mut sequence : String
+  features : Array[SnapgeneFeature]
+  primers : Array[SnapgenePrimer]
+  mut notes : String
+  mut is_circular : Bool
+  extra_packets : Array[(Int, Array[Int])]
+}
+pub fn SnapgeneFile::new() -> Self
+
+pub struct SnapgenePrimer {
+  name : String
+  sequence : String
+  description : String
+  bind_to : Int
+  binds_at_position : Int
+}
+pub fn SnapgenePrimer::new(name~ : String, sequence~ : String, description~ : String, bind_to~ : Int, binds_at_position~ : Int) -> Self
+
+pub enum SnapgeneSeqType {
+  SnapgeneDna
+  SnapgeneRna
+  SnapgeneProtein
+  SnapgeneUnknown
+} derive(Eq)
+pub fn SnapgeneSeqType::from_string(String) -> Self
+pub fn SnapgeneSeqType::to_string(Self) -> String
+
 pub struct SomaticMutation {
   chromosome : String
   position : Int
@@ -15913,6 +17718,12 @@ pub struct SourceInfo {
   tax_id : String
 }
 pub fn SourceInfo::new(source? : String, organism_scientific? : String, organism_common? : String, strain? : String, cell_line? : String, tissue? : String, tax_id? : String) -> Self
+
+pub struct SpaceGroup {
+  number : Int
+  symbol : String
+}
+pub fn SpaceGroup::new(number~ : Int, symbol~ : String) -> Self
 
 pub struct SpatialCoord {
   x : Double
@@ -16172,6 +17983,83 @@ pub fn SurvRecord::group(Self) -> String
 pub fn SurvRecord::new(Double, Bool, String, Array[Double]) -> Self
 pub fn SurvRecord::time(Self) -> Double
 
+pub struct SvAnnotation {
+  record : SvRecord
+  genes : Array[String]
+}
+pub fn SvAnnotation::genes(Self) -> Array[String]
+pub fn SvAnnotation::has_gene_overlap(Self) -> Bool
+pub fn SvAnnotation::new(SvRecord, Array[String]) -> Self
+pub fn SvAnnotation::record(Self) -> SvRecord
+
+pub struct SvBreakend {
+  chrom : String
+  pos : Int
+  strand : String
+  mate_chrom : String
+  mate_pos : Int
+  mate_strand : String
+  mate_id : String
+}
+pub fn SvBreakend::chrom(Self) -> String
+pub fn SvBreakend::has_mate(Self) -> Bool
+pub fn SvBreakend::is_inter_chromosomal(Self) -> Bool
+pub fn SvBreakend::mate_chrom(Self) -> String
+pub fn SvBreakend::mate_id(Self) -> String
+pub fn SvBreakend::mate_pos(Self) -> Int
+pub fn SvBreakend::mate_strand(Self) -> String
+pub fn SvBreakend::new(String, Int, String, String, Int, String) -> Self
+pub fn SvBreakend::pos(Self) -> Int
+pub fn SvBreakend::strand(Self) -> String
+
+pub struct SvGeneRegion {
+  gene : String
+  chrom : String
+  start : Int
+  end : Int
+  strand : String
+}
+pub fn SvGeneRegion::chrom(Self) -> String
+pub fn SvGeneRegion::end(Self) -> Int
+pub fn SvGeneRegion::gene(Self) -> String
+pub fn SvGeneRegion::new(String, String, Int, Int, String) -> Self
+pub fn SvGeneRegion::start(Self) -> Int
+pub fn SvGeneRegion::strand(Self) -> String
+
+pub struct SvRecord {
+  id : String
+  chrom : String
+  pos : Int
+  sv_type : SvType
+  end : Int
+  svlen : Int
+  breakend : SvBreakend?
+  quality : Double
+  filter : String
+}
+pub fn SvRecord::breakend(Self) -> SvBreakend?
+pub fn SvRecord::chrom(Self) -> String
+pub fn SvRecord::end(Self) -> Int
+pub fn SvRecord::filter(Self) -> String
+pub fn SvRecord::id(Self) -> String
+pub fn SvRecord::is_bnd(Self) -> Bool
+pub fn SvRecord::is_inter_chromosomal(Self) -> Bool
+pub fn SvRecord::new(String, String, Int, SvType, Int, Int, SvBreakend?, Double, String) -> Self
+pub fn SvRecord::pos(Self) -> Int
+pub fn SvRecord::quality(Self) -> Double
+pub fn SvRecord::size(Self) -> Int
+pub fn SvRecord::sv_type(Self) -> SvType
+pub fn SvRecord::svlen(Self) -> Int
+
+pub enum SvType {
+  DEL
+  DUP
+  INV
+  INS
+  TRA
+  BND
+}
+
 pub struct SvaResult {
   sv : Array[Array[Double]]
   pprob_gam : Array[Double]
@@ -16236,6 +18124,15 @@ pub struct SwitchAnalyzeRlist {
 pub fn SwitchAnalyzeRlist::add_gene_annotation(Self, String, String) -> Self
 pub fn SwitchAnalyzeRlist::add_isoform(Self, IsoformExpression) -> Self
 pub fn SwitchAnalyzeRlist::new(Array[String], Array[String]) -> Self
+
+pub struct TADBoundary {
+  chr : String
+  bin : Int
+  directionality_index : Double
+}
+pub fn TADBoundary::bin(Self) -> Int
+pub fn TADBoundary::chr(Self) -> String
+pub fn TADBoundary::directionality_index(Self) -> Double
 
 pub struct TFActivityResult {
   tf : String
@@ -16801,6 +18698,16 @@ pub struct UniprotReference {
 }
 pub fn UniprotReference::new(String, String, Array[String], String, String, String) -> Self
 
+pub struct UnitCell {
+  a : Double
+  b : Double
+  c : Double
+  alpha : Double
+  beta : Double
+  gamma : Double
+}
+pub fn UnitCell::new(a~ : Double, b~ : Double, c~ : Double, alpha~ : Double, beta~ : Double, gamma~ : Double) -> Self
+
 pub struct VSNColParam {
   a : Double
   b : Double
@@ -16988,6 +18895,16 @@ pub fn Vector3::unit_x() -> Self
 pub fn Vector3::unit_y() -> Self
 pub fn Vector3::unit_z() -> Self
 pub fn Vector3::zero() -> Self
+
+pub struct VelocityGeneData {
+  gene_name : String
+  spliced : Array[Double]
+  unspliced : Array[Double]
+}
+pub fn VelocityGeneData::gene_name(Self) -> String
+pub fn VelocityGeneData::new(String, Array[Double], Array[Double]) -> Self
+pub fn VelocityGeneData::spliced(Self) -> Array[Double]
+pub fn VelocityGeneData::unspliced(Self) -> Array[Double]
 
 pub struct VennDiagramResult {
   n_sets : Int
