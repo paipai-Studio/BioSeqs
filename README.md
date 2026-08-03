@@ -69,6 +69,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.Statistics.IHW | 独立假设加权(IHW): 协变量加权Bonferroni、局部/全局加权、Storey pi0加权、多协变量支持 |
 | ✅ | Bioconductor DelayedMatrixStats | DelayedArray统计层: row/col统计(mean/var/sd/median/min/max/sum)、NA处理、子集操作 |
 | ✅ | Bioconductor gcrma | GC校正RMA芯片分析: 背景校正(IdealMM/Express)、GC校正、分位数归一化、探针组汇总 |
+| ✅ | Bioconductor preprocessCore | 微阵列核心预处理算法: quantile归一化(全矩阵/子集/拷贝)、invariant set归一化(不变集探针秩匹配)、cyclic loess归一化(迭代MA-loess对间校正)、contrast归一化(对比权重参考分布)、percentile shift归一化(百分位漂移)、log2变换与归一化组合、归一化效果质量统计 |
+| ✅ | Bioconductor xCell | 免疫/基质细胞类型打分: 单样本GSEA(ssGSEA)富集打分(alpha可调加权ECDF)、64种细胞类型默认签名集(T细胞/B细胞/NK/髓系/树突/内皮/成纤维等)、自定义签名集支持、每样本top细胞类型查询、按细胞类别汇总(Lymphoid/Myeloid/Stromal)、免疫/基质/微环境整体评分 |
+| ✅ | Bioconductor MSnbase | 质谱与定量蛋白质组学数据结构: Spectrum(MS1/MSn, profile/centroid, 前体信息)、peak查找(ppm窗口)、m/z范围过滤、TIC归一化、MA平滑、min-win基线校正、SNR centroiding峰提取、Chromatogram(XIC: AUC/FWHM/apex)、MSnSet(定量矩阵+feature/sample元数据)、log2变换、缺失值插补(mean/median/min/zero)、sum/median center归一化、肽段→蛋白汇总(sum/mean/median)、样本QC指标 |
 | ✅ | Bio.Sequencing.Ace | ACE contig组装格式解析: reads/contigs解析、共有序列、覆盖度分析、GC含量计算 |
 | ✅ | Bio.SeqUtils.Proteomics | 蛋白质组学工具: 8种酶切(胰酶/糜酶/胃酶等)、肽段质量计算、同位素分布、b/y碎片离子 |
 | ✅ | Bio.PDB.FragmentMapper | PDB片段映射: DSSP二级结构分类、片段分配/合并/过滤、覆盖率分析 |
