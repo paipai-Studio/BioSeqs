@@ -697,6 +697,9 @@ IvanAXu/BioSeqs/
 │   ├── meme.mbt                # Bio.Motifs.Meme MEME motif发现输出解析 (PSPM概率矩阵、E值、背景频率、共识序列、信息含量)
 │   ├── mast_motif.mbt          # Bio.Motifs.Mast MAST motif搜索输出解析 (p值/E值、序列匹配、motif图、最佳序列选择)
 │   ├── transfac.mbt            # Bio.Motifs.Transfac TRANSFAC转录因子结合谱解析 (PFM频率矩阵、AC/ID/DE/BF/CC字段、参考文献、共识序列)
+│   ├── hmmer_io.mbt            # Bio.SearchIO.HmmerIO HMMER3输出解析 (domtblout域表、文本格式、Query/Hit/HSP/Domain聚合)
+│   ├── fasta_search_io.mbt     # Bio.SearchIO.FastaIO FASTA搜索输出解析 (-m8紧凑表格、-m9带注释头、元数据提取)
+│   ├── gene_pop.mbt            # Bio.PopGen.GenePop GenePop群体遗传学 (基因型解析、等位基因频率、杂合度、序列化往返)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -1009,6 +1012,9 @@ IvanAXu/BioSeqs/
 │   ├── meme_demo/               # MEME motif格式解析示例 (PSPM矩阵、共识序列、信息含量、背景频率、序列化)
 │   ├── mast_motif_demo/         # MAST motif搜索输出解析示例 (p值/E值、最佳序列、motif匹配、序列查找)
 │   ├── transfac_demo/           # TRANSFAC转录因子结合谱解析示例 (PFM矩阵、共识序列、频率计算、序列化、参考文献)
+│   ├── hmmer_io_demo/           # HMMER3输出解析示例 (domtblout域表、文本格式、Query/Hit/HSP聚合、多域比对)
+│   ├── fasta_search_io_demo/    # FASTA搜索输出解析示例 (-m8表格、-m9注释头、元数据、Query/Hit/HSP聚合)
+│   ├── gene_pop_demo/           # GenePop群体遗传学示例 (基因型解析、等位基因频率、杂合度统计、序列化往返)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1324,7 +1330,10 @@ IvanAXu/BioSeqs/
 │   │   ├── abi_test.mbt
 │   │   ├── meme_test.mbt
 │   │   ├── mast_motif_test.mbt
-│   │   └── transfac_full_test.mbt
+│   │   ├── transfac_full_test.mbt
+│   │   ├── hmmer_io_test.mbt
+│   │   ├── fasta_search_io_test.mbt
+│   │   └── gene_pop_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1350,7 +1359,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7737 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7968 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1520,6 +1529,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7737 个测试全�
 | `meme.mbt` | BioPython `Bio.Motifs.Meme` | MEME motif发现输出解析（MEME Minimal Motif Format、位置特异性概率矩阵PSPM、letter-probability matrix头部解析、alength/w/nsites/E字段、背景字母频率、MOTIF/URL行、共识序列、信息含量bits） |
 | `mast_motif.mbt` | BioPython `Bio.Motifs.Mast` | MAST motif搜索输出解析（MAST文本格式、motif/sequence SECTION解析、combined p-value/E-value、序列匹配详情、best_sequence最佳序列选择、motif_matches跨序列聚合、序列化往返） |
 | `transfac.mbt` | BioPython `Bio.Motifs.Transfac` | TRANSFAC转录因子结合谱解析（两字母字段码AC/ID/DE/NA/OS/BF/CC/P0/XX//、位置频率矩阵PFM、参考文献RN/RA/RT/RL/RX、共识序列、频率计算、字母索引、序列化往返） |
+| `hmmer_io.mbt` | BioPython `Bio.SearchIO.HmmerIO` | HMMER3输出解析（domtblout域表23列格式、人类可读文本格式、Query/Hit/HSP/HSPFragment聚合、多域比对、i-Evalue/c-Evalue、bitscore、条件E值、Query/Domain/Alignment段标记） |
+| `fasta_search_io.mbt` | BioPython `Bio.SearchIO.FastaIO` | FASTA搜索输出解析（-m8紧凑表格12列、-m9带#注释头、程序/版本/数据库元数据提取、Query/Hit/HSP聚合、正负链判定、E-value/bitscore） |
+| `gene_pop.mbt` | BioPython `Bio.PopGen.GenePop` | GenePop群体遗传学（基因型diploid/haploid解析、2/3位等位基因数字检测、Pop人口分隔、Locus名自动生成/#Loci注释、等位基因频率、观察/期望杂合度、序列化往返） |
 
 #### 扩展功能模块
 
@@ -1675,6 +1687,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7737 个测试全�
 | `meme.mbt` | Biopython `Bio.Motifs.Meme` | MEME motif发现输出解析（MEME Minimal Motif Format、位置特异性概率矩阵PSPM、letter-probability matrix头部解析、alength/w/nsites/E字段、背景字母频率、MOTIF/URL行、共识序列、信息含量bits） |
 | `mast_motif.mbt` | Biopython `Bio.Motifs.Mast` | MAST motif搜索输出解析（MAST文本格式、motif/sequence SECTION解析、combined p-value/E-value、序列匹配详情、best_sequence最佳序列选择、motif_matches跨序列聚合、序列化往返） |
 | `transfac.mbt` | Biopython `Bio.Motifs.Transfac` | TRANSFAC转录因子结合谱解析（两字母字段码AC/ID/DE/NA/OS/BF/CC/P0/XX//、位置频率矩阵PFM、参考文献RN/RA/RT/RL/RX、共识序列、频率计算、字母索引、序列化往返） |
+| `hmmer_io.mbt` | Biopython `Bio.SearchIO.HmmerIO` | HMMER3输出解析（domtblout域表23列格式、人类可读文本格式、Query/Hit/HSP/HSPFragment聚合、多域比对、i-Evalue/c-Evalue、bitscore、条件E值、Query/Domain/Alignment段标记） |
+| `fasta_search_io.mbt` | Biopython `Bio.SearchIO.FastaIO` | FASTA搜索输出解析（-m8紧凑表格12列、-m9带#注释头、程序/版本/数据库元数据提取、Query/Hit/HSP聚合、正负链判定、E-value/bitscore） |
+| `gene_pop.mbt` | Biopython `Bio.PopGen.GenePop` | GenePop群体遗传学（基因型diploid/haploid解析、2/3位等位基因数字检测、Pop人口分隔、Locus名自动生成/#Loci注释、等位基因频率、观察/期望杂合度、序列化往返） |
 
 ## 核心功能实现
 
@@ -2597,6 +2612,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7737 个测试全�
 
 实现 TRANSFAC 数据库格式解析，参考 Biopython `Bio.Motifs.Transfac`。TRANSFAC 是 Wingender et al. (2000) 发布的转录因子结合位点数据库，使用两字母字段码描述每个 motif 的元数据和位置频率矩阵（Position Frequency Matrix, PFM）。TRANSFAC 格式结构：VV 行（VERSION）、XX 行（分隔符）、// 行（记录终止）、AC（accession 编号，开启新 motif）、ID（identifier）、DE（description）、NA（name）、OS（species）、OC（taxonomic class）、BF（binding factor，可多行）、CC（comments）、P0（PFM 头部，如 "P0  A C G T"）、01/02/...（PFM 数据行，首列为行号，后为各碱基计数）、BS（binding site 序列，可多行）、RN/RA/RT/RL/RX（参考文献：编号/作者/标题/期刊/PubMed）、DR（外部数据库引用）、DT（日期）、TY（类型）。核心数据结构：TransfacReference（number/authors/title/journal/pubmed_id）；TransfacMotifFull（accession/identifier/description/binding_factors/comments/copyright/name/species/taxonomic_class/pfm[字母×位置频率矩阵]/alphabet/width/references/binding_sites/external_refs/creation_date/motif_type）；TransfacRecordFull（version/motifs）。transfac_parse_full(text) 逐行解析：取前两字符为 field code、识别 "VV" 提取版本、"XX" 跳过、"//" 终止当前 motif 并重置、"AC" 开启新 motif（先保存前一个）、各字段码分别赋值、"P0" 初始化 PFM 行数组（使用 loop push 创建独立数组避免共享引用）、数字开头的行解析为 PFM 数据（跳过行号，按碱基顺序 push 到对应行）。TransfacMotifFull 方法：consensus() 取每位置最高计数碱基、total_at(pos) 某位置总计数、frequency(base, pos) 某碱基在某位置的频率（计数/总数）、alphabet_index(letter) 字母在字母表中的索引。TransfacRecordFull 方法：num_motifs()、find(accession) 按 accession 查找。transfac_motif_full_to_string/transfac_record_full_to_string 序列化（含 P0 头部+编号数据行+XX 分隔+// 终止）。transfac_sample_text_full/transfac_sample_motif_full 提供示例数据。适用于转录因子结合位点分析、启动子调控元件识别、基因调控网络构建、与 JASPAR/MEME 格式互转。
 
+### 228. HMMER3 输出解析 (Bio.SearchIO.HmmerIO)
+
+实现 HMMER3 搜索输出解析，参考 Biopython `Bio.SearchIO.HmmerIO`。HMMER3（Eddy, 2011）是 profile HMM 序列搜索工具，支持两种输出格式：`--domtblout`（域表，每域一行）和人类可读文本格式。domtblout 格式为 23 列定宽空白分隔：target_name/target_acc、query_name/query_acc、evalue_full/score_full/bias_full（全序列）、dom_idx/dom_total（域编号/总数）、c_evalue/i_evalue/score_dom/bias_dom（条件/独立 E 值/域得分/偏差）、hmm_from/hmm_to（HMM 坐标）、ali_from/ali_to（比对坐标）、env_from/env_to（包络坐标）、exp/reg/clu/ov/env/dom/rep/inc（统计字段）、description。文本格式以段落组织：`Query:` 行（查询 ID/描述）、`Query length:` 行、`>>` 行（目标序列头部）、`== domain` 行（域得分/E 值）、`Alignment for` 块（比对详情）。核心函数：parse_hmmer3_domtab(content) 按查询聚合、再按目标聚合、每域生成 HSPFragment/HSP/Hit/QueryResult；parse_hmmer3_text(content) 状态机解析段落标记、flush_hit/flush_query 聚合。HSPFragment 字段：query_start/end、hit_start/end、query_strand/hit_strand、aln_span、gap_num、bitscore、evalue。HSP 字段：hit_id、hit_def、fragments、bitscore、evalue、score。Hit 字段：id、description、accession、hsps、bitscore（总和）、evalue（最小）。QueryResult 字段：id、description、seq_len、hits、program、version、target。hmmer_io_count_hsps(qr) 统计 QueryResult 中所有 HSP 片段数。hmmer3_domtab_sample()/hmmer3_text_sample() 提供示例数据。适用于蛋白结构域注释（Pfam/InterPro）、远程同源检测、多域蛋白分析。
+
+### 229. FASTA 搜索输出解析 (Bio.SearchIO.FastaIO)
+
+实现 FASTA 搜索工具输出解析，参考 Biopython `Bio.SearchIO.FastaIO`。FASTA（Pearson & Lipman, 1988）是经典局部比对搜索工具，fasta36 版本支持两种表格输出格式：`-m 8`（紧凑表格，12 列 tab 分隔）和 `-m 9`（带 `#` 注释头的表格）。12 列格式：query id、subject id、percent identity（0-100）、alignment length、mismatches、gap openings、query start、query end、subject start、subject end、E-value、bit score。`-m 9` 格式的注释行包含程序信息（`# FASTA <version>`）、查询信息（`# Query: <id>`）、数据库信息（`# Database: <name>`）。核心函数：parse_fasta_m8(content) 按 query id 聚合行、再按 subject id 聚合、每行生成 HSPFragment/HSP/Hit/QueryResult；parse_fasta_m9(content) 先分离注释行与数据行、解析元数据后委托 parse_fasta_m8 处理数据行。FastaMeta 结构：program、version、database、comments（原始注释行数组）。FastaSearchResult 结构：queries（Array[QueryResult]）、meta（FastaMeta）。链方向判定：query_end < query_start 或 subject_end < subject_start 表示负链。fasta_m8_sample()/fasta_m9_sample() 提供示例数据。适用于序列相似性搜索、直系同源/旁系同源鉴定、BLAST 替代工具结果处理。
+
+### 230. GenePop 群体遗传学 (Bio.PopGen.GenePop)
+
+实现 GenePop 文件格式解析与群体遗传学分析，参考 Biopython `Bio.PopGen.GenePop`。GenePop（Rousset, 2008）是经典的群体遗传学数据格式，记录多个种群在多个位点的基因型数据。文件格式：首行为标题（可选）、`#Loci:` 注释行指定位点名称（可选，否则自动生成 Locus_1..N）、`Pop` 标记分隔种群、每行一个个体 "name, g1 g2 g3..."（基因型为等位基因数字拼接，如 0102 表示 allele1=01/allele2=02，001002 为 3 位数字）。核心数据结构：GenePopGenotype（allele1/allele2?，diploid 双等位/haploid 单等位）；GenePopIndividual（name/genotypes）；GenePopPopulation（name/individuals）；GenePopRecord（title/loci_names/populations/locus_digit_size）。parse_genepop(content) 逐行解析：识别 `#Loci:` 提取位点名、`Pop` 分隔种群、检测等位基因数字位数（2 位 token 长度=4，3 位 token 长度=6，优先使用 token 长度检测，回退到等位基因值启发式）。分析函数：genepop_allele_frequencies(population, locus_index) 返回 Map[Int, Double]（等位基因→频率）；genepop_observed_heterozygosity(population, locus_index) 观察杂合度（杂合个体数/总数）；genepop_expected_heterozygosity(population, locus_index) 期望杂合度（1 - Σpᵢ²）；genepop_alleles_at_locus(record, locus_index) 提取所有等位基因；genepop_total_individuals/num_populations/num_loci 统计函数；genepop_to_string(record) 序列化往返；genepop_summary(record) 摘要报告。genepop_sample() 提供示例数据（2 种群×3 个体×3 位点）。适用于种群遗传结构分析、等位基因频率分布、Hardy-Weinberg 平衡检验、F-statistics 计算。
+
 
 ## 性能优化
 
@@ -2699,8 +2726,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7737 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 7737 |
-| 通过数 | 7737 |
+| 总测试数 | 7968 |
+| 通过数 | 7968 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2984,6 +3011,9 @@ moon test --update
 | Bio.Motifs.Meme | `meme_test.mbt` | 22 |
 | Bio.Motifs.Mast | `mast_motif_test.mbt` | 20 |
 | Bio.Motifs.Transfac | `transfac_full_test.mbt` | 18 |
+| Bio.SearchIO.HmmerIO | `hmmer_io_test.mbt` | 19 |
+| Bio.SearchIO.FastaIO | `fasta_search_io_test.mbt` | 19 |
+| Bio.PopGen.GenePop | `gene_pop_test.mbt` | 34 |
 
 ### Python 对比测试
 
@@ -3070,7 +3100,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 296 个示例程序，展示各模块的典型用法：
+项目提供 299 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3238,6 +3268,9 @@ moon run cmd/bench/main.mbt
 | meme_demo | MEME motif格式解析（PSPM矩阵、共识序列、信息含量、背景频率、序列化） | `moon run examples/meme_demo/main.mbt` |
 | mast_motif_demo | MAST motif搜索输出解析（p值/E值、最佳序列、motif匹配、序列查找） | `moon run examples/mast_motif_demo/main.mbt` |
 | transfac_demo | TRANSFAC转录因子结合谱解析（PFM矩阵、共识序列、频率计算、序列化、参考文献） | `moon run examples/transfac_demo/main.mbt` |
+| hmmer_io_demo | HMMER3输出解析（domtblout域表、文本格式、Query/Hit/HSP聚合、多域比对） | `moon run examples/hmmer_io_demo/main.mbt` |
+| fasta_search_io_demo | FASTA搜索输出解析（-m8表格、-m9注释头、元数据、Query/Hit/HSP聚合） | `moon run examples/fasta_search_io_demo/main.mbt` |
+| gene_pop_demo | GenePop群体遗传学（基因型解析、等位基因频率、杂合度统计、序列化往返） | `moon run examples/gene_pop_demo/main.mbt` |
 
 ## 技术栈
 
