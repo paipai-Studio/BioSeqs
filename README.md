@@ -354,6 +354,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **MMTF 大分子结构格式** | Biopython `Bio.PDB.mmtf` | MMTF二进制格式解析与序列化、Structure/Model/Chain/Group/Atom层级结构、IEEE 754浮点编码、MessagePack风格整数编码、Run-length/Delta/Recursive递归编码、键信息、实体、晶体学信息 | ✅ |
 | **NACCESS 溶剂可及表面积** | Biopython `Bio.PDB.NACCESS` | NACCESS .rsa/.asa输出解析、残基/原子级ASA、绝对/相对/侧链/主链面积、链总和、Bio.PDB Structure互转 | ✅ |
 | **Wise2 DNA-蛋白比对** | Biopython `Bio.Wise` | GeneWise输出解析、外显子/内含子/比对列、剪接位点相位、比特分数、参数提取、蛋白质/DNA序列、基因预测结果 | ✅ |
+| **stageR 两阶段检验** | Bioconductor stageR | 两阶段假设检验(筛选+确认)、Simes聚合、BH-FDR校正、Holm步降程序、OFDR控制、Dte/Dtu方法、确认p值重缩放 | ✅ |
+| **EnrichedHeatmap 富集热图** | Bioconductor EnrichedHeatmap | 基因组信号归一化、目标区域窗口化、四种均值模式(absolute/weighted/w0/coverage)、行平滑、百分位裁剪、链方向处理 | ✅ |
 
 项目致力于打造一个完整、高效的生物信息学工具库，覆盖从基础序列处理到高级序列组装的全流程。
 
@@ -700,6 +702,8 @@ IvanAXu/BioSeqs/
 │   ├── hmmer_io.mbt            # Bio.SearchIO.HmmerIO HMMER3输出解析 (domtblout域表、文本格式、Query/Hit/HSP/Domain聚合)
 │   ├── fasta_search_io.mbt     # Bio.SearchIO.FastaIO FASTA搜索输出解析 (-m8紧凑表格、-m9带注释头、元数据提取)
 │   ├── gene_pop.mbt            # Bio.PopGen.GenePop GenePop群体遗传学 (基因型解析、等位基因频率、杂合度、序列化往返)
+│   ├── stage_r.mbt             # Bioconductor stageR 两阶段假设检验 (筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制)
+│   ├── enriched_heatmap.mbt    # Bioconductor EnrichedHeatmap 基因组信号归一化 (窗口化、四种均值模式、行平滑、百分位裁剪)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -1015,6 +1019,8 @@ IvanAXu/BioSeqs/
 │   ├── hmmer_io_demo/           # HMMER3输出解析示例 (domtblout域表、文本格式、Query/Hit/HSP聚合、多域比对)
 │   ├── fasta_search_io_demo/    # FASTA搜索输出解析示例 (-m8表格、-m9注释头、元数据、Query/Hit/HSP聚合)
 │   ├── gene_pop_demo/           # GenePop群体遗传学示例 (基因型解析、等位基因频率、杂合度统计、序列化往返)
+│   ├── stage_r_demo/            # stageR两阶段检验示例 (筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制)
+│   ├── enriched_heatmap_demo/   # EnrichedHeatmap富集热图示例 (信号归一化、四种均值模式、行平滑、链方向处理)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1333,7 +1339,9 @@ IvanAXu/BioSeqs/
 │   │   ├── transfac_full_test.mbt
 │   │   ├── hmmer_io_test.mbt
 │   │   ├── fasta_search_io_test.mbt
-│   │   └── gene_pop_test.mbt
+│   │   ├── gene_pop_test.mbt
+│   │   ├── stage_r_test.mbt
+│   │   └── enriched_heatmap_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1359,7 +1367,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7968 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8013 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1532,6 +1540,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7968 个测试全�
 | `hmmer_io.mbt` | BioPython `Bio.SearchIO.HmmerIO` | HMMER3输出解析（domtblout域表23列格式、人类可读文本格式、Query/Hit/HSP/HSPFragment聚合、多域比对、i-Evalue/c-Evalue、bitscore、条件E值、Query/Domain/Alignment段标记） |
 | `fasta_search_io.mbt` | BioPython `Bio.SearchIO.FastaIO` | FASTA搜索输出解析（-m8紧凑表格12列、-m9带#注释头、程序/版本/数据库元数据提取、Query/Hit/HSP聚合、正负链判定、E-value/bitscore） |
 | `gene_pop.mbt` | BioPython `Bio.PopGen.GenePop` | GenePop群体遗传学（基因型diploid/haploid解析、2/3位等位基因数字检测、Pop人口分隔、Locus名自动生成/#Loci注释、等位基因频率、观察/期望杂合度、序列化往返） |
+| `stage_r.mbt` | Bioconductor stageR | 两阶段假设检验（筛选阶段BH-FDR、确认阶段Holm步降、Simes聚合、OFDR控制、Dte/Dtu方法、确认p值G/R重缩放） |
+| `enriched_heatmap.mbt` | Bioconductor EnrichedHeatmap | 基因组信号归一化（目标区域窗口化、四种均值模式absolute/weighted/w0/coverage、行平滑、百分位裁剪、负链窗口反转） |
 
 #### 扩展功能模块
 
@@ -1690,6 +1700,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7968 个测试全�
 | `hmmer_io.mbt` | Biopython `Bio.SearchIO.HmmerIO` | HMMER3输出解析（domtblout域表23列格式、人类可读文本格式、Query/Hit/HSP/HSPFragment聚合、多域比对、i-Evalue/c-Evalue、bitscore、条件E值、Query/Domain/Alignment段标记） |
 | `fasta_search_io.mbt` | Biopython `Bio.SearchIO.FastaIO` | FASTA搜索输出解析（-m8紧凑表格12列、-m9带#注释头、程序/版本/数据库元数据提取、Query/Hit/HSP聚合、正负链判定、E-value/bitscore） |
 | `gene_pop.mbt` | Biopython `Bio.PopGen.GenePop` | GenePop群体遗传学（基因型diploid/haploid解析、2/3位等位基因数字检测、Pop人口分隔、Locus名自动生成/#Loci注释、等位基因频率、观察/期望杂合度、序列化往返） |
+| `stage_r.mbt` | Bioconductor stageR | 两阶段假设检验（StageRMethod/StageRConfig/StageRResult数据结构、筛选阶段BH-FDR校正、确认阶段Holm步降程序、Simes聚合、OFDR控制、Dte/Dtu调整向量、确认p值G/R重缩放、显著性基因/假设提取） |
+| `enriched_heatmap.mbt` | Bioconductor EnrichedHeatmap | 基因组信号归一化（GenomicSignal/TargetRegion/MeanMode/EnrichedHeatmapConfig/NormalizedMatrix数据结构、目标区域窗口化、四种均值模式absolute/weighted/w0/coverage、行平滑、百分位裁剪、负链窗口反转、富集谱计算） |
 
 ## 核心功能实现
 
@@ -2625,6 +2637,15 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7968 个测试全�
 实现 GenePop 文件格式解析与群体遗传学分析，参考 Biopython `Bio.PopGen.GenePop`。GenePop（Rousset, 2008）是经典的群体遗传学数据格式，记录多个种群在多个位点的基因型数据。文件格式：首行为标题（可选）、`#Loci:` 注释行指定位点名称（可选，否则自动生成 Locus_1..N）、`Pop` 标记分隔种群、每行一个个体 "name, g1 g2 g3..."（基因型为等位基因数字拼接，如 0102 表示 allele1=01/allele2=02，001002 为 3 位数字）。核心数据结构：GenePopGenotype（allele1/allele2?，diploid 双等位/haploid 单等位）；GenePopIndividual（name/genotypes）；GenePopPopulation（name/individuals）；GenePopRecord（title/loci_names/populations/locus_digit_size）。parse_genepop(content) 逐行解析：识别 `#Loci:` 提取位点名、`Pop` 分隔种群、检测等位基因数字位数（2 位 token 长度=4，3 位 token 长度=6，优先使用 token 长度检测，回退到等位基因值启发式）。分析函数：genepop_allele_frequencies(population, locus_index) 返回 Map[Int, Double]（等位基因→频率）；genepop_observed_heterozygosity(population, locus_index) 观察杂合度（杂合个体数/总数）；genepop_expected_heterozygosity(population, locus_index) 期望杂合度（1 - Σpᵢ²）；genepop_alleles_at_locus(record, locus_index) 提取所有等位基因；genepop_total_individuals/num_populations/num_loci 统计函数；genepop_to_string(record) 序列化往返；genepop_summary(record) 摘要报告。genepop_sample() 提供示例数据（2 种群×3 个体×3 位点）。适用于种群遗传结构分析、等位基因频率分布、Hardy-Weinberg 平衡检验、F-statistics 计算。
 
 
+### 231. stageR 两阶段假设检验 (Bioconductor stageR)
+
+实现两阶段假设检验框架，控制 Overall False Discovery Rate (OFDR)，参考 Bioconductor `stageR`（Van den Berge et al., 2017, Genome Biology 18:151）。两阶段流程：(1) 筛选阶段（screening）— 基因级 p 值（通过 Simes 方法从转录本级 p 值聚合）经 BH-FDR 校正后在 alpha 水平检验；(2) 确认阶段（confirmation）— 对通过筛选的基因，确认 p 值使用 Holm 步降程序调整，乘以调整向量并按 G/R（总基因数/显著基因数）重缩放，使其可直接与 alpha 比较。核心数据结构：StageRMethod 枚举（None/Holm/Dte/Dtu，Dtu 假设筛选意味着 ≥2 个假设为假）；StageRConfig（alpha/pScreenAdjusted/stageMethod）；StageRResult（pAdjScreen/pAdjConfirmation/alphaAdjusted/nSignificantGenes 等）。核心函数：stage_r_bh_adjust(pvalues) Benjamini-Hochberg FDR 校正（排序→反向累积最小值→裁剪到 [0,1]）；simes_aggregate(pvalues) Simes 聚合（min_i H*p_(i)/i）；holm_stepdown(pvalues, adjustment) Holm 步降调整（排序→乘以调整向量→累积最大值）；get_adjustment_vector(method, n) 根据方法生成调整乘数向量（Holm/Dte: [n-1, n-1, ..., 1]，Dtu: [n-2, n-2, ..., 1]）；stage_wise_adjustment(pScreen, pConfirmation, config) 主函数执行两阶段调整；get_results(result) 返回 G×(H+1) 二元显著性矩阵；get_significant_genes/get_significant_hypotheses(result) 提取显著基因/假设索引；stage_r_summary(result) 摘要报告。stage_r_sample() 提供示例数据（10 基因×3 假设）。适用于转录组学差异表达分析中基因级和转录本级联合推断、OFDR 控制、阶段化多重检验。
+
+### 232. EnrichedHeatmap 富集热图信号归一化 (Bioconductor EnrichedHeatmap)
+
+实现基因组信号到目标区域的归一化，用于富集热图可视化，参考 Bioconductor `EnrichedHeatmap`（Gu, Eils & Schlesner, 2018, BMC Genomics 19:234）。归一化流程：(1) 将每个目标区域上下游各延伸 extend bp；(2) 将侧翼区域切分为 w bp 的窗口；(3) 对每个窗口计算重叠信号区域的均值（支持四种均值模式）；(4) 可选行平滑和百分位裁剪。核心数据结构：GenomicSignal（chr/start/end_/value，基因组信号区间）；TargetRegion（chr/start/end_/strand，目标区域如 TSS）；MeanMode 枚举（Absolute/Weighted/W0/Coverage）；EnrichedHeatmapConfig（extendUp/extendDown/w/k/meanMode/includeTarget/smooth/smoothWindow/background/keepLow/keepHigh）；NormalizedMatrix（matrix/upstreamIndex/targetIndex/downstreamIndex/nRows/nCols/failedRows 等）。四种均值模式：absolute（重叠信号值的无权重均值）、weighted（重叠宽度加权均值）、w0（类似 weighted 但分母包含未覆盖 bp）、coverage（加权和除以窗口总宽度）。核心函数：make_windows(targets, config) 生成上游/目标体/下游窗口（负链反转窗口顺序）；compute_window_mean(window, signals, mode, background) 根据均值模式计算窗口均值；normalize_to_matrix(signals, targets, config) 主函数执行归一化；enrichment_profile(mat) 计算列方向均值（富集谱）；eh_row_means(mat) 计算行方向均值；smooth_row(row, window) 移动平均平滑；clip_matrix(matrix, qLow, qHigh) 百分位裁剪。enriched_heatmap_sample() 提供示例数据（10 个 TSS 目标+信号）。适用于表观基因组学（CpG 甲基化、组蛋白修饰）在 TSS/promoter 周围的信号分布分析、染色质状态富集、热图可视化前处理。
+
+
 ## 性能优化
 
 ### 优化策略
@@ -2726,8 +2747,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 7968 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 7968 |
-| 通过数 | 7968 |
+| 总测试数 | 8013 |
+| 通过数 | 8013 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3014,6 +3035,8 @@ moon test --update
 | Bio.SearchIO.HmmerIO | `hmmer_io_test.mbt` | 19 |
 | Bio.SearchIO.FastaIO | `fasta_search_io_test.mbt` | 19 |
 | Bio.PopGen.GenePop | `gene_pop_test.mbt` | 34 |
+| Bioconductor stageR | `stage_r_test.mbt` | 25 |
+| Bioconductor EnrichedHeatmap | `enriched_heatmap_test.mbt` | 20 |
 
 ### Python 对比测试
 
@@ -3100,7 +3123,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 299 个示例程序，展示各模块的典型用法：
+项目提供 332 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3271,6 +3294,8 @@ moon run cmd/bench/main.mbt
 | hmmer_io_demo | HMMER3输出解析（domtblout域表、文本格式、Query/Hit/HSP聚合、多域比对） | `moon run examples/hmmer_io_demo/main.mbt` |
 | fasta_search_io_demo | FASTA搜索输出解析（-m8表格、-m9注释头、元数据、Query/Hit/HSP聚合） | `moon run examples/fasta_search_io_demo/main.mbt` |
 | gene_pop_demo | GenePop群体遗传学（基因型解析、等位基因频率、杂合度统计、序列化往返） | `moon run examples/gene_pop_demo/main.mbt` |
+| stage_r_demo | stageR两阶段假设检验（筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制） | `moon run examples/stage_r_demo/main.mbt` |
+| enriched_heatmap_demo | EnrichedHeatmap富集热图（信号归一化、四种均值模式、行平滑、链方向处理） | `moon run examples/enriched_heatmap_demo/main.mbt` |
 
 ## 技术栈
 
