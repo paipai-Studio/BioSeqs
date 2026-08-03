@@ -58,6 +58,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.Phylo.PhyloXML | PhyloXML格式解析、序列化、Newick双向转换、分类单元注释 |
 | ✅ | Bio.motifs (advanced) | JASPAR PFM格式解析、TRANSFAC格式解析、模体最优比对、KL/JS散度计算、模体聚类 |
 | ✅ | Bio.Phylo.NeXML | NeXML格式解析与序列化、OTUs/Trees/Characters数据模型、Newick转换 |
+| ✅ | Bio.Phylo.Trie | 前缀树数据结构、插入/查找/前缀匹配/最长前缀/子串搜索、限制酶位点检测、引物匹配 |
+| ✅ | Bio.Phylo.Parsimony | 系统发育简约性评分、Fitch算法(状态集交集/并集)、Sankoff算法(动态规划+代价矩阵) |
+| ✅ | Bio.Phylo.CDAO | CDAO本体RDF/XML格式、Tree/Node/TU/Edge三元组建模、Newick双向转换、命名空间处理 |
 | ✅ | Bio.PDB.Dice + Selection | PDB结构切割（链/残基/原子/模型提取）、B因子过滤、几何选择、结构统计、序列提取 |
 | ✅ | Bio.Align.MAF | MAF (Multiple Alignment Format) 多序列比对格式解析、块处理、百分比一致性计算、统计分析、格式转换 |
 | ✅ | Bio.Align.Mauve | Mauve 基因组比对格式解析、LCB(共线性块)检测、倒位检测、断点检测、基因组覆盖率、BED导出 |
@@ -704,6 +707,9 @@ IvanAXu/BioSeqs/
 │   ├── gene_pop.mbt            # Bio.PopGen.GenePop GenePop群体遗传学 (基因型解析、等位基因频率、杂合度、序列化往返)
 │   ├── stage_r.mbt             # Bioconductor stageR 两阶段假设检验 (筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制)
 │   ├── enriched_heatmap.mbt    # Bioconductor EnrichedHeatmap 基因组信号归一化 (窗口化、四种均值模式、行平滑、百分位裁剪)
+│   ├── trie.mbt                # Bio.Phylo.Trie 前缀树数据结构 (插入、查找、前缀匹配、子串搜索、限制酶位点检测)
+│   ├── parsimony.mbt           # Bio.Phylo.Parsimony 系统发育简约性评分 (Fitch状态集交集/并集、Sankoff动态规划代价矩阵)
+│   ├── phylo_cdao.mbt          # Bio.Phylo.CDAO CDAO本体RDF/XML格式 (Tree/Node/TU/Edge、Newick双向转换、命名空间处理)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -1021,6 +1027,9 @@ IvanAXu/BioSeqs/
 │   ├── gene_pop_demo/           # GenePop群体遗传学示例 (基因型解析、等位基因频率、杂合度统计、序列化往返)
 │   ├── stage_r_demo/            # stageR两阶段检验示例 (筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制)
 │   ├── enriched_heatmap_demo/   # EnrichedHeatmap富集热图示例 (信号归一化、四种均值模式、行平滑、链方向处理)
+│   ├── trie_demo/               # Trie前缀树示例 (限制酶位点检测、引物匹配、前缀搜索、最长前缀匹配)
+│   ├── parsimony_demo/          # 简约性评分示例 (Fitch状态集算法、Sankoff动态规划、自定义代价矩阵)
+│   ├── phylo_cdao_demo/         # CDAO本体RDF/XML示例 (Tree/Node/TU构建、解析往返、Newick转换)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1341,7 +1350,10 @@ IvanAXu/BioSeqs/
 │   │   ├── fasta_search_io_test.mbt
 │   │   ├── gene_pop_test.mbt
 │   │   ├── stage_r_test.mbt
-│   │   └── enriched_heatmap_test.mbt
+│   │   ├── enriched_heatmap_test.mbt
+│   │   ├── trie_test.mbt
+│   │   ├── parsimony_test.mbt
+│   │   └── phylo_cdao_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -1367,7 +1379,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8013 个测试全部通过
+moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1542,6 +1554,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8013 个测试全�
 | `gene_pop.mbt` | BioPython `Bio.PopGen.GenePop` | GenePop群体遗传学（基因型diploid/haploid解析、2/3位等位基因数字检测、Pop人口分隔、Locus名自动生成/#Loci注释、等位基因频率、观察/期望杂合度、序列化往返） |
 | `stage_r.mbt` | Bioconductor stageR | 两阶段假设检验（筛选阶段BH-FDR、确认阶段Holm步降、Simes聚合、OFDR控制、Dte/Dtu方法、确认p值G/R重缩放） |
 | `enriched_heatmap.mbt` | Bioconductor EnrichedHeatmap | 基因组信号归一化（目标区域窗口化、四种均值模式absolute/weighted/w0/coverage、行平滑、百分位裁剪、负链窗口反转） |
+| `trie.mbt` | BioPython `Bio.Phylo.Trie` | 前缀树数据结构（Trie/TrieNode/TrieValue、插入trie_insert、查找trie_lookup、前缀搜索trie_starts_with、最长前缀匹配trie_find_longest_prefix、子串搜索trie_search、限制酶位点检测、引物匹配） |
+| `parsimony.mbt` | BioPython `Bio.Phylo.Parsimony` | 系统发育简约性评分（Fitch算法状态集交集/并集等价代价、Sankoff算法动态规划+代价矩阵、ParsimonyMatrix成本矩阵、fitch_parsimony_score/sankoff_parsimony_score按位点累加） |
+| `phylo_cdao.mbt` | BioPython `Bio.Phylo.CDAO` | CDAO本体RDF/XML格式（Cdaotree/CdaoNode/CdaoTU/CdaoDocument、cdao_parse三元组建模、cdao_write序列化、cdao_to_trees与Tree双向转换、命名空间常量） |
 
 #### 扩展功能模块
 
@@ -1702,6 +1717,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8013 个测试全�
 | `gene_pop.mbt` | Biopython `Bio.PopGen.GenePop` | GenePop群体遗传学（基因型diploid/haploid解析、2/3位等位基因数字检测、Pop人口分隔、Locus名自动生成/#Loci注释、等位基因频率、观察/期望杂合度、序列化往返） |
 | `stage_r.mbt` | Bioconductor stageR | 两阶段假设检验（StageRMethod/StageRConfig/StageRResult数据结构、筛选阶段BH-FDR校正、确认阶段Holm步降程序、Simes聚合、OFDR控制、Dte/Dtu调整向量、确认p值G/R重缩放、显著性基因/假设提取） |
 | `enriched_heatmap.mbt` | Bioconductor EnrichedHeatmap | 基因组信号归一化（GenomicSignal/TargetRegion/MeanMode/EnrichedHeatmapConfig/NormalizedMatrix数据结构、目标区域窗口化、四种均值模式absolute/weighted/w0/coverage、行平滑、百分位裁剪、负链窗口反转、富集谱计算） |
+| `trie.mbt` | Biopython `Bio.Phylo.Trie` | 前缀树数据结构（Trie/TrieNode/TrieValue数据结构、trie_insert插入并维护count、trie_lookup精确查找、trie_starts_with前缀存在性判定、trie_find_longest_prefix最长前缀匹配、trie_search全文本子串搜索、trie_remove删除、限制酶位点检测EcoRI/BamHI/HindIII、引物匹配、word boundary匹配） |
+| `parsimony.mbt` | Biopython `Bio.Phylo.Parsimony` | 系统发育简约性评分（ParsimonyMatrix代价矩阵{states/cost}、fitch_score_position按位点Fitch算法叶→根状态集交集/并集、fitch_parsimony_score全位点累加、sankoff_score_position按位点Sankoff动态规划DP表回溯最小代价、sankoff_parsimony_score全位点累加、等价/偏向代价矩阵支持） |
+| `phylo_cdao.mbt` | Biopython `Bio.Phylo.CDAO` | CDAO本体RDF/XML格式（Cdaotree/CdaoNode/CdaoTU/CdaoDocument数据结构、cdao_namespace/cdao_rdf_namespace/cdao_rdfs_namespace命名空间常量、cdao_parse_rdf_xml手写XML解析提取CdaoTriple三元组、cdao_build_document三元组建模图、cdao_to_trees递归构建Clade转Tree、cdao_write Tree→RDF/XML序列化、CdaoWriteState计数器管理、cdao_escape_xml实体转义、解析-序列化往返） |
 
 ## 核心功能实现
 
@@ -2645,6 +2663,18 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8013 个测试全�
 
 实现基因组信号到目标区域的归一化，用于富集热图可视化，参考 Bioconductor `EnrichedHeatmap`（Gu, Eils & Schlesner, 2018, BMC Genomics 19:234）。归一化流程：(1) 将每个目标区域上下游各延伸 extend bp；(2) 将侧翼区域切分为 w bp 的窗口；(3) 对每个窗口计算重叠信号区域的均值（支持四种均值模式）；(4) 可选行平滑和百分位裁剪。核心数据结构：GenomicSignal（chr/start/end_/value，基因组信号区间）；TargetRegion（chr/start/end_/strand，目标区域如 TSS）；MeanMode 枚举（Absolute/Weighted/W0/Coverage）；EnrichedHeatmapConfig（extendUp/extendDown/w/k/meanMode/includeTarget/smooth/smoothWindow/background/keepLow/keepHigh）；NormalizedMatrix（matrix/upstreamIndex/targetIndex/downstreamIndex/nRows/nCols/failedRows 等）。四种均值模式：absolute（重叠信号值的无权重均值）、weighted（重叠宽度加权均值）、w0（类似 weighted 但分母包含未覆盖 bp）、coverage（加权和除以窗口总宽度）。核心函数：make_windows(targets, config) 生成上游/目标体/下游窗口（负链反转窗口顺序）；compute_window_mean(window, signals, mode, background) 根据均值模式计算窗口均值；normalize_to_matrix(signals, targets, config) 主函数执行归一化；enrichment_profile(mat) 计算列方向均值（富集谱）；eh_row_means(mat) 计算行方向均值；smooth_row(row, window) 移动平均平滑；clip_matrix(matrix, qLow, qHigh) 百分位裁剪。enriched_heatmap_sample() 提供示例数据（10 个 TSS 目标+信号）。适用于表观基因组学（CpG 甲基化、组蛋白修饰）在 TSS/promoter 周围的信号分布分析、染色质状态富集、热图可视化前处理。
 
+### 233. Trie 前缀树数据结构 (Bio.Phylo.Trie)
+
+实现前缀树（Trie / 数字搜索树）数据结构，用于高效字符串前缀匹配与序列模式搜索，参考 Biopython `Bio.Phylo.Trie`。前缀树将每个键按字符逐层存储，根到节点路径对应键的前缀，使得前缀查询、自动补全、多模式匹配可在 O(L) 时间内完成（L 为模式长度）。核心数据结构：TrieNode（children : Map[String, TrieNode] 子节点映射、value : TrieValue 节点存储值，Empty/Value(v) 区分中间节点与终态节点）；Trie（root : TrieNode 根节点、count : Int 已存键数）。核心函数：Trie::new() 构造空 Trie；trie_insert(trie, key, value) 逐字符下行，缺失节点则创建，到达终点写入 Value 并在原为空时递增 count；trie_lookup(trie, key) 精确匹配键返回关联值 Option；trie_starts_with(trie, prefix) 判定前缀是否存在（不要求完整键）；trie_find_longest_prefix(trie, text) 在 text 中查找字典中存在的最长前缀；trie_find_match(trie, text) 扫描 text 自起点逐字符下行，记录沿途命中的完整键，返回最长匹配 (key, value)；trie_search(trie, text) 在 text 的每个起点调用 find_match，返回所有子串匹配位置数组；trie_remove(trie, key) 删除键返回 Bool 成功标志。应用场景：限制性内切酶位点检测（EcoRI=GAATTC、BamHI=GGATCC、HindIII=AAGCTT 等回文识别序列批量插入后扫描基因组）、PCR 引物匹配、k-mer 字典查询、自动补全。适用于需要快速多模式字符串匹配而不引入完整正则引擎的场景。
+
+### 234. 系统发育简约性评分 (Bio.Phylo.Parsimony)
+
+实现基于简约性准则（Parsimony）的系统发育树评分算法，参考 Biopython `Bio.Phylo.Parsimony`。简约性原则选择状态变化总数最少的树作为最优树，是最大简约法（Maximum Parsimony）的核心。本模块实现两种经典算法：(1) Fitch 算法（等价代价）— 自底向上（叶→根）传递状态集合：叶节点状态集为其观察到的字符；内部节点状态集为两子集交集（若非空）或并集（若交集为空，且 score+1）。最终根节点累计的 score 即为该树在该位点的 Fitch 分数。(2) Sankoff 算法（带代价矩阵）— 自底向上动态规划：每个节点维护一个 DP 表 S[k] = 该子树在该节点取状态 k 时的最小代价；叶节点 S[观察态]=0 其余=∞；内部节点 S[k] = Σ_children min_j (cost[k][j] + child.S[j])；根节点取 min_k S[k] 作为该位点分数。核心数据结构：ParsimonyMatrix（states : Array[String] 状态字母表如 ["A","C","G","T"]、cost : Array[Array[Double]] n×n 转移代价矩阵，对角线为 0、非对角线为变化代价）。核心函数：fitch_score_position(node, alignment, pos) 按位点计算 Fitch 分数（递归返回 (状态集, 分数)）；fitch_parsimony_score(tree, alignment) 全位点累加；sankoff_score_position(node, alignment, pos, matrix) 按位点 Sankoff DP；sankoff_parsimony_score(tree, alignment, matrix) 全位点累加。空比对返回 -1.0 哨兵值。等价代价矩阵（所有非对角线=1）下 Sankoff 退化为 Fitch。适用于小规模系统发育树重构、祖先状态重建、同塑性指数计算、进化保守性分析。
+
+### 235. CDAO 本体 RDF/XML 格式 (Bio.Phylo.CDAO)
+
+实现 CDAO（Comparative Data Analysis Ontology，比较数据分析本体）RDF/XML 格式的解析与序列化，参考 Biopython `Bio.Phylo.CDAO`。CDAO 是基于 RDF 的系统发育数据表示标准，使用 CDAO 本体术语将树结构编码为 RDF 三元组（subject-predicate-object），便于与语义网和本体推理系统互操作。核心 CDAO 本体术语：cdao:Tree（系统发育树）、cdao:Node（树节点）、cdao:Edge（树枝/边）、cdao:has_Root（树→根节点）、cdao:has_Child/has_Descendant（父→子节点）、cdao:has_Ancestor/has_Parent（子→父节点）、cdao:belongs_to_TU（节点→分类单元）、cdao:TU（分类单元/OTU/叶标签）、rdfs:label（标签文字）。核心数据结构：Cdaotree（id/rooted/root_node_id/name?）；CdaoNode（id/children : Array[String]/parent_id?/tu_id?/branch_length?/label?，关键字段标记 mut 以便构建时修改）；CdaoTU（id/label?）；CdaoDocument（trees : Array[Cdaotree]/nodes : Map[String, CdaoNode]/tus : Map[String, CdaoTU] 完整 RDF 图）。核心函数：cdao_namespace()/cdao_rdf_namespace()/cdao_rdfs_namespace() 返回命名空间 URI；cdao_parse(xml) 主解析入口 → cdao_parse_rdf_xml 提取 CdaoTriple 三元组（手写 XML 解析器，处理标签/属性/rdf:about/rdf:resource/文本内容/自闭合/嵌套子元素）→ cdao_build_document 三元组分类填充 Document（rdf:type 创建节点/TU、has_Root 创建 Tree、has_Child 填 children、has_Ancestor 填 parent_id、belongs_to_TU 填 tu_id、rdfs:label 填 label、has_branch_length 填 branch_length）；cdao_to_trees(doc) 递归 cdao_build_clade 将 CdaoDocument 转为 BioSeqs Tree 数组（TU 标签优先于节点标签）；cdao_write(tree) 将 Tree 序列化为 RDF/XML 字符串（CdaoWriteState 管理 node_counter/tu_counter/tu_map，递归 cdao_write_clade 输出节点与边，末尾输出 TU 元素，cdao_escape_xml 处理 & < > 实体转义）。适用于系统发育数据语义网交换、本体推理、CDAO 兼容工具链互操作。
+
 
 ## 性能优化
 
@@ -2747,8 +2777,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8013 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8013 |
-| 通过数 | 8013 |
+| 总测试数 | 8105 |
+| 通过数 | 8105 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3037,6 +3067,9 @@ moon test --update
 | Bio.PopGen.GenePop | `gene_pop_test.mbt` | 34 |
 | Bioconductor stageR | `stage_r_test.mbt` | 25 |
 | Bioconductor EnrichedHeatmap | `enriched_heatmap_test.mbt` | 20 |
+| Bio.Phylo.Trie | `trie_test.mbt` | 36 |
+| Bio.Phylo.Parsimony | `parsimony_test.mbt` | 23 |
+| Bio.Phylo.CDAO | `phylo_cdao_test.mbt` | 33 |
 
 ### Python 对比测试
 
@@ -3123,7 +3156,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 332 个示例程序，展示各模块的典型用法：
+项目提供 336 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3296,6 +3329,9 @@ moon run cmd/bench/main.mbt
 | gene_pop_demo | GenePop群体遗传学（基因型解析、等位基因频率、杂合度统计、序列化往返） | `moon run examples/gene_pop_demo/main.mbt` |
 | stage_r_demo | stageR两阶段假设检验（筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制） | `moon run examples/stage_r_demo/main.mbt` |
 | enriched_heatmap_demo | EnrichedHeatmap富集热图（信号归一化、四种均值模式、行平滑、链方向处理） | `moon run examples/enriched_heatmap_demo/main.mbt` |
+| trie_demo | Trie前缀树（限制酶位点检测、引物匹配、前缀搜索、最长前缀匹配） | `moon run examples/trie_demo/main.mbt` |
+| parsimony_demo | 简约性评分（Fitch状态集算法、Sankoff动态规划、自定义代价矩阵） | `moon run examples/parsimony_demo/main.mbt` |
+| phylo_cdao_demo | CDAO本体RDF/XML（Tree/Node/TU构建、解析往返、Newick转换） | `moon run examples/phylo_cdao_demo/main.mbt` |
 
 ## 技术栈
 
