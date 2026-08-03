@@ -38,6 +38,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **机器学习特征** | scikit-learn | k-mer 频率、氨基酸组成、理化性质 | ✅ |
 | **Biostrings** | Bioconductor Biostrings | IUPAC 支持、RSCU、复杂度、Tm 计算、模式匹配(matchPattern/vmatchPattern)、错配和插入缺失检测、回文序列查找 | ✅ |
 | **GenomicRanges** | Bioconductor GenomicRanges | GRanges、区间操作、集合运算、precede/follow、coverage计算、distance_to_nearest | ✅ |
+| **plyranges** | Bioconductor plyranges | dplyr-like tidy verbs for GRanges: filter/mutate/select/arrange/rename/group_by+summarise/join_by、metadata管理 | ✅ |
+| **pheatmap** | Bioconductor pheatmap | 增强型热图可视化：层次聚类(complete/average/ward)、距离矩阵(euclidean/manhattan/correlation)、行/列注释、颜色方案、聚类间隙 | ✅ |
+| **factoextra** | Bioconductor factoextra | PCA/因子分析工具：特征值计算、方差解释率、个体/变量坐标、cos2质量、贡献度评分、维度描述 | ✅ |
 | **DESeq2** | Bioconductor DESeq2 | 差异表达分析、size factors归一化、分散度估计、负二项GLM拟合、Wald检验、LFC收缩 | ✅ |
 | **dplyr** | R dplyr | DataFrame 数据操作 | ✅ |
 | **enrichplot** | Bioconductor enrichplot | 富集分析结果可视化、dotplot/barplot/heatmap/cnetplot/enrichment map | ✅ |
@@ -387,6 +390,7 @@ IvanAXu/BioSeqs/
 │   ├── phylip_io.mbt           # PHYLIP 格式
 │   ├── alignment.mbt           # DNA/RNA/Protein 类型及比对算法
 │   ├── bioc_singular.mbt       # BiocSingular SVD奇异值分解 (Exact/IRLBA/Randomized)
+│   ├── factoextra.mbt          # factoextra PCA/因子分析 (特征值、方差解释率、个体/变量坐标、贡献度、cos2)
 │   ├── application.mbt          # Bio.Application 命令行工具包装
 │   ├── align_io.mbt            # AlignIO 比对格式解析 (ClustalW/FASTA/Stockholm)
 │   ├── align_applications.mbt   # Align.Applications 比对工具包装 (ClustalW/Clustal Omega/Muscle/MAFFT)
@@ -441,6 +445,7 @@ IvanAXu/BioSeqs/
 │   ├── bioc_neighbors.mbt      # BiocNeighbors 最近邻搜索 (KMKNN/Annoy)
 │   ├── summarized_experiment.mbt # SummarizedExperiment 多维基因组数据容器
 │   ├── dplyr.mbt               # dplyr 数据操作 (DataFrame、filter、select、mutate、arrange、group_by、summarize、join)
+│   ├── plyranges.mbt           # plyranges  tidy基因组数据操作 (GRanges的filter/mutate/select/arrange/rename/summarise/join)
 │   ├── smith_waterman.mbt      # Smith-Waterman 局部序列比对 (动态规划、自定义打分、回溯矩阵)
 │   ├── needleman_wunsch.mbt    # Needleman-Wunsch 全局序列比对 (动态规划、自定义打分、回溯矩阵)
 │   ├── bloom_filter.mbt        # Bloom Filter & k-mer 计数 (哈希表、位图、误判率估算、近似去重)
@@ -528,6 +533,7 @@ IvanAXu/BioSeqs/
 │   ├── single_cell_experiment.mbt  # SingleCellExperiment 单细胞核心容器 (多assay、PCA/tSNE/UMAP降维、size factors)
 │   ├── spatial_experiment.mbt   # SpatialExperiment 空间转录组学数据结构
 │   ├── complex_heatmap.mbt      # ComplexHeatmap 复杂热图可视化 (行/列聚类、颜色映射、热图注释、分组拆分)
+│   ├── pheatmap.mbt             # pheatmap 增强型热图 (层次聚类、距离矩阵、行/列注释、颜色方案)
 │   ├── gsva.mbt                 # GSVA 基因集变异分析 (ssGSEA/zscore/PLAGE评分、富集分析、置换检验、富集图可视化、表型相关性分析、生存分析、分数分布分析)
 │   ├── chromvar.mbt             # ChromVAR 染色质变异分析 (TF motif富集、GC偏差校正、细胞聚类、变异性分析)
 │   ├── delayed_array.mbt        # DelayedArray 延迟计算数组 (懒加载操作、分块处理、行/列聚合、子集操作)
@@ -752,6 +758,7 @@ IvanAXu/BioSeqs/
 │   ├── deseq2_advanced_demo/   # DESeq2 VST方差稳定化变换、PCA可视化示例
 │   ├── dorothea_demo/          # dorothea 转录因子活性预测示例 (Regulon、VIPER、置换检验)
 │   ├── dplyr_demo/             # dplyr 数据操作示例
+│   ├── plyranges_demo/         # plyranges tidy基因组数据操作示例
 │   ├── edger_demo/             # edgeR 差异表达分析示例
 │   ├── edger_advanced_demo/    # edgeR准似然F检验、camera/roast基因集检验示例
 │   ├── emboss_demo/            # EMBOSS工具接口示例 (GC偏斜、AT偏斜、分子量、ORF查找)
@@ -853,6 +860,7 @@ IvanAXu/BioSeqs/
 │   ├── single_cell_experiment_demo/  # SingleCellExperiment 单细胞核心容器示例 (多assay、降维、size factors)
 │   ├── spatial_experiment_demo/ # SpatialExperiment 空间转录组学数据结构示例
 │   ├── complex_heatmap_demo/   # ComplexHeatmap 复杂热图可视化示例 (行/列聚类、颜色映射、热图注释、分组拆分)
+│   ├── pheatmap_demo/          # pheatmap 增强型热图示例 (层次聚类、距离矩阵、颜色方案)
 │   ├── gsva_demo/              # GSVA 基因集变异分析示例 (ssGSEA/zscore/PLAGE评分、富集分析、置换检验、富集图可视化、表型相关性分析、生存分析、分数分布分析)
 │   ├── chromvar_demo/          # ChromVAR 染色质变异分析示例 (TF motif富集、GC偏差校正、细胞聚类、变异性分析)
 │   ├── delayed_array_demo/     # DelayedArray 延迟计算数组示例 (懒加载操作、分块处理、行/列聚合、子集操作)
@@ -907,6 +915,7 @@ IvanAXu/BioSeqs/
 │   ├── maftools_demo/            # maftools 癌症基因组学示例 (MAF数据创建、突变分类、TMB计算、突变谱分析)
 │   ├── cnvkit_demo/              # CNVkit 拷贝数变异示例 (CBS分割、拷贝数判定、断点检测、log2平滑)
 │   ├── destiny_demo/             # destiny 扩散映射示例 (距离矩阵、高斯核、特征分解、嵌入坐标)
+│   ├── factoextra_demo/         # factoextra PCA/因子分析示例 (特征值、方差解释率、坐标、贡献度)
 │   ├── rtsne_demo/               # Rtsne t-SNE降维示例 (距离矩阵、条件概率、梯度下降、动量优化)
 │   ├── uwot_demo/                # uwot UMAP降维示例 (k近邻、模糊单纯集、SGD优化、负采样)
 │   ├── tradeseq_demo/            # tradeSeq 轨迹差异表达示例 (GAM拟合、基因平滑、差异检验、可视化)
@@ -1587,6 +1596,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `faidx.mbt` | pyfaidx | FASTA 快速索引 |
 | `feature_extraction.mbt` | 自定义 | 机器学习特征提取 |
 | `dplyr.mbt` | R dplyr | DataFrame 数据操作 |
+| `plyranges.mbt` | Bioconductor plyranges | tidy基因组数据操作 (GRanges的filter/mutate/select/arrange/rename/summarise/join) |
 | `multi_assay_experiment.mbt` | Bioconductor MultiAssayExperiment | 多组学数据协调 |
 | `utils.mbt` | 自定义 | 通用工具函数 |
 | `chipseeker.mbt` | Bioconductor ChIPseeker | ChIP-seq峰注释分析(启动子/外显子/内含子/UTR分类、BED读取、peak2gene关联、多峰值集重叠分析、Venn图、饼图可视化) |
@@ -1603,6 +1613,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `tximport.mbt` | Bioconductor tximport | 转录本量化数据导入、基因级别汇总 |
 | `single_cell_experiment.mbt` | Bioconductor SingleCellExperiment | 单细胞核心容器 (多assay、PCA/tSNE/UMAP降维、size factors) |
 | `complex_heatmap.mbt` | Bioconductor ComplexHeatmap | 复杂热图可视化 (行/列聚类、颜色映射、热图注释) |
+| `pheatmap.mbt` | Bioconductor pheatmap | 增强型热图 (层次聚类、距离矩阵、行/列注释、颜色方案) |
 | `gsva.mbt` | Bioconductor GSVA | 基因集变异分析 (ssGSEA/zscore/PLAGE评分) |
 | `chromvar.mbt` | Bioconductor chromVAR | 染色质变异分析 (TF motif富集、GC偏差校正) |
 | `delayed_array.mbt` | Bioconductor DelayedArray | 延迟计算数组 (懒加载操作、分块处理、行/列聚合) |
@@ -1635,6 +1646,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `maftools.mbt` | Bioconductor maftools | 癌症基因组学MAF分析 (MAFMutation/MAFData/MutationSpectrum/TMBResult数据结构、SNV/Indel分类、TMB计算、突变谱分析、共现分析、Oncoplot数据生成、MAF文件解析) |
 | `cnvkit.mbt` | Bioconductor CNVkit | 拷贝数变异检测 (CNVProbe/CNVSegment/CNVDataset/CBSResult数据结构、CBS循环二元分割算法、拷贝数状态判定、log2比率平滑、断点检测) |
 | `destiny.mbt` | Bioconductor destiny | 单细胞扩散映射降维 (CellData/DistanceMatrix/KernelMatrix/DiffusionResult数据结构、欧氏距离矩阵、高斯核构建、Markov矩阵归一化、特征分解、扩散分量计算) |
+| `factoextra.mbt` | Bioconductor factoextra | PCA/因子分析 (特征值计算、方差解释率、个体/变量坐标、cos2质量、贡献度评分、维度描述) |
 | `rtsne.mbt` | Bioconductor Rtsne | t-SNE降维算法 (TsneConfig/TsneResult数据结构、成对距离计算、条件概率估计与perplexity优化、联合概率矩阵构建、梯度下降优化、动量/early exaggeration调度) |
 | `uwot.mbt` | Bioconductor uwot | UMAP降维算法 (UmapConfig/UmapResult数据结构、k近邻搜索、模糊单纯集构建、局部模糊集并集、SGD低维嵌入优化、负采样、min_dist/spread参数控制) |
 | `tradeseq.mbt` | Bioconductor tradeSeq | 轨迹差异表达分析 (TrajectoryPoint/GeneExpressionData/GAMFit/DifferentialExpressionResult数据结构、GAM广义可加模型拟合、样条基函数、条件效应检验、BH-FDR校正) |
@@ -2830,6 +2842,7 @@ moon test --update
 | 特征提取 | `feature_extraction_test.mbt` | 19 |
 | Biostrings | `biostrings_test.mbt` | 21 |
 | GenomicRanges | `genomic_ranges_test.mbt` | 22 |
+| plyranges | `plyranges_test.mbt` | 15 |
 | DESeq2 | `deseq2_test.mbt` | 10 |
 | dplyr | `dplyr_test.mbt` | 9 |
 | Smith-Waterman | `smith_waterman_test.mbt` | 16 |
@@ -2913,6 +2926,7 @@ moon test --update
 | bsseq | `bsseq_test.mbt` | 54 |
 | SingleCellExperiment | `single_cell_experiment_test.mbt` | 58 |
 | ComplexHeatmap | `complex_heatmap_test.mbt` | 20 |
+| pheatmap | `pheatmap_test.mbt` | 15 |
 | GSVA | `gsva_test.mbt` | 15 |
 | ChromVAR | `chromvar_test.mbt` | 12 |
 | DelayedArray | `delayed_array_test.mbt` | 10 |
@@ -2925,6 +2939,7 @@ moon test --update
 | maftools | `maftools_test.mbt` | 18 |
 | CNVkit | `cnvkit_test.mbt` | 15 |
 | destiny | `destiny_test.mbt` | 12 |
+| factoextra | `factoextra_test.mbt` | 18 |
 | Rtsne | `rtsne_test.mbt` | 10 |
 | uwot | `uwot_test.mbt` | 9 |
 | microbiome | `microbiome_test.mbt` | 33 |
@@ -3189,6 +3204,7 @@ moon run cmd/bench/main.mbt
 | genomic_ranges_demo | GenomicRanges 基因组区间操作（GRanges、区间运算、集合操作） | `moon run examples/genomic_ranges_demo/main.mbt` |
 | deseq2_demo | DESeq2 差异表达分析（size factors归一化、分散度估计、负二项GLM拟合、Wald检验、LFC收缩） | `moon run examples/deseq2_demo/main.mbt` |
 | dplyr_demo | dplyr 数据操作（filter、select、mutate、arrange、group_by、summarize、join） | `moon run examples/dplyr_demo/main.mbt` |
+| plyranges_demo | plyranges tidy基因组数据操作（GRanges的filter/mutate/select/arrange/rename/summarise） | `moon run examples/plyranges_demo/main.mbt` |
 | smith_waterman_demo | Smith-Waterman 局部序列比对（DNA/蛋白质比对、自定义打分、得分矩阵） | `moon run examples/smith_waterman_demo/main.mbt` |
 | needleman_wunsch_demo | Needleman-Wunsch 全局序列比对（DNA/蛋白质比对、自定义打分、得分矩阵） | `moon run examples/needleman_wunsch_demo/main.mbt` |
 | bloom_filter_demo | Bloom Filter & k-mer 计数（成员查询、精确计数、近似去重、FPR 对比） | `moon run examples/bloom_filter_demo/main.mbt` |
@@ -3259,6 +3275,8 @@ moon run cmd/bench/main.mbt
 | bsseq_demo | bsseq 亚硫酸氢盐测序分析（BSmooth平滑、DMR检测、CpG合并、甲基化率计算） | `moon run examples/bsseq_demo/main.mbt` |
 | single_cell_experiment_demo | SingleCellExperiment 单细胞核心容器（多assay管理、PCA/t-SNE/UMAP降维、size factors、归一化） | `moon run examples/single_cell_experiment_demo/main.mbt` |
 | complex_heatmap_demo | ComplexHeatmap 复杂热图可视化（行/列聚类、颜色映射、热图注释、分组拆分、ASCII热图） | `moon run examples/complex_heatmap_demo/main.mbt` |
+| pheatmap_demo | pheatmap 增强型热图（层次聚类、距离矩阵、颜色方案、ASCII热图） | `moon run examples/pheatmap_demo/main.mbt` |
+| factoextra_demo | factoextra PCA/因子分析（特征值、方差解释率、个体/变量坐标、贡献度、cos2） | `moon run examples/factoextra_demo/main.mbt` |
 | gsva_demo | GSVA 基因集变异分析（ssGSEA/zscore/PLAGE评分、富集分析、置换检验、统计摘要、富集图可视化、表型相关性分析、生存分析、分数分布分析） | `moon run examples/gsva_demo/main.mbt` |
 | chromvar_demo | ChromVAR 染色质变异分析（TF motif富集、GC偏差校正、细胞聚类、变异性分析、偏差图） | `moon run examples/chromvar_demo/main.mbt` |
 | delayed_array_demo | DelayedArray 延迟计算数组（懒加载操作、分块处理、行/列聚合、转置、子集操作） | `moon run examples/delayed_array_demo/main.mbt` |
