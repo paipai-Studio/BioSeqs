@@ -61,6 +61,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.Phylo.Trie | 前缀树数据结构、插入/查找/前缀匹配/最长前缀/子串搜索、限制酶位点检测、引物匹配 |
 | ✅ | Bio.Phylo.Parsimony | 系统发育简约性评分、Fitch算法(状态集交集/并集)、Sankoff算法(动态规划+代价矩阵) |
 | ✅ | Bio.Phylo.CDAO | CDAO本体RDF/XML格式、Tree/Node/TU/Edge三元组建模、Newick双向转换、命名空间处理 |
+| ✅ | Bio.Smart | SMART蛋白质结构域数据库格式解析、结构域类型分类(SMART/Pfam/SignalP/Transmembrane)、E值过滤、GO注释提取、结构域查询与摘要 |
+| ✅ | Bio.protein_analysis | 蛋白质序列高级分析: Kyte-Doolittle疏水性滑动窗口、GOR二级结构预测、Hopp-Woods抗原性、跨膜区段预测、氨基酸/二肽/三肽组成、Shannon熵保守性评分 |
+| ✅ | Bio.PCD | 质谱PCD格式解析: 质谱图谱(Scan/RT/PEPMASS)、峰列表提取、总离子流色谱图(TIC)、基峰色谱图(BPC)、m/z范围过滤、前体离子信息、序列化往返 |
 | ✅ | Bio.PDB.Dice + Selection | PDB结构切割（链/残基/原子/模型提取）、B因子过滤、几何选择、结构统计、序列提取 |
 | ✅ | Bio.Align.MAF | MAF (Multiple Alignment Format) 多序列比对格式解析、块处理、百分比一致性计算、统计分析、格式转换 |
 | ✅ | Bio.Align.Mauve | Mauve 基因组比对格式解析、LCB(共线性块)检测、倒位检测、断点检测、基因组覆盖率、BED导出 |
@@ -710,6 +713,9 @@ IvanAXu/BioSeqs/
 │   ├── trie.mbt                # Bio.Phylo.Trie 前缀树数据结构 (插入、查找、前缀匹配、子串搜索、限制酶位点检测)
 │   ├── parsimony.mbt           # Bio.Phylo.Parsimony 系统发育简约性评分 (Fitch状态集交集/并集、Sankoff动态规划代价矩阵)
 │   ├── phylo_cdao.mbt          # Bio.Phylo.CDAO CDAO本体RDF/XML格式 (Tree/Node/TU/Edge、Newick双向转换、命名空间处理)
+│   ├── smart.mbt               # Bio.Smart SMART蛋白质结构域数据库解析 (结构域分类、E值过滤、GO注释、查询与摘要)
+│   ├── protein_analysis.mbt    # Bio.protein_analysis 蛋白质序列高级分析 (疏水性、GOR二级结构、抗原性、跨膜预测、保守性)
+│   ├── pcd.mbt                 # Bio.PCD 质谱PCD格式解析 (图谱解析、TIC/BPC色谱图、峰过滤、前体离子、序列化)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
 │   ├── affy_demo/              # Affy Affymetrix芯片数据分析示例 (RMA标准化、背景校正、分位数归一化)
@@ -1030,6 +1036,9 @@ IvanAXu/BioSeqs/
 │   ├── trie_demo/               # Trie前缀树示例 (限制酶位点检测、引物匹配、前缀搜索、最长前缀匹配)
 │   ├── parsimony_demo/          # 简约性评分示例 (Fitch状态集算法、Sankoff动态规划、自定义代价矩阵)
 │   ├── phylo_cdao_demo/         # CDAO本体RDF/XML示例 (Tree/Node/TU构建、解析往返、Newick转换)
+│   ├── smart_demo/              # SMART结构域解析示例 (结构域检测、E值过滤、GO注释、摘要报告)
+│   ├── protein_analysis_demo/   # 蛋白质分析示例 (疏水性、GOR二级结构、抗原性、跨膜预测、保守性)
+│   ├── pcd_demo/                # 质谱PCD格式示例 (图谱解析、TIC/BPC色谱图、峰过滤、序列化往返)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
 │   │   ├── affy_test.mbt
@@ -1353,7 +1362,10 @@ IvanAXu/BioSeqs/
 │   │   ├── enriched_heatmap_test.mbt
 │   │   ├── trie_test.mbt
 │   │   ├── parsimony_test.mbt
-│   │   └── phylo_cdao_test.mbt
+│   │   ├── phylo_cdao_test.mbt
+│   │   ├── smart_test.mbt
+│   │   ├── protein_analysis_test.mbt
+│   │   └── pcd_test.mbt
 │   └── python/                 # Python 参考测试文件
 │       ├── python_reference.py
 │       ├── python_seqio_reference.py
@@ -3070,6 +3082,9 @@ moon test --update
 | Bio.Phylo.Trie | `trie_test.mbt` | 36 |
 | Bio.Phylo.Parsimony | `parsimony_test.mbt` | 23 |
 | Bio.Phylo.CDAO | `phylo_cdao_test.mbt` | 33 |
+| Bio.Smart | `smart_test.mbt` | 12 |
+| Bio.protein_analysis | `protein_analysis_test.mbt` | 20 |
+| Bio.PCD | `pcd_test.mbt` | 16 |
 
 ### Python 对比测试
 
@@ -3332,6 +3347,9 @@ moon run cmd/bench/main.mbt
 | trie_demo | Trie前缀树（限制酶位点检测、引物匹配、前缀搜索、最长前缀匹配） | `moon run examples/trie_demo/main.mbt` |
 | parsimony_demo | 简约性评分（Fitch状态集算法、Sankoff动态规划、自定义代价矩阵） | `moon run examples/parsimony_demo/main.mbt` |
 | phylo_cdao_demo | CDAO本体RDF/XML（Tree/Node/TU构建、解析往返、Newick转换） | `moon run examples/phylo_cdao_demo/main.mbt` |
+| smart_demo | SMART结构域解析（结构域检测、E值过滤、GO注释、摘要报告） | `moon run examples/smart_demo/main.mbt` |
+| protein_analysis_demo | 蛋白质分析（疏水性、GOR二级结构、抗原性、跨膜预测、保守性） | `moon run examples/protein_analysis_demo/main.mbt` |
+| pcd_demo | 质谱PCD格式（图谱解析、TIC/BPC色谱图、峰过滤、序列化往返） | `moon run examples/pcd_demo/main.mbt` |
 
 ## 技术栈
 
