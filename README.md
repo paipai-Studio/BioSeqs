@@ -34,6 +34,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **HH-suite HHR** | Biopython `Bio.Align.hhr` | HHsearch/HHblits HHR解析、profile-profile比对、命中筛选、坐标映射、序列化往返 | ✅ |
 | **系统发育树** | Biopython `Bio.Phylo` | 树结构、Newick 解析、距离计算、可视化 | ✅ |
 | **PDB 结构** | Biopython `Bio.PDB` | 原子/残基/链解析、结构操作 | ✅ |
+| **BinaryCIF** | Biopython `Bio.PDB.binary_cif` | MessagePack解析、七类逆编码、三态缺失值、类别查询、PDB Structure转换 | ✅ |
 | **CE 结构比对** | Biopython `Bio.PDB.cealign` | CA/C4'引导原子、AFP路径搜索、CE显著性、QCP刚体叠合、全原子变换 | ✅ |
 | **SAM/BAM/VCF** | pysam | 比对文件、变异检测、基因型查询 | ✅ |
 | **FASTA 索引** | pyfaidx | 快速随机访问、.fai 索引 | ✅ |
@@ -249,6 +250,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **UniProtIO** | Biopython `Bio.SeqIO.UniprotIO` | UniProt XML格式解析、蛋白质条目提取、基因名、物种、序列、功能注释、数据库交叉引用 | ✅ |
 | **chem_utils** | Biopython `Bio.PDB.chem_utils` | 化学计算工具：范德华半径、共价半径、键长、键角、二面角、经验式、分子式量、氢键长度 | ✅ |
 | **mmCIF** | Biopython `Bio.PDB.MMCIFParser` | mmCIF格式解析、数据块、类别、原子位点提取 | ✅ |
+| **BinaryCIF** | Biopython `Bio.PDB.binary_cif` | 纯MoonBit MessagePack解析、ByteArray/FixedPoint/IntervalQuantization/RunLength/Delta/IntegerPacking/StringArray逆编码、mask与Structure转换 | ✅ |
 | **Nexus** | Biopython `Bio.Nexus` | NEXUS格式解析、数据矩阵、系统发育树、距离矩阵 | ✅ |
 | **EMBOSS** | EMBOSS suite | GC偏斜、AT偏斜、分子量、Tm值、ORF查找、距离计算、蛋白质参数 | ✅ |
 | **ChIPseeker** | Bioconductor ChIPseeker | ChIP-seq峰注释、基因距离计算、注释分类（启动子/外显子/内含子/UTR/基因间区）、BED格式读取、peak2gene关联分析、多峰值集重叠分析(peakOverlap)、Venn图可视化、饼图可视化、结果汇总与可视化 | ✅ |
@@ -512,6 +514,7 @@ IvanAXu/BioSeqs/
 │   ├── chem_utils.mbt          # 化学计算工具 (范德华半径、共价半径、键长、键角、二面角、分子式量)
 │   ├── jaspar.mbt              # JASPAR PFM格式解析 (模体矩阵、PWM转换、共有序列、序列扫描)
 │   ├── mmcif.mbt               # mmCIF格式解析 (Bio.PDB.MMCIFParser、数据块、类别、原子位点)
+│   ├── binary_cif.mbt          # Bio.PDB.binary_cif MessagePack解析、七类逆编码、mask与Structure转换
 │   ├── nexus.mbt               # Nexus格式解析 (Bio.Nexus、数据矩阵、系统发育树、距离矩阵)
 │   ├── emboss.mbt              # EMBOSS工具接口 (GC偏斜、AT偏斜、分子量、Tm值、ORF查找、距离计算)
 │   ├── chipseeker.mbt          # ChIPseeker ChIP-seq峰注释分析 (峰-基因距离计算、注释分类(启动子/外显子/内含子/UTR/基因间区)、BED格式读取、peak2gene关联分析、结果汇总与可视化)
@@ -813,6 +816,7 @@ IvanAXu/BioSeqs/
 │   ├── medline_demo/           # Medline/PubMed解析示例 (文献记录、APA引用、MeSH过滤)
 │   ├── ml_features/            # 机器学习特征提取示例
 │   ├── mmcif_demo/             # mmCIF格式解析示例 (数据块解析、类别查询、原子位点提取)
+│   ├── binary_cif_demo/        # BinaryCIF MessagePack解析、编码管线、mask与PDB Structure转换示例
 │   ├── motifs_demo/            # 序列模体识别示例
 │   ├── motifs_advanced_demo/   # 模体高级功能示例 (JASPAR/TRANSFAC解析、模体比对、KL/JS散度、模体聚类)
 │   ├── multi_assay_experiment_demo/ # MultiAssayExperiment 多组学数据协调示例 (实验协调、样本映射)
@@ -1395,6 +1399,7 @@ IvanAXu/BioSeqs/
 │   │   ├── gck_io_test.mbt
 │   │   ├── alignace_test.mbt
 │   │   ├── mmtf_test.mbt
+│   │   ├── binary_cif_test.mbt
 │   │   ├── naccess_test.mbt
 │   │   ├── wise_test.mbt
 │   │   ├── dnashape_test.mbt
@@ -1441,7 +1446,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 8444 个测试全部通过
+moon test                                               # ✅ 8481 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1506,6 +1511,7 @@ moon test                                               # ✅ 8444 个测试全�
 | `cealign.mbt` | BioPython `Bio.PDB.cealign` | CE组合扩展结构比对、AFP路径、CE显著性、QCP叠合与全原子变换 |
 | `neighbor_search.mbt` | BioPython `Bio.PDB.NeighborSearch` | KD 树近邻搜索 |
 | `mmcif.mbt` | BioPython `Bio.PDB.MMCIFParser` | mmCIF 格式解析 |
+| `binary_cif.mbt` | BioPython `Bio.PDB.binary_cif` | BinaryCIF MessagePack解析、七类逆编码、三态mask、类别查询与PDB Structure转换 |
 | `pdb_vectors.mbt` | BioPython `Bio.PDB.vectors` | 3D向量/旋转矩阵、叉积、Kabsch叠合、二面角 |
 | `pdb_analysis.mbt` | BioPython `Bio.PDB.StructureAnalysis` | 二面角计算、距离矩阵、接触图、氢键检测、二级结构分配、Ramachandran图、SASA计算(Shrake-Rupley)、结构质量评估、疏水性分析 |
 | `pdb_header.mbt` | BioPython `Bio.PDB.ParsePDBHeader` | PDB头部元数据解析 (HEADER/TITLE/COMPOUND/SOURCE/REMARK/AUTH/DBREF) |
@@ -2793,6 +2799,12 @@ moon test                                               # ✅ 8444 个测试全�
 
 基因建模提供均值、sample variance、quarter-root LOWESS 局部线性趋势、左侧向原点外推、残差方差和带 ties/bound 控制的 HVG 选择。`scrapper_aggregate_across_cells` 可按一个或多个分类因子的唯一组合生成 pseudo-bulk sums、detected counts、means 和 medians，并返回组组合及每个细胞的组索引。`scrapper_normalize_rna_counts_sce` 与 `scrapper_quick_rna_qc_sce` 深复制 assay 和主要注释后写入结果，避免修改原 `SingleCellExperiment`。当前实现是无需 libscran C++ 的可移植 MoonBit 版本，不保证 LOWESS 与上游后端位级一致，也不覆盖 `scrapper` 的全部导出接口。
 
+### 245. BinaryCIF 二进制结构格式 (Bio.PDB.binary_cif)
+
+实现与 Biopython `Bio.PDB.binary_cif` 对应的 BinaryCIF 解析与结构转换。`binary_cif_parse` 使用纯 MoonBit MessagePack 读取器解析 data block、category 和 column，并支持 `ByteArray`、`FixedPoint`、`IntervalQuantization`、`RunLength`、`Delta`、`IntegerPacking` 和 `StringArray` 七类 BinaryCIF 逆编码；编码流水线按规范逆序执行。列 API 提供整数、浮点、文本和原始 CIF token 查询，并将 mask 的 `0/1/2` 分别表示为 present、`.` 和 `?`。解析器严格检查 UTF-8、字节范围、数组长度、整数打包值域、字符串 offsets、MessagePack 嵌套深度及尾随数据。
+
+`binary_cif_to_structure` 和 `binary_cif_parse_structure` 将 `_atom_site` 转为现有 `Structure -> Model -> Chain -> Residue -> Atom` 层次，保留模型号、链、残基、坐标、occupancy、B-factor、元素、altloc、插入码、formal charge 和 ATOM/HETATM 语义。模块内置真实 MessagePack fixture，覆盖两模型、蛋白质、水分子和三态 mask。输入 API 接收原始 `Array[Int]` 字节；gzip 数据需由调用方预先解压。BinaryCIF 类别仍保留完整多字符 chain ID，但现有 PDB `Chain.id` 为 `Char`，转换时使用首字符，并拒绝首字符冲突的链 ID。
+
 ## 性能优化
 
 ### 优化策略
@@ -2894,8 +2906,8 @@ moon test                                               # ✅ 8444 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8444 |
-| 通过数 | 8444 |
+| 总测试数 | 8481 |
+| 通过数 | 8481 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2999,6 +3011,7 @@ moon test --update
 | Bio.Align.hhr | `hhr_test.mbt` | 33 |
 | SparseArray | `sparse_array_test.mbt` | 41 |
 | mmCIF | `mmcif_test.mbt` | 2 |
+| BinaryCIF | `binary_cif_test.mbt` | 37 |
 | Nexus | `nexus_test.mbt` | 2 |
 | EMBOSS | `emboss_test.mbt` | 15 |
 | ChIPseeker | `chipseeker_test.mbt` | 14 |
@@ -3288,7 +3301,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 352 个示例程序，展示各模块的典型用法：
+项目提供 353 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3372,6 +3385,7 @@ moon run cmd/bench/main.mbt
 | sva_demo | SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除） | `moon run examples/sva_demo/main.mbt` |
 | ballgown_demo | Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析） | `moon run examples/ballgown_demo/main.mbt` |
 | mmcif_demo | mmCIF格式解析（数据块解析、类别查询、原子位点提取、结构信息） | `moon run examples/mmcif_demo/main.mbt` |
+| binary_cif_demo | BinaryCIF MessagePack解析、七类逆编码、三态mask与PDB Structure转换 | `moon run examples/binary_cif_demo` |
 | nexus_demo | Nexus格式解析（数据矩阵、系统发育树、距离矩阵、分类单元） | `moon run examples/nexus_demo/main.mbt` |
 | emboss_demo | EMBOSS工具接口（GC偏斜、AT偏斜、分子量、Tm值、ORF查找、距离计算） | `moon run examples/emboss_demo/main.mbt` |
 | bioconductor_demo | Bioconductor模块综合示例（ChIPseeker峰注释(外显子/内含子/UTR分类、peak2gene关联)、DOSE疾病富集、ReactomePA通路分析、AnnotationDbi注释数据库、clusterProfiler富集框架、WGCNA共表达网络、Batchelor单细胞批次校正、Seurat单细胞分析） | `moon run examples/bioconductor_demo/main.mbt` |
@@ -3570,6 +3584,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bioconductor SparseArray N维稀疏数组（规范化COO、R列主序、切片/置换/绑定、稀疏算术、统计与矩阵乘法）
 - ✅ 实现 Bio.PDB.cealign CE组合扩展结构比对（CA/C4'引导原子、AFP路径、CE Z-score、QCP叠合、局部优化与全原子变换）
 - ✅ 实现 Bioconductor scrapper 单细胞预处理（批次感知RNA QC、大小因子与log-normalization、LOWESS/HVG、多因子pseudo-bulk、不可变SCE集成）
+- ✅ 实现 Bio.PDB.binary_cif BinaryCIF解析（MessagePack、七类逆编码、三态mask、类别查询与PDB Structure转换）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）
