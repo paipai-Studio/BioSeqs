@@ -31,6 +31,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **序列比对** | Biopython / scikit-bio | Needleman-Wunsch、Smith-Waterman、多序列比对、替换矩阵(BLOSUM/PAM) | ✅ |
 | **BLAST解析** | Biopython `Bio.Blast` | BLAST结果解析、tabular/xml格式、HSP过滤、最佳匹配 | ✅ |
 | **SearchIO** | Biopython `Bio.SearchIO` | 统一搜索结果模型、HMMER3解析、BLAT PSL解析、BLAST转换 | ✅ |
+| **HH-suite HHR** | Biopython `Bio.Align.hhr` | HHsearch/HHblits HHR解析、profile-profile比对、命中筛选、坐标映射、序列化往返 | ✅ |
 | **系统发育树** | Biopython `Bio.Phylo` | 树结构、Newick 解析、距离计算、可视化 | ✅ |
 | **PDB 结构** | Biopython `Bio.PDB` | 原子/残基/链解析、结构操作 | ✅ |
 | **SAM/BAM/VCF** | pysam | 比对文件、变异检测、基因型查询 | ✅ |
@@ -202,6 +203,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **ExPASy** | Biopython `Bio.ExPASy` | 蛋白质分析工具接口、Swiss-Prot条目解析、酶数据库查询、蛋白质参数计算（分子量、等电点、GRAVY、不稳定指数） | ✅ |
 | **Cellosaurus** | Biopython `Bio.ExPASy.cellosaurus` | Cellosaurus平面文本解析、类型化细胞系记录、数据库交叉引用、物种查询、序列化往返 | ✅ |
 | **UniGene** | Biopython `Bio.UniGene` | NCBI UniGene固定宽度记录解析、类型化序列/蛋白相似性/STS/转录本映射、严格SCOUNT校验、序列化往返 | ✅ |
+| **HH-suite HHR** | Biopython `Bio.Align.hhr` | HHR元数据、命中摘要、多块profile比对、consensus/二级结构/DSSP/confidence注释、概率和E-value查询 | ✅ |
 | **Prosite** | Biopython `Bio.Prosite` | 蛋白质模体数据库搜索、Prosite模式解析、模体匹配算法、模体得分计算 | ✅ |
 | **PAML** | Biopython `Bio.PAML` | 分子进化分析、dN/dS计算（Nei-Gojobori方法）、Jukes-Cantor校正、密码子使用分析 | ✅ |
 | **Graphics** | Biopython `Bio.Graphics` | 生物信息学可视化、序列Logo绘制、序列比对可视化、基因组特征绘图 | ✅ |
@@ -336,6 +338,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | BiocNeighbors | KMKNN和Annoy最近邻搜索，支持欧几里得/曼哈顿/余弦距离 |
 | ✅ | mixOmics | 多组学整合方法，包括PLS回归、稀疏PLS (sPLS)、DIABLO多块整合 |
 | **MAF格式解析** | Biopython `Bio.Align` | MAF多序列比对格式解析、块操作、百分比一致性、统计分析、选择/过滤/写回 | ✅ |
+| **HH-suite HHR格式** | Biopython `Bio.Align.hhr` | HHsearch/HHblits结果严格解析、0-based坐标、query-target映射、规范化写回 | ✅ |
 | **UCSC Chain文件/liftOver** | Bioconductor rtracklayer | Chain格式解析、基因组坐标liftOver转换、链段查找、染色体间坐标映射、位置/区间转换 | ✅ |
 | **Biostrings matchPDict** | Bioconductor Biostrings | 字典模式匹配(matchPDict/vmatchPattern)、多序列模式计数(vcountPattern)、错配容忍、最佳匹配查找 | ✅ |
 | **GenomicRanges gaps/reduce/disjoin** | Bioconductor GenomicRanges | gaps检测、reduce合并、disjoin拆分、setdiff/交集/并集集合运算、coverage计算、promoters提取、trim | ✅ |
@@ -723,6 +726,7 @@ IvanAXu/BioSeqs/
 │   ├── transfac.mbt            # Bio.Motifs.Transfac TRANSFAC转录因子结合谱解析 (PFM频率矩阵、AC/ID/DE/BF/CC字段、参考文献、共识序列)
 │   ├── hmmer_io.mbt            # Bio.SearchIO.HmmerIO HMMER3输出解析 (domtblout域表、文本格式、Query/Hit/HSP/Domain聚合)
 │   ├── fasta_search_io.mbt     # Bio.SearchIO.FastaIO FASTA搜索输出解析 (-m8紧凑表格、-m9带注释头、元数据提取)
+│   ├── hhr.mbt                 # Bio.Align.hhr HH-suite HHR解析、命中查询、坐标映射与序列化
 │   ├── gene_pop.mbt            # Bio.PopGen.GenePop GenePop群体遗传学 (基因型解析、等位基因频率、杂合度、序列化往返)
 │   ├── stage_r.mbt             # Bioconductor stageR 两阶段假设检验 (筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制)
 │   ├── enriched_heatmap.mbt    # Bioconductor EnrichedHeatmap 基因组信号归一化 (窗口化、四种均值模式、行平滑、百分位裁剪)
@@ -1054,6 +1058,7 @@ IvanAXu/BioSeqs/
 │   ├── transfac_demo/           # TRANSFAC转录因子结合谱解析示例 (PFM矩阵、共识序列、频率计算、序列化、参考文献)
 │   ├── hmmer_io_demo/           # HMMER3输出解析示例 (domtblout域表、文本格式、Query/Hit/HSP聚合、多域比对)
 │   ├── fasta_search_io_demo/    # FASTA搜索输出解析示例 (-m8表格、-m9注释头、元数据、Query/Hit/HSP聚合)
+│   ├── hhr_demo/                # HH-suite HHR解析、命中筛选、坐标映射与序列化往返示例
 │   ├── gene_pop_demo/           # GenePop群体遗传学示例 (基因型解析、等位基因频率、杂合度统计、序列化往返)
 │   ├── stage_r_demo/            # stageR两阶段检验示例 (筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制)
 │   ├── enriched_heatmap_demo/   # EnrichedHeatmap富集热图示例 (信号归一化、四种均值模式、行平滑、链方向处理)
@@ -1386,6 +1391,7 @@ IvanAXu/BioSeqs/
 │   │   ├── transfac_full_test.mbt
 │   │   ├── hmmer_io_test.mbt
 │   │   ├── fasta_search_io_test.mbt
+│   │   ├── hhr_test.mbt
 │   │   ├── gene_pop_test.mbt
 │   │   ├── stage_r_test.mbt
 │   │   ├── enriched_heatmap_test.mbt
@@ -1420,7 +1426,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 8299 个测试全部通过
+moon test                                               # ✅ 8332 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1464,6 +1470,7 @@ moon test                                               # ✅ 8299 个测试全�
 | `align_abstract.mbt` | BioPython `Bio.Align.AlignAbstract` | 抽象比对类型、Shannon熵、同一性矩阵、简约信息位点 |
 | `codon_align.mbt` | BioPython `Bio.codonalign` | 密码子比对与 dN/dS 分析 |
 | `searchio.mbt` | BioPython `Bio.SearchIO` | 统一搜索结果模型、BLAST/HMMER解析、E-value过滤 |
+| `hhr.mbt` | BioPython `Bio.Align.hhr` | HHsearch/HHblits HHR解析、profile比对注释、命中筛选、坐标映射与规范序列化 |
 
 #### 系统发育树
 
@@ -2745,6 +2752,10 @@ moon test                                               # ✅ 8299 个测试全�
 
 实现 Bioconductor `GenomicRanges::GRangesList` 的复合特征语义，每个命名外层元素保存一组 `GRanges`，适合表示转录本-外显子、基因-调控区等一对多结构。构造器严格校验外层名称、元素元数据和内部范围维度；`granges_split_as_list` 按首次出现顺序分组，`granges_list_from_partition` 按元素长度分区，`unlist` 展平成单个 `GRanges`，`relist` 按原分区重建并保留名称和元数据。`subset`、`concat`、`parallel_concat` 支持外层选择和组合；`shift`、`narrow`、`resize`、`flank`、`promoters`、`reduce`、`disjoin` 和 `sort_ranges` 逐元素执行，`parallel_union`、`parallel_intersect` 和 `parallel_setdiff` 提供同位置元素间集合运算。`find_overlaps`、`count_overlaps`、`overlaps_any` 和分组对分组查询返回外层复合特征索引，并对同一特征的多个成员命中去重；`nearest`、`distance_to_nearest` 和 `coverage` 基于所有真实成员范围计算。`feature_bounds` 仅用于生成每个复合特征的协调外接范围，不替代精确区间计算。
 
+### 241. HH-suite HHR profile-profile 比对解析 (Bio.Align.hhr)
+
+实现与 Biopython `Bio.Align.hhr` 对应的 HHsearch/HHblits HHR 文本解析。`hhr_parse` 读取查询元数据、命中摘要表和多块 profile-profile 比对，使用 Biopython 风格的 0-based、end-exclusive 坐标，并保留 query/target consensus、预测二级结构、DSSP、逐列分数和 confidence。`HhrRecord` 支持按 target 查询、probability/E-value 过滤和最佳命中选择；`HhrAlignment` 提供去 gap 序列、identity/coverage 统计、`query_to_target` 坐标映射和 `aligned_pairs`。解析器严格校验 rank、摘要与详情数量、坐标跨度、跨块连续性、比对宽度、`Aligned_cols` 和终止标记，兼容 CRLF、无空行的官方布局、零命中及 EOF 结束的完整末块。`to_string` 生成规范 HHR 文本并支持解析-序列化往返；格式错误抛出 `HhrError`。
+
 ## 性能优化
 
 ### 优化策略
@@ -2846,8 +2857,8 @@ moon test                                               # ✅ 8299 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8299 |
-| 通过数 | 8299 |
+| 总测试数 | 8332 |
+| 通过数 | 8332 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2948,6 +2959,7 @@ moon test --update
 | SwissProt | `swissprot_test.mbt` | 8 |
 | Cellosaurus | `cellosaurus_test.mbt` | 16 |
 | UniGene | `unigene_test.mbt` | 23 |
+| Bio.Align.hhr | `hhr_test.mbt` | 33 |
 | mmCIF | `mmcif_test.mbt` | 2 |
 | Nexus | `nexus_test.mbt` | 2 |
 | EMBOSS | `emboss_test.mbt` | 15 |
@@ -3236,7 +3248,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 346 个示例程序，展示各模块的典型用法：
+项目提供 349 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3310,6 +3322,7 @@ moon run cmd/bench/main.mbt
 | swissprot_demo | SwissProt 蛋白数据库解析（记录解析、特征提取、参考文献） | `moon run examples/swissprot_demo/main.mbt` |
 | cellosaurus_demo | Cellosaurus细胞系记录解析、物种/同义名/交叉引用查询和序列化往返 | `moon run examples/cellosaurus_demo/main.mbt` |
 | unigene_demo | NCBI UniGene cluster解析、序列/蛋白相似性/STS/转录本映射查询和序列化往返 | `moon run examples/unigene_demo/main.mbt` |
+| hhr_demo | HH-suite HHR元数据与profile比对解析、命中筛选、query-target坐标映射和序列化往返 | `moon run examples/hhr_demo` |
 | uniprot_io_demo | UniProt XML格式解析（蛋白质条目解析、功能注释提取、序列转换） | `moon run examples/uniprot_io_demo/main.mbt` |
 | chem_utils_demo | 化学计算工具（键长、键角、二面角、分子式量、氢键长度） | `moon run examples/chem_utils_demo/main.mbt` |
 | jaspar_demo | JASPAR PFM格式解析（模体矩阵解析、共有序列、PWM转换、序列扫描） | `moon run examples/jaspar_demo/main.mbt` |
@@ -3510,6 +3523,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 SwissProt 蛋白数据库解析（记录解析、特征提取、参考文献）
 - ✅ 实现 Cellosaurus 细胞系数据库解析（多记录读取、交叉引用/物种查询、平面文本序列化）
 - ✅ 实现 UniGene 基因聚类记录解析（固定宽度多记录读取、类型化子记录查询、SCOUNT校验、平面文本序列化）
+- ✅ 实现 Bio.Align.hhr HH-suite HHR解析（元数据、命中摘要、多块profile比对、注释保留、过滤、坐标映射与序列化）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）
