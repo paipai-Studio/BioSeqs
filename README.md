@@ -122,6 +122,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bioconductor fishpond (Swish) | 非参数差异表达分析: Mann-Whitney-Wilcoxon秩和统计、置换检验、BH-FDR校正、log2FC方向判定 |
 | ✅ | Bioconductor MatrixGenerics | 矩阵行/列汇总统计: rowMeans/colMeans、rowSums/colSums、rowVars/colVars、rowSds/colSds、rowMedians/colMedians、rowMins/colMins、rowMaxs/colMaxs、rowRanges/colRanges、rowMad/colMad、rowCounts、rowAnys/colAnys、rowAlls/colAlls、块处理 |
 | ✅ | Bioconductor beachmat | 矩阵访问API: 列/行块处理(bmat_apply_col_blocks/bmat_apply_row_blocks)、线性迭代器(BmatIterator)、子集/转置/绑定、逐元素操作、类型安全访问 |
+| ✅ | Bioconductor SparseArray | N维稀疏数组: 规范化COO、重复坐标合并、R列主序转换、切片/置换/绑定、稀疏算术、统计与矩阵乘法 |
 | ✅ | Bioconductor glmGamPoi | Gamma-Poisson广义线性模型: size factors估计、伪批量聚合、单基因拟合(IWLCS迭代加权最小二乘)、Wald差异表达检验、BH-FDR校正、线性代数求解、正态CDF与p值计算 |
 | ✅ | Bioconductor survival | 生存分析: Kaplan-Meier估计器(Greenwood标准误)、log-rank检验(两组比较)、Cox比例风险模型(Newton-Raphson偏似然拟合、Breslow ties)、卡方p值、中位生存期 |
 | ✅ | Bioconductor methylKit | 亚硫酸氢盐测序甲基化分析: 甲基化胞嘧啶统计、覆盖率过滤/归一化、Fisher精确检验差异甲基化、BH-FDR校正、DMR识别、样本相关性/聚类、BED导出 |
@@ -288,6 +289,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **GSVA** | Bioconductor GSVA | 基因集变异分析、单样本通路评分（ssGSEA/zscore/PLAGE）、富集分析、置换检验、富集图可视化(enrichment map)、表型相关性分析(phenotype correlation)、生存分析(survival analysis)、分数分布分析与可视化 | ✅ |
 | **ChromVAR** | Bioconductor chromVAR | 染色质变异分析、TF motif富集、GC偏差校正、细胞聚类、变异性分析 | ✅ |
 | **DelayedArray** | Bioconductor DelayedArray | 延迟计算数组、懒加载操作、分块处理、行/列聚合、子集操作 | ✅ |
+| **SparseArray** | Bioconductor SparseArray | N维规范化COO稀疏数组、坐标/线性索引、稀疏切片、维度置换与绑定、不可变赋值、算术/统计、矩阵乘法 | ✅ |
 | **AnnotationFilter** | Bioconductor AnnotationFilter | 基因注释过滤、染色体筛选、生物类型过滤、区域重叠检测、符号模式匹配 | ✅ |
 | **scDblFinder** | Bioconductor scDblFinder | 单细胞双细胞检测、Doublet评分计算、最近邻搜索、PCA降维、细胞过滤 | ✅ |
 | **Batchelor** | Bioconductor batchelor | 单细胞批次校正、rescaleBatches缩放校正、mutual nearest neighbor、fastMNN多批次校正、批次混合评分 | ✅ |
@@ -352,6 +354,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Storey q-value** | Bioconductor qvalue | π₀估计、Storey q-value计算、自助法π₀、FDR校正、显著性检验 | ✅ |
 | **独立假设加权(IHW)** | Bioconductor IHW | 协变量加权Bonferroni、局部/全局加权、Storey pi0加权、多协变量支持、迭代权重优化 | ✅ |
 | **DelayedMatrixStats** | Bioconductor DelayedMatrixStats | DelayedArray统计层、row/col统计(mean/var/sd/median/min/max/sum)、NA处理、子集操作 | ✅ |
+| **SparseArray N维稀疏计算** | Bioconductor SparseArray | COO规范化、重复坐标合并与零消除、R列主序、稀疏子集/aperm/bind、Hadamard运算、crossprod/tcrossprod | ✅ |
 | **GC-RMA芯片分析** | Bioconductor gcrma | GC校正RMA、背景校正(IdealMM/Express)、GC查找表、分位数归一化、探针组汇总 | ✅ |
 | **ACE contig格式** | Biopython `Bio.Sequencing.Ace` | ACE组装格式解析、reads/contigs提取、共有序列生成、覆盖度分析、GC含量计算、格式化输出 | ✅ |
 | **蛋白质组学分析** | Biopython `Bio.SeqUtils.Proteomics` | 8种蛋白酶切(胰酶/糜酶/胃酶/LysC/ArgC/CNBr/GluC/AspN)、单同位素/平均质量计算、同位素分布、b/y碎片离子 | ✅ |
@@ -451,6 +454,7 @@ IvanAXu/BioSeqs/
 │   ├── edger_advanced.mbt           # edgeR准似然F检验、camera/roast基因集检验
 │   ├── limma.mbt               # limma 差异表达、归一化、批次校正 (线性模型、经验贝叶斯、voom、RPKM/CPM/quantile、ComBat)
 │   ├── matrix.mbt               # Bioconductor Matrix 稀疏矩阵操作 (CSC/CSR格式、矩阵运算)
+│   ├── sparse_array.mbt         # Bioconductor SparseArray N维规范化COO、切片/置换/绑定、稀疏算术与矩阵乘法
 │   ├── bioc_neighbors.mbt      # BiocNeighbors 最近邻搜索 (KMKNN/Annoy)
 │   ├── summarized_experiment.mbt # SummarizedExperiment 多维基因组数据容器
 │   ├── ranged_summarized_experiment.mbt # RangedSummarizedExperiment GRanges/GRangesList行范围与协调操作
@@ -883,6 +887,7 @@ IvanAXu/BioSeqs/
 │   ├── gsva_demo/              # GSVA 基因集变异分析示例 (ssGSEA/zscore/PLAGE评分、富集分析、置换检验、富集图可视化、表型相关性分析、生存分析、分数分布分析)
 │   ├── chromvar_demo/          # ChromVAR 染色质变异分析示例 (TF motif富集、GC偏差校正、细胞聚类、变异性分析)
 │   ├── delayed_array_demo/     # DelayedArray 延迟计算数组示例 (懒加载操作、分块处理、行/列聚合、子集操作)
+│   ├── sparse_array_demo/      # SparseArray N维稀疏张量、切片/置换、统计、算术与矩阵乘法示例
 │   ├── annotation_filter_demo/ # AnnotationFilter 基因注释过滤示例 (染色体筛选、生物类型过滤、区域重叠检测、符号模式匹配)
 │   ├── sc3_demo/                # SC3 单细胞共识聚类示例
 │   ├── sc_dbl_finder_demo/     # scDblFinder 单细胞双细胞检测示例 (Doublet评分计算、最近邻搜索、PCA降维、细胞过滤)
@@ -1180,6 +1185,7 @@ IvanAXu/BioSeqs/
 │   │   ├── consensus_cluster_plus_test.mbt
 │   │   ├── csaw_test.mbt
 │   │   ├── delayed_array_test.mbt
+│   │   ├── sparse_array_test.mbt
 │   │   ├── destiny_test.mbt
 │   │   ├── rtsne_test.mbt
 │   │   ├── uwot_test.mbt
@@ -1426,7 +1432,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 8332 个测试全部通过
+moon test                                               # ✅ 8373 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1541,6 +1547,7 @@ moon test                                               # ✅ 8332 个测试全�
 
 | MoonBit 文件 | 对应 Python 库 | 核心功能 |
 | :--- | :--- | :--- |
+| `sparse_array.mbt` | Bioconductor SparseArray | N维规范化COO、重复坐标合并与零消除、R列主序转换、稀疏切片/置换/绑定、算术/统计、矩阵乘法 |
 | `matrix_generics.mbt` | Bioconductor MatrixGenerics | rowMeans/colMeans、rowSums/colSums、rowVars/colVars、rowSds/colSds、rowMedians/colMedians、rowMins/colMins、rowMaxs/colMaxs、rowRanges/colRanges、rowMad/colMad、rowCounts、rowAnys/colAnys、rowAlls/colAlls、块处理 |
 | `beachmat.mbt` | Bioconductor beachmat | 列/行块处理、线性迭代器(BmatIterator)、子集/转置/绑定、逐元素操作、类型安全矩阵访问API |
 | `survival.mbt` | R/Bioconductor survival | Kaplan-Meier估计器(Greenwood标准误)、log-rank检验、Cox比例风险模型(Newton-Raphson偏似然拟合) |
@@ -1649,6 +1656,7 @@ moon test                                               # ✅ 8332 个测试全�
 | `gsva.mbt` | Bioconductor GSVA | 基因集变异分析 (ssGSEA/zscore/PLAGE评分) |
 | `chromvar.mbt` | Bioconductor chromVAR | 染色质变异分析 (TF motif富集、GC偏差校正) |
 | `delayed_array.mbt` | Bioconductor DelayedArray | 延迟计算数组 (懒加载操作、分块处理、行/列聚合) |
+| `sparse_array.mbt` | Bioconductor SparseArray | N维稀疏数组、规范化COO存储、切片/置换/绑定、稀疏算术、统计与矩阵乘法 |
 | `annotation_filter.mbt` | Bioconductor AnnotationFilter | 基因注释过滤 (染色体筛选、生物类型过滤、区域重叠检测) |
 | `sc_dbl_finder.mbt` | Bioconductor scDblFinder | 单细胞双细胞检测 (Doublet评分、最近邻搜索、PCA降维) |
 | `seurat.mbt` | Bioconductor Seurat | 单细胞数据分析核心 (标准化、高可变基因、PCA、聚类、UMAP、差异表达、跨样本整合) |
@@ -2756,6 +2764,12 @@ moon test                                               # ✅ 8332 个测试全�
 
 实现与 Biopython `Bio.Align.hhr` 对应的 HHsearch/HHblits HHR 文本解析。`hhr_parse` 读取查询元数据、命中摘要表和多块 profile-profile 比对，使用 Biopython 风格的 0-based、end-exclusive 坐标，并保留 query/target consensus、预测二级结构、DSSP、逐列分数和 confidence。`HhrRecord` 支持按 target 查询、probability/E-value 过滤和最佳命中选择；`HhrAlignment` 提供去 gap 序列、identity/coverage 统计、`query_to_target` 坐标映射和 `aligned_pairs`。解析器严格校验 rank、摘要与详情数量、坐标跨度、跨块连续性、比对宽度、`Aligned_cols` 和终止标记，兼容 CRLF、无空行的官方布局、零命中及 EOF 结束的完整末块。`to_string` 生成规范 HHR 文本并支持解析-序列化往返；格式错误抛出 `HhrError`。
 
+### 242. N维稀疏数组基础设施 (Bioconductor SparseArray)
+
+实现与 Bioconductor `SparseArray` 核心语义对应的 N 维稀疏数组，作为现有二维 CSC/CSR `BiocMatrix` 的补充。`SparseArray::from_coo` 使用 0-based 坐标构建规范化 COO：构造时校验维度和坐标、深复制输入、按坐标排序、合并重复坐标，并删除合并后为零的条目；`from_flat`/`to_flat` 遵循 R 风格列主序（第一维变化最快），另提供矩阵和零数组构造器。查询 API 覆盖维度、长度、非零坐标/值、密度、坐标及线性随机访问和稠密转换，所有公开坐标访问器均返回防御性副本。
+
+稀疏变换支持不可变单点/批量赋值、重复索引子集、0-based end-exclusive 切片、任意维度 `aperm`、二维转置和按指定维度绑定；加减、Hadamard 乘积、缩放和非零映射直接处理规范化非零条目。统计 API 包括全数组 sum/mean/min/max（极值正确纳入隐式零）以及二维 row/column sums、means 和非零计数；二维稀疏矩阵还支持 `matmul`、`crossprod` 和 `tcrossprod`。当前实现采用可移植的规范化 COO，并未宣称覆盖官方包的完整 SVT 存储后端。
+
 ## 性能优化
 
 ### 优化策略
@@ -2857,8 +2871,8 @@ moon test                                               # ✅ 8332 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8332 |
-| 通过数 | 8332 |
+| 总测试数 | 8373 |
+| 通过数 | 8373 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2960,6 +2974,7 @@ moon test --update
 | Cellosaurus | `cellosaurus_test.mbt` | 16 |
 | UniGene | `unigene_test.mbt` | 23 |
 | Bio.Align.hhr | `hhr_test.mbt` | 33 |
+| SparseArray | `sparse_array_test.mbt` | 41 |
 | mmCIF | `mmcif_test.mbt` | 2 |
 | Nexus | `nexus_test.mbt` | 2 |
 | EMBOSS | `emboss_test.mbt` | 15 |
@@ -3248,7 +3263,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 349 个示例程序，展示各模块的典型用法：
+项目提供 350 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3323,6 +3338,7 @@ moon run cmd/bench/main.mbt
 | cellosaurus_demo | Cellosaurus细胞系记录解析、物种/同义名/交叉引用查询和序列化往返 | `moon run examples/cellosaurus_demo/main.mbt` |
 | unigene_demo | NCBI UniGene cluster解析、序列/蛋白相似性/STS/转录本映射查询和序列化往返 | `moon run examples/unigene_demo/main.mbt` |
 | hhr_demo | HH-suite HHR元数据与profile比对解析、命中筛选、query-target坐标映射和序列化往返 | `moon run examples/hhr_demo` |
+| sparse_array_demo | SparseArray N维稀疏张量、切片/aperm、行列统计、稀疏算术和矩阵乘法 | `moon run examples/sparse_array_demo` |
 | uniprot_io_demo | UniProt XML格式解析（蛋白质条目解析、功能注释提取、序列转换） | `moon run examples/uniprot_io_demo/main.mbt` |
 | chem_utils_demo | 化学计算工具（键长、键角、二面角、分子式量、氢键长度） | `moon run examples/chem_utils_demo/main.mbt` |
 | jaspar_demo | JASPAR PFM格式解析（模体矩阵解析、共有序列、PWM转换、序列扫描） | `moon run examples/jaspar_demo/main.mbt` |
@@ -3524,6 +3540,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Cellosaurus 细胞系数据库解析（多记录读取、交叉引用/物种查询、平面文本序列化）
 - ✅ 实现 UniGene 基因聚类记录解析（固定宽度多记录读取、类型化子记录查询、SCOUNT校验、平面文本序列化）
 - ✅ 实现 Bio.Align.hhr HH-suite HHR解析（元数据、命中摘要、多块profile比对、注释保留、过滤、坐标映射与序列化）
+- ✅ 实现 Bioconductor SparseArray N维稀疏数组（规范化COO、R列主序、切片/置换/绑定、稀疏算术、统计与矩阵乘法）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）
