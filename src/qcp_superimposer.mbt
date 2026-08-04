@@ -293,6 +293,98 @@ pub fn compute_eigenvector(q : Array[Array[Double]], lambda : Double) -> Array[D
 }
 
 ///|
+/// Compute the eigenvector for the largest eigenvalue of a symmetric 4x4
+/// matrix using Jacobi rotations.
+fn qcp_largest_eigenvector(q : Array[Array[Double]]) -> Array[Double] {
+  let matrix : Array[Array[Double]] = []
+  let vectors : Array[Array[Double]] = []
+  let mut row = 0
+  while row < 4 {
+    matrix.push(q[row].copy())
+    let vector_row = Array::make(4, 0.0)
+    vector_row[row] = 1.0
+    vectors.push(vector_row)
+    row = row + 1
+  }
+  let mut sweep = 0
+  while sweep < 64 {
+    let mut pivot_row = 0
+    let mut pivot_column = 1
+    let mut largest = matrix[0][1].abs()
+    let mut current_row = 0
+    while current_row < 3 {
+      let mut current_column = current_row + 1
+      while current_column < 4 {
+        let magnitude = matrix[current_row][current_column].abs()
+        if magnitude > largest {
+          largest = magnitude
+          pivot_row = current_row
+          pivot_column = current_column
+        }
+        current_column = current_column + 1
+      }
+      current_row = current_row + 1
+    }
+    if largest < 1.0e-12 {
+      break
+    }
+    let diagonal_difference = matrix[pivot_column][pivot_column] -
+      matrix[pivot_row][pivot_row]
+    let ratio = diagonal_difference /
+      (2.0 * matrix[pivot_row][pivot_column])
+    let tangent = if ratio >= 0.0 {
+      1.0 / (ratio + (1.0 + ratio * ratio).sqrt())
+    } else {
+      -1.0 / (-ratio + (1.0 + ratio * ratio).sqrt())
+    }
+    let cosine = 1.0 / (1.0 + tangent * tangent).sqrt()
+    let sine = tangent * cosine
+    let pivot_value = matrix[pivot_row][pivot_column]
+    let row_diagonal = matrix[pivot_row][pivot_row]
+    let column_diagonal = matrix[pivot_column][pivot_column]
+    matrix[pivot_row][pivot_row] = row_diagonal - tangent * pivot_value
+    matrix[pivot_column][pivot_column] = column_diagonal +
+      tangent * pivot_value
+    matrix[pivot_row][pivot_column] = 0.0
+    matrix[pivot_column][pivot_row] = 0.0
+    let mut index = 0
+    while index < 4 {
+      if index != pivot_row && index != pivot_column {
+        let row_value = matrix[index][pivot_row]
+        let column_value = matrix[index][pivot_column]
+        let rotated_row = cosine * row_value - sine * column_value
+        let rotated_column = sine * row_value + cosine * column_value
+        matrix[index][pivot_row] = rotated_row
+        matrix[pivot_row][index] = rotated_row
+        matrix[index][pivot_column] = rotated_column
+        matrix[pivot_column][index] = rotated_column
+      }
+      let vector_row = vectors[index][pivot_row]
+      let vector_column = vectors[index][pivot_column]
+      vectors[index][pivot_row] = cosine * vector_row - sine * vector_column
+      vectors[index][pivot_column] = sine * vector_row +
+        cosine * vector_column
+      index = index + 1
+    }
+    sweep = sweep + 1
+  }
+  let mut largest_index = 0
+  let mut index = 1
+  while index < 4 {
+    if matrix[index][index] > matrix[largest_index][largest_index] {
+      largest_index = index
+    }
+    index = index + 1
+  }
+  [
+    vectors[0][largest_index],
+    vectors[1][largest_index],
+    vectors[2][largest_index],
+    vectors[3][largest_index],
+  ]
+}
+
+///|
 /// Convert quaternion to rotation matrix.
 pub fn quaternion_to_rotation(q : Array[Double]) -> Array[Array[Double]] {
   let w = q[0]
@@ -379,11 +471,9 @@ pub fn QCPSuperimposer::set(self : QCPSuperimposer, fixed : Array[QCPAtomCoordin
   let centroid_fixed = calculate_centroid(fixed)
   let centroid_moving = calculate_centroid(moving)
   
-  let c = build_correlation_matrix(fixed_centered, moving_centered)
+  let c = build_correlation_matrix(moving_centered, fixed_centered)
   let q = build_qcp_matrix(c)
-  
-  let lambda_max = solve_quartic(q)
-  let eigenvec = compute_eigenvector(q, lambda_max)
+  let eigenvec = qcp_largest_eigenvector(q)
   
   let rot = quaternion_to_rotation(eigenvec)
   

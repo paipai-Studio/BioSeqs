@@ -34,6 +34,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **HH-suite HHR** | Biopython `Bio.Align.hhr` | HHsearch/HHblits HHR解析、profile-profile比对、命中筛选、坐标映射、序列化往返 | ✅ |
 | **系统发育树** | Biopython `Bio.Phylo` | 树结构、Newick 解析、距离计算、可视化 | ✅ |
 | **PDB 结构** | Biopython `Bio.PDB` | 原子/残基/链解析、结构操作 | ✅ |
+| **CE 结构比对** | Biopython `Bio.PDB.cealign` | CA/C4'引导原子、AFP路径搜索、CE显著性、QCP刚体叠合、全原子变换 | ✅ |
 | **SAM/BAM/VCF** | pysam | 比对文件、变异检测、基因型查询 | ✅ |
 | **FASTA 索引** | pyfaidx | 快速随机访问、.fai 索引 | ✅ |
 | **机器学习特征** | scikit-learn | k-mer 频率、氨基酸组成、理化性质 | ✅ |
@@ -234,6 +235,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Affy** | Biopython `Bio.Affy` | Affymetrix芯片数据分析、RMA标准化、背景校正、分位数归一化 | ✅ |
 | **SVDSuperimposer** | Biopython `Bio.PDB.SVDSuperimposer` | SVD蛋白质结构叠合、旋转矩阵、平移向量、RMSD计算 | ✅ |
 | **QCPSuperimposer** | Biopython `Bio.PDB.QCPSuperimposer` | 四元数特征多项式结构叠合、高精度旋转矩阵、平移向量、RMSD计算 | ✅ |
+| **CEAligner** | Biopython `Bio.PDB.cealign` | 组合扩展结构比对、AFP单调路径、CE Z-score、局部索引优化、QCP最优叠合 | ✅ |
 | **ResidueDepth** | Biopython `Bio.PDB.ResidueDepth` | 残基深度计算、溶剂可及表面积(SASA)、表面/核心残基识别 | ✅ |
 | **StructureAlignment** | Biopython `Bio.PDB.StructureAlignment` | 多蛋白质结构比对、动态规划比对、RMSD/TM-score计算、渐进式多结构比对 | ✅ |
 | **KEGG** | Biopython `Bio.KEGG` | KEGG基因/通路/化合物/酶记录解析、通路分析 | ✅ |
@@ -597,6 +599,7 @@ IvanAXu/BioSeqs/
 │   ├── phenotype.mbt            # Bio.phenotype 表型微阵列分析 (WellRecord/PlateRecord/PhenFitParams、logistic/Gompertz拟合、CSV/JSON解析)
 │   ├── blast_applications.mbt   # Bio.Blast.Applications BLAST命令行工具包装 (8种BLAST变体、快速构建器、参数管理)
 │   ├── qcp_superimposer.mbt     # QCP叠加 (四元数旋转、结构比对、RMSD计算、最优叠加)
+│   ├── cealign.mbt               # Bio.PDB.cealign CE组合扩展结构比对 (AFP路径、Z-score、QCP叠合、全原子变换)
 │   ├── psea.mbt                 # Bio.PDB.PSEA 二级结构预测 (PseaAtom/PseaResult、CA-CA距离、虚拟二面角、H/E/C分配、三态到八态转换)
 │   ├── sff_io.mbt               # Bio.SeqIO.SffIO SFF二进制格式解析 (SffHeader/SffRead/SffFile、二进制编码/解码、质量修剪)
 │   ├── seq_complexity.mbt       # 序列复杂度与组成分析 (Shannon熵、GC偏斜、混沌游戏表示)
@@ -934,6 +937,7 @@ IvanAXu/BioSeqs/
 │   ├── edaseq_demo/              # EDASeq RNA-seq探索性分析示例 (GC归一化、Loess校正、RPKM计算)
 │   ├── pdb_vectors_demo/         # Bio.PDB.vectors 3D向量与旋转矩阵示例 (Vector3运算、Kabsch叠合、二面角计算)
 │   ├── qcp_superimposer_demo/    # Bio.PDB.QCPSuperimposer 四元数结构叠合示例
+│   ├── cealign_demo/             # Bio.PDB.cealign CE组合扩展结构比对、路径统计与不可变全原子变换示例
 │   ├── circ_seq_demo/            # Bio.SeqUtils.CircSeq 环状DNA操作示例 (酶切分析、PCR引物设计、序列旋转)
 │   ├── align_abstract_demo/      # Bio.Align.AlignAbstract 抽象比对示例 (一致性序列、Shannon熵、同一性矩阵、简约信息位点)
 │   ├── maftools_demo/            # maftools 癌症基因组学示例 (MAF数据创建、突变分类、TMB计算、突变谱分析)
@@ -1249,6 +1253,7 @@ IvanAXu/BioSeqs/
 │   │   ├── prosite_test.mbt
 │   │   ├── psea_test.mbt
 │   │   ├── qcp_superimposer_test.mbt
+│   │   ├── cealign_test.mbt
 │   │   ├── reactome_pa_test.mbt
 │   │   ├── residue_depth_test.mbt
 │   │   ├── rhdf5_test.mbt
@@ -1432,7 +1437,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 8373 个测试全部通过
+moon test                                               # ✅ 8409 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1494,6 +1499,7 @@ moon test                                               # ✅ 8373 个测试全�
 | `pdb.mbt` | BioPython `Bio.PDB` | PDB 数据类型 |
 | `pdb_io.mbt` | BioPython `Bio.PDB.PDBIO` | PDB 文件 I/O |
 | `svd_superimposer.mbt` | BioPython `Bio.PDB.SVDSuperimposer` | SVD 蛋白质结构叠合 |
+| `cealign.mbt` | BioPython `Bio.PDB.cealign` | CE组合扩展结构比对、AFP路径、CE显著性、QCP叠合与全原子变换 |
 | `neighbor_search.mbt` | BioPython `Bio.PDB.NeighborSearch` | KD 树近邻搜索 |
 | `mmcif.mbt` | BioPython `Bio.PDB.MMCIFParser` | mmCIF 格式解析 |
 | `pdb_vectors.mbt` | BioPython `Bio.PDB.vectors` | 3D向量/旋转矩阵、叉积、Kabsch叠合、二面角 |
@@ -2770,6 +2776,12 @@ moon test                                               # ✅ 8373 个测试全�
 
 稀疏变换支持不可变单点/批量赋值、重复索引子集、0-based end-exclusive 切片、任意维度 `aperm`、二维转置和按指定维度绑定；加减、Hadamard 乘积、缩放和非零映射直接处理规范化非零条目。统计 API 包括全数组 sum/mean/min/max（极值正确纳入隐式零）以及二维 row/column sums、means 和非零计数；二维稀疏矩阵还支持 `matmul`、`crossprod` 和 `tcrossprod`。当前实现采用可移植的规范化 COO，并未宣称覆盖官方包的完整 SVT 存储后端。
 
+### 243. CEAligner 组合扩展结构比对 (Biopython Bio.PDB.cealign)
+
+实现与 Biopython `Bio.PDB.cealign.CEAligner` 对应的组合扩展结构比对。`cealign_get_guide_atoms` 按模型、链和残基顺序提取引导原子，蛋白质优先使用 `CA`，缺失时回退到核酸 `C4'`；`CEAligner::set_reference` 保存不可变参考坐标，`align` 对移动结构建立分子内距离矩阵和 AFP 相似度矩阵，以 Biopython 阈值扩展严格单调的 CE 路径并保留最多 20 条候选。在最长候选路径中使用 `QCPSuperimposer` 选择最低 RMSD 叠合，默认窗口 8 时计算 CE 经验 Z-score，并可在显著路径上执行只接受 RMSD 降低的局部索引优化。
+
+`CeAlignmentResult` 返回对齐索引、片段数、RMSD、Z-score、覆盖率、旋转矩阵和平移向量。`transform=true` 会将刚体变换应用到移动结构的全部原子，同时重建 `Structure` 以保证输入对象不被原地修改；`transform=false` 仅计算比对。公开辅助 API 还包括距离矩阵、片段相似度、路径搜索和独立结构变换，非法参数、引导原子缺失或结构长度不足时抛出 `CeAlignError`。
+
 ## 性能优化
 
 ### 优化策略
@@ -2871,8 +2883,8 @@ moon test                                               # ✅ 8373 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8373 |
-| 通过数 | 8373 |
+| 总测试数 | 8409 |
+| 通过数 | 8409 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3021,7 +3033,8 @@ moon test --update
 | uwot | `uwot_test.mbt` | 9 |
 | microbiome | `microbiome_test.mbt` | 33 |
 | tradeSeq | `tradeseq_test.mbt` | 12 |
-| QCP叠加 | `qcp_superimposer_test.mbt` | 7 |
+| QCP叠加 | `qcp_superimposer_test.mbt` | 8 |
+| CEAligner | `cealign_test.mbt` | 35 |
 | 残基深度 | `residue_depth_test.mbt` | 10 |
 | 结构比对 | `structure_alignment_test.mbt` | 8 |
 | PDB向量 | `pdb_vectors_test.mbt` | 55 |
@@ -3263,7 +3276,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 350 个示例程序，展示各模块的典型用法：
+项目提供 351 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3339,6 +3352,7 @@ moon run cmd/bench/main.mbt
 | unigene_demo | NCBI UniGene cluster解析、序列/蛋白相似性/STS/转录本映射查询和序列化往返 | `moon run examples/unigene_demo/main.mbt` |
 | hhr_demo | HH-suite HHR元数据与profile比对解析、命中筛选、query-target坐标映射和序列化往返 | `moon run examples/hhr_demo` |
 | sparse_array_demo | SparseArray N维稀疏张量、切片/aperm、行列统计、稀疏算术和矩阵乘法 | `moon run examples/sparse_array_demo` |
+| cealign_demo | CE组合扩展结构比对、AFP路径统计、CE显著性、QCP叠合与不可变全原子变换 | `moon run examples/cealign_demo` |
 | uniprot_io_demo | UniProt XML格式解析（蛋白质条目解析、功能注释提取、序列转换） | `moon run examples/uniprot_io_demo/main.mbt` |
 | chem_utils_demo | 化学计算工具（键长、键角、二面角、分子式量、氢键长度） | `moon run examples/chem_utils_demo/main.mbt` |
 | jaspar_demo | JASPAR PFM格式解析（模体矩阵解析、共有序列、PWM转换、序列扫描） | `moon run examples/jaspar_demo/main.mbt` |
@@ -3541,6 +3555,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 UniGene 基因聚类记录解析（固定宽度多记录读取、类型化子记录查询、SCOUNT校验、平面文本序列化）
 - ✅ 实现 Bio.Align.hhr HH-suite HHR解析（元数据、命中摘要、多块profile比对、注释保留、过滤、坐标映射与序列化）
 - ✅ 实现 Bioconductor SparseArray N维稀疏数组（规范化COO、R列主序、切片/置换/绑定、稀疏算术、统计与矩阵乘法）
+- ✅ 实现 Bio.PDB.cealign CE组合扩展结构比对（CA/C4'引导原子、AFP路径、CE Z-score、QCP叠合、局部优化与全原子变换）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）

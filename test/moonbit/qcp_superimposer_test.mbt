@@ -56,6 +56,30 @@ test "qcp_superimposer_translated_coords" {
 }
 
 ///|
+test "qcp_superimposer_rotated_and_translated_coords" {
+  let fixed = [
+    @src.QCPAtomCoordinate::new(1.0, 0.0, 0.0),
+    @src.QCPAtomCoordinate::new(0.0, 2.0, 0.0),
+    @src.QCPAtomCoordinate::new(0.0, 0.0, 3.0),
+    @src.QCPAtomCoordinate::new(1.0, 1.0, 1.0),
+  ]
+  let moving = [
+    @src.QCPAtomCoordinate::new(5.0, -1.0, 4.0),
+    @src.QCPAtomCoordinate::new(3.0, -2.0, 4.0),
+    @src.QCPAtomCoordinate::new(5.0, -2.0, 7.0),
+    @src.QCPAtomCoordinate::new(4.0, -1.0, 5.0),
+  ]
+  let superimposer = @src.bio_qcp_superimpose(fixed, moving)
+  let transformed = superimposer.apply(moving)
+  assert_true(superimposer.get_rmsd() < 1.0e-8)
+  let mut index = 0
+  while index < fixed.length() {
+    assert_true(transformed[index].distance(fixed[index]) < 1.0e-8)
+    index = index + 1
+  }
+}
+
+///|
 test "qcp_superimposer_calculate_rmsd" {
   let atoms1 = [
     @src.QCPAtomCoordinate::new(0.0, 0.0, 0.0),
