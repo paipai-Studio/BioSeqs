@@ -159,6 +159,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.SearchIO.InfernalIO | Infernal cmscan/cmsearch解析: tabular格式1/2/3自动检测、non-verbose文本与--noali、CM/HMM-only、Query/Hit/HSP/Fragment层次、正负链坐标、local-end多片段、过滤与SearchIO转换 |
 | ✅ | Bioconductor variancePartition | 多随机截距线性混合模型、ML/REML方差分量、固定/随机/残差方差占比、precision weights、BLUP、dream contrast、数值Satterthwaite检验、BH-FDR与SummarizedExperiment接入 |
 | ✅ | Bio.Align.Alignment shared-reference merge | 共享参考PWA/MSA合并、reference-boundary insertion slot同步、局部reference/query坐标、metadata、统计、MSA与aligned FASTA转换 |
+| ✅ | Bio.Align.Alignment map/mapall | 零起始半开区间alignment path组合、局部clipping、gap与正反链传播、双向坐标查询、PSL、批量map及protein MSA到codon-aware nucleotide MSA投影 |
 | ✅ | Bioconductor decontX | 单细胞ambient RNA去污染: cluster-native/contaminant多项式混合、Beta/Dirichlet先验EM、empty-droplet background、自动聚类、计数分解、诊断与SingleCellExperiment接入 |
 | ✅ | Bio.PDB.SASA | 溶剂可及表面积计算: Shrake-Rupley滚动球算法(Fibonacci球面采样)、范德华半径查表、逐原子/残基/链SASA、骨架/侧链拆分 |
 | ✅ | Bio.SeqIO.NibIO | nib 2-bit二进制序列格式: DNA 2-bit编码(T=0/C=1/A=2/G=3)、4碱基/字节打包、hex I/O、子序列提取、反向互补、GC含量、压缩比 |
@@ -215,6 +216,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **UniGene** | Biopython `Bio.UniGene` | NCBI UniGene固定宽度记录解析、类型化序列/蛋白相似性/STS/转录本映射、严格SCOUNT校验、序列化往返 | ✅ |
 | **HH-suite HHR** | Biopython `Bio.Align.hhr` | HHR元数据、命中摘要、多块profile比对、consensus/二级结构/DSSP/confidence注释、概率和E-value查询 | ✅ |
 | **共享参考比对合并** | Biopython `Bio.Align.Alignment.from_alignments_with_same_reference` | 混合PWA/MSA输入、首端/内部/末端insertion同步、多query投影、局部坐标与metadata保留、统计和格式转换 | ✅ |
+| **Alignment坐标组合** | Biopython `Bio.Align.Alignment.map/mapall` | alignment path组合、局部overhang clipping、exon/intron与indel gap、正反链组合、坐标双向查询、PSL及1:1/1:3 MSA投影 | ✅ |
 | **Prosite** | Biopython `Bio.Prosite` | 蛋白质模体数据库搜索、Prosite模式解析、模体匹配算法、模体得分计算 | ✅ |
 | **PAML** | Biopython `Bio.PAML` | 分子进化分析、dN/dS计算（Nei-Gojobori方法）、Jukes-Cantor校正、密码子使用分析 | ✅ |
 | **Graphics** | Biopython `Bio.Graphics` | 生物信息学可视化、序列Logo绘制、序列比对可视化、基因组特征绘图 | ✅ |
@@ -413,6 +415,7 @@ IvanAXu/BioSeqs/
 │   ├── genbank_io.mbt          # GenBank 格式解析
 │   ├── align.mbt               # MultipleSeqAlignment 多序列比对
 │   ├── shared_reference_alignment.mbt # Bio.Align共享参考PWA/MSA合并、insertion slot同步与坐标映射
+│   ├── alignment_map.mbt       # Bio.Align.Alignment map/mapall坐标路径组合与MSA投影
 │   ├── alignio.mbt             # 比对文件 I/O
 │   ├── clustal_io.mbt          # Clustal 格式
 │   ├── phylip_io.mbt           # PHYLIP 格式
@@ -1096,6 +1099,7 @@ IvanAXu/BioSeqs/
 │   ├── infernal_io_demo/        # Infernal cmscan/cmsearch解析示例 (tabular 3、文本local-end、过滤、SearchIO转换)
 │   ├── hhr_demo/                # HH-suite HHR解析、命中筛选、坐标映射与序列化往返示例
 │   ├── shared_reference_alignment_demo/ # 共享参考PWA/MSA合并、insertion同步、坐标映射与FASTA转换示例
+│   ├── alignment_map_demo/      # Alignment.map/mapall、反链、PSL与protein-to-codon MSA投影示例
 │   ├── gene_pop_demo/           # GenePop群体遗传学示例 (基因型解析、等位基因频率、杂合度统计、序列化往返)
 │   ├── stage_r_demo/            # stageR两阶段检验示例 (筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制)
 │   ├── enriched_heatmap_demo/   # EnrichedHeatmap富集热图示例 (信号归一化、四种均值模式、行平滑、链方向处理)
@@ -1296,6 +1300,7 @@ IvanAXu/BioSeqs/
 │   │   ├── milo_test.mbt
 │   │   ├── variance_partition_test.mbt
 │   │   ├── shared_reference_alignment_test.mbt
+│   │   ├── alignment_map_test.mbt
 │   │   ├── search_io_test.mbt
 │   │   ├── searchio_new_test.mbt
 │   │   ├── seq_complexity_test.mbt
@@ -1472,7 +1477,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 8677 个测试全部通过
+moon test                                               # ✅ 8721 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1518,6 +1523,7 @@ moon test                                               # ✅ 8677 个测试全�
 | `searchio.mbt` | BioPython `Bio.SearchIO` | 统一搜索结果模型、BLAST/HMMER解析、E-value过滤 |
 | `hhr.mbt` | BioPython `Bio.Align.hhr` | HHsearch/HHblits HHR解析、profile比对注释、命中筛选、坐标映射与规范序列化 |
 | `shared_reference_alignment.mbt` | BioPython `Bio.Align.Alignment.from_alignments_with_same_reference` | 共享参考PWA/MSA合并、insertion slot同步、局部坐标、双向映射、统计、MSA与FASTA转换 |
+| `alignment_map.mbt` | BioPython `Bio.Align.Alignment.map/mapall` | alignment path组合、local clipping、gap与链向传播、双向坐标查询、PSL、map_many及codon-aware MSA投影 |
 
 #### 系统发育树
 
@@ -1782,6 +1788,7 @@ moon test                                               # ✅ 8677 个测试全�
 | `milo.mbt` | `miloR` | 精确KNN图、median精炼重叠邻域、邻域计数/表达、固定效应NB-GLM/Wald检验、graph spatial FDR与SCE接入 |
 | `variance_partition.mbt` | `variancePartition` | typed fixed/random design、多随机截距LMM、ML/REML方差分解、BLUP、weighted dream contrast、Satterthwaite自由度与SummarizedExperiment入口 |
 | `shared_reference_alignment.mbt` | `Bio.Align.Alignment` | 同参考PWA/MSA的reference-boundary insertion同步、原query投影、局部坐标、metadata、统计与格式转换 |
+| `alignment_map.mbt` | `Bio.Align.Alignment.map/mapall` | 两层alignment坐标组合、正反链与gap传播、PSL、批量映射及protein/nucleotide MSA投影 |
 | `infercnv.mbt` | `infercnv` | 单细胞拷贝数变异推断（基因组位置排序、参考细胞有界 LFC 计算、金字塔权重平滑、CNV 分数与恶性细胞预测） |
 | `scenic.mbt` | `SCENIC` | 单细胞调控网络推断与聚类（TF-target 共表达模块、Regulon 构建、AUCell 活性评分、二值化阈值、细胞状态与主控调控因子） |
 | `cibersort.mbt` | `CIBERSORT` | 免疫细胞去卷积（NNLS 求解、LM22 风格特征矩阵、Pearson 拟合优度、分数归一化） |
@@ -2870,6 +2877,12 @@ observation-level precision weights 会先缩放到均值 1，并进入 `V = Σ�
 
 `decontx` 返回校正计数、污染计数、每细胞污染率、native/contaminant profiles、cluster 编码和完整 likelihood 诊断，且对每个观测保持 `corrected + contaminant = original`。查询 API 提供 cell/cluster estimates、最高污染细胞、名称索引和摘要；`decontx_auto` 对 library-size scaling 后的 `log(1 + count)` 表达执行确定性 k-means 初始化。`decontx_sce` 从指定 assay 和 cluster `colData` 读取输入，在复制的 `SingleCellExperiment` 中增加校正 assay、污染率、cluster 和迭代 metadata，不修改调用方对象。当前范围采用 cluster 标签或 k-means，而非上游 variational Bayes 聚类后端；不包含 GPU/稀疏矩阵专用求解器和绘图接口。
 
+### 251. Alignment 坐标组合 (Biopython Bio.Align.Alignment.map/mapall)
+
+实现 Biopython `Alignment.map` 的 coordinate path composition：第一层表示 outer target 到 shared middle，第二层表示 shared middle 到 final query，组合过程只扫描并相交两条 alignment path，不重新执行序列比对，也不依赖序列内容。`CoordinatePairwiseAlignment` 使用零起始、半开区间坐标，支持局部 alignment 的左右 overhang clipping、exon/intron 与 insertion/deletion gap、正链/反链及双反链组合；可从现有 `PairwiseAlignment` 适配，也可仅提供序列长度和坐标。结果提供 aligned blocks/counts、target/query 双向坐标查询、可选反向互补的 gapped rows、PSL、摘要及 `map_many`。
+
+`CoordinateMultipleAlignment.mapall` 将 MSA 每行通过对应 pairwise mapping 投影到统一列空间，支持 nucleotide 1:1 和 protein:nucleotide 1:3 两类一致比例，因此可将 protein MSA 转换为 codon-aware nucleotide MSA，并保留氨基酸 gap 对应的三碱基 gap。构造器会验证名称、序列、坐标边界、单调方向、step size、共享序列长度和跨行映射比例；当前不负责生成原始 pairwise alignment，也不支持混合比例、frameshift 或非整数缩放。
+
 ## 性能优化
 
 ### 优化策略
@@ -2971,8 +2984,8 @@ observation-level precision weights 会先缩放到均值 1，并进入 `V = Σ�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8677 |
-| 通过数 | 8677 |
+| 总测试数 | 8721 |
+| 通过数 | 8721 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3075,6 +3088,7 @@ moon test --update
 | UniGene | `unigene_test.mbt` | 23 |
 | Bio.Align.hhr | `hhr_test.mbt` | 33 |
 | Bio.Align shared-reference merge | `shared_reference_alignment_test.mbt` | 41 |
+| Bio.Align Alignment.map/mapall | `alignment_map_test.mbt` | 44 |
 | SparseArray | `sparse_array_test.mbt` | 41 |
 | mmCIF | `mmcif_test.mbt` | 2 |
 | BinaryCIF | `binary_cif_test.mbt` | 37 |
@@ -3371,7 +3385,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 358 个示例程序，展示各模块的典型用法：
+项目提供 359 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3559,6 +3573,7 @@ moon run cmd/bench/main.mbt
 | infernal_io_demo | Infernal cmscan/cmsearch解析（tabular 3、non-verbose文本、local-end片段、过滤与SearchIO转换） | `moon run examples/infernal_io_demo` |
 | variance_partition_demo | typed固定/随机设计、ML方差分解、BLUP、precision weights、dream contrast与SummarizedExperiment接入 | `moon run examples/variance_partition_demo` |
 | shared_reference_alignment_demo | 共享参考PWA/MSA合并、reference insertion同步、坐标映射、统计、MSA与aligned FASTA转换 | `moon run examples/shared_reference_alignment_demo` |
+| alignment_map_demo | chromosome→transcript→read坐标组合、intron gap、反链、坐标查询、PSL与protein-to-codon MSA投影 | `moon run examples/alignment_map_demo` |
 | gene_pop_demo | GenePop群体遗传学（基因型解析、等位基因频率、杂合度统计、序列化往返） | `moon run examples/gene_pop_demo/main.mbt` |
 | stage_r_demo | stageR两阶段假设检验（筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制） | `moon run examples/stage_r_demo/main.mbt` |
 | enriched_heatmap_demo | EnrichedHeatmap富集热图（信号归一化、四种均值模式、行平滑、链方向处理） | `moon run examples/enriched_heatmap_demo/main.mbt` |
@@ -3664,6 +3679,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bio.SearchIO.InfernalIO Infernal cmscan/cmsearch输出解析（tabular 1/2/3、non-verbose文本、--noali、CM/HMM-only、local-end多片段与SearchIO转换）
 - ✅ 实现 Bioconductor variancePartition 重复测量混合模型（ML/REML方差分解、BLUP、precision weights、dream contrast、数值Satterthwaite、BH-FDR与SummarizedExperiment接入）
 - ✅ 实现 Bio.Align共享参考序列比对合并（混合PWA/MSA、reference-boundary insertion同步、局部坐标、双向映射、统计与格式转换）
+- ✅ 实现 Bio.Align.Alignment map/mapall（alignment path组合、local clipping、gap与正反链传播、坐标查询、PSL及protein-to-codon MSA投影）
 - ✅ 实现 Bioconductor decontX ambient RNA去污染（cluster-native/contaminant混合、Beta/Dirichlet先验EM、empty-droplet background、自动聚类、计数分解与SCE集成）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
