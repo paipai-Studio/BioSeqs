@@ -195,6 +195,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **edgeR** | Bioconductor edgeR | 差异表达分析、DGEList、精确检验、GLM拟合 | ✅ |
 | **limma** | Bioconductor limma | 差异表达分析、线性模型拟合、经验贝叶斯、voom变换、RPKM/CPM/quantile归一化、ComBat/removeBatchEffect批次校正、treat严格检验 | ✅ |
 | **SummarizedExperiment** | Bioconductor SummarizedExperiment | 多维基因组数据容器、Assays、行/列操作 | ✅ |
+| **TreeSummarizedExperiment** | Bioconductor TreeSummarizedExperiment | 行/列树、节点链接、树节点子集、祖先/后代查询、层级聚合 | ✅ |
 | **IRanges** | Bioconductor IRanges | 整数区间操作、集合运算、重叠检测、findOverlaps高级类型、nearest、coverage、距离矩阵计算 | ✅ |
 | **TxDb** | Bioconductor GenomicFeatures | 转录本数据库、GTF解析、基因/转录本/外显子/CDS提取、UTR/内含子计算、启动子提取 | ✅ |
 | **ExPASy** | Biopython `Bio.ExPASy` | 蛋白质分析工具接口、Swiss-Prot条目解析、酶数据库查询、蛋白质参数计算（分子量、等电点、GRAVY、不稳定指数） | ✅ |
@@ -444,6 +445,7 @@ IvanAXu/BioSeqs/
 │   ├── matrix.mbt               # Bioconductor Matrix 稀疏矩阵操作 (CSC/CSR格式、矩阵运算)
 │   ├── bioc_neighbors.mbt      # BiocNeighbors 最近邻搜索 (KMKNN/Annoy)
 │   ├── summarized_experiment.mbt # SummarizedExperiment 多维基因组数据容器
+│   ├── tree_summarized_experiment.mbt # TreeSummarizedExperiment 树结构实验容器、节点子集与层级聚合
 │   ├── dplyr.mbt               # dplyr 数据操作 (DataFrame、filter、select、mutate、arrange、group_by、summarize、join)
 │   ├── plyranges.mbt           # plyranges  tidy基因组数据操作 (GRanges的filter/mutate/select/arrange/rename/summarise/join)
 │   ├── smith_waterman.mbt      # Smith-Waterman 局部序列比对 (动态规划、自定义打分、回溯矩阵)
@@ -824,6 +826,7 @@ IvanAXu/BioSeqs/
 │   ├── substitution_matrices_demo/ # 现代替换矩阵示例 (矩阵注册表、频率矩阵计算、log-odds打分、Shannon熵、KL散度、NCBI解析)
 │   ├── suffix_array_tree_demo/ # Suffix Array & Suffix Tree 示例
 │   ├── summarized_experiment_demo/ # SummarizedExperiment 数据容器示例
+│   ├── tree_summarized_experiment_demo/ # TreeSummarizedExperiment 行/列树链接、节点子集与聚合示例
 │   ├── sva_demo/               # sva 替代变量分析与ComBat批次校正示例 (经验贝叶斯方法、PCA分析)
 │   ├── svd_superimposer_demo/  # SVDSuperimposer SVD蛋白质结构叠合示例 (旋转矩阵、平移向量、RMSD计算)
 │   ├── structure_alignment_demo/ # Bio.PDB.StructureAlignment 多蛋白质结构比对示例
@@ -1107,6 +1110,7 @@ IvanAXu/BioSeqs/
 │   │   ├── suffix_array_tree_test.mbt
 │   │   ├── suffix_array_tree_wbtest.mbt
 │   │   ├── summarized_experiment_test.mbt
+│   │   ├── tree_summarized_experiment_test.mbt
 │   │   ├── svd_superimposer_test.mbt
 │   │   ├── tree_io_test.mbt
 │   │   ├── txdb_test.mbt
@@ -1400,7 +1404,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全部通过
+moon test                                               # ✅ 8206 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1497,6 +1501,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `edger_advanced.mbt` | edgeR QLF/Camera/Roast | 准似然F检验、QL分散度估计、camera竞争性基因集检验、roast自足基因集检验 |
 | `limma.mbt` | Bioconductor limma | 线性模型与 voom 变换 |
 | `summarized_experiment.mbt` | Bioconductor SummarizedExperiment | 多维数据容器 |
+| `tree_summarized_experiment.mbt` | Bioconductor TreeSummarizedExperiment | 行/列树与数据链接、按节点子集、层级聚合 |
 | `ballgown.mbt` | Bioconductor ballgown | 转录组水平差异表达 |
 | `ruvseq.mbt` | Bioconductor RUVSeq | RNA-seq 批次效应去除 |
 | `sva.mbt` | Bioconductor sva | 替代变量分析与 ComBat |
@@ -2699,6 +2704,10 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 
 实现 CDAO（Comparative Data Analysis Ontology，比较数据分析本体）RDF/XML 格式的解析与序列化，参考 Biopython `Bio.Phylo.CDAO`。CDAO 是基于 RDF 的系统发育数据表示标准，使用 CDAO 本体术语将树结构编码为 RDF 三元组（subject-predicate-object），便于与语义网和本体推理系统互操作。核心 CDAO 本体术语：cdao:Tree（系统发育树）、cdao:Node（树节点）、cdao:Edge（树枝/边）、cdao:has_Root（树→根节点）、cdao:has_Child/has_Descendant（父→子节点）、cdao:has_Ancestor/has_Parent（子→父节点）、cdao:belongs_to_TU（节点→分类单元）、cdao:TU（分类单元/OTU/叶标签）、rdfs:label（标签文字）。核心数据结构：Cdaotree（id/rooted/root_node_id/name?）；CdaoNode（id/children : Array[String]/parent_id?/tu_id?/branch_length?/label?，关键字段标记 mut 以便构建时修改）；CdaoTU（id/label?）；CdaoDocument（trees : Array[Cdaotree]/nodes : Map[String, CdaoNode]/tus : Map[String, CdaoTU] 完整 RDF 图）。核心函数：cdao_namespace()/cdao_rdf_namespace()/cdao_rdfs_namespace() 返回命名空间 URI；cdao_parse(xml) 主解析入口 → cdao_parse_rdf_xml 提取 CdaoTriple 三元组（手写 XML 解析器，处理标签/属性/rdf:about/rdf:resource/文本内容/自闭合/嵌套子元素）→ cdao_build_document 三元组分类填充 Document（rdf:type 创建节点/TU、has_Root 创建 Tree、has_Child 填 children、has_Ancestor 填 parent_id、belongs_to_TU 填 tu_id、rdfs:label 填 label、has_branch_length 填 branch_length）；cdao_to_trees(doc) 递归 cdao_build_clade 将 CdaoDocument 转为 BioSeqs Tree 数组（TU 标签优先于节点标签）；cdao_write(tree) 将 Tree 序列化为 RDF/XML 字符串（CdaoWriteState 管理 node_counter/tu_counter/tu_map，递归 cdao_write_clade 输出节点与边，末尾输出 TU 元素，cdao_escape_xml 处理 & < > 实体转义）。适用于系统发育数据语义网交换、本体推理、CDAO 兼容工具链互操作。
 
+### 236. TreeSummarizedExperiment 树结构实验容器 (Bioconductor TreeSummarizedExperiment)
+
+实现结合实验矩阵与层级树的 `TreeSummarizedExperiment` 容器，复用现有 `SummarizedExperiment`、`Tree` 和 `Clade` 类型。容器支持 `row_tree`/`col_tree`、`row_links`/`col_links` 和 `reference_sequences`，其中 `TseLink` 记录节点标签、稳定别名、一基节点编号、叶节点状态和树名称，对应 Bioconductor 的 `rowTree`、`rowLinks`、`colTree`、`colLinks` 与 `referenceSeq` 语义。`subset_rows`/`subset_cols` 同步裁剪 assay、链接和参考序列；`subset_by_row_nodes`/`subset_by_col_nodes` 可按内部节点或叶节点选择所有已链接后代，保留原树结构。`aggregate_rows`/`aggregate_cols` 对目标节点覆盖的数据执行 Sum、Mean、Min 或 Max 聚合，并为结果重建节点链接。`tse_find_descendants`、`tse_find_ancestors` 和 `tse_is_leaf` 提供树节点查询。`is_valid` 检查 assay 维度、链接长度、树存在性和参考序列长度。适用于微生物分类丰度、系统发育表达矩阵和具有样本层级的数据分析。
+
 
 ## 性能优化
 
@@ -2801,8 +2810,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8105 |
-| 通过数 | 8105 |
+| 总测试数 | 8206 |
+| 通过数 | 8206 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2813,10 +2822,10 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 moon build
 
 # 运行所有测试
-moon test --package IvanAXu/BioSeqs/test/moonbit
+moon test
 
 # 运行单个模块测试
-moon test --package IvanAXu/BioSeqs/test/moonbit --test bio_seq_test
+moon test test/moonbit/bio_seq_test.mbt
 
 # 更新快照测试
 moon test --update
@@ -2866,6 +2875,7 @@ moon test --update
 | edgeR | `edger_test.mbt` | 7 |
 | limma | `limma_test.mbt` | 10 |
 | SummarizedExperiment | `summarized_experiment_test.mbt` | 7 |
+| TreeSummarizedExperiment | `tree_summarized_experiment_test.mbt` | 11 |
 | IRanges | `iranges_test.mbt` | 14 |
 | AlignIO | `align_io_test.mbt` | 12 |
 | Cluster | `cluster_test.mbt` | 12 |
@@ -3156,7 +3166,7 @@ bash test/python/compare_seqio.sh
 moon build
 
 # 运行所有测试
-moon test --package IvanAXu/BioSeqs/test/moonbit
+moon test
 
 # 更新接口文件
 moon info
@@ -3220,6 +3230,7 @@ moon run cmd/bench/main.mbt
 | edger_demo | edgeR 差异表达分析（DGEList创建、归一化因子、分散度估计、精确检验、GLM拟合） | `moon run examples/edger_demo/main.mbt` | 
 | limma_demo | limma 差异表达分析（voom变换、线性模型拟合、经验贝叶斯、topTable、对比矩阵） | `moon run examples/limma_demo/main.mbt` | 
 | summarized_experiment_demo | SummarizedExperiment 多维数据容器（Assays、行/列操作、合并） | `moon run examples/summarized_experiment_demo/main.mbt` | 
+| tree_summarized_experiment_demo | TreeSummarizedExperiment 行/列树链接、节点查询、树节点子集与层级聚合 | `moon run examples/tree_summarized_experiment_demo/main.mbt` |
 | iranges_demo | IRanges 整数区间操作（shift、resize、reduce、集合运算、重叠检测） | `moon run examples/iranges_demo/main.mbt` |
 | align_io_demo | 比对格式解析（ClustalW、FASTA、Stockholm格式解析与写入） | `moon run examples/align_io_demo/main.mbt` |
 | cluster_demo | 序列聚类分析（距离矩阵、层次聚类、Newick输出、轮廓系数） | `moon run examples/cluster_demo/main.mbt` |
@@ -3418,6 +3429,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 群体遗传学分析（等位基因频率、基因型频率、哈迪-温伯格检验、FST统计、Watterson's theta）
 - ✅ 实现 edgeR 差异表达分析（DGEList创建、归一化因子、分散度估计、精确检验、GLM拟合）
 - ✅ 实现 SummarizedExperiment 多维数据容器（Assays、行/列操作、合并）
+- ✅ 实现 TreeSummarizedExperiment 树结构实验容器（行/列树链接、节点子集、层级聚合）
 - ✅ 实现 IRanges 整数区间操作（shift、resize、reduce、集合运算、重叠检测）
 - ✅ 实现 比对格式解析（ClustalW、FASTA、Stockholm格式解析与写入）
 - ✅ 实现 序列聚类分析（距离矩阵、层次聚类、Newick输出、轮廓系数）

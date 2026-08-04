@@ -90,27 +90,23 @@ pub fn se_subset_rows(
   for name_idx = 0; name_idx < assay_names.length(); name_idx = name_idx + 1 {
     let name = assay_names[name_idx]
     let old_assay = se.assays[name]
-    let new_assay : Array[Array[Double]] = Array::make(
-      indices.length(),
-      Array::make(se_ncol(se), 0.0),
-    )
+    let new_assay : Array[Array[Double]] = []
 
     for i = 0; i < indices.length(); i = i + 1 {
       let old_idx = indices[i]
+      let row : Array[Double] = []
       for j = 0; j < se_ncol(se); j = j + 1 {
-        new_assay[i][j] = old_assay[old_idx][j]
+        row.push(old_assay[old_idx][j])
       }
+      new_assay.push(row)
     }
 
     new_assays[name] = new_assay
   }
 
-  let new_row_ranges : Array[(String, Int, Int)] = Array::make(
-    indices.length(),
-    ("", 0, 0),
-  )
+  let new_row_ranges : Array[(String, Int, Int)] = []
   for i = 0; i < indices.length(); i = i + 1 {
-    new_row_ranges[i] = se.row_ranges[indices[i]]
+    new_row_ranges.push(se.row_ranges[indices[i]])
   }
 
   SummarizedExperiment::{
@@ -135,26 +131,22 @@ pub fn se_subset_cols(
   for name_idx = 0; name_idx < assay_names.length(); name_idx = name_idx + 1 {
     let name = assay_names[name_idx]
     let old_assay = se.assays[name]
-    let new_assay : Array[Array[Double]] = Array::make(
-      se_nrow(se),
-      Array::make(indices.length(), 0.0),
-    )
+    let new_assay : Array[Array[Double]] = []
 
     for i = 0; i < se_nrow(se); i = i + 1 {
+      let row : Array[Double] = []
       for j = 0; j < indices.length(); j = j + 1 {
-        new_assay[i][j] = old_assay[i][indices[j]]
+        row.push(old_assay[i][indices[j]])
       }
+      new_assay.push(row)
     }
 
     new_assays[name] = new_assay
   }
 
-  let new_col_data : Array[Map[String, String]] = Array::make(
-    indices.length(),
-    Map([], capacity=0),
-  )
+  let new_col_data : Array[Map[String, String]] = []
   for i = 0; i < indices.length(); i = i + 1 {
-    new_col_data[i] = se.col_data[indices[i]]
+    new_col_data.push(se.col_data[indices[i]])
   }
 
   SummarizedExperiment::{
