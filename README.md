@@ -45,6 +45,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **pheatmap** | Bioconductor pheatmap | 增强型热图可视化：层次聚类(complete/average/ward)、距离矩阵(euclidean/manhattan/correlation)、行/列注释、颜色方案、聚类间隙 | ✅ |
 | **factoextra** | Bioconductor factoextra | PCA/因子分析工具：特征值计算、方差解释率、个体/变量坐标、cos2质量、贡献度评分、维度描述 | ✅ |
 | **DESeq2** | Bioconductor DESeq2 | 差异表达分析、size factors归一化、分散度估计、负二项GLM拟合、Wald检验、LFC收缩 | ✅ |
+| **miloR** | Bioconductor miloR | 单细胞KNN邻域采样、样本计数、负二项差异丰度、graph spatial FDR、SCE接入 | ✅ |
 | **dplyr** | R dplyr | DataFrame 数据操作 | ✅ |
 | **enrichplot** | Bioconductor enrichplot | 富集分析结果可视化、dotplot/barplot/heatmap/cnetplot/enrichment map | ✅ |
 | **IsoformSwitchAnalyzeR** | Bioconductor IsoformSwitchAnalyzeR | 转录本异构体切换分析、PSI/DPSI/DIF值计算、功能后果预测 | ✅ |
@@ -277,6 +278,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **BiocGenerics** | Bioconductor BiocGenerics | Bioconductor通用函数、NA处理、排序、集合运算、匹配、表统计、序列生成 | ✅ |
 | **scran** | Bioconductor scran | 单细胞归一化(sum_factors)、SNN图构建、Leiden聚类、差异标志物分析 | ✅ |
 | **scrapper** | Bioconductor scrapper | 批次感知RNA QC、大小因子清洗与居中、log-normalization、LOWESS方差趋势、HVG选择、多因子pseudo-bulk、不可变SCE集成 | ✅ |
+| **miloR** | Bioconductor miloR | 精确KNN图、精炼重叠邻域、邻域×样本计数、NB-GLM/Wald检验、BH与四种graph spatial FDR、SingleCellExperiment接入 | ✅ |
 | **monocle3** | Bioconductor monocle3 | 单细胞轨迹分析、PCA/UMAP降维、主图学习、拟时间排序、差异表达分析、分支点检测、分支特异性差异表达 | ✅ |
 | **ShortRead** | Bioconductor ShortRead | 短读序列质量控制、QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告生成 | ✅ |
 | **scater** | Bioconductor scater | 单细胞质量控制、QC指标计算、细胞/基因过滤、CPM/log-CPM标准化、HVG检测、PCA降维 | ✅ |
@@ -532,6 +534,7 @@ IvanAXu/BioSeqs/
 │   ├── droplet_utils.mbt       # DropletUtils 空液滴检测 (emptyDrops算法、knee点检测、细胞过滤)
 │   ├── scran.mbt               # scran 单细胞归一化与聚类 (sum_factors、SNN图、Leiden聚类、标志物分析)
 │   ├── scrapper.mbt            # scrapper 单细胞预处理 (批次感知RNA QC、大小因子、LOWESS/HVG、pseudo-bulk、SCE集成)
+│   ├── milo.mbt                # miloR KNN邻域差异丰度 (精炼采样、NB-GLM、graph spatial FDR、SCE接入)
 │   ├── monocle3.mbt            # monocle3 单细胞轨迹分析 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read.mbt          # ShortRead 短读序列质量控制 (QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告)
 │   ├── seq_quality_trim.mbt    # NGS质量修剪与接头去除 (质量修剪、接头去除、poly-A修剪、长度/GC过滤、批量修剪)
@@ -875,6 +878,7 @@ IvanAXu/BioSeqs/
 │   ├── droplet_utils_demo/     # DropletUtils 空液滴检测示例 (emptyDrops算法、knee点检测、细胞过滤)
 │   ├── scran_demo/             # scran 单细胞归一化与聚类示例 (sum_factors、SNN图、Leiden聚类、标志物分析)
 │   ├── scrapper_demo/          # scrapper 批次感知RNA QC、归一化、LOWESS/HVG、pseudo-bulk与SCE集成示例
+│   ├── milo_demo/              # miloR KNN图、精炼邻域、NB差异丰度、spatial FDR与SCE接入示例
 │   ├── monocle3_demo/          # monocle3 单细胞轨迹分析示例 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read_demo/        # ShortRead 短读序列质量控制示例 (QA统计、adapter修剪、质量修剪、FastQC报告)
 │   ├── scater_demo/            # scater 单细胞质量控制示例 (QC指标计算、细胞/基因过滤、标准化、HVG检测、PCA)
@@ -1271,6 +1275,7 @@ IvanAXu/BioSeqs/
 │   │   ├── scnorm_test.mbt
 │   │   ├── scran_test.mbt
 │   │   ├── scrapper_test.mbt
+│   │   ├── milo_test.mbt
 │   │   ├── search_io_test.mbt
 │   │   ├── searchio_new_test.mbt
 │   │   ├── seq_complexity_test.mbt
@@ -1748,6 +1753,7 @@ moon test                                               # ✅ 8481 个测试全�
 | `system_piper.mbt` | `SystemPipeR` | 流水线编排（步骤管理、依赖关系、进度追踪） |
 | `muscat.mbt` | `muscat` | 单细胞差异状态分析（伪批量聚合、DS 检验、QC） |
 | `scrapper.mbt` | `scrapper` | 批次感知RNA QC、大小因子清洗/居中、count与log归一化、LOWESS方差趋势、HVG选择、多因子pseudo-bulk、SingleCellExperiment不可变包装 |
+| `milo.mbt` | `miloR` | 精确KNN图、median精炼重叠邻域、邻域计数/表达、固定效应NB-GLM/Wald检验、graph spatial FDR与SCE接入 |
 | `infercnv.mbt` | `infercnv` | 单细胞拷贝数变异推断（基因组位置排序、参考细胞有界 LFC 计算、金字塔权重平滑、CNV 分数与恶性细胞预测） |
 | `scenic.mbt` | `SCENIC` | 单细胞调控网络推断与聚类（TF-target 共表达模块、Regulon 构建、AUCell 活性评分、二值化阈值、细胞状态与主控调控因子） |
 | `cibersort.mbt` | `CIBERSORT` | 免疫细胞去卷积（NNLS 求解、LM22 风格特征矩阵、Pearson 拟合优度、分数归一化） |
@@ -2805,6 +2811,12 @@ moon test                                               # ✅ 8481 个测试全�
 
 `binary_cif_to_structure` 和 `binary_cif_parse_structure` 将 `_atom_site` 转为现有 `Structure -> Model -> Chain -> Residue -> Atom` 层次，保留模型号、链、残基、坐标、occupancy、B-factor、元素、altloc、插入码、formal charge 和 ATOM/HETATM 语义。模块内置真实 MessagePack fixture，覆盖两模型、蛋白质、水分子和三态 mask。输入 API 接收原始 `Array[Int]` 字节；gzip 数据需由调用方预先解压。BinaryCIF 类别仍保留完整多字符 chain ID，但现有 PDB `Chain.id` 为 `Char`，转换时使用首字符，并拒绝首字符冲突的链 ID。
 
+### 246. miloR 单细胞邻域差异丰度 (Bioconductor miloR)
+
+实现 Bioconductor `miloR` 的核心单细胞邻域差异丰度流程。`milo_build_graph` 在 cell × dimension 降维坐标上构建排除自身、稳定处理距离 ties 的精确 KNN，并将有向边对称化为无向图；`make_neighborhoods` 使用确定性无放回采样，以种子邻域的逐维 median profile 查找精炼代表细胞，去重后生成重叠邻域。`count_cells` 按样本首次出现顺序生成 neighborhood × sample 计数，另提供邻域平均表达、重叠矩阵、距离度量和 `SingleCellExperiment` reduced-dimension 构造入口。
+
+`test_neighborhoods` 使用 library-size offset、method-of-moments 离散度及向全局 median 的收缩，为每个邻域拟合 log-link 负二项 GLM，并输出指定系数的 log2 fold change、Wald 统计量、p-value 和 BH FDR。`milo_graph_spatial_fdr` 实现频率加权 BH，支持 k-distance、neighbour-distance、max-distance 和 graph-overlap 四类 connectivity 权重，也可显式禁用 spatial correction。当前模块是无外部 edgeR 依赖的可移植 fixed-effect 实现，不覆盖 NB-GLMM、edgeR TMM/RLE 与 quasi-likelihood 后端，也不提供上游绘图接口。
+
 ## 性能优化
 
 ### 优化策略
@@ -2906,8 +2918,8 @@ moon test                                               # ✅ 8481 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8481 |
-| 通过数 | 8481 |
+| 总测试数 | 8518 |
+| 通过数 | 8518 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3029,6 +3041,7 @@ moon test --update
 | DropletUtils | `droplet_utils_test.mbt` | 6 |
 | scran | `scran_test.mbt` | 8 |
 | scrapper | `scrapper_test.mbt` | 35 |
+| miloR | `milo_test.mbt` | 37 |
 | monocle3 | `monocle3_test.mbt` | 10 |
 | ShortRead | `short_read_test.mbt` | 15 |
 | scater | `scater_test.mbt` | 17 |
@@ -3301,7 +3314,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 353 个示例程序，展示各模块的典型用法：
+项目提供 354 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3392,6 +3405,7 @@ moon run cmd/bench/main.mbt
 | short_read_demo | ShortRead 短读序列质量控制（QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告生成） | `moon run examples/short_read_demo/main.mbt` |
 | scater_demo | scater 单细胞质量控制（QC指标计算、细胞/基因过滤、CPM/log-CPM标准化、HVG检测、PCA降维） | `moon run examples/scater_demo/main.mbt` |
 | scrapper_demo | 批次感知RNA QC、大小因子归一化、LOWESS/HVG、多因子pseudo-bulk和不可变SCE集成 | `moon run examples/scrapper_demo` |
+| milo_demo | 精确KNN图、精炼重叠邻域、样本计数、NB-GLM差异丰度、graph spatial FDR和SCE接入 | `moon run examples/milo_demo` |
 | mast_demo | MAST 单细胞差异表达分析（Hurdle模型、离散/连续检验、BH-FDR校正、结果汇总） | `moon run examples/mast_demo/main.mbt` |
 | genomic_files_demo | GenomicFiles 分布式基因组文件处理（BAM/BED/VCF扫描、区间查询、归约、覆盖度计算） | `moon run examples/genomic_files_demo/main.mbt` |
 | diffbind_demo | DiffBind ChIP-seq差异结合分析（峰值重叠、共识峰识别、TMM归一化、负二项分布检验） | `moon run examples/diffbind_demo/main.mbt` |
@@ -3585,6 +3599,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bio.PDB.cealign CE组合扩展结构比对（CA/C4'引导原子、AFP路径、CE Z-score、QCP叠合、局部优化与全原子变换）
 - ✅ 实现 Bioconductor scrapper 单细胞预处理（批次感知RNA QC、大小因子与log-normalization、LOWESS/HVG、多因子pseudo-bulk、不可变SCE集成）
 - ✅ 实现 Bio.PDB.binary_cif BinaryCIF解析（MessagePack、七类逆编码、三态mask、类别查询与PDB Structure转换）
+- ✅ 实现 Bioconductor miloR 单细胞邻域差异丰度（精确KNN图、median精炼采样、邻域计数、固定效应NB-GLM、graph spatial FDR与SCE接入）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）
