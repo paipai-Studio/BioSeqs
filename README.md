@@ -220,6 +220,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Alignment坐标组合** | Biopython `Bio.Align.Alignment.map/mapall` | alignment path组合、局部overhang clipping、exon/intron与indel gap、正反链组合、坐标双向查询、PSL及1:1/1:3 MSA投影 | ✅ |
 | **BigBed二进制区间索引** | Biopython `Bio.Align.bigbed` | BigBed v4读写、BED3-BED12与AutoSQL、多级B+ tree/R-tree、stored/fixed/dynamic DEFLATE、区间/名称查询、链感知exon坐标及BED导出 | ✅ |
 | **zinbwave** | Bioconductor zinbwave | 零膨胀负二项低维模型、cell/gene协变量与offset、确定性latent factors、dispersion shrinkage、observational weights、残差/归一化/插补及SCE集成 | ✅ |
+| **apeglm** | Bioconductor apeglm | 负二项GLM、自适应经验贝叶斯Cauchy/Student-t先验、确定性多起点MAP、Laplace后验SD/区间、FSR/FSOS/s-value、DESeq2与SummarizedExperiment接入 | ✅ |
 | **Prosite** | Biopython `Bio.Prosite` | 蛋白质模体数据库搜索、Prosite模式解析、模体匹配算法、模体得分计算 | ✅ |
 | **PAML** | Biopython `Bio.PAML` | 分子进化分析、dN/dS计算（Nei-Gojobori方法）、Jukes-Cantor校正、密码子使用分析 | ✅ |
 | **Graphics** | Biopython `Bio.Graphics` | 生物信息学可视化、序列Logo绘制、序列比对可视化、基因组特征绘图 | ✅ |
@@ -474,6 +475,7 @@ IvanAXu/BioSeqs/
 │   ├── rhdf5.mbt                # Bioconductor rhdf5 HDF5文件格式支持
 │   ├── deseq2.mbt              # DESeq2 差异表达分析 (size factors归一化、分散度估计、负二项GLM拟合、Wald检验、LFC收缩)
 │   ├── deseq2_advanced.mbt         # DESeq2 VST方差稳定化变换、PCA可视化
+│   ├── apeglm.mbt              # apeglm 自适应重尾LFC收缩、Laplace后验、FSR/FSOS与容器接入
 │   ├── edger.mbt               # edgeR 差异表达分析 (DGEList、精确检验、GLM拟合)
 │   ├── edger_advanced.mbt           # edgeR准似然F检验、camera/roast基因集检验
 │   ├── limma.mbt               # limma 差异表达、归一化、批次校正 (线性模型、经验贝叶斯、voom、RPKM/CPM/quantile、ComBat)
@@ -902,6 +904,7 @@ IvanAXu/BioSeqs/
 │   ├── decontx_demo/           # decontX cluster/background去污染、marker校正、诊断与SCE输出示例
 │   ├── milo_demo/              # miloR KNN图、精炼邻域、NB差异丰度、spatial FDR与SCE接入示例
 │   ├── zinbwave_demo/          # zinbwave latent factors、dropout权重、残差/插补与SCE集成示例
+│   ├── apeglm_demo/            # apeglm MLE/MAP、重尾收缩、FSR/FSOS、TSV与SE接入示例
 │   ├── variance_partition_demo/ # variancePartition 方差分解、BLUP、precision weights、dream与SE接入示例
 │   ├── monocle3_demo/          # monocle3 单细胞轨迹分析示例 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read_demo/        # ShortRead 短读序列质量控制示例 (QA统计、adapter修剪、质量修剪、FastQC报告)
@@ -1306,6 +1309,7 @@ IvanAXu/BioSeqs/
 │   │   ├── decontx_test.mbt
 │   │   ├── milo_test.mbt
 │   │   ├── zinbwave_test.mbt
+│   │   ├── apeglm_test.mbt
 │   │   ├── variance_partition_test.mbt
 │   │   ├── shared_reference_alignment_test.mbt
 │   │   ├── alignment_map_test.mbt
@@ -1486,7 +1490,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 8839 个测试全部通过
+moon test                                               # ✅ 8905 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1797,6 +1801,7 @@ moon test                                               # ✅ 8839 个测试全�
 | `decontx.mbt` | `decontX` | 每细胞native/contaminant Bayesian mixture、确定性EM、empty-droplet ambient profile、自动k-means、诊断与SingleCellExperiment不可变包装 |
 | `milo.mbt` | `miloR` | 精确KNN图、median精炼重叠邻域、邻域计数/表达、固定效应NB-GLM/Wald检验、graph spatial FDR与SCE接入 |
 | `zinbwave.mbt` | `zinbwave` | ZINB交替EM/IRLS、cell/gene design与offset、确定性低维因子、gene dispersion shrinkage、observational weights、deviance residual及SingleCellExperiment包装 |
+| `apeglm.mbt` | `apeglm` | 负二项GLM MLE、自适应Cauchy/Student-t先验、阻尼Newton多起点MAP、Laplace后验SD/区间、FSR/FSOS/s-value、DESeq2与SummarizedExperiment包装 |
 | `variance_partition.mbt` | `variancePartition` | typed fixed/random design、多随机截距LMM、ML/REML方差分解、BLUP、weighted dream contrast、Satterthwaite自由度与SummarizedExperiment入口 |
 | `shared_reference_alignment.mbt` | `Bio.Align.Alignment` | 同参考PWA/MSA的reference-boundary insertion同步、原query投影、局部坐标、metadata、统计与格式转换 |
 | `alignment_map.mbt` | `Bio.Align.Alignment.map/mapall` | 两层alignment坐标组合、正反链与gap传播、PSL、批量映射及protein/nucleotide MSA投影 |
@@ -1910,7 +1915,7 @@ moon test                                               # ✅ 8839 个测试全�
 
 ### 12. DESeq2 差异表达分析 (Bioconductor DESeq2)
 
-实现完整的 RNA-seq 差异表达分析流程，支持从原始计数到差异表达基因筛选的全流程分析。可以创建 DESeqDataSet 对象管理计数矩阵、样本信息和设计矩阵。支持 size factors 估计（中位数比率法）进行测序深度校正，以及计数矩阵归一化和 log2 CPM 计算。支持分散度估计（parametric fit），结合经验贝叶斯收缩方法。支持负二项 GLM 拟合，通过迭代加权最小二乘法估计回归系数。支持 Wald 检验进行差异表达显著性检验，计算 log2 fold change、标准误、检验统计量和 p 值。支持 Benjamini-Hochberg 多重检验校正。支持 LFC 收缩（apeglm-like 方法），减小低表达基因的 fold change 估计偏差。支持显著基因筛选（按 adjusted p-value 和 LFC 阈值）和获取 top 差异表达基因。适用于 RNA-seq 差异表达分析。
+实现完整的 RNA-seq 差异表达分析流程，支持从原始计数到差异表达基因筛选的全流程分析。可以创建 DESeqDataSet 对象管理计数矩阵、样本信息和设计矩阵。支持 size factors 估计（中位数比率法）进行测序深度校正，以及计数矩阵归一化和 log2 CPM 计算。支持分散度估计（parametric fit），结合经验贝叶斯收缩方法。支持负二项 GLM 拟合，通过迭代加权最小二乘法估计回归系数。支持 Wald 检验进行差异表达显著性检验，计算 log2 fold change、标准误、检验统计量和 p 值。支持 Benjamini-Hochberg 多重检验校正。旧 `lfc_shrink` API 保留固定正态先验的轻量收缩行为；完整的自适应重尾 apeglm 实现在独立 `apeglm.mbt` 和第 254 节中。支持显著基因筛选（按 adjusted p-value 和 LFC 阈值）和获取 top 差异表达基因。适用于 RNA-seq 差异表达分析。
 
 ### 13. Suffix Array & Suffix Tree (libdivsufsort)
 
@@ -2911,6 +2916,14 @@ E-step 对零计数计算来自 NB component 的后验 responsibility，正计�
 
 构造器和解析器会诊断无效BED字段、未排序记录、未知染色体、损坏magic、截断数据、异常树节点、非法zlib流及校验和不一致。当前范围不写入zoom levels或extra string indices；offset/count虽按u64布局读取和写入，但内存模型仍拒绝高32位非零的超大文件。writer的stored DEFLATE保证互操作性和确定性，但不追求压缩率。
 
+### 254. 自适应重尾效应量收缩 (Bioconductor apeglm)
+
+实现 Bioconductor `apeglm` 的 negative-binomial 路径，用于对 RNA-seq GLM 的目标系数执行自适应重尾后验收缩。`apeglm_fit` 接受 gene × sample 非负整数计数、sample × coefficient 设计矩阵、逐基因 dispersion，以及可选 log offset 和 observation weight；模型使用 `log(mu) = offset + X beta`，所有内部系数、阈值和先验尺度统一使用 natural-log scale。每个基因先拟合无先验 NB-GLM MLE，再以异方差 Efron-Morris 方程从跨基因 MLE/SE 自适应估计先验方差；目标系数使用可配置自由度的 Student-t 先验，默认 `df=1` 即 Cauchy，intercept 和其他 nuisance 系数使用宽 Normal no-shrink prior。
+
+MAP 求解器实现阻尼 Newton、Cholesky 信息矩阵求解、逐级 ridge 正定化、最大步长、28 级回溯线搜索和严格参数边界；从 MLE、0 和先验尺度的正负倍数生成精确数量的确定性多起点并选取最高 posterior mode。MAP 处逆信息矩阵给出 Laplace posterior covariance、SD 和可配置可信区间；结果同时计算 local false sign rate、超过效应阈值时发生 false sign or small effect 的 FSOS probability，以及按 FSR 排序累计均值定义的 s-value。查询 API 支持名称/索引查找、MAP/SD 矩阵、排序、筛选、摘要和 natural-log/log2 TSV 导出。
+
+`apeglm_from_deseq2` 读取 `DESeqDataSet` 的 counts、design、dispersion 和 size-factor log offset；`apeglm_summarized_experiment` 在不可变副本中增加 `apeglm_map`、`apeglm_sd`、`apeglm_fsr`、`apeglm_svalue` 和 `apeglm_fsos` assays 及模型 metadata。构造器会诊断 ragged、负数、非整数或非有限计数，无效 design/dispersion/offset/weight、全零权重和重复标识符。当前范围实现 dense negative-binomial backend 和 Laplace/Normal posterior approximation，不包含上游 beta-binomial backend、grid/HPD integration、稀疏矩阵专用优化或并行执行。
+
 ## 性能优化
 
 ### 优化策略
@@ -3012,8 +3025,8 @@ E-step 对零计数计算来自 NB component 的后验 responsibility，正计�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8839 |
-| 通过数 | 8839 |
+| 总测试数 | 8905 |
+| 通过数 | 8905 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3141,6 +3154,7 @@ moon test --update
 | decontX | `decontx_test.mbt` | 43 |
 | miloR | `milo_test.mbt` | 37 |
 | zinbwave | `zinbwave_test.mbt` | 54 |
+| apeglm | `apeglm_test.mbt` | 66 |
 | monocle3 | `monocle3_test.mbt` | 10 |
 | ShortRead | `short_read_test.mbt` | 15 |
 | scater | `scater_test.mbt` | 17 |
@@ -3415,7 +3429,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 361 个示例程序，展示各模块的典型用法：
+项目提供 362 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3509,6 +3523,7 @@ moon run cmd/bench/main.mbt
 | decontx_demo | cluster/background ambient RNA去污染、每细胞污染率、marker校正、cluster诊断和不可变SCE输出 | `moon run examples/decontx_demo` |
 | milo_demo | 精确KNN图、精炼重叠邻域、样本计数、NB-GLM差异丰度、graph spatial FDR和SCE接入 | `moon run examples/milo_demo` |
 | zinbwave_demo | ZINB latent-factor拟合、dropout后验权重、归一化/插补/deviance residual和不可变SCE输出 | `moon run examples/zinbwave_demo` |
+| apeglm_demo | NB-GLM MLE与自适应重尾MAP、FSR/s-value/FSOS、log2 TSV及不可变SummarizedExperiment输出 | `moon run examples/apeglm_demo` |
 | mast_demo | MAST 单细胞差异表达分析（Hurdle模型、离散/连续检验、BH-FDR校正、结果汇总） | `moon run examples/mast_demo/main.mbt` |
 | genomic_files_demo | GenomicFiles 分布式基因组文件处理（BAM/BED/VCF扫描、区间查询、归约、覆盖度计算） | `moon run examples/genomic_files_demo/main.mbt` |
 | diffbind_demo | DiffBind ChIP-seq差异结合分析（峰值重叠、共识峰识别、TMM归一化、负二项分布检验） | `moon run examples/diffbind_demo/main.mbt` |
@@ -3715,6 +3730,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bio.Align.bigbed BigBed v4二进制区间格式（BED3-BED12、AutoSQL、多级B+ tree/R-tree、DEFLATE、区间/名称查询与BED导出）
 - ✅ 实现 Bioconductor decontX ambient RNA去污染（cluster-native/contaminant混合、Beta/Dirichlet先验EM、empty-droplet background、自动聚类、计数分解与SCE集成）
 - ✅ 实现 Bioconductor zinbwave 零膨胀负二项低维模型（cell/gene协变量、offset、latent factors、dispersion shrinkage、observational weights、残差/插补与SCE集成）
+- ✅ 实现 Bioconductor apeglm 自适应重尾效应量收缩（NB-GLM MLE、经验贝叶斯Cauchy/Student-t先验、多起点MAP、Laplace后验、FSR/FSOS/s-value与容器接入）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）
