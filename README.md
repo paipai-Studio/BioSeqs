@@ -217,6 +217,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **HH-suite HHR** | Biopython `Bio.Align.hhr` | HHR元数据、命中摘要、多块profile比对、consensus/二级结构/DSSP/confidence注释、概率和E-value查询 | ✅ |
 | **共享参考比对合并** | Biopython `Bio.Align.Alignment.from_alignments_with_same_reference` | 混合PWA/MSA输入、首端/内部/末端insertion同步、多query投影、局部坐标与metadata保留、统计和格式转换 | ✅ |
 | **Alignment坐标组合** | Biopython `Bio.Align.Alignment.map/mapall` | alignment path组合、局部overhang clipping、exon/intron与indel gap、正反链组合、坐标双向查询、PSL及1:1/1:3 MSA投影 | ✅ |
+| **zinbwave** | Bioconductor zinbwave | 零膨胀负二项低维模型、cell/gene协变量与offset、确定性latent factors、dispersion shrinkage、observational weights、残差/归一化/插补及SCE集成 | ✅ |
 | **Prosite** | Biopython `Bio.Prosite` | 蛋白质模体数据库搜索、Prosite模式解析、模体匹配算法、模体得分计算 | ✅ |
 | **PAML** | Biopython `Bio.PAML` | 分子进化分析、dN/dS计算（Nei-Gojobori方法）、Jukes-Cantor校正、密码子使用分析 | ✅ |
 | **Graphics** | Biopython `Bio.Graphics` | 生物信息学可视化、序列Logo绘制、序列比对可视化、基因组特征绘图 | ✅ |
@@ -549,6 +550,7 @@ IvanAXu/BioSeqs/
 │   ├── scrapper.mbt            # scrapper 单细胞预处理 (批次感知RNA QC、大小因子、LOWESS/HVG、pseudo-bulk、SCE集成)
 │   ├── decontx.mbt             # decontX ambient RNA去污染 (Bayesian EM、background、自动聚类、计数分解、SCE集成)
 │   ├── milo.mbt                # miloR KNN邻域差异丰度 (精炼采样、NB-GLM、graph spatial FDR、SCE接入)
+│   ├── zinbwave.mbt            # zinbwave 零膨胀NB低维模型 (EM/IRLS、latent factors、observational weights、SCE接入)
 │   ├── variance_partition.mbt  # variancePartition 混合模型方差分解、BLUP与dream重复测量检验
 │   ├── monocle3.mbt            # monocle3 单细胞轨迹分析 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read.mbt          # ShortRead 短读序列质量控制 (QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告)
@@ -896,6 +898,7 @@ IvanAXu/BioSeqs/
 │   ├── scrapper_demo/          # scrapper 批次感知RNA QC、归一化、LOWESS/HVG、pseudo-bulk与SCE集成示例
 │   ├── decontx_demo/           # decontX cluster/background去污染、marker校正、诊断与SCE输出示例
 │   ├── milo_demo/              # miloR KNN图、精炼邻域、NB差异丰度、spatial FDR与SCE接入示例
+│   ├── zinbwave_demo/          # zinbwave latent factors、dropout权重、残差/插补与SCE集成示例
 │   ├── variance_partition_demo/ # variancePartition 方差分解、BLUP、precision weights、dream与SE接入示例
 │   ├── monocle3_demo/          # monocle3 单细胞轨迹分析示例 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read_demo/        # ShortRead 短读序列质量控制示例 (QA统计、adapter修剪、质量修剪、FastQC报告)
@@ -1298,6 +1301,7 @@ IvanAXu/BioSeqs/
 │   │   ├── scrapper_test.mbt
 │   │   ├── decontx_test.mbt
 │   │   ├── milo_test.mbt
+│   │   ├── zinbwave_test.mbt
 │   │   ├── variance_partition_test.mbt
 │   │   ├── shared_reference_alignment_test.mbt
 │   │   ├── alignment_map_test.mbt
@@ -1477,7 +1481,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 8721 个测试全部通过
+moon test                                               # ✅ 8775 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1786,6 +1790,7 @@ moon test                                               # ✅ 8721 个测试全�
 | `scrapper.mbt` | `scrapper` | 批次感知RNA QC、大小因子清洗/居中、count与log归一化、LOWESS方差趋势、HVG选择、多因子pseudo-bulk、SingleCellExperiment不可变包装 |
 | `decontx.mbt` | `decontX` | 每细胞native/contaminant Bayesian mixture、确定性EM、empty-droplet ambient profile、自动k-means、诊断与SingleCellExperiment不可变包装 |
 | `milo.mbt` | `miloR` | 精确KNN图、median精炼重叠邻域、邻域计数/表达、固定效应NB-GLM/Wald检验、graph spatial FDR与SCE接入 |
+| `zinbwave.mbt` | `zinbwave` | ZINB交替EM/IRLS、cell/gene design与offset、确定性低维因子、gene dispersion shrinkage、observational weights、deviance residual及SingleCellExperiment包装 |
 | `variance_partition.mbt` | `variancePartition` | typed fixed/random design、多随机截距LMM、ML/REML方差分解、BLUP、weighted dream contrast、Satterthwaite自由度与SummarizedExperiment入口 |
 | `shared_reference_alignment.mbt` | `Bio.Align.Alignment` | 同参考PWA/MSA的reference-boundary insertion同步、原query投影、局部坐标、metadata、统计与格式转换 |
 | `alignment_map.mbt` | `Bio.Align.Alignment.map/mapall` | 两层alignment坐标组合、正反链与gap传播、PSL、批量映射及protein/nucleotide MSA投影 |
@@ -2883,6 +2888,14 @@ observation-level precision weights 会先缩放到均值 1，并进入 `V = Σ�
 
 `CoordinateMultipleAlignment.mapall` 将 MSA 每行通过对应 pairwise mapping 投影到统一列空间，支持 nucleotide 1:1 和 protein:nucleotide 1:3 两类一致比例，因此可将 protein MSA 转换为 codon-aware nucleotide MSA，并保留氨基酸 gap 对应的三碱基 gap。构造器会验证名称、序列、坐标边界、单调方向、step size、共享序列长度和跨行映射比例；当前不负责生成原始 pairwise alignment，也不支持混合比例、frameshift 或非整数缩放。
 
+### 252. 零膨胀负二项低维表示 (Bioconductor zinbwave)
+
+实现 Bioconductor `zinbwave` 的可移植 ZINB-WaVE 核心，输入统一为 gene × cell 非负整数计数矩阵。均值子模型使用 log link，零膨胀子模型使用 logit link，两者共享已知 cell-level design、gene-level design、显式 mean/zero offset 和未知 cell latent factors；每个基因单独估计 inverse-dispersion 对应的 dispersion。latent factors 从 library-offset corrected `log(count + 1)` 的 cell Gram matrix确定性初始化，随后与 NB mean、zero-inflation 和 gene/cell effects 交替更新，并在每轮中心化和 RMS 缩放以控制可识别性。
+
+E-step 对零计数计算来自 NB component 的后验 responsibility，正计数 responsibility 固定为 1；M-step 分别使用 log-link NB IRLS、logistic IRLS 和带 ridge 的线性求解更新参数。gene dispersion 使用加权矩估计并向跨基因 median 收缩，最终结果提供完整 ZINB log-likelihood 轨迹、AIC/BIC、fitted means、structural-zero probabilities、下游差异分析 observational weights、NB deviance residuals、library-normalized values、零值后验插补和逐基因诊断。
+
+`zinbwave_sce` 从指定 `SingleCellExperiment` assay 拟合模型，在不可变副本中加入 `zinbwave_weights`、`zinbwave_residuals`、`zinbwave_normalized`、`zinbwave_imputed` assays、低维表示和模型 metadata，不修改输入对象。构造器会诊断 ragged/负数/非整数/非有限计数、空 cell library、design/offset 维度和标识符问题。当前实现使用 dense MoonBit arrays 和确定性交替求解，不包含上游 R 包的并行后端、稀疏矩阵专用优化、epsilon penalty 路径或绘图接口。
+
 ## 性能优化
 
 ### 优化策略
@@ -2984,8 +2997,8 @@ observation-level precision weights 会先缩放到均值 1，并进入 `V = Σ�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8721 |
-| 通过数 | 8721 |
+| 总测试数 | 8775 |
+| 通过数 | 8775 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3111,6 +3124,7 @@ moon test --update
 | scrapper | `scrapper_test.mbt` | 35 |
 | decontX | `decontx_test.mbt` | 43 |
 | miloR | `milo_test.mbt` | 37 |
+| zinbwave | `zinbwave_test.mbt` | 54 |
 | monocle3 | `monocle3_test.mbt` | 10 |
 | ShortRead | `short_read_test.mbt` | 15 |
 | scater | `scater_test.mbt` | 17 |
@@ -3385,7 +3399,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 359 个示例程序，展示各模块的典型用法：
+项目提供 360 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3478,6 +3492,7 @@ moon run cmd/bench/main.mbt
 | scrapper_demo | 批次感知RNA QC、大小因子归一化、LOWESS/HVG、多因子pseudo-bulk和不可变SCE集成 | `moon run examples/scrapper_demo` |
 | decontx_demo | cluster/background ambient RNA去污染、每细胞污染率、marker校正、cluster诊断和不可变SCE输出 | `moon run examples/decontx_demo` |
 | milo_demo | 精确KNN图、精炼重叠邻域、样本计数、NB-GLM差异丰度、graph spatial FDR和SCE接入 | `moon run examples/milo_demo` |
+| zinbwave_demo | ZINB latent-factor拟合、dropout后验权重、归一化/插补/deviance residual和不可变SCE输出 | `moon run examples/zinbwave_demo` |
 | mast_demo | MAST 单细胞差异表达分析（Hurdle模型、离散/连续检验、BH-FDR校正、结果汇总） | `moon run examples/mast_demo/main.mbt` |
 | genomic_files_demo | GenomicFiles 分布式基因组文件处理（BAM/BED/VCF扫描、区间查询、归约、覆盖度计算） | `moon run examples/genomic_files_demo/main.mbt` |
 | diffbind_demo | DiffBind ChIP-seq差异结合分析（峰值重叠、共识峰识别、TMM归一化、负二项分布检验） | `moon run examples/diffbind_demo/main.mbt` |
@@ -3681,6 +3696,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bio.Align共享参考序列比对合并（混合PWA/MSA、reference-boundary insertion同步、局部坐标、双向映射、统计与格式转换）
 - ✅ 实现 Bio.Align.Alignment map/mapall（alignment path组合、local clipping、gap与正反链传播、坐标查询、PSL及protein-to-codon MSA投影）
 - ✅ 实现 Bioconductor decontX ambient RNA去污染（cluster-native/contaminant混合、Beta/Dirichlet先验EM、empty-droplet background、自动聚类、计数分解与SCE集成）
+- ✅ 实现 Bioconductor zinbwave 零膨胀负二项低维模型（cell/gene协变量、offset、latent factors、dispersion shrinkage、observational weights、残差/插补与SCE集成）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）
