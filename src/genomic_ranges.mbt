@@ -6,7 +6,7 @@ pub enum Strand {
   Plus
   Minus
   Star
-} derive(Eq)
+} derive(Eq, Debug)
 
 ///|
 pub fn strand_plus() -> Strand {

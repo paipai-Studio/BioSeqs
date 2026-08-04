@@ -30,7 +30,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **序列 I/O** | Biopython `Bio.SeqIO` | FASTA/FASTQ/GenBank 解析与写入 | ✅ |
 | **序列比对** | Biopython / scikit-bio | Needleman-Wunsch、Smith-Waterman、多序列比对、替换矩阵(BLOSUM/PAM) | ✅ |
 | **BLAST解析** | Biopython `Bio.Blast` | BLAST结果解析、tabular/xml格式、HSP过滤、最佳匹配 | ✅ |
-| **SearchIO** | Biopython `Bio.SearchIO` | 统一搜索结果模型、HMMER3解析、BLAT PSL解析、BLAST转换 | ✅ |
+| **SearchIO** | Biopython `Bio.SearchIO` | 统一搜索结果模型、HMMER3/Infernal解析、BLAT PSL解析、BLAST转换 | ✅ |
 | **HH-suite HHR** | Biopython `Bio.Align.hhr` | HHsearch/HHblits HHR解析、profile-profile比对、命中筛选、坐标映射、序列化往返 | ✅ |
 | **系统发育树** | Biopython `Bio.Phylo` | 树结构、Newick 解析、距离计算、可视化 | ✅ |
 | **PDB 结构** | Biopython `Bio.PDB` | 原子/残基/链解析、结构操作 | ✅ |
@@ -155,6 +155,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.SearchIO.ExonerateIO | Exonerate比对输出解析: vulgar格式解析(比对块三元组)、cigar格式解析、格式自动检测、分数过滤、内含子统计、vulgar/cigar字符串重建 |
 | ✅ | Bio.PDB.mmcifio | mmCIF文件写入: Structure对象序列化(data block/header/atom_site loop)、20列原子坐标格式化、HETATM支持、值转义、round-trip验证 |
 | ✅ | Bio.SearchIO.InterproscanIO | InterProScan输出解析: TSV 14列格式解析(蛋白质ID/分析数据库/签名/位置/分数/IPR/GO)、按数据库/蛋白质过滤、GO条目提取、按蛋白质分组 |
+| ✅ | Bio.SearchIO.InfernalIO | Infernal cmscan/cmsearch解析: tabular格式1/2/3自动检测、non-verbose文本与--noali、CM/HMM-only、Query/Hit/HSP/Fragment层次、正负链坐标、local-end多片段、过滤与SearchIO转换 |
 | ✅ | Bio.PDB.SASA | 溶剂可及表面积计算: Shrake-Rupley滚动球算法(Fibonacci球面采样)、范德华半径查表、逐原子/残基/链SASA、骨架/侧链拆分 |
 | ✅ | Bio.SeqIO.NibIO | nib 2-bit二进制序列格式: DNA 2-bit编码(T=0/C=1/A=2/G=3)、4碱基/字节打包、hex I/O、子序列提取、反向互补、GC含量、压缩比 |
 | ✅ | ChIPseeker | ChIP-seq峰注释: 峰-TSS距离计算、基因组特征分配(Promoter/5'UTR/3'UTR/Exon/Intron/Downstream/Distal Intergenic)、最近基因查找、注释摘要 |
@@ -741,6 +742,7 @@ IvanAXu/BioSeqs/
 │   ├── transfac.mbt            # Bio.Motifs.Transfac TRANSFAC转录因子结合谱解析 (PFM频率矩阵、AC/ID/DE/BF/CC字段、参考文献、共识序列)
 │   ├── hmmer_io.mbt            # Bio.SearchIO.HmmerIO HMMER3输出解析 (domtblout域表、文本格式、Query/Hit/HSP/Domain聚合)
 │   ├── fasta_search_io.mbt     # Bio.SearchIO.FastaIO FASTA搜索输出解析 (-m8紧凑表格、-m9带注释头、元数据提取)
+│   ├── infernal_io.mbt         # Bio.SearchIO.InfernalIO cmscan/cmsearch解析 (tabular 1/2/3、non-verbose文本、local-end片段)
 │   ├── hhr.mbt                 # Bio.Align.hhr HH-suite HHR解析、命中查询、坐标映射与序列化
 │   ├── gene_pop.mbt            # Bio.PopGen.GenePop GenePop群体遗传学 (基因型解析、等位基因频率、杂合度、序列化往返)
 │   ├── stage_r.mbt             # Bioconductor stageR 两阶段假设检验 (筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制)
@@ -1078,6 +1080,7 @@ IvanAXu/BioSeqs/
 │   ├── transfac_demo/           # TRANSFAC转录因子结合谱解析示例 (PFM矩阵、共识序列、频率计算、序列化、参考文献)
 │   ├── hmmer_io_demo/           # HMMER3输出解析示例 (domtblout域表、文本格式、Query/Hit/HSP聚合、多域比对)
 │   ├── fasta_search_io_demo/    # FASTA搜索输出解析示例 (-m8表格、-m9注释头、元数据、Query/Hit/HSP聚合)
+│   ├── infernal_io_demo/        # Infernal cmscan/cmsearch解析示例 (tabular 3、文本local-end、过滤、SearchIO转换)
 │   ├── hhr_demo/                # HH-suite HHR解析、命中筛选、坐标映射与序列化往返示例
 │   ├── gene_pop_demo/           # GenePop群体遗传学示例 (基因型解析、等位基因频率、杂合度统计、序列化往返)
 │   ├── stage_r_demo/            # stageR两阶段检验示例 (筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制)
@@ -1416,6 +1419,7 @@ IvanAXu/BioSeqs/
 │   │   ├── transfac_full_test.mbt
 │   │   ├── hmmer_io_test.mbt
 │   │   ├── fasta_search_io_test.mbt
+│   │   ├── infernal_io_test.mbt
 │   │   ├── hhr_test.mbt
 │   │   ├── gene_pop_test.mbt
 │   │   ├── stage_r_test.mbt
@@ -1451,7 +1455,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 8481 个测试全部通过
+moon test                                               # ✅ 8555 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1632,6 +1636,7 @@ moon test                                               # ✅ 8481 个测试全�
 | `transfac.mbt` | BioPython `Bio.Motifs.Transfac` | TRANSFAC转录因子结合谱解析（两字母字段码AC/ID/DE/NA/OS/BF/CC/P0/XX//、位置频率矩阵PFM、参考文献RN/RA/RT/RL/RX、共识序列、频率计算、字母索引、序列化往返） |
 | `hmmer_io.mbt` | BioPython `Bio.SearchIO.HmmerIO` | HMMER3输出解析（domtblout域表23列格式、人类可读文本格式、Query/Hit/HSP/HSPFragment聚合、多域比对、i-Evalue/c-Evalue、bitscore、条件E值、Query/Domain/Alignment段标记） |
 | `fasta_search_io.mbt` | BioPython `Bio.SearchIO.FastaIO` | FASTA搜索输出解析（-m8紧凑表格12列、-m9带#注释头、程序/版本/数据库元数据提取、Query/Hit/HSP聚合、正负链判定、E-value/bitscore） |
+| `infernal_io.mbt` | BioPython `Bio.SearchIO.InfernalIO` | Infernal cmscan/cmsearch解析（tabular格式1/2/3自动检测、non-verbose文本与--noali、CM/HMM-only、local-end多片段、正负链坐标、过滤与SearchIO转换） |
 | `gene_pop.mbt` | BioPython `Bio.PopGen.GenePop` | GenePop群体遗传学（基因型diploid/haploid解析、2/3位等位基因数字检测、Pop人口分隔、Locus名自动生成/#Loci注释、等位基因频率、观察/期望杂合度、序列化往返） |
 | `stage_r.mbt` | Bioconductor stageR | 两阶段假设检验（筛选阶段BH-FDR、确认阶段Holm步降、Simes聚合、OFDR控制、Dte/Dtu方法、确认p值G/R重缩放） |
 | `enriched_heatmap.mbt` | Bioconductor EnrichedHeatmap | 基因组信号归一化（目标区域窗口化、四种均值模式absolute/weighted/w0/coverage、行平滑、百分位裁剪、负链窗口反转） |
@@ -1801,6 +1806,7 @@ moon test                                               # ✅ 8481 个测试全�
 | `transfac.mbt` | Biopython `Bio.Motifs.Transfac` | TRANSFAC转录因子结合谱解析（两字母字段码AC/ID/DE/NA/OS/BF/CC/P0/XX//、位置频率矩阵PFM、参考文献RN/RA/RT/RL/RX、共识序列、频率计算、字母索引、序列化往返） |
 | `hmmer_io.mbt` | Biopython `Bio.SearchIO.HmmerIO` | HMMER3输出解析（domtblout域表23列格式、人类可读文本格式、Query/Hit/HSP/HSPFragment聚合、多域比对、i-Evalue/c-Evalue、bitscore、条件E值、Query/Domain/Alignment段标记） |
 | `fasta_search_io.mbt` | Biopython `Bio.SearchIO.FastaIO` | FASTA搜索输出解析（-m8紧凑表格12列、-m9带#注释头、程序/版本/数据库元数据提取、Query/Hit/HSP聚合、正负链判定、E-value/bitscore） |
+| `infernal_io.mbt` | Biopython `Bio.SearchIO.InfernalIO` | Infernal cmscan/cmsearch解析（tabular格式1/2/3自动检测、non-verbose文本与--noali、CM/HMM-only、local-end多片段、正负链坐标、过滤与SearchIO转换） |
 | `gene_pop.mbt` | Biopython `Bio.PopGen.GenePop` | GenePop群体遗传学（基因型diploid/haploid解析、2/3位等位基因数字检测、Pop人口分隔、Locus名自动生成/#Loci注释、等位基因频率、观察/期望杂合度、序列化往返） |
 | `stage_r.mbt` | Bioconductor stageR | 两阶段假设检验（StageRMethod/StageRConfig/StageRResult数据结构、筛选阶段BH-FDR校正、确认阶段Holm步降程序、Simes聚合、OFDR控制、Dte/Dtu调整向量、确认p值G/R重缩放、显著性基因/假设提取） |
 | `enriched_heatmap.mbt` | Bioconductor EnrichedHeatmap | 基因组信号归一化（GenomicSignal/TargetRegion/MeanMode/EnrichedHeatmapConfig/NormalizedMatrix数据结构、目标区域窗口化、四种均值模式absolute/weighted/w0/coverage、行平滑、百分位裁剪、负链窗口反转、富集谱计算） |
@@ -2817,6 +2823,12 @@ moon test                                               # ✅ 8481 个测试全�
 
 `test_neighborhoods` 使用 library-size offset、method-of-moments 离散度及向全局 median 的收缩，为每个邻域拟合 log-link 负二项 GLM，并输出指定系数的 log2 fold change、Wald 统计量、p-value 和 BH FDR。`milo_graph_spatial_fdr` 实现频率加权 BH，支持 k-distance、neighbour-distance、max-distance 和 graph-overlap 四类 connectivity 权重，也可显式禁用 spatial correction。当前模块是无外部 edgeR 依赖的可移植 fixed-effect 实现，不覆盖 NB-GLMM、edgeR TMM/RLE 与 quasi-likelihood 后端，也不提供上游绘图接口。
 
+### 247. Infernal cmscan/cmsearch 输出解析 (Bio.SearchIO.InfernalIO)
+
+实现 Biopython 1.86 `Bio.SearchIO.InfernalIO` 的 Infernal `cmscan`/`cmsearch` 结果读取。`infernal_parse_tabular` 自动识别或显式选择 tabular 格式 1、2、3，保留 clan、模型/序列长度、截断、pipeline pass、GC、bias、bit score、E-value、included、overlap 及格式 2 的重叠索引和比例。所有序列坐标从 Infernal 的 1-based inclusive 规范化为 0-based half-open，并统一处理正负链。结果采用 `InfernalQueryResult -> InfernalHit -> InfernalHSP -> InfernalFragment` 类型层次，按输入顺序聚合重复 query 和 hit。
+
+`infernal_parse_text` 支持 non-verbose plain text、`--noali`、CM pipeline 和 HMM-only pipeline，解析 query metadata、hit score、模型/序列比对及 CS、NC、similarity、PP 注释。模型和序列中的 `*[NN]*` local-end 标记会同步拆分为多个 fragment，并记录两侧 omission 长度和链方向坐标。查询 API 提供 best-HSP、E-value/included 过滤、摘要及到通用 `QueryResult` 的转换。当前范围不包括 verbose text、writer 或完整 Infernal 命令行封装。
+
 ## 性能优化
 
 ### 优化策略
@@ -2918,8 +2930,8 @@ moon test                                               # ✅ 8481 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8518 |
-| 通过数 | 8518 |
+| 总测试数 | 8555 |
+| 通过数 | 8555 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3219,6 +3231,7 @@ moon test --update
 | Bio.Motifs.Transfac | `transfac_full_test.mbt` | 18 |
 | Bio.SearchIO.HmmerIO | `hmmer_io_test.mbt` | 19 |
 | Bio.SearchIO.FastaIO | `fasta_search_io_test.mbt` | 19 |
+| Bio.SearchIO.InfernalIO | `infernal_io_test.mbt` | 37 |
 | Bio.PopGen.GenePop | `gene_pop_test.mbt` | 34 |
 | Bioconductor stageR | `stage_r_test.mbt` | 25 |
 | Bioconductor EnrichedHeatmap | `enriched_heatmap_test.mbt` | 20 |
@@ -3314,7 +3327,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 354 个示例程序，展示各模块的典型用法：
+项目提供 355 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3498,6 +3511,7 @@ moon run cmd/bench/main.mbt
 | transfac_demo | TRANSFAC转录因子结合谱解析（PFM矩阵、共识序列、频率计算、序列化、参考文献） | `moon run examples/transfac_demo/main.mbt` |
 | hmmer_io_demo | HMMER3输出解析（domtblout域表、文本格式、Query/Hit/HSP聚合、多域比对） | `moon run examples/hmmer_io_demo/main.mbt` |
 | fasta_search_io_demo | FASTA搜索输出解析（-m8表格、-m9注释头、元数据、Query/Hit/HSP聚合） | `moon run examples/fasta_search_io_demo/main.mbt` |
+| infernal_io_demo | Infernal cmscan/cmsearch解析（tabular 3、non-verbose文本、local-end片段、过滤与SearchIO转换） | `moon run examples/infernal_io_demo` |
 | gene_pop_demo | GenePop群体遗传学（基因型解析、等位基因频率、杂合度统计、序列化往返） | `moon run examples/gene_pop_demo/main.mbt` |
 | stage_r_demo | stageR两阶段假设检验（筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制） | `moon run examples/stage_r_demo/main.mbt` |
 | enriched_heatmap_demo | EnrichedHeatmap富集热图（信号归一化、四种均值模式、行平滑、链方向处理） | `moon run examples/enriched_heatmap_demo/main.mbt` |
@@ -3600,6 +3614,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bioconductor scrapper 单细胞预处理（批次感知RNA QC、大小因子与log-normalization、LOWESS/HVG、多因子pseudo-bulk、不可变SCE集成）
 - ✅ 实现 Bio.PDB.binary_cif BinaryCIF解析（MessagePack、七类逆编码、三态mask、类别查询与PDB Structure转换）
 - ✅ 实现 Bioconductor miloR 单细胞邻域差异丰度（精确KNN图、median精炼采样、邻域计数、固定效应NB-GLM、graph spatial FDR与SCE接入）
+- ✅ 实现 Bio.SearchIO.InfernalIO Infernal cmscan/cmsearch输出解析（tabular 1/2/3、non-verbose文本、--noali、CM/HMM-only、local-end多片段与SearchIO转换）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）
