@@ -201,6 +201,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **TxDb** | Bioconductor GenomicFeatures | 转录本数据库、GTF解析、基因/转录本/外显子/CDS提取、UTR/内含子计算、启动子提取 | ✅ |
 | **ExPASy** | Biopython `Bio.ExPASy` | 蛋白质分析工具接口、Swiss-Prot条目解析、酶数据库查询、蛋白质参数计算（分子量、等电点、GRAVY、不稳定指数） | ✅ |
 | **Cellosaurus** | Biopython `Bio.ExPASy.cellosaurus` | Cellosaurus平面文本解析、类型化细胞系记录、数据库交叉引用、物种查询、序列化往返 | ✅ |
+| **UniGene** | Biopython `Bio.UniGene` | NCBI UniGene固定宽度记录解析、类型化序列/蛋白相似性/STS/转录本映射、严格SCOUNT校验、序列化往返 | ✅ |
 | **Prosite** | Biopython `Bio.Prosite` | 蛋白质模体数据库搜索、Prosite模式解析、模体匹配算法、模体得分计算 | ✅ |
 | **PAML** | Biopython `Bio.PAML` | 分子进化分析、dN/dS计算（Nei-Gojobori方法）、Jukes-Cantor校正、密码子使用分析 | ✅ |
 | **Graphics** | Biopython `Bio.Graphics` | 生物信息学可视化、序列Logo绘制、序列比对可视化、基因组特征绘图 | ✅ |
@@ -471,6 +472,7 @@ IvanAXu/BioSeqs/
 │   ├── protparam.mbt           # ProtParam 蛋白质参数分析 (不稳定指数、等电点、信号肽预测、二级结构倾向)
 │   ├── prosite.mbt              # Bio.Prosite 蛋白质模体数据库搜索
 │   ├── cellosaurus.mbt         # Bio.ExPASy.cellosaurus 细胞系数据库平面文件解析
+│   ├── unigene.mbt             # Bio.UniGene NCBI UniGene固定宽度记录解析、查询与序列化
 │   ├── affy.mbt                # Affy Affymetrix芯片数据分析 (RMA标准化、背景校正、分位数归一化)
 │   ├── feature_extraction.mbt  # 机器学习特征提取
 │   ├── faidx.mbt               # FASTA 快速索引访问 (pyfaidx)
@@ -772,6 +774,7 @@ IvanAXu/BioSeqs/
 │   ├── ensembldb_demo/         # ensembldb Ensembl注释数据库接口示例
 │   ├── expasy_demo/            # ExPASy 蛋白质分析工具接口示例
 │   ├── cellosaurus_demo/       # Cellosaurus 记录解析、查询与序列化示例
+│   ├── unigene_demo/           # UniGene cluster解析、子记录查询与序列化往返示例
 │   ├── entrez_demo/            # Entrez NCBI数据库访问示例 (ESearch、EFetch、PubMed/Gene/Taxonomy解析)
 │   ├── faidx_demo/             # FASTA 索引示例
 │   ├── fgsea_demo/             # fgsea 快速基因集富集分析示例 (置换检验、NES/ES计算、Leading Edge基因)
@@ -1157,6 +1160,7 @@ IvanAXu/BioSeqs/
 │   │   ├── bioc_parallel_test.mbt
 │   │   ├── bsseq_test.mbt
 │   │   ├── cellosaurus_test.mbt
+│   │   ├── unigene_test.mbt
 │   │   ├── checksum_test.mbt
 │   │   ├── chipseeker_test.mbt
 │   │   ├── chromvar_test.mbt
@@ -1412,7 +1416,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 8238 个测试全部通过
+moon test                                               # ✅ 8261 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1554,6 +1558,7 @@ moon test                                               # ✅ 8238 个测试全�
 | `entrez.mbt` | BioPython `Bio.Entrez` | NCBI 数据库访问 |
 | `swissprot.mbt` | BioPython `Bio.SwissProt` | UniProt 记录解析 |
 | `cellosaurus.mbt` | BioPython `Bio.ExPASy.cellosaurus` | Cellosaurus记录解析、交叉引用查询与平面文本序列化 |
+| `unigene.mbt` | BioPython `Bio.UniGene` | NCBI UniGene固定宽度记录解析、类型化子记录查询、SCOUNT校验与序列化往返 |
 | `uniprot_io.mbt` | BioPython `Bio.SeqIO.UniprotIO` | UniProt XML 格式解析 |
 | `chem_utils.mbt` | BioPython `Bio.PDB.chem_utils` | 化学计算工具（键长、键角、二面角、分子式量） |
 | `jaspar.mbt` | BioPython `Bio.motifs.Jaspar` | JASPAR PFM 格式解析与模体分析 |
@@ -2726,6 +2731,10 @@ moon test                                               # ✅ 8238 个测试全�
 
 实现以完整 `GRanges` 表示 assay 行的 `RangedSummarizedExperiment`，并复用现有 `SummarizedExperiment` 管理 assays、`col_data` 和 metadata。构造器严格校验行范围、行注释、行名和所有 assay 的行列维度；`subset_rows`/`subset_cols` 支持选择、重排和重复索引，并同步更新所有并行数据。`find_overlaps`、`count_overlaps`、`overlaps_any` 和 `subset_by_overlaps` 提供链特异重叠查询，`Strand::Star` 作为通配链，也可通过 `ignore_strand` 忽略链方向；`nearest` 和 `distance_to_nearest` 使用真实区间间距，无可用候选时返回 `-1`。`coverage` 计算按染色体的逐碱基覆盖度，`shift`、`narrow`、`resize`、`flank` 和 `promoters` 仅变换行范围并保持 assay 与注释不变；`sort` 按染色体、起点、终点和链排序，同时协调重排整个实验对象。当前实现对应 Bioconductor 的 `GRanges` 行范围语义，不包含 `GRangesList`。
 
+### 239. UniGene 基因聚类记录解析 (Bio.UniGene)
+
+实现与 Biopython `Bio.UniGene` 对应的 NCBI UniGene 固定宽度平面文件解析。`unigene_parse` 支持多记录输入，`unigene_read` 强制读取单条记录；解析器覆盖 `ID`、`TITLE`、`GENE`、`CYTOBAND`、`EXPRESS`、`RESTR_EXPR`、`GNM_TERMINUS`、`GENE_ID`、`LOCUSLINK`、`HOMOL`、`CHROMOSOME`、`PROTSIM`、`TXMAP`、`SCOUNT`、`SEQUENCE` 和 `STS` 标签。`UniGeneRecord` 以类型化数组保存序列、蛋白相似性、STS 和转录本映射子记录，支持按序列类型、登录号、相似物种和 IMAGE clone 查询，并保留未知子字段用于兼容扩展格式。解析器支持 CRLF，严格检查固定 12 列标签、记录终止符、布尔值和非负 `SCOUNT`，且要求声明数量与实际 `SEQUENCE` 数量一致。`to_string` 生成规范固定宽度文本并支持解析-序列化往返；格式错误抛出 `UniGeneError`。
+
 
 ## 性能优化
 
@@ -2828,8 +2837,8 @@ moon test                                               # ✅ 8238 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8238 |
-| 通过数 | 8238 |
+| 总测试数 | 8261 |
+| 通过数 | 8261 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2928,6 +2937,7 @@ moon test --update
 | BiocNeighbors | `bioc_neighbors_test.mbt` | 61 |
 | SwissProt | `swissprot_test.mbt` | 8 |
 | Cellosaurus | `cellosaurus_test.mbt` | 16 |
+| UniGene | `unigene_test.mbt` | 23 |
 | mmCIF | `mmcif_test.mbt` | 2 |
 | Nexus | `nexus_test.mbt` | 2 |
 | EMBOSS | `emboss_test.mbt` | 15 |
@@ -3216,7 +3226,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 344 个示例程序，展示各模块的典型用法：
+项目提供 345 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3288,6 +3298,7 @@ moon run cmd/bench/main.mbt
 | neighbor_search_demo | NeighborSearch KD树近邻搜索（半径搜索、最近邻、原子对搜索） | `moon run examples/neighbor_search_demo/main.mbt` |
 | swissprot_demo | SwissProt 蛋白数据库解析（记录解析、特征提取、参考文献） | `moon run examples/swissprot_demo/main.mbt` |
 | cellosaurus_demo | Cellosaurus细胞系记录解析、物种/同义名/交叉引用查询和序列化往返 | `moon run examples/cellosaurus_demo/main.mbt` |
+| unigene_demo | NCBI UniGene cluster解析、序列/蛋白相似性/STS/转录本映射查询和序列化往返 | `moon run examples/unigene_demo/main.mbt` |
 | uniprot_io_demo | UniProt XML格式解析（蛋白质条目解析、功能注释提取、序列转换） | `moon run examples/uniprot_io_demo/main.mbt` |
 | chem_utils_demo | 化学计算工具（键长、键角、二面角、分子式量、氢键长度） | `moon run examples/chem_utils_demo/main.mbt` |
 | jaspar_demo | JASPAR PFM格式解析（模体矩阵解析、共有序列、PWM转换、序列扫描） | `moon run examples/jaspar_demo/main.mbt` |
@@ -3486,6 +3497,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 NeighborSearch KD树近邻搜索（半径搜索、最近邻、原子对搜索）
 - ✅ 实现 SwissProt 蛋白数据库解析（记录解析、特征提取、参考文献）
 - ✅ 实现 Cellosaurus 细胞系数据库解析（多记录读取、交叉引用/物种查询、平面文本序列化）
+- ✅ 实现 UniGene 基因聚类记录解析（固定宽度多记录读取、类型化子记录查询、SCOUNT校验、平面文本序列化）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）
