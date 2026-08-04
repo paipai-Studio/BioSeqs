@@ -37,7 +37,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **FASTA 索引** | pyfaidx | 快速随机访问、.fai 索引 | ✅ |
 | **机器学习特征** | scikit-learn | k-mer 频率、氨基酸组成、理化性质 | ✅ |
 | **Biostrings** | Bioconductor Biostrings | IUPAC 支持、RSCU、复杂度、Tm 计算、模式匹配(matchPattern/vmatchPattern)、错配和插入缺失检测、回文序列查找 | ✅ |
-| **GenomicRanges** | Bioconductor GenomicRanges | GRanges、区间操作、集合运算、precede/follow、coverage计算、distance_to_nearest | ✅ |
+| **GenomicRanges** | Bioconductor GenomicRanges | GRanges/GRangesList、复合特征、区间操作、集合运算、precede/follow、coverage计算、distance_to_nearest | ✅ |
 | **plyranges** | Bioconductor plyranges | dplyr-like tidy verbs for GRanges: filter/mutate/select/arrange/rename/group_by+summarise/join_by、metadata管理 | ✅ |
 | **pheatmap** | Bioconductor pheatmap | 增强型热图可视化：层次聚类(complete/average/ward)、距离矩阵(euclidean/manhattan/correlation)、行/列注释、颜色方案、聚类间隙 | ✅ |
 | **factoextra** | Bioconductor factoextra | PCA/因子分析工具：特征值计算、方差解释率、个体/变量坐标、cos2质量、贡献度评分、维度描述 | ✅ |
@@ -195,7 +195,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **edgeR** | Bioconductor edgeR | 差异表达分析、DGEList、精确检验、GLM拟合 | ✅ |
 | **limma** | Bioconductor limma | 差异表达分析、线性模型拟合、经验贝叶斯、voom变换、RPKM/CPM/quantile归一化、ComBat/removeBatchEffect批次校正、treat严格检验 | ✅ |
 | **SummarizedExperiment** | Bioconductor SummarizedExperiment | 多维基因组数据容器、Assays、行/列操作 | ✅ |
-| **RangedSummarizedExperiment** | Bioconductor SummarizedExperiment | 完整GRanges行范围、链特异重叠/最近邻、覆盖度、区间变换与协调子集 | ✅ |
+| **RangedSummarizedExperiment** | Bioconductor SummarizedExperiment | GRanges/GRangesList行范围、复合特征精确重叠/最近邻、覆盖度、区间变换与协调子集 | ✅ |
 | **TreeSummarizedExperiment** | Bioconductor TreeSummarizedExperiment | 行/列树、节点链接、树节点子集、祖先/后代查询、层级聚合 | ✅ |
 | **IRanges** | Bioconductor IRanges | 整数区间操作、集合运算、重叠检测、findOverlaps高级类型、nearest、coverage、距离矩阵计算 | ✅ |
 | **TxDb** | Bioconductor GenomicFeatures | 转录本数据库、GTF解析、基因/转录本/外显子/CDS提取、UTR/内含子计算、启动子提取 | ✅ |
@@ -339,6 +339,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **UCSC Chain文件/liftOver** | Bioconductor rtracklayer | Chain格式解析、基因组坐标liftOver转换、链段查找、染色体间坐标映射、位置/区间转换 | ✅ |
 | **Biostrings matchPDict** | Bioconductor Biostrings | 字典模式匹配(matchPDict/vmatchPattern)、多序列模式计数(vcountPattern)、错配容忍、最佳匹配查找 | ✅ |
 | **GenomicRanges gaps/reduce/disjoin** | Bioconductor GenomicRanges | gaps检测、reduce合并、disjoin拆分、setdiff/交集/并集集合运算、coverage计算、promoters提取、trim | ✅ |
+| **GenomicRanges GRangesList** | Bioconductor GenomicRanges | 命名复合基因组特征、split/unlist/relist、逐组区间变换、并行集合运算、特征级重叠/最近邻/覆盖度 | ✅ |
 | **NGS质量修剪与接头去除** | Bioconductor ShortRead | 质量修剪(滑动窗口)、接头去除、poly-A修剪、长度/GC含量过滤、批量修剪、Fastq解析与序列化、统计计算 | ✅ |
 | **Mauve基因组比对** | Biopython `Bio.Align` | Mauve基因组比对格式、LCB检测、倒位/断点检测、覆盖率分析、BED导出、基因组重排率 | ✅ |
 | **Stockholm格式** | Biopython `Bio.Stockholm` | Stockholm/Pfam格式解析、二级结构注释、百分比一致性、保守性、FASTA/Stockholm互转 | ✅ |
@@ -434,6 +435,7 @@ IvanAXu/BioSeqs/
 │   ├── bioc_parallel.mbt        # Bioconductor 并行计算框架 (任务分块、并行求和)
 │   ├── genomic_ranges.mbt      # GenomicRanges 基因组区间操作 (GRanges、IRanges)
 │   ├── genomic_ranges_advanced.mbt # GenomicRanges tile/slidingWindows/区间运算
+│   ├── granges_list.mbt        # GenomicRanges GRangesList 复合特征、重组、重叠与集合运算
 │   ├── iranges.mbt             # IRanges 整数区间操作 (集合运算、重叠检测)
 │   ├── genomic_alignments.mbt  # GenomicAlignments 基因组比对分析 (GAlignments、coverage、summarizeOverlaps、pileup)
 │   ├── txdb.mbt                # TxDb 转录本数据库 (GTF解析、基因/转录本/外显子/CDS提取、UTR/内含子计算)
@@ -448,7 +450,7 @@ IvanAXu/BioSeqs/
 │   ├── matrix.mbt               # Bioconductor Matrix 稀疏矩阵操作 (CSC/CSR格式、矩阵运算)
 │   ├── bioc_neighbors.mbt      # BiocNeighbors 最近邻搜索 (KMKNN/Annoy)
 │   ├── summarized_experiment.mbt # SummarizedExperiment 多维基因组数据容器
-│   ├── ranged_summarized_experiment.mbt # RangedSummarizedExperiment 完整GRanges行范围与协调操作
+│   ├── ranged_summarized_experiment.mbt # RangedSummarizedExperiment GRanges/GRangesList行范围与协调操作
 │   ├── tree_summarized_experiment.mbt # TreeSummarizedExperiment 树结构实验容器、节点子集与层级聚合
 │   ├── dplyr.mbt               # dplyr 数据操作 (DataFrame、filter、select、mutate、arrange、group_by、summarize、join)
 │   ├── plyranges.mbt           # plyranges  tidy基因组数据操作 (GRanges的filter/mutate/select/arrange/rename/summarise/join)
@@ -782,6 +784,7 @@ IvanAXu/BioSeqs/
 │   ├── genomic_alignments_demo/ # GenomicAlignments 基因组比对分析示例 (GAlignments、coverage、summarizeOverlaps、pileup)
 │   ├── genomic_ranges_demo/    # GenomicRanges 基因组区间操作示例
 │   ├── genomic_ranges_advanced_demo/ # GenomicRanges tile/slidingWindows/区间运算示例
+│   ├── granges_list_demo/      # GRangesList 复合转录本、精确重叠与分组实验容器示例
 │   ├── geoquery_demo/          # GEOquery GEO数据库示例 (Series Matrix解析、SOFT格式解析、ExpressionSet转换、基因过滤)
 │   ├── go_enrichment_demo/     # GOEnrichment GO功能富集分析示例 (超几何检验、BH校正、富集结果过滤)
 │   ├── hmm_demo/               # Hidden Markov Model 基因预测示例
@@ -834,7 +837,7 @@ IvanAXu/BioSeqs/
 │   ├── substitution_matrices_demo/ # 现代替换矩阵示例 (矩阵注册表、频率矩阵计算、log-odds打分、Shannon熵、KL散度、NCBI解析)
 │   ├── suffix_array_tree_demo/ # Suffix Array & Suffix Tree 示例
 │   ├── summarized_experiment_demo/ # SummarizedExperiment 数据容器示例
-│   ├── ranged_summarized_experiment_demo/ # RangedSummarizedExperiment 重叠、最近邻、区间变换与排序示例
+│   ├── ranged_summarized_experiment_demo/ # RangedSummarizedExperiment GRanges重叠、最近邻、区间变换与排序示例
 │   ├── tree_summarized_experiment_demo/ # TreeSummarizedExperiment 行/列树链接、节点子集与聚合示例
 │   ├── sva_demo/               # sva 替代变量分析与ComBat批次校正示例 (经验贝叶斯方法、PCA分析)
 │   ├── svd_superimposer_demo/  # SVDSuperimposer SVD蛋白质结构叠合示例 (旋转矩阵、平移向量、RMSD计算)
@@ -1088,6 +1091,7 @@ IvanAXu/BioSeqs/
 │   │   ├── genomic_alignments_test.mbt
 │   │   ├── genomic_ranges_test.mbt
 │   │   ├── genomic_ranges_advanced_test.mbt
+│   │   ├── granges_list_test.mbt
 │   │   ├── go_enrichment_test.mbt
 │   │   ├── hmm_test.mbt
 │   │   ├── hmm_wbtest.mbt
@@ -1416,7 +1420,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 8261 个测试全部通过
+moon test                                               # ✅ 8299 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1494,6 +1498,7 @@ moon test                                               # ✅ 8261 个测试全�
 | `cram_wbtest.mbt` | pysam | CRAM 格式解析 |
 | `genomic_ranges.mbt` | Bioconductor GenomicRanges | GRanges 区间操作 |
 | `genomic_ranges_advanced.mbt` | GenomicRanges Tile/Windows | tile分箱、sliding_windows滑窗、tile_genome基因组覆盖、coverage_by_window覆盖度计算、bin_genome分箱统计、promoters启动子、gaps间隙、subtract区间减法 |
+| `granges_list.mbt` | Bioconductor GenomicRanges | GRangesList复合特征、split/unlist/relist、逐组变换、集合运算、重叠/最近邻/覆盖度 |
 | `iranges.mbt` | Bioconductor IRanges | 整数区间操作 |
 | `genomic_alignments.mbt` | Bioconductor GenomicAlignments | GAlignments 比对分析 |
 | `variant_annotation.mbt` | Bioconductor VariantAnnotation | 变异注释 |
@@ -1513,7 +1518,7 @@ moon test                                               # ✅ 8261 个测试全�
 | `edger_advanced.mbt` | edgeR QLF/Camera/Roast | 准似然F检验、QL分散度估计、camera竞争性基因集检验、roast自足基因集检验 |
 | `limma.mbt` | Bioconductor limma | 线性模型与 voom 变换 |
 | `summarized_experiment.mbt` | Bioconductor SummarizedExperiment | 多维数据容器 |
-| `ranged_summarized_experiment.mbt` | Bioconductor RangedSummarizedExperiment | 完整GRanges行范围、链特异重叠/最近邻、覆盖度、区间变换与协调子集 |
+| `ranged_summarized_experiment.mbt` | Bioconductor RangedSummarizedExperiment | GRanges/GRangesList行范围、链特异重叠/最近邻、覆盖度、区间变换与协调子集 |
 | `tree_summarized_experiment.mbt` | Bioconductor TreeSummarizedExperiment | 行/列树与数据链接、按节点子集、层级聚合 |
 | `ballgown.mbt` | Bioconductor ballgown | 转录组水平差异表达 |
 | `ruvseq.mbt` | Bioconductor RUVSeq | RNA-seq 批次效应去除 |
@@ -2729,12 +2734,16 @@ moon test                                               # ✅ 8261 个测试全�
 
 ### 238. RangedSummarizedExperiment 基因组区间实验容器 (Bioconductor SummarizedExperiment)
 
-实现以完整 `GRanges` 表示 assay 行的 `RangedSummarizedExperiment`，并复用现有 `SummarizedExperiment` 管理 assays、`col_data` 和 metadata。构造器严格校验行范围、行注释、行名和所有 assay 的行列维度；`subset_rows`/`subset_cols` 支持选择、重排和重复索引，并同步更新所有并行数据。`find_overlaps`、`count_overlaps`、`overlaps_any` 和 `subset_by_overlaps` 提供链特异重叠查询，`Strand::Star` 作为通配链，也可通过 `ignore_strand` 忽略链方向；`nearest` 和 `distance_to_nearest` 使用真实区间间距，无可用候选时返回 `-1`。`coverage` 计算按染色体的逐碱基覆盖度，`shift`、`narrow`、`resize`、`flank` 和 `promoters` 仅变换行范围并保持 assay 与注释不变；`sort` 按染色体、起点、终点和链排序，同时协调重排整个实验对象。当前实现对应 Bioconductor 的 `GRanges` 行范围语义，不包含 `GRangesList`。
+实现支持 `GRanges` 或 `GRangesList` assay 行范围的 `RangedSummarizedExperiment`，并复用现有 `SummarizedExperiment` 管理 assays、`col_data` 和 metadata。`new_with_range_groups` 和 `from_experiment_with_range_groups` 用复合范围表示转录本及其外显子等特征，外层元素与 assay 行严格平行；未显式提供 `row_data` 时会采用 `GRangesList.element_metadata`。容器内部使用每个复合特征的外接范围维持行维度，但 `find_overlaps`、`count_overlaps`、`overlaps_any`、`subset_by_overlaps`、`nearest`、`distance_to_nearest` 和 `coverage` 始终使用真实成员范围，因此不会将外显子之间的内含子误判为重叠。`subset_rows`/`subset_cols` 支持选择、重排和重复索引，并同步更新 assay、分组范围、行列注释与名称；`shift`、`narrow`、`resize`、`flank` 和 `promoters` 逐成员变换范围并保持实验数据不变。原有 `GRanges` 构造器与 API 保持兼容，`with_row_ranges` 可显式切回平面范围模式。
 
 ### 239. UniGene 基因聚类记录解析 (Bio.UniGene)
 
 实现与 Biopython `Bio.UniGene` 对应的 NCBI UniGene 固定宽度平面文件解析。`unigene_parse` 支持多记录输入，`unigene_read` 强制读取单条记录；解析器覆盖 `ID`、`TITLE`、`GENE`、`CYTOBAND`、`EXPRESS`、`RESTR_EXPR`、`GNM_TERMINUS`、`GENE_ID`、`LOCUSLINK`、`HOMOL`、`CHROMOSOME`、`PROTSIM`、`TXMAP`、`SCOUNT`、`SEQUENCE` 和 `STS` 标签。`UniGeneRecord` 以类型化数组保存序列、蛋白相似性、STS 和转录本映射子记录，支持按序列类型、登录号、相似物种和 IMAGE clone 查询，并保留未知子字段用于兼容扩展格式。解析器支持 CRLF，严格检查固定 12 列标签、记录终止符、布尔值和非负 `SCOUNT`，且要求声明数量与实际 `SEQUENCE` 数量一致。`to_string` 生成规范固定宽度文本并支持解析-序列化往返；格式错误抛出 `UniGeneError`。
 
+
+### 240. GRangesList 复合基因组特征 (Bioconductor GenomicRanges)
+
+实现 Bioconductor `GenomicRanges::GRangesList` 的复合特征语义，每个命名外层元素保存一组 `GRanges`，适合表示转录本-外显子、基因-调控区等一对多结构。构造器严格校验外层名称、元素元数据和内部范围维度；`granges_split_as_list` 按首次出现顺序分组，`granges_list_from_partition` 按元素长度分区，`unlist` 展平成单个 `GRanges`，`relist` 按原分区重建并保留名称和元数据。`subset`、`concat`、`parallel_concat` 支持外层选择和组合；`shift`、`narrow`、`resize`、`flank`、`promoters`、`reduce`、`disjoin` 和 `sort_ranges` 逐元素执行，`parallel_union`、`parallel_intersect` 和 `parallel_setdiff` 提供同位置元素间集合运算。`find_overlaps`、`count_overlaps`、`overlaps_any` 和分组对分组查询返回外层复合特征索引，并对同一特征的多个成员命中去重；`nearest`、`distance_to_nearest` 和 `coverage` 基于所有真实成员范围计算。`feature_bounds` 仅用于生成每个复合特征的协调外接范围，不替代精确区间计算。
 
 ## 性能优化
 
@@ -2837,8 +2846,8 @@ moon test                                               # ✅ 8261 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8261 |
-| 通过数 | 8261 |
+| 总测试数 | 8299 |
+| 通过数 | 8299 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2878,6 +2887,7 @@ moon test --update
 | 特征提取 | `feature_extraction_test.mbt` | 19 |
 | Biostrings | `biostrings_test.mbt` | 21 |
 | GenomicRanges | `genomic_ranges_test.mbt` | 22 |
+| GRangesList | `granges_list_test.mbt` | 38 |
 | plyranges | `plyranges_test.mbt` | 15 |
 | DESeq2 | `deseq2_test.mbt` | 10 |
 | dplyr | `dplyr_test.mbt` | 9 |
@@ -3226,7 +3236,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 345 个示例程序，展示各模块的典型用法：
+项目提供 346 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3242,6 +3252,7 @@ moon run cmd/bench/main.mbt
 | cram_demo | CRAM 格式解析（压缩二进制序列比对格式、CRAM转BAM、参考序列管理） | `moon run examples/cram_demo/main.mbt` |
 | biostrings_demo | Biostrings 序列分析（IUPAC、RSCU、复杂度、Tm） | `moon run examples/biostrings_demo/main.mbt` |
 | genomic_ranges_demo | GenomicRanges 基因组区间操作（GRanges、区间运算、集合操作） | `moon run examples/genomic_ranges_demo/main.mbt` |
+| granges_list_demo | GRangesList复合转录本、unlist/relist、精确外显子重叠与分组RangedSummarizedExperiment | `moon run examples/granges_list_demo/main.mbt` |
 | deseq2_demo | DESeq2 差异表达分析（size factors归一化、分散度估计、负二项GLM拟合、Wald检验、LFC收缩） | `moon run examples/deseq2_demo/main.mbt` |
 | dplyr_demo | dplyr 数据操作（filter、select、mutate、arrange、group_by、summarize、join） | `moon run examples/dplyr_demo/main.mbt` |
 | plyranges_demo | plyranges tidy基因组数据操作（GRanges的filter/mutate/select/arrange/rename/summarise） | `moon run examples/plyranges_demo/main.mbt` |
@@ -3260,7 +3271,7 @@ moon run cmd/bench/main.mbt
 | edger_demo | edgeR 差异表达分析（DGEList创建、归一化因子、分散度估计、精确检验、GLM拟合） | `moon run examples/edger_demo/main.mbt` | 
 | limma_demo | limma 差异表达分析（voom变换、线性模型拟合、经验贝叶斯、topTable、对比矩阵） | `moon run examples/limma_demo/main.mbt` | 
 | summarized_experiment_demo | SummarizedExperiment 多维数据容器（Assays、行/列操作、合并） | `moon run examples/summarized_experiment_demo/main.mbt` | 
-| ranged_summarized_experiment_demo | RangedSummarizedExperiment 完整GRanges行范围、链特异重叠、最近邻、promoter变换与协调排序 | `moon run examples/ranged_summarized_experiment_demo/main.mbt` |
+| ranged_summarized_experiment_demo | RangedSummarizedExperiment GRanges行范围、链特异重叠、最近邻、promoter变换与协调排序 | `moon run examples/ranged_summarized_experiment_demo/main.mbt` |
 | tree_summarized_experiment_demo | TreeSummarizedExperiment 行/列树链接、节点查询、树节点子集与层级聚合 | `moon run examples/tree_summarized_experiment_demo/main.mbt` |
 | iranges_demo | IRanges 整数区间操作（shift、resize、reduce、集合运算、重叠检测） | `moon run examples/iranges_demo/main.mbt` |
 | align_io_demo | 比对格式解析（ClustalW、FASTA、Stockholm格式解析与写入） | `moon run examples/align_io_demo/main.mbt` |
@@ -3447,6 +3458,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Biostrings 序列分析（IUPAC、RSCU、复杂度、Tm）
 - ✅ 实现 DESeq2 差异表达分析（数据集创建、结果分析、显著基因筛选）
 - ✅ 实现 GenomicRanges 基因组区间操作（GRanges、区间运算、集合操作）
+- ✅ 实现 GenomicRanges GRangesList 复合特征（split/unlist/relist、逐组变换、集合运算、特征级重叠/最近邻/覆盖度）
 - ✅ 实现 dplyr 数据操作
 - ✅ 实现 Smith-Waterman 局部序列比对（DNA/蛋白质比对、自定义打分、得分矩阵）
 - ✅ 实现 Needleman-Wunsch 全局序列比对（DNA/蛋白质比对、自定义打分、得分矩阵）
@@ -3462,7 +3474,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 群体遗传学分析（等位基因频率、基因型频率、哈迪-温伯格检验、FST统计、Watterson's theta）
 - ✅ 实现 edgeR 差异表达分析（DGEList创建、归一化因子、分散度估计、精确检验、GLM拟合）
 - ✅ 实现 SummarizedExperiment 多维数据容器（Assays、行/列操作、合并）
-- ✅ 实现 RangedSummarizedExperiment 基因组区间实验容器（完整GRanges行范围、链特异重叠/最近邻、覆盖度、区间变换与协调子集）
+- ✅ 实现 RangedSummarizedExperiment 基因组区间实验容器（GRanges/GRangesList行范围、复合特征精确重叠/最近邻、覆盖度、区间变换与协调子集）
 - ✅ 实现 TreeSummarizedExperiment 树结构实验容器（行/列树链接、节点子集、层级聚合）
 - ✅ 实现 IRanges 整数区间操作（shift、resize、reduce、集合运算、重叠检测）
 - ✅ 实现 比对格式解析（ClustalW、FASTA、Stockholm格式解析与写入）
