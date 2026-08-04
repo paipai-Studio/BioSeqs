@@ -274,6 +274,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Matrix** | Bioconductor Matrix | 稀疏矩阵操作、CSC/CSR格式、矩阵运算（加法、乘法、转置）、行列统计、范数计算 | ✅ |
 | **BiocGenerics** | Bioconductor BiocGenerics | Bioconductor通用函数、NA处理、排序、集合运算、匹配、表统计、序列生成 | ✅ |
 | **scran** | Bioconductor scran | 单细胞归一化(sum_factors)、SNN图构建、Leiden聚类、差异标志物分析 | ✅ |
+| **scrapper** | Bioconductor scrapper | 批次感知RNA QC、大小因子清洗与居中、log-normalization、LOWESS方差趋势、HVG选择、多因子pseudo-bulk、不可变SCE集成 | ✅ |
 | **monocle3** | Bioconductor monocle3 | 单细胞轨迹分析、PCA/UMAP降维、主图学习、拟时间排序、差异表达分析、分支点检测、分支特异性差异表达 | ✅ |
 | **ShortRead** | Bioconductor ShortRead | 短读序列质量控制、QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告生成 | ✅ |
 | **scater** | Bioconductor scater | 单细胞质量控制、QC指标计算、细胞/基因过滤、CPM/log-CPM标准化、HVG检测、PCA降维 | ✅ |
@@ -527,6 +528,7 @@ IvanAXu/BioSeqs/
 │   ├── graph.mbt               # graph 图数据结构 (有向/无向图、最短路径、连通分量、DOT输出)
 │   ├── droplet_utils.mbt       # DropletUtils 空液滴检测 (emptyDrops算法、knee点检测、细胞过滤)
 │   ├── scran.mbt               # scran 单细胞归一化与聚类 (sum_factors、SNN图、Leiden聚类、标志物分析)
+│   ├── scrapper.mbt            # scrapper 单细胞预处理 (批次感知RNA QC、大小因子、LOWESS/HVG、pseudo-bulk、SCE集成)
 │   ├── monocle3.mbt            # monocle3 单细胞轨迹分析 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read.mbt          # ShortRead 短读序列质量控制 (QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告)
 │   ├── seq_quality_trim.mbt    # NGS质量修剪与接头去除 (质量修剪、接头去除、poly-A修剪、长度/GC过滤、批量修剪)
@@ -868,6 +870,7 @@ IvanAXu/BioSeqs/
 │   ├── graph_demo/             # graph 图数据结构示例 (有向/无向图构建、最短路径、连通分量、DOT输出)
 │   ├── droplet_utils_demo/     # DropletUtils 空液滴检测示例 (emptyDrops算法、knee点检测、细胞过滤)
 │   ├── scran_demo/             # scran 单细胞归一化与聚类示例 (sum_factors、SNN图、Leiden聚类、标志物分析)
+│   ├── scrapper_demo/          # scrapper 批次感知RNA QC、归一化、LOWESS/HVG、pseudo-bulk与SCE集成示例
 │   ├── monocle3_demo/          # monocle3 单细胞轨迹分析示例 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read_demo/        # ShortRead 短读序列质量控制示例 (QA统计、adapter修剪、质量修剪、FastQC报告)
 │   ├── scater_demo/            # scater 单细胞质量控制示例 (QC指标计算、细胞/基因过滤、标准化、HVG检测、PCA)
@@ -1263,6 +1266,7 @@ IvanAXu/BioSeqs/
 │   │   ├── scater_test.mbt
 │   │   ├── scnorm_test.mbt
 │   │   ├── scran_test.mbt
+│   │   ├── scrapper_test.mbt
 │   │   ├── search_io_test.mbt
 │   │   ├── searchio_new_test.mbt
 │   │   ├── seq_complexity_test.mbt
@@ -1437,7 +1441,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 8409 个测试全部通过
+moon test                                               # ✅ 8444 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1737,6 +1741,7 @@ moon test                                               # ✅ 8409 个测试全�
 | `karyoploter.mbt` | `karyoploteR` | 核型可视化（染色体轨道、数据点、ASCII 渲染） |
 | `system_piper.mbt` | `SystemPipeR` | 流水线编排（步骤管理、依赖关系、进度追踪） |
 | `muscat.mbt` | `muscat` | 单细胞差异状态分析（伪批量聚合、DS 检验、QC） |
+| `scrapper.mbt` | `scrapper` | 批次感知RNA QC、大小因子清洗/居中、count与log归一化、LOWESS方差趋势、HVG选择、多因子pseudo-bulk、SingleCellExperiment不可变包装 |
 | `infercnv.mbt` | `infercnv` | 单细胞拷贝数变异推断（基因组位置排序、参考细胞有界 LFC 计算、金字塔权重平滑、CNV 分数与恶性细胞预测） |
 | `scenic.mbt` | `SCENIC` | 单细胞调控网络推断与聚类（TF-target 共表达模块、Regulon 构建、AUCell 活性评分、二值化阈值、细胞状态与主控调控因子） |
 | `cibersort.mbt` | `CIBERSORT` | 免疫细胞去卷积（NNLS 求解、LM22 风格特征矩阵、Pearson 拟合优度、分数归一化） |
@@ -2782,6 +2787,12 @@ moon test                                               # ✅ 8409 个测试全�
 
 `CeAlignmentResult` 返回对齐索引、片段数、RMSD、Z-score、覆盖率、旋转矩阵和平移向量。`transform=true` 会将刚体变换应用到移动结构的全部原子，同时重建 `Structure` 以保证输入对象不被原地修改；`transform=false` 仅计算比对。公开辅助 API 还包括距离矩阵、片段相似度、路径搜索和独立结构变换，非法参数、引导原子缺失或结构长度不足时抛出 `CeAlignError`。
 
+### 244. scrapper 单细胞预处理 (Bioconductor scrapper)
+
+实现 Bioconductor `scrapper` 核心单细胞 RNA-seq 预处理流程，矩阵统一采用 feature × cell 方向。RNA QC 计算每个细胞的文库总量、检测基因数和命名 feature subset 比例，并用 `log(value + 1)` 空间的 median/MAD 下限及 subset 比例上限执行批次感知过滤；block 顺序按首次出现保留。大小因子支持非法值清洗、文库大小估计、全局/逐批次居中，以及保留批次间尺度的最低批次居中。count scaling 和可配置底数、pseudo-count 的 log-normalization 均返回新矩阵，不修改输入。
+
+基因建模提供均值、sample variance、quarter-root LOWESS 局部线性趋势、左侧向原点外推、残差方差和带 ties/bound 控制的 HVG 选择。`scrapper_aggregate_across_cells` 可按一个或多个分类因子的唯一组合生成 pseudo-bulk sums、detected counts、means 和 medians，并返回组组合及每个细胞的组索引。`scrapper_normalize_rna_counts_sce` 与 `scrapper_quick_rna_qc_sce` 深复制 assay 和主要注释后写入结果，避免修改原 `SingleCellExperiment`。当前实现是无需 libscran C++ 的可移植 MoonBit 版本，不保证 LOWESS 与上游后端位级一致，也不覆盖 `scrapper` 的全部导出接口。
+
 ## 性能优化
 
 ### 优化策略
@@ -2883,8 +2894,8 @@ moon test                                               # ✅ 8409 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8409 |
-| 通过数 | 8409 |
+| 总测试数 | 8444 |
+| 通过数 | 8444 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3004,6 +3015,7 @@ moon test --update
 | graph | `graph_test.mbt` | 8 |
 | DropletUtils | `droplet_utils_test.mbt` | 6 |
 | scran | `scran_test.mbt` | 8 |
+| scrapper | `scrapper_test.mbt` | 35 |
 | monocle3 | `monocle3_test.mbt` | 10 |
 | ShortRead | `short_read_test.mbt` | 15 |
 | scater | `scater_test.mbt` | 17 |
@@ -3276,7 +3288,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 351 个示例程序，展示各模块的典型用法：
+项目提供 352 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3365,6 +3377,7 @@ moon run cmd/bench/main.mbt
 | bioconductor_demo | Bioconductor模块综合示例（ChIPseeker峰注释(外显子/内含子/UTR分类、peak2gene关联)、DOSE疾病富集、ReactomePA通路分析、AnnotationDbi注释数据库、clusterProfiler富集框架、WGCNA共表达网络、Batchelor单细胞批次校正、Seurat单细胞分析） | `moon run examples/bioconductor_demo/main.mbt` |
 | short_read_demo | ShortRead 短读序列质量控制（QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告生成） | `moon run examples/short_read_demo/main.mbt` |
 | scater_demo | scater 单细胞质量控制（QC指标计算、细胞/基因过滤、CPM/log-CPM标准化、HVG检测、PCA降维） | `moon run examples/scater_demo/main.mbt` |
+| scrapper_demo | 批次感知RNA QC、大小因子归一化、LOWESS/HVG、多因子pseudo-bulk和不可变SCE集成 | `moon run examples/scrapper_demo` |
 | mast_demo | MAST 单细胞差异表达分析（Hurdle模型、离散/连续检验、BH-FDR校正、结果汇总） | `moon run examples/mast_demo/main.mbt` |
 | genomic_files_demo | GenomicFiles 分布式基因组文件处理（BAM/BED/VCF扫描、区间查询、归约、覆盖度计算） | `moon run examples/genomic_files_demo/main.mbt` |
 | diffbind_demo | DiffBind ChIP-seq差异结合分析（峰值重叠、共识峰识别、TMM归一化、负二项分布检验） | `moon run examples/diffbind_demo/main.mbt` |
@@ -3556,6 +3569,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bio.Align.hhr HH-suite HHR解析（元数据、命中摘要、多块profile比对、注释保留、过滤、坐标映射与序列化）
 - ✅ 实现 Bioconductor SparseArray N维稀疏数组（规范化COO、R列主序、切片/置换/绑定、稀疏算术、统计与矩阵乘法）
 - ✅ 实现 Bio.PDB.cealign CE组合扩展结构比对（CA/C4'引导原子、AFP路径、CE Z-score、QCP叠合、局部优化与全原子变换）
+- ✅ 实现 Bioconductor scrapper 单细胞预处理（批次感知RNA QC、大小因子与log-normalization、LOWESS/HVG、多因子pseudo-bulk、不可变SCE集成）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）
