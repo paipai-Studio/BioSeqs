@@ -214,6 +214,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **variancePartition** | Bioconductor variancePartition | 重复测量线性混合模型、方差分解、BLUP、precision weights、dream contrast与Satterthwaite检验 | ✅ |
 | **dreamlet** | Bioconductor dreamlet | sample×cell-type pseudobulk、TMM、cell/sample/gene过滤、logCPM、Poisson/voom precision weights、分cell-type重复测量模型及study-wide FDR | ✅ |
 | **nnSVG** | Bioconductor nnSVG | nearest-neighbor Gaussian process、空间变异基因检验、gene-specific length scale、协变量设计、空间方差占比、BH-FDR及SpatialExperiment接入 | ✅ |
+| **Banksy** | Bioconductor Banksy | H0邻域均值与H1+方位harmonic、六类空间核、lambda联合特征、分组标准化、PCA、多起点k-means、标签平滑、参数扫描及SpatialExperiment接入 | ✅ |
 | **ALDEx2** | Bioconductor ALDEx2 | Dirichlet Monte Carlo组成型差异丰度、六类denominator、Welch/Wilcoxon与配对检验、effect/overlap、Aitchison距离及SummarizedExperiment接入 | ✅ |
 | **DirichletMultinomial** | Bioconductor DirichletMultinomial | Dirichlet-multinomial概率、有限混合EM/BFGS聚类、Laplace/AIC/BIC选K、生成式分组分类、分层交叉验证、ROC及SummarizedExperiment接入 | ✅ |
 | **SummarizedExperiment** | Bioconductor SummarizedExperiment | 多维基因组数据容器、Assays、行/列操作 | ✅ |
@@ -581,6 +582,7 @@ IvanAXu/BioSeqs/
 │   ├── variance_partition.mbt  # variancePartition 混合模型方差分解、BLUP与dream重复测量检验
 │   ├── dreamlet.mbt            # dreamlet pseudobulk、TMM/voom权重、分cell-type混合模型与study-wide FDR
 │   ├── nnsvg.mbt               # nnSVG nearest-neighbor GP、空间变异检验、length scale与SpatialExperiment接入
+│   ├── banksy.mbt              # Banksy空间邻域harmonic、lambda联合特征、PCA、聚类、平滑与SpatialExperiment接入
 │   ├── monocle3.mbt            # monocle3 单细胞轨迹分析 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read.mbt          # ShortRead 短读序列质量控制 (QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告)
 │   ├── seq_quality_trim.mbt    # NGS质量修剪与接头去除 (质量修剪、接头去除、poly-A修剪、长度/GC过滤、批量修剪)
@@ -934,6 +936,7 @@ IvanAXu/BioSeqs/
 │   ├── variance_partition_demo/ # variancePartition 方差分解、BLUP、precision weights、dream与SE接入示例
 │   ├── dreamlet_demo/          # dreamlet SCE pseudobulk、TMM/voom、donor随机截距与跨cell-type FDR示例
 │   ├── nnsvg_demo/             # nnSVG空间变异基因、length scale、过滤与SpatialExperiment接入示例
+│   ├── banksy_demo/            # Banksy H0/H1、lambda扫描、PCA聚类、平滑与SpatialExperiment接入示例
 │   ├── monocle3_demo/          # monocle3 单细胞轨迹分析示例 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read_demo/        # ShortRead 短读序列质量控制示例 (QA统计、adapter修剪、质量修剪、FastQC报告)
 │   ├── scater_demo/            # scater 单细胞质量控制示例 (QC指标计算、细胞/基因过滤、标准化、HVG检测、PCA)
@@ -1348,6 +1351,7 @@ IvanAXu/BioSeqs/
 │   │   ├── variance_partition_test.mbt
 │   │   ├── dreamlet_test.mbt
 │   │   ├── nnsvg_test.mbt
+│   │   ├── banksy_test.mbt
 │   │   ├── shared_reference_alignment_test.mbt
 │   │   ├── alignment_map_test.mbt
 │   │   ├── alignment_counts_test.mbt
@@ -1532,7 +1536,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 9561 个测试全部通过
+moon test                                               # ✅ 9639 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1643,6 +1647,7 @@ moon test                                               # ✅ 9561 个测试全�
 | `variance_partition.mbt` | Bioconductor variancePartition | 多随机截距LMM、ML/REML方差分量、固定/随机/残差占比、BLUP、precision weights、dream contrast、数值Satterthwaite与BH-FDR |
 | `dreamlet.mbt` | Bioconductor dreamlet | sample×cell-type pseudobulk、完整TMM、CPM/logCPM、Poisson/voom权重、typed fixed/random design、分cell-type dream拟合及两级BH-FDR |
 | `nnsvg.mbt` | Bioconductor nnSVG | 坐标缩放与前驱kNN、指数协方差NNGP、协变量GLS、profile ML、空间/非空间LR检验、gene-specific length scale、BH-FDR及SpatialExperiment接入 |
+| `banksy.mbt` | Bioconductor Banksy | H0邻域均值、H1+方位Fourier/Gabor harmonic、六类空间核、lambda联合矩阵、分组标准化、PCA、多起点k-means、平滑、ARI与SpatialExperiment接入 |
 | `decontx.mbt` | Bioconductor decontX | cluster-native/contaminant多项式混合、Beta/Dirichlet先验EM、background、自动聚类、计数分解与SCE输出 |
 | `summarized_experiment.mbt` | Bioconductor SummarizedExperiment | 多维数据容器 |
 | `ranged_summarized_experiment.mbt` | Bioconductor RangedSummarizedExperiment | GRanges/GRangesList行范围、链特异重叠/最近邻、覆盖度、区间变换与协调子集 |
@@ -1856,6 +1861,7 @@ moon test                                               # ✅ 9561 个测试全�
 | `variance_partition.mbt` | `variancePartition` | typed fixed/random design、多随机截距LMM、ML/REML方差分解、BLUP、weighted dream contrast、Satterthwaite自由度与SummarizedExperiment入口 |
 | `dreamlet.mbt` | `dreamlet` | SCE到sample×cluster pseudobulk、TMM/logCPM、两阶段voom precision weights、固定/随机效应筛选、逐cell-type dream和study-wide FDR |
 | `nnsvg.mbt` | `nnSVG` | AMMD/坐标和排序前驱kNN、指数协方差NNGP、covariate GLS、空间方差比例与length scale优化、LR/p-value/BH-FDR、过滤和SpatialExperiment rowData输出 |
+| `banksy.mbt` | `Banksy` | kNN/radius邻域核、H0/H1+空间harmonic、lambda加权BANKSY矩阵、global/group scaling、Gram-Jacobi PCA、确定性多起点聚类、平滑与SpatialExperiment输出 |
 | `shared_reference_alignment.mbt` | `Bio.Align.Alignment` | 同参考PWA/MSA的reference-boundary insertion同步、原query投影、局部坐标、metadata、统计与格式转换 |
 | `alignment_map.mbt` | `Bio.Align.Alignment.map/mapall` | 两层alignment坐标组合、正反链与gap传播、PSL、批量映射及protein/nucleotide MSA投影 |
 | `alignment_counts.mbt` | `Bio.Align.Alignment.counts` | pairwise/MSA gap事件和composition汇总、正反链、wildcard、替换矩阵及完整affine评分 |
@@ -3054,6 +3060,14 @@ BTOP 和 FASTA CIGAR 会合并连续 operation 并重建显式 target/query coor
 
 解析器严格拒绝非十进制或溢出整数、非法 strand/列数、blockCount 与 CSV/PSLX 数量不一致、零长度/重叠/逆序/越界 block、首尾 gap、错误的核酸 1:1 或 translated 3:1 比例、match 分类总和、q/t insertion 统计及声明区间不一致。该模块负责普通文本 PSL/PSLX；`search_io.mbt` 继续提供简化的 BLAT 搜索结果适配，`bigpsl.mbt` 负责 bed12+13 BigBed 二进制索引。
 
+### 264. 空间邻域增强聚类 (Bioconductor Banksy)
+
+实现 Bioconductor `Banksy` 1.9.1 的空间转录组邻域增强特征与聚类工作流。输入统一为 gene × spot 表达矩阵及 spot × dimension 坐标；`H0` 计算归一化加权邻域均值，`H1+` 在局部非加权均值中心化后计算方位 Fourier/Gabor harmonic 幅值。支持 `kNN_median`、inverse-distance、inverse-power、rank、uniform 和 radius-Gaussian 六类空间核、每阶独立邻域大小、确定性邻居采样，以及二维方位角和多维欧氏距离。
+
+`banksy_get_matrix` 按 `sqrt(1-lambda)` 加权原始表达，并将 `lambda * 2^-m` 在 `H0..HM` 间归一化后开方加权；支持全局或按 section/sample 分组的 feature 标准化。下游提供 spots Gram 矩阵上的 Jacobi PCA、确定性 farthest-point 多起点 k-means、空 cluster 重播种、silhouette、空间近邻一致率、Adjusted Rand Index、同步标签平滑和多 lambda 参数扫描，适配 cell typing 与 tissue domain segmentation 两类用法。
+
+`banksy_spatial_experiment` 从指定 assay、rowData、colData 和二维/三维 spatial coordinates 构建模型，在不可变容器副本中写回 `H0..HM` assays、原始/平滑 cluster 标签与 metadata。所有入口校验矩阵方向、矩形性、有限值、名称唯一性、邻域/采样边界、lambda、PCA/聚类维度及分组完整性。当前实现使用 dense MoonBit arrays、确定性单线程 Jacobi PCA 与 k-means，不依赖 R、BiocParallel、igraph、Leiden 或稀疏矩阵后端。
+
 ## 性能优化
 
 ### 优化策略
@@ -3155,8 +3169,8 @@ BTOP 和 FASTA CIGAR 会合并连续 operation 并重建显式 target/query coor
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 9561 |
-| 通过数 | 9561 |
+| 总测试数 | 9639 |
+| 通过数 | 9639 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3472,6 +3486,7 @@ moon test --update
 | Bioconductor variancePartition | `variance_partition_test.mbt` | 38 |
 | Bioconductor dreamlet | `dreamlet_test.mbt` | 58 |
 | Bioconductor nnSVG | `nnsvg_test.mbt` | 67 |
+| Bioconductor Banksy | `banksy_test.mbt` | 78 |
 | Bio.PopGen.GenePop | `gene_pop_test.mbt` | 34 |
 | Bioconductor stageR | `stage_r_test.mbt` | 25 |
 | Bioconductor EnrichedHeatmap | `enriched_heatmap_test.mbt` | 20 |
@@ -3567,7 +3582,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 371 个示例程序，展示各模块的典型用法：
+项目提供 372 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3760,6 +3775,7 @@ moon run cmd/bench/main.mbt
 | variance_partition_demo | typed固定/随机设计、ML方差分解、BLUP、precision weights、dream contrast与SummarizedExperiment接入 | `moon run examples/variance_partition_demo` |
 | dreamlet_demo | SingleCellExperiment pseudobulk、TMM/logCPM、Poisson/voom权重、donor随机截距和跨cell-type FDR | `moon run examples/dreamlet_demo` |
 | nnsvg_demo | nearest-neighbor GP空间变异基因检验、length scale、空间方差占比、基因过滤与SpatialExperiment接入 | `moon run examples/nnsvg_demo` |
+| banksy_demo | H0/H1空间邻域特征、cell-typing/domain lambda、PCA聚类、标签平滑、参数扫描与SpatialExperiment接入 | `moon run examples/banksy_demo` |
 | shared_reference_alignment_demo | 共享参考PWA/MSA合并、reference insertion同步、坐标映射、统计、MSA与aligned FASTA转换 | `moon run examples/shared_reference_alignment_demo` |
 | alignment_map_demo | chromosome→transcript→read坐标组合、intron gap、反链、坐标查询、PSL与protein-to-codon MSA投影 | `moon run examples/alignment_map_demo` |
 | alignment_counts_demo | left/internal/right gap与open/extend、affine/BLOSUM45评分、反向链和MSA逐对汇总 | `moon run examples/alignment_counts_demo` |
@@ -3887,6 +3903,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bioconductor ALDEx2 组成型差异丰度（Dirichlet Monte Carlo、六类denominator、两组/配对检验、posterior expected BH、effect/overlap、距离与SummarizedExperiment接入）
 - ✅ 实现 Bioconductor DirichletMultinomial 混合聚类与分类（DMM概率、soft k-means、log-alpha BFGS/EM、Gamma prior、Laplace/AIC/BIC、dmngroup分类、分层CV、ROC与SummarizedExperiment接入）
 - ✅ 实现 Bioconductor nnSVG 空间变异基因检测（坐标缩放与前驱kNN、指数协方差NNGP、covariate GLS、gene-specific length scale、空间/非空间LR检验、BH-FDR与SpatialExperiment接入）
+- ✅ 实现 Bioconductor Banksy 空间邻域增强聚类（六类空间核、H0/H1+、lambda联合矩阵、分组标准化、PCA、多起点k-means、标签平滑、参数扫描与SpatialExperiment接入）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）
