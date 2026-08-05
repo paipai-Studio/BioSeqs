@@ -1607,7 +1607,7 @@ fn vp_bh_adjust(results : Array[DreamGeneResult]) -> Array[DreamGeneResult] {
     count.to_double() /
     rank.to_double()).min(1.0)
     running = running.min(candidate)
-    adjusted[original] = running
+    adjusted[original] = running.max(results[original].p_value)
     rank = rank - 1
   }
   let output : Array[DreamGeneResult] = []

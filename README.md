@@ -208,6 +208,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **edgeR** | Bioconductor edgeR | 差异表达分析、DGEList、精确检验、GLM拟合 | ✅ |
 | **limma** | Bioconductor limma | 差异表达分析、线性模型拟合、经验贝叶斯、voom变换、RPKM/CPM/quantile归一化、ComBat/removeBatchEffect批次校正、treat严格检验 | ✅ |
 | **variancePartition** | Bioconductor variancePartition | 重复测量线性混合模型、方差分解、BLUP、precision weights、dream contrast与Satterthwaite检验 | ✅ |
+| **dreamlet** | Bioconductor dreamlet | sample×cell-type pseudobulk、TMM、cell/sample/gene过滤、logCPM、Poisson/voom precision weights、分cell-type重复测量模型及study-wide FDR | ✅ |
 | **SummarizedExperiment** | Bioconductor SummarizedExperiment | 多维基因组数据容器、Assays、行/列操作 | ✅ |
 | **RangedSummarizedExperiment** | Bioconductor SummarizedExperiment | GRanges/GRangesList行范围、复合特征精确重叠/最近邻、覆盖度、区间变换与协调子集 | ✅ |
 | **TreeSummarizedExperiment** | Bioconductor TreeSummarizedExperiment | 行/列树、节点链接、树节点子集、祖先/后代查询、层级聚合 | ✅ |
@@ -560,6 +561,7 @@ IvanAXu/BioSeqs/
 │   ├── milo.mbt                # miloR KNN邻域差异丰度 (精炼采样、NB-GLM、graph spatial FDR、SCE接入)
 │   ├── zinbwave.mbt            # zinbwave 零膨胀NB低维模型 (EM/IRLS、latent factors、observational weights、SCE接入)
 │   ├── variance_partition.mbt  # variancePartition 混合模型方差分解、BLUP与dream重复测量检验
+│   ├── dreamlet.mbt            # dreamlet pseudobulk、TMM/voom权重、分cell-type混合模型与study-wide FDR
 │   ├── monocle3.mbt            # monocle3 单细胞轨迹分析 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read.mbt          # ShortRead 短读序列质量控制 (QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告)
 │   ├── seq_quality_trim.mbt    # NGS质量修剪与接头去除 (质量修剪、接头去除、poly-A修剪、长度/GC过滤、批量修剪)
@@ -909,6 +911,7 @@ IvanAXu/BioSeqs/
 │   ├── zinbwave_demo/          # zinbwave latent factors、dropout权重、残差/插补与SCE集成示例
 │   ├── apeglm_demo/            # apeglm MLE/MAP、重尾收缩、FSR/FSOS、TSV与SE接入示例
 │   ├── variance_partition_demo/ # variancePartition 方差分解、BLUP、precision weights、dream与SE接入示例
+│   ├── dreamlet_demo/          # dreamlet SCE pseudobulk、TMM/voom、donor随机截距与跨cell-type FDR示例
 │   ├── monocle3_demo/          # monocle3 单细胞轨迹分析示例 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read_demo/        # ShortRead 短读序列质量控制示例 (QA统计、adapter修剪、质量修剪、FastQC报告)
 │   ├── scater_demo/            # scater 单细胞质量控制示例 (QC指标计算、细胞/基因过滤、标准化、HVG检测、PCA)
@@ -1315,6 +1318,7 @@ IvanAXu/BioSeqs/
 │   │   ├── zinbwave_test.mbt
 │   │   ├── apeglm_test.mbt
 │   │   ├── variance_partition_test.mbt
+│   │   ├── dreamlet_test.mbt
 │   │   ├── shared_reference_alignment_test.mbt
 │   │   ├── alignment_map_test.mbt
 │   │   ├── bigbed_test.mbt
@@ -1495,7 +1499,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 8984 个测试全部通过
+moon test                                               # ✅ 9042 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1600,6 +1604,7 @@ moon test                                               # ✅ 8984 个测试全�
 | `edger_advanced.mbt` | edgeR QLF/Camera/Roast | 准似然F检验、QL分散度估计、camera竞争性基因集检验、roast自足基因集检验 |
 | `limma.mbt` | Bioconductor limma | 线性模型与 voom 变换 |
 | `variance_partition.mbt` | Bioconductor variancePartition | 多随机截距LMM、ML/REML方差分量、固定/随机/残差占比、BLUP、precision weights、dream contrast、数值Satterthwaite与BH-FDR |
+| `dreamlet.mbt` | Bioconductor dreamlet | sample×cell-type pseudobulk、完整TMM、CPM/logCPM、Poisson/voom权重、typed fixed/random design、分cell-type dream拟合及两级BH-FDR |
 | `decontx.mbt` | Bioconductor decontX | cluster-native/contaminant多项式混合、Beta/Dirichlet先验EM、background、自动聚类、计数分解与SCE输出 |
 | `summarized_experiment.mbt` | Bioconductor SummarizedExperiment | 多维数据容器 |
 | `ranged_summarized_experiment.mbt` | Bioconductor RangedSummarizedExperiment | GRanges/GRangesList行范围、链特异重叠/最近邻、覆盖度、区间变换与协调子集 |
@@ -1809,6 +1814,7 @@ moon test                                               # ✅ 8984 个测试全�
 | `zinbwave.mbt` | `zinbwave` | ZINB交替EM/IRLS、cell/gene design与offset、确定性低维因子、gene dispersion shrinkage、observational weights、deviance residual及SingleCellExperiment包装 |
 | `apeglm.mbt` | `apeglm` | 负二项GLM MLE、自适应Cauchy/Student-t先验、阻尼Newton多起点MAP、Laplace后验SD/区间、FSR/FSOS/s-value、DESeq2与SummarizedExperiment包装 |
 | `variance_partition.mbt` | `variancePartition` | typed fixed/random design、多随机截距LMM、ML/REML方差分解、BLUP、weighted dream contrast、Satterthwaite自由度与SummarizedExperiment入口 |
+| `dreamlet.mbt` | `dreamlet` | SCE到sample×cluster pseudobulk、TMM/logCPM、两阶段voom precision weights、固定/随机效应筛选、逐cell-type dream和study-wide FDR |
 | `shared_reference_alignment.mbt` | `Bio.Align.Alignment` | 同参考PWA/MSA的reference-boundary insertion同步、原query投影、局部坐标、metadata、统计与格式转换 |
 | `alignment_map.mbt` | `Bio.Align.Alignment.map/mapall` | 两层alignment坐标组合、正反链与gap传播、PSL、批量映射及protein/nucleotide MSA投影 |
 | `bigbed.mbt` | `Bio.Align.bigbed` | BigBed v4二进制读写、BED/AutoSQL、平衡B+ tree/R-tree、完整DEFLATE块解码、区间/名称查询与BED导出 |
@@ -2939,6 +2945,14 @@ MAP 求解器实现阻尼 Newton、Cholesky 信息矩阵求解、逐级 ridge �
 
 解析器要求 `definedFieldCount=3`、`fieldCount=4` 及标准 `bedMaf` schema，并交叉验证 BED 区间、嵌入 MAF 第一条 component、reference prefix 和 chromosome target。构造器会诊断非法状态字符、负坐标、source 越界、size 与非 gap 长度不符、quality/gap 不同步、重复注释及不一致列宽；二进制层继续诊断损坏 magic、树节点、DEFLATE 和校验和。当前范围不生成 BigMaf zoom levels 或 extra indices，也不实现远程 HTTP range reader。
 
+### 256. cohort-scale 单细胞重复测量分析 (Bioconductor dreamlet)
+
+实现 Bioconductor `dreamlet` 的 sample×cell-type pseudobulk 混合模型流程，输入统一为 gene×cell 非负整数计数。`dreamlet_aggregate_to_pseudobulk` 按 sample 和 cluster 首次出现顺序求 raw count sum，为缺失的 sample×cluster 组合补零列和 `cell_counts=0`，并验证被选择 metadata 在同一样本内保持一致；`dreamlet_aggregate_sce` 可直接读取 `SingleCellExperiment` assay 与 `colData`。每个 cell type 独立过滤低细胞数或零文库样本，并按 total count、最小 count、CPM 达标样本比例过滤基因，避免不同 cell type 共享不适用的 retained set。
+
+归一化实现 edgeR 风格 TMM：按归一化 count 的 75% 分位数选择参考样本，计算 M/A 值，执行 log-ratio 与 abundance 双裁剪，以 inverse asymptotic variance 加权，并将因子几何中心化到 1。effective library size 用于 normalized CPM 和带 prior count 的 log2 CPM。precision-weight 流程先从 count 均值和 library scale 构造可配置的 Poisson 初始权重，再拟合 residual variance 四次方根对平均表达的 LOWESS 趋势，最终使用预测方差倒数作为 voom-style observation weights。
+
+`DreamletEffectSpec` 和 `DreamletModelSpec` 以 typed numeric、categorical、random effects 代替 R formula 解析，并转换到现有 `variancePartition` 设计与求解器；常量固定效应和无重复 level 的随机效应会按 cell type 删除并记录。`dreamlet_process_assays` 输出每个 cell type 的过滤、TMM、表达、权重、design 和趋势诊断，`dreamlet` 对指定 coefficient 运行 weighted fixed/random mixed model，报告数值 Satterthwaite 检验、cluster 内 BH-FDR 和跨全部 gene×cell-type hypotheses 的 study-wide BH-FDR。查询 API 提供 assay lookup、top table 和分阶段摘要。当前范围支持 dense arrays 和随机截距，不解析 R formula，不包含随机斜率、Kenward-Roger、limma empirical Bayes、稀疏/并行后端、绘图或上游 `aggr_means` 的变化 numeric cell metadata 聚合。
+
 ## 性能优化
 
 ### 优化策略
@@ -3040,8 +3054,8 @@ MAP 求解器实现阻尼 Newton、Cholesky 信息矩阵求解、逐级 ridge �
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8984 |
-| 通过数 | 8984 |
+| 总测试数 | 9042 |
+| 通过数 | 9042 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3350,6 +3364,7 @@ moon test --update
 | Bio.SearchIO.FastaIO | `fasta_search_io_test.mbt` | 19 |
 | Bio.SearchIO.InfernalIO | `infernal_io_test.mbt` | 37 |
 | Bioconductor variancePartition | `variance_partition_test.mbt` | 38 |
+| Bioconductor dreamlet | `dreamlet_test.mbt` | 58 |
 | Bio.PopGen.GenePop | `gene_pop_test.mbt` | 34 |
 | Bioconductor stageR | `stage_r_test.mbt` | 25 |
 | Bioconductor EnrichedHeatmap | `enriched_heatmap_test.mbt` | 20 |
@@ -3445,7 +3460,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 363 个示例程序，展示各模块的典型用法：
+项目提供 364 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3634,6 +3649,7 @@ moon run cmd/bench/main.mbt
 | fasta_search_io_demo | FASTA搜索输出解析（-m8表格、-m9注释头、元数据、Query/Hit/HSP聚合） | `moon run examples/fasta_search_io_demo/main.mbt` |
 | infernal_io_demo | Infernal cmscan/cmsearch解析（tabular 3、non-verbose文本、local-end片段、过滤与SearchIO转换） | `moon run examples/infernal_io_demo` |
 | variance_partition_demo | typed固定/随机设计、ML方差分解、BLUP、precision weights、dream contrast与SummarizedExperiment接入 | `moon run examples/variance_partition_demo` |
+| dreamlet_demo | SingleCellExperiment pseudobulk、TMM/logCPM、Poisson/voom权重、donor随机截距和跨cell-type FDR | `moon run examples/dreamlet_demo` |
 | shared_reference_alignment_demo | 共享参考PWA/MSA合并、reference insertion同步、坐标映射、统计、MSA与aligned FASTA转换 | `moon run examples/shared_reference_alignment_demo` |
 | alignment_map_demo | chromosome→transcript→read坐标组合、intron gap、反链、坐标查询、PSL与protein-to-codon MSA投影 | `moon run examples/alignment_map_demo` |
 | bigbed_demo | BigBed v4压缩写入/解析、AutoSQL、多级索引查询、负链exon坐标、BED导出及损坏文件诊断 | `moon run examples/bigbed_demo` |
@@ -3742,6 +3758,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bioconductor miloR 单细胞邻域差异丰度（精确KNN图、median精炼采样、邻域计数、固定效应NB-GLM、graph spatial FDR与SCE接入）
 - ✅ 实现 Bio.SearchIO.InfernalIO Infernal cmscan/cmsearch输出解析（tabular 1/2/3、non-verbose文本、--noali、CM/HMM-only、local-end多片段与SearchIO转换）
 - ✅ 实现 Bioconductor variancePartition 重复测量混合模型（ML/REML方差分解、BLUP、precision weights、dream contrast、数值Satterthwaite、BH-FDR与SummarizedExperiment接入）
+- ✅ 实现 Bioconductor dreamlet cohort-scale单细胞重复测量分析（sample×cell-type pseudobulk、TMM、过滤、logCPM、Poisson/voom权重、typed混合模型与study-wide FDR）
 - ✅ 实现 Bio.Align共享参考序列比对合并（混合PWA/MSA、reference-boundary insertion同步、局部坐标、双向映射、统计与格式转换）
 - ✅ 实现 Bio.Align.Alignment map/mapall（alignment path组合、local clipping、gap与正反链传播、坐标查询、PSL及protein-to-codon MSA投影）
 - ✅ 实现 Bio.Align.bigbed BigBed v4二进制区间格式（BED3-BED12、AutoSQL、多级B+ tree/R-tree、DEFLATE、区间/名称查询与BED导出）
