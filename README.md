@@ -169,6 +169,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.Align.bigbed | BigBed v4二进制读写、BED3-BED12、AutoSQL扩展字段、多级chromosome B+ tree与R-tree、zlib/DEFLATE解码、区间/名称查询和BED导出 |
 | ✅ | Bio.Align.bigmaf | 标准bedMaf bed3+1读写、完整MAF a/s/i/e/q语义、正负链坐标映射、BigBed压缩索引查询、MAF导出和严格损坏数据诊断 |
 | ✅ | Bioconductor decontX | 单细胞ambient RNA去污染: cluster-native/contaminant多项式混合、Beta/Dirichlet先验EM、empty-droplet background、自动聚类、计数分解、诊断与SingleCellExperiment接入 |
+| ✅ | Bioconductor celda | `celda_CG`细胞群与基因模块联合聚类: 分层Dirichlet-multinomial、collapsed likelihood、EM/Gibbs、多链、K/L模型选择、预测与SingleCellExperiment接入 |
 | ✅ | Bio.PDB.SASA | 溶剂可及表面积计算: Shrake-Rupley滚动球算法(Fibonacci球面采样)、范德华半径查表、逐原子/残基/链SASA、骨架/侧链拆分 |
 | ✅ | Bio.SeqIO.NibIO | nib 2-bit二进制序列格式: DNA 2-bit编码(T=0/C=1/A=2/G=3)、4碱基/字节打包、hex I/O、子序列提取、反向互补、GC含量、压缩比 |
 | ✅ | ChIPseeker | ChIP-seq峰注释: 峰-TSS距离计算、基因组特征分配(Promoter/5'UTR/3'UTR/Exon/Intron/Downstream/Distal Intergenic)、最近基因查找、注释摘要 |
@@ -308,6 +309,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **scran** | Bioconductor scran | 单细胞归一化(sum_factors)、SNN图构建、Leiden聚类、差异标志物分析 | ✅ |
 | **scrapper** | Bioconductor scrapper | 批次感知RNA QC、大小因子清洗与居中、log-normalization、LOWESS方差趋势、HVG选择、多因子pseudo-bulk、不可变SCE集成 | ✅ |
 | **decontX** | Bioconductor decontX | cluster-aware ambient RNA混合模型、每细胞污染率、Beta/Dirichlet先验EM、empty-droplet profile、自动k-means、native/contaminant计数分解与SCE集成 | ✅ |
+| **celda** | Bioconductor celda | `celda_CG`细胞群/基因模块联合聚类、collapsed likelihood、EM/Gibbs、多链、K/L网格选择、新细胞预测与SCE集成 | ✅ |
 | **miloR** | Bioconductor miloR | 精确KNN图、精炼重叠邻域、邻域×样本计数、NB-GLM/Wald检验、BH与四种graph spatial FDR、SingleCellExperiment接入 | ✅ |
 | **monocle3** | Bioconductor monocle3 | 单细胞轨迹分析、PCA/UMAP降维、主图学习、拟时间排序、差异表达分析、分支点检测、分支特异性差异表达 | ✅ |
 | **ShortRead** | Bioconductor ShortRead | 短读序列质量控制、QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告生成 | ✅ |
@@ -582,6 +584,7 @@ IvanAXu/BioSeqs/
 │   ├── scran.mbt               # scran 单细胞归一化与聚类 (sum_factors、SNN图、Leiden聚类、标志物分析)
 │   ├── scrapper.mbt            # scrapper 单细胞预处理 (批次感知RNA QC、大小因子、LOWESS/HVG、pseudo-bulk、SCE集成)
 │   ├── decontx.mbt             # decontX ambient RNA去污染 (Bayesian EM、background、自动聚类、计数分解、SCE集成)
+│   ├── celda.mbt               # celda_CG 细胞群与基因模块联合聚类 (collapsed likelihood、EM/Gibbs、多链、模型选择、SCE集成)
 │   ├── milo.mbt                # miloR KNN邻域差异丰度 (精炼采样、NB-GLM、graph spatial FDR、SCE接入)
 │   ├── zinbwave.mbt            # zinbwave 零膨胀NB低维模型 (EM/IRLS、latent factors、observational weights、SCE接入)
 │   ├── variance_partition.mbt  # variancePartition 混合模型方差分解、BLUP与dream重复测量检验
@@ -933,6 +936,7 @@ IvanAXu/BioSeqs/
 │   ├── scran_demo/             # scran 单细胞归一化与聚类示例 (sum_factors、SNN图、Leiden聚类、标志物分析)
 │   ├── scrapper_demo/          # scrapper 批次感知RNA QC、归一化、LOWESS/HVG、pseudo-bulk与SCE集成示例
 │   ├── decontx_demo/           # decontX cluster/background去污染、marker校正、诊断与SCE输出示例
+│   ├── celda_demo/             # celda_CG联合聚类、module marker、细胞预测、模型选择与SCE输出示例
 │   ├── milo_demo/              # miloR KNN图、精炼邻域、NB差异丰度、spatial FDR与SCE接入示例
 │   ├── zinbwave_demo/          # zinbwave latent factors、dropout权重、残差/插补与SCE集成示例
 │   ├── apeglm_demo/            # apeglm MLE/MAP、重尾收缩、FSR/FSOS、TSV与SE接入示例
@@ -1349,6 +1353,7 @@ IvanAXu/BioSeqs/
 │   │   ├── scran_test.mbt
 │   │   ├── scrapper_test.mbt
 │   │   ├── decontx_test.mbt
+│   │   ├── celda_test.mbt
 │   │   ├── milo_test.mbt
 │   │   ├── zinbwave_test.mbt
 │   │   ├── apeglm_test.mbt
@@ -1543,7 +1548,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 9733 个测试全部通过
+moon test                                               # ✅ 9808 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1658,6 +1663,7 @@ moon test                                               # ✅ 9733 个测试全�
 | `nnsvg.mbt` | Bioconductor nnSVG | 坐标缩放与前驱kNN、指数协方差NNGP、协变量GLS、profile ML、空间/非空间LR检验、gene-specific length scale、BH-FDR及SpatialExperiment接入 |
 | `banksy.mbt` | Bioconductor Banksy | H0邻域均值、H1+方位Fourier/Gabor harmonic、六类空间核、lambda联合矩阵、分组标准化、PCA、多起点k-means、平滑、ARI与SpatialExperiment接入 |
 | `decontx.mbt` | Bioconductor decontX | cluster-native/contaminant多项式混合、Beta/Dirichlet先验EM、background、自动聚类、计数分解与SCE输出 |
+| `celda.mbt` | Bioconductor celda | `celda_CG`分层Dirichlet-multinomial、细胞群/基因模块联合推断、collapsed likelihood、EM/Gibbs、多链、K/L选择、预测与SCE输出 |
 | `summarized_experiment.mbt` | Bioconductor SummarizedExperiment | 多维数据容器 |
 | `ranged_summarized_experiment.mbt` | Bioconductor RangedSummarizedExperiment | GRanges/GRangesList行范围、链特异重叠/最近邻、覆盖度、区间变换与协调子集 |
 | `tree_summarized_experiment.mbt` | Bioconductor TreeSummarizedExperiment | 行/列树与数据链接、按节点子集、层级聚合 |
@@ -1862,6 +1868,7 @@ moon test                                               # ✅ 9733 个测试全�
 | `muscat.mbt` | `muscat` | 单细胞差异状态分析（伪批量聚合、DS 检验、QC） |
 | `scrapper.mbt` | `scrapper` | 批次感知RNA QC、大小因子清洗/居中、count与log归一化、LOWESS方差趋势、HVG选择、多因子pseudo-bulk、SingleCellExperiment不可变包装 |
 | `decontx.mbt` | `decontX` | 每细胞native/contaminant Bayesian mixture、确定性EM、empty-droplet ambient profile、自动k-means、诊断与SingleCellExperiment不可变包装 |
+| `celda.mbt` | `celda` | `celda_CG`细胞群/基因模块联合聚类、四层Dirichlet-multinomial、collapsed EM/Gibbs、多链诊断、K/L网格选择、预测与SingleCellExperiment不可变包装 |
 | `milo.mbt` | `miloR` | 精确KNN图、median精炼重叠邻域、邻域计数/表达、固定效应NB-GLM/Wald检验、graph spatial FDR与SCE接入 |
 | `zinbwave.mbt` | `zinbwave` | ZINB交替EM/IRLS、cell/gene design与offset、确定性低维因子、gene dispersion shrinkage、observational weights、deviance residual及SingleCellExperiment包装 |
 | `apeglm.mbt` | `apeglm` | 负二项GLM MLE、自适应Cauchy/Student-t先验、阻尼Newton多起点MAP、Laplace后验SD/区间、FSR/FSOS/s-value、DESeq2与SummarizedExperiment包装 |
@@ -3086,6 +3093,14 @@ optional tags 保留 `A/i/f/Z/H/B:c/C/s/S/i/I/f` 的类型和数组 subtype，�
 
 解析器严格诊断 header 顺序与重复 reference、字段数和整数边界、mapped/unmapped 一致性、reference 越界、CIGAR clipping/P 操作、SEQ/QUAL/CIGAR 长度、PHRED 范围、重复或非法 tag、B-array subtype/range，以及 MD token 与 CIGAR `=/X/D` 的逐碱基结构冲突。当前范围聚焦 SAM 文本和 alignment coordinate semantics，不解码 BAM/CRAM；二进制格式继续由现有 `bam.mbt`、`cram_wbtest.mbt` 负责。
 
+### 266. 细胞群与基因模块联合聚类 (Bioconductor celda)
+
+实现 Bioconductor `celda` 的 `celda_CG` 可移植核心，输入统一为 feature × cell 非负整数计数矩阵。模型联合推断 cell population 标签与 feature module 标签，并以 `Theta`（sample 内 population）、`Phi`（population 内 module）、`Psi`（module 内 feature）和 `Eta`（全局 module abundance）构成四层 Dirichlet-multinomial；collapsed log-likelihood 使用 `alpha/beta/delta/gamma` 超参数，并保留上游每个 module 一个 pseudogene 的平滑语义。
+
+推断支持确定性 hard-EM 与 seeded Gibbs、多链 farthest-first/balanced 初始化、最佳状态保存、提前停止、非空 population/module 约束及稳定标签重排。结果提供 posterior 参数、fitted counts、population/module 成员与 top features、perplexity、AIC/BIC、独立 likelihood 计算和新细胞 posterior prediction；`celda_cg_grid_search` 可按 BIC、perplexity 或 likelihood 比较 K/L 候选。
+
+`celda_cg_sce` 从指定 assay 和可选 sample `colData` 读取输入，在不可变 `SingleCellExperiment` 副本中写入 fitted assay、1-based population/module 标签及模型诊断 metadata。所有入口校验矩阵方向、矩形性、有限非负整数、名称唯一性、sample/初始标签完整性和超参数边界。当前实现采用 dense MoonBit arrays 和单线程完整 collapsed likelihood 重算，面向中小型矩阵及可验证工作流，不等同于上游 C++/OpenMP 大规模性能后端。
+
 ## 性能优化
 
 ### 优化策略
@@ -3187,8 +3202,8 @@ optional tags 保留 `A/i/f/Z/H/B:c/C/s/S/i/I/f` 的类型和数组 subtype，�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 9733 |
-| 通过数 | 9733 |
+| 总测试数 | 9808 |
+| 通过数 | 9808 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3319,6 +3334,7 @@ moon test --update
 | scran | `scran_test.mbt` | 8 |
 | scrapper | `scrapper_test.mbt` | 35 |
 | decontX | `decontx_test.mbt` | 43 |
+| celda_CG | `celda_test.mbt` | 75 |
 | miloR | `milo_test.mbt` | 37 |
 | zinbwave | `zinbwave_test.mbt` | 54 |
 | apeglm | `apeglm_test.mbt` | 66 |
@@ -3601,7 +3617,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 373 个示例程序，展示各模块的典型用法：
+项目提供 374 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3693,6 +3709,7 @@ moon run cmd/bench/main.mbt
 | scater_demo | scater 单细胞质量控制（QC指标计算、细胞/基因过滤、CPM/log-CPM标准化、HVG检测、PCA降维） | `moon run examples/scater_demo/main.mbt` |
 | scrapper_demo | 批次感知RNA QC、大小因子归一化、LOWESS/HVG、多因子pseudo-bulk和不可变SCE集成 | `moon run examples/scrapper_demo` |
 | decontx_demo | cluster/background ambient RNA去污染、每细胞污染率、marker校正、cluster诊断和不可变SCE输出 | `moon run examples/decontx_demo` |
+| celda_demo | `celda_CG`细胞群/基因模块联合聚类、top markers、新细胞预测、BIC模型选择和不可变SCE输出 | `moon run examples/celda_demo` |
 | milo_demo | 精确KNN图、精炼重叠邻域、样本计数、NB-GLM差异丰度、graph spatial FDR和SCE接入 | `moon run examples/milo_demo` |
 | zinbwave_demo | ZINB latent-factor拟合、dropout后验权重、归一化/插补/deviance residual和不可变SCE输出 | `moon run examples/zinbwave_demo` |
 | apeglm_demo | NB-GLM MLE与自适应重尾MAP、FSR/s-value/FSOS、log2 TSV及不可变SummarizedExperiment输出 | `moon run examples/apeglm_demo` |
@@ -3919,6 +3936,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bio.Align.bigmaf BigMaf多物种比对索引（标准bedMaf、MAF a/s/i/e/q、正负链坐标映射、压缩BigBed查询与MAF导出）
 - ✅ 实现 Bio.Align.bigpsl BigPsl成对比对索引（标准bed12+13、核酸/translated protein坐标、match recount、压缩BigBed查询与PSL导出）
 - ✅ 实现 Bioconductor decontX ambient RNA去污染（cluster-native/contaminant混合、Beta/Dirichlet先验EM、empty-droplet background、自动聚类、计数分解与SCE集成）
+- ✅ 实现 Bioconductor celda `celda_CG`细胞群与基因模块联合聚类（分层Dirichlet-multinomial、collapsed EM/Gibbs、多链、K/L选择、预测与SCE集成）
 - ✅ 实现 Bioconductor zinbwave 零膨胀负二项低维模型（cell/gene协变量、offset、latent factors、dispersion shrinkage、observational weights、残差/插补与SCE集成）
 - ✅ 实现 Bioconductor apeglm 自适应重尾效应量收缩（NB-GLM MLE、经验贝叶斯Cauchy/Student-t先验、多起点MAP、Laplace后验、FSR/FSOS/s-value与容器接入）
 - ✅ 实现 Bioconductor ALDEx2 组成型差异丰度（Dirichlet Monte Carlo、六类denominator、两组/配对检验、posterior expected BH、effect/overlap、距离与SummarizedExperiment接入）
