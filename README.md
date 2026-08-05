@@ -211,6 +211,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **limma** | Bioconductor limma | 差异表达分析、线性模型拟合、经验贝叶斯、voom变换、RPKM/CPM/quantile归一化、ComBat/removeBatchEffect批次校正、treat严格检验 | ✅ |
 | **variancePartition** | Bioconductor variancePartition | 重复测量线性混合模型、方差分解、BLUP、precision weights、dream contrast与Satterthwaite检验 | ✅ |
 | **dreamlet** | Bioconductor dreamlet | sample×cell-type pseudobulk、TMM、cell/sample/gene过滤、logCPM、Poisson/voom precision weights、分cell-type重复测量模型及study-wide FDR | ✅ |
+| **nnSVG** | Bioconductor nnSVG | nearest-neighbor Gaussian process、空间变异基因检验、gene-specific length scale、协变量设计、空间方差占比、BH-FDR及SpatialExperiment接入 | ✅ |
 | **ALDEx2** | Bioconductor ALDEx2 | Dirichlet Monte Carlo组成型差异丰度、六类denominator、Welch/Wilcoxon与配对检验、effect/overlap、Aitchison距离及SummarizedExperiment接入 | ✅ |
 | **DirichletMultinomial** | Bioconductor DirichletMultinomial | Dirichlet-multinomial概率、有限混合EM/BFGS聚类、Laplace/AIC/BIC选K、生成式分组分类、分层交叉验证、ROC及SummarizedExperiment接入 | ✅ |
 | **SummarizedExperiment** | Bioconductor SummarizedExperiment | 多维基因组数据容器、Assays、行/列操作 | ✅ |
@@ -575,6 +576,7 @@ IvanAXu/BioSeqs/
 │   ├── zinbwave.mbt            # zinbwave 零膨胀NB低维模型 (EM/IRLS、latent factors、observational weights、SCE接入)
 │   ├── variance_partition.mbt  # variancePartition 混合模型方差分解、BLUP与dream重复测量检验
 │   ├── dreamlet.mbt            # dreamlet pseudobulk、TMM/voom权重、分cell-type混合模型与study-wide FDR
+│   ├── nnsvg.mbt               # nnSVG nearest-neighbor GP、空间变异检验、length scale与SpatialExperiment接入
 │   ├── monocle3.mbt            # monocle3 单细胞轨迹分析 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read.mbt          # ShortRead 短读序列质量控制 (QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告)
 │   ├── seq_quality_trim.mbt    # NGS质量修剪与接头去除 (质量修剪、接头去除、poly-A修剪、长度/GC过滤、批量修剪)
@@ -927,6 +929,7 @@ IvanAXu/BioSeqs/
 │   ├── dirichlet_multinomial_demo/ # DMM聚类、选K、分组分类、交叉验证、ROC与SE接入示例
 │   ├── variance_partition_demo/ # variancePartition 方差分解、BLUP、precision weights、dream与SE接入示例
 │   ├── dreamlet_demo/          # dreamlet SCE pseudobulk、TMM/voom、donor随机截距与跨cell-type FDR示例
+│   ├── nnsvg_demo/             # nnSVG空间变异基因、length scale、过滤与SpatialExperiment接入示例
 │   ├── monocle3_demo/          # monocle3 单细胞轨迹分析示例 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read_demo/        # ShortRead 短读序列质量控制示例 (QA统计、adapter修剪、质量修剪、FastQC报告)
 │   ├── scater_demo/            # scater 单细胞质量控制示例 (QC指标计算、细胞/基因过滤、标准化、HVG检测、PCA)
@@ -1339,6 +1342,7 @@ IvanAXu/BioSeqs/
 │   │   ├── dirichlet_multinomial_test.mbt
 │   │   ├── variance_partition_test.mbt
 │   │   ├── dreamlet_test.mbt
+│   │   ├── nnsvg_test.mbt
 │   │   ├── shared_reference_alignment_test.mbt
 │   │   ├── alignment_map_test.mbt
 │   │   ├── alignment_counts_test.mbt
@@ -1522,7 +1526,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 9401 个测试全部通过
+moon test                                               # ✅ 9468 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1631,6 +1635,7 @@ moon test                                               # ✅ 9401 个测试全�
 | `limma.mbt` | Bioconductor limma | 线性模型与 voom 变换 |
 | `variance_partition.mbt` | Bioconductor variancePartition | 多随机截距LMM、ML/REML方差分量、固定/随机/残差占比、BLUP、precision weights、dream contrast、数值Satterthwaite与BH-FDR |
 | `dreamlet.mbt` | Bioconductor dreamlet | sample×cell-type pseudobulk、完整TMM、CPM/logCPM、Poisson/voom权重、typed fixed/random design、分cell-type dream拟合及两级BH-FDR |
+| `nnsvg.mbt` | Bioconductor nnSVG | 坐标缩放与前驱kNN、指数协方差NNGP、协变量GLS、profile ML、空间/非空间LR检验、gene-specific length scale、BH-FDR及SpatialExperiment接入 |
 | `decontx.mbt` | Bioconductor decontX | cluster-native/contaminant多项式混合、Beta/Dirichlet先验EM、background、自动聚类、计数分解与SCE输出 |
 | `summarized_experiment.mbt` | Bioconductor SummarizedExperiment | 多维数据容器 |
 | `ranged_summarized_experiment.mbt` | Bioconductor RangedSummarizedExperiment | GRanges/GRangesList行范围、链特异重叠/最近邻、覆盖度、区间变换与协调子集 |
@@ -1843,6 +1848,7 @@ moon test                                               # ✅ 9401 个测试全�
 | `dirichlet_multinomial.mbt` | `DirichletMultinomial` | sample×taxon DMM概率、soft k-means初始化、log-alpha BFGS/EM、Gamma prior、Hessian区间、Laplace/AIC/BIC、dmngroup分类、分层CV、ROC与SummarizedExperiment入口 |
 | `variance_partition.mbt` | `variancePartition` | typed fixed/random design、多随机截距LMM、ML/REML方差分解、BLUP、weighted dream contrast、Satterthwaite自由度与SummarizedExperiment入口 |
 | `dreamlet.mbt` | `dreamlet` | SCE到sample×cluster pseudobulk、TMM/logCPM、两阶段voom precision weights、固定/随机效应筛选、逐cell-type dream和study-wide FDR |
+| `nnsvg.mbt` | `nnSVG` | AMMD/坐标和排序前驱kNN、指数协方差NNGP、covariate GLS、空间方差比例与length scale优化、LR/p-value/BH-FDR、过滤和SpatialExperiment rowData输出 |
 | `shared_reference_alignment.mbt` | `Bio.Align.Alignment` | 同参考PWA/MSA的reference-boundary insertion同步、原query投影、局部坐标、metadata、统计与格式转换 |
 | `alignment_map.mbt` | `Bio.Align.Alignment.map/mapall` | 两层alignment坐标组合、正反链与gap传播、PSL、批量映射及protein/nucleotide MSA投影 |
 | `alignment_counts.mbt` | `Bio.Align.Alignment.counts` | pairwise/MSA gap事件和composition汇总、正反链、wildcard、替换矩阵及完整affine评分 |
@@ -3024,6 +3030,14 @@ BTOP 和 FASTA CIGAR 会合并连续 operation 并重建显式 target/query coor
 
 解析器严格诊断 header/字段重复或缺失、未知字段、列数、整数溢出、非法或非有限浮点、百分比和 E-value 范围、ID/长度冲突、坐标边界、traceback 截断与 operation、BTOP/CIGAR 同时出现、traceback span/序列消耗/alignment length 不一致，以及声明命中数和 processed query 数不匹配。当前范围聚焦文本解析和坐标重建，不执行 BLAST/FASTA 搜索，也不解析 XML、ASN.1 或普通无注释 outfmt 6 文档。
 
+### 262. 最近邻高斯过程空间变异基因检测 (Bioconductor nnSVG)
+
+实现 Bioconductor `nnSVG` 的可移植 spatially variable gene 检测核心，输入统一为 gene × spot 表达矩阵与 spot × dimension 空间坐标。坐标按各维最大 range 统一缩放，支持确定性的 approximate maximum-minimum-distance (AMMD) 和坐标和排序；每个 spot 只连接处理顺序中的前驱近邻。指数协方差 `R(i,j)=exp(-distance/length_scale)` 通过 NNGP 条件分解生成局部回归系数和条件方差，避免构造完整高斯过程精度矩阵。
+
+每个基因拟合 `y=X beta+w+epsilon`，以 NNGP generalized least squares profile maximum likelihood 联合搜索 gene-specific spatial length scale 和 spatial variance proportion，并通过确定性局部细化优化。结果报告 `sigma_sq`、`tau_sq`、`phi=1/length_scale`、空间方差占比、回归系数及收敛状态；空间模型与非空间线性模型使用 likelihood-ratio statistic 比较，以 chi-square df=2 tail 计算 p-value，再执行 Benjamini-Hochberg FDR 和稳定排名。满秩协变量设计受到严格校验，常量或达到方差下限的基因显式回退到非空间模型。
+
+`nnsvg_filter_genes` 实现按最小计数、表达 spot 百分比和 `MT-`/`mt-` 前缀过滤；`nnsvg_spatial_experiment` 从指定 assay 与空间坐标运行模型，在不可变 `SpatialExperiment` 副本的 rowData 中写入 13 项 nnSVG 统计和 metadata。API 另提供基因查询、top/significant 结果、摘要与示例数据。当前实现使用 dense 小型前驱协方差矩阵和确定性单线程网格优化，不依赖 BRISC、R、BiocParallel 或稀疏矩阵后端。
+
 ## 性能优化
 
 ### 优化策略
@@ -3125,8 +3139,8 @@ BTOP 和 FASTA CIGAR 会合并连续 operation 并重建显式 target/query coor
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 9401 |
-| 通过数 | 9401 |
+| 总测试数 | 9468 |
+| 通过数 | 9468 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3440,6 +3454,7 @@ moon test --update
 | Bio.SearchIO.InfernalIO | `infernal_io_test.mbt` | 37 |
 | Bioconductor variancePartition | `variance_partition_test.mbt` | 38 |
 | Bioconductor dreamlet | `dreamlet_test.mbt` | 58 |
+| Bioconductor nnSVG | `nnsvg_test.mbt` | 67 |
 | Bio.PopGen.GenePop | `gene_pop_test.mbt` | 34 |
 | Bioconductor stageR | `stage_r_test.mbt` | 25 |
 | Bioconductor EnrichedHeatmap | `enriched_heatmap_test.mbt` | 20 |
@@ -3535,7 +3550,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 369 个示例程序，展示各模块的典型用法：
+项目提供 370 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3727,6 +3742,7 @@ moon run cmd/bench/main.mbt
 | infernal_io_demo | Infernal cmscan/cmsearch解析（tabular 3、non-verbose文本、local-end片段、过滤与SearchIO转换） | `moon run examples/infernal_io_demo` |
 | variance_partition_demo | typed固定/随机设计、ML方差分解、BLUP、precision weights、dream contrast与SummarizedExperiment接入 | `moon run examples/variance_partition_demo` |
 | dreamlet_demo | SingleCellExperiment pseudobulk、TMM/logCPM、Poisson/voom权重、donor随机截距和跨cell-type FDR | `moon run examples/dreamlet_demo` |
+| nnsvg_demo | nearest-neighbor GP空间变异基因检验、length scale、空间方差占比、基因过滤与SpatialExperiment接入 | `moon run examples/nnsvg_demo` |
 | shared_reference_alignment_demo | 共享参考PWA/MSA合并、reference insertion同步、坐标映射、统计、MSA与aligned FASTA转换 | `moon run examples/shared_reference_alignment_demo` |
 | alignment_map_demo | chromosome→transcript→read坐标组合、intron gap、反链、坐标查询、PSL与protein-to-codon MSA投影 | `moon run examples/alignment_map_demo` |
 | alignment_counts_demo | left/internal/right gap与open/extend、affine/BLOSUM45评分、反向链和MSA逐对汇总 | `moon run examples/alignment_counts_demo` |
@@ -3851,6 +3867,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bioconductor apeglm 自适应重尾效应量收缩（NB-GLM MLE、经验贝叶斯Cauchy/Student-t先验、多起点MAP、Laplace后验、FSR/FSOS/s-value与容器接入）
 - ✅ 实现 Bioconductor ALDEx2 组成型差异丰度（Dirichlet Monte Carlo、六类denominator、两组/配对检验、posterior expected BH、effect/overlap、距离与SummarizedExperiment接入）
 - ✅ 实现 Bioconductor DirichletMultinomial 混合聚类与分类（DMM概率、soft k-means、log-alpha BFGS/EM、Gamma prior、Laplace/AIC/BIC、dmngroup分类、分层CV、ROC与SummarizedExperiment接入）
+- ✅ 实现 Bioconductor nnSVG 空间变异基因检测（坐标缩放与前驱kNN、指数协方差NNGP、covariate GLS、gene-specific length scale、空间/非空间LR检验、BH-FDR与SpatialExperiment接入）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）
