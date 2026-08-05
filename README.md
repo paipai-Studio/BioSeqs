@@ -222,6 +222,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Alignment坐标组合** | Biopython `Bio.Align.Alignment.map/mapall` | alignment path组合、局部overhang clipping、exon/intron与indel gap、正反链组合、坐标双向查询、PSL及1:1/1:3 MSA投影 | ✅ |
 | **BigBed二进制区间索引** | Biopython `Bio.Align.bigbed` | BigBed v4读写、BED3-BED12与AutoSQL、多级B+ tree/R-tree、stored/fixed/dynamic DEFLATE、区间/名称查询、链感知exon坐标及BED导出 | ✅ |
 | **BigMaf多物种比对索引** | Biopython `Bio.Align.bigmaf` | 标准bedMaf AutoSQL、MAF a/s/i/e/q块、score/pass/comment、正负链坐标映射、压缩BigBed索引查询及普通MAF导出 | ✅ |
+| **BigPsl成对比对索引** | Biopython `Bio.Align.bigpsl` | 标准bed12+13 AutoSQL、核酸与translated protein坐标路径、正反链、match/repeat/N recount、压缩索引查询及PSL导出 | ✅ |
 | **zinbwave** | Bioconductor zinbwave | 零膨胀负二项低维模型、cell/gene协变量与offset、确定性latent factors、dispersion shrinkage、observational weights、残差/归一化/插补及SCE集成 | ✅ |
 | **apeglm** | Bioconductor apeglm | 负二项GLM、自适应经验贝叶斯Cauchy/Student-t先验、确定性多起点MAP、Laplace后验SD/区间、FSR/FSOS/s-value、DESeq2与SummarizedExperiment接入 | ✅ |
 | **Prosite** | Biopython `Bio.Prosite` | 蛋白质模体数据库搜索、Prosite模式解析、模体匹配算法、模体得分计算 | ✅ |
@@ -425,6 +426,7 @@ IvanAXu/BioSeqs/
 │   ├── alignment_map.mbt       # Bio.Align.Alignment map/mapall坐标路径组合与MSA投影
 │   ├── bigbed.mbt              # Bio.Align.bigbed v4、BED/AutoSQL、多级B+ tree/R-tree与DEFLATE
 │   ├── bigmaf.mbt              # Bio.Align.bigmaf bedMaf、MAF注释、链向坐标映射与索引查询
+│   ├── bigpsl.mbt              # Bio.Align.bigpsl bed12+13、核酸/translated protein路径与PSL
 │   ├── alignio.mbt             # 比对文件 I/O
 │   ├── clustal_io.mbt          # Clustal 格式
 │   ├── phylip_io.mbt           # PHYLIP 格式
@@ -1117,6 +1119,7 @@ IvanAXu/BioSeqs/
 │   ├── alignment_map_demo/      # Alignment.map/mapall、反链、PSL与protein-to-codon MSA投影示例
 │   ├── bigbed_demo/             # BigBed写入/解析、索引查询、负链exon坐标、BED导出与损坏诊断
 │   ├── bigmaf_demo/             # BigMaf压缩写入、bedMaf schema、区间查询、负链映射与MAF导出
+│   ├── bigpsl_demo/             # BigPsl压缩写入、R-tree查询、反链/translated坐标与PSL导出
 │   ├── gene_pop_demo/           # GenePop群体遗传学示例 (基因型解析、等位基因频率、杂合度统计、序列化往返)
 │   ├── stage_r_demo/            # stageR两阶段检验示例 (筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制)
 │   ├── enriched_heatmap_demo/   # EnrichedHeatmap富集热图示例 (信号归一化、四种均值模式、行平滑、链方向处理)
@@ -1323,6 +1326,7 @@ IvanAXu/BioSeqs/
 │   │   ├── alignment_map_test.mbt
 │   │   ├── bigbed_test.mbt
 │   │   ├── bigmaf_test.mbt
+│   │   ├── bigpsl_test.mbt
 │   │   ├── search_io_test.mbt
 │   │   ├── searchio_new_test.mbt
 │   │   ├── seq_complexity_test.mbt
@@ -1499,7 +1503,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 9042 个测试全部通过
+moon test                                               # ✅ 9116 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1548,6 +1552,7 @@ moon test                                               # ✅ 9042 个测试全�
 | `alignment_map.mbt` | BioPython `Bio.Align.Alignment.map/mapall` | alignment path组合、local clipping、gap与链向传播、双向坐标查询、PSL、map_many及codon-aware MSA投影 |
 | `bigbed.mbt` | BioPython `Bio.Align.bigbed` | BigBed v4读写、BED3-BED12、AutoSQL、多级chromosome B+ tree/R-tree、zlib/DEFLATE及索引查询 |
 | `bigmaf.mbt` | BioPython `Bio.Align.bigmaf` | bedMaf bed3+1读写、MAF a/s/i/e/q、正负链坐标映射、压缩索引查询、摘要和MAF导出 |
+| `bigpsl.mbt` | BioPython `Bio.Align.bigpsl` | bed12+13读写、核酸/translated protein路径、双向坐标映射、recount、压缩查询、摘要和PSL导出 |
 
 #### 系统发育树
 
@@ -1819,6 +1824,7 @@ moon test                                               # ✅ 9042 个测试全�
 | `alignment_map.mbt` | `Bio.Align.Alignment.map/mapall` | 两层alignment坐标组合、正反链与gap传播、PSL、批量映射及protein/nucleotide MSA投影 |
 | `bigbed.mbt` | `Bio.Align.bigbed` | BigBed v4二进制读写、BED/AutoSQL、平衡B+ tree/R-tree、完整DEFLATE块解码、区间/名称查询与BED导出 |
 | `bigmaf.mbt` | `Bio.Align.bigmaf` | bedMaf AutoSQL与MAF块往返、a/s/i/e/q注释、链感知坐标映射、BigBed索引查询和普通MAF导出 |
+| `bigpsl.mbt` | `Bio.Align.bigpsl` | 标准bigPsl AutoSQL、核酸与translated DNA-protein坐标、链感知映射、match分类、BigBed索引和PSL导出 |
 | `infercnv.mbt` | `infercnv` | 单细胞拷贝数变异推断（基因组位置排序、参考细胞有界 LFC 计算、金字塔权重平滑、CNV 分数与恶性细胞预测） |
 | `scenic.mbt` | `SCENIC` | 单细胞调控网络推断与聚类（TF-target 共表达模块、Regulon 构建、AUCell 活性评分、二值化阈值、细胞状态与主控调控因子） |
 | `cibersort.mbt` | `CIBERSORT` | 免疫细胞去卷积（NNLS 求解、LM22 风格特征矩阵、Pearson 拟合优度、分数归一化） |
@@ -2953,6 +2959,14 @@ MAP 求解器实现阻尼 Newton、Cholesky 信息矩阵求解、逐级 ridge �
 
 `DreamletEffectSpec` 和 `DreamletModelSpec` 以 typed numeric、categorical、random effects 代替 R formula 解析，并转换到现有 `variancePartition` 设计与求解器；常量固定效应和无重复 level 的随机效应会按 cell type 删除并记录。`dreamlet_process_assays` 输出每个 cell type 的过滤、TMM、表达、权重、design 和趋势诊断，`dreamlet` 对指定 coefficient 运行 weighted fixed/random mixed model，报告数值 Satterthwaite 检验、cluster 内 BH-FDR 和跨全部 gene×cell-type hypotheses 的 study-wide BH-FDR。查询 API 提供 assay lookup、top table 和分阶段摘要。当前范围支持 dense arrays 和随机截距，不解析 R formula，不包含随机斜率、Kenward-Roger、limma empirical Bayes、稀疏/并行后端、绘图或上游 `aggr_means` 的变化 numeric cell metadata 聚合。
 
+### 257. BigPsl 成对比对索引 (Biopython Bio.Align.bigpsl)
+
+实现 Biopython 1.86 `Bio.Align.bigpsl` 对应的 UCSC BigPsl 格式。`bigpsl_write` 将 `BigPslAlignment` 编码为标准 BigBed v4 `bed12+13` 文件，完整写入 25 字段 `bigPsl` AutoSQL、chromosome B+ tree、R-tree 和可选 DEFLATE 数据块；`bigpsl_parse` 复用 BigBed 二进制校验并额外交叉验证 target/query 区间、block count、`oChromStarts`、`chromSize`、match 分类和 `seqType`。writer 支持选择性保存 query sequence 与 NCBI CDS 字段，默认保持文件紧凑。
+
+坐标模型使用 0-based half-open path。核酸 block 要求 target 递增且 target/query 长度 1:1，支持 query 正反链；translated DNA-to-protein block 要求 query 递增且 target/query 长度 3:1，支持 target 正反链。API 提供 block/gap 统计、target/query 双向映射、amino acid 到 codon interval 映射、区间和 query-name 查询、摘要及标准 PSL 导出，其中反向 translated alignment 使用 PSL `+-` strand。`recount` 可按实际序列重新计算 match、mismatch、repeat-match 和 wildcard/N，核酸支持 lower/upper repeat mask，translated alignment 使用标准遗传密码并在反向 target 上先做 reverse complement。
+
+构造器和解析器诊断名称、坐标边界/方向、非 1:1 或 3:1 block、无 aligned block、非法 score/thick interval、序列长度、match 总数、schema 及 strand 组合。当前范围不生成 zoom levels 或额外 string index，不实现远程 HTTP range reader；二进制容器能力与 BigBed 保持一致。
+
 ## 性能优化
 
 ### 优化策略
@@ -3054,8 +3068,8 @@ MAP 求解器实现阻尼 Newton、Cholesky 信息矩阵求解、逐级 ridge �
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 9042 |
-| 通过数 | 9042 |
+| 总测试数 | 9116 |
+| 通过数 | 9116 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3460,7 +3474,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 364 个示例程序，展示各模块的典型用法：
+项目提供 365 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3654,6 +3668,7 @@ moon run cmd/bench/main.mbt
 | alignment_map_demo | chromosome→transcript→read坐标组合、intron gap、反链、坐标查询、PSL与protein-to-codon MSA投影 | `moon run examples/alignment_map_demo` |
 | bigbed_demo | BigBed v4压缩写入/解析、AutoSQL、多级索引查询、负链exon坐标、BED导出及损坏文件诊断 | `moon run examples/bigbed_demo` |
 | bigmaf_demo | BigMaf压缩bed3+1写入、bedMaf schema、R-tree区间查询、负链物种坐标映射和MAF a/s/i/e/q导出 | `moon run examples/bigmaf_demo` |
+| bigpsl_demo | BigPsl bed12+13压缩写入、AutoSQL、R-tree查询、反向核酸/translated protein坐标和PSL导出 | `moon run examples/bigpsl_demo` |
 | gene_pop_demo | GenePop群体遗传学（基因型解析、等位基因频率、杂合度统计、序列化往返） | `moon run examples/gene_pop_demo/main.mbt` |
 | stage_r_demo | stageR两阶段假设检验（筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制） | `moon run examples/stage_r_demo/main.mbt` |
 | enriched_heatmap_demo | EnrichedHeatmap富集热图（信号归一化、四种均值模式、行平滑、链方向处理） | `moon run examples/enriched_heatmap_demo/main.mbt` |
@@ -3763,6 +3778,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bio.Align.Alignment map/mapall（alignment path组合、local clipping、gap与正反链传播、坐标查询、PSL及protein-to-codon MSA投影）
 - ✅ 实现 Bio.Align.bigbed BigBed v4二进制区间格式（BED3-BED12、AutoSQL、多级B+ tree/R-tree、DEFLATE、区间/名称查询与BED导出）
 - ✅ 实现 Bio.Align.bigmaf BigMaf多物种比对索引（标准bedMaf、MAF a/s/i/e/q、正负链坐标映射、压缩BigBed查询与MAF导出）
+- ✅ 实现 Bio.Align.bigpsl BigPsl成对比对索引（标准bed12+13、核酸/translated protein坐标、match recount、压缩BigBed查询与PSL导出）
 - ✅ 实现 Bioconductor decontX ambient RNA去污染（cluster-native/contaminant混合、Beta/Dirichlet先验EM、empty-droplet background、自动聚类、计数分解与SCE集成）
 - ✅ 实现 Bioconductor zinbwave 零膨胀负二项低维模型（cell/gene协变量、offset、latent factors、dispersion shrinkage、observational weights、残差/插补与SCE集成）
 - ✅ 实现 Bioconductor apeglm 自适应重尾效应量收缩（NB-GLM MLE、经验贝叶斯Cauchy/Student-t先验、多起点MAP、Laplace后验、FSR/FSOS/s-value与容器接入）
