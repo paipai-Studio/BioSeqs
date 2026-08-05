@@ -39,6 +39,12 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **A2M状态感知多序列比对** | Biopython `Bio.Align.a2m` | match/insertion列状态、大小写与点语义、严格读写、坐标映射、插入槽、统计、共识及match-only投影 | ✅ |
 | **EMBOSS alignment输出** | Biopython `Bio.Align.emboss` | srspair/pair/simple报告、多alignment与多序列、局部/反向坐标、consensus统计、坐标路径及规范往返 | ✅ |
 | **Exonerate alignment输出** | Biopython `Bio.Align.exonerate` | cigar/vulgar严格读写、完整operation path、正反链与protein strand、3:1 translated坐标、双向映射及规范往返 | ✅ |
+| **GCG MSF多序列比对** | Biopython `Bio.Align.msf` | AA/NA/PileUp严格解析、interleaved rows、标准GCG checksum、gap规范化、坐标路径、统计及canonical writer | ✅ |
+| **NEXUS多序列比对** | Biopython `Bio.Align.nexus` | DATA/CHARACTERS/TAXA、nested comments、quoted taxa、sequential/interleaved MATRIX、MATCHCHAR、坐标统计及canonical writer | ✅ |
+| **Stockholm注释型多序列比对** | Biopython `Bio.Align.stockholm` | 多记录严格读写、GF/GS/GR/GC、reference与database reference、insertion/deletion列、all-gap压缩、坐标统计及canonical writer | ✅ |
+| **UCSC Chain成对比对** | Biopython `Bio.Align.chain` | 12/13字段严格读写、连续多记录、正反双轴绝对坐标路径、size/dt/dq块、双向位置/区间映射、反转及canonical writer | ✅ |
+| **现代MAF多基因组比对** | Biopython `Bio.Align.maf` | track/header与a/s/i/e/q严格读写、正负链绝对坐标路径、任意component映射、MafIndex半开区间查询、多外显子拼接及canonical writer | ✅ |
+| **现代BED成对比对** | Biopython `Bio.Align.bed` | BED3-BED12严格读写、正负链target/query路径、exon block重建、双向residue映射、半开区间查询及分级writer | ✅ |
 | **系统发育树** | Biopython `Bio.Phylo` | 树结构、Newick 解析、距离计算、可视化 | ✅ |
 | **PDB 结构** | Biopython `Bio.PDB` | 原子/残基/链解析、结构操作 | ✅ |
 | **BinaryCIF** | Biopython `Bio.PDB.binary_cif` | MessagePack解析、七类逆编码、三态缺失值、类别查询、PDB Structure转换 | ✅ |
@@ -79,7 +85,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.protein_analysis | 蛋白质序列高级分析: Kyte-Doolittle疏水性滑动窗口、GOR二级结构预测、Hopp-Woods抗原性、跨膜区段预测、氨基酸/二肽/三肽组成、Shannon熵保守性评分 |
 | ✅ | Bio.PCD | 质谱PCD格式解析: 质谱图谱(Scan/RT/PEPMASS)、峰列表提取、总离子流色谱图(TIC)、基峰色谱图(BPC)、m/z范围过滤、前体离子信息、序列化往返 |
 | ✅ | Bio.PDB.Dice + Selection | PDB结构切割（链/残基/原子/模型提取）、B因子过滤、几何选择、结构统计、序列提取 |
-| ✅ | Bio.Align.MAF | MAF (Multiple Alignment Format) 多序列比对格式解析、块处理、百分比一致性计算、统计分析、格式转换 |
+| ✅ | Bio.Align.MAF | 宽松MAF块解析、选择/过滤、百分比一致性、统计分析与格式转换 |
+| ✅ | Bio.Align.maf | 现代MAF document/track、严格a/s/i/e/q、绝对坐标路径、component映射、参考区间索引、多外显子拼接与规范往返 |
+| ✅ | Bio.Align.bed | BED3-BED12 pairwise alignment、双轴链向坐标、block投影、双向residue映射、区间搜索与分级写回 |
 | ✅ | Bio.Align.Mauve | Mauve 基因组比对格式解析、LCB(共线性块)检测、倒位检测、断点检测、基因组覆盖率、BED导出 |
 | ✅ | Bio.Stockholm | Stockholm 格式解析 (Pfam/Rfam比对格式)、二级结构注释、百分比一致性、保守性分析、FASTA转换 |
 | ✅ | Bio.PopGen (advanced) | 高级群体遗传学统计: Tajima's D, Fu & Li's D/F, McDonald-Kreitman检验, 等位基因频率谱, 中性分析 |
@@ -172,6 +180,12 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.Align.a2m | A2M match/insertion状态推导、大小写与点gap规范读写、插入槽、逐行坐标映射、pair counts、共识和match projection |
 | ✅ | Bio.Align.emboss | EMBOSS srspair/pair/simple文件元数据与多alignment解析、任意序列数、纯gap block、局部/反向坐标、consensus统计、compact path和规范写回 |
 | ✅ | Bio.Align.exonerate | Exonerate cigar/vulgar文件元数据与严格读写、完整M/5/I/3/C/G/N/S/F操作、正反链/protein strand、3:1 translated path、坐标互映和统计 |
+| ✅ | Bio.Align.msf | GCG/PileUp MSF蛋白质与核酸MSA、Check/CompCheck、interleaved blocks、标准checksum、短行补齐、坐标映射、统计与规范写回 |
+| ✅ | Bio.Align.nexus | NEXUS DATA/CHARACTERS与TAXA block、nested comments、quoted/duplicate taxa、sequential/interleaved MATRIX、datatype校验、MATCHCHAR、坐标映射、统计与规范写回 |
+| ✅ | Bio.Align.stockholm | Stockholm多记录、GF/GS/GR/GC标准与自定义注释、reference/database/nested-domain、M/D/I列操作、all-gap压缩、坐标映射、统计与规范写回 |
+| ✅ | Bio.Align.chain | UCSC Chain严格多记录读写、float score与可选ID、正反target/query绝对坐标路径、size/dt/dq重建、双向位置/区间映射、反转和查询 |
+| ✅ | Bio.Align.maf | MAF track/header与a/s/i/e/q严格读写、plus/minus绝对路径、任意component映射、MafIndex半开查询、多外显子拼接与canonical writer |
+| ✅ | Bio.Align.bed | BED3-BED12严格解析与写出、numeric/text score、正负链query坐标、exon blocks、双向residue mapping、search与summary |
 | ✅ | Bio.Align.bigbed | BigBed v4二进制读写、BED3-BED12、AutoSQL扩展字段、多级chromosome B+ tree与R-tree、zlib/DEFLATE解码、区间/名称查询和BED导出 |
 | ✅ | Bio.Align.bigmaf | 标准bedMaf bed3+1读写、完整MAF a/s/i/e/q语义、正负链坐标映射、BigBed压缩索引查询、MAF导出和严格损坏数据诊断 |
 | ✅ | Bioconductor decontX | 单细胞ambient RNA去污染: cluster-native/contaminant多项式混合、Beta/Dirichlet先验EM、empty-droplet background、自动聚类、计数分解、诊断与SingleCellExperiment接入 |
@@ -242,6 +256,12 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **A2M状态感知比对** | Biopython `Bio.Align.a2m` | D/I列状态、大小写与点gap编码、wrapped/CRLF读写、坐标互映、插入槽、统计、共识与match投影 | ✅ |
 | **EMBOSS alignment报告** | Biopython `Bio.Align.emboss` | srspair/pair/simple元数据、固定列block、多alignment/多序列、正反向绝对坐标、pair counts与canonical writer | ✅ |
 | **Exonerate alignment报告** | Biopython `Bio.Align.exonerate` | header/footer与cigar/vulgar、operation normalization、链感知绝对路径、protein-DNA 3:1映射、统计与canonical writer | ✅ |
+| **GCG MSF alignment** | Biopython `Bio.Align.msf` | AA/NA/PileUp header、Name metadata、interleaved blocks、GCG checksum、三类gap、coordinate path、pair counts与writer | ✅ |
+| **NEXUS alignment** | Biopython `Bio.Align.nexus` | DATA/CHARACTERS/TAXA block、quote/comment词法、sequential/interleaved rows、DNA/RNA/protein/standard校验、MATCHCHAR、坐标与writer | ✅ |
+| **Stockholm alignment** | Biopython `Bio.Align.stockholm` | 严格header/terminator与多记录、GF/GS/GR/GC映射、M/D/I操作、all-gap列压缩、reference、坐标、统计与writer | ✅ |
+| **UCSC Chain alignment** | Biopython `Bio.Align.chain` | 12/13列header、连续记录、float score、双轴链向、绝对half-open路径、size/dt/dq、坐标查询、反转与规范写回 | ✅ |
+| **MAF alignment/index** | Biopython `Bio.Align.maf` | track/header与a/s/i/e/q、正负链绝对坐标、任意component映射、MafIndex半开查询、多外显子拼接与规范写回 | ✅ |
+| **BED pairwise alignment** | Biopython `Bio.Align.bed` | BED3-BED12、target/query双轴路径、反链转录本坐标、block/counts、双向位置映射、区间搜索与分级写回 | ✅ |
 | **BigBed二进制区间索引** | Biopython `Bio.Align.bigbed` | BigBed v4读写、BED3-BED12与AutoSQL、多级B+ tree/R-tree、stored/fixed/dynamic DEFLATE、区间/名称查询、链感知exon坐标及BED导出 | ✅ |
 | **BigMaf多物种比对索引** | Biopython `Bio.Align.bigmaf` | 标准bedMaf AutoSQL、MAF a/s/i/e/q块、score/pass/comment、正负链坐标映射、压缩BigBed索引查询及普通MAF导出 | ✅ |
 | **BigPsl成对比对索引** | Biopython `Bio.Align.bigpsl` | 标准bed12+13 AutoSQL、核酸与translated protein坐标路径、正反链、match/repeat/N recount、压缩索引查询及PSL导出 | ✅ |
@@ -387,7 +407,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | BiocSingular | SVD奇异值分解，支持Exact/IRLBA/Randomized三种算法，用于单细胞降维 |
 | ✅ | BiocNeighbors | KMKNN和Annoy最近邻搜索，支持欧几里得/曼哈顿/余弦距离 |
 | ✅ | mixOmics | 多组学整合方法，包括PLS回归、稀疏PLS (sPLS)、DIABLO多块整合 |
-| **MAF格式解析** | Biopython `Bio.Align` | MAF多序列比对格式解析、块操作、百分比一致性、统计分析、选择/过滤/写回 | ✅ |
+| **MAF宽松块分析** | Biopython `Bio.Align` | MAF块解析、百分比一致性、统计分析、选择/过滤/写回 | ✅ |
+| **现代MAF alignment API** | Biopython `Bio.Align.maf` | track/header、严格a/s/i/e/q、正负链绝对坐标、component映射、MafIndex区间搜索、多外显子拼接及canonical写回 | ✅ |
+| **现代BED alignment API** | Biopython `Bio.Align.bed` | 分级BED3-BED12读写、链感知双轴路径、exon block投影、residue mapping、overlap search与summary | ✅ |
 | **HH-suite HHR格式** | Biopython `Bio.Align.hhr` | HHsearch/HHblits结果严格解析、0-based坐标、query-target映射、规范化写回 | ✅ |
 | **共享参考比对同步** | Biopython `Bio.Align.Alignment` | 相同参考PWA/MSA合并、边界插入宽度归一化、query原始比对结构保留、reference/query/column坐标互映 | ✅ |
 | **Alignment gap/composition统计** | Biopython `Bio.Align.Alignment.counts` | pairwise与MSA逐对统计、端部/内部gap分类、open/extend事件、替换和gap总分 | ✅ |
@@ -397,6 +419,12 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **A2M状态感知MSA** | Biopython `Bio.Align.a2m` | match/deletion与insertion列、canonical大小写/点编码、严格往返、坐标映射、插入槽、统计与共识 | ✅ |
 | **EMBOSS alignment output** | Biopython `Bio.Align.emboss` | water/needle/stretcher/matcher/alignret输出、srspair/pair/simple、metadata、consensus、局部/反向坐标与严格诊断 | ✅ |
 | **Exonerate alignment output** | Biopython `Bio.Align.exonerate` | cigar/vulgar报告、M/5/I/3/C/G/N/S/F路径、正反链与protein strand、translated coordinates、严格诊断与双格式写回 | ✅ |
+| **GCG MSF alignment format** | Biopython `Bio.Align.msf` | protein/nucleotide MSF、PileUp与EMBOSS变体、interleaved MSA、GCG checksum、坐标和统计、严格读写 | ✅ |
+| **NEXUS alignment format** | Biopython `Bio.Align.nexus` | NEXUS header与block、nested comments、quoted taxa、sequential/interleaved MATRIX、MATCHCHAR、all-gap压缩、坐标统计与严格读写 | ✅ |
+| **Stockholm alignment format** | Biopython `Bio.Align.stockholm` | 多记录严格解析、GF/GS/GR/GC与自定义注释、reference与database reference、insertion/deletion列、all-gap压缩、坐标统计与严格写回 | ✅ |
+| **UCSC Chain alignment format** | Biopython `Bio.Align.chain` | 严格header/block/span校验、连续多记录、正反双轴absolute path、canonical block重建、位置/区间映射、反转与ID/overlap查询 | ✅ |
+| **MAF alignment format/index** | Biopython `Bio.Align.maf` | track/##maf metadata、a/s/i/e/q关联校验、链感知absolute path、任意序列坐标映射、reference interval index与spliced alignment | ✅ |
+| **BED alignment format** | Biopython `Bio.Align.bed` | BED3-BED12字段层级、numeric/text score、正负链transcript path、block几何校验、双向mapping及canonical projection | ✅ |
 | **UCSC Chain文件/liftOver** | Bioconductor rtracklayer | Chain格式解析、基因组坐标liftOver转换、链段查找、染色体间坐标映射、位置/区间转换 | ✅ |
 | **Biostrings matchPDict** | Bioconductor Biostrings | 字典模式匹配(matchPDict/vmatchPattern)、多序列模式计数(vcountPattern)、错配容忍、最佳匹配查找 | ✅ |
 | **GenomicRanges gaps/reduce/disjoin** | Bioconductor GenomicRanges | gaps检测、reduce合并、disjoin拆分、setdiff/交集/并集集合运算、coverage计算、promoters提取、trim | ✅ |
@@ -461,6 +489,12 @@ IvanAXu/BioSeqs/
 │   ├── a2m.mbt                 # Bio.Align.a2m状态感知MSA读写、坐标、插入槽、统计与投影
 │   ├── align_emboss.mbt        # Bio.Align.emboss srspair/pair/simple解析、坐标、统计与规范写回
 │   ├── align_exonerate.mbt     # Bio.Align.exonerate cigar/vulgar路径、链向、translated映射与规范写回
+│   ├── msf.mbt                 # Bio.Align.msf GCG/PileUp MSA、checksum、坐标统计与规范写回
+│   ├── align_nexus.mbt         # Bio.Align.nexus DATA/CHARACTERS、interleave、MATCHCHAR、坐标统计与写回
+│   ├── align_stockholm.mbt     # Bio.Align.stockholm GF/GS/GR/GC、多记录、列操作、坐标统计与写回
+│   ├── align_chain.mbt         # Bio.Align.chain严格读写、双轴链向绝对路径、block重建与坐标映射
+│   ├── align_maf.mbt           # Bio.Align.maf严格文档读写、绝对坐标、MafIndex查询与多外显子拼接
+│   ├── align_bed.mbt           # Bio.Align.bed BED3-BED12、双轴路径、block投影、坐标映射与分级写回
 │   ├── bigbed.mbt              # Bio.Align.bigbed v4、BED/AutoSQL、多级B+ tree/R-tree与DEFLATE
 │   ├── bigmaf.mbt              # Bio.Align.bigmaf bedMaf、MAF注释、链向坐标映射与索引查询
 │   ├── bigpsl.mbt              # Bio.Align.bigpsl bed12+13、核酸/translated protein路径与PSL
@@ -702,7 +736,7 @@ IvanAXu/BioSeqs/
 │   ├── geoquery.mbt             # GEO数据库查询 (GDS/GSE/GSM解析、数据下载、平台信息)
 │   ├── ggtree.mbt               # ggtree 系统发育树可视化布局 (矩形/放射状/无根布局、节点坐标映射)
 │   ├── mix_omics.mbt           # mixOmics 多组学整合 (PLS/sPLS/DIABLO)
-│   ├── maf.mbt                 # MAF (Multiple Alignment Format) 多序列比对格式解析与分析
+│   ├── maf.mbt                 # 早期宽松MAF块解析、选择、过滤与统计分析
 │   ├── mauve.mbt               # Mauve 基因组比对格式解析与重排分析
 │   ├── stockholm.mbt           # Stockholm 格式解析 (Pfam/Rfam比对) 与二级结构分析
 │   ├── popgen_advanced.mbt     # 高级群体遗传学统计 (Tajima's D, Fu & Li's D/F, MK检验)
@@ -1171,6 +1205,12 @@ IvanAXu/BioSeqs/
 │   ├── a2m_demo/                # A2M状态解析、插入槽、共识、坐标、统计、投影与往返示例
 │   ├── align_emboss_demo/       # EMBOSS元数据、局部/反向坐标、path、统计与wrapped往返示例
 │   ├── align_exonerate_demo/    # Exonerate剪接/translated path、坐标映射、统计与双格式往返示例
+│   ├── msf_demo/                # GCG MSF解析、checksum、坐标映射、统计、宽度异常与规范往返示例
+│   ├── align_nexus_demo/        # NEXUS interleave解析、quoted taxa、坐标统计、all-gap压缩与规范往返示例
+│   ├── align_stockholm_demo/    # Stockholm GF/GS/GR/GC、insertion列、坐标统计、all-gap压缩与规范往返示例
+│   ├── align_chain_demo/        # Chain多记录、正反链路径、block/counts、坐标映射、反转与规范往返示例
+│   ├── align_maf_demo/          # MAF track/a/s/i/e/q、绝对路径、component映射、索引、拼接与规范往返示例
+│   ├── align_bed_demo/          # BED3-BED12、正负链路径、block、坐标映射、搜索、统计与规范往返示例
 │   ├── bigbed_demo/             # BigBed写入/解析、索引查询、负链exon坐标、BED导出与损坏诊断
 │   ├── bigmaf_demo/             # BigMaf压缩写入、bedMaf schema、区间查询、负链映射与MAF导出
 │   ├── bigpsl_demo/             # BigPsl压缩写入、R-tree查询、反链/translated坐标与PSL导出
@@ -1390,6 +1430,12 @@ IvanAXu/BioSeqs/
 │   │   ├── a2m_test.mbt
 │   │   ├── align_emboss_test.mbt
 │   │   ├── align_exonerate_test.mbt
+│   │   ├── msf_test.mbt
+│   │   ├── align_nexus_test.mbt
+│   │   ├── align_stockholm_test.mbt
+│   │   ├── align_chain_test.mbt
+│   │   ├── align_maf_test.mbt
+│   │   ├── align_bed_test.mbt
 │   │   ├── bigbed_test.mbt
 │   │   ├── bigmaf_test.mbt
 │   │   ├── bigpsl_test.mbt
@@ -1569,7 +1615,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 10046 个测试全部通过
+moon test                                               # ✅ 10389 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1623,6 +1669,12 @@ moon test                                               # ✅ 10046 个测试全
 | `a2m.mbt` | BioPython `Bio.Align.a2m` | D/I列状态感知A2M读写、大小写/点编码、逐行坐标映射、插入槽、pair counts、共识及match projection |
 | `align_emboss.mbt` | BioPython `Bio.Align.emboss` | srspair/pair/simple report解析、文件/比对元数据、多序列block、局部/反向坐标、pair counts、compact path与规范写回 |
 | `align_exonerate.mbt` | BioPython `Bio.Align.exonerate` | alignment-aware cigar/vulgar严格读写、完整operation path、链向与protein strand、translated mapping、统计和规范写回 |
+| `msf.mbt` | BioPython `Bio.Align.msf` | GCG/PileUp MSF严格解析、AA/NA metadata、interleaved rows、标准checksum、坐标映射、统计与canonical writer |
+| `align_nexus.mbt` | BioPython `Bio.Align.nexus` | DATA/CHARACTERS/TAXA block、quote/comment-aware解析、sequential/interleaved MATRIX、datatype与MATCHCHAR、坐标统计和canonical writer |
+| `align_stockholm.mbt` | BioPython `Bio.Align.stockholm` | 严格多记录Stockholm读写、GF/GS/GR/GC映射、reference与database reference、M/D/I列、all-gap压缩、坐标统计和canonical writer |
+| `align_chain.mbt` | BioPython `Bio.Align.chain` | UCSC Chain 12/13字段header与size/dt/dq严格读写、双轴正反链absolute path、坐标映射、反转、ID/overlap查询与canonical writer |
+| `align_maf.mbt` | BioPython `Bio.Align.maf` | MAF document/track与a/s/i/e/q严格读写、链感知absolute path、component映射、MafIndex半开查询、多外显子拼接与canonical writer |
+| `align_bed.mbt` | BioPython `Bio.Align.bed` | BED3-BED12 pairwise alignment读写、numeric/text score、链感知target/query path、blocks、双向映射、区间查询与分级writer |
 | `bigbed.mbt` | BioPython `Bio.Align.bigbed` | BigBed v4读写、BED3-BED12、AutoSQL、多级chromosome B+ tree/R-tree、zlib/DEFLATE及索引查询 |
 | `bigmaf.mbt` | BioPython `Bio.Align.bigmaf` | bedMaf bed3+1读写、MAF a/s/i/e/q、正负链坐标映射、压缩索引查询、摘要和MAF导出 |
 | `bigpsl.mbt` | BioPython `Bio.Align.bigpsl` | bed12+13读写、核酸/translated protein路径、双向坐标映射、recount、压缩查询、摘要和PSL导出 |
@@ -1849,7 +1901,9 @@ moon test                                               # ✅ 10046 个测试全
 | `rtsne.mbt` | Bioconductor Rtsne | t-SNE降维算法 (TsneConfig/TsneResult数据结构、成对距离计算、条件概率估计与perplexity优化、联合概率矩阵构建、梯度下降优化、动量/early exaggeration调度) |
 | `uwot.mbt` | Bioconductor uwot | UMAP降维算法 (UmapConfig/UmapResult数据结构、k近邻搜索、模糊单纯集构建、局部模糊集并集、SGD低维嵌入优化、负采样、min_dist/spread参数控制) |
 | `tradeseq.mbt` | Bioconductor tradeSeq | 轨迹差异表达分析 (TrajectoryPoint/GeneExpressionData/GAMFit/DifferentialExpressionResult数据结构、GAM广义可加模型拟合、样条基函数、条件效应检验、BH-FDR校正) |
-| `maf.mbt` | BioPython `Bio.Align` | MAF多序列比对格式解析与分析 (块处理、百分比一致性、统计分析、选择/过滤) |
+| `maf.mbt` | BioPython `Bio.Align` | 早期宽松MAF块解析与分析 (块处理、百分比一致性、统计分析、选择/过滤) |
+| `align_maf.mbt` | BioPython `Bio.Align.maf` | 现代MAF文档、严格a/s/i/e/q、绝对坐标路径、reference index、多外显子拼接与规范写回 |
+| `align_bed.mbt` | BioPython `Bio.Align.bed` | 现代BED pairwise alignment、正负链transcript路径、exon block、坐标映射、搜索、统计与BED3-BED12写回 |
 | `mauve.mbt` | BioPython `Bio.Align` | Mauve基因组比对格式解析 (LCB检测、倒位/断点、覆盖率、BED导出) |
 | `stockholm.mbt` | BioPython `Bio.Stockholm` | Stockholm格式解析与分析 (Pfam/Rfam格式、二级结构、保守性、FASTA转换) |
 | `popgen_advanced.mbt` | BioPython `Bio.PopGen` | 高级群体遗传学统计 (Tajima's D、Fu & Li's D/F、MK检验、等位基因频率谱) |
@@ -1911,6 +1965,12 @@ moon test                                               # ✅ 10046 个测试全
 | `a2m.mbt` | `Bio.Align.a2m` | match/insertion状态模型、canonical字符编码、wrapped/CRLF解析、行/列坐标互映、插入槽、统计、共识、切片和match-only投影 |
 | `align_emboss.mbt` | `Bio.Align.emboss` | EMBOSS文件与alignment类型模型、固定21列body、多alignment/多序列、纯gap block、链感知绝对坐标、consensus统计和canonical writer |
 | `align_exonerate.mbt` | `Bio.Align.exonerate` | Exonerate document/alignment/operation模型、cigar/vulgar、正反链/protein坐标、3:1 translated mapping、双向查询、统计和canonical writer |
+| `msf.mbt` | `Bio.Align.msf` | GCG MSF metadata/sequence/alignment模型、标准checksum、interleaved parser、短行补齐、coordinate path、pair counts、consensus和writer |
+| `align_nexus.mbt` | `Bio.Align.nexus` | 独立alignment metadata/sequence模型、nested comment与quoted token lexer、sequential/interleaved parser、MATCHCHAR、all-gap压缩、坐标查询、统计和writer |
+| `align_stockholm.mbt` | `Bio.Align.stockholm` | 有序GF/GS/GR/GC与reference模型、多记录parser、M/D/I列语义、all-gap压缩、annotation-aware切片、坐标查询、统计和writer |
+| `align_chain.mbt` | `Bio.Align.chain` | 不可变alignment/block/counts模型、严格多记录parser、链感知absolute coordinate path、block重建、双向位置/区间映射、pairs、invert和writer |
+| `align_maf.mbt` | `Bio.Align.maf` | 不可变document/track/index/spliced模型、严格a/s/i/e/q parser、链感知absolute path、任意component映射、区间查询、拼接和writer |
+| `align_bed.mbt` | `Bio.Align.bed` | 不可变alignment/document/score/block模型、BED3-BED12 parser、双轴路径校验、block投影、双向residue mapping、search、summary和writer |
 | `bigbed.mbt` | `Bio.Align.bigbed` | BigBed v4二进制读写、BED/AutoSQL、平衡B+ tree/R-tree、完整DEFLATE块解码、区间/名称查询与BED导出 |
 | `bigmaf.mbt` | `Bio.Align.bigmaf` | bedMaf AutoSQL与MAF块往返、a/s/i/e/q注释、链感知坐标映射、BigBed索引查询和普通MAF导出 |
 | `bigpsl.mbt` | `Bio.Align.bigpsl` | 标准bigPsl AutoSQL、核酸与translated DNA-protein坐标、链感知映射、match分类、BigBed索引和PSL导出 |
@@ -3146,6 +3206,54 @@ EMBOSS 的 1-based inclusive 坐标在内部规范为 0-based boundary/residue �
 
 vulgar 的 `M/5/I/3/C/G/N/S/F` 操作规范为显式 `M/5/N/3/C/D/I/U/S/F` path，其中双轴 non-equivalenced region 拆成可查询的 target/query movement，并在写回时无损重组。模块支持正向、反向和 protein strand、DNA/protein 3:1 translated CIGAR、绝对 coordinate path、query-target 双向 residue/codon 映射、aligned pairs，以及 match、gap open、intron、non-equivalenced、split codon 和 frame shift 统计。vulgar writer 保留完整操作语义，cigar writer 将特殊操作规范投影为 `M/I/D` 且保持路径；严格诊断覆盖 header/footer、字段与数值、strand方向、operation合法性和 endpoint span。当前模块负责 alignment coordinate semantics，不替代搜索结果层的 `Bio.SearchIO.ExonerateIO`。
 
+### 270. GCG MSF 多序列比对读写与坐标模型 (Biopython Bio.Align.msf)
+
+实现 Biopython 1.86 `Bio.Align.msf` 的 GCG/PileUp 多序列比对格式。`msf_parse` 支持 `!!AA_MULTIPLE_ALIGNMENT`、`!!NA_MULTIPLE_ALIGNMENT` 和 `PileUp` header，解析 `MSF:/Type:/Check:`、EMBOSS `CompCheck:`、自由 preamble/title/date、每行 `Name:/Len:/Check:/Weight:` metadata、可选 `oo`、数字坐标行和 interleaved sequence blocks。`.`、`~`、`-` gap 在内部统一为 `-`，蛋白质与核酸残基分别校验，CRLF 与小写输入被规范化。
+
+模块实现位置权重 1..57 循环的标准 GCG checksum，并支持默认严格校验或显式关闭验证；第三方零 checksum 视为未提供。官方 W protein fixture 的 93-residue 行会补齐到 99 列；DOA fixture 一类 header width 与实际宽度不一致的文件保留 `declared_length`，由 `length_mismatch` 暴露而不中止解析。不可变 metadata、sequence、alignment 和 pair-count 模型提供 row/column 双向映射、跨行 residue 映射、aligned pairs、compact coordinate path、identity/mismatch/gap-open、occupancy、阈值 consensus 和 checksum 摘要。
+
+`msf_write` 重新计算行级与文件级 checksum，按可配置 block/group width 输出 canonical interleaved MSF，并可选择 `.`, `~` 或 `-` gap。严格诊断覆盖 header/type 冲突、数值溢出、重复 ID、descriptor/body 损坏、声明 residue 数不一致、非法字符、all-gap column 以及 writer 参数。当前实现聚焦单个文本 MSF alignment，不负责流式多记录容器。
+
+### 271. NEXUS 多序列比对读写与坐标模型 (Biopython Bio.Align.nexus)
+
+实现 Biopython 1.86 `Bio.Align.nexus` 的现代 alignment 语义，并与原有 `nexus.mbt` 的浅层 `Bio.Nexus` block API 分离。`align_nexus_parse` 严格检查 `#NEXUS`，以 quote/comment-aware lexer 处理任意嵌套 `[...]` comment、分号命令边界、单/双引号 taxon name 和 doubled apostrophe；支持 `DATA`/`CHARACTERS`、独立 `TAXA`/`TAXLABELS`、`DIMENSIONS NTAX/NCHAR`、`FORMAT DATATYPE/MISSING/GAP/MATCHCHAR/INTERLEAVE/RESPECTCASE/SYMBOLS`，以及带标签、无标签、wrapped sequential 和 interleaved MATRIX。后续 interleave block 可按 NEXUS 的空格/下划线等价规则关联 taxon，duplicate taxon 仍保留原始 ID。
+
+DNA、RNA、protein 和 standard datatype 分别执行残基集合校验；custom missing/gap 被规范化，其中 missing 仍推进 residue coordinate，只有 gap 不推进。`MATCHCHAR` 以首行同列残基展开，source 中全 gap 列在最终 alignment 中移除，同时 metadata 保留原始宽度和删除列数。不可变 metadata、sequence、alignment 与 counts 模型提供 row/column 双向位置查询、跨序列 residue mapping、aligned pairs、compact coordinate path、逐对及全 MSA identity/mismatch/gap-open 统计、occupancy、阈值 consensus 和摘要。
+
+`align_nexus_write` 输出 canonical DATA block，正确 quote taxon name 并将 apostrophe 写为 `''`，支持 custom gap、可配置 block width 和显式 sequential/interleaved；未指定模式时，alignment 宽度大于 1000 自动 interleave，与 Biopython writer 一致。严格诊断覆盖 header、comment/quote、block、dimensions、format、matrix、datatype、taxon关联、MATCHCHAR 和 writer 参数。官方 9×48 fixture 在移除两个全 gap 列后得到 9×46 alignment，全部序列对统计为 862 aligned、256 identities、606 mismatches 和 596 gap columns。
+
+### 272. Stockholm 多序列比对读写、注释与坐标模型 (Biopython Bio.Align.stockholm)
+
+实现 Biopython 1.86 `Bio.Align.stockholm` 的现代 alignment 语义，并保留原有 `stockholm.mbt` 的宽松 block-oriented API。`align_stockholm_parse` 严格检查 `# STOCKHOLM 1.0` header 和 `//` terminator，`align_stockholm_parse_all` 支持连续多记录；sequence row 必须唯一且等宽。类型化不可变模型保留 GF alignment annotation、GS sequence annotation、GR residue annotation 和 GC column annotation，映射标准字段并保留自定义 GS/GR/GC；reference 的 RN/RM/RT/RA/RL/RC、database reference 的 DR/DC、nested domain 的 NE/NL 和重复 AU/WK/SM 均按输入顺序建模。
+
+解析器区分 `-` deletion gap 与 `.` insertion gap，形成每列 `M/D/I` operation；同列禁止混用两类 gap。内部 aligned row 将 gap 规范为 `-`，GR 同时保存 residue-level 与 aligned value。source 中全 gap 列会与 GC、GR 和 operation 同步压缩，并保留 source width 与删除列数。查询 API 提供 row/column 双向位置映射、跨行 residue mapping、aligned pairs、compact coordinate path、annotation-aware column slicing、逐对及全 MSA identity/mismatch/gap-open 统计、occupancy、阈值 consensus 和摘要。
+
+`align_stockholm_write` 输出 canonical GF/GS/GR/GC 顺序，根据 operation 将 insertion gap 恢复为 `.`，按 row gap 展开 residue-level GR，并对长 CC/RC/RT 文本折行；`align_stockholm_write_all` 支持多记录往返。严格诊断覆盖 header/terminator、annotation字段、SQ row count、数值溢出、orphan/duplicate reference字段、非法列操作、annotation宽度和writer不支持的未知GF。官方 HAT fixture 保留 3×33 alignment、完整注释与 insertion column；专项 fixture 验证 source 7列压缩为 retained 4列且 operation 为 `MIMM`。
+
+### 273. UCSC Chain成对比对读写与坐标模型 (Biopython Bio.Align.chain)
+
+实现 Biopython 1.86 `Bio.Align.chain` 的现代 pairwise alignment 语义，并与现有 `chain_liftover.mbt` 的宽松 rtracklayer-style liftOver API 并存。`align_chain_parse` 严格读取 12/13 字段 header，支持有限浮点 score、可选 chain ID、连续多记录、CRLF/空白分隔及 target/query 任意 `+`/`-` 组合；每条 `size dt dq` 和末尾 `size` 记录被重建为 zero-based half-open 的绝对坐标路径，负链通过递减边界表示。
+
+不可变 `AlignChainAlignment`、`AlignChainCoordinate`、`AlignChainBlock`、`AlignChainCounts` 和 range/pair 模型提供 canonical block 重建、`M/D/I` operation path、aligned/gap/open统计、双向 residue 映射、区间拆分映射、受上限保护的 aligned-pair 展开、target/query反转、chain ID查找和target overlap查询。`align_chain_write`/`align_chain_write_all` 从绝对路径恢复规范 header 与block，可稳定多记录往返。
+
+严格诊断覆盖 identifier、strand、非负整数、32位溢出、NaN/极值score、header区间、block字段数、末尾block、零长度segment、单调性、aligned step等长及累计span一致性。官方风格 181-base reverse-query fixture 重建 `MDMDM`、181 aligned bases、1530 target gap bases和1711列；第二条fixture覆盖reverse target与双向gap。旧 `cl_*` API 保持兼容，继续面向宽松的基因组liftOver工作流。
+
+### 274. MAF多基因组比对读写、坐标路径与参考索引 (Biopython Bio.Align.maf)
+
+实现 Biopython 1.86 `Bio.Align.maf` 的现代 alignment 语义，并保留 `maf.mbt` 的早期宽松块分析 API。新模块复用 `bigmaf.mbt` 已验证的 `BigMafComponent`、`BigMafEmptyComponent`、`BigMafInsertion` 和 `BigMafBlock` 作为严格数据层，在其上提供不可变 `AlignMafTrack`、`AlignMafDocument`、`AlignMafIndex`、`AlignMafSplicedAlignment` 和摘要模型。parser 支持 quoted/escaped UCSC `track` metadata、`##maf version/scoring/program`、文档与块注释，以及标准 `a/s/i/e/q` 记录；`i/q` 必须紧随同源 `s` 行并与其列宽、gap位置一致。
+
+component 坐标使用 zero-based half-open forward genomic axis；负链 MAF start 被转换为递减的绝对边界。`align_maf_coordinate_path` 按列状态变化压缩多序列路径，`align_maf_map_position` 可在任意两个 component 间双向映射 residue，并在目标gap处返回 `None`。gap字符 `.`, `=`, `_` 统一规范为 `-`；数值解析拒绝负整数、32位溢出、NaN和极端score，source span 使用减法边界检查避免加法溢出。
+
+`AlignMafIndex::create` 要求每块参考 component 唯一且source size/strand一致，并按forward interval构建内存索引。`search`/`search_ranges` 使用半开overlap、文件顺序返回和跨区间去重；`get_spliced` 验证递增不重叠外显子，保留reference gap对应插入列，未覆盖参考填 `N`、其他物种填 `-`，并支持完整结果反向互补。重叠reference block会被诊断为歧义；当前拼接明确要求plus-strand reference。`align_maf_write` 输出canonical track/header与a/s/i/q/e顺序，可稳定文档往返；BigMaf二进制容器和旧宽松MAF分析接口继续独立存在。
+
+### 275. BED成对比对读写、双轴坐标与分级写回 (Biopython Bio.Align.bed)
+
+实现 Biopython 1.86 `Bio.Align.bed` 的现代 pairwise alignment 语义，并与 `bigbed.mbt` 的 BigBed v4二进制容器、AutoSQL和索引职责分离。不可变 `AlignBedAlignment`、`AlignBedDocument`、`AlignBedCoordinate`、`AlignBedBlock`、`AlignBedCounts` 和 `AlignBedSummary` 建模 target/query 双轴路径；`AlignBedScore` 同时保留有限数值 score 与无空白文本 score。parser 支持 BED3-BED12、CRLF和通用空白，其中 BED3-BED9按连续单块解释，BED12重建完整exon path；BED10仅接受单块，BED11仅在缺失的blockStarts可无损推断时接受。
+
+坐标统一为 zero-based half-open boundary。target规范化为递增轴，plus query递增、minus query递减；BED12的query size由blockSizes求和，target-only segment表示intron。`blocks` 从一般路径投影aligned segments，`map_target_position`/`map_query_position` 仅映射aligned residue并在intron或不可表示gap返回 `None`。`counts` 汇总aligned bases、双轴skip bases/open和columns，document提供half-open `search`、有序target/query集合及跨记录summary。
+
+严格校验覆盖3-12列、非负32位整数、有限score、strand、thick interval、block count/list长度、正size、首尾span、排序/重叠/越界、坐标单调性、零长度segment和aligned step等长。writer可从一般target/query path生成canonical blocks，并按 `bed_columns` 输出 BED3-BED12；query-only segment按BED可表达能力被投影跳过，反向target path先规范化。该层处理文本pairwise alignment，`bigbed.mbt` 继续独立处理压缩二进制存储和索引。
+
 ## 性能优化
 
 ### 优化策略
@@ -3247,8 +3355,8 @@ vulgar 的 `M/5/I/3/C/G/N/S/F` 操作规范为显式 `M/5/N/3/C/D/I/U/S/F` path�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 10046 |
-| 通过数 | 10046 |
+| 总测试数 | 10852 |
+| 通过数 | 10852 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3359,6 +3467,12 @@ moon test --update
 | Bio.Align.a2m | `a2m_test.mbt` | 71 |
 | Bio.Align.emboss | `align_emboss_test.mbt` | 81 |
 | Bio.Align.exonerate | `align_exonerate_test.mbt` | 86 |
+| Bio.Align.msf | `msf_test.mbt` | 95 |
+| Bio.Align.nexus | `align_nexus_test.mbt` | 100 |
+| Bio.Align.stockholm | `align_stockholm_test.mbt` | 148 |
+| Bio.Align.chain | `align_chain_test.mbt` | 156 |
+| Bio.Align.maf | `align_maf_test.mbt` | 155 |
+| Bio.Align.bed | `align_bed_test.mbt` | 152 |
 | Bio.Align.bigbed | `bigbed_test.mbt` | 64 |
 | Bio.Align.bigmaf | `bigmaf_test.mbt` | 79 |
 | SparseArray | `sparse_array_test.mbt` | 41 |
@@ -3665,7 +3779,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 377 个示例程序，展示各模块的典型用法：
+项目提供 383 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3869,6 +3983,12 @@ moon run cmd/bench/main.mbt
 | a2m_demo | A2M D/I列状态、插入槽、match共识、跨行坐标映射、pair counts、match projection与wrapped往返 | `moon run examples/a2m_demo` |
 | align_emboss_demo | EMBOSS srspair元数据、局部/反向坐标、consensus、compact path、pair counts与wrapped规范往返 | `moon run examples/align_emboss_demo` |
 | align_exonerate_demo | Exonerate spliced vulgar path、反向protein-to-DNA 3:1映射、operation统计及vulgar/cigar规范往返 | `moon run examples/align_exonerate_demo` |
+| msf_demo | GCG/PileUp MSF metadata与checksum、interleaved rows、coordinate path、pair counts、consensus、宽度异常及规范往返 | `moon run examples/msf_demo` |
+| align_nexus_demo | NEXUS interleaved DATA、quoted taxa、MATCHCHAR、coordinate path、residue mapping、统计、all-gap压缩与canonical往返 | `moon run examples/align_nexus_demo` |
+| align_stockholm_demo | Stockholm GF/GS/GR/GC与reference、insertion operation、coordinate path、residue mapping、统计、all-gap压缩与canonical往返 | `moon run examples/align_stockholm_demo` |
+| align_chain_demo | UCSC Chain连续记录、正反双轴绝对路径、block/counts、双向位置与区间映射、反转及canonical往返 | `moon run examples/align_chain_demo` |
+| align_maf_demo | MAF track/header、a/s/i/e/q、plus/minus绝对路径、component映射、MafIndex查询、多外显子拼接与canonical往返 | `moon run examples/align_maf_demo` |
+| align_bed_demo | BED3/BED12、numeric/text score、正负链双轴路径、exon blocks、双向mapping、搜索、统计、BED3-BED12分级写回与canonical往返 | `moon run examples/align_bed_demo` |
 | bigbed_demo | BigBed v4压缩写入/解析、AutoSQL、多级索引查询、负链exon坐标、BED导出及损坏文件诊断 | `moon run examples/bigbed_demo` |
 | bigmaf_demo | BigMaf压缩bed3+1写入、bedMaf schema、R-tree区间查询、负链物种坐标映射和MAF a/s/i/e/q导出 | `moon run examples/bigmaf_demo` |
 | bigpsl_demo | BigPsl bed12+13压缩写入、AutoSQL、R-tree查询、反向核酸/translated protein坐标和PSL导出 | `moon run examples/bigpsl_demo` |
@@ -3986,6 +4106,12 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bio.Align.a2m 状态感知多序列比对（D/I列状态、大小写与点gap编码、wrapped/CRLF严格读写、坐标映射、插入槽、统计、共识与match-only投影）
 - ✅ 实现 Bio.Align.emboss alignment输出（srspair/pair/simple、多alignment/多序列、局部/反向坐标、纯gap block、consensus统计、compact path与规范往返）
 - ✅ 实现 Bio.Align.exonerate alignment输出（cigar/vulgar、完整operation path、正反链/protein strand、3:1 translated坐标、双向映射、统计与规范往返）
+- ✅ 实现 Bio.Align.msf GCG/PileUp多序列比对（AA/NA header、interleaved rows、标准checksum、gap规范化、坐标映射、统计与canonical writer）
+- ✅ 实现 Bio.Align.nexus NEXUS多序列比对（DATA/CHARACTERS/TAXA、nested comments、quoted/duplicate taxa、sequential/interleaved MATRIX、datatype/MATCHCHAR、坐标统计与canonical writer）
+- ✅ 实现 Bio.Align.stockholm Stockholm多序列比对（严格多记录、GF/GS/GR/GC、reference/database/nested-domain、M/D/I列、all-gap压缩、坐标统计与canonical writer）
+- ✅ 实现 Bio.Align.chain UCSC Chain成对比对（12/13字段严格多记录、float score、正反双轴absolute path、size/dt/dq、坐标映射、反转、查询与canonical writer）
+- ✅ 实现 Bio.Align.maf MAF多基因组比对（track/header、严格a/s/i/e/q、正负链absolute path、component映射、MafIndex半开查询、多外显子拼接与canonical writer）
+- ✅ 实现 Bio.Align.bed BED成对比对（BED3-BED12严格读写、numeric/text score、正负链双轴路径、block投影、双向residue映射、区间查询、统计与分级writer）
 - ✅ 实现 Bio.Align.bigbed BigBed v4二进制区间格式（BED3-BED12、AutoSQL、多级B+ tree/R-tree、DEFLATE、区间/名称查询与BED导出）
 - ✅ 实现 Bio.Align.bigmaf BigMaf多物种比对索引（标准bedMaf、MAF a/s/i/e/q、正负链坐标映射、压缩BigBed查询与MAF导出）
 - ✅ 实现 Bio.Align.bigpsl BigPsl成对比对索引（标准bed12+13、核酸/translated protein坐标、match recount、压缩BigBed查询与PSL导出）
