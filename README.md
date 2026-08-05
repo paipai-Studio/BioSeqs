@@ -212,6 +212,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **variancePartition** | Bioconductor variancePartition | 重复测量线性混合模型、方差分解、BLUP、precision weights、dream contrast与Satterthwaite检验 | ✅ |
 | **dreamlet** | Bioconductor dreamlet | sample×cell-type pseudobulk、TMM、cell/sample/gene过滤、logCPM、Poisson/voom precision weights、分cell-type重复测量模型及study-wide FDR | ✅ |
 | **ALDEx2** | Bioconductor ALDEx2 | Dirichlet Monte Carlo组成型差异丰度、六类denominator、Welch/Wilcoxon与配对检验、effect/overlap、Aitchison距离及SummarizedExperiment接入 | ✅ |
+| **DirichletMultinomial** | Bioconductor DirichletMultinomial | Dirichlet-multinomial概率、有限混合EM/BFGS聚类、Laplace/AIC/BIC选K、生成式分组分类、分层交叉验证、ROC及SummarizedExperiment接入 | ✅ |
 | **SummarizedExperiment** | Bioconductor SummarizedExperiment | 多维基因组数据容器、Assays、行/列操作 | ✅ |
 | **RangedSummarizedExperiment** | Bioconductor SummarizedExperiment | GRanges/GRangesList行范围、复合特征精确重叠/最近邻、覆盖度、区间变换与协调子集 | ✅ |
 | **TreeSummarizedExperiment** | Bioconductor TreeSummarizedExperiment | 行/列树、节点链接、树节点子集、祖先/后代查询、层级聚合 | ✅ |
@@ -489,6 +490,7 @@ IvanAXu/BioSeqs/
 │   ├── deseq2_advanced.mbt         # DESeq2 VST方差稳定化变换、PCA可视化
 │   ├── apeglm.mbt              # apeglm 自适应重尾LFC收缩、Laplace后验、FSR/FSOS与容器接入
 │   ├── aldex2.mbt              # ALDEx2 Dirichlet Monte Carlo组成型推断、检验、effect与容器接入
+│   ├── dirichlet_multinomial.mbt # DirichletMultinomial有限混合EM、模型选择、分类、CV与ROC
 │   ├── edger.mbt               # edgeR 差异表达分析 (DGEList、精确检验、GLM拟合)
 │   ├── edger_advanced.mbt           # edgeR准似然F检验、camera/roast基因集检验
 │   ├── limma.mbt               # limma 差异表达、归一化、批次校正 (线性模型、经验贝叶斯、voom、RPKM/CPM/quantile、ComBat)
@@ -920,6 +922,7 @@ IvanAXu/BioSeqs/
 │   ├── zinbwave_demo/          # zinbwave latent factors、dropout权重、残差/插补与SCE集成示例
 │   ├── apeglm_demo/            # apeglm MLE/MAP、重尾收缩、FSR/FSOS、TSV与SE接入示例
 │   ├── aldex2_demo/            # ALDEx2 IQLR、Dirichlet实例、effect/eBH、距离与SE接入示例
+│   ├── dirichlet_multinomial_demo/ # DMM聚类、选K、分组分类、交叉验证、ROC与SE接入示例
 │   ├── variance_partition_demo/ # variancePartition 方差分解、BLUP、precision weights、dream与SE接入示例
 │   ├── dreamlet_demo/          # dreamlet SCE pseudobulk、TMM/voom、donor随机截距与跨cell-type FDR示例
 │   ├── monocle3_demo/          # monocle3 单细胞轨迹分析示例 (PCA/UMAP降维、主图学习、拟时间排序)
@@ -1330,6 +1333,7 @@ IvanAXu/BioSeqs/
 │   │   ├── zinbwave_test.mbt
 │   │   ├── apeglm_test.mbt
 │   │   ├── aldex2_test.mbt
+│   │   ├── dirichlet_multinomial_test.mbt
 │   │   ├── variance_partition_test.mbt
 │   │   ├── dreamlet_test.mbt
 │   │   ├── shared_reference_alignment_test.mbt
@@ -1831,6 +1835,7 @@ moon test                                               # ✅ 9116 个测试全�
 | `zinbwave.mbt` | `zinbwave` | ZINB交替EM/IRLS、cell/gene design与offset、确定性低维因子、gene dispersion shrinkage、observational weights、deviance residual及SingleCellExperiment包装 |
 | `apeglm.mbt` | `apeglm` | 负二项GLM MLE、自适应Cauchy/Student-t先验、阻尼Newton多起点MAP、Laplace后验SD/区间、FSR/FSOS/s-value、DESeq2与SummarizedExperiment包装 |
 | `aldex2.mbt` | `ALDEx2` | count+prior Dirichlet Monte Carlo、all/median/IQLR/zero/LVHA/user分母、两组与配对检验、posterior expected BH、effect/overlap、距离和SummarizedExperiment包装 |
+| `dirichlet_multinomial.mbt` | `DirichletMultinomial` | sample×taxon DMM概率、soft k-means初始化、log-alpha BFGS/EM、Gamma prior、Hessian区间、Laplace/AIC/BIC、dmngroup分类、分层CV、ROC与SummarizedExperiment入口 |
 | `variance_partition.mbt` | `variancePartition` | typed fixed/random design、多随机截距LMM、ML/REML方差分解、BLUP、weighted dream contrast、Satterthwaite自由度与SummarizedExperiment入口 |
 | `dreamlet.mbt` | `dreamlet` | SCE到sample×cluster pseudobulk、TMM/logCPM、两阶段voom precision weights、固定/随机效应筛选、逐cell-type dream和study-wide FDR |
 | `shared_reference_alignment.mbt` | `Bio.Align.Alignment` | 同参考PWA/MSA的reference-boundary insertion同步、原query投影、局部坐标、metadata、统计与格式转换 |
@@ -2997,6 +3002,14 @@ composition 支持 wildcard、match/mismatch score 或替换矩阵；矩阵模�
 
 实现覆盖路径长度、坐标单调性、aligned step、有限 score 和矩阵 alphabet 校验；专项测试包含官方 BLOSUM62/BLOSUM45 示例、左右/内部 gap、连续 open/extend、wildcard、反向链、length-only alignment 和 MSA 汇总。同步修正既有标准 20×20 `BLOSUM45` 的 139 个错误分值，与 Biopython 1.86 官方矩阵逐项一致。当前 API 统计已有 coordinate alignment，不负责执行新的序列比对。
 
+### 260. Dirichlet-multinomial 混合聚类与分类 (Bioconductor DirichletMultinomial)
+
+实现 Bioconductor `DirichletMultinomial` 的可移植有限混合模型核心，原生输入与上游 `dmn()` 一致，采用 sample × taxon 非负整数计数矩阵。基础 API 提供 Dirichlet-multinomial log-PMF、均值和含过度离散膨胀的协方差。混合拟合先在相对丰度空间执行确定性 soft k-means，再以 posterior responsibility 和 component weight 进行 EM；每个 component 的 alpha 使用 log 参数化、Gamma(shape=0.1, rate=0.1) prior、inverse-BFGS、Armijo 回溯线搜索和显式参数边界优化，避免正值约束被迭代破坏。
+
+`DmnFit` 返回按 mixture weight 降序排列的 alpha、权重、sample responsibility、component proportions、浓度、Hessian 近似区间和 likelihood 轨迹，并提供新样本 evidence、posterior 与 assignment。goodness-of-fit 遵循上游参数计数 `P = K × taxa + K - 1`，报告 negative log evidence、log determinant、Laplace、AIC 和 BIC；`dirichlet_multinomial_select` 比较连续 K。`dirichlet_multinomial_group_fit` 为每个 phenotype 拟合独立 DMM 并结合经验 group prior 构造生成式分类器，可指定每组 K 或按 Laplace 自动选择；另提供确定性分层交叉验证、概率输出和二分类 ROC/AUC。
+
+`dirichlet_multinomial_fit_se` 从 `SummarizedExperiment` 的 feature × sample assay 校验并转置为 sample × taxon。构造器会诊断空/ragged矩阵、负数、非整数或非有限 assay、零文库、组件数、名称、group、fold 和预测维度错误。当前实现使用 dense MoonBit arrays 和确定性单线程求解，不依赖上游 C/GSL，也不包含稀疏矩阵专用优化、并行多起点、绘图或完整 S4 方法分派。
+
 ## 性能优化
 
 ### 优化策略
@@ -3098,8 +3111,8 @@ composition 支持 wildcard、match/mismatch score 或替换矩阵；矩阵模�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 9253 |
-| 通过数 | 9253 |
+| 总测试数 | 9311 |
+| 通过数 | 9311 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3231,6 +3244,7 @@ moon test --update
 | zinbwave | `zinbwave_test.mbt` | 54 |
 | apeglm | `apeglm_test.mbt` | 66 |
 | ALDEx2 | `aldex2_test.mbt` | 80 |
+| DirichletMultinomial | `dirichlet_multinomial_test.mbt` | 58 |
 | monocle3 | `monocle3_test.mbt` | 10 |
 | ShortRead | `short_read_test.mbt` | 15 |
 | scater | `scater_test.mbt` | 17 |
@@ -3506,7 +3520,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 367 个示例程序，展示各模块的典型用法：
+项目提供 368 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3602,6 +3616,7 @@ moon run cmd/bench/main.mbt
 | zinbwave_demo | ZINB latent-factor拟合、dropout后验权重、归一化/插补/deviance residual和不可变SCE输出 | `moon run examples/zinbwave_demo` |
 | apeglm_demo | NB-GLM MLE与自适应重尾MAP、FSR/s-value/FSOS、log2 TSV及不可变SummarizedExperiment输出 | `moon run examples/apeglm_demo` |
 | aldex2_demo | Dirichlet Monte Carlo、IQLR、posterior expected eBH、effect/overlap、Aitchison距离及不可变SummarizedExperiment输出 | `moon run examples/aldex2_demo` |
+| dirichlet_multinomial_demo | Dirichlet-multinomial混合聚类、Laplace选K、分组分类、分层交叉验证、ROC与SummarizedExperiment转置入口 | `moon run examples/dirichlet_multinomial_demo` |
 | mast_demo | MAST 单细胞差异表达分析（Hurdle模型、离散/连续检验、BH-FDR校正、结果汇总） | `moon run examples/mast_demo/main.mbt` |
 | genomic_files_demo | GenomicFiles 分布式基因组文件处理（BAM/BED/VCF扫描、区间查询、归约、覆盖度计算） | `moon run examples/genomic_files_demo/main.mbt` |
 | diffbind_demo | DiffBind ChIP-seq差异结合分析（峰值重叠、共识峰识别、TMM归一化、负二项分布检验） | `moon run examples/diffbind_demo/main.mbt` |
@@ -3818,6 +3833,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Bioconductor zinbwave 零膨胀负二项低维模型（cell/gene协变量、offset、latent factors、dispersion shrinkage、observational weights、残差/插补与SCE集成）
 - ✅ 实现 Bioconductor apeglm 自适应重尾效应量收缩（NB-GLM MLE、经验贝叶斯Cauchy/Student-t先验、多起点MAP、Laplace后验、FSR/FSOS/s-value与容器接入）
 - ✅ 实现 Bioconductor ALDEx2 组成型差异丰度（Dirichlet Monte Carlo、六类denominator、两组/配对检验、posterior expected BH、effect/overlap、距离与SummarizedExperiment接入）
+- ✅ 实现 Bioconductor DirichletMultinomial 混合聚类与分类（DMM概率、soft k-means、log-alpha BFGS/EM、Gamma prior、Laplace/AIC/BIC、dmngroup分类、分层CV、ROC与SummarizedExperiment接入）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）
