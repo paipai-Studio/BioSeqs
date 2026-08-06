@@ -1,81 +1,148 @@
 ///|
-/// SingleR Demo - Cell type annotation by reference expression profiles.
-/// Inspired by Bioconductor SingleR package.
+fn single_r_demo_optional_label(value : String?) -> String {
+  match value {
+    Some(label) => label
+    None => "NA"
+  }
+}
 
 ///|
 fn main {
-  println("=== SingleR Cell Type Annotation Demo ===")
-  println("Inspired by Bioconductor SingleR package")
-  println("")
-  
-  println("1. Creating reference dataset with known cell type profiles...")
-  let ref_data = @bio.single_r_create_reference_data()
-  println("   Reference profiles: \{ref_data.n_profiles.to_string()}")
-  println("   Cell types:")
-  for ct in ref_data.cell_types {
-    println("     - \{ct}")
+  println("=== Bioconductor SingleR 2.15.2 Advanced Demo ===")
+  let (reference, data) = @bio.single_r_advanced_example() catch {
+    _ => abort("failed to construct the SingleR example")
   }
-  println("   Genes per profile: \{ref_data.n_genes.to_string()}")
-  println("")
-  
-  println("2. Creating synthetic single-cell data to annotate...")
-  let test_data = @bio.single_r_create_test_data()
-  println("   Cells: \{test_data.n_cells.to_string()}")
-  println("   Genes: \{test_data.n_genes.to_string()}")
-  println("")
-  
-  println("3. Running SingleR annotation (Spearman correlation)...")
-  let params = @bio.SingleRParams::new()
-  let result = @bio.single_r_annotate_cells(test_data, ref_data, params)
-  println("   Annotation completed for \{result.cell_ids.length().to_string()} cells")
-  println("")
-  
-  println("4. Annotation results summary:")
-  println("   First 10 annotations:")
-  let mut i = 0
-  while i < 10 && i < result.cell_ids.length() {
-    println("     Cell \{result.cell_ids[i]}: \{result.labels[i]} (score: \{result.scores[i].to_string()})")
-    i = i + 1
+  println(
+    "\n1. Gene x sample/cell inputs: reference=" +
+    reference.n_genes.to_string() +
+    "x" +
+    reference.n_samples.to_string() +
+    ", test=" +
+    data.n_genes.to_string() +
+    "x" +
+    data.n_cells.to_string(),
+  )
+
+  let training = @bio.single_r_advanced_train(reference, data.gene_names) catch {
+    _ => abort("SingleR marker training failed")
   }
-  println("")
-  
-  println("5. Summary statistics:")
-  let summary = @bio.single_r_annotation_summary(result)
-  let keys = summary.keys()
-  for key in keys {
-    println("   \{key}: \{summary.get(key).unwrap_or(0.0).to_string()}")
+  let t_vs_b = training.markers_between("T cell", "B cell") catch {
+    _ => abort("failed to query pairwise markers")
   }
-  println("")
-  
-  println("6. Running SingleR with Pearson correlation...")
-  let params_pearson = @bio.SingleRParams::with_method("pearson")
-  let result_pearson = @bio.single_r_annotate_cells(test_data, ref_data, params_pearson)
-  println("   Pearson annotation completed")
-  println("   First 5 annotations (Pearson):")
-  let mut j = 0
-  while j < 5 && j < result_pearson.cell_ids.length() {
-    println("     Cell \{result_pearson.cell_ids[j]}: \{result_pearson.labels[j]} (score: \{result_pearson.scores[j].to_string()})")
-    j = j + 1
+  println("\n2. Directed classic marker training")
+  println(
+    "  shared genes=" +
+    training.common_gene_names.length().to_string() +
+    ", selected markers=" +
+    training.marker_gene_names().length().to_string(),
+  )
+  println("  T cell > B cell markers: " + t_vs_b.join(", "))
+
+  let config = @bio.SingleRAdvancedConfig::create(
+    quantile=0.8,
+    fine_tune=true,
+    prune=true,
+    nmads=3.0,
+  ) catch {
+    _ => abort("failed to construct the SingleR configuration")
   }
-  println("")
-  
-  println("7. Correlation analysis example:")
-  let t_cell_expr = ref_data.profiles[0].expression
-  let b_cell_expr = ref_data.profiles[1].expression
-  let t_vs_b_spearman = @bio.single_r_spearman_correlation(t_cell_expr, b_cell_expr)
-  let t_vs_self_spearman = @bio.single_r_spearman_correlation(t_cell_expr, t_cell_expr)
-  let t_vs_b_pearson = @bio.single_r_pearson_correlation(t_cell_expr, b_cell_expr)
-  println("   T cell vs B cell (Spearman): \{t_vs_b_spearman.to_string()}")
-  println("   T cell vs T cell (Spearman): \{t_vs_self_spearman.to_string()}")
-  println("   T cell vs B cell (Pearson): \{t_vs_b_pearson.to_string()}")
-  println("")
-  
-  println("=== Demo completed successfully! ===")
-  println("")
-  println("Key takeaways:")
-  println("- SingleR annotates cells by comparing expression profiles to reference datasets")
-  println("- Spearman correlation is robust to outliers; Pearson is sensitive to magnitude")
-  println("- Fine-tuning can resolve ambiguous assignments by comparing against related cell types")
-  println("- The delta score (difference between top and 2nd best) indicates annotation confidence")
-  println("- SingleR can be used with any reference dataset (bulk RNA-seq, sorted populations)")
+  let result = @bio.single_r_advanced_classify(data, training, config~) catch {
+    _ => abort("SingleR cell annotation failed")
+  }
+  println("\n3. Quantile scores, iterative fine-tuning and pruning")
+  for cell in 0..<result.n_cells() {
+    let label = result.labels[cell]
+    let score = result.scores[cell][result.label_index(label)]
+    println(
+      "  " +
+      result.cell_names[cell] +
+      ": label=" +
+      label +
+      ", pruned=" +
+      single_r_demo_optional_label(result.pruned_labels[cell]) +
+      ", score=" +
+      score.to_string() +
+      ", delta.next=" +
+      result.delta_next[cell].to_string() +
+      ", fine.tuned=" +
+      result.fine_tuned[cell].to_string(),
+    )
+  }
+
+  let clusters = ["lymphoid", "lymphoid", "myeloid", "cytotoxic", "lymphoid"]
+  let clustered = @bio.single_r_advanced_clusters(
+    data,
+    clusters,
+    reference,
+    config~,
+  ) catch {
+    _ => abort("SingleR cluster annotation failed")
+  }
+  println("\n4. Cluster-level annotation from summed profiles")
+  for cluster in 0..<clustered.n_cells() {
+    println(
+      "  " + clustered.cell_names[cluster] + ": " + clustered.labels[cluster],
+    )
+  }
+
+  let alternate = @bio.SingleRAdvancedReference::create(
+    reference.expression,
+    [
+      "T lymphocyte", "T lymphocyte", "B lymphocyte", "B lymphocyte", "Myeloid",
+      "Myeloid", "Cytotoxic", "Cytotoxic",
+    ],
+    gene_names=reference.gene_names,
+    sample_names=reference.sample_names,
+    reference_name="immune_reference_two",
+  ) catch {
+    _ => abort("failed to construct the second reference")
+  }
+  let combined = @bio.single_r_advanced_combine(
+    data,
+    [reference, alternate],
+    config~,
+  ) catch {
+    _ => abort("SingleR multi-reference integration failed")
+  }
+  println("\n5. Multi-reference marker-space recomputation")
+  for cell in 0..<combined.n_cells() {
+    println(
+      "  " +
+      combined.cell_names[cell] +
+      ": " +
+      combined.labels[cell] +
+      " from " +
+      combined.selected_references[cell],
+    )
+  }
+
+  let experiment = @bio.SingleCellExperiment::new(
+    data.expression,
+    data.gene_names,
+    data.cell_names,
+  )
+  experiment.assays["logcounts"] = data.expression.map(fn(row) { row.copy() })
+  experiment.col_data["cluster"] = clusters
+  experiment.metadata["source"] = "single_r_demo"
+  let output = @bio.single_r_advanced_sce(
+    experiment,
+    reference,
+    cluster_column="cluster",
+    output_prefix="SingleR215",
+    config~,
+  ) catch {
+    _ => abort("SingleR SingleCellExperiment integration failed")
+  }
+  println("\n6. Immutable SingleCellExperiment write-back")
+  println(
+    "  mode=" +
+    output.experiment.metadata["SingleR215.mode"] +
+    ", labels=" +
+    output.experiment.col_data["SingleR215.labels"].join(", "),
+  )
+  println(
+    "  original unchanged=" +
+    (!experiment.col_data.contains("SingleR215.labels")).to_string(),
+  )
+  println("\nSingleR advanced demo completed.")
 }
