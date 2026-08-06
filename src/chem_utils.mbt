@@ -12,26 +12,47 @@
 /// Values from Mantina et al. (2008) J. Phys. Chem. A.
 pub fn chem_vdw_radius(element : String) -> Double {
   let el = element.to_upper()
-  if el == "H" { 1.20 }
-  else if el == "C" { 1.70 }
-  else if el == "N" { 1.55 }
-  else if el == "O" { 1.52 }
-  else if el == "F" { 1.47 }
-  else if el == "S" { 1.80 }
-  else if el == "P" { 1.80 }
-  else if el == "CL" || el == "Cl" { 1.75 }
-  else if el == "BR" || el == "Br" { 1.85 }
-  else if el == "I" { 1.98 }
-  else if el == "FE" || el == "Fe" { 1.94 }
-  else if el == "ZN" || el == "Zn" { 1.39 }
-  else if el == "MG" || el == "Mg" { 1.73 }
-  else if el == "CA" || el == "Ca" { 2.31 }
-  else if el == "MN" || el == "Mn" { 1.97 }
-  else if el == "CU" || el == "Cu" { 1.40 }
-  else if el == "NA" || el == "Na" { 2.27 }
-  else if el == "K" { 2.75 }
-  else if el == "BR" { 1.85 }
-  else { 1.70 } // Default to carbon
+  if el == "H" {
+    1.20
+  } else if el == "C" {
+    1.70
+  } else if el == "N" {
+    1.55
+  } else if el == "O" {
+    1.52
+  } else if el == "F" {
+    1.47
+  } else if el == "S" {
+    1.80
+  } else if el == "P" {
+    1.80
+  } else if el == "CL" || el == "Cl" {
+    1.75
+  } else if el == "BR" || el == "Br" {
+    1.85
+  } else if el == "I" {
+    1.98
+  } else if el == "FE" || el == "Fe" {
+    1.94
+  } else if el == "ZN" || el == "Zn" {
+    1.39
+  } else if el == "MG" || el == "Mg" {
+    1.73
+  } else if el == "CA" || el == "Ca" {
+    2.31
+  } else if el == "MN" || el == "Mn" {
+    1.97
+  } else if el == "CU" || el == "Cu" {
+    1.40
+  } else if el == "NA" || el == "Na" {
+    2.27
+  } else if el == "K" {
+    2.75
+  } else if el == "BR" {
+    1.85
+  } else {
+    1.70
+  } // Default to carbon
 }
 
 ///|
@@ -39,64 +60,116 @@ pub fn chem_vdw_radius(element : String) -> Double {
 /// Values from Cordero et al. (2008) Dalton Trans.
 pub fn chem_covalent_radius(element : String) -> Double {
   let el = element.to_upper()
-  if el == "H" { 0.31 }
-  else if el == "C" { 0.76 }
-  else if el == "N" { 0.71 }
-  else if el == "O" { 0.66 }
-  else if el == "F" { 0.57 }
-  else if el == "S" { 1.05 }
-  else if el == "P" { 1.07 }
-  else if el == "CL" || el == "Cl" { 1.02 }
-  else if el == "BR" || el == "Br" { 1.2 }
-  else if el == "I" { 1.39 }
-  else if el == "FE" || el == "Fe" { 1.32 }
-  else if el == "ZN" || el == "Zn" { 1.22 }
-  else if el == "MG" || el == "Mg" { 1.41 }
-  else if el == "CA" || el == "Ca" { 1.76 }
-  else if el == "MN" || el == "Mn" { 1.39 }
-  else if el == "CU" || el == "Cu" { 1.32 }
-  else if el == "NA" || el == "Na" { 1.66 }
-  else if el == "K" { 2.0 }
-  else { 0.77 } // Default to carbon
+  if el == "H" {
+    0.31
+  } else if el == "C" {
+    0.76
+  } else if el == "N" {
+    0.71
+  } else if el == "O" {
+    0.66
+  } else if el == "F" {
+    0.57
+  } else if el == "S" {
+    1.05
+  } else if el == "P" {
+    1.07
+  } else if el == "CL" || el == "Cl" {
+    1.02
+  } else if el == "BR" || el == "Br" {
+    1.2
+  } else if el == "I" {
+    1.39
+  } else if el == "FE" || el == "Fe" {
+    1.32
+  } else if el == "ZN" || el == "Zn" {
+    1.22
+  } else if el == "MG" || el == "Mg" {
+    1.41
+  } else if el == "CA" || el == "Ca" {
+    1.76
+  } else if el == "MN" || el == "Mn" {
+    1.39
+  } else if el == "CU" || el == "Cu" {
+    1.32
+  } else if el == "NA" || el == "Na" {
+    1.66
+  } else if el == "K" {
+    2.0
+  } else {
+    0.77
+  } // Default to carbon
 }
 
 ///|
 /// Ionic radii by element (in Angstroms) for common oxidation states.
 /// Returns a tuple of (radius, oxidation_state).
-pub fn chem_ionic_radius(element : String, oxidation_state? : Int = 0) -> Double {
+pub fn chem_ionic_radius(
+  element : String,
+  oxidation_state? : Int = 0,
+) -> Double {
   let el = element.to_upper()
-  if el == "H" { 0.0 }
-  else if el == "C" { 0.08 }
-  else if el == "N" { 0.12 }
-  else if el == "O" { 1.40 }
-  else if el == "F" { 1.33 }
-  else if el == "S" { 1.84 }
-  else if el == "P" { 0.17 }
-  else if el == "CL" || el == "Cl" { 1.81 }
-  else if el == "BR" || el == "Br" { 1.96 }
-  else if el == "I" { 2.20 }
-  else if el == "FE" || el == "Fe" {
-    if oxidation_state == 2 { 0.78 } else { 0.65 }
+  if el == "H" {
+    0.0
+  } else if el == "C" {
+    0.08
+  } else if el == "N" {
+    0.12
+  } else if el == "O" {
+    1.40
+  } else if el == "F" {
+    1.33
+  } else if el == "S" {
+    1.84
+  } else if el == "P" {
+    0.17
+  } else if el == "CL" || el == "Cl" {
+    1.81
+  } else if el == "BR" || el == "Br" {
+    1.96
+  } else if el == "I" {
+    2.20
+  } else if el == "FE" || el == "Fe" {
+    if oxidation_state == 2 {
+      0.78
+    } else {
+      0.65
+    }
+  } else if el == "ZN" || el == "Zn" {
+    0.74
+  } else if el == "MG" || el == "Mg" {
+    0.72
+  } else if el == "CA" || el == "Ca" {
+    1.00
+  } else if el == "MN" || el == "Mn" {
+    if oxidation_state == 2 {
+      0.80
+    } else {
+      0.67
+    }
+  } else if el == "CU" || el == "Cu" {
+    if oxidation_state == 1 {
+      0.77
+    } else {
+      0.73
+    }
+  } else if el == "NA" || el == "Na" {
+    1.02
+  } else if el == "K" {
+    1.38
+  } else {
+    0.0
   }
-  else if el == "ZN" || el == "Zn" { 0.74 }
-  else if el == "MG" || el == "Mg" { 0.72 }
-  else if el == "CA" || el == "Ca" { 1.00 }
-  else if el == "MN" || el == "Mn" {
-    if oxidation_state == 2 { 0.80 } else { 0.67 }
-  }
-  else if el == "CU" || el == "Cu" {
-    if oxidation_state == 1 { 0.77 } else { 0.73 }
-  }
-  else if el == "NA" || el == "Na" { 1.02 }
-  else if el == "K" { 1.38 }
-  else { 0.0 }
 }
 
 ///|
 /// Calculate bond length between two atoms given their coordinates.
 /// atom1_coords: [x, y, z] of first atom
 /// atom2_coords: [x, y, z] of second atom
-pub fn chem_bond_length(atom1_coords : Array[Double], atom2_coords : Array[Double]) -> Double {
+pub fn chem_bond_length(
+  atom1_coords : Array[Double],
+  atom2_coords : Array[Double],
+) -> Double {
   let dx = atom1_coords[0] - atom2_coords[0]
   let dy = atom1_coords[1] - atom2_coords[1]
   let dz = atom1_coords[2] - atom2_coords[2]
@@ -125,7 +198,13 @@ pub fn chem_bond_angle(
     return 0.0
   }
   let cos_angle = dot / (mag1 * mag2)
-  let clamped = if cos_angle > 1.0 { 1.0 } else if cos_angle < -1.0 { -1.0 } else { cos_angle }
+  let clamped = if cos_angle > 1.0 {
+    1.0
+  } else if cos_angle < -1.0 {
+    -1.0
+  } else {
+    cos_angle
+  }
   // acos approximation
   acos_approx(clamped) * 180.0 / 3.141592653589793
 }
@@ -264,8 +343,8 @@ pub fn chem_empirical_formula(element_counts : Map[String, Int]) -> String {
 /// Calculate molecular weight from element counts and atomic weights.
 pub fn chem_molecular_weight(element_counts : Map[String, Int]) -> Double {
   let atomic_weights_elements = [
-    "H", "C", "N", "O", "F", "P", "S", "CL", "BR", "I",
-    "FE", "ZN", "MG", "CA", "MN", "CU", "NA", "K",
+    "H", "C", "N", "O", "F", "P", "S", "CL", "BR", "I", "FE", "ZN", "MG", "CA", "MN",
+    "CU", "NA", "K",
   ]
   let atomic_weights_values = [
     1.008, 12.011, 14.007, 15.999, 18.998, 30.974, 32.06, 35.45, 79.904, 126.904,
@@ -298,8 +377,12 @@ pub fn chem_molecular_weight(element_counts : Map[String, Int]) -> Double {
 /// Approximate arccosine function.
 /// Uses the identity: acos(x) = atan2(sqrt(1-x^2), x)
 fn acos_approx(x : Double) -> Double {
-  if x >= 1.0 { return 0.0 }
-  if x <= -1.0 { return 3.141592653589793 }
+  if x >= 1.0 {
+    return 0.0
+  }
+  if x <= -1.0 {
+    return 3.141592653589793
+  }
   atan2_approx((1.0 - x * x).sqrt(), x)
 }
 
@@ -314,10 +397,12 @@ fn atan2_approx(y : Double, x : Double) -> Double {
     } else {
       atan_approx(y / x) - 3.141592653589793
     }
+  } else if y > 0.0 {
+    3.141592653589793 / 2.0
+  } else if y < 0.0 {
+    -3.141592653589793 / 2.0
   } else {
-    if y > 0.0 { 3.141592653589793 / 2.0 }
-    else if y < 0.0 { -3.141592653589793 / 2.0 }
-    else { 0.0 }
+    0.0
   }
 }
 
@@ -345,45 +430,107 @@ pub fn chem_amino_acid_elements(aa_name : String) -> Map[String, Int] {
   let name = aa_name.to_upper()
   let elements : Map[String, Int] = Map([], capacity=16)
   if name == "ALA" || name == "A" {
-    elements.set("C", 3); elements.set("H", 7); elements.set("N", 1); elements.set("O", 2)
+    elements.set("C", 3)
+    elements.set("H", 7)
+    elements.set("N", 1)
+    elements.set("O", 2)
   } else if name == "ARG" || name == "R" {
-    elements.set("C", 6); elements.set("H", 14); elements.set("N", 4); elements.set("O", 2)
+    elements.set("C", 6)
+    elements.set("H", 14)
+    elements.set("N", 4)
+    elements.set("O", 2)
   } else if name == "ASN" || name == "N" {
-    elements.set("C", 4); elements.set("H", 8); elements.set("N", 2); elements.set("O", 3)
+    elements.set("C", 4)
+    elements.set("H", 8)
+    elements.set("N", 2)
+    elements.set("O", 3)
   } else if name == "ASP" || name == "D" {
-    elements.set("C", 4); elements.set("H", 7); elements.set("N", 1); elements.set("O", 4)
+    elements.set("C", 4)
+    elements.set("H", 7)
+    elements.set("N", 1)
+    elements.set("O", 4)
   } else if name == "CYS" || name == "C" {
-    elements.set("C", 3); elements.set("H", 7); elements.set("N", 1); elements.set("O", 2); elements.set("S", 1)
+    elements.set("C", 3)
+    elements.set("H", 7)
+    elements.set("N", 1)
+    elements.set("O", 2)
+    elements.set("S", 1)
   } else if name == "GLN" || name == "Q" {
-    elements.set("C", 5); elements.set("H", 10); elements.set("N", 2); elements.set("O", 3)
+    elements.set("C", 5)
+    elements.set("H", 10)
+    elements.set("N", 2)
+    elements.set("O", 3)
   } else if name == "GLU" || name == "E" {
-    elements.set("C", 5); elements.set("H", 9); elements.set("N", 1); elements.set("O", 4)
+    elements.set("C", 5)
+    elements.set("H", 9)
+    elements.set("N", 1)
+    elements.set("O", 4)
   } else if name == "GLY" || name == "G" {
-    elements.set("C", 2); elements.set("H", 5); elements.set("N", 1); elements.set("O", 2)
+    elements.set("C", 2)
+    elements.set("H", 5)
+    elements.set("N", 1)
+    elements.set("O", 2)
   } else if name == "HIS" || name == "H" {
-    elements.set("C", 6); elements.set("H", 9); elements.set("N", 3); elements.set("O", 2)
+    elements.set("C", 6)
+    elements.set("H", 9)
+    elements.set("N", 3)
+    elements.set("O", 2)
   } else if name == "ILE" || name == "I" {
-    elements.set("C", 6); elements.set("H", 13); elements.set("N", 1); elements.set("O", 2)
+    elements.set("C", 6)
+    elements.set("H", 13)
+    elements.set("N", 1)
+    elements.set("O", 2)
   } else if name == "LEU" || name == "L" {
-    elements.set("C", 6); elements.set("H", 13); elements.set("N", 1); elements.set("O", 2)
+    elements.set("C", 6)
+    elements.set("H", 13)
+    elements.set("N", 1)
+    elements.set("O", 2)
   } else if name == "LYS" || name == "K" {
-    elements.set("C", 6); elements.set("H", 14); elements.set("N", 2); elements.set("O", 2)
+    elements.set("C", 6)
+    elements.set("H", 14)
+    elements.set("N", 2)
+    elements.set("O", 2)
   } else if name == "MET" || name == "M" {
-    elements.set("C", 5); elements.set("H", 11); elements.set("N", 1); elements.set("O", 2); elements.set("S", 1)
+    elements.set("C", 5)
+    elements.set("H", 11)
+    elements.set("N", 1)
+    elements.set("O", 2)
+    elements.set("S", 1)
   } else if name == "PHE" || name == "F" {
-    elements.set("C", 9); elements.set("H", 11); elements.set("N", 1); elements.set("O", 2)
+    elements.set("C", 9)
+    elements.set("H", 11)
+    elements.set("N", 1)
+    elements.set("O", 2)
   } else if name == "PRO" || name == "P" {
-    elements.set("C", 5); elements.set("H", 9); elements.set("N", 1); elements.set("O", 2)
+    elements.set("C", 5)
+    elements.set("H", 9)
+    elements.set("N", 1)
+    elements.set("O", 2)
   } else if name == "SER" || name == "S" {
-    elements.set("C", 3); elements.set("H", 7); elements.set("N", 1); elements.set("O", 3)
+    elements.set("C", 3)
+    elements.set("H", 7)
+    elements.set("N", 1)
+    elements.set("O", 3)
   } else if name == "THR" || name == "T" {
-    elements.set("C", 4); elements.set("H", 9); elements.set("N", 1); elements.set("O", 3)
+    elements.set("C", 4)
+    elements.set("H", 9)
+    elements.set("N", 1)
+    elements.set("O", 3)
   } else if name == "TRP" || name == "W" {
-    elements.set("C", 11); elements.set("H", 12); elements.set("N", 2); elements.set("O", 2)
+    elements.set("C", 11)
+    elements.set("H", 12)
+    elements.set("N", 2)
+    elements.set("O", 2)
   } else if name == "TYR" || name == "Y" {
-    elements.set("C", 9); elements.set("H", 11); elements.set("N", 1); elements.set("O", 3)
+    elements.set("C", 9)
+    elements.set("H", 11)
+    elements.set("N", 1)
+    elements.set("O", 3)
   } else if name == "VAL" || name == "V" {
-    elements.set("C", 5); elements.set("H", 11); elements.set("N", 1); elements.set("O", 2)
+    elements.set("C", 5)
+    elements.set("H", 11)
+    elements.set("N", 1)
+    elements.set("O", 2)
   }
   elements
 }
@@ -417,9 +564,13 @@ pub fn chem_extinction_coefficient(sequence : String) -> Double {
   let mut i = 0
   while i < upper_seq.length() {
     let ch = upper_seq.unsafe_get(i).unsafe_to_char()
-    if ch == 'W' { trp_count = trp_count + 1 }
-    else if ch == 'Y' { tyr_count = tyr_count + 1 }
-    else if ch == 'C' { cys_count = cys_count + 1 }
+    if ch == 'W' {
+      trp_count = trp_count + 1
+    } else if ch == 'Y' {
+      tyr_count = tyr_count + 1
+    } else if ch == 'C' {
+      cys_count = cys_count + 1
+    }
     i = i + 1
   }
   // Pace et al. values
@@ -427,7 +578,9 @@ pub fn chem_extinction_coefficient(sequence : String) -> Double {
   let ext_tyr = 1490.0
   let ext_cystine = 125.0 // per disulfide bond (divide Cys by 2)
   let n_cystine = cys_count / 2
-  ext_trp * trp_count.to_double() + ext_tyr * tyr_count.to_double() + ext_cystine * n_cystine.to_double()
+  ext_trp * trp_count.to_double() +
+  ext_tyr * tyr_count.to_double() +
+  ext_cystine * n_cystine.to_double()
 }
 
 ///|
@@ -469,15 +622,22 @@ pub fn chem_isoelectric_point(
     neg_charge = 0.0
     // Positive charges
     pos_charge = pos_charge + 1.0 / (1.0 + chem_pow10(pH - p_nterm)) // N-term
-    pos_charge = pos_charge + arg_count.to_double() / (1.0 + chem_pow10(pH - pka_arg))
-    pos_charge = pos_charge + lys_count.to_double() / (1.0 + chem_pow10(pH - pka_lys))
-    pos_charge = pos_charge + his_count.to_double() / (1.0 + chem_pow10(pH - pka_his))
+    pos_charge = pos_charge +
+      arg_count.to_double() / (1.0 + chem_pow10(pH - pka_arg))
+    pos_charge = pos_charge +
+      lys_count.to_double() / (1.0 + chem_pow10(pH - pka_lys))
+    pos_charge = pos_charge +
+      his_count.to_double() / (1.0 + chem_pow10(pH - pka_his))
     // Negative charges
     neg_charge = neg_charge + 1.0 / (1.0 + chem_pow10(p_cterm - pH)) // C-term
-    neg_charge = neg_charge + asp_count.to_double() / (1.0 + chem_pow10(pka_asp - pH))
-    neg_charge = neg_charge + glu_count.to_double() / (1.0 + chem_pow10(pka_glu - pH))
-    neg_charge = neg_charge + cys_count.to_double() / (1.0 + chem_pow10(pka_cys - pH))
-    neg_charge = neg_charge + tyr_count.to_double() / (1.0 + chem_pow10(pka_tyr - pH))
+    neg_charge = neg_charge +
+      asp_count.to_double() / (1.0 + chem_pow10(pka_asp - pH))
+    neg_charge = neg_charge +
+      glu_count.to_double() / (1.0 + chem_pow10(pka_glu - pH))
+    neg_charge = neg_charge +
+      cys_count.to_double() / (1.0 + chem_pow10(pka_cys - pH))
+    neg_charge = neg_charge +
+      tyr_count.to_double() / (1.0 + chem_pow10(pka_tyr - pH))
     let net = pos_charge - neg_charge
     if net > 0.0 {
       low = pH
@@ -537,8 +697,8 @@ pub fn chem_count_atoms(sequence : String) -> Int {
 /// Parses formulas like "H2O", "C6H12O6", "NaCl", etc.
 pub fn chem_formula_weight(formula : String) -> Double {
   let atomic_weights_elements = [
-    "H", "C", "N", "O", "F", "P", "S", "CL", "BR", "I",
-    "FE", "ZN", "MG", "CA", "MN", "CU", "NA", "K",
+    "H", "C", "N", "O", "F", "P", "S", "CL", "BR", "I", "FE", "ZN", "MG", "CA", "MN",
+    "CU", "NA", "K",
   ]
   let atomic_weights_values = [
     1.008, 12.011, 14.007, 15.999, 18.998, 30.974, 32.06, 35.45, 79.904, 126.904,
@@ -565,7 +725,8 @@ pub fn chem_formula_weight(formula : String) -> Double {
         let next_ch = upper.unsafe_get(pos).to_int()
         if next_ch >= 65 && next_ch <= 90 {
           // Check if two-letter combination is in weight map
-          let two_letter = el + upper.unsafe_get(pos).unsafe_to_char().to_string()
+          let two_letter = el +
+            upper.unsafe_get(pos).unsafe_to_char().to_string()
           if weight_map.contains(two_letter) {
             el = two_letter
             pos = pos + 1
@@ -603,17 +764,29 @@ pub fn chem_formula_weight(formula : String) -> Double {
 ///|
 /// Calculate typical hydrogen bond length between two atom types.
 /// Returns approximate distance in Angstroms.
-pub fn chem_hydrogen_bond_length(donor_type : String, acceptor_type : String) -> Double {
+pub fn chem_hydrogen_bond_length(
+  donor_type : String,
+  acceptor_type : String,
+) -> Double {
   let donor = donor_type.to_upper()
   let acceptor = acceptor_type.to_upper()
   let key = donor + "..." + acceptor
   // Typical hydrogen bond distances (Angstroms)
-  if key == "OH...OH" || key == "OH...O" { 2.72 }
-  else if key == "NH...OH" || key == "NH...O" { 2.93 }
-  else if key == "SH...SH" { 3.45 }
-  else if key == "OH...NH" || key == "O...HN" { 2.88 }
-  else if key == "NH...N" { 3.10 }
-  else if key == "OH...S" { 3.40 }
-  else if key == "NH...S" { 3.45 }
-  else { 2.90 } // Default
+  if key == "OH...OH" || key == "OH...O" {
+    2.72
+  } else if key == "NH...OH" || key == "NH...O" {
+    2.93
+  } else if key == "SH...SH" {
+    3.45
+  } else if key == "OH...NH" || key == "O...HN" {
+    2.88
+  } else if key == "NH...N" {
+    3.10
+  } else if key == "OH...S" {
+    3.40
+  } else if key == "NH...S" {
+    3.45
+  } else {
+    2.90
+  } // Default
 }

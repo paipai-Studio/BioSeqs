@@ -1,6 +1,5 @@
 ///|
 /// Tests for Bioconductor baySeq module - Bayesian differential expression.
-
 test "estimate_dispersion_basic" {
   // Two groups with different means
   let a = [100.0, 120.0, 110.0, 90.0]
@@ -10,6 +9,7 @@ test "estimate_dispersion_basic" {
   assert_true(disp <= 100.0)
 }
 
+///|
 test "estimate_dispersion_low_counts" {
   let a = [1.0, 2.0, 1.5, 1.2]
   let b = [1.0, 1.8, 1.3, 1.1]
@@ -18,6 +18,7 @@ test "estimate_dispersion_low_counts" {
   assert_true(disp > 0.0)
 }
 
+///|
 test "estimate_dispersion_single_sample" {
   let a = [100.0]
   let b = [200.0]
@@ -25,6 +26,7 @@ test "estimate_dispersion_single_sample" {
   assert_true(disp == 1.0)
 }
 
+///|
 test "estimate_prior_basic" {
   let (counts, groups, _) = @src.bayseq_sample_data()
   let (shape, rate) = @src.bayseq_estimate_prior(counts, groups)
@@ -32,6 +34,7 @@ test "estimate_prior_basic" {
   assert_true(rate > 0.0)
 }
 
+///|
 test "estimate_prior_empty" {
   let counts : Array[Array[Double]] = []
   let (shape, rate) = @src.bayseq_estimate_prior(counts, [])
@@ -39,6 +42,7 @@ test "estimate_prior_empty" {
   assert_true(rate == 0.5)
 }
 
+///|
 test "log_likelihood_ratio_de" {
   let a = [100.0, 120.0, 110.0, 90.0]
   let b = [500.0, 520.0, 510.0, 490.0]
@@ -48,6 +52,7 @@ test "log_likelihood_ratio_de" {
   assert_true(llr > 0.0)
 }
 
+///|
 test "log_likelihood_ratio_same" {
   let a = [100.0, 120.0, 110.0, 90.0]
   let b = [100.0, 120.0, 110.0, 90.0]
@@ -57,28 +62,33 @@ test "log_likelihood_ratio_same" {
   assert_true(llr >= -1.0 && llr <= 1.0)
 }
 
+///|
 test "lgamma_positive" {
   let val = @src.bayseq_lgamma(5.0)
   assert_true(val > 0.0)
 }
 
+///|
 test "lgamma_one" {
   // lgamma(1) = 0 since gamma(1) = 1, log(1) = 0
   let val = @src.bayseq_lgamma(1.0)
   assert_true(val >= -0.1 && val <= 0.1)
 }
 
+///|
 test "lgamma_large" {
   let val = @src.bayseq_lgamma(100.0)
   // lgamma(100) ≈ 363.739
   assert_true(val > 100.0)
 }
 
+///|
 test "nb_log_likelihood_zero_mean" {
   let ll = @src.bayseq_nb_log_likelihood([1.0, 2.0, 3.0], 0.0, 10.0)
   assert_true(ll == 0.0)
 }
 
+///|
 test "test_basic" {
   let (counts, groups, names) = @src.bayseq_sample_data()
   let result = @src.bayseq_test(counts, groups, names)
@@ -87,6 +97,7 @@ test "test_basic" {
   assert_true(result.n_de_genes <= 30)
 }
 
+///|
 test "test_lfc_calculation" {
   let (counts, groups, names) = @src.bayseq_sample_data()
   let result = @src.bayseq_test(counts, groups, names)
@@ -95,6 +106,7 @@ test "test_lfc_calculation" {
   assert_true(g0.log_fold_change > 0.0)
 }
 
+///|
 test "test_posterior_prob" {
   let (counts, groups, names) = @src.bayseq_sample_data()
   let result = @src.bayseq_test(counts, groups, names)
@@ -102,6 +114,7 @@ test "test_posterior_prob" {
   assert_true(g0.posterior_prob_de >= 0.0 && g0.posterior_prob_de <= 1.0)
 }
 
+///|
 test "get_de_genes" {
   let (counts, groups, names) = @src.bayseq_sample_data()
   let result = @src.bayseq_test(counts, groups, names)
@@ -109,6 +122,7 @@ test "get_de_genes" {
   assert_eq(de_genes.length(), result.n_de_genes)
 }
 
+///|
 test "get_top_de" {
   let (counts, groups, names) = @src.bayseq_sample_data()
   let result = @src.bayseq_test(counts, groups, names)
@@ -116,6 +130,7 @@ test "get_top_de" {
   assert_eq(top.length(), 5)
 }
 
+///|
 test "get_top_de_fewer_than_n" {
   let (counts, groups, names) = @src.bayseq_sample_data()
   let result = @src.bayseq_test(counts, groups, names)
@@ -123,6 +138,7 @@ test "get_top_de_fewer_than_n" {
   assert_eq(top.length(), 30)
 }
 
+///|
 test "sample_data_dimensions" {
   let (counts, groups, names) = @src.bayseq_sample_data()
   assert_eq(counts.length(), 30)
@@ -131,6 +147,7 @@ test "sample_data_dimensions" {
   assert_eq(names.length(), 30)
 }
 
+///|
 test "summary" {
   let (counts, groups, names) = @src.bayseq_sample_data()
   let result = @src.bayseq_test(counts, groups, names)

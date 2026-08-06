@@ -84,12 +84,24 @@ pub fn rna_predictor_with_params(
 pub fn is_complementary(base1 : UInt16, base2 : UInt16) -> Bool {
   let b1 = rna_normalize_base(base1)
   let b2 = rna_normalize_base(base2)
-  if b1 == 65 && b2 == 85 { return true }
-  if b1 == 85 && b2 == 65 { return true }
-  if b1 == 71 && b2 == 67 { return true }
-  if b1 == 67 && b2 == 71 { return true }
-  if b1 == 71 && b2 == 85 { return true }
-  if b1 == 85 && b2 == 71 { return true }
+  if b1 == 65 && b2 == 85 {
+    return true
+  }
+  if b1 == 85 && b2 == 65 {
+    return true
+  }
+  if b1 == 71 && b2 == 67 {
+    return true
+  }
+  if b1 == 67 && b2 == 71 {
+    return true
+  }
+  if b1 == 71 && b2 == 85 {
+    return true
+  }
+  if b1 == 85 && b2 == 71 {
+    return true
+  }
   false
 }
 
@@ -97,7 +109,9 @@ pub fn is_complementary(base1 : UInt16, base2 : UInt16) -> Bool {
 /// Calculate the loop energy penalty for a given loop length.
 /// Returns penalty = loop_penalty * length.
 pub fn compute_loop_energy(length : Int) -> Double {
-  if length <= 0 { return 0.0 }
+  if length <= 0 {
+    return 0.0
+  }
   0.5 * length.to_double()
 }
 
@@ -112,7 +126,9 @@ pub fn nussinov_matrix(
   predictor : RNAStructurePredictor,
 ) -> Array[Array[Double]] {
   let n = sequence.length()
-  if n == 0 { return [] }
+  if n == 0 {
+    return []
+  }
 
   let dp : Array[Array[Double]] = Array::new()
   for i = 0; i < n; i = i + 1 {
@@ -146,7 +162,9 @@ pub fn nussinov_traceback(
 ) -> Array[(Int, Int)] {
   let n = sequence.length()
   let base_pairs : Array[(Int, Int)] = Array::new()
-  if n == 0 { return base_pairs }
+  if n == 0 {
+    return base_pairs
+  }
 
   rna_trace_from_matrix(matrix, sequence, predictor, 0, n - 1, base_pairs)
 
@@ -243,12 +261,12 @@ pub fn identify_loop_regions(
 ) -> Array[LoopRegion] {
   let loop_regions : Array[LoopRegion] = Array::new()
   let n = sequence.length()
-  if n == 0 { return loop_regions }
+  if n == 0 {
+    return loop_regions
+  }
 
   let paired = rna_build_paired_array(n, base_pairs)
-  rna_find_loops_recursive(
-    sequence, base_pairs, 0, n - 1, paired, loop_regions,
-  )
+  rna_find_loops_recursive(sequence, base_pairs, 0, n - 1, paired, loop_regions)
 
   loop_regions
 }
@@ -273,7 +291,11 @@ pub fn mfe_to_dot_bracket(
 ///|
 /// Normalize a base to uppercase UInt16 code.
 fn rna_normalize_base(base : UInt16) -> UInt16 {
-  if base >= 97 && base <= 122 { base - 32 } else { base }
+  if base >= 97 && base <= 122 {
+    base - 32
+  } else {
+    base
+  }
 }
 
 ///|
@@ -294,10 +316,14 @@ fn rna_base_pair_energy(
     (nb1 == 71 && nb2 == 67) ||
     (nb1 == 67 && nb2 == 71)
 
-  if is_watson_crick { return -1.0 }
+  if is_watson_crick {
+    return -1.0
+  }
 
   let is_wobble = (nb1 == 71 && nb2 == 85) || (nb1 == 85 && nb2 == 71)
-  if is_wobble { return -0.5 }
+  if is_wobble {
+    return -0.5
+  }
 
   predictor.mismatch_penalty
 }
@@ -317,7 +343,11 @@ fn rna_compute_energy_for_interval(
   let unpaired_i = dp[i + 1][j]
   let unpaired_j = dp[i][j - 1]
 
-  let mut min_energy = if unpaired_i < unpaired_j { unpaired_i } else { unpaired_j }
+  let mut min_energy = if unpaired_i < unpaired_j {
+    unpaired_i
+  } else {
+    unpaired_j
+  }
 
   let loop_len = j - i - 1
   if loop_len >= loop_min {
@@ -344,7 +374,11 @@ fn rna_compute_energy_for_interval(
 ///|
 /// Absolute value helper for Double.
 fn rna_abs(x : Double) -> Double {
-  if x < 0.0 { -x } else { x }
+  if x < 0.0 {
+    -x
+  } else {
+    x
+  }
 }
 
 ///|
@@ -357,7 +391,9 @@ fn rna_trace_from_matrix(
   j : Int,
   base_pairs : Array[(Int, Int)],
 ) -> Unit {
-  if i >= j { return }
+  if i >= j {
+    return
+  }
 
   let n = sequence.length()
   let loop_min = predictor.loop_min_length
@@ -382,7 +418,12 @@ fn rna_trace_from_matrix(
     if rna_abs(paired_energy - current) < eps {
       base_pairs.push((i, j))
       rna_trace_from_matrix(
-        matrix, sequence, predictor, i + 1, j - 1, base_pairs,
+        matrix,
+        sequence,
+        predictor,
+        i + 1,
+        j - 1,
+        base_pairs,
       )
       return
     }
@@ -393,9 +434,7 @@ fn rna_trace_from_matrix(
     let bifurcation_energy = matrix[i][k] + matrix[k + 1][j]
     if rna_abs(bifurcation_energy - current) < eps {
       rna_trace_from_matrix(matrix, sequence, predictor, i, k, base_pairs)
-      rna_trace_from_matrix(
-        matrix, sequence, predictor, k + 1, j, base_pairs,
-      )
+      rna_trace_from_matrix(matrix, sequence, predictor, k + 1, j, base_pairs)
       return
     }
     k = k + 1
@@ -416,7 +455,10 @@ fn rna_build_dot_bracket(n : Int, base_pairs : Array[(Int, Int)]) -> String {
 
 ///|
 /// Build an array indicating which positions are paired.
-fn rna_build_paired_array(n : Int, base_pairs : Array[(Int, Int)]) -> Array[Int] {
+fn rna_build_paired_array(
+  n : Int,
+  base_pairs : Array[(Int, Int)],
+) -> Array[Int] {
   let paired : Array[Int] = Array::make(n, -1)
   for idx = 0; idx < base_pairs.length(); idx = idx + 1 {
     let (i, j) = base_pairs[idx]
@@ -436,7 +478,9 @@ fn rna_find_loops_recursive(
   paired : Array[Int],
   loop_regions : Array[LoopRegion],
 ) -> Unit {
-  if i >= j { return }
+  if i >= j {
+    return
+  }
 
   let n = sequence.length()
   let has_pair = if i < n && paired[i] == j { true } else { false }
@@ -445,11 +489,7 @@ fn rna_find_loops_recursive(
     let loop_len = j - i - 1
     if loop_len > 0 {
       let loop_type = rna_classify_loop(sequence, i, j, paired)
-      loop_regions.push(LoopRegion::{
-        start: i + 1,
-        end: j - 1,
-        loop_type,
-      })
+      loop_regions.push(LoopRegion::{ start: i + 1, end: j - 1, loop_type })
 
       let inner_i = i + 1
       let inner_j = j - 1
@@ -474,7 +514,12 @@ fn rna_find_loops_recursive(
         if k + 1 < k_pair - 1 {
           let sub_paired = rna_build_sub_paired(k + 1, k_pair - 1, paired)
           rna_find_loops_recursive(
-            sequence, base_pairs, k + 1, k_pair - 1, sub_paired, loop_regions,
+            sequence,
+            base_pairs,
+            k + 1,
+            k_pair - 1,
+            sub_paired,
+            loop_regions,
           )
         }
         k = k_pair + 1
@@ -562,7 +607,9 @@ fn rna_compute_mfe(
   loop_regions : Array[LoopRegion],
 ) -> Double {
   let n = sequence.length()
-  if n <= 2 { return 0.0 }
+  if n <= 2 {
+    return 0.0
+  }
 
   let mut mfe = 0.0
 
@@ -575,7 +622,9 @@ fn rna_compute_mfe(
   for idx = 0; idx < loop_regions.length(); idx = idx + 1 {
     let region = loop_regions[idx]
     let loop_len = region.end - region.start + 1
-    if loop_len <= 0 { continue }
+    if loop_len <= 0 {
+      continue
+    }
 
     let penalty = match region.loop_type {
       "hairpin" => (predictor.loop_penalty + 0.1) * loop_len.to_double()
@@ -605,10 +654,14 @@ fn rna_count_stacking(
   for idx = 0; idx < bp_count; idx = idx + 1 {
     let (i, j) = base_pairs[idx]
     let has_next = i + 1 < j - 1
-    if !has_next { continue }
+    if !has_next {
+      continue
+    }
 
     for idx2 = 0; idx2 < bp_count; idx2 = idx2 + 1 {
-      if idx2 == idx { continue }
+      if idx2 == idx {
+        continue
+      }
       let (i2, j2) = base_pairs[idx2]
       if i2 == i + 1 && j2 == j - 1 {
         stacking_count = stacking_count + 1

@@ -99,7 +99,11 @@ test "packing_result_creation" {
 
 ///|
 test "packing_result_get_density" {
-  let result = @src.PackingResult::new(residue_name="GLU", residue_seq=5, density=3.7)
+  let result = @src.PackingResult::new(
+    residue_name="GLU",
+    residue_seq=5,
+    density=3.7,
+  )
   assert_eq(result.get_density(), 3.7)
 }
 
@@ -321,12 +325,7 @@ test "calculate_packing_sasa_empty" {
 ///|
 test "calculate_packing_sasa_single_atom" {
   let atoms : Array[@src.PackingAtom] = [
-    @src.PackingAtom::new(
-      x=0.0,
-      y=0.0,
-      z=0.0,
-      vdw_radius=1.7,
-    ),
+    @src.PackingAtom::new(x=0.0, y=0.0, z=0.0, vdw_radius=1.7),
   ]
   let sasa = @src.calculate_packing_sasa(atoms, probe_radius=1.4, n_points=50)
   assert_eq(sasa > 0.0, true)
@@ -349,28 +348,44 @@ test "calculate_packing_sasa_lower_probe" {
 
 ///|
 test "normalize_packing_density_below_threshold" {
-  let result = @src.PackingResult::new(residue_name="ALA", residue_seq=1, density=0.5)
+  let result = @src.PackingResult::new(
+    residue_name="ALA",
+    residue_seq=1,
+    density=0.5,
+  )
   let normalized = @src.normalize_packing_density(result, threshold=2.0)
   assert_eq(normalized.density, 0.25)
 }
 
 ///|
 test "normalize_packing_density_above_threshold" {
-  let result = @src.PackingResult::new(residue_name="ALA", residue_seq=1, density=3.0)
+  let result = @src.PackingResult::new(
+    residue_name="ALA",
+    residue_seq=1,
+    density=3.0,
+  )
   let normalized = @src.normalize_packing_density(result, threshold=2.0)
   assert_eq(normalized.density, 1.0)
 }
 
 ///|
 test "normalize_packing_density_at_threshold" {
-  let result = @src.PackingResult::new(residue_name="ALA", residue_seq=1, density=2.0)
+  let result = @src.PackingResult::new(
+    residue_name="ALA",
+    residue_seq=1,
+    density=2.0,
+  )
   let normalized = @src.normalize_packing_density(result, threshold=2.0)
   assert_eq(normalized.density, 1.0)
 }
 
 ///|
 test "normalize_packing_density_zero_threshold" {
-  let result = @src.PackingResult::new(residue_name="ALA", residue_seq=1, density=1.5)
+  let result = @src.PackingResult::new(
+    residue_name="ALA",
+    residue_seq=1,
+    density=1.5,
+  )
   let normalized = @src.normalize_packing_density(result, threshold=0.0)
   assert_eq(normalized.density, 1.5)
 }
@@ -378,9 +393,24 @@ test "normalize_packing_density_zero_threshold" {
 ///|
 test "identify_low_packing_basic" {
   let results : Array[@src.PackingResult] = [
-    @src.PackingResult::new(residue_name="ALA", residue_seq=1, chain_id='A', density=0.3),
-    @src.PackingResult::new(residue_name="GLY", residue_seq=2, chain_id='A', density=1.5),
-    @src.PackingResult::new(residue_name="VAL", residue_seq=3, chain_id='A', density=0.4),
+    @src.PackingResult::new(
+      residue_name="ALA",
+      residue_seq=1,
+      chain_id='A',
+      density=0.3,
+    ),
+    @src.PackingResult::new(
+      residue_name="GLY",
+      residue_seq=2,
+      chain_id='A',
+      density=1.5,
+    ),
+    @src.PackingResult::new(
+      residue_name="VAL",
+      residue_seq=3,
+      chain_id='A',
+      density=0.4,
+    ),
   ]
   let analysis = @src.PackingAnalysisResult::new(results~, n_residues=3)
   let low = @src.identify_low_packing(analysis, cutoff=0.5)
@@ -412,7 +442,7 @@ test "identify_low_packing_all_below" {
 ///|
 test "sphere_volume_calculation" {
   let vol = @src.sphere_volume(2.0)
-  let expected = (4.0 / 3.0) * 3.14159265358979323846 * 8.0
+  let expected = 4.0 / 3.0 * 3.14159265358979323846 * 8.0
   assert_eq((vol - expected).abs() < 0.001, true)
 }
 
@@ -445,7 +475,10 @@ test "sphere_volume_radius_roundtrip" {
 ///|
 test "calculate_packing_efficiency_basic" {
   let atoms = @src.create_demo_packing_atoms()
-  let efficiency = @src.calculate_packing_efficiency(atoms, container_radius=10.0)
+  let efficiency = @src.calculate_packing_efficiency(
+    atoms,
+    container_radius=10.0,
+  )
   assert_eq(efficiency > 0.0, true)
 }
 
@@ -460,7 +493,10 @@ test "calculate_packing_efficiency_empty" {
 test "calculate_packing_efficiency_large_container" {
   let atoms = @src.create_demo_packing_atoms()
   let eff_small = @src.calculate_packing_efficiency(atoms, container_radius=5.0)
-  let eff_large = @src.calculate_packing_efficiency(atoms, container_radius=50.0)
+  let eff_large = @src.calculate_packing_efficiency(
+    atoms,
+    container_radius=50.0,
+  )
   assert_eq(eff_small > eff_large, true)
 }
 
@@ -524,7 +560,11 @@ test "packing_density_with_demo_atoms" {
 ///|
 test "packing_analysis_with_demo_atoms" {
   let atoms = @src.create_demo_packing_atoms()
-  let analysis = @src.packing_density_per_residue(atoms, radius=1.4, n_points=20)
+  let analysis = @src.packing_density_per_residue(
+    atoms,
+    radius=1.4,
+    n_points=20,
+  )
   assert_eq(analysis.n_residues, 3)
   assert_eq(analysis.mean_density > 0.0, true)
   assert_eq(analysis.n_buried + analysis.n_exposed, 3)
@@ -540,7 +580,11 @@ test "sasa_with_demo_atoms" {
 ///|
 test "low_packing_identification_with_analysis" {
   let atoms = @src.create_demo_packing_atoms()
-  let analysis = @src.packing_density_per_residue(atoms, radius=1.4, n_points=20)
+  let analysis = @src.packing_density_per_residue(
+    atoms,
+    radius=1.4,
+    n_points=20,
+  )
   let low = @src.identify_low_packing(analysis, cutoff=0.0)
   assert_eq(low.length() >= 0, true)
 }

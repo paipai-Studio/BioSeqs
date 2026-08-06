@@ -10,31 +10,37 @@ test "wise_block_type_to_string_exon" {
   assert_eq(bt.to_string(), "exon")
 }
 
+///|
 test "wise_block_type_to_string_intron" {
   let bt = @src.wise_make_block_type("intron")
   assert_eq(bt.to_string(), "intron")
 }
 
+///|
 test "wise_block_type_to_string_match" {
   let bt = @src.wise_make_block_type("match")
   assert_eq(bt.to_string(), "match")
 }
 
+///|
 test "wise_block_type_to_string_mismatch" {
   let bt = @src.wise_make_block_type("mismatch")
   assert_eq(bt.to_string(), "mismatch")
 }
 
+///|
 test "wise_block_type_to_string_insertion" {
   let bt = @src.wise_make_block_type("insertion")
   assert_eq(bt.to_string(), "insertion")
 }
 
+///|
 test "wise_block_type_to_string_deletion" {
   let bt = @src.wise_make_block_type("deletion")
   assert_eq(bt.to_string(), "deletion")
 }
 
+///|
 test "wise_block_type_eq_via_is_pattern" {
   // Enum variants can be compared using `is` pattern matching.
   let bt = @src.wise_make_block_type("exon")
@@ -46,6 +52,7 @@ test "wise_block_type_eq_via_is_pattern" {
 // WiseExon
 // ---------------------------------------------------------------------------
 
+///|
 test "wise_exon_new_defaults" {
   let e = @src.WiseExon::new()
   assert_eq(e.start, 0)
@@ -57,6 +64,7 @@ test "wise_exon_new_defaults" {
   assert_eq(e.protein_end, 0)
 }
 
+///|
 test "wise_exon_new_with_params" {
   let e = @src.WiseExon::new(
     start=100,
@@ -76,11 +84,13 @@ test "wise_exon_new_with_params" {
   assert_eq(e.protein_end, 33)
 }
 
+///|
 test "wise_exon_length" {
   let e = @src.WiseExon::new(start=0, end=99)
   assert_eq(e.length(), 100)
 }
 
+///|
 test "wise_exon_length_single_base" {
   let e = @src.WiseExon::new(start=50, end=50)
   assert_eq(e.length(), 1)
@@ -90,6 +100,7 @@ test "wise_exon_length_single_base" {
 // WiseIntron
 // ---------------------------------------------------------------------------
 
+///|
 test "wise_intron_new_defaults" {
   let i = @src.WiseIntron::new()
   assert_eq(i.start, 0)
@@ -100,6 +111,7 @@ test "wise_intron_new_defaults" {
   assert_eq(i.length, 1)
 }
 
+///|
 test "wise_intron_new_with_params" {
   let i = @src.WiseIntron::new(
     start=100,
@@ -115,11 +127,13 @@ test "wise_intron_new_with_params" {
   assert_eq(i.length, 100)
 }
 
+///|
 test "wise_intron_length_auto_calc_normal" {
   let i = @src.WiseIntron::new(start=200, end=299)
   assert_eq(i.length, 100)
 }
 
+///|
 test "wise_intron_length_auto_calc_end_before_start" {
   // When end < start, length should be 0
   let i = @src.WiseIntron::new(start=300, end=100)
@@ -130,6 +144,7 @@ test "wise_intron_length_auto_calc_end_before_start" {
 // WiseAlignmentColumn
 // ---------------------------------------------------------------------------
 
+///|
 test "wise_alignment_column_new" {
   let c = @src.WiseAlignmentColumn::new(
     protein_char='M',
@@ -145,11 +160,9 @@ test "wise_alignment_column_new" {
   assert_eq(c.protein_position, 0)
 }
 
+///|
 test "wise_alignment_column_new_default_match_type" {
-  let c = @src.WiseAlignmentColumn::new(
-    protein_char='X',
-    gene_codon="TAG",
-  )
+  let c = @src.WiseAlignmentColumn::new(protein_char='X', gene_codon="TAG")
   assert_eq(c.protein_char, 'X')
   assert_eq(c.gene_codon, "TAG")
   // Default match_type is " "
@@ -162,6 +175,7 @@ test "wise_alignment_column_new_default_match_type" {
 // WiseResult construction and basic accessors
 // ---------------------------------------------------------------------------
 
+///|
 test "wise_result_new_empty" {
   let r = @src.WiseResult::new()
   assert_eq(r.protein_id, "")
@@ -173,6 +187,7 @@ test "wise_result_new_empty" {
   assert_eq(r.get_total_exon_length(), 0)
 }
 
+///|
 test "wise_result_add_and_get_exons" {
   let r = @src.WiseResult::new()
   let e1 = @src.WiseExon::new(start=0, end=99)
@@ -185,6 +200,7 @@ test "wise_result_add_and_get_exons" {
   assert_eq(exons[1].start, 200)
 }
 
+///|
 test "wise_result_add_and_get_introns" {
   let r = @src.WiseResult::new()
   let i1 = @src.WiseIntron::new(start=100, end=199)
@@ -195,6 +211,7 @@ test "wise_result_add_and_get_introns" {
   assert_eq(introns[0].end, 199)
 }
 
+///|
 test "wise_result_get_num_exons" {
   let r = @src.WiseResult::new()
   assert_eq(r.get_num_exons(), 0)
@@ -205,6 +222,7 @@ test "wise_result_get_num_exons" {
   assert_eq(r.get_num_exons(), 3)
 }
 
+///|
 test "wise_result_get_num_introns" {
   let r = @src.WiseResult::new()
   assert_eq(r.get_num_introns(), 0)
@@ -214,6 +232,7 @@ test "wise_result_get_num_introns" {
   assert_eq(r.get_num_introns(), 2)
 }
 
+///|
 test "wise_result_get_total_exon_length" {
   let r = @src.WiseResult::new()
   // Exon 1: 0-99 -> length 100
@@ -225,41 +244,44 @@ test "wise_result_get_total_exon_length" {
   assert_eq(r.get_total_exon_length(), 280)
 }
 
+///|
 test "wise_result_get_total_exon_length_empty" {
   let r = @src.WiseResult::new()
   assert_eq(r.get_total_exon_length(), 0)
 }
 
+///|
 test "wise_result_set_protein_id" {
   let r = @src.WiseResult::new()
   r.set_protein_id("P12345")
   assert_eq(r.protein_id, "P12345")
 }
 
+///|
 test "wise_result_set_gene_id" {
   let r = @src.WiseResult::new()
   r.set_gene_id("G67890")
   assert_eq(r.gene_id, "G67890")
 }
 
+///|
 test "wise_result_set_score" {
   let r = @src.WiseResult::new()
   r.set_score(145.32)
   assert_eq(r.score, 145.32)
 }
 
+///|
 test "wise_result_set_bits_score" {
   let r = @src.WiseResult::new()
   r.set_bits_score(52.18)
   assert_eq(r.bits_score, 52.18)
 }
 
+///|
 test "wise_result_add_alignment_column" {
   let r = @src.WiseResult::new()
-  let c = @src.WiseAlignmentColumn::new(
-    protein_char='M',
-    gene_codon="ATG",
-  )
+  let c = @src.WiseAlignmentColumn::new(protein_char='M', gene_codon="ATG")
   r.add_alignment_column(c)
   let aln = r.get_alignment()
   assert_eq(aln.length(), 1)
@@ -270,27 +292,32 @@ test "wise_result_add_alignment_column" {
 // wise_parse
 // ---------------------------------------------------------------------------
 
+///|
 test "wise_parse_protein_id" {
   let r = @src.wise_parse("Protein: P12345\n")
   assert_eq(r.protein_id, "P12345")
 }
 
+///|
 test "wise_parse_gene_id" {
   let r = @src.wise_parse("Gene: G67890\n")
   assert_eq(r.gene_id, "G67890")
 }
 
+///|
 test "wise_parse_score" {
   let r = @src.wise_parse("Score: 145.32\n")
   // Use tolerance for floating-point comparison (parse_double precision)
   assert_true(r.score > 145.31 && r.score < 145.33)
 }
 
+///|
 test "wise_parse_bits_score" {
   let r = @src.wise_parse("Bits: 52.18\n")
   assert_eq(r.bits_score, 52.18)
 }
 
+///|
 test "wise_parse_exons" {
   let r = @src.wise_parse(
     "Exon 1: 0-99 (phase 0) score 45.5 protein 1-33\nExon 2: 200-299 (phase 0) score 52.3 protein 34-66\n",
@@ -308,6 +335,7 @@ test "wise_parse_exons" {
   assert_eq(exons[1].score, 52.3)
 }
 
+///|
 test "wise_parse_introns" {
   let r = @src.wise_parse(
     "Intron 1: 100-199 donor 12.5 acceptor 8.3\nIntron 2: 300-399 donor 10.2 acceptor 9.1\n",
@@ -325,6 +353,7 @@ test "wise_parse_introns" {
   assert_eq(introns[1].acceptor_score, 9.1)
 }
 
+///|
 test "wise_parse_empty_input" {
   let r = @src.wise_parse("")
   assert_eq(r.protein_id, "")
@@ -335,6 +364,7 @@ test "wise_parse_empty_input" {
   assert_eq(r.get_num_introns(), 0)
 }
 
+///|
 test "wise_parse_full_sample" {
   let r = @src.wise_parse(@src.wise_sample_output())
   assert_eq(r.protein_id, "P12345")
@@ -351,6 +381,7 @@ test "wise_parse_full_sample" {
 // Sample data
 // ---------------------------------------------------------------------------
 
+///|
 test "wise_sample_output_content" {
   let s = @src.wise_sample_output()
   assert_true(s.contains("Protein: P12345"))
@@ -361,6 +392,7 @@ test "wise_sample_output_content" {
   assert_true(s.contains("Intron 1: 100-199"))
 }
 
+///|
 test "wise_sample_result" {
   let r = @src.wise_sample()
   assert_eq(r.protein_id, "P12345")
@@ -373,6 +405,7 @@ test "wise_sample_result" {
 // wise_write
 // ---------------------------------------------------------------------------
 
+///|
 test "wise_write_basic" {
   let r = @src.WiseResult::new()
   r.set_protein_id("P12345")
@@ -387,12 +420,29 @@ test "wise_write_basic" {
   assert_true(s.contains("Bits: 52.18"))
 }
 
+///|
 test "wise_write_with_exons_and_introns" {
   let r = @src.WiseResult::new()
   r.set_protein_id("P1")
   r.set_gene_id("G1")
-  r.add_exon(@src.WiseExon::new(start=0, end=99, phase=0, score=45.5, protein_start=1, protein_end=33))
-  r.add_intron(@src.WiseIntron::new(start=100, end=199, donor_score=12.5, acceptor_score=8.3))
+  r.add_exon(
+    @src.WiseExon::new(
+      start=0,
+      end=99,
+      phase=0,
+      score=45.5,
+      protein_start=1,
+      protein_end=33,
+    ),
+  )
+  r.add_intron(
+    @src.WiseIntron::new(
+      start=100,
+      end=199,
+      donor_score=12.5,
+      acceptor_score=8.3,
+    ),
+  )
   let s = @src.wise_write(r)
   assert_true(s.contains("Exon 1: 0-99"))
   assert_true(s.contains("(phase 0)"))
@@ -403,6 +453,7 @@ test "wise_write_with_exons_and_introns" {
   assert_true(s.contains("acceptor 8.3"))
 }
 
+///|
 test "wise_write_roundtrip" {
   // Parse sample, write it back, verify key fields are present
   let r = @src.wise_sample()
@@ -420,6 +471,7 @@ test "wise_write_roundtrip" {
 // wise_gene_structure
 // ---------------------------------------------------------------------------
 
+///|
 test "wise_gene_structure_basic" {
   let r = @src.WiseResult::new()
   r.add_exon(@src.WiseExon::new(start=0, end=99, phase=0))
@@ -433,6 +485,7 @@ test "wise_gene_structure_basic" {
   assert_true(s.contains("Intron 1: 100-199"))
 }
 
+///|
 test "wise_gene_structure_empty" {
   let r = @src.WiseResult::new()
   let s = @src.wise_gene_structure(r)
@@ -440,6 +493,7 @@ test "wise_gene_structure_empty" {
   assert_eq(s.length(), 0)
 }
 
+///|
 test "wise_gene_structure_sample" {
   let r = @src.wise_sample()
   let s = @src.wise_gene_structure(r)
@@ -455,6 +509,7 @@ test "wise_gene_structure_sample" {
 // wise_translate_gene
 // ---------------------------------------------------------------------------
 
+///|
 test "wise_translate_gene_single_exon" {
   // Exon 0-8 (9 nt) -> ATG GCC GGT -> M A G
   let r = @src.WiseResult::new()
@@ -464,6 +519,7 @@ test "wise_translate_gene_single_exon" {
   assert_eq(protein, "MAG")
 }
 
+///|
 test "wise_translate_gene_multiple_codons" {
   // Exon 0-11 (12 nt) -> ATG GCC GGT AAA -> M A G K
   let r = @src.WiseResult::new()
@@ -473,6 +529,7 @@ test "wise_translate_gene_multiple_codons" {
   assert_eq(protein, "MAGK")
 }
 
+///|
 test "wise_translate_gene_stop_codon" {
   // Exon 0-8 -> ATG TAA TAG -> M * *
   let r = @src.WiseResult::new()
@@ -489,6 +546,7 @@ test "wise_translate_gene_stop_codon" {
 // wise_percent_identity
 // ---------------------------------------------------------------------------
 
+///|
 test "wise_percent_identity_full" {
   // Translation matches protein exactly -> 100.0%
   let r = @src.WiseResult::new()
@@ -499,6 +557,7 @@ test "wise_percent_identity_full" {
   assert_eq(pct, 100.0)
 }
 
+///|
 test "wise_percent_identity_none" {
   // Translation does not match protein -> 0.0%
   let r = @src.WiseResult::new()
@@ -509,6 +568,7 @@ test "wise_percent_identity_none" {
   assert_eq(pct, 0.0)
 }
 
+///|
 test "wise_percent_identity_partial" {
   // Translation: MAG, protein: MAP -> 2/3 match -> ~66.67%
   let r = @src.WiseResult::new()
@@ -519,6 +579,7 @@ test "wise_percent_identity_partial" {
   assert_true(pct > 66.0 && pct < 67.0)
 }
 
+///|
 test "wise_percent_identity_empty_protein" {
   let r = @src.WiseResult::new()
   r.add_exon(@src.WiseExon::new(start=0, end=8))
@@ -531,6 +592,7 @@ test "wise_percent_identity_empty_protein" {
 // wise_summary
 // ---------------------------------------------------------------------------
 
+///|
 test "wise_summary_basic" {
   let r = @src.wise_sample()
   let s = @src.wise_summary(r)
@@ -544,6 +606,7 @@ test "wise_summary_basic" {
   assert_true(s.contains("Total exon length: 280 nt"))
 }
 
+///|
 test "wise_summary_empty" {
   let r = @src.WiseResult::new()
   let s = @src.wise_summary(r)
@@ -557,6 +620,7 @@ test "wise_summary_empty" {
 // GenomeWiseSegment
 // ---------------------------------------------------------------------------
 
+///|
 test "genome_wise_segment_new_defaults" {
   let s = @src.GenomeWiseSegment::new()
   assert_eq(s.segment_id, "")
@@ -567,6 +631,7 @@ test "genome_wise_segment_new_defaults" {
   assert_eq(s.wise_result.get_num_exons(), 0)
 }
 
+///|
 test "genome_wise_segment_new_with_params" {
   let s = @src.GenomeWiseSegment::new(
     segment_id="seg1",
@@ -584,6 +649,7 @@ test "genome_wise_segment_new_with_params" {
 // GenomeWiseResult
 // ---------------------------------------------------------------------------
 
+///|
 test "genome_wise_result_new_empty" {
   let r = @src.GenomeWiseResult::new()
   assert_eq(r.gene_id, "")
@@ -591,6 +657,7 @@ test "genome_wise_result_new_empty" {
   assert_eq(r.get_num_segments(), 0)
 }
 
+///|
 test "genome_wise_result_add_and_get_segments" {
   let r = @src.GenomeWiseResult::new()
   let s1 = @src.GenomeWiseSegment::new(segment_id="seg1", start=100, end=200)
@@ -603,6 +670,7 @@ test "genome_wise_result_add_and_get_segments" {
   assert_eq(segs[1].segment_id, "seg2")
 }
 
+///|
 test "genome_wise_result_get_num_segments" {
   let r = @src.GenomeWiseResult::new()
   assert_eq(r.get_num_segments(), 0)

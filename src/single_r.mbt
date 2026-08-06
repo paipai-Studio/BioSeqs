@@ -80,7 +80,10 @@ pub struct SingleRParams {
 
 ///|
 /// Spearman correlation coefficient.
-pub fn single_r_spearman_correlation(x : Array[Double], y : Array[Double]) -> Double {
+pub fn single_r_spearman_correlation(
+  x : Array[Double],
+  y : Array[Double],
+) -> Double {
   let n = x.length()
   if n < 3 {
     return 0.0
@@ -116,7 +119,10 @@ pub fn single_r_spearman_correlation(x : Array[Double], y : Array[Double]) -> Do
 
 ///|
 /// Pearson correlation coefficient (SingleR-scoped version).
-pub fn single_r_pearson_correlation(x : Array[Double], y : Array[Double]) -> Double {
+pub fn single_r_pearson_correlation(
+  x : Array[Double],
+  y : Array[Double],
+) -> Double {
   let n = x.length()
   if n < 3 {
     return 0.0
@@ -169,7 +175,8 @@ pub fn single_r_rank_values(values : Array[Double]) -> Array[Double] {
     }
     // For descending sort, map to ascending ranks (smallest=1, largest=n)
     // Position j..k-1 in descending → ascending ranks n-j..n-(k-1)
-    let avg_rank = (2.0 * n.to_double() - j.to_double() - k.to_double() + 1.0) / 2.0
+    let avg_rank = (2.0 * n.to_double() - j.to_double() - k.to_double() + 1.0) /
+      2.0
     let mut m = j
     while m < k {
       ranks[sorted[m].1] = avg_rank
@@ -202,7 +209,9 @@ fn single_r_sort_array(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
 
 ///|
 /// Sort array of (Int, Double) tuples by the Double value (descending).
-fn single_r_sort_int_double_array(arr : Array[(Int, Double)]) -> Array[(Int, Double)] {
+fn single_r_sort_int_double_array(
+  arr : Array[(Int, Double)],
+) -> Array[(Int, Double)] {
   let n = arr.length()
   let result = arr.copy()
   let mut i = 1
@@ -251,13 +260,7 @@ pub fn ReferenceDataset::new(
   for p in profiles {
     cell_types.push(p.cell_type)
   }
-  ReferenceDataset::{
-    profiles,
-    cell_types,
-    gene_names,
-    n_genes,
-    n_profiles,
-  }
+  ReferenceDataset::{ profiles, cell_types, gene_names, n_genes, n_profiles }
 }
 
 ///|
@@ -272,7 +275,7 @@ pub fn ReferenceDataset::from_matrix(
   let mut i = 0
   while i < n_samples {
     profiles.push(
-      ReferenceProfile::new(cell_types[i], expression_data[i], gene_names)
+      ReferenceProfile::new(cell_types[i], expression_data[i], gene_names),
     )
     i = i + 1
   }
@@ -311,7 +314,7 @@ pub fn SingleRParams::new() -> SingleRParams {
 /// Create custom SingleR parameters with specific method.
 pub fn SingleRParams::with_method(method : String) -> SingleRParams {
   let base = SingleRParams::new()
-  SingleRParams::{ ..base, method }
+  SingleRParams::{ ..base, method, }
 }
 
 ///|
@@ -323,13 +326,7 @@ pub fn SingleRParams::with_all(
   min_score : Double,
   quantile_score : Bool,
 ) -> SingleRParams {
-  SingleRParams::{
-    method,
-    n_top_scores,
-    fine_tune,
-    min_score,
-    quantile_score,
-  }
+  SingleRParams::{ method, n_top_scores, fine_tune, min_score, quantile_score }
 }
 
 ///|
@@ -387,7 +384,10 @@ pub fn single_r_aggregate_scores_by_type(
   reference : ReferenceDataset,
   n_top : Int,
 ) -> Map[String, Double] {
-  let unique_types : Map[String, Array[Double]] = Map([], capacity=reference.n_profiles)
+  let unique_types : Map[String, Array[Double]] = Map(
+    [],
+    capacity=reference.n_profiles,
+  )
 
   let mut i = 0
   while i < reference.n_profiles {
@@ -407,7 +407,11 @@ pub fn single_r_aggregate_scores_by_type(
   for key in keys {
     let vals = unique_types.get(key).unwrap_or([])
     let sorted_vals = single_r_sort_desc(vals)
-    let n = if n_top < sorted_vals.length() { n_top } else { sorted_vals.length() }
+    let n = if n_top < sorted_vals.length() {
+      n_top
+    } else {
+      sorted_vals.length()
+    }
     let mut sum = 0.0
     let mut j = 0
     while j < n {
@@ -441,7 +445,9 @@ fn single_r_sort_desc(arr : Array[Double]) -> Array[Double] {
 
 ///|
 /// Find the cell type with the highest score.
-pub fn single_r_get_best_label(scores_by_type : Map[String, Double]) -> (String, Double) {
+pub fn single_r_get_best_label(
+  scores_by_type : Map[String, Double],
+) -> (String, Double) {
   let keys = scores_by_type.keys()
   let mut best_label = ""
   let mut best_score = -2.0
@@ -457,7 +463,9 @@ pub fn single_r_get_best_label(scores_by_type : Map[String, Double]) -> (String,
 
 ///|
 /// Compute delta score (difference between top and second best).
-pub fn single_r_compute_delta_score(scores_by_type : Map[String, Double]) -> Double {
+pub fn single_r_compute_delta_score(
+  scores_by_type : Map[String, Double],
+) -> Double {
   let keys = scores_by_type.keys()
   let sorted_scores : Array[(String, Double)] = Array::new()
   for key in keys {
@@ -515,11 +523,12 @@ pub fn single_r_fine_tune_annotation(
     let avg_score = if marker_profiles.length() > 0 {
       let mut sum = 0.0
       for p in marker_profiles {
-        sum = sum + (if method == "pearson" {
-          single_r_pearson_correlation(cell_expression, p)
-        } else {
-          single_r_spearman_correlation(cell_expression, p)
-        })
+        sum = sum +
+          (if method == "pearson" {
+            single_r_pearson_correlation(cell_expression, p)
+          } else {
+            single_r_spearman_correlation(cell_expression, p)
+          })
       }
       sum / marker_profiles.length().to_double()
     } else {
@@ -536,14 +545,18 @@ pub fn single_r_fine_tune_annotation(
         single_r_pearson_correlation(cell_expression, p)
       } else {
         single_r_spearman_correlation(cell_expression, p)
-      }
+      },
     )
   }
 
   // Average scores by type
   let agg = single_r_aggregate_scores_by_type(
     other_scores,
-    ReferenceDataset::from_matrix(other_profiles, other_types, reference.gene_names),
+    ReferenceDataset::from_matrix(
+      other_profiles,
+      other_types,
+      reference.gene_names,
+    ),
     1,
   )
 
@@ -553,11 +566,12 @@ pub fn single_r_fine_tune_annotation(
   let avg_initial = if marker_profiles.length() > 0 {
     let mut sum = 0.0
     for p in marker_profiles {
-      sum = sum + (if method == "pearson" {
-        single_r_pearson_correlation(cell_expression, p)
-      } else {
-        single_r_spearman_correlation(cell_expression, p)
-      })
+      sum = sum +
+        (if method == "pearson" {
+          single_r_pearson_correlation(cell_expression, p)
+        } else {
+          single_r_spearman_correlation(cell_expression, p)
+        })
     }
     sum / marker_profiles.length().to_double()
   } else {
@@ -581,10 +595,18 @@ pub fn single_r_annotate_cell(
   params : SingleRParams,
 ) -> SingleRResult {
   // Compute correlations with all reference profiles
-  let raw_scores = single_r_compute_correlations(cell_expression, reference, params.method)
+  let raw_scores = single_r_compute_correlations(
+    cell_expression,
+    reference,
+    params.method,
+  )
 
   // Aggregate scores by cell type
-  let agg_scores = single_r_aggregate_scores_by_type(raw_scores, reference, params.n_top_scores)
+  let agg_scores = single_r_aggregate_scores_by_type(
+    raw_scores,
+    reference,
+    params.n_top_scores,
+  )
 
   // Get initial prediction
   let (best_label, best_score) = single_r_get_best_label(agg_scores)
@@ -593,7 +615,11 @@ pub fn single_r_annotate_cell(
   // Fine-tune if enabled
   let (final_label, final_score) = if params.fine_tune && best_score > 0.0 {
     single_r_fine_tune_annotation(
-      cell_expression, reference, best_label, 50, params.method
+      cell_expression,
+      reference,
+      best_label,
+      50,
+      params.method,
     )
   } else {
     (best_label, best_score)
@@ -631,7 +657,10 @@ pub fn single_r_annotate_cell(
 
 ///|
 /// Sort labels by their scores (descending).
-fn single_r_sort_labels_by_score(labels : Array[String], scores : Array[Double]) -> Array[String] {
+fn single_r_sort_labels_by_score(
+  labels : Array[String],
+  scores : Array[Double],
+) -> Array[String] {
   let n = labels.length()
   let pairs : Array[(String, Double)] = Array::new()
   let mut i = 0
@@ -683,14 +712,24 @@ pub fn single_r_annotate_cells(
   let mut i = 0
   while i < data.n_cells {
     let cell_expr = single_r_get_cell_expression(data, i)
-    let cell_id = if i < data.cell_names.length() { data.cell_names[i] } else { "cell_".to_string() + i.to_string() }
+    let cell_id = if i < data.cell_names.length() {
+      data.cell_names[i]
+    } else {
+      "cell_".to_string() + i.to_string()
+    }
 
     let result = single_r_annotate_cell(cell_expr, cell_id, reference, params)
 
     cell_ids.push(result.cell_id)
     labels.push(result.first_annotation_fine)
     scores.push(if result.scores.length() > 0 { result.scores[0] } else { 0.0 })
-    delta_scores.push(if result.delta_next.length() > 0 { result.delta_next[0] } else { 0.0 })
+    delta_scores.push(
+      if result.delta_next.length() > 0 {
+        result.delta_next[0]
+      } else {
+        0.0
+      },
+    )
     first_labels.push(result.first_labels[0])
     fine_annotations.push(result.annotations_fine[0])
 
@@ -710,7 +749,10 @@ pub fn single_r_annotate_cells(
 
 ///|
 /// Extract expression profile for a single cell.
-fn single_r_get_cell_expression(data : SingleRData, cell_idx : Int) -> Array[Double] {
+fn single_r_get_cell_expression(
+  data : SingleRData,
+  cell_idx : Int,
+) -> Array[Double] {
   let n_genes = data.n_genes
   let expr : Array[Double] = Array::new()
   let mut i = 0
@@ -725,16 +767,13 @@ fn single_r_get_cell_expression(data : SingleRData, cell_idx : Int) -> Array[Dou
 /// Create a synthetic reference dataset for testing.
 pub fn single_r_create_reference_data() -> ReferenceDataset {
   let gene_names = [
-    "CD3D", "CD3E", "CD4", "CD8A", "CD14", "CD19", "CD79A", "CD79B",
-    "CD56", "CD94", "NCAM1", "KLRD1", "KLRB1", "KLRF1", "NKG7",
-    "LYZ", "S100A8", "S100A9", "FCGR3A", "CSF1R", "C1QA", "C1QB",
-    "C1QC", "MARCO", "FABP4", "CD68", "CD163", "MRC1",
-    "CD34", "CD117", "KIT", "CD133", "PROM1", "ALDH1A1",
-    "CD45", "PTPRC", "CD31", "PECAM1", "VWF", "ENG", "ESAM",
-    "ACTA2", "TAGLN", "MYH11", "COL1A1", "COL1A2", "DCN", "LUM",
-    "CD235A", "GYPA", "HBB", "HBA1", "HBA2", "HBM",
-    "MS4A1", "CD20", "CD27", "CD38", "CD138", "SDC1", "BCMA",
-    "TPSAB1", "TPSB2", "CPA3", "TPSD1", "MS4A2",
+    "CD3D", "CD3E", "CD4", "CD8A", "CD14", "CD19", "CD79A", "CD79B", "CD56", "CD94",
+    "NCAM1", "KLRD1", "KLRB1", "KLRF1", "NKG7", "LYZ", "S100A8", "S100A9", "FCGR3A",
+    "CSF1R", "C1QA", "C1QB", "C1QC", "MARCO", "FABP4", "CD68", "CD163", "MRC1", "CD34",
+    "CD117", "KIT", "CD133", "PROM1", "ALDH1A1", "CD45", "PTPRC", "CD31", "PECAM1",
+    "VWF", "ENG", "ESAM", "ACTA2", "TAGLN", "MYH11", "COL1A1", "COL1A2", "DCN", "LUM",
+    "CD235A", "GYPA", "HBB", "HBA1", "HBA2", "HBM", "MS4A1", "CD20", "CD27", "CD38",
+    "CD138", "SDC1", "BCMA", "TPSAB1", "TPSB2", "CPA3", "TPSD1", "MS4A2",
   ]
 
   let n_genes = gene_names.length()
@@ -847,7 +886,12 @@ pub fn single_r_create_reference_data() -> ReferenceDataset {
 
 ///|
 /// Helper to set gene expression value in an array by gene name.
-fn single_r_set_gene_expr(expr : Array[Double], gene_names : Array[String], gene : String, value : Double) -> Unit {
+fn single_r_set_gene_expr(
+  expr : Array[Double],
+  gene_names : Array[String],
+  gene : String,
+  value : Double,
+) -> Unit {
   let n = gene_names.length()
   let mut i = 0
   while i < n {
@@ -863,16 +907,13 @@ fn single_r_set_gene_expr(expr : Array[Double], gene_names : Array[String], gene
 /// Create a synthetic single-cell dataset for testing.
 pub fn single_r_create_test_data() -> SingleRData {
   let gene_names = [
-    "CD3D", "CD3E", "CD4", "CD8A", "CD14", "CD19", "CD79A", "CD79B",
-    "CD56", "CD94", "NCAM1", "KLRD1", "KLRB1", "KLRF1", "NKG7",
-    "LYZ", "S100A8", "S100A9", "FCGR3A", "CSF1R", "C1QA", "C1QB",
-    "C1QC", "MARCO", "FABP4", "CD68", "CD163", "MRC1",
-    "CD34", "CD117", "KIT", "CD133", "PROM1", "ALDH1A1",
-    "CD45", "PTPRC", "CD31", "PECAM1", "VWF", "ENG", "ESAM",
-    "ACTA2", "TAGLN", "MYH11", "COL1A1", "COL1A2", "DCN", "LUM",
-    "CD235A", "GYPA", "HBB", "HBA1", "HBA2", "HBM",
-    "MS4A1", "CD20", "CD27", "CD38", "CD138", "SDC1", "BCMA",
-    "TPSAB1", "TPSB2", "CPA3", "TPSD1", "MS4A2",
+    "CD3D", "CD3E", "CD4", "CD8A", "CD14", "CD19", "CD79A", "CD79B", "CD56", "CD94",
+    "NCAM1", "KLRD1", "KLRB1", "KLRF1", "NKG7", "LYZ", "S100A8", "S100A9", "FCGR3A",
+    "CSF1R", "C1QA", "C1QB", "C1QC", "MARCO", "FABP4", "CD68", "CD163", "MRC1", "CD34",
+    "CD117", "KIT", "CD133", "PROM1", "ALDH1A1", "CD45", "PTPRC", "CD31", "PECAM1",
+    "VWF", "ENG", "ESAM", "ACTA2", "TAGLN", "MYH11", "COL1A1", "COL1A2", "DCN", "LUM",
+    "CD235A", "GYPA", "HBB", "HBA1", "HBA2", "HBM", "MS4A1", "CD20", "CD27", "CD38",
+    "CD138", "SDC1", "BCMA", "TPSAB1", "TPSB2", "CPA3", "TPSD1", "MS4A2",
   ]
 
   let n_genes = gene_names.length()
@@ -888,37 +929,68 @@ pub fn single_r_create_test_data() -> SingleRData {
       // Simulate different cell types
       let cell_type = cell_j % 5
       let base = if cell_type == 0 { // T cell
-        if gene_names[gene_i] == "CD3D" || gene_names[gene_i] == "CD3E" { 100.0 }
-        else if gene_names[gene_i] == "CD4" { 80.0 }
-        else if gene_names[gene_i] == "CD8A" { 75.0 }
-        else if gene_names[gene_i] == "CD45" || gene_names[gene_i] == "PTPRC" { 90.0 }
-        else { 1.0 }
+        if gene_names[gene_i] == "CD3D" || gene_names[gene_i] == "CD3E" {
+          100.0
+        } else if gene_names[gene_i] == "CD4" {
+          80.0
+        } else if gene_names[gene_i] == "CD8A" {
+          75.0
+        } else if gene_names[gene_i] == "CD45" || gene_names[gene_i] == "PTPRC" {
+          90.0
+        } else {
+          1.0
+        }
       } else if cell_type == 1 { // B cell
-        if gene_names[gene_i] == "CD19" { 110.0 }
-        else if gene_names[gene_i] == "CD79A" || gene_names[gene_i] == "CD79B" { 100.0 }
-        else if gene_names[gene_i] == "MS4A1" || gene_names[gene_i] == "CD20" { 95.0 }
-        else if gene_names[gene_i] == "CD45" || gene_names[gene_i] == "PTPRC" { 90.0 }
-        else { 1.0 }
+        if gene_names[gene_i] == "CD19" {
+          110.0
+        } else if gene_names[gene_i] == "CD79A" || gene_names[gene_i] == "CD79B" {
+          100.0
+        } else if gene_names[gene_i] == "MS4A1" || gene_names[gene_i] == "CD20" {
+          95.0
+        } else if gene_names[gene_i] == "CD45" || gene_names[gene_i] == "PTPRC" {
+          90.0
+        } else {
+          1.0
+        }
       } else if cell_type == 2 { // NK cell
-        if gene_names[gene_i] == "CD56" || gene_names[gene_i] == "NCAM1" { 95.0 }
-        else if gene_names[gene_i] == "CD94" { 85.0 }
-        else if gene_names[gene_i] == "NKG7" { 80.0 }
-        else if gene_names[gene_i] == "KLRD1" || gene_names[gene_i] == "KLRB1" { 75.0 }
-        else if gene_names[gene_i] == "CD45" || gene_names[gene_i] == "PTPRC" { 90.0 }
-        else { 1.0 }
+        if gene_names[gene_i] == "CD56" || gene_names[gene_i] == "NCAM1" {
+          95.0
+        } else if gene_names[gene_i] == "CD94" {
+          85.0
+        } else if gene_names[gene_i] == "NKG7" {
+          80.0
+        } else if gene_names[gene_i] == "KLRD1" || gene_names[gene_i] == "KLRB1" {
+          75.0
+        } else if gene_names[gene_i] == "CD45" || gene_names[gene_i] == "PTPRC" {
+          90.0
+        } else {
+          1.0
+        }
       } else if cell_type == 3 { // Monocyte
-        if gene_names[gene_i] == "CD14" { 105.0 }
-        else if gene_names[gene_i] == "LYZ" { 95.0 }
-        else if gene_names[gene_i] == "S100A8" || gene_names[gene_i] == "S100A9" { 90.0 }
-        else if gene_names[gene_i] == "FCGR3A" { 70.0 }
-        else if gene_names[gene_i] == "CD45" || gene_names[gene_i] == "PTPRC" { 90.0 }
-        else { 1.0 }
-      } else { // Epithelial cell
-        if gene_names[gene_i] == "CDH1" { 90.0 }
-        else if gene_names[gene_i] == "EPCAM" { 85.0 }
-        else if gene_names[gene_i] == "KRT18" || gene_names[gene_i] == "KRT19" { 80.0 }
-        else if gene_names[gene_i] == "MUC1" { 75.0 }
-        else { 1.0 }
+        if gene_names[gene_i] == "CD14" {
+          105.0
+        } else if gene_names[gene_i] == "LYZ" {
+          95.0
+        } else if gene_names[gene_i] == "S100A8" ||
+          gene_names[gene_i] == "S100A9" {
+          90.0
+        } else if gene_names[gene_i] == "FCGR3A" {
+          70.0
+        } else if gene_names[gene_i] == "CD45" || gene_names[gene_i] == "PTPRC" {
+          90.0
+        } else {
+          1.0
+        } // Epithelial cell
+      } else if gene_names[gene_i] == "CDH1" {
+        90.0
+      } else if gene_names[gene_i] == "EPCAM" {
+        85.0
+      } else if gene_names[gene_i] == "KRT18" || gene_names[gene_i] == "KRT19" {
+        80.0
+      } else if gene_names[gene_i] == "MUC1" {
+        75.0
+      } else {
+        1.0
       }
 
       // Add some noise
@@ -943,7 +1015,9 @@ pub fn single_r_create_test_data() -> SingleRData {
 
 ///|
 /// Get summary statistics from annotation results.
-pub fn single_r_annotation_summary(result : SingleRFullResult) -> Map[String, Double] {
+pub fn single_r_annotation_summary(
+  result : SingleRFullResult,
+) -> Map[String, Double] {
   let n_cells = result.cell_ids.length()
   let label_counts : Map[String, Int] = Map([], capacity=10)
 
@@ -958,7 +1032,10 @@ pub fn single_r_annotation_summary(result : SingleRFullResult) -> Map[String, Do
     i = i + 1
   }
 
-  let summary : Map[String, Double] = Map([], capacity=label_counts.length() + 2)
+  let summary : Map[String, Double] = Map(
+    [],
+    capacity=label_counts.length() + 2,
+  )
   let keys = label_counts.keys()
   for key in keys {
     let count = label_counts.get(key).unwrap_or(0)

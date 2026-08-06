@@ -415,7 +415,11 @@ pub fn reduce_dimension(
 
     let umap_result = umap(pca_data, num_dimensions)
 
-    let reduced_dims = merge_reduced_dimensions(cds.reduced_dimensions, "UMAP", umap_result)
+    let reduced_dims = merge_reduced_dimensions(
+      cds.reduced_dimensions,
+      "UMAP",
+      umap_result,
+    )
 
     return CellDataSet::{
       counts: cds.counts,
@@ -447,10 +451,13 @@ fn merge_reduced_dimensions(
     }
     i = i + 1
   }
-  
+
   let result_len = if has_name { n } else { n + 1 }
-  let result : Array[(String, Array[Array[Double]])] = Array::make(result_len, ("".to_string(), Array::new()))
-  
+  let result : Array[(String, Array[Array[Double]])] = Array::make(
+    result_len,
+    ("".to_string(), Array::new()),
+  )
+
   let mut j = 0
   i = 0
   while i < n {
@@ -462,11 +469,11 @@ fn merge_reduced_dimensions(
     j = j + 1
     i = i + 1
   }
-  
+
   if !has_name {
     result[j] = (name.to_string(), data)
   }
-  
+
   result
 }
 
@@ -685,13 +692,12 @@ pub fn learn_graph(cds : CellDataSet) -> CellDataSet {
       let reduced = reduce_dimension(cds, "UMAP", 2)
       match get_reduced_dimension(reduced, "UMAP") {
         Some(d) => d
-        None => {
+        None =>
           if reduced.normalized.length() > 0 {
             reduced.normalized
           } else {
             return cds
           }
-        }
       }
     }
   }
@@ -911,7 +917,8 @@ pub fn fit_models(
       let mut j = 0
       while j < n_cells {
         if cds.pseudotime[j] >= 0.0 {
-          let expr = if j < cds.normalized.length() && idx < cds.normalized[j].length() {
+          let expr = if j < cds.normalized.length() &&
+            idx < cds.normalized[j].length() {
             cds.normalized[j][idx]
           } else {
             0.0
@@ -983,11 +990,11 @@ pub fn BranchPoint::new(
 ///|
 pub fn find_branch_points(cds : CellDataSet) -> Array[BranchPoint] {
   let branch_points : Array[BranchPoint] = Array::new()
-  
+
   if cds.principal_graph.length() < 3 {
     return branch_points
   }
-  
+
   let mut i = 0
   while i < cds.principal_graph.length() {
     let edges = cds.principal_graph[i].2
@@ -995,7 +1002,7 @@ pub fn find_branch_points(cds : CellDataSet) -> Array[BranchPoint] {
       let position = cds.principal_graph[i].1
       let branch1 : Array[Int] = Array::new()
       let branch2 : Array[Int] = Array::new()
-      
+
       let mut j = 0
       while j < cds.cell_partitions.length() {
         if cds.cell_partitions[j] == edges[0] {
@@ -1005,12 +1012,12 @@ pub fn find_branch_points(cds : CellDataSet) -> Array[BranchPoint] {
         }
         j = j + 1
       }
-      
+
       branch_points.push(BranchPoint::new(i, position, [(branch1, branch2)]))
     }
     i = i + 1
   }
-  
+
   branch_points
 }
 
@@ -1023,59 +1030,67 @@ pub fn differential_gene_test_branches(
   let n_genes = gene_names.length()
   let branch1 = branch_point.branch_cells[0].0
   let branch2 = branch_point.branch_cells[0].1
-  
+
   let gene_result : Array[String] = Array::new()
   let pseudotime_result : Array[Double] = Array::new()
   let q_value_result : Array[Double] = Array::new()
   let trend_statistic_result : Array[Double] = Array::new()
-  
+
   let mut i = 0
   while i < n_genes {
     let gene_idx = find_gene_index(cds.gene_names, gene_names[i])
     if gene_idx.is_some() {
       let idx = gene_idx.unwrap()
-      
+
       let mut sum_branch1 = 0.0
       let mut sum_branch2 = 0.0
       let mut n_branch1 = 0
       let mut n_branch2 = 0
-      
+
       let mut j = 0
       while j < branch1.length() {
         let cell_idx = branch1[j]
-        if cell_idx < cds.normalized.length() && idx < cds.normalized[cell_idx].length() {
+        if cell_idx < cds.normalized.length() &&
+          idx < cds.normalized[cell_idx].length() {
           sum_branch1 = sum_branch1 + cds.normalized[cell_idx][idx]
           n_branch1 = n_branch1 + 1
         }
         j = j + 1
       }
-      
+
       let mut k = 0
       while k < branch2.length() {
         let cell_idx = branch2[k]
-        if cell_idx < cds.normalized.length() && idx < cds.normalized[cell_idx].length() {
+        if cell_idx < cds.normalized.length() &&
+          idx < cds.normalized[cell_idx].length() {
           sum_branch2 = sum_branch2 + cds.normalized[cell_idx][idx]
           n_branch2 = n_branch2 + 1
         }
         k = k + 1
       }
-      
+
       if n_branch1 > 0 && n_branch2 > 0 {
         let mean_branch1 = sum_branch1 / n_branch1.to_double()
         let mean_branch2 = sum_branch2 / n_branch2.to_double()
         let diff = mean_branch1 - mean_branch2
-        
+
         gene_result.push(gene_names[i])
         pseudotime_result.push(0.5)
-        
-        let q_val = if diff.abs() > 0.5 { 0.001 } else if diff.abs() > 0.2 { 0.05 } else { 1.0 }
+
+        let q_val = if diff.abs() > 0.5 {
+          0.001
+        } else if diff.abs() > 0.2 {
+          0.05
+        } else {
+          1.0
+        }
         q_value_result.push(q_val)
         trend_statistic_result.push(diff)
       }
     }
     i = i + 1
   }
-  
+
   DiffExprResult::{
     gene: gene_result,
     pseudotime: pseudotime_result,

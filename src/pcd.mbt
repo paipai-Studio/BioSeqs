@@ -28,10 +28,7 @@ pub struct PcdSpectrum {
 
 ///|
 /// Construct a PcdSpectrum.
-pub fn PcdSpectrum::new(
-  scan_number : Int,
-  rt? : Double = 0.0
-) -> PcdSpectrum {
+pub fn PcdSpectrum::new(scan_number : Int, rt? : Double = 0.0) -> PcdSpectrum {
   PcdSpectrum::{
     scan_number,
     rt,
@@ -50,13 +47,20 @@ pub fn PcdSpectrum::set_precursor_mz(self : PcdSpectrum, mz : Double?) -> Unit {
 
 ///|
 /// Set precursor charge.
-pub fn PcdSpectrum::set_precursor_charge(self : PcdSpectrum, charge : Int?) -> Unit {
+pub fn PcdSpectrum::set_precursor_charge(
+  self : PcdSpectrum,
+  charge : Int?,
+) -> Unit {
   self.precursor_charge = charge
 }
 
 ///|
 /// Add a peak to the spectrum.
-pub fn PcdSpectrum::add_peak(self : PcdSpectrum, mz : Double, intensity : Double) -> Unit {
+pub fn PcdSpectrum::add_peak(
+  self : PcdSpectrum,
+  mz : Double,
+  intensity : Double,
+) -> Unit {
   self.mz_values.push(mz)
   self.intensity_values.push(intensity)
 }
@@ -119,7 +123,11 @@ pub fn PcdFile::add_spectrum(self : PcdFile, spectrum : PcdSpectrum) -> Unit {
 
 ///|
 /// Set metadata key-value pair.
-pub fn PcdFile::set_metadata(self : PcdFile, key : String, val : String) -> Unit {
+pub fn PcdFile::set_metadata(
+  self : PcdFile,
+  key : String,
+  val : String,
+) -> Unit {
   self.metadata[key] = val
 }
 
@@ -163,7 +171,11 @@ pub struct PcdPeak {
 
 ///|
 /// Construct a PcdPeak.
-pub fn PcdPeak::new(mz : Double, intensity : Double, charge? : Int = 0) -> PcdPeak {
+pub fn PcdPeak::new(
+  mz : Double,
+  intensity : Double,
+  charge? : Int = 0,
+) -> PcdPeak {
   let charge_opt = if charge > 0 { Some(charge) } else { None }
   PcdPeak::{ mz, intensity, charge: charge_opt }
 }
@@ -243,9 +255,7 @@ fn pcd_parse_header_into(line : String, file : PcdFile) -> Unit {
         file.set_version(val)
       }
     }
-    None => {
-      file.set_metadata(content, "")
-    }
+    None => file.set_metadata(content, "")
   }
 }
 
@@ -288,15 +298,13 @@ fn pcd_parse_scan_line(line : String) -> PcdSpectrum {
             }
             pepmass_mz = Some(pcd_parse_double(mz_str))
           }
-          None => {
-            pepmass_mz = Some(pcd_parse_double(pepmass_str))
-          }
+          None => pepmass_mz = Some(pcd_parse_double(pepmass_str))
         }
       }
     }
     i = i + 1
   }
-  let spec = PcdSpectrum::new(scan_number, rt=rt)
+  let spec = PcdSpectrum::new(scan_number, rt~)
   spec.set_precursor_mz(pepmass_mz)
   spec.set_precursor_charge(pepmass_charge)
   spec
@@ -306,11 +314,13 @@ fn pcd_parse_scan_line(line : String) -> PcdSpectrum {
 /// Parse a peak line (e.g., "500.5 10000" or "500.5 10000 2").
 fn pcd_parse_peak_line(line : String) -> PcdPeak? {
   let parts = pcd_split_whitespace(line)
-  if parts.length() < 2 { return None }
+  if parts.length() < 2 {
+    return None
+  }
   let mz = pcd_parse_double(parts[0])
   let intensity = pcd_parse_double(parts[1])
   let charge = if parts.length() > 2 { pcd_parse_int(parts[2]) } else { 0 }
-  Some(PcdPeak::new(mz, intensity, charge=charge))
+  Some(PcdPeak::new(mz, intensity, charge~))
 }
 
 // ============================================================================
@@ -319,7 +329,11 @@ fn pcd_parse_peak_line(line : String) -> PcdPeak? {
 
 ///|
 /// Get spectra within a retention time range.
-pub fn pcd_spectra_by_rt(file : PcdFile, min_rt : Double, max_rt : Double) -> Array[PcdSpectrum] {
+pub fn pcd_spectra_by_rt(
+  file : PcdFile,
+  min_rt : Double,
+  max_rt : Double,
+) -> Array[PcdSpectrum] {
   let result : Array[PcdSpectrum] = Array::new()
   let mut i = 0
   while i < file.spectra.length() {
@@ -368,7 +382,10 @@ pub fn pcd_bpc(file : PcdFile) -> Array[Double] {
 
 ///|
 /// Find peaks above a threshold intensity in all spectra.
-pub fn pcd_find_peaks_above(file : PcdFile, threshold : Double) -> Array[(Int, Double, Double)] {
+pub fn pcd_find_peaks_above(
+  file : PcdFile,
+  threshold : Double,
+) -> Array[(Int, Double, Double)] {
   let peaks : Array[(Int, Double, Double)] = Array::new()
   let mut i = 0
   while i < file.spectra.length() {
@@ -387,7 +404,11 @@ pub fn pcd_find_peaks_above(file : PcdFile, threshold : Double) -> Array[(Int, D
 
 ///|
 /// Filter spectrum by m/z range.
-pub fn pcd_spectrum_by_mz(spectrum : PcdSpectrum, min_mz : Double, max_mz : Double) -> PcdSpectrum {
+pub fn pcd_spectrum_by_mz(
+  spectrum : PcdSpectrum,
+  min_mz : Double,
+  max_mz : Double,
+) -> PcdSpectrum {
   let result = PcdSpectrum::new(spectrum.scan_number, rt=spectrum.rt)
   result.set_precursor_mz(spectrum.precursor_mz)
   result.set_precursor_charge(spectrum.precursor_charge)
@@ -448,7 +469,11 @@ pub fn pcd_write(file : PcdFile) -> String {
     out = out + "\n"
     let mut j = 0
     while j < s.mz_values.length() {
-      out = out + s.mz_values[j].to_string() + " " + s.intensity_values[j].to_string() + "\n"
+      out = out +
+        s.mz_values[j].to_string() +
+        " " +
+        s.intensity_values[j].to_string() +
+        "\n"
       j = j + 1
     }
     out = out + "\n"
@@ -465,27 +490,10 @@ pub fn pcd_write(file : PcdFile) -> String {
 /// Generate a sample PCD text for testing.
 pub fn pcd_sample() -> String {
   let lines = [
-    "#version: 1.0",
-    "#instrument: TestMassSpec",
-    "#date: 2024-01-01",
-    "SCAN 1 RT 1.0 PEPMASS 500.5(2)",
-    "500.1 10000",
-    "500.5 25000",
-    "500.8 5000",
-    "600.2 8000",
-    "",
-    "SCAN 2 RT 2.5 PEPMASS 600.3(3)",
-    "500.1 5000",
-    "600.3 30000",
-    "600.5 15000",
-    "700.1 2000",
-    "",
-    "SCAN 3 RT 5.0 PEPMASS 700.1(2)",
-    "500.2 3000",
-    "700.1 40000",
-    "700.5 10000",
-    "800.2 5000",
-    "",
+    "#version: 1.0", "#instrument: TestMassSpec", "#date: 2024-01-01", "SCAN 1 RT 1.0 PEPMASS 500.5(2)",
+    "500.1 10000", "500.5 25000", "500.8 5000", "600.2 8000", "", "SCAN 2 RT 2.5 PEPMASS 600.3(3)",
+    "500.1 5000", "600.3 30000", "600.5 15000", "700.1 2000", "", "SCAN 3 RT 5.0 PEPMASS 700.1(2)",
+    "500.2 3000", "700.1 40000", "700.5 10000", "800.2 5000", "",
   ]
   let mut result = ""
   let mut i = 0
@@ -533,7 +541,9 @@ fn pcd_split_lines(content : String) -> Array[String] {
       if start < i {
         lines.push(content[start:i].trim().to_string())
       }
-      if ch == "\r" && i + 1 < content.length() && content[i + 1:i + 2].to_owned() == "\n" {
+      if ch == "\r" &&
+        i + 1 < content.length() &&
+        content[i + 1:i + 2].to_owned() == "\n" {
         i = i + 1
       }
       start = i + 1
@@ -575,13 +585,17 @@ fn pcd_split_whitespace(line : String) -> Array[String] {
 fn pcd_parse_int(s : String) -> Int {
   let sv = s.to_string().trim()
   let n = sv.length()
-  if n == 0 { return 0 }
+  if n == 0 {
+    return 0
+  }
   let mut result = 0
   let mut i = 0
   let zero = '0'.to_int()
   while i < n {
     let c = sv.unsafe_get(i).to_int()
-    if c < zero || c > zero + 9 { break }
+    if c < zero || c > zero + 9 {
+      break
+    }
     result = result * 10 + (c - zero)
     i = i + 1
   }
@@ -592,7 +606,9 @@ fn pcd_parse_int(s : String) -> Int {
 /// Parse a double from a string, returning 0.0 on failure.
 fn pcd_parse_double(s : String) -> Double {
   let sv = s.to_string().trim()
-  if sv.length() == 0 { return 0.0 }
+  if sv.length() == 0 {
+    return 0.0
+  }
   let n = sv.length()
   let mut result = 0.0
   let mut decimal = 0
@@ -605,7 +621,9 @@ fn pcd_parse_double(s : String) -> Double {
   }
   while i < n {
     let c = sv.unsafe_get(i).to_int()
-    if c < zero || c > zero + 9 { break }
+    if c < zero || c > zero + 9 {
+      break
+    }
     result = result * 10.0 + (c - zero).to_double()
     i = i + 1
   }
@@ -613,7 +631,9 @@ fn pcd_parse_double(s : String) -> Double {
     i = i + 1
     while i < n {
       let c = sv.unsafe_get(i).to_int()
-      if c < zero || c > zero + 9 { break }
+      if c < zero || c > zero + 9 {
+        break
+      }
       result = result * 10.0 + (c - zero).to_double()
       decimal = decimal + 1
       i = i + 1

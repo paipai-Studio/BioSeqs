@@ -56,6 +56,7 @@ fn uppercase_string(s : String) -> String {
   buf.to_string()
 }
 
+///|
 pub fn parse_embl(content : String) -> Array[SeqRecord] {
   let records = Array::new()
   let lines = content.split("\n").to_array()
@@ -92,7 +93,9 @@ pub fn parse_embl(content : String) -> Array[SeqRecord] {
         }
         let mut name_end = j
         let semi : UInt16 = ';'.to_int().to_uint16()
-        while name_end < rl && id_rest.unsafe_get(name_end) != semi && id_rest.unsafe_get(name_end) != sp {
+        while name_end < rl &&
+              id_rest.unsafe_get(name_end) != semi &&
+              id_rest.unsafe_get(name_end) != sp {
           name_end = name_end + 1
         }
         name = id_rest[j:name_end].to_owned()
@@ -123,7 +126,8 @@ pub fn parse_embl(content : String) -> Array[SeqRecord] {
         }
 
         // AC line: "AC   ACC1; ACC2;"
-        if !have_ac && lt >= 2 &&
+        if !have_ac &&
+          lt >= 2 &&
           l.unsafe_get(0) == 'A'.to_int().to_uint16() &&
           l.unsafe_get(1) == 'C'.to_int().to_uint16() &&
           (lt == 2 || l.unsafe_get(2) == sp) {
@@ -136,7 +140,9 @@ pub fn parse_embl(content : String) -> Array[SeqRecord] {
             }
             let mut ac_end = aj
             let semi : UInt16 = ';'.to_int().to_uint16()
-            while ac_end < apl && ac_part.unsafe_get(ac_end) != semi && ac_part.unsafe_get(ac_end) != sp {
+            while ac_end < apl &&
+                  ac_part.unsafe_get(ac_end) != semi &&
+                  ac_part.unsafe_get(ac_end) != sp {
               ac_end = ac_end + 1
             }
             if ac_end > aj {
@@ -173,8 +179,8 @@ pub fn parse_embl(content : String) -> Array[SeqRecord] {
             }
             if ct < 2 ||
               !(cont.unsafe_get(0) == 'D'.to_int().to_uint16() &&
-                cont.unsafe_get(1) == 'E'.to_int().to_uint16() &&
-                (ct == 2 || cont.unsafe_get(2) == sp)) {
+              cont.unsafe_get(1) == 'E'.to_int().to_uint16() &&
+              (ct == 2 || cont.unsafe_get(2) == sp)) {
               break
             }
             def_buf.write_char(' ')
@@ -210,8 +216,7 @@ pub fn parse_embl(content : String) -> Array[SeqRecord] {
           while k < lt {
             let c = l.unsafe_get(k)
             let ci = c.to_int()
-            let is_base =
-              (ci >= 'A'.to_int() && ci <= 'Z'.to_int()) ||
+            let is_base = (ci >= 'A'.to_int() && ci <= 'Z'.to_int()) ||
               (ci >= 'a'.to_int() && ci <= 'z'.to_int()) ||
               c == '-'.to_int().to_uint16()
             if is_base {
@@ -224,8 +229,7 @@ pub fn parse_embl(content : String) -> Array[SeqRecord] {
             for j = 0; j < lt; j = j + 1 {
               let c = l.unsafe_get(j)
               let ci = c.to_int()
-              let is_base =
-                (ci >= 'A'.to_int() && ci <= 'Z'.to_int()) ||
+              let is_base = (ci >= 'A'.to_int() && ci <= 'Z'.to_int()) ||
                 (ci >= 'a'.to_int() && ci <= 'z'.to_int()) ||
                 c == '-'.to_int().to_uint16()
               if is_base {
@@ -247,12 +251,9 @@ pub fn parse_embl(content : String) -> Array[SeqRecord] {
       // Uppercase the sequence for consistency with GenBank parser
       let seq_str = seq_buf.to_string()
       let seq_uppercased = uppercase_string(seq_str)
-      records.push(SeqRecord::new(
-        Seq::new(seq_uppercased),
-        id=id,
-        name=name,
-        description=description,
-      ))
+      records.push(
+        SeqRecord::new(Seq::new(seq_uppercased), id~, name~, description~),
+      )
       continue
     }
 

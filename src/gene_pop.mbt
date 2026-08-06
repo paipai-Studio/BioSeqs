@@ -45,7 +45,10 @@ pub fn GenePopGenotype::new(allele1 : Int, allele2 : Int?) -> GenePopGenotype {
 
 ///|
 /// A diploid genotype (both alleles present).
-pub fn GenePopGenotype::diploid(allele1 : Int, allele2 : Int) -> GenePopGenotype {
+pub fn GenePopGenotype::diploid(
+  allele1 : Int,
+  allele2 : Int,
+) -> GenePopGenotype {
   let missing = allele1 == 0 && allele2 == 0
   GenePopGenotype::{ allele1, allele2: Some(allele2), is_missing: missing }
 }
@@ -104,12 +107,7 @@ pub fn GenePopRecord::new(
   populations : Array[GenePopPopulation],
   locus_digit_size : Int,
 ) -> GenePopRecord {
-  GenePopRecord::{
-    title,
-    loci_names,
-    populations,
-    locus_digit_size,
-  }
+  GenePopRecord::{ title, loci_names, populations, locus_digit_size }
 }
 
 // ============================================================================
@@ -145,16 +143,8 @@ fn gp_iequals(a : String, b : String) -> Bool {
   while i < na {
     let ca = a.unsafe_get(i).to_int()
     let cb = b.unsafe_get(i).to_int()
-    let la = if ca >= 'A'.to_int() && ca <= 'Z'.to_int() {
-      ca + 32
-    } else {
-      ca
-    }
-    let lb = if cb >= 'A'.to_int() && cb <= 'Z'.to_int() {
-      cb + 32
-    } else {
-      cb
-    }
+    let la = if ca >= 'A'.to_int() && ca <= 'Z'.to_int() { ca + 32 } else { ca }
+    let lb = if cb >= 'A'.to_int() && cb <= 'Z'.to_int() { cb + 32 } else { cb }
     if la != lb {
       return false
     }
@@ -364,7 +354,10 @@ pub fn parse_genepop(content : String) -> GenePopRecord {
       if cur_individuals.length() > 0 {
         pop_count = pop_count + 1
         populations.push(
-          GenePopPopulation::new("Pop_" + pop_count.to_string(), cur_individuals),
+          GenePopPopulation::new(
+            "Pop_" + pop_count.to_string(),
+            cur_individuals,
+          ),
         )
         cur_individuals = []
       } else if populations.length() == 0 {
@@ -442,10 +435,7 @@ fn gp_detect_digit_size_from_ind(ind : GenePopIndividual) -> Int {
       max_allele = g.allele1
     }
     match g.allele2 {
-      Some(a2) =>
-        if a2 > max_allele {
-          max_allele = a2
-        }
+      Some(a2) => if a2 > max_allele { max_allele = a2 }
       None => ()
     }
     k = k + 1
@@ -462,7 +452,10 @@ fn gp_parse_individual(line : String) -> GenePopIndividual {
   // Split on the first comma to separate name from genotype data.
   let comma_pos = gp_find_char(line, ',')
   let (name_str, geno_str) = if comma_pos >= 0 {
-    (gp_trim(line[0:comma_pos].to_string()), gp_trim(line[comma_pos + 1:line.length()].to_string()))
+    (
+      gp_trim(line[0:comma_pos].to_string()),
+      gp_trim(line[comma_pos + 1:line.length()].to_string()),
+    )
   } else {
     // No comma: treat the whole line as genotype data with empty name.
     ("", line)
@@ -699,9 +692,7 @@ pub fn genepop_observed_heterozygosity(
       if !g.is_missing {
         total = total + 1
         match g.allele2 {
-          Some(a2) => if a2 != g.allele1 {
-            het = het + 1
-          }
+          Some(a2) => if a2 != g.allele1 { het = het + 1 }
           None => ()
         }
       }
@@ -738,10 +729,16 @@ pub fn genepop_summary(record : GenePopRecord) -> String {
   let buf = StringBuilder::new()
   buf.write_string("GenePop Record Summary\n")
   buf.write_string("  Title: " + record.title + "\n")
-  buf.write_string("  Populations: " + record.populations.length().to_string() + "\n")
+  buf.write_string(
+    "  Populations: " + record.populations.length().to_string() + "\n",
+  )
   buf.write_string("  Loci: " + record.loci_names.length().to_string() + "\n")
-  buf.write_string("  Individuals: " + genepop_total_individuals(record).to_string() + "\n")
-  buf.write_string("  Digit size: " + record.locus_digit_size.to_string() + "\n")
+  buf.write_string(
+    "  Individuals: " + genepop_total_individuals(record).to_string() + "\n",
+  )
+  buf.write_string(
+    "  Digit size: " + record.locus_digit_size.to_string() + "\n",
+  )
   let mut i = 0
   while i < record.populations.length() {
     let pop = record.populations[i]
@@ -766,12 +763,12 @@ pub fn genepop_summary(record : GenePopRecord) -> String {
 /// and 2-digit allele encoding, for tests and demos.
 pub fn genepop_sample() -> String {
   "Sample GenePop File\n" +
-    "Pop\n" +
-    "ind1,  0102  0304  0101\n" +
-    "ind2,  0202  0303  0102\n" +
-    "ind3,  0101  0404  0202\n" +
-    "Pop\n" +
-    "ind4,  0102  0304  0101\n" +
-    "ind5,  0202  0303  0102\n" +
-    "ind6,  0101  0000  0202\n"
+  "Pop\n" +
+  "ind1,  0102  0304  0101\n" +
+  "ind2,  0202  0303  0102\n" +
+  "ind3,  0101  0404  0202\n" +
+  "Pop\n" +
+  "ind4,  0102  0304  0101\n" +
+  "ind5,  0202  0303  0102\n" +
+  "ind6,  0101  0000  0202\n"
 }

@@ -62,7 +62,7 @@ pub fn Cdaotree::new(
   id : String,
   rooted? : Bool = false,
   root_node_id? : String = "",
-  name? : String? = None
+  name? : String? = None,
 ) -> Cdaotree {
   Cdaotree::{ id, rooted, root_node_id, name }
 }
@@ -86,7 +86,7 @@ pub fn CdaoNode::new(
   parent_id? : String? = None,
   tu_id? : String? = None,
   branch_length? : Double? = None,
-  label? : String? = None
+  label? : String? = None,
 ) -> CdaoNode {
   CdaoNode::{ id, children, parent_id, tu_id, branch_length, label }
 }
@@ -198,14 +198,20 @@ fn cdao_extract_elements(xml : String, triples : Array[CdaoTriple]) -> Unit {
       break
     }
     let tag_content = xml[tag_start + 1:tag_end].to_owned()
-    if tag_content[0:1].to_owned() == "/" || tag_content[0:4].to_owned() == "!--" || tag_content.contains("rdf:RDF") {
+    if tag_content[0:1].to_owned() == "/" ||
+      tag_content[0:4].to_owned() == "!--" ||
+      tag_content.contains("rdf:RDF") {
       pos = tag_end + 1
       continue
     }
-    let is_self_closing = tag_content[tag_content.length() - 1:tag_content.length()].to_owned() == "/"
+    let is_self_closing = tag_content[tag_content.length() - 1:tag_content.length()].to_owned() ==
+      "/"
     let tag_name = cdao_get_tag_name(tag_content)
     let about = cdao_get_attribute(tag_content, "rdf:about")
-    if tag_name.contains("cdao:Tree") || tag_name.contains("cdao:Node") || tag_name.contains("cdao:TU") || tag_name.contains("rdf:Description") {
+    if tag_name.contains("cdao:Tree") ||
+      tag_name.contains("cdao:Node") ||
+      tag_name.contains("cdao:TU") ||
+      tag_name.contains("rdf:Description") {
       let subject = match about {
         Some(a) => a
         None => ""
@@ -244,7 +250,7 @@ fn cdao_extract_elements(xml : String, triples : Array[CdaoTriple]) -> Unit {
 fn cdao_parse_children(
   subject : String,
   inner : String,
-  triples : Array[CdaoTriple]
+  triples : Array[CdaoTriple],
 ) -> Unit {
   let mut pos = 0
   while pos < inner.length() {
@@ -257,11 +263,13 @@ fn cdao_parse_children(
       break
     }
     let tag_content = inner[tag_start + 1:tag_end].to_owned()
-    if tag_content[0:1].to_owned() == "/" || tag_content[0:4].to_owned() == "!--" {
+    if tag_content[0:1].to_owned() == "/" ||
+      tag_content[0:4].to_owned() == "!--" {
       pos = tag_end + 1
       continue
     }
-    let is_self_closing = tag_content[tag_content.length() - 1:tag_content.length()].to_owned() == "/"
+    let is_self_closing = tag_content[tag_content.length() - 1:tag_content.length()].to_owned() ==
+      "/"
     let tag_name = cdao_get_tag_name(tag_content)
     let resource = cdao_get_attribute(tag_content, "rdf:resource")
     let close_tag = "</" + tag_name + ">"
@@ -325,7 +333,9 @@ fn cdao_build_document(doc : CdaoDocument, triples : Array[CdaoTriple]) -> Unit 
     let t = triples[j]
     if !doc.nodes.contains(t.subject) && !doc.tus.contains(t.subject) {
       if t.predicate.contains("cdao:") {
-        if t.predicate.contains("has_Child") || t.predicate.contains("has_Ancestor") || t.predicate.contains("belongs_to_TU") {
+        if t.predicate.contains("has_Child") ||
+          t.predicate.contains("has_Ancestor") ||
+          t.predicate.contains("belongs_to_TU") {
           doc.nodes[t.subject] = CdaoNode::new(t.subject)
         }
       }
@@ -349,15 +359,19 @@ fn cdao_build_document(doc : CdaoDocument, triples : Array[CdaoTriple]) -> Unit 
         idx = idx + 1
       }
       if !found {
-        doc.trees.push(Cdaotree::new(t.subject, rooted=true, root_node_id=t.object))
+        doc.trees.push(
+          Cdaotree::new(t.subject, rooted=true, root_node_id=t.object),
+        )
       }
-    } else if t.predicate.contains("has_Child") || t.predicate.contains("has_Descendant") {
+    } else if t.predicate.contains("has_Child") ||
+      t.predicate.contains("has_Descendant") {
       let node = doc.nodes.get(t.subject)
       match node {
         Some(n) => n.children.push(t.object)
         None => ()
       }
-    } else if t.predicate.contains("has_Ancestor") || t.predicate.contains("has_Parent") {
+    } else if t.predicate.contains("has_Ancestor") ||
+      t.predicate.contains("has_Parent") {
       let node = doc.nodes.get(t.subject)
       match node {
         Some(n) => n.parent_id = Some(t.object)
@@ -443,11 +457,7 @@ fn cdao_build_clade(doc : CdaoDocument, node_id : String) -> Clade {
         children.push(cdao_build_clade(doc, n.children[ci]))
         ci = ci + 1
       }
-      Clade::new(
-        branch_length=n.branch_length,
-        name=label,
-        clades=children,
-      )
+      Clade::new(branch_length=n.branch_length, name=label, clades=children)
     }
     None => Clade::new(name=Some(node_id))
   }
@@ -492,7 +502,10 @@ pub fn cdao_write(tree : Tree) -> String {
     let tu_label = tu_arr[ti]
     let tu_id = state.tu_map[tu_label]
     output = output + "  <cdao:TU rdf:about=\"" + tu_id + "\">\n"
-    output = output + "    <rdfs:label>" + cdao_escape_xml(tu_label) + "</rdfs:label>\n"
+    output = output +
+      "    <rdfs:label>" +
+      cdao_escape_xml(tu_label) +
+      "</rdfs:label>\n"
     output = output + "  </cdao:TU>\n"
     ti = ti + 1
   }
@@ -506,14 +519,16 @@ pub fn cdao_write(tree : Tree) -> String {
 fn cdao_write_clade(
   clade : Clade,
   node_uri : String,
-  state : CdaoWriteState
+  state : CdaoWriteState,
 ) -> (String, CdaoWriteState) {
   let mut output = ""
   output = output + "  <cdao:Node rdf:about=\"" + node_uri + "\">\n"
   match clade.branch_length {
-    Some(bl) => {
-      output = output + "    <cdao:has_branch_length>" + bl.to_string() + "</cdao:has_branch_length>\n"
-    }
+    Some(bl) =>
+      output = output +
+        "    <cdao:has_branch_length>" +
+        bl.to_string() +
+        "</cdao:has_branch_length>\n"
     None => ()
   }
   if clade.is_terminal() {
@@ -531,7 +546,10 @@ fn cdao_write_clade(
         new_id
       }
     }
-    output = output + "    <cdao:belongs_to_TU rdf:resource=\"" + tu_uri + "\"/>\n"
+    output = output +
+      "    <cdao:belongs_to_TU rdf:resource=\"" +
+      tu_uri +
+      "\"/>\n"
   }
   // Collect child URIs
   let child_uris : Array[String] = Array::new()
@@ -540,14 +558,21 @@ fn cdao_write_clade(
     state.node_counter = state.node_counter + 1
     let child_uri = "#node" + state.node_counter.to_string()
     child_uris.push(child_uri)
-    output = output + "    <cdao:has_Child rdf:resource=\"" + child_uri + "\"/>\n"
+    output = output +
+      "    <cdao:has_Child rdf:resource=\"" +
+      child_uri +
+      "\"/>\n"
     ci = ci + 1
   }
   output = output + "  </cdao:Node>\n"
   // Recursively write children
   let mut di = 0
   while di < clade.clades.length() {
-    let (child_output, _) = cdao_write_clade(clade.clades[di], child_uris[di], state)
+    let (child_output, _) = cdao_write_clade(
+      clade.clades[di],
+      child_uris[di],
+      state,
+    )
     output = output + child_output
     di = di + 1
   }
@@ -565,12 +590,40 @@ pub fn cdao_sample_document() -> CdaoDocument {
   let doc = CdaoDocument::new()
   doc.trees.push(Cdaotree::new("#tree1", rooted=true, root_node_id="#node1"))
   doc.nodes["#node1"] = CdaoNode::new("#node1", children=["#node2", "#node3"])
-  doc.nodes["#node2"] = CdaoNode::new("#node2", children=["#node4", "#node5"], parent_id=Some("#node1"))
-  doc.nodes["#node3"] = CdaoNode::new("#node3", children=["#node6", "#node7"], parent_id=Some("#node1"))
-  doc.nodes["#node4"] = CdaoNode::new("#node4", parent_id=Some("#node2"), tu_id=Some("#tu1"), branch_length=Some(1.0))
-  doc.nodes["#node5"] = CdaoNode::new("#node5", parent_id=Some("#node2"), tu_id=Some("#tu2"), branch_length=Some(1.0))
-  doc.nodes["#node6"] = CdaoNode::new("#node6", parent_id=Some("#node3"), tu_id=Some("#tu3"), branch_length=Some(1.0))
-  doc.nodes["#node7"] = CdaoNode::new("#node7", parent_id=Some("#node3"), tu_id=Some("#tu4"), branch_length=Some(1.0))
+  doc.nodes["#node2"] = CdaoNode::new(
+    "#node2",
+    children=["#node4", "#node5"],
+    parent_id=Some("#node1"),
+  )
+  doc.nodes["#node3"] = CdaoNode::new(
+    "#node3",
+    children=["#node6", "#node7"],
+    parent_id=Some("#node1"),
+  )
+  doc.nodes["#node4"] = CdaoNode::new(
+    "#node4",
+    parent_id=Some("#node2"),
+    tu_id=Some("#tu1"),
+    branch_length=Some(1.0),
+  )
+  doc.nodes["#node5"] = CdaoNode::new(
+    "#node5",
+    parent_id=Some("#node2"),
+    tu_id=Some("#tu2"),
+    branch_length=Some(1.0),
+  )
+  doc.nodes["#node6"] = CdaoNode::new(
+    "#node6",
+    parent_id=Some("#node3"),
+    tu_id=Some("#tu3"),
+    branch_length=Some(1.0),
+  )
+  doc.nodes["#node7"] = CdaoNode::new(
+    "#node7",
+    parent_id=Some("#node3"),
+    tu_id=Some("#tu4"),
+    branch_length=Some(1.0),
+  )
   doc.tus["#tu1"] = CdaoTU::new("#tu1", label=Some("A"))
   doc.tus["#tu2"] = CdaoTU::new("#tu2", label=Some("B"))
   doc.tus["#tu3"] = CdaoTU::new("#tu3", label=Some("C"))
@@ -720,7 +773,11 @@ fn cdao_get_attribute(tag_content : String, attr_name : String) -> String? {
 fn cdao_parse_double(s : String) -> Double {
   let trimmed = s.trim().to_string()
   let neg = trimmed[0:1].to_owned() == "-"
-  let digits = if neg { trimmed[1:trimmed.length()].to_string() } else { trimmed }
+  let digits = if neg {
+    trimmed[1:trimmed.length()].to_string()
+  } else {
+    trimmed
+  }
   let result = parse_double(digits)
   match result {
     Some(d) => if neg { -d } else { d }

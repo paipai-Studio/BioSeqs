@@ -432,7 +432,11 @@ pub fn mg_block_apply_rows(
   let result : Array[Double] = Array::make(n_rows, 0.0)
   let mut start = 0
   while start < n_rows {
-    let end = if start + block_size < n_rows { start + block_size } else { n_rows }
+    let end = if start + block_size < n_rows {
+      start + block_size
+    } else {
+      n_rows
+    }
     let block_data : Array[Array[Double]] = []
     let mut i = start
     while i < end {
@@ -469,7 +473,11 @@ pub fn mg_block_apply_cols(
   let result : Array[Double] = Array::make(n_cols, 0.0)
   let mut start = 0
   while start < n_cols {
-    let end = if start + block_size < n_cols { start + block_size } else { n_cols }
+    let end = if start + block_size < n_cols {
+      start + block_size
+    } else {
+      n_cols
+    }
     let block_data : Array[Array[Double]] = []
     let mut i = 0
     while i < n_rows {

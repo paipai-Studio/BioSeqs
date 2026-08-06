@@ -278,7 +278,7 @@ pub struct GeoFile {
 ///|
 /// Create a GeoFile.
 pub fn GeoFile::new(records : Array[GeoRecord]) -> GeoFile {
-  { records }
+  { records, }
 }
 
 ///|
@@ -417,12 +417,7 @@ pub fn geo_parse(text : String) -> GeoFile {
         let keyword = trim(rest[0:eq_pos].to_string())
         let accession = trim(rest[eq_pos + 1:rest.length()].to_string())
         let etype = geo_entity_type_from_keyword(keyword)
-        let (record, next) = geo_parse_record(
-          lines,
-          idx + 1,
-          etype,
-          accession,
-        )
+        let (record, next) = geo_parse_record(lines, idx + 1, etype, accession)
         records.push(record)
         idx = next
       } else {
@@ -473,12 +468,10 @@ fn geo_parse_record(
         None => ()
       }
       in_table = true
-    } else {
       // Data row (if we're in a table section with columns defined)
-      if in_table && columns.length() > 0 {
-        let fields = geo_split_tab(line)
-        rows.push(fields)
-      }
+    } else if in_table && columns.length() > 0 {
+      let fields = geo_split_tab(line)
+      rows.push(fields)
     }
     idx = idx + 1
   }
@@ -543,8 +536,11 @@ pub fn GeoAttribute::to_string(self : GeoAttribute) -> String {
 ///|
 /// Format a GeoDataTable as a readable string.
 pub fn GeoDataTable::to_string(self : GeoDataTable) -> String {
-  let mut s = "DataTable(" + self.n_columns().to_string() + " cols, " +
-    self.n_rows().to_string() + " rows)\n"
+  let mut s = "DataTable(" +
+    self.n_columns().to_string() +
+    " cols, " +
+    self.n_rows().to_string() +
+    " rows)\n"
   // Column headers
   s = s + "  "
   for i in 0..<self.columns.length() {
@@ -575,8 +571,11 @@ pub fn GeoDataTable::to_string(self : GeoDataTable) -> String {
 ///|
 /// Format a GeoRecord as a readable string.
 pub fn GeoRecord::to_string(self : GeoRecord) -> String {
-  let mut s = "GeoRecord(type=" + self.entity_type.to_string() + ", accession=" +
-    self.accession + ")\n"
+  let mut s = "GeoRecord(type=" +
+    self.entity_type.to_string() +
+    ", accession=" +
+    self.accession +
+    ")\n"
   s = s + "Attributes (" + self.attributes.length().to_string() + "):\n"
   for attr in self.attributes {
     s = s + "  " + attr.to_string() + "\n"

@@ -49,31 +49,24 @@ test "pwm_construction_default_background_and_strand" {
 ///|
 test "pwm_from_counts_basic" {
   // 4 rows (A,C,G,T) x 3 columns
-  let counts = [
-    [9, 1, 1],
-    [1, 8, 1],
-    [1, 1, 7],
-    [1, 2, 3],
-  ]
+  let counts = [[9, 1, 1], [1, 8, 1], [1, 1, 7], [1, 2, 3]]
   let pwm = @src.motif_scan_pwm_from_counts("MC1", "CountMotif", counts, 1.0)
   assert_eq(pwm.motif_id, "MC1")
   assert_eq(pwm.motif_name, "CountMotif")
   assert_eq(pwm.matrix.length(), 4)
   assert_eq(pwm.matrix[0].length(), 3)
   // Each column should sum to ~1.0 (with pseudocount).
-  let col0 = pwm.matrix[0][0] + pwm.matrix[1][0] + pwm.matrix[2][0] + pwm.matrix[3][0]
+  let col0 = pwm.matrix[0][0] +
+    pwm.matrix[1][0] +
+    pwm.matrix[2][0] +
+    pwm.matrix[3][0]
   assert_true((col0 - 1.0).abs() < 0.001)
 }
 
 ///|
 test "pwm_from_counts_normalization" {
   // Counts: column 0 has total 10 + 4*pseudocount; each entry = (count+pseudo)/norm
-  let counts = [
-    [10, 0],
-    [0, 10],
-    [0, 0],
-    [0, 0],
-  ]
+  let counts = [[10, 0], [0, 10], [0, 0], [0, 0]]
   let pwm = @src.motif_scan_pwm_from_counts("MC2", "Norm", counts, 1.0)
   // Column 0: total=10, norm=10+4=14. A = (10+1)/14 = 11/14
   let expected_a = 11.0 / 14.0
@@ -96,7 +89,7 @@ test "pssm_construction_log_likelihood" {
   // A: log2(0.9/0.25) = log2(3.6) ~ 1.848
   assert_true((pssm.scores[0][0] - 1.848).abs() < 0.01)
   // C: log2(0.05/0.25) = log2(0.2) ~ -2.322
-  assert_true((pssm.scores[1][0] - (-2.322)).abs() < 0.01)
+  assert_true((pssm.scores[1][0] - -2.322).abs() < 0.01)
 }
 
 ///|
@@ -104,7 +97,7 @@ test "pssm_construction_min_max_score" {
   let pwm = make_one_pos_pwm()
   let pssm = @src.build_pssm(pwm)
   // min_score = min of all bases at position 0 = -2.322
-  assert_true((pssm.min_score - (-2.322)).abs() < 0.01)
+  assert_true((pssm.min_score - -2.322).abs() < 0.01)
   // max_score = max of all bases at position 0 = 1.848
   assert_true((pssm.max_score - 1.848).abs() < 0.01)
 }
@@ -114,10 +107,12 @@ test "pssm_carries_metadata" {
   let pwm = @src.PositionWeightMatrix::new(
     motif_id="M99",
     motif_name="Meta",
-    matrix=[[0.9, 0.05, 0.05, 0.05, 0.9, 0.9],
-           [0.05, 0.05, 0.05, 0.9, 0.05, 0.05],
-           [0.05, 0.05, 0.9, 0.05, 0.05, 0.05],
-           [0.05, 0.9, 0.05, 0.05, 0.05, 0.05]],
+    matrix=[
+      [0.9, 0.05, 0.05, 0.05, 0.9, 0.9],
+      [0.05, 0.05, 0.05, 0.9, 0.05, 0.05],
+      [0.05, 0.05, 0.9, 0.05, 0.05, 0.05],
+      [0.05, 0.9, 0.05, 0.05, 0.05, 0.05],
+    ],
     background=[0.25, 0.25, 0.25, 0.25],
     strand="+-",
   )
@@ -135,7 +130,7 @@ test "compute_score_single_position" {
   // Score of "A" = log2(0.9/0.25) ~ 1.848
   assert_true((@src.compute_score(pssm, "A") - 1.848).abs() < 0.01)
   // Score of "C" = log2(0.05/0.25) ~ -2.322
-  assert_true((@src.compute_score(pssm, "C") - (-2.322)).abs() < 0.01)
+  assert_true((@src.compute_score(pssm, "C") - -2.322).abs() < 0.01)
 }
 
 ///|
@@ -289,10 +284,12 @@ test "scan_sequence_forward_only_mode" {
   let pwm = @src.PositionWeightMatrix::new(
     motif_id="Mfwd",
     motif_name="FwdOnly",
-    matrix=[[0.9, 0.05, 0.05, 0.05, 0.9, 0.9],
-           [0.05, 0.05, 0.05, 0.9, 0.05, 0.05],
-           [0.05, 0.05, 0.9, 0.05, 0.05, 0.05],
-           [0.05, 0.9, 0.05, 0.05, 0.05, 0.05]],
+    matrix=[
+      [0.9, 0.05, 0.05, 0.05, 0.9, 0.9],
+      [0.05, 0.05, 0.05, 0.9, 0.05, 0.05],
+      [0.05, 0.05, 0.9, 0.05, 0.05, 0.05],
+      [0.05, 0.9, 0.05, 0.05, 0.05, 0.05],
+    ],
     background=[0.25, 0.25, 0.25, 0.25],
     strand="+",
   )
@@ -523,11 +520,7 @@ test "pwm_from_counts_empty" {
 
 ///|
 test "compute_score_empty_pssm" {
-  let pwm = @src.PositionWeightMatrix::new(
-    motif_id="E",
-    motif_name="E",
-    matrix=[],
-  )
+  let pwm = @src.PositionWeightMatrix::new(motif_id="E", motif_name="E", matrix=[])
   let pssm = @src.build_pssm(pwm)
   assert_true((@src.compute_score(pssm, "ACGT") - 0.0).abs() < 0.001)
   assert_true((@src.compute_pvalue(pssm, 0.0) - 1.0).abs() < 0.001)

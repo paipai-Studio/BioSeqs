@@ -7,10 +7,7 @@
 
 ///|
 test "jaspar_motif_creation" {
-  let pwm : Array[Array[Double]] = [
-    [0.1, 0.2, 0.3, 0.4],
-    [0.4, 0.3, 0.2, 0.1],
-  ]
+  let pwm : Array[Array[Double]] = [[0.1, 0.2, 0.3, 0.4], [0.4, 0.3, 0.2, 0.1]]
   let motif = @src.JasparMotif::new(
     "MA0001.1",
     "AGL3",
@@ -31,8 +28,7 @@ test "jaspar_motif_creation" {
 
 ///|
 test "jaspar_parse_simple_pfm" {
-  let pfm_content =
-    ">MA0001.1 AGL3\n" +
+  let pfm_content = ">MA0001.1 AGL3\n" +
     "A  [ 0  3 79 40 66 48 65 11 65  0 ]\n" +
     "C  [ 94 75  4  3  1  2  5  2  7  0 ]\n" +
     "G  [  1  0  3  4  1  0  5  3  4  0 ]\n" +
@@ -46,8 +42,7 @@ test "jaspar_parse_simple_pfm" {
 
 ///|
 test "jaspar_parse_multiple_motifs" {
-  let pfm_content =
-    ">MA0001.1 AGL3\n" +
+  let pfm_content = ">MA0001.1 AGL3\n" +
     "A [ 10 20 30 40 ]\n" +
     "C [ 40 30 20 10 ]\n" +
     "G [ 20 20 20 20 ]\n" +
@@ -82,10 +77,7 @@ test "jaspar_pfm_to_pwm" {
 
 ///|
 test "jaspar_pwm_to_jaspar_format" {
-  let pwm : Array[Array[Double]] = [
-    [0.1, 0.2, 0.3, 0.4],
-    [0.4, 0.3, 0.2, 0.1],
-  ]
+  let pwm : Array[Array[Double]] = [[0.1, 0.2, 0.3, 0.4], [0.4, 0.3, 0.2, 0.1]]
   let jaspar_str = @src.pwm_to_jaspar(pwm, "MA0001.1", "TestMotif")
   assert_true(jaspar_str.has_prefix(">MA0001.1 TestMotif"))
   assert_true(jaspar_str.contains("A ["))
@@ -98,10 +90,7 @@ test "jaspar_pwm_to_jaspar_format" {
 
 ///|
 test "transfac_motif_creation" {
-  let pwm : Array[Array[Double]] = [
-    [1.0, 2.0, 3.0, 4.0],
-    [4.0, 3.0, 2.0, 1.0],
-  ]
+  let pwm : Array[Array[Double]] = [[1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0]]
   let motif = @src.TransfacMotif::new(
     "T00001",
     "M00001",
@@ -119,8 +108,7 @@ test "transfac_motif_creation" {
 
 ///|
 test "transfac_parse_simple" {
-  let transfac_content =
-    "AC T00001\n" +
+  let transfac_content = "AC T00001\n" +
     "ID M00001\n" +
     "NA AP-1\n" +
     "DE Activator protein 1\n" +
@@ -138,10 +126,7 @@ test "transfac_parse_simple" {
 
 ///|
 test "transfac_pwm_to_transfac_format" {
-  let pwm : Array[Array[Double]] = [
-    [1.0, 2.0, 3.0, 4.0],
-    [4.0, 3.0, 2.0, 1.0],
-  ]
+  let pwm : Array[Array[Double]] = [[1.0, 2.0, 3.0, 4.0], [4.0, 3.0, 2.0, 1.0]]
   let transfac_str = @src.pwm_to_transfac(pwm, "TestMotif", "T00001")
   assert_true(transfac_str.contains("AC T00001"))
   assert_true(transfac_str.contains("NA TestMotif"))
@@ -184,10 +169,7 @@ test "optimal_motif_alignment_different_lengths" {
     [0.0, 0.1, 0.1, 0.8],
     [0.8, 0.1, 0.1, 0.0],
   ]
-  let pwm2 : Array[Array[Double]] = [
-    [0.0, 0.1, 0.1, 0.8],
-    [0.8, 0.1, 0.1, 0.0],
-  ]
+  let pwm2 : Array[Array[Double]] = [[0.0, 0.1, 0.1, 0.8], [0.8, 0.1, 0.1, 0.0]]
   let alignment = @src.optimal_motif_alignment(pwm1, pwm2)
   assert_true(alignment.score >= 0.0)
   assert_true(alignment.aligned_length > 0)
@@ -210,26 +192,16 @@ test "motif_kl_divergence" {
 
 ///|
 test "motif_js_divergence" {
-  let pwm1 : Array[Array[Double]] = [
-    [0.8, 0.1, 0.1, 0.0],
-    [0.0, 0.1, 0.1, 0.8],
-  ]
-  let pwm2 : Array[Array[Double]] = [
-    [0.8, 0.1, 0.1, 0.0],
-    [0.0, 0.1, 0.1, 0.8],
-  ]
+  let pwm1 : Array[Array[Double]] = [[0.8, 0.1, 0.1, 0.0], [0.0, 0.1, 0.1, 0.8]]
+  let pwm2 : Array[Array[Double]] = [[0.8, 0.1, 0.1, 0.0], [0.0, 0.1, 0.1, 0.8]]
   let js = @src.motif_js_divergence(pwm1, pwm2)
   assert_eq(js, 0.0)
 }
 
 ///|
 test "motif_js_divergence_different" {
-  let pwm1 : Array[Array[Double]] = [
-    [0.8, 0.1, 0.1, 0.0],
-  ]
-  let pwm2 : Array[Array[Double]] = [
-    [0.0, 0.1, 0.1, 0.8],
-  ]
+  let pwm1 : Array[Array[Double]] = [[0.8, 0.1, 0.1, 0.0]]
+  let pwm2 : Array[Array[Double]] = [[0.0, 0.1, 0.1, 0.8]]
   let js = @src.motif_js_divergence(pwm1, pwm2)
   assert_true(js >= 0.0)
 }
@@ -250,10 +222,7 @@ test "motif_cluster_creation" {
 ///|
 test "cluster_motifs_single" {
   let names = ["motif1"]
-  let pwm1 : Array[Array[Double]] = [
-    [0.8, 0.1, 0.1, 0.0],
-    [0.0, 0.1, 0.1, 0.8],
-  ]
+  let pwm1 : Array[Array[Double]] = [[0.8, 0.1, 0.1, 0.0], [0.0, 0.1, 0.1, 0.8]]
   let pwms = [pwm1]
   let clusters = @src.cluster_motifs(names, pwms, 0.5)
   assert_eq(clusters.length(), 1)
@@ -275,10 +244,7 @@ test "optimal_pseudocount" {
 
 ///|
 test "motif_gc_content" {
-  let pwm : Array[Array[Double]] = [
-    [0.1, 0.4, 0.4, 0.1],
-    [0.1, 0.4, 0.4, 0.1],
-  ]
+  let pwm : Array[Array[Double]] = [[0.1, 0.4, 0.4, 0.1], [0.1, 0.4, 0.4, 0.1]]
   let gc = @src.motif_gc_content_adv(pwm)
   assert_true(gc > 0.7 && gc < 0.9)
 }

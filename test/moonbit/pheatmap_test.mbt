@@ -3,16 +3,10 @@
 
 ///|
 test "pheatmap_create_input" {
-  let mat = [
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0, 6.0],
-    [7.0, 8.0, 9.0],
-  ]
-  let input = @src.pheatmap_input(
-    mat,
-    ["row1", "row2", "row3"],
-    ["col1", "col2", "col3"],
-  )
+  let mat = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
+  let input = @src.pheatmap_input(mat, ["row1", "row2", "row3"], [
+    "col1", "col2", "col3",
+  ])
   assert_eq(input.mat.length(), 3)
   assert_eq(input.row_names.length(), 3)
   assert_eq(input.col_names.length(), 3)
@@ -20,11 +14,11 @@ test "pheatmap_create_input" {
 
 ///|
 test "pheatmap_distance_euclidean" {
-  let data = [
-    [1.0, 0.0],
-    [0.0, 0.0],
-  ]
-  let dist = @src.pheatmap_distance_matrix(data, @src.distance_method_euclidean())
+  let data = [[1.0, 0.0], [0.0, 0.0]]
+  let dist = @src.pheatmap_distance_matrix(
+    data,
+    @src.distance_method_euclidean(),
+  )
   assert_eq(dist.length(), 2)
   assert_eq(dist[0][0], 0.0)
   assert_eq(dist[1][1], 0.0)
@@ -33,23 +27,22 @@ test "pheatmap_distance_euclidean" {
 
 ///|
 test "pheatmap_distance_manhattan" {
-  let data = [
-    [1.0, 2.0],
-    [4.0, 6.0],
-  ]
-  let dist = @src.pheatmap_distance_matrix(data, @src.distance_method_manhattan())
+  let data = [[1.0, 2.0], [4.0, 6.0]]
+  let dist = @src.pheatmap_distance_matrix(
+    data,
+    @src.distance_method_manhattan(),
+  )
   assert_eq(dist.length(), 2)
   assert_eq(dist[0][1], 7.0)
 }
 
 ///|
 test "pheatmap_distance_symmetry" {
-  let data = [
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0, 6.0],
-    [7.0, 8.0, 9.0],
-  ]
-  let dist = @src.pheatmap_distance_matrix(data, @src.distance_method_euclidean())
+  let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
+  let dist = @src.pheatmap_distance_matrix(
+    data,
+    @src.distance_method_euclidean(),
+  )
   let n = dist.length()
   let mut i = 0
   while i < n {
@@ -64,26 +57,18 @@ test "pheatmap_distance_symmetry" {
 
 ///|
 test "pheatmap_column_distance" {
-  let data = [
-    [1.0, 0.0, 1.0],
-    [0.0, 1.0, 0.0],
-  ]
-  let dist = @src.pheatmap_column_distance_matrix(data, @src.distance_method_euclidean())
+  let data = [[1.0, 0.0, 1.0], [0.0, 1.0, 0.0]]
+  let dist = @src.pheatmap_column_distance_matrix(
+    data,
+    @src.distance_method_euclidean(),
+  )
   assert_eq(dist.length(), 3)
 }
 
 ///|
 test "pheatmap_render_basic" {
-  let mat = [
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0, 6.0],
-    [7.0, 8.0, 9.0],
-  ]
-  let input = @src.pheatmap_input(
-    mat,
-    ["r1", "r2", "r3"],
-    ["c1", "c2", "c3"],
-  )
+  let mat = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
+  let input = @src.pheatmap_input(mat, ["r1", "r2", "r3"], ["c1", "c2", "c3"])
   let result = @src.pheatmap_render(input)
   assert_eq(result.row_order.length(), 3)
   assert_eq(result.col_order.length(), 3)
@@ -108,11 +93,7 @@ test "pheatmap_set_fontsize" {
 
 ///|
 test "pheatmap_cutree_rows" {
-  let mat = [
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0, 6.0],
-    [7.0, 8.0, 9.0],
-  ]
+  let mat = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let input = @src.pheatmap_input(mat, ["r1", "r2", "r3"], ["c1", "c2", "c3"])
   let cut = @src.pheatmap_set_cutree(input, 2, 1)
   assert_eq(cut.cutree_rows, 2)
@@ -120,10 +101,7 @@ test "pheatmap_cutree_rows" {
 
 ///|
 test "pheatmap_no_clustering" {
-  let mat = [
-    [1.0, 2.0],
-    [3.0, 4.0],
-  ]
+  let mat = [[1.0, 2.0], [3.0, 4.0]]
   let input = @src.pheatmap_input(mat, ["r1", "r2"], ["c1", "c2"])
   let unclustered = @src.pheatmap_set_cluster(input, false, false)
   assert_eq(unclustered.cluster_rows, false)

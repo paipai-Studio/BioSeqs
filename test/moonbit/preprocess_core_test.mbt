@@ -14,6 +14,7 @@ test "pc_quantile_config_new" {
   assert_eq(config.method, "quantile")
 }
 
+///|
 test "pc_invariant_set_result_creation" {
   let dummy : Array[Array[Double]] = [[1.0, 2.0], [3.0, 4.0]]
   let res = @src.InvariantSetResult::new(dummy, [0, 1], 0, [0.0, 1.0])
@@ -27,6 +28,7 @@ test "pc_invariant_set_result_creation" {
 // Helper utilities
 // ============================================================================
 
+///|
 test "pc_interp_linear_basic" {
   let xs = [0.0, 1.0, 2.0, 3.0, 4.0]
   let ys = [0.0, 10.0, 20.0, 30.0, 40.0]
@@ -44,11 +46,13 @@ test "pc_interp_linear_basic" {
   assert_true((v3 - 40.0).abs() < 0.0001)
 }
 
+///|
 test "pc_interp_linear_empty" {
   let v = @src.pc_interp_linear([], [], 1.0)
   assert_eq(v, 0.0)
 }
 
+///|
 test "pc_interp_linear_single" {
   let v = @src.pc_interp_linear([5.0], [100.0], 0.0)
   assert_eq(v, 100.0)
@@ -58,15 +62,10 @@ test "pc_interp_linear_single" {
 // Quantile normalization core tests
 // ============================================================================
 
+///|
 test "pc_normalize_quantiles_identical_distributions" {
   // Two columns with same values -> should remain the same
-  let matrix = [
-    [1.0, 1.0],
-    [2.0, 2.0],
-    [3.0, 3.0],
-    [4.0, 4.0],
-    [5.0, 5.0],
-  ]
+  let matrix = [[1.0, 1.0], [2.0, 2.0], [3.0, 3.0], [4.0, 4.0], [5.0, 5.0]]
   let res = @src.normalize_quantiles(matrix)
   assert_eq(res.length(), 5)
   assert_eq(res[0].length(), 2)
@@ -76,16 +75,12 @@ test "pc_normalize_quantiles_identical_distributions" {
   }
 }
 
+///|
 test "pc_normalize_quantiles_swapped_values" {
   // Two columns with reversed order
   // Col1: [1, 2, 3, 4], Col2: [4, 3, 2, 1]
   // After normalization, both should have means of sorted values
-  let matrix = [
-    [1.0, 4.0],
-    [2.0, 3.0],
-    [3.0, 2.0],
-    [4.0, 1.0],
-  ]
+  let matrix = [[1.0, 4.0], [2.0, 3.0], [3.0, 2.0], [4.0, 1.0]]
   let res = @src.normalize_quantiles(matrix)
   // Check distributions: for each column, after sorting, they should match
   // sorted(col1_normalized) == sorted(col2_normalized) == 2.5, 2.5, 2.5, 2.5
@@ -102,12 +97,9 @@ test "pc_normalize_quantiles_swapped_values" {
   assert_true((res[0][1] - 4.0).abs() < 0.0001)
 }
 
+///|
 test "pc_normalize_quantiles_three_columns" {
-  let matrix = [
-    [1.0, 4.0, 7.0],
-    [2.0, 5.0, 8.0],
-    [3.0, 6.0, 9.0],
-  ]
+  let matrix = [[1.0, 4.0, 7.0], [2.0, 5.0, 8.0], [3.0, 6.0, 9.0]]
   let res = @src.normalize_quantiles(matrix)
   assert_eq(res.length(), 3)
   assert_eq(res[0].length(), 3)
@@ -123,11 +115,13 @@ test "pc_normalize_quantiles_three_columns" {
   assert_true((orig_sum - new_sum).abs() < 0.1)
 }
 
+///|
 test "pc_normalize_quantiles_empty" {
   let res = @src.normalize_quantiles([])
   assert_eq(res.length(), 0)
 }
 
+///|
 test "pc_normalize_quantiles_one_row" {
   let matrix = [[1.0, 10.0, 100.0]]
   let res = @src.normalize_quantiles(matrix)
@@ -144,12 +138,9 @@ test "pc_normalize_quantiles_one_row" {
 // Target-based quantile normalization
 // ============================================================================
 
+///|
 test "pc_normalize_quantiles_target" {
-  let matrix = [
-    [1.0, 2.0],
-    [3.0, 4.0],
-    [5.0, 6.0],
-  ]
+  let matrix = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
   let target = [10.0, 20.0, 30.0]
   let res = @src.normalize_quantiles_use_target(matrix, target)
   assert_eq(res.length(), 3)
@@ -161,12 +152,9 @@ test "pc_normalize_quantiles_target" {
   assert_true((res[2][0] - 30.0).abs() < 0.0001)
 }
 
+///|
 test "pc_normalize_quantiles_determine_target" {
-  let matrix = [
-    [1.0, 3.0],
-    [2.0, 2.0],
-    [3.0, 1.0],
-  ]
+  let matrix = [[1.0, 3.0], [2.0, 2.0], [3.0, 1.0]]
   let target = @src.normalize_quantiles_determine_target(matrix)
   assert_eq(target.length(), 3)
   // Each row of sorted matrix: sorted col1 = [1, 2, 3], col2 = [1, 2, 3]
@@ -180,6 +168,7 @@ test "pc_normalize_quantiles_determine_target" {
 // Subset quantile normalization
 // ============================================================================
 
+///|
 test "pc_normalize_quantiles_subset" {
   let matrix = [
     [1.0, 8.0],
@@ -200,6 +189,7 @@ test "pc_normalize_quantiles_subset" {
 // Invariant set normalization
 // ============================================================================
 
+///|
 test "pc_find_invariant_set_perfect_correlation" {
   // Two arrays with perfect linear relationship
   let reference = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
@@ -209,11 +199,13 @@ test "pc_find_invariant_set_perfect_correlation" {
   assert_true(inv.length() >= 5)
 }
 
+///|
 test "pc_find_invariant_set_length_mismatch" {
   let inv = @src.find_invariant_set([1.0, 2.0], [1.0])
   assert_eq(inv.length(), 0)
 }
 
+///|
 test "pc_normalize_invariantset_basic" {
   // 3 samples x 5 rows
   let matrix = [
@@ -223,7 +215,11 @@ test "pc_normalize_invariantset_basic" {
     [4.0, 8.0, 12.0],
     [5.0, 10.0, 15.0],
   ]
-  let res = @src.normalize_invariantset(matrix, reference_index=0, threshold=0.01)
+  let res = @src.normalize_invariantset(
+    matrix,
+    reference_index=0,
+    threshold=0.01,
+  )
   assert_eq(res.reference_index, 0)
   assert_eq(res.normalized_data.length(), 5)
   // Reference column should be unchanged
@@ -236,6 +232,7 @@ test "pc_normalize_invariantset_basic" {
 // Log transform
 // ============================================================================
 
+///|
 test "pc_log2_transform_basic" {
   let matrix = [[0.0, 1.0], [3.0, 15.0]]
   let res = @src.log2_transform(matrix, offset=1.0)
@@ -249,6 +246,7 @@ test "pc_log2_transform_basic" {
   assert_true((res[1][1] - 4.0).abs() < 0.0001)
 }
 
+///|
 test "pc_log2_transform_empty" {
   let res = @src.log2_transform([])
   assert_eq(res.length(), 0)
@@ -258,6 +256,7 @@ test "pc_log2_transform_empty" {
 // Background correction
 // ============================================================================
 
+///|
 test "pc_background_correct_percentile_basic" {
   let matrix = [
     [1.0, 100.0],
@@ -290,21 +289,16 @@ test "pc_background_correct_percentile_basic" {
 // Median center
 // ============================================================================
 
+///|
 test "pc_median_center_columns_basic" {
-  let matrix = [
-    [1.0, 10.0],
-    [2.0, 20.0],
-    [3.0, 30.0],
-    [4.0, 40.0],
-    [5.0, 50.0],
-  ]
+  let matrix = [[1.0, 10.0], [2.0, 20.0], [3.0, 30.0], [4.0, 40.0], [5.0, 50.0]]
   let res = @src.median_center_columns(matrix)
   // Column 1 median = 3, centered = [-2, -1, 0, 1, 2]
-  assert_true((res[0][0] - (-2.0)).abs() < 0.0001)
+  assert_true((res[0][0] - -2.0).abs() < 0.0001)
   assert_true((res[2][0] - 0.0).abs() < 0.0001)
   assert_true((res[4][0] - 2.0).abs() < 0.0001)
   // Column 2 median = 30, centered = [-20, -10, 0, 10, 20]
-  assert_true((res[0][1] - (-20.0)).abs() < 0.0001)
+  assert_true((res[0][1] - -20.0).abs() < 0.0001)
   assert_true((res[2][1] - 0.0).abs() < 0.0001)
   assert_true((res[4][1] - 20.0).abs() < 0.0001)
 }
@@ -313,14 +307,9 @@ test "pc_median_center_columns_basic" {
 // Column summary
 // ============================================================================
 
+///|
 test "pc_column_summary_basic" {
-  let matrix = [
-    [1.0, 10.0],
-    [2.0, 20.0],
-    [3.0, 30.0],
-    [4.0, 40.0],
-    [5.0, 50.0],
-  ]
+  let matrix = [[1.0, 10.0], [2.0, 20.0], [3.0, 30.0], [4.0, 40.0], [5.0, 50.0]]
   let res = @src.column_summary(matrix)
   assert_eq(res.length(), 2)
   // Each column result is [mean, median, sd, min, max]
@@ -336,6 +325,7 @@ test "pc_column_summary_basic" {
   assert_true((res[1][4] - 50.0).abs() < 0.0001)
 }
 
+///|
 test "pc_column_summary_empty" {
   let res = @src.column_summary([])
   assert_eq(res.length(), 0)

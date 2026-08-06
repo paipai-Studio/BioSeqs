@@ -437,15 +437,12 @@ pub fn CoordinatePairwiseAlignment::map(
     let (reversed_target, reversed_query) = if relationship2 > 0 {
       alignment_map_transform_against_reverse_middle(next)
     } else {
-        let reversed_middle = alignment_map_reverse(next.target_coordinates)
-        let normalized_middle : Array[Int] = []
-        for value in reversed_middle {
-          normalized_middle.push(next.target_length - value)
-        }
-      (
-          normalized_middle,
-        alignment_map_reverse(next.query_coordinates),
-      )
+      let reversed_middle = alignment_map_reverse(next.target_coordinates)
+      let normalized_middle : Array[Int] = []
+      for value in reversed_middle {
+        normalized_middle.push(next.target_length - value)
+      }
+      (normalized_middle, alignment_map_reverse(next.query_coordinates))
     }
     coordinates2_target = reversed_target
     coordinates2_query = reversed_query

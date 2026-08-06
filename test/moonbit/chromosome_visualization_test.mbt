@@ -20,11 +20,7 @@ test "chr_feature_type_values" {
 
 ///|
 test "chr_feature_creation" {
-  let feature = @src.ChrFeature::new(
-    name="Gene1",
-    start=100.0,
-    end=200.0,
-  )
+  let feature = @src.ChrFeature::new(name="Gene1", start=100.0, end=200.0)
   assert_true((feature.start - 100.0).abs() < 1.0e-10)
   assert_true((feature.end - 200.0).abs() < 1.0e-10)
   assert_eq(feature.label, "Gene1")
@@ -32,12 +28,8 @@ test "chr_feature_creation" {
 
 ///|
 test "chr_region_creation" {
-  let region = @src.ChrRegion::new(
-    name="Region1",
-    start=0.0,
-    end=1000.0,
-  )
-  assert_true((region.start).abs() < 1.0e-10)
+  let region = @src.ChrRegion::new(name="Region1", start=0.0, end=1000.0)
+  assert_true(region.start.abs() < 1.0e-10)
   assert_true((region.end - 1000.0).abs() < 1.0e-10)
   assert_eq(region.label, "Region1")
 }
@@ -57,50 +49,30 @@ test "chr_chromosome_creation" {
 
 ///|
 test "chr_chromosome_add_feature" {
-  let chr = @src.Chromosome::new(
-    name="chr1",
-    length=5000.0,
-  )
-  let feature = @src.ChrFeature::new(
-    name="Gene1",
-    start=100.0,
-    end=200.0,
-  )
+  let chr = @src.Chromosome::new(name="chr1", length=5000.0)
+  let feature = @src.ChrFeature::new(name="Gene1", start=100.0, end=200.0)
   let chr_with_feature = chr.add_feature(feature)
   assert_eq(chr_with_feature.features.length(), 1)
 }
 
 ///|
 test "chr_chromosome_add_region" {
-  let chr = @src.Chromosome::new(
-    name="chr1",
-    length=5000.0,
-  )
-  let region = @src.ChrRegion::new(
-    name="Region1",
-    start=300.0,
-    end=500.0,
-  )
+  let chr = @src.Chromosome::new(name="chr1", length=5000.0)
+  let region = @src.ChrRegion::new(name="Region1", start=300.0, end=500.0)
   let chr_with_region = chr.add_region(region)
   assert_eq(chr_with_region.regions.length(), 1)
 }
 
 ///|
 test "chr_chromosome_add_band" {
-  let chr = @src.Chromosome::new(
-    name="chr1",
-    length=5000.0,
-  )
+  let chr = @src.Chromosome::new(name="chr1", length=5000.0)
   let chr_with_band = chr.add_band("Band1", 100.0, 200.0, "gpos50")
   assert_eq(chr_with_band.bands.length(), 1)
 }
 
 ///|
 test "chr_features_by_type" {
-  let chr = @src.Chromosome::new(
-    name="chr1",
-    length=5000.0,
-  )
+  let chr = @src.Chromosome::new(name="chr1", length=5000.0)
   let exon1 = @src.ChrFeature::new(
     name="E1",
     start=100.0,
@@ -128,20 +100,9 @@ test "chr_features_by_type" {
 
 ///|
 test "chr_features_in_region" {
-  let chr = @src.Chromosome::new(
-    name="chr1",
-    length=5000.0,
-  )
-  let f1 = @src.ChrFeature::new(
-    name="F1",
-    start=100.0,
-    end=200.0,
-  )
-  let f2 = @src.ChrFeature::new(
-    name="F2",
-    start=300.0,
-    end=400.0,
-  )
+  let chr = @src.Chromosome::new(name="chr1", length=5000.0)
+  let f1 = @src.ChrFeature::new(name="F1", start=100.0, end=200.0)
+  let f2 = @src.ChrFeature::new(name="F2", start=300.0, end=400.0)
   let chr1 = chr.add_feature(f1).add_feature(f2)
   let in_region = chr1.features_in_region(150.0, 350.0)
   assert_eq(in_region.length(), 2)
@@ -168,10 +129,7 @@ test "chr_diagram_creation" {
     length=5000.0,
     centromere_pos=2000.0,
   )
-  let diagram = @src.ChrDiagram::new(
-    chromosomes=[chr],
-    title="Test Diagram",
-  )
+  let diagram = @src.ChrDiagram::new(chromosomes=[chr], title="Test Diagram")
   assert_eq(diagram.chromosomes.length(), 1)
   assert_eq(diagram.title, "Test Diagram")
 }
@@ -183,10 +141,7 @@ test "chr_to_svg_returns_string" {
     length=1000.0,
     centromere_pos=400.0,
   )
-  let diagram = @src.ChrDiagram::new(
-    chromosomes=[chr],
-    title="Chromosome 1",
-  )
+  let diagram = @src.ChrDiagram::new(chromosomes=[chr], title="Chromosome 1")
   let svg = diagram.to_svg()
   assert_true(svg.length() > 0)
   assert_true(svg.contains("<svg"))
@@ -194,10 +149,7 @@ test "chr_to_svg_returns_string" {
 
 ///|
 test "chr_to_svg_empty_diagram" {
-  let diagram = @src.ChrDiagram::new(
-    chromosomes=[],
-    title="Empty",
-  )
+  let diagram = @src.ChrDiagram::new(chromosomes=[], title="Empty")
   let svg = diagram.to_svg()
   assert_true(svg.length() > 0)
   assert_true(svg.contains("<svg"))
@@ -248,10 +200,7 @@ test "chr_circular_chromosome" {
     length=2000.0,
     is_circular=true,
   )
-  let diagram = @src.ChrDiagram::new(
-    chromosomes=[chr],
-    title="Circular",
-  )
+  let diagram = @src.ChrDiagram::new(chromosomes=[chr], title="Circular")
   let svg = diagram.to_svg()
   assert_true(svg.length() > 0)
 }

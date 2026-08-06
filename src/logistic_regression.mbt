@@ -17,23 +17,23 @@ pub struct LogisticRegressionModel {
 ///|
 /// Construct a new LogisticRegressionModel with the given beta weights.
 pub fn LogisticRegressionModel::new(
-  beta : Array[Double]
+  beta : Array[Double],
 ) -> LogisticRegressionModel {
-  LogisticRegressionModel::{ beta }
+  LogisticRegressionModel::{ beta, }
 }
 
 ///|
 /// Accessor for the beta weight vector.
-pub fn LogisticRegressionModel::beta(self : LogisticRegressionModel) -> Array[
-  Double
-] {
+pub fn LogisticRegressionModel::beta(
+  self : LogisticRegressionModel,
+) -> Array[Double] {
   self.beta
 }
 
 ///|
 /// Number of weights (including bias).
 pub fn LogisticRegressionModel::n_weights(
-  self : LogisticRegressionModel
+  self : LogisticRegressionModel,
 ) -> Int {
   self.beta.length()
 }
@@ -97,13 +97,13 @@ fn lr_solve(matrix : Array[Array[Double]], b : Array[Double]) -> Array[Double]? 
   for col in 0..<n {
     // Find pivot row.
     let mut pivot = col
-    let mut max_val = (m[col][col])
+    let mut max_val = m[col][col]
     if max_val < 0.0 {
       max_val = -max_val
     }
     let mut r = col + 1
     while r < n {
-      let val = (m[r][col])
+      let val = m[r][col]
       let abs_val = if val < 0.0 { -val } else { val }
       if abs_val > max_val {
         max_val = abs_val
@@ -159,7 +159,7 @@ fn lr_solve(matrix : Array[Array[Double]], b : Array[Double]) -> Array[Double]? 
 /// Returns a trained `LogisticRegressionModel`.
 pub fn logistic_regression_train(
   xs : Array[Array[Double]],
-  ys : Array[Int]
+  ys : Array[Int],
 ) -> LogisticRegressionModel {
   let n = xs.length()
   // Each observation gets a leading constant 1.0 for the bias term.
@@ -190,7 +190,9 @@ pub fn logistic_regression_train(
     let mut llik = 0.0
     for i in 0..<n {
       let yi = ys[i].to_double()
-      llik = llik + yi * lr_safe_log(p[i]) + (1.0 - yi) * lr_safe_log(1.0 - p[i])
+      llik = llik +
+        yi * lr_safe_log(p[i]) +
+        (1.0 - yi) * lr_safe_log(1.0 - p[i])
     }
     // Check convergence / adjust step size.
     match old_llik {
@@ -238,18 +240,15 @@ pub fn logistic_regression_train(
     }
     // Solve h * delta = grad.
     match lr_solve(h, grad) {
-      Some(delta) => {
+      Some(delta) =>
         for k in 0..<ndims {
           let d = if stepsize != 1.0 { delta[k] * stepsize } else { delta[k] }
           beta[k] = beta[k] + d
         }
-      }
-      None => {
-        break
-      }
+      None => break
     }
   }
-  LogisticRegressionModel::{ beta }
+  LogisticRegressionModel::{ beta, }
 }
 
 ///|
@@ -257,7 +256,7 @@ pub fn logistic_regression_train(
 /// Returns [P(class=0), P(class=1)].
 pub fn logistic_regression_calculate(
   model : LogisticRegressionModel,
-  x : Array[Double]
+  x : Array[Double],
 ) -> Array[Double] {
   // Prepend constant 1.0 for bias.
   let xfull = Array::make(x.length() + 1, 1.0)
@@ -273,7 +272,7 @@ pub fn logistic_regression_calculate(
 /// Classify an observation into class 0 or 1.
 pub fn logistic_regression_classify(
   model : LogisticRegressionModel,
-  x : Array[Double]
+  x : Array[Double],
 ) -> Int {
   let probs = logistic_regression_calculate(model, x)
   if probs[0] > probs[1] {
@@ -291,9 +290,7 @@ pub fn logistic_regression_classify(
 /// Sample training data for operon prediction (Biopython tutorial example).
 /// Each observation: [intergenic_distance, expression_score].
 /// Label 1 = same operon (OP), 0 = different operon (NOP).
-pub fn logistic_regression_sample_data() -> (Array[
-  Array[Double]
-], Array[Int]) {
+pub fn logistic_regression_sample_data() -> (Array[Array[Double]], Array[Int]) {
   let xs = [
     [-53.0, -200.78],
     [117.0, -267.14],

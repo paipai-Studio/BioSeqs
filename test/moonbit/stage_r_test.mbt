@@ -110,7 +110,11 @@ test "stage_r_simes_caps_at_one" {
 ///|
 test "stage_r_adjustment_holm" {
   let (pScreen, pConfirmation) = @src.stage_r_sample()
-  let config = @src.StageRConfig::new(alpha=0.05, pScreenAdjusted=false, stageMethod=@src.stage_r_method_holm())
+  let config = @src.StageRConfig::new(
+    alpha=0.05,
+    pScreenAdjusted=false,
+    stageMethod=@src.stage_r_method_holm(),
+  )
   let result = @src.stage_wise_adjustment(pScreen, pConfirmation, config)
   assert_eq(result.nGenes, 10)
   assert_eq(result.nHypotheses, 3)
@@ -121,7 +125,11 @@ test "stage_r_adjustment_holm" {
 ///|
 test "stage_r_adjustment_none" {
   let (pScreen, pConfirmation) = @src.stage_r_sample()
-  let config = @src.StageRConfig::new(alpha=0.05, pScreenAdjusted=false, stageMethod=@src.stage_r_method_none())
+  let config = @src.StageRConfig::new(
+    alpha=0.05,
+    pScreenAdjusted=false,
+    stageMethod=@src.stage_r_method_none(),
+  )
   let result = @src.stage_wise_adjustment(pScreen, pConfirmation, config)
   assert_eq(result.nGenes, 10)
 }
@@ -129,7 +137,11 @@ test "stage_r_adjustment_none" {
 ///|
 test "stage_r_adjustment_dte" {
   let (pScreen, pConfirmation) = @src.stage_r_sample()
-  let config = @src.StageRConfig::new(alpha=0.05, pScreenAdjusted=false, stageMethod=@src.stage_r_method_dte())
+  let config = @src.StageRConfig::new(
+    alpha=0.05,
+    pScreenAdjusted=false,
+    stageMethod=@src.stage_r_method_dte(),
+  )
   let result = @src.stage_wise_adjustment(pScreen, pConfirmation, config)
   assert_eq(result.nGenes, 10)
   assert_eq(result.nHypotheses, 3)
@@ -138,7 +150,11 @@ test "stage_r_adjustment_dte" {
 ///|
 test "stage_r_adjustment_dtu" {
   let (pScreen, pConfirmation) = @src.stage_r_sample()
-  let config = @src.StageRConfig::new(alpha=0.05, pScreenAdjusted=false, stageMethod=@src.stage_r_method_dtu())
+  let config = @src.StageRConfig::new(
+    alpha=0.05,
+    pScreenAdjusted=false,
+    stageMethod=@src.stage_r_method_dtu(),
+  )
   let result = @src.stage_wise_adjustment(pScreen, pConfirmation, config)
   assert_eq(result.nGenes, 10)
   assert_eq(result.nHypotheses, 3)
@@ -147,17 +163,27 @@ test "stage_r_adjustment_dtu" {
 ///|
 test "stage_r_alpha_adjusted" {
   let (pScreen, pConfirmation) = @src.stage_r_sample()
-  let config = @src.StageRConfig::new(alpha=0.05, pScreenAdjusted=false, stageMethod=@src.stage_r_method_holm())
+  let config = @src.StageRConfig::new(
+    alpha=0.05,
+    pScreenAdjusted=false,
+    stageMethod=@src.stage_r_method_holm(),
+  )
   let result = @src.stage_wise_adjustment(pScreen, pConfirmation, config)
   // alphaAdjusted = (R/G) * alpha
-  let expected = result.nSignificantGenes.to_double() / result.nGenes.to_double() * config.alpha
+  let expected = result.nSignificantGenes.to_double() /
+    result.nGenes.to_double() *
+    config.alpha
   assert_true((result.alphaAdjusted - expected).abs() < 1.0e-10)
 }
 
 ///|
 test "stage_r_significant_genes" {
   let (pScreen, pConfirmation) = @src.stage_r_sample()
-  let config = @src.StageRConfig::new(alpha=0.05, pScreenAdjusted=false, stageMethod=@src.stage_r_method_holm())
+  let config = @src.StageRConfig::new(
+    alpha=0.05,
+    pScreenAdjusted=false,
+    stageMethod=@src.stage_r_method_holm(),
+  )
   let result = @src.stage_wise_adjustment(pScreen, pConfirmation, config)
   let sigGenes = @src.get_significant_genes(result)
   assert_eq(sigGenes.length(), result.nSignificantGenes)
@@ -173,7 +199,11 @@ test "stage_r_significant_genes" {
 ///|
 test "stage_r_significant_hypotheses" {
   let (pScreen, pConfirmation) = @src.stage_r_sample()
-  let config = @src.StageRConfig::new(alpha=0.05, pScreenAdjusted=false, stageMethod=@src.stage_r_method_holm())
+  let config = @src.StageRConfig::new(
+    alpha=0.05,
+    pScreenAdjusted=false,
+    stageMethod=@src.stage_r_method_holm(),
+  )
   let result = @src.stage_wise_adjustment(pScreen, pConfirmation, config)
   let sigHyps = @src.get_significant_hypotheses(result)
   // All pairs should have valid indices.
@@ -189,7 +219,11 @@ test "stage_r_significant_hypotheses" {
 ///|
 test "stage_r_get_results" {
   let (pScreen, pConfirmation) = @src.stage_r_sample()
-  let config = @src.StageRConfig::new(alpha=0.05, pScreenAdjusted=false, stageMethod=@src.stage_r_method_holm())
+  let config = @src.StageRConfig::new(
+    alpha=0.05,
+    pScreenAdjusted=false,
+    stageMethod=@src.stage_r_method_holm(),
+  )
   let result = @src.stage_wise_adjustment(pScreen, pConfirmation, config)
   let mat = @src.get_results(result)
   assert_eq(mat.length(), result.nGenes)
@@ -204,7 +238,11 @@ test "stage_r_get_results" {
 ///|
 test "stage_r_non_significant_genes_na" {
   let (pScreen, pConfirmation) = @src.stage_r_sample()
-  let config = @src.StageRConfig::new(alpha=0.001, pScreenAdjusted=false, stageMethod=@src.stage_r_method_holm())
+  let config = @src.StageRConfig::new(
+    alpha=0.001,
+    pScreenAdjusted=false,
+    stageMethod=@src.stage_r_method_holm(),
+  )
   let result = @src.stage_wise_adjustment(pScreen, pConfirmation, config)
   // Non-significant genes should have -1.0 in confirmation p-values.
   let mut i = 0
@@ -225,7 +263,11 @@ test "stage_r_pscreen_adjusted" {
   let (pScreen, pConfirmation) = @src.stage_r_sample()
   // Pre-adjust the screening p-values.
   let adjScreen = @src.stage_r_bh_adjust(pScreen)
-  let config = @src.StageRConfig::new(alpha=0.05, pScreenAdjusted=true, stageMethod=@src.stage_r_method_holm())
+  let config = @src.StageRConfig::new(
+    alpha=0.05,
+    pScreenAdjusted=true,
+    stageMethod=@src.stage_r_method_holm(),
+  )
   let result = @src.stage_wise_adjustment(adjScreen, pConfirmation, config)
   // pAdjScreen should be the same as input.
   let mut i = 0
@@ -238,7 +280,11 @@ test "stage_r_pscreen_adjusted" {
 ///|
 test "stage_r_confirmation_rescaled" {
   let (pScreen, pConfirmation) = @src.stage_r_sample()
-  let config = @src.StageRConfig::new(alpha=0.05, pScreenAdjusted=false, stageMethod=@src.stage_r_method_holm())
+  let config = @src.StageRConfig::new(
+    alpha=0.05,
+    pScreenAdjusted=false,
+    stageMethod=@src.stage_r_method_holm(),
+  )
   let result = @src.stage_wise_adjustment(pScreen, pConfirmation, config)
   // For significant genes, confirmation p-values should be rescaled.
   let mut i = 0

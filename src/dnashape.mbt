@@ -374,10 +374,7 @@ pub fn dnashape_get_ep_table() -> Map[Int, Double] {
 
 ///|
 /// Look up a dinucleotide value from the appropriate table.
-fn dnashape_lookup_dinuc(
-  dinuc_idx : Int,
-  feature : DnaShapeFeature,
-) -> Double {
+fn dnashape_lookup_dinuc(dinuc_idx : Int, feature : DnaShapeFeature) -> Double {
   match feature {
     ShapeMGW => {
       let t = dnashape_get_mgw_table()

@@ -51,7 +51,11 @@ test "smart_file_creation_write" {
 
 ///|
 test "smart_file_with_format" {
-  let sf = @src.SmartFile::with_format("data.gz", @src.compression_gzip(), mode="r")
+  let sf = @src.SmartFile::with_format(
+    "data.gz",
+    @src.compression_gzip(),
+    mode="r",
+  )
   assert_eq(sf.get_format().to_string(), "gzip")
 }
 

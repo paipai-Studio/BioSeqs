@@ -8,34 +8,131 @@
 fn create_test_structure() -> @src.Structure {
   // Create a simple structure with 2 chains, each with 3 residues
   let atoms_a1 : Array[@src.Atom] = [
-    @src.Atom::new(name="N", coord=@src.Vector3::new(0.0, 0.0, 0.0), resname="ALA", chainid='A', resseq=1),
-    @src.Atom::new(name="CA", coord=@src.Vector3::new(1.5, 0.0, 0.0), resname="ALA", chainid='A', resseq=1),
-    @src.Atom::new(name="C", coord=@src.Vector3::new(2.5, 1.0, 0.0), resname="ALA", chainid='A', resseq=1),
-    @src.Atom::new(name="O", coord=@src.Vector3::new(2.5, 2.0, 0.0), resname="ALA", chainid='A', resseq=1),
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(0.0, 0.0, 0.0),
+      resname="ALA",
+      chainid='A',
+      resseq=1,
+    ),
+    @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(1.5, 0.0, 0.0),
+      resname="ALA",
+      chainid='A',
+      resseq=1,
+    ),
+    @src.Atom::new(
+      name="C",
+      coord=@src.Vector3::new(2.5, 1.0, 0.0),
+      resname="ALA",
+      chainid='A',
+      resseq=1,
+    ),
+    @src.Atom::new(
+      name="O",
+      coord=@src.Vector3::new(2.5, 2.0, 0.0),
+      resname="ALA",
+      chainid='A',
+      resseq=1,
+    ),
   ]
   let atoms_a2 : Array[@src.Atom] = [
-    @src.Atom::new(name="N", coord=@src.Vector3::new(3.5, 0.0, 0.0), resname="GLY", chainid='A', resseq=2),
-    @src.Atom::new(name="CA", coord=@src.Vector3::new(5.0, 0.0, 0.0), resname="GLY", chainid='A', resseq=2),
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(3.5, 0.0, 0.0),
+      resname="GLY",
+      chainid='A',
+      resseq=2,
+    ),
+    @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(5.0, 0.0, 0.0),
+      resname="GLY",
+      chainid='A',
+      resseq=2,
+    ),
   ]
   let atoms_a3 : Array[@src.Atom] = [
-    @src.Atom::new(name="N", coord=@src.Vector3::new(6.0, 0.0, 0.0), resname="VAL", chainid='A', resseq=3),
-    @src.Atom::new(name="CA", coord=@src.Vector3::new(7.5, 0.0, 0.0), resname="VAL", chainid='A', resseq=3),
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(6.0, 0.0, 0.0),
+      resname="VAL",
+      chainid='A',
+      resseq=3,
+    ),
+    @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(7.5, 0.0, 0.0),
+      resname="VAL",
+      chainid='A',
+      resseq=3,
+    ),
   ]
-  let res_a1 = @src.Residue::new(resname="ALA", chainid='A', resseq=1, atoms=atoms_a1)
-  let res_a2 = @src.Residue::new(resname="GLY", chainid='A', resseq=2, atoms=atoms_a2)
-  let res_a3 = @src.Residue::new(resname="VAL", chainid='A', resseq=3, atoms=atoms_a3)
+  let res_a1 = @src.Residue::new(
+    resname="ALA",
+    chainid='A',
+    resseq=1,
+    atoms=atoms_a1,
+  )
+  let res_a2 = @src.Residue::new(
+    resname="GLY",
+    chainid='A',
+    resseq=2,
+    atoms=atoms_a2,
+  )
+  let res_a3 = @src.Residue::new(
+    resname="VAL",
+    chainid='A',
+    resseq=3,
+    atoms=atoms_a3,
+  )
   let chain_a = @src.Chain::new(id='A', residues=[res_a1, res_a2, res_a3])
 
   let atoms_b1 : Array[@src.Atom] = [
-    @src.Atom::new(name="N", coord=@src.Vector3::new(0.0, 5.0, 0.0), resname="SER", chainid='B', resseq=10),
-    @src.Atom::new(name="CA", coord=@src.Vector3::new(1.5, 5.0, 0.0), resname="SER", chainid='B', resseq=10),
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(0.0, 5.0, 0.0),
+      resname="SER",
+      chainid='B',
+      resseq=10,
+    ),
+    @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(1.5, 5.0, 0.0),
+      resname="SER",
+      chainid='B',
+      resseq=10,
+    ),
   ]
   let atoms_b2 : Array[@src.Atom] = [
-    @src.Atom::new(name="N", coord=@src.Vector3::new(3.5, 5.0, 0.0), resname="THR", chainid='B', resseq=11),
-    @src.Atom::new(name="CA", coord=@src.Vector3::new(5.0, 5.0, 0.0), resname="THR", chainid='B', resseq=11),
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(3.5, 5.0, 0.0),
+      resname="THR",
+      chainid='B',
+      resseq=11,
+    ),
+    @src.Atom::new(
+      name="CA",
+      coord=@src.Vector3::new(5.0, 5.0, 0.0),
+      resname="THR",
+      chainid='B',
+      resseq=11,
+    ),
   ]
-  let res_b1 = @src.Residue::new(resname="SER", chainid='B', resseq=10, atoms=atoms_b1)
-  let res_b2 = @src.Residue::new(resname="THR", chainid='B', resseq=11, atoms=atoms_b2)
+  let res_b1 = @src.Residue::new(
+    resname="SER",
+    chainid='B',
+    resseq=10,
+    atoms=atoms_b1,
+  )
+  let res_b2 = @src.Residue::new(
+    resname="THR",
+    chainid='B',
+    resseq=11,
+    atoms=atoms_b2,
+  )
   let chain_b = @src.Chain::new(id='B', residues=[res_b1, res_b2])
 
   let model = @src.Model::new(id=0, chains=[chain_a, chain_b])
@@ -144,10 +241,7 @@ test "extract_residue_range_chain_b" {
 ///|
 test "extract_residues_by_ids" {
   let structure = create_test_structure()
-  let ids = [
-    @src.ResidueId::new('A', 1),
-    @src.ResidueId::new('B', 10),
-  ]
+  let ids = [@src.ResidueId::new('A', 1), @src.ResidueId::new('B', 10)]
   let result = @src.extract_residues(structure, ids)
   // Should have 2 chains, each with 1 residue
   assert_eq(result.models[0].chains.length(), 2)

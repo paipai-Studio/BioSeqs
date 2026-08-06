@@ -223,7 +223,12 @@ test "oc_gate_new1d_fields" {
 ///|
 test "oc_gate_new2d_fields" {
   let g = @src.OcGate::new2d(
-    dim1="FSC", dim2="SSC", min1=1.0, max1=2.0, min2=3.0, max2=4.0,
+    dim1="FSC",
+    dim2="SSC",
+    min1=1.0,
+    max1=2.0,
+    min2=3.0,
+    max2=4.0,
   )
   assert_eq(g.dim1, "FSC")
   assert_eq(g.dim2.unwrap(), "SSC")
@@ -256,7 +261,12 @@ test "oc_event_in_gate_1d_boundary" {
 ///|
 test "oc_event_in_gate_2d" {
   let g = @src.OcGate::new2d(
-    dim1="FSC", dim2="SSC", min1=1.0, max1=3.0, min2=10.0, max2=20.0,
+    dim1="FSC",
+    dim2="SSC",
+    min1=1.0,
+    max1=3.0,
+    min2=10.0,
+    max2=20.0,
   )
   // Both dims in range.
   assert_true(@src.oc_event_in_gate(g, 2.0, 15.0))
@@ -525,13 +535,13 @@ test "oc_t_pdf_zero_variance" {
 ///|
 test "oc_lgamma_one" {
   // lgamma(1) = log(gamma(1)) = log(1) = 0
-  assert_true((@src.oc_lgamma(1.0)).abs() < 0.001)
+  assert_true(@src.oc_lgamma(1.0).abs() < 0.001)
 }
 
 ///|
 test "oc_lgamma_two" {
   // lgamma(2) = log(gamma(2)) = log(1) = 0
-  assert_true((@src.oc_lgamma(2.0)).abs() < 0.001)
+  assert_true(@src.oc_lgamma(2.0).abs() < 0.001)
 }
 
 ///|
@@ -651,7 +661,7 @@ test "oc_gating_rule_construction" {
     child="tcells",
     method="quantileGate",
     dims=["CD3"],
-    args=args,
+    args~,
   )
   assert_eq(r.parent, "root")
   assert_eq(r.child, "tcells")
@@ -668,22 +678,9 @@ test "oc_gating_rule_construction" {
 ///|
 test "oc_gate_flow_set_single_rule" {
   // One sample, one channel (FSC), bimodal FSC values.
-  let fs = @src.OcFlowSet::new(
-    sample_names=["S1"],
-    channel_names=["FSC"],
-    data=[
-      [
-        [1.0],
-        [1.1],
-        [0.9],
-        [1.2],
-        [5.0],
-        [5.1],
-        [4.9],
-        [5.2],
-      ],
-    ],
-  )
+  let fs = @src.OcFlowSet::new(sample_names=["S1"], channel_names=["FSC"], data=[
+    [[1.0], [1.1], [0.9], [1.2], [5.0], [5.1], [4.9], [5.2]],
+  ])
   let args : Map[String, Double] = Map::new()
   args.set("bandwidth", 0.5)
   let rule = @src.OcGatingRule::new(
@@ -691,7 +688,7 @@ test "oc_gate_flow_set_single_rule" {
     child="cells",
     method="mindensity",
     dims=["FSC"],
-    args=args,
+    args~,
   )
   let results = @src.oc_gate_flow_set(fs, [rule])
   assert_eq(results.length(), 1)
@@ -761,16 +758,14 @@ test "oc_gate_flow_set_chain" {
 test "oc_population_stats_basic" {
   // Build a gating result by hand: 8 parent events, 4 child events.
   let gate = @src.OcGate::new1d(dim="FSC", min=3.0, max=1.0e30)
-  let indices = [
-    false, false, false, false, true, true, true, true,
-  ]
+  let indices = [false, false, false, false, true, true, true, true]
   let result = @src.OcGatingResult::new(
     population="cells",
     sample="S1",
-    gate=gate,
+    gate~,
     parent_events=8,
     child_events=4,
-    indices=indices,
+    indices~,
   )
   let stats = @src.oc_population_stats([result], 8)
   assert_eq(stats.length(), 1)
@@ -789,7 +784,7 @@ test "oc_population_stats_zero_parent" {
   let result = @src.OcGatingResult::new(
     population="dead",
     sample="S1",
-    gate=gate,
+    gate~,
     parent_events=0,
     child_events=0,
     indices=[],
@@ -809,7 +804,7 @@ test "oc_gating_summary_string" {
   let result = @src.OcGatingResult::new(
     population="cells",
     sample="S1",
-    gate=gate,
+    gate~,
     parent_events=8,
     child_events=4,
     indices=[false, false, false, false, true, true, true, true],
@@ -829,7 +824,7 @@ test "oc_gating_summary_string" {
 
 ///|
 test "oc_ln_one" {
-  assert_true((@src.oc_ln(1.0)).abs() < 0.001)
+  assert_true(@src.oc_ln(1.0).abs() < 0.001)
 }
 
 ///|

@@ -133,12 +133,7 @@ pub fn caps_map(
   // Validate equal lengths
   let n = sequences.length()
   if n == 0 {
-    return {
-      sequences,
-      sequence_names: [],
-      enzymes,
-      dcuts: [],
-    }
+    return { sequences, sequence_names: [], enzymes, dcuts: [] }
   }
   let expected_len = sequences[0].length()
   let names : Array[String] = []
@@ -375,7 +370,7 @@ pub fn caps_sample_sequences() -> Array[String] {
   // seq1 has GAATTT (not cut by EcoRI)
   [
     "AAAAAAAAGAGAATTCAAAAAAAAAAAAAA", // has GAATTC at pos 10
-    "AAAAAAAAGAGAATTTAAAAAAAAAAAAAA", // has GAATTT at pos 10 (no cut)
+     "AAAAAAAAGAGAATTTAAAAAAAAAAAAAA", // has GAATTT at pos 10 (no cut)
   ]
 }
 

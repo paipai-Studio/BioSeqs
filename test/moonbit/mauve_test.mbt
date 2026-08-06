@@ -53,8 +53,14 @@ test "mauve_lcb_add_seq" {
 /// Test MauveLCB consistency check.
 test "mauve_lcb_consistent" {
   let lcb = @src.new_mauve_lcb("lcb_1")
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000))
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("mouse.chr1", 0, 100, "+", 800))
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000),
+  )
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("mouse.chr1", 0, 100, "+", 800),
+  )
   assert_true(@src.mauve_lcb_is_consistent(lcb))
 }
 
@@ -62,8 +68,14 @@ test "mauve_lcb_consistent" {
 /// Test MauveLCB inconsistency (mixed strands).
 test "mauve_lcb_inconsistent" {
   let lcb = @src.new_mauve_lcb("lcb_1")
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000))
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("mouse.chr1", 0, 100, "-", 800))
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000),
+  )
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("mouse.chr1", 0, 100, "-", 800),
+  )
   assert_false(@src.mauve_lcb_is_consistent(lcb))
 }
 
@@ -89,10 +101,16 @@ test "mauve_alignment_add_lcb" {
 test "mauve_alignment_seq_names" {
   let ali = @src.new_mauve_alignment()
   let lcb = @src.new_mauve_lcb("lcb_1")
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000))
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("mouse.chr1", 0, 100, "+", 800))
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000),
+  )
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("mouse.chr1", 0, 100, "+", 800),
+  )
   @src.mauve_add_lcb(ali, lcb)
-  
+
   let names = @src.mauve_all_seq_names(ali)
   assert_eq(names.length(), 2)
   assert_true(names.contains("human.chr1"))
@@ -133,17 +151,23 @@ test "mauve_parse_with_inversions" {
 /// Test detect_mauve_inversions.
 test "mauve_detect_inversions" {
   let ali = @src.new_mauve_alignment()
-  
+
   // LCB 1: positive strand
   let lcb1 = @src.new_mauve_lcb("lcb_1")
-  @src.mauve_lcb_add_seq(lcb1, @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000))
+  @src.mauve_lcb_add_seq(
+    lcb1,
+    @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000),
+  )
   @src.mauve_add_lcb(ali, lcb1)
-  
+
   // LCB 2: negative strand (inversion)
   let lcb2 = @src.new_mauve_lcb("lcb_2")
-  @src.mauve_lcb_add_seq(lcb2, @src.new_mauve_sequence("human.chr1", 100, 100, "-", 1000))
+  @src.mauve_lcb_add_seq(
+    lcb2,
+    @src.new_mauve_sequence("human.chr1", 100, 100, "-", 1000),
+  )
   @src.mauve_add_lcb(ali, lcb2)
-  
+
   let ali = @src.detect_mauve_inversions(ali)
   assert_true(ali.inversions.length() > 0)
 }
@@ -152,15 +176,21 @@ test "mauve_detect_inversions" {
 /// Test detect_mauve_breakpoints.
 test "mauve_detect_breakpoints" {
   let ali = @src.new_mauve_alignment()
-  
+
   let lcb1 = @src.new_mauve_lcb("lcb_1")
-  @src.mauve_lcb_add_seq(lcb1, @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000))
+  @src.mauve_lcb_add_seq(
+    lcb1,
+    @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000),
+  )
   @src.mauve_add_lcb(ali, lcb1)
-  
+
   let lcb2 = @src.new_mauve_lcb("lcb_2")
-  @src.mauve_lcb_add_seq(lcb2, @src.new_mauve_sequence("human.chr1", 500, 100, "+", 1000))
+  @src.mauve_lcb_add_seq(
+    lcb2,
+    @src.new_mauve_sequence("human.chr1", 500, 100, "+", 1000),
+  )
   @src.mauve_add_lcb(ali, lcb2)
-  
+
   let ali = @src.detect_mauve_breakpoints(ali)
   assert_true(ali.breakpoints.length() > 0)
 }
@@ -170,10 +200,16 @@ test "mauve_detect_breakpoints" {
 test "mauve_genome_coverage" {
   let ali = @src.new_mauve_alignment()
   let lcb = @src.new_mauve_lcb("lcb_1")
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("human.chr1", 0, 500, "+", 1000))
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("mouse.chr1", 0, 300, "+", 800))
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("human.chr1", 0, 500, "+", 1000),
+  )
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("mouse.chr1", 0, 300, "+", 800),
+  )
   @src.mauve_add_lcb(ali, lcb)
-  
+
   let coverage = @src.mauve_genome_coverage(ali)
   assert_true(coverage.contains("human.chr1"))
   assert_true(coverage.contains("mouse.chr1"))
@@ -185,17 +221,29 @@ test "mauve_genome_coverage" {
 /// Test mauve_conserved_segments.
 test "mauve_conserved_segments" {
   let ali = @src.new_mauve_alignment()
-  
+
   let lcb1 = @src.new_mauve_lcb("lcb_1")
-  @src.mauve_lcb_add_seq(lcb1, @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000))
-  @src.mauve_lcb_add_seq(lcb1, @src.new_mauve_sequence("mouse.chr1", 0, 100, "+", 800))
+  @src.mauve_lcb_add_seq(
+    lcb1,
+    @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000),
+  )
+  @src.mauve_lcb_add_seq(
+    lcb1,
+    @src.new_mauve_sequence("mouse.chr1", 0, 100, "+", 800),
+  )
   @src.mauve_add_lcb(ali, lcb1)
-  
+
   let lcb2 = @src.new_mauve_lcb("lcb_2")
-  @src.mauve_lcb_add_seq(lcb2, @src.new_mauve_sequence("human.chr1", 500, 100, "+", 1000))
-  @src.mauve_lcb_add_seq(lcb2, @src.new_mauve_sequence("mouse.chr1", 500, 100, "+", 800))
+  @src.mauve_lcb_add_seq(
+    lcb2,
+    @src.new_mauve_sequence("human.chr1", 500, 100, "+", 1000),
+  )
+  @src.mauve_lcb_add_seq(
+    lcb2,
+    @src.new_mauve_sequence("mouse.chr1", 500, 100, "+", 800),
+  )
   @src.mauve_add_lcb(ali, lcb2)
-  
+
   let segments = @src.mauve_conserved_segments(ali)
   assert_eq(segments["human.chr1"], 2)
   assert_eq(segments["mouse.chr1"], 2)
@@ -215,9 +263,12 @@ test "mauve_to_bed" {
   let ali = @src.new_mauve_alignment()
   let lcb = @src.new_mauve_lcb("lcb_1")
   @src.mauve_lcb_set_score(lcb, 100.0)
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000))
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000),
+  )
   @src.mauve_add_lcb(ali, lcb)
-  
+
   let bed = @src.mauve_to_bed(ali)
   assert_true(bed.contains("track name="))
   assert_true(bed.contains("human.chr1"))
@@ -232,7 +283,7 @@ test "mauve_inversions_to_bed" {
   let inv = @src.new_mauve_inversion("human.chr1", 100, 200, 100)
   inv.affected_lcbs.push("lcb_1")
   ali.inversions.push(inv)
-  
+
   let bed = @src.mauve_inversions_to_bed(ali)
   assert_true(bed.contains("track name=\"Inversions\""))
   assert_true(bed.contains("human.chr1"))
@@ -245,10 +296,16 @@ test "mauve_summary" {
   let ali = @src.new_mauve_alignment()
   let lcb = @src.new_mauve_lcb("lcb_1")
   @src.mauve_lcb_set_score(lcb, 50.0)
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000))
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("mouse.chr1", 0, 100, "+", 800))
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000),
+  )
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("mouse.chr1", 0, 100, "+", 800),
+  )
   @src.mauve_add_lcb(ali, lcb)
-  
+
   let summary = @src.mauve_summary(ali)
   assert_true(summary.contains("Mauve Alignment Summary"))
   assert_true(summary.contains("Locally Collinear Blocks"))
@@ -270,11 +327,20 @@ test "mauve_config_default" {
 test "mauve_get_genome_seqs" {
   let ali = @src.new_mauve_alignment()
   let lcb = @src.new_mauve_lcb("lcb_1")
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000))
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("human.chr2", 200, 100, "+", 800))
-  @src.mauve_lcb_add_seq(lcb, @src.new_mauve_sequence("mouse.chr1", 0, 100, "+", 700))
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("human.chr1", 0, 100, "+", 1000),
+  )
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("human.chr2", 200, 100, "+", 800),
+  )
+  @src.mauve_lcb_add_seq(
+    lcb,
+    @src.new_mauve_sequence("mouse.chr1", 0, 100, "+", 700),
+  )
   @src.mauve_add_lcb(ali, lcb)
-  
+
   let human_seqs = @src.mauve_get_genome_seqs(ali, "human.chr")
   assert_eq(human_seqs.length(), 2)
 }
@@ -286,7 +352,7 @@ test "mauve_progressive_aligner" {
   @src.mauve_add_sequence(aligner, "human")
   @src.mauve_add_sequence(aligner, "mouse")
   @src.mauve_add_sequence(aligner, "rat")
-  
+
   @src.mauve_build_guide_tree(aligner)
   assert_eq(aligner.guide_tree.length(), 3)
 }

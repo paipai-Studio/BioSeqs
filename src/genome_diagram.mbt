@@ -38,23 +38,33 @@ pub fn FeatureShape::from_string(s : String) -> FeatureShape {
 
 ///|
 /// Helper to create a Rectangle shape.
-pub fn gd_rectangle_shape() -> FeatureShape { Rectangle }
+pub fn gd_rectangle_shape() -> FeatureShape {
+  Rectangle
+}
 
 ///|
 /// Helper to create an Arrow shape.
-pub fn gd_arrow_shape() -> FeatureShape { Arrow }
+pub fn gd_arrow_shape() -> FeatureShape {
+  Arrow
+}
 
 ///|
 /// Helper to create a Diamond shape.
-pub fn gd_diamond_shape() -> FeatureShape { Diamond }
+pub fn gd_diamond_shape() -> FeatureShape {
+  Diamond
+}
 
 ///|
 /// Helper to create a CrossedArrow shape.
-pub fn gd_crossed_arrow_shape() -> FeatureShape { CrossedArrow }
+pub fn gd_crossed_arrow_shape() -> FeatureShape {
+  CrossedArrow
+}
 
 ///|
 /// Helper to create a Terminators shape.
-pub fn gd_terminators_shape() -> FeatureShape { Terminators }
+pub fn gd_terminators_shape() -> FeatureShape {
+  Terminators
+}
 
 ///|
 /// DiagramStyle: styling options for the diagram.
@@ -78,22 +88,35 @@ pub fn DiagramStyle::new(
 }
 
 ///|
-pub fn DiagramStyle::circular(self : DiagramStyle) -> Bool { self.circular }
+pub fn DiagramStyle::circular(self : DiagramStyle) -> Bool {
+  self.circular
+}
 
 ///|
-pub fn DiagramStyle::linear(self : DiagramStyle) -> Bool { self.linear }
+pub fn DiagramStyle::linear(self : DiagramStyle) -> Bool {
+  self.linear
+}
 
 ///|
-pub fn DiagramStyle::scale(self : DiagramStyle) -> Double { self.scale }
+pub fn DiagramStyle::scale(self : DiagramStyle) -> Double {
+  self.scale
+}
 
 ///|
-pub fn DiagramStyle::border(self : DiagramStyle) -> Bool { self.border }
+pub fn DiagramStyle::border(self : DiagramStyle) -> Bool {
+  self.border
+}
 
 ///|
-pub fn DiagramStyle::color_scheme(self : DiagramStyle) -> String { self.color_scheme }
+pub fn DiagramStyle::color_scheme(self : DiagramStyle) -> String {
+  self.color_scheme
+}
 
 ///|
-pub fn DiagramStyle::set_circular(self : DiagramStyle, v : Bool) -> DiagramStyle {
+pub fn DiagramStyle::set_circular(
+  self : DiagramStyle,
+  v : Bool,
+) -> DiagramStyle {
   DiagramStyle::{ ..self, circular: v, linear: !v }
 }
 
@@ -113,7 +136,10 @@ pub fn DiagramStyle::set_border(self : DiagramStyle, v : Bool) -> DiagramStyle {
 }
 
 ///|
-pub fn DiagramStyle::set_color_scheme(self : DiagramStyle, v : String) -> DiagramStyle {
+pub fn DiagramStyle::set_color_scheme(
+  self : DiagramStyle,
+  v : String,
+) -> DiagramStyle {
   DiagramStyle::{ ..self, color_scheme: v }
 }
 
@@ -143,50 +169,81 @@ pub fn DiagramFeature::new(
 }
 
 ///|
-pub fn DiagramFeature::start(self : DiagramFeature) -> Int { self.start }
-
-///|
-pub fn DiagramFeature::end(self : DiagramFeature) -> Int { self.end }
-
-///|
-pub fn DiagramFeature::strand(self : DiagramFeature) -> String { self.strand }
-
-///|
-pub fn DiagramFeature::label(self : DiagramFeature) -> String { self.label }
-
-///|
-pub fn DiagramFeature::color(self : DiagramFeature) -> String { self.color }
-
-///|
-pub fn DiagramFeature::shape(self : DiagramFeature) -> FeatureShape { self.shape }
-
-///|
-pub fn DiagramFeature::depth(self : DiagramFeature) -> Int { self.depth }
-
-///|
-pub fn DiagramFeature::with_color(self : DiagramFeature, color : String) -> DiagramFeature {
-  DiagramFeature::{ ..self, color }
+pub fn DiagramFeature::start(self : DiagramFeature) -> Int {
+  self.start
 }
 
 ///|
-pub fn DiagramFeature::with_label(self : DiagramFeature, label : String) -> DiagramFeature {
-  DiagramFeature::{ ..self, label }
+pub fn DiagramFeature::end(self : DiagramFeature) -> Int {
+  self.end
 }
 
 ///|
-pub fn DiagramFeature::with_depth(self : DiagramFeature, depth : Int) -> DiagramFeature {
-  DiagramFeature::{ ..self, depth }
+pub fn DiagramFeature::strand(self : DiagramFeature) -> String {
+  self.strand
 }
 
 ///|
-pub fn DiagramFeature::overlaps(self : DiagramFeature, start : Int, end : Int) -> Bool {
+pub fn DiagramFeature::label(self : DiagramFeature) -> String {
+  self.label
+}
+
+///|
+pub fn DiagramFeature::color(self : DiagramFeature) -> String {
+  self.color
+}
+
+///|
+pub fn DiagramFeature::shape(self : DiagramFeature) -> FeatureShape {
+  self.shape
+}
+
+///|
+pub fn DiagramFeature::depth(self : DiagramFeature) -> Int {
+  self.depth
+}
+
+///|
+pub fn DiagramFeature::with_color(
+  self : DiagramFeature,
+  color : String,
+) -> DiagramFeature {
+  DiagramFeature::{ ..self, color, }
+}
+
+///|
+pub fn DiagramFeature::with_label(
+  self : DiagramFeature,
+  label : String,
+) -> DiagramFeature {
+  DiagramFeature::{ ..self, label, }
+}
+
+///|
+pub fn DiagramFeature::with_depth(
+  self : DiagramFeature,
+  depth : Int,
+) -> DiagramFeature {
+  DiagramFeature::{ ..self, depth, }
+}
+
+///|
+pub fn DiagramFeature::overlaps(
+  self : DiagramFeature,
+  start : Int,
+  end : Int,
+) -> Bool {
   self.start < end && self.end > start
 }
 
 ///|
 pub fn DiagramFeature::length(self : DiagramFeature) -> Int {
   let diff = self.end - self.start
-  if diff > 0 { diff } else { -diff }
+  if diff > 0 {
+    diff
+  } else {
+    -diff
+  }
 }
 
 ///|
@@ -213,37 +270,59 @@ pub fn TrackFeature::new(
 }
 
 ///|
-pub fn TrackFeature::start(self : TrackFeature) -> Int { self.start }
-
-///|
-pub fn TrackFeature::end(self : TrackFeature) -> Int { self.end }
-
-///|
-pub fn TrackFeature::strand(self : TrackFeature) -> String { self.strand }
-
-///|
-pub fn TrackFeature::label(self : TrackFeature) -> String { self.label }
-
-///|
-pub fn TrackFeature::color(self : TrackFeature) -> String { self.color }
-
-///|
-pub fn TrackFeature::shape(self : TrackFeature) -> FeatureShape { self.shape }
-
-///|
-pub fn TrackFeature::with_color(self : TrackFeature, color : String) -> TrackFeature {
-  TrackFeature::{ ..self, color }
+pub fn TrackFeature::start(self : TrackFeature) -> Int {
+  self.start
 }
 
 ///|
-pub fn TrackFeature::with_label(self : TrackFeature, label : String) -> TrackFeature {
-  TrackFeature::{ ..self, label }
+pub fn TrackFeature::end(self : TrackFeature) -> Int {
+  self.end
+}
+
+///|
+pub fn TrackFeature::strand(self : TrackFeature) -> String {
+  self.strand
+}
+
+///|
+pub fn TrackFeature::label(self : TrackFeature) -> String {
+  self.label
+}
+
+///|
+pub fn TrackFeature::color(self : TrackFeature) -> String {
+  self.color
+}
+
+///|
+pub fn TrackFeature::shape(self : TrackFeature) -> FeatureShape {
+  self.shape
+}
+
+///|
+pub fn TrackFeature::with_color(
+  self : TrackFeature,
+  color : String,
+) -> TrackFeature {
+  TrackFeature::{ ..self, color, }
+}
+
+///|
+pub fn TrackFeature::with_label(
+  self : TrackFeature,
+  label : String,
+) -> TrackFeature {
+  TrackFeature::{ ..self, label, }
 }
 
 ///|
 pub fn TrackFeature::length(self : TrackFeature) -> Int {
   let diff = self.end - self.start
-  if diff > 0 { diff } else { -diff }
+  if diff > 0 {
+    diff
+  } else {
+    -diff
+  }
 }
 
 ///|
@@ -265,16 +344,24 @@ pub fn Track::new(
 }
 
 ///|
-pub fn Track::name(self : Track) -> String { self.name }
+pub fn Track::name(self : Track) -> String {
+  self.name
+}
 
 ///|
-pub fn Track::features(self : Track) -> Array[TrackFeature] { self.features }
+pub fn Track::features(self : Track) -> Array[TrackFeature] {
+  self.features
+}
 
 ///|
-pub fn Track::is_labeled(self : Track) -> Bool { self.is_labeled }
+pub fn Track::is_labeled(self : Track) -> Bool {
+  self.is_labeled
+}
 
 ///|
-pub fn Track::color_scheme(self : Track) -> String { self.color_scheme }
+pub fn Track::color_scheme(self : Track) -> String {
+  self.color_scheme
+}
 
 ///|
 pub fn Track::feature_count(self : Track) -> Int {
@@ -313,11 +400,7 @@ pub struct Diagram {
 }
 
 ///|
-pub fn Diagram::new(
-  name : String,
-  start : Int,
-  end : Int,
-) -> Diagram {
+pub fn Diagram::new(name : String, start : Int, end : Int) -> Diagram {
   Diagram::{
     tracks: [],
     features: [],
@@ -329,27 +412,43 @@ pub fn Diagram::new(
 }
 
 ///|
-pub fn Diagram::name(self : Diagram) -> String { self.name }
+pub fn Diagram::name(self : Diagram) -> String {
+  self.name
+}
 
 ///|
-pub fn Diagram::start(self : Diagram) -> Int { self.start }
+pub fn Diagram::start(self : Diagram) -> Int {
+  self.start
+}
 
 ///|
-pub fn Diagram::end(self : Diagram) -> Int { self.end }
+pub fn Diagram::end(self : Diagram) -> Int {
+  self.end
+}
 
 ///|
-pub fn Diagram::style(self : Diagram) -> DiagramStyle { self.style }
+pub fn Diagram::style(self : Diagram) -> DiagramStyle {
+  self.style
+}
 
 ///|
-pub fn Diagram::tracks(self : Diagram) -> Array[Track] { self.tracks }
+pub fn Diagram::tracks(self : Diagram) -> Array[Track] {
+  self.tracks
+}
 
 ///|
-pub fn Diagram::features(self : Diagram) -> Array[DiagramFeature] { self.features }
+pub fn Diagram::features(self : Diagram) -> Array[DiagramFeature] {
+  self.features
+}
 
 ///|
 pub fn Diagram::length(self : Diagram) -> Int {
   let diff = self.end - self.start
-  if diff > 0 { diff } else { -diff }
+  if diff > 0 {
+    diff
+  } else {
+    -diff
+  }
 }
 
 ///|
@@ -368,7 +467,7 @@ pub fn Diagram::feature_count(self : Diagram) -> Int {
 
 ///|
 pub fn Diagram::with_style(self : Diagram, style : DiagramStyle) -> Diagram {
-  Diagram::{ ..self, style }
+  Diagram::{ ..self, style, }
 }
 
 ///|
@@ -391,9 +490,7 @@ pub fn Diagram::add_feature_to_diagram(
   label : String,
   shape : FeatureShape,
 ) -> Diagram {
-  let feature = DiagramFeature::new(
-    start, end, strand=strand, label=label, shape=shape,
-  )
+  let feature = DiagramFeature::new(start, end, strand~, label~, shape~)
   let new_features : Array[DiagramFeature] = []
   for f in self.features {
     new_features.push(f)
@@ -411,9 +508,7 @@ pub fn Diagram::add_feature_to_track(
   strand : String,
   label : String,
 ) -> Diagram {
-  let feature = TrackFeature::new(
-    start, end, strand=strand, label=label,
-  )
+  let feature = TrackFeature::new(start, end, strand~, label~)
   let new_tracks : Array[Track] = []
   for track in self.tracks {
     if track.name == track_name {
@@ -426,7 +521,10 @@ pub fn Diagram::add_feature_to_track(
 }
 
 ///|
-pub fn Diagram::get_track_features(self : Diagram, track_name : String) -> Array[TrackFeature] {
+pub fn Diagram::get_track_features(
+  self : Diagram,
+  track_name : String,
+) -> Array[TrackFeature] {
   for track in self.tracks {
     if track.name == track_name {
       return track.features
@@ -476,9 +574,7 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
   let scale = usable_w / len.to_double()
 
   let svg = StringBuilder::new()
-  svg.write_string(
-    "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"",
-  )
+  svg.write_string("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"")
   svg.write_string(width.to_string())
   svg.write_string("\" height=\"")
   svg.write_string(height.to_string())
@@ -489,21 +585,15 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
   svg.write_string("\">\n")
 
   if self.style.border {
-    svg.write_string(
-      "<rect x=\"1\" y=\"1\" width=\"",
-    )
+    svg.write_string("<rect x=\"1\" y=\"1\" width=\"")
     svg.write_string((width - 2).to_string())
     svg.write_string("\" height=\"")
     svg.write_string((height - 2).to_string())
-    svg.write_string(
-      "\" fill=\"none\" stroke=\"#333\" stroke-width=\"2\"/>\n",
-    )
+    svg.write_string("\" fill=\"none\" stroke=\"#333\" stroke-width=\"2\"/>\n")
   }
 
   let name_y = 18.0
-  svg.write_string(
-    "<text x=\"",
-  )
+  svg.write_string("<text x=\"")
   svg.write_string(pad.to_string())
   svg.write_string("\" y=\"")
   svg.write_string(name_y.to_string())
@@ -514,9 +604,7 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
   svg.write_string("</text>\n")
 
   let backbone_y = height.to_double() - pad
-  svg.write_string(
-    "<line x1=\"",
-  )
+  svg.write_string("<line x1=\"")
   svg.write_string(pad.to_string())
   svg.write_string("\" y1=\"")
   svg.write_string(backbone_y.to_string())
@@ -524,19 +612,16 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
   svg.write_string((w - pad).to_string())
   svg.write_string("\" y2=\"")
   svg.write_string(backbone_y.to_string())
-  svg.write_string(
-    "\" stroke=\"#666\" stroke-width=\"2\"/>\n",
-  )
+  svg.write_string("\" stroke=\"#666\" stroke-width=\"2\"/>\n")
 
   let tick_count = 5
   let tick_width = usable_w / tick_count.to_double()
   let mut ti = 0
   while ti <= tick_count {
     let x = pad + ti.to_double() * tick_width
-    let pos = self.start + (ti.to_double() * len.to_double() / tick_count.to_double()).to_int()
-    svg.write_string(
-      "<line x1=\"",
-    )
+    let pos = self.start +
+      (ti.to_double() * len.to_double() / tick_count.to_double()).to_int()
+    svg.write_string("<line x1=\"")
     svg.write_string(x.to_string())
     svg.write_string("\" y1=\"")
     svg.write_string((backbone_y - 5.0).to_string())
@@ -544,12 +629,8 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
     svg.write_string(x.to_string())
     svg.write_string("\" y2=\"")
     svg.write_string((backbone_y + 5.0).to_string())
-    svg.write_string(
-      "\" stroke=\"#666\" stroke-width=\"1\"/>\n",
-    )
-    svg.write_string(
-      "<text x=\"",
-    )
+    svg.write_string("\" stroke=\"#666\" stroke-width=\"1\"/>\n")
+    svg.write_string("<text x=\"")
     svg.write_string(x.to_string())
     svg.write_string("\" y=\"")
     svg.write_string((backbone_y + 18.0).to_string())
@@ -568,9 +649,7 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
   let mut track_idx = 0
   for track in self.tracks {
     let ty = top_tracks_y + track_idx.to_double() * (track_height + track_gap)
-    svg.write_string(
-      "<text x=\"",
-    )
+    svg.write_string("<text x=\"")
     svg.write_string(pad.to_string())
     svg.write_string("\" y=\"")
     svg.write_string((ty + 12.0).to_string())
@@ -583,23 +662,23 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
     for feat in track.features {
       let fx = pad + (feat.start - self.start).to_double() * scale
       let mut fw = (feat.end - feat.start).to_double() * scale
-      if fw < 1.0 { fw = 1.0 }
+      if fw < 1.0 {
+        fw = 1.0
+      }
       let fy = ty + 2.0
       let fh = track_height - 4.0
       let color = feat.color
       match feat.shape {
         Arrow => {
           let tip_x = fx + fw
-          svg.write_string(
-            "<polygon points=\"",
-          )
+          svg.write_string("<polygon points=\"")
           svg.write_string(fx.to_string())
           svg.write_string(",")
-          svg.write_string((fy).to_string())
+          svg.write_string(fy.to_string())
           svg.write_string(" ")
           svg.write_string((fx + fw * 0.7).to_string())
           svg.write_string(",")
-          svg.write_string((fy).to_string())
+          svg.write_string(fy.to_string())
           svg.write_string(" ")
           svg.write_string(tip_x.to_string())
           svg.write_string(",")
@@ -617,9 +696,7 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
           svg.write_string("\" stroke=\"#333\" stroke-width=\"0.5\"/>\n")
         }
         _ => {
-          svg.write_string(
-            "<rect x=\"",
-          )
+          svg.write_string("<rect x=\"")
           svg.write_string(fx.to_string())
           svg.write_string("\" y=\"")
           svg.write_string(fy.to_string())
@@ -634,9 +711,7 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
       }
       if feat.label.length() > 0 && track.is_labeled {
         let label_x = fx + fw / 2.0
-        svg.write_string(
-          "<text x=\"",
-        )
+        svg.write_string("<text x=\"")
         svg.write_string(label_x.to_string())
         svg.write_string("\" y=\"")
         svg.write_string((fy + fh / 2.0 + 4.0).to_string())
@@ -650,22 +725,24 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
     track_idx = track_idx + 1
   }
 
-  let feat_start_y = top_tracks_y + track_idx.to_double() * (track_height + track_gap) + 10.0
+  let feat_start_y = top_tracks_y +
+    track_idx.to_double() * (track_height + track_gap) +
+    10.0
   let mut fi = 0
   for feat in self.features {
     let fx = pad + (feat.start - self.start).to_double() * scale
     let mut fw = (feat.end - feat.start).to_double() * scale
-    if fw < 1.0 { fw = 1.0 }
-    let fy = feat_start_y + (fi.to_double() * 18.0)
+    if fw < 1.0 {
+      fw = 1.0
+    }
+    let fy = feat_start_y + fi.to_double() * 18.0
     let fh = 14.0
     let color = feat.color
     let depth_offset = feat.depth.to_double() * 3.0
     match feat.shape {
       Arrow => {
         let tip_x = fx + fw
-        svg.write_string(
-          "<polygon points=\"",
-        )
+        svg.write_string("<polygon points=\"")
         svg.write_string(fx.to_string())
         svg.write_string(",")
         svg.write_string((fy + depth_offset).to_string())
@@ -692,9 +769,7 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
       Diamond => {
         let cx = fx + fw / 2.0
         let cy = fy + fh / 2.0 + depth_offset
-        svg.write_string(
-          "<polygon points=\"",
-        )
+        svg.write_string("<polygon points=\"")
         svg.write_string(cx.to_string())
         svg.write_string(",")
         svg.write_string((cy - fh / 2.0).to_string())
@@ -716,9 +791,7 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
       }
       CrossedArrow => {
         let tip_x = fx + fw
-        svg.write_string(
-          "<line x1=\"",
-        )
+        svg.write_string("<line x1=\"")
         svg.write_string(fx.to_string())
         svg.write_string("\" y1=\"")
         svg.write_string((fy + depth_offset).to_string())
@@ -726,14 +799,10 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
         svg.write_string(tip_x.to_string())
         svg.write_string("\" y2=\"")
         svg.write_string((fy + fh / 2.0 + depth_offset).to_string())
-        svg.write_string(
-          "\" stroke=\"",
-        )
+        svg.write_string("\" stroke=\"")
         svg.write_string(color)
         svg.write_string("\" stroke-width=\"2\"/>\n")
-        svg.write_string(
-          "<line x1=\"",
-        )
+        svg.write_string("<line x1=\"")
         svg.write_string(fx.to_string())
         svg.write_string("\" y1=\"")
         svg.write_string((fy + fh + depth_offset).to_string())
@@ -741,16 +810,12 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
         svg.write_string(tip_x.to_string())
         svg.write_string("\" y2=\"")
         svg.write_string((fy + fh / 2.0 + depth_offset).to_string())
-        svg.write_string(
-          "\" stroke=\"",
-        )
+        svg.write_string("\" stroke=\"")
         svg.write_string(color)
         svg.write_string("\" stroke-width=\"2\"/>\n")
       }
       Terminators => {
-        svg.write_string(
-          "<line x1=\"",
-        )
+        svg.write_string("<line x1=\"")
         svg.write_string(fx.to_string())
         svg.write_string("\" y1=\"")
         svg.write_string((fy + depth_offset).to_string())
@@ -758,14 +823,10 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
         svg.write_string(fx.to_string())
         svg.write_string("\" y2=\"")
         svg.write_string((fy + fh + depth_offset).to_string())
-        svg.write_string(
-          "\" stroke=\"",
-        )
+        svg.write_string("\" stroke=\"")
         svg.write_string(color)
         svg.write_string("\" stroke-width=\"3\"/>\n")
-        svg.write_string(
-          "<line x1=\"",
-        )
+        svg.write_string("<line x1=\"")
         svg.write_string((fx + fw).to_string())
         svg.write_string("\" y1=\"")
         svg.write_string((fy + depth_offset).to_string())
@@ -773,16 +834,12 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
         svg.write_string((fx + fw).to_string())
         svg.write_string("\" y2=\"")
         svg.write_string((fy + fh + depth_offset).to_string())
-        svg.write_string(
-          "\" stroke=\"",
-        )
+        svg.write_string("\" stroke=\"")
         svg.write_string(color)
         svg.write_string("\" stroke-width=\"3\"/>\n")
       }
       Rectangle => {
-        svg.write_string(
-          "<rect x=\"",
-        )
+        svg.write_string("<rect x=\"")
         svg.write_string(fx.to_string())
         svg.write_string("\" y=\"")
         svg.write_string((fy + depth_offset).to_string())
@@ -797,9 +854,7 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
     }
     if feat.label.length() > 0 {
       let label_x = fx + fw / 2.0
-      svg.write_string(
-        "<text x=\"",
-      )
+      svg.write_string("<text x=\"")
       svg.write_string(label_x.to_string())
       svg.write_string("\" y=\"")
       svg.write_string((fy + fh + depth_offset + 12.0).to_string())
@@ -862,7 +917,10 @@ pub fn gd_set_style(diagram : Diagram, style : DiagramStyle) -> Diagram {
 
 ///|
 /// Get all track features for a named track.
-pub fn gd_get_features(diagram : Diagram, track_name : String) -> Array[TrackFeature] {
+pub fn gd_get_features(
+  diagram : Diagram,
+  track_name : String,
+) -> Array[TrackFeature] {
   diagram.get_track_features(track_name)
 }
 
@@ -902,7 +960,10 @@ pub fn gd_to_svg_string(diagram : Diagram, width : Int, height : Int) -> String 
 
 ///|
 /// Set the color of a diagram feature.
-pub fn gd_set_feature_color(feature : DiagramFeature, color : String) -> DiagramFeature {
+pub fn gd_set_feature_color(
+  feature : DiagramFeature,
+  color : String,
+) -> DiagramFeature {
   feature.with_color(color)
 }
 

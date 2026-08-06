@@ -114,7 +114,7 @@ pub fn scdf_sort_by_distance(
   if n <= 1 {
     return sorted
   }
-  
+
   let mut i = 0
   while i < n - 1 {
     let min_idx = scdf_find_min(sorted, i, n)
@@ -129,11 +129,7 @@ pub fn scdf_sort_by_distance(
 }
 
 ///|
-fn scdf_find_min(
-  arr : Array[(String, Double)],
-  start : Int,
-  end : Int,
-) -> Int {
+fn scdf_find_min(arr : Array[(String, Double)], start : Int, end : Int) -> Int {
   let mut min_idx = start
   let mut i = start + 1
   while i < end {

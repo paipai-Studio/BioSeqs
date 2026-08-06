@@ -145,12 +145,14 @@ test "fm_coverage_basic" {
 
 ///|
 test "fm_merge_fragments_adjacent_same_type" {
-  let frag1 = @src.Fragment::new("f1", 1, 5,
-    fragment_type=@src.ft_helix(),
-    residues=[@src.FragmentResidue::new("A", 1), @src.FragmentResidue::new("L", 2)])
-  let frag2 = @src.Fragment::new("f2", 6, 10,
-    fragment_type=@src.ft_helix(),
-    residues=[@src.FragmentResidue::new("P", 6), @src.FragmentResidue::new("H", 7)])
+  let frag1 = @src.Fragment::new("f1", 1, 5, fragment_type=@src.ft_helix(), residues=[
+    @src.FragmentResidue::new("A", 1),
+    @src.FragmentResidue::new("L", 2),
+  ])
+  let frag2 = @src.Fragment::new("f2", 6, 10, fragment_type=@src.ft_helix(), residues=[
+    @src.FragmentResidue::new("P", 6),
+    @src.FragmentResidue::new("H", 7),
+  ])
   let merged = @src.fm_merge_fragments([frag1, frag2])
   assert_eq(merged.length(), 1)
   assert_eq(merged[0].start_residue, 1)

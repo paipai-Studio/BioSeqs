@@ -34,7 +34,9 @@ test "sff_read_new" {
   let qualities = [10, 20, 30, 25]
   let flowgram = [1.0, 0.0, 1.0, 0.0]
   let flow_index = [1, 3, 1, 3]
-  let read = @src.SffRead::new("READ001", "ACGT", qualities, flowgram, flow_index, 1, 4, 0, 0)
+  let read = @src.SffRead::new(
+    "READ001", "ACGT", qualities, flowgram, flow_index, 1, 4, 0, 0,
+  )
   assert_eq(read.name, "READ001")
   assert_eq(read.bases, "ACGT")
   assert_eq(read.n_bases, 4)
@@ -137,7 +139,10 @@ test "sff_encode_parse_roundtrip" {
 ///|
 test "sff_parse_invalid_magic" {
   // Create bytes with wrong magic number
-  let bytes = [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 40, 0, 4, 0, 4, 0, 1]
+  let bytes = [
+    0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 40,
+    0, 4, 0, 4, 0, 1,
+  ]
   let result = @src.sff_parse(bytes)
   assert_true(result is None)
 }

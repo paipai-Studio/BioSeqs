@@ -112,16 +112,9 @@ pub fn MethylTile::new(
   end~ : Int,
   methylation_level~ : Double,
   coverage~ : Int,
-  region_type~ : String = "FMR",
+  region_type? : String = "FMR",
 ) -> MethylTile {
-  MethylTile::{
-    chr,
-    start,
-    end,
-    methylation_level,
-    coverage,
-    region_type,
-  }
+  MethylTile::{ chr, start, end, methylation_level, coverage, region_type }
 }
 
 ///|
@@ -433,7 +426,10 @@ pub fn tile_methylation(
     let mut j = i + 1
     while j < m {
       let lt = entries[j].0 < entries[min_idx].0 ||
-        (entries[j].0 == entries[min_idx].0 && entries[j].1 < entries[min_idx].1)
+        (
+          entries[j].0 == entries[min_idx].0 &&
+          entries[j].1 < entries[min_idx].1
+        )
       if lt {
         min_idx = j
       }
@@ -458,8 +454,8 @@ pub fn tile_methylation(
     let start = idx * params.tile_size
     tiles.push(
       MethylTile::new(
-        chr=chr,
-        start=start,
+        chr~,
+        start~,
         end=start + params.tile_size,
         methylation_level=level,
         coverage=total,
@@ -526,7 +522,8 @@ pub fn detect_pmds(
   let mut i = 0
   while i < n {
     // Skip tiles that are not PMD candidates.
-    if tiles[i].region_type != "FMR" || tiles[i].methylation_level >= params.gamma {
+    if tiles[i].region_type != "FMR" ||
+      tiles[i].methylation_level >= params.gamma {
       i = i + 1
       continue
     }
@@ -603,11 +600,11 @@ pub fn merge_regions(
     if end - start >= params.min_region_size {
       result.push(
         MethylRegion::new(
-          chr=chr,
-          start=start,
-          end=end,
+          chr~,
+          start~,
+          end~,
           region_type=rtype,
-          n_tiles=n_tiles,
+          n_tiles~,
           mean_methylation=sum_level / n_tiles.to_double(),
           min_methylation=min_level,
           max_methylation=max_level,
@@ -682,10 +679,30 @@ pub fn region_summary(regions : Array[MethylRegion]) -> String {
   let mut s = "Methylation Regimes Summary\n"
   s = s + "===========================\n"
   s = s + "Total regions: " + regions.length().to_string() + "\n"
-  s = s + "UMR: " + n_umr.to_string() + " regions, " + bp_umr.to_string() + " bp\n"
-  s = s + "LMR: " + n_lmr.to_string() + " regions, " + bp_lmr.to_string() + " bp\n"
-  s = s + "PMD: " + n_pmd.to_string() + " regions, " + bp_pmd.to_string() + " bp\n"
-  s = s + "FMR: " + n_fmr.to_string() + " regions, " + bp_fmr.to_string() + " bp\n"
+  s = s +
+    "UMR: " +
+    n_umr.to_string() +
+    " regions, " +
+    bp_umr.to_string() +
+    " bp\n"
+  s = s +
+    "LMR: " +
+    n_lmr.to_string() +
+    " regions, " +
+    bp_lmr.to_string() +
+    " bp\n"
+  s = s +
+    "PMD: " +
+    n_pmd.to_string() +
+    " regions, " +
+    bp_pmd.to_string() +
+    " bp\n"
+  s = s +
+    "FMR: " +
+    n_fmr.to_string() +
+    " regions, " +
+    bp_fmr.to_string() +
+    " bp\n"
   s
 }
 
@@ -709,7 +726,7 @@ pub fn methyl_seekr_sample_data() -> Array[CytosineSite] {
   ]
   for region in regions {
     let (t_start, t_end, meth, unmeth) = region
-    for t in t_start..=t_end {
+    for t in t_start..<=t_end {
       let base = t * 1000
       for k in 0..<10 {
         let pos = base + 50 + k * 100

@@ -54,7 +54,14 @@ test "diablo_new_defaults" {
 ///|
 test "diablo_options_full_custom" {
   let design = [[0.0, 1.0], [1.0, 0.0]]
-  let opts = @src.diablo_options_full(3, [[2, 3], [1]], design, false, 200, 1.0e-7)
+  let opts = @src.diablo_options_full(
+    3,
+    [[2, 3], [1]],
+    design,
+    false,
+    200,
+    1.0e-7,
+  )
   assert_eq(opts.ncomp, 3)
   assert_eq(opts.keep_variables.length(), 2)
   assert_eq(opts.keep_variables[0].length(), 2)
@@ -106,12 +113,7 @@ test "pls_component_extraction" {
 
 ///|
 test "pls_single_component" {
-  let x = [
-    [1.0, 2.0],
-    [2.0, 3.0],
-    [3.0, 4.0],
-    [4.0, 5.0],
-  ]
+  let x = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0]]
   let y = [[1.0], [2.0], [3.0], [4.0]]
   let opts = @src.pls_options_full(1, "regression", true, 500, 0.000001)
   let result = @src.run_pls(x, y, opts)
@@ -140,16 +142,12 @@ test "pls_nipals_convergence" {
 
 ///|
 test "pls_data_scaling" {
-  let x = [
-    [1.0, 100.0],
-    [2.0, 200.0],
-    [3.0, 300.0],
-    [4.0, 400.0],
-    [5.0, 500.0],
-  ]
+  let x = [[1.0, 100.0], [2.0, 200.0], [3.0, 300.0], [4.0, 400.0], [5.0, 500.0]]
   let y = [[1.0], [2.0], [3.0], [4.0], [5.0]]
   let opts_scaled = @src.pls_options_full(1, "regression", true, 500, 0.000001)
-  let opts_unscaled = @src.pls_options_full(1, "regression", false, 500, 0.000001)
+  let opts_unscaled = @src.pls_options_full(
+    1, "regression", false, 500, 0.000001,
+  )
   let result_scaled = @src.run_pls(x, y, opts_scaled)
   let result_unscaled = @src.run_pls(x, y, opts_unscaled)
   assert_true(result_scaled.ncomp >= 1)
@@ -183,11 +181,7 @@ test "pls_ncomp_exceeds_samples" {
 
 ///|
 test "pls_ncomp_exceeds_variables" {
-  let x = [
-    [1.0, 2.0, 3.0],
-    [2.0, 3.0, 4.0],
-    [3.0, 4.0, 5.0],
-  ]
+  let x = [[1.0, 2.0, 3.0], [2.0, 3.0, 4.0], [3.0, 4.0, 5.0]]
   let y = [[1.0], [2.0], [3.0]]
   let opts = @src.pls_options_full(10, "regression", true, 500, 0.000001)
   let result = @src.run_pls(x, y, opts)
@@ -219,13 +213,7 @@ test "pls_single_sample" {
 
 ///|
 test "pls_multivariate_y" {
-  let x = [
-    [1.0, 2.0],
-    [2.0, 3.0],
-    [3.0, 4.0],
-    [4.0, 5.0],
-    [5.0, 6.0],
-  ]
+  let x = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0], [5.0, 6.0]]
   let y = [[1.0, 0.5], [2.0, 1.0], [3.0, 1.5], [4.0, 2.0], [5.0, 2.5]]
   let opts = @src.pls_new()
   let result = @src.run_pls(x, y, opts)
@@ -235,13 +223,7 @@ test "pls_multivariate_y" {
 
 ///|
 test "pls_canonical_mode" {
-  let x = [
-    [1.0, 2.0],
-    [2.0, 3.0],
-    [3.0, 4.0],
-    [4.0, 5.0],
-    [5.0, 6.0],
-  ]
+  let x = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0], [5.0, 6.0]]
   let y = [[1.0], [2.0], [3.0], [4.0], [5.0]]
   let opts = @src.pls_options_full(2, "canonical", true, 500, 0.000001)
   let result = @src.run_pls(x, y, opts)
@@ -339,7 +321,7 @@ test "soft_thresholding_operator" {
   let result1 = @src.soft_threshold(3.0, 1.0)
   assert_true((result1 - 2.0).abs() < 1.0e-15)
   let result2 = @src.soft_threshold(-3.0, 1.0)
-  assert_true((result2 - (-2.0)).abs() < 1.0e-15)
+  assert_true((result2 - -2.0).abs() < 1.0e-15)
   let result3 = @src.soft_threshold(0.5, 1.0)
   assert_true(result3.abs() < 1.0e-15)
   let result4 = @src.soft_threshold(0.0, 0.0)
@@ -355,13 +337,7 @@ test "diablo_two_blocks" {
     [4.0, 5.0, 6.0],
     [5.0, 6.0, 7.0],
   ]
-  let block2 = [
-    [1.0, 0.5],
-    [2.0, 1.0],
-    [3.0, 1.5],
-    [4.0, 2.0],
-    [5.0, 2.5],
-  ]
+  let block2 = [[1.0, 0.5], [2.0, 1.0], [3.0, 1.5], [4.0, 2.0], [5.0, 2.5]]
   let blocks = [block1, block2]
   let names = ["block1", "block2"]
   let design = [[0.0, 1.0], [1.0, 0.0]]
@@ -390,25 +366,22 @@ test "diablo_variable_selection" {
   let blocks = [block1, block2]
   let names = ["block1", "block2"]
   let design = [[0.0, 1.0], [1.0, 0.0]]
-  let opts = @src.diablo_options_full(1, [[2], [1]], design, true, 500, 0.000001)
+  let opts = @src.diablo_options_full(
+    1,
+    [[2], [1]],
+    design,
+    true,
+    500,
+    0.000001,
+  )
   let result = @src.run_diablo(blocks, names, opts)
   assert_true(result.ncomp >= 1)
 }
 
 ///|
 test "diablo_default_behavior" {
-  let block1 = [
-    [1.0, 2.0],
-    [2.0, 3.0],
-    [3.0, 4.0],
-    [4.0, 5.0],
-  ]
-  let block2 = [
-    [1.0, 0.5],
-    [2.0, 1.0],
-    [3.0, 1.5],
-    [4.0, 2.0],
-  ]
+  let block1 = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0]]
+  let block2 = [[1.0, 0.5], [2.0, 1.0], [3.0, 1.5], [4.0, 2.0]]
   let blocks = [block1, block2]
   let names = ["block1", "block2"]
   let opts = @src.diablo_new()
@@ -419,11 +392,7 @@ test "diablo_default_behavior" {
 
 ///|
 test "diablo_single_block" {
-  let block1 = [
-    [1.0, 2.0, 3.0],
-    [2.0, 3.0, 4.0],
-    [3.0, 4.0, 5.0],
-  ]
+  let block1 = [[1.0, 2.0, 3.0], [2.0, 3.0, 4.0], [3.0, 4.0, 5.0]]
   let blocks = [block1]
   let names = ["block1"]
   let design = [[0.0]]
@@ -528,13 +497,7 @@ test "diablo_result_structure" {
 
 ///|
 test "pls_mode_regression" {
-  let x = [
-    [1.0, 2.0],
-    [2.0, 3.0],
-    [3.0, 4.0],
-    [4.0, 5.0],
-    [5.0, 6.0],
-  ]
+  let x = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0], [5.0, 6.0]]
   let y = [[1.0], [2.0], [3.0], [4.0], [5.0]]
   let opts = @src.pls_options_full(2, "regression", true, 500, 0.000001)
   let result = @src.run_pls(x, y, opts)
@@ -544,13 +507,7 @@ test "pls_mode_regression" {
 
 ///|
 test "pls_mode_invariant_scores" {
-  let x = [
-    [1.0, 2.0],
-    [2.0, 3.0],
-    [3.0, 4.0],
-    [4.0, 5.0],
-    [5.0, 6.0],
-  ]
+  let x = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0], [5.0, 6.0]]
   let y = [[1.0], [2.0], [3.0], [4.0], [5.0]]
   let opts = @src.pls_options_full(1, "regression", false, 500, 0.000001)
   let result = @src.run_pls(x, y, opts)
@@ -574,12 +531,7 @@ test "diablo_block_names" {
 
 ///|
 test "pls_result_has_explained_variance" {
-  let x = [
-    [1.0, 2.0, 3.0],
-    [2.0, 3.0, 4.0],
-    [3.0, 4.0, 5.0],
-    [4.0, 5.0, 6.0],
-  ]
+  let x = [[1.0, 2.0, 3.0], [2.0, 3.0, 4.0], [3.0, 4.0, 5.0], [4.0, 5.0, 6.0]]
   let y = [[1.0], [2.0], [3.0], [4.0]]
   let opts = @src.pls_options_full(2, "regression", true, 500, 0.000001)
   let result = @src.run_pls(x, y, opts)

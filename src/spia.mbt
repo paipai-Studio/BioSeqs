@@ -98,13 +98,19 @@ pub fn SignalingPathway::new(id : String, name : String) -> SignalingPathway {
 
 ///|
 /// Add a node to the pathway.
-pub fn SignalingPathway::add_node(self : SignalingPathway, node : PathwayNode) -> Unit {
+pub fn SignalingPathway::add_node(
+  self : SignalingPathway,
+  node : PathwayNode,
+) -> Unit {
   self.nodes.push(node)
 }
 
 ///|
 /// Get a node by gene ID.
-pub fn SignalingPathway::get_node(self : SignalingPathway, gene_id : String) -> PathwayNode? {
+pub fn SignalingPathway::get_node(
+  self : SignalingPathway,
+  gene_id : String,
+) -> PathwayNode? {
   let mut i = 0
   while i < self.nodes.length() {
     if self.nodes[i].gene_id == gene_id {
@@ -147,10 +153,7 @@ pub fn run_spia(
     }
     // Over-representation p-value (hypergeometric test)
     let p_or = hypergeometric_pvalue(
-      n_de_in_pathway,
-      n_pathway_genes,
-      n_de,
-      n_total,
+      n_de_in_pathway, n_pathway_genes, n_de, n_total,
     )
     // Perturbation accumulation
     let pert_factor = compute_perturbation(pathway, de_genes)
@@ -159,7 +162,13 @@ pub fn run_spia(
     // Combine p-values using Fisher's method
     let p_combined = fisher_combine(p_or, p_pert)
     // Activation status
-    let activation_status = if pert_factor > 0.0 { 1 } else if pert_factor < 0.0 { -1 } else { 0 }
+    let activation_status = if pert_factor > 0.0 {
+      1
+    } else if pert_factor < 0.0 {
+      -1
+    } else {
+      0
+    }
     all_results.push(SpiaResult::{
       pathway_id: pathway.id,
       pathway_name: pathway.name,
@@ -303,7 +312,13 @@ fn hypergeometric_pvalue(
     return 1.0
   }
   let p = @math.exp(-chi_sq / 2.0) / (2.0 * 3.14159265358979 * chi_sq).sqrt()
-  if p > 1.0 { 1.0 } else if p < 0.0 { 0.0 } else { p }
+  if p > 1.0 {
+    1.0
+  } else if p < 0.0 {
+    0.0
+  } else {
+    p
+  }
 }
 
 ///|
@@ -322,7 +337,13 @@ fn perturbation_pvalue(pert_factor : Double, n_de : Int) -> Double {
   let abs_z = if z < 0.0 { -z } else { z }
   // Two-sided p-value using normal CDF approximation
   let p = spia_erfc_approx(abs_z / 1.4142135623730951)
-  if p > 1.0 { 1.0 } else if p < 0.0 { 0.0 } else { p }
+  if p > 1.0 {
+    1.0
+  } else if p < 0.0 {
+    0.0
+  } else {
+    p
+  }
 }
 
 ///|
@@ -341,7 +362,13 @@ fn fisher_combine(p1 : Double, p2 : Double) -> Double {
   // p-value from chi-squared with df=4 (since 2 p-values)
   // Use the formula: p = exp(-stat/2) * (1 + stat/2)
   let p = @math.exp(-stat / 2.0) * (1.0 + stat / 2.0)
-  if p > 1.0 { 1.0 } else if p < 0.0 { 0.0 } else { p }
+  if p > 1.0 {
+    1.0
+  } else if p < 0.0 {
+    0.0
+  } else {
+    p
+  }
 }
 
 ///|
@@ -355,7 +382,12 @@ fn spia_erfc_approx(x : Double) -> Double {
   let t3 = t2 * t
   let t4 = t3 * t
   let t5 = t4 * t
-  let poly = 1.0 + 0.254829592 * t + -0.284496736 * t2 + 1.421413741 * t3 + -1.453152027 * t4 + 1.061405429 * t5
+  let poly = 1.0 +
+    0.254829592 * t +
+    -0.284496736 * t2 +
+    1.421413741 * t3 +
+    -1.453152027 * t4 +
+    1.061405429 * t5
   @math.exp(-x * x) * poly
 }
 
@@ -454,7 +486,10 @@ pub fn SpiaResults::get_inhibited(self : SpiaResults) -> Array[SpiaResult] {
 
 ///|
 /// Get top N pathways by combined p-value.
-pub fn SpiaResults::get_top_pathways(self : SpiaResults, n : Int) -> Array[SpiaResult] {
+pub fn SpiaResults::get_top_pathways(
+  self : SpiaResults,
+  n : Int,
+) -> Array[SpiaResult] {
   let sorted = self.results.copy()
   let len = sorted.length()
   let mut i = 0
@@ -485,13 +520,31 @@ pub fn SpiaResults::get_top_pathways(self : SpiaResults, n : Int) -> Array[SpiaR
 pub fn SpiaResults::summary(self : SpiaResults) -> String {
   let mut s = "=== SPIA Analysis Summary ===\n".to_string()
   s = s + "Pathways tested: " + self.n_pathways.to_string() + "\n"
-  s = s + "Significant (FDR < " + self.fdr_threshold.to_string() + "): " + self.n_significant.to_string() + "\n"
+  s = s +
+    "Significant (FDR < " +
+    self.fdr_threshold.to_string() +
+    "): " +
+    self.n_significant.to_string() +
+    "\n"
   let mut i = 0
   while i < self.results.length() {
     let r = self.results[i]
     if r.significant {
-      let status = if r.activation_status > 0 { "Activated" } else if r.activation_status < 0 { "Inhibited" } else { "Neutral" }
-      s = s + "  " + r.pathway_name + " (" + status + ", p_adj=" + r.p_adj.to_string() + ")\n"
+      let status = if r.activation_status > 0 {
+        "Activated"
+      } else if r.activation_status < 0 {
+        "Inhibited"
+      } else {
+        "Neutral"
+      }
+      s = s +
+        "  " +
+        r.pathway_name +
+        " (" +
+        status +
+        ", p_adj=" +
+        r.p_adj.to_string() +
+        ")\n"
     }
     i = i + 1
   }

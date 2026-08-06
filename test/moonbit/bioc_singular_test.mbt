@@ -431,12 +431,7 @@ test "svd_options_equality" {
 
 ///|
 test "exact_svd_larger_matrix_sorted" {
-  let matrix = [
-    1.0, 2.0, 3.0,
-    2.0, 3.0, 4.0,
-    3.0, 4.0, 5.0,
-    4.0, 5.0, 6.0,
-  ]
+  let matrix = [1.0, 2.0, 3.0, 2.0, 3.0, 4.0, 3.0, 4.0, 5.0, 4.0, 5.0, 6.0]
   let result = @src.run_exact_svd(matrix, 4, 3, 0)
   assert_eq(result.rank, 3)
   assert_true(result.d[0] >= result.d[1])

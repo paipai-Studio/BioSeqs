@@ -200,15 +200,15 @@ fn nexml_parse_float(s : String) -> Double? {
   let mut sign = 1.0
   let mut i = 0
   let zero = '0'.to_int()
-  
+
   if s.unsafe_get(0).to_int() == '-'.to_int() {
     sign = -1.0
     i = 1
   }
-  
+
   let mut has_dot = false
   let mut decimal_place = 1.0
-  
+
   while i < s.length() {
     let c = s.unsafe_get(i).to_int()
     if c == '.'.to_int() {
@@ -225,7 +225,7 @@ fn nexml_parse_float(s : String) -> Double? {
     }
     i = i + 1
   }
-  
+
   Some(result * sign / decimal_place)
 }
 
@@ -237,7 +237,7 @@ fn nexml_parse_float(s : String) -> Double? {
 /// Parse a NeXML document from XML string.
 pub fn parse_nexml(xml_content : String) -> NeXMLDocument {
   let mut doc = NeXMLDocument::new()
-  
+
   // Check if there's a nexml element
   let (nexml_start, _, _) = find_element(xml_content, "nexml")
   if nexml_start == 0 && xml_content.length() > 0 {
@@ -252,16 +252,16 @@ pub fn parse_nexml(xml_content : String) -> NeXMLDocument {
       doc = NeXMLDocument::{ ..doc, generator: generator_attr }
     }
   }
-  
+
   // Parse OTUs blocks
   doc = parse_otus_blocks(xml_content, doc)
-  
+
   // Parse characters blocks
   doc = parse_characters_blocks(xml_content, doc)
-  
+
   // Parse trees blocks
   doc = parse_trees_blocks(xml_content, doc)
-  
+
   doc
 }
 
@@ -269,15 +269,15 @@ pub fn parse_nexml(xml_content : String) -> NeXMLDocument {
 fn parse_otus_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
   let otus_elements = find_all_elements(xml, "otus")
   let new_otus_blocks = doc.otus_blocks.copy()
-  
+
   for i = 0; i < otus_elements.length(); i = i + 1 {
     let (start, end) = otus_elements[i]
     let otus_xml = xml[start:end].to_owned()
     let otus_id = get_attribute(otus_xml, "id")
-    
+
     let otu_list : Array[NeXMLOTU] = Array::new()
     let otu_elements = find_all_elements(otus_xml, "otu")
-    
+
     for j = 0; j < otu_elements.length(); j = j + 1 {
       let (otu_start, otu_end) = otu_elements[j]
       let otu_xml = otus_xml[otu_start:otu_end].to_owned()
@@ -289,10 +289,10 @@ fn parse_otus_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
         otu_list.push(NeXMLOTU::new(id, label))
       }
     }
-    
+
     new_otus_blocks.push(NeXMLOTUs::new(otus_id, otu_list))
   }
-  
+
   NeXMLDocument::{ ..doc, otus_blocks: new_otus_blocks }
 }
 
@@ -300,7 +300,7 @@ fn parse_otus_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
 fn parse_characters_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
   let chars_elements = find_all_elements(xml, "characters")
   let new_chars_blocks = doc.characters_blocks.copy()
-  
+
   for i = 0; i < chars_elements.length(); i = i + 1 {
     let (start, end) = chars_elements[i]
     let chars_xml = xml[start:end].to_owned()
@@ -310,10 +310,10 @@ fn parse_characters_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
     if matrix_type.length() == 0 {
       let xtype = get_attribute(chars_xml, "type")
       let final_type = if xtype.length() > 0 { xtype } else { "StandardCells" }
-      
+
       let char_list : Array[NeXMLCharacter] = Array::new()
       let char_elements = find_all_elements(chars_xml, "char")
-      
+
       for j = 0; j < char_elements.length(); j = j + 1 {
         let (c_start, c_end) = char_elements[j]
         let char_xml = chars_xml[c_start:c_end].to_owned()
@@ -321,34 +321,34 @@ fn parse_characters_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
         let clabel = get_attribute(char_xml, "label")
         char_list.push(NeXMLCharacter::new(cid, clabel, []))
       }
-      
+
       let matrix : Map[String, Array[String]] = Map([], capacity=16)
       let row_elements = find_all_elements(chars_xml, "row")
-      
+
       for j = 0; j < row_elements.length(); j = j + 1 {
         let (r_start, r_end) = row_elements[j]
         let row_xml = chars_xml[r_start:r_end].to_owned()
         let otu = get_attribute(row_xml, "otu")
         let cell_elements = find_all_elements(row_xml, "cell")
         let row_data : Array[String] = Array::new()
-        
+
         for k = 0; k < cell_elements.length(); k = k + 1 {
           let (c_start2, c_end2) = cell_elements[k]
           let cell_xml = row_xml[c_start2:c_end2].to_owned()
           let state = get_attribute(cell_xml, "state")
           row_data.push(state)
         }
-        
+
         matrix.set(otu, row_data)
       }
-      
+
       new_chars_blocks.push(
-        NeXMLCharacters::new(chars_id, otus_id, final_type, char_list, matrix)
+        NeXMLCharacters::new(chars_id, otus_id, final_type, char_list, matrix),
       )
     } else {
       let char_list : Array[NeXMLCharacter] = Array::new()
       let char_elements = find_all_elements(chars_xml, "char")
-      
+
       for j = 0; j < char_elements.length(); j = j + 1 {
         let (c_start, c_end) = char_elements[j]
         let char_xml = chars_xml[c_start:c_end].to_owned()
@@ -356,33 +356,33 @@ fn parse_characters_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
         let clabel = get_attribute(char_xml, "label")
         char_list.push(NeXMLCharacter::new(cid, clabel, []))
       }
-      
+
       let matrix : Map[String, Array[String]] = Map([], capacity=16)
       let row_elements = find_all_elements(chars_xml, "row")
-      
+
       for j = 0; j < row_elements.length(); j = j + 1 {
         let (r_start, r_end) = row_elements[j]
         let row_xml = chars_xml[r_start:r_end].to_owned()
         let otu = get_attribute(row_xml, "otu")
         let cell_elements = find_all_elements(row_xml, "cell")
         let row_data : Array[String] = Array::new()
-        
+
         for k = 0; k < cell_elements.length(); k = k + 1 {
           let (c_start2, c_end2) = cell_elements[k]
           let cell_xml = row_xml[c_start2:c_end2].to_owned()
           let state = get_attribute(cell_xml, "state")
           row_data.push(state)
         }
-        
+
         matrix.set(otu, row_data)
       }
-      
+
       new_chars_blocks.push(
-        NeXMLCharacters::new(chars_id, otus_id, matrix_type, char_list, matrix)
+        NeXMLCharacters::new(chars_id, otus_id, matrix_type, char_list, matrix),
       )
     }
   }
-  
+
   NeXMLDocument::{ ..doc, characters_blocks: new_chars_blocks }
 }
 
@@ -390,16 +390,16 @@ fn parse_characters_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
 fn parse_trees_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
   let trees_elements = find_all_elements(xml, "trees")
   let new_trees_blocks = doc.trees_blocks.copy()
-  
+
   for i = 0; i < trees_elements.length(); i = i + 1 {
     let (start, end) = trees_elements[i]
     let trees_xml = xml[start:end].to_owned()
     let trees_id = get_attribute(trees_xml, "id")
     let otus_id = get_attribute(trees_xml, "otus")
-    
+
     let tree_list : Array[NeXMLTree] = Array::new()
     let tree_elements = find_all_elements(trees_xml, "tree")
-    
+
     for j = 0; j < tree_elements.length(); j = j + 1 {
       let (t_start, t_end) = tree_elements[j]
       let tree_xml = trees_xml[t_start:t_end].to_owned()
@@ -409,55 +409,55 @@ fn parse_trees_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
       let rooted = rooted_str == "true"
       let ttype = get_attribute(tree_xml, "xsi:type")
       let final_type = if ttype.length() > 0 { ttype } else { "FloatTree" }
-      
+
       let node_list : Array[NeXMLNode] = Array::new()
       let node_elements = find_all_elements(tree_xml, "node")
-      
+
       for k = 0; k < node_elements.length(); k = k + 1 {
         let (n_start, n_end) = node_elements[k]
         let node_xml = tree_xml[n_start:n_end].to_owned()
         let nid = get_attribute(node_xml, "id")
         let nlabel = get_attribute(node_xml, "label")
         let notu = get_attribute(node_xml, "otu")
-        
+
         let length_str = get_attribute(node_xml, "length")
         let nlength : Double? = if length_str.length() > 0 {
           nexml_parse_float(length_str)
         } else {
           None
         }
-        
+
         node_list.push(NeXMLNode::new(nid, nlabel, notu, length=nlength))
       }
-      
+
       let edge_list : Array[NeXMLEdge] = Array::new()
       let edge_elements = find_all_elements(tree_xml, "edge")
-      
+
       for k = 0; k < edge_elements.length(); k = k + 1 {
         let (e_start, e_end) = edge_elements[k]
         let edge_xml = tree_xml[e_start:e_end].to_owned()
         let eid = get_attribute(edge_xml, "id")
         let esource = get_attribute(edge_xml, "source")
         let etarget = get_attribute(edge_xml, "target")
-        
+
         let length_str = get_attribute(edge_xml, "length")
         let elength : Double? = if length_str.length() > 0 {
           nexml_parse_float(length_str)
         } else {
           None
         }
-        
+
         edge_list.push(NeXMLEdge::new(eid, esource, etarget, length=elength))
       }
-      
+
       tree_list.push(
-        NeXMLTree::new(tid, tname, final_type, rooted, node_list, edge_list)
+        NeXMLTree::new(tid, tname, final_type, rooted, node_list, edge_list),
       )
     }
-    
+
     new_trees_blocks.push(NeXMLTrees::new(trees_id, otus_id, tree_list))
   }
-  
+
   NeXMLDocument::{ ..doc, trees_blocks: new_trees_blocks }
 }
 
@@ -475,26 +475,40 @@ pub fn nexml_to_xml(doc : NeXMLDocument) -> String {
   xml = xml + "  xmlns:nex=\"http://www.nexml.org/2009\"\n"
   xml = xml + "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
   xml = xml + "  xmlns:xml=\"http://www.w3.org/XML/1998/namespace\">\n"
-  
+
   // Write OTUs blocks
   for i = 0; i < doc.otus_blocks.length(); i = i + 1 {
     let otus_block = doc.otus_blocks[i]
     xml = xml + "  <otus id=\"" + otus_block.id + "\">\n"
     for j = 0; j < otus_block.otus.length(); j = j + 1 {
       let otu = otus_block.otus[j]
-      xml = xml + "    <otu id=\"" + otu.id + "\" label=\"" + otu.label + "\"/>\n"
+      xml = xml +
+        "    <otu id=\"" +
+        otu.id +
+        "\" label=\"" +
+        otu.label +
+        "\"/>\n"
     }
     xml = xml + "  </otus>\n"
   }
-  
+
   // Write characters blocks
   for i = 0; i < doc.characters_blocks.length(); i = i + 1 {
     let chars_block = doc.characters_blocks[i]
-    xml = xml + "  <characters id=\"" + chars_block.id +
-          "\" otus=\"" + chars_block.otus_id + "\">\n"
+    xml = xml +
+      "  <characters id=\"" +
+      chars_block.id +
+      "\" otus=\"" +
+      chars_block.otus_id +
+      "\">\n"
     for j = 0; j < chars_block.characters.length(); j = j + 1 {
       let ch = chars_block.characters[j]
-      xml = xml + "    <char id=\"" + ch.id + "\" label=\"" + ch.label + "\"/>\n"
+      xml = xml +
+        "    <char id=\"" +
+        ch.id +
+        "\" label=\"" +
+        ch.label +
+        "\"/>\n"
     }
     xml = xml + "    <matrix>\n"
     for otu in chars_block.matrix.keys() {
@@ -511,18 +525,27 @@ pub fn nexml_to_xml(doc : NeXMLDocument) -> String {
     xml = xml + "    </matrix>\n"
     xml = xml + "  </characters>\n"
   }
-  
+
   // Write trees blocks
   for i = 0; i < doc.trees_blocks.length(); i = i + 1 {
     let trees_block = doc.trees_blocks[i]
-    xml = xml + "  <trees id=\"" + trees_block.id +
-          "\" otus=\"" + trees_block.otus_id + "\">\n"
+    xml = xml +
+      "  <trees id=\"" +
+      trees_block.id +
+      "\" otus=\"" +
+      trees_block.otus_id +
+      "\">\n"
     for j = 0; j < trees_block.trees.length(); j = j + 1 {
       let tree = trees_block.trees[j]
       let rooted_str = if tree.rooted { "true" } else { "false" }
-      xml = xml + "    <tree id=\"" + tree.id +
-            "\" label=\"" + tree.name +
-            "\" rooted=\"" + rooted_str + "\">\n"
+      xml = xml +
+        "    <tree id=\"" +
+        tree.id +
+        "\" label=\"" +
+        tree.name +
+        "\" rooted=\"" +
+        rooted_str +
+        "\">\n"
       for k = 0; k < tree.nodes.length(); k = k + 1 {
         let node = tree.nodes[k]
         xml = xml + "      <node id=\"" + node.id + "\""
@@ -540,9 +563,14 @@ pub fn nexml_to_xml(doc : NeXMLDocument) -> String {
       }
       for k = 0; k < tree.edges.length(); k = k + 1 {
         let edge = tree.edges[k]
-        xml = xml + "      <edge id=\"" + edge.id +
-              "\" source=\"" + edge.source +
-              "\" target=\"" + edge.target + "\""
+        xml = xml +
+          "      <edge id=\"" +
+          edge.id +
+          "\" source=\"" +
+          edge.source +
+          "\" target=\"" +
+          edge.target +
+          "\""
         match edge.length {
           Some(len) => xml = xml + " length=\"" + len.to_string() + "\""
           None => ()
@@ -553,9 +581,9 @@ pub fn nexml_to_xml(doc : NeXMLDocument) -> String {
     }
     xml = xml + "  </trees>\n"
   }
-  
+
   xml = xml + "</nex:nexml>\n"
-  
+
   xml
 }
 
@@ -569,11 +597,14 @@ pub fn nexml_tree_to_newick(tree : NeXMLTree) -> String {
   if tree.nodes.length() == 0 {
     return ";"
   }
-  
+
   // Build adjacency list
-  let children_map : Map[String, Array[(String, Double?)]] = Map([], capacity=16)
+  let children_map : Map[String, Array[(String, Double?)]] = Map(
+    [],
+    capacity=16,
+  )
   let parent_map : Map[String, String] = Map([], capacity=16)
-  
+
   for i = 0; i < tree.edges.length(); i = i + 1 {
     let edge = tree.edges[i]
     let existing_opt = children_map.get(edge.source)
@@ -586,7 +617,7 @@ pub fn nexml_tree_to_newick(tree : NeXMLTree) -> String {
     children_map.set(edge.source, new_children)
     parent_map.set(edge.target, edge.source)
   }
-  
+
   // Find root (node with no parent)
   let mut root_id = ""
   for i = 0; i < tree.nodes.length(); i = i + 1 {
@@ -596,11 +627,11 @@ pub fn nexml_tree_to_newick(tree : NeXMLTree) -> String {
       break
     }
   }
-  
+
   if root_id.length() == 0 && tree.nodes.length() > 0 {
     root_id = tree.nodes[0].id
   }
-  
+
   // Build Newick recursively
   let (newick_str, _) = build_newick(tree, root_id, children_map)
   newick_str + ";"
@@ -613,7 +644,7 @@ fn build_newick(
   children_map : Map[String, Array[(String, Double?)]],
 ) -> (String, Bool) {
   let children_opt = children_map.get(node_id)
-  
+
   // Find node label
   let mut node_label = ""
   let mut node_length : Double? = None
@@ -624,9 +655,9 @@ fn build_newick(
       break
     }
   }
-  
+
   match children_opt {
-    Some(children) => {
+    Some(children) =>
       if children.length() == 0 {
         // Leaf node
         (node_label, true)
@@ -647,11 +678,9 @@ fn build_newick(
         result = result + ")" + node_label
         (result, false)
       }
-    }
-    None => {
+    None =>
       // Leaf node (no children in map)
       (node_label, true)
-    }
   }
 }
 

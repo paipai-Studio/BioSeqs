@@ -77,13 +77,13 @@ pub fn HarmonyParams::create(
   seed? : Int = 42,
 ) -> HarmonyParams {
   HarmonyParams::{
-    n_clusters: n_clusters,
-    max_iterations: max_iterations,
-    tolerance: tolerance,
-    lambda: lambda,
-    sigma: sigma,
-    ridge_penalty: ridge_penalty,
-    seed: seed,
+    n_clusters,
+    max_iterations,
+    tolerance,
+    lambda,
+    sigma,
+    ridge_penalty,
+    seed,
   }
 }
 
@@ -100,19 +100,25 @@ pub struct HarmonyResult {
 
 ///|
 /// Get corrected embeddings.
-pub fn HarmonyResult::get_corrected(self : HarmonyResult) -> Array[Array[Double]] {
+pub fn HarmonyResult::get_corrected(
+  self : HarmonyResult,
+) -> Array[Array[Double]] {
   self.corrected
 }
 
 ///|
 /// Get soft cluster membership matrix.
-pub fn HarmonyResult::get_membership(self : HarmonyResult) -> Array[Array[Double]] {
+pub fn HarmonyResult::get_membership(
+  self : HarmonyResult,
+) -> Array[Array[Double]] {
   self.membership
 }
 
 ///|
 /// Get cluster centroids.
-pub fn HarmonyResult::get_centroids(self : HarmonyResult) -> Array[Array[Double]] {
+pub fn HarmonyResult::get_centroids(
+  self : HarmonyResult,
+) -> Array[Array[Double]] {
   self.centroids
 }
 
@@ -134,29 +140,49 @@ pub fn harmony_run(data : HarmonyData, params : HarmonyParams) -> HarmonyResult 
   let n_cells = data.embeddings.length()
   let n_dims = if n_cells > 0 { data.embeddings[0].length() } else { 0 }
   let n_clusters = if params.n_clusters > 0 { params.n_clusters } else { 1 }
-  
+
   let centroids = harmony_init_centroids(data, n_clusters, params.seed)
-  let membership = harmony_compute_membership(data.embeddings, centroids, params.lambda)
+  let membership = harmony_compute_membership(
+    data.embeddings,
+    centroids,
+    params.lambda,
+  )
   let mut corrected = data.embeddings
-  
+
   let mut iter = 0
   let mut converged = false
   let mut prev_obj = harmony_objective(data.embeddings, centroids, membership)
-  
+
   while iter < params.max_iterations {
-    let new_centroids = harmony_update_centroids(corrected, membership, n_clusters)
+    let new_centroids = harmony_update_centroids(
+      corrected, membership, n_clusters,
+    )
     let corrections = harmony_batch_corrections(
-      HarmonyData::{ embeddings: corrected, batch_labels: data.batch_labels, cell_ids: data.cell_ids },
+      HarmonyData::{
+        embeddings: corrected,
+        batch_labels: data.batch_labels,
+        cell_ids: data.cell_ids,
+      },
       membership,
       new_centroids,
       n_clusters,
       params.ridge_penalty,
     )
-    corrected = harmony_apply_correction(corrected, membership, corrections, n_clusters)
-    let new_membership = harmony_compute_membership(corrected, new_centroids, params.lambda)
+    corrected = harmony_apply_correction(
+      corrected, membership, corrections, n_clusters,
+    )
+    let new_membership = harmony_compute_membership(
+      corrected,
+      new_centroids,
+      params.lambda,
+    )
     let obj = harmony_objective(corrected, new_centroids, new_membership)
-    let delta = if prev_obj.abs() > 1.0e-10 { (prev_obj - obj).abs() / prev_obj.abs() } else { 0.0 }
-    
+    let delta = if prev_obj.abs() > 1.0e-10 {
+      (prev_obj - obj).abs() / prev_obj.abs()
+    } else {
+      0.0
+    }
+
     if delta < params.tolerance {
       converged = true
       break
@@ -164,7 +190,7 @@ pub fn harmony_run(data : HarmonyData, params : HarmonyParams) -> HarmonyResult 
     prev_obj = obj
     iter = iter + 1
   }
-  
+
   HarmonyResult::{
     corrected,
     membership,
@@ -177,20 +203,24 @@ pub fn harmony_run(data : HarmonyData, params : HarmonyParams) -> HarmonyResult 
 
 ///|
 /// Initialize cluster centroids using k-means++ style seeding.
-fn harmony_init_centroids(data : HarmonyData, n_clusters : Int, seed : Int) -> Array[Array[Double]] {
+fn harmony_init_centroids(
+  data : HarmonyData,
+  n_clusters : Int,
+  seed : Int,
+) -> Array[Array[Double]] {
   let n_cells = data.embeddings.length()
   if n_cells == 0 {
     return Array::make(n_clusters, Array::make(0, 0.0))
   }
   let n_dims = data.embeddings[0].length()
-  
+
   let centroids : Array[Array[Double]] = Array::new()
   let mut rng_state = seed
-  
+
   let first_idx = harmony_next_rand(rng_state) % n_cells
   rng_state = harmony_next_rand(rng_state)
   centroids.push(data.embeddings[first_idx])
-  
+
   let mut c = 1
   while c < n_clusters {
     let dists : Array[Double] = Array::make(n_cells, 0.0)
@@ -208,10 +238,12 @@ fn harmony_init_centroids(data : HarmonyData, n_clusters : Int, seed : Int) -> A
       dists[i] = min_dist
       i = i + 1
     }
-    
+
     let total_dist = harmony_sum(dists)
     if total_dist > 0.0 {
-      let r = harmony_next_rand(rng_state).to_double() / 2147483647.0 * total_dist
+      let r = harmony_next_rand(rng_state).to_double() /
+        2147483647.0 *
+        total_dist
       rng_state = harmony_next_rand(rng_state)
       let mut best_idx = 0
       let mut cum = 0.0
@@ -245,7 +277,7 @@ fn harmony_compute_membership(
   let n_cells = embeddings.length()
   let n_clusters = centroids.length()
   let membership : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < n_cells {
     let responsibilities : Array[Double] = Array::make(n_clusters, 0.0)
@@ -260,7 +292,7 @@ fn harmony_compute_membership(
       responsibilities[j] = logit
       j = j + 1
     }
-    
+
     let mut sum_exp = 0.0
     let mut k = 0
     while k < n_clusters {
@@ -268,7 +300,7 @@ fn harmony_compute_membership(
       sum_exp = sum_exp + responsibilities[k]
       k = k + 1
     }
-    
+
     if sum_exp > 0.0 {
       let mut m = 0
       while m < n_clusters {
@@ -276,7 +308,7 @@ fn harmony_compute_membership(
         m = m + 1
       }
     }
-    
+
     membership.push(responsibilities)
     i = i + 1
   }
@@ -293,7 +325,7 @@ fn harmony_update_centroids(
   let n_cells = embeddings.length()
   let n_dims = if n_cells > 0 { embeddings[0].length() } else { 0 }
   let centroids : Array[Array[Double]] = Array::new()
-  
+
   let mut k = 0
   while k < n_clusters {
     let mut weight_sum = 0.0
@@ -333,7 +365,7 @@ fn harmony_batch_corrections(
 ) -> Array[Array[Array[Double]]] {
   let n_cells = data.embeddings.length()
   let n_dims = if n_cells > 0 { data.embeddings[0].length() } else { 0 }
-  
+
   // Get unique batches
   let unique_batches : Array[String] = Array::new()
   {
@@ -348,10 +380,13 @@ fn harmony_batch_corrections(
       i = i + 1
     }
   }
-  
+
   let n_batches = unique_batches.length()
-  let corrections : Array[Array[Array[Double]]] = Array::make(n_clusters, Array::make(n_batches, Array::make(n_dims, 0.0)))
-  
+  let corrections : Array[Array[Array[Double]]] = Array::make(
+    n_clusters,
+    Array::make(n_batches, Array::make(n_dims, 0.0)),
+  )
+
   let mut k = 0
   while k < n_clusters {
     let mut b = 0
@@ -362,7 +397,7 @@ fn harmony_batch_corrections(
       let batch_mean : Array[Double] = Array::make(n_dims, 0.0)
       let global_mean : Array[Double] = Array::make(n_dims, 0.0)
       let mut gw = 0.0
-      
+
       let mut i = 0
       while i < n_cells {
         let w = membership[i][k]
@@ -382,7 +417,7 @@ fn harmony_batch_corrections(
         }
         i = i + 1
       }
-      
+
       if weight_sum > 0.0 {
         let mut d = 0
         while d < n_dims {
@@ -397,7 +432,7 @@ fn harmony_batch_corrections(
           d = d + 1
         }
       }
-      
+
       // Correction = batch_mean - global_mean (with ridge penalty)
       let correction : Array[Double] = Array::make(n_dims, 0.0)
       let effective_weight = weight_sum / (weight_sum + ridge_penalty)
@@ -425,7 +460,7 @@ fn harmony_apply_correction(
   let n_cells = embeddings.length()
   let n_dims = if n_cells > 0 { embeddings[0].length() } else { 0 }
   let n_batches = if n_clusters > 0 { corrections[0].length() } else { 0 }
-  
+
   // Get unique batches from correction dimensions
   let corrected : Array[Array[Double]] = Array::new()
   let mut i = 0
@@ -436,7 +471,7 @@ fn harmony_apply_correction(
       new_cell[d] = embeddings[i][d]
       d = d + 1
     }
-    
+
     let mut k = 0
     while k < n_clusters {
       let w = membership[i][k]
@@ -514,20 +549,24 @@ fn harmony_next_rand(seed : Int) -> Int {
 
 ///|
 /// Create example data for Harmony testing.
-pub fn harmony_create_example(n_cells : Int, n_batches : Int, n_dims : Int) -> HarmonyData {
+pub fn harmony_create_example(
+  n_cells : Int,
+  n_batches : Int,
+  n_dims : Int,
+) -> HarmonyData {
   let embeddings : Array[Array[Double]] = Array::new()
   let batch_labels : Array[String] = Array::new()
   let cell_ids : Array[String] = Array::new()
   let mut rng = 42
-  
+
   let mut i = 0
   while i < n_cells {
     let batch_idx = i * n_batches / n_cells
     let batch_id = "batch_" + batch_idx.to_string()
-    
+
     // Simulate batch effect
     let batch_effect = batch_idx.to_double() * 2.0
-    
+
     let cell : Array[Double] = Array::make(n_dims, 0.0)
     let mut d = 0
     while d < n_dims {
@@ -536,12 +575,12 @@ pub fn harmony_create_example(n_cells : Int, n_batches : Int, n_dims : Int) -> H
       cell[d] = batch_effect + noise
       d = d + 1
     }
-    
+
     embeddings.push(cell)
     batch_labels.push(batch_id)
     cell_ids.push("cell_" + i.to_string())
     i = i + 1
   }
-  
+
   HarmonyData::{ embeddings, batch_labels, cell_ids }
 }

@@ -52,12 +52,9 @@ test "plyranges_filter_strand" {
 
 ///|
 test "plyranges_mutate" {
-  let ranges = @src.tgr_create(
-    ["chr1", "chr2"],
-    [100, 200],
-    [200, 300],
-    ["+", "-"],
-  )
+  let ranges = @src.tgr_create(["chr1", "chr2"], [100, 200], [200, 300], [
+    "+", "-",
+  ])
   let mutated = @src.tgr_mutate(ranges, "gc_content", [0.45, 0.62])
   assert_eq(mutated.metadata["gc_content"].length(), 2)
   assert_eq(mutated.metadata["gc_content"][0], 0.45)
@@ -65,12 +62,9 @@ test "plyranges_mutate" {
 
 ///|
 test "plyranges_mutate_str" {
-  let ranges = @src.tgr_create(
-    ["chr1", "chr2"],
-    [100, 200],
-    [200, 300],
-    ["+", "-"],
-  )
+  let ranges = @src.tgr_create(["chr1", "chr2"], [100, 200], [200, 300], [
+    "+", "-",
+  ])
   let mutated = @src.tgr_mutate_str(ranges, "gene_name", ["BRCA1", "TP53"])
   assert_eq(mutated.metadata_str["gene_name"].length(), 2)
   assert_eq(mutated.metadata_str["gene_name"][0], "BRCA1")
@@ -78,12 +72,9 @@ test "plyranges_mutate_str" {
 
 ///|
 test "plyranges_select" {
-  let ranges = @src.tgr_create(
-    ["chr1", "chr2"],
-    [100, 200],
-    [200, 300],
-    ["+", "-"],
-  )
+  let ranges = @src.tgr_create(["chr1", "chr2"], [100, 200], [200, 300], [
+    "+", "-",
+  ])
   let mutated = @src.tgr_mutate(ranges, "score", [1.0, 2.0])
   let selected = @src.tgr_select(mutated, ["score"])
   assert_eq(selected.metadata["score"].length(), 2)
@@ -106,12 +97,9 @@ test "plyranges_arrange" {
 
 ///|
 test "plyranges_rename" {
-  let ranges = @src.tgr_create(
-    ["chr1", "chr2"],
-    [100, 200],
-    [200, 300],
-    ["+", "-"],
-  )
+  let ranges = @src.tgr_create(["chr1", "chr2"], [100, 200], [200, 300], [
+    "+", "-",
+  ])
   let mutated = @src.tgr_mutate(ranges, "score", [1.0, 2.0])
   let renamed = @src.tgr_rename(mutated, "score", "alignment_score")
   assert_eq(renamed.metadata["alignment_score"].length(), 2)
@@ -119,12 +107,9 @@ test "plyranges_rename" {
 
 ///|
 test "plyranges_width" {
-  let ranges = @src.tgr_create(
-    ["chr1", "chr2"],
-    [100, 200],
-    [200, 350],
-    ["+", "-"],
-  )
+  let ranges = @src.tgr_create(["chr1", "chr2"], [100, 200], [200, 350], [
+    "+", "-",
+  ])
   assert_eq(ranges.widths[0], 101)
   assert_eq(ranges.widths[1], 151)
 }
@@ -162,12 +147,9 @@ test "plyranges_filter_end" {
 
 ///|
 test "plyranges_multiple_metadata" {
-  let ranges = @src.tgr_create(
-    ["chr1", "chr2"],
-    [100, 200],
-    [200, 300],
-    ["+", "-"],
-  )
+  let ranges = @src.tgr_create(["chr1", "chr2"], [100, 200], [200, 300], [
+    "+", "-",
+  ])
   let mutated = @src.tgr_mutate(ranges, "score", [1.5, 2.5])
   let mutated2 = @src.tgr_mutate(mutated, "p_value", [0.01, 0.05])
   assert_eq(mutated2.metadata.length(), 2)

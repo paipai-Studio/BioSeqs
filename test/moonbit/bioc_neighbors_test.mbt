@@ -20,13 +20,7 @@ test "knn_options_with_method" {
 
 ///|
 test "knn_options_full" {
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    8,
-    "manhattan",
-    30,
-    100,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 8, "manhattan", 30, 100)
   assert_true(opts.method == @src.annoy_method())
   assert_eq(opts.k, 8)
   assert_eq(opts.distance, "manhattan")
@@ -60,12 +54,7 @@ test "knn_compute_distance_cosine" {
 
 ///|
 test "knn_brute_force_basic" {
-  let data = [
-    [0.0, 0.0],
-    [1.0, 0.0],
-    [0.0, 1.0],
-    [1.0, 1.0],
-  ]
+  let data = [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]
   let query = [[0.0, 0.0]]
   let result = @src.knn_brute_force(data, 4, 2, query, 1, 2, "euclidean")
   assert_eq(result.n_query, 1)
@@ -164,13 +153,7 @@ test "build_knn_index_kmknn" {
     [10.0, 11.0],
     [11.0, 11.0],
   ]
-  let opts = @src.knn_options_full(
-    @src.kmknn_method(),
-    2,
-    "euclidean",
-    50,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.kmknn_method(), 2, "euclidean", 50, -1)
   let index = @src.build_knn_index(data, 8, 2, opts)
   assert_true(index.method == @src.kmknn_method())
   assert_true(index.centroids.length() > 0)
@@ -188,13 +171,7 @@ test "build_knn_index_annoy" {
     [10.0, 11.0],
     [11.0, 11.0],
   ]
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    2,
-    "euclidean",
-    5,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 2, "euclidean", 5, -1)
   let index = @src.build_knn_index(data, 8, 2, opts)
   assert_true(index.method == @src.annoy_method())
   assert_true(index.tree_nodes.length() > 0)
@@ -203,13 +180,7 @@ test "build_knn_index_annoy" {
 ///|
 test "build_kmknn_index_empty" {
   let data : Array[Array[Double]] = []
-  let opts = @src.knn_options_full(
-    @src.kmknn_method(),
-    2,
-    "euclidean",
-    50,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.kmknn_method(), 2, "euclidean", 50, -1)
   let index = @src.build_kmknn_index(data, 0, 2, opts)
   assert_eq(index.n_points, 0)
   assert_eq(index.centroids.length(), 0)
@@ -218,13 +189,7 @@ test "build_kmknn_index_empty" {
 ///|
 test "build_annoy_index_empty" {
   let data : Array[Array[Double]] = []
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    2,
-    "euclidean",
-    50,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 2, "euclidean", 50, -1)
   let index = @src.build_annoy_index(data, 0, 2, opts)
   assert_eq(index.n_points, 0)
   assert_eq(index.tree_nodes.length(), 0)
@@ -259,13 +224,7 @@ test "run_knn_kmknn" {
     [10.0, 11.0],
     [11.0, 11.0],
   ]
-  let opts = @src.knn_options_full(
-    @src.kmknn_method(),
-    3,
-    "euclidean",
-    50,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.kmknn_method(), 3, "euclidean", 50, -1)
   let index = @src.build_knn_index(data, 8, 2, opts)
   let query = [[0.0, 0.0], [10.0, 10.0]]
   let result = @src.run_knn(index, query, 2, opts)
@@ -285,13 +244,7 @@ test "run_knn_annoy" {
     [10.0, 11.0],
     [11.0, 11.0],
   ]
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    3,
-    "euclidean",
-    5,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 3, "euclidean", 5, -1)
   let index = @src.build_knn_index(data, 8, 2, opts)
   let query = [[0.0, 0.0], [10.0, 10.0]]
   let result = @src.run_knn(index, query, 2, opts)
@@ -302,13 +255,7 @@ test "run_knn_annoy" {
 ///|
 test "knn_annoy_cosine_distance" {
   let data = [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0], [-1.0, 0.0]]
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    2,
-    "cosine",
-    3,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 2, "cosine", 3, -1)
   let index = @src.build_annoy_index(data, 4, 2, opts)
   let query = [[1.0, 0.0]]
   let result = @src.knn_annoy(index, query, 1, opts)
@@ -318,13 +265,7 @@ test "knn_annoy_cosine_distance" {
 ///|
 test "knn_kmknn_cosine_distance" {
   let data = [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0], [-1.0, 0.0]]
-  let opts = @src.knn_options_full(
-    @src.kmknn_method(),
-    2,
-    "cosine",
-    50,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.kmknn_method(), 2, "cosine", 50, -1)
   let index = @src.build_kmknn_index(data, 4, 2, opts)
   let query = [[1.0, 0.0]]
   let result = @src.knn_kmknn(index, query, 1, opts)
@@ -370,13 +311,7 @@ test "knn_brute_force_single_dim" {
 ///|
 test "knn_kmknn_single_point" {
   let data = [[1.0, 2.0]]
-  let opts = @src.knn_options_full(
-    @src.kmknn_method(),
-    1,
-    "euclidean",
-    50,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.kmknn_method(), 1, "euclidean", 50, -1)
   let index = @src.build_kmknn_index(data, 1, 2, opts)
   let query = [[1.0, 2.0]]
   let result = @src.knn_kmknn(index, query, 1, opts)
@@ -386,13 +321,7 @@ test "knn_kmknn_single_point" {
 ///|
 test "knn_annoy_single_point" {
   let data = [[1.0, 2.0]]
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    1,
-    "euclidean",
-    3,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 1, "euclidean", 3, -1)
   let index = @src.build_annoy_index(data, 1, 2, opts)
   let query = [[1.0, 2.0]]
   let result = @src.knn_annoy(index, query, 1, opts)
@@ -413,13 +342,7 @@ test "knn_brute_force_vs_kmknn" {
   ]
   let query = [[0.0, 0.0]]
   let brute_result = @src.knn_brute_force(data, 8, 2, query, 1, 3, "euclidean")
-  let opts = @src.knn_options_full(
-    @src.kmknn_method(),
-    3,
-    "euclidean",
-    50,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.kmknn_method(), 3, "euclidean", 50, -1)
   let index = @src.build_kmknn_index(data, 8, 2, opts)
   let kmknn_result = @src.knn_kmknn(index, query, 1, opts)
   assert_eq(brute_result.k, kmknn_result.k)
@@ -439,13 +362,7 @@ test "knn_brute_force_vs_annoy" {
   ]
   let query = [[0.0, 0.0]]
   let brute_result = @src.knn_brute_force(data, 8, 2, query, 1, 3, "euclidean")
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    3,
-    "euclidean",
-    5,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 3, "euclidean", 5, -1)
   let index = @src.build_annoy_index(data, 8, 2, opts)
   let annoy_result = @src.knn_annoy(index, query, 1, opts)
   assert_eq(brute_result.k, 3)
@@ -464,13 +381,7 @@ test "knn_brute_force_no_query" {
 ///|
 test "build_kmknn_index_small" {
   let data = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
-  let opts = @src.knn_options_full(
-    @src.kmknn_method(),
-    2,
-    "euclidean",
-    50,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.kmknn_method(), 2, "euclidean", 50, -1)
   let index = @src.build_kmknn_index(data, 3, 2, opts)
   assert_eq(index.n_points, 3)
   assert_true(index.centroids.length() >= 1)
@@ -479,13 +390,7 @@ test "build_kmknn_index_small" {
 ///|
 test "build_annoy_index_small" {
   let data = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    2,
-    "euclidean",
-    3,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 2, "euclidean", 3, -1)
   let index = @src.build_annoy_index(data, 3, 2, opts)
   assert_eq(index.n_points, 3)
   assert_true(index.tree_nodes.length() > 0)
@@ -494,13 +399,7 @@ test "build_annoy_index_small" {
 ///|
 test "knn_kmknn_empty_query" {
   let data = [[0.0, 0.0], [1.0, 0.0]]
-  let opts = @src.knn_options_full(
-    @src.kmknn_method(),
-    2,
-    "euclidean",
-    50,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.kmknn_method(), 2, "euclidean", 50, -1)
   let index = @src.build_kmknn_index(data, 2, 2, opts)
   let query : Array[Array[Double]] = []
   let result = @src.knn_kmknn(index, query, 0, opts)
@@ -510,13 +409,7 @@ test "knn_kmknn_empty_query" {
 ///|
 test "knn_annoy_empty_query" {
   let data = [[0.0, 0.0], [1.0, 0.0]]
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    2,
-    "euclidean",
-    3,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 2, "euclidean", 3, -1)
   let index = @src.build_annoy_index(data, 2, 2, opts)
   let query : Array[Array[Double]] = []
   let result = @src.knn_annoy(index, query, 0, opts)
@@ -526,13 +419,7 @@ test "knn_annoy_empty_query" {
 ///|
 test "knn_annoy_search_k_auto" {
   let data = [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    2,
-    "euclidean",
-    3,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 2, "euclidean", 3, -1)
   let index = @src.build_annoy_index(data, 4, 2, opts)
   let query = [[0.0, 0.0]]
   let result = @src.knn_annoy(index, query, 1, opts)
@@ -542,13 +429,7 @@ test "knn_annoy_search_k_auto" {
 ///|
 test "knn_annoy_search_k_custom" {
   let data = [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    2,
-    "euclidean",
-    3,
-    1,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 2, "euclidean", 3, 1)
   let index = @src.build_annoy_index(data, 4, 2, opts)
   let query = [[0.0, 0.0]]
   let result = @src.knn_annoy(index, query, 1, opts)
@@ -613,13 +494,7 @@ test "knn_brute_force_large_k" {
 
 ///|
 test "knn_brute_force_different_k_values" {
-  let data = [
-    [0.0, 0.0],
-    [1.0, 0.0],
-    [0.0, 1.0],
-    [1.0, 1.0],
-    [2.0, 2.0],
-  ]
+  let data = [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0], [1.0, 1.0], [2.0, 2.0]]
   let query = [[0.0, 0.0]]
   let result_k1 = @src.knn_brute_force(data, 5, 2, query, 1, 1, "euclidean")
   assert_eq(result_k1.k, 1)
@@ -663,13 +538,7 @@ test "knn_brute_force_vs_kmknn_same_results" {
   ]
   let query = [[0.0, 0.0], [3.0, 3.0]]
   let brute_result = @src.knn_brute_force(data, 8, 2, query, 2, 3, "euclidean")
-  let opts = @src.knn_options_full(
-    @src.kmknn_method(),
-    3,
-    "euclidean",
-    50,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.kmknn_method(), 3, "euclidean", 50, -1)
   let index = @src.build_kmknn_index(data, 8, 2, opts)
   let kmknn_result = @src.knn_kmknn(index, query, 2, opts)
   assert_eq(brute_result.n_query, kmknn_result.n_query)
@@ -690,13 +559,7 @@ test "knn_annoy_approximately_correct" {
   ]
   let query = [[0.0, 0.0]]
   let brute_result = @src.knn_brute_force(data, 8, 2, query, 1, 3, "euclidean")
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    3,
-    "euclidean",
-    10,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 3, "euclidean", 10, -1)
   let index = @src.build_annoy_index(data, 8, 2, opts)
   let annoy_result = @src.knn_annoy(index, query, 1, opts)
   assert_true(annoy_result.k >= 1)
@@ -721,13 +584,7 @@ test "knn_brute_force_cosine_3d" {
 ///|
 test "knn_kmknn_manhattan_distance" {
   let data = [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]
-  let opts = @src.knn_options_full(
-    @src.kmknn_method(),
-    2,
-    "manhattan",
-    50,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.kmknn_method(), 2, "manhattan", 50, -1)
   let index = @src.build_kmknn_index(data, 4, 2, opts)
   let query = [[0.0, 0.0]]
   let result = @src.knn_kmknn(index, query, 1, opts)
@@ -778,13 +635,7 @@ test "knn_quick_sort_duplicates" {
 ///|
 test "knn_kmknn_empty_data" {
   let data : Array[Array[Double]] = []
-  let opts = @src.knn_options_full(
-    @src.kmknn_method(),
-    2,
-    "euclidean",
-    50,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.kmknn_method(), 2, "euclidean", 50, -1)
   let index = @src.build_kmknn_index(data, 0, 2, opts)
   let query = [[0.0, 0.0]]
   let result = @src.knn_kmknn(index, query, 1, opts)
@@ -795,13 +646,7 @@ test "knn_kmknn_empty_data" {
 ///|
 test "knn_annoy_manhattan_distance" {
   let data = [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    2,
-    "manhattan",
-    5,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 2, "manhattan", 5, -1)
   let index = @src.build_annoy_index(data, 4, 2, opts)
   let query = [[0.0, 0.0]]
   let result = @src.knn_annoy(index, query, 1, opts)
@@ -859,13 +704,7 @@ test "knn_brute_force_5d" {
 ///|
 test "build_knn_index_kmknn_small_data" {
   let data = [[1.0, 2.0]]
-  let opts = @src.knn_options_full(
-    @src.kmknn_method(),
-    1,
-    "euclidean",
-    50,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.kmknn_method(), 1, "euclidean", 50, -1)
   let index = @src.build_knn_index(data, 1, 2, opts)
   assert_true(index.method == @src.kmknn_method())
   assert_eq(index.n_points, 1)
@@ -874,13 +713,7 @@ test "build_knn_index_kmknn_small_data" {
 ///|
 test "run_knn_annoy_multiple_queries" {
   let data = [[0.0, 0.0], [1.0, 0.0], [0.0, 1.0], [1.0, 1.0]]
-  let opts = @src.knn_options_full(
-    @src.annoy_method(),
-    2,
-    "euclidean",
-    3,
-    -1,
-  )
+  let opts = @src.knn_options_full(@src.annoy_method(), 2, "euclidean", 3, -1)
   let index = @src.build_knn_index(data, 4, 2, opts)
   let query = [[0.0, 0.0], [1.0, 1.0], [0.0, 1.0]]
   let result = @src.run_knn(index, query, 3, opts)

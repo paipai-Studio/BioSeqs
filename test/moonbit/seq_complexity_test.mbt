@@ -134,6 +134,7 @@ test "seq_complexity: sequence_similarity_empty" {
 
 // LCC (Wooton-Federhen) tests
 
+///|
 test "seq_complexity: lcc_basic" {
   let scores = @src.lcc("ATCGATCGATCGATCG", window=12, k=3)
   assert_true(scores.length() > 0)
@@ -144,6 +145,7 @@ test "seq_complexity: lcc_basic" {
   }
 }
 
+///|
 test "seq_complexity: lcc_low_complexity" {
   let scores = @src.lcc("AAAAAAAAAAAAAAAA", window=12, k=3)
   assert_true(scores.length() > 0)
@@ -153,20 +155,28 @@ test "seq_complexity: lcc_low_complexity" {
   }
 }
 
+///|
 test "seq_complexity: lcc_empty" {
   let scores = @src.lcc("", window=12, k=3)
   assert_eq(scores.length(), 0)
 }
 
+///|
 test "seq_complexity: lcc_short" {
   let scores = @src.lcc("AC", window=12, k=3)
   assert_eq(scores.length(), 0)
 }
 
+///|
 test "seq_complexity: lcc_low_complexity_regions" {
   // Mix of low complexity and high complexity
   let seq = "AAAAAAAAAAAAAACGATCGATCG"
-  let regions = @src.lcc_low_complexity_regions(seq, window=12, k=3, threshold=0.15)
+  let regions = @src.lcc_low_complexity_regions(
+    seq,
+    window=12,
+    k=3,
+    threshold=0.15,
+  )
   // Should find low complexity region at the beginning
   assert_true(regions.length() > 0)
 }

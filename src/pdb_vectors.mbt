@@ -50,9 +50,19 @@ pub fn Vector3::unit_z() -> Vector3 {
 
 ///|
 /// Access vector components.
-pub fn Vector3::get_x(self : Vector3) -> Double { self.x }
-pub fn Vector3::get_y(self : Vector3) -> Double { self.y }
-pub fn Vector3::get_z(self : Vector3) -> Double { self.z }
+pub fn Vector3::get_x(self : Vector3) -> Double {
+  self.x
+}
+
+///|
+pub fn Vector3::get_y(self : Vector3) -> Double {
+  self.y
+}
+
+///|
+pub fn Vector3::get_z(self : Vector3) -> Double {
+  self.z
+}
 
 ///|
 /// Add two vectors.
@@ -84,7 +94,7 @@ pub fn Vector3::cross(self : Vector3, other : Vector3) -> Vector3 {
   Vector3::{
     x: self.y * other.z - self.z * other.y,
     y: self.z * other.x - self.x * other.z,
-    z: self.x * other.y - self.y * other.x
+    z: self.x * other.y - self.y * other.x,
   }
 }
 
@@ -129,7 +139,13 @@ pub fn Vector3::angle(self : Vector3, other : Vector3) -> Double {
     return 0.0
   }
   let cos_angle = dot / (n1 * n2)
-  let clamped = if cos_angle > 1.0 { 1.0 } else { if cos_angle < -1.0 { -1.0 } else { cos_angle } }
+  let clamped = if cos_angle > 1.0 {
+    1.0
+  } else if cos_angle < -1.0 {
+    -1.0
+  } else {
+    cos_angle
+  }
   @math.acos(clamped)
 }
 
@@ -193,9 +209,15 @@ pub struct RotationMatrix3 {
 ///|
 /// Construct a 3x3 rotation matrix from 9 values (row-major).
 pub fn RotationMatrix3::new(
-  m00~ : Double, m01~ : Double, m02~ : Double,
-  m10~ : Double, m11~ : Double, m12~ : Double,
-  m20~ : Double, m21~ : Double, m22~ : Double,
+  m00~ : Double,
+  m01~ : Double,
+  m02~ : Double,
+  m10~ : Double,
+  m11~ : Double,
+  m12~ : Double,
+  m20~ : Double,
+  m21~ : Double,
+  m22~ : Double,
 ) -> RotationMatrix3 {
   RotationMatrix3::{ m00, m01, m02, m10, m11, m12, m20, m21, m22 }
 }
@@ -204,15 +226,25 @@ pub fn RotationMatrix3::new(
 /// Identity rotation matrix.
 pub fn RotationMatrix3::identity() -> RotationMatrix3 {
   RotationMatrix3::{
-    m00: 1.0, m01: 0.0, m02: 0.0,
-    m10: 0.0, m11: 1.0, m12: 0.0,
-    m20: 0.0, m21: 0.0, m22: 1.0,
+    m00: 1.0,
+    m01: 0.0,
+    m02: 0.0,
+    m10: 0.0,
+    m11: 1.0,
+    m12: 0.0,
+    m20: 0.0,
+    m21: 0.0,
+    m22: 1.0,
   }
 }
 
 ///|
 /// Access element at row,col.
-pub fn RotationMatrix3::get(self : RotationMatrix3, row : Int, col : Int) -> Double {
+pub fn RotationMatrix3::get(
+  self : RotationMatrix3,
+  row : Int,
+  col : Int,
+) -> Double {
   match (row, col) {
     (0, 0) => self.m00
     (0, 1) => self.m01
@@ -229,17 +261,121 @@ pub fn RotationMatrix3::get(self : RotationMatrix3, row : Int, col : Int) -> Dou
 
 ///|
 /// Set element at row,col.
-pub fn RotationMatrix3::set(self : RotationMatrix3, row : Int, col : Int, value : Double) -> RotationMatrix3 {
+pub fn RotationMatrix3::set(
+  self : RotationMatrix3,
+  row : Int,
+  col : Int,
+  value : Double,
+) -> RotationMatrix3 {
   match (row, col) {
-    (0, 0) => RotationMatrix3::{ m00: value, m01: self.m01, m02: self.m02, m10: self.m10, m11: self.m11, m12: self.m12, m20: self.m20, m21: self.m21, m22: self.m22 }
-    (0, 1) => RotationMatrix3::{ m00: self.m00, m01: value, m02: self.m02, m10: self.m10, m11: self.m11, m12: self.m12, m20: self.m20, m21: self.m21, m22: self.m22 }
-    (0, 2) => RotationMatrix3::{ m00: self.m00, m01: self.m01, m02: value, m10: self.m10, m11: self.m11, m12: self.m12, m20: self.m20, m21: self.m21, m22: self.m22 }
-    (1, 0) => RotationMatrix3::{ m00: self.m00, m01: self.m01, m02: self.m02, m10: value, m11: self.m11, m12: self.m12, m20: self.m20, m21: self.m21, m22: self.m22 }
-    (1, 1) => RotationMatrix3::{ m00: self.m00, m01: self.m01, m02: self.m02, m10: self.m10, m11: value, m12: self.m12, m20: self.m20, m21: self.m21, m22: self.m22 }
-    (1, 2) => RotationMatrix3::{ m00: self.m00, m01: self.m01, m02: self.m02, m10: self.m10, m11: self.m11, m12: value, m20: self.m20, m21: self.m21, m22: self.m22 }
-    (2, 0) => RotationMatrix3::{ m00: self.m00, m01: self.m01, m02: self.m02, m10: self.m10, m11: self.m11, m12: self.m12, m20: value, m21: self.m21, m22: self.m22 }
-    (2, 1) => RotationMatrix3::{ m00: self.m00, m01: self.m01, m02: self.m02, m10: self.m10, m11: self.m11, m12: self.m12, m20: self.m20, m21: value, m22: self.m22 }
-    (2, 2) => RotationMatrix3::{ m00: self.m00, m01: self.m01, m02: self.m02, m10: self.m10, m11: self.m11, m12: self.m12, m20: self.m20, m21: self.m21, m22: value }
+    (0, 0) =>
+      RotationMatrix3::{
+        m00: value,
+        m01: self.m01,
+        m02: self.m02,
+        m10: self.m10,
+        m11: self.m11,
+        m12: self.m12,
+        m20: self.m20,
+        m21: self.m21,
+        m22: self.m22,
+      }
+    (0, 1) =>
+      RotationMatrix3::{
+        m00: self.m00,
+        m01: value,
+        m02: self.m02,
+        m10: self.m10,
+        m11: self.m11,
+        m12: self.m12,
+        m20: self.m20,
+        m21: self.m21,
+        m22: self.m22,
+      }
+    (0, 2) =>
+      RotationMatrix3::{
+        m00: self.m00,
+        m01: self.m01,
+        m02: value,
+        m10: self.m10,
+        m11: self.m11,
+        m12: self.m12,
+        m20: self.m20,
+        m21: self.m21,
+        m22: self.m22,
+      }
+    (1, 0) =>
+      RotationMatrix3::{
+        m00: self.m00,
+        m01: self.m01,
+        m02: self.m02,
+        m10: value,
+        m11: self.m11,
+        m12: self.m12,
+        m20: self.m20,
+        m21: self.m21,
+        m22: self.m22,
+      }
+    (1, 1) =>
+      RotationMatrix3::{
+        m00: self.m00,
+        m01: self.m01,
+        m02: self.m02,
+        m10: self.m10,
+        m11: value,
+        m12: self.m12,
+        m20: self.m20,
+        m21: self.m21,
+        m22: self.m22,
+      }
+    (1, 2) =>
+      RotationMatrix3::{
+        m00: self.m00,
+        m01: self.m01,
+        m02: self.m02,
+        m10: self.m10,
+        m11: self.m11,
+        m12: value,
+        m20: self.m20,
+        m21: self.m21,
+        m22: self.m22,
+      }
+    (2, 0) =>
+      RotationMatrix3::{
+        m00: self.m00,
+        m01: self.m01,
+        m02: self.m02,
+        m10: self.m10,
+        m11: self.m11,
+        m12: self.m12,
+        m20: value,
+        m21: self.m21,
+        m22: self.m22,
+      }
+    (2, 1) =>
+      RotationMatrix3::{
+        m00: self.m00,
+        m01: self.m01,
+        m02: self.m02,
+        m10: self.m10,
+        m11: self.m11,
+        m12: self.m12,
+        m20: self.m20,
+        m21: value,
+        m22: self.m22,
+      }
+    (2, 2) =>
+      RotationMatrix3::{
+        m00: self.m00,
+        m01: self.m01,
+        m02: self.m02,
+        m10: self.m10,
+        m11: self.m11,
+        m12: self.m12,
+        m20: self.m20,
+        m21: self.m21,
+        m22: value,
+      }
     _ => self
   }
 }
@@ -248,15 +384,24 @@ pub fn RotationMatrix3::set(self : RotationMatrix3, row : Int, col : Int, value 
 /// Transpose the matrix.
 pub fn RotationMatrix3::transpose(self : RotationMatrix3) -> RotationMatrix3 {
   RotationMatrix3::{
-    m00: self.m00, m01: self.m10, m02: self.m20,
-    m10: self.m01, m11: self.m11, m12: self.m21,
-    m20: self.m02, m21: self.m12, m22: self.m22,
+    m00: self.m00,
+    m01: self.m10,
+    m02: self.m20,
+    m10: self.m01,
+    m11: self.m11,
+    m12: self.m21,
+    m20: self.m02,
+    m21: self.m12,
+    m22: self.m22,
   }
 }
 
 ///|
 /// Multiply matrix by vector (matrix-vector product).
-pub fn RotationMatrix3::transform(self : RotationMatrix3, v : Vector3) -> Vector3 {
+pub fn RotationMatrix3::transform(
+  self : RotationMatrix3,
+  v : Vector3,
+) -> Vector3 {
   let new_x = self.m00 * v.x + self.m01 * v.y + self.m02 * v.z
   let new_y = self.m10 * v.x + self.m11 * v.y + self.m12 * v.z
   let new_z = self.m20 * v.x + self.m21 * v.y + self.m22 * v.z
@@ -265,7 +410,10 @@ pub fn RotationMatrix3::transform(self : RotationMatrix3, v : Vector3) -> Vector
 
 ///|
 /// Multiply two rotation matrices (matrix multiplication).
-pub fn RotationMatrix3::multiply(self : RotationMatrix3, other : RotationMatrix3) -> RotationMatrix3 {
+pub fn RotationMatrix3::multiply(
+  self : RotationMatrix3,
+  other : RotationMatrix3,
+) -> RotationMatrix3 {
   RotationMatrix3::{
     m00: self.m00 * other.m00 + self.m01 * other.m10 + self.m02 * other.m20,
     m01: self.m00 * other.m01 + self.m01 * other.m11 + self.m02 * other.m21,
@@ -285,9 +433,15 @@ pub fn RotationMatrix3::rotation_x(angle : Double) -> RotationMatrix3 {
   let c = @math.cos(angle)
   let s = @math.sin(angle)
   RotationMatrix3::new(
-    m00=1.0, m01=0.0, m02=0.0,
-    m10=0.0, m11=c, m12=-s,
-    m20=0.0, m21=s, m22=c
+    m00=1.0,
+    m01=0.0,
+    m02=0.0,
+    m10=0.0,
+    m11=c,
+    m12=-s,
+    m20=0.0,
+    m21=s,
+    m22=c,
   )
 }
 
@@ -297,9 +451,15 @@ pub fn RotationMatrix3::rotation_y(angle : Double) -> RotationMatrix3 {
   let c = @math.cos(angle)
   let s = @math.sin(angle)
   RotationMatrix3::new(
-    m00=c, m01=0.0, m02=s,
-    m10=0.0, m11=1.0, m12=0.0,
-    m20=-s, m21=0.0, m22=c
+    m00=c,
+    m01=0.0,
+    m02=s,
+    m10=0.0,
+    m11=1.0,
+    m12=0.0,
+    m20=-s,
+    m21=0.0,
+    m22=c,
   )
 }
 
@@ -309,16 +469,25 @@ pub fn RotationMatrix3::rotation_z(angle : Double) -> RotationMatrix3 {
   let c = @math.cos(angle)
   let s = @math.sin(angle)
   RotationMatrix3::new(
-    m00=c, m01=-s, m02=0.0,
-    m10=s, m11=c, m12=0.0,
-    m20=0.0, m21=0.0, m22=1.0
+    m00=c,
+    m01=-s,
+    m02=0.0,
+    m10=s,
+    m11=c,
+    m12=0.0,
+    m20=0.0,
+    m21=0.0,
+    m22=1.0,
   )
 }
 
 ///|
 /// Create a rotation matrix around an arbitrary axis by angle (radians).
 /// Uses Rodrigues' rotation formula.
-pub fn RotationMatrix3::rotation_axis_angle(axis : Vector3, angle : Double) -> RotationMatrix3 {
+pub fn RotationMatrix3::rotation_axis_angle(
+  axis : Vector3,
+  angle : Double,
+) -> RotationMatrix3 {
   let u = axis.normalize()
   let c = @math.cos(angle)
   let s = @math.sin(angle)
@@ -334,15 +503,15 @@ pub fn RotationMatrix3::rotation_axis_angle(axis : Vector3, angle : Double) -> R
   let m21 = u.z * u.y * t + u.x * s
   let m22 = c + u.z * u.z * t
 
-  RotationMatrix3::new(m00=m00, m01=m01, m02=m02, m10=m10, m11=m11, m12=m12, m20=m20, m21=m21, m22=m22)
+  RotationMatrix3::new(m00~, m01~, m02~, m10~, m11~, m12~, m20~, m21~, m22~)
 }
 
 ///|
 /// Compute the determinant of the 3x3 matrix.
 pub fn RotationMatrix3::determinant(self : RotationMatrix3) -> Double {
   self.m00 * (self.m11 * self.m22 - self.m12 * self.m21) -
-    self.m01 * (self.m10 * self.m22 - self.m12 * self.m20) +
-    self.m02 * (self.m10 * self.m21 - self.m11 * self.m20)
+  self.m01 * (self.m10 * self.m22 - self.m12 * self.m20) +
+  self.m02 * (self.m10 * self.m21 - self.m11 * self.m20)
 }
 
 ///|
@@ -358,22 +527,43 @@ pub fn RotationMatrix3::inverse(self : RotationMatrix3) -> RotationMatrix3 {
 
 ///|
 /// Check if matrix is a valid rotation matrix (orthogonal with det ~ 1).
-pub fn RotationMatrix3::is_rotation(self : RotationMatrix3, tol? : Double = 1.0e-6) -> Bool {
+pub fn RotationMatrix3::is_rotation(
+  self : RotationMatrix3,
+  tol? : Double = 1.0e-6,
+) -> Bool {
   let det = self.determinant()
   if (det.abs() - 1.0).abs() > tol {
     return false
   }
   let rt = self.transpose()
   let product = self.multiply(rt)
-  if (product.m00 - 1.0).abs() > tol { return false }
-  if (product.m01 - 0.0).abs() > tol { return false }
-  if (product.m02 - 0.0).abs() > tol { return false }
-  if (product.m10 - 0.0).abs() > tol { return false }
-  if (product.m11 - 1.0).abs() > tol { return false }
-  if (product.m12 - 0.0).abs() > tol { return false }
-  if (product.m20 - 0.0).abs() > tol { return false }
-  if (product.m21 - 0.0).abs() > tol { return false }
-  if (product.m22 - 1.0).abs() > tol { return false }
+  if (product.m00 - 1.0).abs() > tol {
+    return false
+  }
+  if (product.m01 - 0.0).abs() > tol {
+    return false
+  }
+  if (product.m02 - 0.0).abs() > tol {
+    return false
+  }
+  if (product.m10 - 0.0).abs() > tol {
+    return false
+  }
+  if (product.m11 - 1.0).abs() > tol {
+    return false
+  }
+  if (product.m12 - 0.0).abs() > tol {
+    return false
+  }
+  if (product.m20 - 0.0).abs() > tol {
+    return false
+  }
+  if (product.m21 - 0.0).abs() > tol {
+    return false
+  }
+  if (product.m22 - 1.0).abs() > tol {
+    return false
+  }
   true
 }
 
@@ -399,7 +589,11 @@ pub fn vector_centroid(vectors : Array[Vector3]) -> Vector3 {
 /// Compute the RMSD between two sets of paired vectors.
 /// Both arrays must have the same length.
 pub fn vector_rmsd(set_a : Array[Vector3], set_b : Array[Vector3]) -> Double {
-  let n = if set_a.length() < set_b.length() { set_a.length() } else { set_b.length() }
+  let n = if set_a.length() < set_b.length() {
+    set_a.length()
+  } else {
+    set_b.length()
+  }
   if n == 0 {
     return 0.0
   }
@@ -416,8 +610,15 @@ pub fn vector_rmsd(set_a : Array[Vector3], set_b : Array[Vector3]) -> Double {
 ///|
 /// Compute the superposition RMSD after optimal rotation.
 /// Uses the Kabsch algorithm for optimal superposition.
-pub fn vector_superposition_rmsd(set_a : Array[Vector3], set_b : Array[Vector3]) -> Double {
-  let n = if set_a.length() < set_b.length() { set_a.length() } else { set_b.length() }
+pub fn vector_superposition_rmsd(
+  set_a : Array[Vector3],
+  set_b : Array[Vector3],
+) -> Double {
+  let n = if set_a.length() < set_b.length() {
+    set_a.length()
+  } else {
+    set_b.length()
+  }
   if n < 2 {
     return vector_rmsd(set_a, set_b)
   }
@@ -446,16 +647,32 @@ pub fn vector_superposition_rmsd(set_a : Array[Vector3], set_b : Array[Vector3])
   vector_rmsd(rotated_a, centered_b)
 }
 
-pub fn test_array_full(set_a : Array[Vector3], set_b : Array[Vector3]) -> RotationMatrix3 {
-  let n = if set_a.length() < set_b.length() { set_a.length() } else { set_b.length() }
+///|
+pub fn test_array_full(
+  set_a : Array[Vector3],
+  set_b : Array[Vector3],
+) -> RotationMatrix3 {
+  let n = if set_a.length() < set_b.length() {
+    set_a.length()
+  } else {
+    set_b.length()
+  }
   if n < 1 {
     return RotationMatrix3::identity()
   }
   RotationMatrix3::identity()
 }
 
-pub fn compute_optimal_rotation(set_a : Array[Vector3], set_b : Array[Vector3]) -> RotationMatrix3 {
-  let n = if set_a.length() < set_b.length() { set_a.length() } else { set_b.length() }
+///|
+pub fn compute_optimal_rotation(
+  set_a : Array[Vector3],
+  set_b : Array[Vector3],
+) -> RotationMatrix3 {
+  let n = if set_a.length() < set_b.length() {
+    set_a.length()
+  } else {
+    set_b.length()
+  }
   if n < 1 {
     return RotationMatrix3::identity()
   }
@@ -506,11 +723,15 @@ pub fn compute_optimal_rotation(set_a : Array[Vector3], set_b : Array[Vector3]) 
   let ht7 = h5
   let ht8 = h8
 
-  let norm_ht = (
-    ht0 * ht0 + ht1 * ht1 + ht2 * ht2 +
-    ht3 * ht3 + ht4 * ht4 + ht5 * ht5 +
-    ht6 * ht6 + ht7 * ht7 + ht8 * ht8
-  ).sqrt()
+  let norm_ht = (ht0 * ht0 +
+  ht1 * ht1 +
+  ht2 * ht2 +
+  ht3 * ht3 +
+  ht4 * ht4 +
+  ht5 * ht5 +
+  ht6 * ht6 +
+  ht7 * ht7 +
+  ht8 * ht8).sqrt()
 
   if norm_ht < 1.0e-15 {
     return RotationMatrix3::identity()
@@ -518,17 +739,30 @@ pub fn compute_optimal_rotation(set_a : Array[Vector3], set_b : Array[Vector3]) 
 
   let s = scale / norm_ht
   RotationMatrix3::new(
-    m00=ht0 * s, m01=ht1 * s, m02=ht2 * s,
-    m10=ht3 * s, m11=ht4 * s, m12=ht5 * s,
-    m20=ht6 * s, m21=ht7 * s, m22=ht8 * s
+    m00=ht0 * s,
+    m01=ht1 * s,
+    m02=ht2 * s,
+    m10=ht3 * s,
+    m11=ht4 * s,
+    m12=ht5 * s,
+    m20=ht6 * s,
+    m21=ht7 * s,
+    m22=ht8 * s,
   )
 }
 
 ///|
 /// Compute the optimal transformation (rotation + translation) to superimpose set A onto set B.
 /// Returns a tuple of (rotation_matrix, translation_vector).
-pub fn vector_superposition_transform(set_a : Array[Vector3], set_b : Array[Vector3]) -> (RotationMatrix3, Vector3) {
-  let n = if set_a.length() < set_b.length() { set_a.length() } else { set_b.length() }
+pub fn vector_superposition_transform(
+  set_a : Array[Vector3],
+  set_b : Array[Vector3],
+) -> (RotationMatrix3, Vector3) {
+  let n = if set_a.length() < set_b.length() {
+    set_a.length()
+  } else {
+    set_b.length()
+  }
   if n < 2 {
     return (RotationMatrix3::identity(), Vector3::zero())
   }
@@ -554,7 +788,11 @@ pub fn vector_superposition_transform(set_a : Array[Vector3], set_b : Array[Vect
 
 ///|
 /// Apply a rigid-body transformation (rotation + translation) to a set of vectors.
-pub fn vector_apply_transform(vectors : Array[Vector3], rotation : RotationMatrix3, translation : Vector3) -> Array[Vector3] {
+pub fn vector_apply_transform(
+  vectors : Array[Vector3],
+  rotation : RotationMatrix3,
+  translation : Vector3,
+) -> Array[Vector3] {
   let result : Array[Vector3] = Array::new()
   for v in vectors {
     let rotated = rotation.transform(v)
@@ -565,7 +803,12 @@ pub fn vector_apply_transform(vectors : Array[Vector3], rotation : RotationMatri
 
 ///|
 /// Compute the dihedral angle defined by four points (in radians).
-pub fn vector_dihedral_angle(p1 : Vector3, p2 : Vector3, p3 : Vector3, p4 : Vector3) -> Double {
+pub fn vector_dihedral_angle(
+  p1 : Vector3,
+  p2 : Vector3,
+  p3 : Vector3,
+  p4 : Vector3,
+) -> Double {
   let b1 = p2.sub(p1)
   let b2 = p3.sub(p2)
   let b3 = p4.sub(p3)
@@ -587,7 +830,12 @@ pub fn vector_dihedral_angle(p1 : Vector3, p2 : Vector3, p3 : Vector3, p4 : Vect
 
 ///|
 /// Compute the dihedral angle in degrees.
-pub fn vector_dihedral_angle_degrees(p1 : Vector3, p2 : Vector3, p3 : Vector3, p4 : Vector3) -> Double {
+pub fn vector_dihedral_angle_degrees(
+  p1 : Vector3,
+  p2 : Vector3,
+  p3 : Vector3,
+  p4 : Vector3,
+) -> Double {
   let rad = vector_dihedral_angle(p1, p2, p3, p4)
   rad * 180.0 / @math.PI
 }

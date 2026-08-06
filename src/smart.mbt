@@ -36,7 +36,7 @@ pub fn SmartDomain::new(
   domain_name : String,
   start : Int,
   end : Int,
-  evalue? : Double = 0.0
+  evalue? : Double = 0.0,
 ) -> SmartDomain {
   SmartDomain::{
     domain_id,
@@ -68,7 +68,7 @@ pub struct SmartResult {
 /// Construct a SmartResult.
 pub fn SmartResult::new(
   sequence_id : String,
-  sequence_length? : Int = 0
+  sequence_length? : Int = 0,
 ) -> SmartResult {
   SmartResult::{
     sequence_id,
@@ -171,7 +171,10 @@ fn smart_parse_domain_line(cols : Array[String]) -> SmartDomain {
 
 ///|
 /// Find all domains matching a given domain name (substring match).
-pub fn smart_find_domains(result : SmartResult, name : String) -> Array[SmartDomain] {
+pub fn smart_find_domains(
+  result : SmartResult,
+  name : String,
+) -> Array[SmartDomain] {
   let matches : Array[SmartDomain] = Array::new()
   let mut i = 0
   while i < result.domains.length() {
@@ -192,7 +195,11 @@ pub fn smart_find_domains(result : SmartResult, name : String) -> Array[SmartDom
 
 ///|
 /// Find all domains overlapping with a given region [start, end].
-pub fn smart_find_overlapping_domains(result : SmartResult, start : Int, end : Int) -> Array[SmartDomain] {
+pub fn smart_find_overlapping_domains(
+  result : SmartResult,
+  start : Int,
+  end : Int,
+) -> Array[SmartDomain] {
   let matches : Array[SmartDomain] = Array::new()
   let mut i = 0
   while i < result.domains.length() {
@@ -220,11 +227,10 @@ pub fn smart_best_domain(result : SmartResult) -> SmartDomain? {
   let mut i = 0
   while i < result.domains.length() {
     match best {
-      Some(cur) => {
+      Some(cur) =>
         if result.domains[i].evalue < cur.evalue {
           best = Some(result.domains[i])
         }
-      }
       None => best = Some(result.domains[i])
     }
     i = i + 1
@@ -232,11 +238,10 @@ pub fn smart_best_domain(result : SmartResult) -> SmartDomain? {
   let mut j = 0
   while j < result.pfam_domains.length() {
     match best {
-      Some(cur) => {
+      Some(cur) =>
         if result.pfam_domains[j].evalue < cur.evalue {
           best = Some(result.pfam_domains[j])
         }
-      }
       None => best = Some(result.pfam_domains[j])
     }
     j = j + 1
@@ -252,7 +257,10 @@ pub fn smart_total_domains(result : SmartResult) -> Int {
 
 ///|
 /// Filter domains by E-value threshold.
-pub fn smart_filter_evalue(result : SmartResult, max_evalue : Double) -> Array[SmartDomain] {
+pub fn smart_filter_evalue(
+  result : SmartResult,
+  max_evalue : Double,
+) -> Array[SmartDomain] {
   let filtered : Array[SmartDomain] = Array::new()
   let mut i = 0
   while i < result.domains.length() {
@@ -275,9 +283,7 @@ pub fn smart_filter_evalue(result : SmartResult, max_evalue : Double) -> Array[S
 /// Generate a sample SMART output string for testing.
 pub fn smart_sample() -> String {
   let lines = [
-    "#sequence_id\tProtein123",
-    "#sequence_length\t350",
-    "SM00001\tABC_membrane\tSMART\t10\t100\t1.5e-30\tMFWVLVVVGGVLALAVLVLAVL\tABC transporter membrane domain\tPF00001\tIPR00001\tGO:0005215;GO:0016020",
+    "#sequence_id\tProtein123", "#sequence_length\t350", "SM00001\tABC_membrane\tSMART\t10\t100\t1.5e-30\tMFWVLVVVGGVLALAVLVLAVL\tABC transporter membrane domain\tPF00001\tIPR00001\tGO:0005215;GO:0016020",
     "SM00002\tABC_subdomain\tSMART\t110\t250\t2.3e-25\tGCGKSTEQRLLLDELPGRRL\tABC transporter nucleotide binding domain\tPF00002\tIPR00002\tGO:0005524",
     "SM00003\tABC_membrane\tSMART\t260\t340\t5.1e-28\tVVLLVAVVGCGVALALVAVLL\tABC transporter membrane domain\tPF00001\tIPR00001\tGO:0005215;GO:0016020",
     "PF00001\tABC_membrane\tPfam\t10\t100\t1.5e-30\tMFWVLVVVGGVLALAVLVLAVL\tABC transporter membrane domain\tPF00001\tIPR00001\tGO:0005215;GO:0016020",
@@ -305,12 +311,29 @@ pub fn smart_summary(result : SmartResult) -> String {
   out = out + "Length: " + result.sequence_length.to_string() + "\n"
   out = out + "SMART domains: " + result.domains.length().to_string() + "\n"
   out = out + "Pfam domains: " + result.pfam_domains.length().to_string() + "\n"
-  out = out + "Signal peptides: " + result.signal_peptides.length().to_string() + "\n"
-  out = out + "Transmembrane: " + result.transmembrane.length().to_string() + "\n"
+  out = out +
+    "Signal peptides: " +
+    result.signal_peptides.length().to_string() +
+    "\n"
+  out = out +
+    "Transmembrane: " +
+    result.transmembrane.length().to_string() +
+    "\n"
   let mut i = 0
   while i < result.domains.length() {
     let d = result.domains[i]
-    out = out + "  " + d.domain_id + "\t" + d.domain_name + "\t" + d.start.to_string() + "-" + d.end.to_string() + "\tE=" + d.evalue.to_string() + "\n"
+    out = out +
+      "  " +
+      d.domain_id +
+      "\t" +
+      d.domain_name +
+      "\t" +
+      d.start.to_string() +
+      "-" +
+      d.end.to_string() +
+      "\tE=" +
+      d.evalue.to_string() +
+      "\n"
     i = i + 1
   }
   out
@@ -332,7 +355,9 @@ fn smart_split_lines(content : String) -> Array[String] {
       if start < i {
         lines.push(content[start:i].trim().to_string())
       }
-      if ch == "\r" && i + 1 < content.length() && content[i + 1:i + 2].to_owned() == "\n" {
+      if ch == "\r" &&
+        i + 1 < content.length() &&
+        content[i + 1:i + 2].to_owned() == "\n" {
         i = i + 1
       }
       start = i + 1
@@ -366,7 +391,9 @@ fn smart_split_tab(line : String) -> Array[String] {
 /// Split a string by semicolon delimiter.
 fn smart_split_semicolon(s : String) -> Array[String] {
   let items : Array[String] = Array::new()
-  if s.length() == 0 { return items }
+  if s.length() == 0 {
+    return items
+  }
   let mut start = 0
   let mut i = 0
   while i < s.length() {
@@ -407,13 +434,17 @@ fn smart_extract_value(line : String) -> String {
 fn smart_parse_int(s : String) -> Int {
   let sv = s.to_string().trim()
   let n = sv.length()
-  if n == 0 { return 0 }
+  if n == 0 {
+    return 0
+  }
   let mut result = 0
   let mut i = 0
   let zero = '0'.to_int()
   while i < n {
     let c = sv.unsafe_get(i).to_int()
-    if c < zero || c > zero + 9 { break }
+    if c < zero || c > zero + 9 {
+      break
+    }
     result = result * 10 + (c - zero)
     i = i + 1
   }
@@ -424,7 +455,9 @@ fn smart_parse_int(s : String) -> Int {
 /// Parse a double from a string, returning 0.0 on failure.
 fn smart_parse_double(s : String) -> Double {
   let sv = s.to_string().trim()
-  if sv.length() == 0 { return 0.0 }
+  if sv.length() == 0 {
+    return 0.0
+  }
   let n = sv.length()
   let mut result = 0.0
   let mut decimal = 0
@@ -437,7 +470,9 @@ fn smart_parse_double(s : String) -> Double {
   }
   while i < n {
     let c = sv.unsafe_get(i).to_int()
-    if c < zero || c > zero + 9 { break }
+    if c < zero || c > zero + 9 {
+      break
+    }
     result = result * 10.0 + (c - zero).to_double()
     i = i + 1
   }
@@ -445,7 +480,9 @@ fn smart_parse_double(s : String) -> Double {
     i = i + 1
     while i < n {
       let c = sv.unsafe_get(i).to_int()
-      if c < zero || c > zero + 9 { break }
+      if c < zero || c > zero + 9 {
+        break
+      }
       result = result * 10.0 + (c - zero).to_double()
       decimal = decimal + 1
       i = i + 1
@@ -468,7 +505,9 @@ fn smart_parse_double(s : String) -> Double {
     }
     while i < n {
       let c = sv.unsafe_get(i).to_int()
-      if c < zero || c > zero + 9 { break }
+      if c < zero || c > zero + 9 {
+        break
+      }
       exponent = exponent * 10 + (c - zero)
       i = i + 1
     }

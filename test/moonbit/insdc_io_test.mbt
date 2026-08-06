@@ -4,9 +4,7 @@
 ///|
 test "insdc_parse_feature_table_cds" {
   let lines = [
-    "     CDS             1..100",
-    "                     /gene=\"testGene\"",
-    "                     /product=\"test protein\"",
+    "     CDS             1..100", "                     /gene=\"testGene\"", "                     /product=\"test protein\"",
     "                     /translation=\"MKVL\"",
   ]
   let features = @src.parse_insdc_feature_table(lines)
@@ -24,9 +22,7 @@ test "insdc_parse_feature_table_cds" {
 ///|
 test "insdc_parse_feature_table_gene" {
   let lines = [
-    "     gene            1..100",
-    "                     /gene=\"testGene\"",
-    "                     /locus_tag=\"TEST001\"",
+    "     gene            1..100", "                     /gene=\"testGene\"", "                     /locus_tag=\"TEST001\"",
   ]
   let features = @src.parse_insdc_feature_table(lines)
   assert_eq(features.length(), 1)
@@ -47,9 +43,7 @@ test "insdc_parse_feature_table_empty" {
 ///|
 test "insdc_parse_feature_table_multiline_qualifier" {
   let lines = [
-    "     CDS             1..100",
-    "                     /translation=\"MKVL",
-    "                     KLMN\"",
+    "     CDS             1..100", "                     /translation=\"MKVL", "                     KLMN\"",
   ]
   let features = @src.parse_insdc_feature_table(lines)
   assert_eq(features.length(), 1)
@@ -60,11 +54,8 @@ test "insdc_parse_feature_table_multiline_qualifier" {
 ///|
 test "insdc_parse_feature_table_multiple_features" {
   let lines = [
-    "     CDS             1..100",
-    "                     /gene=\"geneA\"",
-    "     gene            1..100",
-    "                     /gene=\"geneA\"",
-    "                     /locus_tag=\"LA001\"",
+    "     CDS             1..100", "                     /gene=\"geneA\"", "     gene            1..100",
+    "                     /gene=\"geneA\"", "                     /locus_tag=\"LA001\"",
   ]
   let features = @src.parse_insdc_feature_table(lines)
   assert_eq(features.length(), 2)
@@ -103,8 +94,7 @@ test "insdc_parse_location_with_whitespace" {
 ///|
 test "insdc_extract_feature_qualifier_missing" {
   let lines = [
-    "     CDS             1..100",
-    "                     /gene=\"testGene\"",
+    "     CDS             1..100", "                     /gene=\"testGene\"",
   ]
   let features = @src.parse_insdc_feature_table(lines)
   let missing = @src.extract_feature_qualifier(features[0], "product")
@@ -114,8 +104,7 @@ test "insdc_extract_feature_qualifier_missing" {
 ///|
 test "insdc_extract_translation_no_cds" {
   let lines = [
-    "     gene            1..100",
-    "                     /gene=\"testGene\"",
+    "     gene            1..100", "                     /gene=\"testGene\"",
   ]
   let features = @src.parse_insdc_feature_table(lines)
   let trans = @src.extract_translation(features[0])

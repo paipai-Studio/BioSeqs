@@ -734,7 +734,10 @@ pub fn follow(gr1 : GRanges, gr2 : GRanges) -> Array[Int] {
 ///|
 /// Calculate coverage of genomic ranges.
 /// Returns a map of seqname to coverage array.
-pub fn coverage_granges(gr : GRanges, seqlengths : Map[String, Int]) -> Map[String, Array[Int]] {
+pub fn coverage_granges(
+  gr : GRanges,
+  seqlengths : Map[String, Int],
+) -> Map[String, Array[Int]] {
   let result : Map[String, Array[Int]] = Map([], capacity=10)
 
   let seqnames = gr.seqnames
@@ -772,7 +775,10 @@ pub fn coverage_granges(gr : GRanges, seqlengths : Map[String, Int]) -> Map[Stri
 
 ///|
 /// Calculate coverage as a GRanges object (run-length encoding).
-pub fn coverage_as_granges(gr : GRanges, seqlengths : Map[String, Int]) -> GRanges {
+pub fn coverage_as_granges(
+  gr : GRanges,
+  seqlengths : Map[String, Int],
+) -> GRanges {
   let result_seqnames : Array[String] = Array::new()
   let result_starts : Array[Int] = Array::new()
   let result_ends : Array[Int] = Array::new()
@@ -854,7 +860,11 @@ pub fn distance_to_nearest(gr : GRanges) -> Array[Int] {
       j = j + 1
     }
 
-    distances[i] = if min_dist < @double.infinity { min_dist.to_int() } else { -1 }
+    distances[i] = if min_dist < @double.infinity {
+      min_dist.to_int()
+    } else {
+      -1
+    }
     i = i + 1
   }
 
@@ -952,6 +962,7 @@ pub fn granges_sort(gr : GRanges) -> GRanges {
   }
 }
 
+///|
 fn compare_granges_pos(gr : GRanges, idx1 : Int, idx2 : Int) -> Int {
   if gr.seqnames[idx1] < gr.seqnames[idx2] {
     -1
@@ -966,9 +977,13 @@ fn compare_granges_pos(gr : GRanges, idx1 : Int, idx2 : Int) -> Int {
   }
 }
 
-///| Test precede function
+///|
+/// Test precede function
 test "precede" {
-  let gr1 = granges(["chr1", "chr1"], [(10, 20), (30, 40)], [strand_plus(), strand_plus()])
+  let gr1 = granges(["chr1", "chr1"], [(10, 20), (30, 40)], [
+    strand_plus(),
+    strand_plus(),
+  ])
   let gr2 = granges(["chr1"], [(5, 8)], [strand_plus()])
   let result = precede(gr1, gr2)
   assert_eq(result.length(), 2)
@@ -976,9 +991,13 @@ test "precede" {
   assert_eq(result[0], 0)
 }
 
-///| Test follow function
+///|
+/// Test follow function
 test "follow" {
-  let gr1 = granges(["chr1", "chr1"], [(10, 20), (30, 40)], [strand_plus(), strand_plus()])
+  let gr1 = granges(["chr1", "chr1"], [(10, 20), (30, 40)], [
+    strand_plus(),
+    strand_plus(),
+  ])
   let gr2 = granges(["chr1"], [(50, 60)], [strand_plus()])
   let result = follow(gr1, gr2)
   assert_eq(result.length(), 2)
@@ -986,9 +1005,13 @@ test "follow" {
   assert_eq(result[1], 0)
 }
 
-///| Test coverage_granges function
+///|
+/// Test coverage_granges function
 test "coverage_granges" {
-  let gr = granges(["chr1", "chr1"], [(1, 5), (3, 8)], [strand_plus(), strand_plus()])
+  let gr = granges(["chr1", "chr1"], [(1, 5), (3, 8)], [
+    strand_plus(),
+    strand_plus(),
+  ])
   let seqlengths : Map[String, Int] = Map([], capacity=1)
   seqlengths["chr1"] = 10
   let result = coverage_granges(gr, seqlengths)
@@ -1003,7 +1026,8 @@ test "coverage_granges" {
   assert_eq(cov[5], 1)
 }
 
-///| Test distance_to_nearest function
+///|
+/// Test distance_to_nearest function
 test "distance_to_nearest" {
   let gr = granges(["chr1", "chr1", "chr1"], [(1, 5), (15, 20), (30, 35)], [
     strand_plus(),
@@ -1016,9 +1040,13 @@ test "distance_to_nearest" {
   assert_eq(result[0], 9)
 }
 
-///| Test coverage_as_granges function
+///|
+/// Test coverage_as_granges function
 test "coverage_as_granges" {
-  let gr = granges(["chr1", "chr1"], [(1, 5), (3, 8)], [strand_plus(), strand_plus()])
+  let gr = granges(["chr1", "chr1"], [(1, 5), (3, 8)], [
+    strand_plus(),
+    strand_plus(),
+  ])
   let seqlengths : Map[String, Int] = Map([], capacity=1)
   seqlengths["chr1"] = 10
   let result = coverage_as_granges(gr, seqlengths)

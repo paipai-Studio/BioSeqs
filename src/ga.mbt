@@ -121,7 +121,11 @@ pub fn GAPopulation::new(individuals~ : Array[GAIndividual]) -> GAPopulation {
     }
     sum = sum + ind.fitness
   }
-  let avg = if individuals.length() > 0 { sum / individuals.length().to_double() } else { 0.0 }
+  let avg = if individuals.length() > 0 {
+    sum / individuals.length().to_double()
+  } else {
+    0.0
+  }
   GAPopulation::{
     individuals,
     generation: 0,
@@ -196,8 +200,8 @@ pub fn ga_random_sequence(length : Int, alphabet : String) -> String {
   let mut i = 0
   while i < length {
     let idx = (ga_pseudo_random() * n.to_double()).to_int()
-    let safe_idx = if idx >= n { n - 1 } else { if idx < 0 { 0 } else { idx } }
-    result = result + alphabet[safe_idx : safe_idx + 1].to_string()
+    let safe_idx = if idx >= n { n - 1 } else if idx < 0 { 0 } else { idx }
+    result = result + alphabet[safe_idx:safe_idx + 1].to_string()
     i = i + 1
   }
   result
@@ -249,14 +253,18 @@ pub fn ga_rand_int(max : Int) -> Int {
 pub fn ga_fitness_match(target : String) -> (GAIndividual) -> Double {
   fn(individual : GAIndividual) -> Double {
     let seq = individual.sequence
-    let n = if seq.length() < target.length() { seq.length() } else { target.length() }
+    let n = if seq.length() < target.length() {
+      seq.length()
+    } else {
+      target.length()
+    }
     if n == 0 {
       return 0.0
     }
     let mut matches = 0
     let mut i = 0
     while i < n {
-      if seq[i : i + 1].to_string() == target[i : i + 1].to_string() {
+      if seq[i:i + 1].to_string() == target[i:i + 1].to_string() {
         matches = matches + 1
       }
       i = i + 1
@@ -278,14 +286,18 @@ pub fn ga_fitness_gc_content(target_gc : Double) -> (GAIndividual) -> Double {
     let mut gc_count = 0
     let mut i = 0
     while i < n {
-      let base = seq[i : i + 1].to_string()
+      let base = seq[i:i + 1].to_string()
       if base == "G" || base == "C" {
         gc_count = gc_count + 1
       }
       i = i + 1
     }
     let gc_content = gc_count.to_double() / n.to_double()
-    let diff = if gc_content - target_gc < 0.0 { target_gc - gc_content } else { gc_content - target_gc }
+    let diff = if gc_content - target_gc < 0.0 {
+      target_gc - gc_content
+    } else {
+      gc_content - target_gc
+    }
     1.0 - diff
   }
 }
@@ -303,12 +315,14 @@ pub fn ga_evaluate_population(
   let result : Array[GAIndividual] = Array::new()
   for ind in individuals {
     let fit = fitness_fn(ind)
-    result.push(GAIndividual::new(
-      sequence=ind.sequence,
-      fitness=fit,
-      generation=ind.generation,
-      id=ind.id,
-    ))
+    result.push(
+      GAIndividual::new(
+        sequence=ind.sequence,
+        fitness=fit,
+        generation=ind.generation,
+        id=ind.id,
+      ),
+    )
   }
   result
 }
@@ -406,20 +420,38 @@ pub fn ga_single_point_crossover(
 ) -> (GAIndividual, GAIndividual) {
   let seq1 = parent1.sequence
   let seq2 = parent2.sequence
-  let n = if seq1.length() < seq2.length() { seq1.length() } else { seq2.length() }
+  let n = if seq1.length() < seq2.length() {
+    seq1.length()
+  } else {
+    seq2.length()
+  }
 
   if n < 2 {
     return (parent1, parent2)
   }
 
-  let actual_point = if point > 0 && point < n { point } else { 1 + ga_rand_int(n - 1) }
+  let actual_point = if point > 0 && point < n {
+    point
+  } else {
+    1 + ga_rand_int(n - 1)
+  }
 
-  let child1_seq = (seq1[0 : actual_point] + seq2[actual_point : n]).to_string()
-  let child2_seq = (seq2[0 : actual_point] + seq1[actual_point : n]).to_string()
+  let child1_seq = (seq1[0:actual_point] + seq2[actual_point:n]).to_string()
+  let child2_seq = (seq2[0:actual_point] + seq1[actual_point:n]).to_string()
 
   (
-    GAIndividual::new(sequence=child1_seq, fitness=0.0, generation=parent1.generation + 1, id=0),
-    GAIndividual::new(sequence=child2_seq, fitness=0.0, generation=parent1.generation + 1, id=0),
+    GAIndividual::new(
+      sequence=child1_seq,
+      fitness=0.0,
+      generation=parent1.generation + 1,
+      id=0,
+    ),
+    GAIndividual::new(
+      sequence=child2_seq,
+      fitness=0.0,
+      generation=parent1.generation + 1,
+      id=0,
+    ),
   )
 }
 
@@ -431,7 +463,11 @@ pub fn ga_two_point_crossover(
 ) -> (GAIndividual, GAIndividual) {
   let seq1 = parent1.sequence
   let seq2 = parent2.sequence
-  let n = if seq1.length() < seq2.length() { seq1.length() } else { seq2.length() }
+  let n = if seq1.length() < seq2.length() {
+    seq1.length()
+  } else {
+    seq2.length()
+  }
 
   if n < 3 {
     return ga_single_point_crossover(parent1, parent2)
@@ -440,12 +476,22 @@ pub fn ga_two_point_crossover(
   let p1 = ga_rand_int(n - 1) + 1
   let p2 = p1 + 1 + ga_rand_int(n - p1 - 1)
 
-  let child1_seq = (seq1[0 : p1] + seq2[p1 : p2] + seq1[p2 : n]).to_string()
-  let child2_seq = (seq2[0 : p1] + seq1[p1 : p2] + seq2[p2 : n]).to_string()
+  let child1_seq = (seq1[0:p1] + seq2[p1:p2] + seq1[p2:n]).to_string()
+  let child2_seq = (seq2[0:p1] + seq1[p1:p2] + seq2[p2:n]).to_string()
 
   (
-    GAIndividual::new(sequence=child1_seq, fitness=0.0, generation=parent1.generation + 1, id=0),
-    GAIndividual::new(sequence=child2_seq, fitness=0.0, generation=parent1.generation + 1, id=0),
+    GAIndividual::new(
+      sequence=child1_seq,
+      fitness=0.0,
+      generation=parent1.generation + 1,
+      id=0,
+    ),
+    GAIndividual::new(
+      sequence=child2_seq,
+      fitness=0.0,
+      generation=parent1.generation + 1,
+      id=0,
+    ),
   )
 }
 
@@ -458,7 +504,11 @@ pub fn ga_uniform_crossover(
 ) -> (GAIndividual, GAIndividual) {
   let seq1 = parent1.sequence
   let seq2 = parent2.sequence
-  let n = if seq1.length() < seq2.length() { seq1.length() } else { seq2.length() }
+  let n = if seq1.length() < seq2.length() {
+    seq1.length()
+  } else {
+    seq2.length()
+  }
 
   let mut child1_seq = ""
   let mut child2_seq = ""
@@ -466,18 +516,28 @@ pub fn ga_uniform_crossover(
   let mut i = 0
   while i < n {
     if ga_pseudo_random() < swap_prob {
-      child1_seq = child1_seq + seq2[i : i + 1].to_string()
-      child2_seq = child2_seq + seq1[i : i + 1].to_string()
+      child1_seq = child1_seq + seq2[i:i + 1].to_string()
+      child2_seq = child2_seq + seq1[i:i + 1].to_string()
     } else {
-      child1_seq = child1_seq + seq1[i : i + 1].to_string()
-      child2_seq = child2_seq + seq2[i : i + 1].to_string()
+      child1_seq = child1_seq + seq1[i:i + 1].to_string()
+      child2_seq = child2_seq + seq2[i:i + 1].to_string()
     }
     i = i + 1
   }
 
   (
-    GAIndividual::new(sequence=child1_seq, fitness=0.0, generation=parent1.generation + 1, id=0),
-    GAIndividual::new(sequence=child2_seq, fitness=0.0, generation=parent1.generation + 1, id=0),
+    GAIndividual::new(
+      sequence=child1_seq,
+      fitness=0.0,
+      generation=parent1.generation + 1,
+      id=0,
+    ),
+    GAIndividual::new(
+      sequence=child2_seq,
+      fitness=0.0,
+      generation=parent1.generation + 1,
+      id=0,
+    ),
   )
 }
 
@@ -503,15 +563,20 @@ pub fn ga_point_mutate(
   while i < n {
     if ga_pseudo_random() < mutation_rate {
       let alphabet_idx = ga_rand_int(alphabet.length())
-      let new_base = alphabet[alphabet_idx : alphabet_idx + 1].to_string()
+      let new_base = alphabet[alphabet_idx:alphabet_idx + 1].to_string()
       new_seq = new_seq + new_base
     } else {
-      new_seq = new_seq + seq[i : i + 1].to_string()
+      new_seq = new_seq + seq[i:i + 1].to_string()
     }
     i = i + 1
   }
 
-  GAIndividual::new(sequence=new_seq, fitness=individual.fitness, generation=individual.generation, id=individual.id)
+  GAIndividual::new(
+    sequence=new_seq,
+    fitness=individual.fitness,
+    generation=individual.generation,
+    id=individual.id,
+  )
 }
 
 ///|
@@ -528,11 +593,16 @@ pub fn ga_insertion_mutate(
 
   let pos = ga_rand_int(n + 1)
   let new_base_idx = ga_rand_int(alphabet.length())
-  let new_base = alphabet[new_base_idx : new_base_idx + 1].to_string()
+  let new_base = alphabet[new_base_idx:new_base_idx + 1].to_string()
 
-  let new_seq = (seq[0 : pos] + new_base + seq[pos : n]).to_string()
+  let new_seq = (seq[0:pos] + new_base + seq[pos:n]).to_string()
 
-  GAIndividual::new(sequence=new_seq, fitness=individual.fitness, generation=individual.generation, id=individual.id)
+  GAIndividual::new(
+    sequence=new_seq,
+    fitness=individual.fitness,
+    generation=individual.generation,
+    id=individual.id,
+  )
 }
 
 ///|
@@ -545,9 +615,14 @@ pub fn ga_deletion_mutate(individual : GAIndividual) -> GAIndividual {
   }
 
   let pos = ga_rand_int(n)
-  let new_seq = (seq[0 : pos] + seq[pos + 1 : n]).to_string()
+  let new_seq = (seq[0:pos] + seq[pos + 1:n]).to_string()
 
-  GAIndividual::new(sequence=new_seq, fitness=individual.fitness, generation=individual.generation, id=individual.id)
+  GAIndividual::new(
+    sequence=new_seq,
+    fitness=individual.fitness,
+    generation=individual.generation,
+    id=individual.id,
+  )
 }
 
 // ============================================================================
@@ -573,7 +648,7 @@ pub fn ga_evolve(
   // Evaluate initial fitness
   individuals = ga_evaluate_population(individuals, fitness_fn)
 
-  let mut pop = GAPopulation::new(individuals=individuals)
+  let mut pop = GAPopulation::new(individuals~)
   let best_fitness_history : Array[Double] = [pop.best_fitness]
   let avg_fitness_history : Array[Double] = [pop.avg_fitness]
   let mut best_individual = ga_find_best(pop)
@@ -592,7 +667,10 @@ pub fn ga_evolve(
 
     // Fill rest of offspring
     while offspring.length() < config.population_size {
-      let parent1 = ga_tournament_select(pop.individuals, config.tournament_size)
+      let parent1 = ga_tournament_select(
+        pop.individuals,
+        config.tournament_size,
+      )
       let parent2 = ga_roulette_select(pop.individuals)
 
       let (child1, child2) = if ga_pseudo_random() < config.crossover_rate {
@@ -603,11 +681,19 @@ pub fn ga_evolve(
 
       // Add offspring with mutation
       if offspring.length() < config.population_size {
-        let mutated1 = ga_point_mutate(child1, config.mutation_rate, config.alphabet)
+        let mutated1 = ga_point_mutate(
+          child1,
+          config.mutation_rate,
+          config.alphabet,
+        )
         offspring.push(mutated1)
       }
       if offspring.length() < config.population_size {
-        let mutated2 = ga_point_mutate(child2, config.mutation_rate, config.alphabet)
+        let mutated2 = ga_point_mutate(
+          child2,
+          config.mutation_rate,
+          config.alphabet,
+        )
         offspring.push(mutated2)
       }
     }
@@ -631,18 +717,19 @@ pub fn ga_evolve(
       let prev_best = best_fitness_history[best_fitness_history.length() - 2]
       let curr_best = best_fitness_history[best_fitness_history.length() - 1]
       let improvement = curr_best - prev_best
-      if improvement.abs() < config.convergence_threshold || curr_best >= config.target_fitness {
+      if improvement.abs() < config.convergence_threshold ||
+        curr_best >= config.target_fitness {
         converged = true
       }
     }
   }
 
   GAResult::new(
-    best_individual=best_individual,
-    best_fitness_history=best_fitness_history,
-    avg_fitness_history=avg_fitness_history,
+    best_individual~,
+    best_fitness_history~,
+    avg_fitness_history~,
     generation_reached=generation,
-    converged=converged,
+    converged~,
   )
 }
 

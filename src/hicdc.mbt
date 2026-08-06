@@ -35,7 +35,7 @@ pub fn HiCContact::new(
   bin1 : Int,
   bin2 : Int,
   count : Int,
-  bin_size : Int
+  bin_size : Int,
 ) -> HiCContact {
   let distance = if bin2 > bin1 { bin2 - bin1 } else { bin1 - bin2 }
   HiCContact::{
@@ -234,6 +234,7 @@ pub fn CompartmentCall::compartment(self : CompartmentCall) -> String {
 // Internal helpers
 // ===========================================================================
 
+///|
 fn hc_abs(x : Double) -> Double {
   if x < 0.0 {
     -x
@@ -242,6 +243,7 @@ fn hc_abs(x : Double) -> Double {
   }
 }
 
+///|
 fn hc_sqrt(x : Double) -> Double {
   if x <= 0.0 {
     return 0.0
@@ -261,6 +263,7 @@ fn hc_sqrt(x : Double) -> Double {
   guess
 }
 
+///|
 fn hc_log(x : Double) -> Double {
   if x <= 0.0 {
     return -700.0
@@ -268,6 +271,7 @@ fn hc_log(x : Double) -> Double {
   @math.ln(x)
 }
 
+///|
 fn hc_exp(x : Double) -> Double {
   if x > 700.0 {
     return 1.7976931348623157e+308
@@ -289,7 +293,12 @@ fn hc_normal_cdf(x : Double) -> Double {
   }
   let t = 1.0 / (1.0 + 0.2316419 * hc_abs(x))
   let d = 0.3989423 * hc_exp(-x * x / 2.0)
-  let p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))))
+  let p = d *
+    t *
+    (
+      0.3193815 +
+      t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))
+    )
   if x >= 0.0 {
     1.0 - p
   } else {
@@ -336,7 +345,7 @@ fn hc_upper_gamma_q(a : Double, x : Double) -> Double {
   let mut h = d
   let mut i = 1
   while i < 200 {
-    let an = -(i.to_double()) * (i.to_double() - a)
+    let an = -i.to_double() * (i.to_double() - a)
     b = b + 2.0
     d = an * d + b
     if hc_abs(d) < tiny {
@@ -361,18 +370,15 @@ fn hc_upper_gamma_q(a : Double, x : Double) -> Double {
 /// Log-gamma function via Lanczos approximation.
 fn hc_log_gamma(x : Double) -> Double {
   if x < 0.5 {
-    return hc_log(3.141592653589793 / (hc_sin(3.141592653589793 * x) * hc_exp(hc_log_gamma(1.0 - x))))
+    return hc_log(
+      3.141592653589793 /
+      (hc_sin(3.141592653589793 * x) * hc_exp(hc_log_gamma(1.0 - x))),
+    )
   }
   let g = 7.0
   let c = [
-    0.99999999999980993,
-    676.5203681218851,
-    -1259.1392167224028,
-    771.32342877765313,
-    -176.61502916214059,
-    12.507343278686905,
-    -0.13857109526572012,
-    9.9843695780195716e-6,
+    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
     1.5056327351493116e-7,
   ]
   let mut a = c[0]
@@ -423,7 +429,7 @@ fn hc_sin(x : Double) -> Double {
 ///
 /// Returns the fitted parameters: (intercept, beta_dist, beta_gc, beta_map, dispersion).
 pub fn hicdc_fit_background(
-  contacts : Array[HiCContact]
+  contacts : Array[HiCContact],
 ) -> (Double, Double, Double, Double, Double) {
   let n = contacts.length()
   if n == 0 {
@@ -526,7 +532,7 @@ pub fn hicdc_predict_expected(
   intercept : Double,
   beta_dist : Double,
   beta_gc : Double,
-  beta_map : Double
+  beta_map : Double,
 ) -> Array[Double] {
   let expected : Array[Double] = Array::new()
   for c in contacts {
@@ -555,7 +561,7 @@ pub fn hicdc_test_significance(
   beta_dist : Double,
   beta_gc : Double,
   beta_map : Double,
-  dispersion : Double
+  dispersion : Double,
 ) -> Array[HiCDCResult] {
   let n = contacts.length()
   let results : Array[HiCDCResult] = Array::new()
@@ -572,7 +578,13 @@ pub fn hicdc_test_significance(
     let z = (c.count.to_double() - mu) / std_dev
     // One-sided p-value (test for enrichment).
     let p_value = 1.0 - hc_normal_cdf(z)
-    let p_value = if p_value < 0.0 { 0.0 } else if p_value > 1.0 { 1.0 } else { p_value }
+    let p_value = if p_value < 0.0 {
+      0.0
+    } else if p_value > 1.0 {
+      1.0
+    } else {
+      p_value
+    }
     let log_fc = hc_log(c.count.to_double() / mu)
     results.push(HiCDCResult::{
       chr: c.chr,
@@ -638,7 +650,7 @@ fn hc_bh_fdr(results : Array[HiCDCResult]) -> Array[HiCDCResult] {
 /// Mark significant results at given FDR threshold.
 pub fn hicdc_mark_significant(
   results : Array[HiCDCResult],
-  fdr_threshold : Double
+  fdr_threshold : Double,
 ) -> Array[HiCDCResult] {
   for r in results {
     r.significant = r.fdr < fdr_threshold
@@ -661,7 +673,7 @@ pub fn hicdc_mark_significant(
 pub fn hicdc_directionality_index(
   contacts : Array[HiCContact],
   n_bins : Int,
-  window : Int
+  window : Int,
 ) -> Array[Double] {
   // Build per-bin downstream and upstream contact sums.
   let downstream = Array::make(n_bins, 0.0)
@@ -702,7 +714,7 @@ pub fn hicdc_call_tads(
   contacts : Array[HiCContact],
   n_bins : Int,
   window : Int,
-  chr : String
+  chr : String,
 ) -> Array[TADBoundary] {
   let di = hicdc_directionality_index(contacts, n_bins, window)
   let boundaries : Array[TADBoundary] = Array::new()
@@ -731,7 +743,7 @@ pub fn hicdc_call_tads(
 pub fn hicdc_call_compartments(
   contacts : Array[HiCContact],
   n_bins : Int,
-  chr : String
+  chr : String,
 ) -> Array[CompartmentCall] {
   // Build contact matrix.
   let matrix : Array[Array[Double]] = Array::new()
@@ -784,7 +796,7 @@ pub fn hicdc_call_compartments(
 fn hc_power_iteration(
   matrix : Array[Array[Double]],
   n : Int,
-  max_iter : Int
+  max_iter : Int,
 ) -> Array[Double] {
   let v = Array::make(n, 1.0)
   // Normalize initial vector.
@@ -833,6 +845,7 @@ fn hc_power_iteration(
   v
 }
 
+///|
 fn hc_mean(arr : Array[Double]) -> Double {
   let n = arr.length()
   if n == 0 {
@@ -845,6 +858,7 @@ fn hc_mean(arr : Array[Double]) -> Double {
   s / n.to_double()
 }
 
+///|
 fn hc_std(arr : Array[Double], mean : Double) -> Double {
   let n = arr.length()
   if n == 0 {
@@ -862,6 +876,7 @@ fn hc_std(arr : Array[Double], mean : Double) -> Double {
 // Linear algebra helper
 // ===========================================================================
 
+///|
 fn hc_solve(matrix : Array[Array[Double]], b : Array[Double]) -> Array[Double]? {
   let n = matrix.length()
   if n == 0 {
@@ -934,7 +949,7 @@ fn hc_solve(matrix : Array[Array[Double]], b : Array[Double]) -> Array[Double]? 
 pub fn hicdc_differential(
   contacts1 : Array[HiCContact],
   contacts2 : Array[HiCContact],
-  fdr_threshold : Double
+  fdr_threshold : Double,
 ) -> Array[HiCDCResult] {
   // Build lookup for condition 2 contacts.
   let map2 : Map[String, HiCContact] = Map([], capacity=contacts2.length())
@@ -950,7 +965,9 @@ pub fn hicdc_differential(
   for c in contacts2 {
     pooled.push(c)
   }
-  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = hicdc_fit_background(pooled)
+  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = hicdc_fit_background(
+    pooled,
+  )
   // Test each contact from condition 1 for differential enrichment.
   let results : Array[HiCDCResult] = Array::new()
   for c1 in contacts1 {
@@ -969,7 +986,13 @@ pub fn hicdc_differential(
       let diff = (c1.count - c2.count).to_double()
       let z = diff / (std_dev * hc_sqrt(2.0))
       let p_value = 2.0 * (1.0 - hc_normal_cdf(hc_abs(z)))
-      let p_value = if p_value < 0.0 { 0.0 } else if p_value > 1.0 { 1.0 } else { p_value }
+      let p_value = if p_value < 0.0 {
+        0.0
+      } else if p_value > 1.0 {
+        1.0
+      } else {
+        p_value
+      }
       let c2_count = c2.count.to_double()
       let denom = if c2_count > 0.0000001 { c2_count } else { 0.0000001 }
       let log_fc = hc_log(c1.count.to_double() / denom)
@@ -1000,11 +1023,13 @@ pub fn hicdc_differential(
 /// and mark significant interactions.
 pub fn hicdc_run(
   contacts : Array[HiCContact],
-  fdr_threshold : Double
+  fdr_threshold : Double,
 ) -> Array[HiCDCResult] {
-  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = hicdc_fit_background(contacts)
+  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = hicdc_fit_background(
+    contacts,
+  )
   let results = hicdc_test_significance(
-    contacts, intercept, beta_dist, beta_gc, beta_map, dispersion
+    contacts, intercept, beta_dist, beta_gc, beta_map, dispersion,
   )
   hicdc_mark_significant(results, fdr_threshold)
 }

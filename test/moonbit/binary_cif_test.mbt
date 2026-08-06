@@ -11,14 +11,8 @@ test "binary cif decodes signed and unsigned 8-bit byte arrays" {
 ///|
 test "binary cif decodes signed and unsigned 16-bit byte arrays" {
   let bytes = [0x34, 0x12, 0x00, 0x80, 0xFF, 0xFF]
-  assert_eq(
-    @src.binary_cif_decode_int_bytes(bytes, 2),
-    [4660, -32768, -1],
-  )
-  assert_eq(
-    @src.binary_cif_decode_int_bytes(bytes, 5),
-    [4660, 32768, 65535],
-  )
+  assert_eq(@src.binary_cif_decode_int_bytes(bytes, 2), [4660, -32768, -1])
+  assert_eq(@src.binary_cif_decode_int_bytes(bytes, 5), [4660, 32768, 65535])
 }
 
 ///|
@@ -30,17 +24,17 @@ test "binary cif decodes signed and unsigned 32-bit byte arrays" {
     ),
     [305419896, -1],
   )
-  assert_eq(
-    @src.binary_cif_decode_int_bytes([0xFF, 0xFF, 0xFF, 0x7F], 6),
-    [2147483647],
-  )
+  assert_eq(@src.binary_cif_decode_int_bytes([0xFF, 0xFF, 0xFF, 0x7F], 6), [
+    2147483647,
+  ])
 }
 
 ///|
 test "binary cif decodes little-endian float32 byte arrays" {
-  let values = @src.binary_cif_decode_float_bytes([
-    0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x20, 0xC0,
-  ], 32)
+  let values = @src.binary_cif_decode_float_bytes(
+    [0x00, 0x00, 0x80, 0x3F, 0x00, 0x00, 0x20, 0xC0],
+    32,
+  )
   assert_eq(values.length(), 2)
   assert_true((values[0] - 1.0).abs() < 1.0e-12)
   assert_true((values[1] + 2.5).abs() < 1.0e-12)
@@ -48,24 +42,13 @@ test "binary cif decodes little-endian float32 byte arrays" {
 
 ///|
 test "binary cif decodes little-endian float64 byte arrays" {
-  let values = @src.binary_cif_decode_float_bytes([
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0xF0,
-    0x3F,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x00,
-    0x04,
-    0xC0,
-  ], 33)
+  let values = @src.binary_cif_decode_float_bytes(
+    [
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xF0, 0x3F, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x04, 0xC0,
+    ],
+    33,
+  )
   assert_eq(values.length(), 2)
   assert_true((values[0] - 1.0).abs() < 1.0e-12)
   assert_true((values[1] + 2.5).abs() < 1.0e-12)
@@ -98,35 +81,27 @@ test "binary cif byte array decoding rejects invalid inputs" {
 
 ///|
 test "binary cif decodes unsigned integer packing" {
-  assert_eq(
-    @src.binary_cif_decode_integer_packing([255, 5, 1], 1, true, 2),
-    [260, 1],
-  )
+  assert_eq(@src.binary_cif_decode_integer_packing([255, 5, 1], 1, true, 2), [
+    260, 1,
+  ])
 }
 
 ///|
 test "binary cif decodes signed integer packing" {
   assert_eq(
-    @src.binary_cif_decode_integer_packing(
-      [127, 5, -128, -2, 10],
-      1,
-      false,
-      3,
-    ),
+    @src.binary_cif_decode_integer_packing([127, 5, -128, -2, 10], 1, false, 3),
     [132, -130, 10],
   )
 }
 
 ///|
 test "binary cif decodes two-byte integer packing" {
-  assert_eq(
-    @src.binary_cif_decode_integer_packing([65535, 100], 2, true, 1),
-    [65635],
-  )
-  assert_eq(
-    @src.binary_cif_decode_integer_packing([-32768, -5], 2, false, 1),
-    [-32773],
-  )
+  assert_eq(@src.binary_cif_decode_integer_packing([65535, 100], 2, true, 1), [
+    65635,
+  ])
+  assert_eq(@src.binary_cif_decode_integer_packing([-32768, -5], 2, false, 1), [
+    -32773,
+  ])
 }
 
 ///|
@@ -156,10 +131,9 @@ test "binary cif integer packing validates metadata and values" {
 
 ///|
 test "binary cif decodes run-length encoding" {
-  assert_eq(
-    @src.binary_cif_decode_run_length([4, 3, -1, 2], 5),
-    [4, 4, 4, -1, -1],
-  )
+  assert_eq(@src.binary_cif_decode_run_length([4, 3, -1, 2], 5), [
+    4, 4, 4, -1, -1,
+  ])
 }
 
 ///|
@@ -229,25 +203,19 @@ test "binary cif decodes interval quantization" {
 ///|
 test "binary cif interval quantization validates parameters and indices" {
   let bad_steps = try {
-    ignore(
-      @src.binary_cif_decode_interval_quantization([0], 0.0, 1.0, 1),
-    )
+    ignore(@src.binary_cif_decode_interval_quantization([0], 0.0, 1.0, 1))
     false
   } catch {
     BinaryCifError(_) => true
   }
   let bad_bounds = try {
-    ignore(
-      @src.binary_cif_decode_interval_quantization([0], 2.0, 1.0, 3),
-    )
+    ignore(@src.binary_cif_decode_interval_quantization([0], 2.0, 1.0, 3))
     false
   } catch {
     BinaryCifError(_) => true
   }
   let bad_index = try {
-    ignore(
-      @src.binary_cif_decode_interval_quantization([3], 0.0, 1.0, 3),
-    )
+    ignore(@src.binary_cif_decode_interval_quantization([3], 0.0, 1.0, 3))
     false
   } catch {
     BinaryCifError(_) => true
@@ -324,29 +292,27 @@ test "binary cif queries columns by short and qualified names" {
 
 ///|
 test "binary cif reports decoded column kinds and lengths" {
-  let atom_site = @src.binary_cif_parse(@src.binary_cif_sample_bytes())
-    .data_blocks[0]
+  let atom_site = @src.binary_cif_parse(@src.binary_cif_sample_bytes()).data_blocks[0]
     .get_category("atom_site")
     .unwrap()
   assert_true(
-    atom_site.get_column("id").unwrap().kind() is
-    @src.BinaryCifColumnKind::BinaryCifInteger,
+    atom_site.get_column("id").unwrap().kind()
+    is @src.BinaryCifColumnKind::BinaryCifInteger,
   )
   assert_true(
-    atom_site.get_column("Cartn_x").unwrap().kind() is
-    @src.BinaryCifColumnKind::BinaryCifFloat,
+    atom_site.get_column("Cartn_x").unwrap().kind()
+    is @src.BinaryCifColumnKind::BinaryCifFloat,
   )
   assert_true(
-    atom_site.get_column("label_atom_id").unwrap().kind() is
-    @src.BinaryCifColumnKind::BinaryCifText,
+    atom_site.get_column("label_atom_id").unwrap().kind()
+    is @src.BinaryCifColumnKind::BinaryCifText,
   )
   assert_eq(atom_site.get_column("Cartn_x").unwrap().length(), 8)
 }
 
 ///|
 test "binary cif reads integer columns" {
-  let atom_site = @src.binary_cif_parse(@src.binary_cif_sample_bytes())
-    .data_blocks[0]
+  let atom_site = @src.binary_cif_parse(@src.binary_cif_sample_bytes()).data_blocks[0]
     .get_category("atom_site")
     .unwrap()
   let ids = atom_site.get_column("id").unwrap()
@@ -357,8 +323,7 @@ test "binary cif reads integer columns" {
 
 ///|
 test "binary cif reverses fixed-point and delta pipelines" {
-  let atom_site = @src.binary_cif_parse(@src.binary_cif_sample_bytes())
-    .data_blocks[0]
+  let atom_site = @src.binary_cif_parse(@src.binary_cif_sample_bytes()).data_blocks[0]
     .get_category("atom_site")
     .unwrap()
   let xs = atom_site.get_column("Cartn_x").unwrap()
@@ -369,8 +334,7 @@ test "binary cif reverses fixed-point and delta pipelines" {
 
 ///|
 test "binary cif reverses string array pipelines" {
-  let atom_site = @src.binary_cif_parse(@src.binary_cif_sample_bytes())
-    .data_blocks[0]
+  let atom_site = @src.binary_cif_parse(@src.binary_cif_sample_bytes()).data_blocks[0]
     .get_category("atom_site")
     .unwrap()
   let components = atom_site.get_column("label_comp_id").unwrap()
@@ -382,14 +346,11 @@ test "binary cif reverses string array pipelines" {
 
 ///|
 test "binary cif exposes present not-present and unknown masks" {
-  let atom_site = @src.binary_cif_parse(@src.binary_cif_sample_bytes())
-    .data_blocks[0]
+  let atom_site = @src.binary_cif_parse(@src.binary_cif_sample_bytes()).data_blocks[0]
     .get_category("atom_site")
     .unwrap()
   let altloc = atom_site.get_column("label_alt_id").unwrap()
-  assert_true(
-    altloc.mask_at(0) is @src.BinaryCifMask::BinaryCifNotPresent,
-  )
+  assert_true(altloc.mask_at(0) is @src.BinaryCifMask::BinaryCifNotPresent)
   assert_true(altloc.mask_at(3) is @src.BinaryCifMask::BinaryCifPresent)
   assert_true(altloc.mask_at(6) is @src.BinaryCifMask::BinaryCifUnknown)
   assert_true(altloc.string_at(0) is None)
@@ -402,8 +363,7 @@ test "binary cif exposes present not-present and unknown masks" {
 
 ///|
 test "binary cif column access validates type and bounds" {
-  let atom_site = @src.binary_cif_parse(@src.binary_cif_sample_bytes())
-    .data_blocks[0]
+  let atom_site = @src.binary_cif_parse(@src.binary_cif_sample_bytes()).data_blocks[0]
     .get_category("atom_site")
     .unwrap()
   let names = atom_site.get_column("label_atom_id").unwrap()
@@ -434,7 +394,9 @@ test "binary cif summarizes document contents" {
 
 ///|
 test "binary cif builds pdb structure hierarchy" {
-  let structure = @src.binary_cif_parse_structure(@src.binary_cif_sample_bytes())
+  let structure = @src.binary_cif_parse_structure(
+    @src.binary_cif_sample_bytes(),
+  )
   assert_eq(structure.get_id(), "BCIF")
   assert_eq(structure.get_num_models(), 2)
   assert_eq(structure.get_num_chains(), 3)
@@ -444,7 +406,9 @@ test "binary cif builds pdb structure hierarchy" {
 
 ///|
 test "binary cif preserves model and chain grouping" {
-  let structure = @src.binary_cif_parse_structure(@src.binary_cif_sample_bytes())
+  let structure = @src.binary_cif_parse_structure(
+    @src.binary_cif_sample_bytes(),
+  )
   let models = structure.get_models()
   assert_eq(models[0].get_id(), 0)
   assert_eq(models[1].get_id(), 1)
@@ -456,7 +420,9 @@ test "binary cif preserves model and chain grouping" {
 
 ///|
 test "binary cif preserves residues insertion codes and water" {
-  let structure = @src.binary_cif_parse_structure(@src.binary_cif_sample_bytes())
+  let structure = @src.binary_cif_parse_structure(
+    @src.binary_cif_sample_bytes(),
+  )
   let residues = structure.get_residues()
   assert_eq(residues[0].resname, "GLY")
   assert_eq(residues[0].resseq, 1)
@@ -471,7 +437,9 @@ test "binary cif preserves residues insertion codes and water" {
 
 ///|
 test "binary cif preserves atom annotations and coordinates" {
-  let structure = @src.binary_cif_parse_structure(@src.binary_cif_sample_bytes())
+  let structure = @src.binary_cif_parse_structure(
+    @src.binary_cif_sample_bytes(),
+  )
   let atoms = structure.get_atoms()
   assert_eq(atoms[0].name, "N")
   assert_eq(atoms[0].element, "N")

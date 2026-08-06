@@ -23,7 +23,9 @@ test "polypeptide_calculate_hydrophobicity" {
 ///|
 test "polypeptide_calculate_hydrophobicity_window" {
   let sequence = "MKLILVLLVSLSL"
-  let profile = @src.calculate_hydrophobicity_window(sequence, 5, "kyte-doolittle")
+  let profile = @src.calculate_hydrophobicity_window(
+    sequence, 5, "kyte-doolittle",
+  )
   assert_eq(profile.values.length(), sequence.length())
 }
 

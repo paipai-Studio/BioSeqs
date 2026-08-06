@@ -19,13 +19,17 @@ pub fn SampleExpression::get_sample_id(self : SampleExpression) -> String {
 
 ///|
 /// Get gene names.
-pub fn SampleExpression::get_gene_names(self : SampleExpression) -> Array[String] {
+pub fn SampleExpression::get_gene_names(
+  self : SampleExpression,
+) -> Array[String] {
   self.gene_names
 }
 
 ///|
 /// Get expression values.
-pub fn SampleExpression::get_expression(self : SampleExpression) -> Array[Double] {
+pub fn SampleExpression::get_expression(
+  self : SampleExpression,
+) -> Array[Double] {
   self.expression
 }
 
@@ -144,12 +148,24 @@ pub fn singscore_score(
   spec : GeneSetSpec,
   sample_id : String,
 ) -> SingscoreResult {
-  let (up_score, up_disp, n_up) = singscore_directional(sample, spec.up_genes, true)
-  let (down_score, down_disp, n_down) = singscore_directional(sample, spec.down_genes, false)
-  
+  let (up_score, up_disp, n_up) = singscore_directional(
+    sample,
+    spec.up_genes,
+    true,
+  )
+  let (down_score, down_disp, n_down) = singscore_directional(
+    sample,
+    spec.down_genes,
+    false,
+  )
+
   let n_dir = (if n_up > 0 { 1 } else { 0 }) + (if n_down > 0 { 1 } else { 0 })
-  let total = if n_dir > 0 { (up_score + down_score) / n_dir.to_double() } else { 0.0 }
-  
+  let total = if n_dir > 0 {
+    (up_score + down_score) / n_dir.to_double()
+  } else {
+    0.0
+  }
+
   SingscoreResult::{
     sample_id,
     score: total,
@@ -185,12 +201,12 @@ fn singscore_directional(
   if genes.length() == 0 {
     return (0.0, 0.0, 0)
   }
-  
+
   let n_genes = sample.gene_names.length()
   if n_genes == 0 {
     return (0.0, 0.0, 0)
   }
-  
+
   // Build rank array (centered around 0)
   let ranks : Array[Double] = Array::make(n_genes, 0.0)
   // Create index array and sort by expression
@@ -202,10 +218,10 @@ fn singscore_directional(
       i = i + 1
     }
   }
-  
+
   // Simple insertion sort for ranking (handles ties by averaging)
   let sorted_indices = singscore_sort_indices(sample.expression)
-  
+
   // Assign ranks (1-based, then center)
   {
     let mut i = 0
@@ -214,7 +230,7 @@ fn singscore_directional(
       i = i + 1
     }
   }
-  
+
   // Center ranks around 0
   let n = n_genes.to_double()
   {
@@ -224,7 +240,7 @@ fn singscore_directional(
       i = i + 1
     }
   }
-  
+
   // Build gene name -> index map
   let gene_idx : Map[String, Int] = Map([], capacity=n_genes)
   {
@@ -234,7 +250,7 @@ fn singscore_directional(
       i = i + 1
     }
   }
-  
+
   // Sum ranks for specified genes
   let mut sum = 0.0
   let mut n_found = 0
@@ -251,20 +267,16 @@ fn singscore_directional(
     }
     i = i + 1
   }
-  
+
   if n_found == 0 {
     return (0.0, 0.0, 0)
   }
-  
+
   // Normalize to [-0.5, 0.5] using (n-1) bound
   let nf = n_found.to_double()
   let nf1 = (n_found - 1).to_double()
-  let score = if nf1 > 0.0 {
-    sum / nf1
-  } else {
-    sum / nf
-  }
-  
+  let score = if nf1 > 0.0 { sum / nf1 } else { sum / nf }
+
   // Clip to [-0.5, 0.5]
   let clamped = if score > 0.5 {
     0.5
@@ -273,10 +285,10 @@ fn singscore_directional(
   } else {
     score
   }
-  
+
   // Compute dispersion (variance of ranks for found genes)
   let dispersion = singscore_compute_dispersion(sample, genes, is_up, gene_idx)
-  
+
   (clamped, dispersion, n_found)
 }
 
@@ -294,19 +306,20 @@ fn singscore_compute_dispersion(
     let gene = genes[i]
     match gene_idx.get(gene) {
       Some(idx) => {
-        let rank = (idx + 1).to_double() - (sample.gene_names.length().to_double() + 1.0) / 2.0
+        let rank = (idx + 1).to_double() -
+          (sample.gene_names.length().to_double() + 1.0) / 2.0
         ranks_found.push(if is_up { rank } else { -rank })
       }
       None => ()
     }
     i = i + 1
   }
-  
+
   let n = ranks_found.length()
   if n <= 1 {
     return 0.0
   }
-  
+
   let (mean, var) = stat_mean_var(ranks_found)
   let _ = mean
   var
@@ -324,12 +337,13 @@ fn singscore_sort_indices(values : Array[Double]) -> Array[Int] {
       i = i + 1
     }
   }
-  
+
   // Quicksort
   singscore_quicksort(values, indices, 0, n - 1)
   indices
 }
 
+///|
 fn singscore_quicksort(
   values : Array[Double],
   indices : Array[Int],
@@ -352,7 +366,7 @@ fn singscore_quicksort(
     let tmp = indices[i + 1]
     indices[i + 1] = indices[hi]
     indices[hi] = tmp
-    
+
     let p = i + 1
     singscore_quicksort(values, indices, lo, p - 1)
     singscore_quicksort(values, indices, p + 1, hi)
@@ -363,23 +377,21 @@ fn singscore_quicksort(
 /// Create example data for singscore testing.
 pub fn singscore_create_example() -> (SampleExpression, GeneSetSpec) {
   let genes = [
-    "TP53", "BRCA1", "BRCA2", "EGFR", "MYC", "KRAS",
-    "PTEN", "AKT1", "MTOR", "JAK2", "STAT3", "NFKB1",
-    "CDK4", "CDK6", "RB1", "E2F1", "APC", "CTNNB1",
-    "SMAD4", "TGFBR1",
+    "TP53", "BRCA1", "BRCA2", "EGFR", "MYC", "KRAS", "PTEN", "AKT1", "MTOR", "JAK2",
+    "STAT3", "NFKB1", "CDK4", "CDK6", "RB1", "E2F1", "APC", "CTNNB1", "SMAD4", "TGFBR1",
   ]
   let expression = [
-    10.0, 8.5, 6.2, 15.0, 20.0, 5.0,
-    3.2, 12.0, 18.0, 7.0, 9.5, 11.0,
-    14.0, 13.0, 4.0, 16.0, 2.0, 1.5,
-    2.5, 3.0,
+    10.0, 8.5, 6.2, 15.0, 20.0, 5.0, 3.2, 12.0, 18.0, 7.0, 9.5, 11.0, 14.0, 13.0,
+    4.0, 16.0, 2.0, 1.5, 2.5, 3.0,
   ]
-  
+
   let sample = SampleExpression::new("sample_1", genes, expression)
-  
-  let up_genes = ["TP53", "BRCA1", "BRCA2", "EGFR", "MYC", "KRAS", "AKT1", "MTOR"]
+
+  let up_genes = [
+    "TP53", "BRCA1", "BRCA2", "EGFR", "MYC", "KRAS", "AKT1", "MTOR",
+  ]
   let down_genes = ["PTEN", "RB1", "APC", "CTNNB1"]
-  
-  let spec = GeneSetSpec::new("cell_cycle", up_genes, down_genes=down_genes)
+
+  let spec = GeneSetSpec::new("cell_cycle", up_genes, down_genes~)
   (sample, spec)
 }

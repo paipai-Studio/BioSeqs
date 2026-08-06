@@ -505,7 +505,10 @@ fn ce_kmeans_single(
 ///|
 /// k-means++ seeding using a deterministic pseudo-random pick based on indices
 /// (the project avoids real RNG; this gives reproducible spreads).
-fn ce_kmeans_pp_init(data : Array[Array[Double]], k : Int) -> Array[Array[Double]] {
+fn ce_kmeans_pp_init(
+  data : Array[Array[Double]],
+  k : Int,
+) -> Array[Array[Double]] {
   let n = data.length()
   let centroids : Array[Array[Double]] = Array::new()
   // pick the point closest to the global centroid as first seed
@@ -582,14 +585,19 @@ pub fn ce_cluster_many(
           copy
         }
         let subset = ce_subsample(work, ss)
-        let (labels_full, _) = ce_kmeans(subset.data, k, params.n_init, params.max_iter)
+        let (labels_full, _) = ce_kmeans(
+          subset.data,
+          k,
+          params.n_init,
+          params.max_iter,
+        )
         // map subsample labels back to full data
         let labels = Array::make(data.length(), -1)
         for idx in 0..<subset.indices.length() {
           labels[subset.indices[idx]] = labels_full[idx]
         }
         results.push(
-          CeClustering::new(labels=labels, k=k, reduced_dim=rd, subsample=ss),
+          CeClustering::new(labels~, k~, reduced_dim=rd, subsample=ss),
         )
       }
     }
@@ -672,11 +680,7 @@ pub fn ce_cocluster_matrix(
     m[i][i] = counts[i].to_double()
     for j in 0..<n_samples {
       if i != j && counts[i] > 0 && counts[j] > 0 {
-        let denom = (if counts[i] < counts[j] {
-          counts[i]
-        } else {
-          counts[j]
-        }).to_double()
+        let denom = (if counts[i] < counts[j] { counts[i] } else { counts[j] }).to_double()
         if denom > 0.0 {
           m[i][j] = m[i][j] / denom
         }
@@ -844,7 +848,9 @@ pub fn ce_make_dendrogram(
   let nodes : Array[CeDendroNode] = Array::new()
   for i in 0..<m {
     nodes.push(
-      CeDendroNode::new(left=None, right=None, height=0.0, cluster_id=i, members=[i]),
+      CeDendroNode::new(left=None, right=None, height=0.0, cluster_id=i, members=[
+        i,
+      ]),
     )
   }
   let active : Array[Int] = Array::new()
@@ -865,7 +871,8 @@ pub fn ce_make_dendrogram(
             s = s + dist[x][y]
           }
         }
-        let d = s / (nodes[na].members.length() * nodes[nb].members.length()).to_double()
+        let d = s /
+          (nodes[na].members.length() * nodes[nb].members.length()).to_double()
         if d < best_d {
           best_d = d
           best_a = a
@@ -971,7 +978,9 @@ pub fn ce_merge_clusters(
     let left_cluster = ce_find_root(parent, left_leaves[0])
     let right_cluster = ce_find_root(parent, right_leaves[0])
     // proportion test across features
-    let (prop, qval) = ce_proportion_test(data, labels, left_cluster, right_cluster)
+    let (prop, qval) = ce_proportion_test(
+      data, labels, left_cluster, right_cluster,
+    )
     let merged = qval > merge_cutoff
     if merged {
       // union the two clusters
@@ -979,12 +988,12 @@ pub fn ce_merge_clusters(
     }
     info.push(
       CeMergeInfo::new(
-        node_id=node_id,
-        left_cluster=left_cluster,
-        right_cluster=right_cluster,
+        node_id~,
+        left_cluster~,
+        right_cluster~,
         proportion=prop,
         q_value=qval,
-        merged=merged,
+        merged~,
       ),
     )
     node_id = node_id + 1
@@ -1153,10 +1162,11 @@ pub fn ce_normal_cdf(z : Double) -> Double {
   let t = 1.0 / (1.0 + 0.2316419 * x)
   let d = 0.3989423 * @math.exp(-x * x / 2.0)
   let p = t *
-    (0.319381530 +
+    (
+      0.319381530 +
       t *
-        (-0.356563782 +
-          t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))))
+      (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429)))
+    )
   1.0 - d * p
 }
 
@@ -1230,13 +1240,13 @@ pub fn ce_sequential_cluster(
   let ids : Array[Int] = Array::new()
   for l in labels {
     let mut found = false
-      for id in ids {
-        if id == l {
-          found = true
-          break
-        }
+    for id in ids {
+      if id == l {
+        found = true
+        break
       }
-      if !found && l >= 0 {
+    }
+    if !found && l >= 0 {
       ids.push(l)
     }
   }
@@ -1425,11 +1435,11 @@ pub fn ce_rsec(
   }
   ClusterExperiment::new(
     labels=final_labels,
-    cocluster=cocluster,
-    dendro=dendro,
+    cocluster~,
+    dendro~,
     n_clusters=ids.length(),
     merge_cutoff=params.merge_cutoff,
-    merge_info=merge_info,
+    merge_info~,
   )
 }
 

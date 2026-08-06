@@ -15,12 +15,14 @@ test "scmap_reference_creation" {
   assert_eq(ref.cell_types()[6], "NK_cell")
 }
 
+///|
 test "scmap_reference_unique_types" {
   let ref = @src.scmap_sample_reference()
   let types = ref.unique_cell_types()
   assert_eq(types.length(), 3)
 }
 
+///|
 test "scmap_query_creation" {
   let q = @src.scmap_sample_query()
   assert_eq(q.gene_names().length(), 10)
@@ -30,10 +32,9 @@ test "scmap_query_creation" {
   assert_eq(q.cell_names()[2], "query_unknown")
 }
 
+///|
 test "scmap_assignment_creation" {
-  let a = @src.ScmapAssignment::new(
-    "cell1", "T_cell", 0.85, 0.3, "cluster",
-  )
+  let a = @src.ScmapAssignment::new("cell1", "T_cell", 0.85, 0.3, "cluster")
   assert_eq(a.cell_name(), "cell1")
   assert_eq(a.assigned_type(), "T_cell")
   assert_eq(a.best_correlation(), 0.85)
@@ -45,6 +46,7 @@ test "scmap_assignment_creation" {
 // scmap-cluster method
 // ---------------------------------------------------------------------------
 
+///|
 test "scmap_cluster_classifies_t_cell" {
   let ref = @src.scmap_sample_reference()
   let query = @src.scmap_sample_query()
@@ -56,6 +58,7 @@ test "scmap_cluster_classifies_t_cell" {
   assert_eq(assignments[0].method(), "cluster")
 }
 
+///|
 test "scmap_cluster_classifies_b_cell" {
   let ref = @src.scmap_sample_reference()
   let query = @src.scmap_sample_query()
@@ -65,6 +68,7 @@ test "scmap_cluster_classifies_b_cell" {
   assert_eq(assignments[1].assigned_type(), "B_cell")
 }
 
+///|
 test "scmap_cluster_high_threshold_unassigned" {
   let ref = @src.scmap_sample_reference()
   let query = @src.scmap_sample_query()
@@ -75,6 +79,7 @@ test "scmap_cluster_high_threshold_unassigned" {
   }
 }
 
+///|
 test "scmap_cluster_correlation_is_valid" {
   let ref = @src.scmap_sample_reference()
   let query = @src.scmap_sample_query()
@@ -85,6 +90,7 @@ test "scmap_cluster_correlation_is_valid" {
   }
 }
 
+///|
 test "scmap_cluster_best_gt_second_best" {
   let ref = @src.scmap_sample_reference()
   let query = @src.scmap_sample_query()
@@ -98,6 +104,7 @@ test "scmap_cluster_best_gt_second_best" {
 // scmap-cell method
 // ---------------------------------------------------------------------------
 
+///|
 test "scmap_cell_classifies_t_cell" {
   let ref = @src.scmap_sample_reference()
   let query = @src.scmap_sample_query()
@@ -107,6 +114,7 @@ test "scmap_cell_classifies_t_cell" {
   assert_eq(assignments[0].method(), "cell")
 }
 
+///|
 test "scmap_cell_classifies_b_cell" {
   let ref = @src.scmap_sample_reference()
   let query = @src.scmap_sample_query()
@@ -115,6 +123,7 @@ test "scmap_cell_classifies_b_cell" {
   assert_eq(assignments[1].assigned_type(), "B_cell")
 }
 
+///|
 test "scmap_cell_k_neighbours_parameter" {
   let ref = @src.scmap_sample_reference()
   let query = @src.scmap_sample_query()
@@ -123,6 +132,7 @@ test "scmap_cell_k_neighbours_parameter" {
   assert_eq(assignments.length(), 3)
 }
 
+///|
 test "scmap_cell_high_threshold_unassigned" {
   let ref = @src.scmap_sample_reference()
   let query = @src.scmap_sample_query()
@@ -140,6 +150,7 @@ test "scmap_cell_high_threshold_unassigned" {
 // Summary utilities
 // ---------------------------------------------------------------------------
 
+///|
 test "scmap_summary_counts" {
   let ref = @src.scmap_sample_reference()
   let query = @src.scmap_sample_query()
@@ -156,16 +167,16 @@ test "scmap_summary_counts" {
   assert_eq(total, assignments.length())
 }
 
+///|
 test "scmap_assignment_to_string" {
-  let a = @src.ScmapAssignment::new(
-    "cell1", "T_cell", 0.85, 0.3, "cluster",
-  )
+  let a = @src.ScmapAssignment::new("cell1", "T_cell", 0.85, 0.3, "cluster")
   let s = a.to_string()
   assert_true(s.contains("cell1"))
   assert_true(s.contains("T_cell"))
   assert_true(s.contains("cluster"))
 }
 
+///|
 test "scmap_assignments_to_string" {
   let ref = @src.scmap_sample_reference()
   let query = @src.scmap_sample_query()
@@ -179,6 +190,7 @@ test "scmap_assignments_to_string" {
 // Sample data verification
 // ---------------------------------------------------------------------------
 
+///|
 test "scmap_sample_reference_expression_structure" {
   let ref = @src.scmap_sample_reference()
   // 10 genes × 9 cells
@@ -190,6 +202,7 @@ test "scmap_sample_reference_expression_structure" {
   assert_true(ref.expression()[3][3] > ref.expression()[3][0])
 }
 
+///|
 test "scmap_sample_query_expression_structure" {
   let q = @src.scmap_sample_query()
   // 10 genes × 3 cells
@@ -203,6 +216,7 @@ test "scmap_sample_query_expression_structure" {
 // Edge cases
 // ---------------------------------------------------------------------------
 
+///|
 test "scmap_cluster_single_query_cell" {
   let ref = @src.scmap_sample_reference()
   // Create a single-cell query using the T cell reference profile
@@ -215,6 +229,7 @@ test "scmap_cluster_single_query_cell" {
   assert_eq(assignments.length(), 1)
 }
 
+///|
 test "scmap_cell_single_query_cell" {
   let ref = @src.scmap_sample_reference()
   let q = @src.scmap_sample_query()

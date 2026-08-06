@@ -165,7 +165,7 @@ pub fn ExonerateRecord::score(self : ExonerateRecord) -> Double {
 ///|
 /// Get the list of alignment blocks.
 pub fn ExonerateRecord::alignment_blocks(
-  self : ExonerateRecord
+  self : ExonerateRecord,
 ) -> Array[AlignmentBlock] {
   self.alignment_blocks
 }
@@ -394,8 +394,7 @@ fn exo_parse_vulgar_blocks(tokens : Array[String]) -> Array[AlignmentBlock] {
     if i + 2 < n {
       let qlen = exo_parse_int(tokens[i + 1])
       let tlen = exo_parse_int(tokens[i + 2])
-      let (score, advance) = if i + 3 < n &&
-        exo_is_numeric_token(tokens[i + 3]) {
+      let (score, advance) = if i + 3 < n && exo_is_numeric_token(tokens[i + 3]) {
         (exo_parse_double(tokens[i + 3]), 4)
       } else {
         (0.0, 3)
@@ -438,16 +437,8 @@ fn exo_parse_vulgar_line(line : String) -> ExonerateRecord? {
   let blocks = exo_parse_vulgar_blocks(block_tokens)
   Some(
     ExonerateRecord::new(
-      query_name,
-      query_start,
-      query_end,
-      query_strand,
-      target_name,
-      target_start,
-      target_end,
-      target_strand,
-      score,
-      blocks,
+      query_name, query_start, query_end, query_strand, target_name, target_start,
+      target_end, target_strand, score, blocks,
     ),
   )
 }
@@ -482,10 +473,7 @@ pub fn parse_exonerate_vulgar(content : String) -> Array[ExonerateRecord] {
 /// operation code and the single length value. For most operations both
 /// sequences consume the length; introns (I) consume neither; gaps (U/V/D)
 /// consume only one side.
-fn exo_cigar_lengths(
-  code : String,
-  length : Int,
-) -> (Int, Int, Double) {
+fn exo_cigar_lengths(code : String, length : Int) -> (Int, Int, Double) {
   match code {
     "I" => (0, 0, length.to_double())
     "D" => (length, 0, 0.0)
@@ -540,16 +528,8 @@ fn exo_parse_cigar_line(line : String) -> ExonerateRecord? {
   let blocks = exo_parse_cigar_blocks(block_tokens)
   Some(
     ExonerateRecord::new(
-      query_name,
-      query_start,
-      query_end,
-      query_strand,
-      target_name,
-      target_start,
-      target_end,
-      target_strand,
-      score,
-      blocks,
+      query_name, query_start, query_end, query_strand, target_name, target_start,
+      target_end, target_strand, score, blocks,
     ),
   )
 }

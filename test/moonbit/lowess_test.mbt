@@ -22,7 +22,7 @@ test "lowess_tricube_weight_above_one" {
 ///|
 test "lowess_tricube_weight_at_half" {
   let result = @src.lowess_tricube_weight(0.5)
-  let expected = (1.0 - 0.5 * 0.5 * 0.5)
+  let expected = 1.0 - 0.5 * 0.5 * 0.5
   let expected_cubed = expected * expected * expected
   assert_true((result - expected_cubed).abs() < 0.001)
 }
@@ -54,7 +54,7 @@ test "lowess_bisquare_weight_above_one" {
 ///|
 test "lowess_bisquare_weight_at_half" {
   let result = @src.lowess_bisquare_weight(0.5)
-  let expected = (1.0 - 0.5 * 0.5)
+  let expected = 1.0 - 0.5 * 0.5
   let expected_squared = expected * expected
   assert_true((result - expected_squared).abs() < 0.001)
 }
@@ -99,7 +99,9 @@ test "lowess_weighted_linear_regression_weighted" {
   let y = [1.0, 3.0, 5.0, 7.0]
   let w = [1.0, 1.0, 1.0, 1.0]
   let (intercept, slope) = @src.lowess_weighted_linear_regression(x, y, w)
-  let (intercept2, slope2) = @src.lowess_weighted_linear_regression(x, y, [2.0, 2.0, 2.0, 2.0])
+  let (intercept2, slope2) = @src.lowess_weighted_linear_regression(x, y, [
+    2.0, 2.0, 2.0, 2.0,
+  ])
   assert_true((intercept - intercept2).abs() < 0.001)
   assert_true((slope - slope2).abs() < 0.001)
 }
@@ -113,7 +115,11 @@ test "lowess_weighted_linear_regression_empty" {
 
 ///|
 test "lowess_weighted_linear_regression_single_point" {
-  let (intercept, slope) = @src.lowess_weighted_linear_regression([1.0], [5.0], [1.0])
+  let (intercept, slope) = @src.lowess_weighted_linear_regression(
+    [1.0],
+    [5.0],
+    [1.0],
+  )
   assert_eq(intercept, 5.0)
   assert_eq(slope, 0.0)
 }

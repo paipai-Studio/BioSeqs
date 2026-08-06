@@ -338,7 +338,7 @@ pub fn lcc_low_complexity_regions(
   k? : Int = 3,
   threshold? : Double = 0.5,
 ) -> Array[(Int, Int)] {
-  let scores = lcc(seq, window=window, k=k)
+  let scores = lcc(seq, window~, k~)
   let regions = Array::new()
   let mut i = 0
   while i < scores.length() {

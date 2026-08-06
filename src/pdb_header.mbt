@@ -195,7 +195,10 @@ fn split_pdb_lines(text : String) -> Array[String] {
 ///|
 /// Find the start and end indices of a record section in the lines array.
 /// Returns (-1, -1) if the record is not found.
-fn extract_record_section(lines : Array[String], record_name : String) -> (Int, Int) {
+fn extract_record_section(
+  lines : Array[String],
+  record_name : String,
+) -> (Int, Int) {
   let mut start = -1
   let mut end = -1
   let mut i = 0
@@ -440,18 +443,18 @@ pub fn parse_pdb_header_lines(lines : Array[String]) -> PDBHeader {
   }
 
   PDBHeader::new(
-    pdb_id=pdb_id,
-    title=title,
-    compound=compound,
-    source=source,
-    keywords=keywords,
-    resolution=resolution,
-    rfactor=rfactor,
-    date_deposited=date_deposited,
-    authors=authors,
-    journal=journal,
-    remark_lines=remark_lines,
-    dbrefs=dbrefs,
+    pdb_id~,
+    title~,
+    compound~,
+    source~,
+    keywords~,
+    resolution~,
+    rfactor~,
+    date_deposited~,
+    authors~,
+    journal~,
+    remark_lines~,
+    dbrefs~,
     chain_ids=final_chain_ids,
   )
 }
@@ -479,7 +482,10 @@ pub fn parse_title_record(lines : Array[String], _start_idx : Int) -> String {
 
 ///|
 /// Parse multi-line COMPOUND record.
-pub fn parse_compound_record(lines : Array[String], _start_idx : Int) -> CompoundInfo {
+pub fn parse_compound_record(
+  lines : Array[String],
+  _start_idx : Int,
+) -> CompoundInfo {
   let (start, end) = extract_record_section(lines, "COMPND")
   if start < 0 {
     return CompoundInfo::new()
@@ -524,21 +530,24 @@ pub fn parse_compound_record(lines : Array[String], _start_idx : Int) -> Compoun
   }
 
   CompoundInfo::new(
-    molecule_id=molecule_id,
-    chain_ids=chain_ids,
-    compound_name=compound_name,
-    formula=formula,
-    ka=ka,
-    kb=kb,
-    ec_number=ec_number,
-    engineered=engineered,
-    mutation=mutation,
+    molecule_id~,
+    chain_ids~,
+    compound_name~,
+    formula~,
+    ka~,
+    kb~,
+    ec_number~,
+    engineered~,
+    mutation~,
   )
 }
 
 ///|
 /// Parse multi-line SOURCE record.
-pub fn parse_source_record(lines : Array[String], _start_idx : Int) -> SourceInfo {
+pub fn parse_source_record(
+  lines : Array[String],
+  _start_idx : Int,
+) -> SourceInfo {
   let (start, end) = extract_record_section(lines, "SOURCE")
   if start < 0 {
     return SourceInfo::new()
@@ -579,19 +588,22 @@ pub fn parse_source_record(lines : Array[String], _start_idx : Int) -> SourceInf
   }
 
   SourceInfo::new(
-    source=source,
-    organism_scientific=organism_scientific,
-    organism_common=organism_common,
-    strain=strain,
-    cell_line=cell_line,
-    tissue=tissue,
-    tax_id=tax_id,
+    source~,
+    organism_scientific~,
+    organism_common~,
+    strain~,
+    cell_line~,
+    tissue~,
+    tax_id~,
   )
 }
 
 ///|
 /// Parse multi-line KEYWDS record.
-pub fn parse_keywords_record(lines : Array[String], _start_idx : Int) -> Array[String] {
+pub fn parse_keywords_record(
+  lines : Array[String],
+  _start_idx : Int,
+) -> Array[String] {
   let (start, end) = extract_record_section(lines, "KEYWDS")
   if start < 0 {
     return []
@@ -641,7 +653,10 @@ pub fn parse_rfactor_record(line : String) -> Double {
 ///|
 /// Parse multi-line AUTH record.
 /// Returns array of author names (semicolon-separated).
-pub fn parse_authors_record(lines : Array[String], _start_idx : Int) -> Array[String] {
+pub fn parse_authors_record(
+  lines : Array[String],
+  _start_idx : Int,
+) -> Array[String] {
   let (start, end) = extract_record_section(lines, "AUTH")
   if start < 0 {
     return []
@@ -671,7 +686,10 @@ pub fn parse_journal_record(lines : Array[String], _start_idx : Int) -> String {
 
 ///|
 /// Parse DBREF records.
-pub fn parse_dbref_record(lines : Array[String], _start_idx : Int) -> Array[DBRefEntry] {
+pub fn parse_dbref_record(
+  lines : Array[String],
+  _start_idx : Int,
+) -> Array[DBRefEntry] {
   let result : Array[DBRefEntry] = []
   let (start, end) = extract_record_section(lines, "DBREF")
   if start < 0 {
@@ -684,11 +702,7 @@ pub fn parse_dbref_record(lines : Array[String], _start_idx : Int) -> Array[DBRe
       let db_name = trim_pdb_field(line, 13, 18)
       let db_accession = trim_pdb_field(line, 24, 33)
       let db_id = trim_pdb_field(line, 49, 56)
-      result.push(DBRefEntry::new(
-        db_name=db_name,
-        db_accession=db_accession,
-        db_id=db_id,
-      ))
+      result.push(DBRefEntry::new(db_name~, db_accession~, db_id~))
     }
     i = i + 1
   }
@@ -697,7 +711,10 @@ pub fn parse_dbref_record(lines : Array[String], _start_idx : Int) -> Array[DBRe
 
 ///|
 /// Parse all REMARK records into an array of strings.
-pub fn parse_remark_records(lines : Array[String], _start_idx : Int) -> Array[String] {
+pub fn parse_remark_records(
+  lines : Array[String],
+  _start_idx : Int,
+) -> Array[String] {
   let result : Array[String] = []
   let (start, end) = extract_record_section(lines, "REMARK")
   if start < 0 {

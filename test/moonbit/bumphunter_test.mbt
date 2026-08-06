@@ -13,6 +13,7 @@ test "bump_position_creation" {
   assert_eq(p.values()[0], 0.5)
 }
 
+///|
 test "bump_region_creation" {
   let r = @src.BumpRegion::new("chr1", 1000, 2000, 3.5, 10.0, 0, 5)
   assert_eq(r.chrom(), "chr1")
@@ -25,10 +26,9 @@ test "bump_region_creation" {
   assert_eq(r.length(), 1000)
 }
 
+///|
 test "bump_result_creation" {
-  let r = @src.BumpResult::new(
-    "chr1", 1000, 2000, 3.5, 10.0, 0.01, 0.05, 0, 5,
-  )
+  let r = @src.BumpResult::new("chr1", 1000, 2000, 3.5, 10.0, 0.01, 0.05, 0, 5)
   assert_eq(r.chrom(), "chr1")
   assert_eq(r.start(), 1000)
   assert_eq(r.end_(), 2000)
@@ -44,20 +44,18 @@ test "bump_result_creation" {
 // t-statistic computation
 // ---------------------------------------------------------------------------
 
+///|
 test "bump_t_statistics_clear_difference" {
   // Position with clear difference between groups
-  let positions = [
-    @src.BumpPosition::new("chr1", 100, [1.0, 1.0, 5.0, 5.0]),
-  ]
+  let positions = [@src.BumpPosition::new("chr1", 100, [1.0, 1.0, 5.0, 5.0])]
   let stats = @src.bump_compute_t_statistics_test(positions, 2)
   // Group1 mean=1, Group2 mean=5 => negative t-stat
   assert_true(stats[0] < 0.0)
 }
 
+///|
 test "bump_t_statistics_no_difference" {
-  let positions = [
-    @src.BumpPosition::new("chr1", 100, [3.0, 3.0, 3.0, 3.0]),
-  ]
+  let positions = [@src.BumpPosition::new("chr1", 100, [3.0, 3.0, 3.0, 3.0])]
   let stats = @src.bump_compute_t_statistics_test(positions, 2)
   assert_eq(stats[0], 0.0)
 }
@@ -66,6 +64,7 @@ test "bump_t_statistics_no_difference" {
 // Smoothing
 // ---------------------------------------------------------------------------
 
+///|
 test "bump_smooth_basic" {
   let stats = [1.0, 2.0, 3.0, 4.0, 5.0]
   let smoothed = @src.bump_smooth_test(stats, 1)
@@ -77,6 +76,7 @@ test "bump_smooth_basic" {
   assert_eq(smoothed[4], 4.5)
 }
 
+///|
 test "bump_smooth_preserves_constant" {
   let stats = [5.0, 5.0, 5.0, 5.0]
   let smoothed = @src.bump_smooth_test(stats, 1)
@@ -89,6 +89,7 @@ test "bump_smooth_preserves_constant" {
 // Candidate bump finding
 // ---------------------------------------------------------------------------
 
+///|
 test "bump_find_candidates_basic" {
   let positions = [
     @src.BumpPosition::new("chr1", 100, [0.0]),
@@ -104,6 +105,7 @@ test "bump_find_candidates_basic" {
   assert_eq(bumps[0].value(), 4.0)
 }
 
+///|
 test "bump_find_candidates_none" {
   let positions = [
     @src.BumpPosition::new("chr1", 100, [0.0]),
@@ -114,6 +116,7 @@ test "bump_find_candidates_none" {
   assert_eq(bumps.length(), 0)
 }
 
+///|
 test "bump_find_candidates_negative_values" {
   let positions = [
     @src.BumpPosition::new("chr1", 100, [0.0]),
@@ -127,6 +130,7 @@ test "bump_find_candidates_negative_values" {
   assert_true(bumps[0].value() < 0.0)
 }
 
+///|
 test "bump_find_candidates_chromosome_boundary" {
   let positions = [
     @src.BumpPosition::new("chr1", 100, [3.0]),
@@ -144,6 +148,7 @@ test "bump_find_candidates_chromosome_boundary" {
 // Full analysis pipeline
 // ---------------------------------------------------------------------------
 
+///|
 test "bump_hunt_detects_known_bump" {
   let data = @src.bump_sample_data()
   let results = @src.bump_hunt(data, 4, 2.0, 2, 20)
@@ -153,17 +158,20 @@ test "bump_hunt_detects_known_bump" {
   assert_eq(results[0].chrom(), "chr1")
 }
 
+///|
 test "bump_hunt_empty_input" {
   let results = @src.bump_hunt([], 4, 2.0, 2, 10)
   assert_eq(results.length(), 0)
 }
 
+///|
 test "bump_hunt_zero_group_size" {
   let data = @src.bump_sample_data()
   let results = @src.bump_hunt(data, 0, 2.0, 2, 10)
   assert_eq(results.length(), 0)
 }
 
+///|
 test "bump_hunt_high_cutoff_finds_nothing" {
   let data = @src.bump_sample_data()
   // Very high cutoff should find no bumps
@@ -171,6 +179,7 @@ test "bump_hunt_high_cutoff_finds_nothing" {
   assert_eq(results.length(), 0)
 }
 
+///|
 test "bump_hunt_result_has_valid_pvalue" {
   let data = @src.bump_sample_data()
   let results = @src.bump_hunt(data, 4, 2.0, 2, 20)
@@ -180,6 +189,7 @@ test "bump_hunt_result_has_valid_pvalue" {
   }
 }
 
+///|
 test "bump_hunt_result_has_valid_fdr" {
   let data = @src.bump_sample_data()
   let results = @src.bump_hunt(data, 4, 2.0, 2, 20)
@@ -193,6 +203,7 @@ test "bump_hunt_result_has_valid_fdr" {
 // Sample data
 // ---------------------------------------------------------------------------
 
+///|
 test "bump_sample_data_structure" {
   let data = @src.bump_sample_data()
   assert_eq(data.length(), 30)
@@ -204,11 +215,24 @@ test "bump_sample_data_structure" {
   assert_eq(data[29].pos(), 3900)
 }
 
+///|
 test "bump_sample_data_has_bump_signal" {
   let data = @src.bump_sample_data()
   // Cases (first 4 samples) should have higher values in positions 10-20
-  let case_mean_at_5 = (data[5].values()[0] + data[5].values()[1] + data[5].values()[2] + data[5].values()[3]) / 4.0
-  let case_mean_at_15 = (data[15].values()[0] + data[15].values()[1] + data[15].values()[2] + data[15].values()[3]) / 4.0
+  let case_mean_at_5 = (
+      data[5].values()[0] +
+      data[5].values()[1] +
+      data[5].values()[2] +
+      data[5].values()[3]
+    ) /
+    4.0
+  let case_mean_at_15 = (
+      data[15].values()[0] +
+      data[15].values()[1] +
+      data[15].values()[2] +
+      data[15].values()[3]
+    ) /
+    4.0
   // Position 15 (in bump region) should have higher case mean than position 5 (outside)
   assert_true(case_mean_at_15 > case_mean_at_5)
 }
@@ -217,16 +241,16 @@ test "bump_sample_data_has_bump_signal" {
 // Output formatting
 // ---------------------------------------------------------------------------
 
+///|
 test "bump_result_to_string" {
-  let r = @src.BumpResult::new(
-    "chr1", 1000, 2000, 3.5, 10.0, 0.01, 0.05, 0, 5,
-  )
+  let r = @src.BumpResult::new("chr1", 1000, 2000, 3.5, 10.0, 0.01, 0.05, 0, 5)
   let s = r.to_string()
   assert_true(s.contains("chr1"))
   assert_true(s.contains("1000"))
   assert_true(s.contains("2000"))
 }
 
+///|
 test "bump_results_to_string" {
   let results = [
     @src.BumpResult::new("chr1", 1000, 2000, 3.5, 10.0, 0.01, 0.05, 0, 5),
@@ -240,6 +264,7 @@ test "bump_results_to_string" {
 // Area computation
 // ---------------------------------------------------------------------------
 
+///|
 test "bump_area_is_sum_of_smoothed" {
   let positions = [
     @src.BumpPosition::new("chr1", 100, [0.0]),
@@ -258,6 +283,7 @@ test "bump_area_is_sum_of_smoothed" {
 // Bump length
 // ---------------------------------------------------------------------------
 
+///|
 test "bump_length_calculation" {
   let r = @src.BumpRegion::new("chr1", 1000, 2500, 3.0, 9.0, 0, 3)
   assert_eq(r.length(), 1500)

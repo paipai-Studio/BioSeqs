@@ -170,7 +170,11 @@ test "spia_activation_status" {
   while i < results.results.length() {
     let r = results.results[i]
     // Activation status must be one of -1, 0, 1
-    assert_true(r.activation_status == -1 || r.activation_status == 0 || r.activation_status == 1)
+    assert_true(
+      r.activation_status == -1 ||
+      r.activation_status == 0 ||
+      r.activation_status == 1,
+    )
     i = i + 1
   }
 }

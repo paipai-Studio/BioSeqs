@@ -42,15 +42,15 @@ pub fn UmapConfig::new_custom(
   random_seed : Int,
 ) -> UmapConfig {
   UmapConfig::{
-    n_neighbors: n_neighbors,
-    n_components: n_components,
-    n_epochs: n_epochs,
+    n_neighbors,
+    n_components,
+    n_epochs,
     min_dist: 0.1,
     spread: 1.0,
     learning_rate: 1.0,
     repulsion_strength: 1.0,
     negative_sample_rate: 5.0,
-    random_seed: random_seed,
+    random_seed,
     metric: "euclidean",
   }
 }
@@ -64,16 +64,14 @@ pub struct UmapResult {
 
 ///|
 pub fn UmapResult::new() -> UmapResult {
-  UmapResult::{
-    embedding: Array::new(),
-    n_epochs: 0,
-  }
+  UmapResult::{ embedding: Array::new(), n_epochs: 0 }
 }
 
 // ============================================================
 // Distance and knn functions
 // ============================================================
 
+///|
 fn uwot_euclidean_distance(x : Array[Double], y : Array[Double]) -> Double {
   let mut sum_sq = 0.0
   let n = if x.length() < y.length() { x.length() } else { y.length() }
@@ -88,14 +86,16 @@ fn uwot_euclidean_distance(x : Array[Double], y : Array[Double]) -> Double {
 
 ///|
 /// Compute pairwise distance matrix.
-pub fn uwot_distance_matrix(data : Array[Array[Double]]) -> Array[Array[Double]] {
+pub fn uwot_distance_matrix(
+  data : Array[Array[Double]],
+) -> Array[Array[Double]] {
   let n = data.length()
   let dist_matrix : Array[Array[Double]] = Array::new()
-  
+
   if n == 0 {
     return dist_matrix
   }
-  
+
   let mut i = 0
   while i < n {
     let row : Array[Double] = Array::new()
@@ -107,7 +107,7 @@ pub fn uwot_distance_matrix(data : Array[Array[Double]]) -> Array[Array[Double]]
     dist_matrix.push(row)
     i = i + 1
   }
-  
+
   let mut i = 0
   while i < n {
     let mut j = i + 1
@@ -119,23 +119,26 @@ pub fn uwot_distance_matrix(data : Array[Array[Double]]) -> Array[Array[Double]]
     }
     i = i + 1
   }
-  
+
   dist_matrix
 }
 
 ///|
 /// Find k-nearest neighbors for each point.
 /// Returns: for each point, array of (neighbor_index, distance) pairs
-fn find_knn(dist_matrix : Array[Array[Double]], k : Int) -> Array[Array[(Int, Double)]] {
+fn find_knn(
+  dist_matrix : Array[Array[Double]],
+  k : Int,
+) -> Array[Array[(Int, Double)]] {
   let n = dist_matrix.length()
   let result : Array[Array[(Int, Double)]] = Array::new()
-  
+
   if n == 0 || k <= 0 {
     return result
   }
-  
+
   let actual_k = if k < n { k } else { n - 1 }
-  
+
   let mut i = 0
   while i < n {
     // Create list of (index, distance) for all other points
@@ -147,7 +150,7 @@ fn find_knn(dist_matrix : Array[Array[Double]], k : Int) -> Array[Array[(Int, Do
       }
       j = j + 1
     }
-    
+
     // Simple selection sort to find k nearest
     let knn : Array[(Int, Double)] = Array::new()
     let mut selected = 0
@@ -165,24 +168,24 @@ fn find_knn(dist_matrix : Array[Array[Double]], k : Int) -> Array[Array[(Int, Do
           }
           s = s + 1
         }
-        
+
         if !already_selected && neighbors[j].1 < min_dist {
           min_dist = neighbors[j].1
           min_idx = j
         }
         j = j + 1
       }
-      
+
       if min_idx >= 0 {
         knn.push(neighbors[min_idx])
       }
       selected = selected + 1
     }
-    
+
     result.push(knn)
     i = i + 1
   }
-  
+
   result
 }
 
@@ -192,7 +195,11 @@ fn find_knn(dist_matrix : Array[Array[Double]], k : Int) -> Array[Array[(Int, Do
 
 ///|
 /// Compute the membership strength for a distance using the smooth k-nn distance.
-fn compute_membership(distance : Double, rho : Double, sigma : Double) -> Double {
+fn compute_membership(
+  distance : Double,
+  rho : Double,
+  sigma : Double,
+) -> Double {
   if distance <= rho {
     return 1.0
   }
@@ -209,7 +216,7 @@ fn find_sigma(
 ) -> Double {
   let mut lo = 0.0
   let mut hi = 1000.0
-  
+
   let mut mid = 1.0
   let mut iter = 0
   while iter < 64 {
@@ -217,21 +224,22 @@ fn find_sigma(
     let mut sum_membership = 0.0
     let mut i = 0
     while i < n_neighbors && i < distances.length() {
-      sum_membership = sum_membership + compute_membership(distances[i], rho, mid)
+      sum_membership = sum_membership +
+        compute_membership(distances[i], rho, mid)
       i = i + 1
     }
-    
+
     let log_sum = @math.log2(sum_membership)
-    
+
     if log_sum > target_log2 {
       hi = mid
     } else {
       lo = mid
     }
-    
+
     iter = iter + 1
   }
-  
+
   mid
 }
 
@@ -246,7 +254,7 @@ fn build_graph(
 ) -> Array[Array[Double]] {
   let n = data.length()
   let n_neighbors = config.n_neighbors
-  
+
   // Initialize graph
   let graph : Array[Array[Double]] = Array::new()
   let mut i = 0
@@ -260,20 +268,24 @@ fn build_graph(
     graph.push(row)
     i = i + 1
   }
-  
+
   // Target entropy = log2(n_neighbors)
   let target_log2 = @math.log2(n_neighbors.to_double())
-  
+
   // For each point, compute rho (distance to nearest neighbor) and sigma
   let sigmas : Array[Double] = Array::new()
   let rhos : Array[Double] = Array::new()
-  
+
   let mut i = 0
   while i < n {
     // rho = distance to nearest neighbor
-    let rho = if knn_distances[i].length() > 0 { knn_distances[i][0] } else { 0.0 }
+    let rho = if knn_distances[i].length() > 0 {
+      knn_distances[i][0]
+    } else {
+      0.0
+    }
     rhos.push(rho)
-    
+
     // Find sigma using binary search
     let distances : Array[Double] = Array::new()
     let mut j = 0
@@ -281,13 +293,13 @@ fn build_graph(
       distances.push(knn_distances[i][j])
       j = j + 1
     }
-    
+
     let sigma = find_sigma(distances, rho, target_log2, n_neighbors)
     sigmas.push(sigma)
-    
+
     i = i + 1
   }
-  
+
   // Build the graph with asymmetric memberships
   let mut i = 0
   while i < n {
@@ -295,15 +307,15 @@ fn build_graph(
     while j < knn_indices[i].length() {
       let neighbor_idx = knn_indices[i][j]
       let dist = knn_distances[i][j]
-      
+
       let membership_i_to_j = compute_membership(dist, rhos[i], sigmas[i])
       graph[i][neighbor_idx] = membership_i_to_j
-      
+
       j = j + 1
     }
     i = i + 1
   }
-  
+
   // Symmetrize the graph: w_ij = w_ij + w_ji - w_ij * w_ji
   let mut i = 0
   while i < n {
@@ -318,7 +330,7 @@ fn build_graph(
     }
     i = i + 1
   }
-  
+
   graph
 }
 
@@ -338,11 +350,11 @@ fn find_ab(min_dist : Double, spread : Double) -> (Double, Double) {
   // Curve: 1 / (1 + a * x^(2b))
   // At x = min_dist: y = 0.5 (approximately)
   // At x = spread: y is small
-  
+
   // Simplified parameter estimation
   let a = 1.576942937
   let b = 0.895061728
-  
+
   // Scale based on min_dist and spread
   let scaled_a = a / @math.pow(spread, 2.0 * b)
   (scaled_a, b)
@@ -350,9 +362,13 @@ fn find_ab(min_dist : Double, spread : Double) -> (Double, Double) {
 
 ///|
 /// Initialize the embedding with small random values.
-fn initialize_embedding(n : Int, n_components : Int, seed : Int) -> Array[Array[Double]] {
+fn initialize_embedding(
+  n : Int,
+  n_components : Int,
+  seed : Int,
+) -> Array[Array[Double]] {
   let embedding : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < n {
     let row : Array[Double] = Array::new()
@@ -366,19 +382,22 @@ fn initialize_embedding(n : Int, n_components : Int, seed : Int) -> Array[Array[
     embedding.push(row)
     i = i + 1
   }
-  
+
   embedding
 }
 
 ///|
 /// Main UMAP algorithm.
-pub fn uwot_umap(data : Array[Array[Double]], config : UmapConfig) -> UmapResult {
+pub fn uwot_umap(
+  data : Array[Array[Double]],
+  config : UmapConfig,
+) -> UmapResult {
   let n = data.length()
-  
+
   if n == 0 {
     return UmapResult::new()
   }
-  
+
   if n < 2 {
     let result = UmapResult::new()
     let embedding : Array[Array[Double]] = Array::new()
@@ -391,18 +410,18 @@ pub fn uwot_umap(data : Array[Array[Double]], config : UmapConfig) -> UmapResult
     embedding.push(row)
     return result
   }
-  
+
   // Step 1: Compute distance matrix
   let dist_matrix = uwot_distance_matrix(data)
-  
+
   // Step 2: Find k-nearest neighbors
   let k = if config.n_neighbors < n - 1 { config.n_neighbors } else { n - 1 }
   let knn = find_knn(dist_matrix, k)
-  
+
   // Extract knn indices and distances
   let knn_indices : Array[Array[Int]] = Array::new()
   let knn_distances : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < n {
     let indices : Array[Int] = Array::new()
@@ -417,20 +436,24 @@ pub fn uwot_umap(data : Array[Array[Double]], config : UmapConfig) -> UmapResult
     knn_distances.push(distances)
     i = i + 1
   }
-  
+
   // Step 3: Build fuzzy simplicial set
   let graph = build_graph(data, dist_matrix, knn_indices, knn_distances, config)
-  
+
   // Step 4: Find a and b parameters
   let (a, b) = find_ab(config.min_dist, config.spread)
-  
+
   // Step 5: Initialize embedding
-  let embedding = initialize_embedding(n, config.n_components, config.random_seed)
-  
+  let embedding = initialize_embedding(
+    n,
+    config.n_components,
+    config.random_seed,
+  )
+
   // Step 6: Optimize embedding using stochastic gradient descent
   let epochs_per_sample : Array[Array[Int]] = Array::new()
   let epoch_of_next_sample : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < n {
     let eps_row : Array[Int] = Array::new()
@@ -445,7 +468,7 @@ pub fn uwot_umap(data : Array[Array[Double]], config : UmapConfig) -> UmapResult
     epoch_of_next_sample.push(eons_row)
     i = i + 1
   }
-  
+
   // Compute epochs per sample based on graph weights
   let max_epochs = config.n_epochs.to_double()
   let mut max_weight = 0.0
@@ -460,11 +483,11 @@ pub fn uwot_umap(data : Array[Array[Double]], config : UmapConfig) -> UmapResult
     }
     i = i + 1
   }
-  
+
   if max_weight == 0.0 {
     max_weight = 1.0
   }
-  
+
   let mut i = 0
   while i < n {
     let mut j = 0
@@ -483,7 +506,7 @@ pub fn uwot_umap(data : Array[Array[Double]], config : UmapConfig) -> UmapResult
     }
     i = i + 1
   }
-  
+
   // SGD optimization
   let mut epoch = 0
   while epoch < config.n_epochs {
@@ -501,25 +524,33 @@ pub fn uwot_umap(data : Array[Array[Double]], config : UmapConfig) -> UmapResult
               dist_sq = dist_sq + diff * diff
               d = d + 1
             }
-            
-            let grad_coeff = (-2.0 * a * b * @math.pow(dist_sq, b - 1.0)) / (1.0 + a * @math.pow(dist_sq, b))
-            
+
+            let grad_coeff = -2.0 *
+              a *
+              b *
+              @math.pow(dist_sq, b - 1.0) /
+              (1.0 + a * @math.pow(dist_sq, b))
+
             let mut d = 0
             while d < config.n_components {
-              let grad = config.learning_rate * grad_coeff * (embedding[i][d] - embedding[j][d])
+              let grad = config.learning_rate *
+                grad_coeff *
+                (embedding[i][d] - embedding[j][d])
               embedding[i][d] = embedding[i][d] + grad
               embedding[j][d] = embedding[j][d] - grad
               d = d + 1
             }
-            
+
             // Negative samples: move points apart
             let n_neg = config.negative_sample_rate.to_int()
             let mut neg = 0
             while neg < n_neg {
               // Pick random negative sample
-              let rand_val = umap_pseudo_random((epoch * n + i * n_neg + neg + config.random_seed).to_double())
+              let rand_val = umap_pseudo_random(
+                (epoch * n + i * n_neg + neg + config.random_seed).to_double(),
+              )
               let k_random = (rand_val * n.to_double()).to_int()
-              
+
               if k_random != i && k_random != j {
                 let mut dist_sq_neg = 0.0
                 let mut d = 0
@@ -528,41 +559,48 @@ pub fn uwot_umap(data : Array[Array[Double]], config : UmapConfig) -> UmapResult
                   dist_sq_neg = dist_sq_neg + diff * diff
                   d = d + 1
                 }
-                
-                let grad_coeff_neg = (2.0 * b * config.repulsion_strength) / ((0.001 + dist_sq_neg) * (1.0 + a * @math.pow(dist_sq_neg, b)))
-                
+
+                let grad_coeff_neg = 2.0 *
+                  b *
+                  config.repulsion_strength /
+                  (
+                    (0.001 + dist_sq_neg) *
+                    (1.0 + a * @math.pow(dist_sq_neg, b))
+                  )
+
                 let mut d = 0
                 while d < config.n_components {
-                  let grad = config.learning_rate * grad_coeff_neg * (embedding[i][d] - embedding[k_random][d])
+                  let grad = config.learning_rate *
+                    grad_coeff_neg *
+                    (embedding[i][d] - embedding[k_random][d])
                   embedding[i][d] = embedding[i][d] + grad
                   d = d + 1
                 }
               }
-              
+
               neg = neg + 1
             }
-            
-            epoch_of_next_sample[i][j] = epoch_of_next_sample[i][j] + epochs_per_sample[i][j].to_double()
+
+            epoch_of_next_sample[i][j] = epoch_of_next_sample[i][j] +
+              epochs_per_sample[i][j].to_double()
           }
         }
         j = j + 1
       }
       i = i + 1
     }
-    
+
     epoch = epoch + 1
   }
-  
-  UmapResult::{
-    embedding: embedding,
-    n_epochs: config.n_epochs,
-  }
+
+  UmapResult::{ embedding, n_epochs: config.n_epochs }
 }
 
 // ============================================================
 // Helper functions
 // ============================================================
 
+///|
 fn umap_pseudo_random(seed : Double) -> Double {
   let x = seed * 12.9898
   let y_val = seed * 78.233
@@ -574,14 +612,17 @@ fn umap_pseudo_random(seed : Double) -> Double {
 
 ///|
 /// Create sample data for testing/demo.
-pub fn create_umap_test_data(n_samples : Int, n_features : Int) -> Array[Array[Double]] {
+pub fn create_umap_test_data(
+  n_samples : Int,
+  n_features : Int,
+) -> Array[Array[Double]] {
   let data : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < n_samples {
     let row : Array[Double] = Array::new()
-    let group = i % 4  // 4 clusters
-    
+    let group = i % 4 // 4 clusters
+
     let mut j = 0
     while j < n_features {
       let seed_val = (i * n_features + j).to_double()
@@ -590,10 +631,10 @@ pub fn create_umap_test_data(n_samples : Int, n_features : Int) -> Array[Array[D
       row.push(cluster_center + noise)
       j = j + 1
     }
-    
+
     data.push(row)
     i = i + 1
   }
-  
+
   data
 }

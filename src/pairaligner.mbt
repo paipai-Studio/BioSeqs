@@ -415,33 +415,39 @@ fn pairaligner_chars_equal_ci(a : Char, b : Char) -> Bool {
 /// BLOSUM62 data for 20 standard amino acids in order:
 /// A R N D C Q E G H I L K M F P S T W Y V
 let pairaligner_blosum62_data : Array[Array[Int]] = [
-  [ 4,-1,-2,-2, 0,-1,-1, 0,-2,-1,-1,-1,-1,-2,-1, 1, 0,-3,-2, 0], // A
-  [-1, 5, 0,-2,-3, 1, 0,-2, 0,-3,-2, 2,-1,-3,-2,-1,-1,-3,-2,-3], // R
-  [-2, 0, 6, 1,-3, 0, 0, 0, 1,-3,-3, 0,-2,-3,-2, 1, 0,-4,-2,-3], // N
-  [-2,-2, 1, 6,-3, 0, 2,-1,-1,-3,-4,-1,-3,-3,-1, 0,-1,-4,-3,-3], // D
-  [ 0,-3,-3,-3, 9,-3,-4,-3,-3,-1,-1,-3,-1,-2,-3,-1,-1,-2,-2,-1], // C
-  [-1, 1, 0, 0,-3, 5, 2,-2, 0,-3,-2, 1, 0,-3,-1, 0,-1,-2,-1,-2], // Q
-  [-1, 0, 0, 2,-4, 2, 5,-2, 0,-3,-3, 1,-2,-3,-1, 0,-1,-3,-2,-2], // E
-  [ 0,-2, 0,-1,-3,-2,-2, 6,-2,-4,-4,-2,-3,-3,-2, 0,-2,-2,-3,-3], // G
-  [-2, 0, 1,-1,-3, 0, 0,-2, 8,-3,-3,-1,-2,-1,-2,-1,-2,-2, 2,-3], // H
-  [-1,-3,-3,-3,-1,-3,-3,-4,-3, 4, 2,-3, 1, 0,-3,-2,-1,-3,-1, 3], // I
-  [-1,-2,-3,-4,-1,-2,-3,-4,-3, 2, 4,-2, 2, 0,-3,-2,-1,-2,-1, 1], // L
-  [-1, 2, 0,-1,-3, 1, 1,-2,-1,-3,-2, 5,-1,-3,-1, 0,-1,-3,-2,-2], // K
-  [-1,-1,-2,-3,-1, 0,-2,-3,-2, 1, 2,-1, 5, 0,-2,-1,-1,-1,-1, 1], // M
-  [-2,-3,-3,-3,-2,-3,-3,-3,-1, 0, 0,-3, 0, 6,-4,-2,-2, 1, 3,-1], // F
-  [-1,-2,-2,-1,-3,-1,-1,-2,-2,-3,-3,-1,-2,-4, 7,-1,-1,-4,-3,-2], // P
-  [ 1,-1, 1, 0,-1, 0, 0, 0,-1,-2,-2, 0,-1,-2,-1, 4, 1,-3,-2,-2], // S
-  [ 0,-1, 0,-1,-1,-1,-1,-2,-2,-1,-1,-1,-1,-2,-1, 1, 5,-2,-2, 0], // T
-  [-3,-3,-4,-4,-2,-2,-3,-2,-2,-3,-2,-3,-1, 1,-4,-3,-2,11, 2,-3], // W
-  [-2,-2,-2,-3,-2,-1,-2,-3, 2,-1,-1,-2,-1, 3,-3,-2,-2, 2, 7,-1], // Y
-  [ 0,-3,-3,-3,-1,-2,-2,-3,-3, 3, 1,-2, 1,-1,-2,-2, 0,-3,-1, 4], // V
+  [4, -1, -2, -2, 0, -1, -1, 0, -2, -1, -1, -1, -1, -2, -1, 1, 0, -3, -2, 0], // A
+  [-1, 5, 0, -2, -3, 1, 0, -2, 0, -3, -2, 2, -1, -3, -2, -1, -1, -3, -2, -3], // R
+  [-2, 0, 6, 1, -3, 0, 0, 0, 1, -3, -3, 0, -2, -3, -2, 1, 0, -4, -2, -3], // N
+  [-2, -2, 1, 6, -3, 0, 2, -1, -1, -3, -4, -1, -3, -3, -1, 0, -1, -4, -3, -3], // D
+  [0, -3, -3, -3, 9, -3, -4, -3, -3, -1, -1, -3, -1, -2, -3, -1, -1, -2, -2, -1], // C
+  [-1, 1, 0, 0, -3, 5, 2, -2, 0, -3, -2, 1, 0, -3, -1, 0, -1, -2, -1, -2], // Q
+  [-1, 0, 0, 2, -4, 2, 5, -2, 0, -3, -3, 1, -2, -3, -1, 0, -1, -3, -2, -2], // E
+  [0, -2, 0, -1, -3, -2, -2, 6, -2, -4, -4, -2, -3, -3, -2, 0, -2, -2, -3, -3], // G
+  [-2, 0, 1, -1, -3, 0, 0, -2, 8, -3, -3, -1, -2, -1, -2, -1, -2, -2, 2, -3], // H
+  [-1, -3, -3, -3, -1, -3, -3, -4, -3, 4, 2, -3, 1, 0, -3, -2, -1, -3, -1, 3], // I
+  [-1, -2, -3, -4, -1, -2, -3, -4, -3, 2, 4, -2, 2, 0, -3, -2, -1, -2, -1, 1], // L
+  [-1, 2, 0, -1, -3, 1, 1, -2, -1, -3, -2, 5, -1, -3, -1, 0, -1, -3, -2, -2], // K
+  [-1, -1, -2, -3, -1, 0, -2, -3, -2, 1, 2, -1, 5, 0, -2, -1, -1, -1, -1, 1], // M
+  [-2, -3, -3, -3, -2, -3, -3, -3, -1, 0, 0, -3, 0, 6, -4, -2, -2, 1, 3, -1], // F
+  [
+    -1, -2, -2, -1, -3, -1, -1, -2, -2, -3, -3, -1, -2, -4, 7, -1, -1, -4, -3, -2,
+  ], // P
+  [1, -1, 1, 0, -1, 0, 0, 0, -1, -2, -2, 0, -1, -2, -1, 4, 1, -3, -2, -2], // S
+  [0, -1, 0, -1, -1, -1, -1, -2, -2, -1, -1, -1, -1, -2, -1, 1, 5, -2, -2, 0], // T
+  [-3, -3, -4, -4, -2, -2, -3, -2, -2, -3, -2, -3, -1, 1, -4, -3, -2, 11, 2, -3], // W
+  [-2, -2, -2, -3, -2, -1, -2, -3, 2, -1, -1, -2, -1, 3, -3, -2, -2, 2, 7, -1], // Y
+  [0, -3, -3, -3, -1, -2, -2, -3, -3, 3, 1, -2, 1, -1, -2, -2, 0, -3, -1, 4], // V
 ]
 
 ///|
 /// Internal BLOSUM62 matrix lookup using 20 standard amino acids.
 /// Returns score for a pair (case-insensitive).
 /// Uses mismatch_score default for unknown amino acids.
-fn pairaligner_blosum62_score(a : Char, b : Char, mismatch_default : Double) -> Double {
+fn pairaligner_blosum62_score(
+  a : Char,
+  b : Char,
+  mismatch_default : Double,
+) -> Double {
   let ia = pairaligner_aa_index_ci(a)
   let ib = pairaligner_aa_index_ci(b)
   if ia < 0 || ib < 0 {
@@ -494,15 +500,14 @@ fn pairaligner_get_subst_score(
   config : PairwiseAlignerConfig,
 ) -> Double {
   let is_protein = config.alphabet_type == "PROTEIN"
-  let use_matrix = is_protein && config.submatrix == SubstitutionMatrixChoice::Blosum62
+  let use_matrix = is_protein &&
+    config.submatrix == SubstitutionMatrixChoice::Blosum62
   if use_matrix {
     pairaligner_blosum62_score(a, b, config.mismatch_score)
+  } else if pairaligner_chars_equal_ci(a, b) {
+    config.match_score
   } else {
-    if pairaligner_chars_equal_ci(a, b) {
-      config.match_score
-    } else {
-      config.mismatch_score
-    }
+    config.mismatch_score
   }
 }
 
@@ -547,6 +552,7 @@ fn pairaligner_reverse_string(s : String) -> String {
 // Traceback direction enum (internal)
 // ============================================================
 
+///|
 priv enum TraceDir {
   Stop
   Diag
@@ -579,10 +585,13 @@ pub fn pairaligner_align(
   let is_local = config.mode == AlignmentMode::Local
 
   // ---- Initialize DP matrices ----
-  let m_mat  : Array[Array[Double]]  = pairaligner_make_matrix(n + 1, m + 1, 0.0)
-  let ix_mat : Array[Array[Double]]  = pairaligner_make_matrix(n + 1, m + 1, 0.0)
-  let iy_mat : Array[Array[Double]]  = pairaligner_make_matrix(n + 1, m + 1, 0.0)
-  let trace  : Array[Array[TraceDir]] = pairaligner_make_trace_matrix(n + 1, m + 1)
+  let m_mat : Array[Array[Double]] = pairaligner_make_matrix(n + 1, m + 1, 0.0)
+  let ix_mat : Array[Array[Double]] = pairaligner_make_matrix(n + 1, m + 1, 0.0)
+  let iy_mat : Array[Array[Double]] = pairaligner_make_matrix(n + 1, m + 1, 0.0)
+  let trace : Array[Array[TraceDir]] = pairaligner_make_trace_matrix(
+    n + 1,
+    m + 1,
+  )
 
   let target_gap_open = config.target_gap_open
   let target_gap_extend = config.target_gap_extend
@@ -651,33 +660,51 @@ pub fn pairaligner_align(
       let s = pairaligner_get_subst_score(tc, qc, config)
 
       // Compute m_mat[i][j]: match/mismatch
-      let from_M  = m_mat[i - 1][j - 1]  + s
+      let from_M = m_mat[i - 1][j - 1] + s
       let from_Ix = ix_mat[i - 1][j - 1] + s
       let from_Iy = iy_mat[i - 1][j - 1] + s
       let mut m_val = from_M
-      if from_Ix > m_val { m_val = from_Ix }
-      if from_Iy > m_val { m_val = from_Iy }
+      if from_Ix > m_val {
+        m_val = from_Ix
+      }
+      if from_Iy > m_val {
+        m_val = from_Iy
+      }
 
       // Compute ix_mat[i][j]: gap in query (Up step)
-      let ix_extend       = ix_mat[i - 1][j] + query_gap_extend
-      let ix_open_from_M  = m_mat[i - 1][j]  + query_gap_open
+      let ix_extend = ix_mat[i - 1][j] + query_gap_extend
+      let ix_open_from_M = m_mat[i - 1][j] + query_gap_open
       let ix_open_from_Iy = iy_mat[i - 1][j] + query_gap_open
       let mut ix_val = ix_extend
-      if ix_open_from_M  > ix_val { ix_val = ix_open_from_M  }
-      if ix_open_from_Iy > ix_val { ix_val = ix_open_from_Iy }
+      if ix_open_from_M > ix_val {
+        ix_val = ix_open_from_M
+      }
+      if ix_open_from_Iy > ix_val {
+        ix_val = ix_open_from_Iy
+      }
 
       // Compute iy_mat[i][j]: gap in target (Left step)
-      let iy_extend       = iy_mat[i][j - 1] + target_gap_extend
-      let iy_open_from_M  = m_mat[i][j - 1]  + target_gap_open
+      let iy_extend = iy_mat[i][j - 1] + target_gap_extend
+      let iy_open_from_M = m_mat[i][j - 1] + target_gap_open
       let iy_open_from_Ix = ix_mat[i][j - 1] + target_gap_open
       let mut iy_val = iy_extend
-      if iy_open_from_M  > iy_val { iy_val = iy_open_from_M  }
-      if iy_open_from_Ix > iy_val { iy_val = iy_open_from_Ix }
+      if iy_open_from_M > iy_val {
+        iy_val = iy_open_from_M
+      }
+      if iy_open_from_Ix > iy_val {
+        iy_val = iy_open_from_Ix
+      }
 
       if is_local {
-        if m_val  < 0.0 { m_val  = 0.0 }
-        if ix_val < 0.0 { ix_val = 0.0 }
-        if iy_val < 0.0 { iy_val = 0.0 }
+        if m_val < 0.0 {
+          m_val = 0.0
+        }
+        if ix_val < 0.0 {
+          ix_val = 0.0
+        }
+        if iy_val < 0.0 {
+          iy_val = 0.0
+        }
       }
 
       // Choose overall best and record trace
@@ -692,7 +719,7 @@ pub fn pairaligner_align(
         best_dir = TraceDir::Left
       }
 
-      m_mat[i][j]  = m_val
+      m_mat[i][j] = m_val
       ix_mat[i][j] = ix_val
       iy_mat[i][j] = iy_val
 
@@ -720,12 +747,16 @@ pub fn pairaligner_align(
   let (start_i, start_j, final_score) : (Int, Int, Double) = if is_local {
     (max_i, max_j, max_score)
   } else {
-    let m_nm  = m_mat[n][m]
+    let m_nm = m_mat[n][m]
     let ix_nm = ix_mat[n][m]
     let iy_nm = iy_mat[n][m]
     let mut best = m_nm
-    if ix_nm > best { best = ix_nm }
-    if iy_nm > best { best = iy_nm }
+    if ix_nm > best {
+      best = ix_nm
+    }
+    if iy_nm > best {
+      best = iy_nm
+    }
     (n, m, best)
   }
 
@@ -822,7 +853,11 @@ pub fn pairaligner_align(
 
 ///|
 /// Create a 2D Double matrix of size rows x cols filled with val.
-fn pairaligner_make_matrix(rows : Int, cols : Int, val : Double) -> Array[Array[Double]] {
+fn pairaligner_make_matrix(
+  rows : Int,
+  cols : Int,
+  val : Double,
+) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = Array::new()
   let mut i = 0
   while i < rows {
@@ -840,7 +875,10 @@ fn pairaligner_make_matrix(rows : Int, cols : Int, val : Double) -> Array[Array[
 
 ///|
 /// Create a 2D trace matrix filled with Stop.
-fn pairaligner_make_trace_matrix(rows : Int, cols : Int) -> Array[Array[TraceDir]] {
+fn pairaligner_make_trace_matrix(
+  rows : Int,
+  cols : Int,
+) -> Array[Array[TraceDir]] {
   let result : Array[Array[TraceDir]] = Array::new()
   let mut i = 0
   while i < rows {

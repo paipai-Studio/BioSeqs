@@ -23,7 +23,8 @@ pub enum SearchIOFormat {
 pub fn search_io_format_from_str(s : String) -> SearchIOFormat {
   match s.to_lower().trim() {
     "blast-xml" | "blastxml" | "xml" => SearchIOFormat::BlastXml
-    "blast-tab" | "blasttabular" | "tabular" | "tab" => SearchIOFormat::BlastTabular
+    "blast-tab" | "blasttabular" | "tabular" | "tab" =>
+      SearchIOFormat::BlastTabular
     "blast-text" | "blasttext" | "text" => SearchIOFormat::BlastText
     "hmmscan-domtbl" | "domtbl" => SearchIOFormat::HmmscanDomtbl
     "hmmdom-text" => SearchIOFormat::HmmdomText
@@ -53,7 +54,11 @@ fn searchio_parse_int_fast(sv : StringView) -> Int {
     }
     i = i + 1
   }
-  if is_negative { -result } else { result }
+  if is_negative {
+    -result
+  } else {
+    result
+  }
 }
 
 ///|
@@ -131,7 +136,11 @@ fn searchio_parse_double_fast(sv : StringView) -> Double {
       }
     }
   }
-  if is_negative { -final_result } else { final_result }
+  if is_negative {
+    -final_result
+  } else {
+    final_result
+  }
 }
 
 ///|
@@ -156,7 +165,11 @@ fn searchio_parse_int(s : String) -> Int {
     }
     i = i + 1
   }
-  if is_negative { -result } else { result }
+  if is_negative {
+    -result
+  } else {
+    result
+  }
 }
 
 ///|
@@ -234,7 +247,11 @@ fn searchio_parse_double(s : String) -> Double {
       }
     }
   }
-  if is_negative { -final_result } else { final_result }
+  if is_negative {
+    -final_result
+  } else {
+    final_result
+  }
 }
 
 ///|
@@ -287,62 +304,122 @@ pub fn SearchIOHsp::new(
   hit_end~ : Int,
 ) -> SearchIOHsp {
   SearchIOHsp::{
-    bitscore, evalue, identity, positives, gap,
-    alignment_length, query_start, query_end, hit_start, hit_end,
-    query_frame: 0, hit_frame: 0,
-    query_seq: "", hit_seq: "", midline: ""
+    bitscore,
+    evalue,
+    identity,
+    positives,
+    gap,
+    alignment_length,
+    query_start,
+    query_end,
+    hit_start,
+    hit_end,
+    query_frame: 0,
+    hit_frame: 0,
+    query_seq: "",
+    hit_seq: "",
+    midline: "",
   }
 }
 
 ///|
 /// Set query sequence in the alignment.
-pub fn SearchIOHsp::with_query_seq(self : SearchIOHsp, seq : String) -> SearchIOHsp {
+pub fn SearchIOHsp::with_query_seq(
+  self : SearchIOHsp,
+  seq : String,
+) -> SearchIOHsp {
   SearchIOHsp::{
-    bitscore: self.bitscore, evalue: self.evalue, identity: self.identity,
-    positives: self.positives, gap: self.gap, alignment_length: self.alignment_length,
-    query_start: self.query_start, query_end: self.query_end,
-    hit_start: self.hit_start, hit_end: self.hit_end,
-    query_frame: self.query_frame, hit_frame: self.hit_frame,
-    query_seq: seq, hit_seq: self.hit_seq, midline: self.midline
+    bitscore: self.bitscore,
+    evalue: self.evalue,
+    identity: self.identity,
+    positives: self.positives,
+    gap: self.gap,
+    alignment_length: self.alignment_length,
+    query_start: self.query_start,
+    query_end: self.query_end,
+    hit_start: self.hit_start,
+    hit_end: self.hit_end,
+    query_frame: self.query_frame,
+    hit_frame: self.hit_frame,
+    query_seq: seq,
+    hit_seq: self.hit_seq,
+    midline: self.midline,
   }
 }
 
 ///|
 /// Set hit sequence in the alignment.
-pub fn SearchIOHsp::with_hit_seq(self : SearchIOHsp, seq : String) -> SearchIOHsp {
+pub fn SearchIOHsp::with_hit_seq(
+  self : SearchIOHsp,
+  seq : String,
+) -> SearchIOHsp {
   SearchIOHsp::{
-    bitscore: self.bitscore, evalue: self.evalue, identity: self.identity,
-    positives: self.positives, gap: self.gap, alignment_length: self.alignment_length,
-    query_start: self.query_start, query_end: self.query_end,
-    hit_start: self.hit_start, hit_end: self.hit_end,
-    query_frame: self.query_frame, hit_frame: self.hit_frame,
-    query_seq: self.query_seq, hit_seq: seq, midline: self.midline
+    bitscore: self.bitscore,
+    evalue: self.evalue,
+    identity: self.identity,
+    positives: self.positives,
+    gap: self.gap,
+    alignment_length: self.alignment_length,
+    query_start: self.query_start,
+    query_end: self.query_end,
+    hit_start: self.hit_start,
+    hit_end: self.hit_end,
+    query_frame: self.query_frame,
+    hit_frame: self.hit_frame,
+    query_seq: self.query_seq,
+    hit_seq: seq,
+    midline: self.midline,
   }
 }
 
 ///|
 /// Set midline (conservation line).
-pub fn SearchIOHsp::with_midline(self : SearchIOHsp, line : String) -> SearchIOHsp {
+pub fn SearchIOHsp::with_midline(
+  self : SearchIOHsp,
+  line : String,
+) -> SearchIOHsp {
   SearchIOHsp::{
-    bitscore: self.bitscore, evalue: self.evalue, identity: self.identity,
-    positives: self.positives, gap: self.gap, alignment_length: self.alignment_length,
-    query_start: self.query_start, query_end: self.query_end,
-    hit_start: self.hit_start, hit_end: self.hit_end,
-    query_frame: self.query_frame, hit_frame: self.hit_frame,
-    query_seq: self.query_seq, hit_seq: self.hit_seq, midline: line
+    bitscore: self.bitscore,
+    evalue: self.evalue,
+    identity: self.identity,
+    positives: self.positives,
+    gap: self.gap,
+    alignment_length: self.alignment_length,
+    query_start: self.query_start,
+    query_end: self.query_end,
+    hit_start: self.hit_start,
+    hit_end: self.hit_end,
+    query_frame: self.query_frame,
+    hit_frame: self.hit_frame,
+    query_seq: self.query_seq,
+    hit_seq: self.hit_seq,
+    midline: line,
   }
 }
 
 ///|
 /// Set query and hit frames.
-pub fn SearchIOHsp::with_frames(self : SearchIOHsp, qframe : Int, hframe : Int) -> SearchIOHsp {
+pub fn SearchIOHsp::with_frames(
+  self : SearchIOHsp,
+  qframe : Int,
+  hframe : Int,
+) -> SearchIOHsp {
   SearchIOHsp::{
-    bitscore: self.bitscore, evalue: self.evalue, identity: self.identity,
-    positives: self.positives, gap: self.gap, alignment_length: self.alignment_length,
-    query_start: self.query_start, query_end: self.query_end,
-    hit_start: self.hit_start, hit_end: self.hit_end,
-    query_frame: qframe, hit_frame: hframe,
-    query_seq: self.query_seq, hit_seq: self.hit_seq, midline: self.midline
+    bitscore: self.bitscore,
+    evalue: self.evalue,
+    identity: self.identity,
+    positives: self.positives,
+    gap: self.gap,
+    alignment_length: self.alignment_length,
+    query_start: self.query_start,
+    query_end: self.query_end,
+    hit_start: self.hit_start,
+    hit_end: self.hit_end,
+    query_frame: qframe,
+    hit_frame: hframe,
+    query_seq: self.query_seq,
+    hit_seq: self.hit_seq,
+    midline: self.midline,
   }
 }
 
@@ -379,18 +456,27 @@ pub struct SearchIOHit {
 
 ///|
 /// Construct SearchIOHit.
-pub fn SearchIOHit::new(id~ : String, description~ : String, seq_length~ : Int) -> SearchIOHit {
+pub fn SearchIOHit::new(
+  id~ : String,
+  description~ : String,
+  seq_length~ : Int,
+) -> SearchIOHit {
   SearchIOHit::{ id, description, seq_length, hsps: Array::new() }
 }
 
 ///|
 /// Add an HSP to this hit.
-pub fn SearchIOHit::add_hsp(self : SearchIOHit, hsp : SearchIOHsp) -> SearchIOHit {
+pub fn SearchIOHit::add_hsp(
+  self : SearchIOHit,
+  hsp : SearchIOHsp,
+) -> SearchIOHit {
   let new_hsps = self.hsps.copy()
   new_hsps.push(hsp)
   SearchIOHit::{
-    id: self.id, description: self.description,
-    seq_length: self.seq_length, hsps: new_hsps
+    id: self.id,
+    description: self.description,
+    seq_length: self.seq_length,
+    hsps: new_hsps,
   }
 }
 
@@ -457,38 +543,57 @@ pub fn SearchIOQueryResult::new(
   database~ : String,
 ) -> SearchIOQueryResult {
   SearchIOQueryResult::{
-    id, description, seq_length, database,
-    n_hits: 0, hits: Array::new(), total_hits: 0
+    id,
+    description,
+    seq_length,
+    database,
+    n_hits: 0,
+    hits: Array::new(),
+    total_hits: 0,
   }
 }
 
 ///|
 /// Add a hit to this query result.
-pub fn SearchIOQueryResult::add_hit(self : SearchIOQueryResult, hit : SearchIOHit) -> SearchIOQueryResult {
+pub fn SearchIOQueryResult::add_hit(
+  self : SearchIOQueryResult,
+  hit : SearchIOHit,
+) -> SearchIOQueryResult {
   let new_hits = self.hits.copy()
   new_hits.push(hit)
   SearchIOQueryResult::{
-    id: self.id, description: self.description,
-    seq_length: self.seq_length, database: self.database,
-    n_hits: self.n_hits + 1, hits: new_hits,
-    total_hits: self.total_hits
+    id: self.id,
+    description: self.description,
+    seq_length: self.seq_length,
+    database: self.database,
+    n_hits: self.n_hits + 1,
+    hits: new_hits,
+    total_hits: self.total_hits,
   }
 }
 
 ///|
 /// Set total hits (before filtering).
-pub fn SearchIOQueryResult::with_total_hits(self : SearchIOQueryResult, total : Int) -> SearchIOQueryResult {
+pub fn SearchIOQueryResult::with_total_hits(
+  self : SearchIOQueryResult,
+  total : Int,
+) -> SearchIOQueryResult {
   SearchIOQueryResult::{
-    id: self.id, description: self.description,
-    seq_length: self.seq_length, database: self.database,
-    n_hits: self.n_hits, hits: self.hits,
-    total_hits: total
+    id: self.id,
+    description: self.description,
+    seq_length: self.seq_length,
+    database: self.database,
+    n_hits: self.n_hits,
+    hits: self.hits,
+    total_hits: total,
   }
 }
 
 ///|
 /// Sort hits by bitscore (descending).
-pub fn SearchIOQueryResult::sort_by_score(self : SearchIOQueryResult) -> SearchIOQueryResult {
+pub fn SearchIOQueryResult::sort_by_score(
+  self : SearchIOQueryResult,
+) -> SearchIOQueryResult {
   let sorted = self.hits.copy()
   let n = sorted.length()
   let mut i = 0
@@ -507,16 +612,22 @@ pub fn SearchIOQueryResult::sort_by_score(self : SearchIOQueryResult) -> SearchI
     i = i + 1
   }
   SearchIOQueryResult::{
-    id: self.id, description: self.description,
-    seq_length: self.seq_length, database: self.database,
-    n_hits: self.n_hits, hits: sorted,
-    total_hits: self.total_hits
+    id: self.id,
+    description: self.description,
+    seq_length: self.seq_length,
+    database: self.database,
+    n_hits: self.n_hits,
+    hits: sorted,
+    total_hits: self.total_hits,
   }
 }
 
 ///|
 /// Filter hits by E-value threshold.
-pub fn SearchIOQueryResult::filter_evalue(self : SearchIOQueryResult, threshold : Double) -> SearchIOQueryResult {
+pub fn SearchIOQueryResult::filter_evalue(
+  self : SearchIOQueryResult,
+  threshold : Double,
+) -> SearchIOQueryResult {
   let filtered : Array[SearchIOHit] = Array::new()
   let mut i = 0
   while i < self.hits.length() {
@@ -534,16 +645,22 @@ pub fn SearchIOQueryResult::filter_evalue(self : SearchIOQueryResult, threshold 
     i = i + 1
   }
   SearchIOQueryResult::{
-    id: self.id, description: self.description,
-    seq_length: self.seq_length, database: self.database,
-    n_hits: filtered.length(), hits: filtered,
-    total_hits: self.total_hits
+    id: self.id,
+    description: self.description,
+    seq_length: self.seq_length,
+    database: self.database,
+    n_hits: filtered.length(),
+    hits: filtered,
+    total_hits: self.total_hits,
   }
 }
 
 ///|
 /// Get the top N hits by score.
-pub fn SearchIOQueryResult::top_n(self : SearchIOQueryResult, n : Int) -> Array[SearchIOHit] {
+pub fn SearchIOQueryResult::top_n(
+  self : SearchIOQueryResult,
+  n : Int,
+) -> Array[SearchIOHit] {
   let sorted = self.sort_by_score()
   if sorted.hits.length() <= n {
     return sorted.hits
@@ -572,14 +689,19 @@ pub struct SearchIOIterator {
 
 ///|
 /// Construct SearchIOIterator from search output text.
-pub fn SearchIOIterator::new(content : String, format : SearchIOFormat) -> SearchIOIterator {
+pub fn SearchIOIterator::new(
+  content : String,
+  format : SearchIOFormat,
+) -> SearchIOIterator {
   let lines = split_lines(content)
   SearchIOIterator::{ lines, position: 0, format, initialized: false }
 }
 
 ///|
 /// Parse BLAST tabular output (6-column or extended tabular).
-pub fn SearchIOIterator::parse_blast_tabular(self : SearchIOIterator) -> Array[SearchIOQueryResult] {
+pub fn SearchIOIterator::parse_blast_tabular(
+  self : SearchIOIterator,
+) -> Array[SearchIOQueryResult] {
   let results : Array[SearchIOQueryResult] = Array::new()
   let mut current_query_id = ""
   let mut current_query : SearchIOQueryResult? = None
@@ -603,9 +725,14 @@ pub fn SearchIOIterator::parse_blast_tabular(self : SearchIOIterator) -> Array[S
           None => ()
         }
         current_query_id = extract_query_id(trimmed)
-        current_query = Some(SearchIOQueryResult::new(
-          id=current_query_id, description="", seq_length=0, database=""
-        ))
+        current_query = Some(
+          SearchIOQueryResult::new(
+            id=current_query_id,
+            description="",
+            seq_length=0,
+            database="",
+          ),
+        )
       }
       line_idx = line_idx + 1
       continue
@@ -626,9 +753,16 @@ pub fn SearchIOIterator::parse_blast_tabular(self : SearchIOIterator) -> Array[S
           let bitscore = searchio_parse_double(fields[11])
 
           let hsp = SearchIOHsp::new(
-            bitscore=bitscore, evalue=evalue, identity=identity, positives=identity,
-            gap=0.0, alignment_length=length,
-            query_start=qstart, query_end=qend, hit_start=hstart, hit_end=hend
+            bitscore~,
+            evalue~,
+            identity~,
+            positives=identity,
+            gap=0.0,
+            alignment_length=length,
+            query_start=qstart,
+            query_end=qend,
+            hit_start=hstart,
+            hit_end=hend,
           )
 
           let mut found = false
@@ -639,10 +773,13 @@ pub fn SearchIOIterator::parse_blast_tabular(self : SearchIOIterator) -> Array[S
               let new_hits = qr.hits.copy()
               new_hits[i] = updated_hit
               current_query = Some(SearchIOQueryResult::{
-                id: qr.id, description: qr.description,
-                seq_length: qr.seq_length, database: qr.database,
-                n_hits: qr.n_hits, hits: new_hits,
-                total_hits: qr.total_hits
+                id: qr.id,
+                description: qr.description,
+                seq_length: qr.seq_length,
+                database: qr.database,
+                n_hits: qr.n_hits,
+                hits: new_hits,
+                total_hits: qr.total_hits,
               })
               found = true
               break
@@ -650,14 +787,19 @@ pub fn SearchIOIterator::parse_blast_tabular(self : SearchIOIterator) -> Array[S
             i = i + 1
           }
           if !found {
-            let hit = SearchIOHit::new(id=hit_id, description="", seq_length=0).add_hsp(hsp)
+            let hit = SearchIOHit::new(id=hit_id, description="", seq_length=0).add_hsp(
+              hsp,
+            )
             let new_hits = qr.hits.copy()
             new_hits.push(hit)
             current_query = Some(SearchIOQueryResult::{
-              id: qr.id, description: qr.description,
-              seq_length: qr.seq_length, database: qr.database,
-              n_hits: qr.n_hits + 1, hits: new_hits,
-              total_hits: qr.total_hits
+              id: qr.id,
+              description: qr.description,
+              seq_length: qr.seq_length,
+              database: qr.database,
+              n_hits: qr.n_hits + 1,
+              hits: new_hits,
+              total_hits: qr.total_hits,
             })
           }
           ()
@@ -682,7 +824,9 @@ pub fn SearchIOIterator::parse_blast_tabular(self : SearchIOIterator) -> Array[S
 
 ///|
 /// Parse BLAST text output (legacy format).
-pub fn SearchIOIterator::parse_blast_text(self : SearchIOIterator) -> Array[SearchIOQueryResult] {
+pub fn SearchIOIterator::parse_blast_text(
+  self : SearchIOIterator,
+) -> Array[SearchIOQueryResult] {
   let results : Array[SearchIOQueryResult] = Array::new()
   let mut current_query : SearchIOQueryResult? = None
 
@@ -704,7 +848,14 @@ pub fn SearchIOIterator::parse_blast_text(self : SearchIOIterator) -> Array[Sear
         None => ()
       }
       let query_id = extract_query_id_text(trimmed)
-      current_query = Some(SearchIOQueryResult::new(id=query_id, description="", seq_length=0, database=""))
+      current_query = Some(
+        SearchIOQueryResult::new(
+          id=query_id,
+          description="",
+          seq_length=0,
+          database="",
+        ),
+      )
       line_idx = line_idx + 1
       continue
     }
@@ -717,10 +868,13 @@ pub fn SearchIOIterator::parse_blast_text(self : SearchIOIterator) -> Array[Sear
           let new_hits = qr.hits.copy()
           new_hits.push(hit)
           current_query = Some(SearchIOQueryResult::{
-            id: qr.id, description: qr.description,
-            seq_length: qr.seq_length, database: qr.database,
-            n_hits: qr.n_hits + 1, hits: new_hits,
-            total_hits: qr.total_hits
+            id: qr.id,
+            description: qr.description,
+            seq_length: qr.seq_length,
+            database: qr.database,
+            n_hits: qr.n_hits + 1,
+            hits: new_hits,
+            total_hits: qr.total_hits,
           })
           ()
         }
@@ -737,18 +891,28 @@ pub fn SearchIOIterator::parse_blast_text(self : SearchIOIterator) -> Array[Sear
           if qr.hits.length() > 0 {
             let idx = qr.hits.length() - 1
             let hsp = SearchIOHsp::new(
-              bitscore=bitscore, evalue=evalue, identity=0.0, positives=0.0,
-              gap=0.0, alignment_length=0,
-              query_start=0, query_end=0, hit_start=0, hit_end=0
+              bitscore~,
+              evalue~,
+              identity=0.0,
+              positives=0.0,
+              gap=0.0,
+              alignment_length=0,
+              query_start=0,
+              query_end=0,
+              hit_start=0,
+              hit_end=0,
             )
             let updated_hit = qr.hits[idx].add_hsp(hsp)
             let new_hits = qr.hits.copy()
             new_hits[idx] = updated_hit
             current_query = Some(SearchIOQueryResult::{
-              id: qr.id, description: qr.description,
-              seq_length: qr.seq_length, database: qr.database,
-              n_hits: qr.n_hits, hits: new_hits,
-              total_hits: qr.total_hits
+              id: qr.id,
+              description: qr.description,
+              seq_length: qr.seq_length,
+              database: qr.database,
+              n_hits: qr.n_hits,
+              hits: new_hits,
+              total_hits: qr.total_hits,
             })
           }
           ()
@@ -774,7 +938,9 @@ pub fn SearchIOIterator::parse_blast_text(self : SearchIOIterator) -> Array[Sear
 
 ///|
 /// Main entry point: parse search results based on format.
-pub fn SearchIOIterator::parse(self : SearchIOIterator) -> Array[SearchIOQueryResult] {
+pub fn SearchIOIterator::parse(
+  self : SearchIOIterator,
+) -> Array[SearchIOQueryResult] {
   match self.format {
     SearchIOFormat::BlastTabular => self.parse_blast_tabular()
     SearchIOFormat::BlastText => self.parse_blast_text()
@@ -928,9 +1094,18 @@ fn find_numeric_value(line : String, keyword : String) -> Double {
   let mut has_e = false
   while i < line.length() {
     let c = line.unsafe_get(i)
-    if (c >= '0' && c <= '9') || (c == '.' && !has_dot) || (c == 'e' || c == 'E') || (c == '-' && has_e) || (c == '+' && has_e) {
-      if c == '.' { has_dot = true }
-      if c == 'e' || c == 'E' { has_e = true; has_dot = false }
+    if (c >= '0' && c <= '9') ||
+      (c == '.' && !has_dot) ||
+      (c == 'e' || c == 'E') ||
+      (c == '-' && has_e) ||
+      (c == '+' && has_e) {
+      if c == '.' {
+        has_dot = true
+      }
+      if c == 'e' || c == 'E' {
+        has_e = true
+        has_dot = false
+      }
       num_str = num_str + u16_to_str(c)
     } else {
       break
@@ -953,10 +1128,76 @@ pub fn search_io_mock_blast_tabular() -> String {
   "# Query: seq1 test query\n" +
   "# Database: nr\n" +
   "# Fields: query id, subject id, % identity, alignment length, mismatches, open gaps, q.start, q.end, s.start, s.end, evalue, bit score\n" +
-  "seq1" + tab + "hit1" + tab + "95.0" + tab + "100" + tab + "3" + tab + "2" + tab + "1" + tab + "100" + tab + "1" + tab + "100" + tab + "1e-50" + tab + "200.5\n" +
-  "seq1" + tab + "hit2" + tab + "80.0" + tab + "80" + tab + "10" + tab + "5" + tab + "1" + tab + "80" + tab + "1" + tab + "80" + tab + "1e-30" + tab + "150.3\n" +
+  "seq1" +
+  tab +
+  "hit1" +
+  tab +
+  "95.0" +
+  tab +
+  "100" +
+  tab +
+  "3" +
+  tab +
+  "2" +
+  tab +
+  "1" +
+  tab +
+  "100" +
+  tab +
+  "1" +
+  tab +
+  "100" +
+  tab +
+  "1e-50" +
+  tab +
+  "200.5\n" +
+  "seq1" +
+  tab +
+  "hit2" +
+  tab +
+  "80.0" +
+  tab +
+  "80" +
+  tab +
+  "10" +
+  tab +
+  "5" +
+  tab +
+  "1" +
+  tab +
+  "80" +
+  tab +
+  "1" +
+  tab +
+  "80" +
+  tab +
+  "1e-30" +
+  tab +
+  "150.3\n" +
   "# Query: seq2 another query\n" +
   "# Database: nr\n" +
   "# Fields: query id, subject id, % identity, alignment length, mismatches, open gaps, q.start, q.end, s.start, s.end, evalue, bit score\n" +
-  "seq2" + tab + "hit3" + tab + "90.0" + tab + "200" + tab + "5" + tab + "1" + tab + "1" + tab + "200" + tab + "1" + tab + "200" + tab + "1e-80" + tab + "300.0\n"
+  "seq2" +
+  tab +
+  "hit3" +
+  tab +
+  "90.0" +
+  tab +
+  "200" +
+  tab +
+  "5" +
+  tab +
+  "1" +
+  tab +
+  "1" +
+  tab +
+  "200" +
+  tab +
+  "1" +
+  tab +
+  "200" +
+  tab +
+  "1e-80" +
+  tab +
+  "300.0\n"
 }

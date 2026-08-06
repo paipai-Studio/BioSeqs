@@ -23,13 +23,21 @@ test "snapgene_seq_type_to_string" {
 
 ///|
 test "snapgene_seq_type_from_string" {
-  assert_true(@src.SnapgeneSeqType::from_string("DNA") is @src.SnapgeneSeqType::SnapgeneDna)
-  assert_true(@src.SnapgeneSeqType::from_string("RNA") is @src.SnapgeneSeqType::SnapgeneRna)
   assert_true(
-    @src.SnapgeneSeqType::from_string("protein") is @src.SnapgeneSeqType::SnapgeneProtein,
+    @src.SnapgeneSeqType::from_string("DNA")
+    is @src.SnapgeneSeqType::SnapgeneDna,
   )
   assert_true(
-    @src.SnapgeneSeqType::from_string("xxx") is @src.SnapgeneSeqType::SnapgeneUnknown,
+    @src.SnapgeneSeqType::from_string("RNA")
+    is @src.SnapgeneSeqType::SnapgeneRna,
+  )
+  assert_true(
+    @src.SnapgeneSeqType::from_string("protein")
+    is @src.SnapgeneSeqType::SnapgeneProtein,
+  )
+  assert_true(
+    @src.SnapgeneSeqType::from_string("xxx")
+    is @src.SnapgeneSeqType::SnapgeneUnknown,
   )
 }
 
@@ -38,8 +46,14 @@ test "snapgene_seq_type_from_string_round_trip" {
   let dna = @src.SnapgeneSeqType::from_string("DNA")
   let rna = @src.SnapgeneSeqType::from_string("RNA")
   let protein = @src.SnapgeneSeqType::from_string("protein")
-  assert_eq(@src.SnapgeneSeqType::from_string(dna.to_string()).to_string(), "DNA")
-  assert_eq(@src.SnapgeneSeqType::from_string(rna.to_string()).to_string(), "RNA")
+  assert_eq(
+    @src.SnapgeneSeqType::from_string(dna.to_string()).to_string(),
+    "DNA",
+  )
+  assert_eq(
+    @src.SnapgeneSeqType::from_string(rna.to_string()).to_string(),
+    "RNA",
+  )
   assert_eq(
     @src.SnapgeneSeqType::from_string(protein.to_string()).to_string(),
     "protein",
@@ -76,7 +90,7 @@ test "snapgene_feature_new" {
     type_="CDS",
     direction=1,
     segments=[(0, 99)],
-    qualifiers=qualifiers,
+    qualifiers~,
   )
   assert_eq(f.name, "orfA")
   assert_eq(f.type_, "CDS")

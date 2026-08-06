@@ -185,9 +185,9 @@ fn lowess_compute_point(
 pub fn lowess(
   x : Array[Double],
   y : Array[Double],
-  f~ : Double = 0.6667,
-  n_steps~ : Int = 0,
-  delta~ : Double = 0.0,
+  f? : Double = 0.6667,
+  n_steps? : Int = 0,
+  delta? : Double = 0.0,
 ) -> Array[Double] {
   let n = x.length()
   if n == 0 {
@@ -273,11 +273,11 @@ pub fn lowess(
 pub fn lowess_robust(
   x : Array[Double],
   y : Array[Double],
-  f~ : Double = 0.6667,
-  n_steps~ : Int = 2,
-  delta~ : Double = 0.0,
+  f? : Double = 0.6667,
+  n_steps? : Int = 2,
+  delta? : Double = 0.0,
 ) -> Array[Double] {
-  lowess(x, y, f=f, n_steps=n_steps, delta=delta)
+  lowess(x, y, f~, n_steps~, delta~)
 }
 
 ///|
@@ -290,7 +290,7 @@ pub fn lowess_predict(
   x : Array[Double],
   y : Array[Double],
   smoothed_y : Array[Double],
-  f~ : Double = 0.6667,
+  f? : Double = 0.6667,
 ) -> Double {
   let n = x.length()
   if n == 0 {
@@ -394,7 +394,7 @@ pub fn lowess_predict(
 /// Convenience function where x = 0, 1, 2, ... (indices as x values).
 pub fn lowess_smooth_series(
   values : Array[Double],
-  window_frac~ : Double = 0.3,
+  window_frac? : Double = 0.3,
 ) -> Array[Double] {
   let n = values.length()
   if n == 0 {

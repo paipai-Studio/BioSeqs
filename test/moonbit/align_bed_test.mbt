@@ -522,8 +522,7 @@ test "Bio.Align.bed writes canonical BED12 plus record" {
     AlignBedError(message) => abort("valid BED writing failed: " + message)
   }
   assert_eq(
-    line,
-    "chr22\t1000\t5000\tmRNA1\t960\t+\t1200\t4900\t255,0,0\t2\t567,488,\t0,3512,\n",
+    line, "chr22\t1000\t5000\tmRNA1\t960\t+\t1200\t4900\t255,0,0\t2\t567,488,\t0,3512,\n",
   )
 }
 
@@ -533,8 +532,7 @@ test "Bio.Align.bed writes canonical BED12 minus record" {
     AlignBedError(message) => abort("valid BED writing failed: " + message)
   }
   assert_eq(
-    line,
-    "chr22\t2000\t6000\tmRNA2\t900\t-\t2300\t5960\t0,255,0\t2\t433,399,\t0,3601,\n",
+    line, "chr22\t2000\t6000\tmRNA2\t900\t-\t2300\t5960\t0,255,0\t2\t433,399,\t0,3601,\n",
   )
 }
 
@@ -591,10 +589,7 @@ test "Bio.Align.bed writes BED9" {
   let line = @src.align_bed_format(align_bed_test_plus(), bed_columns=9) catch {
     AlignBedError(message) => abort("valid BED9 writing failed: " + message)
   }
-  assert_eq(
-    line,
-    "chr22\t1000\t5000\tmRNA1\t960\t+\t1200\t4900\t255,0,0\n",
-  )
+  assert_eq(line, "chr22\t1000\t5000\tmRNA1\t960\t+\t1200\t4900\t255,0,0\n")
 }
 
 ///|
@@ -602,10 +597,7 @@ test "Bio.Align.bed writes BED10" {
   let line = @src.align_bed_format(align_bed_test_plus(), bed_columns=10) catch {
     AlignBedError(message) => abort("valid BED10 writing failed: " + message)
   }
-  assert_eq(
-    line,
-    "chr22\t1000\t5000\tmRNA1\t960\t+\t1200\t4900\t255,0,0\t2\n",
-  )
+  assert_eq(line, "chr22\t1000\t5000\tmRNA1\t960\t+\t1200\t4900\t255,0,0\t2\n")
 }
 
 ///|
@@ -614,8 +606,7 @@ test "Bio.Align.bed writes BED11" {
     AlignBedError(message) => abort("valid BED11 writing failed: " + message)
   }
   assert_eq(
-    line,
-    "chr22\t1000\t5000\tmRNA1\t960\t+\t1200\t4900\t255,0,0\t2\t567,488,\n",
+    line, "chr22\t1000\t5000\tmRNA1\t960\t+\t1200\t4900\t255,0,0\t2\t567,488,\n",
   )
 }
 
@@ -635,7 +626,8 @@ test "Bio.Align.bed BED12 round trip is stable" {
 test "Bio.Align.bed writes complete document" {
   let document = align_bed_test_document()
   let output = @src.align_bed_write(document, bed_columns=3) catch {
-    AlignBedError(message) => abort("valid BED document writing failed: " + message)
+    AlignBedError(message) =>
+      abort("valid BED document writing failed: " + message)
   }
   assert_eq(output.split("\n").length(), 4)
 }
@@ -644,17 +636,15 @@ test "Bio.Align.bed writes complete document" {
 test "Bio.Align.bed textual score writes unchanged" {
   let alignment = align_bed_test_parse("chr1\t0\t10\ttx\tpass\n").alignments[0]
   let output = @src.align_bed_format(alignment, bed_columns=5) catch {
-    AlignBedError(message) => abort("valid BED score writing failed: " + message)
+    AlignBedError(message) =>
+      abort("valid BED score writing failed: " + message)
   }
   assert_eq(output, "chr1\t0\t10\ttx\tpass\n")
 }
 
 ///|
 test "Bio.Align.bed writer supplies default query name" {
-  let output = @src.align_bed_format(
-    align_bed_test_simple(),
-    bed_columns=4,
-  ) catch {
+  let output = @src.align_bed_format(align_bed_test_simple(), bed_columns=4) catch {
     AlignBedError(message) => abort("valid BED writing failed: " + message)
   }
   assert_eq(output, "chr7\t100\t180\tquery\n")
@@ -662,10 +652,7 @@ test "Bio.Align.bed writer supplies default query name" {
 
 ///|
 test "Bio.Align.bed writer supplies default score" {
-  let output = @src.align_bed_format(
-    align_bed_test_simple(),
-    bed_columns=5,
-  ) catch {
+  let output = @src.align_bed_format(align_bed_test_simple(), bed_columns=5) catch {
     AlignBedError(message) => abort("valid BED writing failed: " + message)
   }
   assert_eq(output, "chr7\t100\t180\tquery\t0\n")
@@ -673,10 +660,7 @@ test "Bio.Align.bed writer supplies default score" {
 
 ///|
 test "Bio.Align.bed writer supplies default thick interval and color" {
-  let output = @src.align_bed_format(
-    align_bed_test_simple(),
-    bed_columns=9,
-  ) catch {
+  let output = @src.align_bed_format(align_bed_test_simple(), bed_columns=9) catch {
     AlignBedError(message) => abort("valid BED writing failed: " + message)
   }
   assert_eq(output, "chr7\t100\t180\tquery\t0\t+\t100\t180\t0\n")
@@ -705,34 +689,28 @@ test "Bio.Align.bed reads BED6 reverse strand" {
 
 ///|
 test "Bio.Align.bed reads BED7" {
-  let alignment = align_bed_test_parse(
-    "chr1\t10\t20\ttx\t7\t+\t12\n",
-  ).alignments[0]
+  let alignment = align_bed_test_parse("chr1\t10\t20\ttx\t7\t+\t12\n").alignments[0]
   assert_eq(alignment.thick_start, Some(12))
   assert_eq(alignment.thick_end, None)
 }
 
 ///|
 test "Bio.Align.bed reads BED8" {
-  let alignment = align_bed_test_parse(
-    "chr1\t10\t20\ttx\t7\t+\t12\t18\n",
-  ).alignments[0]
+  let alignment = align_bed_test_parse("chr1\t10\t20\ttx\t7\t+\t12\t18\n").alignments[0]
   assert_eq(alignment.thick_end, Some(18))
 }
 
 ///|
 test "Bio.Align.bed reads BED9" {
   let alignment = align_bed_test_parse(
-    "chr1\t10\t20\ttx\t7\t+\t12\t18\t10,20,30\n",
-  ).alignments[0]
+      "chr1\t10\t20\ttx\t7\t+\t12\t18\t10,20,30\n",
+    ).alignments[0]
   assert_eq(alignment.item_rgb, Some("10,20,30"))
 }
 
 ///|
 test "Bio.Align.bed reads lossless single-block BED10" {
-  let alignment = align_bed_test_parse(
-    "chr1\t10\t20\ttx\t7\t+\t12\t18\t0\t1\n",
-  ).alignments[0]
+  let alignment = align_bed_test_parse("chr1\t10\t20\ttx\t7\t+\t12\t18\t0\t1\n").alignments[0]
   assert_eq(alignment.blocks().length(), 1)
   assert_eq(alignment.source_columns, 10)
 }
@@ -740,8 +718,8 @@ test "Bio.Align.bed reads lossless single-block BED10" {
 ///|
 test "Bio.Align.bed reads inferable contiguous BED11" {
   let alignment = align_bed_test_parse(
-    "chr1\t10\t20\ttx\t7\t+\t12\t18\t0\t2\t4,6,\n",
-  ).alignments[0]
+      "chr1\t10\t20\ttx\t7\t+\t12\t18\t0\t2\t4,6,\n",
+    ).alignments[0]
   assert_eq(alignment.blocks().length(), 2)
   assert_eq(alignment.blocks()[1].target_start, 14)
 }
@@ -749,8 +727,8 @@ test "Bio.Align.bed reads inferable contiguous BED11" {
 ///|
 test "Bio.Align.bed accepts BED12 lists without trailing commas" {
   let alignment = align_bed_test_parse(
-    "chr1\t10\t20\ttx\t7\t+\t12\t18\t0\t2\t4,3\t0,7\n",
-  ).alignments[0]
+      "chr1\t10\t20\ttx\t7\t+\t12\t18\t0\t2\t4,3\t0,7\n",
+    ).alignments[0]
   assert_eq(alignment.query_size(), 7)
 }
 
@@ -815,141 +793,107 @@ test "Bio.Align.bed rejects thickStart before interval" {
 
 ///|
 test "Bio.Align.bed rejects thickEnd after interval" {
-  assert_true(
-    align_bed_test_rejects("chr1\t10\t20\ttx\t0\t+\t10\t21\n"),
-  )
+  assert_true(align_bed_test_rejects("chr1\t10\t20\ttx\t0\t+\t10\t21\n"))
 }
 
 ///|
 test "Bio.Align.bed rejects reversed thick interval" {
-  assert_true(
-    align_bed_test_rejects("chr1\t10\t20\ttx\t0\t+\t18\t12\n"),
-  )
+  assert_true(align_bed_test_rejects("chr1\t10\t20\ttx\t0\t+\t18\t12\n"))
 }
 
 ///|
 test "Bio.Align.bed rejects multi-block BED10" {
-  assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\n",
-    ),
-  )
+  assert_true(align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\n"))
 }
 
 ///|
 test "Bio.Align.bed rejects BED11 block count mismatch" {
   assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t20,\n",
-    ),
+    align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t20,\n"),
   )
 }
 
 ///|
 test "Bio.Align.bed rejects ambiguous gapped BED11" {
   assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,5,\n",
-    ),
+    align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,5,\n"),
   )
 }
 
 ///|
 test "Bio.Align.bed rejects zero block count" {
   assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t0\t\t\n",
-    ),
+    align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t0\t\t\n"),
   )
 }
 
 ///|
 test "Bio.Align.bed rejects blockSizes count mismatch" {
   assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,\t0,15,\n",
-    ),
+    align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,\t0,15,\n"),
   )
 }
 
 ///|
 test "Bio.Align.bed rejects blockStarts count mismatch" {
   assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,5,\t0,\n",
-    ),
+    align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,5,\t0,\n"),
   )
 }
 
 ///|
 test "Bio.Align.bed rejects empty block list item" {
   assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,,5,\t0,15,\n",
-    ),
+    align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,,5,\t0,15,\n"),
   )
 }
 
 ///|
 test "Bio.Align.bed rejects noninteger block size" {
   assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,x,\t0,15,\n",
-    ),
+    align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,x,\t0,15,\n"),
   )
 }
 
 ///|
 test "Bio.Align.bed rejects zero block size" {
   assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t0,5,\t0,15,\n",
-    ),
+    align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t0,5,\t0,15,\n"),
   )
 }
 
 ///|
 test "Bio.Align.bed rejects first block after chromStart" {
   assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,5,\t1,15,\n",
-    ),
+    align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,5,\t1,15,\n"),
   )
 }
 
 ///|
 test "Bio.Align.bed rejects overlapping blocks" {
   assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t10,10,\t0,5,\n",
-    ),
+    align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t10,10,\t0,5,\n"),
   )
 }
 
 ///|
 test "Bio.Align.bed rejects unsorted blocks" {
   assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,5,\t0,0,\n",
-    ),
+    align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,5,\t0,0,\n"),
   )
 }
 
 ///|
 test "Bio.Align.bed rejects block beyond chromEnd" {
   assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,10,\t0,15,\n",
-    ),
+    align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,10,\t0,15,\n"),
   )
 }
 
 ///|
 test "Bio.Align.bed rejects final block before chromEnd" {
   assert_true(
-    align_bed_test_rejects(
-      "chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,4,\t0,15,\n",
-    ),
+    align_bed_test_rejects("chr1\t0\t20\ttx\t0\t+\t0\t20\t0\t2\t5,4,\t0,15,\n"),
   )
 }
 
@@ -1086,11 +1030,10 @@ test "Bio.Align.bed constructor rejects empty target identifier" {
   assert_true(
     try {
       ignore(
-        @src.AlignBedAlignment::create(
-          "",
-          Some("query"),
-          [align_bed_test_coordinate(0, 0), align_bed_test_coordinate(5, 5)],
-        ),
+        @src.AlignBedAlignment::create("", Some("query"), [
+          align_bed_test_coordinate(0, 0),
+          align_bed_test_coordinate(5, 5),
+        ]),
       )
       false
     } catch {
@@ -1101,11 +1044,10 @@ test "Bio.Align.bed constructor rejects empty target identifier" {
 
 ///|
 test "Bio.Align.bed constructor allows absent query identifier" {
-  let alignment = @src.AlignBedAlignment::create(
-    "target",
-    None,
-    [align_bed_test_coordinate(0, 0), align_bed_test_coordinate(5, 5)],
-  ) catch {
+  let alignment = @src.AlignBedAlignment::create("target", None, [
+    align_bed_test_coordinate(0, 0),
+    align_bed_test_coordinate(5, 5),
+  ]) catch {
     AlignBedError(message) => abort("valid BED alignment failed: " + message)
   }
   assert_eq(alignment.query_id, None)
@@ -1260,8 +1202,7 @@ test "Bio.Align.bed writes Biopython strand fixture" {
     AlignBedError(message) => abort("valid BED writing failed: " + message)
   }
   assert_eq(
-    output,
-    "target\t2\t12\tquery\t8\t-\t2\t12\t0\t4\t1,2,3,2,\t0,2,4,8,\n",
+    output, "target\t2\t12\tquery\t8\t-\t2\t12\t0\t4\t1,2,3,2,\t0,2,4,8,\n",
   )
 }
 

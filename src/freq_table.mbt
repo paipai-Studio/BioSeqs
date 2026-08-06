@@ -63,7 +63,7 @@ pub struct FreqTable {
 pub fn FreqTable::new(
   in_dict : Map[String, Double],
   dict_type : FreqTableType,
-  alphabet : Array[String]?
+  alphabet : Array[String]?,
 ) -> FreqTable {
   let data : Map[String, Double] = Map([], capacity=16)
   let count : Map[String, Int] = Map([], capacity=16)
@@ -74,13 +74,20 @@ pub fn FreqTable::new(
       for ch in a {
         alph.push(ch)
       }
-    None => for k in in_dict.keys() {
-      alph.push(k)
-    }
+    None =>
+      for k in in_dict.keys() {
+        alph.push(k)
+      }
   }
   // Sort alphabet for deterministic order.
   alph.sort_by(fn(a : String, b : String) -> Int {
-    if a < b { -1 } else if a > b { 1 } else { 0 }
+    if a < b {
+      -1
+    } else if a > b {
+      1
+    } else {
+      0
+    }
   })
   match dict_type {
     COUNT => {
@@ -310,9 +317,7 @@ pub fn freq_table_read_freq(text : String) -> FreqTable {
 
 ///|
 /// Build a `FreqTable` from a count dictionary (Map[String, Int]).
-pub fn freq_table_from_counts(
-  counts : Map[String, Int]
-) -> FreqTable {
+pub fn freq_table_from_counts(counts : Map[String, Int]) -> FreqTable {
   let in_dict : Map[String, Double] = Map([], capacity=counts.size())
   for k in counts.keys() {
     in_dict[k] = counts[k].to_double()
@@ -322,9 +327,7 @@ pub fn freq_table_from_counts(
 
 ///|
 /// Build a `FreqTable` from a frequency dictionary (Map[String, Double]).
-pub fn freq_table_from_freqs(
-  freqs : Map[String, Double]
-) -> FreqTable {
+pub fn freq_table_from_freqs(freqs : Map[String, Double]) -> FreqTable {
   FreqTable::new(freqs, FreqTableType::FREQ, None)
 }
 
@@ -335,7 +338,7 @@ pub fn freq_table_from_freqs(
 /// restrict counting).
 pub fn freq_table_from_sequence(
   sequence : String,
-  alphabet : Array[String]?
+  alphabet : Array[String]?,
 ) -> FreqTable {
   let counts : Map[String, Int] = Map([], capacity=16)
   let restrict : Map[String, Bool] = Map([], capacity=0)
@@ -387,7 +390,7 @@ pub fn freq_table_entropy(table : FreqTable) -> Double {
 /// 0 * log(0/0) is taken as 0).
 pub fn freq_table_relative_entropy(
   table : FreqTable,
-  other : FreqTable
+  other : FreqTable,
 ) -> Double {
   let mut d = 0.0
   for k in table.data.keys() {
@@ -436,10 +439,7 @@ pub fn freq_table_normalize(table : FreqTable) -> FreqTable {
 /// distribution M = 0.5 * (P + Q). Returns JS = 0.5 * KL(P||M) + 0.5 * KL(Q||M).
 /// Both tables should share the same alphabet; letters missing from one are
 /// treated as 0 in the other.
-pub fn freq_table_js_distance(
-  table : FreqTable,
-  other : FreqTable
-) -> Double {
+pub fn freq_table_js_distance(table : FreqTable, other : FreqTable) -> Double {
   // Build the union of letters.
   let letters : Map[String, Bool] = Map([], capacity=32)
   for k in table.data.keys() {

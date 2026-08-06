@@ -1,6 +1,6 @@
 import {
   "IvanAXu/BioSeqs/src" @bio,
-  "IvanAXu/BioSeqs/src" @src,
+  "IvanAXu/BioSeqs/src",
   "moonbitlang/core/hashmap",
   "moonbitlang/core/double",
   "moonbitlang/core/math",

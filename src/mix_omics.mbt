@@ -247,8 +247,10 @@ pub fn soft_threshold(x : Double, lambda : Double) -> Double {
   let shrunk = abs_x - lambda
   if shrunk <= 0.0 {
     0.0
+  } else if x < 0.0 {
+    -shrunk
   } else {
-    if x < 0.0 { -shrunk } else { shrunk }
+    shrunk
   }
 }
 
@@ -269,7 +271,13 @@ pub fn select_top_k(values : Array[Double], k : Int) -> Array[Int] {
   }
 
   indexed.sort_by(fn(a : (Int, Double), b : (Int, Double)) -> Int {
-    if a.1 > b.1 { -1 } else if a.1 < b.1 { 1 } else { 0 }
+    if a.1 > b.1 {
+      -1
+    } else if a.1 < b.1 {
+      1
+    } else {
+      0
+    }
   })
 
   let result = Array::make(effective_k, 0)
@@ -389,11 +397,7 @@ pub fn run_pls(
 ) -> PLSResult {
   let n = x_data.length()
   let p = if n > 0 { x_data[0].length() } else { 0 }
-  let q = if y_data.length() > 0 {
-    y_data[0].length()
-  } else {
-    0
-  }
+  let q = if y_data.length() > 0 { y_data[0].length() } else { 0 }
 
   let ncomp = if options.ncomp > n {
     n
@@ -652,11 +656,7 @@ pub fn run_spls(
 ) -> SPLSResult {
   let n = x_data.length()
   let p = if n > 0 { x_data[0].length() } else { 0 }
-  let q = if y_data.length() > 0 {
-    y_data[0].length()
-  } else {
-    0
-  }
+  let q = if y_data.length() > 0 { y_data[0].length() } else { 0 }
 
   let ncomp = if options.ncomp > n {
     n
@@ -807,13 +807,7 @@ pub fn spls_component(
   Array[Bool],
 ) {
   let (t_init, u_init, w_x_init, w_y_init) = nipals_pls(
-    x,
-    y,
-    n,
-    p,
-    q,
-    max_iter,
-    tol,
+    x, y, n, p, q, max_iter, tol,
   )
 
   let x_loadings = mix_mat_t_vec(x, n, p, t_init)
@@ -1072,7 +1066,7 @@ pub fn diablo_component(
 
     let w = Array::make(pb, 0.0)
     for j = 0; j < pb; j = j + 1 {
-      w[j] = 1.0 / (pb.to_double()).sqrt()
+      w[j] = 1.0 / pb.to_double().sqrt()
     }
     block_weights.push(w)
 
@@ -1085,7 +1079,12 @@ pub fn diablo_component(
   }
 
   for b = 0; b < n_blocks; b = b + 1 {
-    block_scores[b] = mix_mat_vec(blocks[b], n, block_sizes[b], block_weights[b])
+    block_scores[b] = mix_mat_vec(
+      blocks[b],
+      n,
+      block_sizes[b],
+      block_weights[b],
+    )
   }
 
   let mut global_score = Array::make(n, 0.0)
@@ -1156,7 +1155,11 @@ pub fn diablo_component(
         for c = 0; c < n_blocks; c = c + 1 {
           dw = dw + sum_row[c]
         }
-        if dw > 0.0 { dw } else { 1.0 }
+        if dw > 0.0 {
+          dw
+        } else {
+          1.0
+        }
       } else {
         1.0
       }

@@ -23,8 +23,8 @@ test "progeny_mat_vec_multiply" {
   let vector = [1.0, 2.0]
   let result = @src.progeny_mat_vec(matrix, vector)
   assert_eq(result.length(), 2)
-  assert_eq(result[0], 5.0)   // 1*1 + 2*2
-  assert_eq(result[1], 11.0)  // 3*1 + 4*2
+  assert_eq(result[0], 5.0) // 1*1 + 2*2
+  assert_eq(result[1], 11.0) // 3*1 + 4*2
 }
 
 ///|
@@ -33,10 +33,10 @@ test "progeny_mat_mul" {
   let b = [[5.0, 6.0], [7.0, 8.0]]
   let result = @src.progeny_mat_mul(a, b)
   assert_eq(result.length(), 2)
-  assert_eq(result[0][0], 19.0)  // 1*5 + 2*7
-  assert_eq(result[0][1], 22.0)  // 1*6 + 2*8
-  assert_eq(result[1][0], 43.0)  // 3*5 + 4*7
-  assert_eq(result[1][1], 50.0)  // 3*6 + 4*8
+  assert_eq(result[0][0], 19.0) // 1*5 + 2*7
+  assert_eq(result[0][1], 22.0) // 1*6 + 2*8
+  assert_eq(result[1][0], 43.0) // 3*5 + 4*7
+  assert_eq(result[1][1], 50.0) // 3*6 + 4*8
 }
 
 ///|
@@ -114,11 +114,15 @@ test "progeny_build_pathway_matrix" {
   let gene_names = ["GeneA", "GeneB", "GeneC", "GeneD"]
   let pathway1_genes = ["GeneA", "GeneB"]
   let pathway1_weights = [1.0, -1.0]
-  let pgs1 = @src.PathwayGeneSet::new("Pathway1", pathway1_genes, pathway1_weights)
+  let pgs1 = @src.PathwayGeneSet::new(
+    "Pathway1", pathway1_genes, pathway1_weights,
+  )
 
   let pathway2_genes = ["GeneB", "GeneC", "GeneD"]
   let pathway2_weights = [0.5, 1.0, -0.5]
-  let pgs2 = @src.PathwayGeneSet::new("Pathway2", pathway2_genes, pathway2_weights)
+  let pgs2 = @src.PathwayGeneSet::new(
+    "Pathway2", pathway2_genes, pathway2_weights,
+  )
 
   let pathways = [pgs1, pgs2]
   let matrix = @src.build_pathway_matrix(gene_names, pathways)
@@ -146,25 +150,18 @@ test "progeny_build_pathway_matrix" {
 ///|
 test "progeny_run_basic" {
   // Expression: 2 samples × 4 genes
-  let expression = [
-    [5.0, 10.0, 3.0, 8.0],
-    [2.0, 6.0, 7.0, 4.0],
-  ]
+  let expression = [[5.0, 10.0, 3.0, 8.0], [2.0, 6.0, 7.0, 4.0]]
   let sample_names = ["Sample1", "Sample2"]
   let gene_names = ["GeneA", "GeneB", "GeneC", "GeneD"]
 
   // Pathway1: GeneA + GeneB (activation)
-  let pathway1 = @src.PathwayGeneSet::new(
-    "Pathway1",
-    ["GeneA", "GeneB"],
-    [1.0, 1.0],
-  )
+  let pathway1 = @src.PathwayGeneSet::new("Pathway1", ["GeneA", "GeneB"], [
+    1.0, 1.0,
+  ])
   // Pathway2: GeneC + GeneD (activation)
-  let pathway2 = @src.PathwayGeneSet::new(
-    "Pathway2",
-    ["GeneC", "GeneD"],
-    [1.0, 1.0],
-  )
+  let pathway2 = @src.PathwayGeneSet::new("Pathway2", ["GeneC", "GeneD"], [
+    1.0, 1.0,
+  ])
 
   let data = @src.ProgenyData::new(
     expression,
@@ -192,7 +189,13 @@ test "progeny_get_pathway_activity" {
   let sample_names = ["S1", "S2"]
   let gene_names = ["G1", "G2"]
   let pathway1 = @src.PathwayGeneSet::new("P1", ["G1"], [1.0])
-  let data = @src.ProgenyData::new(expression, sample_names, gene_names, [pathway1], 0.01)
+  let data = @src.ProgenyData::new(
+    expression,
+    sample_names,
+    gene_names,
+    [pathway1],
+    0.01,
+  )
   let result = @src.run_progeny(data)
 
   let activity = @src.get_pathway_activity(result, "P1")
@@ -207,7 +210,13 @@ test "progeny_get_sample_profile" {
   let gene_names = ["G1", "G2"]
   let p1 = @src.PathwayGeneSet::new("P1", ["G1"], [1.0])
   let p2 = @src.PathwayGeneSet::new("P2", ["G2"], [1.0])
-  let data = @src.ProgenyData::new(expression, sample_names, gene_names, [p1, p2], 0.01)
+  let data = @src.ProgenyData::new(
+    expression,
+    sample_names,
+    gene_names,
+    [p1, p2],
+    0.01,
+  )
   let result = @src.run_progeny(data)
 
   let profile = @src.get_sample_profile(result, "S1")

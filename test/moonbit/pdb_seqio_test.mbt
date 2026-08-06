@@ -165,7 +165,8 @@ test "pdb_atom_parser_basic" {
 ///|
 test "pdb_atom_parser_with_pdb_id" {
   let header = "HEADER    PROTEIN" + " ".repeat(33) + "01-JAN-24   1XXX"
-  let pdb_text = header + "\nATOM      1  N   ALA A   1      10.000  20.000  30.000  1.00 20.00           N  \nATOM      2  N   GLY A   2      12.000  22.000  32.000  1.00 20.00           N  \nTER       3      GLY A   2\nEND\n"
+  let pdb_text = header +
+    "\nATOM      1  N   ALA A   1      10.000  20.000  30.000  1.00 20.00           N  \nATOM      2  N   GLY A   2      12.000  22.000  32.000  1.00 20.00           N  \nTER       3      GLY A   2\nEND\n"
   let records = @src.pdb_atom_parser(pdb_text)
   assert_eq(records.length(), 1)
   assert_eq(records[0].seq.to_string(), "AG")
@@ -216,11 +217,7 @@ test "pdb_write_pdb_seqrecords_round_trip" {
 
 ///|
 test "pdb_write_pdb_seqrecords_basic" {
-  let record = @src.SeqRecord::new(
-    @src.Seq::new("AGVL"),
-    id="A",
-    name="A",
-  )
+  let record = @src.SeqRecord::new(@src.Seq::new("AGVL"), id="A", name="A")
   let output = @src.write_pdb_seqrecords([record])
   assert_true(output.contains("SEQRES"))
   assert_true(output.contains("ALA"))
@@ -231,16 +228,8 @@ test "pdb_write_pdb_seqrecords_basic" {
 
 ///|
 test "pdb_write_pdb_seqrecords_multiple_records" {
-  let r1 = @src.SeqRecord::new(
-    @src.Seq::new("AG"),
-    id="A",
-    name="A",
-  )
-  let r2 = @src.SeqRecord::new(
-    @src.Seq::new("VL"),
-    id="B",
-    name="B",
-  )
+  let r1 = @src.SeqRecord::new(@src.Seq::new("AG"), id="A", name="A")
+  let r2 = @src.SeqRecord::new(@src.Seq::new("VL"), id="B", name="B")
   let output = @src.write_pdb_seqrecords([r1, r2])
   assert_true(output.contains("SEQRES"))
   assert_true(output.contains("ALA"))
@@ -257,11 +246,7 @@ test "pdb_write_pdb_seqrecords_empty" {
 
 ///|
 test "pdb_write_pdb_seqrecords_unknown_residue" {
-  let record = @src.SeqRecord::new(
-    @src.Seq::new("AXG"),
-    id="A",
-    name="A",
-  )
+  let record = @src.SeqRecord::new(@src.Seq::new("AXG"), id="A", name="A")
   let output = @src.write_pdb_seqrecords([record])
   assert_true(output.contains("SEQRES"))
   assert_true(output.contains("ALA"))

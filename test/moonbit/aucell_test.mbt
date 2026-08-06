@@ -78,10 +78,7 @@ test "aucell_data" {
 ///|
 test "aucell_run_basic" {
   // 2 cells × 3 genes
-  let expression = [
-    [10.0, 2.0, 5.0],
-    [3.0, 8.0, 1.0],
-  ]
+  let expression = [[10.0, 2.0, 5.0], [3.0, 8.0, 1.0]]
   let cell_names = ["Cell1", "Cell2"]
   let gene_names = ["GeneA", "GeneB", "GeneC"]
 
@@ -106,10 +103,7 @@ test "aucell_run_basic" {
 
 ///|
 test "aucell_run_multiple_sets" {
-  let expression = [
-    [5.0, 10.0, 3.0],
-    [8.0, 2.0, 7.0],
-  ]
+  let expression = [[5.0, 10.0, 3.0], [8.0, 2.0, 7.0]]
   let cell_names = ["Cell1", "Cell2"]
   let gene_names = ["GeneA", "GeneB", "GeneC"]
 
@@ -125,11 +119,7 @@ test "aucell_run_multiple_sets" {
 
 ///|
 test "aucell_normalize_scores" {
-  let expression = [
-    [10.0, 2.0],
-    [3.0, 8.0],
-    [5.0, 5.0],
-  ]
+  let expression = [[10.0, 2.0], [3.0, 8.0], [5.0, 5.0]]
   let cell_names = ["C1", "C2", "C3"]
   let gene_names = ["G1", "G2"]
   let gs = @src.GeneSet::new("Set1", ["G1"])

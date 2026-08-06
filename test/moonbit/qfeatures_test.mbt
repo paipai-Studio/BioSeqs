@@ -5,11 +5,7 @@
 test "qf_assay_creation" {
   let row_names = ["r0", "r1", "r2"]
   let col_names = ["c0", "c1"]
-  let data : Array[Array[Double]] = [
-    [1.0, 2.0],
-    [3.0, 4.0],
-    [5.0, 6.0],
-  ]
+  let data : Array[Array[Double]] = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
   let assay = @src.QfAssay::new("test", row_names, col_names, data)
   assert_eq(assay.name(), "test")
   assert_eq(assay.n_rows(), 3)
@@ -55,10 +51,7 @@ test "qf_assay_get_set" {
 
 ///|
 test "qf_assay_get_row_get_col" {
-  let data : Array[Array[Double]] = [
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0, 6.0],
-  ]
+  let data : Array[Array[Double]] = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
   let assay = @src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1", "c2"], data)
   let row0 = assay.get_row(0)
   let row1 = assay.get_row(1)
@@ -80,10 +73,7 @@ test "qf_assay_get_row_get_col" {
 
 ///|
 test "qf_assay_row_col_stats" {
-  let data : Array[Array[Double]] = [
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0, 6.0],
-  ]
+  let data : Array[Array[Double]] = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
   let assay = @src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1", "c2"], data)
   let rmeans = assay.row_means()
   let cmeans = assay.col_means()
@@ -233,12 +223,7 @@ test "qf_aggregate_rows_sum" {
   qf.add_assay(
     @src.QfAssay::new("src", ["r0", "r1", "r2", "r3"], ["c0", "c1"], data),
   )
-  let mapping : Array[(Int, String)] = [
-    (0, "A"),
-    (1, "A"),
-    (2, "B"),
-    (3, "B"),
-  ]
+  let mapping : Array[(Int, String)] = [(0, "A"), (1, "A"), (2, "B"), (3, "B")]
   let qf2 = @src.qf_aggregate(qf, "src", "agg", mapping, "sum")
   assert_eq(qf2.n_assays(), 2)
   match qf2.get_assay("agg") {
@@ -276,12 +261,7 @@ test "qf_aggregate_rows_mean" {
   qf.add_assay(
     @src.QfAssay::new("src", ["r0", "r1", "r2", "r3"], ["c0", "c1"], data),
   )
-  let mapping : Array[(Int, String)] = [
-    (0, "A"),
-    (1, "A"),
-    (2, "B"),
-    (3, "B"),
-  ]
+  let mapping : Array[(Int, String)] = [(0, "A"), (1, "A"), (2, "B"), (3, "B")]
   let qf2 = @src.qf_aggregate(qf, "src", "agg", mapping, "mean")
   match qf2.get_assay("agg") {
     Some(a) => {
@@ -300,17 +280,9 @@ test "qf_aggregate_rows_mean" {
 ///|
 test "qf_aggregate_by_col_merge" {
   let qf = @src.QFeatures::new()
-  let data : Array[Array[Double]] = [
-    [1.0, 2.0, 3.0, 4.0],
-    [5.0, 6.0, 7.0, 8.0],
-  ]
+  let data : Array[Array[Double]] = [[1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0]]
   qf.add_assay(
-    @src.QfAssay::new(
-      "src",
-      ["r0", "r1"],
-      ["c0", "c1", "c2", "c3"],
-      data,
-    ),
+    @src.QfAssay::new("src", ["r0", "r1"], ["c0", "c1", "c2", "c3"], data),
   )
   let labels = ["rep1", "rep1", "rep2", "rep2"]
   // Sum aggregation.
@@ -376,10 +348,7 @@ test "qf_filter_features" {
 ///|
 test "qf_filter_samples" {
   let qf = @src.QFeatures::new()
-  let data : Array[Array[Double]] = [
-    [1.0, 2.0, 3.0, 4.0],
-    [5.0, 6.0, 7.0, 8.0],
-  ]
+  let data : Array[Array[Double]] = [[1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0]]
   qf.add_assay(
     @src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1", "c2", "c3"], data),
   )
@@ -408,7 +377,9 @@ test "qf_filter_na" {
     [nan, nan, 6.0],
     [7.0, nan, 9.0],
   ]
-  qf.add_assay(@src.QfAssay::new("a", ["r0", "r1", "r2"], ["c0", "c1", "c2"], data))
+  qf.add_assay(
+    @src.QfAssay::new("a", ["r0", "r1", "r2"], ["c0", "c1", "c2"], data),
+  )
   // max_na_frac = 0.5 -> row 1 (2/3 NaN > 0.5) is dropped; row 2 (1/3 NaN) kept.
   let qf2 = @src.qf_filter_na(qf, "a", 0.5)
   match qf2.get_assay("a") {
@@ -435,7 +406,9 @@ test "qf_filter_low_abundance" {
     [0.5, 0.5, 0.5],
     [10.0, 20.0, 30.0],
   ]
-  qf.add_assay(@src.QfAssay::new("a", ["r0", "r1", "r2"], ["c0", "c1", "c2"], data))
+  qf.add_assay(
+    @src.QfAssay::new("a", ["r0", "r1", "r2"], ["c0", "c1", "c2"], data),
+  )
   // threshold = 1.0 -> row 1 (all 0.5 < 1.0) is dropped.
   let qf2 = @src.qf_filter_low_abundance(qf, "a", 1.0)
   match qf2.get_assay("a") {
@@ -452,21 +425,29 @@ test "qf_filter_low_abundance" {
 test "qf_normalize_quantiles" {
   // Construct a matrix where columns have different distributions but
   // after quantile normalization they should share the same sorted values.
-  let data : Array[Array[Double]] = [
-    [5.0, 10.0],
-    [2.0, 20.0],
-    [10.0, 30.0],
-  ]
+  let data : Array[Array[Double]] = [[5.0, 10.0], [2.0, 20.0], [10.0, 30.0]]
   let assay = @src.QfAssay::new("a", ["r0", "r1", "r2"], ["c0", "c1"], data)
   let norm = @src.qf_normalize_quantiles(assay)
   // Compute sorted columns of normalized assay; they should be equal.
   let col0 = norm.get_col(0)
   let col1 = norm.get_col(1)
   col0.sort_by(fn(a : Double, b : Double) -> Int {
-    if a < b { -1 } else if a > b { 1 } else { 0 }
+    if a < b {
+      -1
+    } else if a > b {
+      1
+    } else {
+      0
+    }
   })
   col1.sort_by(fn(a : Double, b : Double) -> Int {
-    if a < b { -1 } else if a > b { 1 } else { 0 }
+    if a < b {
+      -1
+    } else if a > b {
+      1
+    } else {
+      0
+    }
   })
   for i in 0..<3 {
     assert_true((col0[i] - col1[i]).abs() < 0.001)
@@ -481,11 +462,7 @@ test "qf_normalize_quantiles" {
 test "qf_normalize_center_scale" {
   // Column 0: [1, 2, 3] -> mean=2, sample std=1
   // Column 1: [10, 20, 30] -> mean=20, sample std=10
-  let data : Array[Array[Double]] = [
-    [1.0, 10.0],
-    [2.0, 20.0],
-    [3.0, 30.0],
-  ]
+  let data : Array[Array[Double]] = [[1.0, 10.0], [2.0, 20.0], [3.0, 30.0]]
   let assay = @src.QfAssay::new("a", ["r0", "r1", "r2"], ["c0", "c1"], data)
   let norm = @src.qf_normalize_center_scale(assay, true, true)
   // Expected normalized values: col0 = [-1, 0, 1], col1 = [-1, 0, 1]
@@ -502,10 +479,7 @@ test "qf_normalize_center_scale" {
 
 ///|
 test "qf_normalize_center_only" {
-  let data : Array[Array[Double]] = [
-    [1.0, 10.0],
-    [3.0, 30.0],
-  ]
+  let data : Array[Array[Double]] = [[1.0, 10.0], [3.0, 30.0]]
   let assay = @src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1"], data)
   let norm = @src.qf_normalize_center_scale(assay, true, false)
   // Col 0 mean=2 -> centered: [-1, 1]
@@ -519,10 +493,7 @@ test "qf_normalize_center_only" {
 ///|
 test "qf_log_transform" {
   // log2(x+1): 1->1, 3->2, 7->3, 0->0
-  let data : Array[Array[Double]] = [
-    [1.0, 3.0],
-    [7.0, 0.0],
-  ]
+  let data : Array[Array[Double]] = [[1.0, 3.0], [7.0, 0.0]]
   let assay = @src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1"], data)
   let logged = @src.qf_log_transform(assay, 2.0, 1.0)
   assert_true((logged.get(0, 0) - 1.0).abs() < 0.001)
@@ -551,7 +522,12 @@ test "qf_impute_knn" {
     [2.0, 5.0, 4.0],
     [3.0, 6.0, 7.0],
   ]
-  let assay = @src.QfAssay::new("a", ["r0", "r1", "r2"], ["c0", "c1", "c2"], data)
+  let assay = @src.QfAssay::new(
+    "a",
+    ["r0", "r1", "r2"],
+    ["c0", "c1", "c2"],
+    data,
+  )
   let imputed = @src.qf_impute_knn(assay, 1)
   assert_true(!@src.qf_is_na(imputed.get(0, 1)))
   assert_true((imputed.get(0, 1) - 5.0).abs() < 0.001)
@@ -563,10 +539,7 @@ test "qf_impute_knn" {
 ///|
 test "qf_impute_mean" {
   // Col means (skip NaN): col0 = (1+4)/2 = 2.5, col1 = 5.0, col2 = (3+6)/2 = 4.5
-  let data : Array[Array[Double]] = [
-    [1.0, Double::nan(), 3.0],
-    [4.0, 5.0, 6.0],
-  ]
+  let data : Array[Array[Double]] = [[1.0, Double::nan(), 3.0], [4.0, 5.0, 6.0]]
   let assay = @src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1", "c2"], data)
   let imputed = @src.qf_impute_mean(assay)
   assert_true((imputed.get(0, 1) - 5.0).abs() < 0.001)
@@ -580,10 +553,7 @@ test "qf_impute_mean" {
 
 ///|
 test "qf_impute_zero" {
-  let data : Array[Array[Double]] = [
-    [1.0, Double::nan()],
-    [Double::nan(), 2.0],
-  ]
+  let data : Array[Array[Double]] = [[1.0, Double::nan()], [Double::nan(), 2.0]]
   let assay = @src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1"], data)
   let imputed = @src.qf_impute_zero(assay)
   assert_true((imputed.get(0, 0) - 1.0).abs() < 0.001)
@@ -624,10 +594,7 @@ test "qf_summary" {
 
 ///|
 test "qf_assay_summary" {
-  let data : Array[Array[Double]] = [
-    [1.0, 2.0],
-    [3.0, 4.0],
-  ]
+  let data : Array[Array[Double]] = [[1.0, 2.0], [3.0, 4.0]]
   let assay = @src.QfAssay::new("myassay", ["r0", "r1"], ["c0", "c1"], data)
   let s = @src.qf_assay_summary(assay)
   assert_true(s.length() > 0)
@@ -639,10 +606,7 @@ test "qf_assay_summary" {
 ///|
 test "qf_to_long_format" {
   let qf = @src.QFeatures::new()
-  let data : Array[Array[Double]] = [
-    [1.0, 2.0],
-    [3.0, 4.0],
-  ]
+  let data : Array[Array[Double]] = [[1.0, 2.0], [3.0, 4.0]]
   qf.add_assay(@src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1"], data))
   let long = @src.qf_to_long_format(qf, "a")
   assert_eq(long.length(), 4)
@@ -761,10 +725,7 @@ test "qf_edge_case_single_cell_assay" {
 ///|
 test "qf_edge_case_all_nan_assay" {
   let nan = Double::nan()
-  let data : Array[Array[Double]] = [
-    [nan, nan],
-    [nan, nan],
-  ]
+  let data : Array[Array[Double]] = [[nan, nan], [nan, nan]]
   let assay = @src.QfAssay::new("allnan", ["r0", "r1"], ["c0", "c1"], data)
   assert_eq(@src.qf_count_na(assay), 4)
   let by_row = @src.qf_count_na_by_row(assay)

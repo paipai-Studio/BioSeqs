@@ -13,6 +13,7 @@ test "submat_protein_alphabet_has_20_letters" {
   assert_eq(alpha[19], "Y")
 }
 
+///|
 test "submat_nucleotide_alphabet_has_4_letters" {
   let alpha = @src.subs_nucleotide_alphabet()
   assert_eq(alpha.length(), 4)
@@ -23,6 +24,7 @@ test "submat_nucleotide_alphabet_has_4_letters" {
 // ArrayData structure
 // ---------------------------------------------------------------------------
 
+///|
 test "submat_array_data_from_dict_basic" {
   let pairs = [
     ("A", "A", 5.0),
@@ -34,19 +36,21 @@ test "submat_array_data_from_dict_basic" {
   assert_eq(ad.rows, ["A", "C"])
   assert_eq(ad.cols, ["A", "C"])
   assert_true((ad.get(0, 0) - 5.0).abs() < 1.0e-10)
-  assert_true((ad.get(0, 1) - (-1.0)).abs() < 1.0e-10)
+  assert_true((ad.get(0, 1) - -1.0).abs() < 1.0e-10)
   assert_true((ad.get(1, 1) - 9.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_array_data_get_by_label" {
   let pairs = [("A", "B", 3.0), ("B", "A", 7.0)]
   let ad = @src.array_data_from_dict(pairs, ["A", "B"], ["A", "B"])
   assert_true((ad.get_by_label("A", "B") - 3.0).abs() < 1.0e-10)
   assert_true((ad.get_by_label("B", "A") - 7.0).abs() < 1.0e-10)
   // Missing label returns 0.0
-  assert_true((ad.get_by_label("X", "Y")).abs() < 1.0e-10)
+  assert_true(ad.get_by_label("X", "Y").abs() < 1.0e-10)
 }
 
+///|
 test "submat_array_data_set_updates_value" {
   let pairs : Array[(String, String, Double)] = []
   let ad = @src.array_data_from_dict(pairs, ["A", "B"], ["A", "B"])
@@ -57,28 +61,31 @@ test "submat_array_data_set_updates_value" {
   assert_true(true)
 }
 
+///|
 test "submat_array_data_get_out_of_bounds_returns_zero" {
   let pairs : Array[(String, String, Double)] = []
   let ad = @src.array_data_from_dict(pairs, ["A"], ["A"])
-  assert_true((ad.get(-1, 0)).abs() < 1.0e-10)
-  assert_true((ad.get(0, 99)).abs() < 1.0e-10)
+  assert_true(ad.get(-1, 0).abs() < 1.0e-10)
+  assert_true(ad.get(0, 99).abs() < 1.0e-10)
 }
 
 // ---------------------------------------------------------------------------
 // Built-in BLOSUM matrices
 // ---------------------------------------------------------------------------
 
+///|
 test "submat_blosum62_known_scores" {
   let m = @src.subs_blosum62_matrix()
   assert_eq(m.name(), "BLOSUM62")
   assert_eq(m.n_letters(), 20)
   assert_true((m.get_score("A", "A") - 4.0).abs() < 1.0e-10)
   assert_true((m.get_score("R", "R") - 5.0).abs() < 1.0e-10)
-  assert_true((m.get_score("A", "R") - (-1.0)).abs() < 1.0e-10)
+  assert_true((m.get_score("A", "R") - -1.0).abs() < 1.0e-10)
   assert_true((m.get_score("W", "W") - 11.0).abs() < 1.0e-10)
   assert_true((m.get_score("C", "C") - 9.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_blosum62_is_symmetric" {
   let m = @src.subs_blosum62_matrix()
   let alpha = m.alphabet()
@@ -91,6 +98,7 @@ test "submat_blosum62_is_symmetric" {
   }
 }
 
+///|
 test "submat_blosum45_known_scores" {
   let m = @src.subs_blosum45_matrix()
   assert_eq(m.name(), "BLOSUM45")
@@ -100,6 +108,7 @@ test "submat_blosum45_known_scores" {
   assert_true((m.get_score("C", "C") - 12.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_blosum80_known_scores" {
   let m = @src.subs_blosum80_matrix()
   assert_eq(m.name(), "BLOSUM80")
@@ -108,6 +117,7 @@ test "submat_blosum80_known_scores" {
   assert_true((m.get_score("W", "W") - 15.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_blosum90_known_scores" {
   let m = @src.subs_blosum90_matrix()
   assert_eq(m.name(), "BLOSUM90")
@@ -120,6 +130,7 @@ test "submat_blosum90_known_scores" {
 // Built-in PAM matrices
 // ---------------------------------------------------------------------------
 
+///|
 test "submat_pam30_known_scores" {
   let m = @src.subs_pam30_matrix()
   assert_eq(m.name(), "PAM30")
@@ -128,6 +139,7 @@ test "submat_pam30_known_scores" {
   assert_true((m.get_score("W", "W") - 14.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_pam70_known_scores" {
   let m = @src.subs_pam70_matrix()
   assert_eq(m.name(), "PAM70")
@@ -136,6 +148,7 @@ test "submat_pam70_known_scores" {
   assert_true((m.get_score("W", "W") - 13.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_pam250_known_scores" {
   let m = @src.subs_pam250_matrix()
   assert_eq(m.name(), "PAM250")
@@ -148,21 +161,23 @@ test "submat_pam250_known_scores" {
 // Built-in nucleotide matrix
 // ---------------------------------------------------------------------------
 
+///|
 test "submat_nuc44_match_mismatch" {
   let m = @src.subs_nuc44_matrix()
   assert_eq(m.name(), "NUC4.4")
   assert_eq(m.n_letters(), 4)
   assert_true((m.get_score("A", "A") - 5.0).abs() < 1.0e-10)
-  assert_true((m.get_score("A", "C") - (-4.0)).abs() < 1.0e-10)
+  assert_true((m.get_score("A", "C") - -4.0).abs() < 1.0e-10)
   assert_true((m.get_score("G", "G") - 5.0).abs() < 1.0e-10)
   assert_true((m.get_score("T", "T") - 5.0).abs() < 1.0e-10)
-  assert_true((m.get_score("A", "T") - (-4.0)).abs() < 1.0e-10)
+  assert_true((m.get_score("A", "T") - -4.0).abs() < 1.0e-10)
 }
 
 // ---------------------------------------------------------------------------
 // SubsMatrix construction and methods
 // ---------------------------------------------------------------------------
 
+///|
 test "submat_subs_matrix_from_pairs" {
   let alpha = ["A", "C"]
   let pairs = [
@@ -176,17 +191,19 @@ test "submat_subs_matrix_from_pairs" {
   assert_eq(m.n_letters(), 2)
   assert_true((m.get_score("A", "A") - 5.0).abs() < 1.0e-10)
   assert_true((m.get_score("C", "C") - 9.0).abs() < 1.0e-10)
-  assert_true((m.get_score("A", "C") - (-2.0)).abs() < 1.0e-10)
+  assert_true((m.get_score("A", "C") - -2.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_get_score_idx" {
   let m = @src.subs_blosum62_matrix()
   // A=0, R=14 in alphabet ACDEFGHIKLMNPQRSTVWY
   assert_true((m.get_score_idx(0, 0) - 4.0).abs() < 1.0e-10)
   // A-R = -1
-  assert_true((m.get_score_idx(0, 14) - (-1.0)).abs() < 1.0e-10)
+  assert_true((m.get_score_idx(0, 14) - -1.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_select_submatrix" {
   let m = @src.subs_blosum62_matrix()
   let sub = m.select(["A", "C", "D"])
@@ -198,6 +215,7 @@ test "submat_select_submatrix" {
   assert_true((sub.get_score("A", "C") - 0.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_to_table_string_has_name" {
   let m = @src.subs_blosum62_matrix()
   let s = m.to_table_string()
@@ -211,6 +229,7 @@ test "submat_to_table_string_has_name" {
 // Matrix registry
 // ---------------------------------------------------------------------------
 
+///|
 test "submat_registry_initialize_and_list" {
   @src.subs_initialize_registry()
   let names = @src.list_matrices()
@@ -220,15 +239,22 @@ test "submat_registry_initialize_and_list" {
   let mut has_pam250 = false
   let mut has_nuc44 = false
   for n in names {
-    if n == "BLOSUM62" { has_blosum62 = true }
-    if n == "PAM250" { has_pam250 = true }
-    if n == "NUC4.4" { has_nuc44 = true }
+    if n == "BLOSUM62" {
+      has_blosum62 = true
+    }
+    if n == "PAM250" {
+      has_pam250 = true
+    }
+    if n == "NUC4.4" {
+      has_nuc44 = true
+    }
   }
   assert_true(has_blosum62)
   assert_true(has_pam250)
   assert_true(has_nuc44)
 }
 
+///|
 test "submat_registry_load_existing_matrix" {
   @src.subs_initialize_registry()
   let opt = @src.load_matrix("BLOSUM62")
@@ -238,12 +264,14 @@ test "submat_registry_load_existing_matrix" {
   assert_true((m.get_score("A", "A") - 4.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_registry_load_missing_returns_none" {
   @src.subs_initialize_registry()
   let opt = @src.load_matrix("NONEXISTENT_MATRIX_XYZ")
   assert_true(opt.is_none())
 }
 
+///|
 test "submat_registry_register_custom_matrix" {
   let alpha = ["A", "C"]
   let pairs = [
@@ -260,6 +288,7 @@ test "submat_registry_register_custom_matrix" {
   assert_true((loaded.get_score("A", "A") - 1.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_registry_register_overwrites_existing" {
   let alpha = ["A"]
   let pairs1 = [("A", "A", 5.0)]
@@ -276,6 +305,7 @@ test "submat_registry_register_overwrites_existing" {
 // Frequency matrix calculation
 // ---------------------------------------------------------------------------
 
+///|
 test "submat_calculate_frequency_matrix_identical_sequences" {
   let alignment = ["ACGT", "ACGT"]
   let alpha = @src.subs_nucleotide_alphabet()
@@ -288,9 +318,10 @@ test "submat_calculate_frequency_matrix_identical_sequences" {
   assert_true((freq.get(2, 2) - 2.0).abs() < 1.0e-10) // G
   assert_true((freq.get(3, 3) - 2.0).abs() < 1.0e-10) // T
   // Off-diagonal should be 0
-  assert_true((freq.get(0, 1)).abs() < 1.0e-10)
+  assert_true(freq.get(0, 1).abs() < 1.0e-10)
 }
 
+///|
 test "submat_calculate_frequency_matrix_with_substitutions" {
   let alignment = ["ACGT", "AGGT"] // position 1: C->G
   let alpha = @src.subs_nucleotide_alphabet()
@@ -306,6 +337,7 @@ test "submat_calculate_frequency_matrix_with_substitutions" {
   assert_true((freq.get(3, 3) - 2.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_calculate_frequency_matrix_skips_gaps" {
   let alignment = ["A-A", "ACA"] // position 1: gap in seq1
   let alpha = @src.subs_nucleotide_alphabet()
@@ -315,16 +347,17 @@ test "submat_calculate_frequency_matrix_skips_gaps" {
   // Position 2: A-A -> freq[0][0] += 2
   assert_true((freq.get(0, 0) - 4.0).abs() < 1.0e-10)
   // No C-C pairs
-  assert_true((freq.get(1, 1)).abs() < 1.0e-10)
+  assert_true(freq.get(1, 1).abs() < 1.0e-10)
 }
 
+///|
 test "submat_calculate_frequency_matrix_single_sequence_returns_zeros" {
   let alignment = ["ACGT"]
   let alpha = @src.subs_nucleotide_alphabet()
   let freq = @src.calculate_frequency_matrix(alignment, alpha)
   for i in 0..<4 {
     for j in 0..<4 {
-      assert_true((freq.get(i, j)).abs() < 1.0e-10)
+      assert_true(freq.get(i, j).abs() < 1.0e-10)
     }
   }
 }
@@ -333,6 +366,7 @@ test "submat_calculate_frequency_matrix_single_sequence_returns_zeros" {
 // Substitution matrix calculation (log-odds)
 // ---------------------------------------------------------------------------
 
+///|
 test "submat_calculate_substitution_matrix_identical_seqs" {
   let alignment = ["AC", "AC"]
   let alpha = ["A", "C"]
@@ -342,9 +376,10 @@ test "submat_calculate_substitution_matrix_identical_seqs" {
   assert_true((m.get_score("A", "A") - 2.0).abs() < 1.0e-10)
   assert_true((m.get_score("C", "C") - 2.0).abs() < 1.0e-10)
   // Off-diagonal: observed=0 -> -999
-  assert_true((m.get_score("A", "C") - (-999.0)).abs() < 1.0e-10)
+  assert_true((m.get_score("A", "C") - -999.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_calculate_substitution_matrix_default_scale" {
   let alignment = ["AA", "AA"]
   let alpha = ["A"]
@@ -359,17 +394,21 @@ test "submat_calculate_substitution_matrix_default_scale" {
 // Shannon entropy
 // ---------------------------------------------------------------------------
 
+///|
 test "submat_shannon_entropy_uniform_distribution" {
   // 2x2 matrix with all equal values: H = log2(4) = 2
   let pairs = [
-    ("A", "A", 1.0), ("A", "C", 1.0),
-    ("C", "A", 1.0), ("C", "C", 1.0),
+    ("A", "A", 1.0),
+    ("A", "C", 1.0),
+    ("C", "A", 1.0),
+    ("C", "C", 1.0),
   ]
   let freq = @src.array_data_from_dict(pairs, ["A", "C"], ["A", "C"])
   let h = @src.subs_shannon_entropy(freq)
   assert_true((h - 2.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_shannon_entropy_certain_distribution" {
   // All mass on one cell: H = 0
   let pairs = [("A", "A", 4.0)]
@@ -378,6 +417,7 @@ test "submat_shannon_entropy_certain_distribution" {
   assert_true(h.abs() < 1.0e-10)
 }
 
+///|
 test "submat_shannon_entropy_empty_matrix" {
   let pairs : Array[(String, String, Double)] = []
   let freq = @src.array_data_from_dict(pairs, ["A"], ["A"])
@@ -385,6 +425,7 @@ test "submat_shannon_entropy_empty_matrix" {
   assert_true(h.abs() < 1.0e-10)
 }
 
+///|
 test "submat_shannon_entropy_two_equal_cells" {
   // Two non-zero cells with equal weight: H = 1
   let pairs = [("A", "A", 1.0), ("C", "C", 1.0)]
@@ -397,17 +438,21 @@ test "submat_shannon_entropy_two_equal_cells" {
 // Relative entropy (KL divergence)
 // ---------------------------------------------------------------------------
 
+///|
 test "submat_relative_entropy_uniform_is_zero" {
   // When all letters equally frequent, observed == expected, KL = 0
   let pairs = [
-    ("A", "A", 1.0), ("A", "C", 1.0),
-    ("C", "A", 1.0), ("C", "C", 1.0),
+    ("A", "A", 1.0),
+    ("A", "C", 1.0),
+    ("C", "A", 1.0),
+    ("C", "C", 1.0),
   ]
   let freq = @src.array_data_from_dict(pairs, ["A", "C"], ["A", "C"])
   let kl = @src.subs_relative_entropy(freq)
   assert_true(kl.abs() < 1.0e-10)
 }
 
+///|
 test "submat_relative_entropy_identical_pairs_zero" {
   // Only A-A pairs: q(A,A)=1, p(A)=1, exp=1, KL = 1 * log2(1/1) = 0
   let pairs = [("A", "A", 4.0)]
@@ -416,6 +461,7 @@ test "submat_relative_entropy_identical_pairs_zero" {
   assert_true(kl.abs() < 1.0e-10)
 }
 
+///|
 test "submat_relative_entropy_empty_matrix" {
   let pairs : Array[(String, String, Double)] = []
   let freq = @src.array_data_from_dict(pairs, ["A"], ["A"])
@@ -427,6 +473,7 @@ test "submat_relative_entropy_empty_matrix" {
 // NCBI matrix parsing
 // ---------------------------------------------------------------------------
 
+///|
 test "submat_parse_ncbi_matrix_simple" {
   let content =
     #|# Test matrix
@@ -437,10 +484,11 @@ test "submat_parse_ncbi_matrix_simple" {
   assert_true(opt.is_some())
   let m = opt.unwrap()
   assert_true((m.get_score("A", "A") - 1.0).abs() < 1.0e-10)
-  assert_true((m.get_score("A", "C") - (-1.0)).abs() < 1.0e-10)
+  assert_true((m.get_score("A", "C") - -1.0).abs() < 1.0e-10)
   assert_true((m.get_score("C", "C") - 1.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_parse_ncbi_matrix_with_comments" {
   let content =
     #|# Generated by NCBI
@@ -455,16 +503,18 @@ test "submat_parse_ncbi_matrix_with_comments" {
   let m = opt.unwrap()
   assert_true((m.get_score("A", "A") - 5.0).abs() < 1.0e-10)
   assert_true((m.get_score("C", "C") - 5.0).abs() < 1.0e-10)
-  assert_true((m.get_score("A", "C") - (-4.0)).abs() < 1.0e-10)
-  assert_true((m.get_score("G", "T") - (-4.0)).abs() < 1.0e-10)
+  assert_true((m.get_score("A", "C") - -4.0).abs() < 1.0e-10)
+  assert_true((m.get_score("G", "T") - -4.0).abs() < 1.0e-10)
 }
 
+///|
 test "submat_parse_ncbi_matrix_empty_returns_none" {
   let content = "# only comments\n# nothing else\n"
   let opt = @src.parse_ncbi_matrix(content)
   assert_true(opt.is_none())
 }
 
+///|
 test "submat_parse_ncbi_matrix_handles_extra_whitespace" {
   let content = "A    C\nA   2   -3\nC  -3    2\n"
   let opt = @src.parse_ncbi_matrix(content)
@@ -472,13 +522,14 @@ test "submat_parse_ncbi_matrix_handles_extra_whitespace" {
   let m = opt.unwrap()
   assert_true((m.get_score("A", "A") - 2.0).abs() < 1.0e-10)
   assert_true((m.get_score("C", "C") - 2.0).abs() < 1.0e-10)
-  assert_true((m.get_score("A", "C") - (-3.0)).abs() < 1.0e-10)
+  assert_true((m.get_score("A", "C") - -3.0).abs() < 1.0e-10)
 }
 
 // ---------------------------------------------------------------------------
 // Matrix correlation
 // ---------------------------------------------------------------------------
 
+///|
 test "submat_matrix_correlation_identical_matrices" {
   let m1 = @src.subs_blosum62_matrix()
   let m2 = @src.subs_blosum62_matrix()
@@ -487,6 +538,7 @@ test "submat_matrix_correlation_identical_matrices" {
   assert_true((corr - 1.0).abs() < 1.0e-9)
 }
 
+///|
 test "submat_matrix_correlation_blosum45_vs_blosum62" {
   let m45 = @src.subs_blosum45_matrix()
   let m62 = @src.subs_blosum62_matrix()
@@ -496,6 +548,7 @@ test "submat_matrix_correlation_blosum45_vs_blosum62" {
   assert_true(corr <= 1.0)
 }
 
+///|
 test "submat_matrix_correlation_disjoint_alphabets" {
   let alpha1 = ["A"]
   let alpha2 = ["C"]
@@ -510,6 +563,7 @@ test "submat_matrix_correlation_disjoint_alphabets" {
 // End-to-end: derive matrix from alignment, then score
 // ---------------------------------------------------------------------------
 
+///|
 test "submat_end_to_end_derive_matrix_and_score" {
   // Build a small alignment where A and C never co-occur at the same position
   let alignment = ["AAA", "AAA", "CCC", "CCC"]

@@ -30,15 +30,21 @@ pub enum MSLevel {
 
 ///|
 /// Create MS1 level.
-pub fn ms_level_ms1() -> MSLevel { MSLevel::MS1 }
+pub fn ms_level_ms1() -> MSLevel {
+  MSLevel::MS1
+}
 
 ///|
 /// Create MS2 level.
-pub fn ms_level_ms2() -> MSLevel { MSLevel::MS2 }
+pub fn ms_level_ms2() -> MSLevel {
+  MSLevel::MS2
+}
 
 ///|
 /// Create MSn level with specific n.
-pub fn ms_level_msn(n : Int) -> MSLevel { MSLevel::MSn(n) }
+pub fn ms_level_msn(n : Int) -> MSLevel {
+  MSLevel::MSn(n)
+}
 
 ///|
 /// Ionization mode.
@@ -50,17 +56,21 @@ pub enum Polarity {
 
 ///|
 /// Create positive polarity.
-pub fn polarity_positive() -> Polarity { Polarity::Positive }
+pub fn polarity_positive() -> Polarity {
+  Polarity::Positive
+}
 
 ///|
 /// Create negative polarity.
-pub fn polarity_negative() -> Polarity { Polarity::Negative }
+pub fn polarity_negative() -> Polarity {
+  Polarity::Negative
+}
 
 ///|
 /// Spectrum processing step (for tracking).
 pub struct ProcessingStep {
   description : String
-  timestamp : String  // simplified timestamp as string
+  timestamp : String // simplified timestamp as string
 }
 
 ///|
@@ -84,11 +94,11 @@ pub struct Spectrum {
   intensity : Array[Double]
   ms_level : MSLevel
   polarity : Polarity
-  rt : Double              // retention time in seconds
+  rt : Double // retention time in seconds
   scan_index : Int
-  precursor_mz : Double    // for MS2
-  precursor_charge : Int   // for MS2
-  tic : Double             // total ion current
+  precursor_mz : Double // for MS2
+  precursor_charge : Int // for MS2
+  tic : Double // total ion current
   peaks_count : Int
   mut centroided : Bool
   processing_log : Array[ProcessingStep]
@@ -172,28 +182,40 @@ pub fn Spectrum::with_precursor(
 
 ///|
 /// Get m/z array.
-pub fn Spectrum::mz(self : Spectrum) -> Array[Double] { self.mz }
+pub fn Spectrum::mz(self : Spectrum) -> Array[Double] {
+  self.mz
+}
 
 ///|
 /// Get intensity array.
-pub fn Spectrum::intensity(self : Spectrum) -> Array[Double] { self.intensity }
+pub fn Spectrum::intensity(self : Spectrum) -> Array[Double] {
+  self.intensity
+}
 
 ///|
 /// Get number of peaks.
-pub fn Spectrum::peaks_count(self : Spectrum) -> Int { self.peaks_count }
+pub fn Spectrum::peaks_count(self : Spectrum) -> Int {
+  self.peaks_count
+}
 
 ///|
 /// Get retention time.
-pub fn Spectrum::rt(self : Spectrum) -> Double { self.rt }
+pub fn Spectrum::rt(self : Spectrum) -> Double {
+  self.rt
+}
 
 ///|
 /// Get total ion current.
-pub fn Spectrum::tic(self : Spectrum) -> Double { self.tic }
+pub fn Spectrum::tic(self : Spectrum) -> Double {
+  self.tic
+}
 
 ///|
 /// Get the base peak (highest intensity) info: (mz, intensity).
 pub fn Spectrum::base_peak(self : Spectrum) -> (Double, Double) {
-  if self.peaks_count == 0 { return (0.0, 0.0) }
+  if self.peaks_count == 0 {
+    return (0.0, 0.0)
+  }
   let mut max_i = 0
   let mut max_v = self.intensity[0]
   for i in 1..<self.peaks_count {
@@ -211,10 +233,12 @@ pub fn Spectrum::base_peak(self : Spectrum) -> (Double, Double) {
 pub fn Spectrum::find_peak(
   self : Spectrum,
   target_mz : Double,
-  ppm~ : Double = 10.0,
+  ppm? : Double = 10.0,
 ) -> Int {
   let n = self.peaks_count
-  if n == 0 { return -1 }
+  if n == 0 {
+    return -1
+  }
   let tolerance = target_mz * ppm / 1000000.0
   let mut best_idx = -1
   let mut best_diff = 1000000.0
@@ -249,7 +273,9 @@ pub fn Spectrum::filter_mz_range(
 ///|
 /// Normalize spectrum intensity by TIC (so sum = 1.0).
 pub fn Spectrum::normalize_tic(self : Spectrum) -> Spectrum {
-  if self.tic <= 0.0 { return self }
+  if self.tic <= 0.0 {
+    return self
+  }
   let new_int : Array[Double] = []
   for i in 0..<self.peaks_count {
     new_int.push(self.intensity[i] / self.tic)
@@ -264,12 +290,12 @@ pub fn Spectrum::normalize_tic(self : Spectrum) -> Spectrum {
 ///|
 /// An extracted ion chromatogram (XIC): intensity vs retention time.
 pub struct Chromatogram {
-  rt : Array[Double]         // retention times in seconds
-  intensity : Array[Double]  // intensities
-  mz_target : Double         // target m/z (0 if full range)
+  rt : Array[Double] // retention times in seconds
+  intensity : Array[Double] // intensities
+  mz_target : Double // target m/z (0 if full range)
   ppm_tolerance : Double
   n_points : Int
-  acquisition_mode : String  // "MRM", "SIM", "XIC", etc.
+  acquisition_mode : String // "MRM", "SIM", "XIC", etc.
 }
 
 ///|
@@ -277,9 +303,9 @@ pub struct Chromatogram {
 pub fn Chromatogram::new(
   rt : Array[Double],
   intensity : Array[Double],
-  mz_target~ : Double = 0.0,
-  ppm_tolerance~ : Double = 10.0,
-  acquisition_mode~ : String = "XIC",
+  mz_target? : Double = 0.0,
+  ppm_tolerance? : Double = 10.0,
+  acquisition_mode? : String = "XIC",
 ) -> Chromatogram {
   let n = rt.length()
   Chromatogram::{
@@ -287,19 +313,27 @@ pub fn Chromatogram::new(
     intensity,
     mz_target,
     ppm_tolerance,
-    n_points: if n == intensity.length() { n } else { 0 },
+    n_points: if n == intensity.length() {
+      n
+    } else {
+      0
+    },
     acquisition_mode,
   }
 }
 
 ///|
 /// Get n_points.
-pub fn Chromatogram::n_points(self : Chromatogram) -> Int { self.n_points }
+pub fn Chromatogram::n_points(self : Chromatogram) -> Int {
+  self.n_points
+}
 
 ///|
 /// Get total signal (AUC) using trapezoid rule.
 pub fn Chromatogram::total_auc(self : Chromatogram) -> Double {
-  if self.n_points < 2 { return 0.0 }
+  if self.n_points < 2 {
+    return 0.0
+  }
   let mut auc = 0.0
   for i in 1..<self.n_points {
     let dt = self.rt[i] - self.rt[i - 1]
@@ -312,7 +346,9 @@ pub fn Chromatogram::total_auc(self : Chromatogram) -> Double {
 ///|
 /// Find apex (maximum intensity) retention time and intensity.
 pub fn Chromatogram::apex(self : Chromatogram) -> (Double, Double) {
-  if self.n_points == 0 { return (0.0, 0.0) }
+  if self.n_points == 0 {
+    return (0.0, 0.0)
+  }
   let mut max_idx = 0
   let mut max_v = self.intensity[0]
   for i in 1..<self.n_points {
@@ -327,14 +363,21 @@ pub fn Chromatogram::apex(self : Chromatogram) -> (Double, Double) {
 ///|
 /// Full width at half maximum (FWHM) in seconds.
 pub fn Chromatogram::fwhm(self : Chromatogram) -> Double {
-  if self.n_points < 3 { return 0.0 }
+  if self.n_points < 3 {
+    return 0.0
+  }
   let (_apex_rt, apex_int) = self.apex()
-  if apex_int <= 0.0 { return 0.0 }
+  if apex_int <= 0.0 {
+    return 0.0
+  }
   let half_max = apex_int / 2.0
   // Find index of apex
   let mut apex_idx = 0
   for i in 0..<self.n_points {
-    if self.intensity[i] == apex_int { apex_idx = i; break }
+    if self.intensity[i] == apex_int {
+      apex_idx = i
+      break
+    }
   }
   // Walk left
   let mut left_idx = apex_idx
@@ -359,7 +402,7 @@ pub fn Chromatogram::fwhm(self : Chromatogram) -> Double {
 pub struct MSnFeatureData {
   feature_name : String
   protein_accessions : Array[String]
-  sequence : String        // peptide sequence if applicable
+  sequence : String // peptide sequence if applicable
   modifications : Array[String]
   charge : Int
   mz : Double
@@ -429,7 +472,7 @@ pub fn MSnSampleData::new(
 /// - sample_data: column annotations
 /// - processing: processing log
 pub struct MSnSet {
-  exprs : Array[Array[Double]]    // rows=features, cols=samples
+  exprs : Array[Array[Double]] // rows=features, cols=samples
   feature_data : Array[MSnFeatureData]
   sample_data : Array[MSnSampleData]
   n_features : Int
@@ -469,12 +512,20 @@ pub fn MSnSet::from_names(
   let n_s = if n_f > 0 { exprs[0].length() } else { 0 }
   let fd : Array[MSnFeatureData] = []
   for i in 0..<n_f {
-    let name = if i < feature_names.length() { feature_names[i] } else { "feat_\{i}" }
+    let name = if i < feature_names.length() {
+      feature_names[i]
+    } else {
+      "feat_\{i}"
+    }
     fd.push(MSnFeatureData::new(name, [], "", 0, 0.0, 0.0))
   }
   let sd : Array[MSnSampleData] = []
   for j in 0..<n_s {
-    let name = if j < sample_names.length() { sample_names[j] } else { "samp_\{j}" }
+    let name = if j < sample_names.length() {
+      sample_names[j]
+    } else {
+      "samp_\{j}"
+    }
     sd.push(MSnSampleData::new(name, "", "", 0, ""))
   }
   MSnSet::new(exprs, fd, sd)
@@ -482,15 +533,21 @@ pub fn MSnSet::from_names(
 
 ///|
 /// Get n_features.
-pub fn MSnSet::n_features(self : MSnSet) -> Int { self.n_features }
+pub fn MSnSet::n_features(self : MSnSet) -> Int {
+  self.n_features
+}
 
 ///|
 /// Get n_samples.
-pub fn MSnSet::n_samples(self : MSnSet) -> Int { self.n_samples }
+pub fn MSnSet::n_samples(self : MSnSet) -> Int {
+  self.n_samples
+}
 
 ///|
 /// Get expression matrix (intensities).
-pub fn MSnSet::exprs(self : MSnSet) -> Array[Array[Double]] { self.exprs }
+pub fn MSnSet::exprs(self : MSnSet) -> Array[Array[Double]] {
+  self.exprs
+}
 
 ///|
 /// Get feature names.
@@ -506,12 +563,20 @@ pub fn MSnSet::sample_names(self : MSnSet) -> Array[String] {
 
 ///|
 /// Get expression for a specific feature across samples.
-pub fn MSnSet::get_feature(self : MSnSet, feature_name : String) -> Array[Double] {
+pub fn MSnSet::get_feature(
+  self : MSnSet,
+  feature_name : String,
+) -> Array[Double] {
   let mut idx = -1
   for i in 0..<self.n_features {
-    if self.feature_data[i].feature_name == feature_name { idx = i; break }
+    if self.feature_data[i].feature_name == feature_name {
+      idx = i
+      break
+    }
   }
-  if idx < 0 { return [] }
+  if idx < 0 {
+    return []
+  }
   self.exprs[idx].copy()
 }
 
@@ -520,9 +585,14 @@ pub fn MSnSet::get_feature(self : MSnSet, feature_name : String) -> Array[Double
 pub fn MSnSet::get_sample(self : MSnSet, sample_name : String) -> Array[Double] {
   let mut idx = -1
   for j in 0..<self.n_samples {
-    if self.sample_data[j].sample_name == sample_name { idx = j; break }
+    if self.sample_data[j].sample_name == sample_name {
+      idx = j
+      break
+    }
   }
-  if idx < 0 { return [] }
+  if idx < 0 {
+    return []
+  }
   let result : Array[Double] = []
   for i in 0..<self.n_features {
     result.push(self.exprs[i][idx])
@@ -537,16 +607,19 @@ pub fn MSnSet::get_sample(self : MSnSet, sample_name : String) -> Array[Double] 
 ///|
 /// Absolute value helper.
 fn mbn_abs(x : Double) -> Double {
-  if x < 0.0 { -x } else { x }
+  if x < 0.0 {
+    -x
+  } else {
+    x
+  }
 }
 
 ///|
 /// Log2 transform intensities in MSnSet (with offset for zeros).
-pub fn MSnSet::log2_transform(
-  self : MSnSet,
-  offset~ : Double = 1.0,
-) -> MSnSet {
-  if self.is_log2 { return self }
+pub fn MSnSet::log2_transform(self : MSnSet, offset? : Double = 1.0) -> MSnSet {
+  if self.is_log2 {
+    return self
+  }
   let n_f = self.n_features
   let n_s = self.n_samples
   let new_exprs : Array[Array[Double]] = []
@@ -573,14 +646,16 @@ pub fn MSnSet::log2_transform(
 ///          "zero" (set to 0), "min" (row min / 2)
 pub fn MSnSet::impute_missing(
   self : MSnSet,
-  method~ : String = "mean",
+  method? : String = "mean",
 ) -> MSnSet {
   let n_f = self.n_features
   let n_s = self.n_samples
   let new_exprs : Array[Array[Double]] = []
   for i in 0..<n_f {
     let row : Array[Double] = []
-    for v in self.exprs[i] { row.push(v) }
+    for v in self.exprs[i] {
+      row.push(v)
+    }
     // Collect non-NA values (treat NaN and negative as missing)
     let non_missing : Array[Double] = []
     for j in 0..<n_s {
@@ -607,7 +682,9 @@ pub fn MSnSet::impute_missing(
       } else {
         // mean
         let mut s = 0.0
-        for v in non_missing { s = s + v }
+        for v in non_missing {
+          s = s + v
+        }
         s / non_missing.length().to_double()
       }
       for j in 0..<n_s {
@@ -627,7 +704,7 @@ pub fn MSnSet::impute_missing(
 /// Common for proteomics TMT data (sum normalization).
 pub fn MSnSet::normalize_sum(
   self : MSnSet,
-  target~ : Double = 1000000.0,
+  target? : Double = 1000000.0,
 ) -> MSnSet {
   let n_f = self.n_features
   let n_s = self.n_samples
@@ -635,7 +712,9 @@ pub fn MSnSet::normalize_sum(
   let new_exprs : Array[Array[Double]] = []
   for i in 0..<n_f {
     let row : Array[Double] = []
-    for _j in 0..<n_s { row.push(0.0) }
+    for _j in 0..<n_s {
+      row.push(0.0)
+    }
     new_exprs.push(row)
   }
   for j in 0..<n_s {
@@ -655,7 +734,9 @@ pub fn MSnSet::normalize_sum(
         }
       }
     } else {
-      for i in 0..<n_f { new_exprs[i][j] = self.exprs[i][j] }
+      for i in 0..<n_f {
+        new_exprs[i][j] = self.exprs[i][j]
+      }
     }
   }
   MSnSet::new(new_exprs, self.feature_data, self.sample_data)
@@ -669,7 +750,9 @@ pub fn MSnSet::normalize_median_center(self : MSnSet) -> MSnSet {
   let new_exprs : Array[Array[Double]] = []
   for i in 0..<n_f {
     let row : Array[Double] = []
-    for _j in 0..<n_s { row.push(0.0) }
+    for _j in 0..<n_s {
+      row.push(0.0)
+    }
     new_exprs.push(row)
   }
   for j in 0..<n_s {
@@ -707,7 +790,7 @@ pub fn MSnSet::normalize_median_center(self : MSnSet) -> MSnSet {
 /// Returns new MSnSet with one row per unique protein accession.
 pub fn MSnSet::summarize_to_proteins(
   self : MSnSet,
-  method~ : String = "sum",
+  method? : String = "sum",
 ) -> MSnSet {
   // Map from protein accession -> list of row indices
   let protein_rows : Map[String, Array[Int]] = Map([], capacity=0)
@@ -721,7 +804,9 @@ pub fn MSnSet::summarize_to_proteins(
         match existing {
           Some(arr) => {
             let new_arr : Array[Int] = []
-            for x in arr { new_arr.push(x) }
+            for x in arr {
+              new_arr.push(x)
+            }
             new_arr.push(i)
             protein_rows.set(name, new_arr)
           }
@@ -737,7 +822,9 @@ pub fn MSnSet::summarize_to_proteins(
           match existing {
             Some(arr) => {
               let new_arr : Array[Int] = []
-              for x in arr { new_arr.push(x) }
+              for x in arr {
+                new_arr.push(x)
+              }
               new_arr.push(i)
               protein_rows.set(p, new_arr)
             }
@@ -756,7 +843,9 @@ pub fn MSnSet::summarize_to_proteins(
   let new_exprs : Array[Array[Double]] = []
   for _i in 0..<n_prot {
     let row : Array[Double] = []
-    for _j in 0..<n_s { row.push(0.0) }
+    for _j in 0..<n_s {
+      row.push(0.0)
+    }
     new_exprs.push(row)
   }
   let new_fd : Array[MSnFeatureData] = []
@@ -769,7 +858,9 @@ pub fn MSnSet::summarize_to_proteins(
     }
     // Summarize each sample column
     let prot_row : Array[Double] = []
-    for _j in 0..<n_s { prot_row.push(0.0) }
+    for _j in 0..<n_s {
+      prot_row.push(0.0)
+    }
     for j in 0..<n_s {
       let vals : Array[Double] = []
       for r in rows {
@@ -788,20 +879,22 @@ pub fn MSnSet::summarize_to_proteins(
           }
         } else if method == "mean" {
           let mut s = 0.0
-          for v in vals { s = s + v }
+          for v in vals {
+            s = s + v
+          }
           prot_row[j] = s / vals.length().to_double()
         } else {
           // sum
           let mut s = 0.0
-          for v in vals { s = s + v }
+          for v in vals {
+            s = s + v
+          }
           prot_row[j] = s
         }
       }
     }
     new_exprs[p_idx] = prot_row
-    new_fd.push(MSnFeatureData::new(
-      pname, [pname], "", 0, 0.0, 0.0,
-    ))
+    new_fd.push(MSnFeatureData::new(pname, [pname], "", 0, 0.0, 0.0))
   }
   MSnSet::new(new_exprs, new_fd, self.sample_data)
 }
@@ -811,10 +904,12 @@ pub fn MSnSet::summarize_to_proteins(
 /// Window size is the full window (will be made odd). Returns smoothed Spectrum.
 pub fn Spectrum::smooth_moving_average(
   self : Spectrum,
-  half_window~ : Int = 2,
+  half_window? : Int = 2,
 ) -> Spectrum {
   let n = self.peaks_count
-  if n == 0 { return self }
+  if n == 0 {
+    return self
+  }
   let hw = if half_window < 1 { 1 } else { half_window }
   let new_int : Array[Double] = []
   for i in 0..<n {
@@ -836,10 +931,12 @@ pub fn Spectrum::smooth_moving_average(
 /// subtract minimum from a sliding window.
 pub fn Spectrum::baseline_correct_minwin(
   self : Spectrum,
-  half_window~ : Int = 20,
+  half_window? : Int = 20,
 ) -> Spectrum {
   let n = self.peaks_count
-  if n == 0 { return self }
+  if n == 0 {
+    return self
+  }
   let hw = if half_window < 1 { 1 } else { half_window }
   // Compute baseline estimate per point = min in window
   let baseline : Array[Double] = []
@@ -848,7 +945,9 @@ pub fn Spectrum::baseline_correct_minwin(
     let hi = if i + hw < n { i + hw } else { n - 1 }
     let mut min_v = self.intensity[lo]
     for k in lo..<(hi + 1) {
-      if self.intensity[k] < min_v { min_v = self.intensity[k] }
+      if self.intensity[k] < min_v {
+        min_v = self.intensity[k]
+      }
     }
     baseline.push(min_v)
   }
@@ -865,10 +964,12 @@ pub fn Spectrum::baseline_correct_minwin(
 /// Returns a new centroided Spectrum with only peak locations.
 pub fn Spectrum::centroid_simple(
   self : Spectrum,
-  snr_threshold~ : Double = 3.0,
+  snr_threshold? : Double = 3.0,
 ) -> Spectrum {
   let n = self.peaks_count
-  if n < 3 { return self }
+  if n < 3 {
+    return self
+  }
   // Estimate noise as median of small differences
   let noise_estimate = 0.0
   // Compute median intensity / 50 as simple noise floor
@@ -882,8 +983,8 @@ pub fn Spectrum::centroid_simple(
   for i in 1..<(n - 1) {
     let cur = self.intensity[i]
     if cur >= threshold &&
-       cur > self.intensity[i - 1] &&
-       cur > self.intensity[i + 1] {
+      cur > self.intensity[i - 1] &&
+      cur > self.intensity[i + 1] {
       // Simple 3-point parabolic apex refinement
       let a = self.intensity[i - 1]
       let b = cur
@@ -899,7 +1000,13 @@ pub fn Spectrum::centroid_simple(
       new_int.push(cur)
     }
   }
-  let result = Spectrum::new(new_mz, new_int, self.ms_level, self.polarity, self.rt)
+  let result = Spectrum::new(
+    new_mz,
+    new_int,
+    self.ms_level,
+    self.polarity,
+    self.rt,
+  )
   result.centroided = true
   result
 }
@@ -908,6 +1015,7 @@ pub fn Spectrum::centroid_simple(
 // Helper: sort doubles
 // ============================================================================
 
+///|
 fn mbn_sort_dbl(arr : Array[Double]) -> Array[Double] {
   let result = arr.copy()
   let n = result.length()
@@ -931,7 +1039,9 @@ fn mbn_sort_dbl(arr : Array[Double]) -> Array[Double] {
 ///|
 /// Compute per-sample QC metrics from MSnSet:
 /// Returns array of (sample_name, n_features_detected, total_intensity, median_intensity, coef_of_variation)
-pub fn MSnSet::sample_qc(self : MSnSet) -> Array[(String, Int, Double, Double, Double)] {
+pub fn MSnSet::sample_qc(
+  self : MSnSet,
+) -> Array[(String, Int, Double, Double, Double)] {
   let n_s = self.n_samples
   let result : Array[(String, Int, Double, Double, Double)] = []
   for j in 0..<n_s {
@@ -961,7 +1071,9 @@ pub fn MSnSet::sample_qc(self : MSnSet) -> Array[(String, Int, Double, Double, D
     let mut cv = 0.0
     if k > 1 {
       let mut mean_v = 0.0
-      for v in vals { mean_v = mean_v + v }
+      for v in vals {
+        mean_v = mean_v + v
+      }
       mean_v = mean_v / k.to_double()
       let mut sum_sq = 0.0
       for v in vals {
@@ -969,7 +1081,9 @@ pub fn MSnSet::sample_qc(self : MSnSet) -> Array[(String, Int, Double, Double, D
         sum_sq = sum_sq + d * d
       }
       let sd = (sum_sq / (k - 1).to_double()).sqrt()
-      if mean_v > 0.0 { cv = sd / mean_v }
+      if mean_v > 0.0 {
+        cv = sd / mean_v
+      }
     }
     let sname = if j < self.sample_data.length() {
       self.sample_data[j].sample_name

@@ -681,9 +681,7 @@ test "sqt_trim_adapter_perfect_match" {
   let seq = "ACGTACGTAGATCGGAA"
   let qual = "IIIIIIIIIIIIIIII"
   let adapter = "AGATCGGAA"
-  let (t_seq, _) = sqt_trim_adapter(
-    seq, qual, adapter, allowed_mismatches=0,
-  )
+  let (t_seq, _) = sqt_trim_adapter(seq, qual, adapter, allowed_mismatches=0)
   assert_eq(t_seq, "ACGTACGT")
 }
 
@@ -692,9 +690,7 @@ test "sqt_trim_adapter_no_match" {
   let seq = "ACGTACGTACGTACGT"
   let qual = "IIIIIIIIIIIIIIII"
   let adapter = "GGGGGGGG"
-  let (t_seq, _) = sqt_trim_adapter(
-    seq, qual, adapter, allowed_mismatches=0,
-  )
+  let (t_seq, _) = sqt_trim_adapter(seq, qual, adapter, allowed_mismatches=0)
   assert_eq(t_seq, "ACGTACGTACGTACGT")
 }
 
@@ -703,9 +699,7 @@ test "sqt_trim_adapter_with_mismatches" {
   let seq = "ACGTACGTAGATCGGAA"
   let qual = "IIIIIIIIIIIIIIII"
   let adapter = "AGATCGGAA"
-  let (t_seq, _) = sqt_trim_adapter(
-    seq, qual, adapter, allowed_mismatches=2,
-  )
+  let (t_seq, _) = sqt_trim_adapter(seq, qual, adapter, allowed_mismatches=2)
   assert_eq(t_seq, "ACGTACGT")
 }
 
@@ -722,9 +716,7 @@ test "sqt_trim_adapter_short_seq" {
   let seq = "AC"
   let qual = "II"
   let adapter = "AGATCGGAA"
-  let (t_seq, _) = sqt_trim_adapter(
-    seq, qual, adapter, allowed_mismatches=0,
-  )
+  let (t_seq, _) = sqt_trim_adapter(seq, qual, adapter, allowed_mismatches=0)
   assert_eq(t_seq, "AC")
 }
 
@@ -733,9 +725,7 @@ test "sqt_trim_adapter_at_beginning" {
   let seq = "AGATCGGAAACGTACGT"
   let qual = "IIIIIIIIIIIIIIII"
   let adapter = "AGATCGGAA"
-  let (t_seq, _) = sqt_trim_adapter(
-    seq, qual, adapter, allowed_mismatches=0,
-  )
+  let (t_seq, _) = sqt_trim_adapter(seq, qual, adapter, allowed_mismatches=0)
   assert_eq(t_seq.length(), 0)
 }
 
@@ -838,11 +828,7 @@ test "sqt_trim_by_gc_mid_range" {
 ///|
 test "sqt_trim_reads_batch" {
   let reads = [
-    FastqRead::{
-      id: "read1",
-      sequence: "ACGTACGT",
-      quality: "IIIIIIII",
-    },
+    FastqRead::{ id: "read1", sequence: "ACGTACGT", quality: "IIIIIIII" },
     FastqRead::{
       id: "read2",
       sequence: "ACGTACGTAGATCGGAA",
@@ -885,24 +871,15 @@ test "sqt_trim_reads_no_adapter" {
   assert_eq(results.length(), 1)
   assert_eq(results[0].trimmed_seq, "ACGTACGGG")
   assert_true(
-    results[0].trim_type == "poly_A" ||
-      results[0].trim_type == "poly_A,quality",
+    results[0].trim_type == "poly_A" || results[0].trim_type == "poly_A,quality",
   )
 }
 
 ///|
 test "sqt_compute_stats_basic" {
   let reads = [
-    FastqRead::{
-      id: "r1",
-      sequence: "ACGTACGT",
-      quality: "IIIIIIII",
-    },
-    FastqRead::{
-      id: "r2",
-      sequence: "TTTTTTTT",
-      quality: "IIIIIIII",
-    },
+    FastqRead::{ id: "r1", sequence: "ACGTACGT", quality: "IIIIIIII" },
+    FastqRead::{ id: "r2", sequence: "TTTTTTTT", quality: "IIIIIIII" },
   ]
   let results = [
     TrimResult::{
@@ -978,13 +955,7 @@ test "sqt_fastq_parse_malformed" {
 
 ///|
 test "sqt_fastq_serialize_basic" {
-  let reads = [
-    FastqRead::{
-      id: "test1",
-      sequence: "ACGT",
-      quality: "IIII",
-    },
-  ]
+  let reads = [FastqRead::{ id: "test1", sequence: "ACGT", quality: "IIII" }]
   let output = sqt_fastq_serialize(reads)
   assert_eq(output, "@test1\nACGT\n+\nIIII\n")
 }
@@ -992,22 +963,11 @@ test "sqt_fastq_serialize_basic" {
 ///|
 test "sqt_fastq_serialize_multiple" {
   let reads = [
-    FastqRead::{
-      id: "r1",
-      sequence: "AAAA",
-      quality: "IIII",
-    },
-    FastqRead::{
-      id: "r2",
-      sequence: "CCCC",
-      quality: "IIII",
-    },
+    FastqRead::{ id: "r1", sequence: "AAAA", quality: "IIII" },
+    FastqRead::{ id: "r2", sequence: "CCCC", quality: "IIII" },
   ]
   let output = sqt_fastq_serialize(reads)
-  assert_eq(
-    output,
-    "@r1\nAAAA\n+\nIIII\n@r2\nCCCC\n+\nIIII\n",
-  )
+  assert_eq(output, "@r1\nAAAA\n+\nIIII\n@r2\nCCCC\n+\nIIII\n")
 }
 
 ///|
@@ -1043,16 +1003,8 @@ test "sqt_quality_trim_single_base" {
 ///|
 test "sqt_compute_stats_gc_content" {
   let reads = [
-    FastqRead::{
-      id: "gc_high",
-      sequence: "GGGGCCCC",
-      quality: "IIIIIIII",
-    },
-    FastqRead::{
-      id: "at_high",
-      sequence: "AAAATTTT",
-      quality: "IIIIIIII",
-    },
+    FastqRead::{ id: "gc_high", sequence: "GGGGCCCC", quality: "IIIIIIII" },
+    FastqRead::{ id: "at_high", sequence: "AAAATTTT", quality: "IIIIIIII" },
   ]
   let results = [
     TrimResult::{
@@ -1080,11 +1032,7 @@ test "sqt_compute_stats_gc_content" {
 ///|
 test "sqt_trim_reads_quality_trim_only" {
   let reads = [
-    FastqRead::{
-      id: "r1",
-      sequence: "ACGTACGT",
-      quality: "IIII####",
-    },
+    FastqRead::{ id: "r1", sequence: "ACGTACGT", quality: "IIII####" },
   ]
   let qual_config = QualityConfig::{
     min_quality: 20,
@@ -1102,9 +1050,7 @@ test "sqt_trim_adapter_partial_overlap" {
   let seq = "ACGTACGTAGATCGGAA"
   let qual = "IIIIIIIIIIIIIIII"
   let adapter = "AGATCGGAA"
-  let (t_seq, _) = sqt_trim_adapter(
-    seq, qual, adapter, allowed_mismatches=1,
-  )
+  let (t_seq, _) = sqt_trim_adapter(seq, qual, adapter, allowed_mismatches=1)
   assert_eq(t_seq, "ACGTACGT")
 }
 
@@ -1153,13 +1099,7 @@ test "sqt_fastq_parse_crlf" {
 
 ///|
 test "sqt_compute_stats_all_discarded" {
-  let reads = [
-    FastqRead::{
-      id: "r1",
-      sequence: "ACGT",
-      quality: "IIII",
-    },
-  ]
+  let reads = [FastqRead::{ id: "r1", sequence: "ACGT", quality: "IIII" }]
   let results = [
     TrimResult::{
       read_id: "r1",

@@ -19,12 +19,16 @@ pub fn AbstractCommandline::new(executable : String) -> AbstractCommandline {
     stdin: "",
     stdout: "",
     stderr: "",
-    env: Map([], capacity=0)
+    env: Map([], capacity=0),
   }
 }
 
 ///|
-pub fn AbstractCommandline::add_arg(self : AbstractCommandline, arg : String, value : String?) -> AbstractCommandline {
+pub fn AbstractCommandline::add_arg(
+  self : AbstractCommandline,
+  arg : String,
+  value : String?,
+) -> AbstractCommandline {
   let args = self.arguments.copy()
   args.push(arg)
   if value is Some(_) {
@@ -36,12 +40,16 @@ pub fn AbstractCommandline::add_arg(self : AbstractCommandline, arg : String, va
     stdin: self.stdin,
     stdout: self.stdout,
     stderr: self.stderr,
-    env: self.env
+    env: self.env,
   }
 }
 
 ///|
-pub fn AbstractCommandline::set_parameter(self : AbstractCommandline, param : String, value : String) -> AbstractCommandline {
+pub fn AbstractCommandline::set_parameter(
+  self : AbstractCommandline,
+  param : String,
+  value : String,
+) -> AbstractCommandline {
   let args = self.arguments.copy()
   args.push(param)
   args.push(value)
@@ -51,43 +59,52 @@ pub fn AbstractCommandline::set_parameter(self : AbstractCommandline, param : St
     stdin: self.stdin,
     stdout: self.stdout,
     stderr: self.stderr,
-    env: self.env
+    env: self.env,
   }
 }
 
 ///|
-pub fn AbstractCommandline::set_stdout(self : AbstractCommandline, path : String) -> AbstractCommandline {
+pub fn AbstractCommandline::set_stdout(
+  self : AbstractCommandline,
+  path : String,
+) -> AbstractCommandline {
   AbstractCommandline::{
     executable: self.executable,
     arguments: self.arguments,
     stdin: self.stdin,
     stdout: path,
     stderr: self.stderr,
-    env: self.env
+    env: self.env,
   }
 }
 
 ///|
-pub fn AbstractCommandline::set_stderr(self : AbstractCommandline, path : String) -> AbstractCommandline {
+pub fn AbstractCommandline::set_stderr(
+  self : AbstractCommandline,
+  path : String,
+) -> AbstractCommandline {
   AbstractCommandline::{
     executable: self.executable,
     arguments: self.arguments,
     stdin: self.stdin,
     stdout: self.stdout,
     stderr: path,
-    env: self.env
+    env: self.env,
   }
 }
 
 ///|
-pub fn AbstractCommandline::set_stdin(self : AbstractCommandline, path : String) -> AbstractCommandline {
+pub fn AbstractCommandline::set_stdin(
+  self : AbstractCommandline,
+  path : String,
+) -> AbstractCommandline {
   AbstractCommandline::{
     executable: self.executable,
     arguments: self.arguments,
     stdin: path,
     stdout: self.stdout,
     stderr: self.stderr,
-    env: self.env
+    env: self.env,
   }
 }
 
@@ -115,7 +132,11 @@ pub struct CommandlineError {
 }
 
 ///|
-pub fn CommandlineError::new(message : String, exit_code : Int, command : String) -> CommandlineError {
+pub fn CommandlineError::new(
+  message : String,
+  exit_code : Int,
+  command : String,
+) -> CommandlineError {
   CommandlineError::{ message, exit_code, command }
 }
 

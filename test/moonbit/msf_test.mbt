@@ -33,12 +33,7 @@ fn msf_test_write_raises(
 ) -> Bool {
   try {
     ignore(
-      @src.msf_write(
-        alignment,
-        block_width=block_width,
-        group_width=group_width,
-        gap_character=gap_character,
-      ),
+      @src.msf_write(alignment, block_width~, group_width~, gap_character~),
     )
     false
   } catch {
@@ -53,14 +48,7 @@ fn msf_test_from_aligned_raises(
   weights : Array[Double],
 ) -> Bool {
   try {
-    ignore(
-      @src.msf_from_aligned(
-        ids,
-        rows,
-        @src.MsfNucleotide,
-        weights=weights,
-      ),
-    )
+    ignore(@src.msf_from_aligned(ids, rows, @src.MsfNucleotide, weights~))
     false
   } catch {
     MsfError(_) => true
@@ -81,7 +69,7 @@ fn msf_test_sequence_raises(
         id,
         row,
         sequence_type,
-        weight=weight,
+        weight~,
         checksum=Some(checksum),
       ),
     )
@@ -570,11 +558,7 @@ test "Bio.Align.msf writes hyphen gaps" {
 
 ///|
 test "Bio.Align.msf writes custom interleaved blocks" {
-  let output = @src.msf_write(
-    msf_test_sample(),
-    block_width=6,
-    group_width=3,
-  ) catch {
+  let output = @src.msf_write(msf_test_sample(), block_width=6, group_width=3) catch {
     MsfError(message) => abort(message)
   }
   assert_true(output.contains("reference  ACG TAC"))
@@ -670,11 +654,7 @@ test "Bio.Align.msf constructs canonical metadata" {
 
 ///|
 test "Bio.Align.msf accepts protein wildcard residues" {
-  let sequence = @src.MsfSequence::create(
-    "protein",
-    "ACDX*?",
-    @src.MsfProtein,
-  ) catch {
+  let sequence = @src.MsfSequence::create("protein", "ACDX*?", @src.MsfProtein) catch {
     MsfError(message) => abort(message)
   }
   assert_eq(sequence.sequence, "ACDX*?")
@@ -727,9 +707,7 @@ test "Bio.Align.msf rejects missing alignment header" {
 ///|
 test "Bio.Align.msf rejects malformed alignment header" {
   assert_true(
-    msf_test_raises(
-      "!!NA_MULTIPLE_ALIGNMENT\nMSF: 4 Kind: N Check: 0 ..\n",
-    ),
+    msf_test_raises("!!NA_MULTIPLE_ALIGNMENT\nMSF: 4 Kind: N Check: 0 ..\n"),
   )
 }
 
@@ -765,20 +743,12 @@ test "Bio.Align.msf rejects zero declared width" {
 
 ///|
 test "Bio.Align.msf rejects integer overflow" {
-  assert_true(
-    msf_test_raises(
-      "PileUp\nMSF: 2147483648 Type: N Check: 0 ..\n",
-    ),
-  )
+  assert_true(msf_test_raises("PileUp\nMSF: 2147483648 Type: N Check: 0 ..\n"))
 }
 
 ///|
 test "Bio.Align.msf rejects file checksum outside range" {
-  assert_true(
-    msf_test_raises(
-      "PileUp\nMSF: 4 Type: N Check: 10000 ..\n",
-    ),
-  )
+  assert_true(msf_test_raises("PileUp\nMSF: 4 Type: N Check: 10000 ..\n"))
 }
 
 ///|
@@ -970,107 +940,65 @@ test "Bio.Align.msf rejects unexpected descriptor token" {
 
 ///|
 test "Bio.Align.msf rejects empty row constructor input" {
-  assert_true(
-    msf_test_from_aligned_raises([], [], []),
-  )
+  assert_true(msf_test_from_aligned_raises([], [], []))
 }
 
 ///|
 test "Bio.Align.msf rejects mismatched row constructor input" {
-  assert_true(
-    msf_test_from_aligned_raises(["alpha"], ["ACGT", "ACGT"], []),
-  )
+  assert_true(msf_test_from_aligned_raises(["alpha"], ["ACGT", "ACGT"], []))
 }
 
 ///|
 test "Bio.Align.msf rejects mismatched weights" {
   assert_true(
-    msf_test_from_aligned_raises(
-      ["alpha", "beta"],
-      ["ACGT", "ACGT"],
-      [1.0],
-    ),
+    msf_test_from_aligned_raises(["alpha", "beta"], ["ACGT", "ACGT"], [1.0]),
   )
 }
 
 ///|
 test "Bio.Align.msf rejects unequal row widths" {
   assert_true(
-    msf_test_from_aligned_raises(
-      ["alpha", "beta"],
-      ["ACGT", "ACG"],
-      [],
-    ),
+    msf_test_from_aligned_raises(["alpha", "beta"], ["ACGT", "ACG"], []),
   )
 }
 
 ///|
 test "Bio.Align.msf rejects duplicate constructor identifiers" {
   assert_true(
-    msf_test_from_aligned_raises(
-      ["alpha", "alpha"],
-      ["ACGT", "ACGT"],
-      [],
-    ),
+    msf_test_from_aligned_raises(["alpha", "alpha"], ["ACGT", "ACGT"], []),
   )
 }
 
 ///|
 test "Bio.Align.msf rejects whitespace in sequence identifier" {
   assert_true(
-    msf_test_sequence_raises(
-      "bad id",
-      "ACGT",
-      @src.MsfNucleotide,
-      1.0,
-      748,
-    ),
+    msf_test_sequence_raises("bad id", "ACGT", @src.MsfNucleotide, 1.0, 748),
   )
 }
 
 ///|
 test "Bio.Align.msf rejects empty aligned sequence" {
-  assert_true(
-    msf_test_sequence_raises("", "", @src.MsfNucleotide, 1.0, 0),
-  )
+  assert_true(msf_test_sequence_raises("", "", @src.MsfNucleotide, 1.0, 0))
 }
 
 ///|
 test "Bio.Align.msf rejects all-gap sequence" {
   assert_true(
-    msf_test_sequence_raises(
-      "alpha",
-      "...",
-      @src.MsfNucleotide,
-      1.0,
-      0,
-    ),
+    msf_test_sequence_raises("alpha", "...", @src.MsfNucleotide, 1.0, 0),
   )
 }
 
 ///|
 test "Bio.Align.msf rejects sequence checksum outside range" {
   assert_true(
-    msf_test_sequence_raises(
-      "alpha",
-      "ACGT",
-      @src.MsfNucleotide,
-      1.0,
-      10000,
-    ),
+    msf_test_sequence_raises("alpha", "ACGT", @src.MsfNucleotide, 1.0, 10000),
   )
 }
 
 ///|
 test "Bio.Align.msf rejects negative sequence weight" {
   assert_true(
-    msf_test_sequence_raises(
-      "alpha",
-      "ACGT",
-      @src.MsfNucleotide,
-      -1.0,
-      748,
-    ),
+    msf_test_sequence_raises("alpha", "ACGT", @src.MsfNucleotide, -1.0, 748),
   )
 }
 

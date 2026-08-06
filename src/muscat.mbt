@@ -153,7 +153,11 @@ pub fn SingleCell::new(
 
 ///|
 /// Set gene count for a cell.
-pub fn SingleCell::set_count(self : SingleCell, gene_id : String, count : Double) -> Unit {
+pub fn SingleCell::set_count(
+  self : SingleCell,
+  gene_id : String,
+  count : Double,
+) -> Unit {
   self.gene_counts.set(gene_id, count)
 }
 
@@ -266,7 +270,11 @@ pub fn aggregate_cells(
             s = s + values[vi]
             vi = vi + 1
           }
-          if values.length() > 0 { s / values.length().to_double() } else { 0.0 }
+          if values.length() > 0 {
+            s / values.length().to_double()
+          } else {
+            0.0
+          }
         }
         AggregationMethod::Median => {
           let sorted = values.copy()
@@ -462,7 +470,11 @@ pub fn run_ds_analysis(
   let mut si2 = 0
   while si2 < all_results.length() {
     all_results[si2].p_adj = adjusted[si2]
-    let abs_lfc = if all_results[si2].log2fc < 0.0 { -all_results[si2].log2fc } else { all_results[si2].log2fc }
+    let abs_lfc = if all_results[si2].log2fc < 0.0 {
+      -all_results[si2].log2fc
+    } else {
+      all_results[si2].log2fc
+    }
     let sig = adjusted[si2] < fdr_threshold && abs_lfc >= log2fc_threshold
     all_results[si2].significant = sig
     si2 = si2 + 1
@@ -554,19 +566,36 @@ fn compute_ttest_pvalue(ctrl : Array[Double], stim : Array[Double]) -> Double {
   let t_stat = (m2 - m1) / pooled_se
 
   // Degrees of freedom (Welch's)
-  let df_num = (v1 / n1.to_double() + v2 / n2.to_double()) * (v1 / n1.to_double() + v2 / n2.to_double())
-  let df_den = (v1 / n1.to_double()) * (v1 / n1.to_double()) / (n1 - 1).to_double() + (v2 / n2.to_double()) * (v2 / n2.to_double()) / (n2 - 1).to_double()
-  let df = if df_den < 1.0e-10 { (n1 + n2 - 2).to_double() } else { df_num / df_den }
+  let df_num = (v1 / n1.to_double() + v2 / n2.to_double()) *
+    (v1 / n1.to_double() + v2 / n2.to_double())
+  let df_den = v1 /
+    n1.to_double() *
+    (v1 / n1.to_double()) /
+    (n1 - 1).to_double() +
+    v2 / n2.to_double() * (v2 / n2.to_double()) / (n2 - 1).to_double()
+  let df = if df_den < 1.0e-10 {
+    (n1 + n2 - 2).to_double()
+  } else {
+    df_num / df_den
+  }
 
   // Approximate two-sided p-value from t-distribution
   // Using a simple approximation: p = 2 * (1 - cdf(|t|, df))
   // Approximation: p ≈ 2 * exp(-df * ln(1 + t^2/df) / 2) / sqrt(df * pi)
   let abs_t = if t_stat < 0.0 { -t_stat } else { t_stat }
   let t_sq = abs_t * abs_t
-  let p_approx = 2.0 * @math.exp(-df * @math.ln(1.0 + t_sq / df) / 2.0) / (df * 3.14159265358979).sqrt()
+  let p_approx = 2.0 *
+    @math.exp(-df * @math.ln(1.0 + t_sq / df) / 2.0) /
+    (df * 3.14159265358979).sqrt()
 
   // Clamp p-value to [0, 1]
-  if p_approx > 1.0 { 1.0 } else if p_approx < 0.0 { 0.0 } else { p_approx }
+  if p_approx > 1.0 {
+    1.0
+  } else if p_approx < 0.0 {
+    0.0
+  } else {
+    p_approx
+  }
 }
 
 ///|
@@ -650,7 +679,10 @@ pub fn DSResults::get_significant(self : DSResults) -> Array[DSResult] {
 
 ///|
 /// Get results for a specific cluster.
-pub fn DSResults::get_cluster_results(self : DSResults, cluster_id : String) -> Array[DSResult] {
+pub fn DSResults::get_cluster_results(
+  self : DSResults,
+  cluster_id : String,
+) -> Array[DSResult] {
   let filtered : Array[DSResult] = Array::new()
   let mut i = 0
   while i < self.results.length() {
@@ -698,7 +730,12 @@ pub fn DSResults::summary(self : DSResults) -> String {
   s = s + "Method: " + self.ds_method.to_string() + "\n"
   s = s + "Total genes tested: " + self.n_genes.to_string() + "\n"
   s = s + "Clusters: " + self.n_clusters.to_string() + "\n"
-  s = s + "Significant (FDR < " + self.fdr_threshold.to_string() + "): " + self.n_sig.to_string() + "\n"
+  s = s +
+    "Significant (FDR < " +
+    self.fdr_threshold.to_string() +
+    "): " +
+    self.n_sig.to_string() +
+    "\n"
   s = s + "Total results: " + self.results.length().to_string() + "\n"
   s
 }
@@ -712,11 +749,7 @@ pub fn compute_qc(pb_samples : Array[PseudoBulk]) -> Array[SampleQC] {
     let pb = pb_samples[i]
     let n_genes = pb.n_expressed()
     let total = pb.total_counts()
-    let median_genes = if pb.n_cells > 0 {
-      n_genes.to_double()
-    } else {
-      0.0
-    }
+    let median_genes = if pb.n_cells > 0 { n_genes.to_double() } else { 0.0 }
     qc_list.push(SampleQC::{
       sample_id: pb.sample_id,
       cluster_id: pb.cluster_id,

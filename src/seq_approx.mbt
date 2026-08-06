@@ -121,7 +121,7 @@ pub fn approx_search(
     }
   }
 
-  let mut best : Option[ApproxMatch] = None
+  let mut best : ApproxMatch? = None
   let mut pos = 0
   let max_pos = qry_len - pat_len
 
@@ -141,9 +141,7 @@ pub fn approx_search(
         is_match: true,
       }
       best = match best {
-        Some(prev) => {
-          if mm < prev.mismatches { Some(m) } else { Some(prev) }
-        }
+        Some(prev) => if mm < prev.mismatches { Some(m) } else { Some(prev) }
         None => Some(m)
       }
       if mm == 0 {
@@ -155,15 +153,16 @@ pub fn approx_search(
 
   match best {
     Some(m) => m
-    None => ApproxMatch::{
-      pattern,
-      query,
-      start: 0,
-      end: 0,
-      mismatches: pat_len,
-      score: 0,
-      is_match: false,
-    }
+    None =>
+      ApproxMatch::{
+        pattern,
+        query,
+        start: 0,
+        end: 0,
+        mismatches: pat_len,
+        score: 0,
+        is_match: false,
+      }
   }
 }
 
@@ -217,7 +216,7 @@ pub fn approx_search_with_indels(
     let init_end = if min_end > start { min_end } else { start + 1 }
     let mut end = init_end
     while end <= max_end {
-      let seg = query.substring(start=start, end=end)
+      let seg = query.substring(start~, end~)
       let errors = levenshtein_distance(pattern, seg)
       if errors <= max_errors && errors < best_errors {
         best_errors = errors
@@ -273,8 +272,12 @@ pub fn levenshtein_distance(s1 : String, s2 : String) -> Int {
   let len1 = s1.length()
   let len2 = s2.length()
 
-  if len1 == 0 { return len2 }
-  if len2 == 0 { return len1 }
+  if len1 == 0 {
+    return len2
+  }
+  if len2 == 0 {
+    return len1
+  }
 
   let mut prev : Array[Int] = Array::new()
   let mut i = 0
@@ -297,7 +300,17 @@ pub fn levenshtein_distance(s1 : String, s2 : String) -> Int {
       let deletion = prev[j] + 1
       let insertion = row[j - 1] + 1
       let substitution = prev[j - 1] + cost
-      let min_val = if deletion < insertion { if deletion < substitution { deletion } else { substitution } } else { if insertion < substitution { insertion } else { substitution } }
+      let min_val = if deletion < insertion {
+        if deletion < substitution {
+          deletion
+        } else {
+          substitution
+        }
+      } else if insertion < substitution {
+        insertion
+      } else {
+        substitution
+      }
       row.push(min_val)
       j = j + 1
     }
@@ -370,7 +383,13 @@ pub fn approx_word_search(
   let text_len = text.length()
 
   if len == 0 {
-    return ApproxWordResult::{ word, match_start: 0, match_end: 0, edit_distance: 0, is_found: false }
+    return ApproxWordResult::{
+      word,
+      match_start: 0,
+      match_end: 0,
+      edit_distance: 0,
+      is_found: false,
+    }
   }
 
   let mut best_dist = max_errors + 1
@@ -380,10 +399,14 @@ pub fn approx_word_search(
 
   let mut start = 0
   while start < text_len {
-    let max_end = if start + len + max_errors < text_len { start + len + max_errors } else { text_len }
+    let max_end = if start + len + max_errors < text_len {
+      start + len + max_errors
+    } else {
+      text_len
+    }
     let mut end = start + len
     while end <= max_end {
-      let seg = text.substring(start=start, end=end)
+      let seg = text.substring(start~, end~)
       let dist = levenshtein_distance(word, seg)
       if dist <= max_errors && dist < best_dist {
         best_dist = dist

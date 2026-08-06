@@ -18,19 +18,8 @@
 ///|
 test "imgt_header_new_and_all_accessors" {
   let h = @src.ImgtHeader::new(
-    "HLA00001",
-    "A*01:01:01:01",
-    "A*01:01:01:01",
-    "ORF",
-    "2015-03-31",
-    "1996-01-19",
-    "human",
-    "HLA-A",
-    "I",
-    "MHC",
-    "2703 bp",
-    " genomic-DNA",
-    "no comments",
+    "HLA00001", "A*01:01:01:01", "A*01:01:01:01", "ORF", "2015-03-31", "1996-01-19",
+    "human", "HLA-A", "I", "MHC", "2703 bp", " genomic-DNA", "no comments",
   )
   assert_eq(h.accession(), "HLA00001")
   assert_eq(h.seq_id(), "A*01:01:01:01")
@@ -50,19 +39,8 @@ test "imgt_header_new_and_all_accessors" {
 ///|
 test "imgt_header_to_string" {
   let h = @src.ImgtHeader::new(
-    "HLA00001",
-    "A*01:01:01:01",
-    "A*01:01:01:01",
-    "ORF",
-    "2015-03-31",
-    "1996-01-19",
-    "human",
-    "HLA-A",
-    "I",
-    "MHC",
-    "2703 bp",
-    " genomic-DNA",
-    "",
+    "HLA00001", "A*01:01:01:01", "A*01:01:01:01", "ORF", "2015-03-31", "1996-01-19",
+    "human", "HLA-A", "I", "MHC", "2703 bp", " genomic-DNA", "",
   )
   assert_eq(
     h.to_string(),
@@ -73,19 +51,8 @@ test "imgt_header_to_string" {
 ///|
 test "imgt_header_to_string_all_fields_populated" {
   let h = @src.ImgtHeader::new(
-    "ACC1",
-    "SID1",
-    "ON1",
-    "R1",
-    "D1",
-    "D2",
-    "SP1",
-    "G1",
-    "IG1",
-    "L1",
-    "100 bp",
-    "DNA",
-    "C1",
+    "ACC1", "SID1", "ON1", "R1", "D1", "D2", "SP1", "G1", "IG1", "L1", "100 bp",
+    "DNA", "C1",
   )
   let s = h.to_string()
   // 13 fields separated by 12 pipes.
@@ -94,7 +61,9 @@ test "imgt_header_to_string_all_fields_populated" {
 
 ///|
 test "imgt_header_to_string_empty_fields" {
-  let h = @src.ImgtHeader::new("", "", "", "", "", "", "", "", "", "", "", "", "")
+  let h = @src.ImgtHeader::new(
+    "", "", "", "", "", "", "", "", "", "", "", "", "",
+  )
   assert_eq(h.to_string(), "||||||||||||")
 }
 
@@ -105,19 +74,8 @@ test "imgt_header_to_string_empty_fields" {
 ///|
 test "imgt_record_new_and_accessors" {
   let header = @src.ImgtHeader::new(
-    "HLA00001",
-    "A*01:01:01:01",
-    "A*01:01:01:01",
-    "ORF",
-    "2015-03-31",
-    "1996-01-19",
-    "human",
-    "HLA-A",
-    "I",
-    "MHC",
-    "2703 bp",
-    " genomic-DNA",
-    "",
+    "HLA00001", "A*01:01:01:01", "A*01:01:01:01", "ORF", "2015-03-31", "1996-01-19",
+    "human", "HLA-A", "I", "MHC", "2703 bp", " genomic-DNA", "",
   )
   let rec = @src.ImgtRecord::new(header, "ATGGCCGTCATGGCGCCCCGAACCCTCCTCCTC")
   assert_eq(rec.header().accession(), "HLA00001")
@@ -127,19 +85,7 @@ test "imgt_record_new_and_accessors" {
 ///|
 test "imgt_record_id" {
   let header = @src.ImgtHeader::new(
-    "HLA00001",
-    "A*01:01:01:01",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
+    "HLA00001", "A*01:01:01:01", "", "", "", "", "", "", "", "", "", "", "",
   )
   let rec = @src.ImgtRecord::new(header, "ACGT")
   assert_eq(rec.id(), "A*01:01:01:01")
@@ -148,19 +94,8 @@ test "imgt_record_id" {
 ///|
 test "imgt_record_description" {
   let header = @src.ImgtHeader::new(
-    "HLA00001",
-    "A*01:01:01:01",
-    "A*01:01:01:01",
-    "ORF",
-    "2015-03-31",
-    "1996-01-19",
-    "human",
-    "HLA-A",
-    "I",
-    "MHC",
-    "2703 bp",
-    " genomic-DNA",
-    "",
+    "HLA00001", "A*01:01:01:01", "A*01:01:01:01", "ORF", "2015-03-31", "1996-01-19",
+    "human", "HLA-A", "I", "MHC", "2703 bp", " genomic-DNA", "",
   )
   let rec = @src.ImgtRecord::new(header, "ACGT")
   // description() returns the full pipe-separated header (without '>').
@@ -170,18 +105,7 @@ test "imgt_record_description" {
 ///|
 test "imgt_record_to_string" {
   let header = @src.ImgtHeader::new(
-    "HLA00001",
-    "A*01:01:01:01",
-    "",
-    "",
-    "",
-    "",
-    "human",
-    "HLA-A",
-    "",
-    "",
-    "",
-    "",
+    "HLA00001", "A*01:01:01:01", "", "", "", "", "human", "HLA-A", "", "", "", "",
     "",
   )
   let rec = @src.ImgtRecord::new(header, "ATGGCC")
@@ -380,19 +304,7 @@ test "imgt_parse_no_trailing_newline" {
 ///|
 test "imgt_header_to_string_basic" {
   let h = @src.ImgtHeader::new(
-    "HLA00001",
-    "A*01:01:01:01",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
+    "HLA00001", "A*01:01:01:01", "", "", "", "", "", "", "", "", "", "", "",
   )
   assert_eq(@src.imgt_header_to_string(h), ">HLA00001|A*01:01:01:01|||||||||||")
 }
@@ -400,19 +312,8 @@ test "imgt_header_to_string_basic" {
 ///|
 test "imgt_header_to_string_round_trip_with_parse" {
   let h = @src.ImgtHeader::new(
-    "HLA00001",
-    "A*01:01:01:01",
-    "A*01:01:01:01",
-    "ORF",
-    "2015-03-31",
-    "1996-01-19",
-    "human",
-    "HLA-A",
-    "I",
-    "MHC",
-    "2703 bp",
-    " genomic-DNA",
-    "",
+    "HLA00001", "A*01:01:01:01", "A*01:01:01:01", "ORF", "2015-03-31", "1996-01-19",
+    "human", "HLA-A", "I", "MHC", "2703 bp", " genomic-DNA", "",
   )
   let s = @src.imgt_header_to_string(h)
   match @src.imgt_parse_header(s) {
@@ -442,19 +343,7 @@ test "imgt_header_to_string_round_trip_with_parse" {
 ///|
 test "imgt_record_to_string_includes_header_and_sequence" {
   let header = @src.ImgtHeader::new(
-    "HLA00001",
-    "A*01:01:01:01",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
+    "HLA00001", "A*01:01:01:01", "", "", "", "", "", "", "", "", "", "", "",
   )
   let rec = @src.ImgtRecord::new(header, "ATGGCCGTC")
   let s = @src.imgt_record_to_string(rec)
@@ -468,7 +357,9 @@ test "imgt_record_to_string_includes_header_and_sequence" {
 test "imgt_record_to_string_wraps_long_sequence" {
   // A 120-character sequence should be wrapped into two 60-character lines.
   let seq = "ATGGCCGTCATGGCGCCCCGAACCCTCCTCCTGCTGCTCTCTGGGGCCCCGGGGCCCCGGGGCCCCGGATGGCCGTCATGGCGCCCCGAACCCTCCTCCTGCTGCTCTCTGGGGCCCCGGGGCCCCGGGGCCCCGG"
-  let header = @src.ImgtHeader::new("A", "B", "", "", "", "", "", "", "", "", "", "", "")
+  let header = @src.ImgtHeader::new(
+    "A", "B", "", "", "", "", "", "", "", "", "", "", "",
+  )
   let rec = @src.ImgtRecord::new(header, seq)
   let s = @src.imgt_record_to_string(rec)
   // The first line is the header (starts with '>'); the next two lines are
@@ -481,7 +372,9 @@ test "imgt_record_to_string_wraps_long_sequence" {
 
 ///|
 test "imgt_record_to_string_empty_sequence" {
-  let header = @src.ImgtHeader::new("A", "B", "", "", "", "", "", "", "", "", "", "", "")
+  let header = @src.ImgtHeader::new(
+    "A", "B", "", "", "", "", "", "", "", "", "", "", "",
+  )
   let rec = @src.ImgtRecord::new(header, "")
   let s = @src.imgt_record_to_string(rec)
   // Header line followed by a newline; no sequence line content.
@@ -529,7 +422,9 @@ test "imgt_n_records_empty" {
 
 ///|
 test "imgt_n_records_single" {
-  let h = @src.ImgtHeader::new("A", "B", "", "", "", "", "", "", "", "", "", "", "")
+  let h = @src.ImgtHeader::new(
+    "A", "B", "", "", "", "", "", "", "", "", "", "", "",
+  )
   let rec = @src.ImgtRecord::new(h, "ACGT")
   assert_eq(@src.imgt_n_records([rec]), 1)
 }
@@ -682,9 +577,15 @@ test "imgt_unique_genes_empty" {
 ///|
 test "imgt_unique_species_preserves_first_appearance_order" {
   // Create records with multiple species to verify order.
-  let h1 = @src.ImgtHeader::new("A", "s1", "", "", "", "", "zebra", "", "", "", "", "", "")
-  let h2 = @src.ImgtHeader::new("B", "s2", "", "", "", "", "mouse", "", "", "", "", "", "")
-  let h3 = @src.ImgtHeader::new("C", "s3", "", "", "", "", "zebra", "", "", "", "", "", "")
+  let h1 = @src.ImgtHeader::new(
+    "A", "s1", "", "", "", "", "zebra", "", "", "", "", "", "",
+  )
+  let h2 = @src.ImgtHeader::new(
+    "B", "s2", "", "", "", "", "mouse", "", "", "", "", "", "",
+  )
+  let h3 = @src.ImgtHeader::new(
+    "C", "s3", "", "", "", "", "zebra", "", "", "", "", "", "",
+  )
   let recs = [
     @src.ImgtRecord::new(h1, "ACGT"),
     @src.ImgtRecord::new(h2, "TTTT"),
@@ -743,8 +644,16 @@ test "imgt_to_seq_records" {
 ///|
 test "imgt_from_seq_records" {
   let seq_records = [
-    @src.SeqRecord::new(@src.Seq::new("ACGTACGT"), id="rec1", description="desc1"),
-    @src.SeqRecord::new(@src.Seq::new("TTTTGGGG"), id="rec2", description="desc2"),
+    @src.SeqRecord::new(
+      @src.Seq::new("ACGTACGT"),
+      id="rec1",
+      description="desc1",
+    ),
+    @src.SeqRecord::new(
+      @src.Seq::new("TTTTGGGG"),
+      id="rec2",
+      description="desc2",
+    ),
   ]
   let imgt_records = @src.imgt_from_seq_records(seq_records)
   assert_eq(imgt_records.length(), 2)
@@ -867,7 +776,9 @@ test "edge_case_empty_array_write" {
 
 ///|
 test "edge_case_single_record" {
-  let h = @src.ImgtHeader::new("A", "B", "", "", "", "", "", "", "", "", "", "", "")
+  let h = @src.ImgtHeader::new(
+    "A", "B", "", "", "", "", "", "", "", "", "", "", "",
+  )
   let rec = @src.ImgtRecord::new(h, "ACGT")
   let text = @src.imgt_write([rec])
   let reparsed = @src.imgt_parse(text)

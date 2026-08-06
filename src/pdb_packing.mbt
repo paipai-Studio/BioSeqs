@@ -163,7 +163,9 @@ pub fn PackingAnalysisResult::new(
 
 ///|
 /// Get results array.
-pub fn PackingAnalysisResult::get_results(self : PackingAnalysisResult) -> Array[PackingResult] {
+pub fn PackingAnalysisResult::get_results(
+  self : PackingAnalysisResult,
+) -> Array[PackingResult] {
   self.results
 }
 
@@ -185,14 +187,16 @@ pub fn PackingAnalysisResult::summary(self : PackingAnalysisResult) -> String {
 /// Generate approximately uniform points on a unit sphere
 /// using the golden spiral (Fibonacci sphere) algorithm.
 /// n_points: number of points to generate (default 100).
-pub fn generate_packing_sphere_points(n_points? : Int = 100) -> Array[SpherePoint] {
+pub fn generate_packing_sphere_points(
+  n_points? : Int = 100,
+) -> Array[SpherePoint] {
   let points : Array[SpherePoint] = Array::new()
   let n = if n_points < 1 { 1 } else { n_points }
   let golden_angle = 3.14159265358979323846 * (3.0 - 5.0.sqrt())
 
   let mut i = 0
   while i < n {
-    let y = 1.0 - (2.0 * i.to_double()) / (n.to_double() - 1.0)
+    let y = 1.0 - 2.0 * i.to_double() / (n.to_double() - 1.0)
     let radius_at_y = (1.0 - y * y).sqrt()
     let theta = golden_angle * i.to_double()
 
@@ -215,7 +219,7 @@ pub fn atom_in_sphere(
   let dx = point[0] - center[0]
   let dy = point[1] - center[1]
   let dz = point[2] - center[2]
-  (dx * dx + dy * dy + dz * dz) <= radius * radius
+  dx * dx + dy * dy + dz * dz <= radius * radius
 }
 
 ///|
@@ -259,7 +263,7 @@ pub fn calculate_packing_density(
     return PackingResult::new(residue_name="", residue_seq=0)
   }
 
-  let sphere_points = generate_packing_sphere_points(n_points=n_points)
+  let sphere_points = generate_packing_sphere_points(n_points~)
   let atom = atoms[0]
   let atom_radius = atom.vdw_radius + radius
 
@@ -326,11 +330,13 @@ pub fn packing_density_per_residue(
   let residue_groups : Map[String, Array[PackingAtom]] = Map([], capacity=16)
 
   for atom in atoms {
-    let key = atom.chain_id.to_string() + ":" + atom.residue_seq.to_string() + ":" + atom.residue_name
+    let key = atom.chain_id.to_string() +
+      ":" +
+      atom.residue_seq.to_string() +
+      ":" +
+      atom.residue_name
     match residue_groups.get(key) {
-      Some(arr) => {
-        arr.push(atom)
-      }
+      Some(arr) => arr.push(atom)
       None => {
         let arr : Array[PackingAtom] = Array::new()
         arr.push(atom)
@@ -345,7 +351,11 @@ pub fn packing_density_per_residue(
   while ki < all_keys.length() {
     let key = all_keys[ki]
     let res_atoms = residue_groups[key]
-    let density_result = calculate_packing_density(res_atoms, radius~, n_points~)
+    let density_result = calculate_packing_density(
+      res_atoms,
+      radius~,
+      n_points~,
+    )
     results.push(density_result)
     ki = ki + 1
   }
@@ -423,7 +433,7 @@ pub fn calculate_packing_sasa(
     return 0.0
   }
 
-  let sphere_points = generate_packing_sphere_points(n_points=n_points)
+  let sphere_points = generate_packing_sphere_points(n_points~)
 
   let mut total_sasa = 0.0
   let mut i = 0
@@ -462,7 +472,9 @@ pub fn calculate_packing_sasa(
     }
 
     let sphere_area = 4.0 * 3.14159265358979323846 * r_sq
-    let atom_sasa = (n_accessible.to_double() / n_points.to_double()) * sphere_area
+    let atom_sasa = n_accessible.to_double() /
+      n_points.to_double() *
+      sphere_area
     total_sasa = total_sasa + atom_sasa
 
     i = i + 1
@@ -525,13 +537,13 @@ pub fn sphere_radius_from_volume(volume : Double) -> Double {
   if volume <= 0.0 {
     return 0.0
   }
-  @math.pow((3.0 * volume) / (4.0 * 3.14159265358979323846), 1.0 / 3.0)
+  @math.pow(3.0 * volume / (4.0 * 3.14159265358979323846), 1.0 / 3.0)
 }
 
 ///|
 /// Calculate the volume of a sphere with given radius.
 pub fn sphere_volume(radius : Double) -> Double {
-  (4.0 / 3.0) * 3.14159265358979323846 * radius * radius * radius
+  4.0 / 3.0 * 3.14159265358979323846 * radius * radius * radius
 }
 
 ///|
@@ -685,15 +697,34 @@ pub fn get_packing_vdw_radius(atom_name : String) -> Double {
   if name == "H" || (contains(name, "H") && starts_with(name, 0, "H")) {
     return 1.2
   }
-  if name == "C" || name == "CA" || name == "CB" || name == "CG" ||
-     name == "CD" || name == "CE" || name == "CZ" || name == "CH2" || name == "CH3" {
+  if name == "C" ||
+    name == "CA" ||
+    name == "CB" ||
+    name == "CG" ||
+    name == "CD" ||
+    name == "CE" ||
+    name == "CZ" ||
+    name == "CH2" ||
+    name == "CH3" {
     return 1.7
   }
-  if name == "N" || name == "NZ" || name == "ND" || name == "NE" || name == "NH1" || name == "NH2" {
+  if name == "N" ||
+    name == "NZ" ||
+    name == "ND" ||
+    name == "NE" ||
+    name == "NH1" ||
+    name == "NH2" {
     return 1.55
   }
-  if name == "O" || name == "OH" || name == "OG" || name == "OD1" || name == "OD2" ||
-     name == "OE1" || name == "OE2" || name == "OT1" || name == "OT2" {
+  if name == "O" ||
+    name == "OH" ||
+    name == "OG" ||
+    name == "OD1" ||
+    name == "OD2" ||
+    name == "OE1" ||
+    name == "OE2" ||
+    name == "OT1" ||
+    name == "OT2" {
     return 1.52
   }
   if name == "S" || name == "SG" || name == "SD" {

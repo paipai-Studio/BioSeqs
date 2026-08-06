@@ -36,6 +36,7 @@ pub fn CircSeq::with_name(sequence~ : String, name~ : String) -> CircSeq {
   CircSeq::{ sequence, length, gc_content: gc, name }
 }
 
+///|
 fn compute_gc_content(seq : String) -> Double {
   let n = seq.length()
   if n == 0 {
@@ -129,9 +130,15 @@ pub fn CircSeq::circ_rotate(self : CircSeq, new_origin : Int) -> CircSeq {
     return self
   }
   // New sequence: seq[wrapped:] + seq[:wrapped]
-  let new_seq = self.sequence.substring(start=wrapped) + self.sequence.substring(start=0, end=wrapped)
+  let new_seq = self.sequence.substring(start=wrapped) +
+    self.sequence.substring(start=0, end=wrapped)
   let gc = compute_gc_content(new_seq)
-  CircSeq::{ sequence: new_seq, length: self.length, gc_content: gc, name: self.name }
+  CircSeq::{
+    sequence: new_seq,
+    length: self.length,
+    gc_content: gc,
+    name: self.name,
+  }
 }
 
 ///|
@@ -139,32 +146,38 @@ pub fn CircSeq::circ_rotate(self : CircSeq, new_origin : Int) -> CircSeq {
 pub fn CircSeq::circ_reverse_complement(self : CircSeq) -> CircSeq {
   let rc = circ_rev_comp(self.sequence)
   let gc = compute_gc_content(rc)
-  CircSeq::{ sequence: rc, length: self.length, gc_content: gc, name: self.name }
+  CircSeq::{
+    sequence: rc,
+    length: self.length,
+    gc_content: gc,
+    name: self.name,
+  }
 }
 
+///|
 fn circ_rev_comp(seq : String) -> String {
   let mut result = ""
   let mut i = seq.length() - 1
   while i >= 0 {
     let c = char_to_upper(seq.unsafe_get(i))
     let comp : UInt16 = match c {
-      65 => 84   // 'A' => 'T'
-      84 => 65   // 'T' => 'A'
-      71 => 67   // 'G' => 'C'
-      67 => 71   // 'C' => 'G'
-      85 => 65   // 'U' => 'A'
-      78 => 78   // 'N' => 'N'
-      82 => 89   // 'R' => 'Y'
-      89 => 82   // 'Y' => 'R'
-      83 => 83   // 'S' => 'S'
-      87 => 87   // 'W' => 'W'
-      75 => 77   // 'K' => 'M'
-      77 => 75   // 'M' => 'K'
-      66 => 86   // 'B' => 'V'
-      86 => 66   // 'V' => 'B'
-      68 => 72   // 'D' => 'H'
-      72 => 68   // 'H' => 'D'
-      _ => 78    // 'N' default
+      65 => 84 // 'A' => 'T'
+      84 => 65 // 'T' => 'A'
+      71 => 67 // 'G' => 'C'
+      67 => 71 // 'C' => 'G'
+      85 => 65 // 'U' => 'A'
+      78 => 78 // 'N' => 'N'
+      82 => 89 // 'R' => 'Y'
+      89 => 82 // 'Y' => 'R'
+      83 => 83 // 'S' => 'S'
+      87 => 87 // 'W' => 'W'
+      75 => 77 // 'K' => 'M'
+      77 => 75 // 'M' => 'K'
+      66 => 86 // 'B' => 'V'
+      86 => 66 // 'V' => 'B'
+      68 => 72 // 'D' => 'H'
+      72 => 68 // 'H' => 'D'
+      _ => 78 // 'N' default
     }
     result = result + u16_to_str(comp)
     i = i - 1
@@ -184,7 +197,7 @@ pub fn CircSeq::circ_find_all(self : CircSeq, pattern : String) -> Array[Int] {
 
   // Search the doubled sequence to handle circular wrapping
   let doubled = self.sequence + self.sequence
-  let search_len = self.length  // Only search up to the original length to avoid duplicates
+  let search_len = self.length // Only search up to the original length to avoid duplicates
 
   let mut i = 0
   while i <= search_len - plen {
@@ -236,7 +249,10 @@ pub fn CircSeq::circ_has_site(self : CircSeq, site : String) -> Bool {
 ///|
 /// Find all restriction enzyme cut sites on both strands.
 /// Returns an array of (position, strand) tuples.
-pub fn CircSeq::circ_find_sites(self : CircSeq, site : String) -> Array[(Int, String)] {
+pub fn CircSeq::circ_find_sites(
+  self : CircSeq,
+  site : String,
+) -> Array[(Int, String)] {
   let results : Array[(Int, String)] = Array::new()
   let fwd = self.circ_find_all(site)
   for pos in fwd {
@@ -252,7 +268,10 @@ pub fn CircSeq::circ_find_sites(self : CircSeq, site : String) -> Array[(Int, St
 ///|
 /// Simulate a restriction digest on the circular sequence.
 /// Returns an array of fragment sizes (in bp).
-pub fn CircSeq::circ_digest(self : CircSeq, sites : Array[String]) -> Array[Int] {
+pub fn CircSeq::circ_digest(
+  self : CircSeq,
+  sites : Array[String],
+) -> Array[Int] {
   let cut_positions : Array[Int] = Array::new()
 
   // Collect all cut positions from both strands for all enzymes
@@ -308,7 +327,10 @@ pub fn CircSeq::circ_digest(self : CircSeq, sites : Array[String]) -> Array[Int]
 
 ///|
 /// Calculate fragment sizes from a circular digest using specific enzymes.
-pub fn CircSeq::circ_digest_enzymes(self : CircSeq, enzymes : Array[String]) -> Array[Int] {
+pub fn CircSeq::circ_digest_enzymes(
+  self : CircSeq,
+  enzymes : Array[String],
+) -> Array[Int] {
   self.circ_digest(enzymes)
 }
 
@@ -343,19 +365,30 @@ pub fn CircSeq::circ_design_primers(
   (fwd_start, rev_start, product_len)
 }
 
+///|
 fn calc_gc(seq : String) -> Double {
-  if seq.length() == 0 { return 0.0 }
+  if seq.length() == 0 {
+    return 0.0
+  }
   let mut gc = 0
   let mut i = 0
   while i < seq.length() {
     let c = char_to_upper(seq.unsafe_get(i))
-    if c == 71 || c == 67 { gc = gc + 1 }
+    if c == 71 || c == 67 {
+      gc = gc + 1
+    }
     i = i + 1
   }
   gc.to_double() / seq.length().to_double()
 }
 
-fn adjust_primer_length(circ : CircSeq, start : Int, target_len : Int, gc_target : Double) -> Int {
+///|
+fn adjust_primer_length(
+  circ : CircSeq,
+  start : Int,
+  target_len : Int,
+  gc_target : Double,
+) -> Int {
   let mut len = target_len
   let max_len = if circ.length < 40 { circ.length } else { 40 }
   while len < max_len {
@@ -371,12 +404,23 @@ fn adjust_primer_length(circ : CircSeq, start : Int, target_len : Int, gc_target
 
 ///|
 /// Insert a sequence at a specific position in the circular sequence.
-pub fn CircSeq::circ_insert(self : CircSeq, pos : Int, insert_seq : String) -> CircSeq {
+pub fn CircSeq::circ_insert(
+  self : CircSeq,
+  pos : Int,
+  insert_seq : String,
+) -> CircSeq {
   let wrapped = modulo_pos(pos, self.length)
-  let new_seq = self.sequence.substring(start=0, end=wrapped) + insert_seq + self.sequence.substring(start=wrapped)
+  let new_seq = self.sequence.substring(start=0, end=wrapped) +
+    insert_seq +
+    self.sequence.substring(start=wrapped)
   let new_length = new_seq.length()
   let gc = compute_gc_content(new_seq)
-  CircSeq::{ sequence: new_seq, length: new_length, gc_content: gc, name: self.name }
+  CircSeq::{
+    sequence: new_seq,
+    length: new_length,
+    gc_content: gc,
+    name: self.name,
+  }
 }
 
 ///|
@@ -385,16 +429,23 @@ pub fn CircSeq::circ_delete(self : CircSeq, start : Int, end : Int) -> CircSeq {
   let new_seq = circular_delete(self.sequence, start, end)
   let new_length = new_seq.length()
   let gc = compute_gc_content(new_seq)
-  CircSeq::{ sequence: new_seq, length: new_length, gc_content: gc, name: self.name }
+  CircSeq::{
+    sequence: new_seq,
+    length: new_length,
+    gc_content: gc,
+    name: self.name,
+  }
 }
 
+///|
 fn circular_delete(seq : String, start : Int, end : Int) -> String {
   let wrapped_start = modulo_pos(start, seq.length())
   let wrapped_end = modulo_pos(end, seq.length())
 
   if wrapped_start <= wrapped_end {
     // Linear delete
-    return seq.substring(start=0, end=wrapped_start) + seq.substring(start=wrapped_end + 1)
+    return seq.substring(start=0, end=wrapped_start) +
+      seq.substring(start=wrapped_end + 1)
   } else {
     // Wraps around: delete from wrapped_start to end, and from start to wrapped_end
     return seq.substring(start=wrapped_end + 1, end=wrapped_start)
@@ -428,7 +479,12 @@ pub fn linear_to_circular(linear_pos : Int, length : Int) -> Int {
 
 ///|
 /// Check if a position is within a range on the circular sequence.
-pub fn is_within_circular_range(pos : Int, range_start : Int, range_end : Int, length : Int) -> Bool {
+pub fn is_within_circular_range(
+  pos : Int,
+  range_start : Int,
+  range_end : Int,
+  length : Int,
+) -> Bool {
   let p = modulo_pos(pos, length)
   let rs = modulo_pos(range_start, length)
   let re = modulo_pos(range_end, length)
@@ -445,7 +501,13 @@ pub fn is_within_circular_range(pos : Int, range_start : Int, range_end : Int, l
 ///|
 /// Compute the overlap between two ranges on the circular sequence.
 /// Returns the number of overlapping bases.
-pub fn circular_overlap(start1 : Int, end1 : Int, start2 : Int, end2 : Int, length : Int) -> Int {
+pub fn circular_overlap(
+  start1 : Int,
+  end1 : Int,
+  start2 : Int,
+  end2 : Int,
+  length : Int,
+) -> Int {
   let s1 = modulo_pos(start1, length)
   let e1 = modulo_pos(end1, length)
   let s2 = modulo_pos(start2, length)
@@ -465,6 +527,7 @@ pub fn circular_overlap(start1 : Int, end1 : Int, start2 : Int, end2 : Int, leng
   count
 }
 
+///|
 fn expand_range(start : Int, end : Int, length : Int) -> Array[Int] {
   let result : Array[Int] = Array::new()
   if start <= end {
@@ -491,6 +554,7 @@ fn expand_range(start : Int, end : Int, length : Int) -> Array[Int] {
 
 // --- Utility Functions ---
 
+///|
 fn modulo_pos(pos : Int, length : Int) -> Int {
   if length <= 0 {
     return 0
@@ -503,6 +567,7 @@ fn modulo_pos(pos : Int, length : Int) -> Int {
   }
 }
 
+///|
 fn sort_positions(positions : Array[Int]) -> Array[Int] {
   let result = positions.copy()
   let n = result.length()
@@ -524,7 +589,11 @@ fn sort_positions(positions : Array[Int]) -> Array[Int] {
 
 ///|
 /// Generate a random circular sequence of given length and GC content.
-pub fn circ_random_sequence(length : Int, gc_content : Double, seed? : Int = 42) -> CircSeq {
+pub fn circ_random_sequence(
+  length : Int,
+  gc_content : Double,
+  seed? : Int = 42,
+) -> CircSeq {
   let bases = ["A", "T", "G", "C"]
   // Adjust probabilities based on GC content
   let at_prob = (1.0 - gc_content) / 2.0
@@ -546,8 +615,14 @@ pub fn circ_random_sequence(length : Int, gc_content : Double, seed? : Int = 42)
   CircSeq::new(sequence=seq)
 }
 
+///|
 fn pick_base(rand_val : Double, probs : Array[Double]) -> Int {
-  let cumulative = [probs[0], probs[0] + probs[1], probs[0] + probs[1] + probs[2], 1.0]
+  let cumulative = [
+    probs[0],
+    probs[0] + probs[1],
+    probs[0] + probs[1] + probs[2],
+    1.0,
+  ]
   if rand_val <= cumulative[0] {
     return 0
   } else if rand_val <= cumulative[1] {
@@ -562,14 +637,23 @@ fn pick_base(rand_val : Double, probs : Array[Double]) -> Int {
 ///|
 /// Simulate a ligation reaction on two circular sequences.
 /// Returns the concatenated circular product.
-pub fn circ_ligate(linear_fragment : String, vector : CircSeq, insert_pos : Int) -> CircSeq {
+pub fn circ_ligate(
+  linear_fragment : String,
+  vector : CircSeq,
+  insert_pos : Int,
+) -> CircSeq {
   vector.circ_insert(insert_pos, linear_fragment)
 }
 
 ///|
 /// Compute Tm (melting temperature) for a primer on a circular template.
 /// Uses the nearest-neighbor method approximation.
-pub fn circ_tm(template : CircSeq, start : Int, len : Int, oligo_conc? : Double = 5.0e-8) -> Double {
+pub fn circ_tm(
+  template : CircSeq,
+  start : Int,
+  len : Int,
+  oligo_conc? : Double = 5.0e-8,
+) -> Double {
   let seq = template.circ_slice(start, len)
   let gc = calc_gc(seq)
   let at = 1.0 - gc
@@ -611,7 +695,7 @@ pub fn circ_common_restriction_sites() -> Array[(String, String)] {
     ("ScaI", "AGTACT"),
     ("SmaI", "CCCGGG"),
     ("StuI", "AGGCCT"),
-    ("XmaI", "CCCGGG")
+    ("XmaI", "CCCGGG"),
   ]
 }
 

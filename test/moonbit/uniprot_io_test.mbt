@@ -95,7 +95,13 @@ test "parse_uniprot_xml_with_dbreferences" {
 
 ///|
 test "uniprot_to_seqrecord" {
-  let entry = @src.UniprotEntry::new("P12345", "Test Protein", ["GENE1"], "Homo sapiens", "ACGTACGTAC")
+  let entry = @src.UniprotEntry::new(
+    "P12345",
+    "Test Protein",
+    ["GENE1"],
+    "Homo sapiens",
+    "ACGTACGTAC",
+  )
   let (header, id, desc, kwargs) = @src.uniprot_to_seqrecord(entry)
   assert_true(header.length() > 0)
   assert_true(id.length() > 0)
@@ -104,7 +110,13 @@ test "uniprot_to_seqrecord" {
 
 ///|
 test "uniprot_entry_methods" {
-  let entry = @src.UniprotEntry::new("P12345", "Test Protein", ["GENE1", "GENE2"], "Homo sapiens", "ACGTACGTAC")
+  let entry = @src.UniprotEntry::new(
+    "P12345",
+    "Test Protein",
+    ["GENE1", "GENE2"],
+    "Homo sapiens",
+    "ACGTACGTAC",
+  )
   assert_eq(entry.accession, "P12345")
   assert_eq(entry.sequence, "ACGTACGTAC")
   assert_eq(entry.seq_length, 10)

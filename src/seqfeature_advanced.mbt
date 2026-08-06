@@ -90,11 +90,7 @@ fn parse_int_at(s : String, pos : Int) -> (Int, Int) raise LocationParserError {
   }
   if !found {
     raise LocationParserError(
-      "Expected integer at position " +
-      pos.to_string() +
-      " in '" +
-      s +
-      "'",
+      "Expected integer at position " + pos.to_string() + " in '" + s + "'",
     )
   }
   (result, i)
@@ -217,7 +213,7 @@ pub fn CompoundLocation::order(
 
 ///|
 /// Get the start position of the first part in this compound location.
-pub fn compound_start(self : CompoundLocation) -> Position {
+pub fn CompoundLocation::compound_start(self : CompoundLocation) -> Position {
   if self.parts.length() == 0 {
     return UnknownPosition
   }
@@ -226,7 +222,7 @@ pub fn compound_start(self : CompoundLocation) -> Position {
 
 ///|
 /// Get the end position of the last part in this compound location.
-pub fn compound_end(self : CompoundLocation) -> Position {
+pub fn CompoundLocation::compound_end(self : CompoundLocation) -> Position {
   if self.parts.length() == 0 {
     return UnknownPosition
   }
@@ -237,7 +233,7 @@ pub fn compound_end(self : CompoundLocation) -> Position {
 /// Extract the compound feature sequence from a parent sequence.
 /// Each part's sequence is extracted and concatenated in order.
 /// If any part has strand -1, that part is reverse-complemented.
-pub fn compound_extract(
+pub fn CompoundLocation::compound_extract(
   self : CompoundLocation,
   parent_sequence : Seq,
 ) -> String raise LocationParserError {
@@ -255,7 +251,7 @@ pub fn compound_extract(
 ///|
 /// Generate a GenBank-format string representation of this compound location.
 /// Example: "join(1..100,complement(200..300))"
-pub fn compound_to_string(self : CompoundLocation) -> String {
+pub fn CompoundLocation::compound_to_string(self : CompoundLocation) -> String {
   let buf = StringBuilder::new()
   let strand = self._compound_strand()
   if strand == Some(-1) {
@@ -280,7 +276,7 @@ pub fn compound_to_string(self : CompoundLocation) -> String {
 /// Determine the compound strand by checking all parts.
 /// If all parts share the same strand, return that strand.
 /// Otherwise return None.
-fn _compound_strand(self : CompoundLocation) -> Int? {
+fn CompoundLocation::_compound_strand(self : CompoundLocation) -> Int? {
   if self.parts.length() == 0 {
     return None
   }
@@ -323,13 +319,7 @@ fn _position_gb_string(pos : Position) -> String {
     BeforePosition(p) => "<" + p.to_string()
     AfterPosition(p) => ">" + p.to_string()
     WithinPosition(p, fs, fe) =>
-      "<" +
-      fs.to_string() +
-      ".." +
-      p.to_string() +
-      ".." +
-      fe.to_string() +
-      ">"
+      "<" + fs.to_string() + ".." + p.to_string() + ".." + fe.to_string() + ">"
     UncertainPosition(p) => "?" + p.to_string() + "?"
     UnknownPosition => "?"
   }
@@ -409,9 +399,7 @@ pub fn parse_simple_location(
   let dot_pos = match trimmed.find(dots) {
     Some(p) => p
     None =>
-      raise LocationParserError(
-        "Expected '..' in location string: " + trimmed,
-      )
+      raise LocationParserError("Expected '..' in location string: " + trimmed)
   }
   let start_str = trim_whitespace(trimmed[0:dot_pos].to_owned())
   let end_str = trim_whitespace(
@@ -435,9 +423,7 @@ pub fn parse_complement_location(
   let trimmed = trim_whitespace(loc_string)
   let prefix = "complement("
   if !trimmed.starts_with(prefix) {
-    raise LocationParserError(
-      "Expected 'complement(' prefix in: " + trimmed,
-    )
+    raise LocationParserError("Expected 'complement(' prefix in: " + trimmed)
   }
   let paren_start = prefix.length() - 1
   let after_prefix = trim_whitespace(
@@ -470,18 +456,13 @@ pub fn parse_join_location(
   } else if trimmed.starts_with("order(") {
     ("order", trimmed[5:trimmed.length()].to_owned())
   } else {
-    raise LocationParserError(
-      "Expected 'join(' or 'order(' in: " + trimmed,
-    )
+    raise LocationParserError("Expected 'join(' or 'order(' in: " + trimmed)
   }
   let close_paren = match find_matching_paren(after_op, 0) {
     Some(p) => p
     None =>
       raise LocationParserError(
-        "Missing closing parenthesis in " +
-        operator +
-        ": " +
-        trimmed,
+        "Missing closing parenthesis in " + operator + ": " + trimmed,
       )
   }
   let inner = trim_whitespace(after_op[1:close_paren].to_owned())
@@ -493,9 +474,7 @@ pub fn parse_join_location(
     }
     let parsed = parse_location_string(part_str)
     match parsed {
-      ParsedFeatureLocation(loc) => {
-        parts.push(loc)
-      }
+      ParsedFeatureLocation(loc) => parts.push(loc)
       ParsedCompoundLocation(_) =>
         raise LocationParserError(
           "Nested compound locations are not supported in " +
@@ -505,12 +484,7 @@ pub fn parse_join_location(
         )
     }
   }
-  CompoundLocation::{
-    parts,
-    operator,
-    ref_seq: None,
-    ref_db: None,
-  }
+  CompoundLocation::{ parts, operator, ref_seq: None, ref_db: None }
 }
 
 ///|
@@ -624,7 +598,9 @@ pub fn SeqFeatureExtended::new(
 
 ///|
 /// Get the feature location.
-pub fn SeqFeatureExtended::location(self : SeqFeatureExtended) -> FeatureLocation {
+pub fn SeqFeatureExtended::location(
+  self : SeqFeatureExtended,
+) -> FeatureLocation {
   self.location
 }
 
@@ -657,7 +633,7 @@ pub fn SeqFeatureExtended::qualifiers(
 ///|
 /// Add a qualifier key-value pair to this feature.
 /// If the key already exists, the value is appended to the existing array.
-pub fn add_qualifier(
+pub fn SeqFeatureExtended::add_qualifier(
   self : SeqFeatureExtended,
   key : String,
   value : String,
@@ -675,9 +651,7 @@ pub fn add_qualifier(
       new_arr.push(value)
       new_quals[key] = new_arr
     }
-    None => {
-      new_quals[key] = [value]
-    }
+    None => new_quals[key] = [value]
   }
   SeqFeatureExtended::{ ..self, qualifiers: new_quals }
 }
@@ -685,7 +659,7 @@ pub fn add_qualifier(
 ///|
 /// Get qualifier values for a given key.
 /// Returns an empty array if the key does not exist.
-pub fn get_qualifier(
+pub fn SeqFeatureExtended::get_qualifier(
   self : SeqFeatureExtended,
   key : String,
 ) -> Array[String] {
@@ -702,7 +676,9 @@ pub fn get_qualifier(
 ///   type  location
 ///   /key="value"
 ///   /key="value"
-pub fn seq_feature_to_string(self : SeqFeatureExtended) -> String {
+pub fn SeqFeatureExtended::seq_feature_to_string(
+  self : SeqFeatureExtended,
+) -> String {
   let buf = StringBuilder::new()
   buf.write_string(self.type_)
   buf.write_char(' ')
@@ -742,9 +718,7 @@ pub fn location_to_string(loc : FeatureLocation) -> String {
 /// - strand +1 becomes -1
 /// - strand -1 becomes +1
 /// - strand 0 or None stays the same
-pub fn feature_location_complement(
-  loc : FeatureLocation,
-) -> FeatureLocation {
+pub fn feature_location_complement(loc : FeatureLocation) -> FeatureLocation {
   let new_strand = match loc.strand {
     Some(s) =>
       if s == 1 {
@@ -833,16 +807,8 @@ pub fn merge_locations(
   let start2 = loc2.start.to_int()
   let end1 = loc1.end.to_int()
   let end2 = loc2.end.to_int()
-  let new_start = if start1 <= start2 {
-    loc1.start
-  } else {
-    loc2.start
-  }
-  let new_end = if end1 >= end2 {
-    loc1.end
-  } else {
-    loc2.end
-  }
+  let new_start = if start1 <= start2 { loc1.start } else { loc2.start }
+  let new_end = if end1 >= end2 { loc1.end } else { loc2.end }
   FeatureLocation::{
     start: new_start,
     end: new_end,

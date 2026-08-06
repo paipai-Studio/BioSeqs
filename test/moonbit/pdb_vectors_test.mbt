@@ -112,7 +112,7 @@ test "Vector3::dot" {
 test "Vector3::dot orthogonal" {
   let v1 = @src.Vector3::new(1.0, 0.0, 0.0)
   let v2 = @src.Vector3::new(0.0, 1.0, 0.0)
-  assert_true((v1.dot(v2)).abs() < 1.0e-10)
+  assert_true(v1.dot(v2).abs() < 1.0e-10)
 }
 
 ///|
@@ -236,8 +236,8 @@ test "Vector3::project_to_vector" {
   let target = @src.Vector3::new(1.0, 0.0, 0.0)
   let proj = v.project_to_vector(target)
   assert_true((proj.get_x() - 1.0).abs() < 1.0e-10)
-  assert_true((proj.get_y()).abs() < 1.0e-10)
-  assert_true((proj.get_z()).abs() < 1.0e-10)
+  assert_true(proj.get_y().abs() < 1.0e-10)
+  assert_true(proj.get_z().abs() < 1.0e-10)
 }
 
 ///|
@@ -247,7 +247,7 @@ test "Vector3::project_to_plane" {
   let proj = v.project_to_plane(normal)
   assert_true((proj.get_x() - 1.0).abs() < 1.0e-10)
   assert_true((proj.get_y() - 2.0).abs() < 1.0e-10)
-  assert_true((proj.get_z()).abs() < 1.0e-10)
+  assert_true(proj.get_z().abs() < 1.0e-10)
 }
 
 ///|
@@ -263,9 +263,15 @@ test "RotationMatrix3::identity" {
 ///|
 test "RotationMatrix3::transpose" {
   let m = @src.RotationMatrix3::new(
-    m00=1.0, m01=2.0, m02=3.0,
-    m10=4.0, m11=5.0, m12=6.0,
-    m20=7.0, m21=8.0, m22=9.0,
+    m00=1.0,
+    m01=2.0,
+    m02=3.0,
+    m10=4.0,
+    m11=5.0,
+    m12=6.0,
+    m20=7.0,
+    m21=8.0,
+    m22=9.0,
   )
   let t = m.transpose()
   assert_eq(t.get(0, 1), 4.0)
@@ -277,9 +283,15 @@ test "RotationMatrix3::transpose" {
 ///|
 test "RotationMatrix3::multiply identity" {
   let m = @src.RotationMatrix3::new(
-    m00=1.0, m01=2.0, m02=3.0,
-    m10=4.0, m11=5.0, m12=6.0,
-    m20=7.0, m21=8.0, m22=9.0,
+    m00=1.0,
+    m01=2.0,
+    m02=3.0,
+    m10=4.0,
+    m11=5.0,
+    m12=6.0,
+    m20=7.0,
+    m21=8.0,
+    m22=9.0,
   )
   let identity = @src.RotationMatrix3::identity()
   let result = m.multiply(identity)
@@ -293,9 +305,9 @@ test "RotationMatrix3::transform" {
   let rot = @src.RotationMatrix3::rotation_z(@math.PI / 2.0)
   let v = @src.Vector3::new(1.0, 0.0, 0.0)
   let result = rot.transform(v)
-  assert_true((result.get_x()).abs() < 1.0e-10)
+  assert_true(result.get_x().abs() < 1.0e-10)
   assert_true((result.get_y() - 1.0).abs() < 1.0e-10)
-  assert_true((result.get_z()).abs() < 1.0e-10)
+  assert_true(result.get_z().abs() < 1.0e-10)
 }
 
 ///|
@@ -303,8 +315,8 @@ test "RotationMatrix3::rotation_x" {
   let rot = @src.RotationMatrix3::rotation_x(@math.PI / 2.0)
   let v = @src.Vector3::new(0.0, 1.0, 0.0)
   let result = rot.transform(v)
-  assert_true((result.get_x()).abs() < 1.0e-10)
-  assert_true((result.get_y()).abs() < 1.0e-10)
+  assert_true(result.get_x().abs() < 1.0e-10)
+  assert_true(result.get_y().abs() < 1.0e-10)
   assert_true((result.get_z() - 1.0).abs() < 1.0e-10)
 }
 
@@ -314,8 +326,8 @@ test "RotationMatrix3::rotation_y" {
   let v = @src.Vector3::new(0.0, 0.0, 1.0)
   let result = rot.transform(v)
   assert_true((result.get_x() - 1.0).abs() < 1.0e-10)
-  assert_true((result.get_y()).abs() < 1.0e-10)
-  assert_true((result.get_z()).abs() < 1.0e-10)
+  assert_true(result.get_y().abs() < 1.0e-10)
+  assert_true(result.get_z().abs() < 1.0e-10)
 }
 
 ///|
@@ -323,9 +335,9 @@ test "RotationMatrix3::rotation_z" {
   let rot = @src.RotationMatrix3::rotation_z(@math.PI / 2.0)
   let v = @src.Vector3::new(1.0, 0.0, 0.0)
   let result = rot.transform(v)
-  assert_true((result.get_x()).abs() < 1.0e-10)
+  assert_true(result.get_x().abs() < 1.0e-10)
   assert_true((result.get_y() - 1.0).abs() < 1.0e-10)
-  assert_true((result.get_z()).abs() < 1.0e-10)
+  assert_true(result.get_z().abs() < 1.0e-10)
 }
 
 ///|
@@ -334,9 +346,9 @@ test "RotationMatrix3::rotation_axis_angle" {
   let rot = @src.RotationMatrix3::rotation_axis_angle(axis, @math.PI / 2.0)
   let v = @src.Vector3::new(1.0, 0.0, 0.0)
   let result = rot.transform(v)
-  assert_true((result.get_x()).abs() < 1.0e-10)
+  assert_true(result.get_x().abs() < 1.0e-10)
   assert_true((result.get_y() - 1.0).abs() < 1.0e-10)
-  assert_true((result.get_z()).abs() < 1.0e-10)
+  assert_true(result.get_z().abs() < 1.0e-10)
 }
 
 ///|
@@ -371,8 +383,8 @@ test "RotationMatrix3::inverse" {
   assert_true((product.get(0, 0) - 1.0).abs() < 1.0e-10)
   assert_true((product.get(1, 1) - 1.0).abs() < 1.0e-10)
   assert_true((product.get(2, 2) - 1.0).abs() < 1.0e-10)
-  assert_true((product.get(0, 1)).abs() < 1.0e-10)
-  assert_true((product.get(1, 0)).abs() < 1.0e-10)
+  assert_true(product.get(0, 1).abs() < 1.0e-10)
+  assert_true(product.get(1, 0).abs() < 1.0e-10)
 }
 
 ///|
@@ -437,7 +449,7 @@ test "vector_rmsd identical" {
     @src.Vector3::new(4.0, 5.0, 6.0),
   ]
   let rmsd = @src.vector_rmsd(set_a, set_b)
-  assert_true((rmsd).abs() < 1.0e-10)
+  assert_true(rmsd.abs() < 1.0e-10)
 }
 
 ///|
@@ -445,7 +457,7 @@ test "vector_rmsd empty" {
   let set_a : Array[@src.Vector3] = []
   let set_b : Array[@src.Vector3] = []
   let rmsd = @src.vector_rmsd(set_a, set_b)
-  assert_true((rmsd).abs() < 1.0e-10)
+  assert_true(rmsd.abs() < 1.0e-10)
 }
 
 ///|
@@ -496,7 +508,7 @@ test "vector_apply_transform" {
   let trans = @src.Vector3::new(0.0, 0.0, 0.0)
   let result = @src.vector_apply_transform(vectors, rot, trans)
   assert_eq(result.length(), 1)
-  assert_true((result[0].get_x()).abs() < 1.0e-10)
+  assert_true(result[0].get_x().abs() < 1.0e-10)
   assert_true((result[0].get_y() - 1.0).abs() < 1.0e-10)
 }
 

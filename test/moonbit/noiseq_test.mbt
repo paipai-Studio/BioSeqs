@@ -1,12 +1,12 @@
 ///|
 /// Test file for NOISeq module.
-
 test "noiseq_sample_creation" {
   let s = @src.NOISeqSample::new("sample1", "control")
   assert_eq(s.sample_id, "sample1")
   assert_eq(s.condition, "control")
 }
 
+///|
 test "noiseq_sample_set_get_count" {
   let s = @src.NOISeqSample::new("sample1", "control")
   s.set_count("Gene1", 100.0)
@@ -16,6 +16,7 @@ test "noiseq_sample_set_get_count" {
   assert_eq(s.get_count("Gene3"), 0.0) // Non-existent
 }
 
+///|
 test "noiseq_sample_library_size" {
   let s = @src.NOISeqSample::new("sample1", "control")
   s.set_count("Gene1", 100.0)
@@ -24,6 +25,7 @@ test "noiseq_sample_library_size" {
   assert_eq(s.library_size(), 350.0)
 }
 
+///|
 test "noiseq_sample_n_expressed" {
   let s = @src.NOISeqSample::new("sample1", "control")
   s.set_count("Gene1", 100.0)
@@ -32,6 +34,7 @@ test "noiseq_sample_n_expressed" {
   assert_eq(s.n_expressed(), 2)
 }
 
+///|
 test "noiseq_normalize_tmm" {
   let samples : Array[@src.NOISeqSample] = Array::new()
   let s1 = @src.NOISeqSample::new("s1", "ctrl")
@@ -50,6 +53,7 @@ test "noiseq_normalize_tmm" {
   assert_true((norm[1].get_count("Gene1") - 100.0).abs() < 0.01)
 }
 
+///|
 test "noiseq_normalize_rpkm" {
   let samples : Array[@src.NOISeqSample] = Array::new()
   let s1 = @src.NOISeqSample::new("s1", "ctrl")
@@ -61,6 +65,7 @@ test "noiseq_normalize_rpkm" {
   assert_true((norm[0].get_count("Gene1") - 1000000.0).abs() < 0.01)
 }
 
+///|
 test "noiseq_normalize_none" {
   let samples : Array[@src.NOISeqSample] = Array::new()
   let s1 = @src.NOISeqSample::new("s1", "ctrl")
@@ -71,6 +76,7 @@ test "noiseq_normalize_none" {
   assert_eq(norm[0].get_count("Gene1"), 100.0)
 }
 
+///|
 test "noiseq_run_basic" {
   let (ctrl, trt) = @src.noiseq_sample_data()
   let results = @src.noiseq_run(ctrl, trt)
@@ -78,6 +84,7 @@ test "noiseq_run_basic" {
   assert_eq(results.n_genes, 10)
 }
 
+///|
 test "noiseq_run_significant" {
   let (ctrl, trt) = @src.noiseq_sample_data()
   let results = @src.noiseq_run(ctrl, trt, prob_threshold=0.3)
@@ -85,6 +92,7 @@ test "noiseq_run_significant" {
   assert_true(sig.length() > 0)
 }
 
+///|
 test "noiseq_run_top_genes" {
   let (ctrl, trt) = @src.noiseq_sample_data()
   let results = @src.noiseq_run(ctrl, trt)
@@ -94,6 +102,7 @@ test "noiseq_run_top_genes" {
   assert_true(top[0].prob >= top[1].prob)
 }
 
+///|
 test "noiseq_run_up_down_regulated" {
   let (ctrl, trt) = @src.noiseq_sample_data()
   let results = @src.noiseq_run(ctrl, trt, prob_threshold=0.3)
@@ -103,6 +112,7 @@ test "noiseq_run_up_down_regulated" {
   assert_true(up.length() + down.length() > 0)
 }
 
+///|
 test "noiseq_run_summary" {
   let (ctrl, trt) = @src.noiseq_sample_data()
   let results = @src.noiseq_run(ctrl, trt)
@@ -111,6 +121,7 @@ test "noiseq_run_summary" {
   assert_true(s.contains("Genes tested"))
 }
 
+///|
 test "noiseq_qc" {
   let (ctrl, trt) = @src.noiseq_sample_data()
   let all : Array[@src.NOISeqSample] = Array::new()
@@ -128,6 +139,7 @@ test "noiseq_qc" {
   assert_true(qc.biotype_counts.size() > 0)
 }
 
+///|
 test "noiseq_norm_to_string" {
   assert_eq(@src.noiseq_norm_rpkm().to_string(), "RPKM")
   assert_eq(@src.noiseq_norm_tmm().to_string(), "TMM")
@@ -135,11 +147,13 @@ test "noiseq_norm_to_string" {
   assert_eq(@src.noiseq_norm_none().to_string(), "none")
 }
 
+///|
 test "noiseq_method_to_string" {
   assert_eq(@src.noiseq_method_bio().to_string(), "NOISeqBio")
   assert_eq(@src.noiseq_method_sim().to_string(), "NOISeqSim")
 }
 
+///|
 test "noiseq_sample_data" {
   let (ctrl, trt) = @src.noiseq_sample_data()
   assert_eq(ctrl.length(), 3)
@@ -148,6 +162,7 @@ test "noiseq_sample_data" {
   assert_eq(trt[0].condition, "treatment")
 }
 
+///|
 test "noiseq_result_ranking" {
   let (ctrl, trt) = @src.noiseq_sample_data()
   let results = @src.noiseq_run(ctrl, trt)

@@ -1472,12 +1472,8 @@ fn vp_satterthwaite_df(
 ///|
 fn vp_log_gamma(value : Double) -> Double {
   let coefficients = [
-    76.18009172947146,
-    -86.50532032941677,
-    24.01409824083091,
-    -1.231739572450155,
-    0.001208650973866179,
-    -0.000005395239384953,
+    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
+    0.001208650973866179, -0.000005395239384953,
   ]
   let mut shifted = value
   let temporary = value + 5.5
@@ -1491,11 +1487,7 @@ fn vp_log_gamma(value : Double) -> Double {
 }
 
 ///|
-fn vp_beta_continued_fraction(
-  x : Double,
-  a : Double,
-  b : Double,
-) -> Double {
+fn vp_beta_continued_fraction(x : Double, a : Double, b : Double) -> Double {
   let maximum_iterations = 200
   let epsilon = 3.0e-14
   let minimum = 1.0e-300

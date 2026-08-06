@@ -200,8 +200,10 @@ test "limma_remove_batch_effect" {
     [5.0, 6.0, 7.0, 14.0, 15.0, 16.0],
   ])
   let batch = ["B1", "B1", "B1", "B2", "B2", "B2"]
-  let group = ["Control", "Control", "Control", "Treatment", "Treatment", "Treatment"]
-  let result = @src.limma_remove_batch_effect(y, batch, group = group)
+  let group = [
+    "Control", "Control", "Control", "Treatment", "Treatment", "Treatment",
+  ]
+  let result = @src.limma_remove_batch_effect(y, batch, group~)
   assert_eq(result.rows, 5)
   assert_eq(result.cols, 6)
 }
@@ -259,10 +261,7 @@ test "limma_rpkm_basic" {
 
 ///|
 test "limma_rpkm_empty_lengths" {
-  let counts = @src.Matrix::from_2d(2, 2, [
-    [10.0, 20.0],
-    [30.0, 40.0],
-  ])
+  let counts = @src.Matrix::from_2d(2, 2, [[10.0, 20.0], [30.0, 40.0]])
   let gene_lengths : Array[Double] = Array::new()
   let result = @src.limma_rpkm(counts, gene_lengths)
   assert_eq(result.rows, 2)
@@ -288,7 +287,7 @@ test "limma_cpm_no_log" {
     [30.0, 40.0],
     [50.0, 60.0],
   ])
-  let result = @src.limma_cpm(counts, log = false)
+  let result = @src.limma_cpm(counts, log=false)
   assert_eq(result.rows, 3)
   // No log transform - values should be counts per million
   // Sample 0 total = 90, so 10/90 * 1e6 ~ 111111.11
@@ -311,11 +310,7 @@ test "limma_quantile_normalize_basic" {
 
 ///|
 test "limma_quantile_normalize_single" {
-  let y = @src.Matrix::from_2d(3, 1, [
-    [1.0],
-    [2.0],
-    [3.0],
-  ])
+  let y = @src.Matrix::from_2d(3, 1, [[1.0], [2.0], [3.0]])
   let result = @src.limma_quantile_normalize(y)
   assert_eq(result.rows, 3)
   assert_eq(result.cols, 1)
@@ -360,7 +355,7 @@ test "limma_combat_with_group" {
   ])
   let batch = ["B1", "B1", "B1", "B2", "B2", "B2"]
   let group = ["C", "C", "C", "T", "T", "T"]
-  let result = @src.limma_combat(y, batch, group = group)
+  let result = @src.limma_combat(y, batch, group~)
   assert_eq(result.rows, 3)
   assert_eq(result.cols, 6)
 }

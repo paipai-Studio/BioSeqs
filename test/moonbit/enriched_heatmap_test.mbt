@@ -247,7 +247,7 @@ test "eh_normalize_background" {
   // All values should be background (-1.0) since signal is on different chr.
   let mut j = 0
   while j < mat.nCols {
-    assert_true((mat.matrix[0][j] - (-1.0)).abs() < 1.0e-10)
+    assert_true((mat.matrix[0][j] - -1.0).abs() < 1.0e-10)
     j = j + 1
   }
 }
@@ -286,7 +286,10 @@ test "eh_row_means" {
 ///|
 test "eh_minus_strand" {
   // Test that minus strand reverses window order.
-  let signals = [@src.GenomicSignal::new("chr1", 9800, 9900, 0.5), @src.GenomicSignal::new("chr1", 10100, 10200, 1.0)]
+  let signals = [
+    @src.GenomicSignal::new("chr1", 9800, 9900, 0.5),
+    @src.GenomicSignal::new("chr1", 10100, 10200, 1.0),
+  ]
   let targets = [@src.TargetRegion::new("chr1", 10000, 10000, "-")]
   let config = @src.EnrichedHeatmapConfig::new(
     extendUp=500,

@@ -11,6 +11,7 @@ pub enum HmiscCorType {
   HC_Spearman
 }
 
+///|
 /// Convert correlation type to string.
 pub fn hmisc_cor_type_to_string(ct : HmiscCorType) -> String {
   match ct {
@@ -90,7 +91,10 @@ pub struct HmiscSomersResult {
 ///|
 /// Compute descriptive statistics for an array of values.
 /// Missing values (NaN) are automatically excluded.
-pub fn hmisc_describe(values : Array[Double], name? : String = "") -> HmiscDescriptiveStats {
+pub fn hmisc_describe(
+  values : Array[Double],
+  name? : String = "",
+) -> HmiscDescriptiveStats {
   let valid : Array[Double] = Array::new()
   let mut n_missing = 0
   let mut i = 0
@@ -233,7 +237,15 @@ fn hmisc_rank_array(data : Array[Double]) -> Array[Double] {
     indices[i] = i
     i = i + 1
   }
-  indices.sort_by(fn(a : Int, b : Int) -> Int { if data[a] < data[b] { -1 } else if data[a] > data[b] { 1 } else { 0 } })
+  indices.sort_by(fn(a : Int, b : Int) -> Int {
+    if data[a] < data[b] {
+      -1
+    } else if data[a] > data[b] {
+      1
+    } else {
+      0
+    }
+  })
   let ranks = Array::make(n, 0.0)
   i = 0
   while i < n {
@@ -241,7 +253,7 @@ fn hmisc_rank_array(data : Array[Double]) -> Array[Double] {
     while j < n - 1 && data[indices[j]] == data[indices[j + 1]] {
       j = j + 1
     }
-    let avg = ((i + j).to_double() / 2.0) + 1.0
+    let avg = (i + j).to_double() / 2.0 + 1.0
     let mut k = i
     while k <= j {
       ranks[indices[k]] = avg
@@ -309,7 +321,7 @@ pub fn hmisc_rcorr(
         }
         let p = if n_pair > 2 && !r.is_nan() {
           let t_stat = r * ((n_pair.to_double() - 2.0) / (1.0 - r * r)).sqrt()
-          2.0 * hmisc_t_dist_p((t_stat.abs()), n_pair - 2)
+          2.0 * hmisc_t_dist_p(t_stat.abs(), n_pair - 2)
         } else {
           @double.not_a_number
         }
@@ -324,13 +336,7 @@ pub fn hmisc_rcorr(
     }
     i = i + 1
   }
-  HmiscCorrResult::{
-    matrix,
-    p_values,
-    n: n_matrix,
-    names: var_names,
-    cor_type,
-  }
+  HmiscCorrResult::{ matrix, p_values, n: n_matrix, names: var_names, cor_type }
 }
 
 ///|
@@ -366,18 +372,32 @@ fn hmisc_ibeta(a : Double, b : Double, x : Double) -> Double {
   f = d
   let mut m = 1
   while m <= max_iter {
-    let num = m.to_double() * (b - m.to_double()) * x / ((a + 2.0 * m.to_double() - 1.0) * (a + 2.0 * m.to_double()))
+    let num = m.to_double() *
+      (b - m.to_double()) *
+      x /
+      ((a + 2.0 * m.to_double() - 1.0) * (a + 2.0 * m.to_double()))
     d = 1.0 + num * d
-    if d.abs() < 1.0e-30 { d = 1.0e-30 }
+    if d.abs() < 1.0e-30 {
+      d = 1.0e-30
+    }
     c_val = 1.0 + num / c_val
-    if c_val.abs() < 1.0e-30 { c_val = 1.0e-30 }
+    if c_val.abs() < 1.0e-30 {
+      c_val = 1.0e-30
+    }
     d = 1.0 / d
     f = f * d * c_val
-    let num2 = -(a + m.to_double()) * (a + b + m.to_double()) * x / ((a + 2.0 * m.to_double()) * (a + 2.0 * m.to_double() + 1.0))
+    let num2 = -(a + m.to_double()) *
+      (a + b + m.to_double()) *
+      x /
+      ((a + 2.0 * m.to_double()) * (a + 2.0 * m.to_double() + 1.0))
     d = 1.0 + num2 * d
-    if d.abs() < 1.0e-30 { d = 1.0e-30 }
+    if d.abs() < 1.0e-30 {
+      d = 1.0e-30
+    }
     c_val = 1.0 + num2 / c_val
-    if c_val.abs() < 1.0e-30 { c_val = 1.0e-30 }
+    if c_val.abs() < 1.0e-30 {
+      c_val = 1.0e-30
+    }
     d = 1.0 / d
     let del = d * c_val
     f = f * del
@@ -397,14 +417,8 @@ fn hmisc_log_gamma(x : Double) -> Double {
   }
   let g = 7.0
   let c = [
-    0.99999999999980993,
-    676.5203681218851,
-    -1259.1392167224028,
-    771.32342877765313,
-    -176.61502916214059,
-    12.507343278686905,
-    -0.13857109526572012,
-    9.9843695780195716e-6,
+    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
     1.5056327351493116e-7,
   ]
   let pi = 3.14159265358979323846
@@ -455,7 +469,11 @@ pub fn hmisc_varclus(
       names: var_names,
     }
   }
-  let cor_result = hmisc_rcorr(data, names=var_names, cor_type=HmiscCorType::HC_Pearson)
+  let cor_result = hmisc_rcorr(
+    data,
+    names=var_names,
+    cor_type=HmiscCorType::HC_Pearson,
+  )
   let assignments = Array::make(n_vars, 0)
   let mut i = 0
   while i < n_vars {
@@ -533,7 +551,11 @@ fn hmisc_max_cluster_count(n_vars : Int, min_size : Int) -> Int {
     return 1
   }
   let n_clusters = n_vars / min_size
-  if n_clusters < 1 { 1 } else { n_clusters }
+  if n_clusters < 1 {
+    1
+  } else {
+    n_clusters
+  }
 }
 
 ///|
@@ -573,7 +595,11 @@ fn hmisc_cluster_similarity(
     }
     i = i + 1
   }
-  if count > 0.0 { sum / count } else { 0.0 }
+  if count > 0.0 {
+    sum / count
+  } else {
+    0.0
+  }
 }
 
 ///|
@@ -594,7 +620,10 @@ fn hmisc_unique_values(arr : Array[Int]) -> Array[Int] {
 
 ///|
 /// Compute Somers' d statistic for comparing two groups.
-pub fn hmisc_somers_d(group1 : Array[Double], group2 : Array[Double]) -> HmiscSomersResult {
+pub fn hmisc_somers_d(
+  group1 : Array[Double],
+  group2 : Array[Double],
+) -> HmiscSomersResult {
   let n1 = group1.length()
   let n2 = group2.length()
   if n1 == 0 || n2 == 0 {
@@ -621,11 +650,7 @@ pub fn hmisc_somers_d(group1 : Array[Double], group2 : Array[Double]) -> HmiscSo
     i = i + 1
   }
   let total = (n1 * n2).to_double()
-  let d = if total > 0.0 {
-    (concordant - discordant) / total
-  } else {
-    0.0
-  }
+  let d = if total > 0.0 { (concordant - discordant) / total } else { 0.0 }
   let se = (4.0 * concordant * discordant / (total * total * total)).sqrt()
   HmiscSomersResult::{
     d,
@@ -691,7 +716,11 @@ fn hmisc_array_mean(data : Array[Double]) -> Double {
     }
     i = i + 1
   }
-  if count > 0 { sum / count.to_double() } else { 0.0 }
+  if count > 0 {
+    sum / count.to_double()
+  } else {
+    0.0
+  }
 }
 
 ///|
@@ -759,9 +788,13 @@ fn hmisc_fmt_dbl(value : Double, decimals : Int) -> String {
   if value.is_nan() {
     return "     NA"
   }
-  let rounded = (value * @math.pow(10.0, decimals.to_double())).round() / @math.pow(10.0, decimals.to_double())
+  let rounded = (value * @math.pow(10.0, decimals.to_double())).round() /
+    @math.pow(10.0, decimals.to_double())
   let int_part = rounded.to_int()
-  let dec_part = ((rounded - int_part.to_double()) * @math.pow(10.0, decimals.to_double())).round().to_int()
+  let dec_part = ((rounded - int_part.to_double()) *
+    @math.pow(10.0, decimals.to_double()))
+    .round()
+    .to_int()
   if decimals == 0 {
     return "\{int_part}"
   }
@@ -787,11 +820,17 @@ fn hmisc_pad_zeros(value : Int, length : Int) -> String {
   result + s
 }
 
+///|
 /// Create a Pearson correlation type.
-pub fn hmisc_cor_type_pearson() -> HmiscCorType { HmiscCorType::HC_Pearson }
+pub fn hmisc_cor_type_pearson() -> HmiscCorType {
+  HmiscCorType::HC_Pearson
+}
 
+///|
 /// Create a Spearman correlation type.
-pub fn hmisc_cor_type_spearman() -> HmiscCorType { HmiscCorType::HC_Spearman }
+pub fn hmisc_cor_type_spearman() -> HmiscCorType {
+  HmiscCorType::HC_Spearman
+}
 
 ///|
 /// Sample data for testing.

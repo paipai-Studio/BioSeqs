@@ -41,7 +41,10 @@ test "parsimony_matrix_sankoff_dna_construction" {
 
 ///|
 test "parsimony_matrix_sankoff_custom_costs" {
-  let m = @src.parsimony_sankoff_dna_matrix(transition_cost=0.5, transversion_cost=2.5)
+  let m = @src.parsimony_sankoff_dna_matrix(
+    transition_cost=0.5,
+    transversion_cost=2.5,
+  )
   // A->G (transition) = 0.5
   assert_eq(@src.parsimony_matrix_cost(m, 0, 2), 0.5)
   // A->C (transversion) = 2.5
@@ -238,7 +241,10 @@ test "sankoff_parsimony_lower_than_fitch_for_transitions" {
   let root = @src.Clade::new(clades=[inner_left, inner_right])
   let tree = @src.Tree::new(root, rooted=true)
   let fitch_score = @src.fitch_parsimony_score(tree, aln)
-  let matrix = @src.parsimony_sankoff_dna_matrix(transition_cost=1.0, transversion_cost=2.0)
+  let matrix = @src.parsimony_sankoff_dna_matrix(
+    transition_cost=1.0,
+    transversion_cost=2.0,
+  )
   let sankoff_score = @src.sankoff_parsimony_score(tree, aln, matrix)
   // All changes are A<->G (transitions), so Sankoff = Fitch here
   assert_eq(sankoff_score, fitch_score)

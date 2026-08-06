@@ -88,13 +88,7 @@ pub fn MofaParams::create(
   ard_threshold? : Double = 0.01,
   seed? : Int = 42,
 ) -> MofaParams {
-  MofaParams::{
-    n_factors: n_factors,
-    max_iterations: max_iterations,
-    tolerance: tolerance,
-    ard_threshold: ard_threshold,
-    seed: seed,
-  }
+  MofaParams::{ n_factors, max_iterations, tolerance, ard_threshold, seed }
 }
 
 ///|
@@ -118,7 +112,9 @@ pub fn MofaResult::get_factors(self : MofaResult) -> Array[Array[Double]] {
 
 ///|
 /// Get loading matrices (views x features x factors).
-pub fn MofaResult::get_loadings(self : MofaResult) -> Array[Array[Array[Double]]] {
+pub fn MofaResult::get_loadings(
+  self : MofaResult,
+) -> Array[Array[Array[Double]]] {
   self.loadings
 }
 
@@ -168,19 +164,23 @@ pub fn mofa_run(views : Array[MofaView], params : MofaParams) -> MofaResult {
       active_factors: 0,
     }
   }
-  
+
   let n_samples = views[0].data.length()
   let n_factors = params.n_factors
-  
+
   // Center each view
   let centered_views : Array[Array[Array[Double]]] = Array::new()
   {
     let mut v = 0
     while v < n_views {
       let view_data = views[v].data
-      let n_features = if view_data.length() > 0 { view_data[0].length() } else { 0 }
+      let n_features = if view_data.length() > 0 {
+        view_data[0].length()
+      } else {
+        0
+      }
       let centered : Array[Array[Double]] = Array::new()
-      
+
       // Compute feature means
       let means : Array[Double] = Array::make(n_features, 0.0)
       let mut s = 0
@@ -199,7 +199,7 @@ pub fn mofa_run(views : Array[MofaView], params : MofaParams) -> MofaResult {
           f = f + 1
         }
       }
-      
+
       // Center data
       s = 0
       while s < n_samples {
@@ -216,10 +216,10 @@ pub fn mofa_run(views : Array[MofaView], params : MofaParams) -> MofaResult {
       v = v + 1
     }
   }
-  
+
   // Initialize factors Z (samples x factors)
   let mut z = mofa_init_factors(n_samples, n_factors, params.seed)
-  
+
   // Initialize loadings W (views x features x factors) with small random values
   let loadings : Array[Array[Array[Double]]] = Array::new()
   {
@@ -230,11 +230,13 @@ pub fn mofa_run(views : Array[MofaView], params : MofaParams) -> MofaResult {
       } else {
         0
       }
-      loadings.push(mofa_init_loadings(d, n_factors, params.seed + (v + 1) * 7919))
+      loadings.push(
+        mofa_init_loadings(d, n_factors, params.seed + (v + 1) * 7919),
+      )
       v = v + 1
     }
   }
-  
+
   // Initialize sigma (noise variance per view, feature)
   let sigma : Array[Array[Double]] = Array::new()
   {
@@ -250,21 +252,23 @@ pub fn mofa_run(views : Array[MofaView], params : MofaParams) -> MofaResult {
       v = v + 1
     }
   }
-  
+
   // ARD precision parameters
   let mut alpha : Array[Double] = Array::make(n_factors, 1.0)
   let mu = 0.0
   let tau = 1.0
-  
+
   // EM iterations
   let mut iter = 0
   let mut converged = false
   let mut prev_elbo = -1.0e30
-  
+
   while iter < params.max_iterations {
     // E-step: Update factors Z
-    z = mofa_update_factors(centered_views, loadings, sigma, z, n_factors, n_views, n_samples)
-    
+    z = mofa_update_factors(
+      centered_views, loadings, sigma, z, n_factors, n_views, n_samples,
+    )
+
     // M-step: Update loadings W
     {
       let mut v = 0
@@ -275,13 +279,18 @@ pub fn mofa_run(views : Array[MofaView], params : MofaParams) -> MofaResult {
           0
         }
         loadings[v] = mofa_update_loadings(
-          centered_views[v], z, loadings[v], sigma[v],
-          n_features, n_factors, n_samples
+          centered_views[v],
+          z,
+          loadings[v],
+          sigma[v],
+          n_features,
+          n_factors,
+          n_samples,
         )
         v = v + 1
       }
     }
-    
+
     // M-step: Update sigma
     {
       let mut v = 0
@@ -292,18 +301,25 @@ pub fn mofa_run(views : Array[MofaView], params : MofaParams) -> MofaResult {
           0
         }
         sigma[v] = mofa_update_sigma(
-          centered_views[v], z, loadings[v], sigma[v],
-          n_features, n_factors, n_samples
+          centered_views[v],
+          z,
+          loadings[v],
+          sigma[v],
+          n_features,
+          n_factors,
+          n_samples,
         )
         v = v + 1
       }
     }
-    
+
     // M-step: Update ARD alpha
     alpha = mofa_update_alpha(loadings, n_factors, n_views, mu, tau)
-    
+
     // Compute ELBO (approximate)
-    let elbo = mofa_compute_elbo(centered_views, z, loadings, sigma, alpha, n_factors, n_views, n_samples)
+    let elbo = mofa_compute_elbo(
+      centered_views, z, loadings, sigma, alpha, n_factors, n_views, n_samples,
+    )
     let delta = (elbo - prev_elbo).abs()
     if delta < params.tolerance {
       converged = true
@@ -312,15 +328,15 @@ pub fn mofa_run(views : Array[MofaView], params : MofaParams) -> MofaResult {
     prev_elbo = elbo
     iter = iter + 1
   }
-  
+
   // Compute variance explained
   let (factor_vars, view_vars) = mofa_compute_variance_explained(
-    centered_views, z, loadings, n_factors, n_views, n_samples
+    centered_views, z, loadings, n_factors, n_views, n_samples,
   )
-  
+
   // Count active factors
   let active = mofa_count_active_factors(factor_vars, params.ard_threshold)
-  
+
   MofaResult::{
     factors: z,
     loadings,
@@ -335,7 +351,11 @@ pub fn mofa_run(views : Array[MofaView], params : MofaParams) -> MofaResult {
 
 ///|
 /// Initialize factor matrix with small random values.
-fn mofa_init_factors(n_samples : Int, n_factors : Int, seed : Int) -> Array[Array[Double]] {
+fn mofa_init_factors(
+  n_samples : Int,
+  n_factors : Int,
+  seed : Int,
+) -> Array[Array[Double]] {
   let z : Array[Array[Double]] = Array::new()
   let mut s = seed
   let mut i = 0
@@ -356,7 +376,11 @@ fn mofa_init_factors(n_samples : Int, n_factors : Int, seed : Int) -> Array[Arra
 
 ///|
 /// Initialize loading matrix with small random values.
-fn mofa_init_loadings(n_features : Int, n_factors : Int, seed : Int) -> Array[Array[Double]] {
+fn mofa_init_loadings(
+  n_features : Int,
+  n_factors : Int,
+  seed : Int,
+) -> Array[Array[Double]] {
   let w : Array[Array[Double]] = Array::new()
   let mut s = seed
   let mut f = 0
@@ -404,13 +428,18 @@ fn mofa_update_factors(
       let mut mean_accum = 0.0
       let mut v = 0
       while v < n_views {
-        let n_features = if views[v].length() > 0 { views[v][0].length() } else { 0 }
+        let n_features = if views[v].length() > 0 {
+          views[v][0].length()
+        } else {
+          0
+        }
         let mut f = 0
         while f < n_features {
           let w_fk = loadings[v][f][k]
           let s2 = if sigma[v][f] > 1.0e-10 { sigma[v][f] } else { 1.0e-10 }
           precision = precision + w_fk * w_fk / s2
-          let residual = views[v][i][f] - mofa_prediction_single(loadings, z, i, f, k, v)
+          let residual = views[v][i][f] -
+            mofa_prediction_single(loadings, z, i, f, k, v)
           mean_accum = mean_accum + w_fk * residual / s2
           f = f + 1
         }
@@ -427,6 +456,7 @@ fn mofa_update_factors(
   new_z
 }
 
+///|
 fn mofa_prediction_single(
   loadings : Array[Array[Array[Double]]],
   z : Array[Array[Double]],
@@ -475,7 +505,11 @@ fn mofa_update_loadings(
         i = i + 1
       }
       denominator = denominator + 0.01 * s2
-      row[k] = if denominator > 1.0e-10 { numerator / denominator } else { w[f][k] }
+      row[k] = if denominator > 1.0e-10 {
+        numerator / denominator
+      } else {
+        w[f][k]
+      }
       k = k + 1
     }
     new_w.push(row)
@@ -484,6 +518,7 @@ fn mofa_update_loadings(
   new_w
 }
 
+///|
 fn mofa_prediction_loadings(
   w : Array[Array[Double]],
   z : Array[Array[Double]],
@@ -530,7 +565,11 @@ fn mofa_update_sigma(
       ss = ss + residual * residual
       i = i + 1
     }
-    new_sigma[f] = if n_samples > 0 { ss / n_samples.to_double() } else { sigma_view[f] }
+    new_sigma[f] = if n_samples > 0 {
+      ss / n_samples.to_double()
+    } else {
+      sigma_view[f]
+    }
     if new_sigma[f] < 1.0e-6 {
       new_sigma[f] = 1.0e-6
     }
@@ -564,7 +603,11 @@ fn mofa_update_alpha(
       total_features = total_features + n_features
       v = v + 1
     }
-    let expected = if total_features > 0 { sum_sq / total_features.to_double() } else { 0.0 }
+    let expected = if total_features > 0 {
+      sum_sq / total_features.to_double()
+    } else {
+      0.0
+    }
     let prec = if expected > 1.0e-10 { 1.0 / expected } else { 1.0e6 }
     new_alpha[k] = prec
     k = k + 1
@@ -587,7 +630,11 @@ fn mofa_compute_elbo(
   let mut elbo = 0.0
   let mut v = 0
   while v < n_views {
-    let n_features = if views[v].length() > 0 { views[v][0].length() } else { 0 }
+    let n_features = if views[v].length() > 0 {
+      views[v][0].length()
+    } else {
+      0
+    }
     let mut i = 0
     while i < n_samples {
       let mut f = 0
@@ -600,7 +647,9 @@ fn mofa_compute_elbo(
         }
         let s2 = if sigma[v][f] > 1.0e-10 { sigma[v][f] } else { 1.0e-10 }
         let residual = views[v][i][f] - pred
-        elbo = elbo - 0.5 * @math.ln(2.0 * 3.14159265 * s2) - residual * residual / (2.0 * s2)
+        elbo = elbo -
+          0.5 * @math.ln(2.0 * 3.14159265 * s2) -
+          residual * residual / (2.0 * s2)
         f = f + 1
       }
       i = i + 1
@@ -634,18 +683,29 @@ fn mofa_compute_variance_explained(
         i = i + 1
       }
       let mean = sum / n_samples.to_double()
-      let var = if n_samples > 1 { (sum_sq / n_samples.to_double()) - mean * mean } else { 0.0 }
+      let var = if n_samples > 1 {
+        sum_sq / n_samples.to_double() - mean * mean
+      } else {
+        0.0
+      }
       factor_vars[k] = if var > 0.0 { var } else { 0.0 }
       k = k + 1
     }
   }
-  
+
   // View variance explained by each factor
-  let view_vars : Array[Array[Double]] = Array::make(n_views, Array::make(n_factors, 0.0))
+  let view_vars : Array[Array[Double]] = Array::make(
+    n_views,
+    Array::make(n_factors, 0.0),
+  )
   {
     let mut v = 0
     while v < n_views {
-      let n_features = if views[v].length() > 0 { views[v][0].length() } else { 0 }
+      let n_features = if views[v].length() > 0 {
+        views[v][0].length()
+      } else {
+        0
+      }
       let mut k = 0
       while k < n_factors {
         let mut total_var = 0.0
@@ -661,7 +721,7 @@ fn mofa_compute_variance_explained(
       v = v + 1
     }
   }
-  
+
   // Normalize view_vars to percentages
   {
     let mut v = 0
@@ -677,13 +737,16 @@ fn mofa_compute_variance_explained(
       v = v + 1
     }
   }
-  
+
   (factor_vars, view_vars)
 }
 
 ///|
 /// Count active factors based on variance threshold.
-fn mofa_count_active_factors(factor_vars : Array[Double], threshold : Double) -> Int {
+fn mofa_count_active_factors(
+  factor_vars : Array[Double],
+  threshold : Double,
+) -> Int {
   let mut count = 0
   for v in factor_vars {
     if v > threshold {
@@ -693,6 +756,7 @@ fn mofa_count_active_factors(factor_vars : Array[Double], threshold : Double) ->
   count
 }
 
+///|
 fn mofa_sum_double(arr : Array[Double]) -> Double {
   let mut s = 0.0
   for v in arr {
@@ -703,13 +767,10 @@ fn mofa_sum_double(arr : Array[Double]) -> Double {
 
 ///|
 /// Create example data for MOFA2 testing.
-pub fn mofa_create_example(
-  n_samples : Int,
-  n_factors : Int,
-) -> Array[MofaView] {
+pub fn mofa_create_example(n_samples : Int, n_factors : Int) -> Array[MofaView] {
   let mut rng = 42
   let views : Array[MofaView] = Array::new()
-  
+
   // View 1: RNA-seq (high-dimensional)
   {
     let n_features = 50
@@ -743,9 +804,11 @@ pub fn mofa_create_example(
       feature_names.push("gene_" + f.to_string())
       f = f + 1
     }
-    views.push(MofaView::new("rna", data, feature_names, [], view_type="gaussian"))
+    views.push(
+      MofaView::new("rna", data, feature_names, [], view_type="gaussian"),
+    )
   }
-  
+
   // View 2: ATAC-seq (lower-dimensional, shares some factors)
   {
     let n_features = 30
@@ -779,9 +842,11 @@ pub fn mofa_create_example(
       feature_names.push("peak_" + f.to_string())
       f = f + 1
     }
-    views.push(MofaView::new("atac", data, feature_names, [], view_type="gaussian"))
+    views.push(
+      MofaView::new("atac", data, feature_names, [], view_type="gaussian"),
+    )
   }
-  
+
   // Set sample names
   {
     let mut v = 0
@@ -792,10 +857,16 @@ pub fn mofa_create_example(
         sample_names.push("sample_" + s.to_string())
         s = s + 1
       }
-      views[v] = MofaView::new(views[v].view_name, views[v].data, views[v].feature_names, sample_names, view_type=views[v].view_type)
+      views[v] = MofaView::new(
+        views[v].view_name,
+        views[v].data,
+        views[v].feature_names,
+        sample_names,
+        view_type=views[v].view_type,
+      )
       v = v + 1
     }
   }
-  
+
   views
 }

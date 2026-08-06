@@ -268,7 +268,7 @@ pub fn sasa_generate_sphere_points(n : Int) -> Array[Vector3] {
   let golden_angle = 3.14159265358979323846 * (3.0 - 5.0.sqrt())
   let denom = (count - 1).to_double()
   for i in 0..<count {
-    let y = 1.0 - (2.0 * i.to_double()) / denom
+    let y = 1.0 - 2.0 * i.to_double() / denom
     let r = (1.0 - y * y).sqrt()
     let theta = golden_angle * i.to_double()
     let x = @math.cos(theta) * r
@@ -372,7 +372,7 @@ pub fn sasa_calc(
       }
     }
     let sphere_area = 4.0 * pi * r_sq
-    let sasa = (n_accessible.to_double() / n_sphere.to_double()) * sphere_area
+    let sasa = n_accessible.to_double() / n_sphere.to_double() * sphere_area
     let a = atoms[i]
     results.push(
       SasaResult::new(

@@ -13,9 +13,12 @@
 ///|
 /// Supported file compression formats.
 pub enum CompressionFormat {
-  Plain /// No compression (plain text)
-  Gzip /// gzip compression (.gz)
-  Bzip2 /// bzip2 compression (.bz2)
+  /// No compression (plain text)
+  /// gzip compression (.gz)
+  /// bzip2 compression (.bz2)
+  Plain
+  Gzip
+  Bzip2
 }
 
 ///|
@@ -45,16 +48,21 @@ pub fn CompressionFormat::to_string(self : CompressionFormat) -> String {
     CompressionFormat::Bzip2 => "bzip2"
   }
 }
+
 ///|
 /// A smart file handle with automatic compression detection.
 pub struct SmartFile {
   path : String
   format : CompressionFormat
-  mode : String /// "r" for read, "w" for write
+  /// "r" for read, "w" for write
+  mode : String
   is_open : Bool
-  lines : Array[String] /// buffered lines for reading
-  pos : Int /// current read position
-  written_content : String /// accumulated content for writing
+  /// buffered lines for reading
+  /// current read position
+  /// accumulated content for writing
+  lines : Array[String]
+  pos : Int
+  written_content : String
 }
 
 ///|
@@ -251,7 +259,10 @@ pub fn SmartFile::get_written_content(self : SmartFile) -> String {
 ///|
 /// Set pre-loaded lines (for testing/simulation purposes).
 /// In a real implementation, this would be handled by open() reading the file.
-pub fn SmartFile::set_lines(self : SmartFile, lines : Array[String]) -> SmartFile {
+pub fn SmartFile::set_lines(
+  self : SmartFile,
+  lines : Array[String],
+) -> SmartFile {
   SmartFile::{
     path: self.path,
     format: self.format,
@@ -284,7 +295,10 @@ pub fn smart_file_from_lines(path : String, lines : Array[String]) -> SmartFile 
 
 ///|
 /// Create a write-mode SmartFile.
-pub fn smart_file_writer(path : String, format? : CompressionFormat = CompressionFormat::Plain) -> SmartFile {
+pub fn smart_file_writer(
+  path : String,
+  format? : CompressionFormat = CompressionFormat::Plain,
+) -> SmartFile {
   SmartFile::with_format(path, format, mode="w")
 }
 
@@ -295,7 +309,16 @@ pub fn SmartFile::summary(self : SmartFile) -> String {
   let mode_str = self.mode
   let state = if self.is_open { "open" } else { "closed" }
   let n_lines = self.lines.length()
-  "SmartFile: " + self.path + " | format=" + format_str + " | mode=" + mode_str + " | " + state + " | lines=" + n_lines.to_string()
+  "SmartFile: " +
+  self.path +
+  " | format=" +
+  format_str +
+  " | mode=" +
+  mode_str +
+  " | " +
+  state +
+  " | lines=" +
+  n_lines.to_string()
 }
 
 ///|

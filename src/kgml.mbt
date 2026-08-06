@@ -103,20 +103,8 @@ pub struct KgmlEntry {
 
 ///|
 /// Create a pathway entry.
-pub fn KgmlEntry::new(
-  id : Int,
-  name : String,
-  etype : String,
-) -> KgmlEntry {
-  {
-    id,
-    name,
-    etype,
-    reaction: "",
-    link: "",
-    graphics: None,
-    components: [],
-  }
+pub fn KgmlEntry::new(id : Int, name : String, etype : String) -> KgmlEntry {
+  { id, name, etype, reaction: "", link: "", graphics: None, components: [] }
 }
 
 ///|
@@ -361,7 +349,9 @@ pub fn KgmlPathway::reactions(self : KgmlPathway) -> Array[KgmlReaction] {
 /// Get entry by ID.
 pub fn KgmlPathway::get_entry(self : KgmlPathway, id : Int) -> KgmlEntry? {
   for e in self.entries {
-    if e.id == id { return Some(e) }
+    if e.id == id {
+      return Some(e)
+    }
   }
   None
 }
@@ -374,7 +364,9 @@ pub fn KgmlPathway::get_entries_by_type(
 ) -> Array[KgmlEntry] {
   let result : Array[KgmlEntry] = []
   for e in self.entries {
-    if e.etype == etype { result.push(e) }
+    if e.etype == etype {
+      result.push(e)
+    }
   }
   result
 }
@@ -387,7 +379,9 @@ pub fn KgmlPathway::get_relations_for_entry(
 ) -> Array[KgmlRelation] {
   let result : Array[KgmlRelation] = []
   for r in self.relations {
-    if r.entry1 == id || r.entry2 == id { result.push(r) }
+    if r.entry1 == id || r.entry2 == id {
+      result.push(r)
+    }
   }
   result
 }
@@ -401,7 +395,9 @@ pub fn KgmlPathway::get_relations_for_entry(
 fn kgml_find_from(s : String, sub : String, from : Int) -> Int? {
   let n = s.length()
   let sub_len = sub.length()
-  if sub_len == 0 || from >= n { return None }
+  if sub_len == 0 || from >= n {
+    return None
+  }
   let mut i = from
   while i + sub_len <= n {
     let mut match_found = true
@@ -413,7 +409,9 @@ fn kgml_find_from(s : String, sub : String, from : Int) -> Int? {
       }
       j = j + 1
     }
-    if match_found { return Some(i) }
+    if match_found {
+      return Some(i)
+    }
     i = i + 1
   }
   None
@@ -451,18 +449,24 @@ fn kgml_attr(tag : String, attr_name : String) -> String {
 ///|
 /// Parse an integer from a string, returning default on failure.
 fn kgml_parse_int(s : String, default : Int) -> Int {
-  if s.length() == 0 { return default }
+  if s.length() == 0 {
+    return default
+  }
   let trimmed = s.trim().to_owned()
   let result = parse_int(trimmed)
   // parse_int returns 0 on failure; distinguish empty from real 0
-  if trimmed.length() == 0 { return default }
+  if trimmed.length() == 0 {
+    return default
+  }
   result
 }
 
 ///|
 /// Parse a double from a string, returning default on failure.
 fn kgml_parse_double(s : String, default : Double) -> Double {
-  if s.length() == 0 { return default }
+  if s.length() == 0 {
+    return default
+  }
   let trimmed = s.trim().to_owned()
   match parse_double(trimmed) {
     Some(d) => d
@@ -478,7 +482,11 @@ fn kgml_attr_int(tag : String, attr_name : String, default : Int) -> Int {
 
 ///|
 /// Extract a double XML attribute, returns default if not found.
-fn kgml_attr_double(tag : String, attr_name : String, default : Double) -> Double {
+fn kgml_attr_double(
+  tag : String,
+  attr_name : String,
+  default : Double,
+) -> Double {
   kgml_parse_double(kgml_attr(tag, attr_name), default)
 }
 
@@ -506,7 +514,7 @@ pub fn parse_kgml(content : String) -> KgmlPathway? {
   let pathway_start = content.find("<pathway")
   match pathway_start {
     None => None
-    Some(ps) => {
+    Some(ps) =>
       match kgml_find_from(content, ">", ps) {
         None => None
         Some(te) => {
@@ -530,7 +538,6 @@ pub fn parse_kgml(content : String) -> KgmlPathway? {
           Some(pathway)
         }
       }
-    }
   }
 }
 
@@ -550,7 +557,7 @@ fn kgml_parse_children(
       None => break
       Some(lt_pos) => {
         if lt_pos + 1 < n {
-          let next_ch = content[lt_pos + 1 : lt_pos + 2].to_owned()
+          let next_ch = content[lt_pos + 1:lt_pos + 2].to_owned()
           if next_ch == "/" || next_ch == "?" || next_ch == "!" {
             match kgml_find_from(content, ">", lt_pos) {
               None => break
@@ -570,13 +577,12 @@ fn kgml_parse_children(
             let space_idx = tag_content.find(" ")
             let elem_name : String = match space_idx {
               Some(sp) => tag_content[1:sp].trim().to_owned()
-              None => {
+              None =>
                 if self_closing {
                   tag_content[1:tag_content.length() - 1].trim().to_owned()
                 } else {
                   tag_content[1:].trim().to_owned()
                 }
-              }
             }
             if elem_name == "entry" {
               let entry = kgml_parse_entry(content, lt_pos, g, self_closing)
@@ -630,7 +636,7 @@ fn kgml_parse_entry(
     while pos < end_pos {
       match kgml_find_from(content, "<", pos) {
         None => break
-        Some(lp) => {
+        Some(lp) =>
           match kgml_find_from(content, ">", lp) {
             None => break
             Some(gp) => {
@@ -645,7 +651,6 @@ fn kgml_parse_entry(
               pos = gp + 1
             }
           }
-        }
       }
     }
   }
@@ -690,7 +695,7 @@ fn kgml_parse_relation(
     while pos < end_pos {
       match kgml_find_from(content, "<", pos) {
         None => break
-        Some(lp) => {
+        Some(lp) =>
           match kgml_find_from(content, ">", lp) {
             None => break
             Some(gp) => {
@@ -703,7 +708,6 @@ fn kgml_parse_relation(
               pos = gp + 1
             }
           }
-        }
       }
     }
   }
@@ -731,7 +735,7 @@ fn kgml_parse_reaction(
     while pos < end_pos {
       match kgml_find_from(content, "<", pos) {
         None => break
-        Some(lp) => {
+        Some(lp) =>
           match kgml_find_from(content, ">", lp) {
             None => break
             Some(gp) => {
@@ -746,7 +750,6 @@ fn kgml_parse_reaction(
               pos = gp + 1
             }
           }
-        }
       }
     }
   }
@@ -768,13 +771,15 @@ pub fn kgml_sample_pathway() -> String {
   s = s + " image=\"https://www.kegg.jp/kegg/pathway/ko/ko00010.png\""
   s = s + " link=\"https://www.kegg.jp/kegg-bin/show_pathway?ko00010\">\n"
   // Entry 1: gene K00844
-  s = s + "<entry id=\"1\" name=\"ko:K00844\" type=\"gene\" reaction=\"rn:R01786\""
+  s = s +
+    "<entry id=\"1\" name=\"ko:K00844\" type=\"gene\" reaction=\"rn:R01786\""
   s = s + " link=\"https://www.kegg.jp/dbget-bin/get_brite?ko:K00844\">"
   s = s + "<graphics name=\"K00844\" fgcolor=\"#000000\" bgcolor=\"#BFFFBF\""
   s = s + " type=\"rect\" x=\"100\" y=\"200\" width=\"46\" height=\"17\"/>"
   s = s + "</entry>\n"
   // Entry 2: gene K01810
-  s = s + "<entry id=\"2\" name=\"ko:K01810\" type=\"gene\" reaction=\"rn:R01070\""
+  s = s +
+    "<entry id=\"2\" name=\"ko:K01810\" type=\"gene\" reaction=\"rn:R01070\""
   s = s + " link=\"https://www.kegg.jp/dbget-bin/get_brite?ko:K01810\">"
   s = s + "<graphics name=\"K01810\" fgcolor=\"#000000\" bgcolor=\"#BFFFBF\""
   s = s + " type=\"rect\" x=\"200\" y=\"200\" width=\"46\" height=\"17\"/>"
@@ -786,7 +791,8 @@ pub fn kgml_sample_pathway() -> String {
   s = s + " type=\"circle\" x=\"150\" y=\"250\" width=\"8\" height=\"8\"/>"
   s = s + "</entry>\n"
   // Entry 4: gene K01623
-  s = s + "<entry id=\"4\" name=\"ko:K01623\" type=\"gene\" reaction=\"rn:R00200\""
+  s = s +
+    "<entry id=\"4\" name=\"ko:K01623\" type=\"gene\" reaction=\"rn:R00200\""
   s = s + " link=\"https://www.kegg.jp/dbget-bin/get_brite?ko:K01623\">"
   s = s + "<graphics name=\"K01623\" fgcolor=\"#000000\" bgcolor=\"#BFFFBF\""
   s = s + " type=\"rect\" x=\"300\" y=\"200\" width=\"46\" height=\"17\"/>"

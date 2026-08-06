@@ -223,12 +223,14 @@ pub fn pdb_seqres_parser(content : String) -> Array[SeqRecord] {
     } else {
       chain_id
     }
-    records.push(SeqRecord::new(
-      Seq::new(seq_buf.to_string()),
-      id=id,
-      name=chain_id,
-      description="sequence from SEQRES, chain " + chain_id,
-    ))
+    records.push(
+      SeqRecord::new(
+        Seq::new(seq_buf.to_string()),
+        id~,
+        name=chain_id,
+        description="sequence from SEQRES, chain " + chain_id,
+      ),
+    )
   }
   records
 }
@@ -269,12 +271,17 @@ fn build_records_from_structure(
     } else {
       chain_id_str
     }
-    records.push(SeqRecord::new(
-      Seq::new(seq_str),
-      id=id,
-      name=chain_id_str,
-      description="sequence from " + source_label + " records, chain " + chain_id_str,
-    ))
+    records.push(
+      SeqRecord::new(
+        Seq::new(seq_str),
+        id~,
+        name=chain_id_str,
+        description="sequence from " +
+          source_label +
+          " records, chain " +
+          chain_id_str,
+      ),
+    )
   }
   records
 }
@@ -341,11 +348,7 @@ pub fn extract_sequence_from_pdb_lines(
     if cid != chain_id {
       continue
     }
-    let resname = if n >= 20 {
-      line[17:20].trim().to_owned()
-    } else {
-      "UNK"
-    }
+    let resname = if n >= 20 { line[17:20].trim().to_owned() } else { "UNK" }
     if resname == "HOH" || resname == "WAT" {
       continue
     }
@@ -354,11 +357,7 @@ pub fn extract_sequence_from_pdb_lines(
     } else {
       0
     }
-    let icode = if n >= 27 {
-      line.get_char(26).unwrap_or(' ')
-    } else {
-      ' '
-    }
+    let icode = if n >= 27 { line.get_char(26).unwrap_or(' ') } else { ' ' }
     let is_new = match prev_resseq {
       Some(p) => p != resseq || prev_icode != icode
       None => true
@@ -380,7 +379,7 @@ pub fn extract_sequence_from_pdb_lines(
 /// `PdbSeqresParser`.
 pub fn pdb_to_seqrecords(
   content : String,
-  source~ : String = "atom",
+  source? : String = "atom",
 ) -> Array[SeqRecord] {
   let lower = source.to_lower()
   if lower == "seqres" {

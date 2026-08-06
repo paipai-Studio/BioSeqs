@@ -42,15 +42,15 @@ pub struct CycloneParams {
 ///|
 /// Create default Cyclone parameters.
 pub fn CycloneParams::new() -> CycloneParams {
-  CycloneParams::{
-    min_score: 0.0,
-    n_top_pairs: 1,
-  }
+  CycloneParams::{ min_score: 0.0, n_top_pairs: 1 }
 }
 
 ///|
 /// Create custom Cyclone parameters.
-pub fn CycloneParams::with_params(min_score : Double, n_top_pairs : Int) -> CycloneParams {
+pub fn CycloneParams::with_params(
+  min_score : Double,
+  n_top_pairs : Int,
+) -> CycloneParams {
   CycloneParams::{ min_score, n_top_pairs }
 }
 
@@ -122,7 +122,9 @@ pub fn cyclone_get_phases(gene_pairs : Array[GenePair]) -> Array[String] {
 
 ///|
 /// Count gene pairs for each phase.
-pub fn cyclone_count_pairs_by_phase(gene_pairs : Array[GenePair]) -> Map[String, Int] {
+pub fn cyclone_count_pairs_by_phase(
+  gene_pairs : Array[GenePair],
+) -> Map[String, Int] {
   let counts : Map[String, Int] = Map([])
   for pair in gene_pairs {
     let current = counts.get(pair.phase).unwrap_or(0)
@@ -178,7 +180,9 @@ pub fn cyclone_score_cell(
   let scores : Map[String, Double] = Map([], capacity=phases.length())
 
   for phase in phases {
-    let score = cyclone_score_phase(cell_expression, gene_names, gene_pairs, phase)
+    let score = cyclone_score_phase(
+      cell_expression, gene_names, gene_pairs, phase,
+    )
     scores.set(phase, score)
   }
 
@@ -261,7 +265,12 @@ pub fn cyclone_score_cells(
       cell_expr.push(counts[j][i])
       j = j + 1
     }
-    let result = cyclone_score_single_cell(cell_expr, cell_ids[i], gene_names, gene_pairs)
+    let result = cyclone_score_single_cell(
+      cell_expr,
+      cell_ids[i],
+      gene_names,
+      gene_pairs,
+    )
     results.push(result)
     i = i + 1
   }
@@ -271,7 +280,9 @@ pub fn cyclone_score_cells(
 
 ///|
 /// Get a summary of cell cycle phase distribution.
-pub fn cyclone_phase_distribution(results : Array[CycloneResult]) -> Map[String, Double] {
+pub fn cyclone_phase_distribution(
+  results : Array[CycloneResult],
+) -> Map[String, Double] {
   let n = results.length()
   if n == 0 {
     return Map([])
@@ -295,7 +306,11 @@ pub fn cyclone_phase_distribution(results : Array[CycloneResult]) -> Map[String,
 
 ///|
 /// Create synthetic test data for Cyclone testing.
-pub fn cyclone_create_test_data() -> (Array[Array[Double]], Array[String], Array[String]) {
+pub fn cyclone_create_test_data() -> (
+  Array[Array[Double]],
+  Array[String],
+  Array[String],
+) {
   let gene_pairs = cyclone_get_gene_pairs()
 
   // Collect all unique gene names from pairs
@@ -369,7 +384,9 @@ pub fn cyclone_create_test_data() -> (Array[Array[Double]], Array[String], Array
 
 ///|
 /// Get the average scores for each phase across all cells.
-pub fn cyclone_average_scores(results : Array[CycloneResult]) -> Map[String, Double] {
+pub fn cyclone_average_scores(
+  results : Array[CycloneResult],
+) -> Map[String, Double] {
   if results.length() == 0 {
     return Map([])
   }

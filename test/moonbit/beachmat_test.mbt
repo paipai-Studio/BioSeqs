@@ -11,24 +11,28 @@ test "bmat_param_creation" {
   assert_eq(p.col_block_size(), 0)
 }
 
+///|
 test "bmat_param_with_blocks" {
   let p = @src.BmatParam::with_blocks(10, 20)
   assert_eq(p.row_block_size(), 10)
   assert_eq(p.col_block_size(), 20)
 }
 
+///|
 test "bmat_param_column_param" {
   let p = @src.BmatParam::column_param(15)
   assert_eq(p.row_block_size(), 0)
   assert_eq(p.col_block_size(), 15)
 }
 
+///|
 test "bmat_param_row_param" {
   let p = @src.BmatParam::row_param(25)
   assert_eq(p.row_block_size(), 25)
   assert_eq(p.col_block_size(), 0)
 }
 
+///|
 test "bmat_param_accessors" {
   let p = @src.BmatParam::with_blocks(5, 10)
   assert_eq(p.row_block_size(), 5)
@@ -39,6 +43,7 @@ test "bmat_param_accessors" {
 // Bmat creation and basic accessors
 // ---------------------------------------------------------------------------
 
+///|
 test "bmat_creation_from_array" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -46,6 +51,7 @@ test "bmat_creation_from_array" {
   assert_eq(bmat.dim_cols(), 3)
 }
 
+///|
 test "bmat_creation_zeros" {
   let bmat = @src.Bmat::zeros(4, 5)
   assert_eq(bmat.dim_rows(), 4)
@@ -54,18 +60,21 @@ test "bmat_creation_zeros" {
   assert_eq(bmat.get(3, 4), 0.0)
 }
 
+///|
 test "bmat_dim_rows" {
   let data = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
   assert_eq(bmat.dim_rows(), 3)
 }
 
+///|
 test "bmat_dim_cols" {
   let data = [[1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
   assert_eq(bmat.dim_cols(), 4)
 }
 
+///|
 test "bmat_get" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -80,6 +89,7 @@ test "bmat_get" {
   assert_eq(bmat.get(2, 2), 9.0)
 }
 
+///|
 test "bmat_set" {
   let data = [[1.0, 2.0], [3.0, 4.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -91,6 +101,7 @@ test "bmat_set" {
   assert_eq(bmat.get(1, 1), 20.0)
 }
 
+///|
 test "bmat_get_col" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -109,6 +120,7 @@ test "bmat_get_col" {
   assert_eq(col2[2], 9.0)
 }
 
+///|
 test "bmat_get_row" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -131,6 +143,7 @@ test "bmat_get_row" {
 // BmatBlock creation and properties
 // ---------------------------------------------------------------------------
 
+///|
 test "bmat_block_properties" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -160,6 +173,7 @@ test "bmat_block_properties" {
   assert_eq(block_ncols[1], 1)
 }
 
+///|
 test "bmat_block_get_data" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -200,6 +214,7 @@ test "bmat_block_get_data" {
 // Block processing
 // ---------------------------------------------------------------------------
 
+///|
 test "bmat_apply_col_blocks_basic" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -216,6 +231,7 @@ test "bmat_apply_col_blocks_basic" {
   assert_eq(col_ends[1], 3)
 }
 
+///|
 test "bmat_apply_col_blocks_three_blocks" {
   let data = [[1.0, 2.0, 3.0, 4.0, 5.0], [6.0, 7.0, 8.0, 9.0, 10.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -229,6 +245,7 @@ test "bmat_apply_col_blocks_three_blocks" {
   assert_eq(col_starts[2], 4)
 }
 
+///|
 test "bmat_apply_col_blocks_verification" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -253,6 +270,7 @@ test "bmat_apply_col_blocks_verification" {
   assert_eq(all_vals[8], 9.0)
 }
 
+///|
 test "bmat_apply_row_blocks_basic" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -269,6 +287,7 @@ test "bmat_apply_row_blocks_basic" {
   assert_eq(row_ends[1], 3)
 }
 
+///|
 test "bmat_apply_row_blocks_verification" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -293,6 +312,7 @@ test "bmat_apply_row_blocks_verification" {
   assert_eq(all_vals[8], 9.0)
 }
 
+///|
 test "bmat_apply_row_blocks_three_blocks" {
   let data = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0], [9.0, 10.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -306,13 +326,12 @@ test "bmat_apply_row_blocks_three_blocks" {
   assert_eq(row_starts[2], 4)
 }
 
+///|
 test "bmat_foreach" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
   let values : Array[Double] = []
-  @src.bmat_foreach(bmat, fn(row, col, val) {
-    values.push(val)
-  })
+  @src.bmat_foreach(bmat, fn(row, col, val) { values.push(val) })
   assert_eq(values.length(), 6)
   assert_eq(values[0], 1.0)
   assert_eq(values[1], 2.0)
@@ -322,6 +341,7 @@ test "bmat_foreach" {
   assert_eq(values[5], 6.0)
 }
 
+///|
 test "bmat_foreach_row_col_verification" {
   let data = [[10.0, 20.0], [30.0, 40.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -352,6 +372,7 @@ test "bmat_foreach_row_col_verification" {
 // BmatIterator
 // ---------------------------------------------------------------------------
 
+///|
 test "bmat_iterator_basic" {
   let data = [[1.0, 2.0], [3.0, 4.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -369,6 +390,7 @@ test "bmat_iterator_basic" {
   assert_true(v4 is None)
 }
 
+///|
 test "bmat_iterator_has_next" {
   let data = [[1.0, 2.0, 3.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -382,6 +404,7 @@ test "bmat_iterator_has_next" {
   assert_false(iter.has_next())
 }
 
+///|
 test "bmat_iterator_exhausted_next" {
   let data = [[1.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -394,6 +417,7 @@ test "bmat_iterator_exhausted_next" {
   assert_true(v2 is None)
 }
 
+///|
 test "bmat_iterator_cur_row_col" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -417,6 +441,7 @@ test "bmat_iterator_cur_row_col" {
   assert_eq(iter.cur_col(), 2)
 }
 
+///|
 test "bmat_iterator_full_traversal" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -442,6 +467,7 @@ test "bmat_iterator_full_traversal" {
 // Conversion
 // ---------------------------------------------------------------------------
 
+///|
 test "bmat_from_array" {
   let data = [[5.0, 10.0], [15.0, 20.0]]
   let bmat = @src.bmat_from_array(data)
@@ -453,6 +479,7 @@ test "bmat_from_array" {
   assert_eq(bmat.get(1, 1), 20.0)
 }
 
+///|
 test "bmat_to_array" {
   let data = [[2.0, 4.0, 6.0], [8.0, 10.0, 12.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -467,6 +494,7 @@ test "bmat_to_array" {
   assert_eq(arr[1][2], 12.0)
 }
 
+///|
 test "bmat_roundtrip" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.bmat_from_array(data)
@@ -483,6 +511,7 @@ test "bmat_roundtrip" {
 // Subset, transpose, bind
 // ---------------------------------------------------------------------------
 
+///|
 test "bmat_subset" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -495,6 +524,7 @@ test "bmat_subset" {
   assert_eq(sub.get(1, 1), 5.0)
 }
 
+///|
 test "bmat_subset_bottom_right" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -507,6 +537,7 @@ test "bmat_subset_bottom_right" {
   assert_eq(sub.get(1, 1), 9.0)
 }
 
+///|
 test "bmat_transpose" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -521,6 +552,7 @@ test "bmat_transpose" {
   assert_eq(t.get(2, 1), 6.0)
 }
 
+///|
 test "bmat_transpose_square" {
   let data = [[1.0, 2.0], [3.0, 4.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -531,6 +563,7 @@ test "bmat_transpose_square" {
   assert_eq(t.get(1, 1), 4.0)
 }
 
+///|
 test "bmat_bind_cols" {
   let left = @src.Bmat::new([[1.0, 2.0], [3.0, 4.0]], @src.BmatParam::new())
   let right = @src.Bmat::new([[5.0], [6.0]], @src.BmatParam::new())
@@ -545,6 +578,7 @@ test "bmat_bind_cols" {
   assert_eq(result.get(1, 2), 6.0)
 }
 
+///|
 test "bmat_bind_cols_equal_width" {
   let left = @src.Bmat::new([[1.0, 2.0], [3.0, 4.0]], @src.BmatParam::new())
   let right = @src.Bmat::new([[5.0, 6.0], [7.0, 8.0]], @src.BmatParam::new())
@@ -561,6 +595,7 @@ test "bmat_bind_cols_equal_width" {
   assert_eq(result.get(1, 3), 8.0)
 }
 
+///|
 test "bmat_bind_rows" {
   let top = @src.Bmat::new([[1.0, 2.0], [3.0, 4.0]], @src.BmatParam::new())
   let bottom = @src.Bmat::new([[5.0, 6.0]], @src.BmatParam::new())
@@ -575,6 +610,7 @@ test "bmat_bind_rows" {
   assert_eq(result.get(2, 1), 6.0)
 }
 
+///|
 test "bmat_bind_rows_equal_height" {
   let top = @src.Bmat::new([[1.0, 2.0], [3.0, 4.0]], @src.BmatParam::new())
   let bottom = @src.Bmat::new([[5.0, 6.0], [7.0, 8.0]], @src.BmatParam::new())
@@ -595,6 +631,7 @@ test "bmat_bind_rows_equal_height" {
 // Element-wise operations
 // ---------------------------------------------------------------------------
 
+///|
 test "bmat_apply_elementwise_double" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -609,6 +646,7 @@ test "bmat_apply_elementwise_double" {
   assert_eq(result.get(1, 2), 12.0)
 }
 
+///|
 test "bmat_apply_elementwise_square" {
   let data = [[1.0, 2.0], [3.0, 4.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -619,6 +657,7 @@ test "bmat_apply_elementwise_square" {
   assert_eq(result.get(1, 1), 16.0)
 }
 
+///|
 test "bmat_apply_elementwise_negate" {
   let data = [[1.0, -2.0], [3.0, -4.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -629,6 +668,7 @@ test "bmat_apply_elementwise_negate" {
   assert_eq(result.get(1, 1), 4.0)
 }
 
+///|
 test "bmat_apply_elementwise_no_change" {
   let data = [[5.0, 10.0], [15.0, 20.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -643,6 +683,7 @@ test "bmat_apply_elementwise_no_change" {
 // to_string
 // ---------------------------------------------------------------------------
 
+///|
 test "bmat_to_string" {
   let data = [[1.0, 2.0], [3.0, 4.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -654,6 +695,7 @@ test "bmat_to_string" {
   assert_true(s.contains("4"))
 }
 
+///|
 test "bmat_to_string_single" {
   let data = [[7.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -666,6 +708,7 @@ test "bmat_to_string_single" {
 // Edge cases
 // ---------------------------------------------------------------------------
 
+///|
 test "bmat_empty_matrix" {
   let data : Array[Array[Double]] = []
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -673,12 +716,14 @@ test "bmat_empty_matrix" {
   assert_eq(bmat.dim_cols(), 0)
 }
 
+///|
 test "bmat_empty_matrix_zeros" {
   let bmat = @src.Bmat::zeros(0, 0)
   assert_eq(bmat.dim_rows(), 0)
   assert_eq(bmat.dim_cols(), 0)
 }
 
+///|
 test "bmat_empty_matrix_iterator" {
   let data : Array[Array[Double]] = []
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -690,6 +735,7 @@ test "bmat_empty_matrix_iterator" {
   assert_eq(iter.cur_col(), 0)
 }
 
+///|
 test "bmat_empty_matrix_roundtrip" {
   let data : Array[Array[Double]] = []
   let bmat = @src.bmat_from_array(data)
@@ -699,6 +745,7 @@ test "bmat_empty_matrix_roundtrip" {
   assert_eq(arr.length(), 0)
 }
 
+///|
 test "bmat_single_row" {
   let data = [[1.0, 2.0, 3.0, 4.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -711,6 +758,7 @@ test "bmat_single_row" {
   assert_eq(row[2], 3.0)
 }
 
+///|
 test "bmat_single_col" {
   let data = [[1.0], [2.0], [3.0], [4.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -723,6 +771,7 @@ test "bmat_single_col" {
   assert_eq(col[2], 3.0)
 }
 
+///|
 test "bmat_single_element" {
   let data = [[42.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -733,6 +782,7 @@ test "bmat_single_element" {
   assert_eq(bmat.get(0, 0), 99.0)
 }
 
+///|
 test "bmat_apply_col_blocks_single_block" {
   let data = [[1.0, 2.0], [3.0, 4.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -744,6 +794,7 @@ test "bmat_apply_col_blocks_single_block" {
   assert_eq(col_starts[0], 0)
 }
 
+///|
 test "bmat_apply_row_blocks_single_block" {
   let data = [[1.0, 2.0], [3.0, 4.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -755,6 +806,7 @@ test "bmat_apply_row_blocks_single_block" {
   assert_eq(row_starts[0], 0)
 }
 
+///|
 test "bmat_apply_col_blocks_exact_fit" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -766,6 +818,7 @@ test "bmat_apply_col_blocks_exact_fit" {
   assert_eq(col_starts[0], 0)
 }
 
+///|
 test "bmat_apply_row_blocks_exact_fit" {
   let data = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -777,6 +830,7 @@ test "bmat_apply_row_blocks_exact_fit" {
   assert_eq(row_starts[0], 0)
 }
 
+///|
 test "bmat_iterator_single_element" {
   let data = [[42.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -789,6 +843,7 @@ test "bmat_iterator_single_element" {
   assert_false(iter.has_next())
 }
 
+///|
 test "bmat_subset_single_element" {
   let data = [[1.0, 2.0], [3.0, 4.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -798,6 +853,7 @@ test "bmat_subset_single_element" {
   assert_eq(sub.get(0, 0), 4.0)
 }
 
+///|
 test "bmat_transpose_empty" {
   let data : Array[Array[Double]] = []
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -806,16 +862,16 @@ test "bmat_transpose_empty" {
   assert_eq(t.dim_cols(), 0)
 }
 
+///|
 test "bmat_foreach_empty" {
   let data : Array[Array[Double]] = []
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
   let values : Array[Double] = []
-  @src.bmat_foreach(bmat, fn(row, col, val) {
-    values.push(val)
-  })
+  @src.bmat_foreach(bmat, fn(row, col, val) { values.push(val) })
   assert_eq(values.length(), 0)
 }
 
+///|
 test "bmat_zeros_set_get" {
   let bmat = @src.Bmat::zeros(3, 3)
   assert_eq(bmat.get(1, 1), 0.0)
@@ -825,6 +881,7 @@ test "bmat_zeros_set_get" {
   assert_eq(bmat.get(2, 2), 0.0)
 }
 
+///|
 test "bmat_apply_elementwise_empty" {
   let data : Array[Array[Double]] = []
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -833,6 +890,7 @@ test "bmat_apply_elementwise_empty" {
   assert_eq(result.dim_cols(), 0)
 }
 
+///|
 test "bmat_bind_cols_empty" {
   let left = @src.Bmat::zeros(3, 0)
   let right = @src.Bmat::new([[1.0], [2.0], [3.0]], @src.BmatParam::new())
@@ -843,6 +901,7 @@ test "bmat_bind_cols_empty" {
   assert_eq(result.get(2, 0), 3.0)
 }
 
+///|
 test "bmat_bind_rows_empty" {
   let top = @src.Bmat::zeros(0, 2)
   let bottom = @src.Bmat::new([[1.0, 2.0]], @src.BmatParam::new())
@@ -853,6 +912,7 @@ test "bmat_bind_rows_empty" {
   assert_eq(result.get(0, 1), 2.0)
 }
 
+///|
 test "bmat_get_set_multiple" {
   let bmat = @src.Bmat::zeros(3, 3)
   bmat.set(0, 0, 1.0)
@@ -879,6 +939,7 @@ test "bmat_get_set_multiple" {
   assert_eq(col2[2], 9.0)
 }
 
+///|
 test "bmat_apply_col_blocks_last_block_partial" {
   let data = [[1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
@@ -892,6 +953,7 @@ test "bmat_apply_col_blocks_last_block_partial" {
   assert_eq(col_ends[2], 7)
 }
 
+///|
 test "bmat_apply_row_blocks_last_block_partial" {
   let data = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0], [7.0, 8.0], [9.0, 10.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())

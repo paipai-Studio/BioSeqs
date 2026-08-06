@@ -227,7 +227,8 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
       for p in parts {
         let s = p.trim().to_string()
         if s.length() > 0 {
-          if s.starts_with("v") || (s[0:1].to_string() >= "0" && s[0:1].to_string() <= "9") {
+          if s.starts_with("v") ||
+            (s[0:1].to_string() >= "0" && s[0:1].to_string() <= "9") {
             record.version = s
           }
         }
@@ -278,9 +279,9 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
       }
     }
     // Sequence match lines (in SECTION III or similar)
-    if section.contains("III") || section.contains("RESULT") || section.contains(
-        "DETAILED",
-      ) {
+    if section.contains("III") ||
+      section.contains("RESULT") ||
+      section.contains("DETAILED") {
       // Parse sequence lines with p-values
       // Format: "sequence_name description length p-value e-value"
       let parts = trimmed.split(" ").to_array()
@@ -390,7 +391,9 @@ pub fn mast_motif_record_to_string(record : MastMotifRecord) -> String {
   sb.write_string("  Version: " + record.version + "\n")
   sb.write_string("  Database: " + record.database + "\n")
   sb.write_string("  Motifs: " + record.motif_count.to_string() + "\n")
-  sb.write_string("  Sequences with hits: " + record.hit_count.to_string() + "\n")
+  sb.write_string(
+    "  Sequences with hits: " + record.hit_count.to_string() + "\n",
+  )
   sb.write_string("\nMotif summary:\n")
   for m in record.motifs {
     sb.write_string("  " + m.id + " (width=" + m.width.to_string() + ")\n")

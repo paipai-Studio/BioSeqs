@@ -80,7 +80,7 @@ pub fn BioReference::with_pubmed(
   year : String,
   pubmed_id : String,
 ) -> BioReference {
-  let r = BioReference::new(title=title, authors=authors, journal=journal, year=year)
+  let r = BioReference::new(title~, authors~, journal~, year~)
   r.pubmed_id_val = pubmed_id
   r
 }
@@ -94,23 +94,62 @@ pub fn BioReference::with_doi(
   year : String,
   doi : String,
 ) -> BioReference {
-  let r = BioReference::new(title=title, authors=authors, journal=journal, year=year)
+  let r = BioReference::new(title~, authors~, journal~, year~)
   r.doi_val = doi
   r
 }
 
-pub impl AbstractReference for BioReference with fn title(self : BioReference) -> String { self.title_val }
-pub impl AbstractReference for BioReference with fn authors(self : BioReference) -> String { self.authors_val }
-pub impl AbstractReference for BioReference with fn journal(self : BioReference) -> String { self.journal_val }
-pub impl AbstractReference for BioReference with fn year(self : BioReference) -> String { self.year_val }
-pub impl AbstractReference for BioReference with fn pubmed_id(self : BioReference) -> String { self.pubmed_id_val }
-pub impl AbstractReference for BioReference with fn doi(self : BioReference) -> String { self.doi_val }
-pub impl AbstractReference for BioReference with fn reference_type(self : BioReference) -> String { self.type_val }
-pub impl AbstractReference for BioReference with fn citation(self : BioReference) -> String {
+///|
+pub impl AbstractReference for BioReference with fn title(self : BioReference) -> String {
+  self.title_val
+}
+
+///|
+pub impl AbstractReference for BioReference with fn authors(self : BioReference) -> String {
+  self.authors_val
+}
+
+///|
+pub impl AbstractReference for BioReference with fn journal(self : BioReference) -> String {
+  self.journal_val
+}
+
+///|
+pub impl AbstractReference for BioReference with fn year(self : BioReference) -> String {
+  self.year_val
+}
+
+///|
+pub impl AbstractReference for BioReference with fn pubmed_id(
+  self : BioReference,
+) -> String {
+  self.pubmed_id_val
+}
+
+///|
+pub impl AbstractReference for BioReference with fn doi(self : BioReference) -> String {
+  self.doi_val
+}
+
+///|
+pub impl AbstractReference for BioReference with fn reference_type(
+  self : BioReference,
+) -> String {
+  self.type_val
+}
+
+///|
+pub impl AbstractReference for BioReference with fn citation(
+  self : BioReference,
+) -> String {
   let mut s = self.authors_val
-  if s.length() > 0 { s = s + ". " }
+  if s.length() > 0 {
+    s = s + ". "
+  }
   s = s + self.title_val
-  if s.length() > 0 { s = s + ". " }
+  if s.length() > 0 {
+    s = s + ". "
+  }
   s = s + self.journal_val
   if self.year_val.length() > 0 {
     s = s + " (" + self.year_val + ")"
@@ -172,7 +211,11 @@ pub fn BioReference::set_type(self : BioReference, type_ : String) -> Unit {
 
 ///|
 /// Add a location (pair of start/end positions).
-pub fn BioReference::add_location(self : BioReference, start : Int, end_ : Int) -> Unit {
+pub fn BioReference::add_location(
+  self : BioReference,
+  start : Int,
+  end_ : Int,
+) -> Unit {
   self.locations.push((start, end_))
 }
 
@@ -262,7 +305,10 @@ pub fn ReferenceList::get_all(self : ReferenceList) -> Array[BioReference] {
 
 ///|
 /// Get references by author name.
-pub fn ReferenceList::by_author(self : ReferenceList, author : String) -> Array[BioReference] {
+pub fn ReferenceList::by_author(
+  self : ReferenceList,
+  author : String,
+) -> Array[BioReference] {
   let result : Array[BioReference] = Array::new()
   let mut i = 0
   while i < self.refs.length() {
@@ -276,7 +322,10 @@ pub fn ReferenceList::by_author(self : ReferenceList, author : String) -> Array[
 
 ///|
 /// Get references by year.
-pub fn ReferenceList::by_year(self : ReferenceList, year : String) -> Array[BioReference] {
+pub fn ReferenceList::by_year(
+  self : ReferenceList,
+  year : String,
+) -> Array[BioReference] {
   let result : Array[BioReference] = Array::new()
   let mut i = 0
   while i < self.refs.length() {
@@ -323,21 +372,15 @@ pub fn ReferenceList::bibliography(self : ReferenceList) -> String {
 pub fn reference_sample_data() -> ReferenceList {
   let list = ReferenceList::new()
   let ref1 = BioReference::with_pubmed(
-    "The Human Genome: A Complete Sequence",
-    "Nurk S, Koren S, Rhie A",
-    "Science",
-    "2022",
-    "36189102",
+    "The Human Genome: A Complete Sequence", "Nurk S, Koren S, Rhie A", "Science",
+    "2022", "36189102",
   )
   ref1.add_location(1, 250000000)
   ref1.set_comment("Telomere-to-telomere assembly")
   list.add(ref1)
 
   let ref2 = BioReference::with_doi(
-    "CRISPR-Cas9 genome editing",
-    "Doudna JA, Charpentier E",
-    "Science",
-    "2014",
+    "CRISPR-Cas9 genome editing", "Doudna JA, Charpentier E", "Science", "2014",
     "10.1126/science.1258096",
   )
   ref2.add_location(100, 5000)

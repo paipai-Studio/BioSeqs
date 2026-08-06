@@ -78,7 +78,15 @@ test "sv_breakend_is_inter_chromosomal" {
 ///|
 test "sv_record_creation" {
   let rec = @src.SvRecord::new(
-    "sv1", "chr1", 1000, @src.sv_type_del(), 2000, -1000, None, 500.0, "PASS",
+    "sv1",
+    "chr1",
+    1000,
+    @src.sv_type_del(),
+    2000,
+    -1000,
+    None,
+    500.0,
+    "PASS",
   )
   assert_eq(rec.id(), "sv1")
   assert_eq(rec.chrom(), "chr1")
@@ -92,11 +100,27 @@ test "sv_record_creation" {
 ///|
 test "sv_record_is_bnd" {
   let bnd = @src.SvRecord::new(
-    "sv1", "chr1", 1000, @src.sv_type_bnd(), 1000, 0, None, 500.0, "PASS",
+    "sv1",
+    "chr1",
+    1000,
+    @src.sv_type_bnd(),
+    1000,
+    0,
+    None,
+    500.0,
+    "PASS",
   )
   assert_true(bnd.is_bnd())
   let del = @src.SvRecord::new(
-    "sv2", "chr1", 1000, @src.sv_type_del(), 2000, -1000, None, 500.0, "PASS",
+    "sv2",
+    "chr1",
+    1000,
+    @src.sv_type_del(),
+    2000,
+    -1000,
+    None,
+    500.0,
+    "PASS",
   )
   assert_false(del.is_bnd())
 }
@@ -104,7 +128,15 @@ test "sv_record_is_bnd" {
 ///|
 test "sv_record_size" {
   let del = @src.SvRecord::new(
-    "sv1", "chr1", 1000, @src.sv_type_del(), 2000, -1000, None, 0.0, "PASS",
+    "sv1",
+    "chr1",
+    1000,
+    @src.sv_type_del(),
+    2000,
+    -1000,
+    None,
+    0.0,
+    "PASS",
   )
   assert_eq(del.size(), 1000)
 }
@@ -113,11 +145,27 @@ test "sv_record_size" {
 test "sv_record_is_inter_chromosomal" {
   let be = @src.SvBreakend::new("chr1", 1000, "+", "chr2", 2000, "-")
   let bnd = @src.SvRecord::new(
-    "sv1", "chr1", 1000, @src.sv_type_bnd(), 1000, 0, Some(be), 0.0, "PASS",
+    "sv1",
+    "chr1",
+    1000,
+    @src.sv_type_bnd(),
+    1000,
+    0,
+    Some(be),
+    0.0,
+    "PASS",
   )
   assert_true(bnd.is_inter_chromosomal())
   let del = @src.SvRecord::new(
-    "sv2", "chr1", 1000, @src.sv_type_del(), 2000, -1000, None, 0.0, "PASS",
+    "sv2",
+    "chr1",
+    1000,
+    @src.sv_type_del(),
+    2000,
+    -1000,
+    None,
+    0.0,
+    "PASS",
   )
   assert_false(del.is_inter_chromosomal())
 }
@@ -288,7 +336,7 @@ test "sv_find_partners_sample" {
   let (id_a, id_b) = pairs[0]
   assert_true(
     (id_a == "sv_bnd_1" && id_b == "sv_bnd_2") ||
-      (id_a == "sv_bnd_2" && id_b == "sv_bnd_1"),
+    (id_a == "sv_bnd_2" && id_b == "sv_bnd_1"),
   )
 }
 
@@ -305,10 +353,26 @@ test "sv_are_partners_mutual" {
 ///|
 test "sv_are_partners_non_bnd" {
   let del = @src.SvRecord::new(
-    "sv1", "chr1", 1000, @src.sv_type_del(), 2000, -1000, None, 0.0, "PASS",
+    "sv1",
+    "chr1",
+    1000,
+    @src.sv_type_del(),
+    2000,
+    -1000,
+    None,
+    0.0,
+    "PASS",
   )
   let dup = @src.SvRecord::new(
-    "sv2", "chr1", 3000, @src.sv_type_dup(), 5000, 2000, None, 0.0, "PASS",
+    "sv2",
+    "chr1",
+    3000,
+    @src.sv_type_dup(),
+    5000,
+    2000,
+    None,
+    0.0,
+    "PASS",
   )
   assert_false(@src.sv_are_partners(del, dup))
 }
@@ -479,10 +543,26 @@ test "sv_filter_empty_records" {
 ///|
 test "sv_find_partners_no_bnd" {
   let del = @src.SvRecord::new(
-    "sv1", "chr1", 1000, @src.sv_type_del(), 2000, -1000, None, 0.0, "PASS",
+    "sv1",
+    "chr1",
+    1000,
+    @src.sv_type_del(),
+    2000,
+    -1000,
+    None,
+    0.0,
+    "PASS",
   )
   let dup = @src.SvRecord::new(
-    "sv2", "chr1", 3000, @src.sv_type_dup(), 5000, 2000, None, 0.0, "PASS",
+    "sv2",
+    "chr1",
+    3000,
+    @src.sv_type_dup(),
+    5000,
+    2000,
+    None,
+    0.0,
+    "PASS",
   )
   let pairs = @src.sv_find_partners([del, dup])
   assert_eq(pairs.length(), 0)

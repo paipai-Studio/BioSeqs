@@ -50,10 +50,7 @@ pub struct Trie {
 /// Create a new empty trie.
 pub fn Trie::new() -> Trie {
   Trie::{
-    root: TrieNode::{
-      children: Map([], capacity=4),
-      value: TrieValue::Empty,
-    },
+    root: TrieNode::{ children: Map([], capacity=4), value: TrieValue::Empty },
     count: 0,
   }
 }
@@ -61,10 +58,7 @@ pub fn Trie::new() -> Trie {
 ///|
 /// Create a new TrieNode.
 pub fn TrieNode::new() -> TrieNode {
-  TrieNode::{
-    children: Map([], capacity=4),
-    value: TrieValue::Empty,
-  }
+  TrieNode::{ children: Map([], capacity=4), value: TrieValue::Empty }
 }
 
 ///|
@@ -141,7 +135,10 @@ pub fn trie_size(trie : Trie) -> Int {
 ///|
 /// Find all keys with the given prefix.
 /// Returns an array of (key, value) tuples.
-pub fn trie_with_prefix(trie : Trie, prefix : String) -> Array[(String, String)] {
+pub fn trie_with_prefix(
+  trie : Trie,
+  prefix : String,
+) -> Array[(String, String)] {
   let result : Array[(String, String)] = Array::new()
   let start_node = trie_find_node(trie.root, prefix)
   match start_node {
@@ -234,7 +231,10 @@ pub fn triefind_match(trie : Trie, text : String) -> (String, String)? {
 ///|
 /// Find all keys in the trie that match the beginning of the string.
 /// Returns a list of (key, value) tuples, ordered by increasing key length.
-pub fn triefind_match_all(trie : Trie, text : String) -> Array[(String, String)] {
+pub fn triefind_match_all(
+  trie : Trie,
+  text : String,
+) -> Array[(String, String)] {
   let result : Array[(String, String)] = Array::new()
   let mut current = trie.root
   let mut prefix = ""
@@ -261,7 +261,10 @@ pub fn triefind_match_all(trie : Trie, text : String) -> Array[(String, String)]
 ///|
 /// Find all keys in the trie that match anywhere in the string.
 /// Returns a list of (key, value, start, end) tuples.
-pub fn triefind_find(trie : Trie, text : String) -> Array[(String, String, Int, Int)] {
+pub fn triefind_find(
+  trie : Trie,
+  text : String,
+) -> Array[(String, String, Int, Int)] {
   let result : Array[(String, String, Int, Int)] = Array::new()
   let mut start = 0
   while start < text.length() {
@@ -284,13 +287,19 @@ pub fn triefind_find(trie : Trie, text : String) -> Array[(String, String, Int, 
 /// Find all keys in the trie that match whole words in the string.
 /// Word boundaries are defined as any punctuation, whitespace, or string start/end.
 /// Returns a list of (key, value, start, end) tuples.
-pub fn triefind_find_words(trie : Trie, text : String) -> Array[(String, String, Int, Int)] {
+pub fn triefind_find_words(
+  trie : Trie,
+  text : String,
+) -> Array[(String, String, Int, Int)] {
   let result : Array[(String, String, Int, Int)] = Array::new()
   let mut start = 0
   while start < text.length() {
     // Check if this position is at a word boundary
     if start == 0 || trie_is_boundary(text[start - 1:start].to_owned()) {
-      let matches = triefind_match_all(trie, text[start:text.length()].to_owned())
+      let matches = triefind_match_all(
+        trie,
+        text[start:text.length()].to_owned(),
+      )
       let mut j = 0
       while j < matches.length() {
         let pair = matches[j]
@@ -298,7 +307,8 @@ pub fn triefind_find_words(trie : Trie, text : String) -> Array[(String, String,
         let val = pair.1
         let end = start + key.length()
         // Check that the character after the match is also a boundary
-        if end >= text.length() || trie_is_boundary(text[end:end + 1].to_owned()) {
+        if end >= text.length() ||
+          trie_is_boundary(text[end:end + 1].to_owned()) {
           result.push((key, val, start, end))
         }
         j = j + 1
@@ -332,7 +342,11 @@ fn trie_find_node(root : TrieNode, key : String) -> TrieNode? {
 
 ///|
 /// Recursively collect all keys from a node.
-fn trie_collect_keys(node : TrieNode, prefix : String, result : Array[String]) -> Unit {
+fn trie_collect_keys(
+  node : TrieNode,
+  prefix : String,
+  result : Array[String],
+) -> Unit {
   match node.value {
     TrieValue::Value(_) => result.push(prefix)
     TrieValue::Empty => ()
@@ -353,7 +367,7 @@ fn trie_collect_keys(node : TrieNode, prefix : String, result : Array[String]) -
 fn trie_collect_pairs(
   node : TrieNode,
   prefix : String,
-  result : Array[(String, String)]
+  result : Array[(String, String)],
 ) -> Unit {
   match node.value {
     TrieValue::Value(v) => result.push((prefix, v))

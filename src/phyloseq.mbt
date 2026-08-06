@@ -9,7 +9,11 @@ pub struct OTU {
 }
 
 ///|
-pub fn OTU::new(id : String, taxonomy : Array[String], abundance : Array[Double]) -> OTU {
+pub fn OTU::new(
+  id : String,
+  taxonomy : Array[String],
+  abundance : Array[Double],
+) -> OTU {
   OTU::{ id, taxonomy, abundance }
 }
 
@@ -36,7 +40,15 @@ pub struct TaxRank {
 }
 
 ///|
-pub fn TaxRank::new(kingdom : String, phylum : String, class : String, order : String, family : String, genus : String, species : String) -> TaxRank {
+pub fn TaxRank::new(
+  kingdom : String,
+  phylum : String,
+  class : String,
+  order : String,
+  family : String,
+  genus : String,
+  species : String,
+) -> TaxRank {
   TaxRank::{ kingdom, phylum, class, order, family, genus, species }
 }
 
@@ -54,7 +66,7 @@ pub fn Phyloseq::new() -> Phyloseq {
     otus: Array::new(),
     samples: Array::new(),
     taxonomy: Array::new(),
-    metadata: Map([], capacity=0)
+    metadata: Map([], capacity=0),
   }
 }
 
@@ -108,21 +120,24 @@ pub fn ps_total_abundance(ps : Phyloseq) -> Double {
 }
 
 ///|
-pub fn ps_filter_by_abundance(ps : Phyloseq, min_abundance : Double) -> Phyloseq {
+pub fn ps_filter_by_abundance(
+  ps : Phyloseq,
+  min_abundance : Double,
+) -> Phyloseq {
   let filtered = Phyloseq::new()
-  
+
   let mut i = 0
   while i < ps.samples.length() {
     filtered.samples.push(ps.samples[i])
     i = i + 1
   }
-  
+
   let mut j = 0
   while j < ps.taxonomy.length() {
     filtered.taxonomy.push(ps.taxonomy[j])
     j = j + 1
   }
-  
+
   let mut k = 0
   while k < ps.otus.length() {
     let mut total = 0.0
@@ -136,20 +151,24 @@ pub fn ps_filter_by_abundance(ps : Phyloseq, min_abundance : Double) -> Phyloseq
     }
     k = k + 1
   }
-  
+
   filtered
 }
 
 ///|
-pub fn ps_filter_by_taxonomy(ps : Phyloseq, rank : String, value : String) -> Phyloseq {
+pub fn ps_filter_by_taxonomy(
+  ps : Phyloseq,
+  rank : String,
+  value : String,
+) -> Phyloseq {
   let filtered = Phyloseq::new()
-  
+
   let mut i = 0
   while i < ps.samples.length() {
     filtered.samples.push(ps.samples[i])
     i = i + 1
   }
-  
+
   let mut j = 0
   while j < ps.taxonomy.length() {
     let matched = match rank {
@@ -170,14 +189,14 @@ pub fn ps_filter_by_taxonomy(ps : Phyloseq, rank : String, value : String) -> Ph
     }
     j = j + 1
   }
-  
+
   filtered
 }
 
 ///|
 pub fn ps_get_taxa_summary(ps : Phyloseq, rank : String) -> Map[String, Double] {
   let summary = Map([], capacity=0)
-  
+
   let mut i = 0
   while i < ps.taxonomy.length() {
     let tax_value = match rank {
@@ -190,7 +209,7 @@ pub fn ps_get_taxa_summary(ps : Phyloseq, rank : String) -> Map[String, Double] 
       "species" => ps.taxonomy[i].species
       _ => "unknown"
     }
-    
+
     let mut abundance = 0.0
     if i < ps.otus.length() {
       let mut j = 0
@@ -199,16 +218,16 @@ pub fn ps_get_taxa_summary(ps : Phyloseq, rank : String) -> Map[String, Double] 
         j = j + 1
       }
     }
-    
+
     if summary.contains(tax_value) {
       summary.set(tax_value, summary.get(tax_value).unwrap() + abundance)
     } else {
       summary.set(tax_value, abundance)
     }
-    
+
     i = i + 1
   }
-  
+
   summary
 }
 
@@ -216,19 +235,19 @@ pub fn ps_get_taxa_summary(ps : Phyloseq, rank : String) -> Map[String, Double] 
 pub fn ps_relative_abundance(ps : Phyloseq) -> Phyloseq {
   let total = ps_total_abundance(ps)
   let ra = Phyloseq::new()
-  
+
   let mut i = 0
   while i < ps.samples.length() {
     ra.samples.push(ps.samples[i])
     i = i + 1
   }
-  
+
   let mut j = 0
   while j < ps.taxonomy.length() {
     ra.taxonomy.push(ps.taxonomy[j])
     j = j + 1
   }
-  
+
   let mut k = 0
   while k < ps.otus.length() {
     let ra_abundance : Array[Double] = Array::new()
@@ -241,47 +260,51 @@ pub fn ps_relative_abundance(ps : Phyloseq) -> Phyloseq {
     ra.otus.push(ra_otu)
     k = k + 1
   }
-  
+
   ra
 }
 
 ///|
 pub fn ps_rarefy(ps : Phyloseq, depth : Int) -> Phyloseq {
   let rarefied = Phyloseq::new()
-  
+
   let mut i = 0
   while i < ps.samples.length() {
     rarefied.samples.push(ps.samples[i])
     i = i + 1
   }
-  
+
   let mut j = 0
   while j < ps.taxonomy.length() {
     rarefied.taxonomy.push(ps.taxonomy[j])
     j = j + 1
   }
-  
+
   let mut k = 0
   while k < ps.otus.length() {
     let rarefied_abundance : Array[Double] = Array::new()
     let mut m = 0
     while m < ps.otus[k].abundance.length() {
       let proportion = ps.otus[k].abundance[m] / ps_total_abundance(ps)
-      rarefied_abundance.push(proportion * (depth.to_double()))
+      rarefied_abundance.push(proportion * depth.to_double())
       m = m + 1
     }
-    let rarefied_otu = OTU::new(ps.otus[k].id, ps.otus[k].taxonomy, rarefied_abundance)
+    let rarefied_otu = OTU::new(
+      ps.otus[k].id,
+      ps.otus[k].taxonomy,
+      rarefied_abundance,
+    )
     rarefied.otus.push(rarefied_otu)
     k = k + 1
   }
-  
+
   rarefied
 }
 
 ///|
 pub fn create_example_phyloseq() -> Phyloseq {
   let ps = Phyloseq::new()
-  
+
   let otu1_tax : Array[String] = Array::new()
   otu1_tax.push("Bacteria")
   otu1_tax.push("Proteobacteria")
@@ -292,7 +315,7 @@ pub fn create_example_phyloseq() -> Phyloseq {
   otu1_abund.push(200.0)
   let otu1 = OTU::new("OTU001", otu1_tax, otu1_abund)
   ps.otus.push(otu1)
-  
+
   let otu2_tax : Array[String] = Array::new()
   otu2_tax.push("Bacteria")
   otu2_tax.push("Firmicutes")
@@ -303,7 +326,7 @@ pub fn create_example_phyloseq() -> Phyloseq {
   otu2_abund.push(100.0)
   let otu2 = OTU::new("OTU002", otu2_tax, otu2_abund)
   ps.otus.push(otu2)
-  
+
   let otu3_tax : Array[String] = Array::new()
   otu3_tax.push("Bacteria")
   otu3_tax.push("Bacteroidetes")
@@ -314,30 +337,39 @@ pub fn create_example_phyloseq() -> Phyloseq {
   otu3_abund.push(125.0)
   let otu3 = OTU::new("OTU003", otu3_tax, otu3_abund)
   ps.otus.push(otu3)
-  
+
   let sample1_meta = Map([("group", "control")], capacity=1)
   let sample1 = Sample::new("Sample001", sample1_meta)
   ps.samples.push(sample1)
-  
+
   let sample2_meta = Map([("group", "treatment")], capacity=1)
   let sample2 = Sample::new("Sample002", sample2_meta)
   ps.samples.push(sample2)
-  
+
   let sample3_meta = Map([("group", "treatment")], capacity=1)
   let sample3 = Sample::new("Sample003", sample3_meta)
   ps.samples.push(sample3)
-  
-  let tax1 = TaxRank::new("Bacteria", "Proteobacteria", "Gammaproteobacteria", "Enterobacteriales", "Enterobacteriaceae", "Escherichia", "coli")
+
+  let tax1 = TaxRank::new(
+    "Bacteria", "Proteobacteria", "Gammaproteobacteria", "Enterobacteriales", "Enterobacteriaceae",
+    "Escherichia", "coli",
+  )
   ps.taxonomy.push(tax1)
-  
-  let tax2 = TaxRank::new("Bacteria", "Firmicutes", "Clostridia", "Clostridiales", "Clostridiaceae", "Clostridium", "perfringens")
+
+  let tax2 = TaxRank::new(
+    "Bacteria", "Firmicutes", "Clostridia", "Clostridiales", "Clostridiaceae", "Clostridium",
+    "perfringens",
+  )
   ps.taxonomy.push(tax2)
-  
-  let tax3 = TaxRank::new("Bacteria", "Bacteroidetes", "Bacteroidia", "Bacteroidales", "Bacteroidaceae", "Bacteroides", "fragilis")
+
+  let tax3 = TaxRank::new(
+    "Bacteria", "Bacteroidetes", "Bacteroidia", "Bacteroidales", "Bacteroidaceae",
+    "Bacteroides", "fragilis",
+  )
   ps.taxonomy.push(tax3)
-  
+
   ps.metadata.set("project", "microbiome_study")
   ps.metadata.set("platform", "Illumina")
-  
+
   ps
 }

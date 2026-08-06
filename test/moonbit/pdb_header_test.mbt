@@ -69,9 +69,7 @@ test "dbref_entry_creation" {
 
 ///|
 test "parse_title_record_single_line" {
-  let lines = [
-    "TITLE     Crystal structure of a protein",
-  ]
+  let lines = ["TITLE     Crystal structure of a protein"]
   let title = @src.parse_title_record(lines, 0)
   assert_true(title.contains("Crystal structure"))
 }
@@ -79,8 +77,7 @@ test "parse_title_record_single_line" {
 ///|
 test "parse_title_record_multi_line" {
   let lines = [
-    "TITLE     Crystal structure of a protein",
-    "TITLE     in complex with ligand",
+    "TITLE     Crystal structure of a protein", "TITLE     in complex with ligand",
   ]
   let title = @src.parse_title_record(lines, 0)
   assert_true(title.contains("Crystal structure"))
@@ -126,10 +123,8 @@ test "parse_rfactor_record_no_keyword" {
 
 ///|
 test "extract_chain_ids" {
-  let compound = @src.CompoundInfo::new(
-    chain_ids=["A", "B", "C"],
-  )
-  let header = @src.PDBHeader::new(compound=compound)
+  let compound = @src.CompoundInfo::new(chain_ids=["A", "B", "C"])
+  let header = @src.PDBHeader::new(compound~)
   let chains = @src.extract_chain_ids(header)
   assert_eq(chains.length(), 3)
   assert_eq(chains[0], "A")
@@ -155,8 +150,7 @@ test "parse_pdb_header_empty" {
 
 ///|
 test "parse_pdb_header_missing_records" {
-  let pdb_text =
-    "HEADER   VIRUS 01-JAN-20                            1ABC\n"
+  let pdb_text = "HEADER   VIRUS 01-JAN-20                            1ABC\n"
   let header = @src.parse_pdb_header(pdb_text)
   assert_eq(header.title, "")
   assert_eq(header.compound.molecule_id, "")
@@ -172,8 +166,7 @@ test "parse_pdb_header_missing_records" {
 ///|
 test "parse_pdb_header_lines" {
   let lines = [
-    "HEADER   VIRUS 01-JAN-20                            1ABC",
-    "TITLE     Crystal structure",
+    "HEADER   VIRUS 01-JAN-20                            1ABC", "TITLE     Crystal structure",
   ]
   let header = @src.parse_pdb_header_lines(lines)
   assert_true(header.title.length() > 0)

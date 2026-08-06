@@ -10,12 +10,18 @@
 ///|
 /// The 6 basic mutation types (pyrimidine-based).
 pub enum MutationCategory {
-  C_A /// C>A transversion
-  C_G /// C>G transversion
-  C_T /// C>T transition
-  T_A /// T>A transversion
-  T_C /// T>C transition
-  T_G /// T>G transversion
+  /// C>A transversion
+  /// C>G transversion
+  /// C>T transition
+  /// T>A transversion
+  /// T>C transition
+  /// T>G transversion
+  C_A
+  C_G
+  C_T
+  T_A
+  T_C
+  T_G
 }
 
 ///|
@@ -71,8 +77,12 @@ pub fn MutationCategory::to_string(self : MutationCategory) -> String {
 /// All 6 mutation types in standard order.
 pub fn all_mutation_types() -> Array[MutationCategory] {
   [
-    MutationCategory::C_A, MutationCategory::C_G, MutationCategory::C_T,
-    MutationCategory::T_A, MutationCategory::T_C, MutationCategory::T_G,
+    MutationCategory::C_A,
+    MutationCategory::C_G,
+    MutationCategory::C_T,
+    MutationCategory::T_A,
+    MutationCategory::T_C,
+    MutationCategory::T_G,
   ]
 }
 
@@ -101,7 +111,8 @@ pub struct SomaticMutation {
   position : Int
   ref_base : String
   alt_base : String
-  trinucleotide_context : String /// e.g., "ACT" (ref is middle)
+  /// e.g., "ACT" (ref is middle)
+  trinucleotide_context : String
 }
 
 ///|
@@ -115,7 +126,8 @@ pub struct MutationMatrix {
   channel_labels : Array[String]
   /// Count matrix: 96 rows × n_samples columns
   counts : Array[Array[Int]]
-  total_mutations : Array[Int] /// per-sample total
+  /// per-sample total
+  total_mutations : Array[Int]
 }
 
 ///|
@@ -173,7 +185,10 @@ pub fn get_channel_labels() -> Array[String] {
 ///|
 /// Determine mutation type from ref and alt base.
 /// Uses pyrimidine-based convention (C/T as reference).
-pub fn get_mutation_type(ref_base : String, alt_base : String) -> MutationCategory {
+pub fn get_mutation_type(
+  ref_base : String,
+  alt_base : String,
+) -> MutationCategory {
   let r = ref_base.to_upper()
   let a = alt_base.to_upper()
   // If ref is purine (A/G), reverse complement to get pyrimidine-based
@@ -234,7 +249,11 @@ pub fn normalize_context(trinucleotide : String) -> String {
 ///|
 /// Get the 0-based channel index (0-95) for a mutation.
 /// Based on the trinucleotide context and mutation type.
-pub fn get_channel_index(ref_base : String, alt_base : String, trinucleotide : String) -> Int {
+pub fn get_channel_index(
+  ref_base : String,
+  alt_base : String,
+  trinucleotide : String,
+) -> Int {
   let norm_ctx = normalize_context(trinucleotide)
   let mtype = get_mutation_type(ref_base, alt_base)
   // Find type index (0-5)
@@ -354,7 +373,9 @@ pub fn MutationMatrix::get_count(
 
 ///|
 /// Convert counts to relative frequencies (normalize per sample).
-pub fn MutationMatrix::to_relative_frequencies(self : MutationMatrix) -> Array[Array[Double]] {
+pub fn MutationMatrix::to_relative_frequencies(
+  self : MutationMatrix,
+) -> Array[Array[Double]] {
   let n_channels = self.counts.length()
   let n_samples = if n_channels > 0 { self.counts[0].length() } else { 0 }
   let result : Array[Array[Double]] = Array::new()
@@ -381,7 +402,11 @@ pub fn MutationMatrix::to_relative_frequencies(self : MutationMatrix) -> Array[A
 ///|
 /// Compute cosine similarity between two vectors.
 pub fn cosine_similarity(vec1 : Array[Double], vec2 : Array[Double]) -> Double {
-  let len = if vec1.length() < vec2.length() { vec1.length() } else { vec2.length() }
+  let len = if vec1.length() < vec2.length() {
+    vec1.length()
+  } else {
+    vec2.length()
+  }
   let mut dot = 0.0
   let mut norm1 = 0.0
   let mut norm2 = 0.0

@@ -9,8 +9,11 @@
 
 // ---- helper ---------------------------------------------------------------
 
-fn vsn_is_na(x : Double) -> Bool { x.is_nan() }
+fn vsn_is_na(x : Double) -> Bool {
+  x.is_nan()
+}
 
+///|
 fn vsn_copy(mat : Array[Array[Double]]) -> Array[Array[Double]] {
   let n = mat.length()
   let out : Array[Array[Double]] = Array::new()
@@ -30,10 +33,8 @@ fn vsn_copy(mat : Array[Array[Double]]) -> Array[Array[Double]] {
   out
 }
 
-fn vsn_col_mean_sd(
-  mat : Array[Array[Double]],
-  j : Int,
-) -> (Double, Double) {
+///|
+fn vsn_col_mean_sd(mat : Array[Array[Double]], j : Int) -> (Double, Double) {
   let mut s = 0.0
   let mut s2 = 0.0
   let mut c = 0
@@ -48,7 +49,9 @@ fn vsn_col_mean_sd(
     }
     i = i + 1
   }
-  if c < 2 { return (0.0, 0.0) }
+  if c < 2 {
+    return (0.0, 0.0)
+  }
   let mu = s / c.to_double()
   let myvar = (s2 - s * s / c.to_double()) / (c - 1).to_double()
   let sd = if myvar > 0.0 { myvar.sqrt() } else { 0.0 }
@@ -57,16 +60,19 @@ fn vsn_col_mean_sd(
 
 // ---- parameters & result --------------------------------------------------
 
+///|
 pub struct VSNColParam {
   a : Double
   b : Double
 }
 
+///|
 pub struct VSNResult {
   params : Array[VSNColParam]
   reference_mean_sd : Array[(Double, Double)]
 }
 
+///|
 pub struct VSNControl {
   pub n_bins : Int
   pub min_bin_count : Int
@@ -74,30 +80,37 @@ pub struct VSNControl {
   pub lts_frac : Double
 }
 
+///|
 pub fn VSNControl::new() -> VSNControl {
-  VSNControl::{
-    n_bins: 20,
-    min_bin_count: 5,
-    max_iter: 20,
-    lts_frac: 0.9,
-  }
+  VSNControl::{ n_bins: 20, min_bin_count: 5, max_iter: 20, lts_frac: 0.9 }
 }
 
 // ---- core transform -------------------------------------------------------
 
+///|
 pub fn glog(x : Double, a : Double, b : Double) -> Double {
   let v = (a + b * x) / 2.0
   let inner = v + (v * v + 1.0).sqrt()
-  if inner <= 0.0 { 0.0 } else { @math.ln(inner) }
+  if inner <= 0.0 {
+    0.0
+  } else {
+    @math.ln(inner)
+  }
 }
 
+///|
 pub fn glog_inv(y : Double, a : Double, b : Double) -> Double {
-  let s = ((@math.exp(y) - @math.exp(-y)) / 2.0)
-  if b == 0.0 { 0.0 } else { (2.0 * s - a) / b }
+  let s = (@math.exp(y) - @math.exp(-y)) / 2.0
+  if b == 0.0 {
+    0.0
+  } else {
+    (2.0 * s - a) / b
+  }
 }
 
 // ---- per-column parameter fitting ----------------------------------------
 
+///|
 fn vsn_lm(
   x : Array[Double],
   y : Array[Double],
@@ -105,7 +118,9 @@ fn vsn_lm(
   max_iter : Int,
 ) -> (Double, Double) {
   let n = x.length()
-  if n == 0 { return (0.0, 1.0) }
+  if n == 0 {
+    return (0.0, 1.0)
+  }
   let mut sx = 0.0
   let mut sy = 0.0
   let mut sxx = 0.0
@@ -118,7 +133,7 @@ fn vsn_lm(
     sxy = sxy + x[i] * y[i]
     i = i + 1
   }
-  let denom = (n.to_double() * sxx - sx * sx)
+  let denom = n.to_double() * sxx - sx * sx
   let mut b = if denom == 0.0 {
     1.0
   } else {
@@ -135,13 +150,23 @@ fn vsn_lm(
       i2 = i2 + 1
     }
     resid.sort_by(fn(p : (Int, Double), q : (Int, Double)) -> Int {
-      if p.1 < q.1 { -1 } else if p.1 > q.1 { 1 } else { 0 }
+      if p.1 < q.1 {
+        -1
+      } else if p.1 > q.1 {
+        1
+      } else {
+        0
+      }
     })
     let keep = if n < 2 {
       n
     } else {
       let k = (lts_frac * n.to_double()).to_int()
-      if k < 2 { 2 } else { k }
+      if k < 2 {
+        2
+      } else {
+        k
+      }
     }
     let mut sx2 = 0.0
     let mut sy2 = 0.0
@@ -158,18 +183,21 @@ fn vsn_lm(
       t = t + 1
     }
     let kd = k2.to_double()
-    let d2 = (kd * sxx2 - sx2 * sx2)
+    let d2 = kd * sxx2 - sx2 * sx2
     let nb = if d2 == 0.0 { b } else { (kd * sxy2 - sx2 * sy2) / d2 }
     let na = if kd == 0.0 { a } else { (sy2 - nb * sx2) / kd }
     let da = (na - a).abs() + (nb - b).abs()
     a = na
     b = nb
-    if da < 0.00000001 { break }
+    if da < 0.00000001 {
+      break
+    }
     _it = _it + 1
   }
   (a, b)
 }
 
+///|
 fn vsn_fit_col(
   mat : Array[Array[Double]],
   j : Int,
@@ -216,13 +244,23 @@ fn vsn_fit_col(
     ii = ii + 1
   }
   order.sort_by(fn(p : (Double, Double), q : (Double, Double)) -> Int {
-    if p.0 < q.0 { -1 } else if p.0 > q.0 { 1 } else { 0 }
+    if p.0 < q.0 {
+      -1
+    } else if p.0 > q.0 {
+      1
+    } else {
+      0
+    }
   })
   let bin_x : Array[Double] = Array::new()
   let bin_y : Array[Double] = Array::new()
   if pts > 0 {
     let bin_size = if pts / n_bins < ctrl.min_bin_count {
-      if ctrl.min_bin_count < 1 { 1 } else { ctrl.min_bin_count }
+      if ctrl.min_bin_count < 1 {
+        1
+      } else {
+        ctrl.min_bin_count
+      }
     } else {
       pts / n_bins
     }
@@ -245,9 +283,11 @@ fn vsn_fit_col(
         }
         if kk > 0 {
           let kd = kk.to_double()
-          let new_len = (prev_cnt_d + kd)
-          bin_x[last_idx] = (bin_x[last_idx] * prev_cnt_d + mx / kd * kd) / new_len
-          bin_y[last_idx] = (bin_y[last_idx] * prev_cnt_d + my / kd * kd) / new_len
+          let new_len = prev_cnt_d + kd
+          bin_x[last_idx] = (bin_x[last_idx] * prev_cnt_d + mx / kd * kd) /
+            new_len
+          bin_y[last_idx] = (bin_y[last_idx] * prev_cnt_d + my / kd * kd) /
+            new_len
         }
         start = end
         continue
@@ -274,12 +314,13 @@ fn vsn_fit_col(
     ref_ms.push((bin_x[t], bin_y[t]))
     t = t + 1
   }
-  (VSNColParam::{ a: a, b: bb, }, ref_ms)
+  (VSNColParam::{ a, b: bb }, ref_ms)
 }
 
+///|
 fn vsn_fit(mat : Array[Array[Double]], ctrl : VSNControl) -> VSNResult {
   if mat.length() == 0 {
-    return VSNResult::{ params: [], reference_mean_sd: [], }
+    return VSNResult::{ params: [], reference_mean_sd: [] }
   }
   let cols = mat[0].length()
   let params : Array[VSNColParam] = Array::new()
@@ -288,15 +329,15 @@ fn vsn_fit(mat : Array[Array[Double]], ctrl : VSNControl) -> VSNResult {
   while j < cols {
     let (p, rms) = vsn_fit_col(mat, j, ctrl)
     params.push(p)
-    if j == 0 { ref_out = rms }
+    if j == 0 {
+      ref_out = rms
+    }
     j = j + 1
   }
-  VSNResult::{
-    params: params,
-    reference_mean_sd: ref_out,
-  }
+  VSNResult::{ params, reference_mean_sd: ref_out }
 }
 
+///|
 fn vsn_transform(
   mat : Array[Array[Double]],
   fit : VSNResult,
@@ -320,11 +361,13 @@ fn vsn_transform(
   out
 }
 
+///|
 pub fn vsn2(mat : Array[Array[Double]]) -> Array[Array[Double]] {
   let fit = vsn_fit(mat, VSNControl::new())
   vsn_transform(mat, fit)
 }
 
+///|
 pub fn vsn2_with_control(
   mat : Array[Array[Double]],
   ctrl : VSNControl,
@@ -333,24 +376,29 @@ pub fn vsn2_with_control(
   vsn_transform(mat, fit)
 }
 
+///|
 pub fn vsn_fit_and_report(mat : Array[Array[Double]]) -> VSNResult {
   vsn_fit(mat, VSNControl::new())
 }
 
 // ---- ASCII Mean-SD plot ---------------------------------------------------
 
+///|
 pub struct MeanSDBin {
   mean_x : Double
   sd_y : Double
   count : Int
 }
 
+///|
 pub fn mean_sd_bins(
   mat : Array[Array[Double]],
   n_bins : Int,
 ) -> Array[MeanSDBin] {
   let n = mat.length()
-  if n == 0 { return Array::new() }
+  if n == 0 {
+    return Array::new()
+  }
   let cols = mat[0].length()
   let pts : Array[(Double, Double)] = Array::new()
   let mut i = 0
@@ -367,12 +415,20 @@ pub fn mean_sd_bins(
     i = i + 1
   }
   pts.sort_by(fn(p : (Double, Double), q : (Double, Double)) -> Int {
-    if p.0 < q.0 { -1 } else if p.0 > q.0 { 1 } else { 0 }
+    if p.0 < q.0 {
+      -1
+    } else if p.0 > q.0 {
+      1
+    } else {
+      0
+    }
   })
   let nb = if n_bins < 1 { 1 } else { n_bins }
   let total = pts.length()
   let out : Array[MeanSDBin] = Array::new()
-  if total == 0 { return out }
+  if total == 0 {
+    return out
+  }
   let step = total / nb
   let mut start = 0
   while start < total {
@@ -387,39 +443,43 @@ pub fn mean_sd_bins(
       t = t + 1
     }
     let cnt_d = cnt.to_double()
-    out.push(MeanSDBin::{
-      mean_x: sx / cnt_d,
-      sd_y: sy / cnt_d,
-      count: cnt,
-    })
+    out.push(MeanSDBin::{ mean_x: sx / cnt_d, sd_y: sy / cnt_d, count: cnt })
     start = end
   }
   out
 }
 
-pub fn mean_sd_ascii(
-  mat : Array[Array[Double]],
-  n_bins? : Int = 40,
-) -> String {
+///|
+pub fn mean_sd_ascii(mat : Array[Array[Double]], n_bins? : Int = 40) -> String {
   let bins = mean_sd_bins(mat, n_bins)
   let width = 40
   let height = 10
-  if bins.length() == 0 { return "(empty mean-SD plot)".to_string() }
+  if bins.length() == 0 {
+    return "(empty mean-SD plot)".to_string()
+  }
   let mut xmin = bins[0].mean_x
   let mut xmax = bins[0].mean_x
   let mut ymin = bins[0].sd_y
   let mut ymax = bins[0].sd_y
   for b in bins {
-    if b.mean_x < xmin { xmin = b.mean_x }
-    if b.mean_x > xmax { xmax = b.mean_x }
-    if b.sd_y < ymin { ymin = b.sd_y }
-    if b.sd_y > ymax { ymax = b.sd_y }
+    if b.mean_x < xmin {
+      xmin = b.mean_x
+    }
+    if b.mean_x > xmax {
+      xmax = b.mean_x
+    }
+    if b.sd_y < ymin {
+      ymin = b.sd_y
+    }
+    if b.sd_y > ymax {
+      ymax = b.sd_y
+    }
   }
   let xr = if xmax - xmin == 0.0 { 1.0 } else { xmax - xmin }
   let yr = if ymax - ymin == 0.0 { 1.0 } else { ymax - ymin }
   let grid : Array[Array[Int]] = Array::make(
     height,
-    Array::make(width, ' '.to_int())
+    Array::make(width, ' '.to_int()),
   )
   let k = bins.length()
   let mut idx = 0
@@ -427,30 +487,39 @@ pub fn mean_sd_ascii(
     let b = bins[idx]
     let xi = ((b.mean_x - xmin) / xr * (width - 1).to_double()).to_int()
     let yi = ((b.sd_y - ymin) / yr * (height - 1).to_double()).to_int()
-    let xii = if xi < 0 { 0 } else { if xi >= width { width - 1 } else { xi } }
-    let yii = if yi < 0 { 0 } else { if yi >= height { height - 1 } else { yi } }
+    let xii = if xi < 0 { 0 } else if xi >= width { width - 1 } else { xi }
+    let yii = if yi < 0 { 0 } else if yi >= height { height - 1 } else { yi }
     let row_idx = height - 1 - yii
     let c = grid[row_idx][xii]
     let nc = if c == ' '.to_int() {
       '*'.to_int()
+    } else if c == '*'.to_int() {
+      '+'.to_int()
     } else {
-      if c == '*'.to_int() { '+'.to_int() } else { '#'.to_int() }
+      '#'.to_int()
     }
     grid[row_idx][xii] = nc
     idx = idx + 1
   }
   let buf = StringBuilder::new()
-  buf.write_string("mean-SD plot (mean=[\{xmin},\{xmax}] sd=[\{ymin},\{ymax}])\n")
+  buf.write_string(
+    "mean-SD plot (mean=[\{xmin},\{xmax}] sd=[\{ymin},\{ymax}])\n",
+  )
   let mut r = 0
   while r < height {
     let row = grid[r]
     let mut c = 0
     while c < width {
       let ch = row[c]
-      if ch == ' '.to_int() { buf.write_char(' ') }
-      else if ch == '*'.to_int() { buf.write_char('*') }
-      else if ch == '+'.to_int() { buf.write_char('+') }
-      else { buf.write_char('#') }
+      if ch == ' '.to_int() {
+        buf.write_char(' ')
+      } else if ch == '*'.to_int() {
+        buf.write_char('*')
+      } else if ch == '+'.to_int() {
+        buf.write_char('+')
+      } else {
+        buf.write_char('#')
+      }
       c = c + 1
     }
     buf.write_char('\n')
@@ -459,6 +528,7 @@ pub fn mean_sd_ascii(
   buf.to_string()
 }
 
+///|
 pub fn summarize_vsn_fit(fit : VSNResult) -> String {
   let buf = StringBuilder::new()
   let n = fit.params.length()
@@ -469,16 +539,21 @@ pub fn summarize_vsn_fit(fit : VSNResult) -> String {
     buf.write_string("  col \{i}: a=\{p.a}  b=\{p.b}\n")
     i = i + 1
   }
-  if n > 5 { buf.write_string("  ... (\{n - 5} more)\n") }
+  if n > 5 {
+    buf.write_string("  ... (\{n - 5} more)\n")
+  }
   buf.to_string()
 }
 
+///|
 pub fn vsn_denoise(
   mat : Array[Array[Double]],
   frac_of_median_var? : Double = 0.05,
 ) -> Array[Array[Double]] {
   let out = vsn_copy(mat)
-  if out.length() == 0 { return out }
+  if out.length() == 0 {
+    return out
+  }
   let cols = out[0].length()
   let vars : Array[Double] = Array::new()
   let mut j = 0
@@ -488,9 +563,17 @@ pub fn vsn_denoise(
     j = j + 1
   }
   let sorted_vars : Array[Double] = Array::new()
-  for v in vars { sorted_vars.push(v) }
+  for v in vars {
+    sorted_vars.push(v)
+  }
   sorted_vars.sort_by(fn(a : Double, b : Double) -> Int {
-    if a < b { -1 } else if a > b { 1 } else { 0 }
+    if a < b {
+      -1
+    } else if a > b {
+      1
+    } else {
+      0
+    }
   })
   let med = if sorted_vars.length() == 0 {
     0.0
@@ -503,7 +586,9 @@ pub fn vsn_denoise(
   while i < n {
     let mut jj = 0
     while jj < cols {
-      if vars[jj] < threshold { out[i][jj] = 0.0 }
+      if vars[jj] < threshold {
+        out[i][jj] = 0.0
+      }
       jj = jj + 1
     }
     i = i + 1

@@ -49,8 +49,8 @@ pub fn NaccessAtom::new(
   res_num~ : Int,
   chain_id~ : String,
   abs_asa~ : Double,
-  rel_asa~ : Double = 0.0,
-  element~ : String = "",
+  rel_asa? : Double = 0.0,
+  element? : String = "",
 ) -> NaccessAtom {
   NaccessAtom::{
     atom_name,
@@ -88,16 +88,16 @@ pub fn NaccessResidue::new(
   res_name~ : String,
   res_num~ : Int,
   chain_id~ : String,
-  abs_all~ : Double = 0.0,
-  abs_side_chain~ : Double = 0.0,
-  abs_main_chain~ : Double = 0.0,
-  rel_all~ : Double = 0.0,
-  rel_side_chain~ : Double = 0.0,
-  rel_main_chain~ : Double = 0.0,
-  non_polar_abs~ : Double = 0.0,
-  non_polar_rel~ : Double = 0.0,
-  polar_abs~ : Double = 0.0,
-  polar_rel~ : Double = 0.0,
+  abs_all? : Double = 0.0,
+  abs_side_chain? : Double = 0.0,
+  abs_main_chain? : Double = 0.0,
+  rel_all? : Double = 0.0,
+  rel_side_chain? : Double = 0.0,
+  rel_main_chain? : Double = 0.0,
+  non_polar_abs? : Double = 0.0,
+  non_polar_rel? : Double = 0.0,
+  polar_abs? : Double = 0.0,
+  polar_rel? : Double = 0.0,
 ) -> NaccessResidue {
   NaccessResidue::{
     res_name,
@@ -142,7 +142,10 @@ pub fn NaccessResult::new() -> NaccessResult {
 
 ///|
 /// Add a residue record.
-pub fn NaccessResult::add_residue(self : NaccessResult, r : NaccessResidue) -> Unit {
+pub fn NaccessResult::add_residue(
+  self : NaccessResult,
+  r : NaccessResidue,
+) -> Unit {
   self.residues.push(r)
 }
 
@@ -154,7 +157,9 @@ pub fn NaccessResult::add_atom(self : NaccessResult, a : NaccessAtom) -> Unit {
 
 ///|
 /// Get all residue records.
-pub fn NaccessResult::get_residues(self : NaccessResult) -> Array[NaccessResidue] {
+pub fn NaccessResult::get_residues(
+  self : NaccessResult,
+) -> Array[NaccessResidue] {
   self.residues
 }
 
@@ -215,22 +220,58 @@ pub fn naccess_parse_rsa(content : String) -> Array[NaccessResidue] {
         let res_num = parse_int(filtered[2])
         let chain_id = filtered[3]
         let abs_all = parse_double(filtered[4]).unwrap_or(0.0)
-        let rel_all = if filtered.length() > 5 { parse_double(filtered[5]).unwrap_or(0.0) } else { 0.0 }
-        let abs_side = if filtered.length() > 6 { parse_double(filtered[6]).unwrap_or(0.0) } else { 0.0 }
-        let rel_side = if filtered.length() > 7 { parse_double(filtered[7]).unwrap_or(0.0) } else { 0.0 }
-        let abs_main = if filtered.length() > 8 { parse_double(filtered[8]).unwrap_or(0.0) } else { 0.0 }
-        let rel_main = if filtered.length() > 9 { parse_double(filtered[9]).unwrap_or(0.0) } else { 0.0 }
-        let np_abs = if filtered.length() > 10 { parse_double(filtered[10]).unwrap_or(0.0) } else { 0.0 }
-        let np_rel = if filtered.length() > 11 { parse_double(filtered[11]).unwrap_or(0.0) } else { 0.0 }
-        let p_abs = if filtered.length() > 12 { parse_double(filtered[12]).unwrap_or(0.0) } else { 0.0 }
-        let p_rel = if filtered.length() > 13 { parse_double(filtered[13]).unwrap_or(0.0) } else { 0.0 }
+        let rel_all = if filtered.length() > 5 {
+          parse_double(filtered[5]).unwrap_or(0.0)
+        } else {
+          0.0
+        }
+        let abs_side = if filtered.length() > 6 {
+          parse_double(filtered[6]).unwrap_or(0.0)
+        } else {
+          0.0
+        }
+        let rel_side = if filtered.length() > 7 {
+          parse_double(filtered[7]).unwrap_or(0.0)
+        } else {
+          0.0
+        }
+        let abs_main = if filtered.length() > 8 {
+          parse_double(filtered[8]).unwrap_or(0.0)
+        } else {
+          0.0
+        }
+        let rel_main = if filtered.length() > 9 {
+          parse_double(filtered[9]).unwrap_or(0.0)
+        } else {
+          0.0
+        }
+        let np_abs = if filtered.length() > 10 {
+          parse_double(filtered[10]).unwrap_or(0.0)
+        } else {
+          0.0
+        }
+        let np_rel = if filtered.length() > 11 {
+          parse_double(filtered[11]).unwrap_or(0.0)
+        } else {
+          0.0
+        }
+        let p_abs = if filtered.length() > 12 {
+          parse_double(filtered[12]).unwrap_or(0.0)
+        } else {
+          0.0
+        }
+        let p_rel = if filtered.length() > 13 {
+          parse_double(filtered[13]).unwrap_or(0.0)
+        } else {
+          0.0
+        }
         residues.push(
           NaccessResidue::new(
-            res_name=res_name,
-            res_num=res_num,
-            chain_id=chain_id,
-            abs_all=abs_all,
-            rel_all=rel_all,
+            res_name~,
+            res_num~,
+            chain_id~,
+            abs_all~,
+            rel_all~,
             abs_side_chain=abs_side,
             rel_side_chain=rel_side,
             abs_main_chain=abs_main,
@@ -303,13 +344,13 @@ pub fn naccess_parse_asa(content : String) -> Array[NaccessAtom] {
         }
         atoms.push(
           NaccessAtom::new(
-            atom_name=atom_name,
-            atom_num=atom_num,
-            res_name=res_name,
-            res_num=res_num,
-            chain_id=chain_id,
-            abs_asa=abs_asa,
-            rel_asa=rel_asa,
+            atom_name~,
+            atom_num~,
+            res_name~,
+            res_num~,
+            chain_id~,
+            abs_asa~,
+            rel_asa~,
           ),
         )
       }
@@ -324,7 +365,10 @@ pub fn naccess_parse_asa(content : String) -> Array[NaccessAtom] {
 
 ///|
 /// Parse NACCESS output from both RSA and ASA content.
-pub fn naccess_parse(rsa_content : String, asa_content : String) -> NaccessResult {
+pub fn naccess_parse(
+  rsa_content : String,
+  asa_content : String,
+) -> NaccessResult {
   let result = NaccessResult::new()
   let residues = naccess_parse_rsa(rsa_content)
   let atoms = naccess_parse_asa(asa_content)
@@ -404,7 +448,9 @@ pub fn naccess_atom_to_asa(a : NaccessAtom) -> String {
 pub fn naccess_write_rsa(result : NaccessResult) -> String {
   let sb = StringBuilder::new()
   sb.write_string("NACCESS  Version 2.1\n")
-  sb.write_string("RES     NUM  CHN  ABS_ALL  REL_ALL  ABS_SIDE  REL_SIDE  ABS_MAIN  REL_MAIN  NP_ABS  NP_REL  P_ABS  P_REL\n")
+  sb.write_string(
+    "RES     NUM  CHN  ABS_ALL  REL_ALL  ABS_SIDE  REL_SIDE  ABS_MAIN  REL_MAIN  NP_ABS  NP_REL  P_ABS  P_REL\n",
+  )
   for r in result.residues {
     sb.write_string(naccess_residue_to_rsa(r) + "\n")
   }
@@ -487,10 +533,7 @@ pub fn naccess_get_chain_residues(
 
 ///|
 /// Count residues by type (exposed vs buried).
-pub fn naccess_count_exposed(
-  result : NaccessResult,
-  threshold : Double,
-) -> Int {
+pub fn naccess_count_exposed(result : NaccessResult, threshold : Double) -> Int {
   let mut count = 0
   for r in result.residues {
     if r.rel_all > threshold {
@@ -502,7 +545,10 @@ pub fn naccess_count_exposed(
 
 ///|
 /// Get total ASA for a specific chain.
-pub fn naccess_chain_total_asa(result : NaccessResult, chain_id : String) -> Double {
+pub fn naccess_chain_total_asa(
+  result : NaccessResult,
+  chain_id : String,
+) -> Double {
   let mut total = 0.0
   for r in result.residues {
     if r.chain_id == chain_id {
@@ -580,15 +626,29 @@ pub fn naccess_summary(result : NaccessResult) -> String {
   sb.write_string("NACCESS Result Summary:\n")
   sb.write_string("  Residues: " + result.get_num_residues().to_string() + "\n")
   sb.write_string("  Atoms: " + result.get_num_atoms().to_string() + "\n")
-  sb.write_string("  Total ASA: " + result.total_abs_asa.to_string() + " Å²\n")
-  sb.write_string("  Mean Rel ASA: " + naccess_mean_rel_asa(result).to_string() + "%\n")
-  sb.write_string("  Exposed (>20%): " + naccess_count_exposed(result, 20.0).to_string() + "\n")
-  sb.write_string("  Buried (≤20%): " + (result.get_num_residues() - naccess_count_exposed(result, 20.0)).to_string() + "\n")
+  sb.write_string(
+    "  Total ASA: " + result.total_abs_asa.to_string() + " Å²\n",
+  )
+  sb.write_string(
+    "  Mean Rel ASA: " + naccess_mean_rel_asa(result).to_string() + "%\n",
+  )
+  sb.write_string(
+    "  Exposed (>20%): " +
+    naccess_count_exposed(result, 20.0).to_string() +
+    "\n",
+  )
+  sb.write_string(
+    "  Buried (≤20%): " +
+    (result.get_num_residues() - naccess_count_exposed(result, 20.0)).to_string() +
+    "\n",
+  )
   sb.write_string("  Chains: " + result.chain_totals.size().to_string() + "\n")
   for chain_id in result.chain_totals.keys() {
     match result.chain_totals.get(chain_id) {
       Some(v) =>
-        sb.write_string("    Chain " + chain_id + ": " + v.to_string() + " Å²\n")
+        sb.write_string(
+          "    Chain " + chain_id + ": " + v.to_string() + " Å²\n",
+        )
       None => ()
     }
   }

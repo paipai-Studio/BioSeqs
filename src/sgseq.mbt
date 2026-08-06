@@ -68,8 +68,8 @@ pub fn SGSeqJunction::new(
   chr~ : String,
   start~ : Int,
   end~ : Int,
-  strand~ : String = "+",
-  count~ : Int = 1,
+  strand? : String = "+",
+  count? : Int = 1,
 ) -> SGSeqJunction {
   SGSeqJunction::{ chr, start, end, strand, count }
 }
@@ -115,16 +115,9 @@ pub fn SGSeqExon::new(
   chr~ : String,
   start~ : Int,
   end~ : Int,
-  strand~ : String = "+",
+  strand? : String = "+",
 ) -> SGSeqExon {
-  SGSeqExon::{
-    chr,
-    start,
-    end,
-    strand,
-    count: 0,
-    is_cassette: false,
-  }
+  SGSeqExon::{ chr, start, end, strand, count: 0, is_cassette: false }
 }
 
 ///|
@@ -157,8 +150,8 @@ pub fn SGSeqFeature::new(
   chr~ : String,
   start~ : Int,
   end~ : Int,
-  strand~ : String = "+",
-  count~ : Int = 0,
+  strand? : String = "+",
+  count? : Int = 0,
 ) -> SGSeqFeature {
   SGSeqFeature::{ type_, chr, start, end, strand, count }
 }
@@ -183,7 +176,7 @@ pub fn SGSeqVariant::new(
   chr~ : String,
   start~ : Int,
   end~ : Int,
-  strand~ : String = "+",
+  strand? : String = "+",
   variant_type~ : SGSeqVariantType,
 ) -> SGSeqVariant {
   SGSeqVariant::{
@@ -207,13 +200,19 @@ pub fn SGSeqVariant::type_name(self : SGSeqVariant) -> String {
 
 ///|
 /// Set inclusion count.
-pub fn SGSeqVariant::set_inclusion_count(self : SGSeqVariant, val : Int) -> Unit {
+pub fn SGSeqVariant::set_inclusion_count(
+  self : SGSeqVariant,
+  val : Int,
+) -> Unit {
   self.inclusion_count = val
 }
 
 ///|
 /// Set exclusion count.
-pub fn SGSeqVariant::set_exclusion_count(self : SGSeqVariant, val : Int) -> Unit {
+pub fn SGSeqVariant::set_exclusion_count(
+  self : SGSeqVariant,
+  val : Int,
+) -> Unit {
   self.exclusion_count = val
 }
 
@@ -244,7 +243,7 @@ pub fn SGSeqVariant::compute_psi(self : SGSeqVariant) -> Double {
 /// Check if variant is significant (PSI between 0.1 and 0.9).
 pub fn SGSeqVariant::is_significant(self : SGSeqVariant) -> Bool {
   let p = self.compute_psi()
-  p > 0.1 && p < 0.9 && (self.inclusion_count + self.exclusion_count) >= 10
+  p > 0.1 && p < 0.9 && self.inclusion_count + self.exclusion_count >= 10
 }
 
 // ===========================================================================
@@ -289,13 +288,7 @@ pub fn sgseq_parse_junctions(text : String) -> Array[SGSeqJunction] {
       1
     }
     if count > 0 && end > start {
-      junctions.push(SGSeqJunction::new(
-        chr=chr,
-        start=start,
-        end=end,
-        strand=strand,
-        count=count,
-      ))
+      junctions.push(SGSeqJunction::new(chr~, start~, end~, strand~, count~))
     }
   }
   junctions
@@ -337,7 +330,8 @@ pub fn sgseq_build_splice_graph(
   // Remove duplicates
   let unique_sites = Array::new()
   for s in sites {
-    if unique_sites.length() == 0 || unique_sites[unique_sites.length() - 1] != s {
+    if unique_sites.length() == 0 ||
+      unique_sites[unique_sites.length() - 1] != s {
       unique_sites.push(s)
     }
   }
@@ -382,31 +376,37 @@ pub fn sgseq_build_splice_graph(
       continue
     }
     // First exon: ends at first junction's donor (start)
-    exons.push(SGSeqExon::new(
-      chr=chr_name,
-      start=1,
-      end=chr_junctions[0].start,
-      strand=chr_junctions[0].strand,
-    ))
+    exons.push(
+      SGSeqExon::new(
+        chr=chr_name,
+        start=1,
+        end=chr_junctions[0].start,
+        strand=chr_junctions[0].strand,
+      ),
+    )
     // Middle exons: between j[k].end and j[k+1].start
     let mut k = 0
     while k < chr_junctions.length() - 1 {
-      exons.push(SGSeqExon::new(
-        chr=chr_name,
-        start=chr_junctions[k].end,
-        end=chr_junctions[k + 1].start,
-        strand=chr_junctions[k].strand,
-      ))
+      exons.push(
+        SGSeqExon::new(
+          chr=chr_name,
+          start=chr_junctions[k].end,
+          end=chr_junctions[k + 1].start,
+          strand=chr_junctions[k].strand,
+        ),
+      )
       k = k + 1
     }
     // Last exon: starts at last junction's acceptor (end)
     let last = chr_junctions[chr_junctions.length() - 1]
-    exons.push(SGSeqExon::new(
-      chr=chr_name,
-      start=last.end,
-      end=last.end + 1000, // arbitrary end
-      strand=last.strand,
-    ))
+    exons.push(
+      SGSeqExon::new(
+        chr=chr_name,
+        start=last.end,
+        end=last.end + 1000, // arbitrary end
+        strand=last.strand,
+      ),
+    )
   }
   exons
 }
@@ -419,24 +419,28 @@ pub fn sgseq_to_features(
 ) -> Array[SGSeqFeature] {
   let features = Array::new()
   for e in exons {
-    features.push(SGSeqFeature::new(
-      type_="E",
-      chr=e.chr,
-      start=e.start,
-      end=e.end,
-      strand=e.strand,
-      count=e.count,
-    ))
+    features.push(
+      SGSeqFeature::new(
+        type_="E",
+        chr=e.chr,
+        start=e.start,
+        end=e.end,
+        strand=e.strand,
+        count=e.count,
+      ),
+    )
   }
   for j in junctions {
-    features.push(SGSeqFeature::new(
-      type_="J",
-      chr=j.chr,
-      start=j.start,
-      end=j.end,
-      strand=j.strand,
-      count=j.count,
-    ))
+    features.push(
+      SGSeqFeature::new(
+        type_="J",
+        chr=j.chr,
+        start=j.start,
+        end=j.end,
+        strand=j.strand,
+        count=j.count,
+      ),
+    )
   }
   features
 }
@@ -820,12 +824,11 @@ pub fn sgseq_quantify_psi(
           exc = exc + j.count
         }
       }
-      _ => {
+      _ =>
         // Simplified: use counts near variant
         if j.start >= variant.start && j.end <= variant.end {
           inc = inc + j.count
         }
-      }
     }
   }
   let total = inc + exc
@@ -840,7 +843,7 @@ pub fn sgseq_quantify_psi(
 /// Filter variants by minimum read support.
 pub fn sgseq_filter_variants(
   variants : Array[SGSeqVariant],
-  min_reads~ : Int = 10,
+  min_reads? : Int = 10,
 ) -> Array[SGSeqVariant] {
   let result = Array::new()
   for v in variants {
@@ -886,30 +889,28 @@ pub fn sgseq_sample_exons() -> Array[SGSeqExon] {
 /// Format a variant as a string.
 pub fn sgseq_variant_to_string(v : SGSeqVariant) -> String {
   v.type_name() +
-    " " +
-    v.chr +
-    ":" +
-    v.start.to_string() +
-    "-" +
-    v.end.to_string() +
-    " (" +
-    v.strand +
-    ") inc=" +
-    v.inclusion_count.to_string() +
-    " exc=" +
-    v.exclusion_count.to_string() +
-    " PSI=" +
-    v.psi.to_string() +
-    " [" +
-    v.details +
-    "]"
+  " " +
+  v.chr +
+  ":" +
+  v.start.to_string() +
+  "-" +
+  v.end.to_string() +
+  " (" +
+  v.strand +
+  ") inc=" +
+  v.inclusion_count.to_string() +
+  " exc=" +
+  v.exclusion_count.to_string() +
+  " PSI=" +
+  v.psi.to_string() +
+  " [" +
+  v.details +
+  "]"
 }
 
 ///|
 /// Summarize variants by type.
-pub fn sgseq_summary(
-  variants : Array[SGSeqVariant],
-) -> Map[String, Int] {
+pub fn sgseq_summary(variants : Array[SGSeqVariant]) -> Map[String, Int] {
   let counts : Map[String, Int] = Map([], capacity=5)
   for v in variants {
     let name = v.type_name()

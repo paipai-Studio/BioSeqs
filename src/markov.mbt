@@ -41,14 +41,17 @@ pub struct MarkovModel {
   pseudo_count : Double
 }
 
+///|
 fn markov_empty_map_kv() -> Map[String, Map[String, Double]] {
   Map([], capacity=16)
 }
 
+///|
 fn markov_empty_map_d() -> Map[String, Double] {
   Map([], capacity=16)
 }
 
+///|
 fn markov_empty_map_u() -> Map[String, Unit] {
   Map([], capacity=16)
 }
@@ -88,8 +91,8 @@ pub fn MarkovModel::default_protein() -> MarkovModel {
     order: 1,
     chain_type: FirstOrder,
     states: [
-      "A", "C", "D", "E", "F", "G", "H", "I", "K", "L",
-      "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y",
+      "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R",
+      "S", "T", "V", "W", "Y",
     ],
     transition_counts: markov_empty_map_kv(),
     transition_probs: markov_empty_map_kv(),
@@ -123,7 +126,10 @@ pub fn MarkovModel::set_order(self : MarkovModel, val : Int) -> MarkovModel {
 
 ///|
 /// Set states, returning new model.
-pub fn MarkovModel::set_states(self : MarkovModel, states~ : Array[String]) -> MarkovModel {
+pub fn MarkovModel::set_states(
+  self : MarkovModel,
+  states~ : Array[String],
+) -> MarkovModel {
   MarkovModel::{
     order: self.order,
     chain_type: self.chain_type,
@@ -137,7 +143,10 @@ pub fn MarkovModel::set_states(self : MarkovModel, states~ : Array[String]) -> M
 
 ///|
 /// Set chain_type, returning new model.
-pub fn MarkovModel::set_chain_type(self : MarkovModel, val~ : ChainType) -> MarkovModel {
+pub fn MarkovModel::set_chain_type(
+  self : MarkovModel,
+  val~ : ChainType,
+) -> MarkovModel {
   let ord = match val {
     FirstOrder => 1
     SecondOrder => 2
@@ -156,7 +165,10 @@ pub fn MarkovModel::set_chain_type(self : MarkovModel, val~ : ChainType) -> Mark
 
 ///|
 /// Set pseudo_count, returning new model.
-pub fn MarkovModel::set_pseudo_count(self : MarkovModel, val : Double) -> MarkovModel {
+pub fn MarkovModel::set_pseudo_count(
+  self : MarkovModel,
+  val : Double,
+) -> MarkovModel {
   MarkovModel::{
     order: self.order,
     chain_type: self.chain_type,
@@ -221,7 +233,10 @@ pub fn markov_build_model(
     if n > actual_order {
       let start_kmer = substring(seq, 0, actual_order)
       if initial_counts.contains(start_kmer) {
-        initial_counts.set(start_kmer, initial_counts.get(start_kmer).unwrap() + 1.0)
+        initial_counts.set(
+          start_kmer,
+          initial_counts.get(start_kmer).unwrap() + 1.0,
+        )
       } else {
         initial_counts.set(start_kmer, 1.0)
       }
@@ -344,14 +359,22 @@ fn markov_get_trans_prob(
             vi = vi + 1
           }
           let denom = row_total + model.pseudo_count * n
-          if denom > 0.0 { model.pseudo_count / denom } else { 1.0 / n }
+          if denom > 0.0 {
+            model.pseudo_count / denom
+          } else {
+            1.0 / n
+          }
         }
       }
     None => {
       // Completely unseen context. Use pseudo-weighted uniform:
       // P = pseudo / (1 + pseudo * N). Higher pseudo -> higher prob, closer to 1/N.
       let denom = 1.0 + model.pseudo_count * n
-      if denom > 0.0 { model.pseudo_count / denom } else { 1.0 / n }
+      if denom > 0.0 {
+        model.pseudo_count / denom
+      } else {
+        1.0 / n
+      }
     }
   }
 }
@@ -365,7 +388,11 @@ fn markov_get_init_prob(model : MarkovModel, kmer : String) -> Double {
       let n = model.initial_probs.length()
       if n > 0 {
         let denom = model.pseudo_count * (n + 1).to_double()
-        if denom > 0.0 { model.pseudo_count / denom } else { 1.0 / n.to_double() }
+        if denom > 0.0 {
+          model.pseudo_count / denom
+        } else {
+          1.0 / n.to_double()
+        }
       } else {
         1.0 / model.states.length().to_double()
       }
@@ -398,7 +425,10 @@ pub fn markov_score_sequence(model : MarkovModel, sequence : String) -> Double {
 
 ///|
 /// Compute per-position log probabilities.
-pub fn markov_score_per_base(model : MarkovModel, sequence : String) -> Array[Double] {
+pub fn markov_score_per_base(
+  model : MarkovModel,
+  sequence : String,
+) -> Array[Double] {
   let n = sequence.length()
   let result : Array[Double] = Array::new()
   if n <= model.order {
@@ -435,7 +465,11 @@ fn markov_weighted_sample(
     }
     si = si + 1
   }
-  if states.length() > 0 { states[states.length() - 1] } else { "" }
+  if states.length() > 0 {
+    states[states.length() - 1]
+  } else {
+    ""
+  }
 }
 
 ///|
@@ -494,7 +528,11 @@ pub fn markov_generate_sequence(
   }
 
   let take = if model.order > length { length } else { model.order }
-  let mut result = if context.length() >= take { substring(context, 0, take) } else { context }
+  let mut result = if context.length() >= take {
+    substring(context, 0, take)
+  } else {
+    context
+  }
 
   let mut step = result.length()
   while step < length {
@@ -507,7 +545,7 @@ pub fn markov_generate_sequence(
     let r_next = rng_state.to_double() / modulus
     let next_char = match model.transition_probs.get(ctx) {
       Some(row) => markov_weighted_sample(row, model.states, r_next)
-      None => {
+      None =>
         if n_states > 0 {
           let idx_f = r_next * n_states.to_double()
           let idx = idx_f.to_int()
@@ -517,7 +555,6 @@ pub fn markov_generate_sequence(
         } else {
           ""
         }
-      }
     }
     result = result + next_char
     step = step + 1
@@ -544,7 +581,9 @@ pub fn markov_log_odds(
 
 ///|
 /// Compute stationary distribution via iterative multiplication.
-pub fn markov_stationary_distribution(model : MarkovModel) -> Map[String, Double] {
+pub fn markov_stationary_distribution(
+  model : MarkovModel,
+) -> Map[String, Double] {
   let states = model.states
   let n = states.length()
   let dist = markov_empty_map_d()

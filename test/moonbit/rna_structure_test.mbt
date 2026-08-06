@@ -1,6 +1,7 @@
 ///|
 /// Tests for Bio.SeqUtils - RNA Secondary Structure Prediction
 
+///|
 /// Helper: convert String to Array[UInt16]
 fn str_to_u16_array(s : String) -> Array[UInt16] {
   let arr : Array[UInt16] = Array::new()
@@ -10,6 +11,7 @@ fn str_to_u16_array(s : String) -> Array[UInt16] {
   arr
 }
 
+///|
 /// Helper: convert Char to UInt16
 fn char_to_u16(c : Char) -> UInt16 {
   c.to_int().to_uint16()
@@ -121,7 +123,9 @@ test "structure_to_dot_bracket" {
   assert_eq(dot.length(), seq.length())
   for c in dot {
     let ch = c.to_int().to_uint16()
-    assert_true(ch == char_to_u16('(') || ch == char_to_u16(')') || ch == char_to_u16('.'))
+    assert_true(
+      ch == char_to_u16('(') || ch == char_to_u16(')') || ch == char_to_u16('.'),
+    )
   }
 }
 
@@ -171,8 +175,12 @@ test "valid_dot_bracket" {
   let dot = result.structure
   let mut open_count = 0
   for c in dot {
-    if c == '(' { open_count = open_count + 1 }
-    if c == ')' { open_count = open_count - 1 }
+    if c == '(' {
+      open_count = open_count + 1
+    }
+    if c == ')' {
+      open_count = open_count - 1
+    }
     assert_true(open_count >= 0)
   }
   assert_eq(open_count, 0)

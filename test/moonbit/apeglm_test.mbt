@@ -18,18 +18,14 @@ fn apeglm_test_close(
 
 ///|
 fn apeglm_test_config() -> @src.ApeglmConfig {
-  @src.ApeglmConfig::create(
-    coefficient=2,
-    threshold=@math.ln(2.0),
-  ) catch {
+  @src.ApeglmConfig::create(coefficient=2, threshold=@math.ln(2.0)) catch {
     _ => abort("test configuration should be valid")
   }
 }
 
 ///|
 fn apeglm_test_result() -> @src.ApeglmResult {
-  let (counts, design, dispersions, genes, coefficients) =
-    @src.apeglm_example_data()
+  let (counts, design, dispersions, genes, coefficients) = @src.apeglm_example_data()
   let config = apeglm_test_config()
   @src.apeglm_fit(
     counts,
@@ -55,10 +51,7 @@ fn apeglm_test_gene(
 }
 
 ///|
-fn apeglm_test_zero_matrix(
-  rows : Int,
-  columns : Int,
-) -> Array[Array[Double]] {
+fn apeglm_test_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
   let matrix : Array[Array[Double]] = []
   for _ in 0..<rows {
     matrix.push(Array::make(columns, 0.0))
@@ -209,8 +202,7 @@ test "apeglm: configuration rejects invalid optimizer controls" {
 
 ///|
 test "apeglm: example data has gene by sample orientation" {
-  let (counts, design, dispersions, genes, coefficients) =
-    @src.apeglm_example_data()
+  let (counts, design, dispersions, genes, coefficients) = @src.apeglm_example_data()
   assert_eq(counts.length(), 8)
   assert_eq(counts[0].length(), 8)
   assert_eq(design.length(), 8)
@@ -259,12 +251,7 @@ test "apeglm: omitted names are generated deterministically" {
 test "apeglm: default target is the last design coefficient" {
   let result = @src.apeglm_fit(
     [[5.0, 6.0, 10.0, 12.0]],
-    [
-      [1.0, 0.0, 0.0],
-      [1.0, 1.0, 0.0],
-      [1.0, 0.0, 1.0],
-      [1.0, 1.0, 1.0],
-    ],
+    [[1.0, 0.0, 0.0], [1.0, 1.0, 0.0], [1.0, 0.0, 1.0], [1.0, 1.0, 1.0]],
     [0.2],
   ) catch {
     _ => abort("default coefficient fit should succeed")
@@ -379,8 +366,7 @@ test "apeglm: local posterior probabilities are bounded" {
     assert_true(gene.fsr >= 0.0 && gene.fsr <= 0.5)
     assert_true(gene.s_value >= 0.0 && gene.s_value <= 0.5)
     assert_true(
-      gene.threshold_probability >= 0.0 &&
-      gene.threshold_probability <= 1.0,
+      gene.threshold_probability >= 0.0 && gene.threshold_probability <= 1.0,
     )
   }
 }
@@ -420,10 +406,9 @@ test "apeglm: s-values support empty and tied inputs" {
 
 ///|
 test "apeglm: empirical Bayes prior variance is positive" {
-  let variance = @src.apeglm_prior_variance(
-    [1.5, -1.2, 0.1, 0.0],
-    [0.2, 0.3, 0.5, 0.6],
-  ) catch {
+  let variance = @src.apeglm_prior_variance([1.5, -1.2, 0.1, 0.0], [
+    0.2, 0.3, 0.5, 0.6,
+  ]) catch {
     _ => abort("prior variance estimation should succeed")
   }
   assert_true(variance >= 1.0e-6)
@@ -432,16 +417,10 @@ test "apeglm: empirical Bayes prior variance is positive" {
 
 ///|
 test "apeglm: empirical prior variance responds to effect spread" {
-  let narrow = @src.apeglm_prior_variance(
-    [0.1, -0.1, 0.0],
-    [0.5, 0.5, 0.5],
-  ) catch {
+  let narrow = @src.apeglm_prior_variance([0.1, -0.1, 0.0], [0.5, 0.5, 0.5]) catch {
     _ => abort("narrow prior estimate should succeed")
   }
-  let broad = @src.apeglm_prior_variance(
-    [3.0, -3.0, 2.5],
-    [0.5, 0.5, 0.5],
-  ) catch {
+  let broad = @src.apeglm_prior_variance([3.0, -3.0, 2.5], [0.5, 0.5, 0.5]) catch {
     _ => abort("broad prior estimate should succeed")
   }
   assert_true(broad > narrow)
@@ -496,8 +475,7 @@ test "apeglm: adaptive fit reports learned prior" {
 
 ///|
 test "apeglm: fixed prior preserves configured scale" {
-  let (counts, design, dispersions, genes, coefficients) =
-    @src.apeglm_example_data()
+  let (counts, design, dispersions, genes, coefficients) = @src.apeglm_example_data()
   let config = @src.ApeglmConfig::create(
     coefficient=2,
     prior_scale=0.4,
@@ -523,10 +501,7 @@ test "apeglm: fixed prior preserves configured scale" {
 ///|
 test "apeglm: adaptive multiplier obeys scale cap" {
   let (counts, design, dispersions, _, _) = @src.apeglm_example_data()
-  let config = @src.ApeglmConfig::create(
-    coefficient=2,
-    multiplier=100.0,
-  ) catch {
+  let config = @src.ApeglmConfig::create(coefficient=2, multiplier=100.0) catch {
     _ => abort("multiplier configuration should succeed")
   }
   let result = @src.apeglm_fit(counts, design, dispersions, config~) catch {
@@ -605,27 +580,13 @@ test "apeglm: likelihood offsets shift the linear predictor" {
 ///|
 test "apeglm: likelihood rejects incompatible dimensions" {
   let rows = try {
-    ignore(
-      @src.apeglm_log_likelihood_nb(
-        [1.0, 2.0],
-        [[1.0]],
-        [0.0],
-        0.1,
-      ),
-    )
+    ignore(@src.apeglm_log_likelihood_nb([1.0, 2.0], [[1.0]], [0.0], 0.1))
     false
   } catch {
     ApeglmError(_) => true
   }
   let columns = try {
-    ignore(
-      @src.apeglm_log_likelihood_nb(
-        [1.0],
-        [[1.0, 0.0]],
-        [0.0],
-        0.1,
-      ),
-    )
+    ignore(@src.apeglm_log_likelihood_nb([1.0], [[1.0, 0.0]], [0.0], 0.1))
     false
   } catch {
     ApeglmError(_) => true
@@ -644,13 +605,9 @@ test "apeglm: likelihood rejects invalid dispersion and auxiliaries" {
   }
   let offsets = try {
     ignore(
-      @src.apeglm_log_likelihood_nb(
-        [1.0, 2.0],
-        [[1.0], [1.0]],
-        [0.0],
-        0.1,
-        offsets=[0.0],
-      ),
+      @src.apeglm_log_likelihood_nb([1.0, 2.0], [[1.0], [1.0]], [0.0], 0.1, offsets=[
+        0.0,
+      ]),
     )
     false
   } catch {
@@ -658,13 +615,9 @@ test "apeglm: likelihood rejects invalid dispersion and auxiliaries" {
   }
   let weights = try {
     ignore(
-      @src.apeglm_log_likelihood_nb(
-        [1.0, 2.0],
-        [[1.0], [1.0]],
-        [0.0],
-        0.1,
-        weights=[1.0],
-      ),
+      @src.apeglm_log_likelihood_nb([1.0, 2.0], [[1.0], [1.0]], [0.0], 0.1, weights=[
+        1.0,
+      ]),
     )
     false
   } catch {
@@ -677,8 +630,7 @@ test "apeglm: likelihood rejects invalid dispersion and auxiliaries" {
 
 ///|
 test "apeglm: explicit zero offsets match omitted offsets" {
-  let (counts, design, dispersions, genes, coefficients) =
-    @src.apeglm_example_data()
+  let (counts, design, dispersions, genes, coefficients) = @src.apeglm_example_data()
   let config = apeglm_test_config()
   let baseline = @src.apeglm_fit(
     counts,
@@ -701,11 +653,7 @@ test "apeglm: explicit zero offsets match omitted offsets" {
   ) catch {
     _ => abort("zero offset fit should succeed")
   }
-  apeglm_test_close(
-    baseline.genes[0].map[2],
-    shifted.genes[0].map[2],
-    1.0e-12,
-  )
+  apeglm_test_close(baseline.genes[0].map[2], shifted.genes[0].map[2], 1.0e-12)
 }
 
 ///|
@@ -732,8 +680,7 @@ test "apeglm: zero observation weights suppress an outlier" {
 
 ///|
 test "apeglm: custom target coefficient is honored" {
-  let (counts, design, dispersions, genes, coefficients) =
-    @src.apeglm_example_data()
+  let (counts, design, dispersions, genes, coefficients) = @src.apeglm_example_data()
   let config = @src.ApeglmConfig::create(coefficient=1) catch {
     _ => abort("batch target configuration should succeed")
   }
@@ -801,8 +748,7 @@ test "apeglm: ranking prioritizes low directional error" {
   assert_eq(ranked.length(), 8)
   assert_true(ranked[0].s_value <= ranked[1].s_value)
   assert_true(
-    ranked[0].gene_name == "strong_up" ||
-    ranked[0].gene_name == "strong_down",
+    ranked[0].gene_name == "strong_up" || ranked[0].gene_name == "strong_down",
   )
 }
 
@@ -810,10 +756,7 @@ test "apeglm: ranking prioritizes low directional error" {
 test "apeglm: selection applies s-value and effect filters" {
   let result = apeglm_test_result()
   let broad = result.select(maximum_s_value=0.1)
-  let strict = result.select(
-    maximum_s_value=0.1,
-    minimum_absolute_effect=1.0,
-  )
+  let strict = result.select(maximum_s_value=0.1, minimum_absolute_effect=1.0)
   assert_true(broad.length() >= strict.length())
   for gene in strict {
     assert_true(gene.s_value <= 0.1)
@@ -896,8 +839,7 @@ test "apeglm: repeated fitting is deterministic" {
 
 ///|
 test "apeglm: deterministic start counts preserve signal modes" {
-  let (counts, design, dispersions, genes, coefficients) =
-    @src.apeglm_example_data()
+  let (counts, design, dispersions, genes, coefficients) = @src.apeglm_example_data()
   let one = @src.ApeglmConfig::create(coefficient=2, random_starts=1) catch {
     _ => abort("single start configuration should succeed")
   }
@@ -933,10 +875,7 @@ test "apeglm: deterministic start counts preserve signal modes" {
 ///|
 test "apeglm: DESeq2 wrapper uses counts names and offsets" {
   let dds = @src.DESeqDataSet::new(
-    [
-      [48, 52, 45, 54, 198, 220, 205, 230],
-      [160, 148, 171, 155, 39, 44, 35, 41],
-    ],
+    [[48, 52, 45, 54, 198, 220, 205, 230], [160, 148, 171, 155, 39, 44, 35, 41]],
     ["up", "down"],
     ["s1", "s2", "s3", "s4", "s5", "s6", "s7", "s8"],
     [
@@ -951,11 +890,9 @@ test "apeglm: DESeq2 wrapper uses counts names and offsets" {
     ],
   )
   let config = apeglm_test_config()
-  let result = @src.apeglm_from_deseq2(
-    dds,
-    config~,
-    coefficient_names=["intercept", "batch", "condition"],
-  ) catch {
+  let result = @src.apeglm_from_deseq2(dds, config~, coefficient_names=[
+    "intercept", "batch", "condition",
+  ]) catch {
     _ => abort("DESeq2 integration should succeed")
   }
   assert_eq(result.gene_names, ["up", "down"])
@@ -965,8 +902,7 @@ test "apeglm: DESeq2 wrapper uses counts names and offsets" {
 
 ///|
 test "apeglm: SummarizedExperiment output adds posterior assays" {
-  let (_, design, dispersions, genes, coefficients) =
-    @src.apeglm_example_data()
+  let (_, design, dispersions, genes, coefficients) = @src.apeglm_example_data()
   let config = apeglm_test_config()
   let output = @src.apeglm_summarized_experiment(
     apeglm_test_experiment(),
@@ -978,13 +914,10 @@ test "apeglm: SummarizedExperiment output adds posterior assays" {
   ) catch {
     _ => abort("SummarizedExperiment integration should succeed")
   }
-  for name in [
-    "apeglm_map",
-    "apeglm_sd",
-    "apeglm_fsr",
-    "apeglm_svalue",
-    "apeglm_fsos",
-  ] {
+  for
+    name in [
+      "apeglm_map", "apeglm_sd", "apeglm_fsr", "apeglm_svalue", "apeglm_fsos",
+    ] {
     match @src.se_assay(output.experiment, name) {
       Some(assay) => {
         assert_eq(assay.length(), 8)
@@ -997,8 +930,7 @@ test "apeglm: SummarizedExperiment output adds posterior assays" {
 
 ///|
 test "apeglm: SummarizedExperiment integration is immutable" {
-  let (_, design, dispersions, genes, coefficients) =
-    @src.apeglm_example_data()
+  let (_, design, dispersions, genes, coefficients) = @src.apeglm_example_data()
   let experiment = apeglm_test_experiment()
   let config = apeglm_test_config()
   let output = @src.apeglm_summarized_experiment(
@@ -1059,24 +991,14 @@ test "apeglm: fit rejects empty and single-sample counts" {
 test "apeglm: fit rejects ragged and fractional counts" {
   let ragged = try {
     ignore(
-      @src.apeglm_fit(
-        [[1.0, 2.0], [3.0]],
-        [[1.0, 0.0], [1.0, 1.0]],
-        [0.1, 0.1],
-      ),
+      @src.apeglm_fit([[1.0, 2.0], [3.0]], [[1.0, 0.0], [1.0, 1.0]], [0.1, 0.1]),
     )
     false
   } catch {
     ApeglmError(_) => true
   }
   let fractional = try {
-    ignore(
-      @src.apeglm_fit(
-        [[1.5, 2.0]],
-        [[1.0, 0.0], [1.0, 1.0]],
-        [0.1],
-      ),
-    )
+    ignore(@src.apeglm_fit([[1.5, 2.0]], [[1.0, 0.0], [1.0, 1.0]], [0.1]))
     false
   } catch {
     ApeglmError(_) => true
@@ -1088,25 +1010,13 @@ test "apeglm: fit rejects ragged and fractional counts" {
 ///|
 test "apeglm: fit rejects negative and non-finite counts" {
   let negative = try {
-    ignore(
-      @src.apeglm_fit(
-        [[-1.0, 2.0]],
-        [[1.0, 0.0], [1.0, 1.0]],
-        [0.1],
-      ),
-    )
+    ignore(@src.apeglm_fit([[-1.0, 2.0]], [[1.0, 0.0], [1.0, 1.0]], [0.1]))
     false
   } catch {
     ApeglmError(_) => true
   }
   let overflow = try {
-    ignore(
-      @src.apeglm_fit(
-        [[1.0e301, 2.0]],
-        [[1.0, 0.0], [1.0, 1.0]],
-        [0.1],
-      ),
-    )
+    ignore(@src.apeglm_fit([[1.0e301, 2.0]], [[1.0, 0.0], [1.0, 1.0]], [0.1]))
     false
   } catch {
     ApeglmError(_) => true
@@ -1130,13 +1040,7 @@ test "apeglm: fit rejects malformed design matrices" {
     ApeglmError(_) => true
   }
   let ragged = try {
-    ignore(
-      @src.apeglm_fit(
-        [[1.0, 2.0]],
-        [[1.0, 0.0], [1.0]],
-        [0.1],
-      ),
-    )
+    ignore(@src.apeglm_fit([[1.0, 2.0]], [[1.0, 0.0], [1.0]], [0.1]))
     false
   } catch {
     ApeglmError(_) => true
@@ -1188,24 +1092,14 @@ test "apeglm: fit rejects intercept and out-of-range targets" {
 test "apeglm: fit rejects malformed dispersions" {
   let length = try {
     ignore(
-      @src.apeglm_fit(
-        [[1.0, 2.0], [3.0, 4.0]],
-        [[1.0, 0.0], [1.0, 1.0]],
-        [0.1],
-      ),
+      @src.apeglm_fit([[1.0, 2.0], [3.0, 4.0]], [[1.0, 0.0], [1.0, 1.0]], [0.1]),
     )
     false
   } catch {
     ApeglmError(_) => true
   }
   let value = try {
-    ignore(
-      @src.apeglm_fit(
-        [[1.0, 2.0]],
-        [[1.0, 0.0], [1.0, 1.0]],
-        [0.0],
-      ),
-    )
+    ignore(@src.apeglm_fit([[1.0, 2.0]], [[1.0, 0.0], [1.0, 1.0]], [0.0]))
     false
   } catch {
     ApeglmError(_) => true
@@ -1218,12 +1112,9 @@ test "apeglm: fit rejects malformed dispersions" {
 test "apeglm: fit validates offsets and observation weights" {
   let offsets = try {
     ignore(
-      @src.apeglm_fit(
-        [[1.0, 2.0]],
-        [[1.0, 0.0], [1.0, 1.0]],
-        [0.1],
-        offsets=[[0.0]],
-      ),
+      @src.apeglm_fit([[1.0, 2.0]], [[1.0, 0.0], [1.0, 1.0]], [0.1], offsets=[
+        [0.0],
+      ]),
     )
     false
   } catch {
@@ -1231,12 +1122,9 @@ test "apeglm: fit validates offsets and observation weights" {
   }
   let weight_shape = try {
     ignore(
-      @src.apeglm_fit(
-        [[1.0, 2.0]],
-        [[1.0, 0.0], [1.0, 1.0]],
-        [0.1],
-        weights=[[1.0]],
-      ),
+      @src.apeglm_fit([[1.0, 2.0]], [[1.0, 0.0], [1.0, 1.0]], [0.1], weights=[
+        [1.0],
+      ]),
     )
     false
   } catch {
@@ -1244,12 +1132,9 @@ test "apeglm: fit validates offsets and observation weights" {
   }
   let all_zero = try {
     ignore(
-      @src.apeglm_fit(
-        [[1.0, 2.0]],
-        [[1.0, 0.0], [1.0, 1.0]],
-        [0.1],
-        weights=[[0.0, 0.0]],
-      ),
+      @src.apeglm_fit([[1.0, 2.0]], [[1.0, 0.0], [1.0, 1.0]], [0.1], weights=[
+        [0.0, 0.0],
+      ]),
     )
     false
   } catch {
@@ -1264,12 +1149,9 @@ test "apeglm: fit validates offsets and observation weights" {
 test "apeglm: fit validates identifier lengths and uniqueness" {
   let gene_length = try {
     ignore(
-      @src.apeglm_fit(
-        [[1.0, 2.0]],
-        [[1.0, 0.0], [1.0, 1.0]],
-        [0.1],
-        gene_names=["a", "b"],
-      ),
+      @src.apeglm_fit([[1.0, 2.0]], [[1.0, 0.0], [1.0, 1.0]], [0.1], gene_names=[
+        "a", "b",
+      ]),
     )
     false
   } catch {
@@ -1290,12 +1172,9 @@ test "apeglm: fit validates identifier lengths and uniqueness" {
   }
   let coefficient_length = try {
     ignore(
-      @src.apeglm_fit(
-        [[1.0, 2.0]],
-        [[1.0, 0.0], [1.0, 1.0]],
-        [0.1],
-        coefficient_names=["intercept"],
-      ),
+      @src.apeglm_fit([[1.0, 2.0]], [[1.0, 0.0], [1.0, 1.0]], [0.1], coefficient_names=[
+        "intercept",
+      ]),
     )
     false
   } catch {
@@ -1303,12 +1182,9 @@ test "apeglm: fit validates identifier lengths and uniqueness" {
   }
   let empty = try {
     ignore(
-      @src.apeglm_fit(
-        [[1.0, 2.0]],
-        [[1.0, 0.0], [1.0, 1.0]],
-        [0.1],
-        gene_names=[""],
-      ),
+      @src.apeglm_fit([[1.0, 2.0]], [[1.0, 0.0], [1.0, 1.0]], [0.1], gene_names=[
+        "",
+      ]),
     )
     false
   } catch {

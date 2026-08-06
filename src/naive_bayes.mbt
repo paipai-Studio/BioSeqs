@@ -30,31 +30,37 @@ pub fn NaiveBayesClassifier::new() -> NaiveBayesClassifier {
     alpha: 1.0,
     vocabulary: [],
     class_labels: [],
-    models: Map([], capacity=10)
+    models: Map([], capacity=10),
   }
 }
 
 ///|
 /// Set the k-mer size and return a new classifier instance.
-pub fn NaiveBayesClassifier::set_kmer_size(self : NaiveBayesClassifier, val : Int) -> NaiveBayesClassifier {
+pub fn NaiveBayesClassifier::set_kmer_size(
+  self : NaiveBayesClassifier,
+  val : Int,
+) -> NaiveBayesClassifier {
   NaiveBayesClassifier::{
     kmer_size: val,
     alpha: self.alpha,
     vocabulary: self.vocabulary,
     class_labels: self.class_labels,
-    models: self.models
+    models: self.models,
   }
 }
 
 ///|
 /// Set the Laplace smoothing alpha parameter and return a new classifier instance.
-pub fn NaiveBayesClassifier::set_alpha(self : NaiveBayesClassifier, val : Double) -> NaiveBayesClassifier {
+pub fn NaiveBayesClassifier::set_alpha(
+  self : NaiveBayesClassifier,
+  val : Double,
+) -> NaiveBayesClassifier {
   NaiveBayesClassifier::{
     kmer_size: self.kmer_size,
     alpha: val,
     vocabulary: self.vocabulary,
     class_labels: self.class_labels,
-    models: self.models
+    models: self.models,
   }
 }
 
@@ -62,7 +68,10 @@ pub fn NaiveBayesClassifier::set_alpha(self : NaiveBayesClassifier, val : Double
 /// Extract k-mers from a sequence using a sliding window of size k.
 /// Returns a map of k-mer to count. If k > sequence length, returns empty map.
 /// For protein sequences, any characters are kept.
-pub fn naive_bayes_extract_kmers(sequence : String, k : Int) -> Map[String, Int] {
+pub fn naive_bayes_extract_kmers(
+  sequence : String,
+  k : Int,
+) -> Map[String, Int] {
   let counts : Map[String, Int] = Map([], capacity=100)
   let n = sequence.length()
   if k <= 0 || k > n {
@@ -88,7 +97,7 @@ pub fn naive_bayes_extract_kmers(sequence : String, k : Int) -> Map[String, Int]
 pub fn naive_bayes_train(
   classifier : NaiveBayesClassifier,
   sequences : Array[String],
-  labels : Array[String]
+  labels : Array[String],
 ) -> NaiveBayesClassifier {
   let n = sequences.length()
   if n == 0 || n != labels.length() {
@@ -97,7 +106,7 @@ pub fn naive_bayes_train(
       alpha: classifier.alpha,
       vocabulary: [],
       class_labels: [],
-      models: Map([], capacity=10)
+      models: Map([], capacity=10),
     }
   }
 
@@ -105,7 +114,10 @@ pub fn naive_bayes_train(
 
   let class_seq_counts : Map[String, Int] = Map([], capacity=10)
   let class_total_kmers : Map[String, Int] = Map([], capacity=10)
-  let class_kmer_counts : Map[String, Map[String, Double]] = Map([], capacity=10)
+  let class_kmer_counts : Map[String, Map[String, Double]] = Map(
+    [],
+    capacity=10,
+  )
   let vocab_set : Map[String, Bool] = Map([], capacity=1000)
 
   for idx = 0; idx < n; idx = idx + 1 {
@@ -128,7 +140,10 @@ pub fn naive_bayes_train(
       let kmer_count = kmers.get(kmer).unwrap()
       total_for_class = total_for_class + kmer_count
       if counts_for_class.contains(kmer) {
-        counts_for_class.set(kmer, counts_for_class.get(kmer).unwrap() + kmer_count.to_double())
+        counts_for_class.set(
+          kmer,
+          counts_for_class.get(kmer).unwrap() + kmer_count.to_double(),
+        )
       } else {
         counts_for_class.set(kmer, kmer_count.to_double())
       }
@@ -142,7 +157,10 @@ pub fn naive_bayes_train(
   let class_labels_arr : Array[String] = class_seq_counts.keys().collect()
   let vocabulary_arr : Array[String] = vocab_set.keys().collect()
 
-  let models_map : Map[String, NBClassModel] = Map([], capacity=class_labels_arr.length())
+  let models_map : Map[String, NBClassModel] = Map(
+    [],
+    capacity=class_labels_arr.length(),
+  )
   for label in class_labels_arr {
     let n_seq = class_seq_counts.get(label).unwrap()
     let prior = n_seq.to_double() / n.to_double()
@@ -153,7 +171,7 @@ pub fn naive_bayes_train(
       n_sequences: n_seq,
       total_kmers: total_k,
       kmer_counts: kmer_counts_copy,
-      class_prior: prior
+      class_prior: prior,
     }
     models_map.set(label, model)
   }
@@ -163,7 +181,7 @@ pub fn naive_bayes_train(
     alpha: classifier.alpha,
     vocabulary: vocabulary_arr,
     class_labels: class_labels_arr,
-    models: models_map
+    models: models_map,
   }
 }
 
@@ -173,7 +191,7 @@ pub fn naive_bayes_train(
 /// Uses Laplace smoothing for k-mer probabilities.
 pub fn naive_bayes_predict_log_probs(
   classifier : NaiveBayesClassifier,
-  sequence : String
+  sequence : String,
 ) -> Array[(String, Double)] {
   let result : Array[(String, Double)] = Array::new()
   let vocab_size = classifier.vocabulary.length().to_double()
@@ -197,7 +215,8 @@ pub fn naive_bayes_predict_log_probs(
         0.0
       }
       let smoothed_prob = (count_in_model + alpha) / denom
-      log_prob = log_prob + kmer_count_in_seq.to_double() * @math.ln(smoothed_prob)
+      log_prob = log_prob +
+        kmer_count_in_seq.to_double() * @math.ln(smoothed_prob)
     }
 
     result.push((class_label, log_prob))
@@ -211,7 +230,7 @@ pub fn naive_bayes_predict_log_probs(
 /// Returns (best_label, log_probability) = argmax of predict_log_probs.
 pub fn naive_bayes_predict(
   classifier : NaiveBayesClassifier,
-  sequence : String
+  sequence : String,
 ) -> (String, Double) {
   let log_probs = naive_bayes_predict_log_probs(classifier, sequence)
   if log_probs.length() == 0 {
@@ -233,7 +252,7 @@ pub fn naive_bayes_predict(
 /// Returns array of (class_label, probability) where probabilities sum to ~1.0.
 pub fn naive_bayes_predict_proba(
   classifier : NaiveBayesClassifier,
-  sequence : String
+  sequence : String,
 ) -> Array[(String, Double)] {
   let log_probs = naive_bayes_predict_log_probs(classifier, sequence)
   let result : Array[(String, Double)] = Array::new()
@@ -257,7 +276,11 @@ pub fn naive_bayes_predict_proba(
   }
 
   for i = 0; i < log_probs.length(); i = i + 1 {
-    let prob = if sum == 0.0 { 1.0 / log_probs.length().to_double() } else { exps[i] / sum }
+    let prob = if sum == 0.0 {
+      1.0 / log_probs.length().to_double()
+    } else {
+      exps[i] / sum
+    }
     result.push((log_probs[i].0, prob))
   }
 
@@ -269,7 +292,7 @@ pub fn naive_bayes_predict_proba(
 pub fn naive_bayes_top_k(
   classifier : NaiveBayesClassifier,
   sequence : String,
-  k : Int
+  k : Int,
 ) -> Array[(String, Double)] {
   let probs = naive_bayes_predict_proba(classifier, sequence)
 
@@ -303,7 +326,7 @@ pub fn naive_bayes_top_k(
 pub fn naive_bayes_accuracy(
   classifier : NaiveBayesClassifier,
   sequences : Array[String],
-  true_labels : Array[String]
+  true_labels : Array[String],
 ) -> Double {
   let n = sequences.length()
   if n == 0 || n != true_labels.length() {
@@ -325,24 +348,12 @@ pub fn naive_bayes_accuracy(
 /// 4 sequences with label "GC_rich" (high G/C content).
 pub fn naive_bayes_sample_data() -> (Array[String], Array[String]) {
   let sequences : Array[String] = [
-    "ATATATATATATATATATAT",
-    "AATTAAAATTTTAAATTTTA",
-    "TATATAAATTATATTAATTT",
-    "ATTTAAATAAATTTTAAAAT",
-    "GCGCGCGCGCGCGCGCGCGC",
-    "GGCCGGCCCGGGCCCGGCCC",
-    "CGGCCGGGCCCCGGGCCTGG",
-    "GCGCCGCGGGGCCCGGCCGC"
+    "ATATATATATATATATATAT", "AATTAAAATTTTAAATTTTA", "TATATAAATTATATTAATTT", "ATTTAAATAAATTTTAAAAT",
+    "GCGCGCGCGCGCGCGCGCGC", "GGCCGGCCCGGGCCCGGCCC", "CGGCCGGGCCCCGGGCCTGG", "GCGCCGCGGGGCCCGGCCGC",
   ]
   let labels : Array[String] = [
-    "AT_rich",
-    "AT_rich",
-    "AT_rich",
-    "AT_rich",
+    "AT_rich", "AT_rich", "AT_rich", "AT_rich", "GC_rich", "GC_rich", "GC_rich",
     "GC_rich",
-    "GC_rich",
-    "GC_rich",
-    "GC_rich"
   ]
   (sequences, labels)
 }

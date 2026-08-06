@@ -325,12 +325,7 @@ pub fn gck_from_bytes(data : Array[Int]) -> GckFile {
       offset = offset + 8
     }
     file.features.push(
-      GckFeature::new(
-        name=name,
-        type_=type_,
-        direction=direction,
-        segments=segs,
-      ),
+      GckFeature::new(name~, type_~, direction~, segments=segs),
     )
   }
   // Parse sequence
@@ -439,7 +434,7 @@ pub fn gck_to_seqrecord(file : GckFile) -> SeqRecord {
   let id = "gck"
   let topo = if file.is_circular { " circular" } else { " linear" }
   let desc = file.seq_type.to_string() + topo
-  SeqRecord::new(Seq::new(file.sequence), id=id, name=id, description=desc)
+  SeqRecord::new(Seq::new(file.sequence), id~, name=id, description=desc)
 }
 
 ///|
@@ -482,7 +477,9 @@ pub fn gck_summary(file : GckFile) -> String {
   sb.write_string("  Type: " + file.seq_type.to_string() + "\n")
   let topo = if file.is_circular { "circular" } else { "linear" }
   sb.write_string("  Topology: " + topo + "\n")
-  sb.write_string("  Sequence Length: " + gck_seq_length(file).to_string() + " bp\n")
+  sb.write_string(
+    "  Sequence Length: " + gck_seq_length(file).to_string() + " bp\n",
+  )
   sb.write_string("  Features: " + file.features.length().to_string() + "\n")
   if file.features.length() > 0 {
     sb.write_string("  Feature List:\n")
@@ -495,8 +492,15 @@ pub fn gck_summary(file : GckFile) -> String {
         "none"
       }
       sb.write_string(
-        "    " + f.name + " (" + f.type_ + ", " + dir_str + ") - " +
-        f.segments.length().to_string() + " segment(s)\n",
+        "    " +
+        f.name +
+        " (" +
+        f.type_ +
+        ", " +
+        dir_str +
+        ") - " +
+        f.segments.length().to_string() +
+        " segment(s)\n",
       )
     }
   }
@@ -512,28 +516,13 @@ pub fn gck_sample() -> GckFile {
   file.is_circular = true
   file.sequence = "ATGGCTAGCAATGGGTCGCGATAGCGATAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAA"
   file.features.push(
-    GckFeature::new(
-      name="AmpR",
-      type_="CDS",
-      direction=1,
-      segments=[(0, 19)],
-    ),
+    GckFeature::new(name="AmpR", type_="CDS", direction=1, segments=[(0, 19)]),
   )
   file.features.push(
-    GckFeature::new(
-      name="lacZ",
-      type_="CDS",
-      direction=1,
-      segments=[(30, 49)],
-    ),
+    GckFeature::new(name="lacZ", type_="CDS", direction=1, segments=[(30, 49)]),
   )
   file.features.push(
-    GckFeature::new(
-      name="MCS",
-      type_="misc",
-      direction=0,
-      segments=[(50, 63)],
-    ),
+    GckFeature::new(name="MCS", type_="misc", direction=0, segments=[(50, 63)]),
   )
   file
 }

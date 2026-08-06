@@ -300,7 +300,10 @@ fn extract_all_tags(xml : String, tag : String) -> Array[String] {
 ///|
 /// Extract all occurrences of a tag with their opening tag string.
 /// Returns pairs of (opening_tag_string, inner_content).
-fn extract_all_tags_with_attrs(xml : String, tag : String) -> Array[(String, String)] {
+fn extract_all_tags_with_attrs(
+  xml : String,
+  tag : String,
+) -> Array[(String, String)] {
   let results : Array[(String, String)] = Array::new()
   let open_tag = "<" + tag
   let close_tag = "</" + tag + ">"
@@ -397,7 +400,11 @@ fn extract_sequence(entry_xml : String) -> (String, Int, Double) {
   if seq_block.length() == 0 {
     return ("", 0, 0.0)
   }
-  let seq = seq_block.replace(old="\n", new="").replace(old=" ", new="").trim().to_owned()
+  let seq = seq_block
+    .replace(old="\n", new="")
+    .replace(old=" ", new="")
+    .trim()
+    .to_owned()
   // Extract mass attribute
   let mass_attr = extract_attribute(entry_xml, "sequence", "mass")
   let mass = if mass_attr.length() > 0 { u_parse_float(mass_attr) } else { 0.0 }
@@ -531,7 +538,9 @@ fn extract_references(entry_xml : String) -> Array[UniprotReference] {
       ""
     }
     if key.length() > 0 {
-      refs.push(UniprotReference::new(key, title, authors, journal, pubmed_id, ""))
+      refs.push(
+        UniprotReference::new(key, title, authors, journal, pubmed_id, ""),
+      )
     }
   }
   refs
@@ -584,7 +593,9 @@ pub fn parse_uniprot_entry(entry_xml : String) -> UniprotEntry {
   // Extract sequence
   let (sequence, _, _) = extract_sequence(entry_xml)
   // Create base entry
-  let entry = UniprotEntry::new(accession, protein_name, gene_names, organism, sequence)
+  let entry = UniprotEntry::new(
+    accession, protein_name, gene_names, organism, sequence,
+  )
   // Extract sequence with mass
   let (_, seq_len, seq_mass) = extract_sequence(entry_xml)
   entry.seq_length = seq_len
@@ -627,7 +638,9 @@ pub fn parse_uniprot_xml(content : String) -> Array[UniprotEntry] {
 ///|
 /// Convert a UniprotEntry to a SeqRecord-compatible map.
 /// Returns a tuple of (id, description, sequence, annotations).
-pub fn uniprot_to_seqrecord(entry : UniprotEntry) -> (String, String, String, Map[String, String]) {
+pub fn uniprot_to_seqrecord(
+  entry : UniprotEntry,
+) -> (String, String, String, Map[String, String]) {
   let id = entry.accession
   let description = entry.protein_name
   let annotations : Map[String, String] = Map([], capacity=16)

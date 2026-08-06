@@ -642,7 +642,11 @@ pub fn ir_distance_to_nearest(ir : IRanges) -> Array[Int] {
       j = j + 1
     }
 
-    distances[i] = if min_dist < @double.infinity { min_dist.to_int() } else { -1 }
+    distances[i] = if min_dist < @double.infinity {
+      min_dist.to_int()
+    } else {
+      -1
+    }
     i = i + 1
   }
 
@@ -744,23 +748,26 @@ pub fn ir_gap_width(ir : IRanges) -> Int {
   total_gap
 }
 
-///| Test find_overlaps_advanced with "any" type
+///|
+/// Test find_overlaps_advanced with "any" type
 test "find_overlaps_advanced_any" {
   let query = iranges([1, 10], [5, 15])
   let subject = iranges([3, 8, 12], [8, 14, 18])
-  let result = find_overlaps_advanced(query=query, subject=subject, type_="any")
+  let result = find_overlaps_advanced(query~, subject~, type_="any")
   assert_true(result.length() >= 1)
 }
 
-///| Test find_overlaps_advanced with "within" type
+///|
+/// Test find_overlaps_advanced with "within" type
 test "find_overlaps_advanced_within" {
   let query = iranges([1, 10], [5, 15])
   let subject = iranges([0, 5], [10, 20])
-  let result = find_overlaps_advanced(query=query, subject=subject, type_="within")
+  let result = find_overlaps_advanced(query~, subject~, type_="within")
   assert_true(result.length() >= 0)
 }
 
-///| Test ir_nearest function
+///|
+/// Test ir_nearest function
 test "ir_nearest" {
   let query = iranges([1, 20, 40], [5, 25, 45])
   let subject = iranges([10, 30], [15, 35])
@@ -770,7 +777,8 @@ test "ir_nearest" {
   assert_eq(result[0], 0)
 }
 
-///| Test ir_coverage function
+///|
+/// Test ir_coverage function
 test "ir_coverage" {
   let ir = iranges([1, 5, 10], [8, 15, 20])
   let result = ir_coverage(ir, 25)
@@ -781,14 +789,16 @@ test "ir_coverage" {
   assert_eq(result[4], 2)
 }
 
-///| Test ir_coverage_rle function
+///|
+/// Test ir_coverage_rle function
 test "ir_coverage_rle" {
   let ir = iranges([1, 5], [3, 8])
   let result = ir_coverage_rle(ir, 10)
   assert_true(result.length() >= 1)
 }
 
-///| Test ir_distance function
+///|
+/// Test ir_distance function
 test "ir_distance" {
   let ir1 = iranges([1, 15], [5, 20])
   let ir2 = iranges([10, 30], [12, 35])
@@ -797,7 +807,8 @@ test "ir_distance" {
   assert_eq(result[0].length(), 2)
 }
 
-///| Test ir_distance_to_nearest function
+///|
+/// Test ir_distance_to_nearest function
 test "ir_distance_to_nearest" {
   let ir = iranges([1, 10, 25], [5, 15, 30])
   let result = ir_distance_to_nearest(ir)
@@ -806,7 +817,8 @@ test "ir_distance_to_nearest" {
   assert_eq(result[0], 4)
 }
 
-///| Test ir_precede function
+///|
+/// Test ir_precede function
 test "ir_precede" {
   let query = iranges([10, 30], [15, 35])
   let subject = iranges([1, 20], [5, 25])
@@ -816,7 +828,8 @@ test "ir_precede" {
   assert_eq(result[0], 0)
 }
 
-///| Test ir_follow function
+///|
+/// Test ir_follow function
 test "ir_follow" {
   let query = iranges([1, 10], [5, 15])
   let subject = iranges([20, 30], [25, 35])
@@ -826,7 +839,8 @@ test "ir_follow" {
   assert_eq(result[1], 0)
 }
 
-///| Test ir_subset function
+///|
+/// Test ir_subset function
 test "ir_subset" {
   let ir = iranges([1, 5, 10], [3, 8, 15])
   let keep = [true, false, true]
@@ -836,7 +850,8 @@ test "ir_subset" {
   assert_eq(result.starts[1], 10)
 }
 
-///| Test ir_sort function
+///|
+/// Test ir_sort function
 test "ir_sort" {
   let ir = iranges([10, 1, 5], [15, 3, 8])
   let result = ir_sort(ir)

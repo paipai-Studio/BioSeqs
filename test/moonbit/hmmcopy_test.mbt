@@ -29,35 +29,20 @@ test "hc_bin_creation" {
 
 ///|
 test "hc_bin_default_gc_mappability" {
-  let b = @src.HMMcopyBin::new(
-    chr="chr1",
-    start=0,
-    end=1000,
-    reads=50,
-  )
+  let b = @src.HMMcopyBin::new(chr="chr1", start=0, end=1000, reads=50)
   assert_true((b.gc - 0.5).abs() < 0.001)
   assert_true((b.mappability - 1.0).abs() < 0.001)
 }
 
 ///|
 test "hc_bin_width" {
-  let b = @src.HMMcopyBin::new(
-    chr="chr1",
-    start=1000,
-    end=2000,
-    reads=100,
-  )
+  let b = @src.HMMcopyBin::new(chr="chr1", start=1000, end=2000, reads=100)
   assert_eq(b.width(), 1000)
 }
 
 ///|
 test "hc_bin_normalized_coverage" {
-  let b = @src.HMMcopyBin::new(
-    chr="chr1",
-    start=0,
-    end=500,
-    reads=100,
-  )
+  let b = @src.HMMcopyBin::new(chr="chr1", start=0, end=500, reads=100)
   b.set_corrected_reads(200.0)
   let nc = b.normalized_coverage()
   assert_true((nc - 0.4).abs() < 0.001)
@@ -65,12 +50,7 @@ test "hc_bin_normalized_coverage" {
 
 ///|
 test "hc_bin_zero_width_coverage" {
-  let b = @src.HMMcopyBin::new(
-    chr="chr1",
-    start=100,
-    end=100,
-    reads=50,
-  )
+  let b = @src.HMMcopyBin::new(chr="chr1", start=100, end=100, reads=50)
   b.set_corrected_reads(75.0)
   // Zero width returns corrected_reads directly
   assert_true((b.normalized_coverage() - 75.0).abs() < 0.001)

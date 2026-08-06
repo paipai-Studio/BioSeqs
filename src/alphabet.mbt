@@ -13,31 +13,35 @@ pub struct Alphabet {
 
 ///|
 /// Create a new alphabet.
-pub fn Alphabet::new(name : String, letters : Array[String], is_gapped : Bool) -> Alphabet {
+pub fn Alphabet::new(
+  name : String,
+  letters : Array[String],
+  is_gapped : Bool,
+) -> Alphabet {
   Alphabet::{ name, letters, is_gapped }
 }
 
 ///|
 /// Get alphabet name.
-pub fn get_name(self : Alphabet) -> String {
+pub fn Alphabet::get_name(self : Alphabet) -> String {
   self.name
 }
 
 ///|
 /// Get alphabet letters.
-pub fn get_letters(self : Alphabet) -> Array[String] {
+pub fn Alphabet::get_letters(self : Alphabet) -> Array[String] {
   self.letters
 }
 
 ///|
 /// Check if alphabet is gapped.
-pub fn is_gapped(self : Alphabet) -> Bool {
+pub fn Alphabet::is_gapped(self : Alphabet) -> Bool {
   self.is_gapped
 }
 
 ///|
 /// Check if a character is valid in this alphabet.
-pub fn is_valid(self : Alphabet, c : String) -> Bool {
+pub fn Alphabet::is_valid(self : Alphabet, c : String) -> Bool {
   let mut i = 0
   while i < self.letters.length() {
     if self.letters[i] == c {
@@ -51,18 +55,14 @@ pub fn is_valid(self : Alphabet, c : String) -> Bool {
 ///|
 /// IUPAC unambiguous DNA alphabet (A, C, G, T).
 pub fn iupac_unambiguous_dna() -> Alphabet {
-  let letters = [
-    "A", "C", "G", "T"
-  ]
+  let letters = ["A", "C", "G", "T"]
   Alphabet::new("IUPACUnambiguousDNA", letters, false)
 }
 
 ///|
 /// IUPAC unambiguous RNA alphabet (A, C, G, U).
 pub fn iupac_unambiguous_rna() -> Alphabet {
-  let letters = [
-    "A", "C", "G", "U"
-  ]
+  let letters = ["A", "C", "G", "U"]
   Alphabet::new("IUPACUnambiguousRNA", letters, false)
 }
 
@@ -70,9 +70,7 @@ pub fn iupac_unambiguous_rna() -> Alphabet {
 /// IUPAC ambiguous DNA alphabet (A, C, G, T, R, Y, S, W, K, M, B, D, H, V, N).
 pub fn iupac_ambiguous_dna() -> Alphabet {
   let letters = [
-    "A", "C", "G", "T",
-    "R", "Y", "S", "W", "K", "M",
-    "B", "D", "H", "V", "N"
+    "A", "C", "G", "T", "R", "Y", "S", "W", "K", "M", "B", "D", "H", "V", "N",
   ]
   Alphabet::new("IUPACAmbiguousDNA", letters, false)
 }
@@ -81,9 +79,7 @@ pub fn iupac_ambiguous_dna() -> Alphabet {
 /// IUPAC ambiguous RNA alphabet (A, C, G, U, R, Y, S, W, K, M, B, D, H, V, N).
 pub fn iupac_ambiguous_rna() -> Alphabet {
   let letters = [
-    "A", "C", "G", "U",
-    "R", "Y", "S", "W", "K", "M",
-    "B", "D", "H", "V", "N"
+    "A", "C", "G", "U", "R", "Y", "S", "W", "K", "M", "B", "D", "H", "V", "N",
   ]
   Alphabet::new("IUPACAmbiguousRNA", letters, false)
 }
@@ -92,9 +88,8 @@ pub fn iupac_ambiguous_rna() -> Alphabet {
 /// IUPAC protein alphabet (20 standard amino acids + B, Z, X).
 pub fn iupac_protein() -> Alphabet {
   let letters = [
-    "A", "C", "D", "E", "F", "G", "H", "I", "K", "L",
-    "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y",
-    "B", "Z", "X"
+    "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S",
+    "T", "V", "W", "Y", "B", "Z", "X",
   ]
   Alphabet::new("IUPACProtein", letters, false)
 }
@@ -103,9 +98,8 @@ pub fn iupac_protein() -> Alphabet {
 /// Extended IUPAC protein alphabet (20 standard + B, Z, X, U, O).
 pub fn iupac_extended_protein() -> Alphabet {
   let letters = [
-    "A", "C", "D", "E", "F", "G", "H", "I", "K", "L",
-    "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y",
-    "B", "Z", "X", "U", "O"
+    "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S",
+    "T", "V", "W", "Y", "B", "Z", "X", "U", "O",
   ]
   Alphabet::new("IUPACExtendedProtein", letters, false)
 }
@@ -113,18 +107,14 @@ pub fn iupac_extended_protein() -> Alphabet {
 ///|
 /// Gapped DNA alphabet (includes gap character '-').
 pub fn gapped_dna() -> Alphabet {
-  let letters = [
-    "A", "C", "G", "T", "-"
-  ]
+  let letters = ["A", "C", "G", "T", "-"]
   Alphabet::new("GappedDNA", letters, true)
 }
 
 ///|
 /// Gapped RNA alphabet (includes gap character '-').
 pub fn gapped_rna() -> Alphabet {
-  let letters = [
-    "A", "C", "G", "U", "-"
-  ]
+  let letters = ["A", "C", "G", "U", "-"]
   Alphabet::new("GappedRNA", letters, true)
 }
 
@@ -132,9 +122,8 @@ pub fn gapped_rna() -> Alphabet {
 /// Gapped protein alphabet (includes gap character '-').
 pub fn gapped_protein() -> Alphabet {
   let letters = [
-    "A", "C", "D", "E", "F", "G", "H", "I", "K", "L",
-    "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y",
-    "-"
+    "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S",
+    "T", "V", "W", "Y", "-",
   ]
   Alphabet::new("GappedProtein", letters, true)
 }
@@ -144,8 +133,8 @@ pub fn gapped_protein() -> Alphabet {
 /// Grouped by chemical properties.
 pub fn reduced_protein() -> Alphabet {
   let letters = [
-    "A", "C", "D", "E", "F", "G", "H", "I", "K", "L",
-    "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y"
+    "A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S",
+    "T", "V", "W", "Y",
   ]
   Alphabet::new("ReducedProtein", letters, false)
 }

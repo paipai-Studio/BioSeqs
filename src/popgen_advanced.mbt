@@ -48,7 +48,10 @@ pub struct NeutralityTestConfig {
 
 ///|
 /// Default neutrality test configuration.
-pub fn NeutralityTestConfig::default(sample_size : Int, sequence_length : Int) -> NeutralityTestConfig {
+pub fn NeutralityTestConfig::default(
+  sample_size : Int,
+  sequence_length : Int,
+) -> NeutralityTestConfig {
   NeutralityTestConfig::{
     sample_size,
     sequence_length,
@@ -145,13 +148,21 @@ pub fn new_polymorphic_site(
 
 ///|
 /// Create a singleton site.
-pub fn new_singleton(position : Int, sample_size : Int, is_replacement : Bool) -> PolymorphicSite {
+pub fn new_singleton(
+  position : Int,
+  sample_size : Int,
+  is_replacement : Bool,
+) -> PolymorphicSite {
   new_polymorphic_site(position, 1, sample_size, is_replacement)
 }
 
 ///|
 /// Create a doubleton site.
-pub fn new_doubleton(position : Int, sample_size : Int, is_replacement : Bool) -> PolymorphicSite {
+pub fn new_doubleton(
+  position : Int,
+  sample_size : Int,
+  is_replacement : Bool,
+) -> PolymorphicSite {
   new_polymorphic_site(position, 2, sample_size, is_replacement)
 }
 
@@ -167,7 +178,10 @@ pub fn new_doubleton(position : Int, sample_size : Int, is_replacement : Bool) -
 /// Reference: Watterson, G. A. (1975).
 /// "On the number of segregating sites in genetical models
 /// without recombination." Theor. Popul. Biol. 7:256-276.
-pub fn popgen_watterson_theta(segregating_sites : Int, sample_size : Int) -> Double {
+pub fn popgen_watterson_theta(
+  segregating_sites : Int,
+  sample_size : Int,
+) -> Double {
   if sample_size <= 1 || segregating_sites == 0 {
     return 0.0
   }
@@ -224,16 +238,12 @@ pub fn popgen_tajima_d(
 ) -> NeutralityTestResult {
   let theta_w = popgen_watterson_theta(segregating_sites, sample_size)
   let se = tajima_d_standard_error(sample_size, segregating_sites, theta_w)
-  
-  let d_value = if se > 0.0 {
-    (theta_pi - theta_w) / se
-  } else {
-    0.0
-  }
-  
+
+  let d_value = if se > 0.0 { (theta_pi - theta_w) / se } else { 0.0 }
+
   // Approximate p-value using beta distribution
   let p_val = approximate_tajima_d_pvalue(d_value, sample_size)
-  
+
   let interpretation = if d_value < -1.0 {
     "Negative D: excess of low-frequency variants, suggests population expansion or positive selection"
   } else if d_value > 1.0 {
@@ -241,12 +251,16 @@ pub fn popgen_tajima_d(
   } else {
     "Neutral pattern: consistent with equilibrium neutrality"
   }
-  
+
   NeutralityTestResult::{
     test_name: "Tajima's D",
     statistic: d_value,
     p_value: p_val,
-    is_significant: if p_val != None { p_val.unwrap() < 0.05 } else { false },
+    is_significant: if p_val != None {
+      p_val.unwrap() < 0.05
+    } else {
+      false
+    },
     interpretation,
     standard_error: se,
     sample_size,
@@ -259,14 +273,14 @@ pub fn tajima_d_standard_error(n : Int, s : Int, theta_w : Double) -> Double {
   if n <= 1 || s <= 0 || theta_w <= 0.0 {
     return 0.0
   }
-  
+
   let a1 = watterson_a1(n)
   let a2 = watterson_a2(n)
   let b1 = tajima_b1(n)
   let b2 = tajima_b2(n)
-  
+
   // Var(theta_pi - theta_W) ≈ c1*S + c2*S*(S-1)
-  let theta_var = (b1 / a1) * theta_w + (b2 / (a1 * a2)) * theta_w * theta_w
+  let theta_var = b1 / a1 * theta_w + b2 / (a1 * a2) * theta_w * theta_w
   theta_var.sqrt()
 }
 
@@ -302,7 +316,9 @@ pub fn tajima_b2(n : Int) -> Double {
   let a1 = watterson_a1(n)
   let a2 = watterson_a2(n)
   // b2 = (2*(n^2 + n + 3)) / (9*n*(n-1)) - (a2/(a1^2))
-  let term1 = 2.0 * (n.to_double() * n.to_double() + n.to_double() + 3.0) / (9.0 * n.to_double() * (n.to_double() - 1.0))
+  let term1 = 2.0 *
+    (n.to_double() * n.to_double() + n.to_double() + 3.0) /
+    (9.0 * n.to_double() * (n.to_double() - 1.0))
   let term2 = a2 / (a1 * a1)
   term1 - term2
 }
@@ -314,16 +330,16 @@ pub fn approximate_tajima_d_pvalue(d : Double, n : Int) -> Double? {
   if n <= 1 {
     return None
   }
-  
+
   // Approximation: D approximately follows a scaled beta distribution
   // Mean ≈ 0, Var ≈ 1
   // Transform to approximate normal
   let abs_d = d.abs()
-  
+
   // Simple approximation for p-value
   // Two-sided test
   let p = 2.0 * (1.0 - popgen_normal_cdf(abs_d))
-  
+
   if p < 0.0001 {
     Some(0.0001)
   } else if p > 1.0 {
@@ -339,7 +355,12 @@ pub fn popgen_normal_cdf(x : Double) -> Double {
   // Abramowitz and Stegun approximation
   let t = 1.0 / (1.0 + 0.2316419 * x.abs())
   let d = 0.3989422804014327 * @math.exp(-x * x / 2.0)
-  let p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))))
+  let p = d *
+    t *
+    (
+      0.3193815 +
+      t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))
+    )
   if x > 0.0 {
     1.0 - p
   } else {
@@ -378,24 +399,20 @@ pub fn fu_li_d(
       sample_size,
     }
   }
-  
+
   let n = sample_size.to_double()
   let a1 = watterson_a1(sample_size)
   let theta = if a1 > 0.0 { segregating_sites.to_double() / a1 } else { 0.0 }
-  
+
   // D = (singletons/n - theta) / SE
   let observed = singletons.to_double() / n
   let expected = theta
   let se = fu_li_d_standard_error(sample_size, segregating_sites, theta)
-  
-  let d_value = if se > 0.0 {
-    (observed - expected) / se
-  } else {
-    0.0
-  }
-  
+
+  let d_value = if se > 0.0 { (observed - expected) / se } else { 0.0 }
+
   let p_val = approximate_tajima_d_pvalue(d_value, sample_size)
-  
+
   let interpretation = if d_value < -1.0 {
     "Negative D: excess of singletons, suggests population expansion or positive selection"
   } else if d_value > 1.0 {
@@ -403,12 +420,16 @@ pub fn fu_li_d(
   } else {
     "Neutral pattern"
   }
-  
+
   NeutralityTestResult::{
     test_name: "Fu & Li's D",
     statistic: d_value,
     p_value: p_val,
-    is_significant: if p_val != None { p_val.unwrap() < 0.05 } else { false },
+    is_significant: if p_val != None {
+      p_val.unwrap() < 0.05
+    } else {
+      false
+    },
     interpretation,
     standard_error: se,
     sample_size,
@@ -421,10 +442,10 @@ pub fn fu_li_d_standard_error(n : Int, s : Int, theta : Double) -> Double {
   if n <= 1 || s <= 0 || theta <= 0.0 {
     return 0.0
   }
-  
+
   let a1 = watterson_a1(n)
   let a2 = watterson_a2(n)
-  
+
   // Simplified variance calculation
   let theta_var = theta * (1.0 / a1 + a2 / (a1 * a1 * n.to_double()))
   theta_var.sqrt()
@@ -452,25 +473,25 @@ pub fn fu_li_f(
       sample_size,
     }
   }
-  
+
   let a1 = watterson_a1(sample_size)
   let a2 = watterson_a2(sample_size)
-  
+
   // Expected singletons under neutrality
   let expected = segregating_sites.to_double() * a1 / (a1 + a2)
   let theta = if a1 > 0.0 { segregating_sites.to_double() / a1 } else { 0.0 }
-  
+
   // Standard error
   let se = (theta * (a1 * a2) / (a1 + a2)).sqrt()
-  
+
   let f_value = if se > 0.0 {
     (singletons.to_double() - expected) / se
   } else {
     0.0
   }
-  
+
   let p_val = approximate_tajima_d_pvalue(f_value, sample_size)
-  
+
   let interpretation = if f_value < -1.0 {
     "Negative F: excess of singletons relative to overall diversity"
   } else if f_value > 1.0 {
@@ -478,12 +499,16 @@ pub fn fu_li_f(
   } else {
     "Neutral pattern"
   }
-  
+
   NeutralityTestResult::{
     test_name: "Fu & Li's F",
     statistic: f_value,
     p_value: p_val,
-    is_significant: if p_val != None { p_val.unwrap() < 0.05 } else { false },
+    is_significant: if p_val != None {
+      p_val.unwrap() < 0.05
+    } else {
+      false
+    },
     interpretation,
     standard_error: se,
     sample_size,
@@ -524,36 +549,38 @@ pub fn mcdonald_kreitman_test(
   } else {
     0.0
   }
-  
+
   let div_ratio = if d_syn > 0 {
     d_nonsyn.to_double() / d_syn.to_double()
   } else {
     0.0
   }
-  
+
   // Neutrality index
-  let ni = if div_ratio > 0.0 {
-    poly_ratio / div_ratio
-  } else {
-    1.0
-  }
-  
+  let ni = if div_ratio > 0.0 { poly_ratio / div_ratio } else { 1.0 }
+
   // Fisher's exact test p-value
   let p_val = fisher_exact_test_2x2(p_nonsyn, p_syn, d_nonsyn, d_syn)
-  
+
   // Interpretation
   let (interpretation, has_selection) = if p_val < 0.05 {
     if poly_ratio > div_ratio * 1.5 {
-      ("Significant positive selection: excess of replacement polymorphisms over fixations", true)
+      (
+        "Significant positive selection: excess of replacement polymorphisms over fixations",
+        true,
+      )
     } else if div_ratio > poly_ratio * 1.5 {
-      ("Significant purifying selection: excess of replacement fixations over polymorphisms", true)
+      (
+        "Significant purifying selection: excess of replacement fixations over polymorphisms",
+        true,
+      )
     } else {
       ("Significant departure from neutrality (non-neutral pattern)", true)
     }
   } else {
     ("No significant departure from neutrality", false)
   }
-  
+
   MKTestResult::{
     p_nonsyn,
     p_syn,
@@ -575,42 +602,56 @@ pub fn fisher_exact_test_2x2(a : Int, b : Int, c : Int, d : Int) -> Double {
   if n <= 0.0 {
     return 1.0
   }
-  
+
   // Expected values
   let row1 = (a + b).to_double()
   let row2 = (c + d).to_double()
   let col1 = (a + c).to_double()
   let col2 = (b + d).to_double()
-  
+
   let e_a = row1 * col1 / n
   let e_b = row1 * col2 / n
   let e_c = row2 * col1 / n
   let e_d = row2 * col2 / n
-  
+
   // Chi-square statistic
   let chi2_a = if e_a > 0.0 {
     let diff = (a.to_double() - e_a).abs() - 0.5
     diff * diff / e_a
-  } else { 0.0 }
+  } else {
+    0.0
+  }
   let chi2_b = if e_b > 0.0 {
     let diff = (b.to_double() - e_b).abs() - 0.5
     diff * diff / e_b
-  } else { 0.0 }
+  } else {
+    0.0
+  }
   let chi2_c = if e_c > 0.0 {
     let diff = (c.to_double() - e_c).abs() - 0.5
     diff * diff / e_c
-  } else { 0.0 }
+  } else {
+    0.0
+  }
   let chi2_d = if e_d > 0.0 {
     let diff = (d.to_double() - e_d).abs() - 0.5
     diff * diff / e_d
-  } else { 0.0 }
+  } else {
+    0.0
+  }
   let chi2 = chi2_a + chi2_b + chi2_c + chi2_d
-  
+
   // Approximate p-value from chi-square with df=1
   // Using the relationship between chi-square and normal
   let p = @math.exp(-chi2 / 2.0)
-  
-  if p < 0.0001 { 0.0001 } else if p > 1.0 { 1.0 } else { p }
+
+  if p < 0.0001 {
+    0.0001
+  } else if p > 1.0 {
+    1.0
+  } else {
+    p
+  }
 }
 
 ///|
@@ -623,7 +664,7 @@ pub fn mktest_from_sites(
   let mut p_syn = 0
   let mut d_nonsyn = 0
   let mut d_syn = 0
-  
+
   for site in poly_sites {
     if site.is_replacement {
       p_nonsyn += 1
@@ -631,7 +672,7 @@ pub fn mktest_from_sites(
       p_syn += 1
     }
   }
-  
+
   for site in fixed_sites {
     if site.is_replacement {
       d_nonsyn += 1
@@ -639,7 +680,7 @@ pub fn mktest_from_sites(
       d_syn += 1
     }
   }
-  
+
   mcdonald_kreitman_test(p_nonsyn, p_syn, d_nonsyn, d_syn)
 }
 
@@ -649,30 +690,33 @@ pub fn mktest_from_sites(
 
 ///|
 /// Calculate the allele frequency spectrum from polymorphic sites.
-pub fn calculate_afs(sites : Array[PolymorphicSite], sample_size : Int) -> AlleleFrequencySpectrum {
+pub fn calculate_afs(
+  sites : Array[PolymorphicSite],
+  sample_size : Int,
+) -> AlleleFrequencySpectrum {
   let mut singletons = 0
   let mut doubletons = 0
   let mut segregating_sites = 0
   let mut total_mutations = 0
-  
+
   let unfolded = Array::make(sample_size, 0)
   let folded = Array::make((sample_size + 1) / 2, 0)
-  
+
   for site in sites {
     segregating_sites += 1
     total_mutations += site.derived_count
-    
+
     if site.derived_count == 1 {
       singletons += 1
     } else if site.derived_count == 2 {
       doubletons += 1
     }
-    
+
     // Unfolded spectrum
     if site.derived_count < sample_size {
       unfolded[site.derived_count] += 1
     }
-    
+
     // Folded spectrum (use minimum of derived and ancestral)
     let minor = if site.derived_count < sample_size - site.derived_count {
       site.derived_count
@@ -683,7 +727,7 @@ pub fn calculate_afs(sites : Array[PolymorphicSite], sample_size : Int) -> Allel
       folded[minor] += 1
     }
   }
-  
+
   AlleleFrequencySpectrum::{
     sample_size,
     singletons,
@@ -697,7 +741,10 @@ pub fn calculate_afs(sites : Array[PolymorphicSite], sample_size : Int) -> Allel
 
 ///|
 /// Calculate Tajima's D from allele frequency spectrum.
-pub fn tajima_d_from_afs(afs : AlleleFrequencySpectrum, sequence_length : Int) -> NeutralityTestResult {
+pub fn tajima_d_from_afs(
+  afs : AlleleFrequencySpectrum,
+  sequence_length : Int,
+) -> NeutralityTestResult {
   let n = afs.sample_size
   if n <= 1 || afs.segregating_sites <= 0 {
     return NeutralityTestResult::{
@@ -710,22 +757,29 @@ pub fn tajima_d_from_afs(afs : AlleleFrequencySpectrum, sequence_length : Int) -
       sample_size: n,
     }
   }
-  
+
   // Calculate theta_pi (average number of pairwise differences per site)
   let mut theta_pi = 0.0
   let n_float = n.to_double()
-  
+
   for i = 1; i < n; i = i + 1 {
-    let count = if i < afs.unfolded_spectrum.length() { afs.unfolded_spectrum[i] } else { 0 }
-    let contrib = (2.0 * i.to_double() * (n_float - i.to_double())) / (n_float * (n_float - 1.0))
+    let count = if i < afs.unfolded_spectrum.length() {
+      afs.unfolded_spectrum[i]
+    } else {
+      0
+    }
+    let contrib = 2.0 *
+      i.to_double() *
+      (n_float - i.to_double()) /
+      (n_float * (n_float - 1.0))
     theta_pi += contrib * count.to_double()
   }
-  
+
   // Normalize by sequence length
   if sequence_length > 0 {
     theta_pi = theta_pi / sequence_length.to_double()
   }
-  
+
   popgen_tajima_d(theta_pi, afs.segregating_sites, n, sequence_length)
 }
 
@@ -760,30 +814,37 @@ pub fn run_neutrality_analysis(
   sequence_length : Int,
 ) -> NeutralityAnalysisResult {
   let afs = calculate_afs(sites, sample_size)
-  
+
   let theta_w = popgen_watterson_theta(afs.segregating_sites, sample_size)
   let result_d = tajima_d_from_afs(afs, sequence_length)
   let result_fu_d = fu_li_d_from_afs(afs)
   let result_fu_f = fu_li_f(afs.singletons, afs.segregating_sites, sample_size)
-  
+
   // Calculate theta_pi
   let mut theta_pi = 0.0
   let n_float = sample_size.to_double()
-  
+
   for i = 1; i < sample_size; i = i + 1 {
-    let count = if i < afs.unfolded_spectrum.length() { afs.unfolded_spectrum[i] } else { 0 }
-    let contrib = (2.0 * i.to_double() * (n_float - i.to_double())) / (n_float * (n_float - 1.0))
+    let count = if i < afs.unfolded_spectrum.length() {
+      afs.unfolded_spectrum[i]
+    } else {
+      0
+    }
+    let contrib = 2.0 *
+      i.to_double() *
+      (n_float - i.to_double()) /
+      (n_float * (n_float - 1.0))
     theta_pi += contrib * count.to_double()
   }
   if sequence_length > 0 {
     theta_pi = theta_pi / sequence_length.to_double()
   }
-  
+
   // Determine if neutral
-  let is_neutral = !result_d.is_significant && 
-    !result_fu_d.is_significant && 
+  let is_neutral = !result_d.is_significant &&
+    !result_fu_d.is_significant &&
     !result_fu_f.is_significant
-  
+
   NeutralityAnalysisResult::{
     tajima_d: result_d,
     fu_li_d: result_fu_d,
@@ -798,7 +859,9 @@ pub fn run_neutrality_analysis(
 
 ///|
 /// Format a neutrality analysis result as a string.
-pub fn neutrality_analysis_to_string(result : NeutralityAnalysisResult) -> String {
+pub fn neutrality_analysis_to_string(
+  result : NeutralityAnalysisResult,
+) -> String {
   let mut s = ""
   s = s + "=== Neutrality Analysis Results ===\n\n"
   s = s + "Sample size: "
@@ -813,7 +876,7 @@ pub fn neutrality_analysis_to_string(result : NeutralityAnalysisResult) -> Strin
   s = s + "Tajima's theta (theta_pi): "
   s = s + result.tajima_theta_pi.to_string()
   s = s + "\n\n"
-  
+
   // Tajima's D
   s = s + "Tajima's D: "
   s = s + result.tajima_d.statistic.to_string()
@@ -828,7 +891,7 @@ pub fn neutrality_analysis_to_string(result : NeutralityAnalysisResult) -> Strin
   s = s + "\n  "
   s = s + result.tajima_d.interpretation
   s = s + "\n\n"
-  
+
   // Fu & Li's D
   s = s + "Fu & Li's D: "
   s = s + result.fu_li_d.statistic.to_string()
@@ -843,7 +906,7 @@ pub fn neutrality_analysis_to_string(result : NeutralityAnalysisResult) -> Strin
   s = s + "\n  "
   s = s + result.fu_li_d.interpretation
   s = s + "\n\n"
-  
+
   // Fu & Li's F
   s = s + "Fu & Li's F: "
   s = s + result.fu_li_f.statistic.to_string()
@@ -858,7 +921,7 @@ pub fn neutrality_analysis_to_string(result : NeutralityAnalysisResult) -> Strin
   s = s + "\n  "
   s = s + result.fu_li_f.interpretation
   s = s + "\n\n"
-  
+
   s = s + "Overall: "
   if result.is_neutral {
     s = s + "CONSISTENT WITH NEUTRALITY"
@@ -866,6 +929,6 @@ pub fn neutrality_analysis_to_string(result : NeutralityAnalysisResult) -> Strin
     s = s + "SIGNIFICANT DEPARTURE FROM NEUTRALITY DETECTED"
   }
   s = s + "\n"
-  
+
   s
 }

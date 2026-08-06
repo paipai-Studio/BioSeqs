@@ -61,7 +61,11 @@ pub fn TwoBitNBlock::end(self : TwoBitNBlock) -> Int {
 ///|
 /// Human-readable representation.
 pub fn TwoBitNBlock::to_string(self : TwoBitNBlock) -> String {
-  "NBlock(start=" + self.start.to_string() + ", size=" + self.size.to_string() + ")"
+  "NBlock(start=" +
+  self.start.to_string() +
+  ", size=" +
+  self.size.to_string() +
+  ")"
 }
 
 // ============================================================================
@@ -103,7 +107,11 @@ pub fn TwoBitMaskBlock::end(self : TwoBitMaskBlock) -> Int {
 ///|
 /// Human-readable representation.
 pub fn TwoBitMaskBlock::to_string(self : TwoBitMaskBlock) -> String {
-  "MaskBlock(start=" + self.start.to_string() + ", size=" + self.size.to_string() + ")"
+  "MaskBlock(start=" +
+  self.start.to_string() +
+  ", size=" +
+  self.size.to_string() +
+  ")"
 }
 
 // ============================================================================
@@ -161,7 +169,9 @@ pub fn TwoBitSequence::n_blocks(self : TwoBitSequence) -> Array[TwoBitNBlock] {
 
 ///|
 /// Mask-blocks (regions of soft-masked / lowercase bases).
-pub fn TwoBitSequence::mask_blocks(self : TwoBitSequence) -> Array[TwoBitMaskBlock] {
+pub fn TwoBitSequence::mask_blocks(
+  self : TwoBitSequence,
+) -> Array[TwoBitMaskBlock] {
   self.mask_blocks.copy()
 }
 
@@ -234,7 +244,10 @@ pub fn TwoBitFile::version(self : TwoBitFile) -> Int {
 
 ///|
 /// Append a sequence to the file.
-pub fn TwoBitFile::add_sequence(self : TwoBitFile, seq : TwoBitSequence) -> Unit {
+pub fn TwoBitFile::add_sequence(
+  self : TwoBitFile,
+  seq : TwoBitSequence,
+) -> Unit {
   self.sequences.push(seq)
 }
 
@@ -356,7 +369,7 @@ pub fn twobit_pack_sequence(
     }
     // Pack code into the correct byte and bit position.
     let byte_idx = i / 4
-    let shift = 6 - (i % 4) * 2
+    let shift = 6 - i % 4 * 2
     packed[byte_idx] = packed[byte_idx] | (code << shift)
     // Update N-block tracking.
     if is_n {
@@ -380,12 +393,10 @@ pub fn twobit_pack_sequence(
           mask_start = i
         }
         mask_size = mask_size + 1
-      } else {
         // Close any open mask-block.
-        if mask_size > 0 {
-          mask_blocks.push(TwoBitMaskBlock::new(mask_start, mask_size))
-          mask_size = 0
-        }
+      } else if mask_size > 0 {
+        mask_blocks.push(TwoBitMaskBlock::new(mask_start, mask_size))
+        mask_size = 0
       }
     }
   }
@@ -414,7 +425,7 @@ pub fn twobit_unpack_sequence(
   let codes : Array[Int] = Array::new()
   for i in 0..<dna_size {
     let byte_idx = i / 4
-    let shift = 6 - (i % 4) * 2
+    let shift = 6 - i % 4 * 2
     let code = (packed[byte_idx] >> shift) & 3
     codes.push(twobit_code_to_base(code).to_int())
   }
@@ -459,7 +470,10 @@ fn twobit_encode_u32_le(v : Int) -> Array[Int] {
 ///|
 /// Read a 32-bit little-endian unsigned integer from a byte array at `pos`.
 fn twobit_read_u32_le(bytes : Array[Int], pos : Int) -> Int {
-  bytes[pos] | (bytes[pos + 1] << 8) | (bytes[pos + 2] << 16) | (bytes[pos + 3] << 24)
+  bytes[pos] |
+  (bytes[pos + 1] << 8) |
+  (bytes[pos + 2] << 16) |
+  (bytes[pos + 3] << 24)
 }
 
 // ============================================================================
@@ -484,7 +498,13 @@ pub fn twobit_to_bytes(tbf : TwoBitFile) -> Array[Int] {
     offsets.push(current_offset)
     let seq = seqs[i]
     let packed_size = (seq.dna_size + 3) / 4
-    let seq_data_size = 4 + packed_size + 4 + 8 * seq.n_blocks.length() + 4 + 8 * seq.mask_blocks.length() + 4
+    let seq_data_size = 4 +
+      packed_size +
+      4 +
+      8 * seq.n_blocks.length() +
+      4 +
+      8 * seq.mask_blocks.length() +
+      4
     current_offset = current_offset + seq_data_size
   }
   // ---- Header (16 bytes) ----

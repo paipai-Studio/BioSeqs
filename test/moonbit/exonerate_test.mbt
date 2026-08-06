@@ -38,9 +38,7 @@ test "exonerate_record_new" {
     @src.AlignmentBlock::new("I", 0, 0, 1000.0),
   ]
   let rec = @src.ExonerateRecord::new(
-    "query1", 0, 100, "+",
-    "target1", 0, 95, "+",
-    1850.0, blocks,
+    "query1", 0, 100, "+", "target1", 0, 95, "+", 1850.0, blocks,
   )
   assert_eq(rec.query_name(), "query1")
   assert_eq(rec.query_start(), 0)

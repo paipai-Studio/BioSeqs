@@ -127,9 +127,13 @@ test "naccess_result_new_empty" {
 test "naccess_result_add_residue" {
   let r = @src.NaccessResult::new()
   assert_eq(r.get_num_residues(), 0)
-  r.add_residue(@src.NaccessResidue::new(res_name="ALA", res_num=1, chain_id="A"))
+  r.add_residue(
+    @src.NaccessResidue::new(res_name="ALA", res_num=1, chain_id="A"),
+  )
   assert_eq(r.get_num_residues(), 1)
-  r.add_residue(@src.NaccessResidue::new(res_name="GLY", res_num=2, chain_id="A"))
+  r.add_residue(
+    @src.NaccessResidue::new(res_name="GLY", res_num=2, chain_id="A"),
+  )
   assert_eq(r.get_num_residues(), 2)
 }
 
@@ -164,8 +168,12 @@ test "naccess_result_add_atom" {
 ///|
 test "naccess_result_get_residues" {
   let r = @src.NaccessResult::new()
-  r.add_residue(@src.NaccessResidue::new(res_name="MET", res_num=1, chain_id="A"))
-  r.add_residue(@src.NaccessResidue::new(res_name="ALA", res_num=2, chain_id="A"))
+  r.add_residue(
+    @src.NaccessResidue::new(res_name="MET", res_num=1, chain_id="A"),
+  )
+  r.add_residue(
+    @src.NaccessResidue::new(res_name="ALA", res_num=2, chain_id="A"),
+  )
   let residues = r.get_residues()
   assert_eq(residues.length(), 2)
   assert_eq(residues[0].res_name, "MET")
@@ -206,7 +214,9 @@ test "naccess_result_get_num_residues" {
   let r = @src.NaccessResult::new()
   assert_eq(r.get_num_residues(), 0)
   for i in 0..<5 {
-    r.add_residue(@src.NaccessResidue::new(res_name="ALA", res_num=i, chain_id="A"))
+    r.add_residue(
+      @src.NaccessResidue::new(res_name="ALA", res_num=i, chain_id="A"),
+    )
   }
   assert_eq(r.get_num_residues(), 5)
 }
@@ -409,26 +419,39 @@ test "naccess_parse_asa_header_only" {
 
 ///|
 test "naccess_parse_combined_counts" {
-  let result = @src.naccess_parse(@src.naccess_sample_rsa(), @src.naccess_sample_asa())
+  let result = @src.naccess_parse(
+    @src.naccess_sample_rsa(),
+    @src.naccess_sample_asa(),
+  )
   assert_eq(result.get_num_residues(), 4)
   assert_eq(result.get_num_atoms(), 6)
 }
 
 ///|
 test "naccess_parse_total_abs_asa" {
-  let result = @src.naccess_parse(@src.naccess_sample_rsa(), @src.naccess_sample_asa())
+  let result = @src.naccess_parse(
+    @src.naccess_sample_rsa(),
+    @src.naccess_sample_asa(),
+  )
   // 45.3 + 20.1 + 5.2 + 25.0 = 95.6
   assert_true((result.total_abs_asa - 95.6).abs() < naccess_eps)
 }
 
 ///|
 test "naccess_parse_chain_totals" {
-  let result = @src.naccess_parse(@src.naccess_sample_rsa(), @src.naccess_sample_asa())
+  let result = @src.naccess_parse(
+    @src.naccess_sample_rsa(),
+    @src.naccess_sample_asa(),
+  )
   assert_eq(result.chain_totals.length(), 2)
   // Chain A: 45.3 + 20.1 + 5.2 = 70.6
-  assert_true((result.chain_totals.get("A").unwrap() - 70.6).abs() < naccess_eps)
+  assert_true(
+    (result.chain_totals.get("A").unwrap() - 70.6).abs() < naccess_eps,
+  )
   // Chain B: 25.0
-  assert_true((result.chain_totals.get("B").unwrap() - 25.0).abs() < naccess_eps)
+  assert_true(
+    (result.chain_totals.get("B").unwrap() - 25.0).abs() < naccess_eps,
+  )
 }
 
 ///|
@@ -578,13 +601,17 @@ test "naccess_count_exposed" {
 test "naccess_chain_total_asa_a" {
   let result = @src.naccess_sample()
   // 45.3 + 20.1 + 5.2 = 70.6
-  assert_true((@src.naccess_chain_total_asa(result, "A") - 70.6).abs() < naccess_eps)
+  assert_true(
+    (@src.naccess_chain_total_asa(result, "A") - 70.6).abs() < naccess_eps,
+  )
 }
 
 ///|
 test "naccess_chain_total_asa_b" {
   let result = @src.naccess_sample()
-  assert_true((@src.naccess_chain_total_asa(result, "B") - 25.0).abs() < naccess_eps)
+  assert_true(
+    (@src.naccess_chain_total_asa(result, "B") - 25.0).abs() < naccess_eps,
+  )
 }
 
 ///|

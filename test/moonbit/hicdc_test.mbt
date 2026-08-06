@@ -74,7 +74,9 @@ test "hc_sample_data_has_loops" {
 ///|
 test "hc_fit_background_returns_params" {
   let contacts = @src.hicdc_sample_data()
-  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = @src.hicdc_fit_background(contacts)
+  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = @src.hicdc_fit_background(
+    contacts,
+  )
   // Parameters should be finite numbers.
   assert_true(!intercept.is_nan())
   assert_true(!beta_dist.is_nan())
@@ -86,8 +88,12 @@ test "hc_fit_background_returns_params" {
 ///|
 test "hc_predict_expected" {
   let contacts = @src.hicdc_sample_data()
-  let (intercept, beta_dist, beta_gc, beta_map, _) = @src.hicdc_fit_background(contacts)
-  let expected = @src.hicdc_predict_expected(contacts, intercept, beta_dist, beta_gc, beta_map)
+  let (intercept, beta_dist, beta_gc, beta_map, _) = @src.hicdc_fit_background(
+    contacts,
+  )
+  let expected = @src.hicdc_predict_expected(
+    contacts, intercept, beta_dist, beta_gc, beta_map,
+  )
   assert_eq(expected.length(), contacts.length())
   // Expected counts should be positive.
   for e in expected {
@@ -98,11 +104,19 @@ test "hc_predict_expected" {
 ///|
 test "hc_expected_decreases_with_distance" {
   let contacts = @src.hicdc_sample_data()
-  let (intercept, beta_dist, beta_gc, beta_map, _) = @src.hicdc_fit_background(contacts)
+  let (intercept, beta_dist, beta_gc, beta_map, _) = @src.hicdc_fit_background(
+    contacts,
+  )
   // Predict expected counts for near and far contacts.
   let c1 = @src.HiCContact::new("chr1", 0, 1, 10, 1)
   let c2 = @src.HiCContact::new("chr1", 0, 10, 10, 1)
-  let exp = @src.hicdc_predict_expected([c1, c2], intercept, beta_dist, beta_gc, beta_map)
+  let exp = @src.hicdc_predict_expected(
+    [c1, c2],
+    intercept,
+    beta_dist,
+    beta_gc,
+    beta_map,
+  )
   // Both expected counts should be positive.
   assert_true(exp[0] > 0.0)
   assert_true(exp[1] > 0.0)
@@ -115,9 +129,11 @@ test "hc_expected_decreases_with_distance" {
 ///|
 test "hc_test_significance_returns_results" {
   let contacts = @src.hicdc_sample_data()
-  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = @src.hicdc_fit_background(contacts)
+  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = @src.hicdc_fit_background(
+    contacts,
+  )
   let results = @src.hicdc_test_significance(
-    contacts, intercept, beta_dist, beta_gc, beta_map, dispersion
+    contacts, intercept, beta_dist, beta_gc, beta_map, dispersion,
   )
   assert_eq(results.length(), contacts.length())
   // Check that p-values and FDR are valid.
@@ -134,9 +150,11 @@ test "hc_test_significance_returns_results" {
 ///|
 test "hc_significant_loops_detected" {
   let contacts = @src.hicdc_sample_data()
-  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = @src.hicdc_fit_background(contacts)
+  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = @src.hicdc_fit_background(
+    contacts,
+  )
   let results = @src.hicdc_test_significance(
-    contacts, intercept, beta_dist, beta_gc, beta_map, dispersion
+    contacts, intercept, beta_dist, beta_gc, beta_map, dispersion,
   )
   let marked = @src.hicdc_mark_significant(results, 0.3)
   // At least some contacts should be significant with loose threshold.
@@ -152,9 +170,11 @@ test "hc_significant_loops_detected" {
 ///|
 test "hc_fdr_monotonic" {
   let contacts = @src.hicdc_sample_data()
-  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = @src.hicdc_fit_background(contacts)
+  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = @src.hicdc_fit_background(
+    contacts,
+  )
   let results = @src.hicdc_test_significance(
-    contacts, intercept, beta_dist, beta_gc, beta_map, dispersion
+    contacts, intercept, beta_dist, beta_gc, beta_map, dispersion,
   )
   // FDR should be >= p_value for each result (BH inflates).
   for r in results {
@@ -284,7 +304,10 @@ test "hc_empty_contacts" {
 ///|
 test "hc_single_contact" {
   let c = @src.HiCContact::new("chr1", 0, 1, 50, 1)
-  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = @src.hicdc_fit_background([c])
+  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = @src.hicdc_fit_background([
+      c,
+    ],
+  )
   assert_true(!intercept.is_nan())
   assert_true(dispersion > 0.0)
 }

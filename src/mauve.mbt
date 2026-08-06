@@ -153,7 +153,7 @@ pub fn mauve_seq_coverage(seq : MauveSequence) -> Double {
   if seq.seq_size == 0 {
     return 0.0
   }
-  (seq.length.to_double() / seq.seq_size.to_double()) * 100.0
+  seq.length.to_double() / seq.seq_size.to_double() * 100.0
 }
 
 // ============================================================================
@@ -163,12 +163,7 @@ pub fn mauve_seq_coverage(seq : MauveSequence) -> Double {
 ///|
 /// Create a new empty MauveLCB.
 pub fn new_mauve_lcb(id : String) -> MauveLCB {
-  MauveLCB::{
-    id,
-    score: 0.0,
-    sequences: Array::new(),
-    is_collinear: true,
-  }
+  MauveLCB::{ id, score: 0.0, sequences: Array::new(), is_collinear: true }
 }
 
 ///|
@@ -261,7 +256,10 @@ pub fn mauve_all_seq_names(ali : MauveAlignment) -> Array[String] {
 
 ///|
 /// Get sequences for a specific genome.
-pub fn mauve_get_genome_seqs(ali : MauveAlignment, genome_name : String) -> Array[MauveSequence] {
+pub fn mauve_get_genome_seqs(
+  ali : MauveAlignment,
+  genome_name : String,
+) -> Array[MauveSequence] {
   let seqs = Array::new()
   let prefix_len = genome_name.length()
   for l = 0; l < ali.lcbs.length(); l = l + 1 {
@@ -292,11 +290,11 @@ pub fn parse_mauve(content : String) -> MauveAlignment {
   let lines = content.split("\n").to_array()
   let mut current_lcb : MauveLCB? = None
   let mut lcb_counter = 0
-  
+
   for i = 0; i < lines.length(); i = i + 1 {
     let line = lines[i].to_owned()
     let trimmed = trim(line)
-    
+
     if trimmed.length() == 0 {
       match current_lcb {
         Some(lcb) => {
@@ -308,25 +306,28 @@ pub fn parse_mauve(content : String) -> MauveAlignment {
       }
       continue
     }
-    
+
     if starts_with(trimmed, 0, "##maf") || starts_with(trimmed, 0, "##mauve") {
       if contains(trimmed, "version=") {
         let parts = split_by_char(trimmed, ' '.to_int())
         for p = 0; p < parts.length(); p = p + 1 {
           let part = parts[p]
           if starts_with(part, 0, "version=") {
-            result = MauveAlignment::{ ..result, version: part[8:part.length()].to_owned() }
+            result = MauveAlignment::{
+              ..result,
+              version: part[8:part.length()].to_owned(),
+            }
           }
         }
       }
       continue
     }
-    
+
     if starts_with(trimmed, 0, "a ") {
       lcb_counter = lcb_counter + 1
       let lcb_id = "" + "lcb_" + lcb_counter.to_string()
       current_lcb = Some(new_mauve_lcb(lcb_id))
-      
+
       let parts = split_by_char(trimmed, ' '.to_int())
       for p = 0; p < parts.length(); p = p + 1 {
         let part = parts[p]
@@ -334,8 +335,12 @@ pub fn parse_mauve(content : String) -> MauveAlignment {
           let score_val = parse_double(part[6:part.length()].to_owned())
           match current_lcb {
             Some(lcb) => {
-              let score = if score_val is Some(_) { score_val.unwrap() } else { 0.0 }
-              let new_lcb = MauveLCB::{ ..lcb, score: score }
+              let score = if score_val is Some(_) {
+                score_val.unwrap()
+              } else {
+                0.0
+              }
+              let new_lcb = MauveLCB::{ ..lcb, score, }
               current_lcb = Some(new_lcb)
               ignore(())
             }
@@ -345,7 +350,10 @@ pub fn parse_mauve(content : String) -> MauveAlignment {
           let val = part[10:part.length()].to_owned()
           match current_lcb {
             Some(lcb) => {
-              let new_lcb = MauveLCB::{ ..lcb, is_collinear: val == "yes" || val == "1" }
+              let new_lcb = MauveLCB::{
+                ..lcb,
+                is_collinear: val == "yes" || val == "1",
+              }
               current_lcb = Some(new_lcb)
               ignore(())
             }
@@ -355,13 +363,13 @@ pub fn parse_mauve(content : String) -> MauveAlignment {
       }
       continue
     }
-    
+
     if starts_with(trimmed, 0, "s ") || starts_with(trimmed, 0, "s\t") {
       if current_lcb is None {
         lcb_counter = lcb_counter + 1
         current_lcb = Some(new_mauve_lcb("lcb_" + lcb_counter.to_string()))
       }
-      
+
       let mut parts = split_by_tab(trimmed)
       if parts.length() < 6 {
         parts = split_by_char(trimmed, ' '.to_int())
@@ -373,7 +381,7 @@ pub fn parse_mauve(content : String) -> MauveAlignment {
         let strand = parts[4]
         let seq_size = parse_int(parts[5])
         let end = start + length
-        
+
         let seq = new_mauve_sequence(name, start, end, strand, seq_size)
         match current_lcb {
           Some(lcb) => {
@@ -386,7 +394,7 @@ pub fn parse_mauve(content : String) -> MauveAlignment {
       }
       continue
     }
-    
+
     if starts_with(trimmed, 0, "g ") {
       let parts = split_by_char(trimmed, ' '.to_int())
       if parts.length() >= 3 {
@@ -405,7 +413,7 @@ pub fn parse_mauve(content : String) -> MauveAlignment {
       continue
     }
   }
-  
+
   match current_lcb {
     Some(lcb) => {
       result.lcbs.push(lcb)
@@ -413,10 +421,10 @@ pub fn parse_mauve(content : String) -> MauveAlignment {
     }
     None => ignore(())
   }
-  
+
   result = detect_mauve_inversions(result)
   result = detect_mauve_breakpoints(result)
-  
+
   result
 }
 
@@ -429,41 +437,51 @@ pub fn parse_mauve(content : String) -> MauveAlignment {
 pub fn detect_mauve_inversions(ali : MauveAlignment) -> MauveAlignment {
   let result = ali
   let seq_names = mauve_all_seq_names(result)
-  
+
   for n = 0; n < seq_names.length(); n = n + 1 {
     let name = seq_names[n]
     let seqs = mauve_get_genome_seqs(result, name)
     if seqs.length() < 2 {
       continue
     }
-    
+
     for i = 1; i < seqs.length(); i = i + 1 {
       let prev = seqs[i - 1]
       let curr = seqs[i]
-      
+
       if prev.strand != curr.strand {
-        let inv_start = if prev.start < curr.start { prev.start } else { curr.start }
+        let inv_start = if prev.start < curr.start {
+          prev.start
+        } else {
+          curr.start
+        }
         let inv_end = if prev.end > curr.end { prev.end } else { curr.end }
         let inv = MauveInversion::{
           seq_name: name,
           start: inv_start,
           end: inv_end,
-          length: if curr.end - prev.start > 0 { curr.end - prev.start } else { prev.start - curr.end },
+          length: if curr.end - prev.start > 0 {
+            curr.end - prev.start
+          } else {
+            prev.start - curr.end
+          },
           affected_lcbs: Array::new(),
         }
-        
+
         for l = 0; l < result.lcbs.length(); l = l + 1 {
           let lcb = result.lcbs[l]
           for s = 0; s < lcb.sequences.length(); s = s + 1 {
             let seq = lcb.sequences[s]
-            if seq.name == name && 
-               ((seq.start >= inv.start && seq.end <= inv.end) ||
-                (seq.end >= inv.start && seq.start <= inv.end)) {
+            if seq.name == name &&
+              (
+                (seq.start >= inv.start && seq.end <= inv.end) ||
+                (seq.end >= inv.start && seq.start <= inv.end)
+              ) {
               inv.affected_lcbs.push(lcb.id)
             }
           }
         }
-        
+
         result.inversions.push(inv)
       }
     }
@@ -478,21 +496,33 @@ pub fn detect_mauve_breakpoints(ali : MauveAlignment) -> MauveAlignment {
   if result.lcbs.length() < 2 {
     return result
   }
-  
+
   for i = 1; i < result.lcbs.length(); i = i + 1 {
     let prev_lcb = result.lcbs[i - 1]
     let curr_lcb = result.lcbs[i]
-    
+
     for ps = 0; ps < prev_lcb.sequences.length(); ps = ps + 1 {
       let prev_seq = prev_lcb.sequences[ps]
       for cs = 0; cs < curr_lcb.sequences.length(); cs = cs + 1 {
         let curr_seq = curr_lcb.sequences[cs]
         if prev_seq.name == curr_seq.name {
-          let gap_start = if prev_seq.end > curr_seq.start { prev_seq.end } else { curr_seq.start }
-          let gap_end = if prev_seq.start < curr_seq.end { prev_seq.start } else { curr_seq.end }
-          
+          let gap_start = if prev_seq.end > curr_seq.start {
+            prev_seq.end
+          } else {
+            curr_seq.start
+          }
+          let gap_end = if prev_seq.start < curr_seq.end {
+            prev_seq.start
+          } else {
+            curr_seq.end
+          }
+
           if gap_start > gap_end {
-            let bp_type = if prev_seq.strand != curr_seq.strand { "inversion" } else { "translocation" }
+            let bp_type = if prev_seq.strand != curr_seq.strand {
+              "inversion"
+            } else {
+              "translocation"
+            }
             let bp = MauveBreakpoint::{
               lcb1_id: prev_lcb.id,
               lcb2_id: curr_lcb.id,
@@ -521,13 +551,7 @@ pub fn new_mauve_inversion(
   end : Int,
   length : Int,
 ) -> MauveInversion {
-  MauveInversion::{
-    seq_name,
-    start,
-    end,
-    length,
-    affected_lcbs: Array::new(),
-  }
+  MauveInversion::{ seq_name, start, end, length, affected_lcbs: Array::new() }
 }
 
 ///|
@@ -535,29 +559,33 @@ pub fn new_mauve_inversion(
 pub fn mauve_genome_coverage(ali : MauveAlignment) -> Map[String, Double] {
   let coverage = Map([], capacity=10)
   let seq_names = mauve_all_seq_names(ali)
-  
+
   for n = 0; n < seq_names.length(); n = n + 1 {
     let name = seq_names[n]
     let seqs = mauve_get_genome_seqs(ali, name)
     let mut total_aligned = 0.0
     let mut max_end = 0
     let mut min_start = 99999999
-    
+
     for s = 0; s < seqs.length(); s = s + 1 {
       let seq = seqs[s]
       total_aligned = total_aligned + seq.length.to_double()
-      if seq.end > max_end { max_end = seq.end }
-      if seq.start < min_start { min_start = seq.start }
+      if seq.end > max_end {
+        max_end = seq.end
+      }
+      if seq.start < min_start {
+        min_start = seq.start
+      }
     }
-    
+
     let total_range = (max_end - min_start).to_double()
     if total_range > 0.0 {
-      coverage[name] = (total_aligned / total_range) * 100.0
+      coverage[name] = total_aligned / total_range * 100.0
     } else {
       coverage[name] = 0.0
     }
   }
-  
+
   coverage
 }
 
@@ -566,13 +594,13 @@ pub fn mauve_genome_coverage(ali : MauveAlignment) -> Map[String, Double] {
 pub fn mauve_conserved_segments(ali : MauveAlignment) -> Map[String, Int] {
   let segments = Map([], capacity=10)
   let seq_names = mauve_all_seq_names(ali)
-  
+
   for n = 0; n < seq_names.length(); n = n + 1 {
     let name = seq_names[n]
     let count = mauve_get_genome_seqs(ali, name).length()
     segments[name] = count
   }
-  
+
   segments
 }
 
@@ -583,7 +611,7 @@ pub fn mauve_rearrangement_rate(ali : MauveAlignment) -> Double {
   if total_size == 0 {
     return 0.0
   }
-  (ali.breakpoints.length().to_double() / total_size.to_double()) * 1000000.0
+  ali.breakpoints.length().to_double() / total_size.to_double() * 1000000.0
 }
 
 ///|
@@ -592,7 +620,7 @@ pub fn mauve_syntenic_regions(ali : MauveAlignment) -> Array[Array[String]] {
   let regions = Array::new()
   let mut current_region = Array::new()
   let mut prev_collinear = true
-  
+
   for l = 0; l < ali.lcbs.length(); l = l + 1 {
     let lcb = ali.lcbs[l]
     if lcb.is_collinear && prev_collinear {
@@ -608,29 +636,37 @@ pub fn mauve_syntenic_regions(ali : MauveAlignment) -> Array[Array[String]] {
     }
     prev_collinear = lcb.is_collinear
   }
-  
+
   if current_region.length() > 0 {
     regions.push(current_region)
   }
-  
+
   regions
 }
 
 ///|
 /// Filter LCBs by score threshold.
-pub fn mauve_filter_lcbs(ali : MauveAlignment, min_score : Double) -> MauveAlignment {
-  let mut result = MauveAlignment::{ ..ali, lcbs: Array::new(), inversions: Array::new(), breakpoints: Array::new() }
-  
+pub fn mauve_filter_lcbs(
+  ali : MauveAlignment,
+  min_score : Double,
+) -> MauveAlignment {
+  let mut result = MauveAlignment::{
+    ..ali,
+    lcbs: Array::new(),
+    inversions: Array::new(),
+    breakpoints: Array::new(),
+  }
+
   for l = 0; l < ali.lcbs.length(); l = l + 1 {
     let lcb = ali.lcbs[l]
     if lcb.score >= min_score {
       result.lcbs.push(lcb)
     }
   }
-  
+
   result = detect_mauve_inversions(result)
   result = detect_mauve_breakpoints(result)
-  
+
   result
 }
 
@@ -661,7 +697,10 @@ pub fn new_mauve_progressive_aligner() -> MauveProgressiveAligner {
 
 ///|
 /// Add a sequence to the progressive alignment.
-pub fn mauve_add_sequence(aligner : MauveProgressiveAligner, seq_name : String) -> Unit {
+pub fn mauve_add_sequence(
+  aligner : MauveProgressiveAligner,
+  seq_name : String,
+) -> Unit {
   aligner.pending_seqs.push(seq_name)
 }
 
@@ -679,15 +718,17 @@ pub fn mauve_build_guide_tree(aligner : MauveProgressiveAligner) -> Unit {
 
 ///|
 /// Execute progressive alignment by adding sequences one at a time.
-pub fn mauve_execute_progressive(aligner : MauveProgressiveAligner) -> MauveAlignment {
+pub fn mauve_execute_progressive(
+  aligner : MauveProgressiveAligner,
+) -> MauveAlignment {
   mauve_build_guide_tree(aligner)
-  
+
   let result = aligner.alignment
-  
+
   for i = 0; i < aligner.guide_tree.length(); i = i + 1 {
     result.groups[i] = aligner.guide_tree[i]
   }
-  
+
   result
 }
 
@@ -701,15 +742,15 @@ pub fn mauve_summary(ali : MauveAlignment) -> String {
   let mut result = ""
   result = result + "Mauve Alignment Summary\n"
   result = result + "====================\n\n"
-  
+
   result = result + "Version: "
   result = result + ali.version
   result = result + "\n\n"
-  
+
   result = result + "Locally Collinear Blocks (LCBs): "
   result = result + ali.lcbs.length().to_string()
   result = result + "\n\n"
-  
+
   result = result + "Genomes aligned:\n"
   let seq_names = mauve_all_seq_names(ali)
   let coverage = mauve_genome_coverage(ali)
@@ -721,12 +762,12 @@ pub fn mauve_summary(ali : MauveAlignment) -> String {
     result = result + coverage[name].to_string()
     result = result + "%)\n"
   }
-  
+
   result = result + "\n"
   result = result + "Inversions detected: "
   result = result + ali.inversions.length().to_string()
   result = result + "\n"
-  
+
   for i = 0; i < ali.inversions.length(); i = i + 1 {
     let inv = ali.inversions[i]
     result = result + "  - "
@@ -739,12 +780,12 @@ pub fn mauve_summary(ali : MauveAlignment) -> String {
     result = result + inv.length.to_string()
     result = result + " bp)\n"
   }
-  
+
   result = result + "\n"
   result = result + "Breakpoints detected: "
   result = result + ali.breakpoints.length().to_string()
   result = result + "\n"
-  
+
   let bp_types = Map([], capacity=5)
   for b = 0; b < ali.breakpoints.length(); b = b + 1 {
     let bp = ali.breakpoints[b]
@@ -755,7 +796,7 @@ pub fn mauve_summary(ali : MauveAlignment) -> String {
       bp_types[bp.breakpoint_type] = 1
     }
   }
-  
+
   let bp_keys = bp_types.keys().collect()
   for k = 0; k < bp_keys.length(); k = k + 1 {
     let key = bp_keys[k]
@@ -765,14 +806,14 @@ pub fn mauve_summary(ali : MauveAlignment) -> String {
     result = result + bp_types[key].to_string()
     result = result + "\n"
   }
-  
+
   result = result + "\n"
   result = result + "Syntenic regions:\n"
   let syntenic = mauve_syntenic_regions(ali)
   result = result + "  Number: "
   result = result + syntenic.length().to_string()
   result = result + "\n"
-  
+
   let segments = mauve_conserved_segments(ali)
   result = result + "\nConserved segments per genome:\n"
   let seg_keys = segments.keys().collect()
@@ -784,11 +825,11 @@ pub fn mauve_summary(ali : MauveAlignment) -> String {
     result = result + segments[key].to_string()
     result = result + " segments\n"
   }
-  
+
   result = result + "\nRearrangement rate: "
   result = result + mauve_rearrangement_rate(ali).to_string()
   result = result + " breakpoints/Mb\n"
-  
+
   result
 }
 
@@ -796,8 +837,9 @@ pub fn mauve_summary(ali : MauveAlignment) -> String {
 /// Export alignment to BED format for visualization.
 pub fn mauve_to_bed(ali : MauveAlignment) -> String {
   let mut result = ""
-  result = result + "track name=\"MauveAlignment\" description=\"Mauve Alignment Blocks\"\n"
-  
+  result = result +
+    "track name=\"MauveAlignment\" description=\"Mauve Alignment Blocks\"\n"
+
   for l = 0; l < ali.lcbs.length(); l = l + 1 {
     let lcb = ali.lcbs[l]
     for s = 0; s < lcb.sequences.length(); s = s + 1 {
@@ -816,7 +858,7 @@ pub fn mauve_to_bed(ali : MauveAlignment) -> String {
       result = result + "\n"
     }
   }
-  
+
   result
 }
 
@@ -825,7 +867,7 @@ pub fn mauve_to_bed(ali : MauveAlignment) -> String {
 pub fn mauve_inversions_to_bed(ali : MauveAlignment) -> String {
   let mut result = ""
   result = result + "track name=\"Inversions\" color=\"100,0,0\"\n"
-  
+
   for i = 0; i < ali.inversions.length(); i = i + 1 {
     let inv = ali.inversions[i]
     result = result + inv.seq_name
@@ -837,6 +879,6 @@ pub fn mauve_inversions_to_bed(ali : MauveAlignment) -> String {
     result = result + inv.length.to_string()
     result = result + "\t-\n"
   }
-  
+
   result
 }

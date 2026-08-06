@@ -79,7 +79,7 @@ pub struct TransfacMotifFull {
 
 ///|
 /// Create a new TransfacMotifFull.
-pub fn TransfacMotifFull::new(accession~ : String = "") -> TransfacMotifFull {
+pub fn TransfacMotifFull::new(accession? : String = "") -> TransfacMotifFull {
   TransfacMotifFull::{
     accession,
     identifier: "",
@@ -124,7 +124,10 @@ pub fn TransfacMotifFull::consensus(self : TransfacMotifFull) -> String {
 
 ///|
 /// Get the total count at a position (sum of all bases).
-pub fn TransfacMotifFull::total_at(self : TransfacMotifFull, position : Int) -> Int {
+pub fn TransfacMotifFull::total_at(
+  self : TransfacMotifFull,
+  position : Int,
+) -> Int {
   if position < 0 || position >= self.width {
     return 0
   }
@@ -160,7 +163,10 @@ pub fn TransfacMotifFull::frequency(
 
 ///|
 /// Find the index of a base in the alphabet.
-pub fn TransfacMotifFull::alphabet_index(self : TransfacMotifFull, base : String) -> Int {
+pub fn TransfacMotifFull::alphabet_index(
+  self : TransfacMotifFull,
+  base : String,
+) -> Int {
   let mut i = 0
   while i < self.alphabet.length() {
     if self.alphabet[i] == base {
@@ -192,7 +198,10 @@ pub fn TransfacRecordFull::num_motifs(self : TransfacRecordFull) -> Int {
 
 ///|
 /// Find a motif by accession number.
-pub fn TransfacRecordFull::find(self : TransfacRecordFull, accession : String) -> TransfacMotifFull? {
+pub fn TransfacRecordFull::find(
+  self : TransfacRecordFull,
+  accession : String,
+) -> TransfacMotifFull? {
   for m in self.motifs {
     if m.accession == accession {
       return Some(m)
@@ -262,7 +271,11 @@ pub fn transfac_parse_full(text : String) -> TransfacRecordFull {
       continue
     }
     // Helper to finalize current reference
-    if field != "RA" && field != "RT" && field != "RL" && field != "RX" && has_ref {
+    if field != "RA" &&
+      field != "RT" &&
+      field != "RL" &&
+      field != "RX" &&
+      has_ref {
       let r = TransfacReference::new()
       r.number = ref_number
       r.authors = ref_authors
@@ -471,7 +484,10 @@ pub fn transfac_parse_full(text : String) -> TransfacRecordFull {
       continue
     }
     // Matrix data rows (start with digits)
-    if in_matrix && field.length() >= 2 && field[0:1].to_string() >= "0" && field[0:1].to_string() <= "9" {
+    if in_matrix &&
+      field.length() >= 2 &&
+      field[0:1].to_string() >= "0" &&
+      field[0:1].to_string() <= "9" {
       // Parse the row number and counts
       let parts = trimmed.split(" ").to_array()
       let counts : Array[Int] = Array::new()
@@ -626,12 +642,7 @@ pub fn transfac_sample_motif_full() -> TransfacMotifFull {
   m.species = "Homo sapiens"
   m.binding_factors.push("Jun")
   m.binding_factors.push("Fos")
-  m.pfm = [
-    [4, 0, 0, 0, 3],
-    [0, 0, 4, 0, 1],
-    [0, 4, 0, 0, 0],
-    [0, 0, 0, 4, 0],
-  ]
+  m.pfm = [[4, 0, 0, 0, 3], [0, 0, 4, 0, 1], [0, 4, 0, 0, 0], [0, 0, 0, 4, 0]]
   m.width = 5
   m.comments = "AP-1 transcription factor binding site"
   m

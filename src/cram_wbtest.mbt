@@ -11,7 +11,7 @@ test "cram_magic" {
 test "cram_record_is_paired" {
   let cigar : Array[BamCigarElement] = Array::new()
   cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100 })
-  
+
   let read_features = CramReadFeatures::{
     read_group: 0,
     flags: 1,
@@ -22,7 +22,7 @@ test "cram_record_is_paired" {
     quality: "!!!!",
     tags: Array::new(),
   }
-  
+
   let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
   assert_true((record.read_features.flags & 1) != 0)
 }
@@ -30,7 +30,7 @@ test "cram_record_is_paired" {
 ///|
 test "cram_record_is_mapped" {
   let cigar : Array[BamCigarElement] = Array::new()
-  
+
   let read_features = CramReadFeatures::{
     read_group: 0,
     flags: 0,
@@ -41,7 +41,7 @@ test "cram_record_is_mapped" {
     quality: "!!!!",
     tags: Array::new(),
   }
-  
+
   let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
   assert_true((record.read_features.flags & 4) == 0)
 }
@@ -49,7 +49,7 @@ test "cram_record_is_mapped" {
 ///|
 test "cram_record_is_unmapped" {
   let cigar : Array[BamCigarElement] = Array::new()
-  
+
   let read_features = CramReadFeatures::{
     read_group: 0,
     flags: 4,
@@ -60,7 +60,7 @@ test "cram_record_is_unmapped" {
     quality: "!!!!",
     tags: Array::new(),
   }
-  
+
   let record = CramRecord::{ ref_id: -1, pos: 0, read_features }
   assert_true((record.read_features.flags & 4) != 0)
 }
@@ -68,7 +68,7 @@ test "cram_record_is_unmapped" {
 ///|
 test "cram_record_is_reverse" {
   let cigar : Array[BamCigarElement] = Array::new()
-  
+
   let read_features = CramReadFeatures::{
     read_group: 0,
     flags: 16,
@@ -79,7 +79,7 @@ test "cram_record_is_reverse" {
     quality: "!!!!",
     tags: Array::new(),
   }
-  
+
   let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
   assert_true((record.read_features.flags & 16) != 0)
 }
@@ -87,10 +87,25 @@ test "cram_record_is_reverse" {
 ///|
 test "cram_file_num_references" {
   let references : Array[CramReference] = Array::new()
-  references.push(CramReference::{ name: "chr1", length: 1000, md5: "", uri: "" })
-  references.push(CramReference::{ name: "chr2", length: 2000, md5: "", uri: "" })
-  references.push(CramReference::{ name: "chr3", length: 3000, md5: "", uri: "" })
-  
+  references.push(CramReference::{
+    name: "chr1",
+    length: 1000,
+    md5: "",
+    uri: "",
+  })
+  references.push(CramReference::{
+    name: "chr2",
+    length: 2000,
+    md5: "",
+    uri: "",
+  })
+  references.push(CramReference::{
+    name: "chr3",
+    length: 3000,
+    md5: "",
+    uri: "",
+  })
+
   let header = CramHeader::{
     version: CramVersion::{ major: 3, minor: 0 },
     reference_count: 3,
@@ -108,7 +123,7 @@ test "cram_file_num_references" {
 test "cram_record_to_bam_record" {
   let cigar : Array[BamCigarElement] = Array::new()
   cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100 })
-  
+
   let read_features = CramReadFeatures::{
     read_group: 0,
     flags: 0,
@@ -119,10 +134,10 @@ test "cram_record_to_bam_record" {
     quality: "!!!!",
     tags: Array::new(),
   }
-  
+
   let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
   let bam_record = record.to_bam_record()
-  
+
   assert_eq(bam_record.ref_id, 0)
   assert_eq(bam_record.pos, 100)
   assert_eq(bam_record.mapq, 60)
@@ -143,7 +158,7 @@ fn read_itf8(data : String, pos : Int) -> (Int, Int) {
 ///|
 fn read_ltf8(data : String, pos : Int) -> (Int, Int) {
   let byte = data[pos].to_int() & 0xFF
-  ((byte >> 1), pos + 1)
+  (byte >> 1, pos + 1)
 }
 
 ///|

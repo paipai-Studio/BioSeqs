@@ -10,8 +10,7 @@
 
 ///|
 test "parse_embl_basic_single" {
-  let embl_text =
-    "ID   HSBGLOD; SV 1; linear; genomic DNA; STD; HUM; 500 BP.\n" +
+  let embl_text = "ID   HSBGLOD; SV 1; linear; genomic DNA; STD; HUM; 500 BP.\n" +
     "XX\n" +
     "AC   M12345;\n" +
     "XX\n" +
@@ -26,13 +25,15 @@ test "parse_embl_basic_single" {
   assert_eq(records[0].id, "M12345")
   assert_eq(records[0].name, "HSBGLOD")
   assert_eq(records[0].description, "Human beta-globin gene region")
-  assert_eq(records[0].seq.to_string(), "ATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGC")
+  assert_eq(
+    records[0].seq.to_string(),
+    "ATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGCATGC",
+  )
 }
 
 ///|
 test "parse_embl_multiple_records" {
-  let embl_text =
-    "ID   SEQ1; SV 1; linear; DNA; STD; 10 BP.\n" +
+  let embl_text = "ID   SEQ1; SV 1; linear; DNA; STD; 10 BP.\n" +
     "XX\n" +
     "AC   ACC001;\n" +
     "XX\n" +
@@ -63,8 +64,7 @@ test "parse_embl_multiple_records" {
 
 ///|
 test "parse_embl_no_ac_uses_id" {
-  let embl_text =
-    "ID   MYSEQ; SV 1; linear; DNA; STD; 4 BP.\n" +
+  let embl_text = "ID   MYSEQ; SV 1; linear; DNA; STD; 4 BP.\n" +
     "XX\n" +
     "DE   Sequence without accession.\n" +
     "XX\n" +
@@ -82,8 +82,7 @@ test "parse_embl_no_ac_uses_id" {
 
 ///|
 test "parse_pir_basic" {
-  let pir_text =
-    ">P1;ALB_HUMAN\n" +
+  let pir_text = ">P1;ALB_HUMAN\n" +
     "Serum albumin precursor (Human).\n" +
     "MKWVTFISLLFLFSSAYSRGVFRRDTHKSEIAHRFKDLGEEHFKGLVLIAFSQYLQQCPFDEHVKLVNELTEFAK*"
   let records = @src.parse_pir(pir_text)
@@ -97,8 +96,7 @@ test "parse_pir_basic" {
 
 ///|
 test "parse_pir_multiple" {
-  let pir_text =
-    ">P1;PROT1\n" +
+  let pir_text = ">P1;PROT1\n" +
     "Protein one.\n" +
     "MVLSQDEVVCF* \n" +
     ">P1;PROT2\n" +
@@ -114,10 +112,7 @@ test "parse_pir_multiple" {
 
 ///|
 test "parse_pir_sequence_spaces_ignored" {
-  let pir_text =
-    ">DL;DNA1\n" +
-    "Linear DNA fragment.\n" +
-    "atgc atgc atgc *"
+  let pir_text = ">DL;DNA1\n" + "Linear DNA fragment.\n" + "atgc atgc atgc *"
   let records = @src.parse_pir(pir_text)
   assert_eq(records.length(), 1)
   assert_eq(records[0].id, "DNA1")
@@ -227,8 +222,18 @@ test "write_genbank_sequence_format" {
 
 ///|
 test "write_genbank_multiple_records" {
-  let r1 = @src.SeqRecord::new(@src.Seq::new("ACGT"), id="A1", name="L1", description="First")
-  let r2 = @src.SeqRecord::new(@src.Seq::new("TGCA"), id="B2", name="L2", description="Second")
+  let r1 = @src.SeqRecord::new(
+    @src.Seq::new("ACGT"),
+    id="A1",
+    name="L1",
+    description="First",
+  )
+  let r2 = @src.SeqRecord::new(
+    @src.Seq::new("TGCA"),
+    id="B2",
+    name="L2",
+    description="Second",
+  )
   let out = @src.write_genbank([r1, r2])
   // Should have two LOCUS and two terminators
   assert_eq(out.split("LOCUS").length(), 3) // includes 1 before first match
@@ -239,8 +244,7 @@ test "write_genbank_multiple_records" {
 
 ///|
 test "seqio_parse_embl_through_unified" {
-  let embl =
-    "ID   S1; SV 1; linear; DNA; STD; 4 BP.\n" +
+  let embl = "ID   S1; SV 1; linear; DNA; STD; 4 BP.\n" +
     "XX\n" +
     "AC   A001;\n" +
     "XX\n" +
@@ -287,9 +291,7 @@ test "seqio_parse_tab_through_unified" {
 
 ///|
 test "seqio_write_genbank_tab_through_unified" {
-  let records = [
-    @src.SeqRecord::new(@src.Seq::new("ACGT"), id="r1"),
-  ]
+  let records = [@src.SeqRecord::new(@src.Seq::new("ACGT"), id="r1")]
   try {
     let gb_text = @src.seqio_write(records, "genbank")
     assert_true(gb_text.contains("LOCUS"))

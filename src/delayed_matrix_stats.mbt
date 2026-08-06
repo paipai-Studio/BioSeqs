@@ -208,9 +208,7 @@ fn compute_single_stat(values : Array[Double], stat : String) -> Double {
       let variance = compute_single_stat(valid, "var")
       variance.sqrt()
     }
-    "n" | "nna" | "nn" => {
-      nv.to_double()
-    }
+    "n" | "nna" | "nn" => nv.to_double()
     _ => 0.0
   }
 }
