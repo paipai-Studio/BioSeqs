@@ -11,11 +11,7 @@
 
 name = "IvanAXu/BioSeqs"
 
-<<<<<<< HEAD
 version = "0.1.8"
-=======
-version = "0.1.7"
->>>>>>> 77ef7bae14a62142c288452c823f716ff5f698af
 
 readme = "README.mbt.md"
 
