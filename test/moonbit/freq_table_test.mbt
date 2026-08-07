@@ -305,7 +305,10 @@ test "freq_table_from_sequence_basic" {
 
 ///|
 test "freq_table_from_sequence_with_alphabet_restricts" {
-  let ft = @src.freq_table_from_sequence("AATTGGCCNN", Some(["A", "T", "G", "C"]))
+  let ft = @src.freq_table_from_sequence(
+    "AATTGGCCNN",
+    Some(["A", "T", "G", "C"]),
+  )
   assert_eq(ft.size(), 4)
   assert_eq(ft.count_of("A"), 2)
   // N is not in alphabet, so it should not be counted.

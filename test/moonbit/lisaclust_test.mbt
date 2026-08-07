@@ -96,13 +96,11 @@ fn lisa_test_experiment() -> @src.SpatialExperiment {
     ignore(
       @src.se_add_col(
         experiment,
-        Map(
-          [
-            ("cellID", cell.cell_id),
-            ("imageID", cell.image_id),
-            ("cellType", cell.cell_type),
-          ],
-        ),
+        Map([
+          ("cellID", cell.cell_id),
+          ("imageID", cell.image_id),
+          ("cellType", cell.cell_type),
+        ]),
       ),
     )
     ignore(
@@ -117,16 +115,12 @@ fn lisa_test_experiment() -> @src.SpatialExperiment {
 
 ///|
 test "lisaClust: curve and window helpers expose both modes" {
-  assert_true(
-    @src.lisa_k_curve() is @src.LisaCurveKind::LisaStandardizedK,
-  )
+  assert_true(@src.lisa_k_curve() is @src.LisaCurveKind::LisaStandardizedK)
   assert_true(@src.lisa_l_curve() is @src.LisaCurveKind::LisaCenteredL)
   assert_true(
     @src.lisa_rectangle_window() is @src.LisaWindowKind::LisaRectangle,
   )
-  assert_true(
-    @src.lisa_convex_window() is @src.LisaWindowKind::LisaConvexHull,
-  )
+  assert_true(@src.lisa_convex_window() is @src.LisaWindowKind::LisaConvexHull)
 }
 
 ///|
@@ -328,13 +322,7 @@ test "lisaClust: cell constructor validates identifiers" {
 test "lisaClust: cell constructor rejects non-finite coordinates" {
   let failed = try {
     ignore(
-      @src.LisaCell::create(
-        "cell",
-        "image",
-        "A",
-        @double.not_a_number,
-        0.0,
-      ),
+      @src.LisaCell::create("cell", "image", "A", @double.not_a_number, 0.0),
     )
     false
   } catch {
@@ -345,10 +333,7 @@ test "lisaClust: cell constructor rejects non-finite coordinates" {
 
 ///|
 test "lisaClust: curve matrix exposes stable dimensions and names" {
-  let curves = @src.lisa_curves(
-    lisa_test_cells(),
-    config=lisa_test_config(),
-  ) catch {
+  let curves = @src.lisa_curves(lisa_test_cells(), config=lisa_test_config()) catch {
     _ => abort("lisaClust curves should compute")
   }
   assert_eq(curves.n_cells(), 8)
@@ -361,10 +346,7 @@ test "lisaClust: curve matrix exposes stable dimensions and names" {
 
 ///|
 test "lisaClust: feature lookup follows target-major radius order" {
-  let curves = @src.lisa_curves(
-    lisa_test_cells(),
-    config=lisa_test_config(),
-  ) catch {
+  let curves = @src.lisa_curves(lisa_test_cells(), config=lisa_test_config()) catch {
     _ => abort("lisaClust curves should compute")
   }
   assert_eq(curves.feature_index("A", 1.5), 0)
@@ -554,16 +536,10 @@ test "lisaClust: KDE weighting changes curves under inhomogeneous density" {
   ) catch {
     _ => abort("broad KDE configuration should be valid")
   }
-  let narrow_curves = @src.lisa_curves(
-    lisa_test_exact_cells(),
-    config=narrow,
-  ) catch {
+  let narrow_curves = @src.lisa_curves(lisa_test_exact_cells(), config=narrow) catch {
     _ => abort("narrow KDE curves should compute")
   }
-  let broad_curves = @src.lisa_curves(
-    lisa_test_exact_cells(),
-    config=broad,
-  ) catch {
+  let broad_curves = @src.lisa_curves(lisa_test_exact_cells(), config=broad) catch {
     _ => abort("broad KDE curves should compute")
   }
   let feature = narrow_curves.feature_index("B", 2.0)
@@ -591,10 +567,7 @@ test "lisaClust: generated curves are finite" {
 
 ///|
 test "lisaClust: curve lookup returns a defensive copy" {
-  let curves = @src.lisa_curves(
-    lisa_test_cells(),
-    config=lisa_test_config(),
-  ) catch {
+  let curves = @src.lisa_curves(lisa_test_cells(), config=lisa_test_config()) catch {
     _ => abort("lisaClust curves should compute")
   }
   let curve = match curves.curve_for_cell("a1") {
@@ -762,10 +735,7 @@ test "lisaClust: region enrichment uses observed over independence expectation" 
 ///|
 test "lisaClust: top enrichments are sorted and filtered" {
   let result = lisa_test_result()
-  let top = result.top_enrichments(
-    limit=3,
-    minimum_relative_frequency=0.0,
-  ) catch {
+  let top = result.top_enrichments(limit=3, minimum_relative_frequency=0.0) catch {
     _ => abort("top enrichments should succeed")
   }
   assert_eq(top.length(), 3)
@@ -803,10 +773,7 @@ test "lisaClust: summary reports cells features and regions" {
 
 ///|
 test "lisaClust: cluster count cannot exceed cells" {
-  let curves = @src.lisa_curves(
-    lisa_test_cells(),
-    config=lisa_test_config(),
-  ) catch {
+  let curves = @src.lisa_curves(lisa_test_cells(), config=lisa_test_config()) catch {
     _ => abort("lisaClust curves should compute")
   }
   let config = lisa_test_config(n_clusters=9)
@@ -939,10 +906,7 @@ test "lisaClust: SpatialExperiment rejects coordinate mismatch" {
   ignore(experiment.spatial_coords.pop())
   let failed = try {
     ignore(
-      @src.lisaclust_spatial_experiment(
-        experiment,
-        config=lisa_test_config(),
-      ),
+      @src.lisaclust_spatial_experiment(experiment, config=lisa_test_config()),
     )
     false
   } catch {
@@ -957,10 +921,7 @@ test "lisaClust: SpatialExperiment rejects missing required columns" {
   ignore(experiment.col_data[0].remove("cellType"))
   let failed = try {
     ignore(
-      @src.lisaclust_spatial_experiment(
-        experiment,
-        config=lisa_test_config(),
-      ),
+      @src.lisaclust_spatial_experiment(experiment, config=lisa_test_config()),
     )
     false
   } catch {

@@ -139,11 +139,7 @@ pub fn vst(dds : DESeqDataSet, nsub? : Int = 1000) -> VSTResult {
   let mut sum_var_minus_mu = 0.0
   let mut n_valid = 0
 
-  let step = if n_genes > actual_nsub {
-    n_genes / actual_nsub
-  } else {
-    1
-  }
+  let step = if n_genes > actual_nsub { n_genes / actual_nsub } else { 1 }
 
   let mut i = 0
   while i < n_genes && n_valid < actual_nsub {
@@ -176,7 +172,13 @@ pub fn vst(dds : DESeqDataSet, nsub? : Int = 1000) -> VSTResult {
   let est_disp = if n_valid > 0 && sum_mu_sq > 0.0 {
     let d = sum_var_minus_mu / sum_mu_sq
     // Clamp to reasonable range
-    if d < 0.001 { 0.001 } else if d > 10.0 { 10.0 } else { d }
+    if d < 0.001 {
+      0.001
+    } else if d > 10.0 {
+      10.0
+    } else {
+      d
+    }
   } else {
     0.1
   }
@@ -272,7 +274,10 @@ pub fn plot_pca(vst_result : VSTResult, ntop? : Int = 500) -> PCAResult {
   }
 
   // Compute covariance matrix (n_samples x n_samples) = X * X^T / (n_cols - 1)
-  let cov : Array[Array[Double]] = Array::make(n_samples, Array::make(n_samples, 0.0))
+  let cov : Array[Array[Double]] = Array::make(
+    n_samples,
+    Array::make(n_samples, 0.0),
+  )
   for i = 0; i < n_samples; i = i + 1 {
     for j = 0; j < n_samples; j = j + 1 {
       let mut dot = 0.0
@@ -431,7 +436,11 @@ fn normalize_vector(v : Array[Double], n : Int) -> Array[Double] {
 
 ///|
 /// Orthogonalize v against u (Gram-Schmidt).
-fn orthogonalize(v : Array[Double], u : Array[Double], n : Int) -> Array[Double] {
+fn orthogonalize(
+  v : Array[Double],
+  u : Array[Double],
+  n : Int,
+) -> Array[Double] {
   let mut dot = 0.0
   for i = 0; i < n; i = i + 1 {
     dot = dot + v[i] * u[i]

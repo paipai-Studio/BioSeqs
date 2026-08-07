@@ -326,8 +326,8 @@ test "dihedral_restraint_construction" {
   assert_eq(d.restraint_id, 1)
   assert_eq(d.angle_name, "PHI")
   assert_eq(d.residue, 15)
-  assert_true((d.lower_bound - (-120.0)).abs() < 0.001)
-  assert_true((d.upper_bound - (-60.0)).abs() < 0.001)
+  assert_true((d.lower_bound - -120.0).abs() < 0.001)
+  assert_true((d.upper_bound - -60.0).abs() < 0.001)
 }
 
 ///|
@@ -385,8 +385,8 @@ test "parse_dihedral_restraints_basic" {
   assert_eq(restraints.length(), 2)
   assert_eq(restraints[0].angle_name, "PHI")
   assert_eq(restraints[0].residue, 15)
-  assert_true((restraints[0].lower_bound - (-120.0)).abs() < 0.001)
-  assert_true((restraints[0].observed.unwrap_or(0.0) - (-85.0)).abs() < 0.001)
+  assert_true((restraints[0].lower_bound - -120.0).abs() < 0.001)
+  assert_true((restraints[0].observed.unwrap_or(0.0) - -85.0).abs() < 0.001)
 }
 
 // ============================================================================

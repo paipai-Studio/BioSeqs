@@ -28,12 +28,7 @@ test "gmt_gene_set_with_annotation" {
   let genes = ["G1"]
   let ct = @src.GeneSetCollectionType::from_string("canonical")
   let gs = @src.GmtGeneSet::with_annotation(
-    "g",
-    "desc",
-    genes,
-    ct,
-    "human",
-    "GS123",
+    "g", "desc", genes, ct, "human", "GS123",
   )
   assert_eq(gs.name, "g")
   assert_eq(gs.organism, "human")

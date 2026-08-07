@@ -1411,7 +1411,10 @@ fn diffbind_transpose(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
   }
   let n_rows = matrix.length()
   let n_cols = matrix[0].length()
-  let transposed : Array[Array[Double]] = Array::make(n_cols, Array::make(n_rows, 0.0))
+  let transposed : Array[Array[Double]] = Array::make(
+    n_cols,
+    Array::make(n_rows, 0.0),
+  )
   let mut i = 0
   while i < n_rows {
     let mut j = 0
@@ -1441,7 +1444,10 @@ fn diffbind_mean(arr : Array[Double]) -> Double {
 
 ///|
 /// Extract column from matrix.
-fn diffbind_extract_column(matrix : Array[Array[Double]], col_idx : Int) -> Array[Double] {
+fn diffbind_extract_column(
+  matrix : Array[Array[Double]],
+  col_idx : Int,
+) -> Array[Double] {
   let n_rows = matrix.length()
   let col : Array[Double] = Array::make(n_rows, 0.0)
   let mut i = 0
@@ -1502,15 +1508,20 @@ fn diffbind_correlation(x : Array[Double], y : Array[Double]) -> Double {
 ///|
 /// Compute PCA on a matrix (samples x peaks).
 /// Returns principal components (samples x components) and explained variance ratios.
-fn diffbind_pca(matrix : Array[Array[Double]]) -> (Array[Array[Double]], Array[Double]) {
+fn diffbind_pca(
+  matrix : Array[Array[Double]],
+) -> (Array[Array[Double]], Array[Double]) {
   if matrix.length() == 0 || matrix[0].length() == 0 {
     return (Array::new(), Array::new())
   }
   let n_samples = matrix.length()
   let n_peaks = matrix[0].length()
   let k = if n_samples < n_peaks { n_samples - 1 } else { 3 }
-  
-  let centered : Array[Array[Double]] = Array::make(n_samples, Array::make(n_peaks, 0.0))
+
+  let centered : Array[Array[Double]] = Array::make(
+    n_samples,
+    Array::make(n_peaks, 0.0),
+  )
   let mut p = 0
   while p < n_peaks {
     let peak_values : Array[Double] = Array::make(n_samples, 0.0)
@@ -1527,8 +1538,11 @@ fn diffbind_pca(matrix : Array[Array[Double]]) -> (Array[Array[Double]], Array[D
     }
     p = p + 1
   }
-  
-  let cov_matrix : Array[Array[Double]] = Array::make(n_peaks, Array::make(n_peaks, 0.0))
+
+  let cov_matrix : Array[Array[Double]] = Array::make(
+    n_peaks,
+    Array::make(n_peaks, 0.0),
+  )
   let mut i = 0
   while i < n_peaks {
     let mut j = i
@@ -1542,15 +1556,15 @@ fn diffbind_pca(matrix : Array[Array[Double]]) -> (Array[Array[Double]], Array[D
     }
     i = i + 1
   }
-  
+
   let eigvals : Array[Double] = Array::make(k, 0.0)
   let eigvecs : Array[Array[Double]] = Array::make(k, Array::make(n_peaks, 0.0))
-  
+
   let mut comp = 0
   while comp < k {
     let init_val = 1.0 / diffbind_sqrt(n_peaks.to_double())
     let mut vec : Array[Double] = Array::make(n_peaks, init_val)
-    
+
     let mut val = 0.0
     let mut iter = 0
     while iter < 100 {
@@ -1566,16 +1580,16 @@ fn diffbind_pca(matrix : Array[Array[Double]]) -> (Array[Array[Double]], Array[D
         new_vec[p2] = sum
         p2 = p2 + 1
       }
-      
+
       let mut sum_sq = 0.0
       let mut idx = 0
       while idx < new_vec.length() {
         sum_sq = sum_sq + new_vec[idx] * new_vec[idx]
         idx = idx + 1
       }
-      
+
       let norm = diffbind_sqrt(sum_sq)
-      
+
       let new_vec_norm : Array[Double] = Array::make(n_peaks, 0.0)
       if norm > 0.0 {
         let mut n_idx = 0
@@ -1584,12 +1598,12 @@ fn diffbind_pca(matrix : Array[Array[Double]]) -> (Array[Array[Double]], Array[D
           n_idx = n_idx + 1
         }
       }
-      
+
       vec = new_vec_norm
       val = sum_sq
       iter = iter + 1
     }
-    
+
     eigvals[comp] = val
     let mut v_idx = 0
     while v_idx < n_peaks {
@@ -1598,7 +1612,7 @@ fn diffbind_pca(matrix : Array[Array[Double]]) -> (Array[Array[Double]], Array[D
     }
     comp = comp + 1
   }
-  
+
   let mut total_var = 0.0
   let mut r_idx = 0
   while r_idx < cov_matrix.length() {
@@ -1609,15 +1623,22 @@ fn diffbind_pca(matrix : Array[Array[Double]]) -> (Array[Array[Double]], Array[D
     }
     r_idx = r_idx + 1
   }
-  
+
   let explained_var : Array[Double] = Array::make(k, 0.0)
   let mut ev_idx = 0
   while ev_idx < k {
-    explained_var[ev_idx] = if total_var > 0.0 { eigvals[ev_idx] / total_var } else { 0.0 }
+    explained_var[ev_idx] = if total_var > 0.0 {
+      eigvals[ev_idx] / total_var
+    } else {
+      0.0
+    }
     ev_idx = ev_idx + 1
   }
-  
-  let pc_scores : Array[Array[Double]] = Array::make(n_samples, Array::make(k, 0.0))
+
+  let pc_scores : Array[Array[Double]] = Array::make(
+    n_samples,
+    Array::make(k, 0.0),
+  )
   let mut s2 = 0
   while s2 < n_samples {
     let mut comp2 = 0
@@ -1633,7 +1654,7 @@ fn diffbind_pca(matrix : Array[Array[Double]]) -> (Array[Array[Double]], Array[D
     }
     s2 = s2 + 1
   }
-  
+
   (pc_scores, explained_var)
 }
 
@@ -1646,54 +1667,77 @@ pub fn diffbind_plot_pca(config : DBAConfig, method : String) -> String {
   }
   let counts = diffbind_normalize(config, method)
   let matrix = diffbind_transpose(counts)
-  
+
   let (pc_scores, explained_var) = diffbind_pca(matrix)
   if pc_scores.length() == 0 || explained_var.length() < 2 {
     return "PCA Plot: Insufficient data for PCA\n"
   }
-  
+
   let mut plot = "PCA Plot\n"
   plot = plot + "========\n\n"
-  plot = plot + "PC1: " + (explained_var[0] * 100.0).to_string() + "% variance\n"
-  plot = plot + "PC2: " + (explained_var[1] * 100.0).to_string() + "% variance\n\n"
-  
+  plot = plot +
+    "PC1: " +
+    (explained_var[0] * 100.0).to_string() +
+    "% variance\n"
+  plot = plot +
+    "PC2: " +
+    (explained_var[1] * 100.0).to_string() +
+    "% variance\n\n"
+
   let mut min_x = pc_scores[0][0]
   let mut max_x = pc_scores[0][0]
   let mut min_y = pc_scores[0][1]
   let mut max_y = pc_scores[0][1]
   let mut i = 1
   while i < pc_scores.length() {
-    if pc_scores[i][0] < min_x { min_x = pc_scores[i][0] }
-    if pc_scores[i][0] > max_x { max_x = pc_scores[i][0] }
-    if pc_scores[i][1] < min_y { min_y = pc_scores[i][1] }
-    if pc_scores[i][1] > max_y { max_y = pc_scores[i][1] }
+    if pc_scores[i][0] < min_x {
+      min_x = pc_scores[i][0]
+    }
+    if pc_scores[i][0] > max_x {
+      max_x = pc_scores[i][0]
+    }
+    if pc_scores[i][1] < min_y {
+      min_y = pc_scores[i][1]
+    }
+    if pc_scores[i][1] > max_y {
+      max_y = pc_scores[i][1]
+    }
     i = i + 1
   }
-  
+
   let padding = 0.1
   min_x = min_x - (max_x - min_x) * padding
   max_x = max_x + (max_x - min_x) * padding
   min_y = min_y - (max_y - min_y) * padding
   max_y = max_y + (max_y - min_y) * padding
-  
+
   let width = 40
   let height = 20
-  
-  let canvas : Array[Array[String]] = Array::make(height, Array::make(width, " "))
-  
+
+  let canvas : Array[Array[String]] = Array::make(
+    height,
+    Array::make(width, " "),
+  )
+
   let mut s = 0
   while s < pc_scores.length() {
     let x = pc_scores[s][0]
     let y = pc_scores[s][1]
     let px = ((x - min_x) / (max_x - min_x) * (width - 1).to_double()).to_int()
-    let py = height - 1 - ((y - min_y) / (max_y - min_y) * (height - 1).to_double()).to_int()
+    let py = height -
+      1 -
+      ((y - min_y) / (max_y - min_y) * (height - 1).to_double()).to_int()
     if px >= 0 && px < width && py >= 0 && py < height {
       let sample = config.samples[s]
-      canvas[py][px] = if sample.condition == config.conditions[0] { "A" } else { "B" }
+      canvas[py][px] = if sample.condition == config.conditions[0] {
+        "A"
+      } else {
+        "B"
+      }
     }
     s = s + 1
   }
-  
+
   plot = plot + "Y\n"
   let mut row = height - 1
   while row >= 0 {
@@ -1708,7 +1752,7 @@ pub fn diffbind_plot_pca(config : DBAConfig, method : String) -> String {
   }
   plot = plot + "+" + "-".repeat(width) + "+\n"
   plot = plot + "X\n\n"
-  
+
   let colors : Map[String, String] = Map([], capacity=2)
   let mut cond_idx = 0
   while cond_idx < config.conditions.length() {
@@ -1722,7 +1766,7 @@ pub fn diffbind_plot_pca(config : DBAConfig, method : String) -> String {
     }
     cond_idx = cond_idx + 1
   }
-  
+
   plot = plot + "Legend:\n"
   let keys = colors.keys().collect()
   let mut k = 0
@@ -1730,7 +1774,7 @@ pub fn diffbind_plot_pca(config : DBAConfig, method : String) -> String {
     plot = plot + "  " + colors[keys[k]] + " = " + keys[k] + "\n"
     k = k + 1
   }
-  
+
   plot
 }
 
@@ -1740,26 +1784,34 @@ pub fn diffbind_plot_heatmap(result : DBAResult, top_n : Int) -> String {
   if result.peaks.length() == 0 {
     return "Heatmap: No peaks in result\n"
   }
-  
-  let n = if top_n < result.peaks.length() { top_n } else { result.peaks.length() }
-  
+
+  let n = if top_n < result.peaks.length() {
+    top_n
+  } else {
+    result.peaks.length()
+  }
+
   let mut heatmap = "Differential Binding Heatmap\n"
   heatmap = heatmap + "============================\n\n"
   heatmap = heatmap + "Top " + n.to_string() + " peaks\n\n"
-  
+
   let width = if n > 30 { 30 } else { n }
   let height = 10
-  
+
   let mut min_fc = result.fold_changes[0]
   let mut max_fc = result.fold_changes[0]
   let mut i = 1
   while i < result.fold_changes.length() {
     let fc = result.fold_changes[i]
-    if fc < min_fc { min_fc = fc }
-    if fc > max_fc { max_fc = fc }
+    if fc < min_fc {
+      min_fc = fc
+    }
+    if fc > max_fc {
+      max_fc = fc
+    }
     i = i + 1
   }
-  
+
   let mut row = 0
   while row < height {
     heatmap = heatmap + "|"
@@ -1768,17 +1820,35 @@ pub fn diffbind_plot_heatmap(result : DBAResult, top_n : Int) -> String {
       let idx = col % result.fold_changes.length()
       let fc = result.fold_changes[idx]
       let norm = (fc - min_fc) / (max_fc - min_fc + 0.0001)
-      let char = if norm < 0.2 { " " } else if norm < 0.4 { "." } else if norm < 0.6 { "+" } else if norm < 0.8 { "*" } else { "#" }
+      let char = if norm < 0.2 {
+        " "
+      } else if norm < 0.4 {
+        "."
+      } else if norm < 0.6 {
+        "+"
+      } else if norm < 0.8 {
+        "*"
+      } else {
+        "#"
+      }
       heatmap = heatmap + char
       col = col + 1
     }
     heatmap = heatmap + "|\n"
     row = row + 1
   }
-  
+
   heatmap = heatmap + "\nColor scale (log2 fold change):\n"
-  heatmap = heatmap + "  " + min_fc.to_string() + " <-" + " ".repeat(8) + ".     +     *     #" + "-> " + max_fc.to_string() + "\n"
-  
+  heatmap = heatmap +
+    "  " +
+    min_fc.to_string() +
+    " <-" +
+    " ".repeat(8) +
+    ".     +     *     #" +
+    "-> " +
+    max_fc.to_string() +
+    "\n"
+
   heatmap
 }
 
@@ -1789,33 +1859,44 @@ pub fn diffbind_plot_volcano(result : DBAResult) -> String {
   if data.length() == 0 {
     return "Volcano Plot: No data\n"
   }
-  
+
   let mut min_fc = data[0].0
   let mut max_fc = data[0].0
   let mut max_neg_log_p = data[0].1
   let mut i = 1
   while i < data.length() {
-    if data[i].0 < min_fc { min_fc = data[i].0 }
-    if data[i].0 > max_fc { max_fc = data[i].0 }
-    if data[i].1 > max_neg_log_p { max_neg_log_p = data[i].1 }
+    if data[i].0 < min_fc {
+      min_fc = data[i].0
+    }
+    if data[i].0 > max_fc {
+      max_fc = data[i].0
+    }
+    if data[i].1 > max_neg_log_p {
+      max_neg_log_p = data[i].1
+    }
     i = i + 1
   }
-  
+
   let padding = 0.1
   min_fc = min_fc - (max_fc - min_fc) * padding
   max_fc = max_fc + (max_fc - min_fc) * padding
   max_neg_log_p = max_neg_log_p + max_neg_log_p * padding
-  
+
   let width = 50
   let height = 20
-  
-  let canvas : Array[Array[String]] = Array::make(height, Array::make(width, " "))
-  
+
+  let canvas : Array[Array[String]] = Array::make(
+    height,
+    Array::make(width, " "),
+  )
+
   let mut j = 0
   while j < data.length() {
     let (fc, neg_log_p) = data[j]
     let px = ((fc - min_fc) / (max_fc - min_fc) * (width - 1).to_double()).to_int()
-    let py = height - 1 - (neg_log_p / max_neg_log_p * (height - 1).to_double()).to_int()
+    let py = height -
+      1 -
+      (neg_log_p / max_neg_log_p * (height - 1).to_double()).to_int()
     if px >= 0 && px < width && py >= 0 && py < height {
       let idx = j
       let fdr = result.fdrs[idx]
@@ -1823,7 +1904,7 @@ pub fn diffbind_plot_volcano(result : DBAResult) -> String {
     }
     j = j + 1
   }
-  
+
   let mid_x = ((0.0 - min_fc) / (max_fc - min_fc) * (width - 1).to_double()).to_int()
   let mut row = height - 1
   while row >= 0 {
@@ -1834,12 +1915,12 @@ pub fn diffbind_plot_volcano(result : DBAResult) -> String {
     }
     row = row - 1
   }
-  
+
   let mut plot = "Volcano Plot\n"
   plot = plot + "============\n\n"
   plot = plot + "Y: -log10(p-value)\n"
   plot = plot + "X: log2(fold change)\n\n"
-  
+
   row = height - 1
   while row >= 0 {
     plot = plot + "|"
@@ -1851,13 +1932,18 @@ pub fn diffbind_plot_volcano(result : DBAResult) -> String {
     plot = plot + "|\n"
     row = row - 1
   }
-  plot = plot + "+" + "-".repeat(mid_x) + "+" + "-".repeat(width - mid_x - 1) + "+\n"
+  plot = plot +
+    "+" +
+    "-".repeat(mid_x) +
+    "+" +
+    "-".repeat(width - mid_x - 1) +
+    "+\n"
   plot = plot + "X\n\n"
-  
+
   plot = plot + "Legend:\n"
   plot = plot + "  * = Significant (FDR < 0.05)\n"
   plot = plot + "  . = Not significant\n\n"
-  
+
   let mut sig_count = 0
   let mut up_count = 0
   let mut down_count = 0
@@ -1873,13 +1959,13 @@ pub fn diffbind_plot_volcano(result : DBAResult) -> String {
     }
     k = k + 1
   }
-  
+
   plot = plot + "Summary:\n"
   plot = plot + "  Total peaks: " + result.peaks.length().to_string() + "\n"
   plot = plot + "  Significant (FDR < 0.05): " + sig_count.to_string() + "\n"
   plot = plot + "    Up-regulated: " + up_count.to_string() + "\n"
   plot = plot + "    Down-regulated: " + down_count.to_string() + "\n"
-  
+
   plot
 }
 
@@ -1890,36 +1976,51 @@ pub fn diffbind_plot_ma(result : DBAResult) -> String {
   if data.length() == 0 {
     return "MA Plot: No data\n"
   }
-  
+
   let mut min_mean = data[0].0
   let mut max_mean = data[0].0
   let mut min_fc = data[0].1
   let mut max_fc = data[0].1
   let mut i = 1
   while i < data.length() {
-    if data[i].0 < min_mean { min_mean = data[i].0 }
-    if data[i].0 > max_mean { max_mean = data[i].0 }
-    if data[i].1 < min_fc { min_fc = data[i].1 }
-    if data[i].1 > max_fc { max_fc = data[i].1 }
+    if data[i].0 < min_mean {
+      min_mean = data[i].0
+    }
+    if data[i].0 > max_mean {
+      max_mean = data[i].0
+    }
+    if data[i].1 < min_fc {
+      min_fc = data[i].1
+    }
+    if data[i].1 > max_fc {
+      max_fc = data[i].1
+    }
     i = i + 1
   }
-  
+
   let padding = 0.1
   min_mean = min_mean - (max_mean - min_mean) * padding
   max_mean = max_mean + (max_mean - min_mean) * padding
   min_fc = min_fc - (max_fc - min_fc) * padding
   max_fc = max_fc + (max_fc - min_fc) * padding
-  
+
   let width = 50
   let height = 20
-  
-  let canvas : Array[Array[String]] = Array::make(height, Array::make(width, " "))
-  
+
+  let canvas : Array[Array[String]] = Array::make(
+    height,
+    Array::make(width, " "),
+  )
+
   let mut j = 0
   while j < data.length() {
     let (mean_log2, fc) = data[j]
-    let px = ((mean_log2 - min_mean) / (max_mean - min_mean) * (width - 1).to_double()).to_int()
-    let py = height - 1 - ((fc - min_fc) / (max_fc - min_fc) * (height - 1).to_double()).to_int()
+    let px = ((mean_log2 - min_mean) /
+    (max_mean - min_mean) *
+    (width - 1).to_double()).to_int()
+    let py = height -
+      1 -
+      ((fc - min_fc) / (max_fc - min_fc) * (height - 1).to_double()).to_int()
     if px >= 0 && px < width && py >= 0 && py < height {
       let idx = j
       let fdr = result.fdrs[idx]
@@ -1927,7 +2028,7 @@ pub fn diffbind_plot_ma(result : DBAResult) -> String {
     }
     j = j + 1
   }
-  
+
   let mid_y = ((0.0 - min_fc) / (max_fc - min_fc) * (height - 1).to_double()).to_int()
   let mut row = height - 1
   while row >= 0 {
@@ -1940,12 +2041,12 @@ pub fn diffbind_plot_ma(result : DBAResult) -> String {
     }
     row = row - 1
   }
-  
+
   let mut plot = "MA Plot\n"
   plot = plot + "=======\n\n"
   plot = plot + "Y: log2(fold change)\n"
   plot = plot + "X: log2(mean expression)\n\n"
-  
+
   row = height - 1
   while row >= 0 {
     plot = plot + "|"
@@ -1959,11 +2060,11 @@ pub fn diffbind_plot_ma(result : DBAResult) -> String {
   }
   plot = plot + "+" + "-".repeat(width) + "+\n"
   plot = plot + "X\n\n"
-  
+
   plot = plot + "Legend:\n"
   plot = plot + "  * = Significant (FDR < 0.05)\n"
   plot = plot + "  . = Not significant\n"
-  
+
   plot
 }
 

@@ -12,10 +12,10 @@ test "phd_base_creation" {
   assert_eq(b.peak_position(), 1)
 }
 
+///|
 test "phd_comment_creation" {
   let c = @src.PhdComment::new(
-    "read.ab1", "0.020425.c", "/etc/phred.dat",
-    0, 1000, 0, 10, 0.05, "term", "big",
+    "read.ab1", "0.020425.c", "/etc/phred.dat", 0, 1000, 0, 10, 0.05, "term", "big",
   )
   assert_eq(c.chromat_file(), "read.ab1")
   assert_eq(c.phred_version(), "0.020425.c")
@@ -29,6 +29,7 @@ test "phd_comment_creation" {
   assert_eq(c.dye(), "big")
 }
 
+///|
 test "phd_read_creation_and_sequence" {
   let bases = [
     @src.PhdBase::new("A", 35, 1),
@@ -36,8 +37,7 @@ test "phd_read_creation_and_sequence" {
     @src.PhdBase::new("G", 45, 3),
   ]
   let comment = @src.PhdComment::new(
-    "read.ab1", "0.020425.c", "/etc/phred.dat",
-    0, 1000, 0, 3, 0.05, "term", "big",
+    "read.ab1", "0.020425.c", "/etc/phred.dat", 0, 1000, 0, 3, 0.05, "term", "big",
   )
   let read = @src.PhdRead::new("test_read", bases, comment)
   assert_eq(read.name(), "test_read")
@@ -47,16 +47,16 @@ test "phd_read_creation_and_sequence" {
   assert_eq(read.peak_positions(), [1, 2, 3])
 }
 
+///|
 test "phd_read_empty_sequence" {
-  let comment = @src.PhdComment::new(
-    "", "", "", 0, 0, 0, 0, 0.0, "", "",
-  )
+  let comment = @src.PhdComment::new("", "", "", 0, 0, 0, 0, 0.0, "", "")
   let read = @src.PhdRead::new("empty", [], comment)
   assert_eq(read.length(), 0)
   assert_eq(read.sequence(), "")
   assert_eq(read.quality().length(), 0)
 }
 
+///|
 test "phd_file_creation" {
   let comment = @src.PhdComment::new(
     "read.ab1", "0.020425.c", "", 0, 0, 0, 0, 0.0, "", "",
@@ -74,12 +74,14 @@ test "phd_file_creation" {
 // Sample data
 // ---------------------------------------------------------------------------
 
+///|
 test "phd_sample_text_has_begin_sequence" {
   let text = @src.phd_sample_text()
   assert_true(text.contains("BEGIN_SEQUENCE"))
   assert_true(text.contains("END_SEQUENCE"))
 }
 
+///|
 test "phd_sample_text_has_comment_block" {
   let text = @src.phd_sample_text()
   assert_true(text.contains("BEGIN_COMMENT"))
@@ -88,6 +90,7 @@ test "phd_sample_text_has_comment_block" {
   assert_true(text.contains("PHRED_VERSION"))
 }
 
+///|
 test "phd_sample_text_has_dna_block" {
   let text = @src.phd_sample_text()
   assert_true(text.contains("BEGIN_DNA"))
@@ -98,6 +101,7 @@ test "phd_sample_text_has_dna_block" {
 // Parsing
 // ---------------------------------------------------------------------------
 
+///|
 test "phd_parse_single_read" {
   let text = @src.phd_sample_text()
   let file = @src.phd_parse(text)
@@ -108,6 +112,7 @@ test "phd_parse_single_read" {
   assert_eq(read.sequence(), "ACGTACGTAC")
 }
 
+///|
 test "phd_parse_comment_fields" {
   let text = @src.phd_sample_text()
   let file = @src.phd_parse(text)
@@ -123,6 +128,7 @@ test "phd_parse_comment_fields" {
   assert_eq(c.dye(), "big")
 }
 
+///|
 test "phd_parse_quality_scores" {
   let text = @src.phd_sample_text()
   let file = @src.phd_parse(text)
@@ -134,6 +140,7 @@ test "phd_parse_quality_scores" {
   assert_eq(quals[9], 44)
 }
 
+///|
 test "phd_parse_peak_positions" {
   let text = @src.phd_sample_text()
   let file = @src.phd_parse(text)
@@ -144,17 +151,20 @@ test "phd_parse_peak_positions" {
   assert_eq(peaks[9], 10)
 }
 
+///|
 test "phd_parse_multiple_reads" {
   let text = @src.phd_sample_text() + "\n" + @src.phd_sample_text()
   let file = @src.phd_parse(text)
   assert_eq(file.num_reads(), 2)
 }
 
+///|
 test "phd_parse_empty_input" {
   let file = @src.phd_parse("")
   assert_eq(file.num_reads(), 0)
 }
 
+///|
 test "phd_parse_minimal_phd" {
   let text = "BEGIN_SEQUENCE r1\nBEGIN_DNA\nA 10 1\nT 20 2\nEND_DNA\nEND_SEQUENCE\n"
   let file = @src.phd_parse(text)
@@ -166,6 +176,7 @@ test "phd_parse_minimal_phd" {
   assert_eq(read.quality(), [10, 20])
 }
 
+///|
 test "phd_parse_no_dna_block" {
   let text = "BEGIN_SEQUENCE r1\nBEGIN_COMMENT\nCHROMAT_FILE: r.ab1\nEND_COMMENT\nEND_SEQUENCE\n"
   let file = @src.phd_parse(text)
@@ -176,6 +187,7 @@ test "phd_parse_no_dna_block" {
   assert_eq(read.comment().chromat_file(), "r.ab1")
 }
 
+///|
 test "phd_parse_trim_values" {
   let text = "BEGIN_SEQUENCE r1\nBEGIN_COMMENT\nTRIM: 5 50 0.02\nEND_COMMENT\nBEGIN_DNA\nA 10 1\nEND_DNA\nEND_SEQUENCE\n"
   let file = @src.phd_parse(text)
@@ -188,6 +200,7 @@ test "phd_parse_trim_values" {
 // Formatting
 // ---------------------------------------------------------------------------
 
+///|
 test "phd_read_to_string" {
   let text = @src.phd_sample_text()
   let file = @src.phd_parse(text)
@@ -198,6 +211,7 @@ test "phd_read_to_string" {
   assert_true(s.contains("ACGTACGTAC"))
 }
 
+///|
 test "phd_file_to_string" {
   let text = @src.phd_sample_text()
   let file = @src.phd_parse(text)

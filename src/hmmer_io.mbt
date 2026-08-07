@@ -259,7 +259,14 @@ pub fn parse_hmmer3_domtab(content : String) -> Array[QueryResult] {
         )
         let frags : Array[HSPFragment] = [frag]
         hsps.push(
-          HSP::new(tname, dh.description, frags, dh.score_dom, dh.i_evalue, dh.score_dom),
+          HSP::new(
+            tname,
+            dh.description,
+            frags,
+            dh.score_dom,
+            dh.i_evalue,
+            dh.score_dom,
+          ),
         )
         tbs = tbs + dh.score_dom
         if dh.i_evalue < mev {
@@ -386,12 +393,7 @@ pub fn parse_hmmer3_text(content : String) -> Array[QueryResult] {
       if cur_query_id.length() > 0 {
         results.push(
           QueryResult::new(
-            cur_query_id,
-            cur_query_desc,
-            cur_query_len,
-            cur_hits,
-            "hmmscan",
-            "3.0",
+            cur_query_id, cur_query_desc, cur_query_len, cur_hits, "hmmscan", "3.0",
             "",
           ),
         )
@@ -536,12 +538,7 @@ pub fn parse_hmmer3_text(content : String) -> Array[QueryResult] {
   if cur_query_id.length() > 0 {
     results.push(
       QueryResult::new(
-        cur_query_id,
-        cur_query_desc,
-        cur_query_len,
-        cur_hits,
-        "hmmscan",
-        "3.0",
+        cur_query_id, cur_query_desc, cur_query_len, cur_hits, "hmmscan", "3.0",
         "",
       ),
     )
@@ -619,41 +616,41 @@ fn hmmer_io_extract_double_after(s : String, marker : String) -> Double {
 /// Generate a small HMMER3 domtblout-format sample for tests and demos.
 pub fn hmmer3_domtab_sample() -> String {
   "# hmmsearch :: search profile(s) against a sequence database\n" +
-    "# HMMER 3.3.2 (Nov 2020)\n" +
-    "#\n" +
-    "# target name        accession   query name           accession    E-value  score  bias   #  of  c-Evalue  i-Evalue  score  bias  from    to  from   to     exp  reg  clu  ov env  dom  rep  inc  description of target\n" +
-    "#------------------- ---------- -------------------- ---------- --------- ------ ------ --- --- --------- --------- ------ ----- ----- ----- ----- ----- ----- ---- ---- ---- ---- ---- ---- ---- ---------------------\n" +
-    "sp|Q9Y2W8|A1BG_HUMAN Q9Y2W8     PF00001.28           PF00001     1.2e-50  200.3    5.1   1   1   1.2e-50   1.5e-53  200.3   5.1     1   150     1   150   1.0   1   0   0   1   1   1   1 Alpha-1-B glycoprotein\n" +
-    "sp|P12345|ABC_HUMAN  P12345     PF00001.28           PF00001     3.4e-30  150.1    2.0   1   2   3.4e-30   4.0e-33  150.1   2.0     1   120     1   120   1.0   1   0   0   1   1   1   1 ABC transporter\n" +
-    "sp|P12345|ABC_HUMAN  P12345     PF00001.28           PF00001     3.4e-30  150.1    2.0   2   2   5.0e-20   6.0e-23  100.5   1.0     1    90     1    90   1.0   1   0   0   1   1   1   1 ABC transporter C-term\n"
+  "# HMMER 3.3.2 (Nov 2020)\n" +
+  "#\n" +
+  "# target name        accession   query name           accession    E-value  score  bias   #  of  c-Evalue  i-Evalue  score  bias  from    to  from   to     exp  reg  clu  ov env  dom  rep  inc  description of target\n" +
+  "#------------------- ---------- -------------------- ---------- --------- ------ ------ --- --- --------- --------- ------ ----- ----- ----- ----- ----- ----- ---- ---- ---- ---- ---- ---- ---- ---------------------\n" +
+  "sp|Q9Y2W8|A1BG_HUMAN Q9Y2W8     PF00001.28           PF00001     1.2e-50  200.3    5.1   1   1   1.2e-50   1.5e-53  200.3   5.1     1   150     1   150   1.0   1   0   0   1   1   1   1 Alpha-1-B glycoprotein\n" +
+  "sp|P12345|ABC_HUMAN  P12345     PF00001.28           PF00001     3.4e-30  150.1    2.0   1   2   3.4e-30   4.0e-33  150.1   2.0     1   120     1   120   1.0   1   0   0   1   1   1   1 ABC transporter\n" +
+  "sp|P12345|ABC_HUMAN  P12345     PF00001.28           PF00001     3.4e-30  150.1    2.0   2   2   5.0e-20   6.0e-23  100.5   1.0     1    90     1    90   1.0   1   0   0   1   1   1   1 ABC transporter C-term\n"
 }
 
 ///|
 /// Generate a small HMMER3 text-format sample for tests and demos.
 pub fn hmmer3_text_sample() -> String {
   "# hmmsearch :: search profile(s) against a sequence database\n" +
-    "# HMMER 3.3.2 (Nov 2020)\n" +
-    "#\n" +
-    "Query:       PF00001.28  7tm_1\n" +
-    "Query length: 150\n" +
-    "Scores for complete sequences (score includes all domains):\n" +
-    "   E-value  score  bias    E-value  score  bias    exp  N  Domain  Description\n" +
-    "   ------- ------ -----    ------- ------ -----    ---- ---  ------  -----------\n" +
-    "sp|Q9Y2W8|A1BG_HUMAN   1.2e-50  200.3   5.1    1.5e-53  200.3   5.1    1.0   1   1   Alpha-1-B glycoprotein\n" +
-    "sp|P12345|ABC_HUMAN    3.4e-30  150.1   2.0    4.0e-33  150.1   2.0    1.0   1   1   ABC transporter\n" +
-    "\n" +
-    "Domain annotation for each sequence (and alignments):\n" +
-    ">> sp|Q9Y2W8|A1BG_HUMAN  Alpha-1-B glycoprotein\n" +
-    "   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc\n" +
-    " ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----\n" +
-    "   1   200.3   5.1   1.2e-50   1.5e-53       1     150         1     150         1     150  0.90\n" +
-    "  == domain 1   score: 200.3 bits;  conditional E-value: 1.5e-53\n" +
-    "\n" +
-    ">> sp|P12345|ABC_HUMAN  ABC transporter\n" +
-    "   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc\n" +
-    " ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----\n" +
-    "   1   150.1   2.0   3.4e-30   4.0e-33       1     120         1     120         1     120  0.88\n" +
-    "  == domain 1   score: 150.1 bits;  conditional E-value: 4.0e-33\n"
+  "# HMMER 3.3.2 (Nov 2020)\n" +
+  "#\n" +
+  "Query:       PF00001.28  7tm_1\n" +
+  "Query length: 150\n" +
+  "Scores for complete sequences (score includes all domains):\n" +
+  "   E-value  score  bias    E-value  score  bias    exp  N  Domain  Description\n" +
+  "   ------- ------ -----    ------- ------ -----    ---- ---  ------  -----------\n" +
+  "sp|Q9Y2W8|A1BG_HUMAN   1.2e-50  200.3   5.1    1.5e-53  200.3   5.1    1.0   1   1   Alpha-1-B glycoprotein\n" +
+  "sp|P12345|ABC_HUMAN    3.4e-30  150.1   2.0    4.0e-33  150.1   2.0    1.0   1   1   ABC transporter\n" +
+  "\n" +
+  "Domain annotation for each sequence (and alignments):\n" +
+  ">> sp|Q9Y2W8|A1BG_HUMAN  Alpha-1-B glycoprotein\n" +
+  "   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc\n" +
+  " ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----\n" +
+  "   1   200.3   5.1   1.2e-50   1.5e-53       1     150         1     150         1     150  0.90\n" +
+  "  == domain 1   score: 200.3 bits;  conditional E-value: 1.5e-53\n" +
+  "\n" +
+  ">> sp|P12345|ABC_HUMAN  ABC transporter\n" +
+  "   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc\n" +
+  " ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----\n" +
+  "   1   150.1   2.0   3.4e-30   4.0e-33       1     120         1     120         1     120  0.88\n" +
+  "  == domain 1   score: 150.1 bits;  conditional E-value: 4.0e-33\n"
 }
 
 ///|

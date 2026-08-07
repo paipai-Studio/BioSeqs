@@ -37,8 +37,8 @@ pub fn HMMcopyBin::new(
   start~ : Int,
   end~ : Int,
   reads~ : Int,
-  gc~ : Double = 0.5,
-  mappability~ : Double = 1.0,
+  gc? : Double = 0.5,
+  mappability? : Double = 1.0,
 ) -> HMMcopyBin {
   HMMcopyBin::{
     chr,
@@ -103,8 +103,8 @@ pub struct HMMcopyModel {
 /// Construct a new HMMcopyModel with default parameters.
 /// States: CN0, CN1, CN2, CN3, CN4, CN5, CN6 (7 states).
 pub fn HMMcopyModel::new(
-  num_states~ : Int = 7,
-  ploidy~ : Int = 2,
+  num_states? : Int = 7,
+  ploidy? : Int = 2,
 ) -> HMMcopyModel {
   // Default emission means: 0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0 (in CN2 units)
   let emissions = Array::make(num_states, 0.0)
@@ -224,15 +224,7 @@ pub fn HMMcopySegment::new(
   num_bins~ : Int,
   mean_reads~ : Double,
 ) -> HMMcopySegment {
-  HMMcopySegment::{
-    chr,
-    start,
-    end,
-    copy,
-    state,
-    num_bins,
-    mean_reads,
-  }
+  HMMcopySegment::{ chr, start, end, copy, state, num_bins, mean_reads }
 }
 
 // ===========================================================================
@@ -244,7 +236,7 @@ pub fn HMMcopySegment::new(
 /// Bins are grouped by GC content and scaled to the global mean.
 pub fn hmmcopy_correct_gc(
   bins : Array[HMMcopyBin],
-  num_gc_bins~ : Int = 20,
+  num_gc_bins? : Int = 20,
 ) -> Array[HMMcopyBin] {
   let n = bins.length()
   if n == 0 {
@@ -260,7 +252,13 @@ pub fn hmmcopy_correct_gc(
   let gc_bins = Array::make(num_gc_bins, Array::new())
   for b in bins {
     let gc_idx = (b.gc * num_gc_bins.to_double()).to_int()
-    let clamped = if gc_idx < 0 { 0 } else if gc_idx >= num_gc_bins { num_gc_bins - 1 } else { gc_idx }
+    let clamped = if gc_idx < 0 {
+      0
+    } else if gc_idx >= num_gc_bins {
+      num_gc_bins - 1
+    } else {
+      gc_idx
+    }
     gc_bins[clamped].push(b)
   }
   // Compute mean reads per GC bin
@@ -323,8 +321,7 @@ fn hmmcopy_log_gaussian(x : Double, mean : Double, variance : Double) -> Double 
   let diff = x - mean
   let log_2pi = 1.8378770664093453
   let result = -0.5 * (log_2pi + @math.ln(variance)) -
-    diff * diff /
-    (2.0 * variance)
+    diff * diff / (2.0 * variance)
   result
 }
 
@@ -453,9 +450,7 @@ pub fn hmmcopy_call_cnv(
 
 ///|
 /// Segment bins by merging consecutive bins with the same copy number.
-pub fn hmmcopy_segment(
-  bins : Array[HMMcopyBin],
-) -> Array[HMMcopySegment] {
+pub fn hmmcopy_segment(bins : Array[HMMcopyBin]) -> Array[HMMcopySegment] {
   let segments = Array::new()
   let n = bins.length()
   if n == 0 {
@@ -476,15 +471,17 @@ pub fn hmmcopy_segment(
       count = count + 1
       j = j + 1
     }
-    segments.push(HMMcopySegment::new(
-      chr=cur_chr,
-      start=start,
-      end=end,
-      copy=cur_copy,
-      state=bins[i].state,
-      num_bins=count,
-      mean_reads=sum_reads / count.to_double(),
-    ))
+    segments.push(
+      HMMcopySegment::new(
+        chr=cur_chr,
+        start~,
+        end~,
+        copy=cur_copy,
+        state=bins[i].state,
+        num_bins=count,
+        mean_reads=sum_reads / count.to_double(),
+      ),
+    )
     i = j
   }
   segments
@@ -588,21 +585,22 @@ pub fn hmmcopy_sample_bins() -> Array[HMMcopyBin] {
   while i < 100 {
     let reads = if i >= 10 && i < 20 {
       // CN0 region: very low reads
-      2 + (i % 3)
+      2 + i % 3
     } else if i >= 60 && i < 70 {
       // CN3 region: elevated reads
-      90 + (i % 10)
+      90 + i % 10
     } else {
+      60 +
       // CN2 region: normal
-      60 + (i % 10)
+      i % 10
     }
     let gc = 0.4 + (i % 10).to_double() * 0.02
     let bin = HMMcopyBin::new(
       chr="chr1",
       start=i * 100000,
       end=(i + 1) * 100000,
-      reads=reads,
-      gc=gc,
+      reads~,
+      gc~,
       mappability=0.95,
     )
     bins.push(bin)

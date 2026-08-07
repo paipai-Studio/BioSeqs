@@ -10,12 +10,7 @@ test "biplot_options_new" {
 
 ///|
 test "pcatools_run_pca_simple_2d" {
-  let data = [
-    [1.0, 2.0],
-    [2.0, 3.0],
-    [3.0, 4.0],
-    [4.0, 5.0],
-  ]
+  let data = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0], [4.0, 5.0]]
   let res = @src.pcatools_run_pca(data, 2, false)
   assert_eq(res.n_samples, 4)
   assert_eq(res.n_variables, 2)
@@ -30,11 +25,7 @@ test "pcatools_run_pca_simple_2d" {
 
 ///|
 test "pcatools_run_pca_ncomponents_limit" {
-  let data = [
-    [1.0, 2.0, 3.0, 4.0],
-    [2.0, 3.0, 4.0, 5.0],
-    [3.0, 4.0, 5.0, 6.0],
-  ]
+  let data = [[1.0, 2.0, 3.0, 4.0], [2.0, 3.0, 4.0, 5.0], [3.0, 4.0, 5.0, 6.0]]
   let res = @src.pcatools_run_pca(data, 10, false)
   // 3 samples, 4 variables => p=4, so limited to 4
   assert_eq(res.n_components, 4)
@@ -42,12 +33,7 @@ test "pcatools_run_pca_ncomponents_limit" {
 
 ///|
 test "pcatools_run_pca_scale_true" {
-  let data = [
-    [1.0, 100.0],
-    [2.0, 200.0],
-    [3.0, 300.0],
-    [4.0, 400.0],
-  ]
+  let data = [[1.0, 100.0], [2.0, 200.0], [3.0, 300.0], [4.0, 400.0]]
   let res = @src.pcatools_run_pca(data, 2, true)
   assert_eq(res.used_scaling, true)
   assert_eq(res.scale.length(), 2)
@@ -82,16 +68,10 @@ test "scree_plot_ascii_returns_string" {
 
 ///|
 test "pca_biplot_ascii_returns_string" {
-  let data = [
-    [1.0, 2.0],
-    [2.0, 3.0],
-    [3.0, 5.0],
-    [4.0, 4.0],
-    [5.0, 6.0],
-  ]
+  let data = [[1.0, 2.0], [2.0, 3.0], [3.0, 5.0], [4.0, 4.0], [5.0, 6.0]]
   let res = @src.pcatools_run_pca(data, 2, false)
   let opts = @src.BiplotOptions::new()
-  let plot = @src.pca_biplot_ascii(res, opts=opts)
+  let plot = @src.pca_biplot_ascii(res, opts~)
   assert_true(plot.length() > 0)
   assert_true(plot.contains("PCA biplot"))
   assert_true(plot.contains("PC1"))
@@ -116,7 +96,9 @@ test "find_pca_outliers_basic" {
   assert_true(out.indices.length() >= 1)
   let mut found7 = false
   for i in out.indices {
-    if i == 7 { found7 = true }
+    if i == 7 {
+      found7 = true
+    }
   }
   assert_true(found7)
 }
@@ -124,8 +106,11 @@ test "find_pca_outliers_basic" {
 ///|
 test "find_pca_outliers_cutoff_positive" {
   let data = [
-    [1.0, 1.0], [1.1, 1.0], [0.9, 1.0],
-    [1.0, 1.1], [1.0, 0.9],
+    [1.0, 1.0],
+    [1.1, 1.0],
+    [0.9, 1.0],
+    [1.0, 1.1],
+    [1.0, 0.9],
     [20.0, 20.0],
   ]
   let res = @src.pcatools_run_pca(data, 2, false)
@@ -164,11 +149,7 @@ test "variable_correlations_shape" {
 
 ///|
 test "pcatools_summary_contains_keywords" {
-  let data = [
-    [1.0, 2.0],
-    [2.0, 3.0],
-    [3.0, 4.0],
-  ]
+  let data = [[1.0, 2.0], [2.0, 3.0], [3.0, 4.0]]
   let res = @src.pcatools_run_pca(data, 2, false)
   let s = @src.pcatools_summary(res)
   assert_true(s.contains("PCAResult"))

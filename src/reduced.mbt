@@ -32,12 +32,7 @@ pub fn ReducedAlphabet::new(
   mapping : Map[String, String],
   groups : Array[String],
 ) -> ReducedAlphabet {
-  ReducedAlphabet::{
-    name,
-    n_groups: groups.length(),
-    mapping,
-    groups,
-  }
+  ReducedAlphabet::{ name, n_groups: groups.length(), mapping, groups }
 }
 
 ///|
@@ -54,14 +49,20 @@ pub fn ReducedAlphabet::get_n_groups(self : ReducedAlphabet) -> Int {
 
 ///|
 /// Get the reduced representation for an amino acid.
-pub fn ReducedAlphabet::reduce_aa(self : ReducedAlphabet, aa : String) -> String {
+pub fn ReducedAlphabet::reduce_aa(
+  self : ReducedAlphabet,
+  aa : String,
+) -> String {
   let upper = aa.to_upper()
   self.mapping.get(upper).unwrap_or("X")
 }
 
 ///|
 /// Reduce a protein sequence to the reduced alphabet.
-pub fn ReducedAlphabet::reduce_sequence(self : ReducedAlphabet, sequence : String) -> String {
+pub fn ReducedAlphabet::reduce_sequence(
+  self : ReducedAlphabet,
+  sequence : String,
+) -> String {
   let mut result = "".to_string()
   let n = sequence.length()
   let mut i = 0
@@ -123,7 +124,9 @@ pub fn rad_alphabet() -> ReducedAlphabet {
   mapping.set("R", "5")
   mapping.set("S", "5")
   mapping.set("T", "5")
-  let groups = ["(A,G)", "(C)", "(D,E,N,Q)", "(I,L,M,V)", "(F,Y,W)", "(H,K,R,S,T)"]
+  let groups = [
+    "(A,G)", "(C)", "(D,E,N,Q)", "(I,L,M,V)", "(F,Y,W)", "(H,K,R,S,T)",
+  ]
   ReducedAlphabet::new("RAD", mapping, groups)
 }
 
@@ -159,7 +162,9 @@ pub fn dayhoff_alphabet() -> ReducedAlphabet {
   mapping.set("H", "5")
   mapping.set("K", "5")
   mapping.set("R", "5")
-  let groups = ["(A,G,P,S,T)", "(C)", "(D,E,N,Q)", "(I,L,M,V)", "(F,W,Y)", "(H,K,R)"]
+  let groups = [
+    "(A,G,P,S,T)", "(C)", "(D,E,N,Q)", "(I,L,M,V)", "(F,W,Y)", "(H,K,R)",
+  ]
   ReducedAlphabet::new("Dayhoff", mapping, groups)
 }
 
@@ -226,8 +231,8 @@ pub fn sdm12_alphabet() -> ReducedAlphabet {
   mapping.set("Y", "5") // Tyr - polar (same as Gln)
   mapping.set("V", "9") // Val - hydrophobic (same as Ile)
   let groups = [
-    "(A,M)", "(R)", "(N,S,T)", "(D)", "(C)",
-    "(Q,Y)", "(E)", "(G,P)", "(H)", "(I,V)", "(L,F,W)", "(K)",
+    "(A,M)", "(R)", "(N,S,T)", "(D)", "(C)", "(Q,Y)", "(E)", "(G,P)", "(H)", "(I,V)",
+    "(L,F,W)", "(K)",
   ]
   ReducedAlphabet::new("SDM12", mapping, groups)
 }
@@ -263,7 +268,11 @@ pub fn reduced_identity(
   seq2 : String,
   alphabet : ReducedAlphabet,
 ) -> Double {
-  let n = if seq1.length() < seq2.length() { seq1.length() } else { seq2.length() }
+  let n = if seq1.length() < seq2.length() {
+    seq1.length()
+  } else {
+    seq2.length()
+  }
   if n == 0 {
     return 0.0
   }

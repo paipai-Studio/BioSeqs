@@ -59,7 +59,11 @@ pub struct PeakCallingParams {
 ///|
 /// Construct a `ChipSeqRead` from a chromosome name, genomic
 /// position, and strand ("+" or "-").
-pub fn ChipSeqRead::new(chr~ : String, position~ : Int, strand~ : String) -> ChipSeqRead {
+pub fn ChipSeqRead::new(
+  chr~ : String,
+  position~ : Int,
+  strand~ : String,
+) -> ChipSeqRead {
   ChipSeqRead::{ chr, position, strand }
 }
 
@@ -219,12 +223,8 @@ pub fn PeakCallingParams::new(
 /// Lanczos approximation for ln(Gamma(x)).
 fn pc_gammln(xx : Double) -> Double {
   let cof = [
-    76.18009172947146,
-    -86.50532032941677,
-    24.01409824083091,
-    -1.231739572450155,
-    0.1208650973866179e-2,
-    -0.5395239384953e-5,
+    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
+    0.1208650973866179e-2, -0.5395239384953e-5,
   ]
   let x = xx
   let mut y = xx
@@ -496,7 +496,10 @@ pub fn call_peaks(
 
       // Local background from control, scaled to treatment depth.
       let lambda_rate = estimate_local_lambda(
-        control, chr, center, params.local_lambda_size,
+        control,
+        chr,
+        center,
+        params.local_lambda_size,
       )
       let expected_raw = lambda_rate * win_size_d * scaling
       // Floor expected at a small positive value to avoid div-by-zero.
@@ -514,9 +517,7 @@ pub fn call_peaks(
         continue
       }
 
-      let ctrl_count = count_reads_in_window(
-        control, chr, win_start, win_end,
-      )
+      let ctrl_count = count_reads_in_window(control, chr, win_start, win_end)
 
       candidates.push(
         CandidatePeak::new(
@@ -719,8 +720,8 @@ pub fn filter_peaks(
   let out : Array[CandidatePeak] = Array::new()
   for p in peaks {
     if p.p_value <= params.pvalue_threshold &&
-       p.fold_enrichment >= params.min_fold_enrichment &&
-       p.fdr <= params.fdr_threshold {
+      p.fold_enrichment >= params.min_fold_enrichment &&
+      p.fdr <= params.fdr_threshold {
       out.push(p)
     }
   }
@@ -753,7 +754,7 @@ pub fn peak_calling_sample_data() -> (Array[ChipSeqRead], Array[ChipSeqRead]) {
     while k < n {
       // Spread reads across a ~500bp window.
       treatment.push(
-        ChipSeqRead::new(chr="chr1", position=base + (k * 17) % 500, strand="+"),
+        ChipSeqRead::new(chr="chr1", position=base + k * 17 % 500, strand="+"),
       )
       k = k + 1
     }
@@ -763,18 +764,14 @@ pub fn peak_calling_sample_data() -> (Array[ChipSeqRead], Array[ChipSeqRead]) {
   // Background treatment reads scattered across the chromosome.
   let mut b = 0
   while b < 40 {
-    treatment.push(
-      ChipSeqRead::new(chr="chr1", position=b * 250, strand="+"),
-    )
+    treatment.push(ChipSeqRead::new(chr="chr1", position=b * 250, strand="+"))
     b = b + 1
   }
 
   // Control: background reads across the chromosome with no strong peaks.
   let mut c = 0
   while c < 80 {
-    control.push(
-      ChipSeqRead::new(chr="chr1", position=c * 130, strand="+"),
-    )
+    control.push(ChipSeqRead::new(chr="chr1", position=c * 130, strand="+"))
     c = c + 1
   }
 
@@ -815,13 +812,25 @@ pub fn peak_calling_summary(peaks : Array[CandidatePeak]) -> String {
   while i < limit {
     let p = copy[i]
     buf = buf +
-      "    " + p.chr + ":" + p.start.to_string() + "-" + p.end.to_string() +
-      " summit=" + p.summit.to_string() +
-      " reads=" + p.read_count.to_string() +
-      " ctrl=" + p.control_count.to_string() +
-      " fold=" + p.fold_enrichment.to_string() +
-      " p=" + p.p_value.to_string() +
-      " fdr=" + p.fdr.to_string() + "\n"
+      "    " +
+      p.chr +
+      ":" +
+      p.start.to_string() +
+      "-" +
+      p.end.to_string() +
+      " summit=" +
+      p.summit.to_string() +
+      " reads=" +
+      p.read_count.to_string() +
+      " ctrl=" +
+      p.control_count.to_string() +
+      " fold=" +
+      p.fold_enrichment.to_string() +
+      " p=" +
+      p.p_value.to_string() +
+      " fdr=" +
+      p.fdr.to_string() +
+      "\n"
     i = i + 1
   }
   buf

@@ -55,8 +55,7 @@ test "debug_parse_tree" {
 
 ///|
 test "debug_multiple_trees" {
-  let xml =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<phyloxml xmlns=\"http://www.phyloxml.org/1.0\">\n" +
     "  <phylogeny id=\"tree1\">\n" +
     "    <name>Tree 1</name>\n" +

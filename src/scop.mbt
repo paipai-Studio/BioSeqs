@@ -189,10 +189,9 @@ pub fn scop_parse_residues(s : String) -> ScopResidues {
     // Format: chain:start-end  OR  chain:
     let colon_idx = p.find(":")
     match colon_idx {
-      None => {
+      None =>
         // No colon: treat the whole thing as a chain with no range
         fragments.push(ScopFragment::new(p, "", ""))
-      }
       Some(ci) => {
         let chain = p[0:ci].to_owned()
         let range = p[ci + 1:].to_owned()
@@ -203,9 +202,7 @@ pub fn scop_parse_residues(s : String) -> ScopResidues {
           // "chain:start-end"
           let dash_idx = range.find("-")
           match dash_idx {
-            None => {
-              fragments.push(ScopFragment::new(chain, range, ""))
-            }
+            None => fragments.push(ScopFragment::new(chain, range, ""))
             Some(di) => {
               let start = range[0:di].to_owned()
               let end_ = range[di + 1:].to_owned()
@@ -372,7 +369,11 @@ pub struct HieRecord {
 
 ///|
 /// Create a HIE record.
-pub fn HieRecord::new(sunid : Int, parent : Int, children : Array[Int]) -> HieRecord {
+pub fn HieRecord::new(
+  sunid : Int,
+  parent : Int,
+  children : Array[Int],
+) -> HieRecord {
   { sunid, parent, children }
 }
 
@@ -662,7 +663,10 @@ pub fn Scop::new(
   des_records : Array[DesRecord],
   hie_records : Array[HieRecord],
 ) -> Scop {
-  let sunid_dict : Map[Int, ScopNode] = Map([], capacity=des_records.length() + 1)
+  let sunid_dict : Map[Int, ScopNode] = Map(
+    [],
+    capacity=des_records.length() + 1,
+  )
   let sid_dict : Map[String, ScopNode] = Map([], capacity=cla_records.length())
   let domains : Array[ScopNode] = []
   // 1. Create root
@@ -1042,7 +1046,11 @@ pub fn Scop::write_des(self : Scop) -> String {
       Some(node) => {
         let name = if node.nodetype == "px" { node.sid } else { "-" }
         let rec = DesRecord::new(
-          node.sunid, node.nodetype, node.sccs, name, node.description,
+          node.sunid,
+          node.nodetype,
+          node.sccs,
+          name,
+          node.description,
         )
         if result.length() > 0 {
           result = result + "\n"
@@ -1077,7 +1085,12 @@ pub fn Scop::write_cla(self : Scop) -> String {
           }
         }
         let rec = ClaRecord::new(
-          node.sid, node.pdbid, res, node.sccs, node.sunid, hierarchy,
+          node.sid,
+          node.pdbid,
+          res,
+          node.sccs,
+          node.sunid,
+          hierarchy,
         )
         if result.length() > 0 {
           result = result + "\n"
@@ -1131,7 +1144,9 @@ pub fn scop_sample_hie() -> String {
 /// Create a sample CLA file content for testing.
 pub fn scop_sample_cla() -> String {
   let mut s = ""
-  s = s + "d1hba_\t1hba\tA:1-141\ta.1.1.1.1.1.1\t1000\tcl=100,cf=200,sf=300,fa=400,dm=500,sp=600,px=1000\n"
-  s = s + "d1hbb_\t1hba\tB:1-146\ta.1.1.1.1.1.2\t1001\tcl=100,cf=200,sf=300,fa=400,dm=500,sp=600,px=1001\n"
+  s = s +
+    "d1hba_\t1hba\tA:1-141\ta.1.1.1.1.1.1\t1000\tcl=100,cf=200,sf=300,fa=400,dm=500,sp=600,px=1000\n"
+  s = s +
+    "d1hbb_\t1hba\tB:1-146\ta.1.1.1.1.1.2\t1001\tcl=100,cf=200,sf=300,fa=400,dm=500,sp=600,px=1001\n"
   s
 }

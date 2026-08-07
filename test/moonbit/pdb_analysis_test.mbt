@@ -184,9 +184,9 @@ test "pdb_analysis: ramachandran_quality" {
 test "pdb_analysis: get_hydrophobicity" {
   // Test some known values from Kyte-Doolittle scale
   assert_true((@src.get_hydrophobicity("ALA") - 1.8).abs() < 0.001)
-  assert_true((@src.get_hydrophobicity("ARG") - (-4.5)).abs() < 0.001)
+  assert_true((@src.get_hydrophobicity("ARG") - -4.5).abs() < 0.001)
   assert_true((@src.get_hydrophobicity("ILE") - 4.5).abs() < 0.001)
-  assert_true((@src.get_hydrophobicity("LYS") - (-3.9)).abs() < 0.001)
+  assert_true((@src.get_hydrophobicity("LYS") - -3.9).abs() < 0.001)
   assert_true((@src.get_hydrophobicity("PHE") - 2.8).abs() < 0.001)
   assert_true((@src.get_hydrophobicity("VAL") - 4.2).abs() < 0.001)
   // Unknown residue should return 0

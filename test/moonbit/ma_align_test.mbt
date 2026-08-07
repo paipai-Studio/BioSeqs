@@ -20,7 +20,11 @@ test "ma_aligner_with_params" {
 ///|
 test "add_structure" {
   let a = @src.ma_aligner_new()
-  let coords : Array[(Double, Double, Double)] = [(1.0, 2.0, 3.0), (4.0, 5.0, 6.0), (7.0, 8.0, 9.0)]
+  let coords : Array[(Double, Double, Double)] = [
+    (1.0, 2.0, 3.0),
+    (4.0, 5.0, 6.0),
+    (7.0, 8.0, 9.0),
+  ]
   let seq = "ALA"
   let res = ["ALA", "LEU", "ALA"]
   let s = @src.add_structure(a, "struct1", coords, seq, res)
@@ -31,7 +35,11 @@ test "add_structure" {
 
 ///|
 test "ma_center_coordinates" {
-  let coords : Array[(Double, Double, Double)] = [(1.0, 2.0, 3.0), (4.0, 5.0, 6.0), (7.0, 8.0, 9.0)]
+  let coords : Array[(Double, Double, Double)] = [
+    (1.0, 2.0, 3.0),
+    (4.0, 5.0, 6.0),
+    (7.0, 8.0, 9.0),
+  ]
   let centered = @src.ma_center_coordinates(coords)
   assert_eq(centered.length(), 3)
   let mut sum_x = 0.0
@@ -51,8 +59,16 @@ test "ma_center_coordinates" {
 
 ///|
 test "ma_compute_distance_matrix" {
-  let coords1 : Array[(Double, Double, Double)] = [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0)]
-  let coords2 : Array[(Double, Double, Double)] = [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0)]
+  let coords1 : Array[(Double, Double, Double)] = [
+    (0.0, 0.0, 0.0),
+    (1.0, 0.0, 0.0),
+    (0.0, 1.0, 0.0),
+  ]
+  let coords2 : Array[(Double, Double, Double)] = [
+    (0.0, 0.0, 0.0),
+    (1.0, 0.0, 0.0),
+    (0.0, 1.0, 0.0),
+  ]
   let dm = @src.ma_compute_distance_matrix(coords1, coords2)
   assert_eq(dm.length(), 3)
   assert_eq(dm[0].length(), 3)
@@ -60,30 +76,51 @@ test "ma_compute_distance_matrix" {
 
 ///|
 test "ma_align_pairwise_identical" {
-  let coords : Array[(Double, Double, Double)] = [(1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)]
+  let coords : Array[(Double, Double, Double)] = [
+    (1.0, 0.0, 0.0),
+    (0.0, 1.0, 0.0),
+    (0.0, 0.0, 1.0),
+  ]
   let (rotation, rmsd) = @src.ma_align_pairwise(coords, coords)
   assert_true(rmsd < 0.01)
 }
 
 ///|
 test "ma_align_pairwise_different_scale" {
-  let coords1 : Array[(Double, Double, Double)] = [(1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0)]
-  let coords2 : Array[(Double, Double, Double)] = [(2.0, 0.0, 0.0), (0.0, 2.0, 0.0), (0.0, 0.0, 2.0)]
+  let coords1 : Array[(Double, Double, Double)] = [
+    (1.0, 0.0, 0.0),
+    (0.0, 1.0, 0.0),
+    (0.0, 0.0, 1.0),
+  ]
+  let coords2 : Array[(Double, Double, Double)] = [
+    (2.0, 0.0, 0.0),
+    (0.0, 2.0, 0.0),
+    (0.0, 0.0, 2.0),
+  ]
   let (rotation, rmsd) = @src.ma_align_pairwise(coords1, coords2)
   assert_true(rmsd < 5.0)
 }
 
 ///|
 test "compute_rmsd_identical" {
-  let coords : Array[(Double, Double, Double)] = [(1.0, 2.0, 3.0), (4.0, 5.0, 6.0)]
+  let coords : Array[(Double, Double, Double)] = [
+    (1.0, 2.0, 3.0),
+    (4.0, 5.0, 6.0),
+  ]
   let rmsd = @src.compute_rmsd(coords, coords)
   assert_true(rmsd < 0.01)
 }
 
 ///|
 test "compute_rmsd_different" {
-  let coords1 : Array[(Double, Double, Double)] = [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0)]
-  let coords2 : Array[(Double, Double, Double)] = [(10.0, 0.0, 0.0), (11.0, 0.0, 0.0)]
+  let coords1 : Array[(Double, Double, Double)] = [
+    (0.0, 0.0, 0.0),
+    (1.0, 0.0, 0.0),
+  ]
+  let coords2 : Array[(Double, Double, Double)] = [
+    (10.0, 0.0, 0.0),
+    (11.0, 0.0, 0.0),
+  ]
   let rmsd = @src.compute_rmsd(coords1, coords2)
   assert_true(rmsd > 5.0)
 }
@@ -91,7 +128,11 @@ test "compute_rmsd_different" {
 ///|
 test "align_structures_single" {
   let a = @src.ma_aligner_new()
-  let coords : Array[(Double, Double, Double)] = [(1.0, 2.0, 3.0), (4.0, 5.0, 6.0), (7.0, 8.0, 9.0)]
+  let coords : Array[(Double, Double, Double)] = [
+    (1.0, 2.0, 3.0),
+    (4.0, 5.0, 6.0),
+    (7.0, 8.0, 9.0),
+  ]
   let seq = "ALA"
   let res = ["ALA", "LEU", "ALA"]
   let s = @src.add_structure(a, "s1", coords, seq, res)
@@ -102,8 +143,16 @@ test "align_structures_single" {
 ///|
 test "align_structures_two" {
   let a = @src.ma_aligner_new()
-  let coords1 : Array[(Double, Double, Double)] = [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0)]
-  let coords2 : Array[(Double, Double, Double)] = [(10.0, 10.0, 0.0), (11.0, 10.0, 0.0), (10.0, 11.0, 0.0)]
+  let coords1 : Array[(Double, Double, Double)] = [
+    (0.0, 0.0, 0.0),
+    (1.0, 0.0, 0.0),
+    (0.0, 1.0, 0.0),
+  ]
+  let coords2 : Array[(Double, Double, Double)] = [
+    (10.0, 10.0, 0.0),
+    (11.0, 10.0, 0.0),
+    (10.0, 11.0, 0.0),
+  ]
   let s1 = @src.add_structure(a, "s1", coords1, "AAA", ["ALA", "ALA", "ALA"])
   let s2 = @src.add_structure(a, "s2", coords2, "BBB", ["ALA", "ALA", "ALA"])
   let result = @src.align_structures(a, [s1, s2])
@@ -141,8 +190,16 @@ test "build_conservation_profile_different" {
 ///|
 test "get_conservation" {
   let a = @src.ma_aligner_new()
-  let coords1 : Array[(Double, Double, Double)] = [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0)]
-  let coords2 : Array[(Double, Double, Double)] = [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0), (0.0, 1.0, 0.0)]
+  let coords1 : Array[(Double, Double, Double)] = [
+    (0.0, 0.0, 0.0),
+    (1.0, 0.0, 0.0),
+    (0.0, 1.0, 0.0),
+  ]
+  let coords2 : Array[(Double, Double, Double)] = [
+    (0.0, 0.0, 0.0),
+    (1.0, 0.0, 0.0),
+    (0.0, 1.0, 0.0),
+  ]
   let s1 = @src.add_structure(a, "s1", coords1, "AAA", ["ALA", "ALA", "ALA"])
   let s2 = @src.add_structure(a, "s2", coords2, "AAA", ["ALA", "ALA", "ALA"])
   let result = @src.align_structures(a, [s1, s2])
@@ -153,8 +210,14 @@ test "get_conservation" {
 ///|
 test "get_rmsd_matrix" {
   let a = @src.ma_aligner_new()
-  let coords1 : Array[(Double, Double, Double)] = [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0)]
-  let coords2 : Array[(Double, Double, Double)] = [(0.0, 0.0, 0.0), (1.0, 0.0, 0.0)]
+  let coords1 : Array[(Double, Double, Double)] = [
+    (0.0, 0.0, 0.0),
+    (1.0, 0.0, 0.0),
+  ]
+  let coords2 : Array[(Double, Double, Double)] = [
+    (0.0, 0.0, 0.0),
+    (1.0, 0.0, 0.0),
+  ]
   let s1 = @src.add_structure(a, "s1", coords1, "AA", ["ALA", "ALA"])
   let s2 = @src.add_structure(a, "s2", coords2, "AA", ["ALA", "ALA"])
   let result = @src.align_structures(a, [s1, s2])
@@ -166,7 +229,10 @@ test "get_rmsd_matrix" {
 
 ///|
 test "apply_rotation_identity" {
-  let coords : Array[(Double, Double, Double)] = [(1.0, 0.0, 0.0), (0.0, 1.0, 0.0)]
+  let coords : Array[(Double, Double, Double)] = [
+    (1.0, 0.0, 0.0),
+    (0.0, 1.0, 0.0),
+  ]
   let identity : (Double, Double, Double) = (0.0, 0.0, 0.0)
   let _result = @src.apply_rotation(coords, identity)
   assert_true(true)

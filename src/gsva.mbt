@@ -1318,23 +1318,23 @@ pub fn gsva_create_example_data() -> GSVAData {
   let genes : Array[String] = Array::new()
   let samples : Array[String] = Array::new()
   let expression : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < 100 {
-    genes.push(("Gene".to_string() + i.to_string()))
+    genes.push("Gene".to_string() + i.to_string())
     let row : Array[Double] = Array::new()
     let mut j = 0
     while j < 10 {
-      row.push(((i % 10) - 5).to_double() + j.to_double() * 0.1)
+      row.push((i % 10 - 5).to_double() + j.to_double() * 0.1)
       j = j + 1
     }
     expression.push(row)
     i = i + 1
   }
-  
+
   i = 0
   while i < 10 {
-    samples.push(("Sample".to_string() + i.to_string()))
+    samples.push("Sample".to_string() + i.to_string())
     i = i + 1
   }
 
@@ -1347,27 +1347,42 @@ pub fn gsva_create_example_gene_sets() -> Array[GSVAGeneSet] {
   [
     GSVAGeneSet::new(
       "CELL_CYCLE",
-      ["Gene0", "Gene1", "Gene2", "Gene3", "Gene4", "Gene5", "Gene6", "Gene7", "Gene8", "Gene9"],
+      [
+        "Gene0", "Gene1", "Gene2", "Gene3", "Gene4", "Gene5", "Gene6", "Gene7", "Gene8",
+        "Gene9",
+      ],
       "Cell cycle related genes",
     ),
     GSVAGeneSet::new(
       "APOPTOSIS",
-      ["Gene10", "Gene11", "Gene12", "Gene13", "Gene14", "Gene15", "Gene16", "Gene17", "Gene18", "Gene19"],
+      [
+        "Gene10", "Gene11", "Gene12", "Gene13", "Gene14", "Gene15", "Gene16", "Gene17",
+        "Gene18", "Gene19",
+      ],
       "Apoptosis related genes",
     ),
     GSVAGeneSet::new(
       "METABOLISM",
-      ["Gene20", "Gene21", "Gene22", "Gene23", "Gene24", "Gene25", "Gene26", "Gene27", "Gene28", "Gene29"],
+      [
+        "Gene20", "Gene21", "Gene22", "Gene23", "Gene24", "Gene25", "Gene26", "Gene27",
+        "Gene28", "Gene29",
+      ],
       "Metabolism related genes",
     ),
     GSVAGeneSet::new(
       "IMMUNE",
-      ["Gene30", "Gene31", "Gene32", "Gene33", "Gene34", "Gene35", "Gene36", "Gene37", "Gene38", "Gene39"],
+      [
+        "Gene30", "Gene31", "Gene32", "Gene33", "Gene34", "Gene35", "Gene36", "Gene37",
+        "Gene38", "Gene39",
+      ],
       "Immune related genes",
     ),
     GSVAGeneSet::new(
       "STEM",
-      ["Gene40", "Gene41", "Gene42", "Gene43", "Gene44", "Gene45", "Gene46", "Gene47", "Gene48", "Gene49"],
+      [
+        "Gene40", "Gene41", "Gene42", "Gene43", "Gene44", "Gene45", "Gene46", "Gene47",
+        "Gene48", "Gene49",
+      ],
       "Stem cell related genes",
     ),
   ]
@@ -1439,8 +1454,25 @@ pub fn gsva_enrichment_map(
   map = map + "------------------\n"
   i = 0
   while i < n_sets {
-    let color = if avg_scores[i] > 0.5 { "#" } else if avg_scores[i] > 0.0 { "*" } else if avg_scores[i] > -0.5 { "." } else { "o" }
-    map = map + "  " + color + " " + gene_sets[i].name + " (avg=" + avg_scores[i].to_string() + ", genes=" + gene_sets[i].genes.length().to_string() + ")\n"
+    let color = if avg_scores[i] > 0.5 {
+      "#"
+    } else if avg_scores[i] > 0.0 {
+      "*"
+    } else if avg_scores[i] > -0.5 {
+      "."
+    } else {
+      "o"
+    }
+    map = map +
+      "  " +
+      color +
+      " " +
+      gene_sets[i].name +
+      " (avg=" +
+      avg_scores[i].to_string() +
+      ", genes=" +
+      gene_sets[i].genes.length().to_string() +
+      ")\n"
     i = i + 1
   }
 
@@ -1453,7 +1485,14 @@ pub fn gsva_enrichment_map(
     while j < n_sets {
       let overlap = gsva_gene_set_overlap(gene_sets[i], gene_sets[j])
       if overlap > threshold {
-        map = map + "  " + gene_sets[i].name + " ---" + overlap.to_string() + "--- " + gene_sets[j].name + "\n"
+        map = map +
+          "  " +
+          gene_sets[i].name +
+          " ---" +
+          overlap.to_string() +
+          "--- " +
+          gene_sets[j].name +
+          "\n"
         edge_count = edge_count + 1
       }
       j = j + 1
@@ -1499,7 +1538,9 @@ fn gsva_pearson_correlation(x : Array[Double], y : Array[Double]) -> Double {
   }
 
   let numerator = n * sum_xy - sum_x * sum_y
-  let denominator = gsva_sqrt((n * sum_x2 - sum_x * sum_x) * (n * sum_y2 - sum_y * sum_y))
+  let denominator = gsva_sqrt(
+    (n * sum_x2 - sum_x * sum_x) * (n * sum_y2 - sum_y * sum_y),
+  )
 
   if denominator == 0.0 {
     0.0
@@ -1521,7 +1562,10 @@ pub fn gsva_phenotype_correlation(
   while i < n_sets {
     let corr = gsva_pearson_correlation(scores.scores[i], phenotypes)
     let p_value = if corr.abs() > 0.0 {
-      let t_stat = corr * gsva_sqrt((scores.scores[i].length() - 2).to_double() / (1.0 - corr * corr))
+      let t_stat = corr *
+        gsva_sqrt(
+          (scores.scores[i].length() - 2).to_double() / (1.0 - corr * corr),
+        )
       let df = scores.scores[i].length() - 2
       if df < 1 {
         1.0
@@ -1548,12 +1592,18 @@ pub fn gsva_phenotype_report(
   let mut report = "GSVA Phenotype Correlation Report\n"
   report = report + "=================================\n\n"
   report = report + "Phenotype: " + phenotype_name + "\n"
-  report = report + "Samples: " + scores.sample_names.length().to_string() + "\n\n"
+  report = report +
+    "Samples: " +
+    scores.sample_names.length().to_string() +
+    "\n\n"
 
   let correlations = gsva_phenotype_correlation(scores, phenotypes)
   let n_sets = correlations.length()
 
-  let sorted : Array[(String, Double, Double)] = Array::make(n_sets, ("", 0.0, 0.0))
+  let sorted : Array[(String, Double, Double)] = Array::make(
+    n_sets,
+    ("", 0.0, 0.0),
+  )
   let mut i = 0
   while i < n_sets {
     sorted[i] = correlations[i]
@@ -1584,7 +1634,13 @@ pub fn gsva_phenotype_report(
   i = 0
   while i < sorted.length() && i < 10 {
     let (name, corr, pval) = sorted[i]
-    report = report + name + "\t" + corr.to_string() + "\t" + pval.to_string() + "\n"
+    report = report +
+      name +
+      "\t" +
+      corr.to_string() +
+      "\t" +
+      pval.to_string() +
+      "\n"
     i = i + 1
   }
 
@@ -1659,9 +1715,13 @@ pub fn gsva_survival_analysis(
 
     j = 0
     while j < n {
-      cov = cov + (set_scores[j] - mean_score) * (event[j].to_double() - mean_event)
-      var_score = var_score + (set_scores[j] - mean_score) * (set_scores[j] - mean_score)
-      var_event = var_event + (event[j].to_double() - mean_event) * (event[j].to_double() - mean_event)
+      cov = cov +
+        (set_scores[j] - mean_score) * (event[j].to_double() - mean_event)
+      var_score = var_score +
+        (set_scores[j] - mean_score) * (set_scores[j] - mean_score)
+      var_event = var_event +
+        (event[j].to_double() - mean_event) *
+        (event[j].to_double() - mean_event)
       j = j + 1
     }
 
@@ -1703,7 +1763,10 @@ pub fn gsva_survival_report(
 ) -> String {
   let mut report = "GSVA Survival Analysis Report\n"
   report = report + "=============================\n\n"
-  report = report + "Samples: " + scores.sample_names.length().to_string() + "\n"
+  report = report +
+    "Samples: " +
+    scores.sample_names.length().to_string() +
+    "\n"
   let mut event_sum = 0
   let mut ev_idx = 0
   while ev_idx < event.length() {
@@ -1744,7 +1807,17 @@ pub fn gsva_survival_report(
   i = 0
   while i < sorted.length() && i < 10 {
     let res = sorted[i]
-    report = report + res.gene_set_name + "\t" + res.hazard_ratio.to_string() + "\t[" + res.ci_lower.to_string() + "," + res.ci_upper.to_string() + "]\t" + res.p_value.to_string() + "\n"
+    report = report +
+      res.gene_set_name +
+      "\t" +
+      res.hazard_ratio.to_string() +
+      "\t[" +
+      res.ci_lower.to_string() +
+      "," +
+      res.ci_upper.to_string() +
+      "]\t" +
+      res.p_value.to_string() +
+      "\n"
     i = i + 1
   }
 
@@ -1813,7 +1886,8 @@ pub fn gsva_score_distribution(scores : GSVAScores) -> String {
 
   i = bin_count - 1
   while i >= 0 {
-    let threshold = min_val + range * i.to_double() / (bin_count - 1).to_double()
+    let threshold = min_val +
+      range * i.to_double() / (bin_count - 1).to_double()
     let mut bar = ""
     let mut j = 0
     while j < bins[i] && max_freq > 0 {

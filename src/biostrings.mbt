@@ -703,7 +703,9 @@ pub fn MatchPatternResult::widths(self : MatchPatternResult) -> Array[Int] {
 
 ///|
 /// Get all mismatch counts.
-pub fn MatchPatternResult::mismatch_counts(self : MatchPatternResult) -> Array[Int] {
+pub fn MatchPatternResult::mismatch_counts(
+  self : MatchPatternResult,
+) -> Array[Int] {
   self.hits.map(fn(h) { h.mismatches })
 }
 
@@ -723,7 +725,13 @@ pub fn match_pattern(
   let hits : Array[MatchHit] = Array::new()
 
   if n == 0 || m == 0 {
-    return MatchPatternResult::{ hits, pattern, subject, max_mismatches, with_indels }
+    return MatchPatternResult::{
+      hits,
+      pattern,
+      subject,
+      max_mismatches,
+      with_indels,
+    }
   }
 
   let max_errors = if with_indels { max_mismatches } else { max_mismatches }
@@ -772,7 +780,7 @@ pub fn vmatch_pattern(
   with_indels? : Bool = false,
 ) -> Array[MatchPatternResult] {
   subjects.map(fn(subj) {
-    match_pattern(pattern=pattern, subject=subj, max_mismatches=max_mismatches, with_indels=with_indels)
+    match_pattern(pattern~, subject=subj, max_mismatches~, with_indels~)
   })
 }
 
@@ -870,10 +878,7 @@ pub fn find_inverted_repeats(
 
 ///|
 /// Find all occurrences of a motif allowing IUPAC ambiguity codes.
-pub fn find_motif_iupac(
-  pattern : String,
-  subject : String,
-) -> Array[Int] {
+pub fn find_motif_iupac(pattern : String, subject : String) -> Array[Int] {
   let n = pattern.length()
   let m = subject.length()
   let positions : Array[Int] = Array::new()
@@ -967,7 +972,9 @@ pub fn letter_frequency_matrix(seq : String) -> Map[String, Array[Int]] {
   let matrix : Map[String, Array[Int]] = Map([], capacity=8)
 
   // Initialize for DNA alphabet
-  let bases = ["A", "C", "G", "T", "U", "N", "R", "Y", "S", "W", "K", "M", "B", "D", "H", "V"]
+  let bases = [
+    "A", "C", "G", "T", "U", "N", "R", "Y", "S", "W", "K", "M", "B", "D", "H", "V",
+  ]
   for base in bases {
     matrix.set(base, Array::make(n, 0))
   }
@@ -1007,7 +1014,9 @@ pub fn letter_frequency_matrix(seq : String) -> Map[String, Array[Int]] {
 /// Compute consensus sequence from a multiple sequence alignment.
 /// Returns the most frequent nucleotide at each position.
 pub fn biostrings_consensus_sequence(alignment : Array[String]) -> String {
-  if alignment.length() == 0 { return "" }
+  if alignment.length() == 0 {
+    return ""
+  }
   let n_seqs = alignment.length()
   let seq_len = alignment[0].length()
 
@@ -1048,24 +1057,75 @@ pub fn biostrings_translate(seq : String, frame? : Int = 0) -> String {
   let aa_count = (n - offset) / 3
   let result : FixedArray[UInt16] = FixedArray::make(aa_count, 0)
 
-  let codon_table : Map[String, UInt16] = Map([
-    ("TTT", 70), ("TTC", 70), ("TTA", 76), ("TTG", 76),
-    ("CTT", 76), ("CTC", 76), ("CTA", 76), ("CTG", 76),
-    ("ATT", 73), ("ATC", 73), ("ATA", 73), ("ATG", 77),
-    ("GTT", 86), ("GTC", 86), ("GTA", 86), ("GTG", 86),
-    ("TCT", 83), ("TCC", 83), ("TCA", 83), ("TCG", 83),
-    ("CCT", 80), ("CCC", 80), ("CCA", 80), ("CCG", 80),
-    ("ACT", 65), ("ACC", 65), ("ACA", 65), ("ACG", 65),
-    ("GCT", 65), ("GCC", 65), ("GCA", 65), ("GCG", 65),
-    ("TAT", 89), ("TAC", 89), ("TAA", 42), ("TAG", 42),
-    ("CAT", 72), ("CAC", 72), ("CAA", 81), ("CAG", 81),
-    ("AAT", 78), ("AAC", 78), ("AAA", 75), ("AAG", 75),
-    ("GAT", 68), ("GAC", 68), ("GAA", 69), ("GAG", 69),
-    ("TGT", 67), ("TGC", 67), ("TGA", 42), ("TGG", 87),
-    ("CGT", 82), ("CGC", 82), ("CGA", 82), ("CGG", 82),
-    ("AGT", 83), ("AGC", 83), ("AGA", 82), ("AGG", 82),
-    ("GGT", 71), ("GGC", 71), ("GGA", 71), ("GGG", 71),
-  ], capacity=64)
+  let codon_table : Map[String, UInt16] = Map(
+    [
+      ("TTT", 70),
+      ("TTC", 70),
+      ("TTA", 76),
+      ("TTG", 76),
+      ("CTT", 76),
+      ("CTC", 76),
+      ("CTA", 76),
+      ("CTG", 76),
+      ("ATT", 73),
+      ("ATC", 73),
+      ("ATA", 73),
+      ("ATG", 77),
+      ("GTT", 86),
+      ("GTC", 86),
+      ("GTA", 86),
+      ("GTG", 86),
+      ("TCT", 83),
+      ("TCC", 83),
+      ("TCA", 83),
+      ("TCG", 83),
+      ("CCT", 80),
+      ("CCC", 80),
+      ("CCA", 80),
+      ("CCG", 80),
+      ("ACT", 65),
+      ("ACC", 65),
+      ("ACA", 65),
+      ("ACG", 65),
+      ("GCT", 65),
+      ("GCC", 65),
+      ("GCA", 65),
+      ("GCG", 65),
+      ("TAT", 89),
+      ("TAC", 89),
+      ("TAA", 42),
+      ("TAG", 42),
+      ("CAT", 72),
+      ("CAC", 72),
+      ("CAA", 81),
+      ("CAG", 81),
+      ("AAT", 78),
+      ("AAC", 78),
+      ("AAA", 75),
+      ("AAG", 75),
+      ("GAT", 68),
+      ("GAC", 68),
+      ("GAA", 69),
+      ("GAG", 69),
+      ("TGT", 67),
+      ("TGC", 67),
+      ("TGA", 42),
+      ("TGG", 87),
+      ("CGT", 82),
+      ("CGC", 82),
+      ("CGA", 82),
+      ("CGG", 82),
+      ("AGT", 83),
+      ("AGC", 83),
+      ("AGA", 82),
+      ("AGG", 82),
+      ("GGT", 71),
+      ("GGC", 71),
+      ("GGA", 71),
+      ("GGG", 71),
+    ],
+    capacity=64,
+  )
 
   let mut i = offset
   let mut out_idx = 0
@@ -1160,7 +1220,11 @@ pub fn expected_matches(
 
   // Expected number: (seq_length - pattern_length + 1) * probability
   let n_positions = (seq_length - n + 1).to_double()
-  if prob.is_nan() || prob < 0.0 { 0.0 } else { n_positions * prob }
+  if prob.is_nan() || prob < 0.0 {
+    0.0
+  } else {
+    n_positions * prob
+  }
 }
 
 ///|
@@ -1203,7 +1267,8 @@ pub fn sequence_complexity(seq : String, word_size : Int) -> Double {
   entropy
 }
 
-///| Test match_pattern with exact matching
+///|
+/// Test match_pattern with exact matching
 test "match_pattern_exact" {
   let result = match_pattern(pattern="ATG", subject="ATGATGATG")
   assert_eq(result.hits.length(), 3)
@@ -1212,29 +1277,38 @@ test "match_pattern_exact" {
   assert_eq(result.hits[0].mismatches, 0)
 }
 
-///| Test match_pattern with mismatches
+///|
+/// Test match_pattern with mismatches
 test "match_pattern_mismatch" {
   let result = match_pattern(pattern="ATG", subject="AAGATG", max_mismatches=1)
   assert_true(result.hits.length() >= 1)
 }
 
-///| Test match_pattern with indels
+///|
+/// Test match_pattern with indels
 test "match_pattern_indels" {
-  let result = match_pattern(pattern="ATG", subject="ATGC", max_mismatches=1, with_indels=true)
+  let result = match_pattern(
+    pattern="ATG",
+    subject="ATGC",
+    max_mismatches=1,
+    with_indels=true,
+  )
   assert_true(result.hits.length() >= 1)
 }
 
-///| Test vmatch_pattern
+///|
+/// Test vmatch_pattern
 test "vmatch_pattern" {
   let subjects = ["ATGATG", "ATGCAT", "CCCCCC"]
-  let result = vmatch_pattern(pattern="ATG", subjects=subjects)
+  let result = vmatch_pattern(pattern="ATG", subjects~)
   assert_eq(result.length(), 3)
   assert_eq(result[0].hits.length(), 2)
   assert_eq(result[1].hits.length(), 1)
   assert_eq(result[2].hits.length(), 0)
 }
 
-///| Test find_palindromes
+///|
+/// Test find_palindromes
 test "find_palindromes" {
   let result = find_palindromes(seq="ATAT", min_length=4)
   assert_eq(result.length(), 1)
@@ -1242,76 +1316,93 @@ test "find_palindromes" {
   assert_eq(result[0].1, 4)
 }
 
-///| Test find_palindromes_empty
+///|
+/// Test find_palindromes_empty
 test "find_palindromes_empty" {
   let result = find_palindromes(seq="ATGC", min_length=4)
   assert_eq(result.length(), 0)
 }
 
-///| Test find_direct_repeats
+///|
+/// Test find_direct_repeats
 test "find_direct_repeats" {
-  let result = find_direct_repeats(seq="ATGATGATG", min_unit_length=3, max_unit_length=3, min_copies=2)
+  let result = find_direct_repeats(
+    seq="ATGATGATG",
+    min_unit_length=3,
+    max_unit_length=3,
+    min_copies=2,
+  )
   assert_true(result.length() >= 1)
 }
 
-///| Test find_inverted_repeats
+///|
+/// Test find_inverted_repeats
 test "find_inverted_repeats" {
   let result = find_inverted_repeats(seq="ATGCAT", min_length=3)
   assert_true(result.length() >= 0)
 }
 
-///| Test biostrings_translate with standard genetic code
+///|
+/// Test biostrings_translate with standard genetic code
 test "biostrings_translate_basic" {
   // ATG = M, GCT = A, TAA = *
   let protein = biostrings_translate("ATGGCTTAA")
   assert_eq(protein, "MA*")
 }
 
-///| Test biostrings_translate with different reading frame
+///|
+/// Test biostrings_translate with different reading frame
 test "biostrings_translate_frame1" {
   // Frame 1: TGG = W, CTT = L
   let protein = biostrings_translate("ATGGCTTAA", frame=1)
   assert_eq(protein, "WL")
 }
 
-///| Test biostrings_translate with lowercase input
+///|
+/// Test biostrings_translate with lowercase input
 test "biostrings_translate_lowercase" {
   let protein = biostrings_translate("atggcttaa")
   assert_eq(protein, "MA*")
 }
 
-///| Test biostrings_translate empty sequence
+///|
+/// Test biostrings_translate empty sequence
 test "biostrings_translate_empty" {
   let protein = biostrings_translate("")
   assert_eq(protein, "")
 }
 
-///| Test biostrings_reverse_complement basic
+///|
+/// Test biostrings_reverse_complement basic
 test "biostrings_reverse_complement_basic" {
   let rc = biostrings_reverse_complement("ATGC")
   assert_eq(rc, "GCAT")
 }
 
-///| Test biostrings_reverse_complement with IUPAC
+///|
+/// Test biostrings_reverse_complement with IUPAC
 test "biostrings_reverse_complement_iupac" {
   let rc = biostrings_reverse_complement("AR")
   assert_eq(rc, "YT")
 }
 
-///| Test biostrings_reverse_complement with empty string
+///|
+/// Test biostrings_reverse_complement with empty string
 test "biostrings_reverse_complement_empty" {
   let rc = biostrings_reverse_complement("")
   assert_eq(rc, "")
 }
 
-///| Test biostrings_reverse_complement palindrome
+///|
+/// Test biostrings_reverse_complement palindrome
 test "biostrings_reverse_complement_palindrome" {
   // ACGT's reverse complement is also ACGT
   let rc = biostrings_reverse_complement("ACGT")
   assert_eq(rc, "ACGT")
 }
 
-///| Test letter_frequency_matrix basic
+///|
+/// Test letter_frequency_matrix basic
 test "letter_frequency_matrix_basic" {
   let matrix = letter_frequency_matrix("ACGT")
   let a_counts = matrix.get_or_default("A", Array::make(4, 0))
@@ -1324,7 +1415,8 @@ test "letter_frequency_matrix_basic" {
   assert_eq(t_counts[3], 1)
 }
 
-///| Test biostrings_consensus_sequence
+///|
+/// Test biostrings_consensus_sequence
 test "biostrings_consensus_sequence_basic" {
   let alignment = ["ACGT", "ACGT", "TCGA"]
   let consensus = biostrings_consensus_sequence(alignment)
@@ -1335,26 +1427,30 @@ test "biostrings_consensus_sequence_basic" {
   assert_eq(consensus, "ACGT")
 }
 
-///| Test biostrings_consensus_sequence empty
+///|
+/// Test biostrings_consensus_sequence empty
 test "biostrings_consensus_sequence_empty" {
   let alignment : Array[String] = []
   let consensus = biostrings_consensus_sequence(alignment)
   assert_eq(consensus, "")
 }
 
-///| Test expected_matches
+///|
+/// Test expected_matches
 test "expected_matches_basic" {
   let n = expected_matches("ACGT", 12, 0.5)
   assert_true(n > 0.0)
 }
 
-///| Test sequence_complexity
+///|
+/// Test sequence_complexity
 test "sequence_complexity_basic" {
   let entropy = sequence_complexity("ACGTACGTACGT", 2)
   assert_true(entropy > 0.0)
 }
 
-///| Test sequence_complexity with degenerate sequence
+///|
+/// Test sequence_complexity with degenerate sequence
 test "sequence_complexity_degenerate" {
   let entropy = sequence_complexity("AAAA", 2)
   assert_true(entropy >= 0.0)

@@ -23,7 +23,10 @@ pub struct HTSFilterResult {
 /// Compute CPM (Counts Per Million) matrix from raw counts and library sizes.
 /// counts: genes × samples
 /// Returns: genes × samples CPM values
-pub fn hts_filter_cpm(counts : Array[Array[Double]], library_sizes : Array[Double]) -> Array[Array[Double]] {
+pub fn hts_filter_cpm(
+  counts : Array[Array[Double]],
+  library_sizes : Array[Double],
+) -> Array[Array[Double]] {
   let n_genes = counts.length()
   if n_genes == 0 {
     return []
@@ -93,9 +96,9 @@ pub fn hts_filter(
   let n_genes = counts.length()
   if n_genes == 0 {
     return HTSFilterResult::{
-      cpm_threshold: cpm_threshold,
-      min_samples_per_group: min_samples_per_group,
-      groups: groups,
+      cpm_threshold,
+      min_samples_per_group,
+      groups,
       cpm_matrix: [],
       keep: [],
       n_genes_input: 0,
@@ -115,10 +118,15 @@ pub fn hts_filter(
     let mut found = false
     let mut j = 0
     while j < unique_groups.length() {
-      if unique_groups[j] == g { found = true; break }
+      if unique_groups[j] == g {
+        found = true
+        break
+      }
       j = j + 1
     }
-    if !found { unique_groups.push(g) }
+    if !found {
+      unique_groups.push(g)
+    }
     i = i + 1
   }
 
@@ -145,16 +153,18 @@ pub fn hts_filter(
       ug = ug + 1
     }
     keep.push(gene_kept)
-    if gene_kept { kept = kept + 1 }
+    if gene_kept {
+      kept = kept + 1
+    }
     g = g + 1
   }
 
   HTSFilterResult::{
-    cpm_threshold: cpm_threshold,
-    min_samples_per_group: min_samples_per_group,
-    groups: groups,
+    cpm_threshold,
+    min_samples_per_group,
+    groups,
     cpm_matrix: cpm_mat,
-    keep: keep,
+    keep,
     n_genes_input: n_genes,
     n_genes_kept: kept,
     n_genes_removed: n_genes - kept,
@@ -164,7 +174,10 @@ pub fn hts_filter(
 ///|
 /// Apply a keep mask to filter a count matrix.
 /// Returns only the rows (genes) where keep[i] is true.
-pub fn hts_filter_apply(counts : Array[Array[Double]], keep : Array[Bool]) -> Array[Array[Double]] {
+pub fn hts_filter_apply(
+  counts : Array[Array[Double]],
+  keep : Array[Bool],
+) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = []
   let mut i = 0
   while i < counts.length() {
@@ -178,7 +191,10 @@ pub fn hts_filter_apply(counts : Array[Array[Double]], keep : Array[Bool]) -> Ar
 
 ///|
 /// Apply keep mask to a gene name list.
-pub fn hts_filter_apply_names(gene_names : Array[String], keep : Array[Bool]) -> Array[String] {
+pub fn hts_filter_apply_names(
+  gene_names : Array[String],
+  keep : Array[Bool],
+) -> Array[String] {
   let result : Array[String] = []
   let mut i = 0
   while i < gene_names.length() {
@@ -194,21 +210,38 @@ pub fn hts_filter_apply_names(gene_names : Array[String], keep : Array[Bool]) ->
 /// Summarize the filtering result as a string.
 pub fn hts_filter_summary(result : HTSFilterResult) -> String {
   "HTSFilter Summary:\n" +
-    "  CPM threshold: " + result.cpm_threshold.to_string() + "\n" +
-    "  Min samples per group: " + result.min_samples_per_group.to_string() + "\n" +
-    "  Input genes: " + result.n_genes_input.to_string() + "\n" +
-    "  Genes kept: " + result.n_genes_kept.to_string() + "\n" +
-    "  Genes removed: " + result.n_genes_removed.to_string() + "\n" +
-    "  Retention rate: " +
-    (if result.n_genes_input > 0 {
-      (result.n_genes_kept.to_double() / result.n_genes_input.to_double() * 100.0).to_string()
-    } else { "0.0" }) + "%"
+  "  CPM threshold: " +
+  result.cpm_threshold.to_string() +
+  "\n" +
+  "  Min samples per group: " +
+  result.min_samples_per_group.to_string() +
+  "\n" +
+  "  Input genes: " +
+  result.n_genes_input.to_string() +
+  "\n" +
+  "  Genes kept: " +
+  result.n_genes_kept.to_string() +
+  "\n" +
+  "  Genes removed: " +
+  result.n_genes_removed.to_string() +
+  "\n" +
+  "  Retention rate: " +
+  (if result.n_genes_input > 0 {
+    (result.n_genes_kept.to_double() / result.n_genes_input.to_double() * 100.0).to_string()
+  } else {
+    "0.0"
+  }) +
+  "%"
 }
 
 ///|
 /// Generate sample RNA-seq count data for testing.
 /// Returns tuple of (counts, groups, gene_names).
-pub fn hts_filter_sample_data() -> (Array[Array[Double]], Array[Int], Array[String]) {
+pub fn hts_filter_sample_data() -> (
+  Array[Array[Double]],
+  Array[Int],
+  Array[String],
+) {
   // 20 genes x 6 samples (3 control + 3 treatment)
   let n_genes = 20
   let n_samples = 6
@@ -225,7 +258,7 @@ pub fn hts_filter_sample_data() -> (Array[Array[Double]], Array[Int], Array[Stri
       // Next 5 genes: moderate expression (~50-200 CPM)
       // Last 5 genes: low expression (~1-10 CPM)
       let base = if g < 10 { 2000.0 } else if g < 15 { 100.0 } else { 5.0 }
-      let noise = (((g * 7 + s * 13) % 100).to_double() / 100.0) * base * 0.5
+      let noise = ((g * 7 + s * 13) % 100).to_double() / 100.0 * base * 0.5
       let val = base + noise
       row.push(val)
       s = s + 1

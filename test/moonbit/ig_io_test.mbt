@@ -15,9 +15,7 @@
 ///|
 test "ig_record_new_and_accessors" {
   let r = @src.IgRecord::new(
-    "A_U455",
-    "HIV-1 group M subtype A",
-    "ATGGCAGCTGTGATGAAGCAGAGACGGGTAAGAGCTC",
+    "A_U455", "HIV-1 group M subtype A", "ATGGCAGCTGTGATGAAGCAGAGACGGGTAAGAGCTC",
   )
   assert_eq(r.title(), "A_U455")
   assert_eq(r.comment(), "HIV-1 group M subtype A")

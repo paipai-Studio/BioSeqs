@@ -54,8 +54,12 @@ pub fn AbstractAlignment::new(
   let n_seqs = sequences.length()
   let alignment_length = if n_seqs > 0 { sequences[0].length() } else { 0 }
   AbstractAlignment::{
-    sequences, identifiers, alignment_type,
-    validated: false, n_seqs, alignment_length
+    sequences,
+    identifiers,
+    alignment_type,
+    validated: false,
+    n_seqs,
+    alignment_length,
   }
 }
 
@@ -88,7 +92,9 @@ pub fn AbstractAlignment::validate(self : AbstractAlignment) -> (Bool, String) {
 
 ///|
 /// Validate characters in the alignment.
-pub fn AbstractAlignment::validate_characters(self : AbstractAlignment) -> (Bool, String) {
+pub fn AbstractAlignment::validate_characters(
+  self : AbstractAlignment,
+) -> (Bool, String) {
   let valid_chars = get_valid_chars(self.alignment_type)
 
   let mut seq_idx = 0
@@ -101,7 +107,12 @@ pub fn AbstractAlignment::validate_characters(self : AbstractAlignment) -> (Bool
         let ch = c.to_string()
         let pos = i.to_string()
         let id = self.identifiers[seq_idx]
-        let msg = "Invalid character " + ch + " at position " + pos + " in sequence " + id
+        let msg = "Invalid character " +
+          ch +
+          " at position " +
+          pos +
+          " in sequence " +
+          id
         return (false, msg)
       }
       i = i + 1
@@ -111,25 +122,20 @@ pub fn AbstractAlignment::validate_characters(self : AbstractAlignment) -> (Bool
   (true, "")
 }
 
+///|
 fn get_valid_chars(align_type : AlignAbstractType) -> Array[UInt16] {
   let nucleotide_chars : Array[UInt16] = [
-    65, 84, 71, 67, 85, 78, 45, 46,
-    82, 89, 83, 87, 75, 77, 66, 86, 68, 72
+    65, 84, 71, 67, 85, 78, 45, 46, 82, 89, 83, 87, 75, 77, 66, 86, 68, 72,
   ]
   let protein_chars : Array[UInt16] = [
-    65, 82, 78, 68, 67, 81, 69, 71, 72, 73,
-    76, 75, 77, 70, 80, 83, 84, 87, 89, 86,
-    66, 90, 88, 45, 46, 85, 79
+    65, 82, 78, 68, 67, 81, 69, 71, 72, 73, 76, 75, 77, 70, 80, 83, 84, 87, 89, 86,
+    66, 90, 88, 45, 46, 85, 79,
   ]
   let generic_chars : Array[UInt16] = [
-    97, 98, 99, 100, 101, 102, 103, 104, 105, 106,
-    107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
-    117, 118, 119, 120, 121, 122,
-    65, 66, 67, 68, 69, 70, 71, 72, 73, 74,
-    75, 76, 77, 78, 79, 80, 81, 82, 83, 84,
-    85, 86, 87, 88, 89, 90,
-    48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
-    45, 46, 42
+    97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112,
+    113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 65, 66, 67, 68, 69, 70, 71,
+    72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 48,
+    49, 50, 51, 52, 53, 54, 55, 56, 57, 45, 46, 42,
   ]
 
   match align_type {
@@ -139,14 +145,25 @@ fn get_valid_chars(align_type : AlignAbstractType) -> Array[UInt16] {
   }
 }
 
+///|
 fn char_to_upper(c : UInt16) -> UInt16 {
-  if c >= 97 && c <= 122 { c - 32 } else { c }
+  if c >= 97 && c <= 122 {
+    c - 32
+  } else {
+    c
+  }
 }
 
+///|
 fn char_to_lower(c : UInt16) -> UInt16 {
-  if c >= 65 && c <= 90 { c + 32 } else { c }
+  if c >= 65 && c <= 90 {
+    c + 32
+  } else {
+    c
+  }
 }
 
+///|
 /// Convert a UInt16 character code to its 1-character String representation.
 fn u16_to_str(c : UInt16) -> String {
   match c {
@@ -221,6 +238,7 @@ fn u16_to_str(c : UInt16) -> String {
   }
 }
 
+///|
 fn char_in_array(c : UInt16, arr : Array[UInt16]) -> Bool {
   for ch in arr {
     if ch == c {
@@ -238,13 +256,18 @@ pub fn AbstractAlignment::abstract_n_seqs(self : AbstractAlignment) -> Int {
 
 ///|
 /// Get alignment length.
-pub fn AbstractAlignment::abstract_alignment_length(self : AbstractAlignment) -> Int {
+pub fn AbstractAlignment::abstract_alignment_length(
+  self : AbstractAlignment,
+) -> Int {
   self.alignment_length
 }
 
 ///|
 /// Get a sequence by index.
-pub fn AbstractAlignment::abstract_get_seq(self : AbstractAlignment, idx : Int) -> String {
+pub fn AbstractAlignment::abstract_get_seq(
+  self : AbstractAlignment,
+  idx : Int,
+) -> String {
   if idx >= 0 && idx < self.n_seqs {
     self.sequences[idx]
   } else {
@@ -254,7 +277,10 @@ pub fn AbstractAlignment::abstract_get_seq(self : AbstractAlignment, idx : Int) 
 
 ///|
 /// Get sequence identifier by index.
-pub fn AbstractAlignment::abstract_get_id(self : AbstractAlignment, idx : Int) -> String {
+pub fn AbstractAlignment::abstract_get_id(
+  self : AbstractAlignment,
+  idx : Int,
+) -> String {
   if idx >= 0 && idx < self.n_seqs {
     self.identifiers[idx]
   } else {
@@ -264,7 +290,10 @@ pub fn AbstractAlignment::abstract_get_id(self : AbstractAlignment, idx : Int) -
 
 ///|
 /// Get a column from the alignment (array of characters).
-pub fn AbstractAlignment::abstract_get_column(self : AbstractAlignment, col_idx : Int) -> Array[UInt16] {
+pub fn AbstractAlignment::abstract_get_column(
+  self : AbstractAlignment,
+  col_idx : Int,
+) -> Array[UInt16] {
   let column : Array[UInt16] = Array::new()
   if col_idx >= 0 && col_idx < self.alignment_length {
     for seq in self.sequences {
@@ -276,7 +305,9 @@ pub fn AbstractAlignment::abstract_get_column(self : AbstractAlignment, col_idx 
 
 ///|
 /// Get the alignment type.
-pub fn AbstractAlignment::abstract_type(self : AbstractAlignment) -> AlignAbstractType {
+pub fn AbstractAlignment::abstract_type(
+  self : AbstractAlignment,
+) -> AlignAbstractType {
   self.alignment_type
 }
 
@@ -295,13 +326,20 @@ pub struct AlignAbstractColumnStats {
 
 ///|
 /// Compute column statistics for a given alignment column.
-pub fn abstract_column_stats(alignment : AbstractAlignment, col_idx : Int) -> AlignAbstractColumnStats {
+pub fn abstract_column_stats(
+  alignment : AbstractAlignment,
+  col_idx : Int,
+) -> AlignAbstractColumnStats {
   let column = alignment.abstract_get_column(col_idx)
   let n = column.length()
   if n == 0 {
     return AlignAbstractColumnStats::{
-      column_index: col_idx, conservation: 0.0, diversity: 0.0,
-      gap_fraction: 0.0, n_unique_chars: 0, consensus_char: 45
+      column_index: col_idx,
+      conservation: 0.0,
+      diversity: 0.0,
+      gap_fraction: 0.0,
+      n_unique_chars: 0,
+      consensus_char: 45,
     }
   }
 
@@ -357,13 +395,15 @@ pub fn abstract_column_stats(alignment : AbstractAlignment, col_idx : Int) -> Al
     diversity: entropy,
     gap_fraction,
     n_unique_chars: counts.length(),
-    consensus_char: consensus
+    consensus_char: consensus,
   }
 }
 
 ///|
 /// Get an array of all column statistics for the alignment.
-pub fn abstract_all_column_stats(alignment : AbstractAlignment) -> Array[AlignAbstractColumnStats] {
+pub fn abstract_all_column_stats(
+  alignment : AbstractAlignment,
+) -> Array[AlignAbstractColumnStats] {
   let stats : Array[AlignAbstractColumnStats] = Array::new()
   let mut i = 0
   while i < alignment.alignment_length {
@@ -375,7 +415,10 @@ pub fn abstract_all_column_stats(alignment : AbstractAlignment) -> Array[AlignAb
 
 ///|
 /// Get the consensus sequence of the alignment (using most common character per column).
-pub fn abstract_consensus_sequence(alignment : AbstractAlignment, threshold? : Double = 0.5) -> String {
+pub fn abstract_consensus_sequence(
+  alignment : AbstractAlignment,
+  threshold? : Double = 0.5,
+) -> String {
   let mut consensus = ""
   let mut i = 0
   while i < alignment.alignment_length {
@@ -392,7 +435,9 @@ pub fn abstract_consensus_sequence(alignment : AbstractAlignment, threshold? : D
 
 ///|
 /// Calculate sequence identity matrix (pairwise).
-pub fn abstract_identity_matrix(alignment : AbstractAlignment) -> Array[Array[Double]] {
+pub fn abstract_identity_matrix(
+  alignment : AbstractAlignment,
+) -> Array[Array[Double]] {
   let n = alignment.n_seqs
   let matrix : Array[Array[Double]] = Array::new()
   let mut i = 0
@@ -400,7 +445,10 @@ pub fn abstract_identity_matrix(alignment : AbstractAlignment) -> Array[Array[Do
     let row : Array[Double] = Array::new()
     let mut j = 0
     while j < n {
-      let identity = seq_identity(alignment.sequences[i], alignment.sequences[j])
+      let identity = seq_identity(
+        alignment.sequences[i],
+        alignment.sequences[j],
+      )
       row.push(identity)
       j = j + 1
     }
@@ -410,6 +458,7 @@ pub fn abstract_identity_matrix(alignment : AbstractAlignment) -> Array[Array[Do
   matrix
 }
 
+///|
 fn seq_identity(seq1 : String, seq2 : String) -> Double {
   if seq1.length() != seq2.length() {
     return 0.0
@@ -493,6 +542,7 @@ pub fn abstract_parsimony_sites(alignment : AbstractAlignment) -> Int {
   count
 }
 
+///|
 fn is_parsimony_informative(alignment : AbstractAlignment, col : Int) -> Bool {
   let column = alignment.abstract_get_column(col)
   let counts : Map[UInt16, Int] = Map([], capacity=20)
@@ -529,6 +579,7 @@ pub fn abstract_variable_sites(alignment : AbstractAlignment) -> Int {
   count
 }
 
+///|
 fn is_variable_site(alignment : AbstractAlignment, col : Int) -> Bool {
   let column = alignment.abstract_get_column(col)
   if column.length() == 0 {
@@ -557,6 +608,7 @@ pub fn abstract_singleton_sites(alignment : AbstractAlignment) -> Int {
   count
 }
 
+///|
 fn is_singleton_site(alignment : AbstractAlignment, col : Int) -> Bool {
   let column = alignment.abstract_get_column(col)
   let counts : Map[UInt16, Int] = Map([], capacity=20)
@@ -588,7 +640,9 @@ fn is_singleton_site(alignment : AbstractAlignment, col : Int) -> Bool {
 
 ///|
 /// Calculate alignment distance matrix (using simple p-distance).
-pub fn abstract_distance_matrix(alignment : AbstractAlignment) -> Array[Array[Double]] {
+pub fn abstract_distance_matrix(
+  alignment : AbstractAlignment,
+) -> Array[Array[Double]] {
   let n = alignment.n_seqs
   let matrix : Array[Array[Double]] = Array::new()
   let mut i = 0
@@ -596,7 +650,10 @@ pub fn abstract_distance_matrix(alignment : AbstractAlignment) -> Array[Array[Do
     let row : Array[Double] = Array::new()
     let mut j = 0
     while j < n {
-      let dist = pairwise_distance(alignment.sequences[i], alignment.sequences[j])
+      let dist = pairwise_distance(
+        alignment.sequences[i],
+        alignment.sequences[j],
+      )
       row.push(dist)
       j = j + 1
     }
@@ -606,6 +663,7 @@ pub fn abstract_distance_matrix(alignment : AbstractAlignment) -> Array[Array[Do
   matrix
 }
 
+///|
 fn pairwise_distance(seq1 : String, seq2 : String) -> Double {
   if seq1.length() != seq2.length() {
     return 1.0
@@ -629,7 +687,10 @@ fn pairwise_distance(seq1 : String, seq2 : String) -> Double {
 
 ///|
 /// Filter alignment columns by gap fraction.
-pub fn abstract_filter_gaps(alignment : AbstractAlignment, max_gap_fraction : Double) -> AbstractAlignment {
+pub fn abstract_filter_gaps(
+  alignment : AbstractAlignment,
+  max_gap_fraction : Double,
+) -> AbstractAlignment {
   let keep_columns : Array[Int] = Array::new()
   let mut col = 0
   while col < alignment.alignment_length {
@@ -655,12 +716,19 @@ pub fn abstract_filter_gaps(alignment : AbstractAlignment, max_gap_fraction : Do
     seq_idx = seq_idx + 1
   }
 
-  AbstractAlignment::new(sequences=new_seqs, identifiers=alignment.identifiers.copy(), alignment_type=alignment.alignment_type)
+  AbstractAlignment::new(
+    sequences=new_seqs,
+    identifiers=alignment.identifiers.copy(),
+    alignment_type=alignment.alignment_type,
+  )
 }
 
 ///|
 /// Filter alignment sequences by minimum coverage.
-pub fn abstract_filter_coverage(alignment : AbstractAlignment, min_coverage : Double) -> AbstractAlignment {
+pub fn abstract_filter_coverage(
+  alignment : AbstractAlignment,
+  min_coverage : Double,
+) -> AbstractAlignment {
   let keep_seqs : Array[Int] = Array::new()
   let mut idx = 0
   while idx < alignment.n_seqs {
@@ -688,14 +756,26 @@ pub fn abstract_filter_coverage(alignment : AbstractAlignment, min_coverage : Do
     new_ids.push(alignment.identifiers[idx2])
   }
 
-  AbstractAlignment::new(sequences=new_seqs, identifiers=new_ids, alignment_type=alignment.alignment_type)
+  AbstractAlignment::new(
+    sequences=new_seqs,
+    identifiers=new_ids,
+    alignment_type=alignment.alignment_type,
+  )
 }
 
 ///|
 /// Trim alignment to include only the region between start and end columns.
-pub fn abstract_trim(alignment : AbstractAlignment, start : Int, end : Int) -> AbstractAlignment {
+pub fn abstract_trim(
+  alignment : AbstractAlignment,
+  start : Int,
+  end : Int,
+) -> AbstractAlignment {
   let s = if start > 0 { start } else { 0 }
-  let e = if end < alignment.alignment_length - 1 { end } else { alignment.alignment_length - 1 }
+  let e = if end < alignment.alignment_length - 1 {
+    end
+  } else {
+    alignment.alignment_length - 1
+  }
 
   let new_seqs : Array[String] = Array::new()
   for seq in alignment.sequences {
@@ -703,7 +783,11 @@ pub fn abstract_trim(alignment : AbstractAlignment, start : Int, end : Int) -> A
     new_seqs.push(trimmed)
   }
 
-  AbstractAlignment::new(sequences=new_seqs, identifiers=alignment.identifiers.copy(), alignment_type=alignment.alignment_type)
+  AbstractAlignment::new(
+    sequences=new_seqs,
+    identifiers=alignment.identifiers.copy(),
+    alignment_type=alignment.alignment_type,
+  )
 }
 
 ///|
@@ -720,16 +804,33 @@ pub fn abstract_summary(alignment : AbstractAlignment) -> String {
   let tstr = alignment_type_str(alignment.alignment_type)
 
   "Alignment Summary:\n" +
-  "  Sequences: " + n_seqs + "\n" +
-  "  Length: " + alen + "\n" +
-  "  Type: " + tstr + "\n" +
-  "  Valid: " + vstr + "\n" +
-  "  Coverage: " + coverage + "\n" +
-  "  Overall identity: " + identity + "\n" +
-  "  Variable sites: " + variable + "\n" +
-  "  Parsimony-informative sites: " + parsimony + "\n"
+  "  Sequences: " +
+  n_seqs +
+  "\n" +
+  "  Length: " +
+  alen +
+  "\n" +
+  "  Type: " +
+  tstr +
+  "\n" +
+  "  Valid: " +
+  vstr +
+  "\n" +
+  "  Coverage: " +
+  coverage +
+  "\n" +
+  "  Overall identity: " +
+  identity +
+  "\n" +
+  "  Variable sites: " +
+  variable +
+  "\n" +
+  "  Parsimony-informative sites: " +
+  parsimony +
+  "\n"
 }
 
+///|
 pub fn alignment_type_str(t : AlignAbstractType) -> String {
   match t {
     AlignAbstractType::Nucleotide => "Nucleotide"

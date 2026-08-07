@@ -1,6 +1,5 @@
 ///|
 /// Tests for Singscore gene set scoring module.
-
 test "singscore_create_example" {
   let (sample, spec) = @src.singscore_create_example()
   assert_true(sample.sample_id == "sample_1")
@@ -9,6 +8,7 @@ test "singscore_create_example" {
   assert_true(spec.down_genes.length() > 0)
 }
 
+///|
 test "singscore_score_basic" {
   let (sample, spec) = @src.singscore_create_example()
   let result = @src.singscore_score(sample, spec, "test_sample")
@@ -17,6 +17,7 @@ test "singscore_score_basic" {
   assert_true(result.score >= -0.5 && result.score <= 0.5)
 }
 
+///|
 test "singscore_score_boundary" {
   // Score should always be in [-0.5, 0.5]
   let (sample, spec) = @src.singscore_create_example()
@@ -25,17 +26,19 @@ test "singscore_score_boundary" {
   assert_true(result.score <= 0.5 + 1.0e-6)
 }
 
+///|
 test "singscore_empty_gene_set" {
   let genes = ["A", "B", "C"]
   let expression = [1.0, 2.0, 3.0]
   let sample = @src.SampleExpression::new("empty_test", genes, expression)
-  let spec = @src.GeneSetSpec::new("empty_set", [], down_genes = [])
+  let spec = @src.GeneSetSpec::new("empty_set", [], down_genes=[])
   let result = @src.singscore_score(sample, spec, "empty")
   assert_true(result.score == 0.0)
   assert_true(result.n_up_found == 0)
   assert_true(result.n_down_found == 0)
 }
 
+///|
 test "singscore_single_gene" {
   let genes = ["TP53"]
   let expression = [10.0]
@@ -46,6 +49,7 @@ test "singscore_single_gene" {
   assert_true(result.score >= -0.5 && result.score <= 0.5)
 }
 
+///|
 test "singscore_multiple_samples" {
   let (sample1, spec) = @src.singscore_create_example()
   let genes = sample1.gene_names
@@ -59,6 +63,7 @@ test "singscore_multiple_samples" {
   assert_true(results[0].score >= -0.5 && results[0].score <= 0.5)
 }
 
+///|
 test "singscore_missing_genes" {
   let genes = ["A", "B"]
   let expression = [1.0, 2.0]
@@ -69,8 +74,9 @@ test "singscore_missing_genes" {
   assert_true(result.score == 0.0)
 }
 
+///|
 test "singscore_spec_creation" {
-  let spec = @src.GeneSetSpec::new("test_set", ["G1", "G2"], down_genes = ["G3"])
+  let spec = @src.GeneSetSpec::new("test_set", ["G1", "G2"], down_genes=["G3"])
   assert_true(spec.name == "test_set")
   assert_true(spec.up_genes.length() == 2)
   assert_true(spec.down_genes.length() == 1)

@@ -41,14 +41,7 @@ pub fn QValueResult::new(
   gamma : Double,
   significance : Array[Bool],
 ) -> QValueResult {
-  QValueResult::{
-    p_values,
-    q_values,
-    pi0,
-    lambda,
-    gamma,
-    significance,
-  }
+  QValueResult::{ p_values, q_values, pi0, lambda, gamma, significance }
 }
 
 ///|
@@ -173,10 +166,8 @@ fn _compute_pi0_for_lambda(p_values : Array[Double], lambda : Double) -> Double 
 /// Grid: 0.05, 0.10, ..., 0.95
 fn _choose_lambda(p_values : Array[Double]) -> Double {
   let lambdas = [
-    0.05, 0.10, 0.15, 0.20, 0.25,
-    0.30, 0.35, 0.40, 0.45, 0.50,
-    0.55, 0.60, 0.65, 0.70, 0.75,
-    0.80, 0.85, 0.90, 0.95,
+    0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65,
+    0.70, 0.75, 0.80, 0.85, 0.90, 0.95,
   ]
   let n = p_values.length()
   if n == 0 {
@@ -242,7 +233,11 @@ fn _compute_qvalues(p_values : Array[Double], pi0 : Double) -> Array[Double] {
   }
   if n == 1 {
     let q = p_values[0] * pi0
-    if q > 1.0 { [1.0] } else { [q] }
+    if q > 1.0 {
+      [1.0]
+    } else {
+      [q]
+    }
   } else {
     let indexed : Array[Array[Double]] = Array::new()
     let mut i = 0
@@ -252,7 +247,13 @@ fn _compute_qvalues(p_values : Array[Double], pi0 : Double) -> Array[Double] {
     }
 
     indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int {
-      if a[0] < b[0] { -1 } else if a[0] > b[0] { 1 } else { 0 }
+      if a[0] < b[0] {
+        -1
+      } else if a[0] > b[0] {
+        1
+      } else {
+        0
+      }
     })
 
     let q_sorted : Array[Double] = Array::make(n, 1.0)
@@ -283,7 +284,10 @@ fn _compute_qvalues(p_values : Array[Double], pi0 : Double) -> Array[Double] {
 
 ///|
 /// Compute significance boolean array from q-values at a given threshold.
-fn _compute_significance(q_values : Array[Double], threshold : Double) -> Array[Bool] {
+fn _compute_significance(
+  q_values : Array[Double],
+  threshold : Double,
+) -> Array[Bool] {
   let n = q_values.length()
   let result : Array[Bool] = Array::make(n, false)
   let mut i = 0

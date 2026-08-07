@@ -281,11 +281,7 @@ fn seqxml_is_tag_delim(c : UInt16) -> Bool {
 /// Find the next opening tag named `tag_name` at or after position `from`.
 /// Returns the position of the "<" or None. A tag boundary (whitespace, ">",
 /// or "/") must follow the tag name to avoid prefix matches.
-fn seqxml_find_tag(
-  content : String,
-  tag_name : String,
-  from : Int,
-) -> Int? {
+fn seqxml_find_tag(content : String, tag_name : String, from : Int) -> Int? {
   let pattern = "<" + tag_name
   let plen = pattern.length()
   let n = content.length()
@@ -410,11 +406,7 @@ fn seqxml_extract_attr_value(tag : String, attr : String) -> String? {
 ///|
 /// Extract an attribute value and XML-unescape it, returning `default`
 /// when the attribute is absent.
-fn seqxml_attr_or(
-  tag : String,
-  attr : String,
-  default : String,
-) -> String {
+fn seqxml_attr_or(tag : String, attr : String, default : String) -> String {
   match seqxml_extract_attr_value(tag, attr) {
     Some(v) => seqxml_unescape(v)
     None => default
@@ -424,30 +416,33 @@ fn seqxml_attr_or(
 ///|
 /// Escape a string for use inside an XML attribute value.
 fn seqxml_escape_attr(s : String) -> String {
-  s.replace(old="&", new="&amp;")
-   .replace(old="<", new="&lt;")
-   .replace(old=">", new="&gt;")
-   .replace(old="\"", new="&quot;")
-   .replace(old="'", new="&apos;")
+  s
+  .replace(old="&", new="&amp;")
+  .replace(old="<", new="&lt;")
+  .replace(old=">", new="&gt;")
+  .replace(old="\"", new="&quot;")
+  .replace(old="'", new="&apos;")
 }
 
 ///|
 /// Escape a string for use as XML text content.
 fn seqxml_escape_text(s : String) -> String {
-  s.replace(old="&", new="&amp;")
-   .replace(old="<", new="&lt;")
-   .replace(old=">", new="&gt;")
+  s
+  .replace(old="&", new="&amp;")
+  .replace(old="<", new="&lt;")
+  .replace(old=">", new="&gt;")
 }
 
 ///|
 /// Decode XML entities (&amp; &lt; &gt; &quot; &apos;) back to characters.
 /// &amp; is decoded last to avoid double-decoding.
 fn seqxml_unescape(s : String) -> String {
-  s.replace(old="&lt;", new="<")
-   .replace(old="&gt;", new=">")
-   .replace(old="&quot;", new="\"")
-   .replace(old="&apos;", new="'")
-   .replace(old="&amp;", new="&")
+  s
+  .replace(old="&lt;", new="<")
+  .replace(old="&gt;", new=">")
+  .replace(old="&quot;", new="\"")
+  .replace(old="&apos;", new="'")
+  .replace(old="&amp;", new="&")
 }
 
 ///|
@@ -492,9 +487,9 @@ fn seqxml_parse_header(content : String, doc : SeqXmlDocument) -> Unit {
     Some(start) =>
       match seqxml_find_tag_end(content, start) {
         Some(gt_pos) => {
-          let body = content[start + 1 : gt_pos].to_owned()
+          let body = content[start + 1:gt_pos].to_owned()
           let clean = if body.has_suffix("/") {
-            body[0 : body.length() - 1].to_owned()
+            body[0:body.length() - 1].to_owned()
           } else {
             body
           }
@@ -510,9 +505,9 @@ fn seqxml_parse_header(content : String, doc : SeqXmlDocument) -> Unit {
     Some(start) =>
       match seqxml_find_tag_end(content, start) {
         Some(gt_pos) => {
-          let body = content[start + 1 : gt_pos].to_owned()
+          let body = content[start + 1:gt_pos].to_owned()
           let clean = if body.has_suffix("/") {
-            body[0 : body.length() - 1].to_owned()
+            body[0:body.length() - 1].to_owned()
           } else {
             body
           }
@@ -537,7 +532,7 @@ fn seqxml_extract_element_text(inner : String, tag : String) -> String? {
           let close_tag = "</" + tag + ">"
           match seqxml_index_of_from(inner, close_tag, content_start) {
             Some(close_pos) => {
-              let text = inner[content_start : close_pos].to_owned()
+              let text = inner[content_start:close_pos].to_owned()
               Some(seqxml_unescape(seqxml_trim_ws(text)))
             }
             None => None
@@ -581,9 +576,9 @@ fn seqxml_parse_properties(inner : String) -> Array[(String, String)] {
       Some(prop_start) =>
         match seqxml_find_tag_end(inner, prop_start) {
           Some(gt_pos) => {
-            let body = inner[prop_start + 1 : gt_pos].to_owned()
+            let body = inner[prop_start + 1:gt_pos].to_owned()
             let clean = if body.has_suffix("/") {
-              body[0 : body.length() - 1].to_owned()
+              body[0:body.length() - 1].to_owned()
             } else {
               body
             }
@@ -623,10 +618,10 @@ pub fn seqxml_parse(content : String) -> SeqXmlDocument {
         match seqxml_find_tag_end(content, entry_start) {
           None => break
           Some(gt_pos) => {
-            let body = content[entry_start + 1 : gt_pos].to_owned()
+            let body = content[entry_start + 1:gt_pos].to_owned()
             let self_closing = body.has_suffix("/")
             let clean_body = if self_closing {
-              body[0 : body.length() - 1].to_owned()
+              body[0:body.length() - 1].to_owned()
             } else {
               body
             }
@@ -640,7 +635,7 @@ pub fn seqxml_parse(content : String) -> SeqXmlDocument {
             }
             let (seq_type, sequence, properties) = match close_pos_opt {
               Some(close_pos) => {
-                let inner = content[inner_start : close_pos].to_owned()
+                let inner = content[inner_start:close_pos].to_owned()
                 let (st, seq) = seqxml_parse_sequence(inner)
                 let props = seqxml_parse_properties(inner)
                 (st, seq, props)
@@ -677,9 +672,9 @@ pub fn seqxml_parse_entry_id(line : String) -> String? {
     Some(start) =>
       match seqxml_find_tag_end(line, start) {
         Some(gt_pos) => {
-          let body = line[start + 1 : gt_pos].to_owned()
+          let body = line[start + 1:gt_pos].to_owned()
           let clean = if body.has_suffix("/") {
-            body[0 : body.length() - 1].to_owned()
+            body[0:body.length() - 1].to_owned()
           } else {
             body
           }

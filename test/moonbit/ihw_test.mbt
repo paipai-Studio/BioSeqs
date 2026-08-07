@@ -27,7 +27,10 @@ test "ihw_result_accessors" {
   let covs = [0.5]
   let result = @src.IHWResult::new(pvals, adj, weights, covs, 0.01, 3)
   assert_true(result.p_values()[0] > 0.009 && result.p_values()[0] < 0.011)
-  assert_true(result.adjusted_p_values()[0] > 0.049 && result.adjusted_p_values()[0] < 0.051)
+  assert_true(
+    result.adjusted_p_values()[0] > 0.049 &&
+    result.adjusted_p_values()[0] < 0.051,
+  )
   assert_true(result.weights()[0] > 1.9 && result.weights()[0] < 2.1)
   assert_true(result.covariates()[0] > 0.4 && result.covariates()[0] < 0.6)
   assert_true(result.alpha() > 0.009 && result.alpha() < 0.011)
@@ -48,7 +51,11 @@ test "ihw_config_defaults" {
 
 ///|
 test "ihw_config_custom" {
-  let config = @src.IHWConfig::new(alpha=0.01, n_attempts=20, scale_type="global")
+  let config = @src.IHWConfig::new(
+    alpha=0.01,
+    n_attempts=20,
+    scale_type="global",
+  )
   assert_true(config.alpha() > 0.009 && config.alpha() < 0.011)
   assert_eq(config.n_attempts(), 20)
   assert_eq(config.scale_type(), "global")
@@ -205,7 +212,11 @@ test "ihw_with_constant_covariates" {
 test "ihw_with_config_global" {
   let pvals = [0.01, 0.04, 0.03, 0.02]
   let covs = [0.5, 0.3, 0.8, 0.2]
-  let config = @src.IHWConfig::new(alpha=0.05, n_attempts=5, scale_type="global")
+  let config = @src.IHWConfig::new(
+    alpha=0.05,
+    n_attempts=5,
+    scale_type="global",
+  )
   let result = @src.ihw_with_config(pvals, covs, config)
   assert_eq(result.adjusted_p_values().length(), 4)
   let adj = result.adjusted_p_values()
@@ -225,7 +236,11 @@ test "ihw_with_config_custom_alpha" {
 test "ihw_with_config_many_attempts" {
   let pvals = [0.001, 0.01, 0.03, 0.04, 0.5]
   let covs = [0.1, 0.2, 0.3, 0.4, 0.5]
-  let config = @src.IHWConfig::new(alpha=0.05, n_attempts=50, scale_type="local")
+  let config = @src.IHWConfig::new(
+    alpha=0.05,
+    n_attempts=50,
+    scale_type="local",
+  )
   let result = @src.ihw_with_config(pvals, covs, config)
   assert_true(result.n_attempts() <= 50)
 }
@@ -413,7 +428,7 @@ test "ihw_many_tests" {
   let covs : Array[Double] = Array::make(n, 0.0)
   let mut i = 0
   while i < n {
-    pvals[i] = ((i + 1).to_double() / (n.to_double() + 1.0)) * 0.1
+    pvals[i] = (i + 1).to_double() / (n.to_double() + 1.0) * 0.1
     covs[i] = (i + 1).to_double() / n.to_double()
     i = i + 1
   }

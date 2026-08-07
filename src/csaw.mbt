@@ -4,6 +4,7 @@
 /// Supports sliding window counting, normalization, filtering,
 /// and negative binomial GLM-based differential testing.
 
+///|
 /// Normalization method for window counts
 pub enum CswNormMethod {
   /// TMM (trimmed mean of M-values)
@@ -16,6 +17,7 @@ pub enum CswNormMethod {
   None
 }
 
+///|
 /// Filtering status for a window
 pub enum CswFilterStatus {
   /// Window passes filter
@@ -28,6 +30,7 @@ pub enum CswFilterStatus {
   Excluded
 } derive(Eq)
 
+///|
 /// A single genomic window
 pub struct CswWindow {
   /// Window ID
@@ -46,6 +49,7 @@ pub struct CswWindow {
   filter_abundance : Double
 }
 
+///|
 /// Collection of windows across samples
 pub struct CswDataSet {
   /// Windows
@@ -62,6 +66,7 @@ pub struct CswDataSet {
   bin_indices : Array[Int]
 }
 
+///|
 /// Normalization result
 pub struct CswNormResult {
   /// Normalization factors per sample
@@ -74,6 +79,7 @@ pub struct CswNormResult {
   log_ratios : Array[Array[Double]]
 }
 
+///|
 /// Differential binding result
 pub struct CswResult {
   /// Window indices
@@ -92,6 +98,7 @@ pub struct CswResult {
   significant : Array[Bool]
 }
 
+///|
 /// Region result (merged adjacent significant windows)
 pub struct CswRegion {
   /// Region ID
@@ -114,8 +121,15 @@ pub struct CswRegion {
 
 // ===== Window methods =====
 
+///|
 /// Create a new window
-pub fn CswWindow::new(id : String, chrom : String, start : Int, end : Int, counts : Array[Double]) -> CswWindow {
+pub fn CswWindow::new(
+  id : String,
+  chrom : String,
+  start : Int,
+  end : Int,
+  counts : Array[Double],
+) -> CswWindow {
   CswWindow::{
     id,
     chrom,
@@ -123,24 +137,29 @@ pub fn CswWindow::new(id : String, chrom : String, start : Int, end : Int, count
     end,
     counts,
     filter_status: CswFilterStatus::Pass,
-    filter_abundance: 0.0
+    filter_abundance: 0.0,
   }
 }
 
+///|
 /// Get window width
 pub fn CswWindow::csw_width(self : CswWindow) -> Int {
   self.end - self.start
 }
 
+///|
 /// Get count for a sample index
 pub fn CswWindow::csw_count(self : CswWindow, sample_idx : Int) -> Double {
   self.counts[sample_idx]
 }
 
+///|
 /// Get mean count across samples
 pub fn CswWindow::csw_mean_count(self : CswWindow) -> Double {
   let n = self.counts.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let mut sum = 0.0
   let mut i = 0
   while i < n {
@@ -152,8 +171,13 @@ pub fn CswWindow::csw_mean_count(self : CswWindow) -> Double {
 
 // ===== DataSet methods =====
 
+///|
 /// Create a new CswDataSet
-pub fn CswDataSet::new(windows : Array[CswWindow], samples : Array[String], lib_sizes : Array[Double]) -> CswDataSet {
+pub fn CswDataSet::new(
+  windows : Array[CswWindow],
+  samples : Array[String],
+  lib_sizes : Array[Double],
+) -> CswDataSet {
   let n_samples = samples.length()
   let norm_factors : Array[Double] = Array::new()
   let mut i = 0
@@ -167,25 +191,29 @@ pub fn CswDataSet::new(windows : Array[CswWindow], samples : Array[String], lib_
     lib_sizes,
     norm_factors,
     filtered_windows: windows.copy(),
-    bin_indices: Array::new()
+    bin_indices: Array::new(),
   }
 }
 
+///|
 /// Get number of windows
 pub fn CswDataSet::csw_n_windows(self : CswDataSet) -> Int {
   self.windows.length()
 }
 
+///|
 /// Get number of samples
 pub fn CswDataSet::csw_n_samples(self : CswDataSet) -> Int {
   self.samples.length()
 }
 
+///|
 /// Get a window by index
 pub fn CswDataSet::csw_get_window(self : CswDataSet, idx : Int) -> CswWindow {
   self.windows[idx]
 }
 
+///|
 /// Get filtered windows
 pub fn CswDataSet::csw_get_filtered(self : CswDataSet) -> Array[CswWindow] {
   self.filtered_windows.copy()
@@ -195,7 +223,13 @@ pub fn CswDataSet::csw_get_filtered(self : CswDataSet) -> Array[CswWindow] {
 
 ///|
 /// Generate sliding windows across a chromosome.
-pub fn csw_make_windows(chrom : String, start : Int, end : Int, width : Int, shift : Int) -> Array[CswWindow] {
+pub fn csw_make_windows(
+  chrom : String,
+  start : Int,
+  end : Int,
+  width : Int,
+  shift : Int,
+) -> Array[CswWindow] {
   let windows : Array[CswWindow] = Array::new()
   let mut pos = start
   while pos + width <= end {
@@ -204,7 +238,7 @@ pub fn csw_make_windows(chrom : String, start : Int, end : Int, width : Int, shi
       chrom,
       pos,
       pos + width,
-      Array::new()
+      Array::new(),
     )
     windows.push(w)
     pos = pos + shift
@@ -214,7 +248,10 @@ pub fn csw_make_windows(chrom : String, start : Int, end : Int, width : Int, shi
 
 ///|
 /// Assign counts to windows from read positions.
-pub fn csw_assign_counts(windows : Array[CswWindow], read_positions : Array[Int]) -> Array[CswWindow] {
+pub fn csw_assign_counts(
+  windows : Array[CswWindow],
+  read_positions : Array[Int],
+) -> Array[CswWindow] {
   let result : Array[CswWindow] = Array::new()
   let mut i = 0
   while i < windows.length() {
@@ -267,7 +304,11 @@ pub fn csw_norm_tmm(data : CswDataSet) -> CswNormResult {
   let mut min_diff = 1.0e30
   let mut s = 0
   while s < n_samples {
-    let diff_val = if lib_sizes[s] > 0.0 { (lib_sizes[s] - mean_lib).abs() } else { 1.0e30 }
+    let diff_val = if lib_sizes[s] > 0.0 {
+      (lib_sizes[s] - mean_lib).abs()
+    } else {
+      1.0e30
+    }
     if diff_val < min_diff {
       min_diff = diff_val
       ref_idx = s
@@ -291,8 +332,16 @@ pub fn csw_norm_tmm(data : CswDataSet) -> CswNormResult {
     while k < n_windows {
       let ref_count = data.windows[k].counts[ref_idx]
       let obs_count = data.windows[k].counts[i]
-      let ref_norm = if lib_sizes[ref_idx] > 0.0 { ref_count / lib_sizes[ref_idx] } else { 0.0 }
-      let obs_norm = if lib_sizes[i] > 0.0 { obs_count / lib_sizes[i] } else { 0.0 }
+      let ref_norm = if lib_sizes[ref_idx] > 0.0 {
+        ref_count / lib_sizes[ref_idx]
+      } else {
+        0.0
+      }
+      let obs_norm = if lib_sizes[i] > 0.0 {
+        obs_count / lib_sizes[i]
+      } else {
+        0.0
+      }
       if ref_norm > 0.0 && obs_norm > 0.0 {
         let m_val = @math.ln(obs_norm / ref_norm) / @math.ln(2.0)
         sample_log_ratios.push(m_val)
@@ -301,7 +350,11 @@ pub fn csw_norm_tmm(data : CswDataSet) -> CswNormResult {
       }
       k = k + 1
     }
-    let trimmed_m = if m_count > 0 { m_vals_sum / m_count.to_double() } else { 0.0 }
+    let trimmed_m = if m_count > 0 {
+      m_vals_sum / m_count.to_double()
+    } else {
+      0.0
+    }
     let factor = @math.exp(-trimmed_m * @math.ln(2.0))
     factors.push(factor)
     log_ratios.push(sample_log_ratios)
@@ -311,13 +364,16 @@ pub fn csw_norm_tmm(data : CswDataSet) -> CswNormResult {
     norm_factors: factors,
     norm_method: CswNormMethod::TMM,
     ref_sample: ref_idx,
-    log_ratios
+    log_ratios,
   }
 }
 
 ///|
 /// Apply normalization factors to window counts.
-pub fn csw_apply_normalization(data : CswDataSet, norm_factors : Array[Double]) -> CswDataSet {
+pub fn csw_apply_normalization(
+  data : CswDataSet,
+  norm_factors : Array[Double],
+) -> CswDataSet {
   let n_samples = data.samples.length()
   let n_windows = data.windows.length()
   let new_windows : Array[CswWindow] = Array::new()
@@ -327,7 +383,11 @@ pub fn csw_apply_normalization(data : CswDataSet, norm_factors : Array[Double]) 
     let new_counts : Array[Double] = Array::new()
     let mut j = 0
     while j < n_samples {
-      let lib_adj = if data.lib_sizes[j] > 0.0 { 1.0 / data.lib_sizes[j] } else { 1.0 }
+      let lib_adj = if data.lib_sizes[j] > 0.0 {
+        1.0 / data.lib_sizes[j]
+      } else {
+        1.0
+      }
       let norm_count = w.counts[j] * lib_adj * norm_factors[j]
       new_counts.push(norm_count)
       j = j + 1
@@ -339,7 +399,7 @@ pub fn csw_apply_normalization(data : CswDataSet, norm_factors : Array[Double]) 
       end: w.end,
       counts: new_counts,
       filter_status: w.filter_status,
-      filter_abundance: w.filter_abundance
+      filter_abundance: w.filter_abundance,
     })
     i = i + 1
   }
@@ -349,7 +409,7 @@ pub fn csw_apply_normalization(data : CswDataSet, norm_factors : Array[Double]) 
     lib_sizes: data.lib_sizes,
     norm_factors,
     filtered_windows: new_windows.copy(),
-    bin_indices: Array::new()
+    bin_indices: Array::new(),
   }
 }
 
@@ -357,15 +417,26 @@ pub fn csw_apply_normalization(data : CswDataSet, norm_factors : Array[Double]) 
 
 ///|
 /// Filter windows by abundance (log2 CPB threshold).
-pub fn csw_filter_abundance(data : CswDataSet, log2_cpb_threshold : Double) -> CswDataSet {
+pub fn csw_filter_abundance(
+  data : CswDataSet,
+  log2_cpb_threshold : Double,
+) -> CswDataSet {
   let n_windows = data.windows.length()
   let filtered : Array[CswWindow] = Array::new()
   let mut i = 0
   while i < n_windows {
     let w = data.windows[i]
     let total_cpb = csw_total_cpb(w.counts, data.lib_sizes)
-    let log2_cpb = if total_cpb > 0.0 { @math.ln(total_cpb) / @math.ln(2.0) } else { -1.0e9 }
-    let status = if log2_cpb >= log2_cpb_threshold { CswFilterStatus::Pass } else { CswFilterStatus::LowAbundance }
+    let log2_cpb = if total_cpb > 0.0 {
+      @math.ln(total_cpb) / @math.ln(2.0)
+    } else {
+      -1.0e9
+    }
+    let status = if log2_cpb >= log2_cpb_threshold {
+      CswFilterStatus::Pass
+    } else {
+      CswFilterStatus::LowAbundance
+    }
     let fw = CswWindow::{
       id: w.id,
       chrom: w.chrom,
@@ -373,7 +444,7 @@ pub fn csw_filter_abundance(data : CswDataSet, log2_cpb_threshold : Double) -> C
       end: w.end,
       counts: w.counts,
       filter_status: status,
-      filter_abundance: log2_cpb
+      filter_abundance: log2_cpb,
     }
     filtered.push(fw)
     i = i + 1
@@ -384,7 +455,7 @@ pub fn csw_filter_abundance(data : CswDataSet, log2_cpb_threshold : Double) -> C
     lib_sizes: data.lib_sizes,
     norm_factors: data.norm_factors,
     filtered_windows: filtered,
-    bin_indices: data.bin_indices
+    bin_indices: data.bin_indices,
   }
 }
 
@@ -413,7 +484,7 @@ pub fn csw_filter_merged(data : CswDataSet, tol : Double) -> CswDataSet {
             end: filtered[j].end,
             counts: filtered[j].counts,
             filter_status: CswFilterStatus::Merged,
-            filter_abundance: filtered[j].filter_abundance
+            filter_abundance: filtered[j].filter_abundance,
           }
         }
         j = j + 1
@@ -427,7 +498,7 @@ pub fn csw_filter_merged(data : CswDataSet, tol : Double) -> CswDataSet {
     lib_sizes: data.lib_sizes,
     norm_factors: data.norm_factors,
     filtered_windows: filtered,
-    bin_indices: data.bin_indices
+    bin_indices: data.bin_indices,
   }
 }
 
@@ -447,7 +518,7 @@ pub fn csw_test_differential(
   data : CswDataSet,
   group1_indices : Array[Int],
   group2_indices : Array[Int],
-  dispersion : Double
+  dispersion : Double,
 ) -> CswResult {
   let filtered = data.filtered_windows
   let n_windows = filtered.length()
@@ -473,7 +544,11 @@ pub fn csw_test_differential(
     }
     let disp = if dispersion > 0.0 { dispersion } else { 0.1 }
     let se = if variance1 > 0.0 || variance2 > 0.0 {
-      (disp * (mean1 / csw_mean_int(group1_indices) + mean2 / csw_mean_int(group2_indices))).sqrt()
+      (disp *
+      (
+        mean1 / csw_mean_int(group1_indices) +
+        mean2 / csw_mean_int(group2_indices)
+      )).sqrt()
     } else {
       1.0
     }
@@ -502,13 +577,17 @@ pub fn csw_test_differential(
     wald_stat,
     p_values,
     adj_p_values: adj_p,
-    significant
+    significant,
   }
 }
 
 ///|
 /// Find regions by merging adjacent significant windows.
-pub fn csw_find_regions(data : CswDataSet, result : CswResult, merge_tol : Int) -> Array[CswRegion] {
+pub fn csw_find_regions(
+  data : CswDataSet,
+  result : CswResult,
+  merge_tol : Int,
+) -> Array[CswRegion] {
   let regions : Array[CswRegion] = Array::new()
   let n = result.window_indices.length()
   let mut i = 0
@@ -521,7 +600,12 @@ pub fn csw_find_regions(data : CswDataSet, result : CswResult, merge_tol : Int) 
     let mut end_idx = i
     while end_idx + 1 < n &&
           result.significant[end_idx + 1] &&
-          csw_can_merge_windows(data, result.window_indices[end_idx], result.window_indices[end_idx + 1], merge_tol) {
+          csw_can_merge_windows(
+            data,
+            result.window_indices[end_idx],
+            result.window_indices[end_idx + 1],
+            merge_tol,
+          ) {
       end_idx = end_idx + 1
     }
     let region = csw_build_region(data, result, start_idx, end_idx)
@@ -533,17 +617,29 @@ pub fn csw_find_regions(data : CswDataSet, result : CswResult, merge_tol : Int) 
 
 ///|
 /// Check if two windows can be merged into a region.
-fn csw_can_merge_windows(data : CswDataSet, idx1 : Int, idx2 : Int, tol : Int) -> Bool {
+fn csw_can_merge_windows(
+  data : CswDataSet,
+  idx1 : Int,
+  idx2 : Int,
+  tol : Int,
+) -> Bool {
   let w1 = data.filtered_windows[idx1]
   let w2 = data.filtered_windows[idx2]
-  if w1.chrom != w2.chrom { return false }
+  if w1.chrom != w2.chrom {
+    return false
+  }
   let gap = w2.start - w1.end
   gap >= 0 && gap <= tol
 }
 
 ///|
 /// Build a region from merged windows.
-fn csw_build_region(data : CswDataSet, result : CswResult, start : Int, end : Int) -> CswRegion {
+fn csw_build_region(
+  data : CswDataSet,
+  result : CswResult,
+  start : Int,
+  end : Int,
+) -> CswRegion {
   let win_indices : Array[Int] = Array::new()
   let mut i = start
   let mut combined_chi2 = 0.0
@@ -560,8 +656,12 @@ fn csw_build_region(data : CswDataSet, result : CswResult, start : Int, end : In
     }
     let w = data.filtered_windows[wi]
     chrom = w.chrom
-    if w.start.to_double() < rstart { rstart = w.start.to_double() }
-    if w.end.to_double() > rend { rend = w.end.to_double() }
+    if w.start.to_double() < rstart {
+      rstart = w.start.to_double()
+    }
+    if w.end.to_double() > rend {
+      rend = w.end.to_double()
+    }
     i = i + 1
   }
   let n_windows = end - start + 1
@@ -578,15 +678,18 @@ fn csw_build_region(data : CswDataSet, result : CswResult, start : Int, end : In
     combined_p_value: combined_p,
     max_log_fc: max_lfc,
     n_windows,
-    window_indices: win_indices
+    window_indices: win_indices,
   }
 }
 
 // ===== Helper functions =====
 
+///|
 fn csw_mean_double(arr : Array[Double]) -> Double {
   let n = arr.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let mut sum = 0.0
   let mut i = 0
   while i < n {
@@ -596,9 +699,12 @@ fn csw_mean_double(arr : Array[Double]) -> Double {
   sum / n.to_double()
 }
 
+///|
 fn csw_mean_int(arr : Array[Int]) -> Double {
   let n = arr.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let mut sum = 0.0
   let mut i = 0
   while i < n {
@@ -608,6 +714,7 @@ fn csw_mean_int(arr : Array[Int]) -> Double {
   sum / n.to_double()
 }
 
+///|
 fn csw_total_cpb(counts : Array[Double], lib_sizes : Array[Double]) -> Double {
   let mut total = 0.0
   let mut i = 0
@@ -619,9 +726,15 @@ fn csw_total_cpb(counts : Array[Double], lib_sizes : Array[Double]) -> Double {
   total
 }
 
-fn csw_mean_var_group(counts : Array[Double], indices : Array[Int]) -> (Double, Double) {
+///|
+fn csw_mean_var_group(
+  counts : Array[Double],
+  indices : Array[Int],
+) -> (Double, Double) {
   let n = indices.length()
-  if n == 0 { return (0.0, 0.0) }
+  if n == 0 {
+    return (0.0, 0.0)
+  }
   let mut sum = 0.0
   let mut i = 0
   while i < n {
@@ -645,7 +758,11 @@ fn csw_mean_var_group(counts : Array[Double], indices : Array[Int]) -> (Double, 
 fn csw_norm_p_value(z : Double) -> Double {
   let abs_z = z.abs()
   let p_approx = 2.0 * (1.0 - csw_norm_cdf(abs_z))
-  if p_approx < 1.0e-300 { 1.0e-300 } else { p_approx }
+  if p_approx < 1.0e-300 {
+    1.0e-300
+  } else {
+    p_approx
+  }
 }
 
 ///|
@@ -653,7 +770,12 @@ fn csw_norm_p_value(z : Double) -> Double {
 fn csw_norm_cdf(x : Double) -> Double {
   let t = 1.0 / (1.0 + 0.2316419 * x)
   let d = 0.3989422804014327 * @math.exp(-0.5 * x * x)
-  let p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.3302744))))
+  let p = d *
+    t *
+    (
+      0.3193815 +
+      t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.3302744)))
+    )
   1.0 - p
 }
 
@@ -661,7 +783,9 @@ fn csw_norm_cdf(x : Double) -> Double {
 /// Benjamini-Hochberg correction.
 fn csw_bh_correction(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
-  if n == 0 { return Array::new() }
+  if n == 0 {
+    return Array::new()
+  }
   let indexed : Array[(Double, Int)] = Array::new()
   let mut i = 0
   while i < n {
@@ -718,8 +842,12 @@ fn csw_bh_correction(p_values : Array[Double]) -> Array[Double] {
 ///|
 /// Chi-squared survival function approximation.
 fn csw_chi2_sf(x : Double, df : Double) -> Double {
-  if x <= 0.0 { return 1.0 }
-  if df <= 0.0 { return 1.0 }
+  if x <= 0.0 {
+    return 1.0
+  }
+  if df <= 0.0 {
+    return 1.0
+  }
   // Wilson-Hilferty approximation
   let z = @math.pow(x / df, 1.0 / 3.0)
   let mu = 1.0 - 2.0 / (9.0 * df)

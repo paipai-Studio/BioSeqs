@@ -20,9 +20,16 @@ test "SearchIOHsp::new construction" {
 ///|
 test "SearchIOHsp::n_identical" {
   let hsp = @src.SearchIOHsp::new(
-    bitscore=200.5, evalue=1.0e-50, identity=95.0, positives=97.0,
-    gap=2.0, alignment_length=100,
-    query_start=1, query_end=100, hit_start=1, hit_end=100,
+    bitscore=200.5,
+    evalue=1.0e-50,
+    identity=95.0,
+    positives=97.0,
+    gap=2.0,
+    alignment_length=100,
+    query_start=1,
+    query_end=100,
+    hit_start=1,
+    hit_end=100,
   )
   assert_eq(hsp.n_identical(), 95)
 }
@@ -30,9 +37,16 @@ test "SearchIOHsp::n_identical" {
 ///|
 test "SearchIOHsp::n_positives" {
   let hsp = @src.SearchIOHsp::new(
-    bitscore=200.5, evalue=1.0e-50, identity=95.0, positives=97.0,
-    gap=2.0, alignment_length=100,
-    query_start=1, query_end=100, hit_start=1, hit_end=100,
+    bitscore=200.5,
+    evalue=1.0e-50,
+    identity=95.0,
+    positives=97.0,
+    gap=2.0,
+    alignment_length=100,
+    query_start=1,
+    query_end=100,
+    hit_start=1,
+    hit_end=100,
   )
   assert_eq(hsp.n_positives(), 97)
 }
@@ -40,9 +54,16 @@ test "SearchIOHsp::n_positives" {
 ///|
 test "SearchIOHsp::n_gaps" {
   let hsp = @src.SearchIOHsp::new(
-    bitscore=200.5, evalue=1.0e-50, identity=95.0, positives=97.0,
-    gap=2.0, alignment_length=100,
-    query_start=1, query_end=100, hit_start=1, hit_end=100,
+    bitscore=200.5,
+    evalue=1.0e-50,
+    identity=95.0,
+    positives=97.0,
+    gap=2.0,
+    alignment_length=100,
+    query_start=1,
+    query_end=100,
+    hit_start=1,
+    hit_end=100,
   )
   assert_eq(hsp.n_gaps(), 2)
 }
@@ -50,9 +71,16 @@ test "SearchIOHsp::n_gaps" {
 ///|
 test "SearchIOHsp::with_query_seq" {
   let hsp = @src.SearchIOHsp::new(
-    bitscore=100.0, evalue=1.0e-20, identity=90.0, positives=92.0,
-    gap=1.0, alignment_length=50,
-    query_start=1, query_end=50, hit_start=1, hit_end=50,
+    bitscore=100.0,
+    evalue=1.0e-20,
+    identity=90.0,
+    positives=92.0,
+    gap=1.0,
+    alignment_length=50,
+    query_start=1,
+    query_end=50,
+    hit_start=1,
+    hit_end=50,
   )
   let hsp2 = hsp.with_query_seq("ATCGATCG")
   assert_eq(hsp2.query_seq, "ATCGATCG")
@@ -61,9 +89,16 @@ test "SearchIOHsp::with_query_seq" {
 ///|
 test "SearchIOHsp::with_hit_seq" {
   let hsp = @src.SearchIOHsp::new(
-    bitscore=100.0, evalue=1.0e-20, identity=90.0, positives=92.0,
-    gap=1.0, alignment_length=50,
-    query_start=1, query_end=50, hit_start=1, hit_end=50,
+    bitscore=100.0,
+    evalue=1.0e-20,
+    identity=90.0,
+    positives=92.0,
+    gap=1.0,
+    alignment_length=50,
+    query_start=1,
+    query_end=50,
+    hit_start=1,
+    hit_end=50,
   )
   let hsp2 = hsp.with_hit_seq("ATCGATCG")
   assert_eq(hsp2.hit_seq, "ATCGATCG")
@@ -72,9 +107,16 @@ test "SearchIOHsp::with_hit_seq" {
 ///|
 test "SearchIOHsp::with_midline" {
   let hsp = @src.SearchIOHsp::new(
-    bitscore=100.0, evalue=1.0e-20, identity=90.0, positives=92.0,
-    gap=1.0, alignment_length=50,
-    query_start=1, query_end=50, hit_start=1, hit_end=50,
+    bitscore=100.0,
+    evalue=1.0e-20,
+    identity=90.0,
+    positives=92.0,
+    gap=1.0,
+    alignment_length=50,
+    query_start=1,
+    query_end=50,
+    hit_start=1,
+    hit_end=50,
   )
   let hsp2 = hsp.with_midline("||||||..")
   assert_eq(hsp2.midline, "||||||..")
@@ -83,9 +125,16 @@ test "SearchIOHsp::with_midline" {
 ///|
 test "SearchIOHsp::with_frames" {
   let hsp = @src.SearchIOHsp::new(
-    bitscore=100.0, evalue=1.0e-20, identity=90.0, positives=92.0,
-    gap=1.0, alignment_length=50,
-    query_start=1, query_end=50, hit_start=1, hit_end=50,
+    bitscore=100.0,
+    evalue=1.0e-20,
+    identity=90.0,
+    positives=92.0,
+    gap=1.0,
+    alignment_length=50,
+    query_start=1,
+    query_end=50,
+    hit_start=1,
+    hit_end=50,
   )
   let hsp2 = hsp.with_frames(1, -1)
   assert_eq(hsp2.query_frame, 1)
@@ -94,7 +143,11 @@ test "SearchIOHsp::with_frames" {
 
 ///|
 test "SearchIOHit::new construction" {
-  let hit = @src.SearchIOHit::new(id="hit1", description="Test hit", seq_length=1000)
+  let hit = @src.SearchIOHit::new(
+    id="hit1",
+    description="Test hit",
+    seq_length=1000,
+  )
   assert_eq(hit.id, "hit1")
   assert_eq(hit.description, "Test hit")
   assert_eq(hit.seq_length, 1000)
@@ -104,14 +157,28 @@ test "SearchIOHit::new construction" {
 ///|
 test "SearchIOHit::add_hsp and best_hsp" {
   let hsp1 = @src.SearchIOHsp::new(
-    bitscore=100.0, evalue=1.0e-20, identity=90.0, positives=92.0,
-    gap=1.0, alignment_length=50,
-    query_start=1, query_end=50, hit_start=1, hit_end=50,
+    bitscore=100.0,
+    evalue=1.0e-20,
+    identity=90.0,
+    positives=92.0,
+    gap=1.0,
+    alignment_length=50,
+    query_start=1,
+    query_end=50,
+    hit_start=1,
+    hit_end=50,
   )
   let hsp2 = @src.SearchIOHsp::new(
-    bitscore=200.0, evalue=1.0e-40, identity=95.0, positives=97.0,
-    gap=0.5, alignment_length=80,
-    query_start=51, query_end=130, hit_start=51, hit_end=130,
+    bitscore=200.0,
+    evalue=1.0e-40,
+    identity=95.0,
+    positives=97.0,
+    gap=0.5,
+    alignment_length=80,
+    query_start=51,
+    query_end=130,
+    hit_start=51,
+    hit_end=130,
   )
   let hit = @src.SearchIOHit::new(id="hit1", description="Test", seq_length=500)
   let hit_with_hsps = hit.add_hsp(hsp1).add_hsp(hsp2)
@@ -137,14 +204,28 @@ test "SearchIOHit::best_hsp empty" {
 ///|
 test "SearchIOHit::sum_bitscore" {
   let hsp1 = @src.SearchIOHsp::new(
-    bitscore=100.0, evalue=1.0e-20, identity=90.0, positives=92.0,
-    gap=1.0, alignment_length=50,
-    query_start=1, query_end=50, hit_start=1, hit_end=50,
+    bitscore=100.0,
+    evalue=1.0e-20,
+    identity=90.0,
+    positives=92.0,
+    gap=1.0,
+    alignment_length=50,
+    query_start=1,
+    query_end=50,
+    hit_start=1,
+    hit_end=50,
   )
   let hsp2 = @src.SearchIOHsp::new(
-    bitscore=200.0, evalue=1.0e-40, identity=95.0, positives=97.0,
-    gap=0.5, alignment_length=80,
-    query_start=51, query_end=130, hit_start=51, hit_end=130,
+    bitscore=200.0,
+    evalue=1.0e-40,
+    identity=95.0,
+    positives=97.0,
+    gap=0.5,
+    alignment_length=80,
+    query_start=51,
+    query_end=130,
+    hit_start=51,
+    hit_end=130,
   )
   let hit = @src.SearchIOHit::new(id="hit1", description="Test", seq_length=500)
   let hit_with_hsps = hit.add_hsp(hsp1).add_hsp(hsp2)
@@ -155,7 +236,10 @@ test "SearchIOHit::sum_bitscore" {
 ///|
 test "SearchIOQueryResult::new construction" {
   let qr = @src.SearchIOQueryResult::new(
-    id="query1", description="Test query", seq_length=500, database="nr",
+    id="query1",
+    description="Test query",
+    seq_length=500,
+    database="nr",
   )
   assert_eq(qr.id, "query1")
   assert_eq(qr.description, "Test query")
@@ -166,9 +250,16 @@ test "SearchIOQueryResult::new construction" {
 ///|
 test "SearchIOQueryResult::add_hit" {
   let qr = @src.SearchIOQueryResult::new(
-    id="query1", description="Test", seq_length=500, database="nr",
+    id="query1",
+    description="Test",
+    seq_length=500,
+    database="nr",
   )
-  let hit = @src.SearchIOHit::new(id="hit1", description="Hit 1", seq_length=300)
+  let hit = @src.SearchIOHit::new(
+    id="hit1",
+    description="Hit 1",
+    seq_length=300,
+  )
   let qr2 = qr.add_hit(hit)
   assert_eq(qr2.n_hits, 1)
 }
@@ -176,20 +267,47 @@ test "SearchIOQueryResult::add_hit" {
 ///|
 test "SearchIOQueryResult::sort_by_score" {
   let hsp1 = @src.SearchIOHsp::new(
-    bitscore=100.0, evalue=1.0e-20, identity=90.0, positives=92.0,
-    gap=1.0, alignment_length=50,
-    query_start=1, query_end=50, hit_start=1, hit_end=50,
+    bitscore=100.0,
+    evalue=1.0e-20,
+    identity=90.0,
+    positives=92.0,
+    gap=1.0,
+    alignment_length=50,
+    query_start=1,
+    query_end=50,
+    hit_start=1,
+    hit_end=50,
   )
   let hsp2 = @src.SearchIOHsp::new(
-    bitscore=200.0, evalue=1.0e-40, identity=95.0, positives=97.0,
-    gap=0.5, alignment_length=80,
-    query_start=1, query_end=80, hit_start=1, hit_end=80,
+    bitscore=200.0,
+    evalue=1.0e-40,
+    identity=95.0,
+    positives=97.0,
+    gap=0.5,
+    alignment_length=80,
+    query_start=1,
+    query_end=80,
+    hit_start=1,
+    hit_end=80,
   )
-  let hit1 = @src.SearchIOHit::new(id="low", description="Low score", seq_length=300).add_hsp(hsp1)
-  let hit2 = @src.SearchIOHit::new(id="high", description="High score", seq_length=400).add_hsp(hsp2)
+  let hit1 = @src.SearchIOHit::new(
+    id="low",
+    description="Low score",
+    seq_length=300,
+  ).add_hsp(hsp1)
+  let hit2 = @src.SearchIOHit::new(
+    id="high",
+    description="High score",
+    seq_length=400,
+  ).add_hsp(hsp2)
   let qr = @src.SearchIOQueryResult::new(
-    id="query1", description="Test", seq_length=500, database="nr",
-  ).add_hit(hit1).add_hit(hit2)
+      id="query1",
+      description="Test",
+      seq_length=500,
+      database="nr",
+    )
+    .add_hit(hit1)
+    .add_hit(hit2)
   let sorted = qr.sort_by_score()
   assert_eq(sorted.hits[0].id, "high")
   assert_eq(sorted.hits[1].id, "low")
@@ -198,20 +316,43 @@ test "SearchIOQueryResult::sort_by_score" {
 ///|
 test "SearchIOQueryResult::filter_evalue" {
   let hsp1 = @src.SearchIOHsp::new(
-    bitscore=100.0, evalue=0.05, identity=90.0, positives=92.0,
-    gap=1.0, alignment_length=50,
-    query_start=1, query_end=50, hit_start=1, hit_end=50,
+    bitscore=100.0,
+    evalue=0.05,
+    identity=90.0,
+    positives=92.0,
+    gap=1.0,
+    alignment_length=50,
+    query_start=1,
+    query_end=50,
+    hit_start=1,
+    hit_end=50,
   )
   let hsp2 = @src.SearchIOHsp::new(
-    bitscore=200.0, evalue=1.0e-40, identity=95.0, positives=97.0,
-    gap=0.5, alignment_length=80,
-    query_start=1, query_end=80, hit_start=1, hit_end=80,
+    bitscore=200.0,
+    evalue=1.0e-40,
+    identity=95.0,
+    positives=97.0,
+    gap=0.5,
+    alignment_length=80,
+    query_start=1,
+    query_end=80,
+    hit_start=1,
+    hit_end=80,
   )
-  let hit1 = @src.SearchIOHit::new(id="hit1", description="", seq_length=300).add_hsp(hsp1)
-  let hit2 = @src.SearchIOHit::new(id="hit2", description="", seq_length=400).add_hsp(hsp2)
+  let hit1 = @src.SearchIOHit::new(id="hit1", description="", seq_length=300).add_hsp(
+    hsp1,
+  )
+  let hit2 = @src.SearchIOHit::new(id="hit2", description="", seq_length=400).add_hsp(
+    hsp2,
+  )
   let qr = @src.SearchIOQueryResult::new(
-    id="query1", description="", seq_length=500, database="nr",
-  ).add_hit(hit1).add_hit(hit2)
+      id="query1",
+      description="",
+      seq_length=500,
+      database="nr",
+    )
+    .add_hit(hit1)
+    .add_hit(hit2)
   let filtered = qr.filter_evalue(0.01)
   assert_eq(filtered.n_hits, 1)
   assert_eq(filtered.hits[0].id, "hit2")
@@ -220,26 +361,59 @@ test "SearchIOQueryResult::filter_evalue" {
 ///|
 test "SearchIOQueryResult::top_n" {
   let hsp1 = @src.SearchIOHsp::new(
-    bitscore=100.0, evalue=1.0e-20, identity=90.0, positives=92.0,
-    gap=1.0, alignment_length=50,
-    query_start=1, query_end=50, hit_start=1, hit_end=50,
+    bitscore=100.0,
+    evalue=1.0e-20,
+    identity=90.0,
+    positives=92.0,
+    gap=1.0,
+    alignment_length=50,
+    query_start=1,
+    query_end=50,
+    hit_start=1,
+    hit_end=50,
   )
   let hsp2 = @src.SearchIOHsp::new(
-    bitscore=200.0, evalue=1.0e-40, identity=95.0, positives=97.0,
-    gap=0.5, alignment_length=80,
-    query_start=1, query_end=80, hit_start=1, hit_end=80,
+    bitscore=200.0,
+    evalue=1.0e-40,
+    identity=95.0,
+    positives=97.0,
+    gap=0.5,
+    alignment_length=80,
+    query_start=1,
+    query_end=80,
+    hit_start=1,
+    hit_end=80,
   )
   let hsp3 = @src.SearchIOHsp::new(
-    bitscore=150.0, evalue=1.0e-30, identity=92.0, positives=94.0,
-    gap=0.8, alignment_length=60,
-    query_start=1, query_end=60, hit_start=1, hit_end=60,
+    bitscore=150.0,
+    evalue=1.0e-30,
+    identity=92.0,
+    positives=94.0,
+    gap=0.8,
+    alignment_length=60,
+    query_start=1,
+    query_end=60,
+    hit_start=1,
+    hit_end=60,
   )
-  let hit1 = @src.SearchIOHit::new(id="low", description="", seq_length=300).add_hsp(hsp1)
-  let hit2 = @src.SearchIOHit::new(id="high", description="", seq_length=400).add_hsp(hsp2)
-  let hit3 = @src.SearchIOHit::new(id="mid", description="", seq_length=350).add_hsp(hsp3)
+  let hit1 = @src.SearchIOHit::new(id="low", description="", seq_length=300).add_hsp(
+    hsp1,
+  )
+  let hit2 = @src.SearchIOHit::new(id="high", description="", seq_length=400).add_hsp(
+    hsp2,
+  )
+  let hit3 = @src.SearchIOHit::new(id="mid", description="", seq_length=350).add_hsp(
+    hsp3,
+  )
   let qr = @src.SearchIOQueryResult::new(
-    id="query1", description="", seq_length=500, database="nr",
-  ).add_hit(hit1).add_hit(hit2).add_hit(hit3)
+      id="query1",
+      description="",
+      seq_length=500,
+      database="nr",
+    )
+    .add_hit(hit1)
+    .add_hit(hit2)
+    .add_hit(hit3)
   let tops = qr.top_n(2)
   assert_eq(tops.length(), 2)
   assert_eq(tops[0].id, "high")
@@ -249,13 +423,25 @@ test "SearchIOQueryResult::top_n" {
 ///|
 test "SearchIOQueryResult::top_n exceeds total" {
   let hsp = @src.SearchIOHsp::new(
-    bitscore=100.0, evalue=1.0e-20, identity=90.0, positives=92.0,
-    gap=1.0, alignment_length=50,
-    query_start=1, query_end=50, hit_start=1, hit_end=50,
+    bitscore=100.0,
+    evalue=1.0e-20,
+    identity=90.0,
+    positives=92.0,
+    gap=1.0,
+    alignment_length=50,
+    query_start=1,
+    query_end=50,
+    hit_start=1,
+    hit_end=50,
   )
-  let hit = @src.SearchIOHit::new(id="hit1", description="", seq_length=300).add_hsp(hsp)
+  let hit = @src.SearchIOHit::new(id="hit1", description="", seq_length=300).add_hsp(
+    hsp,
+  )
   let qr = @src.SearchIOQueryResult::new(
-    id="query1", description="", seq_length=500, database="nr",
+    id="query1",
+    description="",
+    seq_length=500,
+    database="nr",
   ).add_hit(hit)
   let tops = qr.top_n(5)
   assert_eq(tops.length(), 1)
@@ -264,7 +450,10 @@ test "SearchIOQueryResult::top_n exceeds total" {
 ///|
 test "SearchIOQueryResult::with_total_hits" {
   let qr = @src.SearchIOQueryResult::new(
-    id="query1", description="", seq_length=500, database="nr",
+    id="query1",
+    description="",
+    seq_length=500,
+    database="nr",
   )
   let qr2 = qr.with_total_hits(100)
   assert_eq(qr2.total_hits, 100)
@@ -298,7 +487,10 @@ test "search_io_mock_blast_tabular" {
 ///|
 test "SearchIOIterator::parse_blast_tabular basic" {
   let content = @src.search_io_mock_blast_tabular()
-  let iter = @src.SearchIOIterator::new(content, @src.search_io_format_from_str("blast-tab"))
+  let iter = @src.SearchIOIterator::new(
+    content,
+    @src.search_io_format_from_str("blast-tab"),
+  )
   let results = iter.parse_blast_tabular()
   assert_true(results.length() >= 0)
 }
@@ -306,7 +498,10 @@ test "SearchIOIterator::parse_blast_tabular basic" {
 ///|
 test "SearchIOIterator::parse_blast_tabular hit count" {
   let content = @src.search_io_mock_blast_tabular()
-  let iter = @src.SearchIOIterator::new(content, @src.search_io_format_from_str("blast-tab"))
+  let iter = @src.SearchIOIterator::new(
+    content,
+    @src.search_io_format_from_str("blast-tab"),
+  )
   let results = iter.parse_blast_tabular()
   assert_true(results.length() >= 0)
 }
@@ -314,21 +509,30 @@ test "SearchIOIterator::parse_blast_tabular hit count" {
 ///|
 test "SearchIOIterator::parse_blast_tabular scores" {
   let content = @src.search_io_mock_blast_tabular()
-  let iter = @src.SearchIOIterator::new(content, @src.search_io_format_from_str("blast-tab"))
+  let iter = @src.SearchIOIterator::new(
+    content,
+    @src.search_io_format_from_str("blast-tab"),
+  )
   let results = iter.parse_blast_tabular()
   assert_true(results.length() >= 0)
 }
 
 ///|
 test "SearchIOIterator::parse empty content" {
-  let iter = @src.SearchIOIterator::new("", @src.search_io_format_from_str("blast-tab"))
+  let iter = @src.SearchIOIterator::new(
+    "",
+    @src.search_io_format_from_str("blast-tab"),
+  )
   let results = iter.parse_blast_tabular()
   assert_eq(results.length(), 0)
 }
 
 ///|
 test "SearchIOIterator::parse empty content text" {
-  let iter = @src.SearchIOIterator::new("", @src.search_io_format_from_str("blast-text"))
+  let iter = @src.SearchIOIterator::new(
+    "",
+    @src.search_io_format_from_str("blast-text"),
+  )
   let results = iter.parse_blast_text()
   assert_eq(results.length(), 0)
 }
@@ -340,7 +544,10 @@ test "SearchIOIterator::parse blast text basic" {
     ">hit1 description\n" +
     "Score = 200.5 (520 bits), Expect = 1.0e-50\n" +
     "Identities = 95/100 (95%)\n"
-  let iter = @src.SearchIOIterator::new(text, @src.search_io_format_from_str("blast-text"))
+  let iter = @src.SearchIOIterator::new(
+    text,
+    @src.search_io_format_from_str("blast-text"),
+  )
   let results = iter.parse_blast_text()
   assert_true(results.length() >= 0)
 }
@@ -348,7 +555,10 @@ test "SearchIOIterator::parse blast text basic" {
 ///|
 test "SearchIOIterator::parse dispatch" {
   let content = @src.search_io_mock_blast_tabular()
-  let iter = @src.SearchIOIterator::new(content, @src.search_io_format_from_str("blast-tab"))
+  let iter = @src.SearchIOIterator::new(
+    content,
+    @src.search_io_format_from_str("blast-tab"),
+  )
   let results = iter.parse()
   assert_true(results.length() >= 0)
 }
@@ -356,7 +566,10 @@ test "SearchIOIterator::parse dispatch" {
 ///|
 test "SearchIOIterator::parse unknown format returns empty" {
   let content = "some content"
-  let iter = @src.SearchIOIterator::new(content, @src.search_io_format_from_str("unknown"))
+  let iter = @src.SearchIOIterator::new(
+    content,
+    @src.search_io_format_from_str("unknown"),
+  )
   let results = iter.parse()
   assert_eq(results.length(), 0)
 }

@@ -99,13 +99,7 @@ pub fn SnapgenePrimer::new(
   bind_to~ : Int,
   binds_at_position~ : Int,
 ) -> SnapgenePrimer {
-  SnapgenePrimer::{
-    name,
-    sequence,
-    description,
-    bind_to,
-    binds_at_position,
-  }
+  SnapgenePrimer::{ name, sequence, description, bind_to, binds_at_position }
 }
 
 ///|
@@ -140,7 +134,10 @@ pub fn SnapgeneFile::new() -> SnapgeneFile {
 
 ///|
 /// Set the sequence type.
-pub fn SnapgeneFile::set_seq_type(self : SnapgeneFile, t : SnapgeneSeqType) -> Unit {
+pub fn SnapgeneFile::set_seq_type(
+  self : SnapgeneFile,
+  t : SnapgeneSeqType,
+) -> Unit {
   self.seq_type = t
 }
 
@@ -152,7 +149,10 @@ pub fn SnapgeneFile::set_comments(self : SnapgeneFile, s : String) -> Unit {
 
 ///|
 /// Set the export version.
-pub fn SnapgeneFile::set_export_version(self : SnapgeneFile, s : String) -> Unit {
+pub fn SnapgeneFile::set_export_version(
+  self : SnapgeneFile,
+  s : String,
+) -> Unit {
   self.export_version = s
 }
 
@@ -176,13 +176,19 @@ pub fn SnapgeneFile::set_circular(self : SnapgeneFile, b : Bool) -> Unit {
 
 ///|
 /// Add a feature to the file.
-pub fn SnapgeneFile::add_feature(self : SnapgeneFile, f : SnapgeneFeature) -> Unit {
+pub fn SnapgeneFile::add_feature(
+  self : SnapgeneFile,
+  f : SnapgeneFeature,
+) -> Unit {
   self.features.push(f)
 }
 
 ///|
 /// Add a primer to the file.
-pub fn SnapgeneFile::add_primer(self : SnapgeneFile, p : SnapgenePrimer) -> Unit {
+pub fn SnapgeneFile::add_primer(
+  self : SnapgeneFile,
+  p : SnapgenePrimer,
+) -> Unit {
   self.primers.push(p)
 }
 
@@ -363,7 +369,15 @@ fn sg_build_comments(
   let type_str = seq_type.to_string()
   let circ_str = if is_circular { "true" } else { "false" }
   let ev = if export_version == "" { "1.0" } else { export_version }
-  "{\"comments\":\"" + sg_json_escape(comments) + "\",\"type\":\"" + type_str + "\",\"exportVersion\":\"" + ev + "\",\"circular\":" + circ_str + "}"
+  "{\"comments\":\"" +
+  sg_json_escape(comments) +
+  "\",\"type\":\"" +
+  type_str +
+  "\",\"exportVersion\":\"" +
+  ev +
+  "\",\"circular\":" +
+  circ_str +
+  "}"
 }
 
 ///|
@@ -372,21 +386,11 @@ fn sg_json_escape(s : String) -> String {
   let sb = StringBuilder::new()
   for c in s.to_array() {
     match c {
-      '"' => {
-        sb.write_string("\\\"")
-      }
-      '\\' => {
-        sb.write_string("\\\\")
-      }
-      '\n' => {
-        sb.write_string("\\n")
-      }
-      '\t' => {
-        sb.write_string("\\t")
-      }
-      '\r' => {
-        sb.write_string("\\r")
-      }
+      '"' => sb.write_string("\\\"")
+      '\\' => sb.write_string("\\\\")
+      '\n' => sb.write_string("\\n")
+      '\t' => sb.write_string("\\t")
+      '\r' => sb.write_string("\\r")
       c => sb.write_char(c)
     }
   }
@@ -463,13 +467,7 @@ fn sg_parse_one_feature(text : String) -> SnapgeneFeature? {
     }
   }
   Some(
-    SnapgeneFeature::new(
-      name=name,
-      type_=type_,
-      direction=direction,
-      segments=segs,
-      qualifiers=qualifiers,
-    ),
+    SnapgeneFeature::new(name~, type_~, direction~, segments=segs, qualifiers~),
   )
 }
 
@@ -536,15 +534,41 @@ fn sg_build_features(features : Array[SnapgeneFeature]) -> String {
   let sb = StringBuilder::new()
   sb.write_string("<Features>")
   for f in features {
-    let dir_str = if f.direction == 1 { "1" } else if f.direction == -1 { "-1" } else { "0" }
-    sb.write_string("<Feature name=\"" + sg_xml_escape(f.name) + "\" type=\"" + sg_xml_escape(f.type_) + "\" directionality=\"" + dir_str + "\">")
+    let dir_str = if f.direction == 1 {
+      "1"
+    } else if f.direction == -1 {
+      "-1"
+    } else {
+      "0"
+    }
+    sb.write_string(
+      "<Feature name=\"" +
+      sg_xml_escape(f.name) +
+      "\" type=\"" +
+      sg_xml_escape(f.type_) +
+      "\" directionality=\"" +
+      dir_str +
+      "\">",
+    )
     for seg in f.segments {
       let (start, end) = seg
-      sb.write_string("<Segment range=\"" + (start + 1).to_string() + ".." + (end + 1).to_string() + "\" />")
+      sb.write_string(
+        "<Segment range=\"" +
+        (start + 1).to_string() +
+        ".." +
+        (end + 1).to_string() +
+        "\" />",
+      )
     }
     let keys = f.qualifiers.keys()
     for k in keys {
-      sb.write_string("<Q name=\"" + sg_xml_escape(k) + "\" content=\"" + sg_xml_escape(f.qualifiers[k]) + "\" />")
+      sb.write_string(
+        "<Q name=\"" +
+        sg_xml_escape(k) +
+        "\" content=\"" +
+        sg_xml_escape(f.qualifiers[k]) +
+        "\" />",
+      )
     }
     sb.write_string("</Feature>")
   }
@@ -625,10 +649,10 @@ fn sg_parse_primers(data : Array[Int]) -> Array[SnapgenePrimer] {
     offset = offset + 4
     primers.push(
       SnapgenePrimer::new(
-        name=name,
-        sequence=sequence,
-        description=description,
-        bind_to=bind_to,
+        name~,
+        sequence~,
+        description~,
+        bind_to~,
         binds_at_position=binds_at,
       ),
     )
@@ -878,7 +902,7 @@ pub fn snapgene_to_seqrecord(file : SnapgeneFile) -> SeqRecord {
   let id = if file.comments != "" { file.comments } else { "snapgene" }
   let rec = SeqRecord::new(
     Seq::new(file.sequence),
-    id=id,
+    id~,
     name=id,
     description=file.comments,
   )
@@ -928,7 +952,9 @@ pub fn snapgene_summary(file : SnapgeneFile) -> String {
   sb.write_string("  Type: " + file.seq_type.to_string() + "\n")
   sb.write_string("  Circular: " + file.is_circular.to_string() + "\n")
   sb.write_string("  Export Version: " + file.export_version + "\n")
-  sb.write_string("  Sequence Length: " + snapgene_seq_length(file).to_string() + " bp\n")
+  sb.write_string(
+    "  Sequence Length: " + snapgene_seq_length(file).to_string() + " bp\n",
+  )
   sb.write_string("  Features: " + file.features.length().to_string() + "\n")
   sb.write_string("  Primers: " + file.primers.length().to_string() + "\n")
   if file.features.length() > 0 {

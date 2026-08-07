@@ -3,8 +3,8 @@ test "AbstractAlignment::new construction" {
   let sequences = ["ATCGATCG", "ATCGATCG"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   assert_eq(aln.abstract_n_seqs(), 2)
@@ -16,8 +16,8 @@ test "AbstractAlignment::validate success" {
   let sequences = ["ATCGATCG", "ATCGATCG"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let (valid, msg) = aln.validate()
@@ -30,8 +30,8 @@ test "AbstractAlignment::validate different lengths" {
   let sequences = ["ATCG", "ATCGATCG"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let (valid, _msg) = aln.validate()
@@ -43,8 +43,8 @@ test "AbstractAlignment::validate empty alignment" {
   let sequences : Array[String] = []
   let identifiers : Array[String] = []
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let (valid, msg) = aln.validate()
@@ -57,8 +57,8 @@ test "AbstractAlignment::validate invalid nucleotide character" {
   let sequences = ["ATCGNTCG", "ATCGXTCG"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let (valid, _msg) = aln.validate()
@@ -70,8 +70,8 @@ test "AbstractAlignment::validate protein" {
   let sequences = ["ALIGMENT", "ALIGMENT"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("protein"),
   )
   let (valid, _msg) = aln.validate()
@@ -83,8 +83,8 @@ test "AbstractAlignment::validate protein invalid char" {
   let sequences = ["ALIGMENT", "ALIGM1NT"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("protein"),
   )
   let (valid, _msg) = aln.validate()
@@ -96,14 +96,14 @@ test "abstract_column_stats identical columns" {
   let sequences = ["AAAA", "AAAA"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let stats = @src.abstract_column_stats(aln, 0)
   let diff_cons = (stats.conservation - 1.0).abs()
   assert_true(diff_cons < 1.0e-10)
-  let gap_val = (stats.gap_fraction).abs()
+  let gap_val = stats.gap_fraction.abs()
   assert_true(gap_val < 1.0e-10)
   assert_eq(stats.n_unique_chars, 1)
 }
@@ -113,8 +113,8 @@ test "abstract_column_stats with gaps" {
   let sequences = ["A-CG", "AC-G"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let stats = @src.abstract_column_stats(aln, 1)
@@ -126,8 +126,8 @@ test "abstract_column_stats diversity" {
   let sequences = ["ACGT", "TGCA"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let stats = @src.abstract_column_stats(aln, 0)
@@ -139,12 +139,12 @@ test "abstract_column_stats out of bounds" {
   let sequences = ["ACGT", "TGCA"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let stats = @src.abstract_column_stats(aln, 100)
-  let cons_val = (stats.conservation).abs()
+  let cons_val = stats.conservation.abs()
   assert_true(cons_val < 1.0e-10)
   assert_eq(stats.n_unique_chars, 0)
 }
@@ -154,8 +154,8 @@ test "abstract_identity_matrix identical sequences" {
   let sequences = ["ATCGATCG", "ATCGATCG"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let matrix = @src.abstract_identity_matrix(aln)
@@ -174,12 +174,12 @@ test "abstract_identity_matrix different sequences" {
   let sequences = ["AAAA", "TTTT"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let matrix = @src.abstract_identity_matrix(aln)
-  assert_true((matrix[0][1]).abs() < 1.0e-10)
+  assert_true(matrix[0][1].abs() < 1.0e-10)
 }
 
 ///|
@@ -187,8 +187,8 @@ test "abstract_identity_matrix partial match" {
   let sequences = ["ACGT", "ACGA"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let matrix = @src.abstract_identity_matrix(aln)
@@ -200,8 +200,8 @@ test "abstract_overall_identity" {
   let sequences = ["ACGT", "ACGA", "ACGT"]
   let identifiers = ["seq1", "seq2", "seq3"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let identity = @src.abstract_overall_identity(aln)
@@ -214,8 +214,8 @@ test "abstract_overall_identity single sequence" {
   let sequences = ["ACGT"]
   let identifiers = ["seq1"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let identity = @src.abstract_overall_identity(aln)
@@ -227,8 +227,8 @@ test "abstract_coverage" {
   let sequences = ["ACGT", "A-GT"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let coverage = @src.abstract_coverage(aln)
@@ -241,8 +241,8 @@ test "abstract_coverage no gaps" {
   let sequences = ["ACGT", "ACGT"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let coverage = @src.abstract_coverage(aln)
@@ -254,8 +254,8 @@ test "AbstractAlignment::abstract_get_column" {
   let sequences = ["ACGT", "TGCA"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let col = aln.abstract_get_column(0)
@@ -267,8 +267,8 @@ test "AbstractAlignment::abstract_get_column out of bounds" {
   let sequences = ["ACGT"]
   let identifiers = ["seq1"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let col = aln.abstract_get_column(10)
@@ -280,8 +280,8 @@ test "AbstractAlignment::abstract_get_seq" {
   let sequences = ["ATCGATCG"]
   let identifiers = ["seq1"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   assert_eq(aln.abstract_get_seq(0), "ATCGATCG")
@@ -292,8 +292,8 @@ test "AbstractAlignment::abstract_get_seq out of bounds" {
   let sequences = ["ATCG"]
   let identifiers = ["seq1"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   assert_eq(aln.abstract_get_seq(5), "")
@@ -304,8 +304,8 @@ test "AbstractAlignment::abstract_get_id" {
   let sequences = ["ATCG"]
   let identifiers = ["gene1"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   assert_eq(aln.abstract_get_id(0), "gene1")
@@ -316,8 +316,8 @@ test "AbstractAlignment::abstract_type" {
   let sequences = ["ATCG"]
   let identifiers = ["seq1"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let t = aln.abstract_type()
@@ -329,8 +329,8 @@ test "abstract_variable_sites" {
   let sequences = ["ACGT", "ACGA"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let num_sites = @src.abstract_variable_sites(aln)
@@ -342,8 +342,8 @@ test "abstract_variable_sites none" {
   let sequences = ["ACGT", "ACGT"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let num_sites = @src.abstract_variable_sites(aln)
@@ -355,8 +355,8 @@ test "abstract_parsimony_sites" {
   let sequences = ["ACGT", "ACGA", "TCGT"]
   let identifiers = ["seq1", "seq2", "seq3"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let parsimony = @src.abstract_parsimony_sites(aln)
@@ -368,8 +368,8 @@ test "abstract_consensus_sequence" {
   let sequences = ["ACGT", "ACGA", "ACGT"]
   let identifiers = ["seq1", "seq2", "seq3"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let consensus = @src.abstract_consensus_sequence(aln)
@@ -381,12 +381,14 @@ test "abstract_filter_gaps" {
   let sequences = ["A-CGT", "A-CGA"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let filtered = @src.abstract_filter_gaps(aln, 0.5)
-  assert_true(filtered.abstract_alignment_length() <= aln.abstract_alignment_length())
+  assert_true(
+    filtered.abstract_alignment_length() <= aln.abstract_alignment_length(),
+  )
 }
 
 ///|
@@ -394,8 +396,8 @@ test "abstract_trim" {
   let sequences = ["ACGTACGT", "ACGTACGT"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let trimmed = @src.abstract_trim(aln, 2, 5)
@@ -408,14 +410,14 @@ test "abstract_distance_matrix" {
   let sequences = ["ACGT", "ACGA"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let matrix = @src.abstract_distance_matrix(aln)
   assert_eq(matrix.length(), 2)
-  assert_true((matrix[0][0]).abs() < 1.0e-10)
-  assert_true((matrix[1][1]).abs() < 1.0e-10)
+  assert_true(matrix[0][0].abs() < 1.0e-10)
+  assert_true(matrix[1][1].abs() < 1.0e-10)
 }
 
 ///|
@@ -441,8 +443,8 @@ test "AbstractAlignment::multiple sequences" {
   let sequences = ["AAAA", "CCCC", "GGGG", "TTTT"]
   let identifiers = ["s1", "s2", "s3", "s4"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   assert_eq(aln.abstract_n_seqs(), 4)
@@ -454,8 +456,8 @@ test "abstract_singleton_sites" {
   let sequences = ["ACGT", "ACGT", "ACGA"]
   let identifiers = ["seq1", "seq2", "seq3"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let singleton = @src.abstract_singleton_sites(aln)
@@ -467,8 +469,8 @@ test "abstract_summary" {
   let sequences = ["ACGT", "ACGT"]
   let identifiers = ["seq1", "seq2"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let summary = @src.abstract_summary(aln)
@@ -481,8 +483,8 @@ test "AbstractAlignment::single sequence identity" {
   let sequences = ["ACGT"]
   let identifiers = ["seq1"]
   let aln = @src.AbstractAlignment::new(
-    sequences=sequences,
-    identifiers=identifiers,
+    sequences~,
+    identifiers~,
     alignment_type=@src.align_abstract_type_from_str("nucleotide"),
   )
   let matrix = @src.abstract_identity_matrix(aln)

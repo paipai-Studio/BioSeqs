@@ -26,13 +26,10 @@ test "edaseq_gene_anno_min_length" {
 test "edaseq_dataset" {
   let gene_ids = ["gene1", "gene2"]
   let sample_ids = ["sample1", "sample2", "sample3"]
-  let counts : Array[Array[Double]] = [
-    [10.0, 20.0, 30.0],
-    [50.0, 60.0, 70.0]
-  ]
+  let counts : Array[Array[Double]] = [[10.0, 20.0, 30.0], [50.0, 60.0, 70.0]]
   let annotations = [
     @src.EDASeqGeneAnno::new("gene1", 0.45, 1000.0),
-    @src.EDASeqGeneAnno::new("gene2", 0.55, 2000.0)
+    @src.EDASeqGeneAnno::new("gene2", 0.55, 2000.0),
   ]
   let data = @src.EDASeqDataSet::new(gene_ids, sample_ids, counts, annotations)
   assert_eq(data.eda_n_genes(), 2)
@@ -58,7 +55,7 @@ test "edaseq_sample_counts" {
   let counts : Array[Array[Double]] = [[10.0], [20.0]]
   let annotations = [
     @src.EDASeqGeneAnno::new("gene1", 0.5, 500.0),
-    @src.EDASeqGeneAnno::new("gene2", 0.6, 1000.0)
+    @src.EDASeqGeneAnno::new("gene2", 0.6, 1000.0),
   ]
   let data = @src.EDASeqDataSet::new(gene_ids, sample_ids, counts, annotations)
   let sample_counts = data.eda_sample_counts(0)
@@ -74,12 +71,12 @@ test "edaseq_within_lane" {
   let counts : Array[Array[Double]] = [
     [100.0, 200.0],
     [300.0, 400.0],
-    [500.0, 600.0]
+    [500.0, 600.0],
   ]
   let annotations = [
     @src.EDASeqGeneAnno::new("gene1", 0.4, 500.0),
     @src.EDASeqGeneAnno::new("gene2", 0.5, 1000.0),
-    @src.EDASeqGeneAnno::new("gene3", 0.6, 2000.0)
+    @src.EDASeqGeneAnno::new("gene3", 0.6, 2000.0),
   ]
   let data = @src.EDASeqDataSet::new(gene_ids, sample_ids, counts, annotations)
   let params = @src.EDASeqParams::new()
@@ -93,11 +90,11 @@ test "edaseq_between_lane" {
   let sample_ids = ["s1", "s2", "s3"]
   let counts : Array[Array[Double]] = [
     [100.0, 200.0, 300.0],
-    [500.0, 600.0, 700.0]
+    [500.0, 600.0, 700.0],
   ]
   let annotations = [
     @src.EDASeqGeneAnno::new("gene1", 0.5, 500.0),
-    @src.EDASeqGeneAnno::new("gene2", 0.55, 1000.0)
+    @src.EDASeqGeneAnno::new("gene2", 0.55, 1000.0),
   ]
   let data = @src.EDASeqDataSet::new(gene_ids, sample_ids, counts, annotations)
   let params = @src.EDASeqParams::new()
@@ -112,12 +109,12 @@ test "edaseq_full_run" {
   let counts : Array[Array[Double]] = [
     [100.0, 200.0],
     [300.0, 400.0],
-    [500.0, 600.0]
+    [500.0, 600.0],
   ]
   let annotations = [
     @src.EDASeqGeneAnno::new("gene1", 0.4, 500.0),
     @src.EDASeqGeneAnno::new("gene2", 0.5, 1000.0),
-    @src.EDASeqGeneAnno::new("gene3", 0.6, 2000.0)
+    @src.EDASeqGeneAnno::new("gene3", 0.6, 2000.0),
   ]
   let data = @src.EDASeqDataSet::new(gene_ids, sample_ids, counts, annotations)
   let params = @src.EDASeqParams::new()
@@ -130,13 +127,10 @@ test "edaseq_full_run" {
 test "edaseq_result_accessors" {
   let gene_ids = ["gene1", "gene2"]
   let sample_ids = ["s1", "s2"]
-  let counts : Array[Array[Double]] = [
-    [100.0, 200.0],
-    [300.0, 400.0]
-  ]
+  let counts : Array[Array[Double]] = [[100.0, 200.0], [300.0, 400.0]]
   let annotations = [
     @src.EDASeqGeneAnno::new("gene1", 0.5, 500.0),
-    @src.EDASeqGeneAnno::new("gene2", 0.55, 1000.0)
+    @src.EDASeqGeneAnno::new("gene2", 0.55, 1000.0),
   ]
   let data = @src.EDASeqDataSet::new(gene_ids, sample_ids, counts, annotations)
   let params = @src.EDASeqParams::new()

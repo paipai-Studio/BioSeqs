@@ -299,7 +299,9 @@ pub fn VcfFile::get_version(self : VcfFile) -> String? {
 ///|
 /// Check if variant is a SNP (single nucleotide polymorphism).
 pub fn VcfRecord::is_snp(self : VcfRecord) -> Bool {
-  self.ref_seq.length() == 1 && self.alt.length() == 1 && self.alt[0].length() == 1
+  self.ref_seq.length() == 1 &&
+  self.alt.length() == 1 &&
+  self.alt[0].length() == 1
 }
 
 ///|

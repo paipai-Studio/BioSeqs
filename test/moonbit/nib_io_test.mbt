@@ -298,7 +298,10 @@ test "nib_size" {
 test "nib_compressed_size" {
   // 8 bases -> 2 bytes; 9 bases -> 3 bytes; 1 base -> 1 byte; 0 bases -> 0.
   assert_eq(@src.nib_compressed_size(@src.NibSequence::new("a", "ATGCATGC")), 2)
-  assert_eq(@src.nib_compressed_size(@src.NibSequence::new("b", "ATGCATGCA")), 3)
+  assert_eq(
+    @src.nib_compressed_size(@src.NibSequence::new("b", "ATGCATGCA")),
+    3,
+  )
   assert_eq(@src.nib_compressed_size(@src.NibSequence::new("c", "A")), 1)
   assert_eq(@src.nib_compressed_size(@src.NibSequence::new("d", "")), 0)
 }
@@ -675,7 +678,8 @@ test "edge_case_three_bases" {
 
 ///|
 test "edge_case_hex_round_trip_various_lengths" {
-  for seq in ["A", "AT", "ATG", "ATGC", "ATGCA", "ATGCAT", "ATGCATG", "ATGCATGC"] {
+  for
+    seq in ["A", "AT", "ATG", "ATGC", "ATGCA", "ATGCAT", "ATGCATG", "ATGCATGC"] {
     let nib = @src.NibSequence::new("s", seq)
     let hex = @src.nib_to_hex(nib)
     let nib2 = @src.nib_from_hex("s2", hex, seq.length())

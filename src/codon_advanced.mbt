@@ -169,9 +169,7 @@ pub struct CodonUsageTable {
 
 ///|
 /// Create a new CodonUsageTable from raw counts.
-pub fn CodonUsageTable::new(
-  codon_counts : Map[String, Int],
-) -> CodonUsageTable {
+pub fn CodonUsageTable::new(codon_counts : Map[String, Int]) -> CodonUsageTable {
   let frequencies = compute_frequencies(codon_counts.copy())
   let mut total = 0
   let keys = codon_counts.keys().collect()
@@ -215,7 +213,9 @@ pub fn CodonUsageTable::counts(usage : CodonUsageTable) -> Map[String, Int] {
 
 ///|
 /// Get all codon frequencies as a Map.
-pub fn CodonUsageTable::frequencies(usage : CodonUsageTable) -> Map[String, Double] {
+pub fn CodonUsageTable::frequencies(
+  usage : CodonUsageTable,
+) -> Map[String, Double] {
   usage.frequencies.copy()
 }
 
@@ -428,10 +428,7 @@ pub fn compute_codon_adaptiveness(
 /// CAI = exp( (1/L) * sum(ln(w_i)) ) for each codon,
 /// where w_i is the relative adaptiveness of codon i.
 /// Returns a value between 0 and 1, where 1 indicates optimal codon usage.
-pub fn calculate_cai(
-  seq : String,
-  reference_table : CodonUsageTable,
-) -> Double {
+pub fn calculate_cai(seq : String, reference_table : CodonUsageTable) -> Double {
   let seq_upper = seq.to_upper()
   let len = seq_upper.length()
   let adaptiveness = compute_codon_adaptiveness(reference_table)
@@ -641,7 +638,13 @@ pub fn calculate_enc(usage : CodonUsageTable) -> Double {
     enc = enc + 3.0 * (f6_contrib / f6_count.to_double())
   }
 
-  if enc > 61.0 { 61.0 } else if enc < 20.0 { 20.0 } else { enc }
+  if enc > 61.0 {
+    61.0
+  } else if enc < 20.0 {
+    20.0
+  } else {
+    enc
+  }
 }
 
 ///|
@@ -673,7 +676,11 @@ pub fn calculate_gc3(seq : String) -> Double {
 ///|
 /// Calculate a composite bias score (0-1 scale).
 /// Higher values indicate stronger codon usage bias.
-fn calculate_bias_score(enc : Double, gc3 : Double, optimal_frac : Double) -> Double {
+fn calculate_bias_score(
+  enc : Double,
+  gc3 : Double,
+  optimal_frac : Double,
+) -> Double {
   let enc_score = (61.0 - enc) / 41.0
   let gc3_score = if gc3 > 0.5 { gc3 } else { 1.0 - gc3 }
   let opt_score = optimal_frac
@@ -701,9 +708,7 @@ fn count_stop_codons(seq : String) -> Int {
 /// Identify optimal codons for each amino acid.
 /// Returns an array of (amino_acid, codon) tuples where the codon
 /// has the highest frequency for that amino acid.
-pub fn optimal_codons(
-  usage : CodonUsageTable,
-) -> Array[(String, String)] {
+pub fn optimal_codons(usage : CodonUsageTable) -> Array[(String, String)] {
   let result = Array::make(0, ("", ""))
   let aa_list = aa_to_codons.keys().collect()
 
@@ -846,13 +851,7 @@ pub fn codon_bias_analysis(seq : String) -> CodonBiasResult {
   let bias_score = calculate_bias_score(enc_val, gc3_val, optimal_frac)
 
   CodonBiasResult::new(
-    enc_val,
-    cai_val,
-    gc3_val,
-    bias_score,
-    optimal_frac,
-    rare_frac,
-    non_stop_total,
+    enc_val, cai_val, gc3_val, bias_score, optimal_frac, rare_frac, non_stop_total,
   )
 }
 
@@ -862,36 +861,17 @@ pub fn codon_bias_analysis(seq : String) -> CodonBiasResult {
 pub fn get_high_gc_reference() -> Map[String, Double] {
   let ref_table = Map([], capacity=64)
   let gc_codons = [
-    "GCA", "GCC", "GCG", "GCT",
-    "CGA", "CGC", "CGG", "CGT",
-    "GAC", "GAT", "GAA", "GAG",
-    "GGA", "GGC", "GGG", "GGT",
-    "CAC", "CAT", "CAA", "CAG",
-    "ATA", "ATC", "ATT", "ATG",
-    "CTA", "CTC", "CTG", "CTT",
-    "AAA", "AAG", "TTA", "TTG",
-    "TTC", "TTT", "CCA", "CCC",
-    "CCG", "CCT", "AGC", "AGT",
-    "TCA", "TCC", "TCG", "TCT",
-    "ACA", "ACC", "ACG", "ACT",
-    "GTA", "GTC", "GTG", "GTT",
-    "TGC", "TGT", "TGG",
+    "GCA", "GCC", "GCG", "GCT", "CGA", "CGC", "CGG", "CGT", "GAC", "GAT", "GAA",
+    "GAG", "GGA", "GGC", "GGG", "GGT", "CAC", "CAT", "CAA", "CAG", "ATA", "ATC",
+    "ATT", "ATG", "CTA", "CTC", "CTG", "CTT", "AAA", "AAG", "TTA", "TTG", "TTC",
+    "TTT", "CCA", "CCC", "CCG", "CCT", "AGC", "AGT", "TCA", "TCC", "TCG", "TCT",
+    "ACA", "ACC", "ACG", "ACT", "GTA", "GTC", "GTG", "GTT", "TGC", "TGT", "TGG",
   ]
   let gc_bias = [
-    0.7, 1.0, 0.9, 0.6,
-    0.8, 1.0, 0.9, 0.6,
-    0.8, 0.5, 0.9, 1.0,
-    0.6, 1.0, 0.8, 0.5,
-    0.8, 0.5, 0.7, 1.0,
-    0.4, 0.8, 0.5, 1.0,
-    0.6, 0.9, 1.0, 0.5,
-    0.5, 1.0, 0.4, 0.3,
-    0.5, 0.3, 0.7, 1.0,
-    0.9, 0.6, 0.8, 0.5,
-    0.4, 0.8, 1.0, 0.6,
-    0.7, 1.0, 0.9, 0.5,
-    0.5, 0.9, 1.0, 0.6,
-    0.5, 0.6, 1.0,
+    0.7, 1.0, 0.9, 0.6, 0.8, 1.0, 0.9, 0.6, 0.8, 0.5, 0.9, 1.0, 0.6, 1.0, 0.8, 0.5,
+    0.8, 0.5, 0.7, 1.0, 0.4, 0.8, 0.5, 1.0, 0.6, 0.9, 1.0, 0.5, 0.5, 1.0, 0.4, 0.3,
+    0.5, 0.3, 0.7, 1.0, 0.9, 0.6, 0.8, 0.5, 0.4, 0.8, 1.0, 0.6, 0.7, 1.0, 0.9, 0.5,
+    0.5, 0.9, 1.0, 0.6, 0.5, 0.6, 1.0,
   ]
   let mut i = 0
   while i < gc_codons.length() {
@@ -907,36 +887,17 @@ pub fn get_high_gc_reference() -> Map[String, Double] {
 pub fn get_low_gc_reference() -> Map[String, Double] {
   let ref_table = Map([], capacity=64)
   let at_codons = [
-    "GCT", "GCA", "GCC", "GCG",
-    "CGT", "CGA", "CGC", "CGG",
-    "GAT", "GAC", "GAA", "GAG",
-    "GTT", "GTA", "GTC", "GTG",
-    "CAT", "CAC", "CAA", "CAG",
-    "ATT", "ATA", "ATC", "ATG",
-    "CTT", "CTA", "CTC", "CTG",
-    "AAA", "AAG", "TTA", "TTG",
-    "TTT", "TTC", "CCT", "CCA",
-    "CCC", "CCG", "AGT", "AGC",
-    "TCT", "TCA", "TCC", "TCG",
-    "ACT", "ACA", "ACC", "ACG",
-    "GGT", "GGA", "GGC", "GGG",
-    "TGT", "TGC", "TGG",
+    "GCT", "GCA", "GCC", "GCG", "CGT", "CGA", "CGC", "CGG", "GAT", "GAC", "GAA",
+    "GAG", "GTT", "GTA", "GTC", "GTG", "CAT", "CAC", "CAA", "CAG", "ATT", "ATA",
+    "ATC", "ATG", "CTT", "CTA", "CTC", "CTG", "AAA", "AAG", "TTA", "TTG", "TTT",
+    "TTC", "CCT", "CCA", "CCC", "CCG", "AGT", "AGC", "TCT", "TCA", "TCC", "TCG",
+    "ACT", "ACA", "ACC", "ACG", "GGT", "GGA", "GGC", "GGG", "TGT", "TGC", "TGG",
   ]
   let at_bias = [
-    1.0, 0.5, 0.4, 0.3,
-    1.0, 0.5, 0.4, 0.3,
-    1.0, 0.5, 0.6, 0.5,
-    1.0, 0.8, 0.5, 0.4,
-    1.0, 0.4, 0.8, 0.6,
-    1.0, 0.7, 0.4, 1.0,
-    1.0, 0.8, 0.5, 0.4,
-    1.0, 0.6, 0.9, 0.7,
-    1.0, 0.6, 0.5, 0.3,
-    1.0, 0.8, 0.7, 0.5,
-    1.0, 0.8, 0.5, 0.4,
-    1.0, 0.9, 0.6, 0.4,
-    1.0, 0.9, 0.6, 0.4,
-    1.0, 0.5, 1.0,
+    1.0, 0.5, 0.4, 0.3, 1.0, 0.5, 0.4, 0.3, 1.0, 0.5, 0.6, 0.5, 1.0, 0.8, 0.5, 0.4,
+    1.0, 0.4, 0.8, 0.6, 1.0, 0.7, 0.4, 1.0, 1.0, 0.8, 0.5, 0.4, 1.0, 0.6, 0.9, 0.7,
+    1.0, 0.6, 0.5, 0.3, 1.0, 0.8, 0.7, 0.5, 1.0, 0.8, 0.5, 0.4, 1.0, 0.9, 0.6, 0.4,
+    1.0, 0.9, 0.6, 0.4, 1.0, 0.5, 1.0,
   ]
   let mut i = 0
   while i < at_codons.length() {
@@ -977,10 +938,7 @@ pub fn get_reference_table(org : String) -> Map[String, Double] {
 
 ///|
 /// Calculate CAI using a named organism reference table.
-pub fn calculate_cai_with_org(
-  seq : String,
-  org : String,
-) -> Double {
+pub fn calculate_cai_with_org(seq : String, org : String) -> Double {
   let seq_upper = seq.to_upper()
   let len = seq_upper.length()
   let ref_table = get_reference_table(org)
@@ -1065,8 +1023,13 @@ pub fn codon_usage_to_string(usage : CodonUsageTable) -> String {
       let codon = codons[j]
       let count = CodonUsageTable::get_count(usage, codon)
       let freq = CodonUsageTable::get_frequency(usage, codon)
-      result = result + codon + "(" + count.to_string() +
-        "/" + freq.to_string() + ")"
+      result = result +
+        codon +
+        "(" +
+        count.to_string() +
+        "/" +
+        freq.to_string() +
+        ")"
       if j < codons.length() - 1 {
         result = result + ", "
       }
@@ -1081,10 +1044,7 @@ pub fn codon_usage_to_string(usage : CodonUsageTable) -> String {
 
 ///|
 /// Count codons of a specific amino acid in a sequence.
-pub fn count_amino_acid_codons(
-  seq : String,
-  aa : String,
-) -> Int {
+pub fn count_amino_acid_codons(seq : String, aa : String) -> Int {
   let seq_upper = seq.to_upper()
   let len = seq_upper.length()
   let codons = aa_to_codons.get(aa).unwrap_or([])

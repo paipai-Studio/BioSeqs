@@ -1,6 +1,5 @@
 ///|
 /// Tests for ACE contig assembly format parser module.
-
 test "ace_read_new" {
   let read = @src.AceRead::new(
     "read1",
@@ -24,6 +23,7 @@ test "ace_read_new" {
   assert_eq(read.dye, "dye1")
 }
 
+///|
 test "ace_contig_new" {
   let read = @src.AceRead::new(
     "read1",
@@ -52,6 +52,7 @@ test "ace_contig_new" {
   assert_false(contig.reverse_complemented)
 }
 
+///|
 test "ace_alignment_new" {
   let qual : Array[Int] = [30, 30, 30]
   let ali = @src.AceAlignment::new("contig1", 10, "ATC", qual)
@@ -61,6 +62,7 @@ test "ace_alignment_new" {
   assert_eq(ali.quality.length(), 3)
 }
 
+///|
 test "ace_data_new" {
   let contigs : Array[@src.AceContig] = []
   let data = @src.AceData::new(contigs, 0)
@@ -69,18 +71,21 @@ test "ace_data_new" {
   assert_eq(data.base_qual_threshold, 0)
 }
 
+///|
 test "ace_parse_empty" {
   let data = @src.ace_parse("")
   assert_eq(data.contigs.length(), 0)
   assert_eq(data.total_contigs, 0)
 }
 
+///|
 test "ace_parse_only_header" {
   let data = @src.ace_parse("AF contig1 100\n")
   assert_eq(data.contigs.length(), 0)
   assert_eq(data.total_contigs, 0)
 }
 
+///|
 test "ace_parse_single_read" {
   let content = "AF contig1 10\n" +
     "RD read1 10 chem1 dye1\n" +
@@ -99,6 +104,7 @@ test "ace_parse_single_read" {
   assert_eq(data.contigs[0].reads[0].read_id, "read1")
 }
 
+///|
 test "ace_parse_multiple_reads" {
   let content = "AF contig1 20\n" +
     "RD read1 10 chem1 dye1\n" +
@@ -117,6 +123,7 @@ test "ace_parse_multiple_reads" {
   assert_eq(data.contigs[0].reads.length(), 2)
 }
 
+///|
 test "ace_parse_multiple_contigs" {
   let content = "AF contig1 10\n" +
     "RD read1 10 chem1 dye1\n" +
@@ -140,6 +147,7 @@ test "ace_parse_multiple_contigs" {
   assert_eq(data.total_reads, 2)
 }
 
+///|
 test "ace_parse_strands" {
   let content = "AF contig1 10\n" +
     "RD read1 10 chem1 dye1\n" +
@@ -159,6 +167,7 @@ test "ace_parse_strands" {
   assert_eq(data.contigs[0].reads[1].strand, "-")
 }
 
+///|
 test "ace_parse_quality_scores" {
   let content = "AF contig1 5\n" +
     "RD read1 5 chem1 dye1\n" +
@@ -177,6 +186,7 @@ test "ace_parse_quality_scores" {
   assert_eq(data.contigs[0].base_qualities[4], 55)
 }
 
+///|
 test "ace_parse_reads_only" {
   let content = "RD read1 5 chem1 dye1\n" +
     "ACGTG\n" +
@@ -191,6 +201,7 @@ test "ace_parse_reads_only" {
   assert_eq(reads[1].read_id, "read2")
 }
 
+///|
 test "ace_parse_contigs_only" {
   let content = "RD read1 5 chem1 dye1\n" +
     "ACGTG\n" +
@@ -205,6 +216,7 @@ test "ace_parse_contigs_only" {
   assert_eq(contigs[0].reads.length(), 1)
 }
 
+///|
 test "ace_get_contig" {
   let content = "AF contig1 10\n" +
     "RD read1 10 chem1 dye1\n" +
@@ -227,6 +239,7 @@ test "ace_get_contig" {
   }
 }
 
+///|
 test "ace_contig_length" {
   let content = "AF contig1 10\n" +
     "RD read1 10 chem1 dye1\n" +
@@ -241,6 +254,7 @@ test "ace_contig_length" {
   assert_eq(@src.ace_contig_length(data, "nonexistent"), 0)
 }
 
+///|
 test "ace_contig_reads" {
   let content = "AF contig1 10\n" +
     "RD read1 10 chem1 dye1\n" +
@@ -258,6 +272,7 @@ test "ace_contig_reads" {
   assert_eq(empty_reads.length(), 0)
 }
 
+///|
 test "ace_read_coverage" {
   let read1 = @src.AceRead::new(
     "read1",
@@ -295,6 +310,7 @@ test "ace_read_coverage" {
   assert_eq(coverage.get(10), Some(2))
 }
 
+///|
 test "ace_read_coverage_partial" {
   let read1 = @src.AceRead::new(
     "read1",
@@ -339,6 +355,7 @@ test "ace_read_coverage_partial" {
   assert_eq(coverage.get(10), Some(0))
 }
 
+///|
 test "ace_consensus_sequence" {
   let read = @src.AceRead::new(
     "read1",
@@ -362,6 +379,7 @@ test "ace_consensus_sequence" {
   assert_eq(@src.ace_consensus_sequence(contig), "GCTA")
 }
 
+///|
 test "ace_contig_gc_content" {
   let read = @src.AceRead::new(
     "read1",
@@ -386,6 +404,7 @@ test "ace_contig_gc_content" {
   assert_eq(gc, 1.0)
 }
 
+///|
 test "ace_contig_gc_content_mixed" {
   let read = @src.AceRead::new(
     "read1",
@@ -410,19 +429,14 @@ test "ace_contig_gc_content_mixed" {
   assert_eq(gc, 0.5)
 }
 
+///|
 test "ace_contig_gc_content_empty" {
-  let contig = @src.AceContig::new(
-    "contig1",
-    "",
-    [],
-    [],
-    "",
-    false,
-  )
+  let contig = @src.AceContig::new("contig1", "", [], [], "", false)
   let gc = @src.ace_contig_gc_content(contig)
   assert_eq(gc, 0.0)
 }
 
+///|
 test "ace_to_string_basic" {
   let read = @src.AceRead::new(
     "read1",
@@ -451,6 +465,7 @@ test "ace_to_string_basic" {
   assert_true(output.contains("AF read1"))
 }
 
+///|
 test "ace_to_string_roundtrip" {
   let content = "AF contig1 10\n" +
     "RD read1 10 chem1 dye1\n" +
@@ -470,6 +485,7 @@ test "ace_to_string_roundtrip" {
   assert_eq(data2.contigs[0].reads[0].read_id, "read1")
 }
 
+///|
 test "ace_sample_data" {
   let data = @src.sample_ace_data()
   assert_eq(data.contigs.length(), 1)
@@ -480,6 +496,7 @@ test "ace_sample_data" {
   assert_eq(data.contigs[0].reads.length(), 2)
 }
 
+///|
 test "ace_multiline_sequence" {
   let mut seq = ""
   let mut i = 0
@@ -498,11 +515,17 @@ test "ace_multiline_sequence" {
   }
   let content = "AF contig1 120\n" +
     "RD read1 120 chem1 dye1\n" +
-    seq + "\n" +
-    "q " + qual_str + "\n" +
+    seq +
+    "\n" +
+    "q " +
+    qual_str +
+    "\n" +
     "CT contig1 120 0 120\n" +
-    seq + "\n" +
-    "q " + qual_str + "\n" +
+    seq +
+    "\n" +
+    "q " +
+    qual_str +
+    "\n" +
     "AF read1 1 120 1 120 1 120 +\n"
   let data = @src.ace_parse(content)
   assert_eq(data.contigs.length(), 1)
@@ -511,6 +534,7 @@ test "ace_multiline_sequence" {
   assert_eq(data.contigs[0].reads[0].sequence.length(), 120)
 }
 
+///|
 test "ace_total_reads_count" {
   let content = "AF contig1 10\n" +
     "RD read1 10 chem1 dye1\n" +
@@ -532,6 +556,7 @@ test "ace_total_reads_count" {
   assert_eq(data.total_reads, 2)
 }
 
+///|
 test "ace_base_qualities_preserved" {
   let content = "AF contig1 3\n" +
     "RD read1 3 chem1 dye1\n" +
@@ -548,6 +573,7 @@ test "ace_base_qualities_preserved" {
   assert_eq(data.contigs[0].base_qualities[2], 70)
 }
 
+///|
 test "ace_read_quality_preserved" {
   let content = "AF contig1 3\n" +
     "RD read1 3 chem1 dye1\n" +
@@ -564,6 +590,7 @@ test "ace_read_quality_preserved" {
   assert_eq(data.contigs[0].reads[0].quality[2], 30)
 }
 
+///|
 test "ace_coverage_empty" {
   let contig = @src.AceContig::new(
     "contig1",
@@ -580,6 +607,7 @@ test "ace_coverage_empty" {
   assert_eq(coverage.get(4), Some(0))
 }
 
+///|
 test "ace_contig_reads_strand_info" {
   let read1 = @src.AceRead::new(
     "read1",
@@ -617,6 +645,7 @@ test "ace_contig_reads_strand_info" {
   assert_eq(contig.reads[1].dye, "dye2")
 }
 
+///|
 test "ace_roundtrip_coverage" {
   let read1 = @src.AceRead::new(
     "read1",
@@ -645,19 +674,10 @@ test "ace_roundtrip_coverage" {
   assert_eq(parsed.contigs[0].reads[0].strand, "+")
 }
 
+///|
 test "ace_quality_to_string_format" {
   let qual : Array[Int] = [10, 20, 30]
-  let read = @src.AceRead::new(
-    "read1",
-    "ACG",
-    qual,
-    1,
-    3,
-    "+",
-    "",
-    "",
-    "",
-  )
+  let read = @src.AceRead::new("read1", "ACG", qual, 1, 3, "+", "", "", "")
   let contig = @src.AceContig::new(
     "contig1",
     "ACG",
@@ -671,6 +691,7 @@ test "ace_quality_to_string_format" {
   assert_true(output.contains("10 20 30"))
 }
 
+///|
 test "ace_consensus_from_contig" {
   let read = @src.AceRead::new(
     "read1",
@@ -694,6 +715,7 @@ test "ace_consensus_from_contig" {
   assert_eq(@src.ace_consensus_sequence(contig), "ACGT")
 }
 
+///|
 test "ace_coverage_values" {
   let read1 = @src.AceRead::new(
     "read1",
@@ -721,27 +743,15 @@ test "ace_coverage_values" {
   assert_eq(cov.get(4), Some(0))
 }
 
+///|
 test "ace_reverse_complemented_default" {
-  let contig = @src.AceContig::new(
-    "contig1",
-    "ACGT",
-    [],
-    [],
-    "",
-    false,
-  )
+  let contig = @src.AceContig::new("contig1", "ACGT", [], [], "", false)
   assert_false(contig.reverse_complemented)
 }
 
+///|
 test "ace_data_threshold" {
-  let contig = @src.AceContig::new(
-    "contig1",
-    "ACGT",
-    [],
-    [],
-    "",
-    false,
-  )
+  let contig = @src.AceContig::new("contig1", "ACGT", [], [], "", false)
   let data = @src.AceData::new([contig], 30)
   assert_eq(data.base_qual_threshold, 30)
 }

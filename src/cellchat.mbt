@@ -46,11 +46,7 @@ pub struct CellChatResult {
 ///|
 /// Create a ligand-receptor pair.
 pub fn lr_pair(ligand : String, receptor : String) -> LRPair {
-  LRPair::{
-    ligand: ligand,
-    receptor: receptor,
-    key: ligand + "_" + receptor,
-  }
+  LRPair::{ ligand, receptor, key: ligand + "_" + receptor }
 }
 
 ///|
@@ -110,7 +106,11 @@ pub fn cellchat_mean_expr(
     }
     i = i + 1
   }
-  if count > 0 { sum / count.to_double() } else { 0.0 }
+  if count > 0 {
+    sum / count.to_double()
+  } else {
+    0.0
+  }
 }
 
 ///|
@@ -143,10 +143,15 @@ pub fn cellchat_analyze(
     let mut found = false
     let mut j = 0
     while j < unique_ct.length() {
-      if unique_ct[j] == ct { found = true; break }
+      if unique_ct[j] == ct {
+        found = true
+        break
+      }
       j = j + 1
     }
-    if !found { unique_ct.push(ct) }
+    if !found {
+      unique_ct.push(ct)
+    }
     i = i + 1
   }
 
@@ -219,8 +224,12 @@ pub fn cellchat_analyze(
           let tgt_ct = unique_ct[tgt]
 
           // Observed score
-          let mean_lig = cellchat_mean_expr(expression, cell_types, src_ct, lig_idx)
-          let mean_rec = cellchat_mean_expr(expression, cell_types, tgt_ct, rec_idx)
+          let mean_lig = cellchat_mean_expr(
+            expression, cell_types, src_ct, lig_idx,
+          )
+          let mean_rec = cellchat_mean_expr(
+            expression, cell_types, tgt_ct, rec_idx,
+          )
           let obs_score = mean_lig * mean_rec
 
           // Permutation null distribution
@@ -228,8 +237,12 @@ pub fn cellchat_analyze(
           let mut pm = 0
           while pm < n_perm {
             let perm_labels = permuted_labels_list[pm]
-            let perm_lig = cellchat_mean_expr(expression, perm_labels, src_ct, lig_idx)
-            let perm_rec = cellchat_mean_expr(expression, perm_labels, tgt_ct, rec_idx)
+            let perm_lig = cellchat_mean_expr(
+              expression, perm_labels, src_ct, lig_idx,
+            )
+            let perm_rec = cellchat_mean_expr(
+              expression, perm_labels, tgt_ct, rec_idx,
+            )
             let perm_score = perm_lig * perm_rec
             perm_scores.push(perm_score)
             pm = pm + 1
@@ -258,7 +271,9 @@ pub fn cellchat_analyze(
           let mut n_ge = 0
           pm = 0
           while pm < n_perm {
-            if perm_scores[pm] >= obs_score { n_ge = n_ge + 1 }
+            if perm_scores[pm] >= obs_score {
+              n_ge = n_ge + 1
+            }
             pm = pm + 1
           }
           let p_val = (n_ge + 1).to_double() / (n_perm + 1).to_double()
@@ -274,11 +289,11 @@ pub fn cellchat_analyze(
             source_celltype: src_ct,
             target_celltype: tgt_ct,
             score: obs_score,
-            perm_mean: perm_mean,
-            perm_std: perm_std,
+            perm_mean,
+            perm_std,
             p_value: p_val,
             p_adj: p_adj_raw,
-            significant: significant,
+            significant,
           })
         }
         tgt = tgt + 1
@@ -289,8 +304,8 @@ pub fn cellchat_analyze(
   }
 
   CellChatResult::{
-    scores: scores,
-    lr_pairs: lr_pairs,
+    scores,
+    lr_pairs,
     cell_types: unique_ct,
     n_permutations: n_perm,
     seed: seed_val,
@@ -300,7 +315,9 @@ pub fn cellchat_analyze(
 
 ///|
 /// Get significant interactions from a CellChatResult.
-pub fn cellchat_get_significant(result : CellChatResult) -> Array[InteractionScore] {
+pub fn cellchat_get_significant(
+  result : CellChatResult,
+) -> Array[InteractionScore] {
   let sig : Array[InteractionScore] = []
   let mut i = 0
   while i < result.scores.length() {
@@ -338,10 +355,17 @@ pub fn cellchat_aggregate(result : CellChatResult) -> Map[String, Double] {
 ///|
 /// Generate sample single-cell expression data for CellChat testing.
 /// Returns (expression, cell_types, gene_names) with 3 cell types and known LR pairs.
-pub fn cellchat_sample_data() -> (Array[Array[Double]], Array[String], Array[String]) {
+pub fn cellchat_sample_data() -> (
+  Array[Array[Double]],
+  Array[String],
+  Array[String],
+) {
   let n_cells = 30
   // Express 10 genes: TNF, TNFR1, IL6, IL6R, VEGFA, VEGFR1, TGFB1, TGFBR1, CXCL12, CXCR4
-  let gene_names = ["TNF", "TNFR1", "IL6", "IL6R", "VEGFA", "VEGFR1", "TGFB1", "TGFBR1", "CXCL12", "CXCR4"]
+  let gene_names = [
+    "TNF", "TNFR1", "IL6", "IL6R", "VEGFA", "VEGFR1", "TGFB1", "TGFBR1", "CXCL12",
+    "CXCR4",
+  ]
   let cell_types : Array[String] = []
   // 10 cells per cell type
   let types = ["TypeA", "TypeB", "TypeC"]
@@ -359,13 +383,23 @@ pub fn cellchat_sample_data() -> (Array[Array[Double]], Array[String], Array[Str
     let mut gi = 0
     while gi < gene_names.length() {
       let base = if ct == "TypeA" {
-        if gene_names[gi] == "TNF" || gene_names[gi] == "IL6" { 15.0 } else { 2.0 }
+        if gene_names[gi] == "TNF" || gene_names[gi] == "IL6" {
+          15.0
+        } else {
+          2.0
+        }
       } else if ct == "TypeB" {
-        if gene_names[gi] == "TNFR1" || gene_names[gi] == "IL6R" { 12.0 } else { 2.5 }
+        if gene_names[gi] == "TNFR1" || gene_names[gi] == "IL6R" {
+          12.0
+        } else {
+          2.5
+        }
+      } else if gene_names[gi] == "VEGFA" || gene_names[gi] == "TGFB1" {
+        18.0
       } else {
-        if gene_names[gi] == "VEGFA" || gene_names[gi] == "TGFB1" { 18.0 } else { 3.0 }
+        3.0
       }
-      let noise = (((ci * 7 + gi * 11) % 100).to_double() / 100.0) * base * 0.4
+      let noise = ((ci * 7 + gi * 11) % 100).to_double() / 100.0 * base * 0.4
       row.push(base + noise)
       gi = gi + 1
     }
@@ -381,20 +415,36 @@ pub fn cellchat_summary(result : CellChatResult) -> String {
   let mut n_sig = 0
   let mut i = 0
   while i < result.scores.length() {
-    if result.scores[i].significant { n_sig = n_sig + 1 }
+    if result.scores[i].significant {
+      n_sig = n_sig + 1
+    }
     i = i + 1
   }
   "CellChat Analysis Summary:\n" +
-    "  Cell types: " + result.cell_types.length().to_string() + "\n" +
-    "  LR pairs tested: " + result.lr_pairs.length().to_string() + "\n" +
-    "  Total interactions: " + result.scores.length().to_string() + "\n" +
-    "  Significant (FDR<" + result.fdr.to_string() + "): " + n_sig.to_string() + "\n" +
-    "  Permutations: " + result.n_permutations.to_string()
+  "  Cell types: " +
+  result.cell_types.length().to_string() +
+  "\n" +
+  "  LR pairs tested: " +
+  result.lr_pairs.length().to_string() +
+  "\n" +
+  "  Total interactions: " +
+  result.scores.length().to_string() +
+  "\n" +
+  "  Significant (FDR<" +
+  result.fdr.to_string() +
+  "): " +
+  n_sig.to_string() +
+  "\n" +
+  "  Permutations: " +
+  result.n_permutations.to_string()
 }
 
 ///|
 /// Get the top interactions by score.
-pub fn cellchat_get_top(result : CellChatResult, n : Int) -> Array[InteractionScore] {
+pub fn cellchat_get_top(
+  result : CellChatResult,
+  n : Int,
+) -> Array[InteractionScore] {
   let all = result.scores
   // Sort by score descending
   let mut i = 0

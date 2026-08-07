@@ -137,7 +137,11 @@ pub fn stage_r_bh_adjust(pvalues : Array[Double]) -> Array[Double] {
   while i >= 0 {
     let rank = (i + 1).to_double()
     let raw_adj = pairs[i].1 * n.to_double() / rank
-    adj_sorted[i] = if raw_adj < adj_sorted[i + 1] { raw_adj } else { adj_sorted[i + 1] }
+    adj_sorted[i] = if raw_adj < adj_sorted[i + 1] {
+      raw_adj
+    } else {
+      adj_sorted[i + 1]
+    }
     if adj_sorted[i] > 1.0 {
       adj_sorted[i] = 1.0
     }
@@ -433,7 +437,10 @@ pub fn get_results(result : StageRResult) -> Array[Array[Bool]] {
     row.push(result.pAdjScreen[i] <= result.alpha)
     let mut j = 0
     while j < h {
-      row.push(result.pAdjConfirmation[i][j] >= 0.0 && result.pAdjConfirmation[i][j] <= result.alpha)
+      row.push(
+        result.pAdjConfirmation[i][j] >= 0.0 &&
+        result.pAdjConfirmation[i][j] <= result.alpha,
+      )
       j = j + 1
     }
     mat.push(row)
@@ -466,7 +473,8 @@ pub fn get_significant_hypotheses(result : StageRResult) -> Array[(Int, Int)] {
     if result.pAdjScreen[i] <= result.alpha {
       let mut j = 0
       while j < result.nHypotheses {
-        if result.pAdjConfirmation[i][j] >= 0.0 && result.pAdjConfirmation[i][j] <= result.alpha {
+        if result.pAdjConfirmation[i][j] >= 0.0 &&
+          result.pAdjConfirmation[i][j] <= result.alpha {
           sigs.push((i, j))
         }
         j = j + 1
@@ -482,14 +490,28 @@ pub fn get_significant_hypotheses(result : StageRResult) -> Array[(Int, Int)] {
 pub fn stage_r_summary(result : StageRResult) -> String {
   let buf = StringBuilder::new()
   buf.write_string("StageR Two-Stage Testing Summary\n")
-  buf.write_string("  Method: " + stage_r_method_name(result.stageMethod) + "\n")
+  buf.write_string(
+    "  Method: " + stage_r_method_name(result.stageMethod) + "\n",
+  )
   buf.write_string("  Target OFDR (alpha): " + result.alpha.to_string() + "\n")
-  buf.write_string("  Adjusted alpha: " + result.alphaAdjusted.to_string() + "\n")
+  buf.write_string(
+    "  Adjusted alpha: " + result.alphaAdjusted.to_string() + "\n",
+  )
   buf.write_string("  Total genes: " + result.nGenes.to_string() + "\n")
-  buf.write_string("  Hypotheses per gene: " + result.nHypotheses.to_string() + "\n")
-  buf.write_string("  Significant genes (screening): " + result.nSignificantGenes.to_string() + "\n")
+  buf.write_string(
+    "  Hypotheses per gene: " + result.nHypotheses.to_string() + "\n",
+  )
+  buf.write_string(
+    "  Significant genes (screening): " +
+    result.nSignificantGenes.to_string() +
+    "\n",
+  )
   let sig_hyps = get_significant_hypotheses(result)
-  buf.write_string("  Significant hypotheses (confirmation): " + sig_hyps.length().to_string() + "\n")
+  buf.write_string(
+    "  Significant hypotheses (confirmation): " +
+    sig_hyps.length().to_string() +
+    "\n",
+  )
   buf.to_string()
 }
 

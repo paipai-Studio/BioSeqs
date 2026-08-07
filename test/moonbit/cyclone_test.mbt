@@ -37,7 +37,7 @@ test "cyclone_score_phase" {
   let pairs = @src.cyclone_get_gene_pairs()
   let test_data = @src.cyclone_create_test_data()
   let (counts, cell_ids, gene_names) = test_data
-  
+
   // Score the first cell (should be G1 phase)
   let cell_expr : Array[Double] = Array::new()
   let n_genes = counts.length()
@@ -46,7 +46,7 @@ test "cyclone_score_phase" {
     cell_expr.push(counts[g][0])
     g = g + 1
   }
-  
+
   let g1_score = @src.cyclone_score_phase(cell_expr, gene_names, pairs, "G1")
   assert_true(g1_score >= 0.0)
   assert_true(g1_score <= 1.0)
@@ -57,7 +57,7 @@ test "cyclone_score_cell" {
   let pairs = @src.cyclone_get_gene_pairs()
   let test_data = @src.cyclone_create_test_data()
   let (counts, cell_ids, gene_names) = test_data
-  
+
   let cell_expr : Array[Double] = Array::new()
   let n_genes = counts.length()
   let mut g = 0
@@ -65,7 +65,7 @@ test "cyclone_score_cell" {
     cell_expr.push(counts[g][0])
     g = g + 1
   }
-  
+
   let scores = @src.cyclone_score_cell(cell_expr, gene_names, pairs)
   assert_true(scores.size() > 0)
   assert_true(scores.contains("G1"))
@@ -93,7 +93,7 @@ test "cyclone_score_single_cell" {
   let pairs = @src.cyclone_get_gene_pairs()
   let test_data = @src.cyclone_create_test_data()
   let (counts, cell_ids, gene_names) = test_data
-  
+
   let cell_expr : Array[Double] = Array::new()
   let n_genes = counts.length()
   let mut g = 0
@@ -101,8 +101,10 @@ test "cyclone_score_single_cell" {
     cell_expr.push(counts[g][0])
     g = g + 1
   }
-  
-  let result = @src.cyclone_score_single_cell(cell_expr, "test_cell", gene_names, pairs)
+
+  let result = @src.cyclone_score_single_cell(
+    cell_expr, "test_cell", gene_names, pairs,
+  )
   assert_eq(result.cell_id, "test_cell")
   assert_true(result.scores.size() == 4)
   assert_true(result.phases.length() == 4)
@@ -117,10 +119,10 @@ test "cyclone_score_single_cell" {
 test "cyclone_score_cells" {
   let test_data = @src.cyclone_create_test_data()
   let (counts, cell_ids, gene_names) = test_data
-  
+
   let results = @src.cyclone_score_cells(counts, cell_ids, gene_names)
   assert_eq(results.length(), 20)
-  
+
   // Check first cell
   assert_eq(results[0].cell_id, "cell_1")
   assert_true(results[0].assigned_phase.length() > 0)
@@ -130,12 +132,12 @@ test "cyclone_score_cells" {
 test "cyclone_phase_distribution" {
   let test_data = @src.cyclone_create_test_data()
   let (counts, cell_ids, gene_names) = test_data
-  
+
   let results = @src.cyclone_score_cells(counts, cell_ids, gene_names)
   let dist = @src.cyclone_phase_distribution(results)
-  
+
   assert_true(dist.size() > 0)
-  
+
   // Sum of proportions should be approximately 1.0
   let keys = dist.keys()
   let mut sum = 0.0
@@ -149,7 +151,7 @@ test "cyclone_phase_distribution" {
 test "cyclone_create_test_data" {
   let test_data = @src.cyclone_create_test_data()
   let (counts, cell_ids, gene_names) = test_data
-  
+
   assert_eq(cell_ids.length(), 20)
   assert_true(gene_names.length() > 0)
   assert_true(counts.length() > 0)
@@ -175,7 +177,7 @@ test "cyclone_score_empty_cells" {
   let gene_names : Array[String] = Array::new()
   let cell_ids : Array[String] = Array::new()
   let counts : Array[Array[Double]] = Array::new()
-  
+
   let results = @src.cyclone_score_cells(counts, cell_ids, gene_names)
   assert_eq(results.length(), 0)
 }
@@ -191,10 +193,10 @@ test "cyclone_phase_distribution_empty" {
 test "cyclone_average_scores" {
   let test_data = @src.cyclone_create_test_data()
   let (counts, cell_ids, gene_names) = test_data
-  
+
   let results = @src.cyclone_score_cells(counts, cell_ids, gene_names)
   let avg = @src.cyclone_average_scores(results)
-  
+
   assert_true(avg.size() == 4)
   assert_true(avg.contains("G1"))
   assert_true(avg.contains("S"))

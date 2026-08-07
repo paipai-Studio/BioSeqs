@@ -186,23 +186,33 @@ pub fn RotamerLibraryEntry::new(
 
 ///|
 /// Standard peptide bond length (C-N).
-pub fn ic_peptide_bond_length() -> Double { 1.33 }
+pub fn ic_peptide_bond_length() -> Double {
+  1.33
+}
 
 ///|
 /// Standard CA-C bond length.
-pub fn ic_ca_c_bond_length() -> Double { 1.52 }
+pub fn ic_ca_c_bond_length() -> Double {
+  1.52
+}
 
 ///|
 /// Standard N-CA bond length.
-pub fn ic_n_ca_bond_length() -> Double { 1.47 }
+pub fn ic_n_ca_bond_length() -> Double {
+  1.47
+}
 
 ///|
 /// Standard omega bond angle (CA-C-N-CA), ~180 degrees.
-pub fn ic_omega_angle() -> Double { 180.0 }
+pub fn ic_omega_angle() -> Double {
+  180.0
+}
 
 ///|
 /// Standard tau angle (N-CA-C), ~110 degrees.
-pub fn ic_tau_angle() -> Double { 110.0 }
+pub fn ic_tau_angle() -> Double {
+  110.0
+}
 
 // ============================================================================
 // Torsion angle calculations
@@ -245,15 +255,21 @@ pub fn ic_dihedral_angle(
 
 ///|
 /// PI constant.
-pub fn ic_pi() -> Double { 3.14159265358979323846 }
+pub fn ic_pi() -> Double {
+  3.14159265358979323846
+}
 
 ///|
 /// Convert radians to degrees.
-pub fn ic_rad_to_deg(rad : Double) -> Double { rad * 180.0 / ic_pi() }
+pub fn ic_rad_to_deg(rad : Double) -> Double {
+  rad * 180.0 / ic_pi()
+}
 
 ///|
 /// Convert degrees to radians.
-pub fn ic_deg_to_rad(deg : Double) -> Double { deg * ic_pi() / 180.0 }
+pub fn ic_deg_to_rad(deg : Double) -> Double {
+  deg * ic_pi() / 180.0
+}
 
 ///|
 /// Compute phi angle for a residue (C(i-1) - N(i) - CA(i) - C(i)).
@@ -307,9 +323,7 @@ pub fn ic_compute_chi1(
 /// Build a simple extended polypeptide chain from internal coordinates.
 /// Uses standard bond lengths and angles.
 /// Returns the ICToCartesianResult with atom positions.
-pub fn ic_build_extended_chain(
-  sequence : Array[String],
-) -> ICToCartesianResult {
+pub fn ic_build_extended_chain(sequence : Array[String]) -> ICToCartesianResult {
   let result = ICToCartesianResult::new()
 
   // Standard bond parameters
@@ -383,7 +397,13 @@ pub fn ic_build_extended_chain(
     let next_n = ic_rotate_around_bond(prev_c, prev_ca, prev_n, psi, bond_c_n)
 
     // Place next CA atom using phi rotation on next residue
-    let next_ca = ic_rotate_around_bond(next_n, prev_c, prev_ca, phi + ic_pi(), bond_n_ca)
+    let next_ca = ic_rotate_around_bond(
+      next_n,
+      prev_c,
+      prev_ca,
+      phi + ic_pi(),
+      bond_n_ca,
+    )
 
     // Place next C atom
     let next_c = ic_build_carbonyl(next_n, next_ca, prev_c)
@@ -451,11 +471,7 @@ pub fn ic_rotate_around_bond(
   }
 
   // Vector from origin to point
-  let v = [
-    point[0] - origin[0],
-    point[1] - origin[1],
-    point[2] - origin[2],
-  ]
+  let v = [point[0] - origin[0], point[1] - origin[1], point[2] - origin[2]]
 
   // Decompose v into parallel and perpendicular components
   let v_par = ic_dot(v, bond_unit)
@@ -522,7 +538,11 @@ pub fn ic_build_carbonyl(
     [1.0, 0.0, 0.0]
   }
   let v2 = if pc_norm > 1.0e-10 {
-    [v_ca_prev_c[0] / pc_norm, v_ca_prev_c[1] / pc_norm, v_ca_prev_c[2] / pc_norm]
+    [
+      v_ca_prev_c[0] / pc_norm,
+      v_ca_prev_c[1] / pc_norm,
+      v_ca_prev_c[2] / pc_norm,
+    ]
   } else {
     [0.0, 1.0, 0.0]
   }
@@ -566,11 +586,7 @@ pub fn ic_oxygen_position(
     ca_pos[1] - c_pos[1],
     ca_pos[2] - c_pos[2],
   ]
-  let v_c_n = [
-    n_pos[0] - c_pos[0],
-    n_pos[1] - c_pos[1],
-    n_pos[2] - c_pos[2],
-  ]
+  let v_c_n = [n_pos[0] - c_pos[0], n_pos[1] - c_pos[1], n_pos[2] - c_pos[2]]
 
   let ca_norm = ic_vec_norm(v_c_ca)
   let n_norm = ic_vec_norm(v_c_n)
@@ -587,11 +603,7 @@ pub fn ic_oxygen_position(
   }
 
   // Bisector direction (CA-C-N angle ~121°, so bisector is between them)
-  let bisector = [
-    u_ca[0] + u_n[0],
-    u_ca[1] + u_n[1],
-    u_ca[2] + u_n[2],
-  ]
+  let bisector = [u_ca[0] + u_n[0], u_ca[1] + u_n[1], u_ca[2] + u_n[2]]
   let bis_norm = ic_vec_norm(bisector)
   let bis_unit = if bis_norm > 1.0e-10 {
     [bisector[0] / bis_norm, bisector[1] / bis_norm, bisector[2] / bis_norm]
@@ -725,103 +737,420 @@ pub fn ic_distance(a : Array[Double], b : Array[Double]) -> Double {
 /// Get common chi1 angle values for different amino acids.
 pub fn ic_chi1_rotamers(resname : String) -> Array[Rotamer] {
   match resname {
-    "LEU" => [
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(-60.0)], probability: 0.25 },
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(180.0), ic_deg_to_rad(-60.0)], probability: 0.55 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(-60.0)], probability: 0.20 },
-    ]
-    "VAL" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0)], probability: 0.45 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0)], probability: 0.35 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0)], probability: 0.20 },
-    ]
-    "PHE" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)], probability: 0.60 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(90.0)], probability: 0.25 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(-90.0)], probability: 0.15 },
-    ]
-    "TYR" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)], probability: 0.60 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(90.0)], probability: 0.25 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(-90.0)], probability: 0.15 },
-    ]
-    "TRP" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)], probability: 0.50 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)], probability: 0.30 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(-90.0)], probability: 0.20 },
-    ]
-    "SER" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0)], probability: 0.35 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0)], probability: 0.40 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0)], probability: 0.25 },
-    ]
-    "THR" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0)], probability: 0.25 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0)], probability: 0.40 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0)], probability: 0.35 },
-    ]
-    "CYS" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0)], probability: 0.35 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0)], probability: 0.40 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0)], probability: 0.25 },
-    ]
-    "MET" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)], probability: 0.50 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)], probability: 0.25 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(-90.0)], probability: 0.25 },
-    ]
-    "LYS" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(180.0), ic_deg_to_rad(180.0), ic_deg_to_rad(180.0)], probability: 0.40 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(180.0), ic_deg_to_rad(180.0)], probability: 0.30 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(180.0), ic_deg_to_rad(180.0)], probability: 0.30 },
-    ]
-    "ARG" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(180.0), ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)], probability: 0.35 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)], probability: 0.35 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)], probability: 0.30 },
-    ]
-    "ASP" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(180.0)], probability: 0.60 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(180.0)], probability: 0.20 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(180.0)], probability: 0.20 },
-    ]
-    "GLU" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(180.0), ic_deg_to_rad(180.0)], probability: 0.45 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(180.0)], probability: 0.30 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(180.0)], probability: 0.25 },
-    ]
-    "ASN" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)], probability: 0.55 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(90.0)], probability: 0.25 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(-90.0)], probability: 0.20 },
-    ]
-    "GLN" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)], probability: 0.50 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)], probability: 0.25 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(180.0), ic_deg_to_rad(-90.0)], probability: 0.25 },
-    ]
-    "HIS" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(0.0)], probability: 0.45 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(0.0)], probability: 0.30 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(180.0)], probability: 0.25 },
-    ]
-    "ALA" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0)], probability: 1.0 },
-    ]
-    "GLY" => [
-      Rotamer::{ name: "t", chi_angles: [], probability: 1.0 },
-    ]
-    "PRO" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(-60.0)], probability: 1.0 },
-    ]
-    "ILE" => [
-      Rotamer::{ name: "t", chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(-60.0)], probability: 0.60 },
-      Rotamer::{ name: "g+", chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(-60.0)], probability: 0.20 },
-      Rotamer::{ name: "g-", chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(180.0)], probability: 0.20 },
-    ]
-    _ => [
-      Rotamer::{ name: "t", chi_angles: [], probability: 1.0 },
-    ]
+    "LEU" =>
+      [
+        Rotamer::{
+          name: "g+",
+          chi_angles: [
+            ic_deg_to_rad(-60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(-60.0),
+          ],
+          probability: 0.25,
+        },
+        Rotamer::{
+          name: "t",
+          chi_angles: [
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(-60.0),
+          ],
+          probability: 0.55,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [
+            ic_deg_to_rad(60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(-60.0),
+          ],
+          probability: 0.20,
+        },
+      ]
+    "VAL" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [ic_deg_to_rad(180.0)],
+          probability: 0.45,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [ic_deg_to_rad(-60.0)],
+          probability: 0.35,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [ic_deg_to_rad(60.0)],
+          probability: 0.20,
+        },
+      ]
+    "PHE" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)],
+          probability: 0.60,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(90.0)],
+          probability: 0.25,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(-90.0)],
+          probability: 0.15,
+        },
+      ]
+    "TYR" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)],
+          probability: 0.60,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(90.0)],
+          probability: 0.25,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(-90.0)],
+          probability: 0.15,
+        },
+      ]
+    "TRP" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(90.0),
+          ],
+          probability: 0.50,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [
+            ic_deg_to_rad(-60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(90.0),
+          ],
+          probability: 0.30,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [
+            ic_deg_to_rad(60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(-90.0),
+          ],
+          probability: 0.20,
+        },
+      ]
+    "SER" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [ic_deg_to_rad(180.0)],
+          probability: 0.35,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [ic_deg_to_rad(-60.0)],
+          probability: 0.40,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [ic_deg_to_rad(60.0)],
+          probability: 0.25,
+        },
+      ]
+    "THR" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [ic_deg_to_rad(180.0)],
+          probability: 0.25,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [ic_deg_to_rad(-60.0)],
+          probability: 0.40,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [ic_deg_to_rad(60.0)],
+          probability: 0.35,
+        },
+      ]
+    "CYS" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [ic_deg_to_rad(180.0)],
+          probability: 0.35,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [ic_deg_to_rad(-60.0)],
+          probability: 0.40,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [ic_deg_to_rad(60.0)],
+          probability: 0.25,
+        },
+      ]
+    "MET" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(90.0),
+          ],
+          probability: 0.50,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [
+            ic_deg_to_rad(-60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(90.0),
+          ],
+          probability: 0.25,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [
+            ic_deg_to_rad(60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(-90.0),
+          ],
+          probability: 0.25,
+        },
+      ]
+    "LYS" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+          ],
+          probability: 0.40,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [
+            ic_deg_to_rad(-60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+          ],
+          probability: 0.30,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [
+            ic_deg_to_rad(60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+          ],
+          probability: 0.30,
+        },
+      ]
+    "ARG" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(90.0),
+          ],
+          probability: 0.35,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [
+            ic_deg_to_rad(-60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(90.0),
+          ],
+          probability: 0.35,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [
+            ic_deg_to_rad(60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(90.0),
+          ],
+          probability: 0.30,
+        },
+      ]
+    "ASP" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(180.0)],
+          probability: 0.60,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(180.0)],
+          probability: 0.20,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(180.0)],
+          probability: 0.20,
+        },
+      ]
+    "GLU" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+          ],
+          probability: 0.45,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [
+            ic_deg_to_rad(-60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+          ],
+          probability: 0.30,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [
+            ic_deg_to_rad(60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+          ],
+          probability: 0.25,
+        },
+      ]
+    "ASN" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(90.0)],
+          probability: 0.55,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(90.0)],
+          probability: 0.25,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(-90.0)],
+          probability: 0.20,
+        },
+      ]
+    "GLN" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(90.0),
+          ],
+          probability: 0.50,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [
+            ic_deg_to_rad(-60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(90.0),
+          ],
+          probability: 0.25,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [
+            ic_deg_to_rad(60.0),
+            ic_deg_to_rad(180.0),
+            ic_deg_to_rad(-90.0),
+          ],
+          probability: 0.25,
+        },
+      ]
+    "HIS" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(0.0)],
+          probability: 0.45,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(0.0)],
+          probability: 0.30,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(180.0)],
+          probability: 0.25,
+        },
+      ]
+    "ALA" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [ic_deg_to_rad(180.0)],
+          probability: 1.0,
+        },
+      ]
+    "GLY" => [Rotamer::{ name: "t", chi_angles: [], probability: 1.0 }]
+    "PRO" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [ic_deg_to_rad(-60.0)],
+          probability: 1.0,
+        },
+      ]
+    "ILE" =>
+      [
+        Rotamer::{
+          name: "t",
+          chi_angles: [ic_deg_to_rad(180.0), ic_deg_to_rad(-60.0)],
+          probability: 0.60,
+        },
+        Rotamer::{
+          name: "g+",
+          chi_angles: [ic_deg_to_rad(-60.0), ic_deg_to_rad(-60.0)],
+          probability: 0.20,
+        },
+        Rotamer::{
+          name: "g-",
+          chi_angles: [ic_deg_to_rad(60.0), ic_deg_to_rad(180.0)],
+          probability: 0.20,
+        },
+      ]
+    _ => [Rotamer::{ name: "t", chi_angles: [], probability: 1.0 }]
   }
 }
 
@@ -854,12 +1183,34 @@ pub fn ic_validate_coords(ic : InternalCoordChain) -> Array[(Int, String)] {
     let res = ic.residues[i]
     for bl in res.bond_lengths {
       if bl.length < 0.5 || bl.length > 3.0 {
-        issues.push((res.resseq, "Bond length " + bl.atom1 + "-" + bl.atom2 + " out of range: " + bl.length.to_string()))
+        issues.push(
+          (
+            res.resseq,
+            "Bond length " +
+            bl.atom1 +
+            "-" +
+            bl.atom2 +
+            " out of range: " +
+            bl.length.to_string(),
+          ),
+        )
       }
     }
     for ba in res.bond_angles {
       if ba.angle < 60.0 || ba.angle > 180.0 {
-        issues.push((res.resseq, "Bond angle " + ba.atom1 + "-" + ba.atom2 + "-" + ba.atom3 + " out of range: " + ba.angle.to_string()))
+        issues.push(
+          (
+            res.resseq,
+            "Bond angle " +
+            ba.atom1 +
+            "-" +
+            ba.atom2 +
+            "-" +
+            ba.atom3 +
+            " out of range: " +
+            ba.angle.to_string(),
+          ),
+        )
       }
     }
     i = i + 1
@@ -875,9 +1226,13 @@ pub fn ic_chain_summary(ic : InternalCoordChain) -> String {
   for res in ic.residues {
     total_torsions = total_torsions + res.torsions.length()
   }
-  "Chain " + ic.chain_id.to_string() +
-  ": " + n_res.to_string() + " residues, " +
-  total_torsions.to_string() + " torsion angles"
+  "Chain " +
+  ic.chain_id.to_string() +
+  ": " +
+  n_res.to_string() +
+  " residues, " +
+  total_torsions.to_string() +
+  " torsion angles"
 }
 
 ///|
@@ -888,10 +1243,7 @@ pub fn InternalCoordChain::add_residue(
 ) -> InternalCoordChain {
   let new_residues = self.residues.copy()
   new_residues.push(res)
-  InternalCoordChain::{
-    chain_id: self.chain_id,
-    residues: new_residues,
-  }
+  InternalCoordChain::{ chain_id: self.chain_id, residues: new_residues }
 }
 
 ///|
@@ -956,7 +1308,9 @@ pub fn InternalCoordChain::n_residues(self : InternalCoordChain) -> Int {
 
 ///|
 /// Get residue names.
-pub fn InternalCoordChain::residue_names(self : InternalCoordChain) -> Array[String] {
+pub fn InternalCoordChain::residue_names(
+  self : InternalCoordChain,
+) -> Array[String] {
   self.residues.map(fn(r) { r.resname })
 }
 

@@ -13,12 +13,7 @@ pub struct SeqLogo {
 
 ///|
 pub fn SeqLogo::new(sequences : Array[String]) -> SeqLogo {
-  SeqLogo::{
-    sequences,
-    height: 50,
-    width: 400,
-    colors: get_default_colors()
-  }
+  SeqLogo::{ sequences, height: 50, width: 400, colors: get_default_colors() }
 }
 
 ///|
@@ -35,7 +30,7 @@ pub fn LogoColumn::new(position : Int) -> LogoColumn {
     position,
     letter_frequencies: Map([], capacity=4),
     information_content: 0.0,
-    letters: Array::new()
+    letters: Array::new(),
   }
 }
 
@@ -53,7 +48,7 @@ pub fn AlignmentPlot::new(sequences : Array[(String, String)]) -> AlignmentPlot 
     sequences,
     highlight_regions: Array::new(),
     consensus: "",
-    show_consensus: true
+    show_consensus: true,
   }
 }
 
@@ -65,26 +60,25 @@ pub struct FeaturePlot {
 }
 
 ///|
-pub fn FeaturePlot::new(features : Array[(String, Int, Int, String, String)], sequence_length : Int) -> FeaturePlot {
-  FeaturePlot::{
-    features,
-    sequence_length,
-    colors: get_feature_colors()
-  }
+pub fn FeaturePlot::new(
+  features : Array[(String, Int, Int, String, String)],
+  sequence_length : Int,
+) -> FeaturePlot {
+  FeaturePlot::{ features, sequence_length, colors: get_feature_colors() }
 }
 
 ///|
 pub fn get_default_colors() -> Map[String, String] {
   let colors = Map([], capacity=20)
-  
+
   colors.set("A", "#FF0000")
   colors.set("T", "#0000FF")
   colors.set("C", "#00FF00")
   colors.set("G", "#FFA500")
-  
+
   colors.set("N", "#808080")
   colors.set("-", "#CCCCCC")
-  
+
   colors.set("R", "#FF0000")
   colors.set("K", "#FF0000")
   colors.set("D", "#0000FF")
@@ -105,14 +99,14 @@ pub fn get_default_colors() -> Map[String, String] {
   colors.set("F", "#808080")
   colors.set("W", "#808080")
   colors.set("C", "#808080")
-  
+
   colors
 }
 
 ///|
 pub fn get_feature_colors() -> Map[String, String] {
   let colors = Map([], capacity=10)
-  
+
   colors.set("exon", "#FF6B6B")
   colors.set("intron", "#4ECDC4")
   colors.set("CDS", "#45B7D1")
@@ -123,30 +117,33 @@ pub fn get_feature_colors() -> Map[String, String] {
   colors.set("repeat", "#98D8C8")
   colors.set("gene", "#F7DC6F")
   colors.set("misc", "#BB8FCE")
-  
+
   colors
 }
 
 ///|
-pub fn seqlogo_calculate_columns(sequences : Array[String]) -> Array[LogoColumn] {
+pub fn seqlogo_calculate_columns(
+  sequences : Array[String],
+) -> Array[LogoColumn] {
   let columns : Array[LogoColumn] = Array::new()
-  
+
   if sequences.length() == 0 {
     return columns
   }
-  
+
   let seq_len = sequences[0].length()
   let n_seqs = sequences.length()
-  
+
   let mut pos = 0
   while pos < seq_len {
     let col = LogoColumn::new(pos + 1)
     let freqs = col.letter_frequencies.copy()
-    
-    let counts = Map([
-      ("A", 0), ("T", 0), ("C", 0), ("G", 0), ("N", 0)
-    ], capacity=5)
-    
+
+    let counts = Map(
+      [("A", 0), ("T", 0), ("C", 0), ("G", 0), ("N", 0)],
+      capacity=5,
+    )
+
     let mut seq_idx = 0
     while seq_idx < n_seqs {
       if pos < sequences[seq_idx].length() {
@@ -159,7 +156,7 @@ pub fn seqlogo_calculate_columns(sequences : Array[String]) -> Array[LogoColumn]
       }
       seq_idx = seq_idx + 1
     }
-    
+
     let mut total = 0
     let count_keys = counts.keys().collect()
     let mut i = 0
@@ -167,26 +164,26 @@ pub fn seqlogo_calculate_columns(sequences : Array[String]) -> Array[LogoColumn]
       total = total + counts.get(count_keys[i]).unwrap()
       i = i + 1
     }
-    
+
     if total > 0 {
       let mut ic = 0.0
       let ic_max = @math.log2(n_seqs.to_double())
-      
+
       let mut j = 0
       while j < count_keys.length() {
         let key = count_keys[j]
         let count = counts.get(key).unwrap()
         let freq = count.to_double() / total.to_double()
         freqs.set(key, freq)
-        
+
         if freq > 0.0 {
           ic = ic - freq * @math.log2(freq)
         }
         j = j + 1
       }
-      
+
       let info_content = ic / ic_max * ic_max
-      
+
       let sorted_letters : Array[(String, Double)] = Array::new()
       let mut k = 0
       while k < count_keys.length() {
@@ -196,7 +193,7 @@ pub fn seqlogo_calculate_columns(sequences : Array[String]) -> Array[LogoColumn]
         }
         k = k + 1
       }
-      
+
       let mut l = 0
       while l < sorted_letters.length() - 1 {
         let mut m = l + 1
@@ -210,7 +207,7 @@ pub fn seqlogo_calculate_columns(sequences : Array[String]) -> Array[LogoColumn]
         }
         l = l + 1
       }
-      
+
       let letters : Array[(String, Double, Double)] = Array::new()
       let mut cum_height = 0.0
       let mut n = 0
@@ -220,30 +217,30 @@ pub fn seqlogo_calculate_columns(sequences : Array[String]) -> Array[LogoColumn]
         cum_height = cum_height + height
         n = n + 1
       }
-      
+
       columns.push(LogoColumn::{
         position: pos + 1,
         letter_frequencies: freqs,
         information_content: info_content,
-        letters: letters
+        letters,
       })
     }
-    
+
     pos = pos + 1
   }
-  
+
   columns
 }
 
 ///|
 pub fn seqlogo_generate_ascii(logo : SeqLogo) -> String {
   let columns = seqlogo_calculate_columns(logo.sequences)
-  
+
   let mut output = ""
-  
+
   let max_ic = @math.log2(logo.sequences.length().to_double())
   let scale = logo.height.to_double() / max_ic
-  
+
   let mut row = logo.height - 1
   while row >= 0 {
     let mut line = ""
@@ -256,8 +253,9 @@ pub fn seqlogo_generate_ascii(logo : SeqLogo) -> String {
         let (letter, start, height) = col.letters[letter_idx]
         let scaled_start = start * scale
         let scaled_height = height * scale
-        
-        if row.to_double() >= scaled_start && row.to_double() < scaled_start + scaled_height {
+
+        if row.to_double() >= scaled_start &&
+          row.to_double() < scaled_start + scaled_height {
           line = line + letter
           found = true
           break
@@ -274,7 +272,7 @@ pub fn seqlogo_generate_ascii(logo : SeqLogo) -> String {
     }
     row = row - 1
   }
-  
+
   output = output + "Position: "
   let mut pos = 0
   while pos < columns.length() {
@@ -282,23 +280,23 @@ pub fn seqlogo_generate_ascii(logo : SeqLogo) -> String {
     pos = pos + 1
   }
   output = output + "\n"
-  
+
   output
 }
 
 ///|
 pub fn alignment_plot_generate_ascii(plot : AlignmentPlot) -> String {
   let mut output = ""
-  
+
   if plot.show_consensus {
     let consensus = graphics_calculate_consensus(plot.sequences)
     output = output + "Consensus: " + consensus + "\n\n"
   }
-  
+
   let mut seq_idx = 0
   while seq_idx < plot.sequences.length() {
     let (name, seq) = plot.sequences[seq_idx]
-    
+
     let mut line = ""
     if name.length() > 12 {
       line = line + substring(name, 0, 12)
@@ -312,10 +310,10 @@ pub fn alignment_plot_generate_ascii(plot : AlignmentPlot) -> String {
     }
     line = line + " " + seq + "\n"
     output = output + line
-    
+
     seq_idx = seq_idx + 1
   }
-  
+
   output
 }
 
@@ -324,18 +322,19 @@ fn graphics_calculate_consensus(sequences : Array[(String, String)]) -> String {
   if sequences.length() == 0 {
     return ""
   }
-  
+
   let seq_len = sequences[0].1.length()
   let n_seqs = sequences.length()
-  
+
   let mut consensus = ""
-  
+
   let mut pos = 0
   while pos < seq_len {
-    let counts = Map([
-      ("A", 0), ("T", 0), ("C", 0), ("G", 0), ("-", 0)
-    ], capacity=5)
-    
+    let counts = Map(
+      [("A", 0), ("T", 0), ("C", 0), ("G", 0), ("-", 0)],
+      capacity=5,
+    )
+
     let mut seq_idx = 0
     while seq_idx < n_seqs {
       if pos < sequences[seq_idx].1.length() {
@@ -346,7 +345,7 @@ fn graphics_calculate_consensus(sequences : Array[(String, String)]) -> String {
       }
       seq_idx = seq_idx + 1
     }
-    
+
     let mut max_count = 0
     let mut max_base = "N"
     let count_keys = counts.keys().collect()
@@ -360,20 +359,23 @@ fn graphics_calculate_consensus(sequences : Array[(String, String)]) -> String {
       }
       i = i + 1
     }
-    
+
     consensus = consensus + max_base
     pos = pos + 1
   }
-  
+
   consensus
 }
 
 ///|
 pub fn feature_plot_generate_ascii(plot : FeaturePlot) -> String {
   let mut output = ""
-  
-  output = output + "Sequence length: " + plot.sequence_length.to_string() + "\n\n"
-  
+
+  output = output +
+    "Sequence length: " +
+    plot.sequence_length.to_string() +
+    "\n\n"
+
   output = output + "Legend:\n"
   let color_keys = plot.colors.keys().collect()
   let mut i = 0
@@ -383,7 +385,7 @@ pub fn feature_plot_generate_ascii(plot : FeaturePlot) -> String {
     i = i + 1
   }
   output = output + "\n"
-  
+
   output = output + "Feature track:\n"
   output = output + "|"
   let mut pos = 0
@@ -396,11 +398,11 @@ pub fn feature_plot_generate_ascii(plot : FeaturePlot) -> String {
     pos = pos + 1
   }
   output = output + "|\n"
-  
+
   let mut feat_idx = 0
   while feat_idx < plot.features.length() {
     let (name, start, end, feat_type, strand) = plot.features[feat_idx]
-    
+
     let mut line = ""
     let mut pos = 0
     while pos < plot.sequence_length {
@@ -411,39 +413,33 @@ pub fn feature_plot_generate_ascii(plot : FeaturePlot) -> String {
       }
       pos = pos + 1
     }
-    
+
     let strand_sym = if strand == "-" { "<-" } else { "->" }
     output = output + strand_sym + " [" + name + "] " + line + "\n"
-    
+
     feat_idx = feat_idx + 1
   }
-  
+
   output = output + "\nPositions: 0"
   pos = 0
   while pos <= plot.sequence_length {
     if pos % 20 == 0 && pos > 0 {
-      output = output + " ".repeat(pos.to_string().length() - 1) + pos.to_string()
+      output = output +
+        " ".repeat(pos.to_string().length() - 1) +
+        pos.to_string()
     }
     pos = pos + 1
   }
   output = output + "\n"
-  
+
   output
 }
 
 ///|
 pub fn create_example_seqlogo() -> SeqLogo {
   let seqs = [
-    "ATGCCGTAA",
-    "ATGCCGTAA",
-    "ATGCCGTAA",
-    "ATGCCGTAA",
-    "ATGCCGTAA",
-    "ATGCCGTAA",
-    "ATGCCGTAA",
-    "ATGCCGTAA",
-    "ATGCCGTAA",
-    "ATGCCGTAA"
+    "ATGCCGTAA", "ATGCCGTAA", "ATGCCGTAA", "ATGCCGTAA", "ATGCCGTAA", "ATGCCGTAA",
+    "ATGCCGTAA", "ATGCCGTAA", "ATGCCGTAA", "ATGCCGTAA",
   ]
   SeqLogo::new(seqs)
 }
@@ -454,7 +450,7 @@ pub fn create_example_alignment_plot() -> AlignmentPlot {
     ("Human", "ATGGCCGGTAAATGA"),
     ("Mouse", "ATGGCCGGTAAATGA"),
     ("Rat", "ATGGCCGGTAATAGA"),
-    ("Chicken", "ATGGCCGGTAATGGA")
+    ("Chicken", "ATGGCCGGTAATGGA"),
   ]
   AlignmentPlot::new(seqs)
 }
@@ -468,7 +464,7 @@ pub fn create_example_feature_plot() -> FeaturePlot {
     ("Exon2", 70, 100, "exon", "+"),
     ("Promoter", -20, 0, "promoter", "+"),
     ("GeneB", 150, 250, "gene", "-"),
-    ("CDS", 160, 240, "CDS", "-")
+    ("CDS", 160, 240, "CDS", "-"),
   ]
   FeaturePlot::new(features, 300)
 }

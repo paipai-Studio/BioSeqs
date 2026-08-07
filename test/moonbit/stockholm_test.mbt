@@ -1,6 +1,5 @@
 ///|
 /// Tests for Stockholm format parser module.
-
 test "stockholm_parse_header" {
   let content = "# STOCKHOLM 1.0\nseq1/1-10 ACGTACGTAC\n//\n"
   let ali = @src.stockholm_parse(content)
@@ -8,18 +7,21 @@ test "stockholm_parse_header" {
   assert_eq(ali.blocks.length(), 1)
 }
 
+///|
 test "stockholm_parse_empty" {
   let ali = @src.stockholm_parse("")
   assert_eq(ali.blocks.length(), 0)
   assert_eq(ali.gf_annotations.keys().length(), 0)
 }
 
+///|
 test "stockholm_parse_header_only" {
   let content = "# STOCKHOLM 1.0\n//\n"
   let ali = @src.stockholm_parse(content)
   assert_eq(ali.blocks.length(), 0)
 }
 
+///|
 test "stockholm_parse_single_sequence" {
   let content = "# STOCKHOLM 1.0\nseq1/1-10 ACGTACGTAC\n//\n"
   let ali = @src.stockholm_parse(content)
@@ -31,6 +33,7 @@ test "stockholm_parse_single_sequence" {
   assert_eq(ali.blocks[0].sequences[0].end, 10)
 }
 
+///|
 test "stockholm_parse_multiple_sequences" {
   let content = "# STOCKHOLM 1.0\n" +
     "seq1/1-10 ACGTACGTAC\n" +
@@ -42,6 +45,7 @@ test "stockholm_parse_multiple_sequences" {
   assert_eq(ali.blocks[0].sequences.length(), 3)
 }
 
+///|
 test "stockholm_parse_gf_annotations" {
   let content = "# STOCKHOLM 1.0\n" +
     "#=GF ID   TestFamily\n" +
@@ -56,6 +60,7 @@ test "stockholm_parse_gf_annotations" {
   assert_eq(ali.gf_annotations["DE"], "A test protein family")
 }
 
+///|
 test "stockholm_parse_gc_ss_cons" {
   let content = "# STOCKHOLM 1.0\n" +
     "#=GC SS_cons    ........((((...)))).....\n" +
@@ -65,6 +70,7 @@ test "stockholm_parse_gc_ss_cons" {
   assert_eq(ali.blocks[0].secondary_structure, "........((((...)))).....")
 }
 
+///|
 test "stockholm_parse_gr_annotation" {
   let content = "# STOCKHOLM 1.0\n" +
     "seq1/1-10 ACGTACGTAC\n" +
@@ -74,6 +80,7 @@ test "stockholm_parse_gr_annotation" {
   assert_true(ali.blocks[0].gr_annotations.keys().length() > 0)
 }
 
+///|
 test "stockholm_parse_gs_annotation" {
   let content = "# STOCKHOLM 1.0\n" +
     "#=GS seq1 some annotation value\n" +
@@ -83,6 +90,7 @@ test "stockholm_parse_gs_annotation" {
   assert_true(ali.gs_annotations.keys().length() > 0)
 }
 
+///|
 test "stockholm_parse_multiple_blocks" {
   let content = "# STOCKHOLM 1.0\n" +
     "seq1/1-10 ACGTACGTAC\n" +
@@ -97,14 +105,10 @@ test "stockholm_parse_multiple_blocks" {
   assert_eq(ali.blocks[1].sequences.length(), 2)
 }
 
+///|
 test "stockholm_sequence_struct" {
   let seq = @src.StockholmSequence::new(
-    "test",
-    "PF00001",
-    "Test description",
-    "ACGTAC",
-    1,
-    6,
+    "test", "PF00001", "Test description", "ACGTAC", 1, 6,
   )
   assert_eq(seq.name, "test")
   assert_eq(seq.accession, "PF00001")
@@ -114,6 +118,7 @@ test "stockholm_sequence_struct" {
   assert_eq(seq.end, 6)
 }
 
+///|
 test "stockholm_block_struct" {
   let seqs : Array[@src.StockholmSequence] = Array::new()
   let gc : Map[String, String] = Map([], capacity=0)
@@ -124,6 +129,7 @@ test "stockholm_block_struct" {
   assert_eq(block.consensus, "cons")
 }
 
+///|
 test "stockholm_alignment_struct" {
   let blocks : Array[@src.StockholmBlock] = Array::new()
   let gf : Map[String, String] = Map([], capacity=0)
@@ -134,6 +140,7 @@ test "stockholm_alignment_struct" {
   assert_eq(ali.blocks.length(), 0)
 }
 
+///|
 test "stockholm_percent_identity_identical" {
   let content = "# STOCKHOLM 1.0\n" +
     "seq1/1-10 ACGTACGTAC\n" +
@@ -144,6 +151,7 @@ test "stockholm_percent_identity_identical" {
   assert_true(pid > 0.99)
 }
 
+///|
 test "stockholm_percent_identity_different" {
   let content = "# STOCKHOLM 1.0\n" +
     "seq1/1-10 ACGTACGTAC\n" +
@@ -154,6 +162,7 @@ test "stockholm_percent_identity_different" {
   assert_true(pid < 0.3)
 }
 
+///|
 test "stockholm_percent_identity_with_gaps" {
   let content = "# STOCKHOLM 1.0\n" +
     "seq1/1-10 ACGTACGTAC\n" +
@@ -165,6 +174,7 @@ test "stockholm_percent_identity_with_gaps" {
   assert_true(pid <= 1.0)
 }
 
+///|
 test "stockholm_conservation_single_column" {
   let content = "# STOCKHOLM 1.0\n" +
     "seq1/1-5 ACGT.\n" +
@@ -178,6 +188,7 @@ test "stockholm_conservation_single_column" {
   assert_true(cons[4] >= 0.0)
 }
 
+///|
 test "stockholm_conservation_all_gap_column" {
   let content = "# STOCKHOLM 1.0\n" +
     "seq1/1-5 ACGT-\n" +
@@ -188,6 +199,7 @@ test "stockholm_conservation_all_gap_column" {
   assert_eq(cons[4], 0.0)
 }
 
+///|
 test "stockholm_to_fasta_basic" {
   let content = "# STOCKHOLM 1.0\n" +
     "#=GF AC   PF00001\n" +
@@ -201,6 +213,7 @@ test "stockholm_to_fasta_basic" {
   assert_true(fasta.contains("ACGTACGTAC"))
 }
 
+///|
 test "stockholm_to_fasta_no_duplicates" {
   let content = "# STOCKHOLM 1.0\n" +
     "seq1/1-10 ACGTACGTAC\n" +
@@ -212,6 +225,7 @@ test "stockholm_to_fasta_no_duplicates" {
   assert_true(fasta.contains(">seq1"))
 }
 
+///|
 test "stockholm_merge_blocks_basic" {
   let content = "# STOCKHOLM 1.0\n" +
     "seq1/1-10 ACGTACGTAC\n" +
@@ -225,6 +239,7 @@ test "stockholm_merge_blocks_basic" {
   assert_eq(merged.blocks[0].sequences.length(), 1)
 }
 
+///|
 test "stockholm_merge_blocks_sequence_concat" {
   let content = "# STOCKHOLM 1.0\n" +
     "seq1/1-5 ACGTG\n" +
@@ -237,6 +252,7 @@ test "stockholm_merge_blocks_sequence_concat" {
   assert_eq(seq.aligned_seq, "ACGTGTACGT")
 }
 
+///|
 test "stockholm_write_roundtrip" {
   let content = "# STOCKHOLM 1.0\n" +
     "#=GF ID   TestFamily\n" +
@@ -252,6 +268,7 @@ test "stockholm_write_roundtrip" {
   assert_true(output.contains("//"))
 }
 
+///|
 test "stockholm_write_contains_gf" {
   let content = "# STOCKHOLM 1.0\n" +
     "#=GF ID   TestFamily\n" +
@@ -264,16 +281,16 @@ test "stockholm_write_contains_gf" {
   assert_true(output.contains("#=GF AC"))
 }
 
+///|
 test "stockholm_sequence_without_range" {
-  let content = "# STOCKHOLM 1.0\n" +
-    "seq1 ACGTACGTAC\n" +
-    "//\n"
+  let content = "# STOCKHOLM 1.0\n" + "seq1 ACGTACGTAC\n" + "//\n"
   let ali = @src.stockholm_parse(content)
   assert_eq(ali.blocks[0].sequences.length(), 1)
   assert_eq(ali.blocks[0].sequences[0].name, "seq1")
   assert_eq(ali.blocks[0].sequences[0].start, 1)
 }
 
+///|
 test "stockholm_gap_handling" {
   let content = "# STOCKHOLM 1.0\n" +
     "seq1/1-10 ACGT--GTAC\n" +
@@ -284,6 +301,7 @@ test "stockholm_gap_handling" {
   assert_eq(ali.blocks[0].sequences[1].aligned_seq, "ACGTACGTAC")
 }
 
+///|
 test "stockholm_sample_content" {
   let content = @src.sample_stockholm_content()
   let ali = @src.stockholm_parse(content)
@@ -292,6 +310,7 @@ test "stockholm_sample_content" {
   assert_eq(ali.blocks[0].sequences.length(), 3)
 }
 
+///|
 test "stockholm_sample_alignment" {
   let ali = @src.sample_stockholm_alignment()
   assert_eq(ali.version, "1.0")
@@ -299,6 +318,7 @@ test "stockholm_sample_alignment" {
   assert_true(ali.blocks[0].secondary_structure.length() > 0)
 }
 
+///|
 test "stockholm_multiline_gf" {
   let content = "# STOCKHOLM 1.0\n" +
     "#=GF DE   This is a long description\n" +
@@ -309,6 +329,7 @@ test "stockholm_multiline_gf" {
   assert_true(ali.gf_annotations.keys().length() > 0)
 }
 
+///|
 test "stockholm_conservation_with_mixed_chars" {
   let content = "# STOCKHOLM 1.0\n" +
     "seq1/1-5 ACGTN\n" +
@@ -322,15 +343,15 @@ test "stockholm_conservation_with_mixed_chars" {
   assert_true(cons[4] >= 0.66)
 }
 
+///|
 test "stockholm_percent_identity_single_sequence" {
-  let content = "# STOCKHOLM 1.0\n" +
-    "seq1/1-10 ACGTACGTAC\n" +
-    "//\n"
+  let content = "# STOCKHOLM 1.0\n" + "seq1/1-10 ACGTACGTAC\n" + "//\n"
   let ali = @src.stockholm_parse(content)
   let pid = @src.stockholm_percent_identity(ali.blocks[0])
   assert_eq(pid, 0.0)
 }
 
+///|
 test "stockholm_to_fasta_empty_alignment" {
   let content = "# STOCKHOLM 1.0\n//\n"
   let ali = @src.stockholm_parse(content)
@@ -338,16 +359,16 @@ test "stockholm_to_fasta_empty_alignment" {
   assert_eq(fasta.length(), 0)
 }
 
+///|
 test "stockholm_merge_single_block" {
-  let content = "# STOCKHOLM 1.0\n" +
-    "seq1/1-10 ACGTACGTAC\n" +
-    "//\n"
+  let content = "# STOCKHOLM 1.0\n" + "seq1/1-10 ACGTACGTAC\n" + "//\n"
   let ali = @src.stockholm_parse(content)
   let merged = @src.stockholm_merge_blocks(ali)
   assert_eq(merged.blocks.length(), 1)
   assert_eq(merged.blocks[0].sequences.length(), 1)
 }
 
+///|
 test "stockholm_parse_with_comment_lines" {
   let content = "# STOCKHOLM 1.0\n" +
     "# Some comment\n" +
@@ -358,6 +379,7 @@ test "stockholm_parse_with_comment_lines" {
   assert_true(ali.markup.length() > 0)
 }
 
+///|
 test "stockholm_ss_cons_roundtrip" {
   let content = "# STOCKHOLM 1.0\n" +
     "#=GC SS_cons    ........((((...)))).....\n" +
@@ -369,15 +391,15 @@ test "stockholm_ss_cons_roundtrip" {
   assert_true(output.contains("........((((...))))....."))
 }
 
+///|
 test "stockholm_parse_range_with_dash" {
-  let content = "# STOCKHOLM 1.0\n" +
-    "seq1/1-100 ACGTACGT\n" +
-    "//\n"
+  let content = "# STOCKHOLM 1.0\n" + "seq1/1-100 ACGTACGT\n" + "//\n"
   let ali = @src.stockholm_parse(content)
   assert_eq(ali.blocks[0].sequences[0].start, 1)
   assert_eq(ali.blocks[0].sequences[0].end, 100)
 }
 
+///|
 test "stockholm_parse_accession_from_gf" {
   let content = "# STOCKHOLM 1.0\n" +
     "#=GF AC   PF12345.6\n" +

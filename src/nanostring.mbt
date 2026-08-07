@@ -52,12 +52,8 @@ fn ns_std(arr : Array[Double], mean : Double) -> Double {
 /// Lanczos approximation for ln(gamma(x)).
 fn ns_lgamma(x : Double) -> Double {
   let cof = [
-    76.18009172947146,
-    -86.50532032941677,
-    24.01409824083091,
-    -1.231739572450155,
-    0.001208650973866179,
-    -0.000005395239384953,
+    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
+    0.001208650973866179, -0.000005395239384953,
   ]
   let mut x1 = x
   let mut tmp = x1 + 5.5
@@ -196,18 +192,8 @@ fn ns_linear_regression(
   let intercept = (sum_y - slope * sum_x) / nd
   let ss_tot = sum_yy - sum_y * sum_y / nd
   let ss_res = sum_yy - intercept * sum_y - slope * sum_xy
-  let r_sq = if ss_tot == 0.0 {
-    0.0
-  } else {
-    1.0 - ss_res / ss_tot
-  }
-  let r_clamped = if r_sq < 0.0 {
-    0.0
-  } else if r_sq > 1.0 {
-    1.0
-  } else {
-    r_sq
-  }
+  let r_sq = if ss_tot == 0.0 { 0.0 } else { 1.0 - ss_res / ss_tot }
+  let r_clamped = if r_sq < 0.0 { 0.0 } else if r_sq > 1.0 { 1.0 } else { r_sq }
   (slope, intercept, r_clamped)
 }
 
@@ -318,9 +304,7 @@ pub struct NsNanostringData {
 
 ///|
 /// Construct an empty NsNanostringData with the given endogenous gene names.
-pub fn NsNanostringData::new(
-  gene_names : Array[String],
-) -> NsNanostringData {
+pub fn NsNanostringData::new(gene_names : Array[String]) -> NsNanostringData {
   NsNanostringData::{
     samples: Array::new(),
     gene_names,
@@ -381,12 +365,7 @@ pub fn NsNormResult::new(
   normalized_counts : Array[Double],
   method : String,
 ) -> NsNormResult {
-  NsNormResult::{
-    sample_id,
-    norm_factors,
-    normalized_counts,
-    method,
-  }
+  NsNormResult::{ sample_id, norm_factors, normalized_counts, method }
 }
 
 ///|
@@ -506,9 +485,7 @@ pub fn ns_log2_counts(counts : Array[Double]) -> Array[Double] {
 /// Positive-control normalization.
 /// Each sample is scaled so that the geometric mean of its positive controls
 /// matches the geometric mean of those means across all samples.
-pub fn ns_positive_control_norm(
-  data : NsNanostringData,
-) -> Array[NsNormResult] {
+pub fn ns_positive_control_norm(data : NsNanostringData) -> Array[NsNormResult] {
   let samples = data.samples()
   let n_genes = data.n_genes()
   let sample_geo_means : Array[Double] = Array::new()
@@ -524,11 +501,7 @@ pub fn ns_positive_control_norm(
   for i in 0..<samples.length() {
     let sample = samples[i]
     let gm = sample_geo_means[i]
-    let factor = if gm > 0.0 {
-      target / gm
-    } else {
-      1.0
-    }
+    let factor = if gm > 0.0 { target / gm } else { 1.0 }
     let norm_counts : Array[Double] = Array::new()
     let endo = sample.endogenous()
     for g in 0..<n_genes {
@@ -539,7 +512,12 @@ pub fn ns_positive_control_norm(
       }
     }
     results.push(
-      NsNormResult::new(sample.sample_id(), [factor], norm_counts, "positive_control"),
+      NsNormResult::new(
+        sample.sample_id(),
+        [factor],
+        norm_counts,
+        "positive_control",
+      ),
     )
   }
   results
@@ -549,9 +527,7 @@ pub fn ns_positive_control_norm(
 /// Negative-control normalization.
 /// A background threshold (mean + 2*SD of negative controls) is subtracted
 /// from every count; values falling at or below zero are floored to 0.5.
-pub fn ns_negative_control_norm(
-  data : NsNanostringData,
-) -> Array[NsNormResult] {
+pub fn ns_negative_control_norm(data : NsNanostringData) -> Array[NsNormResult] {
   let samples = data.samples()
   let n_genes = data.n_genes()
   let results : Array[NsNormResult] = Array::new()
@@ -589,9 +565,7 @@ pub fn ns_negative_control_norm(
 /// Housekeeping-gene normalization.
 /// Each sample is scaled so that the geometric mean of its housekeeping gene
 /// counts matches the geometric mean of those means across all samples.
-pub fn ns_housekeeping_norm(
-  data : NsNanostringData,
-) -> Array[NsNormResult] {
+pub fn ns_housekeeping_norm(data : NsNanostringData) -> Array[NsNormResult] {
   let samples = data.samples()
   let n_genes = data.n_genes()
   let sample_geo_means : Array[Double] = Array::new()
@@ -607,11 +581,7 @@ pub fn ns_housekeeping_norm(
   for i in 0..<samples.length() {
     let sample = samples[i]
     let gm = sample_geo_means[i]
-    let factor = if gm > 0.0 {
-      target / gm
-    } else {
-      1.0
-    }
+    let factor = if gm > 0.0 { target / gm } else { 1.0 }
     let norm_counts : Array[Double] = Array::new()
     let endo = sample.endogenous()
     for g in 0..<n_genes {
@@ -665,11 +635,7 @@ pub fn ns_content_norm(data : NsNanostringData) -> Array[NsNormResult] {
       1.0
     }
     let gm = hk_geo_means[i]
-    let hk_factor = if gm > 0.0 {
-      target / gm
-    } else {
-      1.0
-    }
+    let hk_factor = if gm > 0.0 { target / gm } else { 1.0 }
     let norm_counts : Array[Double] = Array::new()
     let pos_counts = pos_results[i].normalized_counts()
     for g in 0..<n_genes {
@@ -706,11 +672,7 @@ pub fn ns_imaging_qc(data : NsNanostringData, threshold : Int) -> Array[Bool] {
     for c in pos {
       total = total + c
     }
-    let avg = if pos.length() > 0 {
-      total / pos.length()
-    } else {
-      0
-    }
+    let avg = if pos.length() > 0 { total / pos.length() } else { 0 }
     results.push(avg >= threshold)
   }
   results
@@ -720,9 +682,7 @@ pub fn ns_imaging_qc(data : NsNanostringData, threshold : Int) -> Array[Bool] {
 /// Positive control linearity QC.
 /// Fits a linear model of log2(positive control counts) against log2 of the
 /// known dilution-series concentrations. Returns (r_squared, slope).
-pub fn ns_pos_linearity_qc(
-  data : NsNanostringData,
-) -> (Double, Double) {
+pub fn ns_pos_linearity_qc(data : NsNanostringData) -> (Double, Double) {
   // Standard NanoString positive control dilution series (fM).
   let concentrations = [128.0, 32.0, 8.0, 2.0, 0.5, 0.125]
   let log_conc : Array[Double] = Array::new()
@@ -799,10 +759,7 @@ pub fn ns_qc_summary(data : NsNanostringData) -> String {
 
 ///|
 /// Welch's two-sample t-test. Returns (t_statistic, p_value).
-pub fn ns_t_test(
-  g1 : Array[Double],
-  g2 : Array[Double],
-) -> (Double, Double) {
+pub fn ns_t_test(g1 : Array[Double], g2 : Array[Double]) -> (Double, Double) {
   let n1 = g1.length()
   let n2 = g2.length()
   if n1 < 2 || n2 < 2 {
@@ -824,19 +781,9 @@ pub fn ns_t_test(
   let num = (term1 + term2) * (term1 + term2)
   let den = term1 * term1 / (n1 - 1).to_double() +
     term2 * term2 / (n2 - 1).to_double()
-  let df = if den > 0.0 {
-    num / den
-  } else {
-    (n1 + n2 - 2).to_double()
-  }
+  let df = if den > 0.0 { num / den } else { (n1 + n2 - 2).to_double() }
   let p = 2.0 * (1.0 - ns_t_cdf(t.abs(), df))
-  let pc = if p < 0.0 {
-    0.0
-  } else if p > 1.0 {
-    1.0
-  } else {
-    p
-  }
+  let pc = if p < 0.0 { 0.0 } else if p > 1.0 { 1.0 } else { p }
   (t, pc)
 }
 
@@ -876,11 +823,7 @@ pub fn ns_bh_correct(p_values : Array[Double]) -> Array[Double] {
     if val < min_adj {
       min_adj = val
     }
-    adj[indices[i]] = if min_adj > 1.0 {
-      1.0
-    } else {
-      min_adj
-    }
+    adj[indices[i]] = if min_adj > 1.0 { 1.0 } else { min_adj }
     i = i - 1
   }
   adj
@@ -1009,26 +952,9 @@ pub fn ns_de_summary(results : Array[NsDeResult]) -> String {
 /// The first positive control indices double as housekeeping gene positions.
 pub fn ns_sample_data() -> NsNanostringData {
   let gene_names = [
-    "GENE01",
-    "GENE02",
-    "GENE03",
-    "GENE04",
-    "GENE05",
-    "GENE06",
-    "GENE07",
-    "GENE08",
-    "GENE09",
-    "GENE10",
-    "GENE11",
-    "GENE12",
-    "GENE13",
-    "GENE14",
-    "GENE15",
-    "GENE16",
-    "GENE17",
-    "GENE18",
-    "GENE19",
-    "GENE20",
+    "GENE01", "GENE02", "GENE03", "GENE04", "GENE05", "GENE06", "GENE07", "GENE08",
+    "GENE09", "GENE10", "GENE11", "GENE12", "GENE13", "GENE14", "GENE15", "GENE16",
+    "GENE17", "GENE18", "GENE19", "GENE20",
   ]
   let data = NsNanostringData::new(gene_names)
   let pos_indices = [20, 21, 22, 23, 24, 25]
@@ -1087,14 +1013,16 @@ pub fn ns_sample_data() -> NsNanostringData {
     for v in neg_control_profiles[s] {
       raw.push(v)
     }
-    data.add_sample(NsSample::new(
-      sample_ids[s],
-      raw,
-      pos_indices,
-      neg_indices,
-      hk_indices,
-      endo_indices,
-    ))
+    data.add_sample(
+      NsSample::new(
+        sample_ids[s],
+        raw,
+        pos_indices,
+        neg_indices,
+        hk_indices,
+        endo_indices,
+      ),
+    )
   }
   data
 }

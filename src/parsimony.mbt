@@ -24,7 +24,7 @@ pub struct ParsimonyMatrix {
 /// Create a parsimony cost matrix.
 pub fn ParsimonyMatrix::new(
   states : Array[String],
-  costs : Array[Array[Double]]
+  costs : Array[Array[Double]],
 ) -> ParsimonyMatrix {
   ParsimonyMatrix::{ states, costs }
 }
@@ -34,7 +34,7 @@ pub fn ParsimonyMatrix::new(
 pub fn parsimony_matrix_cost(
   matrix : ParsimonyMatrix,
   from_idx : Int,
-  to_idx : Int
+  to_idx : Int,
 ) -> Double {
   matrix.costs[from_idx][to_idx]
 }
@@ -71,7 +71,7 @@ pub fn parsimony_fitch_dna_matrix() -> ParsimonyMatrix {
 /// Transitions (A<->G, C<->T) cost 1, transversions cost 2.
 pub fn parsimony_sankoff_dna_matrix(
   transition_cost? : Double = 1.0,
-  transversion_cost? : Double = 2.0
+  transversion_cost? : Double = 2.0,
 ) -> ParsimonyMatrix {
   let states = ["A", "C", "G", "T"]
   let costs = [
@@ -92,7 +92,7 @@ pub fn parsimony_sankoff_dna_matrix(
 ///   - The total score is the sum of costs across all positions.
 pub fn fitch_parsimony_score(
   tree : Tree,
-  alignment : Map[String, String]
+  alignment : Map[String, String],
 ) -> Double {
   if alignment.size() == 0 {
     return -1.0
@@ -120,7 +120,7 @@ pub fn fitch_parsimony_score(
 fn fitch_score_position(
   clade : Clade,
   alignment : Map[String, String],
-  pos : Int
+  pos : Int,
 ) -> Double {
   let (states, score) = fitch_compute_states(clade, alignment, pos)
   ignore(states)
@@ -134,7 +134,7 @@ fn fitch_score_position(
 fn fitch_compute_states(
   clade : Clade,
   alignment : Map[String, String],
-  pos : Int
+  pos : Int,
 ) -> (Array[String], Double) {
   if clade.is_terminal() {
     let name = match clade.name {
@@ -158,7 +158,11 @@ fn fitch_compute_states(
     let mut first = true
     let mut ci = 0
     while ci < clade.clades.length() {
-      let (child_states, child_score) = fitch_compute_states(clade.clades[ci], alignment, pos)
+      let (child_states, child_score) = fitch_compute_states(
+        clade.clades[ci],
+        alignment,
+        pos,
+      )
       total_score = total_score + child_score
       if first {
         combined = child_states
@@ -180,7 +184,10 @@ fn fitch_compute_states(
 
 ///|
 /// Compute the intersection of two state sets.
-fn fitch_set_intersection(a : Array[String], b : Array[String]) -> Array[String] {
+fn fitch_set_intersection(
+  a : Array[String],
+  b : Array[String],
+) -> Array[String] {
   let result : Array[String] = Array::new()
   let mut i = 0
   while i < a.length() {
@@ -238,7 +245,7 @@ fn fitch_set_union(a : Array[String], b : Array[String]) -> Array[String] {
 pub fn sankoff_parsimony_score(
   tree : Tree,
   alignment : Map[String, String],
-  matrix : ParsimonyMatrix
+  matrix : ParsimonyMatrix,
 ) -> Double {
   if alignment.size() == 0 {
     return -1.0
@@ -255,7 +262,8 @@ pub fn sankoff_parsimony_score(
   let mut total_score = 0.0
   let mut pos = 0
   while pos < aln_len {
-    total_score = total_score + sankoff_score_position(tree.root, alignment, pos, matrix)
+    total_score = total_score +
+      sankoff_score_position(tree.root, alignment, pos, matrix)
     pos = pos + 1
   }
   total_score
@@ -267,7 +275,7 @@ fn sankoff_score_position(
   clade : Clade,
   alignment : Map[String, String],
   pos : Int,
-  matrix : ParsimonyMatrix
+  matrix : ParsimonyMatrix,
 ) -> Double {
   let scores = sankoff_compute_scores(clade, alignment, pos, matrix)
   let mut min_score = 1.0e30
@@ -278,7 +286,11 @@ fn sankoff_score_position(
     }
     i = i + 1
   }
-  if min_score >= 1.0e30 { 0.0 } else { min_score }
+  if min_score >= 1.0e30 {
+    0.0
+  } else {
+    min_score
+  }
 }
 
 ///|
@@ -288,7 +300,7 @@ fn sankoff_compute_scores(
   clade : Clade,
   alignment : Map[String, String],
   pos : Int,
-  matrix : ParsimonyMatrix
+  matrix : ParsimonyMatrix,
 ) -> Array[Double] {
   let n_states = matrix.states.length()
   if clade.is_terminal() {
@@ -341,7 +353,7 @@ fn sankoff_compute_scores(
 pub fn parsimony_get_score(
   tree : Tree,
   alignment : Map[String, String],
-  matrix? : ParsimonyMatrix? = None
+  matrix? : ParsimonyMatrix? = None,
 ) -> Double {
   match matrix {
     Some(m) => sankoff_parsimony_score(tree, alignment, m)

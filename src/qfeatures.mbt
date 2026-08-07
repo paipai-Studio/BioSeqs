@@ -237,7 +237,9 @@ pub fn QfAssay::col_sums(self : QfAssay) -> Array[Double] {
 /// String representation of the assay.
 pub fn QfAssay::to_string(self : QfAssay) -> String {
   let buf = StringBuilder::new()
-  buf.write_string("QfAssay '\{self.name}': \{self.n_rows} rows x \{self.n_cols} cols")
+  buf.write_string(
+    "QfAssay '\{self.name}': \{self.n_rows} rows x \{self.n_cols} cols",
+  )
   if self.n_rows > 0 && self.n_cols > 0 {
     buf.write_string("\n  data[0][0] = \{self.data[0][0]}")
   }
@@ -295,7 +297,10 @@ pub fn QfFeatureLinks::new() -> QfFeatureLinks {
 
 ///|
 /// Add a link to the collection.
-pub fn QfFeatureLinks::add_link(self : QfFeatureLinks, link : QfFeatureLink) -> Unit {
+pub fn QfFeatureLinks::add_link(
+  self : QfFeatureLinks,
+  link : QfFeatureLink,
+) -> Unit {
   self.links.push(link)
 }
 
@@ -344,11 +349,7 @@ pub fn QfFeatureLinks::get_links_to(
 ///|
 /// Construct an empty QFeatures.
 pub fn QFeatures::new() -> QFeatures {
-  QFeatures::{
-    assays: Array::new(),
-    links: QfFeatureLinks::new(),
-    n_assays: 0,
-  }
+  QFeatures::{ assays: Array::new(), links: QfFeatureLinks::new(), n_assays: 0 }
 }
 
 ///|
@@ -406,7 +407,9 @@ pub fn QFeatures::add_link(
   to_assay : String,
   to_row : Int,
 ) -> Unit {
-  self.links.add_link(QfFeatureLink::new(from_assay, from_row, to_assay, to_row))
+  self.links.add_link(
+    QfFeatureLink::new(from_assay, from_row, to_assay, to_row),
+  )
 }
 
 ///|
@@ -437,10 +440,12 @@ pub fn qf_is_na(val : Double) -> Bool {
   val != val
 }
 
+///|
 fn qf_infinity() -> Double {
   1.7976931348623157e+308
 }
 
+///|
 /// Compute the median of an array (sorts a copy, does not modify input).
 fn qf_median(values : Array[Double]) -> Double {
   let n = values.length()
@@ -452,7 +457,13 @@ fn qf_median(values : Array[Double]) -> Double {
     sorted.push(v)
   }
   sorted.sort_by(fn(a : Double, b : Double) -> Int {
-    if a < b { -1 } else if a > b { 1 } else { 0 }
+    if a < b {
+      -1
+    } else if a > b {
+      1
+    } else {
+      0
+    }
   })
   let mid = n / 2
   if n % 2 == 0 {
@@ -462,6 +473,7 @@ fn qf_median(values : Array[Double]) -> Double {
   }
 }
 
+///|
 /// Aggregate a list of values using the specified method (skipping NaN).
 fn qf_aggregate_values(values : Array[Double], method : String) -> Double {
   let clean : Array[Double] = Array::new()
@@ -508,6 +520,7 @@ fn qf_aggregate_values(values : Array[Double], method : String) -> Double {
   }
 }
 
+///|
 /// Euclidean distance between two rows on shared non-NaN columns.
 fn qf_row_distance(a : Array[Double], b : Array[Double]) -> Double {
   let n = a.length()
@@ -527,6 +540,7 @@ fn qf_row_distance(a : Array[Double], b : Array[Double]) -> Double {
   }
 }
 
+///|
 /// Deep-copy a data matrix.
 fn qf_copy_matrix(data : Array[Array[Double]]) -> Array[Array[Double]] {
   let nr = data.length()
@@ -822,12 +836,9 @@ pub fn qf_filter_features(
       }
     }
     if keep_link {
-      new_links.add_link(QfFeatureLink::new(
-        l.from_assay,
-        new_from_row,
-        l.to_assay,
-        new_to_row,
-      ))
+      new_links.add_link(
+        QfFeatureLink::new(l.from_assay, new_from_row, l.to_assay, new_to_row),
+      )
     }
   }
   QFeatures::{
@@ -901,11 +912,7 @@ pub fn qf_filter_na(
         na_count = na_count + 1
       }
     }
-    let frac = if nc > 0 {
-      na_count.to_double() / nc.to_double()
-    } else {
-      0.0
-    }
+    let frac = if nc > 0 { na_count.to_double() / nc.to_double() } else { 0.0 }
     if frac <= max_na_frac {
       keep_rows.push(i)
     }
@@ -961,7 +968,13 @@ pub fn qf_normalize_quantiles(assay : QfAssay) -> QfAssay {
   for j in 0..<nc {
     let col = assay.get_col(j)
     col.sort_by(fn(a : Double, b : Double) -> Int {
-      if a < b { -1 } else if a > b { 1 } else { 0 }
+      if a < b {
+        -1
+      } else if a > b {
+        1
+      } else {
+        0
+      }
     })
     sorted_cols.push(col)
   }
@@ -986,7 +999,13 @@ pub fn qf_normalize_quantiles(assay : QfAssay) -> QfAssay {
       pairs.push((i, assay.data[i][j]))
     }
     pairs.sort_by(fn(a : (Int, Double), b : (Int, Double)) -> Int {
-      if a.1 < b.1 { -1 } else if a.1 > b.1 { 1 } else { 0 }
+      if a.1 < b.1 {
+        -1
+      } else if a.1 > b.1 {
+        1
+      } else {
+        0
+      }
     })
     for rank in 0..<nr {
       let orig_idx = pairs[rank].0
@@ -1038,11 +1057,7 @@ pub fn qf_normalize_center_scale(
         }
       }
     }
-    let std = if c > 1 {
-      (ss / (c - 1).to_double()).sqrt()
-    } else {
-      1.0
-    }
+    let std = if c > 1 { (ss / (c - 1).to_double()).sqrt() } else { 1.0 }
     let denom = if scale && std > 0.0 { std } else { 1.0 }
     for i in 0..<nr {
       let v = assay.data[i][j]
@@ -1132,7 +1147,13 @@ pub fn qf_impute_knn(assay : QfAssay, k : Int) -> QfAssay {
     }
     // Sort by distance (ascending).
     pairs.sort_by(fn(a : (Int, Double), b : (Int, Double)) -> Int {
-      if a.1 < b.1 { -1 } else if a.1 > b.1 { 1 } else { 0 }
+      if a.1 < b.1 {
+        -1
+      } else if a.1 > b.1 {
+        1
+      } else {
+        0
+      }
     })
     let actual_k = if k < pairs.length() { k } else { pairs.length() }
     // Impute each NaN position.
@@ -1283,7 +1304,9 @@ pub fn qf_summary(qf : QFeatures) -> String {
 pub fn qf_assay_summary(assay : QfAssay) -> String {
   let buf = StringBuilder::new()
   buf.write_string("QfAssay Summary: '\{assay.name}'\n")
-  buf.write_string("  Dimensions: \{assay.n_rows} rows x \{assay.n_cols} cols\n")
+  buf.write_string(
+    "  Dimensions: \{assay.n_rows} rows x \{assay.n_cols} cols\n",
+  )
   // Collect non-NaN values for statistics.
   let all_vals : Array[Double] = Array::new()
   for i in 0..<assay.n_rows {

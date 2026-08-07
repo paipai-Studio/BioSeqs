@@ -58,7 +58,15 @@ test "watterson_theta_small_sample" {
 test "watterson_a1" {
   let a1 = @src.watterson_a1(10)
   // a1 = sum(1/i) for i=1..9 = 1 + 1/2 + 1/3 + ... + 1/9
-  let expected = 1.0 + 0.5 + 0.3333333 + 0.25 + 0.2 + 0.1666667 + 0.1428571 + 0.125 + 0.1111111
+  let expected = 1.0 +
+    0.5 +
+    0.3333333 +
+    0.25 +
+    0.2 +
+    0.1666667 +
+    0.1428571 +
+    0.125 +
+    0.1111111
   assert_true((a1 - expected).abs() < 0.01)
 }
 
@@ -176,16 +184,16 @@ test "mktest_zero_values" {
 test "mktest_from_sites" {
   let poly_sites : Array[@src.PolymorphicSite] = Array::new()
   let fixed_sites : Array[@src.PolymorphicSite] = Array::new()
-  
+
   // Add polymorphic sites
-  poly_sites.push(@src.new_polymorphic_site(100, 2, 20, true))  // nonsynonymous
+  poly_sites.push(@src.new_polymorphic_site(100, 2, 20, true)) // nonsynonymous
   poly_sites.push(@src.new_polymorphic_site(200, 3, 20, false)) // synonymous
-  poly_sites.push(@src.new_polymorphic_site(300, 1, 20, true))  // nonsynonymous
-  
+  poly_sites.push(@src.new_polymorphic_site(300, 1, 20, true)) // nonsynonymous
+
   // Add fixed sites
-  fixed_sites.push(@src.new_polymorphic_site(400, 20, 20, true))  // nonsynonymous
+  fixed_sites.push(@src.new_polymorphic_site(400, 20, 20, true)) // nonsynonymous
   fixed_sites.push(@src.new_polymorphic_site(500, 20, 20, false)) // synonymous
-  
+
   let result = @src.mktest_from_sites(poly_sites, fixed_sites)
   assert_eq(result.p_nonsyn, 2)
   assert_eq(result.p_syn, 1)
@@ -201,7 +209,7 @@ test "afs_calculate" {
   sites.push(@src.new_singleton(200, 20, true))
   sites.push(@src.new_doubleton(300, 20, false))
   sites.push(@src.new_polymorphic_site(400, 5, 20, false))
-  
+
   let afs = @src.calculate_afs(sites, 20)
   assert_eq(afs.singletons, 2)
   assert_eq(afs.doubletons, 1)
@@ -224,7 +232,7 @@ test "tajima_d_from_afs" {
   sites.push(@src.new_singleton(100, 20, false))
   sites.push(@src.new_singleton(200, 20, false))
   sites.push(@src.new_doubleton(300, 20, false))
-  
+
   let afs = @src.calculate_afs(sites, 20)
   let result = @src.tajima_d_from_afs(afs, 1000)
   assert_eq(result.test_name, "Tajima's D")
@@ -237,7 +245,7 @@ test "fu_li_d_from_afs" {
   let sites : Array[@src.PolymorphicSite] = Array::new()
   sites.push(@src.new_singleton(100, 20, false))
   sites.push(@src.new_doubleton(200, 20, false))
-  
+
   let afs = @src.calculate_afs(sites, 20)
   let result = @src.fu_li_d_from_afs(afs)
   assert_eq(result.test_name, "Fu & Li's D")
@@ -248,10 +256,10 @@ test "fu_li_d_from_afs" {
 test "normal_cdf" {
   let p0 = @src.popgen_normal_cdf(0.0)
   assert_true((p0 - 0.5).abs() < 0.01)
-  
+
   let p1 = @src.popgen_normal_cdf(1.96)
   assert_true(p1 > 0.96 && p1 < 0.98)
-  
+
   let p_neg1 = @src.popgen_normal_cdf(-1.96)
   assert_true(p_neg1 > 0.02 && p_neg1 < 0.04)
 }
@@ -270,7 +278,7 @@ test "neutrality_analysis" {
   for i = 1; i < 3; i = i + 1 {
     sites.push(@src.new_polymorphic_site(1000 + i * 100, 5, 30, i == 1))
   }
-  
+
   let result = @src.run_neutrality_analysis(sites, 30, 10000)
   assert_true(!result.tajima_d.statistic.is_nan())
   assert_true(!result.fu_li_d.statistic.is_nan())
@@ -296,7 +304,7 @@ test "neutrality_analysis_to_string" {
   sites.push(@src.new_singleton(100, 20, false))
   sites.push(@src.new_singleton(200, 20, true))
   sites.push(@src.new_doubleton(300, 20, false))
-  
+
   let result = @src.run_neutrality_analysis(sites, 20, 5000)
   let output = @src.neutrality_analysis_to_string(result)
   assert_true(output.contains("Neutrality Analysis Results"))
@@ -353,7 +361,7 @@ test "multiple_singletons" {
   for i = 1; i < 15; i = i + 1 {
     sites.push(@src.new_singleton(i * 50, 25, i % 3 == 0))
   }
-  
+
   let afs = @src.calculate_afs(sites, 25)
   assert_eq(afs.singletons, 14)
   assert_eq(afs.segregating_sites, 14)
@@ -367,7 +375,7 @@ test "high_freq_variants" {
   sites.push(@src.new_polymorphic_site(100, 24, 25, false))
   sites.push(@src.new_polymorphic_site(200, 23, 25, true))
   sites.push(@src.new_polymorphic_site(300, 22, 25, false))
-  
+
   let afs = @src.calculate_afs(sites, 25)
   assert_eq(afs.singletons, 0) // No singletons
 }

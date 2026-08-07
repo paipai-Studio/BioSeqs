@@ -11,7 +11,9 @@ test "Reaction_new" {
   reactants.push("glucose")
   let products : Array[String] = Array::new()
   products.push("g6p")
-  let reaction = @src.Reaction::new("r1", "Hexokinase", reactants, products, false)
+  let reaction = @src.Reaction::new(
+    "r1", "Hexokinase", reactants, products, false,
+  )
   assert_eq(reaction.id, "r1")
   assert_eq(reaction.name, "Hexokinase")
   assert_eq(reaction.reactants.length(), 1)
@@ -23,14 +25,16 @@ test "Reaction_new" {
 test "Pathway_new" {
   let species : Array[@src.Species] = Array::new()
   species.push(@src.Species::new("glucose", "Glucose"))
-  
+
   let reactants : Array[String] = Array::new()
   reactants.push("glucose")
   let products : Array[String] = Array::new()
   products.push("g6p")
   let reactions : Array[@src.Reaction] = Array::new()
-  reactions.push(@src.Reaction::new("r1", "Hexokinase", reactants, products, false))
-  
+  reactions.push(
+    @src.Reaction::new("r1", "Hexokinase", reactants, products, false),
+  )
+
   let pathway = @src.Pathway::new("test", "Test Pathway", species, reactions)
   assert_eq(pathway.id, "test")
   assert_eq(pathway.name, "Test Pathway")

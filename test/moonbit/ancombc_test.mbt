@@ -356,8 +356,16 @@ test "ancombc_sample_data_counts_positive" {
 test "ancombc_sample_data_differential_pattern" {
   let data = @src.ancombc_sample_data()
   // Feature 0 (Bacteroides): control ~120, treatment ~250
-  let ctrl_mean = (data.get_count(0, 0) + data.get_count(0, 1) + data.get_count(0, 2) + data.get_count(0, 3)).to_double() / 4.0
-  let trt_mean = (data.get_count(0, 4) + data.get_count(0, 5) + data.get_count(0, 6) + data.get_count(0, 7)).to_double() / 4.0
+  let ctrl_mean = (data.get_count(0, 0) +
+    data.get_count(0, 1) +
+    data.get_count(0, 2) +
+    data.get_count(0, 3)).to_double() /
+    4.0
+  let trt_mean = (data.get_count(0, 4) +
+    data.get_count(0, 5) +
+    data.get_count(0, 6) +
+    data.get_count(0, 7)).to_double() /
+    4.0
   assert_true(trt_mean > ctrl_mean)
 }
 

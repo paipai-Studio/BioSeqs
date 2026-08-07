@@ -14,6 +14,7 @@
 // Kyte-Doolittle Hydrophobicity Scale
 // ============================================================================
 
+///|
 fn protein_get_kd(c : Char) -> Double {
   match c {
     'A' => 1.8
@@ -50,12 +51,14 @@ fn protein_get_kd(c : Char) -> Double {
 //   - P_turn: probability of being in turn/coil
 // ============================================================================
 
+///|
 struct GorParams {
   pa : Double
   pb : Double
   pt : Double
 }
 
+///|
 fn protein_get_gor(c : Char) -> GorParams {
   match c {
     'A' => GorParams::{ pa: 1.42, pb: 0.83, pt: 0.66 }
@@ -86,12 +89,14 @@ fn protein_get_gor(c : Char) -> GorParams {
 // TM Scale (transmembrane propensity)
 // ============================================================================
 
+///|
 struct TmParams {
   inside : Double
   outside : Double
   tm : Double
 }
 
+///|
 fn protein_get_tm(c : Char) -> TmParams {
   match c {
     'A' => TmParams::{ inside: 1.1, outside: 0.56, tm: 1.32 }
@@ -122,6 +127,7 @@ fn protein_get_tm(c : Char) -> TmParams {
 // Shannon Entropy for Conservation
 // ============================================================================
 
+///|
 fn protein_shannon_entropy(freqs : Array[Double]) -> Double {
   let mut h = 0.0
   let mut i = 0
@@ -139,10 +145,16 @@ fn protein_shannon_entropy(freqs : Array[Double]) -> Double {
 // Amino Acid Frequency at Position
 // ============================================================================
 
-fn protein_aa_frequency_at(alignment : Array[String], pos : Int) -> Array[Double] {
+///|
+fn protein_aa_frequency_at(
+  alignment : Array[String],
+  pos : Int,
+) -> Array[Double] {
   let freqs : Array[Double] = Array::new()
   let n = alignment.length().to_double()
-  if n == 0.0 { return freqs }
+  if n == 0.0 {
+    return freqs
+  }
   let aa_map = Map([], capacity=26)
   let mut i = 0
   while i < alignment.length() {
@@ -181,7 +193,9 @@ fn protein_aa_frequency_at(alignment : Array[String], pos : Int) -> Array[Double
 /// Calculate per-position conservation score from a multiple sequence alignment.
 /// Returns scores from 0 (no conservation) to 1 (perfect conservation).
 pub fn protein_conservation(alignment : Array[String]) -> Array[Double] {
-  if alignment.length() == 0 { return [] }
+  if alignment.length() == 0 {
+    return []
+  }
   let aln_len = alignment[0].length()
   let alphabet_size = 20.0
   let conservation : Array[Double] = Array::new()
@@ -199,11 +213,16 @@ pub fn protein_conservation(alignment : Array[String]) -> Array[Double] {
 ///|
 /// Calculate Kyte-Doolittle hydropathy values for a protein sequence.
 /// Returns array of hydropathy values averaged over a sliding window.
-pub fn protein_hydropathy(sequence : String, window? : Int = 7) -> Array[Double] {
+pub fn protein_hydropathy(
+  sequence : String,
+  window? : Int = 7,
+) -> Array[Double] {
   let seq = sequence.to_upper()
   let w = if window <= 0 { 7 } else { window }
   let result : Array[Double] = Array::new()
-  if seq.length() < w { return result }
+  if seq.length() < w {
+    return result
+  }
   let mut i = 0
   while i <= seq.length() - w {
     let mut sum = 0.0
@@ -285,11 +304,17 @@ pub fn protein_antigenicity(sequence : String) -> Array[Double] {
 ///|
 /// Predict transmembrane domains using the TM scale.
 /// Returns array of scores: positive = transmembrane, negative = inside/outside.
-pub fn protein_transmembrane(sequence : String, window? : Int = 19, threshold? : Double = 1.6) -> Array[Double] {
+pub fn protein_transmembrane(
+  sequence : String,
+  window? : Int = 19,
+  threshold? : Double = 1.6,
+) -> Array[Double] {
   let seq = sequence.to_upper()
   let w = if window <= 0 { 19 } else { window }
   let result : Array[Double] = Array::new()
-  if seq.length() < w { return result }
+  if seq.length() < w {
+    return result
+  }
   let mut i = 0
   while i <= seq.length() - w {
     let mut sum = 0.0
@@ -339,7 +364,9 @@ pub fn protein_dipeptide_composition(sequence : String) -> Map[String, Double] {
   let seq = sequence.to_upper()
   let n = (seq.length() - 1).to_double()
   let comp = Map([], capacity=400)
-  if seq.length() < 2 { return comp }
+  if seq.length() < 2 {
+    return comp
+  }
   let mut i = 0
   while i < seq.length() - 1 {
     let di = seq[i:i + 2].to_owned()
@@ -359,7 +386,9 @@ pub fn protein_tripeptide_composition(sequence : String) -> Map[String, Double] 
   let seq = sequence.to_upper()
   let n = (seq.length() - 2).to_double()
   let comp = Map([], capacity=8000)
-  if seq.length() < 3 { return comp }
+  if seq.length() < 3 {
+    return comp
+  }
   let mut i = 0
   while i < seq.length() - 2 {
     let tri = seq[i:i + 3].to_owned()
@@ -388,9 +417,7 @@ pub fn protein_summary(sequence : String) -> String {
     sorted_keys.push(keys[ki])
     ki = ki + 1
   }
-  sorted_keys.sort_by(fn(a : Char, b : Char) -> Int {
-    a.to_int() - b.to_int()
-  })
+  sorted_keys.sort_by(fn(a : Char, b : Char) -> Int { a.to_int() - b.to_int() })
   out = out + "\nAmino Acid Composition:\n"
   let mut si = 0
   while si < sorted_keys.length() {
@@ -406,16 +433,25 @@ pub fn protein_summary(sequence : String) -> String {
     total_hydro = total_hydro + hydro[hi]
     hi = hi + 1
   }
-  let avg_hydro = if hydro.length() > 0 { total_hydro / hydro.length().to_double() } else { 0.0 }
+  let avg_hydro = if hydro.length() > 0 {
+    total_hydro / hydro.length().to_double()
+  } else {
+    0.0
+  }
   out = out + "\nAverage Hydropathy (window=7): " + avg_hydro.to_string() + "\n"
   let tm = protein_transmembrane(seq, window=19)
   let mut has_tm = false
   let mut ti = 0
   while ti < tm.length() {
-    if tm[ti] > 1.6 { has_tm = true }
+    if tm[ti] > 1.6 {
+      has_tm = true
+    }
     ti = ti + 1
   }
-  out = out + "Transmembrane domain detected: " + (if has_tm { "Yes" } else { "No" }) + "\n"
+  out = out +
+    "Transmembrane domain detected: " +
+    (if has_tm { "Yes" } else { "No" }) +
+    "\n"
   let ss = protein_secondary_structure(seq)
   let mut h_count = 0
   let mut e_count = 0
@@ -433,9 +469,21 @@ pub fn protein_summary(sequence : String) -> String {
   }
   let total = seq.length().to_double()
   out = out + "\nSecondary Structure Prediction (GOR):\n"
-  out = out + "  Helix (H): " + (h_count.to_double() / total * 100.0).to_string() + "%\n"
-  out = out + "  Sheet (E): " + (e_count.to_double() / total * 100.0).to_string() + "%\n"
-  out = out + "  Turn (T): " + (t_count.to_double() / total * 100.0).to_string() + "%\n"
-  out = out + "  Coil (C): " + (c_count.to_double() / total * 100.0).to_string() + "%\n"
+  out = out +
+    "  Helix (H): " +
+    (h_count.to_double() / total * 100.0).to_string() +
+    "%\n"
+  out = out +
+    "  Sheet (E): " +
+    (e_count.to_double() / total * 100.0).to_string() +
+    "%\n"
+  out = out +
+    "  Turn (T): " +
+    (t_count.to_double() / total * 100.0).to_string() +
+    "%\n"
+  out = out +
+    "  Coil (C): " +
+    (c_count.to_double() / total * 100.0).to_string() +
+    "%\n"
   out
 }

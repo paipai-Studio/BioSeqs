@@ -30,7 +30,7 @@ test "csaw_dataset_create" {
   let counts = [10.0, 20.0, 30.0]
   let windows = [
     @src.CswWindow::new("w1", "chr1", 1000, 2000, counts),
-    @src.CswWindow::new("w2", "chr1", 3000, 4000, [50.0, 60.0, 70.0])
+    @src.CswWindow::new("w2", "chr1", 3000, 4000, [50.0, 60.0, 70.0]),
   ]
   let samples = ["s1", "s2", "s3"]
   let lib_sizes = [1000.0, 2000.0, 3000.0]
@@ -52,7 +52,7 @@ test "csaw_norm_library" {
 test "csaw_norm_tmm" {
   let windows = [
     @src.CswWindow::new("w1", "chr1", 1000, 2000, [100.0, 200.0, 3000.0]),
-    @src.CswWindow::new("w2", "chr1", 3000, 4000, [150.0, 250.0, 350.0])
+    @src.CswWindow::new("w2", "chr1", 3000, 4000, [150.0, 250.0, 350.0]),
   ]
   let samples = ["s1", "s2", "s3"]
   let lib_sizes = [1000.0, 2000.0, 3000.0]
@@ -65,7 +65,7 @@ test "csaw_norm_tmm" {
 test "csaw_filter_abundance" {
   let windows = [
     @src.CswWindow::new("w1", "chr1", 1000, 2000, [100.0, 200.0]),
-    @src.CswWindow::new("w2", "chr1", 3000, 4000, [5.0, 3.0])
+    @src.CswWindow::new("w2", "chr1", 3000, 4000, [5.0, 3.0]),
   ]
   let samples = ["s1", "s2"]
   let lib_sizes = [1000.0, 2000.0]
@@ -78,7 +78,7 @@ test "csaw_filter_abundance" {
 test "csaw_test_differential" {
   let windows = [
     @src.CswWindow::new("w1", "chr1", 1000, 2000, [50.0, 100.0, 200.0, 250.0]),
-    @src.CswWindow::new("w2", "chr1", 3000, 4000, [80.0, 120.0, 180.0, 220.0])
+    @src.CswWindow::new("w2", "chr1", 3000, 4000, [80.0, 120.0, 180.0, 220.0]),
   ]
   let samples = ["s1", "s2", "s3", "s4"]
   let lib_sizes = [1000.0, 2000.0, 3000.0, 4000.0]
@@ -94,7 +94,7 @@ test "csaw_test_differential" {
 test "csaw_find_regions" {
   let windows = [
     @src.CswWindow::new("w1", "chr1", 1000, 2000, [500.0, 100.0, 200.0, 250.0]),
-    @src.CswWindow::new("w2", "chr1", 3000, 4000, [80.0, 120.0, 180.0, 220.0])
+    @src.CswWindow::new("w2", "chr1", 3000, 4000, [80.0, 120.0, 180.0, 220.0]),
   ]
   let samples = ["s1", "s2", "s3", "s4"]
   let lib_sizes = [1000.0, 2000.0, 3000.0, 4000.0]

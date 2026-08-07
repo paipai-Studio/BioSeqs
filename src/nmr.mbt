@@ -152,12 +152,12 @@ pub fn parse_noe_restraints(text : String) -> Array[NoeRestraint] {
     restraints.push(
       NoeRestraint::new(
         restraint_id=id,
-        atom1=atom1,
-        atom2=atom2,
+        atom1~,
+        atom2~,
         lower_bound=lower,
         upper_bound=upper,
-        observed=observed,
-        energy=energy,
+        observed~,
+        energy~,
       ),
     )
   }
@@ -193,7 +193,7 @@ pub fn format_noe_restraints(restraints : Array[NoeRestraint]) -> String {
 ///|
 /// Summarize NOE restraint statistics: count, number violated, max violation.
 pub fn noe_restraint_summary(
-  restraints : Array[NoeRestraint]
+  restraints : Array[NoeRestraint],
 ) -> NmrRestraintSummary {
   let total = restraints.length()
   let mut violated = 0
@@ -316,8 +316,8 @@ pub fn parse_dihedral_restraints(text : String) -> Array[DihedralRestraint] {
         residue=res,
         lower_bound=lower,
         upper_bound=upper,
-        observed=observed,
-        energy=energy,
+        observed~,
+        energy~,
       ),
     )
   }
@@ -361,9 +361,9 @@ pub struct ChemicalShiftTable {
 ///|
 /// Construct a ChemicalShiftTable.
 pub fn ChemicalShiftTable::new(
-  shifts~ : Array[ChemicalShift]
+  shifts~ : Array[ChemicalShift],
 ) -> ChemicalShiftTable {
-  ChemicalShiftTable::{ shifts }
+  ChemicalShiftTable::{ shifts, }
 }
 
 ///|
@@ -461,7 +461,7 @@ pub fn parse_chemical_shifts(text : String) -> ChemicalShiftTable {
     }
     shifts.push(
       ChemicalShift::new(
-        id=id,
+        id~,
         residue=res,
         atom_name=atom,
         element=elem,
@@ -470,7 +470,7 @@ pub fn parse_chemical_shifts(text : String) -> ChemicalShiftTable {
       ),
     )
   }
-  ChemicalShiftTable::new(shifts=shifts)
+  ChemicalShiftTable::new(shifts~)
 }
 
 ///|
@@ -527,14 +527,7 @@ pub fn NmrPeak::new(
   volume~ : Double?,
   merity~ : Double?,
 ) -> NmrPeak {
-  NmrPeak::{
-    peak_id,
-    dimensions,
-    chemical_shifts,
-    intensities,
-    volume,
-    merity,
-  }
+  NmrPeak::{ peak_id, dimensions, chemical_shifts, intensities, volume, merity }
 }
 
 ///|
@@ -661,7 +654,8 @@ pub fn parse_peak_list(text : String) -> PeakList {
       }
       continue
     }
-    if fields[0] == "id" || (fields[0].length() >= 2 && fields[0][0:2].to_owned() == "id") {
+    if fields[0] == "id" ||
+      (fields[0].length() >= 2 && fields[0][0:2].to_owned() == "id") {
       // Header row describing columns; count dimension groups.
       // Skip detection: leave n_dim to be inferred from data.
       continue
@@ -714,15 +708,15 @@ pub fn parse_peak_list(text : String) -> PeakList {
     peaks.push(
       NmrPeak::new(
         peak_id=id,
-        dimensions=dimensions,
+        dimensions~,
         chemical_shifts=shifts,
-        intensities=intensities,
-        volume=volume,
+        intensities~,
+        volume~,
         merity=merit,
       ),
     )
   }
-  PeakList::new(label=label, peaks=peaks, n_dim=n_dim)
+  PeakList::new(label~, peaks~, n_dim~)
 }
 
 ///|
@@ -867,36 +861,32 @@ pub fn nmr_sample_chemical_shifts() -> ChemicalShiftTable {
 ///|
 /// Sample peak list (2D HSQC) for testing/demos.
 pub fn nmr_sample_peak_list() -> PeakList {
-  PeakList::new(
-    label="15N-HSQC",
-    n_dim=2,
-    peaks=[
-      NmrPeak::new(
-        peak_id=1,
-        dimensions=["15.HN", "15.N"],
-        chemical_shifts=[8.34, 118.5],
-        intensities=[1.0e6, 1.0e6],
-        volume=Some(2.3e6),
-        merity=Some(0.95),
-      ),
-      NmrPeak::new(
-        peak_id=2,
-        dimensions=["16.HN", "16.N"],
-        chemical_shifts=[8.21, 121.0],
-        intensities=[8.0e5, 8.0e5],
-        volume=Some(1.7e6),
-        merity=Some(0.91),
-      ),
-      NmrPeak::new(
-        peak_id=3,
-        dimensions=["20.HN", "20.N"],
-        chemical_shifts=[7.95, 110.2],
-        intensities=[1.2e6, 1.2e6],
-        volume=Some(2.8e6),
-        merity=Some(0.98),
-      ),
-    ],
-  )
+  PeakList::new(label="15N-HSQC", n_dim=2, peaks=[
+    NmrPeak::new(
+      peak_id=1,
+      dimensions=["15.HN", "15.N"],
+      chemical_shifts=[8.34, 118.5],
+      intensities=[1.0e6, 1.0e6],
+      volume=Some(2.3e6),
+      merity=Some(0.95),
+    ),
+    NmrPeak::new(
+      peak_id=2,
+      dimensions=["16.HN", "16.N"],
+      chemical_shifts=[8.21, 121.0],
+      intensities=[8.0e5, 8.0e5],
+      volume=Some(1.7e6),
+      merity=Some(0.91),
+    ),
+    NmrPeak::new(
+      peak_id=3,
+      dimensions=["20.HN", "20.N"],
+      chemical_shifts=[7.95, 110.2],
+      intensities=[1.2e6, 1.2e6],
+      volume=Some(2.8e6),
+      merity=Some(0.98),
+    ),
+  ])
 }
 
 ///|
@@ -946,7 +936,8 @@ fn nmr_split_lines(text : String) -> Array[String] {
     let c = text[i:i + 1].to_owned()
     if c == "\n" {
       // Strip trailing \r if present.
-      if cur.length() > 0 && cur[cur.length() - 1:cur.length()].to_owned() == "\r" {
+      if cur.length() > 0 &&
+        cur[cur.length() - 1:cur.length()].to_owned() == "\r" {
         cur = cur[0:cur.length() - 1].to_owned()
       }
       out.push(cur)

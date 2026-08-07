@@ -39,7 +39,7 @@ pub fn Primer3Config::new(
   max_self_complement : Int,
   max_cross_complement : Int,
   salt_conc : Double,
-  flank : Int
+  flank : Int,
 ) -> Primer3Config {
   Primer3Config::{
     primer_length_min,
@@ -51,7 +51,7 @@ pub fn Primer3Config::new(
     max_self_complement,
     max_cross_complement,
     salt_conc,
-    flank
+    flank,
   }
 }
 
@@ -100,17 +100,13 @@ pub fn Primer3Config::gc_max(self : Primer3Config) -> Double {
 
 ///|
 /// Maximum allowed self-complementarity score.
-pub fn Primer3Config::max_self_complement(
-  self : Primer3Config
-) -> Int {
+pub fn Primer3Config::max_self_complement(self : Primer3Config) -> Int {
   self.max_self_complement
 }
 
 ///|
 /// Maximum allowed cross-complementarity score.
-pub fn Primer3Config::max_cross_complement(
-  self : Primer3Config
-) -> Int {
+pub fn Primer3Config::max_cross_complement(self : Primer3Config) -> Int {
   self.max_cross_complement
 }
 
@@ -153,7 +149,7 @@ pub fn Primer3Result::new(
   gc : Double,
   self_complement : Int,
   is_forward : Bool,
-  score : Double
+  score : Double,
 ) -> Primer3Result {
   Primer3Result::{
     sequence,
@@ -163,7 +159,7 @@ pub fn Primer3Result::new(
     gc,
     self_complement,
     is_forward,
-    score
+    score,
   }
 }
 
@@ -199,9 +195,7 @@ pub fn Primer3Result::gc(self : Primer3Result) -> Double {
 
 ///|
 /// Self-complementarity score (lower is better).
-pub fn Primer3Result::self_complement(
-  self : Primer3Result
-) -> Int {
+pub fn Primer3Result::self_complement(self : Primer3Result) -> Int {
   self.self_complement
 }
 
@@ -290,10 +284,7 @@ pub fn primer3_tm_wallace(seq : String) -> Double {
 /// Salt-adjusted melting temperature:
 ///   Tm = 81.5 + 16.6 * log10([Na+]) + 0.41 * %GC - 600 / length
 /// Suitable for longer primers. `salt_conc` is in mol/L.
-pub fn primer3_tm_salt(
-  seq : String,
-  salt_conc : Double
-) -> Double {
+pub fn primer3_tm_salt(seq : String, salt_conc : Double) -> Double {
   let n = seq.length()
   if n == 0 {
     return 0.0
@@ -308,10 +299,7 @@ pub fn primer3_tm_salt(
 ///|
 /// Choose an appropriate Tm formula based on length.
 /// Short oligos (< 14 nt) use Wallace; longer use the salt-adjusted formula.
-pub fn primer3_tm(
-  seq : String,
-  salt_conc : Double
-) -> Double {
+pub fn primer3_tm(seq : String, salt_conc : Double) -> Double {
   if seq.length() < 14 {
     primer3_tm_wallace(seq)
   } else {
@@ -371,10 +359,7 @@ pub fn primer3_self_complement(seq : String) -> Int {
 /// Score cross-dimer complementarity between two primers by sliding
 /// the reverse complement of seq2 against seq1 and counting paired bases.
 /// Returns the maximum paired count across all offsets.
-pub fn primer3_cross_dimer(
-  seq1 : String,
-  seq2 : String
-) -> Int {
+pub fn primer3_cross_dimer(seq1 : String, seq2 : String) -> Int {
   let n1 = seq1.length()
   let n2 = seq2.length()
   if n1 == 0 || n2 == 0 {
@@ -411,10 +396,7 @@ pub fn primer3_cross_dimer(
 /// Detect hairpin potential by checking self-complementarity at the 3' end.
 /// Returns the self-complementarity score restricted to the last
 /// `end_len` bases of the primer.
-pub fn primer3_hairpin_3prime(
-  seq : String,
-  end_len : Int
-) -> Int {
+pub fn primer3_hairpin_3prime(seq : String, end_len : Int) -> Int {
   let n = seq.length()
   if n == 0 || end_len <= 0 {
     return 0
@@ -438,7 +420,7 @@ pub fn primer3_score(
   tm : Double,
   gc : Double,
   self_comp : Int,
-  config : Primer3Config
+  config : Primer3Config,
 ) -> Double {
   let tm_mid = (config.tm_min + config.tm_max) / 2.0
   let tm_span = (config.tm_max - config.tm_min) / 2.0
@@ -454,7 +436,8 @@ pub fn primer3_score(
   } else {
     0.0
   }
-  let self_penalty = self_comp.to_double() / config.primer_length_min.to_double()
+  let self_penalty = self_comp.to_double() /
+    config.primer_length_min.to_double()
   // Score in [0, 100]; 100 is ideal.
   100.0 - 40.0 * tm_penalty - 30.0 * gc_penalty - 30.0 * self_penalty
 }
@@ -474,7 +457,7 @@ pub struct Primer3Design {
 /// Construct a `Primer3Design`.
 pub fn Primer3Design::new(
   forward : Array[Primer3Result],
-  reverse : Array[Primer3Result]
+  reverse : Array[Primer3Result],
 ) -> Primer3Design {
   Primer3Design::{ forward, reverse }
 }
@@ -511,9 +494,7 @@ pub fn Primer3Design::has_pair(self : Primer3Design) -> Bool {
 
 ///|
 /// Best forward primer (highest score), or None if no candidate.
-pub fn Primer3Design::best_forward(
-  self : Primer3Design
-) -> Primer3Result? {
+pub fn Primer3Design::best_forward(self : Primer3Design) -> Primer3Result? {
   if self.forward.length() == 0 {
     None
   } else {
@@ -523,9 +504,7 @@ pub fn Primer3Design::best_forward(
 
 ///|
 /// Best reverse primer (highest score), or None if no candidate.
-pub fn Primer3Design::best_reverse(
-  self : Primer3Design
-) -> Primer3Result? {
+pub fn Primer3Design::best_reverse(self : Primer3Design) -> Primer3Result? {
   if self.reverse.length() == 0 {
     None
   } else {
@@ -536,7 +515,7 @@ pub fn Primer3Design::best_reverse(
 ///|
 /// Best primer pair (forward, reverse), or None if either is missing.
 pub fn Primer3Design::best_pair(
-  self : Primer3Design
+  self : Primer3Design,
 ) -> (Primer3Result, Primer3Result)? {
   if self.has_pair() {
     Some((self.forward[0], self.reverse[0]))
@@ -551,7 +530,7 @@ pub fn Primer3Design::best_pair(
 /// primer candidates sorted by score (best first).
 pub fn primer3_design_primers(
   template : String,
-  config : Primer3Config
+  config : Primer3Config,
 ) -> Primer3Design {
   let n = template.length()
   let forward = Array::new()
@@ -576,7 +555,7 @@ pub fn primer3_design_primers(
         sc <= config.max_self_complement {
         let score = primer3_score(seq, tm, gc, sc, config)
         forward.push(
-          Primer3Result::new(seq, start, len, tm, gc, sc, true, score)
+          Primer3Result::new(seq, start, len, tm, gc, sc, true, score),
         )
       }
       len = len + 1
@@ -606,17 +585,31 @@ pub fn primer3_design_primers(
         gc <= config.gc_max &&
         sc <= config.max_self_complement {
         let score = primer3_score(seq, tm, gc, sc, config)
-        reverse.push(
-          Primer3Result::new(seq, ts, len, tm, gc, sc, false, score)
-        )
+        reverse.push(Primer3Result::new(seq, ts, len, tm, gc, sc, false, score))
       }
       len = len + 1
     }
     rstart = rstart - 1
   }
   // Sort by score descending (highest/best first).
-  forward.sort_by(fn(a, b) { if a.score() > b.score() { -1 } else if a.score() < b.score() { 1 } else { 0 } })
-  reverse.sort_by(fn(a, b) { if a.score() > b.score() { -1 } else if a.score() < b.score() { 1 } else { 0 } })
+  forward.sort_by(fn(a, b) {
+    if a.score() > b.score() {
+      -1
+    } else if a.score() < b.score() {
+      1
+    } else {
+      0
+    }
+  })
+  reverse.sort_by(fn(a, b) {
+    if a.score() > b.score() {
+      -1
+    } else if a.score() < b.score() {
+      1
+    } else {
+      0
+    }
+  })
   Primer3Design::new(forward, reverse)
 }
 
@@ -631,7 +624,7 @@ pub fn primer3_amplicon_length(
   fwd_start : Int,
   fwd_len : Int,
   rev_start : Int,
-  rev_len : Int
+  rev_len : Int,
 ) -> Int {
   let amp_end = rev_start + rev_len // exclusive end
   amp_end - fwd_start
@@ -641,7 +634,7 @@ pub fn primer3_amplicon_length(
 /// Predicted amplicon length for a primer pair.
 pub fn primer3_pair_amplicon_length(
   fwd : Primer3Result,
-  rev : Primer3Result
+  rev : Primer3Result,
 ) -> Int {
   primer3_amplicon_length(fwd.start(), fwd.length(), rev.start(), rev.length())
 }
@@ -658,55 +651,16 @@ pub fn primer3_sample_template() -> String {
   // A 12-bp motif with ~50% GC, repeated to build a 600 bp template.
   // We use a mix of motifs to create variability.
   let motifs = [
-    "ATGCGTACGTAG",
-    "CTAGCATCGATC",
-    "GATCGATCGATC",
-    "ATCGATCGATCG",
-    "CGTACGTACGTA",
-    "TACGTACGTACG",
-    "AGCTAGCTAGCT",
-    "GCGCGATATATA",
-    "ATATGCGCGCGC",
-    "TCTAGATCTAGA",
-    "GAGCTCGAGCTC",
-    "AATTGGCCAATT",
-    "TTAACCGGTTAA",
-    "GGCCAATTGGCC",
-    "AATTAATTGGCC",
-    "CGGCCGAATTCC",
-    "AAGCTTAAGCTT",
-    "TTCGAATTCGAA",
-    "GGATCCGGATCC",
-    "AAGATCTAGATC",
-    "CTAGAGATCTAG",
-    "GATCTCTAGATC",
-    "ATCGATCGATCG",
-    "GCTAGCTAGCTA",
-    "TACGTACGTACG",
-    "CATGCATGCATG",
-    "GTACGTACGTAC",
-    "AGCTAGCTAGCT",
-    "CGATCGATCGAT",
-    "TAGCTAGCTAGC",
-    "ATGcatgcATGC",
-    "GCATgcATGCAT",
-    "TTGGCCAATTGG",
-    "CCAATTGGCCAA",
-    "AATTGGCCAATT",
-    "GGCCAATTGGCC",
-    "AATTAATTGGCC",
-    "CGGCCGAATTCC",
-    "AAGCTTAAGCTT",
-    "TTCGAATTCGAA",
-    "GGATCCGGATCC",
-    "AAGATCTAGATC",
-    "CTAGAGATCTAG",
-    "GATCTCTAGATC",
-    "ATCGATCGATCG",
-    "GCTAGCTAGCTA",
-    "TACGTACGTACG",
-    "CATGCATGCATG",
-    "GTACGTACGTAC"
+    "ATGCGTACGTAG", "CTAGCATCGATC", "GATCGATCGATC", "ATCGATCGATCG", "CGTACGTACGTA",
+    "TACGTACGTACG", "AGCTAGCTAGCT", "GCGCGATATATA", "ATATGCGCGCGC", "TCTAGATCTAGA",
+    "GAGCTCGAGCTC", "AATTGGCCAATT", "TTAACCGGTTAA", "GGCCAATTGGCC", "AATTAATTGGCC",
+    "CGGCCGAATTCC", "AAGCTTAAGCTT", "TTCGAATTCGAA", "GGATCCGGATCC", "AAGATCTAGATC",
+    "CTAGAGATCTAG", "GATCTCTAGATC", "ATCGATCGATCG", "GCTAGCTAGCTA", "TACGTACGTACG",
+    "CATGCATGCATG", "GTACGTACGTAC", "AGCTAGCTAGCT", "CGATCGATCGAT", "TAGCTAGCTAGC",
+    "ATGcatgcATGC", "GCATgcATGCAT", "TTGGCCAATTGG", "CCAATTGGCCAA", "AATTGGCCAATT",
+    "GGCCAATTGGCC", "AATTAATTGGCC", "CGGCCGAATTCC", "AAGCTTAAGCTT", "TTCGAATTCGAA",
+    "GGATCCGGATCC", "AAGATCTAGATC", "CTAGAGATCTAG", "GATCTCTAGATC", "ATCGATCGATCG",
+    "GCTAGCTAGCTA", "TACGTACGTACG", "CATGCATGCATG", "GTACGTACGTAC",
   ]
   let mut out = ""
   for m in motifs {
@@ -719,22 +673,10 @@ pub fn primer3_sample_template() -> String {
 /// A short sample template (~200 bp) for quick tests.
 pub fn primer3_short_template() -> String {
   let motifs = [
-    "ATGCGTACGTAG",
-    "CTAGCATCGATC",
-    "GATCGATCGATC",
-    "ATCGATCGATCG",
-    "CGTACGTACGTA",
-    "TACGTACGTACG",
-    "AGCTAGCTAGCT",
-    "GCGCGATATATA",
-    "ATATGCGCGCGC",
-    "TCTAGATCTAGA",
-    "GAGCTCGAGCTC",
-    "AATTGGCCAATT",
-    "TTAACCGGTTAA",
-    "GGCCAATTGGCC",
-    "AATTAATTGGCC",
-    "CGGCCGAATTCC"
+    "ATGCGTACGTAG", "CTAGCATCGATC", "GATCGATCGATC", "ATCGATCGATCG", "CGTACGTACGTA",
+    "TACGTACGTACG", "AGCTAGCTAGCT", "GCGCGATATATA", "ATATGCGCGCGC", "TCTAGATCTAGA",
+    "GAGCTCGAGCTC", "AATTGGCCAATT", "TTAACCGGTTAA", "GGCCAATTGGCC", "AATTAATTGGCC",
+    "CGGCCGAATTCC",
   ]
   let mut out = ""
   for m in motifs {
@@ -762,8 +704,7 @@ pub fn primer3_design_summary(design : Primer3Design) -> String {
   }
   match design.best_pair() {
     Some((f, r)) =>
-      s = s +
-        "Amplicon length: \{primer3_pair_amplicon_length(f, r)} bp\n"
+      s = s + "Amplicon length: \{primer3_pair_amplicon_length(f, r)} bp\n"
     None => s = s + "Amplicon length: (no pair)\n"
   }
   s

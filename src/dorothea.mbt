@@ -47,21 +47,17 @@ pub struct DorotheaParams {
 ///|
 /// Create default dorothea parameters.
 pub fn DorotheaParams::new() -> DorotheaParams {
-  DorotheaParams::{
-    n_permutations: 1000,
-    min_targets: 5,
-    significance: 0.05,
-  }
+  DorotheaParams::{ n_permutations: 1000, min_targets: 5, significance: 0.05 }
 }
 
 ///|
 /// Create custom dorothea parameters.
-pub fn DorotheaParams::with_params(n_perms : Int, min_targets : Int, alpha : Double) -> DorotheaParams {
-  DorotheaParams::{
-    n_permutations: n_perms,
-    min_targets,
-    significance: alpha,
-  }
+pub fn DorotheaParams::with_params(
+  n_perms : Int,
+  min_targets : Int,
+  alpha : Double,
+) -> DorotheaParams {
+  DorotheaParams::{ n_permutations: n_perms, min_targets, significance: alpha }
 }
 
 ///|
@@ -322,8 +318,16 @@ pub fn dorothea_compute_viper_activity(
     }
   }
 
-  let activation_mean = if n_activation > 0 { activation_sum / n_activation.to_double() } else { 0.0 }
-  let repression_mean = if n_repression > 0 { repression_sum / n_repression.to_double() } else { 0.0 }
+  let activation_mean = if n_activation > 0 {
+    activation_sum / n_activation.to_double()
+  } else {
+    0.0
+  }
+  let repression_mean = if n_repression > 0 {
+    repression_sum / n_repression.to_double()
+  } else {
+    0.0
+  }
 
   // VIPER score: difference between activation and repression means
   activation_mean - repression_mean
@@ -337,7 +341,9 @@ pub fn dorothea_permutation_test(
   regulon : Regulon,
   n_permutations : Int,
 ) -> (Double, Double) {
-  let observed = dorothea_compute_viper_activity(cell_expression, gene_names, regulon)
+  let observed = dorothea_compute_viper_activity(
+    cell_expression, gene_names, regulon,
+  )
 
   // Generate null distribution by shuffling gene labels
   let null_scores : Array[Double] = Array::new()
@@ -363,7 +369,9 @@ pub fn dorothea_permutation_test(
       j = j - 1
     }
 
-    let null_score = dorothea_compute_viper_activity(shuffled, gene_names, regulon)
+    let null_score = dorothea_compute_viper_activity(
+      shuffled, gene_names, regulon,
+    )
     null_scores.push(null_score)
     perm = perm + 1
   }
@@ -442,7 +450,9 @@ pub fn dorothea_analyze_cell(
       continue
     }
 
-    let activity = dorothea_compute_viper_activity(cell_expression, gene_names, regulon)
+    let activity = dorothea_compute_viper_activity(
+      cell_expression, gene_names, regulon,
+    )
     let (p_value, z_score) = dorothea_permutation_test(
       cell_expression,
       gene_names,
@@ -497,7 +507,9 @@ pub fn dorothea_analyze_cells(
 
     for regulon in regulons {
       if regulon.targets.length() >= params.min_targets {
-        let activity = dorothea_compute_viper_activity(cell_expr, gene_names, regulon)
+        let activity = dorothea_compute_viper_activity(
+          cell_expr, gene_names, regulon,
+        )
         let current = tf_activities.get(regulon.tf).unwrap_or([])
         let updated = current.copy()
         updated.push(activity)
@@ -561,7 +573,9 @@ pub fn dorothea_filter_results(
 
 ///|
 /// Sort TF activity results by absolute z-score (descending).
-pub fn dorothea_sort_by_activity(results : Array[TFActivityResult]) -> Array[TFActivityResult] {
+pub fn dorothea_sort_by_activity(
+  results : Array[TFActivityResult],
+) -> Array[TFActivityResult] {
   // Simple bubble sort by abs(z_score) descending
   let n = results.length()
   let sorted = results.copy()
@@ -569,7 +583,7 @@ pub fn dorothea_sort_by_activity(results : Array[TFActivityResult]) -> Array[TFA
   while i < n - 1 {
     let mut j = 0
     while j < n - i - 1 {
-      if (sorted[j].z_score).abs() < (sorted[j + 1].z_score).abs() {
+      if sorted[j].z_score.abs() < sorted[j + 1].z_score.abs() {
         let temp = sorted[j]
         sorted[j] = sorted[j + 1]
         sorted[j + 1] = temp
@@ -583,7 +597,11 @@ pub fn dorothea_sort_by_activity(results : Array[TFActivityResult]) -> Array[TFA
 
 ///|
 /// Create synthetic test data for dorothea testing.
-pub fn dorothea_create_test_data() -> (Array[Array[Double]], Array[String], Array[String]) {
+pub fn dorothea_create_test_data() -> (
+  Array[Array[Double]],
+  Array[String],
+  Array[String],
+) {
   let regulons = dorothea_get_regulons()
 
   // Collect all unique genes from regulons
@@ -611,7 +629,7 @@ pub fn dorothea_create_test_data() -> (Array[Array[Double]], Array[String], Arra
       // Vary expression across cells with some structure
       let base = 5.0
       let variation = (c.to_double() + 1.0) * 0.5
-      let expr = base + variation + (g.to_double() * 0.01)
+      let expr = base + variation + g.to_double() * 0.01
       col.push(expr)
       c = c + 1
     }
@@ -631,7 +649,10 @@ pub fn dorothea_create_test_data() -> (Array[Array[Double]], Array[String], Arra
 
 ///|
 /// Get top TF results by absolute activity.
-pub fn dorothea_get_top_tfs(results : Array[TFActivityResult], n : Int) -> Array[TFActivityResult] {
+pub fn dorothea_get_top_tfs(
+  results : Array[TFActivityResult],
+  n : Int,
+) -> Array[TFActivityResult] {
   let sorted = dorothea_sort_by_activity(results)
   let top : Array[TFActivityResult] = Array::new()
   let limit = if n < sorted.length() { n } else { sorted.length() }

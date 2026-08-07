@@ -15,7 +15,7 @@ pub struct GSKinshipResult {
 pub fn GSKinshipResult::new(
   kinship_matrix : Array[Array[Double]],
   sample_ids : Array[String],
-  n_samples : Int
+  n_samples : Int,
 ) -> GSKinshipResult {
   GSKinshipResult::{ kinship_matrix, sample_ids, n_samples }
 }
@@ -35,7 +35,7 @@ pub fn GSPcaResult::new(
   eigenvalues : Array[Double],
   eigenvectors : Array[Array[Double]],
   var_explained : Array[Double],
-  sample_ids : Array[String]
+  sample_ids : Array[String],
 ) -> GSPcaResult {
   GSPcaResult::{ eigenvalues, eigenvectors, var_explained, sample_ids }
 }
@@ -53,7 +53,7 @@ pub struct GSDistanceResult {
 pub fn GSDistanceResult::new(
   distance_matrix : Array[Array[Double]],
   sample_ids : Array[String],
-  distance_type : String
+  distance_type : String,
 ) -> GSDistanceResult {
   GSDistanceResult::{ distance_matrix, sample_ids, distance_type }
 }
@@ -63,14 +63,14 @@ pub fn GSDistanceResult::new(
 pub fn gs_estimate_kinship(genotypes : Array[Array[Double]]) -> GSKinshipResult {
   let n = genotypes.length()
   let m = if n > 0 { genotypes[0].length() } else { 0 }
-  
+
   let sample_ids : Array[String] = Array::new()
   let mut i = 0
   while i < n {
     sample_ids.push("Sample" + i.to_string())
     i = i + 1
   }
-  
+
   let kinship : Array[Array[Double]] = Array::new()
   let mut j = 0
   while j < n {
@@ -83,7 +83,7 @@ pub fn gs_estimate_kinship(genotypes : Array[Array[Double]]) -> GSKinshipResult 
     kinship.push(row)
     j = j + 1
   }
-  
+
   let allele_freqs : Array[Double] = Array::new()
   let mut l = 0
   while l < m {
@@ -97,10 +97,16 @@ pub fn gs_estimate_kinship(genotypes : Array[Array[Double]]) -> GSKinshipResult 
       }
       p = p + 1
     }
-    allele_freqs.push(if n_valid > 0 { sum / (2.0 * n_valid.to_double()) } else { 0.5 })
+    allele_freqs.push(
+      if n_valid > 0 {
+        sum / (2.0 * n_valid.to_double())
+      } else {
+        0.5
+      },
+    )
     l = l + 1
   }
-  
+
   let mut a = 0
   while a < n {
     let mut b = a
@@ -112,7 +118,9 @@ pub fn gs_estimate_kinship(genotypes : Array[Array[Double]]) -> GSKinshipResult 
         if genotypes[a][c] >= 0.0 && genotypes[b][c] >= 0.0 {
           let freq = allele_freqs[c]
           if freq > 0.0 && freq < 1.0 {
-            let term = (genotypes[a][c] - 2.0 * freq) * (genotypes[b][c] - 2.0 * freq) / (2.0 * freq * (1.0 - freq))
+            let term = (genotypes[a][c] - 2.0 * freq) *
+              (genotypes[b][c] - 2.0 * freq) /
+              (2.0 * freq * (1.0 - freq))
             sum = sum + term
             count = count + 1
           }
@@ -126,23 +134,26 @@ pub fn gs_estimate_kinship(genotypes : Array[Array[Double]]) -> GSKinshipResult 
     }
     a = a + 1
   }
-  
+
   GSKinshipResult::new(kinship, sample_ids, n)
 }
 
 ///|
 /// Perform PCA on genotype data.
-pub fn gs_pca(genotypes : Array[Array[Double]], n_components : Int) -> GSPcaResult {
+pub fn gs_pca(
+  genotypes : Array[Array[Double]],
+  n_components : Int,
+) -> GSPcaResult {
   let n = genotypes.length()
   let m = if n > 0 { genotypes[0].length() } else { 0 }
-  
+
   let sample_ids : Array[String] = Array::new()
   let mut i = 0
   while i < n {
     sample_ids.push("Sample" + i.to_string())
     i = i + 1
   }
-  
+
   let allele_freqs : Array[Double] = Array::new()
   let mut j = 0
   while j < m {
@@ -156,10 +167,16 @@ pub fn gs_pca(genotypes : Array[Array[Double]], n_components : Int) -> GSPcaResu
       }
       k = k + 1
     }
-    allele_freqs.push(if n_valid > 0 { sum / (2.0 * n_valid.to_double()) } else { 0.5 })
+    allele_freqs.push(
+      if n_valid > 0 {
+        sum / (2.0 * n_valid.to_double())
+      } else {
+        0.5
+      },
+    )
     j = j + 1
   }
-  
+
   let standardized : Array[Array[Double]] = Array::new()
   let mut l = 0
   while l < n {
@@ -169,7 +186,9 @@ pub fn gs_pca(genotypes : Array[Array[Double]], n_components : Int) -> GSPcaResu
       if genotypes[l][p] >= 0.0 {
         let freq = allele_freqs[p]
         if freq > 0.0 && freq < 1.0 {
-          row.push((genotypes[l][p] - 2.0 * freq) / (2.0 * freq * (1.0 - freq)).sqrt())
+          row.push(
+            (genotypes[l][p] - 2.0 * freq) / (2.0 * freq * (1.0 - freq)).sqrt(),
+          )
         } else {
           row.push(0.0)
         }
@@ -181,7 +200,7 @@ pub fn gs_pca(genotypes : Array[Array[Double]], n_components : Int) -> GSPcaResu
     standardized.push(row)
     l = l + 1
   }
-  
+
   let covariance : Array[Array[Double]] = Array::new()
   let mut q = 0
   while q < n {
@@ -200,9 +219,9 @@ pub fn gs_pca(genotypes : Array[Array[Double]], n_components : Int) -> GSPcaResu
     covariance.push(row)
     q = q + 1
   }
-  
+
   let components = gs_power_iteration(covariance, n_components)
-  
+
   let eigenvalues : Array[Double] = Array::new()
   let mut t = 0
   while t < components.length() {
@@ -215,39 +234,48 @@ pub fn gs_pca(genotypes : Array[Array[Double]], n_components : Int) -> GSPcaResu
     eigenvalues.push(sum)
     t = t + 1
   }
-  
+
   let mut total_var = 0.0
   let mut idx = 0
   while idx < eigenvalues.length() {
     total_var = total_var + eigenvalues[idx]
     idx = idx + 1
   }
-  
+
   let var_explained : Array[Double] = Array::new()
   let mut v = 0
   while v < eigenvalues.length() {
-    var_explained.push(if total_var > 0.0 { eigenvalues[v] / total_var } else { 0.0 })
+    var_explained.push(
+      if total_var > 0.0 {
+        eigenvalues[v] / total_var
+      } else {
+        0.0
+      },
+    )
     v = v + 1
   }
-  
+
   GSPcaResult::new(eigenvalues, components, var_explained, sample_ids)
 }
 
 ///|
 /// Power iteration for eigenvalue decomposition.
-pub fn gs_power_iteration(matrix : Array[Array[Double]], n_components : Int) -> Array[Array[Double]] {
+pub fn gs_power_iteration(
+  matrix : Array[Array[Double]],
+  n_components : Int,
+) -> Array[Array[Double]] {
   let n = matrix.length()
   let components : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < n_components {
     let v : Array[Double] = Array::new()
     let mut j = 0
     while j < n {
-      v.push(((i + 1).to_double() / (j + 1).to_double()) - 0.5)
+      v.push((i + 1).to_double() / (j + 1).to_double() - 0.5)
       j = j + 1
     }
-    
+
     let mut iter = 0
     while iter < 100 {
       let v_new : Array[Double] = Array::new()
@@ -262,7 +290,7 @@ pub fn gs_power_iteration(matrix : Array[Array[Double]], n_components : Int) -> 
         v_new.push(sum)
         k = k + 1
       }
-      
+
       let mut norm = 0.0
       let mut m = 0
       while m < n {
@@ -270,18 +298,18 @@ pub fn gs_power_iteration(matrix : Array[Array[Double]], n_components : Int) -> 
         m = m + 1
       }
       norm = norm.sqrt()
-      
+
       let mut p = 0
       while p < n {
         v.set(p, v_new[p] / norm)
         p = p + 1
       }
-      
+
       iter = iter + 1
     }
-    
+
     components.push(v)
-    
+
     let mut q = 0
     while q < n {
       let mut r = 0
@@ -297,10 +325,10 @@ pub fn gs_power_iteration(matrix : Array[Array[Double]], n_components : Int) -> 
       }
       q = q + 1
     }
-    
+
     i = i + 1
   }
-  
+
   components
 }
 
@@ -308,19 +336,19 @@ pub fn gs_power_iteration(matrix : Array[Array[Double]], n_components : Int) -> 
 /// Calculate genetic distance matrix.
 pub fn gs_calculate_genetic_distance(
   genotypes : Array[Array[Double]],
-  distance_type? : String = "euclidean"
+  distance_type? : String = "euclidean",
 ) -> GSDistanceResult {
   let n = genotypes.length()
-  
+
   let dt = distance_type
-  
+
   let sample_ids : Array[String] = Array::new()
   let mut i = 0
   while i < n {
     sample_ids.push("Sample" + i.to_string())
     i = i + 1
   }
-  
+
   let distance : Array[Array[Double]] = Array::new()
   let mut j = 0
   while j < n {
@@ -333,7 +361,7 @@ pub fn gs_calculate_genetic_distance(
     distance.push(row)
     j = j + 1
   }
-  
+
   let mut a = 0
   while a < n {
     let mut b = a + 1
@@ -347,14 +375,14 @@ pub fn gs_calculate_genetic_distance(
       } else {
         gs_euclidean_distance(genotypes[a], genotypes[b])
       }
-      
+
       distance[a].set(b, dist)
       distance[b].set(a, dist)
       b = b + 1
     }
     a = a + 1
   }
-  
+
   GSDistanceResult::new(distance, sample_ids, dt)
 }
 
@@ -401,20 +429,33 @@ pub fn gs_ibs_distance(v1 : Array[Double], v2 : Array[Double]) -> Double {
     }
     i = i + 1
   }
-  if count > 0 { sum / count.to_double() } else { 0.0 }
+  if count > 0 {
+    sum / count.to_double()
+  } else {
+    0.0
+  }
 }
 
 ///|
 /// Bio API functions.
-
-pub fn bio_estimate_kinship(genotypes : Array[Array[Double]]) -> GSKinshipResult {
+pub fn bio_estimate_kinship(
+  genotypes : Array[Array[Double]],
+) -> GSKinshipResult {
   gs_estimate_kinship(genotypes)
 }
 
-pub fn bio_pca(genotypes : Array[Array[Double]], n_components : Int) -> GSPcaResult {
+///|
+pub fn bio_pca(
+  genotypes : Array[Array[Double]],
+  n_components : Int,
+) -> GSPcaResult {
   gs_pca(genotypes, n_components)
 }
 
-pub fn bio_genetic_distance(genotypes : Array[Array[Double]], distance_type? : String) -> GSDistanceResult {
+///|
+pub fn bio_genetic_distance(
+  genotypes : Array[Array[Double]],
+  distance_type? : String,
+) -> GSDistanceResult {
   gs_calculate_genetic_distance(genotypes)
 }

@@ -188,8 +188,9 @@ fn xml_parse_attrs(attr_str : String) -> Map[String, String] {
       break
     }
     let key_start = i
-    while i < n && trimmed.unsafe_get(i).to_int() != eq &&
-      trimmed.unsafe_get(i).to_int() != space {
+    while i < n &&
+          trimmed.unsafe_get(i).to_int() != eq &&
+          trimmed.unsafe_get(i).to_int() != space {
       i = i + 1
     }
     let key = trimmed[key_start:i].to_owned()
@@ -222,8 +223,9 @@ fn xml_parse_attrs(attr_str : String) -> Map[String, String] {
       }
     } else {
       let val_start = i
-      while i < n && trimmed.unsafe_get(i).to_int() != space &&
-        trimmed.unsafe_get(i).to_int() != gt {
+      while i < n &&
+            trimmed.unsafe_get(i).to_int() != space &&
+            trimmed.unsafe_get(i).to_int() != gt {
         i = i + 1
       }
       result[key] = trimmed[val_start:i].to_owned()
@@ -248,8 +250,11 @@ fn xml_find_open_tag(
       let rest = xml[i + 1:].to_owned()
       let rest_len = rest.length()
       let mut j = 0
-      while j < rest_len && char_at(rest, j) != ">" && char_at(rest, j) != "/" &&
-        char_at(rest, j) != " " && char_at(rest, j) != "\t" {
+      while j < rest_len &&
+            char_at(rest, j) != ">" &&
+            char_at(rest, j) != "/" &&
+            char_at(rest, j) != " " &&
+            char_at(rest, j) != "\t" {
         j = j + 1
       }
       let found_tag = xml_strip_n(rest[0:j].to_owned())
@@ -301,8 +306,10 @@ fn xml_find_close_tag(
         let after_slash = rest[1:].to_owned()
         let mut j = 0
         let rlen = after_slash.length()
-        while j < rlen && char_at(after_slash, j) != ">" &&
-          char_at(after_slash, j) != " " && char_at(after_slash, j) != "\t" {
+        while j < rlen &&
+              char_at(after_slash, j) != ">" &&
+              char_at(after_slash, j) != " " &&
+              char_at(after_slash, j) != "\t" {
           j = j + 1
         }
         let close_tag = xml_strip_n(after_slash[0:j].to_owned())
@@ -323,9 +330,11 @@ fn xml_find_close_tag(
       } else {
         let mut j = 0
         let rlen = rest.length()
-        while j < rlen && char_at(rest, j) != ">" &&
-          char_at(rest, j) != "/" && char_at(rest, j) != " " &&
-          char_at(rest, j) != "\t" {
+        while j < rlen &&
+              char_at(rest, j) != ">" &&
+              char_at(rest, j) != "/" &&
+              char_at(rest, j) != " " &&
+              char_at(rest, j) != "\t" {
           j = j + 1
         }
         let found_tag = xml_strip_n(rest[0:j].to_owned())
@@ -378,8 +387,10 @@ fn find_tag_end(xml : String, open_start : Int, tag_name : String) -> Int {
       let rest = xml[i + 1:].to_owned()
       let mut j = 0
       let rlen = rest.length()
-      while j < rlen && char_at(rest, j) != ">" &&
-        char_at(rest, j) != "/" && char_at(rest, j) != " " {
+      while j < rlen &&
+            char_at(rest, j) != ">" &&
+            char_at(rest, j) != "/" &&
+            char_at(rest, j) != " " {
         j = j + 1
       }
       let found_tag = xml_strip_n(rest[0:j].to_owned())
@@ -412,7 +423,10 @@ fn has_nested_elements(s : String) -> Bool {
 ///|
 /// Extract a complete XML element by tag name.
 /// Returns (attributes_map, children_text) or (empty_map, "").
-fn xml_extract_element(xml : String, tag_name : String) -> (Map[String, String], String) {
+fn xml_extract_element(
+  xml : String,
+  tag_name : String,
+) -> (Map[String, String], String) {
   let open_opt = xml_find_open_tag(xml, tag_name, 0)
   if open_opt.is_none() {
     return (Map([], capacity=4), "")
@@ -433,7 +447,11 @@ fn xml_extract_element(xml : String, tag_name : String) -> (Map[String, String],
 
 ///|
 /// Get text content between an open tag and close tag positions.
-fn xml_get_text_between(xml : String, open_tag : Int, close_tag : Int) -> String {
+fn xml_get_text_between(
+  xml : String,
+  open_tag : Int,
+  close_tag : Int,
+) -> String {
   if open_tag >= close_tag {
     return ""
   }
@@ -448,10 +466,7 @@ fn xml_get_text_between(xml : String, open_tag : Int, close_tag : Int) -> String
 ///|
 /// Find first XML element by tag name.
 /// Returns (start_pos, end_pos, content_string) or (0, 0, "").
-pub fn find_element(
-  xml : String,
-  tag : String,
-) -> (Int, Int, String) {
+pub fn find_element(xml : String, tag : String) -> (Int, Int, String) {
   let open_opt = xml_find_open_tag(xml, tag, 0)
   if open_opt.is_none() {
     return (0, 0, "")
@@ -475,10 +490,7 @@ pub fn find_element(
 ///|
 /// Find all XML elements by tag name (non-overlapping, top-level only within the search range).
 /// Returns array of (start_pos, end_pos) tuples.
-pub fn find_all_elements(
-  xml : String,
-  tag : String,
-) -> Array[(Int, Int)] {
+pub fn find_all_elements(xml : String, tag : String) -> Array[(Int, Int)] {
   let result : Array[(Int, Int)] = Array::new()
   let mut search_start = 0
   let n = xml.length()
@@ -511,10 +523,7 @@ pub fn find_all_elements(
 
 ///|
 /// Get an attribute value from an element at the given position.
-pub fn get_attribute(
-  xml : String,
-  attr_name : String,
-) -> String {
+pub fn get_attribute(xml : String, attr_name : String) -> String {
   let trimmed = trim(xml)
   if !trimmed.has_prefix("<") {
     return ""
@@ -620,7 +629,11 @@ pub fn parse_tree_element(xml : String) -> PhyloXMLTree {
   let attrs_start = trimmed.find("<phylogeny")
   let attrs_end = if attrs_start.is_some() {
     let gt_opt = trimmed[attrs_start.unwrap():].find(">")
-    if gt_opt.is_some() { Some(attrs_start.unwrap() + gt_opt.unwrap() + 1) } else { None }
+    if gt_opt.is_some() {
+      Some(attrs_start.unwrap() + gt_opt.unwrap() + 1)
+    } else {
+      None
+    }
   } else {
     None
   }
@@ -663,21 +676,25 @@ pub fn parse_node_element(xml : String) -> PhyloXMLNode {
 ///|
 /// Parse taxon annotation from an XML element.
 pub fn parse_taxon_element(xml : String) -> TaxonInfo {
-  parse_taxon_info_from(if has_element(xml, "taxon") {
-    extract_child(xml, "taxon")
-  } else {
-    xml
-  })
+  parse_taxon_info_from(
+    if has_element(xml, "taxon") {
+      extract_child(xml, "taxon")
+    } else {
+      xml
+    },
+  )
 }
 
 ///|
 /// Parse sequence annotation from an XML element.
 pub fn parse_sequence_element(xml : String) -> SequenceAnnotation {
-  parse_seq_annotation_from(if has_element(xml, "sequence") {
-    extract_child(xml, "sequence")
-  } else {
-    xml
-  })
+  parse_seq_annotation_from(
+    if has_element(xml, "sequence") {
+      extract_child(xml, "sequence")
+    } else {
+      xml
+    },
+  )
 }
 
 // ============================================================================
@@ -715,7 +732,11 @@ fn parse_child_node(xml : String, tag : String) -> PhyloXMLNode {
   if s == 0 && e == 0 {
     return PhyloXMLNode::new()
   }
-  let node_xml = if content.length() > 0 { content } else { xml[s:e].to_owned() }
+  let node_xml = if content.length() > 0 {
+    content
+  } else {
+    xml[s:e].to_owned()
+  }
   parse_node_from_content(node_xml)
 }
 
@@ -794,6 +815,7 @@ fn parse_node_from_content(xml : String) -> PhyloXMLNode {
     taxon,
   }
 }
+
 ///|
 fn parse_taxon_info_from(xml : String) -> TaxonInfo {
   TaxonInfo::{
@@ -1063,13 +1085,21 @@ pub fn newick_to_phyloxml(
   let node = parse_newick_to_node(newick_text)
   let tree = PhyloXMLTree::{
     tree_id,
-    name: if tree_id.length() > 0 { tree_id } else { "Newick Tree" },
+    name: if tree_id.length() > 0 {
+      tree_id
+    } else {
+      "Newick Tree"
+    },
     description: "Converted from Newick format",
     root: node,
     phylogeny_metadata: Map([("rooted", "true")], capacity=2),
     taxon_namespaces: [],
   }
-  PhyloXMLResult::{ trees: [tree], metadata: Map([], capacity=4), taxon_namespaces: [] }
+  PhyloXMLResult::{
+    trees: [tree],
+    metadata: Map([], capacity=4),
+    taxon_namespaces: [],
+  }
 }
 
 ///|
@@ -1116,12 +1146,20 @@ fn parse_newick_subtree(s : String, start : Int) -> PhyloXMLNode {
             let close_pos = after.find(")")
             let semi_pos = after.find(";")
             let end = find_min_pos([comma_pos, close_pos, semi_pos])
-            if end.is_some() { after[0:end.unwrap()].to_owned() } else { after }
+            if end.is_some() {
+              after[0:end.unwrap()].to_owned()
+            } else {
+              after
+            }
           }
           let bl_str = if colon_pos.is_some() {
             let after_colon = after[colon_pos.unwrap() + 1:].to_owned()
             let end_pos = find_first_of(after_colon, [",", ")", ";"])
-            if end_pos.is_some() { after_colon[0:end_pos.unwrap()].to_owned() } else { after_colon }
+            if end_pos.is_some() {
+              after_colon[0:end_pos.unwrap()].to_owned()
+            } else {
+              after_colon
+            }
           } else {
             ""
           }

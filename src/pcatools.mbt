@@ -8,11 +8,16 @@
 
 // ---------- helper linear algebra / stats primitives ----------
 
-fn pca_is_na(x : Double) -> Bool { x.is_nan() }
+fn pca_is_na(x : Double) -> Bool {
+  x.is_nan()
+}
 
+///|
 fn pca_transpose(a : Array[Array[Double]]) -> Array[Array[Double]] {
   let n = a.length()
-  if n == 0 { return [] }
+  if n == 0 {
+    return []
+  }
   let m = a[0].length()
   let out : Array[Array[Double]] = Array::new()
   let mut j = 0
@@ -29,22 +34,28 @@ fn pca_transpose(a : Array[Array[Double]]) -> Array[Array[Double]] {
   out
 }
 
+///|
 fn pca_copy(a : Array[Array[Double]]) -> Array[Array[Double]] {
   let out : Array[Array[Double]] = Array::new()
   for row in a {
     let nr : Array[Double] = Array::new()
-    for x in row { nr.push(x) }
+    for x in row {
+      nr.push(x)
+    }
     out.push(nr)
   }
   out
 }
 
+///|
 fn center_and_scale_cols(
   data : Array[Array[Double]],
   scale : Bool,
 ) -> (Array[Array[Double]], Array[Double], Array[Double]) {
   let n = data.length()
-  if n == 0 { return ([], [], []) }
+  if n == 0 {
+    return ([], [], [])
+  }
   let p = data[0].length()
   let means : Array[Double] = Array::new()
   let sds : Array[Double] = Array::new()
@@ -76,16 +87,8 @@ fn center_and_scale_cols(
         }
         i2 = i2 + 1
       }
-      let variance = if c2 < 2 {
-        1.0
-      } else {
-        s2 / (c2 - 1).to_double()
-      }
-      let sd = if variance <= 0.0 {
-        1.0
-      } else {
-        variance.sqrt()
-      }
+      let variance = if c2 < 2 { 1.0 } else { s2 / (c2 - 1).to_double() }
+      let sd = if variance <= 0.0 { 1.0 } else { variance.sqrt() }
       sds.push(sd)
     } else {
       sds.push(1.0)
@@ -110,11 +113,12 @@ fn center_and_scale_cols(
   (out, means, sds)
 }
 
-fn compute_covariance_matrix(
-  x : Array[Array[Double]],
-) -> Array[Array[Double]] {
+///|
+fn compute_covariance_matrix(x : Array[Array[Double]]) -> Array[Array[Double]] {
   let n = x.length()
-  if n == 0 { return [] }
+  if n == 0 {
+    return []
+  }
   let p = x[0].length()
   let out : Array[Array[Double]] = Array::new()
   let denom = (if n - 1 < 1 { 1 } else { n - 1 }).to_double()
@@ -138,12 +142,15 @@ fn compute_covariance_matrix(
   out
 }
 
+///|
 fn power_iteration_pca(
   cov : Array[Array[Double]],
   n_components : Int,
 ) -> (Array[Array[Double]], Array[Double]) {
   let p = cov.length()
-  if p == 0 { return ([], []) }
+  if p == 0 {
+    return ([], [])
+  }
   let k = if n_components < 1 {
     1
   } else if n_components > p {
@@ -160,11 +167,7 @@ fn power_iteration_pca(
     let mut v : Array[Double] = Array::new()
     let mut ii = 0
     while ii < p {
-      let vv = if ii == comp {
-        1.0
-      } else {
-        0.5.pow(comp.to_double())
-      }
+      let vv = if ii == comp { 1.0 } else { 0.5.pow(comp.to_double()) }
       v.push(vv)
       ii = ii + 1
     }
@@ -202,7 +205,9 @@ fn power_iteration_pca(
         kk = kk + 1
       }
       let nrm = if nrm2 == 0.0 { 0.0 } else { nrm2.sqrt() }
-      if nrm < zero_eps { break }
+      if nrm < zero_eps {
+        break
+      }
       let mut kk2 = 0
       while kk2 < p {
         v_new[kk2] = v_new[kk2] / nrm
@@ -229,10 +234,14 @@ fn power_iteration_pca(
       }
       v = v_new
       eig = rq
-      if diff.sqrt() < 0.00000001 { break }
+      if diff.sqrt() < 0.00000001 {
+        break
+      }
       iter_count = iter_count + 1
     }
-    if eig < 0.0 { eig = 0.0 }
+    if eig < 0.0 {
+      eig = 0.0
+    }
     eigvecs_rows.push(v)
     eigvals.push(eig)
     // deflate
@@ -251,12 +260,15 @@ fn power_iteration_pca(
   (v_cols, eigvals)
 }
 
+///|
 fn pca_matmul(
   a : Array[Array[Double]],
   b : Array[Array[Double]],
 ) -> Array[Array[Double]] {
   let n = a.length()
-  if n == 0 { return [] }
+  if n == 0 {
+    return []
+  }
   let ka = a[0].length()
   let kb = b.length()
   let p = if kb == 0 { 0 } else { b[0].length() }
@@ -282,9 +294,12 @@ fn pca_matmul(
   out
 }
 
+///|
 fn compute_variance_explained(eigvals : Array[Double]) -> Array[Double] {
   let mut total = 0.0
-  for e in eigvals { total = total + e }
+  for e in eigvals {
+    total = total + e
+  }
   let out : Array[Double] = Array::new()
   if total == 0.0 {
     for e in eigvals {
@@ -292,11 +307,14 @@ fn compute_variance_explained(eigvals : Array[Double]) -> Array[Double] {
       out.push(0.0)
     }
   } else {
-    for e in eigvals { out.push(e / total) }
+    for e in eigvals {
+      out.push(e / total)
+    }
   }
   out
 }
 
+///|
 fn compute_cumulative(x : Array[Double]) -> Array[Double] {
   let out : Array[Double] = Array::new()
   let mut s = 0.0
@@ -309,6 +327,7 @@ fn compute_cumulative(x : Array[Double]) -> Array[Double] {
 
 // ---------- FullPCAResult ----------
 
+///|
 pub struct FullPCAResult {
   pub scores : Array[Array[Double]]
   pub loadings : Array[Array[Double]]
@@ -323,6 +342,7 @@ pub struct FullPCAResult {
   pub used_scaling : Bool
 }
 
+///|
 pub fn pcatools_run_pca(
   data : Array[Array[Double]],
   n_components : Int,
@@ -350,13 +370,17 @@ pub fn pcatools_run_pca(
   let variance_explained = compute_variance_explained(eigvals)
   let cumulative_variance = compute_cumulative(variance_explained)
   FullPCAResult::{
-    scores: scores,
+    scores,
     loadings: eigvecs,
     eigenvalues: eigvals,
-    variance_explained: variance_explained,
-    cumulative_variance: cumulative_variance,
+    variance_explained,
+    cumulative_variance,
     n_samples: data.length(),
-    n_variables: if data.length() == 0 { 0 } else { data[0].length() },
+    n_variables: if data.length() == 0 {
+      0
+    } else {
+      data[0].length()
+    },
     n_components: eigvals.length(),
     center: means,
     scale: sds,
@@ -364,16 +388,29 @@ pub fn pcatools_run_pca(
   }
 }
 
+///|
 pub fn pcatools_summary(res : FullPCAResult) -> String {
   let buf = StringBuilder::new()
-  buf.write_string("PCAResult: \{res.n_samples} samples, \{res.n_variables} variables\n")
-  buf.write_string("  components = \{res.n_components}, scaling = \{res.used_scaling}\n")
+  buf.write_string(
+    "PCAResult: \{res.n_samples} samples, \{res.n_variables} variables\n",
+  )
+  buf.write_string(
+    "  components = \{res.n_components}, scaling = \{res.used_scaling}\n",
+  )
   let k = if res.n_components < 8 { res.n_components } else { 8 }
   let mut i = 0
   while i < k {
     let ev = if i < res.eigenvalues.length() { res.eigenvalues[i] } else { 0.0 }
-    let ve = if i < res.variance_explained.length() { res.variance_explained[i] } else { 0.0 }
-    let cv = if i < res.cumulative_variance.length() { res.cumulative_variance[i] } else { 0.0 }
+    let ve = if i < res.variance_explained.length() {
+      res.variance_explained[i]
+    } else {
+      0.0
+    }
+    let cv = if i < res.cumulative_variance.length() {
+      res.cumulative_variance[i]
+    } else {
+      0.0
+    }
     buf.write_string("  PC\{i+1}: eig=\{ev}  var=\{ve}  cum=\{cv}\n")
     i = i + 1
   }
@@ -385,19 +422,24 @@ pub fn pcatools_summary(res : FullPCAResult) -> String {
 
 // ---------- scree_plot_ascii ----------
 
+///|
 pub fn scree_plot_ascii(
   res : FullPCAResult,
   height? : Int = 8,
   width_per_pc? : Int = 3,
 ) -> String {
   let k = res.variance_explained.length()
-  if k == 0 { return "(no PCs available for scree plot)".to_string() }
+  if k == 0 {
+    return "(no PCs available for scree plot)".to_string()
+  }
   let buf = StringBuilder::new()
   let mut max_ve = 0.0
   if res.variance_explained.length() > 0 {
     max_ve = res.variance_explained[0]
     for x in res.variance_explained {
-      if x > max_ve { max_ve = x }
+      if x > max_ve {
+        max_ve = x
+      }
     }
   }
   let mm = if max_ve == 0.0 { 1.0 } else { max_ve }
@@ -408,17 +450,15 @@ pub fn scree_plot_ascii(
     let threshold = frac * mm
     let mut i = 0
     while i < k {
-      let cell = if res.variance_explained[i] >= threshold {
-        "#"
-      } else {
-        " "
-      }
+      let cell = if res.variance_explained[i] >= threshold { "#" } else { " " }
       let mut w = 0
       while w < width_per_pc {
         buf.write_string(cell)
         w = w + 1
       }
-      if i + 1 < k { buf.write_string(" ") }
+      if i + 1 < k {
+        buf.write_string(" ")
+      }
       i = i + 1
     }
     buf.write_string("  \{threshold}\n")
@@ -444,6 +484,7 @@ pub fn scree_plot_ascii(
 
 // ---------- pca_biplot_ascii ----------
 
+///|
 pub struct BiplotOptions {
   pub pc_x : Int
   pub pc_y : Int
@@ -452,16 +493,12 @@ pub struct BiplotOptions {
   pub max_loadings : Int
 }
 
+///|
 pub fn BiplotOptions::new() -> BiplotOptions {
-  BiplotOptions::{
-    pc_x: 1,
-    pc_y: 2,
-    width: 60,
-    height: 20,
-    max_loadings: 8,
-  }
+  BiplotOptions::{ pc_x: 1, pc_y: 2, width: 60, height: 20, max_loadings: 8 }
 }
 
+///|
 pub fn pca_biplot_ascii(
   res : FullPCAResult,
   opts? : BiplotOptions = BiplotOptions::new(),
@@ -489,10 +526,18 @@ pub fn pca_biplot_ascii(
   let mut ymin = res.scores[0][iy]
   let mut ymax = ymin
   for s in res.scores {
-    if s[ix] < xmin { xmin = s[ix] }
-    if s[ix] > xmax { xmax = s[ix] }
-    if s[iy] < ymin { ymin = s[iy] }
-    if s[iy] > ymax { ymax = s[iy] }
+    if s[ix] < xmin {
+      xmin = s[ix]
+    }
+    if s[ix] > xmax {
+      xmax = s[ix]
+    }
+    if s[iy] < ymin {
+      ymin = s[iy]
+    }
+    if s[iy] > ymax {
+      ymax = s[iy]
+    }
   }
   let xr = if xmax - xmin == 0.0 { 1.0 } else { xmax - xmin }
   let yr = if ymax - ymin == 0.0 { 1.0 } else { ymax - ymin }
@@ -528,13 +573,17 @@ pub fn pca_biplot_ascii(
   let mut c_axis = 0
   while c_axis < w {
     let ch = grid[oyr][c_axis]
-    if ch == ' '.to_int() { grid[oyr][c_axis] = '-'.to_int() }
+    if ch == ' '.to_int() {
+      grid[oyr][c_axis] = '-'.to_int()
+    }
     c_axis = c_axis + 1
   }
   let mut r_axis = 0
   while r_axis < h {
     let ch = grid[r_axis][oxc]
-    if ch == ' '.to_int() { grid[r_axis][oxc] = '|'.to_int() }
+    if ch == ' '.to_int() {
+      grid[r_axis][oxc] = '|'.to_int()
+    }
     r_axis = r_axis + 1
   }
   // loadings
@@ -549,7 +598,13 @@ pub fn pca_biplot_ascii(
       idx = idx + 1
     }
     ranked.sort_by(fn(p : (Int, Double), q : (Int, Double)) -> Int {
-      if p.1 > q.1 { -1 } else if p.1 < q.1 { 1 } else { 0 }
+      if p.1 > q.1 {
+        -1
+      } else if p.1 < q.1 {
+        1
+      } else {
+        0
+      }
     })
     let lm = if opts.max_loadings < 1 { 1 } else { opts.max_loadings }
     let ntop = if lm < ranked.length() { lm } else { ranked.length() }
@@ -560,10 +615,14 @@ pub fn pca_biplot_ascii(
       let lx = res.loadings[idxi][ix]
       let ly = res.loadings[idxi][iy]
       let m_val = (lx * lx + ly * ly).sqrt()
-      if m_val > lmax { lmax = m_val }
+      if m_val > lmax {
+        lmax = m_val
+      }
       t = t + 1
     }
-    if lmax == 0.0 { lmax = 1.0 }
+    if lmax == 0.0 {
+      lmax = 1.0
+    }
     let mut t2 = 0
     while t2 < ntop {
       let idxi = ranked[t2].0
@@ -611,6 +670,7 @@ pub fn pca_biplot_ascii(
 
 // ---------- find_pca_outliers ----------
 
+///|
 pub struct PCAOutlierResult {
   pub indices : Array[Int]
   pub scores : Array[Double]
@@ -618,12 +678,23 @@ pub struct PCAOutlierResult {
   pub cutoff : Double
 }
 
+///|
 fn quantile_simple(xs_in : Array[Double], q : Double) -> Double {
-  if xs_in.length() == 0 { return 0.0 }
+  if xs_in.length() == 0 {
+    return 0.0
+  }
   let xs : Array[Double] = Array::new()
-  for x in xs_in { xs.push(x) }
+  for x in xs_in {
+    xs.push(x)
+  }
   xs.sort_by(fn(a : Double, b : Double) -> Int {
-    if a < b { -1 } else if a > b { 1 } else { 0 }
+    if a < b {
+      -1
+    } else if a > b {
+      1
+    } else {
+      0
+    }
   })
   let n = xs.length()
   let qq = if q < 0.0 { 0.0 } else if q > 1.0 { 1.0 } else { q }
@@ -634,6 +705,7 @@ fn quantile_simple(xs_in : Array[Double], q : Double) -> Double {
   xs[lo] * (1.0 - frac) + xs[hi] * frac
 }
 
+///|
 pub fn find_pca_outliers(
   res : FullPCAResult,
   n_pcs? : Int = 5,
@@ -641,13 +713,7 @@ pub fn find_pca_outliers(
 ) -> PCAOutlierResult {
   let n = res.scores.length()
   let k_total = res.n_components
-  let k = if n_pcs < 1 {
-    1
-  } else if n_pcs > k_total {
-    k_total
-  } else {
-    n_pcs
-  }
+  let k = if n_pcs < 1 { 1 } else if n_pcs > k_total { k_total } else { n_pcs }
   if n == 0 || k == 0 {
     return PCAOutlierResult::{
       indices: [],
@@ -689,19 +755,22 @@ pub fn find_pca_outliers(
     indices: outliers,
     scores: out_scores,
     n_tested: n,
-    cutoff: cutoff,
+    cutoff,
   }
 }
 
 // ---------- variable_correlations ----------
 
+///|
 pub fn variable_correlations(
   data : Array[Array[Double]],
   res : FullPCAResult,
   which_pcs? : Int = 5,
 ) -> Array[Array[Double]] {
   let n = data.length()
-  if n == 0 { return [] }
+  if n == 0 {
+    return []
+  }
   let p = data[0].length()
   let k = if which_pcs < 1 {
     1
@@ -787,18 +856,8 @@ pub fn variable_correlations(
         }
         ii = ii + 1
       }
-      let r = if c3 < 2 {
-        0.0
-      } else {
-        sum_prod / (c3 - 1).to_double()
-      }
-      let rclamp = if r > 1.0 {
-        1.0
-      } else if r < -1.0 {
-        -1.0
-      } else {
-        r
-      }
+      let r = if c3 < 2 { 0.0 } else { sum_prod / (c3 - 1).to_double() }
+      let rclamp = if r > 1.0 { 1.0 } else if r < -1.0 { -1.0 } else { r }
       row.push(rclamp)
       tt = tt + 1
     }

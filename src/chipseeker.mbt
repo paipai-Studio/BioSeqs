@@ -9,16 +9,20 @@
 /// Feature assignment uses the ChIPseeker priority order:
 ///   Promoter > 5'UTR > 3'UTR > Exon > Intron > Downstream > Distal Intergenic
 
-///| Length of the 5'UTR / 3'UTR approximation (in bp).
+///|
+/// Length of the 5'UTR / 3'UTR approximation (in bp).
 const CS_UTR_LENGTH : Int = 500
 
-///| Size of each implicit "exon" segment inside the gene body (in bp).
+///|
+/// Size of each implicit "exon" segment inside the gene body (in bp).
 const CS_EXON_SIZE : Int = 1000
 
-///| Size of the downstream region past the gene body (in bp).
+///|
+/// Size of the downstream region past the gene body (in bp).
 const CS_DOWNSTREAM_WINDOW : Int = 3000
 
-///| A ChIP-seq peak (genomic interval).
+///|
+/// A ChIP-seq peak (genomic interval).
 pub struct Peak {
   chr : String
   start : Int
@@ -29,7 +33,9 @@ pub struct Peak {
 }
 
 ///| Construct a Peak. `chr` and `start` are required; all other fields
-///| are optional and default to zero (summit=0 means "use peak center").
+
+///|
+/// are optional and default to zero (summit=0 means "use peak center").
 pub fn Peak::new(
   chr~ : String,
   start~ : Int,
@@ -41,42 +47,50 @@ pub fn Peak::new(
   Peak::{ chr, start, end, summit, fold_enrichment, p_value }
 }
 
-///| Get the chromosome of the peak.
+///|
+/// Get the chromosome of the peak.
 pub fn Peak::get_chr(self : Peak) -> String {
   self.chr
 }
 
-///| Get the start position of the peak.
+///|
+/// Get the start position of the peak.
 pub fn Peak::get_start(self : Peak) -> Int {
   self.start
 }
 
-///| Get the end position of the peak.
+///|
+/// Get the end position of the peak.
 pub fn Peak::get_end(self : Peak) -> Int {
   self.end
 }
 
-///| Set the end position of the peak.
+///|
+/// Set the end position of the peak.
 pub fn Peak::set_end(self : Peak, new_end : Int) -> Unit {
   self.end = new_end
 }
 
-///| Get the summit position of the peak.
+///|
+/// Get the summit position of the peak.
 pub fn Peak::get_summit(self : Peak) -> Int {
   self.summit
 }
 
-///| Get the fold enrichment of the peak.
+///|
+/// Get the fold enrichment of the peak.
 pub fn Peak::get_fold_enrichment(self : Peak) -> Double {
   self.fold_enrichment
 }
 
-///| Get the p-value of the peak.
+///|
+/// Get the p-value of the peak.
 pub fn Peak::get_p_value(self : Peak) -> Double {
   self.p_value
 }
 
-///| A gene annotation record used for peak annotation.
+///|
+/// A gene annotation record used for peak annotation.
 pub struct GeneAnnotation {
   gene_id : String
   gene_name : String
@@ -88,8 +102,11 @@ pub struct GeneAnnotation {
 }
 
 ///| Construct a GeneAnnotation. The TSS is auto-computed from the strand:
+
 ///|   "+" strand -> tss = gene_start
-///|   "-" strand -> tss = gene_end
+
+///|
+///   "-" strand -> tss = gene_end
 pub fn GeneAnnotation::new(
   gene_id~ : String,
   gene_name~ : String,
@@ -102,42 +119,50 @@ pub fn GeneAnnotation::new(
   GeneAnnotation::{ gene_id, gene_name, chr, gene_start, gene_end, strand, tss }
 }
 
-///| Get the gene id.
+///|
+/// Get the gene id.
 pub fn GeneAnnotation::get_gene_id(self : GeneAnnotation) -> String {
   self.gene_id
 }
 
-///| Get the gene name.
+///|
+/// Get the gene name.
 pub fn GeneAnnotation::get_gene_name(self : GeneAnnotation) -> String {
   self.gene_name
 }
 
-///| Get the chromosome.
+///|
+/// Get the chromosome.
 pub fn GeneAnnotation::get_chr(self : GeneAnnotation) -> String {
   self.chr
 }
 
-///| Get the gene start.
+///|
+/// Get the gene start.
 pub fn GeneAnnotation::get_gene_start(self : GeneAnnotation) -> Int {
   self.gene_start
 }
 
-///| Get the gene end.
+///|
+/// Get the gene end.
 pub fn GeneAnnotation::get_gene_end(self : GeneAnnotation) -> Int {
   self.gene_end
 }
 
-///| Get the strand.
+///|
+/// Get the strand.
 pub fn GeneAnnotation::get_strand(self : GeneAnnotation) -> String {
   self.strand
 }
 
-///| Get the transcription start site (TSS).
+///|
+/// Get the transcription start site (TSS).
 pub fn GeneAnnotation::get_tss(self : GeneAnnotation) -> Int {
   self.tss
 }
 
-///| The result of annotating a single peak.
+///|
+/// The result of annotating a single peak.
 pub struct PeakAnnotation {
   peak : Peak
   gene_id : String
@@ -149,7 +174,8 @@ pub struct PeakAnnotation {
   annotation : String // detailed annotation string
 }
 
-///| Construct a PeakAnnotation.
+///|
+/// Construct a PeakAnnotation.
 pub fn PeakAnnotation::new(
   peak~ : Peak,
   gene_id~ : String,
@@ -172,47 +198,56 @@ pub fn PeakAnnotation::new(
   }
 }
 
-///| Get the peak.
+///|
+/// Get the peak.
 pub fn PeakAnnotation::get_peak(self : PeakAnnotation) -> Peak {
   self.peak
 }
 
-///| Get the gene id.
+///|
+/// Get the gene id.
 pub fn PeakAnnotation::get_gene_id(self : PeakAnnotation) -> String {
   self.gene_id
 }
 
-///| Get the gene name.
+///|
+/// Get the gene name.
 pub fn PeakAnnotation::get_gene_name(self : PeakAnnotation) -> String {
   self.gene_name
 }
 
-///| Get the chromosome.
+///|
+/// Get the chromosome.
 pub fn PeakAnnotation::get_chr(self : PeakAnnotation) -> String {
   self.chr
 }
 
-///| Get the TSS.
+///|
+/// Get the TSS.
 pub fn PeakAnnotation::get_tss(self : PeakAnnotation) -> Int {
   self.tss
 }
 
-///| Get the signed distance to TSS.
+///|
+/// Get the signed distance to TSS.
 pub fn PeakAnnotation::get_distance_to_tss(self : PeakAnnotation) -> Int {
   self.distance_to_tss
 }
 
-///| Get the assigned feature string.
+///|
+/// Get the assigned feature string.
 pub fn PeakAnnotation::get_feature(self : PeakAnnotation) -> String {
   self.feature
 }
 
-///| Get the detailed annotation string.
+///|
+/// Get the detailed annotation string.
 pub fn PeakAnnotation::get_annotation(self : PeakAnnotation) -> String {
   self.annotation
 }
 
-///| Summary counts of peaks assigned to each feature type.
+///|
+/// Summary counts of peaks assigned to each feature type.
 pub struct AnnotationSummary {
   total_peaks : Int
   promoter : Int
@@ -224,7 +259,8 @@ pub struct AnnotationSummary {
   distal_intergenic : Int
 }
 
-///| Construct an AnnotationSummary.
+///|
+/// Construct an AnnotationSummary.
 pub fn AnnotationSummary::new(
   total_peaks~ : Int,
   promoter~ : Int,
@@ -247,48 +283,60 @@ pub fn AnnotationSummary::new(
   }
 }
 
-///| Get total peaks.
+///|
+/// Get total peaks.
 pub fn AnnotationSummary::get_total_peaks(self : AnnotationSummary) -> Int {
   self.total_peaks
 }
 
-///| Get promoter count.
+///|
+/// Get promoter count.
 pub fn AnnotationSummary::get_promoter(self : AnnotationSummary) -> Int {
   self.promoter
 }
 
-///| Get 5'UTR count.
+///|
+/// Get 5'UTR count.
 pub fn AnnotationSummary::get_utr5(self : AnnotationSummary) -> Int {
   self.utr5
 }
 
-///| Get 3'UTR count.
+///|
+/// Get 3'UTR count.
 pub fn AnnotationSummary::get_utr3(self : AnnotationSummary) -> Int {
   self.utr3
 }
 
-///| Get exon count.
+///|
+/// Get exon count.
 pub fn AnnotationSummary::get_exon(self : AnnotationSummary) -> Int {
   self.exon
 }
 
-///| Get intron count.
+///|
+/// Get intron count.
 pub fn AnnotationSummary::get_intron(self : AnnotationSummary) -> Int {
   self.intron
 }
 
-///| Get downstream count.
+///|
+/// Get downstream count.
 pub fn AnnotationSummary::get_downstream(self : AnnotationSummary) -> Int {
   self.downstream
 }
 
-///| Get distal intergenic count.
-pub fn AnnotationSummary::get_distal_intergenic(self : AnnotationSummary) -> Int {
+///|
+/// Get distal intergenic count.
+pub fn AnnotationSummary::get_distal_intergenic(
+  self : AnnotationSummary,
+) -> Int {
   self.distal_intergenic
 }
 
 ///| Compute the effective single position used for a peak. Uses the summit
-///| if it is non-zero, otherwise the midpoint of [start, end].
+
+///|
+/// if it is non-zero, otherwise the midpoint of [start, end].
 pub fn cs_peak_position(peak : Peak) -> Int {
   if peak.summit != 0 {
     peak.summit
@@ -298,7 +346,9 @@ pub fn cs_peak_position(peak : Peak) -> Int {
 }
 
 ///| Build a sentinel "no gene" annotation. Used when no gene is found on
-///| the same chromosome as the peak.
+
+///|
+/// the same chromosome as the peak.
 fn cs_na_gene(chr : String) -> GeneAnnotation {
   GeneAnnotation::{
     gene_id: "",
@@ -312,10 +362,15 @@ fn cs_na_gene(chr : String) -> GeneAnnotation {
 }
 
 ///| Compute the signed distance from a peak to a gene's TSS.
+
 ///|
+
 ///| Positive distance means the peak is downstream of the TSS (in the
+
 ///| transcription direction); negative means upstream. For "-" strand
-///| genes the orientation is flipped so the sign convention still holds.
+
+///|
+/// genes the orientation is flipped so the sign convention still holds.
 pub fn compute_tss_distance(peak : Peak, gene : GeneAnnotation) -> Int {
   if gene.gene_id == "" {
     return 0
@@ -329,8 +384,11 @@ pub fn compute_tss_distance(peak : Peak, gene : GeneAnnotation) -> Int {
 }
 
 ///| Find the gene whose TSS is closest to the peak. Only genes on the same
+
 ///| chromosome as the peak are considered. If no such gene exists, a
-///| sentinel annotation with empty `gene_id` is returned.
+
+///|
+/// sentinel annotation with empty `gene_id` is returned.
 pub fn find_nearest_gene(
   peak : Peak,
   genes : Array[GeneAnnotation],
@@ -354,8 +412,11 @@ pub fn find_nearest_gene(
 }
 
 ///| Assign a genomic feature to a peak relative to a gene, following the
+
 ///| ChIPseeker priority:
-///|   Promoter > 5'UTR > 3'UTR > Exon > Intron > Downstream > Distal Intergenic
+
+///|
+///   Promoter > 5'UTR > 3'UTR > Exon > Intron > Downstream > Distal Intergenic
 pub fn assign_feature(
   peak : Peak,
   gene : GeneAnnotation,
@@ -377,7 +438,20 @@ pub fn assign_feature(
   // the middle of the gene body.
   let utr_len = CS_UTR_LENGTH
   let exon_size = CS_EXON_SIZE
-  let (utr5_start, utr5_end, utr3_start, utr3_end, exon1_start, exon1_end, exon2_start, exon2_end, intron_start, intron_end, down_start, down_end) = if gene.strand == "-" {
+  let (
+    utr5_start,
+    utr5_end,
+    utr3_start,
+    utr3_end,
+    exon1_start,
+    exon1_end,
+    exon2_start,
+    exon2_end,
+    intron_start,
+    intron_end,
+    down_start,
+    down_end,
+  ) = if gene.strand == "-" {
     // "-" strand: TSS = gene_end; transcription proceeds toward gene_start.
     let utr5_s = gene.gene_end - utr_len
     let utr5_e = gene.gene_end
@@ -392,18 +466,8 @@ pub fn assign_feature(
     let down_s = gene.gene_start - CS_DOWNSTREAM_WINDOW
     let down_e = gene.gene_start
     (
-      utr5_s,
-      utr5_e,
-      utr3_s,
-      utr3_e,
-      exon1_s,
-      exon1_e,
-      exon2_s,
-      exon2_e,
-      intron_s,
-      intron_e,
-      down_s,
-      down_e,
+      utr5_s, utr5_e, utr3_s, utr3_e, exon1_s, exon1_e, exon2_s, exon2_e, intron_s,
+      intron_e, down_s, down_e,
     )
   } else {
     // "+" strand: TSS = gene_start; transcription proceeds toward gene_end.
@@ -420,18 +484,8 @@ pub fn assign_feature(
     let down_s = gene.gene_end
     let down_e = gene.gene_end + CS_DOWNSTREAM_WINDOW
     (
-      utr5_s,
-      utr5_e,
-      utr3_s,
-      utr3_e,
-      exon1_s,
-      exon1_e,
-      exon2_s,
-      exon2_e,
-      intron_s,
-      intron_e,
-      down_s,
-      down_e,
+      utr5_s, utr5_e, utr3_s, utr3_e, exon1_s, exon1_e, exon2_s, exon2_e, intron_s,
+      intron_e, down_s, down_e,
     )
   }
   // 2. 5'UTR
@@ -444,7 +498,7 @@ pub fn assign_feature(
   }
   // 4. Exon (either of the two implicit exon segments)
   if (peak_pos >= exon1_start && peak_pos <= exon1_end) ||
-     (peak_pos >= exon2_start && peak_pos <= exon2_end) {
+    (peak_pos >= exon2_start && peak_pos <= exon2_end) {
     return "Exon"
   }
   // 5. Intron
@@ -459,7 +513,8 @@ pub fn assign_feature(
   "Distal Intergenic"
 }
 
-///| Format the detailed annotation string for a peak/gene/feature triple.
+///|
+/// Format the detailed annotation string for a peak/gene/feature triple.
 fn cs_format_annotation(
   gene : GeneAnnotation,
   distance : Int,
@@ -475,19 +530,21 @@ fn cs_format_annotation(
     "Intron" => "Intron of \{gene.gene_name}"
     "Downstream" =>
       "Downstream (<=\{CS_DOWNSTREAM_WINDOW}bp) of \{gene.gene_name}"
-    _ => {
+    _ =>
       if gene.gene_id == "" {
         "Distal Intergenic (no nearby gene on same chromosome)"
       } else {
         "Distal Intergenic (nearest gene: \{gene.gene_name}, distance to TSS: \{distance})"
       }
-    }
   }
 }
 
 ///| Annotate a single peak: find the nearest gene, compute the signed
+
 ///| distance to its TSS, assign a genomic feature, and build the detailed
-///| annotation string.
+
+///|
+/// annotation string.
 pub fn annotate_peak(
   peak : Peak,
   genes : Array[GeneAnnotation],
@@ -496,20 +553,23 @@ pub fn annotate_peak(
   let gene = find_nearest_gene(peak, genes)
   let distance = compute_tss_distance(peak, gene)
   let feature = assign_feature(peak, gene, promoter_window)
-  let annotation = cs_format_annotation(gene, distance, feature, promoter_window)
+  let annotation = cs_format_annotation(
+    gene, distance, feature, promoter_window,
+  )
   PeakAnnotation::new(
-    peak=peak,
+    peak~,
     gene_id=gene.gene_id,
     gene_name=gene.gene_name,
     chr=peak.chr,
     tss=gene.tss,
     distance_to_tss=distance,
-    feature=feature,
-    annotation=annotation,
+    feature~,
+    annotation~,
   )
 }
 
-///| Annotate a collection of peaks against a set of gene annotations.
+///|
+/// Annotate a collection of peaks against a set of gene annotations.
 pub fn annotate_peaks(
   peaks : Array[Peak],
   genes : Array[GeneAnnotation],
@@ -522,7 +582,8 @@ pub fn annotate_peaks(
   result
 }
 
-///| Tally the feature assignments of a list of peak annotations.
+///|
+/// Tally the feature assignments of a list of peak annotations.
 pub fn annotation_summary(
   annotations : Array[PeakAnnotation],
 ) -> AnnotationSummary {
@@ -547,17 +608,18 @@ pub fn annotation_summary(
   }
   AnnotationSummary::new(
     total_peaks=annotations.length(),
-    promoter=promoter,
-    utr5=utr5,
-    utr3=utr3,
-    exon=exon,
-    intron=intron,
-    downstream=downstream,
-    distal_intergenic=distal_intergenic,
+    promoter~,
+    utr5~,
+    utr3~,
+    exon~,
+    intron~,
+    downstream~,
+    distal_intergenic~,
   )
 }
 
-///| Return only those annotations whose feature matches `feature`.
+///|
+/// Return only those annotations whose feature matches `feature`.
 pub fn filter_by_feature(
   annotations : Array[PeakAnnotation],
   feature : String,
@@ -572,7 +634,9 @@ pub fn filter_by_feature(
 }
 
 ///| Return only those annotations whose absolute distance to TSS is at
-///| most `max_distance`.
+
+///|
+/// most `max_distance`.
 pub fn filter_by_distance(
   annotations : Array[PeakAnnotation],
   max_distance : Int,
@@ -586,7 +650,8 @@ pub fn filter_by_distance(
   result
 }
 
-///| Format an AnnotationSummary as a human-readable string.
+///|
+/// Format an AnnotationSummary as a human-readable string.
 pub fn chipseeker_summary_string(summary : AnnotationSummary) -> String {
   let mut s = "ChIPseeker Annotation Summary\n"
   s = s + "=============================\n"
@@ -602,10 +667,15 @@ pub fn chipseeker_summary_string(summary : AnnotationSummary) -> String {
 }
 
 ///| Sample ChIP-seq peaks for testing and demonstration. The peaks are
+
 ///| laid out so that, when annotated against `chipseeker_sample_genes()`
+
 ///| with the default promoter window (3000), they exercise every feature
+
 ///| type except 5'UTR (which is only reachable with a smaller window
-///| because the 5'UTR sits inside the default promoter window).
+
+///|
+/// because the 5'UTR sits inside the default promoter window).
 pub fn chipseeker_sample_peaks() -> Array[Peak] {
   [
     // chr1, GeneA (+ strand, TSS=10000, gene_end=25000)
@@ -629,7 +699,8 @@ pub fn chipseeker_sample_peaks() -> Array[Peak] {
   ]
 }
 
-///| Sample gene annotations for testing and demonstration.
+///|
+/// Sample gene annotations for testing and demonstration.
 pub fn chipseeker_sample_genes() -> Array[GeneAnnotation] {
   [
     GeneAnnotation::new(

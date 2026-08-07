@@ -34,9 +34,10 @@ test "tile_width_larger_than_range_single_tile" {
 
 ///|
 test "tile_default_returns_original" {
-  let gr = @src.granges(
-    ["chr1", "chr1"], [(1, 10), (20, 30)], [@src.strand_plus(), @src.strand_minus()],
-  )
+  let gr = @src.granges(["chr1", "chr1"], [(1, 10), (20, 30)], [
+    @src.strand_plus(),
+    @src.strand_minus(),
+  ])
   let tiled = @src.granges_tile(gr)
   assert_eq(tiled.seqnames.length(), 2)
   assert_eq(tiled.starts[0], 1)
@@ -109,9 +110,10 @@ test "tile_by_ranges_distributes_remainder" {
 
 ///|
 test "coverage_by_window_correct_counts" {
-  let gr = @src.granges(
-    ["chr1", "chr1"], [(1, 5), (3, 8)], [@src.strand_plus(), @src.strand_minus()],
-  )
+  let gr = @src.granges(["chr1", "chr1"], [(1, 5), (3, 8)], [
+    @src.strand_plus(),
+    @src.strand_minus(),
+  ])
   let cov = @src.coverage_by_window(gr, "chr1", 10, 5, 5)
   assert_eq(cov.length(), 2)
   assert_eq(cov[0].0, 1)
@@ -145,9 +147,10 @@ test "bin_genome_correct_bin_count" {
 
 ///|
 test "bin_genome_density_values" {
-  let gr = @src.granges(
-    ["chr1", "chr1"], [(1, 5), (3, 8)], [@src.strand_plus(), @src.strand_minus()],
-  )
+  let gr = @src.granges(["chr1", "chr1"], [(1, 5), (3, 8)], [
+    @src.strand_plus(),
+    @src.strand_minus(),
+  ])
   let bins = @src.bin_genome(gr, [("chr1", 10)], 5)
   assert_eq(bins.length(), 2)
   // First bin (1-5) overlaps 2 ranges, density = 2/2 = 1.0
@@ -202,9 +205,10 @@ test "granges_promoters_on_minus_strand" {
 
 ///|
 test "granges_gaps_finds_correct_gaps" {
-  let gr = @src.granges(
-    ["chr1", "chr1"], [(1, 10), (20, 30)], [@src.strand_plus(), @src.strand_minus()],
-  )
+  let gr = @src.granges(["chr1", "chr1"], [(1, 10), (20, 30)], [
+    @src.strand_plus(),
+    @src.strand_minus(),
+  ])
   let gaps = @src.granges_gaps(gr, end_limit=100)
   assert_eq(gaps.seqnames.length(), 2)
   assert_eq(gaps.starts[0], 11)
@@ -215,9 +219,10 @@ test "granges_gaps_finds_correct_gaps" {
 
 ///|
 test "granges_gaps_with_end_limit" {
-  let gr = @src.granges(
-    ["chr1", "chr1"], [(1, 10), (20, 30)], [@src.strand_plus(), @src.strand_minus()],
-  )
+  let gr = @src.granges(["chr1", "chr1"], [(1, 10), (20, 30)], [
+    @src.strand_plus(),
+    @src.strand_minus(),
+  ])
   let gaps = @src.granges_gaps(gr, end_limit=50)
   assert_eq(gaps.seqnames.length(), 2)
   assert_eq(gaps.starts[0], 11)

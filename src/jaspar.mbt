@@ -189,7 +189,10 @@ fn j_index_of(s : String, sub : String) -> Int {
 ///|
 /// Convert PFM to a position weight matrix (PWM) with log-odds scoring.
 /// Uses background frequency of 0.25 for each base.
-pub fn JasparMatrix::to_pwm(self : JasparMatrix, pseudocount? : Double = 0.01) -> Array[Array[Double]] {
+pub fn JasparMatrix::to_pwm(
+  self : JasparMatrix,
+  pseudocount? : Double = 0.01,
+) -> Array[Array[Double]] {
   let pwm = Array::new()
   let bg = 0.25
   let mut row = 0
@@ -198,7 +201,8 @@ pub fn JasparMatrix::to_pwm(self : JasparMatrix, pseudocount? : Double = 0.01) -
     let mut col = 0
     while col < self.width {
       let total = get_col_total(self, col).to_double()
-      let freq = (self.pfm[row][col].to_double() + pseudocount) / (total + pseudocount * 4.0)
+      let freq = (self.pfm[row][col].to_double() + pseudocount) /
+        (total + pseudocount * 4.0)
       let score = @math.ln(freq / bg) / @math.ln(2.0)
       col_scores.push(score)
       col = col + 1
@@ -225,7 +229,8 @@ pub fn JasparMatrix::information_content(self : JasparMatrix) -> Array[Double] {
       }
       row = row + 1
     }
-    let max_entropy = @math.ln(self.alphabet.length().to_double()) / @math.ln(2.0)
+    let max_entropy = @math.ln(self.alphabet.length().to_double()) /
+      @math.ln(2.0)
     ic.push(max_entropy - entropy)
     col = col + 1
   }
@@ -245,7 +250,10 @@ pub fn JasparMatrix::total_information(self : JasparMatrix) -> Double {
 
 ///|
 /// Scan a sequence with the PWM and return the best score.
-pub fn JasparMatrix::scan_sequence(self : JasparMatrix, sequence : String) -> Array[(Int, Double, String)] {
+pub fn JasparMatrix::scan_sequence(
+  self : JasparMatrix,
+  sequence : String,
+) -> Array[(Int, Double, String)] {
   let pwm = self.to_pwm()
   let upper_seq = sequence.to_upper()
   let seq_len = upper_seq.length()
@@ -294,7 +302,9 @@ fn find_base_index(matrix : JasparMatrix, base : String) -> Int {
 
 ///|
 /// Sort scanning results by score (descending).
-pub fn jaspar_sort_results(results : Array[(Int, Double, String)]) -> Array[(Int, Double, String)] {
+pub fn jaspar_sort_results(
+  results : Array[(Int, Double, String)],
+) -> Array[(Int, Double, String)] {
   let sorted = results
   let mut i = 0
   while i < sorted.length() - 1 {
@@ -429,7 +439,10 @@ fn parse_int_array(s : String) -> Array[Int] {
 
 ///|
 /// Get a specific matrix by ID from an array of matrices.
-pub fn jaspar_get_matrix(matrices : Array[JasparMatrix], id : String) -> JasparMatrix {
+pub fn jaspar_get_matrix(
+  matrices : Array[JasparMatrix],
+  id : String,
+) -> JasparMatrix {
   for m in matrices {
     if m.id == id {
       return m
@@ -442,7 +455,10 @@ pub fn jaspar_get_matrix(matrices : Array[JasparMatrix], id : String) -> JasparM
 
 ///|
 /// Filter matrices by collection.
-pub fn jaspar_filter_by_collection(matrices : Array[JasparMatrix], collection : String) -> Array[JasparMatrix] {
+pub fn jaspar_filter_by_collection(
+  matrices : Array[JasparMatrix],
+  collection : String,
+) -> Array[JasparMatrix] {
   let result : Array[JasparMatrix] = Array::new()
   for m in matrices {
     if m.collection == collection {
@@ -454,7 +470,10 @@ pub fn jaspar_filter_by_collection(matrices : Array[JasparMatrix], collection : 
 
 ///|
 /// Filter matrices by name pattern (case-insensitive substring match).
-pub fn jaspar_filter_by_name(matrices : Array[JasparMatrix], pattern : String) -> Array[JasparMatrix] {
+pub fn jaspar_filter_by_name(
+  matrices : Array[JasparMatrix],
+  pattern : String,
+) -> Array[JasparMatrix] {
   let result : Array[JasparMatrix] = Array::new()
   let upper_pattern = pattern.to_upper()
   for m in matrices {

@@ -44,7 +44,7 @@ pub struct MemeMotif {
 pub fn MemeMotif::new(
   name : String,
   pspm : Array[Array[Double]],
-  alphabet~ : String = "ACGT",
+  alphabet? : String = "ACGT",
 ) -> MemeMotif {
   let width = if pspm.length() > 0 { pspm.length() } else { 0 }
   MemeMotif::{
@@ -275,22 +275,18 @@ pub fn meme_parse(text : String) -> MemeRecord {
       // If we were building a motif, save it first
       if has_motif {
         finalize_motif(
-          record,
-          has_motif,
-          m_name,
-          m_alt_name,
-          m_alphabet,
-          m_nsites,
-          m_evalue,
-          m_url,
-          m_strands,
-          matrix_rows,
+          record, has_motif, m_name, m_alt_name, m_alphabet, m_nsites, m_evalue,
+          m_url, m_strands, matrix_rows,
         )
       }
       in_matrix = false
       matrix_rows = Array::new()
       let parts = line.split(" ").to_array()
-      m_name = if parts.length() >= 2 { parts[1].trim().to_string() } else { "" }
+      m_name = if parts.length() >= 2 {
+        parts[1].trim().to_string()
+      } else {
+        ""
+      }
       m_alt_name = if parts.length() >= 3 {
         parts[2].trim().to_string()
       } else {
@@ -323,16 +319,8 @@ pub fn meme_parse(text : String) -> MemeRecord {
       m_url = line.substring(start=4).trim().to_string()
       in_matrix = false
       finalize_motif(
-        record,
-        has_motif,
-        m_name,
-        m_alt_name,
-        m_alphabet,
-        m_nsites,
-        m_evalue,
-        m_url,
-        m_strands,
-        matrix_rows,
+        record, has_motif, m_name, m_alt_name, m_alphabet, m_nsites, m_evalue, m_url,
+        m_strands, matrix_rows,
       )
       has_motif = false
       i = i + 1
@@ -449,7 +437,10 @@ fn parse_meme_double_field(text : String, field : String) -> Double {
     let mut i = 0
     while i < rest.length() {
       let ch = rest[i:i + 1].to_string()
-      if (ch >= "0" && ch <= "9") || ch == "." || ch == "-" || ch == "+" ||
+      if (ch >= "0" && ch <= "9") ||
+        ch == "." ||
+        ch == "-" ||
+        ch == "+" ||
         ch == "e" ||
         ch == "E" {
         num_str.write_string(ch)

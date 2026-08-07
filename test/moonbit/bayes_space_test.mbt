@@ -1,6 +1,5 @@
 ///|
 /// Tests for Bioconductor BayesSpace module - Spatial transcriptomics clustering.
-
 test "spot_coord_create" {
   let s = @src.spot_coord("spot_1_2", 1, 2, 2.0, 1.0)
   assert_eq(s.spot_id, "spot_1_2")
@@ -10,6 +9,7 @@ test "spot_coord_create" {
   assert_true((s.y - 1.0).abs() < 1.0e-9)
 }
 
+///|
 test "bayes_space_hex_neighbors_basic" {
   // 3x3 grid of spots
   let spots : Array[@src.SpotCoord] = []
@@ -17,7 +17,15 @@ test "bayes_space_hex_neighbors_basic" {
   while r < 3 {
     let mut c = 0
     while c < 3 {
-      spots.push(@src.spot_coord("s_" + r.to_string() + "_" + c.to_string(), r, c, c.to_double(), r.to_double()))
+      spots.push(
+        @src.spot_coord(
+          "s_" + r.to_string() + "_" + c.to_string(),
+          r,
+          c,
+          c.to_double(),
+          r.to_double(),
+        ),
+      )
       c = c + 1
     }
     r = r + 1
@@ -31,13 +39,22 @@ test "bayes_space_hex_neighbors_basic" {
   assert_true(neighbors[corner_idx].length() < neighbors[center_idx].length())
 }
 
+///|
 test "bayes_space_square_neighbors_basic" {
   let spots : Array[@src.SpotCoord] = []
   let mut r = 0
   while r < 3 {
     let mut c = 0
     while c < 3 {
-      spots.push(@src.spot_coord("s_" + r.to_string() + "_" + c.to_string(), r, c, c.to_double(), r.to_double()))
+      spots.push(
+        @src.spot_coord(
+          "s_" + r.to_string() + "_" + c.to_string(),
+          r,
+          c,
+          c.to_double(),
+          r.to_double(),
+        ),
+      )
       c = c + 1
     }
     r = r + 1
@@ -48,6 +65,7 @@ test "bayes_space_square_neighbors_basic" {
   assert_eq(neighbors[center_idx].length(), 4)
 }
 
+///|
 test "bayes_space_sample_data_shape" {
   let (expr, spots) = @src.bayes_space_sample_data()
   assert_eq(expr.length(), 16) // 4x4 grid
@@ -55,10 +73,18 @@ test "bayes_space_sample_data_shape" {
   assert_eq(expr[0].length(), 3) // 3 features per spot
 }
 
+///|
 test "bayes_space_run_basic" {
   let (expr, spots) = @src.bayes_space_sample_data()
   let neighbors = @src.bayes_space_hex_neighbors(spots)
-  let result = @src.bayes_space_run(expr, spots, 2, neighbors, max_iters=20, seed=42)
+  let result = @src.bayes_space_run(
+    expr,
+    spots,
+    2,
+    neighbors,
+    max_iters=20,
+    seed=42,
+  )
   assert_eq(result.q, 2)
   assert_eq(result.spot_ids.length(), 16)
   assert_eq(result.clusters.length(), 16)
@@ -80,21 +106,37 @@ test "bayes_space_run_basic" {
   }
 }
 
+///|
 test "bayes_space_run_convergence_or_max_iters" {
   let (expr, spots) = @src.bayes_space_sample_data()
   let neighbors = @src.bayes_space_hex_neighbors(spots)
-  let result = @src.bayes_space_run(expr, spots, 2, neighbors, max_iters=50, seed=42)
+  let result = @src.bayes_space_run(
+    expr,
+    spots,
+    2,
+    neighbors,
+    max_iters=50,
+    seed=42,
+  )
   // Should either converge or hit max iters
   assert_true(result.n_iterations > 0)
   assert_true(result.n_iterations <= 50)
 }
 
+///|
 test "bayes_space_two_clusters_separated" {
   // The sample data has top-left (low) and bottom-right (high) clusters.
   // After clustering with q=2, the corner spots should be in different clusters.
   let (expr, spots) = @src.bayes_space_sample_data()
   let neighbors = @src.bayes_space_hex_neighbors(spots)
-  let result = @src.bayes_space_run(expr, spots, 2, neighbors, max_iters=30, seed=42)
+  let result = @src.bayes_space_run(
+    expr,
+    spots,
+    2,
+    neighbors,
+    max_iters=30,
+    seed=42,
+  )
   // Find indices of corner spots
   let mut tl_idx = -1
   let mut br_idx = -1
@@ -114,26 +156,50 @@ test "bayes_space_two_clusters_separated" {
   assert_not_eq(result.clusters[tl_idx], result.clusters[br_idx])
 }
 
+///|
 test "bayes_space_get_cluster_by_id" {
   let (expr, spots) = @src.bayes_space_sample_data()
   let neighbors = @src.bayes_space_hex_neighbors(spots)
-  let result = @src.bayes_space_run(expr, spots, 2, neighbors, max_iters=20, seed=42)
+  let result = @src.bayes_space_run(
+    expr,
+    spots,
+    2,
+    neighbors,
+    max_iters=20,
+    seed=42,
+  )
   let c = @src.bayes_space_get_cluster(result, "spot_0_0")
   assert_true(c >= 0 && c < 2)
 }
 
+///|
 test "bayes_space_get_cluster_unknown_id" {
   let (expr, spots) = @src.bayes_space_sample_data()
   let neighbors = @src.bayes_space_hex_neighbors(spots)
-  let result = @src.bayes_space_run(expr, spots, 2, neighbors, max_iters=10, seed=42)
+  let result = @src.bayes_space_run(
+    expr,
+    spots,
+    2,
+    neighbors,
+    max_iters=10,
+    seed=42,
+  )
   let c = @src.bayes_space_get_cluster(result, "UNKNOWN_SPOT")
   assert_eq(c, -1)
 }
 
+///|
 test "bayes_space_spots_in_cluster" {
   let (expr, spots) = @src.bayes_space_sample_data()
   let neighbors = @src.bayes_space_hex_neighbors(spots)
-  let result = @src.bayes_space_run(expr, spots, 2, neighbors, max_iters=20, seed=42)
+  let result = @src.bayes_space_run(
+    expr,
+    spots,
+    2,
+    neighbors,
+    max_iters=20,
+    seed=42,
+  )
   let c0 = @src.bayes_space_spots_in_cluster(result, 0)
   let c1 = @src.bayes_space_spots_in_cluster(result, 1)
   // Both clusters should have at least one spot
@@ -143,20 +209,36 @@ test "bayes_space_spots_in_cluster" {
   assert_eq(c0.length() + c1.length(), 16)
 }
 
+///|
 test "bayes_space_cluster_counts" {
   let (expr, spots) = @src.bayes_space_sample_data()
   let neighbors = @src.bayes_space_hex_neighbors(spots)
-  let result = @src.bayes_space_run(expr, spots, 2, neighbors, max_iters=20, seed=42)
+  let result = @src.bayes_space_run(
+    expr,
+    spots,
+    2,
+    neighbors,
+    max_iters=20,
+    seed=42,
+  )
   let counts = @src.bayes_space_cluster_counts(result)
   assert_eq(counts.length(), 2)
   // Sum of counts should equal total spots
   assert_eq(counts[0] + counts[1], 16)
 }
 
+///|
 test "bayes_space_render_clusters" {
   let (expr, spots) = @src.bayes_space_sample_data()
   let neighbors = @src.bayes_space_hex_neighbors(spots)
-  let result = @src.bayes_space_run(expr, spots, 2, neighbors, max_iters=10, seed=42)
+  let result = @src.bayes_space_run(
+    expr,
+    spots,
+    2,
+    neighbors,
+    max_iters=10,
+    seed=42,
+  )
   let render = @src.bayes_space_render_clusters(result, spots)
   // Should contain 4 rows separated by newlines
   assert_true(render.length() > 0)
@@ -171,11 +253,19 @@ test "bayes_space_render_clusters" {
   assert_eq(nl_count, 4)
 }
 
+///|
 test "bayes_space_q_equals_3" {
   // Test with q=3 clusters
   let (expr, spots) = @src.bayes_space_sample_data()
   let neighbors = @src.bayes_space_hex_neighbors(spots)
-  let result = @src.bayes_space_run(expr, spots, 3, neighbors, max_iters=15, seed=42)
+  let result = @src.bayes_space_run(
+    expr,
+    spots,
+    3,
+    neighbors,
+    max_iters=15,
+    seed=42,
+  )
   assert_eq(result.q, 3)
   assert_eq(result.cluster_centers.length(), 3)
   // Each spot's cluster should be in [0, 3)
@@ -186,12 +276,14 @@ test "bayes_space_q_equals_3" {
   }
 }
 
+///|
 test "bayes_space_empty_grid_neighbors" {
   // Empty spots list → empty neighbor list
   let neighbors = @src.bayes_space_hex_neighbors([])
   assert_eq(neighbors.length(), 0)
 }
 
+///|
 test "bayes_space_single_spot" {
   // Single spot → no neighbors
   let spots = [@src.spot_coord("only", 0, 0, 0.0, 0.0)]
@@ -200,20 +292,43 @@ test "bayes_space_single_spot" {
   assert_eq(neighbors[0].length(), 0)
 }
 
+///|
 test "bayes_space_log_likelihood_finite" {
   let (expr, spots) = @src.bayes_space_sample_data()
   let neighbors = @src.bayes_space_hex_neighbors(spots)
-  let result = @src.bayes_space_run(expr, spots, 2, neighbors, max_iters=20, seed=42)
+  let result = @src.bayes_space_run(
+    expr,
+    spots,
+    2,
+    neighbors,
+    max_iters=20,
+    seed=42,
+  )
   // Log-likelihood should be a finite number (not NaN/Inf)
   assert_false(result.log_likelihood.is_nan())
   assert_false(result.log_likelihood.abs() > 1.0e300)
 }
 
+///|
 test "bayes_space_reproducible_with_same_seed" {
   let (expr, spots) = @src.bayes_space_sample_data()
   let neighbors = @src.bayes_space_hex_neighbors(spots)
-  let r1 = @src.bayes_space_run(expr, spots, 2, neighbors, max_iters=15, seed=123)
-  let r2 = @src.bayes_space_run(expr, spots, 2, neighbors, max_iters=15, seed=123)
+  let r1 = @src.bayes_space_run(
+    expr,
+    spots,
+    2,
+    neighbors,
+    max_iters=15,
+    seed=123,
+  )
+  let r2 = @src.bayes_space_run(
+    expr,
+    spots,
+    2,
+    neighbors,
+    max_iters=15,
+    seed=123,
+  )
   // Same seed → same cluster assignments
   let mut i = 0
   while i < r1.clusters.length() {

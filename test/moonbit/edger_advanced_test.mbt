@@ -180,9 +180,9 @@ test "camera_with_all_genes_in_set" {
   )
   let qlf = @src.glm_qlf_fit(dge)
   let result = @src.glm_qlf_test(qlf)
-  let (stat, pval, dir) = @src.camera(
-    result, ["GeneA", "GeneB", "GeneC", "GeneD"],
-  )
+  let (stat, pval, dir) = @src.camera(result, [
+    "GeneA", "GeneB", "GeneC", "GeneD",
+  ])
   assert_true(pval >= 0.0 && pval <= 1.0)
   assert_true(dir == "up" || dir == "down" || dir == "none")
 }
@@ -221,11 +221,7 @@ test "roast_with_empty_gene_set" {
 
 ///|
 test "qlf_test_handles_single_sample_per_group" {
-  let dge = @src.dge_list(
-    [[10, 20], [30, 40]],
-    ["A", "B"],
-    ["G1", "G2"],
-  )
+  let dge = @src.dge_list([[10, 20], [30, 40]], ["A", "B"], ["G1", "G2"])
   let qlf = @src.glm_qlf_fit(dge)
   let result = @src.glm_qlf_test(qlf)
   assert_eq(result.genes.length(), 2)

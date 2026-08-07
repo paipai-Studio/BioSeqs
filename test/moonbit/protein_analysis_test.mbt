@@ -17,12 +17,14 @@ test "protein_hydropathy_basic" {
   }
 }
 
+///|
 test "protein_hydropathy_short_sequence" {
   let seq = "ACG"
   let hydro = @src.protein_hydropathy(seq, window=7)
   assert_eq(hydro.length(), 0)
 }
 
+///|
 test "protein_hydropathy_custom_window" {
   let seq = "ACDEFGHIKLMNPQRSTVWY"
   let hydro5 = @src.protein_hydropathy(seq, window=5)
@@ -34,6 +36,7 @@ test "protein_hydropathy_custom_window" {
 // Secondary Structure Prediction Tests
 // ============================================================================
 
+///|
 test "protein_secondary_structure_basic" {
   let seq = "ACDEFGHIKLMNPQRSTVWY"
   let ss = @src.protein_secondary_structure(seq)
@@ -47,6 +50,7 @@ test "protein_secondary_structure_basic" {
   }
 }
 
+///|
 test "protein_secondary_structure_all_chars" {
   // Test that all 20 amino acids are handled
   let seq = "ACDEFGHIKLMNPQRSTVWY"
@@ -58,6 +62,7 @@ test "protein_secondary_structure_all_chars" {
 // Antigenicity Tests
 // ============================================================================
 
+///|
 test "protein_antigenicity_basic" {
   let seq = "ACDEFGHIKLMNPQRSTVWY"
   let antigen = @src.protein_antigenicity(seq)
@@ -70,6 +75,7 @@ test "protein_antigenicity_basic" {
   }
 }
 
+///|
 test "protein_antigenicity_positive_residues" {
   // Known antigenic residues should have positive values
   let antigen = @src.protein_antigenicity("RKP")
@@ -82,6 +88,7 @@ test "protein_antigenicity_positive_residues" {
 // Transmembrane Prediction Tests
 // ============================================================================
 
+///|
 test "protein_transmembrane_basic" {
   let seq = "ACDEFGHIKLMNPQRSTVWY"
   let tm = @src.protein_transmembrane(seq, window=19)
@@ -89,12 +96,14 @@ test "protein_transmembrane_basic" {
   assert_eq(tm.length(), 2)
 }
 
+///|
 test "protein_transmembrane_short_sequence" {
   let seq = "ACG"
   let tm = @src.protein_transmembrane(seq, window=19)
   assert_eq(tm.length(), 0)
 }
 
+///|
 test "protein_transmembrane_propensity" {
   // Known transmembrane residues should have positive scores
   let v_tm = @src.protein_transmembrane_propensity('V')
@@ -107,6 +116,7 @@ test "protein_transmembrane_propensity" {
 // Amino Acid Composition Tests
 // ============================================================================
 
+///|
 test "protein_aa_composition_basic" {
   let seq = "AAL"
   let comp = @src.protein_aa_composition(seq)
@@ -119,6 +129,7 @@ test "protein_aa_composition_basic" {
   assert_true(a_freq > l_freq)
 }
 
+///|
 test "protein_aa_composition_empty" {
   let seq = ""
   let comp = @src.protein_aa_composition(seq)
@@ -130,6 +141,7 @@ test "protein_aa_composition_empty" {
 // Dipeptide/Tripeptide Composition Tests
 // ============================================================================
 
+///|
 test "protein_dipeptide_composition_basic" {
   let seq = "ALA"
   let comp = @src.protein_dipeptide_composition(seq)
@@ -140,12 +152,14 @@ test "protein_dipeptide_composition_basic" {
   assert_true(la_freq > 0.0)
 }
 
+///|
 test "protein_dipeptide_composition_short" {
   let seq = "A"
   let comp = @src.protein_dipeptide_composition(seq)
   assert_eq(comp.length(), 0)
 }
 
+///|
 test "protein_tripeptide_composition_basic" {
   let seq = "ALA"
   let comp = @src.protein_tripeptide_composition(seq)
@@ -154,6 +168,7 @@ test "protein_tripeptide_composition_basic" {
   assert_true(ala_freq > 0.0)
 }
 
+///|
 test "protein_tripeptide_composition_short" {
   let seq = "AL"
   let comp = @src.protein_tripeptide_composition(seq)
@@ -164,6 +179,7 @@ test "protein_tripeptide_composition_short" {
 // Conservation Tests
 // ============================================================================
 
+///|
 test "protein_conservation_identical" {
   let alignment = ["AAAA", "AAAA", "AAAA"]
   let cons = @src.protein_conservation(alignment)
@@ -176,6 +192,7 @@ test "protein_conservation_identical" {
   }
 }
 
+///|
 test "protein_conservation_different" {
   let alignment = ["AAAA", "CCCC", "GGGG"]
   let cons = @src.protein_conservation(alignment)
@@ -188,6 +205,7 @@ test "protein_conservation_different" {
   }
 }
 
+///|
 test "protein_conservation_empty" {
   let alignment : Array[String] = []
   let cons = @src.protein_conservation(alignment)
@@ -198,6 +216,7 @@ test "protein_conservation_empty" {
 // Summary Report Tests
 // ============================================================================
 
+///|
 test "protein_summary_basic" {
   let seq = "ACDEFGHIKLMNPQRSTVWY"
   let summary = @src.protein_summary(seq)

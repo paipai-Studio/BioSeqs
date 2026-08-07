@@ -410,7 +410,9 @@ test "survival_normal_cdf" {
 ///|
 test "survival_normal_p_value_two_sided" {
   // z=1.96 -> p ≈ 0.05
-  assert_true((@src.survival_normal_p_value_two_sided(1.96) - 0.05).abs() < 0.01)
+  assert_true(
+    (@src.survival_normal_p_value_two_sided(1.96) - 0.05).abs() < 0.01,
+  )
   // z=0 -> p = 1.0
   assert_true((@src.survival_normal_p_value_two_sided(0.0) - 1.0).abs() < 0.001)
   // p-value should be in [0, 1]
@@ -432,7 +434,10 @@ test "survival_chi_square_p_value" {
   assert_true(@src.survival_chi_square_p_value(10.0, 5) >= 0.0)
   assert_true(@src.survival_chi_square_p_value(10.0, 5) <= 1.0)
   // Larger chi_sq gives smaller p-value
-  assert_true(@src.survival_chi_square_p_value(10.0, 1) < @src.survival_chi_square_p_value(1.0, 1))
+  assert_true(
+    @src.survival_chi_square_p_value(10.0, 1) <
+    @src.survival_chi_square_p_value(1.0, 1),
+  )
 }
 
 // ===========================================================================

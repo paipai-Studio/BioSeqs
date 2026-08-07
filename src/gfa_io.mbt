@@ -172,14 +172,7 @@ pub fn GfaLink::new(
   overlap : String,
   tags : Array[GfaTag],
 ) -> GfaLink {
-  GfaLink::{
-    from_segment,
-    from_orient,
-    to_segment,
-    to_orient,
-    overlap,
-    tags,
-  }
+  GfaLink::{ from_segment, from_orient, to_segment, to_orient, overlap, tags }
 }
 
 ///|
@@ -530,14 +523,7 @@ pub fn gfa_parse_link(fields : Array[String]) -> GfaLink {
   let to_orient = if n > 4 { fields[4] } else { "+" }
   let overlap = if n > 5 { fields[5] } else { "*" }
   let tags = if n > 6 { gfa_parse_tags(fields, 6) } else { Array::new() }
-  GfaLink::{
-    from_segment,
-    from_orient,
-    to_segment,
-    to_orient,
-    overlap,
-    tags,
-  }
+  GfaLink::{ from_segment, from_orient, to_segment, to_orient, overlap, tags }
 }
 
 ///|

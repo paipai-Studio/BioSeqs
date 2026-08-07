@@ -7,8 +7,7 @@
 
 test "fssp_header_creation" {
   let h = @src.FsspHeader::new(
-    "1dfa_A", "30-jul-1998", "crystal structure",
-    "17beta-hsd", "human", "holm",
+    "1dfa_A", "30-jul-1998", "crystal structure", "17beta-hsd", "human", "holm",
     25, 3, 2.0,
   )
   assert_eq(h.pdbid(), "1dfa_A")
@@ -22,10 +21,10 @@ test "fssp_header_creation" {
   assert_eq(h.threshold(), "2")
 }
 
+///|
 test "fssp_alignment_creation" {
   let a = @src.FsspAlignment::new(
-    "1csa_A", "1csa_A", 1, "MNIFVHEKDLFRTIVS",
-    12.1, 2.0, 16, 68.8,
+    "1csa_A", "1csa_A", 1, "MNIFVHEKDLFRTIVS", 12.1, 2.0, 16, 68.8,
   )
   assert_eq(a.pdbid(), "1csa_A")
   assert_eq(a.alignment_id(), "1csa_A")
@@ -37,10 +36,10 @@ test "fssp_alignment_creation" {
   assert_eq(a.pid(), 68.8)
 }
 
+///|
 test "fssp_data_creation" {
   let h = @src.FsspHeader::new(
-    "1dfa_A", "30-jul-1998", "", "", "", "",
-    25, 2, 2.0,
+    "1dfa_A", "30-jul-1998", "", "", "", "", 25, 2, 2.0,
   )
   let a1 = @src.FsspAlignment::new(
     "1dfa_A", "1dfa_A", 1, "ACGT", 15.0, 1.5, 4, 100.0,
@@ -53,10 +52,9 @@ test "fssp_data_creation" {
   assert_true(data.reference().unwrap().pdbid() == "1dfa_A")
 }
 
+///|
 test "fssp_filter_by_zscore" {
-  let h = @src.FsspHeader::new(
-    "1dfa_A", "", "", "", "", "", 10, 3, 2.0,
-  )
+  let h = @src.FsspHeader::new("1dfa_A", "", "", "", "", "", 10, 3, 2.0)
   let a1 = @src.FsspAlignment::new("a1", "a1", 1, "AAA", 15.0, 1.0, 3, 100.0)
   let a2 = @src.FsspAlignment::new("a2", "a2", 1, "AAA", 10.0, 2.0, 3, 80.0)
   let a3 = @src.FsspAlignment::new("a3", "a3", 1, "AAA", 5.0, 3.0, 3, 60.0)
@@ -67,10 +65,9 @@ test "fssp_filter_by_zscore" {
   assert_eq(filtered[1].pdbid(), "a2")
 }
 
+///|
 test "fssp_empty_alignments" {
-  let h = @src.FsspHeader::new(
-    "1dfa_A", "", "", "", "", "", 0, 0, 0.0,
-  )
+  let h = @src.FsspHeader::new("1dfa_A", "", "", "", "", "", 0, 0, 0.0)
   let data = @src.FsspData::new(h, [])
   assert_eq(data.n_alignments(), 0)
   assert_true(data.reference() is None)
@@ -80,12 +77,14 @@ test "fssp_empty_alignments" {
 // Sample data
 // ---------------------------------------------------------------------------
 
+///|
 test "fssp_sample_text_has_header" {
   let text = @src.fssp_sample_text()
   assert_true(text.contains("HEADER"))
   assert_true(text.contains("1dfa_A"))
 }
 
+///|
 test "fssp_sample_text_has_alignments" {
   let text = @src.fssp_sample_text()
   assert_true(text.contains("## ALIGNMENTS"))
@@ -93,6 +92,7 @@ test "fssp_sample_text_has_alignments" {
   assert_true(text.contains("1hsd_A"))
 }
 
+///|
 test "fssp_sample_text_has_threshold" {
   let text = @src.fssp_sample_text()
   assert_true(text.contains("THRESHOLD"))
@@ -103,6 +103,7 @@ test "fssp_sample_text_has_threshold" {
 // Parsing
 // ---------------------------------------------------------------------------
 
+///|
 test "fssp_parse_header" {
   let text = @src.fssp_sample_text()
   let data = @src.fssp_parse(text)
@@ -113,6 +114,7 @@ test "fssp_parse_header" {
   assert_eq(h.threshold(), "2")
 }
 
+///|
 test "fssp_parse_header_title" {
   let text = @src.fssp_sample_text()
   let data = @src.fssp_parse(text)
@@ -123,12 +125,14 @@ test "fssp_parse_header_title" {
   assert_eq(h.author(), "holm")
 }
 
+///|
 test "fssp_parse_alignments_count" {
   let text = @src.fssp_sample_text()
   let data = @src.fssp_parse(text)
   assert_eq(data.n_alignments(), 3)
 }
 
+///|
 test "fssp_parse_alignment_details" {
   let text = @src.fssp_sample_text()
   let data = @src.fssp_parse(text)
@@ -144,6 +148,7 @@ test "fssp_parse_alignment_details" {
   assert_eq(ref_aln.pid(), 75.0)
 }
 
+///|
 test "fssp_parse_second_alignment" {
   let text = @src.fssp_sample_text()
   let data = @src.fssp_parse(text)
@@ -153,6 +158,7 @@ test "fssp_parse_second_alignment" {
   assert_eq(a2.pid(), 68.8)
 }
 
+///|
 test "fssp_parse_reference" {
   let text = @src.fssp_sample_text()
   let data = @src.fssp_parse(text)
@@ -160,11 +166,13 @@ test "fssp_parse_reference" {
   assert_eq(ref.pdbid(), "1dfa_A")
 }
 
+///|
 test "fssp_parse_empty_input" {
   let data = @src.fssp_parse("")
   assert_eq(data.n_alignments(), 0)
 }
 
+///|
 test "fssp_parse_header_only" {
   let text = "HEADER \\_1abc_A 1 01-jan-2000\nSEQLENGTH 10\n"
   let data = @src.fssp_parse(text)
@@ -174,6 +182,7 @@ test "fssp_parse_header_only" {
   assert_eq(data.n_alignments(), 0)
 }
 
+///|
 test "fssp_parse_filter_after_parse" {
   let text = @src.fssp_sample_text()
   let data = @src.fssp_parse(text)
@@ -187,6 +196,7 @@ test "fssp_parse_filter_after_parse" {
 // Formatting
 // ---------------------------------------------------------------------------
 
+///|
 test "fssp_header_to_string" {
   let h = @src.FsspHeader::new(
     "1dfa_A", "30-jul-1998", "", "", "", "", 25, 3, 2.0,
@@ -196,6 +206,7 @@ test "fssp_header_to_string" {
   assert_true(s.contains("25"))
 }
 
+///|
 test "fssp_alignment_to_string" {
   let a = @src.FsspAlignment::new(
     "1csa_A", "1csa_A", 1, "ACGT", 12.1, 2.0, 4, 75.0,
@@ -206,6 +217,7 @@ test "fssp_alignment_to_string" {
   assert_true(s.contains("12.1"))
 }
 
+///|
 test "fssp_data_to_string" {
   let text = @src.fssp_sample_text()
   let data = @src.fssp_parse(text)

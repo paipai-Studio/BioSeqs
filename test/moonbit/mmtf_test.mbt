@@ -72,15 +72,8 @@ test "mmtf_sec_struct_from_int_undefined" {
 test "mmtf_sec_struct_to_string_round_trip" {
   let codes = [0, 1, 2, 3, 4, 5, 6, 7, 99]
   let names = [
-    "pi_helix",
-    "bend",
-    "alpha_helix",
-    "extended",
-    "310_helix",
-    "bridge",
-    "turn",
-    "coil",
-    "undefined",
+    "pi_helix", "bend", "alpha_helix", "extended", "310_helix", "bridge", "turn",
+    "coil", "undefined",
   ]
   for i in 0..<codes.length() {
     let s = @src.MmtfSecStruct::from_int(codes[i])
@@ -113,13 +106,7 @@ test "mmtf_entity_type_to_string" {
 
 ///|
 test "mmtf_entity_type_from_string_round_trip" {
-  let names = [
-    "polymer",
-    "non-polymer",
-    "water",
-    "branched",
-    "undefined",
-  ]
+  let names = ["polymer", "non-polymer", "water", "branched", "undefined"]
   for n in names {
     let t = @src.MmtfEntityType::from_string(n)
     assert_eq(t.to_string(), n)
@@ -662,11 +649,7 @@ test "mmtf_chain_sequence_skips_empty_and_unknown" {
     ),
   )
   c.add_group(
-    @src.MmtfGroup::new(
-      group_name="HOH",
-      group_number=2,
-      single_letter_code="",
-    ),
+    @src.MmtfGroup::new(group_name="HOH", group_number=2, single_letter_code=""),
   )
   c.add_group(
     @src.MmtfGroup::new(

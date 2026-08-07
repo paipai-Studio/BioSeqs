@@ -46,12 +46,8 @@ fn mm_variance(arr : Array[Double], mean : Double) -> Double {
 /// Lanczos approximation for ln(gamma(x)).
 fn mm_lgamma(x : Double) -> Double {
   let cof = [
-    76.18009172947146,
-    -86.50532032941677,
-    24.01409824083091,
-    -1.231739572450155,
-    0.001208650973866179,
-    -0.000005395239384953,
+    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
+    0.001208650973866179, -0.000005395239384953,
   ]
   let mut x1 = x
   let mut tmp = x1 + 5.5
@@ -291,14 +287,7 @@ pub fn MmProbeAnnotation::new(
   island_relation : String,
   probe_type : String,
 ) -> MmProbeAnnotation {
-  MmProbeAnnotation::{
-    probe_id,
-    chr,
-    pos,
-    gene,
-    island_relation,
-    probe_type,
-  }
+  MmProbeAnnotation::{ probe_id, chr, pos, gene, island_relation, probe_type }
 }
 
 ///|
@@ -327,9 +316,7 @@ pub fn MmProbeAnnotation::gene(self : MmProbeAnnotation) -> String {
 
 ///|
 /// CpG island relation ("Island"/"Shore"/"Shelf"/"OpenSea").
-pub fn MmProbeAnnotation::island_relation(
-  self : MmProbeAnnotation,
-) -> String {
+pub fn MmProbeAnnotation::island_relation(self : MmProbeAnnotation) -> String {
   self.island_relation
 }
 
@@ -650,19 +637,9 @@ pub fn mm_t_test(
   let num = (term1 + term2) * (term1 + term2)
   let den = term1 * term1 / (n1 - 1).to_double() +
     term2 * term2 / (n2 - 1).to_double()
-  let df = if den > 0.0 {
-    num / den
-  } else {
-    (n1 + n2 - 2).to_double()
-  }
+  let df = if den > 0.0 { num / den } else { (n1 + n2 - 2).to_double() }
   let p = 2.0 * (1.0 - mm_t_cdf(t.abs(), df))
-  let pc = if p < 0.0 {
-    0.0
-  } else if p > 1.0 {
-    1.0
-  } else {
-    p
-  }
+  let pc = if p < 0.0 { 0.0 } else if p > 1.0 { 1.0 } else { p }
   (t, pc)
 }
 
@@ -704,11 +681,7 @@ pub fn mm_bh_correct(p_values : Array[Double]) -> Array[Double] {
     if val < min_adj {
       min_adj = val
     }
-    adj[indices[i]] = if min_adj > 1.0 {
-      1.0
-    } else {
-      min_adj
-    }
+    adj[indices[i]] = if min_adj > 1.0 { 1.0 } else { min_adj }
     i = i - 1
   }
   adj
@@ -731,11 +704,7 @@ pub fn mm_fisher_exact(a : Int, b : Int, c : Int, d : Int) -> Double {
   } else {
     0
   }
-  let max_a = if row1_total < col1_total {
-    row1_total
-  } else {
-    col1_total
-  }
+  let max_a = if row1_total < col1_total { row1_total } else { col1_total }
   let mut p_value = 0.0
   let mut i = min_a
   while i <= max_a {
@@ -833,7 +802,8 @@ pub fn mm_map_probes_to_genes(
 ) -> Array[String] {
   let result : Array[String] = Array::new()
   for ann in annotations {
-    if mm_contains(probes, ann.probe_id()) && not(mm_contains(result, ann.gene())) {
+    if mm_contains(probes, ann.probe_id()) &&
+      not(mm_contains(result, ann.gene())) {
       result.push(ann.gene())
     }
   }
@@ -848,7 +818,8 @@ fn mm_probes_for_genes(
 ) -> Array[String] {
   let result : Array[String] = Array::new()
   for ann in annotations {
-    if mm_contains(genes, ann.gene()) && not(mm_contains(result, ann.probe_id())) {
+    if mm_contains(genes, ann.gene()) &&
+      not(mm_contains(result, ann.probe_id())) {
       result.push(ann.probe_id())
     }
   }
@@ -1101,22 +1072,32 @@ pub fn mm_sample_annotations() -> Array[MmProbeAnnotation] {
   result.push(MmProbeAnnotation::new("cg001", "chr1", 1000, "A", "Island", "I"))
   result.push(MmProbeAnnotation::new("cg002", "chr1", 2000, "B", "Shore", "I"))
   result.push(MmProbeAnnotation::new("cg003", "chr1", 3000, "C", "Shelf", "II"))
-  result.push(MmProbeAnnotation::new("cg004", "chr1", 4000, "D", "OpenSea", "I"))
-  result.push(MmProbeAnnotation::new("cg005", "chr1", 5000, "E", "Island", "II"))
+  result.push(
+    MmProbeAnnotation::new("cg004", "chr1", 4000, "D", "OpenSea", "I"),
+  )
+  result.push(
+    MmProbeAnnotation::new("cg005", "chr1", 5000, "E", "Island", "II"),
+  )
   result.push(MmProbeAnnotation::new("cg006", "chr1", 6000, "F", "Shore", "I"))
   result.push(MmProbeAnnotation::new("cg007", "chr1", 7000, "G", "Shelf", "II"))
   result.push(MmProbeAnnotation::new("cg008", "chr2", 2000, "H", "Island", "I"))
   result.push(MmProbeAnnotation::new("cg009", "chr2", 2500, "A", "Shore", "II"))
   result.push(MmProbeAnnotation::new("cg010", "chr2", 3000, "B", "Shelf", "I"))
-  result.push(MmProbeAnnotation::new("cg011", "chr2", 3500, "C", "OpenSea", "II"))
+  result.push(
+    MmProbeAnnotation::new("cg011", "chr2", 3500, "C", "OpenSea", "II"),
+  )
   result.push(MmProbeAnnotation::new("cg012", "chr2", 4000, "D", "Island", "I"))
   result.push(MmProbeAnnotation::new("cg013", "chr2", 5000, "E", "Shore", "II"))
   result.push(MmProbeAnnotation::new("cg014", "chr2", 6000, "F", "Shelf", "I"))
-  result.push(MmProbeAnnotation::new("cg015", "chr3", 3000, "G", "OpenSea", "II"))
+  result.push(
+    MmProbeAnnotation::new("cg015", "chr3", 3000, "G", "OpenSea", "II"),
+  )
   result.push(MmProbeAnnotation::new("cg016", "chr3", 4000, "H", "Island", "I"))
   result.push(MmProbeAnnotation::new("cg017", "chr3", 5000, "A", "Shore", "II"))
   result.push(MmProbeAnnotation::new("cg018", "chr3", 6000, "B", "Shelf", "I"))
-  result.push(MmProbeAnnotation::new("cg019", "chr3", 7000, "C", "OpenSea", "II"))
+  result.push(
+    MmProbeAnnotation::new("cg019", "chr3", 7000, "C", "OpenSea", "II"),
+  )
   result.push(MmProbeAnnotation::new("cg020", "chr3", 8000, "D", "Island", "I"))
   result
 }

@@ -119,7 +119,7 @@ test "mm_beta_to_m_basic" {
   assert_true(m.abs() < 0.01)
   // beta = 0.25 -> M = log2(0.25/0.75) = log2(1/3) ≈ -1.585
   let m2 = @src.mm_beta_to_m(0.25)
-  assert_true((m2 - (-1.585)).abs() < 0.01)
+  assert_true((m2 - -1.585).abs() < 0.01)
   // beta = 0.75 -> M = log2(0.75/0.25) = log2(3) ≈ 1.585
   let m3 = @src.mm_beta_to_m(0.75)
   assert_true((m3 - 1.585).abs() < 0.01)
@@ -360,14 +360,11 @@ test "mm_go_enrichment_sample" {
   let annotations = @src.mm_sample_annotations()
   let go_db = @src.mm_sample_go_database()
   let all_probes : Array[String] = [
-    "cg001", "cg002", "cg003", "cg004", "cg005",
-    "cg006", "cg007", "cg008", "cg009", "cg010",
-    "cg011", "cg012", "cg013", "cg014", "cg015",
-    "cg016", "cg017", "cg018", "cg019", "cg020",
+    "cg001", "cg002", "cg003", "cg004", "cg005", "cg006", "cg007", "cg008", "cg009",
+    "cg010", "cg011", "cg012", "cg013", "cg014", "cg015", "cg016", "cg017", "cg018",
+    "cg019", "cg020",
   ]
-  let sig_probes : Array[String] = [
-    "cg001", "cg002", "cg003", "cg004", "cg005",
-  ]
+  let sig_probes : Array[String] = ["cg001", "cg002", "cg003", "cg004", "cg005"]
   let results = @src.mm_go_enrichment(
     sig_probes, all_probes, annotations, go_db,
   )
@@ -387,14 +384,11 @@ test "mm_go_enrichment_finds_enriched" {
   let annotations = @src.mm_sample_annotations()
   let go_db = @src.mm_sample_go_database()
   let all_probes : Array[String] = [
-    "cg001", "cg002", "cg003", "cg004", "cg005",
-    "cg006", "cg007", "cg008", "cg009", "cg010",
-    "cg011", "cg012", "cg013", "cg014", "cg015",
-    "cg016", "cg017", "cg018", "cg019", "cg020",
+    "cg001", "cg002", "cg003", "cg004", "cg005", "cg006", "cg007", "cg008", "cg009",
+    "cg010", "cg011", "cg012", "cg013", "cg014", "cg015", "cg016", "cg017", "cg018",
+    "cg019", "cg020",
   ]
-  let sig_probes : Array[String] = [
-    "cg001", "cg002", "cg003", "cg004", "cg005",
-  ]
+  let sig_probes : Array[String] = ["cg001", "cg002", "cg003", "cg004", "cg005"]
   let results = @src.mm_go_enrichment(
     sig_probes, all_probes, annotations, go_db,
   )
@@ -420,14 +414,11 @@ test "mm_probe_bias_correction_sample" {
   let annotations = @src.mm_sample_annotations()
   let go_db = @src.mm_sample_go_database()
   let all_probes : Array[String] = [
-    "cg001", "cg002", "cg003", "cg004", "cg005",
-    "cg006", "cg007", "cg008", "cg009", "cg010",
-    "cg011", "cg012", "cg013", "cg014", "cg015",
-    "cg016", "cg017", "cg018", "cg019", "cg020",
+    "cg001", "cg002", "cg003", "cg004", "cg005", "cg006", "cg007", "cg008", "cg009",
+    "cg010", "cg011", "cg012", "cg013", "cg014", "cg015", "cg016", "cg017", "cg018",
+    "cg019", "cg020",
   ]
-  let sig_probes : Array[String] = [
-    "cg001", "cg002", "cg003", "cg004", "cg005",
-  ]
+  let sig_probes : Array[String] = ["cg001", "cg002", "cg003", "cg004", "cg005"]
   let results = @src.mm_probe_bias_correction(
     sig_probes, all_probes, annotations, go_db,
   )
@@ -460,14 +451,11 @@ test "mm_go_summary_nonempty" {
   let annotations = @src.mm_sample_annotations()
   let go_db = @src.mm_sample_go_database()
   let all_probes : Array[String] = [
-    "cg001", "cg002", "cg003", "cg004", "cg005",
-    "cg006", "cg007", "cg008", "cg009", "cg010",
-    "cg011", "cg012", "cg013", "cg014", "cg015",
-    "cg016", "cg017", "cg018", "cg019", "cg020",
+    "cg001", "cg002", "cg003", "cg004", "cg005", "cg006", "cg007", "cg008", "cg009",
+    "cg010", "cg011", "cg012", "cg013", "cg014", "cg015", "cg016", "cg017", "cg018",
+    "cg019", "cg020",
   ]
-  let sig_probes : Array[String] = [
-    "cg001", "cg002", "cg003", "cg004", "cg005",
-  ]
+  let sig_probes : Array[String] = ["cg001", "cg002", "cg003", "cg004", "cg005"]
   let results = @src.mm_go_enrichment(
     sig_probes, all_probes, annotations, go_db,
   )
@@ -573,9 +561,7 @@ test "mm_edge_all_same_group" {
   let beta = @src.mm_sample_beta()
   let annotations = @src.mm_sample_annotations()
   // All samples in treatment group (no control).
-  let group = [
-    true, true, true, true, true, true, true, true,
-  ]
+  let group = [true, true, true, true, true, true, true, true]
   let results = @src.mm_dmp_analysis(beta, group, annotations)
   assert_eq(results.length(), 20)
   // With no control group, all p-values should be 1.0.

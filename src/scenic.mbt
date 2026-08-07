@@ -23,7 +23,7 @@
 pub struct CoExpressionModule {
   tf_name : String
   targets : Array[String]
-  weights : Array[Double]    // importance weights, parallel to targets
+  weights : Array[Double] // importance weights, parallel to targets
 } derive(Debug)
 
 ///|
@@ -33,7 +33,7 @@ pub fn co_expression_module(
   targets : Array[String],
   weights : Array[Double],
 ) -> CoExpressionModule {
-  { tf_name: tf_name, targets: targets, weights: weights }
+  { tf_name, targets, weights }
 }
 
 ///|
@@ -41,7 +41,7 @@ pub fn co_expression_module(
 pub struct ScenicRegulon {
   tf_name : String
   targets : Array[String]
-  weights : Array[Double]    // weight per target (from GRN importance)
+  weights : Array[Double] // weight per target (from GRN importance)
   n_targets : Int
 } derive(Debug)
 
@@ -52,12 +52,7 @@ pub fn scenic_regulon(
   targets : Array[String],
   weights : Array[Double],
 ) -> ScenicRegulon {
-  {
-    tf_name: tf_name,
-    targets: targets,
-    weights: weights,
-    n_targets: targets.length(),
-  }
+  { tf_name, targets, weights, n_targets: targets.length() }
 }
 
 ///|
@@ -65,7 +60,7 @@ pub fn scenic_regulon(
 pub struct AUCEntry {
   regulon_name : String
   cell_name : String
-  auc : Double               // normalized AUC in [0, 1]
+  auc : Double // normalized AUC in [0, 1]
 }
 
 ///|
@@ -73,16 +68,16 @@ pub struct AUCEntry {
 pub struct SCENICInput {
   n_genes : Int
   n_cells : Int
-  expression : Array[Array[Double]]   // gene x cell (row=gene, col=cell)
+  expression : Array[Array[Double]] // gene x cell (row=gene, col=cell)
   gene_names : Array[String]
   cell_names : Array[String]
-  tf_names : Array[String]            // subset of gene_names that are TFs
+  tf_names : Array[String] // subset of gene_names that are TFs
 } derive(Debug)
 
 ///|
 /// Create SCENIC input from expression matrix and metadata.
 pub fn scenic_input(
-  expression : Array[Array[Double]],   // gene x cell
+  expression : Array[Array[Double]], // gene x cell
   gene_names : Array[String],
   cell_names : Array[String],
   tf_names : Array[String],
@@ -90,10 +85,10 @@ pub fn scenic_input(
   {
     n_genes: gene_names.length(),
     n_cells: cell_names.length(),
-    expression: expression,
-    gene_names: gene_names,
-    cell_names: cell_names,
-    tf_names: tf_names,
+    expression,
+    gene_names,
+    cell_names,
+    tf_names,
   }
 }
 
@@ -103,14 +98,14 @@ pub struct SCENICResult {
   regulons : Array[ScenicRegulon]
   n_regulons : Int
   n_cells : Int
-  auc_matrix : Array[Array[Double]]     // regulon x cell
+  auc_matrix : Array[Array[Double]] // regulon x cell
   regulon_names : Array[String]
   cell_names : Array[String]
-  binary_matrix : Array[Array[Int]]     // regulon x cell (0/1)
-  thresholds : Array[Double]            // per-regulon binarization threshold
-  cell_states : Array[Int]              // cluster label per cell
+  binary_matrix : Array[Array[Int]] // regulon x cell (0/1)
+  thresholds : Array[Double] // per-regulon binarization threshold
+  cell_states : Array[Int] // cluster label per cell
   n_clusters : Int
-  master_regulators : Array[(String, Int)]  // (TF name, cluster index)
+  master_regulators : Array[(String, Int)] // (TF name, cluster index)
 }
 
 // ============================================================================
@@ -148,14 +143,21 @@ pub fn build_coexpression_modules(
     // Find TF row index
     let mut tf_row = -1
     for k in 0..<gene_indices_keys.length() {
-      if gene_indices_keys[k] == tf { tf_row = gene_indices_vals[k]; break }
+      if gene_indices_keys[k] == tf {
+        tf_row = gene_indices_vals[k]
+        break
+      }
     }
-    if tf_row < 0 { continue }
+    if tf_row < 0 {
+      continue
+    }
     let tf_expr = input.expression[tf_row]
     // Compute importance for each gene
     let pairs : Array[(String, Double)] = []
     for g in 0..<input.n_genes {
-      if g == tf_row { continue }  // skip self
+      if g == tf_row {
+        continue
+      } // skip self
       let gene_expr = input.expression[g]
       let imp = scenic_abs_correlation(tf_expr, gene_expr)
       pairs.push((input.gene_names[g], imp))
@@ -164,7 +166,9 @@ pub fn build_coexpression_modules(
     scenic_sort_pairs_desc(pairs)
     // Keep top_k targets
     let keep_n = if top_k < pairs.length() { top_k } else { pairs.length() }
-    if keep_n < min_targets { continue }
+    if keep_n < min_targets {
+      continue
+    }
     let targets : Array[String] = []
     let weights : Array[Double] = []
     for i in 0..<keep_n {
@@ -177,13 +181,19 @@ pub fn build_coexpression_modules(
   modules
 }
 
+///|
 /// Compute absolute Pearson correlation between two vectors.
 fn scenic_abs_correlation(a : Array[Double], b : Array[Double]) -> Double {
   let n = a.length()
-  if n == 0 || n != b.length() { return 0.0 }
+  if n == 0 || n != b.length() {
+    return 0.0
+  }
   let mut sum_a = 0.0
   let mut sum_b = 0.0
-  for i in 0..<n { sum_a += a[i]; sum_b += b[i] }
+  for i in 0..<n {
+    sum_a += a[i]
+    sum_b += b[i]
+  }
   let mean_a = sum_a / n.to_double()
   let mean_b = sum_b / n.to_double()
   let mut cov = 0.0
@@ -197,10 +207,14 @@ fn scenic_abs_correlation(a : Array[Double], b : Array[Double]) -> Double {
     var_b += db * db
   }
   let denom = (var_a * var_b).sqrt()
-  if denom < 1.0e-12 { 0.0 }
-  else { (cov / denom).abs() }
+  if denom < 1.0e-12 {
+    0.0
+  } else {
+    (cov / denom).abs()
+  }
 }
 
+///|
 /// Sort (String, Double) pairs by Double value descending (selection sort).
 fn scenic_sort_pairs_desc(arr : Array[(String, Double)]) -> Unit {
   let n = arr.length()
@@ -209,7 +223,9 @@ fn scenic_sort_pairs_desc(arr : Array[(String, Double)]) -> Unit {
     for j in (i + 1)..<n {
       let (_, vj) = arr[j]
       let (_, vmax) = arr[max_idx]
-      if vj > vmax { max_idx = j }
+      if vj > vmax {
+        max_idx = j
+      }
     }
     if max_idx != i {
       let tmp = arr[i]
@@ -282,8 +298,11 @@ pub fn prune_by_motif_ranking(
   rank_threshold? : Int = 0,
 ) -> ScenicRegulon {
   let n_ranked = motif_ranked_genes.length()
-  let effective_threshold = if rank_threshold > 0 { rank_threshold }
-                            else { (n_ranked.to_double() * 0.05).to_int() }
+  let effective_threshold = if rank_threshold > 0 {
+    rank_threshold
+  } else {
+    (n_ranked.to_double() * 0.05).to_int()
+  }
   // Build set of top-ranked genes
   let top_genes_keys : Array[String] = []
   let _top_vals : Array[Int] = []
@@ -299,7 +318,10 @@ pub fn prune_by_motif_ranking(
     let target = module.targets[i]
     let mut found = false
     for k in 0..<top_genes_keys.length() {
-      if top_genes_keys[k] == target { found = true; break }
+      if top_genes_keys[k] == target {
+        found = true
+        break
+      }
     }
     if found {
       keep_targets.push(target)
@@ -309,6 +331,7 @@ pub fn prune_by_motif_ranking(
   scenic_regulon(module.tf_name, keep_targets, keep_weights)
 }
 
+///|
 fn scenic_sort_doubles_asc(arr : Array[Double]) -> Unit {
   let n = arr.length()
   for i in 1..<n {
@@ -329,9 +352,7 @@ fn scenic_sort_doubles_asc(arr : Array[Double]) -> Unit {
 ///|
 /// Build gene rankings for each cell (genes sorted by expression, highest first).
 /// Returns a matrix of gene indices, cell x gene (each row is a cell's ranking).
-pub fn build_cell_rankings(
-  input : SCENICInput,
-) -> Array[Array[Int]] {
+pub fn build_cell_rankings(input : SCENICInput) -> Array[Array[Int]] {
   let rankings : Array[Array[Int]] = []
   for c in 0..<input.n_cells {
     // Extract gene expressions for this cell
@@ -341,12 +362,16 @@ pub fn build_cell_rankings(
     }
     // Create index array and sort by expression descending
     let indices : Array[Int] = []
-    for g in 0..<input.n_genes { indices.push(g) }
+    for g in 0..<input.n_genes {
+      indices.push(g)
+    }
     // Selection sort by expression descending
     for i in 0..<input.n_genes {
       let mut max_idx = i
       for j in (i + 1)..<input.n_genes {
-        if expr[indices[j]] > expr[indices[max_idx]] { max_idx = j }
+        if expr[indices[j]] > expr[indices[max_idx]] {
+          max_idx = j
+        }
       }
       if max_idx != i {
         let tmp = indices[i]
@@ -375,10 +400,15 @@ fn compute_auc(
   auc_max_rank : Int,
 ) -> Double {
   let n_targets = target_indices.length()
-  if n_targets == 0 { return 0.0 }
+  if n_targets == 0 {
+    return 0.0
+  }
   let n_genes = gene_ranking.length()
-  let max_rank = if auc_max_rank > 0 && auc_max_rank < n_genes { auc_max_rank }
-                 else { n_genes }
+  let max_rank = if auc_max_rank > 0 && auc_max_rank < n_genes {
+    auc_max_rank
+  } else {
+    n_genes
+  }
   // Build a set of target gene indices for O(1) lookup
   let target_set : Array[Int] = target_indices.copy()
   // Count how many targets appear in top max_rank positions
@@ -389,7 +419,10 @@ fn compute_auc(
     let gene_idx = gene_ranking[i]
     let mut is_target = false
     for t in 0..<n_targets {
-      if target_set[t] == gene_idx { is_target = true; break }
+      if target_set[t] == gene_idx {
+        is_target = true
+        break
+      }
     }
     if is_target {
       hits = hits + 1
@@ -433,9 +466,14 @@ pub fn compute_regulon_activity(
     for tname in reg.targets {
       let mut found = -1
       for k in 0..<gene_keys.length() {
-        if gene_keys[k] == tname { found = gene_vals[k]; break }
+        if gene_keys[k] == tname {
+          found = gene_vals[k]
+          break
+        }
       }
-      if found >= 0 { target_indices.push(found) }
+      if found >= 0 {
+        target_indices.push(found)
+      }
     }
     // Compute AUC for each cell
     let row : Array[Double] = []
@@ -472,16 +510,18 @@ pub fn binarize_activity(
     let threshold = match method {
       BinarizeMethod::MeanStd => {
         let mut sum = 0.0
-        for v in row { sum += v }
+        for v in row {
+          sum += v
+        }
         let mean = sum / n_cells.to_double()
         let mut sq_sum = 0.0
-        for v in row { sq_sum += (v - mean) * (v - mean) }
+        for v in row {
+          sq_sum += (v - mean) * (v - mean)
+        }
         let std = (sq_sum / n_cells.to_double()).sqrt()
         mean + 0.5 * std
       }
-      BinarizeMethod::KMeans2 => {
-        scenic_kmeans_threshold(row)
-      }
+      BinarizeMethod::KMeans2 => scenic_kmeans_threshold(row)
       BinarizeMethod::Median => {
         let sorted = row.copy()
         scenic_sort_doubles_asc(sorted)
@@ -491,7 +531,11 @@ pub fn binarize_activity(
     thresholds.push(threshold)
     let bin_row : Array[Int] = []
     for c in 0..<n_cells {
-      if row[c] > threshold { bin_row.push(1) } else { bin_row.push(0) }
+      if row[c] > threshold {
+        bin_row.push(1)
+      } else {
+        bin_row.push(0)
+      }
     }
     binary.push(bin_row)
   }
@@ -524,19 +568,30 @@ pub fn binarize_median() -> BinarizeMethod {
   BinarizeMethod::Median
 }
 
+///|
 /// Simple 1D k-means with k=2 to find threshold for bimodal distribution.
 fn scenic_kmeans_threshold(values : Array[Double]) -> Double {
   let n = values.length()
-  if n == 0 { return 0.0 }
-  if n == 1 { return values[0] }
+  if n == 0 {
+    return 0.0
+  }
+  if n == 1 {
+    return values[0]
+  }
   // Initialize centroids: min and max
   let mut c1 = values[0]
   let mut c2 = values[0]
   for v in values {
-    if v < c1 { c1 = v }
-    if v > c2 { c2 = v }
+    if v < c1 {
+      c1 = v
+    }
+    if v > c2 {
+      c2 = v
+    }
   }
-  if c1 == c2 { return c1 }
+  if c1 == c2 {
+    return c1
+  }
   // Iterate k-means
   for _iter in 0..<20 {
     let mut sum1 = 0.0
@@ -546,13 +601,22 @@ fn scenic_kmeans_threshold(values : Array[Double]) -> Double {
     for v in values {
       let d1 = (v - c1).abs()
       let d2 = (v - c2).abs()
-      if d1 < d2 { sum1 += v; count1 = count1 + 1 }
-      else { sum2 += v; count2 = count2 + 1 }
+      if d1 < d2 {
+        sum1 += v
+        count1 = count1 + 1
+      } else {
+        sum2 += v
+        count2 = count2 + 1
+      }
     }
-    if count1 == 0 || count2 == 0 { break }
+    if count1 == 0 || count2 == 0 {
+      break
+    }
     let new_c1 = sum1 / count1.to_double()
     let new_c2 = sum2 / count2.to_double()
-    if (new_c1 - c1).abs() < 1.0e-9 && (new_c2 - c2).abs() < 1.0e-9 { break }
+    if (new_c1 - c1).abs() < 1.0e-9 && (new_c2 - c2).abs() < 1.0e-9 {
+      break
+    }
     c1 = new_c1
     c2 = new_c2
   }
@@ -583,20 +647,24 @@ pub fn assign_cell_states(
     for r in 0..<n_regulons {
       if binary_matrix[r][c] == 1 {
         // Assign to first active regulon (or could use AUC for tie-breaking)
-        if best_reg < 0 { best_reg = r }
+        if best_reg < 0 {
+          best_reg = r
+        }
         best_score = best_score + 1
       }
     }
     if best_reg < 0 {
-      labels.push(0)  // no active regulon → cluster 0
+      labels.push(0) // no active regulon → cluster 0
     } else {
-      labels.push(best_reg + 1)  // cluster = regulon index + 1
+      labels.push(best_reg + 1) // cluster = regulon index + 1
     }
   }
   // Count clusters
   let mut max_cluster = 0
   for l in labels {
-    if l > max_cluster { max_cluster = l }
+    if l > max_cluster {
+      max_cluster = l
+    }
   }
   // Master regulators: (regulon_name, cluster_index)
   let masters : Array[(String, Int)] = []
@@ -604,7 +672,9 @@ pub fn assign_cell_states(
     let cluster = r + 1
     let mut count = 0
     for c in 0..<n_cells {
-      if labels[c] == cluster { count = count + 1 }
+      if labels[c] == cluster {
+        count = count + 1
+      }
     }
     if count > 0 {
       masters.push((regulon_names[r], cluster))
@@ -636,36 +706,34 @@ pub fn run_scenic(
   binarize_method? : BinarizeMethod = BinarizeMethod::MeanStd,
 ) -> SCENICResult {
   // Step 1: Build co-expression modules
-  let modules = build_coexpression_modules(
-    input, min_targets=min_targets, top_k=top_k,
-  )
+  let modules = build_coexpression_modules(input, min_targets~, top_k~)
   // Step 2: Build regulons
-  let regulons = build_regulons(
-    modules, weight_quantile=weight_quantile, min_targets=min_targets,
-  )
+  let regulons = build_regulons(modules, weight_quantile~, min_targets~)
   // Step 3: Compute regulon activity (AUC matrix)
-  let auc_matrix = compute_regulon_activity(
-    regulons, input, auc_threshold_pct=auc_threshold_pct,
-  )
+  let auc_matrix = compute_regulon_activity(regulons, input, auc_threshold_pct~)
   // Step 4: Binarize and assign cell states
   let (binary_matrix, thresholds) = binarize_activity(
-    auc_matrix, input.n_cells, method=binarize_method,
+    auc_matrix,
+    input.n_cells,
+    method=binarize_method,
   )
-  let regulon_names = regulons.map(fn (r) -> String { r.tf_name })
+  let regulon_names = regulons.map(fn(r) -> String { r.tf_name })
   let (cell_states, n_clusters, masters) = assign_cell_states(
-    binary_matrix, regulon_names, input.n_cells,
+    binary_matrix,
+    regulon_names,
+    input.n_cells,
   )
   {
-    regulons: regulons,
+    regulons,
     n_regulons: regulons.length(),
     n_cells: input.n_cells,
-    auc_matrix: auc_matrix,
-    regulon_names: regulon_names,
+    auc_matrix,
+    regulon_names,
     cell_names: input.cell_names,
-    binary_matrix: binary_matrix,
-    thresholds: thresholds,
-    cell_states: cell_states,
-    n_clusters: n_clusters,
+    binary_matrix,
+    thresholds,
+    cell_states,
+    n_clusters,
     master_regulators: masters,
   }
 }
@@ -690,7 +758,7 @@ pub fn scenic_sample_data(
   seed? : Int = 42,
 ) -> SCENICInput {
   let mut rng = seed
-  let next_rand = fn () -> Double {
+  let next_rand = fn() -> Double {
     rng = (rng * 1103515245 + 12345) & 0x7fffffff
     (rng & 0xffffff).to_double() / 16777215.0
   }
@@ -716,9 +784,13 @@ pub fn scenic_sample_data(
   for t in 0..<n_tfs {
     let profile : Array[Double] = []
     for c in 0..<n_cells {
-      let base = if t == 0 && c < n_cells / 2 { 5.0 }
-                 else if t == 1 && c >= n_cells / 2 { 5.0 }
-                 else { 1.0 + next_rand() * 0.5 }
+      let base = if t == 0 && c < n_cells / 2 {
+        5.0
+      } else if t == 1 && c >= n_cells / 2 {
+        5.0
+      } else {
+        1.0 + next_rand() * 0.5
+      }
       profile.push(base)
     }
     tf_activity.push(profile)
@@ -753,50 +825,83 @@ pub fn scenic_sample_data(
 
 ///|
 /// Get the AUC score for a specific regulon and cell.
-pub fn SCENICResult::auc_at(self : SCENICResult, regulon_idx : Int, cell_idx : Int) -> Double {
-  if regulon_idx < 0 || regulon_idx >= self.n_regulons { return 0.0 }
-  if cell_idx < 0 || cell_idx >= self.n_cells { return 0.0 }
+pub fn SCENICResult::auc_at(
+  self : SCENICResult,
+  regulon_idx : Int,
+  cell_idx : Int,
+) -> Double {
+  if regulon_idx < 0 || regulon_idx >= self.n_regulons {
+    return 0.0
+  }
+  if cell_idx < 0 || cell_idx >= self.n_cells {
+    return 0.0
+  }
   self.auc_matrix[regulon_idx][cell_idx]
 }
 
 ///|
 /// Get the binary activity (0 or 1) for a specific regulon and cell.
-pub fn SCENICResult::binary_at(self : SCENICResult, regulon_idx : Int, cell_idx : Int) -> Int {
-  if regulon_idx < 0 || regulon_idx >= self.n_regulons { return 0 }
-  if cell_idx < 0 || cell_idx >= self.n_cells { return 0 }
+pub fn SCENICResult::binary_at(
+  self : SCENICResult,
+  regulon_idx : Int,
+  cell_idx : Int,
+) -> Int {
+  if regulon_idx < 0 || regulon_idx >= self.n_regulons {
+    return 0
+  }
+  if cell_idx < 0 || cell_idx >= self.n_cells {
+    return 0
+  }
   self.binary_matrix[regulon_idx][cell_idx]
 }
 
 ///|
 /// Get the cell state (cluster label) for a specific cell.
 pub fn SCENICResult::cell_state(self : SCENICResult, cell_idx : Int) -> Int {
-  if cell_idx < 0 || cell_idx >= self.n_cells { return 0 }
+  if cell_idx < 0 || cell_idx >= self.n_cells {
+    return 0
+  }
   self.cell_states[cell_idx]
 }
 
 ///|
 /// Return a summary string of the SCENIC result.
 pub fn SCENICResult::summary(self : SCENICResult) -> String {
-  "SCENICResult(regulons=" + self.n_regulons.to_string() +
-    ", cells=" + self.n_cells.to_string() +
-    ", clusters=" + self.n_clusters.to_string() +
-    ", master_regulators=" + self.master_regulators.length().to_string() + ")"
+  "SCENICResult(regulons=" +
+  self.n_regulons.to_string() +
+  ", cells=" +
+  self.n_cells.to_string() +
+  ", clusters=" +
+  self.n_clusters.to_string() +
+  ", master_regulators=" +
+  self.master_regulators.length().to_string() +
+  ")"
 }
 
 ///|
 /// Get regulon targets as an array of gene names.
-pub fn SCENICResult::regulon_targets(self : SCENICResult, regulon_idx : Int) -> Array[String] {
-  if regulon_idx < 0 || regulon_idx >= self.n_regulons { return [] }
+pub fn SCENICResult::regulon_targets(
+  self : SCENICResult,
+  regulon_idx : Int,
+) -> Array[String] {
+  if regulon_idx < 0 || regulon_idx >= self.n_regulons {
+    return []
+  }
   self.regulons[regulon_idx].targets.copy()
 }
 
 ///|
 /// Get the top-N regulons by mean AUC across all cells.
-pub fn SCENICResult::top_regulons(self : SCENICResult, n? : Int = 5) -> Array[(String, Double)] {
+pub fn SCENICResult::top_regulons(
+  self : SCENICResult,
+  n? : Int = 5,
+) -> Array[(String, Double)] {
   let pairs : Array[(String, Double)] = []
   for r in 0..<self.n_regulons {
     let mut sum = 0.0
-    for c in 0..<self.n_cells { sum += self.auc_matrix[r][c] }
+    for c in 0..<self.n_cells {
+      sum += self.auc_matrix[r][c]
+    }
     let mean = sum / self.n_cells.to_double()
     pairs.push((self.regulon_names[r], mean))
   }

@@ -1,6 +1,5 @@
 ///|
 /// Tests for Align.Applications module.
-
 test "ClustalwCommandline creation" {
   let cmd = @src.create_example_clustalw()
   let command = cmd.build()
@@ -8,6 +7,7 @@ test "ClustalwCommandline creation" {
   assert_true(command.contains("-infile"))
 }
 
+///|
 test "ClustalwCommandline set_matrix" {
   let mut cmd = @src.ClustalwCommandline::new("clustalw2")
   cmd = cmd.set_matrix("BLOSUM62")
@@ -16,6 +16,7 @@ test "ClustalwCommandline set_matrix" {
   assert_true(command.contains("BLOSUM62"))
 }
 
+///|
 test "ClustalOmegaCommandline creation" {
   let cmd = @src.create_example_clustalomega()
   let command = cmd.build()
@@ -23,6 +24,7 @@ test "ClustalOmegaCommandline creation" {
   assert_true(command.contains("-i"))
 }
 
+///|
 test "ClustalOmegaCommandline set_iterations" {
   let mut cmd = @src.ClustalOmegaCommandline::new("clustalo")
   cmd = cmd.set_iterations(10)
@@ -31,12 +33,14 @@ test "ClustalOmegaCommandline set_iterations" {
   assert_true(command.contains("10"))
 }
 
+///|
 test "MuscleCommandline creation" {
   let cmd = @src.create_example_muscle()
   let command = cmd.build()
   assert_true(command.contains("muscle"))
 }
 
+///|
 test "MAFFTCommandline creation" {
   let cmd = @src.create_example_mafft()
   let command = cmd.build()

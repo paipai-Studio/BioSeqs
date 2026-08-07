@@ -74,7 +74,7 @@ test "pairwise_local_convenience" {
 test "simple_score_match" {
   let scorer = @src.simple_score(2.0, -1.0)
   assert_true((scorer("A", "A") - 2.0).abs() < 0.001)
-  assert_true((scorer("A", "T") - (-1.0)).abs() < 0.001)
+  assert_true((scorer("A", "T") - -1.0).abs() < 0.001)
 }
 
 ///|
@@ -94,7 +94,7 @@ test "identity_score" {
 test "dna_matrix" {
   let m = @src.dna_matrix(2.0, -1.0)
   assert_true((m.get("AA").unwrap() - 2.0).abs() < 0.001)
-  assert_true((m.get("AT").unwrap() - (-1.0)).abs() < 0.001)
+  assert_true((m.get("AT").unwrap() - -1.0).abs() < 0.001)
   assert_eq(m.size(), 10) // 10 unique pairs
 }
 
@@ -103,7 +103,7 @@ test "matrix_score" {
   let m = @src.dna_matrix(2.0, -1.0)
   let scorer = @src.matrix_score(m, 0.0)
   assert_true((scorer("A", "A") - 2.0).abs() < 0.001)
-  assert_true((scorer("A", "T") - (-1.0)).abs() < 0.001)
+  assert_true((scorer("A", "T") - -1.0).abs() < 0.001)
   assert_true((scorer("X", "X") - 0.0).abs() < 0.001) // default
 }
 

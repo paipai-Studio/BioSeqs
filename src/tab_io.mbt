@@ -74,12 +74,14 @@ pub fn parse_tab(content : String) -> Array[SeqRecord] raise SeqIOError {
       }
     }
 
-    records.push(SeqRecord::new(
-      Seq::new(seq_buf.to_string()),
-      id=id,
-      name=id,
-      description=id,
-    ))
+    records.push(
+      SeqRecord::new(
+        Seq::new(seq_buf.to_string()),
+        id~,
+        name=id,
+        description=id,
+      ),
+    )
   }
   records
 }

@@ -1292,7 +1292,8 @@ pub fn limma_remove_batch_effect(
         xty_data[k] = xty_data[k] + x_jk * y_row[j]
         let mut l = 0
         while l < n_design {
-          xtx_data[k * n_design + l] = xtx_data[k * n_design + l] + x_jk * design.get(j, l)
+          xtx_data[k * n_design + l] = xtx_data[k * n_design + l] +
+            x_jk * design.get(j, l)
           l = l + 1
         }
         k = k + 1
@@ -1337,7 +1338,11 @@ fn find_batch_index(label : String, unique : Array[String]) -> Int {
 
 ///|
 /// Solve linear system Ax = b using Gaussian elimination.
-fn solve_linear_system(a_data : Array[Double], b : Array[Double], n : Int) -> Array[Double] {
+fn solve_linear_system(
+  a_data : Array[Double],
+  b : Array[Double],
+  n : Int,
+) -> Array[Double] {
   // Create augmented matrix
   let aug_data = Array::make(n * (n + 1), 0.0)
   let mut i = 0
@@ -1391,7 +1396,8 @@ fn solve_linear_system(a_data : Array[Double], b : Array[Double], n : Int) -> Ar
       let factor = aug_data[k * (n + 1) + i] / pivot
       let mut j = i
       while j <= n {
-        aug_data[k * (n + 1) + j] = aug_data[k * (n + 1) + j] - factor * aug_data[i * (n + 1) + j]
+        aug_data[k * (n + 1) + j] = aug_data[k * (n + 1) + j] -
+          factor * aug_data[i * (n + 1) + j]
         j = j + 1
       }
       k = k + 1
@@ -1412,7 +1418,9 @@ fn solve_linear_system(a_data : Array[Double], b : Array[Double], n : Int) -> Ar
     }
     let pivot = aug_data[i * (n + 1) + i]
     x[i] = if pivot.abs() < 1.0e-10 { 0.0 } else { sum / pivot }
-    if i == 0 { break }
+    if i == 0 {
+      break
+    }
     i = i - 1
   }
 
@@ -1427,7 +1435,11 @@ fn solve_linear_system(a_data : Array[Double], b : Array[Double], n : Int) -> Ar
 ///   - lfc: log2 fold-change threshold (default 0)
 ///   - direction: "up", "down", or "both" (default "both")
 /// Returns updated EBayesResult with one-sided p-values and B-values.
-pub fn treat(fit : EBayesResult, lfc : Double, direction : String) -> EBayesResult {
+pub fn treat(
+  fit : EBayesResult,
+  lfc : Double,
+  direction : String,
+) -> EBayesResult {
   let n_genes = fit.coefficients.rows
   let n_coefs = fit.coefficients.cols
 
@@ -1443,16 +1455,15 @@ pub fn treat(fit : EBayesResult, lfc : Double, direction : String) -> EBayesResu
       let beta = fit.coefficients.get(i, j)
       let se = fit.stdev_unscaled.get(i, j) * fit.sigma[i]
 
-      let t_val = if se > 0.0 {
-        (beta - lfc) / se
-      } else {
-        0.0
-      }
+      let t_val = if se > 0.0 { (beta - lfc) / se } else { 0.0 }
 
       let p_val = if direction == "up" {
         // P(T > t_val) for one-sided
         if t_val > 0.0 {
-          let f_val = t_val * t_val * (df_total + 1.0) / (df_total + t_val * t_val)
+          let f_val = t_val *
+            t_val *
+            (df_total + 1.0) /
+            (df_total + t_val * t_val)
           1.0 - pf(f_val, 1.0, df_total)
         } else {
           1.0
@@ -1461,23 +1472,33 @@ pub fn treat(fit : EBayesResult, lfc : Double, direction : String) -> EBayesResu
         // P(T < t_val) for one-sided
         if t_val < 0.0 {
           let t_abs = t_val.abs()
-          let f_val = t_abs * t_abs * (df_total + 1.0) / (df_total + t_abs * t_abs)
+          let f_val = t_abs *
+            t_abs *
+            (df_total + 1.0) /
+            (df_total + t_abs * t_abs)
           1.0 - pf(f_val, 1.0, df_total)
         } else {
           1.0
         }
-      } else {
         // Two-sided
-        if se > 0.0 {
-          let t_abs = t_val.abs()
-          let f_val = t_abs * t_abs * (df_total + 1.0) / (df_total + t_abs * t_abs)
-          2.0 * (1.0 - pf(f_val, 1.0, df_total))
-        } else {
-          1.0
-        }
+      } else if se > 0.0 {
+        let t_abs = t_val.abs()
+        let f_val = t_abs *
+          t_abs *
+          (df_total + 1.0) /
+          (df_total + t_abs * t_abs)
+        2.0 * (1.0 - pf(f_val, 1.0, df_total))
+      } else {
+        1.0
       }
 
-      let p = if p_val.is_nan() || p_val < 0.0 { 0.0 } else if p_val > 1.0 { 1.0 } else { p_val }
+      let p = if p_val.is_nan() || p_val < 0.0 {
+        0.0
+      } else if p_val > 1.0 {
+        1.0
+      } else {
+        p_val
+      }
 
       // B-value (log-odds of differential expression)
       let b = if p > 0.0 && p < 1.0 {
@@ -1773,7 +1794,11 @@ pub fn limma_quantile_normalize(y : Matrix) -> Matrix {
       }
       let avg_rank = (rank + end_rank).to_double() / 2.0
       let rank_floor = avg_rank.to_int()
-      let rank_ceil = if rank_floor + 1 < n_genes { rank_floor + 1 } else { n_genes - 1 }
+      let rank_ceil = if rank_floor + 1 < n_genes {
+        rank_floor + 1
+      } else {
+        n_genes - 1
+      }
       let frac = avg_rank - rank_floor.to_double()
 
       let val = if rank_floor == rank_ceil {
@@ -1899,7 +1924,8 @@ pub fn limma_combat(
     while i < n_genes {
       let offset = batch_offset[i]
       // Weighted average: combine batch offset with prior (0)
-      let shrunken = offset * batch_size.to_double() /
+      let shrunken = offset *
+        batch_size.to_double() /
         (batch_size.to_double() + offset / prior_var.abs())
 
       // Subtract shrunken batch offset from batch samples
@@ -1923,7 +1949,9 @@ pub fn limma_combat(
 ///|
 /// Compute mean of an array (helper for limma module).
 fn limma_stat_mean(data : Array[Double]) -> Double {
-  if data.length() == 0 { return 0.0 }
+  if data.length() == 0 {
+    return 0.0
+  }
   let mut sum = 0.0
   for v in data {
     sum = sum + v
@@ -1935,7 +1963,9 @@ fn limma_stat_mean(data : Array[Double]) -> Double {
 /// Compute variance of an array (helper for limma module).
 fn limma_stat_variance(data : Array[Double]) -> Double {
   let n = data.length()
-  if n <= 1 { return 0.0 }
+  if n <= 1 {
+    return 0.0
+  }
   let mean = limma_stat_mean(data)
   let mut sum_sq = 0.0
   for v in data {

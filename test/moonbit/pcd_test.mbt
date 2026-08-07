@@ -12,6 +12,7 @@ test "pcd_spectrum_construction" {
   assert_eq(spec.num_peaks(), 0)
 }
 
+///|
 test "pcd_spectrum_add_peak" {
   let spec = @src.PcdSpectrum::new(1)
   spec.add_peak(500.5, 10000.0)
@@ -20,6 +21,7 @@ test "pcd_spectrum_add_peak" {
   assert_true(spec.total_intensity() > 0.0)
 }
 
+///|
 test "pcd_spectrum_precursor" {
   let spec = @src.PcdSpectrum::new(1)
   spec.set_precursor_mz(Some(500.5))
@@ -38,12 +40,14 @@ test "pcd_spectrum_precursor" {
 // PcdFile Tests
 // ============================================================================
 
+///|
 test "pcd_file_construction" {
   let file = @src.PcdFile::new()
   assert_eq(file.num_spectra, 0)
   assert_eq(file.num_peaks, 0)
 }
 
+///|
 test "pcd_file_add_spectrum" {
   let file = @src.PcdFile::new()
   let spec = @src.PcdSpectrum::new(1, rt=10.0)
@@ -54,6 +58,7 @@ test "pcd_file_add_spectrum" {
   assert_eq(file.num_peaks, 1)
 }
 
+///|
 test "pcd_file_get_spectrum" {
   let file = @src.PcdFile::new()
   let spec1 = @src.PcdSpectrum::new(1)
@@ -74,12 +79,14 @@ test "pcd_file_get_spectrum" {
 // PCD Parsing Tests
 // ============================================================================
 
+///|
 test "pcd_parse_empty" {
   let file = @src.pcd_parse("")
   assert_eq(file.num_spectra, 0)
   assert_eq(file.num_peaks, 0)
 }
 
+///|
 test "pcd_parse_sample" {
   let content = @src.pcd_sample()
   let file = @src.pcd_parse(content)
@@ -87,6 +94,7 @@ test "pcd_parse_sample" {
   assert_true(file.num_peaks >= 1)
 }
 
+///|
 test "pcd_parse_with_precursor" {
   let content = @src.pcd_sample()
   let file = @src.pcd_parse(content)
@@ -97,6 +105,7 @@ test "pcd_parse_with_precursor" {
 // PCD Query Tests
 // ============================================================================
 
+///|
 test "pcd_total_peaks" {
   let file = @src.PcdFile::new()
   let spec1 = @src.PcdSpectrum::new(1)
@@ -110,6 +119,7 @@ test "pcd_total_peaks" {
   assert_eq(@src.pcd_total_peaks(file), 3)
 }
 
+///|
 test "pcd_bpc" {
   let file = @src.PcdFile::new()
   let spec1 = @src.PcdSpectrum::new(1, rt=10.0)
@@ -125,6 +135,7 @@ test "pcd_bpc" {
   assert_eq(bpc.length(), 2)
 }
 
+///|
 test "pcd_tic" {
   let file = @src.PcdFile::new()
   let spec1 = @src.PcdSpectrum::new(1, rt=10.0)
@@ -139,6 +150,7 @@ test "pcd_tic" {
   assert_eq(tic.length(), 2)
 }
 
+///|
 test "pcd_spectrum_by_mz" {
   let spec = @src.PcdSpectrum::new(1)
   spec.add_peak(500.0, 1000.0)
@@ -152,6 +164,7 @@ test "pcd_spectrum_by_mz" {
 // PCD Serialization Tests
 // ============================================================================
 
+///|
 test "pcd_write_roundtrip" {
   let content = @src.pcd_sample()
   let file = @src.pcd_parse(content)
@@ -164,6 +177,7 @@ test "pcd_write_roundtrip" {
 // PCD Summary Tests
 // ============================================================================
 
+///|
 test "pcd_summary" {
   let file = @src.PcdFile::new()
   let spec = @src.PcdSpectrum::new(1)

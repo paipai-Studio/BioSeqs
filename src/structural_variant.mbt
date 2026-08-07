@@ -118,9 +118,17 @@ pub fn SvBreakend::new(
   strand : String,
   mate_chrom : String,
   mate_pos : Int,
-  mate_strand : String
+  mate_strand : String,
 ) -> SvBreakend {
-  SvBreakend::{ chrom, pos, strand, mate_chrom, mate_pos, mate_strand, mate_id: "" }
+  SvBreakend::{
+    chrom,
+    pos,
+    strand,
+    mate_chrom,
+    mate_pos,
+    mate_strand,
+    mate_id: "",
+  }
 }
 
 ///|
@@ -202,9 +210,19 @@ pub fn SvRecord::new(
   svlen : Int,
   breakend : SvBreakend?,
   quality : Double,
-  filter : String
+  filter : String,
 ) -> SvRecord {
-  SvRecord::{ id, chrom, pos, sv_type, end: end_pos, svlen, breakend, quality, filter }
+  SvRecord::{
+    id,
+    chrom,
+    pos,
+    sv_type,
+    end: end_pos,
+    svlen,
+    breakend,
+    quality,
+    filter,
+  }
 }
 
 ///|
@@ -285,7 +303,7 @@ fn sv_trim(s : String) -> String {
   let n = s.length()
   let mut start = 0
   while start < n {
-    let ch = s[start : start + 1]
+    let ch = s[start:start + 1]
     if ch == " " || ch == "\t" || ch == "\r" || ch == "\n" {
       start = start + 1
     } else {
@@ -294,7 +312,7 @@ fn sv_trim(s : String) -> String {
   }
   let mut end = n
   while end > start {
-    let ch = s[end - 1 : end]
+    let ch = s[end - 1:end]
     if ch == " " || ch == "\t" || ch == "\r" || ch == "\n" {
       end = end - 1
     } else {
@@ -310,7 +328,7 @@ fn sv_rfind(s : String, ch : String) -> Int? {
   let n = s.length()
   let mut i = n - 1
   while i >= 0 {
-    if s[i : i + 1] == ch {
+    if s[i:i + 1] == ch {
       return Some(i)
     }
     i = i - 1
@@ -330,11 +348,7 @@ fn sv_rfind(s : String, ch : String) -> Int? {
 /// where `t` is the joining nucleotide and `p` is `chrom:pos`.
 ///
 /// Returns Some(SvBreakend) if parsing succeeds, None otherwise.
-pub fn sv_parse_bnd_alt(
-  alt : String,
-  chrom : String,
-  pos : Int
-) -> SvBreakend? {
+pub fn sv_parse_bnd_alt(alt : String, chrom : String, pos : Int) -> SvBreakend? {
   let trimmed = sv_trim(alt)
   let n = trimmed.length()
   if n < 4 {
@@ -345,7 +359,7 @@ pub fn sv_parse_bnd_alt(
   // Case 2: t]p] — starts with a base, then ], then chrom:pos, then ]
   // Case 3: ]p]t — starts with ], then chrom:pos, then ], then base
   // Case 4: [p[t — starts with [, then chrom:pos, then [, then base
-  let first = trimmed[0 : 1]
+  let first = trimmed[0:1]
   if first == "[" || first == "]" {
     // Case 3 or 4: ]p]t or [p[t
     let open_bracket = first
@@ -353,7 +367,7 @@ pub fn sv_parse_bnd_alt(
     // open_bracket is at index 0; search for the next occurrence starting at 1.
     let mut close_idx = -1
     for k in 1..<n {
-      if trimmed[k : k + 1] == open_bracket {
+      if trimmed[k:k + 1] == open_bracket {
         close_idx = k
         break
       }
@@ -366,7 +380,7 @@ pub fn sv_parse_bnd_alt(
     if close_idx <= 1 {
       return None
     }
-    let mate_loc = trimmed[1 : close_idx]
+    let mate_loc = trimmed[1:close_idx]
     let (mate_chrom, mate_pos) = sv_parse_location(mate_loc.to_owned())
     if mate_chrom.length() == 0 {
       return None
@@ -377,7 +391,7 @@ pub fn sv_parse_bnd_alt(
   } else {
     // Case 1 or 2: t[p[ or t]p]
     // The joining base is the first character.
-    let bracket_char = trimmed[1 : 2]
+    let bracket_char = trimmed[1:2]
     if bracket_char != "[" && bracket_char != "]" {
       return None
     }
@@ -385,7 +399,7 @@ pub fn sv_parse_bnd_alt(
     // bracket_char is at index 1; search for the next occurrence starting at 2.
     let mut close_idx = -1
     for k in 2..<n {
-      if trimmed[k : k + 1] == bracket_char {
+      if trimmed[k:k + 1] == bracket_char {
         close_idx = k
         break
       }
@@ -397,7 +411,7 @@ pub fn sv_parse_bnd_alt(
     if close_idx <= 2 {
       return None
     }
-    let mate_loc = trimmed[2 : close_idx]
+    let mate_loc = trimmed[2:close_idx]
     let (mate_chrom, mate_pos) = sv_parse_location(mate_loc.to_owned())
     if mate_chrom.length() == 0 {
       return None
@@ -416,8 +430,8 @@ fn sv_parse_location(loc : String) -> (String, Int) {
   let colon_pos = sv_rfind(loc, ":")
   match colon_pos {
     Some(idx) => {
-      let chrom = loc[0 : idx].to_owned()
-      let pos_str = loc[idx + 1 :]
+      let chrom = loc[0:idx].to_owned()
+      let pos_str = loc[idx + 1:]
       let pos = match parse_double(pos_str.to_owned()) {
         Some(v) => v.to_int()
         None => 0
@@ -443,8 +457,8 @@ fn sv_parse_info(info : String) -> Map[String, String] {
     let eq_pos = field.find("=")
     match eq_pos {
       Some(idx) => {
-        let key = field[0 : idx].to_owned()
-        let value = field[idx + 1 :].to_owned()
+        let key = field[0:idx].to_owned()
+        let value = field[idx + 1:].to_owned()
         result[key] = value
       }
       None => result[field.to_owned()] = "true"
@@ -472,7 +486,7 @@ pub fn sv_parse_vcf_line(line : String) -> SvRecord? {
     return None
   }
   // Skip header lines.
-  if trimmed[0 : 1] == "#" {
+  if trimmed[0:1] == "#" {
     return None
   }
   let fields = trimmed.split("\t").to_array()
@@ -523,7 +537,9 @@ pub fn sv_parse_vcf_line(line : String) -> SvRecord? {
     None
   }
   Some(
-    SvRecord::new(id, chrom, pos, sv_type, end_pos, svlen, breakend, quality, filter),
+    SvRecord::new(
+      id, chrom, pos, sv_type, end_pos, svlen, breakend, quality, filter,
+    ),
   )
 }
 
@@ -560,7 +576,7 @@ pub fn sv_find_partners(records : Array[SvRecord]) -> Array[(String, String)] {
     }
     let ri = records[i]
     match ri.breakend {
-      Some(bi) => {
+      Some(bi) =>
         // Look for a record j whose chrom/pos matches bi's mate location.
         for j in (i + 1)..<n {
           if matched[j] {
@@ -568,7 +584,7 @@ pub fn sv_find_partners(records : Array[SvRecord]) -> Array[(String, String)] {
           }
           let rj = records[j]
           match rj.breakend {
-            Some(bj) => {
+            Some(bj) =>
               // Check if i's mate matches j's location and vice versa.
               if bi.mate_chrom == rj.chrom &&
                 bi.mate_pos == rj.pos &&
@@ -579,11 +595,9 @@ pub fn sv_find_partners(records : Array[SvRecord]) -> Array[(String, String)] {
                 matched[j] = true
                 break
               }
-            }
             None => continue
           }
         }
-      }
       None => continue
     }
   }
@@ -625,7 +639,7 @@ pub fn SvGeneRegion::new(
   chrom : String,
   start : Int,
   end : Int,
-  strand : String
+  strand : String,
 ) -> SvGeneRegion {
   SvGeneRegion::{ gene, chrom, start, end, strand }
 }
@@ -662,7 +676,7 @@ fn SvGeneRegion::overlaps(
   self : SvGeneRegion,
   qchrom : String,
   qstart : Int,
-  qend : Int
+  qend : Int,
 ) -> Bool {
   self.chrom == qchrom && self.start <= qend && self.end >= qstart
 }
@@ -682,7 +696,7 @@ pub struct SvAnnotation {
 /// Construct an SvAnnotation.
 pub fn SvAnnotation::new(
   record : SvRecord,
-  genes : Array[String]
+  genes : Array[String],
 ) -> SvAnnotation {
   SvAnnotation::{ record, genes }
 }
@@ -711,7 +725,7 @@ pub fn SvAnnotation::has_gene_overlap(self : SvAnnotation) -> Bool {
 /// are listed in the annotation.
 pub fn sv_annotate(
   records : Array[SvRecord],
-  genes : Array[SvGeneRegion]
+  genes : Array[SvGeneRegion],
 ) -> Array[SvAnnotation] {
   let annotations : Array[SvAnnotation] = Array::new()
   for rec in records {
@@ -733,7 +747,7 @@ pub fn sv_annotate(
     }
     // Also check mate chromosome for BND records.
     match rec.breakend {
-      Some(b) => {
+      Some(b) =>
         if b.mate_chrom.length() > 0 && b.mate_chrom != sv_chrom {
           for gene in genes {
             if gene.chrom == b.mate_chrom &&
@@ -744,7 +758,6 @@ pub fn sv_annotate(
             }
           }
         }
-      }
       None => ()
     }
     annotations.push(SvAnnotation::new(rec, overlapping))
@@ -761,7 +774,7 @@ pub fn sv_annotate(
 /// quality >= min_qual.
 pub fn sv_filter_by_quality(
   records : Array[SvRecord],
-  min_qual : Double
+  min_qual : Double,
 ) -> Array[SvRecord] {
   let result : Array[SvRecord] = Array::new()
   for rec in records {
@@ -777,7 +790,7 @@ pub fn sv_filter_by_quality(
 /// size >= min_size. BND/TRA records (size 0) are always excluded.
 pub fn sv_filter_by_size(
   records : Array[SvRecord],
-  min_size : Int
+  min_size : Int,
 ) -> Array[SvRecord] {
   let result : Array[SvRecord] = Array::new()
   for rec in records {
@@ -792,7 +805,7 @@ pub fn sv_filter_by_size(
 /// Filter SV records by type. Returns records matching the given type.
 pub fn sv_filter_by_type(
   records : Array[SvRecord],
-  t : SvType
+  t : SvType,
 ) -> Array[SvRecord] {
   let result : Array[SvRecord] = Array::new()
   for rec in records {
@@ -809,9 +822,7 @@ pub fn sv_filter_by_type(
 
 ///|
 /// Count SV records by type. Returns a map from type label to count.
-pub fn sv_count_by_type(
-  records : Array[SvRecord]
-) -> Map[String, Int] {
+pub fn sv_count_by_type(records : Array[SvRecord]) -> Map[String, Int] {
   let counts : Map[String, Int] = Map([], capacity=6)
   for rec in records {
     let label = sv_type_label(rec.sv_type)
@@ -898,22 +909,15 @@ pub fn sv_annotation_summary(ann : SvAnnotation) -> String {
 pub fn sv_sample_vcf() -> String {
   let sb = StringBuilder::new()
   let lines = [
-    "##fileformat=VCFv4.2",
-    "##fileDate=20260101",
-    "##ALT=<ID=DEL,Description=\"Deletion\">",
-    "##ALT=<ID=DUP,Description=\"Duplication\">",
-    "##ALT=<ID=INV,Description=\"Inversion\">",
-    "##ALT=<ID=INS,Description=\"Insertion\">",
-    "##ALT=<ID=BND,Description=\"Breakend\">",
+    "##fileformat=VCFv4.2", "##fileDate=20260101", "##ALT=<ID=DEL,Description=\"Deletion\">",
+    "##ALT=<ID=DUP,Description=\"Duplication\">", "##ALT=<ID=INV,Description=\"Inversion\">",
+    "##ALT=<ID=INS,Description=\"Insertion\">", "##ALT=<ID=BND,Description=\"Breakend\">",
     "##INFO=<ID=SVTYPE,Number=1,Type=String,Description=\"Type of structural variant\">",
-    "##INFO=<ID=END,Number=1,Type=Integer,Description=\"End position\">",
-    "##INFO=<ID=SVLEN,Number=1,Type=Integer,Description=\"Length of SV\">",
-    "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO",
-    "chr1\t1000\tsv_del_1\tA\t<DEL>\t500.0\tPASS\tSVTYPE=DEL;END=2000;SVLEN=-1000",
+    "##INFO=<ID=END,Number=1,Type=Integer,Description=\"End position\">", "##INFO=<ID=SVLEN,Number=1,Type=Integer,Description=\"Length of SV\">",
+    "#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO", "chr1\t1000\tsv_del_1\tA\t<DEL>\t500.0\tPASS\tSVTYPE=DEL;END=2000;SVLEN=-1000",
     "chr1\t3000\tsv_dup_1\tA\t<DUP>\t450.0\tPASS\tSVTYPE=DUP;END=5000;SVLEN=2000",
     "chr2\t1500\tsv_inv_1\tA\t<INV>\t300.0\tPASS\tSVTYPE=INV;END=2500;SVLEN=1000",
-    "chr2\t4000\tsv_ins_1\tA\t<INS>\t200.0\tLOWQUAL\tSVTYPE=INS;SVLEN=500",
-    "chr1\t6000\tsv_bnd_1\tA\tA]chr2:7000]\t600.0\tPASS\tSVTYPE=BND",
+    "chr2\t4000\tsv_ins_1\tA\t<INS>\t200.0\tLOWQUAL\tSVTYPE=INS;SVLEN=500", "chr1\t6000\tsv_bnd_1\tA\tA]chr2:7000]\t600.0\tPASS\tSVTYPE=BND",
     "chr2\t7000\tsv_bnd_2\tA\tA]chr1:6000]\t600.0\tPASS\tSVTYPE=BND",
   ]
   for line in lines {

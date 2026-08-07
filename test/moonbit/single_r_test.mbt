@@ -88,7 +88,9 @@ test "single_r_rank_values_ties" {
 test "single_r_compute_correlations" {
   let ref_data = @src.single_r_create_reference_data()
   let cell_expr = ref_data.profiles[0].expression
-  let scores = @src.single_r_compute_correlations(cell_expr, ref_data, "spearman")
+  let scores = @src.single_r_compute_correlations(
+    cell_expr, ref_data, "spearman",
+  )
   assert_eq(scores.length(), ref_data.n_profiles)
   assert_true(scores[0] > 0.0)
 }
@@ -105,7 +107,11 @@ test "single_r_get_top_scores" {
 ///|
 test "single_r_aggregate_scores_by_type" {
   let ref_data = @src.single_r_create_reference_data()
-  let scores = @src.single_r_compute_correlations(ref_data.profiles[0].expression, ref_data, "spearman")
+  let scores = @src.single_r_compute_correlations(
+    ref_data.profiles[0].expression,
+    ref_data,
+    "spearman",
+  )
   let agg = @src.single_r_aggregate_scores_by_type(scores, ref_data, 1)
   assert_true(agg.size() > 0)
   assert_true(agg.contains("T cells"))
@@ -131,11 +137,13 @@ test "single_r_compute_delta_score" {
 test "single_r_annotate_cell" {
   let ref_data = @src.single_r_create_reference_data()
   let params = @src.SingleRParams::new()
-  
+
   // Test with a T cell-like expression
   let cell_expr = ref_data.profiles[0].expression
-  let result = @src.single_r_annotate_cell(cell_expr, "test_t_cell", ref_data, params)
-  
+  let result = @src.single_r_annotate_cell(
+    cell_expr, "test_t_cell", ref_data, params,
+  )
+
   assert_eq(result.cell_id, "test_t_cell")
   assert_true(result.scores.length() > 0)
   assert_true(result.first_annotation_fine.length() > 0)
@@ -146,11 +154,13 @@ test "single_r_annotate_cell" {
 test "single_r_annotate_cell_b_cell" {
   let ref_data = @src.single_r_create_reference_data()
   let params = @src.SingleRParams::new()
-  
+
   // Test with a B cell-like expression
   let cell_expr = ref_data.profiles[1].expression
-  let result = @src.single_r_annotate_cell(cell_expr, "test_b_cell", ref_data, params)
-  
+  let result = @src.single_r_annotate_cell(
+    cell_expr, "test_b_cell", ref_data, params,
+  )
+
   assert_true(result.first_annotation_fine.length() > 0)
   assert_true(result.scores[0] > 0.0)
 }
@@ -160,9 +170,9 @@ test "single_r_annotate_all_cells" {
   let ref_data = @src.single_r_create_reference_data()
   let test_data = @src.single_r_create_test_data()
   let params = @src.SingleRParams::new()
-  
+
   let result = @src.single_r_annotate_cells(test_data, ref_data, params)
-  
+
   assert_eq(result.cell_ids.length(), 50)
   assert_eq(result.labels.length(), 50)
   assert_eq(result.scores.length(), 50)
@@ -175,10 +185,10 @@ test "single_r_annotation_summary" {
   let ref_data = @src.single_r_create_reference_data()
   let test_data = @src.single_r_create_test_data()
   let params = @src.SingleRParams::new()
-  
+
   let result = @src.single_r_annotate_cells(test_data, ref_data, params)
   let summary = @src.single_r_annotation_summary(result)
-  
+
   assert_true(summary.size() > 0)
   assert_true(summary.contains("n_cells"))
   assert_eq(summary.get("n_cells").unwrap_or(0.0), 50.0)
@@ -206,9 +216,9 @@ test "single_r_pearson_annotation" {
   let ref_data = @src.single_r_create_reference_data()
   let test_data = @src.single_r_create_test_data()
   let params = @src.SingleRParams::with_method("pearson")
-  
+
   let result = @src.single_r_annotate_cells(test_data, ref_data, params)
-  
+
   assert_eq(result.cell_ids.length(), 50)
   assert_true(result.scores.length() > 0)
   assert_true(result.scores[0] > 0.0)
@@ -216,16 +226,14 @@ test "single_r_pearson_annotation" {
 
 ///|
 test "single_r_reference_dataset_from_matrix" {
-  let expression = [
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0, 6.0],
-    [7.0, 8.0, 9.0],
-  ]
+  let expression = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let cell_types = ["TypeA", "TypeB", "TypeC"]
   let gene_names = ["Gene1", "Gene2", "Gene3"]
-  
-  let reference = @src.ReferenceDataset::from_matrix(expression, cell_types, gene_names)
-  
+
+  let reference = @src.ReferenceDataset::from_matrix(
+    expression, cell_types, gene_names,
+  )
+
   assert_eq(reference.n_profiles, 3)
   assert_eq(reference.n_genes, 3)
   assert_eq(reference.cell_types.length(), 3)
@@ -236,10 +244,12 @@ test "single_r_reference_dataset_from_matrix" {
 test "single_r_fine_tune_disabled" {
   let ref_data = @src.single_r_create_reference_data()
   let params = @src.SingleRParams::with_all(false, "spearman", 1, 0.0, false)
-  
+
   let cell_expr = ref_data.profiles[0].expression
-  let result_no_finetune = @src.single_r_annotate_cell(cell_expr, "test", ref_data, params)
-  
+  let result_no_finetune = @src.single_r_annotate_cell(
+    cell_expr, "test", ref_data, params,
+  )
+
   assert_true(result_no_finetune.first_annotation_fine.length() > 0)
 }
 
@@ -247,10 +257,12 @@ test "single_r_fine_tune_disabled" {
 test "single_r_fine_tune_enabled" {
   let ref_data = @src.single_r_create_reference_data()
   let params = @src.SingleRParams::with_all(true, "spearman", 1, 0.0, false)
-  
+
   let cell_expr = ref_data.profiles[0].expression
-  let result_finetune = @src.single_r_annotate_cell(cell_expr, "test", ref_data, params)
-  
+  let result_finetune = @src.single_r_annotate_cell(
+    cell_expr, "test", ref_data, params,
+  )
+
   assert_true(result_finetune.first_annotation_fine.length() > 0)
   assert_true(result_finetune.scores[0] > 0.0)
 }
@@ -270,8 +282,13 @@ test "single_r_identical_profiles" {
   let ref_data = @src.single_r_create_reference_data()
   // Annotate a cell with the same profile as reference profile 0
   let cell_expr = ref_data.profiles[0].expression
-  let result = @src.single_r_annotate_cell(cell_expr, "identical", ref_data, @src.SingleRParams::new())
-  
+  let result = @src.single_r_annotate_cell(
+    cell_expr,
+    "identical",
+    ref_data,
+    @src.SingleRParams::new(),
+  )
+
   assert_true(result.scores[0] > 0.99)
   assert_eq(result.first_annotation_fine, "T cells")
 }

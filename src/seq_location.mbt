@@ -48,7 +48,9 @@ pub fn pos_to_string(pos : Pos) -> String {
       let mut s = "{"
       let mut i = 0
       while i < opts.length() {
-        if i > 0 { s = s + "," }
+        if i > 0 {
+          s = s + ","
+        }
         s = s + pos_to_string(opts[i])
         i = i + 1
       }
@@ -146,7 +148,7 @@ pub fn compound_from_simple(
   while i < starts.length() {
     let sp = exact_position(starts[i])
     let ep = exact_position(ends[i])
-    locs.push(simple_location(sp, ep, strand=strand))
+    locs.push(simple_location(sp, ep, strand~))
     i = i + 1
   }
   CompoundLocation(locs, strand, "")
@@ -158,7 +160,9 @@ pub fn loc_start(loc : Loc) -> Int {
   match loc {
     SimpleLocation(sp, _, _, _) => pos_get(sp)
     CompoundLocation(locs, _, _) => {
-      if locs.length() == 0 { return 0 }
+      if locs.length() == 0 {
+        return 0
+      }
       locs[0].start()
     }
   }
@@ -170,7 +174,9 @@ pub fn loc_end(loc : Loc) -> Int {
   match loc {
     SimpleLocation(_, ep, _, _) => pos_get(ep)
     CompoundLocation(locs, _, _) => {
-      if locs.length() == 0 { return 0 }
+      if locs.length() == 0 {
+        return 0
+      }
       let last = locs[locs.length() - 1]
       last.end()
     }
@@ -193,7 +199,11 @@ pub fn loc_len(loc : Loc) -> Int {
     SimpleLocation(sp, ep, _, _) => {
       let e = pos_get(ep)
       let s = pos_get(sp)
-      if e > s { e - s } else { s - e }
+      if e > s {
+        e - s
+      } else {
+        s - e
+      }
     }
     CompoundLocation(locs, _, _) => {
       let mut total = 0
@@ -262,7 +272,11 @@ pub fn loc_contains(loc : Loc, pos : Int) -> Bool {
     SimpleLocation(sp, ep, _, _) => {
       let s = pos_get(sp)
       let e = pos_get(ep)
-      if s <= e { pos >= s && pos < e } else { pos > e && pos <= s }
+      if s <= e {
+        pos >= s && pos < e
+      } else {
+        pos > e && pos <= s
+      }
     }
     CompoundLocation(locs, _, _) => {
       let mut i = 0
@@ -286,7 +300,9 @@ pub fn loc_to_string(loc : Loc) -> String {
       let mut s = ""
       let mut i = 0
       while i < locs.length() {
-        if i > 0 { s = s + "," }
+        if i > 0 {
+          s = s + ","
+        }
         s = s + locs[i].to_string()
         i = i + 1
       }
@@ -308,7 +324,9 @@ pub fn loc_to_one_based(loc : Loc) -> String {
       let mut s = "join("
       let mut i = 0
       while i < locs.length() {
-        if i > 0 { s = s + "," }
+        if i > 0 {
+          s = s + ","
+        }
         s = s + locs[i].to_one_based()
         i = i + 1
       }
@@ -322,37 +340,87 @@ pub fn loc_to_one_based(loc : Loc) -> String {
 // Pos methods
 // ============================================================================
 
+///|
 /// Get the numeric value of the position.
-pub fn Pos::get(self : Pos) -> Int { pos_get(self) }
+pub fn Pos::get(self : Pos) -> Int {
+  pos_get(self)
+}
+
+///|
 /// Get the string representation of a position.
-pub fn Pos::to_string(self : Pos) -> String { pos_to_string(self) }
+pub fn Pos::to_string(self : Pos) -> String {
+  pos_to_string(self)
+}
+
+///|
 /// Check if a position is exact.
-pub fn Pos::is_exact(self : Pos) -> Bool { pos_is_exact(self) }
+pub fn Pos::is_exact(self : Pos) -> Bool {
+  pos_is_exact(self)
+}
 
 // ============================================================================
 // Loc methods
 // ============================================================================
 
+///|
 /// Get the start position (0-based).
-pub fn Loc::start(self : Loc) -> Int { loc_start(self) }
+pub fn Loc::start(self : Loc) -> Int {
+  loc_start(self)
+}
+
+///|
 /// Get the end position (0-based, exclusive).
-pub fn Loc::end(self : Loc) -> Int { loc_end(self) }
+pub fn Loc::end(self : Loc) -> Int {
+  loc_end(self)
+}
+
+///|
 /// Get the strand.
-pub fn Loc::strand(self : Loc) -> String { loc_strand(self) }
+pub fn Loc::strand(self : Loc) -> String {
+  loc_strand(self)
+}
+
+///|
 /// Get the length of the location.
-pub fn Loc::len(self : Loc) -> Int { loc_len(self) }
+pub fn Loc::len(self : Loc) -> Int {
+  loc_len(self)
+}
+
+///|
 /// Check if this is a compound location.
-pub fn Loc::is_compound(self : Loc) -> Bool { loc_is_compound(self) }
+pub fn Loc::is_compound(self : Loc) -> Bool {
+  loc_is_compound(self)
+}
+
+///|
 /// Get the sub-locations.
-pub fn Loc::parts(self : Loc) -> Array[Loc] { loc_parts(self) }
+pub fn Loc::parts(self : Loc) -> Array[Loc] {
+  loc_parts(self)
+}
+
+///|
 /// Check if two locations overlap.
-pub fn Loc::overlaps(self : Loc, other : Loc) -> Bool { loc_overlaps(self, other) }
+pub fn Loc::overlaps(self : Loc, other : Loc) -> Bool {
+  loc_overlaps(self, other)
+}
+
+///|
 /// Check if this location contains a position.
-pub fn Loc::contains(self : Loc, pos : Int) -> Bool { loc_contains(self, pos) }
+pub fn Loc::contains(self : Loc, pos : Int) -> Bool {
+  loc_contains(self, pos)
+}
+
+///|
 /// Get location as string.
-pub fn Loc::to_string(self : Loc) -> String { loc_to_string(self) }
+pub fn Loc::to_string(self : Loc) -> String {
+  loc_to_string(self)
+}
+
+///|
 /// Return location in 1-based coordinates.
-pub fn Loc::to_one_based(self : Loc) -> String { loc_to_one_based(self) }
+pub fn Loc::to_one_based(self : Loc) -> String {
+  loc_to_one_based(self)
+}
 
 // ============================================================================
 // Helper Functions
@@ -366,10 +434,14 @@ pub fn location_to_genbank(loc : Loc) -> String {
 
 ///|
 /// Create a simple location from 1-based GenBank coordinates.
-pub fn from_genbank_coords(start : Int, end_ : Int, strand? : String = "+") -> Loc {
+pub fn from_genbank_coords(
+  start : Int,
+  end_ : Int,
+  strand? : String = "+",
+) -> Loc {
   let sp = exact_position(start - 1)
   let ep = exact_position(end_)
-  simple_location(sp, ep, strand=strand)
+  simple_location(sp, ep, strand~)
 }
 
 ///|
@@ -390,21 +462,30 @@ pub fn parse_genbank_location(loc_str : String) -> Loc {
   }
 }
 
+///|
 /// Parse an integer from a trimmed string view, returning 1 on failure.
 fn parse_int_trimmed(sv : StringView) -> Int {
   let s = sv.trim().to_owned()
   let n = s.length()
-  if n == 0 { return 1 }
+  if n == 0 {
+    return 1
+  }
   let mut result = 0
   let mut i = 0
   let zero = '0'.to_int()
   while i < n {
     let c = s.unsafe_get(i).to_int()
-    if c < zero || c > zero + 9 { break }
+    if c < zero || c > zero + 9 {
+      break
+    }
     result = result * 10 + (c - zero)
     i = i + 1
   }
-  if result == 0 && n > 0 { 1 } else { result }
+  if result == 0 && n > 0 {
+    1
+  } else {
+    result
+  }
 }
 
 ///|
@@ -412,20 +493,38 @@ fn parse_int_trimmed(sv : StringView) -> Int {
 pub fn seq_location_sample() -> Array[Loc] {
   let locs : Array[Loc] = Array::new()
   locs.push(simple_location(exact_position(10), exact_position(50), strand="+"))
-  locs.push(simple_location(exact_position(100), exact_position(200), strand="-"))
-  let exon1 = simple_location(exact_position(0), exact_position(100), strand="+")
-  let exon2 = simple_location(exact_position(200), exact_position(350), strand="+")
-  let exon3 = simple_location(exact_position(500), exact_position(600), strand="+")
+  locs.push(
+    simple_location(exact_position(100), exact_position(200), strand="-"),
+  )
+  let exon1 = simple_location(
+    exact_position(0),
+    exact_position(100),
+    strand="+",
+  )
+  let exon2 = simple_location(
+    exact_position(200),
+    exact_position(350),
+    strand="+",
+  )
+  let exon3 = simple_location(
+    exact_position(500),
+    exact_position(600),
+    strand="+",
+  )
   let exon_locs : Array[Loc] = Array::new()
   exon_locs.push(exon1)
   exon_locs.push(exon2)
   exon_locs.push(exon3)
   locs.push(compound_location(exon_locs, strand="+"))
-  locs.push(simple_location(before_position(50), after_position(100), strand="+"))
+  locs.push(
+    simple_location(before_position(50), after_position(100), strand="+"),
+  )
   let opts : Array[Pos] = Array::new()
   opts.push(exact_position(5))
   opts.push(exact_position(7))
   opts.push(exact_position(9))
-  locs.push(simple_location(one_of_position(7, opts), exact_position(50), strand="+"))
+  locs.push(
+    simple_location(one_of_position(7, opts), exact_position(50), strand="+"),
+  )
   locs
 }

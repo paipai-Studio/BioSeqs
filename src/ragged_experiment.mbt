@@ -27,22 +27,39 @@ pub enum MutationType {
 
 ///|
 /// Create a missense mutation type.
-pub fn mutation_missense() -> MutationType { MutationType::Missense_Mutation }
+pub fn mutation_missense() -> MutationType {
+  MutationType::Missense_Mutation
+}
+
 ///|
 /// Create a nonsense mutation type.
-pub fn mutation_nonsense() -> MutationType { MutationType::Nonsense_Mutation }
+pub fn mutation_nonsense() -> MutationType {
+  MutationType::Nonsense_Mutation
+}
+
 ///|
 /// Create a frameshift insertion mutation type.
-pub fn mutation_fs_ins() -> MutationType { MutationType::Frame_Shift_Ins }
+pub fn mutation_fs_ins() -> MutationType {
+  MutationType::Frame_Shift_Ins
+}
+
 ///|
 /// Create a frameshift deletion mutation type.
-pub fn mutation_fs_del() -> MutationType { MutationType::Frame_Shift_Del }
+pub fn mutation_fs_del() -> MutationType {
+  MutationType::Frame_Shift_Del
+}
+
 ///|
 /// Create a splice site mutation type.
-pub fn mutation_splice_site() -> MutationType { MutationType::Splice_Site }
+pub fn mutation_splice_site() -> MutationType {
+  MutationType::Splice_Site
+}
+
 ///|
 /// Create a silent mutation type.
-pub fn mutation_silent() -> MutationType { MutationType::Silent_Mutation }
+pub fn mutation_silent() -> MutationType {
+  MutationType::Silent_Mutation
+}
 
 ///|
 /// Convert mutation type to string.
@@ -132,13 +149,27 @@ pub fn MutationRecord::new(
 ///|
 /// Get the mutation ID (gene + chrom + pos + ref + alt).
 pub fn MutationRecord::mutation_id(self : MutationRecord) -> String {
-  self.gene_symbol + ":" + self.chrom + ":" + self.pos.to_string() + ":" + self.ref_allele + ">" + self.alt_allele
+  self.gene_symbol +
+  ":" +
+  self.chrom +
+  ":" +
+  self.pos.to_string() +
+  ":" +
+  self.ref_allele +
+  ">" +
+  self.alt_allele
 }
 
 ///|
 /// Get the mutation key for grouping.
 pub fn MutationRecord::mutation_key(self : MutationRecord) -> String {
-  self.chrom + ":" + self.pos.to_string() + ":" + self.ref_allele + ">" + self.alt_allele
+  self.chrom +
+  ":" +
+  self.pos.to_string() +
+  ":" +
+  self.ref_allele +
+  ">" +
+  self.alt_allele
 }
 
 ///|
@@ -186,7 +217,9 @@ pub fn RaggedExperiment::new() -> RaggedExperiment {
 
 ///|
 /// Create a RaggedExperiment from mutation records.
-pub fn RaggedExperiment::from_records(records~ : Array[MutationRecord]) -> RaggedExperiment {
+pub fn RaggedExperiment::from_records(
+  records~ : Array[MutationRecord],
+) -> RaggedExperiment {
   let exp = RaggedExperiment::new()
   let mut i = 0
   while i < records.length() {
@@ -199,7 +232,10 @@ pub fn RaggedExperiment::from_records(records~ : Array[MutationRecord]) -> Ragge
 
 ///|
 /// Add a mutation record to the experiment.
-pub fn RaggedExperiment::add_record(self : RaggedExperiment, record : MutationRecord) -> Unit {
+pub fn RaggedExperiment::add_record(
+  self : RaggedExperiment,
+  record : MutationRecord,
+) -> Unit {
   let mut row_idx = -1
   let mut i = 0
   while i < self.rownames.length() {
@@ -323,7 +359,9 @@ pub fn RaggedExperiment::get_records(
 ) -> Array[MutationRecord] {
   let ri = row_index(self, gene)
   let ci = col_index(self, sample)
-  if ri < 0 || ci < 0 { return Array::new() }
+  if ri < 0 || ci < 0 {
+    return Array::new()
+  }
   self.data[ri][ci]
 }
 
@@ -334,7 +372,9 @@ pub fn RaggedExperiment::get_gene_records(
   gene~ : String,
 ) -> Array[MutationRecord] {
   let ri = row_index(self, gene)
-  if ri < 0 { return Array::new() }
+  if ri < 0 {
+    return Array::new()
+  }
   let result : Array[MutationRecord] = Array::new()
   let mut c = 0
   while c < self.colnames.length() {
@@ -356,7 +396,9 @@ pub fn RaggedExperiment::get_sample_records(
   sample~ : String,
 ) -> Array[MutationRecord] {
   let ci = col_index(self, sample)
-  if ci < 0 { return Array::new() }
+  if ci < 0 {
+    return Array::new()
+  }
   let result : Array[MutationRecord] = Array::new()
   let mut r = 0
   while r < self.rownames.length() {
@@ -373,7 +415,9 @@ pub fn RaggedExperiment::get_sample_records(
 
 ///|
 /// Get the mutation count matrix (genes x samples).
-pub fn RaggedExperiment::get_count_matrix(self : RaggedExperiment) -> Array[Array[Int]] {
+pub fn RaggedExperiment::get_count_matrix(
+  self : RaggedExperiment,
+) -> Array[Array[Int]] {
   self.counts
 }
 
@@ -405,7 +449,9 @@ pub fn RaggedExperiment::get_tmb_per_mb(
 
 ///|
 /// Summary statistics: number of genes mutated per sample.
-pub fn RaggedExperiment::genes_mutated_per_sample(self : RaggedExperiment) -> Array[Int] {
+pub fn RaggedExperiment::genes_mutated_per_sample(
+  self : RaggedExperiment,
+) -> Array[Int] {
   let n_cols = self.colnames.length()
   let n_rows = self.rownames.length()
   let result : Array[Int] = Array::new()
@@ -414,7 +460,9 @@ pub fn RaggedExperiment::genes_mutated_per_sample(self : RaggedExperiment) -> Ar
     let mut count = 0
     let mut r = 0
     while r < n_rows {
-      if self.data[r][c].length() > 0 { count = count + 1 }
+      if self.data[r][c].length() > 0 {
+        count = count + 1
+      }
       r = r + 1
     }
     result.push(count)
@@ -437,7 +485,14 @@ pub fn RaggedExperiment::summary(self : RaggedExperiment) -> String {
   s = s + "\nPer-sample TMB and mutated genes:" + "\n"
   let mut i = 0
   while i < n_cols {
-    s = s + "  " + self.colnames[i] + ": TMB=" + tmb[i].to_string() + ", mutated_genes=" + genes_mutated[i].to_string() + "\n"
+    s = s +
+      "  " +
+      self.colnames[i] +
+      ": TMB=" +
+      tmb[i].to_string() +
+      ", mutated_genes=" +
+      genes_mutated[i].to_string() +
+      "\n"
     i = i + 1
   }
   s
@@ -460,7 +515,10 @@ pub fn RaggedExperiment::filter_by_type(
         let mut keep = false
         let mut t = 0
         while t < types.length() {
-          if recs[j].mutation_type == types[t] { keep = true; break }
+          if recs[j].mutation_type == types[t] {
+            keep = true
+            break
+          }
           t = t + 1
         }
         if keep {
@@ -488,7 +546,10 @@ pub fn RaggedExperiment::filter_by_genes(
     let mut keep = false
     let mut g = 0
     while g < genes.length() {
-      if self.rownames[r] == genes[g] { keep = true; break }
+      if self.rownames[r] == genes[g] {
+        keep = true
+        break
+      }
       g = g + 1
     }
     if keep {
@@ -523,7 +584,10 @@ pub fn RaggedExperiment::filter_by_samples(
       let mut keep = false
       let mut s = 0
       while s < samples.length() {
-        if self.colnames[c] == samples[s] { keep = true; break }
+        if self.colnames[c] == samples[s] {
+          keep = true
+          break
+        }
         s = s + 1
       }
       if keep {
@@ -548,34 +612,82 @@ pub fn ragged_sample_data() -> RaggedExperiment {
   let exp = RaggedExperiment::new()
 
   // Sample 1: TP53 missense, KRAS mutation
-  exp.add_record(MutationRecord::new(
-    sample_id="Sample1", gene_symbol="TP53", chrom="chr17", pos=7577121, ref_allele="C", alt_allele="T",
-    mutation_type=MutationType::Missense_Mutation, variant_allele_frequency=0.45,
-  ))
-  exp.add_record(MutationRecord::new(
-    sample_id="Sample1", gene_symbol="KRAS", chrom="chr12", pos=25398284, ref_allele="G", alt_allele="T",
-    mutation_type=MutationType::Missense_Mutation, variant_allele_frequency=0.32,
-  ))
-  exp.add_record(MutationRecord::new(
-    sample_id="Sample1", gene_symbol="MYC", chrom="chr8", pos=128748315, ref_allele="C", alt_allele="A",
-    mutation_type=MutationType::Nonsense_Mutation, variant_allele_frequency=0.28,
-  ))
+  exp.add_record(
+    MutationRecord::new(
+      sample_id="Sample1",
+      gene_symbol="TP53",
+      chrom="chr17",
+      pos=7577121,
+      ref_allele="C",
+      alt_allele="T",
+      mutation_type=MutationType::Missense_Mutation,
+      variant_allele_frequency=0.45,
+    ),
+  )
+  exp.add_record(
+    MutationRecord::new(
+      sample_id="Sample1",
+      gene_symbol="KRAS",
+      chrom="chr12",
+      pos=25398284,
+      ref_allele="G",
+      alt_allele="T",
+      mutation_type=MutationType::Missense_Mutation,
+      variant_allele_frequency=0.32,
+    ),
+  )
+  exp.add_record(
+    MutationRecord::new(
+      sample_id="Sample1",
+      gene_symbol="MYC",
+      chrom="chr8",
+      pos=128748315,
+      ref_allele="C",
+      alt_allele="A",
+      mutation_type=MutationType::Nonsense_Mutation,
+      variant_allele_frequency=0.28,
+    ),
+  )
 
   // Sample 2: TP53 frameshift, EGFR mutation
-  exp.add_record(MutationRecord::new(
-    sample_id="Sample2", gene_symbol="TP53", chrom="chr17", pos=7578456, ref_allele="AG", alt_allele="A",
-    mutation_type=MutationType::Frame_Shift_Del, variant_allele_frequency=0.52,
-  ))
-  exp.add_record(MutationRecord::new(
-    sample_id="Sample2", gene_symbol="EGFR", chrom="chr7", pos=55086714, ref_allele="G", alt_allele="A",
-    mutation_type=MutationType::Missense_Mutation, variant_allele_frequency=0.38,
-  ))
+  exp.add_record(
+    MutationRecord::new(
+      sample_id="Sample2",
+      gene_symbol="TP53",
+      chrom="chr17",
+      pos=7578456,
+      ref_allele="AG",
+      alt_allele="A",
+      mutation_type=MutationType::Frame_Shift_Del,
+      variant_allele_frequency=0.52,
+    ),
+  )
+  exp.add_record(
+    MutationRecord::new(
+      sample_id="Sample2",
+      gene_symbol="EGFR",
+      chrom="chr7",
+      pos=55086714,
+      ref_allele="G",
+      alt_allele="A",
+      mutation_type=MutationType::Missense_Mutation,
+      variant_allele_frequency=0.38,
+    ),
+  )
 
   // Sample 3: KRAS mutation only
-  exp.add_record(MutationRecord::new(
-    sample_id="Sample3", gene_symbol="KRAS", chrom="chr12", pos=25398284, ref_allele="G", alt_allele="C",
-    mutation_type=MutationType::Missense_Mutation, variant_allele_frequency=0.41,
-  ))
+  exp.add_record(
+    MutationRecord::new(
+      sample_id="Sample3",
+      gene_symbol="KRAS",
+      chrom="chr12",
+      pos=25398284,
+      ref_allele="G",
+      alt_allele="C",
+      mutation_type=MutationType::Missense_Mutation,
+      variant_allele_frequency=0.41,
+    ),
+  )
 
   exp.recalculate()
   exp
@@ -583,19 +695,25 @@ pub fn ragged_sample_data() -> RaggedExperiment {
 
 // --- Helper functions ---
 
+///|
 fn row_index(exp : RaggedExperiment, gene : String) -> Int {
   let mut i = 0
   while i < exp.rownames.length() {
-    if exp.rownames[i] == gene { return i }
+    if exp.rownames[i] == gene {
+      return i
+    }
     i = i + 1
   }
   -1
 }
 
+///|
 fn col_index(exp : RaggedExperiment, sample : String) -> Int {
   let mut i = 0
   while i < exp.colnames.length() {
-    if exp.colnames[i] == sample { return i }
+    if exp.colnames[i] == sample {
+      return i
+    }
     i = i + 1
   }
   -1

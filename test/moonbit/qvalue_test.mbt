@@ -210,14 +210,7 @@ test "qvalue_result_creation" {
   let pvals = [0.01, 0.05]
   let qvals = [0.02, 0.06]
   let sig = [true, false]
-  let result = @src.QValueResult::new(
-    pvals,
-    qvals,
-    0.8,
-    0.5,
-    0.75,
-    sig,
-  )
+  let result = @src.QValueResult::new(pvals, qvals, 0.8, 0.5, 0.75, sig)
   assert_eq(result.p_values().length(), 2)
   assert_eq(result.q_values().length(), 2)
   assert_true(result.pi0() > 0.79 && result.pi0() < 0.81)

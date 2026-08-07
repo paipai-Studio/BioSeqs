@@ -3,10 +3,7 @@
 
 ///|
 test "meme_motif_new" {
-  let pspm = [
-    [0.25, 0.25, 0.25, 0.25],
-    [0.5, 0.0, 0.5, 0.0],
-  ]
+  let pspm = [[0.25, 0.25, 0.25, 0.25], [0.5, 0.0, 0.5, 0.0]]
   let motif = @src.MemeMotif::new("motif1", pspm)
   assert_eq(motif.name, "motif1")
   assert_eq(motif.alt_name, "")
@@ -27,11 +24,7 @@ test "meme_motif_new_custom_alphabet" {
 
 ///|
 test "meme_motif_consensus" {
-  let pspm = [
-    [0.9, 0.0, 0.1, 0.0],
-    [0.0, 0.8, 0.0, 0.2],
-    [0.1, 0.0, 0.9, 0.0],
-  ]
+  let pspm = [[0.9, 0.0, 0.1, 0.0], [0.0, 0.8, 0.0, 0.2], [0.1, 0.0, 0.9, 0.0]]
   let motif = @src.MemeMotif::new("m1", pspm, alphabet="ACGT")
   let cons = motif.consensus()
   assert_eq(cons, "ACG")
@@ -39,10 +32,7 @@ test "meme_motif_consensus" {
 
 ///|
 test "meme_motif_probability" {
-  let pspm = [
-    [0.9, 0.0, 0.1, 0.0],
-    [0.0, 0.8, 0.0, 0.2],
-  ]
+  let pspm = [[0.9, 0.0, 0.1, 0.0], [0.0, 0.8, 0.0, 0.2]]
   let motif = @src.MemeMotif::new("m1", pspm, alphabet="ACGT")
   assert_eq(motif.probability("A", 0), 0.9)
   assert_eq(motif.probability("C", 0), 0.0)
@@ -55,10 +45,7 @@ test "meme_motif_probability" {
 
 ///|
 test "meme_motif_information_content" {
-  let pspm = [
-    [1.0, 0.0, 0.0, 0.0],
-    [0.25, 0.25, 0.25, 0.25],
-  ]
+  let pspm = [[1.0, 0.0, 0.0, 0.0], [0.25, 0.25, 0.25, 0.25]]
   let motif = @src.MemeMotif::new("m1", pspm, alphabet="ACGT")
   let ic = motif.information_content()
   // First position has max info (2 bits), second has 0

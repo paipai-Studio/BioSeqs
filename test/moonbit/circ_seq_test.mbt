@@ -24,7 +24,7 @@ test "CircSeq::circ_gc_content" {
 test "CircSeq::circ_gc_content AT rich" {
   let circ = @src.CircSeq::new(sequence="ATATATAT")
   let gc = circ.circ_gc_content()
-  assert_true((gc).abs() < 1.0e-10)
+  assert_true(gc.abs() < 1.0e-10)
 }
 
 ///|

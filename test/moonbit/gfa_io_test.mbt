@@ -19,21 +19,25 @@ test "GfaTag::new and accessors" {
   assert_eq(tag.value(), "100")
 }
 
+///|
 test "GfaTag::to_string integer" {
   let tag = @src.GfaTag::new("LN", "i", "100")
   assert_eq(tag.to_string(), "LN:i:100")
 }
 
+///|
 test "GfaTag::to_string string type" {
   let tag = @src.GfaTag::new("VN", "Z", "1.0")
   assert_eq(tag.to_string(), "VN:Z:1.0")
 }
 
+///|
 test "GfaTag::to_string float type" {
   let tag = @src.GfaTag::new("GC", "f", "0.42")
   assert_eq(tag.to_string(), "GC:f:0.42")
 }
 
+///|
 test "gfa_tag_to_string matches method" {
   let tag = @src.GfaTag::new("OR", "Z", "sample")
   assert_eq(@src.gfa_tag_to_string(tag), "OR:Z:sample")
@@ -44,6 +48,7 @@ test "gfa_tag_to_string matches method" {
 // 2. GfaHeader - creation and version
 // ============================================================================
 
+///|
 test "GfaHeader::new with version and tags" {
   let tags = [@src.GfaTag::new("VN", "Z", "1.0")]
   let header = @src.GfaHeader::new("1.0", tags)
@@ -53,12 +58,14 @@ test "GfaHeader::new with version and tags" {
   assert_eq(header.tags()[0].value(), "1.0")
 }
 
+///|
 test "GfaHeader::new empty" {
   let header = @src.GfaHeader::new("", [])
   assert_eq(header.version(), "")
   assert_eq(header.tags().length(), 0)
 }
 
+///|
 test "GfaHeader::new with multiple tags" {
   let tags = [
     @src.GfaTag::new("VN", "Z", "1.1"),
@@ -73,12 +80,11 @@ test "GfaHeader::new with multiple tags" {
 // 3. GfaSegment - creation, accessors, to_string
 // ============================================================================
 
+///|
 test "GfaSegment::new and accessors" {
-  let seg = @src.GfaSegment::new(
-    "seq1",
-    "ACGT",
-    [@src.GfaTag::new("LN", "i", "4")],
-  )
+  let seg = @src.GfaSegment::new("seq1", "ACGT", [
+    @src.GfaTag::new("LN", "i", "4"),
+  ])
   assert_eq(seg.name(), "seq1")
   assert_eq(seg.sequence(), "ACGT")
   assert_eq(seg.tags().length(), 1)
@@ -87,6 +93,7 @@ test "GfaSegment::new and accessors" {
   assert_eq(seg.tags()[0].value(), "4")
 }
 
+///|
 test "GfaSegment::new with no tags" {
   let seg = @src.GfaSegment::new("seq2", "*", [])
   assert_eq(seg.name(), "seq2")
@@ -94,12 +101,11 @@ test "GfaSegment::new with no tags" {
   assert_eq(seg.tags().length(), 0)
 }
 
+///|
 test "GfaSegment::to_string with tag" {
-  let seg = @src.GfaSegment::new(
-    "seq1",
-    "ACGT",
-    [@src.GfaTag::new("LN", "i", "4")],
-  )
+  let seg = @src.GfaSegment::new("seq1", "ACGT", [
+    @src.GfaTag::new("LN", "i", "4"),
+  ])
   let s = seg.to_string()
   assert_true(s.contains("GfaSegment(name=seq1"))
   assert_true(s.contains("sequence=ACGT"))
@@ -107,6 +113,7 @@ test "GfaSegment::to_string with tag" {
   assert_true(s.contains("tags=["))
 }
 
+///|
 test "GfaSegment::to_string empty tags" {
   let seg = @src.GfaSegment::new("only", "ACGT", [])
   let s = seg.to_string()
@@ -118,15 +125,11 @@ test "GfaSegment::to_string empty tags" {
 // 4. GfaLink - creation and accessors
 // ============================================================================
 
+///|
 test "GfaLink::new and accessors" {
-  let link = @src.GfaLink::new(
-    "seq1",
-    "+",
-    "seq2",
-    "-",
-    "8M",
-    [@src.GfaTag::new("MQ", "i", "60")],
-  )
+  let link = @src.GfaLink::new("seq1", "+", "seq2", "-", "8M", [
+    @src.GfaTag::new("MQ", "i", "60"),
+  ])
   assert_eq(link.from_segment(), "seq1")
   assert_eq(link.from_orient(), "+")
   assert_eq(link.to_segment(), "seq2")
@@ -136,6 +139,7 @@ test "GfaLink::new and accessors" {
   assert_eq(link.tags()[0].name(), "MQ")
 }
 
+///|
 test "GfaLink::new with no tags" {
   let link = @src.GfaLink::new("a", "+", "b", "+", "0M", [])
   assert_eq(link.tags().length(), 0)
@@ -146,16 +150,11 @@ test "GfaLink::new with no tags" {
 // 4b. GfaContainment - creation and accessors
 // ============================================================================
 
+///|
 test "GfaContainment::new and accessors" {
-  let cont = @src.GfaContainment::new(
-    "seq1",
-    "+",
-    "seq2",
-    "+",
-    5,
-    "8M",
-    [@src.GfaTag::new("MQ", "i", "60")],
-  )
+  let cont = @src.GfaContainment::new("seq1", "+", "seq2", "+", 5, "8M", [
+    @src.GfaTag::new("MQ", "i", "60"),
+  ])
   assert_eq(cont.container(), "seq1")
   assert_eq(cont.container_orient(), "+")
   assert_eq(cont.contained(), "seq2")
@@ -169,13 +168,11 @@ test "GfaContainment::new and accessors" {
 // 5. GfaPath - creation, accessors
 // ============================================================================
 
+///|
 test "GfaPath::new and accessors" {
-  let path = @src.GfaPath::new(
-    "path1",
-    ["seq1+", "seq2-"],
-    ["8M", "4M"],
-    [@src.GfaTag::new("NO", "i", "1")],
-  )
+  let path = @src.GfaPath::new("path1", ["seq1+", "seq2-"], ["8M", "4M"], [
+    @src.GfaTag::new("NO", "i", "1"),
+  ])
   assert_eq(path.name(), "path1")
   assert_eq(path.segment_list().length(), 2)
   assert_eq(path.segment_list()[0], "seq1+")
@@ -186,6 +183,7 @@ test "GfaPath::new and accessors" {
   assert_eq(path.tags().length(), 1)
 }
 
+///|
 test "GfaPath::new empty" {
   let path = @src.GfaPath::new("empty", [], [], [])
   assert_eq(path.name(), "empty")
@@ -198,6 +196,7 @@ test "GfaPath::new empty" {
 // 6. GfaGraph - creation and add operations
 // ============================================================================
 
+///|
 test "GfaGraph::new is empty" {
   let graph = @src.GfaGraph::new()
   assert_eq(graph.headers().length(), 0)
@@ -207,6 +206,7 @@ test "GfaGraph::new is empty" {
   assert_eq(graph.paths().length(), 0)
 }
 
+///|
 test "GfaGraph add operations" {
   let graph = @src.GfaGraph::new()
   graph.add_header(
@@ -229,6 +229,7 @@ test "GfaGraph add operations" {
 // 7. gfa_parse_tag - valid and invalid inputs
 // ============================================================================
 
+///|
 test "gfa_parse_tag valid LN:i:100" {
   match @src.gfa_parse_tag("LN:i:100") {
     Some(t) => {
@@ -240,6 +241,7 @@ test "gfa_parse_tag valid LN:i:100" {
   }
 }
 
+///|
 test "gfa_parse_tag valid VN:Z:1.0" {
   match @src.gfa_parse_tag("VN:Z:1.0") {
     Some(t) => {
@@ -251,6 +253,7 @@ test "gfa_parse_tag valid VN:Z:1.0" {
   }
 }
 
+///|
 test "gfa_parse_tag invalid bad (no colons)" {
   match @src.gfa_parse_tag("bad") {
     Some(_) => assert_true(false)
@@ -258,6 +261,7 @@ test "gfa_parse_tag invalid bad (no colons)" {
   }
 }
 
+///|
 test "gfa_parse_tag missing type (one colon)" {
   match @src.gfa_parse_tag("LN:100") {
     Some(_) => assert_true(false)
@@ -265,6 +269,7 @@ test "gfa_parse_tag missing type (one colon)" {
   }
 }
 
+///|
 test "gfa_parse_tag empty string" {
   match @src.gfa_parse_tag("") {
     Some(_) => assert_true(false)
@@ -272,6 +277,7 @@ test "gfa_parse_tag empty string" {
   }
 }
 
+///|
 test "gfa_parse_tag with value containing colon" {
   // The value itself may legally contain ':' (e.g. JSON-style). The parser
   // splits on the first two colons only.
@@ -289,6 +295,7 @@ test "gfa_parse_tag with value containing colon" {
 // 8. gfa_parse - full GFA document with H, S, L, P lines
 // ============================================================================
 
+///|
 test "gfa_parse full document" {
   let content = "H\tVN:Z:1.0\nS\tseq1\tACGTACGT\tLN:i:8\nS\tseq2\tTTTTGGGG\tLN:i:8\nL\tseq1\t+\tseq2\t-\t8M\nP\tpath1\tseq1+,seq2-\t8M,4M\n"
   let graph = @src.gfa_parse(content)
@@ -315,6 +322,7 @@ test "gfa_parse full document" {
   assert_eq(graph.paths()[0].overlaps().length(), 2)
 }
 
+///|
 test "gfa_parse handles CRLF line endings" {
   let content = "H\tVN:Z:1.0\r\nS\tseq1\tACGT\r\n"
   let graph = @src.gfa_parse(content)
@@ -325,6 +333,7 @@ test "gfa_parse handles CRLF line endings" {
   assert_eq(graph.segments()[0].sequence(), "ACGT")
 }
 
+///|
 test "gfa_parse skips blank and unknown lines" {
   let content = "\nH\tVN:Z:1.0\nX\tunknown\n\nS\tseq1\tACGT\n"
   let graph = @src.gfa_parse(content)
@@ -333,6 +342,7 @@ test "gfa_parse skips blank and unknown lines" {
   assert_eq(graph.segments()[0].name(), "seq1")
 }
 
+///|
 test "gfa_parse_containment" {
   let fields = ["C", "seq1", "+", "seq2", "+", "5", "8M"]
   let cont = @src.gfa_parse_containment(fields)
@@ -346,6 +356,7 @@ test "gfa_parse_containment" {
 // 9. gfa_to_string round-trip
 // ============================================================================
 
+///|
 test "gfa_to_string round-trip preserves data" {
   let content = "H\tVN:Z:1.0\nS\tseq1\tACGTACGT\tLN:i:8\nS\tseq2\tTTTTGGGG\tLN:i:8\nL\tseq1\t+\tseq2\t-\t8M\nP\tpath1\tseq1+,seq2-\t8M,4M\n"
   let graph1 = @src.gfa_parse(content)
@@ -366,6 +377,7 @@ test "gfa_to_string round-trip preserves data" {
   assert_eq(graph2.paths()[0].overlaps()[1], "4M")
 }
 
+///|
 test "gfa_to_string matches expected lines" {
   let content = "H\tVN:Z:1.0\nS\tseq1\tACGT\tLN:i:4\nL\tseq1\t+\tseq2\t-\t8M\nP\tp1\tseq1+,seq2-\t8M,4M\n"
   let graph = @src.gfa_parse(content)
@@ -380,71 +392,60 @@ test "gfa_to_string matches expected lines" {
 // Per-record serializers
 // ============================================================================
 
+///|
 test "gfa_header_to_line" {
-  let header = @src.GfaHeader::new(
-    "1.0",
-    [@src.GfaTag::new("VN", "Z", "1.0")],
-  )
+  let header = @src.GfaHeader::new("1.0", [@src.GfaTag::new("VN", "Z", "1.0")])
   assert_eq(@src.gfa_header_to_line(header), "H\tVN:Z:1.0")
 }
 
+///|
 test "gfa_header_to_line multiple tags" {
-  let header = @src.GfaHeader::new(
-    "1.0",
-    [
-      @src.GfaTag::new("VN", "Z", "1.0"),
-      @src.GfaTag::new("OR", "Z", "sample"),
-    ],
-  )
+  let header = @src.GfaHeader::new("1.0", [
+    @src.GfaTag::new("VN", "Z", "1.0"),
+    @src.GfaTag::new("OR", "Z", "sample"),
+  ])
   assert_eq(@src.gfa_header_to_line(header), "H\tVN:Z:1.0\tOR:Z:sample")
 }
 
+///|
 test "gfa_segment_to_line" {
-  let seg = @src.GfaSegment::new(
-    "seq1",
-    "ACGT",
-    [@src.GfaTag::new("LN", "i", "4")],
-  )
+  let seg = @src.GfaSegment::new("seq1", "ACGT", [
+    @src.GfaTag::new("LN", "i", "4"),
+  ])
   assert_eq(@src.gfa_segment_to_line(seg), "S\tseq1\tACGT\tLN:i:4")
 }
 
+///|
 test "gfa_segment_to_line no tags" {
   let seg = @src.GfaSegment::new("seq2", "TTTT", [])
   assert_eq(@src.gfa_segment_to_line(seg), "S\tseq2\tTTTT")
 }
 
+///|
 test "gfa_link_to_line" {
   let link = @src.GfaLink::new("seq1", "+", "seq2", "-", "8M", [])
   assert_eq(@src.gfa_link_to_line(link), "L\tseq1\t+\tseq2\t-\t8M")
 }
 
+///|
 test "gfa_link_to_line with tag" {
-  let link = @src.GfaLink::new(
-    "a",
-    "+",
-    "b",
-    "+",
-    "4M",
-    [@src.GfaTag::new("MQ", "i", "60")],
-  )
+  let link = @src.GfaLink::new("a", "+", "b", "+", "4M", [
+    @src.GfaTag::new("MQ", "i", "60"),
+  ])
   assert_eq(@src.gfa_link_to_line(link), "L\ta\t+\tb\t+\t4M\tMQ:i:60")
 }
 
+///|
 test "gfa_path_to_line" {
   let path = @src.GfaPath::new("p1", ["seq1+", "seq2-"], ["8M", "4M"], [])
   assert_eq(@src.gfa_path_to_line(path), "P\tp1\tseq1+,seq2-\t8M,4M")
 }
 
+///|
 test "gfa_containment_to_line" {
-  let cont = @src.GfaContainment::new(
-    "seq1",
-    "+",
-    "seq2",
-    "+",
-    5,
-    "8M",
-    [@src.GfaTag::new("MQ", "i", "60")],
-  )
+  let cont = @src.GfaContainment::new("seq1", "+", "seq2", "+", 5, "8M", [
+    @src.GfaTag::new("MQ", "i", "60"),
+  ])
   assert_eq(
     @src.gfa_containment_to_line(cont),
     "C\tseq1\t+\tseq2\t+\t5\t8M\tMQ:i:60",
@@ -455,6 +456,7 @@ test "gfa_containment_to_line" {
 // Per-record parsers
 // ============================================================================
 
+///|
 test "gfa_parse_header extracts version" {
   let fields = ["H", "VN:Z:1.0"]
   let header = @src.gfa_parse_header(fields)
@@ -462,6 +464,7 @@ test "gfa_parse_header extracts version" {
   assert_eq(header.tags().length(), 1)
 }
 
+///|
 test "gfa_parse_segment fields" {
   let fields = ["S", "seq1", "ACGTACGT", "LN:i:8"]
   let seg = @src.gfa_parse_segment(fields)
@@ -472,6 +475,7 @@ test "gfa_parse_segment fields" {
   assert_eq(seg.tags()[0].value(), "8")
 }
 
+///|
 test "gfa_parse_segment defaults sequence to *" {
   let fields = ["S", "seq1"]
   let seg = @src.gfa_parse_segment(fields)
@@ -480,6 +484,7 @@ test "gfa_parse_segment defaults sequence to *" {
   assert_eq(seg.tags().length(), 0)
 }
 
+///|
 test "gfa_parse_link fields" {
   let fields = ["L", "seq1", "+", "seq2", "-", "8M"]
   let link = @src.gfa_parse_link(fields)
@@ -490,6 +495,7 @@ test "gfa_parse_link fields" {
   assert_eq(link.overlap(), "8M")
 }
 
+///|
 test "gfa_parse_path fields" {
   let fields = ["P", "path1", "seq1+,seq2-", "8M,4M"]
   let path = @src.gfa_parse_path(fields)
@@ -506,6 +512,7 @@ test "gfa_parse_path fields" {
 // 10. gfa_graph_n_segments / n_links / n_paths
 // ============================================================================
 
+///|
 test "gfa_graph_n_segments/links/paths on sample" {
   let graph = @src.gfa_sample_graph()
   assert_eq(@src.gfa_graph_n_segments(graph), 3)
@@ -513,6 +520,7 @@ test "gfa_graph_n_segments/links/paths on sample" {
   assert_eq(@src.gfa_graph_n_paths(graph), 1)
 }
 
+///|
 test "gfa_graph_n_segments/links/paths on empty" {
   let graph = @src.GfaGraph::new()
   assert_eq(@src.gfa_graph_n_segments(graph), 0)
@@ -524,6 +532,7 @@ test "gfa_graph_n_segments/links/paths on empty" {
 // 11. gfa_get_segment - found and not found
 // ============================================================================
 
+///|
 test "gfa_get_segment found" {
   let graph = @src.gfa_sample_graph()
   match @src.gfa_get_segment(graph, "seq2") {
@@ -535,6 +544,7 @@ test "gfa_get_segment found" {
   }
 }
 
+///|
 test "gfa_get_segment found first" {
   let graph = @src.gfa_sample_graph()
   match @src.gfa_get_segment(graph, "seq1") {
@@ -543,6 +553,7 @@ test "gfa_get_segment found first" {
   }
 }
 
+///|
 test "gfa_get_segment not found" {
   let graph = @src.gfa_sample_graph()
   match @src.gfa_get_segment(graph, "missing") {
@@ -551,6 +562,7 @@ test "gfa_get_segment not found" {
   }
 }
 
+///|
 test "gfa_get_segment on empty graph" {
   let graph = @src.GfaGraph::new()
   match @src.gfa_get_segment(graph, "anything") {
@@ -563,6 +575,7 @@ test "gfa_get_segment on empty graph" {
 // 12. gfa_get_segments_as_records - convert to SeqRecord array
 // ============================================================================
 
+///|
 test "gfa_get_segments_as_records sample graph" {
   let graph = @src.gfa_sample_graph()
   let records = @src.gfa_get_segments_as_records(graph)
@@ -577,12 +590,14 @@ test "gfa_get_segments_as_records sample graph" {
   assert_eq(records[2].seq.to_string(), "CCCCAAAA")
 }
 
+///|
 test "gfa_get_segments_as_records empty graph" {
   let graph = @src.GfaGraph::new()
   let records = @src.gfa_get_segments_as_records(graph)
   assert_eq(records.length(), 0)
 }
 
+///|
 test "gfa_get_segments_as_records star sequence becomes empty" {
   let graph = @src.GfaGraph::new()
   graph.add_segment(@src.GfaSegment::new("masked", "*", []))
@@ -596,15 +611,11 @@ test "gfa_get_segments_as_records star sequence becomes empty" {
 // 13. gfa_reverse_link - from/to swapped, orientations swapped
 // ============================================================================
 
+///|
 test "gfa_reverse_link swaps segments and orientations" {
-  let link = @src.GfaLink::new(
-    "seq1",
-    "+",
-    "seq2",
-    "-",
-    "8M",
-    [@src.GfaTag::new("MQ", "i", "60")],
-  )
+  let link = @src.GfaLink::new("seq1", "+", "seq2", "-", "8M", [
+    @src.GfaTag::new("MQ", "i", "60"),
+  ])
   let rev = @src.gfa_reverse_link(link)
   assert_eq(rev.from_segment(), "seq2")
   assert_eq(rev.from_orient(), "-")
@@ -615,6 +626,7 @@ test "gfa_reverse_link swaps segments and orientations" {
   assert_eq(rev.tags()[0].name(), "MQ")
 }
 
+///|
 test "gfa_reverse_link double-reverse is identity" {
   let link = @src.GfaLink::new("a", "+", "b", "-", "4M", [])
   let rev2 = @src.gfa_reverse_link(@src.gfa_reverse_link(link))
@@ -625,18 +637,12 @@ test "gfa_reverse_link double-reverse is identity" {
   assert_eq(rev2.overlap(), "4M")
 }
 
+///|
 test "gfa_reverse_link preserves tags" {
-  let link = @src.GfaLink::new(
-    "x",
-    "+",
-    "y",
-    "+",
-    "0M",
-    [
-      @src.GfaTag::new("MQ", "i", "40"),
-      @src.GfaTag::new("NM", "i", "0"),
-    ],
-  )
+  let link = @src.GfaLink::new("x", "+", "y", "+", "0M", [
+    @src.GfaTag::new("MQ", "i", "40"),
+    @src.GfaTag::new("NM", "i", "0"),
+  ])
   let rev = @src.gfa_reverse_link(link)
   assert_eq(rev.tags().length(), 2)
   assert_eq(rev.tags()[0].name(), "MQ")
@@ -647,6 +653,7 @@ test "gfa_reverse_link preserves tags" {
 // 14. gfa_graph_summary - non-empty string
 // ============================================================================
 
+///|
 test "gfa_graph_summary non-empty on sample" {
   let graph = @src.gfa_sample_graph()
   let summary = @src.gfa_graph_summary(graph)
@@ -658,6 +665,7 @@ test "gfa_graph_summary non-empty on sample" {
   assert_true(summary.contains("total_sequence_length=24"))
 }
 
+///|
 test "gfa_graph_summary on empty graph" {
   let graph = @src.GfaGraph::new()
   let summary = @src.gfa_graph_summary(graph)
@@ -668,6 +676,7 @@ test "gfa_graph_summary on empty graph" {
   assert_true(summary.contains("total_sequence_length=0"))
 }
 
+///|
 test "gfa_graph_summary ignores star sequences" {
   let graph = @src.GfaGraph::new()
   graph.add_segment(@src.GfaSegment::new("a", "ACGT", []))
@@ -681,6 +690,7 @@ test "gfa_graph_summary ignores star sequences" {
 // 15. Sample graph validation
 // ============================================================================
 
+///|
 test "gfa_sample_graph structure" {
   let graph = @src.gfa_sample_graph()
   assert_eq(graph.headers().length(), 1)
@@ -691,6 +701,7 @@ test "gfa_sample_graph structure" {
   assert_eq(graph.containments().length(), 0)
 }
 
+///|
 test "gfa_sample_graph segments" {
   let graph = @src.gfa_sample_graph()
   assert_eq(graph.segments()[0].name(), "seq1")
@@ -704,6 +715,7 @@ test "gfa_sample_graph segments" {
   assert_eq(graph.segments()[0].tags()[0].value(), "8")
 }
 
+///|
 test "gfa_sample_graph links" {
   let graph = @src.gfa_sample_graph()
   let l0 = graph.links()[0]
@@ -716,6 +728,7 @@ test "gfa_sample_graph links" {
   assert_eq(l1.overlap(), "4M")
 }
 
+///|
 test "gfa_sample_graph path" {
   let graph = @src.gfa_sample_graph()
   let p = graph.paths()[0]
@@ -727,6 +740,7 @@ test "gfa_sample_graph path" {
   assert_eq(p.overlaps().length(), 2)
 }
 
+///|
 test "gfa_sample_graph round-trips through gfa_to_string" {
   let graph = @src.gfa_sample_graph()
   let text = @src.gfa_to_string(graph)
@@ -741,12 +755,14 @@ test "gfa_sample_graph round-trips through gfa_to_string" {
 // 16. Edge cases - empty graph, single segment, no links
 // ============================================================================
 
+///|
 test "edge case: empty graph serializes to empty string" {
   let graph = @src.GfaGraph::new()
   let s = @src.gfa_to_string(graph)
   assert_eq(s, "")
 }
 
+///|
 test "edge case: parse empty content" {
   let graph = @src.gfa_parse("")
   assert_eq(@src.gfa_graph_n_segments(graph), 0)
@@ -754,6 +770,7 @@ test "edge case: parse empty content" {
   assert_eq(@src.gfa_graph_n_paths(graph), 0)
 }
 
+///|
 test "edge case: single segment, no links" {
   let graph = @src.GfaGraph::new()
   graph.add_segment(@src.GfaSegment::new("only", "ACGT", []))
@@ -764,6 +781,7 @@ test "edge case: single segment, no links" {
   assert_eq(out, "S\tonly\tACGT\n")
 }
 
+///|
 test "edge case: single segment round-trip" {
   let graph = @src.GfaGraph::new()
   graph.add_segment(@src.GfaSegment::new("only", "ACGT", []))
@@ -774,6 +792,7 @@ test "edge case: single segment round-trip" {
   assert_eq(reparsed.segments()[0].sequence(), "ACGT")
 }
 
+///|
 test "edge case: segment with star sequence" {
   let content = "S\tseq1\t*\tLN:i:100\n"
   let graph = @src.gfa_parse(content)
@@ -782,6 +801,7 @@ test "edge case: segment with star sequence" {
   assert_eq(graph.segments()[0].tags()[0].name(), "LN")
 }
 
+///|
 test "edge case: only headers" {
   let content = "H\tVN:Z:1.0\nH\tOR:Z:test\n"
   let graph = @src.gfa_parse(content)
@@ -789,6 +809,7 @@ test "edge case: only headers" {
   assert_eq(@src.gfa_graph_n_segments(graph), 0)
 }
 
+///|
 test "edge case: unknown record type ignored" {
   let content = "H\tVN:Z:1.0\nZ\tunknown\tfield\nS\tseq1\tACGT\n"
   let graph = @src.gfa_parse(content)

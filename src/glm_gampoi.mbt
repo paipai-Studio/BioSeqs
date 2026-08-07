@@ -159,9 +159,20 @@ pub fn GlmTestResult::adj_p_value(self : GlmTestResult) -> Double {
 /// Format a test result as a string.
 pub fn GlmTestResult::to_string(self : GlmTestResult) -> String {
   let sig = if self.is_significant { "*" } else { "" }
-  self.gene + " " + self.coef_name + " est=" + self.estimate.to_string() +
-    " se=" + self.std_error.to_string() + " z=" + self.z_value.to_string() +
-    " p=" + self.p_value.to_string() + " adj=" + self.adj_p_value.to_string() + sig
+  self.gene +
+  " " +
+  self.coef_name +
+  " est=" +
+  self.estimate.to_string() +
+  " se=" +
+  self.std_error.to_string() +
+  " z=" +
+  self.z_value.to_string() +
+  " p=" +
+  self.p_value.to_string() +
+  " adj=" +
+  self.adj_p_value.to_string() +
+  sig
 }
 
 ///|
@@ -374,9 +385,15 @@ pub fn glm_fit_one_gene(
   let std_errors = glm_compute_se(design, dispersion, coefs, size_factors)
 
   let df_residual = n - n_coefs
-  let df_dispersion = if df_residual > 0 { df_residual.to_double() } else { 1.0 }
+  let df_dispersion = if df_residual > 0 {
+    df_residual.to_double()
+  } else {
+    1.0
+  }
 
-  GlmFit::new(gene_name, coefs, std_errors, dispersion, df_residual, df_dispersion)
+  GlmFit::new(
+    gene_name, coefs, std_errors, dispersion, df_residual, df_dispersion,
+  )
 }
 
 ///|
@@ -415,7 +432,9 @@ pub fn glm_test_de(
     let z = if se > 0.0 { estimate / se } else { 0.0 }
     let pval = glm_normal_pvalue_two_sided(z)
     let coef_name = design.coef_names[test_coef_index]
-    results.push(GlmTestResult::new(gene_names[g], coef_name, estimate, se, z, pval))
+    results.push(
+      GlmTestResult::new(gene_names[g], coef_name, estimate, se, z, pval),
+    )
   }
 
   results
@@ -676,7 +695,11 @@ pub fn glm_normal_pvalue_two_sided(z : Double) -> Double {
   // Simple approximation of the survival function
   let p = 2.0 * (1.0 - glm_phi(abs_z))
   // Clamp to avoid zero
-  if p < 1.0e-15 { 1.0e-15 } else { p }
+  if p < 1.0e-15 {
+    1.0e-15
+  } else {
+    p
+  }
 }
 
 ///|
@@ -689,10 +712,21 @@ pub fn glm_phi(x : Double) -> Double {
   // Horner form approximation
   let t = 1.0 / (1.0 + 0.2316419 * abs_x)
   let d = 0.3989422804014327 * @math.exp(-abs_x * abs_x / 2.0)
-  let p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.3302744))))
+  let p = d *
+    t *
+    (
+      0.3193815 +
+      t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.3302744)))
+    )
   let result = if sign > 0.0 { 1.0 - p } else { p }
   // Clamp
-  if result < 0.0 { 0.0 } else if result > 1.0 { 1.0 } else { result }
+  if result < 0.0 {
+    0.0
+  } else if result > 1.0 {
+    1.0
+  } else {
+    result
+  }
 }
 
 ///|
@@ -727,7 +761,7 @@ pub fn glm_bh_correct_array(pvalues : Array[Double]) -> Array[Double] {
   for j in 0..<n {
     let i = n_minus_1 - j
     let rank = (i + 1).to_double()
-    let val = arr[i].0 * (n.to_double()) / rank
+    let val = arr[i].0 * n.to_double() / rank
     if val < cummin {
       cummin = val
     }
@@ -761,7 +795,11 @@ pub fn glm_sort_pairs(arr : Array[(Double, Int)]) -> Unit {
 ///|
 /// Solve a linear system Ax = b using Gaussian elimination with
 /// partial pivoting. A is modified in place.
-pub fn glm_solve_linear_system(a : Array[Array[Double]], b : Array[Double], n : Int) -> Array[Double] {
+pub fn glm_solve_linear_system(
+  a : Array[Array[Double]],
+  b : Array[Double],
+  n : Int,
+) -> Array[Double] {
   // Augmented matrix
   let aug : Array[Array[Double]] = []
   for i in 0..<n {
@@ -827,7 +865,10 @@ pub fn glm_solve_linear_system(a : Array[Array[Double]], b : Array[Double], n : 
 
 ///|
 /// Invert a matrix using Gauss-Jordan elimination.
-pub fn glm_invert_matrix(a : Array[Array[Double]], n : Int) -> Array[Array[Double]] {
+pub fn glm_invert_matrix(
+  a : Array[Array[Double]],
+  n : Int,
+) -> Array[Array[Double]] {
   // Build augmented matrix [A | I]
   let aug : Array[Array[Double]] = []
   for i in 0..<n {
@@ -948,5 +989,9 @@ pub fn glm_min_positive(data : Array[Double]) -> Double {
       min_val = data[i]
     }
   }
-  if min_val < 1.0e30 { min_val } else { 0.0 }
+  if min_val < 1.0e30 {
+    min_val
+  } else {
+    0.0
+  }
 }

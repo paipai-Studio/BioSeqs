@@ -308,23 +308,21 @@ pub fn imgt_parse_header(line : String) -> ImgtHeader? {
   let sl = imgt_field_or_empty(fields, count, 10)
   let st = imgt_field_or_empty(fields, count, 11)
   let cm = imgt_field_or_empty(fields, count, 12)
-  Some(
-    ImgtHeader::{
-      accession: acc,
-      seq_id: sid,
-      official_name: on,
-      region: reg,
-      date_update: du,
-      date_creation: dc,
-      species: sp,
-      gene: gn,
-      imgt_group: ig,
-      locus: lo,
-      seq_length: sl,
-      seq_type: st,
-      comments: cm,
-    },
-  )
+  Some(ImgtHeader::{
+    accession: acc,
+    seq_id: sid,
+    official_name: on,
+    region: reg,
+    date_update: du,
+    date_creation: dc,
+    species: sp,
+    gene: gn,
+    imgt_group: ig,
+    locus: lo,
+    seq_length: sl,
+    seq_type: st,
+    comments: cm,
+  })
 }
 
 ///|
@@ -362,7 +360,10 @@ pub fn imgt_parse(content : String) -> Array[ImgtRecord] {
     if line.unsafe_get(0) == gt {
       match current_header {
         Some(h) =>
-          records.push(ImgtRecord::{ header: h, sequence: current_seq.to_string() })
+          records.push(ImgtRecord::{
+            header: h,
+            sequence: current_seq.to_string(),
+          })
         None => ()
       }
       match imgt_parse_header(line[0:trimmed_len].to_owned()) {
@@ -621,68 +622,62 @@ pub fn imgt_from_seq_records(records : Array[SeqRecord]) -> Array[ImgtRecord] {
 pub fn imgt_sample_records() -> Array[ImgtRecord] {
   let out = Array::new()
   // HLA-A*01:01:01:01 (human)
-  out.push(
-    ImgtRecord::{
-      header: ImgtHeader::{
-        accession: "HLA00001",
-        seq_id: "A*01:01:01:01",
-        official_name: "A*01:01:01:01",
-        region: "ORF",
-        date_update: "2015-03-31",
-        date_creation: "1996-01-19",
-        species: "human",
-        gene: "HLA-A",
-        imgt_group: "I",
-        locus: "MHC",
-        seq_length: "2703 bp",
-        seq_type: " genomic-DNA",
-        comments: "",
-      },
-      sequence: "ATGGCCGTCATGGCGCCCCGAACCCTCCTCCTC",
+  out.push(ImgtRecord::{
+    header: ImgtHeader::{
+      accession: "HLA00001",
+      seq_id: "A*01:01:01:01",
+      official_name: "A*01:01:01:01",
+      region: "ORF",
+      date_update: "2015-03-31",
+      date_creation: "1996-01-19",
+      species: "human",
+      gene: "HLA-A",
+      imgt_group: "I",
+      locus: "MHC",
+      seq_length: "2703 bp",
+      seq_type: " genomic-DNA",
+      comments: "",
     },
-  )
+    sequence: "ATGGCCGTCATGGCGCCCCGAACCCTCCTCCTC",
+  })
   // HLA-A*02:01:01:01 (human)
-  out.push(
-    ImgtRecord::{
-      header: ImgtHeader::{
-        accession: "HLA00002",
-        seq_id: "A*02:01:01:01",
-        official_name: "A*02:01:01:01",
-        region: "ORF",
-        date_update: "2016-05-12",
-        date_creation: "1996-01-19",
-        species: "human",
-        gene: "HLA-A",
-        imgt_group: "I",
-        locus: "MHC",
-        seq_length: "2709 bp",
-        seq_type: " genomic-DNA",
-        comments: "",
-      },
-      sequence: "ATGGCCGTCATGGCGCCCCGAACCCTCCTCCTG",
+  out.push(ImgtRecord::{
+    header: ImgtHeader::{
+      accession: "HLA00002",
+      seq_id: "A*02:01:01:01",
+      official_name: "A*02:01:01:01",
+      region: "ORF",
+      date_update: "2016-05-12",
+      date_creation: "1996-01-19",
+      species: "human",
+      gene: "HLA-A",
+      imgt_group: "I",
+      locus: "MHC",
+      seq_length: "2709 bp",
+      seq_type: " genomic-DNA",
+      comments: "",
     },
-  )
+    sequence: "ATGGCCGTCATGGCGCCCCGAACCCTCCTCCTG",
+  })
   // HLA-B*07:02:01 (human)
-  out.push(
-    ImgtRecord::{
-      header: ImgtHeader::{
-        accession: "HLA00003",
-        seq_id: "B*07:02:01",
-        official_name: "B*07:02:01",
-        region: "ORF",
-        date_update: "2017-07-18",
-        date_creation: "1996-01-19",
-        species: "human",
-        gene: "HLA-B",
-        imgt_group: "I",
-        locus: "MHC",
-        seq_length: "2711 bp",
-        seq_type: " genomic-DNA",
-        comments: "",
-      },
-      sequence: "ATGGCGCCCCGAACCCTCCTCCTGCTGCTCTC",
+  out.push(ImgtRecord::{
+    header: ImgtHeader::{
+      accession: "HLA00003",
+      seq_id: "B*07:02:01",
+      official_name: "B*07:02:01",
+      region: "ORF",
+      date_update: "2017-07-18",
+      date_creation: "1996-01-19",
+      species: "human",
+      gene: "HLA-B",
+      imgt_group: "I",
+      locus: "MHC",
+      seq_length: "2711 bp",
+      seq_type: " genomic-DNA",
+      comments: "",
     },
-  )
+    sequence: "ATGGCGCCCCGAACCCTCCTCCTGCTGCTCTC",
+  })
   out
 }
 

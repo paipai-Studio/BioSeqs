@@ -87,7 +87,12 @@ pub struct SffFile {
 
 ///|
 /// Create a new SFF header.
-pub fn SffHeader::new(n_reads : Int, n_flows : Int, flow_chars : String, key_sequence : String) -> SffHeader {
+pub fn SffHeader::new(
+  n_reads : Int,
+  n_flows : Int,
+  flow_chars : String,
+  key_sequence : String,
+) -> SffHeader {
   let key_length = key_sequence.length()
   // Fixed header is 32 bytes + n_flows + key_length, padded to multiple of 8
   let base_length = 32 + n_flows + key_length
@@ -103,7 +108,7 @@ pub fn SffHeader::new(n_reads : Int, n_flows : Int, flow_chars : String, key_seq
     n_flows,
     flowgram_format: sff_flowgram_format_u16,
     flow_chars,
-    key_sequence
+    key_sequence,
   }
 }
 
@@ -136,19 +141,37 @@ pub fn SffHeader::sff_key_sequence(self : SffHeader) -> String {
 pub fn SffHeader::sff_validate(self : SffHeader) -> Array[String] {
   let errors : Array[String] = Array::new()
   if self.magic != sff_magic {
-    errors.push("Invalid magic number: expected " + sff_magic.to_string() + ", got " + self.magic.to_string())
+    errors.push(
+      "Invalid magic number: expected " +
+      sff_magic.to_string() +
+      ", got " +
+      self.magic.to_string(),
+    )
   }
   if self.version != sff_version {
     errors.push("Unsupported version: " + self.version.to_string())
   }
   if self.header_length % 8 != 0 {
-    errors.push("Header length must be a multiple of 8, got " + self.header_length.to_string())
+    errors.push(
+      "Header length must be a multiple of 8, got " +
+      self.header_length.to_string(),
+    )
   }
   if self.flowgram_format != sff_flowgram_format_u16 {
-    errors.push("Unsupported flowgram format: " + self.flowgram_format.to_string() + " (only format 1/u16 is supported)")
+    errors.push(
+      "Unsupported flowgram format: " +
+      self.flowgram_format.to_string() +
+      " (only format 1/u16 is supported)",
+    )
   }
   if self.flow_chars.length() != self.n_flows {
-    errors.push("Flow chars length (" + self.flow_chars.length().to_string() + ") does not match n_flows (" + self.n_flows.to_string() + ")")
+    errors.push(
+      "Flow chars length (" +
+      self.flow_chars.length().to_string() +
+      ") does not match n_flows (" +
+      self.n_flows.to_string() +
+      ")",
+    )
   }
   if self.key_sequence.length() != self.key_length {
     errors.push("Key sequence length does not match key_length")
@@ -160,7 +183,17 @@ pub fn SffHeader::sff_validate(self : SffHeader) -> Array[String] {
 
 ///|
 /// Create a new SFF read record.
-pub fn SffRead::new(name : String, bases : String, qualities : Array[Int], flowgram : Array[Double], flow_index : Array[Int], clip_qual_left : Int, clip_qual_right : Int, clip_adapter_left : Int, clip_adapter_right : Int) -> SffRead {
+pub fn SffRead::new(
+  name : String,
+  bases : String,
+  qualities : Array[Int],
+  flowgram : Array[Double],
+  flow_index : Array[Int],
+  clip_qual_left : Int,
+  clip_qual_right : Int,
+  clip_adapter_left : Int,
+  clip_adapter_right : Int,
+) -> SffRead {
   let name_length = name.length()
   let n_bases = bases.length()
   // read_header_length = 16 (fixed) + name_length, padded to multiple of 8
@@ -178,7 +211,7 @@ pub fn SffRead::new(name : String, bases : String, qualities : Array[Int], flowg
     flowgram,
     flow_index,
     bases,
-    qualities
+    qualities,
   }
 }
 
@@ -222,7 +255,11 @@ pub fn SffRead::sff_flow_index(self : SffRead) -> Array[Int] {
 /// Get the clipped sequence (after applying quality clipping).
 pub fn SffRead::sff_clipped_bases(self : SffRead) -> String {
   let left = if self.clip_qual_left > 0 { self.clip_qual_left - 1 } else { 0 }
-  let right = if self.clip_qual_right > 0 { self.clip_qual_right } else { self.n_bases }
+  let right = if self.clip_qual_right > 0 {
+    self.clip_qual_right
+  } else {
+    self.n_bases
+  }
   if left >= right || left >= self.n_bases {
     return ""
   }
@@ -234,7 +271,11 @@ pub fn SffRead::sff_clipped_bases(self : SffRead) -> String {
 /// Get the clipped quality scores.
 pub fn SffRead::sff_clipped_qualities(self : SffRead) -> Array[Int] {
   let left = if self.clip_qual_left > 0 { self.clip_qual_left - 1 } else { 0 }
-  let right = if self.clip_qual_right > 0 { self.clip_qual_right } else { self.n_bases }
+  let right = if self.clip_qual_right > 0 {
+    self.clip_qual_right
+  } else {
+    self.n_bases
+  }
   let result : Array[Int] = Array::new()
   if left >= right || left >= self.n_bases {
     return result
@@ -329,24 +370,23 @@ pub fn SffFile::sff_total_bases(self : SffFile) -> Int {
 /// Pad a length up to the next multiple of 8.
 fn sff_pad_to_8(n : Int) -> Int {
   let rem = n % 8
-  if rem == 0 { n } else { n + (8 - rem) }
+  if rem == 0 {
+    n
+  } else {
+    n + (8 - rem)
+  }
 }
 
 ///|
 /// Encode a 32-bit unsigned integer as 4 big-endian bytes.
 fn sff_encode_u32(v : Int) -> Array[Int] {
-  [
-    (v / 16777216) % 256,
-    (v / 65536) % 256,
-    (v / 256) % 256,
-    v % 256
-  ]
+  [v / 16777216 % 256, v / 65536 % 256, v / 256 % 256, v % 256]
 }
 
 ///|
 /// Encode a 16-bit unsigned integer as 2 big-endian bytes.
 fn sff_encode_u16(v : Int) -> Array[Int] {
-  [(v / 256) % 256, v % 256]
+  [v / 256 % 256, v % 256]
 }
 
 ///|
@@ -361,7 +401,10 @@ fn sff_encode_u64(v : Int) -> Array[Int] {
 ///|
 /// Read a 32-bit big-endian unsigned integer from a byte array at a position.
 fn sff_read_u32(bytes : Array[Int], pos : Int) -> Int {
-  bytes[pos] * 16777216 + bytes[pos + 1] * 65536 + bytes[pos + 2] * 256 + bytes[pos + 3]
+  bytes[pos] * 16777216 +
+  bytes[pos + 1] * 65536 +
+  bytes[pos + 2] * 256 +
+  bytes[pos + 3]
 }
 
 ///|
@@ -547,7 +590,10 @@ pub fn sff_encode(file : SffFile) -> Array[Int] {
       qi = qi + 1
     }
     // Padding to multiple of 8 for read data section
-    let data_len = read.flowgram.length() * 2 + read.flow_index.length() + read.bases.length() + read.qualities.length()
+    let data_len = read.flowgram.length() * 2 +
+      read.flow_index.length() +
+      read.bases.length() +
+      read.qualities.length()
     let data_pad = sff_pad_to_8(data_len) - data_len
     let mut dp = 0
     while dp < data_pad {
@@ -597,7 +643,7 @@ pub fn sff_parse(bytes : Array[Int]) -> SffFile? {
     n_flows,
     flowgram_format,
     flow_chars,
-    key_sequence
+    key_sequence,
   }
   // ===== Per-read data =====
   let reads : Array[SffRead] = Array::new()
@@ -656,7 +702,7 @@ pub fn sff_parse(bytes : Array[Int]) -> SffFile? {
       flowgram,
       flow_index,
       bases,
-      qualities
+      qualities,
     })
     // Advance to next read (with padding)
     let data_len = n_flows * 2 + n_bases + n_bases + n_bases
@@ -696,7 +742,7 @@ pub fn sff_create_example_file() -> SffFile {
     1,
     10,
     0,
-    0
+    0,
   )
   let read2 = SffRead::new(
     "READ0002",
@@ -707,7 +753,7 @@ pub fn sff_create_example_file() -> SffFile {
     1,
     10,
     0,
-    0
+    0,
   )
   SffFile::new(header, [read1, read2])
 }
@@ -724,7 +770,7 @@ pub fn sff_create_example_read() -> SffRead {
     1,
     8,
     0,
-    0
+    0,
   )
 }
 

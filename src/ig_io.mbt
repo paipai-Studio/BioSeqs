@@ -37,7 +37,7 @@ pub struct IgRecord {
 pub fn IgRecord::new(
   title : String,
   comment : String,
-  sequence : String
+  sequence : String,
 ) -> IgRecord {
   IgRecord::{ title, comment, sequence }
 }
@@ -136,7 +136,7 @@ fn ig_starts_with2(line : String, c1 : UInt16, c2 : UInt16) -> Bool {
 fn ig_strip_cr(line : String) -> String {
   let n = line.length()
   if n > 0 && line.unsafe_get(n - 1) == ig_char_code('\r') {
-    line[0 : n - 1].to_owned()
+    line[0:n - 1].to_owned()
   } else {
     line
   }
@@ -171,7 +171,7 @@ fn ig_strip(s : String) -> String {
   if start == 0 && end == n {
     s
   } else {
-    s[start : end].to_owned()
+    s[start:end].to_owned()
   }
 }
 
@@ -293,7 +293,7 @@ pub fn ig_parse(content : String) -> Array[IgRecord] {
     // Strip an optional trailing "1" terminator.
     let sn = seq_str.length()
     if sn > 0 && seq_str.unsafe_get(sn - 1) == one {
-      seq_str = seq_str[0 : sn - 1].to_owned()
+      seq_str = seq_str[0:sn - 1].to_owned()
     }
     let comment = ig_join_lines(comment_parts)
     records.push(IgRecord::new(title, comment, seq_str))
@@ -349,10 +349,7 @@ pub fn ig_record_to_string(record : IgRecord) -> String {
 ///|
 /// Render an `IgRecord` with a custom sequence line width. A width <= 0
 /// disables wrapping (the sequence is emitted on a single line).
-pub fn ig_record_to_string_width(
-  record : IgRecord,
-  width : Int
-) -> String {
+pub fn ig_record_to_string_width(record : IgRecord, width : Int) -> String {
   let buf = StringBuilder::new()
   // Comment lines.
   if record.comment.length() > 0 {
@@ -385,7 +382,7 @@ pub fn ig_record_to_string_width(
     let mut i = 0
     while i < n {
       let end = if i + width < n { i + width } else { n }
-      buf.write_string(seq[i : end].to_owned())
+      buf.write_string(seq[i:end].to_owned())
       buf.write_char('\n')
       i = end
     }
@@ -403,7 +400,7 @@ pub fn ig_record_to_string_width(
 /// does not already start with one.
 pub fn ig_records_to_string(
   records : Array[IgRecord],
-  file_header : Array[String]?
+  file_header : Array[String]?,
 ) -> String {
   let buf = StringBuilder::new()
   // Optional file header.
@@ -517,9 +514,7 @@ pub fn ig_sample_file_header() -> Array[String] {
 /// Build a sample `IgRecord` for testing.
 pub fn ig_sample_record() -> IgRecord {
   IgRecord::new(
-    "A_U455",
-    "HIV-1 group M subtype A",
-    "ATGGCAGCTGTGATGAAGCAGAGACGGGTAAGAGCTC",
+    "A_U455", "HIV-1 group M subtype A", "ATGGCAGCTGTGATGAAGCAGAGACGGGTAAGAGCTC",
   )
 }
 
@@ -527,8 +522,6 @@ pub fn ig_sample_record() -> IgRecord {
 /// Build a second sample `IgRecord` for testing.
 pub fn ig_sample_record_2() -> IgRecord {
   IgRecord::new(
-    "B_HXB2R",
-    "HIV-1 group M subtype B",
-    "ATGGGTGCTGTGATGAAGCAGAGACGGGTAAGAGCTC",
+    "B_HXB2R", "HIV-1 group M subtype B", "ATGGGTGCTGTGATGAAGCAGAGACGGGTAAGAGCTC",
   )
 }

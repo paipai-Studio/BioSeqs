@@ -553,9 +553,7 @@ pub fn parse_genbank_record(content : String) -> InsdcRecord {
     let ll = line.length()
 
     // Record terminator.
-    if ll >= 2 &&
-      line.unsafe_get(0) == slash &&
-      line.unsafe_get(1) == slash {
+    if ll >= 2 && line.unsafe_get(0) == slash && line.unsafe_get(1) == slash {
       i = i + 1
       break
     }
@@ -764,29 +762,37 @@ pub fn write_genbank_record(record : InsdcRecord) -> String {
   }
   buf.write_string(len_str)
   buf.write_string(" ")
-  buf.write_string(if record.molecule_type.length() > 0 {
-    record.molecule_type
-  } else {
-    "DNA"
-  })
+  buf.write_string(
+    if record.molecule_type.length() > 0 {
+      record.molecule_type
+    } else {
+      "DNA"
+    },
+  )
   buf.write_string(" ")
-  buf.write_string(if record.topology.length() > 0 {
-    record.topology
-  } else {
-    "linear"
-  })
+  buf.write_string(
+    if record.topology.length() > 0 {
+      record.topology
+    } else {
+      "linear"
+    },
+  )
   buf.write_string("  ")
-  buf.write_string(if record.division.length() > 0 {
-    record.division
-  } else {
-    "UNK"
-  })
+  buf.write_string(
+    if record.division.length() > 0 {
+      record.division
+    } else {
+      "UNK"
+    },
+  )
   buf.write_string(" ")
-  buf.write_string(if record.date.length() > 0 {
-    record.date
-  } else {
-    "01-JAN-2024"
-  })
+  buf.write_string(
+    if record.date.length() > 0 {
+      record.date
+    } else {
+      "01-JAN-2024"
+    },
+  )
   buf.write_char('\n')
 
   // --- DEFINITION ---
@@ -907,9 +913,7 @@ pub fn parse_embl_record(content : String) -> InsdcRecord {
     let ll = line.length()
 
     // Record terminator.
-    if ll >= 2 &&
-      line.unsafe_get(0) == slash &&
-      line.unsafe_get(1) == slash {
+    if ll >= 2 && line.unsafe_get(0) == slash && line.unsafe_get(1) == slash {
       i = i + 1
       break
     }
@@ -1019,8 +1023,8 @@ pub fn parse_embl_record(content : String) -> InsdcRecord {
         }
         if ct < 2 ||
           !(cont.unsafe_get(0) == 'D'.to_int().to_uint16() &&
-            cont.unsafe_get(1) == 'E'.to_int().to_uint16() &&
-            (ct == 2 || cont.unsafe_get(2) == sp)) {
+          cont.unsafe_get(1) == 'E'.to_int().to_uint16() &&
+          (ct == 2 || cont.unsafe_get(2) == sp)) {
           break
         }
         def_buf.write_char(' ')
@@ -1056,8 +1060,8 @@ pub fn parse_embl_record(content : String) -> InsdcRecord {
         }
         if ct < 2 ||
           !(cont.unsafe_get(0) == 'O'.to_int().to_uint16() &&
-            cont.unsafe_get(1) == 'S'.to_int().to_uint16() &&
-            (ct == 2 || cont.unsafe_get(2) == sp)) {
+          cont.unsafe_get(1) == 'S'.to_int().to_uint16() &&
+          (ct == 2 || cont.unsafe_get(2) == sp)) {
           break
         }
         org_buf.write_char(' ')
@@ -1094,7 +1098,7 @@ pub fn parse_embl_record(content : String) -> InsdcRecord {
       // A non-FT line ends the feature table.
       if ll < 2 ||
         !(line.unsafe_get(0) == 'F'.to_int().to_uint16() &&
-          line.unsafe_get(1) == 'T'.to_int().to_uint16()) {
+        line.unsafe_get(1) == 'T'.to_int().to_uint16()) {
         in_ft = false
         // Fall through to other section checks below.
       }
@@ -1186,23 +1190,29 @@ pub fn write_embl_record(record : InsdcRecord) -> String {
   }
   buf.write_string(sv_num)
   buf.write_string("; ")
-  buf.write_string(if record.topology.length() > 0 {
-    record.topology
-  } else {
-    "linear"
-  })
+  buf.write_string(
+    if record.topology.length() > 0 {
+      record.topology
+    } else {
+      "linear"
+    },
+  )
   buf.write_string("; ")
-  buf.write_string(if record.molecule_type.length() > 0 {
-    record.molecule_type
-  } else {
-    "DNA"
-  })
+  buf.write_string(
+    if record.molecule_type.length() > 0 {
+      record.molecule_type
+    } else {
+      "DNA"
+    },
+  )
   buf.write_string("; STD; ")
-  buf.write_string(if record.division.length() > 0 {
-    record.division
-  } else {
-    "UNK"
-  })
+  buf.write_string(
+    if record.division.length() > 0 {
+      record.division
+    } else {
+      "UNK"
+    },
+  )
   buf.write_string("; ")
   buf.write_string(record.sequence_length.to_string())
   buf.write_string(" BP.")
@@ -1237,11 +1247,7 @@ pub fn write_embl_record(record : InsdcRecord) -> String {
     for l in lines {
       // Convert the GenBank-style 5-space indent into "FT   " by replacing
       // the first two spaces with the literal "FT".
-      let l_to_write = if l.length() >= 2 {
-        "FT" + l[2:].to_owned()
-      } else {
-        l
-      }
+      let l_to_write = if l.length() >= 2 { "FT" + l[2:].to_owned() } else { l }
       buf.write_string(l_to_write)
       buf.write_char('\n')
     }

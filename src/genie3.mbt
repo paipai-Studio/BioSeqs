@@ -19,14 +19,14 @@
 /// Stored by index in a shared array (avoids recursive type issues).
 pub struct Genie3TreeNode {
   // For internal nodes:
-  feature : Int              // index of splitting feature (-1 for leaf)
-  threshold : Double         // split threshold (feature <= threshold goes left)
-  left_idx : Int             // index into shared node array (-1 for leaf)
-  right_idx : Int            // index into shared node array (-1 for leaf)
+  feature : Int // index of splitting feature (-1 for leaf)
+  threshold : Double // split threshold (feature <= threshold goes left)
+  left_idx : Int // index into shared node array (-1 for leaf)
+  right_idx : Int // index into shared node array (-1 for leaf)
   // For leaf nodes:
-  value : Double             // leaf prediction value
+  value : Double // leaf prediction value
   is_leaf : Bool
-  importance_gain : Double   // variance reduction at this split
+  importance_gain : Double // variance reduction at this split
 }
 
 ///|
@@ -71,7 +71,10 @@ pub struct RegressionTree {
 
 ///|
 /// Predict a value for a single sample by traversing the tree.
-pub fn RegressionTree::predict(self : RegressionTree, sample : Array[Double]) -> Double {
+pub fn RegressionTree::predict(
+  self : RegressionTree,
+  sample : Array[Double],
+) -> Double {
   let mut node_idx = 0
   while true {
     let node = self.nodes[node_idx]
@@ -316,11 +319,7 @@ fn genie3_build_recursive(
 
   // Now fill in the placeholder slot
   tree.nodes[current_idx] = genie3_tree_split(
-    best_feature,
-    best_threshold,
-    left_idx,
-    right_idx,
-    best_gain,
+    best_feature, best_threshold, left_idx, right_idx, best_gain,
   )
   current_idx
 }
@@ -344,12 +343,7 @@ pub fn genie3_build_tree(
 ) -> RegressionTree {
   let tree : RegressionTree = { nodes: [] }
   let _ = genie3_build_recursive(
-    tree,
-    features_matrix,
-    target,
-    feature_indices,
-    max_depth,
-    min_samples_split,
+    tree, features_matrix, target, feature_indices, max_depth, min_samples_split,
     0,
   )
   tree
@@ -358,17 +352,17 @@ pub fn genie3_build_tree(
 ///|
 /// A weighted directed edge in the inferred regulatory network.
 pub struct RegulatoryEdge {
-  regulator : String    // source gene (predictor)
-  target : String       // target gene
-  weight : Double       // importance weight
+  regulator : String // source gene (predictor)
+  target : String // target gene
+  weight : Double // importance weight
 }
 
 ///|
 /// GENIE3 inference result: weighted adjacency matrix and edges.
 pub struct Genie3Result {
   gene_names : Array[String]
-  matrix : Array[Array[Double]]    // matrix[i][j] = importance of gene i for gene j
-  edges : Array[RegulatoryEdge]    // sorted edges (descending weight)
+  matrix : Array[Array[Double]] // matrix[i][j] = importance of gene i for gene j
+  edges : Array[RegulatoryEdge] // sorted edges (descending weight)
   n_trees : Int
   symmetrized : Bool
 }
@@ -499,9 +493,11 @@ pub fn genie3_run(
     let mut j = 0
     while j < n_genes {
       if i != j && matrix[i][j] > 0.0 {
-        edges.push(
-          RegulatoryEdge::{ regulator: gene_names[i], target: gene_names[j], weight: matrix[i][j] },
-        )
+        edges.push(RegulatoryEdge::{
+          regulator: gene_names[i],
+          target: gene_names[j],
+          weight: matrix[i][j],
+        })
       }
       j = j + 1
     }
@@ -522,12 +518,21 @@ pub fn genie3_run(
     ei = ei + 1
   }
 
-  Genie3Result::{ gene_names, matrix, edges, n_trees: n_genes, symmetrized: sym }
+  Genie3Result::{
+    gene_names,
+    matrix,
+    edges,
+    n_trees: n_genes,
+    symmetrized: sym,
+  }
 }
 
 ///|
 /// Get the top-K regulatory edges by weight.
-pub fn genie3_top_edges(result : Genie3Result, k : Int) -> Array[RegulatoryEdge] {
+pub fn genie3_top_edges(
+  result : Genie3Result,
+  k : Int,
+) -> Array[RegulatoryEdge] {
   let n = if k < result.edges.length() { k } else { result.edges.length() }
   let top : Array[RegulatoryEdge] = []
   let mut i = 0

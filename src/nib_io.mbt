@@ -109,7 +109,7 @@ pub fn nib_encode(sequence : String) -> Array[Int] {
     let code_ci = nib_base_to_code_ci(sequence[i].unsafe_to_char())
     let code = if code_ci < 0 { 0 } else { code_ci }
     let byte_idx = i / 4
-    let shift = 6 - (i % 4) * 2
+    let shift = 6 - i % 4 * 2
     packed[byte_idx] = packed[byte_idx] | (code << shift)
   }
   packed
@@ -123,7 +123,7 @@ pub fn nib_decode(packed : Array[Int], length : Int) -> String {
   let sb = StringBuilder::new()
   for i in 0..<length {
     let byte_idx = i / 4
-    let shift = 6 - (i % 4) * 2
+    let shift = 6 - i % 4 * 2
     let code = if byte_idx < packed.length() {
       (packed[byte_idx] >> shift) & 3
     } else {
@@ -275,7 +275,7 @@ pub fn nib_get_base(nib : NibSequence, index : Int) -> String {
     return ""
   }
   let byte_idx = index / 4
-  let shift = 6 - (index % 4) * 2
+  let shift = 6 - index % 4 * 2
   let code = if byte_idx < nib.packed_data.length() {
     (nib.packed_data[byte_idx] >> shift) & 3
   } else {
@@ -304,7 +304,7 @@ pub fn nib_subsequence(nib : NibSequence, start : Int, length : Int) -> String {
   for i in 0..<take {
     let pos = start + i
     let byte_idx = pos / 4
-    let shift = 6 - (pos % 4) * 2
+    let shift = 6 - pos % 4 * 2
     let code = if byte_idx < nib.packed_data.length() {
       (nib.packed_data[byte_idx] >> shift) & 3
     } else {
@@ -356,7 +356,7 @@ pub fn nib_gc_content(nib : NibSequence) -> Double {
   let mut gc = 0
   for i in 0..<nib.length {
     let byte_idx = i / 4
-    let shift = 6 - (i % 4) * 2
+    let shift = 6 - i % 4 * 2
     let code = if byte_idx < nib.packed_data.length() {
       (nib.packed_data[byte_idx] >> shift) & 3
     } else {
@@ -403,12 +403,7 @@ pub fn nib_from_hex(seq_id : String, hex : String, length : Int) -> NibSequence 
     packed.push(high * 16 + low)
     i = i + 2
   }
-  NibSequence::{
-    seq_id,
-    length,
-    packed_data: packed,
-    is_uppercase: true,
-  }
+  NibSequence::{ seq_id, length, packed_data: packed, is_uppercase: true }
 }
 
 // ============================================================================

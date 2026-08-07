@@ -1,6 +1,5 @@
 ///|
 /// Tests for Bioconductor GENIE3 module - Gene regulatory network inference.
-
 test "genie3_tree_leaf_basic" {
   let leaf = @src.genie3_tree_leaf(3.5)
   assert_true(leaf.is_leaf)
@@ -10,6 +9,7 @@ test "genie3_tree_leaf_basic" {
   assert_eq(leaf.right_idx, -1)
 }
 
+///|
 test "genie3_tree_split_basic" {
   let left = @src.genie3_tree_leaf(1.0)
   let right = @src.genie3_tree_leaf(2.0)
@@ -23,6 +23,7 @@ test "genie3_tree_split_basic" {
   assert_true((node.importance_gain - 10.0).abs() < 1.0e-9)
 }
 
+///|
 test "genie3_build_tree_simple" {
   // Simple dataset: y = 2 * x + noise
   let features = [[1.0], [2.0], [3.0], [4.0], [5.0], [6.0]]
@@ -36,6 +37,7 @@ test "genie3_build_tree_simple" {
   assert_true(p1 < p2)
 }
 
+///|
 test "genie3_build_tree_constant_target" {
   // Constant target should produce a single leaf
   let features = [[1.0], [2.0], [3.0]]
@@ -45,6 +47,7 @@ test "genie3_build_tree_constant_target" {
   assert_true(tree.nodes[0].is_leaf)
 }
 
+///|
 test "genie3_feature_importance" {
   // x0 strongly predicts y, x1 doesn't
   let features = [
@@ -62,6 +65,7 @@ test "genie3_feature_importance" {
   assert_true(importance[0] > 0.0)
 }
 
+///|
 test "genie3_run_basic" {
   let (expr, names) = @src.genie3_sample_data()
   let result = @src.genie3_run(expr, names, max_depth=5)
@@ -75,6 +79,7 @@ test "genie3_run_basic" {
   assert_true(result.edges.length() > 0)
 }
 
+///|
 test "genie3_run_symmetrize" {
   let (expr, names) = @src.genie3_sample_data()
   let result = @src.genie3_run(expr, names, max_depth=5, symmetrize=true)
@@ -91,6 +96,7 @@ test "genie3_run_symmetrize" {
   }
 }
 
+///|
 test "genie3_column_normalization" {
   let (expr, names) = @src.genie3_sample_data()
   let result = @src.genie3_run(expr, names, max_depth=5)
@@ -109,6 +115,7 @@ test "genie3_column_normalization" {
   }
 }
 
+///|
 test "genie3_edges_sorted_descending" {
   let (expr, names) = @src.genie3_sample_data()
   let result = @src.genie3_run(expr, names, max_depth=5)
@@ -119,6 +126,7 @@ test "genie3_edges_sorted_descending" {
   }
 }
 
+///|
 test "genie3_top_edges" {
   let (expr, names) = @src.genie3_sample_data()
   let result = @src.genie3_run(expr, names, max_depth=5)
@@ -133,6 +141,7 @@ test "genie3_top_edges" {
   }
 }
 
+///|
 test "genie3_top_edges_more_than_available" {
   let (expr, names) = @src.genie3_sample_data()
   let result = @src.genie3_run(expr, names, max_depth=5)
@@ -140,6 +149,7 @@ test "genie3_top_edges_more_than_available" {
   assert_eq(top100.length(), result.edges.length())
 }
 
+///|
 test "genie3_regulators_of" {
   let (expr, names) = @src.genie3_sample_data()
   let result = @src.genie3_run(expr, names, max_depth=5)
@@ -158,6 +168,7 @@ test "genie3_regulators_of" {
   assert_true(found_g1)
 }
 
+///|
 test "genie3_targets_of" {
   let (expr, names) = @src.genie3_sample_data()
   let result = @src.genie3_run(expr, names, max_depth=5)
@@ -171,6 +182,7 @@ test "genie3_targets_of" {
   }
 }
 
+///|
 test "genie3_regulators_of_unknown_gene" {
   let (expr, names) = @src.genie3_sample_data()
   let result = @src.genie3_run(expr, names, max_depth=5)
@@ -178,6 +190,7 @@ test "genie3_regulators_of_unknown_gene" {
   assert_eq(regs.length(), 0)
 }
 
+///|
 test "genie3_sample_data_shape" {
   let (expr, names) = @src.genie3_sample_data()
   assert_eq(names.length(), 5)
@@ -188,6 +201,7 @@ test "genie3_sample_data_shape" {
   assert_true((expr[0][0] - expr2[0][0]).abs() < 1.0e-9)
 }
 
+///|
 test "genie3_run_no_edges_when_uniform" {
   // All identical samples → no informative splits → no edges
   let expr = [[1.0, 2.0, 3.0], [1.0, 2.0, 3.0], [1.0, 2.0, 3.0]]
@@ -196,6 +210,7 @@ test "genie3_run_no_edges_when_uniform" {
   assert_eq(result.edges.length(), 0)
 }
 
+///|
 test "genie3_self_loops_excluded" {
   let (expr, names) = @src.genie3_sample_data()
   let result = @src.genie3_run(expr, names, max_depth=5)
@@ -207,6 +222,7 @@ test "genie3_self_loops_excluded" {
   }
 }
 
+///|
 test "genie3_predict_after_build" {
   // Build a tree and verify prediction lies within target range
   let features = [

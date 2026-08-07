@@ -32,7 +32,7 @@ pub fn CytometryCell::new(
   cell_id : String,
   sample_id : String,
   condition : String,
-  marker_values : Array[Double]
+  marker_values : Array[Double],
 ) -> CytometryCell {
   CytometryCell::{
     cell_id,
@@ -289,7 +289,12 @@ fn dc_normal_cdf(x : Double) -> Double {
   }
   let t = 1.0 / (1.0 + 0.2316419 * dc_abs(x))
   let d = 0.3989423 * @math.exp(-x * x / 2.0)
-  let p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))))
+  let p = d *
+    t *
+    (
+      0.3193815 +
+      t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274)))
+    )
   if x >= 0.0 {
     1.0 - p
   } else {
@@ -336,7 +341,7 @@ fn dc_lcg_rand(state : Int) -> (Int, Double) {
 pub fn diffcyt_cluster_cells(
   cells : Array[CytometryCell],
   n_clusters : Int,
-  n_iterations : Int
+  n_iterations : Int,
 ) -> Array[Array[Double]] {
   let n_cells = cells.length()
   if n_cells == 0 || n_clusters <= 0 {
@@ -375,7 +380,8 @@ pub fn diffcyt_cluster_cells(
       }
       // Update BMU toward the cell.
       for j in 0..<n_markers {
-        codebooks[best_idx][j] = codebooks[best_idx][j] + lr * (cell_vals[j] - codebooks[best_idx][j])
+        codebooks[best_idx][j] = codebooks[best_idx][j] +
+          lr * (cell_vals[j] - codebooks[best_idx][j])
       }
     }
   }
@@ -400,7 +406,7 @@ pub fn diffcyt_cluster_cells(
 /// Assign cells to existing codebook vectors (for new data).
 pub fn diffcyt_assign_clusters(
   cells : Array[CytometryCell],
-  codebooks : Array[Array[Double]]
+  codebooks : Array[Array[Double]],
 ) -> Unit {
   let n_clusters = codebooks.length()
   for ci in 0..<cells.length() {
@@ -429,7 +435,7 @@ pub fn diffcyt_assign_clusters(
 pub fn diffcyt_calc_counts(
   cells : Array[CytometryCell],
   n_clusters : Int,
-  sample_ids : Array[String]
+  sample_ids : Array[String],
 ) -> Array[Array[Int]] {
   let n_samples = sample_ids.length()
   // counts[sample_idx][cluster_idx]
@@ -461,7 +467,7 @@ pub fn diffcyt_calc_medians_by_cluster_marker(
   cells : Array[CytometryCell],
   n_clusters : Int,
   n_markers : Int,
-  sample_ids : Array[String]
+  sample_ids : Array[String],
 ) -> Array[Array[Double]] {
   let n_samples = sample_ids.length()
   // Collect expression values per (sample, cluster, marker).
@@ -541,7 +547,7 @@ fn dc_median(arr : Array[Double]) -> Double {
 /// indicator columns. Returns design[sample_idx][col_idx].
 pub fn diffcyt_create_design_matrix(
   sample_ids : Array[String],
-  conditions : Array[String]
+  conditions : Array[String],
 ) -> Array[Array[Double]] {
   let n = sample_ids.length()
   // Collect unique conditions preserving order.
@@ -609,7 +615,7 @@ pub fn diffcyt_testDA(
   counts : Array[Array[Int]],
   design : Array[Array[Double]],
   contrast_col : Int,
-  n_clusters : Int
+  n_clusters : Int,
 ) -> Array[DiffcytDAResult] {
   let n_samples = counts.length()
   let results : Array[DiffcytDAResult] = Array::new()
@@ -736,7 +742,13 @@ pub fn diffcyt_testDA(
     // Wald test.
     let wald_stat = beta[contrast_col] / se
     let p_value = 2.0 * (1.0 - dc_normal_cdf(dc_abs(wald_stat)))
-    let p_value = if p_value < 0.0 { 0.0 } else if p_value > 1.0 { 1.0 } else { p_value }
+    let p_value = if p_value < 0.0 {
+      0.0
+    } else if p_value > 1.0 {
+      1.0
+    } else {
+      p_value
+    }
     results.push(DiffcytDAResult::{
       cluster_id: cluster,
       log_fc: beta[contrast_col],
@@ -770,12 +782,12 @@ pub fn diffcyt_testDS(
   conditions : Array[String],
   n_clusters : Int,
   n_markers : Int,
-  marker_names : Array[String]
+  marker_names : Array[String],
 ) -> Array[DiffcytDSResult] {
   let n_samples = sample_ids.length()
   // Collect per-sample-per-cluster-per-marker median expression.
   let medians = diffcyt_calc_medians_by_cluster_marker(
-    cells, n_clusters, n_markers, sample_ids
+    cells, n_clusters, n_markers, sample_ids,
   )
   // Collect unique conditions.
   let unique_conditions : Array[String] = Array::new()
@@ -820,15 +832,12 @@ pub fn diffcyt_testDS(
       let mut total_df = 0.0
       for ci in 0..<n_conditions {
         if group_ns[ci] > 1 {
-          pooled_var = pooled_var + group_vars[ci] * (group_ns[ci] - 1).to_double()
+          pooled_var = pooled_var +
+            group_vars[ci] * (group_ns[ci] - 1).to_double()
           total_df = total_df + (group_ns[ci] - 1).to_double()
         }
       }
-      let pooled_var = if total_df > 0.0 {
-        pooled_var / total_df
-      } else {
-        1.0
-      }
+      let pooled_var = if total_df > 0.0 { pooled_var / total_df } else { 1.0 }
       if pooled_var > 0.0 {
         all_variances.push(pooled_var)
         all_df.push(total_df)
@@ -841,7 +850,11 @@ pub fn diffcyt_testDS(
   } else {
     1.0
   }
-  let prior_mean_var = if prior_mean_var < 0.0000001 { 0.0000001 } else { prior_mean_var }
+  let prior_mean_var = if prior_mean_var < 0.0000001 {
+    0.0000001
+  } else {
+    prior_mean_var
+  }
   // Moderate variances: shrink toward prior.
   let prior_d0 = 10.0 // prior degrees of freedom
   for cluster in 0..<n_clusters {
@@ -883,13 +896,22 @@ pub fn diffcyt_testDS(
       // Compare first vs second condition (if 2 conditions).
       if n_conditions >= 2 && group_ns[0] > 0 && group_ns[1] > 0 {
         let mean_diff = group_means[1] - group_means[0]
-        let se = dc_sqrt(mod_var * (1.0 / group_ns[0].to_double() + 1.0 / group_ns[1].to_double()))
+        let se = dc_sqrt(
+          mod_var *
+          (1.0 / group_ns[0].to_double() + 1.0 / group_ns[1].to_double()),
+        )
         let se = if se < 0.0000001 { 0.0000001 } else { se }
         let t_stat = mean_diff / se
         let df = prior_d0 + d0
         // Convert t to p-value using normal approximation for large df.
         let p_value = 2.0 * (1.0 - dc_normal_cdf(dc_abs(t_stat)))
-        let p_value = if p_value < 0.0 { 0.0 } else if p_value > 1.0 { 1.0 } else { p_value }
+        let p_value = if p_value < 0.0 {
+          0.0
+        } else if p_value > 1.0 {
+          1.0
+        } else {
+          p_value
+        }
         let mname = if marker < marker_names.length() {
           marker_names[marker]
         } else {
@@ -1008,7 +1030,7 @@ fn dc_bh_fdr_ds(results : Array[DiffcytDSResult]) -> Array[DiffcytDSResult] {
 pub fn diffcyt_mark_significant(
   da_results : Array[DiffcytDAResult],
   ds_results : Array[DiffcytDSResult],
-  fdr_threshold : Double
+  fdr_threshold : Double,
 ) -> (Array[DiffcytDAResult], Array[DiffcytDSResult]) {
   for r in da_results {
     r.significant = r.fdr < fdr_threshold
@@ -1182,7 +1204,7 @@ fn dc_variance(arr : Array[Double]) -> Double {
 /// Extract top DA clusters sorted by p-value.
 pub fn diffcyt_top_clusters_da(
   da_results : Array[DiffcytDAResult],
-  n_top : Int
+  n_top : Int,
 ) -> Array[DiffcytDAResult] {
   // Copy and sort by p-value.
   let sorted : Array[DiffcytDAResult] = Array::new()
@@ -1213,7 +1235,7 @@ pub fn diffcyt_top_clusters_da(
 /// Extract top DS cluster-marker pairs sorted by p-value.
 pub fn diffcyt_top_table_ds(
   ds_results : Array[DiffcytDSResult],
-  n_top : Int
+  n_top : Int,
 ) -> Array[DiffcytDSResult] {
   let sorted : Array[DiffcytDSResult] = Array::new()
   for r in ds_results {
@@ -1253,11 +1275,14 @@ pub fn diffcyt_top_table_ds(
 pub fn diffcyt_run(
   cells : Array[CytometryCell],
   n_clusters : Int,
-  fdr_threshold : Double
+  fdr_threshold : Double,
 ) -> DiffcytSummary {
   let sample_ids = diffcyt_unique_samples(cells)
   let conditions_arr : Array[String] = Array::new()
-  let sample_condition_map : Map[String, String] = Map([], capacity=sample_ids.length())
+  let sample_condition_map : Map[String, String] = Map(
+    [],
+    capacity=sample_ids.length(),
+  )
   for cell in cells {
     sample_condition_map.set(cell.sample_id, cell.condition)
   }
@@ -1282,11 +1307,11 @@ pub fn diffcyt_run(
     marker_names.push("marker_" + i.to_string())
   }
   let ds_results = diffcyt_testDS(
-    cells, sample_ids, conditions_arr, n_clusters, n_markers, marker_names
+    cells, sample_ids, conditions_arr, n_clusters, n_markers, marker_names,
   )
   // 7. Mark significant.
   let (da_results, ds_results) = diffcyt_mark_significant(
-    da_results, ds_results, fdr_threshold
+    da_results, ds_results, fdr_threshold,
   )
   DiffcytSummary::{
     n_cells: cells.length(),
@@ -1333,7 +1358,7 @@ pub fn diffcyt_sample_data() -> Array[CytometryCell] {
         "cell_" + cell_counter.to_string(),
         samples[si],
         conditions[si],
-        marker_vals
+        marker_vals,
       )
       cells.push(cell)
       cell_counter = cell_counter + 1

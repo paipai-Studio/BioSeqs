@@ -25,9 +25,7 @@ test "ns_sample_creation" {
 ///|
 test "ns_sample_accessors" {
   let raw = [100, 200, 300, 50, 60, 10, 20]
-  let sample = @src.NsSample::new(
-    "S1", raw, [3, 4], [5, 6], [0, 1], [0, 1, 2],
-  )
+  let sample = @src.NsSample::new("S1", raw, [3, 4], [5, 6], [0, 1], [0, 1, 2])
   let pos = sample.positive_controls()
   assert_eq(pos.length(), 2)
   assert_eq(pos[0], 50)
@@ -65,9 +63,7 @@ test "ns_nanostring_data_add_sample" {
   let gene_names = ["G1", "G2", "G3"]
   let data = @src.NsNanostringData::new(gene_names)
   let raw = [100, 200, 300, 50, 60, 10, 20]
-  let sample = @src.NsSample::new(
-    "S1", raw, [3, 4], [5, 6], [0, 1], [0, 1, 2],
-  )
+  let sample = @src.NsSample::new("S1", raw, [3, 4], [5, 6], [0, 1], [0, 1, 2])
   data.add_sample(sample)
   assert_eq(data.n_samples(), 1)
   assert_eq(data.n_genes(), 3)
@@ -127,11 +123,11 @@ test "ns_log2_counts_known" {
 test "ns_log2_counts_zero_pseudocount" {
   // log2(0 + 0.5) = log2(0.5) = -1.
   let result = @src.ns_log2_counts([0.0])
-  assert_true((result[0] - (-1.0)).abs() < 0.01)
+  assert_true((result[0] - -1.0).abs() < 0.01)
   // Multiple values.
   let result2 = @src.ns_log2_counts([0.0, 1.0, 7.0])
   // log2(0.5) = -1, log2(1.5) ≈ 0.585, log2(7.5) ≈ 2.907
-  assert_true((result2[0] - (-1.0)).abs() < 0.01)
+  assert_true((result2[0] - -1.0).abs() < 0.01)
   assert_true((result2[1] - 0.585).abs() < 0.01)
   assert_true((result2[2] - 2.907).abs() < 0.01)
 }
@@ -448,9 +444,7 @@ test "ns_edge_single_sample" {
   let gene_names = ["G1", "G2", "G3"]
   let data = @src.NsNanostringData::new(gene_names)
   let raw = [100, 200, 300, 50, 60, 10, 20]
-  let sample = @src.NsSample::new(
-    "S1", raw, [3, 4], [5, 6], [0, 1], [0, 1, 2],
-  )
+  let sample = @src.NsSample::new("S1", raw, [3, 4], [5, 6], [0, 1], [0, 1, 2])
   data.add_sample(sample)
   assert_eq(data.n_samples(), 1)
   let results = @src.ns_positive_control_norm(data)
@@ -463,9 +457,7 @@ test "ns_edge_single_gene" {
   let gene_names = ["G1"]
   let data = @src.NsNanostringData::new(gene_names)
   let raw = [100, 50, 10]
-  let sample = @src.NsSample::new(
-    "S1", raw, [1], [2], [0], [0],
-  )
+  let sample = @src.NsSample::new("S1", raw, [1], [2], [0], [0])
   data.add_sample(sample)
   assert_eq(data.n_genes(), 1)
   let results = @src.ns_positive_control_norm(data)
@@ -477,9 +469,9 @@ test "ns_edge_all_zeros" {
   let gene_names = ["G1", "G2", "G3"]
   let data = @src.NsNanostringData::new(gene_names)
   let raw = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-  let sample = @src.NsSample::new(
-    "S1", raw, [3, 4, 5], [6, 7, 8], [0, 1, 2], [0, 1, 2],
-  )
+  let sample = @src.NsSample::new("S1", raw, [3, 4, 5], [6, 7, 8], [0, 1, 2], [
+    0, 1, 2,
+  ])
   data.add_sample(sample)
   let results = @src.ns_positive_control_norm(data)
   assert_eq(results.length(), 1)

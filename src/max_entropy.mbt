@@ -24,7 +24,7 @@ pub struct MaxEntFeature {
 pub fn MaxEntFeature::new(
   attribute_index : Int,
   attribute_value : String,
-  class_label : String
+  class_label : String,
 ) -> MaxEntFeature {
   MaxEntFeature::{ attribute_index, attribute_value, class_label }
 }
@@ -53,7 +53,7 @@ pub fn MaxEntFeature::class_label(self : MaxEntFeature) -> String {
 pub fn max_ent_eval_feature(
   feature : MaxEntFeature,
   observation : Array[String],
-  class_label : String
+  class_label : String,
 ) -> Int {
   if feature.attribute_index >= 0 &&
     feature.attribute_index < observation.length() &&
@@ -92,7 +92,7 @@ pub fn MaxEntropyModel::alphas(self : MaxEntropyModel) -> Array[Double] {
 ///|
 /// Accessor for the features.
 pub fn MaxEntropyModel::features(
-  self : MaxEntropyModel
+  self : MaxEntropyModel,
 ) -> Array[MaxEntFeature] {
   self.features
 }
@@ -135,7 +135,7 @@ fn me_safe_log(x : Double) -> Double {
 /// matches and we're summing over the class that the feature refers to).
 fn me_f_correction(
   feature : MaxEntFeature,
-  observation : Array[String]
+  observation : Array[String],
 ) -> Double {
   // f^#(x) = sum_y f(x, y). Since f is 1 only for one class, f^# is at most 1.
   if feature.attribute_index >= 0 &&
@@ -157,16 +157,14 @@ fn me_f_correction(
 /// `model.classes`.
 pub fn max_entropy_calculate(
   model : MaxEntropyModel,
-  observation : Array[String]
+  observation : Array[String],
 ) -> Array[Double] {
   let scores = Array::make(model.classes.length(), 0.0)
   for ci in 0..<model.classes.length() {
     let klass = model.classes[ci]
     let mut lprob = 0.0
     for fi in 0..<model.features.length() {
-      let f_val = max_ent_eval_feature(
-        model.features[fi], observation, klass
-      )
+      let f_val = max_ent_eval_feature(model.features[fi], observation, klass)
       lprob = lprob + f_val.to_double() * model.alphas[fi]
     }
     scores[ci] = lprob
@@ -178,7 +176,7 @@ pub fn max_entropy_calculate(
 /// Classify an observation into the class with the highest probability.
 pub fn max_entropy_classify(
   model : MaxEntropyModel,
-  observation : Array[String]
+  observation : Array[String],
 ) -> String {
   let scores = max_entropy_calculate(model, observation)
   let mut best_idx = 0
@@ -203,7 +201,7 @@ pub fn max_entropy_classify(
 pub fn max_entropy_train(
   training_set : Array[Array[String]],
   results : Array[String],
-  features : Array[MaxEntFeature]
+  features : Array[MaxEntFeature],
 ) -> MaxEntropyModel {
   let n = training_set.length()
   // Collect unique classes.
@@ -222,9 +220,8 @@ pub fn max_entropy_train(
   for fi in 0..<n_features {
     let mut s = 0.0
     for i in 0..<n {
-      s = s + max_ent_eval_feature(
-        features[fi], training_set[i], results[i]
-      ).to_double()
+      s = s +
+        max_ent_eval_feature(features[fi], training_set[i], results[i]).to_double()
     }
     emp_expects[fi] = s / n.to_double()
   }
@@ -248,7 +245,9 @@ pub fn max_entropy_train(
           let mut s = 0.0
           for fj in 0..<n_features {
             let f_val = max_ent_eval_feature(
-              features[fj], training_set[i], classes[ci]
+              features[fj],
+              training_set[i],
+              classes[ci],
             )
             s = s + f_val.to_double() * alphas[fj]
           }
@@ -270,7 +269,9 @@ pub fn max_entropy_train(
         for ci in 0..<n_classes {
           let prob = scores[ci] / sum_exp
           let f_val = max_ent_eval_feature(
-            features[fi], training_set[i], classes[ci]
+            features[fi],
+            training_set[i],
+            classes[ci],
           )
           model_expect = model_expect + prob * f_val.to_double()
         }
@@ -314,9 +315,11 @@ pub fn max_entropy_train(
 ///|
 /// Sample training data for the car classification example.
 /// Observations: [color, type, origin]. Labels: "Yes" / "No".
-pub fn max_entropy_sample_data() -> (Array[
-  Array[String]
-], Array[String], Array[MaxEntFeature]) {
+pub fn max_entropy_sample_data() -> (
+  Array[Array[String]],
+  Array[String],
+  Array[MaxEntFeature],
+) {
   let xs = [
     ["Red", "Sports", "Domestic"],
     ["Red", "Sports", "Domestic"],
@@ -329,9 +332,7 @@ pub fn max_entropy_sample_data() -> (Array[
     ["Red", "SUV", "Imported"],
     ["Red", "Sports", "Imported"],
   ]
-  let ys = [
-    "Yes", "No", "Yes", "No", "Yes", "No", "Yes", "No", "No", "Yes",
-  ]
+  let ys = ["Yes", "No", "Yes", "No", "Yes", "No", "Yes", "No", "No", "Yes"]
   let features = [
     MaxEntFeature::new(0, "Red", "Yes"),
     MaxEntFeature::new(0, "Red", "No"),

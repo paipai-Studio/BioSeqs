@@ -25,26 +25,26 @@
 pub fn prot_dao_disorder_score(aa : UInt16) -> Double {
   let c = if aa >= 97 && aa <= 122 { aa - 32 } else { aa }
   match c {
-    65 => 0.06  // 'A'
-    67 => -0.02  // 'C'
-    68 => 0.19  // 'D'
-    69 => 0.74  // 'E'
-    70 => -0.09  // 'F'
-    71 => 0.16  // 'G'
-    72 => -0.42  // 'H'
-    73 => -0.48  // 'I'
-    75 => 0.58  // 'K'
-    76 => -0.03  // 'L'
-    77 => -0.39  // 'M'
-    78 => 0.03  // 'N'
-    80 => 0.98  // 'P'
-    81 => 0.31  // 'Q'
-    82 => 0.41  // 'R'
-    83 => 0.34  // 'S'
-    84 => 0.59  // 'T'
-    86 => -0.26  // 'V'
-    87 => -0.19  // 'W'
-    89 => -0.49  // 'Y'
+    65 => 0.06 // 'A'
+    67 => -0.02 // 'C'
+    68 => 0.19 // 'D'
+    69 => 0.74 // 'E'
+    70 => -0.09 // 'F'
+    71 => 0.16 // 'G'
+    72 => -0.42 // 'H'
+    73 => -0.48 // 'I'
+    75 => 0.58 // 'K'
+    76 => -0.03 // 'L'
+    77 => -0.39 // 'M'
+    78 => 0.03 // 'N'
+    80 => 0.98 // 'P'
+    81 => 0.31 // 'Q'
+    82 => 0.41 // 'R'
+    83 => 0.34 // 'S'
+    84 => 0.59 // 'T'
+    86 => -0.26 // 'V'
+    87 => -0.19 // 'W'
+    89 => -0.49 // 'Y'
     _ => 0.0
   }
 }
@@ -55,26 +55,26 @@ pub fn prot_dao_disorder_score(aa : UInt16) -> Double {
 pub fn prot_dao_energy_score(aa : UInt16) -> Double {
   let c = if aa >= 97 && aa <= 122 { aa - 32 } else { aa }
   match c {
-    65 => 1.1471  // 'A'
-    67 => 2.6497  // 'C'
-    68 => 1.9748  // 'D'
-    69 => 1.3577  // 'E'
-    70 => 2.0289  // 'F'
-    71 => 1.8218  // 'G'
-    72 => -1.0930  // 'H'
-    73 => 0.2643  // 'I'
-    75 => 0.6636  // 'K'
-    76 => 0.5035  // 'L'
-    77 => 2.5789  // 'M'
-    78 => 1.8929  // 'N'
-    80 => 2.8110  // 'P'
-    81 => 1.1740  // 'Q'
-    82 => -0.3509  // 'R'
-    83 => 2.3317  // 'S'
-    84 => 0.7361  // 'T'
-    86 => 0.2730  // 'V'
-    87 => 1.5749  // 'W'
-    89 => 1.6374  // 'Y'
+    65 => 1.1471 // 'A'
+    67 => 2.6497 // 'C'
+    68 => 1.9748 // 'D'
+    69 => 1.3577 // 'E'
+    70 => 2.0289 // 'F'
+    71 => 1.8218 // 'G'
+    72 => -1.0930 // 'H'
+    73 => 0.2643 // 'I'
+    75 => 0.6636 // 'K'
+    76 => 0.5035 // 'L'
+    77 => 2.5789 // 'M'
+    78 => 1.8929 // 'N'
+    80 => 2.8110 // 'P'
+    81 => 1.1740 // 'Q'
+    82 => -0.3509 // 'R'
+    83 => 2.3317 // 'S'
+    84 => 0.7361 // 'T'
+    86 => 0.2730 // 'V'
+    87 => 1.5749 // 'W'
+    89 => 1.6374 // 'Y'
     _ => 0.0
   }
 }
@@ -218,8 +218,12 @@ pub fn prot_dao_predict(
     residues[ci].disorder_score = smoothed[ci]
     residues[ci].is_disordered = smoothed[ci] > threshold_disordered
     residues[ci].is_disordered_long = smoothed[ci] > threshold_long
-    if residues[ci].is_disordered { n_disordered = n_disordered + 1 }
-    if residues[ci].is_disordered_long { n_disordered_long = n_disordered_long + 1 }
+    if residues[ci].is_disordered {
+      n_disordered = n_disordered + 1
+    }
+    if residues[ci].is_disordered_long {
+      n_disordered_long = n_disordered_long + 1
+    }
     ci = ci + 1
   }
 
@@ -239,7 +243,9 @@ pub fn prot_dao_predict(
         let s = smoothed[region_end]
         rs = rs + s
         count = count + 1
-        if s > max_s { max_s = s }
+        if s > max_s {
+          max_s = s
+        }
         region_end = region_end + 1
       }
 
@@ -247,13 +253,15 @@ pub fn prot_dao_predict(
       let is_long = region_end - region_start >= 30
       let type_ = if is_long { "long disordered" } else { "disordered" }
 
-      regions.push(DisorderRegion::new(
-        region_start + 1,
-        region_end,
-        avg_s,
-        max_s,
-        region_type=type_,
-      ))
+      regions.push(
+        DisorderRegion::new(
+          region_start + 1,
+          region_end,
+          avg_s,
+          max_s,
+          region_type=type_,
+        ),
+      )
       ri = region_end
     } else {
       ri = ri + 1
@@ -303,7 +311,9 @@ pub fn DisorderResult::get_fraction_disordered(self : DisorderResult) -> Double 
 
 ///|
 /// Get disordered regions.
-pub fn DisorderResult::get_regions(self : DisorderResult) -> Array[DisorderRegion] {
+pub fn DisorderResult::get_regions(
+  self : DisorderResult,
+) -> Array[DisorderRegion] {
   self.regions.copy()
 }
 
@@ -315,7 +325,9 @@ pub fn DisorderResult::get_n_regions(self : DisorderResult) -> Int {
 
 ///|
 /// Get the longest disordered region.
-pub fn DisorderResult::get_longest_region(self : DisorderResult) -> DisorderRegion {
+pub fn DisorderResult::get_longest_region(
+  self : DisorderResult,
+) -> DisorderRegion {
   if self.regions.length() == 0 {
     return DisorderRegion::new(0, 0, 0.0, 0.0, region_type="none")
   }
@@ -364,27 +376,49 @@ pub fn DisorderResult::summary(self : DisorderResult) -> String {
   let mut s = "Disorder Prediction Summary\n"
   s = s + "Method: " + self.method + "\n"
   s = s + "Sequence length: " + self.sequence.length().to_string() + "\n"
-  s = s + "Disordered residues: " + self.n_disordered.to_string() + " (" + self.fraction_disordered.to_string() + ")\n"
-  s = s + "Long disordered residues: " + self.n_disordered_long.to_string() + "\n"
+  s = s +
+    "Disordered residues: " +
+    self.n_disordered.to_string() +
+    " (" +
+    self.fraction_disordered.to_string() +
+    ")\n"
+  s = s +
+    "Long disordered residues: " +
+    self.n_disordered_long.to_string() +
+    "\n"
   s = s + "Disordered regions: " + self.regions.length().to_string() + "\n"
-  s = s + "Threshold (disordered): " + self.threshold_disordered.to_string() + "\n"
+  s = s +
+    "Threshold (disordered): " +
+    self.threshold_disordered.to_string() +
+    "\n"
   s = s + "Threshold (long): " + self.threshold_long.to_string() + "\n"
   s
 }
 
 ///|
 /// Format disorder result as ASCII visualization.
-pub fn DisorderResult::to_ascii(self : DisorderResult, width? : Int = 80) -> String {
+pub fn DisorderResult::to_ascii(
+  self : DisorderResult,
+  width? : Int = 80,
+) -> String {
   let w = if width > 0 { width } else { 80 }
   let seq_len = self.sequence.length()
-  if seq_len == 0 { return "Empty sequence" }
+  if seq_len == 0 {
+    return "Empty sequence"
+  }
 
   // Create the score track
   let mut s = "Score: "
   let mut i = 0
   while i < seq_len {
     let score = self.residues[i].disorder_score
-    let bar = if score > self.threshold_long { "##" } else if score > self.threshold_disordered { "##" } else { "--" }
+    let bar = if score > self.threshold_long {
+      "##"
+    } else if score > self.threshold_disordered {
+      "##"
+    } else {
+      "--"
+    }
     s = s + bar
     i = i + 1
   }
@@ -399,7 +433,11 @@ pub fn DisorderResult::to_ascii(self : DisorderResult, width? : Int = 80) -> Str
     if pos == 1 || pos % 10 == 0 {
       if pos > 1 {
         let spaces = "          "
-        let take = if spaces.length() >= label_len { label_len } else { spaces.length() }
+        let take = if spaces.length() >= label_len {
+          label_len
+        } else {
+          spaces.length()
+        }
         ruler = ruler + spaces.substring(start=0, end=take)
       }
       ruler = ruler + label
@@ -431,7 +469,20 @@ pub fn DisorderResult::to_ascii(self : DisorderResult, width? : Int = 80) -> Str
   let mut ri = 0
   while ri < self.regions.length() {
     let reg = self.regions[ri]
-    s = s + "  Region " + (ri + 1).to_string() + ": " + reg.start.to_string() + "-" + reg.end_.to_string() + " (length=" + reg.length.to_string() + ", avg_score=" + reg.avg_score.to_string() + ", type=" + reg.region_type + ")\n"
+    s = s +
+      "  Region " +
+      (ri + 1).to_string() +
+      ": " +
+      reg.start.to_string() +
+      "-" +
+      reg.end_.to_string() +
+      " (length=" +
+      reg.length.to_string() +
+      ", avg_score=" +
+      reg.avg_score.to_string() +
+      ", type=" +
+      reg.region_type +
+      ")\n"
     ri = ri + 1
   }
 
@@ -447,11 +498,11 @@ pub fn DisorderResult::to_ascii(self : DisorderResult, width? : Int = 80) -> Str
 pub fn prot_dao_sample_sequence() -> String {
   // A protein with mixed ordered and disordered regions
   // N-terminal disordered region, central ordered region, C-terminal disordered
-  let n_term_disordered = "MSEGKSSGGSSSGRRSSSGGGSSGGKSGKSSGR"  // disordered
-  let ordered_core = "PKEIVLDSNGSLEVVKNGKVVVESTGNKVVLTSGQE"  // ordered
-  let linker = "SSSSSS"  // disordered linker
-  let second_domain = "KLPNLVISGDAGHVVVDAESNGKIVLLPSN"  // ordered
-  let c_term_disordered = "GSSGSSGSGGKSGSSGSGRGSSGGNSSGKSSG"  // disordered
+  let n_term_disordered = "MSEGKSSGGSSSGRRSSSGGGSSGGKSGKSSGR" // disordered
+  let ordered_core = "PKEIVLDSNGSLEVVKNGKVVVESTGNKVVLTSGQE" // ordered
+  let linker = "SSSSSS" // disordered linker
+  let second_domain = "KLPNLVISGDAGHVVVDAESNGKIVLLPSN" // ordered
+  let c_term_disordered = "GSSGSSGSGGKSGSSGSGRGSSGGNSSGKSSG" // disordered
   n_term_disordered + ordered_core + linker + second_domain + c_term_disordered
 }
 

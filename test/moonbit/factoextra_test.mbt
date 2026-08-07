@@ -17,11 +17,7 @@ test "factoextra_pca_basic" {
 
 ///|
 test "factoextra_pca_eigenvalues" {
-  let data = [
-    [2.0, 3.0],
-    [5.0, 6.0],
-    [8.0, 9.0],
-  ]
+  let data = [[2.0, 3.0], [5.0, 6.0], [8.0, 9.0]]
   let result = @src.facto_pca(data)
   let eigenvalues = @src.facto_get_eigenvalue(result)
   assert_eq(eigenvalues.length(), 2)
@@ -30,28 +26,22 @@ test "factoextra_pca_eigenvalues" {
 
 ///|
 test "factoextra_pca_variance" {
-  let data = [
-    [1.0, 2.0],
-    [4.0, 5.0],
-    [7.0, 8.0],
-    [10.0, 11.0],
-  ]
+  let data = [[1.0, 2.0], [4.0, 5.0], [7.0, 8.0], [10.0, 11.0]]
   let result = @src.facto_pca(data)
   let eigenvalues = @src.facto_get_eigenvalue(result)
   let mut i = 1
   while i < eigenvalues.length() {
-    assert_true(eigenvalues[i].cumulative_variance >= eigenvalues[i - 1].cumulative_variance)
+    assert_true(
+      eigenvalues[i].cumulative_variance >=
+      eigenvalues[i - 1].cumulative_variance,
+    )
     i = i + 1
   }
 }
 
 ///|
 test "factoextra_pca_individual_coords" {
-  let data = [
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0, 6.0],
-    [7.0, 8.0, 9.0],
-  ]
+  let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let result = @src.facto_pca(data)
   let ind = @src.facto_get_pca_ind(result)
   assert_eq(ind.coord.length(), 3)
@@ -60,11 +50,7 @@ test "factoextra_pca_individual_coords" {
 
 ///|
 test "factoextra_pca_variable_coords" {
-  let data = [
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0, 6.0],
-    [7.0, 8.0, 9.0],
-  ]
+  let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let result = @src.facto_pca(data)
   let pca_var = @src.facto_get_pca_var(result)
   assert_eq(pca_var.coord.length(), 3)
@@ -78,18 +64,14 @@ test "factoextra_pca_ncp" {
     [5.0, 6.0, 7.0, 8.0],
     [9.0, 10.0, 11.0, 12.0],
   ]
-  let result = @src.facto_pca(data, ncp = 2)
+  let result = @src.facto_pca(data, ncp=2)
   assert_eq(result.n_dims, 2)
   assert_eq(result.eigenvalues.length(), 2)
 }
 
 ///|
 test "factoextra_pca_cos2_individuals" {
-  let data = [
-    [1.0, 2.0],
-    [4.0, 5.0],
-    [7.0, 8.0],
-  ]
+  let data = [[1.0, 2.0], [4.0, 5.0], [7.0, 8.0]]
   let result = @src.facto_pca(data)
   let ind = @src.facto_get_pca_ind(result)
   assert_eq(ind.cos2.length(), 3)
@@ -107,11 +89,7 @@ test "factoextra_pca_cos2_individuals" {
 
 ///|
 test "factoextra_pca_contrib_variables" {
-  let data = [
-    [1.0, 2.0],
-    [4.0, 5.0],
-    [7.0, 8.0],
-  ]
+  let data = [[1.0, 2.0], [4.0, 5.0], [7.0, 8.0]]
   let result = @src.facto_pca(data)
   let pca_var = @src.facto_get_pca_var(result)
   assert_eq(pca_var.contrib.length(), 2)
@@ -120,11 +98,7 @@ test "factoextra_pca_contrib_variables" {
 
 ///|
 test "factoextra_pca_total_inertia" {
-  let data = [
-    [1.0, 2.0],
-    [4.0, 5.0],
-    [7.0, 8.0],
-  ]
+  let data = [[1.0, 2.0], [4.0, 5.0], [7.0, 8.0]]
   let result = @src.facto_pca(data)
   let total = @src.facto_total_inertia(result)
   assert_true(total > 0.0)
@@ -132,12 +106,7 @@ test "factoextra_pca_total_inertia" {
 
 ///|
 test "factoextra_pca_nb_dim" {
-  let data = [
-    [1.0, 2.0],
-    [4.0, 5.0],
-    [7.0, 8.0],
-    [10.0, 11.0],
-  ]
+  let data = [[1.0, 2.0], [4.0, 5.0], [7.0, 8.0], [10.0, 11.0]]
   let result = @src.facto_pca(data)
   let nb = @src.facto_nb_dim(result, 80.0)
   assert_true(nb >= 1)
@@ -146,10 +115,7 @@ test "factoextra_pca_nb_dim" {
 
 ///|
 test "factoextra_pca_summary" {
-  let data = [
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0, 6.0],
-  ]
+  let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
   let result = @src.facto_pca(data)
   let summary = @src.facto_summary(result)
   assert_eq(summary.n_individuals, 2)
@@ -168,11 +134,7 @@ test "factoextra_pca_empty" {
 
 ///|
 test "factoextra_pca_contrib_dim" {
-  let data = [
-    [1.0, 2.0],
-    [4.0, 5.0],
-    [7.0, 8.0],
-  ]
+  let data = [[1.0, 2.0], [4.0, 5.0], [7.0, 8.0]]
   let result = @src.facto_pca(data)
   let contribs = @src.facto_var_contrib_dim(result, 1)
   assert_eq(contribs.length(), 2)
@@ -181,11 +143,7 @@ test "factoextra_pca_contrib_dim" {
 
 ///|
 test "factoextra_pca_cos2_dim" {
-  let data = [
-    [1.0, 2.0],
-    [4.0, 5.0],
-    [7.0, 8.0],
-  ]
+  let data = [[1.0, 2.0], [4.0, 5.0], [7.0, 8.0]]
   let result = @src.facto_pca(data)
   let cos2s = @src.facto_var_cos2_dim(result, 1)
   assert_eq(cos2s.length(), 2)
@@ -193,11 +151,7 @@ test "factoextra_pca_cos2_dim" {
 
 ///|
 test "factoextra_pca_dimdesc" {
-  let data = [
-    [1.0, 2.0],
-    [4.0, 5.0],
-    [7.0, 8.0],
-  ]
+  let data = [[1.0, 2.0], [4.0, 5.0], [7.0, 8.0]]
   let result = @src.facto_pca(data)
   let desc = @src.facto_dimdesc(data, result, 1)
   assert_eq(desc.length(), 2)
@@ -205,11 +159,7 @@ test "factoextra_pca_dimdesc" {
 
 ///|
 test "factoextra_pca_loadings" {
-  let data = [
-    [1.0, 2.0],
-    [4.0, 5.0],
-    [7.0, 8.0],
-  ]
+  let data = [[1.0, 2.0], [4.0, 5.0], [7.0, 8.0]]
   let result = @src.facto_pca(data)
   let loadings = @src.facto_loadings(result)
   assert_eq(loadings.length(), 2)
@@ -217,10 +167,7 @@ test "factoextra_pca_loadings" {
 
 ///|
 test "factoextra_pca_print_summary" {
-  let data = [
-    [1.0, 2.0],
-    [4.0, 5.0],
-  ]
+  let data = [[1.0, 2.0], [4.0, 5.0]]
   let result = @src.facto_pca(data)
   let summary = @src.facto_print_summary(result)
   assert_true(summary.length() > 0)

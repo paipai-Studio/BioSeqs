@@ -170,8 +170,7 @@ fn align_bed_validate_score(score : AlignBedScore) -> Unit raise AlignBedError {
       if value.is_nan() || value.abs() > 1.0e300 {
         align_bed_fail("BED score must be finite")
       }
-    AlignBedText(value) =>
-      align_bed_validate_token(value, "BED score", false)
+    AlignBedText(value) => align_bed_validate_token(value, "BED score", false)
   }
 }
 
@@ -351,9 +350,7 @@ pub fn AlignBedScore::numeric(
 
 ///|
 /// Construct a non-empty textual BED score token.
-pub fn AlignBedScore::text(
-  value : String,
-) -> AlignBedScore raise AlignBedError {
+pub fn AlignBedScore::text(value : String) -> AlignBedScore raise AlignBedError {
   let score = AlignBedText(value)
   align_bed_validate_score(score)
   score
@@ -699,10 +696,7 @@ fn align_bed_coordinates_from_blocks(
   let coordinates : Array[AlignBedCoordinate] = []
   let mut query_position = 0
   let mut target_position = chrom_start
-  coordinates.push(AlignBedCoordinate::{
-    target: chrom_start,
-    query: 0,
-  })
+  coordinates.push(AlignBedCoordinate::{ target: chrom_start, query: 0 })
   for index in 0..<sizes.length() {
     let block_start = chrom_start + starts[index]
     if block_start != target_position {
@@ -767,7 +761,11 @@ fn align_bed_parse_line(
     if words[5] != "+" && words[5] != "-" && words[5] != "." {
       align_bed_fail("BED strand must be '+', '-', or '.'")
     }
-    if words[5] == "-" { "-" } else { "+" }
+    if words[5] == "-" {
+      "-"
+    } else {
+      "+"
+    }
   } else {
     "+"
   }
@@ -828,10 +826,7 @@ fn align_bed_parse_line(
     }
   }
   let coordinates = align_bed_coordinates_from_blocks(
-    chrom_start,
-    strand,
-    sizes,
-    starts,
+    chrom_start, strand, sizes, starts,
   )
   AlignBedAlignment::create(
     target_id,
@@ -847,9 +842,7 @@ fn align_bed_parse_line(
 
 ///|
 /// Parse all BED records from a string.
-pub fn align_bed_parse(
-  text : String,
-) -> AlignBedDocument raise AlignBedError {
+pub fn align_bed_parse(text : String) -> AlignBedDocument raise AlignBedError {
   if text.length() == 0 {
     return AlignBedDocument::create([])
   }
@@ -861,9 +854,7 @@ pub fn align_bed_parse(
       if index + 1 == lines.length() {
         continue
       }
-      align_bed_fail(
-        "blank BED record at line " + (index + 1).to_string(),
-      )
+      align_bed_fail("blank BED record at line " + (index + 1).to_string())
     }
     alignments.push(align_bed_parse_line(line, index + 1))
   }

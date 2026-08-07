@@ -9,7 +9,9 @@ test "compound_new" {
 
 ///|
 test "compound_with_chemical" {
-  let c = @src.Compound::with_chemical("C0001", "Glucose", "C6H12O6", 0, "C(C1C(C(C(C(O1)O)O)O)O)O")
+  let c = @src.Compound::with_chemical(
+    "C0001", "Glucose", "C6H12O6", 0, "C(C1C(C(C(C(O1)O)O)O)O)O",
+  )
   assert_eq(c.get_id(), "C0001")
   assert_eq(c.get_formula(), "C6H12O6")
   assert_eq(c.get_charge(), 0)

@@ -223,7 +223,9 @@ test "twobit_unpack_sequence_simple" {
 
 ///|
 test "twobit_pack_sequence_with_n_blocks" {
-  let (packed, n_blocks, mask_blocks) = @src.twobit_pack_sequence("ATGCNNNNATGC")
+  let (packed, n_blocks, mask_blocks) = @src.twobit_pack_sequence(
+    "ATGCNNNNATGC",
+  )
   assert_eq(packed.length(), 3) // ceil(12/4) = 3 bytes
   assert_eq(n_blocks.length(), 1)
   assert_eq(n_blocks[0].start(), 4)
@@ -234,7 +236,9 @@ test "twobit_pack_sequence_with_n_blocks" {
 
 ///|
 test "twobit_unpack_sequence_with_n_blocks" {
-  let (packed, n_blocks, mask_blocks) = @src.twobit_pack_sequence("ATGCNNNNATGC")
+  let (packed, n_blocks, mask_blocks) = @src.twobit_pack_sequence(
+    "ATGCNNNNATGC",
+  )
   let result = @src.twobit_unpack_sequence(packed, 12, n_blocks, mask_blocks)
   assert_eq(result, "ATGCNNNNATGC")
 }

@@ -30,7 +30,12 @@ test "cdao_rdfs_namespace_constant" {
 
 ///|
 test "cdao_tree_construction" {
-  let t = @src.Cdaotree::new("#tree1", rooted=true, root_node_id="#node1", name=Some("MyTree"))
+  let t = @src.Cdaotree::new(
+    "#tree1",
+    rooted=true,
+    root_node_id="#node1",
+    name=Some("MyTree"),
+  )
   assert_eq(t.id, "#tree1")
   assert_eq(t.rooted, true)
   assert_eq(t.root_node_id, "#node1")
@@ -48,7 +53,11 @@ test "cdao_tree_default_values" {
 
 ///|
 test "cdao_node_construction" {
-  let n = @src.CdaoNode::new("#node1", children=["#node2", "#node3"], parent_id=Some("#node0"))
+  let n = @src.CdaoNode::new(
+    "#node1",
+    children=["#node2", "#node3"],
+    parent_id=Some("#node0"),
+  )
   assert_eq(n.id, "#node1")
   assert_eq(n.children.length(), 2)
   assert_eq(n.parent_id.unwrap(), "#node0")
@@ -337,7 +346,13 @@ test "cdao_to_trees_empty_document" {
 
 ///|
 test "cdao_node_fields_via_constructor" {
-  let n = @src.CdaoNode::new("#test", parent_id=Some("#parent"), tu_id=Some("#tu1"), branch_length=Some(2.5), label=Some("TestNode"))
+  let n = @src.CdaoNode::new(
+    "#test",
+    parent_id=Some("#parent"),
+    tu_id=Some("#tu1"),
+    branch_length=Some(2.5),
+    label=Some("TestNode"),
+  )
   assert_eq(n.parent_id.unwrap(), "#parent")
   assert_eq(n.tu_id.unwrap(), "#tu1")
   assert_eq(n.branch_length.unwrap(), 2.5)

@@ -244,6 +244,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **dreamlet** | Bioconductor dreamlet | sample×cell-type pseudobulk、TMM、cell/sample/gene过滤、logCPM、Poisson/voom precision weights、分cell-type重复测量模型及study-wide FDR | ✅ |
 | **nnSVG** | Bioconductor nnSVG | nearest-neighbor Gaussian process、空间变异基因检验、gene-specific length scale、协变量设计、空间方差占比、BH-FDR及SpatialExperiment接入 | ✅ |
 | **Banksy** | Bioconductor Banksy | H0邻域均值与H1+方位harmonic、六类空间核、lambda联合特征、分组标准化、PCA、多起点k-means、标签平滑、参数扫描及SpatialExperiment接入 | ✅ |
+| **Voyager** | Bioconductor Voyager | kNN/distance-band/inverse-distance空间权重(W/B/C/S编码)、全局Moran's I与Geary's c(Cliff-Ord随机化期望/方差/正态p)、局部Moran's I(LISA象限+置换推断)、局部Geary's c、Getis-Ord Gi/Gi*(Ord-Getis z)、Lee's L(全局+局部)、多元局部Geary、经验变差函数与spherical/exponential/gaussian拟合、Moran correlogram、确定性splitmix64置换、BH-FDR及SpatialExperiment不可变写回 | ✅ |
 | **spicyR** | Bioconductor spicyR | 有序细胞类型对cross-L曲线、矩形窗口边界校正、图像级共定位统计、precision weights、重复受试者随机截距、条件对比、BH-FDR及SpatialExperiment接入 | ✅ |
 | **lisaClust** | Bioconductor lisaClust | 每细胞多类型local-K/centered local-L曲线、Gaussian KDE强度校正、矩形/凸包窗口、圆盘边界修正、确定性多起点k-means、silhouette、区域富集及SpatialExperiment写回 | ✅ |
 | **SpatialDecon** | Bioconductor SpatialDecon | 背景感知加权log-normal非负回归、两阶段异常点重拟合、Hessian不确定度、细胞丰度/比例/计数尺度、cell-type collapse、reverse deconvolution、负探针背景、单细胞profile构建及SpatialExperiment写回 | ✅ |
@@ -671,6 +672,7 @@ IvanAXu/BioSeqs/
 │   ├── dreamlet.mbt            # dreamlet pseudobulk、TMM/voom权重、分cell-type混合模型与study-wide FDR
 │   ├── nnsvg.mbt               # nnSVG nearest-neighbor GP、空间变异检验、length scale与SpatialExperiment接入
 │   ├── banksy.mbt              # Banksy空间邻域harmonic、lambda联合特征、PCA、聚类、平滑与SpatialExperiment接入
+│   ├── voyager.mbt             # Voyager空间自相关：kNN/distance-band/inverse-distance权重、Moran's I/Geary's c(全局+局部)、Getis-Ord Gi*、Lee's L、变差函数拟合、Moran correlogram、置换检验BH-FDR与SpatialExperiment接入
 │   ├── spicyr.mbt              # spicyR cross-L共定位、边界校正、加权/随机截距模型与SpatialExperiment接入
 │   ├── lisaclust.mbt           # lisaClust local-K/L曲线、KDE、窗口边界修正、区域聚类与SpatialExperiment接入
 │   ├── spatialdecon.mbt         # SpatialDecon背景感知log-normal解卷积、异常点重拟合、不确定度与容器接入
@@ -1043,6 +1045,7 @@ IvanAXu/BioSeqs/
 │   ├── dreamlet_demo/          # dreamlet SCE pseudobulk、TMM/voom、donor随机截距与跨cell-type FDR示例
 │   ├── nnsvg_demo/             # nnSVG空间变异基因、length scale、过滤与SpatialExperiment接入示例
 │   ├── banksy_demo/            # Banksy H0/H1、lambda扫描、PCA聚类、平滑与SpatialExperiment接入示例
+│   ├── voyager_demo/           # Voyager空间权重、Moran/Geary/Getis-Ord/Lee's L、变差函数、correlogram与SpatialExperiment接入示例
 │   ├── spicyr_demo/            # spicyR cross-L、条件对比、重复受试者模型与SpatialExperiment接入示例
 │   ├── lisaclust_demo/         # lisaClust local-K/L、区域聚类、富集与SpatialExperiment写回示例
 │   ├── spatialdecon_demo/       # SpatialDecon背景校正、丰度/计数、collapse、reverse与SpatialExperiment示例
@@ -1490,6 +1493,7 @@ IvanAXu/BioSeqs/
 │   │   ├── dreamlet_test.mbt
 │   │   ├── nnsvg_test.mbt
 │   │   ├── banksy_test.mbt
+│   │   ├── voyager_test.mbt
 │   │   ├── shared_reference_alignment_test.mbt
 │   │   ├── alignment_map_test.mbt
 │   │   ├── alignment_counts_test.mbt
@@ -1691,7 +1695,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12093 个测试全部通过
+moon test                                               # ✅ 12151 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1823,6 +1827,7 @@ moon test                                               # ✅ 12093 个测试全
 | `dreamlet.mbt` | Bioconductor dreamlet | sample×cell-type pseudobulk、完整TMM、CPM/logCPM、Poisson/voom权重、typed fixed/random design、分cell-type dream拟合及两级BH-FDR |
 | `nnsvg.mbt` | Bioconductor nnSVG | 坐标缩放与前驱kNN、指数协方差NNGP、协变量GLS、profile ML、空间/非空间LR检验、gene-specific length scale、BH-FDR及SpatialExperiment接入 |
 | `banksy.mbt` | Bioconductor Banksy | H0邻域均值、H1+方位Fourier/Gabor harmonic、六类空间核、lambda联合矩阵、分组标准化、PCA、多起点k-means、平滑、ARI与SpatialExperiment接入 |
+| `voyager.mbt` | Bioconductor Voyager | kNN/distance-band/inverse-distance权重(W/B/C/S编码)、全局Moran's I与Geary's c(Cliff-Ord随机化期望/方差/正态p)、局部Moran's I(LISA象限分类+置换推断)、局部Geary's c、Getis-Ord Gi/Gi*(Ord-Getis z)、Lee's L(全局+局部)、多元局部Geary、经验变差函数与spherical/exponential/gaussian拟合、Moran correlogram、确定性splitmix64置换、BH-FDR与SpatialExperiment不可变写回 |
 | `spicyr.mbt` | Bioconductor spicyR | 图像内有序细胞类型对cross-L、矩形窗口边界校正、图像级统计、cell-count precision weights、加权固定/随机截距模型、条件对比、BH-FDR及SpatialExperiment接入 |
 | `lisaclust.mbt` | Bioconductor lisaClust | 每图像local-K/centered local-L、Gaussian KDE密度权重、矩形/凸包窗口、圆盘可见面积边界修正、确定性多起点k-means、silhouette、区域富集及SpatialExperiment写回 |
 | `spatialdecon.mbt` | Bioconductor SpatialDecon | 背景感知加权log-normal非负回归、两阶段异常点重拟合、observed/expected Hessian协方差、细胞丰度尺度、cell-type collapse、reverse deconvolution、负探针背景、单细胞profile与SpatialExperiment接入 |
@@ -2069,6 +2074,7 @@ moon test                                               # ✅ 12093 个测试全
 | `dreamlet.mbt` | `dreamlet` | SCE到sample×cluster pseudobulk、TMM/logCPM、两阶段voom precision weights、固定/随机效应筛选、逐cell-type dream和study-wide FDR |
 | `nnsvg.mbt` | `nnSVG` | AMMD/坐标和排序前驱kNN、指数协方差NNGP、covariate GLS、空间方差比例与length scale优化、LR/p-value/BH-FDR、过滤和SpatialExperiment rowData输出 |
 | `banksy.mbt` | `Banksy` | kNN/radius邻域核、H0/H1+空间harmonic、lambda加权BANKSY矩阵、global/group scaling、Gram-Jacobi PCA、确定性多起点聚类、平滑与SpatialExperiment输出 |
+| `voyager.mbt` | `Voyager` | kNN/distance-band/inverse-distance权重(W/B/C/S)、全局Moran's I与Geary's c(Cliff-Ord随机化方差+正态p)、局部Moran's I(象限+置换推断)、局部Geary's c、Getis-Ord Gi/Gi*(Ord-Getis z)、Lee's L(全局+局部)、多元局部Geary、经验变差函数+spherical/exponential/gaussian拟合、Moran correlogram、splitmix64置换、BH-FDR与SpatialExperiment不可变写回 |
 | `spicyr.mbt` | `spicyR` | ordered cell-type-pair cross-L、矩形窗口disc-intersection边界校正、图像级localization统计、precision weights、加权LMM、条件对比、BH-FDR与SpatialExperiment metadata输出 |
 | `lisaclust.mbt` | `lisaClust` | 多细胞类型local-K/L特征、KDE intensity correction、矩形/凸包窗口、disc-window边界积分、确定性多起点k-means、regionMap observed/expected富集与SpatialExperiment region输出 |
 | `spatialdecon.mbt` | `SpatialDecon` | background-aware weighted log-normal non-negative regression、algorithm2异常点重拟合、Hessian协方差、abundance/count scaling、cell-type collapse、reverseDecon、GeoMx background、profile构建与SpatialExperiment输出 |
@@ -3544,6 +3550,14 @@ alignment body通过coordinate row的冒号位置确定固定列宽，支持跨p
 
 parser严格检查metadata顺序、固定列行宽、坐标方向与终点、模型维度、splice/NER长度、split codon配对和frameshift归属；公开层次查询与数组结果执行深层防御复制。42项黑盒测试覆盖wrapped blocks、正反链intron、joint intron、NER、protein/DNA翻译、5行coding模型、partial phase、特殊氨基酸、聚合及畸形输入；示例完全离线，不调用外部`exonerate`程序。
 
+### 292. 空间自相关统计与变差函数建模 (Bioconductor Voyager)
+
+实现 Bioconductor `Voyager` 的单变量、双变量与多变量空间自相关核心，矩阵统一采用 spot × feature 之外的独立向量视图。空间权重由 `voyager_weights_knn`（kNN，`k` 超过 `n-1` 时截断，距离 ties 按邻居索引稳定排序）、`voyager_weights_distance_band`（固定半径，含自身排除）或 `voyager_weights_inverse_distance`（`w_ij = 1/d^power`，可选带宽上限）从二维/三维坐标构建，并支持四种编码风格：`W` 行标准化、`B` 二值、`C` 全局标准化（总和为 1）和 `S` Caussinus–Mestre（`1/√(k_i·k_j)`）。权重矩阵以邻居索引数组的稀疏形式存储，S0/S1/S2 由 `voyager_weights_s0/s1/s2` 按定义确定性计算。
+
+全局统计提供 Moran's I 和 Geary's c，均采用 Cliff–Ord (1981) 随机化期望与方差（`b2 = n·m4/m2²`），并以 Abramowitz–Stegun 正态 CDF 计算双侧 p 值；方差非正时回退为 0。局部统计覆盖 Anselin (1995) 局部 Moran's I（LISA）及 HH/HL/LH/LL 象限分类、局部 Geary's c（similar/dissimilar 分类）、Getis–Ord Gi/Gi*（`star=true` 时含自身 `w_ii=1`）及精确 Ord–Getis 随机化 z 分数与 hotspot/coldspot 分类。双变量 Lee's L 同时返回全局 L 与逐点局部 L；`voyager_multivariate_local_geary` 对多特征矩阵按每特征独立置换并汇总逐点统计。置换推断使用固定 seed 的 splitmix64 PRNG 驱动 Fisher–Yates 洗牌，p 值采用 `(extreme+1)/(perm+1)` 校正，并通过 Benjamini–Hochberg 步降控制 FDR。
+
+经验变差函数将点对按等距 lag 分箱（默认上限为最大成对距离一半）并计算半方差 `γ = Σ(x_i-x_j)²/(2·n_pairs)`；`voyager_fit_variogram` 在有界 range 网格上搜索、对每个候选 range 用闭式线性最小二乘求解 (nugget, partial sill)，最小化残差平方和，支持 spherical/exponential/gaussian 三种模型，`voyager_variogram_predict` 据此预测任意距离的半方差。`voyager_correlogram` 按距离分箱逐 bin 构建行标准化权重并计算 Moran's I，自动跳过无观测对的 bin。`voyager_run_univariate_sfe` 从 `SpatialExperiment` 的 assay、`spatialCoords`、`rowData`/`colData` 提取输入，在深复制容器中把全局统计写入 `rowData`、局部统计（local estimate/FDR/quadrant）写入逐 spot `colData`，并在 metadata 记录方法与特征数，原对象保持不变；基因名按 `gene_name`→`gene_id`→`gene_N` 回退解析，三维坐标在 z 非恒定时自动启用。当前实现不依赖 R、spdep 或 sf，采用稠密成对距离与串行计算，不覆盖上游 `listw`/`nb` S4 对象、并行后端、协变量残差化与可视化层；58 项黑盒测试覆盖手算链状格点、置换确定性、FDR 单调性与 SpatialExperiment 不可变性。
+
 ## 性能优化
 
 ### 优化策略
@@ -3645,8 +3659,8 @@ parser严格检查metadata顺序、固定列行宽、坐标方向与终点、模
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 12093 |
-| 通过数 | 12093 |
+| 总测试数 | 12151 |
+| 通过数 | 12151 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -3996,6 +4010,7 @@ moon test --update
 | Bioconductor spicyR | `spicyr_test.mbt` | 39 |
 | Bioconductor lisaClust | `lisaclust_test.mbt` | 51 |
 | Bioconductor SpatialDecon | `spatialdecon_test.mbt` | 60 |
+| Bioconductor Voyager | `voyager_test.mbt` | 58 |
 | Bio.PopGen.GenePop | `gene_pop_test.mbt` | 34 |
 | Bioconductor stageR | `stage_r_test.mbt` | 25 |
 | Bioconductor EnrichedHeatmap | `enriched_heatmap_test.mbt` | 20 |
@@ -4091,7 +4106,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 400 个示例程序，展示各模块的典型用法：
+项目提供 406 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -4301,6 +4316,7 @@ moon run cmd/bench/main.mbt
 | dreamlet_demo | SingleCellExperiment pseudobulk、TMM/logCPM、Poisson/voom权重、donor随机截距和跨cell-type FDR | `moon run examples/dreamlet_demo` |
 | nnsvg_demo | nearest-neighbor GP空间变异基因检验、length scale、空间方差占比、基因过滤与SpatialExperiment接入 | `moon run examples/nnsvg_demo` |
 | banksy_demo | H0/H1空间邻域特征、cell-typing/domain lambda、PCA聚类、标签平滑、参数扫描与SpatialExperiment接入 | `moon run examples/banksy_demo` |
+| voyager_demo | kNN/distance-band/inverse-distance权重、全局Moran/Geary、局部Moran LISA、Getis-Ord Gi*、Lee's L、变差函数拟合、correlogram与SpatialExperiment接入 | `moon run examples/voyager_demo` |
 | spicyr_demo | 有序细胞类型对cross-L、矩形窗口边界校正、precision weights、重复受试者模型、条件对比与SpatialExperiment接入 | `moon run examples/spicyr_demo` |
 | lisaclust_demo | 每细胞local-K/L曲线、KDE与边界校正、确定性区域聚类、silhouette、observed/expected富集及SpatialExperiment写回 | `moon run examples/lisaclust_demo` |
 | spatialdecon_demo | 背景感知log-normal解卷积、丰度/比例/计数、cell-type collapse、reverse deconvolution、负探针背景、单细胞profile与SpatialExperiment写回 | `moon run examples/spatialdecon_demo` |

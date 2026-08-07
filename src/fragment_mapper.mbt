@@ -17,18 +17,41 @@ pub enum FragmentType {
   Turn
 } derive(Eq, Debug)
 
-///| Construct a Helix FragmentType.
-pub fn ft_helix() -> FragmentType { Helix }
-///| Construct a Sheet FragmentType.
-pub fn ft_sheet() -> FragmentType { Sheet }
-///| Construct a Loop FragmentType.
-pub fn ft_loop() -> FragmentType { Loop }
-///| Construct a Coil FragmentType.
-pub fn ft_coil() -> FragmentType { Coil }
-///| Construct a Bridge FragmentType.
-pub fn ft_bridge() -> FragmentType { Bridge }
-///| Construct a Turn FragmentType.
-pub fn ft_turn() -> FragmentType { Turn }
+///|
+/// Construct a Helix FragmentType.
+pub fn ft_helix() -> FragmentType {
+  Helix
+}
+
+///|
+/// Construct a Sheet FragmentType.
+pub fn ft_sheet() -> FragmentType {
+  Sheet
+}
+
+///|
+/// Construct a Loop FragmentType.
+pub fn ft_loop() -> FragmentType {
+  Loop
+}
+
+///|
+/// Construct a Coil FragmentType.
+pub fn ft_coil() -> FragmentType {
+  Coil
+}
+
+///|
+/// Construct a Bridge FragmentType.
+pub fn ft_bridge() -> FragmentType {
+  Bridge
+}
+
+///|
+/// Construct a Turn FragmentType.
+pub fn ft_turn() -> FragmentType {
+  Turn
+}
 
 ///|
 /// A single residue within a fragment.
@@ -273,11 +296,7 @@ pub fn fm_assign_fragments(
     let residues : Array[FragmentResidue] = Array::new()
     let mut j = start
     while j <= end {
-      let res_name = if j < seq_len {
-        char_at(sequence, j)
-      } else {
-        "X"
-      }
+      let res_name = if j < seq_len { char_at(sequence, j) } else { "X" }
       residues.push(FragmentResidue::{
         res_name,
         res_num: j + 1,
@@ -354,7 +373,7 @@ pub fn fm_parse_fragments(content : String) -> FragmentMapperResult {
             atom_count: prev.atom_count + 1,
             is_c_alpha: prev.is_c_alpha || atom_name == "CA",
             is_sidechain: prev.is_sidechain ||
-              !(atom_name == "N" || atom_name == "CA" || atom_name == "C"),
+            !(atom_name == "N" || atom_name == "CA" || atom_name == "C"),
           }
           residue_map[key] = updated
           let chain_res = chain_map.get(chain_id)
@@ -376,7 +395,9 @@ pub fn fm_parse_fragments(content : String) -> FragmentMapperResult {
         }
         None => {
           let is_ca = atom_name == "CA"
-          let is_sc = !(atom_name == "N" || atom_name == "CA" || atom_name == "C")
+          let is_sc = !(atom_name == "N" ||
+            atom_name == "CA" ||
+            atom_name == "C")
           let new_res = FragmentResidue::{
             res_name,
             res_num,
@@ -393,9 +414,7 @@ pub fn fm_parse_fragments(content : String) -> FragmentMapperResult {
               new_arr.push(new_res)
               chain_map[chain_id] = new_arr
             }
-            None => {
-              chain_map[chain_id] = [new_res]
-            }
+            None => chain_map[chain_id] = [new_res]
           }
 
           sequence = sequence + _three_to_one(res_name)
@@ -465,10 +484,7 @@ fn _sort_by_resnum(residues : Array[FragmentResidue]) -> Array[FragmentResidue] 
 
 ///|
 /// Get a fragment by its ID string. Returns None if not found.
-pub fn fm_get_fragment(
-  result : FragmentMapperResult,
-  id : String,
-) -> Fragment? {
+pub fn fm_get_fragment(result : FragmentMapperResult, id : String) -> Fragment? {
   for frag in result.fragments {
     if frag.id == id {
       return Some(frag)
@@ -556,10 +572,11 @@ fn _sort_fragments_by_position(fragments : Array[Fragment]) -> Array[Fragment] {
     let key = result[i]
     let mut j = i - 1
     while j >= 0 {
-      let should_swap =
-        result[j].start_residue > key.start_residue ||
-        (result[j].start_residue == key.start_residue &&
-          result[j].chain_id > key.chain_id)
+      let should_swap = result[j].start_residue > key.start_residue ||
+        (
+          result[j].start_residue == key.start_residue &&
+          result[j].chain_id > key.chain_id
+        )
       if should_swap {
         result[j + 1] = result[j]
         j = j - 1

@@ -716,10 +716,7 @@ pub fn aldex2_clr(
     config
   }
   let denominators = aldex2_denominators(
-    filtered_counts,
-    group_indices,
-    conditions,
-    denominator_config,
+    filtered_counts, group_indices, conditions, denominator_config,
   )
   let feature_count = filtered_counts.length()
   let dirichlet : Array[Array[Array[Double]]] = []

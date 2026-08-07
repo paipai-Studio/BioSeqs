@@ -51,7 +51,11 @@ pub struct GageGeneSet {
 
 ///|
 /// Create a GageGeneSet.
-pub fn GageGeneSet::new(id : String, name : String, gene_ids : Array[String]) -> GageGeneSet {
+pub fn GageGeneSet::new(
+  id : String,
+  name : String,
+  gene_ids : Array[String],
+) -> GageGeneSet {
   GageGeneSet::{ id, name, gene_ids }
 }
 
@@ -180,7 +184,13 @@ fn gage_pvalue_from_z(z : Double) -> Double {
   // p = 2 * (1 - Phi(|z|)) = erfc(|z| / sqrt(2))
   let x = abs_z / 1.4142135623730951
   let p = erfc_approx(x)
-  if p > 1.0 { 1.0 } else if p < 0.0 { 0.0 } else { p }
+  if p > 1.0 {
+    1.0
+  } else if p < 0.0 {
+    0.0
+  } else {
+    p
+  }
 }
 
 ///|
@@ -195,7 +205,12 @@ fn erfc_approx(x : Double) -> Double {
   let t3 = t2 * t
   let t4 = t3 * t
   let t5 = t4 * t
-  let poly = 1.0 + 0.254829592 * t + -0.284496736 * t2 + 1.421413741 * t3 + -1.453152027 * t4 + 1.061405429 * t5
+  let poly = 1.0 +
+    0.254829592 * t +
+    -0.284496736 * t2 +
+    1.421413741 * t3 +
+    -1.453152027 * t4 +
+    1.061405429 * t5
   @math.exp(-x * x) * poly
 }
 
@@ -297,7 +312,10 @@ pub fn GageResults::get_downregulated(self : GageResults) -> Array[GageResult] {
 
 ///|
 /// Get top N gene sets by adjusted p-value.
-pub fn GageResults::get_top_sets(self : GageResults, n : Int) -> Array[GageResult] {
+pub fn GageResults::get_top_sets(
+  self : GageResults,
+  n : Int,
+) -> Array[GageResult] {
   let sorted = self.results.copy()
   let len = sorted.length()
   let mut i = 0
@@ -328,7 +346,12 @@ pub fn GageResults::get_top_sets(self : GageResults, n : Int) -> Array[GageResul
 pub fn GageResults::summary(self : GageResults) -> String {
   let mut s = "=== GAGE Analysis Summary ===\n".to_string()
   s = s + "Gene sets tested: " + self.n_gene_sets.to_string() + "\n"
-  s = s + "Significant (FDR < " + self.fdr_threshold.to_string() + "): " + self.n_significant.to_string() + "\n"
+  s = s +
+    "Significant (FDR < " +
+    self.fdr_threshold.to_string() +
+    "): " +
+    self.n_significant.to_string() +
+    "\n"
   s = s + "Paired test: " + self.paired.to_string() + "\n"
   s
 }

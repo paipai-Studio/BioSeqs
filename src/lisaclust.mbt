@@ -376,28 +376,26 @@ pub fn LisaResult::top_enrichments(
       selected.push(entry)
     }
   }
-  selected.sort_by(
-    fn(
-      left : LisaRegionEnrichment,
-      right : LisaRegionEnrichment,
-    ) -> Int {
-      if left.relative_frequency > right.relative_frequency {
-        -1
-      } else if left.relative_frequency < right.relative_frequency {
-        1
-      } else if left.region < right.region {
-        -1
-      } else if left.region > right.region {
-        1
-      } else if left.cell_type < right.cell_type {
-        -1
-      } else if left.cell_type > right.cell_type {
-        1
-      } else {
-        0
-      }
-    },
-  )
+  selected.sort_by(fn(
+    left : LisaRegionEnrichment,
+    right : LisaRegionEnrichment,
+  ) -> Int {
+    if left.relative_frequency > right.relative_frequency {
+      -1
+    } else if left.relative_frequency < right.relative_frequency {
+      1
+    } else if left.region < right.region {
+      -1
+    } else if left.region > right.region {
+      1
+    } else if left.cell_type < right.cell_type {
+      -1
+    } else if left.cell_type > right.cell_type {
+      1
+    } else {
+      0
+    }
+  })
   let output : Array[LisaRegionEnrichment] = []
   for index in 0..<limit.min(selected.length()) {
     output.push(selected[index])
@@ -493,21 +491,19 @@ fn lisa_convex_hull(
   points : Array[(Double, Double)],
 ) -> Array[(Double, Double)] {
   let sorted = points.copy()
-  sorted.sort_by(
-    fn(left : (Double, Double), right : (Double, Double)) -> Int {
-      if left.0 < right.0 {
-        -1
-      } else if left.0 > right.0 {
-        1
-      } else if left.1 < right.1 {
-        -1
-      } else if left.1 > right.1 {
-        1
-      } else {
-        0
-      }
-    },
-  )
+  sorted.sort_by(fn(left : (Double, Double), right : (Double, Double)) -> Int {
+    if left.0 < right.0 {
+      -1
+    } else if left.0 > right.0 {
+      1
+    } else if left.1 < right.1 {
+      -1
+    } else if left.1 > right.1 {
+      1
+    } else {
+      0
+    }
+  })
   let unique : Array[(Double, Double)] = []
   for point in sorted {
     if unique.length() == 0 || unique[unique.length() - 1] != point {
@@ -520,11 +516,12 @@ fn lisa_convex_hull(
   let lower : Array[(Double, Double)] = []
   for point in unique {
     while lower.length() >= 2 &&
-      lisa_cross(
-        lower[lower.length() - 2],
-        lower[lower.length() - 1],
-        point,
-      ) <= 0.0 {
+          lisa_cross(
+            lower[lower.length() - 2],
+            lower[lower.length() - 1],
+            point,
+          ) <=
+          0.0 {
       ignore(lower.pop())
     }
     lower.push(point)
@@ -534,11 +531,12 @@ fn lisa_convex_hull(
   while index >= 0 {
     let point = unique[index]
     while upper.length() >= 2 &&
-      lisa_cross(
-        upper[upper.length() - 2],
-        upper[upper.length() - 1],
-        point,
-      ) <= 0.0 {
+          lisa_cross(
+            upper[upper.length() - 2],
+            upper[upper.length() - 1],
+            point,
+          ) <=
+          0.0 {
       ignore(upper.pop())
     }
     upper.push(point)
@@ -621,15 +619,18 @@ fn lisa_image_window(
   let width = max_x - min_x
   let height = max_y - min_y
   if width <= 1.0e-14 || height <= 1.0e-14 {
-    raise LisaError("lisaClust image windows must have positive width and height")
+    raise LisaError(
+      "lisaClust image windows must have positive width and height",
+    )
   }
   let vertices = match config.window_kind {
-    LisaRectangle => [
-      (min_x - config.window_padding, min_y - config.window_padding),
-      (max_x + config.window_padding, min_y - config.window_padding),
-      (max_x + config.window_padding, max_y + config.window_padding),
-      (min_x - config.window_padding, max_y + config.window_padding),
-    ]
+    LisaRectangle =>
+      [
+        (min_x - config.window_padding, min_y - config.window_padding),
+        (max_x + config.window_padding, min_y - config.window_padding),
+        (max_x + config.window_padding, max_y + config.window_padding),
+        (min_x - config.window_padding, max_y + config.window_padding),
+      ]
     LisaConvexHull => {
       let hull = lisa_convex_hull(points)
       if hull.length() < 3 {
@@ -652,9 +653,9 @@ fn lisa_image_window(
     vertex_min_y = vertex_min_y.min(vertex.1)
     vertex_max_y = vertex_max_y.max(vertex.1)
   }
-  let max_radius = ((vertex_max_x - vertex_min_x).min(
-    vertex_max_y - vertex_min_y,
-  )) /
+  let max_radius = (vertex_max_x - vertex_min_x).min(
+      vertex_max_y - vertex_min_y,
+    ) /
     2.01
   LisaImageWindow::{ image_id, vertices, area, max_radius }
 }
@@ -682,9 +683,7 @@ fn lisa_ray_boundary_distance(
     let qy = ay - y
     let distance = (qx * ey - qy * ex) / denominator
     let segment = (qx * dy - qy * dx) / denominator
-    if distance >= 0.0 &&
-      segment >= -1.0e-10 &&
-      segment <= 1.0 + 1.0e-10 {
+    if distance >= 0.0 && segment >= -1.0e-10 && segment <= 1.0 + 1.0e-10 {
       closest = closest.min(distance)
     }
   }
@@ -797,9 +796,7 @@ pub fn lisa_curves(
     for radius in config.radii {
       image_radii.push(radius.min(window.max_radius))
     }
-    effective_radii.push(
-      LisaImageRadii::{ image_id, radii: image_radii.copy() },
-    )
+    effective_radii.push(LisaImageRadii::{ image_id, radii: image_radii.copy() })
     let density_weights = lisa_density_weights(
       cells,
       indices,
@@ -846,11 +843,7 @@ pub fn lisa_curves(
           } else {
             1.0
           }
-          let expected = @math.PI *
-            radius *
-            radius *
-            edge_fraction *
-            intensity
+          let expected = @math.PI * radius * radius * edge_fraction * intensity
           let feature = type_index * config.radii.length() + radius_index
           values[source_global][feature] = if expected <= 1.0e-14 {
             0.0
@@ -887,10 +880,7 @@ pub fn lisa_curves(
 }
 
 ///|
-fn lisa_squared_distance(
-  left : Array[Double],
-  right : Array[Double],
-) -> Double {
+fn lisa_squared_distance(left : Array[Double], right : Array[Double]) -> Double {
   let mut output = 0.0
   for index in 0..<left.length() {
     let difference = left[index] - right[index]
@@ -1020,11 +1010,7 @@ fn lisa_kmeans_once(
   start : Int,
 ) -> LisaKmeansFit {
   let first = (config.seed + start * 9973) % data.length()
-  let mut centroids = lisa_initialize_centroids(
-    data,
-    config.n_clusters,
-    first,
-  )
+  let mut centroids = lisa_initialize_centroids(data, config.n_clusters, first)
   let mut labels = Array::make(data.length(), -1)
   let mut iterations = 0
   let mut converged = false
@@ -1034,10 +1020,7 @@ fn lisa_kmeans_once(
     let mut maximum_shift = 0.0
     for cluster in 0..<centroids.length() {
       maximum_shift = maximum_shift.max(
-        lisa_squared_distance(
-          centroids[cluster],
-          next_centroids[cluster],
-        ).sqrt(),
+        lisa_squared_distance(centroids[cluster], next_centroids[cluster]).sqrt(),
       )
     }
     let mut changed = false
@@ -1171,15 +1154,13 @@ fn lisa_enrichment(
       } else {
         0.0
       }
-      enrichment.push(
-        LisaRegionEnrichment::{
-          cell_type: cell_types[type_index],
-          region: config.region_prefix + "_" + (region + 1).to_string(),
-          observed: counts[type_index][region],
-          expected,
-          relative_frequency,
-        },
-      )
+      enrichment.push(LisaRegionEnrichment::{
+        cell_type: cell_types[type_index],
+        region: config.region_prefix + "_" + (region + 1).to_string(),
+        observed: counts[type_index][region],
+        expected,
+        relative_frequency,
+      })
     }
   }
   let summaries : Array[LisaRegionSummary] = []
@@ -1187,21 +1168,18 @@ fn lisa_enrichment(
     let mut dominant = ""
     let mut maximum = -1.0
     for entry in enrichment {
-      if entry.region ==
-        config.region_prefix + "_" + (region + 1).to_string() &&
+      if entry.region == config.region_prefix + "_" + (region + 1).to_string() &&
         entry.relative_frequency > maximum {
         dominant = entry.cell_type
         maximum = entry.relative_frequency
       }
     }
-    summaries.push(
-      LisaRegionSummary::{
-        region: config.region_prefix + "_" + (region + 1).to_string(),
-        size: region_totals[region],
-        dominant_cell_type: dominant,
-        maximum_enrichment: maximum.max(0.0),
-      },
-    )
+    summaries.push(LisaRegionSummary::{
+      region: config.region_prefix + "_" + (region + 1).to_string(),
+      size: region_totals[region],
+      dominant_cell_type: dominant,
+      maximum_enrichment: maximum.max(0.0),
+    })
   }
   (enrichment, summaries)
 }
@@ -1255,11 +1233,7 @@ pub fn lisaclust_from_curves(
     cluster_sizes[label] = cluster_sizes[label] + 1
     regions.push(config.region_prefix + "_" + (label + 1).to_string())
   }
-  let silhouette = lisa_silhouette(
-    curves.values,
-    fit.labels,
-    config.n_clusters,
-  )
+  let silhouette = lisa_silhouette(curves.values, fit.labels, config.n_clusters)
   let (enrichment, region_summaries) = lisa_enrichment(
     curves,
     fit.labels,
@@ -1400,7 +1374,9 @@ pub fn lisaclust_spatial_experiment(
     enriched.col_data[row][region_key] = result.regions[row]
   }
   enriched.metadata["lisaclust_cells"] = result.n_cells().to_string()
-  enriched.metadata["lisaclust_features"] = result.curves.n_features().to_string()
+  enriched.metadata["lisaclust_features"] = result.curves
+    .n_features()
+    .to_string()
   enriched.metadata["lisaclust_regions"] = result.n_regions().to_string()
   enriched.metadata["lisaclust_silhouette"] = result.silhouette.to_string()
   LisaSpatialExperimentOutput::{ experiment: enriched, result }
@@ -1414,7 +1390,11 @@ pub fn lisaclust_example_data() -> Array[LisaCell] {
       for row in 0..<4 {
         let left = column < 4
         let cell_type = if left {
-          if (column + row + image) % 3 == 0 { "B_cell" } else { "T_cell" }
+          if (column + row + image) % 3 == 0 {
+            "B_cell"
+          } else {
+            "T_cell"
+          }
         } else if (column + row + image) % 3 == 0 {
           "Stroma"
         } else {

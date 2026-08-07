@@ -1,52 +1,45 @@
 ///|
 fn rse_test_object() -> @src.RangedSummarizedExperiment {
-  try {
-    @src.RangedSummarizedExperiment::new(
-      assays=Map([
-        (
-          "counts",
-          [
-            [30.0, 31.0, 32.0],
-            [10.0, 11.0, 12.0],
-            [20.0, 21.0, 22.0],
-            [40.0, 41.0, 42.0],
-          ],
-        ),
-        (
-          "normalized",
-          [
-            [3.0, 3.1, 3.2],
-            [1.0, 1.1, 1.2],
-            [2.0, 2.1, 2.2],
-            [4.0, 4.1, 4.2],
-          ],
-        ),
-      ]),
-      row_ranges=@src.granges(
-        ["chr2", "chr1", "chr1", "chr3"],
-        [(300, 349), (100, 149), (200, 249), (50, 99)],
+  @src.RangedSummarizedExperiment::new(
+    assays=Map([
+      (
+        "counts",
         [
-          @src.strand_plus(),
-          @src.strand_plus(),
-          @src.strand_minus(),
-          @src.strand_star(),
+          [30.0, 31.0, 32.0],
+          [10.0, 11.0, 12.0],
+          [20.0, 21.0, 22.0],
+          [40.0, 41.0, 42.0],
         ],
       ),
-      col_data=[
-        Map([("sample", "S1")]),
-        Map([("sample", "S2")]),
-        Map([("sample", "S3")]),
+      (
+        "normalized",
+        [[3.0, 3.1, 3.2], [1.0, 1.1, 1.2], [2.0, 2.1, 2.2], [4.0, 4.1, 4.2]],
+      ),
+    ]),
+    row_ranges=@src.granges(
+      ["chr2", "chr1", "chr1", "chr3"],
+      [(300, 349), (100, 149), (200, 249), (50, 99)],
+      [
+        @src.strand_plus(),
+        @src.strand_plus(),
+        @src.strand_minus(),
+        @src.strand_star(),
       ],
-      row_data=[
-        Map([("type", "geneC")]),
-        Map([("type", "geneA")]),
-        Map([("type", "geneB")]),
-        Map([("type", "geneD")]),
-      ],
-      row_names=["geneC", "geneA", "geneB", "geneD"],
-      metadata=Map([("study", "airway-like")]),
-    )
-  } catch {
+    ),
+    col_data=[
+      Map([("sample", "S1")]),
+      Map([("sample", "S2")]),
+      Map([("sample", "S3")]),
+    ],
+    row_data=[
+      Map([("type", "geneC")]),
+      Map([("type", "geneA")]),
+      Map([("type", "geneB")]),
+      Map([("type", "geneD")]),
+    ],
+    row_names=["geneC", "geneA", "geneB", "geneD"],
+    metadata=Map([("study", "airway-like")]),
+  ) catch {
     _ => abort("failed to construct RangedSummarizedExperiment fixture")
   }
 }
@@ -75,12 +68,7 @@ test "ranged_summarized_experiment: rejects assay row mismatch" {
     ignore(
       @src.RangedSummarizedExperiment::new(
         assays=Map([("counts", [[1.0, 2.0], [3.0, 4.0]])]),
-        row_ranges=@src.granges_single(
-          "chr1",
-          1,
-          10,
-          @src.strand_plus(),
-        ),
+        row_ranges=@src.granges_single("chr1", 1, 10, @src.strand_plus()),
         col_data=[Map([]), Map([])],
       ),
     )
@@ -97,11 +85,10 @@ test "ranged_summarized_experiment: rejects parallel annotation mismatch" {
     ignore(
       @src.RangedSummarizedExperiment::new(
         assays=Map([("counts", [[1.0], [2.0]])]),
-        row_ranges=@src.granges(
-          ["chr1", "chr1"],
-          [(1, 10), (20, 30)],
-          [@src.strand_plus(), @src.strand_plus()],
-        ),
+        row_ranges=@src.granges(["chr1", "chr1"], [(1, 10), (20, 30)], [
+          @src.strand_plus(),
+          @src.strand_plus(),
+        ]),
         col_data=[Map([])],
         row_data=[Map([("id", "only-one")])],
       ),
@@ -121,17 +108,14 @@ test "ranged_summarized_experiment: attach ranges to existing experiment" {
     [Map([("sample", "A")]), Map([("sample", "B")])],
     Map([("source", "existing")]),
   )
-  let rse = try {
-    @src.RangedSummarizedExperiment::from_experiment(
-      experiment~,
-      row_ranges=@src.granges(
-        ["chr1", "chr2"],
-        [(10, 20), (30, 40)],
-        [@src.strand_plus(), @src.strand_minus()],
-      ),
-      row_names=["a", "b"],
-    )
-  } catch {
+  let rse = @src.RangedSummarizedExperiment::from_experiment(
+    experiment~,
+    row_ranges=@src.granges(["chr1", "chr2"], [(10, 20), (30, 40)], [
+      @src.strand_plus(),
+      @src.strand_minus(),
+    ]),
+    row_names=["a", "b"],
+  ) catch {
     _ => abort("failed to attach ranges")
   }
   assert_true(rse.is_valid())
@@ -201,10 +185,12 @@ test "ranged_summarized_experiment: strand-aware overlaps" {
   assert_eq(rse.find_overlaps(subject), [(0, 3), (1, 0), (3, 2)])
   assert_eq(rse.count_overlaps(subject), [1, 1, 0, 1])
   assert_eq(rse.overlaps_any(subject), [true, true, false, true])
-  assert_eq(
-    rse.find_overlaps(subject, ignore_strand=true),
-    [(0, 3), (1, 0), (2, 1), (3, 2)],
-  )
+  assert_eq(rse.find_overlaps(subject, ignore_strand=true), [
+    (0, 3),
+    (1, 0),
+    (2, 1),
+    (3, 2),
+  ])
 }
 
 ///|
@@ -218,8 +204,7 @@ test "ranged_summarized_experiment: subset by overlaps keeps each row once" {
   assert_eq(subset.nrow(), 2)
   assert_eq(subset.row_names(), ["geneA", "geneB"])
   match subset.assay("counts") {
-    Some(assay) =>
-      assert_eq(assay, [[10.0, 11.0, 12.0], [20.0, 21.0, 22.0]])
+    Some(assay) => assert_eq(assay, [[10.0, 11.0, 12.0], [20.0, 21.0, 22.0]])
     None => assert_true(false)
   }
 }
@@ -238,11 +223,7 @@ test "ranged_summarized_experiment: nearest and distance" {
 
 ///|
 test "ranged_summarized_experiment: coverage delegates to row ranges" {
-  let sequence_lengths = Map([
-    ("chr1", 260),
-    ("chr2", 350),
-    ("chr3", 100),
-  ])
+  let sequence_lengths = Map([("chr1", 260), ("chr2", 350), ("chr3", 100)])
   let coverage = rse_test_object().coverage(sequence_lengths)
   assert_eq(coverage["chr1"][99], 1)
   assert_eq(coverage["chr1"][149], 0)
@@ -318,13 +299,11 @@ test "ranged_summarized_experiment: replacing ranges validates length" {
 
 ///|
 test "ranged_summarized_experiment: empty container" {
-  let rse = try {
-    @src.RangedSummarizedExperiment::new(
-      assays=Map([]),
-      row_ranges=@src.granges([], [], []),
-      col_data=[],
-    )
-  } catch {
+  let rse = @src.RangedSummarizedExperiment::new(
+    assays=Map([]),
+    row_ranges=@src.granges([], [], []),
+    col_data=[],
+  ) catch {
     _ => abort("failed to construct empty RangedSummarizedExperiment")
   }
   assert_true(rse.is_valid())

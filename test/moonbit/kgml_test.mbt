@@ -19,6 +19,7 @@ test "kgml_graphics_creation" {
   assert_eq(g.bgcolor(), "#BFFFBF")
 }
 
+///|
 test "kgml_entry_creation" {
   let e = @src.KgmlEntry::new(1, "ko:K00844", "gene")
   assert_eq(e.id(), 1)
@@ -30,12 +31,14 @@ test "kgml_entry_creation" {
   assert_eq(e.components().length(), 0)
 }
 
+///|
 test "kgml_subtype_creation" {
   let st = @src.KgmlSubType::new("compound", "C00118")
   assert_eq(st.name(), "compound")
   assert_eq(st.value(), "C00118")
 }
 
+///|
 test "kgml_relation_creation" {
   let r = @src.KgmlRelation::new(1, 2, "ECrel")
   assert_eq(r.entry1(), 1)
@@ -44,6 +47,7 @@ test "kgml_relation_creation" {
   assert_eq(r.subtypes().length(), 0)
 }
 
+///|
 test "kgml_reaction_creation" {
   let rxn = @src.KgmlReaction::new("rn:R01786", "irreversible")
   assert_eq(rxn.name(), "rn:R01786")
@@ -52,6 +56,7 @@ test "kgml_reaction_creation" {
   assert_eq(rxn.products().length(), 0)
 }
 
+///|
 test "kgml_pathway_creation" {
   let p = @src.KgmlPathway::new("path:ko00010", "ko", "00010", "Glycolysis")
   assert_eq(p.name(), "path:ko00010")
@@ -69,6 +74,7 @@ test "kgml_pathway_creation" {
 // XML parsing
 // ---------------------------------------------------------------------------
 
+///|
 test "kgml_parse_basic_pathway" {
   let xml = @src.kgml_sample_pathway()
   let pw = @src.parse_kgml(xml)
@@ -82,6 +88,7 @@ test "kgml_parse_basic_pathway" {
   assert_true(p.link().length() > 0)
 }
 
+///|
 test "kgml_parse_entries" {
   let xml = @src.kgml_sample_pathway()
   let p = @src.parse_kgml(xml).unwrap()
@@ -103,6 +110,7 @@ test "kgml_parse_entries" {
   assert_eq(e5.etype(), "map")
 }
 
+///|
 test "kgml_parse_entry_graphics" {
   let xml = @src.kgml_sample_pathway()
   let p = @src.parse_kgml(xml).unwrap()
@@ -120,6 +128,7 @@ test "kgml_parse_entry_graphics" {
   assert_eq(gfx.bgcolor(), "#BFFFBF")
 }
 
+///|
 test "kgml_parse_relations" {
   let xml = @src.kgml_sample_pathway()
   let p = @src.parse_kgml(xml).unwrap()
@@ -133,6 +142,7 @@ test "kgml_parse_relations" {
   assert_eq(r1.subtypes()[0].value(), "C00118")
 }
 
+///|
 test "kgml_parse_reactions" {
   let xml = @src.kgml_sample_pathway()
   let p = @src.parse_kgml(xml).unwrap()
@@ -152,11 +162,13 @@ test "kgml_parse_reactions" {
   assert_eq(r2.products().length(), 2)
 }
 
+///|
 test "kgml_parse_invalid_returns_none" {
   let result = @src.parse_kgml("not a kgml file")
   assert_true(result.is_none())
 }
 
+///|
 test "kgml_parse_empty_returns_none" {
   let result = @src.parse_kgml("")
   assert_true(result.is_none())
@@ -166,6 +178,7 @@ test "kgml_parse_empty_returns_none" {
 // Query methods
 // ---------------------------------------------------------------------------
 
+///|
 test "kgml_get_entry_by_id" {
   let xml = @src.kgml_sample_pathway()
   let p = @src.parse_kgml(xml).unwrap()
@@ -176,6 +189,7 @@ test "kgml_get_entry_by_id" {
   assert_true(none.is_none())
 }
 
+///|
 test "kgml_get_entries_by_type" {
   let xml = @src.kgml_sample_pathway()
   let p = @src.parse_kgml(xml).unwrap()
@@ -187,6 +201,7 @@ test "kgml_get_entries_by_type" {
   assert_eq(maps.length(), 1)
 }
 
+///|
 test "kgml_get_relations_for_entry" {
   let xml = @src.kgml_sample_pathway()
   let p = @src.parse_kgml(xml).unwrap()
@@ -205,6 +220,7 @@ test "kgml_get_relations_for_entry" {
 // Serialization
 // ---------------------------------------------------------------------------
 
+///|
 test "kgml_to_string_roundtrip" {
   let xml = @src.kgml_sample_pathway()
   let p = @src.parse_kgml(xml).unwrap()
@@ -222,6 +238,7 @@ test "kgml_to_string_roundtrip" {
   assert_eq(p2u.reactions().length(), p.reactions().length())
 }
 
+///|
 test "kgml_to_string_contains_pathway_tag" {
   let xml = @src.kgml_sample_pathway()
   let p = @src.parse_kgml(xml).unwrap()
@@ -231,6 +248,7 @@ test "kgml_to_string_contains_pathway_tag" {
   assert_true(s.contains("</pathway>"))
 }
 
+///|
 test "kgml_to_string_contains_entries" {
   let xml = @src.kgml_sample_pathway()
   let p = @src.parse_kgml(xml).unwrap()
@@ -240,6 +258,7 @@ test "kgml_to_string_contains_entries" {
   assert_true(s.contains("cpd:C00118"))
 }
 
+///|
 test "kgml_to_string_contains_relations" {
   let xml = @src.kgml_sample_pathway()
   let p = @src.parse_kgml(xml).unwrap()
@@ -249,6 +268,7 @@ test "kgml_to_string_contains_relations" {
   assert_true(s.contains("<subtype"))
 }
 
+///|
 test "kgml_to_string_contains_reactions" {
   let xml = @src.kgml_sample_pathway()
   let p = @src.parse_kgml(xml).unwrap()

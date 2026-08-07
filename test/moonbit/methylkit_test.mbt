@@ -22,7 +22,9 @@ test "methylkit_cytosine_coverage_pct" {
   // 50% methylation
   let mc_half = @src.MethylCytosine::new("chr1", 200, "-", "CG", 5, 5)
   assert_eq(@src.MethylCytosine::coverage(mc_half), 10)
-  assert_true((@src.MethylCytosine::methylation_pct(mc_half) - 50.0).abs() < 0.001)
+  assert_true(
+    (@src.MethylCytosine::methylation_pct(mc_half) - 50.0).abs() < 0.001,
+  )
   // Zero coverage -> coverage 0 and pct 0.0
   let mc0 = @src.MethylCytosine::new("chr1", 300, "+", "CG", 0, 0)
   assert_eq(@src.MethylCytosine::coverage(mc0), 0)
@@ -151,7 +153,9 @@ test "methylkit_config_defaults" {
   assert_eq(@src.MethylKitConfig::min_coverage(config), 10)
   assert_eq(@src.MethylKitConfig::max_coverage(config), 999)
   assert_eq(@src.MethylKitConfig::context_filter(config), "CG")
-  assert_true((@src.MethylKitConfig::min_perc_samples(config) - 0.6).abs() < 0.001)
+  assert_true(
+    (@src.MethylKitConfig::min_perc_samples(config) - 0.6).abs() < 0.001,
+  )
   assert_true((@src.MethylKitConfig::min_diff(config) - 25.0).abs() < 0.001)
   assert_true((@src.MethylKitConfig::q_threshold(config) - 0.05).abs() < 0.001)
 }
@@ -162,7 +166,9 @@ test "methylkit_config_with_params" {
   assert_eq(@src.MethylKitConfig::min_coverage(config), 5)
   assert_eq(@src.MethylKitConfig::max_coverage(config), 500)
   assert_eq(@src.MethylKitConfig::context_filter(config), "CHG")
-  assert_true((@src.MethylKitConfig::min_perc_samples(config) - 0.8).abs() < 0.001)
+  assert_true(
+    (@src.MethylKitConfig::min_perc_samples(config) - 0.8).abs() < 0.001,
+  )
   assert_true((@src.MethylKitConfig::min_diff(config) - 30.0).abs() < 0.001)
   assert_true((@src.MethylKitConfig::q_threshold(config) - 0.01).abs() < 0.001)
 }
@@ -466,9 +472,13 @@ test "methylkit_sample_data" {
   assert_eq(@src.MethylSample::n_cpgs(control), 20)
   assert_eq(@src.MethylSample::n_cpgs(treatment), 20)
   // Control: every CpG at 50% methylation.
-  assert_true((@src.MethylSample::mean_methylation(control) - 50.0).abs() < 0.001)
+  assert_true(
+    (@src.MethylSample::mean_methylation(control) - 50.0).abs() < 0.001,
+  )
   // Treatment: 5 hyper (90%) + 5 hypo (10%) + 10 same (50%) -> mean 50%.
-  assert_true((@src.MethylSample::mean_methylation(treatment) - 50.0).abs() < 0.001)
+  assert_true(
+    (@src.MethylSample::mean_methylation(treatment) - 50.0).abs() < 0.001,
+  )
   // Treatment CpG 0: hyper-methylated (18, 2).
   let t0 = @src.MethylSample::coverage(treatment)[0]
   assert_eq(@src.MethylCytosine::methylated(t0), 18)
