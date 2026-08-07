@@ -481,6 +481,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Wise2 DNA-蛋白比对** | Biopython `Bio.Wise` | GeneWise输出解析、外显子/内含子/比对列、剪接位点相位、比特分数、参数提取、蛋白质/DNA序列、基因预测结果 | ✅ |
 | **stageR 两阶段检验** | Bioconductor stageR | 两阶段假设检验(筛选+确认)、Simes聚合、BH-FDR校正、Holm步降程序、OFDR控制、Dte/Dtu方法、确认p值重缩放 | ✅ |
 | **EnrichedHeatmap 富集热图** | Bioconductor EnrichedHeatmap | 基因组信号归一化、目标区域窗口化、四种均值模式(absolute/weighted/w0/coverage)、行平滑、百分位裁剪、链方向处理 | ✅ |
+| **高级密码子比对与选择压力检验** | Biopython `Bio.codonalign` | Z-test选择检验(Nei-Gojobori近似方差)、Fisher精确检验中性度、密码子比对构建器、滑窗dN/dS、BH-FDR多重校正、成对Ka/Ks表 | ✅ |
 
 项目致力于打造一个完整、高效的生物信息学工具库，覆盖从基础序列处理到高级序列组装的全流程。
 
@@ -630,6 +631,7 @@ IvanAXu/BioSeqs/
 │   ├── ballgown.mbt            # ballgown 转录组水平差异表达分析 (FPKM计算、t检验、基因/转录本结构)
 │   ├── align_info.mbt          # AlignInfo 比对统计 (一致性序列、保守位点、Shannon熵、成对序列同一性)
 │   ├── codon_align.mbt         # CodonAlign 密码子比对 (密码子替换分类、dN/dS选择压力分析、密码子使用偏好)
+│   ├── codon_align_advanced.mbt # CodonAlign 高级密码子比对 (Z-test选择检验、Fisher精确检验、密码子比对构建器、滑窗dN/dS、BH-FDR、成对Ka/Ks表)
 │   ├── entrez.mbt              # Entrez NCBI数据库访问 (ESearch、EFetch、PubMed/Gene/Taxonomy解析)
 │   ├── genome_info_db.mbt      # GenomeInfoDb 基因组信息管理 (染色体信息、着丝粒位置、基因组构建、染色体臂)
 │   ├── interaction_set.mbt     # InteractionSet 染色质交互数据 (Hi-C交互、锚点对、交互矩阵、距离分布)
@@ -929,6 +931,7 @@ IvanAXu/BioSeqs/
 │   ├── consensus_cluster_plus_demo/ # ConsensusClusterPlus 共识聚类示例
 │   ├── cyclone_demo/            # Cyclone 细胞周期评分示例 (基因对比较、G1/S/G2/M期相预测)
 │   ├── codon_align_demo/       # CodonAlign 密码子比对示例 (密码子替换分类、dN/dS选择压力分析、密码子使用偏好)
+│   ├── codon_align_advanced_demo/ # CodonAlign 高级密码子比对示例 (Z-test选择检验、Fisher精确检验、密码子比对构建器、滑窗dN/dS、成对Ka/Ks表)
 │   ├── codon_usage_demo/       # CodonUsage 密码子使用分析示例 (CAI、ENC、RSCU、GC3、CBI、Fop、最优密码子检测)
 │   ├── cram_demo/              # CRAM 格式解析示例 (压缩二进制序列比对格式、CRAM转BAM、参考序列管理)
 │   ├── de_bruijn_demo/         # De Bruijn Graph 序列组装示例
@@ -1545,6 +1548,7 @@ IvanAXu/BioSeqs/
 │   │   ├── stockholm_test.mbt
 │   │   ├── popgen_advanced_test.mbt
 │   │   ├── codon_advanced_test.mbt
+│   │   ├── codon_align_advanced_test.mbt
 │   │   ├── pdb_packing_test.mbt
 │   │   ├── qvalue_test.mbt
 │   │   ├── ihw_test.mbt
@@ -1695,7 +1699,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12151 个测试全部通过
+moon test                                               # ✅ 12183 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1740,6 +1744,7 @@ moon test                                               # ✅ 12151 个测试全
 | `align_info.mbt` | BioPython `Bio.Align.AlignInfo` | 比对统计与一致性序列 |
 | `align_abstract.mbt` | BioPython `Bio.Align.AlignAbstract` | 抽象比对类型、Shannon熵、同一性矩阵、简约信息位点 |
 | `codon_align.mbt` | BioPython `Bio.codonalign` | 密码子比对与 dN/dS 分析 |
+| `codon_align_advanced.mbt` | BioPython `Bio.codonalign` | 高级密码子比对 (Z-test选择检验、Fisher精确检验、密码子比对构建器、滑窗dN/dS、BH-FDR、成对Ka/Ks表) |
 | `searchio.mbt` | BioPython `Bio.SearchIO` | 统一搜索结果模型、BLAST/HMMER解析、E-value过滤 |
 | `blast_xml_advanced.mbt` | BioPython `Bio.Blast` | XML1/XML2类型化文档、严格parser/writer、多query/report、parameters/statistics、description/taxonomy及链向/translated HSP坐标 |
 | `exonerate_text.mbt` | BioPython `Bio.SearchIO.ExonerateIO.exonerate_text` | C4文本Document/Query/Hit/HSP/Fragment层次、3/4/5行模型、剪接/NER/frameshift和链感知坐标 |
@@ -3558,6 +3563,12 @@ parser严格检查metadata顺序、固定列行宽、坐标方向与终点、模
 
 经验变差函数将点对按等距 lag 分箱（默认上限为最大成对距离一半）并计算半方差 `γ = Σ(x_i-x_j)²/(2·n_pairs)`；`voyager_fit_variogram` 在有界 range 网格上搜索、对每个候选 range 用闭式线性最小二乘求解 (nugget, partial sill)，最小化残差平方和，支持 spherical/exponential/gaussian 三种模型，`voyager_variogram_predict` 据此预测任意距离的半方差。`voyager_correlogram` 按距离分箱逐 bin 构建行标准化权重并计算 Moran's I，自动跳过无观测对的 bin。`voyager_run_univariate_sfe` 从 `SpatialExperiment` 的 assay、`spatialCoords`、`rowData`/`colData` 提取输入，在深复制容器中把全局统计写入 `rowData`、局部统计（local estimate/FDR/quadrant）写入逐 spot `colData`，并在 metadata 记录方法与特征数，原对象保持不变；基因名按 `gene_name`→`gene_id`→`gene_N` 回退解析，三维坐标在 z 非恒定时自动启用。当前实现不依赖 R、spdep 或 sf，采用稠密成对距离与串行计算，不覆盖上游 `listw`/`nb` S4 对象、并行后端、协变量残差化与可视化层；58 项黑盒测试覆盖手算链状格点、置换确定性、FDR 单调性与 SpatialExperiment 不可变性。
 
+### 293. 高级密码子比对与选择压力检验 (Bio.codonalign advanced)
+
+实现 Biopython `Bio.codonalign` 模块中的高级选择压力分析功能，基于 Nei–Gojobori (1986) 框架。`codon_test_selection` 执行 Z-test 选择检验，使用 NG86 大样本近似方差（`V(dN) = pN(1−pN) / [Nn·(1−4pN/3)²]`，`V(dS)` 同理，协方差忽略），Z = (dN−dS)/√V(dN−dS)，支持三种备择假设：正选择（H₁: dN > dS，单尾 p = 1−Φ(Z)）、净化选择（H₁: dN < dS，单尾 p = Φ(Z)）、中性（H₁: dN ≠ dS，双尾 p = 2(1−Φ(|Z|))），在 α=0.05 水平给出结论。`codon_test_neutrality` 执行 Fisher 精确检验，构建 2×2 列联表（行：非同义/同义；列：差异/相同），支持 two-sided/greater/less 三种检验方向，返回 p 值与优势比。
+
+`build_codon_alignment` 从蛋白质比对和未比对的编码序列构建密码子比对：逐位扫描蛋白质比对，遇 gap (`-`/`.`) 插入 `---`，否则消费编码序列的下一个密码子并验证翻译与蛋白质残基一致。`sliding_window_dnds` 以可配置窗口大小和步长沿密码子比对滑窗，逐窗计算 NG86 dN/dS 以检测选择热点，自动跳过不足 3 个有效密码子对的窗口。`codon_align_advanced_bh_fdr` 实现 Benjamini–Hochberg FDR 校正（步降法，`q_i = min(q_{i+1}, p_i·m/rank)`）。`pairwise_kaks_table` 对多条序列执行成对 Z-test 正选择检验，对所有 p 值统一 BH-FDR 校正，按阈值给出显著性结论。32 项黑盒测试覆盖正/净化选择检测、Fisher 检验多方向、构建器 gap 处理与翻译验证、滑窗边界与退化窗口跳过、FDR 单调性、成对表完整性与错误输入拒绝。
+
 ## 性能优化
 
 ### 优化策略
@@ -3659,8 +3670,8 @@ parser严格检查metadata顺序、固定列行宽、坐标方向与终点、模
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 12151 |
-| 通过数 | 12151 |
+| 总测试数 | 12183 |
+| 通过数 | 12183 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -4011,6 +4022,7 @@ moon test --update
 | Bioconductor lisaClust | `lisaclust_test.mbt` | 51 |
 | Bioconductor SpatialDecon | `spatialdecon_test.mbt` | 60 |
 | Bioconductor Voyager | `voyager_test.mbt` | 58 |
+| CodonAlign Advanced | `codon_align_advanced_test.mbt` | 32 |
 | Bio.PopGen.GenePop | `gene_pop_test.mbt` | 34 |
 | Bioconductor stageR | `stage_r_test.mbt` | 25 |
 | Bioconductor EnrichedHeatmap | `enriched_heatmap_test.mbt` | 20 |
@@ -4106,7 +4118,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 406 个示例程序，展示各模块的典型用法：
+项目提供 407 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -4178,6 +4190,7 @@ moon run cmd/bench/main.mbt
 | seq_complexity_demo | 序列复杂度与组成分析（Shannon熵、语言学复杂度、DUST评分、CGR、序列相似度） | `moon run examples/seq_complexity_demo/main.mbt` |
 | align_info_demo | AlignInfo 比对统计（一致性序列、保守位点、Shannon熵、成对序列同一性） | `moon run examples/align_info_demo/main.mbt` |
 | codon_align_demo | CodonAlign 密码子比对（密码子替换分类、dN/dS选择压力分析、密码子使用偏好、ENC） | `moon run examples/codon_align_demo/main.mbt` |
+| codon_align_advanced_demo | CodonAlign 高级密码子比对（Z-test选择检验、Fisher精确检验、密码子比对构建器、滑窗dN/dS、BH-FDR、成对Ka/Ks表） | `moon run examples/codon_align_advanced_demo/main.mbt` |
 | entrez_demo | Entrez NCBI数据库访问（ESearch、EFetch、PubMed/Gene/Taxonomy解析） | `moon run examples/entrez_demo/main.mbt` |
 | genome_info_db_demo | GenomeInfoDb 基因组信息管理（染色体信息、着丝粒位置、染色体臂、基因组构建） | `moon run examples/genome_info_db_demo/main.mbt` |
 | interaction_set_demo | InteractionSet 染色质交互（Hi-C交互、锚点对、交互矩阵、距离分布、Top交互） | `moon run examples/interaction_set_demo/main.mbt` |
@@ -4426,6 +4439,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 seq_complexity 序列复杂度与组成分析（Shannon熵、语言学复杂度、DUST评分、CGR、序列相似度）
 - ✅ 实现 AlignInfo 比对统计（一致性序列、保守位点、Shannon熵、成对序列同一性）
 - ✅ 实现 CodonAlign 密码子比对（密码子替换分类、dN/dS选择压力分析、密码子使用偏好、ENC）
+- ✅ 实现 CodonAlign 高级密码子比对（Z-test选择检验、Fisher精确检验、密码子比对构建器、滑窗dN/dS、BH-FDR多重校正、成对Ka/Ks表）
 - ✅ 实现 Entrez NCBI数据库访问（ESearch、EFetch、PubMed/Gene/Taxonomy解析）
 - ✅ 实现 GenomeInfoDb 基因组信息管理（染色体信息、着丝粒位置、染色体臂、基因组构建）
 - ✅ 实现 InteractionSet 染色质交互（Hi-C交互、锚点对、交互矩阵、距离分布、Top交互）
