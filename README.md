@@ -482,6 +482,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **stageR 两阶段检验** | Bioconductor stageR | 两阶段假设检验(筛选+确认)、Simes聚合、BH-FDR校正、Holm步降程序、OFDR控制、Dte/Dtu方法、确认p值重缩放 | ✅ |
 | **EnrichedHeatmap 富集热图** | Bioconductor EnrichedHeatmap | 基因组信号归一化、目标区域窗口化、四种均值模式(absolute/weighted/w0/coverage)、行平滑、百分位裁剪、链方向处理 | ✅ |
 | **高级密码子比对与选择压力检验** | Biopython `Bio.codonalign` | Z-test选择检验(Nei-Gojobori近似方差)、Fisher精确检验中性度、密码子比对构建器、滑窗dN/dS、BH-FDR多重校正、成对Ka/Ks表 | ✅ |
+| **高级蛋白质序列预测** | Biopython `Bio.SeqUtils` | Chou-Fasman二级结构预测、IUPred无序区预测、COILS卷曲螺旋预测、Kolaskar-Tongaonkar抗原性、Emini表面可及性、Karplus-Schulz柔柔性 | ✅ |
 
 项目致力于打造一个完整、高效的生物信息学工具库，覆盖从基础序列处理到高级序列组装的全流程。
 
@@ -901,6 +902,7 @@ IvanAXu/BioSeqs/
 │   ├── phylo_cdao.mbt          # Bio.Phylo.CDAO CDAO本体RDF/XML格式 (Tree/Node/TU/Edge、Newick双向转换、命名空间处理)
 │   ├── smart.mbt               # Bio.Smart SMART蛋白质结构域数据库解析 (结构域分类、E值过滤、GO注释、查询与摘要)
 │   ├── protein_analysis.mbt    # Bio.protein_analysis 蛋白质序列高级分析 (疏水性、GOR二级结构、抗原性、跨膜预测、保守性)
+│   ├── protein_analysis_advanced.mbt # 高级蛋白质序列预测 (Chou-Fasman二级结构、IUPred无序区、COILS卷曲螺旋、Kolaskar抗原性、Emini表面可及性、Karplus-Schulz柔柔性)
 │   ├── pcd.mbt                 # Bio.PCD 质谱PCD格式解析 (图谱解析、TIC/BPC色谱图、峰过滤、前体离子、序列化)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
@@ -1286,6 +1288,7 @@ IvanAXu/BioSeqs/
 │   ├── phylo_cdao_demo/         # CDAO本体RDF/XML示例 (Tree/Node/TU构建、解析往返、Newick转换)
 │   ├── smart_demo/              # SMART结构域解析示例 (结构域检测、E值过滤、GO注释、摘要报告)
 │   ├── protein_analysis_demo/   # 蛋白质分析示例 (疏水性、GOR二级结构、抗原性、跨膜预测、保守性)
+│   ├── protein_analysis_advanced_demo/ # 高级蛋白质序列预测示例 (Chou-Fasman二级结构、IUPred无序区、COILS卷曲螺旋、Kolaskar抗原性、Emini表面可及性、Karplus-Schulz柔柔性)
 │   ├── pcd_demo/                # 质谱PCD格式示例 (图谱解析、TIC/BPC色谱图、峰过滤、序列化往返)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
@@ -1549,6 +1552,7 @@ IvanAXu/BioSeqs/
 │   │   ├── popgen_advanced_test.mbt
 │   │   ├── codon_advanced_test.mbt
 │   │   ├── codon_align_advanced_test.mbt
+│   │   ├── protein_analysis_advanced_test.mbt
 │   │   ├── pdb_packing_test.mbt
 │   │   ├── qvalue_test.mbt
 │   │   ├── ihw_test.mbt
@@ -1699,7 +1703,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12183 个测试全部通过
+moon test                                               # ✅ 12209 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1745,6 +1749,7 @@ moon test                                               # ✅ 12183 个测试全
 | `align_abstract.mbt` | BioPython `Bio.Align.AlignAbstract` | 抽象比对类型、Shannon熵、同一性矩阵、简约信息位点 |
 | `codon_align.mbt` | BioPython `Bio.codonalign` | 密码子比对与 dN/dS 分析 |
 | `codon_align_advanced.mbt` | BioPython `Bio.codonalign` | 高级密码子比对 (Z-test选择检验、Fisher精确检验、密码子比对构建器、滑窗dN/dS、BH-FDR、成对Ka/Ks表) |
+| `protein_analysis_advanced.mbt` | Biopython `Bio.SeqUtils` | 高级蛋白质序列预测 (Chou-Fasman二级结构、IUPred无序区、COILS卷曲螺旋、Kolaskar抗原性、Emini表面可及性、Karplus-Schulz柔柔性) |
 | `searchio.mbt` | BioPython `Bio.SearchIO` | 统一搜索结果模型、BLAST/HMMER解析、E-value过滤 |
 | `blast_xml_advanced.mbt` | BioPython `Bio.Blast` | XML1/XML2类型化文档、严格parser/writer、多query/report、parameters/statistics、description/taxonomy及链向/translated HSP坐标 |
 | `exonerate_text.mbt` | BioPython `Bio.SearchIO.ExonerateIO.exonerate_text` | C4文本Document/Query/Hit/HSP/Fragment层次、3/4/5行模型、剪接/NER/frameshift和链感知坐标 |
@@ -3569,6 +3574,12 @@ parser严格检查metadata顺序、固定列行宽、坐标方向与终点、模
 
 `build_codon_alignment` 从蛋白质比对和未比对的编码序列构建密码子比对：逐位扫描蛋白质比对，遇 gap (`-`/`.`) 插入 `---`，否则消费编码序列的下一个密码子并验证翻译与蛋白质残基一致。`sliding_window_dnds` 以可配置窗口大小和步长沿密码子比对滑窗，逐窗计算 NG86 dN/dS 以检测选择热点，自动跳过不足 3 个有效密码子对的窗口。`codon_align_advanced_bh_fdr` 实现 Benjamini–Hochberg FDR 校正（步降法，`q_i = min(q_{i+1}, p_i·m/rank)`）。`pairwise_kaks_table` 对多条序列执行成对 Z-test 正选择检验，对所有 p 值统一 BH-FDR 校正，按阈值给出显著性结论。32 项黑盒测试覆盖正/净化选择检测、Fisher 检验多方向、构建器 gap 处理与翻译验证、滑窗边界与退化窗口跳过、FDR 单调性、成对表完整性与错误输入拒绝。
 
+### 294. 高级蛋白质序列预测 (Bio.SeqUtils advanced)
+
+实现六种经典经验蛋白质序列分析算法，覆盖二级结构、无序区、卷曲螺旋、抗原性、表面可及性和柔柔性预测。`chou_fasman_predict` 使用 Chou–Fasman (1974) 氨基酸倾向值表（Pα 螺旋、Pβ 折叠、Pt 转角）进行二级结构预测：先扫描螺旋成核位点（≥6 残基均值 Pα > 1.03 且 Pα > Pβ）和折叠成核位点（≥3 残基均值 Pβ > 1.05 且 Pβ > Pα），再向两侧延伸至倾向值低于 1.0，转角区域由 4 残基窗口 Pt > 1.0 且 Pα、Pβ < 1.0 识别，螺旋/折叠冲突按区域均值倾向值高者优先裁决，输出逐残基 H/E/T/C 预测及各结构区域起止。
+
+`iupred` 使用 Dosztányi 等 (2005) 的成对相互作用能矩阵估计每残基在滑动窗口内的能量，通过 logistic 变换 `1/(1+exp(-(E+0.45)·4))` 映射到 [0,1] 无序分，阈值 0.5 以上判为无序，连续 ≥5 残基无序归为一个无序区段；`iupred_long` (window=100) 和 `iupred_short` (window=25) 分别提供全局和局部模式。`predict_coiled_coils` 使用 Lupas 等 (1991) 的七肽重复 (a–g) 评分矩阵，位置 a 和 d（疏水核心）权重 2.5×，在滑动窗口内尝试全部 7 种读框取最高分，归一化分超过阈值（默认 0.9）判为卷曲螺旋区。`kolaskar_tongaonkar_antigenicity` 以 7 残基滑窗计算 Kolaskar–Tongaonkar (1990) 抗原倾向均值，高于全序列均值的连续 ≥6 残基区域为抗原位点。`emini_surface_accessibility` 按 Emini 等 (1985) 公式计算滑窗表面概率（中心残基权重 2×），`karplus_schulz_flexibility` 以归一化 B 因子参数的滑窗均值估计链柔柔性，值 >1.0 表示高于平均柔柔性。26 项黑盒测试覆盖各算法的正常用例、边界条件（短序列、空序列、非标准残基拒绝）、输出范围验证与大小写不敏感处理。
+
 ## 性能优化
 
 ### 优化策略
@@ -3670,8 +3681,8 @@ parser严格检查metadata顺序、固定列行宽、坐标方向与终点、模
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 12183 |
-| 通过数 | 12183 |
+| 总测试数 | 12209 |
+| 通过数 | 12209 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -4023,6 +4034,7 @@ moon test --update
 | Bioconductor SpatialDecon | `spatialdecon_test.mbt` | 60 |
 | Bioconductor Voyager | `voyager_test.mbt` | 58 |
 | CodonAlign Advanced | `codon_align_advanced_test.mbt` | 32 |
+| Protein Analysis Advanced | `protein_analysis_advanced_test.mbt` | 26 |
 | Bio.PopGen.GenePop | `gene_pop_test.mbt` | 34 |
 | Bioconductor stageR | `stage_r_test.mbt` | 25 |
 | Bioconductor EnrichedHeatmap | `enriched_heatmap_test.mbt` | 20 |
@@ -4118,7 +4130,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 407 个示例程序，展示各模块的典型用法：
+项目提供 408 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -4191,6 +4203,7 @@ moon run cmd/bench/main.mbt
 | align_info_demo | AlignInfo 比对统计（一致性序列、保守位点、Shannon熵、成对序列同一性） | `moon run examples/align_info_demo/main.mbt` |
 | codon_align_demo | CodonAlign 密码子比对（密码子替换分类、dN/dS选择压力分析、密码子使用偏好、ENC） | `moon run examples/codon_align_demo/main.mbt` |
 | codon_align_advanced_demo | CodonAlign 高级密码子比对（Z-test选择检验、Fisher精确检验、密码子比对构建器、滑窗dN/dS、BH-FDR、成对Ka/Ks表） | `moon run examples/codon_align_advanced_demo/main.mbt` |
+| protein_analysis_advanced_demo | 高级蛋白质序列预测（Chou-Fasman二级结构、IUPred无序区、COILS卷曲螺旋、Kolaskar抗原性、Emini表面可及性、Karplus-Schulz柔柔性） | `moon run examples/protein_analysis_advanced_demo/main.mbt` |
 | entrez_demo | Entrez NCBI数据库访问（ESearch、EFetch、PubMed/Gene/Taxonomy解析） | `moon run examples/entrez_demo/main.mbt` |
 | genome_info_db_demo | GenomeInfoDb 基因组信息管理（染色体信息、着丝粒位置、染色体臂、基因组构建） | `moon run examples/genome_info_db_demo/main.mbt` |
 | interaction_set_demo | InteractionSet 染色质交互（Hi-C交互、锚点对、交互矩阵、距离分布、Top交互） | `moon run examples/interaction_set_demo/main.mbt` |
@@ -4440,6 +4453,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 AlignInfo 比对统计（一致性序列、保守位点、Shannon熵、成对序列同一性）
 - ✅ 实现 CodonAlign 密码子比对（密码子替换分类、dN/dS选择压力分析、密码子使用偏好、ENC）
 - ✅ 实现 CodonAlign 高级密码子比对（Z-test选择检验、Fisher精确检验、密码子比对构建器、滑窗dN/dS、BH-FDR多重校正、成对Ka/Ks表）
+- ✅ 实现高级蛋白质序列预测（Chou-Fasman二级结构、IUPred无序区、COILS卷曲螺旋、Kolaskar-Tongaonkar抗原性、Emini表面可及性、Karplus-Schulz柔柔性）
 - ✅ 实现 Entrez NCBI数据库访问（ESearch、EFetch、PubMed/Gene/Taxonomy解析）
 - ✅ 实现 GenomeInfoDb 基因组信息管理（染色体信息、着丝粒位置、染色体臂、基因组构建）
 - ✅ 实现 InteractionSet 染色质交互（Hi-C交互、锚点对、交互矩阵、距离分布、Top交互）
