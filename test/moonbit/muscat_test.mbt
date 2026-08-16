@@ -1,6 +1,5 @@
 ///|
 /// Test file for muscat module.
-
 test "muscat_single_cell_creation" {
   let cell = @src.SingleCell::new("cell1", "sample1", "cluster1", "ctrl")
   assert_eq(cell.cell_id, "cell1")
@@ -9,6 +8,7 @@ test "muscat_single_cell_creation" {
   assert_eq(cell.group_id, "ctrl")
 }
 
+///|
 test "muscat_single_cell_set_get_count" {
   let cell = @src.SingleCell::new("cell1", "sample1", "cluster1", "ctrl")
   cell.set_count("Gene1", 10.0)
@@ -18,6 +18,7 @@ test "muscat_single_cell_set_get_count" {
   assert_eq(cell.get_count("Gene3"), 0.0) // Non-existent
 }
 
+///|
 test "muscat_single_cell_total_counts" {
   let cell = @src.SingleCell::new("cell1", "sample1", "cluster1", "ctrl")
   cell.set_count("Gene1", 10.0)
@@ -26,6 +27,7 @@ test "muscat_single_cell_total_counts" {
   assert_eq(cell.total_counts(), 35.0)
 }
 
+///|
 test "muscat_single_cell_n_expressed" {
   let cell = @src.SingleCell::new("cell1", "sample1", "cluster1", "ctrl")
   cell.set_count("Gene1", 10.0)
@@ -34,6 +36,7 @@ test "muscat_single_cell_n_expressed" {
   assert_eq(cell.n_expressed(), 2)
 }
 
+///|
 test "muscat_aggregation_sum" {
   let cells : Array[@src.SingleCell] = Array::new()
   let c1 = @src.SingleCell::new("c1", "S1", "C1", "ctrl")
@@ -52,6 +55,7 @@ test "muscat_aggregation_sum" {
   assert_eq(pb[0].n_cells, 2)
 }
 
+///|
 test "muscat_aggregation_mean" {
   let cells : Array[@src.SingleCell] = Array::new()
   let c1 = @src.SingleCell::new("c1", "S1", "C1", "ctrl")
@@ -66,6 +70,7 @@ test "muscat_aggregation_mean" {
   assert_eq(pb[0].get_count("Gene1"), 15.0)
 }
 
+///|
 test "muscat_aggregation_multiple_samples" {
   let cells : Array[@src.SingleCell] = Array::new()
   // Sample S1, Cluster C1
@@ -85,6 +90,7 @@ test "muscat_aggregation_multiple_samples" {
   assert_eq(pb.length(), 3) // 3 (sample, cluster) combinations
 }
 
+///|
 test "muscat_pseudobulk_total_counts" {
   let cells : Array[@src.SingleCell] = Array::new()
   let c1 = @src.SingleCell::new("c1", "S1", "C1", "ctrl")
@@ -99,6 +105,7 @@ test "muscat_pseudobulk_total_counts" {
   assert_eq(pb[0].total_counts(), 35.0)
 }
 
+///|
 test "muscat_pseudobulk_n_expressed" {
   let cells : Array[@src.SingleCell] = Array::new()
   let c1 = @src.SingleCell::new("c1", "S1", "C1", "ctrl")
@@ -114,6 +121,7 @@ test "muscat_pseudobulk_n_expressed" {
   assert_eq(pb[0].n_expressed(), 2) // Gene1 and Gene3 > 0
 }
 
+///|
 test "muscat_ds_analysis_basic" {
   let cells = @src.muscat_sample_data()
   let pb = @src.aggregate_cells(cells)
@@ -122,14 +130,20 @@ test "muscat_ds_analysis_basic" {
   assert_eq(results.n_clusters, 2)
 }
 
+///|
 test "muscat_ds_analysis_significant" {
   let cells = @src.muscat_sample_data()
   let pb = @src.aggregate_cells(cells)
-  let results = @src.run_ds_analysis(pb, fdr_threshold=0.5, log2fc_threshold=0.5)
+  let results = @src.run_ds_analysis(
+    pb,
+    fdr_threshold=0.5,
+    log2fc_threshold=0.5,
+  )
   let sig = results.get_significant()
   assert_true(sig.length() > 0)
 }
 
+///|
 test "muscat_ds_analysis_cluster_filter" {
   let cells = @src.muscat_sample_data()
   let pb = @src.aggregate_cells(cells)
@@ -138,6 +152,7 @@ test "muscat_ds_analysis_cluster_filter" {
   assert_true(c1_results.length() > 0)
 }
 
+///|
 test "muscat_ds_analysis_top_genes" {
   let cells = @src.muscat_sample_data()
   let pb = @src.aggregate_cells(cells)
@@ -146,6 +161,7 @@ test "muscat_ds_analysis_top_genes" {
   assert_eq(top.length(), 3)
 }
 
+///|
 test "muscat_qc_computation" {
   let cells = @src.muscat_sample_data()
   let pb = @src.aggregate_cells(cells)
@@ -153,6 +169,7 @@ test "muscat_qc_computation" {
   assert_eq(qc.length(), pb.length())
 }
 
+///|
 test "muscat_summary" {
   let cells = @src.muscat_sample_data()
   let pb = @src.aggregate_cells(cells)
@@ -161,12 +178,14 @@ test "muscat_summary" {
   assert_true(s.contains("muscat"))
 }
 
+///|
 test "muscat_aggregation_method_to_string" {
   assert_eq(@src.aggregation_sum().to_string(), "sum")
   assert_eq(@src.aggregation_mean().to_string(), "mean")
   assert_eq(@src.aggregation_median().to_string(), "median")
 }
 
+///|
 test "muscat_ds_method_to_string" {
   assert_eq(@src.ds_method_edger().to_string(), "edgeR")
   assert_eq(@src.ds_method_deseq2().to_string(), "DESeq2")

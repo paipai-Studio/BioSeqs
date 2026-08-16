@@ -42,11 +42,7 @@ test "vsn_control_new" {
 
 ///|
 test "vsn2_basic" {
-  let data = [
-    [100.0, 200.0],
-    [150.0, 180.0],
-    [90.0, 210.0],
-  ]
+  let data = [[100.0, 200.0], [150.0, 180.0], [90.0, 210.0]]
   let result = @src.vsn2(data)
   assert_eq(result.length(), 3)
   assert_eq(result[0].length(), 2)
@@ -54,11 +50,7 @@ test "vsn2_basic" {
 
 ///|
 test "vsn2_with_control_runs" {
-  let data = [
-    [100.0, 200.0],
-    [150.0, 180.0],
-    [90.0, 210.0],
-  ]
+  let data = [[100.0, 200.0], [150.0, 180.0], [90.0, 210.0]]
   let ctrl = @src.VSNControl::new()
   let result = @src.vsn2_with_control(data, ctrl)
   assert_eq(result.length(), 3)
@@ -67,11 +59,7 @@ test "vsn2_with_control_runs" {
 
 ///|
 test "vsn_fit_and_report_returns_vsnresult" {
-  let data = [
-    [100.0, 200.0],
-    [150.0, 180.0],
-    [90.0, 210.0],
-  ]
+  let data = [[100.0, 200.0], [150.0, 180.0], [90.0, 210.0]]
   let fit = @src.vsn_fit_and_report(data)
   assert_eq(fit.params.length(), 2)
   let summary = @src.summarize_vsn_fit(fit)
@@ -100,11 +88,7 @@ test "mean_sd_bins_and_ascii" {
 
 ///|
 test "vsn_denoise_keeps_shape" {
-  let data = [
-    [100.0, 200.0],
-    [150.0, 180.0],
-    [90.0, 210.0],
-  ]
+  let data = [[100.0, 200.0], [150.0, 180.0], [90.0, 210.0]]
   let denoised = @src.vsn_denoise(data)
   assert_eq(denoised.length(), 3)
   assert_eq(denoised[0].length(), 2)

@@ -108,7 +108,12 @@ test "vr_kinetic_model_returns_params" {
 test "vr_kinetic_model_sample_data" {
   let gene_data = @src.velocity_sample_data()
   for gd in gene_data {
-    let k = @src.velocity_kinetic_model(gd.gene_name(), gd.spliced(), gd.unspliced(), 30)
+    let k = @src.velocity_kinetic_model(
+      gd.gene_name(),
+      gd.spliced(),
+      gd.unspliced(),
+      30,
+    )
     assert_true(k.beta() > 0.0)
     assert_true(k.gamma() > 0.0)
   }
@@ -132,7 +137,12 @@ test "vr_compute_returns_velocities" {
   let gene_data = @src.velocity_sample_data()
   let kinetics : Array[@src.GeneKinetics] = []
   for gd in gene_data {
-    let k = @src.velocity_kinetic_model(gd.gene_name(), gd.spliced(), gd.unspliced(), 30)
+    let k = @src.velocity_kinetic_model(
+      gd.gene_name(),
+      gd.spliced(),
+      gd.unspliced(),
+      30,
+    )
     kinetics.push(k)
   }
   let velocities = @src.velocity_compute(gene_data, kinetics)
@@ -162,7 +172,12 @@ test "vr_velocity_embedding" {
   let gene_data = @src.velocity_sample_data()
   let kinetics : Array[@src.GeneKinetics] = []
   for gd in gene_data {
-    let k = @src.velocity_kinetic_model(gd.gene_name(), gd.spliced(), gd.unspliced(), 30)
+    let k = @src.velocity_kinetic_model(
+      gd.gene_name(),
+      gd.spliced(),
+      gd.unspliced(),
+      30,
+    )
     kinetics.push(k)
   }
   let velocities = @src.velocity_compute(gene_data, kinetics)
@@ -191,7 +206,12 @@ test "vr_find_root_cells" {
   let gene_data = @src.velocity_sample_data()
   let kinetics : Array[@src.GeneKinetics] = []
   for gd in gene_data {
-    let k = @src.velocity_kinetic_model(gd.gene_name(), gd.spliced(), gd.unspliced(), 30)
+    let k = @src.velocity_kinetic_model(
+      gd.gene_name(),
+      gd.spliced(),
+      gd.unspliced(),
+      30,
+    )
     kinetics.push(k)
   }
   let velocities = @src.velocity_compute(gene_data, kinetics)
@@ -209,14 +229,21 @@ test "vr_root_cells_sorted_by_speed" {
   let gene_data = @src.velocity_sample_data()
   let kinetics : Array[@src.GeneKinetics] = []
   for gd in gene_data {
-    let k = @src.velocity_kinetic_model(gd.gene_name(), gd.spliced(), gd.unspliced(), 30)
+    let k = @src.velocity_kinetic_model(
+      gd.gene_name(),
+      gd.spliced(),
+      gd.unspliced(),
+      30,
+    )
     kinetics.push(k)
   }
   let velocities = @src.velocity_compute(gene_data, kinetics)
   let roots = @src.velocity_find_root_cells(velocities, 5)
   // Speeds should be sorted descending.
   for i in 1..<roots.length() {
-    assert_true(velocities[roots[i - 1]].speed() >= velocities[roots[i]].speed())
+    assert_true(
+      velocities[roots[i - 1]].speed() >= velocities[roots[i]].speed(),
+    )
   }
 }
 
@@ -229,7 +256,12 @@ test "vr_transition_matrix" {
   let gene_data = @src.velocity_sample_data()
   let kinetics : Array[@src.GeneKinetics] = []
   for gd in gene_data {
-    let k = @src.velocity_kinetic_model(gd.gene_name(), gd.spliced(), gd.unspliced(), 30)
+    let k = @src.velocity_kinetic_model(
+      gd.gene_name(),
+      gd.spliced(),
+      gd.unspliced(),
+      30,
+    )
     kinetics.push(k)
   }
   let velocities = @src.velocity_compute(gene_data, kinetics)
@@ -255,7 +287,12 @@ test "vr_transition_matrix_nonneg" {
   let gene_data = @src.velocity_sample_data()
   let kinetics : Array[@src.GeneKinetics] = []
   for gd in gene_data {
-    let k = @src.velocity_kinetic_model(gd.gene_name(), gd.spliced(), gd.unspliced(), 30)
+    let k = @src.velocity_kinetic_model(
+      gd.gene_name(),
+      gd.spliced(),
+      gd.unspliced(),
+      30,
+    )
     kinetics.push(k)
   }
   let velocities = @src.velocity_compute(gene_data, kinetics)
@@ -276,7 +313,9 @@ test "vr_transition_matrix_nonneg" {
 test "vr_run_pipeline" {
   let gene_data = @src.velocity_sample_data()
   let embeddings = @src.velocity_sample_embeddings(20)
-  let (kinetics, velocities, emb_vel) = @src.velocity_run(gene_data, embeddings, 5)
+  let (kinetics, velocities, emb_vel) = @src.velocity_run(
+    gene_data, embeddings, 5,
+  )
   assert_eq(kinetics.length(), 4) // 4 genes
   assert_eq(velocities.length(), 20) // 20 cells
   assert_eq(emb_vel.length(), 20)

@@ -39,75 +39,86 @@ pub struct DigestResult {
 }
 
 ///|
-let average_weights : Map[String, Double] = Map([
-  ("A", 89.0935),
-  ("R", 174.2017),
-  ("N", 132.1184),
-  ("D", 133.1032),
-  ("C", 121.1590),
-  ("E", 147.1299),
-  ("Q", 146.1451),
-  ("G", 75.0669),
-  ("H", 155.1552),
-  ("I", 131.1736),
-  ("L", 131.1736),
-  ("K", 146.1882),
-  ("M", 149.2124),
-  ("F", 165.1900),
-  ("P", 115.1310),
-  ("S", 105.0930),
-  ("T", 119.1197),
-  ("W", 204.2262),
-  ("Y", 181.1894),
-  ("V", 117.1469),
-], capacity=20)
+let average_weights : Map[String, Double] = Map(
+  [
+    ("A", 89.0935),
+    ("R", 174.2017),
+    ("N", 132.1184),
+    ("D", 133.1032),
+    ("C", 121.1590),
+    ("E", 147.1299),
+    ("Q", 146.1451),
+    ("G", 75.0669),
+    ("H", 155.1552),
+    ("I", 131.1736),
+    ("L", 131.1736),
+    ("K", 146.1882),
+    ("M", 149.2124),
+    ("F", 165.1900),
+    ("P", 115.1310),
+    ("S", 105.0930),
+    ("T", 119.1197),
+    ("W", 204.2262),
+    ("Y", 181.1894),
+    ("V", 117.1469),
+  ],
+  capacity=20,
+)
 
 ///|
-let monoisotopic_weights : Map[String, Double] = Map([
-  ("A", 71.03711),
-  ("R", 156.10111),
-  ("N", 114.04293),
-  ("D", 115.02694),
-  ("C", 103.00919),
-  ("E", 129.04259),
-  ("Q", 128.05858),
-  ("G", 57.02146),
-  ("H", 137.05891),
-  ("I", 113.08406),
-  ("L", 113.08406),
-  ("K", 128.09496),
-  ("M", 131.04049),
-  ("F", 147.06841),
-  ("P", 97.05276),
-  ("S", 87.03203),
-  ("T", 101.04768),
-  ("W", 186.07931),
-  ("Y", 163.06333),
-  ("V", 99.06841),
-], capacity=20)
+let monoisotopic_weights : Map[String, Double] = Map(
+  [
+    ("A", 71.03711),
+    ("R", 156.10111),
+    ("N", 114.04293),
+    ("D", 115.02694),
+    ("C", 103.00919),
+    ("E", 129.04259),
+    ("Q", 128.05858),
+    ("G", 57.02146),
+    ("H", 137.05891),
+    ("I", 113.08406),
+    ("L", 113.08406),
+    ("K", 128.09496),
+    ("M", 131.04049),
+    ("F", 147.06841),
+    ("P", 97.05276),
+    ("S", 87.03203),
+    ("T", 101.04768),
+    ("W", 186.07931),
+    ("Y", 163.06333),
+    ("V", 99.06841),
+  ],
+  capacity=20,
+)
 
 ///|
 let water_mono : Double = 18.010565
+
+///|
 let water_avg : Double = 18.01524
 
 ///|
 let proton_mass : Double = 1.007276
 
 ///|
-let enzyme_data : Map[String, (String, Bool, String)] = Map([
-  ("trypsin", ("KR", false, "P")),
-  ("chymotrypsin", ("FYWML", false, "P")),
-  ("chymotrypsin_high_specificity", ("FYW", false, "P")),
-  ("chymotrypsin_low_specificity", ("FYWML", false, "P")),
-  ("pepsin_ph2", ("FL", false, "")),
-  ("pepsin_ph1.3", ("FL", false, "")),
-  ("lysc", ("K", false, "P")),
-  ("argc", ("R", false, "P")),
-  ("cnbr", ("M", false, "")),
-  ("gluc", ("DE", false, "")),
-  ("aspn", ("D", true, "")),
-  ("aspn_nterm", ("D", true, "")),
-], capacity=15)
+let enzyme_data : Map[String, (String, Bool, String)] = Map(
+  [
+    ("trypsin", ("KR", false, "P")),
+    ("chymotrypsin", ("FYWML", false, "P")),
+    ("chymotrypsin_high_specificity", ("FYW", false, "P")),
+    ("chymotrypsin_low_specificity", ("FYWML", false, "P")),
+    ("pepsin_ph2", ("FL", false, "")),
+    ("pepsin_ph1.3", ("FL", false, "")),
+    ("lysc", ("K", false, "P")),
+    ("argc", ("R", false, "P")),
+    ("cnbr", ("M", false, "")),
+    ("gluc", ("DE", false, "")),
+    ("aspn", ("D", true, "")),
+    ("aspn_nterm", ("D", true, "")),
+  ],
+  capacity=15,
+)
 
 ///|
 pub fn proteomics_select_enzyme(name : String) -> CleavageAgent? {
@@ -118,17 +129,10 @@ pub fn proteomics_select_enzyme(name : String) -> CleavageAgent? {
       let mut i = 0
       while i < residues.length() {
         let r = residues[i:i + 1].to_owned()
-        sites.push(CleavageSite::{
-          position: 0,
-          residue: r,
-          probability: 1.0,
-        })
+        sites.push(CleavageSite::{ position: 0, residue: r, probability: 1.0 })
         i = i + 1
       }
-      Some(CleavageAgent::{
-        name: key,
-        cleavage_sites: sites,
-      })
+      Some(CleavageAgent::{ name: key, cleavage_sites: sites })
     }
     None => None
   }
@@ -163,13 +167,11 @@ pub fn proteomics_cleavage_sites(
                 sites.push(i)
               }
             }
-          } else {
-            if i < seq.length() - 1 {
-              let next = seq[i + 1:i + 2].to_owned()
-              let is_except = proteomics_contains_char(except, next)
-              if !is_except {
-                sites.push(i + 1)
-              }
+          } else if i < seq.length() - 1 {
+            let next = seq[i + 1:i + 2].to_owned()
+            let is_except = proteomics_contains_char(except, next)
+            if !is_except {
+              sites.push(i + 1)
             }
           }
         }
@@ -183,7 +185,10 @@ pub fn proteomics_cleavage_sites(
 }
 
 ///|
-pub fn proteomics_digest(protein_sequence : String, enzyme : String) -> DigestResult {
+pub fn proteomics_digest(
+  protein_sequence : String,
+  enzyme : String,
+) -> DigestResult {
   let seq = protein_sequence.to_upper()
   let sites = proteomics_cleavage_sites(seq, enzyme)
 
@@ -282,8 +287,10 @@ pub fn proteomics_trypsin_digest(
   let n_peptides = starts.length()
   let max_missed = if missed_cleavages < n_peptides - 1 {
     missed_cleavages
+  } else if n_peptides > 1 {
+    n_peptides - 1
   } else {
-    if n_peptides > 1 { n_peptides - 1 } else { 0 }
+    0
   }
 
   let mut mc = 1
@@ -317,7 +324,10 @@ pub fn proteomics_trypsin_digest(
 }
 
 ///|
-pub fn proteomics_calculate_mass(peptide : String, is_monoisotopic : Bool) -> Double {
+pub fn proteomics_calculate_mass(
+  peptide : String,
+  is_monoisotopic : Bool,
+) -> Double {
   let seq = peptide.to_upper()
   if seq.length() == 0 {
     return 0.0
@@ -351,11 +361,22 @@ pub fn proteomics_molecular_weight(peptide : String) -> Double {
 }
 
 ///|
-pub fn proteomics_isotope_pattern(peptide : String, charge : Int) -> IsotopePattern {
+pub fn proteomics_isotope_pattern(
+  peptide : String,
+  charge : Int,
+) -> IsotopePattern {
   let seq = peptide.to_upper()
   let n = seq.length()
 
-  let num_peaks = if n < 5 { 3 } else { if n < 15 { 4 } else { if n < 30 { 5 } else { 6 } } }
+  let num_peaks = if n < 5 {
+    3
+  } else if n < 15 {
+    4
+  } else if n < 30 {
+    5
+  } else {
+    6
+  }
 
   let mono_mass = proteomics_calculate_mass(seq, true)
   let avg_mass = proteomics_calculate_mass(seq, false)
@@ -363,13 +384,17 @@ pub fn proteomics_isotope_pattern(peptide : String, charge : Int) -> IsotopePatt
   let masses : Array[Double] = Array::new()
   let abundances : Array[Double] = Array::new()
 
-  let delta_mass = if n > 0 { (avg_mass - mono_mass) / n.to_double() } else { 1.0 }
+  let delta_mass = if n > 0 {
+    (avg_mass - mono_mass) / n.to_double()
+  } else {
+    1.0
+  }
 
   let mut i = 0
   while i < num_peaks {
-    let mass = mono_mass + (delta_mass * i.to_double())
+    let mass = mono_mass + delta_mass * i.to_double()
     let m = if charge > 0 {
-      (mass / charge.to_double()) + proton_mass
+      mass / charge.to_double() + proton_mass
     } else {
       mass
     }
@@ -387,15 +412,14 @@ pub fn proteomics_isotope_pattern(peptide : String, charge : Int) -> IsotopePatt
     j = j + 1
   }
 
-  IsotopePattern::{
-    masses,
-    abundances: normalized,
-    charge,
-  }
+  IsotopePattern::{ masses, abundances: normalized, charge }
 }
 
 ///|
-fn proteomics_isotope_abundance(peak_index : Int, peptide_length : Int) -> Double {
+fn proteomics_isotope_abundance(
+  peak_index : Int,
+  peptide_length : Int,
+) -> Double {
   if peptide_length <= 0 {
     return if peak_index == 0 { 1.0 } else { 0.0 }
   }
@@ -403,7 +427,9 @@ fn proteomics_isotope_abundance(peak_index : Int, peptide_length : Int) -> Doubl
   let n = peptide_length.to_double()
 
   let lambda = n * 0.0107
-  let log_p = -lambda + peak_index.to_double() * proteomics_log_approx(lambda) - proteomics_log_factorial(peak_index)
+  let log_p = -lambda +
+    peak_index.to_double() * proteomics_log_approx(lambda) -
+    proteomics_log_factorial(peak_index)
   if log_p < -50.0 {
     return 0.0
   }
@@ -412,7 +438,9 @@ fn proteomics_isotope_abundance(peak_index : Int, peptide_length : Int) -> Doubl
 
 ///|
 fn proteomics_log_factorial(n : Int) -> Double {
-  if n <= 1 { return 0.0 }
+  if n <= 1 {
+    return 0.0
+  }
   let mut result = 0.0
   let mut i = 2
   while i <= n {
@@ -448,7 +476,9 @@ fn proteomics_exp_approx(x : Double) -> Double {
 
 ///|
 fn proteomics_pow_approx(base : Double, exp : Int) -> Double {
-  if exp <= 0 { return 1.0 }
+  if exp <= 0 {
+    return 1.0
+  }
   let mut result = 1.0
   let mut b = base
   let mut e = exp
@@ -487,8 +517,10 @@ pub fn proteomics_fragment_ions(
     let y_avg = proteomics_calculate_mass(y_seq, false)
 
     let b_z = if charge > 0 { charge } else { 1 }
-    let b_ion_mono = (b_mono + (b_z.to_double() - 1.0) * proton_mass) / b_z.to_double()
-    let b_ion_avg = (b_avg + (b_z.to_double() - 1.0) * proton_mass) / b_z.to_double()
+    let b_ion_mono = (b_mono + (b_z.to_double() - 1.0) * proton_mass) /
+      b_z.to_double()
+    let b_ion_avg = (b_avg + (b_z.to_double() - 1.0) * proton_mass) /
+      b_z.to_double()
 
     frags.push(PeptideMassResult::{
       peptide_sequence: "b" + i.to_string(),
@@ -498,8 +530,10 @@ pub fn proteomics_fragment_ions(
       end_position: i,
     })
 
-    let y_ion_mono = (y_mono + (b_z.to_double() - 1.0) * proton_mass) / b_z.to_double()
-    let y_ion_avg = (y_avg + (b_z.to_double() - 1.0) * proton_mass) / b_z.to_double()
+    let y_ion_mono = (y_mono + (b_z.to_double() - 1.0) * proton_mass) /
+      b_z.to_double()
+    let y_ion_avg = (y_avg + (b_z.to_double() - 1.0) * proton_mass) /
+      b_z.to_double()
 
     frags.push(PeptideMassResult::{
       peptide_sequence: "y" + (n - i).to_string(),

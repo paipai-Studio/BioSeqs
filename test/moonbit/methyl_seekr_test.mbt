@@ -219,7 +219,9 @@ test "msr_tiling_single_site" {
   assert_eq(@src.MethylTile::start(tiles[0]), 0)
   assert_eq(@src.MethylTile::end(tiles[0]), 1000)
   assert_eq(@src.MethylTile::coverage(tiles[0]), 10)
-  assert_true((@src.MethylTile::methylation_level(tiles[0]) - 0.4).abs() < 0.000001)
+  assert_true(
+    (@src.MethylTile::methylation_level(tiles[0]) - 0.4).abs() < 0.000001,
+  )
   // Newly created tiles default to "FMR".
   assert_eq(@src.MethylTile::region_type(tiles[0]), "FMR")
 }
@@ -229,9 +231,24 @@ test "msr_tiling_boundaries" {
   // A site at position 999 falls in tile [0,1000); at 1000 in [1000,2000).
   let params = @src.MethylSeekRParams::default()
   let sites = [
-    @src.CytosineSite::new(chr="chr1", position=999, methylated=1, unmethylated=0),
-    @src.CytosineSite::new(chr="chr1", position=1000, methylated=1, unmethylated=0),
-    @src.CytosineSite::new(chr="chr1", position=2500, methylated=0, unmethylated=1),
+    @src.CytosineSite::new(
+      chr="chr1",
+      position=999,
+      methylated=1,
+      unmethylated=0,
+    ),
+    @src.CytosineSite::new(
+      chr="chr1",
+      position=1000,
+      methylated=1,
+      unmethylated=0,
+    ),
+    @src.CytosineSite::new(
+      chr="chr1",
+      position=2500,
+      methylated=0,
+      unmethylated=1,
+    ),
   ]
   let tiles = @src.tile_methylation(sites, params)
   assert_eq(tiles.length(), 3)
@@ -248,8 +265,18 @@ test "msr_tiling_methylation_computation" {
   // Two sites in the same tile: (3,7) and (2,8) -> meth=5, unmeth=15 -> 0.25.
   let params = @src.MethylSeekRParams::default()
   let sites = [
-    @src.CytosineSite::new(chr="chr1", position=100, methylated=3, unmethylated=7),
-    @src.CytosineSite::new(chr="chr1", position=200, methylated=2, unmethylated=8),
+    @src.CytosineSite::new(
+      chr="chr1",
+      position=100,
+      methylated=3,
+      unmethylated=7,
+    ),
+    @src.CytosineSite::new(
+      chr="chr1",
+      position=200,
+      methylated=2,
+      unmethylated=8,
+    ),
   ]
   let tiles = @src.tile_methylation(sites, params)
   assert_eq(tiles.length(), 1)
@@ -264,9 +291,24 @@ test "msr_tiling_coverage_aggregation" {
   // Coverage from multiple sites is summed per tile.
   let params = @src.MethylSeekRParams::default()
   let sites = [
-    @src.CytosineSite::new(chr="chr1", position=100, methylated=1, unmethylated=4),
-    @src.CytosineSite::new(chr="chr1", position=200, methylated=2, unmethylated=3),
-    @src.CytosineSite::new(chr="chr1", position=300, methylated=0, unmethylated=5),
+    @src.CytosineSite::new(
+      chr="chr1",
+      position=100,
+      methylated=1,
+      unmethylated=4,
+    ),
+    @src.CytosineSite::new(
+      chr="chr1",
+      position=200,
+      methylated=2,
+      unmethylated=3,
+    ),
+    @src.CytosineSite::new(
+      chr="chr1",
+      position=300,
+      methylated=0,
+      unmethylated=5,
+    ),
   ]
   let tiles = @src.tile_methylation(sites, params)
   assert_eq(tiles.length(), 1)
@@ -282,9 +324,24 @@ test "msr_tiling_multiple_chromosomes" {
   // Tiles are sorted by chromosome name then start.
   let params = @src.MethylSeekRParams::default()
   let sites = [
-    @src.CytosineSite::new(chr="chr2", position=50, methylated=1, unmethylated=1),
-    @src.CytosineSite::new(chr="chr1", position=100, methylated=1, unmethylated=1),
-    @src.CytosineSite::new(chr="chr1", position=1500, methylated=1, unmethylated=1),
+    @src.CytosineSite::new(
+      chr="chr2",
+      position=50,
+      methylated=1,
+      unmethylated=1,
+    ),
+    @src.CytosineSite::new(
+      chr="chr1",
+      position=100,
+      methylated=1,
+      unmethylated=1,
+    ),
+    @src.CytosineSite::new(
+      chr="chr1",
+      position=1500,
+      methylated=1,
+      unmethylated=1,
+    ),
   ]
   let tiles = @src.tile_methylation(sites, params)
   assert_eq(tiles.length(), 3)
@@ -786,7 +843,12 @@ test "msr_edge_empty_pipeline" {
 test "msr_edge_single_site" {
   let params = @src.MethylSeekRParams::default()
   let sites = [
-    @src.CytosineSite::new(chr="chr1", position=100, methylated=0, unmethylated=20),
+    @src.CytosineSite::new(
+      chr="chr1",
+      position=100,
+      methylated=0,
+      unmethylated=20,
+    ),
   ]
   let regions = @src.call_methylation_regimes(sites, params)
   // Single tile of 1000 bp >= min_region_size (500) -> one UMR region.
@@ -848,7 +910,12 @@ test "msr_edge_zero_coverage_sites" {
   // which classifies as FMR (insufficient coverage).
   let params = @src.MethylSeekRParams::default()
   let sites = [
-    @src.CytosineSite::new(chr="chr1", position=100, methylated=0, unmethylated=0),
+    @src.CytosineSite::new(
+      chr="chr1",
+      position=100,
+      methylated=0,
+      unmethylated=0,
+    ),
   ]
   let tiles = @src.tile_methylation(sites, params)
   assert_eq(tiles.length(), 1)

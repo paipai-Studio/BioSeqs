@@ -154,7 +154,9 @@ test "cl_parse_chain_single_nucleotide_block" {
 
 ///|
 test "cl_parse_chain_id_preserved" {
-  let cf = @src.cl_parse_chain("chain 100 chr1 1000 + 100 200 chr2 500 + 50 150 99\n  100 0 0")
+  let cf = @src.cl_parse_chain(
+    "chain 100 chr1 1000 + 100 200 chr2 500 + 50 150 99\n  100 0 0",
+  )
   assert_eq(cf.alignments[0].id, 99)
 }
 
@@ -351,7 +353,9 @@ test "cl_get_chain_summary_basic" {
 
 ///|
 test "cl_get_chain_summary_empty_blocks" {
-  let cf = @src.cl_parse_chain("chain 5000 chr1 249250621 + 1 500 chr2 10000 + 1 500 43")
+  let cf = @src.cl_parse_chain(
+    "chain 5000 chr1 249250621 + 1 500 chr2 10000 + 1 500 43",
+  )
   let summary = @src.cl_get_chain_summary(cf.alignments[0])
   assert_eq(summary["total_block_size"], 0)
   assert_eq(summary["num_blocks"], 0)
@@ -406,7 +410,9 @@ test "cl_chain_to_string_format" {
 
 ///|
 test "cl_chain_to_string_preserves_id" {
-  let cf = @src.cl_parse_chain("chain 7777 chr1 1000 + 100 200 chr2 500 + 50 150 99\n  100 0 0")
+  let cf = @src.cl_parse_chain(
+    "chain 7777 chr1 1000 + 100 200 chr2 500 + 50 150 99\n  100 0 0",
+  )
   let s = @src.cl_chain_to_string(cf.alignments[0])
   assert_true(s.contains("chain 7777"))
   assert_true(s.contains("99"))
@@ -530,7 +536,9 @@ test "cl_chain_to_string_reverse_strand" {
 
 ///|
 test "cl_parse_chain_large_id" {
-  let cf = @src.cl_parse_chain("chain 100 chr1 1000 + 100 200 chr2 500 + 50 150 99999\n  100 0 0")
+  let cf = @src.cl_parse_chain(
+    "chain 100 chr1 1000 + 100 200 chr2 500 + 50 150 99999\n  100 0 0",
+  )
   assert_eq(cf.alignments[0].id, 99999)
 }
 

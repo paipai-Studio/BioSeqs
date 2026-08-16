@@ -113,10 +113,7 @@ test "peak_calling_params_new_defaults_when_omitted" {
 ///|
 test "peak_calling_params_partial_overrides" {
   // Override only some args; others should default.
-  let params = @src.PeakCallingParams::new(
-    window_size=250,
-    fdr_threshold=0.01,
-  )
+  let params = @src.PeakCallingParams::new(window_size=250, fdr_threshold=0.01)
   assert_eq(params.window_size, 250)
   assert_eq(params.step_size, 100)
   assert_eq(params.local_lambda_size, 10000)
@@ -167,7 +164,9 @@ test "peak_calling_estimate_local_lambda_basic" {
   // Place 20 control reads uniformly in [0, 2000].
   let mut i = 0
   while i < 20 {
-    control.push(@src.ChipSeqRead::new(chr="chr1", position=i * 100, strand="+"))
+    control.push(
+      @src.ChipSeqRead::new(chr="chr1", position=i * 100, strand="+"),
+    )
     i = i + 1
   }
   // Window of 2000 bp centered at 1000 = [0, 2000) should have 20 reads.
@@ -185,9 +184,7 @@ test "peak_calling_estimate_local_lambda_empty_control" {
 
 ///|
 test "peak_calling_estimate_local_lambda_off_chromosome" {
-  let control = [
-    @src.ChipSeqRead::new(chr="chr1", position=500, strand="+"),
-  ]
+  let control = [@src.ChipSeqRead::new(chr="chr1", position=500, strand="+")]
   let rate = @src.estimate_local_lambda(control, "chr2", 500, 1000)
   assert_eq(rate, 0.0)
 }
@@ -273,12 +270,24 @@ test "peak_calling_fold_enrichment_zero_observed_zero_expected" {
 test "peak_calling_merge_peaks_overlapping" {
   let peaks = [
     @src.CandidatePeak::new(
-      chr="chr1", start=1000, end=2000, summit=1500,
-      read_count=20, control_count=2, fold_enrichment=10.0, p_value=1.0e-8,
+      chr="chr1",
+      start=1000,
+      end=2000,
+      summit=1500,
+      read_count=20,
+      control_count=2,
+      fold_enrichment=10.0,
+      p_value=1.0e-8,
     ),
     @src.CandidatePeak::new(
-      chr="chr1", start=1800, end=2500, summit=2000,
-      read_count=15, control_count=1, fold_enrichment=15.0, p_value=1.0e-7,
+      chr="chr1",
+      start=1800,
+      end=2500,
+      summit=2000,
+      read_count=15,
+      control_count=1,
+      fold_enrichment=15.0,
+      p_value=1.0e-7,
     ),
   ]
   let merged = @src.merge_peaks(peaks, 0)
@@ -297,12 +306,24 @@ test "peak_calling_merge_peaks_overlapping" {
 test "peak_calling_merge_peaks_adjacent_within_gap" {
   let peaks = [
     @src.CandidatePeak::new(
-      chr="chr1", start=1000, end=1500, summit=1250,
-      read_count=10, control_count=1, fold_enrichment=10.0, p_value=0.001,
+      chr="chr1",
+      start=1000,
+      end=1500,
+      summit=1250,
+      read_count=10,
+      control_count=1,
+      fold_enrichment=10.0,
+      p_value=0.001,
     ),
     @src.CandidatePeak::new(
-      chr="chr1", start=1700, end=2200, summit=2000,
-      read_count=12, control_count=2, fold_enrichment=6.0, p_value=0.0001,
+      chr="chr1",
+      start=1700,
+      end=2200,
+      summit=2000,
+      read_count=12,
+      control_count=2,
+      fold_enrichment=6.0,
+      p_value=0.0001,
     ),
   ]
   // Gap is 200bp; with max_gap=300, they should merge.
@@ -318,12 +339,24 @@ test "peak_calling_merge_peaks_adjacent_within_gap" {
 test "peak_calling_merge_peaks_non_overlapping_different_chromosomes" {
   let peaks = [
     @src.CandidatePeak::new(
-      chr="chr1", start=1000, end=2000, summit=1500,
-      read_count=20, control_count=2, fold_enrichment=10.0, p_value=1.0e-8,
+      chr="chr1",
+      start=1000,
+      end=2000,
+      summit=1500,
+      read_count=20,
+      control_count=2,
+      fold_enrichment=10.0,
+      p_value=1.0e-8,
     ),
     @src.CandidatePeak::new(
-      chr="chr2", start=1000, end=2000, summit=1500,
-      read_count=20, control_count=2, fold_enrichment=10.0, p_value=1.0e-8,
+      chr="chr2",
+      start=1000,
+      end=2000,
+      summit=1500,
+      read_count=20,
+      control_count=2,
+      fold_enrichment=10.0,
+      p_value=1.0e-8,
     ),
   ]
   let merged = @src.merge_peaks(peaks, 1000)
@@ -334,12 +367,24 @@ test "peak_calling_merge_peaks_non_overlapping_different_chromosomes" {
 test "peak_calling_merge_peaks_far_apart" {
   let peaks = [
     @src.CandidatePeak::new(
-      chr="chr1", start=1000, end=1500, summit=1250,
-      read_count=10, control_count=1, fold_enrichment=10.0, p_value=0.001,
+      chr="chr1",
+      start=1000,
+      end=1500,
+      summit=1250,
+      read_count=10,
+      control_count=1,
+      fold_enrichment=10.0,
+      p_value=0.001,
     ),
     @src.CandidatePeak::new(
-      chr="chr1", start=10000, end=10500, summit=10250,
-      read_count=10, control_count=1, fold_enrichment=10.0, p_value=0.001,
+      chr="chr1",
+      start=10000,
+      end=10500,
+      summit=10250,
+      read_count=10,
+      control_count=1,
+      fold_enrichment=10.0,
+      p_value=0.001,
     ),
   ]
   let merged = @src.merge_peaks(peaks, 100)
@@ -357,8 +402,14 @@ test "peak_calling_merge_peaks_empty" {
 test "peak_calling_merge_peaks_single_peak" {
   let peaks = [
     @src.CandidatePeak::new(
-      chr="chr1", start=1000, end=2000, summit=1500,
-      read_count=20, control_count=2, fold_enrichment=10.0, p_value=1.0e-8,
+      chr="chr1",
+      start=1000,
+      end=2000,
+      summit=1500,
+      read_count=20,
+      control_count=2,
+      fold_enrichment=10.0,
+      p_value=1.0e-8,
     ),
   ]
   let merged = @src.merge_peaks(peaks, 100)
@@ -371,12 +422,24 @@ test "peak_calling_merge_peaks_unsorted_input" {
   // Input peaks in reverse order; merge_peaks should sort internally.
   let peaks = [
     @src.CandidatePeak::new(
-      chr="chr1", start=5000, end=5500, summit=5200,
-      read_count=15, control_count=1, fold_enrichment=15.0, p_value=1.0e-7,
+      chr="chr1",
+      start=5000,
+      end=5500,
+      summit=5200,
+      read_count=15,
+      control_count=1,
+      fold_enrichment=15.0,
+      p_value=1.0e-7,
     ),
     @src.CandidatePeak::new(
-      chr="chr1", start=1000, end=1500, summit=1250,
-      read_count=20, control_count=2, fold_enrichment=10.0, p_value=1.0e-8,
+      chr="chr1",
+      start=1000,
+      end=1500,
+      summit=1250,
+      read_count=20,
+      control_count=2,
+      fold_enrichment=10.0,
+      p_value=1.0e-8,
     ),
   ]
   let merged = @src.merge_peaks(peaks, 100)
@@ -391,16 +454,34 @@ test "peak_calling_apply_fdr_marks_significant" {
   // Three peaks with very small p-values; all should be marked significant.
   let peaks = [
     @src.CandidatePeak::new(
-      chr="chr1", start=1000, end=1500, summit=1250,
-      read_count=50, control_count=2, fold_enrichment=25.0, p_value=1.0e-10,
+      chr="chr1",
+      start=1000,
+      end=1500,
+      summit=1250,
+      read_count=50,
+      control_count=2,
+      fold_enrichment=25.0,
+      p_value=1.0e-10,
     ),
     @src.CandidatePeak::new(
-      chr="chr1", start=2000, end=2500, summit=2250,
-      read_count=40, control_count=2, fold_enrichment=20.0, p_value=1.0e-8,
+      chr="chr1",
+      start=2000,
+      end=2500,
+      summit=2250,
+      read_count=40,
+      control_count=2,
+      fold_enrichment=20.0,
+      p_value=1.0e-8,
     ),
     @src.CandidatePeak::new(
-      chr="chr1", start=3000, end=3500, summit=3250,
-      read_count=30, control_count=2, fold_enrichment=15.0, p_value=1.0e-6,
+      chr="chr1",
+      start=3000,
+      end=3500,
+      summit=3250,
+      read_count=30,
+      control_count=2,
+      fold_enrichment=15.0,
+      p_value=1.0e-6,
     ),
   ]
   let result = @src.apply_fdr(peaks, 0.05)
@@ -415,12 +496,24 @@ test "peak_calling_apply_fdr_filters_large_pvalues" {
   // Mix of significant and non-significant peaks.
   let peaks = [
     @src.CandidatePeak::new(
-      chr="chr1", start=1000, end=1500, summit=1250,
-      read_count=50, control_count=2, fold_enrichment=25.0, p_value=1.0e-10,
+      chr="chr1",
+      start=1000,
+      end=1500,
+      summit=1250,
+      read_count=50,
+      control_count=2,
+      fold_enrichment=25.0,
+      p_value=1.0e-10,
     ),
     @src.CandidatePeak::new(
-      chr="chr1", start=2000, end=2500, summit=2250,
-      read_count=5, control_count=2, fold_enrichment=2.5, p_value=0.4,
+      chr="chr1",
+      start=2000,
+      end=2500,
+      summit=2250,
+      read_count=5,
+      control_count=2,
+      fold_enrichment=2.5,
+      p_value=0.4,
     ),
   ]
   let result = @src.apply_fdr(peaks, 0.05)
@@ -468,7 +561,13 @@ test "peak_calling_apply_fdr_monotonic" {
     pairs.push((p.p_value, p.fdr))
   }
   pairs.sort_by(fn(a : (Double, Double), b : (Double, Double)) -> Int {
-    if a.0 < b.0 { -1 } else if a.0 > b.0 { 1 } else { 0 }
+    if a.0 < b.0 {
+      -1
+    } else if a.0 > b.0 {
+      1
+    } else {
+      0
+    }
   })
   // Adjusted p-values should be non-decreasing with rank.
   let mut k = 0
@@ -487,16 +586,34 @@ test "peak_calling_filter_peaks_thresholds" {
   )
   let peaks = [
     @src.CandidatePeak::new(
-      chr="chr1", start=1000, end=1500, summit=1250,
-      read_count=50, control_count=2, fold_enrichment=25.0, p_value=1.0e-10,
+      chr="chr1",
+      start=1000,
+      end=1500,
+      summit=1250,
+      read_count=50,
+      control_count=2,
+      fold_enrichment=25.0,
+      p_value=1.0e-10,
     ),
     @src.CandidatePeak::new(
-      chr="chr1", start=2000, end=2500, summit=2250,
-      read_count=5, control_count=2, fold_enrichment=2.5, p_value=1.0e-3,
+      chr="chr1",
+      start=2000,
+      end=2500,
+      summit=2250,
+      read_count=5,
+      control_count=2,
+      fold_enrichment=2.5,
+      p_value=1.0e-3,
     ),
     @src.CandidatePeak::new(
-      chr="chr1", start=3000, end=3500, summit=3250,
-      read_count=3, control_count=2, fold_enrichment=1.5, p_value=1.0e-10,
+      chr="chr1",
+      start=3000,
+      end=3500,
+      summit=3250,
+      read_count=3,
+      control_count=2,
+      fold_enrichment=1.5,
+      p_value=1.0e-10,
     ),
   ]
   // Set FDR and significant flags first.
@@ -603,9 +720,7 @@ test "peak_calling_no_control" {
 
 ///|
 test "peak_calling_single_read" {
-  let treatment = [
-    @src.ChipSeqRead::new(chr="chr1", position=1000, strand="+"),
-  ]
+  let treatment = [@src.ChipSeqRead::new(chr="chr1", position=1000, strand="+")]
   let control : Array[@src.ChipSeqRead] = []
   let params = @src.PeakCallingParams::default()
   let peaks = @src.call_peaks(treatment, control, params)
@@ -654,12 +769,24 @@ test "peak_calling_summary_empty" {
 test "peak_calling_summary_with_peaks" {
   let peaks = [
     @src.CandidatePeak::new(
-      chr="chr1", start=1000, end=2000, summit=1500,
-      read_count=42, control_count=5, fold_enrichment=8.4, p_value=1.0e-10,
+      chr="chr1",
+      start=1000,
+      end=2000,
+      summit=1500,
+      read_count=42,
+      control_count=5,
+      fold_enrichment=8.4,
+      p_value=1.0e-10,
     ),
     @src.CandidatePeak::new(
-      chr="chr1", start=3000, end=4000, summit=3500,
-      read_count=20, control_count=2, fold_enrichment=10.0, p_value=1.0e-8,
+      chr="chr1",
+      start=3000,
+      end=4000,
+      summit=3500,
+      read_count=20,
+      control_count=2,
+      fold_enrichment=10.0,
+      p_value=1.0e-8,
     ),
   ]
   let with_fdr = @src.apply_fdr(peaks, 0.05)
@@ -673,12 +800,24 @@ test "peak_calling_summary_with_peaks" {
 test "peak_calling_summary_includes_significant_count" {
   let peaks = [
     @src.CandidatePeak::new(
-      chr="chr1", start=1000, end=2000, summit=1500,
-      read_count=42, control_count=5, fold_enrichment=8.4, p_value=1.0e-10,
+      chr="chr1",
+      start=1000,
+      end=2000,
+      summit=1500,
+      read_count=42,
+      control_count=5,
+      fold_enrichment=8.4,
+      p_value=1.0e-10,
     ),
     @src.CandidatePeak::new(
-      chr="chr1", start=3000, end=4000, summit=3500,
-      read_count=2, control_count=2, fold_enrichment=1.0, p_value=0.5,
+      chr="chr1",
+      start=3000,
+      end=4000,
+      summit=3500,
+      read_count=2,
+      control_count=2,
+      fold_enrichment=1.0,
+      p_value=0.5,
     ),
   ]
   let with_fdr = @src.apply_fdr(peaks, 0.05)

@@ -48,7 +48,7 @@ pub fn SeuratObject::new(
 pub fn normalize_total(obj : SeuratObject) -> SeuratObject {
   let n_genes = obj.row_names.length()
   let n_cells = obj.col_names.length()
-  
+
   // Precompute column sums (O(n_genes * n_cells) instead of O(n_genes^2 * n_cells))
   let col_sums : Array[Double] = Array::make(n_cells, 0.0)
   let mut i = 0
@@ -60,7 +60,7 @@ pub fn normalize_total(obj : SeuratObject) -> SeuratObject {
     }
     i = i + 1
   }
-  
+
   let data : Array[Array[Double]] = Array::new()
   i = 0
   while i < n_genes {
@@ -84,24 +84,21 @@ pub fn normalize_total(obj : SeuratObject) -> SeuratObject {
     data.push(gene_data)
     i = i + 1
   }
-  
-  SeuratObject::{
-    ..obj,
-    data,
-  }
+
+  SeuratObject::{ ..obj, data, }
 }
 
 ///|
 pub fn find_variable_features(obj : SeuratObject) -> SeuratObject {
   let n_genes = obj.row_names.length()
   let n_cells = obj.col_names.length()
-  
+
   let gene_indices : Array[(Double, Int)] = Array::new()
   let mut k = 0
   while k < n_genes {
     let row_data = obj.data[k]
     let (mean_val, var_val) = stat_mean_var(row_data)
-    
+
     let vst_score = if mean_val > 0.0 && var_val > 0.0 {
       let expected_var = mean_val + mean_val * mean_val * 0.5
       @math.ln(var_val / expected_var)
@@ -111,9 +108,9 @@ pub fn find_variable_features(obj : SeuratObject) -> SeuratObject {
     gene_indices.push((vst_score, k))
     k = k + 1
   }
-  
+
   let sorted_indices = stat_sort_indices_desc(gene_indices)
-  
+
   let var_features : Array[String] = Array::new()
   let nfeatures = if n_genes < 2000 { n_genes } else { 2000 }
   let mut n_selected = 0
@@ -121,25 +118,22 @@ pub fn find_variable_features(obj : SeuratObject) -> SeuratObject {
     var_features.push(obj.row_names[sorted_indices[n_selected].1])
     n_selected = n_selected + 1
   }
-  
-  SeuratObject::{
-    ..obj,
-    var_features,
-  }
+
+  SeuratObject::{ ..obj, var_features, }
 }
 
 ///|
 pub fn scale_data(obj : SeuratObject) -> SeuratObject {
   let n_genes = obj.row_names.length()
   let n_cells = obj.col_names.length()
-  
+
   let scaled_data : Array[Array[Double]] = Array::new()
   let mut i = 0
   while i < n_genes {
     let row_data = obj.data[i]
     let (mean_val, var_val) = stat_mean_var(row_data)
     let std_val = if var_val > 0.0 { var_val.sqrt() } else { 1.0 }
-    
+
     let gene_scaled : Array[Double] = Array::new()
     let mut j = 0
     while j < n_cells {
@@ -149,24 +143,21 @@ pub fn scale_data(obj : SeuratObject) -> SeuratObject {
     scaled_data.push(gene_scaled)
     i = i + 1
   }
-  
-  SeuratObject::{
-    ..obj,
-    scaled_data,
-  }
+
+  SeuratObject::{ ..obj, scaled_data, }
 }
 
 ///|
 pub fn run_pca(obj : SeuratObject) -> SeuratObject {
   let n_genes = obj.row_names.length()
   let n_cells = obj.col_names.length()
-  
+
   let use_features = if obj.var_features.length() > 0 {
     obj.var_features
   } else {
     obj.row_names
   }
-  
+
   let feature_indices : Array[Int] = Array::new()
   for feature in use_features {
     let mut idx = 0
@@ -178,19 +169,25 @@ pub fn run_pca(obj : SeuratObject) -> SeuratObject {
       idx = idx + 1
     }
   }
-  
+
   let n_features = feature_indices.length()
   let npcs = if n_features < 50 { n_features } else { 50 }
-  
-  let pca = compute_pca_simple(obj.scaled_data, feature_indices, n_features, n_cells, npcs)
-  
+
+  let pca = compute_pca_simple(
+    obj.scaled_data,
+    feature_indices,
+    n_features,
+    n_cells,
+    npcs,
+  )
+
   let var_explained : Array[Double] = Array::new()
   let mut m = 0
   while m < npcs {
     var_explained.push((1.0 - m.to_double() / npcs.to_double()) * 0.3)
     m = m + 1
   }
-  
+
   let pca_loadings : Array[Array[Double]] = Array::new()
   let mut n = 0
   while n < n_features {
@@ -203,15 +200,11 @@ pub fn run_pca(obj : SeuratObject) -> SeuratObject {
     pca_loadings.push(loading)
     n = n + 1
   }
-  
-  SeuratObject::{
-    ..obj,
-    pca,
-    pca_loadings,
-    var_explained,
-  }
+
+  SeuratObject::{ ..obj, pca, pca_loadings, var_explained }
 }
 
+///|
 fn compute_pca_simple(
   scaled_data : Array[Array[Double]],
   feature_indices : Array[Int],
@@ -220,11 +213,11 @@ fn compute_pca_simple(
   npcs : Int,
 ) -> Array[Array[Double]] {
   let pca : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < n_cells {
     let pc : Array[Double] = Array::new()
-    
+
     let mut j = 0
     while j < npcs && j < n_features {
       let mut score = 0.0
@@ -237,17 +230,17 @@ fn compute_pca_simple(
       pc.push(score)
       j = j + 1
     }
-    
+
     let mut pad = j
     while pad < npcs {
       pc.push(0.0)
       pad = pad + 1
     }
-    
+
     pca.push(pc)
     i = i + 1
   }
-  
+
   pca
 }
 
@@ -258,15 +251,13 @@ pub fn find_neighbors(obj : SeuratObject) -> SeuratObject {
     return obj
   }
   let n_dims = obj.pca[0].length()
-  
+
   let neighbors = find_neighbors_helper(obj.pca, n_cells, n_dims, 20)
-  
-  SeuratObject::{
-    ..obj,
-    neighbors,
-  }
+
+  SeuratObject::{ ..obj, neighbors, }
 }
 
+///|
 fn find_neighbors_helper(
   pca : Array[Array[Double]],
   n_cells : Int,
@@ -292,6 +283,7 @@ fn find_neighbors_helper(
   neighbors
 }
 
+///|
 fn sort_distances(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
   stat_sort_indices_desc(arr)
 }
@@ -299,11 +291,11 @@ fn sort_distances(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
 ///|
 pub fn find_clusters(obj : SeuratObject) -> SeuratObject {
   let n_cells = obj.col_names.length()
-  
+
   if obj.clusters.length() > 0 && obj.clusters[0] != -1 {
     return obj
   }
-  
+
   let clusters : Array[Int] = Array::new()
   let n_clusters = 4
   let mut i = 0
@@ -311,11 +303,8 @@ pub fn find_clusters(obj : SeuratObject) -> SeuratObject {
     clusters.push(i / (n_cells / n_clusters))
     i = i + 1
   }
-  
-  SeuratObject::{
-    ..obj,
-    clusters,
-  }
+
+  SeuratObject::{ ..obj, clusters, }
 }
 
 ///|
@@ -325,15 +314,13 @@ pub fn run_umap(obj : SeuratObject) -> SeuratObject {
     return obj
   }
   let n_components = 2
-  
+
   let umap = init_umap_coords(n_cells, n_components)
-  
-  SeuratObject::{
-    ..obj,
-    umap,
-  }
+
+  SeuratObject::{ ..obj, umap, }
 }
 
+///|
 fn init_umap_coords(n_cells : Int, n_components : Int) -> Array[Array[Double]] {
   let coords : Array[Array[Double]] = Array::new()
   let mut seed = 42
@@ -367,7 +354,11 @@ pub struct IntegrationAnchor {
 }
 
 ///|
-pub fn IntegrationAnchor::new(cell1 : Int, cell2 : Int, score : Double) -> IntegrationAnchor {
+pub fn IntegrationAnchor::new(
+  cell1 : Int,
+  cell2 : Int,
+  score : Double,
+) -> IntegrationAnchor {
   IntegrationAnchor::{ cell1, cell2, score }
 }
 
@@ -395,29 +386,34 @@ pub fn find_integration_anchors(
 ) -> IntegrationAnchors {
   let n_ref_cells = reference_obj.col_names.length()
   let n_query_cells = query_obj.col_names.length()
-  
+
   let anchors : Array[IntegrationAnchor] = Array::new()
   let reference_indices : Array[Int] = Array::new()
   let query_indices : Array[Int] = Array::new()
-  
+
   if reference_obj.pca.length() == 0 || query_obj.pca.length() == 0 {
     return IntegrationAnchors::new(anchors, reference_indices, query_indices)
   }
-  
-  let n_anchors = if n_ref_cells < n_query_cells { n_ref_cells / 10 } else { n_query_cells / 10 }
-  
+
+  let n_anchors = if n_ref_cells < n_query_cells {
+    n_ref_cells / 10
+  } else {
+    n_query_cells / 10
+  }
+
   let mut i = 0
   while i < n_anchors && i < n_ref_cells && i < n_query_cells {
     let ref_idx = i
     let query_idx = i
-    
+
     let mut dist = 0.0
     let mut dim_count = 0
-    
+
     let mut j = 0
     while j < dims.length() {
       let d = dims[j]
-      if ref_idx < reference_obj.pca.length() && query_idx < query_obj.pca.length() {
+      if ref_idx < reference_obj.pca.length() &&
+        query_idx < query_obj.pca.length() {
         let ref_pca = reference_obj.pca[ref_idx]
         let query_pca = query_obj.pca[query_idx]
         if d < ref_pca.length() && d < query_pca.length() {
@@ -428,16 +424,20 @@ pub fn find_integration_anchors(
       }
       j = j + 1
     }
-    
-    let score = if dist > 0.0 && dim_count > 0 { 1.0 / dist.sqrt() } else { 1.0 }
-    
+
+    let score = if dist > 0.0 && dim_count > 0 {
+      1.0 / dist.sqrt()
+    } else {
+      1.0
+    }
+
     anchors.push(IntegrationAnchor::new(ref_idx, query_idx, score))
     reference_indices.push(ref_idx)
     query_indices.push(query_idx)
-    
+
     i = i + 1
   }
-  
+
   IntegrationAnchors::new(anchors, reference_indices, query_indices)
 }
 
@@ -449,7 +449,7 @@ pub fn integrate_data(
 ) -> SeuratObject {
   let n_ref_genes = reference_obj.row_names.length()
   let n_query_genes = query_obj.row_names.length()
-  
+
   let common_genes : Array[String] = Array::new()
   for gene in reference_obj.row_names {
     let mut found = false
@@ -465,32 +465,32 @@ pub fn integrate_data(
       common_genes.push(gene)
     }
   }
-  
+
   let n_common = common_genes.length()
   let n_ref_cells = reference_obj.col_names.length()
   let n_query_cells = query_obj.col_names.length()
   let n_total_cells = n_ref_cells + n_query_cells
-  
+
   let integrated_counts : Array[Array[Int]] = Array::new()
   let row_names : Array[String] = Array::new()
   let col_names : Array[String] = Array::new()
-  
+
   let mut i = 0
   while i < n_common {
     let gene = common_genes[i]
-    
+
     let mut ref_idx = 0
     while ref_idx < n_ref_genes && reference_obj.row_names[ref_idx] != gene {
       ref_idx = ref_idx + 1
     }
-    
+
     let mut query_idx = 0
     while query_idx < n_query_genes && query_obj.row_names[query_idx] != gene {
       query_idx = query_idx + 1
     }
-    
+
     row_names.push(gene)
-    
+
     let gene_counts : Array[Int] = Array::new()
     let mut j = 0
     while j < n_ref_cells {
@@ -503,10 +503,10 @@ pub fn integrate_data(
       k = k + 1
     }
     integrated_counts.push(gene_counts)
-    
+
     i = i + 1
   }
-  
+
   let mut l = 0
   while l < n_ref_cells {
     col_names.push("ref_" + reference_obj.col_names[l])
@@ -517,9 +517,11 @@ pub fn integrate_data(
     col_names.push("query_" + query_obj.col_names[m])
     m = m + 1
   }
-  
-  let integrated_obj = SeuratObject::new(integrated_counts, row_names, col_names)
-  
+
+  let integrated_obj = SeuratObject::new(
+    integrated_counts, row_names, col_names,
+  )
+
   let clusters : Array[Int] = Array::new()
   let mut n = 0
   while n < n_ref_cells {
@@ -528,15 +530,16 @@ pub fn integrate_data(
   }
   let mut o = 0
   while o < n_query_cells {
-    let offset = if query_obj.clusters.length() > 0 { query_obj.clusters[o] + 10 } else { 10 }
+    let offset = if query_obj.clusters.length() > 0 {
+      query_obj.clusters[o] + 10
+    } else {
+      10
+    }
     clusters.push(offset)
     o = o + 1
   }
-  
-  SeuratObject::{
-    ..integrated_obj,
-    clusters,
-  }
+
+  SeuratObject::{ ..integrated_obj, clusters, }
 }
 
 ///|
@@ -558,62 +561,62 @@ pub fn MarkerResult::new(
   p_value : Double,
   adjusted_p_value : Double,
 ) -> MarkerResult {
-  MarkerResult::{
-    gene,
-    avg_log2_fc,
-    pct_1,
-    pct_2,
-    p_value,
-    adjusted_p_value,
-  }
+  MarkerResult::{ gene, avg_log2_fc, pct_1, pct_2, p_value, adjusted_p_value }
 }
 
 ///|
 pub fn find_all_markers(obj : SeuratObject) -> Array[MarkerResult] {
   let markers : Array[MarkerResult] = Array::new()
-  
+
   let n_clusters = 4
   let mut i = 0
   while i < n_clusters && i < obj.row_names.length() {
-    markers.push(MarkerResult::new(
-      obj.row_names[i * 100],
-      2.0 + i.to_double() * 0.5,
-      0.8 + i.to_double() * 0.05,
-      0.2 + i.to_double() * 0.05,
-      0.001 / (i.to_double() + 1.0),
-      0.01 / (i.to_double() + 1.0),
-    ))
+    markers.push(
+      MarkerResult::new(
+        obj.row_names[i * 100],
+        2.0 + i.to_double() * 0.5,
+        0.8 + i.to_double() * 0.05,
+        0.2 + i.to_double() * 0.05,
+        0.001 / (i.to_double() + 1.0),
+        0.01 / (i.to_double() + 1.0),
+      ),
+    )
     i = i + 1
   }
-  
+
   markers
 }
 
 ///|
-pub fn get_top_markers(markers : Array[MarkerResult], n : Int) -> Array[MarkerResult] {
+pub fn get_top_markers(
+  markers : Array[MarkerResult],
+  n : Int,
+) -> Array[MarkerResult] {
   let indexed : Array[(Double, Int)] = Array::new()
   let mut i = 0
   while i < markers.length() {
     indexed.push((markers[i].adjusted_p_value, i))
     i = i + 1
   }
-  
+
   let sorted = sort_by_p_value(indexed)
-  
+
   let result : Array[MarkerResult] = Array::new()
   let mut j = 0
   while j < n && j < sorted.length() {
     result.push(markers[sorted[j].1])
     j = j + 1
   }
-  
+
   result
 }
 
+///|
 fn sort_by_p_value(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
   stat_sort_indices_asc(arr)
 }
 
+///|
 fn sort_indices_desc(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
   stat_sort_indices_desc(arr)
 }
@@ -622,17 +625,18 @@ fn sort_indices_desc(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
 fn t_cdf(t : Double, df : Double) -> Double {
   let x = t / (1.0 + t * t / df).sqrt()
   let z = (1.0 + x) / 2.0
-  
+
   let mut sum = z
   let mut term = z * (1.0 - z)
   let mut i = 1
   while i <= 50 {
-    let coeff = ((df - 1.0) / 2.0 + i.to_double() - 1.0) / (i.to_double() * (df / 2.0 + i.to_double() - 1.0))
+    let coeff = ((df - 1.0) / 2.0 + i.to_double() - 1.0) /
+      (i.to_double() * (df / 2.0 + i.to_double() - 1.0))
     sum = sum + coeff * term
     term = term * (1.0 - z) * z
     i = i + 1
   }
-  
+
   0.5 * (1.0 + sum)
 }
 
@@ -641,23 +645,27 @@ pub fn seurat_create_example_data() -> SeuratObject {
   let n_cells = 200
   let n_genes = 500
   let n_clusters = 4
-  
+
   let counts : Array[Array[Int]] = Array::new()
   let row_names : Array[String] = Array::new()
   let col_names : Array[String] = Array::new()
-  
+
   let mut seed = 12345
   let mut i = 0
   while i < n_genes {
     row_names.push("gene_" + i.to_string())
     let gene_counts : Array[Int] = Array::new()
-    
+
     let mut j = 0
     while j < n_cells {
       let cluster_id = j / (n_cells / n_clusters)
       let marker_gene_cluster = i % n_clusters
-      let cluster_factor = if marker_gene_cluster == cluster_id { 3.0 } else { 0.5 }
-      
+      let cluster_factor = if marker_gene_cluster == cluster_id {
+        3.0
+      } else {
+        0.5
+      }
+
       let mut x = 0.0
       let mut k = 0
       while k < 12 {
@@ -667,33 +675,30 @@ pub fn seurat_create_example_data() -> SeuratObject {
         k = k + 1
       }
       x = x - 6.0
-      
+
       let base_count = (@math.exp(x) * cluster_factor).to_int()
       gene_counts.push(if base_count > 0 { base_count } else { 0 })
       j = j + 1
     }
-    
+
     counts.push(gene_counts)
     i = i + 1
   }
-  
+
   let mut l = 0
   while l < n_cells {
     col_names.push("cell_" + l.to_string())
     l = l + 1
   }
-  
+
   let obj = SeuratObject::new(counts, row_names, col_names)
-  
+
   let clusters : Array[Int] = Array::new()
   let mut m = 0
   while m < n_cells {
     clusters.push(m / (n_cells / n_clusters))
     m = m + 1
   }
-  
-  SeuratObject::{
-    ..obj,
-    clusters,
-  }
+
+  SeuratObject::{ ..obj, clusters, }
 }

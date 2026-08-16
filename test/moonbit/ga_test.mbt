@@ -17,9 +17,7 @@ test "ga_individual_creation" {
 
 ///|
 test "ga_individual_default" {
-  let ind = @src.GAIndividual::new(
-    sequence="ACGT",
-  )
+  let ind = @src.GAIndividual::new(sequence="ACGT")
   assert_eq(ind.sequence, "ACGT")
   assert_true((ind.fitness - 0.0).abs() < 1.0e-10)
   assert_eq(ind.generation, 0)
@@ -32,7 +30,7 @@ test "ga_population_creation" {
     @src.GAIndividual::new(sequence="CCCC", fitness=0.5, generation=0, id=1),
     @src.GAIndividual::new(sequence="GGGG", fitness=0.9, generation=0, id=2),
   ]
-  let pop = @src.GAPopulation::new(individuals=individuals)
+  let pop = @src.GAPopulation::new(individuals~)
   assert_eq(pop.individuals.length(), 3)
   assert_true((pop.best_fitness - 0.9).abs() < 1.0e-10)
   assert_true((pop.avg_fitness - 0.7333333333).abs() < 1.0e-10)
@@ -110,7 +108,11 @@ test "ga_fitness_gc_content_zero" {
 test "ga_single_point_crossover" {
   let parent1 = @src.GAIndividual::new(sequence="AAAA")
   let parent2 = @src.GAIndividual::new(sequence="CCCC")
-  let (child1, child2) = @src.ga_single_point_crossover(parent1, parent2, point=2)
+  let (child1, child2) = @src.ga_single_point_crossover(
+    parent1,
+    parent2,
+    point=2,
+  )
   assert_eq(child1.sequence.length(), 4)
   assert_eq(child2.sequence.length(), 4)
 }
@@ -179,14 +181,24 @@ test "ga_evolution_loop_improves_fitness" {
   let fitness_fn = @src.ga_fitness_match(target)
   let result = @src.ga_evolve(config, fitness_fn)
   let initial_best = result.best_fitness_history[0]
-  let final_best = result.best_fitness_history[result.best_fitness_history.length() - 1]
+  let final_best = result.best_fitness_history[result.best_fitness_history.length() -
+    1]
   assert_true(final_best >= initial_best)
 }
 
 ///|
 test "ga_result_creation" {
-  let best = @src.GAIndividual::new(sequence="ACGT", fitness=1.0, generation=10, id=5)
-  let stats = @src.GAGenerationStats::new(generation=10, best_fitness=1.0, avg_fitness=0.8)
+  let best = @src.GAIndividual::new(
+    sequence="ACGT",
+    fitness=1.0,
+    generation=10,
+    id=5,
+  )
+  let stats = @src.GAGenerationStats::new(
+    generation=10,
+    best_fitness=1.0,
+    avg_fitness=0.8,
+  )
   assert_eq(stats.generation, 10)
   assert_true((stats.best_fitness - 1.0).abs() < 1.0e-10)
 }

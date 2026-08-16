@@ -273,36 +273,26 @@ test "mmcifio_write_single_residue" {
 
 ///|
 test "mmcifio_write_single_chain" {
-  let r1 = @src.Residue::new(
-    resname="ALA",
-    chainid='A',
-    resseq=1,
-    atoms=[
-      @src.Atom::new(
-        name="N",
-        coord=@src.Vector3::new(0.0, 0.0, 0.0),
-        resname="ALA",
-        chainid='A',
-        resseq=1,
-        element="N",
-      ),
-    ],
-  )
-  let r2 = @src.Residue::new(
-    resname="GLY",
-    chainid='A',
-    resseq=2,
-    atoms=[
-      @src.Atom::new(
-        name="N",
-        coord=@src.Vector3::new(3.0, 0.0, 0.0),
-        resname="GLY",
-        chainid='A',
-        resseq=2,
-        element="N",
-      ),
-    ],
-  )
+  let r1 = @src.Residue::new(resname="ALA", chainid='A', resseq=1, atoms=[
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(0.0, 0.0, 0.0),
+      resname="ALA",
+      chainid='A',
+      resseq=1,
+      element="N",
+    ),
+  ])
+  let r2 = @src.Residue::new(resname="GLY", chainid='A', resseq=2, atoms=[
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(3.0, 0.0, 0.0),
+      resname="GLY",
+      chainid='A',
+      resseq=2,
+      element="N",
+    ),
+  ])
   let chain = @src.Chain::new(id='A', residues=[r1, r2])
   let model = @src.Model::new(id=1, chains=[chain])
   let structure = @src.Structure::new(id="1CG", models=[model])
@@ -313,36 +303,26 @@ test "mmcifio_write_single_chain" {
 
 ///|
 test "mmcifio_write_multiple_chains" {
-  let r1 = @src.Residue::new(
-    resname="ALA",
-    chainid='A',
-    resseq=1,
-    atoms=[
-      @src.Atom::new(
-        name="N",
-        coord=@src.Vector3::new(0.0, 0.0, 0.0),
-        resname="ALA",
-        chainid='A',
-        resseq=1,
-        element="N",
-      ),
-    ],
-  )
-  let r2 = @src.Residue::new(
-    resname="GLY",
-    chainid='B',
-    resseq=1,
-    atoms=[
-      @src.Atom::new(
-        name="N",
-        coord=@src.Vector3::new(10.0, 0.0, 0.0),
-        resname="GLY",
-        chainid='B',
-        resseq=1,
-        element="N",
-      ),
-    ],
-  )
+  let r1 = @src.Residue::new(resname="ALA", chainid='A', resseq=1, atoms=[
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(0.0, 0.0, 0.0),
+      resname="ALA",
+      chainid='A',
+      resseq=1,
+      element="N",
+    ),
+  ])
+  let r2 = @src.Residue::new(resname="GLY", chainid='B', resseq=1, atoms=[
+    @src.Atom::new(
+      name="N",
+      coord=@src.Vector3::new(10.0, 0.0, 0.0),
+      resname="GLY",
+      chainid='B',
+      resseq=1,
+      element="N",
+    ),
+  ])
   let chain_a = @src.Chain::new(id='A', residues=[r1])
   let chain_b = @src.Chain::new(id='B', residues=[r2])
   let model = @src.Model::new(id=1, chains=[chain_a, chain_b])
@@ -563,26 +543,12 @@ test "mmcifio_atom_site_has_all_columns" {
   let site = @src.write_mmcif_atom_site(structure)
   // Verify all 20 column headers are present
   let columns = [
-    "_atom_site.group_PDB",
-    "_atom_site.id",
-    "_atom_site.type_symbol",
-    "_atom_site.label_atom_id",
-    "_atom_site.label_alt_id",
-    "_atom_site.label_comp_id",
-    "_atom_site.label_asym_id",
-    "_atom_site.label_entity_id",
-    "_atom_site.label_seq_id",
-    "_atom_site.pdbx_PDB_ins_code",
-    "_atom_site.Cartn_x",
-    "_atom_site.Cartn_y",
-    "_atom_site.Cartn_z",
-    "_atom_site.occupancy",
-    "_atom_site.B_iso_or_equiv",
-    "_atom_site.pdbx_formal_charge",
-    "_atom_site.auth_seq_id",
-    "_atom_site.auth_comp_id",
-    "_atom_site.auth_asym_id",
-    "_atom_site.auth_atom_id",
+    "_atom_site.group_PDB", "_atom_site.id", "_atom_site.type_symbol", "_atom_site.label_atom_id",
+    "_atom_site.label_alt_id", "_atom_site.label_comp_id", "_atom_site.label_asym_id",
+    "_atom_site.label_entity_id", "_atom_site.label_seq_id", "_atom_site.pdbx_PDB_ins_code",
+    "_atom_site.Cartn_x", "_atom_site.Cartn_y", "_atom_site.Cartn_z", "_atom_site.occupancy",
+    "_atom_site.B_iso_or_equiv", "_atom_site.pdbx_formal_charge", "_atom_site.auth_seq_id",
+    "_atom_site.auth_comp_id", "_atom_site.auth_asym_id", "_atom_site.auth_atom_id",
   ]
   for col in columns {
     assert_eq(site.contains(col), true)

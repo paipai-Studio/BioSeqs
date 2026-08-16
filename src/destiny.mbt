@@ -48,45 +48,43 @@ pub struct DiffusionResult {
 pub fn CellData::new(
   cell_id : String,
   expression : Array[Double],
-  cluster : String
+  cluster : String,
 ) -> CellData {
-  CellData::{
-    cell_id,
-    expression,
-    cluster
-  }
+  CellData::{ cell_id, expression, cluster }
 }
 
 ///|
-pub fn DistanceMatrix::new(cells : Array[String], distances : Array[Array[Double]]) -> DistanceMatrix {
+pub fn DistanceMatrix::new(
+  cells : Array[String],
+  distances : Array[Array[Double]],
+) -> DistanceMatrix {
   let n = cells.length()
-  DistanceMatrix::{
-    cells,
-    distances,
-    n_cells: n
-  }
+  DistanceMatrix::{ cells, distances, n_cells: n }
 }
 
 ///|
-pub fn KernelMatrix::new(cells : Array[String], kernel : Array[Array[Double]], bandwidth : Double) -> KernelMatrix {
-  KernelMatrix::{
-    cells,
-    kernel,
-    bandwidth
-  }
+pub fn KernelMatrix::new(
+  cells : Array[String],
+  kernel : Array[Array[Double]],
+  bandwidth : Double,
+) -> KernelMatrix {
+  KernelMatrix::{ cells, kernel, bandwidth }
 }
 
 ///|
-pub fn compute_distance_matrix(cells : Array[CellData], metric : String) -> DistanceMatrix {
+pub fn compute_distance_matrix(
+  cells : Array[CellData],
+  metric : String,
+) -> DistanceMatrix {
   let n = cells.length()
   let cell_ids : Array[String] = Array::new()
-  
+
   let mut i = 0
   while i < n {
     cell_ids.push(cells[i].cell_id)
     i = i + 1
   }
-  
+
   // Compute pairwise distances
   let distances : Array[Array[Double]] = Array::new()
   i = 0
@@ -94,21 +92,29 @@ pub fn compute_distance_matrix(cells : Array[CellData], metric : String) -> Dist
     let row : Array[Double] = Array::new()
     let mut j = 0
     while j < n {
-      let dist = destiny_compute_distance(cells[i].expression, cells[j].expression, metric)
+      let dist = destiny_compute_distance(
+        cells[i].expression,
+        cells[j].expression,
+        metric,
+      )
       row.push(dist)
       j = j + 1
     }
     distances.push(row)
     i = i + 1
   }
-  
+
   DistanceMatrix::new(cell_ids, distances)
 }
 
 ///|
-fn destiny_compute_distance(a : Array[Double], b : Array[Double], metric : String) -> Double {
+fn destiny_compute_distance(
+  a : Array[Double],
+  b : Array[Double],
+  metric : String,
+) -> Double {
   let n = a.length()
-  
+
   match metric {
     "euclidean" => {
       let mut sum = 0.0
@@ -145,10 +151,13 @@ fn destiny_compute_distance(a : Array[Double], b : Array[Double], metric : Strin
 }
 
 ///|
-pub fn compute_gaussian_kernel(dist_matrix : DistanceMatrix, sigma : Double) -> KernelMatrix {
+pub fn compute_gaussian_kernel(
+  dist_matrix : DistanceMatrix,
+  sigma : Double,
+) -> KernelMatrix {
   let n = dist_matrix.n_cells
   let cells = dist_matrix.cells
-  
+
   let kernel : Array[Array[Double]] = Array::new()
   let mut i = 0
   while i < n {
@@ -163,7 +172,7 @@ pub fn compute_gaussian_kernel(dist_matrix : DistanceMatrix, sigma : Double) -> 
     kernel.push(row)
     i = i + 1
   }
-  
+
   KernelMatrix::new(cells, kernel, sigma)
 }
 
@@ -173,7 +182,7 @@ pub fn find_sigma_automatic(dist_matrix : DistanceMatrix) -> Double {
   if n < 2 {
     return 1.0
   }
-  
+
   // Calculate pairwise distances and use median
   let distances : Array[Double] = Array::new()
   let mut i = 0
@@ -185,52 +194,64 @@ pub fn find_sigma_automatic(dist_matrix : DistanceMatrix) -> Double {
     }
     i = i + 1
   }
-  
+
   // Sort and get median
   let sorted = destiny_sort_array(distances)
   let len = sorted.length()
   if len == 0 {
     return 1.0
   }
-  
+
   let median_idx = len / 2
   let median = if len % 2 == 0 {
     (sorted[median_idx - 1] + sorted[median_idx]) / 2.0
   } else {
     sorted[median_idx]
   }
-  
+
   // Use median as sigma
-  if median < 0.001 { 1.0 } else { median }
+  if median < 0.001 {
+    1.0
+  } else {
+    median
+  }
 }
 
 ///|
-pub fn compute_diffusion_map(cells : Array[CellData], n_components : Int, sigma : Double) -> DiffusionResult {
+pub fn compute_diffusion_map(
+  cells : Array[CellData],
+  n_components : Int,
+  sigma : Double,
+) -> DiffusionResult {
   let n = cells.length()
   let cell_ids : Array[String] = Array::new()
-  
+
   let mut i = 0
   while i < n {
     cell_ids.push(cells[i].cell_id)
     i = i + 1
   }
-  
+
   // Step 1: Compute distance matrix
   let dist_matrix = compute_distance_matrix(cells, "euclidean")
-  
+
   // Step 2: Compute kernel
   let kernel = compute_gaussian_kernel(dist_matrix, sigma)
-  
+
   // Step 3: Normalize kernel (markov matrix)
   let markov = destiny_normalize_kernel(kernel)
-  
+
   // Step 4: Compute eigendecomposition
   let n_comp = if n_components > n - 1 { n - 1 } else { n_components }
   let eigen_result = destiny_eigen_decomposition(markov.kernel, n_comp)
-  
+
   // Step 5: Compute diffusion components
-  let embedding = destiny_compute_embedding(eigen_result.eigen_vectors, eigen_result.eigen_values, n_comp)
-  
+  let embedding = destiny_compute_embedding(
+    eigen_result.eigen_vectors,
+    eigen_result.eigen_values,
+    n_comp,
+  )
+
   // Calculate explained variance
   let total_var = destiny_sum_array(eigen_result.eigen_values)
   let explained_variance : Array[Double] = Array::new()
@@ -244,12 +265,12 @@ pub fn compute_diffusion_map(cells : Array[CellData], n_components : Int, sigma 
     explained_variance.push(var)
     j = j + 1
   }
-  
+
   DiffusionResult::{
     embedding,
     eigenvalues: eigen_result.eigen_values,
     cell_ids,
-    explained_variance
+    explained_variance,
   }
 }
 
@@ -257,27 +278,23 @@ pub fn compute_diffusion_map(cells : Array[CellData], n_components : Int, sigma 
 fn destiny_normalize_kernel(kernel : KernelMatrix) -> KernelMatrix {
   let n = kernel.cells.length()
   let normalized : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < n {
     let row = kernel.kernel[i]
     let row_sum = destiny_sum_array(row)
-    
+
     let normalized_row : Array[Double] = Array::new()
     let mut j = 0
     while j < n {
-      let val = if row_sum > 0.0 {
-        row[j] / row_sum
-      } else {
-        0.0
-      }
+      let val = if row_sum > 0.0 { row[j] / row_sum } else { 0.0 }
       normalized_row.push(val)
       j = j + 1
     }
     normalized.push(normalized_row)
     i = i + 1
   }
-  
+
   KernelMatrix::new(kernel.cells, normalized, kernel.bandwidth)
 }
 
@@ -288,26 +305,31 @@ struct EigenResult {
 }
 
 ///|
-fn destiny_eigen_decomposition(matrix : Array[Array[Double]], n_components : Int) -> EigenResult {
+fn destiny_eigen_decomposition(
+  matrix : Array[Array[Double]],
+  n_components : Int,
+) -> EigenResult {
   let n = matrix.length()
-  
+
   // Use power iteration for eigenvalue computation
   let eigen_values : Array[Double] = Array::new()
   let eigen_vectors : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < n_components {
     // Initialize random vector
     let mut vector : Array[Double] = Array::new()
     let mut j = 0
     while j < n {
-      vector.push(destiny_random_vector_component(j.to_double() + i.to_double() * 100.0))
+      vector.push(
+        destiny_random_vector_component(j.to_double() + i.to_double() * 100.0),
+      )
       j = j + 1
     }
-    
+
     // Normalize
     vector = destiny_normalize_vector(vector)
-    
+
     let mut lambda = 0.0
     let mut iteration = 0
     while iteration < 50 {
@@ -324,15 +346,15 @@ fn destiny_eigen_decomposition(matrix : Array[Array[Double]], n_components : Int
         new_vector.push(sum)
         k = k + 1
       }
-      
+
       lambda = destiny_vector_norm(new_vector)
       vector = destiny_normalize_vector(new_vector)
-      
+
       iteration = iteration + 1
     }
-    
+
     eigen_values.push(lambda)
-    
+
     // Store eigenvector
     let ev : Array[Double] = Array::new()
     let mut m = 0
@@ -341,7 +363,7 @@ fn destiny_eigen_decomposition(matrix : Array[Array[Double]], n_components : Int
       m = m + 1
     }
     eigen_vectors.push(ev)
-    
+
     // Deflate matrix
     let deflated : Array[Array[Double]] = Array::new()
     let mut p = 0
@@ -356,29 +378,34 @@ fn destiny_eigen_decomposition(matrix : Array[Array[Double]], n_components : Int
       deflated.push(row)
       p = p + 1
     }
-    
+
     // Update matrix for next iteration
     // Note: This modifies the original - in production would need copy
     // For simplicity, we re-assign
-    let _ = deflated  // Just for reference
-    
+    let _ = deflated // Just for reference
+
     i = i + 1
   }
-  
-  EigenResult::{
-    eigen_values,
-    eigen_vectors
-  }
+
+  EigenResult::{ eigen_values, eigen_vectors }
 }
 
 ///|
-fn destiny_compute_embedding(eigen_vectors : Array[Array[Double]], eigen_values : Array[Double], n_components : Int) -> Array[Array[Double]] {
+fn destiny_compute_embedding(
+  eigen_vectors : Array[Array[Double]],
+  eigen_values : Array[Double],
+  n_components : Int,
+) -> Array[Array[Double]] {
   // eigen_vectors has shape [n_components][n_cells]
   let n_components_actual = eigen_vectors.length()
-  let n_cells = if n_components_actual > 0 { eigen_vectors[0].length() } else { 0 }
-  
+  let n_cells = if n_components_actual > 0 {
+    eigen_vectors[0].length()
+  } else {
+    0
+  }
+
   let embedding : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < n_cells {
     let cell_embedding : Array[Double] = Array::new()
@@ -395,25 +422,32 @@ fn destiny_compute_embedding(eigen_vectors : Array[Array[Double]], eigen_values 
     embedding.push(cell_embedding)
     i = i + 1
   }
-  
+
   embedding
 }
 
 ///|
-pub fn destiny_create_embedding(cells : Array[CellData], n_components : Int) -> DiffusionResult {
+pub fn destiny_create_embedding(
+  cells : Array[CellData],
+  n_components : Int,
+) -> DiffusionResult {
   // Find optimal sigma
   let dist_matrix = compute_distance_matrix(cells, "euclidean")
   let sigma = find_sigma_automatic(dist_matrix)
-  
+
   // Compute diffusion map
   compute_diffusion_map(cells, n_components, sigma)
 }
 
 ///|
-pub fn destiny_plot_coordinates(result : DiffusionResult, component_x : Int, component_y : Int) -> Array[(String, Double, Double)] {
+pub fn destiny_plot_coordinates(
+  result : DiffusionResult,
+  component_x : Int,
+  component_y : Int,
+) -> Array[(String, Double, Double)] {
   let coordinates : Array[(String, Double, Double)] = Array::new()
   let n = result.cell_ids.length()
-  
+
   let mut i = 0
   while i < n {
     let x = result.embedding[i][component_x]
@@ -421,7 +455,7 @@ pub fn destiny_plot_coordinates(result : DiffusionResult, component_x : Int, com
     coordinates.push((result.cell_ids[i], x, y))
     i = i + 1
   }
-  
+
   coordinates
 }
 
@@ -429,24 +463,35 @@ pub fn destiny_plot_coordinates(result : DiffusionResult, component_x : Int, com
 pub fn destiny_summary(result : DiffusionResult) -> String {
   let mut summary = "\nDiffusion Map Summary\n"
   summary = summary + "==============================\n"
-  summary = summary + "Number of cells: " + result.cell_ids.length().to_string() + "\n"
-  summary = summary + "Number of components: " + result.eigenvalues.length().to_string() + "\n"
-  
+  summary = summary +
+    "Number of cells: " +
+    result.cell_ids.length().to_string() +
+    "\n"
+  summary = summary +
+    "Number of components: " +
+    result.eigenvalues.length().to_string() +
+    "\n"
+
   let mut i = 0
   while i < result.eigenvalues.length() {
-    summary = summary + "Component " + (i + 1).to_string() + 
-      ": eigenvalue = " + result.eigenvalues[i].to_string() + 
-      ", explained variance = " + (result.explained_variance[i] * 100.0).to_string() + "%\n"
+    summary = summary +
+      "Component " +
+      (i + 1).to_string() +
+      ": eigenvalue = " +
+      result.eigenvalues[i].to_string() +
+      ", explained variance = " +
+      (result.explained_variance[i] * 100.0).to_string() +
+      "%\n"
     i = i + 1
   }
-  
+
   summary
 }
 
 ///|
 pub fn create_example_sc_data(n_cells : Int, n_genes : Int) -> Array[CellData] {
   let cells : Array[CellData] = Array::new()
-  
+
   let mut i = 0
   while i < n_cells {
     let expression : Array[Double] = Array::new()
@@ -459,22 +504,27 @@ pub fn create_example_sc_data(n_cells : Int, n_genes : Int) -> Array[CellData] {
       expression.push(base + noise)
       j = j + 1
     }
-    
+
     let cell = CellData::new(
       "cell_" + i.to_string(),
       expression,
-      if i < n_cells / 2 { "cluster_1" } else { "cluster_2" }
+      if i < n_cells / 2 {
+        "cluster_1"
+      } else {
+        "cluster_2"
+      },
     )
-    
+
     cells.push(cell)
     i = i + 1
   }
-  
+
   cells
 }
 
 // Helper functions
 
+///|
 fn destiny_sort_array(arr : Array[Double]) -> Array[Double] {
   let sorted = arr
   // Simple bubble sort for small arrays
@@ -495,6 +545,7 @@ fn destiny_sort_array(arr : Array[Double]) -> Array[Double] {
   sorted
 }
 
+///|
 fn destiny_sum_array(arr : Array[Double]) -> Double {
   let mut sum = 0.0
   let mut i = 0
@@ -505,6 +556,7 @@ fn destiny_sum_array(arr : Array[Double]) -> Double {
   sum
 }
 
+///|
 fn destiny_normalize_vector(v : Array[Double]) -> Array[Double] {
   let norm = destiny_vector_norm(v)
   if norm == 0.0 {
@@ -516,7 +568,7 @@ fn destiny_normalize_vector(v : Array[Double]) -> Array[Double] {
     }
     return result
   }
-  
+
   let normalized : Array[Double] = Array::new()
   let mut i = 0
   while i < v.length() {
@@ -526,6 +578,7 @@ fn destiny_normalize_vector(v : Array[Double]) -> Array[Double] {
   normalized
 }
 
+///|
 fn destiny_vector_norm(v : Array[Double]) -> Double {
   let mut sum = 0.0
   let mut i = 0
@@ -536,9 +589,16 @@ fn destiny_vector_norm(v : Array[Double]) -> Double {
   sum.sqrt()
 }
 
+///|
 fn destiny_random_vector_component(seed : Double) -> Double {
   // Simple deterministic pseudo-random generator
   let raw = seed * 99991.0
   let x = (raw - raw.floor()) * 2.0 - 1.0
-  if x < -1.0 { -1.0 } else if x > 1.0 { 1.0 } else { x }
+  if x < -1.0 {
+    -1.0
+  } else if x > 1.0 {
+    1.0
+  } else {
+    x
+  }
 }

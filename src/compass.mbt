@@ -282,21 +282,9 @@ pub fn parse_compass(content : String) -> Array[CompassRecord] {
       if has_record {
         records.push(
           CompassRecord::new(
-            query_name,
-            template_name,
-            query_n_seqs,
-            template_n_seqs,
-            query_n_cols,
-            template_n_cols,
-            sw_score,
-            e_value,
-            percentage_identity,
-            query_start,
-            query_end,
-            template_start,
-            template_end,
-            aligned_query,
-            aligned_template,
+            query_name, template_name, query_n_seqs, template_n_seqs, query_n_cols,
+            template_n_cols, sw_score, e_value, percentage_identity, query_start,
+            query_end, template_start, template_end, aligned_query, aligned_template,
             consensus_line,
           ),
         )
@@ -323,29 +311,27 @@ pub fn parse_compass(content : String) -> Array[CompassRecord] {
       query_name = compass_extract_after(trimmed, "Query alignment:")
     } else if starts_with(trimmed, 0, "Template alignment:") {
       template_name = compass_extract_after(trimmed, "Template alignment:")
-    } else if starts_with(
-      trimmed, 0, "Number of sequences in query alignment:",
-    ) {
+    } else if starts_with(trimmed, 0, "Number of sequences in query alignment:") {
       query_n_seqs = parse_int(
-        compass_extract_after(trimmed, "Number of sequences in query alignment:"),
+        compass_extract_after(
+          trimmed, "Number of sequences in query alignment:",
+        ),
       )
     } else if starts_with(
-      trimmed, 0, "Number of sequences in template alignment:",
-    ) {
+        trimmed, 0, "Number of sequences in template alignment:",
+      ) {
       template_n_seqs = parse_int(
         compass_extract_after(
           trimmed, "Number of sequences in template alignment:",
         ),
       )
-    } else if starts_with(
-      trimmed, 0, "Number of columns in query alignment:",
-    ) {
+    } else if starts_with(trimmed, 0, "Number of columns in query alignment:") {
       query_n_cols = parse_int(
         compass_extract_after(trimmed, "Number of columns in query alignment:"),
       )
     } else if starts_with(
-      trimmed, 0, "Number of columns in template alignment:",
-    ) {
+        trimmed, 0, "Number of columns in template alignment:",
+      ) {
       template_n_cols = parse_int(
         compass_extract_after(
           trimmed, "Number of columns in template alignment:",
@@ -356,9 +342,9 @@ pub fn parse_compass(content : String) -> Array[CompassRecord] {
         compass_extract_after(trimmed, "Smith-Waterman score:"),
       ).unwrap_or(0.0)
     } else if starts_with(trimmed, 0, "E-value:") {
-      e_value = parse_double(
-        compass_extract_after(trimmed, "E-value:"),
-      ).unwrap_or(0.0)
+      e_value = parse_double(compass_extract_after(trimmed, "E-value:")).unwrap_or(
+        0.0,
+      )
     } else if starts_with(trimmed, 0, "Percentage identity:") {
       percentage_identity = parse_double(
         compass_extract_after(trimmed, "Percentage identity:"),
@@ -383,22 +369,9 @@ pub fn parse_compass(content : String) -> Array[CompassRecord] {
   if has_record {
     records.push(
       CompassRecord::new(
-        query_name,
-        template_name,
-        query_n_seqs,
-        template_n_seqs,
-        query_n_cols,
-        template_n_cols,
-        sw_score,
-        e_value,
-        percentage_identity,
-        query_start,
-        query_end,
-        template_start,
-        template_end,
-        aligned_query,
-        aligned_template,
-        consensus_line,
+        query_name, template_name, query_n_seqs, template_n_seqs, query_n_cols, template_n_cols,
+        sw_score, e_value, percentage_identity, query_start, query_end, template_start,
+        template_end, aligned_query, aligned_template, consensus_line,
       ),
     )
   }
@@ -476,7 +449,8 @@ pub fn compass_summary(records : Array[CompassRecord]) -> String {
     s = s + "  SW score: " + r.sw_score.to_string() + "\n"
     s = s + "  E-value: " + r.e_value.to_string() + "\n"
     s = s + "  Identity: " + r.percentage_identity.to_string() + "%\n"
-    s = s + "  Alignment length: " +
+    s = s +
+      "  Alignment length: " +
       compass_alignment_length(r).to_string() +
       "\n\n"
   }
@@ -491,11 +465,13 @@ pub fn CompassRecord::to_string(self : CompassRecord) -> String {
   s = s + ", sw_score=" + self.sw_score.to_string()
   s = s + ", e_value=" + self.e_value.to_string()
   s = s + ", identity=" + self.percentage_identity.to_string()
-  s = s + ", query_range=" +
+  s = s +
+    ", query_range=" +
     self.query_start.to_string() +
     "-" +
     self.query_end.to_string()
-  s = s + ", template_range=" +
+  s = s +
+    ", template_range=" +
     self.template_start.to_string() +
     "-" +
     self.template_end.to_string()

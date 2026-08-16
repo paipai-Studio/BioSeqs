@@ -89,10 +89,7 @@ pub struct MAFConfig {
 ///|
 /// Default MAF configuration.
 pub fn MAFConfig::default() -> MAFConfig {
-  MAFConfig::{
-    store_sequences: true,
-    min_score: 0.0,
-  }
+  MAFConfig::{ store_sequences: true, min_score: 0.0 }
 }
 
 // ============================================================================
@@ -109,14 +106,7 @@ pub fn new_maf_sequence(
   seq_size : Int,
   aligned_seq : String,
 ) -> MAFSequence {
-  MAFSequence::{
-    seq_name,
-    start,
-    length,
-    strand,
-    seq_size,
-    aligned_seq,
-  }
+  MAFSequence::{ seq_name, start, length, strand, seq_size, aligned_seq }
 }
 
 ///|
@@ -132,7 +122,7 @@ pub fn maf_seq_sequence(seq : MAFSequence) -> String {
   for i = 0; i < seq.aligned_seq.length(); i = i + 1 {
     let c = seq.aligned_seq.unsafe_get(i)
     if c.to_int() != '-'.to_int() && c.to_int() != '.'.to_int() {
-      result = result + seq.aligned_seq[i:i+1].to_owned()
+      result = result + seq.aligned_seq[i:i + 1].to_owned()
     }
   }
   result
@@ -175,7 +165,10 @@ pub fn maf_block_add_seq(block : MAFBlock, seq : MAFSequence) -> MAFBlock {
 
 ///|
 /// Add a comment to the block.
-pub fn maf_block_add_comment(block : MAFBlock, comment : MAFComment) -> MAFBlock {
+pub fn maf_block_add_comment(
+  block : MAFBlock,
+  comment : MAFComment,
+) -> MAFBlock {
   block.comments.push(comment)
   block
 }
@@ -221,17 +214,17 @@ pub fn maf_block_percent_identity(block : MAFBlock) -> Double {
   if aln_len == 0 {
     return 0.0
   }
-  
+
   let mut total_matches = 0
   let mut total_pairs = 0
-  
+
   for col = 0; col < aln_len; col = col + 1 {
     let bases = Array::new()
     for s = 0; s < block.sequences.length(); s = s + 1 {
       let seq = block.sequences[s]
       let c = seq.aligned_seq.unsafe_get(col)
       if c.to_int() != '-'.to_int() && c.to_int() != '.'.to_int() {
-        bases.push(seq.aligned_seq[col:col+1].to_owned())
+        bases.push(seq.aligned_seq[col:col + 1].to_owned())
       }
     }
     let n_bases = bases.length()
@@ -246,11 +239,11 @@ pub fn maf_block_percent_identity(block : MAFBlock) -> Double {
       }
     }
   }
-  
+
   if total_pairs == 0 {
     return 0.0
   }
-  (total_matches.to_double() / total_pairs.to_double()) * 100.0
+  total_matches.to_double() / total_pairs.to_double() * 100.0
 }
 
 ///|
@@ -346,11 +339,11 @@ pub fn parse_maf(content : String) -> MAFAliignment {
   let mut result = new_maf_alignment()
   let lines = content.split("\n").to_array()
   let mut current_block : MAFBlock? = None
-  
+
   for i = 0; i < lines.length(); i = i + 1 {
     let line = lines[i].to_owned()
     let trimmed = trim(line)
-    
+
     if trimmed.length() == 0 {
       // Empty line - marks end of block
       match current_block {
@@ -363,7 +356,7 @@ pub fn parse_maf(content : String) -> MAFAliignment {
       }
       continue
     }
-    
+
     if starts_with(trimmed, 0, "##maf") {
       // Header line
       if starts_with(trimmed, 0, "##maf version=") {
@@ -380,7 +373,7 @@ pub fn parse_maf(content : String) -> MAFAliignment {
       }
       continue
     }
-    
+
     if starts_with(trimmed, 0, "#") {
       // Comment line
       match current_block {
@@ -388,13 +381,11 @@ pub fn parse_maf(content : String) -> MAFAliignment {
           let comment = MAFComment::{ key: trimmed }
           current_block = Some(maf_block_add_comment(block, comment))
         }
-        None => {
-          result.comments.push(trimmed)
-        }
+        None => result.comments.push(trimmed)
       }
       continue
     }
-    
+
     if starts_with(trimmed, 0, "a ") {
       // Block attributes line
       current_block = Some(new_maf_block())
@@ -425,7 +416,7 @@ pub fn parse_maf(content : String) -> MAFAliignment {
       }
       continue
     }
-    
+
     if starts_with(trimmed, 0, "s ") || starts_with(trimmed, 0, "s\t") {
       // Sequence line
       if current_block is None {
@@ -442,17 +433,17 @@ pub fn parse_maf(content : String) -> MAFAliignment {
         let strand = parts[4]
         let seq_size = parse_int(parts[5])
         let aligned_seq = if parts.length() >= 7 { parts[6] } else { "" }
-        let seq = new_maf_sequence(seq_name, start, length, strand, seq_size, aligned_seq)
+        let seq = new_maf_sequence(
+          seq_name, start, length, strand, seq_size, aligned_seq,
+        )
         match current_block {
-          Some(block) => {
-            current_block = Some(maf_block_add_seq(block, seq))
-          }
+          Some(block) => current_block = Some(maf_block_add_seq(block, seq))
           None => ()
         }
       }
       continue
     }
-    
+
     if starts_with(trimmed, 0, "e ") {
       // Event line
       if current_block is None {
@@ -464,22 +455,15 @@ pub fn parse_maf(content : String) -> MAFAliignment {
         let seq_name = parts[2]
         let position = if parts.length() >= 4 { parse_int(parts[3]) } else { 0 }
         let description = if parts.length() >= 5 { parts[4] } else { "" }
-        let event = MAFEvent::{
-          event_type,
-          seq_name,
-          position,
-          description,
-        }
+        let event = MAFEvent::{ event_type, seq_name, position, description }
         match current_block {
-          Some(block) => {
-            current_block = Some(maf_block_add_event(block, event))
-          }
+          Some(block) => current_block = Some(maf_block_add_event(block, event))
           None => ()
         }
       }
       continue
     }
-    
+
     if starts_with(trimmed, 0, "b ") {
       // Block info line (marks start of new block with boundary info)
       match current_block {
@@ -493,7 +477,7 @@ pub fn parse_maf(content : String) -> MAFAliignment {
       continue
     }
   }
-  
+
   // Add final block if exists
   match current_block {
     Some(block) => {
@@ -502,7 +486,7 @@ pub fn parse_maf(content : String) -> MAFAliignment {
     }
     None => ()
   }
-  
+
   result
 }
 
@@ -514,7 +498,7 @@ pub fn parse_maf(content : String) -> MAFAliignment {
 /// Write a MAFAliignment to a MAF-formatted string.
 pub fn write_maf(ali : MAFAliignment) -> String {
   let mut result = ""
-  
+
   // Write header
   result = result + "##maf version="
   result = result + ali.version
@@ -526,13 +510,13 @@ pub fn write_maf(ali : MAFAliignment) -> String {
     None => ()
   }
   result = result + "\n\n"
-  
+
   // Write top-level comments
   for c = 0; c < ali.comments.length(); c = c + 1 {
     result = result + ali.comments[c]
     result = result + "\n"
   }
-  
+
   // Write blocks
   for b = 0; b < ali.blocks.length(); b = b + 1 {
     let block = ali.blocks[b]
@@ -554,7 +538,7 @@ pub fn write_maf(ali : MAFAliignment) -> String {
       result = result + block.attributes[key]
     }
     result = result + "\n"
-    
+
     // Write sequences
     for s = 0; s < block.sequences.length(); s = s + 1 {
       let seq = block.sequences[s]
@@ -572,13 +556,13 @@ pub fn write_maf(ali : MAFAliignment) -> String {
       result = result + seq.aligned_seq
       result = result + "\n"
     }
-    
+
     // Write comments
     for c = 0; c < block.comments.length(); c = c + 1 {
       result = result + block.comments[c].key
       result = result + "\n"
     }
-    
+
     // Write events
     for e = 0; e < block.events.length(); e = e + 1 {
       let event = block.events[e]
@@ -594,10 +578,10 @@ pub fn write_maf(ali : MAFAliignment) -> String {
       }
       result = result + "\n"
     }
-    
+
     result = result + "\n"
   }
-  
+
   result
 }
 
@@ -607,12 +591,15 @@ pub fn write_maf(ali : MAFAliignment) -> String {
 
 ///|
 /// Select sequences by name and create a new alignment.
-pub fn maf_select_seqs(ali : MAFAliignment, names : Array[String]) -> MAFAliignment {
+pub fn maf_select_seqs(
+  ali : MAFAliignment,
+  names : Array[String],
+) -> MAFAliignment {
   let mut result = new_maf_alignment()
   result.version = ali.version
   result.score = ali.score
   result.comments = ali.comments
-  
+
   for b = 0; b < ali.blocks.length(); b = b + 1 {
     let block = ali.blocks[b]
     let mut new_block = new_maf_block()
@@ -621,30 +608,33 @@ pub fn maf_select_seqs(ali : MAFAliignment, names : Array[String]) -> MAFAliignm
     new_block.events = block.events
     new_block.comments = block.comments
     new_block.is_complete = block.is_complete
-    
+
     for s = 0; s < block.sequences.length(); s = s + 1 {
       let seq = block.sequences[s]
       if names.contains(seq.seq_name) {
         new_block = maf_block_add_seq(new_block, seq)
       }
     }
-    
+
     if new_block.sequences.length() > 0 {
       result = maf_add_block(result, new_block)
     }
   }
-  
+
   result
 }
 
 ///|
 /// Filter blocks by minimum alignment length.
-pub fn maf_filter_by_length(ali : MAFAliignment, min_length : Int) -> MAFAliignment {
+pub fn maf_filter_by_length(
+  ali : MAFAliignment,
+  min_length : Int,
+) -> MAFAliignment {
   let mut result = new_maf_alignment()
   result.version = ali.version
   result.score = ali.score
   result.comments = ali.comments
-  
+
   for b = 0; b < ali.blocks.length(); b = b + 1 {
     let block = ali.blocks[b]
     let aln_len = maf_block_alignment_length(block)
@@ -652,18 +642,21 @@ pub fn maf_filter_by_length(ali : MAFAliignment, min_length : Int) -> MAFAliignm
       result = maf_add_block(result, block)
     }
   }
-  
+
   result
 }
 
 ///|
 /// Filter blocks by minimum percent identity.
-pub fn maf_filter_by_identity(ali : MAFAliignment, min_identity : Double) -> MAFAliignment {
+pub fn maf_filter_by_identity(
+  ali : MAFAliignment,
+  min_identity : Double,
+) -> MAFAliignment {
   let mut result = new_maf_alignment()
   result.version = ali.version
   result.score = ali.score
   result.comments = ali.comments
-  
+
   for b = 0; b < ali.blocks.length(); b = b + 1 {
     let block = ali.blocks[b]
     let identity = maf_block_percent_identity(block)
@@ -671,7 +664,7 @@ pub fn maf_filter_by_identity(ali : MAFAliignment, min_identity : Double) -> MAF
       result = maf_add_block(result, block)
     }
   }
-  
+
   result
 }
 
@@ -681,29 +674,29 @@ pub fn maf_merge_blocks(ali : MAFAliignment) -> MAFAliignment {
   if ali.blocks.length() <= 1 {
     return ali
   }
-  
+
   let mut result = new_maf_alignment()
   result.version = ali.version
   result.score = ali.score
   result.comments = ali.comments
-  
+
   let mut current_block = ali.blocks[0]
-  
+
   for i = 1; i < ali.blocks.length(); i = i + 1 {
     let block = ali.blocks[i]
-    
+
     // Check if blocks have the same sequences
     let same_seqs = current_block.sequences.length() == block.sequences.length()
-    let can_merge = same_seqs && 
-      current_block.events.length() == 0 && 
+    let can_merge = same_seqs &&
+      current_block.events.length() == 0 &&
       block.events.length() == 0
-    
+
     if can_merge {
       // Merge: concatenate sequences
       let mut new_block = new_maf_block()
       new_block.score = current_block.score
       new_block.attributes = current_block.attributes
-      
+
       for j = 0; j < current_block.sequences.length(); j = j + 1 {
         let seq1 = current_block.sequences[j]
         let seq2 = block.sequences[j]
@@ -717,14 +710,14 @@ pub fn maf_merge_blocks(ali : MAFAliignment) -> MAFAliignment {
         )
         new_block = maf_block_add_seq(new_block, merged_seq)
       }
-      
+
       current_block = new_block
     } else {
       result = maf_add_block(result, current_block)
       current_block = block
     }
   }
-  
+
   result = maf_add_block(result, current_block)
   result
 }
@@ -734,12 +727,12 @@ pub fn maf_merge_blocks(ali : MAFAliignment) -> MAFAliignment {
 pub fn maf_sequence_coverage(ali : MAFAliignment) -> Map[String, Double] {
   let coverage = Map([], capacity=10)
   let seq_names = maf_all_seq_names(ali)
-  
+
   for n = 0; n < seq_names.length(); n = n + 1 {
     let name = seq_names[n]
     let mut total_alignment = 0.0
     let mut total_length = 0.0
-    
+
     for b = 0; b < ali.blocks.length(); b = b + 1 {
       let block = ali.blocks[b]
       for s = 0; s < block.sequences.length(); s = s + 1 {
@@ -750,14 +743,14 @@ pub fn maf_sequence_coverage(ali : MAFAliignment) -> Map[String, Double] {
         }
       }
     }
-    
+
     if total_length > 0.0 {
-      coverage[name] = (total_alignment / total_length) * 100.0
+      coverage[name] = total_alignment / total_length * 100.0
     } else {
       coverage[name] = 0.0
     }
   }
-  
+
   coverage
 }
 
@@ -785,23 +778,31 @@ pub fn maf_compute_stats(ali : MAFAliignment) -> MAFStats {
   let total_length = maf_total_length(ali)
   let num_sequences = maf_all_seq_names(ali).length()
   let avg_percent_identity = maf_average_percent_identity(ali)
-  
+
   let mut total_coverage = 0.0
   let lengths = Array::new()
   let mut min_len = 99999999
   let mut max_len = 0
-  
+
   for b = 0; b < ali.blocks.length(); b = b + 1 {
     let block = ali.blocks[b]
     total_coverage = total_coverage + maf_block_coverage(block)
     let blen = maf_block_alignment_length(block)
     lengths.push(blen)
-    if blen < min_len { min_len = blen }
-    if blen > max_len { max_len = blen }
+    if blen < min_len {
+      min_len = blen
+    }
+    if blen > max_len {
+      max_len = blen
+    }
   }
-  
-  let avg_block_coverage = if num_blocks > 0 { total_coverage / num_blocks.to_double() } else { 0.0 }
-  
+
+  let avg_block_coverage = if num_blocks > 0 {
+    total_coverage / num_blocks.to_double()
+  } else {
+    0.0
+  }
+
   // Calculate median
   lengths.sort()
   let median = if lengths.length() > 0 {
@@ -814,14 +815,18 @@ pub fn maf_compute_stats(ali : MAFAliignment) -> MAFStats {
   } else {
     0.0
   }
-  
+
   MAFStats::{
     num_blocks,
     total_length,
     num_sequences,
     avg_percent_identity,
     avg_block_coverage,
-    min_block_length: if min_len == 99999999 { 0 } else { min_len },
+    min_block_length: if min_len == 99999999 {
+      0
+    } else {
+      min_len
+    },
     max_block_length: max_len,
     median_block_length: median,
   }

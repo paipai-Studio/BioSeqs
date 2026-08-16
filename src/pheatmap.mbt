@@ -19,10 +19,24 @@ pub enum DistanceMethod {
 }
 
 ///|
-pub fn distance_method_euclidean() -> DistanceMethod { DistanceMethod::Euclidean }
-pub fn distance_method_manhattan() -> DistanceMethod { DistanceMethod::Manhattan }
-pub fn distance_method_correlation() -> DistanceMethod { DistanceMethod::Correlation }
-pub fn distance_method_maximum() -> DistanceMethod { DistanceMethod::Maximum }
+pub fn distance_method_euclidean() -> DistanceMethod {
+  DistanceMethod::Euclidean
+}
+
+///|
+pub fn distance_method_manhattan() -> DistanceMethod {
+  DistanceMethod::Manhattan
+}
+
+///|
+pub fn distance_method_correlation() -> DistanceMethod {
+  DistanceMethod::Correlation
+}
+
+///|
+pub fn distance_method_maximum() -> DistanceMethod {
+  DistanceMethod::Maximum
+}
 
 ///|
 pub enum ClusterMethod {
@@ -33,10 +47,24 @@ pub enum ClusterMethod {
 }
 
 ///|
-pub fn cluster_method_complete() -> ClusterMethod { ClusterMethod::Complete }
-pub fn cluster_method_average() -> ClusterMethod { ClusterMethod::Average }
-pub fn cluster_method_ward() -> ClusterMethod { ClusterMethod::Ward }
-pub fn cluster_method_single() -> ClusterMethod { ClusterMethod::Single }
+pub fn cluster_method_complete() -> ClusterMethod {
+  ClusterMethod::Complete
+}
+
+///|
+pub fn cluster_method_average() -> ClusterMethod {
+  ClusterMethod::Average
+}
+
+///|
+pub fn cluster_method_ward() -> ClusterMethod {
+  ClusterMethod::Ward
+}
+
+///|
+pub fn cluster_method_single() -> ClusterMethod {
+  ClusterMethod::Single
+}
 
 ///|
 pub struct PheatmapInput {
@@ -101,7 +129,11 @@ pub fn distance_manhattan(a : Array[Double], b : Array[Double]) -> Double {
   let mut i = 0
   while i < n {
     let d = a[i] - b[i]
-    if d < 0.0 { sum = sum - d } else { sum = sum + d }
+    if d < 0.0 {
+      sum = sum - d
+    } else {
+      sum = sum + d
+    }
     i = i + 1
   }
   sum
@@ -115,7 +147,9 @@ pub fn distance_maximum(a : Array[Double], b : Array[Double]) -> Double {
   while i < n {
     let d = a[i] - b[i]
     let ad = if d < 0.0 { -d } else { d }
-    if ad > mx { mx = ad }
+    if ad > mx {
+      mx = ad
+    }
     i = i + 1
   }
   mx
@@ -124,7 +158,9 @@ pub fn distance_maximum(a : Array[Double], b : Array[Double]) -> Double {
 ///|
 pub fn distance_correlation(a : Array[Double], b : Array[Double]) -> Double {
   let n = a.length()
-  if n < 2 { return 1.0 }
+  if n < 2 {
+    return 1.0
+  }
   let mut ma = 0.0
   let mut mb = 0.0
   let mut i = 0
@@ -148,7 +184,9 @@ pub fn distance_correlation(a : Array[Double], b : Array[Double]) -> Double {
     j = j + 1
   }
   let denom = (da * db).sqrt()
-  if denom == 0.0 { return 1.0 }
+  if denom == 0.0 {
+    return 1.0
+  }
   let corr = num / denom
   1.0 - corr
 }
@@ -161,7 +199,10 @@ pub fn pheatmap_distance_matrix(
   let n = data.length()
   let dist : Array[Array[Double]] = Array::new()
   let mut ri = 0
-  while ri < n { dist.push(Array::make(n, 0.0)); ri = ri + 1 }
+  while ri < n {
+    dist.push(Array::make(n, 0.0))
+    ri = ri + 1
+  }
   let mut i = 0
   while i < n {
     let mut j = 0
@@ -191,11 +232,16 @@ pub fn pheatmap_column_distance_matrix(
   method : DistanceMethod,
 ) -> Array[Array[Double]] {
   let n = data.length()
-  if n == 0 { return [] }
+  if n == 0 {
+    return []
+  }
   let p = data[0].length()
   let col_data : Array[Array[Double]] = Array::new()
   let mut cj = 0
-  while cj < p { col_data.push(Array::make(n, 0.0)); cj = cj + 1 }
+  while cj < p {
+    col_data.push(Array::make(n, 0.0))
+    cj = cj + 1
+  }
   let mut j = 0
   while j < p {
     let mut i = 0
@@ -237,15 +283,24 @@ pub fn hclust_complete(dist : Array[Array[Double]]) -> HclustResult {
   // cluster[i] = current cluster id for point i (initially -i-1 for leaves)
   let cluster : Array[Int] = Array::make(n, 0)
   let mut i = 0
-  while i < n { cluster[i] = -i - 1; i = i + 1 }
+  while i < n {
+    cluster[i] = -i - 1
+    i = i + 1
+  }
   // Working distance matrix for merging
   let work_dist : Array[Array[Double]] = Array::new()
   let mut wi = 0
-  while wi < n { work_dist.push(Array::make(n, 0.0)); wi = wi + 1 }
+  while wi < n {
+    work_dist.push(Array::make(n, 0.0))
+    wi = wi + 1
+  }
   let mut ri = 0
   while ri < n {
     let mut cj = 0
-    while cj < n { work_dist[ri][cj] = dist[ri][cj]; cj = cj + 1 }
+    while cj < n {
+      work_dist[ri][cj] = dist[ri][cj]
+      cj = cj + 1
+    }
     ri = ri + 1
   }
   let merge : Array[(Int, Int)] = Array::new()
@@ -263,7 +318,11 @@ pub fn hclust_complete(dist : Array[Array[Double]]) -> HclustResult {
       while b < n {
         if cluster[a] != cluster[b] {
           let d = work_dist[a][b]
-          if d < min_d { min_d = d; min_i = a; min_j = b }
+          if d < min_d {
+            min_d = d
+            min_i = a
+            min_j = b
+          }
         }
         b = b + 1
       }
@@ -278,7 +337,9 @@ pub fn hclust_complete(dist : Array[Array[Double]]) -> HclustResult {
     let old_j = cluster[min_j]
     let mut k = 0
     while k < n {
-      if cluster[k] == old_i || cluster[k] == old_j { cluster[k] = new_id }
+      if cluster[k] == old_i || cluster[k] == old_j {
+        cluster[k] = new_id
+      }
       k = k + 1
     }
     // Update distance matrix for the merged cluster (complete linkage: max distance)
@@ -303,25 +364,32 @@ pub fn hclust_complete(dist : Array[Array[Double]]) -> HclustResult {
   HclustResult::{ merge, height, order, n }
 }
 
+///|
 fn hclust_inorder(merge : Array[(Int, Int)], n : Int) -> Array[Int] {
   let result : Array[Int] = Array::new()
-  if n <= 0 { return result }
+  if n <= 0 {
+    return result
+  }
   // The last merge (merge[length-1]) contains the final cluster
   let final_idx = merge.length() - 1
   let left_result = hclust_inorder_rec(merge, merge[final_idx].0)
   let right_result = hclust_inorder_rec(merge, merge[final_idx].1)
   // Combine
   let mut i = 0
-  while i < left_result.length() { result.push(left_result[i]); i = i + 1 }
+  while i < left_result.length() {
+    result.push(left_result[i])
+    i = i + 1
+  }
   let mut j = 0
-  while j < right_result.length() { result.push(right_result[j]); j = j + 1 }
+  while j < right_result.length() {
+    result.push(right_result[j])
+    j = j + 1
+  }
   result
 }
 
-fn hclust_inorder_rec(
-  merge : Array[(Int, Int)],
-  node : Int,
-) -> Array[Int] {
+///|
+fn hclust_inorder_rec(merge : Array[(Int, Int)], node : Int) -> Array[Int] {
   if node < 0 {
     // Leaf node: -node-1 gives the original index
     [-node - 1]
@@ -332,9 +400,15 @@ fn hclust_inorder_rec(
     let right = hclust_inorder_rec(merge, merge[merge_idx].1)
     let result : Array[Int] = Array::new()
     let mut i = 0
-    while i < left.length() { result.push(left[i]); i = i + 1 }
+    while i < left.length() {
+      result.push(left[i])
+      i = i + 1
+    }
     let mut j = 0
-    while j < right.length() { result.push(right[j]); j = j + 1 }
+    while j < right.length() {
+      result.push(right[j])
+      j = j + 1
+    }
     result
   }
 }
@@ -346,14 +420,17 @@ pub fn hclust_cutree(result : HclustResult, k : Int) -> Array[Int] {
   let clusters : Array[Int] = Array::make(n, 0)
   if k <= 1 || k >= n {
     let mut i = 0
-    while i < n { clusters[order[i]] = 1; i = i + 1 }
+    while i < n {
+      clusters[order[i]] = 1
+      i = i + 1
+    }
     return clusters
   }
   // Find split points from merge tree
   let total_merges = result.merge.length()
   let cut_point = total_merges - k + 1
   // Create cluster assignments by following the merge tree
-  let node_cluster : Map[Int, Int] = Map([], capacity = total_merges + n)
+  let node_cluster : Map[Int, Int] = Map([], capacity=total_merges + n)
   let mut cluster_id = 0
   let mut i = 0
   while i < n {
@@ -382,7 +459,7 @@ pub fn hclust_cutree(result : HclustResult, k : Int) -> Array[Int] {
     step = step + 1
   }
   // Assign final cluster labels
-  let label_map = Map([], capacity = n)
+  let label_map = Map([], capacity=n)
   let mut final_id = 0
   let mut k2 = 0
   while k2 < n {
@@ -427,11 +504,21 @@ pub fn heat_colors(n : Int) -> Array[String] {
   let mut i = 0
   while i < n {
     let t = i.to_double() / (n.to_double() - 1.0)
-    let clamped_t = if t < 0.0 { 0.0 } else { if t > 1.0 { 1.0 } else { t } }
-    let clamped_inv = if (1.0 - t) < 0.0 { 0.0 } else { if (1.0 - t) > 1.0 { 1.0 } else { 1.0 - t } }
+    let clamped_t = if t < 0.0 { 0.0 } else if t > 1.0 { 1.0 } else { t }
+    let clamped_inv = if 1.0 - t < 0.0 {
+      0.0
+    } else if 1.0 - t > 1.0 {
+      1.0
+    } else {
+      1.0 - t
+    }
     let r = (255.0 * clamped_t).to_int()
     let b = (255.0 * clamped_inv).to_int()
-    let g = if t < 0.5 { (255.0 * t * 2.0).to_int() } else { (255.0 * (1.0 - t) * 2.0).to_int() }
+    let g = if t < 0.5 {
+      (255.0 * t * 2.0).to_int()
+    } else {
+      (255.0 * (1.0 - t) * 2.0).to_int()
+    }
     let clamp_r = if r < 0 { 0 } else if r > 255 { 255 } else { r }
     let clamp_g = if g < 0 { 0 } else if g > 255 { 255 } else { g }
     let clamp_b = if b < 0 { 0 } else if b > 255 { 255 } else { b }
@@ -442,6 +529,7 @@ pub fn heat_colors(n : Int) -> Array[String] {
   colors
 }
 
+///|
 fn pheatmap_hex_color(r : Int, g : Int, b : Int) -> String {
   let rh = pheatmap_int_to_hex(r)
   let gh = pheatmap_int_to_hex(g)
@@ -449,8 +537,11 @@ fn pheatmap_hex_color(r : Int, g : Int, b : Int) -> String {
   "#\{rh}\{gh}\{bh}"
 }
 
+///|
 fn pheatmap_int_to_hex(v : Int) -> String {
-  let digits = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"]
+  let digits = [
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F",
+  ]
   let hi = v / 16
   let lo = v % 16
   "\{digits[hi]}\{digits[lo]}"
@@ -521,9 +612,9 @@ pub fn pheatmap_input(
     clustering_method: ClusterMethod::Complete,
     cutree_rows: 1,
     cutree_cols: 1,
-    annotation_row: Map([], capacity = n),
-    annotation_col: Map([], capacity = m),
-    annotation_colors: Map([], capacity = 0),
+    annotation_row: Map([], capacity=n),
+    annotation_col: Map([], capacity=m),
+    annotation_colors: Map([], capacity=0),
     display_numbers: false,
     number_format: "{:.2f}",
     number_color: "black",
@@ -531,16 +622,21 @@ pub fn pheatmap_input(
   }
 }
 
+///|
 fn pheatmap_matrix_min(mat : Array[Array[Double]]) -> Double {
   let n = mat.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let mut mn = mat[0][0]
   let mut i = 0
   while i < n {
     let m = mat[i].length()
     let mut j = 0
     while j < m {
-      if mat[i][j] < mn { mn = mat[i][j] }
+      if mat[i][j] < mn {
+        mn = mat[i][j]
+      }
       j = j + 1
     }
     i = i + 1
@@ -548,16 +644,21 @@ fn pheatmap_matrix_min(mat : Array[Array[Double]]) -> Double {
   mn
 }
 
+///|
 fn pheatmap_matrix_max(mat : Array[Array[Double]]) -> Double {
   let n = mat.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let mut mx = mat[0][0]
   let mut i = 0
   while i < n {
     let m = mat[i].length()
     let mut j = 0
     while j < m {
-      if mat[i][j] > mx { mx = mat[i][j] }
+      if mat[i][j] > mx {
+        mx = mat[i][j]
+      }
       j = j + 1
     }
     i = i + 1
@@ -567,7 +668,10 @@ fn pheatmap_matrix_max(mat : Array[Array[Double]]) -> Double {
 
 ///|
 /// Set color scheme.
-pub fn pheatmap_set_color(input : PheatmapInput, color : Array[String]) -> PheatmapInput {
+pub fn pheatmap_set_color(
+  input : PheatmapInput,
+  color : Array[String],
+) -> PheatmapInput {
   PheatmapInput::{
     mat: input.mat,
     row_names: input.row_names,
@@ -599,7 +703,10 @@ pub fn pheatmap_set_color(input : PheatmapInput, color : Array[String]) -> Pheat
 
 ///|
 /// Set breaks for color scale.
-pub fn pheatmap_set_breaks(input : PheatmapInput, breaks : Array[Double]) -> PheatmapInput {
+pub fn pheatmap_set_breaks(
+  input : PheatmapInput,
+  breaks : Array[Double],
+) -> PheatmapInput {
   PheatmapInput::{
     mat: input.mat,
     row_names: input.row_names,
@@ -774,7 +881,10 @@ pub fn pheatmap_set_cluster(
 
 ///|
 /// Set main title.
-pub fn pheatmap_set_title(input : PheatmapInput, title : String) -> PheatmapInput {
+pub fn pheatmap_set_title(
+  input : PheatmapInput,
+  title : String,
+) -> PheatmapInput {
   PheatmapInput::{
     mat: input.mat,
     row_names: input.row_names,
@@ -811,7 +921,7 @@ pub fn pheatmap_add_annotation_row(
   name : String,
   values : Array[String],
 ) -> PheatmapInput {
-  let new_annot = Map([], capacity = input.annotation_row.length() + 1)
+  let new_annot = Map([], capacity=input.annotation_row.length() + 1)
   for key in input.annotation_row.keys() {
     new_annot[key] = input.annotation_row[key]
   }
@@ -852,7 +962,7 @@ pub fn pheatmap_add_annotation_col(
   name : String,
   values : Array[String],
 ) -> PheatmapInput {
-  let new_annot = Map([], capacity = input.annotation_col.length() + 1)
+  let new_annot = Map([], capacity=input.annotation_col.length() + 1)
   for key in input.annotation_col.keys() {
     new_annot[key] = input.annotation_col[key]
   }
@@ -893,7 +1003,7 @@ pub fn pheatmap_set_annotation_color(
   annot_name : String,
   value_color_map : Map[String, String],
 ) -> PheatmapInput {
-  let new_colors = Map([], capacity = input.annotation_colors.length() + 1)
+  let new_colors = Map([], capacity=input.annotation_colors.length() + 1)
   for key in input.annotation_colors.keys() {
     new_colors[key] = input.annotation_colors[key]
   }
@@ -996,9 +1106,15 @@ pub fn pheatmap_render(input : PheatmapInput) -> PheatmapResult {
   let mut row_order : Array[Int] = Array::make(n, 0)
   let mut col_order : Array[Int] = Array::make(m, 0)
   let mut i = 0
-  while i < n { row_order[i] = i; i = i + 1 }
+  while i < n {
+    row_order[i] = i
+    i = i + 1
+  }
   let mut j = 0
-  while j < m { col_order[j] = j; j = j + 1 }
+  while j < m {
+    col_order[j] = j
+    j = j + 1
+  }
   let mut row_clusters : Array[Int] = Array::new()
   let mut col_clusters : Array[Int] = Array::new()
   let mut row_dendrogram = ""
@@ -1013,7 +1129,10 @@ pub fn pheatmap_render(input : PheatmapInput) -> PheatmapResult {
     }
   }
   if input.cluster_cols && m > 1 {
-    let col_dist = pheatmap_column_distance_matrix(mat, input.clustering_distance_cols)
+    let col_dist = pheatmap_column_distance_matrix(
+      mat,
+      input.clustering_distance_cols,
+    )
     let col_hc = hclust_complete(col_dist)
     col_order = col_hc.order
     col_dendrogram = "clustered ({col_hc.merge.length()} merges)"
@@ -1022,7 +1141,9 @@ pub fn pheatmap_render(input : PheatmapInput) -> PheatmapResult {
     }
   }
   // Build text output
-  let text = pheatmap_build_text(input, row_order, col_order, row_clusters, col_clusters)
+  let text = pheatmap_build_text(
+    input, row_order, col_order, row_clusters, col_clusters,
+  )
   let legend = pheatmap_build_legend(input.breaks, input.color, input.legend)
   PheatmapResult::{
     text,
@@ -1038,6 +1159,7 @@ pub fn pheatmap_render(input : PheatmapInput) -> PheatmapResult {
   }
 }
 
+///|
 fn pheatmap_build_text(
   input : PheatmapInput,
   row_order : Array[Int],
@@ -1078,13 +1200,21 @@ fn pheatmap_build_text(
   let mut i = 0
   while i < n {
     let row_idx = row_order[i]
-    let row_name = if input.show_row_names { input.row_names[row_idx] } else { "" }
+    let row_name = if input.show_row_names {
+      input.row_names[row_idx]
+    } else {
+      ""
+    }
     let mut line = pheatmap_pad_str(row_name, 8)
     let mut j = 0
     while j < m {
       let col_idx = col_order[j]
       let val = input.mat[row_idx][col_idx]
-      let color_idx = pheatmap_value_to_color_idx(val, input.breaks, input.color.length())
+      let color_idx = pheatmap_value_to_color_idx(
+        val,
+        input.breaks,
+        input.color.length(),
+      )
       let color = input.color[color_idx]
       let cell = if input.display_numbers {
         pheatmap_format_value(val, input.number_format)
@@ -1100,76 +1230,116 @@ fn pheatmap_build_text(
   // Cluster info
   if row_clusters.length() > 0 {
     lines.push("")
-    lines.push("Row clusters: \{row_clusters.length()} points assigned to \{pheatmap_unique_count(row_clusters)} clusters")
+    lines.push(
+      "Row clusters: \{row_clusters.length()} points assigned to \{pheatmap_unique_count(row_clusters)} clusters",
+    )
   }
   if col_clusters.length() > 0 {
-    lines.push("Column clusters: \{col_clusters.length()} points assigned to \{pheatmap_unique_count(col_clusters)} clusters")
+    lines.push(
+      "Column clusters: \{col_clusters.length()} points assigned to \{pheatmap_unique_count(col_clusters)} clusters",
+    )
   }
   lines.join("\n")
 }
 
+///|
 fn pheatmap_pad_str(s : String, width : Int) -> String {
-  if s.length() >= width { return s }
+  if s.length() >= width {
+    return s
+  }
   let padded = s
   let mut result = padded
   let mut i = padded.length()
-  while i < width { result = result + " "; i = i + 1 }
+  while i < width {
+    result = result + " "
+    i = i + 1
+  }
   result
 }
 
+///|
 fn pheatmap_value_to_color_idx(
   val : Double,
   breaks : Array[Double],
   n_colors : Int,
 ) -> Int {
-  if n_colors == 0 { return 0 }
-  if breaks.length() < 2 { return n_colors / 2 }
+  if n_colors == 0 {
+    return 0
+  }
+  if breaks.length() < 2 {
+    return n_colors / 2
+  }
   let min_b = breaks[0]
   let max_b = breaks[breaks.length() - 1]
-  if val <= min_b { return 0 }
-  if val >= max_b { return n_colors - 1 }
+  if val <= min_b {
+    return 0
+  }
+  if val >= max_b {
+    return n_colors - 1
+  }
   let range = max_b - min_b
   let idx = ((val - min_b) / range * (n_colors - 1).to_double()).to_int()
-  if idx < 0 { return 0 }
-  if idx >= n_colors { return n_colors - 1 }
+  if idx < 0 {
+    return 0
+  }
+  if idx >= n_colors {
+    return n_colors - 1
+  }
   idx
 }
 
+///|
 fn pheatmap_color_cell(color : String) -> String {
   // Simple text representation using color name
   "[" + color + "]"
 }
 
+///|
 fn pheatmap_format_value(val : Double, format : String) -> String {
   // Simple format: show 2 decimal places
   let s = val.to_string()
   // Truncate to 5 chars
-  if s.length() > 6 { return s[0:6].to_owned() }
+  if s.length() > 6 {
+    return s[0:6].to_owned()
+  }
   s
 }
 
+///|
 fn pheatmap_unique_count(arr : Array[Int]) -> Int {
-  let seen = Map([], capacity = arr.length())
+  let seen = Map([], capacity=arr.length())
   let mut count = 0
   for v in arr {
-    if !seen.contains(v) { seen[v] = true; count = count + 1 }
+    if !seen.contains(v) {
+      seen[v] = true
+      count = count + 1
+    }
   }
   count
 }
 
+///|
 fn pheatmap_build_legend(
   breaks : Array[Double],
   color : Array[String],
   show : Bool,
 ) -> String {
-  if !show { return "" }
+  if !show {
+    return ""
+  }
   let n = color.length()
-  if n == 0 { return "" }
+  if n == 0 {
+    return ""
+  }
   let lines : Array[String] = Array::new()
   lines.push("Legend:")
   lines.push("  Min: \{breaks[0]}")
   let mid_idx = n / 2
-  let mid_val = if breaks.length() > mid_idx { breaks[mid_idx] } else { breaks[breaks.length() - 1] }
+  let mid_val = if breaks.length() > mid_idx {
+    breaks[mid_idx]
+  } else {
+    breaks[breaks.length() - 1]
+  }
   lines.push("  Mid: \{mid_val}")
   lines.push("  Max: \{breaks[breaks.length() - 1]}")
   lines.join("\n")

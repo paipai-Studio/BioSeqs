@@ -297,24 +297,22 @@ fn ips_parse_line(line : String) -> InterproScanRecord? {
   let ipr_acc = ips_normalize(fields[11])
   let ipr_desc = ips_normalize(fields[12])
   let go_terms = ips_split_go_terms(fields[13])
-  Some(
-    InterproScanRecord::{
-      protein_id,
-      md5,
-      seq_length,
-      analysis,
-      signature_acc,
-      signature_desc,
-      start_pos,
-      stop_pos,
-      score,
-      status,
-      date,
-      ipr_acc,
-      ipr_desc,
-      go_terms,
-    },
-  )
+  Some(InterproScanRecord::{
+    protein_id,
+    md5,
+    seq_length,
+    analysis,
+    signature_acc,
+    signature_desc,
+    start_pos,
+    stop_pos,
+    score,
+    status,
+    date,
+    ipr_acc,
+    ipr_desc,
+    go_terms,
+  })
 }
 
 // ============================================================================
@@ -354,14 +352,222 @@ pub fn interproscan_sample_data() -> String {
   let t = "\t"
   "# InterProScan output (sample)\n" +
   "# version 5.0\n" +
-  "sp|P12345|PROT_HUMAN" + t + "abc123def456" + t + "500" + t + "Pfam" + t + "PF00001" + t + "p53 DNA-binding domain" + t + "1" + t + "100" + t + "150.5" + t + "T" + t + "01-Jan-2024" + t + "IPR000001" + t + "p53, DNA-binding domain" + t + "GO:0003674|GO:0008150\n" +
-  "sp|P12345|PROT_HUMAN" + t + "abc123def456" + t + "500" + t + "SMART" + t + "SM00100" + t + "p53 domain" + t + "1" + t + "100" + t + "120.0" + t + "T" + t + "01-Jan-2024" + t + "IPR000001" + t + "p53, DNA-binding domain" + t + "GO:0003674\n" +
-  "sp|P12345|PROT_HUMAN" + t + "abc123def456" + t + "500" + t + "PROSITEPATTERNS" + t + "PS00001" + t + "p53 pattern" + t + "50" + t + "60" + t + "0.0" + t + "T" + t + "01-Jan-2024" + t + "-" + t + "-" + t + "-\n" +
-  "sp|Q9Y6K9|XYZ_HUMAN" + t + "def789ghi012" + t + "300" + t + "Profile" + t + "PS50122" + t + "Helicase C-terminal" + t + "10" + t + "250" + t + "200.3" + t + "T" + t + "02-Jan-2024" + t + "IPR000002" + t + "Helicase, C-terminal" + t + "GO:0005524|GO:0006280|GO:0003676\n" +
-  "sp|Q9Y6K9|XYZ_HUMAN" + t + "def789ghi012" + t + "300" + t + "Pfam" + t + "PF00002" + t + "Kinase domain" + t + "5" + t + "150" + t + "180.0" + t + "T" + t + "02-Jan-2024" + t + "IPR000003" + t + "Kinase domain" + t + "GO:0004672\n" +
-  "sp|O15143|ABC_HUMAN" + t + "ghi345jkl678" + t + "600" + t + "Pfam" + t + "PF00003" + t + "ABC transporter" + t + "100" + t + "300" + t + "110.5" + t + "T" + t + "03-Jan-2024" + t + "IPR000004" + t + "ABC transporter-like" + t + "GO:0005524|GO:0016887\n" +
-  "sp|O15143|ABC_HUMAN" + t + "ghi345jkl678" + t + "600" + t + "HAMMER" + t + "HM00001" + t + "Hammerhead ribozyme" + t + "1" + t + "50" + t + "90.0" + t + "T" + t + "03-Jan-2024" + t + "IPR000005" + t + "Hammerhead ribozyme" + t + "-\n" +
-  "sp|O15143|ABC_HUMAN" + t + "ghi345jkl678" + t + "600" + t + "SMART" + t + "SM00150" + t + "DnaJ domain" + t + "400" + t + "500" + t + "85.0" + t + "T" + t + "03-Jan-2024" + t + "IPR000006" + t + "DnaJ domain" + t + "GO:0044183\n"
+  "sp|P12345|PROT_HUMAN" +
+  t +
+  "abc123def456" +
+  t +
+  "500" +
+  t +
+  "Pfam" +
+  t +
+  "PF00001" +
+  t +
+  "p53 DNA-binding domain" +
+  t +
+  "1" +
+  t +
+  "100" +
+  t +
+  "150.5" +
+  t +
+  "T" +
+  t +
+  "01-Jan-2024" +
+  t +
+  "IPR000001" +
+  t +
+  "p53, DNA-binding domain" +
+  t +
+  "GO:0003674|GO:0008150\n" +
+  "sp|P12345|PROT_HUMAN" +
+  t +
+  "abc123def456" +
+  t +
+  "500" +
+  t +
+  "SMART" +
+  t +
+  "SM00100" +
+  t +
+  "p53 domain" +
+  t +
+  "1" +
+  t +
+  "100" +
+  t +
+  "120.0" +
+  t +
+  "T" +
+  t +
+  "01-Jan-2024" +
+  t +
+  "IPR000001" +
+  t +
+  "p53, DNA-binding domain" +
+  t +
+  "GO:0003674\n" +
+  "sp|P12345|PROT_HUMAN" +
+  t +
+  "abc123def456" +
+  t +
+  "500" +
+  t +
+  "PROSITEPATTERNS" +
+  t +
+  "PS00001" +
+  t +
+  "p53 pattern" +
+  t +
+  "50" +
+  t +
+  "60" +
+  t +
+  "0.0" +
+  t +
+  "T" +
+  t +
+  "01-Jan-2024" +
+  t +
+  "-" +
+  t +
+  "-" +
+  t +
+  "-\n" +
+  "sp|Q9Y6K9|XYZ_HUMAN" +
+  t +
+  "def789ghi012" +
+  t +
+  "300" +
+  t +
+  "Profile" +
+  t +
+  "PS50122" +
+  t +
+  "Helicase C-terminal" +
+  t +
+  "10" +
+  t +
+  "250" +
+  t +
+  "200.3" +
+  t +
+  "T" +
+  t +
+  "02-Jan-2024" +
+  t +
+  "IPR000002" +
+  t +
+  "Helicase, C-terminal" +
+  t +
+  "GO:0005524|GO:0006280|GO:0003676\n" +
+  "sp|Q9Y6K9|XYZ_HUMAN" +
+  t +
+  "def789ghi012" +
+  t +
+  "300" +
+  t +
+  "Pfam" +
+  t +
+  "PF00002" +
+  t +
+  "Kinase domain" +
+  t +
+  "5" +
+  t +
+  "150" +
+  t +
+  "180.0" +
+  t +
+  "T" +
+  t +
+  "02-Jan-2024" +
+  t +
+  "IPR000003" +
+  t +
+  "Kinase domain" +
+  t +
+  "GO:0004672\n" +
+  "sp|O15143|ABC_HUMAN" +
+  t +
+  "ghi345jkl678" +
+  t +
+  "600" +
+  t +
+  "Pfam" +
+  t +
+  "PF00003" +
+  t +
+  "ABC transporter" +
+  t +
+  "100" +
+  t +
+  "300" +
+  t +
+  "110.5" +
+  t +
+  "T" +
+  t +
+  "03-Jan-2024" +
+  t +
+  "IPR000004" +
+  t +
+  "ABC transporter-like" +
+  t +
+  "GO:0005524|GO:0016887\n" +
+  "sp|O15143|ABC_HUMAN" +
+  t +
+  "ghi345jkl678" +
+  t +
+  "600" +
+  t +
+  "HAMMER" +
+  t +
+  "HM00001" +
+  t +
+  "Hammerhead ribozyme" +
+  t +
+  "1" +
+  t +
+  "50" +
+  t +
+  "90.0" +
+  t +
+  "T" +
+  t +
+  "03-Jan-2024" +
+  t +
+  "IPR000005" +
+  t +
+  "Hammerhead ribozyme" +
+  t +
+  "-\n" +
+  "sp|O15143|ABC_HUMAN" +
+  t +
+  "ghi345jkl678" +
+  t +
+  "600" +
+  t +
+  "SMART" +
+  t +
+  "SM00150" +
+  t +
+  "DnaJ domain" +
+  t +
+  "400" +
+  t +
+  "500" +
+  t +
+  "85.0" +
+  t +
+  "T" +
+  t +
+  "03-Jan-2024" +
+  t +
+  "IPR000006" +
+  t +
+  "DnaJ domain" +
+  t +
+  "GO:0044183\n"
 }
 
 // ============================================================================

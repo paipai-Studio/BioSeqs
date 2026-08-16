@@ -297,12 +297,9 @@ pub fn mmcif_sample_structure() -> Structure {
     bfactor=20.0,
     element="O",
   )
-  let ala = Residue::new(
-    resname="ALA",
-    chainid='A',
-    resseq=1,
-    atoms=[ala_n, ala_ca, ala_c, ala_o],
-  )
+  let ala = Residue::new(resname="ALA", chainid='A', resseq=1, atoms=[
+    ala_n, ala_ca, ala_c, ala_o,
+  ])
   let gly_n = Atom::new(
     name="N",
     coord=Vector3::new(3.0, 2.5, 5.0),
@@ -343,12 +340,9 @@ pub fn mmcif_sample_structure() -> Structure {
     bfactor=20.0,
     element="O",
   )
-  let gly = Residue::new(
-    resname="GLY",
-    chainid='A',
-    resseq=2,
-    atoms=[gly_n, gly_ca, gly_c, gly_o],
-  )
+  let gly = Residue::new(resname="GLY", chainid='A', resseq=2, atoms=[
+    gly_n, gly_ca, gly_c, gly_o,
+  ])
   let chain = Chain::new(id='A', residues=[ala, gly])
   let model = Model::new(id=1, chains=[chain])
   Structure::new(id="1ABC", models=[model])

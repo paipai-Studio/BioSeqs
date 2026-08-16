@@ -11,18 +11,21 @@ test "goa_aspect_from_string_F" {
   assert_eq(@src.GafAspect::description(a), "Molecular Function")
 }
 
+///|
 test "goa_aspect_from_string_P" {
   let a = @src.GafAspect::from_string("P")
   assert_eq(@src.GafAspect::to_string(a), "P")
   assert_eq(@src.GafAspect::description(a), "Biological Process")
 }
 
+///|
 test "goa_aspect_from_string_C" {
   let a = @src.GafAspect::from_string("C")
   assert_eq(@src.GafAspect::to_string(a), "C")
   assert_eq(@src.GafAspect::description(a), "Cellular Component")
 }
 
+///|
 test "goa_aspect_from_string_unknown" {
   // Unknown inputs (e.g. "X", "", "foo") map to Unknown.
   let a1 = @src.GafAspect::from_string("X")
@@ -36,6 +39,7 @@ test "goa_aspect_from_string_unknown" {
   assert_eq(@src.GafAspect::description(a3), "Unknown")
 }
 
+///|
 test "goa_aspect_to_string_roundtrip" {
   // from_string -> to_string should round-trip for the three valid codes.
   assert_eq(@src.GafAspect::to_string(@src.GafAspect::from_string("F")), "F")
@@ -47,6 +51,7 @@ test "goa_aspect_to_string_roundtrip" {
 // GafRecord creation and accessors
 // ---------------------------------------------------------------------------
 
+///|
 test "goa_record_creation" {
   let r = @src.GafRecord::new(
     db="UniProtKB",
@@ -86,6 +91,7 @@ test "goa_record_creation" {
   assert_eq(r.gene_product_form_id(), "")
 }
 
+///|
 test "goa_record_creation_all_fields_populated" {
   // Record with every field populated, including the optional extension/form id.
   let r = @src.GafRecord::new(
@@ -118,6 +124,7 @@ test "goa_record_creation_all_fields_populated" {
 // GafRecord utility methods
 // ---------------------------------------------------------------------------
 
+///|
 test "goa_record_go_id_short" {
   let r = @src.GafRecord::new(
     db="UniProtKB",
@@ -141,6 +148,7 @@ test "goa_record_go_id_short" {
   assert_eq(r.go_id_short(), "0003674")
 }
 
+///|
 test "goa_record_go_id_short_no_prefix" {
   // A GO ID without "GO:" prefix should be returned unchanged.
   let r = @src.GafRecord::new(
@@ -165,6 +173,7 @@ test "goa_record_go_id_short_no_prefix" {
   assert_eq(r.go_id_short(), "0003674")
 }
 
+///|
 test "goa_record_qualifiers_split" {
   let r = @src.GafRecord::new(
     db="UniProtKB",
@@ -191,6 +200,7 @@ test "goa_record_qualifiers_split" {
   assert_eq(qs[1], "enables")
 }
 
+///|
 test "goa_record_qualifiers_single" {
   let r = @src.GafRecord::new(
     db="UniProtKB",
@@ -216,6 +226,7 @@ test "goa_record_qualifiers_single" {
   assert_eq(qs[0], "enables")
 }
 
+///|
 test "goa_record_qualifiers_empty" {
   let r = @src.GafRecord::new(
     db="UniProtKB",
@@ -239,6 +250,7 @@ test "goa_record_qualifiers_empty" {
   assert_eq(r.qualifiers().length(), 0)
 }
 
+///|
 test "goa_record_synonyms_split" {
   let r = @src.GafRecord::new(
     db="UniProtKB",
@@ -265,6 +277,7 @@ test "goa_record_synonyms_split" {
   assert_eq(syns[1], "LFS1")
 }
 
+///|
 test "goa_record_references_split" {
   let r = @src.GafRecord::new(
     db="UniProtKB",
@@ -292,6 +305,7 @@ test "goa_record_references_split" {
   assert_eq(refs[2], "GO_REF:000001")
 }
 
+///|
 test "goa_record_taxon_ids_with_prefix" {
   // "taxon:9606|taxon:9606" yields ["9606", "9606"] (duplicates preserved).
   let r = @src.GafRecord::new(
@@ -319,6 +333,7 @@ test "goa_record_taxon_ids_with_prefix" {
   assert_eq(ids[1], "9606")
 }
 
+///|
 test "goa_record_taxon_ids_bare_numeric" {
   // Numeric taxon IDs without the "taxon:" prefix should be returned as-is.
   let r = @src.GafRecord::new(
@@ -345,6 +360,7 @@ test "goa_record_taxon_ids_bare_numeric" {
   assert_eq(ids[0], "9606")
 }
 
+///|
 test "goa_record_taxon_ids_multiple_distinct" {
   // Two distinct taxon IDs (interactor case).
   let r = @src.GafRecord::new(
@@ -372,6 +388,7 @@ test "goa_record_taxon_ids_multiple_distinct" {
   assert_eq(ids[1], "4932")
 }
 
+///|
 test "goa_record_to_string" {
   let r = @src.GafRecord::new(
     db="UniProtKB",
@@ -405,6 +422,7 @@ test "goa_record_to_string" {
 // Header line parsing
 // ---------------------------------------------------------------------------
 
+///|
 test "goa_parse_header_line_valid" {
   let h = @src.goa_parse_header_line("!gaf-version: 2.2")
   assert_true(h is Some(_))
@@ -417,6 +435,7 @@ test "goa_parse_header_line_valid" {
   }
 }
 
+///|
 test "goa_parse_header_line_generated_by" {
   let h = @src.goa_parse_header_line("!generated-by: UniProt")
   assert_true(h is Some(_))
@@ -429,6 +448,7 @@ test "goa_parse_header_line_generated_by" {
   }
 }
 
+///|
 test "goa_parse_header_line_with_extra_spaces" {
   let h = @src.goa_parse_header_line("!  gaf-version  :   2.2  ")
   assert_true(h is Some(_))
@@ -441,23 +461,27 @@ test "goa_parse_header_line_with_extra_spaces" {
   }
 }
 
+///|
 test "goa_parse_header_line_not_header" {
   // A line that does not start with "!" is not a header.
   let h = @src.goa_parse_header_line("UniProtKB\tQ12345")
   assert_true(h is None)
 }
 
+///|
 test "goa_parse_header_line_no_colon" {
   // A header line with no colon is invalid.
   let h = @src.goa_parse_header_line("!this-has-no-colon")
   assert_true(h is None)
 }
 
+///|
 test "goa_parse_header_line_empty" {
   let h = @src.goa_parse_header_line("")
   assert_true(h is None)
 }
 
+///|
 test "goa_parse_header_line_empty_value" {
   // A header line with a colon but empty value is valid (value is "").
   let h = @src.goa_parse_header_line("!gaf-version:")
@@ -475,6 +499,7 @@ test "goa_parse_header_line_empty_value" {
 // Data line parsing
 // ---------------------------------------------------------------------------
 
+///|
 test "goa_parse_line_full_17_columns" {
   let line = "UniProtKB\tQ12345\tPROT1\tenables\tGO:0003674\tPMID:12345\tIDA\tGO:0005515\tF\tProtein 1\tP1|PROT-1\tprotein\ttaxon:9606|taxon:9606\t20210115\tUniProt\t\t"
   let r = @src.goa_parse_line(line)
@@ -503,6 +528,7 @@ test "goa_parse_line_full_17_columns" {
   }
 }
 
+///|
 test "goa_parse_line_short_padded" {
   // A line with fewer than 17 columns should be right-padded with empty strings.
   let line = "UniProtKB\tQ12345\tPROT1\tenables\tGO:0003674"
@@ -525,22 +551,26 @@ test "goa_parse_line_short_padded" {
   }
 }
 
+///|
 test "goa_parse_line_empty" {
   let r = @src.goa_parse_line("")
   assert_true(r is None)
 }
 
+///|
 test "goa_parse_line_whitespace_only" {
   let r = @src.goa_parse_line("     ")
   assert_true(r is None)
 }
 
+///|
 test "goa_parse_line_header_returns_none" {
   // Header lines (starting with "!") should not be parsed as data records.
   let r = @src.goa_parse_line("!gaf-version: 2.2")
   assert_true(r is None)
 }
 
+///|
 test "goa_parse_line_comment_returns_none" {
   // Any line starting with "!" is treated as a header/comment, not data.
   let r = @src.goa_parse_line("!some comment line")
@@ -551,6 +581,7 @@ test "goa_parse_line_comment_returns_none" {
 // Full content parsing
 // ---------------------------------------------------------------------------
 
+///|
 test "goa_parse_with_header_and_data" {
   let content = "!gaf-version: 2.2\n" +
     "!generated-by: UniProt\n" +
@@ -565,6 +596,7 @@ test "goa_parse_with_header_and_data" {
   assert_eq(recs[1].db_object_symbol(), "TP53")
 }
 
+///|
 test "goa_parse_empty_input" {
   let db = @src.goa_parse("")
   assert_eq(db.n_records(), 0)
@@ -572,6 +604,7 @@ test "goa_parse_empty_input" {
   assert_eq(db.created_by(), "")
 }
 
+///|
 test "goa_parse_only_headers" {
   let content = "!gaf-version: 2.2\n" + "!generated-by: SGD\n"
   let db = @src.goa_parse(content)
@@ -580,6 +613,7 @@ test "goa_parse_only_headers" {
   assert_eq(db.created_by(), "SGD")
 }
 
+///|
 test "goa_parse_skips_blank_lines" {
   let content = "!gaf-version: 2.2\n" +
     "\n" +
@@ -590,6 +624,7 @@ test "goa_parse_skips_blank_lines" {
   assert_eq(db.n_records(), 2)
 }
 
+///|
 test "goa_parse_ignores_unknown_header_keys" {
   // Header keys other than gaf-version / generated-by should not overwrite metadata.
   let content = "!gaf-version: 2.2\n" +
@@ -606,6 +641,7 @@ test "goa_parse_ignores_unknown_header_keys" {
 // GoaDatabase properties
 // ---------------------------------------------------------------------------
 
+///|
 test "goa_database_new_empty" {
   let db = @src.GoaDatabase::new()
   assert_eq(db.n_records(), 0)
@@ -614,6 +650,7 @@ test "goa_database_new_empty" {
   assert_eq(db.created_by(), "")
 }
 
+///|
 test "goa_database_records_accessor" {
   let db = @src.goa_sample_database()
   let recs = db.records()
@@ -624,6 +661,7 @@ test "goa_database_records_accessor" {
 // Filter functions
 // ---------------------------------------------------------------------------
 
+///|
 test "goa_filter_by_go_id" {
   let db = @src.goa_sample_database()
   // GO:0003674 (molecular_function) appears once in the sample database.
@@ -633,12 +671,14 @@ test "goa_filter_by_go_id" {
   assert_eq(hits[0].go_id(), "GO:0003674")
 }
 
+///|
 test "goa_filter_by_go_id_no_match" {
   let db = @src.goa_sample_database()
   let hits = @src.goa_filter_by_go_id(db, "GO:9999999")
   assert_eq(hits.length(), 0)
 }
 
+///|
 test "goa_filter_by_aspect_molecular_function" {
   let db = @src.goa_sample_database()
   // F records: PROT1, TP53, YFG1, RPL5 (4 total).
@@ -649,6 +689,7 @@ test "goa_filter_by_aspect_molecular_function" {
   }
 }
 
+///|
 test "goa_filter_by_aspect_biological_process" {
   let db = @src.goa_sample_database()
   // P records: PROT1, TP53, Hsp70 (3 total).
@@ -659,6 +700,7 @@ test "goa_filter_by_aspect_biological_process" {
   }
 }
 
+///|
 test "goa_filter_by_aspect_cellular_component" {
   let db = @src.goa_sample_database()
   // C records: PROT1, YFG1, Hsp70 (3 total).
@@ -669,6 +711,7 @@ test "goa_filter_by_aspect_cellular_component" {
   }
 }
 
+///|
 test "goa_filter_by_aspect_unknown" {
   let db = @src.goa_sample_database()
   // No Unknown aspect records in the sample database.
@@ -676,6 +719,7 @@ test "goa_filter_by_aspect_unknown" {
   assert_eq(hits.length(), 0)
 }
 
+///|
 test "goa_filter_by_evidence_ida" {
   let db = @src.goa_sample_database()
   // IDA records: PROT1 (x3), YFG1 (C), Hsp70 (C) = 5 total.
@@ -686,6 +730,7 @@ test "goa_filter_by_evidence_ida" {
   }
 }
 
+///|
 test "goa_filter_by_evidence_iea" {
   let db = @src.goa_sample_database()
   // IEA records: TP53 (P), Hsp70 (P) = 2 total.
@@ -693,12 +738,14 @@ test "goa_filter_by_evidence_iea" {
   assert_eq(hits.length(), 2)
 }
 
+///|
 test "goa_filter_by_evidence_no_match" {
   let db = @src.goa_sample_database()
   let hits = @src.goa_filter_by_evidence(db, "NONEXISTENT")
   assert_eq(hits.length(), 0)
 }
 
+///|
 test "goa_filter_by_taxon_human" {
   let db = @src.goa_sample_database()
   // taxon:9606 records: PROT1 (x3), TP53 (x2), RPL5 = 6 total.
@@ -706,6 +753,7 @@ test "goa_filter_by_taxon_human" {
   assert_eq(hits.length(), 6)
 }
 
+///|
 test "goa_filter_by_taxon_yeast" {
   let db = @src.goa_sample_database()
   // taxon:4932 records: YFG1 (x2) = 2 total.
@@ -713,6 +761,7 @@ test "goa_filter_by_taxon_yeast" {
   assert_eq(hits.length(), 2)
 }
 
+///|
 test "goa_filter_by_taxon_fly" {
   let db = @src.goa_sample_database()
   // taxon:7227 records: Hsp70 (x2) = 2 total.
@@ -720,12 +769,14 @@ test "goa_filter_by_taxon_fly" {
   assert_eq(hits.length(), 2)
 }
 
+///|
 test "goa_filter_by_taxon_no_match" {
   let db = @src.goa_sample_database()
   let hits = @src.goa_filter_by_taxon(db, "0000000")
   assert_eq(hits.length(), 0)
 }
 
+///|
 test "goa_filter_by_db_object_id" {
   let db = @src.goa_sample_database()
   // Q12345 (PROT1) has 3 records (F, P, C).
@@ -737,6 +788,7 @@ test "goa_filter_by_db_object_id" {
   }
 }
 
+///|
 test "goa_filter_by_db_object_id_multiple" {
   let db = @src.goa_sample_database()
   // P04637 (TP53) has 2 records (F, P).
@@ -747,6 +799,7 @@ test "goa_filter_by_db_object_id_multiple" {
   }
 }
 
+///|
 test "goa_filter_by_db_object_id_no_match" {
   let db = @src.goa_sample_database()
   let hits = @src.goa_filter_by_db_object_id(db, "ZZZZZZ")
@@ -757,6 +810,7 @@ test "goa_filter_by_db_object_id_no_match" {
 // Unique value extraction
 // ---------------------------------------------------------------------------
 
+///|
 test "goa_unique_go_ids" {
   let db = @src.goa_sample_database()
   // Every record in the sample database has a distinct GO ID.
@@ -766,6 +820,7 @@ test "goa_unique_go_ids" {
   assert_eq(ids[0], "GO:0003674")
 }
 
+///|
 test "goa_unique_go_ids_dedup" {
   // Build a database with duplicate GO IDs to test deduplication.
   let rec = @src.GafRecord::new(
@@ -787,14 +842,17 @@ test "goa_unique_go_ids_dedup" {
     annotation_extension="",
     gene_product_form_id="",
   )
-  let content = @src.goa_record_to_gaf_line(rec) + "\n" +
-    @src.goa_record_to_gaf_line(rec) + "\n"
+  let content = @src.goa_record_to_gaf_line(rec) +
+    "\n" +
+    @src.goa_record_to_gaf_line(rec) +
+    "\n"
   let db = @src.goa_parse(content)
   let ids = @src.goa_unique_go_ids(db)
   assert_eq(ids.length(), 1)
   assert_eq(ids[0], "GO:0003674")
 }
 
+///|
 test "goa_unique_evidence_codes" {
   let db = @src.goa_sample_database()
   // Sample DB uses IDA, EXP, IEA, ISS, IPI = 5 distinct evidence codes.
@@ -802,6 +860,7 @@ test "goa_unique_evidence_codes" {
   assert_eq(codes.length(), 5)
 }
 
+///|
 test "goa_unique_taxon_ids" {
   let db = @src.goa_sample_database()
   // Sample DB uses 9606, 4932, 7227 = 3 distinct taxon IDs.
@@ -816,6 +875,7 @@ test "goa_unique_taxon_ids" {
 // Count functions
 // ---------------------------------------------------------------------------
 
+///|
 test "goa_count_by_aspect" {
   let db = @src.goa_sample_database()
   let counts = @src.goa_count_by_aspect(db)
@@ -827,6 +887,7 @@ test "goa_count_by_aspect" {
   assert_eq(counts.get("?"), None)
 }
 
+///|
 test "goa_count_by_aspect_empty_db" {
   let db = @src.GoaDatabase::new()
   let counts = @src.goa_count_by_aspect(db)
@@ -835,6 +896,7 @@ test "goa_count_by_aspect_empty_db" {
   assert_eq(counts.get("C"), None)
 }
 
+///|
 test "goa_count_by_evidence" {
   let db = @src.goa_sample_database()
   let counts = @src.goa_count_by_evidence(db)
@@ -848,6 +910,7 @@ test "goa_count_by_evidence" {
   assert_eq(counts.get("TAS"), None)
 }
 
+///|
 test "goa_count_by_evidence_empty_db" {
   let db = @src.GoaDatabase::new()
   let counts = @src.goa_count_by_evidence(db)
@@ -858,6 +921,7 @@ test "goa_count_by_evidence_empty_db" {
 // Summary generation
 // ---------------------------------------------------------------------------
 
+///|
 test "goa_to_summary_has_basic_fields" {
   let db = @src.goa_sample_database()
   let s = @src.goa_to_summary(db)
@@ -867,6 +931,7 @@ test "goa_to_summary_has_basic_fields" {
   assert_true(s.contains("Created by: UniProt"))
 }
 
+///|
 test "goa_to_summary_has_aspect_section" {
   let db = @src.goa_sample_database()
   let s = @src.goa_to_summary(db)
@@ -876,6 +941,7 @@ test "goa_to_summary_has_aspect_section" {
   assert_true(s.contains("Cellular Component"))
 }
 
+///|
 test "goa_to_summary_has_evidence_section" {
   let db = @src.goa_sample_database()
   let s = @src.goa_to_summary(db)
@@ -887,6 +953,7 @@ test "goa_to_summary_has_evidence_section" {
   assert_true(s.contains("IPI"))
 }
 
+///|
 test "goa_to_summary_has_unique_counts" {
   let db = @src.goa_sample_database()
   let s = @src.goa_to_summary(db)
@@ -895,6 +962,7 @@ test "goa_to_summary_has_unique_counts" {
   assert_true(s.contains("Unique taxon IDs: 3"))
 }
 
+///|
 test "goa_to_summary_empty_db" {
   let db = @src.GoaDatabase::new()
   let s = @src.goa_to_summary(db)
@@ -906,6 +974,7 @@ test "goa_to_summary_empty_db" {
 // Writing functions
 // ---------------------------------------------------------------------------
 
+///|
 test "goa_record_to_gaf_line_roundtrip" {
   let r = @src.GafRecord::new(
     db="UniProtKB",
@@ -949,6 +1018,7 @@ test "goa_record_to_gaf_line_roundtrip" {
   assert_eq(fields[16].to_string(), "")
 }
 
+///|
 test "goa_record_to_gaf_line_parse_roundtrip" {
   // Serializing and re-parsing should produce an equivalent record.
   let r = @src.GafRecord::new(
@@ -989,6 +1059,7 @@ test "goa_record_to_gaf_line_parse_roundtrip" {
   }
 }
 
+///|
 test "goa_to_gaf_includes_header" {
   let db = @src.goa_sample_database()
   let text = @src.goa_to_gaf(db)
@@ -996,6 +1067,7 @@ test "goa_to_gaf_includes_header" {
   assert_true(text.contains("!generated-by: UniProt"))
 }
 
+///|
 test "goa_to_gaf_includes_all_records" {
   let db = @src.goa_sample_database()
   let text = @src.goa_to_gaf(db)
@@ -1012,6 +1084,7 @@ test "goa_to_gaf_includes_all_records" {
   assert_true(text.contains("GO:0003735"))
 }
 
+///|
 test "goa_to_gaf_roundtrip" {
   // Serializing the sample database and re-parsing should preserve its
   // record count and metadata.
@@ -1023,6 +1096,7 @@ test "goa_to_gaf_roundtrip" {
   assert_eq(db2.created_by(), db.created_by())
 }
 
+///|
 test "goa_to_gaf_empty_db" {
   let db = @src.GoaDatabase::new()
   let text = @src.goa_to_gaf(db)
@@ -1036,17 +1110,20 @@ test "goa_to_gaf_empty_db" {
 // Sample database validation
 // ---------------------------------------------------------------------------
 
+///|
 test "goa_sample_database_has_10_records" {
   let db = @src.goa_sample_database()
   assert_eq(db.n_records(), 10)
 }
 
+///|
 test "goa_sample_database_metadata" {
   let db = @src.goa_sample_database()
   assert_eq(db.version(), "2.2")
   assert_eq(db.created_by(), "UniProt")
 }
 
+///|
 test "goa_sample_database_has_3_aspects" {
   let db = @src.goa_sample_database()
   let counts = @src.goa_count_by_aspect(db)
@@ -1055,6 +1132,7 @@ test "goa_sample_database_has_3_aspects" {
   assert_eq(counts.get("C"), Some(3))
 }
 
+///|
 test "goa_sample_database_has_3_taxa" {
   let db = @src.goa_sample_database()
   let taxa = @src.goa_unique_taxon_ids(db)
@@ -1064,6 +1142,7 @@ test "goa_sample_database_has_3_taxa" {
   assert_true(taxa.contains("7227"))
 }
 
+///|
 test "goa_sample_database_has_5_evidence_codes" {
   let db = @src.goa_sample_database()
   let codes = @src.goa_unique_evidence_codes(db)
@@ -1075,6 +1154,7 @@ test "goa_sample_database_has_5_evidence_codes" {
   assert_true(codes.contains("IPI"))
 }
 
+///|
 test "goa_sample_database_first_record" {
   let db = @src.goa_sample_database()
   let rec = db.records()[0]
@@ -1087,6 +1167,7 @@ test "goa_sample_database_first_record" {
   assert_eq(rec.taxon(), "taxon:9606|taxon:9606")
 }
 
+///|
 test "goa_sample_database_last_record" {
   let db = @src.goa_sample_database()
   let rec = db.records()[9]
@@ -1097,6 +1178,7 @@ test "goa_sample_database_last_record" {
   assert_eq(rec.aspect(), "F")
 }
 
+///|
 test "goa_sample_database_all_uniprot_db" {
   let db = @src.goa_sample_database()
   for r in db.records() {
@@ -1104,6 +1186,7 @@ test "goa_sample_database_all_uniprot_db" {
   }
 }
 
+///|
 test "goa_sample_database_unique_go_ids_count" {
   let db = @src.goa_sample_database()
   // Each of the 10 records has a distinct GO ID.
@@ -1115,6 +1198,7 @@ test "goa_sample_database_unique_go_ids_count" {
 // Edge cases
 // ---------------------------------------------------------------------------
 
+///|
 test "goa_parse_line_single_column" {
   // A single-column line should be padded to 17 empty fields and parsed.
   let r = @src.goa_parse_line("UniProtKB")
@@ -1130,6 +1214,7 @@ test "goa_parse_line_single_column" {
   }
 }
 
+///|
 test "goa_parse_line_extra_columns_kept_in_field" {
   // A line with more than 17 columns: the parser splits on all tabs and uses
   // only the first 17 fields; extra columns are silently ignored.
@@ -1146,6 +1231,7 @@ test "goa_parse_line_extra_columns_kept_in_field" {
   }
 }
 
+///|
 test "goa_parse_line_with_trailing_newline" {
   // Trailing whitespace/newlines are trimmed before parsing.
   let line = "UniProtKB\tQ12345\tPROT1\tenables\tGO:0003674\tPMID:12345\tIDA\tGO:0005515\tF\tProtein 1\tP1\tprotein\ttaxon:9606\t20210115\tUniProt\t\t\n"
@@ -1160,6 +1246,7 @@ test "goa_parse_line_with_trailing_newline" {
   }
 }
 
+///|
 test "goa_parse_only_comment_lines" {
   // A line starting with "!" is treated as a header/comment regardless of
   // whether it has a colon, and never produces a data record.
@@ -1172,6 +1259,7 @@ test "goa_parse_only_comment_lines" {
   assert_eq(db.created_by(), "UniProt")
 }
 
+///|
 test "goa_parse_mixed_valid_and_invalid_lines" {
   let content = "!gaf-version: 2.2\n" +
     "!generated-by: UniProt\n" +
@@ -1188,15 +1276,20 @@ test "goa_parse_mixed_valid_and_invalid_lines" {
   assert_eq(db.created_by(), "UniProt")
 }
 
+///|
 test "goa_filter_on_empty_database" {
   let db = @src.GoaDatabase::new()
   assert_eq(@src.goa_filter_by_go_id(db, "GO:0003674").length(), 0)
-  assert_eq(@src.goa_filter_by_aspect(db, @src.GafAspect::from_string("F")).length(), 0)
+  assert_eq(
+    @src.goa_filter_by_aspect(db, @src.GafAspect::from_string("F")).length(),
+    0,
+  )
   assert_eq(@src.goa_filter_by_evidence(db, "IDA").length(), 0)
   assert_eq(@src.goa_filter_by_taxon(db, "9606").length(), 0)
   assert_eq(@src.goa_filter_by_db_object_id(db, "Q12345").length(), 0)
 }
 
+///|
 test "goa_unique_on_empty_database" {
   let db = @src.GoaDatabase::new()
   assert_eq(@src.goa_unique_go_ids(db).length(), 0)

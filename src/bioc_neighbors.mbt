@@ -166,7 +166,13 @@ fn km_init_centroids(
     let (new_lcg, rand_val) = lcg_next_double(lcg)
     lcg = new_lcg
     let idx = (rand_val * n_points.to_double()).to_int()
-    let actual_idx = if idx >= n_points { n_points - 1 } else { if idx < 0 { 0 } else { idx } }
+    let actual_idx = if idx >= n_points {
+      n_points - 1
+    } else if idx < 0 {
+      0
+    } else {
+      idx
+    }
     if !used_indices[actual_idx] {
       centroids.push(data[actual_idx].copy())
       used_indices[actual_idx] = true
@@ -249,12 +255,20 @@ fn km_kmeans(
   if n_points == 0 {
     return ([], [])
   }
-  let actual_clusters = if n_clusters > n_points { n_points } else { n_clusters }
+  let actual_clusters = if n_clusters > n_points {
+    n_points
+  } else {
+    n_clusters
+  }
   let mut centroids = km_init_centroids(data, n_points, n_dim, actual_clusters)
   let mut assignments = Array::make(n_points, 0)
   for iter = 0; iter < max_iter; iter = iter + 1 {
-    let new_assignments = km_assign_points(data, centroids, n_points, n_dim, actual_clusters)
-    let new_centroids = km_update_centroids(data, new_assignments, n_points, n_dim, actual_clusters)
+    let new_assignments = km_assign_points(
+      data, centroids, n_points, n_dim, actual_clusters,
+    )
+    let new_centroids = km_update_centroids(
+      data, new_assignments, n_points, n_dim, actual_clusters,
+    )
     let mut max_shift = 0.0
     for c = 0; c < actual_clusters; c = c + 1 {
       let shift = euclidean_distance(centroids[c], new_centroids[c])
@@ -282,7 +296,7 @@ pub fn build_knn_index(
   match options.method {
     KMKNN => build_kmknn_index(data, n_points, n_dim, options)
     Annoy => build_annoy_index(data, n_points, n_dim, options)
-    BruteForce => {
+    BruteForce =>
       IndexResult::{
         method: BruteForce,
         n_points,
@@ -291,7 +305,6 @@ pub fn build_knn_index(
         centroids: [],
         tree_nodes: [],
       }
-    }
   }
 }
 
@@ -317,8 +330,12 @@ pub fn build_kmknn_index(
   let n_clusters = if n_points <= 10 {
     1
   } else {
-    let sqrt_val = ((n_points.to_double()).sqrt()).to_int()
-    if sqrt_val < 2 { 2 } else { sqrt_val }
+    let sqrt_val = n_points.to_double().sqrt().to_int()
+    if sqrt_val < 2 {
+      2
+    } else {
+      sqrt_val
+    }
   }
   let (centroids, _) = km_kmeans(data, n_points, n_dim, n_clusters, 20)
   IndexResult::{
@@ -368,7 +385,13 @@ fn build_single_annoy_tree(
   let (new_lcg, rand_dim) = lcg_next_double(current_lcg)
   current_lcg = new_lcg
   let split_dim = (rand_dim * n_dim.to_double()).to_int()
-  let actual_dim = if split_dim >= n_dim { n_dim - 1 } else { if split_dim < 0 { 0 } else { split_dim } }
+  let actual_dim = if split_dim >= n_dim {
+    n_dim - 1
+  } else if split_dim < 0 {
+    0
+  } else {
+    split_dim
+  }
 
   let (new_lcg2, rand_val) = lcg_next_double(current_lcg)
   current_lcg = new_lcg2
@@ -377,8 +400,12 @@ fn build_single_annoy_tree(
   let mut max_val = data[point_indices[0]][actual_dim]
   for i = 1; i < n; i = i + 1 {
     let v = data[point_indices[i]][actual_dim]
-    if v < min_val { min_val = v }
-    if v > max_val { max_val = v }
+    if v < min_val {
+      min_val = v
+    }
+    if v > max_val {
+      max_val = v
+    }
   }
 
   let split_val = min_val + rand_val * (max_val - min_val)
@@ -446,7 +473,9 @@ fn build_single_annoy_tree(
     point_indices: [],
   }
 
-  let idx = nodes_copy.length() - (nodes_after_right.length() - nodes_after_left.length()) - 1
+  let idx = nodes_copy.length() -
+    (nodes_after_right.length() - nodes_after_left.length()) -
+    1
   nodes_copy[idx] = node
 
   (nodes_copy, node_id, current_lcg)
@@ -476,7 +505,13 @@ pub fn build_annoy_index(
     5
   } else {
     let d = (@math.log2(n_points.to_double()) + 1.0).to_int()
-    if d > 20 { 20 } else { if d < 3 { 3 } else { d } }
+    if d > 20 {
+      20
+    } else if d < 3 {
+      3
+    } else {
+      d
+    }
   }
 
   let mut all_nodes : Array[AnnoyNode] = []
@@ -496,7 +531,13 @@ pub fn build_annoy_index(
       let (new_lcg2, rand_val) = lcg_next_double(shuf_lcg)
       shuf_lcg = new_lcg2
       let idx = (rand_val * indices_left.length().to_double()).to_int()
-      let actual_idx = if idx >= indices_left.length() { indices_left.length() - 1 } else { if idx < 0 { 0 } else { idx } }
+      let actual_idx = if idx >= indices_left.length() {
+        indices_left.length() - 1
+      } else if idx < 0 {
+        0
+      } else {
+        idx
+      }
       shuffled.push(indices_left[actual_idx])
       let new_left : Array[Int] = []
       for i = 0; i < indices_left.length(); i = i + 1 {
@@ -509,14 +550,7 @@ pub fn build_annoy_index(
 
     let tree_start_id = all_nodes.length()
     let (tree_nodes, _, final_lcg) = build_single_annoy_tree(
-      data,
-      shuffled,
-      n_dim,
-      all_nodes,
-      tree_start_id,
-      0,
-      max_depth,
-      lcg,
+      data, shuffled, n_dim, all_nodes, tree_start_id, 0, max_depth, lcg,
     )
     all_nodes = tree_nodes
     lcg = final_lcg
@@ -549,8 +583,14 @@ pub fn knn_quick_sort(
     let pivot = sorted_distances[pivot_idx]
     let pivot_index = sorted_indices[pivot_idx]
     while i <= j {
-      while sorted_distances[i] < pivot || (sorted_distances[i] == pivot && sorted_indices[i] < pivot_index) { i = i + 1 }
-      while sorted_distances[j] > pivot || (sorted_distances[j] == pivot && sorted_indices[j] > pivot_index) { j = j - 1 }
+      while sorted_distances[i] < pivot ||
+            (sorted_distances[i] == pivot && sorted_indices[i] < pivot_index) {
+        i = i + 1
+      }
+      while sorted_distances[j] > pivot ||
+            (sorted_distances[j] == pivot && sorted_indices[j] > pivot_index) {
+        j = j - 1
+      }
       if i <= j {
         let tmp_idx = sorted_indices[i]
         sorted_indices[i] = sorted_indices[j]
@@ -574,14 +614,13 @@ pub fn knn_quick_sort(
 
 ///|
 /// Find indices of the k smallest distances.
-pub fn knn_find_k_smallest(
-  distances : Array[Double],
-  k : Int,
-) -> Array[Int] {
+pub fn knn_find_k_smallest(distances : Array[Double], k : Int) -> Array[Int] {
   let n = distances.length()
   if k >= n {
     let result = Array::make(n, 0)
-    for i = 0; i < n; i = i + 1 { result[i] = i }
+    for i = 0; i < n; i = i + 1 {
+      result[i] = i
+    }
     return result
   }
   let indices : Array[Int] = []
@@ -610,12 +649,7 @@ pub fn knn_brute_force(
 ) -> KNNResult {
   if n_query == 0 || n_points == 0 || k == 0 {
     let actual_k = if k > n_points { n_points } else { k }
-    return KNNResult::{
-      indices: [],
-      distances: [],
-      n_query,
-      k: actual_k,
-    }
+    return KNNResult::{ indices: [], distances: [], n_query, k: actual_k }
   }
   let actual_k = if k > n_points { n_points } else { k }
   let all_indices : Array[Array[Int]] = []
@@ -628,7 +662,12 @@ pub fn knn_brute_force(
       dists[i] = knn_compute_distance(query_point, data[i], distance)
       indices[i] = i
     }
-    let (sorted_indices, sorted_distances) = knn_quick_sort(dists, indices, 0, n_points - 1)
+    let (sorted_indices, sorted_distances) = knn_quick_sort(
+      dists,
+      indices,
+      0,
+      n_points - 1,
+    )
     let top_indices = Array::make(actual_k, 0)
     let top_distances = Array::make(actual_k, 0.0)
     for i = 0; i < actual_k; i = i + 1 {
@@ -638,7 +677,12 @@ pub fn knn_brute_force(
     all_indices.push(top_indices)
     all_distances.push(top_distances)
   }
-  KNNResult::{ indices: all_indices, distances: all_distances, n_query, k: actual_k }
+  KNNResult::{
+    indices: all_indices,
+    distances: all_distances,
+    n_query,
+    k: actual_k,
+  }
 }
 
 ///|
@@ -652,15 +696,16 @@ pub fn run_knn(
   match index.method {
     KMKNN => knn_kmknn(index, query_data, n_query, options)
     Annoy => knn_annoy(index, query_data, n_query, options)
-    BruteForce => knn_brute_force(
-      index.data,
-      index.n_points,
-      index.n_dim,
-      query_data,
-      n_query,
-      options.k,
-      options.distance,
-    )
+    BruteForce =>
+      knn_brute_force(
+        index.data,
+        index.n_points,
+        index.n_dim,
+        query_data,
+        n_query,
+        options.k,
+        options.distance,
+      )
   }
 }
 
@@ -674,15 +719,18 @@ pub fn knn_kmknn(
   options : KNNOptions,
 ) -> KNNResult {
   if n_query == 0 || index.n_points == 0 || options.k == 0 {
-    let actual_k = if options.k > index.n_points { index.n_points } else { options.k }
-    return KNNResult::{
-      indices: [],
-      distances: [],
-      n_query,
-      k: actual_k,
+    let actual_k = if options.k > index.n_points {
+      index.n_points
+    } else {
+      options.k
     }
+    return KNNResult::{ indices: [], distances: [], n_query, k: actual_k }
   }
-  let actual_k = if options.k > index.n_points { index.n_points } else { options.k }
+  let actual_k = if options.k > index.n_points {
+    index.n_points
+  } else {
+    options.k
+  }
   let n_clusters = index.centroids.length()
   let all_indices : Array[Array[Int]] = []
   let all_distances : Array[Array[Double]] = []
@@ -716,8 +764,15 @@ pub fn knn_kmknn(
       centroid_dists[c] = euclidean_distance(query, index.centroids[c])
     }
     let sorted_centroid_indices = Array::make(n_clusters, 0)
-    for c = 0; c < n_clusters; c = c + 1 { sorted_centroid_indices[c] = c }
-    let (sorted_c_idx, _) = knn_quick_sort(centroid_dists, sorted_centroid_indices, 0, n_clusters - 1)
+    for c = 0; c < n_clusters; c = c + 1 {
+      sorted_centroid_indices[c] = c
+    }
+    let (sorted_c_idx, _) = knn_quick_sort(
+      centroid_dists,
+      sorted_centroid_indices,
+      0,
+      n_clusters - 1,
+    )
 
     let candidates : Array[Int] = []
     let mut cluster_idx = 0
@@ -733,7 +788,10 @@ pub fn knn_kmknn(
       for i = 0; i < index.n_points; i = i + 1 {
         let mut found = false
         for c = 0; c < candidates.length(); c = c + 1 {
-          if candidates[c] == i { found = true; break }
+          if candidates[c] == i {
+            found = true
+            break
+          }
         }
         if !found {
           candidates.push(i)
@@ -743,9 +801,18 @@ pub fn knn_kmknn(
 
     let cand_dists = Array::make(candidates.length(), 0.0)
     for i = 0; i < candidates.length(); i = i + 1 {
-      cand_dists[i] = knn_compute_distance(query, index.data[candidates[i]], options.distance)
+      cand_dists[i] = knn_compute_distance(
+        query,
+        index.data[candidates[i]],
+        options.distance,
+      )
     }
-    let (sorted_idx, sorted_dist) = knn_quick_sort(cand_dists, candidates, 0, candidates.length() - 1)
+    let (sorted_idx, sorted_dist) = knn_quick_sort(
+      cand_dists,
+      candidates,
+      0,
+      candidates.length() - 1,
+    )
 
     let top_indices = Array::make(actual_k, 0)
     let top_distances = Array::make(actual_k, 0.0)
@@ -757,7 +824,12 @@ pub fn knn_kmknn(
     all_distances.push(top_distances)
   }
 
-  KNNResult::{ indices: all_indices, distances: all_distances, n_query, k: actual_k }
+  KNNResult::{
+    indices: all_indices,
+    distances: all_distances,
+    n_query,
+    k: actual_k,
+  }
 }
 
 ///|
@@ -770,17 +842,24 @@ pub fn knn_annoy(
   options : KNNOptions,
 ) -> KNNResult {
   if n_query == 0 || index.n_points == 0 || options.k == 0 {
-    let actual_k = if options.k > index.n_points { index.n_points } else { options.k }
-    return KNNResult::{
-      indices: [],
-      distances: [],
-      n_query,
-      k: actual_k,
+    let actual_k = if options.k > index.n_points {
+      index.n_points
+    } else {
+      options.k
     }
+    return KNNResult::{ indices: [], distances: [], n_query, k: actual_k }
   }
-  let actual_k = if options.k > index.n_points { index.n_points } else { options.k }
+  let actual_k = if options.k > index.n_points {
+    index.n_points
+  } else {
+    options.k
+  }
   let n_trees = options.n_trees
-  let nodes_per_tree = if n_trees > 0 { index.tree_nodes.length() / n_trees } else { 0 }
+  let nodes_per_tree = if n_trees > 0 {
+    index.tree_nodes.length() / n_trees
+  } else {
+    0
+  }
   let all_indices : Array[Array[Int]] = []
   let all_distances : Array[Array[Double]] = []
 
@@ -822,7 +901,10 @@ pub fn knn_annoy(
             let point_idx = node.point_indices[pi]
             let mut already = false
             for c = 0; c < candidates.length(); c = c + 1 {
-              if candidates[c] == point_idx { already = true; break }
+              if candidates[c] == point_idx {
+                already = true
+                break
+              }
             }
             if !already {
               candidates.push(point_idx)
@@ -879,9 +961,18 @@ pub fn knn_annoy(
     if candidates.length() > actual_k {
       let cand_dists = Array::make(candidates.length(), 0.0)
       for i = 0; i < candidates.length(); i = i + 1 {
-        cand_dists[i] = knn_compute_distance(query, index.data[candidates[i]], options.distance)
+        cand_dists[i] = knn_compute_distance(
+          query,
+          index.data[candidates[i]],
+          options.distance,
+        )
       }
-      let (sorted_idx, sorted_dist) = knn_quick_sort(cand_dists, candidates, 0, candidates.length() - 1)
+      let (sorted_idx, sorted_dist) = knn_quick_sort(
+        cand_dists,
+        candidates,
+        0,
+        candidates.length() - 1,
+      )
       let top_indices = Array::make(actual_k, 0)
       let top_distances = Array::make(actual_k, 0.0)
       for i = 0; i < actual_k; i = i + 1 {
@@ -893,9 +984,18 @@ pub fn knn_annoy(
     } else if candidates.length() > 0 {
       let cand_dists = Array::make(candidates.length(), 0.0)
       for i = 0; i < candidates.length(); i = i + 1 {
-        cand_dists[i] = knn_compute_distance(query, index.data[candidates[i]], options.distance)
+        cand_dists[i] = knn_compute_distance(
+          query,
+          index.data[candidates[i]],
+          options.distance,
+        )
       }
-      let (sorted_idx, sorted_dist) = knn_quick_sort(cand_dists, candidates, 0, candidates.length() - 1)
+      let (sorted_idx, sorted_dist) = knn_quick_sort(
+        cand_dists,
+        candidates,
+        0,
+        candidates.length() - 1,
+      )
       let top_indices = Array::make(sorted_idx.length(), 0)
       let top_distances = Array::make(sorted_dist.length(), 0.0)
       for i = 0; i < sorted_idx.length(); i = i + 1 {
@@ -910,5 +1010,10 @@ pub fn knn_annoy(
     }
   }
 
-  KNNResult::{ indices: all_indices, distances: all_distances, n_query, k: actual_k }
+  KNNResult::{
+    indices: all_indices,
+    distances: all_distances,
+    n_query,
+    k: actual_k,
+  }
 }

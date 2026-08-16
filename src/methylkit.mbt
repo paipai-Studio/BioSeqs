@@ -17,7 +17,7 @@ fn methylkit_round(x : Double) -> Int {
   if x >= 0.0 {
     (x + 0.5).to_int()
   } else {
-    -((-x) + 0.5).to_int()
+    -(-x + 0.5).to_int()
   }
 }
 
@@ -77,11 +77,7 @@ fn methylkit_median(arr : Array[Double]) -> Double {
 
 ///|
 /// Logarithm of a binomial coefficient using a precomputed log-factorial table.
-fn methylkit_log_choose_tbl(
-  n : Int,
-  k : Int,
-  lf : Array[Double],
-) -> Double {
+fn methylkit_log_choose_tbl(n : Int, k : Int, lf : Array[Double]) -> Double {
   if k < 0 || k > n {
     return -700.0
   }
@@ -200,11 +196,7 @@ pub struct MethylSample {
 ///|
 /// Construct an empty MethylSample.
 pub fn MethylSample::new(sample_id : String) -> MethylSample {
-  MethylSample::{
-    sample_id,
-    coverage: Array::new(),
-    n_cpgs: 0,
-  }
+  MethylSample::{ sample_id, coverage: Array::new(), n_cpgs: 0 }
 }
 
 ///|
@@ -604,7 +596,7 @@ pub fn methylkit_fisher_test(
   }
   // Precompute log-factorial table up to n.
   let log_fact : Array[Double] = Array::make(n + 1, 0.0)
-  for i in 2..=n {
+  for i in 2..<=n {
     log_fact[i] = log_fact[i - 1] + @math.ln(i.to_double())
   }
   let log_pmf = fn(aa : Int) -> Double {
@@ -624,7 +616,7 @@ pub fn methylkit_fisher_test(
   let lo = if c1 - r2 > 0 { c1 - r2 } else { 0 }
   let hi = if r1 < c1 { r1 } else { c1 }
   let mut p_sum = 0.0
-  for aa in lo..=hi {
+  for aa in lo..<=hi {
     let p = @math.exp(log_pmf(aa))
     if p <= p_obs + 1.0e-12 {
       p_sum = p_sum + p
@@ -731,16 +723,14 @@ pub fn methylkit_diff_meth(
     let (chr, pos, diff) = info[i]
     let q = q_values[i]
     let sig = q < config.q_threshold && diff.abs() >= config.min_diff
-    results.push(
-      MethylDiffResult::{
-        chr,
-        position: pos,
-        p_value: p_values[i],
-        q_value: q,
-        meth_diff: diff,
-        significant: sig,
-      },
-    )
+    results.push(MethylDiffResult::{
+      chr,
+      position: pos,
+      p_value: p_values[i],
+      q_value: q,
+      meth_diff: diff,
+      significant: sig,
+    })
     i = i + 1
   }
   results
@@ -832,16 +822,14 @@ pub fn methylkit_tiling(
   let mut i = 0
   while i < info.length() {
     let (chr, pos, diff) = info[i]
-    results.push(
-      MethylDiffResult::{
-        chr,
-        position: pos,
-        p_value: p_values[i],
-        q_value: q_values[i],
-        meth_diff: diff,
-        significant: q_values[i] < 0.05 && diff.abs() >= 25.0,
-      },
-    )
+    results.push(MethylDiffResult::{
+      chr,
+      position: pos,
+      p_value: p_values[i],
+      q_value: q_values[i],
+      meth_diff: diff,
+      significant: q_values[i] < 0.05 && diff.abs() >= 25.0,
+    })
     i = i + 1
   }
   results
@@ -866,8 +854,10 @@ pub fn methylkit_get_dmr(
     let mut j = i + 1
     while j < n {
       if sorted[j].chr < sorted[min_idx].chr ||
-        (sorted[j].chr == sorted[min_idx].chr &&
-          sorted[j].position < sorted[min_idx].position) {
+        (
+          sorted[j].chr == sorted[min_idx].chr &&
+          sorted[j].position < sorted[min_idx].position
+        ) {
         min_idx = j
       }
       j = j + 1
@@ -888,9 +878,9 @@ pub fn methylkit_get_dmr(
       let mut end_pos = sorted[i].position
       let mut j = i + 1
       while j < n &&
-        sorted[j].significant &&
-        sorted[j].chr == chr &&
-        sorted[j].position - end_pos <= 1000 {
+            sorted[j].significant &&
+            sorted[j].chr == chr &&
+            sorted[j].position - end_pos <= 1000 {
         end_pos = sorted[j].position
         j = j + 1
       }

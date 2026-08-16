@@ -7,22 +7,8 @@
 
 test "compass_record_creation" {
   let r = @src.CompassRecord::new(
-    "query1.msa",
-    "template1.msa",
-    5,
-    4,
-    120,
-    110,
-    185.5,
-    3.5e-10,
-    28.5,
-    1,
-    120,
-    1,
-    110,
-    "MALKSLVRLFG",
-    "MGVKSAVKT",
-    ":  :: :::",
+    "query1.msa", "template1.msa", 5, 4, 120, 110, 185.5, 3.5e-10, 28.5, 1, 120,
+    1, 110, "MALKSLVRLFG", "MGVKSAVKT", ":  :: :::",
   )
   assert_eq(r.query_name(), "query1.msa")
   assert_eq(r.template_name(), "template1.msa")
@@ -42,10 +28,10 @@ test "compass_record_creation" {
   assert_eq(r.consensus_line(), ":  :: :::")
 }
 
+///|
 test "compass_record_accessors_individual" {
   let r = @src.CompassRecord::new(
-    "q", "t", 1, 2, 10, 20, 50.0, 0.001, 35.0,
-    5, 50, 10, 60, "ACGT", "ACGT", ":::",
+    "q", "t", 1, 2, 10, 20, 50.0, 0.001, 35.0, 5, 50, 10, 60, "ACGT", "ACGT", ":::",
   )
   assert_eq(r.query_name(), "q")
   assert_eq(r.template_name(), "t")
@@ -65,13 +51,11 @@ test "compass_record_accessors_individual" {
   assert_eq(r.consensus_line(), ":::")
 }
 
+///|
 test "compass_record_to_string" {
   let r = @src.CompassRecord::new(
-    "query1.msa", "template1.msa",
-    5, 4, 120, 110,
-    185.5, 3.5e-10, 28.5,
-    1, 120, 1, 110,
-    "MALKSLVRLFG", "MGVKSAVKT", ":  :: :::",
+    "query1.msa", "template1.msa", 5, 4, 120, 110, 185.5, 3.5e-10, 28.5, 1, 120,
+    1, 110, "MALKSLVRLFG", "MGVKSAVKT", ":  :: :::",
   )
   let s = r.to_string()
   assert_true(s.contains("query1.msa"))
@@ -83,56 +67,66 @@ test "compass_record_to_string" {
 // Parsing: sample data
 // ---------------------------------------------------------------------------
 
+///|
 test "compass_parse_sample_data_count" {
   let text = @src.compass_sample_data()
   let records = @src.parse_compass(text)
   assert_eq(records.length(), 2)
 }
 
+///|
 test "compass_parse_first_record_query_name" {
   let records = @src.parse_compass(@src.compass_sample_data())
   assert_eq(records[0].query_name(), "query1.msa")
 }
 
+///|
 test "compass_parse_first_record_template_name" {
   let records = @src.parse_compass(@src.compass_sample_data())
   assert_eq(records[0].template_name(), "template1.msa")
 }
 
+///|
 test "compass_parse_first_record_n_seqs" {
   let records = @src.parse_compass(@src.compass_sample_data())
   assert_eq(records[0].query_n_seqs(), 5)
   assert_eq(records[0].template_n_seqs(), 4)
 }
 
+///|
 test "compass_parse_first_record_n_cols" {
   let records = @src.parse_compass(@src.compass_sample_data())
   assert_eq(records[0].query_n_cols(), 120)
   assert_eq(records[0].template_n_cols(), 110)
 }
 
+///|
 test "compass_parse_first_record_sw_score" {
   let records = @src.parse_compass(@src.compass_sample_data())
   assert_eq(records[0].sw_score(), 185.5)
 }
 
+///|
 test "compass_parse_first_record_e_value" {
   let records = @src.parse_compass(@src.compass_sample_data())
   // Use tolerance comparison due to floating-point precision
   assert_true((records[0].e_value() - 3.5e-10).abs() < 1.0e-20)
 }
 
+///|
 test "compass_parse_first_record_identity" {
   let records = @src.parse_compass(@src.compass_sample_data())
   assert_eq(records[0].percentage_identity(), 28.5)
 }
 
+///|
 test "compass_parse_first_record_alignment" {
   let records = @src.parse_compass(@src.compass_sample_data())
   assert_eq(records[0].aligned_query(), "MALKSLVRLFG")
   assert_eq(records[0].aligned_template(), "MGVKSAVKT")
 }
 
+///|
 test "compass_parse_first_record_positions" {
   let records = @src.parse_compass(@src.compass_sample_data())
   assert_eq(records[0].query_start(), 1)
@@ -141,11 +135,13 @@ test "compass_parse_first_record_positions" {
   assert_eq(records[0].template_end(), 110)
 }
 
+///|
 test "compass_parse_first_record_consensus" {
   let records = @src.parse_compass(@src.compass_sample_data())
   assert_eq(records[0].consensus_line(), ":  :: :::")
 }
 
+///|
 test "compass_parse_second_record" {
   let records = @src.parse_compass(@src.compass_sample_data())
   assert_eq(records[1].query_name(), "query2.msa")
@@ -164,16 +160,19 @@ test "compass_parse_second_record" {
 // Version extraction
 // ---------------------------------------------------------------------------
 
+///|
 test "compass_version_extraction" {
   let text = @src.compass_sample_data()
   let version = @src.compass_version(text)
   assert_eq(version, "2.4.2")
 }
 
+///|
 test "compass_version_empty_input" {
   assert_eq(@src.compass_version(""), "")
 }
 
+///|
 test "compass_version_no_version_line" {
   let text = "Some other content\nwithout version\n"
   assert_eq(@src.compass_version(text), "")
@@ -183,6 +182,7 @@ test "compass_version_no_version_line" {
 // Filtering
 // ---------------------------------------------------------------------------
 
+///|
 test "compass_filter_by_evalue" {
   let records = @src.parse_compass(@src.compass_sample_data())
   // E-values: 3.5e-10 and 1.2e-05
@@ -191,18 +191,21 @@ test "compass_filter_by_evalue" {
   assert_eq(filtered[0].query_name(), "query1.msa")
 }
 
+///|
 test "compass_filter_by_evalue_all_pass" {
   let records = @src.parse_compass(@src.compass_sample_data())
   let filtered = @src.compass_filter_by_evalue(records, 1.0)
   assert_eq(filtered.length(), 2)
 }
 
+///|
 test "compass_filter_by_evalue_none_pass" {
   let records = @src.parse_compass(@src.compass_sample_data())
   let filtered = @src.compass_filter_by_evalue(records, 1.0e-20)
   assert_eq(filtered.length(), 0)
 }
 
+///|
 test "compass_filter_by_identity" {
   let records = @src.parse_compass(@src.compass_sample_data())
   // Identities: 28.5 and 15.3
@@ -211,6 +214,7 @@ test "compass_filter_by_identity" {
   assert_eq(filtered[0].query_name(), "query1.msa")
 }
 
+///|
 test "compass_filter_by_identity_all_pass" {
   let records = @src.parse_compass(@src.compass_sample_data())
   let filtered = @src.compass_filter_by_identity(records, 10.0)
@@ -221,16 +225,17 @@ test "compass_filter_by_identity_all_pass" {
 // Alignment length
 // ---------------------------------------------------------------------------
 
+///|
 test "compass_alignment_length" {
   let records = @src.parse_compass(@src.compass_sample_data())
   assert_eq(@src.compass_alignment_length(records[0]), 11)
   assert_eq(@src.compass_alignment_length(records[1]), 10)
 }
 
+///|
 test "compass_alignment_length_empty" {
   let r = @src.CompassRecord::new(
-    "", "", 0, 0, 0, 0, 0.0, 0.0, 0.0,
-    0, 0, 0, 0, "", "", "",
+    "", "", 0, 0, 0, 0, 0.0, 0.0, 0.0, 0, 0, 0, 0, "", "", "",
   )
   assert_eq(@src.compass_alignment_length(r), 0)
 }
@@ -239,6 +244,7 @@ test "compass_alignment_length_empty" {
 // Summary
 // ---------------------------------------------------------------------------
 
+///|
 test "compass_summary_content" {
   let records = @src.parse_compass(@src.compass_sample_data())
   let summary = @src.compass_summary(records)
@@ -250,6 +256,7 @@ test "compass_summary_content" {
   assert_true(summary.contains("28.5"))
 }
 
+///|
 test "compass_summary_empty" {
   let records : Array[@src.CompassRecord] = []
   let summary = @src.compass_summary(records)
@@ -260,16 +267,19 @@ test "compass_summary_empty" {
 // Edge cases
 // ---------------------------------------------------------------------------
 
+///|
 test "compass_parse_empty_input" {
   let records = @src.parse_compass("")
   assert_eq(records.length(), 0)
 }
 
+///|
 test "compass_parse_whitespace_only" {
   let records = @src.parse_compass("   \n  \n  \n")
   assert_eq(records.length(), 0)
 }
 
+///|
 test "compass_parse_single_record" {
   let text = "COMPASS version 2.4.2\n" +
     "Query alignment: single.msa\n" +
@@ -296,10 +306,10 @@ test "compass_parse_single_record" {
   assert_eq(records[0].consensus_line(), ": :  :")
 }
 
+///|
 test "compass_parse_missing_fields" {
   // Record with only version and query name (missing other fields)
-  let text = "COMPASS version 1.0.0\n" +
-    "Query alignment: partial.msa\n"
+  let text = "COMPASS version 1.0.0\n" + "Query alignment: partial.msa\n"
   let records = @src.parse_compass(text)
   assert_eq(records.length(), 1)
   assert_eq(records[0].query_name(), "partial.msa")
@@ -316,6 +326,7 @@ test "compass_parse_missing_fields" {
   assert_eq(records[0].consensus_line(), "")
 }
 
+///|
 test "compass_parse_no_consensus_line" {
   // Alignment block without a consensus line between Query and Template
   let text = "COMPASS version 2.4.2\n" +
@@ -337,6 +348,7 @@ test "compass_parse_no_consensus_line" {
   assert_eq(records[0].consensus_line(), "")
 }
 
+///|
 test "compass_parse_three_records" {
   let mut text = ""
   text = text + "COMPASS version 2.4.2\n"
@@ -360,6 +372,7 @@ test "compass_parse_three_records" {
   assert_eq(records[2].query_name(), "q3.msa")
 }
 
+///|
 test "compass_parse_version_only" {
   let text = "COMPASS version 3.0.0\n"
   let records = @src.parse_compass(text)
@@ -367,17 +380,20 @@ test "compass_parse_version_only" {
   assert_eq(records[0].query_name(), "")
 }
 
+///|
 test "compass_sample_data_has_version" {
   let text = @src.compass_sample_data()
   assert_true(text.contains("COMPASS version 2.4.2"))
 }
 
+///|
 test "compass_sample_data_has_evalue" {
   let text = @src.compass_sample_data()
   assert_true(text.contains("3.5e-10"))
   assert_true(text.contains("1.2e-05"))
 }
 
+///|
 test "compass_filter_empty_records" {
   let records : Array[@src.CompassRecord] = []
   let by_evalue = @src.compass_filter_by_evalue(records, 1.0)

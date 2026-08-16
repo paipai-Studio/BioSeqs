@@ -33,8 +33,12 @@ test "gck_seq_type_from_int_round_trip" {
   let dna = @src.GckSeqType::from_int(0)
   let rna = @src.GckSeqType::from_int(1)
   let protein = @src.GckSeqType::from_int(2)
-  assert_true(@src.GckSeqType::from_int(dna.to_int()) is @src.GckSeqType::GckDna)
-  assert_true(@src.GckSeqType::from_int(rna.to_int()) is @src.GckSeqType::GckRna)
+  assert_true(
+    @src.GckSeqType::from_int(dna.to_int()) is @src.GckSeqType::GckDna,
+  )
+  assert_true(
+    @src.GckSeqType::from_int(rna.to_int()) is @src.GckSeqType::GckRna,
+  )
   assert_true(
     @src.GckSeqType::from_int(protein.to_int()) is @src.GckSeqType::GckProtein,
   )
@@ -74,12 +78,9 @@ test "gck_file_new_defaults" {
 
 ///|
 test "gck_feature_new" {
-  let f = @src.GckFeature::new(
-    name="AmpR",
-    type_="CDS",
-    direction=1,
-    segments=[(0, 19)],
-  )
+  let f = @src.GckFeature::new(name="AmpR", type_="CDS", direction=1, segments=[
+    (0, 19),
+  ])
   assert_eq(f.name, "AmpR")
   assert_eq(f.type_, "CDS")
   assert_eq(f.direction, 1)
@@ -91,12 +92,11 @@ test "gck_feature_new" {
 
 ///|
 test "gck_feature_new_multiple_segments" {
-  let f = @src.GckFeature::new(
-    name="gene1",
-    type_="CDS",
-    direction=2,
-    segments=[(0, 10), (20, 30), (40, 50)],
-  )
+  let f = @src.GckFeature::new(name="gene1", type_="CDS", direction=2, segments=[
+    (0, 10),
+    (20, 30),
+    (40, 50),
+  ])
   assert_eq(f.name, "gene1")
   assert_eq(f.direction, 2)
   assert_eq(f.segments.length(), 3)
@@ -140,12 +140,9 @@ test "gck_count_features_by_type_multiple" {
     @src.GckFeature::new(name="b", type_="CDS", direction=1, segments=[(20, 30)]),
   )
   file.add_feature(
-    @src.GckFeature::new(
-      name="c",
-      type_="promoter",
-      direction=1,
-      segments=[(40, 50)],
-    ),
+    @src.GckFeature::new(name="c", type_="promoter", direction=1, segments=[
+      (40, 50),
+    ]),
   )
   assert_eq(@src.gck_count_features_by_type(file, "CDS"), 2)
   assert_eq(@src.gck_count_features_by_type(file, "promoter"), 1)
@@ -320,7 +317,9 @@ test "gck_custom_file_round_trip" {
   file.set_sequence("ATGAAATAG")
   file.set_circular(false)
   file.add_feature(
-    @src.GckFeature::new(name="gene1", type_="CDS", direction=1, segments=[(0, 8)]),
+    @src.GckFeature::new(name="gene1", type_="CDS", direction=1, segments=[
+      (0, 8),
+    ]),
   )
   let hex = @src.gck_write(file)
   let parsed = @src.gck_parse(hex)
@@ -339,20 +338,14 @@ test "gck_multiple_features_round_trip" {
     @src.GckFeature::new(name="f1", type_="CDS", direction=1, segments=[(0, 3)]),
   )
   file.add_feature(
-    @src.GckFeature::new(
-      name="f2",
-      type_="promoter",
-      direction=2,
-      segments=[(4, 7)],
-    ),
+    @src.GckFeature::new(name="f2", type_="promoter", direction=2, segments=[
+      (4, 7),
+    ]),
   )
   file.add_feature(
-    @src.GckFeature::new(
-      name="f3",
-      type_="terminator",
-      direction=0,
-      segments=[(8, 11)],
-    ),
+    @src.GckFeature::new(name="f3", type_="terminator", direction=0, segments=[
+      (8, 11),
+    ]),
   )
   let hex = @src.gck_write(file)
   let parsed = @src.gck_parse(hex)
@@ -370,12 +363,11 @@ test "gck_multi_segment_feature_round_trip" {
   let file = @src.GckFile::new()
   file.set_sequence("ATGCATGCATGC")
   file.add_feature(
-    @src.GckFeature::new(
-      name="gene",
-      type_="CDS",
-      direction=1,
-      segments=[(0, 2), (4, 6), (8, 10)],
-    ),
+    @src.GckFeature::new(name="gene", type_="CDS", direction=1, segments=[
+      (0, 2),
+      (4, 6),
+      (8, 10),
+    ]),
   )
   let hex = @src.gck_write(file)
   let parsed = @src.gck_parse(hex)
@@ -398,24 +390,15 @@ test "gck_multi_segment_feature_round_trip" {
 
 ///|
 test "gck_feature_direction_values" {
-  let f1 = @src.GckFeature::new(
-    name="f1",
-    type_="CDS",
-    direction=0,
-    segments=[(0, 10)],
-  )
-  let f2 = @src.GckFeature::new(
-    name="f2",
-    type_="CDS",
-    direction=1,
-    segments=[(0, 10)],
-  )
-  let f3 = @src.GckFeature::new(
-    name="f3",
-    type_="CDS",
-    direction=2,
-    segments=[(0, 10)],
-  )
+  let f1 = @src.GckFeature::new(name="f1", type_="CDS", direction=0, segments=[
+    (0, 10),
+  ])
+  let f2 = @src.GckFeature::new(name="f2", type_="CDS", direction=1, segments=[
+    (0, 10),
+  ])
+  let f3 = @src.GckFeature::new(name="f3", type_="CDS", direction=2, segments=[
+    (0, 10),
+  ])
   assert_eq(f1.direction, 0)
   assert_eq(f2.direction, 1)
   assert_eq(f3.direction, 2)

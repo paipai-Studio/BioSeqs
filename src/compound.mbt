@@ -83,7 +83,19 @@ pub fn Compound::get_formula(self : Compound) -> String {
 /// Set molecular formula.
 pub fn Compound::set_formula(self : Compound, formula : String) -> Compound {
   let c = self
-  Compound::{ id: c.id, name: c.name, formula, charge: c.charge, smiles: c.smiles, inchikey: c.inchikey, inchi: c.inchi, aliases: c.aliases, pathways: c.pathways, reactions: c.reactions, comment: c.comment }
+  Compound::{
+    id: c.id,
+    name: c.name,
+    formula,
+    charge: c.charge,
+    smiles: c.smiles,
+    inchikey: c.inchikey,
+    inchi: c.inchi,
+    aliases: c.aliases,
+    pathways: c.pathways,
+    reactions: c.reactions,
+    comment: c.comment,
+  }
 }
 
 ///|
@@ -96,7 +108,19 @@ pub fn Compound::get_charge(self : Compound) -> Int {
 /// Set charge.
 pub fn Compound::set_charge(self : Compound, charge : Int) -> Compound {
   let c = self
-  Compound::{ id: c.id, name: c.name, formula: c.formula, charge, smiles: c.smiles, inchikey: c.inchikey, inchi: c.inchi, aliases: c.aliases, pathways: c.pathways, reactions: c.reactions, comment: c.comment }
+  Compound::{
+    id: c.id,
+    name: c.name,
+    formula: c.formula,
+    charge,
+    smiles: c.smiles,
+    inchikey: c.inchikey,
+    inchi: c.inchi,
+    aliases: c.aliases,
+    pathways: c.pathways,
+    reactions: c.reactions,
+    comment: c.comment,
+  }
 }
 
 ///|
@@ -109,7 +133,19 @@ pub fn Compound::get_smiles(self : Compound) -> String {
 /// Set SMILES string.
 pub fn Compound::set_smiles(self : Compound, smiles : String) -> Compound {
   let c = self
-  Compound::{ id: c.id, name: c.name, formula: c.formula, charge: c.charge, smiles, inchikey: c.inchikey, inchi: c.inchi, aliases: c.aliases, pathways: c.pathways, reactions: c.reactions, comment: c.comment }
+  Compound::{
+    id: c.id,
+    name: c.name,
+    formula: c.formula,
+    charge: c.charge,
+    smiles,
+    inchikey: c.inchikey,
+    inchi: c.inchi,
+    aliases: c.aliases,
+    pathways: c.pathways,
+    reactions: c.reactions,
+    comment: c.comment,
+  }
 }
 
 ///|
@@ -124,7 +160,19 @@ pub fn Compound::add_alias(self : Compound, alias : String) -> Compound {
   let c = self
   let new_aliases = c.aliases.copy()
   new_aliases.push(alias)
-  Compound::{ id: c.id, name: c.name, formula: c.formula, charge: c.charge, smiles: c.smiles, inchikey: c.inchikey, inchi: c.inchi, aliases: new_aliases, pathways: c.pathways, reactions: c.reactions, comment: c.comment }
+  Compound::{
+    id: c.id,
+    name: c.name,
+    formula: c.formula,
+    charge: c.charge,
+    smiles: c.smiles,
+    inchikey: c.inchikey,
+    inchi: c.inchi,
+    aliases: new_aliases,
+    pathways: c.pathways,
+    reactions: c.reactions,
+    comment: c.comment,
+  }
 }
 
 ///|
@@ -153,7 +201,19 @@ pub fn Compound::add_pathway(self : Compound, pathway : String) -> Compound {
   let c = self
   let new_pathways = c.pathways.copy()
   new_pathways.push(pathway)
-  Compound::{ id: c.id, name: c.name, formula: c.formula, charge: c.charge, smiles: c.smiles, inchikey: c.inchikey, inchi: c.inchi, aliases: c.aliases, pathways: new_pathways, reactions: c.reactions, comment: c.comment }
+  Compound::{
+    id: c.id,
+    name: c.name,
+    formula: c.formula,
+    charge: c.charge,
+    smiles: c.smiles,
+    inchikey: c.inchikey,
+    inchi: c.inchi,
+    aliases: c.aliases,
+    pathways: new_pathways,
+    reactions: c.reactions,
+    comment: c.comment,
+  }
 }
 
 ///|
@@ -168,7 +228,19 @@ pub fn Compound::add_reaction(self : Compound, reaction : String) -> Compound {
   let c = self
   let new_reactions = c.reactions.copy()
   new_reactions.push(reaction)
-  Compound::{ id: c.id, name: c.name, formula: c.formula, charge: c.charge, smiles: c.smiles, inchikey: c.inchikey, inchi: c.inchi, aliases: c.aliases, pathways: c.pathways, reactions: new_reactions, comment: c.comment }
+  Compound::{
+    id: c.id,
+    name: c.name,
+    formula: c.formula,
+    charge: c.charge,
+    smiles: c.smiles,
+    inchikey: c.inchikey,
+    inchi: c.inchi,
+    aliases: c.aliases,
+    pathways: c.pathways,
+    reactions: new_reactions,
+    comment: c.comment,
+  }
 }
 
 ///|
@@ -190,7 +262,9 @@ pub fn Compound::to_string(self : Compound) -> String {
     result = result + ", aliases: ["
     let mut i = 0
     while i < self.aliases.length() {
-      if i > 0 { result = result + ", " }
+      if i > 0 {
+        result = result + ", "
+      }
       result = result + "'\{self.aliases[i]}'"
       i = i + 1
     }
@@ -251,20 +325,21 @@ pub fn parse_formula(formula : String) -> Map[String, Int] {
 /// Get molecular formula as a string from parsed counts.
 pub fn formula_to_string(counts : Map[String, Int]) -> String {
   let mut result = ""
-  let elements = ["C", "H", "N", "O", "S", "P", "Fe", "Mg", "Ca", "K", "Na", "Cl", "Br", "I"]
+  let elements = [
+    "C", "H", "N", "O", "S", "P", "Fe", "Mg", "Ca", "K", "Na", "Cl", "Br", "I",
+  ]
 
   let mut i = 0
   while i < elements.length() {
     let el = elements[i]
     match counts.get(el) {
-      Some(n) => {
+      Some(n) =>
         if n > 0 {
           result = result + el
           if n > 1 {
             result = result + n.to_string()
           }
         }
-      }
       None => ()
     }
     i = i + 1
@@ -284,14 +359,13 @@ pub fn formula_to_string(counts : Map[String, Int]) -> String {
     }
     if !found {
       match counts.get(el) {
-        Some(n) => {
+        Some(n) =>
           if n > 0 {
             result = result + el
             if n > 1 {
               result = result + n.to_string()
             }
           }
-        }
         None => ()
       }
     }
@@ -324,12 +398,11 @@ pub fn compound_molecular_weight(formula : String) -> Double {
   let mut total = 0.0
   for el in counts.keys() {
     match counts.get(el) {
-      Some(count) => {
+      Some(count) =>
         match weights.get(el) {
           Some(w) => total = total + w * count.to_double()
           None => ()
         }
-      }
       None => ()
     }
   }
@@ -379,17 +452,31 @@ pub fn ChemicalReaction::get_name(self : ChemicalReaction) -> String {
 
 ///|
 /// Get substrates (reactants).
-pub fn ChemicalReaction::get_substrates(self : ChemicalReaction) -> Array[String] {
+pub fn ChemicalReaction::get_substrates(
+  self : ChemicalReaction,
+) -> Array[String] {
   self.substrates
 }
 
 ///|
 /// Add a substrate.
-pub fn ChemicalReaction::add_substrate(self : ChemicalReaction, substrate : String) -> ChemicalReaction {
+pub fn ChemicalReaction::add_substrate(
+  self : ChemicalReaction,
+  substrate : String,
+) -> ChemicalReaction {
   let r = self
   let new_subs = r.substrates.copy()
   new_subs.push(substrate)
-  ChemicalReaction::{ id: r.id, name: r.name, substrates: new_subs, products: r.products, enzymes: r.enzymes, direction: r.direction, pathway: r.pathway, comment: r.comment }
+  ChemicalReaction::{
+    id: r.id,
+    name: r.name,
+    substrates: new_subs,
+    products: r.products,
+    enzymes: r.enzymes,
+    direction: r.direction,
+    pathway: r.pathway,
+    comment: r.comment,
+  }
 }
 
 ///|
@@ -400,11 +487,23 @@ pub fn ChemicalReaction::get_products(self : ChemicalReaction) -> Array[String] 
 
 ///|
 /// Add a product.
-pub fn ChemicalReaction::add_product(self : ChemicalReaction, product : String) -> ChemicalReaction {
+pub fn ChemicalReaction::add_product(
+  self : ChemicalReaction,
+  product : String,
+) -> ChemicalReaction {
   let r = self
   let new_prods = r.products.copy()
   new_prods.push(product)
-  ChemicalReaction::{ id: r.id, name: r.name, substrates: r.substrates, products: new_prods, enzymes: r.enzymes, direction: r.direction, pathway: r.pathway, comment: r.comment }
+  ChemicalReaction::{
+    id: r.id,
+    name: r.name,
+    substrates: r.substrates,
+    products: new_prods,
+    enzymes: r.enzymes,
+    direction: r.direction,
+    pathway: r.pathway,
+    comment: r.comment,
+  }
 }
 
 ///|
@@ -415,11 +514,23 @@ pub fn ChemicalReaction::get_enzymes(self : ChemicalReaction) -> Array[String] {
 
 ///|
 /// Add an enzyme.
-pub fn ChemicalReaction::add_enzyme(self : ChemicalReaction, enzyme : String) -> ChemicalReaction {
+pub fn ChemicalReaction::add_enzyme(
+  self : ChemicalReaction,
+  enzyme : String,
+) -> ChemicalReaction {
   let r = self
   let new_enzymes = r.enzymes.copy()
   new_enzymes.push(enzyme)
-  ChemicalReaction::{ id: r.id, name: r.name, substrates: r.substrates, products: r.products, enzymes: new_enzymes, direction: r.direction, pathway: r.pathway, comment: r.comment }
+  ChemicalReaction::{
+    id: r.id,
+    name: r.name,
+    substrates: r.substrates,
+    products: r.products,
+    enzymes: new_enzymes,
+    direction: r.direction,
+    pathway: r.pathway,
+    comment: r.comment,
+  }
 }
 
 ///|
@@ -430,9 +541,21 @@ pub fn ChemicalReaction::get_direction(self : ChemicalReaction) -> String {
 
 ///|
 /// Set reaction direction ("forward", "reverse", "reversible").
-pub fn ChemicalReaction::set_direction(self : ChemicalReaction, direction : String) -> ChemicalReaction {
+pub fn ChemicalReaction::set_direction(
+  self : ChemicalReaction,
+  direction : String,
+) -> ChemicalReaction {
   let r = self
-  ChemicalReaction::{ id: r.id, name: r.name, substrates: r.substrates, products: r.products, enzymes: r.enzymes, direction, pathway: r.pathway, comment: r.comment }
+  ChemicalReaction::{
+    id: r.id,
+    name: r.name,
+    substrates: r.substrates,
+    products: r.products,
+    enzymes: r.enzymes,
+    direction,
+    pathway: r.pathway,
+    comment: r.comment,
+  }
 }
 
 ///|
@@ -441,7 +564,9 @@ pub fn ChemicalReaction::get_equation(self : ChemicalReaction) -> String {
   let mut lhs = ""
   let mut i = 0
   while i < self.substrates.length() {
-    if i > 0 { lhs = lhs + " + " }
+    if i > 0 {
+      lhs = lhs + " + "
+    }
     lhs = lhs + self.substrates[i]
     i = i + 1
   }
@@ -449,7 +574,9 @@ pub fn ChemicalReaction::get_equation(self : ChemicalReaction) -> String {
   let mut rhs = ""
   i = 0
   while i < self.products.length() {
-    if i > 0 { rhs = rhs + " + " }
+    if i > 0 {
+      rhs = rhs + " + "
+    }
     rhs = rhs + self.products[i]
     i = i + 1
   }
@@ -472,7 +599,9 @@ pub fn ChemicalReaction::to_string(self : ChemicalReaction) -> String {
     result = result + "  Enzymes: "
     let mut i = 0
     while i < self.enzymes.length() {
-      if i > 0 { result = result + ", " }
+      if i > 0 {
+        result = result + ", "
+      }
       result = result + self.enzymes[i]
       i = i + 1
     }
@@ -508,37 +637,60 @@ pub fn CompoundPathwayMap::get_name(self : CompoundPathwayMap) -> String {
 
 ///|
 /// Add a compound to the pathway.
-pub fn CompoundPathwayMap::add_compound(self : CompoundPathwayMap, compound : Compound) -> CompoundPathwayMap {
+pub fn CompoundPathwayMap::add_compound(
+  self : CompoundPathwayMap,
+  compound : Compound,
+) -> CompoundPathwayMap {
   let p = self
   let new_compounds = p.compounds.copy()
   new_compounds.push(compound)
-  CompoundPathwayMap::{ name: p.name, compounds: new_compounds, reactions: p.reactions, description: p.description }
+  CompoundPathwayMap::{
+    name: p.name,
+    compounds: new_compounds,
+    reactions: p.reactions,
+    description: p.description,
+  }
 }
 
 ///|
 /// Add a reaction to the pathway.
-pub fn CompoundPathwayMap::add_reaction(self : CompoundPathwayMap, reaction : ChemicalReaction) -> CompoundPathwayMap {
+pub fn CompoundPathwayMap::add_reaction(
+  self : CompoundPathwayMap,
+  reaction : ChemicalReaction,
+) -> CompoundPathwayMap {
   let p = self
   let new_reactions = p.reactions.copy()
   new_reactions.push(reaction)
-  CompoundPathwayMap::{ name: p.name, compounds: p.compounds, reactions: new_reactions, description: p.description }
+  CompoundPathwayMap::{
+    name: p.name,
+    compounds: p.compounds,
+    reactions: new_reactions,
+    description: p.description,
+  }
 }
 
 ///|
 /// Get all compounds.
-pub fn CompoundPathwayMap::get_compounds(self : CompoundPathwayMap) -> Array[Compound] {
+pub fn CompoundPathwayMap::get_compounds(
+  self : CompoundPathwayMap,
+) -> Array[Compound] {
   self.compounds
 }
 
 ///|
 /// Get all reactions.
-pub fn CompoundPathwayMap::get_reactions(self : CompoundPathwayMap) -> Array[ChemicalReaction] {
+pub fn CompoundPathwayMap::get_reactions(
+  self : CompoundPathwayMap,
+) -> Array[ChemicalReaction] {
   self.reactions
 }
 
 ///|
 /// Find a compound by ID.
-pub fn CompoundPathwayMap::find_compound(self : CompoundPathwayMap, id : String) -> Option[Compound] {
+pub fn CompoundPathwayMap::find_compound(
+  self : CompoundPathwayMap,
+  id : String,
+) -> Compound? {
   let mut i = 0
   while i < self.compounds.length() {
     if self.compounds[i].id == id {
@@ -551,7 +703,10 @@ pub fn CompoundPathwayMap::find_compound(self : CompoundPathwayMap, id : String)
 
 ///|
 /// Find a reaction by ID.
-pub fn CompoundPathwayMap::find_reaction(self : CompoundPathwayMap, id : String) -> Option[ChemicalReaction] {
+pub fn CompoundPathwayMap::find_reaction(
+  self : CompoundPathwayMap,
+  id : String,
+) -> ChemicalReaction? {
   let mut i = 0
   while i < self.reactions.length() {
     if self.reactions[i].id == id {
@@ -586,7 +741,8 @@ pub fn CompoundPathwayMap::summary(self : CompoundPathwayMap) -> String {
     result = result + "\nReactions:\n"
     let mut i = 0
     while i < self.reactions.length() {
-      result = result + "  - \{self.reactions[i].id}: \{self.reactions[i].get_equation()}\n"
+      result = result +
+        "  - \{self.reactions[i].id}: \{self.reactions[i].get_equation()}\n"
       i = i + 1
     }
   }
@@ -597,13 +753,17 @@ pub fn CompoundPathwayMap::summary(self : CompoundPathwayMap) -> String {
 ///|
 /// Create common known compound templates.
 pub fn compound_glucose() -> Compound {
-  Compound::with_chemical("C0003", "D-Glucose", "C6H12O6", 0, "C(C1C(C(C(C(O1)O)O)O)O)O")
+  Compound::with_chemical(
+    "C0003", "D-Glucose", "C6H12O6", 0, "C(C1C(C(C(C(O1)O)O)O)O)O",
+  )
 }
 
 ///|
 /// Create fructose compound.
 pub fn compound_fructose() -> Compound {
-  Compound::with_chemical("C0005", "D-Fructose", "C6H12O6", 0, "C(=O)C1(C(C(C(O1)O)O)O)O")
+  Compound::with_chemical(
+    "C0005", "D-Fructose", "C6H12O6", 0, "C(=O)C1(C(C(C(O1)O)O)O)O",
+  )
 }
 
 ///|
@@ -621,5 +781,7 @@ pub fn compound_acetate() -> Compound {
 ///|
 /// Create citrate compound.
 pub fn compound_citrate() -> Compound {
-  Compound::with_chemical("C0015", "Citrate", "C6H5O7", -3, "OC(=O)C(CC(=O)[O-])(O)CC(=O)[O-]")
+  Compound::with_chemical(
+    "C0015", "Citrate", "C6H5O7", -3, "OC(=O)C(CC(=O)[O-])(O)CC(=O)[O-]",
+  )
 }

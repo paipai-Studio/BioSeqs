@@ -22,7 +22,10 @@ test "nuc_create_example_result" {
   assert_true(result.nuc_n_count() >= 0)
   assert_true(result.nuc_mean_spacing() >= 0.0)
   assert_true(result.nuc_mean_occupancy() >= 0.0)
-  assert_true(result.nuc_frac_well_positioned() >= 0.0 && result.nuc_frac_well_positioned() <= 1.0)
+  assert_true(
+    result.nuc_frac_well_positioned() >= 0.0 &&
+    result.nuc_frac_well_positioned() <= 1.0,
+  )
 }
 
 ///|
@@ -103,7 +106,7 @@ test "nuc_compare_positioning_identical" {
 ///|
 test "nuc_position_methods" {
   let pos = @src.NucPosition::new(
-    "chr1", 100, 300, 200.0, 200.0, 0.8, 0.01, true
+    "chr1", 100, 300, 200.0, 200.0, 0.8, 0.01, true,
   )
   assert_eq(pos.nuc_chrom(), "chr1")
   assert_eq(pos.nuc_start(), 100)
@@ -115,7 +118,7 @@ test "nuc_position_methods" {
   assert_true(pos.nuc_is_well_positioned())
 
   let pos2 = @src.NucPosition::new(
-    "chr2", 500, 800, 650.0, 300.0, 0.5, 0.003, false
+    "chr2", 500, 800, 650.0, 300.0, 0.5, 0.003, false,
   )
   assert_eq(pos2.nuc_chrom(), "chr2")
   assert_true(!pos2.nuc_is_well_positioned())
@@ -186,6 +189,8 @@ test "nuc_dynamic_result_methods" {
   assert_true(dynamic.nuc_n_shared() >= 0)
   assert_eq(dynamic.nuc_n_gained(), 0)
   assert_eq(dynamic.nuc_n_lost(), 0)
-  assert_true(dynamic.nuc_frac_changed() >= 0.0 && dynamic.nuc_frac_changed() <= 1.0)
+  assert_true(
+    dynamic.nuc_frac_changed() >= 0.0 && dynamic.nuc_frac_changed() <= 1.0,
+  )
   assert_eq(dynamic.nuc_direction(), 0)
 }

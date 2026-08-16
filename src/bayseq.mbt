@@ -33,7 +33,10 @@ pub struct BayesResult {
 /// Estimate the dispersion parameter for a single gene using the method of moments.
 /// For Negative Binomial: Var = mean + mean^2 / dispersion
 /// => dispersion = mean^2 / (var - mean)
-pub fn bayseq_estimate_dispersion_gene(counts_a : Array[Double], counts_b : Array[Double]) -> Double {
+pub fn bayseq_estimate_dispersion_gene(
+  counts_a : Array[Double],
+  counts_b : Array[Double],
+) -> Double {
   let n_a = counts_a.length()
   let n_b = counts_b.length()
   if n_a < 2 || n_b < 2 {
@@ -86,12 +89,21 @@ pub fn bayseq_estimate_dispersion_gene(counts_a : Array[Double], counts_b : Arra
   }
 
   // Bound dispersion to reasonable range
-  if disp < 0.01 { 0.01 } else if disp > 100.0 { 100.0 } else { disp }
+  if disp < 0.01 {
+    0.01
+  } else if disp > 100.0 {
+    100.0
+  } else {
+    disp
+  }
 }
 
 ///|
 /// Estimate dispersion prior parameters (shape, rate) from all genes.
-pub fn bayseq_estimate_prior(counts : Array[Array[Double]], groups : Array[Int]) -> (Double, Double) {
+pub fn bayseq_estimate_prior(
+  counts : Array[Array[Double]],
+  groups : Array[Int],
+) -> (Double, Double) {
   let n_genes = counts.length()
   if n_genes == 0 {
     return (2.0, 0.5)
@@ -103,8 +115,11 @@ pub fn bayseq_estimate_prior(counts : Array[Array[Double]], groups : Array[Int])
   let mut n_group_1 = 0
   let mut gi = 0
   while gi < groups.length() {
-    if groups[gi] == 0 { n_group_0 = n_group_0 + 1 }
-    else if groups[gi] == 1 { n_group_1 = n_group_1 + 1 }
+    if groups[gi] == 0 {
+      n_group_0 = n_group_0 + 1
+    } else if groups[gi] == 1 {
+      n_group_1 = n_group_1 + 1
+    }
     gi = gi + 1
   }
 
@@ -164,7 +179,9 @@ pub fn hts_count_group(groups : Array[Int], group_id : Int) -> Int {
   let mut count = 0
   let mut i = 0
   while i < groups.length() {
-    if groups[i] == group_id { count = count + 1 }
+    if groups[i] == group_id {
+      count = count + 1
+    }
     i = i + 1
   }
   count
@@ -217,7 +234,11 @@ pub fn bayseq_log_likelihood_ratio(
 
 ///|
 /// Negative Binomial log-likelihood for a set of counts given mean and dispersion.
-pub fn bayseq_nb_log_likelihood(counts : Array[Double], mean : Double, disp : Double) -> Double {
+pub fn bayseq_nb_log_likelihood(
+  counts : Array[Double],
+  mean : Double,
+  disp : Double,
+) -> Double {
   if mean <= 0.0 || disp <= 0.0 {
     return 0.0
   }
@@ -234,7 +255,11 @@ pub fn bayseq_nb_log_likelihood(counts : Array[Double], mean : Double, disp : Do
       let lgamma_x1 = bayseq_lgamma(x + 1.0)
       let lgamma_r = bayseq_lgamma(r)
       let ln_p = if p > 0.0 { @math.ln(p) } else { -10000000000.0 }
-      let ln_1mp = if (1.0 - p) > 0.0 { @math.ln(1.0 - p) } else { -10000000000.0 }
+      let ln_1mp = if 1.0 - p > 0.0 {
+        @math.ln(1.0 - p)
+      } else {
+        -10000000000.0
+      }
       ll = ll + lgamma_xr - lgamma_x1 - lgamma_r + r * ln_p + x * ln_1mp
     } else {
       let lgamma_r = bayseq_lgamma(r)
@@ -268,12 +293,8 @@ pub fn bayseq_lgamma(x : Double) -> Double {
   // Lanczos approximation for x >= 2
   // Coefficients for g=5
   let c = [
-    76.18009172947146,
-    -86.50532032941677,
-    24.01409824083091,
-    -1.231739572450155,
-    0.1208650973866179e-2,
-    -0.5395239384953e-5
+    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
+    0.1208650973866179e-2, -0.5395239384953e-5,
   ]
   let y = x
   let mut tmp = x + 5.5
@@ -326,9 +347,15 @@ pub fn bayseq_test(
     let mut sum_a = 0.0
     let mut sum_b = 0.0
     let mut i = 0
-    while i < c_a.length() { sum_a = sum_a + c_a[i]; i = i + 1 }
+    while i < c_a.length() {
+      sum_a = sum_a + c_a[i]
+      i = i + 1
+    }
     i = 0
-    while i < c_b.length() { sum_b = sum_b + c_b[i]; i = i + 1 }
+    while i < c_b.length() {
+      sum_b = sum_b + c_b[i]
+      i = i + 1
+    }
 
     let mean_a = sum_a / n_group_0.to_double()
     let mean_b = sum_b / n_group_1.to_double()
@@ -349,9 +376,15 @@ pub fn bayseq_test(
     let prob_de = 1.0 / (1.0 + @math.exp(-llr))
 
     let is_de = prob_de >= alpha
-    if is_de { de_count = de_count + 1 }
+    if is_de {
+      de_count = de_count + 1
+    }
 
-    let name = if g < gene_names.length() { gene_names[g] } else { "Gene" + (g + 1).to_string() }
+    let name = if g < gene_names.length() {
+      gene_names[g]
+    } else {
+      "Gene" + (g + 1).to_string()
+    }
 
     results.push(BayesGeneResult::{
       gene_index: g,
@@ -361,7 +394,7 @@ pub fn bayseq_test(
       posterior_prob_de: prob_de,
       map_expression_a: mean_a,
       map_expression_b: mean_b,
-      is_de: is_de,
+      is_de,
     })
     g = g + 1
   }
@@ -391,15 +424,26 @@ pub fn bayseq_get_de_genes(result : BayesResult) -> Array[BayesGeneResult] {
 
 ///|
 /// Get top DE genes sorted by absolute log fold change.
-pub fn bayseq_get_top_de(result : BayesResult, n : Int) -> Array[BayesGeneResult] {
+pub fn bayseq_get_top_de(
+  result : BayesResult,
+  n : Int,
+) -> Array[BayesGeneResult] {
   let all = result.gene_results
   // Sort by absolute log_fold_change descending (bubble sort)
   let mut i = 0
   while i < all.length() {
     let mut j = i + 1
     while j < all.length() {
-      let abs_i = if all[i].log_fold_change >= 0.0 { all[i].log_fold_change } else { -all[i].log_fold_change }
-      let abs_j = if all[j].log_fold_change >= 0.0 { all[j].log_fold_change } else { -all[j].log_fold_change }
+      let abs_i = if all[i].log_fold_change >= 0.0 {
+        all[i].log_fold_change
+      } else {
+        -all[i].log_fold_change
+      }
+      let abs_j = if all[j].log_fold_change >= 0.0 {
+        all[j].log_fold_change
+      } else {
+        -all[j].log_fold_change
+      }
       if abs_j > abs_i {
         let tmp = all[i]
         all[i] = all[j]
@@ -437,7 +481,7 @@ pub fn bayseq_sample_data() -> (Array[Array[Double]], Array[Int], Array[String])
       let base_a = 500.0
       let base_b = if g < 8 { 1500.0 } else if g < 16 { 200.0 } else { 500.0 }
       let base = if groups[s] == 0 { base_a } else { base_b }
-      let noise = (((g * 7 + s * 17) % 100).to_double() / 100.0) * base * 0.3
+      let noise = ((g * 7 + s * 17) % 100).to_double() / 100.0 * base * 0.3
       let val = base + noise
       row.push(val)
       s = s + 1
@@ -453,10 +497,17 @@ pub fn bayseq_sample_data() -> (Array[Array[Double]], Array[Int], Array[String])
 /// Summarize the baySeq result.
 pub fn bayseq_summary(result : BayesResult) -> String {
   "baySeq Analysis Summary:\n" +
-    "  Total genes: " + result.gene_results.length().to_string() + "\n" +
-    "  DE genes (posterior >= " + result.alpha_level.to_string() + "): " +
-    result.n_de_genes.to_string() + "\n" +
-    "  Dispersion prior: Gamma(shape=" +
-    result.dispersion_prior_shape.to_string() +
-    ", rate=" + result.dispersion_prior_rate.to_string() + ")"
+  "  Total genes: " +
+  result.gene_results.length().to_string() +
+  "\n" +
+  "  DE genes (posterior >= " +
+  result.alpha_level.to_string() +
+  "): " +
+  result.n_de_genes.to_string() +
+  "\n" +
+  "  Dispersion prior: Gamma(shape=" +
+  result.dispersion_prior_shape.to_string() +
+  ", rate=" +
+  result.dispersion_prior_rate.to_string() +
+  ")"
 }

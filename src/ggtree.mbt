@@ -20,13 +20,7 @@ pub fn LayoutNode::new(
   branch_length : Double,
   is_leaf : Bool,
 ) -> LayoutNode {
-  LayoutNode::{
-    id,
-    label,
-    branch_length,
-    is_leaf,
-    children: [],
-  }
+  LayoutNode::{ id, label, branch_length, is_leaf, children: [] }
 }
 
 ///|
@@ -117,7 +111,9 @@ pub fn create_test_tree() -> Array[LayoutNode] {
     children: children_a,
   }
 
-  let children_root : Array[LayoutNode] = [a_with_children, d_with_children, node_g]
+  let children_root : Array[LayoutNode] = [
+    a_with_children, d_with_children, node_g,
+  ]
   let root_with_children = LayoutNode::{
     id: root.id,
     label: root.label,
@@ -162,7 +158,11 @@ pub fn ggtree_compute_y_positions(
     let mut current_y = y_pos
     let mut i = 0
     while i < node.children.length() {
-      current_y = ggtree_compute_y_positions(node.children[i], current_y, positions)
+      current_y = ggtree_compute_y_positions(
+        node.children[i],
+        current_y,
+        positions,
+      )
       i = i + 1
     }
     // Center the internal node between its children
@@ -203,7 +203,10 @@ pub fn ggtree_collect_leaf_ids(node : LayoutNode) -> Array[String] {
 }
 
 ///|
-fn ggtree_collect_leaf_ids_recursive(node : LayoutNode, result : Array[String]) -> Unit {
+fn ggtree_collect_leaf_ids_recursive(
+  node : LayoutNode,
+  result : Array[String],
+) -> Unit {
   if node.children.length() == 0 {
     result.push(node.id)
   } else {
@@ -224,7 +227,10 @@ pub fn ggtree_collect_internal_ids(node : LayoutNode) -> Array[String] {
 }
 
 ///|
-fn ggtree_collect_internal_ids_recursive(node : LayoutNode, result : Array[String]) -> Unit {
+fn ggtree_collect_internal_ids_recursive(
+  node : LayoutNode,
+  result : Array[String],
+) -> Unit {
   let mut i = 0
   while i < node.children.length() {
     ggtree_collect_internal_ids_recursive(node.children[i], result)
@@ -267,11 +273,22 @@ fn ggtree_compute_bounds(
     // Recursively check children
     let mut i = 0
     while i < node.children.length() {
-      let (child_min_x, child_max_x, child_min_y, child_max_y) = ggtree_compute_bounds([node.children[i]], positions)
-      if child_min_x < min_x { min_x = child_min_x }
-      if child_max_x > max_x { max_x = child_max_x }
-      if child_min_y < min_y { min_y = child_min_y }
-      if child_max_y > max_y { max_y = child_max_y }
+      let (child_min_x, child_max_x, child_min_y, child_max_y) = ggtree_compute_bounds(
+        [node.children[i]],
+        positions,
+      )
+      if child_min_x < min_x {
+        min_x = child_min_x
+      }
+      if child_max_x > max_x {
+        max_x = child_max_x
+      }
+      if child_min_y < min_y {
+        min_y = child_min_y
+      }
+      if child_max_y > max_y {
+        max_y = child_max_y
+      }
       i = i + 1
     }
   }
@@ -315,10 +332,18 @@ fn ggtree_compute_bounds_flat(
   let mut i = 1
   while i < all_ids.length() {
     let pos = positions[all_ids[i]]
-    if pos.0 < min_x { min_x = pos.0 }
-    if pos.0 > max_x { max_x = pos.0 }
-    if pos.1 < min_y { min_y = pos.1 }
-    if pos.1 > max_y { max_y = pos.1 }
+    if pos.0 < min_x {
+      min_x = pos.0
+    }
+    if pos.0 > max_x {
+      max_x = pos.0
+    }
+    if pos.1 < min_y {
+      min_y = pos.1
+    }
+    if pos.1 > max_y {
+      max_y = pos.1
+    }
     i = i + 1
   }
 
@@ -343,10 +368,14 @@ pub fn layout_rectangular(tree_data : TreeData) -> TreeLayout {
   }
 
   let root = tree_data.nodes[0]
-  let n_nodes = ggtree_count_leaves(root) + (ggtree_collect_internal_ids(root).length())
+  let n_nodes = ggtree_count_leaves(root) +
+    ggtree_collect_internal_ids(root).length()
 
   // Initialize positions map
-  let positions : Map[String, (Double, Double, Double)] = Map([], capacity=n_nodes)
+  let positions : Map[String, (Double, Double, Double)] = Map(
+    [],
+    capacity=n_nodes,
+  )
 
   // Step 1: Assign y positions
   let _ = ggtree_compute_y_positions(root, 0.0, positions)
@@ -360,7 +389,9 @@ pub fn layout_rectangular(tree_data : TreeData) -> TreeLayout {
 
   // Step 4: Compute bounds
   let all_ids = ggtree_collect_all_ids(root)
-  let (min_x, max_x, min_y, max_y) = ggtree_compute_bounds_flat(positions, all_ids)
+  let (min_x, max_x, min_y, max_y) = ggtree_compute_bounds_flat(
+    positions, all_ids,
+  )
 
   TreeLayout::{
     nodes: tree_data.nodes.copy(),
@@ -396,7 +427,10 @@ pub fn layout_radial(tree_data : TreeData) -> TreeLayout {
   let rect_layout = layout_rectangular(tree_data)
 
   // Convert to radial
-  let radial_positions : Map[String, (Double, Double, Double)] = Map([], capacity=rect_layout.positions.length())
+  let radial_positions : Map[String, (Double, Double, Double)] = Map(
+    [],
+    capacity=rect_layout.positions.length(),
+  )
   let y_range = rect_layout.max_y - rect_layout.min_y
   let angle_scale = if y_range > 0.0 { 360.0 / y_range } else { 1.0 }
 
@@ -412,7 +446,9 @@ pub fn layout_radial(tree_data : TreeData) -> TreeLayout {
   }
 
   let all_ids = ggtree_collect_all_ids(tree_data.nodes[0])
-  let (min_x, max_x, min_y, max_y) = ggtree_compute_bounds_flat(radial_positions, all_ids)
+  let (min_x, max_x, min_y, max_y) = ggtree_compute_bounds_flat(
+    radial_positions, all_ids,
+  )
 
   TreeLayout::{
     nodes: tree_data.nodes.copy(),
@@ -451,14 +487,19 @@ pub fn layout_unrooted(tree_data : TreeData) -> TreeLayout {
   let center_x = (rect_layout.min_x + rect_layout.max_x) / 2.0
   let center_y = (rect_layout.min_y + rect_layout.max_y) / 2.0
 
-  let shifted_positions : Map[String, (Double, Double, Double)] = Map([], capacity=rect_layout.positions.length())
+  let shifted_positions : Map[String, (Double, Double, Double)] = Map(
+    [],
+    capacity=rect_layout.positions.length(),
+  )
   for id in rect_layout.positions.keys() {
     let pos = rect_layout.positions[id]
     shifted_positions.set(id, (pos.0 - center_x, pos.1 - center_y, pos.2))
   }
 
   let all_ids = ggtree_collect_all_ids(tree_data.nodes[0])
-  let (min_x, max_x, min_y, max_y) = ggtree_compute_bounds_flat(shifted_positions, all_ids)
+  let (min_x, max_x, min_y, max_y) = ggtree_compute_bounds_flat(
+    shifted_positions, all_ids,
+  )
 
   TreeLayout::{
     nodes: tree_data.nodes.copy(),
@@ -475,7 +516,10 @@ pub fn layout_unrooted(tree_data : TreeData) -> TreeLayout {
 
 ///|
 /// Get position for a node from layout.
-pub fn ggtree_get_position(layout : TreeLayout, node_id : String) -> (Double, Double, Double) {
+pub fn ggtree_get_position(
+  layout : TreeLayout,
+  node_id : String,
+) -> (Double, Double, Double) {
   if layout.positions.contains(node_id) {
     layout.positions[node_id]
   } else {
@@ -507,11 +551,19 @@ fn ggtree_generate_edges_recursive(
   edges : Array[String],
 ) -> Unit {
   if node.children.length() > 0 {
-    let node_pos = if positions.contains(node.id) { positions[node.id] } else { (0.0, 0.0, 0.0) }
+    let node_pos = if positions.contains(node.id) {
+      positions[node.id]
+    } else {
+      (0.0, 0.0, 0.0)
+    }
     let mut i = 0
     while i < node.children.length() {
       let child = node.children[i]
-      let child_pos = if positions.contains(child.id) { positions[child.id] } else { (0.0, 0.0, 0.0) }
+      let child_pos = if positions.contains(child.id) {
+        positions[child.id]
+      } else {
+        (0.0, 0.0, 0.0)
+      }
       let edge = "(\{node.id} -> \{child.id}: [\{node_pos.0}, \{node_pos.1}] -> [\{child_pos.0}, \{child_pos.1}])"
       edges.push(edge)
       ggtree_generate_edges_recursive(child, positions, edges)
@@ -537,7 +589,11 @@ fn ggtree_generate_labels_recursive(
   labels : Array[String],
 ) -> Unit {
   if node.is_leaf {
-    let pos = if positions.contains(node.id) { positions[node.id] } else { (0.0, 0.0, 0.0) }
+    let pos = if positions.contains(node.id) {
+      positions[node.id]
+    } else {
+      (0.0, 0.0, 0.0)
+    }
     let label = "(\{node.id}, '\{node.label}', \{pos.0}, \{pos.1})"
     labels.push(label)
   }

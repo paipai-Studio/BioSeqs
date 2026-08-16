@@ -22,8 +22,8 @@ pub struct GCRMAConfig {
 ///|
 /// Create a new GCRMAConfig with default settings.
 pub fn GCRMAConfig::new(
-  background_method~ : String = "IdealMM",
-  normalize~ : Bool = true,
+  background_method? : String = "IdealMM",
+  normalize? : Bool = true,
 ) -> GCRMAConfig {
   GCRMAConfig::{
     background_method,
@@ -53,10 +53,7 @@ pub struct ProbeInfo {
 ///|
 /// Create a new ProbeInfo from a probe ID and sequence.
 /// GC count and affinity are computed automatically.
-pub fn ProbeInfo::new(
-  probe_id : String,
-  sequence : String,
-) -> ProbeInfo {
+pub fn ProbeInfo::new(probe_id : String, sequence : String) -> ProbeInfo {
   let gc_count = oligo_gc_count(sequence)
   let affinity = estimate_affinity(sequence)
   ProbeInfo::{ probe_id, gc_count, sequence, affinity }
@@ -85,8 +82,10 @@ pub fn oligo_gc_count(sequence : String) -> Int {
   let mut i = 0
   while i < n {
     let c = sequence.unsafe_get(i).to_int()
-    if c == 'G'.to_int() || c == 'C'.to_int() ||
-      c == 'g'.to_int() || c == 'c'.to_int() {
+    if c == 'G'.to_int() ||
+      c == 'C'.to_int() ||
+      c == 'g'.to_int() ||
+      c == 'c'.to_int() {
       count = count + 1
     }
     i = i + 1
@@ -125,14 +124,30 @@ pub fn estimate_affinity(sequence : String) -> Double {
   while i < n - 1 {
     let c1 = sequence.unsafe_get(i).to_int()
     let c2 = sequence.unsafe_get(i + 1).to_int()
-    let is_gc = (c1 == 'G'.to_int() || c1 == 'g'.to_int() ||
-      c1 == 'C'.to_int() || c1 == 'c'.to_int()) &&
-      (c2 == 'G'.to_int() || c2 == 'g'.to_int() ||
-        c2 == 'C'.to_int() || c2 == 'c'.to_int())
-    let is_at = (c1 == 'A'.to_int() || c1 == 'a'.to_int() ||
-      c1 == 'T'.to_int() || c1 == 't'.to_int()) &&
-      (c2 == 'A'.to_int() || c2 == 'a'.to_int() ||
-        c2 == 'T'.to_int() || c2 == 't'.to_int())
+    let is_gc = (
+        c1 == 'G'.to_int() ||
+        c1 == 'g'.to_int() ||
+        c1 == 'C'.to_int() ||
+        c1 == 'c'.to_int()
+      ) &&
+      (
+        c2 == 'G'.to_int() ||
+        c2 == 'g'.to_int() ||
+        c2 == 'C'.to_int() ||
+        c2 == 'c'.to_int()
+      )
+    let is_at = (
+        c1 == 'A'.to_int() ||
+        c1 == 'a'.to_int() ||
+        c1 == 'T'.to_int() ||
+        c1 == 't'.to_int()
+      ) &&
+      (
+        c2 == 'A'.to_int() ||
+        c2 == 'a'.to_int() ||
+        c2 == 'T'.to_int() ||
+        c2 == 't'.to_int()
+      )
     if is_gc {
       gc_energy = gc_energy + 3.0
     } else if is_at {
@@ -183,6 +198,7 @@ pub fn compute_gc_lookup_table(
 // Internal statistical helpers
 // ---------------------------------------------------------------------------
 
+///|
 fn _median(arr : Array[Double]) -> Double {
   let n = arr.length()
   if n == 0 {
@@ -197,6 +213,7 @@ fn _median(arr : Array[Double]) -> Double {
   }
 }
 
+///|
 fn _mean(arr : Array[Double]) -> Double {
   let n = arr.length()
   if n == 0 {
@@ -211,9 +228,8 @@ fn _mean(arr : Array[Double]) -> Double {
   sum / n.to_double()
 }
 
-fn _quantile_normalize(
-  data : Array[Array[Double]],
-) -> Array[Array[Double]] {
+///|
+fn _quantile_normalize(data : Array[Array[Double]]) -> Array[Array[Double]] {
   let n_rows = data.length()
   if n_rows == 0 {
     return data
@@ -361,18 +377,10 @@ pub fn gcrma_gc_correction(
   let result : Array[Double] = Array::new()
   let mut i = 0
   while i < n {
-    let gc = if i < gc_counts.length() {
-      gc_counts[i]
-    } else {
-      0
-    }
+    let gc = if i < gc_counts.length() { gc_counts[i] } else { 0 }
     let pm_val = pm_values[i]
     let affinity = gc_lookup.get_or_default(gc, 1.0)
-    let corrected = if affinity > 0.0 {
-      pm_val / affinity
-    } else {
-      pm_val
-    }
+    let corrected = if affinity > 0.0 { pm_val / affinity } else { pm_val }
     result.push(corrected)
     i = i + 1
   }
@@ -408,7 +416,10 @@ pub fn gcrma_summarize(
   expression : Array[Array[Double]],
   probe_sets : Map[String, Array[Int]],
 ) -> Map[String, Array[Double]] {
-  let result : Map[String, Array[Double]] = Map([], capacity=probe_sets.keys().length())
+  let result : Map[String, Array[Double]] = Map(
+    [],
+    capacity=probe_sets.keys().length(),
+  )
   for probe_set_id in probe_sets.keys() {
     let indices = probe_sets.get_or_default(probe_set_id, [])
     let n_samples = if expression.length() > 0 {
@@ -444,9 +455,7 @@ pub fn gcrma_summarize(
 ///|
 /// Apply median polish to a matrix (rows = probes, cols = samples).
 /// Returns the column effects (sample-level expression values).
-fn _median_polish(
-  matrix : Array[Array[Double]],
-) -> Array[Double] {
+fn _median_polish(matrix : Array[Array[Double]]) -> Array[Double] {
   let n_rows = matrix.length()
   if n_rows == 0 {
     return []
@@ -579,7 +588,7 @@ pub fn gcrma_process_with_config(
   if n_probes == 0 {
     return GCRMAResult::{
       expression_matrix: [],
-      probe_info: probe_info,
+      probe_info,
       gc_correction_params: Map([], capacity=0),
     }
   }
@@ -590,11 +599,11 @@ pub fn gcrma_process_with_config(
   while i < n_probes {
     let gc = if i < probe_info.length() {
       probe_info[i].gc_count.to_double() /
-        (if probe_info[i].sequence.length() > 0 {
-          probe_info[i].sequence.length().to_double()
-        } else {
-          1.0
-        })
+      (if probe_info[i].sequence.length() > 0 {
+        probe_info[i].sequence.length().to_double()
+      } else {
+        1.0
+      })
     } else {
       0.0
     }
@@ -626,7 +635,7 @@ pub fn gcrma_process_with_config(
   params.set("gc_correction_applied", 1.0)
   GCRMAResult::{
     expression_matrix: normalized,
-    probe_info: probe_info,
+    probe_info,
     gc_correction_params: params,
   }
 }
@@ -645,11 +654,7 @@ fn _gc_correction_logged(
   let mut i = 0
   while i < n_probes {
     let row = log_intensities[i]
-    let gc = if i < probe_info.length() {
-      probe_info[i].gc_count
-    } else {
-      0
-    }
+    let gc = if i < probe_info.length() { probe_info[i].gc_count } else { 0 }
     let seq_len = if i < probe_info.length() {
       probe_info[i].sequence.length()
     } else {

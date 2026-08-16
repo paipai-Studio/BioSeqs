@@ -164,7 +164,7 @@ pub fn order_int(arr : Array[Int]) -> Array[Int] {
     indices.push(i)
     i = i + 1
   }
-  
+
   let mut sorted = false
   while !sorted {
     sorted = true
@@ -180,7 +180,7 @@ pub fn order_int(arr : Array[Int]) -> Array[Int] {
       i = i + 1
     }
   }
-  
+
   indices
 }
 
@@ -193,7 +193,7 @@ pub fn order_double(arr : Array[Double]) -> Array[Int] {
     indices.push(i)
     i = i + 1
   }
-  
+
   let mut sorted = false
   while !sorted {
     sorted = true
@@ -209,7 +209,7 @@ pub fn order_double(arr : Array[Double]) -> Array[Int] {
       i = i + 1
     }
   }
-  
+
   indices
 }
 
@@ -241,7 +241,7 @@ pub fn sort_double(arr : Array[Double]) -> Array[Double] {
 pub fn unique_int(arr : Array[Int]) -> Array[Int] {
   let result : Array[Int] = Array::new()
   let seen = Map([], capacity=arr.length())
-  
+
   let mut i = 0
   while i < arr.length() {
     if !seen.contains(arr[i].to_string()) {
@@ -250,7 +250,7 @@ pub fn unique_int(arr : Array[Int]) -> Array[Int] {
     }
     i = i + 1
   }
-  
+
   result
 }
 
@@ -258,7 +258,7 @@ pub fn unique_int(arr : Array[Int]) -> Array[Int] {
 pub fn unique_double(arr : Array[Double]) -> Array[Double] {
   let result : Array[Double] = Array::new()
   let seen = Map([], capacity=arr.length())
-  
+
   let mut i = 0
   while i < arr.length() {
     if !seen.contains(arr[i].to_string()) {
@@ -267,7 +267,7 @@ pub fn unique_double(arr : Array[Double]) -> Array[Double] {
     }
     i = i + 1
   }
-  
+
   result
 }
 
@@ -275,7 +275,7 @@ pub fn unique_double(arr : Array[Double]) -> Array[Double] {
 pub fn unique_string(arr : Array[String]) -> Array[String] {
   let result : Array[String] = Array::new()
   let seen = Map([], capacity=arr.length())
-  
+
   let mut i = 0
   while i < arr.length() {
     if !seen.contains(arr[i]) {
@@ -284,7 +284,7 @@ pub fn unique_string(arr : Array[String]) -> Array[String] {
     }
     i = i + 1
   }
-  
+
   result
 }
 
@@ -292,13 +292,13 @@ pub fn unique_string(arr : Array[String]) -> Array[String] {
 pub fn match_int(x : Array[Int], table : Array[Int]) -> Array[Int] {
   let result : Array[Int] = Array::new()
   let table_map = Map([], capacity=table.length())
-  
+
   let mut i = 0
   while i < table.length() {
     table_map.set(table[i].to_string(), i)
     i = i + 1
   }
-  
+
   i = 0
   while i < x.length() {
     if table_map.contains(x[i].to_string()) {
@@ -308,7 +308,7 @@ pub fn match_int(x : Array[Int], table : Array[Int]) -> Array[Int] {
     }
     i = i + 1
   }
-  
+
   result
 }
 
@@ -316,13 +316,13 @@ pub fn match_int(x : Array[Int], table : Array[Int]) -> Array[Int] {
 pub fn match_string(x : Array[String], table : Array[String]) -> Array[Int] {
   let result : Array[Int] = Array::new()
   let table_map = Map([], capacity=table.length())
-  
+
   let mut i = 0
   while i < table.length() {
     table_map.set(table[i], i)
     i = i + 1
   }
-  
+
   i = 0
   while i < x.length() {
     if table_map.contains(x[i]) {
@@ -332,7 +332,7 @@ pub fn match_string(x : Array[String], table : Array[String]) -> Array[Int] {
     }
     i = i + 1
   }
-  
+
   result
 }
 
@@ -340,13 +340,13 @@ pub fn match_string(x : Array[String], table : Array[String]) -> Array[Int] {
 pub fn intersect_int(x : Array[Int], y : Array[Int]) -> Array[Int] {
   let result : Array[Int] = Array::new()
   let y_set = Map([], capacity=y.length())
-  
+
   let mut i = 0
   while i < y.length() {
     y_set.set(y[i].to_string(), true)
     i = i + 1
   }
-  
+
   i = 0
   while i < x.length() {
     if y_set.contains(x[i].to_string()) {
@@ -354,7 +354,7 @@ pub fn intersect_int(x : Array[Int], y : Array[Int]) -> Array[Int] {
     }
     i = i + 1
   }
-  
+
   result
 }
 
@@ -362,13 +362,13 @@ pub fn intersect_int(x : Array[Int], y : Array[Int]) -> Array[Int] {
 pub fn intersect_string(x : Array[String], y : Array[String]) -> Array[String] {
   let result : Array[String] = Array::new()
   let y_set = Map([], capacity=y.length())
-  
+
   let mut i = 0
   while i < y.length() {
     y_set.set(y[i], true)
     i = i + 1
   }
-  
+
   i = 0
   while i < x.length() {
     if y_set.contains(x[i]) {
@@ -376,7 +376,7 @@ pub fn intersect_string(x : Array[String], y : Array[String]) -> Array[String] {
     }
     i = i + 1
   }
-  
+
   result
 }
 
@@ -384,7 +384,7 @@ pub fn intersect_string(x : Array[String], y : Array[String]) -> Array[String] {
 pub fn union_int(x : Array[Int], y : Array[Int]) -> Array[Int] {
   let result : Array[Int] = Array::new()
   let seen = Map([], capacity=x.length() + y.length())
-  
+
   let mut i = 0
   while i < x.length() {
     if !seen.contains(x[i].to_string()) {
@@ -393,7 +393,7 @@ pub fn union_int(x : Array[Int], y : Array[Int]) -> Array[Int] {
     }
     i = i + 1
   }
-  
+
   i = 0
   while i < y.length() {
     if !seen.contains(y[i].to_string()) {
@@ -402,7 +402,7 @@ pub fn union_int(x : Array[Int], y : Array[Int]) -> Array[Int] {
     }
     i = i + 1
   }
-  
+
   result
 }
 
@@ -410,7 +410,7 @@ pub fn union_int(x : Array[Int], y : Array[Int]) -> Array[Int] {
 pub fn union_string(x : Array[String], y : Array[String]) -> Array[String] {
   let result : Array[String] = Array::new()
   let seen = Map([], capacity=x.length() + y.length())
-  
+
   let mut i = 0
   while i < x.length() {
     if !seen.contains(x[i]) {
@@ -419,7 +419,7 @@ pub fn union_string(x : Array[String], y : Array[String]) -> Array[String] {
     }
     i = i + 1
   }
-  
+
   i = 0
   while i < y.length() {
     if !seen.contains(y[i]) {
@@ -428,7 +428,7 @@ pub fn union_string(x : Array[String], y : Array[String]) -> Array[String] {
     }
     i = i + 1
   }
-  
+
   result
 }
 
@@ -436,13 +436,13 @@ pub fn union_string(x : Array[String], y : Array[String]) -> Array[String] {
 pub fn setdiff_int(x : Array[Int], y : Array[Int]) -> Array[Int] {
   let result : Array[Int] = Array::new()
   let y_set = Map([], capacity=y.length())
-  
+
   let mut i = 0
   while i < y.length() {
     y_set.set(y[i].to_string(), true)
     i = i + 1
   }
-  
+
   i = 0
   while i < x.length() {
     if !y_set.contains(x[i].to_string()) {
@@ -450,7 +450,7 @@ pub fn setdiff_int(x : Array[Int], y : Array[Int]) -> Array[Int] {
     }
     i = i + 1
   }
-  
+
   result
 }
 
@@ -458,13 +458,13 @@ pub fn setdiff_int(x : Array[Int], y : Array[Int]) -> Array[Int] {
 pub fn setdiff_string(x : Array[String], y : Array[String]) -> Array[String] {
   let result : Array[String] = Array::new()
   let y_set = Map([], capacity=y.length())
-  
+
   let mut i = 0
   while i < y.length() {
     y_set.set(y[i], true)
     i = i + 1
   }
-  
+
   i = 0
   while i < x.length() {
     if !y_set.contains(x[i]) {
@@ -472,14 +472,14 @@ pub fn setdiff_string(x : Array[String], y : Array[String]) -> Array[String] {
     }
     i = i + 1
   }
-  
+
   result
 }
 
 ///|
 pub fn table_int(arr : Array[Int]) -> Map[String, Int] {
   let result = Map([], capacity=arr.length())
-  
+
   let mut i = 0
   while i < arr.length() {
     let key = arr[i].to_string()
@@ -490,14 +490,14 @@ pub fn table_int(arr : Array[Int]) -> Map[String, Int] {
     }
     i = i + 1
   }
-  
+
   result
 }
 
 ///|
 pub fn table_string(arr : Array[String]) -> Map[String, Int] {
   let result = Map([], capacity=arr.length())
-  
+
   let mut i = 0
   while i < arr.length() {
     let key = arr[i]
@@ -508,7 +508,7 @@ pub fn table_string(arr : Array[String]) -> Map[String, Int] {
     }
     i = i + 1
   }
-  
+
   result
 }
 
@@ -582,7 +582,7 @@ pub fn rep_string(x : String, times : Int) -> Array[String] {
 pub fn seq_int(from : Int, to : Int, by? : Int) -> Array[Int] {
   let step = if by is Some(_) { by.unwrap() } else { 1 }
   let result : Array[Int] = Array::new()
-  
+
   if step > 0 {
     let mut i = from
     while i <= to {
@@ -596,7 +596,7 @@ pub fn seq_int(from : Int, to : Int, by? : Int) -> Array[Int] {
       i = i + step
     }
   }
-  
+
   result
 }
 
@@ -604,7 +604,7 @@ pub fn seq_int(from : Int, to : Int, by? : Int) -> Array[Int] {
 pub fn seq_double(from : Double, to : Double, by? : Double) -> Array[Double] {
   let step = if by is Some(_) { by.unwrap() } else { 1.0 }
   let result : Array[Double] = Array::new()
-  
+
   if step > 0.0 {
     let mut i = from
     while i <= to {
@@ -618,7 +618,7 @@ pub fn seq_double(from : Double, to : Double, by? : Double) -> Array[Double] {
       i = i + step
     }
   }
-  
+
   result
 }
 
@@ -740,10 +740,10 @@ pub fn cbind(arrays : Array[Array[Double]]) -> Array[Array[Double]] {
   if arrays.length() == 0 {
     return []
   }
-  
+
   let nrow = arrays[0].length()
   let result : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < nrow {
     let row : Array[Double] = Array::new()
@@ -759,19 +759,19 @@ pub fn cbind(arrays : Array[Array[Double]]) -> Array[Array[Double]] {
     result.push(row)
     i = i + 1
   }
-  
+
   result
 }
 
 ///|
 pub fn rbind(arrays : Array[Array[Double]]) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < arrays.length() {
     result.push(arrays[i].copy())
     i = i + 1
   }
-  
+
   result
 }

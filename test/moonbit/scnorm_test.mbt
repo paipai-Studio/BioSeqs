@@ -12,7 +12,7 @@ test "scnorm_library_sizes" {
   let counts : Array[Array[Double]] = [
     [10.0, 20.0, 30.0],
     [5.0, 15.0, 25.0],
-    [50.0, 100.0, 150.0]
+    [50.0, 100.0, 150.0],
   ]
   let sizes = @src.sc_norm_library_sizes(counts)
   assert_eq(sizes.length(), 3)
@@ -61,7 +61,7 @@ test "scnorm_full_run" {
   let count_matrix : Array[Array[Double]] = [
     [10.0, 20.0, 30.0],
     [50.0, 60.0, 70.0],
-    [100.0, 200.0, 300.0]
+    [100.0, 200.0, 300.0],
   ]
   let gene_ids = ["gene1", "gene2", "gene3"]
   let cell_ids = ["cell1", "cell2", "cell3"]
@@ -74,7 +74,7 @@ test "scnorm_full_run" {
 test "scnorm_result_accessors" {
   let count_matrix : Array[Array[Double]] = [
     [10.0, 20.0, 30.0],
-    [50.0, 60.0, 70.0]
+    [50.0, 60.0, 70.0],
   ]
   let gene_ids = ["gene1", "gene2"]
   let cell_ids = ["cell1", "cell2", "cell3"]

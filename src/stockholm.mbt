@@ -91,7 +91,13 @@ pub fn StockholmAlignment::new(
   gs_annotations : Map[String, String],
   markup : Array[String],
 ) -> StockholmAlignment {
-  StockholmAlignment::{ version, blocks, gf_annotations, gs_annotations, markup }
+  StockholmAlignment::{
+    version,
+    blocks,
+    gf_annotations,
+    gs_annotations,
+    markup,
+  }
 }
 
 ///|
@@ -166,7 +172,9 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
         let mut value = ""
         let mut pi = 1
         while pi < filtered.length() {
-          if pi > 1 { value = value + " " }
+          if pi > 1 {
+            value = value + " "
+          }
           value = value + filtered[pi]
           pi = pi + 1
         }
@@ -194,7 +202,9 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
         let mut value = ""
         let mut pi = 1
         while pi < gc_filtered.length() {
-          if pi > 1 { value = value + " " }
+          if pi > 1 {
+            value = value + " "
+          }
           value = value + gc_filtered[pi]
           pi = pi + 1
         }
@@ -218,7 +228,9 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
         let mut value = ""
         let mut pi = 1
         while pi < gr_filtered.length() {
-          if pi > 1 { value = value + " " }
+          if pi > 1 {
+            value = value + " "
+          }
           value = value + gr_filtered[pi]
           pi = pi + 1
         }
@@ -242,7 +254,9 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
         let mut value = ""
         let mut pi = 1
         while pi < gs_filtered.length() {
-          if pi > 1 { value = value + " " }
+          if pi > 1 {
+            value = value + " "
+          }
           value = value + gs_filtered[pi]
           pi = pi + 1
         }
@@ -276,9 +290,7 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
         current_seqs.push(s)
         has_block_content = true
       }
-      None => {
-        markup.push(trimmed)
-      }
+      None => markup.push(trimmed)
     }
     i = i + 1
   }
@@ -419,10 +431,14 @@ pub fn stockholm_write(ali : StockholmAlignment) -> String {
 pub fn stockholm_percent_identity(block : StockholmBlock) -> Double {
   let seqs = block.sequences
   let n = seqs.length()
-  if n < 2 { return 0.0 }
+  if n < 2 {
+    return 0.0
+  }
 
   let len = seqs[0].aligned_seq.length()
-  if len == 0 { return 0.0 }
+  if len == 0 {
+    return 0.0
+  }
 
   let mut total_identity = 0.0
   let mut total_comparisons = 0.0
@@ -448,7 +464,8 @@ pub fn stockholm_percent_identity(block : StockholmBlock) -> Double {
         k = k + 1
       }
       if comparable > 0 {
-        total_identity = total_identity + matches.to_double() / comparable.to_double()
+        total_identity = total_identity +
+          matches.to_double() / comparable.to_double()
         total_comparisons = total_comparisons + 1.0
       }
       j = j + 1
@@ -471,10 +488,14 @@ pub fn stockholm_conservation(block : StockholmBlock) -> Array[Double] {
   let result : Array[Double] = Array::new()
   let seqs = block.sequences
   let n = seqs.length()
-  if n == 0 { return result }
+  if n == 0 {
+    return result
+  }
 
   let len = seqs[0].aligned_seq.length()
-  if len == 0 { return result }
+  if len == 0 {
+    return result
+  }
 
   let mut col = 0
   while col < len {
@@ -572,9 +593,7 @@ pub fn stockholm_merge_blocks(ali : StockholmAlignment) -> StockholmAlignment {
     while si < block.sequences.length() {
       let seq = block.sequences[si]
       match seq_map.get(seq.name) {
-        Some(sb) => {
-          sb.write_string(seq.aligned_seq)
-        }
+        Some(sb) => sb.write_string(seq.aligned_seq)
         None => {
           let sb = StringBuilder::new()
           sb.write_string(seq.aligned_seq)
@@ -677,6 +696,7 @@ pub fn stockholm_merge_blocks(ali : StockholmAlignment) -> StockholmAlignment {
 
 // --- Internal helper functions ---
 
+///|
 fn stockholm_filter_parts(parts : Array[String]) -> Array[String] {
   let result : Array[String] = Array::new()
   let mut i = 0
@@ -689,8 +709,11 @@ fn stockholm_filter_parts(parts : Array[String]) -> Array[String] {
   result
 }
 
+///|
 fn stockholm_parse_sequence_line(line : String) -> StockholmSequence? {
-  if line.length() == 0 { return None }
+  if line.length() == 0 {
+    return None
+  }
 
   let sp = ' '.to_int().to_uint16()
   let mut space_pos = -1
@@ -703,7 +726,9 @@ fn stockholm_parse_sequence_line(line : String) -> StockholmSequence? {
     i = i + 1
   }
 
-  if space_pos <= 0 { return None }
+  if space_pos <= 0 {
+    return None
+  }
 
   let name_part = line[0:space_pos].to_owned()
   let seq_part_start = space_pos + 1
@@ -713,7 +738,9 @@ fn stockholm_parse_sequence_line(line : String) -> StockholmSequence? {
     ""
   }
 
-  if seq_part.length() == 0 { return None }
+  if seq_part.length() == 0 {
+    return None
+  }
 
   let slash_pos = stockholm_find_slash(name_part)
   let (name, start, end) = if slash_pos >= 0 {
@@ -721,7 +748,11 @@ fn stockholm_parse_sequence_line(line : String) -> StockholmSequence? {
     let range = name_part[slash_pos + 1:].to_owned()
     let dash_pos = stockholm_find_dash(range)
     if dash_pos >= 0 {
-      (n, parse_int(range[0:dash_pos].to_owned()), parse_int(range[dash_pos + 1:].to_owned()))
+      (
+        n,
+        parse_int(range[0:dash_pos].to_owned()),
+        parse_int(range[dash_pos + 1:].to_owned()),
+      )
     } else {
       (n, 1, parse_int(range))
     }
@@ -739,6 +770,7 @@ fn stockholm_parse_sequence_line(line : String) -> StockholmSequence? {
   })
 }
 
+///|
 fn stockholm_find_slash(s : String) -> Int {
   let mut i = 0
   while i < s.length() {
@@ -750,6 +782,7 @@ fn stockholm_find_slash(s : String) -> Int {
   -1
 }
 
+///|
 fn stockholm_find_dash(s : String) -> Int {
   let mut i = 0
   while i < s.length() {
@@ -761,6 +794,7 @@ fn stockholm_find_dash(s : String) -> Int {
   -1
 }
 
+///|
 fn stockholm_build_block(
   seqs : Array[StockholmSequence],
   gc : Map[String, String],
@@ -782,6 +816,7 @@ fn stockholm_build_block(
   }
 }
 
+///|
 fn stockholm_max_name_length(seqs : Array[StockholmSequence]) -> Int {
   let mut max_len = 0
   let mut i = 0
@@ -795,6 +830,7 @@ fn stockholm_max_name_length(seqs : Array[StockholmSequence]) -> Int {
   max_len
 }
 
+///|
 fn stockholm_display_name(seq : StockholmSequence) -> String {
   if seq.accession.length() > 0 {
     seq.accession

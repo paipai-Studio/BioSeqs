@@ -23,7 +23,11 @@ pub struct BiocMatrix {
 }
 
 ///|
-pub fn BiocMatrix::new(matrix_type : BiocMatrixType, nrow : Int, ncol : Int) -> BiocMatrix {
+pub fn BiocMatrix::new(
+  matrix_type : BiocMatrixType,
+  nrow : Int,
+  ncol : Int,
+) -> BiocMatrix {
   BiocMatrix::{
     matrix_type,
     nrow,
@@ -31,7 +35,7 @@ pub fn BiocMatrix::new(matrix_type : BiocMatrixType, nrow : Int, ncol : Int) -> 
     data: Array::new(),
     row_indices: Array::new(),
     col_indices: Array::new(),
-    ptr: Array::new()
+    ptr: Array::new(),
   }
 }
 
@@ -39,7 +43,7 @@ pub fn BiocMatrix::new(matrix_type : BiocMatrixType, nrow : Int, ncol : Int) -> 
 pub fn BiocMatrix::dense_from_array(data : Array[Array[Double]]) -> BiocMatrix {
   let nrow = data.length()
   let ncol = if nrow > 0 { data[0].length() } else { 0 }
-  
+
   let flat_data : Array[Double] = Array::new()
   let mut i = 0
   while i < nrow {
@@ -50,7 +54,7 @@ pub fn BiocMatrix::dense_from_array(data : Array[Array[Double]]) -> BiocMatrix {
     }
     i = i + 1
   }
-  
+
   BiocMatrix::{
     matrix_type: BiocDenseMatrix,
     nrow,
@@ -58,24 +62,30 @@ pub fn BiocMatrix::dense_from_array(data : Array[Array[Double]]) -> BiocMatrix {
     data: flat_data,
     row_indices: Array::new(),
     col_indices: Array::new(),
-    ptr: Array::new()
+    ptr: Array::new(),
   }
 }
 
 ///|
-pub fn BiocMatrix::csc_from_triplets(row_idx : Array[Int], col_idx : Array[Int], values : Array[Double], nrow : Int, ncol : Int) -> BiocMatrix {
+pub fn BiocMatrix::csc_from_triplets(
+  row_idx : Array[Int],
+  col_idx : Array[Int],
+  values : Array[Double],
+  nrow : Int,
+  ncol : Int,
+) -> BiocMatrix {
   let sorted_indices = sort_triplets(row_idx, col_idx, values)
   let sorted_rows = sorted_indices.0
   let sorted_cols = sorted_indices.1
   let sorted_values = sorted_indices.2
-  
+
   let ptr : Array[Int] = Array::new()
   ptr.push(0)
-  
+
   let mut current_col = 0
   let mut count = 0
   let mut i = 0
-  
+
   while i < sorted_cols.length() {
     if sorted_cols[i] == current_col {
       count = count + 1
@@ -87,7 +97,7 @@ pub fn BiocMatrix::csc_from_triplets(row_idx : Array[Int], col_idx : Array[Int],
     i = i + 1
   }
   ptr.push(ptr[ptr.length() - 1] + count)
-  
+
   BiocMatrix::{
     matrix_type: BiocSparseMatrixCSC,
     nrow,
@@ -95,24 +105,30 @@ pub fn BiocMatrix::csc_from_triplets(row_idx : Array[Int], col_idx : Array[Int],
     data: sorted_values,
     row_indices: sorted_rows,
     col_indices: sorted_cols,
-    ptr: ptr
+    ptr,
   }
 }
 
 ///|
-pub fn BiocMatrix::csr_from_triplets(row_idx : Array[Int], col_idx : Array[Int], values : Array[Double], nrow : Int, ncol : Int) -> BiocMatrix {
+pub fn BiocMatrix::csr_from_triplets(
+  row_idx : Array[Int],
+  col_idx : Array[Int],
+  values : Array[Double],
+  nrow : Int,
+  ncol : Int,
+) -> BiocMatrix {
   let sorted_indices = sort_triplets_by_row(row_idx, col_idx, values)
   let sorted_rows = sorted_indices.0
   let sorted_cols = sorted_indices.1
   let sorted_values = sorted_indices.2
-  
+
   let ptr : Array[Int] = Array::new()
   ptr.push(0)
-  
+
   let mut current_row = 0
   let mut count = 0
   let mut i = 0
-  
+
   while i < sorted_rows.length() {
     if sorted_rows[i] == current_row {
       count = count + 1
@@ -124,7 +140,7 @@ pub fn BiocMatrix::csr_from_triplets(row_idx : Array[Int], col_idx : Array[Int],
     i = i + 1
   }
   ptr.push(ptr[ptr.length() - 1] + count)
-  
+
   BiocMatrix::{
     matrix_type: BiocSparseMatrixCSR,
     nrow,
@@ -132,12 +148,16 @@ pub fn BiocMatrix::csr_from_triplets(row_idx : Array[Int], col_idx : Array[Int],
     data: sorted_values,
     row_indices: sorted_rows,
     col_indices: sorted_cols,
-    ptr: ptr
+    ptr,
   }
 }
 
 ///|
-fn sort_triplets(row_idx : Array[Int], col_idx : Array[Int], values : Array[Double]) -> (Array[Int], Array[Int], Array[Double]) {
+fn sort_triplets(
+  row_idx : Array[Int],
+  col_idx : Array[Int],
+  values : Array[Double],
+) -> (Array[Int], Array[Int], Array[Double]) {
   let n = row_idx.length()
   let indices : Array[Int] = Array::new()
   let mut i = 0
@@ -145,15 +165,18 @@ fn sort_triplets(row_idx : Array[Int], col_idx : Array[Int], values : Array[Doub
     indices.push(i)
     i = i + 1
   }
-  
+
   let mut sorted = false
   while !sorted {
     sorted = true
     i = 0
     while i < n - 1 {
       let j = i + 1
-      if col_idx[indices[i]] > col_idx[indices[j]] || 
-         (col_idx[indices[i]] == col_idx[indices[j]] && row_idx[indices[i]] > row_idx[indices[j]]) {
+      if col_idx[indices[i]] > col_idx[indices[j]] ||
+        (
+          col_idx[indices[i]] == col_idx[indices[j]] &&
+          row_idx[indices[i]] > row_idx[indices[j]]
+        ) {
         let temp = indices[i]
         indices[i] = indices[j]
         indices[j] = temp
@@ -162,11 +185,11 @@ fn sort_triplets(row_idx : Array[Int], col_idx : Array[Int], values : Array[Doub
       i = i + 1
     }
   }
-  
+
   let sorted_rows : Array[Int] = Array::new()
   let sorted_cols : Array[Int] = Array::new()
   let sorted_values : Array[Double] = Array::new()
-  
+
   i = 0
   while i < n {
     sorted_rows.push(row_idx[indices[i]])
@@ -174,12 +197,16 @@ fn sort_triplets(row_idx : Array[Int], col_idx : Array[Int], values : Array[Doub
     sorted_values.push(values[indices[i]])
     i = i + 1
   }
-  
+
   (sorted_rows, sorted_cols, sorted_values)
 }
 
 ///|
-fn sort_triplets_by_row(row_idx : Array[Int], col_idx : Array[Int], values : Array[Double]) -> (Array[Int], Array[Int], Array[Double]) {
+fn sort_triplets_by_row(
+  row_idx : Array[Int],
+  col_idx : Array[Int],
+  values : Array[Double],
+) -> (Array[Int], Array[Int], Array[Double]) {
   let n = row_idx.length()
   let indices : Array[Int] = Array::new()
   let mut i = 0
@@ -187,15 +214,18 @@ fn sort_triplets_by_row(row_idx : Array[Int], col_idx : Array[Int], values : Arr
     indices.push(i)
     i = i + 1
   }
-  
+
   let mut sorted = false
   while !sorted {
     sorted = true
     i = 0
     while i < n - 1 {
       let j = i + 1
-      if row_idx[indices[i]] > row_idx[indices[j]] || 
-         (row_idx[indices[i]] == row_idx[indices[j]] && col_idx[indices[i]] > col_idx[indices[j]]) {
+      if row_idx[indices[i]] > row_idx[indices[j]] ||
+        (
+          row_idx[indices[i]] == row_idx[indices[j]] &&
+          col_idx[indices[i]] > col_idx[indices[j]]
+        ) {
         let temp = indices[i]
         indices[i] = indices[j]
         indices[j] = temp
@@ -204,11 +234,11 @@ fn sort_triplets_by_row(row_idx : Array[Int], col_idx : Array[Int], values : Arr
       i = i + 1
     }
   }
-  
+
   let sorted_rows : Array[Int] = Array::new()
   let sorted_cols : Array[Int] = Array::new()
   let sorted_values : Array[Double] = Array::new()
-  
+
   i = 0
   while i < n {
     sorted_rows.push(row_idx[indices[i]])
@@ -216,7 +246,7 @@ fn sort_triplets_by_row(row_idx : Array[Int], col_idx : Array[Int], values : Arr
     sorted_values.push(values[indices[i]])
     i = i + 1
   }
-  
+
   (sorted_rows, sorted_cols, sorted_values)
 }
 
@@ -225,7 +255,7 @@ pub fn BiocMatrix::get(self : BiocMatrix, i : Int, j : Int) -> Double {
   if i < 0 || i >= self.nrow || j < 0 || j >= self.ncol {
     return 0.0
   }
-  
+
   match self.matrix_type {
     BiocDenseMatrix => {
       let idx = i * self.ncol + j
@@ -259,22 +289,26 @@ pub fn BiocMatrix::get(self : BiocMatrix, i : Int, j : Int) -> Double {
       }
       0.0
     }
-    BiocDiagonalMatrix => {
+    BiocDiagonalMatrix =>
       if i == j && i < self.data.length() {
         self.data[i]
       } else {
         0.0
       }
-    }
   }
 }
 
 ///|
-pub fn BiocMatrix::set(self : BiocMatrix, i : Int, j : Int, value : Double) -> BiocMatrix {
+pub fn BiocMatrix::set(
+  self : BiocMatrix,
+  i : Int,
+  j : Int,
+  value : Double,
+) -> BiocMatrix {
   if i < 0 || i >= self.nrow || j < 0 || j >= self.ncol {
     return self
   }
-  
+
   match self.matrix_type {
     BiocDenseMatrix => {
       let idx = i * self.ncol + j
@@ -289,7 +323,7 @@ pub fn BiocMatrix::set(self : BiocMatrix, i : Int, j : Int, value : Double) -> B
         data: new_data,
         row_indices: self.row_indices,
         col_indices: self.col_indices,
-        ptr: self.ptr
+        ptr: self.ptr,
       }
     }
     _ => self
@@ -314,12 +348,22 @@ pub fn BiocMatrix::transpose(self : BiocMatrix) -> BiocMatrix {
       }
       BiocMatrix::dense_from_array(result_data)
     }
-    BiocSparseMatrixCSC => {
-      BiocMatrix::csr_from_triplets(self.col_indices, self.row_indices, self.data, self.ncol, self.nrow)
-    }
-    BiocSparseMatrixCSR => {
-      BiocMatrix::csc_from_triplets(self.col_indices, self.row_indices, self.data, self.ncol, self.nrow)
-    }
+    BiocSparseMatrixCSC =>
+      BiocMatrix::csr_from_triplets(
+        self.col_indices,
+        self.row_indices,
+        self.data,
+        self.ncol,
+        self.nrow,
+      )
+    BiocSparseMatrixCSR =>
+      BiocMatrix::csc_from_triplets(
+        self.col_indices,
+        self.row_indices,
+        self.data,
+        self.ncol,
+        self.nrow,
+      )
     BiocDiagonalMatrix => self
   }
 }
@@ -329,7 +373,7 @@ pub fn BiocMatrix::add(self : BiocMatrix, other : BiocMatrix) -> BiocMatrix? {
   if self.nrow != other.nrow || self.ncol != other.ncol {
     return None
   }
-  
+
   let result_data : Array[Array[Double]] = Array::new()
   let mut i = 0
   while i < self.nrow {
@@ -342,16 +386,19 @@ pub fn BiocMatrix::add(self : BiocMatrix, other : BiocMatrix) -> BiocMatrix? {
     result_data.push(row)
     i = i + 1
   }
-  
+
   Some(BiocMatrix::dense_from_array(result_data))
 }
 
 ///|
-pub fn BiocMatrix::multiply(self : BiocMatrix, other : BiocMatrix) -> BiocMatrix? {
+pub fn BiocMatrix::multiply(
+  self : BiocMatrix,
+  other : BiocMatrix,
+) -> BiocMatrix? {
   if self.ncol != other.nrow {
     return None
   }
-  
+
   let result_data : Array[Array[Double]] = Array::new()
   let mut i = 0
   while i < self.nrow {
@@ -370,7 +417,7 @@ pub fn BiocMatrix::multiply(self : BiocMatrix, other : BiocMatrix) -> BiocMatrix
     result_data.push(row)
     i = i + 1
   }
-  
+
   Some(BiocMatrix::dense_from_array(result_data))
 }
 
@@ -435,7 +482,7 @@ pub fn BiocMatrix::col_means(self : BiocMatrix) -> Array[Double] {
 ///|
 pub fn BiocMatrix::norm(self : BiocMatrix, p : Double) -> Double {
   let mut sum = 0.0
-  
+
   match self.matrix_type {
     BiocDenseMatrix => {
       let mut i = 0
@@ -459,7 +506,7 @@ pub fn BiocMatrix::norm(self : BiocMatrix, p : Double) -> Double {
       }
     }
   }
-  
+
   @math.pow(sum, 1.0 / p)
 }
 
@@ -488,7 +535,7 @@ pub fn create_example_dense_matrix() -> BiocMatrix {
   BiocMatrix::dense_from_array([
     [1.0, 2.0, 3.0],
     [4.0, 5.0, 6.0],
-    [7.0, 8.0, 9.0]
+    [7.0, 8.0, 9.0],
   ])
 }
 
@@ -499,6 +546,6 @@ pub fn create_example_sparse_matrix() -> BiocMatrix {
     [0, 0, 0, 1, 1, 1],
     [1.0, 4.0, 7.0, 2.0, 5.0, 8.0],
     3,
-    2
+    2,
   )
 }

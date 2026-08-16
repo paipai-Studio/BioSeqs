@@ -18,12 +18,7 @@ pub fn BatchCorrectionResult::new(
   mnn_pairs : Array[(Int, Int)],
   var_explained : Array[Double],
 ) -> BatchCorrectionResult {
-  BatchCorrectionResult::{
-    corrected,
-    batch_indices,
-    mnn_pairs,
-    var_explained,
-  }
+  BatchCorrectionResult::{ corrected, batch_indices, mnn_pairs, var_explained }
 }
 
 ///|
@@ -307,7 +302,10 @@ pub fn fast_mnn(
     nn = nn + 1
   }
 
-  let cov_matrix : Array[Array[Double]] = Array::make(n_genes, Array::make(n_genes, 0.0))
+  let cov_matrix : Array[Array[Double]] = Array::make(
+    n_genes,
+    Array::make(n_genes, 0.0),
+  )
   let mut pp = 0
   while pp < n_cells {
     let cell = centered[pp]
@@ -333,7 +331,10 @@ pub fn fast_mnn(
   }
 
   let eigenvalues : Array[Double] = Array::make(n_genes, 0.0)
-  let eigenvectors : Array[Array[Double]] = Array::make(n_genes, Array::make(n_genes, 0.0))
+  let eigenvectors : Array[Array[Double]] = Array::make(
+    n_genes,
+    Array::make(n_genes, 0.0),
+  )
   let mut uu = 0
   while uu < n_genes {
     eigenvalues[uu] = cov_matrix[uu][uu]
@@ -350,11 +351,7 @@ pub fn fast_mnn(
       while xx < n_genes {
         let p = cov_matrix[ww][xx]
         let d_val = eigenvalues[xx] - eigenvalues[ww]
-        let c = if d_val.abs() < 0.000001 {
-          0.000001
-        } else {
-          d_val
-        }
+        let c = if d_val.abs() < 0.000001 { 0.000001 } else { d_val }
         let t = p / c
         let cos_val = 1.0 / (1.0 + t * t).sqrt()
         let sin_val = t * cos_val
@@ -480,7 +477,10 @@ pub fn fast_mnn(
     kk = kk + 1
   }
 
-  let correction_vectors : Array[Array[Double]] = Array::make(n_cells, Array::make(top_components, 0.0))
+  let correction_vectors : Array[Array[Double]] = Array::make(
+    n_cells,
+    Array::make(top_components, 0.0),
+  )
 
   let mut mm = 0
   while mm < n_batches - 1 {
@@ -542,7 +542,9 @@ pub fn fast_mnn(
             let mut dist = 0.0
             let mut uu = 0
             while uu < top_components {
-              dist = dist + (pca_result[ss][uu] - pca_result[mnn_idx][uu]) * (pca_result[ss][uu] - pca_result[mnn_idx][uu])
+              dist = dist +
+                (pca_result[ss][uu] - pca_result[mnn_idx][uu]) *
+                (pca_result[ss][uu] - pca_result[mnn_idx][uu])
               uu = uu + 1
             }
             let weight = @math.exp(-dist / (2.0 * sigma * sigma))
@@ -559,7 +561,8 @@ pub fn fast_mnn(
           if weight_sum > 0.0 {
             let mut ww = 0
             while ww < top_components {
-              correction_vectors[ss][ww] = correction_vectors[ss][ww] + weighted_delta[ww] / weight_sum
+              correction_vectors[ss][ww] = correction_vectors[ss][ww] +
+                weighted_delta[ww] / weight_sum
               ww = ww + 1
             }
           }
@@ -583,7 +586,9 @@ pub fn fast_mnn(
     xx = xx + 1
   }
 
-  BatchCorrectionResult::new(corrected, batch_indices, all_mnn_pairs, var_explained)
+  BatchCorrectionResult::new(
+    corrected, batch_indices, all_mnn_pairs, var_explained,
+  )
 }
 
 ///|
@@ -619,7 +624,11 @@ pub fn batchelor_create_example_data(
         x = x - 6.0
 
         let base_expression = @math.exp(x)
-        let batch_factor = 1.0 + i.to_double() * batch_effect * (if k < n_genes / 2 { 1.0 } else { -1.0 }) * 0.1
+        let batch_factor = 1.0 +
+          i.to_double() *
+          batch_effect *
+          (if k < n_genes / 2 { 1.0 } else { -1.0 }) *
+          0.1
 
         cell.push(base_expression * batch_factor)
         k = k + 1
@@ -637,7 +646,10 @@ pub fn batchelor_create_example_data(
 }
 
 ///|
-pub fn compute_batch_mixing_score(corrected : Array[Array[Double]], batch_indices : Array[Int]) -> Double {
+pub fn compute_batch_mixing_score(
+  corrected : Array[Array[Double]],
+  batch_indices : Array[Int],
+) -> Double {
   let n_cells = corrected.length()
   let n_dims = if n_cells > 0 { corrected[0].length() } else { 0 }
 
@@ -670,7 +682,9 @@ pub fn compute_batch_mixing_score(corrected : Array[Array[Double]], batch_indice
         let mut dist = 0.0
         let mut k = 0
         while k < n_dims {
-          dist = dist + (corrected[i][k] - corrected[j][k]) * (corrected[i][k] - corrected[j][k])
+          dist = dist +
+            (corrected[i][k] - corrected[j][k]) *
+            (corrected[i][k] - corrected[j][k])
           k = k + 1
         }
         distances.push((dist.sqrt(), j))
@@ -703,7 +717,8 @@ pub fn compute_batch_mixing_score(corrected : Array[Array[Double]], batch_indice
       n = n + 1
     }
 
-    score = score + (1.0 - same_batch_count.to_double() / n_neighbors.to_double())
+    score = score +
+      (1.0 - same_batch_count.to_double() / n_neighbors.to_double())
     i = i + 1
   }
 

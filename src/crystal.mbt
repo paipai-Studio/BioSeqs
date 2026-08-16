@@ -78,7 +78,7 @@ pub fn crystal_density(
   }
   let v_cm3 = v_ang3 * 1.0e-24
   let n_a = 6.02214076e23
-  (z.to_double() * molecular_weight) / (v_cm3 * n_a)
+  z.to_double() * molecular_weight / (v_cm3 * n_a)
 }
 
 ///|
@@ -127,11 +127,7 @@ pub fn orthogonalization_matrix(cell : UnitCell) -> Array[Array[Double]] {
   // Build with the corrected entries (matches Rupp's textbook).
   let _ = m02
   let _ = m12
-  [
-    [m00, m01, b * sg * cb],
-    [m10, m11, b * sg * m12_clean],
-    [m20, m21, m22],
-  ]
+  [[m00, m01, b * sg * cb], [m10, m11, b * sg * m12_clean], [m20, m21, m22]]
 }
 
 ///|
@@ -238,7 +234,7 @@ pub fn lookup_space_group(number : Int) -> SpaceGroup {
     194 => SpaceGroup::new(number=194, symbol="P 63/m m c")
     225 => SpaceGroup::new(number=225, symbol="F m -3 m")
     227 => SpaceGroup::new(number=227, symbol="F d -3 m")
-    _ => SpaceGroup::new(number=number, symbol="")
+    _ => SpaceGroup::new(number~, symbol="")
   }
 }
 
@@ -316,21 +312,27 @@ pub fn CrystalStructure::new(
   z? : Int = 1,
   molecular_weight? : Double = 0.0,
 ) -> CrystalStructure {
-  CrystalStructure::{ name, cell, space_group, atoms, bonds, z, molecular_weight }
+  CrystalStructure::{
+    name,
+    cell,
+    space_group,
+    atoms,
+    bonds,
+    z,
+    molecular_weight,
+  }
 }
 
 ///|
 /// Convert all atoms in a crystal structure to fractional coordinates
 /// (in place-style: returns a new array of atoms).
-pub fn atoms_to_fractional(
-  structure : CrystalStructure
-) -> Array[CrystalAtom] {
+pub fn atoms_to_fractional(structure : CrystalStructure) -> Array[CrystalAtom] {
   let out : Array[CrystalAtom] = Array::new()
   for a in structure.atoms {
     if a.is_fractional {
       out.push(a)
     } else {
-      let(fx, fy, fz) = cartesian_to_fractional(structure.cell, a.x, a.y, a.z)
+      let (fx, fy, fz) = cartesian_to_fractional(structure.cell, a.x, a.y, a.z)
       out.push(
         CrystalAtom::new(
           label=a.label,
@@ -349,15 +351,13 @@ pub fn atoms_to_fractional(
 
 ///|
 /// Convert all atoms in a crystal structure to Cartesian coordinates.
-pub fn atoms_to_cartesian(
-  structure : CrystalStructure
-) -> Array[CrystalAtom] {
+pub fn atoms_to_cartesian(structure : CrystalStructure) -> Array[CrystalAtom] {
   let out : Array[CrystalAtom] = Array::new()
   for a in structure.atoms {
     if !a.is_fractional {
       out.push(a)
     } else {
-      let(cx, cy, cz) = fractional_to_cartesian(structure.cell, a.x, a.y, a.z)
+      let (cx, cy, cz) = fractional_to_cartesian(structure.cell, a.x, a.y, a.z)
       out.push(
         CrystalAtom::new(
           label=a.label,
@@ -416,9 +416,7 @@ pub fn crystal_atom_distance(
 
 ///|
 /// Compute the center of mass of the atoms in Cartesian coordinates.
-pub fn center_of_mass(
-  structure : CrystalStructure
-) -> (Double, Double, Double) {
+pub fn center_of_mass(structure : CrystalStructure) -> (Double, Double, Double) {
   let cart = atoms_to_cartesian(structure)
   if cart.length() == 0 {
     return (0.0, 0.0, 0.0)
@@ -467,7 +465,11 @@ pub fn CifBlock::new(name~ : String) -> CifBlock {
 
 ///|
 /// Add a scalar data item to a CifBlock.
-pub fn CifBlock::set_scalar(self : CifBlock, name : String, value : String) -> Unit {
+pub fn CifBlock::set_scalar(
+  self : CifBlock,
+  name : String,
+  value : String,
+) -> Unit {
   self.items[name] = CifDataItem::CifScalar(value)
 }
 
@@ -536,7 +538,7 @@ pub fn parse_cif(text : String) -> Array[CifBlock] {
     if t.length() >= 5 && t[0:5].to_owned() == "data_" {
       // Start a new block.
       let name = t[5:t.length()].to_owned()
-      let block = CifBlock::new(name=name)
+      let block = CifBlock::new(name~)
       blocks.push(block)
       current = Some(block)
       i = i + 1
@@ -565,8 +567,7 @@ pub fn parse_cif(text : String) -> Array[CifBlock] {
       let rows : Array[Array[String]] = Array::new()
       while i < tokens.length() {
         let r = tokens[i]
-        if r == "loop_" ||
-          (r.length() >= 5 && r[0:5].to_owned() == "data_") {
+        if r == "loop_" || (r.length() >= 5 && r[0:5].to_owned() == "data_") {
           break
         }
         if r.length() > 0 && r[0:1].to_owned() == "_" {
@@ -637,14 +638,7 @@ pub fn cif_block_to_crystal(block : CifBlock) -> CrystalStructure {
   let alpha = cif_get_scalar_double(block, "_cell_angle_alpha")
   let beta = cif_get_scalar_double(block, "_cell_angle_beta")
   let gamma = cif_get_scalar_double(block, "_cell_angle_gamma")
-  let cell = UnitCell::new(
-    a=a,
-    b=b,
-    c=c,
-    alpha=alpha,
-    beta=beta,
-    gamma=gamma,
-  )
+  let cell = UnitCell::new(a~, b~, c~, alpha~, beta~, gamma~)
   // Space group.
   let sg_symbol = block.get_scalar("_space_group_name_H-M")
   let sg_number = cif_get_scalar_int(block, "_space_group_IT_number")
@@ -698,11 +692,11 @@ pub fn cif_block_to_crystal(block : CifBlock) -> CrystalStructure {
       }
       atoms.push(
         CrystalAtom::new(
-          label=label,
+          label~,
           element=elem,
-          x=x,
-          y=y,
-          z=z,
+          x~,
+          y~,
+          z~,
           occupancy=occ,
           is_fractional=true,
         ),
@@ -739,12 +733,12 @@ pub fn cif_block_to_crystal(block : CifBlock) -> CrystalStructure {
   let z = cif_get_scalar_int(block, "_cell_formula_units_Z")
   let mw = cif_get_scalar_double(block, "_chemical_formula_weight")
   CrystalStructure::new(
-    name=name,
-    cell=cell,
-    space_group=space_group,
-    atoms=atoms,
-    bonds=bonds,
-    z=z,
+    name~,
+    cell~,
+    space_group~,
+    atoms~,
+    bonds~,
+    z~,
     molecular_weight=mw,
   )
 }
@@ -782,7 +776,11 @@ pub fn format_crystal_structure(structure : CrystalStructure) -> String {
   s = s + "Z = " + structure.z.to_string() + "\n"
   s = s + "Molecular weight: " + cif_fmt(structure.molecular_weight) + "\n"
   if structure.molecular_weight > 0.0 && structure.z > 0 {
-    let rho = crystal_density(structure.cell, structure.z, structure.molecular_weight)
+    let rho = crystal_density(
+      structure.cell,
+      structure.z,
+      structure.molecular_weight,
+    )
     s = s + "Density: " + cif_fmt(rho) + " g/cm^3\n"
   }
   s = s + "Atoms (" + structure.atoms.length().to_string() + "):\n"
@@ -806,13 +804,7 @@ pub fn format_crystal_structure(structure : CrystalStructure) -> String {
     s = s + "Bonds (" + structure.bonds.length().to_string() + "):\n"
     s = s + "atom1\tatom2\tdistance\n"
     for b in structure.bonds {
-      s = s +
-        b.atom1 +
-        "\t" +
-        b.atom2 +
-        "\t" +
-        cif_fmt(b.distance) +
-        "\n"
+      s = s + b.atom1 + "\t" + b.atom2 + "\t" + cif_fmt(b.distance) + "\n"
     }
   }
   s
@@ -919,10 +911,10 @@ pub fn crystal_sample_structure() -> CrystalStructure {
   ]
   CrystalStructure::new(
     name="benzene",
-    cell=cell,
+    cell~,
     space_group=sg,
-    atoms=atoms,
-    bonds=bonds,
+    atoms~,
+    bonds~,
     z=2,
     molecular_weight=78.11,
   )

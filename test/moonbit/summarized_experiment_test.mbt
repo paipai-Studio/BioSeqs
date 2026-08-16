@@ -53,6 +53,10 @@ test "summarized_experiment_subset_rows" {
   let se_sub = @src.se_subset_rows(se, [0, 2])
 
   assert_eq(@src.se_nrow(se_sub), 2)
+  match @src.se_assay(se_sub, "counts") {
+    Some(assay) => assert_eq(assay, [[1.0, 2.0], [5.0, 6.0]])
+    None => assert_true(false)
+  }
 }
 
 ///|
@@ -70,6 +74,10 @@ test "summarized_experiment_subset_cols" {
   let se_sub = @src.se_subset_cols(se, [0, 2])
 
   assert_eq(@src.se_ncol(se_sub), 2)
+  match @src.se_assay(se_sub, "counts") {
+    Some(assay) => assert_eq(assay, [[1.0, 3.0], [4.0, 6.0]])
+    None => assert_true(false)
+  }
 }
 
 ///|

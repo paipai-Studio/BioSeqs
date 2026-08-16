@@ -57,12 +57,7 @@ test "nexml_tree_creation" {
   let nodes : Array[@src.NeXMLNode] = []
   let edges : Array[@src.NeXMLEdge] = []
   let tree = @src.NeXMLTree::new(
-    "tree1",
-    "Test Tree",
-    "FloatTree",
-    true,
-    nodes,
-    edges,
+    "tree1", "Test Tree", "FloatTree", true, nodes, edges,
   )
   assert_eq(tree.id, "tree1")
   assert_eq(tree.name, "Test Tree")

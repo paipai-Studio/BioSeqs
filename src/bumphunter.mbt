@@ -159,17 +159,7 @@ pub fn BumpResult::new(
   index_start : Int,
   index_end : Int,
 ) -> BumpResult {
-  {
-    chrom,
-    start,
-    end_,
-    value,
-    area,
-    p_value,
-    fdr,
-    index_start,
-    index_end,
-  }
+  { chrom, start, end_, value, area, p_value, fdr, index_start, index_end }
 }
 
 ///|
@@ -278,7 +268,7 @@ pub fn bump_smooth_test(stats : Array[Double], k : Int) -> Array[Double] {
     let hi = if i + k >= n { n - 1 } else { i + k }
     let mut sum = 0.0
     let mut cnt = 0
-    for j in lo..=hi {
+    for j in lo..<=hi {
       sum = sum + stats[j]
       cnt = cnt + 1
     }
@@ -309,8 +299,8 @@ pub fn bump_find_candidates_test(
       let mut area = 0.0
       let mut signed_max = smoothed[i]
       while i < n &&
-        bump_abs(smoothed[i]) > cutoff &&
-        positions[i].chrom == chrom {
+            bump_abs(smoothed[i]) > cutoff &&
+            positions[i].chrom == chrom {
         area = area + smoothed[i]
         if bump_abs(smoothed[i]) > max_val {
           max_val = bump_abs(smoothed[i])
@@ -383,7 +373,9 @@ fn bump_permutation_count(
       shuffled_vals[j] = shuffled_vals[swap_idx]
       shuffled_vals[swap_idx] = tmp
     }
-    shuffled.push(BumpPosition::new(positions[i].chrom, positions[i].pos, shuffled_vals))
+    shuffled.push(
+      BumpPosition::new(positions[i].chrom, positions[i].pos, shuffled_vals),
+    )
   }
   let perm_stats = bump_compute_t_statistics_test(shuffled, group1_size)
   let perm_smoothed = bump_smooth_test(perm_stats, k)
@@ -435,12 +427,7 @@ pub fn bump_hunt(
   for p in 0..<n_permutations {
     let seed = 42 + p * 1009
     let perm_count = bump_permutation_count(
-      positions,
-      group1_size,
-      smooth_k,
-      cutoff,
-      0.0,
-      seed,
+      positions, group1_size, smooth_k, cutoff, 0.0, seed,
     )
     total_perm_count = total_perm_count + perm_count
     for i in 0..<candidates.length() {
@@ -531,16 +518,42 @@ pub fn bump_sample_data() -> Array[BumpPosition] {
 /// Format a BumpResult as a readable string.
 pub fn BumpResult::to_string(self : BumpResult) -> String {
   let sign = if self.value >= 0.0 { "+" } else { "-" }
-  "chr=" + self.chrom + " start=" + self.start.to_string() + " end=" + self.end_.to_string() + " value=" + sign + bump_abs(self.value).to_string() + " p=" + self.p_value.to_string() + " fdr=" + self.fdr.to_string()
+  "chr=" +
+  self.chrom +
+  " start=" +
+  self.start.to_string() +
+  " end=" +
+  self.end_.to_string() +
+  " value=" +
+  sign +
+  bump_abs(self.value).to_string() +
+  " p=" +
+  self.p_value.to_string() +
+  " fdr=" +
+  self.fdr.to_string()
 }
 
 ///|
 /// Format all results as a table.
 pub fn bump_results_to_string(results : Array[BumpResult]) -> String {
-  let mut s = "Bumphunter Results (" + results.length().to_string() + " bumps)\n"
+  let mut s = "Bumphunter Results (" +
+    results.length().to_string() +
+    " bumps)\n"
   s = s + "chrom\tstart\tend\tvalue\tp_value\tfdr\n"
   for r in results {
-    s = s + r.chrom + "\t" + r.start.to_string() + "\t" + r.end_.to_string() + "\t" + r.value.to_string() + "\t" + r.p_value.to_string() + "\t" + r.fdr.to_string() + "\n"
+    s = s +
+      r.chrom +
+      "\t" +
+      r.start.to_string() +
+      "\t" +
+      r.end_.to_string() +
+      "\t" +
+      r.value.to_string() +
+      "\t" +
+      r.p_value.to_string() +
+      "\t" +
+      r.fdr.to_string() +
+      "\n"
   }
   s
 }

@@ -1,29 +1,32 @@
 ///|
 /// Tests for Kmer module.
-
 test "BioKmerCounter creation" {
   let counter = @src.create_example_kmer_counter()
   assert_eq(counter.k, 3)
 }
 
+///|
 test "BioKmerCounter count_kmers" {
   let counter = @src.BioKmerCounter::new(3)
   let counter = counter.count_kmers("ABCDEFGH")
   assert_eq(counter.unique_kmers(), 6)
 }
 
+///|
 test "BioKmerCounter count" {
   let counter = @src.BioKmerCounter::new(2)
   let counter = counter.count_kmers("AAAA")
   assert_eq(counter.count("AA"), 3)
 }
 
+///|
 test "BioKmerCounter total_kmers" {
   let counter = @src.BioKmerCounter::new(2)
   let counter = counter.count_kmers("ATCG")
   assert_eq(counter.total_kmers(), 3)
 }
 
+///|
 test "BioKmerCounter frequency" {
   let counter = @src.BioKmerCounter::new(2)
   let counter = counter.count_kmers("AAAA")
@@ -31,6 +34,7 @@ test "BioKmerCounter frequency" {
   assert_eq(freq, 1.0)
 }
 
+///|
 test "BioKmerCounter get_top_kmers" {
   let counter = @src.BioKmerCounter::new(2)
   let counter = counter.count_kmers("AATAA")
@@ -38,6 +42,7 @@ test "BioKmerCounter get_top_kmers" {
   assert_eq(top.length(), 2)
 }
 
+///|
 test "BioKmerCounter jaccard" {
   let counter1 = @src.BioKmerCounter::new(2)
   let counter1 = counter1.count_kmers("ATCG")
@@ -47,6 +52,7 @@ test "BioKmerCounter jaccard" {
   assert_eq(jaccard, 0.2)
 }
 
+///|
 test "BioKmerCounter hamming_distance" {
   let counter1 = @src.BioKmerCounter::new(2)
   let counter1 = counter1.count_kmers("AAAA")
@@ -56,6 +62,7 @@ test "BioKmerCounter hamming_distance" {
   assert_eq(dist, 2)
 }
 
+///|
 test "kmer_spectrum" {
   let spectrum = @src.kmer_spectrum("ATCG", 2, 3)
   assert_eq(spectrum.length(), 2)

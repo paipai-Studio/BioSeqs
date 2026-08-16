@@ -215,5 +215,9 @@ test "proteomics_fragment_ions_single_residue" {
 
 ///|
 fn abs(x : Double) -> Double {
-  if x < 0.0 { -x } else { x }
+  if x < 0.0 {
+    -x
+  } else {
+    x
+  }
 }

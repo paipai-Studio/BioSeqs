@@ -21,10 +21,10 @@
 /// Spatial coordinates for a single spot.
 pub struct SpotCoord {
   spot_id : String
-  row : Int        // array row index
-  col : Int        // array column index
-  x : Double       // continuous x coordinate (e.g. pixel)
-  y : Double       // continuous y coordinate
+  row : Int // array row index
+  col : Int // array column index
+  x : Double // continuous x coordinate (e.g. pixel)
+  y : Double // continuous y coordinate
 }
 
 ///|
@@ -43,10 +43,10 @@ pub fn spot_coord(
 /// BayesSpace clustering result.
 pub struct BayesSpaceResult {
   spot_ids : Array[String]
-  clusters : Array[Int]            // cluster assignment per spot (0..q-1)
-  q : Int                          // number of clusters
-  cluster_centers : Array[Array[Double]]   // q × n_features matrix
-  responsibilities : Array[Array[Double]]  // n_spots × q soft assignments
+  clusters : Array[Int] // cluster assignment per spot (0..q-1)
+  q : Int // number of clusters
+  cluster_centers : Array[Array[Double]] // q × n_features matrix
+  responsibilities : Array[Array[Double]] // n_spots × q soft assignments
   n_iterations : Int
   log_likelihood : Double
   converged : Bool
@@ -59,9 +59,7 @@ pub struct BayesSpaceResult {
 /// For square-grid compatibility we also include (r±1, c±1) as neighbors.
 ///
 /// Returns neighbor_indices[i] = list of spot indices that are neighbors of spot i.
-pub fn bayes_space_hex_neighbors(
-  spots : Array[SpotCoord],
-) -> Array[Array[Int]] {
+pub fn bayes_space_hex_neighbors(spots : Array[SpotCoord]) -> Array[Array[Int]] {
   let n = spots.length()
   // Build a map from (row, col) to spot index
   let coord_map : Map[String, Int] = Map::new()
@@ -353,7 +351,12 @@ pub fn bayes_space_run(
     while i < n_spots {
       let mut k = 0
       while k < q {
-        let log_t = bayes_space_log_t_density(expression[i], centers[k], scales[k], d_df)
+        let log_t = bayes_space_log_t_density(
+          expression[i],
+          centers[k],
+          scales[k],
+          d_df,
+        )
         let mut spatial = 0.0
         let mut ni = 0
         while ni < neighbors[i].length() {
@@ -454,7 +457,12 @@ pub fn bayes_space_run(
       let mut max_lp = -1.0e18
       let mut k = 0
       while k < q {
-        let log_t = bayes_space_log_t_density(expression[i], centers[k], scales[k], d_df)
+        let log_t = bayes_space_log_t_density(
+          expression[i],
+          centers[k],
+          scales[k],
+          d_df,
+        )
         let lp = @math.ln(pis[k]) + log_t
         if lp > max_lp {
           max_lp = lp
@@ -464,7 +472,12 @@ pub fn bayes_space_run(
       let mut sum_exp = 0.0
       k = 0
       while k < q {
-        let log_t = bayes_space_log_t_density(expression[i], centers[k], scales[k], d_df)
+        let log_t = bayes_space_log_t_density(
+          expression[i],
+          centers[k],
+          scales[k],
+          d_df,
+        )
         sum_exp = sum_exp + @math.exp(@math.ln(pis[k]) + log_t - max_lp)
         k = k + 1
       }
@@ -575,10 +588,18 @@ pub fn bayes_space_render_clusters(
   let mut max_c = spots[0].col
   let mut i = 1
   while i < spots.length() {
-    if spots[i].row < min_r { min_r = spots[i].row }
-    if spots[i].row > max_r { max_r = spots[i].row }
-    if spots[i].col < min_c { min_c = spots[i].col }
-    if spots[i].col > max_c { max_c = spots[i].col }
+    if spots[i].row < min_r {
+      min_r = spots[i].row
+    }
+    if spots[i].row > max_r {
+      max_r = spots[i].row
+    }
+    if spots[i].col < min_c {
+      min_c = spots[i].col
+    }
+    if spots[i].col > max_c {
+      max_c = spots[i].col
+    }
     i = i + 1
   }
   let label_chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -638,8 +659,20 @@ pub fn bayes_space_sample_data() -> (Array[Array[Double]], Array[SpotCoord]) {
         2.0
       }
       // 3-feature expression vector per spot
-      expression.push([base + noise, base * 0.8 + noise * 0.5, base * 1.2 + noise * 0.3])
-      spots.push(spot_coord("spot_" + r.to_string() + "_" + c.to_string(), r, c, c.to_double(), r.to_double()))
+      expression.push([
+        base + noise,
+        base * 0.8 + noise * 0.5,
+        base * 1.2 + noise * 0.3,
+      ])
+      spots.push(
+        spot_coord(
+          "spot_" + r.to_string() + "_" + c.to_string(),
+          r,
+          c,
+          c.to_double(),
+          r.to_double(),
+        ),
+      )
       c = c + 1
     }
     r = r + 1

@@ -13,19 +13,19 @@ fn make_atom(
   resseq : Int,
 ) -> @src.Atom {
   @src.Atom::new(
-    name=name,
+    name~,
     coord=@src.Vector3::new(x, y, z),
-    resname=resname,
+    resname~,
     chainid='A',
-    resseq=resseq,
-    element=element,
+    resseq~,
+    element~,
   )
 }
 
 ///|
 /// Helper: place all given atoms into a single residue on chain A.
 fn make_structure(atoms : Array[@src.Atom]) -> @src.Structure {
-  let res = @src.Residue::new(resname="UNK", chainid='A', resseq=1, atoms=atoms)
+  let res = @src.Residue::new(resname="UNK", chainid='A', resseq=1, atoms~)
   let chain = @src.Chain::new(id='A', residues=[res])
   let model = @src.Model::new(id=1, chains=[chain])
   @src.Structure::new(id="test", models=[model])
@@ -240,8 +240,9 @@ test "sasa_total_backbone_sidechain" {
   let atom_res = @src.sasa_calc(s, 100, 1.4)
   let summary = @src.sasa_calc_total(atom_res)
   assert_true(
-    (summary.get_backbone_sasa() + summary.get_sidechain_sasa() -
-      summary.get_total_sasa()).abs() <
+    (summary.get_backbone_sasa() +
+    summary.get_sidechain_sasa() -
+    summary.get_total_sasa()).abs() <
     1.0e-9,
   )
   assert_true(summary.get_backbone_sasa() > 0.0)
@@ -310,7 +311,10 @@ test "sasa_all_backbone_atoms_sidechain_zero" {
   let res_res = @src.sasa_calc_residue(atom_res, s)
   assert_eq(res_res.length(), 1)
   assert_true(res_res[0].get_sidechain_sasa() == 0.0)
-  assert_true((res_res[0].get_backbone_sasa() - res_res[0].get_total_sasa()).abs() < 1.0e-9)
+  assert_true(
+    (res_res[0].get_backbone_sasa() - res_res[0].get_total_sasa()).abs() <
+    1.0e-9,
+  )
 }
 
 ///|

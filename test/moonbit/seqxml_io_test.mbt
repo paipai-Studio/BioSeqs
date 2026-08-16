@@ -10,14 +10,8 @@
 ///|
 test "seqxml_type_from_tag" {
   // Known tags map to their corresponding types.
-  assert_eq(
-    @src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("dna")),
-    "dna",
-  )
-  assert_eq(
-    @src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("rna")),
-    "rna",
-  )
+  assert_eq(@src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("dna")), "dna")
+  assert_eq(@src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("rna")), "rna")
   assert_eq(
     @src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("protein")),
     "protein",
@@ -27,24 +21,33 @@ test "seqxml_type_from_tag" {
     @src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("xyz")),
     "unknown",
   )
-  assert_eq(
-    @src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("")),
-    "unknown",
-  )
+  assert_eq(@src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("")), "unknown")
 }
 
 ///|
 test "seqxml_type_to_tag" {
   assert_eq(@src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("dna")), "dna")
   assert_eq(@src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("rna")), "rna")
-  assert_eq(@src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("protein")), "protein")
-  assert_eq(@src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("unknown")), "unknown")
+  assert_eq(
+    @src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("protein")),
+    "protein",
+  )
+  assert_eq(
+    @src.SeqXmlType::to_tag(@src.SeqXmlType::from_tag("unknown")),
+    "unknown",
+  )
 }
 
 ///|
 test "seqxml_type_description" {
-  assert_eq(@src.SeqXmlType::description(@src.SeqXmlType::from_tag("dna")), "DNA")
-  assert_eq(@src.SeqXmlType::description(@src.SeqXmlType::from_tag("rna")), "RNA")
+  assert_eq(
+    @src.SeqXmlType::description(@src.SeqXmlType::from_tag("dna")),
+    "DNA",
+  )
+  assert_eq(
+    @src.SeqXmlType::description(@src.SeqXmlType::from_tag("rna")),
+    "RNA",
+  )
   assert_eq(
     @src.SeqXmlType::description(@src.SeqXmlType::from_tag("protein")),
     "Protein",
@@ -234,8 +237,7 @@ test "seqxml_document_full_metadata" {
 
 ///|
 test "seqxml_parse_dna_entry" {
-  let content =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <entry id=\"dna1\" desc=\"DNA test\">\n" +
     "    <dna>ATGCATGC</dna>\n" +
@@ -253,8 +255,7 @@ test "seqxml_parse_dna_entry" {
 
 ///|
 test "seqxml_parse_rna_entry" {
-  let content =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <entry id=\"rna1\" desc=\"RNA test\">\n" +
     "    <rna>AUGCAUGC</rna>\n" +
@@ -271,8 +272,7 @@ test "seqxml_parse_rna_entry" {
 
 ///|
 test "seqxml_parse_protein_entry" {
-  let content =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <entry id=\"prot1\" desc=\"Protein test\">\n" +
     "    <protein>MKLVGV</protein>\n" +
@@ -289,8 +289,7 @@ test "seqxml_parse_protein_entry" {
 
 ///|
 test "seqxml_parse_with_species_sourcedb" {
-  let content =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <species name=\"Homo sapiens\" ncbiTaxID=\"9606\"/>\n" +
     "  <sourceDB name=\"UniProt\"/>\n" +
@@ -311,8 +310,7 @@ test "seqxml_parse_with_species_sourcedb" {
 
 ///|
 test "seqxml_parse_with_properties" {
-  let content =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <entry id=\"p1\" desc=\"With props\">\n" +
     "    <property name=\"gene\" value=\"BRCA1\"/>\n" +
@@ -336,8 +334,7 @@ test "seqxml_parse_with_properties" {
 
 ///|
 test "seqxml_parse_multiple_entries" {
-  let content =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <entry id=\"d1\"><dna>ACGT</dna></entry>\n" +
     "  <entry id=\"r1\"><rna>AUGU</rna></entry>\n" +
@@ -450,7 +447,9 @@ test "seqxml_document_to_xml" {
   assert_true(xml.contains("<?xml version=\"1.0\""))
   assert_true(xml.contains("<seqXML>"))
   assert_true(xml.contains("</seqXML>"))
-  assert_true(xml.contains("<species name=\"Homo sapiens\" ncbiTaxID=\"9606\"/>"))
+  assert_true(
+    xml.contains("<species name=\"Homo sapiens\" ncbiTaxID=\"9606\"/>"),
+  )
   assert_true(xml.contains("<sourceDB name=\"UniProt\"/>"))
   assert_true(xml.contains("<entry id=\"s1\" desc=\"Test\">"))
   assert_true(xml.contains("<dna>ACGT</dna>"))
@@ -482,8 +481,7 @@ test "seqxml_document_to_xml_no_metadata" {
 
 ///|
 test "seqxml_roundtrip_basic" {
-  let original =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let original = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <entry id=\"s1\" desc=\"Test\">\n" +
     "    <dna>ACGTACGT</dna>\n" +
@@ -502,8 +500,7 @@ test "seqxml_roundtrip_basic" {
 
 ///|
 test "seqxml_roundtrip_with_metadata" {
-  let original =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let original = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <species name=\"Homo sapiens\" ncbiTaxID=\"9606\"/>\n" +
     "  <sourceDB name=\"UniProt\"/>\n" +
@@ -526,8 +523,7 @@ test "seqxml_roundtrip_with_metadata" {
 
 ///|
 test "seqxml_roundtrip_with_properties" {
-  let original =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let original = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <entry id=\"p1\" desc=\"With props\">\n" +
     "    <property name=\"gene\" value=\"BRCA1\"/>\n" +
@@ -553,8 +549,7 @@ test "seqxml_roundtrip_with_properties" {
 
 ///|
 test "seqxml_roundtrip_multiple_entries" {
-  let original =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let original = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <entry id=\"d1\"><dna>ACGT</dna></entry>\n" +
     "  <entry id=\"r1\"><rna>AUGU</rna></entry>\n" +
@@ -753,8 +748,7 @@ test "seqxml_parse_empty_document" {
 
 ///|
 test "seqxml_parse_no_entries" {
-  let content =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <species name=\"Mus musculus\" ncbiTaxID=\"10090\"/>\n" +
     "</seqXML>\n"
@@ -767,8 +761,7 @@ test "seqxml_parse_no_entries" {
 
 ///|
 test "seqxml_parse_entry_without_description" {
-  let content =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <entry id=\"nodesc\">\n" +
     "    <dna>ACGT</dna>\n" +
@@ -786,8 +779,7 @@ test "seqxml_parse_entry_without_description" {
 ///|
 test "seqxml_parse_self_closing_entry" {
   // Self-closing <entry/> has no sequence element.
-  let content =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <entry id=\"empty\"/>\n" +
     "</seqXML>\n"
@@ -803,8 +795,7 @@ test "seqxml_parse_self_closing_entry" {
 ///|
 test "seqxml_entity_escaping_in_description" {
   // Parsing should unescape XML entities in the desc attribute.
-  let content =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <entry id=\"s1\" desc=\"A &amp; B &lt;C&gt;\">\n" +
     "    <dna>ACGT</dna>\n" +
@@ -818,8 +809,7 @@ test "seqxml_entity_escaping_in_description" {
 ///|
 test "seqxml_entity_escaping_in_sequence" {
   // Parsing should unescape XML entities in the sequence text content.
-  let content =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     "  <entry id=\"s1\" desc=\"Test\">\n" +
     "    <protein>AC&amp;T&lt;G</protein>\n" +
@@ -855,8 +845,7 @@ test "seqxml_entity_escaping_roundtrip" {
     description="Quote \" and amp & and lt <",
   )
   let xml = @src.seqxml_entry_to_xml(entry)
-  let content =
-    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+  let content = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
     "<seqXML>\n" +
     xml +
     "</seqXML>\n"

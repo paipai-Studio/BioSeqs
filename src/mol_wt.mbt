@@ -125,7 +125,7 @@ pub fn mol_weight_dna(sequence : String) -> Double {
     i = i + 1
   }
   // Subtract water for each phosphodiester bond (n-1 bonds)
-  total - ((n - 1).to_double() * 18.01524)
+  total - (n - 1).to_double() * 18.01524
 }
 
 ///|
@@ -153,7 +153,7 @@ pub fn mol_weight_protein(sequence : String) -> Double {
     i = i + 1
   }
   // Subtract water for each peptide bond (n-1 bonds)
-  total - ((n - 1).to_double() * 18.01524)
+  total - (n - 1).to_double() * 18.01524
 }
 
 ///|
@@ -181,7 +181,9 @@ pub fn extinction_coefficient_280(sequence : String) -> Double {
     i = i + 1
   }
   let n_cystine = n_cys / 2
-  (n_trp.to_double() * 5500.0) + (n_tyr.to_double() * 1490.0) + (n_cystine.to_double() * 125.0)
+  n_trp.to_double() * 5500.0 +
+  n_tyr.to_double() * 1490.0 +
+  n_cystine.to_double() * 125.0
 }
 
 ///|
@@ -248,7 +250,11 @@ pub fn mol_wt_isoelectric_point(sequence : String) -> Double {
   let pK_R = 12.48 // Arg
   // Simple approximation
   let pos_charges = 1.0 + n_lys.to_double() + n_arg.to_double()
-  let neg_charges = 1.0 + n_asp.to_double() + n_glu.to_double() + n_cys.to_double() + n_tyr.to_double()
+  let neg_charges = 1.0 +
+    n_asp.to_double() +
+    n_glu.to_double() +
+    n_cys.to_double() +
+    n_tyr.to_double()
   if pos_charges + neg_charges < 1.0e-10 {
     return 7.0
   }
@@ -266,28 +272,58 @@ pub fn mol_wt_isoelectric_point(sequence : String) -> Double {
 
 ///|
 /// Compute the difference in molecular weight between two sequences.
-pub fn mol_weight_diff(seq1 : String, seq2 : String, is_protein? : Bool = false) -> Double {
-  let mw1 = if is_protein { mol_weight_protein(seq1) } else { mol_weight_dna(seq1) }
-  let mw2 = if is_protein { mol_weight_protein(seq2) } else { mol_weight_dna(seq2) }
+pub fn mol_weight_diff(
+  seq1 : String,
+  seq2 : String,
+  is_protein? : Bool = false,
+) -> Double {
+  let mw1 = if is_protein {
+    mol_weight_protein(seq1)
+  } else {
+    mol_weight_dna(seq1)
+  }
+  let mw2 = if is_protein {
+    mol_weight_protein(seq2)
+  } else {
+    mol_weight_dna(seq2)
+  }
   mw1 - mw2
 }
 
 ///|
 /// Generate a summary string for a sequence's molecular properties.
-pub fn mol_weight_summary(sequence : String, is_protein? : Bool = false) -> String {
+pub fn mol_weight_summary(
+  sequence : String,
+  is_protein? : Bool = false,
+) -> String {
   let length = sequence.length()
-  let mw = if is_protein { mol_weight_protein(sequence) } else { mol_weight_dna(sequence) }
+  let mw = if is_protein {
+    mol_weight_protein(sequence)
+  } else {
+    mol_weight_dna(sequence)
+  }
   let ext = if is_protein { extinction_coefficient_280(sequence) } else { 0.0 }
   let pI = if is_protein { mol_wt_isoelectric_point(sequence) } else { 0.0 }
   let type_str = if is_protein { "Protein" } else { "DNA" }
   "MolWt Summary:\n" +
-  "  Type: " + type_str + "\n" +
-  "  Length: " + length.to_string() + "\n" +
-  "  Molecular Weight: " + mw.to_string() + " Da\n" +
+  "  Type: " +
+  type_str +
+  "\n" +
+  "  Length: " +
+  length.to_string() +
+  "\n" +
+  "  Molecular Weight: " +
+  mw.to_string() +
+  " Da\n" +
   (if is_protein {
-    "  Extinction Coefficient (280): " + ext.to_string() + " M^-1 cm^-1\n" +
-    "  Isoelectric Point: " + pI.to_string()
-  } else { "" })
+    "  Extinction Coefficient (280): " +
+    ext.to_string() +
+    " M^-1 cm^-1\n" +
+    "  Isoelectric Point: " +
+    pI.to_string()
+  } else {
+    ""
+  })
 }
 
 ///|

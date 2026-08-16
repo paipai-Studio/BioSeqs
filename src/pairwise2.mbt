@@ -27,13 +27,17 @@ pub struct PairwiseAlignResult {
 
 ///|
 /// Get the aligned first sequence.
-pub fn PairwiseAlignResult::get_aligned_seq1(self : PairwiseAlignResult) -> String {
+pub fn PairwiseAlignResult::get_aligned_seq1(
+  self : PairwiseAlignResult,
+) -> String {
   self.aligned_seq1
 }
 
 ///|
 /// Get the aligned second sequence.
-pub fn PairwiseAlignResult::get_aligned_seq2(self : PairwiseAlignResult) -> String {
+pub fn PairwiseAlignResult::get_aligned_seq2(
+  self : PairwiseAlignResult,
+) -> String {
   self.aligned_seq2
 }
 
@@ -51,7 +55,10 @@ pub fn PairwiseAlignResult::get_mode(self : PairwiseAlignResult) -> String {
 
 ///|
 /// Get the alignment as a formatted string.
-pub fn PairwiseAlignResult::format_alignment(self : PairwiseAlignResult, line_width : Int) -> String {
+pub fn PairwiseAlignResult::format_alignment(
+  self : PairwiseAlignResult,
+  line_width : Int,
+) -> String {
   let w = if line_width <= 0 { 60 } else { line_width }
   let mut result = ""
   let len = self.aligned_seq1.length()
@@ -59,8 +66,8 @@ pub fn PairwiseAlignResult::format_alignment(self : PairwiseAlignResult, line_wi
   let mut pos = 0
   while pos < len {
     let end = if pos + w < len { pos + w } else { len }
-    let s1 = self.aligned_seq1.substring(start=pos, end=end)
-    let s2 = self.aligned_seq2.substring(start=pos, end=end)
+    let s1 = self.aligned_seq1.substring(start=pos, end~)
+    let s2 = self.aligned_seq2.substring(start=pos, end~)
     let pos1 = self.seq1_start + pos
     let pos2 = self.seq2_start + pos
 
@@ -116,9 +123,16 @@ pub fn pairwise_result_new(
 ///|
 /// Create a simple match/mismatch scoring function.
 /// Returns a function that scores based on match/mismatch values.
-pub fn simple_score(match_sc : Double, mismatch_sc : Double) -> (String, String) -> Double {
+pub fn simple_score(
+  match_sc : Double,
+  mismatch_sc : Double,
+) -> (String, String) -> Double {
   fn(c1 : String, c2 : String) -> Double {
-    if c1.to_upper() == c2.to_upper() { match_sc } else { mismatch_sc }
+    if c1.to_upper() == c2.to_upper() {
+      match_sc
+    } else {
+      mismatch_sc
+    }
   }
 }
 
@@ -130,9 +144,16 @@ pub fn identity_score() -> (String, String) -> Double {
 
 ///|
 /// Create a scoring function using a substitution matrix (Map-based).
-pub fn matrix_score(matrix : Map[String, Double], default : Double) -> (String, String) -> Double {
+pub fn matrix_score(
+  matrix : Map[String, Double],
+  default : Double,
+) -> (String, String) -> Double {
   fn(c1 : String, c2 : String) -> Double {
-    let k = if c1 <= c2 { c1.to_upper() + c2.to_upper() } else { c2.to_upper() + c1.to_upper() }
+    let k = if c1 <= c2 {
+      c1.to_upper() + c2.to_upper()
+    } else {
+      c2.to_upper() + c1.to_upper()
+    }
     match matrix.get(k) {
       Some(v) => v
       None => default
@@ -142,7 +163,10 @@ pub fn matrix_score(matrix : Map[String, Double], default : Double) -> (String, 
 
 ///|
 /// Create a standard DNA scoring matrix (A/T/C/G pairwise).
-pub fn dna_matrix(match_sc : Double, mismatch_sc : Double) -> Map[String, Double] {
+pub fn dna_matrix(
+  match_sc : Double,
+  mismatch_sc : Double,
+) -> Map[String, Double] {
   let m : Map[String, Double] = Map([], capacity=10)
   m["AA"] = match_sc
   m["AC"] = mismatch_sc
@@ -157,16 +181,24 @@ pub fn dna_matrix(match_sc : Double, mismatch_sc : Double) -> Map[String, Double
   m
 }
 
+///|
 /// Helper: get element from flat Double matrix
-fn get_flat_double(arr : Array[Double], i : Int, j : Int, m_plus_1 : Int) -> Double {
+fn get_flat_double(
+  arr : Array[Double],
+  i : Int,
+  j : Int,
+  m_plus_1 : Int,
+) -> Double {
   arr[i * m_plus_1 + j]
 }
 
+///|
 /// Helper: get element from flat Int matrix
 fn get_flat_int(arr : Array[Int], i : Int, j : Int, m_plus_1 : Int) -> Int {
   arr[i * m_plus_1 + j]
 }
 
+///|
 /// Helper: initialize flat Double matrix of size (n+1) x (m+1) with fill_val
 fn init_flat_double(n : Int, m : Int, fill_val : Double) -> Array[Double] {
   let size = (n + 1) * (m + 1)
@@ -179,6 +211,7 @@ fn init_flat_double(n : Int, m : Int, fill_val : Double) -> Array[Double] {
   arr
 }
 
+///|
 /// Helper: initialize flat Int matrix of size (n+1) x (m+1) with fill_val
 fn init_flat_int(n : Int, m : Int, fill_val : Int) -> Array[Int] {
   let size = (n + 1) * (m + 1)
@@ -421,7 +454,10 @@ pub fn pairwise_localxx(
   let mut start1 = p
   let mut start2 = q
 
-  while p > 0 && q > 0 && get_flat_int(tb, p, q, m_plus_1) != -1 && get_flat_double(sc, p, q, m_plus_1) > 0.0 {
+  while p > 0 &&
+        q > 0 &&
+        get_flat_int(tb, p, q, m_plus_1) != -1 &&
+        get_flat_double(sc, p, q, m_plus_1) > 0.0 {
     let dir = get_flat_int(tb, p, q, m_plus_1)
     if dir == 0 {
       aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
@@ -683,7 +719,10 @@ pub fn pairwise_localms(
   let mut start1 = p
   let mut start2 = q
 
-  while p > 0 && q > 0 && get_flat_int(tb, p, q, m_plus_1) != -1 && get_flat_double(sc, p, q, m_plus_1) > 0.0 {
+  while p > 0 &&
+        q > 0 &&
+        get_flat_int(tb, p, q, m_plus_1) != -1 &&
+        get_flat_double(sc, p, q, m_plus_1) > 0.0 {
     let dir = get_flat_int(tb, p, q, m_plus_1)
     if dir == 0 {
       aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
@@ -753,8 +792,16 @@ pub fn alignment_summary(result : PairwiseAlignResult) -> String {
     i = i + 1
   }
 
-  let identity = if len > 0 { (matches.to_double() / len.to_double()) * 100.0 } else { 0.0 }
-  let similarity = if len > 0 { ((matches + mismatches).to_double() / len.to_double()) * 100.0 } else { 0.0 }
+  let identity = if len > 0 {
+    matches.to_double() / len.to_double() * 100.0
+  } else {
+    0.0
+  }
+  let similarity = if len > 0 {
+    (matches + mismatches).to_double() / len.to_double() * 100.0
+  } else {
+    0.0
+  }
 
   let mut summary = "=== Pairwise Alignment Summary ===\n".to_string()
   summary = summary + "Mode: \{result.mode}\n"

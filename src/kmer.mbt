@@ -10,18 +10,17 @@ pub struct BioKmerCounter {
 
 ///|
 pub fn BioKmerCounter::new(k : Int) -> BioKmerCounter {
-  BioKmerCounter::{
-    k,
-    counts: Map([], capacity=1000),
-    sequence: ""
-  }
+  BioKmerCounter::{ k, counts: Map([], capacity=1000), sequence: "" }
 }
 
 ///|
-pub fn BioKmerCounter::count_kmers(self : BioKmerCounter, seq : String) -> BioKmerCounter {
+pub fn BioKmerCounter::count_kmers(
+  self : BioKmerCounter,
+  seq : String,
+) -> BioKmerCounter {
   let n = seq.length() - self.k + 1
   let counts = self.counts.copy()
-  
+
   let mut i = 0
   while i < n {
     let kmer = substring(seq, i, self.k)
@@ -32,8 +31,8 @@ pub fn BioKmerCounter::count_kmers(self : BioKmerCounter, seq : String) -> BioKm
     }
     i = i + 1
   }
-  
-  BioKmerCounter::{ k: self.k, counts: counts, sequence: seq }
+
+  BioKmerCounter::{ k: self.k, counts, sequence: seq }
 }
 
 ///|
@@ -60,7 +59,10 @@ pub fn BioKmerCounter::unique_kmers(self : BioKmerCounter) -> Int {
 }
 
 ///|
-pub fn BioKmerCounter::frequency(self : BioKmerCounter, kmer : String) -> Double {
+pub fn BioKmerCounter::frequency(
+  self : BioKmerCounter,
+  kmer : String,
+) -> Double {
   let total = self.total_kmers()
   if total == 0 {
     0.0
@@ -70,12 +72,15 @@ pub fn BioKmerCounter::frequency(self : BioKmerCounter, kmer : String) -> Double
 }
 
 ///|
-pub fn BioKmerCounter::get_top_kmers(self : BioKmerCounter, n : Int) -> Array[(String, Int)] {
+pub fn BioKmerCounter::get_top_kmers(
+  self : BioKmerCounter,
+  n : Int,
+) -> Array[(String, Int)] {
   let items : Array[(String, Int)] = Array::new()
   for key in self.counts.keys() {
     items.push((key, self.counts.get(key).unwrap()))
   }
-  
+
   let mut swapped = true
   let mut j = 0
   while swapped {
@@ -92,35 +97,38 @@ pub fn BioKmerCounter::get_top_kmers(self : BioKmerCounter, n : Int) -> Array[(S
       i = i + 1
     }
   }
-  
+
   let result : Array[(String, Int)] = Array::new()
   let mut k = 0
   while k < n && k < items.length() {
     result.push(items[k])
     k = k + 1
   }
-  
+
   result
 }
 
 ///|
-pub fn BioKmerCounter::jaccard(self : BioKmerCounter, other : BioKmerCounter) -> Double {
+pub fn BioKmerCounter::jaccard(
+  self : BioKmerCounter,
+  other : BioKmerCounter,
+) -> Double {
   let mut intersection = 0
   let mut union = 0
-  
+
   for key in self.counts.keys() {
     if other.counts.contains(key) {
       intersection = intersection + 1
     }
     union = union + 1
   }
-  
+
   for key in other.counts.keys() {
     if !self.counts.contains(key) {
       union = union + 1
     }
   }
-  
+
   if union == 0 {
     0.0
   } else {
@@ -129,21 +137,24 @@ pub fn BioKmerCounter::jaccard(self : BioKmerCounter, other : BioKmerCounter) ->
 }
 
 ///|
-pub fn BioKmerCounter::hamming_distance(self : BioKmerCounter, other : BioKmerCounter) -> Int {
+pub fn BioKmerCounter::hamming_distance(
+  self : BioKmerCounter,
+  other : BioKmerCounter,
+) -> Int {
   let mut distance = 0
-  
+
   for key in self.counts.keys() {
     let diff = self.counts.get(key).unwrap() - other.count(key)
     let abs_diff = if diff > 0 { diff } else { -diff }
     distance = distance + abs_diff
   }
-  
+
   for key in other.counts.keys() {
     if !self.counts.contains(key) {
       distance = distance + other.count(key)
     }
   }
-  
+
   distance
 }
 
@@ -155,7 +166,11 @@ pub struct KmerFrequency {
 }
 
 ///|
-pub fn KmerFrequency::new(kmer : String, count : Int, frequency : Double) -> KmerFrequency {
+pub fn KmerFrequency::new(
+  kmer : String,
+  count : Int,
+  frequency : Double,
+) -> KmerFrequency {
   KmerFrequency::{ kmer, count, frequency }
 }
 
@@ -169,7 +184,7 @@ pub fn bio_count_kmers(seq : String, k : Int) -> Map[String, Int] {
 ///|
 pub fn kmer_spectrum(seq : String, min_k : Int, max_k : Int) -> Array[Int] {
   let spectrum : Array[Int] = Array::new()
-  
+
   let mut k = min_k
   while k <= max_k {
     let counter = BioKmerCounter::new(k)
@@ -177,7 +192,7 @@ pub fn kmer_spectrum(seq : String, min_k : Int, max_k : Int) -> Array[Int] {
     spectrum.push(counter.unique_kmers())
     k = k + 1
   }
-  
+
   spectrum
 }
 

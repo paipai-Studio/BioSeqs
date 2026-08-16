@@ -32,8 +32,12 @@ test "ggtree_count_leaves" {
 test "ggtree_y_positions" {
   let nodes = @src.create_test_tree()
   let root = nodes[0]
-  let n_nodes = @src.ggtree_count_leaves(root) + @src.ggtree_collect_internal_ids(root).length()
-  let positions : Map[String, (Double, Double, Double)] = Map([], capacity=n_nodes)
+  let n_nodes = @src.ggtree_count_leaves(root) +
+    @src.ggtree_collect_internal_ids(root).length()
+  let positions : Map[String, (Double, Double, Double)] = Map(
+    [],
+    capacity=n_nodes,
+  )
   let _ = @src.ggtree_compute_y_positions(root, 0.0, positions)
 
   // Root should have a y coordinate
@@ -52,8 +56,12 @@ test "ggtree_y_positions" {
 test "ggtree_x_positions" {
   let nodes = @src.create_test_tree()
   let root = nodes[0]
-  let n_nodes = @src.ggtree_count_leaves(root) + @src.ggtree_collect_internal_ids(root).length()
-  let positions : Map[String, (Double, Double, Double)] = Map([], capacity=n_nodes)
+  let n_nodes = @src.ggtree_count_leaves(root) +
+    @src.ggtree_collect_internal_ids(root).length()
+  let positions : Map[String, (Double, Double, Double)] = Map(
+    [],
+    capacity=n_nodes,
+  )
   let _ = @src.ggtree_compute_y_positions(root, 0.0, positions)
   @src.ggtree_compute_x_positions(root, 0.0, positions)
 

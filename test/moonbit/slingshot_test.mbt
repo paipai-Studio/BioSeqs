@@ -40,7 +40,7 @@ test "slingshot_distance_matrix" {
   let nodes = [
     @src.SlingshotNode::new("c1", "cluster1", [0.0, 0.0], 5),
     @src.SlingshotNode::new("c2", "cluster2", [1.0, 0.0], 5),
-    @src.SlingshotNode::new("c3", "cluster3", [0.0, 1.0], 5)
+    @src.SlingshotNode::new("c3", "cluster3", [0.0, 1.0], 5),
   ]
   let matrix = @src.sling_distance_matrix(nodes, @src.sling_euclidean_metric())
   assert_eq(matrix.length(), 3)
@@ -54,7 +54,7 @@ test "slingshot_mst" {
   let nodes = [
     @src.SlingshotNode::new("c1", "cluster1", [0.0, 0.0], 5),
     @src.SlingshotNode::new("c2", "cluster2", [1.0, 0.0], 5),
-    @src.SlingshotNode::new("c3", "cluster3", [0.5, 1.0], 5)
+    @src.SlingshotNode::new("c3", "cluster3", [0.5, 1.0], 5),
   ]
   let edges = @src.sling_build_mst(nodes, @src.sling_euclidean_metric())
   assert_eq(edges.length(), 2)
@@ -65,7 +65,7 @@ test "slingshot_terminals" {
   let nodes = [
     @src.SlingshotNode::new("c1", "cluster1", [0.0, 0.0], 5),
     @src.SlingshotNode::new("c2", "cluster2", [1.0, 0.0], 5),
-    @src.SlingshotNode::new("c3", "cluster3", [0.5, 1.0], 5)
+    @src.SlingshotNode::new("c3", "cluster3", [0.5, 1.0], 5),
   ]
   let edges = @src.sling_build_mst(nodes, @src.sling_euclidean_metric())
   let terminals = @src.sling_find_terminals(edges, nodes)
@@ -79,7 +79,7 @@ test "slingshot_principal_curve" {
     [1.0, 0.5],
     [2.0, 1.0],
     [3.0, 1.5],
-    [4.0, 2.0]
+    [4.0, 2.0],
   ]
   let curve = @src.sling_fit_principal_curve(points, 5)
   assert_true(curve.length() >= 2)
@@ -91,13 +91,13 @@ test "slingshot_pseudotime" {
     [0.0, 0.0],
     [1.0, 0.5],
     [2.0, 1.0],
-    [3.0, 1.5]
+    [3.0, 1.5],
   ]
   let curve : Array[Array[Double]] = [
     [0.0, 0.0],
     [1.0, 0.5],
     [2.0, 1.0],
-    [3.0, 1.5]
+    [3.0, 1.5],
   ]
   let pseudotime = @src.sling_compute_pseudotime(cell_coords, curve)
   assert_eq(pseudotime.length(), 4)
@@ -111,7 +111,7 @@ test "slingshot_full_run" {
     [1.0, 0.5],
     [2.0, 1.0],
     [2.5, 1.2],
-    [3.0, 1.5]
+    [3.0, 1.5],
   ]
   let cluster_labels = ["c1", "c1", "c2", "c2", "c3", "c3"]
   let params = @src.SlingshotParams::new()

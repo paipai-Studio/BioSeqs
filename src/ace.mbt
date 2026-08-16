@@ -260,9 +260,7 @@ pub fn ace_parse(content : String) -> AceData {
           reads_map[r.read_id] = r
           i = ace_skip_read_block(lines, i)
         }
-        None => {
-          i = i + 1
-        }
+        None => i = i + 1
       }
       continue
     }
@@ -274,9 +272,7 @@ pub fn ace_parse(content : String) -> AceData {
           contigs.push(contig)
           i = new_idx
         }
-        None => {
-          i = i + 1
-        }
+        None => i = i + 1
       }
       continue
     }
@@ -301,7 +297,7 @@ pub fn ace_parse_reads(content : String) -> Array[AceRead] {
       let read = ace_parse_read_block(lines, i)
       match read {
         Some(r) => reads.push(r)
-        None => { () }
+        None => ()
       }
       i = ace_skip_read_block(lines, i)
     } else {
@@ -330,9 +326,7 @@ pub fn ace_parse_contigs(content : String) -> Array[AceContig] {
           reads_map[r.read_id] = r
           i = ace_skip_read_block(lines, i)
         }
-        None => {
-          i = i + 1
-        }
+        None => i = i + 1
       }
     } else if trimmed.has_prefix("CT ") {
       let contig_and_new_idx = ace_parse_contig_block(lines, i, reads_map)
@@ -341,9 +335,7 @@ pub fn ace_parse_contigs(content : String) -> Array[AceContig] {
           contigs.push(contig)
           i = new_idx
         }
-        None => {
-          i = i + 1
-        }
+        None => i = i + 1
       }
     } else {
       i = i + 1
@@ -354,10 +346,7 @@ pub fn ace_parse_contigs(content : String) -> Array[AceContig] {
 
 ///|
 /// Parse a single RD block starting at the given line index.
-fn ace_parse_read_block(
-  lines : Array[String],
-  start_idx : Int,
-) -> AceRead? {
+fn ace_parse_read_block(lines : Array[String], start_idx : Int) -> AceRead? {
   if start_idx >= lines.length() {
     return None
   }
@@ -394,7 +383,8 @@ fn ace_parse_read_block(
     }
     if (first_char >= 'A'.to_int() && first_char <= 'Z'.to_int()) ||
       (first_char >= 'a'.to_int() && first_char <= 'z'.to_int()) ||
-      first_char == '-'.to_int() || first_char == '.'.to_int() {
+      first_char == '-'.to_int() ||
+      first_char == '.'.to_int() {
       let remaining = read_len - sequence.length()
       let chunk = if trimmed.length() > remaining {
         trimmed[0:remaining].to_owned()
@@ -412,17 +402,11 @@ fn ace_parse_read_block(
   let (quality, new_idx) = ace_parse_quality_lines(lines, idx, read_len)
   idx = new_idx
 
-  Some(AceRead::new(
-    read_id,
-    sequence,
-    quality,
-    1,
-    read_len,
-    "+",
-    "",
-    chemistry,
-    dye,
-  ))
+  Some(
+    AceRead::new(
+      read_id, sequence, quality, 1, read_len, "+", "", chemistry, dye,
+    ),
+  )
 }
 
 ///|
@@ -454,12 +438,13 @@ fn ace_skip_read_block(lines : Array[String], start_idx : Int) -> Int {
       idx = idx + 1
       break
     }
-    if (first_char >= '0'.to_int() && first_char <= '9'.to_int()) {
+    if first_char >= '0'.to_int() && first_char <= '9'.to_int() {
       break
     }
     if (first_char >= 'A'.to_int() && first_char <= 'Z'.to_int()) ||
       (first_char >= 'a'.to_int() && first_char <= 'z'.to_int()) ||
-      first_char == '-'.to_int() || first_char == '.'.to_int() {
+      first_char == '-'.to_int() ||
+      first_char == '.'.to_int() {
       seq_chars = seq_chars + trimmed.length()
       idx = idx + 1
     } else {
@@ -528,7 +513,8 @@ fn ace_parse_contig_block(
     }
     if (first_char >= 'A'.to_int() && first_char <= 'Z'.to_int()) ||
       (first_char >= 'a'.to_int() && first_char <= 'z'.to_int()) ||
-      first_char == '-'.to_int() || first_char == '.'.to_int() {
+      first_char == '-'.to_int() ||
+      first_char == '.'.to_int() {
       let remaining = contig_len - sequence.length()
       let chunk = if trimmed.length() > remaining {
         trimmed[0:remaining].to_owned()
@@ -543,12 +529,17 @@ fn ace_parse_contig_block(
   }
 
   // Parse base qualities
-  let (base_qualities, new_idx) = ace_parse_quality_lines(lines, idx, contig_len)
+  let (base_qualities, new_idx) = ace_parse_quality_lines(
+    lines, idx, contig_len,
+  )
   idx = new_idx
 
   // Parse AF alignment lines
   let reads : Array[AceRead] = Array::new()
-  let alignment_positions : Map[String, (Int, Int, Int, Int, Int, Int, String)] = Map([], capacity=32)
+  let alignment_positions : Map[String, (Int, Int, Int, Int, Int, Int, String)] = Map(
+    [],
+    capacity=32,
+  )
 
   while idx < lines.length() {
     let line = lines[idx].to_string()
@@ -571,13 +562,7 @@ fn ace_parse_contig_block(
         let strand = if af_tokens.length() >= 9 { af_tokens[8] } else { "+" }
 
         alignment_positions[read_name] = (
-          contig_start,
-          contig_end,
-          read_start,
-          read_end,
-          qual_start,
-          qual_end,
-          strand,
+          contig_start, contig_end, read_start, read_end, qual_start, qual_end, strand,
         )
       }
       idx = idx + 1
@@ -640,17 +625,12 @@ fn ace_parse_contig_block(
     ri = ri + 1
   }
 
-  Some((
-    AceContig::new(
-      contig_name,
-      sequence,
-      reads,
-      base_qualities,
-      "",
-      false,
+  Some(
+    (
+      AceContig::new(contig_name, sequence, reads, base_qualities, "", false),
+      idx,
     ),
-    idx,
-  ))
+  )
 }
 
 // ===== Serialization =====
@@ -784,7 +764,11 @@ pub fn ace_read_coverage(contig : AceContig) -> Map[Int, Int] {
     let read = contig.reads[ri]
     let start = if read.clip_start > 0 { read.clip_start } else { 1 }
     let end = if read.clip_end > 0 {
-      if read.clip_end > contig.length { contig.length } else { read.clip_end }
+      if read.clip_end > contig.length {
+        contig.length
+      } else {
+        read.clip_end
+      }
     } else {
       contig.length
     }
@@ -839,19 +823,20 @@ pub fn ace_contig_gc_content(contig : AceContig) -> Double {
 /// Create sample ACE content for testing.
 pub fn sample_ace_content() -> String {
   "AF contig1 60\n" +
-    "RD read1 60 chemistry1 dye1\n" +
-    "ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG\n" +
-    "q 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30\n" +
-    "RD read2 60 chemistry2 dye2\n" +
-    "GCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTA\n" +
-    "q 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25\n" +
-    "CT contig1 60 0 60\n" +
-    "ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG\n" +
-    "q 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40\n" +
-    "AF read1 1 60 1 60 1 60 +\n" +
-    "AF read2 1 60 1 60 1 60 -\n"
+  "RD read1 60 chemistry1 dye1\n" +
+  "ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG\n" +
+  "q 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30\n" +
+  "RD read2 60 chemistry2 dye2\n" +
+  "GCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTAGCTA\n" +
+  "q 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25 25\n" +
+  "CT contig1 60 0 60\n" +
+  "ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG\n" +
+  "q 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40 40\n" +
+  "AF read1 1 60 1 60 1 60 +\n" +
+  "AF read2 1 60 1 60 1 60 -\n"
 }
 
+///|
 pub fn sample_ace_data() -> AceData {
   ace_parse(sample_ace_content())
 }

@@ -364,11 +364,17 @@ pub fn reverse_complement(seq : String) -> String {
 ///|
 /// Calculate GC skew of a DNA sequence in a sliding window.
 /// GC skew = (G - C) / (G + C)
-pub fn gc_skew(seq : String, window_size : Int, step_size : Int) -> Array[Double] {
+pub fn gc_skew(
+  seq : String,
+  window_size : Int,
+  step_size : Int,
+) -> Array[Double] {
   let result : Array[Double] = Array::new()
   let len = seq.length()
-  if len < window_size { return result }
-  
+  if len < window_size {
+    return result
+  }
+
   let mut i = 0
   while i <= len - window_size {
     let window = seq[i:i + window_size].to_owned().to_upper()
@@ -377,8 +383,12 @@ pub fn gc_skew(seq : String, window_size : Int, step_size : Int) -> Array[Double
     let mut j = 0
     while j < window.length() {
       let c = window[j:j + 1]
-      if c == "G" { g_count = g_count + 1 }
-      if c == "C" { c_count = c_count + 1 }
+      if c == "G" {
+        g_count = g_count + 1
+      }
+      if c == "C" {
+        c_count = c_count + 1
+      }
       j = j + 1
     }
     let gc_total = g_count.to_double() + c_count.to_double()
@@ -395,11 +405,17 @@ pub fn gc_skew(seq : String, window_size : Int, step_size : Int) -> Array[Double
 ///|
 /// Calculate AT skew of a DNA sequence in a sliding window.
 /// AT skew = (A - T) / (A + T)
-pub fn at_skew(seq : String, window_size : Int, step_size : Int) -> Array[Double] {
+pub fn at_skew(
+  seq : String,
+  window_size : Int,
+  step_size : Int,
+) -> Array[Double] {
   let result : Array[Double] = Array::new()
   let len = seq.length()
-  if len < window_size { return result }
-  
+  if len < window_size {
+    return result
+  }
+
   let mut i = 0
   while i <= len - window_size {
     let window = seq[i:i + window_size].to_owned().to_upper()
@@ -408,8 +424,12 @@ pub fn at_skew(seq : String, window_size : Int, step_size : Int) -> Array[Double
     let mut j = 0
     while j < window.length() {
       let c = window[j:j + 1]
-      if c == "A" { a_count = a_count + 1 }
-      if c == "T" { t_count = t_count + 1 }
+      if c == "A" {
+        a_count = a_count + 1
+      }
+      if c == "T" {
+        t_count = t_count + 1
+      }
       j = j + 1
     }
     let at_total = a_count.to_double() + t_count.to_double()
@@ -427,8 +447,10 @@ pub fn at_skew(seq : String, window_size : Int, step_size : Int) -> Array[Double
 /// Calculate sequence similarity between two sequences.
 pub fn sequence_similarity(seq1 : String, seq2 : String) -> Double {
   let len = min_val(seq1.length().to_double(), seq2.length().to_double())
-  if len == 0.0 { return 0.0 }
-  
+  if len == 0.0 {
+    return 0.0
+  }
+
   let mut matches = 0.0
   let mut i = 0
   while i < len.to_int() {
@@ -445,25 +467,29 @@ pub fn sequence_similarity(seq1 : String, seq2 : String) -> Double {
 pub fn edit_distance(seq1 : String, seq2 : String) -> Int {
   let m = seq1.length()
   let n = seq2.length()
-  
-  if m == 0 { return n }
-  if n == 0 { return m }
-  
+
+  if m == 0 {
+    return n
+  }
+  if n == 0 {
+    return m
+  }
+
   // Dynamic programming approach
   let dp : Array[Array[Int]] = Array::make(m + 1, Array::make(n + 1, 0))
-  
+
   let mut i = 0
   while i <= m {
     dp[i][0] = i
     i = i + 1
   }
-  
+
   let mut j = 0
   while j <= n {
     dp[0][j] = j
     j = j + 1
   }
-  
+
   i = 1
   while i <= m {
     j = 1
@@ -481,18 +507,29 @@ pub fn edit_distance(seq1 : String, seq2 : String) -> Int {
     }
     i = i + 1
   }
-  
+
   dp[m][n]
 }
 
+///|
 fn min_val(a : Double, b : Double) -> Double {
-  if a < b { a } else { b }
+  if a < b {
+    a
+  } else {
+    b
+  }
 }
 
+///|
 fn min_val_int(a : Int, b : Int) -> Int {
-  if a < b { a } else { b }
+  if a < b {
+    a
+  } else {
+    b
+  }
 }
 
+///|
 fn min_val3(a : Int, b : Int, c : Int) -> Int {
   min_val_int(min_val_int(a, b), c)
 }

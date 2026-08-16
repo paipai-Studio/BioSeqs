@@ -156,7 +156,11 @@ fn ihw_storey_pi0(
     let weight = if i < covariates.length() {
       let c = covariates[i]
       let w = 1.0 - (c - 0.5) * (c - 0.5) * 2.0
-      if w < 0.1 { 0.1 } else { w }
+      if w < 0.1 {
+        0.1
+      } else {
+        w
+      }
     } else {
       1.0
     }
@@ -170,7 +174,11 @@ fn ihw_storey_pi0(
     return 1.0
   }
   let pi0 = count / ((1.0 - lambda) * total_weight)
-  if pi0 > 1.0 { 1.0 } else { pi0 }
+  if pi0 > 1.0 {
+    1.0
+  } else {
+    pi0
+  }
 }
 
 ///|
@@ -243,10 +251,7 @@ fn ihw_sum_weights(weights : Array[Double]) -> Double {
 ///|
 /// Assign hypotheses to bins based on covariate quantiles.
 /// Returns bin indices (0 to n_bins-1) for each hypothesis.
-fn bin_covariates(
-  covariates : Array[Double],
-  n_bins : Int,
-) -> Array[Int] {
+fn bin_covariates(covariates : Array[Double], n_bins : Int) -> Array[Int] {
   let n = covariates.length()
   let result : Array[Int] = Array::make(n, 0)
   if n <= n_bins || n_bins <= 1 {
@@ -258,8 +263,14 @@ fn bin_covariates(
     indexed[i] = [covariates[i], i.to_double()]
     i = i + 1
   }
-  indexed.sort_by(fn(a: Array[Double], b: Array[Double]) -> Int {
-    if a[0] < b[0] { -1 } else if a[0] > b[0] { 1 } else { 0 }
+  indexed.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int {
+    if a[0] < b[0] {
+      -1
+    } else if a[0] > b[0] {
+      1
+    } else {
+      0
+    }
   })
   let bin_size = (n.to_double() / n_bins.to_double()).ceil().to_int()
   i = 0
@@ -387,7 +398,7 @@ pub fn ihw(
   covariates : Array[Double],
   alpha : Double,
 ) -> IHWResult {
-  let config = IHWConfig::new(alpha=alpha, n_attempts=10, scale_type="local")
+  let config = IHWConfig::new(alpha~, n_attempts=10, scale_type="local")
   ihw_with_config(p_values, covariates, config)
 }
 
@@ -411,17 +422,18 @@ pub fn ihw_with_config(
   let effective_n = if n < n_cov { n } else { n_cov }
 
   if effective_n == 0 {
-    return IHWResult::new(
-      [],
-      [],
-      [],
-      [],
-      config.alpha,
-      0,
-    )
+    return IHWResult::new([], [], [], [], config.alpha, 0)
   }
 
-  let n_bins = if effective_n > 20 { 20 } else { if effective_n > 10 { 10 } else { if effective_n > 5 { 5 } else { 1 } } }
+  let n_bins = if effective_n > 20 {
+    20
+  } else if effective_n > 10 {
+    10
+  } else if effective_n > 5 {
+    5
+  } else {
+    1
+  }
 
   let mut weights = initialize_weights(covariates, config.scale_type)
   let bins = bin_covariates(covariates, n_bins)
@@ -623,8 +635,14 @@ pub fn storey_ihw(
     temp[i] = [p_values[i], i.to_double()]
     i = i + 1
   }
-  temp.sort_by(fn(a: Array[Double], b: Array[Double]) -> Int {
-    if a[0] < b[0] { -1 } else if a[0] > b[0] { 1 } else { 0 }
+  temp.sort_by(fn(a : Array[Double], b : Array[Double]) -> Int {
+    if a[0] < b[0] {
+      -1
+    } else if a[0] > b[0] {
+      1
+    } else {
+      0
+    }
   })
 
   i = n - 1

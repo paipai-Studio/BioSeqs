@@ -73,7 +73,7 @@ pub fn SurvRecord::new(
   time : Double,
   event : Bool,
   group : String,
-  covariates : Array[Double]
+  covariates : Array[Double],
 ) -> SurvRecord {
   SurvRecord::{ time, event, group, covariates }
 }
@@ -113,7 +113,7 @@ pub fn SurvData::new() -> SurvData {
     records: Array::new(),
     n_samples: 0,
     n_groups: 0,
-    group_names: Array::new()
+    group_names: Array::new(),
   }
 }
 
@@ -143,7 +143,7 @@ pub fn SurvData::from_records(records : Array[SurvRecord]) -> SurvData {
     records,
     n_samples: n,
     n_groups: group_names.length(),
-    group_names
+    group_names,
   }
 }
 
@@ -194,7 +194,10 @@ pub fn SurvData::add_record(self : SurvData, record : SurvRecord) -> Unit {
 
 ///|
 /// Return records belonging to a given group.
-pub fn SurvData::filter_by_group(self : SurvData, group : String) -> Array[SurvRecord] {
+pub fn SurvData::filter_by_group(
+  self : SurvData,
+  group : String,
+) -> Array[SurvRecord] {
   let result : Array[SurvRecord] = Array::new()
   let recs = self.records
   let n = recs.length()
@@ -239,8 +242,15 @@ pub fn survival_normal_cdf(z : Double) -> Double {
   let d = 0.3989423 * @math.exp(-z * z / 2.0)
   let p = d *
     t *
-    (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.3302744))))
-  if z > 0.0 { 1.0 - p } else { p }
+    (
+      0.3193815 +
+      t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.3302744)))
+    )
+  if z > 0.0 {
+    1.0 - p
+  } else {
+    p
+  }
 }
 
 ///|
@@ -268,18 +278,12 @@ pub fn survival_chi_square_p_value(chi_sq : Double, df : Int) -> Double {
   }
   if df == 1 {
     let p = 2.0 * (1.0 - survival_normal_cdf(chi_sq.sqrt()))
-    return if p.is_nan() || p < 0.0 {
-      0.0
-    } else if p > 1.0 {
-      1.0
-    } else {
-      p
-    }
+    return if p.is_nan() || p < 0.0 { 0.0 } else if p > 1.0 { 1.0 } else { p }
   }
   // Wilson-Hilferty approximation for general df
   let df_d = df.to_double()
   let z = (@math.pow(chi_sq / df_d, 1.0 / 3.0) - (1.0 - 2.0 / (9.0 * df_d))) /
-    ((2.0 / (9.0 * df_d)).sqrt())
+    (2.0 / (9.0 * df_d)).sqrt()
   let p = 1.0 - survival_normal_cdf(z)
   if p.is_nan() || p < 0.0 {
     0.0
@@ -299,7 +303,7 @@ pub fn survival_chi_square_p_value(chi_sq : Double, df : Int) -> Double {
 fn survival_solve_linear(
   a : Array[Array[Double]],
   b : Array[Double],
-  n : Int
+  n : Int,
 ) -> Array[Double] {
   if n == 0 {
     return Array::new()
@@ -397,7 +401,11 @@ fn survival_invert_matrix(m : Array[Array[Double]]) -> Array[Array[Double]] {
     }
     let raw_piv = aug[col][col]
     let piv_val = if raw_piv.abs() < 1.0e-12 {
-      if raw_piv >= 0.0 { 1.0e-12 } else { -1.0e-12 }
+      if raw_piv >= 0.0 {
+        1.0e-12
+      } else {
+        -1.0e-12
+      }
     } else {
       raw_piv
     }
@@ -456,7 +464,10 @@ fn survival_fmt(v : Double) -> String {
 ///|
 /// Compute the Kaplan-Meier survival curve for a specific group.
 /// Standard error uses Greenwood's formula.
-pub fn survival_kaplan_meier(data : SurvData, group : String) -> KaplanMeierResult {
+pub fn survival_kaplan_meier(
+  data : SurvData,
+  group : String,
+) -> KaplanMeierResult {
   let group_records = data.filter_by_group(group)
   let n = group_records.length()
 
@@ -480,7 +491,7 @@ pub fn survival_kaplan_meier(data : SurvData, group : String) -> KaplanMeierResu
       std_err: std_err_arr,
       n_at_risk: n_at_risk_arr,
       n_events: n_events_arr,
-      group
+      group,
     }
   }
 
@@ -514,8 +525,7 @@ pub fn survival_kaplan_meier(data : SurvData, group : String) -> KaplanMeierResu
       surv = surv * (1.0 - d.to_double() / n_at_risk.to_double())
       if n_at_risk > d {
         cum_var = cum_var +
-          d.to_double() /
-          (n_at_risk.to_double() * (n_at_risk - d).to_double())
+          d.to_double() / (n_at_risk.to_double() * (n_at_risk - d).to_double())
       }
       let se = surv * cum_var.sqrt()
       times.push(t)
@@ -533,7 +543,7 @@ pub fn survival_kaplan_meier(data : SurvData, group : String) -> KaplanMeierResu
     std_err: std_err_arr,
     n_at_risk: n_at_risk_arr,
     n_events: n_events_arr,
-    group
+    group,
   }
 }
 
@@ -546,7 +556,7 @@ pub fn survival_kaplan_meier(data : SurvData, group : String) -> KaplanMeierResu
 pub fn survival_log_rank(
   data : SurvData,
   group1 : String,
-  group2 : String
+  group2 : String,
 ) -> LogRankResult {
   let r1 = data.filter_by_group(group1)
   let r2 = data.filter_by_group(group2)
@@ -624,11 +634,7 @@ pub fn survival_log_rank(
     i = j
   }
 
-  let chi_sq = if v > 0.0 {
-    (o1 - e1) * (o1 - e1) / v
-  } else {
-    0.0
-  }
+  let chi_sq = if v > 0.0 { (o1 - e1) * (o1 - e1) / v } else { 0.0 }
   let p = survival_chi_square_p_value(chi_sq, 1)
   LogRankResult::{
     chi_square: chi_sq,
@@ -637,7 +643,7 @@ pub fn survival_log_rank(
     group1,
     group2,
     n1: n1_total,
-    n2: n2_total
+    n2: n2_total,
   }
 }
 
@@ -655,7 +661,7 @@ fn survival_cox_score_info(
   order : Array[Int],
   beta : Array[Double],
   n : Int,
-  p : Int
+  p : Int,
 ) -> (Array[Double], Array[Array[Double]], Double) {
   let u : Array[Double] = Array::make(p, 0.0)
   let info : Array[Array[Double]] = Array::new()
@@ -757,7 +763,7 @@ fn survival_cox_score_info(
 /// partial likelihood. Ties are handled with the Breslow approximation.
 pub fn survival_cox_fit(
   data : SurvData,
-  covariate_names : Array[String]
+  covariate_names : Array[String],
 ) -> CoxResult {
   let records = data.records()
   let n = records.length()
@@ -773,7 +779,7 @@ pub fn survival_cox_fit(
       covariate_names,
       log_likelihood: 0.0,
       n_samples: n,
-      converged: true
+      converged: true,
     }
   }
 
@@ -833,7 +839,9 @@ pub fn survival_cox_fit(
   }
 
   // Final score/info/loglik at the converged beta.
-  let final_triple = survival_cox_score_info(times, events, z, order, beta, n, p)
+  let final_triple = survival_cox_score_info(
+    times, events, z, order, beta, n, p,
+  )
   let final_info = final_triple.1
   let final_ll = final_triple.2
   let inv_info = survival_invert_matrix(final_info)
@@ -862,7 +870,7 @@ pub fn survival_cox_fit(
     covariate_names,
     log_likelihood: final_ll,
     n_samples: n,
-    converged
+    converged,
   }
 }
 

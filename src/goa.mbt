@@ -453,13 +453,12 @@ pub fn goa_parse(content : String) -> GoaDatabase {
     }
     if starts_with(line, 0, "!") {
       match goa_parse_header_line(line) {
-        Some((key, value)) => {
+        Some((key, value)) =>
           if key == "gaf-version" {
             version = value
           } else if key == "generated-by" {
             created_by = value
           }
-        }
         None => ()
       }
       i = i + 1
@@ -480,7 +479,10 @@ pub fn goa_parse(content : String) -> GoaDatabase {
 
 ///|
 /// Return all records matching the given GO ID (e.g. "GO:0003674").
-pub fn goa_filter_by_go_id(db : GoaDatabase, go_id : String) -> Array[GafRecord] {
+pub fn goa_filter_by_go_id(
+  db : GoaDatabase,
+  go_id : String,
+) -> Array[GafRecord] {
   let result : Array[GafRecord] = Array::new()
   let recs = db.records
   let mut i = 0
@@ -708,10 +710,18 @@ pub fn goa_to_summary(db : GoaDatabase) -> String {
     s = s + "  " + code + ": " + count.to_string() + "\n"
     j = j + 1
   }
-  s = s + "\nUnique GO IDs: " + goa_unique_go_ids(db).length().to_string() + "\n"
-  s = s + "Unique evidence codes: " +
-    goa_unique_evidence_codes(db).length().to_string() + "\n"
-  s = s + "Unique taxon IDs: " + goa_unique_taxon_ids(db).length().to_string() + "\n"
+  s = s +
+    "\nUnique GO IDs: " +
+    goa_unique_go_ids(db).length().to_string() +
+    "\n"
+  s = s +
+    "Unique evidence codes: " +
+    goa_unique_evidence_codes(db).length().to_string() +
+    "\n"
+  s = s +
+    "Unique taxon IDs: " +
+    goa_unique_taxon_ids(db).length().to_string() +
+    "\n"
   s
 }
 

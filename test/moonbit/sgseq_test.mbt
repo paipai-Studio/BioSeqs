@@ -53,11 +53,7 @@ test "sg_junction_default_strand_count" {
 
 ///|
 test "sg_junction_intron_length" {
-  let j = @src.SGSeqJunction::new(
-    chr="chr1",
-    start=1000,
-    end=2000,
-  )
+  let j = @src.SGSeqJunction::new(chr="chr1", start=1000, end=2000)
   // intron_length = end - start - 1 = 999
   assert_eq(j.intron_length(), 999)
 }
@@ -352,9 +348,7 @@ test "sg_detect_ri" {
   let junctions = [
     @src.SGSeqJunction::new(chr="chr1", start=100, end=500, count=5),
   ]
-  let exons = [
-    @src.SGSeqExon::new(chr="chr1", start=100, end=500, strand="+"),
-  ]
+  let exons = [@src.SGSeqExon::new(chr="chr1", start=100, end=500, strand="+")]
   let variants = @src.sgseq_detect_ri(junctions, exons)
   // Should detect an RI event (low junction count with overlapping exon)
   assert_true(variants.length() >= 1)
@@ -373,7 +367,13 @@ test "sg_detect_all_variants" {
   // All variants should have valid type names
   for v in variants {
     let name = v.type_name()
-    assert_true(name == "SE" || name == "A5SS" || name == "A3SS" || name == "MXE" || name == "RI")
+    assert_true(
+      name == "SE" ||
+      name == "A5SS" ||
+      name == "A3SS" ||
+      name == "MXE" ||
+      name == "RI",
+    )
   }
 }
 

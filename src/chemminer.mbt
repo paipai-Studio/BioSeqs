@@ -80,7 +80,7 @@ pub fn SdfAtom::new(
   x : Double,
   y : Double,
   z : Double,
-  charge : Int
+  charge : Int,
 ) -> SdfAtom {
   SdfAtom::{ symbol, x, y, z, charge }
 }
@@ -179,7 +179,7 @@ pub struct SdfMolecule {
 pub fn SdfMolecule::new(
   name : String,
   atoms : Array[SdfAtom],
-  bonds : Array[SdfBond]
+  bonds : Array[SdfBond],
 ) -> SdfMolecule {
   SdfMolecule::{ name, atoms, bonds, properties: Map([], capacity=8) }
 }
@@ -218,10 +218,7 @@ pub fn SdfMolecule::n_bonds(self : SdfMolecule) -> Int {
 
 ///|
 /// Get a property value by key. Returns empty string if missing.
-pub fn SdfMolecule::get_property(
-  self : SdfMolecule,
-  key : String
-) -> String {
+pub fn SdfMolecule::get_property(self : SdfMolecule, key : String) -> String {
   self.properties.get_or_default(key, "")
 }
 
@@ -230,17 +227,14 @@ pub fn SdfMolecule::get_property(
 pub fn SdfMolecule::set_property(
   self : SdfMolecule,
   key : String,
-  value : String
+  value : String,
 ) -> Unit {
   self.properties[key] = value
 }
 
 ///|
 /// Whether the molecule has a property.
-pub fn SdfMolecule::has_property(
-  self : SdfMolecule,
-  key : String
-) -> Bool {
+pub fn SdfMolecule::has_property(self : SdfMolecule, key : String) -> Bool {
   self.properties.contains(key)
 }
 
@@ -293,7 +287,13 @@ pub fn chem_molecular_formula(mol : SdfMolecule) -> String {
     remaining.push(k)
   }
   remaining.sort_by(fn(a : String, b : String) -> Int {
-    if a < b { -1 } else if a > b { 1 } else { 0 }
+    if a < b {
+      -1
+    } else if a > b {
+      1
+    } else {
+      0
+    }
   })
   for elem in remaining {
     let c = counts[elem]
@@ -374,7 +374,11 @@ pub fn chem_ring_count(mol : SdfMolecule) -> Int {
   }
   // Cyclomatic number.
   let rings = n_bonds - n_atoms + n_components
-  if rings < 0 { 0 } else { rings }
+  if rings < 0 {
+    0
+  } else {
+    rings
+  }
 }
 
 // ============================================================================
@@ -417,11 +421,7 @@ fn chem_atom_degrees(mol : SdfMolecule) -> Array[Int] {
 ///|
 /// BFS shortest-path distance between two atom indices in the molecular
 /// graph. Returns -1 if unreachable.
-fn chem_bfs_distance(
-  mol : SdfMolecule,
-  start : Int,
-  end : Int
-) -> Int {
+fn chem_bfs_distance(mol : SdfMolecule, start : Int, end : Int) -> Int {
   if start == end {
     return 0
   }
@@ -499,7 +499,13 @@ pub fn chem_atom_pair_fingerprint(mol : SdfMolecule) -> Array[Int] {
     result.push(k)
   }
   result.sort_by(fn(a : Int, b : Int) -> Int {
-    if a < b { -1 } else if a > b { 1 } else { 0 }
+    if a < b {
+      -1
+    } else if a > b {
+      1
+    } else {
+      0
+    }
   })
   result
 }
@@ -570,7 +576,7 @@ fn chem_substructure_try_match(
   t_adj : Array[Array[(Int, Int)]],
   mapping : Array[Int],
   used : Array[Bool],
-  i : Int
+  i : Int,
 ) -> Bool {
   if i == qn {
     return true
@@ -616,8 +622,15 @@ fn chem_substructure_try_match(
         mapping[i] = t
         used[t] = true
         if chem_substructure_try_match(
-          qn, query, target, q_adj, t_adj, mapping, used, i + 1
-        ) {
+            qn,
+            query,
+            target,
+            q_adj,
+            t_adj,
+            mapping,
+            used,
+            i + 1,
+          ) {
           return true
         } else {
           mapping[i] = -1
@@ -638,7 +651,7 @@ fn chem_substructure_try_match(
 /// greedy backtracking search.
 pub fn chem_substructure_match(
   query : SdfMolecule,
-  target : SdfMolecule
+  target : SdfMolecule,
 ) -> Bool {
   let qn = query.n_atoms()
   let tn = target.n_atoms()
@@ -682,7 +695,7 @@ fn chem_trim(s : StringView) -> String {
   let n = s.length()
   let mut start = 0
   while start < n {
-    let ch = s[start : start + 1]
+    let ch = s[start:start + 1]
     if ch == " " || ch == "\t" || ch == "\r" || ch == "\n" {
       start = start + 1
     } else {
@@ -691,7 +704,7 @@ fn chem_trim(s : StringView) -> String {
   }
   let mut end = n
   while end > start {
-    let ch = s[end - 1 : end]
+    let ch = s[end - 1:end]
     if ch == " " || ch == "\t" || ch == "\r" || ch == "\n" {
       end = end - 1
     } else {
@@ -763,8 +776,8 @@ pub fn chem_parse_sdf(content : String) -> Array[SdfMolecule] {
     // Line 4: counts line.
     let counts_line = lines[idx]
     idx = idx + 1
-    let n_atoms = chem_parse_int_field(counts_line[0 : 3])
-    let n_bonds = chem_parse_int_field(counts_line[3 : 6])
+    let n_atoms = chem_parse_int_field(counts_line[0:3])
+    let n_bonds = chem_parse_int_field(counts_line[3:6])
     // Parse atom block.
     let atoms : Array[SdfAtom] = Array::new()
     for _ in 0..<n_atoms {
@@ -774,13 +787,13 @@ pub fn chem_parse_sdf(content : String) -> Array[SdfMolecule] {
       let line = lines[idx]
       idx = idx + 1
       // SDF atom line: xxxx.xxxxyyyy.yyyyzzzz.zzzz aaaddcccssshhhbbbvvvHHHrrriiimmmnnneee
-      let x = chem_parse_double_field(line[0 : 10])
-      let y = chem_parse_double_field(line[10 : 20])
-      let z = chem_parse_double_field(line[20 : 30])
-      let symbol = chem_trim(line[31 : 34])
+      let x = chem_parse_double_field(line[0:10])
+      let y = chem_parse_double_field(line[10:20])
+      let z = chem_parse_double_field(line[20:30])
+      let symbol = chem_trim(line[31:34])
       // Charge field is at columns 36-38 (0-based from 36).
       let charge = if line.length() >= 39 {
-        let c = chem_parse_int_field(line[36 : 39])
+        let c = chem_parse_int_field(line[36:39])
         // SDF charge encoding: 0=0, 1=+3, 2=+2, 3=+1, 4=0, 5=-1, 6=-2, 7=-3
         match c {
           1 => 3
@@ -804,9 +817,9 @@ pub fn chem_parse_sdf(content : String) -> Array[SdfMolecule] {
       }
       let line = lines[idx]
       idx = idx + 1
-      let a1 = chem_parse_int_field(line[0 : 3]) - 1 // convert 1-based to 0-based
-      let a2 = chem_parse_int_field(line[3 : 6]) - 1
-      let bt = chem_parse_int_field(line[6 : 9])
+      let a1 = chem_parse_int_field(line[0:3]) - 1 // convert 1-based to 0-based
+      let a2 = chem_parse_int_field(line[3:6]) - 1
+      let bt = chem_parse_int_field(line[6:9])
       bonds.push(SdfBond::new(a1, a2, bt))
     }
     let mol = SdfMolecule::new(name, atoms, bonds)
@@ -819,7 +832,7 @@ pub fn chem_parse_sdf(content : String) -> Array[SdfMolecule] {
         break
       }
       // Property line: "> <name>" (or ">  <name>" with extra spaces).
-      if trimmed.length() > 3 && trimmed[0 : 1] == ">" {
+      if trimmed.length() > 3 && trimmed[0:1] == ">" {
         // Find the first '<' and the last '>'.
         let lt_pos = trimmed.find("<")
         // Find the last '>' by scanning from the end.
@@ -827,20 +840,19 @@ pub fn chem_parse_sdf(content : String) -> Array[SdfMolecule] {
         let tn = trimmed.length()
         let mut k = tn - 1
         while k >= 0 {
-          if trimmed[k : k + 1] == ">" {
+          if trimmed[k:k + 1] == ">" {
             gt_idx = k
             break
           }
           k = k - 1
         }
         let prop_name = match lt_pos {
-          Some(lt) => {
+          Some(lt) =>
             if gt_idx > lt + 1 {
-              trimmed[lt + 1 : gt_idx].to_owned()
+              trimmed[lt + 1:gt_idx].to_owned()
             } else {
               ""
             }
-          }
           None => ""
         }
         idx = idx + 1

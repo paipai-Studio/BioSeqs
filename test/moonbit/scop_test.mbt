@@ -17,6 +17,7 @@ test "scop_node_type_name" {
   assert_eq(@src.scop_node_type_name("xx"), "unknown")
 }
 
+///|
 test "scop_node_type_code" {
   assert_eq(@src.scop_node_type_code("root"), "ro")
   assert_eq(@src.scop_node_type_code("class"), "cl")
@@ -28,6 +29,7 @@ test "scop_node_type_code" {
   assert_eq(@src.scop_node_type_code("domain"), "px")
 }
 
+///|
 test "scop_node_type_order" {
   assert_true(@src.scop_node_type_order("ro") < @src.scop_node_type_order("cl"))
   assert_true(@src.scop_node_type_order("cl") < @src.scop_node_type_order("cf"))
@@ -42,18 +44,21 @@ test "scop_node_type_order" {
 // Residues parsing
 // ---------------------------------------------------------------------------
 
+///|
 test "scop_parse_residues_dash" {
   let r = @src.scop_parse_residues("-")
   assert_eq(r.pdbid(), "")
   assert_eq(r.fragments().length(), 0)
 }
 
+///|
 test "scop_parse_residues_empty" {
   let r = @src.scop_parse_residues("")
   assert_eq(r.pdbid(), "")
   assert_eq(r.fragments().length(), 0)
 }
 
+///|
 test "scop_parse_residues_paren_dash" {
   let r = @src.scop_parse_residues("(-)")
   assert_eq(r.pdbid(), "")
@@ -63,6 +68,7 @@ test "scop_parse_residues_paren_dash" {
   assert_eq(r.fragments()[0].end_(), "")
 }
 
+///|
 test "scop_parse_residues_with_pdbid" {
   let r = @src.scop_parse_residues("1bba A:10-20,B:")
   assert_eq(r.pdbid(), "1bba")
@@ -77,6 +83,7 @@ test "scop_parse_residues_with_pdbid" {
   assert_eq(r.fragments()[1].end_(), "")
 }
 
+///|
 test "scop_parse_residues_single_chain" {
   let r = @src.scop_parse_residues("A:1-141")
   assert_eq(r.pdbid(), "")
@@ -86,6 +93,7 @@ test "scop_parse_residues_single_chain" {
   assert_eq(r.fragments()[0].end_(), "141")
 }
 
+///|
 test "scop_residues_to_string_roundtrip" {
   let r = @src.scop_parse_residues("1hba A:1-141")
   let s = @src.scop_residues_to_string(r)
@@ -97,6 +105,7 @@ test "scop_residues_to_string_roundtrip" {
   assert_eq(r2.fragments()[0].end_(), "141")
 }
 
+///|
 test "scop_residues_to_string_dash" {
   let r = @src.ScopResidues::new("", [])
   let s = @src.scop_residues_to_string(r)
@@ -107,12 +116,15 @@ test "scop_residues_to_string_dash" {
 // Record creation and accessors
 // ---------------------------------------------------------------------------
 
+///|
 test "scop_cla_record_creation" {
   let res = @src.scop_parse_residues("1hba A:1-141")
   let hier : Map[String, Int] = Map([], capacity=8)
   hier.set("cl", 100)
   hier.set("cf", 200)
-  let r = @src.ClaRecord::new("d1hba_", "1hba", res, "a.1.1.1.1.1.1", 1000, hier)
+  let r = @src.ClaRecord::new(
+    "d1hba_", "1hba", res, "a.1.1.1.1.1.1", 1000, hier,
+  )
   assert_eq(r.sid(), "d1hba_")
   assert_eq(r.pdbid(), "1hba")
   assert_eq(r.sccs(), "a.1.1.1.1.1.1")
@@ -120,6 +132,7 @@ test "scop_cla_record_creation" {
   assert_eq(r.hierarchy().get("cl").unwrap(), 100)
 }
 
+///|
 test "scop_des_record_creation" {
   let r = @src.DesRecord::new(
     1000, "px", "a.1.1.1.1.1.1", "d1hba_", "1hba Hemoglobin alpha chain",
@@ -131,6 +144,7 @@ test "scop_des_record_creation" {
   assert_eq(r.description(), "1hba Hemoglobin alpha chain")
 }
 
+///|
 test "scop_hie_record_creation" {
   let r = @src.HieRecord::new(600, 500, [1000, 1001])
   assert_eq(r.sunid(), 600)
@@ -144,6 +158,7 @@ test "scop_hie_record_creation" {
 // File parsers
 // ---------------------------------------------------------------------------
 
+///|
 test "scop_parse_cla_line" {
   let line = "d1hba_\t1hba\tA:1-141\ta.1.1.1.1.1.1\t1000\tcl=100,cf=200,sf=300,fa=400,dm=500,sp=600,px=1000"
   let r = @src.scop_parse_cla_line(line)
@@ -157,16 +172,19 @@ test "scop_parse_cla_line" {
   assert_eq(rec.hierarchy().get("px").unwrap(), 1000)
 }
 
+///|
 test "scop_parse_cla_line_comment" {
   let r = @src.scop_parse_cla_line("# comment line")
   assert_true(r.is_none())
 }
 
+///|
 test "scop_parse_cla_line_empty" {
   let r = @src.scop_parse_cla_line("")
   assert_true(r.is_none())
 }
 
+///|
 test "scop_parse_des_line" {
   let line = "1000\tpx\ta.1.1.1.1.1.1\td1hba_\t1hba Hemoglobin alpha chain"
   let r = @src.scop_parse_des_line(line)
@@ -177,6 +195,7 @@ test "scop_parse_des_line" {
   assert_eq(rec.name(), "d1hba_")
 }
 
+///|
 test "scop_parse_des_line_class" {
   let line = "100\tcl\ta\t-\tAll alpha proteins"
   let r = @src.scop_parse_des_line(line)
@@ -188,6 +207,7 @@ test "scop_parse_des_line_class" {
   assert_eq(rec.description(), "All alpha proteins")
 }
 
+///|
 test "scop_parse_hie_line" {
   let line = "600\t500\t1000,1001"
   let r = @src.scop_parse_hie_line(line)
@@ -198,6 +218,7 @@ test "scop_parse_hie_line" {
   assert_eq(rec.children().length(), 2)
 }
 
+///|
 test "scop_parse_hie_line_root" {
   let line = "0\t-\t100"
   let r = @src.scop_parse_hie_line(line)
@@ -208,6 +229,7 @@ test "scop_parse_hie_line_root" {
   assert_eq(rec.children().length(), 1)
 }
 
+///|
 test "scop_parse_hie_line_leaf" {
   let line = "1000\t600\t-"
   let r = @src.scop_parse_hie_line(line)
@@ -218,6 +240,7 @@ test "scop_parse_hie_line_leaf" {
   assert_eq(rec.children().length(), 0)
 }
 
+///|
 test "scop_parse_cla_multiple" {
   let content = @src.scop_sample_cla()
   let records = @src.scop_parse_cla(content)
@@ -226,6 +249,7 @@ test "scop_parse_cla_multiple" {
   assert_eq(records[1].sid(), "d1hbb_")
 }
 
+///|
 test "scop_parse_des_multiple" {
   let content = @src.scop_sample_des()
   let records = @src.scop_parse_des(content)
@@ -233,6 +257,7 @@ test "scop_parse_des_multiple" {
   assert_eq(records.length(), 9)
 }
 
+///|
 test "scop_parse_hie_multiple" {
   let content = @src.scop_sample_hie()
   let records = @src.scop_parse_hie(content)
@@ -243,6 +268,7 @@ test "scop_parse_hie_multiple" {
 // Scop hierarchy construction and queries
 // ---------------------------------------------------------------------------
 
+///|
 test "scop_build_hierarchy" {
   let cla = @src.scop_parse_cla(@src.scop_sample_cla())
   let des = @src.scop_parse_des(@src.scop_sample_des())
@@ -255,6 +281,7 @@ test "scop_build_hierarchy" {
   assert_eq(scop.get_domains().length(), 2)
 }
 
+///|
 test "scop_get_node_by_sunid" {
   let cla = @src.scop_parse_cla(@src.scop_sample_cla())
   let des = @src.scop_parse_des(@src.scop_sample_des())
@@ -269,6 +296,7 @@ test "scop_get_node_by_sunid" {
   assert_true(none.is_none())
 }
 
+///|
 test "scop_get_domain_by_sid" {
   let cla = @src.scop_parse_cla(@src.scop_sample_cla())
   let des = @src.scop_parse_des(@src.scop_sample_des())
@@ -285,6 +313,7 @@ test "scop_get_domain_by_sid" {
   assert_true(none.is_none())
 }
 
+///|
 test "scop_get_parent" {
   let cla = @src.scop_parse_cla(@src.scop_sample_cla())
   let des = @src.scop_parse_des(@src.scop_sample_des())
@@ -301,6 +330,7 @@ test "scop_get_parent" {
   assert_true(root_parent.is_none())
 }
 
+///|
 test "scop_get_children" {
   let cla = @src.scop_parse_cla(@src.scop_sample_cla())
   let des = @src.scop_parse_des(@src.scop_sample_des())
@@ -317,6 +347,7 @@ test "scop_get_children" {
   assert_eq(scop.get_children(leaf).length(), 0)
 }
 
+///|
 test "scop_get_ascendent_by_code" {
   let cla = @src.scop_parse_cla(@src.scop_sample_cla())
   let des = @src.scop_parse_des(@src.scop_sample_des())
@@ -334,6 +365,7 @@ test "scop_get_ascendent_by_code" {
   assert_eq(fa.unwrap().sunid(), 400)
 }
 
+///|
 test "scop_get_ascendent_by_long_name" {
   let cla = @src.scop_parse_cla(@src.scop_sample_cla())
   let des = @src.scop_parse_des(@src.scop_sample_des())
@@ -347,6 +379,7 @@ test "scop_get_ascendent_by_long_name" {
   assert_eq(fold.unwrap().description(), "Globin-like")
 }
 
+///|
 test "scop_get_descendents" {
   let cla = @src.scop_parse_cla(@src.scop_sample_cla())
   let des = @src.scop_parse_des(@src.scop_sample_des())
@@ -365,6 +398,7 @@ test "scop_get_descendents" {
   assert_eq(families[0].sunid(), 400)
 }
 
+///|
 test "scop_get_descendents_long_name" {
   let cla = @src.scop_parse_cla(@src.scop_sample_cla())
   let des = @src.scop_parse_des(@src.scop_sample_des())
@@ -374,6 +408,7 @@ test "scop_get_descendents_long_name" {
   assert_eq(domains.length(), 2)
 }
 
+///|
 test "scop_node_is_domain" {
   let cla = @src.scop_parse_cla(@src.scop_sample_cla())
   let des = @src.scop_parse_des(@src.scop_sample_des())
@@ -389,27 +424,32 @@ test "scop_node_is_domain" {
 // SCCS comparison
 // ---------------------------------------------------------------------------
 
+///|
 test "scop_cmp_sccs_equal" {
   assert_eq(@src.scop_cmp_sccs("a.1.1.1", "a.1.1.1"), 0)
 }
 
+///|
 test "scop_cmp_sccs_letter_diff" {
   assert_true(@src.scop_cmp_sccs("a.1.1.1", "b.1.1.1") < 0)
   assert_true(@src.scop_cmp_sccs("b.1.1.1", "a.1.1.1") > 0)
 }
 
+///|
 test "scop_cmp_sccs_numeric_diff" {
   assert_true(@src.scop_cmp_sccs("a.1.1.1", "a.1.1.2") < 0)
   assert_true(@src.scop_cmp_sccs("a.1.1.2", "a.1.1.1") > 0)
   assert_true(@src.scop_cmp_sccs("a.1.1.1", "a.1.2.1") < 0)
 }
 
+///|
 test "scop_cmp_sccs_length_diff" {
   // Shorter prefix sorts first when all compared components are equal
   assert_true(@src.scop_cmp_sccs("a.1", "a.1.1") < 0)
   assert_true(@src.scop_cmp_sccs("a.1.1", "a.1") > 0)
 }
 
+///|
 test "scop_cmp_sccs_numeric_not_lexical" {
   // Numerically, 2 < 11, so a.1.2 < a.1.11 (NOT lexical where "2" > "11")
   assert_true(@src.scop_cmp_sccs("a.1.2", "a.1.11") < 0)
@@ -420,6 +460,7 @@ test "scop_cmp_sccs_numeric_not_lexical" {
 // Serialization
 // ---------------------------------------------------------------------------
 
+///|
 test "scop_write_hie" {
   let cla = @src.scop_parse_cla(@src.scop_sample_cla())
   let des = @src.scop_parse_des(@src.scop_sample_des())
@@ -432,6 +473,7 @@ test "scop_write_hie" {
   assert_true(output.contains("1000\t600\t-"))
 }
 
+///|
 test "scop_write_des" {
   let cla = @src.scop_parse_cla(@src.scop_sample_cla())
   let des = @src.scop_parse_des(@src.scop_sample_des())
@@ -442,6 +484,7 @@ test "scop_write_des" {
   assert_true(output.contains("d1hba_"))
 }
 
+///|
 test "scop_write_cla" {
   let cla = @src.scop_parse_cla(@src.scop_sample_cla())
   let des = @src.scop_parse_des(@src.scop_sample_des())
@@ -457,6 +500,7 @@ test "scop_write_cla" {
 // Empty Scop
 // ---------------------------------------------------------------------------
 
+///|
 test "scop_empty" {
   let scop = @src.scop_empty()
   assert_eq(scop.root().sunid(), 0)

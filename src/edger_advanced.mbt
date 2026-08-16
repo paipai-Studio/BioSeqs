@@ -116,8 +116,18 @@ pub fn glm_qlf_fit(dge : DGEList) -> QLFData {
     // QL dispersion = deviance / residual_df
     let residual_df = n_samples - n_coef
     let ql_disp = if residual_df > 0 {
-      let d = if deviance.is_nan() || deviance.abs() > 1.0e300 { 1.0 } else { deviance / residual_df.to_double() }
-      if d < 0.0 { 0.001 } else if d > 100.0 { 100.0 } else { d }
+      let d = if deviance.is_nan() || deviance.abs() > 1.0e300 {
+        1.0
+      } else {
+        deviance / residual_df.to_double()
+      }
+      if d < 0.0 {
+        0.001
+      } else if d > 100.0 {
+        100.0
+      } else {
+        d
+      }
     } else {
       1.0
     }
@@ -154,10 +164,18 @@ pub fn glm_qlf_fit(dge : DGEList) -> QLFData {
   let residual_df = (n_samples - n_coef).to_double()
   let shrunk_ql_disp : Array[Double] = Array::new()
   for i = 0; i < n_genes; i = i + 1 {
-    let raw = if raw_ql_disp[i].is_nan() || raw_ql_disp[i].abs() > 1.0e300 { 1.0 } else { raw_ql_disp[i] }
+    let raw = if raw_ql_disp[i].is_nan() || raw_ql_disp[i].abs() > 1.0e300 {
+      1.0
+    } else {
+      raw_ql_disp[i]
+    }
     let shrunk = (residual_df * raw + prior_df * trend) /
       (residual_df + prior_df)
-    let shrunk_safe = if shrunk.is_nan() || shrunk.abs() > 1.0e300 { 1.0 } else { shrunk }
+    let shrunk_safe = if shrunk.is_nan() || shrunk.abs() > 1.0e300 {
+      1.0
+    } else {
+      shrunk
+    }
     shrunk_ql_disp.push(if shrunk_safe < 0.001 { 0.001 } else { shrunk_safe })
   }
 
@@ -192,11 +210,7 @@ fn fit_nb_glm(
     total = total + counts[j].to_double()
   }
   let mean_count = total / n_samples.to_double()
-  let init_log_mu = if mean_count > 0.0 {
-    @math.ln(mean_count)
-  } else {
-    0.0
-  }
+  let init_log_mu = if mean_count > 0.0 { @math.ln(mean_count) } else { 0.0 }
   for k = 0; k < n_coef; k = k + 1 {
     coefs[k] = if k == 0 { init_log_mu } else { 0.0 }
   }
@@ -217,8 +231,12 @@ fn fit_nb_glm(
         eta = eta + design[j][k] * coefs[k]
       }
       // Cap eta to prevent overflow in exp()
-      if eta > 500.0 { eta = 500.0 }
-      if eta < -500.0 { eta = -500.0 }
+      if eta > 500.0 {
+        eta = 500.0
+      }
+      if eta < -500.0 {
+        eta = -500.0
+      }
       let exp_eta = @math.exp(eta)
       if exp_eta.is_nan() || exp_eta.abs() > 1.0e300 {
         fitted[j] = 1000000.0
@@ -277,7 +295,9 @@ fn fit_nb_glm(
     let y = counts[j].to_double()
     let mu = fitted[j]
     if y > 0.0 && mu > 0.0 && !mu.is_nan() && mu.abs() <= 1.0e300 {
-      let term = y * @math.ln(y / mu) - (y + 1.0 / nb_disp) * @math.ln((1.0 + nb_disp * y) / (1.0 + nb_disp * mu))
+      let term = y * @math.ln(y / mu) -
+        (y + 1.0 / nb_disp) *
+        @math.ln((1.0 + nb_disp * y) / (1.0 + nb_disp * mu))
       let contrib = 2.0 * term
       if contrib.is_nan() || contrib < 0.0 {
         // Numerical issues, use a small positive value
@@ -410,17 +430,32 @@ pub fn glm_qlf_test(qlf_data : QLFData, coef? : Int = 1) -> QLFResult {
       if mu > 0.0 && !mu.is_nan() && mu.abs() <= 1.0e300 {
         let w = mu / (1.0 + ql * mu)
         // Design matrix: [1, x_j]
-        let x_coef = if coef == 0 { 1.0 } else { if qlf_data.group[j] == qlf_data.group[0] { 0.0 } else { 1.0 } }
+        let x_coef = if coef == 0 {
+          1.0
+        } else if qlf_data.group[j] == qlf_data.group[0] {
+          0.0
+        } else {
+          1.0
+        }
         info_coef = info_coef + w * x_coef * x_coef
       }
     }
 
     let var_beta = if info_coef > 0.0 { 1.0 / info_coef } else { 1.0 }
-    let f = if ql.is_nan() || ql.abs() > 1.0e300 || var_beta.is_nan() || var_beta.abs() > 1.0e300 || beta.is_nan() || beta.abs() > 1.0e300 {
+    let f = if ql.is_nan() ||
+      ql.abs() > 1.0e300 ||
+      var_beta.is_nan() ||
+      var_beta.abs() > 1.0e300 ||
+      beta.is_nan() ||
+      beta.abs() > 1.0e300 {
       0.0
     } else if ql * var_beta > 0.0 {
       let f_raw = beta * beta / (ql * var_beta)
-      if f_raw.is_nan() || f_raw.abs() > 1.0e300 { 0.0 } else { f_raw }
+      if f_raw.is_nan() || f_raw.abs() > 1.0e300 {
+        0.0
+      } else {
+        f_raw
+      }
     } else {
       0.0
     }
@@ -468,7 +503,13 @@ fn f_distribution_pvalue(f : Double, df1 : Int, df2 : Int) -> Double {
   let b = df1.to_double() / 2.0
 
   let p = regularized_incomplete_beta(x, a, b)
-  if p < 0.0 { 0.0 } else if p > 1.0 { 1.0 } else { p }
+  if p < 0.0 {
+    0.0
+  } else if p > 1.0 {
+    1.0
+  } else {
+    p
+  }
 }
 
 ///|
@@ -516,7 +557,10 @@ fn edger_betacf(x : Double, a : Double, b : Double) -> Double {
   let mut m = 1
   while m <= max_iter {
     let m2 = 2 * m
-    let aa = m.to_double() * (m.to_double() - qam) * x / ((qam + m2.to_double()) * (a + m2.to_double()))
+    let aa = m.to_double() *
+      (m.to_double() - qam) *
+      x /
+      ((qam + m2.to_double()) * (a + m2.to_double()))
     d = 1.0 + aa * d
     if d.abs() < eps {
       d = eps
@@ -528,7 +572,10 @@ fn edger_betacf(x : Double, a : Double, b : Double) -> Double {
     d = 1.0 / d
     h = h * d * c
 
-    let aa2 = -(a + m.to_double()) * (qab + m.to_double()) * x / ((a + m2.to_double()) * (qap + m2.to_double()))
+    let aa2 = -(a + m.to_double()) *
+      (qab + m.to_double()) *
+      x /
+      ((a + m2.to_double()) * (qap + m2.to_double()))
     d = 1.0 + aa2 * d
     if d.abs() < eps {
       d = eps
@@ -580,20 +627,15 @@ fn edger_sin(x : Double) -> Double {
 fn log_gamma(x : Double) -> Double {
   if x < 0.5 {
     // Use reflection formula: Gamma(x)Gamma(1-x) = pi/sin(pi*x)
-    return @math.ln(3.141592653589793 / edger_sin(3.141592653589793 * x)) - log_gamma(1.0 - x)
+    return @math.ln(3.141592653589793 / edger_sin(3.141592653589793 * x)) -
+      log_gamma(1.0 - x)
   }
 
   let g = 7.0
   // Lanczos coefficients
   let c = [
-    0.99999999999980993,
-    676.5203681218851,
-    -1259.1392167224028,
-    771.32342877765313,
-    -176.61502916214059,
-    12.507343278686905,
-    -0.13857109526572012,
-    9.9843695780195716e-6,
+    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
     1.5056327351493116e-7,
   ]
 
@@ -606,7 +648,10 @@ fn log_gamma(x : Double) -> Double {
     i = i + 1
   }
 
-  0.5 * @math.ln(2.0 * 3.141592653589793) + (y + 0.5) * @math.ln(tmp) - tmp + @math.ln(sum)
+  0.5 * @math.ln(2.0 * 3.141592653589793) +
+  (y + 0.5) * @math.ln(tmp) -
+  tmp +
+  @math.ln(sum)
 }
 
 ///|
@@ -769,16 +814,13 @@ pub fn camera(
   let n_unset = unset_stats.length()
 
   // Camera statistic: two-sample t-test comparing set vs unset
-  let pooled_var = ((n_set - 1).to_double() * set_var +
-    (n_unset - 1).to_double() * unset_var) /
+  let pooled_var = (
+      (n_set - 1).to_double() * set_var + (n_unset - 1).to_double() * unset_var
+    ) /
     (n_set + n_unset - 2).to_double()
 
   let se = (pooled_var * (1.0 / n_set.to_double() + 1.0 / n_unset.to_double())).sqrt()
-  let t_stat = if se > 0.0 {
-    (set_mean - unset_mean) / se
-  } else {
-    0.0
-  }
+  let t_stat = if se > 0.0 { (set_mean - unset_mean) / se } else { 0.0 }
 
   // Two-sided p-value from t-distribution (approximate using normal)
   let p_val = 2.0 * (1.0 - edger_normal_cdf(t_stat.abs()))
@@ -827,7 +869,8 @@ pub fn roast(
   // Z-score
   let n_set = set_stats.length()
   let z = if n_set > 0 {
-    (mean_stat - expected_mean) / (expected_mean * 2.0 / n_set.to_double()).sqrt()
+    (mean_stat - expected_mean) /
+    (expected_mean * 2.0 / n_set.to_double()).sqrt()
   } else {
     0.0
   }
@@ -849,9 +892,18 @@ fn edger_normal_cdf(x : Double) -> Double {
 /// Error function (Abramowitz and Stegun approximation).
 fn erf(x : Double) -> Double {
   let t = 1.0 / (1.0 + 0.3275911 * x.abs())
-  let poly = t * (0.254829592 + t * (-0.284496736 + t * (1.421413741 + t * (-1.453152027 + t * 1.061405429))))
+  let poly = t *
+    (
+      0.254829592 +
+      t *
+      (-0.284496736 + t * (1.421413741 + t * (-1.453152027 + t * 1.061405429)))
+    )
   let result = 1.0 - poly * @math.exp(-x * x)
-  if x >= 0.0 { result } else { -result }
+  if x >= 0.0 {
+    result
+  } else {
+    -result
+  }
 }
 
 ///|
@@ -912,7 +964,14 @@ pub fn qlf_top_genes(
   let top : Array[(String, Double, Double, Double)] = Array::new()
   for i = 0; i < actual_n; i = i + 1 {
     let idx = indices[i]
-    top.push((result.genes[idx], result.log_fc[idx], result.f_stat[idx], result.fdr[idx]))
+    top.push(
+      (
+        result.genes[idx],
+        result.log_fc[idx],
+        result.f_stat[idx],
+        result.fdr[idx],
+      ),
+    )
   }
   top
 }

@@ -68,7 +68,12 @@ pub struct PhenControlSubtracted {
 
 ///|
 /// Create a new WellRecord.
-pub fn WellRecord::new(well_id : String, plate_id : String, times : Array[Double], signals : Array[Double]) -> WellRecord {
+pub fn WellRecord::new(
+  well_id : String,
+  plate_id : String,
+  times : Array[Double],
+  signals : Array[Double],
+) -> WellRecord {
   WellRecord::{ well_id, plate_id, times, signals }
 }
 
@@ -93,7 +98,11 @@ pub fn WellRecord::phen_get_time(self : WellRecord, idx : Int) -> Double {
 ///|
 /// Get maximum signal value.
 pub fn WellRecord::phen_max_signal(self : WellRecord) -> Double {
-  let mut max_val = if self.signals.length() > 0 { self.signals[0] } else { 0.0 }
+  let mut max_val = if self.signals.length() > 0 {
+    self.signals[0]
+  } else {
+    0.0
+  }
   let mut i = 1
   while i < self.signals.length() {
     if self.signals[i] > max_val {
@@ -107,7 +116,11 @@ pub fn WellRecord::phen_max_signal(self : WellRecord) -> Double {
 ///|
 /// Get minimum signal value.
 pub fn WellRecord::phen_min_signal(self : WellRecord) -> Double {
-  let mut min_val = if self.signals.length() > 0 { self.signals[0] } else { 0.0 }
+  let mut min_val = if self.signals.length() > 0 {
+    self.signals[0]
+  } else {
+    0.0
+  }
   let mut i = 1
   while i < self.signals.length() {
     if self.signals[i] < min_val {
@@ -147,7 +160,11 @@ pub fn WellRecord::phen_max_slope(self : WellRecord) -> Double {
   let mut i = 1
   while i < n {
     let dt = self.times[i] - self.times[i - 1]
-    let local_slope = if dt > 0.0 { (self.signals[i] - self.signals[i - 1]) / dt } else { 0.0 }
+    let local_slope = if dt > 0.0 {
+      (self.signals[i] - self.signals[i - 1]) / dt
+    } else {
+      0.0
+    }
     if local_slope > max_slope {
       max_slope = local_slope
     }
@@ -160,13 +177,19 @@ pub fn WellRecord::phen_max_slope(self : WellRecord) -> Double {
 
 ///|
 /// Create a new PlateRecord.
-pub fn PlateRecord::new(plate_id : String, times : Array[Double]) -> PlateRecord {
+pub fn PlateRecord::new(
+  plate_id : String,
+  times : Array[Double],
+) -> PlateRecord {
   PlateRecord::{ plate_id, wells: Array::new(), times }
 }
 
 ///|
 /// Add a well to the plate.
-pub fn PlateRecord::phen_add_well(self : PlateRecord, well : WellRecord) -> PlateRecord {
+pub fn PlateRecord::phen_add_well(
+  self : PlateRecord,
+  well : WellRecord,
+) -> PlateRecord {
   let new_wells = self.wells.copy()
   new_wells.push(well)
   PlateRecord::{ plate_id: self.plate_id, wells: new_wells, times: self.times }
@@ -180,7 +203,10 @@ pub fn PlateRecord::phen_n_wells(self : PlateRecord) -> Int {
 
 ///|
 /// Get a well by well_id (returns Option).
-pub fn PlateRecord::phen_get_well(self : PlateRecord, well_id : String) -> WellRecord? {
+pub fn PlateRecord::phen_get_well(
+  self : PlateRecord,
+  well_id : String,
+) -> WellRecord? {
   let mut found : WellRecord? = None
   let mut i = 0
   while i < self.wells.length() {
@@ -195,7 +221,10 @@ pub fn PlateRecord::phen_get_well(self : PlateRecord, well_id : String) -> WellR
 
 ///|
 /// Get a well at an index.
-pub fn PlateRecord::phen_get_well_at(self : PlateRecord, idx : Int) -> WellRecord {
+pub fn PlateRecord::phen_get_well_at(
+  self : PlateRecord,
+  idx : Int,
+) -> WellRecord {
   self.wells[idx]
 }
 
@@ -207,7 +236,10 @@ pub fn PlateRecord::phen_n_times(self : PlateRecord) -> Int {
 
 ///|
 /// Get mean signal across all wells at a time index.
-pub fn PlateRecord::phen_mean_signal_at(self : PlateRecord, time_idx : Int) -> Double {
+pub fn PlateRecord::phen_mean_signal_at(
+  self : PlateRecord,
+  time_idx : Int,
+) -> Double {
   if self.wells.length() == 0 {
     return 0.0
   }
@@ -240,7 +272,11 @@ fn phen_estimate_initial(well : WellRecord) -> (Double, Double, Double, Double) 
   let mut i = 1
   while i < n {
     let dt = well.times[i] - well.times[i - 1]
-    let local_slope = if dt > 0.0 { (well.signals[i] - well.signals[i - 1]) / dt } else { 0.0 }
+    let local_slope = if dt > 0.0 {
+      (well.signals[i] - well.signals[i - 1]) / dt
+    } else {
+      0.0
+    }
     if local_slope > max_slope_val {
       max_slope_val = local_slope
       inflection = well.times[i]
@@ -253,7 +289,13 @@ fn phen_estimate_initial(well : WellRecord) -> (Double, Double, Double, Double) 
 ///|
 /// Logistic model: L / (1 + exp(-k * (t - t0))) + offset.
 /// L = asymptote, k = growth rate, t0 = inflection, offset = initial.
-fn phen_logistic_model(t : Double, asymptote : Double, slope : Double, inflection : Double, initial : Double) -> Double {
+fn phen_logistic_model(
+  t : Double,
+  asymptote : Double,
+  slope : Double,
+  inflection : Double,
+  initial : Double,
+) -> Double {
   // f(t) = initial + (asymptote - initial) / (1 + exp(-slope * (t - inflection)))
   let exponent = -slope * (t - inflection)
   let denom = 1.0 + phen_safe_exp(exponent)
@@ -262,7 +304,13 @@ fn phen_logistic_model(t : Double, asymptote : Double, slope : Double, inflectio
 
 ///|
 /// Gompertz model: initial + (asymptote - initial) * exp(-exp(-slope * (t - inflection))).
-fn phen_gompertz_model(t : Double, asymptote : Double, slope : Double, inflection : Double, initial : Double) -> Double {
+fn phen_gompertz_model(
+  t : Double,
+  asymptote : Double,
+  slope : Double,
+  inflection : Double,
+  initial : Double,
+) -> Double {
   let inner = -slope * (t - inflection)
   let outer = -phen_safe_exp(inner)
   initial + (asymptote - initial) * phen_safe_exp(outer)
@@ -283,14 +331,34 @@ fn phen_safe_exp(x : Double) -> Double {
 ///|
 /// Compute logistic curve fit using simplified grid search around estimates.
 pub fn phen_fit_logistic(well : WellRecord) -> PhenFitParams {
-  let (initial, plateau, slope_est, inflection_est) = phen_estimate_initial(well)
+  let (initial, plateau, slope_est, inflection_est) = phen_estimate_initial(
+    well,
+  )
   let asymptote = plateau
   // Refine inflection and slope via coarse grid search
   let mut best_rss = 1.0e300
   let mut best_slope = slope_est
   let mut best_inflection = inflection_est
-  let slope_candidates = [slope_est * 0.5, slope_est, slope_est * 1.5, slope_est * 2.0, 0.1, 0.5, 1.0]
-  let infl_candidates = [inflection_est - 5.0, inflection_est - 2.0, inflection_est, inflection_est + 2.0, inflection_est + 5.0, 0.0, 5.0, 10.0, 15.0]
+  let slope_candidates = [
+    slope_est * 0.5,
+    slope_est,
+    slope_est * 1.5,
+    slope_est * 2.0,
+    0.1,
+    0.5,
+    1.0,
+  ]
+  let infl_candidates = [
+    inflection_est - 5.0,
+    inflection_est - 2.0,
+    inflection_est,
+    inflection_est + 2.0,
+    inflection_est + 5.0,
+    0.0,
+    5.0,
+    10.0,
+    15.0,
+  ]
   let mut si = 0
   while si < slope_candidates.length() {
     let mut ii = 0
@@ -300,7 +368,13 @@ pub fn phen_fit_logistic(well : WellRecord) -> PhenFitParams {
       let mut rss = 0.0
       let mut k = 0
       while k < well.times.length() {
-        let pred = phen_logistic_model(well.times[k], asymptote, s, infl, initial)
+        let pred = phen_logistic_model(
+          well.times[k],
+          asymptote,
+          s,
+          infl,
+          initial,
+        )
         let diff = well.signals[k] - pred
         rss = rss + diff * diff
         k = k + 1
@@ -315,7 +389,11 @@ pub fn phen_fit_logistic(well : WellRecord) -> PhenFitParams {
     si = si + 1
   }
   // Lag time estimate: inflection - 1/slope
-  let lag_time = if best_slope > 0.0 { best_inflection - 1.0 / best_slope } else { 0.0 }
+  let lag_time = if best_slope > 0.0 {
+    best_inflection - 1.0 / best_slope
+  } else {
+    0.0
+  }
   let lag_clamped = if lag_time < 0.0 { 0.0 } else { lag_time }
   // R-squared
   let mean_y = phen_mean(well.signals)
@@ -331,20 +409,40 @@ pub fn phen_fit_logistic(well : WellRecord) -> PhenFitParams {
     initial,
     model: "logistic",
     rss: best_rss,
-    r_squared: r_sq_clamped
+    r_squared: r_sq_clamped,
   }
 }
 
 ///|
 /// Compute Gompertz curve fit using simplified grid search.
 pub fn phen_fit_gompertz(well : WellRecord) -> PhenFitParams {
-  let (initial, plateau, slope_est, inflection_est) = phen_estimate_initial(well)
+  let (initial, plateau, slope_est, inflection_est) = phen_estimate_initial(
+    well,
+  )
   let asymptote = plateau
   let mut best_rss = 1.0e300
   let mut best_slope = slope_est
   let mut best_inflection = inflection_est
-  let slope_candidates = [slope_est * 0.5, slope_est, slope_est * 1.5, slope_est * 2.0, 0.1, 0.5, 1.0]
-  let infl_candidates = [inflection_est - 5.0, inflection_est - 2.0, inflection_est, inflection_est + 2.0, inflection_est + 5.0, 0.0, 5.0, 10.0, 15.0]
+  let slope_candidates = [
+    slope_est * 0.5,
+    slope_est,
+    slope_est * 1.5,
+    slope_est * 2.0,
+    0.1,
+    0.5,
+    1.0,
+  ]
+  let infl_candidates = [
+    inflection_est - 5.0,
+    inflection_est - 2.0,
+    inflection_est,
+    inflection_est + 2.0,
+    inflection_est + 5.0,
+    0.0,
+    5.0,
+    10.0,
+    15.0,
+  ]
   let mut si = 0
   while si < slope_candidates.length() {
     let mut ii = 0
@@ -354,7 +452,13 @@ pub fn phen_fit_gompertz(well : WellRecord) -> PhenFitParams {
       let mut rss = 0.0
       let mut k = 0
       while k < well.times.length() {
-        let pred = phen_gompertz_model(well.times[k], asymptote, s, infl, initial)
+        let pred = phen_gompertz_model(
+          well.times[k],
+          asymptote,
+          s,
+          infl,
+          initial,
+        )
         let diff = well.signals[k] - pred
         rss = rss + diff * diff
         k = k + 1
@@ -368,7 +472,11 @@ pub fn phen_fit_gompertz(well : WellRecord) -> PhenFitParams {
     }
     si = si + 1
   }
-  let lag_time = if best_slope > 0.0 { best_inflection - 1.0 / best_slope } else { 0.0 }
+  let lag_time = if best_slope > 0.0 {
+    best_inflection - 1.0 / best_slope
+  } else {
+    0.0
+  }
   let lag_clamped = if lag_time < 0.0 { 0.0 } else { lag_time }
   let mean_y = phen_mean(well.signals)
   let ss_tot = phen_sum_sq(well.signals, mean_y)
@@ -383,7 +491,7 @@ pub fn phen_fit_gompertz(well : WellRecord) -> PhenFitParams {
     initial,
     model: "gompertz",
     rss: best_rss,
-    r_squared: r_sq_clamped
+    r_squared: r_sq_clamped,
   }
 }
 
@@ -417,14 +525,29 @@ fn phen_sum_sq(arr : Array[Double], center : Double) -> Double {
 
 ///|
 /// Compute predicted values from a fitted model.
-pub fn phen_predict(fit : PhenFitParams, times : Array[Double]) -> Array[Double] {
+pub fn phen_predict(
+  fit : PhenFitParams,
+  times : Array[Double],
+) -> Array[Double] {
   let preds : Array[Double] = Array::new()
   let mut i = 0
   while i < times.length() {
     let pred = if fit.model == "logistic" {
-      phen_logistic_model(times[i], fit.asymptote, fit.slope, fit.inflection, fit.initial)
+      phen_logistic_model(
+        times[i],
+        fit.asymptote,
+        fit.slope,
+        fit.inflection,
+        fit.initial,
+      )
     } else if fit.model == "gompertz" {
-      phen_gompertz_model(times[i], fit.asymptote, fit.slope, fit.inflection, fit.initial)
+      phen_gompertz_model(
+        times[i],
+        fit.asymptote,
+        fit.slope,
+        fit.inflection,
+        fit.initial,
+      )
     } else {
       fit.asymptote
     }
@@ -438,7 +561,10 @@ pub fn phen_predict(fit : PhenFitParams, times : Array[Double]) -> Array[Double]
 
 ///|
 /// Subtract control well signals from sample wells.
-pub fn phen_subtract_control(plate : PlateRecord, control_well_id : String) -> PhenControlSubtracted {
+pub fn phen_subtract_control(
+  plate : PlateRecord,
+  control_well_id : String,
+) -> PhenControlSubtracted {
   let control_opt = plate.phen_get_well(control_well_id)
   let well_ids : Array[String] = Array::new()
   let signals : Array[Array[Double]] = Array::new()
@@ -454,7 +580,11 @@ pub fn phen_subtract_control(plate : PlateRecord, control_well_id : String) -> P
       let sub : Array[Double] = Array::new()
       let mut j = 0
       while j < w.signals.length() {
-        let ctrl = if j < control_signals.length() { control_signals[j] } else { 0.0 }
+        let ctrl = if j < control_signals.length() {
+          control_signals[j]
+        } else {
+          0.0
+        }
         let v = w.signals[j] - ctrl
         sub.push(v)
         j = j + 1
@@ -505,13 +635,23 @@ pub fn phen_parse_csv(csv_text : String) -> PlateRecord {
         new_times.push(t)
         let new_signals = w.signals.copy()
         new_signals.push(s)
-        well_map.set(wid, WellRecord::{ well_id: wid, plate_id: pid, times: new_times, signals: new_signals })
+        well_map.set(wid, WellRecord::{
+          well_id: wid,
+          plate_id: pid,
+          times: new_times,
+          signals: new_signals,
+        })
       } else {
         let new_times : Array[Double] = Array::new()
         new_times.push(t)
         let new_signals : Array[Double] = Array::new()
         new_signals.push(s)
-        well_map.set(wid, WellRecord::{ well_id: wid, plate_id: pid, times: new_times, signals: new_signals })
+        well_map.set(wid, WellRecord::{
+          well_id: wid,
+          plate_id: pid,
+          times: new_times,
+          signals: new_signals,
+        })
       }
       times_collected.push(t)
     }
@@ -634,7 +774,12 @@ fn phen_json_extract_wells(json : String) -> Array[WellRecord] {
       let sigs = phen_json_extract_double_array(obj_str, "signals")
       let pid = phen_json_extract_string(json, "plate")
       let times = phen_json_extract_double_array(json, "times")
-      wells.push(WellRecord::{ well_id: wid, plate_id: pid, times, signals: sigs })
+      wells.push(WellRecord::{
+        well_id: wid,
+        plate_id: pid,
+        times,
+        signals: sigs,
+      })
     }
     if json[pos] == ']' {
       depth = depth - 1
@@ -677,7 +822,11 @@ fn phen_parse_double(s : String) -> Double {
     i = i + 1
   }
   let v = int_part + frac_part
-  if neg { -v } else { v }
+  if neg {
+    -v
+  } else {
+    v
+  }
 }
 
 ///|
@@ -699,7 +848,8 @@ fn phen_dedup_sort(arr : Array[Double]) -> Array[Double] {
   let result : Array[Double] = Array::new()
   let mut k = 0
   while k < sorted.length() {
-    if result.length() == 0 || (result[result.length() - 1] - sorted[k]).abs() > 1.0e-9 {
+    if result.length() == 0 ||
+      (result[result.length() - 1] - sorted[k]).abs() > 1.0e-9 {
       result.push(sorted[k])
     }
     k = k + 1
@@ -730,20 +880,38 @@ fn phen_sort_well_ids(ids : Array[String]) -> Array[String] {
 ///|
 /// Create a small example plate with growth curves.
 pub fn phen_create_example_plate() -> PlateRecord {
-  let times = [0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0]
+  let times = [
+    0.0, 2.0, 4.0, 6.0, 8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0,
+  ]
   let mut plate = PlateRecord::new("ExamplePlate", times)
   // Well A01 - control
-  let a01_signals = [0.05, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-  plate = plate.phen_add_well(WellRecord::new("A01", "ExamplePlate", times, a01_signals))
+  let a01_signals = [
+    0.05, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,
+  ]
+  plate = plate.phen_add_well(
+    WellRecord::new("A01", "ExamplePlate", times, a01_signals),
+  )
   // Well A02 - growing culture
-  let a02_signals = [0.05, 0.06, 0.08, 0.12, 0.2, 0.35, 0.55, 0.75, 0.9, 0.97, 0.99, 1.0, 1.0]
-  plate = plate.phen_add_well(WellRecord::new("A02", "ExamplePlate", times, a02_signals))
+  let a02_signals = [
+    0.05, 0.06, 0.08, 0.12, 0.2, 0.35, 0.55, 0.75, 0.9, 0.97, 0.99, 1.0, 1.0,
+  ]
+  plate = plate.phen_add_well(
+    WellRecord::new("A02", "ExamplePlate", times, a02_signals),
+  )
   // Well A03 - another growing culture
-  let a03_signals = [0.04, 0.05, 0.06, 0.08, 0.12, 0.2, 0.32, 0.5, 0.7, 0.85, 0.93, 0.97, 0.99]
-  plate = plate.phen_add_well(WellRecord::new("A03", "ExamplePlate", times, a03_signals))
+  let a03_signals = [
+    0.04, 0.05, 0.06, 0.08, 0.12, 0.2, 0.32, 0.5, 0.7, 0.85, 0.93, 0.97, 0.99,
+  ]
+  plate = plate.phen_add_well(
+    WellRecord::new("A03", "ExamplePlate", times, a03_signals),
+  )
   // Well B01 - slow growth
-  let b01_signals = [0.05, 0.05, 0.05, 0.06, 0.07, 0.09, 0.12, 0.17, 0.25, 0.35, 0.48, 0.6, 0.72]
-  plate = plate.phen_add_well(WellRecord::new("B01", "ExamplePlate", times, b01_signals))
+  let b01_signals = [
+    0.05, 0.05, 0.05, 0.06, 0.07, 0.09, 0.12, 0.17, 0.25, 0.35, 0.48, 0.6, 0.72,
+  ]
+  plate = plate.phen_add_well(
+    WellRecord::new("B01", "ExamplePlate", times, b01_signals),
+  )
   plate
 }
 

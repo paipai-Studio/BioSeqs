@@ -87,14 +87,14 @@ pub struct MmtfAtom {
 pub fn MmtfAtom::new(
   name~ : String,
   serial~ : Int,
-  alt_loc_id~ : String = "",
+  alt_loc_id? : String = "",
   x~ : Double,
   y~ : Double,
   z~ : Double,
-  occupancy~ : Double = 1.0,
-  b_factor~ : Double = 0.0,
-  element~ : String = "",
-  charge~ : Int = 0,
+  occupancy? : Double = 1.0,
+  b_factor? : Double = 0.0,
+  element? : String = "",
+  charge? : Int = 0,
 ) -> MmtfAtom {
   MmtfAtom::{
     name,
@@ -128,11 +128,11 @@ pub struct MmtfGroup {
 pub fn MmtfGroup::new(
   group_name~ : String,
   group_number~ : Int,
-  insertion_code~ : String = "",
-  group_type~ : String = "",
-  single_letter_code~ : String = "",
-  sec_struct~ : MmtfSecStruct = MmtfSecUndefined,
-  sequence_index~ : Int = -1,
+  insertion_code? : String = "",
+  group_type? : String = "",
+  single_letter_code? : String = "",
+  sec_struct? : MmtfSecStruct = MmtfSecUndefined,
+  sequence_index? : Int = -1,
 ) -> MmtfGroup {
   MmtfGroup::{
     group_name,
@@ -175,8 +175,8 @@ pub struct MmtfChain {
 ///|
 /// Construct an MmtfChain.
 pub fn MmtfChain::new(
-  chain_id~ : String = "",
-  chain_name~ : String = "",
+  chain_id? : String = "",
+  chain_name? : String = "",
 ) -> MmtfChain {
   MmtfChain::{ chain_id, chain_name, groups: [] }
 }
@@ -208,7 +208,7 @@ pub struct MmtfModel {
 
 ///|
 /// Construct an MmtfModel.
-pub fn MmtfModel::new(model_id~ : Int = 0) -> MmtfModel {
+pub fn MmtfModel::new(model_id? : Int = 0) -> MmtfModel {
   MmtfModel::{ model_id, chains: [] }
 }
 
@@ -276,17 +276,12 @@ pub struct MmtfEntity {
 ///|
 /// Construct an MmtfEntity.
 pub fn MmtfEntity::new(
-  chain_indices~ : Array[Int] = [],
-  sequence~ : String = "",
-  description~ : String = "",
-  entity_type~ : MmtfEntityType = MmtfEntityUndefined,
+  chain_indices? : Array[Int] = [],
+  sequence? : String = "",
+  description? : String = "",
+  entity_type? : MmtfEntityType = MmtfEntityUndefined,
 ) -> MmtfEntity {
-  MmtfEntity::{
-    chain_indices,
-    sequence,
-    description,
-    entity_type,
-  }
+  MmtfEntity::{ chain_indices, sequence, description, entity_type }
 }
 
 ///|
@@ -325,10 +320,7 @@ pub struct MmtfXtalInfo {
 ///|
 /// Construct an MmtfXtalInfo with defaults.
 pub fn MmtfXtalInfo::new() -> MmtfXtalInfo {
-  MmtfXtalInfo::{
-    space_group: "",
-    unit_cell: Array::make(6, 0.0),
-  }
+  MmtfXtalInfo::{ space_group: "", unit_cell: Array::make(6, 0.0) }
 }
 
 ///|
@@ -344,7 +336,7 @@ pub struct MmtfBond {
 pub fn MmtfBond::new(
   atom_index1~ : Int,
   atom_index2~ : Int,
-  bond_order~ : Int = 1,
+  bond_order? : Int = 1,
 ) -> MmtfBond {
   MmtfBond::{ atom_index1, atom_index2, bond_order }
 }
@@ -382,9 +374,9 @@ pub struct MmtfGroupType {
 ///|
 /// Construct an MmtfGroupType.
 pub fn MmtfGroupType::new(
-  group_name~ : String = "",
-  chem_comp_type~ : String = "",
-  single_letter_code~ : String = "",
+  group_name? : String = "",
+  chem_comp_type? : String = "",
+  single_letter_code? : String = "",
 ) -> MmtfGroupType {
   MmtfGroupType::{
     group_name,
@@ -437,7 +429,10 @@ pub fn MmtfStructure::get_xtal_info(self : MmtfStructure) -> MmtfXtalInfo {
 
 ///|
 /// Set the crystallographic info.
-pub fn MmtfStructure::set_xtal_info(self : MmtfStructure, x : MmtfXtalInfo) -> Unit {
+pub fn MmtfStructure::set_xtal_info(
+  self : MmtfStructure,
+  x : MmtfXtalInfo,
+) -> Unit {
   self.xtal_info = x
 }
 
@@ -621,7 +616,7 @@ fn mmtf_read_f32_be(data : Array[Int], offset : Int) -> Double {
     0.0
   } else if exponent == 0 {
     // Denormalized number
-    sign * (mantissa.to_double()) * pow2(-149)
+    sign * mantissa.to_double() * pow2(-149)
   } else if exponent == 255 {
     // Infinity or NaN - return 0.0 for simplicity
     0.0
@@ -638,7 +633,7 @@ fn pow2(n : Int) -> Double {
       result = result * 2.0
     }
   } else {
-    for _ in 0..<(-n) {
+    for _ in 0..<-n {
       result = result / 2.0
     }
   }
@@ -678,7 +673,11 @@ fn mmtf_write_f32_be(data : Array[Int], offset : Int, value : Double) -> Unit {
 
 ///|
 /// Convert ASCII byte array slice to a string.
-fn mmtf_ascii_to_string(data : Array[Int], offset : Int, length : Int) -> String {
+fn mmtf_ascii_to_string(
+  data : Array[Int],
+  offset : Int,
+  length : Int,
+) -> String {
   let sb = StringBuilder::new()
   for i in 0..<length {
     sb.write_char(Char::from_int(data[offset + i] & 0xFF))
@@ -824,11 +823,21 @@ pub fn mmtf_write_text(structure : MmtfStructure) -> String {
   let xtal = structure.get_xtal_info()
   sb.write_string("MMTF\n")
   sb.write_string("structureId=" + structure.structure_id + "\n")
-  sb.write_string("totalNumBonds=" + structure.total_num_bonds.to_string() + "\n")
-  sb.write_string("totalNumAtoms=" + structure.total_num_atoms.to_string() + "\n")
-  sb.write_string("totalNumGroups=" + structure.total_num_groups.to_string() + "\n")
-  sb.write_string("totalNumChains=" + structure.total_num_chains.to_string() + "\n")
-  sb.write_string("totalNumModels=" + structure.total_num_models.to_string() + "\n")
+  sb.write_string(
+    "totalNumBonds=" + structure.total_num_bonds.to_string() + "\n",
+  )
+  sb.write_string(
+    "totalNumAtoms=" + structure.total_num_atoms.to_string() + "\n",
+  )
+  sb.write_string(
+    "totalNumGroups=" + structure.total_num_groups.to_string() + "\n",
+  )
+  sb.write_string(
+    "totalNumChains=" + structure.total_num_chains.to_string() + "\n",
+  )
+  sb.write_string(
+    "totalNumModels=" + structure.total_num_models.to_string() + "\n",
+  )
   // Header
   sb.write_string("title=" + header.title + "\n")
   sb.write_string("depositionDate=" + header.deposition_date + "\n")
@@ -877,7 +886,15 @@ pub fn mmtf_write_text(structure : MmtfStructure) -> String {
     sb.write_string("MODEL " + mi.to_string() + "\n")
     for ci in 0..<model.chains.length() {
       let chain = model.chains[ci]
-      sb.write_string("  CHAIN " + ci.to_string() + " " + chain.chain_id + " " + chain.chain_name + "\n")
+      sb.write_string(
+        "  CHAIN " +
+        ci.to_string() +
+        " " +
+        chain.chain_id +
+        " " +
+        chain.chain_name +
+        "\n",
+      )
       for gi in 0..<chain.groups.length() {
         let group = chain.groups[gi]
         sb.write_string(
@@ -967,7 +984,9 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
     } else if trimmed.starts_with("releaseDate=") {
       header.release_date = trimmed.substring(start=12)
     } else if trimmed.starts_with("resolution=") {
-      header.resolution = parse_double(trimmed.substring(start=11)).unwrap_or(0.0)
+      header.resolution = parse_double(trimmed.substring(start=11)).unwrap_or(
+        0.0,
+      )
     } else if trimmed.starts_with("rWork=") {
       header.r_work = parse_double(trimmed.substring(start=6)).unwrap_or(0.0)
     } else if trimmed.starts_with("rFree=") {
@@ -998,11 +1017,16 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
         Some(m) => structure.add_model(m)
         None => ()
       }
-      let parts = trimmed.split(" ").to_array().filter(fn(s) -> Bool {
-        s.length() > 0
-      })
-      let model_id = if parts.length() >= 2 { parse_int(parts[1].to_string()) } else { 0 }
-      current_model = Some(MmtfModel::new(model_id=model_id))
+      let parts = trimmed
+        .split(" ")
+        .to_array()
+        .filter(fn(s) -> Bool { s.length() > 0 })
+      let model_id = if parts.length() >= 2 {
+        parse_int(parts[1].to_string())
+      } else {
+        0
+      }
+      current_model = Some(MmtfModel::new(model_id~))
     } else if trimmed.starts_with("  CHAIN ") {
       // Save previous group
       match current_group {
@@ -1023,12 +1047,17 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
           }
         None => ()
       }
-      let parts = trimmed.split(" ").to_array().filter(fn(s) -> Bool {
-        s.length() > 0
-      })
+      let parts = trimmed
+        .split(" ")
+        .to_array()
+        .filter(fn(s) -> Bool { s.length() > 0 })
       let chain_id = if parts.length() >= 3 { parts[2].to_string() } else { "" }
-      let chain_name = if parts.length() >= 4 { parts[3].to_string() } else { chain_id }
-      current_chain = Some(MmtfChain::new(chain_id=chain_id, chain_name=chain_name))
+      let chain_name = if parts.length() >= 4 {
+        parts[3].to_string()
+      } else {
+        chain_id
+      }
+      current_chain = Some(MmtfChain::new(chain_id~, chain_name~))
     } else if trimmed.starts_with("    GROUP ") {
       // Save previous group
       match current_group {
@@ -1039,13 +1068,26 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
           }
         None => ()
       }
-      let parts = trimmed.split(" ").to_array().filter(fn(s) -> Bool {
-        s.length() > 0
-      })
-      let group_name = if parts.length() >= 2 { parts[1].to_string() } else { "" }
-      let group_number = if parts.length() >= 3 { parse_int(parts[2].to_string()) } else { 0 }
+      let parts = trimmed
+        .split(" ")
+        .to_array()
+        .filter(fn(s) -> Bool { s.length() > 0 })
+      let group_name = if parts.length() >= 2 {
+        parts[1].to_string()
+      } else {
+        ""
+      }
+      let group_number = if parts.length() >= 3 {
+        parse_int(parts[2].to_string())
+      } else {
+        0
+      }
       let slc = if parts.length() >= 4 { parts[3].to_string() } else { "" }
-      let ss_str = if parts.length() >= 5 { parts[4].to_string() } else { "undefined" }
+      let ss_str = if parts.length() >= 5 {
+        parts[4].to_string()
+      } else {
+        "undefined"
+      }
       let ss = match ss_str {
         "alpha_helix" => MmtfSecAlphaHelix
         "extended" => MmtfSecExtended
@@ -1059,44 +1101,72 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
       }
       current_group = Some(
         MmtfGroup::new(
-          group_name=group_name,
-          group_number=group_number,
+          group_name~,
+          group_number~,
           single_letter_code=slc,
           sec_struct=ss,
         ),
       )
     } else if trimmed.starts_with("      ATOM ") {
-      let parts = trimmed.split(" ").to_array().filter(fn(s) -> Bool {
-        s.length() > 0
-      })
+      let parts = trimmed
+        .split(" ")
+        .to_array()
+        .filter(fn(s) -> Bool { s.length() > 0 })
       let name = if parts.length() >= 2 { parts[1].to_string() } else { "" }
-      let serial = if parts.length() >= 3 { parse_int(parts[2].to_string()) } else { 0 }
-      let x = if parts.length() >= 4 { parse_double(parts[3].to_string()).unwrap_or(0.0) } else { 0.0 }
-      let y = if parts.length() >= 5 { parse_double(parts[4].to_string()).unwrap_or(0.0) } else { 0.0 }
-      let z = if parts.length() >= 6 { parse_double(parts[5].to_string()).unwrap_or(0.0) } else { 0.0 }
+      let serial = if parts.length() >= 3 {
+        parse_int(parts[2].to_string())
+      } else {
+        0
+      }
+      let x = if parts.length() >= 4 {
+        parse_double(parts[3].to_string()).unwrap_or(0.0)
+      } else {
+        0.0
+      }
+      let y = if parts.length() >= 5 {
+        parse_double(parts[4].to_string()).unwrap_or(0.0)
+      } else {
+        0.0
+      }
+      let z = if parts.length() >= 6 {
+        parse_double(parts[5].to_string()).unwrap_or(0.0)
+      } else {
+        0.0
+      }
       let element = if parts.length() >= 7 { parts[6].to_string() } else { "" }
-      let charge = if parts.length() >= 8 { parse_int(parts[7].to_string()) } else { 0 }
-      let atom = MmtfAtom::new(
-        name=name,
-        serial=serial,
-        x=x,
-        y=y,
-        z=z,
-        element=element,
-        charge=charge,
-      )
+      let charge = if parts.length() >= 8 {
+        parse_int(parts[7].to_string())
+      } else {
+        0
+      }
+      let atom = MmtfAtom::new(name~, serial~, x~, y~, z~, element~, charge~)
       match current_group {
         Some(g) => g.add_atom(atom)
         None => ()
       }
     } else if trimmed.starts_with("BOND ") {
-      let parts = trimmed.split(" ").to_array().filter(fn(s) -> Bool {
-        s.length() > 0
-      })
-      let a1 = if parts.length() >= 2 { parse_int(parts[1].to_string()) } else { 0 }
-      let a2 = if parts.length() >= 3 { parse_int(parts[2].to_string()) } else { 0 }
-      let order = if parts.length() >= 4 { parse_int(parts[3].to_string()) } else { 1 }
-      structure.bonds.push(MmtfBond::new(atom_index1=a1, atom_index2=a2, bond_order=order))
+      let parts = trimmed
+        .split(" ")
+        .to_array()
+        .filter(fn(s) -> Bool { s.length() > 0 })
+      let a1 = if parts.length() >= 2 {
+        parse_int(parts[1].to_string())
+      } else {
+        0
+      }
+      let a2 = if parts.length() >= 3 {
+        parse_int(parts[2].to_string())
+      } else {
+        0
+      }
+      let order = if parts.length() >= 4 {
+        parse_int(parts[3].to_string())
+      } else {
+        1
+      }
+      structure.bonds.push(
+        MmtfBond::new(atom_index1=a1, atom_index2=a2, bond_order=order),
+      )
     }
   }
   // Save final group/chain/model
@@ -1274,7 +1344,9 @@ pub fn mmtf_summary(structure : MmtfStructure) -> String {
   sb.write_string("  Groups: " + structure.count_groups().to_string() + "\n")
   sb.write_string("  Atoms: " + structure.count_atoms().to_string() + "\n")
   sb.write_string("  Bonds: " + structure.bonds.length().to_string() + "\n")
-  sb.write_string("  Entities: " + structure.entities.length().to_string() + "\n")
+  sb.write_string(
+    "  Entities: " + structure.entities.length().to_string() + "\n",
+  )
   sb.to_string()
 }
 
@@ -1314,7 +1386,7 @@ pub fn mmtf_to_pdb_structure(mmtf : MmtfStructure) -> Structure {
             chainid=chain_id,
             resseq=mmtf_group.group_number,
             atoms=pdb_atoms,
-            hetfield=hetfield,
+            hetfield~,
           ),
         )
       }

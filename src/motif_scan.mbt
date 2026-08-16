@@ -101,8 +101,8 @@ pub fn motif_scan_pwm_from_counts(
   let n_bases = counts.length()
   if n_bases == 0 {
     return PositionWeightMatrix::new(
-      motif_id=motif_id,
-      motif_name=motif_name,
+      motif_id~,
+      motif_name~,
       matrix=[],
       background=[0.25, 0.25, 0.25, 0.25],
       strand="+-",
@@ -121,9 +121,9 @@ pub fn motif_scan_pwm_from_counts(
     }
   }
   PositionWeightMatrix::new(
-    motif_id=motif_id,
-    motif_name=motif_name,
-    matrix=matrix,
+    motif_id~,
+    motif_name~,
+    matrix~,
     background=[0.25, 0.25, 0.25, 0.25],
     strand="+-",
   )
@@ -200,7 +200,11 @@ pub fn compute_score(pssm : MotifScanPSSM, sequence : String) -> Double {
   if motif_len == 0 {
     return 0.0
   }
-  let n = if sequence.length() < motif_len { sequence.length() } else { motif_len }
+  let n = if sequence.length() < motif_len {
+    sequence.length()
+  } else {
+    motif_len
+  }
   let mut score = 0.0
   for i in 0..<n {
     let c = sequence[i:i + 1].to_owned()
@@ -241,7 +245,10 @@ pub fn compute_pvalue(pssm : MotifScanPSSM, score : Double) -> Double {
   let bin_width = range / nbins.to_double()
   let mut dist = Array::make(nbins, 0.0)
   // Initialize: before any position the cumulative score is 0.0 with probability 1.
-  let init_bin = ms_clamp_bin(((0.0 - min_s) / bin_width).floor().to_int(), nbins)
+  let init_bin = ms_clamp_bin(
+    ((0.0 - min_s) / bin_width).floor().to_int(),
+    nbins,
+  )
   dist[init_bin] = 1.0
   // Convolve the per-position score distributions.
   for i in 0..<motif_len {
@@ -266,7 +273,10 @@ pub fn compute_pvalue(pssm : MotifScanPSSM, score : Double) -> Double {
     dist = new_dist
   }
   // Sum probabilities for scores >= observed (from observed's bin upward).
-  let obs_bin = ms_clamp_bin(((score - min_s) / bin_width).floor().to_int(), nbins)
+  let obs_bin = ms_clamp_bin(
+    ((score - min_s) / bin_width).floor().to_int(),
+    nbins,
+  )
   let mut pval = 0.0
   for b_idx in obs_bin..<nbins {
     pval = pval + dist[b_idx]
@@ -305,17 +315,19 @@ pub fn scan_sequence(
     let score_val = compute_score(pssm, subseq)
     let pval = compute_pvalue(pssm, score_val)
     if pval <= pvalue_threshold {
-      matches.push(MotifMatch::new(
-        motif_id=pssm.motif_id,
-        motif_name=pssm.motif_name,
-        sequence_id=seq_id,
-        start=start,
-        end=start + motif_len,
-        strand="+",
-        score=score_val,
-        p_value=pval,
-        matched_sequence=subseq,
-      ))
+      matches.push(
+        MotifMatch::new(
+          motif_id=pssm.motif_id,
+          motif_name=pssm.motif_name,
+          sequence_id=seq_id,
+          start~,
+          end=start + motif_len,
+          strand="+",
+          score=score_val,
+          p_value=pval,
+          matched_sequence=subseq,
+        ),
+      )
     }
   }
   // Reverse strand
@@ -327,17 +339,19 @@ pub fn scan_sequence(
       let pval = compute_pvalue(pssm, score_val)
       if pval <= pvalue_threshold {
         let orig_start = sequence.length() - start - motif_len
-        matches.push(MotifMatch::new(
-          motif_id=pssm.motif_id,
-          motif_name=pssm.motif_name,
-          sequence_id=seq_id,
-          start=orig_start,
-          end=orig_start + motif_len,
-          strand="-",
-          score=score_val,
-          p_value=pval,
-          matched_sequence=subseq,
-        ))
+        matches.push(
+          MotifMatch::new(
+            motif_id=pssm.motif_id,
+            motif_name=pssm.motif_name,
+            sequence_id=seq_id,
+            start=orig_start,
+            end=orig_start + motif_len,
+            strand="-",
+            score=score_val,
+            p_value=pval,
+            matched_sequence=subseq,
+          ),
+        )
       }
     }
   }
@@ -404,7 +418,8 @@ pub fn motif_scan_summary(matches : Array[MotifMatch]) -> String {
   s = s + "Total matches: " + matches.length().to_string() + "\n"
   if matches.length() > 0 {
     s = s + "\nMatches:\n"
-    s = s + "motif_id\tsequence_id\tstart\tend\tstrand\tscore\tp-value\tmatched_sequence\n"
+    s = s +
+      "motif_id\tsequence_id\tstart\tend\tstrand\tscore\tp-value\tmatched_sequence\n"
     for i in 0..<matches.length() {
       let m = matches[i]
       s = s +
@@ -442,7 +457,7 @@ pub fn motif_scan_sample_pwm() -> PositionWeightMatrix {
   PositionWeightMatrix::new(
     motif_id="M0001",
     motif_name="SampleTF",
-    matrix=matrix,
+    matrix~,
     background=[0.25, 0.25, 0.25, 0.25],
     strand="+-",
   )

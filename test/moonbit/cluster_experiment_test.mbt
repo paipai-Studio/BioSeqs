@@ -128,8 +128,8 @@ test "ce_center_columns_basic" {
   // col 1: mean = 15 -> centered [-5, 5]
   let m = [[1.0, 10.0], [3.0, 20.0]]
   let c = @src.ce_center_columns(m)
-  assert_true((c[0][0] - (-1.0)).abs() < 0.001)
-  assert_true((c[0][1] - (-5.0)).abs() < 0.001)
+  assert_true((c[0][0] - -1.0).abs() < 0.001)
+  assert_true((c[0][1] - -5.0).abs() < 0.001)
   assert_true((c[1][0] - 1.0).abs() < 0.001)
   assert_true((c[1][1] - 5.0).abs() < 0.001)
 }
@@ -376,11 +376,7 @@ test "ce_hclust_cut_k2" {
 
 ///|
 test "ce_hclust_cut_k_equals_n" {
-  let dist = [
-    [0.0, 0.5, 0.5],
-    [0.5, 0.0, 0.5],
-    [0.5, 0.5, 0.0],
-  ]
+  let dist = [[0.0, 0.5, 0.5], [0.5, 0.0, 0.5], [0.5, 0.5, 0.0]]
   let labels = @src.ce_hclust_cut(dist, 3)
   assert_eq(labels.length(), 3)
   // each sample in its own cluster
@@ -527,12 +523,7 @@ test "ce_sequential_cluster_isolates_small" {
 test "ce_rsec_pipeline" {
   // 4 samples, 2 clear clusters; small enough that sequential splits are
   // not triggered (each consensus cluster has < 4 points).
-  let data = [
-    [0.0, 0.0],
-    [0.1, 0.0],
-    [10.0, 10.0],
-    [10.1, 10.0],
-  ]
+  let data = [[0.0, 0.0], [0.1, 0.0], [10.0, 10.0], [10.1, 10.0]]
   let params = @src.ce_default_params()
   let result = @src.ce_rsec(data, params)
   assert_eq(result.labels.length(), 4)
@@ -719,12 +710,7 @@ test "ce_default_params" {
 ///|
 test "ce_default_params_used_in_rsec" {
   // Smoke test: default params produce a valid ClusterExperiment
-  let data = [
-    [0.0, 0.0],
-    [0.1, 0.1],
-    [5.0, 5.0],
-    [5.1, 5.1],
-  ]
+  let data = [[0.0, 0.0], [0.1, 0.1], [5.0, 5.0], [5.1, 5.1]]
   let params = @src.ce_default_params()
   let result = @src.ce_rsec(data, params)
   assert_true(result.labels.length() == 4)

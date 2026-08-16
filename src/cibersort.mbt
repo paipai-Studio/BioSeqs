@@ -35,10 +35,10 @@ pub struct CibMixtureMatrix {
 /// Deconvolution result for a single sample.
 pub struct CibResult {
   sample_id : String
-  fractions : Array[Double]     // cell type fractions (sum ≈ 1.0)
+  fractions : Array[Double] // cell type fractions (sum ≈ 1.0)
   cell_types : Array[String]
-  pearson_r : Double            // correlation between fitted and observed
-  rmse : Double                 // root mean squared error
+  pearson_r : Double // correlation between fitted and observed
+  rmse : Double // root mean squared error
 }
 
 ///|
@@ -65,19 +65,25 @@ pub fn CibSignatureMatrix::new(
 
 ///|
 /// Get gene names.
-pub fn CibSignatureMatrix::gene_names(self : CibSignatureMatrix) -> Array[String] {
+pub fn CibSignatureMatrix::gene_names(
+  self : CibSignatureMatrix,
+) -> Array[String] {
   self.gene_names
 }
 
 ///|
 /// Get cell type names.
-pub fn CibSignatureMatrix::cell_types(self : CibSignatureMatrix) -> Array[String] {
+pub fn CibSignatureMatrix::cell_types(
+  self : CibSignatureMatrix,
+) -> Array[String] {
   self.cell_types
 }
 
 ///|
 /// Get the raw matrix (rows=genes, cols=cell_types).
-pub fn CibSignatureMatrix::matrix(self : CibSignatureMatrix) -> Array[Array[Double]] {
+pub fn CibSignatureMatrix::matrix(
+  self : CibSignatureMatrix,
+) -> Array[Array[Double]] {
   self.matrix
 }
 
@@ -105,7 +111,9 @@ pub fn CibMixtureMatrix::gene_names(self : CibMixtureMatrix) -> Array[String] {
 
 ///|
 /// Get the raw matrix (rows=genes, cols=samples).
-pub fn CibMixtureMatrix::matrix(self : CibMixtureMatrix) -> Array[Array[Double]] {
+pub fn CibMixtureMatrix::matrix(
+  self : CibMixtureMatrix,
+) -> Array[Array[Double]] {
   self.matrix
 }
 
@@ -165,9 +173,13 @@ pub fn CibDeconvolution::sample_names(self : CibDeconvolution) -> Array[String] 
 /// Compute the mean of an array.
 fn cib_mean(arr : Array[Double]) -> Double {
   let n = arr.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let mut s = 0.0
-  for v in arr { s = s + v }
+  for v in arr {
+    s = s + v
+  }
   s / n.to_double()
 }
 
@@ -175,7 +187,9 @@ fn cib_mean(arr : Array[Double]) -> Double {
 /// Compute Pearson correlation between two arrays.
 fn cib_pearson(a : Array[Double], b : Array[Double]) -> Double {
   let n = a.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let ma = cib_mean(a)
   let mb = cib_mean(b)
   let mut cov = 0.0
@@ -189,14 +203,20 @@ fn cib_pearson(a : Array[Double], b : Array[Double]) -> Double {
     vb = vb + db * db
   }
   let denom = (va * vb).sqrt()
-  if denom < 1.0e-15 { 0.0 } else { cov / denom }
+  if denom < 1.0e-15 {
+    0.0
+  } else {
+    cov / denom
+  }
 }
 
 ///|
 /// Compute RMSE between observed and fitted.
 fn cib_rmse(observed : Array[Double], fitted : Array[Double]) -> Double {
   let n = observed.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let mut sse = 0.0
   for i in 0..<n {
     let d = observed[i] - fitted[i]
@@ -220,16 +240,22 @@ fn cib_nnls(
 ) -> Array[Double] {
   let m = b.length()
   let n = if a.length() > 0 { a[0].length() } else { 0 }
-  if m == 0 || n == 0 { return [] }
+  if m == 0 || n == 0 {
+    return []
+  }
   // Initialize x = 0
   let x : Array[Double] = []
-  for _j in 0..<n { x.push(0.0) }
+  for _j in 0..<n {
+    x.push(0.0)
+  }
   // Compute A^T * A and A^T * b
   // ata[j][k] = sum_i A[i][j] * A[i][k]
   let ata : Array[Array[Double]] = []
   for _j in 0..<n {
     let row : Array[Double] = []
-    for _k in 0..<n { row.push(0.0) }
+    for _k in 0..<n {
+      row.push(0.0)
+    }
     ata.push(row)
   }
   for i in 0..<m {
@@ -241,7 +267,9 @@ fn cib_nnls(
   }
   // atb[j] = sum_i A[i][j] * b[i]
   let atb : Array[Double] = []
-  for _j in 0..<n { atb.push(0.0) }
+  for _j in 0..<n {
+    atb.push(0.0)
+  }
   for i in 0..<m {
     for j in 0..<n {
       atb[j] = atb[j] + a[i][j] * b[i]
@@ -263,7 +291,9 @@ fn cib_nnls(
     // Adaptive step size: use 1 / max diagonal of ata
     let mut max_diag = 1.0e-10
     for j in 0..<n {
-      if ata[j][j] > max_diag { max_diag = ata[j][j] }
+      if ata[j][j] > max_diag {
+        max_diag = ata[j][j]
+      }
     }
     let lr = 1.0 / max_diag
     // Update and project
@@ -272,10 +302,14 @@ fn cib_nnls(
       let new_x = x[j] - lr * grad[j]
       let projected = if new_x < 0.0 { 0.0 } else { new_x }
       let change = (projected - x[j]).abs()
-      if change > max_change { max_change = change }
+      if change > max_change {
+        max_change = change
+      }
       x[j] = projected
     }
-    if max_change < tol { converged = true }
+    if max_change < tol {
+      converged = true
+    }
     iter = iter + 1
   }
   x
@@ -345,12 +379,18 @@ pub fn cib_run(
     let x = cib_nnls(a, b, max_iters, tol)
     // Normalize to sum to 1.0
     let mut sum_x = 0.0
-    for v in x { sum_x = sum_x + v }
+    for v in x {
+      sum_x = sum_x + v
+    }
     let fractions : Array[Double] = []
     if sum_x > 1.0e-15 {
-      for v in x { fractions.push(v / sum_x) }
+      for v in x {
+        fractions.push(v / sum_x)
+      }
     } else {
-      for _v in x { fractions.push(0.0) }
+      for _v in x {
+        fractions.push(0.0)
+      }
     }
     // Compute fitted values: fitted = A * x
     let fitted : Array[Double] = []
@@ -383,9 +423,8 @@ pub fn cib_run(
 /// signature.
 pub fn cib_cell_type_names() -> Array[String] {
   [
-    "B cells", "T cells CD8", "T cells CD4", "NK cells", "Monocytes",
-    "Macrophages M1", "Macrophages M2", "Dendritic cells", "Neutrophils",
-    "Mast cells",
+    "B cells", "T cells CD8", "T cells CD4", "NK cells", "Monocytes", "Macrophages M1",
+    "Macrophages M2", "Dendritic cells", "Neutrophils", "Mast cells",
   ]
 }
 
@@ -394,15 +433,15 @@ pub fn cib_cell_type_names() -> Array[String] {
 pub fn cib_marker_genes() -> Array[String] {
   [
     "CD19", "MS4A1", "CD79A", "CD79B", // B cells
-    "CD8A", "CD8B", "GZMK", "GZMA", // T cells CD8
-    "CD4", "IL7R", "LEF1", "TCF7", // T cells CD4
-    "NKG7", "GNLY", "KLRD1", "NCAM1", // NK cells
-    "CD14", "LYZ", "S100A8", "S100A9", // Monocytes
-    "NOS2", "IL1B", "TNF", "CXCL9", // Macrophages M1
-    "CD163", "MRC1", "ARG1", "IL10", // Macrophages M2
-    "ITGAX", "CD1C", "CLEC10A", "FCER1A", // Dendritic cells
-    "FCGR3A", "CSF3R", "FPR1", "CEACAM3", // Neutrophils
-    "TPSAB1", "CPA3", "MS4A2", "KIT", // Mast cells
+     "CD8A", "CD8B", "GZMK", "GZMA", // T cells CD8
+     "CD4", "IL7R", "LEF1", "TCF7", // T cells CD4
+     "NKG7", "GNLY", "KLRD1", "NCAM1", // NK cells
+     "CD14", "LYZ", "S100A8", "S100A9", // Monocytes
+     "NOS2", "IL1B", "TNF", "CXCL9", // Macrophages M1
+     "CD163", "MRC1", "ARG1", "IL10", // Macrophages M2
+     "ITGAX", "CD1C", "CLEC10A", "FCER1A", // Dendritic cells
+     "FCGR3A", "CSF3R", "FPR1", "CEACAM3", // Neutrophils
+     "TPSAB1", "CPA3", "MS4A2", "KIT", // Mast cells
   ]
 }
 
@@ -508,7 +547,9 @@ pub fn cib_sample_mixture() -> CibMixtureMatrix {
 /// Get the fraction of a specific cell type in a result.
 pub fn CibResult::get_fraction(self : CibResult, cell_type : String) -> Double {
   for i in 0..<self.cell_types.length() {
-    if self.cell_types[i] == cell_type { return self.fractions[i] }
+    if self.cell_types[i] == cell_type {
+      return self.fractions[i]
+    }
   }
   0.0
 }
@@ -529,7 +570,12 @@ pub fn CibDeconvolution::to_string(self : CibDeconvolution) -> String {
     for f in r.fractions {
       result = result + "\t" + f.to_string()
     }
-    result = result + "\t" + r.pearson_r.to_string() + "\t" + r.rmse.to_string() + "\n"
+    result = result +
+      "\t" +
+      r.pearson_r.to_string() +
+      "\t" +
+      r.rmse.to_string() +
+      "\n"
   }
   result
 }

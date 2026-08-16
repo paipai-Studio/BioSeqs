@@ -43,14 +43,12 @@ test "alignace_site_new_negative_strand" {
 
 ///|
 test "alignace_motif_new_basic" {
-  let m = @src.AlignAceMotif::new(
-    [
-      [8, 0, 0, 0],
-      [0, 8, 0, 0],
-      [0, 0, 8, 0],
-      [0, 0, 0, 8],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([
+    [8, 0, 0, 0],
+    [0, 8, 0, 0],
+    [0, 0, 8, 0],
+    [0, 0, 0, 8],
+  ])
   assert_eq(m.width, 4)
   // Total sites = sum of column 0 = 8 + 0 + 0 + 0 = 8
   assert_eq(m.num_sites, 8)
@@ -61,14 +59,12 @@ test "alignace_motif_new_basic" {
 ///|
 test "alignace_motif_new_consensus_tgac" {
   // Motif where T is most common at each position
-  let m = @src.AlignAceMotif::new(
-    [
-      [1, 0, 0, 0],
-      [0, 1, 0, 0],
-      [0, 0, 1, 0],
-      [9, 9, 9, 9],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([
+    [1, 0, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, 1, 0],
+    [9, 9, 9, 9],
+  ])
   assert_eq(m.width, 4)
   assert_eq(m.num_sites, 1 + 0 + 0 + 9)
   assert_eq(m.consensus, "TTTT")
@@ -77,14 +73,7 @@ test "alignace_motif_new_consensus_tgac" {
 ///|
 test "alignace_motif_consensus_ties_default_to_a" {
   // When counts are tied, A (first row) wins by default
-  let m = @src.AlignAceMotif::new(
-    [
-      [5, 0, 5],
-      [5, 0, 0],
-      [0, 5, 0],
-      [0, 5, 0],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([[5, 0, 5], [5, 0, 0], [0, 5, 0], [0, 5, 0]])
   // Position 0: A=5, C=5 -> A wins (first checked)
   // Position 1: G=5, T=5 -> G wins (checked before T)
   // Position 2: A=5 -> A
@@ -93,14 +82,12 @@ test "alignace_motif_consensus_ties_default_to_a" {
 
 ///|
 test "alignace_motif_motif_consensus" {
-  let m = @src.AlignAceMotif::new(
-    [
-      [8, 0, 0, 0],
-      [0, 8, 0, 0],
-      [0, 0, 8, 0],
-      [0, 0, 0, 8],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([
+    [8, 0, 0, 0],
+    [0, 8, 0, 0],
+    [0, 0, 8, 0],
+    [0, 0, 0, 8],
+  ])
   assert_eq(@src.alignace_motif_consensus(m), "ACGT")
 }
 
@@ -110,14 +97,7 @@ test "alignace_motif_motif_consensus" {
 
 ///|
 test "alignace_to_pwm_uniform_distribution" {
-  let m = @src.AlignAceMotif::new(
-    [
-      [2, 2],
-      [2, 2],
-      [2, 2],
-      [2, 2],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([[2, 2], [2, 2], [2, 2], [2, 2]])
   let pwm = @src.alignace_to_pwm(m)
   assert_eq(pwm.length(), 4)
   assert_eq(pwm[0].length(), 2)
@@ -132,14 +112,7 @@ test "alignace_to_pwm_uniform_distribution" {
 ///|
 test "alignace_to_pwm_pure_motif" {
   // Motif where only one base appears at each position
-  let m = @src.AlignAceMotif::new(
-    [
-      [10, 0],
-      [0, 0],
-      [0, 10],
-      [0, 0],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([[10, 0], [0, 0], [0, 10], [0, 0]])
   let pwm = @src.alignace_to_pwm(m)
   // Column 0: A=1.0, C=0.0, G=0.0, T=0.0
   assert_true(pwm[0][0] > 0.99)
@@ -154,14 +127,7 @@ test "alignace_to_pwm_pure_motif" {
 ///|
 test "alignace_to_pwm_zero_column_uses_default" {
   // Column with all zeros should default to 0.25
-  let m = @src.AlignAceMotif::new(
-    [
-      [0, 5],
-      [0, 0],
-      [0, 0],
-      [0, 0],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([[0, 5], [0, 0], [0, 0], [0, 0]])
   let pwm = @src.alignace_to_pwm(m)
   // Column 0: all zeros, should be 0.25 each
   assert_true(pwm[0][0] > 0.24 && pwm[0][0] < 0.26)
@@ -177,14 +143,7 @@ test "alignace_to_pwm_zero_column_uses_default" {
 ///|
 test "alignace_information_content_uniform_is_zero" {
   // Uniform distribution has 0 information content
-  let m = @src.AlignAceMotif::new(
-    [
-      [2, 2],
-      [2, 2],
-      [2, 2],
-      [2, 2],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([[2, 2], [2, 2], [2, 2], [2, 2]])
   let ic = @src.alignace_information_content(m)
   assert_eq(ic.length(), 2)
   // IC should be approximately 0 for uniform distribution
@@ -195,14 +154,7 @@ test "alignace_information_content_uniform_is_zero" {
 ///|
 test "alignace_information_content_pure_is_two_bits" {
   // Pure motif (only one base) has IC = 2 bits
-  let m = @src.AlignAceMotif::new(
-    [
-      [10, 0],
-      [0, 0],
-      [0, 10],
-      [0, 0],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([[10, 0], [0, 0], [0, 10], [0, 0]])
   let ic = @src.alignace_information_content(m)
   // Column 0: only A, IC should be ~2 bits
   assert_true(ic[0] > 1.9)
@@ -212,14 +164,7 @@ test "alignace_information_content_pure_is_two_bits" {
 
 ///|
 test "alignace_total_ic_uniform_is_zero" {
-  let m = @src.AlignAceMotif::new(
-    [
-      [2, 2, 2],
-      [2, 2, 2],
-      [2, 2, 2],
-      [2, 2, 2],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([[2, 2, 2], [2, 2, 2], [2, 2, 2], [2, 2, 2]])
   let total = @src.alignace_total_ic(m)
   assert_true(total < 0.01)
   assert_true(total > -0.01)
@@ -227,14 +172,12 @@ test "alignace_total_ic_uniform_is_zero" {
 
 ///|
 test "alignace_total_ic_pure_is_width_times_two" {
-  let m = @src.AlignAceMotif::new(
-    [
-      [10, 10, 10],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([
+    [10, 10, 10],
+    [0, 0, 0],
+    [0, 0, 0],
+    [0, 0, 0],
+  ])
   let total = @src.alignace_total_ic(m)
   // 3 columns × 2 bits = 6 bits
   assert_true(total > 5.9)
@@ -493,14 +436,12 @@ test "alignace_summary_empty_record" {
 
 ///|
 test "alignace_motif_width_matches_matrix" {
-  let m = @src.AlignAceMotif::new(
-    [
-      [1, 2, 3, 4, 5],
-      [0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([
+    [1, 2, 3, 4, 5],
+    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0],
+  ])
   assert_eq(m.width, 5)
   assert_eq(m.consensus, "AAAAA")
 }
@@ -515,28 +456,19 @@ test "alignace_motif_empty_matrix" {
 
 ///|
 test "alignace_information_content_length_matches_width" {
-  let m = @src.AlignAceMotif::new(
-    [
-      [5, 5, 5, 5, 5],
-      [0, 0, 0, 0, 0],
-      [0, 0, 0, 0, 0],
-      [5, 5, 5, 5, 5],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([
+    [5, 5, 5, 5, 5],
+    [0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0],
+    [5, 5, 5, 5, 5],
+  ])
   let ic = @src.alignace_information_content(m)
   assert_eq(ic.length(), 5)
 }
 
 ///|
 test "alignace_to_pwm_dimensions" {
-  let m = @src.AlignAceMotif::new(
-    [
-      [1, 2, 3],
-      [0, 0, 0],
-      [0, 0, 0],
-      [0, 0, 0],
-    ],
-  )
+  let m = @src.AlignAceMotif::new([[1, 2, 3], [0, 0, 0], [0, 0, 0], [0, 0, 0]])
   let pwm = @src.alignace_to_pwm(m)
   // PWM should have 4 rows (one per base) and width columns
   assert_eq(pwm.length(), 4)

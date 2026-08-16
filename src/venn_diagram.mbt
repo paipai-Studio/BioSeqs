@@ -48,7 +48,10 @@ pub struct VennDiagramResult {
 ///   - names: Names for each set
 ///
 /// Returns: VennDiagramResult with region calculations.
-pub fn venn_diagram(sets : Array[Array[String]], names? : Array[String] = []) -> VennDiagramResult {
+pub fn venn_diagram(
+  sets : Array[Array[String]],
+  names? : Array[String] = [],
+) -> VennDiagramResult {
   let n_sets = sets.length()
   let set_names = if names.length() == n_sets {
     names
@@ -89,7 +92,12 @@ pub fn venn_diagram(sets : Array[Array[String]], names? : Array[String] = []) ->
     i = i + 1
   }
   // Build regions
-  let regions = Array::make(n_regions, VennRegion::{id: 0, elements: Array::new(), count: 0, description: ""})
+  let regions = Array::make(n_regions, VennRegion::{
+    id: 0,
+    elements: Array::new(),
+    count: 0,
+    description: "",
+  })
   r = 0
   while r < n_regions {
     let count = region_elements[r].length()
@@ -201,7 +209,10 @@ fn region_description(region_id : Int, set_names : Array[String]) -> String {
 ///   V = number of vertices (intersection points)
 ///   E = number of edges
 ///   F = number of faces (regions)
-fn compute_euler_characteristic(n_sets : Int, regions : Array[VennRegion]) -> Double {
+fn compute_euler_characteristic(
+  n_sets : Int,
+  regions : Array[VennRegion],
+) -> Double {
   // Simplified: just use number of non-empty regions
   let mut non_empty = 0
   let mut i = 0
@@ -212,13 +223,20 @@ fn compute_euler_characteristic(n_sets : Int, regions : Array[VennRegion]) -> Do
     i = i + 1
   }
   // For simple Venn diagrams, chi = 1 typically
-  if non_empty > 0 { 1.0 } else { 0.0 }
+  if non_empty > 0 {
+    1.0
+  } else {
+    0.0
+  }
 }
 
 ///|
 /// Get elements in a specific region defined by its bitmask.
 /// For example, region 0b101 (5) means elements in set 0 and set 2 but not set 1.
-pub fn venn_get_region(result : VennDiagramResult, region_id : Int) -> Array[String] {
+pub fn venn_get_region(
+  result : VennDiagramResult,
+  region_id : Int,
+) -> Array[String] {
   let n = result.regions.length()
   if region_id >= 0 && region_id < n {
     result.regions[region_id].elements
@@ -229,7 +247,10 @@ pub fn venn_get_region(result : VennDiagramResult, region_id : Int) -> Array[Str
 
 ///|
 /// Get elements only in a specific set (not in any other).
-pub fn venn_only_in_set(result : VennDiagramResult, set_index : Int) -> Array[String] {
+pub fn venn_only_in_set(
+  result : VennDiagramResult,
+  set_index : Int,
+) -> Array[String] {
   let region_id = 1 << set_index
   venn_get_region(result, region_id)
 }
@@ -237,7 +258,10 @@ pub fn venn_only_in_set(result : VennDiagramResult, set_index : Int) -> Array[St
 ///|
 /// Get elements in the intersection of specified sets and no others.
 /// Sets to include are specified as an array of set indices.
-pub fn venn_intersection_only(result : VennDiagramResult, set_indices : Array[Int]) -> Array[String] {
+pub fn venn_intersection_only(
+  result : VennDiagramResult,
+  set_indices : Array[Int],
+) -> Array[String] {
   let mut region_id = 0
   let mut i = 0
   while i < set_indices.length() {
@@ -288,14 +312,18 @@ pub fn venn_pairwise_overlap(
   // Count intersection
   let inter = venn_count_intersection(elements_i, elements_j)
   let union = n_i + n_j - inter
-  let jaccard = if union > 0 { inter.to_double() / union.to_double() } else { 0.0 }
+  let jaccard = if union > 0 {
+    inter.to_double() / union.to_double()
+  } else {
+    0.0
+  }
   let overlap_coeff = if min_int(n_i, n_j) > 0 {
     inter.to_double() / min_int(n_i, n_j).to_double()
   } else {
     0.0
   }
   let dice = if n_i + n_j > 0 {
-    (2.0 * inter.to_double()) / (n_i.to_double() + n_j.to_double())
+    2.0 * inter.to_double() / (n_i.to_double() + n_j.to_double())
   } else {
     0.0
   }
@@ -312,7 +340,10 @@ pub fn venn_pairwise_overlap(
 
 ///|
 /// Get all elements in a specific set.
-fn venn_set_elements(result : VennDiagramResult, set_index : Int) -> Array[String] {
+fn venn_set_elements(
+  result : VennDiagramResult,
+  set_index : Int,
+) -> Array[String] {
   let elements = Array::new()
   let region_id = 1 << set_index
   // Find all regions that include this set (bit set)
@@ -364,7 +395,8 @@ pub fn venn_summary(result : VennDiagramResult) -> String {
   let mut r = 0
   while r < result.regions.length() {
     if result.regions[r].count > 0 {
-      s = s + "  Region \{r} (0x\{hex_string(r)}): \{result.regions[r].count} elements - \{result.regions[r].description}\n"
+      s = s +
+        "  Region \{r} (0x\{hex_string(r)}): \{result.regions[r].count} elements - \{result.regions[r].description}\n"
     }
     r = r + 1
   }
@@ -391,7 +423,10 @@ pub fn venn_summary(result : VennDiagramResult) -> String {
 ///|
 /// Compute a Venn diagram with only the counts (no element tracking).
 /// More efficient for large datasets where you only need region counts.
-pub fn venn_counts_only(sets : Array[Array[String]], names? : Array[String] = []) -> Array[Int] {
+pub fn venn_counts_only(
+  sets : Array[Array[String]],
+  names? : Array[String] = [],
+) -> Array[Int] {
   let n_sets = sets.length()
   let n_regions = 1 << n_sets
   let counts = Array::make(n_regions, 0)
@@ -432,7 +467,9 @@ pub fn venn_counts_only(sets : Array[Array[String]], names? : Array[String] = []
 ///|
 /// Compute Euler diagram layout (regions and their positions).
 /// Returns normalized positions for each non-empty region.
-pub fn venn_euler_layout(result : VennDiagramResult) -> Array[Map[String, Double]] {
+pub fn venn_euler_layout(
+  result : VennDiagramResult,
+) -> Array[Map[String, Double]] {
   let n_sets = result.n_sets
   let positions = Array::new()
   let mut r = 0
@@ -448,7 +485,10 @@ pub fn venn_euler_layout(result : VennDiagramResult) -> Array[Map[String, Double
 
 ///|
 /// Compute a approximate 2D position for a Venn region.
-fn compute_region_position(region_id : Int, n_sets : Int) -> Map[String, Double] {
+fn compute_region_position(
+  region_id : Int,
+  n_sets : Int,
+) -> Map[String, Double] {
   // Place sets in a circle, then compute region positions as weighted average
   let m = Map::new()
   if n_sets == 0 {
@@ -484,7 +524,12 @@ fn compute_region_position(region_id : Int, n_sets : Int) -> Map[String, Double]
 
 ///|
 /// Perform a pairwise Venn comparison of two sets only (2-set Venn).
-pub fn venn_two_sets(set_a : Array[String], set_b : Array[String], name_a? : String = "A", name_b? : String = "B") -> VennDiagramResult {
+pub fn venn_two_sets(
+  set_a : Array[String],
+  set_b : Array[String],
+  name_a? : String = "A",
+  name_b? : String = "B",
+) -> VennDiagramResult {
   venn_diagram([set_a, set_b], names=[name_a, name_b])
 }
 
@@ -532,7 +577,10 @@ pub fn venn_difference(a : Array[String], b : Array[String]) -> Array[String] {
 
 ///|
 /// Compute symmetric difference (elements in either a or b but not both).
-pub fn venn_symmetric_difference(a : Array[String], b : Array[String]) -> Array[String] {
+pub fn venn_symmetric_difference(
+  a : Array[String],
+  b : Array[String],
+) -> Array[String] {
   let diff_ab = venn_difference(a, b)
   let diff_ba = venn_difference(b, a)
   let result = diff_ab.copy()
@@ -562,7 +610,7 @@ pub fn venn_dice(a : Array[String], b : Array[String]) -> Double {
   let inter = venn_intersection(a, b)
   let total = a.length() + b.length()
   if total > 0 {
-    (2.0 * inter.length().to_double()) / total.to_double()
+    2.0 * inter.length().to_double() / total.to_double()
   } else {
     0.0
   }
@@ -584,9 +632,18 @@ pub fn venn_overlap_coefficient(a : Array[String], b : Array[String]) -> Double 
 /// Sample data: three gene sets for testing.
 pub fn venn_sample_gene_sets() -> Array[Array[String]] {
   [
-    ["TP53", "BRCA1", "BRCA2", "EGFR", "MYC", "KRAS", "PTEN", "APC", "RB1", "VHL", "NF1", "MSH2", "MLH1", "MSH6", "PMS2"],
-    ["BRCA1", "BRCA2", "ATM", "CHEK2", "PALB2", "BRIP1", "RAD51C", "RAD51D", "BARD1", "FANCA", "FANCC", "FANCD2", "FANCE", "FANCF", "FANCG"],
-    ["TP53", "EGFR", "MYC", "KRAS", "MTOR", "PIK3CA", "AKT1", "TSC1", "TSC2", "RICTOR", "RAPTOR", "EIF4E", "4EBP1", "S6K1", "PDK1"],
+    [
+      "TP53", "BRCA1", "BRCA2", "EGFR", "MYC", "KRAS", "PTEN", "APC", "RB1", "VHL",
+      "NF1", "MSH2", "MLH1", "MSH6", "PMS2",
+    ],
+    [
+      "BRCA1", "BRCA2", "ATM", "CHEK2", "PALB2", "BRIP1", "RAD51C", "RAD51D", "BARD1",
+      "FANCA", "FANCC", "FANCD2", "FANCE", "FANCF", "FANCG",
+    ],
+    [
+      "TP53", "EGFR", "MYC", "KRAS", "MTOR", "PIK3CA", "AKT1", "TSC1", "TSC2", "RICTOR",
+      "RAPTOR", "EIF4E", "4EBP1", "S6K1", "PDK1",
+    ],
   ]
 }
 
@@ -625,5 +682,5 @@ fn format_venn_stat(value : Double) -> String {
 pub fn venn_sample_result() -> VennDiagramResult {
   let sets = venn_sample_gene_sets()
   let names = venn_sample_gene_names()
-  venn_diagram(sets, names=names)
+  venn_diagram(sets, names~)
 }

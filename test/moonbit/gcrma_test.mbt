@@ -18,9 +18,7 @@ test "gcrma_probe_info_new" {
 
 ///|
 test "gcrma_probe_info_with_values" {
-  let probe = @src.ProbeInfo::with_values(
-    "probe_test", 8, "ACGTACGT", 2.5,
-  )
+  let probe = @src.ProbeInfo::with_values("probe_test", 8, "ACGTACGT", 2.5)
   assert_eq(probe.probe_id, "probe_test")
   assert_eq(probe.gc_count, 8)
   assert_eq(probe.affinity, 2.5)
@@ -113,9 +111,7 @@ test "gcrma_compute_gc_lookup_table_basic" {
 test "gcrma_background_correction_express" {
   let pm = [100.0, 200.0, 150.0, 300.0]
   let mm = [50.0, 80.0, 70.0, 120.0]
-  let result = @src.gcrma_background_correction(
-    pm, mm, 0.5, "Express",
-  )
+  let result = @src.gcrma_background_correction(pm, mm, 0.5, "Express")
   assert_eq(result.length(), 4)
   assert_eq(result[0], 50.0)
   assert_eq(result[1], 120.0)
@@ -125,9 +121,7 @@ test "gcrma_background_correction_express" {
 test "gcrma_background_correction_express_negative" {
   let pm = [30.0, 50.0]
   let mm = [80.0, 100.0]
-  let result = @src.gcrma_background_correction(
-    pm, mm, 0.5, "Express",
-  )
+  let result = @src.gcrma_background_correction(pm, mm, 0.5, "Express")
   assert_eq(result.length(), 2)
   assert_eq(result[0], 1.0)
 }
@@ -136,18 +130,14 @@ test "gcrma_background_correction_express_negative" {
 test "gcrma_background_correction_idealm" {
   let pm = [100.0, 200.0, 150.0, 300.0]
   let mm = [50.0, 80.0, 70.0, 120.0]
-  let result = @src.gcrma_background_correction(
-    pm, mm, 0.5, "IdealMM",
-  )
+  let result = @src.gcrma_background_correction(pm, mm, 0.5, "IdealMM")
   assert_eq(result.length(), 4)
   assert_eq(result[0] > 1.0, true)
 }
 
 ///|
 test "gcrma_background_correction_empty" {
-  let result = @src.gcrma_background_correction(
-    [], [], 0.5, "IdealMM",
-  )
+  let result = @src.gcrma_background_correction([], [], 0.5, "IdealMM")
   assert_eq(result.length(), 0)
 }
 
@@ -180,11 +170,7 @@ test "gcrma_normalize_single_row" {
 
 ///|
 test "gcrma_normalize_multiple_rows" {
-  let data = [
-    [100.0, 200.0],
-    [150.0, 250.0],
-    [120.0, 180.0],
-  ]
+  let data = [[100.0, 200.0], [150.0, 250.0], [120.0, 180.0]]
   let result = @src.gcrma_normalize(data)
   assert_eq(result.length(), 3)
   assert_eq(result[0].length(), 2)
@@ -269,10 +255,7 @@ test "gcrma_process_empty" {
 
 ///|
 test "gcrma_process_with_config" {
-  let cel_data = [
-    [100.0, 200.0],
-    [150.0, 250.0],
-  ]
+  let cel_data = [[100.0, 200.0], [150.0, 250.0]]
   let probe_info = [
     @src.ProbeInfo::new("p1", "ACGTACGTACGT"),
     @src.ProbeInfo::new("p2", "GCGCGCGCGCGC"),
@@ -285,10 +268,7 @@ test "gcrma_process_with_config" {
 
 ///|
 test "gcrma_process_no_normalize" {
-  let cel_data = [
-    [100.0, 200.0],
-    [150.0, 250.0],
-  ]
+  let cel_data = [[100.0, 200.0], [150.0, 250.0]]
   let probe_info = [
     @src.ProbeInfo::new("p1", "ACGTACGTACGT"),
     @src.ProbeInfo::new("p2", "GCGCGCGCGCGC"),
@@ -302,9 +282,7 @@ test "gcrma_process_no_normalize" {
 test "gcrma_background_correction_mm_longer_than_pm" {
   let pm = [100.0, 200.0]
   let mm = [50.0, 80.0, 90.0]
-  let result = @src.gcrma_background_correction(
-    pm, mm, 0.5, "Express",
-  )
+  let result = @src.gcrma_background_correction(pm, mm, 0.5, "Express")
   assert_eq(result.length(), 2)
   assert_eq(result[0], 50.0)
   assert_eq(result[1], 120.0)
@@ -314,9 +292,7 @@ test "gcrma_background_correction_mm_longer_than_pm" {
 test "gcrma_background_correction_mm_shorter_than_pm" {
   let pm = [100.0, 200.0, 150.0]
   let mm = [50.0, 80.0]
-  let result = @src.gcrma_background_correction(
-    pm, mm, 0.5, "Express",
-  )
+  let result = @src.gcrma_background_correction(pm, mm, 0.5, "Express")
   assert_eq(result.length(), 3)
   assert_eq(result[0], 50.0)
   assert_eq(result[2], 150.0)
@@ -326,9 +302,7 @@ test "gcrma_background_correction_mm_shorter_than_pm" {
 test "gcrma_background_correction_idealm_clamps_to_minimum" {
   let pm = [10.0, 20.0]
   let mm = [8.0, 15.0]
-  let result = @src.gcrma_background_correction(
-    pm, mm, 0.9, "IdealMM",
-  )
+  let result = @src.gcrma_background_correction(pm, mm, 0.9, "IdealMM")
   assert_eq(result.length(), 2)
   assert_eq(result[0] >= 1.0, true)
   assert_eq(result[1] >= 1.0, true)
@@ -386,7 +360,10 @@ test "gcrma_full_pipeline_express" {
     @src.ProbeInfo::new("p5", "TGTGTGTGTGTG"),
     @src.ProbeInfo::new("p6", "CGCGCGCGCGCG"),
   ]
-  let config = @src.GCRMAConfig::new(background_method="Express", normalize=true)
+  let config = @src.GCRMAConfig::new(
+    background_method="Express",
+    normalize=true,
+  )
   let result = @src.gcrma_process_with_config(cel_data, probe_info, config)
   assert_eq(result.expression_matrix.length(), 6)
   assert_eq(result.expression_matrix[0].length(), 2)
@@ -412,12 +389,8 @@ test "gcrma_estimate_affinity_dinucleotide" {
 test "gcrma_background_correction_high_gc" {
   let pm = [100.0, 200.0, 150.0]
   let mm = [60.0, 100.0, 80.0]
-  let result_low = @src.gcrma_background_correction(
-    pm, mm, 0.2, "IdealMM",
-  )
-  let result_high = @src.gcrma_background_correction(
-    pm, mm, 0.8, "IdealMM",
-  )
+  let result_low = @src.gcrma_background_correction(pm, mm, 0.2, "IdealMM")
+  let result_high = @src.gcrma_background_correction(pm, mm, 0.8, "IdealMM")
   assert_eq(result_low.length(), 3)
   assert_eq(result_high.length(), 3)
 }

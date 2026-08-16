@@ -192,7 +192,9 @@ pub fn VolcanoResult::get_genes(self : VolcanoResult) -> Array[VolcanoGene] {
 
 ///|
 /// Get significant genes only.
-pub fn VolcanoResult::get_significant_genes(self : VolcanoResult) -> Array[VolcanoGene] {
+pub fn VolcanoResult::get_significant_genes(
+  self : VolcanoResult,
+) -> Array[VolcanoGene] {
   let sig : Array[VolcanoGene] = Array::new()
   let mut i = 0
   while i < self.genes.length() {
@@ -206,7 +208,10 @@ pub fn VolcanoResult::get_significant_genes(self : VolcanoResult) -> Array[Volca
 
 ///|
 /// Get top significant genes by p-value.
-pub fn VolcanoResult::get_top_genes(self : VolcanoResult, n : Int) -> Array[VolcanoGene] {
+pub fn VolcanoResult::get_top_genes(
+  self : VolcanoResult,
+  n : Int,
+) -> Array[VolcanoGene] {
   let sig = self.get_significant_genes()
   let sorted = sig.copy()
   let len = sorted.length()
@@ -250,7 +255,9 @@ pub fn VolcanoResult::get_up_genes(self : VolcanoResult) -> Array[VolcanoGene] {
 
 ///|
 /// Get down-regulated genes.
-pub fn VolcanoResult::get_down_genes(self : VolcanoResult) -> Array[VolcanoGene] {
+pub fn VolcanoResult::get_down_genes(
+  self : VolcanoResult,
+) -> Array[VolcanoGene] {
   let down : Array[VolcanoGene] = Array::new()
   let mut i = 0
   while i < self.genes.length() {
@@ -271,7 +278,11 @@ pub fn neg_log10_p(p_val : Double) -> Double {
 
 ///|
 /// Format the volcano result as an ASCII visualization.
-pub fn VolcanoResult::to_ascii(self : VolcanoResult, width? : Int = 60, height? : Int = 20) -> String {
+pub fn VolcanoResult::to_ascii(
+  self : VolcanoResult,
+  width? : Int = 60,
+  height? : Int = 20,
+) -> String {
   let w = if width < 20 { 60 } else { width }
   let h = if height < 10 { 20 } else { height }
 
@@ -283,10 +294,16 @@ pub fn VolcanoResult::to_ascii(self : VolcanoResult, width? : Int = 60, height? 
   let mut i = 0
   while i < self.genes.length() {
     let g = self.genes[i]
-    if g.log2fc < min_lfc { min_lfc = g.log2fc }
-    if g.log2fc > max_lfc { max_lfc = g.log2fc }
+    if g.log2fc < min_lfc {
+      min_lfc = g.log2fc
+    }
+    if g.log2fc > max_lfc {
+      max_lfc = g.log2fc
+    }
     let nlp = neg_log10_p(g.p_val)
-    if nlp > max_neglog { max_neglog = nlp }
+    if nlp > max_neglog {
+      max_neglog = nlp
+    }
     i = i + 1
   }
 
@@ -315,7 +332,9 @@ pub fn VolcanoResult::to_ascii(self : VolcanoResult, width? : Int = 60, height? 
   // Mark significant cutoffs
   let x_zero = ((0.0 - min_lfc) / (max_lfc - min_lfc) * (w.to_double() - 1.0)).to_int()
   let y_cutoff_val = neg_log10_p(self.p_cutoff)
-  let y_cutoff_row = h - 1 - ((y_cutoff_val / nlp_range) * (h.to_double() - 1.0)).to_int()
+  let y_cutoff_row = h -
+    1 -
+    (y_cutoff_val / nlp_range * (h.to_double() - 1.0)).to_int()
 
   // Draw vertical dashed line at x=0
   let mut r2 = 0
@@ -341,9 +360,11 @@ pub fn VolcanoResult::to_ascii(self : VolcanoResult, width? : Int = 60, height? 
   let mut i2 = 0
   while i2 < self.genes.length() {
     let g = self.genes[i2]
-    let x_pos = ((g.log2fc - min_lfc) / (max_lfc - min_lfc) * (w.to_double() - 1.0)).to_int()
+    let x_pos = ((g.log2fc - min_lfc) /
+    (max_lfc - min_lfc) *
+    (w.to_double() - 1.0)).to_int()
     let nlp = neg_log10_p(g.p_val)
-    let y_pos = h - 1 - ((nlp / nlp_range) * (h.to_double() - 1.0)).to_int()
+    let y_pos = h - 1 - (nlp / nlp_range * (h.to_double() - 1.0)).to_int()
 
     if x_pos >= 0 && x_pos < w && y_pos >= 0 && y_pos < h {
       let ch = if g.classification is VolcanoClassification::Up {
@@ -370,8 +391,20 @@ pub fn VolcanoResult::to_ascii(self : VolcanoResult, width? : Int = 60, height? 
   }
 
   result = result + self.y_label + "\n"
-  result = result + "Cutoffs: p < " + self.p_cutoff.to_string() + ", |log2FC| >= " + self.fc_cutoff.to_string() + "\n"
-  result = result + "Up: " + self.n_up.to_string() + ", Down: " + self.n_down.to_string() + ", NS: " + self.n_nonsig.to_string() + "\n"
+  result = result +
+    "Cutoffs: p < " +
+    self.p_cutoff.to_string() +
+    ", |log2FC| >= " +
+    self.fc_cutoff.to_string() +
+    "\n"
+  result = result +
+    "Up: " +
+    self.n_up.to_string() +
+    ", Down: " +
+    self.n_down.to_string() +
+    ", NS: " +
+    self.n_nonsig.to_string() +
+    "\n"
   result
 }
 
@@ -381,7 +414,12 @@ pub fn VolcanoResult::summary(self : VolcanoResult) -> String {
   let mut s = "=== Volcano Plot Summary ===\n".to_string()
   s = s + "Title: " + self.title + "\n"
   s = s + "Total genes: " + self.genes.length().to_string() + "\n"
-  s = s + "Significant (p < " + self.p_cutoff.to_string() + "): " + (self.n_up + self.n_down).to_string() + "\n"
+  s = s +
+    "Significant (p < " +
+    self.p_cutoff.to_string() +
+    "): " +
+    (self.n_up + self.n_down).to_string() +
+    "\n"
   s = s + "  Up-regulated: " + self.n_up.to_string() + "\n"
   s = s + "  Down-regulated: " + self.n_down.to_string() + "\n"
   s = s + "  Non-significant: " + self.n_nonsig.to_string() + "\n"
@@ -398,8 +436,11 @@ pub fn volcano_sample(n_genes : Int) -> VolcanoResult {
   let pvals : Array[Double] = Array::new()
 
   // Generate deterministic sample data
-  let names = ["TP53", "BRCA1", "BRCA2", "MYC", "KRAS", "EGFR", "PTEN", "APC", "RB1", "VHL",
-    "STAT3", "AKT1", "MTOR", "JAK2", "NOTCH1", "WNT3", "CTNNB1", "SMAD4", "NFKB1", "BCL2"]
+  let names = [
+    "TP53", "BRCA1", "BRCA2", "MYC", "KRAS", "EGFR", "PTEN", "APC", "RB1", "VHL",
+    "STAT3", "AKT1", "MTOR", "JAK2", "NOTCH1", "WNT3", "CTNNB1", "SMAD4", "NFKB1",
+    "BCL2",
+  ]
 
   let mut i = 0
   while i < n {
@@ -407,14 +448,23 @@ pub fn volcano_sample(n_genes : Int) -> VolcanoResult {
     ids.push(names[idx] + "_" + i.to_string())
 
     // Create varied log2FC and p-values
-    let lfc_val = if i % 4 == 0 { 2.5 + (i.to_double() * 0.1) }
-      else if i % 4 == 1 { -2.8 - (i.to_double() * 0.1) }
-      else if i % 4 == 2 { 0.3 + (i.to_double() * 0.05) }
-      else { -0.2 - (i.to_double() * 0.03) }
+    let lfc_val = if i % 4 == 0 {
+      2.5 + i.to_double() * 0.1
+    } else if i % 4 == 1 {
+      -2.8 - i.to_double() * 0.1
+    } else if i % 4 == 2 {
+      0.3 + i.to_double() * 0.05
+    } else {
+      -0.2 - i.to_double() * 0.03
+    }
 
-    let p_val = if i % 3 == 0 { 0.001 / (1.0 + i.to_double()) }
-      else if i % 3 == 1 { 0.01 + (i.to_double() * 0.005) }
-      else { 0.05 + (i.to_double() * 0.02) }
+    let p_val = if i % 3 == 0 {
+      0.001 / (1.0 + i.to_double())
+    } else if i % 3 == 1 {
+      0.01 + i.to_double() * 0.005
+    } else {
+      0.05 + i.to_double() * 0.02
+    }
 
     lfcs.push(lfc_val)
     pvals.push(p_val)

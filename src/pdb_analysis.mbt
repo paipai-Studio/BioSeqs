@@ -628,15 +628,33 @@ pub fn create_demo_structure() -> Structure {
 pub fn vdw_radius(atom_name : String) -> Double {
   let name = atom_name.to_upper()
   // Carbon atoms
-  if name == "C" || name == "CA" || name == "CB" || name == "CG" || name == "CD" || name == "CE" || name == "CZ" || name == "CZ" {
+  if name == "C" ||
+    name == "CA" ||
+    name == "CB" ||
+    name == "CG" ||
+    name == "CD" ||
+    name == "CE" ||
+    name == "CZ" ||
+    name == "CZ" {
     return 1.7
   }
   // Nitrogen atoms
-  if name == "N" || name == "NZ" || name == "ND" || name == "NE" || name == "NH" || name == "NZ" {
+  if name == "N" ||
+    name == "NZ" ||
+    name == "ND" ||
+    name == "NE" ||
+    name == "NH" ||
+    name == "NZ" {
     return 1.55
   }
   // Oxygen atoms
-  if name == "O" || name == "OH" || name == "OG" || name == "OD" || name == "OE" || name == "OT1" || name == "OT2" {
+  if name == "O" ||
+    name == "OH" ||
+    name == "OG" ||
+    name == "OD" ||
+    name == "OE" ||
+    name == "OT1" ||
+    name == "OT2" {
     return 1.52
   }
   // Sulfur atoms
@@ -648,7 +666,7 @@ pub fn vdw_radius(atom_name : String) -> Double {
     return 1.8
   }
   // Hydrogen atoms
-  if name == "H" || name.length() > 0 && name[0:1] == "H" {
+  if name == "H" || (name.length() > 0 && name[0:1] == "H") {
     return 1.2
   }
   // Default for unknown atoms
@@ -661,16 +679,16 @@ pub fn vdw_radius(atom_name : String) -> Double {
 fn generate_sphere_points(n_points : Int) -> Array[Vector3] {
   let points : Array[Vector3] = Array::new()
   let golden_angle = 3.14159265358979323846 * (3.0 - 5.0.sqrt())
-  
+
   let mut i = 0
   while i < n_points {
-    let y = 1.0 - (2.0 * i.to_double()) / (n_points.to_double() - 1.0)
+    let y = 1.0 - 2.0 * i.to_double() / (n_points.to_double() - 1.0)
     let radius_at_y = (1.0 - y * y).sqrt()
     let theta = golden_angle * i.to_double()
-    
+
     let x = @math.cos(theta) * radius_at_y
     let z = @math.sin(theta) * radius_at_y
-    
+
     points.push(Vector3::new(x, y, z))
     i = i + 1
   }
@@ -689,7 +707,7 @@ pub fn calc_sasa(
 ) -> Array[(String, Double)] {
   let result : Array[(String, Double)] = Array::new()
   let residues = chain.get_residues()
-  
+
   // Collect all atoms with radii
   let atoms : Array[(Vector3, Double, String)] = Array::new()
   for res in residues {
@@ -698,21 +716,21 @@ pub fn calc_sasa(
       atoms.push((atom.coord, radius, atom.name))
     }
   }
-  
+
   let n_atoms = atoms.length()
   if n_atoms == 0 {
     return result
   }
-  
+
   // Generate sphere points
   let sphere_points = generate_sphere_points(n_points)
-  
+
   // Calculate SASA for each atom
   let mut i = 0
   while i < n_atoms {
     let (coord_i, radius_i, name_i) = atoms[i]
     let r_sq = radius_i * radius_i
-    
+
     let n_accessible = {
       let mut count = 0
       let mut pi = 0
@@ -722,7 +740,7 @@ pub fn calc_sasa(
         let px = point.x * radius_i + coord_i.x
         let py = point.y * radius_i + coord_i.y
         let pz = point.z * radius_i + coord_i.z
-        
+
         // Check if this point is buried by any other atom
         let mut buried = false
         let mut j = 0
@@ -740,7 +758,7 @@ pub fn calc_sasa(
           }
           j = j + 1
         }
-        
+
         if !buried {
           count = count + 1
         }
@@ -748,15 +766,17 @@ pub fn calc_sasa(
       }
       count
     }
-    
+
     // SASA contribution from this atom
     let sphere_area = 4.0 * 3.14159265358979323846 * r_sq
-    let atom_sasa = (n_accessible.to_double() / n_points.to_double()) * sphere_area
-    
+    let atom_sasa = n_accessible.to_double() /
+      n_points.to_double() *
+      sphere_area
+
     result.push((name_i, atom_sasa))
     i = i + 1
   }
-  
+
   result
 }
 
@@ -774,11 +794,14 @@ pub fn calc_total_sasa(chain : Chain, probe_radius? : Double = 1.4) -> Double {
 ///|
 /// Calculate per-residue SASA for a chain.
 /// Returns an array of (resseq, resname, sasa) tuples.
-pub fn calc_residue_sasa(chain : Chain, probe_radius? : Double = 1.4) -> Array[(Int, String, Double)] {
+pub fn calc_residue_sasa(
+  chain : Chain,
+  probe_radius? : Double = 1.4,
+) -> Array[(Int, String, Double)] {
   let result : Array[(Int, String, Double)] = Array::new()
   let residues = chain.get_residues()
   let atom_sasa = calc_sasa(chain, probe_radius~)
-  
+
   // Map atoms back to residues
   let atom_idx = {
     let mut idx = 0
@@ -796,7 +819,7 @@ pub fn calc_residue_sasa(chain : Chain, probe_radius? : Double = 1.4) -> Array[(
     }
     res_atom_map
   }
-  
+
   result
 }
 
@@ -806,15 +829,15 @@ pub fn calc_residue_sasa(chain : Chain, probe_radius? : Double = 1.4) -> Array[(
 pub fn ramachandran_quality(chain : Chain) -> (Double, Double, Double) {
   let plot_data = ramachandran_plot(chain)
   let n_total = plot_data.length().to_double()
-  
+
   if n_total == 0.0 {
     return (0.0, 0.0, 0.0)
   }
-  
+
   let mut n_favored = 0.0
   let mut n_allowed = 0.0
   let mut n_generous = 0.0
-  
+
   for entry in plot_data {
     let phi = entry.2
     let psi = entry.3
@@ -825,7 +848,7 @@ pub fn ramachandran_quality(chain : Chain) -> (Double, Double, Double) {
       Generous => n_generous = n_generous + 1.0
     }
   }
-  
+
   (n_favored / n_total, n_allowed / n_total, n_generous / n_total)
 }
 
@@ -836,7 +859,7 @@ pub fn calc_sequence_property_matrix(chain : Chain) -> Array[Array[Double]] {
   let residues = chain.get_residues()
   let n = residues.length()
   let matrix : Array[Array[Double]] = Array::new()
-  
+
   let mut i = 0
   while i < n {
     let row : Array[Double] = Array::new()
@@ -850,7 +873,7 @@ pub fn calc_sequence_property_matrix(chain : Chain) -> Array[Array[Double]] {
     matrix.push(row)
     i = i + 1
   }
-  
+
   matrix
 }
 

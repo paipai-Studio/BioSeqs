@@ -295,10 +295,10 @@ pub fn to_lowercase(s : String) -> String {
         88 => result = result + "x"
         89 => result = result + "y"
         90 => result = result + "z"
-        _ => result = result + s[i:i+1].to_string()
+        _ => result = result + s[i:i + 1].to_string()
       }
     } else {
-      result = result + s[i:i+1].to_string()
+      result = result + s[i:i + 1].to_string()
     }
     i = i + 1
   }

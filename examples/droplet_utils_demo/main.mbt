@@ -1,56 +1,125 @@
 ///|
 fn main {
-  println("=== DropletUtils Demo ===")
-
-  let (counts, barcodes) = @src.create_example_droplet_data()
-
-  println("\n1. Calculate droplet statistics:")
-  let stats = @src.calculate_droplet_stats(counts, barcodes)
-  println("  Number of barcodes: " + stats.total_counts.length().to_string())
-  let mut sum = 0.0
-  let mut j = 0
-  while j < 10 && j < stats.total_counts.length() {
-    sum = sum + stats.total_counts[j]
-    j = j + 1
+  let data = @src.droplet_utils_advanced_example() catch {
+    _ => abort("failed to create the DropletUtils example")
   }
-  println("  Mean total counts: " + (sum / 10.0).to_string())
-
-  println("\n2. Barcode ranking:")
-  let ranked = @src.barcode_ranking(stats.total_counts)
-  println("  Top 5 barcodes by UMI count:")
-  let mut i = 0
-  while i < 5 && i < ranked.length() {
-    println("    " + barcodes[ranked[i].1] + ": " + ranked[i].0.to_string())
-    i = i + 1
-  }
-
-  println("\n3. Find knee point:")
-  let knee = @src.find_knee_point(ranked)
-  println("  Knee point at index: " + knee.to_string())
   println(
-    "  Estimated cell number: " +
-    @src.estimate_cell_number(stats.total_counts).to_string(),
+    "Droplet matrix: " +
+    data.n_features().to_string() +
+    " features x " +
+    data.n_barcodes().to_string() +
+    " barcodes",
   )
 
-  println("\n4. Empty droplet detection (emptyDrops):")
-  let result = @src.empty_drops(counts, barcodes, 10, 100)
-  println("  Tested barcodes: " + result.barcode.length().to_string())
-
-  let mut n_cells = 0
-  i = 0
-  while i < result.is_cell.length() {
-    if result.is_cell[i] {
-      n_cells = n_cells + 1
-    }
-    i = i + 1
+  let ambient = @src.droplet_utils_ambient_profile(data, lower=15) catch {
+    _ => abort("failed to estimate the ambient profile")
   }
-  println("  Detected cells: " + n_cells.to_string())
-
-  println("\n5. Filter cells by emptyDrops results:")
-  let (filtered_counts, filtered_barcodes) = @src.filter_cells_by_empty_drops(
-    counts, barcodes, result,
+  let alpha = @src.droplet_utils_estimate_alpha(data, ambient) catch {
+    _ => abort("failed to estimate Dirichlet-multinomial alpha")
+  }
+  println(
+    "Ambient droplets: " +
+    ambient.n_empty().to_string() +
+    ", ambient molecules: " +
+    ambient.total.to_string() +
+    ", estimated alpha: " +
+    alpha.to_string(),
   )
-  println("  Filtered barcodes: " + filtered_barcodes.length().to_string())
 
-  println("\nDropletUtils demo completed!")
+  let ranks = @src.droplet_utils_barcode_ranks(
+    data,
+    lower=15,
+    exclude_from=0,
+    window=0.2,
+  ) catch {
+    _ => abort("failed to trace the barcode-rank curve")
+  }
+  println(
+    "Barcode-rank knee: " +
+    ranks.knee.to_string() +
+    ", inflection: " +
+    ranks.inflection.to_string(),
+  )
+
+  let config = @src.DropletUtilsConfig::create(
+    lower=15,
+    iterations=499,
+    fdr_threshold=0.05,
+    retain=80.0,
+    alpha~,
+    rank_exclude=0,
+    rank_window=0.2,
+    seed=31,
+  ) catch {
+    _ => abort("failed to create the DropletUtils configuration")
+  }
+  let result = @src.droplet_utils_empty_drops(data, config~) catch {
+    _ => abort("emptyDrops failed")
+  }
+  println(result.summary())
+
+  println("\nCalled barcodes")
+  for barcode in 0..<result.barcodes.length() {
+    if result.calls[barcode] {
+      let p_value = match result.p_values[barcode] {
+        Some(value) => value.to_string()
+        None => "NA"
+      }
+      let fdr = match result.fdr[barcode] {
+        Some(value) => value.to_string()
+        None => "NA"
+      }
+      println(
+        result.barcodes[barcode] +
+        "\ttotal=" +
+        result.totals[barcode].to_string() +
+        "\tp=" +
+        p_value +
+        "\tFDR=" +
+        fdr +
+        "\tretained=" +
+        result.always_retained[barcode].to_string(),
+      )
+    }
+  }
+
+  let filtered = result.filter(data) catch {
+    _ => abort("failed to filter called barcodes")
+  }
+  println(
+    "\nFiltered matrix: " +
+    filtered.n_features().to_string() +
+    " features x " +
+    filtered.n_barcodes().to_string() +
+    " called barcodes",
+  )
+
+  let assay : Array[Array[Double]] = []
+  for feature in 0..<data.n_features() {
+    let row : Array[Double] = []
+    for barcode in 0..<data.n_barcodes() {
+      row.push(data.counts[feature][barcode].to_double())
+    }
+    assay.push(row)
+  }
+  let experiment = @src.SingleCellExperiment::new(
+    assay,
+    data.feature_names,
+    data.barcodes,
+  )
+  let output = @src.droplet_utils_empty_drops_sce(
+    experiment,
+    output_prefix="droplet",
+    config~,
+  ) catch {
+    _ => abort("DropletUtils SingleCellExperiment integration failed")
+  }
+  println(
+    "SingleCellExperiment write-back: class=" +
+    output.experiment.col_data["droplet.class"][40] +
+    ", ambient=" +
+    output.experiment.row_data["droplet.ambient"][0] +
+    ", original_unchanged=" +
+    (!experiment.col_data.contains("droplet.class")).to_string(),
+  )
 }

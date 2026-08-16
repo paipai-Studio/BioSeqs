@@ -60,9 +60,7 @@ fn seqlogo_to_lower(c : Char) -> Char {
 
 ///|
 /// Sort (frequency, base) pairs by frequency descending (selection sort).
-fn seqlogo_sort_desc(
-  pairs : Array[(Double, Int)],
-) -> Array[(Double, Int)] {
+fn seqlogo_sort_desc(pairs : Array[(Double, Int)]) -> Array[(Double, Int)] {
   let sorted = pairs.copy()
   let n = sorted.length()
   let mut i = 0
@@ -102,24 +100,13 @@ pub struct SeqLogoPwm {
 /// Construct a PWM from a 4 x L matrix (row 0 = A, 1 = C, 2 = G, 3 = T).
 pub fn SeqLogoPwm::new(matrix : Array[Array[Double]]) -> SeqLogoPwm {
   let alphabet_size = matrix.length()
-  let width = if alphabet_size > 0 {
-    matrix[0].length()
-  } else {
-    0
-  }
-  SeqLogoPwm::{
-    matrix,
-    width,
-    alphabet_size,
-    alphabet: ["A", "C", "G", "T"],
-  }
+  let width = if alphabet_size > 0 { matrix[0].length() } else { 0 }
+  SeqLogoPwm::{ matrix, width, alphabet_size, alphabet: ["A", "C", "G", "T"] }
 }
 
 ///|
 /// Build a PWM from a set of equal-length aligned DNA sequences.
-pub fn SeqLogoPwm::from_sequences(
-  sequences : Array[String],
-) -> SeqLogoPwm {
+pub fn SeqLogoPwm::from_sequences(sequences : Array[String]) -> SeqLogoPwm {
   let n = sequences.length()
   if n == 0 {
     return SeqLogoPwm::new(Array::new())
@@ -174,10 +161,7 @@ pub fn SeqLogoPwm::alphabet(self : SeqLogoPwm) -> Array[String] {
 ///|
 /// Frequency of `base` (0-3) at `pos`.
 pub fn SeqLogoPwm::get(self : SeqLogoPwm, base : Int, pos : Int) -> Double {
-  if base >= 0 &&
-    base < self.alphabet_size &&
-    pos >= 0 &&
-    pos < self.width {
+  if base >= 0 && base < self.alphabet_size && pos >= 0 && pos < self.width {
     self.matrix[base][pos]
   } else {
     0.0
@@ -255,11 +239,7 @@ pub fn SeqLogoColumn::new(
   position : Int,
   info_content : Double,
 ) -> SeqLogoColumn {
-  SeqLogoColumn::{
-    letters: Array::new(),
-    info_content,
-    position,
-  }
+  SeqLogoColumn::{ letters: Array::new(), info_content, position }
 }
 
 ///|
@@ -300,9 +280,7 @@ pub struct SeqLogoResult {
 
 ///|
 /// Construct a SeqLogoResult, computing total IC and width from the columns.
-pub fn SeqLogoResult::new(
-  columns : Array[SeqLogoColumn],
-) -> SeqLogoResult {
+pub fn SeqLogoResult::new(columns : Array[SeqLogoColumn]) -> SeqLogoResult {
   let mut total_ic = 0.0
   for col in columns {
     total_ic = total_ic + col.info_content()
@@ -476,19 +454,12 @@ pub fn seqlogo_compute_logo_bg(
 /// information contribution. Uppercase letters mark large contributions and
 /// lowercase letters mark small ones. `max_height` is the row count used for
 /// the tallest possible column (2 bits for DNA).
-pub fn seqlogo_to_ascii(
-  logo : SeqLogoResult,
-  max_height : Int,
-) -> String {
+pub fn seqlogo_to_ascii(logo : SeqLogoResult, max_height : Int) -> String {
   if max_height <= 0 {
     return ""
   }
   let max_ic = seqlogo_max_information_content(4)
-  let scale = if max_ic > 0.0 {
-    max_height.to_double() / max_ic
-  } else {
-    0.0
-  }
+  let scale = if max_ic > 0.0 { max_height.to_double() / max_ic } else { 0.0 }
   // Build a per-column stack of characters from bottom (index 0) to top.
   let stacks : Array[Array[Char]] = Array::new()
   for col in logo.columns() {
@@ -627,21 +598,13 @@ pub fn seqlogo_sample_pwm() -> SeqLogoPwm {
   // 4 rows (A, C, G, T) x 10 columns.
   let matrix = [
     // A
-    [
-      0.90, 0.10, 0.25, 0.05, 0.20, 0.01, 0.40, 0.85, 0.15, 0.30,
-    ],
+    [0.90, 0.10, 0.25, 0.05, 0.20, 0.01, 0.40, 0.85, 0.15, 0.30],
     // C
-    [
-      0.03, 0.10, 0.25, 0.90, 0.30, 0.02, 0.40, 0.05, 0.15, 0.30,
-    ],
+    [0.03, 0.10, 0.25, 0.90, 0.30, 0.02, 0.40, 0.05, 0.15, 0.30],
     // G
-    [
-      0.04, 0.70, 0.25, 0.03, 0.30, 0.03, 0.10, 0.05, 0.55, 0.20,
-    ],
+    [0.04, 0.70, 0.25, 0.03, 0.30, 0.03, 0.10, 0.05, 0.55, 0.20],
     // T
-    [
-      0.03, 0.10, 0.25, 0.02, 0.20, 0.94, 0.10, 0.05, 0.15, 0.20,
-    ],
+    [0.03, 0.10, 0.25, 0.02, 0.20, 0.94, 0.10, 0.05, 0.15, 0.20],
   ]
   SeqLogoPwm::new(matrix)
 }
@@ -650,25 +613,9 @@ pub fn seqlogo_sample_pwm() -> SeqLogoPwm {
 /// Twenty aligned DNA sequences of length 10 used to build a sample PWM.
 pub fn seqlogo_sample_sequences() -> Array[String] {
   [
-    "AGACATGAGC",
-    "AGACATGAGG",
-    "CGACGTGAGT",
-    "AGTCATGAGC",
-    "GGACATGAGC",
-    "AGGCATGAGC",
-    "AGACGTGATC",
-    "AGACATGTGC",
-    "AGACATGCGC",
-    "TGACATGAGC",
-    "AGACATGAGA",
-    "AGACATGAGC",
-    "CGACATGAGG",
-    "AGATATGAGC",
-    "AGACACGAGC",
-    "AGAGATGAGC",
-    "AGACATGAGG",
-    "AGACATGACC",
-    "AGACATGTGC",
-    "AAACATGAGC",
+    "AGACATGAGC", "AGACATGAGG", "CGACGTGAGT", "AGTCATGAGC", "GGACATGAGC", "AGGCATGAGC",
+    "AGACGTGATC", "AGACATGTGC", "AGACATGCGC", "TGACATGAGC", "AGACATGAGA", "AGACATGAGC",
+    "CGACATGAGG", "AGATATGAGC", "AGACACGAGC", "AGAGATGAGC", "AGACATGAGG", "AGACATGACC",
+    "AGACATGTGC", "AAACATGAGC",
   ]
 }

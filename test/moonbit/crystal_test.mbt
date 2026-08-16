@@ -51,7 +51,7 @@ test "unit_cell_volume_hexagonal" {
     gamma=120.0,
   )
   let v = @src.unit_cell_volume(cell)
-  let expected = 5.0 * 5.0 * 7.0 * (3.0).sqrt() / 2.0
+  let expected = 5.0 * 5.0 * 7.0 * 3.0.sqrt() / 2.0
   assert_true((v - expected).abs() < 0.01)
 }
 
@@ -142,13 +142,7 @@ test "lookup_space_group_unknown" {
 
 ///|
 test "crystal_atom_construction" {
-  let a = @src.CrystalAtom::new(
-    label="C1",
-    element="C",
-    x=0.5,
-    y=0.5,
-    z=0.5,
-  )
+  let a = @src.CrystalAtom::new(label="C1", element="C", x=0.5, y=0.5, z=0.5)
   assert_eq(a.label, "C1")
   assert_eq(a.element, "C")
   assert_true((a.x - 0.5).abs() < 0.001)
@@ -216,7 +210,7 @@ test "fractional_to_cartesian_orthorhombic" {
     beta=90.0,
     gamma=90.0,
   )
-  let(x, y, z) = @src.fractional_to_cartesian(cell, 0.5, 0.25, 0.1)
+  let (x, y, z) = @src.fractional_to_cartesian(cell, 0.5, 0.25, 0.1)
   assert_true((x - 5.0).abs() < 0.001)
   assert_true((y - 5.0).abs() < 0.001)
   assert_true((z - 3.0).abs() < 0.001)
@@ -232,7 +226,7 @@ test "cartesian_to_fractional_orthorhombic" {
     beta=90.0,
     gamma=90.0,
   )
-  let(xf, yf, zf) = @src.cartesian_to_fractional(cell, 5.0, 5.0, 3.0)
+  let (xf, yf, zf) = @src.cartesian_to_fractional(cell, 5.0, 5.0, 3.0)
   assert_true((xf - 0.5).abs() < 0.001)
   assert_true((yf - 0.25).abs() < 0.001)
   assert_true((zf - 0.1).abs() < 0.001)
@@ -251,8 +245,8 @@ test "coord_conversion_roundtrip_orthorhombic" {
   let xf0 = 0.3
   let yf0 = 0.6
   let zf0 = 0.9
-  let(x, y, z) = @src.fractional_to_cartesian(cell, xf0, yf0, zf0)
-  let(xf, yf, zf) = @src.cartesian_to_fractional(cell, x, y, z)
+  let (x, y, z) = @src.fractional_to_cartesian(cell, xf0, yf0, zf0)
+  let (xf, yf, zf) = @src.cartesian_to_fractional(cell, x, y, z)
   assert_true((xf - xf0).abs() < 0.01)
   assert_true((yf - yf0).abs() < 0.01)
   assert_true((zf - zf0).abs() < 0.01)
@@ -300,7 +294,7 @@ test "crystal_atom_distance_missing_atom" {
 ///|
 test "center_of_mass_basic" {
   let s = @src.crystal_sample_structure()
-  let(cx, cy, cz) = @src.center_of_mass(s)
+  let (cx, cy, cz) = @src.center_of_mass(s)
   // Center of mass should be a 3-tuple of finite doubles.
   assert_true(cx >= 0.0 || cx < 0.0) // just check it's a number
   assert_true(cy >= 0.0 || cy < 0.0)
@@ -319,14 +313,14 @@ test "center_of_mass_empty_structure" {
   )
   let s = @src.CrystalStructure::new(
     name="empty",
-    cell=cell,
+    cell~,
     space_group=@src.SpaceGroup::new(number=1, symbol="P 1"),
     atoms=[],
     bonds=[],
     z=1,
     molecular_weight=0.0,
   )
-  let(cx, cy, cz) = @src.center_of_mass(s)
+  let (cx, cy, cz) = @src.center_of_mass(s)
   assert_true((cx - 0.0).abs() < 0.001)
   assert_true((cy - 0.0).abs() < 0.001)
   assert_true((cz - 0.0).abs() < 0.001)
@@ -363,7 +357,7 @@ test "cif_block_loop_set_get" {
   let headers = ["_atom_site_label", "_atom_site_x"]
   let rows = [["C1", "0.5"], ["C2", "0.6"]]
   block.set_loop("_atom_site_label", headers, rows)
-  let(h, r) = block.get_loop("_atom_site_label")
+  let (h, r) = block.get_loop("_atom_site_label")
   assert_eq(h.length(), 2)
   assert_eq(r.length(), 2)
   assert_eq(r[0][0], "C1")
@@ -372,7 +366,7 @@ test "cif_block_loop_set_get" {
 ///|
 test "cif_block_loop_missing_returns_empty" {
   let block = @src.CifBlock::new(name="test")
-  let(h, r) = block.get_loop("_nonexistent")
+  let (h, r) = block.get_loop("_nonexistent")
   assert_eq(h.length(), 0)
   assert_eq(r.length(), 0)
 }
@@ -403,7 +397,7 @@ test "parse_cif_with_loop" {
     #|C3 0.7
   let blocks = @src.parse_cif(text)
   assert_eq(blocks.length(), 1)
-  let(h, r) = blocks[0].get_loop("_atom_site_label")
+  let (h, r) = blocks[0].get_loop("_atom_site_label")
   assert_eq(h.length(), 2)
   assert_eq(r.length(), 3)
   assert_eq(r[0][0], "C1")
@@ -521,7 +515,7 @@ test "crystal_summary_density_zero_when_mw_zero" {
   )
   let s = @src.CrystalStructure::new(
     name="test",
-    cell=cell,
+    cell~,
     space_group=@src.SpaceGroup::new(number=1, symbol="P 1"),
     atoms=[],
     bonds=[],

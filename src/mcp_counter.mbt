@@ -77,13 +77,21 @@ pub fn McpResult::get_score(
 ) -> Double {
   let mut pop_idx = -1
   for i in 0..<self.populations.length() {
-    if self.populations[i] == population { pop_idx = i; break }
+    if self.populations[i] == population {
+      pop_idx = i
+      break
+    }
   }
   let mut samp_idx = -1
   for i in 0..<self.sample_names.length() {
-    if self.sample_names[i] == sample { samp_idx = i; break }
+    if self.sample_names[i] == sample {
+      samp_idx = i
+      break
+    }
   }
-  if pop_idx < 0 || samp_idx < 0 { return 0.0 }
+  if pop_idx < 0 || samp_idx < 0 {
+    return 0.0
+  }
   self.scores[pop_idx][samp_idx]
 }
 
@@ -95,9 +103,14 @@ pub fn McpResult::get_population_scores(
 ) -> Array[Double] {
   let mut idx = -1
   for i in 0..<self.populations.length() {
-    if self.populations[i] == population { idx = i; break }
+    if self.populations[i] == population {
+      idx = i
+      break
+    }
   }
-  if idx < 0 { return [] }
+  if idx < 0 {
+    return []
+  }
   self.scores[idx].copy()
 }
 
@@ -111,7 +124,9 @@ pub fn McpResult::get_population_scores(
 /// Uses log-domain computation: exp(mean(log(x))).
 fn mcp_geometric_mean(values : Array[Double]) -> Double {
   let n = values.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let mut sum_log = 0.0
   let mut count = 0
   for v in values {
@@ -120,7 +135,9 @@ fn mcp_geometric_mean(values : Array[Double]) -> Double {
       count = count + 1
     }
   }
-  if count == 0 { return 0.0 }
+  if count == 0 {
+    return 0.0
+  }
   @math.exp(sum_log / count.to_double())
 }
 
@@ -181,7 +198,9 @@ pub fn mcp_default_populations() -> Array[McpCellPopulation] {
 pub fn mcp_population_names() -> Array[String] {
   let pops = mcp_default_populations()
   let names : Array[String] = []
-  for p in pops { names.push(p.name) }
+  for p in pops {
+    names.push(p.name)
+  }
   names
 }
 
@@ -273,9 +292,14 @@ pub fn mcp_sample_data() -> (Array[String], Array[String], Array[Array[Double]])
     for m in pop.markers {
       let mut found = false
       for existing in all_markers {
-        if existing == m { found = true; break }
+        if existing == m {
+          found = true
+          break
+        }
       }
-      if !found { all_markers.push(m) }
+      if !found {
+        all_markers.push(m)
+      }
     }
   }
   let sample_names = ["Tumor_A", "Tumor_B", "Tumor_C"]
@@ -290,7 +314,10 @@ pub fn mcp_sample_data() -> (Array[String], Array[String], Array[Array[Double]])
     let mut pi = 0
     while pi < pops.length() && pop_idx < 0 {
       for m in pops[pi].markers {
-        if m == gene { pop_idx = pi; break }
+        if m == gene {
+          pop_idx = pi
+          break
+        }
       }
       pi = pi + 1
     }
@@ -300,13 +327,19 @@ pub fn mcp_sample_data() -> (Array[String], Array[String], Array[Array[Double]])
     let base_exprs = [5.0, 4.0, 3.0, 6.0, 2.0, 3.0, 2.0, 1.0, 1.0, 7.0]
     let val_a = if pop_idx == 0 || pop_idx == 1 || pop_idx == 2 {
       base_exprs[pop_idx] + 5.0
-    } else { base_exprs[pop_idx] * 0.3 }
+    } else {
+      base_exprs[pop_idx] * 0.3
+    }
     let val_b = if pop_idx == 3 {
       base_exprs[pop_idx] + 5.0
-    } else { base_exprs[pop_idx] * 0.3 }
+    } else {
+      base_exprs[pop_idx] * 0.3
+    }
     let val_c = if pop_idx == 9 {
       base_exprs[pop_idx] + 5.0
-    } else { base_exprs[pop_idx] * 0.3 }
+    } else {
+      base_exprs[pop_idx] * 0.3
+    }
     row.push(val_a)
     row.push(val_b)
     row.push(val_c)

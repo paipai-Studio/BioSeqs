@@ -281,9 +281,7 @@ pub fn parse_fasta_m8(content : String) -> Array[QueryResult] {
       hits.push(Hit::new(sid, "", "", hsps, tbs, mev))
       ti = ti + 1
     }
-    results.push(
-      QueryResult::new(qid, "", 0, hits, "fasta", "36", ""),
-    )
+    results.push(QueryResult::new(qid, "", 0, hits, "fasta", "36", ""))
     qi = qi + 1
   }
 
@@ -476,8 +474,8 @@ fn fasta_sio_parse_row(ln : String) -> FastaRow {
 /// Generate a small FASTA `-m 8` (compact tabular) sample for tests and demos.
 pub fn fasta_m8_sample() -> String {
   "query1\tsubject1\t95.0\t100\t5\t0\t1\t100\t1\t100\t1e-50\t200.3\n" +
-    "query1\tsubject2\t80.0\t80\t16\t2\t1\t80\t10\t90\t1e-30\t150.1\n" +
-    "query2\tsubject1\t70.0\t60\t18\t3\t1\t60\t5\t65\t1e-20\t100.5\n"
+  "query1\tsubject2\t80.0\t80\t16\t2\t1\t80\t10\t90\t1e-30\t150.1\n" +
+  "query2\tsubject1\t70.0\t60\t18\t3\t1\t60\t5\t65\t1e-20\t100.5\n"
 }
 
 ///|
@@ -485,11 +483,11 @@ pub fn fasta_m8_sample() -> String {
 /// for tests and demos.
 pub fn fasta_m9_sample() -> String {
   "# FASTA 36.3.8h May 10, 2023\n" +
-    "# Query: query1 - example query 1\n" +
-    "# Database: uniprot_sprot.fasta\n" +
-    "# Fields: query id, subject id, % identity, alignment length, mismatches, gap openings, q.start, q.end, s.start, s.end, e-value, bit score\n" +
-    "query1\tsubject1\t95.0\t100\t5\t0\t1\t100\t1\t100\t1e-50\t200.3\n" +
-    "query1\tsubject2\t80.0\t80\t16\t2\t1\t80\t10\t90\t1e-30\t150.1\n" +
-    "# Query: query2 - example query 2\n" +
-    "query2\tsubject1\t70.0\t60\t18\t3\t1\t60\t5\t65\t1e-20\t100.5\n"
+  "# Query: query1 - example query 1\n" +
+  "# Database: uniprot_sprot.fasta\n" +
+  "# Fields: query id, subject id, % identity, alignment length, mismatches, gap openings, q.start, q.end, s.start, s.end, e-value, bit score\n" +
+  "query1\tsubject1\t95.0\t100\t5\t0\t1\t100\t1\t100\t1e-50\t200.3\n" +
+  "query1\tsubject2\t80.0\t80\t16\t2\t1\t80\t10\t90\t1e-30\t150.1\n" +
+  "# Query: query2 - example query 2\n" +
+  "query2\tsubject1\t70.0\t60\t18\t3\t1\t60\t5\t65\t1e-20\t100.5\n"
 }

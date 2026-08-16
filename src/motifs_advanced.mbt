@@ -132,15 +132,15 @@ fn adv_parse_float(s : String) -> Double? {
   let mut sign = 1.0
   let mut i = 0
   let zero = '0'.to_int()
-  
+
   if s.unsafe_get(0).to_int() == '-'.to_int() {
     sign = -1.0
     i = 1
   }
-  
+
   let mut has_dot = false
   let mut decimal_place = 1.0
-  
+
   while i < s.length() {
     let c = s.unsafe_get(i).to_int()
     if c == '.'.to_int() {
@@ -157,13 +157,15 @@ fn adv_parse_float(s : String) -> Double? {
     }
     i = i + 1
   }
-  
+
   Some(result * sign / decimal_place)
 }
 
 ///|
 fn adv_log2(x : Double) -> Double {
-  if x <= 0.0 { return 0.0 }
+  if x <= 0.0 {
+    return 0.0
+  }
   let ln2 = 0.6931471805599453
   let term = (x - 1.0) / (x + 1.0)
   let term2 = term * term
@@ -252,7 +254,7 @@ pub fn parse_jaspar_pfm(content : String) -> Array[JasparMotif] {
   let motifs : Array[JasparMotif] = Array::new()
   let lines_view = content.split("\n")
   let lines = lines_view.to_array()
-  
+
   let mut i = 0
   while i < lines.length() {
     let line_view = lines[i].trim()
@@ -269,12 +271,12 @@ pub fn parse_jaspar_pfm(content : String) -> Array[JasparMotif] {
       if parts.length() >= 2 {
         name = parts[1].trim().to_owned()
       }
-      
+
       let mut a_counts : Array[Double] = Array::new()
       let mut c_counts : Array[Double] = Array::new()
       let mut g_counts : Array[Double] = Array::new()
       let mut t_counts : Array[Double] = Array::new()
-      
+
       let mut j = i + 1
       while j < lines.length() && !lines[j].trim().has_prefix(">") {
         let row_view = lines[j].trim()
@@ -293,7 +295,7 @@ pub fn parse_jaspar_pfm(content : String) -> Array[JasparMotif] {
         }
         j = j + 1
       }
-      
+
       let width = a_counts.length()
       if width > 0 {
         let pwm = Array::make(width, Array::make(4, 0.0))
@@ -303,7 +305,7 @@ pub fn parse_jaspar_pfm(content : String) -> Array[JasparMotif] {
           pwm[pos][2] = g_counts[pos]
           pwm[pos][3] = t_counts[pos]
         }
-        
+
         let motif = JasparMotif::new(
           matrix_id,
           name,
@@ -318,13 +320,13 @@ pub fn parse_jaspar_pfm(content : String) -> Array[JasparMotif] {
         )
         motifs.push(motif)
       }
-      
+
       i = j
     } else {
       i = i + 1
     }
   }
-  
+
   motifs
 }
 
@@ -332,14 +334,14 @@ pub fn parse_jaspar_pfm(content : String) -> Array[JasparMotif] {
 fn parse_jaspar_row(line : String) -> (String, Array[Double]) {
   let counts : Array[Double] = Array::new()
   let mut base = ""
-  
+
   if line.length() >= 1 {
     base = line[0:1].to_owned().to_upper()
   }
-  
+
   let start_bracket = adv_index_of(line, "[")
   let end_bracket = adv_index_of(line, "]")
-  
+
   if start_bracket >= 0 && end_bracket > start_bracket {
     let numbers_str = line[start_bracket + 1:end_bracket].to_owned()
     let number_parts = split_whitespace(numbers_str)
@@ -368,7 +370,7 @@ fn parse_jaspar_row(line : String) -> (String, Array[Double]) {
       }
     }
   }
-  
+
   (base, counts)
 }
 
@@ -384,7 +386,7 @@ pub fn jaspar_pfm_to_pwm(
   let width = pfm.length()
   let alphabet_size = pfm[0].length()
   let pwm = Array::make(width, Array::make(alphabet_size, 0.0))
-  
+
   for pos = 0; pos < width; pos = pos + 1 {
     let row = pfm[pos]
     let mut total = 0.0
@@ -392,12 +394,12 @@ pub fn jaspar_pfm_to_pwm(
       total = total + row[i]
     }
     let norm_total = total + pseudocount * alphabet_size.to_double()
-    
+
     for alpha_idx = 0; alpha_idx < alphabet_size; alpha_idx = alpha_idx + 1 {
       pwm[pos][alpha_idx] = (row[alpha_idx] + pseudocount) / norm_total
     }
   }
-  
+
   pwm
 }
 
@@ -411,7 +413,7 @@ pub fn parse_transfac(content : String) -> Array[TransfacMotif] {
   let motifs : Array[TransfacMotif] = Array::new()
   let lines_view = content.split("\n")
   let lines = lines_view.to_array()
-  
+
   let mut i = 0
   while i < lines.length() {
     let line_view = lines[i].trim()
@@ -424,12 +426,12 @@ pub fn parse_transfac(content : String) -> Array[TransfacMotif] {
       let matrix_rows : Array[Array[Double]] = Array::new()
       let binding_sites : Array[String] = Array::new()
       let mut in_matrix = false
-      
+
       let mut j = i + 1
       while j < lines.length() && !lines[j].trim().has_prefix("//") {
         let row_view = lines[j].trim()
         let row_line = row_view.to_owned()
-        
+
         if row_line.has_prefix("ID ") {
           id = row_line[2:].trim().to_owned()
         } else if row_line.has_prefix("NA ") {
@@ -452,10 +454,10 @@ pub fn parse_transfac(content : String) -> Array[TransfacMotif] {
             matrix_rows.push(row)
           }
         }
-        
+
         j = j + 1
       }
-      
+
       if matrix_rows.length() > 0 {
         let width = matrix_rows.length()
         let pwm = Array::make(width, Array::make(4, 0.0))
@@ -465,25 +467,19 @@ pub fn parse_transfac(content : String) -> Array[TransfacMotif] {
           pwm[pos][2] = matrix_rows[pos][2]
           pwm[pos][3] = matrix_rows[pos][3]
         }
-        
+
         let motif = TransfacMotif::new(
-          accession,
-          id,
-          name,
-          description,
-          pwm,
-          dna_alphabet_jaspar,
-          binding_sites,
+          accession, id, name, description, pwm, dna_alphabet_jaspar, binding_sites,
         )
         motifs.push(motif)
       }
-      
+
       i = j + 1
     } else {
       i = i + 1
     }
   }
-  
+
   motifs
 }
 
@@ -500,44 +496,44 @@ pub fn optimal_motif_alignment(
   if motif1_pwm.length() == 0 || motif2_pwm.length() == 0 {
     return MotifAlignmentResult::new(0.0, 0, "+", 0)
   }
-  
+
   let len1 = motif1_pwm.length()
   let len2 = motif2_pwm.length()
   let mut best_score = -1.0
   let mut best_offset = 0
   let mut best_strand = "+"
   let mut best_aligned_len = 0
-  
+
   for offset = -(len2 - 1); offset < len1; offset = offset + 1 {
     let (score, aligned_len) = calculate_alignment_score(
-      motif1_pwm,
-      motif2_pwm,
-      offset,
+      motif1_pwm, motif2_pwm, offset,
     )
-    if score > best_score || (score == best_score && aligned_len > best_aligned_len) {
+    if score > best_score ||
+      (score == best_score && aligned_len > best_aligned_len) {
       best_score = score
       best_offset = offset
       best_strand = "+"
       best_aligned_len = aligned_len
     }
   }
-  
+
   let rev_motif2 = reverse_complement_pwm(motif2_pwm)
   for offset = -(len2 - 1); offset < len1; offset = offset + 1 {
     let (score, aligned_len) = calculate_alignment_score(
-      motif1_pwm,
-      rev_motif2,
-      offset,
+      motif1_pwm, rev_motif2, offset,
     )
-    if score > best_score || (score == best_score && aligned_len > best_aligned_len) {
+    if score > best_score ||
+      (score == best_score && aligned_len > best_aligned_len) {
       best_score = score
       best_offset = offset
       best_strand = "-"
       best_aligned_len = aligned_len
     }
   }
-  
-  MotifAlignmentResult::new(best_score, best_offset, best_strand, best_aligned_len)
+
+  MotifAlignmentResult::new(
+    best_score, best_offset, best_strand, best_aligned_len,
+  )
 }
 
 ///|
@@ -550,10 +546,10 @@ fn calculate_alignment_score(
   let len2 = pwm2.length()
   let mut score = 0.0
   let mut aligned_len = 0
-  
+
   let start1 = if offset >= 0 { offset } else { 0 }
   let start2 = if offset >= 0 { 0 } else { -offset }
-  
+
   let mut i = start1
   let mut j = start2
   while i < len1 && j < len2 {
@@ -568,11 +564,11 @@ fn calculate_alignment_score(
     i = i + 1
     j = j + 1
   }
-  
+
   if aligned_len > 0 {
     score = score / aligned_len.to_double()
   }
-  
+
   (score, aligned_len)
 }
 
@@ -584,7 +580,7 @@ fn reverse_complement_pwm(pwm : Array[Array[Double]]) -> Array[Array[Double]] {
   }
   let alphabet_size = pwm[0].length()
   let rev_pwm = Array::make(width, Array::make(alphabet_size, 0.0))
-  
+
   for pos = 0; pos < width; pos = pos + 1 {
     let orig_pos = width - 1 - pos
     if alphabet_size == 4 {
@@ -598,7 +594,7 @@ fn reverse_complement_pwm(pwm : Array[Array[Double]]) -> Array[Array[Double]] {
       }
     }
   }
-  
+
   rev_pwm
 }
 
@@ -611,13 +607,13 @@ pub fn motif_kl_divergence(
   if pwm1.length() == 0 || pwm2.length() == 0 {
     return 0.0
   }
-  
+
   let min_len = if pwm1.length() < pwm2.length() {
     pwm1.length()
   } else {
     pwm2.length()
   }
-  
+
   let mut total_kl = 0.0
   for pos = 0; pos < min_len; pos = pos + 1 {
     let row1 = pwm1[pos]
@@ -632,7 +628,7 @@ pub fn motif_kl_divergence(
     }
     total_kl = total_kl + pos_kl
   }
-  
+
   total_kl / min_len.to_double()
 }
 
@@ -645,24 +641,24 @@ pub fn motif_js_divergence(
   if pwm1.length() == 0 || pwm2.length() == 0 {
     return 0.0
   }
-  
+
   let min_len = if pwm1.length() < pwm2.length() {
     pwm1.length()
   } else {
     pwm2.length()
   }
-  
+
   let mut total_js = 0.0
   for pos = 0; pos < min_len; pos = pos + 1 {
     let row1 = pwm1[pos]
     let row2 = pwm2[pos]
     let alphabet_size = row1.length()
     let m_row = Array::make(alphabet_size, 0.0)
-    
+
     for k = 0; k < alphabet_size; k = k + 1 {
       m_row[k] = (row1[k] + row2[k]) / 2.0
     }
-    
+
     let mut kl1 = 0.0
     let mut kl2 = 0.0
     for k = 0; k < alphabet_size; k = k + 1 {
@@ -673,10 +669,10 @@ pub fn motif_js_divergence(
         kl2 = kl2 + row2[k] * adv_log2(row2[k] / m_row[k])
       }
     }
-    
+
     total_js = total_js + (kl1 + kl2) / 2.0
   }
-  
+
   total_js / min_len.to_double()
 }
 
@@ -695,7 +691,7 @@ pub fn cluster_motifs(
   if n == 0 {
     return []
   }
-  
+
   let similarity_matrix = Array::make(n, Array::make(n, 0.0))
   for i = 0; i < n; i = i + 1 {
     for j = 0; j < n; j = j + 1 {
@@ -709,15 +705,15 @@ pub fn cluster_motifs(
       }
     }
   }
-  
+
   let clusters : Array[MotifCluster] = Array::new()
   let assigned = Array::make(n, false)
-  
+
   for i = 0; i < n; i = i + 1 {
     if !assigned[i] {
       let cluster_members : Array[String] = Array::new()
       let cluster_indices : Array[Int] = Array::new()
-      
+
       for j = i; j < n; j = j + 1 {
         if !assigned[j] {
           let mut all_similar = true
@@ -733,7 +729,7 @@ pub fn cluster_motifs(
           }
         }
       }
-      
+
       let mut best_rep_idx = 0
       let mut best_avg_sim = 0.0
       for k = 0; k < cluster_indices.length(); k = k + 1 {
@@ -748,7 +744,7 @@ pub fn cluster_motifs(
           best_rep_idx = k
         }
       }
-      
+
       let cluster = MotifCluster::new(
         clusters.length(),
         cluster_members,
@@ -758,7 +754,7 @@ pub fn cluster_motifs(
       clusters.push(cluster)
     }
   }
-  
+
   clusters
 }
 
@@ -797,53 +793,58 @@ pub fn motif_gc_content_adv(pwm : Array[Array[Double]]) -> Double {
 
 ///|
 /// Shuffle the columns of a PWM to create a randomized control motif.
-pub fn shuffle_motif_columns(pwm : Array[Array[Double]]) -> Array[Array[Double]] {
+pub fn shuffle_motif_columns(
+  pwm : Array[Array[Double]],
+) -> Array[Array[Double]] {
   let width = pwm.length()
   if width == 0 {
     return []
   }
   let alphabet_size = pwm[0].length()
-  
+
   let indices = Array::make(width, 0)
   for i = 0; i < width; i = i + 1 {
     indices[i] = i
   }
-  
+
   for i = width - 1; i > 0; i = i - 1 {
     let j = (i * 7 + 3) % (i + 1)
     let temp = indices[i]
     indices[i] = indices[j]
     indices[j] = temp
   }
-  
+
   let shuffled = Array::make(width, Array::make(alphabet_size, 0.0))
   for i = 0; i < width; i = i + 1 {
     shuffled[i] = pwm[indices[i]].copy()
   }
-  
+
   shuffled
 }
 
 ///|
 /// Create a motif with randomized nucleotide frequencies for each position.
-pub fn randomize_motif(width : Int, alphabet_size : Int) -> Array[Array[Double]] {
+pub fn randomize_motif(
+  width : Int,
+  alphabet_size : Int,
+) -> Array[Array[Double]] {
   let pwm = Array::make(width, Array::make(alphabet_size, 0.0))
-  
+
   for pos = 0; pos < width; pos = pos + 1 {
     let row : Array[Double] = Array::new()
     let mut total = 0.0
-    
+
     for i = 0; i < alphabet_size; i = i + 1 {
       let val = adv_sin((pos * 17 + i * 31).to_double()).abs() + 0.1
       row.push(val)
       total = total + val
     }
-    
+
     for i = 0; i < alphabet_size; i = i + 1 {
       pwm[pos][i] = row[i] / total
     }
   }
-  
+
   pwm
 }
 
@@ -854,7 +855,7 @@ fn adv_sin(x : Double) -> Double {
   let mut sign = 1.0
   let mut factorial = 1.0
   let mut power = x
-  
+
   let n = 15
   let mut i = 0
   while i < n {
@@ -864,7 +865,7 @@ fn adv_sin(x : Double) -> Double {
     factorial = factorial * (2 * i + 2).to_double() * (2 * i + 3).to_double()
     i = i + 1
   }
-  
+
   result
 }
 
@@ -882,21 +883,17 @@ pub fn pwm_to_transfac(
   if pwm.length() == 0 {
     return ""
   }
-  
+
   let mut result = "AC " + accession + "\n"
   result = result + "ID " + name + "\n"
   result = result + "NA " + name + "\n"
   result = result + "DE " + name + " matrix\n"
   result = result + "P0      A      C      G      T\n"
-  
+
   for pos = 0; pos < pwm.length(); pos = pos + 1 {
     let row = pwm[pos]
-    let pos_str = if pos < 10 {
-      "0" + pos.to_string()
-    } else {
-      pos.to_string()
-    }
-    
+    let pos_str = if pos < 10 { "0" + pos.to_string() } else { pos.to_string() }
+
     let mut row_str = pos_str + "    "
     for k = 0; k < row.length(); k = k + 1 {
       let val_str = row[k].to_string()
@@ -915,10 +912,10 @@ pub fn pwm_to_transfac(
     }
     result = result + row_str + "\n"
   }
-  
+
   result = result + "XX\n"
   result = result + "//\n"
-  
+
   result
 }
 
@@ -932,10 +929,10 @@ pub fn pwm_to_jaspar(
   if pwm.length() == 0 {
     return ""
   }
-  
+
   let width = pwm.length()
   let mut result = ">" + matrix_id + " " + name + "\n"
-  
+
   let bases = ["A", "C", "G", "T"]
   for b = 0; b < 4; b = b + 1 {
     let mut values_str = bases[b] + " [ "
@@ -947,6 +944,6 @@ pub fn pwm_to_jaspar(
     values_str = values_str + "]\n"
     result = result + values_str
   }
-  
+
   result
 }

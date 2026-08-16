@@ -57,7 +57,14 @@ pub struct PseaGeometry {
 
 ///|
 /// Create a new atom.
-pub fn PseaAtom::new(res_name : String, res_num : Int, atom_name : String, x : Double, y : Double, z : Double) -> PseaAtom {
+pub fn PseaAtom::new(
+  res_name : String,
+  res_num : Int,
+  atom_name : String,
+  x : Double,
+  y : Double,
+  z : Double,
+) -> PseaAtom {
   PseaAtom::{ res_name, res_num, atom_name, x, y, z }
 }
 
@@ -88,14 +95,25 @@ pub fn psea_bond_angle(a : PseaAtom, b : PseaAtom, c : PseaAtom) -> Double {
   }
   let cos_theta = dot / (ba_len * bc_len)
   // Clamp to avoid numerical issues
-  let cos_clamped = if cos_theta > 1.0 { 1.0 } else if cos_theta < -1.0 { -1.0 } else { cos_theta }
+  let cos_clamped = if cos_theta > 1.0 {
+    1.0
+  } else if cos_theta < -1.0 {
+    -1.0
+  } else {
+    cos_theta
+  }
   // arccos in degrees
   psea_arccos_deg(cos_clamped)
 }
 
 ///|
 /// Compute the virtual dihedral angle (in degrees) formed by atoms a-b-c-d.
-pub fn psea_dihedral_angle(a : PseaAtom, b : PseaAtom, c : PseaAtom, d : PseaAtom) -> Double {
+pub fn psea_dihedral_angle(
+  a : PseaAtom,
+  b : PseaAtom,
+  c : PseaAtom,
+  d : PseaAtom,
+) -> Double {
   // Vectors b1 = b-a, b2 = c-b, b3 = d-c
   let b1_x = b.x - a.x
   let b1_y = b.y - a.y
@@ -122,7 +140,13 @@ pub fn psea_dihedral_angle(a : PseaAtom, b : PseaAtom, c : PseaAtom, d : PseaAto
   }
   let dot = n1_x * n2_x + n1_y * n2_y + n1_z * n2_z
   let cos_val = dot / (n1_len * n2_len)
-  let cos_clamped = if cos_val > 1.0 { 1.0 } else if cos_val < -1.0 { -1.0 } else { cos_val }
+  let cos_clamped = if cos_val > 1.0 {
+    1.0
+  } else if cos_val < -1.0 {
+    -1.0
+  } else {
+    cos_val
+  }
   let mut angle = psea_arccos_deg(cos_clamped)
   // Sign of the dihedral: (n1 x n2) . b2
   let sign_vec_x = n1_y * n2_z - n1_z * n2_y
@@ -166,13 +190,22 @@ pub fn psea_compute_geometry(ca_atoms : Array[PseaAtom]) -> PseaGeometry {
   // Bond angles (a-b-c)
   let mut j = 2
   while j < n {
-    bond_angles.push(psea_bond_angle(ca_atoms[j - 2], ca_atoms[j - 1], ca_atoms[j]))
+    bond_angles.push(
+      psea_bond_angle(ca_atoms[j - 2], ca_atoms[j - 1], ca_atoms[j]),
+    )
     j = j + 1
   }
   // Dihedral angles (a-b-c-d)
   let mut k = 3
   while k < n {
-    dihedral_angles.push(psea_dihedral_angle(ca_atoms[k - 3], ca_atoms[k - 2], ca_atoms[k - 1], ca_atoms[k]))
+    dihedral_angles.push(
+      psea_dihedral_angle(
+        ca_atoms[k - 3],
+        ca_atoms[k - 2],
+        ca_atoms[k - 1],
+        ca_atoms[k],
+      ),
+    )
     k = k + 1
   }
   PseaGeometry::{ ca_distances, bond_angles, dihedral_angles }
@@ -216,7 +249,7 @@ pub fn psea_run(ca_atoms : Array[PseaAtom]) -> PseaResult {
       confidence,
       n_helix: 0,
       n_strand: 0,
-      n_coil: n
+      n_coil: n,
     }
   }
   let geom = psea_compute_geometry(ca_atoms)
@@ -236,13 +269,25 @@ pub fn psea_run(ca_atoms : Array[PseaAtom]) -> PseaResult {
     let angle = geom.dihedral_angles[di]
     let res_idx = di + 1
     // Alpha helix: dihedral around -57 to -70 (centered at -60)
-    let helix_dist = (angle - (-60.0)).abs()
-    let helix_score = if helix_dist < 30.0 { 1.0 - helix_dist / 30.0 } else { 0.0 }
+    let helix_dist = (angle - -60.0).abs()
+    let helix_score = if helix_dist < 30.0 {
+      1.0 - helix_dist / 30.0
+    } else {
+      0.0
+    }
     // Beta strand: dihedral around -120 or +120
-    let strand_dist1 = (angle - (-120.0)).abs()
+    let strand_dist1 = (angle - -120.0).abs()
     let strand_dist2 = (angle - 120.0).abs()
-    let strand_dist = if strand_dist1 < strand_dist2 { strand_dist1 } else { strand_dist2 }
-    let strand_score = if strand_dist < 40.0 { 1.0 - strand_dist / 40.0 } else { 0.0 }
+    let strand_dist = if strand_dist1 < strand_dist2 {
+      strand_dist1
+    } else {
+      strand_dist2
+    }
+    let strand_score = if strand_dist < 40.0 {
+      1.0 - strand_dist / 40.0
+    } else {
+      0.0
+    }
     // Apply to residues in the window
     let mut ri = res_idx - 1
     while ri <= res_idx + 1 && ri < n {
@@ -304,7 +349,11 @@ pub fn psea_run(ca_atoms : Array[PseaAtom]) -> PseaResult {
 
 ///|
 /// Enforce minimum lengths for helix and strand segments.
-fn psea_enforce_min_lengths(ss : Array[String], min_helix : Int, min_strand : Int) -> Unit {
+fn psea_enforce_min_lengths(
+  ss : Array[String],
+  min_helix : Int,
+  min_strand : Int,
+) -> Unit {
   let n = ss.length()
   let mut i = 0
   while i < n {
@@ -380,10 +429,17 @@ pub fn PseaResult::psea_get_res_name(self : PseaResult, idx : Int) -> String {
 ///|
 /// Summary statistics as a string.
 pub fn PseaResult::psea_summary(self : PseaResult) -> String {
-  "PSEA: " + self.psea_n_residues().to_string() + " residues, " +
-  "H=" + self.n_helix.to_string() + " " +
-  "E=" + self.n_strand.to_string() + " " +
-  "C=" + self.n_coil.to_string()
+  "PSEA: " +
+  self.psea_n_residues().to_string() +
+  " residues, " +
+  "H=" +
+  self.n_helix.to_string() +
+  " " +
+  "E=" +
+  self.n_strand.to_string() +
+  " " +
+  "C=" +
+  self.n_coil.to_string()
 }
 
 // ===== Three-state to eight-state conversion (DSSP-like) =====
@@ -408,13 +464,7 @@ pub fn psea_three_to_eight_state(ss : Array[String]) -> Array[String] {
       let len = j - i
       let mut k = i
       while k < j {
-        let state = if len <= 3 {
-          "G"
-        } else if len >= 12 {
-          "I"
-        } else {
-          "H"
-        }
+        let state = if len <= 3 { "G" } else if len >= 12 { "I" } else { "H" }
         result.push(state)
         k = k + 1
       }
@@ -436,7 +486,7 @@ pub fn psea_three_to_eight_state(ss : Array[String]) -> Array[String] {
       // Coil: try to distinguish T/S/L
       let prev = if i > 0 { ss[i - 1] } else { "C" }
       let next = if i + 1 < n { ss[i + 1] } else { "C" }
-      let state = if (prev == "H" || next == "H") && (prev != next) {
+      let state = if (prev == "H" || next == "H") && prev != next {
         "T"
       } else if prev == "E" || next == "E" {
         "T"
@@ -459,7 +509,10 @@ pub fn psea_create_example_helix() -> Array[PseaAtom] {
   // Approximate alpha-helix CA coordinates: helix rise ~1.5 Å, radius ~2.3 Å
   // 100 degrees per residue (3.6 residues per turn)
   let atoms : Array[PseaAtom] = Array::new()
-  let names = ["ALA", "GLY", "VAL", "LEU", "SER", "THR", "PHE", "TRP", "TYR", "CYS", "MET", "ILE"]
+  let names = [
+    "ALA", "GLY", "VAL", "LEU", "SER", "THR", "PHE", "TRP", "TYR", "CYS", "MET",
+    "ILE",
+  ]
   let mut i = 0
   while i < 12 {
     let angle = i.to_double() * 100.0 * 3.141592653589793 / 180.0

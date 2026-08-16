@@ -654,7 +654,7 @@ pub fn MutableSeq::new(s : String) -> MutableSeq {
     data.push(s.unsafe_get(i).unsafe_to_char())
     i = i + 1
   }
-  MutableSeq::{ data }
+  MutableSeq::{ data, }
 }
 
 ///|
@@ -744,7 +744,11 @@ pub fn MutableSeq::delete(self : MutableSeq, i : Int) -> Unit {
 
 ///|
 /// Delete characters in range [start, end).
-pub fn MutableSeq::delete_range(self : MutableSeq, start : Int, end : Int) -> Unit {
+pub fn MutableSeq::delete_range(
+  self : MutableSeq,
+  start : Int,
+  end : Int,
+) -> Unit {
   let new_data = Array::new()
   let mut idx = 0
   while idx < self.data.length() {
@@ -817,7 +821,7 @@ pub fn MutableSeq::translate(
   to_stop? : Bool = false,
   cds? : Bool = false,
 ) -> MutableSeq raise SeqError {
-  let result = self.to_seq().translate(stop_symbol=stop_symbol, to_stop=to_stop, cds=cds)
+  let result = self.to_seq().translate(stop_symbol~, to_stop~, cds~)
   MutableSeq::new(result.data)
 }
 

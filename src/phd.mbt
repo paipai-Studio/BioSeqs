@@ -131,7 +131,11 @@ pub struct PhdBase {
 
 ///|
 /// Create a PhdBase.
-pub fn PhdBase::new(base : String, quality : Int, peak_position : Int) -> PhdBase {
+pub fn PhdBase::new(
+  base : String,
+  quality : Int,
+  peak_position : Int,
+) -> PhdBase {
   { base, quality, peak_position }
 }
 
@@ -234,7 +238,7 @@ pub struct PhdFile {
 ///|
 /// Create a PhdFile.
 pub fn PhdFile::new(reads : Array[PhdRead]) -> PhdFile {
-  { reads }
+  { reads, }
 }
 
 ///|
@@ -369,16 +373,8 @@ fn phd_parse_comment(lines : Array[String], start : Int) -> (PhdComment, Int) {
   }
   (
     PhdComment::new(
-      chromat_file,
-      phred_version,
-      phred_parameter_file,
-      trace_index_min,
-      trace_index_max,
-      trim_start,
-      trim_end,
-      trim_prob,
-      chemistry,
-      dye,
+      chromat_file, phred_version, phred_parameter_file, trace_index_min, trace_index_max,
+      trim_start, trim_end, trim_prob, chemistry, dye,
     ),
     idx,
   )
@@ -413,10 +409,7 @@ fn phd_parse_dna(lines : Array[String], start : Int) -> (Array[PhdBase], Int) {
 
 ///|
 /// Parse a single PHD sequence block (BEGIN_SEQUENCE ... END_SEQUENCE).
-fn phd_parse_sequence(
-  lines : Array[String],
-  start : Int,
-) -> (PhdRead?, Int) {
+fn phd_parse_sequence(lines : Array[String], start : Int) -> (PhdRead?, Int) {
   let first_line = trim(lines[start].to_string())
   // Extract read name from "BEGIN_SEQUENCE name"
   let tokens = phd_tokenize(first_line)
@@ -424,9 +417,7 @@ fn phd_parse_sequence(
     return (None, start + 1)
   }
   let read_name = tokens[1]
-  let mut comment = PhdComment::new(
-    "", "", "", 0, 0, 0, 0, 0.0, "", "",
-  )
+  let mut comment = PhdComment::new("", "", "", 0, 0, 0, 0, 0.0, "", "")
   let mut bases : Array[PhdBase] = []
   let mut idx = start + 1
   while idx < lines.length() {
@@ -498,7 +489,13 @@ pub fn phd_sample_text() -> String {
   let quals = [35, 40, 45, 50, 38, 42, 47, 33, 39, 44]
   let peaks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
   for i in 0..<10 {
-    s = s + bases[i] + " " + quals[i].to_string() + " " + peaks[i].to_string() + "\n"
+    s = s +
+      bases[i] +
+      " " +
+      quals[i].to_string() +
+      " " +
+      peaks[i].to_string() +
+      "\n"
   }
   s = s + "END_DNA\n\n"
   s = s + "END_SEQUENCE\n"
@@ -512,7 +509,11 @@ pub fn phd_sample_text() -> String {
 ///|
 /// Format a PhdRead as a readable string.
 pub fn PhdRead::to_string(self : PhdRead) -> String {
-  let mut s = "PhdRead(name=" + self.name + ", length=" + self.length().to_string() + ")\n"
+  let mut s = "PhdRead(name=" +
+    self.name +
+    ", length=" +
+    self.length().to_string() +
+    ")\n"
   s = s + "  chromat_file: " + self.comment.chromat_file + "\n"
   s = s + "  phred_version: " + self.comment.phred_version + "\n"
   s = s + "  sequence: " + self.sequence() + "\n"

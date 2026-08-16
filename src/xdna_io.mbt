@@ -248,7 +248,7 @@ pub fn xdna_pack_sequence(sequence : String) -> Array[Int] {
     let code = xdna_base_to_code(sequence.unsafe_get(i).unsafe_to_char())
     let safe_code = if code < 0 { 0 } else { code }
     let byte_idx = i / 4
-    let shift = 6 - (i % 4) * 2
+    let shift = 6 - i % 4 * 2
     packed[byte_idx] = packed[byte_idx] | (safe_code << shift)
   }
   packed
@@ -260,7 +260,7 @@ pub fn xdna_unpack_sequence(packed : Array[Int], seq_len : Int) -> String {
   let sb = StringBuilder::new()
   for i in 0..<seq_len {
     let byte_idx = i / 4
-    let shift = 6 - (i % 4) * 2
+    let shift = 6 - i % 4 * 2
     let code = if byte_idx < packed.length() {
       (packed[byte_idx] >> shift) & 3
     } else {
@@ -363,11 +363,7 @@ pub fn xdna_from_bytes(data : Array[Int]) -> XdnaFile {
   let n = data.length()
   let mut offset = 0
   // Determine checksum (last 4 bytes) if present.
-  let stored_checksum = if n >= 4 {
-    xdna_read_u32_be(data, n - 4)
-  } else {
-    0
-  }
+  let stored_checksum = if n >= 4 { xdna_read_u32_be(data, n - 4) } else { 0 }
   // Parse records while at least one record header (20 bytes) fits before the
   // trailing checksum.
   while offset + 20 <= n - 4 || (offset + 20 <= n && n < 4) {
@@ -411,9 +407,13 @@ pub fn xdna_from_bytes(data : Array[Int]) -> XdnaFile {
     if file.records.length() == 0 {
       file.version = version
     }
-    file.records.push(
-      XdnaRecord::{ name, sequence, seq_type, annotations, checksum: stored_checksum },
-    )
+    file.records.push(XdnaRecord::{
+      name,
+      sequence,
+      seq_type,
+      annotations,
+      checksum: stored_checksum,
+    })
     // Stop if we have consumed everything up to the checksum.
     if offset >= n - 4 && n >= 4 {
       break

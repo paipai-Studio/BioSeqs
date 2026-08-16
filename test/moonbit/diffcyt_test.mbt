@@ -10,9 +10,7 @@
 
 ///|
 test "dc_cell_creation" {
-  let cell = @src.CytometryCell::new(
-    "cell_1", "S1", "ctrl", [1.0, 2.0, 3.0]
-  )
+  let cell = @src.CytometryCell::new("cell_1", "S1", "ctrl", [1.0, 2.0, 3.0])
   assert_eq(cell.cell_id(), "cell_1")
   assert_eq(cell.sample_id(), "S1")
   assert_eq(cell.condition(), "ctrl")
@@ -85,7 +83,9 @@ test "dc_assign_clusters_new" {
   let cells = @src.diffcyt_sample_data()
   let codebooks = @src.diffcyt_cluster_cells(cells, 4, 10)
   // Re-assign using existing codebooks.
-  let new_cells = [@src.CytometryCell::new("nc1", "S1", "ctrl", cells[0].marker_values())]
+  let new_cells = [
+    @src.CytometryCell::new("nc1", "S1", "ctrl", cells[0].marker_values()),
+  ]
   @src.diffcyt_assign_clusters(new_cells, codebooks)
   assert_true(new_cells[0].cluster_id() >= 0)
   assert_true(new_cells[0].cluster_id() < 4)
@@ -121,7 +121,9 @@ test "dc_calc_medians" {
   let cells = @src.diffcyt_sample_data()
   let _ = @src.diffcyt_cluster_cells(cells, 3, 10)
   let samples = @src.diffcyt_unique_samples(cells)
-  let medians = @src.diffcyt_calc_medians_by_cluster_marker(cells, 3, 3, samples)
+  let medians = @src.diffcyt_calc_medians_by_cluster_marker(
+    cells, 3, 3, samples,
+  )
   assert_eq(medians.length(), 4) // 4 samples
   // Each row has 3 clusters * 3 markers = 9 entries.
   for row in medians {
@@ -219,7 +221,9 @@ test "dc_testDS_returns_results" {
     conditions.push(cond_map.get(sid).unwrap_or(""))
   }
   let marker_names = ["marker_0", "marker_1", "marker_2"]
-  let ds_results = @src.diffcyt_testDS(cells, samples, conditions, 3, 3, marker_names)
+  let ds_results = @src.diffcyt_testDS(
+    cells, samples, conditions, 3, 3, marker_names,
+  )
   // 3 clusters * 3 markers = 9 results (if 2 conditions).
   assert_true(ds_results.length() > 0)
   for r in ds_results {
@@ -244,7 +248,9 @@ test "dc_testDS_marker_names" {
     conditions.push(cond_map.get(sid).unwrap_or(""))
   }
   let marker_names = ["CD4", "CD8", "CD3"]
-  let ds_results = @src.diffcyt_testDS(cells, samples, conditions, 2, 3, marker_names)
+  let ds_results = @src.diffcyt_testDS(
+    cells, samples, conditions, 2, 3, marker_names,
+  )
   for r in ds_results {
     assert_true(marker_names.contains(r.marker_name()))
   }
@@ -311,9 +317,9 @@ test "dc_top_table_ds" {
   for sid in samples {
     conditions.push(cond_map.get(sid).unwrap_or(""))
   }
-  let ds_results = @src.diffcyt_testDS(
-    cells, samples, conditions, 3, 3, ["m0", "m1", "m2"]
-  )
+  let ds_results = @src.diffcyt_testDS(cells, samples, conditions, 3, 3, [
+    "m0", "m1", "m2",
+  ])
   let top5 = @src.diffcyt_top_table_ds(ds_results, 5)
   assert_true(top5.length() <= 5)
   if top5.length() >= 2 {

@@ -130,7 +130,7 @@ test "bamsig_chromatin_state" {
   let repressed_regions = [3]
 
   let chrom_state = @src.bamsig_analyze_chromatin_states(
-    signal, promoter_regions, enhancer_regions, repressed_regions
+    signal, promoter_regions, enhancer_regions, repressed_regions,
   )
 
   assert_true(chrom_state.bamsig_n_states() > 0)

@@ -209,7 +209,17 @@ pub fn ms_data_process(
   let mut i = 0
   while i < features.length() {
     let f = features[i]
-    processed.push(MSFeature::new(f.protein, f.peptide, f.transition, f.group, f.subject, f.run, f.intensity))
+    processed.push(
+      MSFeature::new(
+        f.protein,
+        f.peptide,
+        f.transition,
+        f.group,
+        f.subject,
+        f.run,
+        f.intensity,
+      ),
+    )
     i = i + 1
   }
 
@@ -523,7 +533,11 @@ pub fn ms_group_comparison(
       let se = (var1 / n1 + var2 / n2).sqrt()
 
       let t_stat = if se < 1.0e-10 {
-        if (m2 - m1).abs() < 1.0e-10 { 0.0 } else { 100.0 }
+        if (m2 - m1).abs() < 1.0e-10 {
+          0.0
+        } else {
+          100.0
+        }
       } else {
         (m2 - m1) / se
       }
@@ -535,8 +549,16 @@ pub fn ms_group_comparison(
         1.0
       } else {
         let t_sq = abs_t * abs_t
-        let p_approx = 2.0 * @math.exp(-df * @math.ln(1.0 + t_sq / df) / 2.0) / (df * 3.14159265358979).sqrt()
-        if p_approx > 1.0 { 1.0 } else if p_approx < 0.0 { 0.0 } else { p_approx }
+        let p_approx = 2.0 *
+          @math.exp(-df * @math.ln(1.0 + t_sq / df) / 2.0) /
+          (df * 3.14159265358979).sqrt()
+        if p_approx > 1.0 {
+          1.0
+        } else if p_approx < 0.0 {
+          0.0
+        } else {
+          p_approx
+        }
       }
 
       all_results.push(MSGroupResult::{
@@ -566,8 +588,13 @@ pub fn ms_group_comparison(
   let mut si2 = 0
   while si2 < all_results.length() {
     all_results[si2].p_adj = adjusted[si2]
-    let abs_lfc = if all_results[si2].log2fc < 0.0 { -all_results[si2].log2fc } else { all_results[si2].log2fc }
-    all_results[si2].significant = adjusted[si2] < fdr_threshold && abs_lfc >= log2fc_threshold
+    let abs_lfc = if all_results[si2].log2fc < 0.0 {
+      -all_results[si2].log2fc
+    } else {
+      all_results[si2].log2fc
+    }
+    all_results[si2].significant = adjusted[si2] < fdr_threshold &&
+      abs_lfc >= log2fc_threshold
     if all_results[si2].significant {
       n_sig = n_sig + 1
     }
@@ -586,12 +613,7 @@ pub fn ms_group_comparison(
     0
   }
 
-  MSGroupComparison::{
-    results: all_results,
-    n_proteins,
-    n_sig,
-    fdr_threshold,
-  }
+  MSGroupComparison::{ results: all_results, n_proteins, n_sig, fdr_threshold }
 }
 
 ///|
@@ -690,7 +712,9 @@ pub fn MSGroupComparison::get_n_results(self : MSGroupComparison) -> Int {
 
 ///|
 /// Get significant results.
-pub fn MSGroupComparison::get_significant(self : MSGroupComparison) -> Array[MSGroupResult] {
+pub fn MSGroupComparison::get_significant(
+  self : MSGroupComparison,
+) -> Array[MSGroupResult] {
   let sig : Array[MSGroupResult] = Array::new()
   let mut i = 0
   while i < self.results.length() {
@@ -704,7 +728,10 @@ pub fn MSGroupComparison::get_significant(self : MSGroupComparison) -> Array[MSG
 
 ///|
 /// Get top N proteins by adjusted p-value.
-pub fn MSGroupComparison::get_top_proteins(self : MSGroupComparison, n : Int) -> Array[MSGroupResult] {
+pub fn MSGroupComparison::get_top_proteins(
+  self : MSGroupComparison,
+  n : Int,
+) -> Array[MSGroupResult] {
   let sorted = self.results.copy()
   let len = sorted.length()
   let mut i = 0
@@ -736,7 +763,12 @@ pub fn MSGroupComparison::get_top_proteins(self : MSGroupComparison, n : Int) ->
 pub fn MSGroupComparison::summary(self : MSGroupComparison) -> String {
   let mut s = "=== MSstats Group Comparison Summary ===\n".to_string()
   s = s + "Proteins tested: " + self.n_proteins.to_string() + "\n"
-  s = s + "Significant (FDR < " + self.fdr_threshold.to_string() + "): " + self.n_sig.to_string() + "\n"
+  s = s +
+    "Significant (FDR < " +
+    self.fdr_threshold.to_string() +
+    "): " +
+    self.n_sig.to_string() +
+    "\n"
   s = s + "Total comparisons: " + self.results.length().to_string() + "\n"
   s
 }
@@ -751,7 +783,12 @@ pub fn ms_design_sample_size(
   // Simplified: use the median log2fc and SE to estimate power
   let n = results.length()
   if n == 0 {
-    return MSSampleSize::{ desired_power, n_samples: 3, n_proteins_detectable: 0, delta: 0.0 }
+    return MSSampleSize::{
+      desired_power,
+      n_samples: 3,
+      n_proteins_detectable: 0,
+      delta: 0.0,
+    }
   }
 
   // Sort by absolute log2fc
@@ -760,8 +797,16 @@ pub fn ms_design_sample_size(
   while i < n - 1 {
     let mut j = 0
     while j < n - 1 - i {
-      let abs1 = if sorted[j].log2fc < 0.0 { -sorted[j].log2fc } else { sorted[j].log2fc }
-      let abs2 = if sorted[j + 1].log2fc < 0.0 { -sorted[j + 1].log2fc } else { sorted[j + 1].log2fc }
+      let abs1 = if sorted[j].log2fc < 0.0 {
+        -sorted[j].log2fc
+      } else {
+        sorted[j].log2fc
+      }
+      let abs2 = if sorted[j + 1].log2fc < 0.0 {
+        -sorted[j + 1].log2fc
+      } else {
+        sorted[j + 1].log2fc
+      }
       if abs1 < abs2 {
         let tmp = sorted[j]
         sorted.set(j, sorted[j + 1])
@@ -773,7 +818,11 @@ pub fn ms_design_sample_size(
   }
 
   let mid = n / 2
-  let delta = if sorted[mid].log2fc < 0.0 { -sorted[mid].log2fc } else { sorted[mid].log2fc }
+  let delta = if sorted[mid].log2fc < 0.0 {
+    -sorted[mid].log2fc
+  } else {
+    sorted[mid].log2fc
+  }
   let se = sorted[mid].se
 
   // Estimate required sample size using simplified power calculation
@@ -781,16 +830,32 @@ pub fn ms_design_sample_size(
   let z_alpha = 1.96
   let z_beta = if desired_power >= 0.8 { 0.842 } else { 0.674 }
   let sigma = if se > 0.0 { se } else { 1.0 }
-  let required_n = ((z_alpha + z_beta) * (z_alpha + z_beta) * sigma * sigma / (delta * delta + 1.0e-10)).to_int()
-  let n_samples_final = if n_samples > 0 { n_samples } else { if required_n < 3 { 3 } else { required_n } }
+  let required_n = ((z_alpha + z_beta) *
+  (z_alpha + z_beta) *
+  sigma *
+  sigma /
+  (delta * delta + 1.0e-10)).to_int()
+  let n_samples_final = if n_samples > 0 {
+    n_samples
+  } else if required_n < 3 {
+    3
+  } else {
+    required_n
+  }
 
   // Count how many proteins would be detectable with this sample size
   let n_detectable = if delta > 0.0 && se > 0.0 {
     let mut count = 0
     let mut di = 0
     while di < n {
-      let abs_lfc = if sorted[di].log2fc < 0.0 { -sorted[di].log2fc } else { sorted[di].log2fc }
-      let z = abs_lfc / (sorted[di].se + 1.0e-10) * (n_samples_final.to_double()).sqrt()
+      let abs_lfc = if sorted[di].log2fc < 0.0 {
+        -sorted[di].log2fc
+      } else {
+        sorted[di].log2fc
+      }
+      let z = abs_lfc /
+        (sorted[di].se + 1.0e-10) *
+        n_samples_final.to_double().sqrt()
       if z > z_alpha {
         count = count + 1
       }
@@ -828,19 +893,22 @@ pub fn msstats_sample_data() -> Array[MSFeature] {
         let peptide = proteins[pi] + "_pep" + pep_idx.to_string()
         let transition = peptide + "_tr"
         let intensity = if groups[gi] == "Trt" {
-          1000.0 * (pi + 1).to_double() * 2.0 + (pep_idx + 1).to_double() * 100.0
+          1000.0 * (pi + 1).to_double() * 2.0 +
+          (pep_idx + 1).to_double() * 100.0
         } else {
           1000.0 * (pi + 1).to_double() + (pep_idx + 1).to_double() * 100.0
         }
-        features.push(MSFeature::new(
-          proteins[pi],
-          peptide,
-          transition,
-          groups[gi],
-          subjects[gi],
-          runs[gi],
-          intensity,
-        ))
+        features.push(
+          MSFeature::new(
+            proteins[pi],
+            peptide,
+            transition,
+            groups[gi],
+            subjects[gi],
+            runs[gi],
+            intensity,
+          ),
+        )
         pep_idx = pep_idx + 1
       }
       gi = gi + 1

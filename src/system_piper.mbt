@@ -124,7 +124,11 @@ pub fn Pipeline::set_description(self : Pipeline, desc : String) -> Pipeline {
 
 ///|
 /// Set a global parameter.
-pub fn Pipeline::set_param(self : Pipeline, key : String, value : String) -> Pipeline {
+pub fn Pipeline::set_param(
+  self : Pipeline,
+  key : String,
+  value : String,
+) -> Pipeline {
   let params = self.global_params.copy()
   params[key] = value
   Pipeline::{
@@ -271,15 +275,21 @@ pub fn Pipeline::get_skipped_count(self : Pipeline) -> Int {
 /// Get the overall pipeline progress as a percentage.
 pub fn Pipeline::get_progress(self : Pipeline) -> Double {
   let n = self.steps.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let completed = self.get_completed_count()
   let skipped = self.get_skipped_count()
-  ((completed.to_double() + skipped.to_double()) / n.to_double()) * 100.0
+  (completed.to_double() + skipped.to_double()) / n.to_double() * 100.0
 }
 
 ///|
 /// Create a new pipeline step.
-pub fn PipelineStep::new(step_id : String, name : String, command : String) -> PipelineStep {
+pub fn PipelineStep::new(
+  step_id : String,
+  name : String,
+  command : String,
+) -> PipelineStep {
   PipelineStep::{
     step_id,
     name,
@@ -299,7 +309,10 @@ pub fn PipelineStep::new(step_id : String, name : String, command : String) -> P
 
 ///|
 /// Set step description.
-pub fn PipelineStep::set_description(self : PipelineStep, desc : String) -> PipelineStep {
+pub fn PipelineStep::set_description(
+  self : PipelineStep,
+  desc : String,
+) -> PipelineStep {
   PipelineStep::{
     step_id: self.step_id,
     name: self.name,
@@ -319,7 +332,10 @@ pub fn PipelineStep::set_description(self : PipelineStep, desc : String) -> Pipe
 
 ///|
 /// Set step arguments.
-pub fn PipelineStep::set_args(self : PipelineStep, args : Array[String]) -> PipelineStep {
+pub fn PipelineStep::set_args(
+  self : PipelineStep,
+  args : Array[String],
+) -> PipelineStep {
   PipelineStep::{
     step_id: self.step_id,
     name: self.name,
@@ -339,7 +355,10 @@ pub fn PipelineStep::set_args(self : PipelineStep, args : Array[String]) -> Pipe
 
 ///|
 /// Add a dependency.
-pub fn PipelineStep::add_dependency(self : PipelineStep, dep : String) -> PipelineStep {
+pub fn PipelineStep::add_dependency(
+  self : PipelineStep,
+  dep : String,
+) -> PipelineStep {
   let deps = self.dependencies.copy()
   deps.push(dep)
   PipelineStep::{
@@ -361,7 +380,10 @@ pub fn PipelineStep::add_dependency(self : PipelineStep, dep : String) -> Pipeli
 
 ///|
 /// Add an input file.
-pub fn PipelineStep::add_input(self : PipelineStep, file : String) -> PipelineStep {
+pub fn PipelineStep::add_input(
+  self : PipelineStep,
+  file : String,
+) -> PipelineStep {
   let inputs = self.input_files.copy()
   inputs.push(file)
   PipelineStep::{
@@ -383,7 +405,10 @@ pub fn PipelineStep::add_input(self : PipelineStep, file : String) -> PipelineSt
 
 ///|
 /// Add an output file.
-pub fn PipelineStep::add_output(self : PipelineStep, file : String) -> PipelineStep {
+pub fn PipelineStep::add_output(
+  self : PipelineStep,
+  file : String,
+) -> PipelineStep {
   let outputs = self.output_files.copy()
   outputs.push(file)
   PipelineStep::{
@@ -443,14 +468,16 @@ pub fn PipelineStep::get_dependencies(self : PipelineStep) -> Array[String] {
 /// Check if all dependencies of a step are completed.
 pub fn Pipeline::can_run_step(self : Pipeline, step : PipelineStep) -> Bool {
   let deps = step.dependencies
-  if deps.length() == 0 { return true }
+  if deps.length() == 0 {
+    return true
+  }
 
   let mut i = 0
   while i < deps.length() {
     let dep_step = self.get_step(deps[i])
     match dep_step.status {
       StepStatus::Completed => ()
-      _ => { return false }
+      _ => return false
     }
     i = i + 1
   }
@@ -459,7 +486,11 @@ pub fn Pipeline::can_run_step(self : Pipeline, step : PipelineStep) -> Bool {
 
 ///|
 /// Generate a pipeline configuration.
-pub fn PipelineConfig::new(work_dir : String, input_dir : String, output_dir : String) -> PipelineConfig {
+pub fn PipelineConfig::new(
+  work_dir : String,
+  input_dir : String,
+  output_dir : String,
+) -> PipelineConfig {
   PipelineConfig::{
     work_dir,
     input_dir,
@@ -472,7 +503,10 @@ pub fn PipelineConfig::new(work_dir : String, input_dir : String, output_dir : S
 
 ///|
 /// Set number of cores.
-pub fn PipelineConfig::set_cores(self : PipelineConfig, cores : Int) -> PipelineConfig {
+pub fn PipelineConfig::set_cores(
+  self : PipelineConfig,
+  cores : Int,
+) -> PipelineConfig {
   PipelineConfig::{
     work_dir: self.work_dir,
     input_dir: self.input_dir,
@@ -527,7 +561,13 @@ pub fn Pipeline::summary(self : Pipeline) -> String {
   let mut i = 0
   while i < self.steps.length() {
     let step = self.steps[i]
-    s = s + "  [" + step.status.to_string() + "] " + step.step_id + ": " + step.name
+    s = s +
+      "  [" +
+      step.status.to_string() +
+      "] " +
+      step.step_id +
+      ": " +
+      step.name
     if step.duration_seconds > 0.0 {
       s = s + " (" + step.duration_seconds.to_string() + "s)"
     }
@@ -542,20 +582,25 @@ pub fn Pipeline::summary(self : Pipeline) -> String {
 /// Generate an ASCII visualization of the pipeline.
 pub fn Pipeline::to_ascii(self : Pipeline) -> String {
   let mut result = ""
-  result = result + "╔══════════════════════════════════════════╗\n"
+  result = result +
+    "╔══════════════════════════════════════════╗\n"
   result = result + "║  Pipeline: " + self.name + "\n"
   result = result + "║  ID: " + self.pipeline_id + "\n"
   result = result + "║  Steps: " + self.steps.length().to_string() + "\n"
-  result = result + "╚══════════════════════════════════════════╝\n\n"
+  result = result +
+    "╚══════════════════════════════════════════╝\n\n"
 
   let progress = self.get_progress()
   let progress_bar_len = 20
-  let filled = ((progress / 100.0) * progress_bar_len.to_double()).to_int()
+  let filled = (progress / 100.0 * progress_bar_len.to_double()).to_int()
   let mut bar = "["
   let mut i = 0
   while i < progress_bar_len {
-    if i < filled { bar = bar + "█" }
-    else { bar = bar + "░" }
+    if i < filled {
+      bar = bar + "█"
+    } else {
+      bar = bar + "░"
+    }
     i = i + 1
   }
   bar = bar + "]"
@@ -623,56 +668,90 @@ pub fn Pipeline::to_ascii(self : Pipeline) -> String {
 ///|
 /// Create a sample RNA-seq analysis pipeline.
 pub fn pipeline_sample() -> Pipeline {
-  let mut pipe = Pipeline::new("rnaseq_pipeline_v1", "RNA-Seq Differential Expression Pipeline")
-  pipe = pipe.set_description("Standard RNA-Seq analysis pipeline: QC -> Alignment -> Quantification -> DE Analysis -> Functional Enrichment")
+  let mut pipe = Pipeline::new(
+    "rnaseq_pipeline_v1", "RNA-Seq Differential Expression Pipeline",
+  )
+  pipe = pipe.set_description(
+    "Standard RNA-Seq analysis pipeline: QC -> Alignment -> Quantification -> DE Analysis -> Functional Enrichment",
+  )
 
   // Step 1: QC
   let step1 = PipelineStep::new("qc", "Quality Control", "fastqc")
-  let step1b = step1.set_args(["-o", "qc_output", "--extract", "raw_data/*.fastq.gz"])
+  let step1b = step1.set_args([
+    "-o", "qc_output", "--extract", "raw_data/*.fastq.gz",
+  ])
   let step1c = step1b.add_input("raw_data/sample1_R1.fastq.gz")
   let step1d = step1c.add_input("raw_data/sample1_R2.fastq.gz")
   let step1e = step1d.add_output("qc_output/sample1_fastqc.html")
-  let step1_final = step1e.set_description("Quality control of raw reads using FastQC")
+  let step1_final = step1e.set_description(
+    "Quality control of raw reads using FastQC",
+  )
   pipe = pipe.add_step(step1_final)
 
   // Step 2: Trimming
   let step2 = PipelineStep::new("trim", "Adapter Trimming", "trimmomatic")
-  let step2b = step2.set_args(["PE", "-phred33", "raw_data/sample1_R1.fastq.gz", "raw_data/sample1_R2.fastq.gz", "trimmed/sample1_R1_trimmed.fq.gz", "trimmed/sample1_R2_trimmed.fq.gz", "ILLUMINACLIP:adapters.fa:2:30:10"])
+  let step2b = step2.set_args([
+    "PE", "-phred33", "raw_data/sample1_R1.fastq.gz", "raw_data/sample1_R2.fastq.gz",
+    "trimmed/sample1_R1_trimmed.fq.gz", "trimmed/sample1_R2_trimmed.fq.gz", "ILLUMINACLIP:adapters.fa:2:30:10",
+  ])
   let step2c = step2b.add_dependency("qc")
   let step2d = step2c.add_output("trimmed/sample1_R1_trimmed.fq.gz")
   let step2e = step2d.add_output("trimmed/sample1_R2_trimmed.fq.gz")
-  let step2_final = step2e.set_description("Adapter and quality trimming with Trimmomatic")
+  let step2_final = step2e.set_description(
+    "Adapter and quality trimming with Trimmomatic",
+  )
   pipe = pipe.add_step(step2_final)
 
   // Step 3: Alignment
   let step3 = PipelineStep::new("align", "Read Alignment", "hisat2")
-  let step3b = step3.set_args(["-x", "genome_index/genome", "-1", "trimmed/sample1_R1_trimmed.fq.gz", "-2", "trimmed/sample1_R2_trimmed.fq.gz", "-S", "alignment/sample1.sam"])
+  let step3b = step3.set_args([
+    "-x", "genome_index/genome", "-1", "trimmed/sample1_R1_trimmed.fq.gz", "-2",
+    "trimmed/sample1_R2_trimmed.fq.gz", "-S", "alignment/sample1.sam",
+  ])
   let step3c = step3b.add_dependency("trim")
   let step3d = step3c.add_output("alignment/sample1.sam")
   let step3e = step3d.add_output("alignment/sample1.bam")
-  let step3_final = step3e.set_description("Read alignment to reference genome using HISAT2")
+  let step3_final = step3e.set_description(
+    "Read alignment to reference genome using HISAT2",
+  )
   pipe = pipe.add_step(step3_final)
 
   // Step 4: Quantification
-  let step4 = PipelineStep::new("quantify", "Gene Quantification", "featureCounts")
-  let step4b = step4.set_args(["-a", "annotation.gtf", "-o", "counts/gene_counts.txt", "alignment/sample1.bam"])
+  let step4 = PipelineStep::new(
+    "quantify", "Gene Quantification", "featureCounts",
+  )
+  let step4b = step4.set_args([
+    "-a", "annotation.gtf", "-o", "counts/gene_counts.txt", "alignment/sample1.bam",
+  ])
   let step4c = step4b.add_dependency("align")
   let step4d = step4c.add_output("counts/gene_counts.txt")
-  let step4_final = step4d.set_description("Gene-level quantification using featureCounts")
+  let step4_final = step4d.set_description(
+    "Gene-level quantification using featureCounts",
+  )
   pipe = pipe.add_step(step4_final)
 
   // Step 5: Differential Expression
-  let step5 = PipelineStep::new("de_analysis", "Differential Expression", "DESeq2")
-  let step5b = step5.set_args(["-i", "counts/gene_counts.txt", "-c", "metadata.csv", "-o", "de_results/"])
+  let step5 = PipelineStep::new(
+    "de_analysis", "Differential Expression", "DESeq2",
+  )
+  let step5b = step5.set_args([
+    "-i", "counts/gene_counts.txt", "-c", "metadata.csv", "-o", "de_results/",
+  ])
   let step5c = step5b.add_dependency("quantify")
   let step5d = step5c.add_output("de_results/deseq2_results.csv")
   let step5e = step5d.add_output("de_results/volcano_plot.png")
-  let step5_final = step5e.set_description("Differential expression analysis using DESeq2")
+  let step5_final = step5e.set_description(
+    "Differential expression analysis using DESeq2",
+  )
   pipe = pipe.add_step(step5_final)
 
   // Step 6: Enrichment
-  let step6 = PipelineStep::new("enrich", "Functional Enrichment", "clusterProfiler")
-  let step6b = step6.set_args(["-i", "de_results/deseq2_results.csv", "-o", "enrichment/"])
+  let step6 = PipelineStep::new(
+    "enrich", "Functional Enrichment", "clusterProfiler",
+  )
+  let step6b = step6.set_args([
+    "-i", "de_results/deseq2_results.csv", "-o", "enrichment/",
+  ])
   let step6c = step6b.add_dependency("de_analysis")
   let step6d = step6c.add_output("enrichment/go_terms.csv")
   let step6e = step6d.add_output("enrichment/pathways.csv")

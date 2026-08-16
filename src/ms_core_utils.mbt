@@ -130,7 +130,7 @@ pub fn mc_refine_centroids(
     let hi = if p + half_window >= n { n - 1 } else { p + half_window }
     let mut sum_mz = 0.0
     let mut sum_int = 0.0
-    for i in lo..=hi {
+    for i in lo..<=hi {
       let w = intensity[i]
       if w > 0.0 {
         sum_mz = sum_mz + mz[i] * w
@@ -206,11 +206,7 @@ pub fn mc_join_peaks(
     let mut best_d = 1.0e300
     for j in 0..<y.length() {
       let diff = (x[i] - y[j]).abs()
-      let tol = if use_ppm {
-        x[i] * tolerance * 1.0e-6
-      } else {
-        tolerance
-      }
+      let tol = if use_ppm { x[i] * tolerance * 1.0e-6 } else { tolerance }
       if diff <= tol && diff < best_d {
         best_d = diff
         best_j = j
@@ -240,7 +236,7 @@ pub fn mc_smooth_moving_average(
     let hi = if i + half_window >= n { n - 1 } else { i + half_window }
     let mut s = 0.0
     let mut cnt = 0
-    for j in lo..=hi {
+    for j in lo..<=hi {
       s = s + values[j]
       cnt = cnt + 1
     }
@@ -292,7 +288,7 @@ pub fn mc_smooth_savitzky_golay(
     let mut t1 = 0.0
     let mut t2 = 0.0
     let center = (lo + hi).to_double() / 2.0
-    for j in lo..=hi {
+    for j in lo..<=hi {
       let x = j.to_double() - center
       let y = values[j]
       let x2 = x * x
@@ -310,13 +306,15 @@ pub fn mc_smooth_savitzky_golay(
     // | s1  s2  s3 | |b| = |t1|
     // | s2  s3  s4 | |c|   |t2|
     // We only need a. Using Cramer's rule:
-    let det = s0 * (s2 * s4 - s3 * s3) - s1 * (s1 * s4 - s2 * s3) +
+    let det = s0 * (s2 * s4 - s3 * s3) -
+      s1 * (s1 * s4 - s2 * s3) +
       s2 * (s1 * s3 - s2 * s2)
     if det.abs() < 1.0e-15 {
       out[i] = values[i]
       continue
     }
-    let det_a = t0 * (s2 * s4 - s3 * s3) - s1 * (t1 * s4 - t2 * s3) +
+    let det_a = t0 * (s2 * s4 - s3 * s3) -
+      s1 * (t1 * s4 - t2 * s3) +
       s2 * (t1 * s3 - t2 * s2)
     out[i] = det_a / det
   }
@@ -514,6 +512,7 @@ pub fn mc_dot(a : Array[Double], b : Array[Double]) -> Double {
 ///   - "mean": replace with the row mean of non-missing values
 ///   - "median": replace with the row median of non-missing values
 ///   - "knn": K-nearest-neighbors imputation (k=5 default)
+
 ///|
 /// Check if a value is NaN (missing).
 pub fn mc_is_missing(v : Double) -> Bool {
@@ -738,9 +737,7 @@ pub fn mc_median_polish(
 /// and MAD (median absolute deviation).
 ///
 /// For each column, returns the median of values across rows.
-pub fn mc_robust_summary(
-  matrix : Array[Array[Double]],
-) -> Array[Double] {
+pub fn mc_robust_summary(matrix : Array[Array[Double]]) -> Array[Double] {
   let n = matrix.length()
   if n == 0 {
     return []
@@ -775,7 +772,10 @@ pub fn mc_mad(values : Array[Double]) -> Double {
 ///|
 /// Check if a peak list is valid: m/z values must be strictly increasing
 /// and all intensities non-negative.
-pub fn mc_valid_peak_list(mz : Array[Double], intensity : Array[Double]) -> Bool {
+pub fn mc_valid_peak_list(
+  mz : Array[Double],
+  intensity : Array[Double],
+) -> Bool {
   if mz.length() != intensity.length() {
     return false
   }

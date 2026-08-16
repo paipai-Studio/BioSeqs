@@ -172,27 +172,174 @@ pub struct AminoAcidProperty {
 pub fn amino_acid_properties(aa : String) -> AminoAcidProperty {
   let upper = aa.to_upper()
   match upper {
-    "A" => AminoAcidProperty::{ amino_acid: "A", property: "hydrophobic", polarity: "nonpolar", charge: 0.0, hydropathy: 1.8 }
-    "R" => AminoAcidProperty::{ amino_acid: "R", property: "positive", polarity: "polar", charge: 1.0, hydropathy: -4.5 }
-    "N" => AminoAcidProperty::{ amino_acid: "N", property: "polar", polarity: "polar", charge: 0.0, hydropathy: -3.5 }
-    "D" => AminoAcidProperty::{ amino_acid: "D", property: "negative", polarity: "polar", charge: -1.0, hydropathy: -3.5 }
-    "C" => AminoAcidProperty::{ amino_acid: "C", property: "polar", polarity: "polar", charge: 0.0, hydropathy: 2.5 }
-    "Q" => AminoAcidProperty::{ amino_acid: "Q", property: "polar", polarity: "polar", charge: 0.0, hydropathy: -3.5 }
-    "E" => AminoAcidProperty::{ amino_acid: "E", property: "negative", polarity: "polar", charge: -1.0, hydropathy: -3.5 }
-    "G" => AminoAcidProperty::{ amino_acid: "G", property: "hydrophobic", polarity: "nonpolar", charge: 0.0, hydropathy: -0.4 }
-    "H" => AminoAcidProperty::{ amino_acid: "H", property: "positive", polarity: "polar", charge: 1.0, hydropathy: -3.2 }
-    "I" => AminoAcidProperty::{ amino_acid: "I", property: "hydrophobic", polarity: "nonpolar", charge: 0.0, hydropathy: 4.5 }
-    "L" => AminoAcidProperty::{ amino_acid: "L", property: "hydrophobic", polarity: "nonpolar", charge: 0.0, hydropathy: 3.8 }
-    "K" => AminoAcidProperty::{ amino_acid: "K", property: "positive", polarity: "polar", charge: 1.0, hydropathy: -3.9 }
-    "M" => AminoAcidProperty::{ amino_acid: "M", property: "hydrophobic", polarity: "nonpolar", charge: 0.0, hydropathy: 1.9 }
-    "F" => AminoAcidProperty::{ amino_acid: "F", property: "hydrophobic", polarity: "nonpolar", charge: 0.0, hydropathy: 2.8 }
-    "P" => AminoAcidProperty::{ amino_acid: "P", property: "hydrophobic", polarity: "nonpolar", charge: 0.0, hydropathy: -1.6 }
-    "S" => AminoAcidProperty::{ amino_acid: "S", property: "polar", polarity: "polar", charge: 0.0, hydropathy: -0.8 }
-    "T" => AminoAcidProperty::{ amino_acid: "T", property: "polar", polarity: "polar", charge: 0.0, hydropathy: -0.7 }
-    "W" => AminoAcidProperty::{ amino_acid: "W", property: "hydrophobic", polarity: "nonpolar", charge: 0.0, hydropathy: -0.9 }
-    "Y" => AminoAcidProperty::{ amino_acid: "Y", property: "polar", polarity: "polar", charge: 0.0, hydropathy: -1.3 }
-    "V" => AminoAcidProperty::{ amino_acid: "V", property: "hydrophobic", polarity: "nonpolar", charge: 0.0, hydropathy: 4.2 }
-    _ => AminoAcidProperty::{ amino_acid: "?", property: "unknown", polarity: "unknown", charge: 0.0, hydropathy: 0.0 }
+    "A" =>
+      AminoAcidProperty::{
+        amino_acid: "A",
+        property: "hydrophobic",
+        polarity: "nonpolar",
+        charge: 0.0,
+        hydropathy: 1.8,
+      }
+    "R" =>
+      AminoAcidProperty::{
+        amino_acid: "R",
+        property: "positive",
+        polarity: "polar",
+        charge: 1.0,
+        hydropathy: -4.5,
+      }
+    "N" =>
+      AminoAcidProperty::{
+        amino_acid: "N",
+        property: "polar",
+        polarity: "polar",
+        charge: 0.0,
+        hydropathy: -3.5,
+      }
+    "D" =>
+      AminoAcidProperty::{
+        amino_acid: "D",
+        property: "negative",
+        polarity: "polar",
+        charge: -1.0,
+        hydropathy: -3.5,
+      }
+    "C" =>
+      AminoAcidProperty::{
+        amino_acid: "C",
+        property: "polar",
+        polarity: "polar",
+        charge: 0.0,
+        hydropathy: 2.5,
+      }
+    "Q" =>
+      AminoAcidProperty::{
+        amino_acid: "Q",
+        property: "polar",
+        polarity: "polar",
+        charge: 0.0,
+        hydropathy: -3.5,
+      }
+    "E" =>
+      AminoAcidProperty::{
+        amino_acid: "E",
+        property: "negative",
+        polarity: "polar",
+        charge: -1.0,
+        hydropathy: -3.5,
+      }
+    "G" =>
+      AminoAcidProperty::{
+        amino_acid: "G",
+        property: "hydrophobic",
+        polarity: "nonpolar",
+        charge: 0.0,
+        hydropathy: -0.4,
+      }
+    "H" =>
+      AminoAcidProperty::{
+        amino_acid: "H",
+        property: "positive",
+        polarity: "polar",
+        charge: 1.0,
+        hydropathy: -3.2,
+      }
+    "I" =>
+      AminoAcidProperty::{
+        amino_acid: "I",
+        property: "hydrophobic",
+        polarity: "nonpolar",
+        charge: 0.0,
+        hydropathy: 4.5,
+      }
+    "L" =>
+      AminoAcidProperty::{
+        amino_acid: "L",
+        property: "hydrophobic",
+        polarity: "nonpolar",
+        charge: 0.0,
+        hydropathy: 3.8,
+      }
+    "K" =>
+      AminoAcidProperty::{
+        amino_acid: "K",
+        property: "positive",
+        polarity: "polar",
+        charge: 1.0,
+        hydropathy: -3.9,
+      }
+    "M" =>
+      AminoAcidProperty::{
+        amino_acid: "M",
+        property: "hydrophobic",
+        polarity: "nonpolar",
+        charge: 0.0,
+        hydropathy: 1.9,
+      }
+    "F" =>
+      AminoAcidProperty::{
+        amino_acid: "F",
+        property: "hydrophobic",
+        polarity: "nonpolar",
+        charge: 0.0,
+        hydropathy: 2.8,
+      }
+    "P" =>
+      AminoAcidProperty::{
+        amino_acid: "P",
+        property: "hydrophobic",
+        polarity: "nonpolar",
+        charge: 0.0,
+        hydropathy: -1.6,
+      }
+    "S" =>
+      AminoAcidProperty::{
+        amino_acid: "S",
+        property: "polar",
+        polarity: "polar",
+        charge: 0.0,
+        hydropathy: -0.8,
+      }
+    "T" =>
+      AminoAcidProperty::{
+        amino_acid: "T",
+        property: "polar",
+        polarity: "polar",
+        charge: 0.0,
+        hydropathy: -0.7,
+      }
+    "W" =>
+      AminoAcidProperty::{
+        amino_acid: "W",
+        property: "hydrophobic",
+        polarity: "nonpolar",
+        charge: 0.0,
+        hydropathy: -0.9,
+      }
+    "Y" =>
+      AminoAcidProperty::{
+        amino_acid: "Y",
+        property: "polar",
+        polarity: "polar",
+        charge: 0.0,
+        hydropathy: -1.3,
+      }
+    "V" =>
+      AminoAcidProperty::{
+        amino_acid: "V",
+        property: "hydrophobic",
+        polarity: "nonpolar",
+        charge: 0.0,
+        hydropathy: 4.2,
+      }
+    _ =>
+      AminoAcidProperty::{
+        amino_acid: "?",
+        property: "unknown",
+        polarity: "unknown",
+        charge: 0.0,
+        hydropathy: 0.0,
+      }
   }
 }
 
@@ -285,18 +432,15 @@ pub fn reverse_codon_table() -> Map[String, Array[String]] {
 
   for codon in forward.keys() {
     match forward.get(codon) {
-      Some(aa) => {
+      Some(aa) =>
         match result.get(aa) {
           Some(arr) => {
             let new_arr = arr.copy()
             new_arr.push(codon)
             result[aa] = new_arr
           }
-          None => {
-            result[aa] = [codon]
-          }
+          None => result[aa] = [codon]
         }
-      }
       None => ()
     }
   }

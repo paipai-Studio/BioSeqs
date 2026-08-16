@@ -60,11 +60,7 @@ pub fn bmd_create_pdict(
   max_mismatches? : Int = 0,
   with_indels? : Bool = false,
 ) -> PDict {
-  PDict::{
-    patterns,
-    max_mismatches,
-    with_indels,
-  }
+  PDict::{ patterns, max_mismatches, with_indels }
 }
 
 ///|
@@ -80,11 +76,7 @@ pub fn bmd_match_pdict(pdict~ : PDict, subject~ : String) -> MatchPDictResult {
   let hits : Array[MatchPDictHit] = Array::new()
 
   if subject.length() == 0 || pdict.patterns.length() == 0 {
-    return MatchPDictResult::{
-      hits,
-      pdict,
-      subject_length: subject.length(),
-    }
+    return MatchPDictResult::{ hits, pdict, subject_length: subject.length() }
   }
 
   let mut p_idx = 0
@@ -129,11 +121,7 @@ pub fn bmd_match_pdict(pdict~ : PDict, subject~ : String) -> MatchPDictResult {
     p_idx = p_idx + 1
   }
 
-  MatchPDictResult::{
-    hits,
-    pdict,
-    subject_length: subject.length(),
-  }
+  MatchPDictResult::{ hits, pdict, subject_length: subject.length() }
 }
 
 ///|
@@ -161,11 +149,7 @@ pub fn bmd_vcount_pattern(
       counts.push(0)
       i = i + 1
     }
-    return CountPatternResult::{
-      pattern,
-      counts,
-      total: 0,
-    }
+    return CountPatternResult::{ pattern, counts, total: 0 }
   }
 
   let mut i = 0
@@ -203,11 +187,7 @@ pub fn bmd_vcount_pattern(
     i = i + 1
   }
 
-  CountPatternResult::{
-    pattern,
-    counts,
-    total,
-  }
+  CountPatternResult::{ pattern, counts, total }
 }
 
 ///|
@@ -231,8 +211,8 @@ pub fn bmd_vmatch_pattern(
   while i < patterns.length() {
     let result = bmd_vcount_pattern(
       pattern=patterns[i],
-      subjects=subjects,
-      max_mismatches=max_mismatches,
+      subjects~,
+      max_mismatches~,
     )
     results.push(result)
     i = i + 1
@@ -303,7 +283,7 @@ pub fn bmd_which(pdict~ : PDict, subjects~ : Array[String]) -> Array[Bool] {
 /// @param subjects Array of subject sequences to test.
 /// @return An array of Int indices indicating matching subjects.
 pub fn bmd_which_index(pdict~ : PDict, subjects~ : Array[String]) -> Array[Int] {
-  let which_result = bmd_which(pdict=pdict, subjects=subjects)
+  let which_result = bmd_which(pdict~, subjects~)
   let indices : Array[Int] = Array::new()
 
   let mut i = 0
@@ -327,7 +307,7 @@ pub fn bmd_which_index(pdict~ : PDict, subjects~ : Array[String]) -> Array[Int] 
 /// @param subject The subject sequence string to search.
 /// @return Total number of pattern occurrences found.
 pub fn bmd_count_occurrences(pdict~ : PDict, subject~ : String) -> Int {
-  let result = bmd_match_pdict(pdict=pdict, subject=subject)
+  let result = bmd_match_pdict(pdict~, subject~)
   result.hits.length()
 }
 
@@ -341,7 +321,7 @@ pub fn bmd_count_occurrences(pdict~ : PDict, subject~ : String) -> Int {
 /// @param subject The subject sequence string to search.
 /// @return The best MatchPDictHit, or None if no matches found.
 pub fn bmd_find_best_match(pdict~ : PDict, subject~ : String) -> MatchPDictHit? {
-  let result = bmd_match_pdict(pdict=pdict, subject=subject)
+  let result = bmd_match_pdict(pdict~, subject~)
 
   if result.hits.length() == 0 {
     return None
@@ -389,7 +369,11 @@ test "bmd_create_pdict_empty" {
 
 ///|
 test "bmd_create_pdict_with_indels" {
-  let pdict = bmd_create_pdict(patterns=["ATG"], max_mismatches=1, with_indels=true)
+  let pdict = bmd_create_pdict(
+    patterns=["ATG"],
+    max_mismatches=1,
+    with_indels=true,
+  )
   assert_eq(pdict.with_indels, true)
   assert_eq(pdict.max_mismatches, 1)
 }
@@ -397,7 +381,7 @@ test "bmd_create_pdict_with_indels" {
 ///|
 test "bmd_match_pdict_single_pattern" {
   let pdict = bmd_create_pdict(patterns=["ATG"])
-  let result = bmd_match_pdict(pdict=pdict, subject="AATGCTAG")
+  let result = bmd_match_pdict(pdict~, subject="AATGCTAG")
   assert_eq(result.hits.length(), 1)
   assert_eq(result.hits[0].pattern, "ATG")
   assert_eq(result.hits[0].start, 2)
@@ -408,7 +392,7 @@ test "bmd_match_pdict_single_pattern" {
 ///|
 test "bmd_match_pdict_multiple_patterns" {
   let pdict = bmd_create_pdict(patterns=["ATG", "GCT"])
-  let result = bmd_match_pdict(pdict=pdict, subject="ATGGCT")
+  let result = bmd_match_pdict(pdict~, subject="ATGGCT")
   assert_eq(result.hits.length(), 2)
   assert_eq(result.hits[0].pattern, "ATG")
   assert_eq(result.hits[1].pattern, "GCT")
@@ -417,21 +401,21 @@ test "bmd_match_pdict_multiple_patterns" {
 ///|
 test "bmd_match_pdict_overlapping_hits" {
   let pdict = bmd_create_pdict(patterns=["AAA"])
-  let result = bmd_match_pdict(pdict=pdict, subject="AAAA")
+  let result = bmd_match_pdict(pdict~, subject="AAAA")
   assert_eq(result.hits.length(), 2)
 }
 
 ///|
 test "bmd_match_pdict_no_match" {
   let pdict = bmd_create_pdict(patterns=["XYZ"])
-  let result = bmd_match_pdict(pdict=pdict, subject="ATGC")
+  let result = bmd_match_pdict(pdict~, subject="ATGC")
   assert_eq(result.hits.length(), 0)
 }
 
 ///|
 test "bmd_match_pdict_empty_subject" {
   let pdict = bmd_create_pdict(patterns=["ATG"])
-  let result = bmd_match_pdict(pdict=pdict, subject="")
+  let result = bmd_match_pdict(pdict~, subject="")
   assert_eq(result.hits.length(), 0)
   assert_eq(result.subject_length, 0)
 }
@@ -439,14 +423,14 @@ test "bmd_match_pdict_empty_subject" {
 ///|
 test "bmd_match_pdict_empty_patterns" {
   let pdict = bmd_create_pdict(patterns=[])
-  let result = bmd_match_pdict(pdict=pdict, subject="ATGC")
+  let result = bmd_match_pdict(pdict~, subject="ATGC")
   assert_eq(result.hits.length(), 0)
 }
 
 ///|
 test "bmd_match_pdict_with_mismatches" {
   let pdict = bmd_create_pdict(patterns=["ATG"], max_mismatches=1)
-  let result = bmd_match_pdict(pdict=pdict, subject="AXG")
+  let result = bmd_match_pdict(pdict~, subject="AXG")
   assert_eq(result.hits.length(), 1)
   assert_eq(result.hits[0].mismatches, 1)
 }
@@ -454,21 +438,21 @@ test "bmd_match_pdict_with_mismatches" {
 ///|
 test "bmd_match_pdict_mismatch_too_many" {
   let pdict = bmd_create_pdict(patterns=["ATG"], max_mismatches=1)
-  let result = bmd_match_pdict(pdict=pdict, subject="XYZ")
+  let result = bmd_match_pdict(pdict~, subject="XYZ")
   assert_eq(result.hits.length(), 0)
 }
 
 ///|
 test "bmd_match_pdict_pattern_longer_than_subject" {
   let pdict = bmd_create_pdict(patterns=["ATGCT"])
-  let result = bmd_match_pdict(pdict=pdict, subject="AT")
+  let result = bmd_match_pdict(pdict~, subject="AT")
   assert_eq(result.hits.length(), 0)
 }
 
 ///|
 test "bmd_vcount_pattern_basic" {
   let subjects = ["ATGATG", "ATGCAT", "CCCCCC"]
-  let result = bmd_vcount_pattern(pattern="ATG", subjects=subjects)
+  let result = bmd_vcount_pattern(pattern="ATG", subjects~)
   assert_eq(result.pattern, "ATG")
   assert_eq(result.counts.length(), 3)
   assert_eq(result.counts[0], 2)
@@ -480,7 +464,7 @@ test "bmd_vcount_pattern_basic" {
 ///|
 test "bmd_vcount_pattern_no_match" {
   let subjects = ["CCCC", "GGGG", "TTTT"]
-  let result = bmd_vcount_pattern(pattern="AAAA", subjects=subjects)
+  let result = bmd_vcount_pattern(pattern="AAAA", subjects~)
   assert_eq(result.total, 0)
   assert_eq(result.counts[0], 0)
   assert_eq(result.counts[1], 0)
@@ -490,7 +474,7 @@ test "bmd_vcount_pattern_no_match" {
 ///|
 test "bmd_vcount_pattern_with_mismatches" {
   let subjects = ["AXG", "AYG", "AZG", "ATG"]
-  let result = bmd_vcount_pattern(pattern="ATG", subjects=subjects, max_mismatches=1)
+  let result = bmd_vcount_pattern(pattern="ATG", subjects~, max_mismatches=1)
   assert_eq(result.counts[0], 1)
   assert_eq(result.counts[1], 1)
   assert_eq(result.counts[2], 1)
@@ -501,7 +485,7 @@ test "bmd_vcount_pattern_with_mismatches" {
 ///|
 test "bmd_vcount_pattern_empty_pattern" {
   let subjects = ["ATGC", "GCAT"]
-  let result = bmd_vcount_pattern(pattern="", subjects=subjects)
+  let result = bmd_vcount_pattern(pattern="", subjects~)
   assert_eq(result.total, 0)
   assert_eq(result.counts.length(), 2)
 }
@@ -509,7 +493,7 @@ test "bmd_vcount_pattern_empty_pattern" {
 ///|
 test "bmd_vcount_pattern_empty_subjects" {
   let subjects : Array[String] = []
-  let result = bmd_vcount_pattern(pattern="ATG", subjects=subjects)
+  let result = bmd_vcount_pattern(pattern="ATG", subjects~)
   assert_eq(result.total, 0)
   assert_eq(result.counts.length(), 0)
 }
@@ -518,7 +502,7 @@ test "bmd_vcount_pattern_empty_subjects" {
 test "bmd_vmatch_pattern_basic" {
   let patterns = ["ATG", "CCC"]
   let subjects = ["ATGATG", "CCCCCC"]
-  let results = bmd_vmatch_pattern(patterns=patterns, subjects=subjects)
+  let results = bmd_vmatch_pattern(patterns~, subjects~)
   assert_eq(results.length(), 2)
   assert_eq(results[0].pattern, "ATG")
   assert_eq(results[0].total, 2)
@@ -530,7 +514,7 @@ test "bmd_vmatch_pattern_basic" {
 test "bmd_vmatch_pattern_multiple_subjects" {
   let patterns = ["ATG"]
   let subjects = ["ATGATG", "ATXATG", "TTTTTT"]
-  let results = bmd_vmatch_pattern(patterns=patterns, subjects=subjects)
+  let results = bmd_vmatch_pattern(patterns~, subjects~)
   assert_eq(results.length(), 1)
   assert_eq(results[0].counts[0], 2)
   assert_eq(results[0].counts[2], 0)
@@ -546,7 +530,7 @@ test "bmd_vmatch_pattern_empty" {
 test "bmd_which_basic" {
   let pdict = bmd_create_pdict(patterns=["ATG"])
   let subjects = ["ATGCTA", "TTTTTT", "ATGCAT"]
-  let result = bmd_which(pdict=pdict, subjects=subjects)
+  let result = bmd_which(pdict~, subjects~)
   assert_eq(result.length(), 3)
   assert_eq(result[0], true)
   assert_eq(result[1], false)
@@ -557,7 +541,7 @@ test "bmd_which_basic" {
 test "bmd_which_no_match" {
   let pdict = bmd_create_pdict(patterns=["ZZZZZ"])
   let subjects = ["ATGC", "GCAT"]
-  let result = bmd_which(pdict=pdict, subjects=subjects)
+  let result = bmd_which(pdict~, subjects~)
   assert_eq(result[0], false)
   assert_eq(result[1], false)
 }
@@ -566,7 +550,7 @@ test "bmd_which_no_match" {
 test "bmd_which_empty_pdict" {
   let pdict = bmd_create_pdict(patterns=[])
   let subjects = ["ATGC", "GCAT"]
-  let result = bmd_which(pdict=pdict, subjects=subjects)
+  let result = bmd_which(pdict~, subjects~)
   assert_eq(result[0], false)
   assert_eq(result[1], false)
 }
@@ -575,7 +559,7 @@ test "bmd_which_empty_pdict" {
 test "bmd_which_index_basic" {
   let pdict = bmd_create_pdict(patterns=["ATG"])
   let subjects = ["TTTT", "ATGC", "GGGG", "ATGG"]
-  let indices = bmd_which_index(pdict=pdict, subjects=subjects)
+  let indices = bmd_which_index(pdict~, subjects~)
   assert_eq(indices.length(), 2)
   assert_eq(indices[0], 1)
   assert_eq(indices[1], 3)
@@ -585,42 +569,42 @@ test "bmd_which_index_basic" {
 test "bmd_which_index_no_match" {
   let pdict = bmd_create_pdict(patterns=["ZZZZ"])
   let subjects = ["ATGC", "GCAT"]
-  let indices = bmd_which_index(pdict=pdict, subjects=subjects)
+  let indices = bmd_which_index(pdict~, subjects~)
   assert_eq(indices.length(), 0)
 }
 
 ///|
 test "bmd_count_occurrences_basic" {
   let pdict = bmd_create_pdict(patterns=["ATG"])
-  let count = bmd_count_occurrences(pdict=pdict, subject="ATGATGATG")
+  let count = bmd_count_occurrences(pdict~, subject="ATGATGATG")
   assert_eq(count, 3)
 }
 
 ///|
 test "bmd_count_occurrences_multiple_patterns" {
   let pdict = bmd_create_pdict(patterns=["AT", "TG"])
-  let count = bmd_count_occurrences(pdict=pdict, subject="ATGATG")
+  let count = bmd_count_occurrences(pdict~, subject="ATGATG")
   assert_eq(count, 4)
 }
 
 ///|
 test "bmd_count_occurrences_no_match" {
   let pdict = bmd_create_pdict(patterns=["ZZZZ"])
-  let count = bmd_count_occurrences(pdict=pdict, subject="ATGC")
+  let count = bmd_count_occurrences(pdict~, subject="ATGC")
   assert_eq(count, 0)
 }
 
 ///|
 test "bmd_count_occurrences_empty" {
   let pdict = bmd_create_pdict(patterns=[""])
-  let count = bmd_count_occurrences(pdict=pdict, subject="ATGC")
+  let count = bmd_count_occurrences(pdict~, subject="ATGC")
   assert_eq(count, 0)
 }
 
 ///|
 test "bmd_find_best_match_exact" {
   let pdict = bmd_create_pdict(patterns=["ATG"])
-  let best = bmd_find_best_match(pdict=pdict, subject="AATGCT")
+  let best = bmd_find_best_match(pdict~, subject="AATGCT")
   assert_true(best is Some(_))
   assert_eq(best.unwrap().pattern, "ATG")
   assert_eq(best.unwrap().start, 2)
@@ -629,7 +613,7 @@ test "bmd_find_best_match_exact" {
 ///|
 test "bmd_find_best_match_with_mismatches" {
   let pdict = bmd_create_pdict(patterns=["ATG", "AXG", "AYG"], max_mismatches=1)
-  let best = bmd_find_best_match(pdict=pdict, subject="AAAG")
+  let best = bmd_find_best_match(pdict~, subject="AAAG")
   assert_true(best is Some(_))
   assert_eq(best.unwrap().mismatches, 1)
   assert_eq(best.unwrap().pattern, "ATG")
@@ -638,14 +622,14 @@ test "bmd_find_best_match_with_mismatches" {
 ///|
 test "bmd_find_best_match_no_hit" {
   let pdict = bmd_create_pdict(patterns=["ZZZZZ"])
-  let best = bmd_find_best_match(pdict=pdict, subject="ATGC")
+  let best = bmd_find_best_match(pdict~, subject="ATGC")
   assert_true(best is None)
 }
 
 ///|
 test "bmd_find_best_match_multiple_hits" {
   let pdict = bmd_create_pdict(patterns=["ATG"], max_mismatches=2)
-  let best = bmd_find_best_match(pdict=pdict, subject="AATGCTXG")
+  let best = bmd_find_best_match(pdict~, subject="AATGCTXG")
   assert_true(best is Some(_))
   assert_eq(best.unwrap().pattern, "ATG")
   assert_eq(best.unwrap().mismatches, 0)
@@ -655,7 +639,7 @@ test "bmd_find_best_match_multiple_hits" {
 test "bmd_which_with_mismatches" {
   let pdict = bmd_create_pdict(patterns=["ATG"], max_mismatches=1)
   let subjects = ["AXGCTA", "TTTTTT", "AYGCAT"]
-  let result = bmd_which(pdict=pdict, subjects=subjects)
+  let result = bmd_which(pdict~, subjects~)
   assert_eq(result[0], true)
   assert_eq(result[1], false)
   assert_eq(result[2], true)
@@ -664,7 +648,7 @@ test "bmd_which_with_mismatches" {
 ///|
 test "bmd_vcount_pattern_single_subject" {
   let subjects = ["AAAA"]
-  let result = bmd_vcount_pattern(pattern="AA", subjects=subjects)
+  let result = bmd_vcount_pattern(pattern="AA", subjects~)
   assert_eq(result.counts.length(), 1)
   assert_eq(result.counts[0], 3)
   assert_eq(result.total, 3)
@@ -673,7 +657,7 @@ test "bmd_vcount_pattern_single_subject" {
 ///|
 test "bmd_match_pdict_hit_properties" {
   let pdict = bmd_create_pdict(patterns=["ATG", "TGC"])
-  let result = bmd_match_pdict(pdict=pdict, subject="ATGC")
+  let result = bmd_match_pdict(pdict~, subject="ATGC")
   assert_eq(result.hits.length(), 2)
   assert_eq(result.hits[0].pattern_idx, 0)
   assert_eq(result.hits[0].width, 3)
@@ -686,7 +670,7 @@ test "bmd_match_pdict_hit_properties" {
 ///|
 test "bmd_count_occurrences_overlapping" {
   let pdict = bmd_create_pdict(patterns=["AA"])
-  let count = bmd_count_occurrences(pdict=pdict, subject="AAAA")
+  let count = bmd_count_occurrences(pdict~, subject="AAAA")
   assert_eq(count, 3)
 }
 
@@ -694,7 +678,7 @@ test "bmd_count_occurrences_overlapping" {
 test "bmd_vmatch_pattern_multiple_mismatches" {
   let patterns = ["ATG", "CCC"]
   let subjects = ["AXGATG", "CXCCCX"]
-  let results = bmd_vmatch_pattern(patterns=patterns, subjects=subjects, max_mismatches=1)
+  let results = bmd_vmatch_pattern(patterns~, subjects~, max_mismatches=1)
   assert_eq(results.length(), 2)
   assert_eq(results[0].counts[0], 2)
   assert_eq(results[1].counts[1], 4)

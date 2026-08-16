@@ -60,13 +60,17 @@ pub fn ScmapReference::cell_types(self : ScmapReference) -> Array[String] {
 
 ///|
 /// Get expression matrix (gene × cell).
-pub fn ScmapReference::expression(self : ScmapReference) -> Array[Array[Double]] {
+pub fn ScmapReference::expression(
+  self : ScmapReference,
+) -> Array[Array[Double]] {
   self.expression
 }
 
 ///|
 /// Get unique cell types in the reference.
-pub fn ScmapReference::unique_cell_types(self : ScmapReference) -> Array[String] {
+pub fn ScmapReference::unique_cell_types(
+  self : ScmapReference,
+) -> Array[String] {
   let types : Array[String] = []
   for t in self.cell_types {
     let mut found = false
@@ -167,7 +171,9 @@ pub fn ScmapAssignment::best_correlation(self : ScmapAssignment) -> Double {
 
 ///|
 /// Get second-best correlation score.
-pub fn ScmapAssignment::second_best_correlation(self : ScmapAssignment) -> Double {
+pub fn ScmapAssignment::second_best_correlation(
+  self : ScmapAssignment,
+) -> Double {
   self.second_best_correlation
 }
 
@@ -202,9 +208,7 @@ fn scmap_extract_cell(
 ///|
 /// Compute the centroid (mean expression) for each cell type.
 /// Returns: cell_types × genes centroid matrix (as Array of cell-type vectors).
-fn scmap_centroids(
-  ref : ScmapReference,
-) -> Array[(String, Array[Double])] {
+fn scmap_centroids(ref : ScmapReference) -> Array[(String, Array[Double])] {
   let unique_types = ref.unique_cell_types()
   let n_genes = ref.gene_names.length()
   let centroids : Array[(String, Array[Double])] = []
@@ -404,7 +408,9 @@ pub fn scmap_cell(
 
 ///|
 /// Summarise classification results: count cells per assigned type.
-pub fn scmap_summary(assignments : Array[ScmapAssignment]) -> Array[(String, Int)] {
+pub fn scmap_summary(
+  assignments : Array[ScmapAssignment],
+) -> Array[(String, Int)] {
   let types : Array[String] = []
   let counts : Array[Int] = []
   for a in assignments {
@@ -431,7 +437,14 @@ pub fn scmap_summary(assignments : Array[ScmapAssignment]) -> Array[(String, Int
 ///|
 /// Format an assignment as a readable string.
 pub fn ScmapAssignment::to_string(self : ScmapAssignment) -> String {
-  self.cell_name + " -> " + self.assigned_type + " (corr=" + self.best_correlation.to_string() + ", method=" + self.method + ")"
+  self.cell_name +
+  " -> " +
+  self.assigned_type +
+  " (corr=" +
+  self.best_correlation.to_string() +
+  ", method=" +
+  self.method +
+  ")"
 }
 
 ///|
@@ -439,10 +452,20 @@ pub fn ScmapAssignment::to_string(self : ScmapAssignment) -> String {
 pub fn scmap_assignments_to_string(
   assignments : Array[ScmapAssignment],
 ) -> String {
-  let mut s = "scmap Assignments (" + assignments.length().to_string() + " cells)\n"
+  let mut s = "scmap Assignments (" +
+    assignments.length().to_string() +
+    " cells)\n"
   s = s + "cell\tassigned_type\tbest_corr\tmethod\n"
   for a in assignments {
-    s = s + a.cell_name + "\t" + a.assigned_type + "\t" + a.best_correlation.to_string() + "\t" + a.method + "\n"
+    s = s +
+      a.cell_name +
+      "\t" +
+      a.assigned_type +
+      "\t" +
+      a.best_correlation.to_string() +
+      "\t" +
+      a.method +
+      "\n"
   }
   s
 }
@@ -456,13 +479,13 @@ pub fn scmap_assignments_to_string(
 /// 10 genes, 9 reference cells.
 pub fn scmap_sample_reference() -> ScmapReference {
   let gene_names = [
-    "GENE1", "GENE2", "GENE3", "GENE4", "GENE5", "GENE6", "GENE7", "GENE8", "GENE9", "GENE10",
+    "GENE1", "GENE2", "GENE3", "GENE4", "GENE5", "GENE6", "GENE7", "GENE8", "GENE9",
+    "GENE10",
   ]
-  let cell_names = [
-    "T1", "T2", "T3", "B1", "B2", "B3", "N1", "N2", "N3",
-  ]
+  let cell_names = ["T1", "T2", "T3", "B1", "B2", "B3", "N1", "N2", "N3"]
   let cell_types = [
-    "T_cell", "T_cell", "T_cell", "B_cell", "B_cell", "B_cell", "NK_cell", "NK_cell", "NK_cell",
+    "T_cell", "T_cell", "T_cell", "B_cell", "B_cell", "B_cell", "NK_cell", "NK_cell",
+    "NK_cell",
   ]
   // gene × cell expression matrix (10 genes × 9 cells)
   // T cells: high GENE1-3, low GENE4-6, GENE7-10 = 0
@@ -473,7 +496,7 @@ pub fn scmap_sample_reference() -> ScmapReference {
   for g in 0..<3 {
     let row : Array[Double] = []
     for c in 0..<9 {
-      let val = if c < 3 { 8.0 + (c.to_double() * 0.5) } else { 0.5 }
+      let val = if c < 3 { 8.0 + c.to_double() * 0.5 } else { 0.5 }
       row.push(val)
     }
     expression.push(row)
@@ -482,7 +505,7 @@ pub fn scmap_sample_reference() -> ScmapReference {
   for g in 0..<3 {
     let row : Array[Double] = []
     for c in 0..<9 {
-      let val = if c >= 3 && c < 6 { 8.0 + (c.to_double() * 0.5) } else { 0.5 }
+      let val = if c >= 3 && c < 6 { 8.0 + c.to_double() * 0.5 } else { 0.5 }
       row.push(val)
     }
     expression.push(row)
@@ -491,7 +514,7 @@ pub fn scmap_sample_reference() -> ScmapReference {
   for g in 0..<4 {
     let row : Array[Double] = []
     for c in 0..<9 {
-      let val = if c >= 6 { 8.0 + (c.to_double() * 0.5) } else { 0.5 }
+      let val = if c >= 6 { 8.0 + c.to_double() * 0.5 } else { 0.5 }
       row.push(val)
     }
     expression.push(row)
@@ -503,7 +526,8 @@ pub fn scmap_sample_reference() -> ScmapReference {
 /// Generate 3 query cells: one clearly T, one clearly B, one ambiguous.
 pub fn scmap_sample_query() -> ScmapQuery {
   let gene_names = [
-    "GENE1", "GENE2", "GENE3", "GENE4", "GENE5", "GENE6", "GENE7", "GENE8", "GENE9", "GENE10",
+    "GENE1", "GENE2", "GENE3", "GENE4", "GENE5", "GENE6", "GENE7", "GENE8", "GENE9",
+    "GENE10",
   ]
   let cell_names = ["query_T", "query_B", "query_unknown"]
   // gene × cell (10 genes × 3 query cells)

@@ -126,13 +126,17 @@ pub fn KaryotypePlot::new(genome : String) -> KaryotypePlot {
 
   // Set up default human chromosomes
   if genome == "hg38" || genome == "hg19" || genome == "human" {
-    let chroms = ["chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8",
-      "chr9", "chr10", "chr11", "chr12", "chr13", "chr14", "chr15", "chr16",
-      "chr17", "chr18", "chr19", "chr20", "chr21", "chr22", "chrX", "chrY"]
-    let sizes = [248956422, 242193529, 198295559, 190214555, 181538259, 170805979,
-      159345973, 145138636, 138394717, 133797422, 135086622, 133275309,
-      114364328, 107043718, 101991189, 90338345, 83257441, 80373285, 58617616,
-      64444167, 46709983, 50818468, 156040895, 57227415]
+    let chroms = [
+      "chr1", "chr2", "chr3", "chr4", "chr5", "chr6", "chr7", "chr8", "chr9", "chr10",
+      "chr11", "chr12", "chr13", "chr14", "chr15", "chr16", "chr17", "chr18", "chr19",
+      "chr20", "chr21", "chr22", "chrX", "chrY",
+    ]
+    let sizes = [
+      248956422, 242193529, 198295559, 190214555, 181538259, 170805979, 159345973,
+      145138636, 138394717, 133797422, 135086622, 133275309, 114364328, 107043718,
+      101991189, 90338345, 83257441, 80373285, 58617616, 64444167, 46709983, 50818468,
+      156040895, 57227415,
+    ]
 
     let mut i = 0
     while i < chroms.length() {
@@ -167,7 +171,10 @@ pub fn KaryotypePlot::get_chromosomes(plot : KaryotypePlot) -> Array[String] {
 
 ///|
 /// Get chromosome size.
-pub fn KaryotypePlot::get_chromosome_size(plot : KaryotypePlot, chr : String) -> Int {
+pub fn KaryotypePlot::get_chromosome_size(
+  plot : KaryotypePlot,
+  chr : String,
+) -> Int {
   match plot.chromosome_sizes.get(chr) {
     Some(s) => s
     None => 0
@@ -188,7 +195,10 @@ pub fn KaryotypePlot::get_n_regions(plot : KaryotypePlot) -> Int {
 
 ///|
 /// Add a track to the karyotype plot.
-pub fn KaryotypePlot::add_track(plot : KaryotypePlot, track : KaryotypeTrack) -> KaryotypePlot {
+pub fn KaryotypePlot::add_track(
+  plot : KaryotypePlot,
+  track : KaryotypeTrack,
+) -> KaryotypePlot {
   let tracks = plot.tracks.copy()
   tracks.push(track)
   KaryotypePlot::{
@@ -204,7 +214,10 @@ pub fn KaryotypePlot::add_track(plot : KaryotypePlot, track : KaryotypeTrack) ->
 
 ///|
 /// Add a region to the karyotype plot.
-pub fn KaryotypePlot::add_region(plot : KaryotypePlot, region : KaryotypeRegion) -> KaryotypePlot {
+pub fn KaryotypePlot::add_region(
+  plot : KaryotypePlot,
+  region : KaryotypeRegion,
+) -> KaryotypePlot {
   let regions = plot.regions.copy()
   regions.push(region)
   KaryotypePlot::{
@@ -220,7 +233,14 @@ pub fn KaryotypePlot::add_region(plot : KaryotypePlot, region : KaryotypeRegion)
 
 ///|
 /// Create a new track.
-pub fn KaryotypeTrack::new(track_id : String, track_type : TrackType, chromosome : String, start : Int, end : Int, label : String) -> KaryotypeTrack {
+pub fn KaryotypeTrack::new(
+  track_id : String,
+  track_type : TrackType,
+  chromosome : String,
+  start : Int,
+  end : Int,
+  label : String,
+) -> KaryotypeTrack {
   KaryotypeTrack::{
     track_id,
     track_type,
@@ -237,7 +257,10 @@ pub fn KaryotypeTrack::new(track_id : String, track_type : TrackType, chromosome
 
 ///|
 /// Add a data point to a track.
-pub fn KaryotypeTrack::add_point(track : KaryotypeTrack, point : TrackPoint) -> KaryotypeTrack {
+pub fn KaryotypeTrack::add_point(
+  track : KaryotypeTrack,
+  point : TrackPoint,
+) -> KaryotypeTrack {
   let data = track.data.copy()
   data.push(point)
   KaryotypeTrack::{
@@ -256,25 +279,45 @@ pub fn KaryotypeTrack::add_point(track : KaryotypeTrack, point : TrackPoint) -> 
 
 ///|
 /// Create a new track point.
-pub fn TrackPoint::new(chromosome : String, position : Int, value : Double, label : String) -> TrackPoint {
+pub fn TrackPoint::new(
+  chromosome : String,
+  position : Int,
+  value : Double,
+  label : String,
+) -> TrackPoint {
   TrackPoint::{ chromosome, position, value, label }
 }
 
 ///|
 /// Create a new karyotype region.
-pub fn KaryotypeRegion::new(chromosome : String, start : Int, end : Int, label : String, color : String) -> KaryotypeRegion {
+pub fn KaryotypeRegion::new(
+  chromosome : String,
+  start : Int,
+  end : Int,
+  label : String,
+  color : String,
+) -> KaryotypeRegion {
   KaryotypeRegion::{ chromosome, start, end, label, color }
 }
 
 ///|
 /// Create a new ideogram band.
-pub fn IdeogramBand::new(chromosome : String, start : Int, end : Int, band_name : String, stain : String) -> IdeogramBand {
+pub fn IdeogramBand::new(
+  chromosome : String,
+  start : Int,
+  end : Int,
+  band_name : String,
+  stain : String,
+) -> IdeogramBand {
   IdeogramBand::{ chromosome, start, end, band_name, stain }
 }
 
 ///|
 /// Set track color.
-pub fn KaryotypeTrack::set_color(track : KaryotypeTrack, color : String) -> KaryotypeTrack {
+pub fn KaryotypeTrack::set_color(
+  track : KaryotypeTrack,
+  color : String,
+) -> KaryotypeTrack {
   KaryotypeTrack::{
     track_id: track.track_id,
     track_type: track.track_type,
@@ -291,7 +334,11 @@ pub fn KaryotypeTrack::set_color(track : KaryotypeTrack, color : String) -> Kary
 
 ///|
 /// Set track y-range.
-pub fn KaryotypeTrack::set_y_range(track : KaryotypeTrack, y_min : Double, y_max : Double) -> KaryotypeTrack {
+pub fn KaryotypeTrack::set_y_range(
+  track : KaryotypeTrack,
+  y_min : Double,
+  y_max : Double,
+) -> KaryotypeTrack {
   KaryotypeTrack::{
     track_id: track.track_id,
     track_type: track.track_type,
@@ -320,7 +367,10 @@ pub fn KaryotypeTrack::get_n_points(track : KaryotypeTrack) -> Int {
 
 ///|
 /// Filter a track to a specific chromosome.
-pub fn KaryotypeTrack::filter_chromosome(track : KaryotypeTrack, chr : String) -> KaryotypeTrack {
+pub fn KaryotypeTrack::filter_chromosome(
+  track : KaryotypeTrack,
+  chr : String,
+) -> KaryotypeTrack {
   let filtered : Array[TrackPoint] = Array::new()
   let mut i = 0
   while i < track.data.length() {
@@ -345,7 +395,11 @@ pub fn KaryotypeTrack::filter_chromosome(track : KaryotypeTrack, chr : String) -
 
 ///|
 /// Generate an ASCII representation of the karyotype plot.
-pub fn KaryotypePlot::to_ascii(plot : KaryotypePlot, chr : String, width : Int) -> String {
+pub fn KaryotypePlot::to_ascii(
+  plot : KaryotypePlot,
+  chr : String,
+  width : Int,
+) -> String {
   let w = if width < 40 { 60 } else { width }
   let chr_size = plot.get_chromosome_size(chr)
   if chr_size == 0 {
@@ -353,7 +407,12 @@ pub fn KaryotypePlot::to_ascii(plot : KaryotypePlot, chr : String, width : Int) 
   }
 
   let mut result = "=== Karyotype Plot: " + plot.genome + " ===\n"
-  result = result + "Chromosome: " + chr + " (size: " + chr_size.to_string() + " bp)\n"
+  result = result +
+    "Chromosome: " +
+    chr +
+    " (size: " +
+    chr_size.to_string() +
+    " bp)\n"
 
   // Draw ideogram bar
   let mut bar = ""
@@ -365,7 +424,10 @@ pub fn KaryotypePlot::to_ascii(plot : KaryotypePlot, chr : String, width : Int) 
   result = result + bar + "\n"
 
   // Draw centromere marker
-  let centromere_pos = ((chr_size.to_double() / 2.0) / chr_size.to_double() * (w.to_double() - 1.0)).to_int()
+  let centromere_pos = (chr_size.to_double() /
+  2.0 /
+  chr_size.to_double() *
+  (w.to_double() - 1.0)).to_int()
   let mut cent_bar = ""
   let mut j = 0
   while j < w {
@@ -382,7 +444,7 @@ pub fn KaryotypePlot::to_ascii(plot : KaryotypePlot, chr : String, width : Int) 
   let mut ticks = ""
   let mut k = 0
   while k < w {
-    if k == 0 || k == (w / 4) || k == (w / 2) || k == (3 * w / 4) || k == w - 1 {
+    if k == 0 || k == w / 4 || k == w / 2 || k == 3 * w / 4 || k == w - 1 {
       ticks = ticks + "|"
     } else {
       ticks = ticks + "-"
@@ -407,7 +469,12 @@ pub fn KaryotypePlot::to_ascii(plot : KaryotypePlot, chr : String, width : Int) 
   while track_idx < plot.tracks.length() {
     let track = plot.tracks[track_idx]
     if track.chromosome == chr {
-      result = result + "Track: " + track.label + " (" + track.track_type.to_string() + ")\n"
+      result = result +
+        "Track: " +
+        track.label +
+        " (" +
+        track.track_type.to_string() +
+        ")\n"
       let mut data_bar = ""
       let mut m = 0
       while m < w {
@@ -419,11 +486,23 @@ pub fn KaryotypePlot::to_ascii(plot : KaryotypePlot, chr : String, width : Int) 
       let mut p = 0
       while p < track.data.length() {
         let pt = track.data[p]
-        let rel_pos = (pt.position.to_double() / chr_size.to_double() * (w.to_double() - 1.0)).to_int()
+        let rel_pos = (pt.position.to_double() /
+        chr_size.to_double() *
+        (w.to_double() - 1.0)).to_int()
         let value = (pt.value - track.y_min) / (track.y_max - track.y_min)
         if rel_pos >= 0 && rel_pos < w {
-          let ch = if value > 0.75 { "#" } else if value > 0.5 { "+" } else if value > 0.25 { "o" } else { "." }
-          data_bar = data_bar.substring(start=0, end=rel_pos).to_string() + ch + data_bar.substring(start=rel_pos + 1, end=w).to_string()
+          let ch = if value > 0.75 {
+            "#"
+          } else if value > 0.5 {
+            "+"
+          } else if value > 0.25 {
+            "o"
+          } else {
+            "."
+          }
+          data_bar = data_bar.substring(start=0, end=rel_pos).to_string() +
+            ch +
+            data_bar.substring(start=rel_pos + 1, end=w).to_string()
         }
         p = p + 1
       }
@@ -449,7 +528,12 @@ pub fn KaryotypePlot::summary(plot : KaryotypePlot) -> String {
   let total_bp = 0
   while i < plot.chromosomes.length() {
     let chr = plot.chromosomes[i]
-    s = s + "  " + chr + ": " + plot.get_chromosome_size(chr).to_string() + " bp\n"
+    s = s +
+      "  " +
+      chr +
+      ": " +
+      plot.get_chromosome_size(chr).to_string() +
+      " bp\n"
     i = i + 1
   }
   s
@@ -461,32 +545,53 @@ pub fn karyotype_sample() -> KaryotypePlot {
   let plot = KaryotypePlot::new("hg38")
 
   // Add some sample data tracks
-  let mut gc_track = KaryotypeTrack::new("gc_content", TrackType::Lines, "chr1", 0, 248956422, "GC Content")
+  let mut gc_track = KaryotypeTrack::new(
+    "gc_content",
+    TrackType::Lines,
+    "chr1",
+    0,
+    248956422,
+    "GC Content",
+  )
   gc_track = gc_track.set_color("#FF6600")
 
   let mut i = 0
   while i < 50 {
     let pos = i * 497913
-    let value = 0.35 + 0.15 * ((i.to_double() / 50.0) * 2.0 - 1.0) * ((i.to_double() / 50.0) * 2.0 - 1.0)
+    let value = 0.35 +
+      0.15 *
+      (i.to_double() / 50.0 * 2.0 - 1.0) *
+      (i.to_double() / 50.0 * 2.0 - 1.0)
     gc_track = gc_track.add_point(TrackPoint::new("chr1", pos, value, ""))
     i = i + 1
   }
 
   // Add a second track
-  let mut snp_track = KaryotypeTrack::new("snp_density", TrackType::Bars, "chr1", 0, 248956422, "SNP Density")
+  let mut snp_track = KaryotypeTrack::new(
+    "snp_density",
+    TrackType::Bars,
+    "chr1",
+    0,
+    248956422,
+    "SNP Density",
+  )
   snp_track = snp_track.set_color("#003399")
 
   let mut j = 0
   while j < 30 {
     let pos = j * 829854
-    let value = 0.2 + 0.6 * ((j.to_double() / 30.0))
+    let value = 0.2 + 0.6 * (j.to_double() / 30.0)
     snp_track = snp_track.add_point(TrackPoint::new("chr1", pos, value, ""))
     j = j + 1
   }
 
   // Add regions of interest
-  let region1 = KaryotypeRegion::new("chr1", 11000000, 12000000, "BRCA2 region", "#FF0000")
-  let region2 = KaryotypeRegion::new("chr1", 28000000, 30000000, "TP53 region", "#00FF00")
+  let region1 = KaryotypeRegion::new(
+    "chr1", 11000000, 12000000, "BRCA2 region", "#FF0000",
+  )
+  let region2 = KaryotypeRegion::new(
+    "chr1", 28000000, 30000000, "TP53 region", "#00FF00",
+  )
 
   let mut result = plot
   result = result.add_track(gc_track)

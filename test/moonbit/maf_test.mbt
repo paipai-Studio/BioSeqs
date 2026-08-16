@@ -137,12 +137,12 @@ test "maf_alignment_total_length" {
   let seq1 = @src.new_maf_sequence("seq1", 0, 10, "+", 100, "ACGTACGTAC")
   block1 = @src.maf_block_add_seq(block1, seq1)
   ali = @src.maf_add_block(ali, block1)
-  
+
   let mut block2 = @src.new_maf_block()
   let seq2 = @src.new_maf_sequence("seq1", 10, 5, "+", 100, "GTACG")
   block2 = @src.maf_block_add_seq(block2, seq2)
   ali = @src.maf_add_block(ali, block2)
-  
+
   assert_eq(@src.maf_total_length(ali), 15)
 }
 
@@ -156,7 +156,7 @@ test "maf_alignment_seq_names" {
   block = @src.maf_block_add_seq(block, seq1)
   block = @src.maf_block_add_seq(block, seq2)
   ali = @src.maf_add_block(ali, block)
-  
+
   let names = @src.maf_all_seq_names(ali)
   assert_eq(names.length(), 2)
   assert_true(names.contains("human.chr1"))
@@ -224,13 +224,19 @@ test "maf_select_seqs" {
 /// Test maf_filter_by_length.
 test "maf_filter_by_length" {
   let mut ali = @src.new_maf_alignment()
-  
+
   let mut block1 = @src.new_maf_block()
   block1 = @src.maf_block_set_score(block1, Some(100.0))
-  block1 = @src.maf_block_add_seq(block1, @src.new_maf_sequence("s1", 0, 100, "+", 1000, "ACGTACGTACGTACGTACGT"))
-  block1 = @src.maf_block_add_seq(block1, @src.new_maf_sequence("s2", 0, 100, "+", 1000, "ACGTACGTACGTACGTACGT"))
+  block1 = @src.maf_block_add_seq(
+    block1,
+    @src.new_maf_sequence("s1", 0, 100, "+", 1000, "ACGTACGTACGTACGTACGT"),
+  )
+  block1 = @src.maf_block_add_seq(
+    block1,
+    @src.new_maf_sequence("s2", 0, 100, "+", 1000, "ACGTACGTACGTACGTACGT"),
+  )
   ali = @src.maf_add_block(ali, block1)
-  
+
   let filtered = @src.maf_filter_by_length(ali, 5)
   assert_eq(@src.maf_num_blocks(filtered), 1)
 }
@@ -241,10 +247,16 @@ test "maf_stats" {
   let mut ali = @src.new_maf_alignment()
   let mut block = @src.new_maf_block()
   block = @src.maf_block_set_score(block, Some(100.0))
-  block = @src.maf_block_add_seq(block, @src.new_maf_sequence("s1", 0, 10, "+", 1000, "ACGTACGTAC"))
-  block = @src.maf_block_add_seq(block, @src.new_maf_sequence("s2", 0, 10, "+", 1000, "ACGTACGTAC"))
+  block = @src.maf_block_add_seq(
+    block,
+    @src.new_maf_sequence("s1", 0, 10, "+", 1000, "ACGTACGTAC"),
+  )
+  block = @src.maf_block_add_seq(
+    block,
+    @src.new_maf_sequence("s2", 0, 10, "+", 1000, "ACGTACGTAC"),
+  )
   ali = @src.maf_add_block(ali, block)
-  
+
   let stats = @src.maf_compute_stats(ali)
   assert_eq(stats.num_blocks, 1)
   assert_eq(stats.total_length, 10)
@@ -284,20 +296,32 @@ test "maf_strand_info" {
 /// Test maf_merge_blocks.
 test "maf_merge_blocks" {
   let mut ali = @src.new_maf_alignment()
-  
+
   let mut block1 = @src.new_maf_block()
   block1 = @src.maf_block_set_score(block1, Some(50.0))
-  block1 = @src.maf_block_add_seq(block1, @src.new_maf_sequence("s1", 0, 5, "+", 1000, "ACGTG"))
-  block1 = @src.maf_block_add_seq(block1, @src.new_maf_sequence("s2", 0, 5, "+", 1000, "ACGTG"))
-  
+  block1 = @src.maf_block_add_seq(
+    block1,
+    @src.new_maf_sequence("s1", 0, 5, "+", 1000, "ACGTG"),
+  )
+  block1 = @src.maf_block_add_seq(
+    block1,
+    @src.new_maf_sequence("s2", 0, 5, "+", 1000, "ACGTG"),
+  )
+
   let mut block2 = @src.new_maf_block()
   block2 = @src.maf_block_set_score(block2, Some(30.0))
-  block2 = @src.maf_block_add_seq(block2, @src.new_maf_sequence("s1", 5, 5, "+", 1000, "TGCAC"))
-  block2 = @src.maf_block_add_seq(block2, @src.new_maf_sequence("s2", 5, 5, "+", 1000, "TGCAC"))
-  
+  block2 = @src.maf_block_add_seq(
+    block2,
+    @src.new_maf_sequence("s1", 5, 5, "+", 1000, "TGCAC"),
+  )
+  block2 = @src.maf_block_add_seq(
+    block2,
+    @src.new_maf_sequence("s2", 5, 5, "+", 1000, "TGCAC"),
+  )
+
   ali = @src.maf_add_block(ali, block1)
   ali = @src.maf_add_block(ali, block2)
-  
+
   let merged = @src.maf_merge_blocks(ali)
   // Should merge blocks with same sequences
   assert_true(@src.maf_num_blocks(merged) <= @src.maf_num_blocks(ali))

@@ -62,7 +62,7 @@ fn abc_variance(arr : Array[Double]) -> Double {
 /// Welch-Satterthwaite degrees of freedom.
 fn abc_welch_t(
   group1 : Array[Double],
-  group2 : Array[Double]
+  group2 : Array[Double],
 ) -> (Double, Double) {
   let n1 = group1.length()
   let n2 = group2.length()
@@ -79,9 +79,13 @@ fn abc_welch_t(
   }
   let t = (m1 - m2) / se
   // Welch-Satterthwaite df.
-  let num = (v1 / n1.to_double() + v2 / n2.to_double())
-  let denom1 = v1 * v1 / ((n1.to_double() - 1.0) * n1.to_double() * n1.to_double())
-  let denom2 = v2 * v2 / ((n2.to_double() - 1.0) * n2.to_double() * n2.to_double())
+  let num = v1 / n1.to_double() + v2 / n2.to_double()
+  let denom1 = v1 *
+    v1 /
+    ((n1.to_double() - 1.0) * n1.to_double() * n1.to_double())
+  let denom2 = v2 *
+    v2 /
+    ((n2.to_double() - 1.0) * n2.to_double() * n2.to_double())
   let df = if denom1 + denom2 > 0.0 {
     num * num / (denom1 + denom2)
   } else {
@@ -120,11 +124,12 @@ fn abc_normal_cdf(z : Double) -> Double {
   let t = 1.0 / (1.0 + 0.3275911 * x)
   let exp_val = @math.exp(0.0 - x * x / 2.0)
   let y2 = 1.0 -
-    (((((1.061405429 * t - 1.453152027) * t + 1.421413741) * t -
-    0.284496736) *
-    t +
-    0.254829592) *
-    t) *
+    (
+      (((1.061405429 * t - 1.453152027) * t + 1.421413741) * t - 0.284496736) *
+      t +
+      0.254829592
+    ) *
+    t *
     exp_val
   0.5 * (1.0 + sign * y2)
 }
@@ -143,7 +148,13 @@ fn abc_bh_fdr(pvalues : Array[Double]) -> Array[Double] {
     indexed.push((i, pvalues[i]))
   }
   indexed.sort_by(fn(a : (Int, Double), b : (Int, Double)) -> Int {
-    if a.1 < b.1 { -1 } else if a.1 > b.1 { 1 } else { 0 }
+    if a.1 < b.1 {
+      -1
+    } else if a.1 > b.1 {
+      1
+    } else {
+      0
+    }
   })
   // Compute adjusted p-values from largest to smallest.
   let adjusted : Array[Double] = Array::make(m, 0.0)
@@ -174,7 +185,10 @@ pub struct AncombcFeature {
 
 ///|
 /// Construct an AncombcFeature.
-pub fn AncombcFeature::new(name : String, counts : Array[Int]) -> AncombcFeature {
+pub fn AncombcFeature::new(
+  name : String,
+  counts : Array[Int],
+) -> AncombcFeature {
   AncombcFeature::{ name, counts }
 }
 
@@ -237,7 +251,7 @@ pub fn AncombcData::new(
   sample_names : Array[String],
   sample_groups : Array[String],
   feature_names : Array[String],
-  counts : Array[Array[Int]]
+  counts : Array[Array[Int]],
 ) -> AncombcData {
   AncombcData::{ sample_names, sample_groups, feature_names, counts }
 }
@@ -277,7 +291,7 @@ pub fn AncombcData::counts(self : AncombcData) -> Array[Array[Int]] {
 pub fn AncombcData::get_count(
   self : AncombcData,
   feature_idx : Int,
-  sample_idx : Int
+  sample_idx : Int,
 ) -> Int {
   self.counts[feature_idx][sample_idx]
 }
@@ -344,9 +358,7 @@ pub fn ancombc_sampling_fractions(data : AncombcData) -> Array[Double] {
 ///   y[i,j] = log(count[i,j] + 0.5) - log(s_j * N + 0.5)
 /// where s_j is the sampling fraction and N is the number of features.
 /// This adjusts for differences in sequencing depth (library size).
-pub fn ancombc_bias_corrected_log(
-  data : AncombcData
-) -> Array[Array[Double]] {
+pub fn ancombc_bias_corrected_log(data : AncombcData) -> Array[Array[Double]] {
   let n_features = data.n_features()
   let n_samples = data.n_samples()
   let fracs = ancombc_sampling_fractions(data)
@@ -412,9 +424,16 @@ pub fn AncombcResult::new(
   w_stat : Int,
   p_value : Double,
   q_value : Double,
-  significant : Bool
+  significant : Bool,
 ) -> AncombcResult {
-  AncombcResult::{ feature, log_fold_change, w_stat, p_value, q_value, significant }
+  AncombcResult::{
+    feature,
+    log_fold_change,
+    w_stat,
+    p_value,
+    q_value,
+    significant,
+  }
 }
 
 ///|
@@ -461,14 +480,14 @@ pub struct AncombcTestResult {
 }
 
 ///|
-pub fn AncombcTestResult::results(self : AncombcTestResult) -> Array[AncombcResult] {
+pub fn AncombcTestResult::results(
+  self : AncombcTestResult,
+) -> Array[AncombcResult] {
   self.results
 }
 
 ///|
-pub fn AncombcTestResult::reference_feature(
-  self : AncombcTestResult
-) -> String {
+pub fn AncombcTestResult::reference_feature(self : AncombcTestResult) -> String {
   self.reference_feature
 }
 
@@ -517,7 +536,7 @@ pub fn ancombc_test(
   data : AncombcData,
   group1 : String,
   group2 : String,
-  alpha : Double
+  alpha : Double,
 ) -> AncombcTestResult {
   let n_features = data.n_features()
   let n_samples = data.n_samples()
@@ -535,11 +554,7 @@ pub fn ancombc_test(
   let log_data = ancombc_bias_corrected_log(data)
   // Select reference feature.
   let ref_idx = ancombc_reference_feature(data)
-  let ref_name = if ref_idx >= 0 {
-    data.feature_names[ref_idx]
-  } else {
-    ""
-  }
+  let ref_name = if ref_idx >= 0 { data.feature_names[ref_idx] } else { "" }
   // Compute log-ratios relative to reference: y_i - y_ref for each sample.
   let log_ratios : Array[Array[Double]] = Array::new()
   for i in 0..<n_features {
@@ -614,7 +629,7 @@ pub fn ancombc_test(
         pvalues[i],
         qvalues[i],
         sig,
-      )
+      ),
     )
   }
   AncombcTestResult::{
@@ -657,9 +672,7 @@ pub fn ancombc_result_summary(result : AncombcTestResult) -> String {
   sb.write_string(result.n_significant().to_string())
   sb.write_char('\n')
   sb.write_string("--- Per-feature results ---\n")
-  sb.write_string(
-    "feature\tlogFC\tW\tp_value\tq_value\tsignificant\n",
-  )
+  sb.write_string("feature\tlogFC\tW\tp_value\tq_value\tsignificant\n")
   for r in result.results {
     sb.write_string(r.feature)
     sb.write_char('\t')
@@ -689,10 +702,13 @@ pub fn ancombc_result_summary(result : AncombcTestResult) -> String {
 pub fn ancombc_sample_data() -> AncombcData {
   let sample_names = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"]
   let sample_groups = [
-    "control", "control", "control", "control", "treatment", "treatment",
-    "treatment", "treatment",
+    "control", "control", "control", "control", "treatment", "treatment", "treatment",
+    "treatment",
   ]
-  let feature_names = ["Bacteroides", "Prevotella", "Faecalibacterium", "Roseburia", "Eubacterium", "Ruminococcus"]
+  let feature_names = [
+    "Bacteroides", "Prevotella", "Faecalibacterium", "Roseburia", "Eubacterium",
+    "Ruminococcus",
+  ]
   // Counts: [feature][sample]
   // Features 0,1 are elevated in treatment; features 2-5 are similar.
   let counts = [

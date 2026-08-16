@@ -1,6 +1,5 @@
 ///|
 /// Tests for DelayedMatrixStats module.
-
 test "create_delayed_matrix_basic" {
   let mat = @src.create_delayed_matrix(
     [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
@@ -22,11 +21,7 @@ test "create_delayed_matrix_empty" {
 
 ///|
 test "delayed_matrix_get_element" {
-  let mat = @src.create_delayed_matrix(
-    [[1.0, 2.0], [3.0, 4.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[1.0, 2.0], [3.0, 4.0]], [], [])
   assert_eq(mat.get(0, 0), 1.0)
   assert_eq(mat.get(0, 1), 2.0)
   assert_eq(mat.get(1, 0), 3.0)
@@ -35,11 +30,7 @@ test "delayed_matrix_get_element" {
 
 ///|
 test "delayed_matrix_dim" {
-  let mat = @src.create_delayed_matrix(
-    [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], [], [])
   let d = mat.dim()
   assert_eq(d[0], 2)
   assert_eq(d[1], 3)
@@ -63,11 +54,9 @@ test "delayed_matrix_subset" {
 
 ///|
 test "delayed_matrix_subset_names" {
-  let mat = @src.create_delayed_matrix(
-    [[1.0, 2.0], [3.0, 4.0]],
-    ["r1", "r2"],
-    ["c1", "c2"],
-  )
+  let mat = @src.create_delayed_matrix([[1.0, 2.0], [3.0, 4.0]], ["r1", "r2"], [
+    "c1", "c2",
+  ])
   let sub = @src.delayed_matrix_subset(mat, [1], [0])
   assert_eq(sub.row_names.length(), 1)
   assert_eq(sub.col_names.length(), 1)
@@ -75,11 +64,7 @@ test "delayed_matrix_subset_names" {
 
 ///|
 test "row_stats_mean" {
-  let mat = @src.create_delayed_matrix(
-    [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], [], [])
   let means = @src.row_stats(mat, "mean")
   assert_eq(means.length(), 2)
   assert_eq(means[0], 2.0)
@@ -88,11 +73,7 @@ test "row_stats_mean" {
 
 ///|
 test "col_stats_mean" {
-  let mat = @src.create_delayed_matrix(
-    [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], [], [])
   let means = @src.col_stats(mat, "mean")
   assert_eq(means.length(), 3)
   assert_eq(means[0], 2.5)
@@ -102,11 +83,7 @@ test "col_stats_mean" {
 
 ///|
 test "row_medians" {
-  let mat = @src.create_delayed_matrix(
-    [[1.0, 3.0, 2.0], [4.0, 6.0, 5.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[1.0, 3.0, 2.0], [4.0, 6.0, 5.0]], [], [])
   let medians = @src.row_medians(mat)
   assert_eq(medians.length(), 2)
   assert_eq(medians[0], 2.0)
@@ -128,11 +105,7 @@ test "col_medians" {
 
 ///|
 test "row_medians_even" {
-  let mat = @src.create_delayed_matrix(
-    [[1.0, 2.0, 3.0, 4.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[1.0, 2.0, 3.0, 4.0]], [], [])
   let medians = @src.row_medians(mat)
   assert_eq(medians[0], 2.5)
 }
@@ -165,11 +138,7 @@ test "dms_col_means" {
 
 ///|
 test "dms_row_vars" {
-  let mat = @src.create_delayed_matrix(
-    [[2.0, 4.0, 6.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[2.0, 4.0, 6.0]], [], [])
   let vars = @src.dms_row_vars(mat)
   assert_eq(vars.length(), 1)
   assert_eq(vars[0], 4.0)
@@ -177,11 +146,7 @@ test "dms_row_vars" {
 
 ///|
 test "col_vars" {
-  let mat = @src.create_delayed_matrix(
-    [[2.0], [4.0], [6.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[2.0], [4.0], [6.0]], [], [])
   let vars = @src.col_vars(mat)
   assert_eq(vars.length(), 1)
   assert_eq(vars[0], 4.0)
@@ -189,11 +154,7 @@ test "col_vars" {
 
 ///|
 test "row_allsums" {
-  let mat = @src.create_delayed_matrix(
-    [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], [], [])
   let sums = @src.row_allsums(mat)
   assert_eq(sums.length(), 2)
   assert_eq(sums[0], 6.0)
@@ -202,11 +163,7 @@ test "row_allsums" {
 
 ///|
 test "row_n_basic" {
-  let mat = @src.create_delayed_matrix(
-    [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], [], [])
   let n = @src.row_n(mat)
   assert_eq(n.length(), 2)
   assert_eq(n[0], 3)
@@ -243,11 +200,7 @@ test "row_stats_min_max" {
 
 ///|
 test "col_stats_min_max" {
-  let mat = @src.create_delayed_matrix(
-    [[3.0, 1.0, 4.0], [9.0, 2.0, 6.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[3.0, 1.0, 4.0], [9.0, 2.0, 6.0]], [], [])
   let mins = @src.col_stats(mat, "min")
   let maxs = @src.col_stats(mat, "max")
   assert_eq(mins[0], 3.0)
@@ -338,7 +291,10 @@ test "row_medians_with_na" {
 ///|
 test "col_stats_all_na" {
   let mat = @src.create_delayed_matrix(
-    [[@double.not_a_number, @double.not_a_number], [@double.not_a_number, @double.not_a_number]],
+    [
+      [@double.not_a_number, @double.not_a_number],
+      [@double.not_a_number, @double.not_a_number],
+    ],
     [],
     [],
   )
@@ -376,11 +332,7 @@ test "row_stats_nna_stat" {
 
 ///|
 test "row_stats_nn_stat" {
-  let mat = @src.create_delayed_matrix(
-    [[1.0, @double.not_a_number, 3.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[1.0, @double.not_a_number, 3.0]], [], [])
   let nn_vals = @src.row_stats(mat, "nn")
   assert_eq(nn_vals.length(), 1)
   assert_eq(nn_vals[0], 2.0)
@@ -424,11 +376,7 @@ test "row_vars_single_element" {
 
 ///|
 test "col_medians_odd" {
-  let mat = @src.create_delayed_matrix(
-    [[1.0], [5.0], [3.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[1.0], [5.0], [3.0]], [], [])
   let medians = @src.col_medians(mat)
   assert_eq(medians[0], 3.0)
 }
@@ -470,11 +418,7 @@ test "matrix_stats_result_creation" {
 
 ///|
 test "row_stats_sum_equals_allsums" {
-  let mat = @src.create_delayed_matrix(
-    [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]],
-    [],
-    [],
-  )
+  let mat = @src.create_delayed_matrix([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]], [], [])
   let sums1 = @src.row_allsums(mat)
   let sums2 = @src.row_stats(mat, "sum")
   assert_eq(sums1.length(), sums2.length())

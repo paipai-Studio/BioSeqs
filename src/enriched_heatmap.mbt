@@ -222,16 +222,14 @@ fn make_windows(
       let w_end = w_start + config.w - 1
       // For minus strand, reverse the window index.
       let actual_wi = if is_minus { n_up - 1 - wi } else { wi }
-      windows.push(
-        Window::{
-          chr: t.chr,
-          start: w_start,
-          end_: w_end,
-          targetIndex: ti,
-          windowIndex: actual_wi,
-          isTarget: false,
-        },
-      )
+      windows.push(Window::{
+        chr: t.chr,
+        start: w_start,
+        end_: w_end,
+        targetIndex: ti,
+        windowIndex: actual_wi,
+        isTarget: false,
+      })
       wi = wi + 1
     }
     // Target body windows (if includeTarget and k > 0).
@@ -245,22 +243,16 @@ fn make_windows(
       let mut ki = 0
       while ki < config.k {
         let w_start = tStart + ki * kw
-        let w_end = if ki == config.k - 1 {
-          tEnd
-        } else {
-          w_start + kw - 1
-        }
+        let w_end = if ki == config.k - 1 { tEnd } else { w_start + kw - 1 }
         let actual_ki = if is_minus { config.k - 1 - ki } else { ki }
-        windows.push(
-          Window::{
-            chr: t.chr,
-            start: w_start,
-            end_: w_end,
-            targetIndex: ti,
-            windowIndex: n_up + actual_ki,
-            isTarget: true,
-          },
-        )
+        windows.push(Window::{
+          chr: t.chr,
+          start: w_start,
+          end_: w_end,
+          targetIndex: ti,
+          windowIndex: n_up + actual_ki,
+          isTarget: true,
+        })
         ki = ki + 1
       }
     }
@@ -274,17 +266,16 @@ fn make_windows(
       }
       let w_end = w_start + config.w - 1
       let actual_di = if is_minus { n_down - 1 - di } else { di }
-      let base_idx = n_up + (if config.includeTarget && config.k > 0 { config.k } else { 0 })
-      windows.push(
-        Window::{
-          chr: t.chr,
-          start: w_start,
-          end_: w_end,
-          targetIndex: ti,
-          windowIndex: base_idx + actual_di,
-          isTarget: false,
-        },
-      )
+      let base_idx = n_up +
+        (if config.includeTarget && config.k > 0 { config.k } else { 0 })
+      windows.push(Window::{
+        chr: t.chr,
+        start: w_start,
+        end_: w_end,
+        targetIndex: ti,
+        windowIndex: base_idx + actual_di,
+        isTarget: false,
+      })
       di = di + 1
     }
     ti = ti + 1
@@ -333,7 +324,8 @@ fn compute_window_mean(
   let mut si = 0
   while si < signals.length() {
     let s = signals[si]
-    if s.chr == window.chr && overlaps(s.start, s.end_, window.start, window.end_) {
+    if s.chr == window.chr &&
+      overlaps(s.start, s.end_, window.start, window.end_) {
       let ow = overlap_width(s.start, s.end_, window.start, window.end_)
       values.push(s.value)
       widths.push(ow)
@@ -366,7 +358,11 @@ fn compute_window_mean(
         wtot = wtot + w
         i = i + 1
       }
-      if wtot > 0.0 { wsum / wtot } else { background }
+      if wtot > 0.0 {
+        wsum / wtot
+      } else {
+        background
+      }
     }
     W0 => {
       // Like weighted, but denominator includes non-covered bp.
@@ -381,7 +377,11 @@ fn compute_window_mean(
       }
       let non_overlap = w_width.to_double() - total_overlap.to_double()
       let denom = wtot + non_overlap
-      if denom > 0.0 { wsum / denom } else { background }
+      if denom > 0.0 {
+        wsum / denom
+      } else {
+        background
+      }
     }
     Coverage => {
       // Weighted sum divided by total window width.
@@ -393,7 +393,11 @@ fn compute_window_mean(
         i = i + 1
       }
       let denom = w_width.to_double()
-      if denom > 0.0 { wsum / denom } else { background }
+      if denom > 0.0 {
+        wsum / denom
+      } else {
+        background
+      }
     }
   }
 }
@@ -594,7 +598,12 @@ pub fn normalize_to_matrix(
   let mut wi = 0
   while wi < windows.length() {
     let win = windows[wi]
-    let mean_val = compute_window_mean(win, signals, config.meanMode, config.background)
+    let mean_val = compute_window_mean(
+      win,
+      signals,
+      config.meanMode,
+      config.background,
+    )
     matrix[win.targetIndex][win.windowIndex] = mean_val
     wi = wi + 1
   }
@@ -692,13 +701,27 @@ pub fn enriched_heatmap_summary(mat : NormalizedMatrix) -> String {
   buf.write_string("EnrichedHeatmap Normalized Matrix Summary\n")
   buf.write_string("  Rows (targets): " + mat.nRows.to_string() + "\n")
   buf.write_string("  Columns (windows): " + mat.nCols.to_string() + "\n")
-  buf.write_string("  Upstream windows: " + mat.upstreamIndex.length().to_string() + "\n")
-  buf.write_string("  Target body windows: " + mat.targetIndex.length().to_string() + "\n")
-  buf.write_string("  Downstream windows: " + mat.downstreamIndex.length().to_string() + "\n")
-  buf.write_string("  Extension: " + mat.extend.0.to_string() + " up, " + mat.extend.1.to_string() + " down\n")
+  buf.write_string(
+    "  Upstream windows: " + mat.upstreamIndex.length().to_string() + "\n",
+  )
+  buf.write_string(
+    "  Target body windows: " + mat.targetIndex.length().to_string() + "\n",
+  )
+  buf.write_string(
+    "  Downstream windows: " + mat.downstreamIndex.length().to_string() + "\n",
+  )
+  buf.write_string(
+    "  Extension: " +
+    mat.extend.0.to_string() +
+    " up, " +
+    mat.extend.1.to_string() +
+    " down\n",
+  )
   buf.write_string("  Smoothed: " + mat.smooth.to_string() + "\n")
   buf.write_string("  Background: " + mat.background.to_string() + "\n")
-  buf.write_string("  Failed rows: " + mat.failedRows.length().to_string() + "\n")
+  buf.write_string(
+    "  Failed rows: " + mat.failedRows.length().to_string() + "\n",
+  )
   let profile = enrichment_profile(mat)
   if profile.length() > 0 {
     let mut minVal = profile[0]
@@ -716,7 +739,15 @@ pub fn enriched_heatmap_summary(mat : NormalizedMatrix) -> String {
       i = i + 1
     }
     let mean = sum / profile.length().to_double()
-    buf.write_string("  Enrichment profile: min=" + minVal.to_string() + " max=" + maxVal.to_string() + " mean=" + mean.to_string() + "\n")
+    buf.write_string(
+      "  Enrichment profile: min=" +
+      minVal.to_string() +
+      " max=" +
+      maxVal.to_string() +
+      " mean=" +
+      mean.to_string() +
+      "\n",
+    )
   }
   buf.to_string()
 }

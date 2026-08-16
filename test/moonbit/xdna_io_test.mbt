@@ -36,13 +36,19 @@ test "xdna_seq_type_from_int_round_trip" {
   let rna = @src.XdnaSeqType::from_int(1)
   let protein = @src.XdnaSeqType::from_int(2)
   let unknown = @src.XdnaSeqType::from_int(3)
-  assert_true(@src.XdnaSeqType::from_int(dna.to_int()) is @src.XdnaSeqType::DnaType)
-  assert_true(@src.XdnaSeqType::from_int(rna.to_int()) is @src.XdnaSeqType::RnaType)
   assert_true(
-    @src.XdnaSeqType::from_int(protein.to_int()) is @src.XdnaSeqType::ProteinType,
+    @src.XdnaSeqType::from_int(dna.to_int()) is @src.XdnaSeqType::DnaType,
   )
   assert_true(
-    @src.XdnaSeqType::from_int(unknown.to_int()) is @src.XdnaSeqType::UnknownType,
+    @src.XdnaSeqType::from_int(rna.to_int()) is @src.XdnaSeqType::RnaType,
+  )
+  assert_true(
+    @src.XdnaSeqType::from_int(protein.to_int())
+    is @src.XdnaSeqType::ProteinType,
+  )
+  assert_true(
+    @src.XdnaSeqType::from_int(unknown.to_int())
+    is @src.XdnaSeqType::UnknownType,
   )
 }
 
@@ -160,19 +166,27 @@ test "xdna_file_new_is_empty" {
 ///|
 test "xdna_file_add_record_and_n_records" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("a", "ACGT", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("a", "ACGT", @src.XdnaSeqType::from_int(0), ""),
+  )
   assert_eq(file.n_records(), 1)
-  file.add_record(@src.XdnaRecord::new("b", "TTTT", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("b", "TTTT", @src.XdnaSeqType::from_int(0), ""),
+  )
   assert_eq(file.n_records(), 2)
 }
 
 ///|
 test "xdna_file_records_returns_copy" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("a", "ACGT", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("a", "ACGT", @src.XdnaSeqType::from_int(0), ""),
+  )
   let recs = file.records()
   // Mutating the returned array should not affect the file.
-  recs.push(@src.XdnaRecord::new("x", "GGGG", @src.XdnaSeqType::from_int(0), ""))
+  recs.push(
+    @src.XdnaRecord::new("x", "GGGG", @src.XdnaSeqType::from_int(0), ""),
+  )
   assert_eq(file.n_records(), 1)
   assert_eq(recs.length(), 2)
 }
@@ -180,8 +194,12 @@ test "xdna_file_records_returns_copy" {
 ///|
 test "xdna_file_records_access" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("seq1", "ATGC", @src.XdnaSeqType::from_int(0), ""))
-  file.add_record(@src.XdnaRecord::new("seq2", "GATTACA", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("seq1", "ATGC", @src.XdnaSeqType::from_int(0), ""),
+  )
+  file.add_record(
+    @src.XdnaRecord::new("seq2", "GATTACA", @src.XdnaSeqType::from_int(0), ""),
+  )
   let recs = file.records()
   assert_eq(recs[0].name(), "seq1")
   assert_eq(recs[0].sequence(), "ATGC")
@@ -350,8 +368,12 @@ test "xdna_read_u32_be_at_offset" {
 ///|
 test "xdna_to_bytes_from_bytes_round_trip_dna" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("seq1", "ATGCATGC", @src.XdnaSeqType::from_int(0), ""))
-  file.add_record(@src.XdnaRecord::new("seq2", "GATTACA", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("seq1", "ATGCATGC", @src.XdnaSeqType::from_int(0), ""),
+  )
+  file.add_record(
+    @src.XdnaRecord::new("seq2", "GATTACA", @src.XdnaSeqType::from_int(0), ""),
+  )
   let bytes = @src.xdna_to_bytes(file)
   let file2 = @src.xdna_from_bytes(bytes)
   assert_eq(file2.n_records(), 2)
@@ -367,7 +389,12 @@ test "xdna_to_bytes_from_bytes_round_trip_dna" {
 test "xdna_to_bytes_from_bytes_round_trip_with_annotations" {
   let file = @src.XdnaFile::new()
   file.add_record(
-    @src.XdnaRecord::new("annot1", "ATGC", @src.XdnaSeqType::from_int(0), "some annotation"),
+    @src.XdnaRecord::new(
+      "annot1",
+      "ATGC",
+      @src.XdnaSeqType::from_int(0),
+      "some annotation",
+    ),
   )
   let bytes = @src.xdna_to_bytes(file)
   let file2 = @src.xdna_from_bytes(bytes)
@@ -382,7 +409,9 @@ test "xdna_to_bytes_from_bytes_round_trip_with_annotations" {
 test "xdna_to_bytes_from_bytes_round_trip_rna" {
   // RNA sequences are stored as raw ASCII (not 2-bit packed).
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("rna1", "AUGCAUGC", @src.XdnaSeqType::from_int(1), ""))
+  file.add_record(
+    @src.XdnaRecord::new("rna1", "AUGCAUGC", @src.XdnaSeqType::from_int(1), ""),
+  )
   let bytes = @src.xdna_to_bytes(file)
   let file2 = @src.xdna_from_bytes(bytes)
   assert_eq(file2.n_records(), 1)
@@ -395,7 +424,9 @@ test "xdna_to_bytes_from_bytes_round_trip_rna" {
 ///|
 test "xdna_to_bytes_from_bytes_round_trip_protein" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("prot1", "MKLVGV", @src.XdnaSeqType::from_int(2), ""))
+  file.add_record(
+    @src.XdnaRecord::new("prot1", "MKLVGV", @src.XdnaSeqType::from_int(2), ""),
+  )
   let bytes = @src.xdna_to_bytes(file)
   let file2 = @src.xdna_from_bytes(bytes)
   assert_eq(file2.n_records(), 1)
@@ -408,7 +439,9 @@ test "xdna_to_bytes_from_bytes_round_trip_protein" {
 ///|
 test "xdna_to_bytes_includes_checksum" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("seq1", "ATGC", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("seq1", "ATGC", @src.XdnaSeqType::from_int(0), ""),
+  )
   let bytes = @src.xdna_to_bytes(file)
   // The last 4 bytes are the checksum (big-endian u32).
   let checksum = @src.xdna_read_u32_be(bytes, bytes.length() - 4)
@@ -423,7 +456,9 @@ test "xdna_to_bytes_includes_checksum" {
 ///|
 test "xdna_from_bytes_preserves_version" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("seq1", "ATGC", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("seq1", "ATGC", @src.XdnaSeqType::from_int(0), ""),
+  )
   let bytes = @src.xdna_to_bytes(file)
   let file2 = @src.xdna_from_bytes(bytes)
   assert_eq(file2.version(), 1)
@@ -436,7 +471,9 @@ test "xdna_from_bytes_preserves_version" {
 ///|
 test "xdna_write_produces_lowercase_hex" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("A", "ATGC", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("A", "ATGC", @src.XdnaSeqType::from_int(0), ""),
+  )
   let hex = @src.xdna_write(file)
   // Every character must be a lowercase hex digit.
   for c in hex {
@@ -450,8 +487,12 @@ test "xdna_write_produces_lowercase_hex" {
 ///|
 test "xdna_write_read_round_trip" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("seq1", "ATGCATGC", @src.XdnaSeqType::from_int(0), ""))
-  file.add_record(@src.XdnaRecord::new("seq2", "GATTACA", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("seq1", "ATGCATGC", @src.XdnaSeqType::from_int(0), ""),
+  )
+  file.add_record(
+    @src.XdnaRecord::new("seq2", "GATTACA", @src.XdnaSeqType::from_int(0), ""),
+  )
   let hex = @src.xdna_write(file)
   let file2 = @src.xdna_read(hex)
   assert_eq(file2.n_records(), 2)
@@ -466,7 +507,12 @@ test "xdna_write_read_round_trip" {
 test "xdna_write_read_round_trip_with_annotations" {
   let file = @src.XdnaFile::new()
   file.add_record(
-    @src.XdnaRecord::new("a1", "GGGG", @src.XdnaSeqType::from_int(0), "note here"),
+    @src.XdnaRecord::new(
+      "a1",
+      "GGGG",
+      @src.XdnaSeqType::from_int(0),
+      "note here",
+    ),
   )
   let hex = @src.xdna_write(file)
   let file2 = @src.xdna_read(hex)
@@ -482,7 +528,12 @@ test "xdna_write_read_round_trip_with_annotations" {
 
 ///|
 test "xdna_get_sequence_string" {
-  let rec = @src.XdnaRecord::new("seq1", "ATGCATGC", @src.XdnaSeqType::from_int(0), "")
+  let rec = @src.XdnaRecord::new(
+    "seq1",
+    "ATGCATGC",
+    @src.XdnaSeqType::from_int(0),
+    "",
+  )
   assert_eq(@src.xdna_get_sequence_string(rec), "ATGCATGC")
 }
 
@@ -499,8 +550,12 @@ test "xdna_get_sequence_string_empty" {
 ///|
 test "xdna_to_seq_records" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("seq1", "ATGCATGC", @src.XdnaSeqType::from_int(0), ""))
-  file.add_record(@src.XdnaRecord::new("seq2", "GATTACA", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("seq1", "ATGCATGC", @src.XdnaSeqType::from_int(0), ""),
+  )
+  file.add_record(
+    @src.XdnaRecord::new("seq2", "GATTACA", @src.XdnaSeqType::from_int(0), ""),
+  )
   let records = @src.xdna_to_seq_records(file)
   assert_eq(records.length(), 2)
   assert_eq(records[0].id, "seq1")
@@ -530,7 +585,9 @@ test "xdna_from_seq_records" {
 ///|
 test "xdna_seq_records_round_trip" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("seq1", "ATGC", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("seq1", "ATGC", @src.XdnaSeqType::from_int(0), ""),
+  )
   let records = @src.xdna_to_seq_records(file)
   let file2 = @src.xdna_from_seq_records(records, @src.XdnaSeqType::from_int(0))
   assert_eq(file2.n_records(), 1)
@@ -619,7 +676,9 @@ test "edge_case_empty_file_hex_round_trip" {
 ///|
 test "edge_case_single_record" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("only", "ACGTACGT", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("only", "ACGTACGT", @src.XdnaSeqType::from_int(0), ""),
+  )
   let bytes = @src.xdna_to_bytes(file)
   let file2 = @src.xdna_from_bytes(bytes)
   assert_eq(file2.n_records(), 1)
@@ -631,7 +690,9 @@ test "edge_case_single_record" {
 ///|
 test "edge_case_single_base" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("one", "A", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("one", "A", @src.XdnaSeqType::from_int(0), ""),
+  )
   let bytes = @src.xdna_to_bytes(file)
   let file2 = @src.xdna_from_bytes(bytes)
   assert_eq(file2.n_records(), 1)
@@ -643,7 +704,9 @@ test "edge_case_single_base" {
 ///|
 test "edge_case_single_base_hex_round_trip" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("one", "G", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("one", "G", @src.XdnaSeqType::from_int(0), ""),
+  )
   let hex = @src.xdna_write(file)
   let file2 = @src.xdna_read(hex)
   assert_eq(file2.n_records(), 1)
@@ -653,7 +716,9 @@ test "edge_case_single_base_hex_round_trip" {
 ///|
 test "edge_case_empty_sequence" {
   let file = @src.XdnaFile::new()
-  file.add_record(@src.XdnaRecord::new("empty", "", @src.XdnaSeqType::from_int(0), ""))
+  file.add_record(
+    @src.XdnaRecord::new("empty", "", @src.XdnaSeqType::from_int(0), ""),
+  )
   let bytes = @src.xdna_to_bytes(file)
   let file2 = @src.xdna_from_bytes(bytes)
   assert_eq(file2.n_records(), 1)

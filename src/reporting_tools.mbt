@@ -113,7 +113,10 @@ pub fn ReportDocument::new(title : String) -> ReportDocument {
 
 ///|
 /// Set author.
-pub fn ReportDocument::set_author(doc : ReportDocument, author : String) -> ReportDocument {
+pub fn ReportDocument::set_author(
+  doc : ReportDocument,
+  author : String,
+) -> ReportDocument {
   ReportDocument::{
     title: doc.title,
     author,
@@ -126,7 +129,12 @@ pub fn ReportDocument::set_author(doc : ReportDocument, author : String) -> Repo
 
 ///|
 /// Add a text section to the report.
-pub fn ReportDocument::add_text(doc : ReportDocument, id : String, title : String, content : String) -> ReportDocument {
+pub fn ReportDocument::add_text(
+  doc : ReportDocument,
+  id : String,
+  title : String,
+  content : String,
+) -> ReportDocument {
   let sections = doc.sections.copy()
   sections.push(ReportSection::{
     section_id: id,
@@ -148,7 +156,11 @@ pub fn ReportDocument::add_text(doc : ReportDocument, id : String, title : Strin
 
 ///|
 /// Add a table section to the report.
-pub fn ReportDocument::add_table(doc : ReportDocument, id : String, table : ReportTable) -> ReportDocument {
+pub fn ReportDocument::add_table(
+  doc : ReportDocument,
+  id : String,
+  table : ReportTable,
+) -> ReportDocument {
   let sections = doc.sections.copy()
   let tables = doc.tables.copy()
   tables.push(table)
@@ -172,7 +184,12 @@ pub fn ReportDocument::add_table(doc : ReportDocument, id : String, table : Repo
 
 ///|
 /// Add a plot section to the report.
-pub fn ReportDocument::add_plot(doc : ReportDocument, id : String, title : String, plot_ascii : String) -> ReportDocument {
+pub fn ReportDocument::add_plot(
+  doc : ReportDocument,
+  id : String,
+  title : String,
+  plot_ascii : String,
+) -> ReportDocument {
   let sections = doc.sections.copy()
   sections.push(ReportSection::{
     section_id: id,
@@ -218,13 +235,23 @@ pub fn ReportDocument::get_n_tables(doc : ReportDocument) -> Int {
 
 ///|
 /// Create a new report column.
-pub fn ReportColumn::new(name : String, values : Array[String], numeric : Bool) -> ReportColumn {
+pub fn ReportColumn::new(
+  name : String,
+  values : Array[String],
+  numeric : Bool,
+) -> ReportColumn {
   ReportColumn::{ name, values, numeric }
 }
 
 ///|
 /// Create a new report table from string arrays.
-pub fn ReportTable::new(table_id : String, title : String, column_names : Array[String], column_data : Array[Array[String]], caption : String) -> ReportTable {
+pub fn ReportTable::new(
+  table_id : String,
+  title : String,
+  column_names : Array[String],
+  column_data : Array[Array[String]],
+  caption : String,
+) -> ReportTable {
   let columns : Array[ReportColumn] = Array::new()
   let n = column_names.length()
   let mut i = 0
@@ -241,7 +268,12 @@ pub fn ReportTable::new(table_id : String, title : String, column_names : Array[
 
 ///|
 /// Create a report table from mixed columns.
-pub fn ReportTable::from_columns(table_id : String, title : String, columns : Array[ReportColumn], caption : String) -> ReportTable {
+pub fn ReportTable::from_columns(
+  table_id : String,
+  title : String,
+  columns : Array[ReportColumn],
+  caption : String,
+) -> ReportTable {
   ReportTable::{ table_id, title, columns, caption }
 }
 
@@ -260,7 +292,11 @@ pub fn ReportTable::get_column_names(table : ReportTable) -> Array[String] {
 ///|
 /// Get number of rows in a table.
 pub fn ReportTable::get_n_rows(table : ReportTable) -> Int {
-  if table.columns.length() == 0 { 0 } else { table.columns[0].values.length() }
+  if table.columns.length() == 0 {
+    0
+  } else {
+    table.columns[0].values.length()
+  }
 }
 
 ///|
@@ -269,6 +305,7 @@ pub fn ReportTable::get_n_columns(table : ReportTable) -> Int {
   table.columns.length()
 }
 
+///|
 fn rt_pad_right(s : String, width : Int) -> String {
   if s.length() >= width {
     s.substring(start=0, end=width).to_string()
@@ -283,6 +320,7 @@ fn rt_pad_right(s : String, width : Int) -> String {
   }
 }
 
+///|
 fn rt_repeat_char(c : String, n : Int) -> String {
   let mut result = ""
   let mut i = 0
@@ -351,7 +389,11 @@ pub fn ReportTable::to_ascii(table : ReportTable) -> String {
   while ri < n_rows {
     let mut ci2 = 0
     while ci2 < n_cols {
-      let val = if ri < table.columns[ci2].values.length() { table.columns[ci2].values[ri] } else { "" }
+      let val = if ri < table.columns[ci2].values.length() {
+        table.columns[ci2].values[ri]
+      } else {
+        ""
+      }
       let padded = rt_pad_right(val, widths[ci2])
       result = result + padded + " | "
       ci2 = ci2 + 1
@@ -365,7 +407,10 @@ pub fn ReportTable::to_ascii(table : ReportTable) -> String {
 
 ///|
 /// Get a report section by id.
-pub fn ReportDocument::get_section(doc : ReportDocument, section_id : String) -> ReportSection {
+pub fn ReportDocument::get_section(
+  doc : ReportDocument,
+  section_id : String,
+) -> ReportSection {
   let mut i = 0
   while i < doc.sections.length() {
     if doc.sections[i].section_id == section_id {
@@ -398,11 +443,14 @@ pub fn ReportDocument::render(doc : ReportDocument) -> String {
   let mut i = 0
   while i < doc.sections.length() {
     let sec = doc.sections[i]
-    result = result + "### " + sec.title + " (" + sec.section_type.to_string() + ") ###\n"
+    result = result +
+      "### " +
+      sec.title +
+      " (" +
+      sec.section_type.to_string() +
+      ") ###\n"
     match sec.section_type {
-      ReportSectionType::Text => {
-        result = result + sec.content + "\n"
-      }
+      ReportSectionType::Text => result = result + sec.content + "\n"
       ReportSectionType::Table => {
         // Find the corresponding table
         let mut j = 0
@@ -413,12 +461,8 @@ pub fn ReportDocument::render(doc : ReportDocument) -> String {
           j = j + 1
         }
       }
-      ReportSectionType::Plot => {
-        result = result + sec.content + "\n"
-      }
-      _ => {
-        result = result + sec.content + "\n"
-      }
+      ReportSectionType::Plot => result = result + sec.content + "\n"
+      _ => result = result + sec.content + "\n"
     }
     result = result + "\n---\n\n"
     i = i + 1

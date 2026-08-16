@@ -226,7 +226,11 @@ pub fn write_genbank(records : Array[SeqRecord]) -> String {
     // Fields (fixed positions): 0-5 LOCUS, 6-11 spaces, 12-27 locus name, 28-39 length+bp,
     // 40-47 mol_type, 48-54 topology, 55-57 division, 58- date
     let seq_len = rec.seq.length()
-    let locus_name = if rec.name.length() > 16 { rec.name[0:16].to_owned() } else { rec.name }
+    let locus_name = if rec.name.length() > 16 {
+      rec.name[0:16].to_owned()
+    } else {
+      rec.name
+    }
     buf.write_string("LOCUS       ")
     buf.write_string(locus_name)
     // Pad to position 28 (12 + 16 = 28)
@@ -315,7 +319,8 @@ fn build_wrapped(text : String, indent : Int, width : Int) -> String {
       buf.write_string("            ")
       cur_indent = 12
       // Skip space if we broke at one
-      if break_at < total && text.unsafe_get(break_at) == ' '.to_int().to_uint16() {
+      if break_at < total &&
+        text.unsafe_get(break_at) == ' '.to_int().to_uint16() {
         pos = break_at + 1
       } else {
         pos = break_at

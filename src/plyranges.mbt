@@ -42,7 +42,11 @@ pub fn tgr_create(
     i = i + 1
   }
   TidifiedGRanges::{
-    seqnames, starts, ends, strands, widths,
+    seqnames,
+    starts,
+    ends,
+    strands,
+    widths,
     metadata: Map::new(),
     metadata_str: Map::new(),
   }
@@ -55,12 +59,17 @@ pub fn tgr_length(tgr : TidifiedGRanges) -> Int {
 
 ///|
 /// Filter GRanges by sequence name.
-pub fn tgr_filter_seqname(tgr : TidifiedGRanges, seqname : String) -> TidifiedGRanges {
+pub fn tgr_filter_seqname(
+  tgr : TidifiedGRanges,
+  seqname : String,
+) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
   let keep : Array[Bool] = Array::make(n, false)
   let mut i = 0
   while i < n {
-    if tgr.seqnames[i] == seqname { keep[i] = true }
+    if tgr.seqnames[i] == seqname {
+      keep[i] = true
+    }
     i = i + 1
   }
   tgr_subset(tgr, keep)
@@ -68,12 +77,17 @@ pub fn tgr_filter_seqname(tgr : TidifiedGRanges, seqname : String) -> TidifiedGR
 
 ///|
 /// Filter GRanges by strand.
-pub fn tgr_filter_strand(tgr : TidifiedGRanges, strand : String) -> TidifiedGRanges {
+pub fn tgr_filter_strand(
+  tgr : TidifiedGRanges,
+  strand : String,
+) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
   let keep : Array[Bool] = Array::make(n, false)
   let mut i = 0
   while i < n {
-    if tgr.strands[i] == strand { keep[i] = true }
+    if tgr.strands[i] == strand {
+      keep[i] = true
+    }
     i = i + 1
   }
   tgr_subset(tgr, keep)
@@ -91,7 +105,9 @@ pub fn tgr_filter_width(
   let mut i = 0
   while i < n {
     let w = tgr.widths[i]
-    if w >= min_width && w <= max_width { keep[i] = true }
+    if w >= min_width && w <= max_width {
+      keep[i] = true
+    }
     i = i + 1
   }
   tgr_subset(tgr, keep)
@@ -99,12 +115,17 @@ pub fn tgr_filter_width(
 
 ///|
 /// Filter GRanges by start position >= min_start.
-pub fn tgr_filter_start(tgr : TidifiedGRanges, min_start : Int) -> TidifiedGRanges {
+pub fn tgr_filter_start(
+  tgr : TidifiedGRanges,
+  min_start : Int,
+) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
   let keep : Array[Bool] = Array::make(n, false)
   let mut i = 0
   while i < n {
-    if tgr.starts[i] >= min_start { keep[i] = true }
+    if tgr.starts[i] >= min_start {
+      keep[i] = true
+    }
     i = i + 1
   }
   tgr_subset(tgr, keep)
@@ -117,7 +138,9 @@ pub fn tgr_filter_end(tgr : TidifiedGRanges, max_end : Int) -> TidifiedGRanges {
   let keep : Array[Bool] = Array::make(n, false)
   let mut i = 0
   while i < n {
-    if tgr.ends[i] <= max_end { keep[i] = true }
+    if tgr.ends[i] <= max_end {
+      keep[i] = true
+    }
     i = i + 1
   }
   tgr_subset(tgr, keep)
@@ -132,13 +155,17 @@ pub fn tgr_filter_metadata(
   max_val : Double,
 ) -> TidifiedGRanges {
   let data = tgr.metadata[col]
-  if data.length() == 0 { return tgr }
+  if data.length() == 0 {
+    return tgr
+  }
   let n = tgr.seqnames.length()
   let keep : Array[Bool] = Array::make(n, false)
   let mut i = 0
   while i < n {
     let v = data[i]
-    if v >= min_val && v <= max_val { keep[i] = true }
+    if v >= min_val && v <= max_val {
+      keep[i] = true
+    }
     i = i + 1
   }
   tgr_subset(tgr, keep)
@@ -152,12 +179,16 @@ pub fn tgr_filter_metadata_str(
   value : String,
 ) -> TidifiedGRanges {
   let data = tgr.metadata_str[col]
-  if data.length() == 0 { return tgr }
+  if data.length() == 0 {
+    return tgr
+  }
   let n = tgr.seqnames.length()
   let keep : Array[Bool] = Array::make(n, false)
   let mut i = 0
   while i < n {
-    if data[i] == value { keep[i] = true }
+    if data[i] == value {
+      keep[i] = true
+    }
     i = i + 1
   }
   tgr_subset(tgr, keep)
@@ -189,7 +220,9 @@ pub fn tgr_subset(tgr : TidifiedGRanges, keep : Array[Bool]) -> TidifiedGRanges 
     let nv : Array[Double] = Array::new()
     let mut j = 0
     while j < n {
-      if keep[j] { nv.push(old[j]) }
+      if keep[j] {
+        nv.push(old[j])
+      }
       j = j + 1
     }
     new_metadata[key] = nv
@@ -199,7 +232,9 @@ pub fn tgr_subset(tgr : TidifiedGRanges, keep : Array[Bool]) -> TidifiedGRanges 
     let nv : Array[String] = Array::new()
     let mut j = 0
     while j < n {
-      if keep[j] { nv.push(old[j]) }
+      if keep[j] {
+        nv.push(old[j])
+      }
       j = j + 1
     }
     new_metadata_str[key] = nv
@@ -217,7 +252,11 @@ pub fn tgr_subset(tgr : TidifiedGRanges, keep : Array[Bool]) -> TidifiedGRanges 
 
 ///|
 /// Add a numeric metadata column.
-pub fn tgr_mutate(tgr : TidifiedGRanges, name : String, values : Array[Double]) -> TidifiedGRanges {
+pub fn tgr_mutate(
+  tgr : TidifiedGRanges,
+  name : String,
+  values : Array[Double],
+) -> TidifiedGRanges {
   let new_meta = Map::new()
   for key in tgr.metadata.keys() {
     new_meta[key] = tgr.metadata[key]
@@ -236,7 +275,11 @@ pub fn tgr_mutate(tgr : TidifiedGRanges, name : String, values : Array[Double]) 
 
 ///|
 /// Add a string metadata column.
-pub fn tgr_mutate_str(tgr : TidifiedGRanges, name : String, values : Array[String]) -> TidifiedGRanges {
+pub fn tgr_mutate_str(
+  tgr : TidifiedGRanges,
+  name : String,
+  values : Array[String],
+) -> TidifiedGRanges {
   let new_meta = Map::new()
   for key in tgr.metadata_str.keys() {
     new_meta[key] = tgr.metadata_str[key]
@@ -259,7 +302,10 @@ pub fn tgr_arrange(tgr : TidifiedGRanges) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
   let indices : Array[Int] = Array::make(n, 0)
   let mut i = 0
-  while i < n { indices[i] = i; i = i + 1 }
+  while i < n {
+    indices[i] = i
+    i = i + 1
+  }
   // Sort indices by seqname then start
   let mut ii = 0
   while ii < n - 1 {
@@ -280,23 +326,36 @@ pub fn tgr_arrange(tgr : TidifiedGRanges) -> TidifiedGRanges {
   tgr_reorder(tgr, indices)
 }
 
+///|
 fn tgr_should_swap(tgr : TidifiedGRanges, ai : Int, aj : Int) -> Bool {
   let si = tgr.seqnames[ai]
   let sj = tgr.seqnames[aj]
-  if si > sj { return true }
-  if si < sj { return false }
+  if si > sj {
+    return true
+  }
+  if si < sj {
+    return false
+  }
   return tgr.starts[ai] > tgr.starts[aj]
 }
 
 ///|
 /// Arrange by a numeric metadata column.
-pub fn tgr_arrange_by_metadata(tgr : TidifiedGRanges, col : String) -> TidifiedGRanges {
+pub fn tgr_arrange_by_metadata(
+  tgr : TidifiedGRanges,
+  col : String,
+) -> TidifiedGRanges {
   let data = tgr.metadata[col]
-  if data.length() == 0 { return tgr }
+  if data.length() == 0 {
+    return tgr
+  }
   let n = tgr.seqnames.length()
   let indices : Array[Int] = Array::make(n, 0)
   let mut i = 0
-  while i < n { indices[i] = i; i = i + 1 }
+  while i < n {
+    indices[i] = i
+    i = i + 1
+  }
   let mut ii = 0
   while ii < n - 1 {
     let mut jj = ii + 1
@@ -315,6 +374,7 @@ pub fn tgr_arrange_by_metadata(tgr : TidifiedGRanges, col : String) -> TidifiedG
   tgr_reorder(tgr, indices)
 }
 
+///|
 fn tgr_reorder(tgr : TidifiedGRanges, indices : Array[Int]) -> TidifiedGRanges {
   let n = indices.length()
   let new_seqnames : Array[String] = Array::make(n, "")
@@ -337,14 +397,20 @@ fn tgr_reorder(tgr : TidifiedGRanges, indices : Array[Int]) -> TidifiedGRanges {
     let old = tgr.metadata[key]
     let nv : Array[Double] = Array::make(n, 0.0)
     let mut j = 0
-    while j < n { nv[j] = old[indices[j]]; j = j + 1 }
+    while j < n {
+      nv[j] = old[indices[j]]
+      j = j + 1
+    }
     new_metadata[key] = nv
   }
   for key in tgr.metadata_str.keys() {
     let old = tgr.metadata_str[key]
     let nv : Array[String] = Array::make(n, "")
     let mut j = 0
-    while j < n { nv[j] = old[indices[j]]; j = j + 1 }
+    while j < n {
+      nv[j] = old[indices[j]]
+      j = j + 1
+    }
     new_metadata_str[key] = nv
   }
   TidifiedGRanges::{
@@ -360,16 +426,26 @@ fn tgr_reorder(tgr : TidifiedGRanges, indices : Array[Int]) -> TidifiedGRanges {
 
 ///|
 /// Rename a metadata column.
-pub fn tgr_rename(tgr : TidifiedGRanges, old_name : String, new_name : String) -> TidifiedGRanges {
+pub fn tgr_rename(
+  tgr : TidifiedGRanges,
+  old_name : String,
+  new_name : String,
+) -> TidifiedGRanges {
   let new_meta = Map::new()
   for key in tgr.metadata.keys() {
-    if key == old_name { new_meta[new_name] = tgr.metadata[key] }
-    else { new_meta[key] = tgr.metadata[key] }
+    if key == old_name {
+      new_meta[new_name] = tgr.metadata[key]
+    } else {
+      new_meta[key] = tgr.metadata[key]
+    }
   }
   let new_meta_str = Map::new()
   for key in tgr.metadata_str.keys() {
-    if key == old_name { new_meta_str[new_name] = tgr.metadata_str[key] }
-    else { new_meta_str[key] = tgr.metadata_str[key] }
+    if key == old_name {
+      new_meta_str[new_name] = tgr.metadata_str[key]
+    } else {
+      new_meta_str[key] = tgr.metadata_str[key]
+    }
   }
   TidifiedGRanges::{
     seqnames: tgr.seqnames.copy(),
@@ -384,12 +460,19 @@ pub fn tgr_rename(tgr : TidifiedGRanges, old_name : String, new_name : String) -
 
 ///|
 /// Select only specific metadata columns (keep structural columns).
-pub fn tgr_select(tgr : TidifiedGRanges, columns : Array[String]) -> TidifiedGRanges {
+pub fn tgr_select(
+  tgr : TidifiedGRanges,
+  columns : Array[String],
+) -> TidifiedGRanges {
   let new_meta = Map::new()
   let new_meta_str = Map::new()
   for col in columns {
-    if tgr.metadata.contains(col) { new_meta[col] = tgr.metadata[col] }
-    if tgr.metadata_str.contains(col) { new_meta_str[col] = tgr.metadata_str[col] }
+    if tgr.metadata.contains(col) {
+      new_meta[col] = tgr.metadata[col]
+    }
+    if tgr.metadata_str.contains(col) {
+      new_meta_str[col] = tgr.metadata_str[col]
+    }
   }
   TidifiedGRanges::{
     seqnames: tgr.seqnames.copy(),
@@ -420,14 +503,18 @@ pub fn tgr_summarise(
   value_cols : Array[String],
 ) -> Array[GroupSummary] {
   let data = tgr.metadata_str[group_col]
-  if data.length() == 0 { return [] }
+  if data.length() == 0 {
+    return []
+  }
   let groups = tgr_get_unique_strings(data)
   let result : Array[GroupSummary] = Array::new()
   for g in groups {
     let mut count = 0
     let mut i = 0
     while i < data.length() {
-      if data[i] == g { count = count + 1 }
+      if data[i] == g {
+        count = count + 1
+      }
       i = i + 1
     }
     let mean_vals = Map::new()
@@ -446,8 +533,12 @@ pub fn tgr_summarise(
           if data[j] == g {
             let v = col_data[j]
             s = s + v
-            if first || v < mn { mn = v }
-            if first || v > mx { mx = v }
+            if first || v < mn {
+              mn = v
+            }
+            if first || v > mx {
+              mx = v
+            }
           }
           j = j + 1
         }
@@ -469,6 +560,7 @@ pub fn tgr_summarise(
   result
 }
 
+///|
 fn tgr_get_unique_strings(arr : Array[String]) -> Array[String] {
   let seen = Map::new()
   let result : Array[String] = Array::new()
@@ -490,7 +582,9 @@ pub fn tgr_group_mean(
 ) -> Array[(String, Double)] {
   let data = tgr.metadata_str[group_col]
   let vals = tgr.metadata[value_col]
-  if data.length() == 0 || vals.length() == 0 { return [] }
+  if data.length() == 0 || vals.length() == 0 {
+    return []
+  }
   let groups = tgr_get_unique_strings(data)
   let result : Array[(String, Double)] = Array::new()
   for g in groups {
@@ -498,7 +592,10 @@ pub fn tgr_group_mean(
     let mut c = 0
     let mut i = 0
     while i < data.length() {
-      if data[i] == g { s = s + vals[i]; c = c + 1 }
+      if data[i] == g {
+        s = s + vals[i]
+        c = c + 1
+      }
       i = i + 1
     }
     result.push((g, s / c.to_double()))
@@ -515,14 +612,18 @@ pub fn tgr_group_sum(
 ) -> Array[(String, Double)] {
   let data = tgr.metadata_str[group_col]
   let vals = tgr.metadata[value_col]
-  if data.length() == 0 || vals.length() == 0 { return [] }
+  if data.length() == 0 || vals.length() == 0 {
+    return []
+  }
   let groups = tgr_get_unique_strings(data)
   let result : Array[(String, Double)] = Array::new()
   for g in groups {
     let mut s = 0.0
     let mut i = 0
     while i < data.length() {
-      if data[i] == g { s = s + vals[i] }
+      if data[i] == g {
+        s = s + vals[i]
+      }
       i = i + 1
     }
     result.push((g, s))
@@ -595,8 +696,11 @@ pub fn tgr_left_join(
     let nv : Array[Double] = Array::make(n_left, 0.0)
     let mut i = 0
     while i < n_left {
-      if matched_right.contains(i) { nv[i] = old[matched_right[i]] }
-      else { nv[i] = 0.0 }
+      if matched_right.contains(i) {
+        nv[i] = old[matched_right[i]]
+      } else {
+        nv[i] = 0.0
+      }
       i = i + 1
     }
     new_meta[key] = nv
@@ -607,22 +711,33 @@ pub fn tgr_left_join(
     let nv : Array[String] = Array::make(n_left, "")
     let mut i = 0
     while i < n_left {
-      if matched_right.contains(i) { nv[i] = old[matched_right[i]] }
-      else { nv[i] = "" }
+      if matched_right.contains(i) {
+        nv[i] = old[matched_right[i]]
+      } else {
+        nv[i] = ""
+      }
       i = i + 1
     }
     new_meta_str[key] = nv
   }
   // Merge with left metadata
   let merged_meta = Map::new()
-  for key in left.metadata.keys() { merged_meta[key] = left.metadata[key] }
+  for key in left.metadata.keys() {
+    merged_meta[key] = left.metadata[key]
+  }
   for key in new_meta.keys() {
-    if !merged_meta.contains(key) { merged_meta[key] = new_meta[key] }
+    if !merged_meta.contains(key) {
+      merged_meta[key] = new_meta[key]
+    }
   }
   let merged_meta_str = Map::new()
-  for key in left.metadata_str.keys() { merged_meta_str[key] = left.metadata_str[key] }
+  for key in left.metadata_str.keys() {
+    merged_meta_str[key] = left.metadata_str[key]
+  }
   for key in new_meta_str.keys() {
-    if !merged_meta_str.contains(key) { merged_meta_str[key] = new_meta_str[key] }
+    if !merged_meta_str.contains(key) {
+      merged_meta_str[key] = new_meta_str[key]
+    }
   }
   TidifiedGRanges::{
     seqnames: left.seqnames.copy(),
@@ -656,7 +771,9 @@ pub fn tgr_stretch(tgr : TidifiedGRanges, amount : Int) -> TidifiedGRanges {
   while i < n {
     new_starts[i] = tgr.starts[i] - amount
     new_ends[i] = tgr.ends[i] + amount
-    if new_starts[i] < 1 { new_starts[i] = 1 }
+    if new_starts[i] < 1 {
+      new_starts[i] = 1
+    }
     new_widths[i] = new_ends[i] - new_starts[i] + 1
     i = i + 1
   }
@@ -683,7 +800,9 @@ pub fn tgr_resize_fixed(tgr : TidifiedGRanges, width : Int) -> TidifiedGRanges {
     let center = (tgr.starts[i] + tgr.ends[i]) / 2
     new_starts[i] = center - width / 2
     new_ends[i] = new_starts[i] + width - 1
-    if new_starts[i] < 1 { new_starts[i] = 1 }
+    if new_starts[i] < 1 {
+      new_starts[i] = 1
+    }
     new_widths[i] = new_ends[i] - new_starts[i] + 1
     i = i + 1
   }
@@ -723,7 +842,11 @@ pub fn tgr_shift(tgr : TidifiedGRanges, amount : Int) -> TidifiedGRanges {
 
 ///|
 /// Flank: create flanking regions around each range.
-pub fn tgr_flank(tgr : TidifiedGRanges, upstream : Int, downstream : Int) -> TidifiedGRanges {
+pub fn tgr_flank(
+  tgr : TidifiedGRanges,
+  upstream : Int,
+  downstream : Int,
+) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
   let new_seqnames : Array[String] = Array::new()
   let new_starts : Array[Int] = Array::new()
@@ -735,13 +858,17 @@ pub fn tgr_flank(tgr : TidifiedGRanges, upstream : Int, downstream : Int) -> Tid
     // Upstream flank
     new_seqnames.push(tgr.seqnames[i])
     new_starts.push(tgr.starts[i] - upstream)
-    if new_starts[new_starts.length() - 1] < 1 { new_starts[new_starts.length() - 1] = 1 }
+    if new_starts[new_starts.length() - 1] < 1 {
+      new_starts[new_starts.length() - 1] = 1
+    }
     new_ends.push(tgr.starts[i] - 1)
     if new_ends[new_ends.length() - 1] < new_starts[new_starts.length() - 1] {
       new_ends[new_ends.length() - 1] = new_starts[new_starts.length() - 1]
     }
     new_strands.push(tgr.strands[i])
-    new_widths.push(new_ends[new_ends.length() - 1] - new_starts[new_starts.length() - 1] + 1)
+    new_widths.push(
+      new_ends[new_ends.length() - 1] - new_starts[new_starts.length() - 1] + 1,
+    )
     // Downstream flank
     new_seqnames.push(tgr.seqnames[i])
     new_starts.push(tgr.ends[i] + 1)
@@ -796,12 +923,19 @@ pub fn tgr_compute_gc(
       let mut j = s
       while j <= e {
         let c = seq[j - 1:j].to_owned().to_upper()
-        if c == "G" || c == "C" { gc = gc + 1 }
-        else if c == "A" || c == "T" { at = at + 1 }
+        if c == "G" || c == "C" {
+          gc = gc + 1
+        } else if c == "A" || c == "T" {
+          at = at + 1
+        }
         j = j + 1
       }
       let total = gc + at
-      result[i] = if total > 0 { gc.to_double() / total.to_double() } else { 0.0 }
+      result[i] = if total > 0 {
+        gc.to_double() / total.to_double()
+      } else {
+        0.0
+      }
     }
     i = i + 1
   }
@@ -815,7 +949,9 @@ pub fn tgr_intervene(
   set_names : Array[String],
 ) -> Array[(String, Int)] {
   let n = sets.length()
-  if n == 0 { return [] }
+  if n == 0 {
+    return []
+  }
   let result : Array[(String, Int)] = Array::new()
   // Compute pairwise overlaps
   let mut i = 0
@@ -829,7 +965,9 @@ pub fn tgr_intervene(
       }
       j = j + 1
     }
-    if unique_count < 0 { unique_count = 0 }
+    if unique_count < 0 {
+      unique_count = 0
+    }
     result.push((set_names[i], unique_count))
     i = i + 1
   }
@@ -867,8 +1005,13 @@ pub fn tgr_summary(tgr : TidifiedGRanges) -> TgrSummary {
   let n = tgr.seqnames.length()
   if n == 0 {
     return TgrSummary::{
-      n_ranges: 0, n_seqnames: 0, n_strands: 0,
-      total_bases: 0, mean_width: 0.0, min_width: 0, max_width: 0,
+      n_ranges: 0,
+      n_seqnames: 0,
+      n_strands: 0,
+      total_bases: 0,
+      mean_width: 0.0,
+      min_width: 0,
+      max_width: 0,
     }
   }
   let seqlevels = tgr_seqlevels(tgr)
@@ -879,8 +1022,12 @@ pub fn tgr_summary(tgr : TidifiedGRanges) -> TgrSummary {
   let mut i = 0
   while i < n {
     total = total + tgr.widths[i]
-    if tgr.widths[i] < mn { mn = tgr.widths[i] }
-    if tgr.widths[i] > mx { mx = tgr.widths[i] }
+    if tgr.widths[i] < mn {
+      mn = tgr.widths[i]
+    }
+    if tgr.widths[i] > mx {
+      mx = tgr.widths[i]
+    }
     i = i + 1
   }
   TgrSummary::{
@@ -922,7 +1069,11 @@ pub fn tgr_coverage(
       }
       j = j + 1
     }
-    result[i] = if qlen > 0 { covered.to_double() / qlen.to_double() } else { 0.0 }
+    result[i] = if qlen > 0 {
+      covered.to_double() / qlen.to_double()
+    } else {
+      0.0
+    }
     i = i + 1
   }
   result
@@ -930,7 +1081,10 @@ pub fn tgr_coverage(
 
 ///|
 /// Set operations: intersect two TidifiedGRanges.
-pub fn tgr_intersect(a : TidifiedGRanges, b : TidifiedGRanges) -> TidifiedGRanges {
+pub fn tgr_intersect(
+  a : TidifiedGRanges,
+  b : TidifiedGRanges,
+) -> TidifiedGRanges {
   let overlaps = tgr_join_overlap(a, b)
   let result_seqnames : Array[String] = Array::new()
   let result_starts : Array[Int] = Array::new()
@@ -940,7 +1094,11 @@ pub fn tgr_intersect(a : TidifiedGRanges, b : TidifiedGRanges) -> TidifiedGRange
   for pair in overlaps {
     let i = pair.0
     let j = pair.1
-    let ov_start = if a.starts[i] > b.starts[j] { a.starts[i] } else { b.starts[j] }
+    let ov_start = if a.starts[i] > b.starts[j] {
+      a.starts[i]
+    } else {
+      b.starts[j]
+    }
     let ov_end = if a.ends[i] < b.ends[j] { a.ends[i] } else { b.ends[j] }
     if ov_start <= ov_end {
       result_seqnames.push(a.seqnames[i])
@@ -966,7 +1124,9 @@ pub fn tgr_intersect(a : TidifiedGRanges, b : TidifiedGRanges) -> TidifiedGRange
 pub fn tgr_union(a : TidifiedGRanges, b : TidifiedGRanges) -> TidifiedGRanges {
   let overlaps = tgr_join_overlap(a, b)
   let b_overlapping = Map::new()
-  for pair in overlaps { b_overlapping[pair.1] = true }
+  for pair in overlaps {
+    b_overlapping[pair.1] = true
+  }
   let result_seqnames : Array[String] = Array::new()
   let result_starts : Array[Int] = Array::new()
   let result_ends : Array[Int] = Array::new()
@@ -1024,10 +1184,16 @@ pub fn tgr_distance_to_nearest(
       if subject.seqnames[j] == qseq {
         let rstart = subject.starts[j]
         let rend = subject.ends[j]
-        let dist = if qend < rstart { rstart - qend }
-          else if qstart > rend { qstart - rend }
-          else { 0 }
-        if dist < min_dist { min_dist = dist }
+        let dist = if qend < rstart {
+          rstart - qend
+        } else if qstart > rend {
+          qstart - rend
+        } else {
+          0
+        }
+        if dist < min_dist {
+          min_dist = dist
+        }
       }
       j = j + 1
     }

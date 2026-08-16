@@ -122,13 +122,20 @@ pub fn NOISeqMethod::to_string(self : NOISeqMethod) -> String {
 
 ///|
 /// Create a NOISeqSample.
-pub fn NOISeqSample::new(sample_id : String, condition : String) -> NOISeqSample {
+pub fn NOISeqSample::new(
+  sample_id : String,
+  condition : String,
+) -> NOISeqSample {
   NOISeqSample::{ sample_id, condition, counts: Map::new() }
 }
 
 ///|
 /// Set gene count for a sample.
-pub fn NOISeqSample::set_count(self : NOISeqSample, gene_id : String, count : Double) -> Unit {
+pub fn NOISeqSample::set_count(
+  self : NOISeqSample,
+  gene_id : String,
+  count : Double,
+) -> Unit {
   self.counts.set(gene_id, count)
 }
 
@@ -217,7 +224,11 @@ pub fn noiseq_normalize(
         let lib_size = sample.library_size()
 
         // Compute simple scaling factor
-        let scale = if lib_size > 0.0 && ref_lib > 0.0 { ref_lib / lib_size } else { 1.0 }
+        let scale = if lib_size > 0.0 && ref_lib > 0.0 {
+          ref_lib / lib_size
+        } else {
+          1.0
+        }
 
         let gid_list = sample.counts.keys().collect()
         let mut gi = 0
@@ -268,14 +279,18 @@ pub fn noiseq_normalize(
           si = si + 1
         }
 
-        let uq_pos = (slen * 3) / 4
+        let uq_pos = slen * 3 / 4
         let upper_quartile = if slen > 0 && uq_pos < slen {
           counts[uq_pos]
         } else {
           1.0
         }
 
-        let scale = if upper_quartile > 0.0 { 1.0e6 / upper_quartile } else { 1.0 }
+        let scale = if upper_quartile > 0.0 {
+          1.0e6 / upper_quartile
+        } else {
+          1.0
+        }
 
         let gid_list = sample.counts.keys().collect()
         let mut gi = 0
@@ -470,7 +485,11 @@ fn noiseq_mean_abs_diff(values : Array[Double]) -> Double {
 /// Compute probability from noise distribution.
 /// In NOISeq, this is the probability that a random gene from the noise
 /// distribution has a (M, D) value more extreme than the observed.
-fn noiseq_compute_prob(m : Double, d : Double, ds_method : NOISeqMethod) -> Double {
+fn noiseq_compute_prob(
+  m : Double,
+  d : Double,
+  ds_method : NOISeqMethod,
+) -> Double {
   // The magnitude of the (M, D) vector indicates how far the gene is from the noise
   let magnitude = (m * m + d * d).sqrt()
 
@@ -483,13 +502,21 @@ fn noiseq_compute_prob(m : Double, d : Double, ds_method : NOISeqMethod) -> Doub
       // probability ≈ 1 - exp(-magnitude / sigma)
       let sigma = 1.0
       let prob = 1.0 - @math.exp(-magnitude / sigma)
-      if prob > 1.0 { 1.0 } else { prob }
+      if prob > 1.0 {
+        1.0
+      } else {
+        prob
+      }
     }
     NOISeqMethod::NOISeqSim => {
       // NOISeqSim is less conservative
       let sigma = 0.8
       let prob = 1.0 - @math.exp(-magnitude / sigma)
-      if prob > 1.0 { 1.0 } else { prob }
+      if prob > 1.0 {
+        1.0
+      } else {
+        prob
+      }
     }
   }
 }
@@ -502,7 +529,9 @@ pub fn NOISeqResults::get_n_results(self : NOISeqResults) -> Int {
 
 ///|
 /// Get significant results.
-pub fn NOISeqResults::get_significant(self : NOISeqResults) -> Array[NOISeqResult] {
+pub fn NOISeqResults::get_significant(
+  self : NOISeqResults,
+) -> Array[NOISeqResult] {
   let sig : Array[NOISeqResult] = Array::new()
   let mut i = 0
   while i < self.results.length() {
@@ -516,7 +545,10 @@ pub fn NOISeqResults::get_significant(self : NOISeqResults) -> Array[NOISeqResul
 
 ///|
 /// Get top N genes by probability.
-pub fn NOISeqResults::get_top_genes(self : NOISeqResults, n : Int) -> Array[NOISeqResult] {
+pub fn NOISeqResults::get_top_genes(
+  self : NOISeqResults,
+  n : Int,
+) -> Array[NOISeqResult] {
   let result : Array[NOISeqResult] = Array::new()
   let take = if n < self.results.length() { n } else { self.results.length() }
   let mut i = 0
@@ -529,7 +561,9 @@ pub fn NOISeqResults::get_top_genes(self : NOISeqResults, n : Int) -> Array[NOIS
 
 ///|
 /// Get up-regulated genes.
-pub fn NOISeqResults::get_up_regulated(self : NOISeqResults) -> Array[NOISeqResult] {
+pub fn NOISeqResults::get_up_regulated(
+  self : NOISeqResults,
+) -> Array[NOISeqResult] {
   let result : Array[NOISeqResult] = Array::new()
   let mut i = 0
   while i < self.results.length() {
@@ -543,7 +577,9 @@ pub fn NOISeqResults::get_up_regulated(self : NOISeqResults) -> Array[NOISeqResu
 
 ///|
 /// Get down-regulated genes.
-pub fn NOISeqResults::get_down_regulated(self : NOISeqResults) -> Array[NOISeqResult] {
+pub fn NOISeqResults::get_down_regulated(
+  self : NOISeqResults,
+) -> Array[NOISeqResult] {
   let result : Array[NOISeqResult] = Array::new()
   let mut i = 0
   while i < self.results.length() {
@@ -562,7 +598,12 @@ pub fn NOISeqResults::summary(self : NOISeqResults) -> String {
   s = s + "Method: " + self.ds_method.to_string() + "\n"
   s = s + "Normalization: " + self.norm_method.to_string() + "\n"
   s = s + "Genes tested: " + self.n_genes.to_string() + "\n"
-  s = s + "Significant (prob >= " + self.prob_threshold.to_string() + "): " + self.n_sig.to_string() + "\n"
+  s = s +
+    "Significant (prob >= " +
+    self.prob_threshold.to_string() +
+    "): " +
+    self.n_sig.to_string() +
+    "\n"
   let n_up = self.get_up_regulated().length()
   let n_down = self.get_down_regulated().length()
   s = s + "  Up-regulated: " + n_up.to_string() + "\n"
@@ -608,7 +649,9 @@ pub fn noiseq_qc(samples : Array[NOISeqSample]) -> NOISeqQC {
     let mut mi = 0
     while mi < lib_sizes.length() {
       let diff = (lib_sizes[mi] - mean_lib).abs() / (mean_lib + 1.0e-10)
-      if diff > max_d { max_d = diff }
+      if diff > max_d {
+        max_d = diff
+      }
       mi = mi + 1
     }
     max_d
@@ -627,7 +670,10 @@ pub fn noiseq_qc(samples : Array[NOISeqSample]) -> NOISeqQC {
 ///|
 /// Create sample data for testing.
 pub fn noiseq_sample_data() -> (Array[NOISeqSample], Array[NOISeqSample]) {
-  let genes = ["Gene1", "Gene2", "Gene3", "Gene4", "Gene5", "Gene6", "Gene7", "Gene8", "Gene9", "Gene10"]
+  let genes = [
+    "Gene1", "Gene2", "Gene3", "Gene4", "Gene5", "Gene6", "Gene7", "Gene8", "Gene9",
+    "Gene10",
+  ]
 
   // Control samples
   let ctrl_samples : Array[NOISeqSample] = Array::new()

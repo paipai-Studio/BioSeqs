@@ -112,12 +112,14 @@ pub fn parse_pir(content : String) -> Array[SeqRecord] {
         }
       }
 
-      records.push(SeqRecord::new(
-        Seq::new(seq_buf.to_string()),
-        id=name,
-        name=name,
-        description=description,
-      ))
+      records.push(
+        SeqRecord::new(
+          Seq::new(seq_buf.to_string()),
+          id=name,
+          name~,
+          description~,
+        ),
+      )
       continue
     }
 

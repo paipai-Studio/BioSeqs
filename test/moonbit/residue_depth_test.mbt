@@ -83,9 +83,7 @@ test "residue_depth_analyze" {
 
 ///|
 test "residue_depth_find_surface" {
-  let atoms1 = [
-    @src.RDAtom::new("CA", @src.RDPoint3D::new(0.0, 0.0, 0.0), "C"),
-  ]
+  let atoms1 = [@src.RDAtom::new("CA", @src.RDPoint3D::new(0.0, 0.0, 0.0), "C")]
   let atoms2 = [
     @src.RDAtom::new("CA", @src.RDPoint3D::new(100.0, 0.0, 0.0), "C"),
   ]
@@ -106,9 +104,7 @@ test "residue_depth_find_core" {
     @src.RDAtom::new("CB", @src.RDPoint3D::new(0.5, 0.5, 0.5), "C"),
     @src.RDAtom::new("CG", @src.RDPoint3D::new(1.0, 1.0, 1.0), "C"),
   ]
-  let atoms2 = [
-    @src.RDAtom::new("CA", @src.RDPoint3D::new(2.0, 0.0, 0.0), "C"),
-  ]
+  let atoms2 = [@src.RDAtom::new("CA", @src.RDPoint3D::new(2.0, 0.0, 0.0), "C")]
   let residues = [
     @src.RDResidue::new("ALA", 1, atoms1),
     @src.RDResidue::new("GLY", 2, atoms2),

@@ -103,7 +103,7 @@ pub struct NeuralNetwork {
 pub fn NeuralNetwork::new(
   n_input : Int,
   n_hidden : Int,
-  n_output : Int
+  n_output : Int,
 ) -> NeuralNetwork {
   let hidden = NnLayer::new(n_input, n_hidden)
   let output = NnLayer::new(n_hidden, n_output)
@@ -133,7 +133,7 @@ pub fn NeuralNetwork::new(
 /// Set the learning rate.
 pub fn NeuralNetwork::set_learning_rate(
   self : NeuralNetwork,
-  lr : Double
+  lr : Double,
 ) -> NeuralNetwork {
   { ..self, learning_rate: lr }
 }
@@ -142,7 +142,7 @@ pub fn NeuralNetwork::set_learning_rate(
 /// Set the momentum coefficient.
 pub fn NeuralNetwork::set_momentum(
   self : NeuralNetwork,
-  m : Double
+  m : Double,
 ) -> NeuralNetwork {
   { ..self, momentum: m }
 }
@@ -239,7 +239,7 @@ fn nn_layer_forward(layer : NnLayer, input : Array[Double]) -> Array[Double] {
 /// Forward pass through the entire network. Returns the output activations.
 pub fn nn_forward(
   network : NeuralNetwork,
-  input : Array[Double]
+  input : Array[Double],
 ) -> Array[Double] {
   let hidden_out = nn_layer_forward(network.hidden_layer, input)
   nn_layer_forward(network.output_layer, hidden_out)
@@ -267,7 +267,7 @@ pub fn nn_predict(network : NeuralNetwork, input : Array[Double]) -> Int {
 pub fn nn_train_example(
   network : NeuralNetwork,
   input : Array[Double],
-  target : Array[Double]
+  target : Array[Double],
 ) -> Double {
   // Forward pass.
   let hidden_out = nn_layer_forward(network.hidden_layer, input)
@@ -296,10 +296,12 @@ pub fn nn_train_example(
     for j in 0..<network.output_layer.n_in {
       let grad = output_deltas[i] * network.output_layer.last_input[j]
       let delta = lr * grad + mom * network.prev_output_deltas[i][j]
-      network.output_layer.weights[i][j] = network.output_layer.weights[i][j] - delta
+      network.output_layer.weights[i][j] = network.output_layer.weights[i][j] -
+        delta
       network.prev_output_deltas[i][j] = delta
     }
-    let bias_delta = lr * output_deltas[i] + mom * network.prev_output_bias_deltas[i]
+    let bias_delta = lr * output_deltas[i] +
+      mom * network.prev_output_bias_deltas[i]
     network.output_layer.biases[i] = network.output_layer.biases[i] - bias_delta
     network.prev_output_bias_deltas[i] = bias_delta
   }
@@ -308,10 +310,12 @@ pub fn nn_train_example(
     for j in 0..<network.hidden_layer.n_in {
       let grad = hidden_deltas[i] * network.hidden_layer.last_input[j]
       let delta = lr * grad + mom * network.prev_hidden_deltas[i][j]
-      network.hidden_layer.weights[i][j] = network.hidden_layer.weights[i][j] - delta
+      network.hidden_layer.weights[i][j] = network.hidden_layer.weights[i][j] -
+        delta
       network.prev_hidden_deltas[i][j] = delta
     }
-    let bias_delta = lr * hidden_deltas[i] + mom * network.prev_hidden_bias_deltas[i]
+    let bias_delta = lr * hidden_deltas[i] +
+      mom * network.prev_hidden_bias_deltas[i]
     network.hidden_layer.biases[i] = network.hidden_layer.biases[i] - bias_delta
     network.prev_hidden_bias_deltas[i] = bias_delta
   }
@@ -326,14 +330,15 @@ pub fn nn_train(
   network : NeuralNetwork,
   inputs : Array[Array[Double]],
   targets : Array[Array[Double]],
-  n_epochs : Int
+  n_epochs : Int,
 ) -> Double {
   let n = inputs.length()
   let mut final_error = 0.0
   for _ in 0..<n_epochs {
     let mut epoch_error = 0.0
     for i in 0..<n {
-      epoch_error = epoch_error + nn_train_example(network, inputs[i], targets[i])
+      epoch_error = epoch_error +
+        nn_train_example(network, inputs[i], targets[i])
     }
     final_error = epoch_error / n.to_double()
   }
@@ -348,12 +353,7 @@ pub fn nn_train(
 /// Sample training data for the XOR problem.
 /// Returns (inputs, targets) where inputs are 2D and targets are 1D.
 pub fn nn_sample_xor_data() -> (Array[Array[Double]], Array[Array[Double]]) {
-  let inputs = [
-    [0.0, 0.0],
-    [0.0, 1.0],
-    [1.0, 0.0],
-    [1.0, 1.0],
-  ]
+  let inputs = [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]]
   let targets = [[0.0], [1.0], [1.0], [0.0]]
   (inputs, targets)
 }

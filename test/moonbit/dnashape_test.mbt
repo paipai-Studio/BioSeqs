@@ -113,10 +113,10 @@ test "ds_roll_table" {
   assert_eq(t.length(), 16)
   // AA (index 0) = -6.0
   let v0 = t.get(0).unwrap_or(999.0)
-  assert_true((v0 - (-6.0)).abs() < 0.001)
+  assert_true((v0 - -6.0).abs() < 0.001)
   // TT (index 15) = -6.0
   let v15 = t.get(15).unwrap_or(999.0)
-  assert_true((v15 - (-6.0)).abs() < 0.001)
+  assert_true((v15 - -6.0).abs() < 0.001)
   // CG (index 6) = 6.0
   let v6 = t.get(6).unwrap_or(999.0)
   assert_true((v6 - 6.0).abs() < 0.001)
@@ -131,7 +131,7 @@ test "ds_prot_table" {
   assert_true((v0 - 15.0).abs() < 0.001)
   // TA = -2.0
   let v12 = t.get(12).unwrap_or(0.0)
-  assert_true((v12 - (-2.0)).abs() < 0.001)
+  assert_true((v12 - -2.0).abs() < 0.001)
 }
 
 ///|
@@ -164,10 +164,10 @@ test "ds_ep_table" {
   assert_eq(t.length(), 16)
   // AA = -1.5
   let v0 = t.get(0).unwrap_or(0.0)
-  assert_true((v0 - (-1.5)).abs() < 0.001)
+  assert_true((v0 - -1.5).abs() < 0.001)
   // CG = -0.6
   let v6 = t.get(6).unwrap_or(0.0)
-  assert_true((v6 - (-0.6)).abs() < 0.001)
+  assert_true((v6 - -0.6).abs() < 0.001)
 }
 
 // ===========================================================================

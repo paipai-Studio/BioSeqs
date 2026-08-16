@@ -9,12 +9,7 @@
 
 ///|
 test "seqlogo_pwm_new_basic" {
-  let matrix = [
-    [0.25, 0.25],
-    [0.25, 0.25],
-    [0.25, 0.25],
-    [0.25, 0.25],
-  ]
+  let matrix = [[0.25, 0.25], [0.25, 0.25], [0.25, 0.25], [0.25, 0.25]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   assert_eq(pwm.width(), 2)
   assert_eq(pwm.alphabet_size(), 4)
@@ -22,12 +17,7 @@ test "seqlogo_pwm_new_basic" {
 
 ///|
 test "seqlogo_pwm_new_get_values" {
-  let matrix = [
-    [0.9, 0.1],
-    [0.03, 0.1],
-    [0.04, 0.7],
-    [0.03, 0.1],
-  ]
+  let matrix = [[0.9, 0.1], [0.03, 0.1], [0.04, 0.7], [0.03, 0.1]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   assert_true((pwm.get(0, 0) - 0.9).abs() < 0.001)
   assert_true((pwm.get(0, 1) - 0.1).abs() < 0.001)
@@ -39,10 +29,10 @@ test "seqlogo_pwm_new_get_values" {
 test "seqlogo_pwm_new_get_out_of_bounds" {
   let matrix = [[0.25], [0.25], [0.25], [0.25]]
   let pwm = @src.SeqLogoPwm::new(matrix)
-  assert_true((pwm.get(-1, 0)).abs() < 0.001)
-  assert_true((pwm.get(4, 0)).abs() < 0.001)
-  assert_true((pwm.get(0, -1)).abs() < 0.001)
-  assert_true((pwm.get(0, 100)).abs() < 0.001)
+  assert_true(pwm.get(-1, 0).abs() < 0.001)
+  assert_true(pwm.get(4, 0).abs() < 0.001)
+  assert_true(pwm.get(0, -1).abs() < 0.001)
+  assert_true(pwm.get(0, 100).abs() < 0.001)
 }
 
 ///|
@@ -89,8 +79,8 @@ test "seqlogo_from_sequences_basic" {
   // Position 3: all T -> freq 1.0
   assert_true((pwm.get(3, 3) - 1.0).abs() < 0.001)
   // Off-diagonal frequencies are 0
-  assert_true((pwm.get(0, 1)).abs() < 0.001)
-  assert_true((pwm.get(1, 0)).abs() < 0.001)
+  assert_true(pwm.get(0, 1).abs() < 0.001)
+  assert_true(pwm.get(1, 0).abs() < 0.001)
 }
 
 ///|
@@ -134,7 +124,7 @@ test "seqlogo_letter_new_and_accessors" {
 test "seqlogo_letter_zero_height" {
   let letter = @src.SeqLogoLetter::new('T', 0.0, "#CC0000")
   assert_eq(letter.letter(), 'T')
-  assert_true((letter.height()).abs() < 0.001)
+  assert_true(letter.height().abs() < 0.001)
   assert_eq(letter.color(), "#CC0000")
 }
 
@@ -168,28 +158,18 @@ test "seqlogo_column_add_letter" {
 ///|
 test "seqlogo_ic_uniform_pwm_zero" {
   // All positions have uniform 0.25 frequency -> IC = 0
-  let matrix = [
-    [0.25, 0.25],
-    [0.25, 0.25],
-    [0.25, 0.25],
-    [0.25, 0.25],
-  ]
+  let matrix = [[0.25, 0.25], [0.25, 0.25], [0.25, 0.25], [0.25, 0.25]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let ic = @src.seqlogo_information_content(pwm)
   assert_eq(ic.length(), 2)
-  assert_true((ic[0]).abs() < 0.001)
-  assert_true((ic[1]).abs() < 0.001)
+  assert_true(ic[0].abs() < 0.001)
+  assert_true(ic[1].abs() < 0.001)
 }
 
 ///|
 test "seqlogo_ic_conserved_position" {
   // Fully conserved A -> IC = log2(4) = 2.0
-  let matrix = [
-    [1.0],
-    [0.0],
-    [0.0],
-    [0.0],
-  ]
+  let matrix = [[1.0], [0.0], [0.0], [0.0]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let ic = @src.seqlogo_information_content(pwm)
   assert_eq(ic.length(), 1)
@@ -201,12 +181,7 @@ test "seqlogo_ic_mixed_position" {
   // A=0.5, C=0.25, G=0.125, T=0.125
   // IC = 0.5*log2(2) + 0.25*log2(1) + 0.125*log2(0.5) + 0.125*log2(0.5)
   //    = 0.5 - 0.125 - 0.125 = 0.25
-  let matrix = [
-    [0.5],
-    [0.25],
-    [0.125],
-    [0.125],
-  ]
+  let matrix = [[0.5], [0.25], [0.125], [0.125]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let ic = @src.seqlogo_information_content(pwm)
   assert_true((ic[0] - 0.25).abs() < 0.001)
@@ -223,12 +198,7 @@ test "seqlogo_ic_bg_non_uniform" {
   // IC = 0.5*log2(0.5/0.1) + 0.5*log2(0.5/0.4)
   //    = 0.5*log2(5) + 0.5*log2(1.25)
   //    = 0.5*2.321928 + 0.5*0.321928 = 1.321928
-  let matrix = [
-    [0.5],
-    [0.5],
-    [0.0],
-    [0.0],
-  ]
+  let matrix = [[0.5], [0.5], [0.0], [0.0]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let ic = @src.seqlogo_information_content_bg(pwm, [0.1, 0.4, 0.4, 0.1])
   assert_true((ic[0] - 1.321928).abs() < 0.001)
@@ -236,17 +206,10 @@ test "seqlogo_ic_bg_non_uniform" {
 
 ///|
 test "seqlogo_ic_bg_uniform_equals_default" {
-  let matrix = [
-    [0.9],
-    [0.03],
-    [0.04],
-    [0.03],
-  ]
+  let matrix = [[0.9], [0.03], [0.04], [0.03]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let ic_default = @src.seqlogo_information_content(pwm)
-  let ic_bg = @src.seqlogo_information_content_bg(pwm, [
-    0.25, 0.25, 0.25, 0.25,
-  ])
+  let ic_bg = @src.seqlogo_information_content_bg(pwm, [0.25, 0.25, 0.25, 0.25])
   assert_eq(ic_default.length(), ic_bg.length())
   assert_true((ic_default[0] - ic_bg[0]).abs() < 0.001)
 }
@@ -258,12 +221,7 @@ test "seqlogo_ic_bg_uniform_equals_default" {
 ///|
 test "seqlogo_total_ic_conserved" {
   // Two fully conserved positions -> total IC = 4.0
-  let matrix = [
-    [1.0, 1.0],
-    [0.0, 0.0],
-    [0.0, 0.0],
-    [0.0, 0.0],
-  ]
+  let matrix = [[1.0, 1.0], [0.0, 0.0], [0.0, 0.0], [0.0, 0.0]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let total = @src.seqlogo_total_information_content(pwm)
   assert_true((total - 4.0).abs() < 0.001)
@@ -303,8 +261,8 @@ test "seqlogo_max_ic_protein" {
 ///|
 test "seqlogo_max_ic_edge_cases" {
   // alphabet_size <= 1 -> 0.0
-  assert_true((@src.seqlogo_max_information_content(0)).abs() < 0.001)
-  assert_true((@src.seqlogo_max_information_content(1)).abs() < 0.001)
+  assert_true(@src.seqlogo_max_information_content(0).abs() < 0.001)
+  assert_true(@src.seqlogo_max_information_content(1).abs() < 0.001)
   // Binary alphabet -> log2(2) = 1.0
   assert_true((@src.seqlogo_max_information_content(2) - 1.0).abs() < 0.001)
 }
@@ -315,12 +273,7 @@ test "seqlogo_max_ic_edge_cases" {
 
 ///|
 test "seqlogo_compute_logo_columns_count" {
-  let matrix = [
-    [0.25, 1.0],
-    [0.25, 0.0],
-    [0.25, 0.0],
-    [0.25, 0.0],
-  ]
+  let matrix = [[0.25, 1.0], [0.25, 0.0], [0.25, 0.0], [0.25, 0.0]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let logo = @src.seqlogo_compute_logo(pwm)
   assert_eq(logo.width(), 2)
@@ -330,12 +283,7 @@ test "seqlogo_compute_logo_columns_count" {
 ///|
 test "seqlogo_compute_logo_conserved_heights" {
   // Fully conserved A: IC=2.0, A height=2.0, others=0.0
-  let matrix = [
-    [1.0],
-    [0.0],
-    [0.0],
-    [0.0],
-  ]
+  let matrix = [[1.0], [0.0], [0.0], [0.0]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let logo = @src.seqlogo_compute_logo(pwm)
   let col = logo.columns()[0]
@@ -345,37 +293,27 @@ test "seqlogo_compute_logo_conserved_heights" {
   assert_eq(col.letters()[0].letter(), 'A')
   assert_true((col.letters()[0].height() - 2.0).abs() < 0.001)
   // Other letters have height 0
-  assert_true((col.letters()[1].height()).abs() < 0.001)
-  assert_true((col.letters()[2].height()).abs() < 0.001)
-  assert_true((col.letters()[3].height()).abs() < 0.001)
+  assert_true(col.letters()[1].height().abs() < 0.001)
+  assert_true(col.letters()[2].height().abs() < 0.001)
+  assert_true(col.letters()[3].height().abs() < 0.001)
 }
 
 ///|
 test "seqlogo_compute_logo_uniform_zero_ic" {
-  let matrix = [
-    [0.25],
-    [0.25],
-    [0.25],
-    [0.25],
-  ]
+  let matrix = [[0.25], [0.25], [0.25], [0.25]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let logo = @src.seqlogo_compute_logo(pwm)
   let col = logo.columns()[0]
-  assert_true((col.info_content()).abs() < 0.001)
+  assert_true(col.info_content().abs() < 0.001)
   // All letter heights are 0 since IC=0
   for letter in col.letters() {
-    assert_true((letter.height()).abs() < 0.001)
+    assert_true(letter.height().abs() < 0.001)
   }
 }
 
 ///|
 test "seqlogo_compute_logo_total_ic" {
-  let matrix = [
-    [1.0, 0.25],
-    [0.0, 0.25],
-    [0.0, 0.25],
-    [0.0, 0.25],
-  ]
+  let matrix = [[1.0, 0.25], [0.0, 0.25], [0.0, 0.25], [0.0, 0.25]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let logo = @src.seqlogo_compute_logo(pwm)
   // Position 0: IC=2.0, Position 1: IC=0.0 -> total = 2.0
@@ -384,12 +322,7 @@ test "seqlogo_compute_logo_total_ic" {
 
 ///|
 test "seqlogo_compute_logo_letter_colors" {
-  let matrix = [
-    [1.0],
-    [0.0],
-    [0.0],
-    [0.0],
-  ]
+  let matrix = [[1.0], [0.0], [0.0], [0.0]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let logo = @src.seqlogo_compute_logo(pwm)
   let col = logo.columns()[0]
@@ -451,12 +384,12 @@ test "seqlogo_to_ascii_contains_letters" {
 
 ///|
 test "seqlogo_to_ascii_zero_height" {
-  let ascii = @src.seqlogo_to_ascii(@src.seqlogo_compute_logo(@src.SeqLogoPwm::new([
-    [0.25],
-    [0.25],
-    [0.25],
-    [0.25],
-  ])), 5)
+  let ascii = @src.seqlogo_to_ascii(
+    @src.seqlogo_compute_logo(
+      @src.SeqLogoPwm::new([[0.25], [0.25], [0.25], [0.25]]),
+    ),
+    5,
+  )
   // IC=0 so no letters rendered, only spaces and newlines
   assert_true(ascii.length() > 0)
   assert_false(ascii.contains("A"))
@@ -480,12 +413,7 @@ test "seqlogo_to_text_table_has_header" {
 
 ///|
 test "seqlogo_to_text_table_tab_separated" {
-  let matrix = [
-    [1.0],
-    [0.0],
-    [0.0],
-    [0.0],
-  ]
+  let matrix = [[1.0], [0.0], [0.0], [0.0]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let logo = @src.seqlogo_compute_logo(pwm)
   let table = @src.seqlogo_to_text_table(logo)
@@ -528,12 +456,7 @@ test "seqlogo_consensus_from_sequences" {
 ///|
 test "seqlogo_consensus_tie_first_base" {
   // When frequencies are tied, the lowest-index base wins
-  let matrix = [
-    [0.25],
-    [0.25],
-    [0.25],
-    [0.25],
-  ]
+  let matrix = [[0.25], [0.25], [0.25], [0.25]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let consensus = @src.seqlogo_consensus_sequence(pwm)
   assert_eq(consensus, "A")
@@ -556,12 +479,7 @@ test "seqlogo_logo_summary_non_empty" {
 
 ///|
 test "seqlogo_logo_summary_width" {
-  let matrix = [
-    [1.0, 0.25],
-    [0.0, 0.25],
-    [0.0, 0.25],
-    [0.0, 0.25],
-  ]
+  let matrix = [[1.0, 0.25], [0.0, 0.25], [0.0, 0.25], [0.0, 0.25]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let logo = @src.seqlogo_compute_logo(pwm)
   let summary = @src.seqlogo_logo_summary(logo)
@@ -610,12 +528,7 @@ test "seqlogo_sample_pwm_from_sample_sequences" {
 
 ///|
 test "seqlogo_edge_single_position" {
-  let matrix = [
-    [1.0],
-    [0.0],
-    [0.0],
-    [0.0],
-  ]
+  let matrix = [[1.0], [0.0], [0.0], [0.0]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   assert_eq(pwm.width(), 1)
   let ic = @src.seqlogo_information_content(pwm)
@@ -654,7 +567,7 @@ test "seqlogo_edge_all_equal_frequencies" {
     assert_true(v.abs() < 0.001)
   }
   let logo = @src.seqlogo_compute_logo(pwm)
-  assert_true((logo.total_ic()).abs() < 0.001)
+  assert_true(logo.total_ic().abs() < 0.001)
 }
 
 ///|
@@ -695,12 +608,7 @@ test "seqlogo_edge_to_ascii_zero_max_height" {
 
 ///|
 test "seqlogo_compute_logo_bg_non_uniform" {
-  let matrix = [
-    [0.5],
-    [0.5],
-    [0.0],
-    [0.0],
-  ]
+  let matrix = [[0.5], [0.5], [0.0], [0.0]]
   let pwm = @src.SeqLogoPwm::new(matrix)
   let logo = @src.seqlogo_compute_logo_bg(pwm, [0.1, 0.4, 0.4, 0.1])
   let col = logo.columns()[0]

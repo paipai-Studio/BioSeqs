@@ -80,13 +80,11 @@ test "ic_distance" {
 
 ///|
 test "ic_torsion_angle_creation" {
-  let tau = @src.TorsionAngle::new(
-    name="phi",
-    value=-0.57,
-    atom_names=["C", "N", "CA", "C"],
-  )
+  let tau = @src.TorsionAngle::new(name="phi", value=-0.57, atom_names=[
+    "C", "N", "CA", "C",
+  ])
   assert_eq(tau.name, "phi")
-  assert_true((tau.value - (-0.57)).abs() < 1.0e-10)
+  assert_true((tau.value - -0.57).abs() < 1.0e-10)
 }
 
 ///|
@@ -132,10 +130,10 @@ test "ic_add_residue_to_chain" {
 ///|
 test "ic_compute_phi" {
   let phi = @src.ic_compute_phi(
-    [0.0, 0.0, 0.0],   // prev C
-    [1.5, 0.0, 0.0],   // N
-    [3.0, 0.0, 0.0],   // CA
-    [4.5, 1.0, 0.0],   // C
+    [0.0, 0.0, 0.0], // prev C
+    [1.5, 0.0, 0.0], // N
+    [3.0, 0.0, 0.0], // CA
+    [4.5, 1.0, 0.0], // C
   )
   assert_true(phi >= -@src.ic_pi() && phi <= @src.ic_pi())
 }
@@ -143,10 +141,10 @@ test "ic_compute_phi" {
 ///|
 test "ic_compute_psi" {
   let psi = @src.ic_compute_psi(
-    [0.0, 0.0, 0.0],   // N
-    [1.5, 0.0, 0.0],   // CA
-    [3.0, 0.0, 0.0],   // C
-    [4.5, 1.0, 0.0],   // next N
+    [0.0, 0.0, 0.0], // N
+    [1.5, 0.0, 0.0], // CA
+    [3.0, 0.0, 0.0], // C
+    [4.5, 1.0, 0.0], // next N
   )
   assert_true(psi >= -@src.ic_pi() && psi <= @src.ic_pi())
 }
@@ -200,8 +198,8 @@ test "ic_rotamer_creation" {
 ///|
 test "ic_rotamer_library_entry" {
   let entry = @src.RotamerLibraryEntry::new(phi=-0.57, psi=-0.45)
-  assert_true((entry.phi - (-0.57)).abs() < 1.0e-10)
-  assert_true((entry.psi - (-0.45)).abs() < 1.0e-10)
+  assert_true((entry.phi - -0.57).abs() < 1.0e-10)
+  assert_true((entry.psi - -0.45).abs() < 1.0e-10)
 }
 
 ///|
@@ -224,7 +222,9 @@ test "ic_chain_summary" {
 test "ic_ramachandran_data" {
   let phi_vals = [-1.0, -0.5, 0.0, 0.5, 1.0]
   let psi_vals = [-1.0, -0.5, 0.0, 0.5, 1.0]
-  let (mean_phi, mean_psi, var_phi, var_psi) = @src.ic_ramachandran_data(phi_vals, psi_vals)
+  let (mean_phi, mean_psi, var_phi, var_psi) = @src.ic_ramachandran_data(
+    phi_vals, psi_vals,
+  )
   assert_true(mean_phi.abs() < 1.0e-10)
   assert_true(mean_psi.abs() < 1.0e-10)
   assert_true(var_phi > 0.0)

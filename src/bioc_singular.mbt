@@ -25,15 +25,21 @@ pub enum SVDMethod {
 
 ///|
 /// Create ExactSVD method variant.
-pub fn exact_svd_method() -> SVDMethod { ExactSVD }
+pub fn exact_svd_method() -> SVDMethod {
+  ExactSVD
+}
 
 ///|
 /// Create IRLBA method variant.
-pub fn irlba_method() -> SVDMethod { IRLBA }
+pub fn irlba_method() -> SVDMethod {
+  IRLBA
+}
 
 ///|
 /// Create Randomized method variant.
-pub fn randomized_method() -> SVDMethod { Randomized }
+pub fn randomized_method() -> SVDMethod {
+  Randomized
+}
 
 ///|
 /// Options for SVD computation.
@@ -558,13 +564,7 @@ pub fn svd_options_full(
   n_oversamples : Int,
   method : SVDMethod,
 ) -> SVDOptions {
-  SVDOptions::{
-    method,
-    rank,
-    tol,
-    max_iter,
-    n_oversamples,
-  }
+  SVDOptions::{ method, rank, tol, max_iter, n_oversamples }
 }
 
 // ============================================================================
@@ -598,7 +598,9 @@ pub fn run_exact_svd(
   if ncol <= nrow {
     let ata = svd_ata(matrix, nrow, ncol)
     let (eigenvalues, eigenvectors) = eigh_symmetric(ata, ncol)
-    let (sorted_evals, sorted_evecs) = sort_eigen(eigenvalues, eigenvectors, ncol)
+    let (sorted_evals, sorted_evecs) = sort_eigen(
+      eigenvalues, eigenvectors, ncol,
+    )
 
     let d = Array::make(effective_rank, 0.0)
     let v : Array[Array[Double]] = Array::new()
@@ -634,7 +636,9 @@ pub fn run_exact_svd(
   } else {
     let aat = svd_aat(matrix, nrow, ncol)
     let (eigenvalues, eigenvectors) = eigh_symmetric(aat, nrow)
-    let (sorted_evals, sorted_evecs) = sort_eigen(eigenvalues, eigenvectors, nrow)
+    let (sorted_evals, sorted_evecs) = sort_eigen(
+      eigenvalues, eigenvectors, nrow,
+    )
 
     let d = Array::make(effective_rank, 0.0)
     let u : Array[Array[Double]] = Array::new()
@@ -706,11 +710,7 @@ fn svd_bidiagonal_small(
   let u : Array[Array[Double]] = Array::new()
 
   for i = 0; i < n; i = i + 1 {
-    let sigma = if sorted_evals[i] > 0.0 {
-      sorted_evals[i].sqrt()
-    } else {
-      0.0
-    }
+    let sigma = if sorted_evals[i] > 0.0 { sorted_evals[i].sqrt() } else { 0.0 }
     d[i] = sigma
 
     let v_col = Array::make(n, 0.0)
@@ -818,7 +818,8 @@ pub fn run_irlba(
     for j = 0; j < l; j = j + 1 {
       let u_new = svd_mat_vec(matrix, nrow, ncol, v_prev)
       for k = 0; k < nrow; k = k + 1 {
-        u_new[k] = u_new[k] - beta_prev * u_vecs[if j > 0 { j - 1 } else { 0 }][k]
+        u_new[k] = u_new[k] -
+          beta_prev * u_vecs[if j > 0 { j - 1 } else { 0 }][k]
       }
 
       let mut alpha = 0.0
@@ -1092,15 +1093,9 @@ pub fn run_svd(
   options : SVDOptions,
 ) -> SVResult {
   match options.method {
-    ExactSVD => {
-      run_exact_svd(matrix, nrow, ncol, options.rank)
-    }
-    IRLBA => {
-      run_irlba(matrix, nrow, ncol, options.rank, options)
-    }
-    Randomized => {
-      run_randomized_svd(matrix, nrow, ncol, options.rank, options)
-    }
+    ExactSVD => run_exact_svd(matrix, nrow, ncol, options.rank)
+    IRLBA => run_irlba(matrix, nrow, ncol, options.rank, options)
+    Randomized => run_randomized_svd(matrix, nrow, ncol, options.rank, options)
   }
 }
 
@@ -1159,10 +1154,7 @@ pub fn create_test_matrix() -> (Array[Double], Int, Int) {
   let nrow = 5
   let ncol = 4
   let data = [
-    1.0, 2.0, 3.0, 4.0,
-    2.0, 3.0, 4.0, 5.0,
-    3.0, 4.0, 5.0, 6.0,
-    4.0, 5.0, 6.0, 7.0,
+    1.0, 2.0, 3.0, 4.0, 2.0, 3.0, 4.0, 5.0, 3.0, 4.0, 5.0, 6.0, 4.0, 5.0, 6.0, 7.0,
     5.0, 6.0, 7.0, 8.0,
   ]
   (data, nrow, ncol)

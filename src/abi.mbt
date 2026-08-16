@@ -245,15 +245,27 @@ pub fn AbiTrace::quality_at(self : AbiTrace, index : Int) -> Int {
 ///|
 /// Format an ABIF date as "YYYY-MM-DD".
 pub fn AbiDate::to_string(self : AbiDate) -> String {
-  let m = if self.month < 10 { "0" + self.month.to_string() } else { self.month.to_string() }
-  let d = if self.day < 10 { "0" + self.day.to_string() } else { self.day.to_string() }
+  let m = if self.month < 10 {
+    "0" + self.month.to_string()
+  } else {
+    self.month.to_string()
+  }
+  let d = if self.day < 10 {
+    "0" + self.day.to_string()
+  } else {
+    self.day.to_string()
+  }
   self.year.to_string() + "-" + m + "-" + d
 }
 
 ///|
 /// Format an ABIF time as "HH:MM:SS".
 pub fn AbiTime::to_string(self : AbiTime) -> String {
-  let h = if self.hours < 10 { "0" + self.hours.to_string() } else { self.hours.to_string() }
+  let h = if self.hours < 10 {
+    "0" + self.hours.to_string()
+  } else {
+    self.hours.to_string()
+  }
   let mi = if self.minutes < 10 {
     "0" + self.minutes.to_string()
   } else {
@@ -275,7 +287,10 @@ fn abi_read_u32(bytes : Array[Int], pos : Int) -> Int {
   if pos + 3 >= bytes.length() {
     return 0
   }
-  bytes[pos] * 16777216 + bytes[pos + 1] * 65536 + bytes[pos + 2] * 256 + bytes[pos + 3]
+  bytes[pos] * 16777216 +
+  bytes[pos + 1] * 65536 +
+  bytes[pos + 2] * 256 +
+  bytes[pos + 3]
 }
 
 ///|
@@ -428,10 +443,7 @@ fn abi_find_entry(
 
 ///|
 /// Read raw data bytes for a directory entry from the file bytes.
-fn abi_read_entry_data(
-  bytes : Array[Int],
-  entry : AbiDirEntry,
-) -> Array[Int] {
+fn abi_read_entry_data(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
   let data : Array[Int] = Array::new()
   // If data fits inline (data_size <= 4), use inline_data
   if entry.data_size <= 4 {
@@ -459,10 +471,7 @@ fn abi_read_entry_data(
 ///|
 /// Read trace data (array of Int) for a directory entry.
 /// Trace data is typically 2-byte (word) values.
-fn abi_read_trace_data(
-  bytes : Array[Int],
-  entry : AbiDirEntry,
-) -> Array[Int] {
+fn abi_read_trace_data(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
   let data : Array[Int] = Array::new()
   let raw = abi_read_entry_data(bytes, entry)
   // If element type is word (3) or short (4), read as 2-byte values
@@ -492,10 +501,7 @@ fn abi_read_trace_data(
 
 ///|
 /// Read integer array data for a directory entry (e.g., base positions).
-fn abi_read_int_array(
-  bytes : Array[Int],
-  entry : AbiDirEntry,
-) -> Array[Int] {
+fn abi_read_int_array(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
   let data : Array[Int] = Array::new()
   let raw = abi_read_entry_data(bytes, entry)
   // For PLOC (base positions), element type is short (4), size 2

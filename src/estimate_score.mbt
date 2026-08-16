@@ -46,8 +46,8 @@ pub struct EstSampleScore {
   sample_id : String
   stromal_score : Double
   immune_score : Double
-  estimate_score : Double    // stromal + immune
-  tumor_purity : Double      // inferred purity in [0, 1] (NaN if undefined)
+  estimate_score : Double // stromal + immune
+  tumor_purity : Double // inferred purity in [0, 1] (NaN if undefined)
 }
 
 ///|
@@ -187,10 +187,14 @@ fn est_sort_indices_desc(values : Array[Double]) -> Array[Int] {
 /// Returns the proportion of values in `sample` that are <= x.
 fn est_ecdf(x : Double, sample : Array[Double]) -> Double {
   let n = sample.length()
-  if n == 0 { return 0.0 }
+  if n == 0 {
+    return 0.0
+  }
   let mut count = 0
   for v in sample {
-    if v <= x { count = count + 1 }
+    if v <= x {
+      count = count + 1
+    }
   }
   count.to_double() / n.to_double()
 }
@@ -199,10 +203,14 @@ fn est_ecdf(x : Double, sample : Array[Double]) -> Double {
 /// Check if all values in an array are identical (degenerate case).
 fn est_all_equal(arr : Array[Double]) -> Bool {
   let n = arr.length()
-  if n <= 1 { return true }
+  if n <= 1 {
+    return true
+  }
   let first = arr[0]
   for i in 1..<n {
-    if (arr[i] - first).abs() > 1.0e-15 { return false }
+    if (arr[i] - first).abs() > 1.0e-15 {
+      return false
+    }
   }
   true
 }
@@ -227,7 +235,9 @@ fn est_ssgsea_score(
   gene_set : Array[String],
 ) -> Double {
   let n = gene_names.length()
-  if n == 0 || gene_set.length() == 0 { return 0.0 }
+  if n == 0 || gene_set.length() == 0 {
+    return 0.0
+  }
   // Build membership set
   let gene_member : Map[String, Unit] = Map([], capacity=gene_set.length())
   let mut set_size = 0
@@ -246,7 +256,9 @@ fn est_ssgsea_score(
       sum_in_set = sum_in_set + expression[i].abs()
     }
   }
-  if sum_in_set < 1.0e-15 { return 0.0 }
+  if sum_in_set < 1.0e-15 {
+    return 0.0
+  }
   // Walk down the ranked list
   let n_not_set = (n - set_size).to_double()
   let incr_in = 1.0 / sum_in_set
@@ -264,14 +276,22 @@ fn est_ssgsea_score(
     } else {
       running = running - decr_out
     }
-    if running > max_val { max_val = running }
-    if running < min_val { min_val = running }
-    if running > 0.0 { pos_acc = pos_acc + running }
+    if running > max_val {
+      max_val = running
+    }
+    if running < min_val {
+      min_val = running
+    }
+    if running > 0.0 {
+      pos_acc = pos_acc + running
+    }
   }
   // Standard ssGSEA normalization: integrate positive area and divide by
   // total range, then subtract 0.5 to center
   let range = max_val - min_val
-  if range < 1.0e-15 { return 0.0 }
+  if range < 1.0e-15 {
+    return 0.0
+  }
   // The classic ssGSEA score uses sum of positive running sums (weighted)
   // normalized by (n_set * n_not_set) is NOT appropriate here; we follow
   // the integration-style score: pos_acc / n (average positive excursion)
@@ -346,8 +366,16 @@ pub fn est_run(
   let scores : Array[EstSampleScore] = []
   for s in 0..<n_samples {
     // ECDF-based normalization to [-scale, scale]
-    let st_ecdf = if stromal_degenerate { 0.5 } else { est_ecdf(raw_stromal[s], raw_stromal) }
-    let im_ecdf = if immune_degenerate { 0.5 } else { est_ecdf(raw_immune[s], raw_immune) }
+    let st_ecdf = if stromal_degenerate {
+      0.5
+    } else {
+      est_ecdf(raw_stromal[s], raw_stromal)
+    }
+    let im_ecdf = if immune_degenerate {
+      0.5
+    } else {
+      est_ecdf(raw_immune[s], raw_immune)
+    }
     let stromal_final = (st_ecdf - 0.5) * scale * 2.0
     let immune_final = (im_ecdf - 0.5) * scale * 2.0
     let est_score = stromal_final + immune_final
@@ -373,13 +401,12 @@ pub fn est_run(
 /// (2013) Supplementary Table S1 (subset).
 pub fn est_stromal_genes() -> Array[String] {
   [
-    "ACTA2", "ADAM12", "ADAMDEC1", "ADAMTS2", "AEBP1", "ANGPTL2", "ANGPTL4",
-    "APBB1IP", "APLP1", "ARCHN1", "ASPN", "BGN", "BMP1", "C1QA", "C1QB",
-    "C1QC", "C3", "CADM1", "CALD1", "CCDC80", "CD248", "CD55", "CDH11",
-    "CDH19", "COL10A1", "COL11A1", "COL12A1", "COL14A1", "COL1A1", "COL1A2",
-    "COL3A1", "COL4A1", "COL4A2", "COL5A1", "COL5A2", "COL6A3", "COPZ2",
-    "CRLF1", "CXCL1", "CXCL12", "DCN", "DPT", "ECM2", "EDIL3", "EGR2",
-    "FAP", "FBLN1", "FBN1", "FBN2", "FGF7",
+    "ACTA2", "ADAM12", "ADAMDEC1", "ADAMTS2", "AEBP1", "ANGPTL2", "ANGPTL4", "APBB1IP",
+    "APLP1", "ARCHN1", "ASPN", "BGN", "BMP1", "C1QA", "C1QB", "C1QC", "C3", "CADM1",
+    "CALD1", "CCDC80", "CD248", "CD55", "CDH11", "CDH19", "COL10A1", "COL11A1", "COL12A1",
+    "COL14A1", "COL1A1", "COL1A2", "COL3A1", "COL4A1", "COL4A2", "COL5A1", "COL5A2",
+    "COL6A3", "COPZ2", "CRLF1", "CXCL1", "CXCL12", "DCN", "DPT", "ECM2", "EDIL3",
+    "EGR2", "FAP", "FBLN1", "FBN1", "FBN2", "FGF7",
   ]
 }
 
@@ -389,10 +416,10 @@ pub fn est_stromal_genes() -> Array[String] {
 /// (2013) Supplementary Table S2 (subset).
 pub fn est_immune_genes() -> Array[String] {
   [
-    "AIF1", "APOBEC3G", "ARHGAP25", "BCL6", "BLK", "BST1", "BST2", "C1orf162",
-    "C2orf88", "C3orf14", "CCL3", "CD164L1", "CD2", "CD247", "CD3D", "CD3E",
-    "CD3G", "CD52", "CD53", "CD69", "CD7", "CEBPD", "CLEC2B", "CMKLR1",
-    "CPEB2", "CRIP1", "CXCL9", "CXCR6", "CYBB", "DOCK2",
+    "AIF1", "APOBEC3G", "ARHGAP25", "BCL6", "BLK", "BST1", "BST2", "C1orf162", "C2orf88",
+    "C3orf14", "CCL3", "CD164L1", "CD2", "CD247", "CD3D", "CD3E", "CD3G", "CD52",
+    "CD53", "CD69", "CD7", "CEBPD", "CLEC2B", "CMKLR1", "CPEB2", "CRIP1", "CXCL9",
+    "CXCR6", "CYBB", "DOCK2",
   ]
 }
 
@@ -437,21 +464,14 @@ pub fn est_sample_data() -> EstExpression {
     gene_names.push("BACKGRD" + bi.to_string())
   }
   let n_genes = gene_names.length()
-  let sample_names = [
-    "HighStromal", "HighImmune", "HighBoth", "LowBoth",
-  ]
+  let sample_names = ["HighStromal", "HighImmune", "HighBoth", "LowBoth"]
   // Define infiltration profiles: (stromal_add, immune_add)
   // HighStromal: stromal genes up-regulated, immune slightly up
   // HighImmune:  immune genes up-regulated, stromal slightly up
   // HighBoth:    both stromal and immune up-regulated
   // LowBoth:     both stromal and immune DOWN-regulated (below background),
   //              representing a tumor-dominant sample with little infiltration
-  let profiles = [
-    (8.0, 1.0),
-    (1.0, 8.0),
-    (8.0, 8.0),
-    (-2.0, -2.0),
-  ]
+  let profiles = [(8.0, 1.0), (1.0, 8.0), (8.0, 8.0), (-2.0, -2.0)]
   // Build matrix (rows=genes, cols=samples)
   let matrix : Array[Array[Double]] = []
   for gi in 0..<n_genes {
@@ -470,7 +490,9 @@ pub fn est_sample_data() -> EstExpression {
         val = val + i_level
       }
       // Clamp to non-negative (expression cannot be negative)
-      if val < 0.1 { val = 0.1 }
+      if val < 0.1 {
+        val = 0.1
+      }
       // Add small per-gene jitter to break ties
       val = val + 0.01 * (gi % 7).to_double()
       row.push(val)
@@ -482,9 +504,14 @@ pub fn est_sample_data() -> EstExpression {
 
 ///|
 /// Get the score for a specific sample.
-pub fn EstResult::get_score(self : EstResult, sample_id : String) -> EstSampleScore {
+pub fn EstResult::get_score(
+  self : EstResult,
+  sample_id : String,
+) -> EstSampleScore {
   for s in self.scores {
-    if s.sample_id == sample_id { return s }
+    if s.sample_id == sample_id {
+      return s
+    }
   }
   // Return a default empty score if not found
   {
@@ -500,7 +527,8 @@ pub fn EstResult::get_score(self : EstResult, sample_id : String) -> EstSampleSc
 /// Format ESTIMATE results as a string table.
 pub fn EstResult::to_string(self : EstResult) -> String {
   let mut result = "ESTIMATE Results:\n"
-  result = result + "Sample\tStromalScore\tImmuneScore\tESTIMATEScore\tTumorPurity\n"
+  result = result +
+    "Sample\tStromalScore\tImmuneScore\tESTIMATEScore\tTumorPurity\n"
   for s in self.scores {
     let purity_str = if s.tumor_purity.is_nan() {
       "NA"

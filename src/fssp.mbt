@@ -367,14 +367,7 @@ fn fssp_parse_header(lines : Array[String]) -> (FsspHeader, Int) {
   }
   (
     FsspHeader::new(
-      pdbid,
-      pdbid_date,
-      title,
-      compound,
-      source,
-      author,
-      seq_length,
-      n_alignments,
+      pdbid, pdbid_date, title, compound, source, author, seq_length, n_alignments,
       threshold,
     ),
     idx,
@@ -413,14 +406,7 @@ fn fssp_parse_alignment_line(line : String) -> FsspAlignment? {
   }
   Some(
     FsspAlignment::new(
-      pdbid,
-      pdbid,
-      start_pos,
-      aligned_seq,
-      zscore,
-      rmsd,
-      lali,
-      pid,
+      pdbid, pdbid, start_pos, aligned_seq, zscore, rmsd, lali, pid,
     ),
   )
 }
@@ -440,7 +426,8 @@ pub fn fssp_parse(text : String) -> FsspData {
       continue
     }
     // Check for section markers
-    if starts_with(line, 0, "## ALIGNMENTS") || starts_with(line, 0, "##ALIGNMENTS") {
+    if starts_with(line, 0, "## ALIGNMENTS") ||
+      starts_with(line, 0, "##ALIGNMENTS") {
       in_alignment_section = true
       idx = idx + 1
       continue
@@ -475,7 +462,8 @@ pub fn fssp_parse(text : String) -> FsspData {
 pub fn fssp_sample_text() -> String {
   let mut s = ""
   s = s + "HEADER \\_1dfa_A 1 30-jul-1998\n"
-  s = s + "TITLE  crystal structure of human type i 17beta-hydroxysteroid dehydrogenase\n"
+  s = s +
+    "TITLE  crystal structure of human type i 17beta-hydroxysteroid dehydrogenase\n"
   s = s + "COMPND  17beta-hsd\n"
   s = s + "SOURCE  human\n"
   s = s + "AUTHOR  holm\n"

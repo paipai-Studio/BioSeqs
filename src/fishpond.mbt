@@ -202,7 +202,11 @@ pub fn fish_log2fc_test(
   let control_mean = stat_mean(control_vals)
   // Add pseudocount of 1 to avoid log(0)
   let case_log = if case_mean > 0.0 { @math.log2(case_mean + 1.0) } else { 0.0 }
-  let control_log = if control_mean > 0.0 { @math.log2(control_mean + 1.0) } else { 0.0 }
+  let control_log = if control_mean > 0.0 {
+    @math.log2(control_mean + 1.0)
+  } else {
+    0.0
+  }
   case_log - control_log
 }
 
@@ -331,14 +335,19 @@ pub fn fish_swish(
         perm_count = perm_count + 1
       }
     }
-    p_values[t] = (perm_count.to_double() + 1.0) / (n_permutations.to_double() + 1.0)
+    p_values[t] = (perm_count.to_double() + 1.0) /
+      (n_permutations.to_double() + 1.0)
   }
   // BH-FDR correction
   let fdrs = stat_bh(p_values)
   // Build results
   for t in 0..<n_transcripts {
     let direction = if fdrs[t] < 0.05 {
-      if log2fcs[t] > 0.0 { "up" } else { "down" }
+      if log2fcs[t] > 0.0 {
+        "up"
+      } else {
+        "down"
+      }
     } else {
       "ns"
     }
@@ -378,12 +387,12 @@ pub fn fish_sample_counts() -> FishCounts {
     "TX1", "TX2", "TX3", "TX4", "TX5", "TX6", "TX7", "TX8", "TX9", "TX10",
   ]
   let sample_names = [
-    "case1", "case2", "case3", "case4", "case5", "case6", "case7", "case8",
-    "ctrl1", "ctrl2", "ctrl3", "ctrl4", "ctrl5", "ctrl6", "ctrl7", "ctrl8",
+    "case1", "case2", "case3", "case4", "case5", "case6", "case7", "case8", "ctrl1",
+    "ctrl2", "ctrl3", "ctrl4", "ctrl5", "ctrl6", "ctrl7", "ctrl8",
   ]
   let condition = [
-    "case", "case", "case", "case", "case", "case", "case", "case",
-    "control", "control", "control", "control", "control", "control", "control", "control",
+    "case", "case", "case", "case", "case", "case", "case", "case", "control", "control",
+    "control", "control", "control", "control", "control", "control",
   ]
   // transcript × sample counts (10 × 16)
   let counts : Array[Array[Double]] = []
@@ -391,7 +400,11 @@ pub fn fish_sample_counts() -> FishCounts {
   for t in 0..<3 {
     let row : Array[Double] = []
     for s in 0..<16 {
-      let val = if s < 8 { 50.0 + t.to_double() * 10.0 + s.to_double() * 2.0 } else { 10.0 + (s - 8).to_double() * 1.0 }
+      let val = if s < 8 {
+        50.0 + t.to_double() * 10.0 + s.to_double() * 2.0
+      } else {
+        10.0 + (s - 8).to_double() * 1.0
+      }
       row.push(val)
     }
     counts.push(row)
@@ -400,7 +413,11 @@ pub fn fish_sample_counts() -> FishCounts {
   for t in 0..<3 {
     let row : Array[Double] = []
     for s in 0..<16 {
-      let val = if s < 8 { 10.0 + s.to_double() * 1.0 } else { 50.0 + t.to_double() * 10.0 + (s - 8).to_double() * 2.0 }
+      let val = if s < 8 {
+        10.0 + s.to_double() * 1.0
+      } else {
+        50.0 + t.to_double() * 10.0 + (s - 8).to_double() * 2.0
+      }
       row.push(val)
     }
     counts.push(row)
@@ -441,16 +458,38 @@ pub fn fish_significant(
 ///|
 /// Format a FishResult as a readable string.
 pub fn FishResult::to_string(self : FishResult) -> String {
-  self.transcript + " log2FC=" + self.log2_fold_change.to_string() + " p=" + self.p_value.to_string() + " fdr=" + self.fdr.to_string() + " dir=" + self.direction
+  self.transcript +
+  " log2FC=" +
+  self.log2_fold_change.to_string() +
+  " p=" +
+  self.p_value.to_string() +
+  " fdr=" +
+  self.fdr.to_string() +
+  " dir=" +
+  self.direction
 }
 
 ///|
 /// Format all results as a table.
 pub fn fish_results_to_string(results : Array[FishResult]) -> String {
-  let mut s = "Swish Results (" + results.length().to_string() + " transcripts)\n"
+  let mut s = "Swish Results (" +
+    results.length().to_string() +
+    " transcripts)\n"
   s = s + "transcript\tstatistic\tlog2FC\tp_value\tfdr\tdirection\n"
   for r in results {
-    s = s + r.transcript + "\t" + r.statistic.to_string() + "\t" + r.log2_fold_change.to_string() + "\t" + r.p_value.to_string() + "\t" + r.fdr.to_string() + "\t" + r.direction + "\n"
+    s = s +
+      r.transcript +
+      "\t" +
+      r.statistic.to_string() +
+      "\t" +
+      r.log2_fold_change.to_string() +
+      "\t" +
+      r.p_value.to_string() +
+      "\t" +
+      r.fdr.to_string() +
+      "\t" +
+      r.direction +
+      "\n"
   }
   s
 }

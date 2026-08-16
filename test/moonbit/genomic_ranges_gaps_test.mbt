@@ -14,12 +14,9 @@ test "grg_granges_constructor" {
 
 ///|
 test "grg_granges_with_custom_strands" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr2"],
-    [5, 15],
-    [10, 25],
-    strands=["+", "-"],
-  )
+  let gr = @src.grg_granges(["chr1", "chr2"], [5, 15], [10, 25], strands=[
+    "+", "-",
+  ])
   assert_eq(gr.seqnames.length(), 2)
   assert_eq(gr.strands[0], "+")
   assert_eq(gr.strands[1], "-")
@@ -27,11 +24,7 @@ test "grg_granges_with_custom_strands" {
 
 ///|
 test "grg_length_basic" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1", "chr2"],
-    [1, 10, 20],
-    [5, 15, 25],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1", "chr2"], [1, 10, 20], [5, 15, 25])
   assert_eq(@src.grg_length(gr), 3)
 }
 
@@ -47,11 +40,7 @@ test "grg_empty_creates_empty_granges" {
 
 ///|
 test "grg_gaps_finds_gaps_between_ranges" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1"],
-    [1, 30],
-    [10, 50],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1"], [1, 30], [10, 50])
   let sl : Map[String, Int] = Map([], capacity=1)
   sl["chr1"] = 100
   let gaps = @src.grg_gaps(gr, sl)
@@ -67,11 +56,7 @@ test "grg_gaps_finds_gaps_between_ranges" {
 
 ///|
 test "grg_gaps_no_gaps_when_adjacent" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1"],
-    [1, 11],
-    [10, 20],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1"], [1, 11], [10, 20])
   let sl : Map[String, Int] = Map([], capacity=1)
   sl["chr1"] = 20
   let gaps = @src.grg_gaps(gr, sl)
@@ -92,11 +77,7 @@ test "grg_gaps_empty_input" {
 
 ///|
 test "grg_gaps_multiple_chromosomes" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr2"],
-    [1, 1],
-    [10, 10],
-  )
+  let gr = @src.grg_granges(["chr1", "chr2"], [1, 1], [10, 10])
   let sl : Map[String, Int] = Map([], capacity=2)
   sl["chr1"] = 20
   sl["chr2"] = 30
@@ -112,11 +93,7 @@ test "grg_gaps_multiple_chromosomes" {
 
 ///|
 test "grg_gaps_overlapping_ranges_merged" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1", "chr1"],
-    [1, 5, 20],
-    [10, 15, 30],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1", "chr1"], [1, 5, 20], [10, 15, 30])
   let sl : Map[String, Int] = Map([], capacity=1)
   sl["chr1"] = 50
   let gaps = @src.grg_gaps(gr, sl)
@@ -129,11 +106,7 @@ test "grg_gaps_overlapping_ranges_merged" {
 
 ///|
 test "grg_reduce_merges_overlapping_ranges" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1"],
-    [1, 5],
-    [10, 15],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1"], [1, 5], [10, 15])
   let result = @src.grg_reduce(gr)
   assert_eq(result.seqnames.length(), 1)
   assert_eq(result.starts[0], 1)
@@ -143,11 +116,7 @@ test "grg_reduce_merges_overlapping_ranges" {
 
 ///|
 test "grg_reduce_merges_adjacent_ranges" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1"],
-    [1, 11],
-    [10, 20],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1"], [1, 11], [10, 20])
   let result = @src.grg_reduce(gr)
   assert_eq(result.seqnames.length(), 1)
   assert_eq(result.starts[0], 1)
@@ -156,11 +125,7 @@ test "grg_reduce_merges_adjacent_ranges" {
 
 ///|
 test "grg_reduce_no_overlapping_ranges" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1"],
-    [1, 30],
-    [10, 50],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1"], [1, 30], [10, 50])
   let result = @src.grg_reduce(gr)
   assert_eq(result.seqnames.length(), 2)
   assert_eq(result.starts[0], 1)
@@ -171,11 +136,7 @@ test "grg_reduce_no_overlapping_ranges" {
 
 ///|
 test "grg_reduce_with_min_gap_parameter" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1"],
-    [1, 15],
-    [10, 25],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1"], [1, 15], [10, 25])
   let result = @src.grg_reduce(gr, min_gap=5)
   assert_eq(result.seqnames.length(), 1)
   assert_eq(result.starts[0], 1)
@@ -192,11 +153,7 @@ test "grg_reduce_empty_input" {
 
 ///|
 test "grg_disjoin_splits_overlapping_ranges" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1"],
-    [1, 5],
-    [10, 15],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1"], [1, 5], [10, 15])
   let result = @src.grg_disjoin(gr)
   assert_eq(result.seqnames.length(), 3)
   assert_eq(result.starts[0], 1)
@@ -209,11 +166,7 @@ test "grg_disjoin_splits_overlapping_ranges" {
 
 ///|
 test "grg_disjoin_no_overlapping_ranges" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1"],
-    [1, 20],
-    [10, 30],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1"], [1, 20], [10, 30])
   let result = @src.grg_disjoin(gr)
   assert_eq(result.seqnames.length(), 3)
   assert_eq(result.starts[0], 1)
@@ -308,11 +261,7 @@ test "grg_union_disjoint_ranges" {
 
 ///|
 test "grg_compute_coverage_basic" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1"],
-    [1, 3],
-    [5, 8],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1"], [1, 3], [5, 8])
   let sl : Map[String, Int] = Map([], capacity=1)
   sl["chr1"] = 10
   let cov = @src.grg_compute_coverage(gr, sl)
@@ -344,11 +293,7 @@ test "grg_compute_coverage_no_ranges" {
 
 ///|
 test "grg_trim_clips_to_chromosome_bounds" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1"],
-    [-5, 8],
-    [10, 30],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1"], [-5, 8], [10, 30])
   let sl : Map[String, Int] = Map([], capacity=1)
   sl["chr1"] = 20
   let result = @src.grg_trim(gr, sl)
@@ -361,11 +306,7 @@ test "grg_trim_clips_to_chromosome_bounds" {
 
 ///|
 test "grg_trim_removes_completely_outside_ranges" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1"],
-    [1, 25],
-    [10, 30],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1"], [1, 25], [10, 30])
   let sl : Map[String, Int] = Map([], capacity=1)
   sl["chr1"] = 20
   let result = @src.grg_trim(gr, sl)
@@ -376,12 +317,7 @@ test "grg_trim_removes_completely_outside_ranges" {
 
 ///|
 test "grg_promoters_plus_strand" {
-  let gr = @src.grg_granges(
-    ["chr1"],
-    [100],
-    [200],
-    strands=["+"],
-  )
+  let gr = @src.grg_granges(["chr1"], [100], [200], strands=["+"])
   let result = @src.grg_promoters(gr, upstream=50, downstream=20)
   assert_eq(result.seqnames.length(), 1)
   assert_eq(result.starts[0], 50)
@@ -390,12 +326,7 @@ test "grg_promoters_plus_strand" {
 
 ///|
 test "grg_promoters_minus_strand" {
-  let gr = @src.grg_granges(
-    ["chr1"],
-    [100],
-    [200],
-    strands=["-"],
-  )
+  let gr = @src.grg_granges(["chr1"], [100], [200], strands=["-"])
   let result = @src.grg_promoters(gr, upstream=50, downstream=20)
   assert_eq(result.seqnames.length(), 1)
   assert_eq(result.starts[0], 181)
@@ -404,12 +335,7 @@ test "grg_promoters_minus_strand" {
 
 ///|
 test "grg_promoters_default_parameters" {
-  let gr = @src.grg_granges(
-    ["chr1"],
-    [100],
-    [200],
-    strands=["+"],
-  )
+  let gr = @src.grg_granges(["chr1"], [100], [200], strands=["+"])
   let result = @src.grg_promoters(gr)
   assert_eq(result.seqnames.length(), 1)
   assert_eq(result.starts[0], 100 - 2000)
@@ -432,11 +358,9 @@ test "grg_edge_case_single_nucleotide_range" {
 
 ///|
 test "grg_edge_case_multiple_chromosomes_reduce" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr1", "chr2", "chr2"],
-    [1, 5, 1, 10],
-    [10, 15, 5, 20],
-  )
+  let gr = @src.grg_granges(["chr1", "chr1", "chr2", "chr2"], [1, 5, 1, 10], [
+    10, 15, 5, 20,
+  ])
   let result = @src.grg_reduce(gr)
   assert_eq(result.seqnames.length(), 3)
   assert_eq(result.seqnames[0], "chr1")
@@ -474,11 +398,7 @@ test "grg_edge_case_intersect_empty_grg1" {
 
 ///|
 test "grg_edge_case_coverage_multiple_chromosomes" {
-  let gr = @src.grg_granges(
-    ["chr1", "chr2"],
-    [1, 1],
-    [5, 3],
-  )
+  let gr = @src.grg_granges(["chr1", "chr2"], [1, 1], [5, 3])
   let sl : Map[String, Int] = Map([], capacity=2)
   sl["chr1"] = 5
   sl["chr2"] = 5
@@ -496,11 +416,7 @@ test "grg_edge_case_coverage_multiple_chromosomes" {
 
 ///|
 test "grg_edge_case_trim_no_clipping_needed" {
-  let gr = @src.grg_granges(
-    ["chr1"],
-    [5],
-    [10],
-  )
+  let gr = @src.grg_granges(["chr1"], [5], [10])
   let sl : Map[String, Int] = Map([], capacity=1)
   sl["chr1"] = 100
   let result = @src.grg_trim(gr, sl)

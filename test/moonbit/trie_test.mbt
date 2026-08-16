@@ -306,7 +306,9 @@ test "triefind_find_words_with_boundaries" {
   let trie = @src.Trie::new()
   @src.trie_insert(trie, "EcoRI", "enzyme1")
   @src.trie_insert(trie, "BamHI", "enzyme2")
-  let results = @src.triefind_find_words(trie, "Use EcoRI and BamHI for cloning")
+  let results = @src.triefind_find_words(
+    trie, "Use EcoRI and BamHI for cloning",
+  )
   assert_eq(results.length(), 2)
 }
 

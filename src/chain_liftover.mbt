@@ -195,7 +195,7 @@ pub fn cl_liftover_range(
       }
 
       match (mapped_start, mapped_end) {
-        (Some(ms), Some(me)) => {
+        (Some(ms), Some(me)) =>
           if ch.q_strand == "-" {
             let qs = ch.q_size - me
             let qe = ch.q_size - ms
@@ -204,14 +204,11 @@ pub fn cl_liftover_range(
             } else {
               Some((qe, qs))
             }
+          } else if ms < me {
+            Some((ms, me))
           } else {
-            if ms < me {
-              Some((ms, me))
-            } else {
-              Some((me, ms))
-            }
+            Some((me, ms))
           }
-        }
         _ => None
       }
     }
@@ -313,11 +310,7 @@ fn cl_split_lines(s : String) -> Array[String] {
   let mut i = 0
   while i < s.length() {
     if s.unsafe_get(i).to_int() == '\n'.to_int() {
-      let line = if start < i {
-        s[start:i].to_owned()
-      } else {
-        ""
-      }
+      let line = if start < i { s[start:i].to_owned() } else { "" }
       result.push(line)
       start = i + 1
     }
@@ -423,16 +416,36 @@ fn cl_parse_chain_header(
 
   let score = if fields.length() > 1 { cl_parse_int_safe(fields[1]) } else { 0 }
   let t_name = if fields.length() > 2 { fields[2] } else { "" }
-  let t_size = if fields.length() > 3 { cl_parse_int_safe(fields[3]) } else { 0 }
+  let t_size = if fields.length() > 3 {
+    cl_parse_int_safe(fields[3])
+  } else {
+    0
+  }
   let t_strand = if fields.length() > 4 { fields[4] } else { "+" }
   let t_plus = t_strand == "+"
-  let t_start = if fields.length() > 5 { cl_parse_int_safe(fields[5]) } else { 0 }
+  let t_start = if fields.length() > 5 {
+    cl_parse_int_safe(fields[5])
+  } else {
+    0
+  }
   let t_end = if fields.length() > 6 { cl_parse_int_safe(fields[6]) } else { 0 }
   let q_name = if fields.length() > 7 { fields[7] } else { "" }
-  let q_size = if fields.length() > 8 { cl_parse_int_safe(fields[8]) } else { 0 }
+  let q_size = if fields.length() > 8 {
+    cl_parse_int_safe(fields[8])
+  } else {
+    0
+  }
   let q_strand = if fields.length() > 9 { fields[9] } else { "+" }
-  let q_start = if fields.length() > 10 { cl_parse_int_safe(fields[10]) } else { 0 }
-  let q_end = if fields.length() > 11 { cl_parse_int_safe(fields[11]) } else { 0 }
+  let q_start = if fields.length() > 10 {
+    cl_parse_int_safe(fields[10])
+  } else {
+    0
+  }
+  let q_end = if fields.length() > 11 {
+    cl_parse_int_safe(fields[11])
+  } else {
+    0
+  }
   let id = if fields.length() > 12 { cl_parse_int_safe(fields[12]) } else { 0 }
 
   let header = ChainHeader::{
@@ -593,8 +606,7 @@ test "cl_parse_chain_single_header" {
 
 ///|
 test "cl_parse_chain_with_blocks" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  400 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  400 0 0"
   let cf = cl_parse_chain(content)
   assert_eq(cf.alignments.length(), 1)
   assert_eq(cf.alignments[0].blocks.length(), 2)
@@ -608,8 +620,7 @@ test "cl_parse_chain_with_blocks" {
 
 ///|
 test "cl_parse_chain_multiple_records" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 0 0\nchain 3000 chr1 249250621 + 6000 10000 chr3 8000 + 500 1500 6\n  300 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 0 0\nchain 3000 chr1 249250621 + 6000 10000 chr3 8000 + 500 1500 6\n  300 0 0"
   let cf = cl_parse_chain(content)
   assert_eq(cf.alignments.length(), 2)
   assert_eq(cf.alignments[0].id, 5)
@@ -620,8 +631,7 @@ test "cl_parse_chain_multiple_records" {
 
 ///|
 test "cl_parse_chain_multiple_blocks" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  300 5 15\n  200 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  300 5 15\n  200 0 0"
   let cf = cl_parse_chain(content)
   assert_eq(cf.alignments[0].blocks.length(), 3)
   assert_eq(cf.alignments[0].blocks[0].size, 500)
@@ -631,8 +641,7 @@ test "cl_parse_chain_multiple_blocks" {
 
 ///|
 test "cl_parse_chain_negative_query_strand" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 - 5000 1 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 - 5000 1 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   assert_eq(cf.alignments[0].q_strand, "-")
   assert_eq(cf.alignments[0].q_start, 5000)
@@ -641,8 +650,7 @@ test "cl_parse_chain_negative_query_strand" {
 
 ///|
 test "cl_parse_chain_negative_target_strand" {
-  let content =
-    "chain 5000 chr1 249250621 - 5000 1 chr2 10000 + 1 5000 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 - 5000 1 chr2 10000 + 1 5000 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   assert_eq(cf.alignments[0].t_plus, false)
   assert_eq(cf.alignments[0].t_start, 5000)
@@ -651,8 +659,7 @@ test "cl_parse_chain_negative_target_strand" {
 
 ///|
 test "cl_parse_chain_complex" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  400 30 40\n  300 0 0\nchain 3000 chr5 181538259 + 100 200 chr7 159345973 + 300 500 6\n  100 0 0\nchain 2000 chr12 133275309 + 500 800 chr14 107043718 + 700 1000 7\n  200 5 10\n  100 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  400 30 40\n  300 0 0\nchain 3000 chr5 181538259 + 100 200 chr7 159345973 + 300 500 6\n  100 0 0\nchain 2000 chr12 133275309 + 500 800 chr14 107043718 + 700 1000 7\n  200 5 10\n  100 0 0"
   let cf = cl_parse_chain(content)
   assert_eq(cf.alignments.length(), 3)
   assert_eq(cf.alignments[0].blocks.length(), 3)
@@ -662,23 +669,19 @@ test "cl_parse_chain_complex" {
 
 ///|
 test "cl_find_chain_for_pos_valid" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_find_chain_for_pos(cf, "chr1", 100)
   assert_true(result is Some(_))
   match result {
-    Some(ch) => {
-      assert_eq(ch.id, 5)
-    }
+    Some(ch) => assert_eq(ch.id, 5)
     None => ()
   }
 }
 
 ///|
 test "cl_find_chain_for_pos_first_block" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  4500 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  4500 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_find_chain_for_pos(cf, "chr1", 100)
   assert_true(result is Some(_))
@@ -686,8 +689,7 @@ test "cl_find_chain_for_pos_first_block" {
 
 ///|
 test "cl_find_chain_for_pos_second_block" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  4500 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  4500 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_find_chain_for_pos(cf, "chr1", 600)
   assert_true(result is Some(_))
@@ -695,8 +697,7 @@ test "cl_find_chain_for_pos_second_block" {
 
 ///|
 test "cl_find_chain_for_pos_wrong_chrom" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_find_chain_for_pos(cf, "chrX", 100)
   assert_true(result is None)
@@ -704,8 +705,7 @@ test "cl_find_chain_for_pos_wrong_chrom" {
 
 ///|
 test "cl_find_chain_for_pos_out_of_range" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_find_chain_for_pos(cf, "chr1", 6000)
   assert_true(result is None)
@@ -713,19 +713,14 @@ test "cl_find_chain_for_pos_out_of_range" {
 
 ///|
 test "cl_find_chain_for_pos_empty_chains" {
-  let cf = ChainFile::{
-    alignments: [],
-    target_name: "",
-    query_name: "",
-  }
+  let cf = ChainFile::{ alignments: [], target_name: "", query_name: "" }
   let result = cl_find_chain_for_pos(cf, "chr1", 100)
   assert_true(result is None)
 }
 
 ///|
 test "cl_liftover_pos_basic" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 100)
   assert_eq(result, Some(100))
@@ -733,8 +728,7 @@ test "cl_liftover_pos_basic" {
 
 ///|
 test "cl_liftover_pos_first_block" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  500 10 20\n  4500 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  500 10 20\n  4500 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 100)
   assert_eq(result, Some(100))
@@ -742,8 +736,7 @@ test "cl_liftover_pos_first_block" {
 
 ///|
 test "cl_liftover_pos_second_block" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  500 10 20\n  4500 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  500 10 20\n  4500 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 600)
   assert_eq(result, Some(610))
@@ -751,8 +744,7 @@ test "cl_liftover_pos_second_block" {
 
 ///|
 test "cl_liftover_pos_last_block" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  500 10 20\n  4500 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  500 10 20\n  4500 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 4999)
   assert_eq(result, Some(5009))
@@ -760,8 +752,7 @@ test "cl_liftover_pos_last_block" {
 
 ///|
 test "cl_liftover_pos_at_chain_start" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 1)
   assert_eq(result, Some(1))
@@ -769,8 +760,7 @@ test "cl_liftover_pos_at_chain_start" {
 
 ///|
 test "cl_liftover_pos_at_chain_end" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 4999)
   assert_eq(result, Some(4999))
@@ -778,8 +768,7 @@ test "cl_liftover_pos_at_chain_end" {
 
 ///|
 test "cl_liftover_pos_out_of_range_before" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 0)
   assert_true(result is None)
@@ -787,8 +776,7 @@ test "cl_liftover_pos_out_of_range_before" {
 
 ///|
 test "cl_liftover_pos_out_of_range_after" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 6000)
   assert_true(result is None)
@@ -796,8 +784,7 @@ test "cl_liftover_pos_out_of_range_after" {
 
 ///|
 test "cl_liftover_pos_wrong_chrom" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chrX", 100)
   assert_true(result is None)
@@ -805,8 +792,7 @@ test "cl_liftover_pos_wrong_chrom" {
 
 ///|
 test "cl_liftover_pos_in_gap" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  500 10 20\n  4500 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  500 10 20\n  4500 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 501)
   assert_true(result is None)
@@ -814,8 +800,7 @@ test "cl_liftover_pos_in_gap" {
 
 ///|
 test "cl_liftover_pos_reverse_query_strand" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 - 5000 1 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 - 5000 1 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 100)
   assert_eq(result, Some(4901))
@@ -823,8 +808,7 @@ test "cl_liftover_pos_reverse_query_strand" {
 
 ///|
 test "cl_liftover_pos_reverse_query_at_start" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 - 5000 1 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 - 5000 1 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 1)
   assert_eq(result, Some(5000))
@@ -832,8 +816,7 @@ test "cl_liftover_pos_reverse_query_at_start" {
 
 ///|
 test "cl_liftover_pos_reverse_query_at_end" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 - 5000 1 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 - 5000 1 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 4999)
   assert_eq(result, Some(2))
@@ -841,19 +824,14 @@ test "cl_liftover_pos_reverse_query_at_end" {
 
 ///|
 test "cl_liftover_pos_empty_chains" {
-  let cf = ChainFile::{
-    alignments: [],
-    target_name: "",
-    query_name: "",
-  }
+  let cf = ChainFile::{ alignments: [], target_name: "", query_name: "" }
   let result = cl_liftover_pos(cf, "chr1", 100)
   assert_true(result is None)
 }
 
 ///|
 test "cl_liftover_range_basic" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_range(cf, "chr1", 100, 200)
   assert_eq(result, Some((100, 200)))
@@ -861,8 +839,7 @@ test "cl_liftover_range_basic" {
 
 ///|
 test "cl_liftover_range_across_blocks" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  500 10 20\n  4500 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  500 10 20\n  4500 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_range(cf, "chr1", 400, 700)
   assert_eq(result, Some((400, 710)))
@@ -870,8 +847,7 @@ test "cl_liftover_range_across_blocks" {
 
 ///|
 test "cl_liftover_range_out_of_range" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_range(cf, "chr1", 4900, 6000)
   assert_true(result is None)
@@ -879,8 +855,7 @@ test "cl_liftover_range_out_of_range" {
 
 ///|
 test "cl_liftover_range_reverse_strand" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 - 5000 1 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 - 5000 1 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_range(cf, "chr1", 100, 200)
   assert_eq(result, Some((4801, 4901)))
@@ -888,8 +863,7 @@ test "cl_liftover_range_reverse_strand" {
 
 ///|
 test "cl_liftover_range_empty" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_range(cf, "chr1", 200, 100)
   assert_true(result is None)
@@ -935,8 +909,7 @@ test "cl_get_chain_summary_single_block" {
 
 ///|
 test "cl_chain_to_string_roundtrip" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  400 0 0\n"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n  500 10 20\n  400 0 0\n"
   let cf = cl_parse_chain(content)
   assert_eq(cf.alignments.length(), 1)
   let serialized = cl_chain_to_string(cf.alignments[0])
@@ -967,16 +940,14 @@ test "cl_chain_to_string_contains_blocks" {
 
 ///|
 test "cl_parse_chain_with_blank_lines" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n\n  5000 0 0\n\nchain 3000 chr5 181538259 + 100 200 chr7 159345973 + 300 500 6\n\n  100 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 100 5\n\n  5000 0 0\n\nchain 3000 chr5 181538259 + 100 200 chr7 159345973 + 300 500 6\n\n  100 0 0"
   let cf = cl_parse_chain(content)
   assert_eq(cf.alignments.length(), 2)
 }
 
 ///|
 test "cl_liftover_pos_multi_chain" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0\nchain 3000 chr1 249250621 + 6000 10000 chr3 8000 + 500 1500 6\n  3000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0\nchain 3000 chr1 249250621 + 6000 10000 chr3 8000 + 500 1500 6\n  3000 0 0"
   let cf = cl_parse_chain(content)
   let result1 = cl_liftover_pos(cf, "chr1", 100)
   assert_eq(result1, Some(100))
@@ -986,8 +957,7 @@ test "cl_liftover_pos_multi_chain" {
 
 ///|
 test "cl_liftover_range_multi_chain" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0\nchain 3000 chr1 249250621 + 6000 10000 chr3 8000 + 500 1500 6\n  3000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0\nchain 3000 chr1 249250621 + 6000 10000 chr3 8000 + 500 1500 6\n  3000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_range(cf, "chr1", 100, 200)
   assert_eq(result, Some((100, 200)))
@@ -995,8 +965,7 @@ test "cl_liftover_range_multi_chain" {
 
 ///|
 test "cl_liftover_range_spans_multiple_chains" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0\nchain 3000 chr1 249250621 + 6000 10000 chr3 8000 + 500 1500 6\n  3000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0\nchain 3000 chr1 249250621 + 6000 10000 chr3 8000 + 500 1500 6\n  3000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_range(cf, "chr1", 4900, 7000)
   assert_true(result is None)
@@ -1004,8 +973,7 @@ test "cl_liftover_range_spans_multiple_chains" {
 
 ///|
 test "cl_parse_chain_single_nucleotide_block" {
-  let content =
-    "chain 100 chr1 1000 + 100 200 chr2 500 + 50 150 1\n  1 0 0"
+  let content = "chain 100 chr1 1000 + 100 200 chr2 500 + 50 150 1\n  1 0 0"
   let cf = cl_parse_chain(content)
   assert_eq(cf.alignments[0].blocks.length(), 1)
   assert_eq(cf.alignments[0].blocks[0].size, 1)
@@ -1015,8 +983,7 @@ test "cl_parse_chain_single_nucleotide_block" {
 
 ///|
 test "cl_liftover_pos_chain_boundary_start" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 1)
   assert_true(result is Some(_))
@@ -1024,8 +991,7 @@ test "cl_liftover_pos_chain_boundary_start" {
 
 ///|
 test "cl_liftover_pos_chain_boundary_end" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_pos(cf, "chr1", 4999)
   assert_true(result is Some(_))
@@ -1033,8 +999,7 @@ test "cl_liftover_pos_chain_boundary_end" {
 
 ///|
 test "cl_find_chain_for_pos_multiple_chains" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0\nchain 3000 chr1 249250621 + 6000 10000 chr3 8000 + 500 1500 6\n  3000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  5000 0 0\nchain 3000 chr1 249250621 + 6000 10000 chr3 8000 + 500 1500 6\n  3000 0 0"
   let cf = cl_parse_chain(content)
   let r1 = cl_find_chain_for_pos(cf, "chr1", 100)
   match r1 {
@@ -1050,8 +1015,7 @@ test "cl_find_chain_for_pos_multiple_chains" {
 
 ///|
 test "cl_parse_chain_whitespace_tabs" {
-  let content =
-    "chain\t5000\tchr1\t249250621\t+\t1\t5000\tchr2\t10000\t+\t1\t100\t5\n\t5000\t0\t0"
+  let content = "chain\t5000\tchr1\t249250621\t+\t1\t5000\tchr2\t10000\t+\t1\t100\t5\n\t5000\t0\t0"
   let cf = cl_parse_chain(content)
   assert_eq(cf.alignments.length(), 1)
   assert_eq(cf.alignments[0].blocks.length(), 1)
@@ -1059,8 +1023,7 @@ test "cl_parse_chain_whitespace_tabs" {
 
 ///|
 test "cl_liftover_pos_block_boundary_alignment" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 1100 chr2 10000 + 1 1100 5\n  500 10 20\n  500 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 1100 chr2 10000 + 1 1100 5\n  500 10 20\n  500 0 0"
   let cf = cl_parse_chain(content)
   let r1 = cl_liftover_pos(cf, "chr1", 500)
   assert_eq(r1, Some(500))
@@ -1074,16 +1037,14 @@ test "cl_liftover_pos_block_boundary_alignment" {
 
 ///|
 test "cl_parse_chain_id_preserved" {
-  let content =
-    "chain 100 chr1 1000 + 100 200 chr2 500 + 50 150 99\n  100 0 0"
+  let content = "chain 100 chr1 1000 + 100 200 chr2 500 + 50 150 99\n  100 0 0"
   let cf = cl_parse_chain(content)
   assert_eq(cf.alignments[0].id, 99)
 }
 
 ///|
 test "cl_chain_to_string_score_preserved" {
-  let content =
-    "chain 7777 chr1 1000 + 100 200 chr2 500 + 50 150 1\n  100 0 0"
+  let content = "chain 7777 chr1 1000 + 100 200 chr2 500 + 50 150 1\n  100 0 0"
   let cf = cl_parse_chain(content)
   let s = cl_chain_to_string(cf.alignments[0])
   assert_true(cl_starts_with(s, "chain 7777"))
@@ -1091,8 +1052,7 @@ test "cl_chain_to_string_score_preserved" {
 
 ///|
 test "cl_liftover_range_sub_block" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  500 10 20\n  4500 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  500 10 20\n  4500 0 0"
   let cf = cl_parse_chain(content)
   let result = cl_liftover_range(cf, "chr1", 50, 150)
   assert_eq(result, Some((50, 150)))
@@ -1113,8 +1073,7 @@ test "cl_get_chain_summary_gaps" {
 
 ///|
 test "cl_liftover_pos_complex_chain" {
-  let content =
-    "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  1000 50 100\n  2000 30 40\n  2000 0 0"
+  let content = "chain 5000 chr1 249250621 + 1 5000 chr2 10000 + 1 5000 5\n  1000 50 100\n  2000 30 40\n  2000 0 0"
   let cf = cl_parse_chain(content)
   let r1 = cl_liftover_pos(cf, "chr1", 500)
   assert_eq(r1, Some(500))

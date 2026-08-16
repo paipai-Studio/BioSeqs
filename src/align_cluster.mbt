@@ -106,19 +106,27 @@ pub fn MSADistanceMatrix::new(
 
 ///|
 /// Get the distance matrix as a 2D array.
-pub fn MSADistanceMatrix::get_matrix(self : MSADistanceMatrix) -> Array[Array[Double]] {
+pub fn MSADistanceMatrix::get_matrix(
+  self : MSADistanceMatrix,
+) -> Array[Array[Double]] {
   self.matrix
 }
 
 ///|
 /// Get the sequence IDs.
-pub fn MSADistanceMatrix::get_sequence_ids(self : MSADistanceMatrix) -> Array[String] {
+pub fn MSADistanceMatrix::get_sequence_ids(
+  self : MSADistanceMatrix,
+) -> Array[String] {
   self.sequence_ids
 }
 
 ///|
 /// Get the distance between two sequences by index.
-pub fn MSADistanceMatrix::get(self : MSADistanceMatrix, i : Int, j : Int) -> Double {
+pub fn MSADistanceMatrix::get(
+  self : MSADistanceMatrix,
+  i : Int,
+  j : Int,
+) -> Double {
   self.matrix[i][j]
 }
 
@@ -169,7 +177,7 @@ pub struct GuideTree {
 ///|
 /// Create a new GuideTree from an array of nodes.
 pub fn GuideTree::new(nodes : Array[GuideTreeNode]) -> GuideTree {
-  GuideTree::{ nodes }
+  GuideTree::{ nodes, }
 }
 
 ///|
@@ -308,11 +316,7 @@ pub fn upgma_tree(distance_matrix : MSADistanceMatrix) -> GuideTree {
     let size_i = count_leaves_in_node(nodes, i_idx)
     let size_j = count_leaves_in_node(nodes, j_idx)
 
-    let new_node = guide_tree_internal(
-      next_id,
-      [i_idx, j_idx],
-      height,
-    )
+    let new_node = guide_tree_internal(next_id, [i_idx, j_idx], height)
     nodes.push(new_node)
     let new_node_idx = next_id
     next_id = next_id + 1
@@ -321,9 +325,10 @@ pub fn upgma_tree(distance_matrix : MSADistanceMatrix) -> GuideTree {
     for k = 0; k < m; k = k + 1 {
       if k != min_i && k != min_j {
         let d = (
-          size_i.to_double() * dist[min_i][k] +
-          size_j.to_double() * dist[min_j][k]
-        ) / (size_i.to_double() + size_j.to_double())
+            size_i.to_double() * dist[min_i][k] +
+            size_j.to_double() * dist[min_j][k]
+          ) /
+          (size_i.to_double() + size_j.to_double())
         new_dists_row.push(d)
       }
     }
@@ -356,15 +361,12 @@ pub fn upgma_tree(distance_matrix : MSADistanceMatrix) -> GuideTree {
     dist = new_dist
   }
 
-  GuideTree::{ nodes }
+  GuideTree::{ nodes, }
 }
 
 ///|
 /// Count the number of leaf nodes under a given node.
-fn count_leaves_in_node(
-  nodes : Array[GuideTreeNode],
-  node_idx : Int,
-) -> Int {
+fn count_leaves_in_node(nodes : Array[GuideTreeNode], node_idx : Int) -> Int {
   let node = nodes[node_idx]
   if node.is_leaf {
     1
@@ -379,9 +381,7 @@ fn count_leaves_in_node(
 
 ///|
 /// Copy a distance matrix.
-fn copy_distance_matrix(
-  matrix : Array[Array[Double]],
-) -> Array[Array[Double]] {
+fn copy_distance_matrix(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = Array::new()
   for row in matrix {
     let new_row : Array[Double] = Array::new()
@@ -400,18 +400,8 @@ fn copy_distance_matrix(
 /// `seq2` — second sequence string.
 ///
 /// Returns a tuple of (aligned_seq1, aligned_seq2, alignment_score).
-pub fn align_pairwise(
-  seq1 : String,
-  seq2 : String,
-) -> (String, String, Double) {
-  align_pairwise_with_scoring(
-    seq1,
-    seq2,
-    2.0,
-    -1.0,
-    -2.0,
-    -0.5,
-  )
+pub fn align_pairwise(seq1 : String, seq2 : String) -> (String, String, Double) {
+  align_pairwise_with_scoring(seq1, seq2, 2.0, -1.0, -2.0, -0.5)
 }
 
 ///|
@@ -469,11 +459,7 @@ pub fn align_pairwise_with_scoring(
     for j = 1; j <= m; j = j + 1 {
       let c1 = seq1.unsafe_get(i - 1)
       let c2 = seq2.unsafe_get(j - 1)
-      let sub_score = if c1 == c2 {
-        match_score
-      } else {
-        mismatch_score
-      }
+      let sub_score = if c1 == c2 { match_score } else { mismatch_score }
 
       let diag = dp[i - 1][j - 1] + sub_score
       let up = dp[i - 1][j] +
@@ -784,12 +770,11 @@ pub fn progressive_alignment(
       let mut all_processed = true
       for child_idx in node.children {
         match processed.get(child_idx) {
-          Some(true) => {
+          Some(true) =>
             match alignment_map.get(child_idx) {
               Some(profile) => child_results.push(profile)
               None => all_processed = false
             }
-          }
           _ => all_processed = false
         }
       }
@@ -797,8 +782,7 @@ pub fn progressive_alignment(
         let left_profile = child_results[0]
         let right_profile = child_results[1]
         let (aligned_left, aligned_right, _) = align_profiles(
-          left_profile,
-          right_profile,
+          left_profile, right_profile,
         )
         let left_aligned_profile : Array[String] = Array::new()
         let right_aligned_profile : Array[String] = Array::new()
@@ -867,7 +851,7 @@ pub fn progressive_alignment(
     } else {
       "seq_" + seq_id_idx.to_string()
     }
-    records.push(SeqRecord::new(Seq::new(s), id=id))
+    records.push(SeqRecord::new(Seq::new(s), id~))
     seq_id_idx = seq_id_idx + 1
   }
   create_msa_safe(records)
@@ -881,9 +865,7 @@ fn create_msa_safe(records : Array[SeqRecord]) -> MultipleSeqAlignment {
     annotations: Map([], capacity=0),
     column_annotations: Map([], capacity=0),
   }
-  try {
-    MultipleSeqAlignment::new(records)
-  } catch {
+  MultipleSeqAlignment::new(records) catch {
     _ => empty
   }
 }

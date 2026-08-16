@@ -1,145 +1,115 @@
 ///|
+fn mast_demo_option(value : Double?) -> String {
+  match value {
+    Some(number) => number.to_string()
+    None => "NA"
+  }
+}
+
+///|
 fn main {
-  println("=== MAST Demo ===")
+  println("=== Bioconductor MAST 1.39.0 Advanced Demo ===")
 
-  let n_genes = 10
-  let n_group1 = 6
-  let n_group2 = 6
-  let n_cells = n_group1 + n_group2
-
-  let expression : Array[Array[Double]] = Array::make(
-    n_cells,
-    Array::make(n_genes, 0.0),
+  let (data, tested) = @src.mast_advanced_example() catch {
+    _ => abort("failed to construct the MAST example")
+  }
+  println("\n1. Feature x cell model and treatment-coded design")
+  println(
+    "  genes=" +
+    data.n_genes.to_string() +
+    ", cells=" +
+    data.n_cells.to_string() +
+    ", coefficients=" +
+    data.coefficient_names.join(", "),
   )
-  let gene_names : Array[String] = Array::make(n_genes, "")
-  let cell_names : Array[String] = Array::make(n_cells, "")
-  let groups : Array[Int] = Array::make(n_cells, 0)
+  println(
+    "  tested coefficient=" +
+    data.coefficient_names[tested[0]] +
+    ", first-cell CDR=" +
+    data.cdr[0].to_string(),
+  )
 
-  let mut g = 0
-  while g < n_genes {
-    gene_names[g] = "Gene" + g.to_string()
-    g = g + 1
+  let config = @src.MastAdvancedConfig::create(
+    empirical_bayes=true,
+    ebayes_use_full_model=false,
+    fdr_threshold=0.05,
+  ) catch {
+    _ => abort("failed to construct the MAST configuration")
   }
-
-  let mut i = 0
-  while i < n_cells {
-    cell_names[i] = "Cell" + i.to_string()
-    groups[i] = if i < n_group1 { 0 } else { 1 }
-
-    let row : Array[Double] = Array::make(n_genes, 0.0)
-    let mut j = 0
-    while j < n_genes {
-      let base_expr = if j < 5 {
-        if i < n_group1 {
-          10.0
-        } else {
-          50.0
-        }
-      } else if i < n_group1 {
-        30.0
-      } else {
-        25.0
-      }
-      let noise = (i * 7 + j * 13).to_double() % 5.0
-      let zero_prob = if j < 3 {
-        if i < n_group1 {
-          0.4
-        } else {
-          0.1
-        }
-      } else {
-        0.2
-      }
-      let is_zero = ((i * 31 + j * 17) % 100).to_double() / 100.0 < zero_prob
-      row[j] = if is_zero { 0.0 } else { base_expr + noise }
-      j = j + 1
-    }
-    expression[i] = row
-    i = i + 1
+  let result = @src.mast_advanced_zlm(data, tested, config~) catch {
+    _ => abort("advanced MAST zlm fit failed")
   }
+  println("\n2. Bayesian logistic + positive Gaussian hurdle fit")
+  println("  " + result.summary())
+  println(
+    "  eBayes prior variance=" +
+    result.prior_variance.to_string() +
+    ", prior df=" +
+    result.prior_df.to_string(),
+  )
 
-  println("\n1. Create MAST Data:")
-  let data = @src.MastData::new(expression, gene_names, cell_names, groups)
-  println("  Number of cells: " + data.n_cells.to_string())
-  println("  Number of genes: " + data.n_genes.to_string())
-  println("  Number of groups: " + data.n_groups.to_string())
-
-  println("\n2. Detection rate (cngeneson) per cell:")
-  let mut c = 0
-  while c < 5 && c < data.n_cells {
+  println("\n3. Component LRT, hurdle LRT, FDR and marginal logFC")
+  for gene in 0..<result.gene_names.length() {
     println(
       "  " +
-      cell_names[c] +
-      ": " +
-      (data.cngeneson[c] * 100.0).to_string() +
-      "%",
-    )
-    c = c + 1
-  }
-
-  println("\n3. Run Hurdle Model (group 0 vs group 1):")
-  let result = @src.zlm_hurdle(data, 0, 1)
-  println(result.to_string())
-
-  println("\n4. Detailed results for all genes:")
-  let mut k = 0
-  while k < result.gene.length() {
-    println("  " + result.gene[k] + ":")
-    println(
-      "    Detection rate: " +
-      (result.detection_rate[k] * 100.0).to_string() +
-      "%",
-    )
-    println("    Discrete p-value: " + result.discrete_pval[k].to_string())
-    println("    Continuous p-value: " + result.continuous_pval[k].to_string())
-    println("    Combined p-value: " + result.combined_pval[k].to_string())
-    println("    Combined FDR: " + result.combined_fdr[k].to_string())
-    println("    Log2 FC: " + result.log2_fc[k].to_string())
-    k = k + 1
-  }
-
-  println("\n5. MAST Summary (FDR < 0.05):")
-  let summary = @src.MastSummary::new(result, 0.05)
-  println(summary.to_string())
-
-  println("\n6. Top genes by combined p-value:")
-  let indices : Array[Int] = Array::make(result.gene.length(), 0)
-  let mut m = 0
-  while m < result.gene.length() {
-    indices[m] = m
-    m = m + 1
-  }
-
-  let mut p = 0
-  while p < 5 && p < result.gene.length() {
-    let mut best_idx = p
-    let mut best_pval = result.combined_pval[p]
-    let mut q = p + 1
-    while q < result.gene.length() {
-      if result.combined_pval[q] < best_pval {
-        best_pval = result.combined_pval[q]
-        best_idx = q
-      }
-      q = q + 1
-    }
-    let temp = indices[p]
-    indices[p] = indices[best_idx]
-    indices[best_idx] = temp
-
-    let idx = indices[p]
-    println(
-      "  " +
-      (p + 1).to_string() +
-      ". " +
-      result.gene[idx] +
-      " (p=" +
-      result.combined_pval[idx].to_string() +
+      result.gene_names[gene] +
+      ": detected=" +
+      result.n_detected[gene].to_string() +
+      "/" +
+      data.n_cells.to_string() +
+      ", pD=" +
+      mast_demo_option(result.discrete_p_values[gene]) +
+      ", pC=" +
+      mast_demo_option(result.continuous_p_values[gene]) +
+      ", pH=" +
+      mast_demo_option(result.hurdle_p_values[gene]) +
       ", FDR=" +
-      result.combined_fdr[idx].to_string() +
-      ")",
+      mast_demo_option(result.hurdle_fdr[gene]) +
+      ", logFC=" +
+      mast_demo_option(result.marginal_log_fc[gene]),
     )
-    p = p + 1
   }
 
-  println("\nMAST demo completed!")
+  println("\n4. Top genes by hurdle p-value")
+  let top = result.top_genes(3)
+  for index in 0..<top.length() {
+    println("  " + (index + 1).to_string() + ". " + top[index])
+  }
+
+  println("\n5. Immutable SingleCellExperiment write-back")
+  let experiment = @src.SingleCellExperiment::new(
+    data.expression,
+    data.gene_names,
+    data.cell_names,
+  )
+  experiment.assays["logcounts"] = data.expression.map(fn(row) { row.copy() })
+  experiment.col_data["condition"] = Array::make(data.n_cells, "control")
+  for cell in 24..<data.n_cells {
+    experiment.col_data["condition"][cell] = "stimulated"
+  }
+  let output = @src.mast_advanced_zlm_sce(
+    experiment,
+    "condition",
+    reference="control",
+    output_prefix="mast39",
+    config~,
+  ) catch {
+    _ => abort("advanced MAST SingleCellExperiment fit failed")
+  }
+  println(
+    "  original has mast39.hurdleFdr: " +
+    experiment.row_data.contains("mast39.hurdleFdr").to_string(),
+  )
+  println(
+    "  enriched row columns include hurdle FDR: " +
+    output.experiment.row_data.contains("mast39.hurdleFdr").to_string(),
+  )
+  println(
+    "  contrast metadata: " +
+    output.experiment.metadata["mast39.contrast"] +
+    ", tested genes=" +
+    output.experiment.metadata["mast39.tested"],
+  )
+
+  println("\nMAST advanced demo completed.")
 }

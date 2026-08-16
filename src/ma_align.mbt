@@ -39,7 +39,9 @@ pub fn StructureData::get_id(self : StructureData) -> String {
 
 ///|
 /// Get the CA atom coordinates.
-pub fn StructureData::get_coordinates(self : StructureData) -> Array[(Double, Double, Double)] {
+pub fn StructureData::get_coordinates(
+  self : StructureData,
+) -> Array[(Double, Double, Double)] {
   self.ca_coordinates
 }
 
@@ -94,31 +96,41 @@ pub fn AlignmentResult::new(
 
 ///|
 /// Get the structure IDs.
-pub fn AlignmentResult::get_structure_ids(self : AlignmentResult) -> Array[String] {
+pub fn AlignmentResult::get_structure_ids(
+  self : AlignmentResult,
+) -> Array[String] {
   self.structure_ids
 }
 
 ///|
 /// Get the aligned sequences.
-pub fn AlignmentResult::get_aligned_sequences(self : AlignmentResult) -> Array[String] {
+pub fn AlignmentResult::get_aligned_sequences(
+  self : AlignmentResult,
+) -> Array[String] {
   self.aligned_sequences
 }
 
 ///|
 /// Get the pairwise RMSD matrix.
-pub fn AlignmentResult::get_rmsd_matrix(self : AlignmentResult) -> Array[Array[Double]] {
+pub fn AlignmentResult::get_rmsd_matrix(
+  self : AlignmentResult,
+) -> Array[Array[Double]] {
   self.rmsd_matrix
 }
 
 ///|
 /// Get the aligned coordinates.
-pub fn AlignmentResult::get_aligned_coordinates(self : AlignmentResult) -> Array[Array[(Double, Double, Double)]] {
+pub fn AlignmentResult::get_aligned_coordinates(
+  self : AlignmentResult,
+) -> Array[Array[(Double, Double, Double)]] {
   self.aligned_coordinates
 }
 
 ///|
 /// Get the per-column conservation scores.
-pub fn AlignmentResult::get_conservation(self : AlignmentResult) -> Array[Double] {
+pub fn AlignmentResult::get_conservation(
+  self : AlignmentResult,
+) -> Array[Double] {
   self.conservation
 }
 
@@ -209,7 +221,9 @@ pub fn MAaligner::get_rmsd_threshold(self : MAaligner) -> Double {
 
 ///|
 /// Compute the centroid of a set of coordinates.
-fn ma_compute_centroid(coords : Array[(Double, Double, Double)]) -> (Double, Double, Double) {
+fn ma_compute_centroid(
+  coords : Array[(Double, Double, Double)],
+) -> (Double, Double, Double) {
   let n = coords.length()
   if n == 0 {
     return (0.0, 0.0, 0.0)
@@ -230,7 +244,10 @@ fn ma_compute_centroid(coords : Array[(Double, Double, Double)]) -> (Double, Dou
 
 ///|
 /// Compute the Euclidean distance between two 3D points.
-fn ma_point_distance(p1 : (Double, Double, Double), p2 : (Double, Double, Double)) -> Double {
+fn ma_point_distance(
+  p1 : (Double, Double, Double),
+  p2 : (Double, Double, Double),
+) -> Double {
   let dx = p1.0 - p2.0
   let dy = p1.1 - p2.1
   let dz = p1.2 - p2.2
@@ -243,7 +260,11 @@ fn ma_compute_covariance(
   p : Array[(Double, Double, Double)],
   q : Array[(Double, Double, Double)],
 ) -> Array[Array[Double]] {
-  let h : Array[Array[Double]] = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+  let h : Array[Array[Double]] = [
+    [0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0],
+  ]
   let n = p.length()
   let mut i = 0
   while i < n {
@@ -269,7 +290,11 @@ fn ma_matmul_3x3(
   a : Array[Array[Double]],
   b : Array[Array[Double]],
 ) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+  let result : Array[Array[Double]] = [
+    [0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0],
+  ]
   let mut i = 0
   while i < 3 {
     let mut j = 0
@@ -291,9 +316,11 @@ fn ma_matmul_3x3(
 ///|
 /// Transpose a 3x3 matrix.
 fn ma_transpose_3x3(m : Array[Array[Double]]) -> Array[Array[Double]] {
-  [[m[0][0], m[1][0], m[2][0]],
-   [m[0][1], m[1][1], m[2][1]],
-   [m[0][2], m[1][2], m[2][2]]]
+  [
+    [m[0][0], m[1][0], m[2][0]],
+    [m[0][1], m[1][1], m[2][1]],
+    [m[0][2], m[1][2], m[2][2]],
+  ]
 }
 
 ///|
@@ -313,7 +340,11 @@ fn ma_invert_3x3(m : Array[Array[Double]]) -> Array[Array[Double]] {
     return [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
   }
   let inv_det = 1.0 / det
-  let result : Array[Array[Double]] = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+  let result : Array[Array[Double]] = [
+    [0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0],
+  ]
   result[0][0] = (m[1][1] * m[2][2] - m[1][2] * m[2][1]) * inv_det
   result[0][1] = (m[0][2] * m[2][1] - m[0][1] * m[2][2]) * inv_det
   result[0][2] = (m[0][1] * m[1][2] - m[0][2] * m[1][1]) * inv_det
@@ -330,7 +361,9 @@ fn ma_invert_3x3(m : Array[Array[Double]]) -> Array[Array[Double]] {
 /// Compute eigenvalues and eigenvectors of a 3x3 symmetric matrix.
 /// Uses the analytical solution for 3x3 symmetric matrices.
 /// Returns (eigenvalues, eigenvectors_as_columns).
-fn ma_eigen_3x3(m : Array[Array[Double]]) -> (Array[Double], Array[Array[Double]]) {
+fn ma_eigen_3x3(
+  m : Array[Array[Double]],
+) -> (Array[Double], Array[Array[Double]]) {
   let eps = 1.0e-12
   let a = m
 
@@ -347,15 +380,25 @@ fn ma_eigen_3x3(m : Array[Array[Double]]) -> (Array[Double], Array[Array[Double]
   let p1 = (b01 * b01 + b02 * b02 + b12 * b12).sqrt()
 
   let eigenvalues : Array[Double] = [0.0, 0.0, 0.0]
-  let eigenvectors : Array[Array[Double]] = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+  let eigenvectors : Array[Array[Double]] = [
+    [0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0],
+  ]
 
   if p1.abs() < eps {
     eigenvalues[0] = a[0][0]
     eigenvalues[1] = a[1][1]
     eigenvalues[2] = a[2][2]
-    eigenvectors[0][0] = 1.0; eigenvectors[0][1] = 0.0; eigenvectors[0][2] = 0.0
-    eigenvectors[1][0] = 0.0; eigenvectors[1][1] = 1.0; eigenvectors[1][2] = 0.0
-    eigenvectors[2][0] = 0.0; eigenvectors[2][1] = 0.0; eigenvectors[2][2] = 1.0
+    eigenvectors[0][0] = 1.0
+    eigenvectors[0][1] = 0.0
+    eigenvectors[0][2] = 0.0
+    eigenvectors[1][0] = 0.0
+    eigenvectors[1][1] = 1.0
+    eigenvectors[1][2] = 0.0
+    eigenvectors[2][0] = 0.0
+    eigenvectors[2][1] = 0.0
+    eigenvectors[2][2] = 1.0
     return (eigenvalues, eigenvectors)
   }
 
@@ -381,11 +424,17 @@ fn ma_eigen_3x3(m : Array[Array[Double]]) -> (Array[Double], Array[Array[Double]
   eigenvalues[2] = q + 2.0 * p * @math.cos(phi + 2.0 * @math.PI / 3.0)
   eigenvalues[1] = 3.0 * q - eigenvalues[0] - eigenvalues[2]
 
-  let sorted_eigs : Array[Double] = [eigenvalues[0], eigenvalues[1], eigenvalues[2]]
+  let sorted_eigs : Array[Double] = [
+    eigenvalues[0],
+    eigenvalues[1],
+    eigenvalues[2],
+  ]
 
   let v0_norm_sq = b01 * b01 + b02 * b02
   if v0_norm_sq < eps {
-    eigenvectors[0][0] = 1.0; eigenvectors[0][1] = 0.0; eigenvectors[0][2] = 0.0
+    eigenvectors[0][0] = 1.0
+    eigenvectors[0][1] = 0.0
+    eigenvectors[0][2] = 0.0
   } else {
     let v0n = v0_norm_sq.sqrt()
     eigenvectors[0][0] = b01 / v0n
@@ -399,19 +448,26 @@ fn ma_eigen_3x3(m : Array[Array[Double]]) -> (Array[Double], Array[Array[Double]
   let e3 = (l1 - a[2][2]) / (l1 - eigenvalues[0] + eps)
   let e_norm = (e1 * e1 + e2 * e2 + e3 * e3).sqrt()
   if e_norm < eps {
-    eigenvectors[1][0] = 0.0; eigenvectors[1][1] = 1.0; eigenvectors[1][2] = 0.0
+    eigenvectors[1][0] = 0.0
+    eigenvectors[1][1] = 1.0
+    eigenvectors[1][2] = 0.0
   } else {
     eigenvectors[1][0] = e1 / e_norm
     eigenvectors[1][1] = e2 / e_norm
     eigenvectors[1][2] = e3 / e_norm
   }
 
-  let cross_x = eigenvectors[0][1] * eigenvectors[1][2] - eigenvectors[0][2] * eigenvectors[1][1]
-  let cross_y = eigenvectors[0][2] * eigenvectors[1][0] - eigenvectors[0][0] * eigenvectors[1][2]
-  let cross_z = eigenvectors[0][0] * eigenvectors[1][1] - eigenvectors[0][1] * eigenvectors[1][0]
+  let cross_x = eigenvectors[0][1] * eigenvectors[1][2] -
+    eigenvectors[0][2] * eigenvectors[1][1]
+  let cross_y = eigenvectors[0][2] * eigenvectors[1][0] -
+    eigenvectors[0][0] * eigenvectors[1][2]
+  let cross_z = eigenvectors[0][0] * eigenvectors[1][1] -
+    eigenvectors[0][1] * eigenvectors[1][0]
   let cross_norm = (cross_x * cross_x + cross_y * cross_y + cross_z * cross_z).sqrt()
   if cross_norm < eps {
-    eigenvectors[2][0] = 0.0; eigenvectors[2][1] = 0.0; eigenvectors[2][2] = 1.0
+    eigenvectors[2][0] = 0.0
+    eigenvectors[2][1] = 0.0
+    eigenvectors[2][2] = 1.0
   } else {
     eigenvectors[2][0] = cross_x / cross_norm
     eigenvectors[2][1] = cross_y / cross_norm
@@ -427,11 +483,27 @@ fn ma_eigen_3x3(m : Array[Array[Double]]) -> (Array[Double], Array[Array[Double]
 fn ma_matrix_sqrt_3x3(m : Array[Array[Double]]) -> Array[Array[Double]] {
   let (eigenvalues, eigenvectors) = ma_eigen_3x3(m)
 
-  let sqrt_eig0 = if eigenvalues[0] >= 0.0 { eigenvalues[0].sqrt() } else { 0.0 }
-  let sqrt_eig1 = if eigenvalues[1] >= 0.0 { eigenvalues[1].sqrt() } else { 0.0 }
-  let sqrt_eig2 = if eigenvalues[2] >= 0.0 { eigenvalues[2].sqrt() } else { 0.0 }
+  let sqrt_eig0 = if eigenvalues[0] >= 0.0 {
+    eigenvalues[0].sqrt()
+  } else {
+    0.0
+  }
+  let sqrt_eig1 = if eigenvalues[1] >= 0.0 {
+    eigenvalues[1].sqrt()
+  } else {
+    0.0
+  }
+  let sqrt_eig2 = if eigenvalues[2] >= 0.0 {
+    eigenvalues[2].sqrt()
+  } else {
+    0.0
+  }
 
-  let result : Array[Array[Double]] = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+  let result : Array[Array[Double]] = [
+    [0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0],
+    [0.0, 0.0, 0.0],
+  ]
   let mut i = 0
   while i < 3 {
     let mut j = 0
@@ -450,7 +522,9 @@ fn ma_matrix_sqrt_3x3(m : Array[Array[Double]]) -> Array[Array[Double]] {
 
 ///|
 /// Build a 3x3 rotation matrix from three rotation angles (around x, y, z axes).
-fn ma_build_rotation_matrix(angles : (Double, Double, Double)) -> Array[Array[Double]] {
+fn ma_build_rotation_matrix(
+  angles : (Double, Double, Double),
+) -> Array[Array[Double]] {
   let rx = angles.0
   let ry = angles.1
   let rz = angles.2
@@ -462,16 +536,23 @@ fn ma_build_rotation_matrix(angles : (Double, Double, Double)) -> Array[Array[Do
   let cz = @math.cos(rz)
   let sz = @math.sin(rz)
 
-  [[cy * cz, cx * sz + sx * sy * cz, sx * sz - cx * sy * cz],
-   [-cy * sz, cx * cz - sx * sy * sz, sx * cz + cx * sy * sz],
-   [sy, -sx * cy, cx * cy]]
+  [
+    [cy * cz, cx * sz + sx * sy * cz, sx * sz - cx * sy * cz],
+    [-cy * sz, cx * cz - sx * sy * sz, sx * cz + cx * sy * sz],
+    [sy, -sx * cy, cx * cy],
+  ]
 }
 
 ///|
 /// Extract Euler angles (rotation around x, y, z) from a rotation matrix.
-fn ma_rotation_to_angles(rot : Array[Array[Double]]) -> (Double, Double, Double) {
+fn ma_rotation_to_angles(
+  rot : Array[Array[Double]],
+) -> (Double, Double, Double) {
   let angle_x = @math.atan2(rot[2][1], rot[2][2])
-  let angle_y = @math.atan2(-rot[2][0], (rot[2][1] * rot[2][1] + rot[2][2] * rot[2][2]).sqrt())
+  let angle_y = @math.atan2(
+    -rot[2][0],
+    (rot[2][1] * rot[2][1] + rot[2][2] * rot[2][2]).sqrt(),
+  )
   let angle_z = @math.atan2(rot[1][0], rot[0][0])
   (angle_x, angle_y, angle_z)
 }
@@ -482,7 +563,9 @@ fn ma_rotation_to_angles(rot : Array[Array[Double]]) -> (Double, Double, Double)
 
 ///|
 /// Center coordinates at the origin (subtract centroid).
-pub fn ma_center_coordinates(coords : Array[(Double, Double, Double)]) -> Array[(Double, Double, Double)] {
+pub fn ma_center_coordinates(
+  coords : Array[(Double, Double, Double)],
+) -> Array[(Double, Double, Double)] {
   let centroid = ma_compute_centroid(coords)
   let result : Array[(Double, Double, Double)] = Array::new()
   let mut i = 0
@@ -569,7 +652,11 @@ pub fn compute_rmsd(
   coords1 : Array[(Double, Double, Double)],
   coords2 : Array[(Double, Double, Double)],
 ) -> Double {
-  let n = if coords1.length() < coords2.length() { coords1.length() } else { coords2.length() }
+  let n = if coords1.length() < coords2.length() {
+    coords1.length()
+  } else {
+    coords2.length()
+  }
   if n == 0 {
     return 0.0
   }
@@ -598,7 +685,11 @@ pub fn compute_svd_rotation(
   coords1 : Array[(Double, Double, Double)],
   coords2 : Array[(Double, Double, Double)],
 ) -> (Double, Double, Double) {
-  let n = if coords1.length() < coords2.length() { coords1.length() } else { coords2.length() }
+  let n = if coords1.length() < coords2.length() {
+    coords1.length()
+  } else {
+    coords2.length()
+  }
   if n < 2 {
     return (0.0, 0.0, 0.0)
   }
@@ -612,9 +703,7 @@ pub fn compute_svd_rotation(
 
   let det_ht_h = ma_det_3x3(ht_h)
   let final_rot = if det_ht_h.abs() < 1.0e-15 {
-    [[1.0, 0.0, 0.0],
-     [0.0, 1.0, 0.0],
-     [0.0, 0.0, 1.0]]
+    [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
   } else {
     let sqrt_ht_h = ma_matrix_sqrt_3x3(ht_h)
     let sqrt_ht_h_inv = ma_invert_3x3(sqrt_ht_h)
@@ -622,9 +711,11 @@ pub fn compute_svd_rotation(
 
     let det_rot = ma_det_3x3(rot)
     if det_rot < 0.0 {
-      [[rot[0][0], rot[0][1], -rot[0][2]],
-       [rot[1][0], rot[1][1], -rot[1][2]],
-       [rot[2][0], rot[2][1], -rot[2][2]]]
+      [
+        [rot[0][0], rot[0][1], -rot[0][2]],
+        [rot[1][0], rot[1][1], -rot[1][2]],
+        [rot[2][0], rot[2][1], -rot[2][2]],
+      ]
     } else {
       rot
     }
@@ -677,9 +768,7 @@ pub fn ma_align_pairwise(
 
   let det_ht_h = ma_det_3x3(ht_h)
   let final_rot = if det_ht_h.abs() < 1.0e-15 {
-    [[1.0, 0.0, 0.0],
-     [0.0, 1.0, 0.0],
-     [0.0, 0.0, 1.0]]
+    [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
   } else {
     let sqrt_ht_h = ma_matrix_sqrt_3x3(ht_h)
     let sqrt_ht_h_inv = ma_invert_3x3(sqrt_ht_h)
@@ -687,9 +776,11 @@ pub fn ma_align_pairwise(
 
     let det_rot = ma_det_3x3(rot)
     if det_rot < 0.0 {
-      [[rot[0][0], rot[0][1], -rot[0][2]],
-       [rot[1][0], rot[1][1], -rot[1][2]],
-       [rot[2][0], rot[2][1], -rot[2][2]]]
+      [
+        [rot[0][0], rot[0][1], -rot[0][2]],
+        [rot[1][0], rot[1][1], -rot[1][2]],
+        [rot[2][0], rot[2][1], -rot[2][2]],
+      ]
     } else {
       rot
     }
@@ -726,7 +817,13 @@ fn ma_compute_average_structure(
       sz = sz + z
       j = j + 1
     }
-    avg.push((sx / n_structures.to_double(), sy / n_structures.to_double(), sz / n_structures.to_double()))
+    avg.push(
+      (
+        sx / n_structures.to_double(),
+        sy / n_structures.to_double(),
+        sz / n_structures.to_double(),
+      ),
+    )
     i = i + 1
   }
   avg
@@ -871,7 +968,10 @@ pub fn iterate_alignment(
   let mut max_rmsd = 0.0
   let mut i = 1
   while i < n {
-    let (rotation, rmsd) = ma_align_pairwise(ref_coords, structures[i].ca_coordinates)
+    let (rotation, rmsd) = ma_align_pairwise(
+      ref_coords,
+      structures[i].ca_coordinates,
+    )
     let aligned = apply_rotation(structures[i].ca_coordinates, rotation)
     aligned_all.push(aligned)
     if rmsd > max_rmsd {
@@ -906,7 +1006,9 @@ pub fn align_multiple(
   if n == 1 {
     let ids : Array[String] = [structures[0].structure_id]
     let seqs : Array[String] = [structures[0].sequence]
-    let coords : Array[Array[(Double, Double, Double)]] = [structures[0].ca_coordinates.copy()]
+    let coords : Array[Array[(Double, Double, Double)]] = [
+      structures[0].ca_coordinates.copy(),
+    ]
     let rmsd_mat : Array[Array[Double]] = [[0.0]]
     let cons = build_conservation_profile(seqs)
     return AlignmentResult::new(ids, seqs, rmsd_mat, coords, cons, 0.0)
@@ -919,7 +1021,10 @@ pub fn align_multiple(
   let mut max_rmsd = 0.0
   let mut i = 1
   while i < n {
-    let (rotation, rmsd) = ma_align_pairwise(ref_coords, structures[i].ca_coordinates)
+    let (rotation, rmsd) = ma_align_pairwise(
+      ref_coords,
+      structures[i].ca_coordinates,
+    )
     let aligned = apply_rotation(structures[i].ca_coordinates, rotation)
     aligned_all.push(aligned)
     if rmsd > max_rmsd {
@@ -937,7 +1042,10 @@ pub fn align_multiple(
     let mut iter_max_rmsd = 0.0
     let mut j = 1
     while j < n {
-      let (rotation, rmsd) = ma_align_pairwise(new_ref, structures[j].ca_coordinates)
+      let (rotation, rmsd) = ma_align_pairwise(
+        new_ref,
+        structures[j].ca_coordinates,
+      )
       let aligned = apply_rotation(structures[j].ca_coordinates, rotation)
       new_aligned.push(aligned)
       if rmsd > iter_max_rmsd {
@@ -980,7 +1088,11 @@ pub fn align_multiple(
       }
       a = a + 1
     }
-    if count > 0 { sum / count.to_double() } else { 0.0 }
+    if count > 0 {
+      sum / count.to_double()
+    } else {
+      0.0
+    }
   } else {
     0.0
   }

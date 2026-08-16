@@ -274,7 +274,9 @@ test "blastapp_validate" {
 
 ///|
 test "blastapp_param_spec" {
-  let spec = @src.BlastParamSpec::new("-evalue", "E-value threshold", true, "10.0", false)
+  let spec = @src.BlastParamSpec::new(
+    "-evalue", "E-value threshold", true, "10.0", false,
+  )
   assert_eq(spec.name, "-evalue")
   assert_eq(spec.description, "E-value threshold")
   assert_true(spec.takes_value)

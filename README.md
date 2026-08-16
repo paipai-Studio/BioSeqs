@@ -29,19 +29,38 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **序列处理** | Biopython `Bio.Seq` | 序列对象、**MutableSeq可变序列**、互补、转录、翻译、序列特征 | ✅ |
 | **序列 I/O** | Biopython `Bio.SeqIO` | FASTA/FASTQ/GenBank 解析与写入 | ✅ |
 | **序列比对** | Biopython / scikit-bio | Needleman-Wunsch、Smith-Waterman、多序列比对、替换矩阵(BLOSUM/PAM) | ✅ |
-| **BLAST解析** | Biopython `Bio.Blast` | BLAST结果解析、tabular/xml格式、HSP过滤、最佳匹配 | ✅ |
-| **SearchIO** | Biopython `Bio.SearchIO` | 统一搜索结果模型、HMMER3解析、BLAT PSL解析、BLAST转换 | ✅ |
+| **BLAST基础解析** | BioSeqs compatibility API | 历史tabular/XML标签解析、HSP过滤与最佳匹配 | ✅ |
+| **现代BLAST XML** | Biopython `Bio.Blast` | XML1/XML2严格解析与规范写回、多query/report、参数/统计、描述与taxonomy、八类程序的链向/translated坐标路径 | ✅ |
+| **SearchIO** | Biopython `Bio.SearchIO` | 统一搜索结果模型、HMMER3/Infernal解析、BLAT PSL解析、BLAST转换 | ✅ |
+| **HH-suite HHR** | Biopython `Bio.Align.hhr` | HHsearch/HHblits HHR解析、profile-profile比对、命中筛选、坐标映射、序列化往返 | ✅ |
+| **共享参考比对合并** | Biopython `Bio.Align.Alignment` | 合并共享同一参考序列的PWA/MSA、同步insertion slots、保留局部坐标与metadata、双向坐标映射 | ✅ |
+| **Alignment详细统计** | Biopython `Bio.Align.Alignment.counts` | 左/内部/右 insertion/deletion、gap open/extend、identity/mismatch/positive、wildcard、替换矩阵和十二类affine gap评分 | ✅ |
+| **PSL/PSLX成对比对** | Biopython `Bio.Align.psl` | 21/23列严格读写、核酸与translated DNA-protein路径、正反链坐标、block/gap统计、sequence-aware recount及坐标映射 | ✅ |
+| **Alignment-aware SAM** | Biopython `Bio.Align.sam` | SAM header与typed tag严格读写、CIGAR坐标路径、正反链、soft/hard clipping、PHRED、MD/NM及坐标映射 | ✅ |
+| **A2M状态感知多序列比对** | Biopython `Bio.Align.a2m` | match/insertion列状态、大小写与点语义、严格读写、坐标映射、插入槽、统计、共识及match-only投影 | ✅ |
+| **EMBOSS alignment输出** | Biopython `Bio.Align.emboss` | srspair/pair/simple报告、多alignment与多序列、局部/反向坐标、consensus统计、坐标路径及规范往返 | ✅ |
+| **Exonerate alignment输出** | Biopython `Bio.Align.exonerate` | cigar/vulgar严格读写、完整operation path、正反链与protein strand、3:1 translated坐标、双向映射及规范往返 | ✅ |
+| **Exonerate C4文本报告** | Biopython `Bio.SearchIO.ExonerateIO.exonerate_text` | C4层次结果、3/4/5行模型、wrapped blocks、intron/NER/split codon/frameshift、蛋白质翻译与链感知坐标 | ✅ |
+| **GCG MSF多序列比对** | Biopython `Bio.Align.msf` | AA/NA/PileUp严格解析、interleaved rows、标准GCG checksum、gap规范化、坐标路径、统计及canonical writer | ✅ |
+| **NEXUS多序列比对** | Biopython `Bio.Align.nexus` | DATA/CHARACTERS/TAXA、nested comments、quoted taxa、sequential/interleaved MATRIX、MATCHCHAR、坐标统计及canonical writer | ✅ |
+| **Stockholm注释型多序列比对** | Biopython `Bio.Align.stockholm` | 多记录严格读写、GF/GS/GR/GC、reference与database reference、insertion/deletion列、all-gap压缩、坐标统计及canonical writer | ✅ |
+| **UCSC Chain成对比对** | Biopython `Bio.Align.chain` | 12/13字段严格读写、连续多记录、正反双轴绝对坐标路径、size/dt/dq块、双向位置/区间映射、反转及canonical writer | ✅ |
+| **现代MAF多基因组比对** | Biopython `Bio.Align.maf` | track/header与a/s/i/e/q严格读写、正负链绝对坐标路径、任意component映射、MafIndex半开区间查询、多外显子拼接及canonical writer | ✅ |
+| **现代BED成对比对** | Biopython `Bio.Align.bed` | BED3-BED12严格读写、正负链target/query路径、exon block重建、双向residue映射、半开区间查询及分级writer | ✅ |
 | **系统发育树** | Biopython `Bio.Phylo` | 树结构、Newick 解析、距离计算、可视化 | ✅ |
 | **PDB 结构** | Biopython `Bio.PDB` | 原子/残基/链解析、结构操作 | ✅ |
+| **BinaryCIF** | Biopython `Bio.PDB.binary_cif` | MessagePack解析、七类逆编码、三态缺失值、类别查询、PDB Structure转换 | ✅ |
+| **CE 结构比对** | Biopython `Bio.PDB.cealign` | CA/C4'引导原子、AFP路径搜索、CE显著性、QCP刚体叠合、全原子变换 | ✅ |
 | **SAM/BAM/VCF** | pysam | 比对文件、变异检测、基因型查询 | ✅ |
 | **FASTA 索引** | pyfaidx | 快速随机访问、.fai 索引 | ✅ |
 | **机器学习特征** | scikit-learn | k-mer 频率、氨基酸组成、理化性质 | ✅ |
 | **Biostrings** | Bioconductor Biostrings | IUPAC 支持、RSCU、复杂度、Tm 计算、模式匹配(matchPattern/vmatchPattern)、错配和插入缺失检测、回文序列查找 | ✅ |
-| **GenomicRanges** | Bioconductor GenomicRanges | GRanges、区间操作、集合运算、precede/follow、coverage计算、distance_to_nearest | ✅ |
+| **GenomicRanges** | Bioconductor GenomicRanges | GRanges/GRangesList、复合特征、区间操作、集合运算、precede/follow、coverage计算、distance_to_nearest | ✅ |
 | **plyranges** | Bioconductor plyranges | dplyr-like tidy verbs for GRanges: filter/mutate/select/arrange/rename/group_by+summarise/join_by、metadata管理 | ✅ |
 | **pheatmap** | Bioconductor pheatmap | 增强型热图可视化：层次聚类(complete/average/ward)、距离矩阵(euclidean/manhattan/correlation)、行/列注释、颜色方案、聚类间隙 | ✅ |
 | **factoextra** | Bioconductor factoextra | PCA/因子分析工具：特征值计算、方差解释率、个体/变量坐标、cos2质量、贡献度评分、维度描述 | ✅ |
 | **DESeq2** | Bioconductor DESeq2 | 差异表达分析、size factors归一化、分散度估计、负二项GLM拟合、Wald检验、LFC收缩 | ✅ |
+| **miloR** | Bioconductor miloR | 单细胞KNN邻域采样、样本计数、负二项差异丰度、graph spatial FDR、SCE接入 | ✅ |
 | **dplyr** | R dplyr | DataFrame 数据操作 | ✅ |
 | **enrichplot** | Bioconductor enrichplot | 富集分析结果可视化、dotplot/barplot/heatmap/cnetplot/enrichment map | ✅ |
 | **IsoformSwitchAnalyzeR** | Bioconductor IsoformSwitchAnalyzeR | 转录本异构体切换分析、PSI/DPSI/DIF值计算、功能后果预测 | ✅ |
@@ -68,8 +87,13 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bio.protein_analysis | 蛋白质序列高级分析: Kyte-Doolittle疏水性滑动窗口、GOR二级结构预测、Hopp-Woods抗原性、跨膜区段预测、氨基酸/二肽/三肽组成、Shannon熵保守性评分 |
 | ✅ | Bio.PCD | 质谱PCD格式解析: 质谱图谱(Scan/RT/PEPMASS)、峰列表提取、总离子流色谱图(TIC)、基峰色谱图(BPC)、m/z范围过滤、前体离子信息、序列化往返 |
 | ✅ | Bio.PDB.Dice + Selection | PDB结构切割（链/残基/原子/模型提取）、B因子过滤、几何选择、结构统计、序列提取 |
-| ✅ | Bio.Align.MAF | MAF (Multiple Alignment Format) 多序列比对格式解析、块处理、百分比一致性计算、统计分析、格式转换 |
-| ✅ | Bio.Align.Mauve | Mauve 基因组比对格式解析、LCB(共线性块)检测、倒位检测、断点检测、基因组覆盖率、BED导出 |
+| ✅ | Bio.Align.MAF | 宽松MAF块解析、选择/过滤、百分比一致性、统计分析与格式转换 |
+| ✅ | Bio.Align.maf | 现代MAF document/track、严格a/s/i/e/q、绝对坐标路径、component映射、参考区间索引、多外显子拼接与规范往返 |
+| ✅ | Bio.Align.bed | BED3-BED12 pairwise alignment、双轴链向坐标、block投影、双向residue映射、区间搜索与分级写回 |
+| ✅ | Bio.Align.Mauve (legacy) | 历史 MAF-like 块的 LCB 重排摘要、倒位/断点检测、覆盖率与 BED 导出 |
+| ✅ | Bio.Align.mauve | 现代 XMFA header/LCB 严格读写、combined/separate source、正负链坐标路径、索引、跨序列投影、统计与序列重建 |
+| ✅ | Bio.Align.clustal | 现代CLUSTAL metadata与interleaved block严格读写、累计残基数、consensus、坐标路径、跨行投影、统计与规范写回 |
+| ✅ | Bio.Blast XML | XML1/XML2 document/record/hit/HSP模型、多描述与taxonomy、Karlin-Altschul统计、frame/strand及1:1/3:1坐标路径、规范往返 |
 | ✅ | Bio.Stockholm | Stockholm 格式解析 (Pfam/Rfam比对格式)、二级结构注释、百分比一致性、保守性分析、FASTA转换 |
 | ✅ | Bio.PopGen (advanced) | 高级群体遗传学统计: Tajima's D, Fu & Li's D/F, McDonald-Kreitman检验, 等位基因频率谱, 中性分析 |
 | ✅ | Bio.SeqUtils.CodonUsage (advanced) | 高级密码子分析: CAI密码子适应指数、RSCU相对同义密码子使用、ENC有效密码子数、GC3偏斜、最优/稀有密码子检测 |
@@ -107,7 +131,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | GENIE3 | Bioconductor GENIE3基因调控网络推断: 回归树特征重要性、方差缩减、加权邻接矩阵、对称化网络 |
 | ✅ | decoupleR | Bioconductor decoupleR功能活性推断: WSum/WMean/Norm/ULM/MLM方法、先验知识网络(PKN)、调控子活性评分 |
 | ✅ | BayesSpace | Bioconductor BayesSpace空间转录组聚类: t分布混合模型、马尔可夫随机场(MRF)先验、EM算法、六边形/方形网格邻居 |
-| ✅ | muscat | Bioconductor muscat单细胞差异状态分析: 伪批量聚合(Sum/Mean/Median)、EdgeR/DESeq2/Limma DS检验、BH-FDR校正、样本QC指标 |
+| ✅ | muscat | Bioconductor muscat 1.27.4多样本多亚群差异状态分析: gene × cell严格合同、五类cluster-sample伪批量、任意满秩设计/多contrast、负二项IRLS、经验贝叶斯dispersion、DS/DD与局部/全局BH-FDR、两阶段确认及不可变SCE写回；保留基础聚合/QC兼容API |
 | ✅ | infercnv | Bioconductor infercnv单细胞拷贝数变异推断: 染色体位置排序基因、参考细胞比较、log2FC有界计算、金字塔权重基因组平滑、每细胞中位数中心化+噪声过滤、CNV分数+肿瘤细胞预测 |
 | ✅ | SCENIC | Bioconductor SCENIC单细胞调控网络推断与聚类: TF-target共表达模块(GENIE3风格)、Regulon构建(权重剪枝/cisTarget motif排名剪枝)、AUCell活性评分(recovery curve AUC)、二值化阈值(MeanStd/KMeans2/Median)、细胞状态聚类+主控调控因子识别 |
 | ✅ | CIBERSORT | 免疫细胞去卷积: 非负最小二乘(NNLS)求解细胞类型分数、投影梯度下降、LM22风格特征矩阵(40标记基因×10免疫细胞类型)、Pearson拟合优度+RMSE、分数归一化(Σ=1.0) |
@@ -121,6 +145,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | Bioconductor fishpond (Swish) | 非参数差异表达分析: Mann-Whitney-Wilcoxon秩和统计、置换检验、BH-FDR校正、log2FC方向判定 |
 | ✅ | Bioconductor MatrixGenerics | 矩阵行/列汇总统计: rowMeans/colMeans、rowSums/colSums、rowVars/colVars、rowSds/colSds、rowMedians/colMedians、rowMins/colMins、rowMaxs/colMaxs、rowRanges/colRanges、rowMad/colMad、rowCounts、rowAnys/colAnys、rowAlls/colAlls、块处理 |
 | ✅ | Bioconductor beachmat | 矩阵访问API: 列/行块处理(bmat_apply_col_blocks/bmat_apply_row_blocks)、线性迭代器(BmatIterator)、子集/转置/绑定、逐元素操作、类型安全访问 |
+| ✅ | Bioconductor SparseArray | N维稀疏数组: 规范化COO、重复坐标合并、R列主序转换、切片/置换/绑定、稀疏算术、统计与矩阵乘法 |
 | ✅ | Bioconductor glmGamPoi | Gamma-Poisson广义线性模型: size factors估计、伪批量聚合、单基因拟合(IWLCS迭代加权最小二乘)、Wald差异表达检验、BH-FDR校正、线性代数求解、正态CDF与p值计算 |
 | ✅ | Bioconductor survival | 生存分析: Kaplan-Meier估计器(Greenwood标准误)、log-rank检验(两组比较)、Cox比例风险模型(Newton-Raphson偏似然拟合、Breslow ties)、卡方p值、中位生存期 |
 | ✅ | Bioconductor methylKit | 亚硫酸氢盐测序甲基化分析: 甲基化胞嘧啶统计、覆盖率过滤/归一化、Fisher精确检验差异甲基化、BH-FDR校正、DMR识别、样本相关性/聚类、BED导出 |
@@ -148,8 +173,29 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | ✅ | velociraptor | 单细胞RNA velocity分析: 稳态线性回归(gamma/beta比估计)、EM算法动力学模型(alpha/beta/gamma参数估计)、velocity向量计算、KNN加权嵌入投影、根细胞识别 |
 | ✅ | Bio.Compass | COMPASS profile-profile比对输出解析: 版本提取、多记录解析(SW分数/E值/百分比一致性/比对序列)、E值与一致性过滤、比对长度统计、摘要生成 |
 | ✅ | Bio.SearchIO.ExonerateIO | Exonerate比对输出解析: vulgar格式解析(比对块三元组)、cigar格式解析、格式自动检测、分数过滤、内含子统计、vulgar/cigar字符串重建 |
+| ✅ | Bio.SearchIO.ExonerateIO.exonerate_text | Exonerate C4人类可读报告: Document/Query/Hit/HSP/Fragment层次、3/4/5行模型、wrapped block拼接、intron/NER/split codon/frameshift、翻译与坐标投影 |
 | ✅ | Bio.PDB.mmcifio | mmCIF文件写入: Structure对象序列化(data block/header/atom_site loop)、20列原子坐标格式化、HETATM支持、值转义、round-trip验证 |
 | ✅ | Bio.SearchIO.InterproscanIO | InterProScan输出解析: TSV 14列格式解析(蛋白质ID/分析数据库/签名/位置/分数/IPR/GO)、按数据库/蛋白质过滤、GO条目提取、按蛋白质分组 |
+| ✅ | Bio.SearchIO.InfernalIO | Infernal cmscan/cmsearch解析: tabular格式1/2/3自动检测、non-verbose文本与--noali、CM/HMM-only、Query/Hit/HSP/Fragment层次、正负链坐标、local-end多片段、过滤与SearchIO转换 |
+| ✅ | Bioconductor variancePartition | 多随机截距线性混合模型、ML/REML方差分量、固定/随机/残差方差占比、precision weights、BLUP、dream contrast、数值Satterthwaite检验、BH-FDR与SummarizedExperiment接入 |
+| ✅ | Bio.Align.Alignment shared-reference merge | 共享参考PWA/MSA合并、reference-boundary insertion slot同步、局部reference/query坐标、metadata、统计、MSA与aligned FASTA转换 |
+| ✅ | Bio.Align.Alignment map/mapall | 零起始半开区间alignment path组合、局部clipping、gap与正反链传播、双向坐标查询、PSL、批量map及protein MSA到codon-aware nucleotide MSA投影 |
+| ✅ | Bio.Align.Alignment counts | pairwise/MSA详细gap分类、open/extend事件、identity/mismatch/positive、wildcard、替换矩阵与完整affine总分 |
+| ✅ | Bio.Align.psl | alignment-aware PSL/PSLX 21/23列严格解析与写出、核酸和translated 3:1路径、双轴链向、match/repeat/N recount、block序列及坐标互映 |
+| ✅ | Bio.Align.sam | alignment-aware SAM header/record严格读写、显式CIGAR path、反向链序列与PHRED语义、typed tags、MD/NM和双向坐标映射 |
+| ✅ | Bio.Align.a2m | A2M match/insertion状态推导、大小写与点gap规范读写、插入槽、逐行坐标映射、pair counts、共识和match projection |
+| ✅ | Bio.Align.emboss | EMBOSS srspair/pair/simple文件元数据与多alignment解析、任意序列数、纯gap block、局部/反向坐标、consensus统计、compact path和规范写回 |
+| ✅ | Bio.Align.exonerate | Exonerate cigar/vulgar文件元数据与严格读写、完整M/5/I/3/C/G/N/S/F操作、正反链/protein strand、3:1 translated path、坐标互映和统计 |
+| ✅ | Bio.Align.msf | GCG/PileUp MSF蛋白质与核酸MSA、Check/CompCheck、interleaved blocks、标准checksum、短行补齐、坐标映射、统计与规范写回 |
+| ✅ | Bio.Align.nexus | NEXUS DATA/CHARACTERS与TAXA block、nested comments、quoted/duplicate taxa、sequential/interleaved MATRIX、datatype校验、MATCHCHAR、坐标映射、统计与规范写回 |
+| ✅ | Bio.Align.stockholm | Stockholm多记录、GF/GS/GR/GC标准与自定义注释、reference/database/nested-domain、M/D/I列操作、all-gap压缩、坐标映射、统计与规范写回 |
+| ✅ | Bio.Align.chain | UCSC Chain严格多记录读写、float score与可选ID、正反target/query绝对坐标路径、size/dt/dq重建、双向位置/区间映射、反转和查询 |
+| ✅ | Bio.Align.maf | MAF track/header与a/s/i/e/q严格读写、plus/minus绝对路径、任意component映射、MafIndex半开查询、多外显子拼接与canonical writer |
+| ✅ | Bio.Align.bed | BED3-BED12严格解析与写出、numeric/text score、正负链query坐标、exon blocks、双向residue mapping、search与summary |
+| ✅ | Bio.Align.bigbed | BigBed v4二进制读写、BED3-BED12、AutoSQL扩展字段、多级chromosome B+ tree与R-tree、zlib/DEFLATE解码、区间/名称查询和BED导出 |
+| ✅ | Bio.Align.bigmaf | 标准bedMaf bed3+1读写、完整MAF a/s/i/e/q语义、正负链坐标映射、BigBed压缩索引查询、MAF导出和严格损坏数据诊断 |
+| ✅ | Bioconductor decontX | 单细胞ambient RNA去污染: cluster-native/contaminant多项式混合、Beta/Dirichlet先验EM、empty-droplet background、自动聚类、计数分解、诊断与SingleCellExperiment接入 |
+| ✅ | Bioconductor celda | `celda_CG`细胞群与基因模块联合聚类: 分层Dirichlet-multinomial、collapsed likelihood、EM/Gibbs、多链、K/L模型选择、预测与SingleCellExperiment接入 |
 | ✅ | Bio.PDB.SASA | 溶剂可及表面积计算: Shrake-Rupley滚动球算法(Fibonacci球面采样)、范德华半径查表、逐原子/残基/链SASA、骨架/侧链拆分 |
 | ✅ | Bio.SeqIO.NibIO | nib 2-bit二进制序列格式: DNA 2-bit编码(T=0/C=1/A=2/G=3)、4碱基/字节打包、hex I/O、子序列提取、反向互补、GC含量、压缩比 |
 | ✅ | ChIPseeker | ChIP-seq峰注释: 峰-TSS距离计算、基因组特征分配(Promoter/5'UTR/3'UTR/Exon/Intron/Downstream/Distal Intergenic)、最近基因查找、注释摘要 |
@@ -194,12 +240,49 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **群体遗传学** | Biopython `Bio.PopGen` | 等位基因频率、FST、哈迪-温伯格检验 | ✅ |
 | **edgeR** | Bioconductor edgeR | 差异表达分析、DGEList、精确检验、GLM拟合 | ✅ |
 | **limma** | Bioconductor limma | 差异表达分析、线性模型拟合、经验贝叶斯、voom变换、RPKM/CPM/quantile归一化、ComBat/removeBatchEffect批次校正、treat严格检验 | ✅ |
+| **variancePartition** | Bioconductor variancePartition | 重复测量线性混合模型、方差分解、BLUP、precision weights、dream contrast与Satterthwaite检验 | ✅ |
+| **dreamlet** | Bioconductor dreamlet | sample×cell-type pseudobulk、TMM、cell/sample/gene过滤、logCPM、Poisson/voom precision weights、分cell-type重复测量模型及study-wide FDR | ✅ |
+| **nnSVG** | Bioconductor nnSVG | nearest-neighbor Gaussian process、空间变异基因检验、gene-specific length scale、协变量设计、空间方差占比、BH-FDR及SpatialExperiment接入 | ✅ |
+| **Banksy** | Bioconductor Banksy | H0邻域均值与H1+方位harmonic、六类空间核、lambda联合特征、分组标准化、PCA、多起点k-means、标签平滑、参数扫描及SpatialExperiment接入 | ✅ |
+| **Voyager** | Bioconductor Voyager | kNN/distance-band/inverse-distance空间权重(W/B/C/S编码)、全局Moran's I与Geary's c(Cliff-Ord随机化期望/方差/正态p)、局部Moran's I(LISA象限+置换推断)、局部Geary's c、Getis-Ord Gi/Gi*(Ord-Getis z)、Lee's L(全局+局部)、多元局部Geary、经验变差函数与spherical/exponential/gaussian拟合、Moran correlogram、确定性splitmix64置换、BH-FDR及SpatialExperiment不可变写回 | ✅ |
+| **spicyR** | Bioconductor spicyR | 有序细胞类型对cross-L曲线、矩形窗口边界校正、图像级共定位统计、precision weights、重复受试者随机截距、条件对比、BH-FDR及SpatialExperiment接入 | ✅ |
+| **lisaClust** | Bioconductor lisaClust | 每细胞多类型local-K/centered local-L曲线、Gaussian KDE强度校正、矩形/凸包窗口、圆盘边界修正、确定性多起点k-means、silhouette、区域富集及SpatialExperiment写回 | ✅ |
+| **SpatialDecon** | Bioconductor SpatialDecon | 背景感知加权log-normal非负回归、两阶段异常点重拟合、Hessian不确定度、细胞丰度/比例/计数尺度、cell-type collapse、reverse deconvolution、负探针背景、单细胞profile构建及SpatialExperiment写回 | ✅ |
+| **ALDEx2** | Bioconductor ALDEx2 | Dirichlet Monte Carlo组成型差异丰度、六类denominator、Welch/Wilcoxon与配对检验、effect/overlap、Aitchison距离及SummarizedExperiment接入 | ✅ |
+| **DirichletMultinomial** | Bioconductor DirichletMultinomial | Dirichlet-multinomial概率、有限混合EM/BFGS聚类、Laplace/AIC/BIC选K、生成式分组分类、分层交叉验证、ROC及SummarizedExperiment接入 | ✅ |
 | **SummarizedExperiment** | Bioconductor SummarizedExperiment | 多维基因组数据容器、Assays、行/列操作 | ✅ |
+| **RangedSummarizedExperiment** | Bioconductor SummarizedExperiment | GRanges/GRangesList行范围、复合特征精确重叠/最近邻、覆盖度、区间变换与协调子集 | ✅ |
+| **TreeSummarizedExperiment** | Bioconductor TreeSummarizedExperiment | 行/列树、节点链接、树节点子集、祖先/后代查询、层级聚合 | ✅ |
 | **IRanges** | Bioconductor IRanges | 整数区间操作、集合运算、重叠检测、findOverlaps高级类型、nearest、coverage、距离矩阵计算 | ✅ |
 | **TxDb** | Bioconductor GenomicFeatures | 转录本数据库、GTF解析、基因/转录本/外显子/CDS提取、UTR/内含子计算、启动子提取 | ✅ |
 | **ExPASy** | Biopython `Bio.ExPASy` | 蛋白质分析工具接口、Swiss-Prot条目解析、酶数据库查询、蛋白质参数计算（分子量、等电点、GRAVY、不稳定指数） | ✅ |
+| **Cellosaurus** | Biopython `Bio.ExPASy.cellosaurus` | Cellosaurus平面文本解析、类型化细胞系记录、数据库交叉引用、物种查询、序列化往返 | ✅ |
+| **UniGene** | Biopython `Bio.UniGene` | NCBI UniGene固定宽度记录解析、类型化序列/蛋白相似性/STS/转录本映射、严格SCOUNT校验、序列化往返 | ✅ |
+| **HH-suite HHR** | Biopython `Bio.Align.hhr` | HHR元数据、命中摘要、多块profile比对、consensus/二级结构/DSSP/confidence注释、概率和E-value查询 | ✅ |
+| **共享参考比对合并** | Biopython `Bio.Align.Alignment.from_alignments_with_same_reference` | 混合PWA/MSA输入、首端/内部/末端insertion同步、多query投影、局部坐标与metadata保留、统计和格式转换 | ✅ |
+| **Alignment坐标组合** | Biopython `Bio.Align.Alignment.map/mapall` | alignment path组合、局部overhang clipping、exon/intron与indel gap、正反链组合、坐标双向查询、PSL及1:1/1:3 MSA投影 | ✅ |
+| **Alignment详细计数与评分** | Biopython `Bio.Align.Alignment.counts` | 十二类affine gap事件、identity/mismatch/positive、wildcard、BLOSUM/PAM评分、反向链和MSA全部序列对汇总 | ✅ |
+| **SAM坐标比对读写** | Biopython `Bio.Align.sam` | header/reference模型、M/I/D/N/=/X显式路径、反向链与clipping、typed tags、PHRED、MD/NM和严格往返 | ✅ |
+| **A2M状态感知比对** | Biopython `Bio.Align.a2m` | D/I列状态、大小写与点gap编码、wrapped/CRLF读写、坐标互映、插入槽、统计、共识与match投影 | ✅ |
+| **EMBOSS alignment报告** | Biopython `Bio.Align.emboss` | srspair/pair/simple元数据、固定列block、多alignment/多序列、正反向绝对坐标、pair counts与canonical writer | ✅ |
+| **Exonerate alignment报告** | Biopython `Bio.Align.exonerate` | header/footer与cigar/vulgar、operation normalization、链感知绝对路径、protein-DNA 3:1映射、统计与canonical writer | ✅ |
+| **Exonerate C4 SearchIO报告** | Biopython `Bio.SearchIO.ExonerateIO.exonerate_text` | metadata与查询层次、固定列alignment body、剪接/NER/frameshift语义、phase/frame及双轴区间 | ✅ |
+| **GCG MSF alignment** | Biopython `Bio.Align.msf` | AA/NA/PileUp header、Name metadata、interleaved blocks、GCG checksum、三类gap、coordinate path、pair counts与writer | ✅ |
+| **NEXUS alignment** | Biopython `Bio.Align.nexus` | DATA/CHARACTERS/TAXA block、quote/comment词法、sequential/interleaved rows、DNA/RNA/protein/standard校验、MATCHCHAR、坐标与writer | ✅ |
+| **Stockholm alignment** | Biopython `Bio.Align.stockholm` | 严格header/terminator与多记录、GF/GS/GR/GC映射、M/D/I操作、all-gap列压缩、reference、坐标、统计与writer | ✅ |
+| **UCSC Chain alignment** | Biopython `Bio.Align.chain` | 12/13列header、连续记录、float score、双轴链向、绝对half-open路径、size/dt/dq、坐标查询、反转与规范写回 | ✅ |
+| **MAF alignment/index** | Biopython `Bio.Align.maf` | track/header与a/s/i/e/q、正负链绝对坐标、任意component映射、MafIndex半开查询、多外显子拼接与规范写回 | ✅ |
+| **BED pairwise alignment** | Biopython `Bio.Align.bed` | BED3-BED12、target/query双轴路径、反链转录本坐标、block/counts、双向位置映射、区间搜索与分级写回 | ✅ |
+| **BigBed二进制区间索引** | Biopython `Bio.Align.bigbed` | BigBed v4读写、BED3-BED12与AutoSQL、多级B+ tree/R-tree、stored/fixed/dynamic DEFLATE、区间/名称查询、链感知exon坐标及BED导出 | ✅ |
+| **BigMaf多物种比对索引** | Biopython `Bio.Align.bigmaf` | 标准bedMaf AutoSQL、MAF a/s/i/e/q块、score/pass/comment、正负链坐标映射、压缩BigBed索引查询及普通MAF导出 | ✅ |
+| **BigPsl成对比对索引** | Biopython `Bio.Align.bigpsl` | 标准bed12+13 AutoSQL、核酸与translated protein坐标路径、正反链、match/repeat/N recount、压缩索引查询及PSL导出 | ✅ |
+| **zinbwave** | Bioconductor zinbwave | 零膨胀负二项低维模型、cell/gene协变量与offset、确定性latent factors、dispersion shrinkage、observational weights、残差/归一化/插补及SCE集成 | ✅ |
+| **apeglm** | Bioconductor apeglm | 负二项GLM、自适应经验贝叶斯Cauchy/Student-t先验、确定性多起点MAP、Laplace后验SD/区间、FSR/FSOS/s-value、DESeq2与SummarizedExperiment接入 | ✅ |
 | **Prosite** | Biopython `Bio.Prosite` | 蛋白质模体数据库搜索、Prosite模式解析、模体匹配算法、模体得分计算 | ✅ |
-| **PAML** | Biopython `Bio.PAML` | 分子进化分析、dN/dS计算（Nei-Gojobori方法）、Jukes-Cantor校正、密码子使用分析 | ✅ |
+| **PAML内置近似兼容层** | BioSeqs compatibility API | Nei-Gojobori风格dN/dS、Jukes-Cantor校正和密码子使用分析；不解析PAML控制文件或原生输出 | ✅ |
+| **CODEML控制与结果分析** | Biopython `Bio.Phylo.PAML.codeml` | 严格control读写、CODONML/AAML、多NSsites/branch-site/clade/free-ratio、pairwise、距离矩阵、多基因、BEB/NEB及AIC/BIC/LRT | ✅ |
+| **BASEML核苷酸模型分析** | Biopython `Bio.Phylo.PAML.baseml` | 严格control读写、JC69至UNRESTu、参数/SE、kappa、REV/UNREST Q矩阵、rate-class、auto-dGamma、nhomo节点及AIC/BIC/LRT | ✅ |
+| **YN00成对密码子替换分析** | Biopython `Bio.Phylo.PAML.yn00` | 严格control读写、NG86/YN00/LWL85/LWL85m/LPB93、PAML 4.1-4.9i兼容、非有限值、对称矩阵及统计汇总 | ✅ |
 | **Graphics** | Biopython `Bio.Graphics` | 生物信息学可视化、序列Logo绘制、序列比对可视化、基因组特征绘图 | ✅ |
 | **BSgenome** | Bioconductor BSgenome | 基因组序列数据库、染色体序列检索、子序列提取、链特异性基因提取 | ✅ |
 | **biomaRt** | Bioconductor biomaRt | 基因ID映射、基因注释查询、批量查询、外部数据库映射 | ✅ |
@@ -227,6 +310,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Affy** | Biopython `Bio.Affy` | Affymetrix芯片数据分析、RMA标准化、背景校正、分位数归一化 | ✅ |
 | **SVDSuperimposer** | Biopython `Bio.PDB.SVDSuperimposer` | SVD蛋白质结构叠合、旋转矩阵、平移向量、RMSD计算 | ✅ |
 | **QCPSuperimposer** | Biopython `Bio.PDB.QCPSuperimposer` | 四元数特征多项式结构叠合、高精度旋转矩阵、平移向量、RMSD计算 | ✅ |
+| **CEAligner** | Biopython `Bio.PDB.cealign` | 组合扩展结构比对、AFP单调路径、CE Z-score、局部索引优化、QCP最优叠合 | ✅ |
 | **ResidueDepth** | Biopython `Bio.PDB.ResidueDepth` | 残基深度计算、溶剂可及表面积(SASA)、表面/核心残基识别 | ✅ |
 | **StructureAlignment** | Biopython `Bio.PDB.StructureAlignment` | 多蛋白质结构比对、动态规划比对、RMSD/TM-score计算、渐进式多结构比对 | ✅ |
 | **KEGG** | Biopython `Bio.KEGG` | KEGG基因/通路/化合物/酶记录解析、通路分析 | ✅ |
@@ -240,6 +324,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **UniProtIO** | Biopython `Bio.SeqIO.UniprotIO` | UniProt XML格式解析、蛋白质条目提取、基因名、物种、序列、功能注释、数据库交叉引用 | ✅ |
 | **chem_utils** | Biopython `Bio.PDB.chem_utils` | 化学计算工具：范德华半径、共价半径、键长、键角、二面角、经验式、分子式量、氢键长度 | ✅ |
 | **mmCIF** | Biopython `Bio.PDB.MMCIFParser` | mmCIF格式解析、数据块、类别、原子位点提取 | ✅ |
+| **BinaryCIF** | Biopython `Bio.PDB.binary_cif` | 纯MoonBit MessagePack解析、ByteArray/FixedPoint/IntervalQuantization/RunLength/Delta/IntegerPacking/StringArray逆编码、mask与Structure转换 | ✅ |
 | **Nexus** | Biopython `Bio.Nexus` | NEXUS格式解析、数据矩阵、系统发育树、距离矩阵 | ✅ |
 | **EMBOSS** | EMBOSS suite | GC偏斜、AT偏斜、分子量、Tm值、ORF查找、距离计算、蛋白质参数 | ✅ |
 | **ChIPseeker** | Bioconductor ChIPseeker | ChIP-seq峰注释、基因距离计算、注释分类（启动子/外显子/内含子/UTR/基因间区）、BED格式读取、peak2gene关联分析、多峰值集重叠分析(peakOverlap)、Venn图可视化、饼图可视化、结果汇总与可视化 | ✅ |
@@ -260,16 +345,23 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **microbiome** | Bioconductor microbiome | 微生物组分析、Alpha多样性（Shannon/Simpson/Chao1/ACE/Fisher/Pielou）、Beta多样性（Bray-Curtis/Jaccard/JSD/weighted/unweighted UniFrac）、PCoA主坐标分析、差异丰度分析（Welch t检验/Wilcoxon秩和检验/BH校正） | ✅ |
 | **BiocParallel** | Bioconductor BiocParallel | 并行计算框架、任务分块、并行求和、均值计算、进度追踪 | ✅ |
 | **ensembldb** | Bioconductor ensembldb | Ensembl注释数据库接口、基因/转录本/外显子/CDS检索、染色体过滤、biotype过滤、基因长度计算 | ✅ |
-| **DropletUtils** | Bioconductor DropletUtils | 空液滴检测、barcode排序、knee点检测、emptyDrops算法、细胞过滤 | ✅ |
+| **DropletUtils** | Bioconductor DropletUtils 1.33.0 | 严格feature × barcode计数模型、Simple Good-Turing ambient profile、曲线追踪knee/inflection、multinomial/Dirichlet-multinomial概率、alpha估计、确定性Monte Carlo、Phipson–Smyth p值、BH-FDR、高计数保留及SingleCellExperiment写回 | ✅ |
 | **rhdf5** | Bioconductor rhdf5 | HDF5文件格式支持、数据集读写、组管理、属性操作、文件列表查看 | ✅ |
 | **Matrix** | Bioconductor Matrix | 稀疏矩阵操作、CSC/CSR格式、矩阵运算（加法、乘法、转置）、行列统计、范数计算 | ✅ |
 | **BiocGenerics** | Bioconductor BiocGenerics | Bioconductor通用函数、NA处理、排序、集合运算、匹配、表统计、序列生成 | ✅ |
 | **scran** | Bioconductor scran | 单细胞归一化(sum_factors)、SNN图构建、Leiden聚类、差异标志物分析 | ✅ |
+| **scrapper** | Bioconductor scrapper | 批次感知RNA QC、大小因子清洗与居中、log-normalization、LOWESS方差趋势、HVG选择、多因子pseudo-bulk、不可变SCE集成 | ✅ |
+| **scuttle** | Bioconductor scuttle 1.23.1 | batch-aware median/MAD异常值、subset per-feature QC、重叠feature-set聚合、精确无放回count downsampling、batch/block coverage等化及不可变SCE集成 | ✅ |
+| **bluster** | Bioconductor bluster 1.23.0 | 多起点K-means、精确KNN与三类加权SNN图、Louvain风格聚类、two-step量化聚类、Rand/ARI、silhouette、purity、RMSD、modularity、bootstrap稳定性及不可变SCE集成 | ✅ |
+| **FlowSOM** | Bioconductor FlowSOM 2.21.0 | 规则网格SOM、KWSP/random/PCA初始化、四类距离、分阶段MST邻域、meta-clustering与自动elbow、节点MFI/CV/SD/MAD/阳性率、MAD outlier、新数据映射及FlowFrame/SCE集成 | ✅ |
+| **decontX** | Bioconductor decontX | cluster-aware ambient RNA混合模型、每细胞污染率、Beta/Dirichlet先验EM、empty-droplet profile、自动k-means、native/contaminant计数分解与SCE集成 | ✅ |
+| **celda** | Bioconductor celda | `celda_CG`细胞群/基因模块联合聚类、collapsed likelihood、EM/Gibbs、多链、K/L网格选择、新细胞预测与SCE集成 | ✅ |
+| **miloR** | Bioconductor miloR | 精确KNN图、精炼重叠邻域、邻域×样本计数、NB-GLM/Wald检验、BH与四种graph spatial FDR、SingleCellExperiment接入 | ✅ |
 | **monocle3** | Bioconductor monocle3 | 单细胞轨迹分析、PCA/UMAP降维、主图学习、拟时间排序、差异表达分析、分支点检测、分支特异性差异表达 | ✅ |
 | **ShortRead** | Bioconductor ShortRead | 短读序列质量控制、QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告生成 | ✅ |
 | **scater** | Bioconductor scater | 单细胞质量控制、QC指标计算、细胞/基因过滤、CPM/log-CPM标准化、HVG检测、PCA降维 | ✅ |
-| **MAST** | Bioconductor MAST | 单细胞差异表达分析、Hurdle模型、离散/连续组分检验、BH-FDR校正、结果汇总 | ✅ |
-| **SingleR** | Bioconductor SingleR | 细胞类型注释、Spearman/Pearson相关性、参考图谱匹配、精细调优(Fine-tuning)、Delta score置信度评估 | ✅ |
+| **MAST** | Bioconductor MAST 1.39.0 | 严格feature × cell数据模型、任意设计矩阵与CDR、Bayesian logistic/Gaussian hurdle GLM、嵌套模型LRT、经验贝叶斯方差收缩、BH-FDR、边际logFC及SingleCellExperiment写回 | ✅ |
+| **SingleR** | Bioconductor SingleR 2.15.2 | 严格gene × sample/cell模型、基因名对齐、成对classic markers、ties-aware Spearman、标签内相关分位数、迭代fine-tuning、delta/MAD剪枝、cluster注释、多参考重算及SingleCellExperiment写回 | ✅ |
 | **Cyclone** | Bioconductor cyclone | 细胞周期评分、基因对(Gene pairs)比较、G1/S/G2/M期相预测、相别分布统计、平均得分分析 | ✅ |
 | **dorothea** | Bioconductor dorothea | 转录因子活性预测、Regulon分析、VIPER算法、置换检验、Z-score评估、Top TF筛选 | ✅ |
 | **GenomicFiles** | Bioconductor GenomicFiles | 分布式基因组文件处理、按区间扫描BAM/BED/VCF、批量查询、归约、覆盖度计算 | ✅ |
@@ -282,8 +374,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **GSVA** | Bioconductor GSVA | 基因集变异分析、单样本通路评分（ssGSEA/zscore/PLAGE）、富集分析、置换检验、富集图可视化(enrichment map)、表型相关性分析(phenotype correlation)、生存分析(survival analysis)、分数分布分析与可视化 | ✅ |
 | **ChromVAR** | Bioconductor chromVAR | 染色质变异分析、TF motif富集、GC偏差校正、细胞聚类、变异性分析 | ✅ |
 | **DelayedArray** | Bioconductor DelayedArray | 延迟计算数组、懒加载操作、分块处理、行/列聚合、子集操作 | ✅ |
+| **SparseArray** | Bioconductor SparseArray | N维规范化COO稀疏数组、坐标/线性索引、稀疏切片、维度置换与绑定、不可变赋值、算术/统计、矩阵乘法 | ✅ |
 | **AnnotationFilter** | Bioconductor AnnotationFilter | 基因注释过滤、染色体筛选、生物类型过滤、区域重叠检测、符号模式匹配 | ✅ |
-| **scDblFinder** | Bioconductor scDblFinder | 单细胞双细胞检测、Doublet评分计算、最近邻搜索、PCA降维、细胞过滤 | ✅ |
+| **scDblFinder** | Bioconductor scDblFinder 1.27.6 | 严格cell × gene数据模型、top-variable特征选择、library normalization/PCA、随机或跨cluster人工doublet、精确kNN比例与来源推断、cxds互斥共表达分数、迭代正则化logistic分类、预期doublet rate阈值优化、capture分层、homotypic修正、pairwise来源富集及SingleCellExperiment写回 | ✅ |
 | **Batchelor** | Bioconductor batchelor | 单细胞批次校正、rescaleBatches缩放校正、mutual nearest neighbor、fastMNN多批次校正、批次混合评分 | ✅ |
 | **Seurat** | Bioconductor Seurat | 单细胞数据分析核心、LogNormalize标准化、高可变基因检测、PCA降维、图聚类、UMAP可视化、差异标志物分析、跨样本整合(FindIntegrationAnchors/IntegrateData) | ✅ |
 | **ChIPseeker** | Bioconductor ChIPseeker | ChIP-seq峰值注释、基因组区域分类(启动子/外显子/内含子/UTR/基因间区)、距离TSS分布、BED格式读取、peak2gene关联分析、注释可视化、统计分析 | ✅ |
@@ -312,7 +405,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **bamsignals** | Bioconductor bamsignals | ChIP-seq信号提取（计数模式、RPM/RPKM归一化、基因组区域信号分析、染色质状态分析） | ✅ |
 | **nucleR** | Bioconductor nucleR | 核小体定位分析（信号平滑、峰值检测、核小体occupancy计算、位置比较、动态变化分析） | ✅ |
 | **csaw** | Bioconductor csaw | ChIP-seq窗口差异分析（滑动窗口计数、TMM归一化、窗口过滤、负二项GLM检验、差异区域检测） | ✅ |
-| **slingshot** | Bioconductor slingshot | 单细胞轨迹推断（MST构建、主曲线拟合、拟时间计算、分支检测） | ✅ |
+| **slingshot** | Bioconductor slingshot 2.21.0 | 保留基础MST/主曲线兼容API，并新增hard/soft cluster membership、协方差缩放距离、start/end约束、omega forest、root-to-leaf lineage、同时主曲线、rank重加权/重分配、Optional pseudotime、分支ID、新数据映射及不可变SCE写回 | ✅ |
 | **SCnorm** | Bioconductor SCnorm | 单细胞RNA-seq归一化（分位数回归、深度依赖偏差校正、基因特异性归一化） | ✅ |
 | **EDASeq** | Bioconductor EDASeq | RNA-seq探索性分析（GC含量归一化、基因长度校正（Loess）、样本间归一化、RPKM计算） | ✅ |
 | **Bio.phenotype** | Biopython `Bio.phenotype` | 表型微阵列分析（PlateRecord/WellRecord、logistic/Gompertz生长曲线拟合、CSV/JSON解析、控制减法） | ✅ |
@@ -324,19 +417,41 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **destiny** | Bioconductor destiny | 单细胞扩散映射(Diffusion Maps)降维、距离矩阵计算、高斯核构建、特征分解、扩散分量计算 | ✅ |
 | **Rtsne** | Bioconductor Rtsne | t-SNE降维算法、成对距离计算、条件概率估计（perplexity优化）、联合概率矩阵构建、梯度下降优化（动量/early exaggeration）、Barnes-Hut近似 | ✅ |
 | **uwot** | Bioconductor uwot | UMAP降维算法、k近邻搜索、模糊单纯集构建、局部模糊集并集、低维嵌入优化（SGD/负采样）、min_dist/spread参数控制 | ✅ |
-| **tradeSeq** | Bioconductor tradeSeq | 轨迹差异表达分析、GAM（广义可加模型）拟合、样条基函数、差异表达检验、BH-FDR校正 | ✅ |
+| **tradeSeq** | Bioconductor tradeSeq 1.27.0 | 保留基础轨迹差异表达兼容API，并新增gene × cell计数合同、cell × lineage拟时间/权重、library offset、多lineage负二项GAM、惩罚B-spline、dispersion/AIC/协方差、五类Wald检验、log2FC阈值、平滑预测、knot评估、Slingshot直连及不可变SCE写回 | ✅ |
+| **muscat advanced** | Bioconductor muscat 1.27.4 | cluster × sample伪批量、sum/mean/median/prop.detected/num.detected、任意设计与多contrast、NB-IRLS、dispersion收缩、CDR归一化DD、local/global FDR、DS/DD stagewise及SingleCellExperiment接入 | ✅ |
 | **PROGENy** | Bioconductor PROGENy | 通路活性推断、L2正则化线性回归（Ridge回归）、通路基因集权重矩阵、样本通路活性计算 | ✅ |
 | **AUCell** | Bioconductor AUCell | 单细胞基因集评分、AUC（曲线下面积）计算、基因排序、min-max归一化、细胞/基因集评分查询 | ✅ |
 | **ggtree** | Bioconductor ggtree | 系统发育树可视化布局算法、矩形布局（phylogram）、放射状布局、无根布局、节点坐标映射、边缘/标签数据生成 | ✅ |
 | ✅ | BiocSingular | SVD奇异值分解，支持Exact/IRLBA/Randomized三种算法，用于单细胞降维 |
 | ✅ | BiocNeighbors | KMKNN和Annoy最近邻搜索，支持欧几里得/曼哈顿/余弦距离 |
 | ✅ | mixOmics | 多组学整合方法，包括PLS回归、稀疏PLS (sPLS)、DIABLO多块整合 |
-| **MAF格式解析** | Biopython `Bio.Align` | MAF多序列比对格式解析、块操作、百分比一致性、统计分析、选择/过滤/写回 | ✅ |
+| **MAF宽松块分析** | Biopython `Bio.Align` | MAF块解析、百分比一致性、统计分析、选择/过滤/写回 | ✅ |
+| **现代MAF alignment API** | Biopython `Bio.Align.maf` | track/header、严格a/s/i/e/q、正负链绝对坐标、component映射、MafIndex区间搜索、多外显子拼接及canonical写回 | ✅ |
+| **现代BED alignment API** | Biopython `Bio.Align.bed` | 分级BED3-BED12读写、链感知双轴路径、exon block投影、residue mapping、overlap search与summary | ✅ |
+| **HH-suite HHR格式** | Biopython `Bio.Align.hhr` | HHsearch/HHblits结果严格解析、0-based坐标、query-target映射、规范化写回 | ✅ |
+| **共享参考比对同步** | Biopython `Bio.Align.Alignment` | 相同参考PWA/MSA合并、边界插入宽度归一化、query原始比对结构保留、reference/query/column坐标互映 | ✅ |
+| **Alignment gap/composition统计** | Biopython `Bio.Align.Alignment.counts` | pairwise与MSA逐对统计、端部/内部gap分类、open/extend事件、替换和gap总分 | ✅ |
+| **Alignment-aware tabular搜索结果** | Biopython `Bio.Align.tabular` | BLAST outfmt 7、FASTA 8CB/8CC、BTOP/aln_code路径、链向及translated坐标 | ✅ |
+| **Alignment-aware PSL/PSLX** | Biopython `Bio.Align.psl` | 21/23列格式、header、block/gap一致性、正反链、translated 3:1坐标、序列重计数与严格诊断 | ✅ |
+| **Alignment-aware SAM** | Biopython `Bio.Align.sam` | SAM 1.6 header/record、typed optional tags、CIGAR path、clipping、反向链、PHRED、MD/NM与规范写回 | ✅ |
+| **A2M状态感知MSA** | Biopython `Bio.Align.a2m` | match/deletion与insertion列、canonical大小写/点编码、严格往返、坐标映射、插入槽、统计与共识 | ✅ |
+| **EMBOSS alignment output** | Biopython `Bio.Align.emboss` | water/needle/stretcher/matcher/alignret输出、srspair/pair/simple、metadata、consensus、局部/反向坐标与严格诊断 | ✅ |
+| **Exonerate alignment output** | Biopython `Bio.Align.exonerate` | cigar/vulgar报告、M/5/I/3/C/G/N/S/F路径、正反链与protein strand、translated coordinates、严格诊断与双格式写回 | ✅ |
+| **Exonerate C4 text output** | Biopython `Bio.SearchIO.ExonerateIO.exonerate_text` | C4 alignment text、query/hit/HSP/fragment聚合、intron/NER/split codon/frameshift、translated coordinates与严格诊断 | ✅ |
+| **GCG MSF alignment format** | Biopython `Bio.Align.msf` | protein/nucleotide MSF、PileUp与EMBOSS变体、interleaved MSA、GCG checksum、坐标和统计、严格读写 | ✅ |
+| **NEXUS alignment format** | Biopython `Bio.Align.nexus` | NEXUS header与block、nested comments、quoted taxa、sequential/interleaved MATRIX、MATCHCHAR、all-gap压缩、坐标统计与严格读写 | ✅ |
+| **Stockholm alignment format** | Biopython `Bio.Align.stockholm` | 多记录严格解析、GF/GS/GR/GC与自定义注释、reference与database reference、insertion/deletion列、all-gap压缩、坐标统计与严格写回 | ✅ |
+| **UCSC Chain alignment format** | Biopython `Bio.Align.chain` | 严格header/block/span校验、连续多记录、正反双轴absolute path、canonical block重建、位置/区间映射、反转与ID/overlap查询 | ✅ |
+| **MAF alignment format/index** | Biopython `Bio.Align.maf` | track/##maf metadata、a/s/i/e/q关联校验、链感知absolute path、任意序列坐标映射、reference interval index与spliced alignment | ✅ |
+| **BED alignment format** | Biopython `Bio.Align.bed` | BED3-BED12字段层级、numeric/text score、正负链transcript path、block几何校验、双向mapping及canonical projection | ✅ |
 | **UCSC Chain文件/liftOver** | Bioconductor rtracklayer | Chain格式解析、基因组坐标liftOver转换、链段查找、染色体间坐标映射、位置/区间转换 | ✅ |
 | **Biostrings matchPDict** | Bioconductor Biostrings | 字典模式匹配(matchPDict/vmatchPattern)、多序列模式计数(vcountPattern)、错配容忍、最佳匹配查找 | ✅ |
 | **GenomicRanges gaps/reduce/disjoin** | Bioconductor GenomicRanges | gaps检测、reduce合并、disjoin拆分、setdiff/交集/并集集合运算、coverage计算、promoters提取、trim | ✅ |
+| **GenomicRanges GRangesList** | Bioconductor GenomicRanges | 命名复合基因组特征、split/unlist/relist、逐组区间变换、并行集合运算、特征级重叠/最近邻/覆盖度 | ✅ |
 | **NGS质量修剪与接头去除** | Bioconductor ShortRead | 质量修剪(滑动窗口)、接头去除、poly-A修剪、长度/GC含量过滤、批量修剪、Fastq解析与序列化、统计计算 | ✅ |
-| **Mauve基因组比对** | Biopython `Bio.Align` | Mauve基因组比对格式、LCB检测、倒位/断点检测、覆盖率分析、BED导出、基因组重排率 | ✅ |
+| **Mauve重排分析（legacy）** | BioSeqs compatibility API | 历史 MAF-like 块、LCB检测、倒位/断点检测、覆盖率、BED导出与重排率 | ✅ |
+| **XMFA多基因组比对** | Biopython `Bio.Align.mauve` | `#SequenceN*` metadata、LCB、正负链坐标、区间索引、跨序列位置/区间投影、统计、重建与规范写回 | ✅ |
+| **BLAST XML1/XML2** | Biopython `Bio.Blast` | 严格XML树解析、多query与XML2多report、HitDescr/taxonomy、参数与统计、八类BLAST坐标语义、canonical writer与显式跨格式转换 | ✅ |
 | **Stockholm格式** | Biopython `Bio.Stockholm` | Stockholm/Pfam格式解析、二级结构注释、百分比一致性、保守性、FASTA/Stockholm互转 | ✅ |
 | **高级群体遗传学** | Biopython `Bio.PopGen` | Tajima's D中性检验、Fu & Li's D/F、McDonald-Kreitman检验、等位基因频率谱、综合中性分析 | ✅ |
 | **高级密码子分析** | Biopython `Bio.SeqUtils.CodonUsage` | CAI密码子适应指数、RSCU相对同义密码子使用、ENC有效密码子数、GC3偏斜、最优/稀有密码子、物种特异性参考表 | ✅ |
@@ -344,6 +459,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Storey q-value** | Bioconductor qvalue | π₀估计、Storey q-value计算、自助法π₀、FDR校正、显著性检验 | ✅ |
 | **独立假设加权(IHW)** | Bioconductor IHW | 协变量加权Bonferroni、局部/全局加权、Storey pi0加权、多协变量支持、迭代权重优化 | ✅ |
 | **DelayedMatrixStats** | Bioconductor DelayedMatrixStats | DelayedArray统计层、row/col统计(mean/var/sd/median/min/max/sum)、NA处理、子集操作 | ✅ |
+| **SparseArray N维稀疏计算** | Bioconductor SparseArray | COO规范化、重复坐标合并与零消除、R列主序、稀疏子集/aperm/bind、Hadamard运算、crossprod/tcrossprod | ✅ |
 | **GC-RMA芯片分析** | Bioconductor gcrma | GC校正RMA、背景校正(IdealMM/Express)、GC查找表、分位数归一化、探针组汇总 | ✅ |
 | **ACE contig格式** | Biopython `Bio.Sequencing.Ace` | ACE组装格式解析、reads/contigs提取、共有序列生成、覆盖度分析、GC含量计算、格式化输出 | ✅ |
 | **蛋白质组学分析** | Biopython `Bio.SeqUtils.Proteomics` | 8种蛋白酶切(胰酶/糜酶/胃酶/LysC/ArgC/CNBr/GluC/AspN)、单同位素/平均质量计算、同位素分布、b/y碎片离子 | ✅ |
@@ -365,6 +481,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Wise2 DNA-蛋白比对** | Biopython `Bio.Wise` | GeneWise输出解析、外显子/内含子/比对列、剪接位点相位、比特分数、参数提取、蛋白质/DNA序列、基因预测结果 | ✅ |
 | **stageR 两阶段检验** | Bioconductor stageR | 两阶段假设检验(筛选+确认)、Simes聚合、BH-FDR校正、Holm步降程序、OFDR控制、Dte/Dtu方法、确认p值重缩放 | ✅ |
 | **EnrichedHeatmap 富集热图** | Bioconductor EnrichedHeatmap | 基因组信号归一化、目标区域窗口化、四种均值模式(absolute/weighted/w0/coverage)、行平滑、百分位裁剪、链方向处理 | ✅ |
+| **高级密码子比对与选择压力检验** | Biopython `Bio.codonalign` | Z-test选择检验(Nei-Gojobori近似方差)、Fisher精确检验中性度、密码子比对构建器、滑窗dN/dS、BH-FDR多重校正、成对Ka/Ks表 | ✅ |
+| **高级蛋白质序列预测** | Biopython `Bio.SeqUtils` | Chou-Fasman二级结构预测、IUPred无序区预测、COILS卷曲螺旋预测、Kolaskar-Tongaonkar抗原性、Emini表面可及性、Karplus-Schulz柔柔性 | ✅ |
 
 项目致力于打造一个完整、高效的生物信息学工具库，覆盖从基础序列处理到高级序列组装的全流程。
 
@@ -385,6 +503,27 @@ IvanAXu/BioSeqs/
 │   ├── fastq_io.mbt            # FASTQ 格式解析
 │   ├── genbank_io.mbt          # GenBank 格式解析
 │   ├── align.mbt               # MultipleSeqAlignment 多序列比对
+│   ├── shared_reference_alignment.mbt # Bio.Align共享参考PWA/MSA合并、insertion slot同步与坐标映射
+│   ├── alignment_map.mbt       # Bio.Align.Alignment map/mapall坐标路径组合与MSA投影
+│   ├── alignment_counts.mbt    # Bio.Align.Alignment.counts详细gap/composition统计与评分
+│   ├── align_tabular.mbt       # Bio.Align.tabular BLAST/FASTA traceback表格解析与坐标路径
+│   ├── align_psl.mbt           # Bio.Align.psl PSL/PSLX严格读写、链向路径、统计与坐标映射
+│   ├── align_sam.mbt           # Bio.Align.sam严格读写、CIGAR路径、typed tags、MD/NM与反向链
+│   ├── a2m.mbt                 # Bio.Align.a2m状态感知MSA读写、坐标、插入槽、统计与投影
+│   ├── align_emboss.mbt        # Bio.Align.emboss srspair/pair/simple解析、坐标、统计与规范写回
+│   ├── align_exonerate.mbt     # Bio.Align.exonerate cigar/vulgar路径、链向、translated映射与规范写回
+│   ├── msf.mbt                 # Bio.Align.msf GCG/PileUp MSA、checksum、坐标统计与规范写回
+│   ├── align_nexus.mbt         # Bio.Align.nexus DATA/CHARACTERS、interleave、MATCHCHAR、坐标统计与写回
+│   ├── align_stockholm.mbt     # Bio.Align.stockholm GF/GS/GR/GC、多记录、列操作、坐标统计与写回
+│   ├── align_chain.mbt         # Bio.Align.chain严格读写、双轴链向绝对路径、block重建与坐标映射
+│   ├── align_maf.mbt           # Bio.Align.maf严格文档读写、绝对坐标、MafIndex查询与多外显子拼接
+│   ├── align_mauve.mbt         # Bio.Align.mauve现代XMFA文档、LCB、双向坐标、索引、投影与规范写回
+│   ├── align_clustal.mbt       # Bio.Align.clustal现代MSA metadata、consensus、坐标、统计与规范写回
+│   ├── align_phylip.mbt        # Bio.Align.phylip现代sequential/interleaved MSA、坐标、统计与规范写回
+│   ├── align_bed.mbt           # Bio.Align.bed BED3-BED12、双轴路径、block投影、坐标映射与分级写回
+│   ├── bigbed.mbt              # Bio.Align.bigbed v4、BED/AutoSQL、多级B+ tree/R-tree与DEFLATE
+│   ├── bigmaf.mbt              # Bio.Align.bigmaf bedMaf、MAF注释、链向坐标映射与索引查询
+│   ├── bigpsl.mbt              # Bio.Align.bigpsl bed12+13、核酸/translated protein路径与PSL
 │   ├── alignio.mbt             # 比对文件 I/O
 │   ├── clustal_io.mbt          # Clustal 格式
 │   ├── phylip_io.mbt           # PHYLIP 格式
@@ -397,6 +536,7 @@ IvanAXu/BioSeqs/
 │   ├── phylo.mbt               # 系统发育树 (Clade/Tree)
 │   ├── tree_io.mbt             # 进化树格式解析 (Newick、NHX格式解析、树操作)
 │   ├── blast.mbt               # BLAST结果解析 (tabular/xml格式、HSP、Hit、Record、过滤)
+│   ├── blast_xml_advanced.mbt  # Bio.Blast XML1/XML2严格解析、坐标路径、查询分析与规范写回
 │   ├── searchio.mbt            # SearchIO 统一搜索结果模型 (HSPFragment、HSP、Hit、QueryResult、HMMER3/BLAT解析)
 │   ├── search_io.mbt           # SearchIO 统一搜索结果模型 (HMMER3解析、BLAT PSL解析、BLAST转换)
 │   ├── subsmat.mbt             # 替换矩阵 (BLOSUM62/45、PAM250/30、矩阵解析、分数查询)
@@ -430,6 +570,7 @@ IvanAXu/BioSeqs/
 │   ├── bioc_parallel.mbt        # Bioconductor 并行计算框架 (任务分块、并行求和)
 │   ├── genomic_ranges.mbt      # GenomicRanges 基因组区间操作 (GRanges、IRanges)
 │   ├── genomic_ranges_advanced.mbt # GenomicRanges tile/slidingWindows/区间运算
+│   ├── granges_list.mbt        # GenomicRanges GRangesList 复合特征、重组、重叠与集合运算
 │   ├── iranges.mbt             # IRanges 整数区间操作 (集合运算、重叠检测)
 │   ├── genomic_alignments.mbt  # GenomicAlignments 基因组比对分析 (GAlignments、coverage、summarizeOverlaps、pileup)
 │   ├── txdb.mbt                # TxDb 转录本数据库 (GTF解析、基因/转录本/外显子/CDS提取、UTR/内含子计算)
@@ -438,12 +579,18 @@ IvanAXu/BioSeqs/
 │   ├── rhdf5.mbt                # Bioconductor rhdf5 HDF5文件格式支持
 │   ├── deseq2.mbt              # DESeq2 差异表达分析 (size factors归一化、分散度估计、负二项GLM拟合、Wald检验、LFC收缩)
 │   ├── deseq2_advanced.mbt         # DESeq2 VST方差稳定化变换、PCA可视化
+│   ├── apeglm.mbt              # apeglm 自适应重尾LFC收缩、Laplace后验、FSR/FSOS与容器接入
+│   ├── aldex2.mbt              # ALDEx2 Dirichlet Monte Carlo组成型推断、检验、effect与容器接入
+│   ├── dirichlet_multinomial.mbt # DirichletMultinomial有限混合EM、模型选择、分类、CV与ROC
 │   ├── edger.mbt               # edgeR 差异表达分析 (DGEList、精确检验、GLM拟合)
 │   ├── edger_advanced.mbt           # edgeR准似然F检验、camera/roast基因集检验
 │   ├── limma.mbt               # limma 差异表达、归一化、批次校正 (线性模型、经验贝叶斯、voom、RPKM/CPM/quantile、ComBat)
 │   ├── matrix.mbt               # Bioconductor Matrix 稀疏矩阵操作 (CSC/CSR格式、矩阵运算)
+│   ├── sparse_array.mbt         # Bioconductor SparseArray N维规范化COO、切片/置换/绑定、稀疏算术与矩阵乘法
 │   ├── bioc_neighbors.mbt      # BiocNeighbors 最近邻搜索 (KMKNN/Annoy)
 │   ├── summarized_experiment.mbt # SummarizedExperiment 多维基因组数据容器
+│   ├── ranged_summarized_experiment.mbt # RangedSummarizedExperiment GRanges/GRangesList行范围与协调操作
+│   ├── tree_summarized_experiment.mbt # TreeSummarizedExperiment 树结构实验容器、节点子集与层级聚合
 │   ├── dplyr.mbt               # dplyr 数据操作 (DataFrame、filter、select、mutate、arrange、group_by、summarize、join)
 │   ├── plyranges.mbt           # plyranges  tidy基因组数据操作 (GRanges的filter/mutate/select/arrange/rename/summarise/join)
 │   ├── smith_waterman.mbt      # Smith-Waterman 局部序列比对 (动态规划、自定义打分、回溯矩阵)
@@ -453,7 +600,10 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn.mbt           # De Bruijn Graph (k-mer节点、欧拉路径、序列组装、图简化)
 │   ├── suffix_array_tree.mbt   # Suffix Array & Suffix Tree (前缀倍增、LCP数组、模式匹配、最长重复子串)
 │   ├── olc.mbt                 # Overlap-Layout-Consensus (重叠检测、哈密顿路径、一致性序列生成)
-│   ├── paml.mbt                 # Bio.PAML 分子进化分析 (dN/dS、Jukes-Cantor校正)
+│   ├── paml.mbt                 # 历史内置近似API (Nei-Gojobori风格dN/dS、Jukes-Cantor校正)
+│   ├── paml_codeml.mbt          # Bio.Phylo.PAML.codeml control/CODONML/AAML解析与模型比较
+│   ├── paml_baseml.mbt          # Bio.Phylo.PAML.baseml control/核苷酸模型结果与统计比较
+│   ├── paml_yn00.mbt            # Bio.Phylo.PAML.yn00 control与五种成对密码子替换估计
 │   ├── hmm.mbt                 # Hidden Markov Model (前向/后向算法、维特比算法、Baum-Welch训练、基因预测)
 │   ├── kmeans.mbt              # K-means Clustering (距离计算、K-means++初始化、聚类、轮廓系数评估)
 │   ├── kmer.mbt                 # Bio.Kmer k-mer计数与频率分析
@@ -465,6 +615,8 @@ IvanAXu/BioSeqs/
 │   ├── restriction.mbt         # 限制性内切酶分析 (酶切位点查找、片段分析)
 │   ├── protparam.mbt           # ProtParam 蛋白质参数分析 (不稳定指数、等电点、信号肽预测、二级结构倾向)
 │   ├── prosite.mbt              # Bio.Prosite 蛋白质模体数据库搜索
+│   ├── cellosaurus.mbt         # Bio.ExPASy.cellosaurus 细胞系数据库平面文件解析
+│   ├── unigene.mbt             # Bio.UniGene NCBI UniGene固定宽度记录解析、查询与序列化
 │   ├── affy.mbt                # Affy Affymetrix芯片数据分析 (RMA标准化、背景校正、分位数归一化)
 │   ├── feature_extraction.mbt  # 机器学习特征提取
 │   ├── faidx.mbt               # FASTA 快速索引访问 (pyfaidx)
@@ -480,6 +632,7 @@ IvanAXu/BioSeqs/
 │   ├── ballgown.mbt            # ballgown 转录组水平差异表达分析 (FPKM计算、t检验、基因/转录本结构)
 │   ├── align_info.mbt          # AlignInfo 比对统计 (一致性序列、保守位点、Shannon熵、成对序列同一性)
 │   ├── codon_align.mbt         # CodonAlign 密码子比对 (密码子替换分类、dN/dS选择压力分析、密码子使用偏好)
+│   ├── codon_align_advanced.mbt # CodonAlign 高级密码子比对 (Z-test选择检验、Fisher精确检验、密码子比对构建器、滑窗dN/dS、BH-FDR、成对Ka/Ks表)
 │   ├── entrez.mbt              # Entrez NCBI数据库访问 (ESearch、EFetch、PubMed/Gene/Taxonomy解析)
 │   ├── genome_info_db.mbt      # GenomeInfoDb 基因组信息管理 (染色体信息、着丝粒位置、基因组构建、染色体臂)
 │   ├── interaction_set.mbt     # InteractionSet 染色质交互数据 (Hi-C交互、锚点对、交互矩阵、距离分布)
@@ -492,6 +645,7 @@ IvanAXu/BioSeqs/
 │   ├── chem_utils.mbt          # 化学计算工具 (范德华半径、共价半径、键长、键角、二面角、分子式量)
 │   ├── jaspar.mbt              # JASPAR PFM格式解析 (模体矩阵、PWM转换、共有序列、序列扫描)
 │   ├── mmcif.mbt               # mmCIF格式解析 (Bio.PDB.MMCIFParser、数据块、类别、原子位点)
+│   ├── binary_cif.mbt          # Bio.PDB.binary_cif MessagePack解析、七类逆编码、mask与Structure转换
 │   ├── nexus.mbt               # Nexus格式解析 (Bio.Nexus、数据矩阵、系统发育树、距离矩阵)
 │   ├── emboss.mbt              # EMBOSS工具接口 (GC偏斜、AT偏斜、分子量、Tm值、ORF查找、距离计算)
 │   ├── chipseeker.mbt          # ChIPseeker ChIP-seq峰注释分析 (峰-基因距离计算、注释分类(启动子/外显子/内含子/UTR/基因间区)、BED格式读取、peak2gene关联分析、结果汇总与可视化)
@@ -506,13 +660,31 @@ IvanAXu/BioSeqs/
 │   ├── annotation_hub.mbt      # AnnotationHub 中心化注释资源访问 (资源搜索、类型/提供者/基因组查询、资源管理)
 │   ├── genomic_features.mbt    # GenomicFeatures 基因组注释功能 (Gene/Transcript/Exon数据结构、GTF解析、区域查询)
 │   ├── graph.mbt               # graph 图数据结构 (有向/无向图、最短路径、连通分量、DOT输出)
-│   ├── droplet_utils.mbt       # DropletUtils 空液滴检测 (emptyDrops算法、knee点检测、细胞过滤)
+│   ├── droplet_utils.mbt       # DropletUtils 旧版空液滴检测兼容API
+│   ├── droplet_utils_advanced.mbt # DropletUtils 1.33.0高级emptyDrops (Good-Turing、DM概率、Monte Carlo、knee/inflection与SCE接入)
 │   ├── scran.mbt               # scran 单细胞归一化与聚类 (sum_factors、SNN图、Leiden聚类、标志物分析)
+│   ├── scrapper.mbt            # scrapper 单细胞预处理 (批次感知RNA QC、大小因子、LOWESS/HVG、pseudo-bulk、SCE集成)
+│   ├── scuttle.mbt             # scuttle 1.23.1 batch MAD、per-feature QC、feature聚合、精确downsampling与SCE集成
+│   ├── bluster.mbt             # bluster 1.23.0 K-means、KNN/SNN图聚类、two-step、聚类诊断、稳定性与SCE集成
+│   ├── flowsom.mbt             # FlowSOM 2.21.0拓扑SOM、MST、meta-clustering、节点统计、outlier与容器集成
+│   ├── decontx.mbt             # decontX ambient RNA去污染 (Bayesian EM、background、自动聚类、计数分解、SCE集成)
+│   ├── celda.mbt               # celda_CG 细胞群与基因模块联合聚类 (collapsed likelihood、EM/Gibbs、多链、模型选择、SCE集成)
+│   ├── milo.mbt                # miloR KNN邻域差异丰度 (精炼采样、NB-GLM、graph spatial FDR、SCE接入)
+│   ├── zinbwave.mbt            # zinbwave 零膨胀NB低维模型 (EM/IRLS、latent factors、observational weights、SCE接入)
+│   ├── variance_partition.mbt  # variancePartition 混合模型方差分解、BLUP与dream重复测量检验
+│   ├── dreamlet.mbt            # dreamlet pseudobulk、TMM/voom权重、分cell-type混合模型与study-wide FDR
+│   ├── nnsvg.mbt               # nnSVG nearest-neighbor GP、空间变异检验、length scale与SpatialExperiment接入
+│   ├── banksy.mbt              # Banksy空间邻域harmonic、lambda联合特征、PCA、聚类、平滑与SpatialExperiment接入
+│   ├── voyager.mbt             # Voyager空间自相关：kNN/distance-band/inverse-distance权重、Moran's I/Geary's c(全局+局部)、Getis-Ord Gi*、Lee's L、变差函数拟合、Moran correlogram、置换检验BH-FDR与SpatialExperiment接入
+│   ├── spicyr.mbt              # spicyR cross-L共定位、边界校正、加权/随机截距模型与SpatialExperiment接入
+│   ├── lisaclust.mbt           # lisaClust local-K/L曲线、KDE、窗口边界修正、区域聚类与SpatialExperiment接入
+│   ├── spatialdecon.mbt         # SpatialDecon背景感知log-normal解卷积、异常点重拟合、不确定度与容器接入
 │   ├── monocle3.mbt            # monocle3 单细胞轨迹分析 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read.mbt          # ShortRead 短读序列质量控制 (QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告)
 │   ├── seq_quality_trim.mbt    # NGS质量修剪与接头去除 (质量修剪、接头去除、poly-A修剪、长度/GC过滤、批量修剪)
 │   ├── scater.mbt              # scater 单细胞质量控制 (QC指标计算、细胞/基因过滤、标准化、HVG检测、PCA)
-│   ├── mast.mbt                # MAST 单细胞差异表达分析 (Hurdle模型、离散/连续检验、BH-FDR校正)
+│   ├── mast.mbt                # MAST 兼容层 (检测率/Welch检验、BH-FDR与旧版结果API)
+│   ├── mast_advanced.mbt       # MAST 1.39.0 Bayesian hurdle GLM、嵌套LRT、eBayes与SCE接入
 │   ├── genomic_files.mbt       # GenomicFiles 分布式基因组文件处理 (BAM/BED/VCF扫描、区间查询、归约、覆盖度)
 │   ├── diffbind.mbt            # DiffBind ChIP-seq差异结合分析 (峰值重叠、共识峰、TMM归一化、NB检验)
 │   ├── minfi.mbt               # minfi DNA甲基化分析 (NOOB/Illumina/分位数/功能归一化、β/M值、DMP/DMR分析)
@@ -539,6 +711,7 @@ IvanAXu/BioSeqs/
 │   ├── delayed_array.mbt        # DelayedArray 延迟计算数组 (懒加载操作、分块处理、行/列聚合、子集操作)
 │   ├── annotation_filter.mbt    # AnnotationFilter 基因注释过滤 (染色体筛选、生物类型过滤、区域重叠检测、符号模式匹配)
 │   ├── sc_dbl_finder.mbt        # scDblFinder 单细胞双细胞检测 (Doublet评分计算、最近邻搜索、PCA降维、细胞过滤)
+│   ├── sc_dbl_finder_advanced.mbt # scDblFinder 1.27.6高级流程 (人工doublet、kNN/cxds特征、迭代分类、分层阈值、来源富集与SCE接入)
 │   ├── batchelor.mbt            # Batchelor 单细胞批次校正 (rescaleBatches、mutual nearest neighbor、fastMNN、批次混合评分)
 │   ├── seurat.mbt               # Seurat 单细胞数据分析核心 (标准化、高可变基因、PCA、聚类、UMAP、差异表达、跨样本整合)
 │   ├── variation.mbt            # Bio.Variation 变异分析 (SNP分析、突变检测、氨基酸替换分析、BLOSUM62/Grantham矩阵)
@@ -556,7 +729,8 @@ IvanAXu/BioSeqs/
 │   ├── metagenomeseq.mbt        # metagenomeSeq 零膨胀模型微生物组差异丰度分析 (归一化、零膨胀概率计算)
 │   ├── hilbertcurve.mbt         # HilbertCurve Hilbert曲线坐标映射 (编码/解码、距离计算、基因组线性化)
 │   ├── taxonomy.mbt             # Taxonomy 分类学分析 (Taxon/TaxonomyDatabase、谱系查询、共同祖先计算)
-│   ├── single_r.mbt             # SingleR 细胞类型注释 (参考图谱、Spearman/Pearson相关性、精细调优)
+│   ├── single_r.mbt             # SingleR 兼容层 (参考图谱、Spearman/Pearson相关性、旧版结果API)
+│   ├── single_r_advanced.mbt    # SingleR 2.15.2 marker训练、分位数分类、fine-tuning、剪枝、多参考与SCE接入
 │   ├── cyclone.mbt              # Cyclone 细胞周期评分 (基因对比较、G1/S/G2/M期相预测)
 │   ├── dorothea.mbt             # dorothea 转录因子活性预测 (Regulon、VIPER、置换检验)
 │   ├── gff.mbt                  # GFF GFF3格式解析 (GFFFeature/GFFRecord、属性解析、特征提取)
@@ -580,11 +754,13 @@ IvanAXu/BioSeqs/
 │   ├── phenotype.mbt            # Bio.phenotype 表型微阵列分析 (WellRecord/PlateRecord/PhenFitParams、logistic/Gompertz拟合、CSV/JSON解析)
 │   ├── blast_applications.mbt   # Bio.Blast.Applications BLAST命令行工具包装 (8种BLAST变体、快速构建器、参数管理)
 │   ├── qcp_superimposer.mbt     # QCP叠加 (四元数旋转、结构比对、RMSD计算、最优叠加)
+│   ├── cealign.mbt               # Bio.PDB.cealign CE组合扩展结构比对 (AFP路径、Z-score、QCP叠合、全原子变换)
 │   ├── psea.mbt                 # Bio.PDB.PSEA 二级结构预测 (PseaAtom/PseaResult、CA-CA距离、虚拟二面角、H/E/C分配、三态到八态转换)
 │   ├── sff_io.mbt               # Bio.SeqIO.SffIO SFF二进制格式解析 (SffHeader/SffRead/SffFile、二进制编码/解码、质量修剪)
 │   ├── seq_complexity.mbt       # 序列复杂度与组成分析 (Shannon熵、GC偏斜、混沌游戏表示)
 │   ├── csaw.mbt                 # csaw ChIP-seq窗口差异分析 (滑动窗口计数、TMM归一化、窗口过滤、负二项GLM检验、差异区域检测)
 │   ├── slingshot.mbt            # slingshot 单细胞轨迹推断 (MST构建、主曲线拟合、拟时间计算、分支检测)
+│   ├── slingshot_advanced.mbt   # slingshot 2.21.0 soft membership、约束forest、同时主曲线、预测与SCE接入
 │   ├── scnorm.mbt               # SCnorm 单细胞RNA-seq归一化 (分位数回归、深度依赖偏差校正、基因特异性归一化)
 │   ├── edaseq.mbt               # EDASeq RNA-seq探索性分析 (GC含量归一化、基因长度校正Loess、样本间归一化、RPKM计算)
 │   ├── searchio.mbt             # Bio.SearchIO 统一搜索结果模型 (BLAST/HMMER解析、QueryResult/Hit/HSP层次结构、E-value过滤)
@@ -598,13 +774,14 @@ IvanAXu/BioSeqs/
 │   ├── rtsne.mbt                # Rtsne t-SNE降维算法 (距离矩阵、条件概率、梯度下降、动量优化)
 │   ├── uwot.mbt                 # uwot UMAP降维算法 (k近邻、模糊单纯集、SGD优化、负采样)
 │   ├── tradeseq.mbt             # tradeSeq 轨迹差异表达分析 (TrajectoryPoint、GAM拟合、样条基函数、差异检验)
+│   ├── tradeseq_advanced.mbt    # tradeSeq 1.27.0多lineage NB-GAM、Wald检验、预测、knot评估与容器接入
 │   ├── progeny.mbt              # PROGENy 通路活性推断 (L2正则化线性回归、Ridge回归、通路基因集权重矩阵)
 │   ├── aucell.mbt               # AUCell 单细胞基因集评分 (AUC计算、基因排序、min-max归一化)
 │   ├── geoquery.mbt             # GEO数据库查询 (GDS/GSE/GSM解析、数据下载、平台信息)
 │   ├── ggtree.mbt               # ggtree 系统发育树可视化布局 (矩形/放射状/无根布局、节点坐标映射)
 │   ├── mix_omics.mbt           # mixOmics 多组学整合 (PLS/sPLS/DIABLO)
-│   ├── maf.mbt                 # MAF (Multiple Alignment Format) 多序列比对格式解析与分析
-│   ├── mauve.mbt               # Mauve 基因组比对格式解析与重排分析
+│   ├── maf.mbt                 # 早期宽松MAF块解析、选择、过滤与统计分析
+│   ├── mauve.mbt               # 历史MAF-like块兼容解析与LCB重排分析（非现代XMFA）
 │   ├── stockholm.mbt           # Stockholm 格式解析 (Pfam/Rfam比对) 与二级结构分析
 │   ├── popgen_advanced.mbt     # 高级群体遗传学统计 (Tajima's D, Fu & Li's D/F, MK检验)
 │   ├── codon_advanced.mbt      # 高级密码子分析 (CAI, RSCU, ENC, GC3)
@@ -630,6 +807,7 @@ IvanAXu/BioSeqs/
 │   ├── karyoploter.mbt         # karyoploteR 核型可视化 (染色体轨道、数据点、ASCII渲染)
 │   ├── system_piper.mbt        # SystemPipeR 流水线编排 (步骤管理、依赖关系、进度追踪)
 │   ├── muscat.mbt              # muscat 单细胞差异状态分析 (伪批量聚合、DS检验)
+│   ├── muscat_advanced.mbt     # muscat 1.27.4 NB-IRLS DS/DD、stagewise检验与SCE接入
 │   ├── infercnv.mbt            # infercnv 单细胞CNV推断 (基因组位置平滑、参考细胞比较、CNV评分)
 │   ├── scenic.mbt              # SCENIC 单细胞调控网络推断 (共表达模块、Regulon构建、AUCell活性评分)
 │   ├── cibersort.mbt           # CIBERSORT 免疫细胞去卷积 (NNLS求解、LM22风格特征矩阵、分数归一化)
@@ -685,6 +863,7 @@ IvanAXu/BioSeqs/
 │   ├── velociraptor.mbt        # velociraptor 单细胞RNA velocity (稳态回归、EM动力学模型、velocity向量、KNN嵌入投影)
 │   ├── compass.mbt             # Bio.Compass COMPASS profile-profile比对输出解析 (版本提取、多记录解析、E值/一致性过滤、摘要)
 │   ├── exonerate.mbt           # Bio.SearchIO.ExonerateIO Exonerate输出解析 (vulgar/cigar格式、比对块解析、内含子统计、字符串重建)
+│   ├── exonerate_text.mbt      # Bio.SearchIO.ExonerateIO C4文本报告、层次结果、剪接/翻译语义与坐标投影
 │   ├── mmcifio.mbt             # Bio.PDB.mmcifio mmCIF文件写入 (Structure序列化、20列atom_site loop、HETATM支持、值转义)
 │   ├── interproscan.mbt        # Bio.SearchIO.InterproscanIO InterProScan输出解析 (TSV 14列、数据库/蛋白质过滤、GO提取、分组)
 │   ├── sasa.mbt                # Bio.PDB.SASA 溶剂可及表面积 (Shrake-Rupley滚动球、Fibonacci球面采样、VDW半径、骨架/侧链拆分)
@@ -713,6 +892,8 @@ IvanAXu/BioSeqs/
 │   ├── transfac.mbt            # Bio.Motifs.Transfac TRANSFAC转录因子结合谱解析 (PFM频率矩阵、AC/ID/DE/BF/CC字段、参考文献、共识序列)
 │   ├── hmmer_io.mbt            # Bio.SearchIO.HmmerIO HMMER3输出解析 (domtblout域表、文本格式、Query/Hit/HSP/Domain聚合)
 │   ├── fasta_search_io.mbt     # Bio.SearchIO.FastaIO FASTA搜索输出解析 (-m8紧凑表格、-m9带注释头、元数据提取)
+│   ├── infernal_io.mbt         # Bio.SearchIO.InfernalIO cmscan/cmsearch解析 (tabular 1/2/3、non-verbose文本、local-end片段)
+│   ├── hhr.mbt                 # Bio.Align.hhr HH-suite HHR解析、命中查询、坐标映射与序列化
 │   ├── gene_pop.mbt            # Bio.PopGen.GenePop GenePop群体遗传学 (基因型解析、等位基因频率、杂合度、序列化往返)
 │   ├── stage_r.mbt             # Bioconductor stageR 两阶段假设检验 (筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制)
 │   ├── enriched_heatmap.mbt    # Bioconductor EnrichedHeatmap 基因组信号归一化 (窗口化、四种均值模式、行平滑、百分位裁剪)
@@ -721,6 +902,7 @@ IvanAXu/BioSeqs/
 │   ├── phylo_cdao.mbt          # Bio.Phylo.CDAO CDAO本体RDF/XML格式 (Tree/Node/TU/Edge、Newick双向转换、命名空间处理)
 │   ├── smart.mbt               # Bio.Smart SMART蛋白质结构域数据库解析 (结构域分类、E值过滤、GO注释、查询与摘要)
 │   ├── protein_analysis.mbt    # Bio.protein_analysis 蛋白质序列高级分析 (疏水性、GOR二级结构、抗原性、跨膜预测、保守性)
+│   ├── protein_analysis_advanced.mbt # 高级蛋白质序列预测 (Chou-Fasman二级结构、IUPred无序区、COILS卷曲螺旋、Kolaskar抗原性、Emini表面可及性、Karplus-Schulz柔柔性)
 │   ├── pcd.mbt                 # Bio.PCD 质谱PCD格式解析 (图谱解析、TIC/BPC色谱图、峰过滤、前体离子、序列化)
 │   └── utils.mbt               # 通用工具函数
 ├── examples/                   # 示例程序
@@ -751,6 +933,7 @@ IvanAXu/BioSeqs/
 │   ├── consensus_cluster_plus_demo/ # ConsensusClusterPlus 共识聚类示例
 │   ├── cyclone_demo/            # Cyclone 细胞周期评分示例 (基因对比较、G1/S/G2/M期相预测)
 │   ├── codon_align_demo/       # CodonAlign 密码子比对示例 (密码子替换分类、dN/dS选择压力分析、密码子使用偏好)
+│   ├── codon_align_advanced_demo/ # CodonAlign 高级密码子比对示例 (Z-test选择检验、Fisher精确检验、密码子比对构建器、滑窗dN/dS、成对Ka/Ks表)
 │   ├── codon_usage_demo/       # CodonUsage 密码子使用分析示例 (CAI、ENC、RSCU、GC3、CBI、Fop、最优密码子检测)
 │   ├── cram_demo/              # CRAM 格式解析示例 (压缩二进制序列比对格式、CRAM转BAM、参考序列管理)
 │   ├── de_bruijn_demo/         # De Bruijn Graph 序列组装示例
@@ -765,6 +948,8 @@ IvanAXu/BioSeqs/
 │   ├── enrichplot_demo/        # enrichplot 富集分析结果可视化示例
 │   ├── ensembldb_demo/         # ensembldb Ensembl注释数据库接口示例
 │   ├── expasy_demo/            # ExPASy 蛋白质分析工具接口示例
+│   ├── cellosaurus_demo/       # Cellosaurus 记录解析、查询与序列化示例
+│   ├── unigene_demo/           # UniGene cluster解析、子记录查询与序列化往返示例
 │   ├── entrez_demo/            # Entrez NCBI数据库访问示例 (ESearch、EFetch、PubMed/Gene/Taxonomy解析)
 │   ├── faidx_demo/             # FASTA 索引示例
 │   ├── fgsea_demo/             # fgsea 快速基因集富集分析示例 (置换检验、NES/ES计算、Leading Edge基因)
@@ -772,6 +957,7 @@ IvanAXu/BioSeqs/
 │   ├── genomic_alignments_demo/ # GenomicAlignments 基因组比对分析示例 (GAlignments、coverage、summarizeOverlaps、pileup)
 │   ├── genomic_ranges_demo/    # GenomicRanges 基因组区间操作示例
 │   ├── genomic_ranges_advanced_demo/ # GenomicRanges tile/slidingWindows/区间运算示例
+│   ├── granges_list_demo/      # GRangesList 复合转录本、精确重叠与分组实验容器示例
 │   ├── geoquery_demo/          # GEOquery GEO数据库示例 (Series Matrix解析、SOFT格式解析、ExpressionSet转换、基因过滤)
 │   ├── go_enrichment_demo/     # GOEnrichment GO功能富集分析示例 (超几何检验、BH校正、富集结果过滤)
 │   ├── hmm_demo/               # Hidden Markov Model 基因预测示例
@@ -787,6 +973,7 @@ IvanAXu/BioSeqs/
 │   ├── medline_demo/           # Medline/PubMed解析示例 (文献记录、APA引用、MeSH过滤)
 │   ├── ml_features/            # 机器学习特征提取示例
 │   ├── mmcif_demo/             # mmCIF格式解析示例 (数据块解析、类别查询、原子位点提取)
+│   ├── binary_cif_demo/        # BinaryCIF MessagePack解析、编码管线、mask与PDB Structure转换示例
 │   ├── motifs_demo/            # 序列模体识别示例
 │   ├── motifs_advanced_demo/   # 模体高级功能示例 (JASPAR/TRANSFAC解析、模体比对、KL/JS散度、模体聚类)
 │   ├── multi_assay_experiment_demo/ # MultiAssayExperiment 多组学数据协调示例 (实验协调、样本映射)
@@ -794,7 +981,11 @@ IvanAXu/BioSeqs/
 │   ├── neighbor_search_demo/   # NeighborSearch KD树近邻搜索示例 (半径搜索、最近邻、原子对搜索)
 │   ├── nexus_demo/             # Nexus格式解析示例 (数据矩阵、系统发育树、距离矩阵)
 │   ├── olc_demo/               # Overlap-Layout-Consensus 序列组装示例
-│   ├── paml_demo/              # Bio.PAML 分子进化分析示例
+│   ├── paml_demo/              # 历史内置近似dN/dS示例
+│   ├── paml_codeml_demo/       # CODEML control/result解析、BEB与模型比较示例
+│   ├── paml_baseml_demo/       # BASEML control、REV矩阵、离散gamma与LRT示例
+│   ├── paml_yn00_demo/         # YN00 control、五种估计、对称矩阵与汇总示例
+│   ├── blast_xml_advanced_demo/ # BLAST XML1/XML2、命中/HSP、translated坐标与规范往返示例
 │   ├── pdb_analysis_demo/      # PDB 高级结构分析示例 (主链二面角、氢键检测、二级结构分配、Ramachandran图、SASA计算、疏水性分析)
 │   ├── pdb_demo/               # PDB 结构解析示例
 │   ├── pdb_list_demo/          # Bio.PDB.PDBList PDB结构下载管理示例
@@ -818,12 +1009,14 @@ IvanAXu/BioSeqs/
 │   ├── seqfeature_advanced_demo/  # Bio.SeqFeature CompoundLocation与LocationParser
 │   ├── rna_structure_demo/       # RNA二级结构预测示例
 │   ├── single_cell_demo/       # SingleCell 单细胞数据分析示例 (QC指标、Log标准化、PCA降维、高变异基因)
-│   ├── single_r_demo/           # SingleR 细胞类型注释示例 (参考图谱、Spearman/Pearson相关性、精细调优)
+│   ├── single_r_demo/           # SingleR 2.15.2 markers、分位数分类、cluster、多参考与SCE写回示例
 │   ├── smith_waterman_demo/    # Smith-Waterman 局部序列比对示例
 │   ├── subsmat_demo/           # 替换矩阵示例 (BLOSUM62/45、PAM250/30矩阵查询、蛋白质比对打分)
 │   ├── substitution_matrices_demo/ # 现代替换矩阵示例 (矩阵注册表、频率矩阵计算、log-odds打分、Shannon熵、KL散度、NCBI解析)
 │   ├── suffix_array_tree_demo/ # Suffix Array & Suffix Tree 示例
 │   ├── summarized_experiment_demo/ # SummarizedExperiment 数据容器示例
+│   ├── ranged_summarized_experiment_demo/ # RangedSummarizedExperiment GRanges重叠、最近邻、区间变换与排序示例
+│   ├── tree_summarized_experiment_demo/ # TreeSummarizedExperiment 行/列树链接、节点子集与聚合示例
 │   ├── sva_demo/               # sva 替代变量分析与ComBat批次校正示例 (经验贝叶斯方法、PCA分析)
 │   ├── svd_superimposer_demo/  # SVDSuperimposer SVD蛋白质结构叠合示例 (旋转矩阵、平移向量、RMSD计算)
 │   ├── structure_alignment_demo/ # Bio.PDB.StructureAlignment 多蛋白质结构比对示例
@@ -840,12 +1033,31 @@ IvanAXu/BioSeqs/
 │   ├── annotation_hub_demo/    # AnnotationHub 中心化注释资源访问示例 (资源搜索、类型/提供者/基因组查询)
 │   ├── genomic_features_demo/  # GenomicFeatures 基因组注释示例 (GTF解析、基因/转录本/外显子查询、区域查询)
 │   ├── graph_demo/             # graph 图数据结构示例 (有向/无向图构建、最短路径、连通分量、DOT输出)
-│   ├── droplet_utils_demo/     # DropletUtils 空液滴检测示例 (emptyDrops算法、knee点检测、细胞过滤)
+│   ├── droplet_utils_demo/     # DropletUtils ambient profile、alpha估计、barcode-rank、emptyDrops、过滤与SCE写回示例
 │   ├── scran_demo/             # scran 单细胞归一化与聚类示例 (sum_factors、SNN图、Leiden聚类、标志物分析)
+│   ├── scrapper_demo/          # scrapper 批次感知RNA QC、归一化、LOWESS/HVG、pseudo-bulk与SCE集成示例
+│   ├── scuttle_demo/           # scuttle batch MAD、subset QC、feature聚合、coverage等化与不可变SCE示例
+│   ├── bluster_demo/           # bluster K-means、SNN图、two-step、聚类诊断、bootstrap稳定性与不可变SCE示例
+│   ├── flowsom_demo/           # FlowSOM拓扑训练、MST、节点统计、outlier、新数据与FlowFrame/SCE示例
+│   ├── decontx_demo/           # decontX cluster/background去污染、marker校正、诊断与SCE输出示例
+│   ├── celda_demo/             # celda_CG联合聚类、module marker、细胞预测、模型选择与SCE输出示例
+│   ├── milo_demo/              # miloR KNN图、精炼邻域、NB差异丰度、spatial FDR与SCE接入示例
+│   ├── zinbwave_demo/          # zinbwave latent factors、dropout权重、残差/插补与SCE集成示例
+│   ├── apeglm_demo/            # apeglm MLE/MAP、重尾收缩、FSR/FSOS、TSV与SE接入示例
+│   ├── aldex2_demo/            # ALDEx2 IQLR、Dirichlet实例、effect/eBH、距离与SE接入示例
+│   ├── dirichlet_multinomial_demo/ # DMM聚类、选K、分组分类、交叉验证、ROC与SE接入示例
+│   ├── variance_partition_demo/ # variancePartition 方差分解、BLUP、precision weights、dream与SE接入示例
+│   ├── dreamlet_demo/          # dreamlet SCE pseudobulk、TMM/voom、donor随机截距与跨cell-type FDR示例
+│   ├── nnsvg_demo/             # nnSVG空间变异基因、length scale、过滤与SpatialExperiment接入示例
+│   ├── banksy_demo/            # Banksy H0/H1、lambda扫描、PCA聚类、平滑与SpatialExperiment接入示例
+│   ├── voyager_demo/           # Voyager空间权重、Moran/Geary/Getis-Ord/Lee's L、变差函数、correlogram与SpatialExperiment接入示例
+│   ├── spicyr_demo/            # spicyR cross-L、条件对比、重复受试者模型与SpatialExperiment接入示例
+│   ├── lisaclust_demo/         # lisaClust local-K/L、区域聚类、富集与SpatialExperiment写回示例
+│   ├── spatialdecon_demo/       # SpatialDecon背景校正、丰度/计数、collapse、reverse与SpatialExperiment示例
 │   ├── monocle3_demo/          # monocle3 单细胞轨迹分析示例 (PCA/UMAP降维、主图学习、拟时间排序)
 │   ├── short_read_demo/        # ShortRead 短读序列质量控制示例 (QA统计、adapter修剪、质量修剪、FastQC报告)
 │   ├── scater_demo/            # scater 单细胞质量控制示例 (QC指标计算、细胞/基因过滤、标准化、HVG检测、PCA)
-│   ├── mast_demo/              # MAST 单细胞差异表达分析示例 (Hurdle模型、离散/连续检验、BH-FDR校正)
+│   ├── mast_demo/              # MAST 1.39.0双组分GLM、LRT/eBayes、边际效应与SCE写回示例
 │   ├── genomic_files_demo/     # GenomicFiles 分布式基因组文件处理示例 (BAM/BED/VCF扫描、区间查询、归约、覆盖度)
 │   ├── diffbind_demo/          # DiffBind ChIP-seq差异结合分析示例 (峰值重叠、共识峰、TMM归一化、NB检验)
 │   ├── minfi_demo/             # minfi DNA甲基化分析示例 (NOOB/Illumina/分位数/功能归一化、β/M值、DMP/DMR分析)
@@ -864,9 +1076,10 @@ IvanAXu/BioSeqs/
 │   ├── gsva_demo/              # GSVA 基因集变异分析示例 (ssGSEA/zscore/PLAGE评分、富集分析、置换检验、富集图可视化、表型相关性分析、生存分析、分数分布分析)
 │   ├── chromvar_demo/          # ChromVAR 染色质变异分析示例 (TF motif富集、GC偏差校正、细胞聚类、变异性分析)
 │   ├── delayed_array_demo/     # DelayedArray 延迟计算数组示例 (懒加载操作、分块处理、行/列聚合、子集操作)
+│   ├── sparse_array_demo/      # SparseArray N维稀疏张量、切片/置换、统计、算术与矩阵乘法示例
 │   ├── annotation_filter_demo/ # AnnotationFilter 基因注释过滤示例 (染色体筛选、生物类型过滤、区域重叠检测、符号模式匹配)
 │   ├── sc3_demo/                # SC3 单细胞共识聚类示例
-│   ├── sc_dbl_finder_demo/     # scDblFinder 单细胞双细胞检测示例 (Doublet评分计算、最近邻搜索、PCA降维、细胞过滤)
+│   ├── sc_dbl_finder_demo/     # scDblFinder高级流程示例 (capture分层、已知doublet、来源富集、自动聚类、过滤与SCE写回)
 │   ├── batchelor_demo/          # Batchelor 单细胞批次校正示例 (rescaleBatches、fastMNN、mutual nearest neighbor、批次混合评分)
 │   ├── seurat_demo/             # Seurat 单细胞数据分析示例 (标准化、高可变基因、PCA、聚类、UMAP、差异标志物分析、跨样本整合)
 │   ├── chipseeker_demo/         # ChIPseeker ChIP-seq峰值注释示例 (基因组区域分类(启动子/外显子/内含子/UTR/基因间区)、距离TSS分布、BED格式读取、peak2gene关联分析、注释可视化、统计分析)
@@ -906,10 +1119,12 @@ IvanAXu/BioSeqs/
 │   ├── sff_io_demo/              # Bio.SeqIO.SffIO SFF二进制解析示例 (二进制编码/解码往返、质量修剪、按名称查找)
 │   ├── csaw_demo/                # csaw ChIP-seq窗口差异分析示例 (滑动窗口、TMM归一化、差异区域检测)
 │   ├── slingshot_demo/           # slingshot 单细胞轨迹推断示例 (MST构建、主曲线、拟时间计算)
+│   ├── slingshot_advanced_demo/  # slingshot约束MST、同时主曲线、分支、预测及不可变SCE示例
 │   ├── scnorm_demo/              # SCnorm 单细胞RNA-seq归一化示例 (分位数回归、深度依赖校正)
 │   ├── edaseq_demo/              # EDASeq RNA-seq探索性分析示例 (GC归一化、Loess校正、RPKM计算)
 │   ├── pdb_vectors_demo/         # Bio.PDB.vectors 3D向量与旋转矩阵示例 (Vector3运算、Kabsch叠合、二面角计算)
 │   ├── qcp_superimposer_demo/    # Bio.PDB.QCPSuperimposer 四元数结构叠合示例
+│   ├── cealign_demo/             # Bio.PDB.cealign CE组合扩展结构比对、路径统计与不可变全原子变换示例
 │   ├── circ_seq_demo/            # Bio.SeqUtils.CircSeq 环状DNA操作示例 (酶切分析、PCR引物设计、序列旋转)
 │   ├── align_abstract_demo/      # Bio.Align.AlignAbstract 抽象比对示例 (一致性序列、Shannon熵、同一性矩阵、简约信息位点)
 │   ├── maftools_demo/            # maftools 癌症基因组学示例 (MAF数据创建、突变分类、TMB计算、突变谱分析)
@@ -919,12 +1134,13 @@ IvanAXu/BioSeqs/
 │   ├── rtsne_demo/               # Rtsne t-SNE降维示例 (距离矩阵、条件概率、梯度下降、动量优化)
 │   ├── uwot_demo/                # uwot UMAP降维示例 (k近邻、模糊单纯集、SGD优化、负采样)
 │   ├── tradeseq_demo/            # tradeSeq 轨迹差异表达示例 (GAM拟合、基因平滑、差异检验、可视化)
+│   ├── tradeseq_advanced_demo/   # tradeSeq NB-GAM、五类检验、预测、knot、Slingshot与SCE示例
 │   ├── progeny_demo/             # PROGENy 通路活性推断示例 (L2正则化回归、通路基因集、样本活性计算)
 │   ├── aucell_demo/              # AUCell 单细胞基因集评分示例 (AUC计算、归一化、细胞/基因集评分)
 │   ├── ggtree_demo/              # ggtree 系统发育树可视化示例 (矩形/放射状/无根布局、节点坐标)
 │   ├── mix_omics_demo/          # mixOmics 多组学整合演示
 │   ├── maf_demo/                 # MAF 格式解析与分析示例 (解析、统计、选择、过滤、写回)
-│   ├── mauve_demo/               # Mauve 基因组比对分析示例 (倒位检测、断点检测、覆盖率、BED导出)
+│   ├── mauve_demo/               # 历史MAF-like块重排分析示例 (倒位检测、断点检测、覆盖率、BED导出)
 │   ├── stockholm_demo/           # Stockholm 格式解析示例 (Pfam/Rfam格式、二级结构、保守性分析)
 │   ├── popgen_advanced_demo/     # 高级群体遗传学示例 (Tajima's D、Fu & Li、MK检验、中性分析)
 │   ├── codon_advanced_demo/      # 高级密码子分析示例 (CAI、RSCU、ENC、最优/稀有密码子)
@@ -950,6 +1166,7 @@ IvanAXu/BioSeqs/
 │   ├── karyoploter_demo/         # karyoploteR 核型可视化示例
 │   ├── system_piper_demo/        # SystemPipeR 流水线编排示例
 │   ├── muscat_demo/             # muscat 单细胞差异状态分析示例
+│   ├── muscat_advanced_demo/    # muscat 1.27.4伪批量、NB-IRLS DS/DD、stagewise与SCE示例
 │   ├── infercnv_demo/           # infercnv 单细胞拷贝数变异推断示例
 │   ├── scenic_demo/             # SCENIC 单细胞调控网络推断示例
 │   ├── cibersort_demo/          # CIBERSORT 免疫细胞去卷积示例
@@ -1011,6 +1228,7 @@ IvanAXu/BioSeqs/
 │   ├── velociraptor_demo/        # velociraptor RNA velocity示例 (稳态/动力学模型、velocity向量、嵌入投影、根细胞识别)
 │   ├── compass_demo/             # Bio.Compass COMPASS比对输出解析示例 (profile-profile比对解析、E值过滤、摘要)
 │   ├── exonerate_demo/           # Bio.SearchIO.ExonerateIO Exonerate输出解析示例 (vulgar/cigar解析、内含子统计、字符串重建)
+│   ├── exonerate_text_demo/      # Exonerate C4层次结果、fragment坐标、intron区间与统计的离线示例
 │   ├── mmcifio_demo/             # Bio.PDB.mmcifio mmCIF写入示例 (Structure序列化、atom_site loop、round-trip验证)
 │   ├── interproscan_demo/        # Bio.SearchIO.InterproscanIO InterProScan解析示例 (TSV解析、数据库过滤、GO条目、分组)
 │   ├── sasa_demo/                # Bio.PDB.SASA 溶剂可及表面积示例 (Shrake-Rupley算法、逐原子/残基SASA、骨架/侧链拆分)
@@ -1039,6 +1257,29 @@ IvanAXu/BioSeqs/
 │   ├── transfac_demo/           # TRANSFAC转录因子结合谱解析示例 (PFM矩阵、共识序列、频率计算、序列化、参考文献)
 │   ├── hmmer_io_demo/           # HMMER3输出解析示例 (domtblout域表、文本格式、Query/Hit/HSP聚合、多域比对)
 │   ├── fasta_search_io_demo/    # FASTA搜索输出解析示例 (-m8表格、-m9注释头、元数据、Query/Hit/HSP聚合)
+│   ├── infernal_io_demo/        # Infernal cmscan/cmsearch解析示例 (tabular 3、文本local-end、过滤、SearchIO转换)
+│   ├── hhr_demo/                # HH-suite HHR解析、命中筛选、坐标映射与序列化往返示例
+│   ├── shared_reference_alignment_demo/ # 共享参考PWA/MSA合并、insertion同步、坐标映射与FASTA转换示例
+│   ├── alignment_map_demo/      # Alignment.map/mapall、反链、PSL与protein-to-codon MSA投影示例
+│   ├── alignment_counts_demo/   # Alignment.counts gap分类、affine/BLOSUM评分、反链与MSA汇总示例
+│   ├── align_tabular_demo/      # BLAST BTOP、FASTA aln_code与translated反链坐标解析示例
+│   ├── align_psl_demo/          # PSL/PSLX读写、反链映射、translated recount与文档摘要示例
+│   ├── align_sam_demo/          # SAM header/path、反链、splicing、typed tags、MD/NM与往返示例
+│   ├── a2m_demo/                # A2M状态解析、插入槽、共识、坐标、统计、投影与往返示例
+│   ├── align_emboss_demo/       # EMBOSS元数据、局部/反向坐标、path、统计与wrapped往返示例
+│   ├── align_exonerate_demo/    # Exonerate剪接/translated path、坐标映射、统计与双格式往返示例
+│   ├── msf_demo/                # GCG MSF解析、checksum、坐标映射、统计、宽度异常与规范往返示例
+│   ├── align_nexus_demo/        # NEXUS interleave解析、quoted taxa、坐标统计、all-gap压缩与规范往返示例
+│   ├── align_stockholm_demo/    # Stockholm GF/GS/GR/GC、insertion列、坐标统计、all-gap压缩与规范往返示例
+│   ├── align_chain_demo/        # Chain多记录、正反链路径、block/counts、坐标映射、反转与规范往返示例
+│   ├── align_maf_demo/          # MAF track/a/s/i/e/q、绝对路径、component映射、索引、拼接与规范往返示例
+│   ├── align_mauve_demo/        # XMFA metadata/LCB、正负链路径、统计、索引、投影、重建与规范往返示例
+│   ├── align_clustal_demo/      # CLUSTAL metadata、consensus、坐标路径、投影、统计与累计计数往返示例
+│   ├── align_phylip_demo/       # PHYLIP布局识别、名称规范化、坐标、统计及两种布局往返示例
+│   ├── align_bed_demo/          # BED3-BED12、正负链路径、block、坐标映射、搜索、统计与规范往返示例
+│   ├── bigbed_demo/             # BigBed写入/解析、索引查询、负链exon坐标、BED导出与损坏诊断
+│   ├── bigmaf_demo/             # BigMaf压缩写入、bedMaf schema、区间查询、负链映射与MAF导出
+│   ├── bigpsl_demo/             # BigPsl压缩写入、R-tree查询、反链/translated坐标与PSL导出
 │   ├── gene_pop_demo/           # GenePop群体遗传学示例 (基因型解析、等位基因频率、杂合度统计、序列化往返)
 │   ├── stage_r_demo/            # stageR两阶段检验示例 (筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制)
 │   ├── enriched_heatmap_demo/   # EnrichedHeatmap富集热图示例 (信号归一化、四种均值模式、行平滑、链方向处理)
@@ -1047,6 +1288,7 @@ IvanAXu/BioSeqs/
 │   ├── phylo_cdao_demo/         # CDAO本体RDF/XML示例 (Tree/Node/TU构建、解析往返、Newick转换)
 │   ├── smart_demo/              # SMART结构域解析示例 (结构域检测、E值过滤、GO注释、摘要报告)
 │   ├── protein_analysis_demo/   # 蛋白质分析示例 (疏水性、GOR二级结构、抗原性、跨膜预测、保守性)
+│   ├── protein_analysis_advanced_demo/ # 高级蛋白质序列预测示例 (Chou-Fasman二级结构、IUPred无序区、COILS卷曲螺旋、Kolaskar抗原性、Emini表面可及性、Karplus-Schulz柔柔性)
 │   ├── pcd_demo/                # 质谱PCD格式示例 (图谱解析、TIC/BPC色谱图、峰过滤、序列化往返)
 ├── test/
 │   ├── moonbit/                # MoonBit 测试文件
@@ -1059,6 +1301,7 @@ IvanAXu/BioSeqs/
 │   │   ├── bio_seq_wb_test.mbt
 │   │   ├── biostrings_test.mbt
 │   │   ├── blast_test.mbt
+│   │   ├── blast_xml_advanced_test.mbt
 │   │   ├── bloom_filter_test.mbt
 │   │   ├── bwt_fm_test.mbt
 │   │   ├── cluster_test.mbt
@@ -1076,6 +1319,7 @@ IvanAXu/BioSeqs/
 │   │   ├── genomic_alignments_test.mbt
 │   │   ├── genomic_ranges_test.mbt
 │   │   ├── genomic_ranges_advanced_test.mbt
+│   │   ├── granges_list_test.mbt
 │   │   ├── go_enrichment_test.mbt
 │   │   ├── hmm_test.mbt
 │   │   ├── hmm_wbtest.mbt
@@ -1101,12 +1345,15 @@ IvanAXu/BioSeqs/
 │   │   ├── sequtils_test.mbt
 │   │   ├── single_cell_test.mbt
 │   │   ├── single_r_test.mbt
+│   │   ├── single_r_advanced_test.mbt
 │   │   ├── smith_waterman_test.mbt
 │   │   ├── subsmat_test.mbt
 │   │   ├── substitution_matrices_test.mbt
 │   │   ├── suffix_array_tree_test.mbt
 │   │   ├── suffix_array_tree_wbtest.mbt
 │   │   ├── summarized_experiment_test.mbt
+│   │   ├── ranged_summarized_experiment_test.mbt
+│   │   ├── tree_summarized_experiment_test.mbt
 │   │   ├── svd_superimposer_test.mbt
 │   │   ├── tree_io_test.mbt
 │   │   ├── txdb_test.mbt
@@ -1145,6 +1392,8 @@ IvanAXu/BioSeqs/
 │   │   ├── bioc_generics_test.mbt
 │   │   ├── bioc_parallel_test.mbt
 │   │   ├── bsseq_test.mbt
+│   │   ├── cellosaurus_test.mbt
+│   │   ├── unigene_test.mbt
 │   │   ├── checksum_test.mbt
 │   │   ├── chipseeker_test.mbt
 │   │   ├── chromvar_test.mbt
@@ -1155,6 +1404,7 @@ IvanAXu/BioSeqs/
 │   │   ├── consensus_cluster_plus_test.mbt
 │   │   ├── csaw_test.mbt
 │   │   ├── delayed_array_test.mbt
+│   │   ├── sparse_array_test.mbt
 │   │   ├── destiny_test.mbt
 │   │   ├── rtsne_test.mbt
 │   │   ├── uwot_test.mbt
@@ -1162,6 +1412,7 @@ IvanAXu/BioSeqs/
 │   │   ├── diffbind_test.mbt
 │   │   ├── dose_test.mbt
 │   │   ├── droplet_utils_test.mbt
+│   │   ├── droplet_utils_advanced_test.mbt
 │   │   ├── dss_test.mbt
 │   │   ├── dssp_test.mbt
 │   │   ├── edaseq_test.mbt
@@ -1187,6 +1438,7 @@ IvanAXu/BioSeqs/
 │   │   ├── kmer_test.mbt
 │   │   ├── maftools_test.mbt
 │   │   ├── mast_test.mbt
+│   │   ├── mast_advanced_test.mbt
 │   │   ├── matrix_test.mbt
 │   │   ├── medline_test.mbt
 │   │   ├── melting_temp_test.mbt
@@ -1198,6 +1450,9 @@ IvanAXu/BioSeqs/
 │   │   ├── nexus_test.mbt
 │   │   ├── nucle_r_test.mbt
 │   │   ├── paml_test.mbt
+│   │   ├── paml_codeml_test.mbt
+│   │   ├── paml_baseml_test.mbt
+│   │   ├── paml_yn00_test.mbt
 │   │   ├── pathway_test.mbt
 │   │   ├── pdb_analysis_test.mbt
 │   │   ├── pdb_dice_test.mbt
@@ -1218,15 +1473,55 @@ IvanAXu/BioSeqs/
 │   │   ├── prosite_test.mbt
 │   │   ├── psea_test.mbt
 │   │   ├── qcp_superimposer_test.mbt
+│   │   ├── cealign_test.mbt
 │   │   ├── reactome_pa_test.mbt
 │   │   ├── residue_depth_test.mbt
 │   │   ├── rhdf5_test.mbt
 │   │   ├── s4vectors_test.mbt
 │   │   ├── sc3_test.mbt
 │   │   ├── sc_dbl_finder_test.mbt
+│   │   ├── sc_dbl_finder_advanced_test.mbt
 │   │   ├── scater_test.mbt
 │   │   ├── scnorm_test.mbt
 │   │   ├── scran_test.mbt
+│   │   ├── scrapper_test.mbt
+│   │   ├── scuttle_test.mbt
+│   │   ├── bluster_test.mbt
+│   │   ├── flowsom_test.mbt
+│   │   ├── decontx_test.mbt
+│   │   ├── celda_test.mbt
+│   │   ├── milo_test.mbt
+│   │   ├── zinbwave_test.mbt
+│   │   ├── apeglm_test.mbt
+│   │   ├── aldex2_test.mbt
+│   │   ├── dirichlet_multinomial_test.mbt
+│   │   ├── variance_partition_test.mbt
+│   │   ├── dreamlet_test.mbt
+│   │   ├── nnsvg_test.mbt
+│   │   ├── banksy_test.mbt
+│   │   ├── voyager_test.mbt
+│   │   ├── shared_reference_alignment_test.mbt
+│   │   ├── alignment_map_test.mbt
+│   │   ├── alignment_counts_test.mbt
+│   │   ├── align_tabular_test.mbt
+│   │   ├── align_psl_test.mbt
+│   │   ├── align_sam_test.mbt
+│   │   ├── a2m_test.mbt
+│   │   ├── align_emboss_test.mbt
+│   │   ├── align_exonerate_test.mbt
+│   │   ├── exonerate_text_test.mbt
+│   │   ├── msf_test.mbt
+│   │   ├── align_nexus_test.mbt
+│   │   ├── align_stockholm_test.mbt
+│   │   ├── align_chain_test.mbt
+│   │   ├── align_maf_test.mbt
+│   │   ├── align_mauve_test.mbt
+│   │   ├── align_clustal_test.mbt
+│   │   ├── align_phylip_test.mbt
+│   │   ├── align_bed_test.mbt
+│   │   ├── bigbed_test.mbt
+│   │   ├── bigmaf_test.mbt
+│   │   ├── bigpsl_test.mbt
 │   │   ├── search_io_test.mbt
 │   │   ├── searchio_new_test.mbt
 │   │   ├── seq_complexity_test.mbt
@@ -1236,12 +1531,14 @@ IvanAXu/BioSeqs/
 │   │   ├── seq_quality_trim_test.mbt
 │   │   ├── single_cell_experiment_test.mbt
 │   │   ├── slingshot_test.mbt
+│   │   ├── slingshot_advanced_test.mbt
 │   │   ├── spatial_experiment_test.mbt
 │   │   ├── statistics_test.mbt
 │   │   ├── structure_alignment_test.mbt
 │   │   ├── taxonomy_test.mbt
 │   │   ├── topgo_test.mbt
 │   │   ├── tradeseq_test.mbt
+│   │   ├── tradeseq_advanced_test.mbt
 │   │   ├── tximport_test.mbt
 │   │   ├── universalmotif_test.mbt
 │   │   ├── variant_filtering_test.mbt
@@ -1254,6 +1551,8 @@ IvanAXu/BioSeqs/
 │   │   ├── stockholm_test.mbt
 │   │   ├── popgen_advanced_test.mbt
 │   │   ├── codon_advanced_test.mbt
+│   │   ├── codon_align_advanced_test.mbt
+│   │   ├── protein_analysis_advanced_test.mbt
 │   │   ├── pdb_packing_test.mbt
 │   │   ├── qvalue_test.mbt
 │   │   ├── ihw_test.mbt
@@ -1276,6 +1575,7 @@ IvanAXu/BioSeqs/
 │   │   ├── karyoploter_test.mbt
 │   │   ├── system_piper_test.mbt
 │   │   ├── muscat_test.mbt
+│   │   ├── muscat_advanced_test.mbt
 │   │   ├── infercnv_test.mbt
 │   │   ├── scenic_test.mbt
 │   │   ├── cibersort_test.mbt
@@ -1355,6 +1655,7 @@ IvanAXu/BioSeqs/
 │   │   ├── gck_io_test.mbt
 │   │   ├── alignace_test.mbt
 │   │   ├── mmtf_test.mbt
+│   │   ├── binary_cif_test.mbt
 │   │   ├── naccess_test.mbt
 │   │   ├── wise_test.mbt
 │   │   ├── dnashape_test.mbt
@@ -1366,6 +1667,8 @@ IvanAXu/BioSeqs/
 │   │   ├── transfac_full_test.mbt
 │   │   ├── hmmer_io_test.mbt
 │   │   ├── fasta_search_io_test.mbt
+│   │   ├── infernal_io_test.mbt
+│   │   ├── hhr_test.mbt
 │   │   ├── gene_pop_test.mbt
 │   │   ├── stage_r_test.mbt
 │   │   ├── enriched_heatmap_test.mbt
@@ -1400,7 +1703,7 @@ IvanAXu/BioSeqs/
 ### 样例测试
 ```
 moon build                                              # ✅ 成功
-moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全部通过
+moon test                                               # ✅ 12209 个测试全部通过
 ```
 
 ### 模块对照表
@@ -1437,13 +1740,39 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `alignio.mbt` | BioPython `Bio.AlignIO` | 比对文件 I/O |
 | `align_io.mbt` | BioPython `Bio.AlignIO` | ClustalW/FASTA/Stockholm 解析 |
 | `clustal_io.mbt` | BioPython `Bio.AlignIO.ClustalIO` | Clustal 格式 |
+| `align_clustal.mbt` | BioPython `Bio.Align.clustal` | 现代CLUSTAL generator metadata、严格interleaved blocks、consensus、coordinate path、统计与canonical writer |
 | `phylip_io.mbt` | BioPython `Bio.AlignIO.PhylipIO` | PHYLIP 格式 |
+| `align_phylip.mbt` | BioPython `Bio.Align.phylip` | 现代PHYLIP严格header与固定宽度名称、sequential/interleaved自动识别、coordinate path、统计及canonical writer |
 | `subsmat.mbt` | BioPython `Bio.SubsMat` | BLOSUM/PAM 替换矩阵 |
 | `substitution_matrices.mbt` | BioPython `Bio.Align.substitution_matrices` | 现代替换矩阵基础设施 (ArrayData、矩阵注册表、频率矩阵、log-odds、Shannon熵、KL散度) |
 | `align_info.mbt` | BioPython `Bio.Align.AlignInfo` | 比对统计与一致性序列 |
 | `align_abstract.mbt` | BioPython `Bio.Align.AlignAbstract` | 抽象比对类型、Shannon熵、同一性矩阵、简约信息位点 |
 | `codon_align.mbt` | BioPython `Bio.codonalign` | 密码子比对与 dN/dS 分析 |
+| `codon_align_advanced.mbt` | BioPython `Bio.codonalign` | 高级密码子比对 (Z-test选择检验、Fisher精确检验、密码子比对构建器、滑窗dN/dS、BH-FDR、成对Ka/Ks表) |
+| `protein_analysis_advanced.mbt` | Biopython `Bio.SeqUtils` | 高级蛋白质序列预测 (Chou-Fasman二级结构、IUPred无序区、COILS卷曲螺旋、Kolaskar抗原性、Emini表面可及性、Karplus-Schulz柔柔性) |
 | `searchio.mbt` | BioPython `Bio.SearchIO` | 统一搜索结果模型、BLAST/HMMER解析、E-value过滤 |
+| `blast_xml_advanced.mbt` | BioPython `Bio.Blast` | XML1/XML2类型化文档、严格parser/writer、多query/report、parameters/statistics、description/taxonomy及链向/translated HSP坐标 |
+| `exonerate_text.mbt` | BioPython `Bio.SearchIO.ExonerateIO.exonerate_text` | C4文本Document/Query/Hit/HSP/Fragment层次、3/4/5行模型、剪接/NER/frameshift和链感知坐标 |
+| `hhr.mbt` | BioPython `Bio.Align.hhr` | HHsearch/HHblits HHR解析、profile比对注释、命中筛选、坐标映射与规范序列化 |
+| `shared_reference_alignment.mbt` | BioPython `Bio.Align.Alignment.from_alignments_with_same_reference` | 共享参考PWA/MSA合并、insertion slot同步、局部坐标、双向映射、统计、MSA与FASTA转换 |
+| `alignment_map.mbt` | BioPython `Bio.Align.Alignment.map/mapall` | alignment path组合、local clipping、gap与链向传播、双向坐标查询、PSL、map_many及codon-aware MSA投影 |
+| `alignment_counts.mbt` | BioPython `Bio.Align.Alignment.counts` | left/internal/right insertion/deletion、open/extend、composition、wildcard、替换矩阵与十二类affine gap评分 |
+| `align_tabular.mbt` | BioPython `Bio.Align.tabular` | BLAST outfmt 7与FASTA 8CB/8CC元数据、BTOP/CIGAR traceback、链向及translated坐标 |
+| `align_psl.mbt` | BioPython `Bio.Align.psl` | PSL/PSLX header与21/23列严格读写、核酸/translated block路径、正反链、match分类、recount及坐标转换 |
+| `align_sam.mbt` | BioPython `Bio.Align.sam` | SAM header/reference与record严格读写、typed tags、CIGAR path、反向链、clipping、PHRED、MD/NM及坐标互映 |
+| `a2m.mbt` | BioPython `Bio.Align.a2m` | D/I列状态感知A2M读写、大小写/点编码、逐行坐标映射、插入槽、pair counts、共识及match projection |
+| `align_emboss.mbt` | BioPython `Bio.Align.emboss` | srspair/pair/simple report解析、文件/比对元数据、多序列block、局部/反向坐标、pair counts、compact path与规范写回 |
+| `align_exonerate.mbt` | BioPython `Bio.Align.exonerate` | alignment-aware cigar/vulgar严格读写、完整operation path、链向与protein strand、translated mapping、统计和规范写回 |
+| `msf.mbt` | BioPython `Bio.Align.msf` | GCG/PileUp MSF严格解析、AA/NA metadata、interleaved rows、标准checksum、坐标映射、统计与canonical writer |
+| `align_nexus.mbt` | BioPython `Bio.Align.nexus` | DATA/CHARACTERS/TAXA block、quote/comment-aware解析、sequential/interleaved MATRIX、datatype与MATCHCHAR、坐标统计和canonical writer |
+| `align_stockholm.mbt` | BioPython `Bio.Align.stockholm` | 严格多记录Stockholm读写、GF/GS/GR/GC映射、reference与database reference、M/D/I列、all-gap压缩、坐标统计和canonical writer |
+| `align_chain.mbt` | BioPython `Bio.Align.chain` | UCSC Chain 12/13字段header与size/dt/dq严格读写、双轴正反链absolute path、坐标映射、反转、ID/overlap查询与canonical writer |
+| `align_maf.mbt` | BioPython `Bio.Align.maf` | MAF document/track与a/s/i/e/q严格读写、链感知absolute path、component映射、MafIndex半开查询、多外显子拼接与canonical writer |
+| `align_mauve.mbt` | BioPython `Bio.Align.mauve` | 现代XMFA header与LCB严格读写、combined/separate source、正负链coordinate path、区间索引、位置/区间投影、统计及重建 |
+| `align_bed.mbt` | BioPython `Bio.Align.bed` | BED3-BED12 pairwise alignment读写、numeric/text score、链感知target/query path、blocks、双向映射、区间查询与分级writer |
+| `bigbed.mbt` | BioPython `Bio.Align.bigbed` | BigBed v4读写、BED3-BED12、AutoSQL、多级chromosome B+ tree/R-tree、zlib/DEFLATE及索引查询 |
+| `bigmaf.mbt` | BioPython `Bio.Align.bigmaf` | bedMaf bed3+1读写、MAF a/s/i/e/q、正负链坐标映射、压缩索引查询、摘要和MAF导出 |
+| `bigpsl.mbt` | BioPython `Bio.Align.bigpsl` | bed12+13读写、核酸/translated protein路径、双向坐标映射、recount、压缩查询、摘要和PSL导出 |
 
 #### 系统发育树
 
@@ -1453,6 +1782,10 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `tree_io.mbt` | BioPython `Bio.TreeIO` | Newick/NHX 格式解析 |
 | `tree_construction.mbt` | BioPython `Bio.Phylo.TreeConstruction` | UPGMA/WPGMA/NJ 建树算法 |
 | `phylo_xml.mbt` | BioPython `Bio.Phylo.PhyloXML` | PhyloXML格式解析、序列化、Newick双向转换、分类单元注释 |
+| `paml.mbt` | BioSeqs compatibility API | 内置Nei-Gojobori风格dN/dS与Jukes-Cantor近似；不运行或解析PAML |
+| `paml_codeml.mbt` | BioPython `Bio.Phylo.PAML.codeml` | CODEML control规范读写、CODONML/AAML结果、分支/位点/多基因模型与AIC/BIC/LRT |
+| `paml_baseml.mbt` | BioPython `Bio.Phylo.PAML.baseml` | BASEML control规范读写、11类核苷酸模型、Q/率类别/非齐次节点结果与AIC/BIC/LRT |
+| `paml_yn00.mbt` | BioPython `Bio.Phylo.PAML.yn00` | YN00 control规范读写、五种成对估计、跨版本解析、对称矩阵与均值 |
 
 #### 结构生物学
 
@@ -1461,8 +1794,10 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `pdb.mbt` | BioPython `Bio.PDB` | PDB 数据类型 |
 | `pdb_io.mbt` | BioPython `Bio.PDB.PDBIO` | PDB 文件 I/O |
 | `svd_superimposer.mbt` | BioPython `Bio.PDB.SVDSuperimposer` | SVD 蛋白质结构叠合 |
+| `cealign.mbt` | BioPython `Bio.PDB.cealign` | CE组合扩展结构比对、AFP路径、CE显著性、QCP叠合与全原子变换 |
 | `neighbor_search.mbt` | BioPython `Bio.PDB.NeighborSearch` | KD 树近邻搜索 |
 | `mmcif.mbt` | BioPython `Bio.PDB.MMCIFParser` | mmCIF 格式解析 |
+| `binary_cif.mbt` | BioPython `Bio.PDB.binary_cif` | BinaryCIF MessagePack解析、七类逆编码、三态mask、类别查询与PDB Structure转换 |
 | `pdb_vectors.mbt` | BioPython `Bio.PDB.vectors` | 3D向量/旋转矩阵、叉积、Kabsch叠合、二面角 |
 | `pdb_analysis.mbt` | BioPython `Bio.PDB.StructureAnalysis` | 二面角计算、距离矩阵、接触图、氢键检测、二级结构分配、Ramachandran图、SASA计算(Shrake-Rupley)、结构质量评估、疏水性分析 |
 | `pdb_header.mbt` | BioPython `Bio.PDB.ParsePDBHeader` | PDB头部元数据解析 (HEADER/TITLE/COMPOUND/SOURCE/REMARK/AUTH/DBREF) |
@@ -1472,12 +1807,14 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | MoonBit 文件 | 对应 Python 库 | 核心功能 |
 | :--- | :--- | :--- |
 | `sam.mbt` | pysam | SAM 文件解析 |
+| `align_sam.mbt` | Biopython `Bio.Align.sam` | alignment-aware SAM严格解析与写出、显式坐标路径、typed tags、MD/NM、PHRED及正反链映射 |
 | `bam.mbt` | pysam | BAM 文件解析 |
 | `bgzf.mbt` | pysam | BGZF 解压缩 |
 | `vcf.mbt` | pysam | VCF 文件解析 |
 | `cram_wbtest.mbt` | pysam | CRAM 格式解析 |
 | `genomic_ranges.mbt` | Bioconductor GenomicRanges | GRanges 区间操作 |
 | `genomic_ranges_advanced.mbt` | GenomicRanges Tile/Windows | tile分箱、sliding_windows滑窗、tile_genome基因组覆盖、coverage_by_window覆盖度计算、bin_genome分箱统计、promoters启动子、gaps间隙、subtract区间减法 |
+| `granges_list.mbt` | Bioconductor GenomicRanges | GRangesList复合特征、split/unlist/relist、逐组变换、集合运算、重叠/最近邻/覆盖度 |
 | `iranges.mbt` | Bioconductor IRanges | 整数区间操作 |
 | `genomic_alignments.mbt` | Bioconductor GenomicAlignments | GAlignments 比对分析 |
 | `variant_annotation.mbt` | Bioconductor VariantAnnotation | 变异注释 |
@@ -1496,13 +1833,26 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `edger.mbt` | Bioconductor edgeR | DGEList 差异表达 |
 | `edger_advanced.mbt` | edgeR QLF/Camera/Roast | 准似然F检验、QL分散度估计、camera竞争性基因集检验、roast自足基因集检验 |
 | `limma.mbt` | Bioconductor limma | 线性模型与 voom 变换 |
+| `variance_partition.mbt` | Bioconductor variancePartition | 多随机截距LMM、ML/REML方差分量、固定/随机/残差占比、BLUP、precision weights、dream contrast、数值Satterthwaite与BH-FDR |
+| `dreamlet.mbt` | Bioconductor dreamlet | sample×cell-type pseudobulk、完整TMM、CPM/logCPM、Poisson/voom权重、typed fixed/random design、分cell-type dream拟合及两级BH-FDR |
+| `nnsvg.mbt` | Bioconductor nnSVG | 坐标缩放与前驱kNN、指数协方差NNGP、协变量GLS、profile ML、空间/非空间LR检验、gene-specific length scale、BH-FDR及SpatialExperiment接入 |
+| `banksy.mbt` | Bioconductor Banksy | H0邻域均值、H1+方位Fourier/Gabor harmonic、六类空间核、lambda联合矩阵、分组标准化、PCA、多起点k-means、平滑、ARI与SpatialExperiment接入 |
+| `voyager.mbt` | Bioconductor Voyager | kNN/distance-band/inverse-distance权重(W/B/C/S编码)、全局Moran's I与Geary's c(Cliff-Ord随机化期望/方差/正态p)、局部Moran's I(LISA象限分类+置换推断)、局部Geary's c、Getis-Ord Gi/Gi*(Ord-Getis z)、Lee's L(全局+局部)、多元局部Geary、经验变差函数与spherical/exponential/gaussian拟合、Moran correlogram、确定性splitmix64置换、BH-FDR与SpatialExperiment不可变写回 |
+| `spicyr.mbt` | Bioconductor spicyR | 图像内有序细胞类型对cross-L、矩形窗口边界校正、图像级统计、cell-count precision weights、加权固定/随机截距模型、条件对比、BH-FDR及SpatialExperiment接入 |
+| `lisaclust.mbt` | Bioconductor lisaClust | 每图像local-K/centered local-L、Gaussian KDE密度权重、矩形/凸包窗口、圆盘可见面积边界修正、确定性多起点k-means、silhouette、区域富集及SpatialExperiment写回 |
+| `spatialdecon.mbt` | Bioconductor SpatialDecon | 背景感知加权log-normal非负回归、两阶段异常点重拟合、observed/expected Hessian协方差、细胞丰度尺度、cell-type collapse、reverse deconvolution、负探针背景、单细胞profile与SpatialExperiment接入 |
+| `decontx.mbt` | Bioconductor decontX | cluster-native/contaminant多项式混合、Beta/Dirichlet先验EM、background、自动聚类、计数分解与SCE输出 |
+| `celda.mbt` | Bioconductor celda | `celda_CG`分层Dirichlet-multinomial、细胞群/基因模块联合推断、collapsed likelihood、EM/Gibbs、多链、K/L选择、预测与SCE输出 |
 | `summarized_experiment.mbt` | Bioconductor SummarizedExperiment | 多维数据容器 |
+| `ranged_summarized_experiment.mbt` | Bioconductor RangedSummarizedExperiment | GRanges/GRangesList行范围、链特异重叠/最近邻、覆盖度、区间变换与协调子集 |
+| `tree_summarized_experiment.mbt` | Bioconductor TreeSummarizedExperiment | 行/列树与数据链接、按节点子集、层级聚合 |
 | `ballgown.mbt` | Bioconductor ballgown | 转录组水平差异表达 |
 | `ruvseq.mbt` | Bioconductor RUVSeq | RNA-seq 批次效应去除 |
 | `sva.mbt` | Bioconductor sva | 替代变量分析与 ComBat |
 | `single_cell.mbt` | Bioconductor SingleCellExperiment | 单细胞数据分析 |
 | `csaw.mbt` | Bioconductor csaw | ChIP-seq窗口差异分析、TMM归一化、负二项GLM检验 |
 | `slingshot.mbt` | Bioconductor slingshot | 单细胞轨迹推断、MST构建、主曲线拟合、拟时间计算 |
+| `slingshot_advanced.mbt` | Bioconductor slingshot 2.21.0 | soft membership、协方差缩放距离、约束MST/omega forest、root-to-leaf lineage、同时主曲线、Optional pseudotime、预测与SCE写回 |
 | `scnorm.mbt` | Bioconductor SCnorm | 单细胞RNA-seq归一化、分位数回归、深度依赖偏差校正 |
 | `edaseq.mbt` | Bioconductor EDASeq | RNA-seq探索性分析、GC含量归一化、基因长度校正 |
 | `glm_gampoi.mbt` | Bioconductor glmGamPoi | Gamma-Poisson GLM、size factors、伪批量聚合、IWLCS拟合、Wald检验、BH-FDR校正 |
@@ -1511,6 +1861,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 
 | MoonBit 文件 | 对应 Python 库 | 核心功能 |
 | :--- | :--- | :--- |
+| `sparse_array.mbt` | Bioconductor SparseArray | N维规范化COO、重复坐标合并与零消除、R列主序转换、稀疏切片/置换/绑定、算术/统计、矩阵乘法 |
 | `matrix_generics.mbt` | Bioconductor MatrixGenerics | rowMeans/colMeans、rowSums/colSums、rowVars/colVars、rowSds/colSds、rowMedians/colMedians、rowMins/colMins、rowMaxs/colMaxs、rowRanges/colRanges、rowMad/colMad、rowCounts、rowAnys/colAnys、rowAlls/colAlls、块处理 |
 | `beachmat.mbt` | Bioconductor beachmat | 列/行块处理、线性迭代器(BmatIterator)、子集/转置/绑定、逐元素操作、类型安全矩阵访问API |
 | `survival.mbt` | R/Bioconductor survival | Kaplan-Meier估计器(Greenwood标准误)、log-rank检验、Cox比例风险模型(Newton-Raphson偏似然拟合) |
@@ -1533,12 +1884,15 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 
 | MoonBit 文件 | 对应 Python 库 | 核心功能 |
 | :--- | :--- | :--- |
-| `blast.mbt` | BioPython `Bio.Blast` | BLAST 结果解析 |
+| `blast.mbt` | BioSeqs compatibility API | 历史BLAST tabular/XML基础解析 |
+| `blast_xml_advanced.mbt` | BioPython `Bio.Blast` | BLAST XML1/XML2严格解析、八类程序坐标语义、多report与规范写回 |
 | `search_io.mbt` | BioPython `Bio.SearchIO` | 统一搜索结果模型 |
 | `kegg.mbt` | BioPython `Bio.KEGG` | KEGG 数据库解析 |
 | `medline.mbt` | BioPython `Bio.Medline` | Medline/PubMed 解析 |
 | `entrez.mbt` | BioPython `Bio.Entrez` | NCBI 数据库访问 |
 | `swissprot.mbt` | BioPython `Bio.SwissProt` | UniProt 记录解析 |
+| `cellosaurus.mbt` | BioPython `Bio.ExPASy.cellosaurus` | Cellosaurus记录解析、交叉引用查询与平面文本序列化 |
+| `unigene.mbt` | BioPython `Bio.UniGene` | NCBI UniGene固定宽度记录解析、类型化子记录查询、SCOUNT校验与序列化往返 |
 | `uniprot_io.mbt` | BioPython `Bio.SeqIO.UniprotIO` | UniProt XML 格式解析 |
 | `chem_utils.mbt` | BioPython `Bio.PDB.chem_utils` | 化学计算工具（键长、键角、二面角、分子式量） |
 | `jaspar.mbt` | BioPython `Bio.motifs.Jaspar` | JASPAR PFM 格式解析与模体分析 |
@@ -1572,6 +1926,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `transfac.mbt` | BioPython `Bio.Motifs.Transfac` | TRANSFAC转录因子结合谱解析（两字母字段码AC/ID/DE/NA/OS/BF/CC/P0/XX//、位置频率矩阵PFM、参考文献RN/RA/RT/RL/RX、共识序列、频率计算、字母索引、序列化往返） |
 | `hmmer_io.mbt` | BioPython `Bio.SearchIO.HmmerIO` | HMMER3输出解析（domtblout域表23列格式、人类可读文本格式、Query/Hit/HSP/HSPFragment聚合、多域比对、i-Evalue/c-Evalue、bitscore、条件E值、Query/Domain/Alignment段标记） |
 | `fasta_search_io.mbt` | BioPython `Bio.SearchIO.FastaIO` | FASTA搜索输出解析（-m8紧凑表格12列、-m9带#注释头、程序/版本/数据库元数据提取、Query/Hit/HSP聚合、正负链判定、E-value/bitscore） |
+| `infernal_io.mbt` | BioPython `Bio.SearchIO.InfernalIO` | Infernal cmscan/cmsearch解析（tabular格式1/2/3自动检测、non-verbose文本与--noali、CM/HMM-only、local-end多片段、正负链坐标、过滤与SearchIO转换） |
 | `gene_pop.mbt` | BioPython `Bio.PopGen.GenePop` | GenePop群体遗传学（基因型diploid/haploid解析、2/3位等位基因数字检测、Pop人口分隔、Locus名自动生成/#Loci注释、等位基因频率、观察/期望杂合度、序列化往返） |
 | `stage_r.mbt` | Bioconductor stageR | 两阶段假设检验（筛选阶段BH-FDR、确认阶段Holm步降、Simes聚合、OFDR控制、Dte/Dtu方法、确认p值G/R重缩放） |
 | `enriched_heatmap.mbt` | Bioconductor EnrichedHeatmap | 基因组信号归一化（目标区域窗口化、四种均值模式absolute/weighted/w0/coverage、行平滑、百分位裁剪、负链窗口反转） |
@@ -1612,13 +1967,24 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `geoquery.mbt` | Bioconductor GEOquery | GEO数据库数据获取、Series Matrix解析 |
 | `tximport.mbt` | Bioconductor tximport | 转录本量化数据导入、基因级别汇总 |
 | `single_cell_experiment.mbt` | Bioconductor SingleCellExperiment | 单细胞核心容器 (多assay、PCA/tSNE/UMAP降维、size factors) |
+| `scuttle.mbt` | Bioconductor scuttle 1.23.1 | batch-aware MAD异常值、subset per-feature QC、feature-set/ID聚合、精确count downsampling、batch/block coverage等化与不可变SCE包装 |
+| `bluster.mbt` | Bioconductor bluster 1.23.0 | observation × variable聚类、K-means++多起点、精确KNN、rank/number/Jaccard SNN、Louvain风格优化、two-step、诊断与SingleCellExperiment接入 |
+| `flowsom.mbt` | Bioconductor FlowSOM 2.21.0 | cell × marker拓扑SOM、KWSP/PCA、分阶段MST、meta-clustering、节点统计、outlier、FlowFrame与SingleCellExperiment接入 |
+| `mast.mbt` | Bioconductor MAST兼容层 | 检测比例与阳性表达的轻量双组分检验、BH-FDR及旧版结果API |
+| `mast_advanced.mbt` | Bioconductor MAST 1.39.0 | 任意设计矩阵、Cauchy稳定化logistic/Gaussian hurdle GLM、嵌套LRT、eBayes方差收缩、边际logFC与SingleCellExperiment接入 |
+| `single_r.mbt` | Bioconductor SingleR兼容层 | 参考profile、Spearman/Pearson相关性、旧版fine-tuning和结果API |
+| `single_r_advanced.mbt` | Bioconductor SingleR 2.15.2 | 成对classic markers、标签内相关分位数、迭代fine-tuning、MAD剪枝、cluster与多参考注释及SingleCellExperiment接入 |
+| `droplet_utils.mbt` | Bioconductor DropletUtils兼容层 | 旧版液滴统计、barcode排序、简化emptyDrops与细胞过滤API |
+| `droplet_utils_advanced.mbt` | Bioconductor DropletUtils 1.33.0 | Simple Good-Turing ambient profile、curve-tracing knee/inflection、multinomial/Dirichlet-multinomial、alpha MLE、Monte Carlo、BH-FDR与SingleCellExperiment接入 |
 | `complex_heatmap.mbt` | Bioconductor ComplexHeatmap | 复杂热图可视化 (行/列聚类、颜色映射、热图注释) |
 | `pheatmap.mbt` | Bioconductor pheatmap | 增强型热图 (层次聚类、距离矩阵、行/列注释、颜色方案) |
 | `gsva.mbt` | Bioconductor GSVA | 基因集变异分析 (ssGSEA/zscore/PLAGE评分) |
 | `chromvar.mbt` | Bioconductor chromVAR | 染色质变异分析 (TF motif富集、GC偏差校正) |
 | `delayed_array.mbt` | Bioconductor DelayedArray | 延迟计算数组 (懒加载操作、分块处理、行/列聚合) |
+| `sparse_array.mbt` | Bioconductor SparseArray | N维稀疏数组、规范化COO存储、切片/置换/绑定、稀疏算术、统计与矩阵乘法 |
 | `annotation_filter.mbt` | Bioconductor AnnotationFilter | 基因注释过滤 (染色体筛选、生物类型过滤、区域重叠检测) |
-| `sc_dbl_finder.mbt` | Bioconductor scDblFinder | 单细胞双细胞检测 (Doublet评分、最近邻搜索、PCA降维) |
+| `sc_dbl_finder.mbt` | Bioconductor scDblFinder兼容层 | 旧版Doublet评分、最近邻搜索、PCA降维与细胞过滤API |
+| `sc_dbl_finder_advanced.mbt` | Bioconductor scDblFinder 1.27.6 | 人工doublet、共同归一化/PCA、精确kNN与cxds特征、迭代分类、分层阈值、来源富集及SingleCellExperiment接入 |
 | `seurat.mbt` | Bioconductor Seurat | 单细胞数据分析核心 (标准化、高可变基因、PCA、聚类、UMAP、差异表达、跨样本整合) |
 | `chipseeker.mbt` | Bioconductor ChIPseeker | ChIP-seq峰值注释 (基因组区域分类(启动子/外显子/内含子/UTR/基因间区)、距离TSS分布、BED格式读取、peak2gene关联分析、注释可视化) |
 | `topgo.mbt` | Bioconductor topGO | 拓扑GO富集分析 (TopGOTerm/TopGOGraph/TopGOEnrichmentResult数据结构、elim算法、weight01算法、Fisher精确检验、GO图构建) |
@@ -1641,6 +2007,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `sff_io.mbt` | Biopython `Bio.SeqIO.SffIO` | SFF二进制格式解析 (SffHeader/SffRead/SffFile数据结构、大端字节序u16/u32/u64读写、二进制编码/解码、质量修剪、均值质量、按名称查找) |
 | `csaw.mbt` | Bioconductor csaw | ChIP-seq窗口差异分析 (CswWindow/CswDataSet/CswNormResult/CswResult数据结构、滑动窗口计数、TMM归一化、窗口过滤、负二项GLM检验、BH-FDR校正、差异区域检测) |
 | `slingshot.mbt` | Bioconductor slingshot | 单细胞轨迹推断 (SlingshotNode/SlingshotEdge/SlingshotCurve/SlingshotResult数据结构、MST构建、主曲线拟合、拟时间计算、分支检测) |
+| `slingshot_advanced.mbt` | Bioconductor slingshot 2.21.0 | hard/soft cluster输入、weighted center/covariance、三类cluster距离、start/end约束Kruskal forest、自动omega、component root与lineage、同时主曲线、rank reweight/reassign、分支/预测及SingleCellExperiment接入 |
 | `scnorm.mbt` | Bioconductor SCnorm | 单细胞RNA-seq归一化 (SCnormQuantFit/SCnormGeneNormResult/SCnormResult数据结构、分位数回归、深度依赖偏差校正、基因特异性归一化) |
 | `edaseq.mbt` | Bioconductor EDASeq | RNA-seq探索性分析 (EDASeqGeneAnno/EDASeqDataSet/EDASeqWithinResult/EDASeqBetweenResult数据结构、GC含量归一化、基因长度Loess校正、样本间归一化、RPKM计算) |
 | `maftools.mbt` | Bioconductor maftools | 癌症基因组学MAF分析 (MAFMutation/MAFData/MutationSpectrum/TMBResult数据结构、SNV/Indel分类、TMB计算、突变谱分析、共现分析、Oncoplot数据生成、MAF文件解析) |
@@ -1650,8 +2017,16 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `rtsne.mbt` | Bioconductor Rtsne | t-SNE降维算法 (TsneConfig/TsneResult数据结构、成对距离计算、条件概率估计与perplexity优化、联合概率矩阵构建、梯度下降优化、动量/early exaggeration调度) |
 | `uwot.mbt` | Bioconductor uwot | UMAP降维算法 (UmapConfig/UmapResult数据结构、k近邻搜索、模糊单纯集构建、局部模糊集并集、SGD低维嵌入优化、负采样、min_dist/spread参数控制) |
 | `tradeseq.mbt` | Bioconductor tradeSeq | 轨迹差异表达分析 (TrajectoryPoint/GeneExpressionData/GAMFit/DifferentialExpressionResult数据结构、GAM广义可加模型拟合、样条基函数、条件效应检验、BH-FDR校正) |
-| `maf.mbt` | BioPython `Bio.Align` | MAF多序列比对格式解析与分析 (块处理、百分比一致性、统计分析、选择/过滤) |
-| `mauve.mbt` | BioPython `Bio.Align` | Mauve基因组比对格式解析 (LCB检测、倒位/断点、覆盖率、BED导出) |
+| `maf.mbt` | BioPython `Bio.Align` | 早期宽松MAF块解析与分析 (块处理、百分比一致性、统计分析、选择/过滤) |
+| `align_maf.mbt` | BioPython `Bio.Align.maf` | 现代MAF文档、严格a/s/i/e/q、绝对坐标路径、reference index、多外显子拼接与规范写回 |
+| `align_bed.mbt` | BioPython `Bio.Align.bed` | 现代BED pairwise alignment、正负链transcript路径、exon block、坐标映射、搜索、统计与BED3-BED12写回 |
+| `mauve.mbt` | BioSeqs compatibility API | 历史MAF-like块解析与LCB重排分析（倒位/断点、覆盖率、BED导出；不解析现代XMFA） |
+| `align_mauve.mbt` | BioPython `Bio.Align.mauve` | 现代XMFA文档、严格header/LCB、双向坐标路径、索引、跨序列投影、统计、重建与规范写回 |
+| `align_clustal.mbt` | BioPython `Bio.Align.clustal` | 现代CLUSTAL alignment、严格block顺序和累计计数、列注释、坐标映射、统计与规范写回 |
+| `align_phylip.mbt` | BioPython `Bio.Align.phylip` | 现代PHYLIP alignment、wrapped sequential/interleaved blocks、10列名称规范化、坐标映射、统计与规范写回 |
+| `exonerate_text.mbt` | BioPython `Bio.SearchIO.ExonerateIO.exonerate_text` | Exonerate C4固定列alignment text、层次聚合、wrapped blocks、intron/NER/split codon/frameshift及坐标投影 |
+| `blast.mbt` | BioSeqs compatibility API | 历史BLAST tabular/XML标签解析、HSP过滤与最佳匹配 |
+| `blast_xml_advanced.mbt` | BioPython `Bio.Blast` | XML1/XML2 document/record/hit/HSP模型、严格结构与数值校验、1:1/3:1坐标、查询分析及canonical writer |
 | `stockholm.mbt` | BioPython `Bio.Stockholm` | Stockholm格式解析与分析 (Pfam/Rfam格式、二级结构、保守性、FASTA转换) |
 | `popgen_advanced.mbt` | BioPython `Bio.PopGen` | 高级群体遗传学统计 (Tajima's D、Fu & Li's D/F、MK检验、等位基因频率谱) |
 | `codon_advanced.mbt` | BioPython `Bio.SeqUtils.CodonUsage` | 高级密码子分析 (CAI、RSCU、ENC、GC3、物种特异性参考表) |
@@ -1691,6 +2066,55 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `karyoploter.mbt` | `karyoploteR` | 核型可视化（染色体轨道、数据点、ASCII 渲染） |
 | `system_piper.mbt` | `SystemPipeR` | 流水线编排（步骤管理、依赖关系、进度追踪） |
 | `muscat.mbt` | `muscat` | 单细胞差异状态分析（伪批量聚合、DS 检验、QC） |
+| `muscat_advanced.mbt` | `muscat` 1.27.4 | gene × cell合同、五类cluster-sample伪批量、任意设计/contrast、NB-IRLS与dispersion收缩、DS/DD、stagewise及不可变SCE写回 |
+| `droplet_utils_advanced.mbt` | `DropletUtils` | feature × barcode严格计数、Simple Good-Turing、barcode-rank曲线追踪、multinomial/Dirichlet-multinomial及alpha MLE、确定性Monte Carlo、Phipson–Smyth校正、BH-FDR和不可变SCE写回 |
+| `scrapper.mbt` | `scrapper` | 批次感知RNA QC、大小因子清洗/居中、count与log归一化、LOWESS方差趋势、HVG选择、多因子pseudo-bulk、SingleCellExperiment不可变包装 |
+| `scuttle.mbt` | `scuttle` | R风格batch median/MAD及阈值共享、cell-subset feature QC、任意重叠feature-set聚合、精确无放回downsampling、batch/block coverage等化与SingleCellExperiment不可变包装 |
+| `bluster.mbt` | `bluster` | K-means++与多起点Lloyd、精确KNN、rank/number/Jaccard SNN、seed可复现的Louvain风格优化、two-step聚类、Rand/ARI与cluster diagnostics、bootstrap稳定性及SingleCellExperiment写回 |
+| `flowsom.mbt` | `FlowSOM` | Manhattan/Euclidean/Chebyshev/cosine距离、random/KWSP/PCA码本、规则网格与MST拓扑训练、K-means meta-clustering/elbow、节点MFI/CV/SD/MAD、purity/F-measure、MAD outlier及不可变SCE写回 |
+| `slingshot_advanced.mbt` | `slingshot` | soft cluster membership、weighted covariance/Mahalanobis距离、受约束Kruskal forest、固定/自动omega、同时主曲线、cosine共享前缀收缩、rank重加权/重分配、新数据投影及不可变SCE写回 |
+| `decontx.mbt` | `decontX` | 每细胞native/contaminant Bayesian mixture、确定性EM、empty-droplet ambient profile、自动k-means、诊断与SingleCellExperiment不可变包装 |
+| `celda.mbt` | `celda` | `celda_CG`细胞群/基因模块联合聚类、四层Dirichlet-multinomial、collapsed EM/Gibbs、多链诊断、K/L网格选择、预测与SingleCellExperiment不可变包装 |
+| `milo.mbt` | `miloR` | 精确KNN图、median精炼重叠邻域、邻域计数/表达、固定效应NB-GLM/Wald检验、graph spatial FDR与SCE接入 |
+| `zinbwave.mbt` | `zinbwave` | ZINB交替EM/IRLS、cell/gene design与offset、确定性低维因子、gene dispersion shrinkage、observational weights、deviance residual及SingleCellExperiment包装 |
+| `apeglm.mbt` | `apeglm` | 负二项GLM MLE、自适应Cauchy/Student-t先验、阻尼Newton多起点MAP、Laplace后验SD/区间、FSR/FSOS/s-value、DESeq2与SummarizedExperiment包装 |
+| `aldex2.mbt` | `ALDEx2` | count+prior Dirichlet Monte Carlo、all/median/IQLR/zero/LVHA/user分母、两组与配对检验、posterior expected BH、effect/overlap、距离和SummarizedExperiment包装 |
+| `dirichlet_multinomial.mbt` | `DirichletMultinomial` | sample×taxon DMM概率、soft k-means初始化、log-alpha BFGS/EM、Gamma prior、Hessian区间、Laplace/AIC/BIC、dmngroup分类、分层CV、ROC与SummarizedExperiment入口 |
+| `variance_partition.mbt` | `variancePartition` | typed fixed/random design、多随机截距LMM、ML/REML方差分解、BLUP、weighted dream contrast、Satterthwaite自由度与SummarizedExperiment入口 |
+| `dreamlet.mbt` | `dreamlet` | SCE到sample×cluster pseudobulk、TMM/logCPM、两阶段voom precision weights、固定/随机效应筛选、逐cell-type dream和study-wide FDR |
+| `nnsvg.mbt` | `nnSVG` | AMMD/坐标和排序前驱kNN、指数协方差NNGP、covariate GLS、空间方差比例与length scale优化、LR/p-value/BH-FDR、过滤和SpatialExperiment rowData输出 |
+| `banksy.mbt` | `Banksy` | kNN/radius邻域核、H0/H1+空间harmonic、lambda加权BANKSY矩阵、global/group scaling、Gram-Jacobi PCA、确定性多起点聚类、平滑与SpatialExperiment输出 |
+| `voyager.mbt` | `Voyager` | kNN/distance-band/inverse-distance权重(W/B/C/S)、全局Moran's I与Geary's c(Cliff-Ord随机化方差+正态p)、局部Moran's I(象限+置换推断)、局部Geary's c、Getis-Ord Gi/Gi*(Ord-Getis z)、Lee's L(全局+局部)、多元局部Geary、经验变差函数+spherical/exponential/gaussian拟合、Moran correlogram、splitmix64置换、BH-FDR与SpatialExperiment不可变写回 |
+| `spicyr.mbt` | `spicyR` | ordered cell-type-pair cross-L、矩形窗口disc-intersection边界校正、图像级localization统计、precision weights、加权LMM、条件对比、BH-FDR与SpatialExperiment metadata输出 |
+| `lisaclust.mbt` | `lisaClust` | 多细胞类型local-K/L特征、KDE intensity correction、矩形/凸包窗口、disc-window边界积分、确定性多起点k-means、regionMap observed/expected富集与SpatialExperiment region输出 |
+| `spatialdecon.mbt` | `SpatialDecon` | background-aware weighted log-normal non-negative regression、algorithm2异常点重拟合、Hessian协方差、abundance/count scaling、cell-type collapse、reverseDecon、GeoMx background、profile构建与SpatialExperiment输出 |
+| `shared_reference_alignment.mbt` | `Bio.Align.Alignment` | 同参考PWA/MSA的reference-boundary insertion同步、原query投影、局部坐标、metadata、统计与格式转换 |
+| `alignment_map.mbt` | `Bio.Align.Alignment.map/mapall` | 两层alignment坐标组合、正反链与gap传播、PSL、批量映射及protein/nucleotide MSA投影 |
+| `alignment_counts.mbt` | `Bio.Align.Alignment.counts` | pairwise/MSA gap事件和composition汇总、正反链、wildcard、替换矩阵及完整affine评分 |
+| `align_tabular.mbt` | `Bio.Align.tabular` | BLAST/FASTA query block、完整字段词汇、BTOP/aln_code路径、translated轴换算、过滤与coordinate alignment转换 |
+| `align_psl.mbt` | `Bio.Align.psl` | PSL/PSLX类型模型、严格字段与block一致性、核酸反向query、translated反向target、3:1 codon映射、序列重计数与往返 |
+| `align_sam.mbt` | `Bio.Align.sam` | header/reference与alignment类型模型、CIGAR路径、反向链与clipping、typed tags、PHRED、MD/NM、规范读写和坐标查询 |
+| `a2m.mbt` | `Bio.Align.a2m` | match/insertion状态模型、canonical字符编码、wrapped/CRLF解析、行/列坐标互映、插入槽、统计、共识、切片和match-only投影 |
+| `align_emboss.mbt` | `Bio.Align.emboss` | EMBOSS文件与alignment类型模型、固定21列body、多alignment/多序列、纯gap block、链感知绝对坐标、consensus统计和canonical writer |
+| `align_exonerate.mbt` | `Bio.Align.exonerate` | Exonerate document/alignment/operation模型、cigar/vulgar、正反链/protein坐标、3:1 translated mapping、双向查询、统计和canonical writer |
+| `exonerate_text.mbt` | `Bio.SearchIO.ExonerateIO.exonerate_text` | C4 document/query/hit/HSP/fragment模型、固定列3/4/5行parser、剪接/翻译/phase/frame、区间查询与防御复制 |
+| `msf.mbt` | `Bio.Align.msf` | GCG MSF metadata/sequence/alignment模型、标准checksum、interleaved parser、短行补齐、coordinate path、pair counts、consensus和writer |
+| `align_nexus.mbt` | `Bio.Align.nexus` | 独立alignment metadata/sequence模型、nested comment与quoted token lexer、sequential/interleaved parser、MATCHCHAR、all-gap压缩、坐标查询、统计和writer |
+| `align_stockholm.mbt` | `Bio.Align.stockholm` | 有序GF/GS/GR/GC与reference模型、多记录parser、M/D/I列语义、all-gap压缩、annotation-aware切片、坐标查询、统计和writer |
+| `align_chain.mbt` | `Bio.Align.chain` | 不可变alignment/block/counts模型、严格多记录parser、链感知absolute coordinate path、block重建、双向位置/区间映射、pairs、invert和writer |
+| `align_maf.mbt` | `Bio.Align.maf` | 不可变document/track/index/spliced模型、严格a/s/i/e/q parser、链感知absolute path、任意component映射、区间查询、拼接和writer |
+| `align_mauve.mbt` | `Bio.Align.mauve` | XMFA document/source/block/row模型、严格metadata与wrapped-row parser、正负链boundary path、pair counts、half-open index、跨序列投影、重建和writer |
+| `align_clustal.mbt` | `Bio.Align.clustal` | metadata/sequence/alignment/counts模型、六类generator header、严格interleaved parser、consensus、coordinate path、投影、统计和writer |
+| `align_phylip.mbt` | `Bio.Align.phylip` | sequence/alignment/counts模型、严格sequential/interleaved parser、固定10列名称、coordinate path、投影、统计和writer |
+| `align_bed.mbt` | `Bio.Align.bed` | 不可变alignment/document/score/block模型、BED3-BED12 parser、双轴路径校验、block投影、双向residue mapping、search、summary和writer |
+| `bigbed.mbt` | `Bio.Align.bigbed` | BigBed v4二进制读写、BED/AutoSQL、平衡B+ tree/R-tree、完整DEFLATE块解码、区间/名称查询与BED导出 |
+| `bigmaf.mbt` | `Bio.Align.bigmaf` | bedMaf AutoSQL与MAF块往返、a/s/i/e/q注释、链感知坐标映射、BigBed索引查询和普通MAF导出 |
+| `bigpsl.mbt` | `Bio.Align.bigpsl` | 标准bigPsl AutoSQL、核酸与translated DNA-protein坐标、链感知映射、match分类、BigBed索引和PSL导出 |
+| `paml.mbt` | BioSeqs compatibility API | 内置Nei-Gojobori风格dN/dS和Jukes-Cantor近似，保留历史调用兼容性 |
+| `paml_codeml.mbt` | `Bio.Phylo.PAML.codeml` | 类型化control/CODONML/AAML模型、NSsites/branch-site/clade/free-ratio、pairwise/距离矩阵、多基因、BEB/NEB和模型比较 |
+| `paml_baseml.mbt` | `Bio.Phylo.PAML.baseml` | 类型化control与BASEML 4.x结果、JC69-UNRESTu、参数/SE、kappa/Q矩阵、nparK/auto-dGamma、nhomo节点和模型比较 |
+| `paml_yn00.mbt` | `Bio.Phylo.PAML.yn00` | 类型化control与PAML 4.1-4.9i结果、NG86/YN00/LWL85/LWL85m/LPB93、矩阵和统计汇总 |
+| `blast_xml_advanced.mbt` | `Bio.Blast` | XML1/XML2类型化文档、多query/report、HitDescr/taxonomy、参数/统计、strand/frame/translated path、过滤与同/跨dialect写回 |
 | `infercnv.mbt` | `infercnv` | 单细胞拷贝数变异推断（基因组位置排序、参考细胞有界 LFC 计算、金字塔权重平滑、CNV 分数与恶性细胞预测） |
 | `scenic.mbt` | `SCENIC` | 单细胞调控网络推断与聚类（TF-target 共表达模块、Regulon 构建、AUCell 活性评分、二值化阈值、细胞状态与主控调控因子） |
 | `cibersort.mbt` | `CIBERSORT` | 免疫细胞去卷积（NNLS 求解、LM22 风格特征矩阵、Pearson 拟合优度、分数归一化） |
@@ -1716,6 +2140,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `velociraptor.mbt` | `velociraptor` | 单细胞RNA velocity分析（稳态线性回归gamma/beta比、EM动力学模型alpha/beta/gamma估计、velocity向量计算、KNN加权嵌入投影、根细胞识别、转移矩阵） |
 | `compass.mbt` | `Bio.Compass` | COMPASS profile-profile比对输出解析（版本提取、多记录解析SW分数/E值/百分比一致性/比对序列/共识行、E值与一致性过滤、比对长度统计、摘要生成） |
 | `exonerate.mbt` | `Bio.SearchIO.ExonerateIO` | Exonerate比对输出解析（vulgar格式三元组比对块解析M/I/5/3/S/G/U/V、cigar格式解析、格式自动检测、分数过滤、内含子统计、vulgar/cigar字符串重建） |
+| `exonerate_text.mbt` | `Bio.SearchIO.ExonerateIO.exonerate_text` | Exonerate C4人类可读文本严格解析（多query/hit/HSP聚合、wrapped body、intron/NER/split codon/frameshift、三字母氨基酸和链感知坐标） |
 | `mmcifio.mbt` | `Bio.PDB.mmcifio` | mmCIF文件写入（Structure对象序列化data block/header/atom_site loop、20列原子坐标格式化、HETATM支持、值转义、round-trip验证） |
 | `interproscan.mbt` | `Bio.SearchIO.InterproscanIO` | InterProScan输出解析（TSV 14列格式解析蛋白质ID/MD5/长度/分析数据库/签名/位置/分数/IPR/GO、按数据库/蛋白质过滤、GO条目提取、按蛋白质分组、摘要） |
 | `sasa.mbt` | `Bio.PDB.SASA` | 溶剂可及表面积计算（Shrake-Rupley滚动球算法、Fibonacci球面采样、范德华半径查表H/C/N/O/S/P、逐原子/残基SASA、骨架/侧链拆分、总量统计） |
@@ -1738,6 +2163,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 | `transfac.mbt` | Biopython `Bio.Motifs.Transfac` | TRANSFAC转录因子结合谱解析（两字母字段码AC/ID/DE/NA/OS/BF/CC/P0/XX//、位置频率矩阵PFM、参考文献RN/RA/RT/RL/RX、共识序列、频率计算、字母索引、序列化往返） |
 | `hmmer_io.mbt` | Biopython `Bio.SearchIO.HmmerIO` | HMMER3输出解析（domtblout域表23列格式、人类可读文本格式、Query/Hit/HSP/HSPFragment聚合、多域比对、i-Evalue/c-Evalue、bitscore、条件E值、Query/Domain/Alignment段标记） |
 | `fasta_search_io.mbt` | Biopython `Bio.SearchIO.FastaIO` | FASTA搜索输出解析（-m8紧凑表格12列、-m9带#注释头、程序/版本/数据库元数据提取、Query/Hit/HSP聚合、正负链判定、E-value/bitscore） |
+| `infernal_io.mbt` | Biopython `Bio.SearchIO.InfernalIO` | Infernal cmscan/cmsearch解析（tabular格式1/2/3自动检测、non-verbose文本与--noali、CM/HMM-only、local-end多片段、正负链坐标、过滤与SearchIO转换） |
 | `gene_pop.mbt` | Biopython `Bio.PopGen.GenePop` | GenePop群体遗传学（基因型diploid/haploid解析、2/3位等位基因数字检测、Pop人口分隔、Locus名自动生成/#Loci注释、等位基因频率、观察/期望杂合度、序列化往返） |
 | `stage_r.mbt` | Bioconductor stageR | 两阶段假设检验（StageRMethod/StageRConfig/StageRResult数据结构、筛选阶段BH-FDR校正、确认阶段Holm步降程序、Simes聚合、OFDR控制、Dte/Dtu调整向量、确认p值G/R重缩放、显著性基因/假设提取） |
 | `enriched_heatmap.mbt` | Bioconductor EnrichedHeatmap | 基因组信号归一化（GenomicSignal/TargetRegion/MeanMode/EnrichedHeatmapConfig/NormalizedMatrix数据结构、目标区域窗口化、四种均值模式absolute/weighted/w0/coverage、行平滑、百分位裁剪、负链窗口反转、富集谱计算） |
@@ -1799,7 +2225,7 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 
 ### 12. DESeq2 差异表达分析 (Bioconductor DESeq2)
 
-实现完整的 RNA-seq 差异表达分析流程，支持从原始计数到差异表达基因筛选的全流程分析。可以创建 DESeqDataSet 对象管理计数矩阵、样本信息和设计矩阵。支持 size factors 估计（中位数比率法）进行测序深度校正，以及计数矩阵归一化和 log2 CPM 计算。支持分散度估计（parametric fit），结合经验贝叶斯收缩方法。支持负二项 GLM 拟合，通过迭代加权最小二乘法估计回归系数。支持 Wald 检验进行差异表达显著性检验，计算 log2 fold change、标准误、检验统计量和 p 值。支持 Benjamini-Hochberg 多重检验校正。支持 LFC 收缩（apeglm-like 方法），减小低表达基因的 fold change 估计偏差。支持显著基因筛选（按 adjusted p-value 和 LFC 阈值）和获取 top 差异表达基因。适用于 RNA-seq 差异表达分析。
+实现完整的 RNA-seq 差异表达分析流程，支持从原始计数到差异表达基因筛选的全流程分析。可以创建 DESeqDataSet 对象管理计数矩阵、样本信息和设计矩阵。支持 size factors 估计（中位数比率法）进行测序深度校正，以及计数矩阵归一化和 log2 CPM 计算。支持分散度估计（parametric fit），结合经验贝叶斯收缩方法。支持负二项 GLM 拟合，通过迭代加权最小二乘法估计回归系数。支持 Wald 检验进行差异表达显著性检验，计算 log2 fold change、标准误、检验统计量和 p 值。支持 Benjamini-Hochberg 多重检验校正。旧 `lfc_shrink` API 保留固定正态先验的轻量收缩行为；完整的自适应重尾 apeglm 实现在独立 `apeglm.mbt` 和第 254 节中。支持显著基因筛选（按 adjusted p-value 和 LFC 阈值）和获取 top 差异表达基因。适用于 RNA-seq 差异表达分析。
 
 ### 13. Suffix Array & Suffix Tree (libdivsufsort)
 
@@ -1833,9 +2259,9 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 
 提供统一的搜索结果模型，支持 HMMER3 tabular 格式和 BLAT PSL 格式的解析。可以获取查询 ID、命中数、top hits（按 E-value 排序）和 HSP 数量统计。支持 BLAST 结果转换为 SearchIO 模型，便于不同搜索工具结果的统一处理。
 
-### 21. BLAST 结果解析 (Bio.Blast)
+### 21. BLAST 基础解析兼容层
 
-支持 BLAST tabular 和 XML 格式的解析，提供丰富的结果过滤和访问接口。可以按 E-value 和 identity 过滤 hits，获取最佳匹配和最佳 HSP。支持所有 HSPs 的获取和查询序列长度的访问。
+`blast.mbt`保留早期BLAST tabular和简单XML标签解析API，支持按E-value和identity过滤、最佳命中/HSP及基础汇总。完整的Biopython `Bio.Blast` XML1/XML2文档语义、严格校验、链向/translated坐标和规范写回由第288节的`blast_xml_advanced.mbt`提供。
 
 ### 22. 替换矩阵 (Bio.SubsMat)
 
@@ -2075,7 +2501,13 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 
 ### 81. DropletUtils 空液滴检测 (Bioconductor DropletUtils)
 
-实现单细胞 RNA-seq 数据的空液滴检测功能，支持 barcode 排序、knee 点检测和 emptyDrops 算法。可以计算液滴统计指标（总计数、检测基因数），对液滴按总计数排序，找到 knee 点估计细胞数量。支持基于 Monte Carlo 模拟的空液滴检测，计算每个液滴为空的概率和 FDR 值，进行细胞过滤。
+保留 `droplet_utils.mbt` 的旧版液滴统计、barcode 排序和过滤 API；`droplet_utils_advanced.mbt` 对齐 Bioconductor `DropletUtils` 1.33.0 的核心 `emptyDrops` 工作流。`DropletCountMatrix` 固定采用 feature × barcode 方向，严格校验矩形、非负整数计数和唯一非空名称，并通过防御性复制保持输入不可变。
+
+ambient profile 可由 `lower`、`by_rank` 或显式 known-empty mask 选择空液滴，聚合 feature counts 后使用 Simple Good-Turing count-of-counts 回归和平滑频率切换；对样本中存在但 ambient 计数为零的 feature，使用安全伪概率保护。barcode-rank 在 log10(rank)-log10(total) 曲线上按固定弧长窗口追踪，以平均 rank 处理 ties，并分别由最短上凸 chord 和最负 gradient 求 knee 与 inflection。
+
+概率内核实现完整 multinomial 与 Dirichlet-multinomial 对数概率，后者可在 log-alpha 区间上通过 golden-section 最大似然估计 concentration。Monte Carlo 使用 Park–Miller RNG、Box–Muller 正态和 Marsaglia–Tsang Gamma 采样；相同 library size 共享递增抽样路径，尾部计数采用 Phipson–Smyth `(b+1)/(B+1)` 校正，并以 `Limited` 标记零极端次数。最终对普通 barcode 执行 BH-FDR，高计数 barcode 按显式阈值或自动 knee 无条件保留，未检验值通过 `Option` 保留上游 `NA` 语义。
+
+`droplet_utils_empty_drops_sce` 从 `SingleCellExperiment` assay 读取计数，可解析 known-empty 列，并向副本写入 total、log-probability、p-value、Limited、FDR、class、retained、ambient profile 和运行元数据。可移植实现使用稠密矩阵和串行确定性 Monte Carlo；配置中 `alpha < 0` 表示普通 multinomial，`alpha > 0` 表示 Dirichlet-multinomial。上游的稀疏/延迟矩阵调度、BiocParallel 后端和磁盘支持不在当前范围内。
 
 ### 82. scran 单细胞归一化与聚类 (Bioconductor scran)
 
@@ -2095,7 +2527,19 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 
 ### 86. MAST 单细胞差异表达分析 (Bioconductor MAST)
 
-实现单细胞差异表达分析功能，采用 Hurdle 模型（零膨胀模型）处理单细胞数据的零膨胀特性。模型包含两个组分：离散组分（Fisher 精确检验检测率差异）和连续组分（Welch t 检验表达水平差异）。支持使用卡叉分布合并两个 p 值得到联合检验结果，使用 Benjamini-Hochberg 方法进行 FDR 多重检验校正。支持计算 log2 倍数变化、检测率统计和结果汇总（差异基因计数、Top 基因列表）。适用于单细胞转录组差异表达分析。
+`mast.mbt` 保留原有检测比例、阳性表达 Welch 检验和结果汇总 API 作为兼容层。`mast_advanced.mbt` 参考 Bioconductor MAST 1.39.0 的 `zlm`、`bayesglm`、`lrTest`、`ebayes` 和 `logFC` 实现完整的可移植高级流程，输入统一采用 feature × cell 非负表达矩阵。`MastAdvancedData::create` 接受任意满秩设计矩阵，`mast_advanced_from_groups` 提供可指定 reference 的 treatment coding，并可自动追加每细胞检测率 `cngeneson`/CDR 协变量；构造阶段严格检查矩阵方向、矩形性、有限值、名称唯一性、设计维度和秩。
+
+每个基因分别拟合检测事件的 logistic GLM 和仅使用阳性表达的 Gaussian GLM。离散组分使用 IRLS 与非截距系数 scale 2.5 的局部二次 Cauchy 稳定化，连续组分通过 Cholesky 正规方程求解。待检验设计列从完整模型中删除后重新拟合 reduced model，分别计算离散、连续 likelihood-ratio statistic，并将可检验组分的 statistic 与自由度相加形成 hurdle 检验；chi-square survival probability 由 regularized upper incomplete gamma 计算。不可拟合的全零、全阳性或阳性设计秩不足基因保留为 `Double?::None`，BH-FDR 只校正可检验条目。
+
+经验贝叶斯层支持 MAST 默认 H0（按基因阳性表达中心化）和 H1（完整设计残差）两种 sufficient statistics，通过 inverse-gamma 边际似然估计先验方差和自由度，再对基因残差方差进行收缩。结果同时提供组分系数/标准误、收敛状态、LRT/FDR、检测率、moderated variance，以及 MAST 定义的离散概率 × 连续均值边际 logFC 和 delta-method 方差。`mast_advanced_zlm_sce` 从 `SingleCellExperiment` assay 和 group `col_data` 读取输入，在深复制的容器中写入检测率、组分/联合 p 值、FDR、logFC、分类、CDR 与运行元数据，不修改调用方对象。当前实现使用稠密数组和串行确定性求解，不包含上游并行后端、稀疏矩阵调度、混合效应模型或绘图接口。
+
+### SingleR 2.15.2 参考驱动细胞类型注释 (Bioconductor SingleR)
+
+`single_r.mbt` 保留参考 profile、Spearman/Pearson 相关性和旧版结果 API 作为兼容层；`single_r_advanced.mbt` 对齐 Bioconductor SingleR 2.15.2 的训练、分类、fine-tuning、剪枝和多参考整合语义。参考矩阵固定为 gene × sample，测试矩阵固定为 gene × cell，构造阶段严格检查矩形性、有限值、名称唯一性和标签长度，并通过防御性复制保持输入不可变。训练按测试基因顺序对齐共享基因，保持标签首次出现顺序，对每个标签计算逐基因中位数，再按有向标签对的正中位数差选择 classic markers；自动 marker 数使用 `500 × (2/3)^log2(N)`。
+
+分类对测试细胞和每个参考样本计算支持 ties 平均秩的 Spearman 相关，并以标签内相关分布的线性插值分位数作为 score，默认分位数为 0.8。fine-tuning 从距最高 score 不超过阈值的标签开始，重新合并候选标签间 markers、重算分位数并迭代收缩候选集合；结果同时保留初始 score、最终标签、`delta.next` 和相对所有标签中位数的 `delta.median`。剪枝按最终标签计算 `median(delta) - nmads × 1.4826 × MAD(delta)`，并支持硬 `delta.median`/`delta.next` 下限，未通过项使用 `Option::None` 保留上游 `NA` 语义。
+
+高级入口还支持按 cluster 汇总基因表达后注释，以及对多个参考独立分类后，在所有参考和测试共享的 marker 空间中重算 score 并选择来源参考。`single_r_advanced_sce` 默认读取 `logcounts`，可选 cluster `col_data` 列，并向深复制的 `SingleCellExperiment` 写入 label、pruned label、score、delta、cluster 和运行元数据，不修改原容器。当前可移植实现使用稠密数组和串行相关计算，不包含上游 BiocNeighbors、DelayedArray、BiocParallel、HDF5 索引或 celldex 数据下载后端。
 
 ### 87. GenomicFiles 分布式基因组文件处理 (Bioconductor GenomicFiles)
 
@@ -2143,7 +2587,13 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 
 ### 98. scDblFinder 单细胞双细胞检测 (Bioconductor scDblFinder)
 
-实现单细胞 RNA-seq 数据的双细胞（doublet）检测功能，支持 Doublet 评分计算和细胞过滤。可以创建 SingleCellData 对象（计数矩阵、细胞名称、基因名称）和 DoubletScore 对象（细胞名称、评分、是否为双细胞）。支持距离计算（scdf_compute_distance）、最近邻搜索（scdf_find_nearest_neighbors）、Doublet 评分计算（scdf_compute_doublet_score）、双细胞检测（scdf_detect_doublets）、结果汇总（scdf_doublet_summary）和细胞过滤（scdf_filter_doublets）。支持 PCA 降维（scdf_compute_pca）用于降维后距离计算。适用于单细胞数据的质量控制和双细胞去除。
+在保留 `sc_dbl_finder.mbt` 旧版 `SingleCellData`、`DoubletScore` 和 8 个兼容测试的基础上，`sc_dbl_finder_advanced.mbt` 实现 Bioconductor `scDblFinder` 1.27.6 的高级单细胞 RNA-seq doublet 检测流程。严格构造器要求矩形 cell × gene 非负有限计数、唯一非空标识和非零文库，并执行防御性复制；`ScDblFinderConfig` 对预期 doublet rate、人工样本数、特征数、维度、邻居数、迭代和分类器参数执行完整边界校验。
+
+算法按 capture/sample 独立拟合。每批选择高方差基因，对真实和人工细胞共同进行 library normalization、log1p 转换和确定性 PCA；人工 doublet 可随机配对或按 cluster 跨群配对，并支持 half-size 缩放。精确 kNN 计算人工邻居比例、逆距离与 rank 加权比例、最近真实/人工距离、`nearestClass`、最可能来源和来源歧义度。额外计算 library size、检测基因数、`nAbove2` 及 cxds 风格互斥基因共表达 surprise 分数。
+
+分类阶段使用确定性、类别平衡、L2 正则化 logistic gradient descent 代替上游 XGBoost，并在每轮重新训练前排除高疑似真实细胞和不可识别人工 doublet。阈值通过预期 doublet rate 偏差、假阳性率和人工 doublet 假阴性率的联合损失优化；cluster-aware 模式使用 `Σp_c²` 修正 homotypic 比例，并提供 Poisson 上尾与 BH-FDR 校正的 pairwise origin enrichment。结果支持按名称查询、top doublet 排序、摘要、singlet 过滤和自动快速聚类。
+
+`sc_dbl_finder_single_cell_experiment` 接受 gene × cell assay，显式转置后拟合，并以不可变复制写回 `score`、`class`、邻居比例、加权比例、most likely origin、selected genes、PCA 和元数据。为控制 MoonBit 精确 kNN 的计算量，自动人工 doublet 数使用 `max(150, min(1500, 2 × nCells))`，不同于上游最少 1500 的默认策略；当前不复刻 XGBoost、BiocNeighbors 后端、Poisson resampling、meta-cell/triplet、scATAC Amulet、fragment overlap 和 feature aggregation。
 
 ### 99. ChIPseeker ChIP-seq峰值注释 (Bioconductor ChIPseeker)
 
@@ -2699,6 +3149,436 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 
 实现 CDAO（Comparative Data Analysis Ontology，比较数据分析本体）RDF/XML 格式的解析与序列化，参考 Biopython `Bio.Phylo.CDAO`。CDAO 是基于 RDF 的系统发育数据表示标准，使用 CDAO 本体术语将树结构编码为 RDF 三元组（subject-predicate-object），便于与语义网和本体推理系统互操作。核心 CDAO 本体术语：cdao:Tree（系统发育树）、cdao:Node（树节点）、cdao:Edge（树枝/边）、cdao:has_Root（树→根节点）、cdao:has_Child/has_Descendant（父→子节点）、cdao:has_Ancestor/has_Parent（子→父节点）、cdao:belongs_to_TU（节点→分类单元）、cdao:TU（分类单元/OTU/叶标签）、rdfs:label（标签文字）。核心数据结构：Cdaotree（id/rooted/root_node_id/name?）；CdaoNode（id/children : Array[String]/parent_id?/tu_id?/branch_length?/label?，关键字段标记 mut 以便构建时修改）；CdaoTU（id/label?）；CdaoDocument（trees : Array[Cdaotree]/nodes : Map[String, CdaoNode]/tus : Map[String, CdaoTU] 完整 RDF 图）。核心函数：cdao_namespace()/cdao_rdf_namespace()/cdao_rdfs_namespace() 返回命名空间 URI；cdao_parse(xml) 主解析入口 → cdao_parse_rdf_xml 提取 CdaoTriple 三元组（手写 XML 解析器，处理标签/属性/rdf:about/rdf:resource/文本内容/自闭合/嵌套子元素）→ cdao_build_document 三元组分类填充 Document（rdf:type 创建节点/TU、has_Root 创建 Tree、has_Child 填 children、has_Ancestor 填 parent_id、belongs_to_TU 填 tu_id、rdfs:label 填 label、has_branch_length 填 branch_length）；cdao_to_trees(doc) 递归 cdao_build_clade 将 CdaoDocument 转为 BioSeqs Tree 数组（TU 标签优先于节点标签）；cdao_write(tree) 将 Tree 序列化为 RDF/XML 字符串（CdaoWriteState 管理 node_counter/tu_counter/tu_map，递归 cdao_write_clade 输出节点与边，末尾输出 TU 元素，cdao_escape_xml 处理 & < > 实体转义）。适用于系统发育数据语义网交换、本体推理、CDAO 兼容工具链互操作。
 
+### 236. TreeSummarizedExperiment 树结构实验容器 (Bioconductor TreeSummarizedExperiment)
+
+实现结合实验矩阵与层级树的 `TreeSummarizedExperiment` 容器，复用现有 `SummarizedExperiment`、`Tree` 和 `Clade` 类型。容器支持 `row_tree`/`col_tree`、`row_links`/`col_links` 和 `reference_sequences`，其中 `TseLink` 记录节点标签、稳定别名、一基节点编号、叶节点状态和树名称，对应 Bioconductor 的 `rowTree`、`rowLinks`、`colTree`、`colLinks` 与 `referenceSeq` 语义。`subset_rows`/`subset_cols` 同步裁剪 assay、链接和参考序列；`subset_by_row_nodes`/`subset_by_col_nodes` 可按内部节点或叶节点选择所有已链接后代，保留原树结构。`aggregate_rows`/`aggregate_cols` 对目标节点覆盖的数据执行 Sum、Mean、Min 或 Max 聚合，并为结果重建节点链接。`tse_find_descendants`、`tse_find_ancestors` 和 `tse_is_leaf` 提供树节点查询。`is_valid` 检查 assay 维度、链接长度、树存在性和参考序列长度。适用于微生物分类丰度、系统发育表达矩阵和具有样本层级的数据分析。
+
+### 237. Cellosaurus 细胞系数据库解析 (Bio.ExPASy.cellosaurus)
+
+实现与 Biopython `Bio.ExPASy.cellosaurus` 对应的 Cellosaurus 平面文本解析。`cellosaurus_parse` 支持批量记录，`cellosaurus_read` 支持零或一条记录；解析器识别 `ID`、`AC`、`AS`、`SY`、`DR`、`RX`、`WW`、`CC`、`ST`、`DI`、`OX`、`HI`、`OI`、`SX`、`AG`、`CA` 和 `DT` 字段，兼容数据库头部、未知扩展字段与 CRLF。`CellosaurusRecord` 提供类型化记录，`CellosaurusCrossReference` 将 `DR` 字段拆分为数据库和登录号；辅助方法支持次级登录号/同义名拆分、按数据库筛选交叉引用和物种文本查询。`to_string` 可生成规范平面文本并支持解析-序列化往返。缺失 `//` 终止符、记录嵌套、非法 `DR` 或单记录读取到多条记录时抛出 `CellosaurusError`。
+
+### 238. RangedSummarizedExperiment 基因组区间实验容器 (Bioconductor SummarizedExperiment)
+
+实现支持 `GRanges` 或 `GRangesList` assay 行范围的 `RangedSummarizedExperiment`，并复用现有 `SummarizedExperiment` 管理 assays、`col_data` 和 metadata。`new_with_range_groups` 和 `from_experiment_with_range_groups` 用复合范围表示转录本及其外显子等特征，外层元素与 assay 行严格平行；未显式提供 `row_data` 时会采用 `GRangesList.element_metadata`。容器内部使用每个复合特征的外接范围维持行维度，但 `find_overlaps`、`count_overlaps`、`overlaps_any`、`subset_by_overlaps`、`nearest`、`distance_to_nearest` 和 `coverage` 始终使用真实成员范围，因此不会将外显子之间的内含子误判为重叠。`subset_rows`/`subset_cols` 支持选择、重排和重复索引，并同步更新 assay、分组范围、行列注释与名称；`shift`、`narrow`、`resize`、`flank` 和 `promoters` 逐成员变换范围并保持实验数据不变。原有 `GRanges` 构造器与 API 保持兼容，`with_row_ranges` 可显式切回平面范围模式。
+
+### 239. UniGene 基因聚类记录解析 (Bio.UniGene)
+
+实现与 Biopython `Bio.UniGene` 对应的 NCBI UniGene 固定宽度平面文件解析。`unigene_parse` 支持多记录输入，`unigene_read` 强制读取单条记录；解析器覆盖 `ID`、`TITLE`、`GENE`、`CYTOBAND`、`EXPRESS`、`RESTR_EXPR`、`GNM_TERMINUS`、`GENE_ID`、`LOCUSLINK`、`HOMOL`、`CHROMOSOME`、`PROTSIM`、`TXMAP`、`SCOUNT`、`SEQUENCE` 和 `STS` 标签。`UniGeneRecord` 以类型化数组保存序列、蛋白相似性、STS 和转录本映射子记录，支持按序列类型、登录号、相似物种和 IMAGE clone 查询，并保留未知子字段用于兼容扩展格式。解析器支持 CRLF，严格检查固定 12 列标签、记录终止符、布尔值和非负 `SCOUNT`，且要求声明数量与实际 `SEQUENCE` 数量一致。`to_string` 生成规范固定宽度文本并支持解析-序列化往返；格式错误抛出 `UniGeneError`。
+
+
+### 240. GRangesList 复合基因组特征 (Bioconductor GenomicRanges)
+
+实现 Bioconductor `GenomicRanges::GRangesList` 的复合特征语义，每个命名外层元素保存一组 `GRanges`，适合表示转录本-外显子、基因-调控区等一对多结构。构造器严格校验外层名称、元素元数据和内部范围维度；`granges_split_as_list` 按首次出现顺序分组，`granges_list_from_partition` 按元素长度分区，`unlist` 展平成单个 `GRanges`，`relist` 按原分区重建并保留名称和元数据。`subset`、`concat`、`parallel_concat` 支持外层选择和组合；`shift`、`narrow`、`resize`、`flank`、`promoters`、`reduce`、`disjoin` 和 `sort_ranges` 逐元素执行，`parallel_union`、`parallel_intersect` 和 `parallel_setdiff` 提供同位置元素间集合运算。`find_overlaps`、`count_overlaps`、`overlaps_any` 和分组对分组查询返回外层复合特征索引，并对同一特征的多个成员命中去重；`nearest`、`distance_to_nearest` 和 `coverage` 基于所有真实成员范围计算。`feature_bounds` 仅用于生成每个复合特征的协调外接范围，不替代精确区间计算。
+
+### 241. HH-suite HHR profile-profile 比对解析 (Bio.Align.hhr)
+
+实现与 Biopython `Bio.Align.hhr` 对应的 HHsearch/HHblits HHR 文本解析。`hhr_parse` 读取查询元数据、命中摘要表和多块 profile-profile 比对，使用 Biopython 风格的 0-based、end-exclusive 坐标，并保留 query/target consensus、预测二级结构、DSSP、逐列分数和 confidence。`HhrRecord` 支持按 target 查询、probability/E-value 过滤和最佳命中选择；`HhrAlignment` 提供去 gap 序列、identity/coverage 统计、`query_to_target` 坐标映射和 `aligned_pairs`。解析器严格校验 rank、摘要与详情数量、坐标跨度、跨块连续性、比对宽度、`Aligned_cols` 和终止标记，兼容 CRLF、无空行的官方布局、零命中及 EOF 结束的完整末块。`to_string` 生成规范 HHR 文本并支持解析-序列化往返；格式错误抛出 `HhrError`。
+
+### 242. N维稀疏数组基础设施 (Bioconductor SparseArray)
+
+实现与 Bioconductor `SparseArray` 核心语义对应的 N 维稀疏数组，作为现有二维 CSC/CSR `BiocMatrix` 的补充。`SparseArray::from_coo` 使用 0-based 坐标构建规范化 COO：构造时校验维度和坐标、深复制输入、按坐标排序、合并重复坐标，并删除合并后为零的条目；`from_flat`/`to_flat` 遵循 R 风格列主序（第一维变化最快），另提供矩阵和零数组构造器。查询 API 覆盖维度、长度、非零坐标/值、密度、坐标及线性随机访问和稠密转换，所有公开坐标访问器均返回防御性副本。
+
+稀疏变换支持不可变单点/批量赋值、重复索引子集、0-based end-exclusive 切片、任意维度 `aperm`、二维转置和按指定维度绑定；加减、Hadamard 乘积、缩放和非零映射直接处理规范化非零条目。统计 API 包括全数组 sum/mean/min/max（极值正确纳入隐式零）以及二维 row/column sums、means 和非零计数；二维稀疏矩阵还支持 `matmul`、`crossprod` 和 `tcrossprod`。当前实现采用可移植的规范化 COO，并未宣称覆盖官方包的完整 SVT 存储后端。
+
+### 243. CEAligner 组合扩展结构比对 (Biopython Bio.PDB.cealign)
+
+实现与 Biopython `Bio.PDB.cealign.CEAligner` 对应的组合扩展结构比对。`cealign_get_guide_atoms` 按模型、链和残基顺序提取引导原子，蛋白质优先使用 `CA`，缺失时回退到核酸 `C4'`；`CEAligner::set_reference` 保存不可变参考坐标，`align` 对移动结构建立分子内距离矩阵和 AFP 相似度矩阵，以 Biopython 阈值扩展严格单调的 CE 路径并保留最多 20 条候选。在最长候选路径中使用 `QCPSuperimposer` 选择最低 RMSD 叠合，默认窗口 8 时计算 CE 经验 Z-score，并可在显著路径上执行只接受 RMSD 降低的局部索引优化。
+
+`CeAlignmentResult` 返回对齐索引、片段数、RMSD、Z-score、覆盖率、旋转矩阵和平移向量。`transform=true` 会将刚体变换应用到移动结构的全部原子，同时重建 `Structure` 以保证输入对象不被原地修改；`transform=false` 仅计算比对。公开辅助 API 还包括距离矩阵、片段相似度、路径搜索和独立结构变换，非法参数、引导原子缺失或结构长度不足时抛出 `CeAlignError`。
+
+### 244. scrapper 单细胞预处理 (Bioconductor scrapper)
+
+实现 Bioconductor `scrapper` 核心单细胞 RNA-seq 预处理流程，矩阵统一采用 feature × cell 方向。RNA QC 计算每个细胞的文库总量、检测基因数和命名 feature subset 比例，并用 `log(value + 1)` 空间的 median/MAD 下限及 subset 比例上限执行批次感知过滤；block 顺序按首次出现保留。大小因子支持非法值清洗、文库大小估计、全局/逐批次居中，以及保留批次间尺度的最低批次居中。count scaling 和可配置底数、pseudo-count 的 log-normalization 均返回新矩阵，不修改输入。
+
+基因建模提供均值、sample variance、quarter-root LOWESS 局部线性趋势、左侧向原点外推、残差方差和带 ties/bound 控制的 HVG 选择。`scrapper_aggregate_across_cells` 可按一个或多个分类因子的唯一组合生成 pseudo-bulk sums、detected counts、means 和 medians，并返回组组合及每个细胞的组索引。`scrapper_normalize_rna_counts_sce` 与 `scrapper_quick_rna_qc_sce` 深复制 assay 和主要注释后写入结果，避免修改原 `SingleCellExperiment`。当前实现是无需 libscran C++ 的可移植 MoonBit 版本，不保证 LOWESS 与上游后端位级一致，也不覆盖 `scrapper` 的全部导出接口。
+
+### scuttle 1.23.1 单细胞基础工具 (Bioconductor scuttle)
+
+在避免复制 `scrapper.mbt` 已覆盖的细胞 QC、归一化、方差建模和 pseudo-bulk 功能的前提下，`scuttle.mbt` 对齐 Bioconductor `scuttle` 1.23.1 中仍缺失的复杂语义，所有矩阵统一采用 feature × cell 方向。`scuttle_is_outlier` 使用 R 的 `1.4826 × median absolute deviation`，支持 lower/higher/both tail、log2 空间、阈值估计 subset、逐 batch 估计、median/MAD 共享及缺失 batch 恢复；batch 名按因子式字典序输出，无法估计的阈值和状态分别由 validity 标记与 `Bool?::None` 保留。
+
+per-feature QC 计算全体及命名 cell subset 的均值、严格检测百分比和 subset/global ratio。feature 聚合支持任意重叠集合、sum/average、检测计数及按字符串 ID 的字典序分组。downsampling 会先将数值 count 四舍五入并把负值截为零，再通过固定 seed 的 Park–Miller RNG 执行无放回抽样；逐列或全矩阵输出总量严格等于 `round(total × proportion)`。batch downsampling 可按 median、mean 或 `exp(mean(log(1+x)))` 汇总 coverage，并可在 block 内等化到最浅 batch。
+
+`scuttle_per_feature_qc_sce`、`scuttle_aggregate_feature_sets_sce` 和 `scuttle_downsample_sce` 深复制 assay、row/column metadata、reduced dimensions、metadata 与 alternative experiments。QC 写入 row metadata，feature-set 聚合替换所选 assay 并清除失效的 gene-level metadata，downsampling 添加新 assay，均不修改输入容器。当前实现采用稠密数组和串行确定性抽样，不覆盖上游稀疏/延迟矩阵、BiocParallel 后端及已由 `scrapper` 提供的重叠接口。
+
+### 245. BinaryCIF 二进制结构格式 (Bio.PDB.binary_cif)
+
+实现与 Biopython `Bio.PDB.binary_cif` 对应的 BinaryCIF 解析与结构转换。`binary_cif_parse` 使用纯 MoonBit MessagePack 读取器解析 data block、category 和 column，并支持 `ByteArray`、`FixedPoint`、`IntervalQuantization`、`RunLength`、`Delta`、`IntegerPacking` 和 `StringArray` 七类 BinaryCIF 逆编码；编码流水线按规范逆序执行。列 API 提供整数、浮点、文本和原始 CIF token 查询，并将 mask 的 `0/1/2` 分别表示为 present、`.` 和 `?`。解析器严格检查 UTF-8、字节范围、数组长度、整数打包值域、字符串 offsets、MessagePack 嵌套深度及尾随数据。
+
+`binary_cif_to_structure` 和 `binary_cif_parse_structure` 将 `_atom_site` 转为现有 `Structure -> Model -> Chain -> Residue -> Atom` 层次，保留模型号、链、残基、坐标、occupancy、B-factor、元素、altloc、插入码、formal charge 和 ATOM/HETATM 语义。模块内置真实 MessagePack fixture，覆盖两模型、蛋白质、水分子和三态 mask。输入 API 接收原始 `Array[Int]` 字节；gzip 数据需由调用方预先解压。BinaryCIF 类别仍保留完整多字符 chain ID，但现有 PDB `Chain.id` 为 `Char`，转换时使用首字符，并拒绝首字符冲突的链 ID。
+
+### 246. miloR 单细胞邻域差异丰度 (Bioconductor miloR)
+
+实现 Bioconductor `miloR` 的核心单细胞邻域差异丰度流程。`milo_build_graph` 在 cell × dimension 降维坐标上构建排除自身、稳定处理距离 ties 的精确 KNN，并将有向边对称化为无向图；`make_neighborhoods` 使用确定性无放回采样，以种子邻域的逐维 median profile 查找精炼代表细胞，去重后生成重叠邻域。`count_cells` 按样本首次出现顺序生成 neighborhood × sample 计数，另提供邻域平均表达、重叠矩阵、距离度量和 `SingleCellExperiment` reduced-dimension 构造入口。
+
+`test_neighborhoods` 使用 library-size offset、method-of-moments 离散度及向全局 median 的收缩，为每个邻域拟合 log-link 负二项 GLM，并输出指定系数的 log2 fold change、Wald 统计量、p-value 和 BH FDR。`milo_graph_spatial_fdr` 实现频率加权 BH，支持 k-distance、neighbour-distance、max-distance 和 graph-overlap 四类 connectivity 权重，也可显式禁用 spatial correction。当前模块是无外部 edgeR 依赖的可移植 fixed-effect 实现，不覆盖 NB-GLMM、edgeR TMM/RLE 与 quasi-likelihood 后端，也不提供上游绘图接口。
+
+### 247. Infernal cmscan/cmsearch 输出解析 (Bio.SearchIO.InfernalIO)
+
+实现 Biopython 1.86 `Bio.SearchIO.InfernalIO` 的 Infernal `cmscan`/`cmsearch` 结果读取。`infernal_parse_tabular` 自动识别或显式选择 tabular 格式 1、2、3，保留 clan、模型/序列长度、截断、pipeline pass、GC、bias、bit score、E-value、included、overlap 及格式 2 的重叠索引和比例。所有序列坐标从 Infernal 的 1-based inclusive 规范化为 0-based half-open，并统一处理正负链。结果采用 `InfernalQueryResult -> InfernalHit -> InfernalHSP -> InfernalFragment` 类型层次，按输入顺序聚合重复 query 和 hit。
+
+`infernal_parse_text` 支持 non-verbose plain text、`--noali`、CM pipeline 和 HMM-only pipeline，解析 query metadata、hit score、模型/序列比对及 CS、NC、similarity、PP 注释。模型和序列中的 `*[NN]*` local-end 标记会同步拆分为多个 fragment，并记录两侧 omission 长度和链方向坐标。查询 API 提供 best-HSP、E-value/included 过滤、摘要及到通用 `QueryResult` 的转换。当前范围不包括 verbose text、writer 或完整 Infernal 命令行封装。
+
+### 248. 重复测量方差分解与差异表达 (Bioconductor variancePartition)
+
+实现 Bioconductor `variancePartition`/`dream` 的可移植线性混合模型核心。`vp_numeric_effect`、`vp_categorical_effect`、`vp_random_effect` 和 `vp_design` 使用 typed design 表达连续变量、分类固定效应及稳定 level 编码的随机截距，避免解析 R formula 字符串。每个基因拟合 `y = Xβ + ΣZₖbₖ + ε`，以 Cholesky/GLS 计算固定效应，并在 log-variance 空间用 ML 或 REML 估计多个随机效应及异方差残差；`fit_extract_variance_partition` 按上游语义默认使用 ML。结果报告每个固定 term 的 `var(Xⱼβⱼ)`、随机方差、残差方差、归一化占比、拟合值、残差和各 level 的 BLUP。
+
+observation-level precision weights 会先缩放到均值 1，并进入 `V = ΣτₖZₖZₖᵀ + σ²diag(1/w)`。`dream`/`dream_se` 对任意固定效应 contrast 计算估计值、标准误、数值 Satterthwaite 自由度、双侧 Student-t p 值和 BH-FDR；`fit_extract_variance_partition_se` 与 `dream_se` 可直接读取 `SummarizedExperiment` 的表达和 weights assay。当前范围支持随机截距，不包括随机斜率、Kenward-Roger、voom mean-variance trend、limma empirical Bayes、缺失值省略及上游绘图接口。
+
+### 249. 共享参考序列比对合并 (Biopython Bio.Align)
+
+实现 Biopython 1.86 `Alignment.from_alignments_with_same_reference` 的共享参考比对合并语义。`shared_reference_input` 表示一条参考和一条或多条 query 的 PWA/MSA，`shared_reference_input_from_pairwise` 可直接接入现有 `PairwiseAlignment`；构造过程验证 raw/aligned sequence、0-based half-open 局部坐标、行宽以及所有输入的参考内容和覆盖区间。核心 `alignments_with_same_reference` 将参考覆盖区间表示为 `L + 1` 个 reference-boundary insertion slots，取各输入同一边界插入宽度的最大值，再将原 query 行投影到统一列空间，因此不会重新比对 query，并支持首端、内部、末端 insertion 及单个输入中的多条 query。
+
+`SharedReferenceAlignment` 保留参考/query名称、描述和局部坐标，提供 row/column 查询、reference/query/column 双向坐标映射，以及 identity、mismatch、insertion、deletion 统计。合并结果可转换为现有 `MultipleSeqAlignment` 或 aligned FASTA。算法复杂度为 `O(total input columns + merged rows × merged columns)`；当前要求所有输入覆盖同一参考区间，使用 `-` 表示 gap，不自动执行反向互补或 query 间二次比对。
+
+### 250. ambient RNA 去污染 (Bioconductor decontX)
+
+实现 Bioconductor `decontX` 的可移植单细胞 ambient RNA 去污染核心，输入统一为 gene × cell 非负计数矩阵。每个细胞由所属 cluster 的 native multinomial profile 与 contaminant multinomial profile 混合，污染率按细胞估计；无外部 background 时，污染 profile 由其他 cluster 的本征表达加权形成，提供 empty-droplet/background 矩阵时则使用固定的全局 ambient profile。确定性 EM 在 E-step 分解每个 gene × cell 的 native/contaminant 期望计数，在 M-step 更新 cluster profile 和污染率，并使用 Beta contamination prior、Dirichlet-style profile pseudocount、概率下限及 likelihood tolerance 控制收敛。
+
+`decontx` 返回校正计数、污染计数、每细胞污染率、native/contaminant profiles、cluster 编码和完整 likelihood 诊断，且对每个观测保持 `corrected + contaminant = original`。查询 API 提供 cell/cluster estimates、最高污染细胞、名称索引和摘要；`decontx_auto` 对 library-size scaling 后的 `log(1 + count)` 表达执行确定性 k-means 初始化。`decontx_sce` 从指定 assay 和 cluster `colData` 读取输入，在复制的 `SingleCellExperiment` 中增加校正 assay、污染率、cluster 和迭代 metadata，不修改调用方对象。当前范围采用 cluster 标签或 k-means，而非上游 variational Bayes 聚类后端；不包含 GPU/稀疏矩阵专用求解器和绘图接口。
+
+### 251. Alignment 坐标组合 (Biopython Bio.Align.Alignment.map/mapall)
+
+实现 Biopython `Alignment.map` 的 coordinate path composition：第一层表示 outer target 到 shared middle，第二层表示 shared middle 到 final query，组合过程只扫描并相交两条 alignment path，不重新执行序列比对，也不依赖序列内容。`CoordinatePairwiseAlignment` 使用零起始、半开区间坐标，支持局部 alignment 的左右 overhang clipping、exon/intron 与 insertion/deletion gap、正链/反链及双反链组合；可从现有 `PairwiseAlignment` 适配，也可仅提供序列长度和坐标。结果提供 aligned blocks/counts、target/query 双向坐标查询、可选反向互补的 gapped rows、PSL、摘要及 `map_many`。
+
+`CoordinateMultipleAlignment.mapall` 将 MSA 每行通过对应 pairwise mapping 投影到统一列空间，支持 nucleotide 1:1 和 protein:nucleotide 1:3 两类一致比例，因此可将 protein MSA 转换为 codon-aware nucleotide MSA，并保留氨基酸 gap 对应的三碱基 gap。构造器会验证名称、序列、坐标边界、单调方向、step size、共享序列长度和跨行映射比例；当前不负责生成原始 pairwise alignment，也不支持混合比例、frameshift 或非整数缩放。
+
+### 252. 零膨胀负二项低维表示 (Bioconductor zinbwave)
+
+实现 Bioconductor `zinbwave` 的可移植 ZINB-WaVE 核心，输入统一为 gene × cell 非负整数计数矩阵。均值子模型使用 log link，零膨胀子模型使用 logit link，两者共享已知 cell-level design、gene-level design、显式 mean/zero offset 和未知 cell latent factors；每个基因单独估计 inverse-dispersion 对应的 dispersion。latent factors 从 library-offset corrected `log(count + 1)` 的 cell Gram matrix确定性初始化，随后与 NB mean、zero-inflation 和 gene/cell effects 交替更新，并在每轮中心化和 RMS 缩放以控制可识别性。
+
+E-step 对零计数计算来自 NB component 的后验 responsibility，正计数 responsibility 固定为 1；M-step 分别使用 log-link NB IRLS、logistic IRLS 和带 ridge 的线性求解更新参数。gene dispersion 使用加权矩估计并向跨基因 median 收缩，最终结果提供完整 ZINB log-likelihood 轨迹、AIC/BIC、fitted means、structural-zero probabilities、下游差异分析 observational weights、NB deviance residuals、library-normalized values、零值后验插补和逐基因诊断。
+
+`zinbwave_sce` 从指定 `SingleCellExperiment` assay 拟合模型，在不可变副本中加入 `zinbwave_weights`、`zinbwave_residuals`、`zinbwave_normalized`、`zinbwave_imputed` assays、低维表示和模型 metadata，不修改输入对象。构造器会诊断 ragged/负数/非整数/非有限计数、空 cell library、design/offset 维度和标识符问题。当前实现使用 dense MoonBit arrays 和确定性交替求解，不包含上游 R 包的并行后端、稀疏矩阵专用优化、epsilon penalty 路径或绘图接口。
+
+### 253. BigBed 二进制区间索引 (Biopython Bio.Align.bigbed)
+
+实现 Biopython 1.86 `Bio.Align.bigbed` 对应的 UCSC BigBed v4 二进制读写核心。`bigbed_write` 将按染色体和起点排序的 BED3-BED12 记录编码为 binary BED 数据块，写入 64 字节主头、AutoSQL schema、chromosome B+ tree、record count、R-tree interval index、total summary 和尾部 magic；`bigbed_parse` 同时支持小端/大端文件并严格验证版本、偏移、树深度、记录计数、染色体边界及索引一致性。writer 可通过 `items_per_slot` 和 `block_size` 构建多数据块及平衡多级索引，而不是仅支持单叶节点。
+
+标准 BED 渐进字段和 custom AutoSQL scalar/array 字段均可往返保留。压缩 reader 实现 RFC 1950/1951 zlib 的 stored、fixed Huffman 和 dynamic Huffman DEFLATE，包括 canonical code、code-length repeat、LZ77重叠复制、32 KiB距离、FCHECK/FDICT/CINFO及Adler-32校验；writer 使用确定性 stored DEFLATE。`BigBedFile::search` 通过R-tree剪枝执行0-based half-open区间查询，另提供全量记录、名称查询、汇总和BED文本导出。BED12记录可恢复含intron jump的target/query坐标路径，负链query坐标按转录本长度反向。
+
+构造器和解析器会诊断无效BED字段、未排序记录、未知染色体、损坏magic、截断数据、异常树节点、非法zlib流及校验和不一致。当前范围不写入zoom levels或extra string indices；offset/count虽按u64布局读取和写入，但内存模型仍拒绝高32位非零的超大文件。writer的stored DEFLATE保证互操作性和确定性，但不追求压缩率。
+
+### 254. 自适应重尾效应量收缩 (Bioconductor apeglm)
+
+实现 Bioconductor `apeglm` 的 negative-binomial 路径，用于对 RNA-seq GLM 的目标系数执行自适应重尾后验收缩。`apeglm_fit` 接受 gene × sample 非负整数计数、sample × coefficient 设计矩阵、逐基因 dispersion，以及可选 log offset 和 observation weight；模型使用 `log(mu) = offset + X beta`，所有内部系数、阈值和先验尺度统一使用 natural-log scale。每个基因先拟合无先验 NB-GLM MLE，再以异方差 Efron-Morris 方程从跨基因 MLE/SE 自适应估计先验方差；目标系数使用可配置自由度的 Student-t 先验，默认 `df=1` 即 Cauchy，intercept 和其他 nuisance 系数使用宽 Normal no-shrink prior。
+
+MAP 求解器实现阻尼 Newton、Cholesky 信息矩阵求解、逐级 ridge 正定化、最大步长、28 级回溯线搜索和严格参数边界；从 MLE、0 和先验尺度的正负倍数生成精确数量的确定性多起点并选取最高 posterior mode。MAP 处逆信息矩阵给出 Laplace posterior covariance、SD 和可配置可信区间；结果同时计算 local false sign rate、超过效应阈值时发生 false sign or small effect 的 FSOS probability，以及按 FSR 排序累计均值定义的 s-value。查询 API 支持名称/索引查找、MAP/SD 矩阵、排序、筛选、摘要和 natural-log/log2 TSV 导出。
+
+`apeglm_from_deseq2` 读取 `DESeqDataSet` 的 counts、design、dispersion 和 size-factor log offset；`apeglm_summarized_experiment` 在不可变副本中增加 `apeglm_map`、`apeglm_sd`、`apeglm_fsr`、`apeglm_svalue` 和 `apeglm_fsos` assays 及模型 metadata。构造器会诊断 ragged、负数、非整数或非有限计数，无效 design/dispersion/offset/weight、全零权重和重复标识符。当前范围实现 dense negative-binomial backend 和 Laplace/Normal posterior approximation，不包含上游 beta-binomial backend、grid/HPD integration、稀疏矩阵专用优化或并行执行。
+
+### 255. BigMaf 多物种比对索引 (Biopython Bio.Align.bigmaf)
+
+实现 Biopython 1.86 `Bio.Align.bigmaf` 对应的 UCSC BigMaf 格式。`bigmaf_write` 将多物种 `BigMafBlock` 编码为标准 `bedMaf` `bed3+1` BigBed v4 文件，第四个 AutoSQL `lstring mafBlock` 字段保存分号分隔的完整 MAF block；二进制头、chromosome B+ tree、R-tree 和 DEFLATE 复用经过验证的 BigBed 实现。writer 验证第一条 component 为 `<reference>.<chromosome>` 正链参考、source size 与目标长度一致，并按目标顺序和半开区间稳定排序后写入压缩或非压缩数据块。
+
+严格 MAF 模型完整保留 `a` 行的 score/pass、`s` sequence component、`i` insertion context、`q` aligned quality、`e` empty component 和注释。component API 提供去 gap 序列、正向序列/区间、alignment column 与 source coordinate 双向转换，以及参考位置到任意物种的映射；负链坐标按 MAF forward-coordinate 规则转换。`BigMafFile::search` 通过底层 R-tree 查询目标区间，同时接受裸 chromosome 或 reference-qualified 名称；另提供全量 block、pairwise identity、摘要和标准 MAF 文本导出。
+
+解析器要求 `definedFieldCount=3`、`fieldCount=4` 及标准 `bedMaf` schema，并交叉验证 BED 区间、嵌入 MAF 第一条 component、reference prefix 和 chromosome target。构造器会诊断非法状态字符、负坐标、source 越界、size 与非 gap 长度不符、quality/gap 不同步、重复注释及不一致列宽；二进制层继续诊断损坏 magic、树节点、DEFLATE 和校验和。当前范围不生成 BigMaf zoom levels 或 extra indices，也不实现远程 HTTP range reader。
+
+### 256. cohort-scale 单细胞重复测量分析 (Bioconductor dreamlet)
+
+实现 Bioconductor `dreamlet` 的 sample×cell-type pseudobulk 混合模型流程，输入统一为 gene×cell 非负整数计数。`dreamlet_aggregate_to_pseudobulk` 按 sample 和 cluster 首次出现顺序求 raw count sum，为缺失的 sample×cluster 组合补零列和 `cell_counts=0`，并验证被选择 metadata 在同一样本内保持一致；`dreamlet_aggregate_sce` 可直接读取 `SingleCellExperiment` assay 与 `colData`。每个 cell type 独立过滤低细胞数或零文库样本，并按 total count、最小 count、CPM 达标样本比例过滤基因，避免不同 cell type 共享不适用的 retained set。
+
+归一化实现 edgeR 风格 TMM：按归一化 count 的 75% 分位数选择参考样本，计算 M/A 值，执行 log-ratio 与 abundance 双裁剪，以 inverse asymptotic variance 加权，并将因子几何中心化到 1。effective library size 用于 normalized CPM 和带 prior count 的 log2 CPM。precision-weight 流程先从 count 均值和 library scale 构造可配置的 Poisson 初始权重，再拟合 residual variance 四次方根对平均表达的 LOWESS 趋势，最终使用预测方差倒数作为 voom-style observation weights。
+
+`DreamletEffectSpec` 和 `DreamletModelSpec` 以 typed numeric、categorical、random effects 代替 R formula 解析，并转换到现有 `variancePartition` 设计与求解器；常量固定效应和无重复 level 的随机效应会按 cell type 删除并记录。`dreamlet_process_assays` 输出每个 cell type 的过滤、TMM、表达、权重、design 和趋势诊断，`dreamlet` 对指定 coefficient 运行 weighted fixed/random mixed model，报告数值 Satterthwaite 检验、cluster 内 BH-FDR 和跨全部 gene×cell-type hypotheses 的 study-wide BH-FDR。查询 API 提供 assay lookup、top table 和分阶段摘要。当前范围支持 dense arrays 和随机截距，不解析 R formula，不包含随机斜率、Kenward-Roger、limma empirical Bayes、稀疏/并行后端、绘图或上游 `aggr_means` 的变化 numeric cell metadata 聚合。
+
+### 257. BigPsl 成对比对索引 (Biopython Bio.Align.bigpsl)
+
+实现 Biopython 1.86 `Bio.Align.bigpsl` 对应的 UCSC BigPsl 格式。`bigpsl_write` 将 `BigPslAlignment` 编码为标准 BigBed v4 `bed12+13` 文件，完整写入 25 字段 `bigPsl` AutoSQL、chromosome B+ tree、R-tree 和可选 DEFLATE 数据块；`bigpsl_parse` 复用 BigBed 二进制校验并额外交叉验证 target/query 区间、block count、`oChromStarts`、`chromSize`、match 分类和 `seqType`。writer 支持选择性保存 query sequence 与 NCBI CDS 字段，默认保持文件紧凑。
+
+坐标模型使用 0-based half-open path。核酸 block 要求 target 递增且 target/query 长度 1:1，支持 query 正反链；translated DNA-to-protein block 要求 query 递增且 target/query 长度 3:1，支持 target 正反链。API 提供 block/gap 统计、target/query 双向映射、amino acid 到 codon interval 映射、区间和 query-name 查询、摘要及标准 PSL 导出，其中反向 translated alignment 使用 PSL `+-` strand。`recount` 可按实际序列重新计算 match、mismatch、repeat-match 和 wildcard/N，核酸支持 lower/upper repeat mask，translated alignment 使用标准遗传密码并在反向 target 上先做 reverse complement。
+
+构造器和解析器诊断名称、坐标边界/方向、非 1:1 或 3:1 block、无 aligned block、非法 score/thick interval、序列长度、match 总数、schema 及 strand 组合。当前范围不生成 zoom levels 或额外 string index，不实现远程 HTTP range reader；二进制容器能力与 BigBed 保持一致。
+
+### 258. Dirichlet Monte Carlo 组成型差异丰度 (Bioconductor ALDEx2)
+
+实现 Bioconductor `ALDEx2` 的可移植两组组成型推断核心，输入统一为 feature × sample 非负整数计数。`aldex2_clr` 先过滤跨全部样本均为零的 feature，以 `count + prior`（默认 prior 0.5）作为 Dirichlet shape，使用显式 seed、Park-Miller LCG、Box-Muller normal 和 Marsaglia-Tsang gamma sampler 生成确定性 Monte Carlo 实例。log2 ratio 变换支持 `all`、`median`、IQLR、condition-specific `zero`、LVHA 和调用方指定原始输入 feature index 的 `user` denominator，也可接收 sample × Monte Carlo instance 的正 scale matrix 直接构造 scale-aware log abundance。
+
+`aldex2_ttest` 在每个实例内执行两组 Welch 与 Mann-Whitney/Wilcoxon 检验，配对模式改用 paired t 和 signed-rank；每个实例独立执行标准 Benjamini-Hochberg 校正，再跨 posterior 实例求 expected p/eBH。`aldex2_effect` 报告组内 relative abundance、between/within difference、标准化 effect、可信区间和 sign overlap；另提供 posterior expected Aitchison距离、名称查询、排序、阈值筛选、摘要及 ALDEx2 风格 TSV。`aldex2_summarized_experiment` 在不可变副本中加入 effect、overlap、Welch eBH 和 Wilcoxon eBH assays，并按原始行索引回填被过滤的全零 feature。
+
+构造器会诊断 ragged、负数、非整数或非有限计数，空样本文库、名称/condition/配对维度、denominator 和 scale matrix 错误。当前范围不包含 `aldex.glm`、Kruskal-Wallis、相关性、绘图、BiocParallel 或自动 gamma scale uncertainty simulation；effect posterior 使用同一实例内的确定性 pairwise 组合，不保证与上游最多 10000 次随机重采样逐位一致。
+
+### 259. Alignment 详细计数与评分 (Biopython Bio.Align.Alignment.counts)
+
+实现 Biopython 1.86 `Alignment.counts` / `AlignmentCounts` 的坐标路径统计模型，并保留原有轻量 `CoordinatePairwiseAlignment::counts()` API。新 `alignment_counts` API 将 gap 分为 left/internal/right insertion 和 deletion 十二类 open/extend 事件；同方向连续 gap 计为 extension，diagonal step 重置 gap path。结果同时提供各层级聚合 getter、aligned、identity、mismatch、positive、gap/substitution/total score 和摘要。
+
+composition 支持 wildcard、match/mismatch score 或替换矩阵；矩阵模式计算正分 substitution 的 positives，并对未知 residue 给出明确诊断。gap score 可使用统一 affine、按 insertion/deletion 方向区分，或完整十二参数配置。坐标读取支持反向链的归一化与反向互补；无序列文本时仍可统计坐标和 gap。`CoordinateMultipleAlignment::alignment_counts` 对全部无序序列对求和，并忽略为其他行插入的双 gap 列而保持当前 gap path。
+
+实现覆盖路径长度、坐标单调性、aligned step、有限 score 和矩阵 alphabet 校验；专项测试包含官方 BLOSUM62/BLOSUM45 示例、左右/内部 gap、连续 open/extend、wildcard、反向链、length-only alignment 和 MSA 汇总。同步修正既有标准 20×20 `BLOSUM45` 的 139 个错误分值，与 Biopython 1.86 官方矩阵逐项一致。当前 API 统计已有 coordinate alignment，不负责执行新的序列比对。
+
+### 260. Dirichlet-multinomial 混合聚类与分类 (Bioconductor DirichletMultinomial)
+
+实现 Bioconductor `DirichletMultinomial` 的可移植有限混合模型核心，原生输入与上游 `dmn()` 一致，采用 sample × taxon 非负整数计数矩阵。基础 API 提供 Dirichlet-multinomial log-PMF、均值和含过度离散膨胀的协方差。混合拟合先在相对丰度空间执行确定性 soft k-means，再以 posterior responsibility 和 component weight 进行 EM；每个 component 的 alpha 使用 log 参数化、Gamma(shape=0.1, rate=0.1) prior、inverse-BFGS、Armijo 回溯线搜索和显式参数边界优化，避免正值约束被迭代破坏。
+
+`DmnFit` 返回按 mixture weight 降序排列的 alpha、权重、sample responsibility、component proportions、浓度、Hessian 近似区间和 likelihood 轨迹，并提供新样本 evidence、posterior 与 assignment。goodness-of-fit 遵循上游参数计数 `P = K × taxa + K - 1`，报告 negative log evidence、log determinant、Laplace、AIC 和 BIC；`dirichlet_multinomial_select` 比较连续 K。`dirichlet_multinomial_group_fit` 为每个 phenotype 拟合独立 DMM 并结合经验 group prior 构造生成式分类器，可指定每组 K 或按 Laplace 自动选择；另提供确定性分层交叉验证、概率输出和二分类 ROC/AUC。
+
+`dirichlet_multinomial_fit_se` 从 `SummarizedExperiment` 的 feature × sample assay 校验并转置为 sample × taxon。构造器会诊断空/ragged矩阵、负数、非整数或非有限 assay、零文库、组件数、名称、group、fold 和预测维度错误。当前实现使用 dense MoonBit arrays 和确定性单线程求解，不依赖上游 C/GSL，也不包含稀疏矩阵专用优化、并行多起点、绘图或完整 S4 方法分派。
+
+### 261. Alignment-aware tabular 搜索结果解析 (Biopython Bio.Align.tabular)
+
+实现 Biopython 1.86 `Bio.Align.tabular` 的 alignment-aware 表格解析器，支持 NCBI BLAST `-outfmt 7`、FASTA `-m 8CB` BTOP 和 `-m 8CC` `aln_code`。解析结果按 query block 保留 program/version、command line、database、RID、query 描述与长度、完整上游字段词汇、声明命中数和零命中 query；`AlignTabularDocument` 提供扁平化、query 查询，`AlignTabularQueryResult` 提供 E-value 最佳命中与阈值过滤。
+
+BTOP 和 FASTA CIGAR 会合并连续 operation 并重建显式 target/query coordinate path，区分 aligned、query gap 和 target gap。输入的 1-based inclusive 区间规范化为 0-based half-open，同时保留正反链方向；BLASTX、TBLASTN、TBLASTX、RPSTBLASTN、FASTX/FASTY 和 TFASTX/TFASTY 按核酸轴每个 residue 三个单位换算。绝对路径可转换为 `CoordinatePairwiseAlignment`，并提供 alignment columns、aligned residues、两类 gap residues、gap events 和摘要。
+
+解析器严格诊断 header/字段重复或缺失、未知字段、列数、整数溢出、非法或非有限浮点、百分比和 E-value 范围、ID/长度冲突、坐标边界、traceback 截断与 operation、BTOP/CIGAR 同时出现、traceback span/序列消耗/alignment length 不一致，以及声明命中数和 processed query 数不匹配。当前范围聚焦文本解析和坐标重建，不执行 BLAST/FASTA 搜索，也不解析 XML、ASN.1 或普通无注释 outfmt 6 文档。
+
+### 262. 最近邻高斯过程空间变异基因检测 (Bioconductor nnSVG)
+
+实现 Bioconductor `nnSVG` 的可移植 spatially variable gene 检测核心，输入统一为 gene × spot 表达矩阵与 spot × dimension 空间坐标。坐标按各维最大 range 统一缩放，支持确定性的 approximate maximum-minimum-distance (AMMD) 和坐标和排序；每个 spot 只连接处理顺序中的前驱近邻。指数协方差 `R(i,j)=exp(-distance/length_scale)` 通过 NNGP 条件分解生成局部回归系数和条件方差，避免构造完整高斯过程精度矩阵。
+
+每个基因拟合 `y=X beta+w+epsilon`，以 NNGP generalized least squares profile maximum likelihood 联合搜索 gene-specific spatial length scale 和 spatial variance proportion，并通过确定性局部细化优化。结果报告 `sigma_sq`、`tau_sq`、`phi=1/length_scale`、空间方差占比、回归系数及收敛状态；空间模型与非空间线性模型使用 likelihood-ratio statistic 比较，以 chi-square df=2 tail 计算 p-value，再执行 Benjamini-Hochberg FDR 和稳定排名。满秩协变量设计受到严格校验，常量或达到方差下限的基因显式回退到非空间模型。
+
+`nnsvg_filter_genes` 实现按最小计数、表达 spot 百分比和 `MT-`/`mt-` 前缀过滤；`nnsvg_spatial_experiment` 从指定 assay 与空间坐标运行模型，在不可变 `SpatialExperiment` 副本的 rowData 中写入 13 项 nnSVG 统计和 metadata。API 另提供基因查询、top/significant 结果、摘要与示例数据。当前实现使用 dense 小型前驱协方差矩阵和确定性单线程网格优化，不依赖 BRISC、R、BiocParallel 或稀疏矩阵后端。
+
+### 263. Alignment-aware PSL/PSLX 读写与坐标模型 (Biopython Bio.Align.psl)
+
+实现 Biopython 1.86 `Bio.Align.psl` 对应的 alignment-aware UCSC PSL/PSLX 模型。`psl_parse` 接受带或不带 `psLayout version` header 的 21 列 PSL 和 23 列 PSLX，使用 0-based half-open 坐标重建显式 target/query path；`PslAlignment` 保留 match、mismatch、repeat match、N、query/target insertion 和 block sequence，不把全部对齐位置简化为 match。核酸比对支持 `+`/`-` query 方向，translated DNA-to-protein 比对支持 `++`/`+-` target 方向及严格 3:1 步长，PSLX translated target block 保存翻译后的氨基酸片段。
+
+模块提供 block/gap 统计、identity/score、target-query 双向映射和 query residue 到 target codon interval 映射。`recount` 可从完整序列重新计算匹配分类，支持核酸反向互补、lower/upper repeat mask、自定义 wildcard，以及正向或反向 target DNA 翻译；writer 可选择 header、PSLX、自动 recount 和版本。`PslDocument` 支持 query/target 过滤、跨记录摘要和解析-写出往返，并可与 `CoordinatePairwiseAlignment` 互转；由于现有通用坐标模型要求 target 递增，`+-` translated alignment 在适配时给出明确错误。
+
+解析器严格拒绝非十进制或溢出整数、非法 strand/列数、blockCount 与 CSV/PSLX 数量不一致、零长度/重叠/逆序/越界 block、首尾 gap、错误的核酸 1:1 或 translated 3:1 比例、match 分类总和、q/t insertion 统计及声明区间不一致。该模块负责普通文本 PSL/PSLX；`search_io.mbt` 继续提供简化的 BLAT 搜索结果适配，`bigpsl.mbt` 负责 bed12+13 BigBed 二进制索引。
+
+### 264. 空间邻域增强聚类 (Bioconductor Banksy)
+
+实现 Bioconductor `Banksy` 1.9.1 的空间转录组邻域增强特征与聚类工作流。输入统一为 gene × spot 表达矩阵及 spot × dimension 坐标；`H0` 计算归一化加权邻域均值，`H1+` 在局部非加权均值中心化后计算方位 Fourier/Gabor harmonic 幅值。支持 `kNN_median`、inverse-distance、inverse-power、rank、uniform 和 radius-Gaussian 六类空间核、每阶独立邻域大小、确定性邻居采样，以及二维方位角和多维欧氏距离。
+
+`banksy_get_matrix` 按 `sqrt(1-lambda)` 加权原始表达，并将 `lambda * 2^-m` 在 `H0..HM` 间归一化后开方加权；支持全局或按 section/sample 分组的 feature 标准化。下游提供 spots Gram 矩阵上的 Jacobi PCA、确定性 farthest-point 多起点 k-means、空 cluster 重播种、silhouette、空间近邻一致率、Adjusted Rand Index、同步标签平滑和多 lambda 参数扫描，适配 cell typing 与 tissue domain segmentation 两类用法。
+
+`banksy_spatial_experiment` 从指定 assay、rowData、colData 和二维/三维 spatial coordinates 构建模型，在不可变容器副本中写回 `H0..HM` assays、原始/平滑 cluster 标签与 metadata。所有入口校验矩阵方向、矩形性、有限值、名称唯一性、邻域/采样边界、lambda、PCA/聚类维度及分组完整性。当前实现使用 dense MoonBit arrays、确定性单线程 Jacobi PCA 与 k-means，不依赖 R、BiocParallel、igraph、Leiden 或稀疏矩阵后端。
+
+### 265. Alignment-aware SAM 严格读写与坐标模型 (Biopython Bio.Align.sam)
+
+实现 Biopython 1.86 `Bio.Align.sam` 的 alignment-aware SAM 模型，并与已有宽松记录级 `sam.mbt` 并存。`align_sam_parse` 解析 `@HD/@SQ/@RG/@PG/@CO` 及扩展 header，索引 reference metadata；每条 mapped record 将 1-based `POS/PNEXT` 规范化为 0-based 坐标，并从 `M/I/D/N/=/X` 构建显式 target/query path。soft/hard clipping 保留在 CIGAR 元数据中，`N` 与 deletion 分开统计；反向链 query sequence 和 PHRED 转为生物学正向语义，坐标递减，写回时恢复 SAM 存储方向。
+
+optional tags 保留 `A/i/f/Z/H/B:c/C/s/S/i/I/f` 的类型和数组 subtype，提供类型化构造与防御性查询。模块支持 CIGAR 统计、flag/reference/mate访问、target-query 双向坐标映射、aligned row 重建、MD reference reconstruction、NM 计算及基于完整 reference 的 MD 生成。`align_sam_format` 和 `align_sam_write` 提供规范 record/document 往返，`align_sam_create` 从生物学方向的 sequence、qualities、CIGAR 和 typed tags 构造 mapped alignment。
+
+解析器严格诊断 header 顺序与重复 reference、字段数和整数边界、mapped/unmapped 一致性、reference 越界、CIGAR clipping/P 操作、SEQ/QUAL/CIGAR 长度、PHRED 范围、重复或非法 tag、B-array subtype/range，以及 MD token 与 CIGAR `=/X/D` 的逐碱基结构冲突。当前范围聚焦 SAM 文本和 alignment coordinate semantics，不解码 BAM/CRAM；二进制格式继续由现有 `bam.mbt`、`cram_wbtest.mbt` 负责。
+
+### 266. 细胞群与基因模块联合聚类 (Bioconductor celda)
+
+实现 Bioconductor `celda` 的 `celda_CG` 可移植核心，输入统一为 feature × cell 非负整数计数矩阵。模型联合推断 cell population 标签与 feature module 标签，并以 `Theta`（sample 内 population）、`Phi`（population 内 module）、`Psi`（module 内 feature）和 `Eta`（全局 module abundance）构成四层 Dirichlet-multinomial；collapsed log-likelihood 使用 `alpha/beta/delta/gamma` 超参数，并保留上游每个 module 一个 pseudogene 的平滑语义。
+
+推断支持确定性 hard-EM 与 seeded Gibbs、多链 farthest-first/balanced 初始化、最佳状态保存、提前停止、非空 population/module 约束及稳定标签重排。结果提供 posterior 参数、fitted counts、population/module 成员与 top features、perplexity、AIC/BIC、独立 likelihood 计算和新细胞 posterior prediction；`celda_cg_grid_search` 可按 BIC、perplexity 或 likelihood 比较 K/L 候选。
+
+`celda_cg_sce` 从指定 assay 和可选 sample `colData` 读取输入，在不可变 `SingleCellExperiment` 副本中写入 fitted assay、1-based population/module 标签及模型诊断 metadata。所有入口校验矩阵方向、矩形性、有限非负整数、名称唯一性、sample/初始标签完整性和超参数边界。当前实现采用 dense MoonBit arrays 和单线程完整 collapsed likelihood 重算，面向中小型矩阵及可验证工作流，不等同于上游 C++/OpenMP 大规模性能后端。
+
+### 267. A2M 状态感知多序列比对 (Biopython Bio.Align.a2m)
+
+实现 Biopython 1.86 `Bio.Align.a2m` 的单 MSA 严格读写。解析器由首行逐列推导 `D`（match/deletion）或 `I`（insertion）状态，验证后续行在同列使用相同字符类别；内部将残基统一为大写、`.`/`-` 统一为 gap，同时独立保留状态，因此写回时可准确恢复 match 列大写/连字符和 insertion 列小写/点。支持 wrapped sequence、空行、CRLF、header 描述和 canonical line wrapping，并对空记录、非等宽行、非法字符、状态错位及非法构造参数给出类型化错误。
+
+`A2mAlignment` 提供 sequence position、alignment column 与跨行 residue 的 0-based 映射，gap 返回 `None`；连续 insertion-state 列按 reference-boundary slot 汇总。分析 API 覆盖逐列坐标对、identity/mismatch/gap/double-gap、match/insertion aligned counts、占用率、阈值共识、列切片和 match-only 投影。独立状态模型避免传统 `MultipleSeqAlignment` 归一化后丢失 A2M 的模型列语义。
+
+### 268. EMBOSS alignment 输出解析与坐标模型 (Biopython Bio.Align.emboss)
+
+实现 Biopython 1.86 `Bio.Align.emboss` 的 alignment-aware parser，读取 water、needle、stretcher、matcher、alignret 等工具产生的 `srspair`、`pair` 和 `simple` 报告。类型化 document 保留 Program、Rundate、Commandline、Align_format、Report_file；每个 alignment 保留任意数量的序列、matrix、gap/extend penalty、score、Identity/Similarity/Gaps 及 longest/shortest 注释。固定 21 列正文支持截断 identifier、多 block、多 alignment、全空格 consensus 和纯 gap block。
+
+EMBOSS 的 1-based inclusive 坐标在内部规范为 0-based boundary/residue 坐标；正向、反向和局部区间均支持 column-to-position、position-to-column、跨行映射、aligned pairs 与 compact coordinate path。pair counts 区分 identity、mismatch、insertion/deletion、double-gap、gap-open 和 consensus positive。严格校验覆盖 header/annotation、数值范围、row顺序、block宽度、坐标连续性、declared Length 和报告统计；额外提供 wrapped canonical writer，以补足上游只读模块并保证严格往返。
+
+### 269. Exonerate alignment 输出读写与坐标模型 (Biopython Bio.Align.exonerate)
+
+实现 Biopython 1.86 `Bio.Align.exonerate` 的 alignment-aware Exonerate 模型，与既有 `exonerate.mbt` 的 `Bio.SearchIO.ExonerateIO` 搜索结果聚合 API 并存。`align_exonerate_parse` 严格读取 `Command line`、`Hostname`、completion marker 和零个或多个 `cigar:`/`vulgar:` alignment；不可变 document、alignment 和 operation 类型保留 query/target identifier、0-based boundary、`+`/`-`/`.` strand、score 及每段双轴步长。
+
+vulgar 的 `M/5/I/3/C/G/N/S/F` 操作规范为显式 `M/5/N/3/C/D/I/U/S/F` path，其中双轴 non-equivalenced region 拆成可查询的 target/query movement，并在写回时无损重组。模块支持正向、反向和 protein strand、DNA/protein 3:1 translated CIGAR、绝对 coordinate path、query-target 双向 residue/codon 映射、aligned pairs，以及 match、gap open、intron、non-equivalenced、split codon 和 frame shift 统计。vulgar writer 保留完整操作语义，cigar writer 将特殊操作规范投影为 `M/I/D` 且保持路径；严格诊断覆盖 header/footer、字段与数值、strand方向、operation合法性和 endpoint span。当前模块负责 alignment coordinate semantics，不替代搜索结果层的 `Bio.SearchIO.ExonerateIO`。
+
+### 270. GCG MSF 多序列比对读写与坐标模型 (Biopython Bio.Align.msf)
+
+实现 Biopython 1.86 `Bio.Align.msf` 的 GCG/PileUp 多序列比对格式。`msf_parse` 支持 `!!AA_MULTIPLE_ALIGNMENT`、`!!NA_MULTIPLE_ALIGNMENT` 和 `PileUp` header，解析 `MSF:/Type:/Check:`、EMBOSS `CompCheck:`、自由 preamble/title/date、每行 `Name:/Len:/Check:/Weight:` metadata、可选 `oo`、数字坐标行和 interleaved sequence blocks。`.`、`~`、`-` gap 在内部统一为 `-`，蛋白质与核酸残基分别校验，CRLF 与小写输入被规范化。
+
+模块实现位置权重 1..57 循环的标准 GCG checksum，并支持默认严格校验或显式关闭验证；第三方零 checksum 视为未提供。官方 W protein fixture 的 93-residue 行会补齐到 99 列；DOA fixture 一类 header width 与实际宽度不一致的文件保留 `declared_length`，由 `length_mismatch` 暴露而不中止解析。不可变 metadata、sequence、alignment 和 pair-count 模型提供 row/column 双向映射、跨行 residue 映射、aligned pairs、compact coordinate path、identity/mismatch/gap-open、occupancy、阈值 consensus 和 checksum 摘要。
+
+`msf_write` 重新计算行级与文件级 checksum，按可配置 block/group width 输出 canonical interleaved MSF，并可选择 `.`, `~` 或 `-` gap。严格诊断覆盖 header/type 冲突、数值溢出、重复 ID、descriptor/body 损坏、声明 residue 数不一致、非法字符、all-gap column 以及 writer 参数。当前实现聚焦单个文本 MSF alignment，不负责流式多记录容器。
+
+### 271. NEXUS 多序列比对读写与坐标模型 (Biopython Bio.Align.nexus)
+
+实现 Biopython 1.86 `Bio.Align.nexus` 的现代 alignment 语义，并与原有 `nexus.mbt` 的浅层 `Bio.Nexus` block API 分离。`align_nexus_parse` 严格检查 `#NEXUS`，以 quote/comment-aware lexer 处理任意嵌套 `[...]` comment、分号命令边界、单/双引号 taxon name 和 doubled apostrophe；支持 `DATA`/`CHARACTERS`、独立 `TAXA`/`TAXLABELS`、`DIMENSIONS NTAX/NCHAR`、`FORMAT DATATYPE/MISSING/GAP/MATCHCHAR/INTERLEAVE/RESPECTCASE/SYMBOLS`，以及带标签、无标签、wrapped sequential 和 interleaved MATRIX。后续 interleave block 可按 NEXUS 的空格/下划线等价规则关联 taxon，duplicate taxon 仍保留原始 ID。
+
+DNA、RNA、protein 和 standard datatype 分别执行残基集合校验；custom missing/gap 被规范化，其中 missing 仍推进 residue coordinate，只有 gap 不推进。`MATCHCHAR` 以首行同列残基展开，source 中全 gap 列在最终 alignment 中移除，同时 metadata 保留原始宽度和删除列数。不可变 metadata、sequence、alignment 与 counts 模型提供 row/column 双向位置查询、跨序列 residue mapping、aligned pairs、compact coordinate path、逐对及全 MSA identity/mismatch/gap-open 统计、occupancy、阈值 consensus 和摘要。
+
+`align_nexus_write` 输出 canonical DATA block，正确 quote taxon name 并将 apostrophe 写为 `''`，支持 custom gap、可配置 block width 和显式 sequential/interleaved；未指定模式时，alignment 宽度大于 1000 自动 interleave，与 Biopython writer 一致。严格诊断覆盖 header、comment/quote、block、dimensions、format、matrix、datatype、taxon关联、MATCHCHAR 和 writer 参数。官方 9×48 fixture 在移除两个全 gap 列后得到 9×46 alignment，全部序列对统计为 862 aligned、256 identities、606 mismatches 和 596 gap columns。
+
+### 272. Stockholm 多序列比对读写、注释与坐标模型 (Biopython Bio.Align.stockholm)
+
+实现 Biopython 1.86 `Bio.Align.stockholm` 的现代 alignment 语义，并保留原有 `stockholm.mbt` 的宽松 block-oriented API。`align_stockholm_parse` 严格检查 `# STOCKHOLM 1.0` header 和 `//` terminator，`align_stockholm_parse_all` 支持连续多记录；sequence row 必须唯一且等宽。类型化不可变模型保留 GF alignment annotation、GS sequence annotation、GR residue annotation 和 GC column annotation，映射标准字段并保留自定义 GS/GR/GC；reference 的 RN/RM/RT/RA/RL/RC、database reference 的 DR/DC、nested domain 的 NE/NL 和重复 AU/WK/SM 均按输入顺序建模。
+
+解析器区分 `-` deletion gap 与 `.` insertion gap，形成每列 `M/D/I` operation；同列禁止混用两类 gap。内部 aligned row 将 gap 规范为 `-`，GR 同时保存 residue-level 与 aligned value。source 中全 gap 列会与 GC、GR 和 operation 同步压缩，并保留 source width 与删除列数。查询 API 提供 row/column 双向位置映射、跨行 residue mapping、aligned pairs、compact coordinate path、annotation-aware column slicing、逐对及全 MSA identity/mismatch/gap-open 统计、occupancy、阈值 consensus 和摘要。
+
+`align_stockholm_write` 输出 canonical GF/GS/GR/GC 顺序，根据 operation 将 insertion gap 恢复为 `.`，按 row gap 展开 residue-level GR，并对长 CC/RC/RT 文本折行；`align_stockholm_write_all` 支持多记录往返。严格诊断覆盖 header/terminator、annotation字段、SQ row count、数值溢出、orphan/duplicate reference字段、非法列操作、annotation宽度和writer不支持的未知GF。官方 HAT fixture 保留 3×33 alignment、完整注释与 insertion column；专项 fixture 验证 source 7列压缩为 retained 4列且 operation 为 `MIMM`。
+
+### 273. UCSC Chain成对比对读写与坐标模型 (Biopython Bio.Align.chain)
+
+实现 Biopython 1.86 `Bio.Align.chain` 的现代 pairwise alignment 语义，并与现有 `chain_liftover.mbt` 的宽松 rtracklayer-style liftOver API 并存。`align_chain_parse` 严格读取 12/13 字段 header，支持有限浮点 score、可选 chain ID、连续多记录、CRLF/空白分隔及 target/query 任意 `+`/`-` 组合；每条 `size dt dq` 和末尾 `size` 记录被重建为 zero-based half-open 的绝对坐标路径，负链通过递减边界表示。
+
+不可变 `AlignChainAlignment`、`AlignChainCoordinate`、`AlignChainBlock`、`AlignChainCounts` 和 range/pair 模型提供 canonical block 重建、`M/D/I` operation path、aligned/gap/open统计、双向 residue 映射、区间拆分映射、受上限保护的 aligned-pair 展开、target/query反转、chain ID查找和target overlap查询。`align_chain_write`/`align_chain_write_all` 从绝对路径恢复规范 header 与block，可稳定多记录往返。
+
+严格诊断覆盖 identifier、strand、非负整数、32位溢出、NaN/极值score、header区间、block字段数、末尾block、零长度segment、单调性、aligned step等长及累计span一致性。官方风格 181-base reverse-query fixture 重建 `MDMDM`、181 aligned bases、1530 target gap bases和1711列；第二条fixture覆盖reverse target与双向gap。旧 `cl_*` API 保持兼容，继续面向宽松的基因组liftOver工作流。
+
+### 274. MAF多基因组比对读写、坐标路径与参考索引 (Biopython Bio.Align.maf)
+
+实现 Biopython 1.86 `Bio.Align.maf` 的现代 alignment 语义，并保留 `maf.mbt` 的早期宽松块分析 API。新模块复用 `bigmaf.mbt` 已验证的 `BigMafComponent`、`BigMafEmptyComponent`、`BigMafInsertion` 和 `BigMafBlock` 作为严格数据层，在其上提供不可变 `AlignMafTrack`、`AlignMafDocument`、`AlignMafIndex`、`AlignMafSplicedAlignment` 和摘要模型。parser 支持 quoted/escaped UCSC `track` metadata、`##maf version/scoring/program`、文档与块注释，以及标准 `a/s/i/e/q` 记录；`i/q` 必须紧随同源 `s` 行并与其列宽、gap位置一致。
+
+component 坐标使用 zero-based half-open forward genomic axis；负链 MAF start 被转换为递减的绝对边界。`align_maf_coordinate_path` 按列状态变化压缩多序列路径，`align_maf_map_position` 可在任意两个 component 间双向映射 residue，并在目标gap处返回 `None`。gap字符 `.`, `=`, `_` 统一规范为 `-`；数值解析拒绝负整数、32位溢出、NaN和极端score，source span 使用减法边界检查避免加法溢出。
+
+`AlignMafIndex::create` 要求每块参考 component 唯一且source size/strand一致，并按forward interval构建内存索引。`search`/`search_ranges` 使用半开overlap、文件顺序返回和跨区间去重；`get_spliced` 验证递增不重叠外显子，保留reference gap对应插入列，未覆盖参考填 `N`、其他物种填 `-`，并支持完整结果反向互补。重叠reference block会被诊断为歧义；当前拼接明确要求plus-strand reference。`align_maf_write` 输出canonical track/header与a/s/i/q/e顺序，可稳定文档往返；BigMaf二进制容器和旧宽松MAF分析接口继续独立存在。
+
+### 275. BED成对比对读写、双轴坐标与分级写回 (Biopython Bio.Align.bed)
+
+实现 Biopython 1.86 `Bio.Align.bed` 的现代 pairwise alignment 语义，并与 `bigbed.mbt` 的 BigBed v4二进制容器、AutoSQL和索引职责分离。不可变 `AlignBedAlignment`、`AlignBedDocument`、`AlignBedCoordinate`、`AlignBedBlock`、`AlignBedCounts` 和 `AlignBedSummary` 建模 target/query 双轴路径；`AlignBedScore` 同时保留有限数值 score 与无空白文本 score。parser 支持 BED3-BED12、CRLF和通用空白，其中 BED3-BED9按连续单块解释，BED12重建完整exon path；BED10仅接受单块，BED11仅在缺失的blockStarts可无损推断时接受。
+
+坐标统一为 zero-based half-open boundary。target规范化为递增轴，plus query递增、minus query递减；BED12的query size由blockSizes求和，target-only segment表示intron。`blocks` 从一般路径投影aligned segments，`map_target_position`/`map_query_position` 仅映射aligned residue并在intron或不可表示gap返回 `None`。`counts` 汇总aligned bases、双轴skip bases/open和columns，document提供half-open `search`、有序target/query集合及跨记录summary。
+
+严格校验覆盖3-12列、非负32位整数、有限score、strand、thick interval、block count/list长度、正size、首尾span、排序/重叠/越界、坐标单调性、零长度segment和aligned step等长。writer可从一般target/query path生成canonical blocks，并按 `bed_columns` 输出 BED3-BED12；query-only segment按BED可表达能力被投影跳过，反向target path先规范化。该层处理文本pairwise alignment，`bigbed.mbt` 继续独立处理压缩二进制存储和索引。
+
+### 276. 差异空间细胞共定位分析 (Bioconductor spicyR)
+
+实现 Bioconductor `spicyR` 1.25.0 的图像级差异空间共定位核心。每张图像对有序细胞类型对计算 cross-K/cross-L 曲线，排除细胞自身匹配并保留上游同型对 `n²` intensity normalization；半径限制在最短窗口跨度约一半并折叠重复截断值。图像统计量按上游语义累加 `sum(L(r)-r)`，缺失类型对可省略或用 Poisson 基线补齐，单个同型细胞保留为可用基线。
+
+坐标窗口由每张图像的范围和可选 padding 构造；边界校正使用以源细胞为圆心的可见圆面积倒数，因此有方向性。矩形与圆的交面积通过固定 96 分片 Simpson 积分确定性求解。图像 precision weights 由同型 `n(n-1)` 或异型 harmonic effective count 构造、归一化至均值一并应用 `weight_factor`；这是不依赖 R/scam 的可移植近似，不复刻上游 GAM 平滑。
+
+无重复受试者时拟合加权线性模型，有重复受试者时复用 `variancePartition` 的 ML/REML 随机截距模型、数值 Satterthwaite 自由度和 Student-t 检验；支持数值协变量、多条件相对参考组对比及跨细胞类型对 BH-FDR。API 可直接分析细胞坐标、拟合预计算 association，或从 `SpatialExperiment` 的 `colData`/`spatialCoords` 提取输入并在不可变副本 metadata 中写回结果；另提供 pair/condition/image 查询、排序、显著性过滤、摘要和合成重复测量数据。
+
+### 277. 局部空间关联曲线与组织区域聚类 (Bioconductor lisaClust)
+
+实现 Bioconductor `lisaClust` 1.21.0 的局部空间统计与区域发现核心。模块按图像独立处理每个源细胞，对所有目标细胞类型和半径累积排除自身匹配的局部邻居；目标类型强度为 `n/area`，期望值为 `πr² × visible_fraction × intensity`。标准化 local-K 输出 `(observed-expected)/sqrt(expected)`，centered local-L 输出 `sqrt(observed)-sqrt(expected)`，并通过 Gaussian KDE 的均值归一化逆密度权重校正不均匀采样，支持密度下限、有限值归零和按窗口短边约 `1/2.01` 截断半径。
+
+空间窗口支持带 padding 的矩形和 monotonic-chain 凸包；圆盘位于凸窗口内的可见面积使用固定角度中点积分确定性计算。完整 cell × cell-type × radius 曲线矩阵进入确定性多起点 k-means，采用 farthest-first 初始化、空簇恢复和稳定标签规范化，同时输出 inertia、silhouette、cluster sizes、centroids 和收敛诊断。区域富集按 `observed / (cell_type_total × region_total / N)` 计算，并提供细胞区域查询、富集检索/排名、区域摘要及预计算曲线聚类入口。
+
+`lisaclust_spatial_experiment` 从 `colData` 与 `spatialCoords` 提取图像、细胞类型和可选 cell ID，在深复制的 `SpatialExperiment` 中写入区域列及细胞数、特征数、区域数和 silhouette metadata，原容器保持不变。可移植实现不支持上游 concave window；KDE 在细胞位置直接计算而非复刻 `spatstat::density.ppp` 像素栅格；圆盘相交面积使用角度积分近似；不同图像截断后的 effective radii 单独记录，但保留用户请求半径对应的统一特征列。
+
+### 278. 背景感知空间混合细胞解卷积 (Bioconductor SpatialDecon)
+
+实现 Bioconductor `SpatialDecon` 1.23.0 的核心混合细胞解卷积流程。输入为 gene × spot 表达矩阵、同维背景与 precision-weight 矩阵，以及 gene × cell-type profile；数据和 profile 按基因名对齐，并要求共享基因数不少于细胞类型数。profile 可按全矩阵指定分位数缩放至目标值，默认复刻上游 `2 / Q0.99(X)` 尺度。每个 spot 拟合非负丰度 `β`，最小化 `Σ wᵢ(log(yᵢ)-log(bᵢ+max(Xᵢβ,10⁻⁴)))²`，因此直接建模加性技术背景上的 log-normal 生物信号。
+
+优化器使用确定性投影阻尼 Newton、partial-pivot Gaussian elimination 和 backtracking line search；observed Hessian 非正定、奇异或不产生下降方向时，回退到 expected-Hessian 缩放梯度。两阶段流程先拟合全部基因，再以 `log2(max(y,lower))-log2(max(fitted,lower))` 标记超过阈值的数据点并重拟合；保留数据不足以识别模型时自动取消剔除。协方差优先取带 ridge 的 observed Hessian 逆，在无效时回退 expected Hessian，由此输出标准误、t 统计量和正态近似双侧 p 值。
+
+结果同时提供 abundance、spot 内 proportion、按最大 spot 总丰度归一化的 cells-per-100，以及结合 nuclei count 的细胞数尺度，并记录 fitted、log2 residual、outlier mask、RMSE、相关性、目标值和收敛诊断。`collapse_spatial_decon` 通过 `β'=Aβ` 与 `Σ'=AΣAᵀ` 合并细胞类型；`reverse_spatial_decon` 对每个 gene 拟合非负 intercept 与变化 cell scores；辅助 API 可按 probe pool 平均负探针推导 GeoMx 背景，也可从单细胞 count matrix 经细胞/基因过滤、可选 library normalization 和 cell-type 均值构建 profile。
+
+`spatial_decon_spatial_experiment` 从 assay、rowData 和 colData 提取输入，在深复制容器的 colData 中写入 abundance/proportion，并保留原对象不变。MoonBit 版本以确定性投影 Newton 代替 R `optim(method="L-BFGS-B")`；不在线下载上游约 75 个 profile matrix，不内置 `safeTME` 数据，也不包含 pure-tumor profile 推断和 tumor clustering。不同 row 维度的细胞丰度不会作为 assay 写入，而以 spot 级 colData 字段保存。
+
+### 279. 通用单细胞聚类与诊断 (Bioconductor bluster)
+
+实现 Bioconductor `bluster` 1.23.0 的通用聚类、图构建与诊断核心，矩阵统一采用 observation × variable 方向。精确近邻支持 Euclidean、Manhattan 和 cosine 距离，排除自身、按观察索引稳定处理距离 ties，并在 `k > n-1` 时截断。KNN 图可保持有向关系或对任一方向近邻边进行对称化；SNN 图把自身作为 rank 0 邻居，支持上游 rank 权重 `max(k-(rᵢ+rⱼ)/2,10⁻⁶)`、共享邻居数和 Jaccard 权重。
+
+K-means 使用 K-means++ 初始化、多起点 Lloyd 迭代、空簇恢复和固定 seed 的 Park-Miller RNG，返回质心、逐簇/总 within-cluster sum of squares 与迭代诊断。图聚类使用无需 R、igraph 或 C++ 的 seed 可复现 Louvain 风格局部 modularity 优化，并支持 resolution；two-step 流程先以 K-means 向量量化观察，默认使用 `round(sqrt(n))` 个质心，再在质心 SNN 图上聚类并将标签映射回原观察。
+
+诊断 API 覆盖 pairwise Rand 分解与 adjusted Rand index、RMS distance 的 approximate silhouette、cluster RMSD、以第 k 邻居距离中位数为半径的 neighbor purity、pairwise modularity、贪心 community merging、nested cluster mapping、minimum/maximum/union cluster correspondence，以及 bootstrap K-means stability。`bluster_cluster_sce` 从 `SingleCellExperiment.reduced_dims` 读取 cell × dimension 坐标，深复制 assays、row/column metadata、reduced dimensions、metadata 和 alternative experiments 后写入聚类标签，输入对象保持不变。当前实现使用稠密精确近邻和串行局部优化，不覆盖上游 BiocNeighbors 近似索引、igraph/cluster_leiden 后端或 BiocParallel 调度。
+
+### 280. 拓扑自组织映射与meta-clustering (Bioconductor FlowSOM)
+
+实现 Bioconductor `FlowSOM` 2.21.0 的拓扑聚类核心，输入统一为 cell × marker。距离支持 Manhattan、Euclidean、Chebyshev 和 cosine，并定义零向量的稳定 cosine 语义；码本可由无放回 random、最远点迭代 KWSP 或 covariance/power-iteration PCA 网格初始化。训练从二维规则网格的 Chebyshev 邻域开始，按 stage 线性衰减学习率与半径，每个 stage 后以码本 Euclidean 距离构造确定性 Prim MST，并用无权最短路径重建下一阶段邻域。固定 seed 的 Park-Miller RNG 保证初始化、抽样和训练可复现。
+
+训练结果包含 BMU 与距离、完整 MST、拓扑距离、quantization/topographic error，以及基于原始未加权 marker 值的节点 counts、percentages、median fluorescence intensity、sample SD、CV 和 R 风格 `1.4826 × MAD`。meta-clustering 复用 `bluster` 多起点 K-means；自动模式平滑不同 k 的 within-cluster SSE，并以双线性拟合残差选择 elbow。辅助 API 覆盖新数据投影、节点距离 MAD outlier、marker 级双侧 outlier、节点阳性比例、meta counts/medians、weighted/unweighted purity 和 F-measure。
+
+`flowsom_train_flow_frame` 保持 flowCore event × marker 方向并支持 marker 子集；`flowsom_cluster_sce` 将 SingleCellExperiment 的 marker × cell assay 转置后训练，在递归深复制的容器中写入 1-based `FlowSOM.cluster` 和 `FlowSOM.metacluster`，不修改输入对象。实现不依赖 R、C/C++、igraph 或 ConsensusClusterPlus；当前采用稠密矩阵、串行在线更新和 K-means meta-clustering，不覆盖上游并行后端、共识聚类插件及可视化层。
+
+### 281. 约束谱系与同时主曲线 (Bioconductor slingshot)
+
+实现 Bioconductor `slingshot` 2.21.0 的高级轨迹推断核心，坐标统一为 cell × dimension，并保留原 `slingshot.mbt` 兼容API。输入支持hard cluster label和逐行归一化的soft membership；cluster摘要支持weighted mean/median、有效样本分母协方差和ridge稳定化，cluster距离支持质心Euclidean、pooled diagonal缩放及full Mahalanobis，并在矩阵不可逆时回退到diagonal。
+
+谱系推断使用稳定排序的确定性Kruskal，支持start cluster、end cluster叶节点约束、固定`omega`阈值和基于无限制MST边长中位数的自动`omega` forest。每个connected component独立选择root并枚举root-to-leaf lineage。曲线可使用none、line或endpoint cluster PC1扩展，通过arc-length重采样、折线投影和Gaussian-kernel local-linear smoother迭代拟合；cell × lineage距离秩用于`1-rank²`重加权和重新分配，共享cluster前缀使用cosine taper同时收缩。
+
+结果提供cell × lineage Optional pseudotime、weights、平均pseudotime、1-based branch ID及收敛诊断。`slingshot_predict`将新cell投影到已拟合曲线并按训练距离90%分位数衰减权重；`slingshot_advanced_sce`递归深复制SingleCellExperiment及alternative experiments，再写入branch、pseudotime和weight字段，输入对象保持不变。当前实现采用稠密矩阵与串行平滑，不覆盖上游S4/PseudotimeOrdering容器、BiocParallel后端和可视化层。
+
+### 282. 多谱系轨迹差异表达 (Bioconductor tradeSeq)
+
+实现 Bioconductor `tradeSeq` 1.27.0 的高级轨迹差异表达核心，并保留 `tradeseq.mbt` 的基础兼容API。输入遵循上游 gene × cell非负整数计数、cell × lineage pseudotime和weight方向；每个cell的lineage weight逐行归一化，正权重对应的拟时间必须有限且每条lineage必须覆盖非零范围。默认offset由文库大小的中心化log值生成，也可显式传入。上游随机cell-to-lineage分配被替换为确定性weighted expansion，使每个cell对所有活跃lineage的总贡献严格为1。
+
+每条lineage使用独立open-uniform B-spline coefficient block，degree为`min(3, nKnots-1)`；联合负二项IRLS使用`Var(Y)=mu+phi*mu^2`，并加入二阶差分平滑惩罚与ridge稳定化。dispersion通过Pearson moment迭代更新并按配置截断；最终模型保留系数、penalized information逆矩阵协方差、gene × cell拟合值、NB log-likelihood、AIC、迭代次数及收敛状态。`tradeseq_evaluate_k_advanced`对候选knot数逐一重拟合，返回gene × candidate AIC及mean-AIC选择结果。
+
+Wald contrast引擎通过Gram-Schmidt去除线性相关行，提供`associationTest`、`startVsEndTest`、`diffEndTest`、`patternTest`和`earlyDETest`，并统一支持log2 fold-change阈值、chi-square tail probability与gene-level BH-FDR。平滑预测返回各lineage原始拟时间网格、均值和delta-method标准误；`tradeseq_fit_from_slingshot`直接消费Slingshot Optional pseudotime/weight，`tradeseq_advanced_sce`递归深复制SingleCellExperiment及alternative experiments后写回拟合assay、检验p值/FDR、dispersion和metadata。当前实现采用稠密串行线性代数，不依赖R、mgcv、edgeR或BiocParallel，也不覆盖上游零膨胀模型和可视化层。
+
+### 283. 多样本多亚群差异状态与检测 (Bioconductor muscat)
+
+实现 Bioconductor `muscat` 1.27.4 的高级多样本、多亚群分析核心，并保留 `muscat.mbt` 的基础兼容API。输入严格采用 gene × cell非负整数计数，验证sample、cluster和group元数据长度、非空ID、样本到组的一对一关系，以及gene/cell名称的数量和唯一性。cluster × sample伪批量支持sum、mean、median、proportion detected和number detected五类聚合；缺失组合补零，并同时保留cell count与library size。
+
+设计层支持与伪批量样本顺序完全一致的任意有限满秩矩阵、默认reference-coded group design及多个contrast。差异状态（DS）模型使用cluster-sample library-size offset、负二项IRLS和gene-wise Pearson dispersion，并向cluster内median trend执行经验贝叶斯收缩。Wald检验支持log2 fold-change阈值；结果同时提供每个cluster/contrast内的local BH-FDR和每个contrast跨cluster的global BH-FDR。
+
+差异检测（DD）遵循上游CDR归一化语义：先过滤median detection fraction达到阈值的普遍检测基因，再使用`log(nCells × mean detection fraction)` offset拟合检测计数。DS与DD结果可通过harmonic-mean screening和两假设confirmation组合为`DS`、`DD`、`both`、`screen_only`或`none`。`muscat_advanced_sce`从SingleCellExperiment读取assay和cell metadata，递归深复制assay、row/col data、reduced dimensions、metadata及alternative experiments后写回cluster级logFC、FDR和stagewise分类，不修改输入对象。
+
+当前实现是无外部依赖的MoonBit NB-Wald流程，不调用或宣称复刻edgeR、DESeq2、limma、MAST及stageR的R后端；采用稠密串行线性代数，也不覆盖上游并行、随机效应模型和可视化层。
+
+### 284. 现代 XMFA 多基因组比对读写与坐标投影 (Biopython Bio.Align.mauve)
+
+实现 Biopython 1.86 `Bio.Align.mauve` 的现代 XMFA 文档语义，并将历史 `mauve.mbt` 明确保留为 MAF-like 重排分析兼容层。严格 parser 支持 `#FormatVersion`、有序 `#SequenceNFile/Entry/Format` metadata、combined-file 与 separate-file identifier、`> N:start-end strand description` 行、wrapped alignment、CRLF、`=` 块终止符及多个 locally collinear block；同时校验 source 编号、entry、名称唯一性、比对宽度、IUPAC 字符和 `0-0` 全 gap 行。
+
+文件中的 1-based inclusive 区间统一转换为内部 0-based half-open 区间。每行保留完整 boundary coordinate path：正链递增，负链递减；compact path 在任一行 residue/gap movement 状态变化时保留边界，与 Biopython printed-alignment 坐标一致。API 提供边界/残基/列查询、LCB 与文档级 pairwise identity/mismatch/gap/gap-open 统计、half-open interval index，以及跨序列位置和区间投影；区间映射会在 gap、列不连续或坐标步长变化处拆分，并保留目标链方向。
+
+序列重建将各 LCB 的 source-oriented segment 写回 forward coordinates，未覆盖位置使用可配置字符填充，重叠冲突会返回类型化错误。canonical writer 支持固定宽度折行并可稳定 round-trip；公开数组访问器递归复制 block、row 与 coordinate path，避免调用方修改文档内部状态。专项测试采用 Biopython 官方 `combined.xmfa`、`separate.xmfa` 和 simple fixtures 的 metadata、负链坐标及 compact path 语义，并覆盖 wrapped/CRLF、统计、索引、投影、重建、写回和错误边界。
+
+### 285. CODEML控制文件、原生输出与模型比较 (Biopython Bio.Phylo.PAML.codeml)
+
+实现 Biopython 1.86 `Bio.Phylo.PAML.codeml` 中不依赖外部可执行文件的完整离线工作流，并保留旧 `paml.mbt` 作为明确标注的内置近似兼容层。control parser 支持 `seqfile`、`outfile`、`treefile` 和 Biopython Codeml option集合，处理星号行尾注释、CRLF与多值`NSsites`；严格拒绝缺失路径、重复键、未知option、空值、错误数值类型及负NSsites，并提供稳定的canonical writer。
+
+结果解析器识别CODONML和AAML header、PAML版本、模型与codon-frequency metadata、序列/位点数量，以及多个NSsites或gene结果。类型化模型覆盖lnL/np/参数/SE、主树与dN/dS/omega树、kappa/omega、branch表、site-class比例、branch-site A前景/背景类别、clade model C branch types、free-ratio、多基因relative rates和gene-wise参数；同时支持pairwise dN/dS、AAML raw/ML下三角距离矩阵以及BEB/NEB阳性位点。
+
+分析层提供AIC、BIC、最小AIC选择和嵌套模型似然比检验。LRT使用Lanczos log-gamma与regularized incomplete gamma Q计算chi-square尾概率，并验证参数嵌套、似然单调性、显著性阈值及观测数边界。PAML输出中的`nan`分支量以`Double?`保留，公开数组访问器执行深复制。本模块只解析和分析已有artifact，不启动、捆绑或伪装外部`codeml`二进制；60项黑盒测试改编自Biopython PAML 4.1-4.9 fixtures，覆盖成功路径、数值信号、复制语义和严格错误边界。
+
+### 286. BASEML核苷酸替换模型、非齐次频率与率类别 (Biopython Bio.Phylo.PAML.baseml)
+
+实现 Biopython 1.86 `Bio.Phylo.PAML.baseml` 中可确定性测试的离线工作流。control parser覆盖`seqfile`、`outfile`、`treefile`和全部Baseml option，支持星号注释、CRLF以及model 9/10附加rate-group定义；规范化整数和浮点表示，严格拒绝缺失路径、重复/未知键、空值、非法model、错误类型、无效`ncatG/nparK/nhomo`及越界二元开关。`baseml_model_name`提供JC69、K80、F81、F84、HKY85、T92、TN93、REV、UNREST、REVu和UNRESTu的完整编号映射。
+
+结果解析器兼容PAML 4.1-4.7 header与base-frequency布局，提取unconstrained/fitted lnL、np、完整参数向量、SE、tree length和branch-length Newick。类型化结果进一步覆盖单值/多值/branch-specific kappa、REV/UNREST rate parameters与4x4 Q矩阵、平均Ts/Tv、离散gamma alpha/rates/frequencies、auto-dGamma rho与rate-category transition matrix，以及`nhomo`节点frequency parameters、可选realized T/C/A/G频率和root标记。矩阵维度、参数/SE长度、节点唯一性和必需估计均执行严格验证，所有公开数组和嵌套矩阵访问器均返回深复制。
+
+分析层提供AIC、BIC和嵌套模型LRT，复用经过CODEML测试的Lanczos log-gamma与regularized incomplete gamma Q实现chi-square尾概率，同时校验参数自由度、似然单调性、观测数和alpha边界。本模块不启动或捆绑外部`baseml`二进制；64项黑盒测试改编自Biopython官方model、SE、alpha1rho1、nparK、nhomo及4.1-4.7 fixtures，覆盖control round-trip、数值信号、复制语义和错误边界。
+
+### 287. YN00成对密码子替换估计与跨版本结果解析 (Biopython Bio.Phylo.PAML.yn00)
+
+实现 Biopython 1.86 `Bio.Phylo.PAML.yn00` 的离线control和结果工作流。control parser覆盖`seqfile`、`outfile`、`verbose`、`icode`、`weighting`、`commonf3x4`和`ndata`，支持星号注释及CRLF；严格拒绝缺失路径、重复或未知键、空值、多重等号、非整数option、越界开关和非法遗传密码编号，并提供稳定的canonical writer。
+
+结果状态机兼容PAML 4.1-4.9i输出差异，解析NG86、Yang-Nielsen 2000、LWL85、modified LWL85和LPB93五种方法。类型化结果保留dN、dS、omega、kappa、时间、同义/非同义位点、标准误和rho；支持旧式无空格NG86矩阵、相邻负值、长名称及带点数字名称，并将`nan`、`inf`和Windows `-1.#IND`安全映射为未定义值。解析过程验证序列索引和名称一致性、名称唯一性、三角pair数量、方法完整性、重复记录及矩阵维度。
+
+分析API提供无序序列对查询、任意方法/统计量的对称矩阵和跳过未定义值的pair均值；公开名称、pair和嵌套矩阵访问器均执行防御复制。本模块只解析和分析已有YN00 artifact，不启动或捆绑外部`yn00`二进制；80项黑盒测试覆盖Biopython官方跨版本fixture语义、数值信号、名称边界、非有限值、复制语义和严格错误路径。
+
+### 288. 现代BLAST XML1/XML2解析、坐标路径与规范写回 (Biopython Bio.Blast)
+
+实现 Biopython 1.86 `Bio.Blast` 的现代离线XML工作流，并保留`blast.mbt`作为历史基础解析兼容层。递归XML parser支持declaration、comment、DOCTYPE、CDATA、自闭合元素、namespace和entity，严格检查标签配对、尾随数据、唯一header、query/report一致性及必需字段。类型化文档覆盖XML1和XML2、多query、普通XML2多report、PSI-BLAST iterations、多个HitDescr、taxonomy、Parameters及Karlin-Altschul Statistics。
+
+HSP层将BLAST的1-based inclusive字段转换为0-based boundary coordinate path。`blastn`和`megablast`按strand/frame递增或递减；`blastp`、`rpsblast`和`psiblast`使用蛋白质1:1轴；`blastx`、`tblastn`和`tblastx`在翻译的核酸轴上按每个氨基酸3个碱基移动，并保留`coded_by`正向或`complement(...)`位置。路径在match、query gap或target gap状态切换处压缩，同时校验alignment长度、midline、gap/identity/positive计数、raw span、frame范围、方向和序列边界。
+
+canonical writer支持同dialect写回和显式XML1/XML2转换；XML2普通多query按XSD生成多个`BlastOutput2` report，PSI-BLAST使用`Results/iterations/Iteration`。无法无损表达的转换会返回类型化错误，writer结果在返回前由严格parser复验。公开record/hit/HSP、描述、mask和坐标数组执行防御复制，并提供query查找、best hit/HSP、E-value过滤和文档汇总。61项黑盒测试覆盖八类BLAST程序、XML实体、多描述、反链和双翻译坐标、规范往返、跨dialect转换、`NaN`/Infinity及结构错误；模块不访问NCBI网络，也不启动本地BLAST可执行文件。
+
+### 289. 现代CLUSTAL多序列比对、列注释与坐标模型 (Biopython Bio.Align.clustal)
+
+实现 Biopython 1.86 `Bio.Align.clustal` 的现代单MSA工作流，并保留`clustal_io.mbt`作为历史`Bio.AlignIO.ClustalIO`兼容层。parser识别CLUSTAL、PROBCONS、MUSCLE、MSAPROBS、Kalign和Biopython generator header，支持CRLF、interleaved blocks、可选累计ungapped residue count以及稀疏、全空格或缺失的consensus。第一块建立唯一identifier顺序，后续块必须严格复现该顺序和等宽片段；累计计数、字符集、列宽、全gap行与全gap列均执行类型化校验。
+
+`AlignClustalAlignment`保留原始generator/version、ungapped和aligned row以及`*`、`:`、`.`列注释。坐标API提供零起始residue/column双向查询、跨行位置投影、逐列aligned pairs和按movement vector压缩的Biopython风格多行coordinate path；分析层提供pair/all-pairs identity与gap-open统计、occupancy、majority consensus，并按标准ClustalW strong/weak蛋白质保守组计算列符号，核酸则只标记无gap完全一致列。
+
+canonical writer支持配置block/name width、累计残基数和consensus，拒绝静默截断长identifier，并在返回前用严格parser复验输出。构造器和数组结果执行防御复制。75项黑盒测试覆盖官方fixture风格header、block和计数语义、坐标/统计信号、规范往返、复制语义及失败边界；离线示例不启动CLUSTAL、MUSCLE或其他外部aligner。
+
+### 290. 现代PHYLIP布局识别、固定宽度名称与坐标模型 (Biopython Bio.Align.phylip)
+
+实现 Biopython 1.86 `Bio.Align.phylip` 的现代单MSA工作流，并保留`phylip_io.mbt`作为历史`Bio.AlignIO.PhylipIO`兼容层。parser严格读取两个正整数header字段和首块固定10列identifier，支持CRLF、wrapped sequential、interleaved blocks及片段内分组空格，并按Biopython首块规则自动识别布局。每块行数、片段宽度、累计列数、尾部数据和声明维度都会校验；`.`、全gap列、不完整block和溢出维度返回类型化错误，同时保留空、内部空格或重复identifier的合法fixed-width语义。
+
+`AlignPhylipAlignment`同时保存aligned与ungapped rows及来源布局。坐标API提供零起始residue/column双向查询、跨行位置投影、逐列aligned pairs和按movement vector压缩的多行coordinate path；统计层提供pair/all-pairs identities、mismatches、gap columns、double-gap columns、gap opens、occupancy和majority consensus。
+
+writer默认生成与现代Biopython一致的单行sequential格式，也可配置wrapped sequential或interleaved blocks及分组宽度。identifier写出前执行trim、标点替换和10字符截断，允许上游兼容的规范化碰撞；输出返回前由严格parser复验。构造器及公开数组执行防御复制。72项黑盒测试覆盖官方fixture风格布局、名称边界、坐标/统计、稳定往返、复制语义和失败路径；离线示例不启动外部PHYLIP程序或aligner。
+
+### 291. Exonerate C4文本结果、剪接语义与坐标投影 (Biopython Bio.SearchIO.ExonerateIO.exonerate_text)
+
+实现 Biopython 1.86 `Bio.SearchIO.ExonerateIO.exonerate_text` 的 C4 人类可读报告层，并与既有`exonerate.mbt` vulgar/cigar摘要兼容API及`align_exonerate.mbt` operation path模型并存。严格parser读取`Command line`、`Hostname`、`C4 Alignment` header和completion marker，将多query、hit及HSP聚合为不可变`Document -> QueryResult -> Hit -> HSP -> Fragment`层次；query/target描述、model、raw score、header boundary和alignment body均保留类型语义。
+
+alignment body通过coordinate row的冒号位置确定固定列宽，支持跨physical block拼接及3、4、5行模型。translated模型解析protein/DNA annotation、三字母氨基酸、leading/trailing partial triplet和codon flip；特殊区域识别target/query/joint/reverse intron、NER、split codon与frameshift，并分别生成双轴fragment及inter-range。坐标统一为0-based half-open区间，保留forward/reverse/protein strand、phase、frame及每轴step，支持fragment residue位置投影、HSP区间/计数、query/hit查找和best-HSP选择。
+
+parser严格检查metadata顺序、固定列行宽、坐标方向与终点、模型维度、splice/NER长度、split codon配对和frameshift归属；公开层次查询与数组结果执行深层防御复制。42项黑盒测试覆盖wrapped blocks、正反链intron、joint intron、NER、protein/DNA翻译、5行coding模型、partial phase、特殊氨基酸、聚合及畸形输入；示例完全离线，不调用外部`exonerate`程序。
+
+### 292. 空间自相关统计与变差函数建模 (Bioconductor Voyager)
+
+实现 Bioconductor `Voyager` 的单变量、双变量与多变量空间自相关核心，矩阵统一采用 spot × feature 之外的独立向量视图。空间权重由 `voyager_weights_knn`（kNN，`k` 超过 `n-1` 时截断，距离 ties 按邻居索引稳定排序）、`voyager_weights_distance_band`（固定半径，含自身排除）或 `voyager_weights_inverse_distance`（`w_ij = 1/d^power`，可选带宽上限）从二维/三维坐标构建，并支持四种编码风格：`W` 行标准化、`B` 二值、`C` 全局标准化（总和为 1）和 `S` Caussinus–Mestre（`1/√(k_i·k_j)`）。权重矩阵以邻居索引数组的稀疏形式存储，S0/S1/S2 由 `voyager_weights_s0/s1/s2` 按定义确定性计算。
+
+全局统计提供 Moran's I 和 Geary's c，均采用 Cliff–Ord (1981) 随机化期望与方差（`b2 = n·m4/m2²`），并以 Abramowitz–Stegun 正态 CDF 计算双侧 p 值；方差非正时回退为 0。局部统计覆盖 Anselin (1995) 局部 Moran's I（LISA）及 HH/HL/LH/LL 象限分类、局部 Geary's c（similar/dissimilar 分类）、Getis–Ord Gi/Gi*（`star=true` 时含自身 `w_ii=1`）及精确 Ord–Getis 随机化 z 分数与 hotspot/coldspot 分类。双变量 Lee's L 同时返回全局 L 与逐点局部 L；`voyager_multivariate_local_geary` 对多特征矩阵按每特征独立置换并汇总逐点统计。置换推断使用固定 seed 的 splitmix64 PRNG 驱动 Fisher–Yates 洗牌，p 值采用 `(extreme+1)/(perm+1)` 校正，并通过 Benjamini–Hochberg 步降控制 FDR。
+
+经验变差函数将点对按等距 lag 分箱（默认上限为最大成对距离一半）并计算半方差 `γ = Σ(x_i-x_j)²/(2·n_pairs)`；`voyager_fit_variogram` 在有界 range 网格上搜索、对每个候选 range 用闭式线性最小二乘求解 (nugget, partial sill)，最小化残差平方和，支持 spherical/exponential/gaussian 三种模型，`voyager_variogram_predict` 据此预测任意距离的半方差。`voyager_correlogram` 按距离分箱逐 bin 构建行标准化权重并计算 Moran's I，自动跳过无观测对的 bin。`voyager_run_univariate_sfe` 从 `SpatialExperiment` 的 assay、`spatialCoords`、`rowData`/`colData` 提取输入，在深复制容器中把全局统计写入 `rowData`、局部统计（local estimate/FDR/quadrant）写入逐 spot `colData`，并在 metadata 记录方法与特征数，原对象保持不变；基因名按 `gene_name`→`gene_id`→`gene_N` 回退解析，三维坐标在 z 非恒定时自动启用。当前实现不依赖 R、spdep 或 sf，采用稠密成对距离与串行计算，不覆盖上游 `listw`/`nb` S4 对象、并行后端、协变量残差化与可视化层；58 项黑盒测试覆盖手算链状格点、置换确定性、FDR 单调性与 SpatialExperiment 不可变性。
+
+### 293. 高级密码子比对与选择压力检验 (Bio.codonalign advanced)
+
+实现 Biopython `Bio.codonalign` 模块中的高级选择压力分析功能，基于 Nei–Gojobori (1986) 框架。`codon_test_selection` 执行 Z-test 选择检验，使用 NG86 大样本近似方差（`V(dN) = pN(1−pN) / [Nn·(1−4pN/3)²]`，`V(dS)` 同理，协方差忽略），Z = (dN−dS)/√V(dN−dS)，支持三种备择假设：正选择（H₁: dN > dS，单尾 p = 1−Φ(Z)）、净化选择（H₁: dN < dS，单尾 p = Φ(Z)）、中性（H₁: dN ≠ dS，双尾 p = 2(1−Φ(|Z|))），在 α=0.05 水平给出结论。`codon_test_neutrality` 执行 Fisher 精确检验，构建 2×2 列联表（行：非同义/同义；列：差异/相同），支持 two-sided/greater/less 三种检验方向，返回 p 值与优势比。
+
+`build_codon_alignment` 从蛋白质比对和未比对的编码序列构建密码子比对：逐位扫描蛋白质比对，遇 gap (`-`/`.`) 插入 `---`，否则消费编码序列的下一个密码子并验证翻译与蛋白质残基一致。`sliding_window_dnds` 以可配置窗口大小和步长沿密码子比对滑窗，逐窗计算 NG86 dN/dS 以检测选择热点，自动跳过不足 3 个有效密码子对的窗口。`codon_align_advanced_bh_fdr` 实现 Benjamini–Hochberg FDR 校正（步降法，`q_i = min(q_{i+1}, p_i·m/rank)`）。`pairwise_kaks_table` 对多条序列执行成对 Z-test 正选择检验，对所有 p 值统一 BH-FDR 校正，按阈值给出显著性结论。32 项黑盒测试覆盖正/净化选择检测、Fisher 检验多方向、构建器 gap 处理与翻译验证、滑窗边界与退化窗口跳过、FDR 单调性、成对表完整性与错误输入拒绝。
+
+### 294. 高级蛋白质序列预测 (Bio.SeqUtils advanced)
+
+实现六种经典经验蛋白质序列分析算法，覆盖二级结构、无序区、卷曲螺旋、抗原性、表面可及性和柔柔性预测。`chou_fasman_predict` 使用 Chou–Fasman (1974) 氨基酸倾向值表（Pα 螺旋、Pβ 折叠、Pt 转角）进行二级结构预测：先扫描螺旋成核位点（≥6 残基均值 Pα > 1.03 且 Pα > Pβ）和折叠成核位点（≥3 残基均值 Pβ > 1.05 且 Pβ > Pα），再向两侧延伸至倾向值低于 1.0，转角区域由 4 残基窗口 Pt > 1.0 且 Pα、Pβ < 1.0 识别，螺旋/折叠冲突按区域均值倾向值高者优先裁决，输出逐残基 H/E/T/C 预测及各结构区域起止。
+
+`iupred` 使用 Dosztányi 等 (2005) 的成对相互作用能矩阵估计每残基在滑动窗口内的能量，通过 logistic 变换 `1/(1+exp(-(E+0.45)·4))` 映射到 [0,1] 无序分，阈值 0.5 以上判为无序，连续 ≥5 残基无序归为一个无序区段；`iupred_long` (window=100) 和 `iupred_short` (window=25) 分别提供全局和局部模式。`predict_coiled_coils` 使用 Lupas 等 (1991) 的七肽重复 (a–g) 评分矩阵，位置 a 和 d（疏水核心）权重 2.5×，在滑动窗口内尝试全部 7 种读框取最高分，归一化分超过阈值（默认 0.9）判为卷曲螺旋区。`kolaskar_tongaonkar_antigenicity` 以 7 残基滑窗计算 Kolaskar–Tongaonkar (1990) 抗原倾向均值，高于全序列均值的连续 ≥6 残基区域为抗原位点。`emini_surface_accessibility` 按 Emini 等 (1985) 公式计算滑窗表面概率（中心残基权重 2×），`karplus_schulz_flexibility` 以归一化 B 因子参数的滑窗均值估计链柔柔性，值 >1.0 表示高于平均柔柔性。26 项黑盒测试覆盖各算法的正常用例、边界条件（短序列、空序列、非标准残基拒绝）、输出范围验证与大小写不敏感处理。
 
 ## 性能优化
 
@@ -2801,8 +3681,8 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 
 | 指标 | 数值 |
 | :--- | :---: |
-| 总测试数 | 8105 |
-| 通过数 | 8105 |
+| 总测试数 | 12209 |
+| 通过数 | 12209 |
 | 失败数 | 0 |
 | 通过率 | 100% |
 
@@ -2813,10 +3693,10 @@ moon test --package IvanAXu/BioSeqs/test/moonbit        # ✅ 8105 个测试全�
 moon build
 
 # 运行所有测试
-moon test --package IvanAXu/BioSeqs/test/moonbit
+moon test
 
 # 运行单个模块测试
-moon test --package IvanAXu/BioSeqs/test/moonbit --test bio_seq_test
+moon test test/moonbit/bio_seq_test.mbt
 
 # 更新快照测试
 moon test --update
@@ -2842,6 +3722,7 @@ moon test --update
 | 特征提取 | `feature_extraction_test.mbt` | 19 |
 | Biostrings | `biostrings_test.mbt` | 21 |
 | GenomicRanges | `genomic_ranges_test.mbt` | 22 |
+| GRangesList | `granges_list_test.mbt` | 38 |
 | plyranges | `plyranges_test.mbt` | 15 |
 | DESeq2 | `deseq2_test.mbt` | 10 |
 | dplyr | `dplyr_test.mbt` | 9 |
@@ -2866,6 +3747,8 @@ moon test --update
 | edgeR | `edger_test.mbt` | 7 |
 | limma | `limma_test.mbt` | 10 |
 | SummarizedExperiment | `summarized_experiment_test.mbt` | 7 |
+| RangedSummarizedExperiment | `ranged_summarized_experiment_test.mbt` | 16 |
+| TreeSummarizedExperiment | `tree_summarized_experiment_test.mbt` | 11 |
 | IRanges | `iranges_test.mbt` | 14 |
 | AlignIO | `align_io_test.mbt` | 12 |
 | Cluster | `cluster_test.mbt` | 12 |
@@ -2898,7 +3781,37 @@ moon test --update
 | NeighborSearch | `neighbor_search_test.mbt` | 6 |
 | BiocNeighbors | `bioc_neighbors_test.mbt` | 61 |
 | SwissProt | `swissprot_test.mbt` | 8 |
+| Cellosaurus | `cellosaurus_test.mbt` | 16 |
+| UniGene | `unigene_test.mbt` | 23 |
+| Bio.Align.hhr | `hhr_test.mbt` | 33 |
+| Bio.Align shared-reference merge | `shared_reference_alignment_test.mbt` | 41 |
+| Bio.Align Alignment.map/mapall | `alignment_map_test.mbt` | 44 |
+| Bio.Align Alignment.counts | `alignment_counts_test.mbt` | 57 |
+| Bio.Align.tabular | `align_tabular_test.mbt` | 90 |
+| Bio.Align.psl | `align_psl_test.mbt` | 93 |
+| Bio.Align.sam | `align_sam_test.mbt` | 94 |
+| Bio.Align.a2m | `a2m_test.mbt` | 71 |
+| Bio.Align.emboss | `align_emboss_test.mbt` | 81 |
+| Bio.Align.exonerate | `align_exonerate_test.mbt` | 86 |
+| Bio.Align.msf | `msf_test.mbt` | 95 |
+| Bio.Align.nexus | `align_nexus_test.mbt` | 100 |
+| Bio.Align.stockholm | `align_stockholm_test.mbt` | 148 |
+| Bio.Align.chain | `align_chain_test.mbt` | 156 |
+| Bio.Align.maf | `align_maf_test.mbt` | 155 |
+| Bio.Align.mauve | `align_mauve_test.mbt` | 67 |
+| Bio.Align.clustal | `align_clustal_test.mbt` | 75 |
+| Bio.Align.phylip | `align_phylip_test.mbt` | 72 |
+| Bio.SearchIO.ExonerateIO.exonerate_text | `exonerate_text_test.mbt` | 42 |
+| Bio.Phylo.PAML.codeml | `paml_codeml_test.mbt` | 60 |
+| Bio.Phylo.PAML.baseml | `paml_baseml_test.mbt` | 64 |
+| Bio.Phylo.PAML.yn00 | `paml_yn00_test.mbt` | 80 |
+| Bio.Blast XML1/XML2 | `blast_xml_advanced_test.mbt` | 61 |
+| Bio.Align.bed | `align_bed_test.mbt` | 152 |
+| Bio.Align.bigbed | `bigbed_test.mbt` | 64 |
+| Bio.Align.bigmaf | `bigmaf_test.mbt` | 79 |
+| SparseArray | `sparse_array_test.mbt` | 41 |
 | mmCIF | `mmcif_test.mbt` | 2 |
+| BinaryCIF | `binary_cif_test.mbt` | 37 |
 | Nexus | `nexus_test.mbt` | 2 |
 | EMBOSS | `emboss_test.mbt` | 15 |
 | ChIPseeker | `chipseeker_test.mbt` | 14 |
@@ -2913,12 +3826,27 @@ moon test --update
 | AnnotationHub | `annotation_hub_test.mbt` | 8 |
 | GenomicFeatures | `genomic_features_test.mbt` | 6 |
 | graph | `graph_test.mbt` | 8 |
-| DropletUtils | `droplet_utils_test.mbt` | 6 |
+| DropletUtils兼容层 | `droplet_utils_test.mbt` | 7 |
+| Bioconductor DropletUtils高级流程 | `droplet_utils_advanced_test.mbt` | 58 |
 | scran | `scran_test.mbt` | 8 |
+| scrapper | `scrapper_test.mbt` | 35 |
+| Bioconductor scuttle | `scuttle_test.mbt` | 64 |
+| Bioconductor bluster | `bluster_test.mbt` | 58 |
+| Bioconductor FlowSOM | `flowsom_test.mbt` | 66 |
+| decontX | `decontx_test.mbt` | 43 |
+| celda_CG | `celda_test.mbt` | 75 |
+| miloR | `milo_test.mbt` | 37 |
+| zinbwave | `zinbwave_test.mbt` | 54 |
+| apeglm | `apeglm_test.mbt` | 66 |
+| ALDEx2 | `aldex2_test.mbt` | 80 |
+| DirichletMultinomial | `dirichlet_multinomial_test.mbt` | 58 |
 | monocle3 | `monocle3_test.mbt` | 10 |
 | ShortRead | `short_read_test.mbt` | 15 |
 | scater | `scater_test.mbt` | 17 |
-| MAST | `mast_test.mbt` | 12 |
+| MAST兼容层 | `mast_test.mbt` | 12 |
+| Bioconductor MAST高级流程 | `mast_advanced_test.mbt` | 42 |
+| SingleR兼容层 | `single_r_test.mbt` | 26 |
+| Bioconductor SingleR高级流程 | `single_r_advanced_test.mbt` | 54 |
 | GenomicFiles | `genomic_files_test.mbt` | 28 |
 | DiffBind | `diffbind_test.mbt` | 36 |
 | minfi | `minfi_test.mbt` | 40 |
@@ -2931,7 +3859,8 @@ moon test --update
 | ChromVAR | `chromvar_test.mbt` | 12 |
 | DelayedArray | `delayed_array_test.mbt` | 10 |
 | AnnotationFilter | `annotation_filter_test.mbt` | 10 |
-| scDblFinder | `sc_dbl_finder_test.mbt` | 8 |
+| scDblFinder兼容层 | `sc_dbl_finder_test.mbt` | 8 |
+| Bioconductor scDblFinder高级流程 | `sc_dbl_finder_advanced_test.mbt` | 65 |
 | ChIPseeker | `chipseeker_test.mbt` | 14 |
 | Taxonomy | `taxonomy_test.mbt` | 7 |
 | GFF | `gff_test.mbt` | 5 |
@@ -2944,7 +3873,10 @@ moon test --update
 | uwot | `uwot_test.mbt` | 9 |
 | microbiome | `microbiome_test.mbt` | 33 |
 | tradeSeq | `tradeseq_test.mbt` | 12 |
-| QCP叠加 | `qcp_superimposer_test.mbt` | 7 |
+| Bioconductor tradeSeq高级流程 | `tradeseq_advanced_test.mbt` | 44 |
+| Bioconductor muscat高级流程 | `muscat_advanced_test.mbt` | 62 |
+| QCP叠加 | `qcp_superimposer_test.mbt` | 8 |
+| CEAligner | `cealign_test.mbt` | 35 |
 | 残基深度 | `residue_depth_test.mbt` | 10 |
 | 结构比对 | `structure_alignment_test.mbt` | 8 |
 | PDB向量 | `pdb_vectors_test.mbt` | 55 |
@@ -2964,6 +3896,7 @@ moon test --update
 | SFF_IO | `sff_io_test.mbt` | 16 |
 | csaw | `csaw_test.mbt` | 9 |
 | slingshot | `slingshot_test.mbt` | 10 |
+| slingshot高级流程 | `slingshot_advanced_test.mbt` | 57 |
 | SCnorm | `scnorm_test.mbt` | 8 |
 | EDASeq | `edaseq_test.mbt` | 10 |
 | SearchIO新 | `searchio_new_test.mbt` | 30 |
@@ -3091,6 +4024,17 @@ moon test --update
 | Bio.Motifs.Transfac | `transfac_full_test.mbt` | 18 |
 | Bio.SearchIO.HmmerIO | `hmmer_io_test.mbt` | 19 |
 | Bio.SearchIO.FastaIO | `fasta_search_io_test.mbt` | 19 |
+| Bio.SearchIO.InfernalIO | `infernal_io_test.mbt` | 37 |
+| Bioconductor variancePartition | `variance_partition_test.mbt` | 38 |
+| Bioconductor dreamlet | `dreamlet_test.mbt` | 58 |
+| Bioconductor nnSVG | `nnsvg_test.mbt` | 67 |
+| Bioconductor Banksy | `banksy_test.mbt` | 78 |
+| Bioconductor spicyR | `spicyr_test.mbt` | 39 |
+| Bioconductor lisaClust | `lisaclust_test.mbt` | 51 |
+| Bioconductor SpatialDecon | `spatialdecon_test.mbt` | 60 |
+| Bioconductor Voyager | `voyager_test.mbt` | 58 |
+| CodonAlign Advanced | `codon_align_advanced_test.mbt` | 32 |
+| Protein Analysis Advanced | `protein_analysis_advanced_test.mbt` | 26 |
 | Bio.PopGen.GenePop | `gene_pop_test.mbt` | 34 |
 | Bioconductor stageR | `stage_r_test.mbt` | 25 |
 | Bioconductor EnrichedHeatmap | `enriched_heatmap_test.mbt` | 20 |
@@ -3156,7 +4100,7 @@ bash test/python/compare_seqio.sh
 moon build
 
 # 运行所有测试
-moon test --package IvanAXu/BioSeqs/test/moonbit
+moon test
 
 # 更新接口文件
 moon info
@@ -3186,7 +4130,7 @@ moon run cmd/bench/main.mbt
 
 ### 示例程序
 
-项目提供 336 个示例程序，展示各模块的典型用法：
+项目提供 408 个示例程序，展示各模块的典型用法：
 
 | 示例 | 说明 | 运行命令 |
 |------|------|----------|
@@ -3194,6 +4138,13 @@ moon run cmd/bench/main.mbt
 | seqio_demo | 序列 I/O（FASTA/FASTQ/GenBank 解析与写入、FASTA 索引） | `moon run examples/seqio_demo/main.mbt` |
 | alignment_demo | 序列比对（Needleman-Wunsch、Smith-Waterman、Clustal/Phylip） | `moon run examples/alignment_demo/main.mbt` |
 | phylo_demo | 系统发育树（Newick 解析、遍历、距离计算、ASCII 可视化） | `moon run examples/phylo_demo/main.mbt` |
+| paml_codeml_demo | CODEML control规范往返、CODONML多模型、branch/site class、BEB、AIC/BIC与LRT | `moon run examples/paml_codeml_demo` |
+| paml_baseml_demo | BASEML control规范往返、参数/SE、REV Q矩阵、离散gamma及AIC/BIC/LRT | `moon run examples/paml_baseml_demo` |
+| paml_yn00_demo | YN00 control规范往返、五种成对估计、未定义值、对称矩阵与均值 | `moon run examples/paml_yn00_demo` |
+| blast_xml_advanced_demo | XML1/XML2解析、多描述/taxonomy、最佳命中/HSP、负translated frame、坐标路径及canonical/cross-dialect往返 | `moon run examples/blast_xml_advanced_demo` |
+| align_clustal_demo | CLUSTAL generator metadata、interleaved rows、consensus、coordinate path、跨行投影、pair counts及累计计数canonical往返 | `moon run examples/align_clustal_demo` |
+| align_phylip_demo | PHYLIP sequential/interleaved识别、名称规范化、coordinate path、跨行投影、pair counts及canonical往返 | `moon run examples/align_phylip_demo` |
+| exonerate_text_demo | C4 metadata与层次结果、fragment/内含子区间、phase、统计及residue位置投影 | `moon run examples/exonerate_text_demo` |
 | pdb_demo | PDB 结构解析（原子/残基/链访问、距离计算） | `moon run examples/pdb_demo/main.mbt` |
 | sam_vcf_demo | SAM/VCF 解析（比对记录、变异检测、基因型查询） | `moon run examples/sam_vcf_demo/main.mbt` |
 | faidx_demo | FASTA 索引（pyfaidx 风格随机访问、.fai 序列化） | `moon run examples/faidx_demo/main.mbt` |
@@ -3202,6 +4153,7 @@ moon run cmd/bench/main.mbt
 | cram_demo | CRAM 格式解析（压缩二进制序列比对格式、CRAM转BAM、参考序列管理） | `moon run examples/cram_demo/main.mbt` |
 | biostrings_demo | Biostrings 序列分析（IUPAC、RSCU、复杂度、Tm） | `moon run examples/biostrings_demo/main.mbt` |
 | genomic_ranges_demo | GenomicRanges 基因组区间操作（GRanges、区间运算、集合操作） | `moon run examples/genomic_ranges_demo/main.mbt` |
+| granges_list_demo | GRangesList复合转录本、unlist/relist、精确外显子重叠与分组RangedSummarizedExperiment | `moon run examples/granges_list_demo/main.mbt` |
 | deseq2_demo | DESeq2 差异表达分析（size factors归一化、分散度估计、负二项GLM拟合、Wald检验、LFC收缩） | `moon run examples/deseq2_demo/main.mbt` |
 | dplyr_demo | dplyr 数据操作（filter、select、mutate、arrange、group_by、summarize、join） | `moon run examples/dplyr_demo/main.mbt` |
 | plyranges_demo | plyranges tidy基因组数据操作（GRanges的filter/mutate/select/arrange/rename/summarise） | `moon run examples/plyranges_demo/main.mbt` |
@@ -3220,6 +4172,8 @@ moon run cmd/bench/main.mbt
 | edger_demo | edgeR 差异表达分析（DGEList创建、归一化因子、分散度估计、精确检验、GLM拟合） | `moon run examples/edger_demo/main.mbt` | 
 | limma_demo | limma 差异表达分析（voom变换、线性模型拟合、经验贝叶斯、topTable、对比矩阵） | `moon run examples/limma_demo/main.mbt` | 
 | summarized_experiment_demo | SummarizedExperiment 多维数据容器（Assays、行/列操作、合并） | `moon run examples/summarized_experiment_demo/main.mbt` | 
+| ranged_summarized_experiment_demo | RangedSummarizedExperiment GRanges行范围、链特异重叠、最近邻、promoter变换与协调排序 | `moon run examples/ranged_summarized_experiment_demo/main.mbt` |
+| tree_summarized_experiment_demo | TreeSummarizedExperiment 行/列树链接、节点查询、树节点子集与层级聚合 | `moon run examples/tree_summarized_experiment_demo/main.mbt` |
 | iranges_demo | IRanges 整数区间操作（shift、resize、reduce、集合运算、重叠检测） | `moon run examples/iranges_demo/main.mbt` |
 | align_io_demo | 比对格式解析（ClustalW、FASTA、Stockholm格式解析与写入） | `moon run examples/align_io_demo/main.mbt` |
 | cluster_demo | 序列聚类分析（距离矩阵、层次聚类、Newick输出、轮廓系数） | `moon run examples/cluster_demo/main.mbt` |
@@ -3248,6 +4202,8 @@ moon run cmd/bench/main.mbt
 | seq_complexity_demo | 序列复杂度与组成分析（Shannon熵、语言学复杂度、DUST评分、CGR、序列相似度） | `moon run examples/seq_complexity_demo/main.mbt` |
 | align_info_demo | AlignInfo 比对统计（一致性序列、保守位点、Shannon熵、成对序列同一性） | `moon run examples/align_info_demo/main.mbt` |
 | codon_align_demo | CodonAlign 密码子比对（密码子替换分类、dN/dS选择压力分析、密码子使用偏好、ENC） | `moon run examples/codon_align_demo/main.mbt` |
+| codon_align_advanced_demo | CodonAlign 高级密码子比对（Z-test选择检验、Fisher精确检验、密码子比对构建器、滑窗dN/dS、BH-FDR、成对Ka/Ks表） | `moon run examples/codon_align_advanced_demo/main.mbt` |
+| protein_analysis_advanced_demo | 高级蛋白质序列预测（Chou-Fasman二级结构、IUPred无序区、COILS卷曲螺旋、Kolaskar抗原性、Emini表面可及性、Karplus-Schulz柔柔性） | `moon run examples/protein_analysis_advanced_demo/main.mbt` |
 | entrez_demo | Entrez NCBI数据库访问（ESearch、EFetch、PubMed/Gene/Taxonomy解析） | `moon run examples/entrez_demo/main.mbt` |
 | genome_info_db_demo | GenomeInfoDb 基因组信息管理（染色体信息、着丝粒位置、染色体臂、基因组构建） | `moon run examples/genome_info_db_demo/main.mbt` |
 | interaction_set_demo | InteractionSet 染色质交互（Hi-C交互、锚点对、交互矩阵、距离分布、Top交互） | `moon run examples/interaction_set_demo/main.mbt` |
@@ -3255,6 +4211,11 @@ moon run cmd/bench/main.mbt
 | tree_construction_demo | TreeConstruction 系统发育树构建（UPGMA/WPGMA/NJ算法、替换模型、距离矩阵） | `moon run examples/tree_construction_demo/main.mbt` |
 | neighbor_search_demo | NeighborSearch KD树近邻搜索（半径搜索、最近邻、原子对搜索） | `moon run examples/neighbor_search_demo/main.mbt` |
 | swissprot_demo | SwissProt 蛋白数据库解析（记录解析、特征提取、参考文献） | `moon run examples/swissprot_demo/main.mbt` |
+| cellosaurus_demo | Cellosaurus细胞系记录解析、物种/同义名/交叉引用查询和序列化往返 | `moon run examples/cellosaurus_demo/main.mbt` |
+| unigene_demo | NCBI UniGene cluster解析、序列/蛋白相似性/STS/转录本映射查询和序列化往返 | `moon run examples/unigene_demo/main.mbt` |
+| hhr_demo | HH-suite HHR元数据与profile比对解析、命中筛选、query-target坐标映射和序列化往返 | `moon run examples/hhr_demo` |
+| sparse_array_demo | SparseArray N维稀疏张量、切片/aperm、行列统计、稀疏算术和矩阵乘法 | `moon run examples/sparse_array_demo` |
+| cealign_demo | CE组合扩展结构比对、AFP路径统计、CE显著性、QCP叠合与不可变全原子变换 | `moon run examples/cealign_demo` |
 | uniprot_io_demo | UniProt XML格式解析（蛋白质条目解析、功能注释提取、序列转换） | `moon run examples/uniprot_io_demo/main.mbt` |
 | chem_utils_demo | 化学计算工具（键长、键角、二面角、分子式量、氢键长度） | `moon run examples/chem_utils_demo/main.mbt` |
 | jaspar_demo | JASPAR PFM格式解析（模体矩阵解析、共有序列、PWM转换、序列扫描） | `moon run examples/jaspar_demo/main.mbt` |
@@ -3262,12 +4223,29 @@ moon run cmd/bench/main.mbt
 | sva_demo | SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除） | `moon run examples/sva_demo/main.mbt` |
 | ballgown_demo | Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析） | `moon run examples/ballgown_demo/main.mbt` |
 | mmcif_demo | mmCIF格式解析（数据块解析、类别查询、原子位点提取、结构信息） | `moon run examples/mmcif_demo/main.mbt` |
+| binary_cif_demo | BinaryCIF MessagePack解析、七类逆编码、三态mask与PDB Structure转换 | `moon run examples/binary_cif_demo` |
 | nexus_demo | Nexus格式解析（数据矩阵、系统发育树、距离矩阵、分类单元） | `moon run examples/nexus_demo/main.mbt` |
 | emboss_demo | EMBOSS工具接口（GC偏斜、AT偏斜、分子量、Tm值、ORF查找、距离计算） | `moon run examples/emboss_demo/main.mbt` |
 | bioconductor_demo | Bioconductor模块综合示例（ChIPseeker峰注释(外显子/内含子/UTR分类、peak2gene关联)、DOSE疾病富集、ReactomePA通路分析、AnnotationDbi注释数据库、clusterProfiler富集框架、WGCNA共表达网络、Batchelor单细胞批次校正、Seurat单细胞分析） | `moon run examples/bioconductor_demo/main.mbt` |
 | short_read_demo | ShortRead 短读序列质量控制（QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告生成） | `moon run examples/short_read_demo/main.mbt` |
 | scater_demo | scater 单细胞质量控制（QC指标计算、细胞/基因过滤、CPM/log-CPM标准化、HVG检测、PCA降维） | `moon run examples/scater_demo/main.mbt` |
-| mast_demo | MAST 单细胞差异表达分析（Hurdle模型、离散/连续检验、BH-FDR校正、结果汇总） | `moon run examples/mast_demo/main.mbt` |
+| scrapper_demo | 批次感知RNA QC、大小因子归一化、LOWESS/HVG、多因子pseudo-bulk和不可变SCE集成 | `moon run examples/scrapper_demo` |
+| scuttle_demo | batch-aware MAD异常值、subset per-feature QC、重叠feature-set聚合、精确batch coverage等化和不可变SCE写回 | `moon run examples/scuttle_demo` |
+| bluster_demo | 多起点K-means、SNN图、Louvain风格聚类、two-step、ARI/silhouette/purity/RMSD、bootstrap稳定性和不可变SCE写回 | `moon run examples/bluster_demo` |
+| flowsom_demo | 规则网格与MST拓扑SOM、meta-clustering、节点MFI/CV/阳性率、MAD outlier、新数据映射及FlowFrame/SCE写回 | `moon run examples/flowsom_demo` |
+| slingshot_advanced_demo | Y型轨迹、start/end约束MST、同时主曲线、pseudotime/branch weights、新数据投影及不可变SCE写回 | `moon run examples/slingshot_advanced_demo` |
+| tradeseq_advanced_demo | 多lineage负二项GAM、五类Wald检验、平滑预测、AIC knot评估、Slingshot直连及不可变SCE写回 | `moon run examples/tradeseq_advanced_demo` |
+| muscat_advanced_demo | cluster-sample伪批量、任意设计、NB-IRLS DS、CDR归一化DD、两阶段确认及不可变SCE写回 | `moon run examples/muscat_advanced_demo` |
+| droplet_utils_demo | Simple Good-Turing ambient profile、alpha估计、barcode-rank knee/inflection、Dirichlet-multinomial emptyDrops、细胞过滤及不可变SCE写回 | `moon run examples/droplet_utils_demo` |
+| decontx_demo | cluster/background ambient RNA去污染、每细胞污染率、marker校正、cluster诊断和不可变SCE输出 | `moon run examples/decontx_demo` |
+| celda_demo | `celda_CG`细胞群/基因模块联合聚类、top markers、新细胞预测、BIC模型选择和不可变SCE输出 | `moon run examples/celda_demo` |
+| milo_demo | 精确KNN图、精炼重叠邻域、样本计数、NB-GLM差异丰度、graph spatial FDR和SCE接入 | `moon run examples/milo_demo` |
+| zinbwave_demo | ZINB latent-factor拟合、dropout后验权重、归一化/插补/deviance residual和不可变SCE输出 | `moon run examples/zinbwave_demo` |
+| apeglm_demo | NB-GLM MLE与自适应重尾MAP、FSR/s-value/FSOS、log2 TSV及不可变SummarizedExperiment输出 | `moon run examples/apeglm_demo` |
+| aldex2_demo | Dirichlet Monte Carlo、IQLR、posterior expected eBH、effect/overlap、Aitchison距离及不可变SummarizedExperiment输出 | `moon run examples/aldex2_demo` |
+| dirichlet_multinomial_demo | Dirichlet-multinomial混合聚类、Laplace选K、分组分类、分层交叉验证、ROC与SummarizedExperiment转置入口 | `moon run examples/dirichlet_multinomial_demo` |
+| mast_demo | MAST 1.39.0任意设计/CDR、Bayesian logistic与Gaussian hurdle GLM、嵌套LRT、eBayes、边际logFC和不可变SCE写回 | `moon run examples/mast_demo` |
+| single_r_demo | SingleR 2.15.2成对classic markers、标签内相关分位数、fine-tuning/MAD剪枝、cluster、多参考重算和不可变SCE写回 | `moon run examples/single_r_demo` |
 | genomic_files_demo | GenomicFiles 分布式基因组文件处理（BAM/BED/VCF扫描、区间查询、归约、覆盖度计算） | `moon run examples/genomic_files_demo/main.mbt` |
 | diffbind_demo | DiffBind ChIP-seq差异结合分析（峰值重叠、共识峰识别、TMM归一化、负二项分布检验） | `moon run examples/diffbind_demo/main.mbt` |
 | minfi_demo | minfi DNA甲基化分析（NOOB/Illumina/分位数/功能归一化、β/M值计算、DMP/DMR分析） | `moon run examples/minfi_demo/main.mbt` |
@@ -3281,7 +4259,7 @@ moon run cmd/bench/main.mbt
 | chromvar_demo | ChromVAR 染色质变异分析（TF motif富集、GC偏差校正、细胞聚类、变异性分析、偏差图） | `moon run examples/chromvar_demo/main.mbt` |
 | delayed_array_demo | DelayedArray 延迟计算数组（懒加载操作、分块处理、行/列聚合、转置、子集操作） | `moon run examples/delayed_array_demo/main.mbt` |
 | annotation_filter_demo | AnnotationFilter 基因注释过滤（染色体筛选、生物类型过滤、链过滤、区域重叠检测、符号模式匹配） | `moon run examples/annotation_filter_demo/main.mbt` |
-| sc_dbl_finder_demo | scDblFinder 单细胞双细胞检测（Doublet评分计算、最近邻搜索、双细胞检测、PCA降维、细胞过滤） | `moon run examples/sc_dbl_finder_demo/main.mbt` |
+| sc_dbl_finder_demo | scDblFinder 1.27.6高级流程（capture分层、已知doublet训练、人工doublet、kNN/cxds特征、迭代分类、来源富集、自动聚类、singlet过滤与SingleCellExperiment写回） | `moon run examples/sc_dbl_finder_demo/main.mbt` |
 | chipseeker_demo | ChIPseeker ChIP-seq峰值注释（基因组区域分类(启动子/外显子/内含子/UTR/基因间区)、距离TSS分布、BED格式读取、peak2gene关联分析、多峰值集重叠分析、Venn图、饼图可视化、统计分析） | `moon run examples/chipseeker_demo/main.mbt` |
 | taxonomy_demo | Taxonomy 分类学分析（分类数据库创建、谱系查询、共同祖先计算、分类单元管理） | `moon run examples/taxonomy_demo/main.mbt` |
 | gff_demo | GFF GFF3格式解析（基因注释特征提取、属性解析、基因/转录本/CDS/外显子结构分析） | `moon run examples/gff_demo/main.mbt` |
@@ -3359,6 +4337,34 @@ moon run cmd/bench/main.mbt
 | transfac_demo | TRANSFAC转录因子结合谱解析（PFM矩阵、共识序列、频率计算、序列化、参考文献） | `moon run examples/transfac_demo/main.mbt` |
 | hmmer_io_demo | HMMER3输出解析（domtblout域表、文本格式、Query/Hit/HSP聚合、多域比对） | `moon run examples/hmmer_io_demo/main.mbt` |
 | fasta_search_io_demo | FASTA搜索输出解析（-m8表格、-m9注释头、元数据、Query/Hit/HSP聚合） | `moon run examples/fasta_search_io_demo/main.mbt` |
+| infernal_io_demo | Infernal cmscan/cmsearch解析（tabular 3、non-verbose文本、local-end片段、过滤与SearchIO转换） | `moon run examples/infernal_io_demo` |
+| variance_partition_demo | typed固定/随机设计、ML方差分解、BLUP、precision weights、dream contrast与SummarizedExperiment接入 | `moon run examples/variance_partition_demo` |
+| dreamlet_demo | SingleCellExperiment pseudobulk、TMM/logCPM、Poisson/voom权重、donor随机截距和跨cell-type FDR | `moon run examples/dreamlet_demo` |
+| nnsvg_demo | nearest-neighbor GP空间变异基因检验、length scale、空间方差占比、基因过滤与SpatialExperiment接入 | `moon run examples/nnsvg_demo` |
+| banksy_demo | H0/H1空间邻域特征、cell-typing/domain lambda、PCA聚类、标签平滑、参数扫描与SpatialExperiment接入 | `moon run examples/banksy_demo` |
+| voyager_demo | kNN/distance-band/inverse-distance权重、全局Moran/Geary、局部Moran LISA、Getis-Ord Gi*、Lee's L、变差函数拟合、correlogram与SpatialExperiment接入 | `moon run examples/voyager_demo` |
+| spicyr_demo | 有序细胞类型对cross-L、矩形窗口边界校正、precision weights、重复受试者模型、条件对比与SpatialExperiment接入 | `moon run examples/spicyr_demo` |
+| lisaclust_demo | 每细胞local-K/L曲线、KDE与边界校正、确定性区域聚类、silhouette、observed/expected富集及SpatialExperiment写回 | `moon run examples/lisaclust_demo` |
+| spatialdecon_demo | 背景感知log-normal解卷积、丰度/比例/计数、cell-type collapse、reverse deconvolution、负探针背景、单细胞profile与SpatialExperiment写回 | `moon run examples/spatialdecon_demo` |
+| shared_reference_alignment_demo | 共享参考PWA/MSA合并、reference insertion同步、坐标映射、统计、MSA与aligned FASTA转换 | `moon run examples/shared_reference_alignment_demo` |
+| alignment_map_demo | chromosome→transcript→read坐标组合、intron gap、反链、坐标查询、PSL与protein-to-codon MSA投影 | `moon run examples/alignment_map_demo` |
+| alignment_counts_demo | left/internal/right gap与open/extend、affine/BLOSUM45评分、反向链和MSA逐对汇总 | `moon run examples/alignment_counts_demo` |
+| align_tabular_demo | BLAST outfmt 7 BTOP、FASTA 8CC aln_code、最佳命中和TBLASTX反链translated坐标 | `moon run examples/align_tabular_demo` |
+| align_psl_demo | PSL/PSLX多记录读写、反向query映射、translated target recount、block sequence和摘要 | `moon run examples/align_psl_demo` |
+| align_sam_demo | SAM header/reference、正反链CIGAR路径、splicing、typed tags、PHRED、MD/NM、aligned rows与规范往返 | `moon run examples/align_sam_demo` |
+| a2m_demo | A2M D/I列状态、插入槽、match共识、跨行坐标映射、pair counts、match projection与wrapped往返 | `moon run examples/a2m_demo` |
+| align_emboss_demo | EMBOSS srspair元数据、局部/反向坐标、consensus、compact path、pair counts与wrapped规范往返 | `moon run examples/align_emboss_demo` |
+| align_exonerate_demo | Exonerate spliced vulgar path、反向protein-to-DNA 3:1映射、operation统计及vulgar/cigar规范往返 | `moon run examples/align_exonerate_demo` |
+| msf_demo | GCG/PileUp MSF metadata与checksum、interleaved rows、coordinate path、pair counts、consensus、宽度异常及规范往返 | `moon run examples/msf_demo` |
+| align_nexus_demo | NEXUS interleaved DATA、quoted taxa、MATCHCHAR、coordinate path、residue mapping、统计、all-gap压缩与canonical往返 | `moon run examples/align_nexus_demo` |
+| align_stockholm_demo | Stockholm GF/GS/GR/GC与reference、insertion operation、coordinate path、residue mapping、统计、all-gap压缩与canonical往返 | `moon run examples/align_stockholm_demo` |
+| align_chain_demo | UCSC Chain连续记录、正反双轴绝对路径、block/counts、双向位置与区间映射、反转及canonical往返 | `moon run examples/align_chain_demo` |
+| align_maf_demo | MAF track/header、a/s/i/e/q、plus/minus绝对路径、component映射、MafIndex查询、多外显子拼接与canonical往返 | `moon run examples/align_maf_demo` |
+| align_mauve_demo | XMFA source metadata与LCB、正负链coordinate path、pair counts、区间索引、跨序列投影、forward重建与wrapped canonical往返 | `moon run examples/align_mauve_demo` |
+| align_bed_demo | BED3/BED12、numeric/text score、正负链双轴路径、exon blocks、双向mapping、搜索、统计、BED3-BED12分级写回与canonical往返 | `moon run examples/align_bed_demo` |
+| bigbed_demo | BigBed v4压缩写入/解析、AutoSQL、多级索引查询、负链exon坐标、BED导出及损坏文件诊断 | `moon run examples/bigbed_demo` |
+| bigmaf_demo | BigMaf压缩bed3+1写入、bedMaf schema、R-tree区间查询、负链物种坐标映射和MAF a/s/i/e/q导出 | `moon run examples/bigmaf_demo` |
+| bigpsl_demo | BigPsl bed12+13压缩写入、AutoSQL、R-tree查询、反向核酸/translated protein坐标和PSL导出 | `moon run examples/bigpsl_demo` |
 | gene_pop_demo | GenePop群体遗传学（基因型解析、等位基因频率、杂合度统计、序列化往返） | `moon run examples/gene_pop_demo/main.mbt` |
 | stage_r_demo | stageR两阶段假设检验（筛选+确认、Simes聚合、BH-FDR、Holm步降、OFDR控制） | `moon run examples/stage_r_demo/main.mbt` |
 | enriched_heatmap_demo | EnrichedHeatmap富集热图（信号归一化、四种均值模式、行平滑、链方向处理） | `moon run examples/enriched_heatmap_demo/main.mbt` |
@@ -3403,6 +4409,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 Biostrings 序列分析（IUPAC、RSCU、复杂度、Tm）
 - ✅ 实现 DESeq2 差异表达分析（数据集创建、结果分析、显著基因筛选）
 - ✅ 实现 GenomicRanges 基因组区间操作（GRanges、区间运算、集合操作）
+- ✅ 实现 GenomicRanges GRangesList 复合特征（split/unlist/relist、逐组变换、集合运算、特征级重叠/最近邻/覆盖度）
 - ✅ 实现 dplyr 数据操作
 - ✅ 实现 Smith-Waterman 局部序列比对（DNA/蛋白质比对、自定义打分、得分矩阵）
 - ✅ 实现 Needleman-Wunsch 全局序列比对（DNA/蛋白质比对、自定义打分、得分矩阵）
@@ -3418,6 +4425,8 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 群体遗传学分析（等位基因频率、基因型频率、哈迪-温伯格检验、FST统计、Watterson's theta）
 - ✅ 实现 edgeR 差异表达分析（DGEList创建、归一化因子、分散度估计、精确检验、GLM拟合）
 - ✅ 实现 SummarizedExperiment 多维数据容器（Assays、行/列操作、合并）
+- ✅ 实现 RangedSummarizedExperiment 基因组区间实验容器（GRanges/GRangesList行范围、复合特征精确重叠/最近邻、覆盖度、区间变换与协调子集）
+- ✅ 实现 TreeSummarizedExperiment 树结构实验容器（行/列树链接、节点子集、层级聚合）
 - ✅ 实现 IRanges 整数区间操作（shift、resize、reduce、集合运算、重叠检测）
 - ✅ 实现 比对格式解析（ClustalW、FASTA、Stockholm格式解析与写入）
 - ✅ 实现 序列聚类分析（距离矩阵、层次聚类、Newick输出、轮廓系数）
@@ -3443,6 +4452,8 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 seq_complexity 序列复杂度与组成分析（Shannon熵、语言学复杂度、DUST评分、CGR、序列相似度）
 - ✅ 实现 AlignInfo 比对统计（一致性序列、保守位点、Shannon熵、成对序列同一性）
 - ✅ 实现 CodonAlign 密码子比对（密码子替换分类、dN/dS选择压力分析、密码子使用偏好、ENC）
+- ✅ 实现 CodonAlign 高级密码子比对（Z-test选择检验、Fisher精确检验、密码子比对构建器、滑窗dN/dS、BH-FDR多重校正、成对Ka/Ks表）
+- ✅ 实现高级蛋白质序列预测（Chou-Fasman二级结构、IUPred无序区、COILS卷曲螺旋、Kolaskar-Tongaonkar抗原性、Emini表面可及性、Karplus-Schulz柔柔性）
 - ✅ 实现 Entrez NCBI数据库访问（ESearch、EFetch、PubMed/Gene/Taxonomy解析）
 - ✅ 实现 GenomeInfoDb 基因组信息管理（染色体信息、着丝粒位置、染色体臂、基因组构建）
 - ✅ 实现 InteractionSet 染色质交互（Hi-C交互、锚点对、交互矩阵、距离分布、Top交互）
@@ -3450,6 +4461,61 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 TreeConstruction 系统发育树构建（UPGMA/WPGMA/NJ算法、替换模型、距离矩阵）
 - ✅ 实现 NeighborSearch KD树近邻搜索（半径搜索、最近邻、原子对搜索）
 - ✅ 实现 SwissProt 蛋白数据库解析（记录解析、特征提取、参考文献）
+- ✅ 实现 Cellosaurus 细胞系数据库解析（多记录读取、交叉引用/物种查询、平面文本序列化）
+- ✅ 实现 UniGene 基因聚类记录解析（固定宽度多记录读取、类型化子记录查询、SCOUNT校验、平面文本序列化）
+- ✅ 实现 Bio.Align.hhr HH-suite HHR解析（元数据、命中摘要、多块profile比对、注释保留、过滤、坐标映射与序列化）
+- ✅ 实现 Bioconductor SparseArray N维稀疏数组（规范化COO、R列主序、切片/置换/绑定、稀疏算术、统计与矩阵乘法）
+- ✅ 实现 Bio.PDB.cealign CE组合扩展结构比对（CA/C4'引导原子、AFP路径、CE Z-score、QCP叠合、局部优化与全原子变换）
+- ✅ 实现 Bioconductor scrapper 单细胞预处理（批次感知RNA QC、大小因子与log-normalization、LOWESS/HVG、多因子pseudo-bulk、不可变SCE集成）
+- ✅ 实现 Bioconductor scuttle 1.23.1基础工具（batch-aware MAD异常值、subset per-feature QC、重叠feature-set聚合、精确count/batch downsampling及不可变SCE集成）
+- ✅ 实现 Bioconductor bluster 1.23.0通用聚类（K-means++、KNN/SNN图、Louvain风格优化、two-step、聚类诊断、bootstrap稳定性与SingleCellExperiment接入）
+- ✅ 实现 Bioconductor FlowSOM 2.21.0拓扑自组织映射（KWSP/PCA、规则网格、多阶段MST、meta-clustering、节点统计、MAD outlier及FlowFrame/SingleCellExperiment接入）
+- ✅ 实现 Bioconductor slingshot 2.21.0高级轨迹推断（soft membership、约束MST/omega forest、同时主曲线、重加权/重分配、预测及SingleCellExperiment接入）
+- ✅ 实现 Bioconductor tradeSeq 1.27.0高级轨迹差异表达（确定性lineage权重、多lineage惩罚NB-GAM、dispersion/AIC/协方差、五类Wald检验、平滑预测、knot选择、Slingshot及SingleCellExperiment接入）
+- ✅ 实现 Bioconductor muscat 1.27.4高级多样本多亚群分析（五类cluster-sample伪批量、任意设计/多contrast、NB-IRLS DS、CDR归一化DD、local/global FDR、两阶段确认及SingleCellExperiment接入）
+- ✅ 实现 Bio.PDB.binary_cif BinaryCIF解析（MessagePack、七类逆编码、三态mask、类别查询与PDB Structure转换）
+- ✅ 实现 Bioconductor miloR 单细胞邻域差异丰度（精确KNN图、median精炼采样、邻域计数、固定效应NB-GLM、graph spatial FDR与SCE接入）
+- ✅ 实现 Bio.SearchIO.InfernalIO Infernal cmscan/cmsearch输出解析（tabular 1/2/3、non-verbose文本、--noali、CM/HMM-only、local-end多片段与SearchIO转换）
+- ✅ 实现 Bioconductor variancePartition 重复测量混合模型（ML/REML方差分解、BLUP、precision weights、dream contrast、数值Satterthwaite、BH-FDR与SummarizedExperiment接入）
+- ✅ 实现 Bioconductor dreamlet cohort-scale单细胞重复测量分析（sample×cell-type pseudobulk、TMM、过滤、logCPM、Poisson/voom权重、typed混合模型与study-wide FDR）
+- ✅ 实现 Bio.Align共享参考序列比对合并（混合PWA/MSA、reference-boundary insertion同步、局部坐标、双向映射、统计与格式转换）
+- ✅ 实现 Bio.Align.Alignment map/mapall（alignment path组合、local clipping、gap与正反链传播、坐标查询、PSL及protein-to-codon MSA投影）
+- ✅ 实现 Bio.Align.Alignment counts（left/internal/right insertion/deletion、gap open/extend、identity/mismatch/positive、wildcard、替换矩阵、affine评分及MSA逐对汇总）
+- ✅ 实现 Bio.Align.tabular alignment-aware搜索结果解析（BLAST outfmt 7、FASTA 8CB/8CC、BTOP/aln_code、正反链与translated坐标、零命中query）
+- ✅ 实现 Bio.Align.psl alignment-aware PSL/PSLX（21/23列严格读写、核酸/translated路径、双轴链向、block/gap统计、match recount、坐标映射与往返）
+- ✅ 实现 Bio.Align.sam alignment-aware SAM（header/reference与typed tags、CIGAR坐标路径、正反链与clipping、PHRED、MD/NM、严格校验及规范往返）
+- ✅ 实现 Bio.Align.a2m 状态感知多序列比对（D/I列状态、大小写与点gap编码、wrapped/CRLF严格读写、坐标映射、插入槽、统计、共识与match-only投影）
+- ✅ 实现 Bio.Align.emboss alignment输出（srspair/pair/simple、多alignment/多序列、局部/反向坐标、纯gap block、consensus统计、compact path与规范往返）
+- ✅ 实现 Bio.Align.exonerate alignment输出（cigar/vulgar、完整operation path、正反链/protein strand、3:1 translated坐标、双向映射、统计与规范往返）
+- ✅ 实现 Bio.Align.msf GCG/PileUp多序列比对（AA/NA header、interleaved rows、标准checksum、gap规范化、坐标映射、统计与canonical writer）
+- ✅ 实现 Bio.Align.nexus NEXUS多序列比对（DATA/CHARACTERS/TAXA、nested comments、quoted/duplicate taxa、sequential/interleaved MATRIX、datatype/MATCHCHAR、坐标统计与canonical writer）
+- ✅ 实现 Bio.Align.stockholm Stockholm多序列比对（严格多记录、GF/GS/GR/GC、reference/database/nested-domain、M/D/I列、all-gap压缩、坐标统计与canonical writer）
+- ✅ 实现 Bio.Align.chain UCSC Chain成对比对（12/13字段严格多记录、float score、正反双轴absolute path、size/dt/dq、坐标映射、反转、查询与canonical writer）
+- ✅ 实现 Bio.Align.maf MAF多基因组比对（track/header、严格a/s/i/e/q、正负链absolute path、component映射、MafIndex半开查询、多外显子拼接与canonical writer）
+- ✅ 实现 Bio.Align.mauve 现代XMFA多基因组比对（严格metadata/LCB、combined/separate source、正负链coordinate path、区间索引、跨序列投影、统计、重建与canonical writer）
+- ✅ 实现 Bio.Align.clustal 现代CLUSTAL多序列比对（六类generator header、严格interleaved blocks、累计残基数、consensus、坐标投影、统计与canonical writer）
+- ✅ 实现 Bio.Align.phylip 现代PHYLIP多序列比对（固定10列名称、sequential/interleaved自动识别、wrapped/grouped blocks、坐标投影、统计与canonical writer）
+- ✅ 实现 Bio.SearchIO.ExonerateIO.exonerate_text C4人类可读报告（层次聚合、3/4/5行模型、wrapped blocks、intron/NER/split codon/frameshift、翻译与链感知坐标）
+- ✅ 实现 Bio.Phylo.PAML.codeml 离线工作流（严格control读写、CODONML/AAML、NSsites/branch-site/clade/free-ratio、pairwise/距离矩阵、多基因、BEB/NEB与AIC/BIC/LRT）
+- ✅ 实现 Bio.Phylo.PAML.baseml 离线工作流（严格control读写、JC69-UNRESTu、参数/SE、kappa/Q矩阵、nparK/auto-dGamma、nhomo节点与AIC/BIC/LRT）
+- ✅ 实现 Bio.Phylo.PAML.yn00 离线工作流（严格control读写、NG86/YN00/LWL85/LWL85m/LPB93、PAML 4.1-4.9i、非有限值、对称矩阵与均值）
+- ✅ 实现 Bio.Blast现代XML1/XML2离线工作流（严格XML树、多query/report、HitDescr/taxonomy、参数/统计、八类程序链向/translated坐标及canonical writer）
+- ✅ 实现 Bio.Align.bed BED成对比对（BED3-BED12严格读写、numeric/text score、正负链双轴路径、block投影、双向residue映射、区间查询、统计与分级writer）
+- ✅ 实现 Bio.Align.bigbed BigBed v4二进制区间格式（BED3-BED12、AutoSQL、多级B+ tree/R-tree、DEFLATE、区间/名称查询与BED导出）
+- ✅ 实现 Bio.Align.bigmaf BigMaf多物种比对索引（标准bedMaf、MAF a/s/i/e/q、正负链坐标映射、压缩BigBed查询与MAF导出）
+- ✅ 实现 Bio.Align.bigpsl BigPsl成对比对索引（标准bed12+13、核酸/translated protein坐标、match recount、压缩BigBed查询与PSL导出）
+- ✅ 实现 Bioconductor decontX ambient RNA去污染（cluster-native/contaminant混合、Beta/Dirichlet先验EM、empty-droplet background、自动聚类、计数分解与SCE集成）
+- ✅ 实现 Bioconductor celda `celda_CG`细胞群与基因模块联合聚类（分层Dirichlet-multinomial、collapsed EM/Gibbs、多链、K/L选择、预测与SCE集成）
+- ✅ 实现 Bioconductor zinbwave 零膨胀负二项低维模型（cell/gene协变量、offset、latent factors、dispersion shrinkage、observational weights、残差/插补与SCE集成）
+- ✅ 实现 Bioconductor apeglm 自适应重尾效应量收缩（NB-GLM MLE、经验贝叶斯Cauchy/Student-t先验、多起点MAP、Laplace后验、FSR/FSOS/s-value与容器接入）
+- ✅ 实现 Bioconductor ALDEx2 组成型差异丰度（Dirichlet Monte Carlo、六类denominator、两组/配对检验、posterior expected BH、effect/overlap、距离与SummarizedExperiment接入）
+- ✅ 实现 Bioconductor DirichletMultinomial 混合聚类与分类（DMM概率、soft k-means、log-alpha BFGS/EM、Gamma prior、Laplace/AIC/BIC、dmngroup分类、分层CV、ROC与SummarizedExperiment接入）
+- ✅ 实现 Bioconductor nnSVG 空间变异基因检测（坐标缩放与前驱kNN、指数协方差NNGP、covariate GLS、gene-specific length scale、空间/非空间LR检验、BH-FDR与SpatialExperiment接入）
+- ✅ 实现 Bioconductor Banksy 空间邻域增强聚类（六类空间核、H0/H1+、lambda联合矩阵、分组标准化、PCA、多起点k-means、标签平滑、参数扫描与SpatialExperiment接入）
+- ✅ 实现 Bioconductor spicyR 差异空间细胞共定位分析（有序细胞类型对cross-L、矩形边界校正、图像级统计、precision weights、加权/随机截距模型、多条件对比、BH-FDR与SpatialExperiment接入）
+- ✅ 实现 Bioconductor lisaClust 局部空间区域发现（多细胞类型local-K/L、Gaussian KDE强度校正、矩形/凸包窗口、圆盘边界积分、确定性多起点k-means、silhouette、区域富集与SpatialExperiment写回）
+- ✅ 实现 Bioconductor SpatialDecon 背景感知空间解卷积（加权log-normal非负回归、异常点重拟合、Hessian不确定度、丰度/计数尺度、cell-type collapse、reverse deconvolution、负探针背景、单细胞profile与SpatialExperiment写回）
+- ✅ 实现 Bioconductor DropletUtils 1.33.0高级emptyDrops（Simple Good-Turing ambient profile、barcode-rank knee/inflection、multinomial/Dirichlet-multinomial、alpha MLE、确定性Monte Carlo、Phipson–Smyth p值、BH-FDR、高计数保留与SingleCellExperiment写回）
 - ✅ 实现 FGSEA 快速基因集富集分析（基因排名、富集分数、NES、p值、Leading Edge基因、BH校正）
 - ✅ 实现 SVA 替代变量分析与ComBat批次校正（经验贝叶斯方法、PCA分析、批次效应去除）
 - ✅ 实现 Ballgown 转录组水平差异表达分析（FPKM计算、t检验、转录本/基因水平DE分析）
@@ -3462,7 +4528,8 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 AnnotationDbi注释数据库、clusterProfiler富集框架、WGCNA共表达网络
 - ✅ 实现 ShortRead 短读序列质量控制（QA统计、adapter修剪、质量修剪、读长过滤、FastQC报告生成）
 - ✅ 实现 scater 单细胞质量控制（QC指标计算、细胞/基因过滤、CPM/log-CPM标准化、HVG检测、PCA降维）
-- ✅ 实现 MAST 单细胞差异表达分析（Hurdle模型、离散/连续检验、BH-FDR校正、结果汇总）
+- ✅ 实现 Bioconductor MAST 1.39.0高级单细胞差异表达（任意设计/CDR、Bayesian logistic与Gaussian hurdle GLM、嵌套LRT、H0/H1 eBayes、NA/FDR、边际logFC及SingleCellExperiment写回）
+- ✅ 实现 Bioconductor SingleR 2.15.2高级参考注释（严格基因对齐、成对classic markers、标签内相关分位数、迭代fine-tuning、delta/MAD剪枝、cluster、多参考重算及SingleCellExperiment写回）
 - ✅ 实现 GenomicFiles 分布式基因组文件处理（BAM/BED/VCF扫描、区间查询、归约、覆盖度计算）
 - ✅ 实现 DiffBind ChIP-seq差异结合分析（峰值重叠、共识峰识别、TMM归一化、负二项分布检验）
 - ✅ 实现 minfi DNA甲基化分析（NOOB/Illumina/分位数/功能归一化、β/M值计算、DMP/DMR分析）
@@ -3474,7 +4541,7 @@ moon run cmd/bench/main.mbt
 - ✅ 实现 ChromVAR 染色质变异分析（TF motif富集、GC偏差校正、细胞聚类、变异性分析、偏差图）
 - ✅ 实现 DelayedArray 延迟计算数组（懒加载操作、分块处理、行/列聚合、转置、子集操作）
 - ✅ 实现 AnnotationFilter 基因注释过滤（染色体筛选、生物类型过滤、链过滤、区域重叠检测、符号模式匹配）
-- ✅ 实现 scDblFinder 单细胞双细胞检测（Doublet评分计算、最近邻搜索、双细胞检测、PCA降维、细胞过滤）
+- ✅ 实现 Bioconductor scDblFinder 1.27.6高级双细胞检测（人工doublet、共同归一化/PCA、精确kNN与cxds特征、迭代正则化分类、capture分层阈值、homotypic修正、来源富集及SingleCellExperiment写回）
 - ✅ 实现 ChIPseeker ChIP-seq峰值注释（基因组区域分类、距离TSS分布、注释可视化、统计分析）
 - ✅ 实现 DESeq2 差异表达分析（size factors归一化、分散度估计、负二项GLM拟合、Wald检验、LFC收缩）
 - ✅ 实现 ChIPseeker峰注释、DOSE疾病富集、ReactomePA通路分析

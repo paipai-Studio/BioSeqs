@@ -146,7 +146,7 @@ test "psea_short_chain" {
   let atoms = [
     @src.PseaAtom::new("A", 1, "CA", 0.0, 0.0, 0.0),
     @src.PseaAtom::new("B", 2, "CA", 1.0, 0.0, 0.0),
-    @src.PseaAtom::new("C", 3, "CA", 2.0, 0.0, 0.0)
+    @src.PseaAtom::new("C", 3, "CA", 2.0, 0.0, 0.0),
   ]
   let result = @src.psea_run(atoms)
   assert_eq(result.psea_n_residues(), 3)

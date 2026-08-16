@@ -9,7 +9,11 @@ test "structure_alignment_point3d" {
 
 ///|
 test "structure_alignment_create_residue" {
-  let residue = @src.SAResidue::new("ALA", 1, @src.SAPoint3D::new(1.0, 0.0, 0.0))
+  let residue = @src.SAResidue::new(
+    "ALA",
+    1,
+    @src.SAPoint3D::new(1.0, 0.0, 0.0),
+  )
 
   assert_eq(residue.resname, "ALA")
   assert_eq(residue.resseq, 1)

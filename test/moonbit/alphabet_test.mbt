@@ -1,5 +1,6 @@
 // Tests for Bio.Alphabet module
 
+///|
 test "IUPAC unambiguous DNA alphabet" {
   let dna = @src.iupac_unambiguous_dna()
   assert_true(dna.name == "IUPACUnambiguousDNA")
@@ -13,6 +14,7 @@ test "IUPAC unambiguous DNA alphabet" {
   assert_false(dna.is_valid("X"))
 }
 
+///|
 test "IUPAC unambiguous RNA alphabet" {
   let rna = @src.iupac_unambiguous_rna()
   assert_true(rna.name == "IUPACUnambiguousRNA")
@@ -25,6 +27,7 @@ test "IUPAC unambiguous RNA alphabet" {
   assert_false(rna.is_valid("T"))
 }
 
+///|
 test "IUPAC ambiguous DNA alphabet" {
   let dna = @src.iupac_ambiguous_dna()
   assert_true(dna.name == "IUPACAmbiguousDNA")
@@ -34,6 +37,7 @@ test "IUPAC ambiguous DNA alphabet" {
   assert_true(dna.is_valid("N"))
 }
 
+///|
 test "IUPAC protein alphabet" {
   let protein = @src.iupac_protein()
   assert_true(protein.name == "IUPACProtein")
@@ -43,6 +47,7 @@ test "IUPAC protein alphabet" {
   assert_true(protein.is_valid("X"))
 }
 
+///|
 test "Gapped DNA alphabet" {
   let dna = @src.gapped_dna()
   assert_true(dna.is_gapped)
@@ -50,6 +55,7 @@ test "Gapped DNA alphabet" {
   assert_true(dna.is_valid("A"))
 }
 
+///|
 test "Reduced protein alphabet" {
   let protein = @src.reduced_protein()
   assert_true(protein.letters.length() == 20)
@@ -57,6 +63,7 @@ test "Reduced protein alphabet" {
   assert_false(protein.is_valid("X"))
 }
 
+///|
 test "Three to one letter code" {
   let mapping = @src.three_to_one()
   let ala = mapping.get("Ala")
@@ -67,6 +74,7 @@ test "Three to one letter code" {
   assert_true(ter is Some("*"))
 }
 
+///|
 test "One to three letter code" {
   let mapping = @src.one_to_three()
   let a = mapping.get("A")

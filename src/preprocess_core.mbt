@@ -26,11 +26,7 @@ pub struct QuantileNormConfig {
 ///|
 /// Create default quantile normalization config.
 pub fn QuantileNormConfig::new() -> QuantileNormConfig {
-  QuantileNormConfig::{
-    copy: true,
-    keep_names: true,
-    method: "quantile",
-  }
+  QuantileNormConfig::{ copy: true, keep_names: true, method: "quantile" }
 }
 
 ///|
@@ -65,7 +61,11 @@ pub fn InvariantSetResult::new(
 ///|
 /// Absolute value for double.
 fn pc_abs(x : Double) -> Double {
-  if x < 0.0 { -x } else { x }
+  if x < 0.0 {
+    -x
+  } else {
+    x
+  }
 }
 
 ///|
@@ -116,8 +116,12 @@ pub fn pc_interp_linear(
   x : Double,
 ) -> Double {
   let n = xs.length()
-  if n == 0 { return 0.0 }
-  if n == 1 { return ys[0] }
+  if n == 0 {
+    return 0.0
+  }
+  if n == 1 {
+    return ys[0]
+  }
   // Handle extrapolation below minimum
   if x <= xs[0] {
     return ys[0]
@@ -145,12 +149,11 @@ pub fn pc_interp_linear(
 ///|
 /// Linear model fit via least squares (simple y = a + bx).
 /// Returns [intercept, slope].
-fn pc_linear_fit(
-  xs : Array[Double],
-  ys : Array[Double],
-) -> Array[Double] {
+fn pc_linear_fit(xs : Array[Double], ys : Array[Double]) -> Array[Double] {
   let n = xs.length()
-  if n < 2 { return [0.0, 0.0] }
+  if n < 2 {
+    return [0.0, 0.0]
+  }
   let mut sum_x = 0.0
   let mut sum_y = 0.0
   let mut sum_xx = 0.0
@@ -188,9 +191,13 @@ pub fn normalize_quantiles(
   matrix : Array[Array[Double]],
 ) -> Array[Array[Double]] {
   let n_rows = matrix.length()
-  if n_rows == 0 { return matrix }
+  if n_rows == 0 {
+    return matrix
+  }
   let n_cols = matrix[0].length()
-  if n_cols == 0 { return matrix }
+  if n_cols == 0 {
+    return matrix
+  }
 
   // Transpose: work with columns as arrays
   // column_arrays[col] = [row0, row1, ..., rowN]
@@ -260,10 +267,16 @@ pub fn normalize_quantiles_use_target(
   target : Array[Double],
 ) -> Array[Array[Double]] {
   let n_rows = matrix.length()
-  if n_rows == 0 { return matrix }
+  if n_rows == 0 {
+    return matrix
+  }
   let n_cols = matrix[0].length()
-  if n_cols == 0 { return matrix }
-  if target.length() != n_rows { return matrix }
+  if n_cols == 0 {
+    return matrix
+  }
+  if target.length() != n_rows {
+    return matrix
+  }
 
   let sorted_target = pc_sort_doubles(target)
 
@@ -296,9 +309,13 @@ pub fn normalize_quantiles_determine_target(
   matrix : Array[Array[Double]],
 ) -> Array[Double] {
   let n_rows = matrix.length()
-  if n_rows == 0 { return [] }
+  if n_rows == 0 {
+    return []
+  }
   let n_cols = matrix[0].length()
-  if n_cols == 0 { return [] }
+  if n_cols == 0 {
+    return []
+  }
 
   // Sort each column
   let sorted_cols : Array[Array[Double]] = []
@@ -333,10 +350,16 @@ pub fn normalize_quantiles_subset(
   subset_indices : Array[Int],
 ) -> Array[Array[Double]] {
   let n_rows = matrix.length()
-  if n_rows == 0 { return matrix }
+  if n_rows == 0 {
+    return matrix
+  }
   let n_cols = matrix[0].length()
-  if n_cols == 0 { return matrix }
-  if subset_indices.length() == 0 { return normalize_quantiles(matrix) }
+  if n_cols == 0 {
+    return matrix
+  }
+  if subset_indices.length() == 0 {
+    return normalize_quantiles(matrix)
+  }
 
   // Build subset matrix
   let sub_n = subset_indices.length()
@@ -346,7 +369,9 @@ pub fn normalize_quantiles_subset(
   }
   for s_idx in 0..<sub_n {
     let orig_row = subset_indices[s_idx]
-    if orig_row < 0 || orig_row >= n_rows { continue }
+    if orig_row < 0 || orig_row >= n_rows {
+      continue
+    }
     sub_matrix[s_idx] = matrix[orig_row].copy()
   }
 
@@ -391,11 +416,13 @@ pub fn normalize_quantiles_subset(
 pub fn find_invariant_set(
   reference : Array[Double],
   target : Array[Double],
-  threshold~ : Double = 0.005,
-  max_iterations~ : Int = 10,
+  threshold? : Double = 0.005,
+  max_iterations? : Int = 10,
 ) -> Array[Int] {
   let n = reference.length()
-  if n != target.length() || n == 0 { return [] }
+  if n != target.length() || n == 0 {
+    return []
+  }
 
   // Rank each array
   let ref_order = pc_argsort(reference)
@@ -429,7 +456,9 @@ pub fn find_invariant_set(
     for idx in invariant {
       let predicted = intercept + slope * ref_ranks[idx]
       let residual = pc_abs(tgt_ranks[idx] - predicted)
-      if max_residual < residual { max_residual = residual }
+      if max_residual < residual {
+        max_residual = residual
+      }
     }
     let cutoff = threshold * n.to_double()
     if max_residual < cutoff || invariant.length() < 3 {
@@ -447,7 +476,9 @@ pub fn find_invariant_set(
       break
     }
     invariant = new_invariant
-    if invariant.length() < 3 { break }
+    if invariant.length() < 3 {
+      break
+    }
     iter = iter + 1
   }
 
@@ -459,8 +490,8 @@ pub fn find_invariant_set(
 /// Reference column is specified by reference_index.
 pub fn normalize_invariantset(
   matrix : Array[Array[Double]],
-  reference_index~ : Int = 0,
-  threshold~ : Double = 0.005,
+  reference_index? : Int = 0,
+  threshold? : Double = 0.005,
 ) -> InvariantSetResult {
   let n_rows = matrix.length()
   if n_rows == 0 {
@@ -490,7 +521,7 @@ pub fn normalize_invariantset(
   for row in 0..<n_rows {
     first_col[row] = matrix[row][first_other]
   }
-  let invariant_set = find_invariant_set(ref_col, first_col, threshold=threshold)
+  let invariant_set = find_invariant_set(ref_col, first_col, threshold~)
 
   // Get invariant set values for fitting
   let ref_inv_vals : Array[Double] = invariant_set.map(fn(i) { ref_col[i] })
@@ -500,7 +531,9 @@ pub fn normalize_invariantset(
 
   // Normalize each column
   for col in 0..<n_cols {
-    if col == reference_index { continue }
+    if col == reference_index {
+      continue
+    }
     // Extract column
     let col_data : Array[Double] = Array::make(n_rows, 0.0)
     for row in 0..<n_rows {
@@ -519,10 +552,7 @@ pub fn normalize_invariantset(
   }
 
   InvariantSetResult::new(
-    result_matrix,
-    invariant_set,
-    reference_index,
-    ref_fit,
+    result_matrix, invariant_set, reference_index, ref_fit,
   )
 }
 
@@ -535,10 +565,12 @@ pub fn normalize_invariantset(
 /// log2(x + offset)
 pub fn log2_transform(
   matrix : Array[Array[Double]],
-  offset~ : Double = 1.0,
+  offset? : Double = 1.0,
 ) -> Array[Array[Double]] {
   let n_rows = matrix.length()
-  if n_rows == 0 { return matrix }
+  if n_rows == 0 {
+    return matrix
+  }
   let n_cols = matrix[0].length()
   let result : Array[Array[Double]] = []
   for _row in 0..<n_rows {
@@ -562,10 +594,12 @@ pub fn log2_transform(
 /// Uses a simple percentile-based background estimate from each column.
 pub fn background_correct_percentile(
   matrix : Array[Array[Double]],
-  percentile~ : Double = 0.02,
+  percentile? : Double = 0.02,
 ) -> Array[Array[Double]] {
   let n_rows = matrix.length()
-  if n_rows == 0 { return matrix }
+  if n_rows == 0 {
+    return matrix
+  }
   let n_cols = matrix[0].length()
 
   let result : Array[Array[Double]] = []
@@ -580,7 +614,13 @@ pub fn background_correct_percentile(
     }
     let sorted = pc_sort_doubles(col_data)
     let idx = (percentile * (n_rows - 1).to_double()).to_int()
-    let bg = sorted[if idx < 0 { 0 } else { if idx >= n_rows { n_rows - 1 } else { idx } }]
+    let bg = sorted[if idx < 0 {
+        0
+      } else if idx >= n_rows {
+        n_rows - 1
+      } else {
+        idx
+      }]
     for row in 0..<n_rows {
       let corrected = matrix[row][col] - bg
       result[row][col] = if corrected < 0.0 { 0.0 } else { corrected }
@@ -595,7 +635,9 @@ pub fn median_center_columns(
   matrix : Array[Array[Double]],
 ) -> Array[Array[Double]] {
   let n_rows = matrix.length()
-  if n_rows == 0 { return matrix }
+  if n_rows == 0 {
+    return matrix
+  }
   let n_cols = matrix[0].length()
 
   let result : Array[Array[Double]] = []
@@ -625,11 +667,11 @@ pub fn median_center_columns(
 ///|
 /// Compute column summary statistics.
 /// Returns [mean, median, sd, min, max] for each column.
-pub fn column_summary(
-  matrix : Array[Array[Double]],
-) -> Array[Array[Double]] {
+pub fn column_summary(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
   let n_rows = matrix.length()
-  if n_rows == 0 { return [] }
+  if n_rows == 0 {
+    return []
+  }
   let n_cols = matrix[0].length()
   let result : Array[Array[Double]] = []
   for _col in 0..<n_cols {

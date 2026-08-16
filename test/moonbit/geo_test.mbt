@@ -13,32 +13,33 @@ test "geo_entity_type_to_string" {
   assert_eq(@src.GeoEntityType::to_string(@src.geo_unknown()), "Unknown")
 }
 
+///|
 test "geo_attribute_creation" {
   let a = @src.GeoAttribute::new("title", "Test Sample")
   assert_eq(a.name(), "title")
   assert_eq(a.value(), "Test Sample")
 }
 
+///|
 test "geo_column_def_creation" {
   let c = @src.GeoColumnDef::new("ID", "Probe Set ID")
   assert_eq(c.name(), "ID")
   assert_eq(c.description(), "Probe Set ID")
 }
 
+///|
 test "geo_data_table_creation" {
   let cols = [
     @src.GeoColumnDef::new("ID", "Probe ID"),
     @src.GeoColumnDef::new("VALUE", "Expression"),
   ]
-  let rows = [
-    ["1007_s_at", "8.5"],
-    ["117_at", "7.2"],
-  ]
+  let rows = [["1007_s_at", "8.5"], ["117_at", "7.2"]]
   let t = @src.GeoDataTable::new(cols, rows)
   assert_eq(t.n_columns(), 2)
   assert_eq(t.n_rows(), 2)
 }
 
+///|
 test "geo_data_table_column_index" {
   let cols = [
     @src.GeoColumnDef::new("ID", "Probe ID"),
@@ -50,16 +51,13 @@ test "geo_data_table_column_index" {
   assert_eq(t.column_index("MISSING"), -1)
 }
 
+///|
 test "geo_data_table_get_column" {
   let cols = [
     @src.GeoColumnDef::new("ID", "Probe ID"),
     @src.GeoColumnDef::new("VALUE", "Expression"),
   ]
-  let rows = [
-    ["1007_s_at", "8.5"],
-    ["117_at", "7.2"],
-    ["1294_at", "9.1"],
-  ]
+  let rows = [["1007_s_at", "8.5"], ["117_at", "7.2"], ["1294_at", "9.1"]]
   let t = @src.GeoDataTable::new(cols, rows)
   let ids = t.get_column("ID")
   assert_eq(ids.length(), 3)
@@ -70,6 +68,7 @@ test "geo_data_table_get_column" {
   assert_eq(vals[1], "7.2")
 }
 
+///|
 test "geo_data_table_get_column_missing" {
   let cols = [@src.GeoColumnDef::new("ID", "Probe ID")]
   let t = @src.GeoDataTable::new(cols, [])
@@ -77,6 +76,7 @@ test "geo_data_table_get_column_missing" {
   assert_eq(result.length(), 0)
 }
 
+///|
 test "geo_record_creation" {
   let attrs = [@src.GeoAttribute::new("title", "Test")]
   let cols = [@src.GeoColumnDef::new("ID", "Probe ID")]
@@ -87,6 +87,7 @@ test "geo_record_creation" {
   assert_eq(r.title(), "Test")
 }
 
+///|
 test "geo_record_get_attribute" {
   let attrs = [
     @src.GeoAttribute::new("title", "Test Sample"),
@@ -99,6 +100,7 @@ test "geo_record_get_attribute" {
   assert_true(r.get_attribute("missing") is None)
 }
 
+///|
 test "geo_file_creation" {
   let table = @src.GeoDataTable::new([], [])
   let r1 = @src.GeoRecord::new(@src.geo_platform(), "GPL1", [], table)
@@ -107,6 +109,7 @@ test "geo_file_creation" {
   assert_eq(f.n_records(), 2)
 }
 
+///|
 test "geo_file_get_by_type" {
   let table = @src.GeoDataTable::new([], [])
   let r1 = @src.GeoRecord::new(@src.geo_platform(), "GPL1", [], table)
@@ -118,6 +121,7 @@ test "geo_file_get_by_type" {
   assert_eq(f.get_by_type(@src.geo_series()).length(), 0)
 }
 
+///|
 test "geo_file_get_by_accession" {
   let table = @src.GeoDataTable::new([], [])
   let r1 = @src.GeoRecord::new(@src.geo_platform(), "GPL1", [], table)
@@ -132,12 +136,14 @@ test "geo_file_get_by_accession" {
 // Sample data
 // ---------------------------------------------------------------------------
 
+///|
 test "geo_sample_text_has_platform" {
   let text = @src.geo_sample_text()
   assert_true(text.contains("^PLATFORM"))
   assert_true(text.contains("GPL1"))
 }
 
+///|
 test "geo_sample_text_has_samples" {
   let text = @src.geo_sample_text()
   assert_true(text.contains("^SAMPLE"))
@@ -145,6 +151,7 @@ test "geo_sample_text_has_samples" {
   assert_true(text.contains("GSM2"))
 }
 
+///|
 test "geo_sample_text_has_attributes" {
   let text = @src.geo_sample_text()
   assert_true(text.contains("!Platform_title"))
@@ -152,6 +159,7 @@ test "geo_sample_text_has_attributes" {
   assert_true(text.contains("!Sample_source"))
 }
 
+///|
 test "geo_sample_text_has_columns" {
   let text = @src.geo_sample_text()
   assert_true(text.contains("#ID"))
@@ -162,12 +170,14 @@ test "geo_sample_text_has_columns" {
 // Parsing
 // ---------------------------------------------------------------------------
 
+///|
 test "geo_parse_record_count" {
   let text = @src.geo_sample_text()
   let f = @src.geo_parse(text)
   assert_eq(f.n_records(), 3)
 }
 
+///|
 test "geo_parse_platform" {
   let text = @src.geo_sample_text()
   let f = @src.geo_parse(text)
@@ -178,6 +188,7 @@ test "geo_parse_platform" {
   assert_true(p.title().contains("Test Affymetrix"))
 }
 
+///|
 test "geo_parse_samples" {
   let text = @src.geo_sample_text()
   let f = @src.geo_parse(text)
@@ -187,6 +198,7 @@ test "geo_parse_samples" {
   assert_eq(samples[1].accession(), "GSM2")
 }
 
+///|
 test "geo_parse_sample_attributes" {
   let text = @src.geo_sample_text()
   let f = @src.geo_parse(text)
@@ -198,6 +210,7 @@ test "geo_parse_sample_attributes" {
   assert_true(gsm1.title() == "Control Sample 1")
 }
 
+///|
 test "geo_parse_data_table" {
   let text = @src.geo_sample_text()
   let f = @src.geo_parse(text)
@@ -207,6 +220,7 @@ test "geo_parse_data_table" {
   assert_eq(table.n_rows(), 3)
 }
 
+///|
 test "geo_parse_data_table_column_values" {
   let text = @src.geo_sample_text()
   let f = @src.geo_parse(text)
@@ -220,6 +234,7 @@ test "geo_parse_data_table_column_values" {
   assert_eq(vals[2], "9.1")
 }
 
+///|
 test "geo_parse_get_by_accession" {
   let text = @src.geo_sample_text()
   let f = @src.geo_parse(text)
@@ -228,11 +243,13 @@ test "geo_parse_get_by_accession" {
   assert_true(gsm2.title().contains("Treatment"))
 }
 
+///|
 test "geo_parse_empty_input" {
   let f = @src.geo_parse("")
   assert_eq(f.n_records(), 0)
 }
 
+///|
 test "geo_parse_minimal_record" {
   let text = "^SAMPLE = GSM1\n!Sample_title = Test\n"
   let f = @src.geo_parse(text)
@@ -242,6 +259,7 @@ test "geo_parse_minimal_record" {
   assert_eq(r.data_table().n_rows(), 0)
 }
 
+///|
 test "geo_parse_record_without_data_table" {
   let text = "^SERIES = GSE1\n!Series_title = Test Series\n!Series_summary = A test\n"
   let f = @src.geo_parse(text)
@@ -254,6 +272,7 @@ test "geo_parse_record_without_data_table" {
 // Formatting
 // ---------------------------------------------------------------------------
 
+///|
 test "geo_attribute_to_string" {
   let a = @src.GeoAttribute::new("title", "Test")
   let s = a.to_string()
@@ -261,6 +280,7 @@ test "geo_attribute_to_string" {
   assert_true(s.contains("Test"))
 }
 
+///|
 test "geo_data_table_to_string" {
   let cols = [
     @src.GeoColumnDef::new("ID", "Probe"),
@@ -274,6 +294,7 @@ test "geo_data_table_to_string" {
   assert_true(s.contains("VALUE"))
 }
 
+///|
 test "geo_record_to_string" {
   let text = @src.geo_sample_text()
   let f = @src.geo_parse(text)
@@ -284,6 +305,7 @@ test "geo_record_to_string" {
   assert_true(s.contains("Sample"))
 }
 
+///|
 test "geo_file_to_string" {
   let text = @src.geo_sample_text()
   let f = @src.geo_parse(text)
