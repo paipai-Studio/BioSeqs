@@ -168,9 +168,9 @@ pub fn HMMcopyModel::set_emission(
 pub fn HMMcopyModel::set_variance(
   self : HMMcopyModel,
   state : Int,
-  var : Double,
+  var_ : Double,
 ) -> Unit {
-  self.variances[state] = var
+  self.variances[state] = var_
 }
 
 ///|

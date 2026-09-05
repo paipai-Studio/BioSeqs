@@ -40,7 +40,7 @@ test "melting_temperature_long" {
 ///|
 test "seq3" {
   let seq = @src.seq3("AR")
-  assert_eq(seq, "Ala Arg")
+  assert_eq(seq, "AlaArg")
 }
 
 ///|

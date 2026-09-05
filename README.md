@@ -34,7 +34,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **SeqReference** | `Bio.Reference` / `Bio.Medline` | 文献引用管理、Medline/PubMed 解析、APA 格式化 | ✅ |
 | **Bio.Alphabet** | `Bio.Alphabet` | IUPAC DNA/RNA/蛋白质字母表、简化字母表、空位字母表 | ✅ |
 | **Bio.Data** | `Bio.Data` | IUPAC 数据、氨基酸映射、密码子表、互补碱基表 | ✅ |
-| **SeqUtils** | `Bio.SeqUtils` | GC 含量、GC/AT 滑动窗口偏斜、分子量、Tm 值（Wallace/盐校正）、ORF 预测、序列相似度、Hamming/Levenshtein 距离、CheckSum（GCG/SEGUID） | ✅ |
+| **SeqUtils** | `Bio.SeqUtils` | GC 含量（gc_fraction 支持 remove/ignore/weighted 三种歧义碱基模式）、GC/AT 滑动窗口偏斜、GC123 密码子位置 GC、nt_search IUPAC 模糊序列搜索、six_frame_translations 六框翻译与 GC 可视化、seq3/seq1 三字母与单字母转换（IUPAC 扩展码 + custom_map/undef_code）、分子量、Tm 值（Wallace/盐校正）、ORF 预测、序列相似度、Hamming/Levenshtein 距离、CheckSum（GCG/SEGUID） | ✅ |
 | **SeqUtils 高级** | `Bio.SeqUtils` / `Bio.SeqUtils.ProtParam` / `MolWt` / `MeltingTemp` | 蛋白质参数（不稳定指数/GRAVY/等电点/信号肽/二级结构倾向）、分子量/消光系数/吸光度、Chou-Fasman 二级结构、IUPred 无序区、COILS 卷曲螺旋、Kolaskar 抗原性、Emini 可及性、Karplus-Schulz 柔性、ProtDao 无序预测、CircSeq 环状 DNA 酶切 | ✅ |
 | **FreqAnalysis** | `Bio.FreqAnalysis` / `Bio.SeqUtils` | k-mer 计数、密码子使用频率、Shannon 熵、Wooton-Federhen 局部组成复杂度 (LCC)、语言学复杂度、DUST、CGR 混沌游戏表示、序列签名 | ✅ |
 | **CodonUsage** | `Bio.SeqUtils.CodonUsage` / `Bio.codonalign` | CAI 密码子适应指数、RSCU 相对同义密码子使用、ENC 有效密码子数、GC3 偏斜、CBI/Fop、最优/稀有密码子检测、物种参考表 | ✅ |
@@ -511,6 +511,7 @@ IvanAXu/BioSeqs/
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
 ├── examples/                         # 示例程序（约 250 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
+│   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ # 差异表达
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
@@ -537,7 +538,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12209 个测试全部通过
+moon test                                               # ✅ 12240 个测试全部通过
 ```
 
 ---
@@ -546,7 +547,7 @@ moon test                                               # ✅ 12209 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12000+ 测试用例)
+moon test       # 运行全部测试 (12240 个测试用例)
 ```
 
 ---
@@ -558,7 +559,7 @@ moon test       # 运行全部测试 (12000+ 测试用例)
 | `seq.mbt` | `Bio.Seq` 序列对象与基础操作 |
 | `seq_record.mbt` / `seqfeature.mbt` / `seqfeature_advanced.mbt` | 序列记录与特征（位置/CompoundLocation/修饰符） |
 | `seqio.mbt` / `fasta_io.mbt` / `fastq_io.mbt` / `genbank_io.mbt` | 序列 I/O 统一接口（FASTA/FASTQ/GenBank 等 30+ 格式） |
-| `sequtils.mbt` / `seq_utils.mbt` / `seq_complexity.mbt` | GC/Tm/ORF/分子量/LCC 复杂度/Hamming 距离 |
+| `sequtils.mbt` / `seq_utils.mbt` / `sequtils_advanced.mbt` / `seq_complexity.mbt` | GC 含量与 gc_fraction 歧义模式、GC123、nt_search、six_frame_translations、seq3/seq1、Tm/ORF/分子量/LCC 复杂度/Hamming 距离 |
 | `codon_usage.mbt` / `codon_align.mbt` / `codon_align_advanced.mbt` | 密码子使用分析与 dN/dS 选择压力检验 |
 | `alignment.mbt` / `pairaligner.mbt` / `smith_waterman.mbt` / `needleman_wunsch.mbt` | 全局/局部比对算法 + PairwiseAligner |
 | `align_*.mbt` (clustal/phylip/stockholm/msf/nexus/a2m/emboss/exonerate/maf/mauve/psl/sam/chain/bed/bigbed/...) | 各类比对格式严格读写 + 坐标映射 + 统计 + canonical 往返 |

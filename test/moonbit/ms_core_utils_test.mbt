@@ -59,7 +59,7 @@ test "mc_median_empty" {
 
 ///|
 test "mc_sd_basic" {
-  // mean=3, var = (4+1+0+1+4)/4 = 2.5, sd = sqrt(2.5) ~ 1.5811
+  // mean=3, var_ = (4+1+0+1+4)/4 = 2.5, sd = sqrt(2.5) ~ 1.5811
   let s = @src.mc_sd([1.0, 2.0, 3.0, 4.0, 5.0])
   assert_true((s - 1.5811).abs() < 0.001)
 }

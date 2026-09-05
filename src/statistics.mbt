@@ -564,15 +564,15 @@ pub fn stat_mean_var(data : Array[Double]) -> (Double, Double) {
     sum_sq = sum_sq + diff * diff
     i = i + 1
   }
-  let var = if n > 1 { sum_sq / (n.to_double() - 1.0) } else { 0.0 }
-  (mean, var)
+  let var_ = if n > 1 { sum_sq / (n.to_double() - 1.0) } else { 0.0 }
+  (mean, var_)
 }
 
 ///|
 /// Standardize an array to zero mean and unit variance (Z-score normalization).
 pub fn stat_standardize(data : Array[Double]) -> Array[Double] {
-  let (mean, var) = stat_mean_var(data)
-  let std = if var > 0.0 { var.sqrt() } else { 1.0 }
+  let (mean, var_) = stat_mean_var(data)
+  let std = if var_ > 0.0 { var_.sqrt() } else { 1.0 }
   let result : Array[Double] = Array::new()
   let mut i = 0
   while i < data.length() {
@@ -1149,8 +1149,8 @@ pub fn stat_bartlett_test(samples : Array[Array[Double]]) -> (Double, Double) {
     if n < 2 {
       return (0.0, 1.0)
     }
-    let var = stat_variance(samples[i])
-    variances.push(var)
+    let var_ = stat_variance(samples[i])
+    variances.push(var_)
     sizes.push(n)
     total_n = total_n + n
     i = i + 1

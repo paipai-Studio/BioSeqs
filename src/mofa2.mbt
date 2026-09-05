@@ -683,12 +683,12 @@ fn mofa_compute_variance_explained(
         i = i + 1
       }
       let mean = sum / n_samples.to_double()
-      let var = if n_samples > 1 {
+      let var_ = if n_samples > 1 {
         sum_sq / n_samples.to_double() - mean * mean
       } else {
         0.0
       }
-      factor_vars[k] = if var > 0.0 { var } else { 0.0 }
+      factor_vars[k] = if var_ > 0.0 { var_ } else { 0.0 }
       k = k + 1
     }
   }

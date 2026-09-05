@@ -56,7 +56,7 @@ fn main {
   let mut vi = 0
   while vi < corr.length() {
     let row = corr[vi]
-    let mut s = "    var\{vi + 1} vs PCs: [".to_string()
+    let mut s = "    var_\{vi + 1} vs PCs: [".to_string()
     let mut pj = 0
     while pj < row.length() {
       if pj > 0 { s = s + ", " }

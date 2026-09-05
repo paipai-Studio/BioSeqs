@@ -631,7 +631,7 @@ pub fn oc_em_t_mixture_1d(
       for k in 0..<n_clusters {
         let d = data[i] - means[k]
         let v = variances[k]
-        // t-density (simplified): weight * t_pdf(x; mean, var, df)
+        // t-density (simplified): weight * t_pdf(x; mean, var_, df)
         let t_pdf = oc_t_pdf(data[i], means[k], v, df) * weights[k]
         resp[i * n_clusters + k] = t_pdf
         sum = sum + t_pdf

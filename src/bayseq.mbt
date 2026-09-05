@@ -32,7 +32,7 @@ pub struct BayesResult {
 ///|
 /// Estimate the dispersion parameter for a single gene using the method of moments.
 /// For Negative Binomial: Var = mean + mean^2 / dispersion
-/// => dispersion = mean^2 / (var - mean)
+/// => dispersion = mean^2 / (var_ - mean)
 pub fn bayseq_estimate_dispersion_gene(
   counts_a : Array[Double],
   counts_b : Array[Double],
@@ -148,7 +148,7 @@ pub fn bayseq_estimate_prior(
     g = g + 1
   }
 
-  // Method of moments for Gamma prior: mean=shape/rate, var=shape/rate^2
+  // Method of moments for Gamma prior: mean=shape/rate, var_=shape/rate^2
   let n = dispersions.length()
   if n < 2 {
     return (2.0, 0.5)

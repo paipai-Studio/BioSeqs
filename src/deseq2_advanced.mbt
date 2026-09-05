@@ -158,8 +158,8 @@ pub fn vst(dds : DESeqDataSet, nsub? : Int = 1000) -> VSTResult {
       }
       gene_var = gene_var / (n_samples - 1).to_double()
 
-      // For NB: var = mu + alpha * mu^2
-      // So alpha = (var - mu) / mu^2
+      // For NB: var_ = mu + alpha * mu^2
+      // So alpha = (var_ - mu) / mu^2
       if gene_var > gene_mean {
         sum_mu_sq = sum_mu_sq + gene_mean * gene_mean
         sum_var_minus_mu = sum_var_minus_mu + (gene_var - gene_mean)
@@ -223,13 +223,13 @@ pub fn plot_pca(vst_result : VSTResult, ntop? : Int = 500) -> PCAResult {
       sum = sum + vst_result.transformed[i][j]
     }
     let mean = sum / n_samples.to_double()
-    let mut var = 0.0
+    let mut var_ = 0.0
     for j = 0; j < n_samples; j = j + 1 {
       let diff = vst_result.transformed[i][j] - mean
-      var = var + diff * diff
+      var_ = var_ + diff * diff
     }
-    var = var / n_samples.to_double()
-    gene_vars.push((i, var))
+    var_ = var_ / n_samples.to_double()
+    gene_vars.push((i, var_))
   }
 
   // Sort by variance descending (simple selection sort for top N)
@@ -472,13 +472,13 @@ pub fn gene_sd(vst_result : VSTResult) -> Array[(String, Double)] {
       sum = sum + vst_result.transformed[i][j]
     }
     let mean = sum / n_samples.to_double()
-    let mut var = 0.0
+    let mut var_ = 0.0
     for j = 0; j < n_samples; j = j + 1 {
       let diff = vst_result.transformed[i][j] - mean
-      var = var + diff * diff
+      var_ = var_ + diff * diff
     }
-    var = var / (n_samples - 1).to_double()
-    result.push((vst_result.row_names[i], var.sqrt()))
+    var_ = var_ / (n_samples - 1).to_double()
+    result.push((vst_result.row_names[i], var_.sqrt()))
   }
   result
 }

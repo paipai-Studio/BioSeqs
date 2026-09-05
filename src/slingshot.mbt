@@ -469,14 +469,14 @@ fn sling_pc1_range(points : Array[Array[Double]]) -> (Double, Double) {
   let variances : Array[Double] = Array::new()
   let mut dd = 0
   while dd < dim {
-    let mut var = 0.0
+    let mut var_ = 0.0
     let mut i = 0
     while i < n {
       let diff = points[i][dd] - center[dd]
-      var = var + diff * diff
+      var_ = var_ + diff * diff
       i = i + 1
     }
-    variances.push(var)
+    variances.push(var_)
     dd = dd + 1
   }
   // Find max variance dimension (proxy for PC1)

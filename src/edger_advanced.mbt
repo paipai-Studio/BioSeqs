@@ -416,14 +416,14 @@ pub fn glm_qlf_test(qlf_data : QLFData, coef? : Int = 1) -> QLFResult {
 
     // Compute LR statistic: compare full vs reduced model
     // For a simple 2-group comparison, the F-statistic is:
-    // F = beta^2 / (ql_disp * var(beta))
-    // where var(beta) comes from the Fisher information
+    // F = beta^2 / (ql_disp * var_(beta))
+    // where var_(beta) comes from the Fisher information
 
     let ql = qlf_data.ql_dispersion[i]
     ql_disp.push(ql)
 
     // Compute variance of coefficient from fitted values
-    // For log-link NB: var(beta) = (X^T W X)^{-1} where W = diag(mu / (mu + alpha*mu^2))
+    // For log-link NB: var_(beta) = (X^T W X)^{-1} where W = diag(mu / (mu + alpha*mu^2))
     let mut info_coef = 0.0
     for j = 0; j < n_samples; j = j + 1 {
       let mu = qlf_data.fitted_values[i][j]

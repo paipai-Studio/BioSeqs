@@ -25,7 +25,7 @@ test "ce_mean_single" {
 
 ///|
 test "ce_variance_basic" {
-  // population variance (1/n): mean=2, var = (1+0+1)/3 = 2/3
+  // population variance (1/n): mean=2, var_ = (1+0+1)/3 = 2/3
   let v = @src.ce_variance([1.0, 2.0, 3.0])
   assert_true((v - 0.6667).abs() < 0.001)
 }

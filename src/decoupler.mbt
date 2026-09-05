@@ -278,15 +278,15 @@ fn decoupler_norm(
       j = j + 1
     }
     mean = if n_samples > 0 { mean / n_samples.to_double() } else { 0.0 }
-    let mut var = 0.0
+    let mut var_ = 0.0
     j = 0
     while j < n_samples {
       let d = wmean_result.matrix[i][j] - mean
-      var = var + d * d
+      var_ = var_ + d * d
       j = j + 1
     }
     let std = if n_samples > 1 {
-      (var / (n_samples - 1).to_double()).sqrt()
+      (var_ / (n_samples - 1).to_double()).sqrt()
     } else {
       0.0
     }
@@ -440,15 +440,15 @@ fn decoupler_ulm(
       j = j + 1
     }
     mean = if n_samples > 0 { mean / n_samples.to_double() } else { 0.0 }
-    let mut var = 0.0
+    let mut var_ = 0.0
     j = 0
     while j < n_samples {
       let d = wsum_per_sample[j] - mean
-      var = var + d * d
+      var_ = var_ + d * d
       j = j + 1
     }
     let std = if n_samples > 1 {
-      (var / (n_samples - 1).to_double()).sqrt()
+      (var_ / (n_samples - 1).to_double()).sqrt()
     } else {
       1.0
     }

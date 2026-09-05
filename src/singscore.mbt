@@ -320,9 +320,9 @@ fn singscore_compute_dispersion(
     return 0.0
   }
 
-  let (mean, var) = stat_mean_var(ranks_found)
+  let (mean, var_) = stat_mean_var(ranks_found)
   let _ = mean
-  var
+  var_
 }
 
 ///|
