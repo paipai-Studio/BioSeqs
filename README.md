@@ -90,6 +90,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **共享参考比对合并** | `Bio.Align.Alignment.from_alignments_with_same_reference` | 混合 PWA/MSA 输入、首端/内部/末端 insertion 同步、多 query 投影、局部坐标与 metadata 保留 | ✅ |
 | **Alignment 坐标组合** | `Bio.Align.Alignment.map/mapall` | alignment path 组合、local clipping、gap/正反链传播、双向坐标查询、PSL、1:1/1:3 codon-aware MSA 投影 | ✅ |
 | **Alignment 详细计数评分** | `Bio.Align.Alignment.counts` | 左/内部/右 insertion/deletion、gap open/extend、identity/mismatch/positive、wildcard、替换矩阵与十二类 affine gap 总分 | ✅ |
+| **Alignment 频率与替换统计** | `Bio.Align.MultipleSeqAlignment.substitutions` / `Alignment.frequencies` | 每列字母加权计数（`'-'` gap 行）、列归一化频率、全比对背景频率、对称残基替换计数矩阵（序列权重、M=(M+Mᵀ)/2）、观测对频率 q_ij、BLOSUM 式背景 p_i、q_ij/e_ij 相对频率（log-odds 替换矩阵估计） | ✅ |
 | **PSL / PSLX** | `Bio.Align.psl` | 21/23 列严格读写、核酸与 translated DNA-protein 3:1 路径、正反链坐标、block/gap 统计、sequence-aware recount、坐标映射 | ✅ |
 | **SAM 感知比对** | `Bio.Align.sam` | SAM header 与 typed tag 严格读写、显式 CIGAR path、soft/hard clipping、反向链序列与 PHRED、MD/NM 坐标映射 | ✅ |
 | **A2M 状态感知 MSA** | `Bio.Align.a2m` | match/insertion 列状态、大小写与点语义、严格读写、坐标映射、插入槽、pair counts、共识与 match-only 投影 | ✅ |
@@ -521,13 +522,14 @@ IvanAXu/BioSeqs/
 │   ├── dnacopy_demo/                 # DNAcopy CBS 拷贝数分割（sdundo 合并/多染色体）
 │   ├── regione_r_demo/               # regioneR 区域置换检验（随机化/mask/permTest）
 │   ├── minet_demo/                   # minet 互信息网络（离散化/MIM/ARACNE/CLR/MRNET/AUROC 验证）
+│   ├── alignment_frequencies_demo/   # Bio.Align MSA 统计（替换计数矩阵/列频率/保守位点/序列权重/log-odds）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ # 差异表达
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12280+ 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12290+ 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -547,7 +549,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12283 个测试全部通过
+moon test                                               # ✅ 12299 个测试全部通过
 ```
 
 ---
@@ -556,7 +558,7 @@ moon test                                               # ✅ 12283 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12290 个测试用例)
+moon test       # 运行全部测试 (12299 个测试用例)
 ```
 
 ---
@@ -574,6 +576,7 @@ moon test       # 运行全部测试 (12290 个测试用例)
 | `alignment.mbt` / `pairaligner.mbt` / `smith_waterman.mbt` / `needleman_wunsch.mbt` | 全局/局部比对算法 + PairwiseAligner |
 | `align_*.mbt` (clustal/phylip/stockholm/msf/nexus/a2m/emboss/exonerate/maf/mauve/psl/sam/chain/bed/bigbed/...) | 各类比对格式严格读写 + 坐标映射 + 统计 + canonical 往返 |
 | `alignment_map.mbt` / `alignment_counts.mbt` / `shared_reference_alignment.mbt` | Alignment map/mapall 坐标路径、counts gap/composition 评分、共享参考 PWA/MSA 合并 |
+| `alignment_frequencies.mbt` | Bio.Align MSA 统计：每列字母计数/频率（`'-'` gap 行）、对称替换计数矩阵（序列权重、M=(M+Mᵀ)/2）、观测对频率与背景频率、q_ij/e_ij 相对频率/log-odds |
 | `searchio.mbt` / `blast.mbt` / `blast_xml_advanced.mbt` | SearchIO 统一模型 + BLAST tabular/XML1/XML2 |
 | `hmmer_io.mbt` / `infernal_io.mbt` / `hhr.mbt` / `exonerate_text.mbt` / `interproscan.mbt` | HMMER3/Infernal/HH-suite HHR/Exonerate C4/InterProScan 解析 |
 | `phylo.mbt` / `tree_io.mbt` / `tree_construction.mbt` | 系统发育树解析 + UPGMA/NJ/WPGMA 建树 |
