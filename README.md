@@ -442,6 +442,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **PCAtools / factoextra** | PCAtools / factoextra | scree/biplot/outliers PCA 工具；特征值计算、方差解释率、个体/变量坐标、cos2 质量、贡献度评分、维度描述 | ✅ |
 | **WGCNA** | WGCNA | 加权基因共表达网络、邻接矩阵、TOM 相似度、模块检测 | ✅ |
 | **GENIE3** | GENIE3 | 回归树特征重要性、方差缩减、加权邻接矩阵、对称化网络 | ✅ |
+| **minet** | minet | 互信息基因共表达网络：equalfreq/equalwidth 离散化、四种熵估计（empirical/Miller-Madow/Hausser-Strimmer shrinkage/Schürmann-Grassberger）、MIM 构建、ARACNE 数据处理不等式剪枝、CLR 行/列背景 z-score 校正、MRNET mRMR 前向选择、validate 精度/召回曲线与 AUROC/AUPR/maxF 评分 | ✅ |
 | **genefilter** | genefilter | t/Wilcoxon 检验、方差过滤、CV 过滤、分位数过滤 | ✅ |
 | **mixOmics** | mixOmics | 多组学整合：PLS 回归、稀疏 PLS (sPLS)、DIABLO 多块整合 | ✅ |
 | **destiny / Rtsne / uwot** | destiny / Rtsne / uwot | 扩散映射（距离矩阵/高斯核/特征分解）；t-SNE（条件概率/梯度下降/Barnes-Hut）；UMAP（kNN/模糊单纯集/SGD/负采样） | ✅ |
@@ -519,6 +520,7 @@ IvanAXu/BioSeqs/
 │   ├── melting_temp_demo/            # MeltingTemp 解链温度（Tm_GC 八套公式/Tm_NN 近邻热力学/盐与 Mg2+/错配/DMSO）
 │   ├── dnacopy_demo/                 # DNAcopy CBS 拷贝数分割（sdundo 合并/多染色体）
 │   ├── regione_r_demo/               # regioneR 区域置换检验（随机化/mask/permTest）
+│   ├── minet_demo/                   # minet 互信息网络（离散化/MIM/ARACNE/CLR/MRNET/AUROC 验证）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ # 差异表达
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
@@ -554,7 +556,7 @@ moon test                                               # ✅ 12283 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12283 个测试用例)
+moon test       # 运行全部测试 (12290 个测试用例)
 ```
 
 ---
@@ -585,6 +587,7 @@ moon test       # 运行全部测试 (12283 个测试用例)
 | `pqs_finder.mbt` | pqsfinder G-四链体（PQS）检测：G-run DP 搜索、四分体加分/bulge/错配/loop 罚分评分、正负链、非重叠输出 |
 | `dnacopy.mbt` | DNAcopy 循环二分分割（CBS）：置换检验 alpha/nperm、trimmed variance、多染色体独立分割、sdundo 合并 |
 | `regione_r.mbt` | regioneR 区域置换检验：randomizeRegions/circularRandomizeRegions（含 mask）、numOverlaps/meanDistance、permTest z-score 与经验 p 值 |
+| `wgcna.mbt` / `genie3.mbt` / `minet.mbt` | 基因共表达/调控网络：WGCNA 加权共表达与 TOM 模块、GENIE3 回归树特征重要性；minet 互信息网络（equalfreq/equalwidth 离散化 + empirical/Miller-Madow/Hausser-Strimmer/Schürmann-Grassberger 四种熵估计，ARACNE DPI 剪枝、CLR 背景 z-score、MRNET mRMR 前向选择，validate precision/recall/AUROC/AUPR/maxF 评分） |
 | `summarized_experiment.mbt` / `single_cell_experiment.mbt` / `spatial_experiment.mbt` / `multi_assay_experiment.mbt` / `tree_summarized_experiment.mbt` / `ragged_experiment.mbt` | Bioconductor 数据容器家族 |
 | `deseq2.mbt` + `deseq2_advanced.mbt` / `edger.mbt` + `edger_advanced.mbt` / `limma.mbt` / `apeglm.mbt` | 差异表达三大套件 + apeglm LFC 收缩 |
 | `seurat.mbt` / `scran.mbt` / `scuttle.mbt` / `scrapper.mbt` / `bluster.mbt` / `monocle3.mbt` / `slingshot.mbt` / `tradeSeq.mbt` / `velociraptor.mbt` / `scenic.mbt` / `infercnv.mbt` / `milo.mbt` / `muscat.mbt` / `zinbwave.mbt` / `celda.mbt` / `decontx.mbt` / `batchelor.mbt` / `sc_dbl_finder.mbt` / `droplet_utils_advanced.mbt` / `single_r_advanced.mbt` / `mast_advanced.mbt` | 单细胞 / 空间组学全栈分析套件 |
