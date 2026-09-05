@@ -35,7 +35,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Bio.Alphabet** | `Bio.Alphabet` | IUPAC DNA/RNA/蛋白质字母表、简化字母表、空位字母表 | ✅ |
 | **Bio.Data** | `Bio.Data` | IUPAC 数据、氨基酸映射、密码子表、互补碱基表 | ✅ |
 | **SeqUtils** | `Bio.SeqUtils` | GC 含量（gc_fraction 支持 remove/ignore/weighted 三种歧义碱基模式）、GC/AT 滑动窗口偏斜、GC123 密码子位置 GC、nt_search IUPAC 模糊序列搜索、six_frame_translations 六框翻译与 GC 可视化、seq3/seq1 三字母与单字母转换（IUPAC 扩展码 + custom_map/undef_code）、分子量、Tm 值（Wallace/盐校正）、ORF 预测、序列相似度、Hamming/Levenshtein 距离、CheckSum（GCG/SEGUID） | ✅ |
-| **SeqUtils 高级** | `Bio.SeqUtils` / `Bio.SeqUtils.ProtParam` / `MolWt` / `MeltingTemp` | 蛋白质参数（不稳定指数/GRAVY/等电点/信号肽/二级结构倾向）、分子量/消光系数/吸光度、Chou-Fasman 二级结构、IUPred 无序区、COILS 卷曲螺旋、Kolaskar 抗原性、Emini 可及性、Karplus-Schulz 柔性、ProtDao 无序预测、CircSeq 环状 DNA 酶切 | ✅ |
+| **SeqUtils 高级** | `Bio.SeqUtils` / `Bio.SeqUtils.ProtParam` / `MolWt` / `MeltingTemp` | 蛋白质参数（不稳定指数/GRAVY/等电点/信号肽/二级结构倾向）、分子量/消光系数/吸光度、Chou-Fasman 二级结构、IUPred 无序区、COILS 卷曲螺旋、Kolaskar 抗原性、Emini 可及性、Karplus-Schulz 柔性、ProtDao 无序预测、CircSeq 环状 DNA 酶切、**MeltingTemp 完整解链温度**（Tm_Wallace 经验法则、Tm_GC 八套经验公式、Tm_NN 近邻热力学 8 套 DNA/RNA/杂交参数表、盐校正方法 1-7 含 Mg2+/dNTP/Tris、错配与悬挂末端、自互补双链、DMSO/甲酰胺化学校正、自定义热力学表） | ✅ |
 | **FreqAnalysis** | `Bio.FreqAnalysis` / `Bio.SeqUtils` | k-mer 计数、密码子使用频率、Shannon 熵、Wooton-Federhen 局部组成复杂度 (LCC)、语言学复杂度、DUST、CGR 混沌游戏表示、序列签名 | ✅ |
 | **CodonUsage** | `Bio.SeqUtils.CodonUsage` / `Bio.codonalign` | CAI 密码子适应指数、RSCU 相对同义密码子使用、ENC 有效密码子数、GC3 偏斜、CBI/Fop、最优/稀有密码子检测、物种参考表 | ✅ |
 | **Kmer** | `Bio.Kmer` | k-mer 计数与频率分析、Jaccard 相似度、Hamming 距离、k-mer 谱 | ✅ |
@@ -516,6 +516,7 @@ IvanAXu/BioSeqs/
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── pqs_demo/                     # pqsfinder G-四链体检测（评分系统/双链/自定义参数）
+│   ├── melting_temp_demo/            # MeltingTemp 解链温度（Tm_GC 八套公式/Tm_NN 近邻热力学/盐与 Mg2+/错配/DMSO）
 │   ├── dnacopy_demo/                 # DNAcopy CBS 拷贝数分割（sdundo 合并/多染色体）
 │   ├── regione_r_demo/               # regioneR 区域置换检验（随机化/mask/permTest）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
@@ -524,7 +525,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12270+ 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12280+ 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -544,7 +545,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12240 个测试全部通过
+moon test                                               # ✅ 12283 个测试全部通过
 ```
 
 ---
@@ -553,7 +554,7 @@ moon test                                               # ✅ 12240 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12240 个测试用例)
+moon test       # 运行全部测试 (12283 个测试用例)
 ```
 
 ---
@@ -566,6 +567,7 @@ moon test       # 运行全部测试 (12240 个测试用例)
 | `seq_record.mbt` / `seqfeature.mbt` / `seqfeature_advanced.mbt` | 序列记录与特征（位置/CompoundLocation/修饰符） |
 | `seqio.mbt` / `fasta_io.mbt` / `fastq_io.mbt` / `genbank_io.mbt` | 序列 I/O 统一接口（FASTA/FASTQ/GenBank 等 30+ 格式） |
 | `sequtils.mbt` / `seq_utils.mbt` / `sequtils_advanced.mbt` / `seq_complexity.mbt` | GC 含量与 gc_fraction 歧义模式、GC123、nt_search、six_frame_translations、seq3/seq1、Tm/ORF/分子量/LCC 复杂度/Hamming 距离 |
+| `melting_temp.mbt` / `melting_temp_advanced.mbt` | 解链温度：Tm_Wallace 经验法则、Tm_GC 八套经验公式、Tm_NN 近邻热力学（DNA_NN1-4/RNA_NN1-3/R_DNA_NN1 八套表 + 错配/末端/悬挂端表）、盐校正 1-7（Na+/K+/Tris/Mg2+/dNTP，Owczarzy 2008）、自互补、DMSO/甲酰胺化学校正、自定义热力学表 |
 | `codon_usage.mbt` / `codon_align.mbt` / `codon_align_advanced.mbt` | 密码子使用分析与 dN/dS 选择压力检验 |
 | `alignment.mbt` / `pairaligner.mbt` / `smith_waterman.mbt` / `needleman_wunsch.mbt` | 全局/局部比对算法 + PairwiseAligner |
 | `align_*.mbt` (clustal/phylip/stockholm/msf/nexus/a2m/emboss/exonerate/maf/mauve/psl/sam/chain/bed/bigbed/...) | 各类比对格式严格读写 + 坐标映射 + 统计 + canonical 往返 |
