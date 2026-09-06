@@ -208,7 +208,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **RNA 二级结构** | `Bio.SeqUtils` (RNA) | Nussinov 动态规划算法、发夹环/内部环/凸出环/多环识别 | ✅ |
 | **Pathway** | `Bio.Pathway` | 物种/反应/通路数据结构及分析函数 | ✅ |
 | **phenotype** | `Bio.phenotype` | PlateRecord/WellRecord、logistic/Gompertz 生长曲线、CSV/JSON 解析 | ✅ |
-| **Cluster** | `Bio.Cluster` | 距离矩阵、层次聚类、Newick 输出、轮廓系数 | ✅ |
+| **Cluster 数值聚类** | `Bio.Cluster` (cluster.c) | C 聚类库核心：8 种距离（欧氏[平方均值]/City Block/Pearson/绝对 Pearson/非中心/绝对非中心/Spearman/Kendall）、clusterdistance、层次聚类 treecluster（SLINK 单连接/完全/平均/质心连接）+ Tree cut/sort、kcluster（k-means/k-medians EM）、kmedoids、clustercentroids（均值/中位数/medoid）、somcluster 自组织映射、PCA（Golub-Reinsch SVD）、distancematrix、Record（Eisen Cluster/TreeView 格式读写 + 全套方法） | ✅ |
+| **Cluster 序列聚类** | `Bio.Cluster` | 距离矩阵、层次聚类、Newick 输出、轮廓系数 | ✅ |
 | **Variation** | `Bio.Variation` | SNP、突变检测、氨基酸替换、BLOSUM62/Grantham 矩阵 | ✅ |
 | **Application** | `Bio.Application` / `Align.Applications` | 命令行工具包装（ClustalW/Clustal Omega/Muscle/MAFFT）、参数管理 | ✅ |
 | **Bloom Filter** | Jellyfish/khmer 风格 | k-mer 计数、成员查询、误判率估算、近似去重 | ✅ |
@@ -524,13 +525,14 @@ IvanAXu/BioSeqs/
 │   ├── minet_demo/                   # minet 互信息网络（离散化/MIM/ARACNE/CLR/MRNET/AUROC 验证）
 │   ├── qvalue_demo/                  # qvalue FDR 全流程（π₀ smoother/bootstrap、q-value/pFDR、lfdr、empPvals、BH 对比）
 │   ├── alignment_frequencies_demo/   # Bio.Align MSA 统计（替换计数矩阵/列频率/保守位点/序列权重/log-odds）
+│   ├── bio_cluster_demo/             # Bio.Cluster 数值聚类（8 种距离/层次聚类/k-means/k-medoids/SOM/PCA/Record）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ # 差异表达
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12310+ 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12350+ 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -550,7 +552,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12318 个测试全部通过
+moon test                                               # ✅ 12351 个测试全部通过
 ```
 
 ---
@@ -559,7 +561,7 @@ moon test                                               # ✅ 12318 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12318 个测试用例)
+moon test       # 运行全部测试 (12351 个测试用例)
 ```
 
 ---
@@ -592,6 +594,7 @@ moon test       # 运行全部测试 (12318 个测试用例)
 | `dnacopy.mbt` | DNAcopy 循环二分分割（CBS）：置换检验 alpha/nperm、trimmed variance、多染色体独立分割、sdundo 合并 |
 | `regione_r.mbt` | regioneR 区域置换检验：randomizeRegions/circularRandomizeRegions（含 mask）、numOverlaps/meanDistance、permTest z-score 与经验 p 值 |
 | `qvalue.mbt` | Bioconductor qvalue FDR 分析：Storey π₀ 估计（Reinsch df=3 三次光滑样条 smoother、David Robinson 闭形式 MSE bootstrap、λ 路径 π₀(λ)）、q-value 与 pFDR 有限样本校正、fdr.level 显著集、局部 FDR lfdr（probit/logit 变换 + nrd0 高斯 KDE、cummax 单调化、截断）、经验 p 值 empPvals（池化合并排序 / 检验特异逐行矩阵，平局观测优先、下界 1/m₀） |
+| `bio_cluster.mbt` | Bio.Cluster 数值聚类核心（cluster.c 逐行移植）：8 种距离（欧氏平方均值/City Block/Pearson/绝对/非中心/绝对非中心/Spearman/Kendall）、clusterdistance、treecluster 层次聚类（单 SLINK/完全/平均/质心连接 + Tree cut/sort）、treecluster_from_distance、kcluster（k-means/k-medians，多次 npass 取最优）、kmedoids、clustercentroids、somcluster 自组织映射（Kohonen 训练+分配）、cluster_pca（Golub-Reinsch SVD，均值中心化 + 奇异值排序）、distancematrix、Record Eisen Cluster/TreeView 格式解析（NAME/GWEIGHT/GORDER/EWEIGHT/EORDER）及全套聚类方法、可复现 cluster_seed |
 | `wgcna.mbt` / `genie3.mbt` / `minet.mbt` | 基因共表达/调控网络：WGCNA 加权共表达与 TOM 模块、GENIE3 回归树特征重要性；minet 互信息网络（equalfreq/equalwidth 离散化 + empirical/Miller-Madow/Hausser-Strimmer/Schürmann-Grassberger 四种熵估计，ARACNE DPI 剪枝、CLR 背景 z-score、MRNET mRMR 前向选择，validate precision/recall/AUROC/AUPR/maxF 评分） |
 | `summarized_experiment.mbt` / `single_cell_experiment.mbt` / `spatial_experiment.mbt` / `multi_assay_experiment.mbt` / `tree_summarized_experiment.mbt` / `ragged_experiment.mbt` | Bioconductor 数据容器家族 |
 | `deseq2.mbt` + `deseq2_advanced.mbt` / `edger.mbt` + `edger_advanced.mbt` / `limma.mbt` / `apeglm.mbt` | 差异表达三大套件 + apeglm LFC 收缩 |
