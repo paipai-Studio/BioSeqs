@@ -667,8 +667,8 @@ pub fn diffcyt_testDA(
       let w = Array::make(n_samples, 0.0)
       let z = Array::make(n_samples, 0.0)
       for si in 0..<n_samples {
-        let var = mu[si] + dispersion * mu[si] * mu[si]
-        w[si] = mu[si] / var
+        let var_ = mu[si] + dispersion * mu[si] * mu[si]
+        w[si] = mu[si] / var_
         let eta = dc_log(mu[si]) + (y[si] - mu[si]) / mu[si]
         z[si] = eta - offsets[si]
       }
@@ -717,8 +717,8 @@ pub fn diffcyt_testDA(
     }
     let w = Array::make(n_samples, 0.0)
     for si in 0..<n_samples {
-      let var = mu[si] + dispersion * mu[si] * mu[si]
-      w[si] = mu[si] / var
+      let var_ = mu[si] + dispersion * mu[si] * mu[si]
+      w[si] = mu[si] / var_
     }
     let xtwx = Array::new()
     for _ in 0..<n_params {

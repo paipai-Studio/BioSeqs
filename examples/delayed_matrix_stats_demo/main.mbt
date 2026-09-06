@@ -62,14 +62,14 @@ fn main {
   let row_vars = @bio.dms_row_vars(matrix)
   ri = 0
   while ri < row_vars.length() {
-    println("  row var [" + row_names[ri] + "]: " +
+    println("  row var_ [" + row_names[ri] + "]: " +
       row_vars[ri].to_string())
     ri = ri + 1
   }
   let col_vars = @bio.col_vars(matrix)
   ci = 0
   while ci < col_vars.length() {
-    println("  col var [" + col_names[ci] + "]: " +
+    println("  col var_ [" + col_names[ci] + "]: " +
       col_vars[ci].to_string())
     ci = ci + 1
   }

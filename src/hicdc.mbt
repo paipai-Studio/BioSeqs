@@ -487,8 +487,8 @@ pub fn hicdc_fit_background(
     let w = Array::make(n, 0.0)
     let z = Array::make(n, 0.0)
     for i in 0..<n {
-      let var = mu[i] + dispersion * mu[i] * mu[i]
-      w[i] = mu[i] / var
+      let var_ = mu[i] + dispersion * mu[i] * mu[i]
+      w[i] = mu[i] / var_
       let eta = hc_log(mu[i]) + (y[i] - mu[i]) / mu[i]
       z[i] = eta
     }

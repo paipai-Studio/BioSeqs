@@ -222,9 +222,9 @@ pub fn variance_filter(
   let mut i = 0
   while i < expression.gene_ids.length() {
     let expr = expression.expression[i]
-    let var = calc_variance(expr)
+    let var_ = calc_variance(expr)
 
-    if var >= threshold {
+    if var_ >= threshold {
       passing_genes.push(expression.gene_ids[i])
     }
 

@@ -189,7 +189,7 @@ fn compute_single_stat(values : Array[Double], stat : String) -> Double {
         sorted[nv / 2]
       }
     }
-    "var" => {
+    "var_" => {
       let mean = compute_single_stat(valid, "mean")
       let mut sum_sq = 0.0
       let mut j = 0
@@ -205,7 +205,7 @@ fn compute_single_stat(values : Array[Double], stat : String) -> Double {
       }
     }
     "sd" => {
-      let variance = compute_single_stat(valid, "var")
+      let variance = compute_single_stat(valid, "var_")
       variance.sqrt()
     }
     "n" | "nna" | "nn" => nv.to_double()
@@ -259,12 +259,12 @@ pub fn dms_col_means(matrix : DelayedMatrix) -> Array[Double] {
 
 ///|
 pub fn dms_row_vars(matrix : DelayedMatrix) -> Array[Double] {
-  row_stats(matrix, "var")
+  row_stats(matrix, "var_")
 }
 
 ///|
 pub fn col_vars(matrix : DelayedMatrix) -> Array[Double] {
-  col_stats(matrix, "var")
+  col_stats(matrix, "var_")
 }
 
 ///|

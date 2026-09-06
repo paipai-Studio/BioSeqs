@@ -34,8 +34,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **SeqReference** | `Bio.Reference` / `Bio.Medline` | 文献引用管理、Medline/PubMed 解析、APA 格式化 | ✅ |
 | **Bio.Alphabet** | `Bio.Alphabet` | IUPAC DNA/RNA/蛋白质字母表、简化字母表、空位字母表 | ✅ |
 | **Bio.Data** | `Bio.Data` | IUPAC 数据、氨基酸映射、密码子表、互补碱基表 | ✅ |
-| **SeqUtils** | `Bio.SeqUtils` | GC 含量、GC/AT 滑动窗口偏斜、分子量、Tm 值（Wallace/盐校正）、ORF 预测、序列相似度、Hamming/Levenshtein 距离、CheckSum（GCG/SEGUID） | ✅ |
-| **SeqUtils 高级** | `Bio.SeqUtils` / `Bio.SeqUtils.ProtParam` / `MolWt` / `MeltingTemp` | 蛋白质参数（不稳定指数/GRAVY/等电点/信号肽/二级结构倾向）、分子量/消光系数/吸光度、Chou-Fasman 二级结构、IUPred 无序区、COILS 卷曲螺旋、Kolaskar 抗原性、Emini 可及性、Karplus-Schulz 柔性、ProtDao 无序预测、CircSeq 环状 DNA 酶切 | ✅ |
+| **SeqUtils** | `Bio.SeqUtils` | GC 含量（gc_fraction 支持 remove/ignore/weighted 三种歧义碱基模式）、GC/AT 滑动窗口偏斜、GC123 密码子位置 GC、nt_search IUPAC 模糊序列搜索、six_frame_translations 六框翻译与 GC 可视化、seq3/seq1 三字母与单字母转换（IUPAC 扩展码 + custom_map/undef_code）、分子量、Tm 值（Wallace/盐校正）、ORF 预测、序列相似度、Hamming/Levenshtein 距离、CheckSum（GCG/SEGUID） | ✅ |
+| **SeqUtils 高级** | `Bio.SeqUtils` / `Bio.SeqUtils.ProtParam` / `MolWt` / `MeltingTemp` | 蛋白质参数（不稳定指数/GRAVY/等电点/信号肽/二级结构倾向）、分子量/消光系数/吸光度、Chou-Fasman 二级结构、IUPred 无序区、COILS 卷曲螺旋、Kolaskar 抗原性、Emini 可及性、Karplus-Schulz 柔性、ProtDao 无序预测、CircSeq 环状 DNA 酶切、**MeltingTemp 完整解链温度**（Tm_Wallace 经验法则、Tm_GC 八套经验公式、Tm_NN 近邻热力学 8 套 DNA/RNA/杂交参数表、盐校正方法 1-7 含 Mg2+/dNTP/Tris、错配与悬挂末端、自互补双链、DMSO/甲酰胺化学校正、自定义热力学表） | ✅ |
 | **FreqAnalysis** | `Bio.FreqAnalysis` / `Bio.SeqUtils` | k-mer 计数、密码子使用频率、Shannon 熵、Wooton-Federhen 局部组成复杂度 (LCC)、语言学复杂度、DUST、CGR 混沌游戏表示、序列签名 | ✅ |
 | **CodonUsage** | `Bio.SeqUtils.CodonUsage` / `Bio.codonalign` | CAI 密码子适应指数、RSCU 相对同义密码子使用、ENC 有效密码子数、GC3 偏斜、CBI/Fop、最优/稀有密码子检测、物种参考表 | ✅ |
 | **Kmer** | `Bio.Kmer` | k-mer 计数与频率分析、Jaccard 相似度、Hamming 距离、k-mer 谱 | ✅ |
@@ -90,6 +90,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **共享参考比对合并** | `Bio.Align.Alignment.from_alignments_with_same_reference` | 混合 PWA/MSA 输入、首端/内部/末端 insertion 同步、多 query 投影、局部坐标与 metadata 保留 | ✅ |
 | **Alignment 坐标组合** | `Bio.Align.Alignment.map/mapall` | alignment path 组合、local clipping、gap/正反链传播、双向坐标查询、PSL、1:1/1:3 codon-aware MSA 投影 | ✅ |
 | **Alignment 详细计数评分** | `Bio.Align.Alignment.counts` | 左/内部/右 insertion/deletion、gap open/extend、identity/mismatch/positive、wildcard、替换矩阵与十二类 affine gap 总分 | ✅ |
+| **Alignment 频率与替换统计** | `Bio.Align.MultipleSeqAlignment.substitutions` / `Alignment.frequencies` | 每列字母加权计数（`'-'` gap 行）、列归一化频率、全比对背景频率、对称残基替换计数矩阵（序列权重、M=(M+Mᵀ)/2）、观测对频率 q_ij、BLOSUM 式背景 p_i、q_ij/e_ij 相对频率（log-odds 替换矩阵估计） | ✅ |
 | **PSL / PSLX** | `Bio.Align.psl` | 21/23 列严格读写、核酸与 translated DNA-protein 3:1 路径、正反链坐标、block/gap 统计、sequence-aware recount、坐标映射 | ✅ |
 | **SAM 感知比对** | `Bio.Align.sam` | SAM header 与 typed tag 严格读写、显式 CIGAR path、soft/hard clipping、反向链序列与 PHRED、MD/NM 坐标映射 | ✅ |
 | **A2M 状态感知 MSA** | `Bio.Align.a2m` | match/insertion 列状态、大小写与点语义、严格读写、坐标映射、插入槽、pair counts、共识与 match-only 投影 | ✅ |
@@ -207,7 +208,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **RNA 二级结构** | `Bio.SeqUtils` (RNA) | Nussinov 动态规划算法、发夹环/内部环/凸出环/多环识别 | ✅ |
 | **Pathway** | `Bio.Pathway` | 物种/反应/通路数据结构及分析函数 | ✅ |
 | **phenotype** | `Bio.phenotype` | PlateRecord/WellRecord、logistic/Gompertz 生长曲线、CSV/JSON 解析 | ✅ |
-| **Cluster** | `Bio.Cluster` | 距离矩阵、层次聚类、Newick 输出、轮廓系数 | ✅ |
+| **Cluster 数值聚类** | `Bio.Cluster` (cluster.c) | C 聚类库核心：8 种距离（欧氏[平方均值]/City Block/Pearson/绝对 Pearson/非中心/绝对非中心/Spearman/Kendall）、clusterdistance、层次聚类 treecluster（SLINK 单连接/完全/平均/质心连接）+ Tree cut/sort、kcluster（k-means/k-medians EM）、kmedoids、clustercentroids（均值/中位数/medoid）、somcluster 自组织映射、PCA（Golub-Reinsch SVD）、distancematrix、Record（Eisen Cluster/TreeView 格式读写 + 全套方法） | ✅ |
+| **Cluster 序列聚类** | `Bio.Cluster` | 距离矩阵、层次聚类、Newick 输出、轮廓系数 | ✅ |
 | **Variation** | `Bio.Variation` | SNP、突变检测、氨基酸替换、BLOSUM62/Grantham 矩阵 | ✅ |
 | **Application** | `Bio.Application` / `Align.Applications` | 命令行工具包装（ClustalW/Clustal Omega/Muscle/MAFFT）、参数管理 | ✅ |
 | **Bloom Filter** | Jellyfish/khmer 风格 | k-mer 计数、成员查询、误判率估算、近似去重 | ✅ |
@@ -221,7 +223,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **GA 遗传算法** | `Bio.GA` | 种群初始化、适应度函数、锦标赛/轮盘赌选择、单点/两点交叉、变异、精英保留 | ✅ |
 | **Reduced AA** | `Bio.Align.Reduced` | RAD/Dayhoff/CHARM/SDM12 简化氨基酸字母表、序列比较、简化一致性 | ✅ |
 | **Statistics 基础** | `Bio.Statistics` | 描述统计、假设检验（Pearson/Spearman 相关、t/Wilcoxon/Mann-Whitney/Fisher/KS/chi2/ANOVA）、Z-score、log-rank、BH/Yekutieli/Bonferroni/Holm 校正 | ✅ |
-| **q-value / IHW** | qvalue / IHW | Storey's π₀ 估计、q-value、自助法；独立假设加权、协变量加权 Bonferroni、多协变量 | ✅ |
+| **q-value / IHW** | qvalue / IHW | Storey's π₀ 估计（df=3 三次光滑样条 smoother / David Robinson 闭形式 bootstrap）、q-value、pFDR 有限样本校正、fdr.level 显著集、局部 FDR lfdr（probit/logit + 高斯 KDE）、经验 p 值 empPvals（池化/检验特异）、自助法；独立假设加权、协变量加权 Bonferroni、多协变量 | ✅ |
 | **Nexus** | `Bio.Nexus` | NEXUS 格式解析、数据矩阵、发育树、距离矩阵 | ✅ |
 | **Stockholm 兼容层** | `Bio.Stockholm` (legacy) | Stockholm/Pfam 比对解析、二级结构注释、百分比一致性、保守性分析 | ✅ |
 | **MAF 兼容层** | `Bio.Align.MAF` (legacy) | 宽松 MAF 块解析、选择/过滤、百分比一致性、统计分析 | ✅ |
@@ -442,6 +444,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **PCAtools / factoextra** | PCAtools / factoextra | scree/biplot/outliers PCA 工具；特征值计算、方差解释率、个体/变量坐标、cos2 质量、贡献度评分、维度描述 | ✅ |
 | **WGCNA** | WGCNA | 加权基因共表达网络、邻接矩阵、TOM 相似度、模块检测 | ✅ |
 | **GENIE3** | GENIE3 | 回归树特征重要性、方差缩减、加权邻接矩阵、对称化网络 | ✅ |
+| **minet** | minet | 互信息基因共表达网络：equalfreq/equalwidth 离散化、四种熵估计（empirical/Miller-Madow/Hausser-Strimmer shrinkage/Schürmann-Grassberger）、MIM 构建、ARACNE 数据处理不等式剪枝、CLR 行/列背景 z-score 校正、MRNET mRMR 前向选择、validate 精度/召回曲线与 AUROC/AUPR/maxF 评分 | ✅ |
 | **genefilter** | genefilter | t/Wilcoxon 检验、方差过滤、CV 过滤、分位数过滤 | ✅ |
 | **mixOmics** | mixOmics | 多组学整合：PLS 回归、稀疏 PLS (sPLS)、DIABLO 多块整合 | ✅ |
 | **destiny / Rtsne / uwot** | destiny / Rtsne / uwot | 扩散映射（距离矩阵/高斯核/特征分解）；t-SNE（条件概率/梯度下降/Barnes-Hut）；UMAP（kNN/模糊单纯集/SGD/负采样） | ✅ |
@@ -450,6 +453,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **flowCore / openCyto / FlowSOM / diffcyt** | flowCore / openCyto / FlowSOM / diffcyt | FCS 处理、荧光补偿、门控（矩形/多边形/椭球/四象限/mindensity KDD/tailgate/flowClust t 混合 EM/rangeGate）、模板驱动门控流水线；高维流式：FlowSOM 聚类、负二项 GLM DA 检验、经验贝叶斯调节 t 检验 DS、BH-FDR | ✅ |
 | **universalmotif** | universalmotif | Motif 结构、共识序列计算 | ✅ |
 | **SystemPipeR** | SystemPipeR | 流水线编排、步骤管理、依赖关系、进度追踪 | ✅ |
+| **pqsfinder** | pqsfinder | G-四链体（PQS）检测：G-run 穷举搜索、四分体加分/bulge/错配罚分评分系统、loop 长度惩罚、正负链搜索、非重叠/全重叠（overlapping）导出、deep 搜索逐位置 density 与 maxScores 向量、PQS 序列提取 | ✅ |
+| **DNAcopy** | DNAcopy | 循环二分分割（CBS）拷贝数分割：置换检验显著性（alpha/nperm）、trimmed variance、max 统计量、多染色体独立分割、sdundo 相邻片段合并 | ✅ |
+| **regioneR** | regioneR | 基因组区域置换检验 permTest：randomizeRegions 随机化（保宽度/染色体、避开 mask 掩蔽区）、circularRandomizeRegions 环状平移、numOverlaps/meanDistance 统计、z-score 与经验 p 值（greater/less/two.sided）、可复现种子 | ✅ |
 
 ---
 
@@ -511,13 +517,22 @@ IvanAXu/BioSeqs/
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
 ├── examples/                         # 示例程序（约 250 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
+│   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
+│   ├── pqs_demo/                     # pqsfinder G-四链体检测（评分系统/双链/deep density 与 maxScores/overlapping/序列提取）
+│   ├── melting_temp_demo/            # MeltingTemp 解链温度（Tm_GC 八套公式/Tm_NN 近邻热力学/盐与 Mg2+/错配/DMSO）
+│   ├── dnacopy_demo/                 # DNAcopy CBS 拷贝数分割（sdundo 合并/多染色体）
+│   ├── regione_r_demo/               # regioneR 区域置换检验（随机化/mask/permTest）
+│   ├── minet_demo/                   # minet 互信息网络（离散化/MIM/ARACNE/CLR/MRNET/AUROC 验证）
+│   ├── qvalue_demo/                  # qvalue FDR 全流程（π₀ smoother/bootstrap、q-value/pFDR、lfdr、empPvals、BH 对比）
+│   ├── alignment_frequencies_demo/   # Bio.Align MSA 统计（替换计数矩阵/列频率/保守位点/序列权重/log-odds）
+│   ├── bio_cluster_demo/             # Bio.Cluster 数值聚类（8 种距离/层次聚类/k-means/k-medoids/SOM/PCA/Record）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ # 差异表达
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12200+ 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12360+ 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -537,7 +552,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12209 个测试全部通过
+moon test                                               # ✅ 12361 个测试全部通过
 ```
 
 ---
@@ -546,7 +561,7 @@ moon test                                               # ✅ 12209 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12000+ 测试用例)
+moon test       # 运行全部测试 (12361 个测试用例)
 ```
 
 ---
@@ -558,11 +573,13 @@ moon test       # 运行全部测试 (12000+ 测试用例)
 | `seq.mbt` | `Bio.Seq` 序列对象与基础操作 |
 | `seq_record.mbt` / `seqfeature.mbt` / `seqfeature_advanced.mbt` | 序列记录与特征（位置/CompoundLocation/修饰符） |
 | `seqio.mbt` / `fasta_io.mbt` / `fastq_io.mbt` / `genbank_io.mbt` | 序列 I/O 统一接口（FASTA/FASTQ/GenBank 等 30+ 格式） |
-| `sequtils.mbt` / `seq_utils.mbt` / `seq_complexity.mbt` | GC/Tm/ORF/分子量/LCC 复杂度/Hamming 距离 |
+| `sequtils.mbt` / `seq_utils.mbt` / `sequtils_advanced.mbt` / `seq_complexity.mbt` | GC 含量与 gc_fraction 歧义模式、GC123、nt_search、six_frame_translations、seq3/seq1、Tm/ORF/分子量/LCC 复杂度/Hamming 距离 |
+| `melting_temp.mbt` / `melting_temp_advanced.mbt` | 解链温度：Tm_Wallace 经验法则、Tm_GC 八套经验公式、Tm_NN 近邻热力学（DNA_NN1-4/RNA_NN1-3/R_DNA_NN1 八套表 + 错配/末端/悬挂端表）、盐校正 1-7（Na+/K+/Tris/Mg2+/dNTP，Owczarzy 2008）、自互补、DMSO/甲酰胺化学校正、自定义热力学表 |
 | `codon_usage.mbt` / `codon_align.mbt` / `codon_align_advanced.mbt` | 密码子使用分析与 dN/dS 选择压力检验 |
 | `alignment.mbt` / `pairaligner.mbt` / `smith_waterman.mbt` / `needleman_wunsch.mbt` | 全局/局部比对算法 + PairwiseAligner |
 | `align_*.mbt` (clustal/phylip/stockholm/msf/nexus/a2m/emboss/exonerate/maf/mauve/psl/sam/chain/bed/bigbed/...) | 各类比对格式严格读写 + 坐标映射 + 统计 + canonical 往返 |
 | `alignment_map.mbt` / `alignment_counts.mbt` / `shared_reference_alignment.mbt` | Alignment map/mapall 坐标路径、counts gap/composition 评分、共享参考 PWA/MSA 合并 |
+| `alignment_frequencies.mbt` | Bio.Align MSA 统计：每列字母计数/频率（`'-'` gap 行）、对称替换计数矩阵（序列权重、M=(M+Mᵀ)/2）、观测对频率与背景频率、q_ij/e_ij 相对频率/log-odds |
 | `searchio.mbt` / `blast.mbt` / `blast_xml_advanced.mbt` | SearchIO 统一模型 + BLAST tabular/XML1/XML2 |
 | `hmmer_io.mbt` / `infernal_io.mbt` / `hhr.mbt` / `exonerate_text.mbt` / `interproscan.mbt` | HMMER3/Infernal/HH-suite HHR/Exonerate C4/InterProScan 解析 |
 | `phylo.mbt` / `tree_io.mbt` / `tree_construction.mbt` | 系统发育树解析 + UPGMA/NJ/WPGMA 建树 |
@@ -573,6 +590,12 @@ moon test       # 运行全部测试 (12000+ 测试用例)
 | `sam.mbt` / `bam.mbt` / `bgzf.mbt` / `vcf.mbt` / `variant_annotation.mbt` / `structural_variant.mbt` | NGS SAM/BAM/BGZF/VCF/SV 解析与注释 |
 | `faidx.mbt` | pyfaidx 风格 FASTA 索引 |
 | `genomic_ranges.mbt` / `granges_list.mbt` / `iranges.mbt` / `plyranges.mbt` | GenomicRanges/IRanges/plyranges 区间与 tidy 操作 |
+| `pqs_finder.mbt` | pqsfinder G-四链体（PQS）检测：G-run 穷举搜索、四分体加分/bulge/错配/loop 罚分评分、正负链坐标映射、非重叠解析（revised non-overlapping storage）、`overlapping=true` 全构象导出（按 (start,end) 去重保留最高分）、`pqs_search` deep 搜索逐位置 `density`（构象重叠计数）与 `max_scores`（位置最高分）向量、`Pqs::sequence` 提取命中序列 |
+| `dnacopy.mbt` | DNAcopy 循环二分分割（CBS）：置换检验 alpha/nperm、trimmed variance、多染色体独立分割、sdundo 合并 |
+| `regione_r.mbt` | regioneR 区域置换检验：randomizeRegions/circularRandomizeRegions（含 mask）、numOverlaps/meanDistance、permTest z-score 与经验 p 值 |
+| `qvalue.mbt` | Bioconductor qvalue FDR 分析：Storey π₀ 估计（Reinsch df=3 三次光滑样条 smoother、David Robinson 闭形式 MSE bootstrap、λ 路径 π₀(λ)）、q-value 与 pFDR 有限样本校正、fdr.level 显著集、局部 FDR lfdr（probit/logit 变换 + nrd0 高斯 KDE、cummax 单调化、截断）、经验 p 值 empPvals（池化合并排序 / 检验特异逐行矩阵，平局观测优先、下界 1/m₀） |
+| `bio_cluster.mbt` | Bio.Cluster 数值聚类核心（cluster.c 逐行移植）：8 种距离（欧氏平方均值/City Block/Pearson/绝对/非中心/绝对非中心/Spearman/Kendall）、clusterdistance、treecluster 层次聚类（单 SLINK/完全/平均/质心连接 + Tree cut/sort）、treecluster_from_distance、kcluster（k-means/k-medians，多次 npass 取最优）、kmedoids、clustercentroids、somcluster 自组织映射（Kohonen 训练+分配）、cluster_pca（Golub-Reinsch SVD，均值中心化 + 奇异值排序）、distancematrix、Record Eisen Cluster/TreeView 格式解析（NAME/GWEIGHT/GORDER/EWEIGHT/EORDER）及全套聚类方法、可复现 cluster_seed |
+| `wgcna.mbt` / `genie3.mbt` / `minet.mbt` | 基因共表达/调控网络：WGCNA 加权共表达与 TOM 模块、GENIE3 回归树特征重要性；minet 互信息网络（equalfreq/equalwidth 离散化 + empirical/Miller-Madow/Hausser-Strimmer/Schürmann-Grassberger 四种熵估计，ARACNE DPI 剪枝、CLR 背景 z-score、MRNET mRMR 前向选择，validate precision/recall/AUROC/AUPR/maxF 评分） |
 | `summarized_experiment.mbt` / `single_cell_experiment.mbt` / `spatial_experiment.mbt` / `multi_assay_experiment.mbt` / `tree_summarized_experiment.mbt` / `ragged_experiment.mbt` | Bioconductor 数据容器家族 |
 | `deseq2.mbt` + `deseq2_advanced.mbt` / `edger.mbt` + `edger_advanced.mbt` / `limma.mbt` / `apeglm.mbt` | 差异表达三大套件 + apeglm LFC 收缩 |
 | `seurat.mbt` / `scran.mbt` / `scuttle.mbt` / `scrapper.mbt` / `bluster.mbt` / `monocle3.mbt` / `slingshot.mbt` / `tradeSeq.mbt` / `velociraptor.mbt` / `scenic.mbt` / `infercnv.mbt` / `milo.mbt` / `muscat.mbt` / `zinbwave.mbt` / `celda.mbt` / `decontx.mbt` / `batchelor.mbt` / `sc_dbl_finder.mbt` / `droplet_utils_advanced.mbt` / `single_r_advanced.mbt` / `mast_advanced.mbt` | 单细胞 / 空间组学全栈分析套件 |

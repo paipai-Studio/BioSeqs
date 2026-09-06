@@ -675,8 +675,8 @@ pub fn glm_compute_se(
   // Extract diagonal elements (variances) and convert to standard errors
   let se : Array[Double] = Array::make(n_coefs, 0.0)
   for j in 0..<n_coefs {
-    let var = inv[j][j]
-    se[j] = if var > 0.0 { var.sqrt() } else { 1.0e-10 }
+    let var_ = inv[j][j]
+    se[j] = if var_ > 0.0 { var_.sqrt() } else { 1.0e-10 }
   }
 
   se

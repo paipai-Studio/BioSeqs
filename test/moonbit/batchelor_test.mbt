@@ -72,9 +72,9 @@ test "fast_mnn" {
   assert_eq(result.var_explained.length(), 20)
 
   let mut sum_var = 0.0
-  for var in result.var_explained {
-    assert_true(var >= 0.0 && var <= 1.0)
-    sum_var = sum_var + var
+  for var_ in result.var_explained {
+    assert_true(var_ >= 0.0 && var_ <= 1.0)
+    sum_var = sum_var + var_
   }
   assert_true(sum_var > 0.5)
 }

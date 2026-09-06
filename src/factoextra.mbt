@@ -36,7 +36,7 @@ pub struct PcaVarResult {
 pub struct PcaResult {
   eigenvalues : Array[EigenValue]
   ind : PcaIndResult
-  var : PcaVarResult
+  var_ : PcaVarResult
   n_ind : Int
   n_var : Int
   n_dims : Int
@@ -56,7 +56,7 @@ pub fn facto_pca(
     return PcaResult::{
       eigenvalues: [],
       ind: PcaIndResult::{ coord: [], cos2: [], contrib: [] },
-      var: PcaVarResult::{ coord: [], cos2: [], contrib: [] },
+      var_: PcaVarResult::{ coord: [], cos2: [], contrib: [] },
       n_ind: 0,
       n_var: 0,
       n_dims: 0,
@@ -169,7 +169,7 @@ pub fn facto_pca(
       cos2: ind_cos2,
       contrib: ind_contrib,
     },
-    var: PcaVarResult::{
+    var_: PcaVarResult::{
       coord: var_coord,
       cos2: var_cos2,
       contrib: var_contrib,
@@ -484,7 +484,7 @@ pub fn facto_get_pca_ind(result : PcaResult) -> PcaIndResult {
 ///|
 /// Get variable coordinates.
 pub fn facto_get_pca_var(result : PcaResult) -> PcaVarResult {
-  result.var
+  result.var_
 }
 
 ///|
@@ -500,7 +500,7 @@ pub fn facto_var_contrib_dim(
   let contribs : Array[(String, Double)] = Array::new()
   let mut i = 0
   while i < result.n_var {
-    contribs.push(("var_\{i + 1}", result.var.contrib[i][d]))
+    contribs.push(("var_\{i + 1}", result.var_.contrib[i][d]))
     i = i + 1
   }
   // Sort by contribution descending
@@ -577,7 +577,7 @@ pub fn facto_var_cos2_dim(
   let cos2s : Array[(String, Double)] = Array::new()
   let mut i = 0
   while i < result.n_var {
-    cos2s.push(("var_\{i + 1}", result.var.cos2[i][d]))
+    cos2s.push(("var_\{i + 1}", result.var_.cos2[i][d]))
     i = i + 1
   }
   cos2s
@@ -774,7 +774,7 @@ pub fn facto_summary(result : PcaResult) -> PcaSummary {
 ///|
 /// Compute loadings (rotation matrix) from variable coordinates.
 pub fn facto_loadings(result : PcaResult) -> Array[Array[Double]] {
-  result.var.coord
+  result.var_.coord
 }
 
 ///|
@@ -792,7 +792,7 @@ pub fn facto_print_summary(result : PcaResult) -> String {
   lines.push("Eigenvalues:")
   for ev in result.eigenvalues {
     lines.push(
-      "  Dim \{ev.dimension}: eigenvalue=\{ev.eigenvalue}, var=\{ev.variance_explained}%, cum=\{ev.cumulative_variance}%",
+      "  Dim \{ev.dimension}: eigenvalue=\{ev.eigenvalue}, var_=\{ev.variance_explained}%, cum=\{ev.cumulative_variance}%",
     )
   }
   lines.join("\n")

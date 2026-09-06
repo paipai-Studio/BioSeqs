@@ -33,6 +33,9 @@ let protein_molecular_weights : Map[String, Double] = Map([
 ])
 
 ///|
+/// Three-letter to one-letter amino acid map, mirroring
+/// Bio.Data.IUPACData.protein_letters_3to1_extended (includes the ambiguous
+/// IUPAC codes Asx/Glx/Xle and Sec/Pyl).
 let protein_one_letter : Map[String, String] = Map([
   ("Ala", "A"),
   ("Arg", "R"),
@@ -54,9 +57,18 @@ let protein_one_letter : Map[String, String] = Map([
   ("Trp", "W"),
   ("Tyr", "Y"),
   ("Val", "V"),
+  ("Asx", "B"),
+  ("Glx", "Z"),
+  ("Xaa", "X"),
+  ("Xle", "J"),
+  ("Sec", "U"),
+  ("Pyl", "O"),
 ])
 
 ///|
+/// One-letter to three-letter amino acid map, mirroring
+/// Bio.Data.IUPACData.protein_letters_1to3_extended (includes the ambiguous
+/// IUPAC codes B/Z/X/J plus U=Sec and O=Pyl).
 let protein_three_letter : Map[String, String] = Map([
   ("A", "Ala"),
   ("R", "Arg"),
@@ -78,6 +90,12 @@ let protein_three_letter : Map[String, String] = Map([
   ("W", "Trp"),
   ("Y", "Tyr"),
   ("V", "Val"),
+  ("B", "Asx"),
+  ("Z", "Glx"),
+  ("X", "Xaa"),
+  ("J", "Xle"),
+  ("U", "Sec"),
+  ("O", "Pyl"),
 ])
 
 ///|
@@ -131,42 +149,88 @@ pub fn melting_temperature(seq : String) -> Double {
 }
 
 ///|
-pub fn seq1(seq : String) -> String {
-  let mut result = ""
-  let mut i = 0
-  while i + 3 <= seq.length() {
-    let triplet = seq[i:i + 3].to_owned()
-    let aa = match protein_one_letter.get(triplet) {
-      Some(a) => a
-      None => "X"
+/// Convert protein sequence from three-letter to one-letter code, mirroring
+/// Bio.SeqUtils.seq1.
+///
+/// The input is case insensitive (e.g. "METalaIlEVal" works). Output follows
+/// the IUPAC standard (including ambiguous "B" Asx, "J" Xle, "X" Xaa, "U"
+/// Sec and "O" Pyl) plus "*" for a terminator given the "Ter" code. Any
+/// unknown triplet (including gap characters) becomes `undef_code` ("X" by
+/// default). Trailing characters that do not form a full triplet are dropped.
+///
+/// `custom_map` overrides/extends the mapping by uppercase three-letter key
+/// (default: {"Ter": "*"}); when given, it replaces the default map, so the
+/// terminator mapping must be included explicitly if desired.
+pub fn seq1(
+  seq : String,
+  custom_map? : Map[String, String],
+  undef_code? : String,
+) -> String {
+  let undef = match undef_code {
+    Some(u) => u
+    None => "X"
+  }
+  // Reverse map of the extended threecode, upper() on all keys to enable
+  // caps-insensitive input handling.
+  let onecode : Map[String, String] = Map([], capacity=28)
+  for k, v in protein_one_letter {
+    onecode[k.to_upper()] = v
+  }
+  match custom_map {
+    Some(cm) => {
+      for k, v in cm {
+        onecode[k.to_upper()] = v
+      }
     }
-    result = result + aa
+    None => onecode["TER"] = "*"
+  }
+  let result = StringBuilder::new()
+  let n = seq.length() / 3 * 3
+  let mut i = 0
+  while i < n {
+    let triplet = seq.substring(start=i, end=i + 3).to_upper()
+    result.write_string(onecode.get(triplet).or(undef))
     i = i + 3
   }
-  result
+  result.to_string()
 }
 
 ///|
-pub fn seq3(seq : String) -> String {
-  let mut result = ""
+/// Convert protein sequence from one-letter to three-letter code, mirroring
+/// Bio.SeqUtils.seq3.
+///
+/// Output follows the IUPAC standard (including ambiguous "B" Asx, "J" Xle,
+/// "X" Xaa, and also "U" Sec and "O" Pyl) plus "Ter" for a terminator given
+/// as an asterisk. Any unknown character (including gap characters) becomes
+/// `undef_code` ("Xaa" by default). Codes are concatenated without spaces.
+///
+/// `custom_map` overrides/extends the mapping by one-letter key (default:
+/// {"*": "Ter"}); when given, it replaces the default map.
+pub fn seq3(
+  seq : String,
+  custom_map? : Map[String, String],
+  undef_code? : String,
+) -> String {
+  let undef = match undef_code {
+    Some(u) => u
+    None => "Xaa"
+  }
+  let result = StringBuilder::new()
   for i = 0; i < seq.length(); i = i + 1 {
-    let aa = seq[i:i + 1].to_owned()
-    let triplet = match protein_three_letter.get(aa) {
-      Some(t) => t
-      None => "Xaa"
+    let aa = seq.unsafe_get(i).unsafe_to_char().to_string()
+    let mapped = match custom_map {
+      Some(cm) => match cm.get(aa) {
+        Some(t) => t
+        None => protein_three_letter.get(aa).or(undef)
+      }
+      None => match aa {
+        "*" => "Ter"
+        _ => protein_three_letter.get(aa).or(undef)
+      }
     }
-    result = result + triplet + " "
+    result.write_string(mapped)
   }
-  if result.length() > 0 {
-    let len = result.length()
-    if result[len - 1:len] == " " {
-      result[0:len - 1].to_owned()
-    } else {
-      result
-    }
-  } else {
-    result
-  }
+  result.to_string()
 }
 
 ///|

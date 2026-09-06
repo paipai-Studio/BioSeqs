@@ -257,12 +257,12 @@ pub fn compute_diffusion_map(
   let explained_variance : Array[Double] = Array::new()
   let mut j = 0
   while j < n_comp {
-    let var = if total_var > 0.0 {
+    let var_ = if total_var > 0.0 {
       eigen_result.eigen_values[j] / total_var
     } else {
       0.0
     }
-    explained_variance.push(var)
+    explained_variance.push(var_)
     j = j + 1
   }
 

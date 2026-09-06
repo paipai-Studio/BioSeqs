@@ -411,7 +411,7 @@ pub fn pcatools_summary(res : FullPCAResult) -> String {
     } else {
       0.0
     }
-    buf.write_string("  PC\{i+1}: eig=\{ev}  var=\{ve}  cum=\{cv}\n")
+    buf.write_string("  PC\{i+1}: eig=\{ev}  var_=\{ve}  cum=\{cv}\n")
     i = i + 1
   }
   if res.n_components > k {
