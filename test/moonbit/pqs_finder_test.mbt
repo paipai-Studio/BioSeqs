@@ -117,3 +117,160 @@ test "pqs_finder_invalid_strand_raises" {
   }
   assert_true(result)
 }
+
+///|
+/// pqs_search returns per-position density / max_scores vectors (deep
+/// search, mirroring pqsfinder density()/maxScores()).
+test "pqs_search_density_vignette" {
+  let r = @src.pqs_search("GGGAGGGTGGGTGGG")
+  assert_eq(r.hits.length(), 1)
+  // exactly one scoreable conformation covers all 15 positions
+  assert_eq(r.density, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
+  assert_eq(
+    r.max_scores,
+    [73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73],
+  )
+}
+
+///|
+test "pqs_search_density_flanked" {
+  let r = @src.pqs_search("AAAAGGGAGGGTGGGTGGGAAAA")
+  assert_eq(
+    r.density,
+    [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
+  )
+  assert_eq(
+    r.max_scores,
+    [0, 0, 0, 0, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
+      0, 0, 0, 0],
+  )
+}
+
+///|
+test "pqs_search_density_telomere" {
+  // hit [3,24) score 64 -> three leading zeros, 21 covered positions
+  let r = @src.pqs_search("TTAGGGTTAGGGTTAGGGTTAGGG")
+  assert_eq(r.density[0], 0)
+  assert_eq(r.density[2], 0)
+  for i = 3; i < 24; i = i + 1 {
+    assert_eq(r.density[i], 1)
+    assert_eq(r.max_scores[i], 64)
+  }
+  assert_eq(r.max_scores[0], 0)
+}
+
+///|
+test "pqs_search_density_minus_strand_mirrored" {
+  // C-rich sequence: the hit is on the minus strand at [0,21); density
+  // vectors are reported on original coordinates
+  let r = @src.pqs_search("CCCTAACCCTAACCCTAACCCTAA", strand="*")
+  assert_eq(r.hits[0].strand, "-")
+  for i = 0; i < 21; i = i + 1 {
+    assert_eq(r.density[i], 1)
+    assert_eq(r.max_scores[i], 64)
+  }
+  for i = 21; i < 24; i = i + 1 {
+    assert_eq(r.density[i], 0)
+    assert_eq(r.max_scores[i], 0)
+  }
+}
+
+///|
+test "pqs_search_strand_plus_excludes_antisense" {
+  let r = @src.pqs_search("CCCTAACCCTAACCCTAACCCTAA", strand="+")
+  assert_eq(r.hits.length(), 0)
+  for x in r.density {
+    assert_eq(x, 0)
+  }
+  for x in r.max_scores {
+    assert_eq(x, 0)
+  }
+}
+
+///|
+test "pqs_search_density_spanning_conformations" {
+  // Two separated G4s share scoreable spanning conformations. Reference
+  // values from a Python mirror of the exhaustive search.
+  let seq = "GGGAGGGTGGGTGGGAAAAAGGGAGGGTGGGTGGG"
+  let r = @src.pqs_search(seq)
+  assert_eq(r.hits.length(), 2)
+  // density peaks at the cores of each quadruplex
+  assert_eq(r.density[0], 28)
+  assert_eq(r.density[14], 92)
+  assert_eq(r.density[20], 92)
+  assert_eq(r.density[34], 28)
+  // positions in the AAAAA linker are covered by spanning conformations
+  // scoring 67 (loops 1,1,5 etc.)
+  assert_eq(r.max_scores[0], 73)
+  for i = 15; i < 20; i = i + 1 {
+    assert_eq(r.max_scores[i], 67)
+  }
+  assert_eq(r.max_scores[20], 73)
+}
+
+///|
+test "pqs_search_overlapping_reports_all_conformations" {
+  let seq = "GGGAGGGTGGGTGGGAAAAAGGGAGGGTGGGTGGG"
+  let nonoverlap = @src.pqs_search(seq, overlapping=false)
+  let overlap = @src.pqs_search(seq, overlapping=true)
+  assert_eq(nonoverlap.hits.length(), 2)
+  // mirror reference: 24 distinct (start,end) conformations
+  assert_eq(overlap.hits.length(), 24)
+  // every reported hit passes the score threshold and is start-sorted
+  let mut prev_start = -1
+  for p in overlap.hits {
+    assert_true(p.score >= 47)
+    assert_true(p.start >= prev_start)
+    prev_start = p.start
+  }
+  // the two canonical non-overlapping hits are present with score 73
+  let mut found_first = false
+  let mut found_second = false
+  let mut found_spanning = false
+  for p in overlap.hits {
+    if p.start == 0 && p.end == 15 && p.score == 73 {
+      found_first = true
+    }
+    if p.start == 20 && p.end == 35 && p.score == 73 {
+      found_second = true
+    }
+    // spanning conformation across the AAAAA linker, loops (1,1,5)
+    if p.start == 4 && p.end == 23 && p.score == 67 {
+      found_spanning = true
+    }
+  }
+  assert_true(found_first)
+  assert_true(found_second)
+  assert_true(found_spanning)
+  // overlapping export never reports fewer hits than non-overlapping
+  assert_true(overlap.hits.length() >= nonoverlap.hits.length())
+}
+
+///|
+test "pqs_finder_overlapping_flag" {
+  let seq = "GGGAGGGTGGGTGGGAAAAAGGGAGGGTGGGTGGG"
+  let few = @src.pqs_finder(seq)
+  let many = @src.pqs_finder(seq, overlapping=true)
+  assert_eq(few.length(), 2)
+  assert_eq(many.length(), 24)
+}
+
+///|
+test "pqs_sequence_extraction" {
+  let seq = "AAAAGGGAGGGTGGGTGGGAAAA"
+  let hits = @src.pqs_finder(seq)
+  assert_eq(hits[0].sequence(seq), "GGGAGGGTGGGTGGG")
+  // minus-strand hit: returns the C-rich substring in original coordinates
+  let cseq = "CCCTAACCCTAACCCTAACCCTAA"
+  let mhits = @src.pqs_finder(cseq, strand="-")
+  assert_eq(mhits.length(), 1)
+  assert_eq(mhits[0].sequence(cseq), "CCCTAACCCTAACCCTAACCC");
+}
+
+///|
+test "pqs_search_empty_sequence" {
+  let r = @src.pqs_search("")
+  assert_eq(r.hits.length(), 0)
+  assert_eq(r.density.length(), 0)
+  assert_eq(r.max_scores.length(), 0)
+}

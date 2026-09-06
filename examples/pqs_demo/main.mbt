@@ -1,10 +1,11 @@
 ///|
 /// pqsfinder demo: G-quadruplex (PQS) detection on DNA sequences, ported
 /// from Bioconductor pqsfinder. Shows the default scoring system, strand
-/// handling and option tuning.
+/// handling, option tuning, the deep-search density/max-score vectors,
+/// overlapping conformations and PQS sequence extraction.
 ///
 /// Run: moon run examples/pqs_demo
-fn main {
+fn main raise {
   println("=== pqsfinder Demo (G-quadruplex detection) ===\n")
 
   // 1. The classic pqsfinder vignette sequence
@@ -55,6 +56,48 @@ fn main {
   println("   run_min_len=3, min_score=60 -> \{strict.length()} PQS")
   for p in strict {
     println("   [\{p.start},\{p.end}) score=\{p.score} runs=\{p.rl1},\{p.rl2},\{p.rl3}")
+  }
+
+  // 5. Deep search: per-position density and max scores
+  println("\n5. Deep search: density / maxScores vectors")
+  let deep = @bio.pqs_search("GGGAGGGTGGGTGGG")
+  let dens : Array[String] = []
+  let scores : Array[String] = []
+  for d in deep.density {
+    dens.push("\{d}")
+  }
+  for s in deep.max_scores {
+    scores.push("\{s}")
+  }
+  println("   density:    [\{dens.join(", ")}]")
+  println("   max scores: [\{scores.join(", ")}]")
+
+  // 6. Overlapping export: report all scoreable conformations
+  println("\n6. Overlapping export (all conformations)")
+  let two = "GGGAGGGTGGGTGGGAAAAAGGGAGGGTGGGTGGG"
+  let nonoverlap = @bio.pqs_finder(two) catch { _ => [] }
+  let overlap = @bio.pqs_finder(two, overlapping=true) catch { _ => [] }
+  println("   \{two}")
+  println("   non-overlapping: \{nonoverlap.length()} PQS")
+  for p in nonoverlap {
+    println("   [\{p.start},\{p.end}) score=\{p.score}")
+  }
+  println("   overlapping: \{overlap.length()} conformations (first 6):")
+  let mut shown = 0
+  while shown < overlap.length() && shown < 6 {
+    let p = overlap[shown]
+    println(
+      "   [\{p.start},\{p.end}) strand=\{p.strand} score=\{p.score} loops=\{p.ll1},\{p.ll2},\{p.ll3}",
+    )
+    shown = shown + 1
+  }
+
+  // 7. Extract PQS sequences (as(pqs, "DNAStringSet") equivalent)
+  println("\n7. PQS sequence extraction")
+  let flanked = "AAAAGGGAGGGTGGGTGGGAAAA"
+  let basic = @bio.pqs_finder(flanked) catch { _ => [] }
+  for p in basic {
+    println("   [\{p.start},\{p.end}) \{p.strand} -> \{p.sequence(flanked)}")
   }
 
   println("\nDone.")

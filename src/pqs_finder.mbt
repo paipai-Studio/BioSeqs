@@ -324,7 +324,10 @@ fn pqs_score_pqs(
 
 ///|
 /// Recursive search for four consecutive runs (port of `find_all_runs`,
-/// exhaustive mode without score pruning).
+/// exhaustive/deep mode without score pruning). Every scoreable conformation
+/// (score >= min_score) is also tallied into the per-position `density`
+/// counter and `max_scores` vector, matching pqsfinder's deep-search
+/// `density`/`maxScores` slots.
 fn pqs_find_all_runs(
   seq : String,
   sc : PqsOptions,
@@ -336,6 +339,8 @@ fn pqs_find_all_runs(
   limit : Int,
   zero_loop : Bool,
   candidates : Array[PqsCandidate],
+  density : Array[Int],
+  max_scores : Array[Int],
 ) -> Unit {
   let mut start = start
   if i > 0 {
@@ -382,6 +387,8 @@ fn pqs_find_all_runs(
                 limit,
                 next_zero,
                 candidates,
+                density,
+                max_scores,
               )
             } else {
               let features = PqsFeatures::zero()
@@ -394,14 +401,25 @@ fn pqs_find_all_runs(
                 features,
               )
               if score >= sc.min_score {
+                let cstart = runs[0].0
+                let clen = runs[3].1 - runs[0].0
                 candidates.push(
                   {
                     score,
-                    start: runs[0].0,
-                    len: runs[3].1 - runs[0].0,
+                    start: cstart,
+                    len: clen,
                     features,
                   },
                 )
+                // tally every scoreable conformation on every position it
+                // covers (deep-search density / maxScores semantics)
+                for k = 0; k < clen; k = k + 1 {
+                  let pos = cstart + k
+                  density[pos] = density[pos] + 1
+                  if score > max_scores[pos] {
+                    max_scores[pos] = score
+                  }
+                }
               }
             }
           } else {
@@ -418,6 +436,8 @@ fn pqs_find_all_runs(
               if bound < limit { bound } else { limit },
               false,
               candidates,
+              density,
+              max_scores,
             )
           }
           e = e - 1
@@ -500,6 +520,52 @@ fn pqs_resolve_non_overlapping(
 }
 
 ///|
+/// Export all scoreable conformations (port of `overlapping_storage`).
+/// Candidates are enumerated in non-decreasing start order; for each start
+/// group, conformations ending at the same position are deduplicated keeping
+/// the highest score.
+fn pqs_resolve_overlapping(
+  candidates : Array[PqsCandidate],
+) -> Array[PqsCandidate] {
+  let result : Array[PqsCandidate] = []
+  let mut group_start = -1
+  let group_ends : Array[Int] = []
+  let group_idx : Array[Int] = []
+  for c in candidates {
+    if c.start != group_start {
+      group_start = c.start
+      group_ends.clear()
+      group_idx.clear()
+    }
+    let end = c.start + c.len
+    let mut found = -1
+    for gi = 0; gi < group_ends.length(); gi = gi + 1 {
+      if group_ends[gi] == end {
+        found = gi
+        break
+      }
+    }
+    if found < 0 {
+      group_ends.push(end)
+      group_idx.push(result.length())
+      result.push(c)
+    } else if c.score > result[group_idx[found]].score {
+      result[group_idx[found]] = c
+    }
+  }
+  // C++ exports each start group through a std::map keyed by end position,
+  // i.e. the full output is ordered by (start, end).
+  result.sort_by(fn(a : PqsCandidate, b : PqsCandidate) {
+    if a.start == b.start {
+      (a.start + a.len).compare(b.start + b.len)
+    } else {
+      a.start.compare(b.start)
+    }
+  })
+  result
+}
+
+///|
 fn pqs_revcomp(seq : String) -> String {
   let n = seq.length()
   let buf : FixedArray[UInt16] = FixedArray::make(n, 0)
@@ -519,16 +585,42 @@ fn pqs_revcomp(seq : String) -> String {
 }
 
 ///|
-/// Detect potential quadruplex-forming sequences.
+/// Result of a PQS search: the reported (non-overlapping or all
+/// overlapping) hits plus the deep-search per-position vectors.
 ///
-/// `strand` is "+", "-" or "*" (default, both strands). Antisense hits are
-/// mapped back to the original coordinates with the run/loop features
-/// reversed, matching pqsfinder output.
-pub fn pqs_finder(
+/// `density[i]` is the number of scoreable PQS conformations covering
+/// sequence position `i` (summed over both searched strands);
+/// `max_scores[i]` is the highest score among all conformations covering
+/// position `i`. These mirror pqsfinder's `density()` and `maxScores()`.
+pub struct PqsResult {
+  hits : Array[Pqs]
+  density : Array[Int]
+  max_scores : Array[Int]
+}
+
+///|
+/// Extract the substring spanned by a PQS from the (original-strand)
+/// sequence. Mirrors `as(pqs, "DNAStringSet")`: minus-strand hits return
+/// the corresponding C-rich substring of the input.
+pub fn Pqs::sequence(self : Pqs, seq : String) -> String {
+  seq[self.start:self.end].to_string()
+}
+
+///|
+/// Detect potential quadruplex-forming sequences and compute the
+/// deep-search density/max-score vectors.
+///
+/// `strand` is "+", "-" or "*" (default, both strands). When
+/// `overlapping` is true, every scoreable conformation is reported
+/// (deduplicated per start/end position, best score kept), matching
+/// pqsfinder's `overlapping = TRUE`. Antisense hits are mapped back to
+/// the original coordinates with the run/loop features reversed.
+pub fn pqs_search(
   seq : String,
   strand? : String = "*",
+  overlapping? : Bool = false,
   options? : PqsOptions = PqsOptions::default(),
-) -> Array[Pqs] raise SeqError {
+) -> PqsResult raise SeqError {
   if strand != "+" && strand != "-" && strand != "*" {
     raise SeqError("strand must be \"+\", \"-\" or \"*\"")
   }
@@ -541,12 +633,19 @@ pub fn pqs_finder(
   let normalized = seq.to_upper()
   let n = normalized.length()
   if n == 0 {
-    return []
+    return { hits: [], density: [], max_scores: [] }
   }
   let loop_penalties = pqs_loop_penalties(options)
   let bulge_penalties = pqs_run_penalties(options)
-  let search : (String, String) -> Array[Pqs] = fn(subject, strand_label) {
+  let merged : Array[Pqs] = []
+  let density : Array[Int] = Array::make(n, 0)
+  let max_scores : Array[Int] = Array::make(n, 0)
+  // Run the exhaustive search on one strand; `flip` indicates the
+  // reverse-complement mapping back to original coordinates.
+  let run_strand : (String, String, Bool) -> Unit = fn(subject, label, flip) {
     let candidates : Array[PqsCandidate] = []
+    let sd : Array[Int] = Array::make(subject.length(), 0)
+    let sm : Array[Int] = Array::make(subject.length(), 0)
     let runs : Array[(Int, Int)] = [(0, 0), (0, 0), (0, 0), (0, 0)]
     pqs_find_all_runs(
       subject,
@@ -559,61 +658,89 @@ pub fn pqs_finder(
       subject.length(),
       false,
       candidates,
+      sd,
+      sm,
     )
-    let resolved = pqs_resolve_non_overlapping(candidates)
-    let items : Array[Pqs] = []
+    let resolved = if overlapping {
+      pqs_resolve_overlapping(candidates)
+    } else {
+      pqs_resolve_non_overlapping(candidates)
+    }
     for c in resolved {
-      items.push(
-        {
-          start: c.start,
-          end: c.start + c.len,
-          strand: strand_label,
-          score: c.score,
-          nt: c.features.nt,
-          nb: c.features.nb,
-          nm: c.features.nm,
-          rl1: c.features.rl1,
-          rl2: c.features.rl2,
-          rl3: c.features.rl3,
-          ll1: c.features.ll1,
-          ll2: c.features.ll2,
-          ll3: c.features.ll3,
-        },
-      )
+      if flip {
+        let width = c.len
+        let start = n - c.start - c.len
+        let f = c.features
+        merged.push(
+          {
+            start,
+            end: start + width,
+            strand: label,
+            score: c.score,
+            nt: f.nt,
+            nb: f.nb,
+            nm: f.nm,
+            rl1: width - (f.rl1 + f.rl2 + f.rl3 + f.ll1 + f.ll2 + f.ll3),
+            rl2: f.rl3,
+            rl3: f.rl2,
+            ll1: f.ll3,
+            ll2: f.ll2,
+            ll3: f.ll1,
+          },
+        )
+      } else {
+        merged.push(
+          {
+            start: c.start,
+            end: c.start + c.len,
+            strand: label,
+            score: c.score,
+            nt: c.features.nt,
+            nb: c.features.nb,
+            nm: c.features.nm,
+            rl1: c.features.rl1,
+            rl2: c.features.rl2,
+            rl3: c.features.rl3,
+            ll1: c.features.ll1,
+            ll2: c.features.ll2,
+            ll3: c.features.ll3,
+          },
+        )
+      }
     }
-    items
+    // merge the per-position vectors; antisense positions are mirrored
+    for j = 0; j < subject.length(); j = j + 1 {
+      let pos = if flip { n - 1 - j } else { j }
+      density[pos] = density[pos] + sd[j]
+      if sm[j] > max_scores[pos] {
+        max_scores[pos] = sm[j]
+      }
+    }
   }
-  let merged : Array[Pqs] = []
   if strand == "+" || strand == "*" {
-    for p in search(normalized, "+") {
-      merged.push(p)
-    }
+    run_strand(normalized, "+", false)
   }
   if strand == "-" || strand == "*" {
-    let rc = pqs_revcomp(normalized)
-    for p in search(rc, "-") {
-      // map coordinates back to the original sequence and reverse features
-      let width = p.end - p.start
-      let start = n - p.end
-      merged.push(
-        {
-          start,
-          end: start + width,
-          strand: "-",
-          score: p.score,
-          nt: p.nt,
-          nb: p.nb,
-          nm: p.nm,
-          rl1: width - (p.rl1 + p.rl2 + p.rl3 + p.ll1 + p.ll2 + p.ll3),
-          rl2: p.rl3,
-          rl3: p.rl2,
-          ll1: p.ll3,
-          ll2: p.ll2,
-          ll3: p.ll1,
-        },
-      )
-    }
+    run_strand(pqs_revcomp(normalized), "-", true)
   }
   merged.sort_by(fn(a : Pqs, b : Pqs) { a.start.compare(b.start) })
-  merged
+  { hits: merged, density, max_scores }
+}
+
+///|
+/// Detect potential quadruplex-forming sequences.
+///
+/// `strand` is "+", "-" or "*" (default, both strands). When
+/// `overlapping` is true, all scoreable conformations are reported
+/// instead of the non-overlapping selection. Antisense hits are mapped
+/// back to the original coordinates with the run/loop features reversed,
+/// matching pqsfinder output. Use `pqs_search` to also obtain the
+/// `density` and `max_scores` vectors.
+pub fn pqs_finder(
+  seq : String,
+  strand? : String = "*",
+  overlapping? : Bool = false,
+  options? : PqsOptions = PqsOptions::default(),
+) -> Array[Pqs] raise SeqError {
+  pqs_search(seq, strand=strand, overlapping=overlapping, options=options).hits
 }
