@@ -526,6 +526,8 @@ IvanAXu/BioSeqs/
 │   ├── qvalue_demo/                  # qvalue FDR 全流程（π₀ smoother/bootstrap、q-value/pFDR、lfdr、empPvals、BH 对比）
 │   ├── alignment_frequencies_demo/   # Bio.Align MSA 统计（替换计数矩阵/列频率/保守位点/序列权重/log-odds）
 │   ├── bio_cluster_demo/             # Bio.Cluster 数值聚类（8 种距离/层次聚类/k-means/k-medoids/SOM/PCA/Record）
+│   ├── hmm_markov_model_demo/        # 经典 Bio.HMM（构建器/Viterbi/前向-后向/Baum-Welch/KnownState 训练）
+│   ├── togows_demo/                  # Bio.TogoWS（percent quoting/URL 构造/entry/search/convert/限速）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ # 差异表达
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
@@ -552,7 +554,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12361 个测试全部通过
+moon test                                               # ✅ 12393 个测试全部通过
 ```
 
 ---
@@ -595,6 +597,8 @@ moon test       # 运行全部测试 (12361 个测试用例)
 | `regione_r.mbt` | regioneR 区域置换检验：randomizeRegions/circularRandomizeRegions（含 mask）、numOverlaps/meanDistance、permTest z-score 与经验 p 值 |
 | `qvalue.mbt` | Bioconductor qvalue FDR 分析：Storey π₀ 估计（Reinsch df=3 三次光滑样条 smoother、David Robinson 闭形式 MSE bootstrap、λ 路径 π₀(λ)）、q-value 与 pFDR 有限样本校正、fdr.level 显著集、局部 FDR lfdr（probit/logit 变换 + nrd0 高斯 KDE、cummax 单调化、截断）、经验 p 值 empPvals（池化合并排序 / 检验特异逐行矩阵，平局观测优先、下界 1/m₀） |
 | `bio_cluster.mbt` | Bio.Cluster 数值聚类核心（cluster.c 逐行移植）：8 种距离（欧氏平方均值/City Block/Pearson/绝对/非中心/绝对非中心/Spearman/Kendall）、clusterdistance、treecluster 层次聚类（单 SLINK/完全/平均/质心连接 + Tree cut/sort）、treecluster_from_distance、kcluster（k-means/k-medians，多次 npass 取最优）、kmedoids、clustercentroids、somcluster 自组织映射（Kohonen 训练+分配）、cluster_pca（Golub-Reinsch SVD，均值中心化 + 奇异值排序）、distancematrix、Record Eisen Cluster/TreeView 格式解析（NAME/GWEIGHT/GORDER/EWEIGHT/EORDER）及全套聚类方法、可复现 cluster_seed |
+| `hmm_markov_model.mbt` | 经典 Bio.HMM 移植（Biopython 1.84 退役前版本）：MarkovModelBuilder（状态/发射字母表、allow_all_transitions、转移/发射概率与伪计数、随机初始化 hmm_gen_random_array、set_initial_probabilities 残余概率均分）、HiddenMarkovModel（Viterbi 对数空间最优路径解码 + 回溯）、ScaledDp 缩放前向/后向算法（Durbin et al. p78，对数空间缩放防下溢）、BaumWelchTrainer（EM 迭代，change/迭代次数早停回调）、KnownStateTrainer（有标注路径最大似然估计）、TrainingSequence |
+| `togows.mbt` | Bio.TogoWS REST 客户端：togows_entry/togows_search/togows_search_count/togows_search_iter/togows_convert 与对应 *_url 构造器、togows_quote percent quoting（urllib.parse.quote 语义，safe 默认 "/"）、数据库/字段/格式/转换白名单校验（错误消息字典序排序）、TogoWSClient 可注入 fetch 与 now 时钟、内置限速 TOGOWS_DELAY=1/3 秒（每秒 3 次查询） |
 | `wgcna.mbt` / `genie3.mbt` / `minet.mbt` | 基因共表达/调控网络：WGCNA 加权共表达与 TOM 模块、GENIE3 回归树特征重要性；minet 互信息网络（equalfreq/equalwidth 离散化 + empirical/Miller-Madow/Hausser-Strimmer/Schürmann-Grassberger 四种熵估计，ARACNE DPI 剪枝、CLR 背景 z-score、MRNET mRMR 前向选择，validate precision/recall/AUROC/AUPR/maxF 评分） |
 | `summarized_experiment.mbt` / `single_cell_experiment.mbt` / `spatial_experiment.mbt` / `multi_assay_experiment.mbt` / `tree_summarized_experiment.mbt` / `ragged_experiment.mbt` | Bioconductor 数据容器家族 |
 | `deseq2.mbt` + `deseq2_advanced.mbt` / `edger.mbt` + `edger_advanced.mbt` / `limma.mbt` / `apeglm.mbt` | 差异表达三大套件 + apeglm LFC 收缩 |
