@@ -64,7 +64,7 @@ fn benjamini_hochberg(p_values : Array[Double]) -> Array[Double] {
   result
 }
 
-fn main {
+fn main raise {
   println("=== QValue Module Demo ===\n")
 
   let p_values = [
@@ -227,6 +227,87 @@ fn main {
     println("      p = \{fmt(p_values[cj], 4)}  ->  q = \{fmt(custom_q[cj], 4)}")
     cj = cj + 1
   }
+
+  // ---------------------------------------------------------------------------
+  // 6. Bioconductor pi0est(): df=3 smoothing spline vs closed-form bootstrap
+  // ---------------------------------------------------------------------------
+  println("\n6. pi0est() on a 50/50 signal/null mixture (Bioconductor parity):")
+  let n_mix = 200
+  let mix_p = Array::make(n_mix, 0.0)
+  let mut mi = 0
+  while mi < 100 {
+    mix_p[mi] = (mi.to_double() + 0.5) / 100.0 * 0.002
+    mi = mi + 1
+  }
+  mi = 0
+  while mi < 100 {
+    mix_p[100 + mi] = 0.01 + (mi.to_double() + 0.5) / 100.0 * 0.98
+    mi = mi + 1
+  }
+  let pi0_smooth = @src.qvalue_pi0est(mix_p)
+  let pi0_boot = @src.qvalue_pi0est(mix_p, method="bootstrap")
+  println("  smoother  pi0 = \{fmt(pi0_smooth.pi0(), 4)} (cubic spline, df = 3)")
+  println("  bootstrap pi0 = \{fmt(pi0_boot.pi0(), 4)} (closed-form MSE, deterministic)")
+  println("  pi0(lambda) path at selected lambdas:")
+  let path = pi0_smooth.pi0_lambda()
+  let lams_out = pi0_smooth.lambdas()
+  let mut pi4 = 0
+  while pi4 < 4 {
+    println("    lambda = \{fmt(lams_out[pi4], 2)} -> pi0 = \{fmt(path[pi4], 4)}")
+    pi4 = pi4 + 1
+  }
+  println("    lambda = \{fmt(lams_out[18], 2)} -> pi0 = \{fmt(path[18], 4)} (spline endpoint)")
+
+  // ---------------------------------------------------------------------------
+  // 7. Local FDR (lfdr): probit transform + Gaussian KDE
+  // ---------------------------------------------------------------------------
+  println("\n7. Local FDR (lfdr) on the mixture (probit + KDE, monotone):")
+  let lfdr_vals = @src.qvalue_lfdr(mix_p)
+  let show_idx = [0, 20, 50, 99, 100, 150, 199]
+  let mut shi = 0
+  while shi < show_idx.length() {
+    let idx = show_idx[shi]
+    println("    p = \{fmt(mix_p[idx], 4)} -> lfdr = \{fmt(lfdr_vals[idx], 4)}")
+    shi = shi + 1
+  }
+
+  // ---------------------------------------------------------------------------
+  // 8. Empirical p-values (empPvals): pooled and test-specific
+  // ---------------------------------------------------------------------------
+  println("\n8. Empirical p-values (empPvals) from test statistics:")
+  let ep = @src.empirical_pvalues([2.0, 5.0], [1.0, 2.0, 3.0, 4.0])
+  println("  pooled:   stat = [2, 5], stat0 = [1, 2, 3, 4]")
+  println("            p = [\{fmt(ep[0], 3)}, \{fmt(ep[1], 3)}] (ties: observed first; floor 1/m0 = 0.25)")
+  let epr = @src.empirical_pvalues_rows([2.0, 5.0], [
+    [1.0, 2.0, 3.0, 4.0], [1.0, 2.0, 3.0, 4.0]
+  ])
+  println("  per-test: each statistic vs its own 4 nulls")
+  println("            p = [\{fmt(epr[0], 3)}, \{fmt(epr[1], 3)}] (3/4 = 0.75; 0/4 floored to 1/4 = 0.25)")
+
+  // ---------------------------------------------------------------------------
+  // 9. Full qvalue() analysis: pfdr correction and fdr.level significance
+  // ---------------------------------------------------------------------------
+  println("\n9. Full qvalue() analysis (Bioconductor parity):")
+  let qa = @src.qvalue_analyze(mix_p, fdr_level=Some(0.05))
+  let qaf = @src.qvalue_analyze(mix_p, pfdr=true, fdr_level=Some(0.05))
+  let mut n_sig = 0
+  let mut n_sig_pfdr = 0
+  let mut qi = 0
+  while qi < n_mix {
+    if qa.significant()[qi] {
+      n_sig = n_sig + 1
+    }
+    if qaf.significant()[qi] {
+      n_sig_pfdr = n_sig_pfdr + 1
+    }
+    qi = qi + 1
+  }
+  println("  pi0 = \{fmt(qa.pi0(), 4)}, method = \{qa.pi0_method()}")
+  println("  calls at FDR <= 0.05: \{n_sig} (plain q-value), \{n_sig_pfdr} (pFDR corrected)")
+  println("  q at smallest p: plain = \{fmt(qa.q_values()[0], 4)}, pfdr = \{fmt(qaf.q_values()[0], 4)}")
+  println(
+    "  q at largest  p: plain = \{fmt(qa.q_values()[n_mix - 1], 4)}, pfdr = \{fmt(qaf.q_values()[n_mix - 1], 4)}",
+  )
 
   println("\n=== QValue Module Demo Complete ===")
 }
