@@ -693,7 +693,7 @@ pub fn elink(
   db? : String,
   ids~ : Array[String],
   cmd? : String,
-  linkname? : String,
+  linkname? : String
 ) -> Array[EntrezLinkSet] raise EntrezUtilError {
   let params : Array[(String, String)] = []
   if dbfrom is Some(f) {

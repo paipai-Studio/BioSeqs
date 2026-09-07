@@ -305,6 +305,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **DSS** | DSS | RNA-seq 差异表达 Wald 检验 + BH-FDR；差异甲基化 DML/DMR 检测 | ✅ |
 | **tradeSeq** | tradeSeq 1.27.0 | gene × cell 计数合同、cell × lineage 拟时间/权重、多 lineage 负二项 GAM、惩罚 B-spline、五类 Wald 检验、Slingshot 直连 | ✅ |
 | **stageR** | stageR | 两阶段检验（筛选+确认）、Simes 聚合、BH-FDR、Holm 步降、OFDR 控制、Dte/Dtu | ✅ |
+| **EBSeq** | EBSeq | 经验贝叶斯差异表达、负二项模型、PPDE 后验概率、Laplace 近似边际似然、Stirling lgamma 近似 | ✅ |
 
 ### 单细胞分析
 
@@ -379,6 +380,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **StructuralVariantAnnotation** | StructuralVariantAnnotation | VCF BND 断裂端解析（4 种 ALT 格式）、SV 类型推断（DEL/DUP/INV/INS/TRA/BND）、伴侣配对、基因区域重叠注释 | ✅ |
 | **HiC-DC+** | HiC-DC+ | 负二项 GLM 背景建模（IRLS）、z-score 显著性检验、BH-FDR、方向性指数 TAD、PCA A/B compartment | ✅ |
 | **CNVkit** | CNVkit | CBS（循环二元分割）分割、拷贝数状态判定、log2 比率平滑、断点检测 | ✅ |
+| **DMRcate** | DMRcate | 差异甲基化区域检测、limma 调节 t 统计量、指数空间核 exp(-d/λ)、CpG 聚类成 DMR | ✅ |
 
 ### 基因集 / 通路 / 富集
 
@@ -395,6 +397,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **SPIA** | SPIA | 信号通路影响分析、通路图扰动累积、超几何检验、Fisher 合并 p 值 | ✅ |
 | **decoupleR** | decoupleR | WSum/WMean/Norm/ULM/MLM 方法、先验知识网络 (PKN)、调控子活性评分 | ✅ |
 | **GSEABase** | GSEABase | GMT/GMX 格式解析、基因集管理与集合运算 | ✅ |
+| **GOstats** | GOstats | GO 超几何检验富集分析、条件检验（移除子项基因）、log-sum-exp 数值稳定性、lgamma log-choose | ✅ |
 
 ### 微生物组与免疫
 
@@ -409,6 +412,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **xCell** | xCell | 单样本 GSEA (ssGSEA) 富集打分、64 种细胞类型默认签名集（T/B/NK/髓系/树突/内皮/成纤维）、自定义签名集支持、按细胞类别汇总 | ✅ |
 | **MutationalPatterns** | MutationalPatterns | 体细胞突变谱、96 通道矩阵、三核苷酸上下文、突变签名拟合 | ✅ |
 | **maftools** | maftools | 癌症基因组学 MAF 解析、突变分类（SNV/Indel）、TMB 计算、突变谱、共现分析、oncoplot | ✅ |
+| **LEfSe** | LEfSe | Kruskal-Wallis 检验、Wilcoxon 秩和检验、LDA 效应量（log10 类均值比）、双阈值过滤 | ✅ |
 
 ### 可视化
 
@@ -462,6 +466,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **pqsfinder** | pqsfinder | G-四链体（PQS）检测：G-run 穷举搜索、四分体加分/bulge/错配罚分评分系统、loop 长度惩罚、正负链搜索、非重叠/全重叠（overlapping）导出、deep 搜索逐位置 density 与 maxScores 向量、PQS 序列提取 | ✅ |
 | **DNAcopy** | DNAcopy | 循环二分分割（CBS）拷贝数分割：置换检验显著性（alpha/nperm）、trimmed variance、max 统计量、多染色体独立分割、sdundo 相邻片段合并 | ✅ |
 | **regioneR** | regioneR | 基因组区域置换检验 permTest：randomizeRegions 随机化（保宽度/染色体、避开 mask 掩蔽区）、circularRandomizeRegions 环状平移、numOverlaps/meanDistance 统计、z-score 与经验 p 值（greater/less/two.sided）、可复现种子 | ✅ |
+| **MatrixEQTL** | MatrixEQTL | 快速 eQTL 分析、线性回归 SNP-基因关联、Benjamini-Hochberg FDR 校正、t 统计量、正则化不完全 Beta 函数 p 值 | ✅ |
 
 ---
 
@@ -542,11 +547,12 @@ IvanAXu/BioSeqs/
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ # 差异表达
+│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ # EBSeq/eQTL/DMR/GO/LEfSe
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12451 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12551 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -575,7 +581,7 @@ moon test                                               # ✅ 12451 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12451 个测试用例)
+moon test       # 运行全部测试 (12551 个测试用例)
 ```
 
 ---
@@ -620,6 +626,7 @@ moon test       # 运行全部测试 (12451 个测试用例)
 | `wgcna.mbt` / `genie3.mbt` / `minet.mbt` | 基因共表达/调控网络：WGCNA 加权共表达与 TOM 模块、GENIE3 回归树特征重要性；minet 互信息网络（equalfreq/equalwidth 离散化 + empirical/Miller-Madow/Hausser-Strimmer/Schürmann-Grassberger 四种熵估计，ARACNE DPI 剪枝、CLR 背景 z-score、MRNET mRMR 前向选择，validate precision/recall/AUROC/AUPR/maxF 评分） |
 | `summarized_experiment.mbt` / `single_cell_experiment.mbt` / `spatial_experiment.mbt` / `multi_assay_experiment.mbt` / `tree_summarized_experiment.mbt` / `ragged_experiment.mbt` | Bioconductor 数据容器家族 |
 | `deseq2.mbt` + `deseq2_advanced.mbt` / `edger.mbt` + `edger_advanced.mbt` / `limma.mbt` / `apeglm.mbt` | 差异表达三大套件 + apeglm LFC 收缩 |
+| `ebseq.mbt` / `matrixeqtl.mbt` / `dmrcate.mbt` / `gostats.mbt` / `lefse.mbt` | EBSeq 经验贝叶斯 DE / MatrixEQTL eQTL 线性回归 / DMRcate 差异甲基化区域 / GOstats GO 富集 / LEfSe 微生物组生物标志物 |
 | `seurat.mbt` / `scran.mbt` / `scuttle.mbt` / `scrapper.mbt` / `bluster.mbt` / `monocle3.mbt` / `slingshot.mbt` / `tradeSeq.mbt` / `velociraptor.mbt` / `scenic.mbt` / `infercnv.mbt` / `milo.mbt` / `muscat.mbt` / `zinbwave.mbt` / `celda.mbt` / `decontx.mbt` / `batchelor.mbt` / `sc_dbl_finder.mbt` / `droplet_utils_advanced.mbt` / `single_r_advanced.mbt` / `mast_advanced.mbt` | 单细胞 / 空间组学全栈分析套件 |
 | `minfi.mbt` / `bsseq.mbt` / `methylkit.mbt` / `chipseeker.mbt` / `diffbind.mbt` / `peak_calling.mbt` / `bumphunter.mbt` | 甲基化与 ChIP-seq 分析 |
 | `cluster_profiler.mbt` / `fgsea.mbt` / `gsva.mbt` / `gage.mbt` / `spia.mbt` / `enrichplot.mbt` | 富集分析统一框架与可视化 |
