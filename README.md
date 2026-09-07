@@ -67,7 +67,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **GOA** | `Bio.UniProt.GOA` | GAF 2.2 基因本体注释 17 列格式、按 GO ID/aspect/evidence/taxon 过滤、序列化往返 | ✅ |
 | **GEO SOFT** | `Bio.Geo` | ^PLATFORM/^SAMPLE/^SERIES 实体、!属性行、#列定义、数据表、按类型/编号查询 | ✅ |
 | **KEGG** | `Bio.KEGG` | KEGG 基因/通路/化合物/酶记录解析、通路分析、KGML pathway XML 解析与序列化 | ✅ |
+| **KEGG REST** | `Bio.KEGG.REST` | REST 风格 KEGG API 客户端：kegg_info/list/find/get/conv/link 六种操作与对应 URL 构造器、多条目 "+" 分隔、化学式/exact_mass/mol_weight 检索选项、可注入 fetch 传输与 now 时钟、内置限速（每秒 3 次查询） | ✅ |
 | **SCOP** | `Bio.SCOP` | cla/des/hie 三文件 SCOP 层级（root→class→fold→superfamily→family→protein→species→domain）、PDB 残基片段、SCCS 比较 | ✅ |
+| **SCOP Raf / Dom** | `Bio.SCOP.Raf` / `Bio.SCOP.Dom` | ASTRAL RAF 序列图（0.01/0.02 版本头校验、7 列残基字段、3↔1 氨基酸映射 normalize_letters）、seqmap 解析/索引/index/slice/add/extend、scop_parse_residues 链与残基定义、RAF 域切割 get_seqmap、PDB ATOM/HETATM 残基级提取 get_atoms；SCOP Dom 废弃域文件制表符记录解析（sid/pdbid/fragments/hierarchy）、to_string 往返 | ✅ |
 | **CAPS** | `Bio.CAPS` | 酶切扩增多态性序列标记：差异酶切位点检测、内切酶切/阻遏分类、多酶并行扫描 | ✅ |
 | **GFF** | `Bio.GFF` | GFF3 格式解析、GFFFeature/GFFRecord、属性处理、特征提取 | ✅ |
 | **FSSP** | `Bio.FSSP` | FSSP 结构比对数据库：HEADER/TITLE/COMPND、ALIGNMENTS、Z-score/RMSD/PID | ✅ |
@@ -146,6 +148,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **PAML codeml** | `Bio.Phylo.PAML.codeml` | 严格 control 读写、CODONML/AAML、多 NSsites/branch-site/clade/free-ratio、pairwise、距离矩阵、BEB/NEB、AIC/BIC/LRT | ✅ |
 | **PAML baseml** | `Bio.Phylo.PAML.baseml` | 严格 control 读写、JC69 至 UNRESTu、参数/SE、kappa、REV/UNREST Q 矩阵、rate-class、auto-dGamma、nhomo 节点、AIC/BIC/LRT | ✅ |
 | **PAML yn00** | `Bio.Phylo.PAML.yn00` | 严格 control 读写、NG86/YN00/LWL85/LWL85m/LPB93、PAML 4.1-4.9i 兼容、对称矩阵与统计汇总 | ✅ |
+| **Phylo Applications** | `Bio.Phylo.Applications` / `Bio.Phylo.Applications._Fasttree` | 系统发育命令行包装：FastTree（-nt/-n/-quote 核苷酸、-boot 支持度、-gtr/-gamma/-spr/-mlnni/-wag/-pseudo）、PhyML（-d 数据类型、-m 替换模型、-b bootstrap、-c/-a/-s SPR、-o tlr、--rand_start/--n_rand_starts/--r_seed）、RAxML（-s/-n/-m 分区模型、-f a 快速 bootstrap、-x/-N 重采样、-q 分区、-t/-r/-g 起始/约束树、-T 线程、-o 外群、-w 工作目录） | ✅ |
 
 ### PDB 结构分析
 
@@ -193,6 +196,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **ProtParam** | `Bio.SeqUtils.ProtParam` | 分子量、不稳定指数、GRAVY、等电点、信号肽、二级结构倾向 | ✅ |
 | **Proteomics** | `Bio.SeqUtils.Proteomics` | 8 种蛋白酶切（胰酶/糜酶/胃酶/LysC/ArgC/CNBr/GluC/AspN）、同位素分布、b/y 碎片离子 | ✅ |
 | **Entrez** | `Bio.Entrez` | NCBI 数据库 ESearch/EFetch、PubMed/Gene/Taxonomy 解析 | ✅ |
+| **Entrez E-utilities** | `Bio.Entrez` | EPost（WebEnv/QueryKey 会话）、ESummary（DocSum/Item 文档摘要）、ESpell（拼写建议与 Replaced 列表）、ELink（跨库 LinkSetDb/LinkName 关联）、ECitMatch（引文字符串 bdata 检索 PMID）、entrez_quote_plus URL 编码、可注入 fetch/now 传输、内置限速（无 API key 每秒 3 次） | ✅ |
+| **Datastore** | BagIt 风格（Bio.Entrez 缓存思路） | MD5（RFC 1321 完整实现）内容寻址 bag：add/manifest-md5.txt/bagit.txt/bag-info.txt（Payload-Oxum）、fetch-through 缓存（hit/miss 统计）、verify 校验、外部清单 load_bag 加载、字典序 names/tags | ✅ |
 | **Taxonomy** | `Bio.Taxonomy` | NCBI 分类数据库、分类树操作、谱系查询、共同祖先计算 | ✅ |
 | **Medline** | `Bio.Medline` | Medline/PubMed 记录解析、APA 引用、MeSH 过滤 | ✅ |
 | **EMBOSS 工具** | EMBOSS suite | GC 偏斜、AT 偏斜、分子量、Tm、ORF 查找、距离计算、蛋白质参数 | ✅ |
@@ -530,13 +535,18 @@ IvanAXu/BioSeqs/
 │   ├── hmm_markov_model_demo/        # 经典 Bio.HMM（构建器/Viterbi/前向-后向/Baum-Welch/KnownState 训练）
 │   ├── togows_demo/                  # Bio.TogoWS（percent quoting/URL 构造/entry/search/convert/限速）
 │   ├── apcluster_demo/               # apcluster 亲和传播（消息传递/exemplar/4 种相似度/apclusterK 定 K/噪声 runs）
+│   ├── kegg_rest_demo/               # Bio.KEGG.REST（info/list/find/get/conv/link URL 构造/多条目/限速）
+│   ├── scop_raf_dom_demo/            # Bio.SCOP.Raf/Dom（RAF 解析/索引/域切割/ATOM 提取/DOM 往返）
+│   ├── entrez_eutils_demo/           # Bio.Entrez E-utilities（EPost/ESummary/ESpell/ELink/ECitMatch/请求日志）
+│   ├── phylo_applications_demo/      # Bio.Phylo.Applications（FastTree/PhyML/RAxML 命令行构建）
+│   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ # 差异表达
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12400+ 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12451 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -556,7 +566,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12403 个测试全部通过
+moon test                                               # ✅ 12451 个测试全部通过
 ```
 
 ---
@@ -565,7 +575,7 @@ moon test                                               # ✅ 12403 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12403 个测试用例)
+moon test       # 运行全部测试 (12451 个测试用例)
 ```
 
 ---
@@ -602,6 +612,11 @@ moon test       # 运行全部测试 (12403 个测试用例)
 | `hmm_markov_model.mbt` | 经典 Bio.HMM 移植（Biopython 1.84 退役前版本）：MarkovModelBuilder（状态/发射字母表、allow_all_transitions、转移/发射概率与伪计数、随机初始化 hmm_gen_random_array、set_initial_probabilities 残余概率均分）、HiddenMarkovModel（Viterbi 对数空间最优路径解码 + 回溯）、ScaledDp 缩放前向/后向算法（Durbin et al. p78，对数空间缩放防下溢）、BaumWelchTrainer（EM 迭代，change/迭代次数早停回调）、KnownStateTrainer（有标注路径最大似然估计）、TrainingSequence |
 | `togows.mbt` | Bio.TogoWS REST 客户端：togows_entry/togows_search/togows_search_count/togows_search_iter/togows_convert 与对应 *_url 构造器、togows_quote percent quoting（urllib.parse.quote 语义，safe 默认 "/"）、数据库/字段/格式/转换白名单校验（错误消息字典序排序）、TogoWSClient 可注入 fetch 与 now 时钟、内置限速 TOGOWS_DELAY=1/3 秒（每秒 3 次查询） |
 | `apcluster.mbt` | Bioconductor apcluster 亲和传播聚类：ap_neg_dist_mat（负 Minkowski^r，默认平方欧氏）/ap_exp_sim_mat（高斯 RBF，w 默认距离中位数）/ap_lin_sim_mat（线性，w 默认最大距离）/ap_cor_sim_mat（Pearson/Spearman，Spearman 为平局平均秩的 Pearson）；apcluster 消息传递（responsibility top-two 技巧 + availability 列更新、lam=0.9 阻尼、convits=100 exemplar 集合稳定判停）、ApResult（exemplars/clusters/labels/dpsim/expref/netsim）、标量与逐点偏好（默认有限相似度中位数）、apclusterK 偏好二分定 K + 最近 exemplar 剪枝合并、exact=false 容错、确定性噪声 runs（apcluster_seed） |
+| `kegg_rest.mbt` | Bio.KEGG.REST REST 客户端：kegg_rest_info/list/list_entries/find/find_multi/get/get_multi/conv/conv_multi/link/link_multi 与 kegg_rest_url 构造器（info/list/find/get/conv/link 六种操作）、多条目 "+" 分隔、find 的 formula/exact_mass/mol_weight 选项、get 的 aaseq/ntseq/mol/kcf/image/kgml/json 输出选项、KeggRestClient 可注入 fetch 与 now 时钟、内置 1/3 秒限速（每秒 3 次查询） |
+| `scop_raf_dom.mbt` | Bio.SCOP.Raf / Bio.SCOP.Dom：scop_raf_normalize_letters（3↔1 氨基酸映射）、scop_raf_seqmap_parse（38 列定宽头 + pdbid/chainid/version/flags + 7 列残基字段，0.01/0.02 版本校验）、scop_raf_parse/scop_raf_index（pdbid+chainid 键）、ScopSeqMap（length/get/residues/index/slice/add/extend）、scop_raf_get_seqmap（SCOP 链与残基定义切域）、scop_raf_get_atoms（PDB ATOM/HETATM 残基级提取）、scop_parse_residues；DomRecord 制表符记录解析（sid/pdbid/fragments/hierarchy）与 to_string 往返 |
+| `entrez_eutils.mbt` | Bio.Entrez E-utilities：epost（WebEnv/QueryKey 会话）、esummary + parse_esummary（DocSum/Item 文档摘要）、espell + parse_espell（CorrectedQuery/Replaced）、elink + parse_elink（LinkSet/LinkSetDb/LinkName 跨库关联）、ecitmatch + parse_ecitmatch（journal|year|vol|page|author 引文 bdata 检索 PMID）、entrez_quote_plus URL 编码、EntrezClient 可注入 fetch 与 now 时钟、内置限速（无 API key 1/3 秒、有 key 1/11 秒） |
+| `datastore.mbt` | Bio.Datastore MD5 键控 BagIt 风格 bag：md5_hex（RFC 1321 完整实现：K 表 floor(|sin(i+1)|·2³²)、四轮 64 步、大端输出）、Datastore::add/get/contains/remove/checksum/entry、manifest_md5_txt/manifest_lines/bagit_txt/bag_info_txt（Payload-Oxum 字节·文件数）、verify 逐条目校验、fetch-through 缓存（下载回调 + hit/miss 统计）、load_bag 外部清单加载（一致/过期清单判定）、字典序 names/tags |
+| `phylo_applications.mbt` | Bio.Phylo.Applications 系统发育命令行包装（可变 builder 模式）：FastTreeCommandline（-nt/-n/-quote、-boot、-gtr/-gamma、-spr/-mlnni、-wag/-pseudo/-mlacc）、PhymlCommandline（-i/-d/-m/-b/-c/-a/-s、-o tlr、--rand_start/--n_rand_starts/--r_seed、--quiet）、RaxmlCommandline（-s/-n/-m、-f a、-x/-N、-q 分区、-t/-r/-g 起始/约束树、-e/-c、-k/-T/-o/-w、RAPID bootstrap 种子）与 build() 命令行构造 |
 | `wgcna.mbt` / `genie3.mbt` / `minet.mbt` | 基因共表达/调控网络：WGCNA 加权共表达与 TOM 模块、GENIE3 回归树特征重要性；minet 互信息网络（equalfreq/equalwidth 离散化 + empirical/Miller-Madow/Hausser-Strimmer/Schürmann-Grassberger 四种熵估计，ARACNE DPI 剪枝、CLR 背景 z-score、MRNET mRMR 前向选择，validate precision/recall/AUROC/AUPR/maxF 评分） |
 | `summarized_experiment.mbt` / `single_cell_experiment.mbt` / `spatial_experiment.mbt` / `multi_assay_experiment.mbt` / `tree_summarized_experiment.mbt` / `ragged_experiment.mbt` | Bioconductor 数据容器家族 |
 | `deseq2.mbt` + `deseq2_advanced.mbt` / `edger.mbt` + `edger_advanced.mbt` / `limma.mbt` / `apeglm.mbt` | 差异表达三大套件 + apeglm LFC 收缩 |

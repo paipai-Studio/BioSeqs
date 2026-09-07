@@ -219,12 +219,12 @@ pub fn scop_parse_residues(s : String) -> ScopResidues {
 ///|
 /// Serialize a ScopResidues back to its string representation.
 pub fn scop_residues_to_string(res : ScopResidues) -> String {
-  if res.fragments.length() == 0 {
-    return "-"
-  }
   let mut s = ""
   if res.pdbid.length() > 0 {
     s = res.pdbid + " "
+  }
+  if res.fragments.length() == 0 {
+    return s + "-"
   }
   let mut first = true
   for frag in res.fragments {
@@ -232,8 +232,10 @@ pub fn scop_residues_to_string(res : ScopResidues) -> String {
       s = s + ","
     }
     first = false
-    s = s + frag.chain + ":"
-    if frag.start.length() > 0 || frag.end_.length() > 0 {
+    if frag.chain.length() > 0 {
+      s = s + frag.chain + ":"
+    }
+    if frag.start.length() > 0 {
       s = s + frag.start + "-" + frag.end_
     }
   }
