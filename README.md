@@ -313,6 +313,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **clusterExperiment** | clusterExperiment | clusterMany 参数网格集成、makeConsensus 共聚类矩阵+一致性聚类、makeDendrogram 聚类树、mergeClusters 显著性合并（Welch t-test+BH-FDR）、RSEC 流水线 | ✅ |
 | **SC3** | SC3 | PCA 降维、k-means 聚类、轮廓系数评估、间隙统计量、共识聚类 | ✅ |
 | **ConsensusClusterPlus** | ConsensusClusterPlus | 癌症亚型识别、稳定性评分、最优聚类数选择 | ✅ |
+| **apcluster 1.4.15** | apcluster | Affinity Propagation 亲和传播（Frey & Dueck 2007）：responsibility/availability 消息传递 + 阻尼迭代、exemplar 代表点识别、negDistMat（Minkowski^r/平方欧氏）/expSimMat（高斯 RBF）/linSimMat/corSimMat（Pearson/Spearman）相似度矩阵、中位数偏好、per-point 偏好、apclusterK 偏好二分定 K + 最近 exemplar 剪枝合并、确定性噪声 runs | ✅ |
 | **Seurat** | Seurat | LogNormalize、高可变基因、PCA、图聚类、UMAP、差异标志物、FindIntegrationAnchors/IntegrateData 跨样本整合 | ✅ |
 | **Batchelor** | Batchelor | rescaleBatches 缩放校正、mutual nearest neighbor、fastMNN 多批次校正、批次混合评分 | ✅ |
 | **scDblFinder 1.27.6** | scDblFinder | top-variable 特征、library/PCA、随机或跨 cluster 人工 doublet、kNN/cxds 特征、迭代正则化 logistic 分类、capture 分层、homotypic 修正 | ✅ |
@@ -528,13 +529,14 @@ IvanAXu/BioSeqs/
 │   ├── bio_cluster_demo/             # Bio.Cluster 数值聚类（8 种距离/层次聚类/k-means/k-medoids/SOM/PCA/Record）
 │   ├── hmm_markov_model_demo/        # 经典 Bio.HMM（构建器/Viterbi/前向-后向/Baum-Welch/KnownState 训练）
 │   ├── togows_demo/                  # Bio.TogoWS（percent quoting/URL 构造/entry/search/convert/限速）
+│   ├── apcluster_demo/               # apcluster 亲和传播（消息传递/exemplar/4 种相似度/apclusterK 定 K/噪声 runs）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ # 差异表达
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12360+ 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12400+ 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -554,7 +556,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12393 个测试全部通过
+moon test                                               # ✅ 12403 个测试全部通过
 ```
 
 ---
@@ -563,7 +565,7 @@ moon test                                               # ✅ 12393 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12361 个测试用例)
+moon test       # 运行全部测试 (12403 个测试用例)
 ```
 
 ---
@@ -599,6 +601,7 @@ moon test       # 运行全部测试 (12361 个测试用例)
 | `bio_cluster.mbt` | Bio.Cluster 数值聚类核心（cluster.c 逐行移植）：8 种距离（欧氏平方均值/City Block/Pearson/绝对/非中心/绝对非中心/Spearman/Kendall）、clusterdistance、treecluster 层次聚类（单 SLINK/完全/平均/质心连接 + Tree cut/sort）、treecluster_from_distance、kcluster（k-means/k-medians，多次 npass 取最优）、kmedoids、clustercentroids、somcluster 自组织映射（Kohonen 训练+分配）、cluster_pca（Golub-Reinsch SVD，均值中心化 + 奇异值排序）、distancematrix、Record Eisen Cluster/TreeView 格式解析（NAME/GWEIGHT/GORDER/EWEIGHT/EORDER）及全套聚类方法、可复现 cluster_seed |
 | `hmm_markov_model.mbt` | 经典 Bio.HMM 移植（Biopython 1.84 退役前版本）：MarkovModelBuilder（状态/发射字母表、allow_all_transitions、转移/发射概率与伪计数、随机初始化 hmm_gen_random_array、set_initial_probabilities 残余概率均分）、HiddenMarkovModel（Viterbi 对数空间最优路径解码 + 回溯）、ScaledDp 缩放前向/后向算法（Durbin et al. p78，对数空间缩放防下溢）、BaumWelchTrainer（EM 迭代，change/迭代次数早停回调）、KnownStateTrainer（有标注路径最大似然估计）、TrainingSequence |
 | `togows.mbt` | Bio.TogoWS REST 客户端：togows_entry/togows_search/togows_search_count/togows_search_iter/togows_convert 与对应 *_url 构造器、togows_quote percent quoting（urllib.parse.quote 语义，safe 默认 "/"）、数据库/字段/格式/转换白名单校验（错误消息字典序排序）、TogoWSClient 可注入 fetch 与 now 时钟、内置限速 TOGOWS_DELAY=1/3 秒（每秒 3 次查询） |
+| `apcluster.mbt` | Bioconductor apcluster 亲和传播聚类：ap_neg_dist_mat（负 Minkowski^r，默认平方欧氏）/ap_exp_sim_mat（高斯 RBF，w 默认距离中位数）/ap_lin_sim_mat（线性，w 默认最大距离）/ap_cor_sim_mat（Pearson/Spearman，Spearman 为平局平均秩的 Pearson）；apcluster 消息传递（responsibility top-two 技巧 + availability 列更新、lam=0.9 阻尼、convits=100 exemplar 集合稳定判停）、ApResult（exemplars/clusters/labels/dpsim/expref/netsim）、标量与逐点偏好（默认有限相似度中位数）、apclusterK 偏好二分定 K + 最近 exemplar 剪枝合并、exact=false 容错、确定性噪声 runs（apcluster_seed） |
 | `wgcna.mbt` / `genie3.mbt` / `minet.mbt` | 基因共表达/调控网络：WGCNA 加权共表达与 TOM 模块、GENIE3 回归树特征重要性；minet 互信息网络（equalfreq/equalwidth 离散化 + empirical/Miller-Madow/Hausser-Strimmer/Schürmann-Grassberger 四种熵估计，ARACNE DPI 剪枝、CLR 背景 z-score、MRNET mRMR 前向选择，validate precision/recall/AUROC/AUPR/maxF 评分） |
 | `summarized_experiment.mbt` / `single_cell_experiment.mbt` / `spatial_experiment.mbt` / `multi_assay_experiment.mbt` / `tree_summarized_experiment.mbt` / `ragged_experiment.mbt` | Bioconductor 数据容器家族 |
 | `deseq2.mbt` + `deseq2_advanced.mbt` / `edger.mbt` + `edger_advanced.mbt` / `limma.mbt` / `apeglm.mbt` | 差异表达三大套件 + apeglm LFC 收缩 |
