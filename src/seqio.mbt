@@ -8,10 +8,11 @@
 //   - seqio_to_dict(records)            -> Map[String, SeqRecord]
 //
 // Supported formats (parse):
-//   "fasta", "fastq"/"fastq-sanger", "genbank"/"gb",
-//   "embl", "pir"/"nbrf", "tab"
+//   "fasta", "fastq"/"fastq-sanger", "fastq-illumina", "fastq-solexa",
+//   "qual", "genbank"/"gb", "embl", "pir"/"nbrf", "tab"
 // Supported formats (write):
-//   "fasta", "fastq"/"fastq-sanger", "genbank"/"gb", "tab"
+//   "fasta", "fastq"/"fastq-sanger", "fastq-illumina", "fastq-solexa",
+//   "qual", "genbank"/"gb", "tab"
 
 ///|
 /// Parse sequence file content in the given format and return all records.
@@ -24,6 +25,9 @@ pub fn seqio_parse(
   match format {
     "fasta" => parse_fasta(content)
     "fastq" | "fastq-sanger" => parse_fastq(content)
+    "fastq-illumina" => parse_fastq_illumina(content)
+    "fastq-solexa" => parse_fastq_solexa(content)
+    "qual" => parse_qual(content)
     "genbank" | "gb" => parse_genbank(content)
     "embl" => parse_embl(content)
     "pir" | "nbrf" => parse_pir(content)
@@ -63,6 +67,9 @@ pub fn seqio_write(
   match format {
     "fasta" => write_fasta(records)
     "fastq" | "fastq-sanger" => write_fastq(records)
+    "fastq-illumina" => write_fastq_illumina(records)
+    "fastq-solexa" => write_fastq_solexa(records)
+    "qual" => write_qual(records)
     "genbank" | "gb" => write_genbank(records)
     "tab" => write_tab(records)
     _ => raise SeqIOError("Unknown format: " + format)
