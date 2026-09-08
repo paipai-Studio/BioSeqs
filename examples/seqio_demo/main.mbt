@@ -218,4 +218,44 @@ fn main {
   } catch {
     _ => println("  seqio_read error")
   }
+
+  // === New: low-level streaming parsers ===
+  println("\n=== SimpleFastaParser (low-level, title/seq tuples) ===")
+  let pairs = @bio.simple_fasta_parser(">s1 human kinase\nAC GT\n\n>s2\nTTAA")
+  for i = 0; i < pairs.length(); i = i + 1 {
+    let (title, seq) = pairs[i]
+    println("  title=\"\{title}\" seq=\"\{seq}\"")
+  }
+
+  println("\n=== FastqGeneralIterator (low-level FASTQ tuples) ===")
+  let fq_pairs = @bio.fastq_general_parser("@r1\nACGT\n+\n!''*\n")
+  for i = 0; i < fq_pairs.length(); i = i + 1 {
+    let (title, seq, quals) = fq_pairs[i]
+    println("  title=\"\{title}\" seq=\"\{seq}\" quals=\{quals}")
+  }
+
+  println("\n=== Two-line compact FASTA/FASTQ parsers ===")
+  let tl = @bio.fasta_two_line_parser(">s1 ACGT\n>s2 TGCA\n")
+  for i = 0; i < tl.length(); i = i + 1 {
+    println("  id=\"\{tl[i].0}\" seq=\"\{tl[i].1}\"")
+  }
+  let tq = @bio.fastq_two_line_parser("@r1 ACGT\n!''*\n")
+  for i = 0; i < tq.length(); i = i + 1 {
+    println("  id=\"\{tq[i].0}\" seq=\"\{tq[i].1}\" quals=\{tq[i].2}")
+  }
+
+  println("\n=== FastaIterator / FastaTwoLineIterator (SeqRecord) ===")
+  let recs = @bio.fasta_two_line_iterator(">c1 ACGTAC\n>c2 TTGGCC")
+  for i = 0; i < recs.length(); i = i + 1 {
+    println("  id=\{recs[i].id} seq=\{recs[i].seq.to_string()}")
+  }
+
+  // === New: custom-width FASTA writer + line-number errors ===
+  println("\n=== write_fasta_record (width=10) ===")
+  let rec = @bio.parse_fasta(">w1\nACGTACGTACGTACGT")[0]
+  println(@bio.write_fasta_record(rec, width=10))
+  let err = @bio.seqio_error_with_line("bad header", 7)
+  match err {
+    @bio.SeqIOError(msg) => println("  seqio_error_with_line: \{msg}")
+  }
 }

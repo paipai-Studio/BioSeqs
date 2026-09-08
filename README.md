@@ -46,7 +46,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | 功能模块 | 对应 Biopython | 核心功能 | 状态 |
 | :--- | :--- | :--- | :---: |
 | **SeqIO 统一接口** | `Bio.SeqIO` | seqio_parse / seqio_write / seqio_convert / seqio_read / seqio_to_dict | ✅ |
-| **FASTA / FASTQ** | `Bio.SeqIO.FastaIO` / `QualityIO` | FASTA/FASTQ 解析与写入、质量编码处理 | ✅ |
+| **FASTA / FASTQ** | `Bio.SeqIO.FastaIO` / `QualityIO` | FASTA/FASTQ 解析与写入、质量编码处理、低级流式解析器（SimpleFastaParser / FastqGeneralIterator / 双行紧凑格式）、seqio_error_with_line 行号错误 | ✅ |
 | **GenBank / EMBL** | `Bio.SeqIO.GenBankIO` / `EmblIO` | GenBank/EMBL 严格解析与写入（LOCUS/FEATURES/ORIGIN、ID/AC/DE/SQ） | ✅ |
 | **PIR / Tab** | `Bio.SeqIO.PdbIO (PIR/NBRF)` / `TabIO` | PIR/NBRF 蛋白/核酸格式、Tab 分隔（ID+序列） | ✅ |
 | **InsdcIO** | `Bio.SeqIO.InsdcIO` | INSDC 国际核苷酸序列数据库协作格式 | ✅ |
@@ -581,7 +581,7 @@ moon test                                               # ✅ 12451 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12551 个测试用例)
+moon test       # 运行全部测试 (12590 个测试用例)
 ```
 
 ---
