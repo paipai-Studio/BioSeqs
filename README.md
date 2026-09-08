@@ -264,6 +264,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **MatrixGenerics / beachmat** | MatrixGenerics / beachmat | rowMeans/colMeans、rowVars/colVars、rowMedians/colMedians、rowMad/rowCounts/rowAnys/rowAlls；列/行块处理、线性迭代器、子集/转置/绑定 | ✅ |
 | **BiocNeighbors / BiocSingular** | BiocNeighbors / BiocSingular | KMKNN/Annoy/BruteForce 最近邻、欧几里得/曼哈顿/余弦；Exact/IRLBA/Randomized SVD | ✅ |
 | **GenomeInfoDb** | GenomeInfoDb | 基因组构建、染色体信息、着丝粒位置、染色体臂、标准染色体筛选 | ✅ |
+| **Biostrings** | Biostrings | 生物序列字符串操作：字母表、反向互补、翻译、模式匹配、PDict 字典匹配、vcountPattern/vmatchPattern、pairwiseAlignment、核苷酸/蛋白质频率 | ✅ |
+| **InteractionSet** | InteractionSet | 染色质互作数据：Anchor/InteractionSet 结构、Hi-C 互作矩阵、区域对操作、距离计算、重叠检测 | ✅ |
 
 ### 注释与基因组数据库
 
@@ -306,6 +308,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **tradeSeq** | tradeSeq 1.27.0 | gene × cell 计数合同、cell × lineage 拟时间/权重、多 lineage 负二项 GAM、惩罚 B-spline、五类 Wald 检验、Slingshot 直连 | ✅ |
 | **stageR** | stageR | 两阶段检验（筛选+确认）、Simes 聚合、BH-FDR、Holm 步降、OFDR 控制、Dte/Dtu | ✅ |
 | **EBSeq** | EBSeq | 经验贝叶斯差异表达、负二项模型、PPDE 后验概率、Laplace 近似边际似然、Stirling lgamma 近似 | ✅ |
+| **MOFA2** | MOFA2 | 多组学因子分析 v2：稀疏贝叶斯因子模型、EM 算法、ARD 自动相关性确定、多视图数据整合（转录组/甲基化/蛋白质组等）、因子数自动推断 | ✅ |
 
 ### 单细胞分析
 
@@ -343,6 +346,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **dorothea** | dorothea | Regulon、VIPER 算法、置换检验、Z-score、Top TF | ✅ |
 | **PROGENy** | PROGENy | L2 正则化 Ridge 回归、通路基因集权重矩阵、样本通路活性 | ✅ |
 | **AUCell** | AUCell | AUC 计算、基因排序、min-max 归一化、细胞/基因集评分查询 | ✅ |
+| **singscore** | singscore | 基于排名的单样本基因集评分：上下调基因集分数、中位数中心化排名、标准化分数、置换检验 | ✅ |
+| **Harmony** | Harmony | 快速迭代批量校正：软 k-means 聚类、线性批量校正、收敛性检测、融合度指标、多轮聚类-校正交替 | ✅ |
+| **scMerge** | scMerge | RUV4 单细胞批量校正：稳定表达基因 (SEG) 选择、RUV 去除非期望变异、随机 SVD 因子估计、多批次数据整合 | ✅ |
 | **scDblFinder / decontX / celda / milo 等容器接入** | 所有上面模块 | 统一 SingleCellExperiment 不可变写回与跨模块集成 | ✅ |
 
 ### 空间转录组
@@ -398,6 +404,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **decoupleR** | decoupleR | WSum/WMean/Norm/ULM/MLM 方法、先验知识网络 (PKN)、调控子活性评分 | ✅ |
 | **GSEABase** | GSEABase | GMT/GMX 格式解析、基因集管理与集合运算 | ✅ |
 | **GOstats** | GOstats | GO 超几何检验富集分析、条件检验（移除子项基因）、log-sum-exp 数值稳定性、lgamma log-choose | ✅ |
+| **goseq** | goseq | GO 长度偏差校正富集分析：Wallenius 非中心超几何分布、PWF 概率加权函数（LOWESS 平滑）、基因长度 DE 偏差校正、BH-FDR | ✅ |
 
 ### 微生物组与免疫
 
@@ -626,7 +633,7 @@ moon test       # 运行全部测试 (12590 个测试用例)
 | `wgcna.mbt` / `genie3.mbt` / `minet.mbt` | 基因共表达/调控网络：WGCNA 加权共表达与 TOM 模块、GENIE3 回归树特征重要性；minet 互信息网络（equalfreq/equalwidth 离散化 + empirical/Miller-Madow/Hausser-Strimmer/Schürmann-Grassberger 四种熵估计，ARACNE DPI 剪枝、CLR 背景 z-score、MRNET mRMR 前向选择，validate precision/recall/AUROC/AUPR/maxF 评分） |
 | `summarized_experiment.mbt` / `single_cell_experiment.mbt` / `spatial_experiment.mbt` / `multi_assay_experiment.mbt` / `tree_summarized_experiment.mbt` / `ragged_experiment.mbt` | Bioconductor 数据容器家族 |
 | `deseq2.mbt` + `deseq2_advanced.mbt` / `edger.mbt` + `edger_advanced.mbt` / `limma.mbt` / `apeglm.mbt` | 差异表达三大套件 + apeglm LFC 收缩 |
-| `ebseq.mbt` / `matrixeqtl.mbt` / `dmrcate.mbt` / `gostats.mbt` / `lefse.mbt` | EBSeq 经验贝叶斯 DE / MatrixEQTL eQTL 线性回归 / DMRcate 差异甲基化区域 / GOstats GO 富集 / LEfSe 微生物组生物标志物 |
+| `ebseq.mbt` / `matrixeqtl.mbt` / `dmrcate.mbt` / `gostats.mbt` / `goseq.mbt` / `lefse.mbt` | EBSeq 经验贝叶斯 DE / MatrixEQTL eQTL 线性回归 / DMRcate 差异甲基化区域 / GOstats GO 富集 / goseq 长度偏差校正 GO 富集 / LEfSe 微生物组生物标志物 |
 | `seurat.mbt` / `scran.mbt` / `scuttle.mbt` / `scrapper.mbt` / `bluster.mbt` / `monocle3.mbt` / `slingshot.mbt` / `tradeSeq.mbt` / `velociraptor.mbt` / `scenic.mbt` / `infercnv.mbt` / `milo.mbt` / `muscat.mbt` / `zinbwave.mbt` / `celda.mbt` / `decontx.mbt` / `batchelor.mbt` / `sc_dbl_finder.mbt` / `droplet_utils_advanced.mbt` / `single_r_advanced.mbt` / `mast_advanced.mbt` | 单细胞 / 空间组学全栈分析套件 |
 | `minfi.mbt` / `bsseq.mbt` / `methylkit.mbt` / `chipseeker.mbt` / `diffbind.mbt` / `peak_calling.mbt` / `bumphunter.mbt` | 甲基化与 ChIP-seq 分析 |
 | `cluster_profiler.mbt` / `fgsea.mbt` / `gsva.mbt` / `gage.mbt` / `spia.mbt` / `enrichplot.mbt` | 富集分析统一框架与可视化 |
