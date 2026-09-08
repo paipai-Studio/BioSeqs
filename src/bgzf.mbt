@@ -62,10 +62,11 @@ fn bit_reader_new(data : String) -> BitReader {
 }
 
 ///|
-/// Read a single bit.
+/// Read a single bit. DEFLATE packs bits LSB-first within each byte
+/// (RFC 1951 section 3.1.1), so bit 0 of a byte is read first.
 fn bit_reader_read_bit(br : BitReader) -> (Int, BitReader) {
   let byte = br.data.unsafe_get(br.pos).to_int() & 0xFF
-  let bit = (byte >> (7 - br.bit_pos)) & 1
+  let bit = (byte >> br.bit_pos) & 1
   let new_bit_pos = br.bit_pos + 1
   let (new_pos, new_bit_pos) = if new_bit_pos >= 8 {
     (br.pos + 1, 0)
@@ -76,7 +77,9 @@ fn bit_reader_read_bit(br : BitReader) -> (Int, BitReader) {
 }
 
 ///|
-/// Read n bits (n <= 16).
+/// Read n bits as a Huffman code (n <= 16). Huffman codes are serialised
+/// MSB-first: the first bit received is the most significant bit of the
+/// code value, so bits accumulate with the newest bit in the low position.
 fn bit_reader_read_bits(br : BitReader, n : Int) -> (Int, BitReader) {
   let mut result = 0
   let mut remaining = n
@@ -86,6 +89,23 @@ fn bit_reader_read_bits(br : BitReader, n : Int) -> (Int, BitReader) {
     reader = r
     result = (result << 1) | bit
     remaining = remaining - 1
+  }
+  (result, reader)
+}
+
+///|
+/// Read n bits as a plain integer field (BTYPE, HLIT/HDIST/HCLEN, extra
+/// length/distance bits, ...). Such fields are packed LSB-first: the first
+/// bit received is the least significant bit of the value.
+fn bit_reader_read_value(br : BitReader, n : Int) -> (Int, BitReader) {
+  let mut result = 0
+  let mut bit_index = 0
+  let mut reader = br
+  while bit_index < n {
+    let (bit, r) = bit_reader_read_bit(reader)
+    reader = r
+    result = result | (bit << bit_index)
+    bit_index = bit_index + 1
   }
   (result, reader)
 }
@@ -342,25 +362,35 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
       done = true
     } else {
       let (b_final, r1) = bit_reader_read_bit(reader)
-      let (b_type, r2) = bit_reader_read_bits(r1, 2)
+      let (b_type, r2) = bit_reader_read_value(r1, 2)
       reader = r2
 
       if b_type == 0 {
+        // Stored block: after byte alignment, LEN/NLEN and the raw bytes
+        // are plain little-endian/raw bytes (RFC 1951 section 3.2.4), not
+        // bit-packed values, so they must be read directly from the stream.
         reader = bit_reader_align(reader)
-        let (len, r3) = bit_reader_read_bits(reader, 16)
-        reader = r3
-        let (nlen, r4) = bit_reader_read_bits(reader, 16)
-        reader = r4
+        let p = reader.pos
+        if p + 4 > data.length() {
+          raise BgzfError("Truncated stored DEFLATE block header")
+        }
+        let len = (data.unsafe_get(p).to_int() & 0xFF) |
+          ((data.unsafe_get(p + 1).to_int() & 0xFF) << 8)
+        let nlen = (data.unsafe_get(p + 2).to_int() & 0xFF) |
+          ((data.unsafe_get(p + 3).to_int() & 0xFF) << 8)
         if (len ^ 0xFFFF) != nlen {
           raise BgzfError("Invalid stored block length")
         }
+        if p + 4 + len > data.length() || out_pos + len > max_output {
+          raise BgzfError("Truncated stored DEFLATE block data")
+        }
         let mut i = 0
         while i < len {
-          let (byte, r5) = bit_reader_read_bits(reader, 8)
-          reader = r5
-          output[out_pos + i] = byte.to_uint16()
+          output[out_pos + i] = (data.unsafe_get(p + 4 + i).to_int() & 0xFF)
+            .to_uint16()
           i = i + 1
         }
+        reader = BitReader::{ data: reader.data, pos: p + 4 + len, bit_pos: 0 }
         out_pos = out_pos + len
       } else if b_type == 1 {
         let lit_decoder = build_huffman_decoder(fixed_literal_lengths, 288)
@@ -377,14 +407,14 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
           } else {
             let length_code = sym - 257
             let extra_len_bits = length_extra[length_code]
-            let (extra_len, r4) = bit_reader_read_bits(reader, extra_len_bits)
+            let (extra_len, r4) = bit_reader_read_value(reader, extra_len_bits)
             reader = r4
             let length = length_base[length_code] + extra_len
 
             let (dist_code, r5) = huffman_decode(dist_decoder, reader)
             reader = r5
             let extra_dist_bits = dist_extra[dist_code]
-            let (extra_dist, r6) = bit_reader_read_bits(reader, extra_dist_bits)
+            let (extra_dist, r6) = bit_reader_read_value(reader, extra_dist_bits)
             reader = r6
             let distance = dist_base[dist_code] + extra_dist
 
@@ -397,14 +427,14 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
           }
         }
       } else if b_type == 2 {
-        let (num_lit_len, r3) = bit_reader_read_bits(reader, 5)
+        let (num_lit_len, r3) = bit_reader_read_value(reader, 5)
         reader = r3
         let num_lit_len = num_lit_len + 257
-        let (num_dist, r4) = bit_reader_read_bits(reader, 5)
+        let (num_dist, r4) = bit_reader_read_value(reader, 5)
         reader = r4
         let num_dist = num_dist + 1
 
-        let (num_code_len, r5) = bit_reader_read_bits(reader, 4)
+        let (num_code_len, r5) = bit_reader_read_value(reader, 4)
         reader = r5
         let num_code_len = num_code_len + 4
 
@@ -414,7 +444,7 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
         ]
         let mut i = 0
         while i < num_code_len {
-          let (len, r6) = bit_reader_read_bits(reader, 3)
+          let (len, r6) = bit_reader_read_value(reader, 3)
           reader = r6
           code_length_lengths[code_order[i]] = len
           i = i + 1
@@ -431,7 +461,7 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
             lit_len_lengths[j] = sym
             j = j + 1
           } else if sym == 16 {
-            let (rep, r8) = bit_reader_read_bits(reader, 2)
+            let (rep, r8) = bit_reader_read_value(reader, 2)
             reader = r8
             let rep = rep + 3
             let val = if j > 0 { lit_len_lengths[j - 1] } else { 0 }
@@ -442,7 +472,7 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
               k = k + 1
             }
           } else if sym == 17 {
-            let (zeros, r8) = bit_reader_read_bits(reader, 3)
+            let (zeros, r8) = bit_reader_read_value(reader, 3)
             reader = r8
             let zeros = zeros + 3
             let mut k = 0
@@ -452,7 +482,7 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
               k = k + 1
             }
           } else if sym == 18 {
-            let (zeros, r8) = bit_reader_read_bits(reader, 7)
+            let (zeros, r8) = bit_reader_read_value(reader, 7)
             reader = r8
             let zeros = zeros + 11
             let mut k = 0
@@ -473,7 +503,7 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
             dist_lengths[j] = sym
             j = j + 1
           } else if sym == 16 {
-            let (rep, r8) = bit_reader_read_bits(reader, 2)
+            let (rep, r8) = bit_reader_read_value(reader, 2)
             reader = r8
             let rep = rep + 3
             let val = if j > 0 { dist_lengths[j - 1] } else { 0 }
@@ -484,7 +514,7 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
               k = k + 1
             }
           } else if sym == 17 {
-            let (zeros, r8) = bit_reader_read_bits(reader, 3)
+            let (zeros, r8) = bit_reader_read_value(reader, 3)
             reader = r8
             let zeros = zeros + 3
             let mut k = 0
@@ -494,7 +524,7 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
               k = k + 1
             }
           } else if sym == 18 {
-            let (zeros, r8) = bit_reader_read_bits(reader, 7)
+            let (zeros, r8) = bit_reader_read_value(reader, 7)
             reader = r8
             let zeros = zeros + 11
             let mut k = 0
@@ -521,14 +551,14 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
           } else {
             let length_code = sym - 257
             let extra_len_bits = length_extra[length_code]
-            let (extra_len, r10) = bit_reader_read_bits(reader, extra_len_bits)
+            let (extra_len, r10) = bit_reader_read_value(reader, extra_len_bits)
             reader = r10
             let length = length_base[length_code] + extra_len
 
             let (dist_code, r11) = huffman_decode(dist_decoder, reader)
             reader = r11
             let extra_dist_bits = dist_extra[dist_code]
-            let (extra_dist, r12) = bit_reader_read_bits(
+            let (extra_dist, r12) = bit_reader_read_value(
               reader, extra_dist_bits,
             )
             reader = r12
@@ -583,12 +613,15 @@ fn decompress_bgzf_block(
     }
   }
 
-  let method = data.unsafe_get(pos + 4).to_int() & 0xFF
+  // gzip member layout: [0..4) magic (1f 8b), [2] CM=8, [3] FLG,
+  // [4..8) MTIME, [8] XFL, [9] OS, [10..12) XLEN (if FEXTRA), ...
+  // The 4-byte BGZF magic already covers CM and FLG; check CM explicitly.
+  let method = data.unsafe_get(pos + 2).to_int() & 0xFF
   if method != gzip_deflate_method {
     raise BgzfError("Unsupported compression method")
   }
 
-  let flags = data.unsafe_get(pos + 5).to_int() & 0xFF
+  let flags = data.unsafe_get(pos + 3).to_int() & 0xFF
   let has_extra = (flags & 0x04) != 0
 
   let mut current_pos = pos + 10
@@ -621,9 +654,14 @@ fn decompress_bgzf_block(
     current_pos = current_pos + 1
   }
 
-  let trailer_pos = pos + get_uint32_le(data, pos + 16) + 1
+  // BSIZE (at offset 16, little-endian u16) holds the total block size minus
+  // one. The 8-byte gzip trailer (CRC32 + ISIZE) occupies the last 8 bytes.
+  let bsize = (data.unsafe_get(pos + 16).to_int() & 0xFF) |
+    ((data.unsafe_get(pos + 17).to_int() & 0xFF) << 8)
+  let block_end = pos + bsize + 1
+  let trailer_pos = block_end - 8
 
-  if trailer_pos + 8 > n {
+  if block_end > n || trailer_pos < current_pos {
     raise BgzfError("Invalid BGZF block size")
   }
 
@@ -696,4 +734,417 @@ pub fn parse_bam_from_bgzf_base64(
 ) -> BamFile raise BgzfError {
   let raw_data = base64_decode(base64_str)
   parse_bam_from_bgzf(raw_data)
+}
+
+// ============================================================================
+// BGZF writing and random-access reading.
+// Port of Biopython's Bio.bgzf BgzfWriter / BgzfReader / BgzfBlocks and the
+// virtual offset (coffset/uoffset) machinery. Blocks are written as stored
+// (uncompressed) DEFLATE blocks, which is fully spec-compliant BGZF and can
+// be read by any conformant reader (samtools bgzip, zlib, etc.).
+// ============================================================================
+
+///|
+/// Maximum uncompressed payload per BGZF block. Each on-disk block is at
+/// most 65536 bytes; a stored DEFLATE block costs 31 bytes of overhead
+/// (18-byte gzip header with BC extra field + 5 stored-block header +
+/// 8-byte trailer).
+let bgzf_max_payload : Int = 65536 - 31 // 65505
+
+///|
+/// Combine a compressed block start offset and an uncompressed offset
+/// within that block into a 64-bit BGZF virtual offset (as used by BAM/
+/// tabix indexing). Mirrors Biopython's `make_virtual_offset`.
+pub fn bgzf_make_virtual_offset(block_offset : Int, within_block : Int) -> Int64 {
+  (block_offset.to_int64() << 16) | (within_block & 0xFFFF).to_int64()
+}
+
+///|
+/// Split a virtual offset into (compressed block start offset, uncompressed
+/// offset within block). Mirrors Biopython's `split_virtual_offset`.
+pub fn bgzf_split_virtual_offset(virtual_offset : Int64) -> (Int, Int) {
+  let within = (virtual_offset & 0xFFFFL).to_int()
+  let block = (virtual_offset >> 16).to_int()
+  (block, within)
+}
+
+///|
+/// Build one BGZF block around an uncompressed payload, using a single
+/// final stored DEFLATE block.
+fn bgzf_build_block(payload : String) -> String {
+  let n = payload.length()
+  let total = 31 + n
+  let bsize = total - 1
+  let nlen = n ^ 0xFFFF
+  let crc = crc32(payload) & 0xFFFFFFFF
+  let isize = n & 0xFFFFFFFF
+
+  let buf : FixedArray[UInt16] = FixedArray::make(total, 0)
+
+  // gzip member header with FEXTRA + BC subfield
+  buf[0] = (0x1f).to_uint16() // ID1
+  buf[1] = (0x8b).to_uint16() // ID2
+  buf[2] = (0x08).to_uint16() // CM = DEFLATE
+  buf[3] = (0x04).to_uint16() // FLG = FEXTRA
+  // MTIME 4 bytes = 0, XFL = 0, OS = 0xff
+  buf[9] = (0xff).to_uint16()
+  buf[10] = (0x06).to_uint16() // XLEN = 6 (lo)
+  buf[11] = (0x00).to_uint16() // XLEN (hi)
+  buf[12] = (0x42).to_uint16() // SI1 = 'B'
+  buf[13] = (0x43).to_uint16() // SI2 = 'C'
+  buf[14] = (0x02).to_uint16() // SLEN = 2 (lo)
+  buf[15] = (0x00).to_uint16() // SLEN (hi)
+  buf[16] = (bsize & 0xff).to_uint16() // BSIZE (lo)
+  buf[17] = ((bsize >> 8) & 0xff).to_uint16() // BSIZE (hi)
+
+  // stored DEFLATE block: BFINAL=1, BTYPE=00
+  buf[18] = (0x01).to_uint16()
+  buf[19] = (n & 0xff).to_uint16() // LEN (lo)
+  buf[20] = ((n >> 8) & 0xff).to_uint16() // LEN (hi)
+  buf[21] = (nlen & 0xff).to_uint16() // NLEN (lo)
+  buf[22] = ((nlen >> 8) & 0xff).to_uint16() // NLEN (hi)
+
+  for i in 0..<n {
+    buf[23 + i] = (payload.unsafe_get(i).to_int() & 0xFF).to_uint16()
+  }
+
+  // trailer: CRC32 then ISIZE, both little-endian
+  let t = 23 + n
+  buf[t] = (crc & 0xFF).to_uint16()
+  buf[t + 1] = ((crc >> 8) & 0xFF).to_uint16()
+  buf[t + 2] = ((crc >> 16) & 0xFF).to_uint16()
+  buf[t + 3] = ((crc >> 24) & 0xFF).to_uint16()
+  buf[t + 4] = (isize & 0xFF).to_uint16()
+  buf[t + 5] = ((isize >> 8) & 0xFF).to_uint16()
+  buf[t + 6] = ((isize >> 16) & 0xFF).to_uint16()
+  buf[t + 7] = ((isize >> 24) & 0xFF).to_uint16()
+
+  unsafe_from_uint16_fixedarray(buf)
+}
+
+///|
+/// The canonical 28-byte empty BGZF block that marks end-of-file.
+fn bgzf_eof_block() -> String {
+  let bytes = [
+    0x1f, 0x8b, 0x08, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff,
+    0x06, 0x00, 0x42, 0x43, 0x02, 0x00, 0x1b, 0x00, 0x03, 0x00,
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+  ]
+  let buf : FixedArray[UInt16] = FixedArray::make(28, 0)
+  for i in 0..<28 {
+    buf[i] = bytes[i].to_uint16()
+  }
+  unsafe_from_uint16_fixedarray(buf)
+}
+
+///|
+/// In-memory BGZF writer. Accumulates uncompressed data and emits one
+/// BGZF block per at-most-`bgzf_max_payload` chunk, followed by the
+/// canonical 28-byte EOF block on close. Mirrors Biopython's BgzfWriter.
+pub struct BgzfWriter {
+  priv mut buffer : String
+  priv output : StringBuilder
+  priv mut block_offset : Int
+  priv mut closed : Bool
+}
+
+///|
+pub fn BgzfWriter::new() -> BgzfWriter {
+  BgzfWriter::{
+    buffer: "",
+    output: StringBuilder::new(),
+    block_offset: 0,
+    closed: false,
+  }
+}
+
+///|
+/// Emit the current buffer as one BGZF block.
+fn BgzfWriter::flush_block(self : BgzfWriter) -> Unit {
+  if self.buffer.length() == 0 {
+    return
+  }
+  let block = bgzf_build_block(self.buffer)
+  self.output.write_string(block)
+  self.block_offset = self.block_offset + block.length()
+  self.buffer = ""
+}
+
+///|
+/// Append uncompressed data, flushing full blocks as needed.
+pub fn BgzfWriter::write(
+  self : BgzfWriter,
+  data : String,
+) -> Unit raise BgzfError {
+  if self.closed {
+    raise BgzfError("write to closed BGZF writer")
+  }
+  self.buffer = self.buffer + data
+  while self.buffer.length() > bgzf_max_payload {
+    let payload = self.buffer[0:bgzf_max_payload].to_owned()
+    self.buffer = self.buffer[bgzf_max_payload:].to_owned()
+    let block = bgzf_build_block(payload)
+    self.output.write_string(block)
+    self.block_offset = self.block_offset + block.length()
+  }
+}
+
+///|
+/// Flush any remaining data and append the EOF marker block.
+pub fn BgzfWriter::close(self : BgzfWriter) -> Unit {
+  if self.closed {
+    return
+  }
+  self.flush_block()
+  let eof = bgzf_eof_block()
+  self.output.write_string(eof)
+  self.block_offset = self.block_offset + eof.length()
+  self.closed = true
+}
+
+///|
+/// Close the writer and return the complete BGZF byte stream.
+pub fn BgzfWriter::getvalue(self : BgzfWriter) -> String {
+  self.close()
+  self.output.to_string()
+}
+
+///|
+/// Return the virtual offset at which the next byte would be written:
+/// the flushed file position (block start) plus the buffered byte count.
+pub fn BgzfWriter::tell(self : BgzfWriter) -> Int64 {
+  bgzf_make_virtual_offset(self.block_offset, self.buffer.length())
+}
+
+///|
+/// One-shot BGZF compression: data in, a complete BGZF stream (with EOF
+/// marker) out. Mirrors `bgzf.compress`-style usage.
+pub fn bgzf_compress(data : String) -> String raise BgzfError {
+  let writer = BgzfWriter::new()
+  writer.write(data)
+  writer.getvalue()
+}
+
+///|
+/// Metadata for one on-disk BGZF block, as reported by `bgzf_blocks`.
+/// Mirrors Biopython's BgzfBlocks tuples:
+/// (start_offset, block_length, data_offset, data_length).
+pub struct BgzfBlockInfo {
+  start_offset : Int
+  block_length : Int
+  data_offset : Int
+  data_length : Int
+} derive(Debug)
+
+///|
+/// Scan a BGZF stream and describe every block without decompressing.
+pub fn bgzf_blocks(data : String) -> Array[BgzfBlockInfo] raise BgzfError {
+  let blocks : Array[BgzfBlockInfo] = Array::new()
+  let n = data.length()
+  let mut pos = 0
+  let mut data_offset = 0
+  while pos < n {
+    if pos + 18 > n {
+      raise BgzfError(
+        "Truncated BGZF block at offset " + pos.to_string(),
+      )
+    }
+    for i in 0..<4 {
+      if data.unsafe_get(pos + i).to_int() != bgzf_magic[i] {
+        raise BgzfError(
+          "Invalid BGZF magic at offset " + pos.to_string(),
+        )
+      }
+    }
+    let bsize = (data.unsafe_get(pos + 16).to_int() & 0xFF) |
+      ((data.unsafe_get(pos + 17).to_int() & 0xFF) << 8)
+    let block_len = bsize + 1
+    if pos + block_len > n {
+      raise BgzfError(
+        "BGZF block at offset " +
+        pos.to_string() +
+        " exceeds file bounds",
+      )
+    }
+    let isize = get_uint32_le(data, pos + block_len - 4)
+    blocks.push(
+      BgzfBlockInfo::{
+        start_offset: pos,
+        block_length: block_len,
+        data_offset,
+        data_length: isize,
+      },
+    )
+    data_offset = data_offset + isize
+    pos = pos + block_len
+    if isize == 0 {
+      // Canonical empty EOF block; nothing can follow meaningfully.
+      break
+    }
+  }
+  blocks
+}
+
+///|
+/// Random-access reader over a BGZF byte stream. Supports virtual-offset
+/// seek/tell (as used by BAM/tabix indexing) plus read/readline.
+/// Mirrors Biopython's BgzfReader (string-backed, like all of BioSeqs).
+pub struct BgzfReader {
+  priv data : String
+  priv blocks : Array[BgzfBlockInfo]
+  priv mut block_index : Int
+  priv mut within : Int
+  priv mut cached_index : Int
+  priv mut cached_text : String
+}
+
+///|
+pub fn BgzfReader::new(data : String) -> BgzfReader raise BgzfError {
+  let blocks = bgzf_blocks(data)
+  BgzfReader::{
+    data,
+    blocks,
+    block_index: 0,
+    within: 0,
+    cached_index: -1,
+    cached_text: "",
+  }
+}
+
+///|
+/// Decompress (and cache) the block currently pointed at.
+fn BgzfReader::decompressed_current(self : BgzfReader) -> String raise BgzfError {
+  if self.cached_index != self.block_index {
+    let info = self.blocks[self.block_index]
+    let (text, _) = decompress_bgzf_block(self.data, info.start_offset)
+    self.cached_index = self.block_index
+    self.cached_text = text
+  }
+  self.cached_text
+}
+
+///|
+/// Current virtual offset (block start << 16 | offset within block).
+pub fn BgzfReader::tell(self : BgzfReader) -> Int64 {
+  if self.block_index >= self.blocks.length() {
+    // Positioned at end: report the EOF block start.
+    let last = self.blocks[self.blocks.length() - 1]
+    return bgzf_make_virtual_offset(last.start_offset, 0)
+  }
+  let info = self.blocks[self.block_index]
+  bgzf_make_virtual_offset(info.start_offset, self.within)
+}
+
+///|
+/// Seek to a virtual offset previously obtained from `tell` or an index.
+pub fn BgzfReader::seek(
+  self : BgzfReader,
+  virtual_offset : Int64,
+) -> Unit raise BgzfError {
+  let (coffset, uoffset) = bgzf_split_virtual_offset(virtual_offset)
+  let mut found = -1
+  let mut i = 0
+  while i < self.blocks.length() {
+    if self.blocks[i].start_offset == coffset {
+      found = i
+      i = self.blocks.length()
+    }
+    i = i + 1
+  }
+  if found < 0 {
+    raise BgzfError(
+      "No BGZF block starts at compressed offset " + coffset.to_string(),
+    )
+  }
+  if uoffset > self.blocks[found].data_length {
+    raise BgzfError(
+      "Uncompressed offset " +
+      uoffset.to_string() +
+      " exceeds block length " +
+      self.blocks[found].data_length.to_string(),
+    )
+  }
+  self.block_index = found
+  self.within = uoffset
+}
+
+///|
+/// Read up to `size` bytes (or all remaining data if omitted).
+pub fn BgzfReader::read(self : BgzfReader, size? : Int) -> String raise BgzfError {
+  let result = StringBuilder::new()
+  let mut remaining = size
+  while true {
+    if self.block_index >= self.blocks.length() {
+      break
+    }
+    let info = self.blocks[self.block_index]
+    if info.data_length == 0 {
+      // Empty EOF block.
+      break
+    }
+    if remaining is Some(0) {
+      break
+    }
+    if self.within >= info.data_length {
+      self.block_index = self.block_index + 1
+      self.within = 0
+      continue
+    }
+    let text = self.decompressed_current()
+    let avail = info.data_length - self.within
+    let take = match remaining {
+      Some(r) => if r < avail { r } else { avail }
+      None => avail
+    }
+    result.write_string(text[self.within:self.within + take].to_owned())
+    self.within = self.within + take
+    if remaining is Some(r) {
+      remaining = Some(r - take)
+    }
+    if self.within >= info.data_length {
+      self.block_index = self.block_index + 1
+      self.within = 0
+    }
+  }
+  result.to_string()
+}
+
+///|
+/// Read one line (including the trailing newline when present).
+pub fn BgzfReader::readline(self : BgzfReader) -> String raise BgzfError {
+  let result = StringBuilder::new()
+  while true {
+    if self.block_index >= self.blocks.length() {
+      break
+    }
+    let info = self.blocks[self.block_index]
+    if info.data_length == 0 {
+      break
+    }
+    let text = self.decompressed_current()
+    // Search for newline within the current block remainder.
+    let mut nl = -1
+    let mut j = self.within
+    while j < info.data_length {
+      if text.unsafe_get(j).to_int() == '\n'.to_int() {
+        nl = j
+        j = info.data_length
+      }
+      j = j + 1
+    }
+    if nl >= 0 {
+      result.write_string(text[self.within:nl + 1].to_owned())
+      self.within = nl + 1
+      if self.within >= info.data_length {
+        self.block_index = self.block_index + 1
+        self.within = 0
+      }
+      break
+    } else {
+      result.write_string(text[self.within:info.data_length].to_owned())
+      self.block_index = self.block_index + 1
+      self.within = 0
+    }
+  }
+  result.to_string()
 }

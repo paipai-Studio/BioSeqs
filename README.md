@@ -46,6 +46,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | 功能模块 | 对应 Biopython | 核心功能 | 状态 |
 | :--- | :--- | :--- | :---: |
 | **SeqIO 统一接口** | `Bio.SeqIO` | seqio_parse / seqio_write / seqio_convert / seqio_read / seqio_to_dict | ✅ |
+| **SeqIO 索引随机访问** | `Bio.SeqIO.index` | seqio_index 一次性扫描字节偏移构建 SeqIndex（fasta/fastq/fastq-illumina/fastq-solexa/genbank/embl/tab）、keys/length/contains、get_raw 返回原始记录切片、get 按需解析单条 SeqRecord，按 ID 随机访问无需全量解析 | ✅ |
 | **FASTA / FASTQ / QUAL** | `Bio.SeqIO.FastaIO` / `QualityIO` | FASTA/FASTQ 解析与写入、质量编码处理、低级流式解析器（SimpleFastaParser / FastqGeneralIterator / 双行紧凑格式）、seqio_error_with_line 行号错误；QUAL 格式解析与写入（parse_qual / write_qual）、FASTQ 变体编码（fastq-illumina/ASCII 偏移 64、fastq-solexa/Solexa 编码）、质量分数转换（Phred ↔ Solexa）、PairedFastaQualIterator FASTA+QUAL 配对读取 | ✅ |
 | **GenBank / EMBL** | `Bio.SeqIO.GenBankIO` / `EmblIO` | GenBank/EMBL 严格解析与写入（LOCUS/FEATURES/ORIGIN、ID/AC/DE/SQ） | ✅ |
 | **PIR / Tab** | `Bio.SeqIO.PdbIO (PIR/NBRF)` / `TabIO` | PIR/NBRF 蛋白/核酸格式、Tab 分隔（ID+序列） | ✅ |
@@ -115,6 +116,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **BLAST 基础** | `Bio.Blast` (legacy) | 历史 tabular/XML 标签解析、HSP 过滤与最佳匹配 | ✅ |
 | **现代 BLAST XML** | `Bio.Blast` | XML1/XML2 严格解析与规范写回、多 query/report、parameters/statistics、description/taxonomy、八类 BLAST 程序的链向/translated HSP 坐标路径 | ✅ |
 | **BLAST Applications** | `Bio.Blast.Applications` | 8 种 BLAST 变体命令行包装、快速构建器、参数管理、命令构建与验证 | ✅ |
+| **NCBI WWW qblast** | `Bio.Blast.NCBIWWW` | qblast_put_url 提交 URL 构造（blastn/blastp/blastx/tblastn/tblastx、megablast、expect/hitlist_size/entrez_query/descriptions/alignments/matrix_name/gap_costs/word_size/threshold/nucl_reward/penalty/ncbi_gi 全套参数、qblast_quote URL 编码）、PUT 响应 RID/RTOE 解析（qblast_parse_put）、SearchInfo 状态轮询（WAITING/READY/FAILED/UNKNOWN，qblast_parse_status）、结果下载 URL 构造、NcbiBlastClient 可注入 fetch/now 传输与 1/3 秒限速、submit/check_status/fetch_result/qblast 完整工作流 | ✅ |
 | **SearchIO 统一模型** | `Bio.SearchIO` | QueryResult / Hit / HSP / Fragment 四层结构、E-value 过滤、BLAST 转换 | ✅ |
 | **HMMER3** | `Bio.SearchIO` (HmmerIO) | domtblout 域表、文本格式、domain 聚合、非 verbose 文本与 --noali | ✅ |
 | **Infernal** | `Bio.SearchIO.InfernalIO` | cmscan/cmsearch tabular 1/2/3 自动检测、CM/HMM-only、正负链坐标、local-end 多片段 | ✅ |
@@ -219,6 +221,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Application** | `Bio.Application` / `Align.Applications` | 命令行工具包装（ClustalW/Clustal Omega/Muscle/MAFFT）、参数管理 | ✅ |
 | **Bloom Filter** | Jellyfish/khmer 风格 | k-mer 计数、成员查询、误判率估算、近似去重 | ✅ |
 | **File 压缩** | `Bio.File` | 自动 gzip/bzip2 检测、透明压缩读写、文件操作接口 | ✅ |
+| **BGZF 块 GZIP** | `Bio.bgzf` | 解压 bgzf_decompress / parse_bam_from_bgzf；写入 bgzf_compress / BgzfWriter（stored DEFLATE 分块，单块 payload ≤65505 字节，收尾 28 字节标准 EOF 块）、BgzfReader 随机访问（read(size)/readline/seek/tell）、虚拟偏移 bgzf_make/split_virtual_offset（coffset<<16｜uoffset，BAM/tabix 索引语义）、bgzf_blocks 块元数据扫描（start/block_length/data_offset/data_length）；修复 DEFLATE 位读取 LSB 位序、gzip CM/FLG 偏移、stored block LEN/NLEN 小端读取、BGZF trailer 位置计算等潜伏解压 bug | ✅ |
 | **Bio.NaiveBayes** | `Bio.NaiveBayes` | k-mer 频率朴素贝叶斯、Laplace 平滑、top-K 预测 | ✅ |
 | **Bio.Markov** | `Bio.Markov` | 1/2/3 阶马尔可夫链训练、转移概率、序列对数概率、CpG 岛 log-odds 检测、稳态分布 | ✅ |
 | **Bio.LogisticRegression** | `Bio.LogisticRegression` | 二分类、Newton-Raphson、Hessian、操纵子预测示例 | ✅ |
@@ -527,7 +530,8 @@ IvanAXu/BioSeqs/
 │   ├── searchio.mbt / blast_*.mbt / ... # 搜索结果解析（BLAST/HMMER/Infernal/...）
 │   ├── phylo.mbt / tree_*.mbt / paml_*.mbt # 发育树 + PAML 分子进化
 │   ├── pdb*.mbt / mmcif*.mbt / binary_cif.mbt / ... # 结构分析与格式
-│   ├── sam.mbt / bam.mbt / vcf.mbt / cram_wbtest.mbt # NGS 文件
+│   ├── sam.mbt / bam.mbt / bgzf.mbt / vcf.mbt / cram_wbtest.mbt # NGS 文件（BGZF 压缩/随机访问）
+│   ├── seqio_index.mbt / ncbiblast_web.mbt # SeqIO 字节偏移索引 / NCBI WWW qblast 客户端
 │   ├── genomic_ranges.mbt / iranges.mbt / plyranges.mbt # 区间操作
 │   ├── deseq2.mbt / edger.mbt / limma.mbt / seurat.mbt / ... # Bioconductor 分析套件
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
@@ -550,6 +554,9 @@ IvanAXu/BioSeqs/
 │   ├── kegg_rest_demo/               # Bio.KEGG.REST（info/list/find/get/conv/link URL 构造/多条目/限速）
 │   ├── scop_raf_dom_demo/            # Bio.SCOP.Raf/Dom（RAF 解析/索引/域切割/ATOM 提取/DOM 往返）
 │   ├── entrez_eutils_demo/           # Bio.Entrez E-utilities（EPost/ESummary/ESpell/ELink/ECitMatch/请求日志）
+│   ├── bgzf_demo/                    # Bio.bgzf（BgzfWriter 压缩/bgzf_blocks 块扫描/BgzfReader 虚拟偏移 seek/read/readline）
+│   ├── qblast_demo/                  # Bio.Blast.NCBIWWW（mock fetch 演示 PUT 提交/SearchInfo 轮询/结果下载全流程）
+│   ├── seqio_index_demo/             # Bio.SeqIO.index（FASTA 字节偏移索引/get_raw 原始切片/get 按 ID 随机解析）
 │   ├── phylo_applications_demo/      # Bio.Phylo.Applications（FastTree/PhyML/RAxML 命令行构建）
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
@@ -600,6 +607,7 @@ moon test       # 运行全部测试 (12590 个测试用例)
 | `seq.mbt` | `Bio.Seq` 序列对象与基础操作 |
 | `seq_record.mbt` / `seqfeature.mbt` / `seqfeature_advanced.mbt` | 序列记录与特征（位置/CompoundLocation/修饰符） |
 | `seqio.mbt` / `fasta_io.mbt` / `fastq_io.mbt` / `genbank_io.mbt` | 序列 I/O 统一接口（FASTA/FASTQ/GenBank 等 30+ 格式） |
+| `seqio_index.mbt` | Bio.SeqIO.index 随机访问：seqio_index 字节偏移扫描（fasta/fastq/genbank/embl/tab）、SeqIndex keys/length/contains、get_raw 原始切片、get 按 ID 按需解析单条 SeqRecord（SeqIndexEntry offset/length） |
 | `sequtils.mbt` / `seq_utils.mbt` / `sequtils_advanced.mbt` / `seq_complexity.mbt` | GC 含量与 gc_fraction 歧义模式、GC123、nt_search、six_frame_translations、seq3/seq1、Tm/ORF/分子量/LCC 复杂度/Hamming 距离 |
 | `melting_temp.mbt` / `melting_temp_advanced.mbt` | 解链温度：Tm_Wallace 经验法则、Tm_GC 八套经验公式、Tm_NN 近邻热力学（DNA_NN1-4/RNA_NN1-3/R_DNA_NN1 八套表 + 错配/末端/悬挂端表）、盐校正 1-7（Na+/K+/Tris/Mg2+/dNTP，Owczarzy 2008）、自互补、DMSO/甲酰胺化学校正、自定义热力学表 |
 | `codon_usage.mbt` / `codon_align.mbt` / `codon_align_advanced.mbt` | 密码子使用分析与 dN/dS 选择压力检验 |
@@ -614,7 +622,7 @@ moon test       # 运行全部测试 (12590 个测试用例)
 | `pdb.mbt` / `pdb_io.mbt` / `mmcif.mbt` / `binary_cif.mbt` / `mmtf.mbt` | PDB/mmCIF/BinaryCIF/MMTF 结构解析与转换 |
 | `cealign.mbt` / `qcp_superimposer.mbt` / `svd_superimposer.mbt` / `structure_alignment.mbt` / `ma_align.mbt` | CE/SVD/QCP 结构叠合 + 多结构比对 |
 | `dssp.mbt` / `sasa.mbt` / `pdb_packing.mbt` / `internal_coords.mbt` | DSSP 二级结构、SASA (Shrake-Rupley/Lee-Richards)、包装密度、内部坐标 |
-| `sam.mbt` / `bam.mbt` / `bgzf.mbt` / `vcf.mbt` / `variant_annotation.mbt` / `structural_variant.mbt` | NGS SAM/BAM/BGZF/VCF/SV 解析与注释 |
+| `sam.mbt` / `bam.mbt` / `bgzf.mbt` / `vcf.mbt` / `variant_annotation.mbt` / `structural_variant.mbt` | NGS SAM/BAM/BGZF/VCF/SV 解析与注释；`bgzf.mbt` 另含 BGZF 写入与随机访问：bgzf_compress/BgzfWriter（stored DEFLATE 分块 + EOF 块）、BgzfReader（read/readline/seek/tell）、bgzf_make/split_virtual_offset 虚拟偏移、bgzf_blocks 块扫描，并修复 DEFLATE LSB 位序/CM/FLG 偏移等解压问题 |
 | `faidx.mbt` | pyfaidx 风格 FASTA 索引 |
 | `genomic_ranges.mbt` / `granges_list.mbt` / `iranges.mbt` / `plyranges.mbt` | GenomicRanges/IRanges/plyranges 区间与 tidy 操作 |
 | `pqs_finder.mbt` | pqsfinder G-四链体（PQS）检测：G-run 穷举搜索、四分体加分/bulge/错配/loop 罚分评分、正负链坐标映射、非重叠解析（revised non-overlapping storage）、`overlapping=true` 全构象导出（按 (start,end) 去重保留最高分）、`pqs_search` deep 搜索逐位置 `density`（构象重叠计数）与 `max_scores`（位置最高分）向量、`Pqs::sequence` 提取命中序列 |
@@ -628,6 +636,7 @@ moon test       # 运行全部测试 (12590 个测试用例)
 | `kegg_rest.mbt` | Bio.KEGG.REST REST 客户端：kegg_rest_info/list/list_entries/find/find_multi/get/get_multi/conv/conv_multi/link/link_multi 与 kegg_rest_url 构造器（info/list/find/get/conv/link 六种操作）、多条目 "+" 分隔、find 的 formula/exact_mass/mol_weight 选项、get 的 aaseq/ntseq/mol/kcf/image/kgml/json 输出选项、KeggRestClient 可注入 fetch 与 now 时钟、内置 1/3 秒限速（每秒 3 次查询） |
 | `scop_raf_dom.mbt` | Bio.SCOP.Raf / Bio.SCOP.Dom：scop_raf_normalize_letters（3↔1 氨基酸映射）、scop_raf_seqmap_parse（38 列定宽头 + pdbid/chainid/version/flags + 7 列残基字段，0.01/0.02 版本校验）、scop_raf_parse/scop_raf_index（pdbid+chainid 键）、ScopSeqMap（length/get/residues/index/slice/add/extend）、scop_raf_get_seqmap（SCOP 链与残基定义切域）、scop_raf_get_atoms（PDB ATOM/HETATM 残基级提取）、scop_parse_residues；DomRecord 制表符记录解析（sid/pdbid/fragments/hierarchy）与 to_string 往返 |
 | `entrez_eutils.mbt` | Bio.Entrez E-utilities：epost（WebEnv/QueryKey 会话）、esummary + parse_esummary（DocSum/Item 文档摘要）、espell + parse_espell（CorrectedQuery/Replaced）、elink + parse_elink（LinkSet/LinkSetDb/LinkName 跨库关联）、ecitmatch + parse_ecitmatch（journal|year|vol|page|author 引文 bdata 检索 PMID）、entrez_quote_plus URL 编码、EntrezClient 可注入 fetch 与 now 时钟、内置限速（无 API key 1/3 秒、有 key 1/11 秒） |
+| `ncbiblast_web.mbt` | Bio.Blast.NCBIWWW qblast Web 服务：qblast_put_url 提交 URL 构造（5 种程序/megablast/expect/hitlist_size/entrez_query/format_type/descriptions/alignments/matrix_name/gap_costs/word_size/threshold/nucl_reward/penalty/ncbi_gi 全参数 + qblast_quote URL 编码）、qblast_search_info_url/qblast_result_url、qblast_parse_put（RID/RTOE）、qblast_parse_status（Waiting/Ready/Failed/Unknown）、NcbiBlastClient 可注入 fetch 与 now 时钟、内置 1/3 秒限速、submit/check_status/fetch_result/qblast 提交-轮询-下载工作流 |
 | `datastore.mbt` | Bio.Datastore MD5 键控 BagIt 风格 bag：md5_hex（RFC 1321 完整实现：K 表 floor(|sin(i+1)|·2³²)、四轮 64 步、大端输出）、Datastore::add/get/contains/remove/checksum/entry、manifest_md5_txt/manifest_lines/bagit_txt/bag_info_txt（Payload-Oxum 字节·文件数）、verify 逐条目校验、fetch-through 缓存（下载回调 + hit/miss 统计）、load_bag 外部清单加载（一致/过期清单判定）、字典序 names/tags |
 | `phylo_applications.mbt` | Bio.Phylo.Applications 系统发育命令行包装（可变 builder 模式）：FastTreeCommandline（-nt/-n/-quote、-boot、-gtr/-gamma、-spr/-mlnni、-wag/-pseudo/-mlacc）、PhymlCommandline（-i/-d/-m/-b/-c/-a/-s、-o tlr、--rand_start/--n_rand_starts/--r_seed、--quiet）、RaxmlCommandline（-s/-n/-m、-f a、-x/-N、-q 分区、-t/-r/-g 起始/约束树、-e/-c、-k/-T/-o/-w、RAPID bootstrap 种子）与 build() 命令行构造 |
 | `wgcna.mbt` / `genie3.mbt` / `minet.mbt` | 基因共表达/调控网络：WGCNA 加权共表达与 TOM 模块、GENIE3 回归树特征重要性；minet 互信息网络（equalfreq/equalwidth 离散化 + empirical/Miller-Madow/Hausser-Strimmer/Schürmann-Grassberger 四种熵估计，ARACNE DPI 剪枝、CLR 背景 z-score、MRNET mRMR 前向选择，validate precision/recall/AUROC/AUPR/maxF 评分） |
