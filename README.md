@@ -269,6 +269,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **GenomeInfoDb** | GenomeInfoDb | 基因组构建、染色体信息、着丝粒位置、染色体臂、标准染色体筛选 | ✅ |
 | **Biostrings** | Biostrings | 生物序列字符串操作：字母表、反向互补、翻译、模式匹配、PDict 字典匹配、vcountPattern/vmatchPattern、pairwiseAlignment、核苷酸/蛋白质频率 | ✅ |
 | **InteractionSet** | InteractionSet | 染色质互作数据：Anchor/InteractionSet 结构、Hi-C 互作矩阵、区域对操作、距离计算、重叠检测 | ✅ |
+| **SeqArray** | SeqArray | GDS 层级容器（GdsNode/GdsFile 路径寻址、GdsInt/Double/String/Int2D/Int3D 值类型）、seqVCF2GDS VCF 导入（样本/变异/基因型三节点）、SeqVarData 过滤视图（seqSetFilter 语义：sample/variant/chrom/range 过滤与 reset）、基因型剂量提取（0/1/2 计数、-1 缺失、单倍型/多等位基因/缺失处理）、allele_frequencies/missing_rates/summary（seqSummary）与 apply_per_variant 逐变异统计 | ✅ |
 
 ### 注释与基因组数据库
 
@@ -285,6 +286,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **rtracklayer** | rtracklayer | BED/WIG/BEDGraph/GFF 解析与写入、GRanges 转换、Chain liftOver | ✅ |
 | **UCSC Chain / liftOver** | rtracklayer | Chain 格式解析、基因组坐标 liftOver 转换、链段查找、染色体间映射 | ✅ |
 | **rhdf5** | rhdf5 | HDF5 文件支持、数据集读写、组管理、属性操作 | ✅ |
+| **GenomicScores** | GenomicScores | GScores 位置特异性分数检索：多 population 安装（phastCons/phyloP 风格 per-chromosome 存储）、score_at 单碱基查询（step 常数/linear 线性两种插值、首碱基前 NaN、末尾截断）、range_score 区间汇总（mean/min/max/median）、多 population 默认切换、gscores_fetch GRanges 风格批量抓取、染色体增量合并（位置对齐去重） | ✅ |
 
 ### 差异表达分析
 
@@ -352,6 +354,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **singscore** | singscore | 基于排名的单样本基因集评分：上下调基因集分数、中位数中心化排名、标准化分数、置换检验 | ✅ |
 | **Harmony** | Harmony | 快速迭代批量校正：软 k-means 聚类、线性批量校正、收敛性检测、融合度指标、多轮聚类-校正交替 | ✅ |
 | **scMerge** | scMerge | RUV4 单细胞批量校正：稳定表达基因 (SEG) 选择、RUV 去除非期望变异、随机 SVD 因子估计、多批次数据整合 | ✅ |
+| **splatter** | splatter | splat 单细胞计数模拟：gamma 基因基础均值、log-normal 文库大小因子、trended BCV 分散、负二项计数（Poisson-gamma 混合）、分组差异表达（log 空间 DE 因子）、log-normal 批次效应、logistic dropout（log10 均值中点 + 斜率）、pseudotime 路径（路径基因偏移 + 进度调制）、确定性 LCG/Box-Muller/Marsaglia-Tsang RNG 流、SplatParams 参数体系（default/create） | ✅ |
 | **scDblFinder / decontX / celda / milo 等容器接入** | 所有上面模块 | 统一 SingleCellExperiment 不可变写回与跨模块集成 | ✅ |
 
 ### 空间转录组
@@ -469,6 +472,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **mixOmics** | mixOmics | 多组学整合：PLS 回归、稀疏 PLS (sPLS)、DIABLO 多块整合 | ✅ |
 | **destiny / Rtsne / uwot** | destiny / Rtsne / uwot | 扩散映射（距离矩阵/高斯核/特征分解）；t-SNE（条件概率/梯度下降/Barnes-Hut）；UMAP（kNN/模糊单纯集/SGD/负采样） | ✅ |
 | **GENESIS** | GENESIS | 亲属关系矩阵估计、PCA、遗传距离（欧氏/曼哈顿/IBS）、群体结构 | ✅ |
+| **SNPRelate** | SNPRelate | SNP 遗传关系分析（剂量矩阵输入，-1 缺失）：snpgdsSnpStats 等位基因频率/MAF/缺失率、snpgdsIBDKING KING 稳健亲缘（phi = 0.5 − SumSq/(4·min(N_Aa))）+ IBS0 比例、snpgdsIBDKingHomo k0/k1 IBD 状态、snpgdsIBS/snpgdsDist、snpgdsPCA EIGMIX 协方差特征分解（特征值/方差解释率/载荷）、snpgdsLD 相关系数、snpgdsLDpruning 滑窗贪婪 LD 剪枝（threshold/maf/slide.max.bp） | ✅ |
 | **HilbertCurve** | HilbertCurve | Hilbert 曲线编码/解码、距离计算、基因组线性化、网格映射 | ✅ |
 | **flowCore / openCyto / FlowSOM / diffcyt** | flowCore / openCyto / FlowSOM / diffcyt | FCS 处理、荧光补偿、门控（矩形/多边形/椭球/四象限/mindensity KDD/tailgate/flowClust t 混合 EM/rangeGate）、模板驱动门控流水线；高维流式：FlowSOM 聚类、负二项 GLM DA 检验、经验贝叶斯调节 t 检验 DS、BH-FDR | ✅ |
 | **universalmotif** | universalmotif | Motif 结构、共识序列计算 | ✅ |
@@ -534,6 +538,7 @@ IvanAXu/BioSeqs/
 │   ├── seqio_index.mbt / ncbiblast_web.mbt # SeqIO 字节偏移索引 / NCBI WWW qblast 客户端
 │   ├── genomic_ranges.mbt / iranges.mbt / plyranges.mbt # 区间操作
 │   ├── deseq2.mbt / edger.mbt / limma.mbt / seurat.mbt / ... # Bioconductor 分析套件
+│   ├── gds.mbt / snprelate.mbt / genomic_scores.mbt / splatter.mbt # SeqArray GDS 容器 / SNPRelate 亲缘分析 / GenomicScores / splatter 模拟
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
@@ -557,6 +562,10 @@ IvanAXu/BioSeqs/
 │   ├── bgzf_demo/                    # Bio.bgzf（BgzfWriter 压缩/bgzf_blocks 块扫描/BgzfReader 虚拟偏移 seek/read/readline）
 │   ├── qblast_demo/                  # Bio.Blast.NCBIWWW（mock fetch 演示 PUT 提交/SearchInfo 轮询/结果下载全流程）
 │   ├── seqio_index_demo/             # Bio.SeqIO.index（FASTA 字节偏移索引/get_raw 原始切片/get 按 ID 随机解析）
+│   ├── gds_demo/                     # SeqArray（seqVCF2GDS 导入/GDS 节点树/sample+variant 过滤/剂量与 seqSummary）
+│   ├── snprelate_demo/               # SNPRelate（SnpStats/KING 亲缘/IBD k0-k1/IBS 距离/EIGMIX PCA/LD 剪枝）
+│   ├── genomic_scores_demo/          # GenomicScores（population 安装/step+linear 插值/区间汇总/批量抓取）
+│   ├── splatter_demo/                # splatter（基础模拟/分组 DE/批次效应/dropout/pseudotime 路径/RNG 流）
 │   ├── phylo_applications_demo/      # Bio.Phylo.Applications（FastTree/PhyML/RAxML 命令行构建）
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
@@ -566,7 +575,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 500 个测试文件，12551 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，12767 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -586,7 +595,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12451 个测试全部通过
+moon test                                               # ✅ 12767 个测试全部通过
 ```
 
 ---
@@ -595,7 +604,7 @@ moon test                                               # ✅ 12451 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12590 个测试用例)
+moon test       # 运行全部测试 (12767 个测试用例)
 ```
 
 ---
@@ -640,6 +649,10 @@ moon test       # 运行全部测试 (12590 个测试用例)
 | `datastore.mbt` | Bio.Datastore MD5 键控 BagIt 风格 bag：md5_hex（RFC 1321 完整实现：K 表 floor(|sin(i+1)|·2³²)、四轮 64 步、大端输出）、Datastore::add/get/contains/remove/checksum/entry、manifest_md5_txt/manifest_lines/bagit_txt/bag_info_txt（Payload-Oxum 字节·文件数）、verify 逐条目校验、fetch-through 缓存（下载回调 + hit/miss 统计）、load_bag 外部清单加载（一致/过期清单判定）、字典序 names/tags |
 | `phylo_applications.mbt` | Bio.Phylo.Applications 系统发育命令行包装（可变 builder 模式）：FastTreeCommandline（-nt/-n/-quote、-boot、-gtr/-gamma、-spr/-mlnni、-wag/-pseudo/-mlacc）、PhymlCommandline（-i/-d/-m/-b/-c/-a/-s、-o tlr、--rand_start/--n_rand_starts/--r_seed、--quiet）、RaxmlCommandline（-s/-n/-m、-f a、-x/-N、-q 分区、-t/-r/-g 起始/约束树、-e/-c、-k/-T/-o/-w、RAPID bootstrap 种子）与 build() 命令行构造 |
 | `wgcna.mbt` / `genie3.mbt` / `minet.mbt` | 基因共表达/调控网络：WGCNA 加权共表达与 TOM 模块、GENIE3 回归树特征重要性；minet 互信息网络（equalfreq/equalwidth 离散化 + empirical/Miller-Madow/Hausser-Strimmer/Schürmann-Grassberger 四种熵估计，ARACNE DPI 剪枝、CLR 背景 z-score、MRNET mRMR 前向选择，validate precision/recall/AUROC/AUPR/maxF 评分） |
+| `gds.mbt` | Bioconductor SeqArray：GDS 层级容器（GdsNode leaf/folder、GdsFile 路径寻址 add_node/get_node/try_get_node/has_node、GdsValue 五种类型）、seq_vcf2gds VCF 导入（sample.id/variant.id/genotype 三节点）、SeqVarData 过滤视图（set_sample_filter/set_variant_filter/set_variant_chrom_filter/set_variant_range_filter/reset_filter）、genotype_dosages 剂量提取（单倍型/多等位基因/缺失语义）、allele_frequencies/missing_rates/summary/apply_per_variant |
+| `snprelate.mbt` | Bioconductor SNPRelate：snpgds_snp_stats（alt AF/MAF/missing rate）、snpgds_ibd_king（KING 稳健亲缘 phi = 0.5 − SumSq/(4·min(N1_Aa,N2_Aa)) + IBS0 比例矩阵）、snpgds_ibd_king_homo（k0/k1 IBD 状态推断）、snpgds_ibs（IBS 状态 + 距离）、snpgds_pca（EIGMIX 协方差特征分解，特征值/方差解释率/样本载荷）、snpgds_ld（LD 相关系数）、snpgds_ld_pruning（滑窗贪婪剪枝 threshold/maf/slide_max） |
+| `genomic_scores.mbt` | Bioconductor GenomicScores：GScores 多 population 逐染色体分数安装（set_scores 增量合并去重）、score_at 单碱基查询（GsConstant step / GsLinear 线性插值、首碱基前 NaN、末尾钳制）、range_score 区间汇总（mean/min/max/median）、set_default_population 默认 population 切换、gscores_fetch GRanges 风格批量区间抓取 |
+| `splatter.mbt` | Bioconductor splatter（splat 模型）：splat_lcg/splat_normal/splat_gamma/splat_poisson 确定性 RNG 流、splat_simulate 全流程（gamma 基因均值 → 组/批次细胞布局 → log-normal 文库因子 → 路径/DE log 均值偏移 → 批次因子 → NB Poisson-gamma 计数 → logistic dropout → pseudotime）、SplatParams default/create 参数体系（group_cells/batch_cells/DE/dropout/path 全参数）、SplatResult（counts/base_means/lib_factors/group/batch/pseudotime/dropout/group_log_means） |
 | `summarized_experiment.mbt` / `single_cell_experiment.mbt` / `spatial_experiment.mbt` / `multi_assay_experiment.mbt` / `tree_summarized_experiment.mbt` / `ragged_experiment.mbt` | Bioconductor 数据容器家族 |
 | `deseq2.mbt` + `deseq2_advanced.mbt` / `edger.mbt` + `edger_advanced.mbt` / `limma.mbt` / `apeglm.mbt` | 差异表达三大套件 + apeglm LFC 收缩 |
 | `ebseq.mbt` / `matrixeqtl.mbt` / `dmrcate.mbt` / `gostats.mbt` / `goseq.mbt` / `lefse.mbt` | EBSeq 经验贝叶斯 DE / MatrixEQTL eQTL 线性回归 / DMRcate 差异甲基化区域 / GOstats GO 富集 / goseq 长度偏差校正 GO 富集 / LEfSe 微生物组生物标志物 |
