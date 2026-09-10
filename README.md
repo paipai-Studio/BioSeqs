@@ -120,7 +120,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **SearchIO 统一模型** | `Bio.SearchIO` | QueryResult / Hit / HSP / Fragment 四层结构、E-value 过滤、BLAST 转换 | ✅ |
 | **HMMER3** | `Bio.SearchIO` (HmmerIO) | domtblout 域表、文本格式、domain 聚合、非 verbose 文本与 --noali | ✅ |
 | **Infernal** | `Bio.SearchIO.InfernalIO` | cmscan/cmsearch tabular 1/2/3 自动检测、CM/HMM-only、正负链坐标、local-end 多片段 | ✅ |
-| **BLAT PSL** | `Bio.SearchIO` (BLAT) | PSL 解析、SearchIO 转换 | ✅ |
+| **BLAT PSL / PSLX** | `Bio.SearchIO.BlatIO` (`blat-psl`) | 21/23 列严格解析与写回（列数校验）、psLayout header 跳过、负链 block 坐标重定向、蛋白 query 自动检测（hit block 3:1 跨度）、UCSC millibad identity 与 score、QueryResult/Hit/HSP 连续分组与同名 hit 合并、PSLX block 序列、psLayout header 写出、SearchIO 通用模型转换（0-based→1-based） | ✅ |
 | **FASTA 搜索** | `Bio.SearchIO.FastaIO` | -m8 紧凑表格、-m9 注释头、元数据提取 | ✅ |
 | **HH-suite HHR** | `Bio.Align.hhr` | HHsearch/HHblits HHR 严格解析、profile-profile 比对、consensus/二级结构/DSSP/confidence 注释、命中筛选、坐标映射、序列化往返 | ✅ |
 | **Exonerate vulgar/cigar** | `Bio.SearchIO.ExonerateIO` | vulgar 比对块三元组、cigar 格式、格式自动检测、分数过滤、内含子统计、字符串重建 | ✅ |
@@ -563,6 +563,7 @@ IvanAXu/BioSeqs/
 │   ├── entrez_eutils_demo/           # Bio.Entrez E-utilities（EInfo/ESearch+history/EFetch/EPost/ESummary/ESpell/ELink/EGQuery/ECitMatch/请求日志）
 │   ├── bgzf_demo/                    # Bio.bgzf（BgzfWriter 压缩/bgzf_blocks 块扫描/BgzfReader 虚拟偏移 seek/read/readline）
 │   ├── qblast_demo/                  # Bio.Blast.NCBIWWW（mock fetch 演示 PUT 提交/SearchInfo 轮询/结果下载全流程）
+│   ├── blat_psl_demo/                # Bio.SearchIO.BlatIO（blat-psl/PSLX 解析、负链重定向、蛋白 3:1 block、millibad/score、写回往返、SearchIO 转换）
 │   ├── seqio_index_demo/             # Bio.SeqIO.index（FASTA 字节偏移索引/get_raw 原始切片/get 按 ID 随机解析）
 │   ├── gds_demo/                     # SeqArray（seqVCF2GDS 导入/GDS 节点树/sample+variant 过滤/剂量与 seqSummary）
 │   ├── snprelate_demo/               # SNPRelate（SnpStats/KING 亲缘/IBD k0-k1/IBS 距离/EIGMIX PCA/LD 剪枝）
@@ -577,7 +578,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，12767 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，12901 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -597,7 +598,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12767 个测试全部通过
+moon test                                               # ✅ 12901 个测试全部通过
 ```
 
 ---
@@ -606,7 +607,7 @@ moon test                                               # ✅ 12767 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12767 个测试用例)
+moon test       # 运行全部测试 (12901 个测试用例)
 ```
 
 ---
@@ -628,6 +629,7 @@ moon test       # 运行全部测试 (12767 个测试用例)
 | `alignment_frequencies.mbt` | Bio.Align MSA 统计：每列字母计数/频率（`'-'` gap 行）、对称替换计数矩阵（序列权重、M=(M+Mᵀ)/2）、观测对频率与背景频率、q_ij/e_ij 相对频率/log-odds |
 | `searchio.mbt` / `blast.mbt` / `blast_xml_advanced.mbt` | SearchIO 统一模型 + BLAST tabular/XML1/XML2 |
 | `hmmer_io.mbt` / `infernal_io.mbt` / `hhr.mbt` / `exonerate_text.mbt` / `interproscan.mbt` | HMMER3/Infernal/HH-suite HHR/Exonerate C4/InterProScan 解析 |
+| `blat_io.mbt` | Bio.SearchIO.BlatIO `blat-psl`/PSLX：BlatQueryResult/BlatHit/BlatHsp/BlatBlock 模型、blat_psl_parse/write/write_stats/header、负链 block 重定向、蛋白 3:1 检测、UCSC millibad/score、to_search_io 转换 |
 | `phylo.mbt` / `tree_io.mbt` / `tree_construction.mbt` | 系统发育树解析 + UPGMA/NJ/WPGMA 建树 |
 | `phylo_xml.mbt` / `phylo_nexml.mbt` / `phylo_cdao.mbt` / `parsimony.mbt` / `phylo_consensus.mbt` | PhyloXML/NeXML/CDAO、Fitch/Sankoff 简约性、共识树 |
 | `pdb.mbt` / `pdb_io.mbt` / `mmcif.mbt` / `binary_cif.mbt` / `mmtf.mbt` | PDB/mmCIF/BinaryCIF/MMTF 结构解析与转换 |
