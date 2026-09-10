@@ -406,3 +406,228 @@ fn exp(x : Double) -> Double {
 pub fn ProteinAnalysis::length(self : ProteinAnalysis) -> Int {
   self.sequence.length()
 }
+
+///|
+/// Vihinen (1994) flexibility window weights for window size 9.
+let flex_weights : Array[Double] = [0.25, 0.4375, 0.625, 0.8125]
+
+///|
+/// Calculate the flexibility according to Vihinen, 1994.
+///
+/// Uses a fixed window of 9 residues with weights [0.25, 0.4375, 0.625,
+/// 0.8125, 1]; returns one score per sliding window, i.e. length - 9
+/// values. Raises SeqError if the (upper-cased) sequence contains a
+/// residue without a flexibility parameter.
+pub fn ProteinAnalysis::flexibility(
+  self : ProteinAnalysis,
+) -> Array[Double] raise SeqError {
+  let seq = self.sequence.to_upper()
+  let n = seq.length()
+  let window = 9
+  let scores : Array[Double] = Array::new()
+  if n <= window {
+    return scores
+  }
+  let mut i = 0
+  while i < n - window {
+    let mut score = 0.0
+    let mut j = 0
+    while j < window / 2 {
+      let front = seq.unsafe_get(i + j).unsafe_to_char()
+      let back = seq.unsafe_get(i + window - j - 1).unsafe_to_char()
+      let fv = match flex_values.get(front) {
+        Some(v) => v
+        None => raise SeqError(
+          "flexibility: " + front.to_string() + " is not a standard amino acid",
+        )
+      }
+      let bv = match flex_values.get(back) {
+        Some(v) => v
+        None => raise SeqError(
+          "flexibility: " + back.to_string() + " is not a standard amino acid",
+        )
+      }
+      score = score + (fv + bv) * flex_weights[j]
+      j = j + 1
+    }
+    // Biopython uses window // 2 + 1 (index 5), not the geometric centre.
+    let middle = seq.unsafe_get(i + window / 2 + 1).unsafe_to_char()
+    let mv = match flex_values.get(middle) {
+      Some(v) => v
+      None => raise SeqError(
+        "flexibility: " + middle.to_string() + " is not a standard amino acid",
+      )
+    }
+    score = score + mv
+    scores.push(score / 5.25)
+    i = i + 1
+  }
+  scores
+}
+
+///|
+/// Compute a sliding-window profile from any amino acid scale.
+///
+/// The central residue always has weight 1; the other positions get
+/// symmetric linearly interpolated weights from `edge` (window edges) to
+/// 1 (centre). Returns length - window + 1 values. Window pairs involving
+/// a non-standard residue are skipped (like Biopython's warning behaviour).
+/// Raises SeqError if window is smaller than 1.
+pub fn ProteinAnalysis::protein_scale(
+  self : ProteinAnalysis,
+  param_dict : Map[Char, Double],
+  window : Int,
+  edge? : Double = 1.0,
+) -> Array[Double] raise SeqError {
+  if window < 1 {
+    raise SeqError("protein_scale: window must be at least 1")
+  }
+  let seq = self.sequence.to_upper()
+  let n = seq.length()
+  let half = window / 2
+  let unit = 2.0 * (1.0 - edge) / (window - 1).to_double()
+  let weights : Array[Double] = Array::new()
+  let mut k = 0
+  while k < half {
+    weights.push(edge + unit * k.to_double())
+    k = k + 1
+  }
+  let mut sum_of_weights = 1.0
+  for w in weights {
+    sum_of_weights = sum_of_weights + 2.0 * w
+  }
+  let scores : Array[Double] = Array::new()
+  if n < window {
+    return scores
+  }
+  let mut i = 0
+  while i < n - window + 1 {
+    let mut score = 0.0
+    let mut j = 0
+    while j < half {
+      let front = seq.unsafe_get(i + j).unsafe_to_char()
+      let back = seq.unsafe_get(i + window - j - 1).unsafe_to_char()
+      // If either side is non-standard, skip the whole weighted pair.
+      match (param_dict.get(front), param_dict.get(back)) {
+        (Some(fv), Some(bv)) => score = score + weights[j] * (fv + bv)
+        _ => ()
+      }
+      j = j + 1
+    }
+    let middle = seq.unsafe_get(i + half).unsafe_to_char()
+    match param_dict.get(middle) {
+      Some(mv) => score = score + mv
+      None => ()
+    }
+    scores.push(score / sum_of_weights)
+    i = i + 1
+  }
+  scores
+}
+
+///|
+/// Fraction of residues tending to be in helix, turn and sheet.
+///
+/// Helix: E M A L K; Turn: N P G S D; Sheet: V I Y F W L T (L occurs in
+/// both helix and sheet). Returns the tuple (Helix, Turn, Sheet), matching
+/// Biopython >= 1.82 ordering.
+pub fn ProteinAnalysis::secondary_structure_fraction(
+  self : ProteinAnalysis,
+) -> (Double, Double, Double) {
+  let seq = self.sequence.to_upper()
+  let n = seq.length()
+  if n == 0 {
+    return (0.0, 0.0, 0.0)
+  }
+  let mut helix = 0
+  let mut turn = 0
+  let mut sheet = 0
+  let mut i = 0
+  while i < n {
+    let c = seq.unsafe_get(i).unsafe_to_char()
+    if c == 'E' || c == 'M' || c == 'A' || c == 'L' || c == 'K' {
+      helix = helix + 1
+    }
+    if c == 'N' || c == 'P' || c == 'G' || c == 'S' || c == 'D' {
+      turn = turn + 1
+    }
+    if c == 'V' || c == 'I' || c == 'Y' || c == 'F' || c == 'W' ||
+         c == 'L' || c == 'T' {
+      sheet = sheet + 1
+    }
+    i = i + 1
+  }
+  let len = n.to_double()
+  (helix.to_double() / len, turn.to_double() / len, sheet.to_double() / len)
+}
+
+///|
+/// Molar extinction coefficient at 280 nm.
+///
+/// Returns (reduced, oxidized): reduced counts Trp (5500) and Tyr (1490)
+/// contributions; oxidized additionally adds 125 per cystine pair
+/// (number of Cys // 2).
+pub fn ProteinAnalysis::molar_extinction_coefficient(self : ProteinAnalysis) -> (Int, Int) {
+  let seq = self.sequence.to_upper()
+  let mut n_w = 0
+  let mut n_y = 0
+  let mut n_c = 0
+  let mut i = 0
+  while i < seq.length() {
+    let c = seq.unsafe_get(i).unsafe_to_char()
+    if c == 'W' {
+      n_w = n_w + 1
+    } else if c == 'Y' {
+      n_y = n_y + 1
+    } else if c == 'C' {
+      n_c = n_c + 1
+    }
+    i = i + 1
+  }
+  let reduced = n_w * 5500 + n_y * 1490
+  let oxidized = reduced + (n_c / 2) * 125
+  (reduced, oxidized)
+}
+
+///|
+/// GRAVY (Grand Average of Hydropathy) using a named registered scale.
+///
+/// Supported names include "KyteDoolitle" (default), "Eisenberg",
+/// "Engelman", "Parker" and "Zimmerman" among the 28 scales registered
+/// in ProtParamData; use gravy_scale_names to list them. Unknown residues
+/// in the sequence are skipped; an unknown scale raises SeqError (mirrors
+/// Biopython's ValueError).
+pub fn ProteinAnalysis::gravy_scale(
+  self : ProteinAnalysis,
+  scale : String,
+) -> Double raise SeqError {
+  let table = gravy_scale_table(scale)
+  let seq = self.sequence.to_upper()
+  let n = seq.length()
+  if n == 0 {
+    return 0.0
+  }
+  let mut total = 0.0
+  let mut i = 0
+  while i < n {
+    let c = seq.unsafe_get(i).unsafe_to_char()
+    match table.get(c) {
+      Some(v) => total = total + v
+      None => ()
+    }
+    i = i + 1
+  }
+  total / n.to_double()
+}
+
+///|
+/// Names of all hydrophobicity scales usable with gravy_scale.
+pub fn gravy_scale_names() -> Array[String] {
+  [
+    "KyteDoolitle", "Aboderin", "AbrahamLeo", "Argos", "BlackMould",
+    "BullBreese", "Casari", "Cid", "Cowan3.4", "Cowan7.5", "Eisenberg",
+    "Engelman", "Fasman", "Fauchere", "GoldSack", "Guy", "Jones",
+    "Juretic", "Kidera", "Miyazawa", "Parker", "Ponnuswamy", "Rose",
+    "Roseman", "Sweet", "Tanford", "Wilson", "Zimmerman",
+  ]
+}

@@ -35,7 +35,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Bio.Alphabet** | `Bio.Alphabet` | IUPAC DNA/RNA/蛋白质字母表、简化字母表、空位字母表 | ✅ |
 | **Bio.Data** | `Bio.Data` | IUPAC 数据、氨基酸映射、密码子表、互补碱基表 | ✅ |
 | **SeqUtils** | `Bio.SeqUtils` | GC 含量（gc_fraction 支持 remove/ignore/weighted 三种歧义碱基模式）、GC/AT 滑动窗口偏斜、GC123 密码子位置 GC、nt_search IUPAC 模糊序列搜索、six_frame_translations 六框翻译与 GC 可视化、seq3/seq1 三字母与单字母转换（IUPAC 扩展码 + custom_map/undef_code）、分子量、Tm 值（Wallace/盐校正）、ORF 预测、序列相似度、Hamming/Levenshtein 距离、CheckSum（GCG/SEGUID） | ✅ |
-| **SeqUtils 高级** | `Bio.SeqUtils` / `Bio.SeqUtils.ProtParam` / `MolWt` / `MeltingTemp` | 蛋白质参数（不稳定指数/GRAVY/等电点/信号肽/二级结构倾向）、分子量/消光系数/吸光度、Chou-Fasman 二级结构、IUPred 无序区、COILS 卷曲螺旋、Kolaskar 抗原性、Emini 可及性、Karplus-Schulz 柔性、ProtDao 无序预测、CircSeq 环状 DNA 酶切、**MeltingTemp 完整解链温度**（Tm_Wallace 经验法则、Tm_GC 八套经验公式、Tm_NN 近邻热力学 8 套 DNA/RNA/杂交参数表、盐校正方法 1-7 含 Mg2+/dNTP/Tris、错配与悬挂末端、自互补双链、DMSO/甲酰胺化学校正、自定义热力学表） | ✅ |
+| **SeqUtils 高级** | `Bio.SeqUtils` / `Bio.SeqUtils.ProtParam` / `MolWt` / `MeltingTemp` | 蛋白质参数（不稳定指数/GRAVY 28 种 scale/等电点/信号肽/二级结构倾向、Vihinen 柔性 `flexibility`、`protein_scale` 滑窗剖面、helix/turn/sheet 分数、280nm 摩尔消光系数）、分子量/消光系数/吸光度、Chou-Fasman 二级结构、IUPred 无序区、COILS 卷曲螺旋、Kolaskar 抗原性、Emini 可及性、Karplus-Schulz 柔性、ProtDao 无序预测、CircSeq 环状 DNA 酶切、**MeltingTemp 完整解链温度**（Tm_Wallace 经验法则、Tm_GC 八套经验公式、Tm_NN 近邻热力学 8 套 DNA/RNA/杂交参数表、盐校正方法 1-7 含 Mg2+/dNTP/Tris、错配与悬挂末端、自互补双链、DMSO/甲酰胺化学校正、自定义热力学表） | ✅ |
 | **FreqAnalysis** | `Bio.FreqAnalysis` / `Bio.SeqUtils` | k-mer 计数、密码子使用频率、Shannon 熵、Wooton-Federhen 局部组成复杂度 (LCC)、语言学复杂度、DUST、CGR 混沌游戏表示、序列签名 | ✅ |
 | **CodonUsage** | `Bio.SeqUtils.CodonUsage` / `Bio.codonalign` | CAI 密码子适应指数、RSCU 相对同义密码子使用、ENC 有效密码子数、GC3 偏斜、CBI/Fop、最优/稀有密码子检测、物种参考表 | ✅ |
 | **Kmer** | `Bio.Kmer` | k-mer 计数与频率分析、Jaccard 相似度、Hamming 距离、k-mer 谱 | ✅ |
@@ -195,7 +195,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **seqLogo** | Bioconductor seqLogo 风格 | PWM 构建、信息含量 IC、ASCII 艺术 logo 渲染、一致性序列、自定义背景频率 | ✅ |
 | **Prosite** | `Bio.Prosite` | Prosite 模体数据库搜索、模式解析、匹配算法、得分计算 | ✅ |
 | **Restriction** | `Bio.Restriction` | 内切酶数据库、酶切位点查找、序列酶切、片段分析 | ✅ |
-| **ProtParam** | `Bio.SeqUtils.ProtParam` | 分子量、不稳定指数、GRAVY、等电点、信号肽、二级结构倾向 | ✅ |
+| **ProtParam** | `Bio.SeqUtils.ProtParam` | 分子量、不稳定指数、GRAVY（28 种注册疏水性 scale 命名切换）、等电点、信号肽、二级结构倾向、Vihinen 柔性窗口 `flexibility`、任意氨基酸 scale 滑窗剖面 `protein_scale`（edge 线性权重）、helix/turn/sheet 残基分数 `secondary_structure_fraction`、280nm 摩尔消光系数 `molar_extinction_coefficient` | ✅ |
 | **Proteomics** | `Bio.SeqUtils.Proteomics` | 8 种蛋白酶切（胰酶/糜酶/胃酶/LysC/ArgC/CNBr/GluC/AspN）、同位素分布、b/y 碎片离子 | ✅ |
 | **Entrez** | `Bio.Entrez` | NCBI 数据库 ESearch/EFetch、PubMed/Gene/Taxonomy 解析 | ✅ |
 | **Entrez E-utilities** | `Bio.Entrez` | 全套 9 个 E-utility：EInfo（数据库列表/字段与链接名，20190110 DTD）、ESearch（Count/RetMax/RetStart/IdList/QueryTranslation/QueryKey/WebEnv 历史）、EFetch（rettype/retmode 原始记录与 history 拉取，≥200 ID 自动 POST）、EPost（WebEnv/QueryKey 会话）、ESummary（DocSum/Item 文档摘要）、ESpell（拼写建议与 Replaced 列表）、ELink（跨库 LinkSetDb/LinkName 关联）、EGQuery（全局跨库计数）、ECitMatch（引文字符串 bdata 检索 PMID）、entrez_quote_plus URL 编码、可注入 fetch/now 传输、内置限速（无 API key 每秒 3 次） | ✅ |
@@ -549,6 +549,7 @@ IvanAXu/BioSeqs/
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── pqs_demo/                     # pqsfinder G-四链体检测（评分系统/双链/deep density 与 maxScores/overlapping/序列提取）
 │   ├── melting_temp_demo/            # MeltingTemp 解链温度（Tm_GC 八套公式/Tm_NN 近邻热力学/盐与 Mg2+/错配/DMSO）
+│   ├── protparam_demo/               # ProtParam 蛋白参数（MW/pI/不稳定指数、flexibility 柔性、protein_scale 滑窗、28 种 GRAVY scale、消光系数、结构分数）
 │   ├── dnacopy_demo/                 # DNAcopy CBS 拷贝数分割（sdundo 合并/多染色体）
 │   ├── copynumber_demo/              # copynumber PCF 分段常数拟合（madWins 离群值/pcf_plain/multiPCF 共享分段）
 │   ├── regione_r_demo/               # regioneR 区域置换检验（随机化/mask/permTest）
@@ -580,7 +581,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，12920 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，12932 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -600,7 +601,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12920 个测试全部通过
+moon test                                               # ✅ 12932 个测试全部通过
 ```
 
 ---
@@ -609,7 +610,7 @@ moon test                                               # ✅ 12920 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12920 个测试用例)
+moon test       # 运行全部测试 (12932 个测试用例)
 ```
 
 ---
@@ -624,6 +625,7 @@ moon test       # 运行全部测试 (12920 个测试用例)
 | `seqio_index.mbt` | Bio.SeqIO.index 随机访问：seqio_index 字节偏移扫描（fasta/fastq/genbank/embl/tab）、SeqIndex keys/length/contains、get_raw 原始切片、get 按 ID 按需解析单条 SeqRecord（SeqIndexEntry offset/length） |
 | `sequtils.mbt` / `seq_utils.mbt` / `sequtils_advanced.mbt` / `seq_complexity.mbt` | GC 含量与 gc_fraction 歧义模式、GC123、nt_search、six_frame_translations、seq3/seq1、Tm/ORF/分子量/LCC 复杂度/Hamming 距离 |
 | `melting_temp.mbt` / `melting_temp_advanced.mbt` | 解链温度：Tm_Wallace 经验法则、Tm_GC 八套经验公式、Tm_NN 近邻热力学（DNA_NN1-4/RNA_NN1-3/R_DNA_NN1 八套表 + 错配/末端/悬挂端表）、盐校正 1-7（Na+/K+/Tris/Mg2+/dNTP，Owczarzy 2008）、自互补、DMSO/甲酰胺化学校正、自定义热力学表 |
+| `protparam.mbt` / `protparam_scales.mbt` | Bio.SeqUtils.ProtParam ProteinAnalysis：MW/芳香性/不稳定指数/pI/charge_at_ph/经典 GRAVY、`gravy_scale` 28 种注册疏水性 scale（gravy_scale_table/gravy_scale_names，未知 scale raise）、`flexibility` Vihinen 9 残基窗口（长度 n-9，权重 0.25/0.4375/0.625/0.8125/1，中心取 subseq[5]）、`protein_scale` 任意氨基酸 scale 滑窗（edge 线性权重，非标准残基跳过）、`secondary_structure_fraction`（EMALK/NPGSD/VIYFWLT，Helix-Turn-Sheet 顺序）、`molar_extinction_coefficient`（W 5500/Y 1490/胱氨酸对 +125）、信号肽预测 |
 | `codon_usage.mbt` / `codon_align.mbt` / `codon_align_advanced.mbt` | 密码子使用分析与 dN/dS 选择压力检验 |
 | `alignment.mbt` / `pairaligner.mbt` / `smith_waterman.mbt` / `needleman_wunsch.mbt` | 全局/局部比对算法 + PairwiseAligner |
 | `align_*.mbt` (clustal/phylip/stockholm/msf/nexus/a2m/emboss/exonerate/maf/mauve/psl/sam/chain/bed/bigbed/...) | 各类比对格式严格读写 + 坐标映射 + 统计 + canonical 往返 |
