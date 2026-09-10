@@ -213,14 +213,14 @@ pub fn parse_insdc_feature_table(lines : Array[String]) -> Array[InsdcFeature] {
       continue
     }
 
-    // Strip "FT   " prefix from EMBL lines when present.
-    let line = if le >= 5 &&
+    // Normalize "FT" EMBL lines back to GenBank-style indentation: after
+    // "FT" the key sits at absolute column 5 and qualifiers at column 21,
+    // so re-adding the two "FT" columns restores the shared 5/21 layout.
+    let line = if le >= 2 &&
       raw.unsafe_get(0) == cap_f &&
       raw.unsafe_get(1) == cap_t &&
-      raw.unsafe_get(2) == sp &&
-      raw.unsafe_get(3) == sp &&
-      raw.unsafe_get(4) == sp {
-      raw[5:le].to_owned()
+      (le == 2 || raw.unsafe_get(2) == sp) {
+      "  " + raw[2:le].to_owned()
     } else {
       raw[0:le].to_owned()
     }

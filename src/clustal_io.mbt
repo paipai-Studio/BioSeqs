@@ -94,6 +94,8 @@ pub fn parse_clustal(
       name,
       description: name,
       letter_annotations: Map([], capacity=0),
+      annotations: Map([], capacity=0),
+      features: [],
     })
   }
   MultipleSeqAlignment::new(seq_records)

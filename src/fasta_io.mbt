@@ -86,6 +86,8 @@ fn fasta_title_to_record(title : String, seq_str : String) -> SeqRecord {
     name: id,
     description,
     letter_annotations: Map([], capacity=0),
+    annotations: Map([], capacity=0),
+    features: [],
   }
 }
 

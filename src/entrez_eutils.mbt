@@ -3,6 +3,10 @@
 /// request layer that complements the simulated access in entrez.mbt.
 ///
 /// Port of Biopython's Bio.Entrez request semantics (urllib-based, 1.88):
+///   - einfo:    list databases, or a database's statistics/field/link names.
+///   - esearch:  search a database for primary IDs, term translation and
+///               optional QueryKey/WebEnv history.
+///   - efetch:   retrieve records by IDs (or history), raw text returned.
 ///   - epost:    POST a file of identifiers for future use; returns
 ///               QueryKey/WebEnv for use with efetch/esummary.
 ///   - esummary: retrieve document summaries for primary IDs.
@@ -10,6 +14,7 @@
 ///   - elink:    check for linked records / Related Articles (list ids are
 ///               transmitted as repeated "id" parameters, like the original
 ///               module's join_ids=False behaviour).
+///   - egquery:  global cross-database counts for one search term.
 ///   - ecitmatch: retrieve PMIDs for input citation strings; the citation
 ///               bdata uses "|" separators (not URL-encoded) and "\r"
 ///               between citations, exactly like the original.
@@ -855,4 +860,445 @@ pub fn parse_ecitmatch(text : String) -> Array[(String, String)] raise EntrezUti
     }
   }
   result
+}
+
+// ---------------------------------------------------------------------------
+// esearch
+// ---------------------------------------------------------------------------
+
+///|
+/// Result of an ESearch: the hit count, the returned window and the primary
+/// IDs. With `usehistory` the QueryKey/WebEnv pair is also present.
+pub struct ESearchResult {
+  count : String
+  retmax : String
+  retstart : String
+  ids : Array[String]
+  translation : String?
+  query_key : String?
+  web_env : String?
+}
+
+///|
+/// Create an ESearchResult.
+pub fn ESearchResult::new(
+  count~ : String,
+  retmax~ : String,
+  retstart~ : String,
+  ids~ : Array[String],
+  translation? : String? = None,
+  query_key? : String? = None,
+  web_env? : String? = None,
+) -> ESearchResult {
+  { count, retmax, retstart, ids, translation, query_key, web_env }
+}
+
+///|
+/// Get the number of hits (the Count field, as a string).
+pub fn ESearchResult::count(self : ESearchResult) -> String {
+  self.count
+}
+
+///|
+/// Get the returned window size (RetMax).
+pub fn ESearchResult::retmax(self : ESearchResult) -> String {
+  self.retmax
+}
+
+///|
+/// Get the window start (RetStart).
+pub fn ESearchResult::retstart(self : ESearchResult) -> String {
+  self.retstart
+}
+
+///|
+/// Get the list of primary IDs (IdList).
+pub fn ESearchResult::ids(self : ESearchResult) -> Array[String] {
+  self.ids
+}
+
+///|
+/// Get the term translation, if the server produced one.
+pub fn ESearchResult::translation(self : ESearchResult) -> String? {
+  self.translation
+}
+
+///|
+/// Get the QueryKey for use with efetch/esummary (usehistory only).
+pub fn ESearchResult::query_key(self : ESearchResult) -> String? {
+  self.query_key
+}
+
+///|
+/// Get the WebEnv for use with efetch/esummary (usehistory only).
+pub fn ESearchResult::web_env(self : ESearchResult) -> String? {
+  self.web_env
+}
+
+///|
+/// Parse an esearch.fcgi XML response.
+pub fn parse_esearch(xml : String) -> ESearchResult raise EntrezUtilError {
+  let count = match entrez_extract_text(xml, "Count") {
+    Some(v) => v
+    None => entrez_util_fail("esearch response is missing Count")
+  }
+  let retmax = entrez_extract_text(xml, "RetMax").unwrap_or("")
+  let retstart = entrez_extract_text(xml, "RetStart").unwrap_or("")
+  let ids = entrez_extract_all(xml, "Id")
+  // the real esearch DTD (20060628) spells the term translation tag
+  // <QueryTranslation>; <TranslationSet>/<TranslationStack> are siblings
+  let translation = entrez_extract_text(xml, "QueryTranslation")
+  let query_key = entrez_extract_text(xml, "QueryKey")
+  let web_env = entrez_extract_text(xml, "WebEnv")
+  ESearchResult::new(count~, retmax~, retstart~, ids~, translation~, query_key~, web_env~)
+}
+
+///|
+/// ESearch: search a database and retrieve the primary IDs (for use in
+/// efetch, elink and esummary), term translations, and optionally retain
+/// the results in the user's environment (usehistory="y").
+pub fn EntrezClient::esearch(
+  self : EntrezClient,
+  db : String,
+  term : String,
+  retstart? : String,
+  retmax? : String,
+  idtype? : String,
+  usehistory? : String,
+) -> ESearchResult raise EntrezUtilError {
+  let params : Array[(String, String)] = [("db", db), ("term", term)]
+  match retstart {
+    Some(v) => params.push(("retstart", v))
+    None => ()
+  }
+  match retmax {
+    Some(v) => params.push(("retmax", v))
+    None => ()
+  }
+  match idtype {
+    Some(v) => params.push(("idtype", v))
+    None => ()
+  }
+  match usehistory {
+    Some(v) => params.push(("usehistory", v))
+    None => ()
+  }
+  parse_esearch(self.request(entrez_eutils_base_url + "esearch.fcgi", params))
+}
+
+// ---------------------------------------------------------------------------
+// efetch
+// ---------------------------------------------------------------------------
+
+///|
+/// EFetch: retrieve records in the requested format from a list of primary
+/// IDs (or from the user's environment with a QueryKey/WebEnv pair). The
+/// raw response text is returned unchanged; pass rettype/retmode to select
+/// the format (e.g. rettype="gb", retmode="text" for GenBank records).
+/// As recommended by NCBI, the request automatically uses HTTP POST when
+/// there are many identifiers.
+pub fn EntrezClient::efetch(
+  self : EntrezClient,
+  db : String,
+  ids : Array[String],
+  rettype? : String,
+  retmode? : String,
+  query_key? : String,
+  web_env? : String,
+) -> String raise EntrezUtilError {
+  let params : Array[(String, String)] = [("db", db), ("id", join_comma(ids))]
+  match rettype {
+    Some(v) => params.push(("rettype", v))
+    None => ()
+  }
+  match retmode {
+    Some(v) => params.push(("retmode", v))
+    None => ()
+  }
+  match query_key {
+    Some(v) => params.push(("query_key", v))
+    None => ()
+  }
+  match web_env {
+    Some(v) => params.push(("WebEnv", v))
+    None => ()
+  }
+  self.request(entrez_eutils_base_url + "efetch.fcgi", params)
+}
+
+// ---------------------------------------------------------------------------
+// einfo
+// ---------------------------------------------------------------------------
+
+///|
+/// Result of an EInfo request. Without a database argument the result
+/// carries the list of database names; with a database it carries the
+/// database statistics together with the indexed field and link names.
+pub struct EInfoResult {
+  db_list : Array[String]
+  dbname : String
+  description : String
+  menu : String
+  count : String
+  last_update : String
+  field_names : Array[String]
+  link_names : Array[String]
+}
+
+///|
+/// Create an EInfoResult.
+pub fn EInfoResult::new(
+  db_list~ : Array[String],
+  dbname~ : String,
+  description~ : String,
+  menu~ : String,
+  count~ : String,
+  last_update~ : String,
+  field_names~ : Array[String],
+  link_names~ : Array[String],
+) -> EInfoResult {
+  {
+    db_list,
+    dbname,
+    description,
+    menu,
+    count,
+    last_update,
+    field_names,
+    link_names,
+  }
+}
+
+///|
+/// Get the names of all Entrez databases (filled when no db was requested).
+pub fn EInfoResult::db_list(self : EInfoResult) -> Array[String] {
+  self.db_list
+}
+
+///|
+/// Get the database name (db-specific requests only).
+pub fn EInfoResult::dbname(self : EInfoResult) -> String {
+  self.dbname
+}
+
+///|
+/// Get the database description (db-specific requests only).
+pub fn EInfoResult::description(self : EInfoResult) -> String {
+  self.description
+}
+
+///|
+/// Get the database menu name (db-specific requests only).
+pub fn EInfoResult::menu(self : EInfoResult) -> String {
+  self.menu
+}
+
+///|
+/// Get the number of records in the database (db-specific requests only).
+pub fn EInfoResult::count(self : EInfoResult) -> String {
+  self.count
+}
+
+///|
+/// Get the date of the last update (db-specific requests only).
+pub fn EInfoResult::last_update(self : EInfoResult) -> String {
+  self.last_update
+}
+
+///|
+/// Get the names of the indexed fields (db-specific requests only).
+pub fn EInfoResult::field_names(self : EInfoResult) -> Array[String] {
+  self.field_names
+}
+
+///|
+/// Get the names of the available links (db-specific requests only).
+pub fn EInfoResult::link_names(self : EInfoResult) -> Array[String] {
+  self.link_names
+}
+
+///|
+/// Parse an einfo.fcgi XML response (either form: with or without a
+/// database argument).
+pub fn parse_einfo(xml : String) -> EInfoResult {
+  if entrez_extract_text(xml, "DbList") is Some(_) {
+    EInfoResult::new(
+      db_list=entrez_extract_all(xml, "DbName"),
+      dbname="",
+      description="",
+      menu="",
+      count="",
+      last_update="",
+      field_names=[],
+      link_names=[],
+    )
+  } else {
+    let fields : Array[String] = Array::new()
+    for block in entrez_blocks(xml, "Field") {
+      match entrez_extract_text(block, "Name") {
+        Some(v) => fields.push(v)
+        None => ()
+      }
+    }
+    let links : Array[String] = Array::new()
+    for block in entrez_blocks(xml, "Link") {
+      match entrez_extract_text(block, "Name") {
+        Some(v) => links.push(v)
+        None => ()
+      }
+    }
+    EInfoResult::new(
+      db_list=[],
+      dbname=entrez_extract_text(xml, "DbName").unwrap_or(""),
+      description=entrez_extract_text(xml, "Description").unwrap_or(""),
+      // the current einfo DTD (20190110, used by Biopython 1.88 fixtures)
+      // spells this tag <MenuName>
+      menu=entrez_extract_text(xml, "MenuName").unwrap_or(""),
+      count=entrez_extract_text(xml, "Count").unwrap_or(""),
+      last_update=entrez_extract_text(xml, "LastUpdate").unwrap_or(""),
+      field_names=fields,
+      link_names=links,
+    )
+  }
+}
+
+///|
+/// EInfo: provide field names, index term counts, last update and
+/// available links for each Entrez database. Without `db` the result
+/// lists the available databases.
+pub fn EntrezClient::einfo(
+  self : EntrezClient,
+  db? : String,
+) -> EInfoResult raise EntrezUtilError {
+  let params : Array[(String, String)] = []
+  match db {
+    Some(v) => params.push(("db", v))
+    None => ()
+  }
+  parse_einfo(self.request(entrez_eutils_base_url + "einfo.fcgi", params))
+}
+
+// ---------------------------------------------------------------------------
+// egquery
+// ---------------------------------------------------------------------------
+
+///|
+/// One row of an EGQuery result: the database name and the number of
+/// matching records.
+pub struct EGQueryRow {
+  dbname : String
+  count : Int
+}
+
+///|
+/// Create an EGQueryRow.
+pub fn EGQueryRow::new(dbname~ : String, count~ : Int) -> EGQueryRow {
+  { dbname, count }
+}
+
+///|
+/// Get the database name.
+pub fn EGQueryRow::dbname(self : EGQueryRow) -> String {
+  self.dbname
+}
+
+///|
+/// Get the number of matching records in the database.
+pub fn EGQueryRow::count(self : EGQueryRow) -> Int {
+  self.count
+}
+
+///|
+/// Result of an EGQuery global search: the term and one row per database.
+pub struct EGQueryResult {
+  term : String
+  rows : Array[EGQueryRow]
+}
+
+///|
+/// Create an EGQueryResult.
+pub fn EGQueryResult::new(
+  term~ : String,
+  rows~ : Array[EGQueryRow],
+) -> EGQueryResult {
+  { term, rows }
+}
+
+///|
+/// Get the searched term.
+pub fn EGQueryResult::term(self : EGQueryResult) -> String {
+  self.term
+}
+
+///|
+/// Get the per-database rows in document order.
+pub fn EGQueryResult::rows(self : EGQueryResult) -> Array[EGQueryRow] {
+  self.rows
+}
+
+///|
+/// Look up the count for one database (None when the database is absent).
+pub fn EGQueryResult::get(self : EGQueryResult, dbname : String) -> Int? {
+  for row in self.rows {
+    if row.dbname == dbname {
+      return Some(row.count)
+    }
+  }
+  None
+}
+
+///|
+/// Parse an egquery.fcgi XML response.
+pub fn parse_egquery(xml : String) -> EGQueryResult {
+  let term = entrez_extract_text(xml, "Term").unwrap_or("")
+  let rows : Array[EGQueryRow] = Array::new()
+  for block in entrez_blocks(xml, "Result") {
+    let dbname = entrez_extract_text(block, "DbName").unwrap_or("")
+    let count_text = entrez_extract_text(block, "Count").unwrap_or("0")
+    let count = parse_int_or(count_text, 0)
+    rows.push(EGQueryRow::new(dbname~, count~))
+  }
+  EGQueryResult::new(term~, rows~)
+}
+
+///|
+fn parse_int_or(text : String, default : Int) -> Int {
+  let trimmed = text.trim().to_owned()
+  if trimmed.length() == 0 {
+    return default
+  }
+  let mut value = 0
+  let mut sign = 1
+  let mut idx = 0
+  if trimmed.unsafe_get(0).to_int() == 45 {
+    // '-'
+    sign = -1
+    idx = 1
+  }
+  let mut any = false
+  while idx < trimmed.length() {
+    let c = trimmed.unsafe_get(idx).to_int()
+    if c >= 48 && c <= 57 {
+      value = value * 10 + (c - 48)
+      any = true
+      idx += 1
+    } else {
+      return default
+    }
+  }
+  if !any {
+    default
+  } else {
+    sign * value
+  }
+}
+
+///|
+/// EGQuery: provide Entrez database counts for a single global search term.
+pub fn EntrezClient::egquery(
+  self : EntrezClient,
+  term : String,
+) -> EGQueryResult raise EntrezUtilError {
+  let params : Array[(String, String)] = [("term", term)]
+  parse_egquery(self.request(entrez_eutils_base_url + "egquery.fcgi", params))
 }

@@ -8,6 +8,10 @@
 //   - description:  human-readable description (FASTA title line content)
 //   - letter_annotations: per-position annotations (e.g. "phred_quality"
 //                    stores a list of quality scores, one per base)
+//   - annotations:  record-level annotation key/value pairs (e.g. organism,
+//                    keywords, date), mirroring BioPython's `annotations`
+//   - features:     sequence features (e.g. CDS, gene), mirroring
+//                    BioPython's `features`
 
 ///|
 /// Error raised by SeqIO operations, mirroring BioPython's ValueError.
@@ -24,6 +28,8 @@ pub struct SeqRecord {
   name : String
   description : String
   letter_annotations : Map[String, Array[Int]]
+  annotations : Map[String, String]
+  features : Array[SeqFeature]
 } derive(Eq)
 
 ///|
@@ -40,6 +46,8 @@ pub fn SeqRecord::new(
     name,
     description,
     letter_annotations: Map([], capacity=0),
+    annotations: Map([], capacity=0),
+    features: [],
   }
 }
 
@@ -52,6 +60,8 @@ pub fn SeqRecord::from_seq(seq : Seq) -> SeqRecord {
     name: "<unknown name>",
     description: "<unknown description>",
     letter_annotations: Map([], capacity=0),
+    annotations: Map([], capacity=0),
+    features: [],
   }
 }
 

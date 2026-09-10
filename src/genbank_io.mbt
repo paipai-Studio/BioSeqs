@@ -201,6 +201,8 @@ pub fn parse_genbank(content : String) -> Array[SeqRecord] {
         name,
         description,
         letter_annotations: Map([], capacity=0),
+        annotations: Map([], capacity=0),
+        features: [],
       })
     }
     i = i + 1

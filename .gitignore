@@ -23,3 +23,4 @@ rad.json
 TestResults.xml
 
 _build/*
+.code*

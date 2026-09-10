@@ -108,6 +108,8 @@ pub fn parse_fastq(content : String) -> Array[SeqRecord] raise SeqIOError {
       name: id,
       description,
       letter_annotations: letter_ann,
+      annotations: Map([], capacity=0),
+      features: [],
     })
     i = i + 4
   }
@@ -274,6 +276,8 @@ fn parse_fastq_offset(
       name: id,
       description,
       letter_annotations: letter_ann,
+      annotations: Map([], capacity=0),
+      features: [],
     })
     i = i + 4
   }

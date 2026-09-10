@@ -93,6 +93,13 @@ pub fn seqio_index(data : String, format : String) -> SeqIndex raise SeqIOError 
     "genbank" | "gb" => seq_index_scan_delimiter(data, lines, "LOCUS", "genbank")
     "embl" => seq_index_scan_delimiter(data, lines, "ID   ", "embl")
     "tab" => seq_index_scan_tab(data, lines)
+    // qual files use ">" headers like FASTA; the quality numbers follow
+    // until the next header (spec 5.4.1.2).
+    "qual" => seq_index_scan_fasta(data, lines)
+    // Swiss-Prot entries start at the "ID   " line; the key truncates at
+    // the first semicolon (shared delimiter scanner, spec 5.4.1.2).
+    "swiss" => seq_index_scan_delimiter(data, lines, "ID   ", "swiss")
+    "seqxml" => seq_index_scan_seqxml(data, lines)
     _ => raise SeqIOError("Cannot index format: " + format)
   }
   let positions : Map[String, Int] = Map([], capacity=entries.length())

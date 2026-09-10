@@ -141,6 +141,8 @@ fn parse_phylip_generic(
           name,
           description: name,
           letter_annotations: Map([], capacity=0),
+          annotations: Map([], capacity=0),
+          features: [],
         })
       }
       None => ()

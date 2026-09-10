@@ -152,7 +152,7 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
       let content = if line.length() > 5 { line[5:].to_string() } else { "" }
       let recname_pos = find_substring(content, "RecName: Full=")
       if recname_pos >= 0 {
-        let start_pos = recname_pos + 13
+        let start_pos = recname_pos + 14
         let end_pos = find_substring_from(content, ";", start_pos)
         if end_pos > start_pos {
           protein_name = content[start_pos:end_pos].to_string()
@@ -405,7 +405,7 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
       }
     } else if code == "  " && in_sequence {
       let content = line.trim().to_string()
-      let cleaned = content.replace(old=" ", new="")
+      let cleaned = content.replace_all(old=" ", new="")
       sequence = sequence + cleaned
     } else if code == "//" {
       if current_ref_num > 0 {
@@ -471,6 +471,39 @@ fn copy_string_array(arr : Array[String]) -> Array[String] {
     result.push(s)
   }
   result
+}
+
+///|
+/// Parse every Swiss-Prot entry from flat file text.
+///
+/// Entries are delimited by the "//" terminator line, matching the layout
+/// emitted by the Swiss-Prot writer; an unterminated trailing entry is
+/// still parsed. Unparseable chunks are skipped, so the result is empty
+/// exactly when no entry could be parsed. The first entry alone is also
+/// available through `parse_swissprot`.
+pub fn parse_swissprot_all(text : String) -> Array[SwissProtRecord] {
+  let records : Array[SwissProtRecord] = Array::new()
+  let lines = split_by_char(text, '\n'.to_int())
+  let chunk : StringBuilder = StringBuilder::new()
+  for line in lines {
+    chunk.write_string(line)
+    chunk.write_char('\n')
+    if line.trim().to_string() == "//" {
+      match parse_swissprot(chunk.to_string()) {
+        Some(entry) => records.push(entry)
+        None => ()
+      }
+      chunk.reset()
+    }
+  }
+  let tail = chunk.to_string()
+  if tail.trim().length() > 0 {
+    match parse_swissprot(tail) {
+      Some(entry) => records.push(entry)
+      None => ()
+    }
+  }
+  records
 }
 
 ///|

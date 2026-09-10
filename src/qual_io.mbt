@@ -99,6 +99,8 @@ fn qual_build_record(title : String, quals : Array[Int]) -> SeqRecord {
     name: id,
     description,
     letter_annotations: letter_ann,
+    annotations: Map([], capacity=0),
+    features: [],
   }
 }
 
@@ -203,6 +205,8 @@ pub fn paired_fasta_qual_iterator(
                 name: frec.name,
                 description: frec.description,
                 letter_annotations: ann,
+                annotations: Map([], capacity=0),
+                features: [],
               })
             }
           None => result.push(frec)
