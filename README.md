@@ -470,6 +470,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **minet** | minet | 互信息基因共表达网络：equalfreq/equalwidth 离散化、四种熵估计（empirical/Miller-Madow/Hausser-Strimmer shrinkage/Schürmann-Grassberger）、MIM 构建、ARACNE 数据处理不等式剪枝、CLR 行/列背景 z-score 校正、MRNET mRMR 前向选择、validate 精度/召回曲线与 AUROC/AUPR/maxF 评分 | ✅ |
 | **genefilter** | genefilter | t/Wilcoxon 检验、方差过滤、CV 过滤、分位数过滤 | ✅ |
 | **mixOmics** | mixOmics | 多组学整合：PLS 回归、稀疏 PLS (sPLS)、DIABLO 多块整合 | ✅ |
+| **ropls** | ropls | NIPALS PCA、PLS1/PLS2 回归与 PLS-DA（dummy 编码、自动成分选择、W*、B、VIP）、OPLS/OPLS-DA（Trygg-Wold 正交滤波、正交 VIP）、k 折交叉验证 R2X/R2Y/Q2、RMSEE、响应置换检验（相似度与经验 p 值） | ✅ |
 | **destiny / Rtsne / uwot** | destiny / Rtsne / uwot | 扩散映射（距离矩阵/高斯核/特征分解）；t-SNE（条件概率/梯度下降/Barnes-Hut）；UMAP（kNN/模糊单纯集/SGD/负采样） | ✅ |
 | **GENESIS** | GENESIS | 亲属关系矩阵估计、PCA、遗传距离（欧氏/曼哈顿/IBS）、群体结构 | ✅ |
 | **SNPRelate** | SNPRelate | SNP 遗传关系分析（剂量矩阵输入，-1 缺失）：snpgdsSnpStats 等位基因频率/MAF/缺失率、snpgdsIBDKING KING 稳健亲缘（phi = 0.5 − SumSq/(4·min(N_Aa))）+ IBS0 比例、snpgdsIBDKingHomo k0/k1 IBD 状态、snpgdsIBS/snpgdsDist、snpgdsPCA EIGMIX 协方差特征分解（特征值/方差解释率/载荷）、snpgdsLD 相关系数、snpgdsLDpruning 滑窗贪婪 LD 剪枝（threshold/maf/slide.max.bp） | ✅ |
@@ -564,6 +565,7 @@ IvanAXu/BioSeqs/
 │   ├── bgzf_demo/                    # Bio.bgzf（BgzfWriter 压缩/bgzf_blocks 块扫描/BgzfReader 虚拟偏移 seek/read/readline）
 │   ├── qblast_demo/                  # Bio.Blast.NCBIWWW（mock fetch 演示 PUT 提交/SearchInfo 轮询/结果下载全流程）
 │   ├── blat_psl_demo/                # Bio.SearchIO.BlatIO（blat-psl/PSLX 解析、负链重定向、蛋白 3:1 block、millibad/score、写回往返、SearchIO 转换）
+│   ├── ropls_demo/                   # ropls（NIPALS PCA、PLS/PLS-DA、OPLS-DA、VIP、R2/Q2 交叉验证、响应置换检验）
 │   ├── seqio_index_demo/             # Bio.SeqIO.index（FASTA 字节偏移索引/get_raw 原始切片/get 按 ID 随机解析）
 │   ├── gds_demo/                     # SeqArray（seqVCF2GDS 导入/GDS 节点树/sample+variant 过滤/剂量与 seqSummary）
 │   ├── snprelate_demo/               # SNPRelate（SnpStats/KING 亲缘/IBD k0-k1/IBS 距离/EIGMIX PCA/LD 剪枝）
@@ -578,7 +580,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，12901 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，12920 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -598,7 +600,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12901 个测试全部通过
+moon test                                               # ✅ 12920 个测试全部通过
 ```
 
 ---
@@ -607,7 +609,7 @@ moon test                                               # ✅ 12901 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12901 个测试用例)
+moon test       # 运行全部测试 (12920 个测试用例)
 ```
 
 ---
@@ -654,6 +656,7 @@ moon test       # 运行全部测试 (12901 个测试用例)
 | `datastore.mbt` | Bio.Datastore MD5 键控 BagIt 风格 bag：md5_hex（RFC 1321 完整实现：K 表 floor(|sin(i+1)|·2³²)、四轮 64 步、大端输出）、Datastore::add/get/contains/remove/checksum/entry、manifest_md5_txt/manifest_lines/bagit_txt/bag_info_txt（Payload-Oxum 字节·文件数）、verify 逐条目校验、fetch-through 缓存（下载回调 + hit/miss 统计）、load_bag 外部清单加载（一致/过期清单判定）、字典序 names/tags |
 | `phylo_applications.mbt` | Bio.Phylo.Applications 系统发育命令行包装（可变 builder 模式）：FastTreeCommandline（-nt/-n/-quote、-boot、-gtr/-gamma、-spr/-mlnni、-wag/-pseudo/-mlacc）、PhymlCommandline（-i/-d/-m/-b/-c/-a/-s、-o tlr、--rand_start/--n_rand_starts/--r_seed、--quiet）、RaxmlCommandline（-s/-n/-m、-f a、-x/-N、-q 分区、-t/-r/-g 起始/约束树、-e/-c、-k/-T/-o/-w、RAPID bootstrap 种子）与 build() 命令行构造 |
 | `wgcna.mbt` / `genie3.mbt` / `minet.mbt` | 基因共表达/调控网络：WGCNA 加权共表达与 TOM 模块、GENIE3 回归树特征重要性；minet 互信息网络（equalfreq/equalwidth 离散化 + empirical/Miller-Madow/Hausser-Strimmer/Schürmann-Grassberger 四种熵估计，ARACNE DPI 剪枝、CLR 背景 z-score、MRNET mRMR 前向选择，validate precision/recall/AUROC/AUPR/maxF 评分） |
+| `ropls.mbt` | Bioconductor ropls：NIPALS PCA（standard/pareto/center/none 缩放、近零方差剔除、自动成分数）、PLS1/PLS2 与 PLS-DA（因子水平字典序 dummy 编码、W\*、回归系数 B、VIP、自动成分选择 R1/NS/N4）、OPLS/OPLS-DA（Trygg-Wold 正交滤波、To/Po/Wo/Co、正交 VIP、modelDF sum 行）、k 折交叉验证 R2X/R2Y/Q2(cum) 与 RMSEE、ropls_predict/predict_classes、响应置换检验（相关/标签一致相似度与 (1+count)/nperm 经验 p 值） |
 | `gds.mbt` | Bioconductor SeqArray：GDS 层级容器（GdsNode leaf/folder、GdsFile 路径寻址 add_node/get_node/try_get_node/has_node、GdsValue 五种类型）、seq_vcf2gds VCF 导入（sample.id/variant.id/genotype 三节点）、SeqVarData 过滤视图（set_sample_filter/set_variant_filter/set_variant_chrom_filter/set_variant_range_filter/reset_filter）、genotype_dosages 剂量提取（单倍型/多等位基因/缺失语义）、allele_frequencies/missing_rates/summary/apply_per_variant |
 | `snprelate.mbt` | Bioconductor SNPRelate：snpgds_snp_stats（alt AF/MAF/missing rate）、snpgds_ibd_king（KING 稳健亲缘 phi = 0.5 − SumSq/(4·min(N1_Aa,N2_Aa)) + IBS0 比例矩阵）、snpgds_ibd_king_homo（k0/k1 IBD 状态推断）、snpgds_ibs（IBS 状态 + 距离）、snpgds_pca（EIGMIX 协方差特征分解，特征值/方差解释率/样本载荷）、snpgds_ld（LD 相关系数）、snpgds_ld_pruning（滑窗贪婪剪枝 threshold/maf/slide_max） |
 | `genomic_scores.mbt` | Bioconductor GenomicScores：GScores 多 population 逐染色体分数安装（set_scores 增量合并去重）、score_at 单碱基查询（GsConstant step / GsLinear 线性插值、首碱基前 NaN、末尾钳制）、range_score 区间汇总（mean/min/max/median）、set_default_population 默认 population 切换、gscores_fetch GRanges 风格批量区间抓取 |
