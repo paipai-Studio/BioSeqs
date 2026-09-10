@@ -194,7 +194,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Motif Scan (FIMO)** | FIMO 风格 | PWM→PSSM log2 似然比、正反向互补扫描、动态规划 p 值卷积、匹配汇总 | ✅ |
 | **seqLogo** | Bioconductor seqLogo 风格 | PWM 构建、信息含量 IC、ASCII 艺术 logo 渲染、一致性序列、自定义背景频率 | ✅ |
 | **Prosite** | `Bio.Prosite` | Prosite 模体数据库搜索、模式解析、匹配算法、得分计算 | ✅ |
-| **Restriction** | `Bio.Restriction` | 内切酶数据库、酶切位点查找、序列酶切、片段分析 | ✅ |
+| **Restriction** | `Bio.Restriction` | REBASE **1088 个酶**全量数据库（`restriction_db.mbt`）：IUPAC 简并位点、回文识别、单切/双切/未表征酶、线性/环状 search（切点 1-based，跨原点桥接）与 catalyse 片段、elucidate/frequency/端型（blunt/5'/3'/unknown）/供应商目录、compatible_overhang/compatible_ends 粘性端相容、isoschizomer/neoschizomer/equischizomer 同裂酶关系、RestrictionBatch 批量检索（add/remove/add_supplier/elements）、RestrictionAnalysis 全套过滤（with/without/n_sites、blunt、overhang5/3、defined、between/only_between/show_only_between、outside/only_outside、do_not_cut） | ✅ |
 | **ProtParam** | `Bio.SeqUtils.ProtParam` | 分子量、不稳定指数、GRAVY（28 种注册疏水性 scale 命名切换）、等电点、信号肽、二级结构倾向、Vihinen 柔性窗口 `flexibility`、任意氨基酸 scale 滑窗剖面 `protein_scale`（edge 线性权重）、helix/turn/sheet 残基分数 `secondary_structure_fraction`、280nm 摩尔消光系数 `molar_extinction_coefficient` | ✅ |
 | **Proteomics** | `Bio.SeqUtils.Proteomics` | 8 种蛋白酶切（胰酶/糜酶/胃酶/LysC/ArgC/CNBr/GluC/AspN）、同位素分布、b/y 碎片离子 | ✅ |
 | **Entrez** | `Bio.Entrez` | NCBI 数据库 ESearch/EFetch、PubMed/Gene/Taxonomy 解析 | ✅ |
@@ -557,6 +557,7 @@ IvanAXu/BioSeqs/
 │   ├── minet_demo/                   # minet 互信息网络（离散化/MIM/ARACNE/CLR/MRNET/AUROC 验证）
 │   ├── qvalue_demo/                  # qvalue FDR 全流程（π₀ smoother/bootstrap、q-value/pFDR、lfdr、empPvals、BH 对比）
 │   ├── multtest_demo/                # multtest 多重检验（九种 rawp 校正/ABH·TSBH h₀、mt.reject、置换 maxT/minP）
+│   ├── restriction_demo/             # Bio.Restriction 克隆图谱（1088 酶库/批量酶切表、线性+环状片段、双酶切、相容粘性端、同裂酶、Analysis 过滤）
 │   ├── alignment_frequencies_demo/   # Bio.Align MSA 统计（替换计数矩阵/列频率/保守位点/序列权重/log-odds）
 │   ├── bio_cluster_demo/             # Bio.Cluster 数值聚类（8 种距离/层次聚类/k-means/k-medoids/SOM/PCA/Record）
 │   ├── hmm_markov_model_demo/        # 经典 Bio.HMM（构建器/Viterbi/前向-后向/Baum-Welch/KnownState 训练）
@@ -583,7 +584,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，12948 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，12960 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -603,7 +604,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12948 个测试全部通过
+moon test                                               # ✅ 12960 个测试全部通过
 ```
 
 ---
@@ -612,7 +613,7 @@ moon test                                               # ✅ 12948 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12948 个测试用例)
+moon test       # 运行全部测试 (12960 个测试用例)
 ```
 
 ---
@@ -675,4 +676,5 @@ moon test       # 运行全部测试 (12948 个测试用例)
 | `complex_heatmap.mbt` / `pheatmap.mbt` / `gviz.mbt` / `genome_diagram.mbt` / `enhanced_volcano.mbt` | 热图 / 基因组轨道 / 火山图可视化 |
 | `de_bruijn.mbt` / `suffix_array_tree.mbt` / `olc.mbt` / `bwt_fm.mbt` / `bloom_filter.mbt` | 序列组装四大算法 + Bloom Filter |
 | `motifs.mbt` / `motifs_advanced.mbt` / `jaspar.mbt` / `transfac.mbt` / `meme.mbt` / `motif_scan.mbt` / `seqlogo.mbt` | 序列模体识别 + JASPAR/TRANSFAC/MEME + FIMO 扫描 + Logo |
+| `bio_restriction.mbt` / `restriction_db.mbt` | Bio.Restriction：REBASE 1088 酶数据表（14 元组）、IUPAC 简并位点匹配（模式位展开/正则式 N）、回文/非回文正反向切点、线性 `_drop` 与环状跨原点扫描桥接、OneCut/TwoCuts/NoCut、catalyse 片段、elucidate `^`/`_` 标注、freq 理论频率、ovhg 端型分类、供应商目录、compatible_overhang（含 `_mod2` 歧义重写）/compatible_ends、equi/neo/isoschizomer 特征元组判定、RestrictionBatch（elements 按 Python 字典序的 codepoint 比较器）与 RestrictionAnalysis 全套区域过滤 |
 | `kmeans.mbt` / `hmm.mbt` / `logistic_regression.mbt` / `markov.mbt` / `neural_network.mbt` / `ga.mbt` | 独立实现 ML / 统计算法（k-means/HMM/逻辑回归/马尔可夫/神经网络/遗传算法） |
