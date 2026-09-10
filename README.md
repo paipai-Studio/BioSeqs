@@ -479,6 +479,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **SystemPipeR** | SystemPipeR | 流水线编排、步骤管理、依赖关系、进度追踪 | ✅ |
 | **pqsfinder** | pqsfinder | G-四链体（PQS）检测：G-run 穷举搜索、四分体加分/bulge/错配罚分评分系统、loop 长度惩罚、正负链搜索、非重叠/全重叠（overlapping）导出、deep 搜索逐位置 density 与 maxScores 向量、PQS 序列提取 | ✅ |
 | **DNAcopy** | DNAcopy | 循环二分分割（CBS）拷贝数分割：置换检验显著性（alpha/nperm）、trimmed variance、max 统计量、多染色体独立分割、sdundo 相邻片段合并 | ✅ |
+| **copynumber** | copynumber | 分段常数拟合（PCF）拷贝数分割：runmed 中位数滤波（keep + smoothEnds + Tukey 端点）、MAD 尺度估计、madWins/pcfWins 离群值 Winsorize、exactPcf 精确最小二乘动态规划分段（kmin/gamma 惩罚、MAD 归一化）、multiPCF 多样本联合共享分段（逐样本 MAD 标准化、样本权重、零方差退化单段） | ✅ |
 | **regioneR** | regioneR | 基因组区域置换检验 permTest：randomizeRegions 随机化（保宽度/染色体、避开 mask 掩蔽区）、circularRandomizeRegions 环状平移、numOverlaps/meanDistance 统计、z-score 与经验 p 值（greater/less/two.sided）、可复现种子 | ✅ |
 | **MatrixEQTL** | MatrixEQTL | 快速 eQTL 分析、线性回归 SNP-基因关联、Benjamini-Hochberg FDR 校正、t 统计量、正则化不完全 Beta 函数 p 值 | ✅ |
 
@@ -548,6 +549,7 @@ IvanAXu/BioSeqs/
 │   ├── pqs_demo/                     # pqsfinder G-四链体检测（评分系统/双链/deep density 与 maxScores/overlapping/序列提取）
 │   ├── melting_temp_demo/            # MeltingTemp 解链温度（Tm_GC 八套公式/Tm_NN 近邻热力学/盐与 Mg2+/错配/DMSO）
 │   ├── dnacopy_demo/                 # DNAcopy CBS 拷贝数分割（sdundo 合并/多染色体）
+│   ├── copynumber_demo/              # copynumber PCF 分段常数拟合（madWins 离群值/pcf_plain/multiPCF 共享分段）
 │   ├── regione_r_demo/               # regioneR 区域置换检验（随机化/mask/permTest）
 │   ├── minet_demo/                   # minet 互信息网络（离散化/MIM/ARACNE/CLR/MRNET/AUROC 验证）
 │   ├── qvalue_demo/                  # qvalue FDR 全流程（π₀ smoother/bootstrap、q-value/pFDR、lfdr、empPvals、BH 对比）
@@ -636,6 +638,7 @@ moon test       # 运行全部测试 (12767 个测试用例)
 | `genomic_ranges.mbt` / `granges_list.mbt` / `iranges.mbt` / `plyranges.mbt` | GenomicRanges/IRanges/plyranges 区间与 tidy 操作 |
 | `pqs_finder.mbt` | pqsfinder G-四链体（PQS）检测：G-run 穷举搜索、四分体加分/bulge/错配/loop 罚分评分、正负链坐标映射、非重叠解析（revised non-overlapping storage）、`overlapping=true` 全构象导出（按 (start,end) 去重保留最高分）、`pqs_search` deep 搜索逐位置 `density`（构象重叠计数）与 `max_scores`（位置最高分）向量、`Pqs::sequence` 提取命中序列 |
 | `dnacopy.mbt` | DNAcopy 循环二分分割（CBS）：置换检验 alpha/nperm、trimmed variance、多染色体独立分割、sdundo 合并 |
+| `copynumber.mbt` | Bioconductor copynumber PCF：copy_median_filter（runmed endrule="median"，keep + smoothEnds + Tukey 端点）、copy_mad/copy_get_mad、exact_pcf 精确分段常数最小二乘动态规划（kmin 最短段/gamma 分段惩罚）、pcf_plain（MAD 归一化）、winsorize_mad/winsorize_pcf（madWins/pcfWins 迭代离群值 Winsorize，tau/k/iter）、multi_pcf 多样本联合共享分段（逐样本 getMad 标准化与还原、gamma×ns、样本权重、缺失值/零方差校验） |
 | `regione_r.mbt` | regioneR 区域置换检验：randomizeRegions/circularRandomizeRegions（含 mask）、numOverlaps/meanDistance、permTest z-score 与经验 p 值 |
 | `qvalue.mbt` | Bioconductor qvalue FDR 分析：Storey π₀ 估计（Reinsch df=3 三次光滑样条 smoother、David Robinson 闭形式 MSE bootstrap、λ 路径 π₀(λ)）、q-value 与 pFDR 有限样本校正、fdr.level 显著集、局部 FDR lfdr（probit/logit 变换 + nrd0 高斯 KDE、cummax 单调化、截断）、经验 p 值 empPvals（池化合并排序 / 检验特异逐行矩阵，平局观测优先、下界 1/m₀） |
 | `bio_cluster.mbt` | Bio.Cluster 数值聚类核心（cluster.c 逐行移植）：8 种距离（欧氏平方均值/City Block/Pearson/绝对/非中心/绝对非中心/Spearman/Kendall）、clusterdistance、treecluster 层次聚类（单 SLINK/完全/平均/质心连接 + Tree cut/sort）、treecluster_from_distance、kcluster（k-means/k-medians，多次 npass 取最优）、kmedoids、clustercentroids、somcluster 自组织映射（Kohonen 训练+分配）、cluster_pca（Golub-Reinsch SVD，均值中心化 + 奇异值排序）、distancematrix、Record Eisen Cluster/TreeView 格式解析（NAME/GWEIGHT/GORDER/EWEIGHT/EORDER）及全套聚类方法、可复现 cluster_seed |
