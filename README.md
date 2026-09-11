@@ -107,6 +107,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Mauve XMFA** | `Bio.Align.mauve` | `#SequenceN*` metadata、LCB、正负链坐标、区间索引、跨序列投影、统计、序列重建 | ✅ |
 | **BED pairwise** | `Bio.Align.bed` | BED3-BED12 严格读写、正负链 target/query 路径、exon block 重建、双向 residue 映射、半开区间查询、分级 writer | ✅ |
 | **BigBed / BigMaf / BigPsl** | `Bio.Align.bigbed` / `bigmaf` / `bigpsl` | BigBed v4 二进制、AutoSQL 扩展、多级 B+ tree/R-tree、zlib DEFLATE、区间/名称查询、bedMaf/bedPsl 语义 | ✅ |
+| **BigWig** | `rtracklayer BigWigFile`（`export.bw`/`import`/`summary`） | BigWig v3/v4 二进制（magic 0x888FFC26）、bedGraph/variableStep/fixedStep 三种段、B+ tree 染色体表、R-tree 索引、zoom 汇总层、zlib 段、intervals/values(NaN 填充)/stats 六统计量（mean/min/max/cov/sum/样本 std，累积 floor 分箱）、writer 全量校验 | ✅ |
 | **Tabular 搜索轨迹** | `Bio.Align.tabular` | BLAST outfmt 7、FASTA 8CB/8CC、BTOP/aln_code traceback、链向与 translated 坐标 | ✅ |
 
 ### 搜索结果解析
@@ -285,7 +286,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **BSgenome** | BSgenome | 基因组序列数据库、染色体序列检索、子序列提取、链特异性基因提取 | ✅ |
 | **biomaRt** | biomaRt | 基因 ID 映射、基因注释查询、批量查询、外部数据库映射 | ✅ |
 | **GEOquery** | GEOquery | GEO 数据获取、Series Matrix、SOFT 解析、ExpressionSet 转换 | ✅ |
-| **rtracklayer** | rtracklayer | BED/WIG/BEDGraph/GFF 解析与写入、GRanges 转换、Chain liftOver | ✅ |
+| **rtracklayer** | rtracklayer | BED/WIG/BEDGraph/GFF 解析与写入、GRanges 转换、Chain liftOver、BigWig 二进制（见 Align/基因组文件表） | ✅ |
 | **UCSC Chain / liftOver** | rtracklayer | Chain 格式解析、基因组坐标 liftOver 转换、链段查找、染色体间映射 | ✅ |
 | **rhdf5** | rhdf5 | HDF5 文件支持、数据集读写、组管理、属性操作 | ✅ |
 | **GenomicScores** | GenomicScores | GScores 位置特异性分数检索：多 population 安装（phastCons/phyloP 风格 per-chromosome 存储）、score_at 单碱基查询（step 常数/linear 线性两种插值、首碱基前 NaN、末尾截断）、range_score 区间汇总（mean/min/max/median）、多 population 默认切换、gscores_fetch GRanges 风格批量抓取、染色体增量合并（位置对齐去重） | ✅ |
@@ -569,6 +570,7 @@ IvanAXu/BioSeqs/
 │   ├── scop_raf_dom_demo/            # Bio.SCOP.Raf/Dom（RAF 解析/索引/域切割/ATOM 提取/DOM 往返）
 │   ├── entrez_eutils_demo/           # Bio.Entrez E-utilities（EInfo/ESearch+history/EFetch/EPost/ESummary/ESpell/ELink/EGQuery/ECitMatch/请求日志）
 │   ├── bgzf_demo/                    # Bio.bgzf（BgzfWriter 压缩/bgzf_blocks 块扫描/BgzfReader 虚拟偏移 seek/read/readline）
+│   ├── bigwig_demo/                  # rtracklayer BigWig（BigWig 二进制写读、intervals/values 查询、mean/min/max/cov/sum/std 分箱统计、错误拒绝）
 │   ├── qblast_demo/                  # Bio.Blast.NCBIWWW（mock fetch 演示 PUT 提交/SearchInfo 轮询/结果下载全流程）
 │   ├── blat_psl_demo/                # Bio.SearchIO.BlatIO（blat-psl/PSLX 解析、负链重定向、蛋白 3:1 block、millibad/score、写回往返、SearchIO 转换）
 │   ├── ropls_demo/                   # ropls（NIPALS PCA、PLS/PLS-DA、OPLS-DA、VIP、R2/Q2 交叉验证、响应置换检验）
@@ -588,7 +590,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，13008 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，13018 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -608,7 +610,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13008 个测试全部通过
+moon test                                               # ✅ 13018 个测试全部通过
 ```
 
 ---
@@ -617,7 +619,7 @@ moon test                                               # ✅ 13008 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13008 个测试用例)
+moon test       # 运行全部测试 (13018 个测试用例)
 ```
 
 ---
@@ -636,6 +638,7 @@ moon test       # 运行全部测试 (13008 个测试用例)
 | `codon_usage.mbt` / `codon_align.mbt` / `codon_align_advanced.mbt` | 密码子使用分析与 dN/dS 选择压力检验 |
 | `alignment.mbt` / `pairaligner.mbt` / `smith_waterman.mbt` / `needleman_wunsch.mbt` | 全局/局部比对算法 + PairwiseAligner |
 | `align_*.mbt` (clustal/phylip/stockholm/msf/nexus/a2m/emboss/exonerate/maf/mauve/psl/sam/chain/bed/bigbed/...) | 各类比对格式严格读写 + 坐标映射 + 统计 + canonical 往返 |
+| `bigwig.mbt` | rtracklayer BigWig 二进制：v3/v4 头与 totalSummary、bedGraph/variableStep/fixedStep 段解码（24 字节 libBigWig 段头）、zoom R-tree 汇总、IEEE754 f64/f32 双词位运算、累积 floor 分箱六统计量、zlib 段压缩与校验型 writer |
 | `alignment_map.mbt` / `alignment_counts.mbt` / `shared_reference_alignment.mbt` | Alignment map/mapall 坐标路径、counts gap/composition 评分、共享参考 PWA/MSA 合并 |
 | `alignment_frequencies.mbt` | Bio.Align MSA 统计：每列字母计数/频率（`'-'` gap 行）、对称替换计数矩阵（序列权重、M=(M+Mᵀ)/2）、观测对频率与背景频率、q_ij/e_ij 相对频率/log-odds |
 | `searchio.mbt` / `blast.mbt` / `blast_xml_advanced.mbt` | SearchIO 统一模型 + BLAST tabular/XML1/XML2 |
