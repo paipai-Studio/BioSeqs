@@ -220,6 +220,17 @@ pub fn SubsMatrix::n_letters(self : SubsMatrix) -> Int {
 }
 
 ///|
+/// Check whether the matrix alphabet contains a letter.
+pub fn SubsMatrix::has_letter(self : SubsMatrix, letter : String) -> Bool {
+  for a in self.alphabet {
+    if a == letter {
+      return true
+    }
+  }
+  false
+}
+
+///|
 /// Select a sub-matrix containing only the specified letters.
 pub fn SubsMatrix::select(
   self : SubsMatrix,
@@ -273,6 +284,10 @@ let registry_keys : Ref[Array[String]] = Ref::new([])
 
 ///|
 let registry_matrices : Ref[Array[SubsMatrix]] = Ref::new([])
+
+///|
+/// Whether the built-in matrices have already been registered.
+let registry_initialized : Ref[Bool] = Ref::new(false)
 
 ///|
 /// Register a substitution matrix by name.
@@ -441,16 +456,25 @@ pub fn subs_nuc44_matrix() -> SubsMatrix {
 
 ///|
 /// Register all built-in substitution matrices.
-/// Call this once at program startup.
+///
+/// Registers the 30 canonical Biopython matrices (BLOSUM45/50/62/80/90,
+/// PAM30/70/250, DAYHOFF, GONNET1992, BLASTN/NUC.4.4, BLASTP, HOXD70,
+/// TRANS, SCHNEIDER, ...) plus the legacy "NUC4.4" alias. Idempotent:
+/// repeated calls do not rebuild or overwrite user-registered matrices.
 pub fn subs_initialize_registry() -> Unit {
-  register_matrix("BLOSUM45", subs_blosum45_matrix())
-  register_matrix("BLOSUM62", subs_blosum62_matrix())
-  register_matrix("BLOSUM80", subs_blosum80_matrix())
-  register_matrix("BLOSUM90", subs_blosum90_matrix())
-  register_matrix("PAM30", subs_pam30_matrix())
-  register_matrix("PAM70", subs_pam70_matrix())
-  register_matrix("PAM250", subs_pam250_matrix())
+  if registry_initialized.val {
+    return
+  }
+  register_biopython_matrices()
+  // Legacy alias: simplified 4-letter match/mismatch matrix
   register_matrix("NUC4.4", subs_nuc44_matrix())
+  registry_initialized.val = true
+}
+
+///|
+/// Lazily ensure that the built-in matrices are registered.
+pub fn subs_ensure_registry() -> Unit {
+  subs_initialize_registry()
 }
 
 // ============================================================================

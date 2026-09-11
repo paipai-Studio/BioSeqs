@@ -560,6 +560,136 @@ test "submat_matrix_correlation_disjoint_alphabets" {
 }
 
 // ---------------------------------------------------------------------------
+// Biopython 1.88 canonical matrix registry (30 matrices)
+// ---------------------------------------------------------------------------
+
+///|
+test "submat_registry_contains_all_30_biopython_matrices" {
+  @src.subs_initialize_registry()
+  let names = @src.list_matrices()
+  // 30 canonical Biopython names plus the legacy "NUC4.4" alias
+  assert_true(names.length() >= 31)
+  let expected = [
+    "BENNER22", "BENNER6", "BENNER74", "BLASTN", "BLASTP", "BLOSUM45",
+    "BLOSUM50", "BLOSUM62", "BLOSUM80", "BLOSUM90", "DAYHOFF", "FENG",
+    "GENETIC", "GONNET1992", "HOXD70", "JOHNSON", "JONES", "LEVIN",
+    "MCLACHLAN", "MDM78", "MEGABLAST", "NUC.4.4", "PAM250", "PAM30", "PAM70",
+    "RAO", "RISLER", "SCHNEIDER", "STR", "TRANS",
+  ]
+  for name in expected {
+    let m = @src.load_matrix(name)
+    assert_true(m.is_some(), msg=name)
+  }
+}
+
+///|
+test "submat_canonical_alphabet_sizes" {
+  @src.subs_initialize_registry()
+  let size24 = ["BLOSUM45", "BLOSUM50", "BLOSUM62", "BLOSUM80", "BLOSUM90", "PAM30", "PAM70", "PAM250"]
+  for name in size24 {
+    let m = @src.load_matrix(name).unwrap()
+    assert_eq(m.n_letters(), 24, msg=name)
+    // canonical 24-letter alphabet includes B, Z, X and '*'
+    assert_true(m.has_letter("B"))
+    assert_true(m.has_letter("Z"))
+    assert_true(m.has_letter("X"))
+    assert_true(m.has_letter("*"))
+  }
+  let size15 = ["BLASTN", "MEGABLAST", "NUC.4.4"]
+  for name in size15 {
+    let m = @src.load_matrix(name).unwrap()
+    assert_eq(m.n_letters(), 15, msg=name)
+  }
+  assert_eq(@src.load_matrix("BLASTP").unwrap().n_letters(), 27)
+  assert_eq(@src.load_matrix("SCHNEIDER").unwrap().n_letters(), 64)
+  let size4 = ["HOXD70", "TRANS"]
+  for name in size4 {
+    assert_eq(@src.load_matrix(name).unwrap().n_letters(), 4, msg=name)
+  }
+  let size20 = [
+    "BENNER22", "BENNER6", "BENNER74", "DAYHOFF", "FENG", "GENETIC",
+    "GONNET1992", "JOHNSON", "JONES", "LEVIN", "MCLACHLAN", "MDM78", "RAO",
+    "RISLER", "STR",
+  ]
+  for name in size20 {
+    assert_eq(@src.load_matrix(name).unwrap().n_letters(), 20, msg=name)
+  }
+  // Legacy simplified matrix is still 4 letters
+  assert_eq(@src.subs_nuc44_matrix().n_letters(), 4)
+}
+
+///|
+test "submat_canonical_blosum62_scores" {
+  @src.subs_initialize_registry()
+  // The registered BLOSUM62 is now the authoritative 24-letter matrix,
+  // with the exact Biopython alphabet order.
+  let m = @src.load_matrix("BLOSUM62").unwrap()
+  assert_eq(m.alphabet().length(), 24)
+  assert_eq(
+    m.alphabet(),
+    ["A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V", "B", "Z", "X", "*"],
+  )
+  assert_true((m.get_score("A", "A") - 4.0).abs() < 1.0e-10)
+  assert_true((m.get_score("W", "W") - 11.0).abs() < 1.0e-10)
+  assert_true((m.get_score("X", "X") - -1.0).abs() < 1.0e-10)
+  assert_true((m.get_score("*", "*") - 1.0).abs() < 1.0e-10)
+  assert_true((m.get_score("A", "*") - -4.0).abs() < 1.0e-10)
+  // ambiguous residues: B pairs with D/N, Z pairs with E/Q
+  assert_true((m.get_score("B", "B") - 4.0).abs() < 1.0e-10)
+  assert_true((m.get_score("B", "D") - 4.0).abs() < 1.0e-10)
+  assert_true((m.get_score("Z", "Z") - 4.0).abs() < 1.0e-10)
+  assert_true((m.get_score("Z", "E") - 4.0).abs() < 1.0e-10)
+  assert_true(!m.has_letter("J"))
+}
+
+///|
+test "submat_canonical_nuc44_iupac_scores" {
+  @src.subs_initialize_registry()
+  let m = @src.load_matrix("NUC.4.4").unwrap()
+  assert_eq(m.alphabet(), ["A", "T", "G", "C", "S", "W", "R", "Y", "K", "M", "B", "V", "H", "D", "N"])
+  assert_true((m.get_score("A", "A") - 5.0).abs() < 1.0e-10)
+  assert_true((m.get_score("A", "C") - -4.0).abs() < 1.0e-10)
+  assert_true((m.get_score("A", "R") - 1.0).abs() < 1.0e-10)
+  assert_true((m.get_score("S", "S") - -1.0).abs() < 1.0e-10)
+  assert_true((m.get_score("S", "C") - 1.0).abs() < 1.0e-10)
+  assert_true((m.get_score("N", "A") - -2.0).abs() < 1.0e-10)
+}
+
+///|
+test "submat_canonical_dna_and_codon_matrix_scores" {
+  @src.subs_initialize_registry()
+  let hox = @src.load_matrix("HOXD70").unwrap()
+  assert_eq(hox.alphabet(), ["A", "C", "G", "T"])
+  assert_true((hox.get_score("A", "A") - 91.0).abs() < 1.0e-10)
+  assert_true((hox.get_score("A", "C") - -114.0).abs() < 1.0e-10)
+  let trans = @src.load_matrix("TRANS").unwrap()
+  assert_eq(trans.alphabet(), ["A", "T", "C", "G"])
+  // SCHNEIDER is a 64-codon scoring matrix
+  let sch = @src.load_matrix("SCHNEIDER").unwrap()
+  assert_eq(sch.alphabet()[0], "AAA")
+  assert_true((sch.get_score("AAA", "AAA") - 11.6).abs() < 1.0e-10)
+  assert_true((sch.get_score("AAA", "AAC") - -2.7).abs() < 1.0e-10)
+  // BLASTP uses the full A-Z + '*' alphabet
+  let blastp = @src.load_matrix("BLASTP").unwrap()
+  assert_true((blastp.get_score("A", "A") - 4.0).abs() < 1.0e-10)
+  assert_true(blastp.has_letter("J"))
+}
+
+///|
+test "submat_canonical_matrices_are_symmetric" {
+  @src.subs_initialize_registry()
+  for name in ["DAYHOFF", "GONNET1992", "PAM250", "BLASTN", "BLASTP", "HOXD70"] {
+    let m = @src.load_matrix(name).unwrap()
+    let alpha = m.alphabet()
+    for a in alpha {
+      for b in alpha {
+        assert_true((m.get_score(a, b) - m.get_score(b, a)).abs() < 1.0e-9, msg=name)
+      }
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
 // End-to-end: derive matrix from alignment, then score
 // ---------------------------------------------------------------------------
 

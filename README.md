@@ -83,7 +83,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Pairwise2** | `Bio.Pairwise2` | 灵活双序列比对、自定义打分函数 | ✅ |
 | **NW / SW 独立实现** | `Bio.Align.PairwiseAligner` | Needleman-Wunsch / Smith-Waterman 动态规划、回溯矩阵、自定义打分 | ✅ |
 | **AlignClusterer** | `Bio.Align.AlignClusterer` | 渐进式多序列比对（ClustalW 算法）、UPGMA 向导树、profile-profile 比对 | ✅ |
-| **Substitution Matrices** | `Bio.SubsMat` / `Bio.Align.substitution_matrices` | BLOSUM62/45、PAM250/30、ArrayData/SubsMatrix 基础设施、矩阵注册表、频率矩阵、log-odds 打分、Shannon 熵、KL 散度、NCBI 矩阵解析 | ✅ |
+| **Substitution Matrices** | `Bio.SubsMat` / `Bio.Align.substitution_matrices` | BLOSUM62/45、PAM250/30、ArrayData/SubsMatrix 基础设施、矩阵注册表、频率矩阵、log-odds 打分、Shannon 熵、KL 散度、NCBI 矩阵解析；内置 30 个 Biopython 1.88 权威替换矩阵（BLOSUM45/50/62/80/90、PAM30/70/250、DAYHOFF/JONES/GONNET1992、NUC.4.4/MEGABLAST/BLASTN、HOXD70/TRANS、BLASTP、SCHNEIDER 密码子矩阵等） | ✅ |
 | **MultipleSeqAlignment** | `Bio.Align` | 多序列比对对象与操作 | ✅ |
 | **AlignInfo / AlignAbstract** | `Bio.Align.AlignInfo` / `AlignAbstract` | 一致性序列、保守位点、Shannon 熵、成对序列同一性、简约信息位点、同一性矩阵 | ✅ |
 | **CodonAlign** | `Bio.codonalign` | 密码子替换分类、dN/dS Nei-Gojobori、Z-test 选择检验、Fisher 中性检验、滑窗 dN/dS、BH-FDR、成对 Ka/Ks 表 | ✅ |
@@ -134,7 +134,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | :--- | :--- | :--- | :---: |
 | **Phylo 基础** | `Bio.Phylo` | 树结构（Clade/Tree）、距离计算、可视化 | ✅ |
 | **TreeIO** | `Bio.TreeIO` | Newick / NHX 格式解析与序列化、树操作、修剪 | ✅ |
-| **TreeConstruction** | `Bio.Phylo.TreeConstruction` | 距离矩阵建树、UPGMA/WPGMA/NJ 算法、Jukes-Cantor/Kimura 替换模型 | ✅ |
+| **TreeConstruction** | `Bio.Phylo.TreeConstruction` | `DistanceCalculator` 全 31 模型（identity、blastn→NUC.4.4、BLOSUM/PAM/DAYHOFF 等 30 个替换矩阵、skip_letters 空位/终止符规则、Bad letter 错误、可 >1 的 IUPAC 距离）、距离矩阵建树 UPGMA/WPGMA/NJ、Jukes-Cantor/Kimura 校正模型（MoonBit 扩展） | ✅ |
 | **PhyloXML** | `Bio.Phylo.PhyloXML` | PhyloXML 格式解析/序列化、Newick 双向转换、分类单元注释 | ✅ |
 | **NeXML** | `Bio.Phylo.NeXML` | NeXML 格式解析与序列化、OTUs/Trees/Characters 数据模型、Newick 转换 | ✅ |
 | **CDAO** | `Bio.Phylo.CDAO` | CDAO 本体 RDF/XML 格式、Tree/Node/TU/Edge 三元组建模、Newick 双向转换、命名空间处理 | ✅ |
@@ -578,6 +578,8 @@ IvanAXu/BioSeqs/
 │   ├── genomic_scores_demo/          # GenomicScores（population 安装/step+linear 插值/区间汇总/批量抓取）
 │   ├── splatter_demo/                # splatter（基础模拟/分组 DE/批次效应/dropout/pseudotime 路径/RNG 流）
 │   ├── phylo_applications_demo/      # Bio.Phylo.Applications（FastTree/PhyML/RAxML 命令行构建）
+│   ├── tree_construction_demo/       # DistanceCalculator（identity/blastn/BLOSUM62 全模型距离 + UPGMA/NJ/WPGMA 建树）
+│   ├── substitution_matrices_demo/   # 替换矩阵注册表与 30 个 Biopython 权威矩阵（IUPAC NUC.4.4/BLOSUM/PAM/密码子）
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ # 差异表达
@@ -586,7 +588,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，12960 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，13008 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -606,7 +608,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 12960 个测试全部通过
+moon test                                               # ✅ 13008 个测试全部通过
 ```
 
 ---
@@ -615,7 +617,7 @@ moon test                                               # ✅ 12960 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12989 个测试用例)
+moon test       # 运行全部测试 (13008 个测试用例)
 ```
 
 ---
@@ -639,7 +641,8 @@ moon test       # 运行全部测试 (12989 个测试用例)
 | `searchio.mbt` / `blast.mbt` / `blast_xml_advanced.mbt` | SearchIO 统一模型 + BLAST tabular/XML1/XML2 |
 | `hmmer_io.mbt` / `infernal_io.mbt` / `hhr.mbt` / `exonerate_text.mbt` / `interproscan.mbt` | HMMER3/Infernal/HH-suite HHR/Exonerate C4/InterProScan 解析 |
 | `blat_io.mbt` | Bio.SearchIO.BlatIO `blat-psl`/PSLX：BlatQueryResult/BlatHit/BlatHsp/BlatBlock 模型、blat_psl_parse/write/write_stats/header、负链 block 重定向、蛋白 3:1 检测、UCSC millibad/score、to_search_io 转换 |
-| `phylo.mbt` / `tree_io.mbt` / `tree_construction.mbt` | 系统发育树解析 + UPGMA/NJ/WPGMA 建树 |
+| `phylo.mbt` / `tree_io.mbt` / `tree_construction.mbt` | 系统发育树解析 + DistanceCalculator（identity/30 替换矩阵模型 + JC69/Kimura 扩展）+ UPGMA/NJ/WPGMA 建树 |
+| `substitution_matrices.mbt` / `substitution_matrices_builtin.mbt` | 替换矩阵基础设施 + 30 个 Biopython 1.88 权威矩阵（24 字母 BLOSUM/PAM、NUC.4.4 等 15 字母 IUPAC、HOXD70/TRANS、BLASTP、SCHNEIDER 64 密码子、Dayhoff/GONNET 浮点族），注册表惰性初始化、大小写不敏感查找、blastn→NUC.4.4 映射 |
 | `phylo_xml.mbt` / `phylo_nexml.mbt` / `phylo_cdao.mbt` / `parsimony.mbt` / `phylo_consensus.mbt` | PhyloXML/NeXML/CDAO、Fitch/Sankoff 简约性、共识树 |
 | `pdb.mbt` / `pdb_io.mbt` / `mmcif.mbt` / `binary_cif.mbt` / `mmtf.mbt` | PDB/mmCIF/BinaryCIF/MMTF 结构解析与转换 |
 | `cealign.mbt` / `qcp_superimposer.mbt` / `svd_superimposer.mbt` / `structure_alignment.mbt` / `ma_align.mbt` | CE/SVD/QCP 结构叠合 + 多结构比对 |
