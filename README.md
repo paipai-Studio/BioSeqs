@@ -233,6 +233,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Statistics 基础** | `Bio.Statistics` | 描述统计、假设检验（Pearson/Spearman 相关、t/Wilcoxon/Mann-Whitney/Fisher/KS/chi2/ANOVA）、Z-score、log-rank、BH/Yekutieli/Bonferroni/Holm 校正 | ✅ |
 | **q-value / IHW** | qvalue / IHW | Storey's π₀ 估计（df=3 三次光滑样条 smoother / David Robinson 闭形式 bootstrap）、q-value、pFDR 有限样本校正、fdr.level 显著集、局部 FDR lfdr（probit/logit + 高斯 KDE）、经验 p 值 empPvals（池化/检验特异）、自助法；独立假设加权、协变量加权 Bonferroni、多协变量 | ✅ |
 | **multtest** | multtest | `mt.rawp2adjp` 九种边际 p 值校正（Bonferroni/Holm/Hochberg/Sidak 单步与步降/BH/BY/ABH 自适应 BH/TSBH 两阶段 BH，按 α 输出独立列与 h₀ 估计、NaN 末置与 na.rm 语义）、`mt.reject` 拒绝计数与定位、Westfall-Young 置换 maxT/minP 步降校正（观测统计量 + 置换零统计矩阵、经验边际 p、单调化） | ✅ |
+| **swfdr** | swfdr（Korthauer 等） | 协变量调节 π₀ 与 q-value：`lm_pi0`（logistic/linear 模型、λ 网格 π₀(λ)、unit.spline 等距三次样条与 smooth.spline df=3 两种光滑、自定义 λ 与 smooth_df、多协变量设计矩阵、[0,1] 阈值截断）、`lm_qvalue`（pFDR 有限样本校正、pfdr 开关）；science-wise FDR：`calculateSwfdr` 对 rounded/truncated p 值的 EM 估计（六个粗粒度箱 (0,.005]…(.045,.05]、Beta(α,β) 备择分布、精确 p 值的后验零假设指示 z、rounded 位置返 None、每箱期望零假设数 n0 与观测计数 n、自定义 pi0/alpha/beta 初值与迭代数）；内置完整 L-BFGS-B v2.3 有界约束优化器（BLAS/Linpack、Moré-Thuente 线搜索、有界中心差分数值梯度） | ✅ |
 | **Nexus** | `Bio.Nexus` | NEXUS 格式解析、数据矩阵、发育树、距离矩阵 | ✅ |
 | **Stockholm 兼容层** | `Bio.Stockholm` (legacy) | Stockholm/Pfam 比对解析、二级结构注释、百分比一致性、保守性分析 | ✅ |
 | **MAF 兼容层** | `Bio.Align.MAF` (legacy) | 宽松 MAF 块解析、选择/过滤、百分比一致性、统计分析 | ✅ |
@@ -557,6 +558,7 @@ IvanAXu/BioSeqs/
 │   ├── minet_demo/                   # minet 互信息网络（离散化/MIM/ARACNE/CLR/MRNET/AUROC 验证）
 │   ├── qvalue_demo/                  # qvalue FDR 全流程（π₀ smoother/bootstrap、q-value/pFDR、lfdr、empPvals、BH 对比）
 │   ├── multtest_demo/                # multtest 多重检验（九种 rawp 校正/ABH·TSBH h₀、mt.reject、置换 maxT/minP）
+│   ├── swfdr_demo/                   # swfdr 协变量 FDR（lm_pi0 unit.spline/smooth.spline、lm_qvalue）与 rounded/truncated science-wise EM
 │   ├── restriction_demo/             # Bio.Restriction 克隆图谱（1088 酶库/批量酶切表、线性+环状片段、双酶切、相容粘性端、同裂酶、Analysis 过滤）
 │   ├── alignment_frequencies_demo/   # Bio.Align MSA 统计（替换计数矩阵/列频率/保守位点/序列权重/log-odds）
 │   ├── bio_cluster_demo/             # Bio.Cluster 数值聚类（8 种距离/层次聚类/k-means/k-medoids/SOM/PCA/Record）
@@ -613,7 +615,7 @@ moon test                                               # ✅ 12960 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (12960 个测试用例)
+moon test       # 运行全部测试 (12989 个测试用例)
 ```
 
 ---
@@ -651,6 +653,7 @@ moon test       # 运行全部测试 (12960 个测试用例)
 | `regione_r.mbt` | regioneR 区域置换检验：randomizeRegions/circularRandomizeRegions（含 mask）、numOverlaps/meanDistance、permTest z-score 与经验 p 值 |
 | `qvalue.mbt` | Bioconductor qvalue FDR 分析：Storey π₀ 估计（Reinsch df=3 三次光滑样条 smoother、David Robinson 闭形式 MSE bootstrap、λ 路径 π₀(λ)）、q-value 与 pFDR 有限样本校正、fdr.level 显著集、局部 FDR lfdr（probit/logit 变换 + nrd0 高斯 KDE、cummax 单调化、截断）、经验 p 值 empPvals（池化合并排序 / 检验特异逐行矩阵，平局观测优先、下界 1/m₀） |
 | `multtest.mbt` | Bioconductor multtest 多重检验（Dudoit-Shaffer-Boldrick）：mt_rawp2adjp 九种边际校正（Bonferroni/Holm/Hochberg/SidakSS/SidakSD/BH/BY/ABH 自适应 h₀/TSBH 两阶段每 α 一列，稳定升序索引 + NaN 末置、na.rm 仅改 mgood、R 的 min(na.rm=TRUE) 累计语义与 NA^0=1 边界）、mt_reject 拒绝计数/定位（NaN→None，计数不可用返 0）、mt_max_t/mt_min_p Westfall-Young 置换步降引擎（用户供观测统计量 m 向量与 m×B 零统计矩阵，双侧绝对值、逐排列跨假设 max/逐基因经验边际 p 的 min、按统计量排序强制单调、/B 无 +1 校正）、矩阵行列校验 |
+| `swfdr.mbt` / `swfdr_lbfgs.mbt` | Bioconductor swfdr：swfdr_lm_pi0 协变量调节 π₀（λ 网格 Storey 估计 + logistic/linear 回归、unit.spline 等距三次样条与 smooth.spline（df=3，交叉验证折数）两种 pi0_smooth、threshold [0,1] 截断）、swfdr_lm_qvalue（pFDR 有限样本校正、单调化、pfdr 开关）、swfdr_calculate science-wise EM（rounded 六粗粒度箱 prob0=(.1,.2,.2,.2,.2,.1) 与 truncated P(p≤观测) 似然、Beta(α,β) 备择、z 后验零假设指示 rounded→None、n0/n 箱计数、自定义初值/迭代数）；`swfdr_lbfgs.mbt` 完整 L-BFGS-B v2.3（m=5/factr=1e7，BLAS ddot/dcopy/daxpy/dscal、Linpack dpofa/dtrsl、cauchy/freev/formk/formt/matupd/subsm、Moré-Thuente dcstep/dcsrch 线搜索、环形缓冲、越界截断中心差分 ndeps=1e-3） |
 | `bio_cluster.mbt` | Bio.Cluster 数值聚类核心（cluster.c 逐行移植）：8 种距离（欧氏平方均值/City Block/Pearson/绝对/非中心/绝对非中心/Spearman/Kendall）、clusterdistance、treecluster 层次聚类（单 SLINK/完全/平均/质心连接 + Tree cut/sort）、treecluster_from_distance、kcluster（k-means/k-medians，多次 npass 取最优）、kmedoids、clustercentroids、somcluster 自组织映射（Kohonen 训练+分配）、cluster_pca（Golub-Reinsch SVD，均值中心化 + 奇异值排序）、distancematrix、Record Eisen Cluster/TreeView 格式解析（NAME/GWEIGHT/GORDER/EWEIGHT/EORDER）及全套聚类方法、可复现 cluster_seed |
 | `hmm_markov_model.mbt` | 经典 Bio.HMM 移植（Biopython 1.84 退役前版本）：MarkovModelBuilder（状态/发射字母表、allow_all_transitions、转移/发射概率与伪计数、随机初始化 hmm_gen_random_array、set_initial_probabilities 残余概率均分）、HiddenMarkovModel（Viterbi 对数空间最优路径解码 + 回溯）、ScaledDp 缩放前向/后向算法（Durbin et al. p78，对数空间缩放防下溢）、BaumWelchTrainer（EM 迭代，change/迭代次数早停回调）、KnownStateTrainer（有标注路径最大似然估计）、TrainingSequence |
 | `togows.mbt` | Bio.TogoWS REST 客户端：togows_entry/togows_search/togows_search_count/togows_search_iter/togows_convert 与对应 *_url 构造器、togows_quote percent quoting（urllib.parse.quote 语义，safe 默认 "/"）、数据库/字段/格式/转换白名单校验（错误消息字典序排序）、TogoWSClient 可注入 fetch 与 now 时钟、内置限速 TOGOWS_DELAY=1/3 秒（每秒 3 次查询） |
