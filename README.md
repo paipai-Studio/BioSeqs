@@ -140,7 +140,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **NeXML** | `Bio.Phylo.NeXML` | NeXML 格式解析与序列化、OTUs/Trees/Characters 数据模型、Newick 转换 | ✅ |
 | **CDAO** | `Bio.Phylo.CDAO` | CDAO 本体 RDF/XML 格式、Tree/Node/TU/Edge 三元组建模、Newick 双向转换、命名空间处理 | ✅ |
 | **Parsimony** | `Bio.Phylo.Parsimony` | Fitch 算法（状态集交集/并集）、Sankoff 算法（动态规划+代价矩阵） | ✅ |
-| **Consensus** | `Bio.Phylo.Consensus` | 多数规则/严格一致性树、分裂分析、支持度计算 | ✅ |
+| **Consensus** | `Bio.Phylo.Consensus` | 多数规则（含 cutoff）/严格/Adam 一致性树、clade 支持度标注 `get_support`、非参数 bootstrap（列重采样索引、NJ 重复树、`bootstrap_consensus` 一站式）、共识树 Newick 序列化 | ✅ |
 | **Phylo Metrics** | `Bio.Phylo` (metrics) | Colless 平衡指数、Robinson-Foulds 距离、距离矩阵 | ✅ |
 | **Trie** | `Bio.Phylo.Trie` | 前缀树数据结构、插入/查找/前缀匹配/最长前缀/子串搜索、限制酶位点检测、引物匹配 | ✅ |
 | **PopGen 基础** | `Bio.PopGen` | 等位基因频率、FST、哈迪-温伯格检验 | ✅ |
@@ -585,6 +585,7 @@ IvanAXu/BioSeqs/
 │   ├── splatter_demo/                # splatter（基础模拟/分组 DE/批次效应/dropout/pseudotime 路径/RNG 流）
 │   ├── phylo_applications_demo/      # Bio.Phylo.Applications（FastTree/PhyML/RAxML 命令行构建）
 │   ├── tree_construction_demo/       # DistanceCalculator（identity/blastn/BLOSUM62 全模型距离 + UPGMA/NJ/WPGMA 建树）
+│   ├── phylo_bootstrap_demo/         # Bio.Phylo.Consensus（strict/majority/Adam 共识树 + get_support 支持度 + 比对列 bootstrap）
 │   ├── substitution_matrices_demo/   # 替换矩阵注册表与 30 个 Biopython 权威矩阵（IUPAC NUC.4.4/BLOSUM/PAM/密码子）
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
@@ -594,7 +595,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，13040 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，13059 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -614,7 +615,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13040 个测试全部通过
+moon test                                               # ✅ 13059 个测试全部通过
 ```
 
 ---
@@ -623,7 +624,7 @@ moon test                                               # ✅ 13040 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13040 个测试用例)
+moon test       # 运行全部测试 (13059 个测试用例)
 ```
 
 ---
@@ -651,6 +652,7 @@ moon test       # 运行全部测试 (13040 个测试用例)
 | `phylo.mbt` / `tree_io.mbt` / `tree_construction.mbt` | 系统发育树解析 + DistanceCalculator（identity/30 替换矩阵模型 + JC69/Kimura 扩展）+ UPGMA/NJ/WPGMA 建树 |
 | `substitution_matrices.mbt` / `substitution_matrices_builtin.mbt` | 替换矩阵基础设施 + 30 个 Biopython 1.88 权威矩阵（24 字母 BLOSUM/PAM、NUC.4.4 等 15 字母 IUPAC、HOXD70/TRANS、BLASTP、SCHNEIDER 64 密码子、Dayhoff/GONNET 浮点族），注册表惰性初始化、大小写不敏感查找、blastn→NUC.4.4 映射 |
 | `phylo_xml.mbt` / `phylo_nexml.mbt` / `phylo_cdao.mbt` / `parsimony.mbt` / `phylo_consensus.mbt` | PhyloXML/NeXML/CDAO、Fitch/Sankoff 简约性、共识树 |
+| `phylo_bootstrap.mbt` | `Bio.Phylo.Consensus`：位串 clade 标识、strict/majority-rule（cutoff）/Adam 一致性树、`tree_get_support` 支持度标注（不可变树重建）、比对列非参数 bootstrap（Park-Miller RNG 列索引、距离矩阵 + NJ 重复树、`bootstrap_consensus` 一站式 strict/majority/adam）、共识 Newick 序列化 |
 | `pdb.mbt` / `pdb_io.mbt` / `mmcif.mbt` / `binary_cif.mbt` / `mmtf.mbt` | PDB/mmCIF/BinaryCIF/MMTF 结构解析与转换 |
 | `cealign.mbt` / `qcp_superimposer.mbt` / `svd_superimposer.mbt` / `structure_alignment.mbt` / `ma_align.mbt` | CE/SVD/QCP 结构叠合 + 多结构比对 |
 | `dssp.mbt` / `sasa.mbt` / `pdb_packing.mbt` / `internal_coords.mbt` | DSSP 二级结构、SASA (Shrake-Rupley/Lee-Richards)、包装密度、内部坐标 |
