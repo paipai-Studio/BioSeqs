@@ -191,6 +191,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | :--- | :--- | :--- | :---: |
 | **Motifs 基础** | `Bio.motifs` | PWM、MEME 格式、模体搜索、per-position 信息含量、总信息含量、序列 Logo、模体富集、Pearson 相关性比较 | ✅ |
 | **Motifs 高级** | `Bio.motifs` (advanced) | JASPAR PFM、TRANSFAC 格式、模体最优比对、KL/JS 散度、模体聚类 | ✅ |
+| **Motifs 阈值** | `Bio.motifs.thresholds` | PSSM 打分分布动态规划（motif/background 双密度网格）、threshold_fpr/fnr、balanced（FNR=FPR×rate）、patser（FPR=2^-IC）、标量 pseudocount 计数直建 | ✅ |
 | **AlignAce / MEME / MAST / Transfac** | `Bio.Motifs.*` | AlignAce PFM 解析、MEME PSPM/E 值/背景、MAST p 值/E 值、TRANSFAC PFM/AC/ID/DE/BF/CC、序列化往返 | ✅ |
 | **Motif Scan (FIMO)** | FIMO 风格 | PWM→PSSM log2 似然比、正反向互补扫描、动态规划 p 值卷积、匹配汇总 | ✅ |
 | **seqLogo** | Bioconductor seqLogo 风格 | PWM 构建、信息含量 IC、ASCII 艺术 logo 渲染、一致性序列、自定义背景频率 | ✅ |
@@ -298,7 +299,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **DESeq2** | DESeq2 | size factors 归一化、分散度估计、负二项 GLM 拟合、Wald 检验、LFC 收缩、VST 方差稳定化变换、PCA 可视化 | ✅ |
 | **apeglm** | apeglm | 负二项 GLM、自适应经验贝叶斯 Cauchy/Student-t 先验、MAP、Laplace 后验 SD/区间、FSR/FSOS/s-value | ✅ |
 | **edgeR** | edgeR | DGEList、精确检验、GLM 拟合、准似然 F 检验、camera/roast 基因集检验 | ✅ |
-| **limma** | limma | 线性模型拟合、经验贝叶斯、voom 变换、RPKM/CPM/quantile 归一化、ComBat/removeBatchEffect 批次校正、treat 严格检验 | ✅ |
+| **limma** | limma | 线性模型拟合、经验贝叶斯、voom 变换、RPKM/CPM/quantile 归一化、ComBat/removeBatchEffect 批次校正、treat 严格检验、camera/cameraPR 竞争性基因集检验 | ✅ |
 | **variancePartition** | variancePartition | 重复测量线性混合模型、ML/REML 方差分量、BLUP、precision weights、dream contrast、Satterthwaite 检验、BH-FDR | ✅ |
 | **dreamlet** | dreamlet | sample×cell-type pseudobulk、TMM、cell/sample/gene 过滤、logCPM、Poisson/voom precision weights、分 cell-type 重复测量模型、study-wide FDR | ✅ |
 | **DEXSeq** | DEXSeq | 差异外显子使用、计数归一化、统计检验、结果过滤 | ✅ |
@@ -407,6 +408,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **topGO** | topGO | 拓扑 GO 富集（elim/weight01 算法、Fisher 精确检验、GO 图） | ✅ |
 | **enrichplot** | enrichplot | 富集结果可视化：dotplot/barplot/heatmap/cnetplot/enrichment map | ✅ |
 | **fgsea** | fgsea | 快速基因集富集、置换检验、NES/ES、Leading Edge 基因、BH-FDR | ✅ |
+| **limma camera** | limma | rankSumTestWithCorrelation 基因内相关秩和检验、cameraPR 预计算统计量竞争性检验、camera.default 经验贝叶斯 moderated-t、VIF 基因间相关估计/截断、Hill t→z 转换、BH-FDR | ✅ |
 | **GSVA** | GSVA | 单样本通路评分（ssGSEA/zscore/PLAGE）、富集分析、置换检验、enrichment map、phenotype correlation、survival analysis | ✅ |
 | **GAGE** | GAGE | fold change、t 检验、BH-FDR 校正、配对检验 | ✅ |
 | **SPIA** | SPIA | 信号通路影响分析、通路图扰动累积、超几何检验、Fisher 合并 p 值 | ✅ |
@@ -542,7 +544,7 @@ IvanAXu/BioSeqs/
 │   ├── sam.mbt / bam.mbt / bgzf.mbt / vcf.mbt / cram_wbtest.mbt # NGS 文件（BGZF 压缩/随机访问）
 │   ├── seqio_index.mbt / ncbiblast_web.mbt # SeqIO 字节偏移索引 / NCBI WWW qblast 客户端
 │   ├── genomic_ranges.mbt / iranges.mbt / plyranges.mbt # 区间操作
-│   ├── deseq2.mbt / edger.mbt / limma.mbt / seurat.mbt / ... # Bioconductor 分析套件
+│   ├── deseq2.mbt / edger.mbt / limma.mbt / geneset_tests.mbt / seurat.mbt / ... # Bioconductor 分析套件
 │   ├── gds.mbt / snprelate.mbt / genomic_scores.mbt / splatter.mbt # SeqArray GDS 容器 / SNPRelate 亲缘分析 / GenomicScores / splatter 模拟
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
@@ -571,6 +573,8 @@ IvanAXu/BioSeqs/
 │   ├── entrez_eutils_demo/           # Bio.Entrez E-utilities（EInfo/ESearch+history/EFetch/EPost/ESummary/ESpell/ELink/EGQuery/ECitMatch/请求日志）
 │   ├── bgzf_demo/                    # Bio.bgzf（BgzfWriter 压缩/bgzf_blocks 块扫描/BgzfReader 虚拟偏移 seek/read/readline）
 │   ├── bigwig_demo/                  # rtracklayer BigWig（BigWig 二进制写读、intervals/values 查询、mean/min/max/cov/sum/std 分箱统计、错误拒绝）
+│   ├── motif_thresholds_demo/        # Bio.motifs.thresholds（PSSM 打分分布 DP、FPR/FNR/balanced/patser 阈值、偏背景与 pseudocount）
+│   ├── geneset_tests_demo/           # limma 竞争性基因集检验（rankSumTestWithCorrelation、cameraPR、camera.default 固定/估计基因间相关）
 │   ├── qblast_demo/                  # Bio.Blast.NCBIWWW（mock fetch 演示 PUT 提交/SearchInfo 轮询/结果下载全流程）
 │   ├── blat_psl_demo/                # Bio.SearchIO.BlatIO（blat-psl/PSLX 解析、负链重定向、蛋白 3:1 block、millibad/score、写回往返、SearchIO 转换）
 │   ├── ropls_demo/                   # ropls（NIPALS PCA、PLS/PLS-DA、OPLS-DA、VIP、R2/Q2 交叉验证、响应置换检验）
@@ -590,7 +594,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，13018 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，13040 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -610,7 +614,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13018 个测试全部通过
+moon test                                               # ✅ 13040 个测试全部通过
 ```
 
 ---
@@ -619,7 +623,7 @@ moon test                                               # ✅ 13018 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13018 个测试用例)
+moon test       # 运行全部测试 (13040 个测试用例)
 ```
 
 ---
@@ -678,12 +682,13 @@ moon test       # 运行全部测试 (13018 个测试用例)
 | `splatter.mbt` | Bioconductor splatter（splat 模型）：splat_lcg/splat_normal/splat_gamma/splat_poisson 确定性 RNG 流、splat_simulate 全流程（gamma 基因均值 → 组/批次细胞布局 → log-normal 文库因子 → 路径/DE log 均值偏移 → 批次因子 → NB Poisson-gamma 计数 → logistic dropout → pseudotime）、SplatParams default/create 参数体系（group_cells/batch_cells/DE/dropout/path 全参数）、SplatResult（counts/base_means/lib_factors/group/batch/pseudotime/dropout/group_log_means） |
 | `summarized_experiment.mbt` / `single_cell_experiment.mbt` / `spatial_experiment.mbt` / `multi_assay_experiment.mbt` / `tree_summarized_experiment.mbt` / `ragged_experiment.mbt` | Bioconductor 数据容器家族 |
 | `deseq2.mbt` + `deseq2_advanced.mbt` / `edger.mbt` + `edger_advanced.mbt` / `limma.mbt` / `apeglm.mbt` | 差异表达三大套件 + apeglm LFC 收缩 |
+| `geneset_tests.mbt` | Bioconductor limma 竞争性基因集检验：rank_sum_test_with_correlation（Wilcoxon 秩和 + 基因内相关 asin 方差膨胀、ties、t/正态参考）、camera_pr（预计算统计量：参数化 Welch 式 t 或秩和、逐集相关、directional/non-directional、BH-FDR）、camera_default（逐基因 lmFit → squeezeVar 经验贝叶斯（fitFDist 矩估计 + trigamma 反演）→ moderated-t → Hill 1970 t→z、残差子空间 VIF 估计逐集 inter-gene correlation、负相关截断、df.camera 规则），自带高精度 lgamma/betacf/t-CDF/正态 CDF 数值核 |
 | `ebseq.mbt` / `matrixeqtl.mbt` / `dmrcate.mbt` / `gostats.mbt` / `goseq.mbt` / `lefse.mbt` | EBSeq 经验贝叶斯 DE / MatrixEQTL eQTL 线性回归 / DMRcate 差异甲基化区域 / GOstats GO 富集 / goseq 长度偏差校正 GO 富集 / LEfSe 微生物组生物标志物 |
 | `seurat.mbt` / `scran.mbt` / `scuttle.mbt` / `scrapper.mbt` / `bluster.mbt` / `monocle3.mbt` / `slingshot.mbt` / `tradeSeq.mbt` / `velociraptor.mbt` / `scenic.mbt` / `infercnv.mbt` / `milo.mbt` / `muscat.mbt` / `zinbwave.mbt` / `celda.mbt` / `decontx.mbt` / `batchelor.mbt` / `sc_dbl_finder.mbt` / `droplet_utils_advanced.mbt` / `single_r_advanced.mbt` / `mast_advanced.mbt` | 单细胞 / 空间组学全栈分析套件 |
 | `minfi.mbt` / `bsseq.mbt` / `methylkit.mbt` / `chipseeker.mbt` / `diffbind.mbt` / `peak_calling.mbt` / `bumphunter.mbt` | 甲基化与 ChIP-seq 分析 |
 | `cluster_profiler.mbt` / `fgsea.mbt` / `gsva.mbt` / `gage.mbt` / `spia.mbt` / `enrichplot.mbt` | 富集分析统一框架与可视化 |
 | `complex_heatmap.mbt` / `pheatmap.mbt` / `gviz.mbt` / `genome_diagram.mbt` / `enhanced_volcano.mbt` | 热图 / 基因组轨道 / 火山图可视化 |
 | `de_bruijn.mbt` / `suffix_array_tree.mbt` / `olc.mbt` / `bwt_fm.mbt` / `bloom_filter.mbt` | 序列组装四大算法 + Bloom Filter |
-| `motifs.mbt` / `motifs_advanced.mbt` / `jaspar.mbt` / `transfac.mbt` / `meme.mbt` / `motif_scan.mbt` / `seqlogo.mbt` | 序列模体识别 + JASPAR/TRANSFAC/MEME + FIMO 扫描 + Logo |
+| `motifs.mbt` / `motifs_advanced.mbt` / `motif_thresholds.mbt` / `jaspar.mbt` / `transfac.mbt` / `meme.mbt` / `motif_scan.mbt` / `seqlogo.mbt` | 序列模体识别 + JASPAR/TRANSFAC/MEME + FIMO 扫描 + Logo + PSSM 打分分布阈值（FPR/FNR/balanced/patser） |
 | `bio_restriction.mbt` / `restriction_db.mbt` | Bio.Restriction：REBASE 1088 酶数据表（14 元组）、IUPAC 简并位点匹配（模式位展开/正则式 N）、回文/非回文正反向切点、线性 `_drop` 与环状跨原点扫描桥接、OneCut/TwoCuts/NoCut、catalyse 片段、elucidate `^`/`_` 标注、freq 理论频率、ovhg 端型分类、供应商目录、compatible_overhang（含 `_mod2` 歧义重写）/compatible_ends、equi/neo/isoschizomer 特征元组判定、RestrictionBatch（elements 按 Python 字典序的 codepoint 比较器）与 RestrictionAnalysis 全套区域过滤 |
 | `kmeans.mbt` / `hmm.mbt` / `logistic_regression.mbt` / `markov.mbt` / `neural_network.mbt` / `ga.mbt` | 独立实现 ML / 统计算法（k-means/HMM/逻辑回归/马尔可夫/神经网络/遗传算法） |
