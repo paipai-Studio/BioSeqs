@@ -316,6 +316,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **tradeSeq** | tradeSeq 1.27.0 | gene × cell 计数合同、cell × lineage 拟时间/权重、多 lineage 负二项 GAM、惩罚 B-spline、五类 Wald 检验、Slingshot 直连 |
 | **stageR** | stageR | 两阶段检验（筛选+确认）、Simes 聚合、BH-FDR、Holm 步降、OFDR 控制、Dte/Dtu |
 | **EBSeq** | EBSeq | 经验贝叶斯差异表达、负二项模型、PPDE 后验概率、Laplace 近似边际似然、Stirling lgamma 近似 |
+| **RankProd 3.28.0** | RankProd | 秩积/秩和差异表达：全配对或随机配对（k1×k2 组间样本配对逐对排名）、几何均值 RP / 算术均值 RS、Eisinga rankprodbounds 精确解析 p 值（上下界 + 几何均值插值，无需置换）与骰子和分布、pfp 预测假阳性百分比、R 式平均秩 RPrank/RSrank、topGene 显著表（cutoff/num.gene、pfp/pval、四位有效数字 prettyNum）、单类配对分析、NA 最小有效配对过滤、可复现 32 位 LCG 零重抽 |
 | **MOFA2** | MOFA2 | 多组学因子分析 v2：稀疏贝叶斯因子模型、EM 算法、ARD 自动相关性确定、多视图数据整合（转录组/甲基化/蛋白质组等）、因子数自动推断 |
 
 ### 单细胞分析
@@ -534,7 +535,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.9)
-├── src/                              # 源代码（483 个 .mbt 模块）
+├── src/                              # 源代码（484 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -544,12 +545,12 @@ IvanAXu/BioSeqs/
 │   ├── sam.mbt / bam.mbt / bgzf.mbt / vcf.mbt / cram_wbtest.mbt # NGS 文件（BGZF 压缩/随机访问）
 │   ├── seqio_index.mbt / ncbiblast_web.mbt # SeqIO 字节偏移索引 / NCBI WWW qblast 客户端
 │   ├── genomic_ranges.mbt / iranges.mbt / plyranges.mbt # 区间操作
-│   ├── deseq2.mbt / edger.mbt / limma.mbt / geneset_tests.mbt / seurat.mbt / ... # Bioconductor 分析套件
+│   ├── deseq2.mbt / edger.mbt / limma.mbt / rankprod.mbt / geneset_tests.mbt / seurat.mbt / ... # Bioconductor 分析套件
 │   ├── gds.mbt / snprelate.mbt / genomic_scores.mbt / splatter.mbt # SeqArray GDS 容器 / SNPRelate 亲缘分析 / GenomicScores / splatter 模拟
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（443 个演示 demo）
+├── examples/                         # 示例程序（444 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── pqs_demo/                     # pqsfinder G-四链体检测（评分系统/双链/deep density 与 maxScores/overlapping/序列提取）
@@ -562,6 +563,7 @@ IvanAXu/BioSeqs/
 │   ├── qvalue_demo/                  # qvalue FDR 全流程（π₀ smoother/bootstrap、q-value/pFDR、lfdr、empPvals、BH 对比）
 │   ├── multtest_demo/                # multtest 多重检验（九种 rawp 校正/ABH·TSBH h₀、mt.reject、置换 maxT/minP）
 │   ├── swfdr_demo/                   # swfdr 协变量 FDR（lm_pi0 unit.spline/smooth.spline、lm_qvalue）与 rounded/truncated science-wise EM
+│   ├── rankprod_demo/                # RankProd 秩积/秩和差异表达（全配对 RP/RS、精确 p 值、pfp、topGene 显著表）
 │   ├── restriction_demo/             # Bio.Restriction 克隆图谱（1088 酶库/批量酶切表、线性+环状片段、双酶切、相容粘性端、同裂酶、Analysis 过滤）
 │   ├── alignment_frequencies_demo/   # Bio.Align MSA 统计（替换计数矩阵/列频率/保守位点/序列权重/log-odds）
 │   ├── bio_cluster_demo/             # Bio.Cluster 数值聚类（8 种距离/层次聚类/k-means/k-medoids/SOM/PCA/Record）
@@ -590,16 +592,16 @@ IvanAXu/BioSeqs/
 │   ├── substitution_matrices_demo/   # 替换矩阵注册表与 30 个 Biopython 权威矩阵（IUPAC NUC.4.4/BLOSUM/PAM/密码子）
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
-│   ├── deseq2_demo/ / edger_demo/ / limma_demo/ # 差异表达
+│   ├── deseq2_demo/ / edger_demo/ / limma_demo/ / rankprod_demo/ # 差异表达
 │   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ # EBSeq/eQTL/DMR/GO/LEfSe
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（466 个测试文件，13082 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（467 个测试文件，13097 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
-│   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
+│   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
 │   │   └── ...
 │   └── python/                       # Python 参考实现与对比脚本
 │       ├── python_reference.py / python_seqio_reference.py / ...
@@ -616,7 +618,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13082 个测试全部通过
+moon test                                               # ✅ 13097 个测试全部通过
 ```
 
 ---
@@ -625,7 +627,7 @@ moon test                                               # ✅ 13082 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13082 个测试用例)
+moon test       # 运行全部测试 (13097 个测试用例)
 ```
 
 ---
