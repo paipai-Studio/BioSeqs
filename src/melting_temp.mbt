@@ -12,7 +12,7 @@ pub fn MeltingTempResult::new(
   tm : Double,
   method : String,
 ) -> MeltingTempResult {
-  MeltingTempResult::{ tm, method }
+  MeltingTempResult::{ tm, method, }
 }
 
 ///|

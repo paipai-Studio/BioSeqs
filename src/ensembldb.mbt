@@ -22,7 +22,7 @@ pub fn EnsDbExon::new(
   seq_end : Int,
   strand : Int,
 ) -> EnsDbExon {
-  EnsDbExon::{ exon_id, gene_id, tx_id, exon_rank, seq_start, seq_end, strand }
+  EnsDbExon::{ exon_id, gene_id, tx_id, exon_rank, seq_start, seq_end, strand, }
 }
 
 ///|

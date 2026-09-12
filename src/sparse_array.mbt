@@ -154,10 +154,10 @@ fn sparse_array_build(
       index = index + 1
     }
     if value != 0.0 {
-      canonical.push(SparseArrayEntry::{ coordinates, value })
+      canonical.push(SparseArrayEntry::{ coordinates, value, })
     }
   }
-  SparseArray::{ dimensions: dimensions.copy(), entries: canonical }
+  SparseArray::{ dimensions: dimensions.copy(), entries: canonical, }
 }
 
 ///|
@@ -421,7 +421,7 @@ pub fn SparseArray::with_value(
     index = index + 1
   }
   if value != 0.0 {
-    entries.push(SparseArrayEntry::{ coordinates: coordinates.copy(), value })
+    entries.push(SparseArrayEntry::{ coordinates: coordinates.copy(), value, })
   }
   sparse_array_build(self.dimensions, entries)
 }

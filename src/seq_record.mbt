@@ -80,7 +80,7 @@ pub fn SeqRecord::set_phred_quality(
     new_annotations[k] = v
   }
   new_annotations["phred_quality"] = quals
-  SeqRecord::{ ..self, letter_annotations: new_annotations }
+  SeqRecord::{ ..self, letter_annotations: new_annotations, }
 }
 
 ///|

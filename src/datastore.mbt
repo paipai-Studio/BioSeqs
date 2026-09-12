@@ -39,7 +39,7 @@ pub fn DatastoreEntry::new(
   data~ : String,
   checksum~ : String,
 ) -> DatastoreEntry {
-  DatastoreEntry::{ name, data, checksum }
+  DatastoreEntry::{ name, data, checksum, }
 }
 
 ///|
@@ -108,7 +108,11 @@ pub fn Datastore::names(self : Datastore) -> Array[String] {
 
 ///|
 /// Set a bag-info tag (e.g. "Bag-Software-Agent", "External-Description").
-pub fn Datastore::set_tag(self : Datastore, key : String, value : String) -> Unit {
+pub fn Datastore::set_tag(
+  self : Datastore,
+  key : String,
+  value : String,
+) -> Unit {
   self.tags[key] = value
 }
 
@@ -207,7 +211,7 @@ pub fn Datastore::checksum(self : Datastore, name : String) -> String? {
 pub fn Datastore::entry(self : Datastore, name : String) -> DatastoreEntry? {
   match (self.entries.get(name), self.manifest.get(name)) {
     (Some(data), Some(checksum)) =>
-      Some(DatastoreEntry::{ name, data, checksum })
+      Some(DatastoreEntry::{ name, data, checksum, })
     _ => None
   }
 }
@@ -386,10 +390,9 @@ pub fn md5_hex(text : String) -> String {
   padded[padded_len - 5] = (bit_len >> 24) & 0xFF
   // High 32 bits of the length stay zero for message sizes in memory.
   let shifts : Array[Int] = [
-    7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
-    5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
-    4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
-    6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21,
+    7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 5, 9, 14, 20, 5,
+    9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16,
+    23, 4, 11, 16, 23, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21,
   ]
   let k = datastore_md5_k()
   let mut a0 = 1732584193 // 0x67452301
@@ -402,9 +405,9 @@ pub fn md5_hex(text : String) -> String {
     for j in 0..<16 {
       let off = block * 64 + j * 4
       m[j] = padded[off] |
-      (padded[off + 1] << 8) |
-      (padded[off + 2] << 16) |
-      (padded[off + 3] << 24)
+        (padded[off + 1] << 8) |
+        (padded[off + 2] << 16) |
+        (padded[off + 3] << 24)
     }
     let mut a = a0
     let mut b = b0
@@ -427,7 +430,7 @@ pub fn md5_hex(text : String) -> String {
       } else if i < 48 {
         (3 * i + 5) % 16
       } else {
-        (7 * i) % 16
+        7 * i % 16
       }
       let rotated = datastore_rotl(f + a + k[i] + m[g], shifts[i])
       a = d
@@ -455,7 +458,7 @@ pub fn md5_hex(text : String) -> String {
 fn datastore_md5_k() -> Array[Int] {
   let k : Array[Int] = Array::make(64, 0)
   for i in 0..<64 {
-    let v = (@math.sin((i + 1).to_double()).abs()) * 4294967296.0
+    let v = @math.sin((i + 1).to_double()).abs() * 4294967296.0
     let vf = @math.floor(v)
     k[i] = if vf >= 2147483648.0 {
       (vf - 4294967296.0).to_int()
@@ -615,7 +618,9 @@ fn datastore_sort_strings(items : Array[String]) -> Array[String] {
 
 ///|
 /// Insertion sort for (key, value) pairs by key (ascending).
-fn datastore_sort_pairs(items : Array[(String, String)]) -> Array[(String, String)] {
+fn datastore_sort_pairs(
+  items : Array[(String, String)],
+) -> Array[(String, String)] {
   let arr = items.copy()
   let n = arr.length()
   for i in 1..<n {

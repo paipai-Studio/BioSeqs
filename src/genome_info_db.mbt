@@ -19,7 +19,7 @@ pub fn ChromInfo::new(
   is_circular? : Bool = false,
   genome? : String = "",
 ) -> ChromInfo {
-  ChromInfo::{ name, length, is_circular, genome }
+  ChromInfo::{ name, length, is_circular, genome, }
 }
 
 ///|
@@ -33,7 +33,7 @@ pub struct Centromere {
 ///|
 /// Construct Centromere.
 pub fn Centromere::new(chrom~ : String, start~ : Int, end~ : Int) -> Centromere {
-  Centromere::{ chrom, start, end }
+  Centromere::{ chrom, start, end, }
 }
 
 ///|
@@ -51,7 +51,7 @@ pub fn GenomeInfoDb::new(
   genome_build~ : String,
   organism? : String = "",
 ) -> GenomeInfoDb {
-  GenomeInfoDb::{ genome_build, organism, chrom_infos: [], centromeres: [] }
+  GenomeInfoDb::{ genome_build, organism, chrom_infos: [], centromeres: [], }
 }
 
 ///|

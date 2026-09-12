@@ -69,7 +69,7 @@ pub fn StageRConfig::new(
   pScreenAdjusted? : Bool = false,
   stageMethod? : StageRMethod = Holm,
 ) -> StageRConfig {
-  StageRConfig::{ alpha, pScreenAdjusted, stageMethod }
+  StageRConfig::{ alpha, pScreenAdjusted, stageMethod, }
 }
 
 ///|

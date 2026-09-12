@@ -30,7 +30,16 @@ pub fn GAlignments::new(
     widths[i] = ends[i] - starts[i] + 1
     i = i + 1
   }
-  GAlignments::{ seqnames, starts, ends, strands, widths, qnames, mapqs, flags }
+  GAlignments::{
+    seqnames,
+    starts,
+    ends,
+    strands,
+    widths,
+    qnames,
+    mapqs,
+    flags,
+  }
 }
 
 ///|

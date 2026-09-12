@@ -98,7 +98,10 @@ test "dmrcate_test_returns_results" {
   // Should return CpG results and DMR arrays
   assert_true(@src.DMRcateResult::n_cpgs(result) > 0)
   // CpG results should match input CpG count
-  assert_eq(@src.DMRcateResult::n_cpgs(result), @src.DMRcateInput::n_cpgs(input))
+  assert_eq(
+    @src.DMRcateResult::n_cpgs(result),
+    @src.DMRcateInput::n_cpgs(input),
+  )
 }
 
 ///|
@@ -147,7 +150,12 @@ test "dmrcate_test_cpg_result_fields" {
 test "dmrcate_test_custom_params" {
   let input = @src.dmrcate_example_data()
   // Run with custom lambda, c_scale, and fdr_threshold
-  let result = @src.dmrcate_test(input, lambda=500, c_scale=1.5, fdr_threshold=0.1)
+  let result = @src.dmrcate_test(
+    input,
+    lambda=500,
+    c_scale=1.5,
+    fdr_threshold=0.1,
+  )
   assert_true(@src.DMRcateResult::n_cpgs(result) > 0)
 }
 
@@ -201,7 +209,9 @@ test "dmrcate_test_synthetic_data" {
   let design : Array[Array[Double]] = [intercept, group]
   let sample_names = ["c1", "c2", "c3", "n1", "n2", "n3"]
 
-  let input = @src.DMRcateInput::new(beta_values, positions, chr, design, sample_names)
+  let input = @src.DMRcateInput::new(
+    beta_values, positions, chr, design, sample_names,
+  )
   let result = @src.dmrcate_test(input)
 
   // Should have results for all 10 CpGs
@@ -237,7 +247,9 @@ test "dmrcate_spatial_autocorrelation" {
 
 ///|
 test "dmrcate_filter_dmrs" {
-  let dmr1 = @src.DMR::new("chr1", 1000, 2000, 3, 3.5, 0.3, 0.01, ["a", "b", "c"])
+  let dmr1 = @src.DMR::new("chr1", 1000, 2000, 3, 3.5, 0.3, 0.01, [
+    "a", "b", "c",
+  ])
   let dmr2 = @src.DMR::new("chr1", 3000, 4000, 1, 1.5, 0.1, 0.5, ["d"])
   let filtered = @src.dmrcate_filter_dmrs([dmr1, dmr2], 2, 0.05)
   // Only dmr1 has n_cpgs >= 2 and p_value <= 0.05
@@ -247,7 +259,9 @@ test "dmrcate_filter_dmrs" {
 
 ///|
 test "dmrcate_dmr_cpg_names" {
-  let dmr1 = @src.DMR::new("chr1", 1000, 2000, 2, 3.0, 0.2, 0.01, ["CpG1", "CpG2"])
+  let dmr1 = @src.DMR::new("chr1", 1000, 2000, 2, 3.0, 0.2, 0.01, [
+    "CpG1", "CpG2",
+  ])
   let dmr2 = @src.DMR::new("chr1", 3000, 4000, 1, 2.0, 0.1, 0.02, ["CpG3"])
   let names = @src.dmrcate_dmr_cpg_names([dmr1, dmr2])
   assert_eq(names.length(), 3)
@@ -275,13 +289,17 @@ test "dmrcate_results_to_string" {
 
 ///|
 test "dmrcate_dmr_length" {
-  let dmr = @src.DMR::new("chr1", 1000, 5000, 5, 3.0, 0.2, 0.01, ["a", "b", "c", "d", "e"])
+  let dmr = @src.DMR::new("chr1", 1000, 5000, 5, 3.0, 0.2, 0.01, [
+    "a", "b", "c", "d", "e",
+  ])
   assert_eq(@src.DMR::length(dmr), 4000)
 }
 
 ///|
 test "dmrcate_dmr_to_string" {
-  let dmr = @src.DMR::new("chr1", 1000, 5000, 5, 3.0, 0.2, 0.01, ["a", "b", "c", "d", "e"])
+  let dmr = @src.DMR::new("chr1", 1000, 5000, 5, 3.0, 0.2, 0.01, [
+    "a", "b", "c", "d", "e",
+  ])
   let s = @src.DMR::to_string(dmr)
   assert_true(s.contains("chr1"))
   assert_true(s.contains("1000"))

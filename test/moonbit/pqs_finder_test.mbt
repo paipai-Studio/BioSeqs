@@ -93,7 +93,10 @@ test "pqs_finder_no_quadruplex" {
 ///|
 test "pqs_finder_min_score_filter" {
   // short two-tetrad hit scores (2-1)*40 - loop penalty = below default 47
-  let loose = @src.pqs_finder("GGGAGGGTGGGTGGG", options=@src.PqsOptions::of(min_score=0))
+  let loose = @src.pqs_finder(
+    "GGGAGGGTGGGTGGG",
+    options=@src.PqsOptions::of(min_score=0),
+  )
   assert_true(loose.length() >= 1)
 }
 
@@ -126,24 +129,21 @@ test "pqs_search_density_vignette" {
   assert_eq(r.hits.length(), 1)
   // exactly one scoreable conformation covers all 15 positions
   assert_eq(r.density, [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1])
-  assert_eq(
-    r.max_scores,
-    [73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73],
-  )
+  assert_eq(r.max_scores, [
+    73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
+  ])
 }
 
 ///|
 test "pqs_search_density_flanked" {
   let r = @src.pqs_search("AAAAGGGAGGGTGGGTGGGAAAA")
-  assert_eq(
-    r.density,
-    [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0],
-  )
-  assert_eq(
-    r.max_scores,
-    [0, 0, 0, 0, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73,
-      0, 0, 0, 0],
-  )
+  assert_eq(r.density, [
+    0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+  ])
+  assert_eq(r.max_scores, [
+    0, 0, 0, 0, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 73, 0, 0,
+    0, 0,
+  ])
 }
 
 ///|
@@ -264,7 +264,7 @@ test "pqs_sequence_extraction" {
   let cseq = "CCCTAACCCTAACCCTAACCCTAA"
   let mhits = @src.pqs_finder(cseq, strand="-")
   assert_eq(mhits.length(), 1)
-  assert_eq(mhits[0].sequence(cseq), "CCCTAACCCTAACCCTAACCC");
+  assert_eq(mhits[0].sequence(cseq), "CCCTAACCCTAACCCTAACCC")
 }
 
 ///|

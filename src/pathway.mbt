@@ -9,7 +9,7 @@ pub struct Species {
 
 ///|
 pub fn Species::new(id : String, name : String) -> Species {
-  Species::{ id, name }
+  Species::{ id, name, }
 }
 
 ///|
@@ -29,7 +29,7 @@ pub fn Reaction::new(
   products : Array[String],
   reversible : Bool,
 ) -> Reaction {
-  Reaction::{ id, name, reactants, products, reversible }
+  Reaction::{ id, name, reactants, products, reversible, }
 }
 
 ///|
@@ -55,7 +55,7 @@ pub fn Pathway::new(
   species : Array[Species],
   reactions : Array[Reaction],
 ) -> Pathway {
-  Pathway::{ id, name, species, reactions }
+  Pathway::{ id, name, species, reactions, }
 }
 
 ///|

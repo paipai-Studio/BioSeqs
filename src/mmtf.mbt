@@ -178,7 +178,7 @@ pub fn MmtfChain::new(
   chain_id? : String = "",
   chain_name? : String = "",
 ) -> MmtfChain {
-  MmtfChain::{ chain_id, chain_name, groups: [] }
+  MmtfChain::{ chain_id, chain_name, groups: [], }
 }
 
 ///|
@@ -209,7 +209,7 @@ pub struct MmtfModel {
 ///|
 /// Construct an MmtfModel.
 pub fn MmtfModel::new(model_id? : Int = 0) -> MmtfModel {
-  MmtfModel::{ model_id, chains: [] }
+  MmtfModel::{ model_id, chains: [], }
 }
 
 ///|
@@ -281,7 +281,7 @@ pub fn MmtfEntity::new(
   description? : String = "",
   entity_type? : MmtfEntityType = MmtfEntityUndefined,
 ) -> MmtfEntity {
-  MmtfEntity::{ chain_indices, sequence, description, entity_type }
+  MmtfEntity::{ chain_indices, sequence, description, entity_type, }
 }
 
 ///|
@@ -320,7 +320,7 @@ pub struct MmtfXtalInfo {
 ///|
 /// Construct an MmtfXtalInfo with defaults.
 pub fn MmtfXtalInfo::new() -> MmtfXtalInfo {
-  MmtfXtalInfo::{ space_group: "", unit_cell: Array::make(6, 0.0) }
+  MmtfXtalInfo::{ space_group: "", unit_cell: Array::make(6, 0.0), }
 }
 
 ///|
@@ -338,7 +338,7 @@ pub fn MmtfBond::new(
   atom_index2~ : Int,
   bond_order? : Int = 1,
 ) -> MmtfBond {
-  MmtfBond::{ atom_index1, atom_index2, bond_order }
+  MmtfBond::{ atom_index1, atom_index2, bond_order, }
 }
 
 ///|

@@ -157,7 +157,7 @@ test "bc_euclid_missing_values" {
   // y[1] is missing: only x[0], x[2] contribute and they are equal -> 0
   let data : Array[Array[Double]] = [[1.0, 2.0, 3.0], [1.0, 0.0, 3.0]]
   let mask : Array[Array[Int]] = [[1, 1, 1], [1, 0, 1]]
-  let d = @src.clusterdistance(data, mask=mask, index1=[0], index2=[1], dist="e")
+  let d = @src.clusterdistance(data, mask~, index1=[0], index2=[1], dist="e")
   assert_true(bc_approx(d, 0.0, 1.0e-12))
 }
 
@@ -166,13 +166,7 @@ test "bc_euclid_weighted" {
   // weight [1,1,4]: (1*0 + 1*0 + 4*4)/6 = 16/6
   let data : Array[Array[Double]] = [[1.0, 2.0, 3.0], [1.0, 2.0, 1.0]]
   let w : Array[Double] = [1.0, 1.0, 4.0]
-  let d = @src.clusterdistance(
-    data,
-    weight=w,
-    index1=[0],
-    index2=[1],
-    dist="e",
-  )
+  let d = @src.clusterdistance(data, weight=w, index1=[0], index2=[1], dist="e")
   assert_true(bc_approx(d, 2.6666666666666665, 1.0e-12))
 }
 
@@ -328,12 +322,7 @@ test "bc_kcluster_transpose" {
     [10.0, 10.0],
     [11.0, 11.0],
   ]
-  let r = @src.kcluster(
-    data,
-    nclusters=2,
-    transpose=true,
-    initialid=[0, 1],
-  )
+  let r = @src.kcluster(data, nclusters=2, transpose=true, initialid=[0, 1])
   assert_eq(r.clusterid(), [0, 1])
   assert_true(bc_approx(r.error(), 0.0, 1.0e-12))
 }
@@ -414,14 +403,10 @@ test "bc_clustercentroids_mean_median" {
     [7.0, 8.0],
   ]
   let mean = @src.clustercentroids(data, clusterid=[0, 0, 1, 1], method="a")
-  assert_true(
-    bc_approx_mat(mean.cdata(), [[2.0, 3.0], [6.0, 7.0]], 1.0e-12),
-  )
+  assert_true(bc_approx_mat(mean.cdata(), [[2.0, 3.0], [6.0, 7.0]], 1.0e-12))
   assert_eq(mean.cmask(), [[1, 1], [1, 1]])
   let median = @src.clustercentroids(data, clusterid=[0, 0, 1, 1], method="m")
-  assert_true(
-    bc_approx_mat(median.cdata(), [[2.0, 3.0], [6.0, 7.0]], 1.0e-12),
-  )
+  assert_true(bc_approx_mat(median.cdata(), [[2.0, 3.0], [6.0, 7.0]], 1.0e-12))
   assert_eq(median.cmask(), [[1, 1], [1, 1]])
 }
 
@@ -434,12 +419,7 @@ test "bc_clustercentroids_with_mask" {
     [7.0, 8.0],
   ]
   let mask : Array[Array[Int]] = [[1, 1], [1, 1], [1, 0], [1, 1]]
-  let r = @src.clustercentroids(
-    data,
-    mask=mask,
-    clusterid=[0, 1, 0, 1],
-    method="a",
-  )
+  let r = @src.clustercentroids(data, mask~, clusterid=[0, 1, 0, 1], method="a")
   // cluster 0: mean of [1,2] and [5,missing] = [3, 2]
   // cluster 1: mean of [3,4] and [7,8] = [5, 6]
   assert_true(bc_approx_mat(r.cdata(), [[3.0, 2.0], [5.0, 6.0]], 1.0e-12))
@@ -513,13 +493,7 @@ test "bc_somcluster_structure" {
     [10.0, 10.0],
     [10.5, 10.2],
   ]
-  let r = @src.somcluster(
-    data,
-    nxgrid=2,
-    nygrid=1,
-    inittau=0.02,
-    niter=100,
-  )
+  let r = @src.somcluster(data, nxgrid=2, nygrid=1, inittau=0.02, niter=100)
   assert_eq(r.clusterid().length(), 4)
   assert_eq(r.celldata().length(), 2)
   assert_eq(r.celldata()[0].length(), 1)
@@ -531,12 +505,8 @@ test "bc_somcluster_structure" {
     assert_true(iy >= 0 && iy < 1)
   }
   // the trained cells converge to different directions of the data
-  assert_true(
-    (r.celldata()[0][0][0] - r.celldata()[1][0][0]).abs() > 1.0e-6,
-  )
-  assert_true(
-    (r.celldata()[0][0][1] - r.celldata()[1][0][1]).abs() > 1.0e-6,
-  )
+  assert_true((r.celldata()[0][0][0] - r.celldata()[1][0][0]).abs() > 1.0e-6)
+  assert_true((r.celldata()[0][0][1] - r.celldata()[1][0][1]).abs() > 1.0e-6)
   // each cell vector is normalized to Euclidean length sqrt(ndata)
   // (the C library divides by sqrt(sum/ndata))
   for ix = 0; ix < 2; ix = ix + 1 {
@@ -546,13 +516,7 @@ test "bc_somcluster_structure" {
   }
   // reproducible for a fixed seed (same result on a second run)
   @src.cluster_seed(12345)
-  let r2 = @src.somcluster(
-    data,
-    nxgrid=2,
-    nygrid=1,
-    inittau=0.02,
-    niter=100,
-  )
+  let r2 = @src.somcluster(data, nxgrid=2, nygrid=1, inittau=0.02, niter=100)
   for i = 0; i < 4; i = i + 1 {
     let (ix, iy) = r.clusterid()[i]
     let (jx, jy) = r2.clusterid()[i]
@@ -620,7 +584,11 @@ fn bc_approx_mat_signed_rows(
 }
 
 ///|
-fn bc_approx_vec_neg(a : Array[Double], b : Array[Double], tol : Double) -> Bool {
+fn bc_approx_vec_neg(
+  a : Array[Double],
+  b : Array[Double],
+  tol : Double,
+) -> Bool {
   if a.length() != b.length() {
     return false
   }
@@ -642,9 +610,7 @@ test "bc_pca_doc_example" {
   ]
   let r = @src.cluster_pca(data)
   // column means
-  assert_true(
-    bc_approx_vec(r.columnmean(), [3.0, 1.25, 1.5], 1.0e-12),
-  )
+  assert_true(bc_approx_vec(r.columnmean(), [3.0, 1.25, 1.5], 1.0e-12))
   // eigenvalues (singular values of the centered matrix), largest first
   assert_true(
     bc_approx_vec(
@@ -693,20 +659,11 @@ test "bc_pca_doc_example" {
 
 ///|
 test "bc_pca_wide_matrix" {
-  let data : Array[Array[Double]] = [
-    [1.0, 2.0, 3.0, 4.0],
-    [5.0, 6.0, 7.0, 8.0],
-  ]
+  let data : Array[Array[Double]] = [[1.0, 2.0, 3.0, 4.0], [5.0, 6.0, 7.0, 8.0]]
   let r = @src.cluster_pca(data)
-  assert_true(
-    bc_approx_vec(r.columnmean(), [3.0, 4.0, 5.0, 6.0], 1.0e-12),
-  )
-  assert_true(
-    bc_approx_vec(r.eigenvalues(), [5.65685424949238, 0.0], 1.0e-9),
-  )
-  assert_true(
-    bc_approx_mat(r.coordinates(), [[4.0, 0.0], [-4.0, 0.0]], 1.0e-9),
-  )
+  assert_true(bc_approx_vec(r.columnmean(), [3.0, 4.0, 5.0, 6.0], 1.0e-12))
+  assert_true(bc_approx_vec(r.eigenvalues(), [5.65685424949238, 0.0], 1.0e-9))
+  assert_true(bc_approx_mat(r.coordinates(), [[4.0, 0.0], [-4.0, 0.0]], 1.0e-9))
   assert_true(
     bc_approx_mat(
       r.pc(),
@@ -767,11 +724,7 @@ test "bc_record_read_full" {
     },
   )
   assert_true(
-    bc_approx_mat(
-      rec.data(),
-      [[2.5, -1.0, 0.5], [0.0, 3.5, -2.0]],
-      1.0e-12,
-    ),
+    bc_approx_mat(rec.data(), [[2.5, -1.0, 0.5], [0.0, 3.5, -2.0]], 1.0e-12),
   )
   // no missing values -> no mask
   assert_eq(rec.mask(), None)
@@ -784,9 +737,7 @@ test "bc_record_read_missing_values" {
   assert_eq(rec.uniqid(), "UID")
   assert_eq(rec.expid(), ["exp1", "exp2"])
   assert_eq(rec.geneid(), ["g1", "g2"])
-  assert_true(
-    bc_approx_mat(rec.data(), [[1.0, 0.0], [2.0, 3.0]], 1.0e-12),
-  )
+  assert_true(bc_approx_mat(rec.data(), [[1.0, 0.0], [2.0, 3.0]], 1.0e-12))
   assert_eq(rec.mask(), Some([[1, 0], [1, 1]]))
   assert_eq(rec.genename(), None)
   assert_eq(rec.gweight(), None)

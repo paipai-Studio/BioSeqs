@@ -40,7 +40,7 @@ pub fn tx2gene_new(
   gene_id : String,
   gene_name : String,
 ) -> Tx2Gene {
-  Tx2Gene::{ tx_id, gene_id, gene_name }
+  Tx2Gene::{ tx_id, gene_id, gene_name, }
 }
 
 ///|

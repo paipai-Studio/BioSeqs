@@ -714,7 +714,7 @@ fn align_mauve_finalize_block(
   if !has_residue {
     align_mauve_fail("XMFA alignment block must contain at least one residue")
   }
-  AlignMauveBlock::{ rows, width }
+  AlignMauveBlock::{ rows, width, }
 }
 
 ///|
@@ -730,7 +730,7 @@ pub fn AlignMauveMetadataEntry::create(
       align_mauve_fail("XMFA metadata key must not contain whitespace")
     }
   }
-  AlignMauveMetadataEntry::{ key, value }
+  AlignMauveMetadataEntry::{ key, value, }
 }
 
 ///|
@@ -851,7 +851,7 @@ pub fn AlignMauveBlock::create(
       "XMFA block must have positive width and at least one residue",
     )
   }
-  AlignMauveBlock::{ rows: copied, width }
+  AlignMauveBlock::{ rows: copied, width, }
 }
 
 ///|
@@ -1041,7 +1041,7 @@ pub fn align_mauve_parse(
   if pending.length() > 0 {
     align_mauve_fail("XMFA final alignment block is missing its '=' terminator")
   }
-  AlignMauveDocument::{ format_version, sources, metadata, blocks }
+  AlignMauveDocument::{ format_version, sources, metadata, blocks, }
 }
 
 ///|
@@ -1580,7 +1580,7 @@ pub fn align_mauve_index(document : AlignMauveDocument) -> AlignMauveIndex {
       }
     }
   }
-  AlignMauveIndex::{ identifiers: document.identifiers(), entries }
+  AlignMauveIndex::{ identifiers: document.identifiers(), entries, }
 }
 
 ///|

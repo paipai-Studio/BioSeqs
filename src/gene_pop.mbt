@@ -40,7 +40,7 @@ pub struct GenePopGenotype {
 ///|
 pub fn GenePopGenotype::new(allele1 : Int, allele2 : Int?) -> GenePopGenotype {
   let missing = allele1 == 0 && (allele2 == Some(0) || allele2 == None)
-  GenePopGenotype::{ allele1, allele2, is_missing: missing }
+  GenePopGenotype::{ allele1, allele2, is_missing: missing, }
 }
 
 ///|
@@ -50,13 +50,13 @@ pub fn GenePopGenotype::diploid(
   allele2 : Int,
 ) -> GenePopGenotype {
   let missing = allele1 == 0 && allele2 == 0
-  GenePopGenotype::{ allele1, allele2: Some(allele2), is_missing: missing }
+  GenePopGenotype::{ allele1, allele2: Some(allele2), is_missing: missing, }
 }
 
 ///|
 /// A haploid genotype (only one allele).
 pub fn GenePopGenotype::haploid(allele1 : Int) -> GenePopGenotype {
-  GenePopGenotype::{ allele1, allele2: None, is_missing: allele1 == 0 }
+  GenePopGenotype::{ allele1, allele2: None, is_missing: allele1 == 0, }
 }
 
 ///|
@@ -71,7 +71,7 @@ pub fn GenePopIndividual::new(
   name : String,
   genotypes : Array[GenePopGenotype],
 ) -> GenePopIndividual {
-  GenePopIndividual::{ name, genotypes }
+  GenePopIndividual::{ name, genotypes, }
 }
 
 ///|
@@ -87,7 +87,7 @@ pub fn GenePopPopulation::new(
   name : String,
   individuals : Array[GenePopIndividual],
 ) -> GenePopPopulation {
-  GenePopPopulation::{ name, individuals }
+  GenePopPopulation::{ name, individuals, }
 }
 
 ///|
@@ -107,7 +107,7 @@ pub fn GenePopRecord::new(
   populations : Array[GenePopPopulation],
   locus_digit_size : Int,
 ) -> GenePopRecord {
-  GenePopRecord::{ title, loci_names, populations, locus_digit_size }
+  GenePopRecord::{ title, loci_names, populations, locus_digit_size, }
 }
 
 // ============================================================================

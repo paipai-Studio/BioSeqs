@@ -23,7 +23,9 @@ pub struct GenomeLayout {
 
 ///|
 /// Build a genome layout from (chromosome, length) pairs.
-pub fn GenomeLayout::new(pairs : Array[(String, Int)]) -> GenomeLayout raise SeqError {
+pub fn GenomeLayout::new(
+  pairs : Array[(String, Int)],
+) -> GenomeLayout raise SeqError {
   if pairs.length() == 0 {
     raise SeqError("genome layout must contain at least one chromosome")
   }
@@ -41,7 +43,7 @@ pub fn GenomeLayout::new(pairs : Array[(String, Int)]) -> GenomeLayout raise Seq
     chroms.push(pair.0)
     lengths.push(pair.1)
   }
-  { chroms, lengths }
+  { chroms, lengths, }
 }
 
 ///|
@@ -90,7 +92,7 @@ pub fn RegionPermOptions::of(
   per_chromosome? : Bool = true,
   allow_overlaps? : Bool = true,
 ) -> RegionPermOptions {
-  { ntimes, seed, alternative, per_chromosome, allow_overlaps }
+  { ntimes, seed, alternative, per_chromosome, allow_overlaps, }
 }
 
 ///|
@@ -117,7 +119,7 @@ struct RrRng {
 fn RrRng::new(seed : Int) -> RrRng {
   // map any seed into [1, 2147483646], the valid multiplicative group
   let s = (seed - 1) % 2147483646 + 1
-  let rng : RrRng = { state: if s > 0 { s } else { s + 2147483646 } }
+  let rng : RrRng = { state: if s > 0 { s } else { s + 2147483646 }, }
   // warm up so that low-entropy seeds do not produce a biased first draw
   let mut i = 0
   while i < 8 {
@@ -328,15 +330,11 @@ fn rr_randomize_with_rng(
   while i < n {
     let w = a.ends[i] - a.starts[i] + 1
     let ci = rr_chrom_index(genome, a.seqnames[i])
-    let cache_key = if per_chromosome {
-      "\{ci}:\{w}"
-    } else {
-      "*:\{w}"
-    }
+    let cache_key = if per_chromosome { "\{ci}:\{w}" } else { "*:\{w}" }
     let allowed = match iv_cache.get(cache_key) {
       Some(entry) => entry
       None => {
-        let entry : RrAllowed = { ivs: [], chrom_ids: [] }
+        let entry : RrAllowed = { ivs: [], chrom_ids: [], }
         if per_chromosome {
           rr_collect_allowed(genome, ci, mask_map, entry.ivs, entry.chrom_ids)
         } else {
@@ -353,9 +351,7 @@ fn rr_randomize_with_rng(
     }
     let total = rr_total_starts(allowed.ivs, w)
     if total == 0 {
-      raise SeqError(
-        "not enough unmasked space for a region of width \{w}",
-      )
+      raise SeqError("not enough unmasked space for a region of width \{w}")
     }
     let (iv_idx, start) = rr_pick_start(allowed.ivs, w, rng.next_bound(total))
     new_seqnames.push(genome.chroms[allowed.chrom_ids[iv_idx]])
@@ -418,7 +414,7 @@ pub fn circular_randomize_regions(
     let span = genome.lengths[rr_chrom_index(genome, a.seqnames[i])] - w + 1
     // circular shift of the start within [1, span]
     let shift = rng.next_bound(span)
-    let start = ((a.starts[i] - 1 + shift) % span) + 1
+    let start = (a.starts[i] - 1 + shift) % span + 1
     new_starts[i] = start
     new_ends[i] = start + w - 1
     i = i + 1
@@ -579,7 +575,13 @@ pub fn perm_test(
   let permuted : Array[Double] = []
   let mut i = 0
   while i < options.ntimes {
-    let ra = rr_randomize_with_rng(a, genome, mask_map, options.per_chromosome, rng)
+    let ra = rr_randomize_with_rng(
+      a,
+      genome,
+      mask_map,
+      options.per_chromosome,
+      rng,
+    )
     permuted.push(statistic(ra, b))
     i = i + 1
   }
@@ -608,8 +610,10 @@ pub fn overlap_perm_test(
     a,
     b,
     genome,
-    fn(x : GRanges, y : GRanges) { stat_num_overlaps(x, y, count_once=count_once).to_double() },
-    mask=mask,
-    options=options,
+    fn(x : GRanges, y : GRanges) {
+      stat_num_overlaps(x, y, count_once~).to_double()
+    },
+    mask~,
+    options~,
   )
 }

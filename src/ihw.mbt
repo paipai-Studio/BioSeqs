@@ -112,7 +112,7 @@ pub fn IHWConfig::new(
   n_attempts? : Int = 10,
   scale_type? : String = "local",
 ) -> IHWConfig {
-  IHWConfig::{ alpha, n_attempts, scale_type }
+  IHWConfig::{ alpha, n_attempts, scale_type, }
 }
 
 ///|

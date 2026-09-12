@@ -84,7 +84,7 @@ pub fn DiagramStyle::new(
   border? : Bool = true,
   color_scheme? : String = "default",
 ) -> DiagramStyle {
-  DiagramStyle::{ circular, linear, scale, border, color_scheme }
+  DiagramStyle::{ circular, linear, scale, border, color_scheme, }
 }
 
 ///|
@@ -117,22 +117,22 @@ pub fn DiagramStyle::set_circular(
   self : DiagramStyle,
   v : Bool,
 ) -> DiagramStyle {
-  DiagramStyle::{ ..self, circular: v, linear: !v }
+  DiagramStyle::{ ..self, circular: v, linear: !v, }
 }
 
 ///|
 pub fn DiagramStyle::set_linear(self : DiagramStyle, v : Bool) -> DiagramStyle {
-  DiagramStyle::{ ..self, linear: v, circular: !v }
+  DiagramStyle::{ ..self, linear: v, circular: !v, }
 }
 
 ///|
 pub fn DiagramStyle::set_scale(self : DiagramStyle, v : Double) -> DiagramStyle {
-  DiagramStyle::{ ..self, scale: v }
+  DiagramStyle::{ ..self, scale: v, }
 }
 
 ///|
 pub fn DiagramStyle::set_border(self : DiagramStyle, v : Bool) -> DiagramStyle {
-  DiagramStyle::{ ..self, border: v }
+  DiagramStyle::{ ..self, border: v, }
 }
 
 ///|
@@ -140,7 +140,7 @@ pub fn DiagramStyle::set_color_scheme(
   self : DiagramStyle,
   v : String,
 ) -> DiagramStyle {
-  DiagramStyle::{ ..self, color_scheme: v }
+  DiagramStyle::{ ..self, color_scheme: v, }
 }
 
 ///|
@@ -165,7 +165,7 @@ pub fn DiagramFeature::new(
   shape? : FeatureShape = Rectangle,
   depth? : Int = 0,
 ) -> DiagramFeature {
-  DiagramFeature::{ start, end, strand, label, color, shape, depth }
+  DiagramFeature::{ start, end, strand, label, color, shape, depth, }
 }
 
 ///|
@@ -266,7 +266,7 @@ pub fn TrackFeature::new(
   color? : String = "#FF6B6B",
   shape? : FeatureShape = Rectangle,
 ) -> TrackFeature {
-  TrackFeature::{ start, end, strand, label, color, shape }
+  TrackFeature::{ start, end, strand, label, color, shape, }
 }
 
 ///|
@@ -340,7 +340,7 @@ pub fn Track::new(
   is_labeled? : Bool = true,
   color_scheme? : String = "default",
 ) -> Track {
-  Track::{ name, features: [], is_labeled, color_scheme }
+  Track::{ name, features: [], is_labeled, color_scheme, }
 }
 
 ///|
@@ -375,17 +375,17 @@ pub fn Track::add_feature(self : Track, feature : TrackFeature) -> Track {
     new_features.push(f)
   }
   new_features.push(feature)
-  Track::{ ..self, features: new_features }
+  Track::{ ..self, features: new_features, }
 }
 
 ///|
 pub fn Track::set_is_labeled(self : Track, v : Bool) -> Track {
-  Track::{ ..self, is_labeled: v }
+  Track::{ ..self, is_labeled: v, }
 }
 
 ///|
 pub fn Track::set_color_scheme(self : Track, v : String) -> Track {
-  Track::{ ..self, color_scheme: v }
+  Track::{ ..self, color_scheme: v, }
 }
 
 ///|
@@ -478,7 +478,7 @@ pub fn Diagram::add_track(self : Diagram, track_name : String) -> Diagram {
     new_tracks.push(t)
   }
   new_tracks.push(track)
-  Diagram::{ ..self, tracks: new_tracks }
+  Diagram::{ ..self, tracks: new_tracks, }
 }
 
 ///|
@@ -496,7 +496,7 @@ pub fn Diagram::add_feature_to_diagram(
     new_features.push(f)
   }
   new_features.push(feature)
-  Diagram::{ ..self, features: new_features }
+  Diagram::{ ..self, features: new_features, }
 }
 
 ///|
@@ -517,7 +517,7 @@ pub fn Diagram::add_feature_to_track(
       new_tracks.push(track)
     }
   }
-  Diagram::{ ..self, tracks: new_tracks }
+  Diagram::{ ..self, tracks: new_tracks, }
 }
 
 ///|
@@ -559,7 +559,7 @@ pub fn Diagram::label_features_auto(self : Diagram, min_size : Int) -> Diagram {
     }
     new_features.push(f)
   }
-  Diagram::{ ..self, features: new_features }
+  Diagram::{ ..self, features: new_features, }
 }
 
 ///|

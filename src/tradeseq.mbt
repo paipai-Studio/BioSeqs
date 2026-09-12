@@ -77,7 +77,7 @@ pub fn TrajectoryPoint::new(
   expression : Array[Double],
   condition : String,
 ) -> TrajectoryPoint {
-  TrajectoryPoint::{ cell_id, pseudotime, expression, condition }
+  TrajectoryPoint::{ cell_id, pseudotime, expression, condition, }
 }
 
 ///|
@@ -87,7 +87,7 @@ pub fn GeneExpressionData::new(
   pseudotime : Array[Double],
   condition : Array[String],
 ) -> GeneExpressionData {
-  GeneExpressionData::{ gene_id, expression, pseudotime, condition }
+  GeneExpressionData::{ gene_id, expression, pseudotime, condition, }
 }
 
 ///|

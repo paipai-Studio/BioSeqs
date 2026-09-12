@@ -1224,7 +1224,7 @@ fn bcif_parse_column(
         _ => raise BinaryCifError("BinaryCIF mask must decode to integers")
       }
   }
-  BinaryCifColumn::{ name, data, mask }
+  BinaryCifColumn::{ name, data, mask, }
 }
 
 ///|
@@ -1257,7 +1257,7 @@ fn bcif_parse_category(
     seen[column.name] = true
     columns.push(column)
   }
-  BinaryCifCategory::{ name, row_count, columns }
+  BinaryCifCategory::{ name, row_count, columns, }
 }
 
 ///|
@@ -1285,7 +1285,7 @@ fn bcif_parse_block(
     seen[category.name] = true
     categories.push(category)
   }
-  BinaryCifDataBlock::{ header, categories }
+  BinaryCifDataBlock::{ header, categories, }
 }
 
 ///|
@@ -1305,7 +1305,7 @@ pub fn binary_cif_parse(
       "Gzip-compressed BinaryCIF input must be decompressed first",
     )
   }
-  let reader = BcifReader::{ data: input, position: 0 }
+  let reader = BcifReader::{ data: input, position: 0, }
   let root = bcif_as_map(bcif_parse_message(reader, 0), "BinaryCIF document")
   if reader.position != input.length() {
     raise BinaryCifError("Additional bytes follow the BinaryCIF document")
@@ -1329,7 +1329,7 @@ pub fn binary_cif_parse(
   for raw_block in raw_blocks {
     data_blocks.push(bcif_parse_block(raw_block))
   }
-  BinaryCifFile::{ version, encoder, data_blocks }
+  BinaryCifFile::{ version, encoder, data_blocks, }
 }
 
 // PDB Structure conversion.
@@ -1534,7 +1534,7 @@ pub fn binary_cif_to_structure(
     )
     if builders.length() == 0 ||
       builders[builders.length() - 1].model_number != model_number {
-      builders.push(BcifModelBuilder::{ model_number, chains: [] })
+      builders.push(BcifModelBuilder::{ model_number, chains: [], })
     }
     let model_builder = builders[builders.length() - 1]
     let full_chain_id = bcif_required_string(chains, row)
@@ -1629,9 +1629,9 @@ pub fn binary_cif_to_structure(
           hetfield: residue_builder.hetero_field,
         })
       }
-      chain_values.push(Chain::{ id: chain_builder.chain_id, residues })
+      chain_values.push(Chain::{ id: chain_builder.chain_id, residues, })
     }
-    models.push(Model::{ id: model_index, chains: chain_values })
+    models.push(Model::{ id: model_index, chains: chain_values, })
   }
   Structure::new(
     id=if structure_id.length() > 0 {

@@ -16,7 +16,7 @@ pub struct SAPoint3D {
 ///|
 /// Create a new SAPoint3D.
 pub fn SAPoint3D::new(x : Double, y : Double, z : Double) -> SAPoint3D {
-  SAPoint3D::{ x, y, z }
+  SAPoint3D::{ x, y, z, }
 }
 
 ///|
@@ -43,7 +43,7 @@ pub fn SAResidue::new(
   resseq : Int,
   ca_coord : SAPoint3D,
 ) -> SAResidue {
-  SAResidue::{ resname, resseq, ca_coord }
+  SAResidue::{ resname, resseq, ca_coord, }
 }
 
 ///|
@@ -59,7 +59,7 @@ pub fn SAStructure::new(
   id : String,
   residues : Array[SAResidue],
 ) -> SAStructure {
-  SAStructure::{ id, residues }
+  SAStructure::{ id, residues, }
 }
 
 ///|

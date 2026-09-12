@@ -50,7 +50,7 @@ pub fn CellData::new(
   expression : Array[Double],
   cluster : String,
 ) -> CellData {
-  CellData::{ cell_id, expression, cluster }
+  CellData::{ cell_id, expression, cluster, }
 }
 
 ///|
@@ -59,7 +59,7 @@ pub fn DistanceMatrix::new(
   distances : Array[Array[Double]],
 ) -> DistanceMatrix {
   let n = cells.length()
-  DistanceMatrix::{ cells, distances, n_cells: n }
+  DistanceMatrix::{ cells, distances, n_cells: n, }
 }
 
 ///|
@@ -68,7 +68,7 @@ pub fn KernelMatrix::new(
   kernel : Array[Array[Double]],
   bandwidth : Double,
 ) -> KernelMatrix {
-  KernelMatrix::{ cells, kernel, bandwidth }
+  KernelMatrix::{ cells, kernel, bandwidth, }
 }
 
 ///|
@@ -387,7 +387,7 @@ fn destiny_eigen_decomposition(
     i = i + 1
   }
 
-  EigenResult::{ eigen_values, eigen_vectors }
+  EigenResult::{ eigen_values, eigen_vectors, }
 }
 
 ///|

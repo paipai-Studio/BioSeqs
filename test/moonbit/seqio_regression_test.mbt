@@ -126,7 +126,10 @@ test "regression_seqio_write_fastq_variants" {
     description="fq1 record",
   ).set_phred_quality([40, 30, 20, 10])
   assert_eq(@src.seqio_write([rec], "fastq"), "@fq1 record\nACGT\n+\nI?5+\n")
-  assert_eq(@src.seqio_write([rec], "fastq-sanger"), "@fq1 record\nACGT\n+\nI?5+\n")
+  assert_eq(
+    @src.seqio_write([rec], "fastq-sanger"),
+    "@fq1 record\nACGT\n+\nI?5+\n",
+  )
 }
 
 ///|
@@ -180,10 +183,7 @@ test "regression_alignio_parse_clustal" {
 
 ///|
 test "regression_alignio_parse_phylip" {
-  let phylip = " 3 4\n" +
-    "Tax1 ACGT\n" +
-    "Tax2 ACGT\n" +
-    "Tax3 ACGT\n"
+  let phylip = " 3 4\n" + "Tax1 ACGT\n" + "Tax2 ACGT\n" + "Tax3 ACGT\n"
   let aligns = @src.alignio_parse(phylip, "phylip")
   assert_eq(aligns.length(), 1)
   assert_eq(aligns[0].records.length(), 3)

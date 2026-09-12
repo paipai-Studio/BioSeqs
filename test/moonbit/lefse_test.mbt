@@ -246,12 +246,10 @@ test "lefse_run_identifies_discriminative_features" {
     "H1", "H2", "H3", "H4", "H5", "D1", "D2", "D3", "D4", "D5",
   ]
   let classes = [
-    "Healthy", "Healthy", "Healthy", "Healthy", "Healthy",
-    "Disease", "Disease", "Disease", "Disease", "Disease",
+    "Healthy", "Healthy", "Healthy", "Healthy", "Healthy", "Disease", "Disease",
+    "Disease", "Disease", "Disease",
   ]
-  let subclasses : Array[String] = [
-    "", "", "", "", "", "", "", "", "", "",
-  ]
+  let subclasses : Array[String] = ["", "", "", "", "", "", "", "", "", ""]
   let features = [
     // DiffA: high in Disease
     [10.0, 12.0, 11.0, 13.0, 10.0, 100.0, 102.0, 101.0, 103.0, 100.0],

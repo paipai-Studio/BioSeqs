@@ -310,7 +310,7 @@ pub fn Tree::new(
   name? : String? = None,
   weight? : Double = 1.0,
 ) -> Tree {
-  Tree::{ root, rooted, name, weight }
+  Tree::{ root, rooted, name, weight, }
 }
 
 ///|

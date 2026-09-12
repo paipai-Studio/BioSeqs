@@ -245,7 +245,7 @@ pub fn ReferenceProfile::new(
   expression : Array[Double],
   gene_names : Array[String],
 ) -> ReferenceProfile {
-  ReferenceProfile::{ cell_type, expression, gene_names }
+  ReferenceProfile::{ cell_type, expression, gene_names, }
 }
 
 ///|
@@ -260,7 +260,7 @@ pub fn ReferenceDataset::new(
   for p in profiles {
     cell_types.push(p.cell_type)
   }
-  ReferenceDataset::{ profiles, cell_types, gene_names, n_genes, n_profiles }
+  ReferenceDataset::{ profiles, cell_types, gene_names, n_genes, n_profiles, }
 }
 
 ///|
@@ -326,7 +326,7 @@ pub fn SingleRParams::with_all(
   min_score : Double,
   quantile_score : Bool,
 ) -> SingleRParams {
-  SingleRParams::{ method, n_top_scores, fine_tune, min_score, quantile_score }
+  SingleRParams::{ method, n_top_scores, fine_tune, min_score, quantile_score, }
 }
 
 ///|

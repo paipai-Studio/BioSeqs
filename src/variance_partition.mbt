@@ -371,7 +371,7 @@ pub fn vp_numeric_effect(
     }
     columns.push([value])
   }
-  VariancePartitionFixedEffect::{ name, column_names: [name], columns }
+  VariancePartitionFixedEffect::{ name, column_names: [name], columns, }
 }
 
 ///|
@@ -428,7 +428,7 @@ pub fn vp_categorical_effect(
   for level in encoded_levels {
     column_names.push(name + ":" + level)
   }
-  VariancePartitionFixedEffect::{ name, column_names, columns }
+  VariancePartitionFixedEffect::{ name, column_names, columns, }
 }
 
 ///|
@@ -468,7 +468,7 @@ pub fn vp_random_effect(
       "variancePartition random effects require replicated levels",
     )
   }
-  VariancePartitionRandomEffect::{ name, levels, level_indices: indices }
+  VariancePartitionRandomEffect::{ name, levels, level_indices: indices, }
 }
 
 ///|
@@ -638,7 +638,7 @@ pub fn vp_coefficient_contrast(
   }
   let coefficients = Array::make(design.coefficient_names.length(), 0.0)
   coefficients[index] = 1.0
-  DreamContrast::{ name, coefficients }
+  DreamContrast::{ name, coefficients, }
 }
 
 ///|
@@ -666,7 +666,7 @@ pub fn vp_contrast(
       "variancePartition contrast must not be all zero",
     )
   }
-  DreamContrast::{ name, coefficients: coefficients.copy() }
+  DreamContrast::{ name, coefficients: coefficients.copy(), }
 }
 
 ///|

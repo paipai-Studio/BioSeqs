@@ -18,7 +18,7 @@ pub fn FreqAnalysisResult::new(
   counts : Map[String, Int],
   total_count : Int,
 ) -> FreqAnalysisResult {
-  FreqAnalysisResult::{ frequencies, counts, total_count }
+  FreqAnalysisResult::{ frequencies, counts, total_count, }
 }
 
 ///|

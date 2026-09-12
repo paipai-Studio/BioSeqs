@@ -61,8 +61,11 @@ pub fn qblast_quote(value : String) -> String {
     if (code >= 'a'.to_int() && code <= 'z'.to_int()) ||
       (code >= 'A'.to_int() && code <= 'Z'.to_int()) ||
       (code >= '0'.to_int() && code <= '9'.to_int()) ||
-      code == '-'.to_int() || code == '_'.to_int() || code == '.'.to_int() ||
-      code == '~'.to_int() || code == '*'.to_int() {
+      code == '-'.to_int() ||
+      code == '_'.to_int() ||
+      code == '.'.to_int() ||
+      code == '~'.to_int() ||
+      code == '*'.to_int() {
       result.write_string(value[i:i + 1].to_owned())
     } else if code == ' '.to_int() {
       result.write_string("+")
@@ -249,16 +252,17 @@ pub fn qblast_result_url(rid : String, format_type? : String = "XML") -> String 
 ///|
 /// Read the token following "label =" or "label=" in a response, stopping
 /// at whitespace (mirrors Biopython's RID/RTOE/Status regular expressions).
-fn ncbi_blast_scan_field(text : String, label : String) -> Option[String] {
+fn ncbi_blast_scan_field(text : String, label : String) -> String? {
   let spaced = label + " = "
   let packed = label + "="
   let mut start = -1
   match text.find(spaced) {
     Some(idx) => start = idx + spaced.length()
-    None => match text.find(packed) {
-      Some(idx) => start = idx + packed.length()
-      None => ()
-    }
+    None =>
+      match text.find(packed) {
+        Some(idx) => start = idx + packed.length()
+        None => ()
+      }
   }
   if start < 0 {
     return None
@@ -266,8 +270,11 @@ fn ncbi_blast_scan_field(text : String, label : String) -> Option[String] {
   let mut end = start
   while end < text.length() {
     let ch = text.unsafe_get(end).to_int()
-    let is_end = ch == ' '.to_int() || ch == '\t'.to_int() ||
-      ch == '\n'.to_int() || ch == '\r'.to_int() || ch == ';'.to_int()
+    let is_end = ch == ' '.to_int() ||
+      ch == '\t'.to_int() ||
+      ch == '\n'.to_int() ||
+      ch == '\r'.to_int() ||
+      ch == ';'.to_int()
     if is_end {
       break
     }
@@ -298,12 +305,13 @@ fn ncbi_blast_atoi(value : String) -> Int {
 
 ///|
 /// Parse a PUT response: returns (RID, RTOE seconds). Raises if absent.
-pub fn qblast_parse_put(response : String) -> (String, Int) raise NcbiBlastError {
+pub fn qblast_parse_put(
+  response : String,
+) -> (String, Int) raise NcbiBlastError {
   let rid = match ncbi_blast_scan_field(response, "RID") {
     Some(value) => value
-    None => ncbiblast_fail(
-      "No RID found in BLAST response (submission rejected?)",
-    )
+    None =>
+      ncbiblast_fail("No RID found in BLAST response (submission rejected?)")
   }
   let rtoe = match ncbi_blast_scan_field(response, "RTOE") {
     Some(value) => ncbi_blast_atoi(value)
@@ -353,12 +361,15 @@ pub fn NcbiBlastClient::new(
   fetch~ : (String) -> String raise NcbiBlastError,
   now? : () -> Double,
 ) -> NcbiBlastClient {
-  { fetch, now: now.unwrap_or(fn() { 0.0 }), previous: 0.0 }
+  { fetch, now: now.unwrap_or(fn() { 0.0 }), previous: 0.0, }
 }
 
 ///|
 /// Enforce NCBI's "three requests per second" guideline and issue a GET.
-fn NcbiBlastClient::call(self : NcbiBlastClient, url : String) -> String raise NcbiBlastError {
+fn NcbiBlastClient::call(
+  self : NcbiBlastClient,
+  url : String,
+) -> String raise NcbiBlastError {
   let delay = 0.333333333
   let current = (self.now)()
   let wait = self.previous + delay - current

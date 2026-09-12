@@ -44,7 +44,7 @@ pub fn Peak::new(
   fold_enrichment? : Double = 0.0,
   p_value? : Double = 0.0,
 ) -> Peak {
-  Peak::{ chr, start, end, summit, fold_enrichment, p_value }
+  Peak::{ chr, start, end, summit, fold_enrichment, p_value, }
 }
 
 ///|
@@ -116,7 +116,15 @@ pub fn GeneAnnotation::new(
   strand~ : String,
 ) -> GeneAnnotation {
   let tss = if strand == "-" { gene_end } else { gene_start }
-  GeneAnnotation::{ gene_id, gene_name, chr, gene_start, gene_end, strand, tss }
+  GeneAnnotation::{
+    gene_id,
+    gene_name,
+    chr,
+    gene_start,
+    gene_end,
+    strand,
+    tss,
+  }
 }
 
 ///|

@@ -722,7 +722,7 @@ pub fn DMRRegion::new(
   pvalue : Double,
   fdr : Double,
 ) -> DMRRegion {
-  DMRRegion::{ chr, start, end, n_probes, mean_beta_diff, pvalue, fdr }
+  DMRRegion::{ chr, start, end, n_probes, mean_beta_diff, pvalue, fdr, }
 }
 
 ///|
@@ -747,7 +747,7 @@ pub fn DMRResult::new(
     }
     i = i + 1
   }
-  DMRResult::{ regions, n_dmr, n_significant: n_sig, threshold }
+  DMRResult::{ regions, n_dmr, n_significant: n_sig, threshold, }
 }
 
 ///|
@@ -817,7 +817,7 @@ pub fn DMPResult::new(
     }
     i = i + 1
   }
-  DMPResult::{ probe_names, chr, pos, pvalues, fdrs, beta_diffs, n_dmp }
+  DMPResult::{ probe_names, chr, pos, pvalues, fdrs, beta_diffs, n_dmp, }
 }
 
 ///|

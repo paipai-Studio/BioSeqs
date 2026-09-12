@@ -21,6 +21,7 @@ pub(all) enum GdsValue {
 ///|
 /// A node in the GDS tree. Folder nodes have children; leaf nodes carry
 /// a value.
+
 ///|
 pub struct GdsNode {
   name : String
@@ -36,13 +37,13 @@ pub fn GdsNode::leaf(
   description : String,
   value : GdsValue,
 ) -> GdsNode {
-  GdsNode::{ name, description, value: Some(value), children: [] }
+  GdsNode::{ name, description, value: Some(value), children: [], }
 }
 
 ///|
 /// Create a folder node.
 pub fn GdsNode::folder(name : String, description : String) -> GdsNode {
-  GdsNode::{ name, description, value: None, children: [] }
+  GdsNode::{ name, description, value: None, children: [], }
 }
 
 ///|
@@ -54,7 +55,7 @@ pub struct GdsFile {
 ///|
 /// Create an empty GDS file.
 pub fn gds_file_new() -> GdsFile {
-  GdsFile::{ root: GdsNode::folder("", "root") }
+  GdsFile::{ root: GdsNode::folder("", "root"), }
 }
 
 ///|
@@ -62,7 +63,11 @@ pub fn gds_file_new() -> GdsFile {
 /// Intermediate folders are created as needed. If a path component
 /// currently holds a leaf value it is converted into a folder. Returns
 /// the new node.
-pub fn GdsFile::add_node(self : GdsFile, path : String, node : GdsNode) -> GdsNode {
+pub fn GdsFile::add_node(
+  self : GdsFile,
+  path : String,
+  node : GdsNode,
+) -> GdsNode {
   let mut current = self.root
   if path.length() > 0 {
     let parts = gds_split_path(path)
@@ -95,7 +100,10 @@ pub fn GdsFile::add_node(self : GdsFile, path : String, node : GdsNode) -> GdsNo
 
 ///|
 /// Fetch the node at the given path; raises when absent.
-pub fn GdsFile::get_node(self : GdsFile, path : String) -> GdsNode raise SeqIOError {
+pub fn GdsFile::get_node(
+  self : GdsFile,
+  path : String,
+) -> GdsNode raise SeqIOError {
   let mut current = self.root
   for part in gds_split_path(path) {
     let mut found : GdsNode? = None
@@ -147,7 +155,7 @@ fn gds_split_path(path : String) -> Array[String] {
   while i <= path.length() {
     if i == path.length() || path.unsafe_get(i) == '/' {
       if i > start {
-        parts.push(path.substring(start=start, end=i))
+        parts.push(path.substring(start~, end=i))
       }
       start = i + 1
     }
@@ -202,7 +210,11 @@ pub fn seq_vcf2gds(vcf : VcfFile) -> SeqVarData {
 
   let _ = file.add_node(
     "",
-    GdsNode::leaf("sample.id", "sample identifiers", GdsValue::GdsStringArray(sample_names)),
+    GdsNode::leaf(
+      "sample.id",
+      "sample identifiers",
+      GdsValue::GdsStringArray(sample_names),
+    ),
   )
 
   let variant_ids : Array[String] = Array::new(capacity=vcf.len())
@@ -236,13 +248,12 @@ pub fn seq_vcf2gds(vcf : VcfFile) -> SeqVarData {
       let mut a1 = -1
       let mut a2 = -1
       match rec.samples.get(name) {
-        Some(fields) => {
+        Some(fields) =>
           if fields.length() > 0 {
             let (f1, f2) = gds_parse_gt_token(fields[0])
             a1 = f1
             a2 = f2
           }
-        }
         None => ()
       }
       per_sample.push([a1, a2])
@@ -251,13 +262,37 @@ pub fn seq_vcf2gds(vcf : VcfFile) -> SeqVarData {
     v = v + 1
   }
 
-  let _ = file.add_node("", GdsNode::leaf("variant.id", "variant identifiers", GdsValue::GdsStringArray(variant_ids)))
-  let _ = file.add_node("", GdsNode::leaf("chromosome", "chromosome", GdsValue::GdsStringArray(chroms)))
-  let _ = file.add_node("", GdsNode::leaf("position", "position", GdsValue::GdsIntArray(positions)))
-  let _ = file.add_node("", GdsNode::leaf("allele", "alleles", GdsValue::GdsStringArray(gds_flatten_alleles(alleles))))
   let _ = file.add_node(
     "",
-    GdsNode::leaf("genotype", "genotype data (2 x sample x variant)", GdsValue::GdsInt3D(genotypes)),
+    GdsNode::leaf(
+      "variant.id",
+      "variant identifiers",
+      GdsValue::GdsStringArray(variant_ids),
+    ),
+  )
+  let _ = file.add_node(
+    "",
+    GdsNode::leaf("chromosome", "chromosome", GdsValue::GdsStringArray(chroms)),
+  )
+  let _ = file.add_node(
+    "",
+    GdsNode::leaf("position", "position", GdsValue::GdsIntArray(positions)),
+  )
+  let _ = file.add_node(
+    "",
+    GdsNode::leaf(
+      "allele",
+      "alleles",
+      GdsValue::GdsStringArray(gds_flatten_alleles(alleles)),
+    ),
+  )
+  let _ = file.add_node(
+    "",
+    GdsNode::leaf(
+      "genotype",
+      "genotype data (2 x sample x variant)",
+      GdsValue::GdsInt3D(genotypes),
+    ),
   )
   SeqVarData::new(file)
 }
@@ -433,7 +468,10 @@ pub fn SeqVarData::reset_filter(self : SeqVarData) -> Unit {
 ///|
 /// Keep only the given variant indices, mirroring seqSetFilter(object,
 /// variant.id=...).
-pub fn SeqVarData::set_variant_filter(self : SeqVarData, indices : Array[Int]) -> Unit raise SeqIOError {
+pub fn SeqVarData::set_variant_filter(
+  self : SeqVarData,
+  indices : Array[Int],
+) -> Unit raise SeqIOError {
   let total = self.n_variants_total()
   let keep = Array::make(total, false)
   for idx in indices {
@@ -447,7 +485,10 @@ pub fn SeqVarData::set_variant_filter(self : SeqVarData, indices : Array[Int]) -
 
 ///|
 /// Keep only variants on the given chromosomes.
-pub fn SeqVarData::set_variant_chrom_filter(self : SeqVarData, chroms : Array[String]) -> Unit {
+pub fn SeqVarData::set_variant_chrom_filter(
+  self : SeqVarData,
+  chroms : Array[String],
+) -> Unit {
   let total = self.n_variants_total()
   let keep = Array::make(total, false)
   match self.file.try_get_node("chromosome") {
@@ -474,7 +515,11 @@ pub fn SeqVarData::set_variant_chrom_filter(self : SeqVarData, chroms : Array[St
 
 ///|
 /// Keep only variants inside the half-open position range [start, end).
-pub fn SeqVarData::set_variant_range_filter(self : SeqVarData, start : Int, end : Int) -> Unit {
+pub fn SeqVarData::set_variant_range_filter(
+  self : SeqVarData,
+  start : Int,
+  end : Int,
+) -> Unit {
   let total = self.n_variants_total()
   let keep = Array::make(total, false)
   match self.file.try_get_node("position") {
@@ -499,7 +544,10 @@ pub fn SeqVarData::set_variant_range_filter(self : SeqVarData, start : Int, end 
 ///|
 /// Keep only the given sample indices, mirroring seqSetFilter(object,
 /// sample.id=...).
-pub fn SeqVarData::set_sample_filter(self : SeqVarData, indices : Array[Int]) -> Unit raise SeqIOError {
+pub fn SeqVarData::set_sample_filter(
+  self : SeqVarData,
+  indices : Array[Int],
+) -> Unit raise SeqIOError {
   let total = self.sample_filter.length()
   let keep = Array::make(total, false)
   for idx in indices {
@@ -534,7 +582,11 @@ pub fn SeqVarData::genotype_dosages(self : SeqVarData) -> Array[Array[Int]] {
                     -1
                   } else if a2 < 0 {
                     // haploid call: count the single allele
-                    if a1 > 0 { 1 } else { 0 }
+                    if a1 > 0 {
+                      1
+                    } else {
+                      0
+                    }
                   } else {
                     (if a1 > 0 { 1 } else { 0 }) + (if a2 > 0 { 1 } else { 0 })
                   }
@@ -583,7 +635,13 @@ pub fn SeqVarData::allele_frequencies(self : SeqVarData) -> Array[Double] {
                 }
                 s = s + 1
               }
-              out.push(if called > 0 { alt.to_double() / called.to_double() } else { 0.0 })
+              out.push(
+                if called > 0 {
+                  alt.to_double() / called.to_double()
+                } else {
+                  0.0
+                },
+              )
             }
             v = v + 1
           }
@@ -606,11 +664,13 @@ pub fn SeqVarData::missing_rates(self : SeqVarData) -> Array[Double] {
         missing = missing + 1
       }
     }
-    out.push(if row.length() > 0 {
-      missing.to_double() / row.length().to_double()
-    } else {
-      0.0
-    })
+    out.push(
+      if row.length() > 0 {
+        missing.to_double() / row.length().to_double()
+      } else {
+        0.0
+      },
+    )
   }
   out
 }

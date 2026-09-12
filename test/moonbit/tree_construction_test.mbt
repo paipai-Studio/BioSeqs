@@ -114,7 +114,7 @@ fn tree_dist_close6(a : Double, b : Double) -> Bool {
 ///|
 fn tree_dist_raises(model : String, s1 : String, s2 : String) -> String {
   try {
-    let calc = @src.DistanceCalculator::new(model=model)
+    let calc = @src.DistanceCalculator::new(model~)
     ignore(calc.pairwise(s1, s2))
     "NO_ERROR"
   } catch {
@@ -193,10 +193,15 @@ test "tree_dist_dna_matrix_models_match_biopython" {
   // "blastn" is the canonical NUC.4.4 IUPAC matrix
   let nuc44 = @src.DistanceCalculator::new(model="NUC.4.4")
   assert_true(
-    tree_dist_close(nuc44.pairwise("ACGT", "TCGA"), blastn.pairwise("ACGT", "TCGA")),
+    tree_dist_close(
+      nuc44.pairwise("ACGT", "TCGA"),
+      blastn.pairwise("ACGT", "TCGA"),
+    ),
   )
   let hoxd70 = @src.DistanceCalculator::new(model="hoxd70")
-  assert_true(tree_dist_close(hoxd70.pairwise("ACGT", "ACGA"), 0.5602094240837696))
+  assert_true(
+    tree_dist_close(hoxd70.pairwise("ACGT", "ACGA"), 0.5602094240837696),
+  )
   let trans = @src.DistanceCalculator::new(model="trans")
   assert_true(tree_dist_close(trans.pairwise("ACGT", "TCGA"), 0.5))
   let megablast = @src.DistanceCalculator::new(model="megablast")
@@ -222,7 +227,9 @@ test "tree_dist_protein_matrix_models_match_biopython" {
   )
   let gonnet = @src.DistanceCalculator::new(model="gonnet1992")
   assert_true(tree_dist_close(gonnet.pairwise("ACW", "ACW"), 0.0))
-  assert_true(tree_dist_close(gonnet.pairwise("ACW", "ATW"), 0.4270462633451958))
+  assert_true(
+    tree_dist_close(gonnet.pairwise("ACW", "ATW"), 0.4270462633451958),
+  )
   let blastp = @src.DistanceCalculator::new(model="blastp")
   assert_true(
     tree_dist_close(
@@ -231,7 +238,9 @@ test "tree_dist_protein_matrix_models_match_biopython" {
     ),
   )
   let benner22 = @src.DistanceCalculator::new(model="benner22")
-  assert_true(tree_dist_close(benner22.pairwise("ACW", "ATW"), 0.44480519480519487))
+  assert_true(
+    tree_dist_close(benner22.pairwise("ACW", "ATW"), 0.44480519480519487),
+  )
   let jones = @src.DistanceCalculator::new(model="jones")
   assert_true(tree_dist_close(jones.pairwise("ACW", "ATW"), 0.4285714285714285))
 }
@@ -252,7 +261,10 @@ test "tree_dist_matrix_models_skip_gap_and_star" {
 ///|
 test "tree_dist_custom_skip_letters" {
   // Explicit skip_letters overrides defaults (max_score stays len(seq1))
-  let calc = @src.DistanceCalculator::new(model="identity", skip_letters=Some(["#"]))
+  let calc = @src.DistanceCalculator::new(
+    model="identity",
+    skip_letters=Some(["#"]),
+  )
   assert_true(tree_dist_close(calc.pairwise("A#A", "A#A"), 1.0 / 3.0))
 }
 
@@ -289,13 +301,13 @@ test "tree_dist_model_name_lists_match_biopython" {
   let protein = @src.distance_protein_models()
   let models = @src.distance_models()
   let expected_dna = [
-    "benner22", "benner6", "benner74", "blastn", "dayhoff", "feng", "genetic",
-    "gonnet1992", "hoxd70", "johnson", "jones", "levin", "mclachlan", "mdm78",
-    "megablast", "blastn", "rao", "risler", "schneider", "str", "trans",
+    "benner22", "benner6", "benner74", "blastn", "dayhoff", "feng", "genetic", "gonnet1992",
+    "hoxd70", "johnson", "jones", "levin", "mclachlan", "mdm78", "megablast", "blastn",
+    "rao", "risler", "schneider", "str", "trans",
   ]
   let expected_protein = [
-    "blastp", "blosum45", "blosum50", "blosum62", "blosum80", "blosum90",
-    "pam250", "pam30", "pam70",
+    "blastp", "blosum45", "blosum50", "blosum62", "blosum80", "blosum90", "pam250",
+    "pam30", "pam70",
   ]
   assert_eq(dna, expected_dna)
   assert_eq(protein, expected_protein)
@@ -325,11 +337,7 @@ test "tree_dist_model_name_and_jc_aliases" {
 ///|
 test "tree_dist_get_distance_is_symmetric" {
   let calc = @src.DistanceCalculator::new(model="blosum62")
-  let seqs = [
-    ("a", "ARNDCQ"),
-    ("b", "ARNDCE"),
-    ("c", "ARNDCC"),
-  ]
+  let seqs = [("a", "ARNDCQ"), ("b", "ARNDCE"), ("c", "ARNDCC")]
   let matrix = calc.get_distance(seqs)
   for i in 0..<3 {
     for j in 0..<3 {

@@ -363,7 +363,7 @@ pub fn GmtGeneSetCollection::new(
   for s in sets {
     names.push(s.name)
   }
-  GmtGeneSetCollection::{ sets, names, size: sets.length() }
+  GmtGeneSetCollection::{ sets, names, size: sets.length(), }
 }
 
 ///|

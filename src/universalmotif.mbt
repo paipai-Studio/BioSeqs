@@ -152,8 +152,8 @@ pub fn um_alphabet_letters(alphabet : String) -> Array[String] {
   }
   if alphabet == "AA" {
     return [
-      "A", "R", "N", "D", "C", "E", "Q", "G", "H", "I", "L", "K", "M", "F",
-      "P", "S", "T", "W", "Y", "V",
+      "A", "R", "N", "D", "C", "E", "Q", "G", "H", "I", "L", "K", "M", "F", "P",
+      "S", "T", "W", "Y", "V",
     ]
   }
   let result = Array::new()
@@ -273,11 +273,7 @@ pub fn pcm_to_ppm(
     for j = 0; j < n; j = j + 1 {
       total = total + row[j]
     }
-    let denom = if pseudocount > 0.0 {
-      total + pseudocount
-    } else {
-      total
-    }
+    let denom = if pseudocount > 0.0 { total + pseudocount } else { total }
     if denom <= 0.0 {
       let p = 1.0 / n.to_double()
       for j = 0; j < n; j = j + 1 {
@@ -441,7 +437,8 @@ pub fn ppm_to_icm(
     } else {
       let mut ent = 0.0 // sum of p*log2(p) (<= 0)
       for j = 0; j < n; j = j + 1 {
-        ent = ent + (if row[j] > 0.0 { row[j] * @math.log2(row[j]) } else { 0.0 })
+        ent = ent +
+          (if row[j] > 0.0 { row[j] * @math.log2(row[j]) } else { 0.0 })
       }
       let h = -ent // H = entropy
       let total_ic = @math.log2(n.to_double()) - h
@@ -634,11 +631,7 @@ pub fn get_consensus(row : Array[Double], alphabet : String) -> String {
 /// near-pure column, two-letter codes share `0.499` each, three-letter codes
 /// share `0.333` each, `N` maps to uniform `0.25`.
 pub fn consensus_letter_to_ppm(letter : String) -> Array[Double] {
-  let l = if letter.length() == 1 {
-    letter
-  } else {
-    letter[0:1].to_owned()
-  }
+  let l = if letter.length() == 1 { letter } else { letter[0:1].to_owned() }
   let pure = 0.001
   match l {
     "A" => [0.997, pure, pure, pure]
@@ -662,7 +655,10 @@ pub fn consensus_letter_to_ppm(letter : String) -> Array[Double] {
 
 ///|
 /// Build the consensus string for an entire PPM motif.
-pub fn consensus_string(ppm : Array[Array[Double]], alphabet : String) -> String {
+pub fn consensus_string(
+  ppm : Array[Array[Double]],
+  alphabet : String,
+) -> String {
   let mut s = ""
   for pos = 0; pos < ppm.length(); pos = pos + 1 {
     s = s + get_consensus(ppm[pos], alphabet)
@@ -678,7 +674,11 @@ pub fn consensus_string(ppm : Array[Array[Double]], alphabet : String) -> String
 /// Convert a motif to PPM form (recomputes IC and consensus).
 pub fn UniversalMotif::to_ppm(self : UniversalMotif) -> UniversalMotif {
   let ppm = um_to_ppm(
-    self.motif, self.motif_type, self.pseudocount, self.nsites, self.bkg,
+    self.motif,
+    self.motif_type,
+    self.pseudocount,
+    self.nsites,
+    self.bkg,
   )
   UniversalMotif::new(
     self.name,
@@ -701,7 +701,11 @@ pub fn UniversalMotif::to_ppm(self : UniversalMotif) -> UniversalMotif {
 /// Convert a motif to PWM form.
 pub fn UniversalMotif::to_pwm(self : UniversalMotif) -> UniversalMotif {
   let ppm = um_to_ppm(
-    self.motif, self.motif_type, self.pseudocount, self.nsites, self.bkg,
+    self.motif,
+    self.motif_type,
+    self.pseudocount,
+    self.nsites,
+    self.bkg,
   )
   let pwm = ppm_to_pwm(ppm, self.bkg, self.pseudocount, self.nsites)
   UniversalMotif::new(
@@ -728,7 +732,11 @@ pub fn UniversalMotif::to_icm(
   relative_entropy? : Bool = false,
 ) -> UniversalMotif {
   let ppm = um_to_ppm(
-    self.motif, self.motif_type, self.pseudocount, self.nsites, self.bkg,
+    self.motif,
+    self.motif_type,
+    self.pseudocount,
+    self.nsites,
+    self.bkg,
   )
   let icm = ppm_to_icm(ppm, self.bkg, relative_entropy)
   UniversalMotif::new(
@@ -1028,7 +1036,11 @@ pub fn reverse_complement_motif(motif : UniversalMotif) -> UniversalMotif {
     return motif
   }
   let ppm = um_to_ppm(
-    motif.motif, motif.motif_type, motif.pseudocount, motif.nsites, motif.bkg,
+    motif.motif,
+    motif.motif_type,
+    motif.pseudocount,
+    motif.nsites,
+    motif.bkg,
   )
   let len = ppm.length()
   let n = 4
@@ -1077,29 +1089,62 @@ pub fn compare_motifs(
   relative_entropy? : Bool = false,
 ) -> Double {
   let ppm1 = um_to_ppm(
-    m1.motif, m1.motif_type, m1.pseudocount, m1.nsites, m1.bkg,
+    m1.motif,
+    m1.motif_type,
+    m1.pseudocount,
+    m1.nsites,
+    m1.bkg,
   )
   let ppm2 = um_to_ppm(
-    m2.motif, m2.motif_type, m2.pseudocount, m2.nsites, m2.bkg,
+    m2.motif,
+    m2.motif_type,
+    m2.pseudocount,
+    m2.nsites,
+    m2.bkg,
   )
   let best = um_score_alignment(
-    ppm1, ppm2, m1.bkg, m2.bkg, m1.nsites, m2.nsites, metric, min_overlap,
-    min_mean_ic, score_strat, normalise, relative_entropy,
+    ppm1,
+    ppm2,
+    m1.bkg,
+    m2.bkg,
+    m1.nsites,
+    m2.nsites,
+    metric,
+    min_overlap,
+    min_mean_ic,
+    score_strat,
+    normalise,
+    relative_entropy,
   )
   if try_rc && (m1.alphabet == "DNA" || m1.alphabet == "RNA") {
     let m2rc = reverse_complement_motif(m2)
     let ppm2rc = um_to_ppm(
-      m2rc.motif, m2rc.motif_type, m2rc.pseudocount, m2rc.nsites, m2rc.bkg,
+      m2rc.motif,
+      m2rc.motif_type,
+      m2rc.pseudocount,
+      m2rc.nsites,
+      m2rc.bkg,
     )
     let best_rc = um_score_alignment(
-      ppm1, ppm2rc, m1.bkg, m2rc.bkg, m1.nsites, m2rc.nsites, metric,
-      min_overlap, min_mean_ic, score_strat, normalise, relative_entropy,
+      ppm1,
+      ppm2rc,
+      m1.bkg,
+      m2rc.bkg,
+      m1.nsites,
+      m2rc.nsites,
+      metric,
+      min_overlap,
+      min_mean_ic,
+      score_strat,
+      normalise,
+      relative_entropy,
     )
     return um_pick_best(metric, best, best_rc)
   }
   best
 }
 
+///|
 /// Score every alignment offset between two PPMs and return the best.
 fn um_score_alignment(
   ppm1 : Array[Array[Double]],
@@ -1137,10 +1182,20 @@ fn um_score_alignment(
       while i < end1 {
         let j = i - offset
         pos_scores.push(
-          compare_positions(metric, ppm1[i], ppm2[j], bkg1, bkg2, nsites1, nsites2),
+          compare_positions(
+            metric,
+            ppm1[i],
+            ppm2[j],
+            bkg1,
+            bkg2,
+            nsites1,
+            nsites2,
+          ),
         )
-        ic1_sum = ic1_sum + position_icscore_ppm(ppm1[i], bkg1, relative_entropy)
-        ic2_sum = ic2_sum + position_icscore_ppm(ppm2[j], bkg2, relative_entropy)
+        ic1_sum = ic1_sum +
+          position_icscore_ppm(ppm1[i], bkg1, relative_entropy)
+        ic2_sum = ic2_sum +
+          position_icscore_ppm(ppm2[j], bkg2, relative_entropy)
         i = i + 1
       }
       let mean_ic1 = ic1_sum / overlap_len.to_double()
@@ -1181,6 +1236,7 @@ fn um_score_alignment(
   }
 }
 
+///|
 fn um_pick_best(metric : UMetric, a : Double, b : Double) -> Double {
   if um_is_similarity(metric) {
     if a > b {
@@ -1238,7 +1294,11 @@ pub fn merge_motifs(
   for k = 1; k < motifs.length(); k = k + 1 {
     let next = motifs[k]
     let next_ppm = um_to_ppm(
-      next.motif, next.motif_type, next.pseudocount, next.nsites, next.bkg,
+      next.motif,
+      next.motif_type,
+      next.pseudocount,
+      next.nsites,
+      next.bkg,
     )
     let merged = um_merge_pair(
       acc_ppm,
@@ -1276,6 +1336,7 @@ pub fn merge_motifs(
   )
 }
 
+///|
 /// Merge a pair of PPMs with a weighted arithmetic mean at the best offset.
 /// Returns the merged PPM (background is merged in-place by the caller via
 /// `acc_bkg`, so this helper keeps the caller's `acc_bkg`).
@@ -1292,13 +1353,17 @@ fn um_merge_pair(
   alphabet : String,
 ) -> Array[Array[Double]] {
   let n = if ppm1.length() == 0 {
-    if ppm2.length() == 0 { 0 } else { ppm2[0].length() }
+    if ppm2.length() == 0 {
+      0
+    } else {
+      ppm2[0].length()
+    }
   } else {
     ppm1[0].length()
   }
   let best_offset = um_find_best_offset(
-    ppm1, ppm2, bkg1, bkg2, 100.0, 100.0, metric, min_overlap, min_mean_ic,
-    try_rc, alphabet,
+    ppm1, ppm2, bkg1, bkg2, 100.0, 100.0, metric, min_overlap, min_mean_ic, try_rc,
+    alphabet,
   )
   let l1 = ppm1.length()
   let ppm2_use = if best_offset.rc { um_rc_ppm(ppm2) } else { ppm2 }
@@ -1318,8 +1383,7 @@ fn um_merge_pair(
     let in2 = i2 >= 0 && i2 < l2
     for j = 0; j < n; j = j + 1 {
       if in1 && in2 {
-        merged[pos][j] = (ppm1[i1][j] * weight.to_double() +
-          ppm2_use[i2][j]) /
+        merged[pos][j] = (ppm1[i1][j] * weight.to_double() + ppm2_use[i2][j]) /
           (weight.to_double() + 1.0)
       } else if in1 {
         merged[pos][j] = ppm1[i1][j]
@@ -1346,6 +1410,8 @@ fn um_merge_pair(
 }
 
 // In-place weighted background merge helper.
+
+///|
 fn acc_bkg_merge(
   bkg1 : Array[Double],
   bkg2 : Array[Double],
@@ -1356,6 +1422,7 @@ fn acc_bkg_merge(
     (weight.to_double() + 1.0)
 }
 
+///|
 /// Reverse-complement of a PPM (DNA/RNA, row=position col=letter).
 fn um_rc_ppm(ppm : Array[Array[Double]]) -> Array[Array[Double]] {
   let len = ppm.length()
@@ -1380,12 +1447,14 @@ fn um_rc_ppm(ppm : Array[Array[Double]]) -> Array[Array[Double]] {
   rc
 }
 
+///|
 struct UmOffset {
   offset : Int
   rc : Bool
   score : Double
 }
 
+///|
 /// Find the alignment offset that yields the best comparison score.
 fn um_find_best_offset(
   ppm1 : Array[Array[Double]],
@@ -1401,7 +1470,7 @@ fn um_find_best_offset(
   alphabet : String,
 ) -> UmOffset {
   let is_sim = um_is_similarity(metric)
-  let mut best = UmOffset::{ offset: 0, rc: false, score: 0.0 }
+  let mut best = UmOffset::{ offset: 0, rc: false, score: 0.0, }
   let mut found = false
   let candidates : Array[Array[Array[Double]]] = [ppm2]
   let rc_flags : Array[Bool] = [false]
@@ -1429,7 +1498,13 @@ fn um_find_best_offset(
           let j = i - offset
           pos_scores.push(
             compare_positions(
-              metric, ppm1[i], ppm2c[j], bkg1, bkg2, nsites1, nsites2,
+              metric,
+              ppm1[i],
+              ppm2c[j],
+              bkg1,
+              bkg2,
+              nsites1,
+              nsites2,
             ),
           )
           ic1_sum = ic1_sum + position_icscore_ppm(ppm1[i], bkg1, false)
@@ -1448,12 +1523,12 @@ fn um_find_best_offset(
             combined * tlend / alignlen
           }
           if !found {
-            best = UmOffset::{ offset, rc, score: normalized }
+            best = UmOffset::{ offset, rc, score: normalized, }
             found = true
           } else if is_sim && normalized > best.score {
-            best = UmOffset::{ offset, rc, score: normalized }
+            best = UmOffset::{ offset, rc, score: normalized, }
           } else if !is_sim && normalized < best.score {
-            best = UmOffset::{ offset, rc, score: normalized }
+            best = UmOffset::{ offset, rc, score: normalized, }
           }
         }
       }
@@ -1478,7 +1553,11 @@ pub fn trim_motif(
   trim_from? : UTrimFrom = UTrimFrom::UBoth,
 ) -> UniversalMotif {
   let ppm = um_to_ppm(
-    motif.motif, motif.motif_type, motif.pseudocount, motif.nsites, motif.bkg,
+    motif.motif,
+    motif.motif_type,
+    motif.pseudocount,
+    motif.nsites,
+    motif.bkg,
   )
   if ppm.length() == 0 {
     return motif
@@ -1545,6 +1624,7 @@ pub fn trim_motif(
 // MEME / JASPAR I/O
 // ---------------------------------------------------------------------------
 
+///|
 /// Format a probability to a fixed number of decimal places (round half-up).
 fn um_format_fixed(d : Double, decimals : Int) -> String {
   let neg = d < 0.0
@@ -1587,7 +1667,11 @@ pub fn write_meme(motifs : Array[UniversalMotif]) -> String {
     }
     let p = if motifs.length() > 0 {
       let b = motifs[0].bkg
-      if i < b.length() { b[i] } else { 1.0 / letters.length().to_double() }
+      if i < b.length() {
+        b[i]
+      } else {
+        1.0 / letters.length().to_double()
+      }
     } else {
       1.0 / letters.length().to_double()
     }
@@ -1605,7 +1689,14 @@ pub fn write_meme(motifs : Array[UniversalMotif]) -> String {
     let w = m.motif.length()
     let al = letters.length()
     let ns = if m.nsites > 0.0 { m.nsites } else { 100.0 }
-    s = s + "letter-probability matrix: alength= " + al.to_string() + " w= " + w.to_string() + " nsites= " + um_format_fixed(ns, 3) + " E= 0\n"
+    s = s +
+      "letter-probability matrix: alength= " +
+      al.to_string() +
+      " w= " +
+      w.to_string() +
+      " nsites= " +
+      um_format_fixed(ns, 3) +
+      " E= 0\n"
     for pos = 0; pos < w; pos = pos + 1 {
       let row = m.motif[pos]
       for j = 0; j < al; j = j + 1 {
@@ -1712,9 +1803,9 @@ pub fn read_meme(text : String) -> Array[UniversalMotif] {
           alphabet,
           matrix,
           PPM,
-          nsites=nsites,
+          nsites~,
           pseudocount=0.8,
-          altname=altname,
+          altname~,
         )
         motifs.push(m)
       }
@@ -1725,12 +1816,14 @@ pub fn read_meme(text : String) -> Array[UniversalMotif] {
   motifs
 }
 
+///|
 struct UmLpmHeader {
   alength : Int
   width : Int
   nsites : Double
 }
 
+///|
 fn um_parse_lpm_header(line : String) -> UmLpmHeader {
   let mut alen = 4
   let mut width = 0
@@ -1775,9 +1868,10 @@ fn um_parse_lpm_header(line : String) -> UmLpmHeader {
       }
     }
   }
-  UmLpmHeader::{ alength: alen, width, nsites }
+  UmLpmHeader::{ alength: alen, width, nsites, }
 }
 
+///|
 /// Infer DNA/RNA/AA alphabet from an alphabet string.
 fn um_infer_alphabet(alpha : String) -> String {
   let a = alpha.trim().to_owned()
@@ -1802,7 +1896,11 @@ fn um_infer_alphabet(alpha : String) -> String {
 /// letter). The motif is converted to PCM with `nsites` columns.
 pub fn write_jaspar(motif : UniversalMotif) -> String {
   let ppm = um_to_ppm(
-    motif.motif, motif.motif_type, motif.pseudocount, motif.nsites, motif.bkg,
+    motif.motif,
+    motif.motif_type,
+    motif.pseudocount,
+    motif.nsites,
+    motif.bkg,
   )
   let letters = um_alphabet_letters(motif.alphabet)
   let n = letters.length()
@@ -1869,11 +1967,7 @@ pub fn read_jaspar(text : String) -> Array[UniversalMotif] {
         }
         if rl.contains("[") {
           let after = rl.split("[").to_array()
-          let tail = if after.length() >= 2 {
-            after[1].to_owned()
-          } else {
-            ""
-          }
+          let tail = if after.length() >= 2 { after[1].to_owned() } else { "" }
           let label_parts = rl.split(" ").to_array()
           row_labels.push(label_parts[0].trim().to_owned())
           let cleaned_parts = tail.split("]").to_array()
@@ -1927,7 +2021,7 @@ pub fn read_jaspar(text : String) -> Array[UniversalMotif] {
         PCM,
         nsites=total_sites,
         pseudocount=0.8,
-        altname=altname,
+        altname~,
       )
       motifs.push(m)
     } else {
@@ -1937,6 +2031,7 @@ pub fn read_jaspar(text : String) -> Array[UniversalMotif] {
   motifs
 }
 
+///|
 /// Infer alphabet from JASPAR row labels (A/C/G/T, A/C/G/U, or AA).
 fn um_infer_alphabet_from_labels(labels : Array[String]) -> String {
   let mut joined = ""

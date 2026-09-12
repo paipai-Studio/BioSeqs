@@ -72,7 +72,7 @@ pub struct SpherePoint {
 ///|
 /// Construct a SpherePoint using positional arguments.
 pub fn SpherePoint::new(x : Double, y : Double, z : Double) -> SpherePoint {
-  SpherePoint::{ x, y, z }
+  SpherePoint::{ x, y, z, }
 }
 
 ///|

@@ -12,7 +12,7 @@ pub struct PAMLAlignment {
 
 ///|
 pub fn PAMLAlignment::new(sequences : Array[(String, String)]) -> PAMLAlignment {
-  PAMLAlignment::{ sequences, tree: "", model: "HKY85" }
+  PAMLAlignment::{ sequences, tree: "", model: "HKY85", }
 }
 
 ///|

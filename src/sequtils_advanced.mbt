@@ -64,7 +64,10 @@ fn sequtils_count_chars(seq : String, chars : String) -> Int {
 ///
 /// Raises `SeqError` for any other value of the ambiguous parameter.
 /// Returns zero for an empty sequence.
-pub fn gc_fraction(seq : String, ambiguous? : String = "remove") -> Double raise SeqError {
+pub fn gc_fraction(
+  seq : String,
+  ambiguous? : String = "remove",
+) -> Double raise SeqError {
   let gc = sequtils_count_chars(seq, "CGScgs").to_double()
   let length = if ambiguous == "remove" {
     (sequtils_count_chars(seq, "CGScgs") + sequtils_count_chars(seq, "ATWUatwu")).to_double()
@@ -107,12 +110,20 @@ pub struct GC123Result {
 /// implementation returns all zeros instead.
 pub fn gc123(seq : String) -> GC123Result {
   // counts[nt][pos]: nt 0..3 = A, T, G, C; pos 0..2 = codon position.
-  let counts : FixedArray[FixedArray[Int]] = FixedArray::make(4, FixedArray::make(3, 0))
+  let counts : FixedArray[FixedArray[Int]] = FixedArray::make(
+    4,
+    FixedArray::make(3, 0),
+  )
   // Each row needs its own array; allocate them individually to avoid aliasing.
   for k = 0; k < 4; k = k + 1 {
     counts[k] = FixedArray::make(3, 0)
   }
-  let nts : Array[Int] = ['A'.to_int(), 'T'.to_int(), 'G'.to_int(), 'C'.to_int()]
+  let nts : Array[Int] = [
+    'A'.to_int(),
+    'T'.to_int(),
+    'G'.to_int(),
+    'C'.to_int(),
+  ]
   let length = seq.length()
   let mut i = 0
   while i < length {
@@ -138,14 +149,30 @@ pub fn gc123(seq : String) -> GC123Result {
       (counts[2][pos] + counts[3][pos]).to_double() * 100.0 / n.to_double()
     }
   }
-  let gcall_gc = counts[2][0] + counts[2][1] + counts[2][2] + counts[3][0] + counts[3][1] + counts[3][2]
-  let nall = counts[0][0] + counts[0][1] + counts[0][2] + counts[1][0] + counts[1][1] + counts[1][2] + counts[2][0] + counts[2][1] + counts[2][2] + counts[3][0] + counts[3][1] + counts[3][2]
+  let gcall_gc = counts[2][0] +
+    counts[2][1] +
+    counts[2][2] +
+    counts[3][0] +
+    counts[3][1] +
+    counts[3][2]
+  let nall = counts[0][0] +
+    counts[0][1] +
+    counts[0][2] +
+    counts[1][0] +
+    counts[1][1] +
+    counts[1][2] +
+    counts[2][0] +
+    counts[2][1] +
+    counts[2][2] +
+    counts[3][0] +
+    counts[3][1] +
+    counts[3][2]
   let gc_all = if nall == 0 {
     0.0
   } else {
     gcall_gc.to_double() * 100.0 / nall.to_double()
   }
-  GC123Result::{ gc_all, gc1: gc_at(0), gc2: gc_at(1), gc3: gc_at(2) }
+  GC123Result::{ gc_all, gc1: gc_at(0), gc2: gc_at(1), gc3: gc_at(2), }
 }
 
 ///|
@@ -192,7 +219,10 @@ let sequtils_ambiguous_dna_values : Map[String, String] = Map([
 /// "[GATC]GA" for subseq "NGA") and the 0-based positions of all matches.
 /// Raises `SeqError` for subseq characters that are not IUPAC DNA nucleotide
 /// codes (Biopython raises KeyError in that case).
-pub fn nt_search(seq : String, subseq : String) -> NtSearchResult raise SeqError {
+pub fn nt_search(
+  seq : String,
+  subseq : String,
+) -> NtSearchResult raise SeqError {
   let pattern_buf = StringBuilder()
   let basesets : Array[Array[Int]] = []
   for i = 0; i < subseq.length(); i = i + 1 {
@@ -212,7 +242,12 @@ pub fn nt_search(seq : String, subseq : String) -> NtSearchResult raise SeqError
         }
         basesets.push(set)
       }
-      None => raise SeqError("not an IUPAC DNA nucleotide: '" + Char::from_int(ci).to_string() + "'")
+      None =>
+        raise SeqError(
+          "not an IUPAC DNA nucleotide: '" +
+          Char::from_int(ci).to_string() +
+          "'",
+        )
     }
   }
   let pattern = pattern_buf.to_string()
@@ -245,7 +280,7 @@ pub fn nt_search(seq : String, subseq : String) -> NtSearchResult raise SeqError
       pos = pos + 1
     }
   }
-  NtSearchResult::{ pattern, positions }
+  NtSearchResult::{ pattern, positions, }
 }
 
 ///|
@@ -255,7 +290,9 @@ fn sequtils_fmt2(x : Double) -> String {
   let scaled = (x * 100.0 + 0.5).floor().to_int()
   let int_part = scaled / 100
   let frac = scaled - int_part * 100
-  int_part.to_string() + "." + (if frac < 10 { "0" + frac.to_string() } else { frac.to_string() })
+  int_part.to_string() +
+  "." +
+  (if frac < 10 { "0" + frac.to_string() } else { frac.to_string() })
 }
 
 ///|
@@ -296,7 +333,9 @@ pub fn six_frame_translations(
 ) -> String raise SeqError {
   if genetic_code != 1 {
     raise SeqError(
-      "genetic code " + genetic_code.to_string() + " is not supported; only the standard code (table 1) is available",
+      "genetic code " +
+      genetic_code.to_string() +
+      " is not supported; only the standard code (table 1) is available",
     )
   }
   let s = Seq::new(seq)
@@ -310,7 +349,11 @@ pub fn six_frame_translations(
       break
     }
   }
-  let anti = (if has_u { s.reverse_complement_rna() } else { s.reverse_complement() }).data
+  let anti = (if has_u {
+      s.reverse_complement_rna()
+    } else {
+      s.reverse_complement()
+    }).data
   let comp = (if has_u { s.complement_rna() } else { s.complement() }).data
   let length = seq.length()
   // frames[0..2] hold the +1/+2/+3 translations of seq, frames[3..5] hold the
@@ -342,14 +385,25 @@ pub fn six_frame_translations(
     header = header + " " + nt.to_string() + ":" + count.to_string()
   }
   let gc = 100.0 * gc_fraction(seq, ambiguous="ignore")
-  header = header + "\nSequence: " + short.to_lower() + ", " + length.to_string() + " nt, " + sequtils_fmt2(gc) + " %GC\n\n\n"
+  header = header +
+    "\nSequence: " +
+    short.to_lower() +
+    ", " +
+    length.to_string() +
+    " nt, " +
+    sequtils_fmt2(gc) +
+    " %GC\n\n\n"
   let res = StringBuilder()
   res.write_string(header)
 
   // A frame slice formatted with the double-space separator, optionally
   // indented by `indent` leading spaces. Mirrors (" "*ind + "  ".join(...)).
   let frame_line = fn(frame : String, start : Int, indent : Int) -> String {
-    let stop = if start + 20 < frame.length() { start + 20 } else { frame.length() }
+    let stop = if start + 20 < frame.length() {
+      start + 20
+    } else {
+      frame.length()
+    }
     let buf = StringBuilder()
     for _k = 0; _k < indent; _k = _k + 1 {
       buf.write_char(' ')

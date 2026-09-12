@@ -29,7 +29,7 @@ pub struct GfaTag {
 ///|
 /// Construct a GfaTag from its name, type, and value.
 pub fn GfaTag::new(name : String, tag_type : String, value : String) -> GfaTag {
-  GfaTag::{ name, tag_type, value }
+  GfaTag::{ name, tag_type, value, }
 }
 
 ///|
@@ -71,7 +71,7 @@ pub struct GfaHeader {
 ///|
 /// Construct a GfaHeader with the given version and tags.
 pub fn GfaHeader::new(version : String, tags : Array[GfaTag]) -> GfaHeader {
-  GfaHeader::{ version, tags }
+  GfaHeader::{ version, tags, }
 }
 
 ///|
@@ -106,7 +106,7 @@ pub fn GfaSegment::new(
   sequence : String,
   tags : Array[GfaTag],
 ) -> GfaSegment {
-  GfaSegment::{ name, sequence, tags }
+  GfaSegment::{ name, sequence, tags, }
 }
 
 ///|
@@ -172,7 +172,7 @@ pub fn GfaLink::new(
   overlap : String,
   tags : Array[GfaTag],
 ) -> GfaLink {
-  GfaLink::{ from_segment, from_orient, to_segment, to_orient, overlap, tags }
+  GfaLink::{ from_segment, from_orient, to_segment, to_orient, overlap, tags, }
 }
 
 ///|
@@ -314,7 +314,7 @@ pub fn GfaPath::new(
   overlaps : Array[String],
   tags : Array[GfaTag],
 ) -> GfaPath {
-  GfaPath::{ name, segment_list, overlaps, tags }
+  GfaPath::{ name, segment_list, overlaps, tags, }
 }
 
 ///|
@@ -466,7 +466,7 @@ pub fn gfa_parse_tag(field : String) -> GfaTag? {
           Some(p2) => {
             let tag_type = rest[0:p2].to_owned()
             let value = rest[p2 + 1:].to_owned()
-            Some(GfaTag::{ name, tag_type, value })
+            Some(GfaTag::{ name, tag_type, value, })
           }
         }
       }
@@ -498,7 +498,7 @@ pub fn gfa_parse_header(fields : Array[String]) -> GfaHeader {
       version = tags[i].value
     }
   }
-  GfaHeader::{ version, tags }
+  GfaHeader::{ version, tags, }
 }
 
 ///|
@@ -510,7 +510,7 @@ pub fn gfa_parse_segment(fields : Array[String]) -> GfaSegment {
   let name = if n > 1 { fields[1] } else { "" }
   let sequence = if n > 2 { fields[2] } else { "*" }
   let tags = if n > 3 { gfa_parse_tags(fields, 3) } else { Array::new() }
-  GfaSegment::{ name, sequence, tags }
+  GfaSegment::{ name, sequence, tags, }
 }
 
 ///|
@@ -523,7 +523,7 @@ pub fn gfa_parse_link(fields : Array[String]) -> GfaLink {
   let to_orient = if n > 4 { fields[4] } else { "+" }
   let overlap = if n > 5 { fields[5] } else { "*" }
   let tags = if n > 6 { gfa_parse_tags(fields, 6) } else { Array::new() }
-  GfaLink::{ from_segment, from_orient, to_segment, to_orient, overlap, tags }
+  GfaLink::{ from_segment, from_orient, to_segment, to_orient, overlap, tags, }
 }
 
 ///|
@@ -567,7 +567,7 @@ pub fn gfa_parse_path(fields : Array[String]) -> GfaPath {
     Array::new()
   }
   let tags = if n > 4 { gfa_parse_tags(fields, 4) } else { Array::new() }
-  GfaPath::{ name, segment_list, overlaps, tags }
+  GfaPath::{ name, segment_list, overlaps, tags, }
 }
 
 ///|

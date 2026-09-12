@@ -13,7 +13,7 @@ pub fn PolypeptideComposition::new(
   amino_acids : Map[String, Int],
   total_residues : Int,
 ) -> PolypeptideComposition {
-  PolypeptideComposition::{ amino_acids, total_residues }
+  PolypeptideComposition::{ amino_acids, total_residues, }
 }
 
 ///|
@@ -27,7 +27,7 @@ pub fn HydrophobicityProfile::new(
   positions : Array[Int],
   values : Array[Double],
 ) -> HydrophobicityProfile {
-  HydrophobicityProfile::{ positions, values }
+  HydrophobicityProfile::{ positions, values, }
 }
 
 ///|
@@ -43,7 +43,7 @@ pub fn TransmembraneRegion::new(
   end : Int,
   score : Double,
 ) -> TransmembraneRegion {
-  TransmembraneRegion::{ start, end, score }
+  TransmembraneRegion::{ start, end, score, }
 }
 
 ///|

@@ -78,7 +78,7 @@ pub struct OverlapResult {
 ///|
 /// Construct a new DBAPeak with default score and summit at midpoint.
 pub fn DBAPeak::new(chr : String, start : Int, end : Int) -> DBAPeak {
-  DBAPeak::{ chr, start, end, score: 0.0, summit: (start + end) / 2 }
+  DBAPeak::{ chr, start, end, score: 0.0, summit: (start + end) / 2, }
 }
 
 ///|

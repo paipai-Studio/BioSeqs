@@ -233,7 +233,7 @@ pub fn FMIndex::new(text : String) -> FMIndex {
     }
     occ[c] = arr
   }
-  FMIndex::{ bwt_str, c_table, occ, sa: sa_arr, text_len: n }
+  FMIndex::{ bwt_str, c_table, occ, sa: sa_arr, text_len: n, }
 }
 
 ///|

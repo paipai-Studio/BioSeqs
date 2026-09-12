@@ -65,7 +65,7 @@ pub fn PseaAtom::new(
   y : Double,
   z : Double,
 ) -> PseaAtom {
-  PseaAtom::{ res_name, res_num, atom_name, x, y, z }
+  PseaAtom::{ res_name, res_num, atom_name, x, y, z, }
 }
 
 ///|
@@ -208,7 +208,7 @@ pub fn psea_compute_geometry(ca_atoms : Array[PseaAtom]) -> PseaGeometry {
     )
     k = k + 1
   }
-  PseaGeometry::{ ca_distances, bond_angles, dihedral_angles }
+  PseaGeometry::{ ca_distances, bond_angles, dihedral_angles, }
 }
 
 // ===== PSEA secondary structure assignment =====
@@ -344,7 +344,15 @@ pub fn psea_run(ca_atoms : Array[PseaAtom]) -> PseaResult {
     }
     r = r + 1
   }
-  PseaResult::{ res_nums, res_names, ss, confidence, n_helix, n_strand, n_coil }
+  PseaResult::{
+    res_nums,
+    res_names,
+    ss,
+    confidence,
+    n_helix,
+    n_strand,
+    n_coil,
+  }
 }
 
 ///|

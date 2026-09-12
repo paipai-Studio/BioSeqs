@@ -63,7 +63,7 @@ pub fn QfAssay::new(
 ) -> QfAssay {
   let nr = data.length()
   let nc = if nr > 0 { data[0].length() } else { 0 }
-  QfAssay::{ name, row_names, col_names, data, n_rows: nr, n_cols: nc }
+  QfAssay::{ name, row_names, col_names, data, n_rows: nr, n_cols: nc, }
 }
 
 ///|
@@ -258,7 +258,7 @@ pub fn QfFeatureLink::new(
   to_assay : String,
   to_row : Int,
 ) -> QfFeatureLink {
-  QfFeatureLink::{ from_assay, from_row, to_assay, to_row }
+  QfFeatureLink::{ from_assay, from_row, to_assay, to_row, }
 }
 
 ///|
@@ -292,7 +292,7 @@ pub fn QfFeatureLink::to_row(self : QfFeatureLink) -> Int {
 ///|
 /// Construct an empty QfFeatureLinks.
 pub fn QfFeatureLinks::new() -> QfFeatureLinks {
-  QfFeatureLinks::{ links: Array::new() }
+  QfFeatureLinks::{ links: Array::new(), }
 }
 
 ///|
@@ -349,7 +349,11 @@ pub fn QfFeatureLinks::get_links_to(
 ///|
 /// Construct an empty QFeatures.
 pub fn QFeatures::new() -> QFeatures {
-  QFeatures::{ assays: Array::new(), links: QfFeatureLinks::new(), n_assays: 0 }
+  QFeatures::{
+    assays: Array::new(),
+    links: QfFeatureLinks::new(),
+    n_assays: 0,
+  }
 }
 
 ///|

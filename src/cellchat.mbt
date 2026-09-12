@@ -46,7 +46,7 @@ pub struct CellChatResult {
 ///|
 /// Create a ligand-receptor pair.
 pub fn lr_pair(ligand : String, receptor : String) -> LRPair {
-  LRPair::{ ligand, receptor, key: ligand + "_" + receptor }
+  LRPair::{ ligand, receptor, key: ligand + "_" + receptor, }
 }
 
 ///|

@@ -30,7 +30,7 @@ pub fn BlastParamSpec::new(
   default_value : String,
   required : Bool,
 ) -> BlastParamSpec {
-  BlastParamSpec::{ name, description, takes_value, default_value, required }
+  BlastParamSpec::{ name, description, takes_value, default_value, required, }
 }
 
 ///|

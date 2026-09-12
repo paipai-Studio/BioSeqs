@@ -6,7 +6,11 @@
 /// Build a single-chromosome GRanges with star strands.
 fn rr_make(seqname : String, ranges : Array[(Int, Int)]) -> @src.GRanges {
   let n = ranges.length()
-  @src.granges(Array::make(n, seqname), ranges, Array::make(n, @src.strand_star()))
+  @src.granges(
+    Array::make(n, seqname),
+    ranges,
+    Array::make(n, @src.strand_star()),
+  )
 }
 
 ///|
@@ -46,7 +50,11 @@ test "regioner_genome_layout_validation" {
 test "regioner_randomize_preserves_widths_and_chromosomes" {
   let a = rr_make("chr1", [(100, 200), (500, 600), (2000, 2100)])
   let genome = rr_genome()
-  let r1 = @src.randomize_regions(a, genome, options=@src.RegionPermOptions::of(seed=42))
+  let r1 = @src.randomize_regions(
+    a,
+    genome,
+    options=@src.RegionPermOptions::of(seed=42),
+  )
   assert_eq(@src.granges_length(r1), 3)
   let mut i = 0
   while i < 3 {
@@ -59,10 +67,18 @@ test "regioner_randomize_preserves_widths_and_chromosomes" {
     i = i + 1
   }
   // reproducible with the same seed
-  let r2 = @src.randomize_regions(a, genome, options=@src.RegionPermOptions::of(seed=42))
+  let r2 = @src.randomize_regions(
+    a,
+    genome,
+    options=@src.RegionPermOptions::of(seed=42),
+  )
   assert_eq(r2.starts, r1.starts)
   // a different seed produces a different placement
-  let r3 = @src.randomize_regions(a, genome, options=@src.RegionPermOptions::of(seed=43))
+  let r3 = @src.randomize_regions(
+    a,
+    genome,
+    options=@src.RegionPermOptions::of(seed=43),
+  )
   assert_false(r3.starts == r1.starts)
 }
 
@@ -77,7 +93,7 @@ test "regioner_randomize_respects_mask" {
     let r = @src.randomize_regions(
       a,
       genome,
-      mask=mask,
+      mask~,
       options=@src.RegionPermOptions::of(seed=trial + 1),
     )
     let mut i = 0
@@ -155,12 +171,15 @@ test "regioner_randomize_multi_chromosome" {
   let genome = rr_genome()
   // two identical-width regions on different chromosomes must stay on their
   // own chromosomes (guards the per-chromosome interval cache)
-  let a = @src.granges(
-    ["chr1", "chr2"],
-    [(100, 199), (200, 299)],
-    [@src.strand_star(), @src.strand_star()],
+  let a = @src.granges(["chr1", "chr2"], [(100, 199), (200, 299)], [
+    @src.strand_star(),
+    @src.strand_star(),
+  ])
+  let r = @src.randomize_regions(
+    a,
+    genome,
+    options=@src.RegionPermOptions::of(seed=9),
   )
-  let r = @src.randomize_regions(a, genome, options=@src.RegionPermOptions::of(seed=9))
   assert_eq(r.seqnames[0], "chr1")
   assert_eq(r.seqnames[1], "chr2")
   assert_eq(r.widths[0], 100)
@@ -173,7 +192,11 @@ test "regioner_randomize_multi_chromosome" {
 test "regioner_circular_randomize" {
   let a = rr_make("chr1", [(100, 199), (5000, 5099), (9000, 9099)])
   let genome = rr_genome()
-  let r = @src.circular_randomize_regions(a, genome, options=@src.RegionPermOptions::of(seed=5))
+  let r = @src.circular_randomize_regions(
+    a,
+    genome,
+    options=@src.RegionPermOptions::of(seed=5),
+  )
   assert_eq(@src.granges_length(r), 3)
   let mut i = 0
   while i < 3 {
@@ -184,7 +207,11 @@ test "regioner_circular_randomize" {
     i = i + 1
   }
   // deterministic and different from the input placement
-  let r2 = @src.circular_randomize_regions(a, genome, options=@src.RegionPermOptions::of(seed=5))
+  let r2 = @src.circular_randomize_regions(
+    a,
+    genome,
+    options=@src.RegionPermOptions::of(seed=5),
+  )
   assert_eq(r2.starts, r.starts)
   assert_false(r.starts == a.starts)
 }
@@ -210,15 +237,16 @@ test "regioner_stat_mean_distance" {
   // overlapping regions are at distance 0
   assert_eq(@src.stat_mean_distance(rr_make("chr1", [(350, 380)]), b), 0.0)
   // regions on chromosomes absent from b are skipped
-  let two = @src.granges(
-    ["chr1", "chr2"],
-    [(100, 200), (100, 200)],
-    [@src.strand_star(), @src.strand_star()],
-  )
+  let two = @src.granges(["chr1", "chr2"], [(100, 200), (100, 200)], [
+    @src.strand_star(),
+    @src.strand_star(),
+  ])
   assert_eq(@src.stat_mean_distance(two, b), 99.0)
   // no distances at all -> NaN
   let empty = rr_make("chr2", [])
-  assert_true(@src.stat_mean_distance(rr_make("chr1", [(100, 200)]), empty).is_nan())
+  assert_true(
+    @src.stat_mean_distance(rr_make("chr1", [(100, 200)]), empty).is_nan(),
+  )
 }
 
 ///|
@@ -265,7 +293,13 @@ test "regioner_overlap_perm_test_associated" {
 test "regioner_perm_test_null_and_alternatives" {
   let genome = rr_genome()
   // a: 5 scattered probes, b: a single probe in between
-  let a = rr_make("chr1", [(100, 149), (2000, 2049), (4000, 4049), (6000, 6049), (8000, 8049)])
+  let a = rr_make("chr1", [
+    (100, 149),
+    (2000, 2049),
+    (4000, 4049),
+    (6000, 6049),
+    (8000, 8049),
+  ])
   let b = rr_make("chr1", [(4900, 4949)])
   // with alternative = "less", a low observed overlap is significant
   let res_less = @src.perm_test(
@@ -286,7 +320,11 @@ test "regioner_perm_test_null_and_alternatives" {
     b,
     genome,
     fn(x, y) { @src.stat_num_overlaps(x, y, count_once=true).to_double() },
-    options=@src.RegionPermOptions::of(ntimes=50, seed=3, alternative="two.sided"),
+    options=@src.RegionPermOptions::of(
+      ntimes=50,
+      seed=3,
+      alternative="two.sided",
+    ),
   )
   assert_true(res_two.p_value >= 0.0 && res_two.p_value <= 1.0)
   // invalid alternative and ntimes raise
@@ -328,7 +366,12 @@ test "regioner_perm_test_reproducible" {
   let a = rr_make("chr1", [(100, 199), (300, 399)])
   let b = rr_make("chr1", [(2000, 2049)])
   let run = fn() -> @src.PermTestResult raise {
-    @src.overlap_perm_test(a, b, genome, options=@src.RegionPermOptions::of(ntimes=50, seed=11))
+    @src.overlap_perm_test(
+      a,
+      b,
+      genome,
+      options=@src.RegionPermOptions::of(ntimes=50, seed=11),
+    )
   }
   let r1 = run()
   let r2 = run()
@@ -350,7 +393,7 @@ test "regioner_perm_test_with_mask" {
     a,
     b,
     genome,
-    mask=mask,
+    mask~,
     options=@src.RegionPermOptions::of(ntimes=100, seed=1),
   )
   // randomized regions can never reach b, so the observed overlap of 0 is

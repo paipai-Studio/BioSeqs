@@ -26,7 +26,7 @@ pub struct QuantileNormConfig {
 ///|
 /// Create default quantile normalization config.
 pub fn QuantileNormConfig::new() -> QuantileNormConfig {
-  QuantileNormConfig::{ copy: true, keep_names: true, method: "quantile" }
+  QuantileNormConfig::{ copy: true, keep_names: true, method: "quantile", }
 }
 
 ///|

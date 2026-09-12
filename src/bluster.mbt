@@ -141,7 +141,7 @@ pub fn BlusterKmeansConfig::create(
   if seed <= 0 {
     bluster_fail("bluster random seed must be positive")
   }
-  BlusterKmeansConfig::{ centers, max_iterations, starts, tolerance, seed }
+  BlusterKmeansConfig::{ centers, max_iterations, starts, tolerance, seed, }
 }
 
 ///|
@@ -704,7 +704,7 @@ pub fn bluster_make_snn_graph(
       }
     }
   }
-  BlusterGraph::{ weights, directed: false, k: effective_k, graph_kind: "SNN" }
+  BlusterGraph::{ weights, directed: false, k: effective_k, graph_kind: "SNN", }
 }
 
 ///|
@@ -729,7 +729,7 @@ pub fn bluster_make_knn_graph(
       }
     }
   }
-  BlusterGraph::{ weights, directed, k: effective_k, graph_kind: "KNN" }
+  BlusterGraph::{ weights, directed, k: effective_k, graph_kind: "KNN", }
 }
 
 ///|
@@ -1122,7 +1122,7 @@ pub fn bluster_cluster_rows_graph(
     config.max_iterations,
     config.seed,
   )
-  BlusterGraphClusterResult::{ clusters, graph, modularity, iterations }
+  BlusterGraphClusterResult::{ clusters, graph, modularity, iterations, }
 }
 
 ///|
@@ -1399,7 +1399,11 @@ pub fn bluster_approx_silhouette(
       }
     }
   }
-  BlusterSilhouetteResult::{ clusters: clusters.copy(), other_clusters, widths }
+  BlusterSilhouetteResult::{
+    clusters: clusters.copy(),
+    other_clusters,
+    widths,
+  }
 }
 
 ///|
@@ -1440,7 +1444,7 @@ pub fn bluster_cluster_rmsd(
       }
     }
   }
-  BlusterClusterMetric::{ cluster_names: names, values }
+  BlusterClusterMetric::{ cluster_names: names, values, }
 }
 
 ///|
@@ -1546,7 +1550,7 @@ pub fn bluster_neighbor_purity(
     purity[observation] = if total > 0.0 { totals[own] / total } else { 0.0 }
     maximum_clusters[observation] = names[maximum]
   }
-  BlusterPurityResult::{ purity, maximum_clusters, radius }
+  BlusterPurityResult::{ purity, maximum_clusters, radius, }
 }
 
 ///|
@@ -1927,5 +1931,5 @@ pub fn bluster_cluster_sce(
   output.metadata["bluster.reduced_dim"] = reduced_dim_name
   output.metadata["bluster.graph"] = clustering.graph.graph_kind
   output.metadata["bluster.modularity"] = clustering.modularity.to_string()
-  BlusterSceOutput::{ experiment: output, clustering }
+  BlusterSceOutput::{ experiment: output, clustering, }
 }

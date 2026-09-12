@@ -33,7 +33,7 @@ pub struct Overlap {
 
 ///|
 pub fn Overlap::new(from : Int, to : Int, overlap_len : Int) -> Overlap {
-  Overlap::{ from, to, overlap_len }
+  Overlap::{ from, to, overlap_len, }
 }
 
 ///|

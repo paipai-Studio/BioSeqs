@@ -339,7 +339,7 @@ pub fn parse_wig(content : String) -> Array[WigRecord] {
     } else {
       WigType::VariableStep(current_chrom, current_span)
     }
-    records.push(WigRecord::{ wig_type, positions, values })
+    records.push(WigRecord::{ wig_type, positions, values, })
   }
 
   records

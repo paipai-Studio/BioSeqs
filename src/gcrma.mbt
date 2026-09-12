@@ -56,7 +56,7 @@ pub struct ProbeInfo {
 pub fn ProbeInfo::new(probe_id : String, sequence : String) -> ProbeInfo {
   let gc_count = oligo_gc_count(sequence)
   let affinity = estimate_affinity(sequence)
-  ProbeInfo::{ probe_id, gc_count, sequence, affinity }
+  ProbeInfo::{ probe_id, gc_count, sequence, affinity, }
 }
 
 ///|
@@ -67,7 +67,7 @@ pub fn ProbeInfo::with_values(
   sequence : String,
   affinity : Double,
 ) -> ProbeInfo {
-  ProbeInfo::{ probe_id, gc_count, sequence, affinity }
+  ProbeInfo::{ probe_id, gc_count, sequence, affinity, }
 }
 
 // ---------------------------------------------------------------------------

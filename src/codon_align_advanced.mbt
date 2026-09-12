@@ -63,7 +63,9 @@ fn caa_ng86_components(
     caa_fail("CodonAlign advanced requires equal-length sequences")
   }
   if len1 % 3 != 0 {
-    caa_fail("CodonAlign advanced requires codon-aligned (multiple-of-3) sequences")
+    caa_fail(
+      "CodonAlign advanced requires codon-aligned (multiple-of-3) sequences",
+    )
   }
   let n_codons_total = len1 / 3
   let mut s_sites = 0.0
@@ -77,15 +79,16 @@ fn caa_ng86_components(
     let codon1 = seq1[start:start + 3].to_owned()
     let codon2 = seq2[start:start + 3].to_owned()
     // Skip codon pairs containing gaps or stop codons.
-    if !is_stop_codon(codon1) && !is_stop_codon(codon2) && codon1.length() == 3 && codon2.length() == 3 {
+    if !is_stop_codon(codon1) &&
+      !is_stop_codon(codon2) &&
+      codon1.length() == 3 &&
+      codon2.length() == 3 {
       let (s1, ns1) = count_codon_sites(codon1)
       let (s2, ns2) = count_codon_sites(codon2)
       s_sites = s_sites + (s1 + s2) / 2.0
       ns_sites = ns_sites + (ns1 + ns2) / 2.0
       match classify_codon_substitution(codon1, codon2) {
-        Synonymous => if codon1 != codon2 {
-          s_diff = s_diff + 1
-        }
+        Synonymous => if codon1 != codon2 { s_diff = s_diff + 1 }
         NonSynonymous => ns_diff = ns_diff + 1
         Unknown => ()
       }
@@ -97,11 +100,7 @@ fn caa_ng86_components(
     caa_fail("CodonAlign advanced found no analysable codon pairs")
   }
   let p_s = if s_sites > 0.0 { s_diff.to_double() / s_sites } else { 0.0 }
-  let p_n = if ns_sites > 0.0 {
-    ns_diff.to_double() / ns_sites
-  } else {
-    0.0
-  }
+  let p_n = if ns_sites > 0.0 { ns_diff.to_double() / ns_sites } else { 0.0 }
   let d_s = jukes_cantor_correction(p_s)
   let d_n = jukes_cantor_correction(p_n)
   CaaNg86Components::{
@@ -128,9 +127,11 @@ fn caa_normal_cdf(x : Double) -> Double {
   let d = 0.3989422804014327 * @math.exp(-x * x / 2.0)
   let p = d *
     t *
-    (0.31938153 +
-    t *
-      (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429))))
+    (
+      0.31938153 +
+      t *
+      (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429)))
+    )
   if x > 0.0 {
     1.0 - p
   } else {
@@ -219,12 +220,12 @@ pub fn codon_test_selection(
   let nn = comps.n_sites
   let sn = comps.s_sites
   // Variance under Jukes-Cantor correction (Nei & Gojobori 1986, eq. 6).
-  let v_dn = if nn > 0.0 && (1.0 - 4.0 * p_n / 3.0) > 0.0 {
+  let v_dn = if nn > 0.0 && 1.0 - 4.0 * p_n / 3.0 > 0.0 {
     p_n * (1.0 - p_n) / (nn * (1.0 - 4.0 * p_n / 3.0) * (1.0 - 4.0 * p_n / 3.0))
   } else {
     0.0
   }
-  let v_ds = if sn > 0.0 && (1.0 - 4.0 * p_s / 3.0) > 0.0 {
+  let v_ds = if sn > 0.0 && 1.0 - 4.0 * p_s / 3.0 > 0.0 {
     p_s * (1.0 - p_s) / (sn * (1.0 - 4.0 * p_s / 3.0) * (1.0 - 4.0 * p_s / 3.0))
   } else {
     0.0
@@ -263,11 +264,12 @@ pub fn codon_test_selection(
     match test_type {
       "positive" => "significant positive selection (dN > dS)"
       "purifying" => "significant purifying selection (dN < dS)"
-      _ => if z_score > 0.0 {
-        "significant positive selection (dN > dS)"
-      } else {
-        "significant purifying selection (dN < dS)"
-      }
+      _ =>
+        if z_score > 0.0 {
+          "significant positive selection (dN > dS)"
+        } else {
+          "significant purifying selection (dN < dS)"
+        }
     }
   } else {
     "not significant (consistent with neutrality)"
@@ -339,10 +341,10 @@ fn caa_fisher_exact(
   let col1 = a + c // D  (total differences)
   // Haldane–Anscombe correction for odds ratio when a cell is zero.
   let odds_ratio = if b == 0 || c == 0 || d == 0 || a == 0 {
-    let a2 = (a.to_double() + 0.5)
-    let b2 = (b.to_double() + 0.5)
-    let c2 = (c.to_double() + 0.5)
-    let d2 = (d.to_double() + 0.5)
+    let a2 = a.to_double() + 0.5
+    let b2 = b.to_double() + 0.5
+    let c2 = c.to_double() + 0.5
+    let d2 = d.to_double() + 0.5
     a2 * d2 / (b2 * c2)
   } else {
     a.to_double() * d.to_double() / (b.to_double() * c.to_double())
@@ -394,37 +396,51 @@ pub struct CodonNeutralityTestResult {
 } derive(Debug)
 
 ///|
-pub fn CodonNeutralityTestResult::p_value(self : CodonNeutralityTestResult) -> Double {
+pub fn CodonNeutralityTestResult::p_value(
+  self : CodonNeutralityTestResult,
+) -> Double {
   self.p_value
 }
 
 ///|
-pub fn CodonNeutralityTestResult::odds_ratio(self : CodonNeutralityTestResult) -> Double {
+pub fn CodonNeutralityTestResult::odds_ratio(
+  self : CodonNeutralityTestResult,
+) -> Double {
   self.odds_ratio
 }
 
 ///|
-pub fn CodonNeutralityTestResult::n_diff(self : CodonNeutralityTestResult) -> Int {
+pub fn CodonNeutralityTestResult::n_diff(
+  self : CodonNeutralityTestResult,
+) -> Int {
   self.n_diff
 }
 
 ///|
-pub fn CodonNeutralityTestResult::s_diff(self : CodonNeutralityTestResult) -> Int {
+pub fn CodonNeutralityTestResult::s_diff(
+  self : CodonNeutralityTestResult,
+) -> Int {
   self.s_diff
 }
 
 ///|
-pub fn CodonNeutralityTestResult::n_sites(self : CodonNeutralityTestResult) -> Double {
+pub fn CodonNeutralityTestResult::n_sites(
+  self : CodonNeutralityTestResult,
+) -> Double {
   self.n_sites
 }
 
 ///|
-pub fn CodonNeutralityTestResult::s_sites(self : CodonNeutralityTestResult) -> Double {
+pub fn CodonNeutralityTestResult::s_sites(
+  self : CodonNeutralityTestResult,
+) -> Double {
   self.s_sites
 }
 
 ///|
-pub fn CodonNeutralityTestResult::test_type(self : CodonNeutralityTestResult) -> String {
+pub fn CodonNeutralityTestResult::test_type(
+  self : CodonNeutralityTestResult,
+) -> String {
   self.test_type
 }
 
@@ -468,11 +484,12 @@ pub fn codon_test_neutrality(
     match test_type {
       "greater" => "significant positive selection (reject neutrality)"
       "less" => "significant purifying selection (reject neutrality)"
-      _ => if odds_ratio > 1.0 {
-        "significant positive selection (reject neutrality)"
-      } else {
-        "significant purifying selection (reject neutrality)"
-      }
+      _ =>
+        if odds_ratio > 1.0 {
+          "significant positive selection (reject neutrality)"
+        } else {
+          "significant purifying selection (reject neutrality)"
+        }
     }
   } else {
     "not significant (consistent with neutrality)"
@@ -543,7 +560,9 @@ pub fn build_codon_alignment(
   let aln_len = protein_aln[0].length()
   for i in 0..<n_seqs {
     if protein_aln[i].length() != aln_len {
-      caa_fail("CodonAlign advanced builder: protein alignment rows have different lengths")
+      caa_fail(
+        "CodonAlign advanced builder: protein alignment rows have different lengths",
+      )
     }
   }
   let seq_names : Array[String] = []
@@ -609,7 +628,7 @@ pub fn build_codon_alignment(
     }
     aligned.push(codon_seq)
   }
-  CodonAlignment::{ sequences: aligned, names: seq_names, n_codons: aln_len }
+  CodonAlignment::{ sequences: aligned, names: seq_names, n_codons: aln_len, }
 }
 
 // ===========================================================================
@@ -664,7 +683,9 @@ pub struct SlidingWindowResult {
 } derive(Debug)
 
 ///|
-pub fn SlidingWindowResult::windows(self : SlidingWindowResult) -> Array[WindowDnDs] {
+pub fn SlidingWindowResult::windows(
+  self : SlidingWindowResult,
+) -> Array[WindowDnDs] {
   self.windows
 }
 
@@ -689,7 +710,9 @@ pub fn sliding_window_dnds(
   let len1 = seq1.length()
   let len2 = seq2.length()
   if len1 != len2 || len1 % 3 != 0 {
-    caa_fail("CodonAlign advanced sliding window requires equal codon-aligned sequences")
+    caa_fail(
+      "CodonAlign advanced sliding window requires equal codon-aligned sequences",
+    )
   }
   let n_codons_total = len1 / 3
   let windows : Array[WindowDnDs] = []
@@ -719,20 +742,18 @@ pub fn sliding_window_dnds(
       } else {
         comps.dn / comps.ds
       }
-      windows.push(
-        WindowDnDs::{
-          start_codon: start,
-          end_codon: end,
-          dn: comps.dn,
-          ds: comps.ds,
-          dnds,
-          n_codons: comps.n_codons,
-        },
-      )
+      windows.push(WindowDnDs::{
+        start_codon: start,
+        end_codon: end,
+        dn: comps.dn,
+        ds: comps.ds,
+        dnds,
+        n_codons: comps.n_codons,
+      })
     }
     start = start + step_size
   }
-  SlidingWindowResult::{ windows }
+  SlidingWindowResult::{ windows, }
 }
 
 // ===========================================================================
@@ -750,13 +771,7 @@ pub fn codon_align_advanced_bh_fdr(p_values : Array[Double]) -> Array[Double] {
   let indexed : Array[(Double, Int)] = []
   for index in 0..<count {
     let pv = p_values[index]
-    let clamped = if pv < 0.0 {
-      0.0
-    } else if pv > 1.0 {
-      1.0
-    } else {
-      pv
-    }
+    let clamped = if pv < 0.0 { 0.0 } else if pv > 1.0 { 1.0 } else { pv }
     indexed.push((clamped, index))
   }
   indexed.sort_by(fn(left : (Double, Int), right : (Double, Int)) -> Int {
@@ -898,19 +913,17 @@ pub fn pairwise_kaks_table(
     } else {
       "not significant"
     }
-    rows.push(
-      KaksTableRow::{
-        seq1_name: seq_names[si],
-        seq2_name: seq_names[sj],
-        dn: result.dn,
-        ds: result.ds,
-        dnds: result.dnds,
-        z_score: result.z_score,
-        p_value: result.p_value,
-        fdr: f,
-        conclusion,
-      },
-    )
+    rows.push(KaksTableRow::{
+      seq1_name: seq_names[si],
+      seq2_name: seq_names[sj],
+      dn: result.dn,
+      ds: result.ds,
+      dnds: result.dnds,
+      z_score: result.z_score,
+      p_value: result.p_value,
+      fdr: f,
+      conclusion,
+    })
   }
   rows
 }
@@ -925,9 +938,7 @@ pub fn create_purifying_selection_alignment() -> Array[String] {
   // 9-codon (27 nt) sequences: M-A-L-K-W-Q-Q-P-W
   // Only synonymous codon switches across the variants.
   [
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
-    "ATGGCGCTCAAATGGCAGCAGCCATGG",
-    "ATGGCCCTGAAATGGCAGCAGCGATGG",
+    "ATGGCCCTGAAATGGCAGCAGCCATGG", "ATGGCGCTCAAATGGCAGCAGCCATGG", "ATGGCCCTGAAATGGCAGCAGCGATGG",
     "ATGGCCCTCAAATGGCAGCAGCCATGG",
   ]
 }
@@ -939,15 +950,9 @@ pub fn create_positive_selection_alignment() -> Array[String] {
   // Seq1: M A L K W Q Q P W
   // Seq2: M G L E R H P S M  (7 nonsyn, 2 syn)
   [
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
-    "ATGGGTCTGGAGAGACACCCCAGCATG",
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
-    "ATGGGTCTGGAGAGACACCCCAGCATG",
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
-    "ATGGGTCTGGAGAGACACCCCAGCATG",
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
-    "ATGGGTCTGGAGAGACACCCCAGCATG",
-    "ATGGCCCTGAAATGGCAGCAGCCATGG",
+    "ATGGCCCTGAAATGGCAGCAGCCATGG", "ATGGGTCTGGAGAGACACCCCAGCATG", "ATGGCCCTGAAATGGCAGCAGCCATGG",
+    "ATGGGTCTGGAGAGACACCCCAGCATG", "ATGGCCCTGAAATGGCAGCAGCCATGG", "ATGGGTCTGGAGAGACACCCCAGCATG",
+    "ATGGCCCTGAAATGGCAGCAGCCATGG", "ATGGGTCTGGAGAGACACCCCAGCATG", "ATGGCCCTGAAATGGCAGCAGCCATGG",
     "ATGGGTCTGGAGAGACACCCCAGCATG",
   ]
 }
@@ -959,8 +964,8 @@ pub fn create_demo_protein_alignment() -> (Array[String], Array[String]) {
   let protein_aln = ["M-A-K", "MTASK", "M-ASK"]
   let coding_seqs = [
     "ATGGCCAAG", // M-A-K → 3 codons (gaps at positions 2, 4)
-    "ATGACCGCCAGCAAG", // MTASK → 5 codons
-    "ATGGCCAGCAAG", // M-ASK → 4 codons (gap at position 2)
+     "ATGACCGCCAGCAAG", // MTASK → 5 codons
+     "ATGGCCAGCAAG", // M-ASK → 4 codons (gap at position 2)
   ]
   (protein_aln, coding_seqs)
 }

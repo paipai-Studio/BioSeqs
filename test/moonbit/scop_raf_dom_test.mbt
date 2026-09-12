@@ -13,7 +13,14 @@ fn raf_line(
   flags : String,
   residues : Array[(String, String, String)],
 ) -> String {
-  let mut line = pdbid + chainid + " " + version + "    " + "26JUN9" + " " + flags
+  let mut line = pdbid +
+    chainid +
+    " " +
+    version +
+    "    " +
+    "26JUN9" +
+    " " +
+    flags
   // pad the header to 38 columns
   while line.length() < 38 {
     line = line + " "
@@ -32,13 +39,12 @@ fn raf_line(
 
 ///|
 test "scop_raf_seqmap_parse_fields" {
-  let line = raf_line(
-    "1sct",
-    "A",
-    "0.01",
-    "150212",
-    [("1", "A", "A"), ("2", "G", "G"), ("10A", "K", "K"), ("11", "R", "R")],
-  )
+  let line = raf_line("1sct", "A", "0.01", "150212", [
+    ("1", "A", "A"),
+    ("2", "G", "G"),
+    ("10A", "K", "K"),
+    ("11", "R", "R"),
+  ])
   let sm = @src.scop_raf_seqmap_parse(line)
   assert_eq(sm.pdbid, "1sct")
   assert_eq(sm.pdb_datestamp, "26JUN9")
@@ -59,13 +65,10 @@ test "scop_raf_seqmap_parse_fields" {
 ///|
 test "scop_raf_seqmap_normalize_unknown" {
   // "." means unknown in RAF and is normalized to X; letters are uppercased
-  let line = raf_line(
-    "1xyz",
-    "_",
-    "0.02",
-    "      ",
-    [("1", ".", "a"), ("2", "x", "X")],
-  )
+  let line = raf_line("1xyz", "_", "0.02", "      ", [
+    ("1", ".", "a"),
+    ("2", "x", "X"),
+  ])
   let sm = @src.scop_raf_seqmap_parse(line)
   assert_eq(sm.version, "0.02")
   assert_eq(sm.get(0).atom, "X")
@@ -90,13 +93,12 @@ test "scop_raf_seqmap_version_check" {
 
 ///|
 test "scop_raf_seqmap_index_and_slice" {
-  let line = raf_line(
-    "1sct",
-    "A",
-    "0.01",
-    "150212",
-    [("1", "A", "A"), ("2", "G", "G"), ("10A", "K", "K"), ("11", "R", "R")],
-  )
+  let line = raf_line("1sct", "A", "0.01", "150212", [
+    ("1", "A", "A"),
+    ("2", "G", "G"),
+    ("10A", "K", "K"),
+    ("11", "R", "R"),
+  ])
   let sm = @src.scop_raf_seqmap_parse(line)
   // Biopython's SeqMap.index defaults to the blank "_" chain, so the
   // chain id must be given explicitly for chain "A" residues.
@@ -151,19 +153,14 @@ test "scop_raf_seqmap_extend_and_flags" {
 
 ///|
 test "scop_raf_index_and_get_seqmap" {
-  let raf_text = raf_line(
-    "1sct",
-    "A",
-    "0.01",
-    "150212",
-    [("1", "A", "A"), ("2", "G", "G"), ("10A", "K", "K"), ("11", "R", "R")],
-  ) + "\n" + raf_line(
-    "1flp",
-    "_",
-    "0.01",
-    "150212",
-    [("5", "D", "D"), ("6", "E", "E")],
-  )
+  let raf_text = raf_line("1sct", "A", "0.01", "150212", [
+      ("1", "A", "A"),
+      ("2", "G", "G"),
+      ("10A", "K", "K"),
+      ("11", "R", "R"),
+    ]) +
+    "\n" +
+    raf_line("1flp", "_", "0.01", "150212", [("5", "D", "D"), ("6", "E", "E")])
   let index = @src.scop_raf_index(raf_text)
   // fragment cut: residues 2 to 10A of chain A
   let residues = @src.scop_parse_residues("1sct A:2-10A")
@@ -186,10 +183,7 @@ test "scop_raf_index_and_get_seqmap" {
   assert_eq(unnamed.get(0).resid, "5")
   // unknown key raises
   let r = try {
-    let _ = @src.scop_raf_get_seqmap(
-      index,
-      @src.scop_parse_residues("9xyz A:"),
-    )
+    let _ = @src.scop_raf_get_seqmap(index, @src.scop_parse_residues("9xyz A:"))
     false
   } catch {
     ScopRafError(msg) => msg == "RAF record not found for 9xyzA"
@@ -199,18 +193,13 @@ test "scop_raf_index_and_get_seqmap" {
 
 ///|
 test "scop_raf_get_atoms" {
-  let raf_text = raf_line(
-    "1sct",
-    "A",
-    "0.01",
-    "150212",
-    [("1", "A", "A"), ("2", "G", "G"), ("10A", "K", "K")],
-  )
+  let raf_text = raf_line("1sct", "A", "0.01", "150212", [
+    ("1", "A", "A"),
+    ("2", "G", "G"),
+    ("10A", "K", "K"),
+  ])
   let index = @src.scop_raf_index(raf_text)
-  let sm = @src.scop_raf_get_seqmap(
-    index,
-    @src.scop_parse_residues("1sct A:"),
-  )
+  let sm = @src.scop_raf_get_seqmap(index, @src.scop_parse_residues("1sct A:"))
   let pdb = "ATOM      1  N   ALA A   1      11.104   6.134  -6.504  1.00 12.79           N\nATOM      2  CA  GLY A   2      10.2     6.9    -6.0    1.00 13.00           C\nATOM      3  N   LYS A  10A     12.0     7.0    -5.0    1.00 14.00           N\nHETATM    4  O   HOH A  99      30.0    30.0    30.0    1.00 20.00           O\nEND\n"
   let out = @src.scop_raf_get_atoms(sm, pdb)
   let lines = @src.split_by_char(out, '\n'.to_int())
@@ -234,44 +223,30 @@ test "scop_raf_get_atoms" {
 
 ///|
 test "scop_raf_get_atoms_missing_residue" {
-  let raf_text = raf_line(
-    "1sct",
-    "A",
-    "0.01",
-    "150212",
-    [("1", "A", "A"), ("2", "G", "G")],
-  )
+  let raf_text = raf_line("1sct", "A", "0.01", "150212", [
+    ("1", "A", "A"),
+    ("2", "G", "G"),
+  ])
   let index = @src.scop_raf_index(raf_text)
-  let sm = @src.scop_raf_get_seqmap(
-    index,
-    @src.scop_parse_residues("1sct A:"),
-  )
+  let sm = @src.scop_raf_get_seqmap(index, @src.scop_parse_residues("1sct A:"))
   // the GLY 2 ATOM record is missing
   let pdb = "ATOM      1  N   ALA A   1      11.104   6.134  -6.504  1.00 12.79           N\nEND\n"
   let r = try {
     let _ = @src.scop_raf_get_atoms(sm, pdb)
     false
   } catch {
-    ScopRafError(msg) => msg.contains("Could not find at least one ATOM or HETATM")
+    ScopRafError(msg) =>
+      msg.contains("Could not find at least one ATOM or HETATM")
   }
   assert_true(r)
 }
 
 ///|
 test "scop_raf_parse_multi_line" {
-  let text = raf_line(
-    "1sct",
-    "A",
-    "0.01",
-    "150212",
-    [("1", "A", "A")],
-  ) + "\n\n" + raf_line(
-    "1flp",
-    "_",
-    "0.01",
-    "150212",
-    [("5", "D", "D")],
-  ) + "\n"
+  let text = raf_line("1sct", "A", "0.01", "150212", [("1", "A", "A")]) +
+    "\n\n" +
+    raf_line("1flp", "_", "0.01", "150212", [("5", "D", "D")]) +
+    "\n"
   let maps = @src.scop_raf_parse(text)
   assert_eq(maps.length(), 2)
   assert_eq(maps[0].pdbid, "1sct")
@@ -294,15 +269,9 @@ test "scop_dom_parse_and_roundtrip" {
   assert_eq(rec.residues.fragments()[0].chain, "g")
   assert_eq(rec.hierarchy, "1.001.001.001.001.001")
   // round-trip: to_string reproduces the input line (tabs, trailing newline)
-  assert_eq(
-    rec.to_string(),
-    "d1sctg_\t1sct\tg:\t1.001.001.001.001.001\n",
-  )
+  assert_eq(rec.to_string(), "d1sctg_\t1sct\tg:\t1.001.001.001.001.001\n")
   // "-" residues keep their dash
-  assert_eq(
-    records[1].to_string(),
-    "d1flp__\t1flp\t-\t1.001.001.001.001.002\n",
-  )
+  assert_eq(records[1].to_string(), "d1flp__\t1flp\t-\t1.001.001.001.001.002\n")
 }
 
 ///|

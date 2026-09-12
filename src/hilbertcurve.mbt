@@ -11,7 +11,7 @@ pub struct HilbertCurve {
 ///|
 pub fn HilbertCurve::new(levels : Int, dimension : Int) -> HilbertCurve {
   let max_coord = (1 << levels) - 1
-  HilbertCurve::{ levels, dimension, max_coordinate: max_coord }
+  HilbertCurve::{ levels, dimension, max_coordinate: max_coord, }
 }
 
 ///|

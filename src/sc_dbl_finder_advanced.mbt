@@ -735,7 +735,7 @@ pub fn scdf_generate_artificial_doublets(
       },
     )
   }
-  ScDblFinderArtificialData::{ counts, names, parent_one, parent_two, origins }
+  ScDblFinderArtificialData::{ counts, names, parent_one, parent_two, origins, }
 }
 
 ///|
@@ -2154,7 +2154,7 @@ pub fn sc_dbl_finder_single_cell_experiment(
   output.metadata[output_prefix + ".doublets"] = result.n_doublets().to_string()
   output.metadata[output_prefix + ".rate"] = result.doublet_rate().to_string()
   output.metadata[output_prefix + ".artificial"] = result.artificial_doublets.to_string()
-  ScDblFinderSingleCellExperimentOutput::{ experiment: output, result }
+  ScDblFinderSingleCellExperimentOutput::{ experiment: output, result, }
 }
 
 ///|

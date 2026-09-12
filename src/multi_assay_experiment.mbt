@@ -21,7 +21,7 @@ pub fn Experiment::new(
   row_names~ : Array[String],
   col_names~ : Array[String],
 ) -> Experiment {
-  Experiment::{ name, assay_type, data, row_names, col_names }
+  Experiment::{ name, assay_type, data, row_names, col_names, }
 }
 
 ///|
@@ -55,7 +55,7 @@ pub fn SampleMap::new(
   primary_ids~ : Array[String],
   colnames~ : Array[String],
 ) -> SampleMap {
-  SampleMap::{ assays, primary_ids, colnames }
+  SampleMap::{ assays, primary_ids, colnames, }
 }
 
 ///|
@@ -93,7 +93,7 @@ pub fn MultiAssayExperiment::new(
   col_data~ : Array[(String, Map[String, String])],
   metadata? : Map[String, String] = Map([]),
 ) -> MultiAssayExperiment {
-  MultiAssayExperiment::{ experiments, sample_map, col_data, metadata }
+  MultiAssayExperiment::{ experiments, sample_map, col_data, metadata, }
 }
 
 ///|

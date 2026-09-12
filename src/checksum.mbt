@@ -12,7 +12,7 @@ pub fn CheckSumResult::new(
   checksum : String,
   method : String,
 ) -> CheckSumResult {
-  CheckSumResult::{ checksum, method }
+  CheckSumResult::{ checksum, method, }
 }
 
 ///|

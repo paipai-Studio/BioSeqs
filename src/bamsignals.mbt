@@ -137,7 +137,7 @@ pub fn BamsigRegion::new(
   end : Int,
   id : String,
 ) -> BamsigRegion {
-  BamsigRegion::{ chrom, start, end, id }
+  BamsigRegion::{ chrom, start, end, id, }
 }
 
 ///|
@@ -203,7 +203,16 @@ pub fn BamsigRecord::new(
   is_paired : Bool,
   is_first : Bool,
 ) -> BamsigRecord {
-  BamsigRecord::{ chrom, pos, cigar, strand, mapq, is_dup, is_paired, is_first }
+  BamsigRecord::{
+    chrom,
+    pos,
+    cigar,
+    strand,
+    mapq,
+    is_dup,
+    is_paired,
+    is_first,
+  }
 }
 
 ///|
@@ -257,7 +266,7 @@ pub fn BamsigSignal::new(
   norm_counts : Array[Array[Double]],
   total_reads : Array[Double],
 ) -> BamsigSignal {
-  BamsigSignal::{ region_ids, counts, norm_counts, total_reads }
+  BamsigSignal::{ region_ids, counts, norm_counts, total_reads, }
 }
 
 ///|

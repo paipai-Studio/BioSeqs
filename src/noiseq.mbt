@@ -126,7 +126,7 @@ pub fn NOISeqSample::new(
   sample_id : String,
   condition : String,
 ) -> NOISeqSample {
-  NOISeqSample::{ sample_id, condition, counts: Map::new() }
+  NOISeqSample::{ sample_id, condition, counts: Map::new(), }
 }
 
 ///|

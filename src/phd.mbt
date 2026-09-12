@@ -136,7 +136,7 @@ pub fn PhdBase::new(
   quality : Int,
   peak_position : Int,
 ) -> PhdBase {
-  { base, quality, peak_position }
+  { base, quality, peak_position, }
 }
 
 ///|
@@ -172,7 +172,7 @@ pub fn PhdRead::new(
   bases : Array[PhdBase],
   comment : PhdComment,
 ) -> PhdRead {
-  { name, bases, comment }
+  { name, bases, comment, }
 }
 
 ///|

@@ -448,7 +448,7 @@ pub fn SpatialDeconCellMerge::create(
     )
   }
   sd_validate_names(members, "SpatialDecon merge members")
-  SpatialDeconCellMerge::{ name, members: members.copy() }
+  SpatialDeconCellMerge::{ name, members: members.copy(), }
 }
 
 ///|
@@ -621,7 +621,7 @@ fn sd_derivatives(
       }
     }
   }
-  SdDerivatives::{ objective, gradient, hessian, expected_hessian, fitted }
+  SdDerivatives::{ objective, gradient, hessian, expected_hessian, fitted, }
 }
 
 ///|
@@ -2078,7 +2078,7 @@ pub fn spatial_decon_spatial_experiment(
     }
   }
   enriched.metadata["spatialdecon_converged"] = converged_count.to_string()
-  SpatialDeconSpatialExperimentOutput::{ experiment: enriched, result }
+  SpatialDeconSpatialExperimentOutput::{ experiment: enriched, result, }
 }
 
 ///|

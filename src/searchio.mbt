@@ -461,7 +461,7 @@ pub fn SearchIOHit::new(
   description~ : String,
   seq_length~ : Int,
 ) -> SearchIOHit {
-  SearchIOHit::{ id, description, seq_length, hsps: Array::new() }
+  SearchIOHit::{ id, description, seq_length, hsps: Array::new(), }
 }
 
 ///|
@@ -694,7 +694,7 @@ pub fn SearchIOIterator::new(
   format : SearchIOFormat,
 ) -> SearchIOIterator {
   let lines = split_lines(content)
-  SearchIOIterator::{ lines, position: 0, format, initialized: false }
+  SearchIOIterator::{ lines, position: 0, format, initialized: false, }
 }
 
 ///|

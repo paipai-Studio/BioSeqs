@@ -9,16 +9,14 @@
 fn tgw_make_client(
   responses : Map[String, String],
   calls : Array[String],
-  posts : Array[Option[String]],
+  posts : Array[String?],
 ) -> @src.TogoWSClient raise {
-  @src.TogoWSClient::new(
-    fetch=fn(url : String, post : Option[String]) -> String {
-      calls.push(url)
-      posts.push(post)
-      // every URL used in the tests has a canned response
-      responses.get(url).unwrap_or("")
-    },
-  )
+  @src.TogoWSClient::new(fetch=fn(url : String, post : String?) -> String {
+    calls.push(url)
+    posts.push(post)
+    // every URL used in the tests has a canned response
+    responses.get(url).unwrap_or("")
+  })
 }
 
 ///|
@@ -26,10 +24,7 @@ fn tgw_make_client(
 fn tgw_default_responses() -> Map[String, String] {
   let m : Map[String, String] = Map([], capacity=16)
   m.set("http://togows.dbcls.jp/entry", "pubmed nuccore uniprot compound")
-  m.set(
-    "http://togows.dbcls.jp/entry/pubmed?fields",
-    "abstract authors title",
-  )
+  m.set("http://togows.dbcls.jp/entry/pubmed?fields", "abstract authors title")
   m.set("http://togows.dbcls.jp/entry/pubmed?formats", "xml json medline")
   m.set("http://togows.dbcls.jp/convert/", "genbank.fasta fasta.genbank")
   m
@@ -38,10 +33,7 @@ fn tgw_default_responses() -> Map[String, String] {
 ///|
 test "togows_quote_basic" {
   // unreserved characters are kept
-  assert_eq(
-    @src.togows_quote(text="abcXYZ0189._-~"),
-    "abcXYZ0189._-~",
-  )
+  assert_eq(@src.togows_quote(text="abcXYZ0189._-~"), "abcXYZ0189._-~")
   // space is percent encoded
   assert_eq(@src.togows_quote(text="hello world"), "hello%20world")
   // default safe is "/" (like the original module's usage)
@@ -82,7 +74,12 @@ test "togows_url_builders" {
     "http://togows.dbcls.jp/search/pubmed/diabetes%20human/count",
   )
   assert_eq(
-    @src.togows_search_url(db="pubmed", query="diabetes human", offset=1, limit=100),
+    @src.togows_search_url(
+      db="pubmed",
+      query="diabetes human",
+      offset=1,
+      limit=100,
+    ),
     "http://togows.dbcls.jp/search/pubmed/diabetes%20human/1,100",
   )
   assert_eq(
@@ -136,32 +133,19 @@ test "togows_search_url_validation" {
 ///|
 test "togows_entry_client" {
   let calls : Array[String] = []
-  let posts : Array[Option[String]] = []
+  let posts : Array[String?] = []
   let responses = tgw_default_responses()
   responses.set(
-    "http://togows.dbcls.jp/entry/pubmed/123.xml",
-    "<xml>record</xml>",
+    "http://togows.dbcls.jp/entry/pubmed/123.xml", "<xml>record</xml>",
   )
-  responses.set(
-    "http://togows.dbcls.jp/entry/pubmed/123/title",
-    "Some title",
-  )
+  responses.set("http://togows.dbcls.jp/entry/pubmed/123/title", "Some title")
   let client = tgw_make_client(responses, calls, posts)
   // plain fetch with format; the db list is requested first
   let body = client.entry(db="pubmed", id="123", format="xml")
   assert_eq(body, "<xml>record</xml>")
-  assert_eq(
-    calls[0],
-    "http://togows.dbcls.jp/entry",
-  )
-  assert_eq(
-    calls[1],
-    "http://togows.dbcls.jp/entry/pubmed?formats",
-  )
-  assert_eq(
-    calls[2],
-    "http://togows.dbcls.jp/entry/pubmed/123.xml",
-  )
+  assert_eq(calls[0], "http://togows.dbcls.jp/entry")
+  assert_eq(calls[1], "http://togows.dbcls.jp/entry/pubmed?formats")
+  assert_eq(calls[2], "http://togows.dbcls.jp/entry/pubmed/123.xml")
   // field extraction; the fields list is fetched and the URL gains /title
   let title = client.entry(db="pubmed", id="123", field="title")
   assert_eq(title, "Some title")
@@ -187,7 +171,7 @@ test "togows_entry_client" {
 ///|
 test "togows_entry_validation" {
   let calls : Array[String] = []
-  let posts : Array[Option[String]] = []
+  let posts : Array[String?] = []
   let client = tgw_make_client(tgw_default_responses(), calls, posts)
   // unsupported database
   let r1 = try {
@@ -195,7 +179,8 @@ test "togows_entry_validation" {
     false
   } catch {
     TogoError(msg) =>
-      msg == "TogoWS entry fetch does not officially support database 'nosuchdb'."
+      msg ==
+      "TogoWS entry fetch does not officially support database 'nosuchdb'."
   }
   assert_true(r1)
   // unsupported field: the sorted field list is part of the message
@@ -223,11 +208,10 @@ test "togows_entry_validation" {
 ///|
 test "togows_search_count" {
   let calls : Array[String] = []
-  let posts : Array[Option[String]] = []
+  let posts : Array[String?] = []
   let responses : Map[String, String] = Map([], capacity=8)
   responses.set(
-    "http://togows.dbcls.jp/search/pubmed/diabetes%20human/count",
-    "1234\n",
+    "http://togows.dbcls.jp/search/pubmed/diabetes%20human/count", "1234\n",
   )
   let client = tgw_make_client(responses, calls, posts)
   assert_eq(client.search_count(db="pubmed", query="diabetes human"), 1234)
@@ -237,17 +221,15 @@ test "togows_search_count" {
   )
   // empty response
   let responses2 : Map[String, String] = Map([], capacity=8)
-  responses2.set(
-    "http://togows.dbcls.jp/search/pubmed/x/count",
-    "",
-  )
+  responses2.set("http://togows.dbcls.jp/search/pubmed/x/count", "")
   let client2 = tgw_make_client(responses2, [], [])
   let r1 = try {
     let _ = client2.search_count(db="pubmed", query="x")
     false
   } catch {
     TogoError(msg) =>
-      msg == "TogoWS returned no data from URL http://togows.dbcls.jp/search/pubmed/x/count"
+      msg ==
+      "TogoWS returned no data from URL http://togows.dbcls.jp/search/pubmed/x/count"
   }
   assert_true(r1)
   // non-integer response
@@ -268,12 +250,9 @@ test "togows_search_count" {
 ///|
 test "togows_search_client" {
   let calls : Array[String] = []
-  let posts : Array[Option[String]] = []
+  let posts : Array[String?] = []
   let responses : Map[String, String] = Map([], capacity=8)
-  responses.set(
-    "http://togows.dbcls.jp/search/pubmed/x/1,2",
-    "111\n222\n",
-  )
+  responses.set("http://togows.dbcls.jp/search/pubmed/x/1,2", "111\n222\n")
   let client = tgw_make_client(responses, calls, posts)
   let body = client.search(db="pubmed", query="x", offset=1, limit=2)
   assert_eq(body, "111\n222\n")
@@ -283,12 +262,9 @@ test "togows_search_client" {
 ///|
 test "togows_search_iter_batches" {
   let calls : Array[String] = []
-  let posts : Array[Option[String]] = []
+  let posts : Array[String?] = []
   let responses : Map[String, String] = Map([], capacity=8)
-  responses.set(
-    "http://togows.dbcls.jp/search/pubmed/q/count",
-    "5",
-  )
+  responses.set("http://togows.dbcls.jp/search/pubmed/q/count", "5")
   responses.set("http://togows.dbcls.jp/search/pubmed/q/1,2", "id1\nid2\n")
   responses.set("http://togows.dbcls.jp/search/pubmed/q/3,2", "id3\nid4\n")
   responses.set("http://togows.dbcls.jp/search/pubmed/q/5,1", "id5\n")
@@ -305,7 +281,7 @@ test "togows_search_iter_batches" {
 ///|
 test "togows_search_iter_limit" {
   let calls : Array[String] = []
-  let posts : Array[Option[String]] = []
+  let posts : Array[String?] = []
   let responses : Map[String, String] = Map([], capacity=8)
   responses.set("http://togows.dbcls.jp/search/pubmed/q/count", "100")
   responses.set("http://togows.dbcls.jp/search/pubmed/q/1,2", "id1\nid2\n")
@@ -321,7 +297,7 @@ test "togows_search_iter_limit" {
 test "togows_search_iter_stalled_results" {
   // a batch identical to the previous one raises
   let calls : Array[String] = []
-  let posts : Array[Option[String]] = []
+  let posts : Array[String?] = []
   let responses : Map[String, String] = Map([], capacity=8)
   responses.set("http://togows.dbcls.jp/search/pubmed/q/count", "4")
   responses.set("http://togows.dbcls.jp/search/pubmed/q/1,2", "a\nb\n")
@@ -352,7 +328,7 @@ test "togows_search_iter_stalled_results" {
 ///|
 test "togows_convert" {
   let calls : Array[String] = []
-  let posts : Array[Option[String]] = []
+  let posts : Array[String?] = []
   let responses = tgw_default_responses()
   responses.set("http://togows.dbcls.jp/convert/genbank.fasta", ">sp|p|k\nMKV")
   let client = tgw_make_client(responses, calls, posts)
@@ -381,15 +357,13 @@ test "togows_convert" {
 ///|
 test "togows_rate_limit_virtual_clock" {
   let calls : Array[String] = []
-  let posts : Array[Option[String]] = []
+  let posts : Array[String?] = []
   let responses : Map[String, String] = Map([], capacity=8)
   responses.set("http://togows.dbcls.jp/search/pubmed/x/1,1", "1\n")
   let client = tgw_make_client(responses, calls, posts)
   // default clock never advances, so each call is scheduled one delay later
   let _ = client.search(db="pubmed", query="x", offset=1, limit=1)
-  assert_true(
-    (@src.TOGOWS_DELAY - client.last_call_time()).abs() < 1.0e-12,
-  )
+  assert_true((@src.TOGOWS_DELAY - client.last_call_time()).abs() < 1.0e-12)
   let _ = client.search(db="pubmed", query="x", offset=1, limit=1)
   assert_true(
     (2.0 * @src.TOGOWS_DELAY - client.last_call_time()).abs() < 1.0e-12,
@@ -403,12 +377,12 @@ test "togows_rate_limit_virtual_clock" {
 ///|
 test "togows_rate_limit_injected_clock" {
   let calls : Array[String] = []
-  let posts : Array[Option[String]] = []
+  let posts : Array[String?] = []
   let responses : Map[String, String] = Map([], capacity=8)
   responses.set("http://togows.dbcls.jp/search/pubmed/x/1,1", "1\n")
   let clock : Ref[Double] = Ref(100.0)
   let client = @src.TogoWSClient::new(
-    fetch=fn(url : String, post : Option[String]) -> String {
+    fetch=fn(url : String, post : String?) -> String {
       calls.push(url)
       posts.push(post)
       responses.get(url).unwrap_or("")

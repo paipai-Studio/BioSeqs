@@ -93,7 +93,7 @@ pub fn PathwayNode::add_downstream(
 ///|
 /// Create a SignalingPathway.
 pub fn SignalingPathway::new(id : String, name : String) -> SignalingPathway {
-  SignalingPathway::{ id, name, nodes: Array::new() }
+  SignalingPathway::{ id, name, nodes: Array::new(), }
 }
 
 ///|

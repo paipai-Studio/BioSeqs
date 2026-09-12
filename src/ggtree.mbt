@@ -20,7 +20,7 @@ pub fn LayoutNode::new(
   branch_length : Double,
   is_leaf : Bool,
 ) -> LayoutNode {
-  LayoutNode::{ id, label, branch_length, is_leaf, children: [] }
+  LayoutNode::{ id, label, branch_length, is_leaf, children: [], }
 }
 
 ///|
@@ -71,14 +71,14 @@ pub struct TreeData {
 ///|
 pub fn TreeData::new(newick : String) -> TreeData {
   let empty_nodes : Array[LayoutNode] = []
-  TreeData::{ newick, root_id: "", nodes: empty_nodes }
+  TreeData::{ newick, root_id: "", nodes: empty_nodes, }
 }
 
 ///|
 /// Create TreeData from existing nodes.
 pub fn create_tree_data_from_nodes(nodes : Array[LayoutNode]) -> TreeData {
   let root_id = if nodes.length() > 0 { nodes[0].id } else { "" }
-  TreeData::{ newick: "", root_id, nodes }
+  TreeData::{ newick: "", root_id, nodes, }
 }
 
 ///|

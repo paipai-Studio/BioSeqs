@@ -68,7 +68,7 @@ pub struct TsneResult {
 
 ///|
 pub fn TsneResult::new() -> TsneResult {
-  TsneResult::{ embedding: Array::new(), costs: Array::new(), n_iter: 0 }
+  TsneResult::{ embedding: Array::new(), costs: Array::new(), n_iter: 0, }
 }
 
 // ============================================================
@@ -500,7 +500,7 @@ pub fn tsne(data : Array[Array[Double]], config : TsneConfig) -> TsneResult {
     iter = iter + 1
   }
 
-  TsneResult::{ embedding: y, costs, n_iter: config.max_iter }
+  TsneResult::{ embedding: y, costs, n_iter: config.max_iter, }
 }
 
 // ============================================================

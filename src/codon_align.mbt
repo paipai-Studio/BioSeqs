@@ -43,7 +43,7 @@ pub fn CodonSubCounts::new(
   nonsynonymous~ : Int,
   total~ : Int,
 ) -> CodonSubCounts {
-  CodonSubCounts::{ synonymous, nonsynonymous, total }
+  CodonSubCounts::{ synonymous, nonsynonymous, total, }
 }
 
 ///|
@@ -65,7 +65,7 @@ pub fn DnDsResult::new(
   dn_std? : Double? = None,
   ds_std? : Double? = None,
 ) -> DnDsResult {
-  DnDsResult::{ dn, ds, dnds, dn_std, ds_std }
+  DnDsResult::{ dn, ds, dnds, dn_std, ds_std, }
 }
 
 ///|

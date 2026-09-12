@@ -365,7 +365,7 @@ pub fn AnnotatedDataFrame::new(
   data : Map[String, Array[String]],
   var_metadata : Map[String, String],
 ) -> AnnotatedDataFrame {
-  AnnotatedDataFrame::{ data, var_metadata }
+  AnnotatedDataFrame::{ data, var_metadata, }
 }
 
 ///|

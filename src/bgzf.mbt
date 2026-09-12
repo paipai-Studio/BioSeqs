@@ -58,7 +58,7 @@ struct BitReader {
 ///|
 /// Create a new bit reader.
 fn bit_reader_new(data : String) -> BitReader {
-  BitReader::{ data, pos: 0, bit_pos: 0 }
+  BitReader::{ data, pos: 0, bit_pos: 0, }
 }
 
 ///|
@@ -73,7 +73,7 @@ fn bit_reader_read_bit(br : BitReader) -> (Int, BitReader) {
   } else {
     (br.pos, new_bit_pos)
   }
-  (bit, BitReader::{ data: br.data, pos: new_pos, bit_pos: new_bit_pos })
+  (bit, BitReader::{ data: br.data, pos: new_pos, bit_pos: new_bit_pos, })
 }
 
 ///|
@@ -114,7 +114,7 @@ fn bit_reader_read_value(br : BitReader, n : Int) -> (Int, BitReader) {
 /// Skip bits to byte boundary.
 fn bit_reader_align(br : BitReader) -> BitReader {
   if br.bit_pos > 0 {
-    BitReader::{ data: br.data, pos: br.pos + 1, bit_pos: 0 }
+    BitReader::{ data: br.data, pos: br.pos + 1, bit_pos: 0, }
   } else {
     br
   }
@@ -386,11 +386,10 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
         }
         let mut i = 0
         while i < len {
-          output[out_pos + i] = (data.unsafe_get(p + 4 + i).to_int() & 0xFF)
-            .to_uint16()
+          output[out_pos + i] = (data.unsafe_get(p + 4 + i).to_int() & 0xFF).to_uint16()
           i = i + 1
         }
-        reader = BitReader::{ data: reader.data, pos: p + 4 + len, bit_pos: 0 }
+        reader = BitReader::{ data: reader.data, pos: p + 4 + len, bit_pos: 0, }
         out_pos = out_pos + len
       } else if b_type == 1 {
         let lit_decoder = build_huffman_decoder(fixed_literal_lengths, 288)
@@ -414,7 +413,9 @@ fn deflate_decode(data : String, max_output : Int) -> String raise BgzfError {
             let (dist_code, r5) = huffman_decode(dist_decoder, reader)
             reader = r5
             let extra_dist_bits = dist_extra[dist_code]
-            let (extra_dist, r6) = bit_reader_read_value(reader, extra_dist_bits)
+            let (extra_dist, r6) = bit_reader_read_value(
+              reader, extra_dist_bits,
+            )
             reader = r6
             let distance = dist_base[dist_code] + extra_dist
 
@@ -755,7 +756,10 @@ let bgzf_max_payload : Int = 65536 - 31 // 65505
 /// Combine a compressed block start offset and an uncompressed offset
 /// within that block into a 64-bit BGZF virtual offset (as used by BAM/
 /// tabix indexing). Mirrors Biopython's `make_virtual_offset`.
-pub fn bgzf_make_virtual_offset(block_offset : Int, within_block : Int) -> Int64 {
+pub fn bgzf_make_virtual_offset(
+  block_offset : Int,
+  within_block : Int,
+) -> Int64 {
   (block_offset.to_int64() << 16) | (within_block & 0xFFFF).to_int64()
 }
 
@@ -826,9 +830,9 @@ fn bgzf_build_block(payload : String) -> String {
 /// The canonical 28-byte empty BGZF block that marks end-of-file.
 fn bgzf_eof_block() -> String {
   let bytes = [
-    0x1f, 0x8b, 0x08, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff,
-    0x06, 0x00, 0x42, 0x43, 0x02, 0x00, 0x1b, 0x00, 0x03, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x1f, 0x8b, 0x08, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0x06, 0x00, 0x42,
+    0x43, 0x02, 0x00, 0x1b, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00,
   ]
   let buf : FixedArray[UInt16] = FixedArray::make(28, 0)
   for i in 0..<28 {
@@ -945,15 +949,11 @@ pub fn bgzf_blocks(data : String) -> Array[BgzfBlockInfo] raise BgzfError {
   let mut data_offset = 0
   while pos < n {
     if pos + 18 > n {
-      raise BgzfError(
-        "Truncated BGZF block at offset " + pos.to_string(),
-      )
+      raise BgzfError("Truncated BGZF block at offset " + pos.to_string())
     }
     for i in 0..<4 {
       if data.unsafe_get(pos + i).to_int() != bgzf_magic[i] {
-        raise BgzfError(
-          "Invalid BGZF magic at offset " + pos.to_string(),
-        )
+        raise BgzfError("Invalid BGZF magic at offset " + pos.to_string())
       }
     }
     let bsize = (data.unsafe_get(pos + 16).to_int() & 0xFF) |
@@ -961,20 +961,16 @@ pub fn bgzf_blocks(data : String) -> Array[BgzfBlockInfo] raise BgzfError {
     let block_len = bsize + 1
     if pos + block_len > n {
       raise BgzfError(
-        "BGZF block at offset " +
-        pos.to_string() +
-        " exceeds file bounds",
+        "BGZF block at offset " + pos.to_string() + " exceeds file bounds",
       )
     }
     let isize = get_uint32_le(data, pos + block_len - 4)
-    blocks.push(
-      BgzfBlockInfo::{
-        start_offset: pos,
-        block_length: block_len,
-        data_offset,
-        data_length: isize,
-      },
-    )
+    blocks.push(BgzfBlockInfo::{
+      start_offset: pos,
+      block_length: block_len,
+      data_offset,
+      data_length: isize,
+    })
     data_offset = data_offset + isize
     pos = pos + block_len
     if isize == 0 {
@@ -1013,7 +1009,9 @@ pub fn BgzfReader::new(data : String) -> BgzfReader raise BgzfError {
 
 ///|
 /// Decompress (and cache) the block currently pointed at.
-fn BgzfReader::decompressed_current(self : BgzfReader) -> String raise BgzfError {
+fn BgzfReader::decompressed_current(
+  self : BgzfReader,
+) -> String raise BgzfError {
   if self.cached_index != self.block_index {
     let info = self.blocks[self.block_index]
     let (text, _) = decompress_bgzf_block(self.data, info.start_offset)
@@ -1070,7 +1068,10 @@ pub fn BgzfReader::seek(
 
 ///|
 /// Read up to `size` bytes (or all remaining data if omitted).
-pub fn BgzfReader::read(self : BgzfReader, size? : Int) -> String raise BgzfError {
+pub fn BgzfReader::read(
+  self : BgzfReader,
+  size? : Int,
+) -> String raise BgzfError {
   let result = StringBuilder::new()
   let mut remaining = size
   while true {

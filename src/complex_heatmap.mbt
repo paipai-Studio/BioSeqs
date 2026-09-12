@@ -72,7 +72,7 @@ pub fn HeatmapData::new(
   row_names : Array[String],
   col_names : Array[String],
 ) -> HeatmapData {
-  HeatmapData::{ matrix, row_names, col_names, row_dend: [], col_dend: [] }
+  HeatmapData::{ matrix, row_names, col_names, row_dend: [], col_dend: [], }
 }
 
 ///|
@@ -81,7 +81,7 @@ pub fn HeatmapAnnotation::new(
   labels : Array[String],
   colors : Array[String],
 ) -> HeatmapAnnotation {
-  HeatmapAnnotation::{ annot_type, labels, colors, values: [] }
+  HeatmapAnnotation::{ annot_type, labels, colors, values: [], }
 }
 
 ///|
@@ -89,7 +89,7 @@ pub fn ColorMap::new(
   colors : Array[String],
   breaks : Array[Double],
 ) -> ColorMap {
-  ColorMap::{ colors, breaks, na_color: "#FFFFFF" }
+  ColorMap::{ colors, breaks, na_color: "#FFFFFF", }
 }
 
 ///|
@@ -728,7 +728,7 @@ pub fn ch_draw_heatmap(
     m = m + 1
   }
 
-  HeatmapResult::{ text, row_order, col_order, row_clusters, col_clusters }
+  HeatmapResult::{ text, row_order, col_order, row_clusters, col_clusters, }
 }
 
 ///|
@@ -765,7 +765,7 @@ pub fn ch_create_annotation(
     j = j + 1
   }
 
-  HeatmapAnnotationResult::{ row_annot, col_annot, legend }
+  HeatmapAnnotationResult::{ row_annot, col_annot, legend, }
 }
 
 ///|

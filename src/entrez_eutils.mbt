@@ -43,7 +43,7 @@ fn[T] entrez_util_fail(msg : String) -> T raise EntrezUtilError {
 ///|
 /// E-utilities client with an injectable transport and clock.
 pub struct EntrezClient {
-  priv fetch : (String, Option[String]) -> String raise EntrezUtilError
+  priv fetch : (String, String?) -> String raise EntrezUtilError
   priv now : () -> Double
   priv mut previous : Double
   priv tool : String
@@ -60,7 +60,7 @@ pub struct EntrezClient {
 /// - email: optional e-mail address declared to NCBI.
 /// - api_key: optional NCBI API key (raises the rate limit to 10/s).
 pub fn EntrezClient::new(
-  fetch~ : (String, Option[String]) -> String raise EntrezUtilError,
+  fetch~ : (String, String?) -> String raise EntrezUtilError,
   now? : () -> Double,
   tool? : String,
   email? : String,
@@ -78,8 +78,7 @@ pub fn EntrezClient::new(
 
 ///|
 /// Base URL of the NCBI E-utilities.
-pub let entrez_eutils_base_url : String =
-  "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
+pub let entrez_eutils_base_url : String = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
 
 ///|
 /// URL-encode a string following urllib.parse.urlencode's quote_plus
@@ -194,13 +193,13 @@ fn entrez_replace(text : String, from : String, to : String) -> String {
   let mut i = 0
   while i < text.length() {
     if i + from.length() <= text.length() &&
-      text[i:(i + from.length())].to_string() == from {
+      text[i:i + from.length()].to_string() == from {
       buf.write_string(to)
       i = i + from.length()
     } else {
       // copy the character verbatim; char_at would render characters
       // outside its whitelist (e.g. '=', '%') as decimal code strings
-      buf.write_string(text[i:(i + 1)].to_owned())
+      buf.write_string(text[i:i + 1].to_owned())
       i = i + 1
     }
   }
@@ -360,7 +359,7 @@ pub struct EPostResult {
 ///|
 /// Create an EPostResult.
 pub fn EPostResult::new(query_key~ : String, web_env~ : String) -> EPostResult {
-  { query_key, web_env }
+  { query_key, web_env, }
 }
 
 ///|
@@ -385,7 +384,11 @@ pub fn epost(
   ids : Array[String],
 ) -> EPostResult raise EntrezUtilError {
   let params : Array[(String, String)] = [("db", db), ("id", join_comma(ids))]
-  let xml = client.request(entrez_eutils_base_url + "epost.fcgi", params, post=true)
+  let xml = client.request(
+    entrez_eutils_base_url + "epost.fcgi",
+    params,
+    post=true,
+  )
   let query_key = match entrez_extract_text(xml, "QueryKey") {
     Some(v) => v
     None => entrez_util_fail("epost response is missing QueryKey")
@@ -426,8 +429,12 @@ pub struct EntrezItem {
 
 ///|
 /// Create an EntrezItem.
-pub fn EntrezItem::new(name~ : String, type_~ : String, value~ : String) -> EntrezItem {
-  { name, type_, value }
+pub fn EntrezItem::new(
+  name~ : String,
+  type_~ : String,
+  value~ : String,
+) -> EntrezItem {
+  { name, type_, value, }
 }
 
 ///|
@@ -457,8 +464,11 @@ pub struct EntrezDocSum {
 
 ///|
 /// Create an EntrezDocSum.
-pub fn EntrezDocSum::new(id~ : String, items~ : Array[EntrezItem]) -> EntrezDocSum {
-  { id, items }
+pub fn EntrezDocSum::new(
+  id~ : String,
+  items~ : Array[EntrezItem],
+) -> EntrezDocSum {
+  { id, items, }
 }
 
 ///|
@@ -511,12 +521,12 @@ fn entrez_scan_items(block : String) -> Array[(String, String, String)] {
       let gt = after.find(">")
       let end_pos = after.find("</Item>")
       if gt is Some(g) && end_pos is Some(e) && e > g {
-        let opening = after[0:(g + 1)].to_owned()
-        let value = after[(g + 1):e].to_owned()
+        let opening = after[0:g + 1].to_owned()
+        let value = after[g + 1:e].to_owned()
         let name = entrez_attr(opening, "Name").unwrap_or("")
         let type_ = entrez_attr(opening, "Type").unwrap_or("")
         result.push((name, type_, value))
-        rest = after[(e + 7):].to_owned()
+        rest = after[e + 7:].to_owned()
         go = true
       }
     }
@@ -526,7 +536,9 @@ fn entrez_scan_items(block : String) -> Array[(String, String, String)] {
 
 ///|
 /// Parse an ESummary XML response into document summaries.
-pub fn parse_esummary(xml : String) -> Array[EntrezDocSum] raise EntrezUtilError {
+pub fn parse_esummary(
+  xml : String,
+) -> Array[EntrezDocSum] raise EntrezUtilError {
   let result : Array[EntrezDocSum] = Array::new()
   for block in entrez_blocks(xml, "DocSum") {
     let id = match entrez_extract_text(block, "Id") {
@@ -564,7 +576,7 @@ pub fn ESpellResult::new(
   corrected_query~ : String,
   replaced~ : Array[String],
 ) -> ESpellResult {
-  { database, query, corrected_query, replaced }
+  { database, query, corrected_query, replaced, }
 }
 
 ///|
@@ -611,12 +623,7 @@ pub fn parse_espell(xml : String) -> ESpellResult raise EntrezUtilError {
   let corrected = entrez_extract_text(xml, "CorrectedQuery").unwrap_or("")
   let replaced = entrez_extract_all(xml, "Replaced")
   let database = entrez_extract_text(xml, "Database").unwrap_or("")
-  ESpellResult::new(
-    database~,
-    query~,
-    corrected_query=corrected,
-    replaced~,
-  )
+  ESpellResult::new(database~, query~, corrected_query=corrected, replaced~)
 }
 
 // ---------------------------------------------------------------------------
@@ -639,7 +646,7 @@ pub fn EntrezLinkSetDb::new(
   link_name~ : String,
   ids~ : Array[String],
 ) -> EntrezLinkSetDb {
-  { db_to, link_name, ids }
+  { db_to, link_name, ids, }
 }
 
 ///|
@@ -673,7 +680,7 @@ pub fn EntrezLinkSet::new(
   db_from~ : String,
   link_set_dbs~ : Array[EntrezLinkSetDb],
 ) -> EntrezLinkSet {
-  { db_from, link_set_dbs }
+  { db_from, link_set_dbs, }
 }
 
 ///|
@@ -684,7 +691,9 @@ pub fn EntrezLinkSet::db_from(self : EntrezLinkSet) -> String {
 
 ///|
 /// Get the LinkSetDb blocks of this link set.
-pub fn EntrezLinkSet::link_set_dbs(self : EntrezLinkSet) -> Array[EntrezLinkSetDb] {
+pub fn EntrezLinkSet::link_set_dbs(
+  self : EntrezLinkSet,
+) -> Array[EntrezLinkSetDb] {
   self.link_set_dbs
 }
 
@@ -698,7 +707,7 @@ pub fn elink(
   db? : String,
   ids~ : Array[String],
   cmd? : String,
-  linkname? : String
+  linkname? : String,
 ) -> Array[EntrezLinkSet] raise EntrezUtilError {
   let params : Array[(String, String)] = []
   if dbfrom is Some(f) {
@@ -770,7 +779,7 @@ pub fn EntrezCitation::new(
   author_name~ : String,
   key~ : String,
 ) -> EntrezCitation {
-  { journal_title, year, volume, first_page, author_name, key }
+  { journal_title, year, volume, first_page, author_name, key, }
 }
 
 ///|
@@ -822,7 +831,9 @@ pub fn ecitmatch(
 /// Parse an ECitMatch response. Supports both the XML form
 /// (`<ByteId key="..." id="..."/>`) and the plain-text pipe form
 /// (`journal|year|volume|page|author|key|pmid`).
-pub fn parse_ecitmatch(text : String) -> Array[(String, String)] raise EntrezUtilError {
+pub fn parse_ecitmatch(
+  text : String,
+) -> Array[(String, String)] raise EntrezUtilError {
   let result : Array[(String, String)] = Array::new()
   match text.find("<") {
     Some(_) => {
@@ -838,14 +849,14 @@ pub fn parse_ecitmatch(text : String) -> Array[(String, String)] raise EntrezUti
         if gt is None {
           break
         }
-        let opening = rest[0:(gt.unwrap() + 1)].to_owned()
+        let opening = rest[0:gt.unwrap() + 1].to_owned()
         let key = entrez_attr(opening, "key").unwrap_or("")
         let id = entrez_attr(opening, "id").unwrap_or("")
         result.push((key, id))
-        remaining = rest[(gt.unwrap() + 1):].to_owned()
+        remaining = rest[gt.unwrap() + 1:].to_owned()
       }
     }
-    None => {
+    None =>
       for line in split_by_char(text, '\n'.to_int()) {
         let trimmed = line.trim().to_owned()
         if trimmed.length() == 0 {
@@ -857,7 +868,6 @@ pub fn parse_ecitmatch(text : String) -> Array[(String, String)] raise EntrezUti
         }
         result.push((fields[fields.length() - 2], fields[fields.length() - 1]))
       }
-    }
   }
   result
 }
@@ -890,7 +900,7 @@ pub fn ESearchResult::new(
   query_key? : String? = None,
   web_env? : String? = None,
 ) -> ESearchResult {
-  { count, retmax, retstart, ids, translation, query_key, web_env }
+  { count, retmax, retstart, ids, translation, query_key, web_env, }
 }
 
 ///|
@@ -950,7 +960,15 @@ pub fn parse_esearch(xml : String) -> ESearchResult raise EntrezUtilError {
   let translation = entrez_extract_text(xml, "QueryTranslation")
   let query_key = entrez_extract_text(xml, "QueryKey")
   let web_env = entrez_extract_text(xml, "WebEnv")
-  ESearchResult::new(count~, retmax~, retstart~, ids~, translation~, query_key~, web_env~)
+  ESearchResult::new(
+    count~,
+    retmax~,
+    retstart~,
+    ids~,
+    translation~,
+    query_key~,
+    web_env~,
+  )
 }
 
 ///|
@@ -1193,7 +1211,7 @@ pub struct EGQueryRow {
 ///|
 /// Create an EGQueryRow.
 pub fn EGQueryRow::new(dbname~ : String, count~ : Int) -> EGQueryRow {
-  { dbname, count }
+  { dbname, count, }
 }
 
 ///|
@@ -1221,7 +1239,7 @@ pub fn EGQueryResult::new(
   term~ : String,
   rows~ : Array[EGQueryRow],
 ) -> EGQueryResult {
-  { term, rows }
+  { term, rows, }
 }
 
 ///|

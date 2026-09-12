@@ -33,8 +33,16 @@ pub fn GoseqResult::new(
   term_genes : Array[String],
 ) -> GoseqResult {
   GoseqResult::{
-    go_id, term_name, ontology, p_value, adjusted_p_value, overlap,
-    num_de_in_term, num_in_term, num_de, term_genes,
+    go_id,
+    term_name,
+    ontology,
+    p_value,
+    adjusted_p_value,
+    overlap,
+    num_de_in_term,
+    num_in_term,
+    num_de,
+    term_genes,
   }
 }
 
@@ -74,8 +82,9 @@ fn goseq_log_choose(n : Int, k : Int) -> Double {
     return 0.0
   }
   let nk = n - k
-  goseq_lgamma(n.to_double() + 1.0) - goseq_lgamma(k.to_double() + 1.0) -
-    goseq_lgamma(nk.to_double() + 1.0)
+  goseq_lgamma(n.to_double() + 1.0) -
+  goseq_lgamma(k.to_double() + 1.0) -
+  goseq_lgamma(nk.to_double() + 1.0)
 }
 
 ///|
@@ -87,108 +96,118 @@ fn goseq_log_choose(n : Int, k : Int) -> Double {
 ///   m - number of genes in the GO term
 ///   n - number of DE genes
 ///   n_total - total number of genes in the universe
-  ///   odds - odds ratio for the GO term (from PWF)
-  pub fn wallenius_pvalue(k : Int, m : Int, n : Int, n_total : Int, odds : Double) -> Double {
-    if odds <= 0.0 || odds == 1.0 {
-      // Fall back to standard hypergeometric when odds=1 (no bias)
-      return hypergeo_pvalue(k, m, n, n_total)
-    }
+///   odds - odds ratio for the GO term (from PWF)
+pub fn wallenius_pvalue(
+  k : Int,
+  m : Int,
+  n : Int,
+  n_total : Int,
+  odds : Double,
+) -> Double {
+  if odds <= 0.0 || odds == 1.0 {
+    // Fall back to standard hypergeometric when odds=1 (no bias)
+    return hypergeo_pvalue(k, m, n, n_total)
+  }
 
-    let upper = if m < n { m } else { n }
-    if k > upper {
-      return 1.0
-    }
-    if k <= 0 {
-      return 1.0
-    }
+  let upper = if m < n { m } else { n }
+  if k > upper {
+    return 1.0
+  }
+  if k <= 0 {
+    return 1.0
+  }
 
-    // Compute log numerator and denominator for the Manly approximation:
-    // P(X >= k) = Σ_{i=k}^{upper} C(m,i) * C(n_total-m,n-i) * odds^i
-    //           / Σ_{j=0}^{upper} C(m,j) * C(n_total-m,n-j) * odds^j
-    //
-    // Use log-space for numerical stability.
+  // Compute log numerator and denominator for the Manly approximation:
+  // P(X >= k) = Σ_{i=k}^{upper} C(m,i) * C(n_total-m,n-i) * odds^i
+  //           / Σ_{j=0}^{upper} C(m,j) * C(n_total-m,n-j) * odds^j
+  //
+  // Use log-space for numerical stability.
 
-    // First pass: compute all log terms
-    let log_terms : Array[Double] = Array::make(upper + 1, 0.0)
-    let mut i = 0
-    while i <= upper {
-      let log_choose_mi = goseq_log_choose(m, i)
-      let log_choose_nm_ni = goseq_log_choose(n_total - m, n - i)
-      let log_odds_term = i.to_double() * @math.ln(odds)
-      log_terms[i] = log_choose_mi + log_choose_nm_ni + log_odds_term
-      i = i + 1
+  // First pass: compute all log terms
+  let log_terms : Array[Double] = Array::make(upper + 1, 0.0)
+  let mut i = 0
+  while i <= upper {
+    let log_choose_mi = goseq_log_choose(m, i)
+    let log_choose_nm_ni = goseq_log_choose(n_total - m, n - i)
+    let log_odds_term = i.to_double() * @math.ln(odds)
+    log_terms[i] = log_choose_mi + log_choose_nm_ni + log_odds_term
+    i = i + 1
+  }
+
+  // Find max log term for numerical stability (log-sum-exp trick)
+  let mut log_max = -1.0e300
+  i = 0
+  while i <= upper {
+    if log_terms[i] > log_max {
+      log_max = log_terms[i]
     }
+    i = i + 1
+  }
 
-    // Find max log term for numerical stability (log-sum-exp trick)
-    let mut log_max = -1.0e300
-    i = 0
-    while i <= upper {
-      if log_terms[i] > log_max {
-        log_max = log_terms[i]
-      }
-      i = i + 1
-    }
+  // Compute denominator: sum of exp(log_term - log_max) for all terms
+  let mut denom_sum = 0.0
+  i = 0
+  while i <= upper {
+    denom_sum = denom_sum + @math.exp(log_terms[i] - log_max)
+    i = i + 1
+  }
+  let log_denom = log_max + @math.ln(denom_sum)
 
-    // Compute denominator: sum of exp(log_term - log_max) for all terms
-    let mut denom_sum = 0.0
-    i = 0
-    while i <= upper {
-      denom_sum = denom_sum + @math.exp(log_terms[i] - log_max)
-      i = i + 1
-    }
-    let log_denom = log_max + @math.ln(denom_sum)
+  // Compute numerator: sum of exp(log_term - log_denom) for k..upper
+  let mut numer_sum = 0.0
+  i = k
+  while i <= upper {
+    numer_sum = numer_sum + @math.exp(log_terms[i] - log_denom)
+    i = i + 1
+  }
 
-    // Compute numerator: sum of exp(log_term - log_denom) for k..upper
-    let mut numer_sum = 0.0
-    i = k
-    while i <= upper {
-      numer_sum = numer_sum + @math.exp(log_terms[i] - log_denom)
-      i = i + 1
-    }
+  // P = numerator / denominator = numer_sum / 1.0 (since denominator = exp(log_denom))
+  let pval = numer_sum
 
-    // P = numerator / denominator = numer_sum / 1.0 (since denominator = exp(log_denom))
-    let pval = numer_sum
-
-    if pval > 1.0 {
-      1.0
-    } else {
-      pval
-    }
+  if pval > 1.0 {
+    1.0
+  } else {
+    pval
+  }
 }
 
 ///|
 /// Standard hypergeometric p-value P(X >= k) (no bias correction).
-  pub fn hypergeo_pvalue(k : Int, m : Int, n : Int, n_total : Int) -> Double {
-    let upper = if m < n { m } else { n }
-    if k > upper {
-      return 1.0
-    }
-    if k <= 0 {
-      return 1.0
-    }
+pub fn hypergeo_pvalue(k : Int, m : Int, n : Int, n_total : Int) -> Double {
+  let upper = if m < n { m } else { n }
+  if k > upper {
+    return 1.0
+  }
+  if k <= 0 {
+    return 1.0
+  }
 
-    let log_denom = goseq_log_choose(n_total, n)
+  let log_denom = goseq_log_choose(n_total, n)
 
-    // Find max log term for numerical stability
-    let mut log_max = -1.0e300
-    let mut i = k
-    while i <= upper {
-      let log_term = goseq_log_choose(m, i) + goseq_log_choose(n_total - m, n - i) - log_denom
-      if log_term > log_max {
-        log_max = log_term
-      }
-      i = i + 1
+  // Find max log term for numerical stability
+  let mut log_max = -1.0e300
+  let mut i = k
+  while i <= upper {
+    let log_term = goseq_log_choose(m, i) +
+      goseq_log_choose(n_total - m, n - i) -
+      log_denom
+    if log_term > log_max {
+      log_max = log_term
     }
+    i = i + 1
+  }
 
-    let mut sum = 0.0
-    i = k
-    while i <= upper {
-      let log_term = goseq_log_choose(m, i) + goseq_log_choose(n_total - m, n - i) - log_denom
-      sum = sum + @math.exp(log_term - log_max)
-      i = i + 1
-    }
+  let mut sum = 0.0
+  i = k
+  while i <= upper {
+    let log_term = goseq_log_choose(m, i) +
+      goseq_log_choose(n_total - m, n - i) -
+      log_denom
+    sum = sum + @math.exp(log_term - log_max)
+    i = i + 1
+  }
 
-    let pval = @math.exp(log_max) * sum
+  let pval = @math.exp(log_max) * sum
   if pval > 1.0 {
     1.0
   } else {
@@ -256,20 +275,14 @@ pub fn goseq_nullp(
     i = i + 1
   }
 
-  let smoothed = lowess(log_lengths, sorted_de, f=f, n_steps=2, delta=0.0)
+  let smoothed = lowess(log_lengths, sorted_de, f~, n_steps=2, delta=0.0)
 
   // Clamp to [0, 1]
   let result : Array[Double] = Array::make(n, 0.0)
   i = 0
   while i < n {
     let val = smoothed[i]
-    result[i] = if val < 0.0 {
-      0.0
-    } else if val > 1.0 {
-      1.0
-    } else {
-      val
-    }
+    result[i] = if val < 0.0 { 0.0 } else if val > 1.0 { 1.0 } else { val }
     i = i + 1
   }
 
@@ -430,7 +443,7 @@ pub fn GoseqGeneSet::new(
   ontology : String,
   gene_ids : Array[String],
 ) -> GoseqGeneSet {
-  GoseqGeneSet::{ go_id, term_name, ontology, gene_ids }
+  GoseqGeneSet::{ go_id, term_name, ontology, gene_ids, }
 }
 
 ///|
@@ -613,4 +626,3 @@ pub fn goseq_filter_results(
   }
   filtered
 }
-

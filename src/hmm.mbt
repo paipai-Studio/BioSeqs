@@ -16,7 +16,7 @@ pub fn HMM::new(
   trans_prob : Map[String, Map[String, Double]],
   emit_prob : Map[String, Map[String, Double]],
 ) -> HMM {
-  HMM::{ states, observations, start_prob, trans_prob, emit_prob }
+  HMM::{ states, observations, start_prob, trans_prob, emit_prob, }
 }
 
 ///|

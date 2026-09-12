@@ -70,7 +70,8 @@ pub fn parse_cif_seqres(content : String) -> Array[SeqRecord] raise SeqIOError {
       continue
     }
     let mon = if mon_idx < row.length() { row[mon_idx] } else { "" }
-    let (num, has_num) = if num_idx >= 0 && num_idx < row.length() &&
+    let (num, has_num) = if num_idx >= 0 &&
+      num_idx < row.length() &&
       row[num_idx].length() > 0 &&
       row[num_idx].unsafe_get(0).to_int() >= '0'.to_int() &&
       row[num_idx].unsafe_get(0).to_int() <= '9'.to_int() {
@@ -90,7 +91,7 @@ pub fn parse_cif_seqres(content : String) -> Array[SeqRecord] raise SeqIOError {
       entity_residues.push([])
       slot = entity_ids.length() - 1
     }
-    entity_residues[slot].push({ num, has_num, mon })
+    entity_residues[slot].push({ num, has_num, mon, })
   }
   for k = 0; k < entity_ids.length(); k = k + 1 {
     let entity = entity_ids[k]

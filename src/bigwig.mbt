@@ -23,6 +23,7 @@ pub suberror BigWigError {
 
 ///|
 /// One dense interval: chromosome name, 0-based half-open range, value.
+
 ///|
 pub struct BigWigInterval {
   chrom : String
@@ -38,7 +39,7 @@ pub fn BigWigInterval::create(
   end : Int,
   value : Double,
 ) -> BigWigInterval {
-  BigWigInterval::{ chrom, start, end, value }
+  BigWigInterval::{ chrom, start, end, value, }
 }
 
 ///|
@@ -107,16 +108,14 @@ let bigwig_max_bedgraph_items : Int = 2728
 
 ///|
 fn[T] bigwig_wrap(operation : () -> T raise BigBedError) -> T raise BigWigError {
-  try {
-    operation()
-  } catch {
+  operation() catch {
     BigBedError(message) => raise BigWigError(message)
   }
 }
 
 ///|
 pub fn BigWigWriteConfig::default() -> BigWigWriteConfig {
-  BigWigWriteConfig::{ block_size: 64, compress: true }
+  BigWigWriteConfig::{ block_size: 64, compress: true, }
 }
 
 ///|
@@ -128,7 +127,7 @@ pub fn BigWigWriteConfig::create(
     if block_size < 1 || block_size > 65535 {
       bigbed_fail("BigWig block size must be between 1 and 65535")
     }
-    BigWigWriteConfig::{ block_size, compress }
+    BigWigWriteConfig::{ block_size, compress, }
   })
 }
 
@@ -168,16 +167,8 @@ fn bigwig_f64_words(value : Double) -> (Int, Int) {
   if value.is_nan() {
     return (0, 0x7FF80000)
   }
-  let sign_bit : Int = if value < 0.0 {
-    1
-  } else {
-    0
-  }
-  let abs = if value < 0.0 {
-    -value
-  } else {
-    value
-  }
+  let sign_bit : Int = if value < 0.0 { 1 } else { 0 }
+  let abs = if value < 0.0 { -value } else { value }
   if abs == 0.0 {
     return (0, sign_bit << 31)
   }
@@ -220,11 +211,7 @@ fn bigwig_f64_words(value : Double) -> (Int, Int) {
 
 ///|
 fn bigwig_f64_from_words(low : Int, high : Int) -> Double {
-  let sign = if high < 0 {
-    -1.0
-  } else {
-    1.0
-  }
+  let sign = if high < 0 { -1.0 } else { 1.0 }
   let exponent = (high >> 20) & 0x7FF
   let mantissa_high = (high & 0x000FFFFF).to_double()
   let mantissa_low = bigwig_u32_to_double(low)
@@ -286,16 +273,8 @@ fn bigwig_f32_bits(value : Double) -> Int {
   if value.is_nan() {
     return 0x7FC00000
   }
-  let sign_bit : Int = if value < 0.0 {
-    1
-  } else {
-    0
-  }
-  let mut abs = if value < 0.0 {
-    -value
-  } else {
-    value
-  }
+  let sign_bit : Int = if value < 0.0 { 1 } else { 0 }
+  let mut abs = if value < 0.0 { -value } else { value }
   if abs == 0.0 {
     return sign_bit << 31
   }
@@ -330,11 +309,7 @@ fn bigwig_f32_bits(value : Double) -> Int {
 
 ///|
 fn bigwig_f32_from_bits(bits : Int) -> Double {
-  let sign = if bits < 0 {
-    -1.0
-  } else {
-    1.0
-  }
+  let sign = if bits < 0 { -1.0 } else { 1.0 }
   let exponent = (bits >> 23) & 0xFF
   let mantissa = (bits & 0x007FFFFF).to_double()
   if exponent == 0 {
@@ -387,13 +362,11 @@ fn bigwig_read_header(
 ) -> (BigWigHeader, BigBedEndian) raise BigBedError {
   bigbed_check_range(data, 0, 64, "header")
   // bigWig shares the bbi container but uses magic 0x888FFC26, unlike BigBed.
-  let little =
-    data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24)
+  let little = data[0] | (data[1] << 8) | (data[2] << 16) | (data[3] << 24)
   let endian = if little == bigwig_magic {
     BigBedLittleEndian
   } else {
-    let big =
-      (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3]
+    let big = (data[0] << 24) | (data[1] << 16) | (data[2] << 8) | data[3]
     if big == bigwig_magic {
       BigBedBigEndian
     } else {
@@ -437,8 +410,10 @@ fn bigwig_read_header(
     bigbed_fail("BigWig header contains invalid section offsets")
   }
   if total_summary_offset != 0 &&
-    (total_summary_offset < zoom_table_end ||
-      total_summary_offset + 40 > chrom_tree_offset) {
+    (
+      total_summary_offset < zoom_table_end ||
+      total_summary_offset + 40 > chrom_tree_offset
+    ) {
     bigbed_fail("BigWig total summary offset is outside the metadata section")
   }
   (header, endian)
@@ -461,8 +436,8 @@ fn bigwig_read_zoom_headers(
     }
     headers.push(BigWigZoomHeader::{
       reduction_level: reduction,
-      data_offset: data_offset,
-      index_offset: index_offset,
+      data_offset,
+      index_offset,
     })
   }
   headers
@@ -506,11 +481,7 @@ pub fn bigwig_parse(data : Array[Int]) -> BigWigFile raise BigWigError {
       header.zoom_levels,
       endian,
     )
-    let summary = bigwig_read_summary(
-      data,
-      header.total_summary_offset,
-      endian,
-    )
+    let summary = bigwig_read_summary(data, header.total_summary_offset, endian)
     let targets = bigbed_read_chrom_tree(
       data,
       header.chromosome_tree_offset,
@@ -596,12 +567,7 @@ fn bigwig_decode_section(
       if start < chrom_start || end > chrom_end || start >= end {
         bigbed_fail("BigWig bedGraph item is outside its section bounds")
       }
-      intervals.push(BigWigInterval::{
-        chrom: chrom_name,
-        start,
-        end,
-        value,
-      })
+      intervals.push(BigWigInterval::{ chrom: chrom_name, start, end, value, })
     }
   } else if section_type == bigwig_variable_step {
     if item_span == 0 {
@@ -617,12 +583,7 @@ fn bigwig_decode_section(
       if start < chrom_start || end > chrom_end {
         bigbed_fail("BigWig variableStep item is outside its section bounds")
       }
-      intervals.push(BigWigInterval::{
-        chrom: chrom_name,
-        start,
-        end,
-        value,
-      })
+      intervals.push(BigWigInterval::{ chrom: chrom_name, start, end, value, })
     }
   } else if section_type == bigwig_fixed_step {
     if item_step == 0 || item_span == 0 {
@@ -637,17 +598,10 @@ fn bigwig_decode_section(
       if end > chrom_end {
         bigbed_fail("BigWig fixedStep item is outside its section bounds")
       }
-      intervals.push(BigWigInterval::{
-        chrom: chrom_name,
-        start,
-        end,
-        value,
-      })
+      intervals.push(BigWigInterval::{ chrom: chrom_name, start, end, value, })
     }
   } else {
-    bigbed_fail(
-      "Unsupported BigWig section type " + section_type.to_string(),
-    )
+    bigbed_fail("Unsupported BigWig section type " + section_type.to_string())
   }
   intervals
 }
@@ -732,16 +686,8 @@ pub fn BigWigFile::values(
     for block in self.blocks {
       if bigbed_block_overlaps(block, chrom_id, qstart, qend) {
         for interval in bigwig_decode_section(self, block) {
-          let lo = if interval.start > qstart {
-            interval.start
-          } else {
-            qstart
-          }
-          let hi = if interval.end < qend {
-            interval.end
-          } else {
-            qend
-          }
+          let lo = if interval.start > qstart { interval.start } else { qstart }
+          let hi = if interval.end < qend { interval.end } else { qend }
           for base in lo..<hi {
             values[base - qstart] = interval.value
           }
@@ -781,11 +727,7 @@ fn bigwig_empty_bins(n_bins : Int) -> Array[BigWigBin] {
 }
 
 ///|
-fn bigwig_bin_add(
-  bin : BigWigBin,
-  value : Double,
-  bases : Int,
-) -> Unit {
+fn bigwig_bin_add(bin : BigWigBin, value : Double, bases : Int) -> Unit {
   let weighted = value * bases.to_double()
   bin.sum_data = bin.sum_data + weighted
   bin.sum_squares = bin.sum_squares + value * weighted
@@ -811,11 +753,11 @@ fn bigwig_bin_bound(total : Int, n_bins : Int, index : Int) -> Int {
   scaled.floor().to_int()
 }
 
+///|
 /// Inverse boundary: the bin index containing a position `relative` bases
 /// into the query.
 fn bigwig_bin_index(total : Int, n_bins : Int, relative : Int) -> Int {
-  let scaled =
-    relative.to_double() * n_bins.to_double() / total.to_double()
+  let scaled = relative.to_double() * n_bins.to_double() / total.to_double()
   scaled.floor().to_int()
 }
 
@@ -833,21 +775,16 @@ fn bigwig_stat_value(bin : BigWigBin, bin_span : Int, stat : String) -> Double? 
     "sum" => Some(bin.sum_data)
     "min" => Some(bin.min_val)
     "max" => Some(bin.max_val)
-    "std" => {
+    "std" =>
       // Sample standard deviation with covered bases as the sample size,
       // matching libBigWig/pyBigWig; single-base samples return 0.
       if bin.count < 2.0 {
         Some(0.0)
       } else {
-        let variance =
-          (bin.sum_squares - bin.sum_data * mean) / (bin.count - 1.0)
-        Some(if variance < 0.0 {
-          0.0
-        } else {
-          variance.sqrt()
-        })
+        let variance = (bin.sum_squares - bin.sum_data * mean) /
+          (bin.count - 1.0)
+        Some(if variance < 0.0 { 0.0 } else { variance.sqrt() })
       }
-    }
     _ => None
   }
 }
@@ -869,16 +806,8 @@ fn bigwig_raw_stats(
         if interval.start >= qend || qstart >= interval.end {
           continue
         }
-        let lo = if interval.start > qstart {
-          interval.start
-        } else {
-          qstart
-        }
-        let hi = if interval.end < qend {
-          interval.end
-        } else {
-          qend
-        }
+        let lo = if interval.start > qstart { interval.start } else { qstart }
+        let hi = if interval.end < qend { interval.end } else { qend }
         let mut first_bin = bigwig_bin_index(total, n_bins, lo - qstart)
         let last_bin = bigwig_bin_index(total, n_bins, hi - 1 - qstart)
         if first_bin >= n_bins {
@@ -886,20 +815,10 @@ fn bigwig_raw_stats(
         }
         let bin_limit = last_bin + 1
         for bin_index in first_bin..<bin_limit {
-          let bstart =
-            qstart + bigwig_bin_bound(total, n_bins, bin_index)
-          let bend =
-            qstart + bigwig_bin_bound(total, n_bins, bin_index + 1)
-          let overlap_start = if lo > bstart {
-            lo
-          } else {
-            bstart
-          }
-          let overlap_end = if hi < bend {
-            hi
-          } else {
-            bend
-          }
+          let bstart = qstart + bigwig_bin_bound(total, n_bins, bin_index)
+          let bend = qstart + bigwig_bin_bound(total, n_bins, bin_index + 1)
+          let overlap_start = if lo > bstart { lo } else { bstart }
+          let overlap_end = if hi < bend { hi } else { bend }
           if overlap_end > overlap_start {
             bigwig_bin_add(
               bins[bin_index],
@@ -913,8 +832,7 @@ fn bigwig_raw_stats(
   }
   let result : Array[Double?] = []
   for i in 0..<n_bins {
-    let span =
-      bigwig_bin_bound(total, n_bins, i + 1) -
+    let span = bigwig_bin_bound(total, n_bins, i + 1) -
       bigwig_bin_bound(total, n_bins, i)
     result.push(bigwig_stat_value(bins[i], span, stat))
   }
@@ -1013,10 +931,7 @@ fn bigwig_zoom_elements(
 }
 
 ///|
-fn bigwig_choose_zoom(
-  file : BigWigFile,
-  bin_width : Int,
-) -> BigWigZoomHeader? {
+fn bigwig_choose_zoom(file : BigWigFile, bin_width : Int) -> BigWigZoomHeader? {
   let mut selected : BigWigZoomHeader? = None
   for zoom in file.zoom_headers {
     if zoom.reduction_level <= bin_width {
@@ -1040,20 +955,13 @@ fn bigwig_zoom_stats(
   let bins = bigwig_empty_bins(n_bins)
   let total = qend - qstart
   for element in elements {
-    if element.chrom_id != chrom_id || element.start >= qend ||
+    if element.chrom_id != chrom_id ||
+      element.start >= qend ||
       qstart >= element.end {
       continue
     }
-    let lo = if element.start > qstart {
-      element.start
-    } else {
-      qstart
-    }
-    let hi = if element.end < qend {
-      element.end
-    } else {
-      qend
-    }
+    let lo = if element.start > qstart { element.start } else { qstart }
+    let hi = if element.end < qend { element.end } else { qend }
     if lo >= hi {
       continue
     }
@@ -1064,27 +972,16 @@ fn bigwig_zoom_stats(
     }
     let bin_limit = last_bin + 1
     for bin_index in first_bin..<bin_limit {
-      let bstart =
-        qstart + bigwig_bin_bound(total, n_bins, bin_index)
-      let bend =
-        qstart + bigwig_bin_bound(total, n_bins, bin_index + 1)
-      let overlap_start = if lo > bstart {
-        lo
-      } else {
-        bstart
-      }
-      let overlap_end = if hi < bend {
-        hi
-      } else {
-        bend
-      }
+      let bstart = qstart + bigwig_bin_bound(total, n_bins, bin_index)
+      let bend = qstart + bigwig_bin_bound(total, n_bins, bin_index + 1)
+      let overlap_start = if lo > bstart { lo } else { bstart }
+      let overlap_end = if hi < bend { hi } else { bend }
       if overlap_end <= overlap_start {
         continue
       }
       // libBigWig weights each zoom element by the fraction overlapping the
       // bin, including covered-base counts.
-      let fraction =
-        (overlap_end - overlap_start).to_double() /
+      let fraction = (overlap_end - overlap_start).to_double() /
         (element.end - element.start).to_double()
       let bin = bins[bin_index]
       let was_empty = bin.count == 0.0
@@ -1106,8 +1003,7 @@ fn bigwig_zoom_stats(
   }
   let result : Array[Double?] = []
   for i in 0..<n_bins {
-    let span =
-      bigwig_bin_bound(total, n_bins, i + 1) -
+    let span = bigwig_bin_bound(total, n_bins, i + 1) -
       bigwig_bin_bound(total, n_bins, i)
     result.push(bigwig_stat_value(bins[i], span, stat))
   }
@@ -1132,31 +1028,19 @@ pub fn BigWigFile::stats(
     if n_bins < 1 {
       bigbed_fail("BigWig stats require at least one bin")
     }
-    if stat != "mean" && stat != "min" && stat != "max" && stat != "cov" &&
-      stat != "sum" && stat != "std" {
+    if stat != "mean" &&
+      stat != "min" &&
+      stat != "max" &&
+      stat != "cov" &&
+      stat != "sum" &&
+      stat != "std" {
       bigbed_fail("Unknown BigWig statistic '" + stat + "'")
     }
     let bin_width = (qend - qstart) / n_bins
     match bigwig_choose_zoom(self, bin_width) {
       Some(zoom) =>
-        bigwig_zoom_stats(
-          self,
-          zoom,
-          chrom_id,
-          qstart,
-          qend,
-          n_bins,
-          stat,
-        )
-      None =>
-        bigwig_raw_stats(
-          self,
-          chrom_id,
-          qstart,
-          qend,
-          n_bins,
-          stat,
-        )
+        bigwig_zoom_stats(self, zoom, chrom_id, qstart, qend, n_bins, stat)
+      None => bigwig_raw_stats(self, chrom_id, qstart, qend, n_bins, stat)
     }
   })
 }
@@ -1250,7 +1134,8 @@ fn bigwig_validate_inputs(
     let interval = intervals[index]
     let chrom_id = bigbed_target_index(targets, interval.chrom)
     let length = targets[chrom_id].length
-    if interval.start < 0 || interval.end > length ||
+    if interval.start < 0 ||
+      interval.end > length ||
       interval.start >= interval.end {
       bigbed_fail(
         "BigWig interval " +
@@ -1380,19 +1265,15 @@ pub fn bigwig_write(
       let chrom_id = bigbed_target_index(targets, sorted[index].chrom)
       let mut end_index = index
       while end_index < sorted.length() &&
-        bigbed_target_index(targets, sorted[end_index].chrom) == chrom_id &&
-        end_index - index < bigwig_max_bedgraph_items {
+            bigbed_target_index(targets, sorted[end_index].chrom) == chrom_id &&
+            end_index - index < bigwig_max_bedgraph_items {
         end_index = end_index + 1
       }
       let raw = bigwig_section_bytes(sorted, index, end_index, chrom_id)
       if raw.length() > maximum_uncompressed {
         maximum_uncompressed = raw.length()
       }
-      let payload = if config.compress {
-        bigbed_zlib_store(raw)
-      } else {
-        raw
-      }
+      let payload = if config.compress { bigbed_zlib_store(raw) } else { raw }
       let mut section_end = sorted[index].end
       for i in (index + 1)..<end_index {
         if sorted[i].end > section_end {

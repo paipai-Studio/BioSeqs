@@ -694,7 +694,7 @@ pub fn muscat_contrast_advanced(
   if magnitude == 0.0 {
     raise MuscatAdvancedError("contrast must contain a non-zero coefficient")
   }
-  MuscatAdvancedContrast::{ values: values.copy(), name }
+  MuscatAdvancedContrast::{ values: values.copy(), name, }
 }
 
 ///|

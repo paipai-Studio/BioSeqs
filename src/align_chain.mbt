@@ -263,7 +263,7 @@ pub fn AlignChainCoordinate::create(
   if target < 0 || query < 0 {
     align_chain_fail("chain coordinates must be non-negative")
   }
-  AlignChainCoordinate::{ target, query }
+  AlignChainCoordinate::{ target, query, }
 }
 
 ///|
@@ -276,7 +276,7 @@ pub fn AlignChainBlock::create(
   if size < 0 || target_gap < 0 || query_gap < 0 {
     align_chain_fail("chain block values must be non-negative")
   }
-  AlignChainBlock::{ size, target_gap, query_gap }
+  AlignChainBlock::{ size, target_gap, query_gap, }
 }
 
 ///|
@@ -347,7 +347,7 @@ pub fn align_chain_from_blocks(
     align_chain_fail("chain record must contain at least one block row")
   }
   let relative : Array[AlignChainCoordinate] = [
-    AlignChainCoordinate::{ target: 0, query: 0 },
+    AlignChainCoordinate::{ target: 0, query: 0, },
   ]
   let mut target_position = 0
   let mut query_position = 0
@@ -658,7 +658,7 @@ fn align_chain_parse_record(
     }
     let size = align_chain_parse_uint(words[0], "chain block size")
     if words.length() == 1 {
-      blocks.push(AlignChainBlock::{ size, target_gap: 0, query_gap: 0 })
+      blocks.push(AlignChainBlock::{ size, target_gap: 0, query_gap: 0, })
       index = index + 1
       terminated = true
       break
@@ -668,7 +668,7 @@ fn align_chain_parse_record(
     if target_gap == 0 && query_gap == 0 {
       align_chain_fail("non-final chain block must contain a non-zero gap")
     }
-    blocks.push(AlignChainBlock::{ size, target_gap, query_gap })
+    blocks.push(AlignChainBlock::{ size, target_gap, query_gap, })
     index = index + 1
   }
   if !terminated {
@@ -843,7 +843,7 @@ pub fn AlignChainAlignment::blocks(
         )
       }
       if target_gap > 0 || query_gap > 0 {
-        blocks.push(AlignChainBlock::{ size, target_gap, query_gap })
+        blocks.push(AlignChainBlock::{ size, target_gap, query_gap, })
         size = target_step
         target_gap = 0
         query_gap = 0
@@ -857,10 +857,10 @@ pub fn AlignChainAlignment::blocks(
     }
   }
   if target_gap > 0 || query_gap > 0 {
-    blocks.push(AlignChainBlock::{ size, target_gap, query_gap })
+    blocks.push(AlignChainBlock::{ size, target_gap, query_gap, })
     size = 0
   }
-  blocks.push(AlignChainBlock::{ size, target_gap: 0, query_gap: 0 })
+  blocks.push(AlignChainBlock::{ size, target_gap: 0, query_gap: 0, })
   blocks
 }
 

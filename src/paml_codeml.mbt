@@ -905,7 +905,7 @@ pub fn codeml_parse_control(text : String) -> CodemlControl raise CodemlError {
         codeml_fail("Duplicate CODEML option '" + name + "'")
       }
       codeml_validate_option(name, value)
-      options.push(CodemlOption::{ name, value })
+      options.push(CodemlOption::{ name, value, })
     }
   }
   if sequence_file.length() == 0 {
@@ -917,7 +917,7 @@ pub fn codeml_parse_control(text : String) -> CodemlControl raise CodemlError {
   if tree_file.length() == 0 {
     codeml_fail("CODEML control is missing treefile")
   }
-  CodemlControl::{ sequence_file, output_file, tree_file, options }
+  CodemlControl::{ sequence_file, output_file, tree_file, options, }
 }
 
 ///|
@@ -1091,7 +1091,7 @@ fn codeml_set_site_branch_type(
   for index in 0..<classes.length() {
     let branch_types = codeml_copy_named_values(classes[index].branch_types)
     if index < values.length() {
-      branch_types.push(CodemlNamedValue::{ name, value: values[index] })
+      branch_types.push(CodemlNamedValue::{ name, value: values[index], })
     }
     updated.push(CodemlSiteClass::{
       index: classes[index].index,
@@ -1129,7 +1129,7 @@ fn codeml_parse_named_parameters(line : String) -> Array[CodemlNamedValue] {
           line[equals + 1:line.length()].to_owned(),
         )
         if numbers.length() > 0 {
-          output.push(CodemlNamedValue::{ name, value: numbers[0] })
+          output.push(CodemlNamedValue::{ name, value: numbers[0], })
           break
         }
       }

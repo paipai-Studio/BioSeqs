@@ -31,182 +31,408 @@ fn thermo(pairs : Array[(String, Double, Double)]) -> ThermoTable {
 /// "DNA_TMM1", "DNA_DE1", "RNA_DE1".
 pub fn tm_thermo_table(name : String) -> ThermoTable raise SeqError {
   match name {
-    "DNA_NN1" => thermo([
-        ("init", 0.0, 0.0), ("init_A/T", 0.0, 0.0), ("init_G/C", 0.0, 0.0),
-        ("init_oneG/C", 0.0, -16.8), ("init_allA/T", 0.0, -20.1),
-        ("init_5T/A", 0.0, 0.0), ("sym", 0.0, -1.3),
-        ("AA/TT", -9.1, -24.0), ("AT/TA", -8.6, -23.9), ("TA/AT", -6.0, -16.9),
-        ("CA/GT", -5.8, -12.9), ("GT/CA", -6.5, -17.3), ("CT/GA", -7.8, -20.8),
-        ("GA/CT", -5.6, -13.5), ("CG/GC", -11.9, -27.8),
-        ("GC/CG", -11.1, -26.7), ("GG/CC", -11.0, -26.6),
+    "DNA_NN1" =>
+      thermo([
+        ("init", 0.0, 0.0),
+        ("init_A/T", 0.0, 0.0),
+        ("init_G/C", 0.0, 0.0),
+        ("init_oneG/C", 0.0, -16.8),
+        ("init_allA/T", 0.0, -20.1),
+        ("init_5T/A", 0.0, 0.0),
+        ("sym", 0.0, -1.3),
+        ("AA/TT", -9.1, -24.0),
+        ("AT/TA", -8.6, -23.9),
+        ("TA/AT", -6.0, -16.9),
+        ("CA/GT", -5.8, -12.9),
+        ("GT/CA", -6.5, -17.3),
+        ("CT/GA", -7.8, -20.8),
+        ("GA/CT", -5.6, -13.5),
+        ("CG/GC", -11.9, -27.8),
+        ("GC/CG", -11.1, -26.7),
+        ("GG/CC", -11.0, -26.6),
       ])
-    "DNA_NN2" => thermo([
-        ("init", 0.6, -9.0), ("init_A/T", 0.0, 0.0), ("init_G/C", 0.0, 0.0),
-        ("init_oneG/C", 0.0, 0.0), ("init_allA/T", 0.0, 0.0),
-        ("init_5T/A", 0.0, 0.0), ("sym", 0.0, -1.4),
-        ("AA/TT", -8.0, -21.9), ("AT/TA", -5.6, -15.2), ("TA/AT", -6.6, -18.4),
-        ("CA/GT", -8.2, -21.0), ("GT/CA", -9.4, -25.5), ("CT/GA", -6.6, -16.4),
-        ("GA/CT", -8.8, -23.5), ("CG/GC", -11.8, -29.0),
-        ("GC/CG", -10.5, -26.4), ("GG/CC", -10.9, -28.4),
+    "DNA_NN2" =>
+      thermo([
+        ("init", 0.6, -9.0),
+        ("init_A/T", 0.0, 0.0),
+        ("init_G/C", 0.0, 0.0),
+        ("init_oneG/C", 0.0, 0.0),
+        ("init_allA/T", 0.0, 0.0),
+        ("init_5T/A", 0.0, 0.0),
+        ("sym", 0.0, -1.4),
+        ("AA/TT", -8.0, -21.9),
+        ("AT/TA", -5.6, -15.2),
+        ("TA/AT", -6.6, -18.4),
+        ("CA/GT", -8.2, -21.0),
+        ("GT/CA", -9.4, -25.5),
+        ("CT/GA", -6.6, -16.4),
+        ("GA/CT", -8.8, -23.5),
+        ("CG/GC", -11.8, -29.0),
+        ("GC/CG", -10.5, -26.4),
+        ("GG/CC", -10.9, -28.4),
       ])
-    "DNA_NN3" => thermo([
-        ("init", 0.0, 0.0), ("init_A/T", 2.3, 4.1), ("init_G/C", 0.1, -2.8),
-        ("init_oneG/C", 0.0, 0.0), ("init_allA/T", 0.0, 0.0),
-        ("init_5T/A", 0.0, 0.0), ("sym", 0.0, -1.4),
-        ("AA/TT", -7.9, -22.2), ("AT/TA", -7.2, -20.4), ("TA/AT", -7.2, -21.3),
-        ("CA/GT", -8.5, -22.7), ("GT/CA", -8.4, -22.4), ("CT/GA", -7.8, -21.0),
-        ("GA/CT", -8.2, -22.2), ("CG/GC", -10.6, -27.2),
-        ("GC/CG", -9.8, -24.4), ("GG/CC", -8.0, -19.9),
+    "DNA_NN3" =>
+      thermo([
+        ("init", 0.0, 0.0),
+        ("init_A/T", 2.3, 4.1),
+        ("init_G/C", 0.1, -2.8),
+        ("init_oneG/C", 0.0, 0.0),
+        ("init_allA/T", 0.0, 0.0),
+        ("init_5T/A", 0.0, 0.0),
+        ("sym", 0.0, -1.4),
+        ("AA/TT", -7.9, -22.2),
+        ("AT/TA", -7.2, -20.4),
+        ("TA/AT", -7.2, -21.3),
+        ("CA/GT", -8.5, -22.7),
+        ("GT/CA", -8.4, -22.4),
+        ("CT/GA", -7.8, -21.0),
+        ("GA/CT", -8.2, -22.2),
+        ("CG/GC", -10.6, -27.2),
+        ("GC/CG", -9.8, -24.4),
+        ("GG/CC", -8.0, -19.9),
       ])
-    "DNA_NN4" => thermo([
-        ("init", 0.2, -5.7), ("init_A/T", 2.2, 6.9), ("init_G/C", 0.0, 0.0),
-        ("init_oneG/C", 0.0, 0.0), ("init_allA/T", 0.0, 0.0),
-        ("init_5T/A", 0.0, 0.0), ("sym", 0.0, -1.4),
-        ("AA/TT", -7.6, -21.3), ("AT/TA", -7.2, -20.4), ("TA/AT", -7.2, -21.3),
-        ("CA/GT", -8.5, -22.7), ("GT/CA", -8.4, -22.4), ("CT/GA", -7.8, -21.0),
-        ("GA/CT", -8.2, -22.2), ("CG/GC", -10.6, -27.2),
-        ("GC/CG", -9.8, -24.4), ("GG/CC", -8.0, -19.9),
+    "DNA_NN4" =>
+      thermo([
+        ("init", 0.2, -5.7),
+        ("init_A/T", 2.2, 6.9),
+        ("init_G/C", 0.0, 0.0),
+        ("init_oneG/C", 0.0, 0.0),
+        ("init_allA/T", 0.0, 0.0),
+        ("init_5T/A", 0.0, 0.0),
+        ("sym", 0.0, -1.4),
+        ("AA/TT", -7.6, -21.3),
+        ("AT/TA", -7.2, -20.4),
+        ("TA/AT", -7.2, -21.3),
+        ("CA/GT", -8.5, -22.7),
+        ("GT/CA", -8.4, -22.4),
+        ("CT/GA", -7.8, -21.0),
+        ("GA/CT", -8.2, -22.2),
+        ("CG/GC", -10.6, -27.2),
+        ("GC/CG", -9.8, -24.4),
+        ("GG/CC", -8.0, -19.9),
       ])
-    "RNA_NN1" => thermo([
-        ("init", 0.0, -10.8), ("init_A/T", 0.0, 0.0), ("init_G/C", 0.0, 0.0),
-        ("init_oneG/C", 0.0, 0.0), ("init_allA/T", 0.0, 0.0),
-        ("init_5T/A", 0.0, 0.0), ("sym", 0.0, -1.4),
-        ("AA/TT", -6.6, -18.4), ("AT/TA", -5.7, -15.5), ("TA/AT", -8.1, -22.6),
-        ("CA/GT", -10.5, -27.8), ("GT/CA", -10.2, -26.2), ("CT/GA", -7.6, -19.2),
-        ("GA/CT", -13.3, -35.5), ("CG/GC", -8.0, -19.4),
-        ("GC/CG", -14.2, -34.9), ("GG/CC", -12.2, -29.7),
+    "RNA_NN1" =>
+      thermo([
+        ("init", 0.0, -10.8),
+        ("init_A/T", 0.0, 0.0),
+        ("init_G/C", 0.0, 0.0),
+        ("init_oneG/C", 0.0, 0.0),
+        ("init_allA/T", 0.0, 0.0),
+        ("init_5T/A", 0.0, 0.0),
+        ("sym", 0.0, -1.4),
+        ("AA/TT", -6.6, -18.4),
+        ("AT/TA", -5.7, -15.5),
+        ("TA/AT", -8.1, -22.6),
+        ("CA/GT", -10.5, -27.8),
+        ("GT/CA", -10.2, -26.2),
+        ("CT/GA", -7.6, -19.2),
+        ("GA/CT", -13.3, -35.5),
+        ("CG/GC", -8.0, -19.4),
+        ("GC/CG", -14.2, -34.9),
+        ("GG/CC", -12.2, -29.7),
       ])
-    "RNA_NN2" => thermo([
-        ("init", 3.61, -1.5), ("init_A/T", 3.72, 10.5), ("init_G/C", 0.0, 0.0),
-        ("init_oneG/C", 0.0, 0.0), ("init_allA/T", 0.0, 0.0),
-        ("init_5T/A", 0.0, 0.0), ("sym", 0.0, -1.4),
-        ("AA/TT", -6.82, -19.0), ("AT/TA", -9.38, -26.7), ("TA/AT", -7.69, -20.5),
-        ("CA/GT", -10.44, -26.9), ("GT/CA", -11.40, -29.5),
-        ("CT/GA", -10.48, -27.1), ("GA/CT", -12.44, -32.5),
-        ("CG/GC", -10.64, -26.7), ("GC/CG", -14.88, -36.9),
+    "RNA_NN2" =>
+      thermo([
+        ("init", 3.61, -1.5),
+        ("init_A/T", 3.72, 10.5),
+        ("init_G/C", 0.0, 0.0),
+        ("init_oneG/C", 0.0, 0.0),
+        ("init_allA/T", 0.0, 0.0),
+        ("init_5T/A", 0.0, 0.0),
+        ("sym", 0.0, -1.4),
+        ("AA/TT", -6.82, -19.0),
+        ("AT/TA", -9.38, -26.7),
+        ("TA/AT", -7.69, -20.5),
+        ("CA/GT", -10.44, -26.9),
+        ("GT/CA", -11.40, -29.5),
+        ("CT/GA", -10.48, -27.1),
+        ("GA/CT", -12.44, -32.5),
+        ("CG/GC", -10.64, -26.7),
+        ("GC/CG", -14.88, -36.9),
         ("GG/CC", -13.39, -32.7),
       ])
-    "RNA_NN3" => thermo([
-        ("init", 6.40, 6.99), ("init_A/T", 3.85, 11.04), ("init_G/C", 0.0, 0.0),
-        ("init_oneG/C", 0.0, 0.0), ("init_allA/T", 0.0, 0.0),
-        ("init_5T/A", 0.0, 0.0), ("sym", 0.0, -1.4),
-        ("AA/TT", -7.09, -19.8), ("AT/TA", -9.11, -25.8), ("TA/AT", -8.50, -22.9),
-        ("CA/GT", -11.03, -28.8), ("GT/CA", -11.98, -31.3),
-        ("CT/GA", -10.90, -28.5), ("GA/CT", -13.21, -34.9),
-        ("CG/GC", -10.88, -27.4), ("GC/CG", -16.04, -40.6),
-        ("GG/CC", -14.18, -35.0), ("GT/TG", -13.83, -46.9),
-        ("GG/TT", -17.82, -56.7), ("AG/TT", -3.96, -11.6),
-        ("TG/AT", -0.96, -1.8), ("TT/AG", -10.38, -31.8),
-        ("TG/GT", -12.64, -38.9), ("AT/TG", -7.39, -21.0),
-        ("CG/GT", -5.56, -13.9), ("CT/GG", -9.44, -24.7),
-        ("GG/CT", -7.03, -16.8), ("GT/CG", -11.09, -28.8),
+    "RNA_NN3" =>
+      thermo([
+        ("init", 6.40, 6.99),
+        ("init_A/T", 3.85, 11.04),
+        ("init_G/C", 0.0, 0.0),
+        ("init_oneG/C", 0.0, 0.0),
+        ("init_allA/T", 0.0, 0.0),
+        ("init_5T/A", 0.0, 0.0),
+        ("sym", 0.0, -1.4),
+        ("AA/TT", -7.09, -19.8),
+        ("AT/TA", -9.11, -25.8),
+        ("TA/AT", -8.50, -22.9),
+        ("CA/GT", -11.03, -28.8),
+        ("GT/CA", -11.98, -31.3),
+        ("CT/GA", -10.90, -28.5),
+        ("GA/CT", -13.21, -34.9),
+        ("CG/GC", -10.88, -27.4),
+        ("GC/CG", -16.04, -40.6),
+        ("GG/CC", -14.18, -35.0),
+        ("GT/TG", -13.83, -46.9),
+        ("GG/TT", -17.82, -56.7),
+        ("AG/TT", -3.96, -11.6),
+        ("TG/AT", -0.96, -1.8),
+        ("TT/AG", -10.38, -31.8),
+        ("TG/GT", -12.64, -38.9),
+        ("AT/TG", -7.39, -21.0),
+        ("CG/GT", -5.56, -13.9),
+        ("CT/GG", -9.44, -24.7),
+        ("GG/CT", -7.03, -16.8),
+        ("GT/CG", -11.09, -28.8),
       ])
-    "R_DNA_NN1" => thermo([
-        ("init", 1.9, -3.9), ("init_A/T", 0.0, 0.0), ("init_G/C", 0.0, 0.0),
-        ("init_oneG/C", 0.0, 0.0), ("init_allA/T", 0.0, 0.0),
-        ("init_5T/A", 0.0, 0.0), ("sym", 0.0, 0.0),
-        ("TT/AA", -11.5, -36.4), ("GT/CA", -7.8, -21.6), ("CT/GA", -7.0, -19.7),
-        ("AT/TA", -8.3, -23.9), ("TG/AC", -10.4, -28.4), ("GG/CC", -12.8, -31.9),
-        ("CG/GC", -16.3, -47.1), ("AG/TC", -9.1, -23.5), ("TC/AG", -8.6, -22.9),
-        ("GC/CG", -8.0, -17.1), ("CC/GG", -9.3, -23.2), ("AC/TG", -5.9, -12.3),
-        ("TA/AT", -7.8, -23.2), ("GA/CT", -5.5, -13.5), ("CA/GT", -9.0, -26.1),
+    "R_DNA_NN1" =>
+      thermo([
+        ("init", 1.9, -3.9),
+        ("init_A/T", 0.0, 0.0),
+        ("init_G/C", 0.0, 0.0),
+        ("init_oneG/C", 0.0, 0.0),
+        ("init_allA/T", 0.0, 0.0),
+        ("init_5T/A", 0.0, 0.0),
+        ("sym", 0.0, 0.0),
+        ("TT/AA", -11.5, -36.4),
+        ("GT/CA", -7.8, -21.6),
+        ("CT/GA", -7.0, -19.7),
+        ("AT/TA", -8.3, -23.9),
+        ("TG/AC", -10.4, -28.4),
+        ("GG/CC", -12.8, -31.9),
+        ("CG/GC", -16.3, -47.1),
+        ("AG/TC", -9.1, -23.5),
+        ("TC/AG", -8.6, -22.9),
+        ("GC/CG", -8.0, -17.1),
+        ("CC/GG", -9.3, -23.2),
+        ("AC/TG", -5.9, -12.3),
+        ("TA/AT", -7.8, -23.2),
+        ("GA/CT", -5.5, -13.5),
+        ("CA/GT", -9.0, -26.1),
         ("AA/TT", -7.8, -21.9),
       ])
-    "DNA_IMM1" => thermo([
-        ("AG/TT", 1.0, 0.9), ("AT/TG", -2.5, -8.3), ("CG/GT", -4.1, -11.7),
-        ("CT/GG", -2.8, -8.0), ("GG/CT", 3.3, 10.4), ("GG/TT", 5.8, 16.3),
-        ("GT/CG", -4.4, -12.3), ("GT/TG", 4.1, 9.5), ("TG/AT", -0.1, -1.7),
-        ("TG/GT", -1.4, -6.2), ("TT/AG", -1.3, -5.3), ("AA/TG", -0.6, -2.3),
-        ("AG/TA", -0.7, -2.3), ("CA/GG", -0.7, -2.3), ("CG/GA", -4.0, -13.2),
-        ("GA/CG", -0.6, -1.0), ("GG/CA", 0.5, 3.2), ("TA/AG", 0.7, 0.7),
+    "DNA_IMM1" =>
+      thermo([
+        ("AG/TT", 1.0, 0.9),
+        ("AT/TG", -2.5, -8.3),
+        ("CG/GT", -4.1, -11.7),
+        ("CT/GG", -2.8, -8.0),
+        ("GG/CT", 3.3, 10.4),
+        ("GG/TT", 5.8, 16.3),
+        ("GT/CG", -4.4, -12.3),
+        ("GT/TG", 4.1, 9.5),
+        ("TG/AT", -0.1, -1.7),
+        ("TG/GT", -1.4, -6.2),
+        ("TT/AG", -1.3, -5.3),
+        ("AA/TG", -0.6, -2.3),
+        ("AG/TA", -0.7, -2.3),
+        ("CA/GG", -0.7, -2.3),
+        ("CG/GA", -4.0, -13.2),
+        ("GA/CG", -0.6, -1.0),
+        ("GG/CA", 0.5, 3.2),
+        ("TA/AG", 0.7, 0.7),
         ("TG/AA", 3.0, 7.4),
-        ("AC/TT", 0.7, 0.2), ("AT/TC", -1.2, -6.2), ("CC/GT", -0.8, -4.5),
-        ("CT/GC", -1.5, -6.1), ("GC/CT", 2.3, 5.4), ("GT/CC", 5.2, 13.5),
-        ("TC/AT", 1.2, 0.7), ("TT/AC", 1.0, 0.7),
-        ("AA/TC", 2.3, 4.6), ("AC/TA", 5.3, 14.6), ("CA/GC", 1.9, 3.7),
-        ("CC/GA", 0.6, -0.6), ("GA/CC", 5.2, 14.2), ("GC/CA", -0.7, -3.8),
-        ("TA/AC", 3.4, 8.0), ("TC/AA", 7.6, 20.2),
-        ("AA/TA", 1.2, 1.7), ("CA/GA", -0.9, -4.2), ("GA/CA", -2.9, -9.8),
-        ("TA/AA", 4.7, 12.9), ("AC/TC", 0.0, -4.4), ("CC/GC", -1.5, -7.2),
-        ("GC/CC", 3.6, 8.9), ("TC/AC", 6.1, 16.4), ("AG/TG", -3.1, -9.5),
-        ("CG/GG", -4.9, -15.3), ("GG/CG", -6.0, -15.8), ("TG/AG", 1.6, 3.6),
-        ("AT/TT", -2.7, -10.8), ("CT/GT", -5.0, -15.8), ("GT/CT", -2.2, -8.4),
+        ("AC/TT", 0.7, 0.2),
+        ("AT/TC", -1.2, -6.2),
+        ("CC/GT", -0.8, -4.5),
+        ("CT/GC", -1.5, -6.1),
+        ("GC/CT", 2.3, 5.4),
+        ("GT/CC", 5.2, 13.5),
+        ("TC/AT", 1.2, 0.7),
+        ("TT/AC", 1.0, 0.7),
+        ("AA/TC", 2.3, 4.6),
+        ("AC/TA", 5.3, 14.6),
+        ("CA/GC", 1.9, 3.7),
+        ("CC/GA", 0.6, -0.6),
+        ("GA/CC", 5.2, 14.2),
+        ("GC/CA", -0.7, -3.8),
+        ("TA/AC", 3.4, 8.0),
+        ("TC/AA", 7.6, 20.2),
+        ("AA/TA", 1.2, 1.7),
+        ("CA/GA", -0.9, -4.2),
+        ("GA/CA", -2.9, -9.8),
+        ("TA/AA", 4.7, 12.9),
+        ("AC/TC", 0.0, -4.4),
+        ("CC/GC", -1.5, -7.2),
+        ("GC/CC", 3.6, 8.9),
+        ("TC/AC", 6.1, 16.4),
+        ("AG/TG", -3.1, -9.5),
+        ("CG/GG", -4.9, -15.3),
+        ("GG/CG", -6.0, -15.8),
+        ("TG/AG", 1.6, 3.6),
+        ("AT/TT", -2.7, -10.8),
+        ("CT/GT", -5.0, -15.8),
+        ("GT/CT", -2.2, -8.4),
         ("TT/AT", 0.2, -1.5),
-        ("AI/TC", -8.9, -25.5), ("TI/AC", -5.9, -17.4), ("AC/TI", -8.8, -25.4),
-        ("TC/AI", -4.9, -13.9), ("CI/GC", -5.4, -13.7), ("GI/CC", -6.8, -19.1),
-        ("CC/GI", -8.3, -23.8), ("GC/CI", -5.0, -12.6),
-        ("AI/TA", -8.3, -25.0), ("TI/AA", -3.4, -11.2), ("AA/TI", -0.7, -2.6),
-        ("TA/AI", -1.3, -4.6), ("CI/GA", 2.6, 8.9), ("GI/CA", -7.8, -21.1),
-        ("CA/GI", -7.0, -20.0), ("GA/CI", -7.6, -20.2),
-        ("AI/TT", 0.49, -0.7), ("TI/AT", -6.5, -22.0), ("AT/TI", -5.6, -18.7),
-        ("TT/AI", -0.8, -4.3), ("CI/GT", -1.0, -2.4), ("GI/CT", -3.5, -10.6),
-        ("CT/GI", 0.1, -1.0), ("GT/CI", -4.3, -12.1),
-        ("AI/TG", -4.9, -15.8), ("TI/AG", -1.9, -8.5), ("AG/TI", 0.1, -1.8),
-        ("TG/AI", 1.0, 1.0), ("CI/GG", 7.1, 21.3), ("GI/CG", -1.1, -3.2),
-        ("CG/GI", 5.8, 16.9), ("GG/CI", -7.6, -22.0),
-        ("AI/TI", -3.3, -11.9), ("TI/AI", 0.1, -2.3), ("CI/GI", 1.3, 3.0),
+        ("AI/TC", -8.9, -25.5),
+        ("TI/AC", -5.9, -17.4),
+        ("AC/TI", -8.8, -25.4),
+        ("TC/AI", -4.9, -13.9),
+        ("CI/GC", -5.4, -13.7),
+        ("GI/CC", -6.8, -19.1),
+        ("CC/GI", -8.3, -23.8),
+        ("GC/CI", -5.0, -12.6),
+        ("AI/TA", -8.3, -25.0),
+        ("TI/AA", -3.4, -11.2),
+        ("AA/TI", -0.7, -2.6),
+        ("TA/AI", -1.3, -4.6),
+        ("CI/GA", 2.6, 8.9),
+        ("GI/CA", -7.8, -21.1),
+        ("CA/GI", -7.0, -20.0),
+        ("GA/CI", -7.6, -20.2),
+        ("AI/TT", 0.49, -0.7),
+        ("TI/AT", -6.5, -22.0),
+        ("AT/TI", -5.6, -18.7),
+        ("TT/AI", -0.8, -4.3),
+        ("CI/GT", -1.0, -2.4),
+        ("GI/CT", -3.5, -10.6),
+        ("CT/GI", 0.1, -1.0),
+        ("GT/CI", -4.3, -12.1),
+        ("AI/TG", -4.9, -15.8),
+        ("TI/AG", -1.9, -8.5),
+        ("AG/TI", 0.1, -1.8),
+        ("TG/AI", 1.0, 1.0),
+        ("CI/GG", 7.1, 21.3),
+        ("GI/CG", -1.1, -3.2),
+        ("CG/GI", 5.8, 16.9),
+        ("GG/CI", -7.6, -22.0),
+        ("AI/TI", -3.3, -11.9),
+        ("TI/AI", 0.1, -2.3),
+        ("CI/GI", 1.3, 3.0),
         ("GI/CI", -0.5, -1.3),
       ])
-    "DNA_TMM1" => thermo([
-        ("AA/TA", -3.1, -7.8), ("TA/AA", -2.5, -6.3), ("CA/GA", -4.3, -10.7),
+    "DNA_TMM1" =>
+      thermo([
+        ("AA/TA", -3.1, -7.8),
+        ("TA/AA", -2.5, -6.3),
+        ("CA/GA", -4.3, -10.7),
         ("GA/CA", -8.0, -22.5),
-        ("AC/TC", -0.1, 0.5), ("TC/AC", -0.7, -1.3), ("CC/GC", -2.1, -5.1),
+        ("AC/TC", -0.1, 0.5),
+        ("TC/AC", -0.7, -1.3),
+        ("CC/GC", -2.1, -5.1),
         ("GC/CC", -3.9, -10.6),
-        ("AG/TG", -1.1, -2.1), ("TG/AG", -1.1, -2.7), ("CG/GG", -3.8, -9.5),
+        ("AG/TG", -1.1, -2.1),
+        ("TG/AG", -1.1, -2.7),
+        ("CG/GG", -3.8, -9.5),
         ("GG/CG", -0.7, -19.2),
-        ("AT/TT", -2.4, -6.5), ("TT/AT", -3.2, -8.9), ("CT/GT", -6.1, -16.9),
+        ("AT/TT", -2.4, -6.5),
+        ("TT/AT", -3.2, -8.9),
+        ("CT/GT", -6.1, -16.9),
         ("GT/CT", -7.4, -21.2),
-        ("AA/TC", -1.6, -4.0), ("AC/TA", -1.8, -3.8), ("CA/GC", -2.6, -5.9),
-        ("CC/GA", -2.7, -6.0), ("GA/CC", -5.0, -13.8), ("GC/CA", -3.2, -7.1),
-        ("TA/AC", -2.3, -5.9), ("TC/AA", -2.7, -7.0),
-        ("AC/TT", -0.9, -1.7), ("AT/TC", -2.3, -6.3), ("CC/GT", -3.2, -8.0),
-        ("CT/GC", -3.9, -10.6), ("GC/CT", -4.9, -13.5), ("GT/CC", -3.0, -7.8),
-        ("TC/AT", -2.5, -6.3), ("TT/AC", -0.7, -1.2),
-        ("AA/TG", -1.9, -4.4), ("AG/TA", -2.5, -5.9), ("CA/GG", -3.9, -9.6),
-        ("CG/GA", -6.0, -15.5), ("GA/CG", -4.3, -11.1), ("GG/CA", -4.6, -11.4),
-        ("TA/AG", -2.0, -4.7), ("TG/AA", -2.4, -5.8),
-        ("AG/TT", -3.2, -8.7), ("AT/TG", -3.5, -9.4), ("CG/GT", -3.8, -9.0),
-        ("CT/GG", -6.6, -18.7), ("GG/CT", -5.7, -15.9), ("GT/CG", -5.9, -16.1),
-        ("TG/AT", -3.9, -10.5), ("TT/AG", -3.6, -9.8),
+        ("AA/TC", -1.6, -4.0),
+        ("AC/TA", -1.8, -3.8),
+        ("CA/GC", -2.6, -5.9),
+        ("CC/GA", -2.7, -6.0),
+        ("GA/CC", -5.0, -13.8),
+        ("GC/CA", -3.2, -7.1),
+        ("TA/AC", -2.3, -5.9),
+        ("TC/AA", -2.7, -7.0),
+        ("AC/TT", -0.9, -1.7),
+        ("AT/TC", -2.3, -6.3),
+        ("CC/GT", -3.2, -8.0),
+        ("CT/GC", -3.9, -10.6),
+        ("GC/CT", -4.9, -13.5),
+        ("GT/CC", -3.0, -7.8),
+        ("TC/AT", -2.5, -6.3),
+        ("TT/AC", -0.7, -1.2),
+        ("AA/TG", -1.9, -4.4),
+        ("AG/TA", -2.5, -5.9),
+        ("CA/GG", -3.9, -9.6),
+        ("CG/GA", -6.0, -15.5),
+        ("GA/CG", -4.3, -11.1),
+        ("GG/CA", -4.6, -11.4),
+        ("TA/AG", -2.0, -4.7),
+        ("TG/AA", -2.4, -5.8),
+        ("AG/TT", -3.2, -8.7),
+        ("AT/TG", -3.5, -9.4),
+        ("CG/GT", -3.8, -9.0),
+        ("CT/GG", -6.6, -18.7),
+        ("GG/CT", -5.7, -15.9),
+        ("GT/CG", -5.9, -16.1),
+        ("TG/AT", -3.9, -10.5),
+        ("TT/AG", -3.6, -9.8),
       ])
-    "DNA_DE1" => thermo([
-        ("AA/.T", 0.2, 2.3), ("AC/.G", -6.3, -17.1), ("AG/.C", -3.7, -10.0),
-        ("AT/.A", -2.9, -7.6), ("CA/.T", 0.6, 3.3), ("CC/.G", -4.4, -12.6),
-        ("CG/.C", -4.0, -11.9), ("CT/.A", -4.1, -13.0), ("GA/.T", -1.1, -1.6),
-        ("GC/.G", -5.1, -14.0), ("GG/.C", -3.9, -10.9), ("GT/.A", -4.2, -15.0),
-        ("TA/.T", -6.9, -20.0), ("TC/.G", -4.0, -10.9), ("TG/.C", -4.9, -13.8),
+    "DNA_DE1" =>
+      thermo([
+        ("AA/.T", 0.2, 2.3),
+        ("AC/.G", -6.3, -17.1),
+        ("AG/.C", -3.7, -10.0),
+        ("AT/.A", -2.9, -7.6),
+        ("CA/.T", 0.6, 3.3),
+        ("CC/.G", -4.4, -12.6),
+        ("CG/.C", -4.0, -11.9),
+        ("CT/.A", -4.1, -13.0),
+        ("GA/.T", -1.1, -1.6),
+        ("GC/.G", -5.1, -14.0),
+        ("GG/.C", -3.9, -10.9),
+        ("GT/.A", -4.2, -15.0),
+        ("TA/.T", -6.9, -20.0),
+        ("TC/.G", -4.0, -10.9),
+        ("TG/.C", -4.9, -13.8),
         ("TT/.A", -0.2, -0.5),
-        (".A/AT", -0.7, -0.8), (".C/AG", -2.1, -3.9), (".G/AC", -5.9, -16.5),
-        (".T/AA", -0.5, -1.1), (".A/CT", 4.4, 14.9), (".C/CG", -0.2, -0.1),
-        (".G/CC", -2.6, -7.4), (".T/CA", 4.7, 14.2), (".A/GT", -1.6, -3.6),
-        (".C/GG", -3.9, -11.2), (".G/GC", -3.2, -10.4), (".T/GA", -4.1, -13.1),
-        (".A/TT", 2.9, 10.4), (".C/TG", -4.4, -13.1), (".G/TC", -5.2, -15.0),
+        (".A/AT", -0.7, -0.8),
+        (".C/AG", -2.1, -3.9),
+        (".G/AC", -5.9, -16.5),
+        (".T/AA", -0.5, -1.1),
+        (".A/CT", 4.4, 14.9),
+        (".C/CG", -0.2, -0.1),
+        (".G/CC", -2.6, -7.4),
+        (".T/CA", 4.7, 14.2),
+        (".A/GT", -1.6, -3.6),
+        (".C/GG", -3.9, -11.2),
+        (".G/GC", -3.2, -10.4),
+        (".T/GA", -4.1, -13.1),
+        (".A/TT", 2.9, 10.4),
+        (".C/TG", -4.4, -13.1),
+        (".G/TC", -5.2, -15.0),
         (".T/TA", -3.8, -12.6),
       ])
-    "RNA_DE1" => thermo([
-        (".T/AA", -4.9, -13.2), (".T/CA", -0.9, -1.3), (".T/GA", -5.5, -15.1),
+    "RNA_DE1" =>
+      thermo([
+        (".T/AA", -4.9, -13.2),
+        (".T/CA", -0.9, -1.3),
+        (".T/GA", -5.5, -15.1),
         (".T/TA", -2.3, -5.5),
-        (".G/AC", -9.0, -23.5), (".G/CC", -4.1, -10.6), (".G/GC", -8.6, -22.2),
+        (".G/AC", -9.0, -23.5),
+        (".G/CC", -4.1, -10.6),
+        (".G/GC", -8.6, -22.2),
         (".G/TC", -7.5, -20.31),
-        (".C/AG", -7.4, -20.3), (".C/CG", -2.8, -7.7), (".C/GG", -6.4, -16.4),
+        (".C/AG", -7.4, -20.3),
+        (".C/CG", -2.8, -7.7),
+        (".C/GG", -6.4, -16.4),
         (".C/TG", -3.6, -9.7),
-        (".T/AG", -4.9, -13.2), (".T/CG", -0.9, -1.3), (".T/GG", -5.5, -15.1),
+        (".T/AG", -4.9, -13.2),
+        (".T/CG", -0.9, -1.3),
+        (".T/GG", -5.5, -15.1),
         (".T/TG", -2.3, -5.5),
-        (".A/AT", -5.7, -16.1), (".A/CT", -0.7, -1.9), (".A/GT", -5.8, -16.4),
+        (".A/AT", -5.7, -16.1),
+        (".A/CT", -0.7, -1.9),
+        (".A/GT", -5.8, -16.4),
         (".A/TT", -2.2, -6.8),
-        (".G/AT", -5.7, -16.1), (".G/CT", -0.7, -1.9), (".G/GT", -5.8, -16.4),
+        (".G/AT", -5.7, -16.1),
+        (".G/CT", -0.7, -1.9),
+        (".G/GT", -5.8, -16.4),
         (".G/TT", -2.2, -6.8),
-        ("AT/.A", -0.5, -0.6), ("CT/.A", 6.9, 22.6), ("GT/.A", 0.6, 2.6),
+        ("AT/.A", -0.5, -0.6),
+        ("CT/.A", 6.9, 22.6),
+        ("GT/.A", 0.6, 2.6),
         ("TT/.A", 0.6, 2.6),
-        ("AG/.C", -1.6, -4.5), ("CG/.C", 0.7, 3.2), ("GG/.C", -4.6, -14.8),
+        ("AG/.C", -1.6, -4.5),
+        ("CG/.C", 0.7, 3.2),
+        ("GG/.C", -4.6, -14.8),
         ("TG/.C", -0.4, -1.3),
-        ("AC/.G", -2.4, -6.1), ("CC/.G", 3.3, 11.6), ("GC/.G", 0.8, 3.2),
+        ("AC/.G", -2.4, -6.1),
+        ("CC/.G", 3.3, 11.6),
+        ("GC/.G", 0.8, 3.2),
         ("TC/.G", -1.4, -4.2),
-        ("AT/.G", -0.5, -0.6), ("CT/.G", 6.9, 22.6), ("GT/.G", 0.6, 2.6),
+        ("AT/.G", -0.5, -0.6),
+        ("CT/.G", 6.9, 22.6),
+        ("GT/.G", 0.6, 2.6),
         ("TT/.G", 0.6, 2.6),
-        ("AA/.T", 1.6, 6.1), ("CA/.T", 2.2, 8.1), ("GA/.T", 0.7, 3.5),
+        ("AA/.T", 1.6, 6.1),
+        ("CA/.T", 2.2, 8.1),
+        ("GA/.T", 0.7, 3.5),
         ("TA/.T", 3.1, 10.6),
-        ("AG/.T", 1.6, 6.1), ("CG/.T", 2.2, 8.1), ("GG/.T", 0.7, 3.5),
+        ("AG/.T", 1.6, 6.1),
+        ("CG/.T", 2.2, 8.1),
+        ("GG/.T", 0.7, 3.5),
         ("TG/.T", 3.1, 10.6),
       ])
     _ => raise SeqError("unknown thermodynamic table: \{name}")
@@ -223,14 +449,24 @@ pub fn tm_make_table(
 ) -> ThermoTable raise SeqError {
   let table : ThermoTable = if base == "" {
     thermo([
-        ("init", 0.0, 0.0), ("init_A/T", 0.0, 0.0), ("init_G/C", 0.0, 0.0),
-        ("init_oneG/C", 0.0, 0.0), ("init_allA/T", 0.0, 0.0),
-        ("init_5T/A", 0.0, 0.0), ("sym", 0.0, 0.0),
-        ("AA/TT", 0.0, 0.0), ("AT/TA", 0.0, 0.0), ("TA/AT", 0.0, 0.0),
-        ("CA/GT", 0.0, 0.0), ("GT/CA", 0.0, 0.0), ("CT/GA", 0.0, 0.0),
-        ("GA/CT", 0.0, 0.0), ("CG/GC", 0.0, 0.0), ("GC/CG", 0.0, 0.0),
-        ("GG/CC", 0.0, 0.0),
-      ])
+      ("init", 0.0, 0.0),
+      ("init_A/T", 0.0, 0.0),
+      ("init_G/C", 0.0, 0.0),
+      ("init_oneG/C", 0.0, 0.0),
+      ("init_allA/T", 0.0, 0.0),
+      ("init_5T/A", 0.0, 0.0),
+      ("sym", 0.0, 0.0),
+      ("AA/TT", 0.0, 0.0),
+      ("AT/TA", 0.0, 0.0),
+      ("TA/AT", 0.0, 0.0),
+      ("CA/GT", 0.0, 0.0),
+      ("GT/CA", 0.0, 0.0),
+      ("CT/GA", 0.0, 0.0),
+      ("GA/CT", 0.0, 0.0),
+      ("CG/GC", 0.0, 0.0),
+      ("GC/CG", 0.0, 0.0),
+      ("GG/CC", 0.0, 0.0),
+    ])
   } else {
     tm_thermo_table(base)
   }
@@ -284,8 +520,10 @@ fn tm_check(seq : String, method_name : String) -> String {
   let s = seq.to_upper()
   let kept = StringBuilder()
   let baseset : Array[String] = if method_name == "Tm_GC" {
-    ["A", "B", "C", "D", "G", "H", "I", "K", "M", "N", "R", "S", "T",
-      "V", "W", "X", "Y"]
+    [
+      "A", "B", "C", "D", "G", "H", "I", "K", "M", "N", "R", "S", "T", "V", "W",
+      "X", "Y",
+    ]
   } else if method_name == "Tm_NN" {
     ["A", "C", "G", "T", "I"]
   } else {
@@ -300,11 +538,7 @@ fn tm_check(seq : String, method_name : String) -> String {
       continue
     }
     // back-transcribe
-    let base = if c == "U" {
-      "T"
-    } else {
-      c
-    }
+    let base = if c == "U" { "T" } else { c }
     if method_name == "Tm_Wallace" {
       kept.write_string(base)
     } else {
@@ -347,7 +581,9 @@ pub fn tm_salt_correction(
 ) -> Double raise SeqError {
   if salt_method == 5 || salt_method == 6 || salt_method == 7 {
     if seq == "" {
-      raise SeqError("sequence is missing (is needed to calculate GC content or sequence length).")
+      raise SeqError(
+        "sequence is missing (is needed to calculate GC content or sequence length).",
+      )
     }
   }
   if salt_method > 7 {
@@ -364,7 +600,9 @@ pub fn tm_salt_correction(
   }
   let mon = mon_val * 1.0e-3
   if salt_method >= 1 && salt_method <= 6 && mon == 0.0 {
-    raise SeqError("Total ion concentration of zero is not allowed in this method.")
+    raise SeqError(
+      "Total ion concentration of zero is not allowed in this method.",
+    )
   }
   let ln10 = @math.ln(10.0)
   let log10 = fn(x : Double) { @math.ln(x) / ln10 }
@@ -410,13 +648,21 @@ pub fn tm_salt_correction(
         g = 8.31 * (0.486 - 0.258 * ln_m + 5.25e-3 * ln_m * ln_m * ln_m)
       }
     } else if mg_free <= 0.0 {
-      raise SeqError("Total ion concentration of zero is not allowed in this method.")
+      raise SeqError(
+        "Total ion concentration of zero is not allowed in this method.",
+      )
     }
     let gcf = gc_fraction(seq, ambiguous="ignore")
     let ln_mg = @math.ln(mg_free)
-    (a + b * ln_mg + gcf * (c + d * ln_mg) +
-      (1.0 / (2.0 * (seq.length() - 1).to_double())) *
-      (e + f * ln_mg + g * ln_mg * ln_mg)) * 1.0e-5
+    (
+      a +
+      b * ln_mg +
+      gcf * (c + d * ln_mg) +
+      1.0 /
+      (2.0 * (seq.length() - 1).to_double()) *
+      (e + f * ln_mg + g * ln_mg * ln_mg)
+    ) *
+    1.0e-5
   }
 }
 
@@ -534,33 +780,36 @@ pub fn TmOptions::of(
   saltcorr? : Int = 5,
 ) -> TmOptions {
   {
-    check: check,
-    strict: strict,
-    c_seq: c_seq,
-    shift: shift,
-    nn_table: nn_table,
-    tmm_table: tmm_table,
-    imm_table: imm_table,
-    de_table: de_table,
-    nn_custom: nn_custom,
-    tmm_custom: tmm_custom,
-    imm_custom: imm_custom,
-    de_custom: de_custom,
-    dnac1: dnac1,
-    dnac2: dnac2,
-    selfcomp: selfcomp,
-    na: na,
-    k: k,
-    tris: tris,
-    mg: mg,
-    dntps: dntps,
-    saltcorr: saltcorr,
+    check,
+    strict,
+    c_seq,
+    shift,
+    nn_table,
+    tmm_table,
+    imm_table,
+    de_table,
+    nn_custom,
+    tmm_custom,
+    imm_custom,
+    de_custom,
+    dnac1,
+    dnac2,
+    selfcomp,
+    na,
+    k,
+    tris,
+    mg,
+    dntps,
+    saltcorr,
   }
 }
 
 ///|
 /// Resolve a table: custom override wins, otherwise load the built-in name.
-fn tm_resolve(custom : ThermoTable, name : String) -> ThermoTable raise SeqError {
+fn tm_resolve(
+  custom : ThermoTable,
+  name : String,
+) -> ThermoTable raise SeqError {
   if custom.length() > 0 {
     custom
   } else {
@@ -571,7 +820,7 @@ fn tm_resolve(custom : ThermoTable, name : String) -> ThermoTable raise SeqError
 ///|
 /// Look up a duplex key in a table, trying the key and its reverse; returns
 /// Some((dH, dS)) or None.
-fn tm_table_lookup(table : ThermoTable, key : String) -> Option[(Double, Double)] {
+fn tm_table_lookup(table : ThermoTable, key : String) -> (Double, Double)? {
   match table.get(key) {
     Some(v) => Some(v)
     None => table.get(mt_reverse(key))
@@ -582,7 +831,9 @@ fn tm_table_lookup(table : ThermoTable, key : String) -> Option[(Double, Double)
 /// Raise or silently ignore a missing-neighbor condition (strict mode).
 fn tm_key_error(neighbors : String, strict : Bool) -> Unit raise SeqError {
   if strict {
-    raise SeqError("no thermodynamic data for neighbors '\{neighbors}' available")
+    raise SeqError(
+      "no thermodynamic data for neighbors '\{neighbors}' available",
+    )
   }
 }
 
@@ -619,8 +870,8 @@ pub fn tm_wallace_full(
   let tm = 2.0 * count_any(["A", "T", "W"]).to_double() +
     4.0 * count_any(["C", "G", "S"]).to_double()
   let tmp = 3.0 * count_any(["K", "M", "N", "R", "Y"]).to_double() +
-    (10.0 / 3.0) * count_any(["B", "V"]).to_double() +
-    (8.0 / 3.0) * count_any(["D", "H"]).to_double()
+    10.0 / 3.0 * count_any(["B", "V"]).to_double() +
+    8.0 / 3.0 * count_any(["D", "H"]).to_double()
   if options.strict && tmp > 0.0 {
     raise SeqError(
       "ambiguous bases B, D, H, K, M, N, R, V, Y not allowed when strict=True",
@@ -637,7 +888,7 @@ pub fn tm_wallace_full(
 pub fn tm_gc_full(
   seq : String,
   valueset? : Int = 7,
-  userset? : Option[(Double, Double, Double, Double)] = None,
+  userset? : (Double, Double, Double, Double)? = None,
   options? : TmOptions = TmOptions::default(),
 ) -> Double raise SeqError {
   let opts = options
@@ -645,11 +896,7 @@ pub fn tm_gc_full(
   // entropy method) is invalid here. TmOptions defaults to 5 for Tm_NN, so
   // treat it as "unset" (0) in Tm_GC; valuesets override below.
   let mut saltcorr = if opts.saltcorr == 5 { 0 } else { opts.saltcorr }
-  let s = if opts.check {
-    tm_check(seq, "Tm_GC")
-  } else {
-    seq.to_upper()
-  }
+  let s = if opts.check { tm_check(seq, "Tm_GC") } else { seq.to_upper() }
   if opts.strict {
     let ambiguous = ["K", "M", "N", "R", "Y", "B", "V", "D", "H"]
     for b in ambiguous {
@@ -674,7 +921,8 @@ pub fn tm_gc_full(
     i = i + 1
   }
   // gc_fraction counts X as 0.5
-  percent_gc = percent_gc - n_mismatch.to_double() * 50.0 / s.length().to_double()
+  percent_gc = percent_gc -
+    n_mismatch.to_double() * 50.0 / s.length().to_double()
   let mut a = 0.0
   let mut b = 0.0
   let mut c = 0.0
@@ -686,7 +934,7 @@ pub fn tm_gc_full(
       c = u.2
       d = u.3
     }
-    None => {
+    None =>
       match valueset {
         1 => {
           a = 69.3
@@ -746,22 +994,22 @@ pub fn tm_gc_full(
         }
         _ => raise SeqError("allowed values for parameter 'valueset' are 0-8.")
       }
-    }
   }
   if valueset > 8 {
     raise SeqError("allowed values for parameter 'valueset' are 0-8.")
   }
   let mut tm = a + b * percent_gc - c / s.length().to_double()
   if saltcorr != 0 {
-    tm = tm + tm_salt_correction(
-      na=opts.na,
-      k=opts.k,
-      tris=opts.tris,
-      mg=opts.mg,
-      dntps=opts.dntps,
-      salt_method=saltcorr,
-      seq=s,
-    )
+    tm = tm +
+      tm_salt_correction(
+        na=opts.na,
+        k=opts.k,
+        tris=opts.tris,
+        mg=opts.mg,
+        dntps=opts.dntps,
+        salt_method=saltcorr,
+        seq=s,
+      )
   }
   tm = tm - d * (n_mismatch.to_double() * 100.0 / s.length().to_double())
   tm
@@ -773,7 +1021,10 @@ pub fn tm_gc_full(
 /// `*_custom` options), dangling ends (`shift` + `c_seq`), terminal and
 /// internal mismatches (including inosine), self-complementary sequences,
 /// strand concentrations (dnac1/dnac2) and salt corrections 1-7.
-pub fn tm_nn_full(seq : String, options? : TmOptions = TmOptions::default()) -> Double raise SeqError {
+pub fn tm_nn_full(
+  seq : String,
+  options? : TmOptions = TmOptions::default(),
+) -> Double raise SeqError {
   let opts = options
   let nn_table = tm_resolve(opts.nn_custom, opts.nn_table)
   let tmm_table = tm_resolve(opts.tmm_custom, opts.tmm_table)
@@ -786,16 +1037,8 @@ pub fn tm_nn_full(seq : String, options? : TmOptions = TmOptions::default()) -> 
   } else {
     opts.c_seq.to_upper()
   }
-  let mut tmp_seq = if opts.check {
-    tm_check(raw, "Tm_NN")
-  } else {
-    raw
-  }
-  let mut tmp_cseq = if opts.check {
-    tm_check(cseq, "Tm_NN")
-  } else {
-    cseq
-  }
+  let mut tmp_seq = if opts.check { tm_check(raw, "Tm_NN") } else { raw }
+  let mut tmp_cseq = if opts.check { tm_check(cseq, "Tm_NN") } else { cseq }
   cseq = tmp_cseq
   // checked original sequences: initiation terms and salt correction use these
   // (Biopython uses `seq`/`c_seq` here, not the dangling-end-trimmed copies)
@@ -832,8 +1075,10 @@ pub fn tm_nn_full(seq : String, options? : TmOptions = TmOptions::default()) -> 
     while go2 {
       let n = tmp_seq.length()
       if n >= 2 &&
-        (substring(tmp_seq, n - 2, 2) == ".." ||
-          substring(tmp_cseq, n - 2, 2) == "..") {
+        (
+          substring(tmp_seq, n - 2, 2) == ".." ||
+          substring(tmp_cseq, n - 2, 2) == ".."
+        ) {
         tmp_seq = substring(tmp_seq, 0, n - 1)
         tmp_cseq = substring(tmp_cseq, 0, n - 1)
       } else {
@@ -854,9 +1099,11 @@ pub fn tm_nn_full(seq : String, options? : TmOptions = TmOptions::default()) -> 
       tmp_cseq = substring(tmp_cseq, 1, tmp_cseq.length() - 1)
     }
     let n2 = tmp_seq.length()
-    if substring(tmp_seq, n2 - 1, 1) == "." || substring(tmp_cseq, n2 - 1, 1) == "." {
+    if substring(tmp_seq, n2 - 1, 1) == "." ||
+      substring(tmp_cseq, n2 - 1, 1) == "." {
       let right_de = mt_reverse(substring(tmp_cseq, n2 - 2, 2)) +
-        "/" + mt_reverse(substring(tmp_seq, n2 - 2, 2))
+        "/" +
+        mt_reverse(substring(tmp_seq, n2 - 2, 2))
       match de_table.get(right_de) {
         Some(v) => {
           delta_h = delta_h + v.0
@@ -871,7 +1118,8 @@ pub fn tm_nn_full(seq : String, options? : TmOptions = TmOptions::default()) -> 
 
   // Terminal mismatches
   let left_tmm = mt_reverse(substring(tmp_cseq, 0, 2)) +
-    "/" + mt_reverse(substring(tmp_seq, 0, 2))
+    "/" +
+    mt_reverse(substring(tmp_seq, 0, 2))
   match tmm_table.get(left_tmm) {
     Some(v) => {
       delta_h = delta_h + v.0
@@ -882,7 +1130,9 @@ pub fn tm_nn_full(seq : String, options? : TmOptions = TmOptions::default()) -> 
     None => ()
   }
   let nt = tmp_seq.length()
-  let right_tmm = substring(tmp_seq, nt - 2, 2) + "/" + substring(tmp_cseq, nt - 2, 2)
+  let right_tmm = substring(tmp_seq, nt - 2, 2) +
+    "/" +
+    substring(tmp_cseq, nt - 2, 2)
   match tmm_table.get(right_tmm) {
     Some(v) => {
       delta_h = delta_h + v.0
@@ -950,16 +1200,19 @@ pub fn tm_nn_full(seq : String, options? : TmOptions = TmOptions::default()) -> 
     let neighbors = substring(tmp_seq, bn, 2) + "/" + substring(tmp_cseq, bn, 2)
     let picked = match imm_table.get(neighbors) {
       Some(v) => Some(v)
-      None => match imm_table.get(mt_reverse(neighbors)) {
-        Some(v) => Some(v)
-        None => match nn_table.get(neighbors) {
+      None =>
+        match imm_table.get(mt_reverse(neighbors)) {
           Some(v) => Some(v)
-          None => match nn_table.get(mt_reverse(neighbors)) {
-            Some(v) => Some(v)
-            None => None
-          }
+          None =>
+            match nn_table.get(neighbors) {
+              Some(v) => Some(v)
+              None =>
+                match nn_table.get(mt_reverse(neighbors)) {
+                  Some(v) => Some(v)
+                  None => None
+                }
+            }
         }
-      }
     }
     match picked {
       Some(v) => {
@@ -994,7 +1247,7 @@ pub fn tm_nn_full(seq : String, options? : TmOptions = TmOptions::default()) -> 
   if opts.saltcorr == 5 {
     delta_s = delta_s + corr
   }
-  let mut tm = (1000.0 * delta_h) / (delta_s + r_gas * @math.ln(kk)) - 273.15
+  let mut tm = 1000.0 * delta_h / (delta_s + r_gas * @math.ln(kk)) - 273.15
   if opts.saltcorr >= 1 && opts.saltcorr <= 4 {
     tm = tm + corr
   }

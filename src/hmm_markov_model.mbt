@@ -206,7 +206,9 @@ pub fn MarkovModelBuilder::new(
   for s in state_alphabet {
     states.push(s)
   }
-  let emissions : Array[String] = Array::new(capacity=emission_alphabet.length())
+  let emissions : Array[String] = Array::new(
+    capacity=emission_alphabet.length(),
+  )
   for s in emission_alphabet {
     emissions.push(s)
   }
@@ -248,7 +250,9 @@ pub fn MarkovModelBuilder::get_markov_model(
   for k, v in self.initial_prob {
     initial.set(k, v)
   }
-  let order : Array[(String, String)] = Array::new(capacity=self.transition_order.length())
+  let order : Array[(String, String)] = Array::new(
+    capacity=self.transition_order.length(),
+  )
   for key in self.transition_order {
     order.push(key)
   }
@@ -279,7 +283,7 @@ pub fn MarkovModelBuilder::set_initial_probabilities(
 ) -> Unit raise HmmError {
   // ensure that all referenced states are valid
   for state, _v in initial_prob {
-    if !(self.state_alphabet.contains(state)) {
+    if !self.state_alphabet.contains(state) {
       hmm_fail("State \{state} was not found in the sequence alphabet")
     }
   }
@@ -289,7 +293,8 @@ pub fn MarkovModelBuilder::set_initial_probabilities(
     self.initial_prob.set(state, v)
   }
   // distribute the residual probability, if any
-  let num_states_not_set = self.state_alphabet.length() - self.initial_prob.length()
+  let num_states_not_set = self.state_alphabet.length() -
+    self.initial_prob.length()
   if num_states_not_set < 0 {
     hmm_fail("Initial probabilities can't exceed # of states")
   }
@@ -323,7 +328,9 @@ pub fn MarkovModelBuilder::set_equal_probabilities(
 ) -> Unit raise HmmError {
   let n_trans = self.transition_order.length()
   if n_trans == 0 {
-    hmm_fail("No transitions have been allowed yet; cannot set equal probabilities")
+    hmm_fail(
+      "No transitions have been allowed yet; cannot set equal probabilities",
+    )
   }
   // set initial state probabilities (original quirk: divided by the number
   // of transitions, not states)
@@ -435,7 +442,9 @@ pub fn MarkovModelBuilder::set_random_probabilities(
 ///
 /// By default all transitions within the alphabet are disallowed; this is
 /// a convenience function to change this to allow all possible transitions.
-pub fn MarkovModelBuilder::allow_all_transitions(self : MarkovModelBuilder) -> Unit {
+pub fn MarkovModelBuilder::allow_all_transitions(
+  self : MarkovModelBuilder,
+) -> Unit {
   // first get all probabilities and pseudo counts set to the default values
   let all_probs = hmm_map2()
   let all_pseudo = hmm_map2()
@@ -485,12 +494,12 @@ pub fn MarkovModelBuilder::allow_transition(
 ) -> Unit raise HmmError {
   // check the sanity of adding these states
   for state in [from_state, to_state] {
-    if !(self.state_alphabet.contains(state)) {
+    if !self.state_alphabet.contains(state) {
       hmm_fail("State \{state} was not found in the sequence alphabet")
     }
   }
   // ensure that the states are not already set
-  if !(self.transition_order.contains((from_state, to_state))) {
+  if !self.transition_order.contains((from_state, to_state)) {
     // set the initial probability
     let prob = probability.unwrap_or(0.0)
     hmm_set2(self.transition_prob, from_state, to_state, prob)
@@ -524,7 +533,9 @@ pub fn MarkovModelBuilder::destroy_transition(
       let _ = self.transition_order.remove(idx)
     }
   } else {
-    hmm_fail("Transition from \{from_state} to \{to_state} is already disallowed.")
+    hmm_fail(
+      "Transition from \{from_state} to \{to_state} is already disallowed.",
+    )
   }
 }
 
@@ -702,15 +713,11 @@ fn HiddenMarkovModel::build(
   for key in transition_order {
     match transitions_from.get(key.0) {
       Some(dests) => dests.push(key.1)
-      None => {
-        transitions_from.set(key.0, [key.1])
-      }
+      None => transitions_from.set(key.0, [key.1])
     }
     match transitions_to.get(key.1) {
       Some(srcs) => srcs.push(key.0)
-      None => {
-        transitions_to.set(key.1, [key.0])
-      }
+      None => transitions_to.set(key.1, [key.0])
     }
   }
   {
@@ -888,7 +895,8 @@ pub fn HmmDpVars::get(
         None =>
           hmm_fail("No dynamic programming value for state \{state} at \{pos}")
       }
-    None => hmm_fail("No dynamic programming value for state \{state} at \{pos}")
+    None =>
+      hmm_fail("No dynamic programming value for state \{state} at \{pos}")
   }
 }
 
@@ -947,7 +955,7 @@ pub fn HiddenMarkovModel::viterbi(
   let log_initial = hmm_log_transform_1(self.initial_prob)
   let log_trans = hmm_log_transform_2(self.transition_prob)
   let log_emission = hmm_log_transform_2(self.emission_prob)
-  let viterbi_probs : HmmDpVars = { values: Map([], capacity=16) }
+  let viterbi_probs : HmmDpVars = { values: Map([], capacity=16), }
   let pred_state_seq : Map[String, String] = Map([], capacity=16)
   let seq_len = sequence.length()
   // --- recursion
@@ -960,10 +968,14 @@ pub fn HiddenMarkovModel::viterbi(
           match inner.get(sequence[i]) {
             Some(v) => v
             None =>
-              hmm_fail("Emission of \{sequence[i]} from \{cur_state} is not allowed.")
+              hmm_fail(
+                "Emission of \{sequence[i]} from \{cur_state} is not allowed.",
+              )
           }
         None =>
-          hmm_fail("Emission of \{sequence[i]} from \{cur_state} is not allowed.")
+          hmm_fail(
+            "Emission of \{sequence[i]} from \{cur_state} is not allowed.",
+          )
       }
       let max_prob : Double = if i == 0 {
         // for the first state, use the initial probability rather than
@@ -987,7 +999,9 @@ pub fn HiddenMarkovModel::viterbi(
                   )
               }
             None =>
-              hmm_fail("Transition from \{prev_state} to \{cur_state} is not allowed.")
+              hmm_fail(
+                "Transition from \{prev_state} to \{cur_state} is not allowed.",
+              )
           }
           let viterbi_part = viterbi_probs.get(prev_state, i - 1)
           let cur_prob = viterbi_part + trans_part
@@ -1016,7 +1030,9 @@ pub fn HiddenMarkovModel::viterbi(
                   )
               }
             None =>
-              hmm_fail("Transition from \{prev_state} to \{cur_state} is not allowed.")
+              hmm_fail(
+                "Transition from \{prev_state} to \{cur_state} is not allowed.",
+              )
           }
           let cur_prob = viterbi_probs.get(prev_state, i - 1) + trans_part
           if cur_prob == max_prob {
@@ -1048,13 +1064,14 @@ pub fn HiddenMarkovModel::viterbi(
   for i = seq_len - 1; i >= 1; i = i - 1 {
     match pred_state_seq.get("\{i - 1}:\{state}") {
       Some(prev) => state = prev
-      None => hmm_fail("Didn't find the state to trace from at position \{i - 1}")
+      None =>
+        hmm_fail("Didn't find the state to trace from at position \{i - 1}")
     }
     traceback_seq.push(state)
   }
   // put the traceback sequence in the proper orientation
   let traceback_seq = traceback_seq.rev()
-  { state_path: traceback_seq, prob: state_path_prob }
+  { state_path: traceback_seq, prob: state_path_prob, }
 }
 
 // ---------------------------------------------------------------------------
@@ -1081,11 +1098,7 @@ pub fn ScaledDp::new(
   markov_model~ : HiddenMarkovModel,
   sequence~ : TrainingSequence,
 ) -> ScaledDp {
-  {
-    mm: markov_model,
-    seq: sequence,
-    s_values: Map([], capacity=16),
-  }
+  { mm: markov_model, seq: sequence, s_values: Map([], capacity=16), }
 }
 
 ///|
@@ -1108,7 +1121,9 @@ fn ScaledDp::calculate_s_value(
       // the value of the previous f or b value
       let var_value = previous_vars.get(second_state, seq_pos - 1)
       // the transition probability
-      let trans_value = self.mm.get_transition_probability(second_state, main_state)
+      let trans_value = self.mm.get_transition_probability(
+        second_state, main_state,
+      )
       trans_and_var_sum = trans_and_var_sum + var_value * trans_value
     }
     s_value = s_value + emission * trans_and_var_sum
@@ -1127,11 +1142,16 @@ fn ScaledDp::forward_recursion(
 ) -> Double? raise HmmError {
   // calculate the s value, if we haven't done so already
   if !self.s_values.contains(sequence_pos) {
-    self.s_values.set(sequence_pos, self.calculate_s_value(sequence_pos, forward_vars))
+    self.s_values.set(
+      sequence_pos,
+      self.calculate_s_value(sequence_pos, forward_vars),
+    )
   }
   // e_{l}(x_{i})
   let seq_letter = self.seq.emissions[sequence_pos]
-  let cur_emission_prob = self.mm.get_emission_probability(cur_state, seq_letter)
+  let cur_emission_prob = self.mm.get_emission_probability(
+    cur_state, seq_letter,
+  )
   // divide by the scaling value
   let scale_emission_prob = cur_emission_prob / self.s_values[sequence_pos]
   // loop over all of the possible states at the position
@@ -1142,7 +1162,9 @@ fn ScaledDp::forward_recursion(
     // get the previous forward_var values f_{k}(i - 1)
     let prev_forward = forward_vars.get(second_state, sequence_pos - 1)
     // a_{kl}
-    let cur_trans_prob = self.mm.get_transition_probability(second_state, cur_state)
+    let cur_trans_prob = self.mm.get_transition_probability(
+      second_state, cur_state,
+    )
     state_pos_sum = state_pos_sum + prev_forward * cur_trans_prob
   }
   // if we have the possibility of having a transition return the value
@@ -1164,7 +1186,10 @@ fn ScaledDp::backward_recursion(
 ) -> Double? raise HmmError {
   // calculate the s value, if we haven't done so already
   if !self.s_values.contains(sequence_pos) {
-    self.s_values.set(sequence_pos, self.calculate_s_value(sequence_pos, backward_vars))
+    self.s_values.set(
+      sequence_pos,
+      self.calculate_s_value(sequence_pos, backward_vars),
+    )
   }
   let mut state_pos_sum = 0.0
   let mut have_transition = false
@@ -1172,12 +1197,17 @@ fn ScaledDp::backward_recursion(
     have_transition = true
     // e_{l}(x_{i + 1})
     let seq_letter = self.seq.emissions[sequence_pos + 1]
-    let cur_emission_prob = self.mm.get_emission_probability(cur_state, seq_letter)
+    let cur_emission_prob = self.mm.get_emission_probability(
+      cur_state, seq_letter,
+    )
     // get the previous backward_var value b_{l}(i + 1)
     let prev_backward = backward_vars.get(second_state, sequence_pos + 1)
     // the transition probability a_{kl}
-    let cur_transition_prob = self.mm.get_transition_probability(cur_state, second_state)
-    state_pos_sum = state_pos_sum + cur_emission_prob * prev_backward * cur_transition_prob
+    let cur_transition_prob = self.mm.get_transition_probability(
+      cur_state, second_state,
+    )
+    state_pos_sum = state_pos_sum +
+      cur_emission_prob * prev_backward * cur_transition_prob
   }
   if have_transition {
     Some(state_pos_sum / self.s_values[sequence_pos])
@@ -1192,11 +1222,13 @@ fn ScaledDp::backward_recursion(
 /// This implements the forward algorithm, as described on p57-58 of
 /// Durbin et al. Returns the forward variables and the probability of
 /// the sequence.
-pub fn ScaledDp::forward_algorithm(self : ScaledDp) -> HmmForwardResult raise HmmError {
+pub fn ScaledDp::forward_algorithm(
+  self : ScaledDp,
+) -> HmmForwardResult raise HmmError {
   // all of the different letters that the state path can be in
   let state_letters = self.mm.state_alphabet
   // -- initialize the algorithm: f_{0}(0) = 1, f_{k}(0) = 0 for k > 0
-  let forward_vars : HmmDpVars = { values: Map([], capacity=16) }
+  let forward_vars : HmmDpVars = { values: Map([], capacity=16), }
   forward_vars.set(state_letters[0], -1, 1.0)
   for k = 1; k < state_letters.length(); k = k + 1 {
     forward_vars.set(state_letters[k], -1, 0.0)
@@ -1219,10 +1251,12 @@ pub fn ScaledDp::forward_algorithm(self : ScaledDp) -> HmmForwardResult raise Hm
     // f_{k}(L)
     let forward_value = forward_vars.get(state_item, emissions_len - 1)
     // a_{k0}
-    let transition_value = self.mm.get_transition_probability(state_item, first_state)
+    let transition_value = self.mm.get_transition_probability(
+      state_item, first_state,
+    )
     seq_prob = seq_prob + forward_value * transition_value
   }
-  { forward_vars, seq_prob }
+  { forward_vars, seq_prob, }
 }
 
 ///|
@@ -1231,13 +1265,19 @@ pub fn ScaledDp::forward_algorithm(self : ScaledDp) -> HmmForwardResult raise Hm
 /// This implements the backward algorithm, as described on p58-59 of
 /// Durbin et al. The termination step is skipped to avoid recalculations;
 /// sequence probabilities should be obtained from the forward algorithm.
-pub fn ScaledDp::backward_algorithm(self : ScaledDp) -> HmmDpVars raise HmmError {
+pub fn ScaledDp::backward_algorithm(
+  self : ScaledDp,
+) -> HmmDpVars raise HmmError {
   let state_letters = self.mm.state_alphabet
   // -- initialize: b_{k}(L) = a_{k0} for all k
-  let backward_vars : HmmDpVars = { values: Map([], capacity=16) }
+  let backward_vars : HmmDpVars = { values: Map([], capacity=16), }
   let last_pos = self.seq.emissions.length() - 1
   for state in state_letters {
-    backward_vars.set(state, last_pos, self.mm.get_transition_probability(state, state_letters[0]))
+    backward_vars.set(
+      state,
+      last_pos,
+      self.mm.get_transition_probability(state, state_letters[0]),
+    )
   }
   // -- recursion: (i = L - 1 ... 1) in 0-based positions
   let emissions_len = self.seq.emissions.length()
@@ -1285,7 +1325,7 @@ pub fn TrainingSequence::new(
   for s in state_path {
     states_copy.push(s)
   }
-  { emissions: emissions_copy, states: states_copy }
+  { emissions: emissions_copy, states: states_copy, }
 }
 
 ///|
@@ -1368,7 +1408,7 @@ fn hmm_ml_estimator(
       // add counts for all other items with the same first letter
       let mut cur_position = pos + 1
       while cur_position < all_ordered.length() &&
-        all_ordered[cur_position].0 == cur_item.0 {
+            all_ordered[cur_position].0 == cur_item.0 {
         cur_letter_counts = cur_letter_counts +
           hmm_get2_unchecked(
             counts,
@@ -1379,7 +1419,8 @@ fn hmm_ml_estimator(
       }
     }
     // now calculate the ml and add it to the estimation
-    let cur_ml = hmm_get2_unchecked(counts, cur_item.0, cur_item.1) / cur_letter_counts
+    let cur_ml = hmm_get2_unchecked(counts, cur_item.0, cur_item.1) /
+      cur_letter_counts
     hmm_set2(ml_estimation, cur_item.0, cur_item.1, cur_ml)
   }
   ml_estimation
@@ -1412,8 +1453,10 @@ pub struct BaumWelchTrainer {
 ///|
 /// Initialize the trainer with a model that has some initial estimates
 /// we can build from.
-pub fn BaumWelchTrainer::new(markov_model~ : HiddenMarkovModel) -> BaumWelchTrainer {
-  { markov_model }
+pub fn BaumWelchTrainer::new(
+  markov_model~ : HiddenMarkovModel,
+) -> BaumWelchTrainer {
+  { markov_model, }
 }
 
 ///|
@@ -1439,7 +1482,10 @@ pub fn BaumWelchTrainer::train(
     let all_probabilities : Array[Double] = []
     for training_seq in training_seqs {
       // calculate the forward and backward variables
-      let dp = ScaledDp::new(markov_model=self.markov_model, sequence=training_seq)
+      let dp = ScaledDp::new(
+        markov_model=self.markov_model,
+        sequence=training_seq,
+      )
       let forward_result = dp.forward_algorithm()
       let backward_var = dp.backward_algorithm()
       all_probabilities.push(forward_result.seq_prob())
@@ -1460,7 +1506,9 @@ pub fn BaumWelchTrainer::train(
       )
     }
     // update the markov model with the new probabilities
-    let (ml_transitions, ml_emissions) = hmm_estimate_params(transition_count, emission_count)
+    let (ml_transitions, ml_emissions) = hmm_estimate_params(
+      transition_count, emission_count,
+    )
     self.markov_model.transition_prob = ml_transitions
     self.markov_model.emission_prob = ml_emissions
     let cur_log_likelihood = hmm_log_likelihood(all_probabilities)
@@ -1517,7 +1565,12 @@ pub fn BaumWelchTrainer::update_transitions(
       }
       // update the transition approximation
       let prev = hmm_get2(transition_counts, k, l)
-      hmm_set2(transition_counts, k, l, prev + estimated_counts / training_seq_prob)
+      hmm_set2(
+        transition_counts,
+        k,
+        l,
+        prev + estimated_counts / training_seq_prob,
+      )
     }
   }
   transition_counts
@@ -1571,8 +1624,10 @@ pub struct KnownStateTrainer {
 
 ///|
 /// Initialize the class.
-pub fn KnownStateTrainer::new(markov_model~ : HiddenMarkovModel) -> KnownStateTrainer {
-  { markov_model }
+pub fn KnownStateTrainer::new(
+  markov_model~ : HiddenMarkovModel,
+) -> KnownStateTrainer {
+  { markov_model, }
 }
 
 ///|
@@ -1594,7 +1649,9 @@ pub fn KnownStateTrainer::train(
     let _ = self.count_transitions(training_seq.states, transition_counts)
   }
   // update the markov model from the counts
-  let (ml_transitions, ml_emissions) = hmm_estimate_params(transition_counts, emission_counts)
+  let (ml_transitions, ml_emissions) = hmm_estimate_params(
+    transition_counts, emission_counts,
+  )
   self.markov_model.transition_prob = ml_transitions
   self.markov_model.emission_prob = ml_emissions
   self.markov_model

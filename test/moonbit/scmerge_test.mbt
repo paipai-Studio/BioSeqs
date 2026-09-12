@@ -169,11 +169,7 @@ test "scmerge_scmerge_result_new" {
 
 ///|
 test "scmerge_randomized_svd_basic" {
-  let matrix = [
-    [1.0, 2.0, 3.0],
-    [4.0, 5.0, 6.0],
-    [7.0, 8.0, 9.0],
-  ]
+  let matrix = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0]]
   let v = @src.scm_randomized_svd(matrix, 2)
   // Result should be (n_cols x k) = (3 x 2)
   assert_eq(v.length(), 3)

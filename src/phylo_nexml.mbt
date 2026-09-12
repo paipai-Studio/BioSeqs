@@ -99,7 +99,7 @@ pub struct NeXMLDocument {
 
 ///|
 pub fn NeXMLState::new(id : String, symbol : String) -> NeXMLState {
-  NeXMLState::{ id, symbol }
+  NeXMLState::{ id, symbol, }
 }
 
 ///|
@@ -108,7 +108,7 @@ pub fn NeXMLCharacter::new(
   label : String,
   states : Array[String],
 ) -> NeXMLCharacter {
-  NeXMLCharacter::{ id, label, states }
+  NeXMLCharacter::{ id, label, states, }
 }
 
 ///|
@@ -119,17 +119,17 @@ pub fn NeXMLCharacters::new(
   characters : Array[NeXMLCharacter],
   matrix : Map[String, Array[String]],
 ) -> NeXMLCharacters {
-  NeXMLCharacters::{ id, otus_id, matrix_type, characters, matrix }
+  NeXMLCharacters::{ id, otus_id, matrix_type, characters, matrix, }
 }
 
 ///|
 pub fn NeXMLOTU::new(id : String, label : String) -> NeXMLOTU {
-  NeXMLOTU::{ id, label }
+  NeXMLOTU::{ id, label, }
 }
 
 ///|
 pub fn NeXMLOTUs::new(id : String, otus : Array[NeXMLOTU]) -> NeXMLOTUs {
-  NeXMLOTUs::{ id, otus }
+  NeXMLOTUs::{ id, otus, }
 }
 
 ///|
@@ -139,7 +139,7 @@ pub fn NeXMLNode::new(
   otu : String,
   length? : Double? = None,
 ) -> NeXMLNode {
-  NeXMLNode::{ id, label, otu, length }
+  NeXMLNode::{ id, label, otu, length, }
 }
 
 ///|
@@ -149,7 +149,7 @@ pub fn NeXMLEdge::new(
   target : String,
   length? : Double? = None,
 ) -> NeXMLEdge {
-  NeXMLEdge::{ id, source, target, length }
+  NeXMLEdge::{ id, source, target, length, }
 }
 
 ///|
@@ -161,7 +161,7 @@ pub fn NeXMLTree::new(
   nodes : Array[NeXMLNode],
   edges : Array[NeXMLEdge],
 ) -> NeXMLTree {
-  NeXMLTree::{ id, name, tree_type, rooted, nodes, edges }
+  NeXMLTree::{ id, name, tree_type, rooted, nodes, edges, }
 }
 
 ///|
@@ -170,7 +170,7 @@ pub fn NeXMLTrees::new(
   otus_id : String,
   trees : Array[NeXMLTree],
 ) -> NeXMLTrees {
-  NeXMLTrees::{ id, otus_id, trees }
+  NeXMLTrees::{ id, otus_id, trees, }
 }
 
 ///|
@@ -246,10 +246,10 @@ pub fn parse_nexml(xml_content : String) -> NeXMLDocument {
     let version_attr = get_attribute(nexml_str, "version")
     let generator_attr = get_attribute(nexml_str, "generator")
     if version_attr.length() > 0 {
-      doc = NeXMLDocument::{ ..doc, version: version_attr }
+      doc = NeXMLDocument::{ ..doc, version: version_attr, }
     }
     if generator_attr.length() > 0 {
-      doc = NeXMLDocument::{ ..doc, generator: generator_attr }
+      doc = NeXMLDocument::{ ..doc, generator: generator_attr, }
     }
   }
 
@@ -293,7 +293,7 @@ fn parse_otus_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
     new_otus_blocks.push(NeXMLOTUs::new(otus_id, otu_list))
   }
 
-  NeXMLDocument::{ ..doc, otus_blocks: new_otus_blocks }
+  NeXMLDocument::{ ..doc, otus_blocks: new_otus_blocks, }
 }
 
 ///|
@@ -383,7 +383,7 @@ fn parse_characters_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
     }
   }
 
-  NeXMLDocument::{ ..doc, characters_blocks: new_chars_blocks }
+  NeXMLDocument::{ ..doc, characters_blocks: new_chars_blocks, }
 }
 
 ///|
@@ -458,7 +458,7 @@ fn parse_trees_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
     new_trees_blocks.push(NeXMLTrees::new(trees_id, otus_id, tree_list))
   }
 
-  NeXMLDocument::{ ..doc, trees_blocks: new_trees_blocks }
+  NeXMLDocument::{ ..doc, trees_blocks: new_trees_blocks, }
 }
 
 // ============================================================================

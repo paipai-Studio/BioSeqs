@@ -30,7 +30,7 @@ pub fn NeighborSearch::new(atoms : Array[Atom]) -> NeighborSearch {
     indices.push(i)
   }
   let root = build_kd_tree(atoms, indices, 0)
-  NeighborSearch::{ atoms, root, atom_count: n }
+  NeighborSearch::{ atoms, root, atom_count: n, }
 }
 
 ///|
@@ -67,7 +67,7 @@ fn build_kd_tree(
   let left = build_kd_tree(atoms, left_indices, depth + 1)
   let right = build_kd_tree(atoms, right_indices, depth + 1)
 
-  Some(KDNode::{ point: atom.coord, atom_index: mid_idx, left, right, axis })
+  Some(KDNode::{ point: atom.coord, atom_index: mid_idx, left, right, axis, })
 }
 
 ///|

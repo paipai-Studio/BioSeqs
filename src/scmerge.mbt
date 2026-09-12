@@ -21,7 +21,12 @@ pub fn ScMergeResult::new(
   estimated_batch_factors : Array[Array[Double]],
   cell_type_labels : Array[Int],
 ) -> ScMergeResult {
-  ScMergeResult::{ corrected_data, seg_genes, estimated_batch_factors, cell_type_labels }
+  ScMergeResult::{
+    corrected_data,
+    seg_genes,
+    estimated_batch_factors,
+    cell_type_labels,
+  }
 }
 
 ///|
@@ -74,11 +79,7 @@ pub fn scm_zscore_matrix(data : Array[Array[Double]]) -> Array[Array[Double]] {
     let normalized : Array[Double] = Array::make(n_cells, 0.0)
     let mut j = 0
     while j < n_cells {
-      normalized[j] = if std > 1.0e-10 {
-        (row[j] - mean) / std
-      } else {
-        0.0
-      }
+      normalized[j] = if std > 1.0e-10 { (row[j] - mean) / std } else { 0.0 }
       j = j + 1
     }
     result[i] = normalized
@@ -761,7 +762,10 @@ pub fn scmerge(
   }
 
   // Transpose corrected data back to (n_cells x n_genes) format
-  let corrected_by_cell : Array[Array[Double]] = Array::make(total, Array::new())
+  let corrected_by_cell : Array[Array[Double]] = Array::make(
+    total,
+    Array::new(),
+  )
   let mut c = 0
   while c < total {
     let row : Array[Double] = Array::make(n_genes, 0.0)
@@ -775,7 +779,10 @@ pub fn scmerge(
   }
 
   // Estimate batch factors (simplified: just the RUV factors)
-  let estimated_batch_factors : Array[Array[Double]] = Array::make(total, Array::new())
+  let estimated_batch_factors : Array[Array[Double]] = Array::make(
+    total,
+    Array::new(),
+  )
   let mut c2 = 0
   while c2 < total {
     let row : Array[Double] = Array::make(n_factors, 0.0)
@@ -784,5 +791,7 @@ pub fn scmerge(
     c2 = c2 + 1
   }
 
-  ScMergeResult::new(corrected_by_cell, seg_genes, estimated_batch_factors, cell_type_labels)
+  ScMergeResult::new(
+    corrected_by_cell, seg_genes, estimated_batch_factors, cell_type_labels,
+  )
 }

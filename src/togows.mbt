@@ -166,7 +166,7 @@ fn tgw_eq(a : Array[String], b : Array[String]) -> Bool {
 ///|
 /// Strict integer parsing (like Python int() on a stripped string):
 /// optional sign followed by decimal digits.
-fn tgw_parse_int(s : String) -> Option[Int] {
+fn tgw_parse_int(s : String) -> Int? {
   let chars = tgw_chars(s)
   let mut i = 0
   let mut sign = 1
@@ -336,7 +336,11 @@ pub fn togows_search_url(
   if has_offset != has_limit {
     tgw_fail("Expect BOTH offset AND limit to be provided (or neither)")
   }
-  let mut url = TOGOWS_BASE_URL + "/search/" + db + "/" + togows_quote(text=query)
+  let mut url = TOGOWS_BASE_URL +
+    "/search/" +
+    db +
+    "/" +
+    togows_quote(text=query)
   match (offset, limit) {
     (Some(o), Some(l)) => {
       if o <= 0 {
@@ -377,14 +381,14 @@ pub fn togows_convert_url(in_format~ : String, out_format~ : String) -> String {
 /// seconds after the previous one - matching the "up to three queries per
 /// second" limit of the original module.
 pub struct TogoWSClient {
-  priv fetch : (String, Option[String]) -> String raise TogoError
+  priv fetch : (String, String?) -> String raise TogoError
   priv now : () -> Double
   priv mut previous : Double
-  priv mut entry_dbs : Option[Array[String]]
-  priv mut search_dbs : Option[Array[String]]
+  priv mut entry_dbs : Array[String]?
+  priv mut search_dbs : Array[String]?
   priv entry_fields : Map[String, Array[String]]
   priv entry_formats : Map[String, Array[String]]
-  priv mut convert_formats : Option[Array[(String, String)]]
+  priv mut convert_formats : Array[(String, String)]?
 }
 
 ///|
@@ -393,7 +397,7 @@ pub struct TogoWSClient {
 /// - fetch: callback performing the HTTP transfer: (url, post_body) -> text.
 /// - now: optional wall clock in seconds; defaults to a virtual clock.
 pub fn TogoWSClient::new(
-  fetch~ : (String, Option[String]) -> String raise TogoError,
+  fetch~ : (String, String?) -> String raise TogoError,
   now? : () -> Double,
 ) -> TogoWSClient {
   {
@@ -436,7 +440,7 @@ fn TogoWSClient::open_url(
     self.previous = current
   }
   // like the original: an empty POST body is treated as no body
-  let body : Option[String] = match post {
+  let body : String? = match post {
     Some(p) => if p.length() > 0 { Some(p) } else { None }
     None => None
   }
@@ -507,7 +511,9 @@ pub fn TogoWSClient::get_entry_formats(
   match self.entry_formats.get(db) {
     Some(formats) => formats
     None => {
-      let formats = self.get_fields(TOGOWS_BASE_URL + "/entry/" + db + "?formats")
+      let formats = self.get_fields(
+        TOGOWS_BASE_URL + "/entry/" + db + "?formats",
+      )
       self.entry_formats.set(db, formats)
       formats
     }
@@ -603,33 +609,35 @@ fn TogoWSClient::entry_impl(
   }
   let mut field = field
   match field {
-    Some(f) => if f.length() > 0 {
-      let fields = self.get_entry_fields(db~)
-      let mut fixed = f
-      if db == "pubmed" && f == "ti" && fields.contains("title") {
-        // Backwards compatibility fix for TogoWS change Nov/Dec 2013
-        fixed = "title"
+    Some(f) =>
+      if f.length() > 0 {
+        let fields = self.get_entry_fields(db~)
+        let mut fixed = f
+        if db == "pubmed" && f == "ti" && fields.contains("title") {
+          // Backwards compatibility fix for TogoWS change Nov/Dec 2013
+          fixed = "title"
+        }
+        if !fields.contains(fixed) {
+          tgw_fail(
+            "TogoWS entry fetch does not explicitly support field '\{fixed}' for database '\{db}'. Only: \{tgw_sorted_join(fields)}",
+          )
+        }
+        field = Some(fixed)
+      } else {
+        field = None
       }
-      if !fields.contains(fixed) {
-        tgw_fail(
-          "TogoWS entry fetch does not explicitly support field '\{fixed}' for database '\{db}'. Only: \{tgw_sorted_join(fields)}",
-        )
-      }
-      field = Some(fixed)
-    } else {
-      field = None
-    }
     None => ()
   }
   match format {
-    Some(fm) => if fm.length() > 0 {
-      let formats = self.get_entry_formats(db~)
-      if !formats.contains(fm) {
-        tgw_fail(
-          "TogoWS entry fetch does not explicitly support format '\{fm}' for database '\{db}'. Only: \{tgw_sorted_join(formats)}",
-        )
+    Some(fm) =>
+      if fm.length() > 0 {
+        let formats = self.get_entry_formats(db~)
+        if !formats.contains(fm) {
+          tgw_fail(
+            "TogoWS entry fetch does not explicitly support format '\{fm}' for database '\{db}'. Only: \{tgw_sorted_join(formats)}",
+          )
+        }
       }
-    }
     None => ()
   }
   let id = tgw_join_comma(ids)
@@ -639,10 +647,7 @@ fn TogoWSClient::entry_impl(
     None => ()
   }
   match format {
-    Some(fm) =>
-      if fm.length() > 0 {
-        url = url + "." + fm
-      }
+    Some(fm) => if fm.length() > 0 { url = url + "." + fm }
     None => ()
   }
   self.open_url(url)
@@ -711,16 +716,14 @@ pub fn TogoWSClient::search_iter(
   }
   let mut remain = count
   match limit {
-    Some(l) => if l < remain {
-      remain = l
-    }
+    Some(l) => if l < remain { remain = l }
     None => ()
   }
   let mut offset = 1 // TogoWS does not use zero based counting
   let mut prev_ids : Array[String] = []
   while remain > 0 {
     let size = if batch_size < remain { batch_size } else { remain }
-    let text = self.search(db~, query~, offset=offset, limit=size)
+    let text = self.search(db~, query~, offset~, limit=size)
     let ids = tgw_split_whitespace(tgw_strip(text))
     if ids.length() != size {
       tgw_fail("Got \{ids.length()}, expected \{size}")

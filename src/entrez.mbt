@@ -100,7 +100,7 @@ pub fn SearchResult::new(
   title~ : String,
   score~ : Double,
 ) -> SearchResult {
-  SearchResult::{ id, title, score }
+  SearchResult::{ id, title, score, }
 }
 
 ///|

@@ -1138,7 +1138,7 @@ pub fn AlignMafIndex::create(
       }
     }
     let (start, end) = component.forward_interval()
-    entries.push(AlignMafIndexEntry::{ block_index, start, end })
+    entries.push(AlignMafIndexEntry::{ block_index, start, end, })
   }
   align_maf_entry_sort(entries)
   AlignMafIndex::{

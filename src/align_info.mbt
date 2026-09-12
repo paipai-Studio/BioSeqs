@@ -19,7 +19,7 @@ pub fn AlignmentColumn::new(
   gap_count~ : Int,
   total_count~ : Int,
 ) -> AlignmentColumn {
-  AlignmentColumn::{ column_index, counts, gap_count, total_count }
+  AlignmentColumn::{ column_index, counts, gap_count, total_count, }
 }
 
 ///|

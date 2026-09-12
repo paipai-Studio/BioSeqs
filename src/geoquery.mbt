@@ -43,7 +43,14 @@ pub fn geo_data_new(
   gene_names : Array[String],
   sample_info : Map[String, Array[String]],
 ) -> GEOData {
-  GEOData::{ series_id, sample_ids, platform_id, data, gene_names, sample_info }
+  GEOData::{
+    series_id,
+    sample_ids,
+    platform_id,
+    data,
+    gene_names,
+    sample_info,
+  }
 }
 
 ///|
@@ -54,7 +61,7 @@ pub fn geo_series_new(
   platform_ids : Array[String],
   sample_ids : Array[String],
 ) -> GEOSeries {
-  GEOSeries::{ gse_id, title, description, platform_ids, sample_ids }
+  GEOSeries::{ gse_id, title, description, platform_ids, sample_ids, }
 }
 
 ///|
@@ -65,7 +72,7 @@ pub fn geo_sample_new(
   platform_id : String,
   characteristics : Map[String, String],
 ) -> GEOSample {
-  GEOSample::{ gsm_id, title, description, platform_id, characteristics }
+  GEOSample::{ gsm_id, title, description, platform_id, characteristics, }
 }
 
 ///|
@@ -75,7 +82,7 @@ pub fn geo_platform_new(
   organism : String,
   probe_count : Int,
 ) -> GEOPlatform {
-  GEOPlatform::{ gpl_id, title, organism, probe_count }
+  GEOPlatform::{ gpl_id, title, organism, probe_count, }
 }
 
 ///|

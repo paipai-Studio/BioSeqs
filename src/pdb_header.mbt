@@ -144,7 +144,7 @@ pub fn DBRefEntry::new(
   db_accession? : String = "",
   db_id? : String = "",
 ) -> DBRefEntry {
-  DBRefEntry::{ db_name, db_accession, db_id }
+  DBRefEntry::{ db_name, db_accession, db_id, }
 }
 
 ///|

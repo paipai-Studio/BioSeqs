@@ -18,7 +18,7 @@ pub fn Gene::new(
   end : Int,
   strand : Strand,
 ) -> Gene {
-  Gene::{ gene_id, seqname, start, end, strand }
+  Gene::{ gene_id, seqname, start, end, strand, }
 }
 
 ///|
@@ -40,7 +40,7 @@ pub fn Transcript::new(
   end : Int,
   strand : Strand,
 ) -> Transcript {
-  Transcript::{ transcript_id, gene_id, seqname, start, end, strand }
+  Transcript::{ transcript_id, gene_id, seqname, start, end, strand, }
 }
 
 ///|
@@ -132,7 +132,7 @@ pub fn TxDb::new(
   genome : String,
   organism : String,
 ) -> TxDb {
-  TxDb::{ genes, transcripts, exons, cds, genome, organism }
+  TxDb::{ genes, transcripts, exons, cds, genome, organism, }
 }
 
 ///|
@@ -144,7 +144,7 @@ pub fn txdb(
   genome : String,
   organism : String,
 ) -> TxDb {
-  TxDb::{ genes, transcripts, exons, cds, genome, organism }
+  TxDb::{ genes, transcripts, exons, cds, genome, organism, }
 }
 
 ///|
@@ -769,7 +769,7 @@ pub fn parse_gtf(gtf_content : String) -> TxDb {
     }
 
     if feature_type == "gene" {
-      genes.push(Gene::{ gene_id, seqname, start, end, strand })
+      genes.push(Gene::{ gene_id, seqname, start, end, strand, })
     } else if feature_type == "transcript" {
       transcripts.push(Transcript::{
         transcript_id,

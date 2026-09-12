@@ -30,7 +30,7 @@ pub fn GeneInfo::new(
   strand : String,
   biotype : String,
 ) -> GeneInfo {
-  GeneInfo::{ gene_id, symbol, description, chr, start, end, strand, biotype }
+  GeneInfo::{ gene_id, symbol, description, chr, start, end, strand, biotype, }
 }
 
 ///|
@@ -48,7 +48,7 @@ pub fn AnnotationGOTerm::new(
   evidence_code : String,
   ontology : String,
 ) -> AnnotationGOTerm {
-  AnnotationGOTerm::{ go_id, go_name, evidence_code, ontology }
+  AnnotationGOTerm::{ go_id, go_name, evidence_code, ontology, }
 }
 
 ///|
@@ -64,7 +64,7 @@ pub fn AnnotationKEGGTerm::new(
   kegg_name : String,
   pathway_type : String,
 ) -> AnnotationKEGGTerm {
-  AnnotationKEGGTerm::{ kegg_id, kegg_name, pathway_type }
+  AnnotationKEGGTerm::{ kegg_id, kegg_name, pathway_type, }
 }
 
 ///|

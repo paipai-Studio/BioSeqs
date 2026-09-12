@@ -71,7 +71,7 @@ pub fn SGSeqJunction::new(
   strand? : String = "+",
   count? : Int = 1,
 ) -> SGSeqJunction {
-  SGSeqJunction::{ chr, start, end, strand, count }
+  SGSeqJunction::{ chr, start, end, strand, count, }
 }
 
 ///|
@@ -117,7 +117,7 @@ pub fn SGSeqExon::new(
   end~ : Int,
   strand? : String = "+",
 ) -> SGSeqExon {
-  SGSeqExon::{ chr, start, end, strand, count: 0, is_cassette: false }
+  SGSeqExon::{ chr, start, end, strand, count: 0, is_cassette: false, }
 }
 
 ///|
@@ -153,7 +153,7 @@ pub fn SGSeqFeature::new(
   strand? : String = "+",
   count? : Int = 0,
 ) -> SGSeqFeature {
-  SGSeqFeature::{ type_, chr, start, end, strand, count }
+  SGSeqFeature::{ type_, chr, start, end, strand, count, }
 }
 
 ///|

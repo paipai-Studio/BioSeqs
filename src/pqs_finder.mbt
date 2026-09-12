@@ -132,7 +132,7 @@ priv struct PqsFeatures {
 
 ///|
 fn PqsFeatures::zero() -> PqsFeatures {
-  { nt: 0, nb: 0, nm: 0, rl1: 0, rl2: 0, rl3: 0, ll1: 0, ll2: 0, ll3: 0 }
+  { nt: 0, nb: 0, nm: 0, rl1: 0, rl2: 0, rl3: 0, ll1: 0, ll2: 0, ll3: 0, }
 }
 
 ///|
@@ -141,7 +141,7 @@ fn pqs_round(x : Double) -> Int {
   if x >= 0.0 {
     (x + 0.5).floor().to_int()
   } else {
-    -((-x + 0.5).floor().to_int())
+    -(-x + 0.5).floor().to_int()
   }
 }
 
@@ -258,7 +258,11 @@ fn pqs_score_pqs(
   }
   // at most one zero-length loop is scoreable
   if sc.loop_min_len == 0 &&
-    ((l[0] == 0 && l[1] == 0) || (l[0] == 0 && l[2] == 0) || (l[1] == 0 && l[2] == 0)) {
+    (
+      (l[0] == 0 && l[1] == 0) ||
+      (l[0] == 0 && l[2] == 0) ||
+      (l[1] == 0 && l[2] == 0)
+    ) {
     return 0
   }
   // reference run: minimal width among pure-G runs
@@ -361,9 +365,7 @@ fn pqs_find_all_runs(
     let mut continue_inner = true
     while continue_inner && e >= min_e {
       match pqs_find_run(seq, s, e, sc.run_min_len, sc.run_max_len) {
-        None => {
-          continue_inner = false
-        }
+        None => continue_inner = false
         Some(r) => {
           runs[i] = r
           found_any = true
@@ -393,24 +395,12 @@ fn pqs_find_all_runs(
             } else {
               let features = PqsFeatures::zero()
               let score = pqs_score_pqs(
-                seq,
-                runs,
-                sc,
-                loop_penalties,
-                bulge_penalties,
-                features,
+                seq, runs, sc, loop_penalties, bulge_penalties, features,
               )
               if score >= sc.min_score {
                 let cstart = runs[0].0
                 let clen = runs[3].1 - runs[0].0
-                candidates.push(
-                  {
-                    score,
-                    start: cstart,
-                    len: clen,
-                    features,
-                  },
-                )
+                candidates.push({ score, start: cstart, len: clen, features, })
                 // tally every scoreable conformation on every position it
                 // covers (deep-search density / maxScores semantics)
                 for k = 0; k < clen; k = k + 1 {
@@ -433,7 +423,11 @@ fn pqs_find_all_runs(
               runs,
               1,
               r.1,
-              if bound < limit { bound } else { limit },
+              if bound < limit {
+                bound
+              } else {
+                limit
+              },
               false,
               candidates,
               density,
@@ -488,7 +482,7 @@ fn pqs_resolve_non_overlapping(
     for c in level {
       match kept.last() {
         None => kept.push(c)
-        Some(prev) => {
+        Some(prev) =>
           if c.start < prev.start + prev.len {
             if c.len < prev.len {
               // previous is longer or equal: drop current
@@ -499,7 +493,6 @@ fn pqs_resolve_non_overlapping(
           } else {
             kept.push(c)
           }
-        }
       }
     }
     // save hits that do not overlap an already saved, higher scoring hit
@@ -633,7 +626,7 @@ pub fn pqs_search(
   let normalized = seq.to_upper()
   let n = normalized.length()
   if n == 0 {
-    return { hits: [], density: [], max_scores: [] }
+    return { hits: [], density: [], max_scores: [], }
   }
   let loop_penalties = pqs_loop_penalties(options)
   let bulge_penalties = pqs_run_penalties(options)
@@ -671,41 +664,37 @@ pub fn pqs_search(
         let width = c.len
         let start = n - c.start - c.len
         let f = c.features
-        merged.push(
-          {
-            start,
-            end: start + width,
-            strand: label,
-            score: c.score,
-            nt: f.nt,
-            nb: f.nb,
-            nm: f.nm,
-            rl1: width - (f.rl1 + f.rl2 + f.rl3 + f.ll1 + f.ll2 + f.ll3),
-            rl2: f.rl3,
-            rl3: f.rl2,
-            ll1: f.ll3,
-            ll2: f.ll2,
-            ll3: f.ll1,
-          },
-        )
+        merged.push({
+          start,
+          end: start + width,
+          strand: label,
+          score: c.score,
+          nt: f.nt,
+          nb: f.nb,
+          nm: f.nm,
+          rl1: width - (f.rl1 + f.rl2 + f.rl3 + f.ll1 + f.ll2 + f.ll3),
+          rl2: f.rl3,
+          rl3: f.rl2,
+          ll1: f.ll3,
+          ll2: f.ll2,
+          ll3: f.ll1,
+        })
       } else {
-        merged.push(
-          {
-            start: c.start,
-            end: c.start + c.len,
-            strand: label,
-            score: c.score,
-            nt: c.features.nt,
-            nb: c.features.nb,
-            nm: c.features.nm,
-            rl1: c.features.rl1,
-            rl2: c.features.rl2,
-            rl3: c.features.rl3,
-            ll1: c.features.ll1,
-            ll2: c.features.ll2,
-            ll3: c.features.ll3,
-          },
-        )
+        merged.push({
+          start: c.start,
+          end: c.start + c.len,
+          strand: label,
+          score: c.score,
+          nt: c.features.nt,
+          nb: c.features.nb,
+          nm: c.features.nm,
+          rl1: c.features.rl1,
+          rl2: c.features.rl2,
+          rl3: c.features.rl3,
+          ll1: c.features.ll1,
+          ll2: c.features.ll2,
+          ll3: c.features.ll3,
+        })
       }
     }
     // merge the per-position vectors; antisense positions are mirrored
@@ -724,7 +713,7 @@ pub fn pqs_search(
     run_strand(pqs_revcomp(normalized), "-", true)
   }
   merged.sort_by(fn(a : Pqs, b : Pqs) { a.start.compare(b.start) })
-  { hits: merged, density, max_scores }
+  { hits: merged, density, max_scores, }
 }
 
 ///|
@@ -742,5 +731,5 @@ pub fn pqs_finder(
   overlapping? : Bool = false,
   options? : PqsOptions = PqsOptions::default(),
 ) -> Array[Pqs] raise SeqError {
-  pqs_search(seq, strand=strand, overlapping=overlapping, options=options).hits
+  pqs_search(seq, strand~, overlapping~, options~).hits
 }

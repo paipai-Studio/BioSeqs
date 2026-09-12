@@ -48,13 +48,13 @@ pub fn pkn_from_edges(edges : Array[PKNEdge]) -> PriorKnowledgeNetwork {
   }
   let regulators = reg_map.keys().collect()
   let targets = tgt_map.keys().collect()
-  PriorKnowledgeNetwork::{ edges, regulators, targets }
+  PriorKnowledgeNetwork::{ edges, regulators, targets, }
 }
 
 ///|
 /// Create a PKNEdge.
 pub fn pkn_edge(source : String, target : String, weight : Double) -> PKNEdge {
-  PKNEdge::{ source, target, weight }
+  PKNEdge::{ source, target, weight, }
 }
 
 ///|
@@ -637,7 +637,7 @@ fn decoupler_pack_result(
     }
     i = i + 1
   }
-  DecoupleRResult::{ regulators, samples, matrix, scores, method }
+  DecoupleRResult::{ regulators, samples, matrix, scores, method, }
 }
 
 ///|

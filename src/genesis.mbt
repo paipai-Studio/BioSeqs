@@ -17,7 +17,7 @@ pub fn GSKinshipResult::new(
   sample_ids : Array[String],
   n_samples : Int,
 ) -> GSKinshipResult {
-  GSKinshipResult::{ kinship_matrix, sample_ids, n_samples }
+  GSKinshipResult::{ kinship_matrix, sample_ids, n_samples, }
 }
 
 ///|
@@ -37,7 +37,7 @@ pub fn GSPcaResult::new(
   var_explained : Array[Double],
   sample_ids : Array[String],
 ) -> GSPcaResult {
-  GSPcaResult::{ eigenvalues, eigenvectors, var_explained, sample_ids }
+  GSPcaResult::{ eigenvalues, eigenvectors, var_explained, sample_ids, }
 }
 
 ///|
@@ -55,7 +55,7 @@ pub fn GSDistanceResult::new(
   sample_ids : Array[String],
   distance_type : String,
 ) -> GSDistanceResult {
-  GSDistanceResult::{ distance_matrix, sample_ids, distance_type }
+  GSDistanceResult::{ distance_matrix, sample_ids, distance_type, }
 }
 
 ///|

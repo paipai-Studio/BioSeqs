@@ -35,20 +35,20 @@ pub fn Scoring::new(
   mismatch_penalty : Double,
   gap_penalty : Double,
 ) -> Scoring {
-  Scoring::{ match_reward, mismatch_penalty, gap_penalty }
+  Scoring::{ match_reward, mismatch_penalty, gap_penalty, }
 }
 
 ///|
 /// Default DNA scoring: match=2, mismatch=-1, gap=-1.
 pub fn Scoring::default_dna() -> Scoring {
-  Scoring::{ match_reward: 2.0, mismatch_penalty: -1.0, gap_penalty: -1.0 }
+  Scoring::{ match_reward: 2.0, mismatch_penalty: -1.0, gap_penalty: -1.0, }
 }
 
 ///|
 /// Default protein scoring: match=5, mismatch=-4, gap=-3
 /// (simplified BLOSUM-like scheme without a full substitution matrix).
 pub fn Scoring::default_protein() -> Scoring {
-  Scoring::{ match_reward: 5.0, mismatch_penalty: -4.0, gap_penalty: -3.0 }
+  Scoring::{ match_reward: 5.0, mismatch_penalty: -4.0, gap_penalty: -3.0, }
 }
 
 ///|

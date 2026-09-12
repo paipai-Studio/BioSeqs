@@ -109,7 +109,7 @@ fn pbs_raise_bootstrap(
   consensus : String,
 ) -> String {
   try {
-    ignore(@src.bootstrap_consensus(seqs, names, cols, consensus=consensus))
+    ignore(@src.bootstrap_consensus(seqs, names, cols, consensus~))
     "NO_ERROR"
   } catch {
     @src.PhyloConsensusError(msg) => msg

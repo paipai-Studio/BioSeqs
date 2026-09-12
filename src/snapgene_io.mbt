@@ -77,7 +77,7 @@ pub fn SnapgeneFeature::new(
   segments~ : Array[(Int, Int)],
   qualifiers~ : Map[String, String],
 ) -> SnapgeneFeature {
-  SnapgeneFeature::{ name, type_, direction, segments, qualifiers }
+  SnapgeneFeature::{ name, type_, direction, segments, qualifiers, }
 }
 
 ///|
@@ -99,7 +99,7 @@ pub fn SnapgenePrimer::new(
   bind_to~ : Int,
   binds_at_position~ : Int,
 ) -> SnapgenePrimer {
-  SnapgenePrimer::{ name, sequence, description, bind_to, binds_at_position }
+  SnapgenePrimer::{ name, sequence, description, bind_to, binds_at_position, }
 }
 
 ///|

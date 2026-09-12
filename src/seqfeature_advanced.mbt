@@ -484,7 +484,7 @@ pub fn parse_join_location(
         )
     }
   }
-  CompoundLocation::{ parts, operator, ref_seq: None, ref_db: None }
+  CompoundLocation::{ parts, operator, ref_seq: None, ref_db: None, }
 }
 
 ///|
@@ -653,7 +653,7 @@ pub fn SeqFeatureExtended::add_qualifier(
     }
     None => new_quals[key] = [value]
   }
-  SeqFeatureExtended::{ ..self, qualifiers: new_quals }
+  SeqFeatureExtended::{ ..self, qualifiers: new_quals, }
 }
 
 ///|

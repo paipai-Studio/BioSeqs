@@ -208,7 +208,7 @@ pub fn NucDynamicResult::new(
   frac_changed : Double,
   direction : Int,
 ) -> NucDynamicResult {
-  NucDynamicResult::{ shared, gained, lost, frac_changed, direction }
+  NucDynamicResult::{ shared, gained, lost, frac_changed, direction, }
 }
 
 ///|
@@ -369,7 +369,7 @@ pub fn NucSignalTrack::new(
   start : Int,
   step : Int,
 ) -> NucSignalTrack {
-  NucSignalTrack::{ chrom, signal, start, step, length: signal.length() }
+  NucSignalTrack::{ chrom, signal, start, step, length: signal.length(), }
 }
 
 ///|

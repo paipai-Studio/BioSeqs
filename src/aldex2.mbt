@@ -1245,7 +1245,7 @@ pub fn aldex2(
   )
   let tests = aldex2_ttest(clr)
   let effects = aldex2_effect(clr)
-  Aldex2Result::{ clr, tests, effects }
+  Aldex2Result::{ clr, tests, effects, }
 }
 
 ///|
@@ -1501,7 +1501,7 @@ pub fn aldex2_summarized_experiment(
   enriched.metadata["aldex2_groups"] = result.tests.group_a +
     "," +
     result.tests.group_b
-  Aldex2SummarizedExperimentOutput::{ experiment: enriched, result }
+  Aldex2SummarizedExperimentOutput::{ experiment: enriched, result, }
 }
 
 ///|

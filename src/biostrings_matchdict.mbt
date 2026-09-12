@@ -60,7 +60,7 @@ pub fn bmd_create_pdict(
   max_mismatches? : Int = 0,
   with_indels? : Bool = false,
 ) -> PDict {
-  PDict::{ patterns, max_mismatches, with_indels }
+  PDict::{ patterns, max_mismatches, with_indels, }
 }
 
 ///|
@@ -76,7 +76,7 @@ pub fn bmd_match_pdict(pdict~ : PDict, subject~ : String) -> MatchPDictResult {
   let hits : Array[MatchPDictHit] = Array::new()
 
   if subject.length() == 0 || pdict.patterns.length() == 0 {
-    return MatchPDictResult::{ hits, pdict, subject_length: subject.length() }
+    return MatchPDictResult::{ hits, pdict, subject_length: subject.length(), }
   }
 
   let mut p_idx = 0
@@ -121,7 +121,7 @@ pub fn bmd_match_pdict(pdict~ : PDict, subject~ : String) -> MatchPDictResult {
     p_idx = p_idx + 1
   }
 
-  MatchPDictResult::{ hits, pdict, subject_length: subject.length() }
+  MatchPDictResult::{ hits, pdict, subject_length: subject.length(), }
 }
 
 ///|
@@ -149,7 +149,7 @@ pub fn bmd_vcount_pattern(
       counts.push(0)
       i = i + 1
     }
-    return CountPatternResult::{ pattern, counts, total: 0 }
+    return CountPatternResult::{ pattern, counts, total: 0, }
   }
 
   let mut i = 0
@@ -187,7 +187,7 @@ pub fn bmd_vcount_pattern(
     i = i + 1
   }
 
-  CountPatternResult::{ pattern, counts, total }
+  CountPatternResult::{ pattern, counts, total, }
 }
 
 ///|

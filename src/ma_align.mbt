@@ -28,7 +28,7 @@ pub fn StructureData::new(
   sequence : String,
   residue_names : Array[String],
 ) -> StructureData {
-  StructureData::{ structure_id, ca_coordinates, sequence, residue_names }
+  StructureData::{ structure_id, ca_coordinates, sequence, residue_names, }
 }
 
 ///|

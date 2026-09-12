@@ -340,6 +340,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **celda** | celda `celda_CG` | 细胞群与基因模块联合聚类、分层 Dirichlet-multinomial、collapsed likelihood、EM/Gibbs、多链、K/L 网格选择 | ✅ |
 | **miloR** | miloR | 精确 KNN 图、精炼重叠邻域、邻域×样本计数、NB-GLM/Wald 检验、BH 与四种 graph spatial FDR | ✅ |
 | **muscat 1.27.4** | muscat | gene × cell 严格合同、五类 cluster-sample 伪批量、任意满秩设计/多 contrast、负二项 IRLS、经验贝叶斯 dispersion、DS/DD 与局部/全局 BH-FDR | ✅ |
+| **speckle 1.12.0** | speckle (propeller) | cell 级 cluster/sample 计数表（R `table()` C 语言环境字典序层级）、logit（0.5 伪计数）/arcsin-sqrt 变换、两组 limma moderated-t 与多组 ANOVA（classifyTestsF：相关矩阵特征分解 Q 与 F 统计量、df2=dfprior+dfresid 不做 pooled 截断、Inf 卡方极限）、普通/robust eBayes（fitFDist 矩估计、fitFDistRobustly 截尾均值、type-7 Winsor 分位数、128 节点 Gauss–Legendre Winsor 矩二分求根、离群行 df 收缩与累积均值保序）、比例组均值/RR、BH-FDR、normCounts 中位数库大小归一化（log2+缩放先验计数）、estimateBetaParam/estimateBetaParamsFromCounts Beta(-二项) 矩估计 | ✅ |
 | **monocle3** | monocle3 | PCA/UMAP 降维、主图学习、拟时间排序、差异表达、分支点检测 | ✅ |
 | **slingshot 2.21.0** | slingshot | MST 构建、主曲线拟合、拟时间计算、soft membership、协方差缩放距离、start/end 约束、omega forest、拟时间、新数据映射 | ✅ |
 | **velociraptor** | velociraptor | 稳态线性回归（gamma/beta）、EM 动力学模型（alpha/beta/gamma）、velocity 向量、KNN 嵌入投影、根细胞识别 | ✅ |
@@ -586,6 +587,7 @@ IvanAXu/BioSeqs/
 │   ├── phylo_applications_demo/      # Bio.Phylo.Applications（FastTree/PhyML/RAxML 命令行构建）
 │   ├── tree_construction_demo/       # DistanceCalculator（identity/blastn/BLOSUM62 全模型距离 + UPGMA/NJ/WPGMA 建树）
 │   ├── phylo_bootstrap_demo/         # Bio.Phylo.Consensus（strict/majority/Adam 共识树 + get_support 支持度 + 比对列 bootstrap）
+│   ├── propeller_demo/               # speckle propeller（细胞类型比例变换、moderated t/ANOVA、robust eBayes、normCounts、Beta 参数）
 │   ├── substitution_matrices_demo/   # 替换矩阵注册表与 30 个 Biopython 权威矩阵（IUPAC NUC.4.4/BLOSUM/PAM/密码子）
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
@@ -595,7 +597,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，13059 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（约 450 个测试文件，13082 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -615,7 +617,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13059 个测试全部通过
+moon test                                               # ✅ 13082 个测试全部通过
 ```
 
 ---
@@ -624,7 +626,7 @@ moon test                                               # ✅ 13059 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13059 个测试用例)
+moon test       # 运行全部测试 (13082 个测试用例)
 ```
 
 ---
@@ -685,6 +687,7 @@ moon test       # 运行全部测试 (13059 个测试用例)
 | `summarized_experiment.mbt` / `single_cell_experiment.mbt` / `spatial_experiment.mbt` / `multi_assay_experiment.mbt` / `tree_summarized_experiment.mbt` / `ragged_experiment.mbt` | Bioconductor 数据容器家族 |
 | `deseq2.mbt` + `deseq2_advanced.mbt` / `edger.mbt` + `edger_advanced.mbt` / `limma.mbt` / `apeglm.mbt` | 差异表达三大套件 + apeglm LFC 收缩 |
 | `geneset_tests.mbt` | Bioconductor limma 竞争性基因集检验：rank_sum_test_with_correlation（Wilcoxon 秩和 + 基因内相关 asin 方差膨胀、ties、t/正态参考）、camera_pr（预计算统计量：参数化 Welch 式 t 或秩和、逐集相关、directional/non-directional、BH-FDR）、camera_default（逐基因 lmFit → squeezeVar 经验贝叶斯（fitFDist 矩估计 + trigamma 反演）→ moderated-t → Hill 1970 t→z、残差子空间 VIF 估计逐集 inter-gene correlation、负相关截断、df.camera 规则），自带高精度 lgamma/betacf/t-CDF/正态 CDF 数值核 |
+| `propeller.mbt` | Bioconductor speckle propeller（细胞类型差异比例）：get_transformed_props（cell 级 cluster/sample 向量 → 字典序层级计数表与比例，logit 0.5 伪计数 / arcsin-sqrt 变换）、propeller_ttest(_model) moderated-t（C′(X′X)⁻¹C 对比方差、比例尺度组均值、RR=∏mean^C、pmin pooled 自由度 t 检验）、propeller_anova(_model)（design2 置首列、classifyTestsF cov2cor 对称特征分解 Q 构造 F、df2=dfprior+dfresid 不截断、Inf→卡方极限）、普通/robust squeezeVar（fitFDist log-digamma 矩估计；fitFDistRobustly 10% 截尾均值、5%/90% type-7 Winsor、128 节点 Gauss–Legendre Winsor 对数 F 矩 + link 尺度二分求根、TailP/经验尾概率离群收缩、df2.outlier 两次迭代、累积均值保序）、BH-FDR、propeller 一体化封装（两组 t / 多组 ANOVA 自动路由、baseline 比例）、propeller_norm_counts（中位数库大小、log2 缩放先验计数）、estimate_beta_param / estimate_beta_params_from_counts（Beta 与 beta-binomial α/β/π/dispersion/variance 矩估计） |
 | `ebseq.mbt` / `matrixeqtl.mbt` / `dmrcate.mbt` / `gostats.mbt` / `goseq.mbt` / `lefse.mbt` | EBSeq 经验贝叶斯 DE / MatrixEQTL eQTL 线性回归 / DMRcate 差异甲基化区域 / GOstats GO 富集 / goseq 长度偏差校正 GO 富集 / LEfSe 微生物组生物标志物 |
 | `seurat.mbt` / `scran.mbt` / `scuttle.mbt` / `scrapper.mbt` / `bluster.mbt` / `monocle3.mbt` / `slingshot.mbt` / `tradeSeq.mbt` / `velociraptor.mbt` / `scenic.mbt` / `infercnv.mbt` / `milo.mbt` / `muscat.mbt` / `zinbwave.mbt` / `celda.mbt` / `decontx.mbt` / `batchelor.mbt` / `sc_dbl_finder.mbt` / `droplet_utils_advanced.mbt` / `single_r_advanced.mbt` / `mast_advanced.mbt` | 单细胞 / 空间组学全栈分析套件 |
 | `minfi.mbt` / `bsseq.mbt` / `methylkit.mbt` / `chipseeker.mbt` / `diffbind.mbt` / `peak_calling.mbt` / `bumphunter.mbt` | 甲基化与 ChIP-seq 分析 |

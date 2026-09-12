@@ -16,36 +16,36 @@
 /// Create a vector from an array of 3 values.
 pub fn Vector3::from_array(coords : Array[Double]) -> Vector3 {
   if coords.length() >= 3 {
-    Vector3::{ x: coords[0], y: coords[1], z: coords[2] }
+    Vector3::{ x: coords[0], y: coords[1], z: coords[2], }
   } else if coords.length() == 2 {
-    Vector3::{ x: coords[0], y: coords[1], z: 0.0 }
+    Vector3::{ x: coords[0], y: coords[1], z: 0.0, }
   } else {
-    Vector3::{ x: 0.0, y: 0.0, z: 0.0 }
+    Vector3::{ x: 0.0, y: 0.0, z: 0.0, }
   }
 }
 
 ///|
 /// Create a zero vector.
 pub fn Vector3::zero() -> Vector3 {
-  Vector3::{ x: 0.0, y: 0.0, z: 0.0 }
+  Vector3::{ x: 0.0, y: 0.0, z: 0.0, }
 }
 
 ///|
 /// Create a unit vector along X axis.
 pub fn Vector3::unit_x() -> Vector3 {
-  Vector3::{ x: 1.0, y: 0.0, z: 0.0 }
+  Vector3::{ x: 1.0, y: 0.0, z: 0.0, }
 }
 
 ///|
 /// Create a unit vector along Y axis.
 pub fn Vector3::unit_y() -> Vector3 {
-  Vector3::{ x: 0.0, y: 1.0, z: 0.0 }
+  Vector3::{ x: 0.0, y: 1.0, z: 0.0, }
 }
 
 ///|
 /// Create a unit vector along Z axis.
 pub fn Vector3::unit_z() -> Vector3 {
-  Vector3::{ x: 0.0, y: 0.0, z: 1.0 }
+  Vector3::{ x: 0.0, y: 0.0, z: 1.0, }
 }
 
 ///|
@@ -67,19 +67,19 @@ pub fn Vector3::get_z(self : Vector3) -> Double {
 ///|
 /// Add two vectors.
 pub fn Vector3::add(self : Vector3, other : Vector3) -> Vector3 {
-  Vector3::{ x: self.x + other.x, y: self.y + other.y, z: self.z + other.z }
+  Vector3::{ x: self.x + other.x, y: self.y + other.y, z: self.z + other.z, }
 }
 
 ///|
 /// Subtract two vectors.
 pub fn Vector3::sub(self : Vector3, other : Vector3) -> Vector3 {
-  Vector3::{ x: self.x - other.x, y: self.y - other.y, z: self.z - other.z }
+  Vector3::{ x: self.x - other.x, y: self.y - other.y, z: self.z - other.z, }
 }
 
 ///|
 /// Multiply vector by scalar.
 pub fn Vector3::scale(self : Vector3, scalar : Double) -> Vector3 {
-  Vector3::{ x: self.x * scalar, y: self.y * scalar, z: self.z * scalar }
+  Vector3::{ x: self.x * scalar, y: self.y * scalar, z: self.z * scalar, }
 }
 
 ///|
@@ -117,7 +117,7 @@ pub fn Vector3::normalize(self : Vector3) -> Vector3 {
   if n < 1.0e-15 {
     return Vector3::zero()
   }
-  Vector3::{ x: self.x / n, y: self.y / n, z: self.z / n }
+  Vector3::{ x: self.x / n, y: self.y / n, z: self.z / n, }
 }
 
 ///|
@@ -181,7 +181,7 @@ pub fn Vector3::to_array(self : Vector3) -> Array[Double] {
 ///|
 /// Negate the vector.
 pub fn Vector3::negate(self : Vector3) -> Vector3 {
-  Vector3::{ x: -self.x, y: -self.y, z: -self.z }
+  Vector3::{ x: -self.x, y: -self.y, z: -self.z, }
 }
 
 ///|
@@ -219,7 +219,7 @@ pub fn RotationMatrix3::new(
   m21~ : Double,
   m22~ : Double,
 ) -> RotationMatrix3 {
-  RotationMatrix3::{ m00, m01, m02, m10, m11, m12, m20, m21, m22 }
+  RotationMatrix3::{ m00, m01, m02, m10, m11, m12, m20, m21, m22, }
 }
 
 ///|
@@ -405,7 +405,7 @@ pub fn RotationMatrix3::transform(
   let new_x = self.m00 * v.x + self.m01 * v.y + self.m02 * v.z
   let new_y = self.m10 * v.x + self.m11 * v.y + self.m12 * v.z
   let new_z = self.m20 * v.x + self.m21 * v.y + self.m22 * v.z
-  Vector3::{ x: new_x, y: new_y, z: new_z }
+  Vector3::{ x: new_x, y: new_y, z: new_z, }
 }
 
 ///|

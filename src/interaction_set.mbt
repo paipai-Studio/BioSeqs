@@ -13,7 +13,7 @@ pub struct Anchor {
 ///|
 /// Construct Anchor.
 pub fn Anchor::new(chrom~ : String, start~ : Int, end~ : Int) -> Anchor {
-  Anchor::{ chrom, start, end }
+  Anchor::{ chrom, start, end, }
 }
 
 ///|
@@ -46,7 +46,7 @@ pub fn GInteraction::new(
   anchor2~ : Anchor,
   count? : Int = 0,
 ) -> GInteraction {
-  GInteraction::{ anchor1, anchor2, count }
+  GInteraction::{ anchor1, anchor2, count, }
 }
 
 ///|
@@ -89,7 +89,7 @@ pub fn InteractionSet::new(
   interactions~ : Array[GInteraction],
   bin_size? : Int = 0,
 ) -> InteractionSet {
-  InteractionSet::{ interactions, bin_size }
+  InteractionSet::{ interactions, bin_size, }
 }
 
 ///|

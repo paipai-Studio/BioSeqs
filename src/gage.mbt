@@ -56,7 +56,7 @@ pub fn GageGeneSet::new(
   name : String,
   gene_ids : Array[String],
 ) -> GageGeneSet {
-  GageGeneSet::{ id, name, gene_ids }
+  GageGeneSet::{ id, name, gene_ids, }
 }
 
 ///|

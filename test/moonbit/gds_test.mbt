@@ -28,7 +28,11 @@ test "gds_file_node_tree" {
   )
   let _ = file.add_node(
     "",
-    @src.GdsNode::leaf("sample.id", "samples", @src.GdsValue::GdsStringArray(["A", "B"])),
+    @src.GdsNode::leaf(
+      "sample.id",
+      "samples",
+      @src.GdsValue::GdsStringArray(["A", "B"]),
+    ),
   )
   assert_true(file.has_node("annotation/info/DP"))
   assert_true(file.has_node("sample.id"))
@@ -153,7 +157,7 @@ test "gds_missing_rates" {
   let rates = data.missing_rates()
   assert_eq(rates.length(), 4)
   assert_eq(rates[0], 0.0)
-  assert_true((rates[1] - (1.0 / 3.0)).abs() < 1.0e-12)
+  assert_true((rates[1] - 1.0 / 3.0).abs() < 1.0e-12)
 }
 
 ///|
@@ -170,7 +174,7 @@ test "gds_summary" {
 ///|
 test "gds_apply_per_variant" {
   let data = gds_test_data()
-  let means = data.apply_per_variant(fn (row, _idx) {
+  let means = data.apply_per_variant(fn(row, _idx) {
     let mut total = 0.0
     let mut n = 0
     for dosage in row {

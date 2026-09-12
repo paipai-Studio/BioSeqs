@@ -17,7 +17,7 @@ pub fn DihedralAngles::new(
   psi? : Double? = None,
   omega? : Double? = None,
 ) -> DihedralAngles {
-  DihedralAngles::{ phi, psi, omega }
+  DihedralAngles::{ phi, psi, omega, }
 }
 
 ///|

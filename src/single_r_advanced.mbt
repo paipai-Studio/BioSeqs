@@ -1610,7 +1610,7 @@ pub fn single_r_advanced_sce(
   } else {
     "cluster"
   }
-  SingleRAdvancedSCEOutput::{ experiment: enriched, result }
+  SingleRAdvancedSCEOutput::{ experiment: enriched, result, }
 }
 
 ///|

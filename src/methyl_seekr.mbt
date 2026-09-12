@@ -33,7 +33,7 @@ pub fn CytosineSite::new(
   methylated~ : Int,
   unmethylated~ : Int,
 ) -> CytosineSite {
-  CytosineSite::{ chr, position, methylated, unmethylated }
+  CytosineSite::{ chr, position, methylated, unmethylated, }
 }
 
 ///|
@@ -114,7 +114,7 @@ pub fn MethylTile::new(
   coverage~ : Int,
   region_type? : String = "FMR",
 ) -> MethylTile {
-  MethylTile::{ chr, start, end, methylation_level, coverage, region_type }
+  MethylTile::{ chr, start, end, methylation_level, coverage, region_type, }
 }
 
 ///|

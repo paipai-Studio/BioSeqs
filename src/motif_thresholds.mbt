@@ -32,12 +32,12 @@ pub struct MotifScoreDistribution {
 ///|
 pub fn MotifScoreDistribution::from_pssm(
   pssm : Array[Array[Double]],
-  background~ : Array[Double] = [0.25, 0.25, 0.25, 0.25],
-  precision~ : Int = 1000
+  background? : Array[Double] = [0.25, 0.25, 0.25, 0.25],
+  precision? : Int = 1000,
 ) -> MotifScoreDistribution raise MotifThresholdError {
   if pssm.length() != 4 {
     raise MotifThresholdError(
-      "PSSM must contain exactly 4 rows ordered A, C, G, T"
+      "PSSM must contain exactly 4 rows ordered A, C, G, T",
     )
   }
   let length = pssm[0].length()
@@ -51,33 +51,41 @@ pub fn MotifScoreDistribution::from_pssm(
     for value in row {
       if !motif_threshold_finite(value) {
         raise MotifThresholdError(
-          "PSSM contains a non-finite value (NaN or infinity); add pseudocounts before building the PSSM"
+          "PSSM contains a non-finite value (NaN or infinity); add pseudocounts before building the PSSM",
         )
       }
     }
   }
   if background.length() != 4 {
-    raise MotifThresholdError("Background must contain 4 probabilities (A, C, G, T)")
+    raise MotifThresholdError(
+      "Background must contain 4 probabilities (A, C, G, T)",
+    )
   }
   let bg_total = {
     let mut total = 0.0
     for value in background {
       if !motif_threshold_finite(value) || value < 0.0 {
-        raise MotifThresholdError("Background probabilities must be finite and non-negative")
+        raise MotifThresholdError(
+          "Background probabilities must be finite and non-negative",
+        )
       }
       total += value
     }
     total
   }
   if bg_total <= 0.0 {
-    raise MotifThresholdError("Background probabilities must sum to a positive value")
+    raise MotifThresholdError(
+      "Background probabilities must sum to a positive value",
+    )
   }
   if precision < 1 {
     raise MotifThresholdError("Precision must be at least 1")
   }
   let n_points = precision * length
   if n_points < 2 {
-    raise MotifThresholdError("Need at least two grid points (increase precision)")
+    raise MotifThresholdError(
+      "Need at least two grid points (increase precision)",
+    )
   }
   let bg = background.map(fn(value : Double) -> Double { value / bg_total })
   // pssm.min / pssm.max in Biopython are the minimum and maximum *total*
@@ -103,10 +111,9 @@ pub fn MotifScoreDistribution::from_pssm(
   let max_score = max_total
   let interval = (if max_score > 0.0 { max_score } else { 0.0 }) - min_score
   let step = interval / (n_points - 1).to_double()
-  let index_diff =
-    fn(x : Double) -> Int {
-      ((x + 0.5 * step) / step).floor().to_int()
-    }
+  let index_diff = fn(x : Double) -> Int {
+    ((x + 0.5 * step) / step).floor().to_int()
+  }
   let mut motif_density = Array::make(n_points, 0.0)
   let mut background_density = Array::make(n_points, 0.0)
   // Mirror Biopython: densities[-index_diff(min_score)] = 1.0, i.e. the
@@ -152,7 +159,7 @@ pub fn MotifScoreDistribution::from_pssm(
     n_points,
     information_content,
     motif_density,
-    background_density
+    background_density,
   }
 }
 
@@ -166,13 +173,13 @@ pub fn MotifScoreDistribution::from_pssm(
 /// PSSM holds base-2 log-odds against ``background``.
 pub fn MotifScoreDistribution::from_counts(
   counts : Array[Array[Int]],
-  background~ : Array[Double] = [0.25, 0.25, 0.25, 0.25],
-  pseudocount~ : Double = 0.0,
-  precision~ : Int = 1000
+  background? : Array[Double] = [0.25, 0.25, 0.25, 0.25],
+  pseudocount? : Double = 0.0,
+  precision? : Int = 1000,
 ) -> MotifScoreDistribution raise MotifThresholdError {
   if counts.length() != 4 {
     raise MotifThresholdError(
-      "Counts must contain exactly 4 rows ordered A, C, G, T"
+      "Counts must contain exactly 4 rows ordered A, C, G, T",
     )
   }
   let length = counts[0].length()
@@ -190,7 +197,9 @@ pub fn MotifScoreDistribution::from_counts(
     }
   }
   if !motif_threshold_finite(pseudocount) || pseudocount < 0.0 {
-    raise MotifThresholdError("Pseudocount must be a finite non-negative number")
+    raise MotifThresholdError(
+      "Pseudocount must be a finite non-negative number",
+    )
   }
   let bg_total = {
     let mut total = 0.0
@@ -200,7 +209,9 @@ pub fn MotifScoreDistribution::from_counts(
     total
   }
   if background.length() != 4 || bg_total <= 0.0 {
-    raise MotifThresholdError("Background must contain 4 positive probabilities")
+    raise MotifThresholdError(
+      "Background must contain 4 positive probabilities",
+    )
   }
   let pssm : Array[Array[Double]] = []
   for letter in 0..<4 {
@@ -211,28 +222,25 @@ pub fn MotifScoreDistribution::from_counts(
       for r in 0..<4 {
         column_total += counts[r][position]
       }
-      let probability =
-        (counts[letter][position].to_double() + pseudocount) /
+      let probability = (counts[letter][position].to_double() + pseudocount) /
         (column_total.to_double() + 4.0 * pseudocount)
       if probability <= 0.0 {
         raise MotifThresholdError(
-          "Zero probability cell yields -infinite log-odds; pass a positive pseudocount"
+          "Zero probability cell yields -infinite log-odds; pass a positive pseudocount",
         )
       }
       row.push(@math.log2(probability / b))
     }
     pssm.push(row)
   }
-  MotifScoreDistribution::from_pssm(
-    pssm,
-    background=background,
-    precision=precision
-  )
+  MotifScoreDistribution::from_pssm(pssm, background~, precision~)
 }
 
 ///|
 /// Lowest grid score (``min(0, PSSM minimum)``).
-pub fn MotifScoreDistribution::min_score(self : MotifScoreDistribution) -> Double {
+pub fn MotifScoreDistribution::min_score(
+  self : MotifScoreDistribution,
+) -> Double {
   self.min_score
 }
 
@@ -252,7 +260,7 @@ pub fn MotifScoreDistribution::n_points(self : MotifScoreDistribution) -> Int {
 /// Total information content of the PSSM under the given background
 /// (expected log-odds score of a true motif occurrence).
 pub fn MotifScoreDistribution::information_content(
-  self : MotifScoreDistribution
+  self : MotifScoreDistribution,
 ) -> Double {
   self.information_content
 }
@@ -260,7 +268,7 @@ pub fn MotifScoreDistribution::information_content(
 ///|
 /// Motif-model probability mass on the discrete score grid (copy).
 pub fn MotifScoreDistribution::motif_density(
-  self : MotifScoreDistribution
+  self : MotifScoreDistribution,
 ) -> Array[Double] {
   self.motif_density.copy()
 }
@@ -268,7 +276,7 @@ pub fn MotifScoreDistribution::motif_density(
 ///|
 /// Background-model probability mass on the discrete score grid (copy).
 pub fn MotifScoreDistribution::background_density(
-  self : MotifScoreDistribution
+  self : MotifScoreDistribution,
 ) -> Array[Double] {
   self.background_density.copy()
 }
@@ -277,7 +285,7 @@ pub fn MotifScoreDistribution::background_density(
 /// Score represented by grid bin ``index`` (``min_score + index * step``).
 pub fn MotifScoreDistribution::grid_score(
   self : MotifScoreDistribution,
-  index : Int
+  index : Int,
 ) -> Double {
   self.min_score + index.to_double() * self.step
 }
@@ -288,7 +296,7 @@ pub fn MotifScoreDistribution::grid_score(
 /// is at most ``fpr``.
 pub fn MotifScoreDistribution::threshold_fpr(
   self : MotifScoreDistribution,
-  fpr : Double
+  fpr : Double,
 ) -> Double raise MotifThresholdError {
   motif_threshold_check_rate(fpr, "false positive rate")
   let mut i = self.n_points
@@ -297,7 +305,7 @@ pub fn MotifScoreDistribution::threshold_fpr(
     i -= 1
     if i < 0 {
       raise MotifThresholdError(
-        "False positive rate larger than the discretized background mass"
+        "False positive rate larger than the discretized background mass",
       )
     }
     prob += self.background_density[i]
@@ -311,7 +319,7 @@ pub fn MotifScoreDistribution::threshold_fpr(
 /// most ``fnr``.
 pub fn MotifScoreDistribution::threshold_fnr(
   self : MotifScoreDistribution,
-  fnr : Double
+  fnr : Double,
 ) -> Double raise MotifThresholdError {
   motif_threshold_check_rate(fnr, "false negative rate")
   let mut i = -1
@@ -320,7 +328,7 @@ pub fn MotifScoreDistribution::threshold_fnr(
     i += 1
     if i >= self.n_points {
       raise MotifThresholdError(
-        "False negative rate larger than the discretized motif mass"
+        "False negative rate larger than the discretized motif mass",
       )
     }
     prob += self.motif_density[i]
@@ -333,11 +341,9 @@ pub fn MotifScoreDistribution::threshold_fnr(
 /// ``FNR == FPR * rate_proportion`` (default equal rates).
 pub fn MotifScoreDistribution::threshold_balanced(
   self : MotifScoreDistribution,
-  rate_proportion~ : Double = 1.0
+  rate_proportion? : Double = 1.0,
 ) -> Double raise MotifThresholdError {
-  let (threshold, _) = self.threshold_balanced_with_rate(
-    rate_proportion=rate_proportion
-  )
+  let (threshold, _) = self.threshold_balanced_with_rate(rate_proportion~)
   threshold
 }
 
@@ -346,10 +352,12 @@ pub fn MotifScoreDistribution::threshold_balanced(
 /// rate at the selected threshold.
 pub fn MotifScoreDistribution::threshold_balanced_with_rate(
   self : MotifScoreDistribution,
-  rate_proportion~ : Double = 1.0
+  rate_proportion? : Double = 1.0,
 ) -> (Double, Double) raise MotifThresholdError {
   if !motif_threshold_finite(rate_proportion) || rate_proportion < 0.0 {
-    raise MotifThresholdError("Rate proportion must be a finite non-negative number")
+    raise MotifThresholdError(
+      "Rate proportion must be a finite non-negative number",
+    )
   }
   let mut i = self.n_points
   let mut fpr = 0.0
@@ -358,7 +366,7 @@ pub fn MotifScoreDistribution::threshold_balanced_with_rate(
     i -= 1
     if i < 0 {
       raise MotifThresholdError(
-        "Cannot balance error rates at the requested rate proportion"
+        "Cannot balance error rates at the requested rate proportion",
       )
     }
     fpr += self.background_density[i]
@@ -371,22 +379,24 @@ pub fn MotifScoreDistribution::threshold_balanced_with_rate(
 /// patser threshold (Hertz & Stormo 1999): FPR = 2 ** (-IC(M)). The original
 /// patser uses natural logarithms, so values are not directly comparable.
 pub fn MotifScoreDistribution::threshold_patser(
-  self : MotifScoreDistribution
+  self : MotifScoreDistribution,
 ) -> Double raise MotifThresholdError {
   self.threshold_fpr(@math.pow(2.0, -self.information_content))
 }
 
+///|
 fn motif_threshold_check_rate(
   rate : Double,
-  label : String
+  label : String,
 ) -> Unit raise MotifThresholdError {
   if !motif_threshold_finite(rate) || rate < 0.0 || rate > 1.0 {
     raise MotifThresholdError(
-      "Requested " + label + " must be a finite number within [0, 1]"
+      "Requested " + label + " must be a finite number within [0, 1]",
     )
   }
 }
 
+///|
 fn motif_threshold_finite(value : Double) -> Bool {
   !value.is_nan() && value.abs() <= 1.7976931348623157e308
 }

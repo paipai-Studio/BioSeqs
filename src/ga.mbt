@@ -103,7 +103,7 @@ pub fn GAIndividual::new(
   generation? : Int = 0,
   id? : Int = 0,
 ) -> GAIndividual {
-  GAIndividual::{ sequence, fitness, generation, id }
+  GAIndividual::{ sequence, fitness, generation, id, }
 }
 
 ///|
@@ -216,7 +216,7 @@ struct GARNGState {
 ///|
 /// Create a new RNG state.
 fn ga_rng_new(seed : Int) -> GARNGState {
-  GARNGState::{ state: seed }
+  GARNGState::{ state: seed, }
 }
 
 ///|
@@ -224,7 +224,7 @@ fn ga_rng_new(seed : Int) -> GARNGState {
 fn ga_rng_next(state : GARNGState) -> (GARNGState, Double) {
   let next_state = (state.state * 1103515245 + 12345) & 0x7FFFFFFF
   let value = next_state.to_double() / 2147483648.0
-  (GARNGState::{ state: next_state }, value)
+  (GARNGState::{ state: next_state, }, value)
 }
 
 ///|

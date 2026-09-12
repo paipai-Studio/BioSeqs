@@ -39,7 +39,7 @@ pub fn SpicyCell::create(
   if !spicy_is_finite(x) || !spicy_is_finite(y) {
     raise SpicyError("spicyR cell coordinates must be finite")
   }
-  SpicyCell::{ image_id, cell_type, x, y }
+  SpicyCell::{ image_id, cell_type, x, y, }
 }
 
 ///|
@@ -74,7 +74,7 @@ pub fn SpicyImageMetadata::create(
     }
     copied[name] = value
   }
-  SpicyImageMetadata::{ image_id, condition, subject, covariates: copied }
+  SpicyImageMetadata::{ image_id, condition, subject, covariates: copied, }
 }
 
 ///|
@@ -91,7 +91,7 @@ pub fn SpicyPair::create(
   if from_cell_type == "" || to_cell_type == "" {
     raise SpicyError("spicyR pair cell types must not be empty")
   }
-  SpicyPair::{ from_cell_type, to_cell_type }
+  SpicyPair::{ from_cell_type, to_cell_type, }
 }
 
 ///|
@@ -389,7 +389,7 @@ fn spicy_window(
   if width <= 0.0 || height <= 0.0 {
     raise SpicyError("spicyR image window must have positive width and height")
   }
-  SpicyWindow::{ min_x, max_x, min_y, max_y, area: width * height }
+  SpicyWindow::{ min_x, max_x, min_y, max_y, area: width * height, }
 }
 
 ///|
@@ -1445,7 +1445,7 @@ pub fn spicyr_spatial_experiment(
     }
   }
   enriched.metadata["spicyr_significant_contrasts"] = significant.to_string()
-  SpicySpatialExperimentOutput::{ experiment: enriched, result }
+  SpicySpatialExperimentOutput::{ experiment: enriched, result, }
 }
 
 ///|
@@ -1498,6 +1498,6 @@ pub fn spicyr_example_data() -> (
       }
     }
   }
-  let pairs = [SpicyPair::{ from_cell_type: "T_cell", to_cell_type: "Tumour" }]
+  let pairs = [SpicyPair::{ from_cell_type: "T_cell", to_cell_type: "Tumour", }]
   (cells, metadata, pairs)
 }

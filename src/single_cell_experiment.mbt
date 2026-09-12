@@ -575,7 +575,7 @@ pub fn sce_compute_size_factors(
     log_means.push(if factors[i] > 0.0 { sce_ln(factors[i]) } else { 0.0 })
     i = i + 1
   }
-  SizeFactorResult::{ size_factors: factors, method, log_means }
+  SizeFactorResult::{ size_factors: factors, method, log_means, }
 }
 
 ///|

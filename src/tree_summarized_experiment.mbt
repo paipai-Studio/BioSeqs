@@ -21,7 +21,7 @@ pub fn TseLink::new(
   is_leaf~ : Bool,
   tree_name? : String = "phylo",
 ) -> TseLink {
-  TseLink::{ node_label, node_alias, node_number, is_leaf, tree_name }
+  TseLink::{ node_label, node_alias, node_number, is_leaf, tree_name, }
 }
 
 ///|

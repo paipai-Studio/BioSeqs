@@ -68,7 +68,9 @@ test "goseq_wallenius_pvalue_no_bias_low_odds" {
 
 ///|
 test "goseq_main" {
-  let genes = ["GeneA", "GeneB", "GeneC", "GeneD", "GeneE", "GeneF", "GeneG", "GeneH"]
+  let genes = [
+    "GeneA", "GeneB", "GeneC", "GeneD", "GeneE", "GeneF", "GeneG", "GeneH",
+  ]
   let lengths = [1000.0, 2000.0, 1500.0, 3000.0, 2500.0, 1800.0, 4000.0, 3500.0]
   let de = [1, 0, 1, 0, 0, 1, 0, 0]
 
@@ -89,7 +91,9 @@ test "goseq_main" {
   let mut i = 0
   while i < results.length() {
     assert_true(results[i].p_value >= 0.0 && results[i].p_value <= 1.0)
-    assert_true(results[i].adjusted_p_value >= 0.0 && results[i].adjusted_p_value <= 1.0)
+    assert_true(
+      results[i].adjusted_p_value >= 0.0 && results[i].adjusted_p_value <= 1.0,
+    )
     assert_true(results[i].overlap >= 0)
     i = i + 1
   }
@@ -113,9 +117,7 @@ test "goseq_no_go_matches" {
   let lengths = [1000.0, 2000.0, 1500.0]
   let de = [1, 0, 1]
   let go_sets = [
-    @src.GoseqGeneSet::new("GO:0006915", "apoptosis", "BP", [
-      "GeneX", "GeneY",
-    ]),
+    @src.GoseqGeneSet::new("GO:0006915", "apoptosis", "BP", ["GeneX", "GeneY"]),
   ]
   let results = @src.goseq(genes, lengths, de, go_sets)
   assert_eq(results.length(), 0)
@@ -195,12 +197,9 @@ test "goseq_result_new" {
 
 ///|
 test "goseq_set_new" {
-  let go_set = @src.GoseqGeneSet::new(
-    "GO:0006915",
-    "apoptosis",
-    "BP",
-    ["GeneA", "GeneB", "GeneC"],
-  )
+  let go_set = @src.GoseqGeneSet::new("GO:0006915", "apoptosis", "BP", [
+    "GeneA", "GeneB", "GeneC",
+  ])
   assert_eq(go_set.go_id, "GO:0006915")
   assert_eq(go_set.term_name, "apoptosis")
   assert_eq(go_set.ontology, "BP")

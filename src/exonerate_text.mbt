@@ -125,7 +125,7 @@ pub fn ExonerateTextRange::create(
       "Exonerate coordinate ranges must satisfy 0 <= start <= end",
     )
   }
-  ExonerateTextRange::{ start, end }
+  ExonerateTextRange::{ start, end, }
 }
 
 ///|
@@ -1306,7 +1306,7 @@ fn exonerate_text_find_ner_spans(
     if close < 0 {
       raise ExonerateTextError("Unterminated Exonerate NER marker")
     }
-    result.push(ExonerateTextSpan::{ start, end: close + 3 })
+    result.push(ExonerateTextSpan::{ start, end: close + 3, })
     cursor = close + 3
   }
   result
@@ -1388,7 +1388,7 @@ fn exonerate_text_expand_splice_flanks(
     end = end + 1
     moved = moved + 1
   }
-  ExonerateTextSpan::{ start, end }
+  ExonerateTextSpan::{ start, end, }
 }
 
 ///|
@@ -1405,12 +1405,12 @@ fn exonerate_text_complement_spans(
       raise ExonerateTextError("Overlapping or invalid Exonerate separator")
     }
     if separator.start > cursor {
-      result.push(ExonerateTextSpan::{ start: cursor, end: separator.start })
+      result.push(ExonerateTextSpan::{ start: cursor, end: separator.start, })
     }
     cursor = separator.end
   }
   if cursor < length {
-    result.push(ExonerateTextSpan::{ start: cursor, end: length })
+    result.push(ExonerateTextSpan::{ start: cursor, end: length, })
   }
   result
 }
@@ -1471,7 +1471,7 @@ fn exonerate_text_hash_runs(text : String) -> Array[ExonerateTextSpan] {
             text.unsafe_get(index).to_int() == '#'.to_int() {
         index = index + 1
       }
-      result.push(ExonerateTextSpan::{ start, end: index })
+      result.push(ExonerateTextSpan::{ start, end: index, })
     } else {
       index = index + 1
     }
@@ -1713,9 +1713,9 @@ fn exonerate_text_inter_ranges(
       fragments[index + 1].hit_end
     }
     if strand == ExonerateTextReverse {
-      result.push(ExonerateTextRange::{ start: second_end, end: first_start })
+      result.push(ExonerateTextRange::{ start: second_end, end: first_start, })
     } else {
-      result.push(ExonerateTextRange::{ start: first_end, end: second_start })
+      result.push(ExonerateTextRange::{ start: first_end, end: second_start, })
     }
   }
   result
@@ -2197,7 +2197,7 @@ fn exonerate_text_copy_hit(hit : ExonerateTextHit) -> ExonerateTextHit {
   for hsp in hit.hsps {
     hsps.push(exonerate_text_copy_hsp(hsp))
   }
-  ExonerateTextHit::{ id: hit.id, description: hit.description, hsps }
+  ExonerateTextHit::{ id: hit.id, description: hit.description, hsps, }
 }
 
 ///|

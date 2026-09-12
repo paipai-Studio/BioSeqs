@@ -46,7 +46,7 @@ pub fn EnrichResult::new(
   gene_set_name : String,
   organism : String,
 ) -> EnrichResult {
-  EnrichResult::{ terms, gene_set_name, organism }
+  EnrichResult::{ terms, gene_set_name, organism, }
 }
 
 ///|

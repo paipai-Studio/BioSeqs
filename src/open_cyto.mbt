@@ -42,7 +42,7 @@ pub fn OcGatingRule::new(
   dims~ : Array[String],
   args~ : Map[String, Double],
 ) -> OcGatingRule {
-  OcGatingRule::{ parent, child, method, dims, args }
+  OcGatingRule::{ parent, child, method, dims, args, }
 }
 
 ///|
@@ -59,7 +59,7 @@ pub struct OcGate {
 ///|
 /// Construct a 1D gate.
 pub fn OcGate::new1d(dim~ : String, min~ : Double, max~ : Double) -> OcGate {
-  OcGate::{ dim1: dim, dim2: None, min1: min, max1: max, min2: 0.0, max2: 0.0 }
+  OcGate::{ dim1: dim, dim2: None, min1: min, max1: max, min2: 0.0, max2: 0.0, }
 }
 
 ///|
@@ -72,7 +72,7 @@ pub fn OcGate::new2d(
   min2~ : Double,
   max2~ : Double,
 ) -> OcGate {
-  OcGate::{ dim1, dim2: Some(dim2), min1, max1, min2, max2 }
+  OcGate::{ dim1, dim2: Some(dim2), min1, max1, min2, max2, }
 }
 
 ///|
@@ -108,7 +108,7 @@ pub fn OcFlowSet::new(
   channel_names~ : Array[String],
   data~ : Array[Array[Array[Double]]],
 ) -> OcFlowSet {
-  OcFlowSet::{ sample_names, channel_names, data }
+  OcFlowSet::{ sample_names, channel_names, data, }
 }
 
 ///|

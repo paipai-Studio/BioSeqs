@@ -115,7 +115,7 @@ pub struct MastMotifInfo {
 ///|
 /// Create a new MastMotifInfo.
 pub fn MastMotifInfo::new(id : String, width : Int) -> MastMotifInfo {
-  MastMotifInfo::{ id, name: "", width, alphabet: "ACGT" }
+  MastMotifInfo::{ id, name: "", width, alphabet: "ACGT", }
 }
 
 ///|

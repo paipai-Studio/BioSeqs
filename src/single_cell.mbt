@@ -18,7 +18,7 @@ pub fn SimpleSCE::new(
   col_data : Array[Array[String]],
   row_data : Array[Array[String]],
 ) -> SimpleSCE {
-  SimpleSCE::{ assays, col_data, row_data, reduced_dimensions: Array::new() }
+  SimpleSCE::{ assays, col_data, row_data, reduced_dimensions: Array::new(), }
 }
 
 ///|
@@ -34,7 +34,7 @@ pub fn QCMetrics::new(
   n_genes : Array[Int],
   mito_percent : Array[Double],
 ) -> QCMetrics {
-  QCMetrics::{ n_umi, n_genes, mito_percent }
+  QCMetrics::{ n_umi, n_genes, mito_percent, }
 }
 
 ///|

@@ -130,7 +130,7 @@ pub fn AUCellData::new(
   gene_names : Array[String],
   gene_sets : Array[GeneSet],
 ) -> AUCellData {
-  AUCellData::{ expression, cell_names, gene_names, gene_sets }
+  AUCellData::{ expression, cell_names, gene_names, gene_sets, }
 }
 
 ///|
@@ -146,7 +146,7 @@ pub fn AUCellResult::new(
   gene_set_names : Array[String],
   score_matrix : Array[Array[Double]],
 ) -> AUCellResult {
-  AUCellResult::{ cell_names, gene_set_names, score_matrix }
+  AUCellResult::{ cell_names, gene_set_names, score_matrix, }
 }
 
 ///|

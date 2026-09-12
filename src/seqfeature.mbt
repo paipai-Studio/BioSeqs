@@ -131,7 +131,7 @@ pub fn FeatureLocation::new(
       )
     }
   }
-  FeatureLocation::{ start, end, strand, ref_seq, ref_db }
+  FeatureLocation::{ start, end, strand, ref_seq, ref_db, }
 }
 
 ///|
@@ -142,7 +142,7 @@ pub fn FeatureLocation::new_safe(
   ref_seq? : String? = None,
   ref_db? : String? = None,
 ) -> FeatureLocation {
-  FeatureLocation::{ start, end, strand, ref_seq, ref_db }
+  FeatureLocation::{ start, end, strand, ref_seq, ref_db, }
 }
 
 ///|
@@ -280,7 +280,7 @@ pub fn CompoundLocation::new(
   ref_seq? : String? = None,
   ref_db? : String? = None,
 ) -> CompoundLocation {
-  CompoundLocation::{ parts, operator, ref_seq, ref_db }
+  CompoundLocation::{ parts, operator, ref_seq, ref_db, }
 }
 
 ///|
@@ -498,7 +498,7 @@ pub fn SeqFeature::add_qualifier(
     }
     None => new_quals[name] = [value]
   }
-  SeqFeature::{ ..self, qualifiers: new_quals }
+  SeqFeature::{ ..self, qualifiers: new_quals, }
 }
 
 ///|
@@ -519,7 +519,7 @@ pub fn Reference::new(
   pubmed_id? : String = "",
   comment? : String = "",
 ) -> Reference {
-  Reference::{ authors, title, journal, pubmed_id, comment }
+  Reference::{ authors, title, journal, pubmed_id, comment, }
 }
 
 ///|

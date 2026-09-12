@@ -170,7 +170,7 @@ pub fn BlastHit::new(
   subject_length : Int,
   hsps : Array[BlastHsp],
 ) -> BlastHit {
-  BlastHit::{ subject_id, subject_def, subject_length, hsps }
+  BlastHit::{ subject_id, subject_def, subject_length, hsps, }
 }
 
 ///|

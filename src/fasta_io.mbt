@@ -148,7 +148,7 @@ fn build_fasta_title(id : String, description : String) -> String {
 ///   - CRLF line endings are supported
 ///
 /// Example:
-///   ```moonbit
+///   ```moonbit nocheck
 ///   let records = simple_fasta_parser(">seq1\nATCG\n>seq2\nGCTA\n")
 ///   for (title, seq) in records {
 ///     println("Title: \(title), Seq: \(seq)")
@@ -221,7 +221,7 @@ pub fn simple_fasta_parser(content : String) -> Array[(String, String)] {
 /// endings are supported.
 ///
 /// Example:
-///   ```moonbit
+///   ```moonbit nocheck
 ///   let records = fastq_general_parser("@seq1\nACGT\n+\n!''*\n")
 ///   for (title, seq, quals) in records {
 ///     println("Title: \(title), Seq: \(seq), Quals: \(quals)")
@@ -281,7 +281,7 @@ pub fn fastq_general_parser(
 /// empty.
 ///
 /// Example:
-///   ```moonbit
+///   ```moonbit nocheck
 ///   let records = fasta_two_line_parser(">seq1 ACGT\n>seq2 GCTA\n")
 ///   ```
 pub fn fasta_two_line_parser(content : String) -> Array[(String, String)] {
@@ -326,7 +326,7 @@ pub fn fasta_two_line_parser(content : String) -> Array[(String, String)] {
 /// Lines not starting with '@' are ignored.
 ///
 /// Example:
-///   ```moonbit
+///   ```moonbit nocheck
 ///   let records = fastq_two_line_parser("@seq1 ACGT\n!''*\n")
 ///   ```
 pub fn fastq_two_line_parser(
@@ -412,7 +412,7 @@ pub fn fasta_two_line_iterator(content : String) -> Array[SeqRecord] {
 ///   - otherwise: id + " " + description
 pub fn write_fasta_record(
   record : SeqRecord,
-  width~ : Int = fasta_line_width,
+  width? : Int = fasta_line_width,
 ) -> String {
   let buf = StringBuilder::new()
   buf.write_char('>')
@@ -435,7 +435,7 @@ pub fn write_fasta_record(
 /// line width (see `write_fasta` for the default-width variant).
 pub fn write_fasta_records(
   records : Array[SeqRecord],
-  width~ : Int = fasta_line_width,
+  width? : Int = fasta_line_width,
 ) -> String {
   let buf = StringBuilder::new()
   for rec in records {

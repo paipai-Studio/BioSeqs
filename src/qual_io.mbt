@@ -26,7 +26,7 @@ pub fn parse_qual(content : String) -> Array[SeqRecord] {
   let records = Array::new()
   let lines = content.split("\n").to_array()
   let mut current_title : String? = None
-  let mut current_quals = Array::new()  // Array[Int]
+  let mut current_quals = Array::new() // Array[Int]
   let gt : UInt16 = '>'.to_int().to_uint16()
   let cr : UInt16 = '\r'.to_int().to_uint16()
   let sp : UInt16 = ' '.to_int().to_uint16()
@@ -43,8 +43,7 @@ pub fn parse_qual(content : String) -> Array[SeqRecord] {
     }
     if line.unsafe_get(0) == gt {
       match current_title {
-        Some(title) =>
-          records.push(qual_build_record(title, current_quals))
+        Some(title) => records.push(qual_build_record(title, current_quals))
         None => ()
       }
       current_title = Some(
@@ -77,8 +76,7 @@ pub fn parse_qual(content : String) -> Array[SeqRecord] {
     }
   }
   match current_title {
-    Some(title) =>
-      records.push(qual_build_record(title, current_quals))
+    Some(title) => records.push(qual_build_record(title, current_quals))
     None => ()
   }
   records
@@ -185,7 +183,10 @@ pub fn paired_fasta_qual_iterator(
   let fasta_records = parse_fasta(fasta_content)
   let qual_records = parse_qual(qual_content)
   // Build a dictionary of QUAL records by id
-  let qual_by_id : Map[String, SeqRecord] = Map([], capacity=qual_records.length())
+  let qual_by_id : Map[String, SeqRecord] = Map(
+    [],
+    capacity=qual_records.length(),
+  )
   for qrec in qual_records {
     qual_by_id[qrec.id] = qrec
   }

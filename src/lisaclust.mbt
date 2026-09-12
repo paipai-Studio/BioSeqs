@@ -75,7 +75,7 @@ pub fn LisaCell::create(
   if !lisa_is_finite(x) || !lisa_is_finite(y) {
     raise LisaError("lisaClust coordinates must be finite")
   }
-  LisaCell::{ cell_id, image_id, cell_type, x, y }
+  LisaCell::{ cell_id, image_id, cell_type, x, y, }
 }
 
 ///|
@@ -657,7 +657,7 @@ fn lisa_image_window(
       vertex_max_y - vertex_min_y,
     ) /
     2.01
-  LisaImageWindow::{ image_id, vertices, area, max_radius }
+  LisaImageWindow::{ image_id, vertices, area, max_radius, }
 }
 
 ///|
@@ -796,7 +796,10 @@ pub fn lisa_curves(
     for radius in config.radii {
       image_radii.push(radius.min(window.max_radius))
     }
-    effective_radii.push(LisaImageRadii::{ image_id, radii: image_radii.copy() })
+    effective_radii.push(LisaImageRadii::{
+      image_id,
+      radii: image_radii.copy(),
+    })
     let density_weights = lisa_density_weights(
       cells,
       indices,
@@ -1071,7 +1074,7 @@ fn lisa_canonicalize_fit(fit : LisaKmeansFit) -> LisaKmeansFit {
   for old_label in order {
     centroids.push(fit.centroids[old_label].copy())
   }
-  LisaKmeansFit::{ ..fit, labels, centroids }
+  LisaKmeansFit::{ ..fit, labels, centroids, }
 }
 
 ///|
@@ -1379,7 +1382,7 @@ pub fn lisaclust_spatial_experiment(
     .to_string()
   enriched.metadata["lisaclust_regions"] = result.n_regions().to_string()
   enriched.metadata["lisaclust_silhouette"] = result.silhouette.to_string()
-  LisaSpatialExperimentOutput::{ experiment: enriched, result }
+  LisaSpatialExperimentOutput::{ experiment: enriched, result, }
 }
 
 ///|

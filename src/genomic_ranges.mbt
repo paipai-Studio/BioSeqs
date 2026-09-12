@@ -51,7 +51,7 @@ pub fn granges(
     i = i + 1
   }
 
-  GRanges::{ seqnames, starts, ends, strands, widths }
+  GRanges::{ seqnames, starts, ends, strands, widths, }
 }
 
 ///|

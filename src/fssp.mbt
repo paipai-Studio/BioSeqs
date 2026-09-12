@@ -211,7 +211,7 @@ pub fn FsspData::new(
   header : FsspHeader,
   alignments : Array[FsspAlignment],
 ) -> FsspData {
-  { header, alignments }
+  { header, alignments, }
 }
 
 ///|

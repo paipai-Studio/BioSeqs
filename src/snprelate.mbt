@@ -37,13 +37,15 @@ pub fn snpgds_snp_stats(dosages : Array[Array[Int]]) -> SnpVariantStats {
     let p = if called > 0 { alt.to_double() / called.to_double() } else { 0.0 }
     af.push(p)
     maf.push(if p <= 0.5 { p } else { 1.0 - p })
-    miss.push(if row.length() > 0 {
-      missing.to_double() / row.length().to_double()
-    } else {
-      0.0
-    })
+    miss.push(
+      if row.length() > 0 {
+        missing.to_double() / row.length().to_double()
+      } else {
+        0.0
+      },
+    )
   }
-  SnpVariantStats::{ allele_frequency: af, maf, missing_rate: miss }
+  SnpVariantStats::{ allele_frequency: af, maf, missing_rate: miss, }
 }
 
 ///|
@@ -70,7 +72,11 @@ fn snp_king_pair_accumulators(
   let mut loci = 0
   let mut n_het_i = 0
   let mut n_het_j = 0
-  let m = if row_i.length() < row_j.length() { row_i.length() } else { row_j.length() }
+  let m = if row_i.length() < row_j.length() {
+    row_i.length()
+  } else {
+    row_j.length()
+  }
   let mut k = 0
   while k < m {
     let gi = row_i[k]
@@ -123,8 +129,10 @@ pub fn snpgds_ibd_king(dosages : Array[Array[Int]]) -> SnpKingResult {
     kinship[i][i] = 0.5
     let mut j = i + 1
     while j < n {
-      let (sum_sq, ibs0_count, loci, n_het_i, n_het_j) =
-        snp_king_pair_accumulators(columns[i], columns[j])
+      let (sum_sq, ibs0_count, loci, n_het_i, n_het_j) = snp_king_pair_accumulators(
+        columns[i],
+        columns[j],
+      )
       let _ = loci
       let min_het = if n_het_i < n_het_j { n_het_i } else { n_het_j }
       let phi = if min_het > 0 {
@@ -145,7 +153,7 @@ pub fn snpgds_ibd_king(dosages : Array[Array[Int]]) -> SnpKingResult {
     }
     i = i + 1
   }
-  SnpKingResult::{ kinship, ibs0 }
+  SnpKingResult::{ kinship, ibs0, }
 }
 
 ///|
@@ -185,8 +193,10 @@ pub fn snpgds_ibd_king_homo(
   while i < n {
     let mut j = i + 1
     while j < n {
-      let (sum_sq, ibs0, _loci, _ni, _nj) =
-        snp_king_pair_accumulators(columns[i], columns[j])
+      let (sum_sq, ibs0, _loci, _ni, _nj) = snp_king_pair_accumulators(
+        columns[i],
+        columns[j],
+      )
       let _ = _loci
       let _ = _ni
       let _ = _nj
@@ -197,11 +207,7 @@ pub fn snpgds_ibd_king_homo(
         0.0
       }
       let denom2 = 2.0 * sum_afreq2
-      let kk0 = if denom2 > 0.0 {
-        ibs0.to_double() / denom2
-      } else {
-        0.0
-      }
+      let kk0 = if denom2 > 0.0 { ibs0.to_double() / denom2 } else { 0.0 }
       let kk1 = 2.0 - 2.0 * kk0 - 4.0 * theta
       k0[i][j] = kk0
       k0[j][i] = kk0
@@ -211,7 +217,7 @@ pub fn snpgds_ibd_king_homo(
     }
     i = i + 1
   }
-  SnpKingHomoResult::{ k0, k1 }
+  SnpKingHomoResult::{ k0, k1, }
 }
 
 ///|
@@ -265,7 +271,7 @@ pub fn snpgds_ibs(dosages : Array[Array[Int]]) -> SnpIbsResult {
     ibs[i][i] = 1.0
     i = i + 1
   }
-  SnpIbsResult::{ ibs, distance: dist }
+  SnpIbsResult::{ ibs, distance: dist, }
 }
 
 ///|
@@ -292,7 +298,11 @@ pub fn snpgds_pca(
   let n_snp = dosages.length()
   let n = if n_snp > 0 { dosages[0].length() } else { 0 }
   if n == 0 || n_snp == 0 {
-    return SnpPcaResult::{ eigenvalues: [], eigenvectors: [], var_explained: [] }
+    return SnpPcaResult::{
+      eigenvalues: [],
+      eigenvectors: [],
+      var_explained: [],
+    }
   }
   let mut scale_sum = 0.0
   let mut k = 0
@@ -345,14 +355,25 @@ pub fn snpgds_pca(
   for v in values {
     explained.push(if total > 0.0 { v / total } else { 0.0 })
   }
-  SnpPcaResult::{ eigenvalues: values, eigenvectors: vectors, var_explained: explained }
+  SnpPcaResult::{
+    eigenvalues: values,
+    eigenvectors: vectors,
+    var_explained: explained,
+  }
 }
 
 ///|
 /// Pairwise linkage disequilibrium (method "corr": Pearson correlation
 /// of genotype dosages over pairwise-complete calls).
-pub fn snpgds_ld(dosages : Array[Array[Int]], snp_i : Int, snp_j : Int) -> Double raise SeqIOError {
-  if snp_i < 0 || snp_j < 0 || snp_i >= dosages.length() || snp_j >= dosages.length() {
+pub fn snpgds_ld(
+  dosages : Array[Array[Int]],
+  snp_i : Int,
+  snp_j : Int,
+) -> Double raise SeqIOError {
+  if snp_i < 0 ||
+    snp_j < 0 ||
+    snp_i >= dosages.length() ||
+    snp_j >= dosages.length() {
     raise SeqIOError("LD SNP index out of range")
   }
   let row_i = dosages[snp_i]
@@ -444,11 +465,7 @@ pub fn snpgds_ld_pruning(
           }
         }
         if kept_j {
-          let r = try {
-            snpgds_ld(dosages, i, j)
-          } catch {
-            _ => 0.0
-          }
+          let r = snpgds_ld(dosages, i, j) catch { _ => 0.0 }
           if r.abs() > threshold {
             to_keep = false
             break
@@ -464,7 +481,7 @@ pub fn snpgds_ld_pruning(
     }
     i = i + 1
   }
-  SnpLdPruneResult::{ kept_indices: kept, removed_indices: removed }
+  SnpLdPruneResult::{ kept_indices: kept, removed_indices: removed, }
 }
 
 ///|

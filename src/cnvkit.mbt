@@ -65,7 +65,7 @@ pub fn CNVProbe::new(
   log2_ratio : Double,
   weight : Double,
 ) -> CNVProbe {
-  CNVProbe::{ probe_id, chromosome, start, end, log2_ratio, weight }
+  CNVProbe::{ probe_id, chromosome, start, end, log2_ratio, weight, }
 }
 
 ///|
@@ -77,7 +77,7 @@ pub fn CNVSegment::new(
   mean_log2 : Double,
   state : String,
 ) -> CNVSegment {
-  CNVSegment::{ chromosome, start, end, probes, mean_log2, state }
+  CNVSegment::{ chromosome, start, end, probes, mean_log2, state, }
 }
 
 ///|
@@ -139,7 +139,7 @@ pub fn CNVDataset::filter_chromosome(
     j = j + 1
   }
 
-  CNVDataset::{ probes: filtered, segments, chromosomes: [chrom] }
+  CNVDataset::{ probes: filtered, segments, chromosomes: [chrom], }
 }
 
 ///|
@@ -167,7 +167,7 @@ pub fn cbs_segment(probes : Array[CNVProbe], alpha : Double) -> CBSResult {
   // Create segments from breakpoints
   let segments = cbs_create_segments(probes, breakpoints)
 
-  CBSResult::{ segments, breakpoints, n_segments: segments.length() }
+  CBSResult::{ segments, breakpoints, n_segments: segments.length(), }
 }
 
 ///|
@@ -390,7 +390,7 @@ pub fn smooth_log2_ratios(
       probes[i].log2_ratio
     }
 
-    smoothed.push(CNVProbe::{ ..probes[i], log2_ratio: smoothed_ratio })
+    smoothed.push(CNVProbe::{ ..probes[i], log2_ratio: smoothed_ratio, })
     i = i + 1
   }
 
@@ -444,7 +444,7 @@ pub fn call_copy_numbers(
     let copy_number = cbs_log2_to_copynumber(segment.mean_log2, ploidy)
     let state = cbs_call_state(segment.mean_log2)
 
-    calls.push(CopyNumberCall::{ segment, copy_number, state })
+    calls.push(CopyNumberCall::{ segment, copy_number, state, })
     i = i + 1
   }
 

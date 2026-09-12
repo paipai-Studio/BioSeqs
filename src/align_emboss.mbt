@@ -198,7 +198,7 @@ pub fn AlignEmbossSequence::create(
   } else {
     AlignEmbossReverse
   }
-  AlignEmbossSequence::{ id, sequence, aligned_sequence, start, end, strand }
+  AlignEmbossSequence::{ id, sequence, aligned_sequence, start, end, strand, }
 }
 
 ///|
@@ -235,7 +235,7 @@ pub fn AlignEmbossDocument::create(
     align_emboss_validate_alignment(alignment)
     copied.push(alignment)
   }
-  AlignEmbossDocument::{ metadata, alignments: copied }
+  AlignEmbossDocument::{ metadata, alignments: copied, }
 }
 
 ///|

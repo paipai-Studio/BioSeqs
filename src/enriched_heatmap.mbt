@@ -41,7 +41,7 @@ pub fn GenomicSignal::new(
   end_ : Int,
   value : Double,
 ) -> GenomicSignal {
-  GenomicSignal::{ chr, start, end_, value }
+  GenomicSignal::{ chr, start, end_, value, }
 }
 
 ///|
@@ -60,7 +60,7 @@ pub fn TargetRegion::new(
   end_ : Int,
   strand : String,
 ) -> TargetRegion {
-  TargetRegion::{ chr, start, end_, strand }
+  TargetRegion::{ chr, start, end_, strand, }
 }
 
 ///|

@@ -10,7 +10,7 @@ pub struct NexusRow {
 
 ///|
 pub fn NexusRow::new(taxon : String, data : Array[NexusCell]) -> NexusRow {
-  NexusRow::{ taxon, data }
+  NexusRow::{ taxon, data, }
 }
 
 ///|
@@ -34,7 +34,7 @@ pub fn NexusBlock::new(
   block_type : NexusBlockType,
   content : String,
 ) -> NexusBlock {
-  NexusBlock::{ block_type, content }
+  NexusBlock::{ block_type, content, }
 }
 
 ///|
@@ -48,7 +48,7 @@ pub fn NexusFile::new(
   blocks : Array[NexusBlock],
   taxa : Array[String],
 ) -> NexusFile {
-  NexusFile::{ blocks, taxa }
+  NexusFile::{ blocks, taxa, }
 }
 
 ///|

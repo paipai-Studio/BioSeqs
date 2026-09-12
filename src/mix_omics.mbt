@@ -384,7 +384,7 @@ pub fn pls_options_full(
   max_iter : Int,
   tol : Double,
 ) -> PLSOptions {
-  PLSOptions::{ ncomp, mode, scale, max_iter, tol }
+  PLSOptions::{ ncomp, mode, scale, max_iter, tol, }
 }
 
 ///|
@@ -644,7 +644,7 @@ pub fn spls_options_full(
   max_iter : Int,
   tol : Double,
 ) -> SPLSOptions {
-  SPLSOptions::{ ncomp, keep_x, keep_y, scale, max_iter, tol }
+  SPLSOptions::{ ncomp, keep_x, keep_y, scale, max_iter, tol, }
 }
 
 ///|
@@ -923,7 +923,7 @@ pub fn diablo_options_full(
   max_iter : Int,
   tol : Double,
 ) -> DIABLOOptions {
-  DIABLOOptions::{ ncomp, keep_variables, design, scale, max_iter, tol }
+  DIABLOOptions::{ ncomp, keep_variables, design, scale, max_iter, tol, }
 }
 
 ///|

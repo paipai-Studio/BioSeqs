@@ -16,7 +16,7 @@ struct BuildNode {
 ///|
 /// Create a leaf build node.
 fn build_node_leaf(id : Int, name : String) -> BuildNode {
-  BuildNode::{ id, name, height: 0.0, children: [], branch_lengths: [] }
+  BuildNode::{ id, name, height: 0.0, children: [], branch_lengths: [], }
 }
 
 ///|
@@ -99,11 +99,7 @@ pub struct DistanceCalculator {
 /// matched case-insensitively against the registry.
 fn find_scoring_matrix(model : String) -> SubsMatrix? {
   let target = to_lowercase(model)
-  let canonical = if target == "blastn" {
-    "nuc.4.4"
-  } else {
-    target
-  }
+  let canonical = if target == "blastn" { "nuc.4.4" } else { target }
   let keys = registry_keys.val
   for i in 0..<keys.length() {
     if to_lowercase(keys[i]) == canonical {
@@ -134,10 +130,12 @@ fn resolve_distance_model(
   let lower_model = to_lowercase(model)
   if model == "identity" {
     (Identity, None)
-  } else if lower_model == "jc69" || lower_model == "jukes-cantor" ||
+  } else if lower_model == "jc69" ||
+    lower_model == "jukes-cantor" ||
     lower_model == "jukes_cantor" {
     (Jc69, None)
-  } else if lower_model == "k80" || lower_model == "k2p" ||
+  } else if lower_model == "k80" ||
+    lower_model == "k2p" ||
     lower_model == "kimura" {
     (K80, None)
   } else {
@@ -173,7 +171,12 @@ pub fn DistanceCalculator::new(
     Some(custom) => if custom.length() > 0 { custom } else { default_skip }
     None => default_skip
   }
-  DistanceCalculator::{ model, kind, scoring_matrix, skip_letters: resolved_skip }
+  DistanceCalculator::{
+    model,
+    kind,
+    scoring_matrix,
+    skip_letters: resolved_skip,
+  }
 }
 
 ///|
@@ -270,14 +273,24 @@ fn DistanceCalculator::pairwise_named(
         }
         if !m.has_letter(l1) {
           raise SeqError(
-            "Bad letter '" + l1 + "' in sequence '" + id1 +
-              "' at position '" + i.to_string() + "'",
+            "Bad letter '" +
+            l1 +
+            "' in sequence '" +
+            id1 +
+            "' at position '" +
+            i.to_string() +
+            "'",
           )
         }
         if !m.has_letter(l2) {
           raise SeqError(
-            "Bad letter '" + l2 + "' in sequence '" + id2 +
-              "' at position '" + i.to_string() + "'",
+            "Bad letter '" +
+            l2 +
+            "' in sequence '" +
+            id2 +
+            "' at position '" +
+            i.to_string() +
+            "'",
           )
         }
         max_score1 = max_score1 + m.get_score(l1, l1)

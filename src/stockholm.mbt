@@ -36,7 +36,7 @@ pub fn StockholmSequence::new(
   start : Int,
   end : Int,
 ) -> StockholmSequence {
-  StockholmSequence::{ name, accession, description, aligned_seq, start, end }
+  StockholmSequence::{ name, accession, description, aligned_seq, start, end, }
 }
 
 ///|

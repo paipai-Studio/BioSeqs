@@ -39,7 +39,7 @@ pub fn IgRecord::new(
   comment : String,
   sequence : String,
 ) -> IgRecord {
-  IgRecord::{ title, comment, sequence }
+  IgRecord::{ title, comment, sequence, }
 }
 
 ///|

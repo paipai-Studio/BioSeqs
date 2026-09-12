@@ -42,7 +42,7 @@ pub struct CycloneParams {
 ///|
 /// Create default Cyclone parameters.
 pub fn CycloneParams::new() -> CycloneParams {
-  CycloneParams::{ min_score: 0.0, n_top_pairs: 1 }
+  CycloneParams::{ min_score: 0.0, n_top_pairs: 1, }
 }
 
 ///|
@@ -51,7 +51,7 @@ pub fn CycloneParams::with_params(
   min_score : Double,
   n_top_pairs : Int,
 ) -> CycloneParams {
-  CycloneParams::{ min_score, n_top_pairs }
+  CycloneParams::{ min_score, n_top_pairs, }
 }
 
 ///|
@@ -60,51 +60,51 @@ pub fn CycloneParams::with_params(
 pub fn cyclone_get_gene_pairs() -> Array[GenePair] {
   [
     // G1 phase pairs
-    GenePair::{ phase: "G1", up_gene: "CCND1", down_gene: "CCNE1" },
-    GenePair::{ phase: "G1", up_gene: "CCND2", down_gene: "CCNE2" },
-    GenePair::{ phase: "G1", up_gene: "CCND3", down_gene: "CCNE1" },
-    GenePair::{ phase: "G1", up_gene: "RB1", down_gene: "E2F1" },
-    GenePair::{ phase: "G1", up_gene: "CDKN1A", down_gene: "CDK2" },
-    GenePair::{ phase: "G1", up_gene: "CDKN2A", down_gene: "CDK4" },
-    GenePair::{ phase: "G1", up_gene: "ARF", down_gene: "MDM2" },
-    GenePair::{ phase: "G1", up_gene: "CD44", down_gene: "CD24" },
-    GenePair::{ phase: "G1", up_gene: "KLF4", down_gene: "LIN28A" },
-    GenePair::{ phase: "G1", up_gene: "MYC", down_gene: "KRAS" },
+    GenePair::{ phase: "G1", up_gene: "CCND1", down_gene: "CCNE1", },
+    GenePair::{ phase: "G1", up_gene: "CCND2", down_gene: "CCNE2", },
+    GenePair::{ phase: "G1", up_gene: "CCND3", down_gene: "CCNE1", },
+    GenePair::{ phase: "G1", up_gene: "RB1", down_gene: "E2F1", },
+    GenePair::{ phase: "G1", up_gene: "CDKN1A", down_gene: "CDK2", },
+    GenePair::{ phase: "G1", up_gene: "CDKN2A", down_gene: "CDK4", },
+    GenePair::{ phase: "G1", up_gene: "ARF", down_gene: "MDM2", },
+    GenePair::{ phase: "G1", up_gene: "CD44", down_gene: "CD24", },
+    GenePair::{ phase: "G1", up_gene: "KLF4", down_gene: "LIN28A", },
+    GenePair::{ phase: "G1", up_gene: "MYC", down_gene: "KRAS", },
     // S phase pairs
-    GenePair::{ phase: "S", up_gene: "PCNA", down_gene: "CDK2" },
-    GenePair::{ phase: "S", up_gene: "MCM2", down_gene: "CDK1" },
-    GenePair::{ phase: "S", up_gene: "MCM3", down_gene: "CDK2" },
-    GenePair::{ phase: "S", up_gene: "MCM4", down_gene: "CDK1" },
-    GenePair::{ phase: "S", up_gene: "MCM5", down_gene: "CDK2" },
-    GenePair::{ phase: "S", up_gene: "MCM6", down_gene: "CDK1" },
-    GenePair::{ phase: "S", up_gene: "MCM7", down_gene: "CDK2" },
-    GenePair::{ phase: "S", up_gene: "RRM1", down_gene: "TYMS" },
-    GenePair::{ phase: "S", up_gene: "RRM2", down_gene: "TYMK" },
-    GenePair::{ phase: "S", up_gene: "POLA1", down_gene: "POLA2" },
-    GenePair::{ phase: "S", up_gene: "POLE", down_gene: "POLH" },
-    GenePair::{ phase: "S", up_gene: "FEN1", down_gene: "RAD51" },
+    GenePair::{ phase: "S", up_gene: "PCNA", down_gene: "CDK2", },
+    GenePair::{ phase: "S", up_gene: "MCM2", down_gene: "CDK1", },
+    GenePair::{ phase: "S", up_gene: "MCM3", down_gene: "CDK2", },
+    GenePair::{ phase: "S", up_gene: "MCM4", down_gene: "CDK1", },
+    GenePair::{ phase: "S", up_gene: "MCM5", down_gene: "CDK2", },
+    GenePair::{ phase: "S", up_gene: "MCM6", down_gene: "CDK1", },
+    GenePair::{ phase: "S", up_gene: "MCM7", down_gene: "CDK2", },
+    GenePair::{ phase: "S", up_gene: "RRM1", down_gene: "TYMS", },
+    GenePair::{ phase: "S", up_gene: "RRM2", down_gene: "TYMK", },
+    GenePair::{ phase: "S", up_gene: "POLA1", down_gene: "POLA2", },
+    GenePair::{ phase: "S", up_gene: "POLE", down_gene: "POLH", },
+    GenePair::{ phase: "S", up_gene: "FEN1", down_gene: "RAD51", },
     // G2 phase pairs
-    GenePair::{ phase: "G2", up_gene: "CCN1", down_gene: "CDK2" },
-    GenePair::{ phase: "G2", up_gene: "CCN2", down_gene: "CDK1" },
-    GenePair::{ phase: "G2", up_gene: "PLK1", down_gene: "AURKA" },
-    GenePair::{ phase: "G2", up_gene: "WEE1", down_gene: "CDC25A" },
-    GenePair::{ phase: "G2", up_gene: "CHEK1", down_gene: "CHEK2" },
-    GenePair::{ phase: "G2", up_gene: "BRCA1", down_gene: "BRCA2" },
-    GenePair::{ phase: "G2", up_gene: "RAD50", down_gene: "RAD51" },
-    GenePair::{ phase: "G2", up_gene: "MRE11", down_gene: "NBN" },
-    GenePair::{ phase: "G2", up_gene: "ATM", down_gene: "ATR" },
+    GenePair::{ phase: "G2", up_gene: "CCN1", down_gene: "CDK2", },
+    GenePair::{ phase: "G2", up_gene: "CCN2", down_gene: "CDK1", },
+    GenePair::{ phase: "G2", up_gene: "PLK1", down_gene: "AURKA", },
+    GenePair::{ phase: "G2", up_gene: "WEE1", down_gene: "CDC25A", },
+    GenePair::{ phase: "G2", up_gene: "CHEK1", down_gene: "CHEK2", },
+    GenePair::{ phase: "G2", up_gene: "BRCA1", down_gene: "BRCA2", },
+    GenePair::{ phase: "G2", up_gene: "RAD50", down_gene: "RAD51", },
+    GenePair::{ phase: "G2", up_gene: "MRE11", down_gene: "NBN", },
+    GenePair::{ phase: "G2", up_gene: "ATM", down_gene: "ATR", },
     // M phase pairs
-    GenePair::{ phase: "M", up_gene: "CCN3", down_gene: "CDK1" },
-    GenePair::{ phase: "M", up_gene: "CCN4", down_gene: "CDK2" },
-    GenePair::{ phase: "M", up_gene: "BUB1", down_gene: "BUB1B" },
-    GenePair::{ phase: "M", up_gene: "MAD2L1", down_gene: "MAD2L2" },
-    GenePair::{ phase: "M", up_gene: "CDC20", down_gene: "FZR1" },
-    GenePair::{ phase: "M", up_gene: "AURKB", down_gene: "AURKA" },
-    GenePair::{ phase: "M", up_gene: "TTK", down_gene: "NEK2" },
-    GenePair::{ phase: "M", up_gene: "KIF11", down_gene: "KIF20A" },
-    GenePair::{ phase: "M", up_gene: "KIF2C", down_gene: "KIF2A" },
-    GenePair::{ phase: "M", up_gene: "DLGAP5", down_gene: "ASPM" },
-    GenePair::{ phase: "M", up_gene: "TPX2", down_gene: "XKL2" },
+    GenePair::{ phase: "M", up_gene: "CCN3", down_gene: "CDK1", },
+    GenePair::{ phase: "M", up_gene: "CCN4", down_gene: "CDK2", },
+    GenePair::{ phase: "M", up_gene: "BUB1", down_gene: "BUB1B", },
+    GenePair::{ phase: "M", up_gene: "MAD2L1", down_gene: "MAD2L2", },
+    GenePair::{ phase: "M", up_gene: "CDC20", down_gene: "FZR1", },
+    GenePair::{ phase: "M", up_gene: "AURKB", down_gene: "AURKA", },
+    GenePair::{ phase: "M", up_gene: "TTK", down_gene: "NEK2", },
+    GenePair::{ phase: "M", up_gene: "KIF11", down_gene: "KIF20A", },
+    GenePair::{ phase: "M", up_gene: "KIF2C", down_gene: "KIF2A", },
+    GenePair::{ phase: "M", up_gene: "DLGAP5", down_gene: "ASPM", },
+    GenePair::{ phase: "M", up_gene: "TPX2", down_gene: "XKL2", },
   ]
 }
 

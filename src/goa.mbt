@@ -314,7 +314,7 @@ pub struct GoaDatabase {
 ///|
 /// Create an empty GoaDatabase.
 pub fn GoaDatabase::new() -> GoaDatabase {
-  GoaDatabase::{ records: Array::new(), version: "", created_by: "" }
+  GoaDatabase::{ records: Array::new(), version: "", created_by: "", }
 }
 
 ///|
@@ -470,7 +470,7 @@ pub fn goa_parse(content : String) -> GoaDatabase {
     }
     i = i + 1
   }
-  GoaDatabase::{ records, version, created_by }
+  GoaDatabase::{ records, version, created_by, }
 }
 
 // ============================================================================
@@ -955,7 +955,7 @@ pub fn goa_sample_database() -> GoaDatabase {
       gene_product_form_id="",
     ),
   )
-  GoaDatabase::{ records, version: "2.2", created_by: "UniProt" }
+  GoaDatabase::{ records, version: "2.2", created_by: "UniProt", }
 }
 
 // ============================================================================

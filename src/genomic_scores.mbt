@@ -74,7 +74,10 @@ pub fn GScores::set_scores(
   let chrom_data = match self.chromosomes.get(seqname) {
     Some(existing) => existing
     None => {
-      let fresh = GsChromosomeData::{ positions: [], populations: Map([], capacity=0) }
+      let fresh = GsChromosomeData::{
+        positions: [],
+        populations: Map([], capacity=0),
+      }
       self.chromosomes.set(seqname, fresh)
       fresh
     }
@@ -208,13 +211,19 @@ pub fn GScores::populations(self : GScores) -> Array[String] {
 
 ///|
 /// Select the population used when none is specified.
-pub fn GScores::set_default_population(self : GScores, population : String) -> Unit {
+pub fn GScores::set_default_population(
+  self : GScores,
+  population : String,
+) -> Unit {
   self.default_population = population
 }
 
 ///|
 /// Select the interpolation mode for queries between stored positions.
-pub fn GScores::set_interpolation(self : GScores, mode : GsInterpolation) -> Unit {
+pub fn GScores::set_interpolation(
+  self : GScores,
+  mode : GsInterpolation,
+) -> Unit {
   self.interpolation = mode
 }
 
@@ -227,7 +236,11 @@ pub fn GScores::score_at(
   position : Int,
   population? : String = "",
 ) -> Double {
-  let pop = if population.length() > 0 { population } else { self.default_population }
+  let pop = if population.length() > 0 {
+    population
+  } else {
+    self.default_population
+  }
   match self.chromosomes.get(seqname) {
     Some(chrom_data) =>
       match chrom_data.populations.get(pop) {
@@ -248,7 +261,8 @@ pub fn GScores::score_at(
           if idx < 0 {
             return 0.0 / 0.0
           }
-          if self.interpolation is GsConstant || idx + 1 >= chrom_data.positions.length() {
+          if self.interpolation is GsConstant ||
+            idx + 1 >= chrom_data.positions.length() {
             return series[idx]
           }
           let p1 = chrom_data.positions[idx]
@@ -280,7 +294,11 @@ pub fn GScores::range_score(
   summary? : String = "mean",
   population? : String = "",
 ) -> Double {
-  let pop = if population.length() > 0 { population } else { self.default_population }
+  let pop = if population.length() > 0 {
+    population
+  } else {
+    self.default_population
+  }
   let values : Array[Double] = []
   match self.chromosomes.get(seqname) {
     Some(chrom_data) =>
@@ -298,7 +316,8 @@ pub fn GScores::range_score(
             }
           }
           let mut idx = lo
-          while idx < chrom_data.positions.length() && chrom_data.positions[idx] <= end {
+          while idx < chrom_data.positions.length() &&
+                chrom_data.positions[idx] <= end {
             let v = series[idx]
             if !v.is_nan() {
               values.push(v)
@@ -365,7 +384,9 @@ pub fn gscores_fetch(
   }
   let out : Array[Double] = Array::new(capacity=seqnames.length())
   for i in 0..<seqnames.length() {
-    out.push(gss.range_score(seqnames[i], starts[i], ends[i], summary~, population~))
+    out.push(
+      gss.range_score(seqnames[i], starts[i], ends[i], summary~, population~),
+    )
   }
   out
 }

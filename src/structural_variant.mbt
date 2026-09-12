@@ -641,7 +641,7 @@ pub fn SvGeneRegion::new(
   end : Int,
   strand : String,
 ) -> SvGeneRegion {
-  SvGeneRegion::{ gene, chrom, start, end, strand }
+  SvGeneRegion::{ gene, chrom, start, end, strand, }
 }
 
 ///|
@@ -698,7 +698,7 @@ pub fn SvAnnotation::new(
   record : SvRecord,
   genes : Array[String],
 ) -> SvAnnotation {
-  SvAnnotation::{ record, genes }
+  SvAnnotation::{ record, genes, }
 }
 
 ///|

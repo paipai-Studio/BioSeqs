@@ -192,7 +192,7 @@ pub fn AlignNexusAlignment::create(
   for sequence in sequences {
     copied.push(sequence)
   }
-  let alignment = AlignNexusAlignment::{ metadata, sequences: copied }
+  let alignment = AlignNexusAlignment::{ metadata, sequences: copied, }
   align_nexus_validate_alignment(alignment)
   alignment
 }

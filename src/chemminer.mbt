@@ -82,7 +82,7 @@ pub fn SdfAtom::new(
   z : Double,
   charge : Int,
 ) -> SdfAtom {
-  SdfAtom::{ symbol, x, y, z, charge }
+  SdfAtom::{ symbol, x, y, z, charge, }
 }
 
 ///|
@@ -131,7 +131,7 @@ pub struct SdfBond {
 ///|
 /// Construct an SdfBond.
 pub fn SdfBond::new(atom1 : Int, atom2 : Int, bond_type : Int) -> SdfBond {
-  SdfBond::{ atom1, atom2, bond_type }
+  SdfBond::{ atom1, atom2, bond_type, }
 }
 
 ///|
@@ -181,7 +181,7 @@ pub fn SdfMolecule::new(
   atoms : Array[SdfAtom],
   bonds : Array[SdfBond],
 ) -> SdfMolecule {
-  SdfMolecule::{ name, atoms, bonds, properties: Map([], capacity=8) }
+  SdfMolecule::{ name, atoms, bonds, properties: Map([], capacity=8), }
 }
 
 ///|

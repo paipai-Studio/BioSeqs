@@ -100,7 +100,7 @@ pub fn AceAlignment::new(
   sequence : String,
   quality : Array[Int],
 ) -> AceAlignment {
-  AceAlignment::{ contig_id, start_position, sequence, quality }
+  AceAlignment::{ contig_id, start_position, sequence, quality, }
 }
 
 ///|

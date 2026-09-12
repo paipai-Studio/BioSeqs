@@ -110,7 +110,7 @@ pub fn SlingshotNode::new(
   coords : Array[Double],
   size : Int,
 ) -> SlingshotNode {
-  SlingshotNode::{ id, cluster, coords, size, terminal: false, start: false }
+  SlingshotNode::{ id, cluster, coords, size, terminal: false, start: false, }
 }
 
 ///|
@@ -210,7 +210,7 @@ pub fn SlingshotEdge::new(
   to_id : String,
   weight : Double,
 ) -> SlingshotEdge {
-  SlingshotEdge::{ from_id, to_id, weight }
+  SlingshotEdge::{ from_id, to_id, weight, }
 }
 
 // ===== Metric helpers =====

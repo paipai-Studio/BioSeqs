@@ -61,27 +61,27 @@ struct GorParams {
 ///|
 fn protein_get_gor(c : Char) -> GorParams {
   match c {
-    'A' => GorParams::{ pa: 1.42, pb: 0.83, pt: 0.66 }
-    'R' => GorParams::{ pa: 0.98, pb: 0.93, pt: 0.95 }
-    'N' => GorParams::{ pa: 0.67, pb: 0.89, pt: 1.56 }
-    'D' => GorParams::{ pa: 1.01, pb: 0.54, pt: 1.46 }
-    'C' => GorParams::{ pa: 0.70, pb: 1.19, pt: 1.19 }
-    'Q' => GorParams::{ pa: 1.11, pb: 1.10, pt: 0.98 }
-    'E' => GorParams::{ pa: 1.51, pb: 0.37, pt: 0.74 }
-    'G' => GorParams::{ pa: 0.57, pb: 0.75, pt: 1.56 }
-    'H' => GorParams::{ pa: 1.00, pb: 0.87, pt: 0.95 }
-    'I' => GorParams::{ pa: 1.08, pb: 1.60, pt: 0.47 }
-    'L' => GorParams::{ pa: 1.21, pb: 1.30, pt: 0.59 }
-    'K' => GorParams::{ pa: 1.16, pb: 0.74, pt: 1.01 }
-    'M' => GorParams::{ pa: 1.45, pb: 1.05, pt: 0.60 }
-    'F' => GorParams::{ pa: 1.13, pb: 1.38, pt: 0.60 }
-    'P' => GorParams::{ pa: 0.57, pb: 0.55, pt: 1.52 }
-    'S' => GorParams::{ pa: 0.77, pb: 0.75, pt: 1.43 }
-    'T' => GorParams::{ pa: 0.83, pb: 1.19, pt: 0.96 }
-    'W' => GorParams::{ pa: 1.08, pb: 1.37, pt: 0.96 }
-    'Y' => GorParams::{ pa: 0.69, pb: 1.47, pt: 1.14 }
-    'V' => GorParams::{ pa: 1.06, pb: 1.70, pt: 0.50 }
-    _ => GorParams::{ pa: 1.00, pb: 1.00, pt: 1.00 }
+    'A' => GorParams::{ pa: 1.42, pb: 0.83, pt: 0.66, }
+    'R' => GorParams::{ pa: 0.98, pb: 0.93, pt: 0.95, }
+    'N' => GorParams::{ pa: 0.67, pb: 0.89, pt: 1.56, }
+    'D' => GorParams::{ pa: 1.01, pb: 0.54, pt: 1.46, }
+    'C' => GorParams::{ pa: 0.70, pb: 1.19, pt: 1.19, }
+    'Q' => GorParams::{ pa: 1.11, pb: 1.10, pt: 0.98, }
+    'E' => GorParams::{ pa: 1.51, pb: 0.37, pt: 0.74, }
+    'G' => GorParams::{ pa: 0.57, pb: 0.75, pt: 1.56, }
+    'H' => GorParams::{ pa: 1.00, pb: 0.87, pt: 0.95, }
+    'I' => GorParams::{ pa: 1.08, pb: 1.60, pt: 0.47, }
+    'L' => GorParams::{ pa: 1.21, pb: 1.30, pt: 0.59, }
+    'K' => GorParams::{ pa: 1.16, pb: 0.74, pt: 1.01, }
+    'M' => GorParams::{ pa: 1.45, pb: 1.05, pt: 0.60, }
+    'F' => GorParams::{ pa: 1.13, pb: 1.38, pt: 0.60, }
+    'P' => GorParams::{ pa: 0.57, pb: 0.55, pt: 1.52, }
+    'S' => GorParams::{ pa: 0.77, pb: 0.75, pt: 1.43, }
+    'T' => GorParams::{ pa: 0.83, pb: 1.19, pt: 0.96, }
+    'W' => GorParams::{ pa: 1.08, pb: 1.37, pt: 0.96, }
+    'Y' => GorParams::{ pa: 0.69, pb: 1.47, pt: 1.14, }
+    'V' => GorParams::{ pa: 1.06, pb: 1.70, pt: 0.50, }
+    _ => GorParams::{ pa: 1.00, pb: 1.00, pt: 1.00, }
   }
 }
 
@@ -99,27 +99,27 @@ struct TmParams {
 ///|
 fn protein_get_tm(c : Char) -> TmParams {
   match c {
-    'A' => TmParams::{ inside: 1.1, outside: 0.56, tm: 1.32 }
-    'R' => TmParams::{ inside: 0.0, outside: 1.0, tm: 0.0 }
-    'N' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.6 }
-    'D' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.7 }
-    'C' => TmParams::{ inside: 1.1, outside: 0.56, tm: 0.62 }
-    'Q' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.2 }
-    'E' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.3 }
-    'G' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.48 }
-    'H' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.5 }
-    'I' => TmParams::{ inside: 1.0, outside: 0.32, tm: 1.0 }
-    'L' => TmParams::{ inside: 1.0, outside: 0.36, tm: 1.24 }
-    'K' => TmParams::{ inside: 0.1, outside: 1.0, tm: 0.0 }
-    'M' => TmParams::{ inside: 1.0, outside: 0.36, tm: 1.11 }
-    'F' => TmParams::{ inside: 1.0, outside: 0.42, tm: 1.02 }
-    'P' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.3 }
-    'S' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.38 }
-    'T' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.38 }
-    'W' => TmParams::{ inside: 1.0, outside: 0.44, tm: 1.0 }
-    'Y' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.69 }
-    'V' => TmParams::{ inside: 1.0, outside: 0.32, tm: 1.19 }
-    _ => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.0 }
+    'A' => TmParams::{ inside: 1.1, outside: 0.56, tm: 1.32, }
+    'R' => TmParams::{ inside: 0.0, outside: 1.0, tm: 0.0, }
+    'N' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.6, }
+    'D' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.7, }
+    'C' => TmParams::{ inside: 1.1, outside: 0.56, tm: 0.62, }
+    'Q' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.2, }
+    'E' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.3, }
+    'G' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.48, }
+    'H' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.5, }
+    'I' => TmParams::{ inside: 1.0, outside: 0.32, tm: 1.0, }
+    'L' => TmParams::{ inside: 1.0, outside: 0.36, tm: 1.24, }
+    'K' => TmParams::{ inside: 0.1, outside: 1.0, tm: 0.0, }
+    'M' => TmParams::{ inside: 1.0, outside: 0.36, tm: 1.11, }
+    'F' => TmParams::{ inside: 1.0, outside: 0.42, tm: 1.02, }
+    'P' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.3, }
+    'S' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.38, }
+    'T' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.38, }
+    'W' => TmParams::{ inside: 1.0, outside: 0.44, tm: 1.0, }
+    'Y' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.69, }
+    'V' => TmParams::{ inside: 1.0, outside: 0.32, tm: 1.19, }
+    _ => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.0, }
   }
 }
 

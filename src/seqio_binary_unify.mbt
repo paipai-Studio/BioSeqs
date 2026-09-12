@@ -119,7 +119,10 @@ pub fn base64_decode_strict(content : String) -> Array[Int] raise SeqIOError {
 
 ///|
 /// Strict base64 decode with the format name embedded in error messages.
-fn unify_b64_decode(content : String, format : String) -> Array[Int] raise SeqIOError {
+fn unify_b64_decode(
+  content : String,
+  format : String,
+) -> Array[Int] raise SeqIOError {
   match (try? b64_decode_impl(content)) {
     Ok(bytes) => bytes
     Err(SeqIOError(msg)) => raise SeqIOError(msg + " for " + format)
@@ -129,7 +132,9 @@ fn unify_b64_decode(content : String, format : String) -> Array[Int] raise SeqIO
 ///|
 /// Parse base64-carried UCSC 2bit content into SeqRecords. The magic
 /// number is validated before decoding (spec 5.1.3.3).
-pub fn parse_twobit_records(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_twobit_records(
+  content : String,
+) -> Array[SeqRecord] raise SeqIOError {
   if content.trim() == "" {
     return []
   }
@@ -144,7 +149,10 @@ pub fn parse_twobit_records(content : String) -> Array[SeqRecord] raise SeqIOErr
 /// Shared SFF normalization: one SeqRecord per read with per-base Phred
 /// qualities in letter_annotations["phred_quality"]. With `trim` the
 /// sequence and qualities are restricted to the read clip intervals.
-fn unify_sff_records(content : String, trim : Bool) -> Array[SeqRecord] raise SeqIOError {
+fn unify_sff_records(
+  content : String,
+  trim : Bool,
+) -> Array[SeqRecord] raise SeqIOError {
   if content.trim() == "" {
     return []
   }
@@ -187,14 +195,18 @@ pub fn parse_sff_records(content : String) -> Array[SeqRecord] raise SeqIOError 
 ///|
 /// Parse base64-carried SFF content into SeqRecords, restricting each
 /// read's sequence and qualities to its clip intervals.
-pub fn parse_sff_trim_records(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_sff_trim_records(
+  content : String,
+) -> Array[SeqRecord] raise SeqIOError {
   unify_sff_records(content, true)
 }
 
 ///|
 /// Parse base64-carried SnapGene content into a single SeqRecord (the
 /// format stores one sequence with its feature table).
-pub fn parse_snapgene_records(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_snapgene_records(
+  content : String,
+) -> Array[SeqRecord] raise SeqIOError {
   if content.trim() == "" {
     return []
   }
@@ -219,7 +231,9 @@ pub fn parse_gck_records(content : String) -> Array[SeqRecord] raise SeqIOError 
 ///|
 /// Parse base64-carried SnapGene-style xDNA content into SeqRecords, one
 /// per packed record with the sequence type mirrored into annotations.
-pub fn parse_xdna_records(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_xdna_records(
+  content : String,
+) -> Array[SeqRecord] raise SeqIOError {
   if content.trim() == "" {
     return []
   }
@@ -232,7 +246,11 @@ pub fn parse_xdna_records(content : String) -> Array[SeqRecord] raise SeqIOError
       id=rec.name(),
       name=rec.name(),
     )
-    unify_set_annotation(record.annotations, "sequence_type", rec.seq_type().description())
+    unify_set_annotation(
+      record.annotations,
+      "sequence_type",
+      rec.seq_type().description(),
+    )
     unify_set_annotation(record.annotations, "comment", rec.annotations())
     records.push(record)
   }

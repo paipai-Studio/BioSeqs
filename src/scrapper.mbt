@@ -83,7 +83,7 @@ pub fn ScrapperNamedSubset::new(
   name : String,
   indices : Array[Int],
 ) -> ScrapperNamedSubset {
-  ScrapperNamedSubset::{ name, indices: indices.copy() }
+  ScrapperNamedSubset::{ name, indices: indices.copy(), }
 }
 
 ///|
@@ -91,7 +91,7 @@ pub fn ScrapperFactor::new(
   name : String,
   levels : Array[String],
 ) -> ScrapperFactor {
-  ScrapperFactor::{ name, levels: levels.copy() }
+  ScrapperFactor::{ name, levels: levels.copy(), }
 }
 
 ///|
@@ -295,7 +295,7 @@ pub fn scrapper_compute_rna_qc_metrics(
     subset_names.push(subsets[subset].name)
     subset = subset + 1
   }
-  ScrapperRnaQcMetrics::{ sums, detected, subset_names, subset_proportions }
+  ScrapperRnaQcMetrics::{ sums, detected, subset_names, subset_proportions, }
 }
 
 ///|
@@ -520,7 +520,7 @@ pub fn scrapper_quick_rna_qc(
     subset_proportion_num_mads~,
   )
   let keep = scrapper_filter_rna_qc_metrics(thresholds, metrics, blocks~)
-  ScrapperRnaQcResult::{ metrics, thresholds, keep }
+  ScrapperRnaQcResult::{ metrics, thresholds, keep, }
 }
 
 ///|
@@ -838,7 +838,7 @@ pub fn scrapper_fit_variance_trend(
     residuals[index] = variances[index] - fitted[index]
     index = index + 1
   }
-  ScrapperVarianceTrend::{ fitted, residuals }
+  ScrapperVarianceTrend::{ fitted, residuals, }
 }
 
 ///|

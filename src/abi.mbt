@@ -124,7 +124,7 @@ pub struct AbiDate {
 ///|
 /// Create a new AbiDate.
 pub fn AbiDate::new(year : Int, month : Int, day : Int) -> AbiDate {
-  AbiDate::{ year, month, day }
+  AbiDate::{ year, month, day, }
 }
 
 ///|
@@ -138,7 +138,7 @@ pub struct AbiTime {
 ///|
 /// Create a new AbiTime.
 pub fn AbiTime::new(hours : Int, minutes : Int, seconds : Int) -> AbiTime {
-  AbiTime::{ hours, minutes, seconds }
+  AbiTime::{ hours, minutes, seconds, }
 }
 
 ///|

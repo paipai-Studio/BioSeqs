@@ -22,8 +22,12 @@ pub struct SeqIndexEntry {
 } derive(Debug)
 
 ///|
-pub fn SeqIndexEntry::new(key : String, offset : Int, length : Int) -> SeqIndexEntry {
-  SeqIndexEntry::{ key, offset, length }
+pub fn SeqIndexEntry::new(
+  key : String,
+  offset : Int,
+  length : Int,
+) -> SeqIndexEntry {
+  SeqIndexEntry::{ key, offset, length, }
 }
 
 ///|
@@ -60,7 +64,11 @@ pub fn SeqIndex::contains(self : SeqIndex, key : String) -> Bool {
 
 ///|
 /// Return the raw record text for a key.
-pub fn SeqIndex::get_raw(self : SeqIndex, data : String, key : String) -> String raise SeqIOError {
+pub fn SeqIndex::get_raw(
+  self : SeqIndex,
+  data : String,
+  key : String,
+) -> String raise SeqIOError {
   match self.positions.get(key) {
     Some(idx) => {
       let entry = self.entries[idx]
@@ -72,7 +80,11 @@ pub fn SeqIndex::get_raw(self : SeqIndex, data : String, key : String) -> String
 
 ///|
 /// Parse and return the record for a key.
-pub fn SeqIndex::get(self : SeqIndex, data : String, key : String) -> SeqRecord raise SeqIOError {
+pub fn SeqIndex::get(
+  self : SeqIndex,
+  data : String,
+  key : String,
+) -> SeqRecord raise SeqIOError {
   let raw = self.get_raw(data, key)
   let records = seqio_parse(raw, self.format)
   if records.length() == 0 {
@@ -87,10 +99,10 @@ pub fn seqio_index(data : String, format : String) -> SeqIndex raise SeqIOError 
   let lines = seq_index_split_lines(data)
   let entries = match format {
     "fasta" => seq_index_scan_fasta(data, lines)
-    "fastq" | "fastq-sanger" | "fastq-illumina" | "fastq-solexa" => {
+    "fastq" | "fastq-sanger" | "fastq-illumina" | "fastq-solexa" =>
       seq_index_scan_fastq(data, lines)
-    }
-    "genbank" | "gb" => seq_index_scan_delimiter(data, lines, "LOCUS", "genbank")
+    "genbank" | "gb" =>
+      seq_index_scan_delimiter(data, lines, "LOCUS", "genbank")
     "embl" => seq_index_scan_delimiter(data, lines, "ID   ", "embl")
     "tab" => seq_index_scan_tab(data, lines)
     // qual files use ">" headers like FASTA; the quality numbers follow
@@ -108,13 +120,14 @@ pub fn seqio_index(data : String, format : String) -> SeqIndex raise SeqIOError 
     positions.set(entries[i].key, i)
     i = i + 1
   }
-  SeqIndex::{ format, entries, positions }
+  SeqIndex::{ format, entries, positions, }
 }
 
 // ============================================================================
 // Line splitting with byte offsets
 // ============================================================================
 
+///|
 struct IndexedLine {
   start : Int
   text : String
@@ -130,23 +143,19 @@ fn seq_index_split_lines(data : String) -> Array[IndexedLine] {
   while i < n {
     let ch = data.unsafe_get(i).to_int()
     if ch == '\n'.to_int() {
-      lines.push(
-        IndexedLine::{
-          start: line_start,
-          text: data[line_start:i].to_owned(),
-        },
-      )
+      lines.push(IndexedLine::{
+        start: line_start,
+        text: data[line_start:i].to_owned(),
+      })
       line_start = i + 1
     }
     i = i + 1
   }
   if line_start < n {
-    lines.push(
-      IndexedLine::{
-        start: line_start,
-        text: data[line_start:n].to_owned(),
-      },
-    )
+    lines.push(IndexedLine::{
+      start: line_start,
+      text: data[line_start:n].to_owned(),
+    })
   }
   lines
 }
@@ -189,11 +198,13 @@ fn seq_index_scan_fasta(
   let mut i = 0
   while i < lines.length() {
     let line = lines[i]
-    if line.text.length() > 0 && line.text.unsafe_get(0).to_int() == '>'.to_int() {
+    if line.text.length() > 0 &&
+      line.text.unsafe_get(0).to_int() == '>'.to_int() {
       let key = seq_index_first_token(line.text[1:].to_owned())
       if key.length() == 0 {
         raise SeqIOError(
-          "FASTA record without an identifier at offset " + line.start.to_string(),
+          "FASTA record without an identifier at offset " +
+          line.start.to_string(),
         )
       }
       let start = line.start
@@ -205,11 +216,7 @@ fn seq_index_scan_fasta(
         }
         j = j + 1
       }
-      let end = if j < lines.length() {
-        lines[j].start
-      } else {
-        data.length()
-      }
+      let end = if j < lines.length() { lines[j].start } else { data.length() }
       entries.push(SeqIndexEntry::new(key, start, end - start))
       i = j
     } else {
@@ -236,8 +243,7 @@ fn seq_index_scan_fastq(
     }
     if line.text.unsafe_get(0).to_int() != '@'.to_int() {
       raise SeqIOError(
-        "Expected FASTQ '@' header at line offset " +
-        line.start.to_string(),
+        "Expected FASTQ '@' header at line offset " + line.start.to_string(),
       )
     }
     if i + 3 >= n {
@@ -246,7 +252,8 @@ fn seq_index_scan_fastq(
       )
     }
     let plus_line = lines[i + 2].text
-    if plus_line.length() == 0 || plus_line.unsafe_get(0).to_int() != '+'.to_int() {
+    if plus_line.length() == 0 ||
+      plus_line.unsafe_get(0).to_int() != '+'.to_int() {
       raise SeqIOError(
         "Malformed FASTQ record: expected '+' separator line at offset " +
         lines[i + 2].start.to_string(),
@@ -275,7 +282,8 @@ fn seq_index_scan_delimiter(
   let mut i = 0
   while i < n {
     let line = lines[i]
-    if line.text.length() >= prefix.length() && line.text[0:prefix.length()] == prefix {
+    if line.text.length() >= prefix.length() &&
+      line.text[0:prefix.length()] == prefix {
       let start = line.start
       let key = if kind == "genbank" {
         // "LOCUS <name> length bp ..."
@@ -300,7 +308,8 @@ fn seq_index_scan_delimiter(
       let mut j = i + 1
       while j < n {
         let candidate = lines[j].text
-        if candidate.length() >= prefix.length() && candidate[0:prefix.length()] == prefix {
+        if candidate.length() >= prefix.length() &&
+          candidate[0:prefix.length()] == prefix {
           break
         }
         j = j + 1
@@ -334,7 +343,8 @@ fn seq_index_scan_tab(
       Some(pos) => {
         if pos == 0 {
           raise SeqIOError(
-            "Tab record with empty identifier at offset " + line.start.to_string(),
+            "Tab record with empty identifier at offset " +
+            line.start.to_string(),
           )
         }
         let key = line.text[0:pos].to_owned()
@@ -345,10 +355,11 @@ fn seq_index_scan_tab(
         }
         entries.push(SeqIndexEntry::new(key, line.start, end - line.start))
       }
-      None => raise SeqIOError(
-        "Malformed tab record (no tab separator) at offset " +
-        line.start.to_string(),
-      )
+      None =>
+        raise SeqIOError(
+          "Malformed tab record (no tab separator) at offset " +
+          line.start.to_string(),
+        )
     }
     i = i + 1
   }

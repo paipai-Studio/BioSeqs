@@ -104,7 +104,7 @@ pub fn SeqXmlEntry::new(
   sequence : String,
   description? : String = "",
 ) -> SeqXmlEntry {
-  SeqXmlEntry::{ id, description, seq_type, sequence, properties: [] }
+  SeqXmlEntry::{ id, description, seq_type, sequence, properties: [], }
 }
 
 ///|

@@ -459,7 +459,7 @@ pub fn Primer3Design::new(
   forward : Array[Primer3Result],
   reverse : Array[Primer3Result],
 ) -> Primer3Design {
-  Primer3Design::{ forward, reverse }
+  Primer3Design::{ forward, reverse, }
 }
 
 ///|

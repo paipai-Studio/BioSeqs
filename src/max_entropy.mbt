@@ -26,7 +26,7 @@ pub fn MaxEntFeature::new(
   attribute_value : String,
   class_label : String,
 ) -> MaxEntFeature {
-  MaxEntFeature::{ attribute_index, attribute_value, class_label }
+  MaxEntFeature::{ attribute_index, attribute_value, class_label, }
 }
 
 ///|
@@ -305,7 +305,7 @@ pub fn max_entropy_train(
       break
     }
   }
-  MaxEntropyModel::{ classes, alphas, features }
+  MaxEntropyModel::{ classes, alphas, features, }
 }
 
 // ===========================================================================

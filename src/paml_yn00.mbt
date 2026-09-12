@@ -241,7 +241,7 @@ pub fn yn00_parse_control(text : String) -> Yn00Control raise Yn00Error {
         }
         let parsed = yn00_parse_int(value, "YN00 " + name)
         yn00_validate_option(name, parsed)
-        options.push(Yn00Option::{ name, value: parsed.to_string() })
+        options.push(Yn00Option::{ name, value: parsed.to_string(), })
       }
     }
   }
@@ -251,7 +251,7 @@ pub fn yn00_parse_control(text : String) -> Yn00Control raise Yn00Error {
   if output_file.length() == 0 {
     yn00_fail("YN00 control is missing outfile")
   }
-  Yn00Control::{ sequence_file, output_file, options }
+  Yn00Control::{ sequence_file, output_file, options, }
 }
 
 ///|
@@ -808,7 +808,7 @@ fn yn00_finish_pairs(
       Some(value) => value
       None => {
         yn00_fail("YN00 pair is missing its NG86 estimate")
-        Yn00Ng86Estimate::{ omega: 0.0, dn: 0.0, ds: 0.0 }
+        Yn00Ng86Estimate::{ omega: 0.0, dn: 0.0, ds: 0.0, }
       }
     }
     let yang_nielsen = match builder.yang_nielsen {
@@ -1199,7 +1199,7 @@ pub fn Yn00Results::matrix(
     values[first_index][second_index] = value
     values[second_index][first_index] = value
   }
-  Yn00DistanceMatrix::{ names: yn00_copy_strings(self.sequence_names), values }
+  Yn00DistanceMatrix::{ names: yn00_copy_strings(self.sequence_names), values, }
 }
 
 ///|

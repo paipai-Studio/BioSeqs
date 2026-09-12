@@ -15,10 +15,7 @@ test "seqio_index_qual_records_and_access" {
   assert_eq(index.length(), 2)
   assert_eq(index.keys(), ["qual1", "qual2"])
   // get_raw returns the exact slice from the original content
-  assert_eq(
-    index.get_raw(qual, "qual2"),
-    ">qual2 second\n40 50 60 70\n",
-  )
+  assert_eq(index.get_raw(qual, "qual2"), ">qual2 second\n40 50 60 70\n")
   // random access agrees with a full parse of the record
   let rec = index.get(qual, "qual1")
   let full = @src.parse_qual(qual)
@@ -62,8 +59,7 @@ test "seqio_index_swiss_records_and_access" {
 
 ///|
 test "seqio_index_seqxml_records_and_access" {
-  let seqxml =
-    "<?xml version=\"1.0\"?>\n<seqXML>\n  <entry id=\"s1\" desc=\"one\">\n    <dna>ACGTAC</dna>\n  </entry>\n  <entry id=\"s2\" desc=\"two\">\n    <dna>TTTGCA</dna>\n  </entry>\n</seqXML>\n"
+  let seqxml = "<?xml version=\"1.0\"?>\n<seqXML>\n  <entry id=\"s1\" desc=\"one\">\n    <dna>ACGTAC</dna>\n  </entry>\n  <entry id=\"s2\" desc=\"two\">\n    <dna>TTTGCA</dna>\n  </entry>\n</seqXML>\n"
   let index = @src.seqio_index(seqxml, "seqxml")
   assert_eq(index.length(), 2)
   assert_eq(index.keys(), ["s1", "s2"])
@@ -83,8 +79,7 @@ test "seqio_index_seqxml_records_and_access" {
 test "seqio_index_duplicate_ids_last_wins" {
   // seqxml with two entries sharing an id: the last one wins, matching
   // the fasta/genbank index behaviour (spec 5.4.1.4)
-  let dup =
-    "<?xml version=\"1.0\"?>\n<seqXML>\n  <entry id=\"dup\">\n    <dna>AAA</dna>\n  </entry>\n  <entry id=\"dup\">\n    <dna>CCC</dna>\n  </entry>\n</seqXML>\n"
+  let dup = "<?xml version=\"1.0\"?>\n<seqXML>\n  <entry id=\"dup\">\n    <dna>AAA</dna>\n  </entry>\n  <entry id=\"dup\">\n    <dna>CCC</dna>\n  </entry>\n</seqXML>\n"
   let index = @src.seqio_index(dup, "seqxml")
   assert_eq(index.length(), 2)
   let rec = index.get(dup, "dup")
@@ -138,7 +133,8 @@ test "seqio_index_seqxml_unterminated_entry_raises_with_offset" {
     ignore(@src.seqio_index(broken, "seqxml"))
     false
   } catch {
-    SeqIOError(msg) => msg.contains("unterminated <entry>") && msg.contains("offset")
+    SeqIOError(msg) =>
+      msg.contains("unterminated <entry>") && msg.contains("offset")
   }
   assert_true(raised)
 }

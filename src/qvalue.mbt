@@ -41,7 +41,7 @@ pub fn QValueResult::new(
   gamma : Double,
   significance : Array[Bool],
 ) -> QValueResult {
-  QValueResult::{ p_values, q_values, pi0, lambda, gamma, significance }
+  QValueResult::{ p_values, q_values, pi0, lambda, gamma, significance, }
 }
 
 ///|
@@ -523,7 +523,7 @@ pub fn Pi0EstResult::new(
   lambdas : Array[Double],
   pi0_smooth : Array[Double],
 ) -> Pi0EstResult {
-  Pi0EstResult::{ pi0, pi0_lambda, lambdas, pi0_smooth }
+  Pi0EstResult::{ pi0, pi0_lambda, lambdas, pi0_smooth, }
 }
 
 ///|
@@ -697,7 +697,10 @@ fn _default_lambdas() -> Array[Double] {
 ///|
 /// pi0(lambda) = #{p >= lambda} / (m * (1 - lambda)) at each lambda.
 /// Uses the >= convention of the official package.
-fn _pi0_lambda_path(p : Array[Double], lambdas : Array[Double]) -> Array[Double] {
+fn _pi0_lambda_path(
+  p : Array[Double],
+  lambdas : Array[Double],
+) -> Array[Double] {
   let m = p.length().to_double()
   let ll = lambdas.length()
   let out = Array::make(ll, 0.0)
@@ -1102,30 +1105,78 @@ fn _qnorm(p : Double) -> Double {
   let phigh = 1.0 - plow
   if p < plow {
     let q = (-2.0 * @math.ln(p)).sqrt()
-    let num = (((((-0.00778489400243029 * q - 0.322396458041136) * q -
-      2.40075827716184) * q - 2.54973253934373) * q + 4.37466414146497) * q +
-      2.93816398269878)
-    let den = (((0.00778469570904146 * q + 0.32246712907004) * q +
-      2.445134137143) * q + 3.75440866190742) * q + 1.0
+    let num = (
+        (
+          (
+            (-0.00778489400243029 * q - 0.322396458041136) * q -
+            2.40075827716184
+          ) *
+          q -
+          2.54973253934373
+        ) *
+        q +
+        4.37466414146497
+      ) *
+      q +
+      2.93816398269878
+    let den = (
+        ((0.00778469570904146 * q + 0.32246712907004) * q + 2.445134137143) * q +
+        3.75440866190742
+      ) *
+      q +
+      1.0
     return num / den
   }
   if p > phigh {
     let q = (-2.0 * @math.ln(1.0 - p)).sqrt()
-    let num = (((((-0.00778489400243029 * q - 0.322396458041136) * q -
-      2.40075827716184) * q - 2.54973253934373) * q + 4.37466414146497) * q +
-      2.93816398269878)
-    let den = (((0.00778469570904146 * q + 0.32246712907004) * q +
-      2.445134137143) * q + 3.75440866190742) * q + 1.0
+    let num = (
+        (
+          (
+            (-0.00778489400243029 * q - 0.322396458041136) * q -
+            2.40075827716184
+          ) *
+          q -
+          2.54973253934373
+        ) *
+        q +
+        4.37466414146497
+      ) *
+      q +
+      2.93816398269878
+    let den = (
+        ((0.00778469570904146 * q + 0.32246712907004) * q + 2.445134137143) * q +
+        3.75440866190742
+      ) *
+      q +
+      1.0
     return -num / den
   }
   let q = p - 0.5
   let r = q * q
-  let num = (((((-39.6968302866538 * r + 220.946098424521) * r -
-    275.928510446969) * r + 138.357751867269) * r - 30.6647980661472) * r +
-    2.50662827745924) * q
-  let den = (((((-54.4760987982241 * r + 161.585836858041) * r -
-    155.698979859887) * r + 66.8013118877197) * r - 13.2806815528857) * r +
-    1.0)
+  let num = (
+      (
+        (
+          ((-39.6968302866538 * r + 220.946098424521) * r - 275.928510446969) *
+          r +
+          138.357751867269
+        ) *
+        r -
+        30.6647980661472
+      ) *
+      r +
+      2.50662827745924
+    ) *
+    q
+  let den = (
+      (
+        ((-54.4760987982241 * r + 161.585836858041) * r - 155.698979859887) * r +
+        66.8013118877197
+      ) *
+      r -
+      13.2806815528857
+    ) *
+    r +
+    1.0
   num / den
 }
 
@@ -1270,9 +1321,9 @@ fn _kde_at_points(x : Array[Double], adj : Double) -> Array[Double] {
 ///   - Pi0EstResult with pi0, pi0_lambda, lambdas, pi0_smooth
 pub fn qvalue_pi0est(
   p_values : Array[Double],
-  lambdas~ : Array[Double] = _default_lambdas(),
-  method~ : String = "smoother",
-  smooth_log~ : Bool = false,
+  lambdas? : Array[Double] = _default_lambdas(),
+  method? : String = "smoother",
+  smooth_log? : Bool = false,
 ) -> Pi0EstResult raise QValueError {
   _check_pvalues_strict(p_values)
   let lams = lambdas.copy()
@@ -1301,7 +1352,7 @@ pub fn qvalue_pi0est(
         "The estimated pi0 <= 0. Check that you have valid p-values or use a different range of lambda.",
       )
     }
-    return Pi0EstResult::{ pi0, pi0_lambda, lambdas: lams, pi0_smooth: [] }
+    return Pi0EstResult::{ pi0, pi0_lambda, lambdas: lams, pi0_smooth: [], }
   }
   if method == "smoother" {
     let mut yfit : Array[Double] = []
@@ -1336,7 +1387,7 @@ pub fn qvalue_pi0est(
         "The estimated pi0 <= 0. Check that you have valid p-values or use a different range of lambda.",
       )
     }
-    Pi0EstResult::{ pi0, pi0_lambda, lambdas: lams, pi0_smooth: yfit }
+    Pi0EstResult::{ pi0, pi0_lambda, lambdas: lams, pi0_smooth: yfit, }
   } else if method == "bootstrap" {
     let sorted_pi0 = pi0_lambda.copy()
     sorted_pi0.sort()
@@ -1379,9 +1430,11 @@ pub fn qvalue_pi0est(
         "The estimated pi0 <= 0. Check that you have valid p-values or use a different range of lambda.",
       )
     }
-    Pi0EstResult::{ pi0, pi0_lambda, lambdas: lams, pi0_smooth: [] }
+    Pi0EstResult::{ pi0, pi0_lambda, lambdas: lams, pi0_smooth: [], }
   } else {
-    raise QValueError("pi0 method must be one of \"smoother\" or \"bootstrap\".")
+    raise QValueError(
+      "pi0 method must be one of \"smoother\" or \"bootstrap\".",
+    )
   }
 }
 
@@ -1409,12 +1462,12 @@ pub fn qvalue_pi0est(
 ///   - eps:      Tail threshold for the probit transform (default 1.0e-8)
 pub fn qvalue_lfdr(
   p_values : Array[Double],
-  pi0~ : Double? = None,
-  transf~ : String = "probit",
-  trunc~ : Bool = true,
-  monotone~ : Bool = true,
-  adj~ : Double = 1.5,
-  eps~ : Double = 1.0e-8,
+  pi0? : Double? = None,
+  transf? : String = "probit",
+  trunc? : Bool = true,
+  monotone? : Bool = true,
+  adj? : Double = 1.5,
+  eps? : Double = 1.0e-8,
 ) -> Array[Double] raise QValueError {
   _check_pvalues_strict(p_values)
   let n = p_values.length()
@@ -1602,7 +1655,9 @@ pub fn empirical_pvalues_rows(
   }
   let ncol = stat0_rows[0].length()
   if ncol == 0 {
-    raise QValueError("Each row of stat0 must contain at least one null statistic.")
+    raise QValueError(
+      "Each row of stat0 must contain at least one null statistic.",
+    )
   }
   let floor_p = 1.0 / ncol.to_double()
   let mut i = 0
@@ -1652,21 +1707,20 @@ pub fn empirical_pvalues_rows(
 ///   - lfdr_out:  Include local FDR values in the result (default true)
 pub fn qvalue_analyze(
   p_values : Array[Double],
-  fdr_level~ : Double? = None,
-  pfdr~ : Bool = false,
-  pi0~ : Double? = None,
-  lambdas~ : Array[Double]? = None,
-  method~ : String = "smoother",
-  smooth_log~ : Bool = false,
-  lfdr_out~ : Bool = true,
+  fdr_level? : Double? = None,
+  pfdr? : Bool = false,
+  pi0? : Double? = None,
+  lambdas? : Array[Double]? = None,
+  method? : String = "smoother",
+  smooth_log? : Bool = false,
+  lfdr_out? : Bool = true,
 ) -> QValueFullResult raise QValueError {
   _check_pvalues_strict(p_values)
   match fdr_level {
-    Some(level) => {
+    Some(level) =>
       if level <= 0.0 || level > 1.0 {
         raise QValueError("'fdr.level' must be in (0, 1].")
       }
-    }
     None => ()
   }
   let n = p_values.length()
@@ -1682,9 +1736,8 @@ pub fn qvalue_analyze(
     }
     None => {
       let est = match lambdas {
-        Some(ls) =>
-          qvalue_pi0est(p_values, lambdas=ls, method=method, smooth_log=smooth_log)
-        None => qvalue_pi0est(p_values, method=method, smooth_log=smooth_log)
+        Some(ls) => qvalue_pi0est(p_values, lambdas=ls, method~, smooth_log~)
+        None => qvalue_pi0est(p_values, method~, smooth_log~)
       }
       pi0_lambda = est.pi0_lambda
       lams = est.lambdas

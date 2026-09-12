@@ -44,11 +44,7 @@ fn copy_med3(a : Double, b : Double, c : Double) -> Double {
 ///|
 /// Exact median of an odd-length sub-array, equivalent to R
 /// `sort(x, partial = h)[h]`.
-fn copy_med_odd_range(
-  x : Array[Double],
-  lo : Int,
-  count : Int,
-) -> Double {
+fn copy_med_odd_range(x : Array[Double], lo : Int, count : Int) -> Double {
   let window = x[lo:lo + count].to_owned()
   window.sort()
   window[count / 2]
@@ -133,7 +129,7 @@ pub fn copy_get_mad(x : Array[Double], k? : Int = 25) -> Double {
   if nonzero.length() == 0 {
     return 0.0
   }
-  let runmed = copy_median_filter(nonzero, k=k)
+  let runmed = copy_median_filter(nonzero, k~)
   let dif : Array[Double] = []
   let mut i = 0
   while i < nonzero.length() {
@@ -174,7 +170,7 @@ fn pcf_single_segment(y : Array[Double]) -> PcfResult {
   }
   let mean = sum / y.length().to_double()
   let yhat = Array::make(y.length(), mean)
-  { segments: [{ start: 1, length: y.length(), mean }], n_intervals: 1, yhat }
+  { segments: [{ start: 1, length: y.length(), mean, }], n_intervals: 1, yhat, }
 }
 
 ///|
@@ -300,10 +296,10 @@ pub fn exact_pcf(
   let segments : Array[PcfSegment] = []
   let mut s = 0
   while s < nint {
-    segments.push({ start: starts[s], length: lengths[s], mean: means[s] })
+    segments.push({ start: starts[s], length: lengths[s], mean: means[s], })
     s = s + 1
   }
-  { segments, n_intervals: nint, yhat: yhat[1:n + 1].to_owned() }
+  { segments, n_intervals: nint, yhat: yhat[1:n + 1].to_owned(), }
 }
 
 ///|
@@ -323,13 +319,13 @@ pub fn pcf_plain(
 ) -> PcfResult raise SeqError {
   let mut use_gamma = gamma
   if normalize {
-    let sd = copy_get_mad(y, k=k)
+    let sd = copy_get_mad(y, k~)
     use_gamma = gamma * sd * sd
     if use_gamma == 0.0 || use_gamma.is_nan() {
       return pcf_single_segment(y)
     }
   }
-  exact_pcf(y, kmin=kmin, gamma=use_gamma)
+  exact_pcf(y, kmin~, gamma=use_gamma)
 }
 
 ///|
@@ -372,7 +368,7 @@ pub fn winsorize_mad(
   digits? : Int = 4,
 ) -> WinsResult {
   let n = x.length()
-  let xhat = copy_median_filter(x, k=k)
+  let xhat = copy_median_filter(x, k~)
   let d : Array[Double] = []
   let mut i = 0
   while i < n {
@@ -384,13 +380,7 @@ pub fn winsorize_mad(
   let ywin : Array[Double] = []
   while ywin.length() < n {
     let idx = ywin.length()
-    let clipped = if d[idx] < -z {
-      -z
-    } else if d[idx] > z {
-      z
-    } else {
-      d[idx]
-    }
+    let clipped = if d[idx] < -z { -z } else if d[idx] > z { z } else { d[idx] }
     ywin.push(xhat[idx] + clipped)
   }
   let outliers = Array::make(n, 0)
@@ -405,7 +395,7 @@ pub fn winsorize_mad(
     }
     i = i + 1
   }
-  { ywin, sdev, outliers }
+  { ywin, sdev, outliers, }
 }
 
 ///|
@@ -422,7 +412,7 @@ pub fn winsorize_pcf(
   digits? : Int = 4,
 ) -> WinsResult raise SeqError {
   let n = x.length()
-  let mut xhat = copy_median_filter(x, k=k)
+  let mut xhat = copy_median_filter(x, k~)
   let mut xwin = x.copy()
   let mut sdev = 0.0
   let mut j = 0
@@ -438,13 +428,7 @@ pub fn winsorize_pcf(
     xwin = []
     i = 0
     while i < n {
-      let clipped = if d[i] < -z {
-        -z
-      } else if d[i] > z {
-        z
-      } else {
-        d[i]
-      }
+      let clipped = if d[i] < -z { -z } else if d[i] > z { z } else { d[i] }
       xwin.push(xhat[i] + clipped)
       i = i + 1
     }
@@ -486,7 +470,7 @@ pub fn winsorize_pcf(
     }
     i = i + 1
   }
-  { ywin, sdev, outliers }
+  { ywin, sdev, outliers, }
 }
 
 ///|
@@ -557,7 +541,7 @@ pub fn multi_pcf(
   if normalize {
     let mut j = 0
     while j < ns {
-      sd[j] = copy_get_mad(samples[j], k=k)
+      sd[j] = copy_get_mad(samples[j], k~)
       j = j + 1
     }
   }
@@ -586,8 +570,8 @@ pub fn multi_pcf(
       j = j + 1
     }
     let segments0 : Array[MultiPcfSegment] = []
-    segments0.push({ start: 1, length: n, means: total_mean })
-    return { segments: segments0, n_intervals: 1, yhat: yhat0, sds: sd }
+    segments0.push({ start: 1, length: n, means: total_mean, })
+    return { segments: segments0, n_intervals: 1, yhat: yhat0, sds: sd, }
   }
   // scale once: z[j][p] = sample / sd * weight
   let z : Array[Array[Double]] = []
@@ -726,5 +710,5 @@ pub fn multi_pcf(
     })
     si = si + 1
   }
-  { segments: segments1, n_intervals: nint, yhat: yhat1, sds: sd }
+  { segments: segments1, n_intervals: nint, yhat: yhat1, sds: sd, }
 }

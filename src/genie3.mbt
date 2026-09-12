@@ -341,7 +341,7 @@ pub fn genie3_build_tree(
   max_depth? : Int = 10,
   min_samples_split? : Int = 2,
 ) -> RegressionTree {
-  let tree : RegressionTree = { nodes: [] }
+  let tree : RegressionTree = { nodes: [], }
   let _ = genie3_build_recursive(
     tree, features_matrix, target, feature_indices, max_depth, min_samples_split,
     0,

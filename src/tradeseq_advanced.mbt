@@ -1377,7 +1377,7 @@ pub fn tradeseq_predict_smooth_advanced(
       standard_errors[lineage][point] = mean * variance.max(0.0).sqrt()
     }
   }
-  TradeSeqSmoothPrediction::{ gene_id, pseudotime, fitted, standard_errors }
+  TradeSeqSmoothPrediction::{ gene_id, pseudotime, fitted, standard_errors, }
 }
 
 ///|
@@ -1619,7 +1619,7 @@ pub fn tradeseq_advanced_sce(
   })
   output.metadata[output_prefix + ".nKnots"] = fit.config.n_knots.to_string()
   output.metadata[output_prefix + ".lineages"] = fit.lineage_names.join(",")
-  TradeSeqAdvancedSceOutput::{ experiment: output, fit }
+  TradeSeqAdvancedSceOutput::{ experiment: output, fit, }
 }
 
 ///|

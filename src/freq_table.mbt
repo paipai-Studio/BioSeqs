@@ -132,7 +132,7 @@ pub fn FreqTable::new(
       }
     FREQ => ()
   }
-  FreqTable::{ alphabet: alph, data, count }
+  FreqTable::{ alphabet: alph, data, count, }
 }
 
 ///|

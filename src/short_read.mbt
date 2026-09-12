@@ -170,7 +170,7 @@ pub struct TrimParams {
 
 ///|
 pub fn TrimParams::new() -> TrimParams {
-  TrimParams::{ min_quality: 20, min_length: 36, trim_left: 0, trim_right: 0 }
+  TrimParams::{ min_quality: 20, min_length: 36, trim_left: 0, trim_right: 0, }
 }
 
 ///|

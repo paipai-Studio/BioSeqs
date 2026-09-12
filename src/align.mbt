@@ -42,7 +42,7 @@ pub fn MultipleSeqAlignment::new(
       }
     }
   }
-  MultipleSeqAlignment::{ records, annotations, column_annotations }
+  MultipleSeqAlignment::{ records, annotations, column_annotations, }
 }
 
 ///|
@@ -145,7 +145,7 @@ pub fn MultipleSeqAlignment::slice(
   for i = rs; i < re; i = i + 1 {
     let rec = self.records[i]
     let sliced_seq = rec.seq.slice(start=cs, end=ce)
-    let new_rec = SeqRecord::{ ..rec, seq: sliced_seq }
+    let new_rec = SeqRecord::{ ..rec, seq: sliced_seq, }
     new_records.push(new_rec)
   }
 
@@ -171,7 +171,7 @@ pub fn MultipleSeqAlignment::add_sequence(
     new_records.push(r)
   }
   new_records.push(seq)
-  MultipleSeqAlignment::{ ..self, records: new_records }
+  MultipleSeqAlignment::{ ..self, records: new_records, }
 }
 
 ///|

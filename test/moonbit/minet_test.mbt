@@ -17,7 +17,9 @@ test "minet_discretize_methods" {
   assert_eq(dew[0], [1, 1, 2, 2, 3, 3, 4, 4, 5, 5])
   // equalfreq on a shuffled 0..9: each value v has rank v, so the bin
   // follows floor(v*5/10)+1 regardless of position
-  let shuffled : Array[Double] = [9.0, 0.0, 8.0, 1.0, 7.0, 2.0, 6.0, 3.0, 5.0, 4.0]
+  let shuffled : Array[Double] = [
+    9.0, 0.0, 8.0, 1.0, 7.0, 2.0, 6.0, 3.0, 5.0, 4.0,
+  ]
   let def_ = @src.minet_discretize([shuffled], disc_method="equalfreq", nbin=5)
   assert_eq(def_[0], [5, 1, 5, 1, 4, 2, 4, 2, 3, 3])
   // default nbin = floor(sqrt(n_samples)): 25 samples -> 5 bins covering 1..5
@@ -92,12 +94,30 @@ test "minet_entropy_estimators" {
   assert_true(minet_close(@src.minet_entropy(bal, estimator="mi.sg"), 1.0))
   // 3:1 split
   let skew = [1, 1, 1, 2]
-  assert_true(minet_close(@src.minet_entropy(skew, estimator="empirical"), 0.811278, tol=1.0e-6))
-  assert_true(minet_close(@src.minet_entropy(skew, estimator="mi.mm"), 0.936278, tol=1.0e-6))
+  assert_true(
+    minet_close(
+      @src.minet_entropy(skew, estimator="empirical"),
+      0.811278,
+      tol=1.0e-6,
+    ),
+  )
+  assert_true(
+    minet_close(
+      @src.minet_entropy(skew, estimator="mi.mm"),
+      0.936278,
+      tol=1.0e-6,
+    ),
+  )
   // skew + shrinkage collapses to the uniform target (lambda = 1)
   assert_true(minet_close(@src.minet_entropy(skew, estimator="mi.shrink"), 1.0))
   // Schuermann-Grassberger beta prior
-  assert_true(minet_close(@src.minet_entropy(skew, estimator="mi.sg"), 0.881291, tol=1.0e-6))
+  assert_true(
+    minet_close(
+      @src.minet_entropy(skew, estimator="mi.sg"),
+      0.881291,
+      tol=1.0e-6,
+    ),
+  )
   // four equally likely levels
   let four = [1, 2, 3, 4]
   assert_true(minet_close(@src.minet_entropy(four, estimator="empirical"), 2.0))
@@ -125,16 +145,32 @@ test "minet_mutual_information_values" {
   let x = [1, 1, 2, 2]
   let y = [1, 2, 1, 2]
   // independent balanced variables: joint is uniform over 4 cells -> MI 0
-  assert_true(minet_close(@src.minet_mutual_information(x, y, estimator="empirical"), 0.0))
+  assert_true(
+    minet_close(@src.minet_mutual_information(x, y, estimator="empirical"), 0.0),
+  )
   // identical variable: MI(X;X) = H(X) = 1 bit empirical, 1.125 with mm
-  assert_true(minet_close(@src.minet_mutual_information(x, x, estimator="empirical"), 1.0))
-  assert_true(minet_close(@src.minet_mutual_information(x, x, estimator="mi.mm"), 1.125))
+  assert_true(
+    minet_close(@src.minet_mutual_information(x, x, estimator="empirical"), 1.0),
+  )
+  assert_true(
+    minet_close(@src.minet_mutual_information(x, x, estimator="mi.mm"), 1.125),
+  )
   // relabeled perfect copy is equally informative
   let y2 = [3, 3, 7, 7]
-  assert_true(minet_close(@src.minet_mutual_information(x, y2, estimator="empirical"), 1.0))
+  assert_true(
+    minet_close(
+      @src.minet_mutual_information(x, y2, estimator="empirical"),
+      1.0,
+    ),
+  )
   // constant variable carries no information
   let cst = [1, 1, 1, 1]
-  assert_true(minet_close(@src.minet_mutual_information(x, cst, estimator="empirical"), 0.0))
+  assert_true(
+    minet_close(
+      @src.minet_mutual_information(x, cst, estimator="empirical"),
+      0.0,
+    ),
+  )
   // mismatched lengths raise
   let bad = try {
     ignore(@src.minet_mutual_information(x, [1, 2, 3]))
@@ -269,7 +305,11 @@ test "minet_pipeline_end_to_end" {
   }
   for net_method in ["aracne", "clr", "mrnet"] {
     let net = @src.minet(
-      data, net_method=net_method, estimator="empirical", disc="equalwidth", nbin=2
+      data,
+      net_method~,
+      estimator="empirical",
+      disc="equalwidth",
+      nbin=2,
     )
     assert_eq(net.length(), 4)
     assert_eq(net[0].length(), 4)
@@ -282,7 +322,13 @@ test "minet_pipeline_end_to_end" {
   // unknown network method raises
   let bad = try {
     ignore(
-      @src.minet(data, net_method="santa", estimator="empirical", disc="equalwidth", nbin=2)
+      @src.minet(
+        data,
+        net_method="santa",
+        estimator="empirical",
+        disc="equalwidth",
+        nbin=2,
+      ),
     )
     false
   } catch {

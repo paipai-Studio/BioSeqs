@@ -385,7 +385,7 @@ pub fn baseml_parse_control(text : String) -> BasemlControl raise BasemlError {
   if tree_file.length() == 0 {
     baseml_fail("BASEML control is missing treefile")
   }
-  BasemlControl::{ sequence_file, output_file, tree_file, options }
+  BasemlControl::{ sequence_file, output_file, tree_file, options, }
 }
 
 ///|
@@ -987,7 +987,7 @@ pub fn baseml_parse_results(text : String) -> BasemlResults raise BasemlError {
     rates,
     rate_frequencies,
     q_matrix: if q_seen {
-      Some(BasemlQMatrix::{ average_ts_tv: q_average, rows: q_rows })
+      Some(BasemlQMatrix::{ average_ts_tv: q_average, rows: q_rows, })
     } else {
       None
     },

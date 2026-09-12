@@ -10,7 +10,11 @@ pub struct PDBList {
 
 ///|
 pub fn PDBList::new(pdb_dir : String) -> PDBList {
-  PDBList::{ pdb_dir, obsolete_pdb_dir: pdb_dir + "/obsolete", update_date: "" }
+  PDBList::{
+    pdb_dir,
+    obsolete_pdb_dir: pdb_dir + "/obsolete",
+    update_date: "",
+  }
 }
 
 ///|

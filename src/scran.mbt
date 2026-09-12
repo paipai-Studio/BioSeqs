@@ -229,7 +229,7 @@ pub fn compute_sum_factors(
     i = i + 1
   }
 
-  SizeFactors::{ factors: final_sfs, method: "sum_factors".to_string() }
+  SizeFactors::{ factors: final_sfs, method: "sum_factors".to_string(), }
 }
 
 ///|
@@ -453,7 +453,7 @@ pub fn leiden_clustering(
     i = i + 1
   }
 
-  LeidenClusterResult::{ clusters, resolution, n_clusters: next_id }
+  LeidenClusterResult::{ clusters, resolution, n_clusters: next_id, }
 }
 
 ///|

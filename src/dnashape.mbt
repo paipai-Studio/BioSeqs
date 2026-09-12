@@ -80,7 +80,7 @@ pub fn DnaShapeResult::new(
   values~ : Array[Double],
   positions~ : Array[Int],
 ) -> DnaShapeResult {
-  DnaShapeResult::{ feature, values, positions }
+  DnaShapeResult::{ feature, values, positions, }
 }
 
 ///|
@@ -420,7 +420,7 @@ pub fn dnashape_predict(
       values.push(0.0 / 0.0)
       i = i + 1
     }
-    return DnaShapeResult::{ feature, values, positions }
+    return DnaShapeResult::{ feature, values, positions, }
   }
   // center offset: for k=5, center is at position 2 (0-indexed)
   // for k=4, center is between positions 1 and 2
@@ -462,7 +462,7 @@ pub fn dnashape_predict(
     }
     idx = idx + 1
   }
-  DnaShapeResult::{ feature, values, positions }
+  DnaShapeResult::{ feature, values, positions, }
 }
 
 ///|

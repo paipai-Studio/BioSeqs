@@ -212,7 +212,13 @@ pub fn BanksyClusterConfig::create(
   if seed < 0 {
     raise BanksyError("BANKSY k-means seed must be non-negative")
   }
-  BanksyClusterConfig::{ n_clusters, n_starts, max_iterations, tolerance, seed }
+  BanksyClusterConfig::{
+    n_clusters,
+    n_starts,
+    max_iterations,
+    tolerance,
+    seed,
+  }
 }
 
 ///|
@@ -2028,7 +2034,7 @@ pub fn banksy_spatial_experiment(
   enriched.metadata["banksy_max_harmonic"] = model.max_harmonic().to_string()
   enriched.metadata["banksy_clusters"] = run.clustering.n_clusters().to_string()
   enriched.metadata["banksy_spatial_agreement"] = run.spatial_agreement.to_string()
-  BanksySpatialExperimentOutput::{ experiment: enriched, model, run }
+  BanksySpatialExperimentOutput::{ experiment: enriched, model, run, }
 }
 
 ///|

@@ -101,7 +101,7 @@ pub fn TorsionAngle::new(
   value~ : Double,
   atom_names? : Array[String] = [],
 ) -> TorsionAngle {
-  TorsionAngle::{ name, value, atom_names }
+  TorsionAngle::{ name, value, atom_names, }
 }
 
 ///|
@@ -111,7 +111,7 @@ pub fn BondLength::new(
   atom2~ : String,
   length~ : Double,
 ) -> BondLength {
-  BondLength::{ atom1, atom2, length }
+  BondLength::{ atom1, atom2, length, }
 }
 
 ///|
@@ -122,7 +122,7 @@ pub fn BondAngle::new(
   atom3~ : String,
   angle~ : Double,
 ) -> BondAngle {
-  BondAngle::{ atom1, atom2, atom3, angle }
+  BondAngle::{ atom1, atom2, atom3, angle, }
 }
 
 ///|
@@ -145,7 +145,7 @@ pub fn InternalCoordResidue::new(
 ///|
 /// Create an internal coordinate chain.
 pub fn InternalCoordChain::new(chain_id~ : Char) -> InternalCoordChain {
-  InternalCoordChain::{ chain_id, residues: [] }
+  InternalCoordChain::{ chain_id, residues: [], }
 }
 
 ///|
@@ -168,7 +168,7 @@ pub fn Rotamer::new(
   chi_angles? : Array[Double] = [],
   probability? : Double = 1.0,
 ) -> Rotamer {
-  Rotamer::{ name, chi_angles, probability }
+  Rotamer::{ name, chi_angles, probability, }
 }
 
 ///|
@@ -177,7 +177,7 @@ pub fn RotamerLibraryEntry::new(
   phi~ : Double,
   psi~ : Double,
 ) -> RotamerLibraryEntry {
-  RotamerLibraryEntry::{ phi, psi, residues: [] }
+  RotamerLibraryEntry::{ phi, psi, residues: [], }
 }
 
 // ============================================================================
@@ -1123,7 +1123,7 @@ pub fn ic_chi1_rotamers(resname : String) -> Array[Rotamer] {
           probability: 1.0,
         },
       ]
-    "GLY" => [Rotamer::{ name: "t", chi_angles: [], probability: 1.0 }]
+    "GLY" => [Rotamer::{ name: "t", chi_angles: [], probability: 1.0, }]
     "PRO" =>
       [
         Rotamer::{
@@ -1150,7 +1150,7 @@ pub fn ic_chi1_rotamers(resname : String) -> Array[Rotamer] {
           probability: 0.20,
         },
       ]
-    _ => [Rotamer::{ name: "t", chi_angles: [], probability: 1.0 }]
+    _ => [Rotamer::{ name: "t", chi_angles: [], probability: 1.0, }]
   }
 }
 
@@ -1243,7 +1243,7 @@ pub fn InternalCoordChain::add_residue(
 ) -> InternalCoordChain {
   let new_residues = self.residues.copy()
   new_residues.push(res)
-  InternalCoordChain::{ chain_id: self.chain_id, residues: new_residues }
+  InternalCoordChain::{ chain_id: self.chain_id, residues: new_residues, }
 }
 
 ///|

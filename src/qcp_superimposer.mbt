@@ -21,7 +21,7 @@ pub fn QCPAtomCoordinate::new(
   y : Double,
   z : Double,
 ) -> QCPAtomCoordinate {
-  QCPAtomCoordinate::{ x, y, z }
+  QCPAtomCoordinate::{ x, y, z, }
 }
 
 ///|
@@ -549,7 +549,7 @@ pub fn QCPSuperimposer::set(
 
   let rmsd = qcp_calculate_rmsd(fixed, moving, rot, tran)
 
-  QCPSuperimposer::{ rot, tran, rmsd }
+  QCPSuperimposer::{ rot, tran, rmsd, }
 }
 
 ///|

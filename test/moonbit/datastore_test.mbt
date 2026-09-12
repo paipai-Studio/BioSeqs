@@ -16,7 +16,9 @@ test "md5_hex_rfc1321_vectors" {
     "d174ab98d277d9f5a5611c2c9f419d9f",
   )
   assert_eq(
-    @src.md5_hex("12345678901234567890123456789012345678901234567890123456789012345678901234567890"),
+    @src.md5_hex(
+      "12345678901234567890123456789012345678901234567890123456789012345678901234567890",
+    ),
     "57edf4a22be3c955ac49da2e2107b67a",
   )
 }
@@ -35,10 +37,7 @@ test "md5_hex_block_boundaries" {
   assert_eq(seq.length(), 1000)
   assert_eq(@src.md5_hex(seq), "dee764dc7924160b161de01b8c77167c")
   // Multi-byte UTF-8 characters are hashed over their UTF-8 bytes.
-  assert_eq(
-    @src.md5_hex("café résumé"),
-    "10871a98898bc4c0980b3224dddbc33f",
-  )
+  assert_eq(@src.md5_hex("café résumé"), "10871a98898bc4c0980b3224dddbc33f")
 }
 
 ///|
@@ -82,9 +81,7 @@ test "datastore_manifest_and_verify" {
   // Manifest lines are sorted by payload name.
   assert_eq(lines[0], s2 + "  data/align.fasta")
   assert_eq(lines[1], s1 + "  data/tree.newick")
-  assert_true(
-    bag.manifest_md5_txt().contains(s2 + "  data/align.fasta\n"),
-  )
+  assert_true(bag.manifest_md5_txt().contains(s2 + "  data/align.fasta\n"))
   assert_true(bag.verify())
   // Entry accessor.
   let entry = bag.entry("tree.newick")
@@ -115,11 +112,11 @@ test "datastore_load_bag_verify_detects_corruption" {
   // With the correct checksum the bag verifies.
   let sum = @src.md5_hex(good)
   let ok_manifest = sum + "  data/tree.newick\n"
-  let ok_bag = @src.Datastore::load_bag(
-    root="ok",
-    manifest_text=ok_manifest,
-    loader=fn(_) { Some(good) },
-  )
+  let ok_bag = @src.Datastore::load_bag(root="ok", manifest_text=ok_manifest, loader=fn(
+    _,
+  ) {
+    Some(good)
+  })
   assert_true(ok_bag.verify())
 }
 
@@ -139,11 +136,11 @@ test "datastore_load_bag_errors" {
   assert_true(result)
   // Malformed line.
   let result2 = try {
-    let _ = @src.Datastore::load_bag(
-      root="b",
-      manifest_text="no-hash-here\n",
-      loader=fn(_) { Some("x") },
-    )
+    let _ = @src.Datastore::load_bag(root="b", manifest_text="no-hash-here\n", loader=fn(
+      _,
+    ) {
+      Some("x")
+    })
     false
   } catch {
     DatastoreError(msg) => msg.contains("Malformed")
@@ -175,11 +172,11 @@ test "datastore_load_bag_errors" {
   assert_true(result4)
   // Empty manifest.
   let result5 = try {
-    let _ = @src.Datastore::load_bag(
-      root="b",
-      manifest_text="\n",
-      loader=fn(_) { Some("x") },
-    )
+    let _ = @src.Datastore::load_bag(root="b", manifest_text="\n", loader=fn(
+      _,
+    ) {
+      Some("x")
+    })
     false
   } catch {
     DatastoreError(msg) => msg.contains("Empty manifest")

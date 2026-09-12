@@ -64,7 +64,7 @@ priv struct RNGState {
 ///|
 /// Create a new RNG state with seed.
 fn rng_new(seed : Int) -> RNGState {
-  RNGState::{ state: seed }
+  RNGState::{ state: seed, }
 }
 
 ///|
@@ -72,7 +72,7 @@ fn rng_new(seed : Int) -> RNGState {
 fn rng_next(state : RNGState) -> (RNGState, Double) {
   let next_state = (state.state * 1103515245 + 12345) & 0x7FFFFFFF
   let value = next_state.to_double() / 2147483648.0
-  (RNGState::{ state: next_state }, value)
+  (RNGState::{ state: next_state, }, value)
 }
 
 ///|
@@ -564,7 +564,7 @@ pub fn svd_options_full(
   n_oversamples : Int,
   method : SVDMethod,
 ) -> SVDOptions {
-  SVDOptions::{ method, rank, tol, max_iter, n_oversamples }
+  SVDOptions::{ method, rank, tol, max_iter, n_oversamples, }
 }
 
 // ============================================================================
@@ -632,7 +632,7 @@ pub fn run_exact_svd(
       u.push(u_col)
     }
 
-    SVResult::{ d, u, v, nrow, ncol, rank: effective_rank }
+    SVResult::{ d, u, v, nrow, ncol, rank: effective_rank, }
   } else {
     let aat = svd_aat(matrix, nrow, ncol)
     let (eigenvalues, eigenvectors) = eigh_symmetric(aat, nrow)
@@ -670,7 +670,7 @@ pub fn run_exact_svd(
       v.push(v_col)
     }
 
-    SVResult::{ d, u, v, nrow, ncol, rank: effective_rank }
+    SVResult::{ d, u, v, nrow, ncol, rank: effective_rank, }
   }
 }
 
@@ -1076,7 +1076,7 @@ pub fn run_randomized_svd(
     u.push(u_col)
   }
 
-  SVResult::{ d, u, v, nrow, ncol, rank: effective_rank }
+  SVResult::{ d, u, v, nrow, ncol, rank: effective_rank, }
 }
 
 // ============================================================================
@@ -1109,7 +1109,7 @@ pub fn sv_result_new(
   ncol : Int,
   rank : Int,
 ) -> SVResult {
-  SVResult::{ d, u, v, nrow, ncol, rank }
+  SVResult::{ d, u, v, nrow, ncol, rank, }
 }
 
 ///|

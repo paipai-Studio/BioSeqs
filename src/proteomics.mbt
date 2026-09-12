@@ -129,10 +129,10 @@ pub fn proteomics_select_enzyme(name : String) -> CleavageAgent? {
       let mut i = 0
       while i < residues.length() {
         let r = residues[i:i + 1].to_owned()
-        sites.push(CleavageSite::{ position: 0, residue: r, probability: 1.0 })
+        sites.push(CleavageSite::{ position: 0, residue: r, probability: 1.0, })
         i = i + 1
       }
-      Some(CleavageAgent::{ name: key, cleavage_sites: sites })
+      Some(CleavageAgent::{ name: key, cleavage_sites: sites, })
     }
     None => None
   }
@@ -412,7 +412,7 @@ pub fn proteomics_isotope_pattern(
     j = j + 1
   }
 
-  IsotopePattern::{ masses, abundances: normalized, charge }
+  IsotopePattern::{ masses, abundances: normalized, charge, }
 }
 
 ///|

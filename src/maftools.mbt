@@ -407,7 +407,7 @@ pub fn generate_oncoplot_data(maf : MAFData, top_n : Int) -> OncoplotData {
     i = i + 1
   }
 
-  OncoplotData::{ genes: sorted_genes, samples, mutation_matrix }
+  OncoplotData::{ genes: sorted_genes, samples, mutation_matrix, }
 }
 
 ///|
@@ -473,7 +473,7 @@ pub fn decompose_mutational_signatures(
   while i < reference_signatures.length() {
     let sig = reference_signatures[i]
     let contribution = sig.contribution * total_mutations
-    results.push(MutationalSignature::{ name: sig.name, contribution })
+    results.push(MutationalSignature::{ name: sig.name, contribution, })
     i = i + 1
   }
 

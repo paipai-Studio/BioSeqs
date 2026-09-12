@@ -66,8 +66,11 @@ fn ebseq_lgamma(x : Double) -> Double {
   }
   // Stirling's approximation with correction terms for x >= 8
   let ln_x = @math.ln(x)
-  0.5 * 0.9189385332046727 + (x - 0.5) * ln_x - x + 1.0 / (12.0 * x) -
-    1.0 / (360.0 * x * x * x)
+  0.5 * 0.9189385332046727 +
+  (x - 0.5) * ln_x -
+  x +
+  1.0 / (12.0 * x) -
+  1.0 / (360.0 * x * x * x)
 }
 
 ///|
@@ -82,9 +85,11 @@ fn ebseq_nb_log_pmf(k : Double, mu : Double, r : Double) -> Double {
   let r_plus_mu = r + mu
   let log_r_over_rmu = @math.ln(r / r_plus_mu)
   let log_mu_over_rmu = @math.ln(mu / r_plus_mu)
-  ebseq_lgamma(k + r) - ebseq_lgamma(k + 1.0) - ebseq_lgamma(r) +
-    r * log_r_over_rmu +
-    k * log_mu_over_rmu
+  ebseq_lgamma(k + r) -
+  ebseq_lgamma(k + 1.0) -
+  ebseq_lgamma(r) +
+  r * log_r_over_rmu +
+  k * log_mu_over_rmu
 }
 
 ///|
@@ -163,7 +168,9 @@ pub fn ebseq_estimate_size_factors(data : EBSeqDataSet) -> EBSeqDataSet {
         ratios.push(data.counts[i][j].to_double() / geo_means[i])
       }
     }
-    let median_val = if ratios.length() > 0 { ebseq_median(ratios) } else {
+    let median_val = if ratios.length() > 0 {
+      ebseq_median(ratios)
+    } else {
       1.0
     }
     size_factors.push(median_val)
@@ -218,9 +225,7 @@ pub fn ebseq_estimate_dispersion(data : EBSeqDataSet) -> EBSeqDataSet {
     let norm_counts : Array[Double] = Array::new()
     for j = 0; j < n_samples; j = j + 1 {
       if data.size_factors[j] > 0.0 {
-        norm_counts.push(
-          data.counts[i][j].to_double() / data.size_factors[j],
-        )
+        norm_counts.push(data.counts[i][j].to_double() / data.size_factors[j])
       } else {
         norm_counts.push(data.counts[i][j].to_double())
       }
@@ -259,8 +264,7 @@ pub fn ebseq_estimate_dispersion(data : EBSeqDataSet) -> EBSeqDataSet {
   let final_dispersions : Array[Double] = Array::new()
   for i = 0; i < n_genes; i = i + 1 {
     let raw_disp = raw_dispersions[i]
-    let prior_disp = alpha_trend +
-      beta_trend * @math.exp(-norm_means[i])
+    let prior_disp = alpha_trend + beta_trend * @math.exp(-norm_means[i])
     // Shrinkage: weight raw estimate based on sample size
     let weight = 1.0 / (1.0 + 2.0 / n_samples.to_double())
     let shrunk = (1.0 - weight) * prior_disp + weight * raw_disp
@@ -332,15 +336,13 @@ fn ebseq_marginal_ee(
   for j in cond1_idx {
     let mu = size_factors[j] * q_hat
     if mu > 0.0 {
-      fisher = fisher +
-        size_factors[j] * size_factors[j] * r / (mu * (r + mu))
+      fisher = fisher + size_factors[j] * size_factors[j] * r / (mu * (r + mu))
     }
   }
   for j in cond2_idx {
     let mu = size_factors[j] * q_hat
     if mu > 0.0 {
-      fisher = fisher +
-        size_factors[j] * size_factors[j] * r / (mu * (r + mu))
+      fisher = fisher + size_factors[j] * size_factors[j] * r / (mu * (r + mu))
     }
   }
 
@@ -509,10 +511,14 @@ pub fn ebseq_ppde(data : EBSeqDataSet) -> Array[Double] {
 
     // log_den = log(exp(log_den_ee) + exp(log_den_de))
     //         = log_den_max + log(1 + exp(log_den_min - log_den_max))
-    let log_den_max = if log_den_ee > log_den_de { log_den_ee } else {
+    let log_den_max = if log_den_ee > log_den_de {
+      log_den_ee
+    } else {
       log_den_de
     }
-    let log_den_min = if log_den_ee > log_den_de { log_den_de } else {
+    let log_den_min = if log_den_ee > log_den_de {
+      log_den_de
+    } else {
       log_den_ee
     }
     let diff = log_den_min - log_den_max
@@ -568,8 +574,7 @@ pub fn ebseq_test(
     let mut sum_c1 = 0.0
     for j in cond1_idx {
       if data.size_factors[j] > 0.0 {
-        sum_c1 = sum_c1 +
-          data.counts[i][j].to_double() / data.size_factors[j]
+        sum_c1 = sum_c1 + data.counts[i][j].to_double() / data.size_factors[j]
       }
     }
     let m1 = if cond1_idx.length() > 0 {
@@ -582,8 +587,7 @@ pub fn ebseq_test(
     let mut sum_c2 = 0.0
     for j in cond2_idx {
       if data.size_factors[j] > 0.0 {
-        sum_c2 = sum_c2 +
-          data.counts[i][j].to_double() / data.size_factors[j]
+        sum_c2 = sum_c2 + data.counts[i][j].to_double() / data.size_factors[j]
       }
     }
     let m2 = if cond2_idx.length() > 0 {
@@ -686,13 +690,12 @@ pub fn ebseq_top_genes(
 /// and genes 10-19 are equally expressed.
 pub fn ebseq_sample_dataset() -> EBSeqDataSet {
   let gene_names = [
-    "GeneA", "GeneB", "GeneC", "GeneD", "GeneE", "GeneF", "GeneG", "GeneH",
-    "GeneI", "GeneJ", "GeneK", "GeneL", "GeneM", "GeneN", "GeneO", "GeneP",
-    "GeneQ", "GeneR", "GeneS", "GeneT",
+    "GeneA", "GeneB", "GeneC", "GeneD", "GeneE", "GeneF", "GeneG", "GeneH", "GeneI",
+    "GeneJ", "GeneK", "GeneL", "GeneM", "GeneN", "GeneO", "GeneP", "GeneQ", "GeneR",
+    "GeneS", "GeneT",
   ]
   let sample_names = [
-    "Cond1_Rep1", "Cond1_Rep2", "Cond1_Rep3", "Cond2_Rep1", "Cond2_Rep2",
-    "Cond2_Rep3",
+    "Cond1_Rep1", "Cond1_Rep2", "Cond1_Rep3", "Cond2_Rep1", "Cond2_Rep2", "Cond2_Rep3",
   ]
   let conditions = [0, 0, 0, 1, 1, 1]
 

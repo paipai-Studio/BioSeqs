@@ -82,7 +82,7 @@ pub struct VSNControl {
 
 ///|
 pub fn VSNControl::new() -> VSNControl {
-  VSNControl::{ n_bins: 20, min_bin_count: 5, max_iter: 20, lts_frac: 0.9 }
+  VSNControl::{ n_bins: 20, min_bin_count: 5, max_iter: 20, lts_frac: 0.9, }
 }
 
 // ---- core transform -------------------------------------------------------
@@ -314,13 +314,13 @@ fn vsn_fit_col(
     ref_ms.push((bin_x[t], bin_y[t]))
     t = t + 1
   }
-  (VSNColParam::{ a, b: bb }, ref_ms)
+  (VSNColParam::{ a, b: bb, }, ref_ms)
 }
 
 ///|
 fn vsn_fit(mat : Array[Array[Double]], ctrl : VSNControl) -> VSNResult {
   if mat.length() == 0 {
-    return VSNResult::{ params: [], reference_mean_sd: [] }
+    return VSNResult::{ params: [], reference_mean_sd: [], }
   }
   let cols = mat[0].length()
   let params : Array[VSNColParam] = Array::new()
@@ -334,7 +334,7 @@ fn vsn_fit(mat : Array[Array[Double]], ctrl : VSNControl) -> VSNResult {
     }
     j = j + 1
   }
-  VSNResult::{ params, reference_mean_sd: ref_out }
+  VSNResult::{ params, reference_mean_sd: ref_out, }
 }
 
 ///|
@@ -443,7 +443,7 @@ pub fn mean_sd_bins(
       t = t + 1
     }
     let cnt_d = cnt.to_double()
-    out.push(MeanSDBin::{ mean_x: sx / cnt_d, sd_y: sy / cnt_d, count: cnt })
+    out.push(MeanSDBin::{ mean_x: sx / cnt_d, sd_y: sy / cnt_d, count: cnt, })
     start = end
   }
   out

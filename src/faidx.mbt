@@ -35,7 +35,7 @@ pub fn FaiRecord::new(
   line_len : Int,
   line_blen : Int,
 ) -> FaiRecord {
-  FaiRecord::{ name, length, offset, line_len, line_blen }
+  FaiRecord::{ name, length, offset, line_len, line_blen, }
 }
 
 ///|
@@ -100,7 +100,7 @@ pub fn parse_fai(content : String) -> FastaIndex raise FastaIndexError {
     records.push(FaiRecord::new(name, length, offset, line_len, line_blen))
     index[name] = idx
   }
-  FastaIndex::{ records, index }
+  FastaIndex::{ records, index, }
 }
 
 ///|
@@ -224,7 +224,7 @@ pub fn build_fai(content : String) -> FastaIndex {
     index[name] = idx
     pos = scan_pos
   }
-  FastaIndex::{ records, index }
+  FastaIndex::{ records, index, }
 }
 
 ///|
@@ -265,14 +265,14 @@ pub fn Fasta::new(
   fai_content : String,
 ) -> Fasta raise FastaIndexError {
   let index = parse_fai(fai_content)
-  Fasta::{ content: fasta_content, index }
+  Fasta::{ content: fasta_content, index, }
 }
 
 ///|
 /// Create a Fasta from FASTA content by building the index on-the-fly.
 pub fn Fasta::from_content(content : String) -> Fasta {
   let index = build_fai(content)
-  Fasta::{ content, index }
+  Fasta::{ content, index, }
 }
 
 ///|

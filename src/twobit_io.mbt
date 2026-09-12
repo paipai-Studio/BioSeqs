@@ -37,7 +37,7 @@ pub struct TwoBitNBlock {
 ///|
 /// Construct an N-block at `start` spanning `size` bases.
 pub fn TwoBitNBlock::new(start : Int, size : Int) -> TwoBitNBlock {
-  TwoBitNBlock::{ start, size }
+  TwoBitNBlock::{ start, size, }
 }
 
 ///|
@@ -83,7 +83,7 @@ pub struct TwoBitMaskBlock {
 ///|
 /// Construct a mask-block at `start` spanning `size` bases.
 pub fn TwoBitMaskBlock::new(start : Int, size : Int) -> TwoBitMaskBlock {
-  TwoBitMaskBlock::{ start, size }
+  TwoBitMaskBlock::{ start, size, }
 }
 
 ///|
@@ -221,7 +221,7 @@ pub struct TwoBitFile {
 ///|
 /// Construct an empty TwoBitFile (version 0).
 pub fn TwoBitFile::new() -> TwoBitFile {
-  TwoBitFile::{ sequences: Array::new(), version: twobit_version }
+  TwoBitFile::{ sequences: Array::new(), version: twobit_version, }
 }
 
 ///|
@@ -657,7 +657,7 @@ pub fn twobit_from_bytes(data : Array[Int]) -> TwoBitFile {
     seq.mask_blocks = mask_blocks
     sequences.push(seq)
   }
-  TwoBitFile::{ sequences, version }
+  TwoBitFile::{ sequences, version, }
 }
 
 // ============================================================================

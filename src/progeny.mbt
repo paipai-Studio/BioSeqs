@@ -241,7 +241,7 @@ pub fn PathwayGeneSet::new(
   genes : Array[String],
   weights : Array[Double],
 ) -> PathwayGeneSet {
-  PathwayGeneSet::{ pathway_name, genes, weights }
+  PathwayGeneSet::{ pathway_name, genes, weights, }
 }
 
 ///|
@@ -261,7 +261,7 @@ pub fn ProgenyData::new(
   pathways : Array[PathwayGeneSet],
   lambda : Double,
 ) -> ProgenyData {
-  ProgenyData::{ expression, sample_names, gene_names, pathways, lambda }
+  ProgenyData::{ expression, sample_names, gene_names, pathways, lambda, }
 }
 
 ///|
@@ -277,7 +277,7 @@ pub fn ProgenyResult::new(
   pathway_names : Array[String],
   activity_matrix : Array[Array[Double]],
 ) -> ProgenyResult {
-  ProgenyResult::{ sample_names, pathway_names, activity_matrix }
+  ProgenyResult::{ sample_names, pathway_names, activity_matrix, }
 }
 
 ///|

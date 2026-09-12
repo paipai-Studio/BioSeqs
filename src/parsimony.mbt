@@ -26,7 +26,7 @@ pub fn ParsimonyMatrix::new(
   states : Array[String],
   costs : Array[Array[Double]],
 ) -> ParsimonyMatrix {
-  ParsimonyMatrix::{ states, costs }
+  ParsimonyMatrix::{ states, costs, }
 }
 
 ///|

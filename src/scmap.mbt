@@ -37,7 +37,7 @@ pub fn ScmapReference::new(
   cell_types : Array[String],
   expression : Array[Array[Double]],
 ) -> ScmapReference {
-  { gene_names, cell_names, cell_types, expression }
+  { gene_names, cell_names, cell_types, expression, }
 }
 
 ///|
@@ -102,7 +102,7 @@ pub fn ScmapQuery::new(
   cell_names : Array[String],
   expression : Array[Array[Double]],
 ) -> ScmapQuery {
-  { gene_names, cell_names, expression }
+  { gene_names, cell_names, expression, }
 }
 
 ///|

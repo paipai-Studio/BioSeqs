@@ -14,7 +14,7 @@ pub fn cluster_result(
   distances : Array[Array[Double]],
   cluster_labels : Array[Int],
 ) -> ClusterResult {
-  ClusterResult::{ clusters, distances, cluster_labels }
+  ClusterResult::{ clusters, distances, cluster_labels, }
 }
 
 ///|
@@ -114,7 +114,7 @@ pub fn single_linkage_clustering(
     }
   }
 
-  ClusterResult::{ clusters, distances, cluster_labels }
+  ClusterResult::{ clusters, distances, cluster_labels, }
 }
 
 ///|
@@ -195,7 +195,7 @@ pub fn complete_linkage_clustering(
     }
   }
 
-  ClusterResult::{ clusters, distances, cluster_labels }
+  ClusterResult::{ clusters, distances, cluster_labels, }
 }
 
 ///|
@@ -280,7 +280,7 @@ pub fn average_linkage_clustering(
     final_clusters[i] = clusters[i]
   }
 
-  ClusterResult::{ clusters: final_clusters, distances, cluster_labels }
+  ClusterResult::{ clusters: final_clusters, distances, cluster_labels, }
 }
 
 ///|

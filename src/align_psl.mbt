@@ -533,7 +533,7 @@ pub fn PslWriteConfig::create(
     code == '\r'.to_int() {
     psl_fail("PSL wildcard must be a printable non-delimiter character")
   }
-  PslWriteConfig::{ header, pslx, recount, mask, wildcard }
+  PslWriteConfig::{ header, pslx, recount, mask, wildcard, }
 }
 
 ///|
@@ -1345,7 +1345,7 @@ pub fn psl_parse(content : String) -> PslDocument raise PslError {
     }
     index = index + 1
   }
-  PslDocument::{ version, has_header, alignments }
+  PslDocument::{ version, has_header, alignments, }
 }
 
 ///|

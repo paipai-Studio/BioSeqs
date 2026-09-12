@@ -17,7 +17,7 @@ pub struct RDPoint3D {
 ///|
 /// Create a new RDPoint3D.
 pub fn RDPoint3D::new(x : Double, y : Double, z : Double) -> RDPoint3D {
-  RDPoint3D::{ x, y, z }
+  RDPoint3D::{ x, y, z, }
 }
 
 ///|
@@ -79,7 +79,7 @@ pub fn RDAtom::new(
   coord : RDPoint3D,
   element : String,
 ) -> RDAtom {
-  RDAtom::{ name, coord, element }
+  RDAtom::{ name, coord, element, }
 }
 
 ///|
@@ -97,7 +97,7 @@ pub fn RDResidue::new(
   resseq : Int,
   atoms : Array[RDAtom],
 ) -> RDResidue {
-  RDResidue::{ resname, resseq, atoms }
+  RDResidue::{ resname, resseq, atoms, }
 }
 
 ///|
@@ -159,7 +159,7 @@ pub fn RDResult::new(
   ca_sasa : Double,
   com_sasa : Double,
 ) -> RDResult {
-  RDResult::{ resseq, resname, ca_depth, com_depth, ca_sasa, com_sasa }
+  RDResult::{ resseq, resname, ca_depth, com_depth, ca_sasa, com_sasa, }
 }
 
 ///|

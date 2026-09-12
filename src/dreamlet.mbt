@@ -279,7 +279,11 @@ fn dreamlet_validate_count_matrix(
 
 ///|
 pub fn dreamlet_numeric_effect(name : String) -> DreamletEffectSpec {
-  DreamletEffectSpec::{ name, kind: DreamletEffectKind::Numeric, reference: "" }
+  DreamletEffectSpec::{
+    name,
+    kind: DreamletEffectKind::Numeric,
+    reference: "",
+  }
 }
 
 ///|
@@ -287,12 +291,16 @@ pub fn dreamlet_categorical_effect(
   name : String,
   reference? : String = "",
 ) -> DreamletEffectSpec {
-  DreamletEffectSpec::{ name, kind: DreamletEffectKind::Categorical, reference }
+  DreamletEffectSpec::{
+    name,
+    kind: DreamletEffectKind::Categorical,
+    reference,
+  }
 }
 
 ///|
 pub fn dreamlet_random_effect(name : String) -> DreamletEffectSpec {
-  DreamletEffectSpec::{ name, kind: DreamletEffectKind::Random, reference: "" }
+  DreamletEffectSpec::{ name, kind: DreamletEffectKind::Random, reference: "", }
 }
 
 ///|
@@ -331,7 +339,7 @@ pub fn dreamlet_model(
   if !intercept && fixed_effects == 0 {
     dreamlet_fail("dreamlet model must contain at least one fixed coefficient")
   }
-  DreamletModelSpec::{ effects: effects.copy(), intercept }
+  DreamletModelSpec::{ effects: effects.copy(), intercept, }
 }
 
 ///|
@@ -532,7 +540,7 @@ pub fn dreamlet_aggregate_to_pseudobulk(
       metadata: dreamlet_copy_metadata(sample_metadata),
     })
   }
-  DreamletPseudobulk::{ gene_names: gene_names.copy(), sample_names, assays }
+  DreamletPseudobulk::{ gene_names: gene_names.copy(), sample_names, assays, }
 }
 
 ///|
@@ -751,7 +759,7 @@ pub fn dreamlet_tmm(
   for sample in 0..<samples {
     factors[sample] = factors[sample] / scale
   }
-  DreamletTmmResult::{ factors, reference_sample: reference }
+  DreamletTmmResult::{ factors, reference_sample: reference, }
 }
 
 ///|
@@ -1253,7 +1261,7 @@ pub fn dreamlet_process_assays(
     }
     dreamlet_fail("dreamlet retained no assays" + reason)
   }
-  DreamletProcessedData::{ assays, exclusions, config }
+  DreamletProcessedData::{ assays, exclusions, config, }
 }
 
 ///|

@@ -34,7 +34,7 @@ pub fn CapsDifferentialCutsite::new(
   cuts_in : Array[Int],
   blocked_in : Array[Int],
 ) -> CapsDifferentialCutsite {
-  { start, enzyme_name, cuts_in, blocked_in }
+  { start, enzyme_name, cuts_in, blocked_in, }
 }
 
 ///|
@@ -133,7 +133,7 @@ pub fn caps_map(
   // Validate equal lengths
   let n = sequences.length()
   if n == 0 {
-    return { sequences, sequence_names: [], enzymes, dcuts: [] }
+    return { sequences, sequence_names: [], enzymes, dcuts: [], }
   }
   let expected_len = sequences[0].length()
   let names : Array[String] = []
@@ -144,7 +144,7 @@ pub fn caps_map(
   }
   ignore(expected_len)
   let dcuts = caps_digest(sequences, enzymes)
-  { sequences, sequence_names: names, enzymes, dcuts }
+  { sequences, sequence_names: names, enzymes, dcuts, }
 }
 
 ///|
@@ -155,7 +155,7 @@ pub fn caps_map_named(
   enzymes : Array[RestrictionEnzyme],
 ) -> CapsMap {
   let dcuts = caps_digest(sequences, enzymes)
-  { sequences, sequence_names, enzymes, dcuts }
+  { sequences, sequence_names, enzymes, dcuts, }
 }
 
 ///|

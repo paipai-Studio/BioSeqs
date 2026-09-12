@@ -284,7 +284,7 @@ pub fn GvizTrack::get_data_in_region(
 ///|
 /// Create a genome region.
 pub fn gviz_region(chromosome : String, start : Int, end_ : Int) -> GvizRegion {
-  GvizRegion::{ chromosome, start, end_ }
+  GvizRegion::{ chromosome, start, end_, }
 }
 
 ///|
@@ -295,7 +295,7 @@ pub fn gviz_plot(
   width? : Int = 80,
   height? : Int = 25,
 ) -> GvizPlot {
-  GvizPlot::{ tracks: Array::new(), region, title, width, height }
+  GvizPlot::{ tracks: Array::new(), region, title, width, height, }
 }
 
 ///|

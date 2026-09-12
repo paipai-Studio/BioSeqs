@@ -208,7 +208,7 @@ priv struct CeldaRng {
 ///|
 fn CeldaRng::new(seed : Int) -> CeldaRng {
   let normalized = (seed - 1) % 2147483646 + 1
-  CeldaRng::{ state: normalized }
+  CeldaRng::{ state: normalized, }
 }
 
 ///|
@@ -1445,7 +1445,7 @@ pub fn celda_cg_predict_cells(
     }
     assignments[cell] = best
   }
-  CeldaCGPrediction::{ probabilities, assignments }
+  CeldaCGPrediction::{ probabilities, assignments, }
 }
 
 ///|
@@ -1507,7 +1507,7 @@ pub fn celda_cg_grid_search(
       }
     }
   }
-  CeldaCGGridSearch::{ entries, best_index, criterion }
+  CeldaCGGridSearch::{ entries, best_index, criterion, }
 }
 
 ///|
@@ -1609,7 +1609,7 @@ pub fn celda_cg_sce(
   enriched.metadata["celda_perplexity"] = result.perplexity.to_string()
   enriched.metadata["celda_converged"] = result.diagnostics.converged.to_string()
   enriched.metadata["celda_iterations"] = result.diagnostics.iterations.to_string()
-  CeldaCGSCEOutput::{ experiment: enriched, result }
+  CeldaCGSCEOutput::{ experiment: enriched, result, }
 }
 
 ///|

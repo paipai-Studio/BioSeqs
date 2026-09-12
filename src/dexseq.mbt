@@ -14,7 +14,7 @@ pub fn ExonCount::new(
   exon_id : String,
   counts : Array[Int],
 ) -> ExonCount {
-  ExonCount::{ gene_id, exon_id, counts }
+  ExonCount::{ gene_id, exon_id, counts, }
 }
 
 ///|
@@ -39,7 +39,7 @@ pub fn DEXSeqDataSet::new(
     }
   }
 
-  DEXSeqDataSet::{ exon_counts, sample_groups, gene_ids }
+  DEXSeqDataSet::{ exon_counts, sample_groups, gene_ids, }
 }
 
 ///|

@@ -177,7 +177,7 @@ pub fn PcdPeak::new(
   charge? : Int = 0,
 ) -> PcdPeak {
   let charge_opt = if charge > 0 { Some(charge) } else { None }
-  PcdPeak::{ mz, intensity, charge: charge_opt }
+  PcdPeak::{ mz, intensity, charge: charge_opt, }
 }
 
 // ============================================================================

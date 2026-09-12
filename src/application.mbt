@@ -137,7 +137,7 @@ pub fn CommandlineError::new(
   exit_code : Int,
   command : String,
 ) -> CommandlineError {
-  CommandlineError::{ message, exit_code, command }
+  CommandlineError::{ message, exit_code, command, }
 }
 
 ///|
@@ -147,7 +147,7 @@ pub struct BioApplication {
 
 ///|
 pub fn BioApplication::new(executable : String) -> BioApplication {
-  BioApplication::{ commandline: AbstractCommandline::new(executable) }
+  BioApplication::{ commandline: AbstractCommandline::new(executable), }
 }
 
 ///|

@@ -373,7 +373,7 @@ pub fn FlowSet::new(
   frames : Array[FlowFrame],
   sample_names : Array[String],
 ) -> FlowSet {
-  FlowSet::{ frames, sample_names, pheno_data: Map([], capacity=8) }
+  FlowSet::{ frames, sample_names, pheno_data: Map([], capacity=8), }
 }
 
 ///|
@@ -401,7 +401,7 @@ pub fn Gate::new(
   coordinates : Array[(Double, Double)],
   filter_id : String,
 ) -> Gate {
-  Gate::{ gate_type, parameters, coordinates, filter_id }
+  Gate::{ gate_type, parameters, coordinates, filter_id, }
 }
 
 ///|
@@ -426,7 +426,7 @@ pub fn Transformation::new(
   transform_type : TransformType,
   parameters : Array[Double],
 ) -> Transformation {
-  Transformation::{ transform_type, parameters }
+  Transformation::{ transform_type, parameters, }
 }
 
 ///|
@@ -459,7 +459,7 @@ pub fn CompensationMatrix::new(
     }
     i = i + 1
   }
-  CompensationMatrix::{ matrix, fluorochromes, spillover }
+  CompensationMatrix::{ matrix, fluorochromes, spillover, }
 }
 
 ///|
@@ -498,7 +498,7 @@ pub fn GatingResult::new(
   n_total : Int,
   percentages : Array[Double],
 ) -> GatingResult {
-  GatingResult::{ filtered_events, n_filtered, n_total, percentages }
+  GatingResult::{ filtered_events, n_filtered, n_total, percentages, }
 }
 
 ///|

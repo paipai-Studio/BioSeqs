@@ -23,7 +23,11 @@
 
 ///|
 /// Read a record annotation with a fallback default.
-fn writeext_annotation(rec : SeqRecord, key : String, fallback : String) -> String {
+fn writeext_annotation(
+  rec : SeqRecord,
+  key : String,
+  fallback : String,
+) -> String {
   match rec.annotations.get(key) {
     Some(v) => v
     None => fallback
@@ -47,7 +51,9 @@ fn writeext_split_annotation(value : String) -> Array[String] {
 /// Write records in Swiss-Prot flat file format. A minimal entry is
 /// emitted per record (ID/AC/DE/OS/KW/SQ plus the sequence block), which
 /// round-trips through parse_swiss_records.
-pub fn write_swiss_records(records : Array[SeqRecord]) -> String raise SeqIOError {
+pub fn write_swiss_records(
+  records : Array[SeqRecord],
+) -> String raise SeqIOError {
   let buf = StringBuilder::new()
   for rec in records {
     let seq = rec.seq.to_string()
@@ -56,7 +62,9 @@ pub fn write_swiss_records(records : Array[SeqRecord]) -> String raise SeqIOErro
     buf.write_string("              Standard;       ")
     buf.write_string(seq.length().to_string())
     buf.write_string(" AA.\n")
-    let accessions = writeext_split_annotation(writeext_annotation(rec, "accessions", ""))
+    let accessions = writeext_split_annotation(
+      writeext_annotation(rec, "accessions", ""),
+    )
     if accessions.length() > 0 {
       buf.write_string("AC   ")
       buf.write_string(accessions.join("; "))
@@ -73,7 +81,9 @@ pub fn write_swiss_records(records : Array[SeqRecord]) -> String raise SeqIOErro
       buf.write_string(organism)
       buf.write_string(".\n")
     }
-    let keywords = writeext_split_annotation(writeext_annotation(rec, "keywords", ""))
+    let keywords = writeext_split_annotation(
+      writeext_annotation(rec, "keywords", ""),
+    )
     if keywords.length() > 0 {
       buf.write_string("KW   ")
       buf.write_string(keywords.join("; "))
@@ -156,7 +166,9 @@ fn writeext_location_string(feature : SeqFeature) -> String {
 /// InsdcRecord and reusing the existing record-level writer. Header
 /// metadata is sourced from annotations; features are preserved through
 /// the InsdcFeature feature table.
-pub fn write_embl_records(records : Array[SeqRecord]) -> String raise SeqIOError {
+pub fn write_embl_records(
+  records : Array[SeqRecord],
+) -> String raise SeqIOError {
   let buf = StringBuilder::new()
   for rec in records {
     let seq = rec.seq.to_string()
@@ -166,13 +178,11 @@ pub fn write_embl_records(records : Array[SeqRecord]) -> String raise SeqIOError
       if location.length() == 0 {
         continue
       }
-      features.push(
-        InsdcFeature::{
-          feature_type: feature.feature_type,
-          location_str: location,
-          qualifiers: feature.qualifiers,
-        },
-      )
+      features.push(InsdcFeature::{
+        feature_type: feature.feature_type,
+        location_str: location,
+        qualifiers: feature.qualifiers,
+      })
     }
     let insdc = InsdcRecord::{
       locus_name: rec.name,
@@ -197,7 +207,9 @@ pub fn write_embl_records(records : Array[SeqRecord]) -> String raise SeqIOError
 /// Write records in IMGT format by rebuilding the 13-field header from
 /// annotations (the same keys parse_imgt_records emits) and reusing the
 /// existing imgt_write serializer.
-pub fn write_imgt_records(records : Array[SeqRecord]) -> String raise SeqIOError {
+pub fn write_imgt_records(
+  records : Array[SeqRecord],
+) -> String raise SeqIOError {
   let imgt_records : Array[ImgtRecord] = Array::new()
   for rec in records {
     let header = ImgtHeader::new(
@@ -230,7 +242,9 @@ pub fn write_ig_records(records : Array[SeqRecord]) -> String raise SeqIOError {
 ///|
 /// Write records in SeqXML format, reusing the existing SeqRecord ->
 /// SeqXmlDocument conversion and serializer.
-pub fn write_seqxml_records(records : Array[SeqRecord]) -> String raise SeqIOError {
+pub fn write_seqxml_records(
+  records : Array[SeqRecord],
+) -> String raise SeqIOError {
   seqxml_to_xml(seqxml_from_seq_records(records))
 }
 
@@ -245,7 +259,8 @@ pub fn write_phd_records(records : Array[SeqRecord]) -> String raise SeqIOError 
     let seq = rec.seq.to_string()
     let qualities = match rec.phred_quality() {
       Some(q) => q
-      None => raise SeqIOError("record '" + rec.id + "' lacks phred quality scores")
+      None =>
+        raise SeqIOError("record '" + rec.id + "' lacks phred quality scores")
     }
     if qualities.length() != seq.length() {
       raise SeqIOError(

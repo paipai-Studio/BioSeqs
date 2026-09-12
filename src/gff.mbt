@@ -177,7 +177,7 @@ pub fn GFFRecord::add_sequence(
 
 ///|
 pub fn GFFRecord::set_version(self : GFFRecord, version : String) -> GFFRecord {
-  GFFRecord::{ features: self.features, sequences: self.sequences, version }
+  GFFRecord::{ features: self.features, sequences: self.sequences, version, }
 }
 
 ///|

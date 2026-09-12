@@ -160,7 +160,7 @@ fn align_sam_copy_fields(
 ) -> Array[AlignSamHeaderField] {
   let copy : Array[AlignSamHeaderField] = []
   for value in values {
-    copy.push(AlignSamHeaderField::{ key: value.key, value: value.value })
+    copy.push(AlignSamHeaderField::{ key: value.key, value: value.value, })
   }
   copy
 }
@@ -406,7 +406,7 @@ pub fn align_sam_parse_cigar(
     if !align_sam_is_clip(operation) && !align_sam_is_core(operation) {
       align_sam_fail("unknown CIGAR operation " + operation)
     }
-    elements.push(AlignSamCigarElement::{ operation, length })
+    elements.push(AlignSamCigarElement::{ operation, length, })
     index = index + 1
     start = index
   }
@@ -679,7 +679,7 @@ fn align_sam_parse_tag(field : String) -> AlignSamTag raise AlignSamError {
     align_sam_fail("unknown SAM optional tag datatype " + datatype)
     SamTagString("")
   }
-  AlignSamTag::{ name, value }
+  AlignSamTag::{ name, value, }
 }
 
 ///|
@@ -721,7 +721,7 @@ pub fn align_sam_integer_tag(
   value : Int,
 ) -> AlignSamTag raise AlignSamError {
   align_sam_validate_tag_name(name)
-  AlignSamTag::{ name, value: SamTagInteger(value) }
+  AlignSamTag::{ name, value: SamTagInteger(value), }
 }
 
 ///|
@@ -733,7 +733,7 @@ pub fn align_sam_float_tag(
   if value.abs() > 1.0e300 {
     align_sam_fail("SAM floating-point tag value must be finite")
   }
-  AlignSamTag::{ name, value: SamTagFloat(value) }
+  AlignSamTag::{ name, value: SamTagFloat(value), }
 }
 
 ///|
@@ -810,7 +810,7 @@ fn align_sam_parse_header(line : String) -> AlignSamHeader raise AlignSamError {
       }
       comment = comment + parts[index]
     }
-    return AlignSamHeader::{ record_type, fields: [], comment }
+    return AlignSamHeader::{ record_type, fields: [], comment, }
   }
   let fields : Array[AlignSamHeaderField] = []
   let seen : Map[String, Bool] = Map([])
@@ -832,9 +832,9 @@ fn align_sam_parse_header(line : String) -> AlignSamHeader raise AlignSamError {
       align_sam_fail("duplicate SAM header field " + key)
     }
     seen[key] = true
-    fields.push(AlignSamHeaderField::{ key, value })
+    fields.push(AlignSamHeaderField::{ key, value, })
   }
-  AlignSamHeader::{ record_type, fields, comment: "" }
+  AlignSamHeader::{ record_type, fields, comment: "", }
 }
 
 ///|
@@ -883,7 +883,7 @@ fn align_sam_parse_reference(
       })
     }
   }
-  AlignSamReference::{ name, length, annotations }
+  AlignSamReference::{ name, length, annotations, }
 }
 
 ///|
@@ -1276,7 +1276,7 @@ pub fn align_sam_parse(text : String) -> AlignSamDocument raise AlignSamError {
       alignments.push(align_sam_parse_alignment(line, references))
     }
   }
-  AlignSamDocument::{ headers, references, alignments }
+  AlignSamDocument::{ headers, references, alignments, }
 }
 
 ///|

@@ -197,7 +197,7 @@ pub fn FragmentResidue::new(
   is_c_alpha? : Bool = false,
   is_sidechain? : Bool = false,
 ) -> FragmentResidue {
-  FragmentResidue::{ res_name, res_num, atom_count, is_c_alpha, is_sidechain }
+  FragmentResidue::{ res_name, res_num, atom_count, is_c_alpha, is_sidechain, }
 }
 
 // ---------------------------------------------------------------------------

@@ -38,7 +38,7 @@ test "matrixeqtl_linear_regression_negative_slope" {
   let y = [8.51, 7.01, 5.49, 3.99, 2.51, 1.01, -0.49, -1.99]
   let (beta, t_stat, p_value) = @src.matrixeqtl_linear_regression(x, y)
 
-  assert_true((beta - (-1.5)).abs() < 0.05)
+  assert_true((beta - -1.5).abs() < 0.05)
   assert_true(t_stat < -50.0)
   assert_true(p_value < 0.001)
 }
@@ -144,11 +144,7 @@ test "matrixeqtl_input_new" {
   let sample_names = ["S1", "S2", "S3"]
 
   let input = @src.MatrixEQTLInput::new(
-    snps,
-    gene_expression,
-    snp_names,
-    gene_names,
-    sample_names,
+    snps, gene_expression, snp_names, gene_names, sample_names,
   )
 
   assert_eq(input.snps.length(), 2)
@@ -177,16 +173,10 @@ test "matrixeqtl_run_synthetic" {
   ]
   let snp_names = ["SNP1", "SNP2"]
   let gene_names = ["GeneA", "GeneB"]
-  let sample_names = [
-    "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8",
-  ]
+  let sample_names = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"]
 
   let input = @src.MatrixEQTLInput::new(
-    snps,
-    gene_expression,
-    snp_names,
-    gene_names,
-    sample_names,
+    snps, gene_expression, snp_names, gene_names, sample_names,
   )
   let output = @src.matrixeqtl_run(input)
 
@@ -212,16 +202,10 @@ test "matrixeqtl_run_with_threshold" {
   ]
   let snp_names = ["SNP1", "SNP2"]
   let gene_names = ["GeneA", "GeneB"]
-  let sample_names = [
-    "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8",
-  ]
+  let sample_names = ["S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8"]
 
   let input = @src.MatrixEQTLInput::new(
-    snps,
-    gene_expression,
-    snp_names,
-    gene_names,
-    sample_names,
+    snps, gene_expression, snp_names, gene_names, sample_names,
   )
   let output_strict = @src.matrixeqtl_run(input, pv_threshold=0.001)
   let output_relaxed = @src.matrixeqtl_run(input, pv_threshold=0.5)
@@ -252,11 +236,7 @@ test "matrixeqtl_run_empty_input" {
   let sample_names : Array[String] = []
 
   let input = @src.MatrixEQTLInput::new(
-    snps,
-    gene_expression,
-    snp_names,
-    gene_names,
-    sample_names,
+    snps, gene_expression, snp_names, gene_names, sample_names,
   )
   let output = @src.matrixeqtl_run(input)
 

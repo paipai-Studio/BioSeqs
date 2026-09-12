@@ -19,7 +19,13 @@
 // BLAS / Linpack helpers (column-major, 0-based, unit increments)
 // ===========================================================================
 
-fn _lb_ddot(n : Int, x : Array[Double], x0 : Int, y : Array[Double], y0 : Int) -> Double {
+fn _lb_ddot(
+  n : Int,
+  x : Array[Double],
+  x0 : Int,
+  y : Array[Double],
+  y0 : Int,
+) -> Double {
   let mut s = 0.0
   let mut k = 0
   while k < n {
@@ -29,7 +35,14 @@ fn _lb_ddot(n : Int, x : Array[Double], x0 : Int, y : Array[Double], y0 : Int) -
   s
 }
 
-fn _lb_dcopy(n : Int, x : Array[Double], x0 : Int, y : Array[Double], y0 : Int) -> Unit {
+///|
+fn _lb_dcopy(
+  n : Int,
+  x : Array[Double],
+  x0 : Int,
+  y : Array[Double],
+  y0 : Int,
+) -> Unit {
   let mut k = 0
   while k < n {
     y[y0 + k] = x[x0 + k]
@@ -37,6 +50,7 @@ fn _lb_dcopy(n : Int, x : Array[Double], x0 : Int, y : Array[Double], y0 : Int) 
   }
 }
 
+///|
 fn _lb_daxpy(
   n : Int,
   alpha : Double,
@@ -52,6 +66,7 @@ fn _lb_daxpy(
   }
 }
 
+///|
 fn _lb_dscal(n : Int, alpha : Double, x : Array[Double], x0 : Int) -> Unit {
   let mut k = 0
   while k < n {
@@ -71,8 +86,8 @@ fn _lb_dpofa(a : Array[Double], a0 : Int, lda : Int, n : Int) -> Int {
     if j > 0 {
       let mut k = 0
       while k < j {
-        let mut t =
-          a[a0 + k + j * lda] - _lb_ddot(k, a, a0 + k * lda, a, a0 + j * lda)
+        let mut t = a[a0 + k + j * lda] -
+          _lb_ddot(k, a, a0 + k * lda, a, a0 + j * lda)
         t /= a[a0 + k + k * lda]
         a[a0 + k + j * lda] = t
         s += t * t
@@ -111,7 +126,8 @@ fn _lb_dtrsl_11(
   b[b0] /= t[t0]
   let mut j = 1
   while j < n {
-    b[b0 + j] = (b[b0 + j] - _lb_ddot(j, t, t0 + j * lda, b, b0)) / t[t0 + j + j * lda]
+    b[b0 + j] = (b[b0 + j] - _lb_ddot(j, t, t0 + j * lda, b, b0)) /
+      t[t0 + j + j * lda]
     j += 1
   }
   0
@@ -150,6 +166,7 @@ fn _lb_dtrsl_01(
 // More'-Thuente line search (MINPACK-2 dcsrch / dcstep)
 // ===========================================================================
 
+///|
 struct LbInterval {
   mut stx : Double
   mut fx : Double
@@ -172,7 +189,7 @@ fn _lb_dcstep(v : LbInterval, fp : Double, dp : Double) -> Unit {
     // First case: higher function value.
     let theta = (v.fx - fp) * 3.0 / (v.stp - v.stx) + v.dx + dp
     let s = theta.abs().max(v.dx.abs()).max(dp.abs())
-    let mut gamm = s * ((theta / s) * (theta / s) - v.dx / s * (dp / s)).sqrt()
+    let mut gamm = s * (theta / s * (theta / s) - v.dx / s * (dp / s)).sqrt()
     if v.stp < v.stx {
       gamm = -gamm
     }
@@ -180,8 +197,8 @@ fn _lb_dcstep(v : LbInterval, fp : Double, dp : Double) -> Unit {
     let q = gamm - v.dx + gamm + dp
     let r__ = p / q
     let stpc = v.stx + r__ * (v.stp - v.stx)
-    let stpq =
-      v.stx + v.dx / ((v.fx - fp) / (v.stp - v.stx) + v.dx) / 2.0 * (v.stp - v.stx)
+    let stpq = v.stx +
+      v.dx / ((v.fx - fp) / (v.stp - v.stx) + v.dx) / 2.0 * (v.stp - v.stx)
     if (stpc - v.stx).abs() < (stpq - v.stx).abs() {
       stpf = stpc
     } else {
@@ -192,7 +209,7 @@ fn _lb_dcstep(v : LbInterval, fp : Double, dp : Double) -> Unit {
     // Second case: lower value, opposite-sign derivatives.
     let theta = (v.fx - fp) * 3.0 / (v.stp - v.stx) + v.dx + dp
     let s = theta.abs().max(v.dx.abs()).max(dp.abs())
-    let mut gamm = s * ((theta / s) * (theta / s) - v.dx / s * (dp / s)).sqrt()
+    let mut gamm = s * (theta / s * (theta / s) - v.dx / s * (dp / s)).sqrt()
     if v.stp > v.stx {
       gamm = -gamm
     }
@@ -249,24 +266,22 @@ fn _lb_dcstep(v : LbInterval, fp : Double, dp : Double) -> Unit {
       stpf = v.stpmax.min(stpf)
       stpf = v.stpmin.max(stpf)
     }
-  } else {
     // Fourth case.
-    if v.brackt {
-      let theta = (fp - v.fy) * 3.0 / (v.sty - v.stp) + v.dy + dp
-      let s = theta.abs().max(v.dy.abs()).max(dp.abs())
-      let mut gamm = s * ((theta / s) * (theta / s) - v.dy / s * (dp / s)).sqrt()
-      if v.stp > v.sty {
-        gamm = -gamm
-      }
-      let p = gamm - dp + theta
-      let q = gamm - dp + gamm + v.dy
-      let r__ = p / q
-      stpf = v.stp + r__ * (v.sty - v.stp)
-    } else if v.stp > v.stx {
-      stpf = v.stpmax
-    } else {
-      stpf = v.stpmin
+  } else if v.brackt {
+    let theta = (fp - v.fy) * 3.0 / (v.sty - v.stp) + v.dy + dp
+    let s = theta.abs().max(v.dy.abs()).max(dp.abs())
+    let mut gamm = s * (theta / s * (theta / s) - v.dy / s * (dp / s)).sqrt()
+    if v.stp > v.sty {
+      gamm = -gamm
     }
+    let p = gamm - dp + theta
+    let q = gamm - dp + gamm + v.dy
+    let r__ = p / q
+    stpf = v.stp + r__ * (v.sty - v.stp)
+  } else if v.stp > v.stx {
+    stpf = v.stpmax
+  } else {
+    stpf = v.stpmin
   }
   // Update the bracketing interval.
   if fp > v.fx {
@@ -313,6 +328,7 @@ struct LbDcsrch {
   stpmax : Double
 }
 
+///|
 fn _lb_dcsrch_start(stpmax : Double) -> LbDcsrch {
   {
     stage: 1,
@@ -343,7 +359,7 @@ fn _lb_dcsrch_start(stpmax : Double) -> LbDcsrch {
 /// One dcsrch call. The first invocation uses task START (f,g at step 0,
 /// proposed stp); later calls pass the values evaluated at the returned
 /// stp. The new stp is returned; status is stored in self.status.
-fn _lb_dcsrch_apply(
+fn LbDcsrch::_lb_dcsrch_apply(
   self : LbDcsrch,
   start : Bool,
   f : Double,
@@ -392,13 +408,13 @@ fn _lb_dcsrch_apply(
   if stpv == self.stpmin && (f > ftest || g >= self.gtest) {
     warn = true
   }
-  if f <= ftest && g.abs() <= self.gtol * (-self.ginit) {
+  if f <= ftest && g.abs() <= self.gtol * -self.ginit {
     self.status = 0
-    return(stpv)
+    return stpv
   }
   if warn {
     self.status = 2
-    return(stpv)
+    return stpv
   }
   if self.stage == 1 && f <= self.fx && f > ftest {
     let fm = f - stpv * self.gtest
@@ -470,10 +486,12 @@ fn _lb_dcsrch_apply(
   if stpv > self.stpmax {
     stpv = self.stpmax
   }
-  let narrow =
-    self.brackt &&
-    (stpv <= self.stmin || stpv >= self.stmax ||
-      self.stmax - self.stmin <= self.xtol * self.stmax)
+  let narrow = self.brackt &&
+    (
+      stpv <= self.stmin ||
+      stpv >= self.stmax ||
+      self.stmax - self.stmin <= self.xtol * self.stmax
+    )
   if narrow {
     stpv = self.stx
   }
@@ -485,6 +503,7 @@ fn _lb_dcsrch_apply(
 // L-BFGS-B main solver
 // ===========================================================================
 
+///|
 struct Lbfgsb {
   n : Int
   m : Int
@@ -542,7 +561,14 @@ struct Lbfgsb {
   indx2 : Array[Int]
 }
 
-fn _lbfgsb_new(n : Int, m : Int, factr : Double, pgtol : Double, ndeps : Double) -> Lbfgsb {
+///|
+fn _lbfgsb_new(
+  n : Int,
+  m : Int,
+  factr : Double,
+  pgtol : Double,
+  ndeps : Double,
+) -> Lbfgsb {
   {
     n,
     m,
@@ -601,7 +627,7 @@ fn _lbfgsb_new(n : Int, m : Int, factr : Double, pgtol : Double, ndeps : Double)
 
 ///|
 /// active: initialize iwhere and project initial x into the feasible box.
-fn _lbfgsb_active(
+fn Lbfgsb::_lbfgsb_active(
   self : Lbfgsb,
   l : Array[Double],
   u : Array[Double],
@@ -650,7 +676,7 @@ fn _lbfgsb_active(
 
 ///|
 /// projgr: infinity norm of the projected gradient.
-fn _lbfgsb_projgr(
+fn Lbfgsb::_lbfgsb_projgr(
   self : Lbfgsb,
   l : Array[Double],
   u : Array[Double],
@@ -688,7 +714,7 @@ fn _lbfgsb_projgr(
 
 ///|
 /// freev: entering/leaving variables and the free set at the GCP.
-fn _lbfgsb_freev(self : Lbfgsb, wrk : (Bool) -> Unit) -> Unit {
+fn Lbfgsb::_lbfgsb_freev(self : Lbfgsb, wrk : (Bool) -> Unit) -> Unit {
   let n = self.n
   let mut nenter = 0
   let mut ileave = n + 1 // 1-based Fortran value
@@ -733,7 +759,12 @@ fn _lbfgsb_freev(self : Lbfgsb, wrk : (Bool) -> Unit) -> Unit {
 
 ///|
 /// hpsolb: heapsort helper (nleft active breakpoints).
-fn _lb_hpsolb(n : Int, t : Array[Double], iorder : Array[Int], iheap : Int) -> Unit {
+fn _lb_hpsolb(
+  n : Int,
+  t : Array[Double],
+  iorder : Array[Int],
+  iheap : Int,
+) -> Unit {
   if n <= 0 {
     return
   }
@@ -797,7 +828,7 @@ fn _lb_hpsolb(n : Int, t : Array[Double], iorder : Array[Int], iheap : Int) -> U
 
 ///|
 /// bmv: product of the 2m x 2m middle matrix with vector v, returned in p.
-fn _lbfgsb_bmv(
+fn Lbfgsb::_lbfgsb_bmv(
   self : Lbfgsb,
   col : Int,
   v : Array[Double],
@@ -859,7 +890,7 @@ fn _lbfgsb_bmv(
 ///|
 /// cauchy: generalized Cauchy point. p,c,wbp,v are 2m working vectors into
 /// self.wa at the given offsets.
-fn _lbfgsb_cauchy(
+fn Lbfgsb::_lbfgsb_cauchy(
   self : Lbfgsb,
   x : Array[Double],
   l : Array[Double],
@@ -940,7 +971,7 @@ fn _lbfgsb_cauchy(
       }
       if nbd[i] <= 2 && nbd[i] != 0 && neggi < 0.0 {
         iorder[nbreak] = i
-        t[nbreak] = tl / (-neggi)
+        t[nbreak] = tl / -neggi
         if nbreak == 0 || t[nbreak] < bkmin {
           bkmin = t[nbreak]
           ibkmin = nbreak + 1
@@ -1103,7 +1134,7 @@ fn _lbfgsb_cauchy(
 
 ///|
 /// formt: T = theta*SS + L D^-1 L', Cholesky factorized in place.
-fn _lbfgsb_formt(self : Lbfgsb, col : Int) -> Int {
+fn Lbfgsb::_lbfgsb_formt(self : Lbfgsb, col : Int) -> Int {
   let m = self.m
   let wt = self.wt
   let sy = self.sy
@@ -1137,11 +1168,7 @@ fn _lbfgsb_formt(self : Lbfgsb, col : Int) -> Int {
 
 ///|
 /// matupd: update WS/WY and form SS, SY (lower triangle).
-fn _lbfgsb_matupd(
-  self : Lbfgsb,
-  rr : Double,
-  dr : Double,
-) -> Unit {
+fn Lbfgsb::_lbfgsb_matupd(self : Lbfgsb, rr : Double, dr : Double) -> Unit {
   let n = self.n
   let m = self.m
   let mut col = self.col
@@ -1183,7 +1210,13 @@ fn _lbfgsb_matupd(
   let mut j = 0
   while j < col - 1 {
     self.sy[col - 1 + j * m] = _lb_ddot(n, self.d, 0, self.wy, (pointr - 1) * n)
-    self.ss[j + (col - 1) * m] = _lb_ddot(n, self.ws, (pointr - 1) * n, self.d, 0)
+    self.ss[j + (col - 1) * m] = _lb_ddot(
+      n,
+      self.ws,
+      (pointr - 1) * n,
+      self.d,
+      0,
+    )
     pointr = pointr % m + 1
     j += 1
   }
@@ -1197,7 +1230,7 @@ fn _lbfgsb_matupd(
 
 ///|
 /// formk: LEL^T factorization of the indefinite 2col x 2col matrix.
-fn _lbfgsb_formk(self : Lbfgsb) -> Int {
+fn Lbfgsb::_lbfgsb_formk(self : Lbfgsb) -> Int {
   let n = self.n
   let m = self.m
   let m2 = 2 * m
@@ -1424,7 +1457,7 @@ fn _lbfgsb_formk(self : Lbfgsb) -> Int {
 
 ///|
 /// cmprlb: r = -Z'B(xcp-xk) - Z'g.
-fn _lbfgsb_cmprlb(
+fn Lbfgsb::_lbfgsb_cmprlb(
   self : Lbfgsb,
   x : Array[Double],
   g : Array[Double],
@@ -1475,7 +1508,7 @@ fn _lbfgsb_cmprlb(
 /// subsm: direct subspace minimization using the factorized matrix K.
 /// On entry x is the Cauchy point and d (self.r) the reduced gradient;
 /// x is updated to the subspace minimizer and d to the Newton direction.
-fn _lbfgsb_subsm(
+fn Lbfgsb::_lbfgsb_subsm(
   self : Lbfgsb,
   l : Array[Double],
   u : Array[Double],
@@ -1598,7 +1631,7 @@ fn _lbfgsb_subsm(
 
 ///|
 /// R's bounded central-difference gradient (optim_stats.c fmingr).
-fn _lbfgsb_numgrad(
+fn Lbfgsb::_lbfgsb_numgrad(
   self : Lbfgsb,
   x : Array[Double],
   l : Array[Double],
@@ -1636,7 +1669,7 @@ fn _lbfgsb_numgrad(
 
 ///|
 /// Reset the L-BFGS memory after a detected factorization failure.
-fn _lbfgsb_refresh(self : Lbfgsb) -> Unit {
+fn Lbfgsb::_lbfgsb_refresh(self : Lbfgsb) -> Unit {
   self.info = 0
   self.col = 0
   self.head = 1
@@ -1648,7 +1681,7 @@ fn _lbfgsb_refresh(self : Lbfgsb) -> Unit {
 ///|
 /// Run setulb/mainlb plus the optim.c driver. Returns (f, fail):
 /// fail 0 = converged, 1 = maxit exceeded, 51 = warning, 52 = error.
-fn _lbfgsb_run(
+fn Lbfgsb::_lbfgsb_run(
   self : Lbfgsb,
   x : Array[Double],
   l : Array[Double],
@@ -1720,9 +1753,7 @@ fn _lbfgsb_run(
         continue
       }
       self.nintol += self.nint
-      self._lbfgsb_freev(fn(v : Bool) {
-        wrk = v
-      })
+      self._lbfgsb_freev(fn(v : Bool) { wrk = v })
       self.nact = n - self.nfree
     }
     // L333: subspace minimization.

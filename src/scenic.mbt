@@ -33,7 +33,7 @@ pub fn co_expression_module(
   targets : Array[String],
   weights : Array[Double],
 ) -> CoExpressionModule {
-  { tf_name, targets, weights }
+  { tf_name, targets, weights, }
 }
 
 ///|
@@ -52,7 +52,7 @@ pub fn scenic_regulon(
   targets : Array[String],
   weights : Array[Double],
 ) -> ScenicRegulon {
-  { tf_name, targets, weights, n_targets: targets.length() }
+  { tf_name, targets, weights, n_targets: targets.length(), }
 }
 
 ///|

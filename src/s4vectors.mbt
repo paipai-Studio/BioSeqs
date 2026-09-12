@@ -10,7 +10,7 @@ pub struct Rle {
 
 ///|
 pub fn Rle::new(values : Array[String], lengths : Array[Int]) -> Rle {
-  Rle::{ values, lengths }
+  Rle::{ values, lengths, }
 }
 
 ///|
@@ -19,7 +19,7 @@ pub fn Rle::from_vector(vec : Array[String]) -> Rle {
   let lengths : Array[Int] = Array::new()
 
   if vec.length() == 0 {
-    return Rle::{ values, lengths }
+    return Rle::{ values, lengths, }
   }
 
   let mut current_value = vec[0]
@@ -41,7 +41,7 @@ pub fn Rle::from_vector(vec : Array[String]) -> Rle {
   values.push(current_value)
   lengths.push(current_length)
 
-  Rle::{ values, lengths }
+  Rle::{ values, lengths, }
 }
 
 ///|
@@ -111,7 +111,7 @@ pub fn S4DataFrameColumn::new(
   name : String,
   values : Array[String],
 ) -> S4DataFrameColumn {
-  S4DataFrameColumn::{ name, values }
+  S4DataFrameColumn::{ name, values, }
 }
 
 ///|
@@ -125,7 +125,7 @@ pub fn S4DataFrame::new(
   columns : Array[S4DataFrameColumn],
   row_names : Array[String],
 ) -> S4DataFrame {
-  S4DataFrame::{ columns, row_names }
+  S4DataFrame::{ columns, row_names, }
 }
 
 ///|
@@ -237,7 +237,7 @@ pub fn Hits::new(
   query_length : Int,
   subject_length : Int,
 ) -> Hits {
-  Hits::{ query_hits, subject_hits, query_length, subject_length }
+  Hits::{ query_hits, subject_hits, query_length, subject_length, }
 }
 
 ///|

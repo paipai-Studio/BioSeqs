@@ -952,7 +952,10 @@ fn align_tabular_fields(
   }
   let result : Array[AlignTabularField] = []
   for index in 0..<names.length() {
-    result.push(AlignTabularField::{ name: names[index], value: columns[index] })
+    result.push(AlignTabularField::{
+      name: names[index],
+      value: columns[index],
+    })
   }
   result
 }
@@ -1512,7 +1515,7 @@ pub fn align_tabular_parse(
       }
     None => ()
   }
-  AlignTabularDocument::{ queries, processed_queries }
+  AlignTabularDocument::{ queries, processed_queries, }
 }
 
 ///|

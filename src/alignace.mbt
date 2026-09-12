@@ -85,7 +85,7 @@ pub fn AlignAceSite::new(
   strand~ : String,
   sequence~ : String,
 ) -> AlignAceSite {
-  AlignAceSite::{ sequence_id, position, strand, sequence }
+  AlignAceSite::{ sequence_id, position, strand, sequence, }
 }
 
 ///|

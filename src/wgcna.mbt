@@ -65,7 +65,7 @@ pub fn adjacency(wgcna : WGCNAData, power : Double) -> WGCNAData {
   let n_genes = wgcna.gene_names.length()
   let adj_mat = build_adjacency_matrix(wgcna.expression_matrix, n_genes, power)
 
-  WGCNAData::{ ..wgcna, adjacency_matrix: adj_mat }
+  WGCNAData::{ ..wgcna, adjacency_matrix: adj_mat, }
 }
 
 ///|
@@ -130,7 +130,7 @@ pub fn tom_similarity(wgcna : WGCNAData) -> WGCNAData {
   let n_genes = wgcna.gene_names.length()
   let tom_mat = build_tom_matrix(wgcna.adjacency_matrix, n_genes)
 
-  WGCNAData::{ ..wgcna, tom_matrix: tom_mat }
+  WGCNAData::{ ..wgcna, tom_matrix: tom_mat, }
 }
 
 ///|
@@ -203,7 +203,7 @@ pub fn blockwise_modules(
     colors,
   )
 
-  WGCNAData::{ ..wgcna, modules: result.0, module_colors: result.1 }
+  WGCNAData::{ ..wgcna, modules: result.0, module_colors: result.1, }
 }
 
 ///|

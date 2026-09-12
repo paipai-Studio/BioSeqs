@@ -77,14 +77,14 @@ pub fn column(
   dtype : DataType,
   values : Array[DataValue],
 ) -> Column {
-  Column::{ name, dtype, values }
+  Column::{ name, dtype, values, }
 }
 
 ///|
 pub fn dataframe(columns : Array[Column]) -> DataFrame {
   let ncol = columns.length()
   let nrow = if ncol == 0 { 0 } else { columns[0].values.length() }
-  DataFrame::{ columns, nrow, ncol }
+  DataFrame::{ columns, nrow, ncol, }
 }
 
 ///|
@@ -204,7 +204,7 @@ pub fn dataframe_mutate(
       values.push(func(df, k))
       k = k + 1
     }
-    all_cols.push(Column::{ name, dtype, values })
+    all_cols.push(Column::{ name, dtype, values, })
     j = j + 1
   }
   dataframe(all_cols)
@@ -418,7 +418,7 @@ pub fn dataframe_summarize(
   let mut i = 0
   while i < agg_columns.length() {
     let (name, agg_func) = agg_columns[i]
-    let agg_col = Column::{ name, dtype: DoubleType, values: [] }
+    let agg_col = Column::{ name, dtype: DoubleType, values: [], }
     result_cols.push(agg_col)
     i = i + 1
   }

@@ -32,7 +32,7 @@ pub struct MRSampleData {
 
 ///|
 pub fn MRSampleData::new(group : String, depth : Int) -> MRSampleData {
-  MRSampleData::{ group, depth, covariates: Map([], capacity=5) }
+  MRSampleData::{ group, depth, covariates: Map([], capacity=5), }
 }
 
 ///|

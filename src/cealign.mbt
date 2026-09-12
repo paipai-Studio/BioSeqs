@@ -34,7 +34,7 @@ pub fn CeGuideAtom::new(
   atom_name~ : String,
   coordinate~ : Vector3,
 ) -> CeGuideAtom {
-  CeGuideAtom::{ model_id, chain_id, residue_number, atom_name, coordinate }
+  CeGuideAtom::{ model_id, chain_id, residue_number, atom_name, coordinate, }
 }
 
 ///|
@@ -174,7 +174,7 @@ pub fn CEAligner::new(
   if max_gap < 0 {
     raise CeAlignError("max_gap must be non-negative")
   }
-  CEAligner::{ window_size, max_gap, reference_atoms: [] }
+  CEAligner::{ window_size, max_gap, reference_atoms: [], }
 }
 
 ///|
@@ -265,7 +265,7 @@ pub fn CEAligner::set_reference(
       (self.window_size * 2).to_string(),
     )
   }
-  CEAligner::{ ..self, reference_atoms: atoms }
+  CEAligner::{ ..self, reference_atoms: atoms, }
 }
 
 ///|

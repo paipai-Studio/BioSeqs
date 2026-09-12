@@ -34,7 +34,7 @@ pub fn Motif::new(
   alphabet : Array[String],
   sites : Array[String],
 ) -> Motif {
-  Motif::{ name, pwm, alphabet, sites }
+  Motif::{ name, pwm, alphabet, sites, }
 }
 
 ///|
@@ -44,7 +44,7 @@ pub fn MotifHit::new(
   strand : String,
   sequence : String,
 ) -> MotifHit {
-  MotifHit::{ position, score, strand, sequence }
+  MotifHit::{ position, score, strand, sequence, }
 }
 
 ///|

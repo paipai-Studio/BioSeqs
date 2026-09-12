@@ -76,7 +76,7 @@ pub fn SequenceAnnotation::new(
   symbol? : String = "",
   uri? : String = "",
 ) -> SequenceAnnotation {
-  SequenceAnnotation::{ sequence_id, molecular_type, symbol, uri }
+  SequenceAnnotation::{ sequence_id, molecular_type, symbol, uri, }
 }
 
 ///|
@@ -87,7 +87,7 @@ pub fn TaxonInfo::new(
   authority? : String = "",
   taxon_rank? : String = "",
 ) -> TaxonInfo {
-  TaxonInfo::{ taxon_id, scientific_name, common_name, authority, taxon_rank }
+  TaxonInfo::{ taxon_id, scientific_name, common_name, authority, taxon_rank, }
 }
 
 ///|
@@ -95,7 +95,7 @@ pub fn TaxonNamespace::new(
   namespace_id? : String = "",
   name? : String = "",
 ) -> TaxonNamespace {
-  TaxonNamespace::{ namespace_id, name }
+  TaxonNamespace::{ namespace_id, name, }
 }
 
 ///|
@@ -146,7 +146,7 @@ pub fn PhyloXMLResult::new(
   metadata? : Map[String, String] = Map([], capacity=8),
   taxon_namespaces? : Array[TaxonNamespace] = [],
 ) -> PhyloXMLResult {
-  PhyloXMLResult::{ trees, metadata, taxon_namespaces }
+  PhyloXMLResult::{ trees, metadata, taxon_namespaces, }
 }
 
 // ============================================================================
@@ -609,7 +609,7 @@ pub fn parse_phyloxml(xml_text : String) -> PhyloXMLResult {
     }
   }
 
-  PhyloXMLResult::{ trees, metadata, taxon_namespaces: namespaces }
+  PhyloXMLResult::{ trees, metadata, taxon_namespaces: namespaces, }
 }
 
 ///|

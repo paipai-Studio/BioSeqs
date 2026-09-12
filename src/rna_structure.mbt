@@ -489,7 +489,7 @@ fn rna_find_loops_recursive(
     let loop_len = j - i - 1
     if loop_len > 0 {
       let loop_type = rna_classify_loop(sequence, i, j, paired)
-      loop_regions.push(LoopRegion::{ start: i + 1, end: j - 1, loop_type })
+      loop_regions.push(LoopRegion::{ start: i + 1, end: j - 1, loop_type, })
 
       let inner_i = i + 1
       let inner_j = j - 1

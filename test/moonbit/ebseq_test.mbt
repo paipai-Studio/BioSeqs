@@ -7,7 +7,9 @@ test "ebseq_dataset_new_creates_default_size_factors_and_dispersions" {
   let gene_names = ["Gene1", "Gene2"]
   let sample_names = ["C1_R1", "C1_R2", "C1_R3", "C2_R1", "C2_R2", "C2_R3"]
   let conditions = [0, 0, 0, 1, 1, 1]
-  let data = @src.EBSeqDataSet::new(counts, gene_names, sample_names, conditions)
+  let data = @src.EBSeqDataSet::new(
+    counts, gene_names, sample_names, conditions,
+  )
 
   // Check basic fields
   assert_eq(data.counts.length(), 2)
@@ -195,15 +197,17 @@ test "ebseq_top_genes_returns_sorted_by_ppde" {
 test "ebseq_test_with_custom_two_condition_data" {
   // Create a simple 2-condition dataset with clear DE
   let counts = [
-    [100, 110, 105, 300, 310, 290],  // up in cond2
-    [200, 210, 205, 200, 195, 210],  // equal expression
-    [300, 290, 310, 100, 110, 90],   // down in cond2
+    [100, 110, 105, 300, 310, 290], // up in cond2
+    [200, 210, 205, 200, 195, 210], // equal expression
+    [300, 290, 310, 100, 110, 90], // down in cond2
   ]
   let gene_names = ["UpGene", "EqGene", "DownGene"]
   let sample_names = ["C1_R1", "C1_R2", "C1_R3", "C2_R1", "C2_R2", "C2_R3"]
   let conditions = [0, 0, 0, 1, 1, 1]
 
-  let data = @src.EBSeqDataSet::new(counts, gene_names, sample_names, conditions)
+  let data = @src.EBSeqDataSet::new(
+    counts, gene_names, sample_names, conditions,
+  )
   let data_sf = @src.ebseq_estimate_size_factors(data)
   let data_disp = @src.ebseq_estimate_dispersion(data_sf)
   let res = @src.ebseq_test(data_disp)

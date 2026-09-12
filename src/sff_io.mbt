@@ -310,7 +310,7 @@ pub fn SffRead::sff_mean_quality(self : SffRead) -> Double {
 ///|
 /// Create a new SFF file from header and reads.
 pub fn SffFile::new(header : SffHeader, reads : Array[SffRead]) -> SffFile {
-  SffFile::{ header, reads }
+  SffFile::{ header, reads, }
 }
 
 ///|
@@ -710,7 +710,7 @@ pub fn sff_parse(bytes : Array[Int]) -> SffFile? {
     pos = data_start + padded_data
     r = r + 1
   }
-  Some(SffFile::{ header, reads })
+  Some(SffFile::{ header, reads, })
 }
 
 ///|

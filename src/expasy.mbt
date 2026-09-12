@@ -13,7 +13,7 @@ pub struct ExPASyRecord {
 
 ///|
 pub fn ExPASyRecord::new(id : String, database : String) -> ExPASyRecord {
-  ExPASyRecord::{ id, database, status: "ok", data: Map([], capacity=10) }
+  ExPASyRecord::{ id, database, status: "ok", data: Map([], capacity=10), }
 }
 
 ///|

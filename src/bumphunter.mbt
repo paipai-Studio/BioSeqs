@@ -36,7 +36,7 @@ pub fn BumpPosition::new(
   pos : Int,
   values : Array[Double],
 ) -> BumpPosition {
-  { chrom, pos, values }
+  { chrom, pos, values, }
 }
 
 ///|
@@ -81,7 +81,7 @@ pub fn BumpRegion::new(
   index_start : Int,
   index_end : Int,
 ) -> BumpRegion {
-  { chrom, start, end_, value, area, index_start, index_end }
+  { chrom, start, end_, value, area, index_start, index_end, }
 }
 
 ///|
@@ -159,7 +159,7 @@ pub fn BumpResult::new(
   index_start : Int,
   index_end : Int,
 ) -> BumpResult {
-  { chrom, start, end_, value, area, p_value, fdr, index_start, index_end }
+  { chrom, start, end_, value, area, p_value, fdr, index_start, index_end, }
 }
 
 ///|

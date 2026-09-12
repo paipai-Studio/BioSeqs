@@ -20,7 +20,7 @@ pub fn GOStatsTerm::new(
   parent_ids : Array[String],
   gene_ids : Array[String],
 ) -> GOStatsTerm {
-  GOStatsTerm::{ go_id, name, ontology, parent_ids, gene_ids }
+  GOStatsTerm::{ go_id, name, ontology, parent_ids, gene_ids, }
 }
 
 ///|
@@ -30,7 +30,7 @@ pub struct GOStatsGraph {
 
 ///|
 pub fn GOStatsGraph::new(terms : Map[String, GOStatsTerm]) -> GOStatsGraph {
-  GOStatsGraph::{ terms }
+  GOStatsGraph::{ terms, }
 }
 
 ///|
@@ -40,14 +40,14 @@ pub fn GOStatsGraph::add_term(
 ) -> GOStatsGraph {
   let terms : Map[String, GOStatsTerm] = self.terms.copy()
   terms.set(term.go_id, term)
-  GOStatsGraph::{ terms }
+  GOStatsGraph::{ terms, }
 }
 
 ///|
 pub fn GOStatsGraph::get_term(
   self : GOStatsGraph,
   go_id : String,
-) -> Option[GOStatsTerm] {
+) -> GOStatsTerm? {
   self.terms.get(go_id)
 }
 
@@ -84,8 +84,16 @@ pub fn GOHyperGeoResult::new(
   universe_count : Int,
 ) -> GOHyperGeoResult {
   GOHyperGeoResult::{
-    go_id, name, ontology, p_value, fdr, odds_ratio, expected, observed,
-    gene_count, universe_count,
+    go_id,
+    name,
+    ontology,
+    p_value,
+    fdr,
+    odds_ratio,
+    expected,
+    observed,
+    gene_count,
+    universe_count,
   }
 }
 
@@ -102,7 +110,7 @@ pub fn GOHyperGeoTest::new(
   selected : Array[String],
   go_graph : GOStatsGraph,
 ) -> GOHyperGeoTest {
-  GOHyperGeoTest::{ universe, selected, go_graph }
+  GOHyperGeoTest::{ universe, selected, go_graph, }
 }
 
 ///|
@@ -144,19 +152,15 @@ pub fn gostats_log_choose(n : Int, k : Int) -> Double {
     return 0.0
   }
   let nk : Int = n - k
-  gostats_lgamma(n.to_double() + 1.0) - gostats_lgamma(k.to_double() + 1.0) -
-    gostats_lgamma(nk.to_double() + 1.0)
+  gostats_lgamma(n.to_double() + 1.0) -
+  gostats_lgamma(k.to_double() + 1.0) -
+  gostats_lgamma(nk.to_double() + 1.0)
 }
 
 ///|
 /// Hypergeometric p-value: P(X >= k) = sum_{i=k}^{min(m,n)} C(m,i)*C(N-m,n-i)/C(N,n)
 /// N = universe size, m = genes in GO term, n = selected genes, k = overlap
-fn gostats_hypergeo_pvalue(
-  n_univ : Int,
-  m : Int,
-  n : Int,
-  k : Int,
-) -> Double {
+fn gostats_hypergeo_pvalue(n_univ : Int, m : Int, n : Int, k : Int) -> Double {
   let upper : Int = if m < n { m } else { n }
   if k > upper {
     return 1.0
@@ -344,8 +348,7 @@ pub fn gostats_hypergeometric_test(
     )
     let m : Int = term_genes_in_univ.length()
     let k_overlap : Int = gostats_intersection_count(
-      term_genes_in_univ,
-      selected_set,
+      term_genes_in_univ, selected_set,
     )
 
     if k_overlap == 0 {
@@ -357,7 +360,8 @@ pub fn gostats_hypergeometric_test(
     hyp_p_values.push(p_value)
 
     let odds_val : Double = gostats_odds_ratio(n_univ, m, n_sel, k_overlap)
-    let expected_val : Double = m.to_double() * n_sel.to_double() /
+    let expected_val : Double = m.to_double() *
+      n_sel.to_double() /
       n_univ.to_double()
 
     hyp_results.push(
@@ -415,10 +419,7 @@ pub fn gostats_hypergeometric_test(
 
 ///|
 /// Compute the depth (distance from root) of a GO term in the graph via parent traversal.
-fn gostats_term_depth(
-  go_graph : GOStatsGraph,
-  go_id : String,
-) -> Int {
+fn gostats_term_depth(go_graph : GOStatsGraph, go_id : String) -> Int {
   let visited : Map[String, Bool] = Map([], capacity=50)
   visited.set(go_id, true)
   let depth_queue : Array[(String, Int)] = Array::new()
@@ -478,10 +479,7 @@ pub fn gostats_conditional_test(
     fi = fi + 1
   }
 
-  let term_level : Map[String, Int] = Map(
-    [],
-    capacity=filtered_terms.length(),
-  )
+  let term_level : Map[String, Int] = Map([], capacity=filtered_terms.length())
   let mut ti : Int = 0
   while ti < filtered_terms.length() {
     let tlid : String = filtered_terms[ti]
@@ -555,16 +553,12 @@ pub fn gostats_conditional_test(
     let ek : Int = eff_sel_count
 
     if ek > 0 && em > 0 {
-      let ep_val : Double = gostats_hypergeo_pvalue(
-        cond_n_univ,
-        em,
-        cond_n,
-        ek,
-      )
+      let ep_val : Double = gostats_hypergeo_pvalue(cond_n_univ, em, cond_n, ek)
       cond_p_values.push(ep_val)
 
       let e_odds : Double = gostats_odds_ratio(cond_n_univ, em, cond_n, ek)
-      let e_expected : Double = em.to_double() * cond_n.to_double() /
+      let e_expected : Double = em.to_double() *
+        cond_n.to_double() /
         cond_n_univ.to_double()
 
       cond_results.push(

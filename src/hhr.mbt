@@ -686,7 +686,7 @@ pub fn hhr_parse(text : String) -> HhrRecord raise HhrError {
     run_date~,
     command_line~,
   )
-  HhrRecord::{ metadata, hit_summaries, alignments }
+  HhrRecord::{ metadata, hit_summaries, alignments, }
 }
 
 ///|
@@ -1341,7 +1341,7 @@ fn hhr_parse_sequence_line(
       line_number.to_string(),
     )
   }
-  HhrSequencePart::{ name, start: converted_start, sequence, end, total }
+  HhrSequencePart::{ name, start: converted_start, sequence, end, total, }
 }
 
 ///|

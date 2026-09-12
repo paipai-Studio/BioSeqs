@@ -101,7 +101,7 @@ pub struct SeqLogoPwm {
 pub fn SeqLogoPwm::new(matrix : Array[Array[Double]]) -> SeqLogoPwm {
   let alphabet_size = matrix.length()
   let width = if alphabet_size > 0 { matrix[0].length() } else { 0 }
-  SeqLogoPwm::{ matrix, width, alphabet_size, alphabet: ["A", "C", "G", "T"] }
+  SeqLogoPwm::{ matrix, width, alphabet_size, alphabet: ["A", "C", "G", "T"], }
 }
 
 ///|
@@ -204,7 +204,7 @@ pub fn SeqLogoLetter::new(
   height : Double,
   color : String,
 ) -> SeqLogoLetter {
-  SeqLogoLetter::{ letter, height, color }
+  SeqLogoLetter::{ letter, height, color, }
 }
 
 ///|
@@ -239,7 +239,7 @@ pub fn SeqLogoColumn::new(
   position : Int,
   info_content : Double,
 ) -> SeqLogoColumn {
-  SeqLogoColumn::{ letters: Array::new(), info_content, position }
+  SeqLogoColumn::{ letters: Array::new(), info_content, position, }
 }
 
 ///|

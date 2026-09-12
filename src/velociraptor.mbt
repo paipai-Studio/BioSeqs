@@ -31,7 +31,7 @@ pub fn VelocityGeneData::new(
   spliced : Array[Double],
   unspliced : Array[Double],
 ) -> VelocityGeneData {
-  VelocityGeneData::{ gene_name, spliced, unspliced }
+  VelocityGeneData::{ gene_name, spliced, unspliced, }
 }
 
 ///|

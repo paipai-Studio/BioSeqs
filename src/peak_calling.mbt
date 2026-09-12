@@ -64,7 +64,7 @@ pub fn ChipSeqRead::new(
   position~ : Int,
   strand~ : String,
 ) -> ChipSeqRead {
-  ChipSeqRead::{ chr, position, strand }
+  ChipSeqRead::{ chr, position, strand, }
 }
 
 ///|

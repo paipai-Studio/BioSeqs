@@ -116,7 +116,7 @@ pub fn GFExon::new(
   end : Int,
   strand : String,
 ) -> GFExon {
-  GFExon::{ exon_id, exon_number, chromosome, start, end, strand }
+  GFExon::{ exon_id, exon_number, chromosome, start, end, strand, }
 }
 
 ///|

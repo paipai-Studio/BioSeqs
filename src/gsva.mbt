@@ -69,7 +69,7 @@ pub fn GSVAGeneSet::new(
   genes : Array[String],
   description : String,
 ) -> GSVAGeneSet {
-  GSVAGeneSet::{ name, genes, description }
+  GSVAGeneSet::{ name, genes, description, }
 }
 
 ///|
@@ -79,7 +79,7 @@ pub fn GSVAData::new(
   gene_names : Array[String],
   sample_names : Array[String],
 ) -> GSVAData {
-  GSVAData::{ expression, gene_names, sample_names, gene_sets: [] }
+  GSVAData::{ expression, gene_names, sample_names, gene_sets: [], }
 }
 
 ///|
@@ -1025,7 +1025,7 @@ pub fn gsva_statistics(scores : Array[Array[Double]]) -> GSVAStat {
     i = i + 1
   }
 
-  GSVAStat::{ mean_score, sd_score, median_score, min_score, max_score }
+  GSVAStat::{ mean_score, sd_score, median_score, min_score, max_score, }
 }
 
 ///|

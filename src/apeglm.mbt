@@ -694,7 +694,7 @@ fn apeglm_evaluate(
       }
     }
   }
-  ApeglmEvaluation::{ value, gradient, information }
+  ApeglmEvaluation::{ value, gradient, information, }
 }
 
 ///|
@@ -1507,7 +1507,7 @@ pub fn apeglm_summarized_experiment(
   enriched.metadata["apeglm_coefficient"] = result.coefficient_names[result.coefficient]
   enriched.metadata["apeglm_prior_scale"] = result.prior_control.prior_scale.to_string()
   enriched.metadata["apeglm_scale"] = "natural-log"
-  ApeglmSummarizedExperimentOutput::{ experiment: enriched, result }
+  ApeglmSummarizedExperimentOutput::{ experiment: enriched, result, }
 }
 
 ///|

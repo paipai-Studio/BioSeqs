@@ -30,7 +30,7 @@ pub fn SuffixArray::new(text : String) -> SuffixArray {
     }
     k = k * 2
   }
-  SuffixArray::{ text, sa }
+  SuffixArray::{ text, sa, }
 }
 
 ///|
@@ -356,7 +356,7 @@ pub fn SuffixTree::new(text : String) -> SuffixTree {
   for i = 0; i < n; i = i + 1 {
     node_count = node_count + 1
   }
-  SuffixTree::{ text, size: node_count }
+  SuffixTree::{ text, size: node_count, }
 }
 
 ///|

@@ -32,9 +32,7 @@ fn bgzf_reference_block() -> String {
 /// Our stored-block writer must produce byte-identical output to the
 /// Biopython reference for the same payload.
 test "bgzf_compress_matches_reference_bytes" {
-  let compressed = try {
-    @src.bgzf_compress("Hello BGZF\nLine two\n")
-  } catch {
+  let compressed = @src.bgzf_compress("Hello BGZF\nLine two\n") catch {
     _ => ""
   }
   assert_eq(compressed, bgzf_reference_block())
@@ -44,30 +42,17 @@ test "bgzf_compress_matches_reference_bytes" {
 ///|
 /// Decompress the reference block back to the original payload.
 test "bgzf_decompress_reference_block" {
-  let result = try {
-    @src.bgzf_decompress(bgzf_reference_block())
-  } catch {
-    _ => ""
-  }
+  let result = @src.bgzf_decompress(bgzf_reference_block()) catch { _ => "" }
   assert_eq(result, "Hello BGZF\nLine two\n")
 }
 
 ///|
 /// Compress then decompress round-trips arbitrary text.
 test "bgzf_compress_decompress_roundtrip" {
-  let text =
-    ">seq1 desc\nACGTACGTACGT\n>seq2\nNNNNACGT\n"
-  let compressed = try {
-    @src.bgzf_compress(text)
-  } catch {
-    _ => ""
-  }
+  let text = ">seq1 desc\nACGTACGTACGT\n>seq2\nNNNNACGT\n"
+  let compressed = @src.bgzf_compress(text) catch { _ => "" }
   assert_true(@src.is_bgzf(compressed))
-  let restored = try {
-    @src.bgzf_decompress(compressed)
-  } catch {
-    _ => ""
-  }
+  let restored = @src.bgzf_decompress(compressed) catch { _ => "" }
   assert_eq(restored, text)
 }
 
@@ -77,16 +62,8 @@ test "bgzf_compress_decompress_roundtrip" {
 test "bgzf_compress_large_multiblock" {
   let size = 140000
   let big = String::make(size, 'A')
-  let compressed = try {
-    @src.bgzf_compress(big)
-  } catch {
-    _ => ""
-  }
-  let blocks = try {
-    @src.bgzf_blocks(compressed)
-  } catch {
-    _ => []
-  }
+  let compressed = @src.bgzf_compress(big) catch { _ => "" }
+  let blocks = @src.bgzf_blocks(compressed) catch { _ => [] }
   // 65505 + 65505 + 8990 = 140000, then the 28-byte EOF block.
   assert_eq(blocks.length(), 4)
   assert_eq(blocks[0].data_length, 65505)
@@ -94,11 +71,7 @@ test "bgzf_compress_large_multiblock" {
   assert_eq(blocks[1].data_length, 65505)
   assert_eq(blocks[2].data_length, 8990)
   assert_eq(blocks[3].data_length, 0)
-  let restored = try {
-    @src.bgzf_decompress(compressed)
-  } catch {
-    _ => ""
-  }
+  let restored = @src.bgzf_decompress(compressed) catch { _ => "" }
   assert_eq(restored.length(), size)
   assert_eq(restored, big)
 }
@@ -106,11 +79,7 @@ test "bgzf_compress_large_multiblock" {
 ///|
 /// bgzf_blocks reports the metadata of the reference stream correctly.
 test "bgzf_blocks_reference" {
-  let blocks = try {
-    @src.bgzf_blocks(bgzf_reference_block())
-  } catch {
-    _ => []
-  }
+  let blocks = @src.bgzf_blocks(bgzf_reference_block()) catch { _ => [] }
   assert_eq(blocks.length(), 2)
   assert_eq(blocks[0].start_offset, 0)
   assert_eq(blocks[0].block_length, 51)
@@ -185,18 +154,14 @@ test "bgzf_reader_multiblock" {
 
     // Seek into the second block and read 10 bytes.
     let reader2 = @src.BgzfReader::new(compressed)
-    reader2.seek(
-      @src.bgzf_make_virtual_offset(blocks[1].start_offset, 100),
-    )
+    reader2.seek(@src.bgzf_make_virtual_offset(blocks[1].start_offset, 100))
     let chunk = reader2.read(size=10)
     assert_eq(chunk.length(), 10)
     assert_eq(chunk, "AAAAAAAAAA")
 
     // Seek into the final (short) block.
     let reader3 = @src.BgzfReader::new(compressed)
-    reader3.seek(
-      @src.bgzf_make_virtual_offset(blocks[2].start_offset, 5),
-    )
+    reader3.seek(@src.bgzf_make_virtual_offset(blocks[2].start_offset, 5))
     assert_eq(reader3.read().length(), 8990 - 5)
   } catch {
     @src.BgzfError(_) => assert_true(false)

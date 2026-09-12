@@ -64,7 +64,7 @@ pub struct UmapResult {
 
 ///|
 pub fn UmapResult::new() -> UmapResult {
-  UmapResult::{ embedding: Array::new(), n_epochs: 0 }
+  UmapResult::{ embedding: Array::new(), n_epochs: 0, }
 }
 
 // ============================================================
@@ -593,7 +593,7 @@ pub fn uwot_umap(
     epoch = epoch + 1
   }
 
-  UmapResult::{ embedding, n_epochs: config.n_epochs }
+  UmapResult::{ embedding, n_epochs: config.n_epochs, }
 }
 
 // ============================================================

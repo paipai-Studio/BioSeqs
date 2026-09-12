@@ -721,7 +721,7 @@ pub fn hicdc_call_tads(
   for i in 1..<n_bins {
     // Detect sign change from negative to positive (boundary).
     if di[i - 1] < 0.0 && di[i] >= 0.0 {
-      boundaries.push(TADBoundary::{ chr, bin: i, directionality_index: di[i] })
+      boundaries.push(TADBoundary::{ chr, bin: i, directionality_index: di[i], })
     }
   }
   boundaries
@@ -786,7 +786,12 @@ pub fn hicdc_call_compartments(
   let result : Array[CompartmentCall] = Array::new()
   for i in 0..<n_bins {
     let comp = if pc1[i] >= 0.0 { "A" } else { "B" }
-    result.push(CompartmentCall::{ chr, bin: i, pc1: pc1[i], compartment: comp })
+    result.push(CompartmentCall::{
+      chr,
+      bin: i,
+      pc1: pc1[i],
+      compartment: comp,
+    })
   }
   result
 }

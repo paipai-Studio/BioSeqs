@@ -74,7 +74,10 @@ pub fn FastTreeCommandline::set_nt(self : FastTreeCommandline) -> Unit {
 
 ///|
 /// Read N multiple alignments in (-n, phylip interleaved).
-pub fn FastTreeCommandline::set_n(self : FastTreeCommandline, count : Int) -> Unit {
+pub fn FastTreeCommandline::set_n(
+  self : FastTreeCommandline,
+  count : Int,
+) -> Unit {
   self.flag("-n", value=Some(count.to_string()))
 }
 
@@ -390,13 +393,19 @@ pub fn PhymlCommandline::set_sequential(self : PhymlCommandline) -> Unit {
 
 ///|
 /// Set the number of data sets to analyse (-n).
-pub fn PhymlCommandline::set_multiple(self : PhymlCommandline, count : Int) -> Unit {
+pub fn PhymlCommandline::set_multiple(
+  self : PhymlCommandline,
+  count : Int,
+) -> Unit {
   self.flag("-n", value=Some(count.to_string()))
 }
 
 ///|
 /// Set the parsimony starting tree value (-p).
-pub fn PhymlCommandline::set_pars(self : PhymlCommandline, pars : Double) -> Unit {
+pub fn PhymlCommandline::set_pars(
+  self : PhymlCommandline,
+  pars : Double,
+) -> Unit {
   self.flag("-p", value=Some(pars.to_string()))
 }
 
@@ -507,7 +516,10 @@ pub fn PhymlCommandline::set_n_rand_starts(
 
 ///|
 /// Set the random seed (--r_seed).
-pub fn PhymlCommandline::set_r_seed(self : PhymlCommandline, seed : Int) -> Unit {
+pub fn PhymlCommandline::set_r_seed(
+  self : PhymlCommandline,
+  seed : Int,
+) -> Unit {
   self.flag("--r_seed", value=Some(seed.to_string()))
 }
 
@@ -586,7 +598,10 @@ pub fn RaxmlCommandline::set_alignment(
 
 ///|
 /// Set the run name (-n).
-pub fn RaxmlCommandline::set_name(self : RaxmlCommandline, name : String) -> Unit {
+pub fn RaxmlCommandline::set_name(
+  self : RaxmlCommandline,
+  name : String,
+) -> Unit {
   self.flag("-n", value=Some(name))
 }
 
@@ -637,7 +652,9 @@ pub fn RaxmlCommandline::set_num_categories(
 
 ///|
 /// Start from a random tree instead of a parsimony tree (-d).
-pub fn RaxmlCommandline::set_random_starting_tree(self : RaxmlCommandline) -> Unit {
+pub fn RaxmlCommandline::set_random_starting_tree(
+  self : RaxmlCommandline,
+) -> Unit {
   self.flag("-d", value=None)
 }
 
@@ -773,7 +790,10 @@ pub fn RaxmlCommandline::set_starting_tree(
 
 ///|
 /// Set the number of threads (-T).
-pub fn RaxmlCommandline::set_threads(self : RaxmlCommandline, threads : Int) -> Unit {
+pub fn RaxmlCommandline::set_threads(
+  self : RaxmlCommandline,
+  threads : Int,
+) -> Unit {
   self.flag("-T", value=Some(threads.to_string()))
 }
 

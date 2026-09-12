@@ -36,7 +36,7 @@ pub fn FishCounts::new(
   condition : Array[String],
   counts : Array[Array[Double]],
 ) -> FishCounts {
-  { transcript_names, sample_names, condition, counts }
+  { transcript_names, sample_names, condition, counts, }
 }
 
 ///|
@@ -84,7 +84,7 @@ pub fn FishResult::new(
   fdr : Double,
   direction : String,
 ) -> FishResult {
-  { transcript, statistic, log2_fold_change, p_value, fdr, direction }
+  { transcript, statistic, log2_fold_change, p_value, fdr, direction, }
 }
 
 ///|

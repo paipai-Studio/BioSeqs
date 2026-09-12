@@ -81,7 +81,9 @@ test "parse_twobit_records_bad_magic" {
 
 ///|
 test "parse_sff_records_roundtrip" {
-  let content = @src.bytes_to_base64(@src.sff_encode(@src.sff_create_example_file()))
+  let content = @src.bytes_to_base64(
+    @src.sff_encode(@src.sff_create_example_file()),
+  )
   let records = @src.parse_sff_records(content)
   assert_eq(records.length(), 2)
   assert_eq(records[0].id, "READ0001")
@@ -117,7 +119,9 @@ test "parse_sff_trim_records_clip_semantics" {
     0,
   )
   let header = @src.SffHeader::new(1, 4, "TACG", "TCAG")
-  let content = @src.bytes_to_base64(@src.sff_encode(@src.SffFile::new(header, [read])))
+  let content = @src.bytes_to_base64(
+    @src.sff_encode(@src.SffFile::new(header, [read])),
+  )
   // untrimmed output keeps the full read
   let full = @src.parse_sff_records(content)
   assert_eq(full[0].seq.to_string(), "ACGTACGTAC")
@@ -157,7 +161,9 @@ test "parse_sff_records_malformed" {
 
 ///|
 test "parse_snapgene_records_roundtrip" {
-  let content = @src.bytes_to_base64(@src.snapgene_to_bytes(@src.snapgene_sample()))
+  let content = @src.bytes_to_base64(
+    @src.snapgene_to_bytes(@src.snapgene_sample()),
+  )
   let records = @src.parse_snapgene_records(content)
   assert_eq(records.length(), 1)
   let direct = @src.snapgene_to_seqrecord(@src.snapgene_sample())
@@ -181,9 +187,7 @@ test "parse_gck_records_roundtrip_and_magic" {
   let via_entry = @src.seqio_parse(content, "gck")
   assert_eq(via_entry[0].seq.to_string(), records[0].seq.to_string())
   // wrong magic number raises (spec 5.1.3.3)
-  let bad = [
-    71, 67, 75, 95, 70, 73, 76, 88, 0, 0, 0, 0, 0, 0,
-  ]
+  let bad = [71, 67, 75, 95, 70, 73, 76, 88, 0, 0, 0, 0, 0, 0]
   let raised = try {
     ignore(@src.parse_gck_records(@src.bytes_to_base64(bad)))
     false
@@ -195,7 +199,9 @@ test "parse_gck_records_roundtrip_and_magic" {
 
 ///|
 test "parse_xdna_records_roundtrip" {
-  let content = @src.bytes_to_base64(@src.xdna_to_bytes(@src.xdna_sample_file()))
+  let content = @src.bytes_to_base64(
+    @src.xdna_to_bytes(@src.xdna_sample_file()),
+  )
   let records = @src.parse_xdna_records(content)
   assert_eq(records.length(), 2)
   assert_eq(records[0].id, "seq1")

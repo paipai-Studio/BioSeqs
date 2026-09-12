@@ -89,7 +89,7 @@ pub struct MAFConfig {
 ///|
 /// Default MAF configuration.
 pub fn MAFConfig::default() -> MAFConfig {
-  MAFConfig::{ store_sequences: true, min_score: 0.0 }
+  MAFConfig::{ store_sequences: true, min_score: 0.0, }
 }
 
 // ============================================================================
@@ -106,7 +106,7 @@ pub fn new_maf_sequence(
   seq_size : Int,
   aligned_seq : String,
 ) -> MAFSequence {
-  MAFSequence::{ seq_name, start, length, strand, seq_size, aligned_seq }
+  MAFSequence::{ seq_name, start, length, strand, seq_size, aligned_seq, }
 }
 
 ///|
@@ -378,7 +378,7 @@ pub fn parse_maf(content : String) -> MAFAliignment {
       // Comment line
       match current_block {
         Some(block) => {
-          let comment = MAFComment::{ key: trimmed }
+          let comment = MAFComment::{ key: trimmed, }
           current_block = Some(maf_block_add_comment(block, comment))
         }
         None => result.comments.push(trimmed)
@@ -455,7 +455,7 @@ pub fn parse_maf(content : String) -> MAFAliignment {
         let seq_name = parts[2]
         let position = if parts.length() >= 4 { parse_int(parts[3]) } else { 0 }
         let description = if parts.length() >= 5 { parts[4] } else { "" }
-        let event = MAFEvent::{ event_type, seq_name, position, description }
+        let event = MAFEvent::{ event_type, seq_name, position, description, }
         match current_block {
           Some(block) => current_block = Some(maf_block_add_event(block, event))
           None => ()

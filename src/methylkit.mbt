@@ -108,7 +108,7 @@ pub fn MethylCytosine::new(
   methylated : Int,
   unmethylated : Int,
 ) -> MethylCytosine {
-  MethylCytosine::{ chr, position, strand, context, methylated, unmethylated }
+  MethylCytosine::{ chr, position, strand, context, methylated, unmethylated, }
 }
 
 ///|
@@ -196,7 +196,7 @@ pub struct MethylSample {
 ///|
 /// Construct an empty MethylSample.
 pub fn MethylSample::new(sample_id : String) -> MethylSample {
-  MethylSample::{ sample_id, coverage: Array::new(), n_cpgs: 0 }
+  MethylSample::{ sample_id, coverage: Array::new(), n_cpgs: 0, }
 }
 
 ///|
@@ -205,7 +205,7 @@ pub fn MethylSample::from_coverage(
   sample_id : String,
   coverage : Array[MethylCytosine],
 ) -> MethylSample {
-  MethylSample::{ sample_id, coverage, n_cpgs: coverage.length() }
+  MethylSample::{ sample_id, coverage, n_cpgs: coverage.length(), }
 }
 
 ///|

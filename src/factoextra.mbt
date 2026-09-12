@@ -55,8 +55,8 @@ pub fn facto_pca(
   if n == 0 {
     return PcaResult::{
       eigenvalues: [],
-      ind: PcaIndResult::{ coord: [], cos2: [], contrib: [] },
-      var_: PcaVarResult::{ coord: [], cos2: [], contrib: [] },
+      ind: PcaIndResult::{ coord: [], cos2: [], contrib: [], },
+      var_: PcaVarResult::{ coord: [], cos2: [], contrib: [], },
       n_ind: 0,
       n_var: 0,
       n_dims: 0,

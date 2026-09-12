@@ -79,7 +79,10 @@ fn ap_is_finite(v : Double) -> Bool {
 ///|
 /// R's default quantile (type 7) of a sorted array: h = (n-1)*q + 1 with
 /// linear interpolation between order statistics.
-fn ap_quantile_sorted(sorted : Array[Double], q : Double) -> Double raise ApError {
+fn ap_quantile_sorted(
+  sorted : Array[Double],
+  q : Double,
+) -> Double raise ApError {
   let n = sorted.length()
   if n == 0 {
     ap_fail("cannot compute quantile of an empty vector")
@@ -153,9 +156,10 @@ fn ap_copy_matrix(m : Array[Array[Double]]) -> Array[Array[Double]] {
 /// Pairwise Minkowski-type dissimilarity d(i,j)^r = sum_k |x_ik - x_jk|^r.
 /// With r = 2 (default) this is the squared Euclidean distance, as used by
 /// the default argument negDistMat(r=2) of the R package.
-pub fn ap_minkowski_power(x : Array[Array[Double]], r~ : Double = 2.0) -> Array[
-  Array[Double],
-] raise ApError {
+pub fn ap_minkowski_power(
+  x : Array[Array[Double]],
+  r? : Double = 2.0,
+) -> Array[Array[Double]] raise ApError {
   let (n, p) = ap_check_matrix(x)
   let d = ap_zero_matrix(n)
   for i = 0; i < n; i = i + 1 {
@@ -179,9 +183,9 @@ pub fn ap_minkowski_power(x : Array[Array[Double]], r~ : Double = 2.0) -> Array[
 /// the preference when running apcluster.
 pub fn ap_neg_dist_mat(
   x : Array[Array[Double]],
-  r~ : Double = 2.0,
+  r? : Double = 2.0,
 ) -> Array[Array[Double]] raise ApError {
-  let d = ap_minkowski_power(x, r=r)
+  let d = ap_minkowski_power(x, r~)
   let n = d.length()
   let s = ap_zero_matrix(n)
   for i in 0..<n {
@@ -200,18 +204,13 @@ pub fn ap_neg_dist_mat(
 /// median of the off-diagonal d(i,j)^r values. Diagonal = 1.
 pub fn ap_exp_sim_mat(
   x : Array[Array[Double]],
-  r~ : Double = 2.0,
-  w~ : Option[Double] = None,
+  r? : Double = 2.0,
+  w? : Double? = None,
 ) -> Array[Array[Double]] raise ApError {
-  let d = ap_minkowski_power(x, r=r)
+  let d = ap_minkowski_power(x, r~)
   let n = d.length()
   let width = match w {
-    Some(v) =>
-      if v <= 0.0 {
-        ap_fail("w must be positive")
-      } else {
-        v
-      }
+    Some(v) => if v <= 0.0 { ap_fail("w must be positive") } else { v }
     None => {
       let off : Array[Double] = []
       for i = 0; i < n; i = i + 1 {
@@ -245,18 +244,13 @@ pub fn ap_exp_sim_mat(
 /// Diagonal = 1.
 pub fn ap_lin_sim_mat(
   x : Array[Array[Double]],
-  r~ : Double = 2.0,
-  w~ : Option[Double] = None,
+  r? : Double = 2.0,
+  w? : Double? = None,
 ) -> Array[Array[Double]] raise ApError {
-  let d = ap_minkowski_power(x, r=r)
+  let d = ap_minkowski_power(x, r~)
   let n = d.length()
   let width = match w {
-    Some(v) =>
-      if v <= 0.0 {
-        ap_fail("w must be positive")
-      } else {
-        v
-      }
+    Some(v) => if v <= 0.0 { ap_fail("w must be positive") } else { v }
     None => {
       let mut mx = 0.0
       for i = 0; i < n; i = i + 1 {
@@ -310,7 +304,7 @@ fn ap_average_ranks(v : Array[Double]) -> Array[Double] {
       end = end + 1
     }
     // positions pos..end-1 are tied; R ranks are 1-based, average the ranks
-    let avg_rank = ((pos + 1) + end).to_double() / 2.0
+    let avg_rank = (pos + 1 + end).to_double() / 2.0
     let mut k = pos
     while k < end {
       ranks[idx[k]] = avg_rank
@@ -354,7 +348,7 @@ fn ap_pearson(
 /// average ranks of features within each row). Diagonal = 1.
 pub fn ap_cor_sim_mat(
   x : Array[Array[Double]],
-  method~ : String = "pearson",
+  method? : String = "pearson",
 ) -> Array[Array[Double]] raise ApError {
   let (n, p) = ap_check_matrix(x)
   // precompute transformed rows and their means
@@ -495,9 +489,9 @@ pub fn ApResult::sim(self : ApResult) -> Array[Array[Double]] {
 /// the type-7 quantile q (default median) of the finite similarities.
 fn ap_resolve_preferences(
   sim : Array[Array[Double]],
-  p~ : Option[Double],
+  p~ : Double?,
   q~ : Double,
-  preferences~ : Option[Array[Double]],
+  preferences~ : Array[Double]?,
 ) -> Array[Double] raise ApError {
   let n = sim.length()
   match preferences {
@@ -744,14 +738,14 @@ fn ap_assemble(
 ///   default 0.001).
 pub fn apcluster(
   sim~ : Array[Array[Double]],
-  p~ : Option[Double] = None,
-  q~ : Double = 0.5,
-  preferences~ : Option[Array[Double]] = None,
-  maxits~ : Int = 1000,
-  convits~ : Int = 100,
-  lam~ : Double = 0.9,
-  nonoise~ : Int = 0,
-  noise_r~ : Double = 0.001,
+  p? : Double? = None,
+  q? : Double = 0.5,
+  preferences? : Array[Double]? = None,
+  maxits? : Int = 1000,
+  convits? : Int = 100,
+  lam? : Double = 0.9,
+  nonoise? : Int = 0,
+  noise_r? : Double = 0.001,
 ) -> ApResult raise ApError {
   let n = sim.length()
   if n == 0 {
@@ -768,7 +762,7 @@ pub fn apcluster(
   if maxits <= 0 || convits <= 0 {
     ap_fail("maxits and convits must be positive")
   }
-  let prefs = ap_resolve_preferences(sim, p=p, q=q, preferences=preferences)
+  let prefs = ap_resolve_preferences(sim, p~, q~, preferences~)
   // deterministic run first (matches R when nonoise = 0)
   let (s0, _a0, it0, c0, l0) = ap_run(sim, prefs, maxits, convits, lam)
   let mut best = ap_assemble(s0, l0, prefs, it0, c0)
@@ -795,17 +789,12 @@ pub fn apcluster(
       for i = 0; i < n; i = i + 1 {
         for j = 0; j < n; j = j + 1 {
           if ap_is_finite(noisy[i][j]) {
-            noisy[i][j] = noisy[i][j] +
-              ap_uniform_signed() * noise_r * range
+            noisy[i][j] = noisy[i][j] + ap_uniform_signed() * noise_r * range
           }
         }
       }
       let (s, _a, iters, converged, labels) = ap_run(
-        noisy,
-        prefs,
-        maxits,
-        convits,
-        lam,
+        noisy, prefs, maxits, convits, lam,
       )
       let cand = ap_assemble(s, labels, prefs, iters, converged)
       if cand.netsim > best.netsim {
@@ -823,26 +812,26 @@ pub fn apcluster(
 pub fn apcluster_on_data(
   x~ : Array[Array[Double]],
   sim_fn~ : (Array[Array[Double]]) -> Array[Array[Double]] raise ApError,
-  p~ : Option[Double] = None,
-  q~ : Double = 0.5,
-  preferences~ : Option[Array[Double]] = None,
-  maxits~ : Int = 1000,
-  convits~ : Int = 100,
-  lam~ : Double = 0.9,
-  nonoise~ : Int = 0,
-  noise_r~ : Double = 0.001,
+  p? : Double? = None,
+  q? : Double = 0.5,
+  preferences? : Array[Double]? = None,
+  maxits? : Int = 1000,
+  convits? : Int = 100,
+  lam? : Double = 0.9,
+  nonoise? : Int = 0,
+  noise_r? : Double = 0.001,
 ) -> ApResult raise ApError {
   let sim = sim_fn(x)
   apcluster(
-    sim=sim,
-    p=p,
-    q=q,
-    preferences=preferences,
-    maxits=maxits,
-    convits=convits,
-    lam=lam,
-    nonoise=nonoise,
-    noise_r=noise_r,
+    sim~,
+    p~,
+    q~,
+    preferences~,
+    maxits~,
+    convits~,
+    lam~,
+    nonoise~,
+    noise_r~,
   )
 }
 
@@ -875,12 +864,12 @@ fn ap_merge_labels(labels : Array[Int], from : Int, to : Int) -> Array[Int] {
 pub fn apcluster_k(
   sim~ : Array[Array[Double]],
   k~ : Int,
-  p~ : Option[Double] = None,
-  bimaxit~ : Int = 100,
-  exact~ : Bool = true,
-  maxits~ : Int = 1000,
-  convits~ : Int = 100,
-  lam~ : Double = 0.9,
+  p? : Double? = None,
+  bimaxit? : Int = 100,
+  exact? : Bool = true,
+  maxits? : Int = 1000,
+  convits? : Int = 100,
+  lam? : Double = 0.9,
 ) -> ApResult raise ApError {
   let n = sim.length()
   if k <= 0 {
@@ -890,7 +879,7 @@ pub fn apcluster_k(
     ap_fail("k cannot exceed the number of points (\{n})")
   }
   if n == 1 {
-    return apcluster(sim=sim, p=p, maxits=maxits, convits=convits, lam=lam)
+    return apcluster(sim~, p~, maxits~, convits~, lam~)
   }
   let finite : Array[Double] = []
   for i = 0; i < n; i = i + 1 {
@@ -907,15 +896,9 @@ pub fn apcluster_k(
     Some(v) => v
     None => ap_quantile_sorted(finite, 0.5)
   }
-  let mut result : Option[ApResult] = None
+  let mut result : ApResult? = None
   for _it in 0..<bimaxit {
-    let run = apcluster(
-      sim=sim,
-      p=Some(p_cur),
-      maxits=maxits,
-      convits=convits,
-      lam=lam,
-    )
+    let run = apcluster(sim~, p=Some(p_cur), maxits~, convits~, lam~)
     let ne = run.num_clusters()
     if ne == k {
       return run
@@ -999,20 +982,12 @@ pub fn apcluster_k_on_data(
   x~ : Array[Array[Double]],
   sim_fn~ : (Array[Array[Double]]) -> Array[Array[Double]] raise ApError,
   k~ : Int,
-  bimaxit~ : Int = 100,
-  exact~ : Bool = true,
-  maxits~ : Int = 1000,
-  convits~ : Int = 100,
-  lam~ : Double = 0.9,
+  bimaxit? : Int = 100,
+  exact? : Bool = true,
+  maxits? : Int = 1000,
+  convits? : Int = 100,
+  lam? : Double = 0.9,
 ) -> ApResult raise ApError {
   let sim = sim_fn(x)
-  apcluster_k(
-    sim=sim,
-    k=k,
-    bimaxit=bimaxit,
-    exact=exact,
-    maxits=maxits,
-    convits=convits,
-    lam=lam,
-  )
+  apcluster_k(sim~, k~, bimaxit~, exact~, maxits~, convits~, lam~)
 }

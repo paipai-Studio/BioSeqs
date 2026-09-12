@@ -178,7 +178,7 @@ pub fn CodonUsageTable::new(codon_counts : Map[String, Int]) -> CodonUsageTable 
     total = total + codon_counts.get(keys[i]).unwrap_or(0)
     i = i + 1
   }
-  CodonUsageTable::{ codon_counts, total_codons: total, frequencies }
+  CodonUsageTable::{ codon_counts, total_codons: total, frequencies, }
 }
 
 ///|
@@ -234,7 +234,7 @@ pub fn CAIResult::new(
   codon_scores : Map[String, Double],
   sequence_length : Int,
 ) -> CAIResult {
-  CAIResult::{ score, codon_scores, sequence_length }
+  CAIResult::{ score, codon_scores, sequence_length, }
 }
 
 ///|
@@ -262,7 +262,7 @@ pub fn RSCUResult::new(
   values : Map[String, Double],
   total_counts : Map[String, Int],
 ) -> RSCUResult {
-  RSCUResult::{ values, total_counts }
+  RSCUResult::{ values, total_counts, }
 }
 
 ///|

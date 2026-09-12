@@ -55,16 +55,55 @@ pub fn scop_raf_normalize_letters(one_letter_code : String) -> String {
 /// residues plus the ambiguous IUPAC codes (Asx/Glx/Xle/Xaa, Sec/Pyl) and
 /// chemically modified residues commonly found in PDB files.
 let scop_raf_protein_3to1 : Map[String, String] = Map([
-  ("ALA", "A"), ("ARG", "R"), ("ASN", "N"), ("ASP", "D"), ("CYS", "C"),
-  ("GLN", "Q"), ("GLU", "E"), ("GLY", "G"), ("HIS", "H"), ("ILE", "I"),
-  ("LEU", "L"), ("LYS", "K"), ("MET", "M"), ("PHE", "F"), ("PRO", "P"),
-  ("SER", "S"), ("THR", "T"), ("TRP", "W"), ("TYR", "Y"), ("VAL", "V"),
-  ("ASX", "B"), ("GLX", "Z"), ("XLE", "J"), ("XAA", "X"), ("SEC", "U"),
-  ("PYL", "O"), ("MSE", "M"), ("SEP", "S"), ("TPO", "T"), ("PTR", "Y"),
-  ("MLY", "K"), ("ALY", "K"), ("M3L", "K"), ("KCX", "K"), ("LLP", "K"),
-  ("CSD", "C"), ("CSO", "C"), ("CME", "C"), ("CAS", "C"), ("CSX", "C"),
-  ("OCS", "C"), ("HYP", "P"), ("ALC", "A"), ("FME", "M"), ("ABA", "A"),
-  ("PCA", "E"), ("AYA", "A"), ("TRQ", "W"), ("ASX_", "B"),
+  ("ALA", "A"),
+  ("ARG", "R"),
+  ("ASN", "N"),
+  ("ASP", "D"),
+  ("CYS", "C"),
+  ("GLN", "Q"),
+  ("GLU", "E"),
+  ("GLY", "G"),
+  ("HIS", "H"),
+  ("ILE", "I"),
+  ("LEU", "L"),
+  ("LYS", "K"),
+  ("MET", "M"),
+  ("PHE", "F"),
+  ("PRO", "P"),
+  ("SER", "S"),
+  ("THR", "T"),
+  ("TRP", "W"),
+  ("TYR", "Y"),
+  ("VAL", "V"),
+  ("ASX", "B"),
+  ("GLX", "Z"),
+  ("XLE", "J"),
+  ("XAA", "X"),
+  ("SEC", "U"),
+  ("PYL", "O"),
+  ("MSE", "M"),
+  ("SEP", "S"),
+  ("TPO", "T"),
+  ("PTR", "Y"),
+  ("MLY", "K"),
+  ("ALY", "K"),
+  ("M3L", "K"),
+  ("KCX", "K"),
+  ("LLP", "K"),
+  ("CSD", "C"),
+  ("CSO", "C"),
+  ("CME", "C"),
+  ("CAS", "C"),
+  ("CSX", "C"),
+  ("OCS", "C"),
+  ("HYP", "P"),
+  ("ALC", "A"),
+  ("FME", "M"),
+  ("ABA", "A"),
+  ("PCA", "E"),
+  ("AYA", "A"),
+  ("TRQ", "W"),
+  ("ASX_", "B"),
 ])
 
 ///|
@@ -103,7 +142,7 @@ pub fn scop_raf_seqmap_parse(line : String) -> ScopSeqMap raise ScopRafError {
   while text.length() > 0 {
     let last = char_at(text, text.length() - 1)
     if last == " " || last == "\t" || last == "\r" {
-      text = text[0:(text.length() - 1)].to_owned()
+      text = text[0:text.length() - 1].to_owned()
     } else {
       break
     }
@@ -123,17 +162,17 @@ pub fn scop_raf_seqmap_parse(line : String) -> ScopSeqMap raise ScopRafError {
   let res : Array[ScopRafRes] = Array::new()
   let mut i = header_len
   while i < text.length() {
-    let f = text[i:(i + 7)].to_owned()
+    let f = text[i:i + 7].to_owned()
     if f.length() != 7 {
       scop_raf_fail("Corrupt Field: (" + f + ")")
     }
     let resid = f[0:5].trim().to_owned()
     let atom = scop_raf_normalize_letters(f[5:6].to_owned())
     let seqres = scop_raf_normalize_letters(f[6:7].to_owned())
-    res.push(ScopRafRes::{ chainid, resid, atom, seqres })
+    res.push(ScopRafRes::{ chainid, resid, atom, seqres, })
     i = i + 7
   }
-  ScopSeqMap::{ pdbid, pdb_datestamp: datestamp, version, flags, res }
+  ScopSeqMap::{ pdbid, pdb_datestamp: datestamp, version, flags, res, }
 }
 
 ///|
@@ -400,7 +439,7 @@ pub fn scop_dom_record_parse(line : String) -> DomRecord raise ScopDomError {
   while text.length() > 0 {
     let last = char_at(text, text.length() - 1)
     if last == " " || last == "\t" || last == "\r" || last == "\n" {
-      text = text[0:(text.length() - 1)].to_owned()
+      text = text[0:text.length() - 1].to_owned()
     } else {
       break
     }
@@ -419,7 +458,7 @@ pub fn scop_dom_record_parse(line : String) -> DomRecord raise ScopDomError {
   let parsed = scop_parse_residues(res)
   // the residues column has no pdbid prefix; set it explicitly
   let residues = ScopResidues::new(pdbid, parsed.fragments)
-  DomRecord::{ sid, residues, hierarchy }
+  DomRecord::{ sid, residues, hierarchy, }
 }
 
 ///|

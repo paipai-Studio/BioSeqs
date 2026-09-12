@@ -508,7 +508,7 @@ pub fn MutSigProfile::new(
   id : String,
   probabilities : Array[Double],
 ) -> MutSigProfile {
-  MutSigProfile::{ id, probabilities }
+  MutSigProfile::{ id, probabilities, }
 }
 
 ///|

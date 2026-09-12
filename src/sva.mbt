@@ -18,7 +18,7 @@ pub fn ComBatResult::new(
   gamma_hat : Array[Array[Double]],
   delta_hat : Array[Array[Double]],
 ) -> ComBatResult {
-  ComBatResult::{ adjusted, gamma_hat, delta_hat }
+  ComBatResult::{ adjusted, gamma_hat, delta_hat, }
 }
 
 ///|
@@ -302,7 +302,7 @@ pub fn SvaResult::new(
   pprob_gam : Array[Double],
   n_sv : Int,
 ) -> SvaResult {
-  SvaResult::{ sv, pprob_gam, n_sv }
+  SvaResult::{ sv, pprob_gam, n_sv, }
 }
 
 ///|

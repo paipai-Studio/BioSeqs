@@ -78,7 +78,7 @@ pub fn gene_position(
   start : Int,
   end : Int,
 ) -> GenePosition {
-  { gene_id, chromosome, start, end }
+  { gene_id, chromosome, start, end, }
 }
 
 ///|
@@ -112,7 +112,7 @@ pub fn ordered_genes(raw : Array[GenePosition]) -> OrderedGenes {
       }
     }
   }
-  { gene_order: arr, n_genes: arr.length() }
+  { gene_order: arr, n_genes: arr.length(), }
 }
 
 ///|
@@ -177,7 +177,7 @@ pub struct CellAnnotation {
 ///|
 /// Create a cell annotation.
 pub fn cell_annotation(cell_id : String, category : String) -> CellAnnotation {
-  { cell_id, category }
+  { cell_id, category, }
 }
 
 ///|

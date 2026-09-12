@@ -960,7 +960,7 @@ pub fn decontx_sce(
   enriched.metadata["decontX_iterations"] = result.diagnostics.iterations.to_string()
   enriched.metadata["decontX_converged"] = result.diagnostics.converged.to_string()
   enriched.metadata["decontX_background"] = result.used_background.to_string()
-  DecontXSCEOutput::{ experiment: enriched, result }
+  DecontXSCEOutput::{ experiment: enriched, result, }
 }
 
 ///|

@@ -201,7 +201,7 @@ pub fn run_pca(obj : SeuratObject) -> SeuratObject {
     n = n + 1
   }
 
-  SeuratObject::{ ..obj, pca, pca_loadings, var_explained }
+  SeuratObject::{ ..obj, pca, pca_loadings, var_explained, }
 }
 
 ///|
@@ -359,7 +359,7 @@ pub fn IntegrationAnchor::new(
   cell2 : Int,
   score : Double,
 ) -> IntegrationAnchor {
-  IntegrationAnchor::{ cell1, cell2, score }
+  IntegrationAnchor::{ cell1, cell2, score, }
 }
 
 ///|
@@ -375,7 +375,7 @@ pub fn IntegrationAnchors::new(
   reference_indices : Array[Int],
   query_indices : Array[Int],
 ) -> IntegrationAnchors {
-  IntegrationAnchors::{ anchors, reference_indices, query_indices }
+  IntegrationAnchors::{ anchors, reference_indices, query_indices, }
 }
 
 ///|
@@ -561,7 +561,7 @@ pub fn MarkerResult::new(
   p_value : Double,
   adjusted_p_value : Double,
 ) -> MarkerResult {
-  MarkerResult::{ gene, avg_log2_fc, pct_1, pct_2, p_value, adjusted_p_value }
+  MarkerResult::{ gene, avg_log2_fc, pct_1, pct_2, p_value, adjusted_p_value, }
 }
 
 ///|

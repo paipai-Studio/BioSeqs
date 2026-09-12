@@ -484,7 +484,7 @@ pub fn BSRecord::new(
   meth : Int,
   unmeth : Int,
 ) -> BSRecord {
-  BSRecord::{ chr, pos, strand, meth, unmeth, context: "CpG" }
+  BSRecord::{ chr, pos, strand, meth, unmeth, context: "CpG", }
 }
 
 ///|
@@ -496,7 +496,7 @@ pub fn BSRecord::new_with_context(
   unmeth : Int,
   context : String,
 ) -> BSRecord {
-  BSRecord::{ chr, pos, strand, meth, unmeth, context }
+  BSRecord::{ chr, pos, strand, meth, unmeth, context, }
 }
 
 ///|
@@ -557,7 +557,7 @@ pub fn BSData::new(
     i = i + 1
   }
   let chr_names = chr_set.keys().collect()
-  BSData::{ records, sample_names, chr_names, coverage, methylation }
+  BSData::{ records, sample_names, chr_names, coverage, methylation, }
 }
 
 ///|
@@ -667,7 +667,7 @@ pub fn DMRegion::new(
   fdr : Double,
   direction : String,
 ) -> DMRegion {
-  DMRegion::{ chr, start, end, n_cpg, mean_meth_diff, pvalue, fdr, direction }
+  DMRegion::{ chr, start, end, n_cpg, mean_meth_diff, pvalue, fdr, direction, }
 }
 
 ///|
@@ -715,7 +715,7 @@ pub fn BsseqDMRResult::new(
     }
     i = i + 1
   }
-  BsseqDMRResult::{ regions, n_dmr, n_significant: n_sig, threshold }
+  BsseqDMRResult::{ regions, n_dmr, n_significant: n_sig, threshold, }
 }
 
 ///|
@@ -1133,7 +1133,7 @@ pub fn bsseq_compute_tstat(
 ) -> TStatResult {
   let n = group1.length()
   if n == 0 || group2.length() != n {
-    return TStatResult::{ t_stat: [], pvalue: [], fdr: [], mean_diff: [] }
+    return TStatResult::{ t_stat: [], pvalue: [], fdr: [], mean_diff: [], }
   }
   let mean_diff : Array[Double] = Array::make(n, 0.0)
   let t_stat : Array[Double] = Array::make(n, 0.0)
@@ -1154,7 +1154,7 @@ pub fn bsseq_compute_tstat(
     i = i + 1
   }
   let fdr = bsseq_bh_fdr(pvalue)
-  TStatResult::{ t_stat, pvalue, fdr, mean_diff }
+  TStatResult::{ t_stat, pvalue, fdr, mean_diff, }
 }
 
 ///|
@@ -1594,7 +1594,7 @@ pub fn bsseq_summary(bsdata : BSData) -> String {
 pub fn bsseq_combine_samples(samples : Array[BSData]) -> CovMatrix {
   let n_samples = samples.length()
   if n_samples == 0 {
-    return CovMatrix::{ chr: [], pos: [], cov: [], meth: [] }
+    return CovMatrix::{ chr: [], pos: [], cov: [], meth: [], }
   }
   // Build a map from "chr:pos" to (chr, pos) and per-sample lookup.
   let key_to_chr : Map[String, String] = Map([], capacity=1024)
@@ -1673,7 +1673,7 @@ pub fn bsseq_combine_samples(samples : Array[BSData]) -> CovMatrix {
     meth_arr.push(meth_row)
     k = k + 1
   }
-  CovMatrix::{ chr: chr_arr, pos: pos_arr, cov: cov_arr, meth: meth_arr }
+  CovMatrix::{ chr: chr_arr, pos: pos_arr, cov: cov_arr, meth: meth_arr, }
 }
 
 ///|

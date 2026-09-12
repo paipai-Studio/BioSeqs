@@ -29,7 +29,7 @@ pub fn MatrixStatsResult::new(
   row_names : Array[String],
   col_names : Array[String],
 ) -> MatrixStatsResult {
-  MatrixStatsResult::{ values, stat_type, dimension, row_names, col_names }
+  MatrixStatsResult::{ values, stat_type, dimension, row_names, col_names, }
 }
 
 ///|
@@ -60,7 +60,7 @@ pub fn create_delayed_matrix(
 ) -> DelayedMatrix {
   let nrow = data.length()
   let ncol = if nrow > 0 { data[0].length() } else { 0 }
-  DelayedMatrix::{ data, nrow, ncol, row_names, col_names }
+  DelayedMatrix::{ data, nrow, ncol, row_names, col_names, }
 }
 
 ///|

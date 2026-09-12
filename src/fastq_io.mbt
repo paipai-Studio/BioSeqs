@@ -168,7 +168,9 @@ pub fn write_fastq(records : Array[SeqRecord]) -> String raise SeqIOError {
 /// and return an array of SeqRecord objects.
 ///
 /// Mirrors BioPython's SeqIO.parse(handle, "fastq-illumina").
-pub fn parse_fastq_illumina(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_fastq_illumina(
+  content : String,
+) -> Array[SeqRecord] raise SeqIOError {
   parse_fastq_offset(content, 64)
 }
 
@@ -177,7 +179,9 @@ pub fn parse_fastq_illumina(content : String) -> Array[SeqRecord] raise SeqIOErr
 /// and return an array of SeqRecord objects.
 ///
 /// Mirrors BioPython's SeqIO.parse(handle, "fastq-solexa").
-pub fn parse_fastq_solexa(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_fastq_solexa(
+  content : String,
+) -> Array[SeqRecord] raise SeqIOError {
   parse_fastq_offset(content, 64)
 }
 
@@ -373,7 +377,9 @@ pub fn solexa_quality_from_phred(phred_quality : Double) -> Double {
   if phred_quality <= 0.0 {
     -5.0
   } else {
-    let val = 10.0 * @math.ln(@math.pow(10.0, phred_quality / 10.0) - 1.0) / @math.ln(10.0)
+    let val = 10.0 *
+      @math.ln(@math.pow(10.0, phred_quality / 10.0) - 1.0) /
+      @math.ln(10.0)
     if val < -5.0 {
       -5.0
     } else {
@@ -393,18 +399,20 @@ pub fn phred_quality_from_solexa(solexa_quality : Double) -> Double {
   if solexa_quality <= -5.0 {
     0.0
   } else {
-    10.0 * @math.ln(@math.pow(10.0, solexa_quality / 10.0) + 1.0) / @math.ln(10.0)
+    10.0 *
+    @math.ln(@math.pow(10.0, solexa_quality / 10.0) + 1.0) /
+    @math.ln(10.0)
   }
 }
 
 ///|
 /// Convenience: convert a Double PHRED quality to a rounded integer Solexa score.
 pub fn solexa_quality_from_phred_int(phred_quality : Int) -> Int {
-  (@math.round(solexa_quality_from_phred(phred_quality.to_double()))).to_int()
+  @math.round(solexa_quality_from_phred(phred_quality.to_double())).to_int()
 }
 
 ///|
 /// Convenience: convert a Double Solexa quality to a rounded integer PHRED score.
 pub fn phred_quality_from_solexa_int(solexa_quality : Int) -> Int {
-  (@math.round(phred_quality_from_solexa(solexa_quality.to_double()))).to_int()
+  @math.round(phred_quality_from_solexa(solexa_quality.to_double())).to_int()
 }

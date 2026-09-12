@@ -96,7 +96,7 @@ pub fn ScopFragment::new(
   start : String,
   end_ : String,
 ) -> ScopFragment {
-  { chain, start, end_ }
+  { chain, start, end_, }
 }
 
 ///|
@@ -133,7 +133,7 @@ pub fn ScopResidues::new(
   pdbid : String,
   fragments : Array[ScopFragment],
 ) -> ScopResidues {
-  { pdbid, fragments }
+  { pdbid, fragments, }
 }
 
 ///|
@@ -268,7 +268,7 @@ pub fn ClaRecord::new(
   sunid : Int,
   hierarchy : Map[String, Int],
 ) -> ClaRecord {
-  { sid, pdbid, residues, sccs, sunid, hierarchy }
+  { sid, pdbid, residues, sccs, sunid, hierarchy, }
 }
 
 ///|
@@ -327,7 +327,7 @@ pub fn DesRecord::new(
   name : String,
   description : String,
 ) -> DesRecord {
-  { sunid, nodetype, sccs, name, description }
+  { sunid, nodetype, sccs, name, description, }
 }
 
 ///|
@@ -376,7 +376,7 @@ pub fn HieRecord::new(
   parent : Int,
   children : Array[Int],
 ) -> HieRecord {
-  { sunid, parent, children }
+  { sunid, parent, children, }
 }
 
 ///|
@@ -724,7 +724,7 @@ pub fn Scop::new(
     Some(r) => r
     None => root
   }
-  { root: final_root, sunid_dict, sid_dict, domains }
+  { root: final_root, sunid_dict, sid_dict, domains, }
 }
 
 ///|
@@ -735,7 +735,7 @@ pub fn scop_empty() -> Scop {
   sunid_dict.set(0, root)
   let sid_dict : Map[String, ScopNode] = Map([], capacity=0)
   let domains : Array[ScopNode] = []
-  { root, sunid_dict, sid_dict, domains }
+  { root, sunid_dict, sid_dict, domains, }
 }
 
 ///|

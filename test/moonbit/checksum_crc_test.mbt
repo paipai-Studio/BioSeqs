@@ -13,8 +13,7 @@ test "checksum_crc32_matches_biopython" {
     ("ACGTACGTACGT", "20049947"),
     ("ACDEFGHIKLMNPQRSTVWY", "149026042"),
     (
-      "MKWVTFISLLFLFSSAYSRGVFRRDTHKSEIAHRFKDLGEEHFKGLVLIAFSQYLQQCPFDEHVK",
-      "4288159397",
+      "MKWVTFISLLFLFSSAYSRGVFRRDTHKSEIAHRFKDLGEEHFKGLVLIAFSQYLQQCPFDEHVK", "4288159397",
     ),
   ]
   for case in cases {
@@ -35,8 +34,7 @@ test "checksum_crc64_matches_biopython" {
     ("ACGTACGTACGT", "CRC-C4FBB762C4A87EBD"),
     ("ACDEFGHIKLMNPQRSTVWY", "CRC-F0D170F3DFA2290A"),
     (
-      "MKWVTFISLLFLFSSAYSRGVFRRDTHKSEIAHRFKDLGEEHFKGLVLIAFSQYLQQCPFDEHVK",
-      "CRC-475F23DE3366B7A2",
+      "MKWVTFISLLFLFSSAYSRGVFRRDTHKSEIAHRFKDLGEEHFKGLVLIAFSQYLQQCPFDEHVK", "CRC-475F23DE3366B7A2",
     ),
   ]
   for case in cases {
@@ -76,12 +74,27 @@ test "checksum_crc_empty_is_deterministic" {
 ///|
 test "checksum_by_name_dispatch" {
   let seq = "ACGT"
-  assert_eq(@src.checksum_by_name(seq, "crc32").checksum, @src.checksum_crc32(seq).checksum)
-  assert_eq(@src.checksum_by_name(seq, "crc64").checksum, @src.checksum_crc64(seq).checksum)
-  assert_eq(@src.checksum_by_name(seq, "CRC32").checksum, @src.checksum_crc32(seq).checksum)
-  assert_eq(@src.checksum_by_name(seq, "CRC64").checksum, @src.checksum_crc64(seq).checksum)
+  assert_eq(
+    @src.checksum_by_name(seq, "crc32").checksum,
+    @src.checksum_crc32(seq).checksum,
+  )
+  assert_eq(
+    @src.checksum_by_name(seq, "crc64").checksum,
+    @src.checksum_crc64(seq).checksum,
+  )
+  assert_eq(
+    @src.checksum_by_name(seq, "CRC32").checksum,
+    @src.checksum_crc32(seq).checksum,
+  )
+  assert_eq(
+    @src.checksum_by_name(seq, "CRC64").checksum,
+    @src.checksum_crc64(seq).checksum,
+  )
   // Existing algorithms keep working through the dispatcher
-  assert_eq(@src.checksum_by_name(seq, "gcg").checksum, @src.checksum_gcg(seq).checksum)
+  assert_eq(
+    @src.checksum_by_name(seq, "gcg").checksum,
+    @src.checksum_gcg(seq).checksum,
+  )
   assert_eq(
     @src.checksum_by_name(seq, "seguid").checksum,
     @src.checksum_seguid(seq).checksum,

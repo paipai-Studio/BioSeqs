@@ -272,7 +272,7 @@ pub struct ReferenceList {
 ///|
 /// Create a new reference list.
 pub fn ReferenceList::new() -> ReferenceList {
-  ReferenceList::{ refs: Array::new() }
+  ReferenceList::{ refs: Array::new(), }
 }
 
 ///|

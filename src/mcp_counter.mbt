@@ -27,7 +27,7 @@ pub fn McpCellPopulation::new(
   name : String,
   markers : Array[String],
 ) -> McpCellPopulation {
-  { name, markers }
+  { name, markers, }
 }
 
 ///|
@@ -252,7 +252,7 @@ pub fn mcp_run(
     }
     scores.push(sample_scores)
   }
-  { populations: pop_names, sample_names: sample_names.copy(), scores }
+  { populations: pop_names, sample_names: sample_names.copy(), scores, }
 }
 
 ///|

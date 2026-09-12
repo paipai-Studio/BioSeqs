@@ -40,7 +40,7 @@ pub fn CameraGeneSet::create(
   if indices.length() == 0 {
     raise GeneSetTestError("gene set '" + name + "' is empty")
   }
-  CameraGeneSet::{ name, indices: indices.copy() }
+  CameraGeneSet::{ name, indices: indices.copy(), }
 }
 
 ///|
@@ -110,12 +110,8 @@ pub fn CameraResult::fdr(self : CameraResult) -> Double? {
 /// normalization and is biased by -ln(x), so it cannot be reused here).
 fn gst_lngamma(x_in : Double) -> Double {
   let cof = [
-    76.18009172947146,
-    -86.50532032941677,
-    24.01409824083091,
-    -1.231739572450155,
-    0.1208650973866179e-2,
-    -0.5395239384953e-5,
+    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
+    0.1208650973866179e-2, -0.5395239384953e-5,
   ]
   let mut y = x_in
   let mut tmp = x_in + 5.5
@@ -146,7 +142,9 @@ fn gst_betacf(a : Double, b : Double, x : Double) -> Double {
   let mut m = 1
   while m <= 300 {
     let m2 = 2 * m
-    let mut aa = m.to_double() * (b - m.to_double()) * x /
+    let mut aa = m.to_double() *
+      (b - m.to_double()) *
+      x /
       ((qam + m2.to_double()) * (a + m2.to_double()))
     d = 1.0 + aa * d
     if d.abs() < fpmin {
@@ -158,7 +156,9 @@ fn gst_betacf(a : Double, b : Double, x : Double) -> Double {
     }
     d = 1.0 / d
     h *= d * c
-    aa = -(a + m.to_double()) * (qab + m.to_double()) * x /
+    aa = -(a + m.to_double()) *
+      (qab + m.to_double()) *
+      x /
       ((a + m2.to_double()) * (qap + m2.to_double()))
     d = 1.0 + aa * d
     if d.abs() < fpmin {
@@ -189,10 +189,13 @@ fn gst_pbeta(x : Double, a : Double, b : Double) -> Double {
   if x >= 1.0 {
     return 1.0
   }
-  let bt = (@math.exp(gst_lngamma(a + b) - gst_lngamma(a) - gst_lngamma(b) +
-    a * @math.ln(
-      x,
-    ) + b * @math.ln(1.0 - x)))
+  let bt = @math.exp(
+    gst_lngamma(a + b) -
+    gst_lngamma(a) -
+    gst_lngamma(b) +
+    a * @math.ln(x) +
+    b * @math.ln(1.0 - x),
+  )
   if x < (a + 1.0) / (a + b + 2.0) {
     bt * gst_betacf(a, b, x) / a
   } else {
@@ -214,34 +217,12 @@ fn gst_pt_lower(t : Double, df : Double) -> Double {
 ///|
 /// Coefficients for Numerical Recipes erfc Chebyshev approximation.
 let gst_erfc_cof : Array[Double] = [
-  -1.3026537197817094,
-  6.4196979235649026e-1,
-  1.9476473204185836e-2,
-  -9.561514786808631e-3,
-  -9.46595344482036e-4,
-  3.66839497852761e-4,
-  4.2523324806907e-5,
-  -2.0278578112534e-5,
-  -1.624290004647e-6,
-  1.303655835580e-6,
-  1.5626441722e-8,
-  -8.5238095915e-8,
-  6.529054439e-9,
-  5.059343495e-9,
-  -9.91364156e-10,
-  -2.27365122e-10,
-  9.6467911e-11,
-  2.394038e-12,
-  -6.886027e-12,
-  8.94487e-13,
-  3.13092e-13,
-  -1.12708e-13,
-  3.81e-14,
-  7.106e-15,
-  -1.523e-15,
-  -9.4e-17,
-  1.21e-16,
-  -2.8e-18,
+  -1.3026537197817094, 6.4196979235649026e-1, 1.9476473204185836e-2, -9.561514786808631e-3,
+  -9.46595344482036e-4, 3.66839497852761e-4, 4.2523324806907e-5, -2.0278578112534e-5,
+  -1.624290004647e-6, 1.303655835580e-6, 1.5626441722e-8, -8.5238095915e-8, 6.529054439e-9,
+  5.059343495e-9, -9.91364156e-10, -2.27365122e-10, 9.6467911e-11, 2.394038e-12,
+  -6.886027e-12, 8.94487e-13, 3.13092e-13, -1.12708e-13, 3.81e-14, 7.106e-15, -1.523e-15,
+  -9.4e-17, 1.21e-16, -2.8e-18,
 ]
 
 ///|
@@ -258,9 +239,7 @@ fn gst_erfc_cheb(z : Double) -> Double {
     dd = tmp
     j -= 1
   }
-  t * @math.exp(
-    -z * z + 0.5 * (gst_erfc_cof[0] + ty * d) - dd,
-  )
+  t * @math.exp(-z * z + 0.5 * (gst_erfc_cof[0] + ty * d) - dd)
 }
 
 ///|
@@ -290,12 +269,20 @@ fn gst_digamma(x_in : Double) -> Double {
   }
   let inv = 1.0 / x
   let inv2 = inv * inv
-  result += @math.ln(x) - 0.5 * inv - inv2 *
+  result += @math.ln(x) -
+    0.5 * inv -
+    inv2 *
     (
       1.0 / 12.0 -
       inv2 *
-        (1.0 / 120.0 - inv2 * (1.0 / 252.0 - inv2 * (1.0 / 240.0 - inv2 *
-          (5.0 / 660.0 - inv2 * 691.0 / 32760.0))))
+      (
+        1.0 / 120.0 -
+        inv2 *
+        (
+          1.0 / 252.0 -
+          inv2 * (1.0 / 240.0 - inv2 * (5.0 / 660.0 - inv2 * 691.0 / 32760.0))
+        )
+      )
     )
   result
 }
@@ -311,12 +298,25 @@ fn gst_trigamma(x_in : Double) -> Double {
   }
   let inv = 1.0 / x
   let inv2 = inv * inv
-  result += inv + 0.5 * inv2 + inv2 * inv *
+  result += inv +
+    0.5 * inv2 +
+    inv2 *
+    inv *
     (
       1.0 / 6.0 +
       inv2 *
-        (-1.0 / 30.0 + inv2 * (1.0 / 42.0 - inv2 * (1.0 / 30.0 + inv2 *
-          (5.0 / 66.0 - inv2 * (691.0 / 2730.0 - inv2 * 7.0 / 6.0)))))
+      (
+        -1.0 / 30.0 +
+        inv2 *
+        (
+          1.0 / 42.0 -
+          inv2 *
+          (
+            1.0 / 30.0 +
+            inv2 * (5.0 / 66.0 - inv2 * (691.0 / 2730.0 - inv2 * 7.0 / 6.0))
+          )
+        )
+      )
     )
   result
 }
@@ -333,11 +333,15 @@ fn gst_polygamma2(x_in : Double) -> Double {
   }
   let inv = 1.0 / x
   let inv2 = inv * inv
-  result += -inv2 - inv2 * inv - 0.5 * inv2 * inv2 + inv2 * inv2 * inv2 *
+  result += -inv2 -
+    inv2 * inv -
+    0.5 * inv2 * inv2 +
+    inv2 *
+    inv2 *
+    inv2 *
     (
       1.0 / 6.0 +
-      inv2 *
-        (-1.0 / 6.0 + inv2 * 0.3 - inv2 * (5.0 / 42.0 - inv2 * 5.0 / 30.0))
+      inv2 * (-1.0 / 6.0 + inv2 * 0.3 - inv2 * (5.0 / 42.0 - inv2 * 5.0 / 30.0))
     )
   result
 }
@@ -430,8 +434,7 @@ fn gst_squeeze_var(
     if df_prior > 1.0e100 {
       var_post[i] = var_prior
     } else {
-      var_post[i] = (df * variance[i] + df_prior * var_prior) /
-        (df + df_prior)
+      var_post[i] = (df * variance[i] + df_prior * var_prior) / (df + df_prior)
     }
     i += 1
   }
@@ -445,8 +448,14 @@ fn gst_zscore_hill(x : Double, df : Double) -> Double {
   let a = df - 0.5
   let b = 48.0 * a * a
   let z0 = a * @math.ln(1.0 + x / df * x)
-  let inner = ((((-0.4 * z0 - 3.3) * z0 - 24.0) * z0 - 85.5) /
-    (0.8 * z0 * z0 + 100.0 + b) + z0 + 3.0) / b + 1.0
+  let inner = (
+      (((-0.4 * z0 - 3.3) * z0 - 24.0) * z0 - 85.5) /
+      (0.8 * z0 * z0 + 100.0 + b) +
+      z0 +
+      3.0
+    ) /
+    b +
+    1.0
   let z = inner * z0.sqrt()
   if x < 0.0 {
     -z
@@ -488,7 +497,7 @@ fn gst_average_ranks(values : Array[Double]) -> Array[Double] {
     while finish < n && values[order[finish]] == values[order[start]] {
       finish += 1
     }
-    let avg = ((start + 1 + finish).to_double()) / 2.0
+    let avg = (start + 1 + finish).to_double() / 2.0
     let mut k = start
     while k < finish {
       ranks[order[k]] = avg
@@ -500,7 +509,10 @@ fn gst_average_ranks(values : Array[Double]) -> Array[Double] {
 }
 
 ///|
-fn gst_check_finite(values : Array[Double], what : String) -> Unit raise GeneSetTestError {
+fn gst_check_finite(
+  values : Array[Double],
+  what : String,
+) -> Unit raise GeneSetTestError {
   for value in values {
     if value.is_nan() || value.abs() > 1.7976931348623157e308 {
       raise GeneSetTestError(what + " contains NA/NaN or infinite values")
@@ -521,15 +533,25 @@ fn gst_validated_indices(
   }
   if m >= n_genes {
     raise GeneSetTestError(
-      "gene set '" + set.name + "' must contain fewer genes than the universe (" +
-        m.to_string() + " >= " + n_genes.to_string() + ")",
+      "gene set '" +
+      set.name +
+      "' must contain fewer genes than the universe (" +
+      m.to_string() +
+      " >= " +
+      n_genes.to_string() +
+      ")",
     )
   }
   for i in indices {
     if i < 0 || i >= n_genes {
       raise GeneSetTestError(
-        "gene set '" + set.name + "' contains index " + i.to_string() +
-          " outside [0, " + (n_genes - 1).to_string() + "]",
+        "gene set '" +
+        set.name +
+        "' contains index " +
+        i.to_string() +
+        " outside [0, " +
+        (n_genes - 1).to_string() +
+        "]",
       )
     }
   }
@@ -538,8 +560,10 @@ fn gst_validated_indices(
     while j < m {
       if indices[i] == indices[j] {
         raise GeneSetTestError(
-          "gene set '" + set.name + "' contains duplicated index " +
-            indices[i].to_string(),
+          "gene set '" +
+          set.name +
+          "' contains duplicated index " +
+          indices[i].to_string(),
         )
       }
       j += 1
@@ -599,8 +623,8 @@ fn gst_order_by_p(p_values : Array[Double]) -> Array[Int] {
 pub fn rank_sum_test_with_correlation(
   index : Array[Int],
   statistics : Array[Double],
-  correlation~ : Double = 0.0,
-  df~ : Double? = Option::None,
+  correlation? : Double = 0.0,
+  df? : Double? = Option::None,
 ) -> (Double, Double) raise GeneSetTestError {
   let n = statistics.length()
   let n1 = index.length()
@@ -635,9 +659,14 @@ pub fn rank_sum_test_with_correlation(
     let c2 = n1d * n2d * (n2d - 1.0)
     let c3 = n1d * (n1d - 1.0) * n2d * (n2d - 1.0)
     let c4 = n1d * (n1d - 1.0) * n2d
-    (@math.asin(1.0) * c1 + @math.asin(0.5) * c2 + @math.asin(
-        correlation / 2.0,
-      ) * c3 + @math.asin((correlation + 1.0) / 2.0) * c4) / 2.0 / 3.141592653589793
+    (
+      @math.asin(1.0) * c1 +
+      @math.asin(0.5) * c2 +
+      @math.asin(correlation / 2.0) * c3 +
+      @math.asin((correlation + 1.0) / 2.0) * c4
+    ) /
+    2.0 /
+    3.141592653589793
   }
 
   // Tie correction via NTIES (R rankSumTestWithCorrelation).
@@ -695,11 +724,11 @@ pub fn rank_sum_test_with_correlation(
 pub fn camera_pr(
   statistic : Array[Double],
   sets : Array[CameraGeneSet],
-  fixed_inter_gene_cor~ : Double = 0.01,
-  per_set_inter_gene_cor~ : Array[Double]? = Option::None,
-  use_ranks~ : Bool = false,
-  directional~ : Bool = true,
-  sort~ : Bool = true,
+  fixed_inter_gene_cor? : Double = 0.01,
+  per_set_inter_gene_cor? : Array[Double]? = Option::None,
+  use_ranks? : Bool = false,
+  directional? : Bool = true,
+  sort? : Bool = true,
 ) -> Array[CameraResult] raise GeneSetTestError {
   let g = statistic.length()
   if g < 3 {
@@ -721,8 +750,7 @@ pub fn camera_pr(
       (c.copy(), false)
     }
     Option::None => {
-      if fixed_inter_gene_cor.is_nan() ||
-        fixed_inter_gene_cor.abs() >= 1.0 {
+      if fixed_inter_gene_cor.is_nan() || fixed_inter_gene_cor.abs() >= 1.0 {
         raise GeneSetTestError(
           "inter_gene_cor must be strictly between -1 and 1",
         )
@@ -757,7 +785,11 @@ pub fn camera_pr(
     }
   }
 
-  let df_camera = if ranks_mode { Option::None } else { Some((g - 2).to_double()) }
+  let df_camera = if ranks_mode {
+    Option::None
+  } else {
+    Some((g - 2).to_double())
+  }
 
   let mut sum = 0.0
   for v in stats {
@@ -801,8 +833,8 @@ pub fn camera_pr(
       }
       mean_in /= md
       let delta = gd / m2d * (mean_in - mean_stat)
-      let var_pooled = ((gd - 1.0) * var_stat - delta * delta * md * m2d /
-        gd) / (gd - 2.0)
+      let var_pooled = ((gd - 1.0) * var_stat - delta * delta * md * m2d / gd) /
+        (gd - 2.0)
       let t = delta / (var_pooled * (vif / md + 1.0 / m2d)).sqrt()
       down[i] = gst_pt_lower(t, df_camera.unwrap())
       up[i] = 1.0 - down[i]
@@ -811,14 +843,7 @@ pub fn camera_pr(
   }
 
   gst_assemble_results(
-    sets,
-    n_genes,
-    down,
-    up,
-    cors,
-    fixed_cor,
-    directional,
-    sort,
+    sets, n_genes, down, up, cors, fixed_cor, directional, sort,
   )
 }
 
@@ -998,12 +1023,12 @@ pub fn camera_default(
   y : Matrix,
   sets : Array[CameraGeneSet],
   design : Matrix,
-  contrast~ : Int? = Option::None,
-  inter_gene_cor~ : Double? = Some(0.01),
-  allow_negative_cor~ : Bool = false,
-  use_ranks~ : Bool = false,
-  directional~ : Bool = true,
-  sort~ : Bool = true,
+  contrast? : Int? = Option::None,
+  inter_gene_cor? : Double? = Some(0.01),
+  allow_negative_cor? : Bool = false,
+  use_ranks? : Bool = false,
+  directional? : Bool = true,
+  sort? : Bool = true,
 ) -> Array[CameraResult] raise GeneSetTestError {
   let g = y.rows
   let n = y.cols
@@ -1108,7 +1133,7 @@ pub fn camera_default(
     let denom = if fit.sigma[gi] == 0.0 {
       (1.0e-8 * var_post[gi]).sqrt()
     } else {
-      (var_post[gi]).sqrt() * unse
+      var_post[gi].sqrt() * unse
     }
     modt[gi] = beta / denom
     gi += 1
@@ -1240,8 +1265,7 @@ pub fn camera_default(
       // (limma n1==1 branch), so 0.0 is identical there.
       let pass_cor = match correlation {
         Option::None => 0.0
-        Some(c) =>
-          if !allow_negative_cor && c < 0.0 { 0.0 } else { c }
+        Some(c) => if !allow_negative_cor && c < 0.0 { 0.0 } else { c }
       }
       let (d, u) = rank_sum_test_with_correlation(
         iset,
@@ -1265,8 +1289,10 @@ pub fn camera_default(
       }
       mean_in /= m.to_double()
       let delta = gd / m2d * (mean_in - mean_stat)
-      let var_pooled = ((gd - 1.0) * var_stat - delta * delta *
-        m.to_double() * m2d / gd) / (gd - 2.0)
+      let var_pooled = (
+          (gd - 1.0) * var_stat - delta * delta * m.to_double() * m2d / gd
+        ) /
+        (gd - 2.0)
       let t = delta / (var_pooled * (vif / m.to_double() + 1.0 / m2d)).sqrt()
       down[i] = gst_pt_lower(t, df_camera.unwrap())
       up[i] = 1.0 - down[i]
@@ -1310,7 +1336,11 @@ pub fn camera_default(
   let mut pos = 0
   for k in order {
     let corr = if fixed_cor_value.is_none() {
-      if has_cor[k] { Some(cors[k]) } else { Option::None }
+      if has_cor[k] {
+        Some(cors[k])
+      } else {
+        Option::None
+      }
     } else {
       Option::None
     }
@@ -1320,7 +1350,11 @@ pub fn camera_default(
       correlation: corr,
       direction: directions[k],
       p_value: p_values[k],
-      fdr: if nsets > 1 { Some(fdrs[k]) } else { Option::None },
+      fdr: if nsets > 1 {
+        Some(fdrs[k])
+      } else {
+        Option::None
+      },
     }
     pos += 1
   }

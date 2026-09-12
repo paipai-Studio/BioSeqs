@@ -502,7 +502,7 @@ fn cl_parse_chain_blocks(
         let size = cl_parse_int_safe(fields[0])
         let dt = cl_parse_int_safe(fields[1])
         let dq = cl_parse_int_safe(fields[2])
-        blocks.push(ChainBlock::{ size, dt, dq })
+        blocks.push(ChainBlock::{ size, dt, dq, })
       }
       i = i + 1
     } else {
@@ -713,7 +713,7 @@ test "cl_find_chain_for_pos_out_of_range" {
 
 ///|
 test "cl_find_chain_for_pos_empty_chains" {
-  let cf = ChainFile::{ alignments: [], target_name: "", query_name: "" }
+  let cf = ChainFile::{ alignments: [], target_name: "", query_name: "", }
   let result = cl_find_chain_for_pos(cf, "chr1", 100)
   assert_true(result is None)
 }
@@ -824,7 +824,7 @@ test "cl_liftover_pos_reverse_query_at_end" {
 
 ///|
 test "cl_liftover_pos_empty_chains" {
-  let cf = ChainFile::{ alignments: [], target_name: "", query_name: "" }
+  let cf = ChainFile::{ alignments: [], target_name: "", query_name: "", }
   let result = cl_liftover_pos(cf, "chr1", 100)
   assert_true(result is None)
 }
@@ -872,9 +872,9 @@ test "cl_liftover_range_empty" {
 ///|
 test "cl_get_chain_summary_basic" {
   let blocks : Array[ChainBlock] = [
-    ChainBlock::{ size: 500, dt: 10, dq: 20 },
-    ChainBlock::{ size: 300, dt: 5, dq: 15 },
-    ChainBlock::{ size: 200, dt: 0, dq: 0 },
+    ChainBlock::{ size: 500, dt: 10, dq: 20, },
+    ChainBlock::{ size: 300, dt: 5, dq: 15, },
+    ChainBlock::{ size: 200, dt: 0, dq: 0, },
   ]
   let chain = cl_make_test_chain("chr1", 1, 1000, "chr2", 1, 1000, blocks, 42)
   let summary = cl_get_chain_summary(chain)
@@ -898,7 +898,7 @@ test "cl_get_chain_summary_empty_blocks" {
 
 ///|
 test "cl_get_chain_summary_single_block" {
-  let blocks : Array[ChainBlock] = [ChainBlock::{ size: 500, dt: 0, dq: 0 }]
+  let blocks : Array[ChainBlock] = [ChainBlock::{ size: 500, dt: 0, dq: 0, }]
   let chain = cl_make_test_chain("chr1", 1, 501, "chr2", 1, 501, blocks, 44)
   let summary = cl_get_chain_summary(chain)
   assert_eq(summary["total_block_size"], 500)
@@ -919,8 +919,8 @@ test "cl_chain_to_string_roundtrip" {
 ///|
 test "cl_chain_to_string_format" {
   let blocks : Array[ChainBlock] = [
-    ChainBlock::{ size: 500, dt: 10, dq: 20 },
-    ChainBlock::{ size: 400, dt: 0, dq: 0 },
+    ChainBlock::{ size: 500, dt: 10, dq: 20, },
+    ChainBlock::{ size: 400, dt: 0, dq: 0, },
   ]
   let chain = cl_make_test_chain("chr1", 1, 5000, "chr2", 1, 100, blocks, 5)
   let s = cl_chain_to_string(chain)
@@ -930,8 +930,8 @@ test "cl_chain_to_string_format" {
 ///|
 test "cl_chain_to_string_contains_blocks" {
   let blocks : Array[ChainBlock] = [
-    ChainBlock::{ size: 500, dt: 10, dq: 20 },
-    ChainBlock::{ size: 400, dt: 0, dq: 0 },
+    ChainBlock::{ size: 500, dt: 10, dq: 20, },
+    ChainBlock::{ size: 400, dt: 0, dq: 0, },
   ]
   let chain = cl_make_test_chain("chr1", 1, 5000, "chr2", 1, 100, blocks, 5)
   let s = cl_chain_to_string(chain)
@@ -1061,9 +1061,9 @@ test "cl_liftover_range_sub_block" {
 ///|
 test "cl_get_chain_summary_gaps" {
   let blocks : Array[ChainBlock] = [
-    ChainBlock::{ size: 100, dt: 50, dq: 30 },
-    ChainBlock::{ size: 200, dt: 25, dq: 20 },
-    ChainBlock::{ size: 300, dt: 0, dq: 0 },
+    ChainBlock::{ size: 100, dt: 50, dq: 30, },
+    ChainBlock::{ size: 200, dt: 25, dq: 20, },
+    ChainBlock::{ size: 300, dt: 0, dq: 0, },
   ]
   let chain = cl_make_test_chain("chr3", 1, 756, "chr5", 1, 700, blocks, 100)
   let summary = cl_get_chain_summary(chain)

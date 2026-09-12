@@ -365,7 +365,7 @@ pub fn NsNormResult::new(
   normalized_counts : Array[Double],
   method : String,
 ) -> NsNormResult {
-  NsNormResult::{ sample_id, norm_factors, normalized_counts, method }
+  NsNormResult::{ sample_id, norm_factors, normalized_counts, method, }
 }
 
 ///|
@@ -411,7 +411,7 @@ pub fn NsDeResult::new(
   adj_p_value : Double,
   significant : Bool,
 ) -> NsDeResult {
-  NsDeResult::{ gene, log_fc, p_value, adj_p_value, significant }
+  NsDeResult::{ gene, log_fc, p_value, adj_p_value, significant, }
 }
 
 ///|

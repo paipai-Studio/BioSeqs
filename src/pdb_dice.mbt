@@ -46,7 +46,7 @@ pub fn ResidueId::new(
   resseq : Int,
   icode? : Char = ' ',
 ) -> ResidueId {
-  ResidueId::{ chain_id, resseq, icode }
+  ResidueId::{ chain_id, resseq, icode, }
 }
 
 ///|
@@ -57,7 +57,7 @@ pub fn DiceResult::new(
   num_chains : Int,
   num_models : Int,
 ) -> DiceResult {
-  DiceResult::{ structure_id, num_atoms, num_residues, num_chains, num_models }
+  DiceResult::{ structure_id, num_atoms, num_residues, num_chains, num_models, }
 }
 
 // ============================================================================

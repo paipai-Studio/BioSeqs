@@ -172,16 +172,40 @@ test "protparam_molar_extinction_coefficient" {
   assert_eq(ox_x, 17545)
 
   // Single residues and cystine pairing (odd Cys -> one unpaired).
-  assert_eq(@src.ProteinAnalysis::new("W").molar_extinction_coefficient(), (5500, 5500))
-  assert_eq(@src.ProteinAnalysis::new("Y").molar_extinction_coefficient(), (1490, 1490))
-  assert_eq(@src.ProteinAnalysis::new("C").molar_extinction_coefficient(), (0, 0))
-  assert_eq(@src.ProteinAnalysis::new("CC").molar_extinction_coefficient(), (0, 125))
-  assert_eq(@src.ProteinAnalysis::new("CCC").molar_extinction_coefficient(), (0, 125))
-  assert_eq(@src.ProteinAnalysis::new("WYYCCC").molar_extinction_coefficient(), (8480, 8605))
-  assert_eq(@src.ProteinAnalysis::new("MMMMM").molar_extinction_coefficient(), (0, 0))
+  assert_eq(
+    @src.ProteinAnalysis::new("W").molar_extinction_coefficient(),
+    (5500, 5500),
+  )
+  assert_eq(
+    @src.ProteinAnalysis::new("Y").molar_extinction_coefficient(),
+    (1490, 1490),
+  )
+  assert_eq(
+    @src.ProteinAnalysis::new("C").molar_extinction_coefficient(),
+    (0, 0),
+  )
+  assert_eq(
+    @src.ProteinAnalysis::new("CC").molar_extinction_coefficient(),
+    (0, 125),
+  )
+  assert_eq(
+    @src.ProteinAnalysis::new("CCC").molar_extinction_coefficient(),
+    (0, 125),
+  )
+  assert_eq(
+    @src.ProteinAnalysis::new("WYYCCC").molar_extinction_coefficient(),
+    (8480, 8605),
+  )
+  assert_eq(
+    @src.ProteinAnalysis::new("MMMMM").molar_extinction_coefficient(),
+    (0, 0),
+  )
 
   // Lower-case input is upper-cased, mirroring Biopython's constructor.
-  assert_eq(@src.ProteinAnalysis::new("wwwyyy").molar_extinction_coefficient(), (20970, 20970))
+  assert_eq(
+    @src.ProteinAnalysis::new("wwwyyy").molar_extinction_coefficient(),
+    (20970, 20970),
+  )
 }
 
 ///|
@@ -262,7 +286,11 @@ test "protparam_protein_scale_kd9_long" {
 test "protparam_protein_scale_kd5_edge04" {
   let kd = @src.gravy_scale_table("KyteDoolitle")
   // weights for window 5, edge 0.4: [0.4, 0.7, 1, 0.7, 0.4]
-  let profile = @src.ProteinAnalysis::new(pp_long_seq).protein_scale(kd, 5, edge=0.4)
+  let profile = @src.ProteinAnalysis::new(pp_long_seq).protein_scale(
+    kd,
+    5,
+    edge=0.4,
+  )
   assert_eq(profile.length(), 148)
   assert_true(pp_close(profile[0], -0.9875))
   assert_true(pp_close(profile[1], -0.8687499999999998))
@@ -300,19 +328,17 @@ test "protparam_protein_scale_small_full_vectors" {
   let kd = @src.gravy_scale_table("KyteDoolitle")
   let p5 = @src.ProteinAnalysis::new(small).protein_scale(kd, 5)
   let expected5 = [
-    0.019999999999999928, -0.42000000000000004, -1.56, 0.039999999999999925,
-    -0.040000000000000126, 0.16000000000000006, 0.62, 0.5599999999999999,
-    -0.66, -0.5800000000000001, -2.2399999999999998, -2.78, -2.2199999999999998,
-    -1.06, -0.54, 0.1, -0.5199999999999998,
+    0.019999999999999928, -0.42000000000000004, -1.56, 0.039999999999999925, -0.040000000000000126,
+    0.16000000000000006, 0.62, 0.5599999999999999, -0.66, -0.5800000000000001, -2.2399999999999998,
+    -2.78, -2.2199999999999998, -1.06, -0.54, 0.1, -0.5199999999999998,
   ]
   assert_true(pp_vec_close(p5, expected5))
 
   let p7 = @src.ProteinAnalysis::new(small).protein_scale(kd, 7, edge=0.5)
   let expected7 = [
-    -0.6766666666666667, -0.2833333333333334, -0.7533333333333333,
-    -0.07333333333333343, 0.64, 0.039999999999999945, 0.07999999999999999,
-    -0.2033333333333333, -1.45, -1.5333333333333332, -2.17,
-    -1.853333333333333, -1.1833333333333331, -0.7733333333333332,
+    -0.6766666666666667, -0.2833333333333334, -0.7533333333333333, -0.07333333333333343,
+    0.64, 0.039999999999999945, 0.07999999999999999, -0.2033333333333333, -1.45,
+    -1.5333333333333332, -2.17, -1.853333333333333, -1.1833333333333331, -0.7733333333333332,
     -0.5466666666666665,
   ]
   assert_true(pp_vec_close(p7, expected7))

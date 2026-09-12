@@ -738,7 +738,7 @@ fn grl_validate_indices(
 
 ///|
 fn grl_empty_ranges() -> GRanges {
-  GRanges::{ seqnames: [], starts: [], ends: [], strands: [], widths: [] }
+  GRanges::{ seqnames: [], starts: [], ends: [], strands: [], widths: [], }
 }
 
 ///|

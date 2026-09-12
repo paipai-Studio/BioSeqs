@@ -207,7 +207,7 @@ pub struct ImgtRecord {
 ///|
 /// Construct an ImgtRecord from a header and a sequence string.
 pub fn ImgtRecord::new(header : ImgtHeader, sequence : String) -> ImgtRecord {
-  ImgtRecord::{ header, sequence }
+  ImgtRecord::{ header, sequence, }
 }
 
 ///|
@@ -382,7 +382,7 @@ pub fn imgt_parse(content : String) -> Array[ImgtRecord] {
   }
   match current_header {
     Some(h) =>
-      records.push(ImgtRecord::{ header: h, sequence: current_seq.to_string() })
+      records.push(ImgtRecord::{ header: h, sequence: current_seq.to_string(), })
     None => ()
   }
   records
@@ -607,7 +607,7 @@ pub fn imgt_from_seq_records(records : Array[SeqRecord]) -> Array[ImgtRecord] {
       seq_type: "",
       comments: rec.description,
     }
-    out.push(ImgtRecord::{ header, sequence: seq_str })
+    out.push(ImgtRecord::{ header, sequence: seq_str, })
   }
   out
 }

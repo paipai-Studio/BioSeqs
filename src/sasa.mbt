@@ -38,7 +38,7 @@ pub fn SasaResult::new(
   resseq~ : Int,
   sasa~ : Double,
 ) -> SasaResult {
-  SasaResult::{ atom_index, atom_name, resname, chainid, resseq, sasa }
+  SasaResult::{ atom_index, atom_name, resname, chainid, resseq, sasa, }
 }
 
 ///|

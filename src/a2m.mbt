@@ -98,7 +98,7 @@ pub fn A2mAlignment::create(
   for sequence in sequences {
     copied.push(sequence)
   }
-  let alignment = A2mAlignment::{ sequences: copied, states }
+  let alignment = A2mAlignment::{ sequences: copied, states, }
   a2m_validate_alignment(alignment)
   alignment
 }

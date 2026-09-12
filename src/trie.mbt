@@ -50,7 +50,7 @@ pub struct Trie {
 /// Create a new empty trie.
 pub fn Trie::new() -> Trie {
   Trie::{
-    root: TrieNode::{ children: Map([], capacity=4), value: TrieValue::Empty },
+    root: TrieNode::{ children: Map([], capacity=4), value: TrieValue::Empty, },
     count: 0,
   }
 }
@@ -58,7 +58,7 @@ pub fn Trie::new() -> Trie {
 ///|
 /// Create a new TrieNode.
 pub fn TrieNode::new() -> TrieNode {
-  TrieNode::{ children: Map([], capacity=4), value: TrieValue::Empty }
+  TrieNode::{ children: Map([], capacity=4), value: TrieValue::Empty, }
 }
 
 ///|

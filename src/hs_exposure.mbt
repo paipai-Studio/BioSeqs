@@ -35,7 +35,7 @@ pub fn PDBAtom::new(
   y : Double,
   z : Double,
 ) -> PDBAtom {
-  PDBAtom::{ name, x, y, z }
+  PDBAtom::{ name, x, y, z, }
 }
 
 ///|
@@ -53,7 +53,7 @@ pub fn HSExposureResult::new(
   hse_down : Double,
   hse_total : Double,
 ) -> HSExposureResult {
-  HSExposureResult::{ residue_name, hse_up, hse_down, hse_total }
+  HSExposureResult::{ residue_name, hse_up, hse_down, hse_total, }
 }
 
 ///|

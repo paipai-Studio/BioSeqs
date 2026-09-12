@@ -663,7 +663,7 @@ fn nnsvg_conditional_system(
       }
     }
   }
-  Some(NnsvgConditionalSystem::{ coefficients, conditional_variances })
+  Some(NnsvgConditionalSystem::{ coefficients, conditional_variances, })
 }
 
 ///|
@@ -1404,7 +1404,7 @@ pub fn nnsvg_filter_spatial_experiment(
     .to_string()
   filtered.metadata["nnsvg_filter_removed"] = (counts.length() -
   filter.kept_indices.length()).to_string()
-  NnsvgSpatialFilterOutput::{ experiment: filtered, filter }
+  NnsvgSpatialFilterOutput::{ experiment: filtered, filter, }
 }
 
 ///|
@@ -1462,7 +1462,7 @@ pub fn nnsvg_spatial_experiment(
     .significant()
     .length()
     .to_string()
-  NnsvgSpatialExperimentOutput::{ experiment: enriched, result }
+  NnsvgSpatialExperimentOutput::{ experiment: enriched, result, }
 }
 
 ///|

@@ -135,7 +135,7 @@ pub fn NeuralNetwork::set_learning_rate(
   self : NeuralNetwork,
   lr : Double,
 ) -> NeuralNetwork {
-  { ..self, learning_rate: lr }
+  { ..self, learning_rate: lr, }
 }
 
 ///|
@@ -144,7 +144,7 @@ pub fn NeuralNetwork::set_momentum(
   self : NeuralNetwork,
   m : Double,
 ) -> NeuralNetwork {
-  { ..self, momentum: m }
+  { ..self, momentum: m, }
 }
 
 ///|

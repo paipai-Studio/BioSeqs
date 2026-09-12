@@ -19,7 +19,7 @@ pub fn SNP::new(
   quality : Double,
   filter : String,
 ) -> SNP {
-  SNP::{ position, ref_allele, alt_allele, quality, filter }
+  SNP::{ position, ref_allele, alt_allele, quality, filter, }
 }
 
 ///|
@@ -71,7 +71,7 @@ pub fn VariationRecord::new(
   alt_allele : String,
   mutations : Array[Mutation],
 ) -> VariationRecord {
-  VariationRecord::{ chromosome, position, ref_allele, alt_allele, mutations }
+  VariationRecord::{ chromosome, position, ref_allele, alt_allele, mutations, }
 }
 
 ///|

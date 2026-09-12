@@ -495,7 +495,7 @@ pub struct BiplotOptions {
 
 ///|
 pub fn BiplotOptions::new() -> BiplotOptions {
-  BiplotOptions::{ pc_x: 1, pc_y: 2, width: 60, height: 20, max_loadings: 8 }
+  BiplotOptions::{ pc_x: 1, pc_y: 2, width: 60, height: 20, max_loadings: 8, }
 }
 
 ///|

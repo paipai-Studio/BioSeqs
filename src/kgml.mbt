@@ -38,7 +38,7 @@ pub fn KgmlGraphics::new(
   fgcolor : String,
   bgcolor : String,
 ) -> KgmlGraphics {
-  { x, y, width, height, gtype, name, fgcolor, bgcolor }
+  { x, y, width, height, gtype, name, fgcolor, bgcolor, }
 }
 
 ///|
@@ -104,7 +104,7 @@ pub struct KgmlEntry {
 ///|
 /// Create a pathway entry.
 pub fn KgmlEntry::new(id : Int, name : String, etype : String) -> KgmlEntry {
-  { id, name, etype, reaction: "", link: "", graphics: None, components: [] }
+  { id, name, etype, reaction: "", link: "", graphics: None, components: [], }
 }
 
 ///|
@@ -159,7 +159,7 @@ pub struct KgmlSubType {
 ///|
 /// Create a relation subtype.
 pub fn KgmlSubType::new(name : String, value : String) -> KgmlSubType {
-  { name, value }
+  { name, value, }
 }
 
 ///|
@@ -190,7 +190,7 @@ pub fn KgmlRelation::new(
   entry2 : Int,
   rtype : String,
 ) -> KgmlRelation {
-  { entry1, entry2, rtype, subtypes: [] }
+  { entry1, entry2, rtype, subtypes: [], }
 }
 
 ///|
@@ -229,7 +229,7 @@ pub struct KgmlReaction {
 ///|
 /// Create a reaction.
 pub fn KgmlReaction::new(name : String, rtype : String) -> KgmlReaction {
-  { name, rtype, substrates: [], products: [] }
+  { name, rtype, substrates: [], products: [], }
 }
 
 ///|

@@ -146,7 +146,7 @@ pub fn parse_cigar(cigar_str : String) -> Array[CigarElement] {
       if i < n {
         let op_char = cigar_str.unsafe_get(i).unsafe_to_char()
         let op = parse_cigar_op(op_char)
-        result.push(CigarElement::{ op, length })
+        result.push(CigarElement::{ op, length, })
         i = i + 1
       }
     } else {
@@ -197,7 +197,7 @@ fn parse_sam_header(line : String) -> SamHeader? {
     i = i + 1
   }
 
-  Some(SamHeader::{ header_type, tags })
+  Some(SamHeader::{ header_type, tags, })
 }
 
 ///|
@@ -286,7 +286,7 @@ pub fn parse_sam(content : String) -> SamFile {
     i = i + 1
   }
 
-  SamFile::{ headers, records }
+  SamFile::{ headers, records, }
 }
 
 ///|

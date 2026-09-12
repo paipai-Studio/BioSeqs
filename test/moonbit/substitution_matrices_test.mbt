@@ -570,11 +570,10 @@ test "submat_registry_contains_all_30_biopython_matrices" {
   // 30 canonical Biopython names plus the legacy "NUC4.4" alias
   assert_true(names.length() >= 31)
   let expected = [
-    "BENNER22", "BENNER6", "BENNER74", "BLASTN", "BLASTP", "BLOSUM45",
-    "BLOSUM50", "BLOSUM62", "BLOSUM80", "BLOSUM90", "DAYHOFF", "FENG",
-    "GENETIC", "GONNET1992", "HOXD70", "JOHNSON", "JONES", "LEVIN",
-    "MCLACHLAN", "MDM78", "MEGABLAST", "NUC.4.4", "PAM250", "PAM30", "PAM70",
-    "RAO", "RISLER", "SCHNEIDER", "STR", "TRANS",
+    "BENNER22", "BENNER6", "BENNER74", "BLASTN", "BLASTP", "BLOSUM45", "BLOSUM50",
+    "BLOSUM62", "BLOSUM80", "BLOSUM90", "DAYHOFF", "FENG", "GENETIC", "GONNET1992",
+    "HOXD70", "JOHNSON", "JONES", "LEVIN", "MCLACHLAN", "MDM78", "MEGABLAST", "NUC.4.4",
+    "PAM250", "PAM30", "PAM70", "RAO", "RISLER", "SCHNEIDER", "STR", "TRANS",
   ]
   for name in expected {
     let m = @src.load_matrix(name)
@@ -585,7 +584,10 @@ test "submat_registry_contains_all_30_biopython_matrices" {
 ///|
 test "submat_canonical_alphabet_sizes" {
   @src.subs_initialize_registry()
-  let size24 = ["BLOSUM45", "BLOSUM50", "BLOSUM62", "BLOSUM80", "BLOSUM90", "PAM30", "PAM70", "PAM250"]
+  let size24 = [
+    "BLOSUM45", "BLOSUM50", "BLOSUM62", "BLOSUM80", "BLOSUM90", "PAM30", "PAM70",
+    "PAM250",
+  ]
   for name in size24 {
     let m = @src.load_matrix(name).unwrap()
     assert_eq(m.n_letters(), 24, msg=name)
@@ -607,9 +609,8 @@ test "submat_canonical_alphabet_sizes" {
     assert_eq(@src.load_matrix(name).unwrap().n_letters(), 4, msg=name)
   }
   let size20 = [
-    "BENNER22", "BENNER6", "BENNER74", "DAYHOFF", "FENG", "GENETIC",
-    "GONNET1992", "JOHNSON", "JONES", "LEVIN", "MCLACHLAN", "MDM78", "RAO",
-    "RISLER", "STR",
+    "BENNER22", "BENNER6", "BENNER74", "DAYHOFF", "FENG", "GENETIC", "GONNET1992",
+    "JOHNSON", "JONES", "LEVIN", "MCLACHLAN", "MDM78", "RAO", "RISLER", "STR",
   ]
   for name in size20 {
     assert_eq(@src.load_matrix(name).unwrap().n_letters(), 20, msg=name)
@@ -625,10 +626,10 @@ test "submat_canonical_blosum62_scores" {
   // with the exact Biopython alphabet order.
   let m = @src.load_matrix("BLOSUM62").unwrap()
   assert_eq(m.alphabet().length(), 24)
-  assert_eq(
-    m.alphabet(),
-    ["A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S", "T", "W", "Y", "V", "B", "Z", "X", "*"],
-  )
+  assert_eq(m.alphabet(), [
+    "A", "R", "N", "D", "C", "Q", "E", "G", "H", "I", "L", "K", "M", "F", "P", "S",
+    "T", "W", "Y", "V", "B", "Z", "X", "*",
+  ])
   assert_true((m.get_score("A", "A") - 4.0).abs() < 1.0e-10)
   assert_true((m.get_score("W", "W") - 11.0).abs() < 1.0e-10)
   assert_true((m.get_score("X", "X") - -1.0).abs() < 1.0e-10)
@@ -646,7 +647,9 @@ test "submat_canonical_blosum62_scores" {
 test "submat_canonical_nuc44_iupac_scores" {
   @src.subs_initialize_registry()
   let m = @src.load_matrix("NUC.4.4").unwrap()
-  assert_eq(m.alphabet(), ["A", "T", "G", "C", "S", "W", "R", "Y", "K", "M", "B", "V", "H", "D", "N"])
+  assert_eq(m.alphabet(), [
+    "A", "T", "G", "C", "S", "W", "R", "Y", "K", "M", "B", "V", "H", "D", "N",
+  ])
   assert_true((m.get_score("A", "A") - 5.0).abs() < 1.0e-10)
   assert_true((m.get_score("A", "C") - -4.0).abs() < 1.0e-10)
   assert_true((m.get_score("A", "R") - 1.0).abs() < 1.0e-10)
@@ -683,7 +686,10 @@ test "submat_canonical_matrices_are_symmetric" {
     let alpha = m.alphabet()
     for a in alpha {
       for b in alpha {
-        assert_true((m.get_score(a, b) - m.get_score(b, a)).abs() < 1.0e-9, msg=name)
+        assert_true(
+          (m.get_score(a, b) - m.get_score(b, a)).abs() < 1.0e-9,
+          msg=name,
+        )
       }
     }
   }

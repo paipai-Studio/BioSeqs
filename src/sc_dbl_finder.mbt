@@ -11,7 +11,7 @@ pub fn SingleCellData::new(
   cell_names : Array[String],
   gene_names : Array[String],
 ) -> SingleCellData {
-  SingleCellData::{ counts, cell_names, gene_names }
+  SingleCellData::{ counts, cell_names, gene_names, }
 }
 
 ///|
@@ -27,7 +27,7 @@ pub fn DoubletScore::new(
   score : Double,
   is_doublet : Bool,
 ) -> DoubletScore {
-  DoubletScore::{ cell_name, score, is_doublet }
+  DoubletScore::{ cell_name, score, is_doublet, }
 }
 
 ///|

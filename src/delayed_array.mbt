@@ -10,7 +10,7 @@ pub struct DelayedArray {
 pub fn DelayedArray::new(data : Array[Array[Double]]) -> DelayedArray {
   let rows = data.length()
   let cols = if rows > 0 { data[0].length() } else { 0 }
-  DelayedArray::{ data, dim: [rows, cols], delayed_ops: [], chunk_size: 100 }
+  DelayedArray::{ data, dim: [rows, cols], delayed_ops: [], chunk_size: 100, }
 }
 
 ///|

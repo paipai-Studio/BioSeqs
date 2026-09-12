@@ -79,7 +79,7 @@ pub fn approx_match_new(
   score : Int,
   is_match : Bool,
 ) -> ApproxMatch {
-  ApproxMatch::{ pattern, query, start, end, mismatches, score, is_match }
+  ApproxMatch::{ pattern, query, start, end, mismatches, score, is_match, }
 }
 
 ///|

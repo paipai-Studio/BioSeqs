@@ -29,10 +29,11 @@ fn seq_index_scan_seqxml(
     if trimmed.has_prefix("<entry") {
       let key = match seqxml_parse_entry_id(line.text) {
         Some(id) => id
-        None => raise SeqIOError(
-          "seqxml record without an id attribute at offset " +
-          line.start.to_string(),
-        )
+        None =>
+          raise SeqIOError(
+            "seqxml record without an id attribute at offset " +
+            line.start.to_string(),
+          )
       }
       // Self-closing entry: the whole record lives on the start line.
       if trimmed.has_suffix("/>") {

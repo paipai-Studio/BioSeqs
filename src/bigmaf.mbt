@@ -239,7 +239,7 @@ pub fn BigMafInsertion::create(
   if left_count < 0 || right_count < 0 {
     bigmaf_fail("MAF insertion counts must not be negative")
   }
-  BigMafInsertion::{ left_status, left_count, right_status, right_count }
+  BigMafInsertion::{ left_status, left_count, right_status, right_count, }
 }
 
 ///|
@@ -363,7 +363,7 @@ pub fn BigMafEmptyComponent::create(
   if !bigmaf_empty_status(status) {
     bigmaf_fail("MAF empty component status must be C, I, M, or n")
   }
-  BigMafEmptyComponent::{ source, start, size, strand, source_size, status }
+  BigMafEmptyComponent::{ source, start, size, strand, source_size, status, }
 }
 
 ///|
@@ -445,12 +445,12 @@ pub fn BigMafWriteConfig::create(
   if items_per_slot <= 0 || items_per_slot > 65535 {
     bigmaf_fail("BigMaf itemsPerSlot must be between 1 and 65535")
   }
-  BigMafWriteConfig::{ compress, block_size, items_per_slot }
+  BigMafWriteConfig::{ compress, block_size, items_per_slot, }
 }
 
 ///|
 pub fn BigMafWriteConfig::default() -> BigMafWriteConfig {
-  BigMafWriteConfig::{ compress: true, block_size: 256, items_per_slot: 512 }
+  BigMafWriteConfig::{ compress: true, block_size: 256, items_per_slot: 512, }
 }
 
 ///|
@@ -1157,7 +1157,7 @@ pub fn bigmaf_parse(data : Array[Int]) -> BigMafFile raise BigMafError {
       reference = found
     }
   }
-  BigMafFile::{ reference, bed }
+  BigMafFile::{ reference, bed, }
 }
 
 ///|
@@ -1284,13 +1284,13 @@ pub fn bigmaf_example_data() -> (
     BigBedTarget::create("chr7", 1000) catch {
       BigBedError(message) => {
         bigmaf_fail("BigBed: " + message)
-        BigBedTarget::{ name: "chr7", length: 1000 }
+        BigBedTarget::{ name: "chr7", length: 1000, }
       }
     },
     BigBedTarget::create("chr12", 800) catch {
       BigBedError(message) => {
         bigmaf_fail("BigBed: " + message)
-        BigBedTarget::{ name: "chr12", length: 800 }
+        BigBedTarget::{ name: "chr12", length: 800, }
       }
     },
   ]

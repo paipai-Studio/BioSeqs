@@ -106,7 +106,7 @@ pub fn letter_frequency_dna(seq : String) -> NucleotideFreq {
     i = i + 1
   }
 
-  NucleotideFreq::{ a, c, g, t, n, other }
+  NucleotideFreq::{ a, c, g, t, n, other, }
 }
 
 ///|
@@ -768,7 +768,7 @@ pub fn match_pattern(
     i = i + 1
   }
 
-  MatchPatternResult::{ hits, pattern, subject, max_mismatches, with_indels }
+  MatchPatternResult::{ hits, pattern, subject, max_mismatches, with_indels, }
 }
 
 ///|

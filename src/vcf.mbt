@@ -133,7 +133,7 @@ fn parse_vcf_meta_header(line : String) -> VcfMetaHeader? {
     }
   }
 
-  Some(VcfMetaHeader::{ key, value, tags })
+  Some(VcfMetaHeader::{ key, value, tags, })
 }
 
 ///|
@@ -250,7 +250,7 @@ pub fn parse_vcf(content : String) -> VcfFile {
     i = i + 1
   }
 
-  VcfFile::{ meta_headers, fixed_header, records }
+  VcfFile::{ meta_headers, fixed_header, records, }
 }
 
 ///|

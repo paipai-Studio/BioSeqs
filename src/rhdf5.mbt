@@ -16,7 +16,7 @@ pub fn HDF5Attribute::new(
   data_type : String,
   data : String,
 ) -> HDF5Attribute {
-  HDF5Attribute::{ name, data_type, data }
+  HDF5Attribute::{ name, data_type, data, }
 }
 
 ///|
@@ -127,7 +127,7 @@ pub struct HDF5File {
 
 ///|
 pub fn HDF5File::new(filename : String, mode : String) -> HDF5File {
-  HDF5File::{ filename, mode, root: HDF5Group::new("/") }
+  HDF5File::{ filename, mode, root: HDF5Group::new("/"), }
 }
 
 ///|

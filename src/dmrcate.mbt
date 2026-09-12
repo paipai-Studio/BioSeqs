@@ -43,7 +43,7 @@ pub fn DMRcateInput::new(
   design : Array[Array[Double]],
   sample_names : Array[String],
 ) -> DMRcateInput {
-  DMRcateInput::{ beta_values, positions, chr, design, sample_names }
+  DMRcateInput::{ beta_values, positions, chr, design, sample_names, }
 }
 
 ///|
@@ -79,7 +79,7 @@ pub fn CpGResult::new(
   t_stat : Double,
   p_value : Double,
 ) -> CpGResult {
-  CpGResult::{ cpg_name, chr, pos, beta, t_stat, p_value }
+  CpGResult::{ cpg_name, chr, pos, beta, t_stat, p_value, }
 }
 
 ///|
@@ -143,7 +143,7 @@ pub fn DMR::new(
   p_value : Double,
   cpg_names : Array[String],
 ) -> DMR {
-  DMR::{ chr, start, end_, n_cpgs, mean_t, mean_beta, p_value, cpg_names }
+  DMR::{ chr, start, end_, n_cpgs, mean_t, mean_beta, p_value, cpg_names, }
 }
 
 ///|
@@ -233,7 +233,7 @@ pub fn DMRcateResult::new(
   cpg_results : Array[CpGResult],
   dmrs : Array[DMR],
 ) -> DMRcateResult {
-  DMRcateResult::{ cpg_results, dmrs }
+  DMRcateResult::{ cpg_results, dmrs, }
 }
 
 ///|
@@ -307,7 +307,8 @@ fn dmrcate_normal_cdf(x : Double) -> Double {
     t *
     (
       0.319381530 +
-      t * (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429)))
+      t *
+      (-0.356563782 + t * (1.781477937 + t * (-1.821255978 + t * 1.330274429)))
     )
   if x > 0.0 {
     1.0 - p
@@ -394,12 +395,8 @@ fn dmrcate_incomplete_beta(x : Double, a : Double, b : Double) -> Double {
 /// Log-gamma function using Lanczos approximation.
 fn dmrcate_lngamma(x : Double) -> Double {
   let cof = [
-    76.18009172947146,
-    -86.50532032941677,
-    24.01409824083091,
-    -1.231739572450155,
-    0.001208650973866179,
-    -0.000005395239384953,
+    76.18009172947146, -86.50532032941677, 24.01409824083091, -1.231739572450155,
+    0.001208650973866179, -0.000005395239384953,
   ]
   let mut x1 = x
   let mut tmp = x1 + 5.5
@@ -508,7 +505,14 @@ fn dmrcate_lm_fit(
 ) {
   let n_cpgs = y.length()
   if n_cpgs == 0 {
-    return (Array::new(), Array::new(), Array::new(), Array::new(), Array::new(), 0)
+    return (
+      Array::new(),
+      Array::new(),
+      Array::new(),
+      Array::new(),
+      Array::new(),
+      0,
+    )
   }
   let n_samples = y[0].length()
   let n_coefs = design.length()
@@ -667,13 +671,18 @@ fn dmrcate_ebayes_prior(
   }
 
   // Prior variance estimate
-  let prior_var_est = var_s2 / mean_s2 - 2.0 * mean_s2 * mean_s2 / (df_r * mean_s2)
+  let prior_var_est = var_s2 / mean_s2 -
+    2.0 * mean_s2 * mean_s2 / (df_r * mean_s2)
   let prior_var = if prior_var_est > 0.0 { prior_var_est } else { 0.0 }
 
   // Prior degrees of freedom
   let prior_df = if prior_var > 0.0 {
     let val = 2.0 * prior_var * prior_var / var_s2
-    if val > 0.0 { val } else { 0.0 }
+    if val > 0.0 {
+      val
+    } else {
+      0.0
+    }
   } else {
     0.0
   }
@@ -947,7 +956,8 @@ pub fn dmrcate_cluster_cpgs(
     } else {
       let prev_idx = cluster[cluster.length() - 1]
       let same_chr = cpg_results[idx].chr == cpg_results[prev_idx].chr
-      let within_lambda = cpg_results[idx].pos - cpg_results[prev_idx].pos <= lambda
+      let within_lambda = cpg_results[idx].pos - cpg_results[prev_idx].pos <=
+        lambda
       if same_chr && within_lambda {
         cluster.push(idx)
       } else {
@@ -1015,7 +1025,11 @@ pub fn dmrcate_test(
   while i < n_cpgs {
     let cpg_name = "CpG_" + (i + 1).to_string()
     let chr_val = if i < input.chr.length() { input.chr[i] } else { "chr1" }
-    let pos_val = if i < input.positions.length() { input.positions[i] } else { i }
+    let pos_val = if i < input.positions.length() {
+      input.positions[i]
+    } else {
+      i
+    }
     let beta_val = dmrcate_mean(input.beta_values[i])
     let t_val = if i < t_stats.length() { t_stats[i] } else { 0.0 }
     let p_val = if i < adj_p_values.length() { adj_p_values[i] } else { 1.0 }
@@ -1063,7 +1077,14 @@ pub fn dmrcate_test(
   while i < n_cpgs {
     let cr = updated_cpg_results[i]
     final_cpg_results.push(
-      CpGResult::new(cr.cpg_name, cr.chr, cr.pos, cr.beta, cr.t_stat, adj_smoothed_p[i]),
+      CpGResult::new(
+        cr.cpg_name,
+        cr.chr,
+        cr.pos,
+        cr.beta,
+        cr.t_stat,
+        adj_smoothed_p[i],
+      ),
     )
     i = i + 1
   }
@@ -1130,12 +1151,15 @@ pub fn dmrcate_test(
 
     // DMR p-value: use the mean smoothed t-statistic to compute a p-value
     // with an effective df that accounts for spatial correlation
-    let effective_df = df_total * n_cluster.to_double() /
+    let effective_df = df_total *
+      n_cluster.to_double() /
       (1.0 + (n_cluster.to_double() - 1.0) * 0.5)
     let dmr_p = dmrcate_t_two_sided_pval(mean_t, effective_df)
 
     dmrs.push(
-      DMR::new(chr_dmr, start_dmr, end_dmr, n_cluster, mean_t, mean_beta, dmr_p, cpg_names),
+      DMR::new(
+        chr_dmr, start_dmr, end_dmr, n_cluster, mean_t, mean_beta, dmr_p, cpg_names,
+      ),
     )
 
     i = i + 1
@@ -1191,7 +1215,8 @@ pub fn dmrcate_spatial_autocorrelation(
         let d = (cpg_results[i].pos - cpg_results[j].pos).to_double().abs()
         let w = dmrcate_spatial_kernel(d, lambda)
         if w > 0.01 {
-          sum_corr = sum_corr + w * cpg_results[i].t_stat * cpg_results[j].t_stat
+          sum_corr = sum_corr +
+            w * cpg_results[i].t_stat * cpg_results[j].t_stat
           count = count + 1
         }
       }
@@ -1292,7 +1317,9 @@ pub fn dmrcate_summary(result : DMRcateResult) -> String {
 ///|
 /// Format DMRcate results as a table string.
 pub fn dmrcate_results_to_string(result : DMRcateResult) -> String {
-  let mut s = "DMRcate DMRs (" + result.dmrs.length().to_string() + " regions)\n"
+  let mut s = "DMRcate DMRs (" +
+    result.dmrs.length().to_string() +
+    " regions)\n"
   s = s + "chr\tstart\tend\tn_cpgs\tmean_t\tmean_beta\tp_value\n"
   let mut i = 0
   while i < result.dmrs.length() {
@@ -1335,11 +1362,7 @@ pub fn dmrcate_example_data() -> DMRcateInput {
   let mut i = 0
   while i < n_cpgs {
     let c = if i < 25 { "chr1" } else { "chr2" }
-    let pos = if i < 25 {
-      1000 + i * 500
-    } else {
-      1000 + (i - 25) * 500
-    }
+    let pos = if i < 25 { 1000 + i * 500 } else { 1000 + (i - 25) * 500 }
     chr.push(c)
     positions.push(pos)
 

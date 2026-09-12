@@ -336,7 +336,13 @@ pub fn hmisc_rcorr(
     }
     i = i + 1
   }
-  HmiscCorrResult::{ matrix, p_values, n: n_matrix, names: var_names, cor_type }
+  HmiscCorrResult::{
+    matrix,
+    p_values,
+    n: n_matrix,
+    names: var_names,
+    cor_type,
+  }
 }
 
 ///|

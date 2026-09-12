@@ -60,7 +60,7 @@ pub fn CibSignatureMatrix::new(
   cell_types : Array[String],
   matrix : Array[Array[Double]],
 ) -> CibSignatureMatrix {
-  { gene_names, cell_types, matrix }
+  { gene_names, cell_types, matrix, }
 }
 
 ///|
@@ -94,7 +94,7 @@ pub fn CibMixtureMatrix::new(
   sample_names : Array[String],
   matrix : Array[Array[Double]],
 ) -> CibMixtureMatrix {
-  { gene_names, sample_names, matrix }
+  { gene_names, sample_names, matrix, }
 }
 
 ///|
@@ -411,7 +411,7 @@ pub fn cib_run(
       rmse,
     })
   }
-  { results: all_results, cell_types, sample_names }
+  { results: all_results, cell_types, sample_names, }
 }
 
 // ============================================================================

@@ -52,7 +52,7 @@ pub fn SubstitutionMatrix::new(
   data : Map[String, Map[String, Int]],
   alphabet : Array[String],
 ) -> SubstitutionMatrix {
-  SubstitutionMatrix::{ name, data, alphabet }
+  SubstitutionMatrix::{ name, data, alphabet, }
 }
 
 ///|

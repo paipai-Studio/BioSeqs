@@ -929,7 +929,7 @@ priv struct DropletUtilsRng {
 ///|
 fn DropletUtilsRng::new(seed : Int) -> DropletUtilsRng {
   let normalized = (seed - 1) % 2147483646 + 1
-  DropletUtilsRng::{ state: normalized }
+  DropletUtilsRng::{ state: normalized, }
 }
 
 ///|
@@ -1629,7 +1629,7 @@ pub fn droplet_utils_empty_drops_sce(
   output.metadata[output_prefix + ".iterations"] = result.iterations.to_string()
   output.metadata[output_prefix + ".alpha"] = result.alpha.to_string()
   output.metadata[output_prefix + ".called"] = result.n_called().to_string()
-  DropletUtilsSingleCellExperimentOutput::{ experiment: output, result }
+  DropletUtilsSingleCellExperimentOutput::{ experiment: output, result, }
 }
 
 ///|

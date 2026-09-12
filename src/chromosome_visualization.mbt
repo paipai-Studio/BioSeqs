@@ -281,7 +281,7 @@ pub fn ChrDiagram::new(
   layout? : ChrLayout = ChrLayout::new(),
   title? : String = "",
 ) -> ChrDiagram {
-  ChrDiagram::{ chromosomes, layout, title, svg_elements: [] }
+  ChrDiagram::{ chromosomes, layout, title, svg_elements: [], }
 }
 
 // ============================================================================
@@ -458,7 +458,7 @@ fn chr_svg_elem(
   content : String,
   children : Array[ChrSVGElement],
 ) -> ChrSVGElement {
-  ChrSVGElement::{ element_type, attributes, content, children }
+  ChrSVGElement::{ element_type, attributes, content, children, }
 }
 
 ///|

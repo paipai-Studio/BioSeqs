@@ -603,7 +603,8 @@ test "emppvals_pooled_floor_and_max" {
 test "emppvals_rows_exact" {
   // row 0: 3 of 4 nulls >= 2 -> 0.75; row 1: 0 of 4 nulls >= 5 -> floor 0.25
   let ep = @src.empirical_pvalues_rows([2.0, 5.0], [
-    [1.0, 2.0, 3.0, 4.0], [1.0, 2.0, 3.0, 4.0]
+    [1.0, 2.0, 3.0, 4.0],
+    [1.0, 2.0, 3.0, 4.0],
   ])
   assert_true(qv_close(ep[0], 0.75, 1.0e-12))
   assert_true(qv_close(ep[1], 0.25, 1.0e-12))

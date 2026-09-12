@@ -16,7 +16,7 @@ pub fn summarized_experiment(
   col_data : Array[Map[String, String]],
   metadata : Map[String, String],
 ) -> SummarizedExperiment {
-  SummarizedExperiment::{ assays, row_ranges, col_data, metadata }
+  SummarizedExperiment::{ assays, row_ranges, col_data, metadata, }
 }
 
 ///|

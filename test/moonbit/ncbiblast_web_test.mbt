@@ -14,11 +14,8 @@ struct BlastMock {
 }
 
 ///|
-fn blast_mock(
-  statuses : Array[String],
-  result : String,
-) -> BlastMock {
-  { info_calls: 0, statuses, requests: [], result }
+fn blast_mock(statuses : Array[String], result : String) -> BlastMock {
+  { info_calls: 0, statuses, requests: [], result, }
 }
 
 ///|
@@ -45,6 +42,7 @@ fn blast_client(mock : BlastMock) -> @src.NcbiBlastClient {
   )
 }
 
+///|
 test "qblast_quote_url_encoding" {
   assert_eq(@src.qblast_quote("ACGT123_.-~"), "ACGT123_.-~")
   assert_eq(@src.qblast_quote("ACGT ACGT"), "ACGT+ACGT")
@@ -52,6 +50,7 @@ test "qblast_quote_url_encoding" {
   assert_eq(@src.qblast_quote("100%"), "100%25")
 }
 
+///|
 test "qblast_validate_program" {
   // Valid programs do not raise.
   @src.qblast_validate_program("blastn")
@@ -65,18 +64,15 @@ test "qblast_validate_program" {
   assert_true(raised)
 }
 
+///|
 test "qblast_put_url_basic_parameters" {
-  let url = try {
-    @src.qblast_put_url("blastn", "nr", "ACGTACGT")
-  } catch {
+  let url = @src.qblast_put_url("blastn", "nr", "ACGTACGT") catch {
     NcbiBlastError(msg) => {
       println(msg)
       ""
     }
   }
-  assert_true(url.starts_with(
-    "https://blast.ncbi.nlm.nih.gov/Blast.cgi?",
-  ))
+  assert_true(url.starts_with("https://blast.ncbi.nlm.nih.gov/Blast.cgi?"))
   assert_true(url.contains("CMD=Put"))
   assert_true(url.contains("PROGRAM=blastn"))
   assert_true(url.contains("DATABASE=nr"))
@@ -93,18 +89,17 @@ test "qblast_put_url_basic_parameters" {
   assert_true(!url.contains("SERVICE="))
 }
 
+///|
 test "qblast_put_url_optional_parameters" {
-  let url = try {
-    @src.qblast_put_url(
-      "blastn",
-      "nt",
-      "ACGT ACGT",
-      word_size=28,
-      expect=0.001,
-      entrez_query="Homo sapiens[ORGN]",
-      ncbi_gi=true,
-    )
-  } catch {
+  let url = @src.qblast_put_url(
+    "blastn",
+    "nt",
+    "ACGT ACGT",
+    word_size=28,
+    expect=0.001,
+    entrez_query="Homo sapiens[ORGN]",
+    ncbi_gi=true,
+  ) catch {
     NcbiBlastError(msg) => {
       println(msg)
       ""
@@ -118,10 +113,9 @@ test "qblast_put_url_optional_parameters" {
   assert_true(url.contains("ENTREZ_QUERY=Homo+sapiens%5BORGN%5D"))
 }
 
+///|
 test "qblast_put_url_megablast" {
-  let url = try {
-    @src.qblast_put_url("blastn", "nt", "ACGT", megablast=true)
-  } catch {
+  let url = @src.qblast_put_url("blastn", "nt", "ACGT", megablast=true) catch {
     NcbiBlastError(msg) => {
       println(msg)
       ""
@@ -132,6 +126,7 @@ test "qblast_put_url_megablast" {
   assert_true(url.contains("SERVICE=megablast"))
 }
 
+///|
 test "qblast_put_url_rejects_empty_database" {
   let raised = try {
     let _ = @src.qblast_put_url("blastn", "", "ACGT")
@@ -142,10 +137,9 @@ test "qblast_put_url_rejects_empty_database" {
   assert_true(raised)
 }
 
+///|
 test "qblast_parse_put_response" {
-  let (rid, rtoe) = try {
-    @src.qblast_parse_put("  RID = ABC123  \n  RTOE = 45\n")
-  } catch {
+  let (rid, rtoe) = @src.qblast_parse_put("  RID = ABC123  \n  RTOE = 45\n") catch {
     NcbiBlastError(_) => ("", -1)
   }
   assert_eq(rid, "ABC123")
@@ -160,9 +154,11 @@ test "qblast_parse_put_response" {
   assert_true(missing)
 }
 
+///|
 test "qblast_parse_status_values" {
   assert_true(
-    @src.qblast_parse_status("Status=WAITING\n") is @src.NcbiBlastStatus::Waiting,
+    @src.qblast_parse_status("Status=WAITING\n")
+    is @src.NcbiBlastStatus::Waiting,
   )
   assert_true(
     @src.qblast_parse_status("Status=READY\n") is @src.NcbiBlastStatus::Ready,
@@ -171,10 +167,12 @@ test "qblast_parse_status_values" {
     @src.qblast_parse_status("Status=FAILED\n") is @src.NcbiBlastStatus::Failed,
   )
   assert_true(
-    @src.qblast_parse_status("Status=UNKNOWN\n") is @src.NcbiBlastStatus::Unknown,
+    @src.qblast_parse_status("Status=UNKNOWN\n")
+    is @src.NcbiBlastStatus::Unknown,
   )
 }
 
+///|
 test "qblast_status_urls" {
   let info = @src.qblast_search_info_url("RID1")
   assert_true(info.contains("CMD=Get"))
@@ -189,12 +187,11 @@ test "qblast_status_urls" {
   assert_true(text_result.contains("FORMAT_TYPE=Text"))
 }
 
+///|
 test "ncbiblast_submit_uses_put_url" {
   let mock = blast_mock(["WAITING"], "<BlastOutput/>")
   let client = blast_client(mock)
-  let (rid, rtoe) = try {
-    client.submit("blastp", "nr", "MVLSPADKTN")
-  } catch {
+  let (rid, rtoe) = client.submit("blastp", "nr", "MVLSPADKTN") catch {
     NcbiBlastError(msg) => {
       println(msg)
       ("", -1)
@@ -208,12 +205,11 @@ test "ncbiblast_submit_uses_put_url" {
   assert_true(mock.requests[0].contains("QUERY=MVLSPADKTN"))
 }
 
+///|
 test "ncbiblast_qblast_full_workflow" {
   let mock = blast_mock(["WAITING", "READY"], "<BlastOutput>ok</BlastOutput>")
   let client = blast_client(mock)
-  let result = try {
-    client.qblast("blastn", "nt", "ACGTACGT")
-  } catch {
+  let result = client.qblast("blastn", "nt", "ACGTACGT") catch {
     NcbiBlastError(msg) => {
       println(msg)
       ""
@@ -229,6 +225,7 @@ test "ncbiblast_qblast_full_workflow" {
   assert_true(!mock.requests[3].contains("FORMAT_OBJECT"))
 }
 
+///|
 test "ncbiblast_qblast_failed_search" {
   let mock = blast_mock(["FAILED"], "")
   let client = blast_client(mock)
@@ -241,6 +238,7 @@ test "ncbiblast_qblast_failed_search" {
   assert_true(raised)
 }
 
+///|
 test "ncbiblast_qblast_timeout_waiting" {
   let mock = blast_mock(["WAITING", "WAITING", "WAITING"], "")
   let client = blast_client(mock)

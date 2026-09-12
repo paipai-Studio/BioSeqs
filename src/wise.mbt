@@ -86,7 +86,7 @@ pub fn WiseExon::new(
   protein_start? : Int = 0,
   protein_end? : Int = 0,
 ) -> WiseExon {
-  WiseExon::{ start, end, phase, end_phase, score, protein_start, protein_end }
+  WiseExon::{ start, end, phase, end_phase, score, protein_start, protein_end, }
 }
 
 ///|
@@ -114,7 +114,7 @@ pub fn WiseIntron::new(
   acceptor_score? : Double = 0.0,
 ) -> WiseIntron {
   let len = if end >= start { end - start + 1 } else { 0 }
-  WiseIntron::{ start, end, donor_score, acceptor_score, length: len }
+  WiseIntron::{ start, end, donor_score, acceptor_score, length: len, }
 }
 
 ///|
@@ -740,7 +740,7 @@ pub struct GenomeWiseResult {
 ///|
 /// Construct an empty GenomeWiseResult.
 pub fn GenomeWiseResult::new() -> GenomeWiseResult {
-  GenomeWiseResult::{ gene_id: "", total_score: 0.0, segments: [] }
+  GenomeWiseResult::{ gene_id: "", total_score: 0.0, segments: [], }
 }
 
 ///|

@@ -403,7 +403,7 @@ pub fn nib_from_hex(seq_id : String, hex : String, length : Int) -> NibSequence 
     packed.push(high * 16 + low)
     i = i + 2
   }
-  NibSequence::{ seq_id, length, packed_data: packed, is_uppercase: true }
+  NibSequence::{ seq_id, length, packed_data: packed, is_uppercase: true, }
 }
 
 // ============================================================================

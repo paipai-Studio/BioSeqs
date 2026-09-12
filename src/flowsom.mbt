@@ -802,7 +802,7 @@ fn flowsom_map_unchecked(
     clusters.push(best)
     distances.push(best_distance)
   }
-  FlowSomMapping::{ clusters, distances }
+  FlowSomMapping::{ clusters, distances, }
 }
 
 ///|
@@ -981,7 +981,7 @@ fn flowsom_node_summary(
       }
     }
   }
-  FlowSomNodeSummary::{ counts, percentages, medians, cvs, sds, mads }
+  FlowSomNodeSummary::{ counts, percentages, medians, cvs, sds, mads, }
 }
 
 ///|
@@ -1368,7 +1368,7 @@ pub fn flowsom_map_new(
       None => ()
     }
   }
-  FlowSomMappedData::{ mapping, meta_clusters, outliers }
+  FlowSomMappedData::{ mapping, meta_clusters, outliers, }
 }
 
 ///|
@@ -1545,7 +1545,7 @@ pub fn flowsom_purity(
       mean = mean + purity / predicted.length().to_double()
     }
   }
-  FlowSomPurity::{ mean, worst, below_075: below }
+  FlowSomPurity::{ mean, worst, below_075: below, }
 }
 
 ///|
@@ -1847,7 +1847,7 @@ pub fn flowsom_cluster_sce(
     config.ydim.to_string()
   output.metadata["FlowSOM.quantization_error"] = model.quantization_error.to_string()
   output.metadata["FlowSOM.topographic_error"] = model.topographic_error.to_string()
-  FlowSomSceOutput::{ experiment: output, model }
+  FlowSomSceOutput::{ experiment: output, model, }
 }
 
 ///|

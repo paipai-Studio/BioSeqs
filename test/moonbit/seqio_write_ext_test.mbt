@@ -109,7 +109,9 @@ test "write_seqxml_records_roundtrip" {
 ///|
 test "write_phd_records_roundtrip" {
   let rec = writeext_sample_record()
-  rec.letter_annotations["phred_quality"] = [10, 20, 30, 40, 15, 25, 35, 45, 12, 22]
+  rec.letter_annotations["phred_quality"] = [
+    10, 20, 30, 40, 15, 25, 35, 45, 12, 22,
+  ]
   let text = @src.write_phd_records([rec])
   let parsed = @src.parse_phd_records(text)
   assert_eq(parsed.length(), 1)
@@ -177,7 +179,8 @@ test "seqio_write_non_writable_format_lists_supported" {
     false
   } catch {
     SeqIOError(msg) =>
-      msg.contains("format does not support writing") && msg.contains("2bit") &&
+      msg.contains("format does not support writing") &&
+      msg.contains("2bit") &&
       msg.contains("fasta")
   }
   assert_true(raised)

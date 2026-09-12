@@ -101,7 +101,7 @@ pub fn array_data_from_dict(
     }
     pi = pi + 1
   }
-  { rows, cols, data }
+  { rows, cols, data, }
 }
 
 ///|
@@ -171,7 +171,7 @@ pub fn subs_matrix(
   alphabet : Array[String],
   matrix : ArrayData,
 ) -> SubsMatrix {
-  { name, alphabet, matrix, n_letters: alphabet.length() }
+  { name, alphabet, matrix, n_letters: alphabet.length(), }
 }
 
 ///|
@@ -517,7 +517,7 @@ pub fn calculate_frequency_matrix(
   // Count pairs across all sequence pairs
   let n_seq = alignment.length()
   if n_seq < 2 {
-    return { rows: alphabet, cols: alphabet, data }
+    return { rows: alphabet, cols: alphabet, data, }
   }
   let seq_len = alignment[0].length()
   for i in 0..<n_seq {
@@ -555,7 +555,7 @@ pub fn calculate_frequency_matrix(
       }
     }
   }
-  { rows: alphabet, cols: alphabet, data }
+  { rows: alphabet, cols: alphabet, data, }
 }
 
 // ============================================================================

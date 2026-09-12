@@ -101,7 +101,7 @@ pub fn MSADistanceMatrix::new(
   matrix : Array[Array[Double]],
   sequence_ids : Array[String],
 ) -> MSADistanceMatrix {
-  MSADistanceMatrix::{ matrix, sequence_ids }
+  MSADistanceMatrix::{ matrix, sequence_ids, }
 }
 
 ///|
@@ -258,7 +258,7 @@ pub fn build_distance_matrix(
     }
     matrix.push(row)
   }
-  MSADistanceMatrix::{ matrix, sequence_ids }
+  MSADistanceMatrix::{ matrix, sequence_ids, }
 }
 
 ///|
@@ -273,11 +273,11 @@ pub fn build_distance_matrix(
 pub fn upgma_tree(distance_matrix : MSADistanceMatrix) -> GuideTree {
   let n = distance_matrix.matrix.length()
   if n == 0 {
-    return GuideTree::{ nodes: [] }
+    return GuideTree::{ nodes: [], }
   }
   if n == 1 {
     let node = guide_tree_leaf(0, 0)
-    return GuideTree::{ nodes: [node] }
+    return GuideTree::{ nodes: [node], }
   }
 
   let nodes : Array[GuideTreeNode] = Array::new()

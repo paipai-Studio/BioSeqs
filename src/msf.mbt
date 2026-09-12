@@ -169,7 +169,7 @@ pub fn MsfAlignment::create(
   for sequence in sequences {
     copied.push(sequence)
   }
-  let alignment = MsfAlignment::{ metadata, sequences: copied }
+  let alignment = MsfAlignment::{ metadata, sequences: copied, }
   msf_validate_alignment(alignment)
   alignment
 }

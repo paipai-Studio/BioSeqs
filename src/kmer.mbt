@@ -10,7 +10,7 @@ pub struct BioKmerCounter {
 
 ///|
 pub fn BioKmerCounter::new(k : Int) -> BioKmerCounter {
-  BioKmerCounter::{ k, counts: Map([], capacity=1000), sequence: "" }
+  BioKmerCounter::{ k, counts: Map([], capacity=1000), sequence: "", }
 }
 
 ///|
@@ -32,7 +32,7 @@ pub fn BioKmerCounter::count_kmers(
     i = i + 1
   }
 
-  BioKmerCounter::{ k: self.k, counts, sequence: seq }
+  BioKmerCounter::{ k: self.k, counts, sequence: seq, }
 }
 
 ///|
@@ -171,7 +171,7 @@ pub fn KmerFrequency::new(
   count : Int,
   frequency : Double,
 ) -> KmerFrequency {
-  KmerFrequency::{ kmer, count, frequency }
+  KmerFrequency::{ kmer, count, frequency, }
 }
 
 ///|

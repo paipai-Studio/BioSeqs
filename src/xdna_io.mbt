@@ -106,7 +106,7 @@ pub fn XdnaRecord::new(
   annotations : String,
   checksum? : Int = 0,
 ) -> XdnaRecord {
-  XdnaRecord::{ name, sequence, seq_type, annotations, checksum }
+  XdnaRecord::{ name, sequence, seq_type, annotations, checksum, }
 }
 
 ///|
@@ -171,7 +171,7 @@ pub struct XdnaFile {
 ///|
 /// Construct an empty XdnaFile with the default version (1).
 pub fn XdnaFile::new() -> XdnaFile {
-  XdnaFile::{ records: Array::new(), version: 1 }
+  XdnaFile::{ records: Array::new(), version: 1, }
 }
 
 ///|

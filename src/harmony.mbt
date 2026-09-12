@@ -18,7 +18,7 @@ pub fn HarmonyData::new(
   batch_labels : Array[String],
   cell_ids : Array[String],
 ) -> HarmonyData {
-  HarmonyData::{ embeddings, batch_labels, cell_ids }
+  HarmonyData::{ embeddings, batch_labels, cell_ids, }
 }
 
 ///|
@@ -582,5 +582,5 @@ pub fn harmony_create_example(
     i = i + 1
   }
 
-  HarmonyData::{ embeddings, batch_labels, cell_ids }
+  HarmonyData::{ embeddings, batch_labels, cell_ids, }
 }

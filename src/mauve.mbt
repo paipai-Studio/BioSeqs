@@ -163,7 +163,7 @@ pub fn mauve_seq_coverage(seq : MauveSequence) -> Double {
 ///|
 /// Create a new empty MauveLCB.
 pub fn new_mauve_lcb(id : String) -> MauveLCB {
-  MauveLCB::{ id, score: 0.0, sequences: Array::new(), is_collinear: true }
+  MauveLCB::{ id, score: 0.0, sequences: Array::new(), is_collinear: true, }
 }
 
 ///|
@@ -551,7 +551,7 @@ pub fn new_mauve_inversion(
   end : Int,
   length : Int,
 ) -> MauveInversion {
-  MauveInversion::{ seq_name, start, end, length, affected_lcbs: Array::new() }
+  MauveInversion::{ seq_name, start, end, length, affected_lcbs: Array::new(), }
 }
 
 ///|

@@ -211,7 +211,7 @@ fn push_variant(
     i = i + 1
   }
   new_passed.push(v)
-  VariantFilterResult::{ ..result, passed_variants: new_passed }
+  VariantFilterResult::{ ..result, passed_variants: new_passed, }
 }
 
 ///|
@@ -227,7 +227,7 @@ fn push_filtered_variant(
     i = i + 1
   }
   new_filtered.push(v)
-  VariantFilterResult::{ ..result, filtered_variants: new_filtered }
+  VariantFilterResult::{ ..result, filtered_variants: new_filtered, }
 }
 
 ///|

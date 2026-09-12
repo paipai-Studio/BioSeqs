@@ -71,13 +71,13 @@ pub fn grg_granges(
       }
     None => ()
   }
-  GRangesLocal::{ seqnames, starts, ends, strands: final_strands }
+  GRangesLocal::{ seqnames, starts, ends, strands: final_strands, }
 }
 
 ///|
 /// Create an empty GRangesLocal.
 pub fn grg_empty() -> GRangesLocal {
-  GRangesLocal::{ seqnames: [], starts: [], ends: [], strands: [] }
+  GRangesLocal::{ seqnames: [], starts: [], ends: [], strands: [], }
 }
 
 ///|
@@ -423,7 +423,7 @@ pub fn grg_setdiff(gr1 : GRangesLocal, gr2 : GRangesLocal) -> GRangesLocal {
   let strands : Array[String] = []
 
   if gr1.seqnames.length() == 0 {
-    return GRangesLocal::{ seqnames, starts, ends, strands }
+    return GRangesLocal::{ seqnames, starts, ends, strands, }
   }
 
   let mut i = 0
@@ -474,7 +474,7 @@ pub fn grg_setdiff(gr1 : GRangesLocal, gr2 : GRangesLocal) -> GRangesLocal {
     i = i + 1
   }
 
-  GRangesLocal::{ seqnames, starts, ends, strands }
+  GRangesLocal::{ seqnames, starts, ends, strands, }
 }
 
 ///|
@@ -489,7 +489,7 @@ pub fn grg_intersect(gr1 : GRangesLocal, gr2 : GRangesLocal) -> GRangesLocal {
   let strands : Array[String] = []
 
   if gr1.seqnames.length() == 0 || gr2.seqnames.length() == 0 {
-    return GRangesLocal::{ seqnames, starts, ends, strands }
+    return GRangesLocal::{ seqnames, starts, ends, strands, }
   }
 
   let mut i = 0
@@ -521,7 +521,7 @@ pub fn grg_intersect(gr1 : GRangesLocal, gr2 : GRangesLocal) -> GRangesLocal {
     i = i + 1
   }
 
-  GRangesLocal::{ seqnames, starts, ends, strands }
+  GRangesLocal::{ seqnames, starts, ends, strands, }
 }
 
 ///|
@@ -655,7 +655,7 @@ pub fn grg_trim(
     i = i + 1
   }
 
-  GRangesLocal::{ seqnames, starts, ends, strands }
+  GRangesLocal::{ seqnames, starts, ends, strands, }
 }
 
 ///|
@@ -727,7 +727,7 @@ pub fn grg_promoters(
     i = i + 1
   }
 
-  GRangesLocal::{ seqnames, starts, ends, strands }
+  GRangesLocal::{ seqnames, starts, ends, strands, }
 }
 
 ///|

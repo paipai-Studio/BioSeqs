@@ -79,7 +79,7 @@ pub fn ProcessingStep::new(
   description : String,
   timestamp : String,
 ) -> ProcessingStep {
-  ProcessingStep::{ description, timestamp }
+  ProcessingStep::{ description, timestamp, }
 }
 
 // ============================================================================

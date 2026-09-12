@@ -60,13 +60,13 @@ pub struct Seq {
 ///|
 /// Construct a Seq from a String.
 pub fn Seq::new(s : String) -> Seq {
-  Seq::{ data: s }
+  Seq::{ data: s, }
 }
 
 ///|
 /// Construct a Seq from a string literal / StringView.
 pub fn Seq::from_str(s : String) -> Seq {
-  Seq::{ data: s }
+  Seq::{ data: s, }
 }
 
 ///|
@@ -91,13 +91,13 @@ pub fn Seq::length(self : Seq) -> Int {
 /// Concatenate two sequences, like Seq("AC") + Seq("GT"). Implements the
 /// `Add` trait so the `+` operator works.
 pub impl Add for Seq with fn add(self, other) {
-  Seq::{ data: self.data + other.data }
+  Seq::{ data: self.data + other.data, }
 }
 
 ///|
 /// Concatenate a Seq with a String.
 pub fn Seq::add_str(self : Seq, other : String) -> Seq {
-  Seq::{ data: self.data + other }
+  Seq::{ data: self.data + other, }
 }
 
 ///|
@@ -105,9 +105,9 @@ pub fn Seq::add_str(self : Seq, other : String) -> Seq {
 /// MoonBit's Mul trait requires both operands to be the same type.)
 pub fn Seq::mul(self : Seq, n : Int) -> Seq {
   if n <= 0 {
-    Seq::{ data: "" }
+    Seq::{ data: "", }
   } else {
-    Seq::{ data: self.data.repeat(n) }
+    Seq::{ data: self.data.repeat(n), }
   }
 }
 
@@ -115,7 +115,7 @@ pub fn Seq::mul(self : Seq, n : Int) -> Seq {
 /// Return a subsequence from [start, end) (character indices). Matches
 /// Python slicing semantics for non-negative bounds.
 pub fn Seq::slice(self : Seq, start~ : Int, end~ : Int) -> Seq {
-  Seq::{ data: self.data[start:end].to_owned() }
+  Seq::{ data: self.data[start:end].to_owned(), }
 }
 
 ///|
@@ -127,13 +127,13 @@ pub fn Seq::get_char(self : Seq, i : Int) -> Char? {
 ///|
 /// Return an uppercased copy.
 pub fn Seq::upper(self : Seq) -> Seq {
-  Seq::{ data: self.data.to_upper() }
+  Seq::{ data: self.data.to_upper(), }
 }
 
 ///|
 /// Return a lowercased copy.
 pub fn Seq::lower(self : Seq) -> Seq {
-  Seq::{ data: self.data.to_lower() }
+  Seq::{ data: self.data.to_lower(), }
 }
 
 ///|
@@ -251,25 +251,25 @@ pub fn Seq::contains(self : Seq, sub : String) -> Bool {
 /// Remove leading and trailing characters in `chars` (default: whitespace),
 /// like Seq.strip.
 pub fn Seq::strip(self : Seq, chars? : String = " ") -> Seq {
-  Seq::{ data: self.data.trim(chars~).to_owned() }
+  Seq::{ data: self.data.trim(chars~).to_owned(), }
 }
 
 ///|
 /// Remove leading characters in `chars`.
 pub fn Seq::lstrip(self : Seq, chars? : String = " ") -> Seq {
-  Seq::{ data: self.data.trim_start(chars~).to_owned() }
+  Seq::{ data: self.data.trim_start(chars~).to_owned(), }
 }
 
 ///|
 /// Remove trailing characters in `chars`.
 pub fn Seq::rstrip(self : Seq, chars? : String = " ") -> Seq {
-  Seq::{ data: self.data.trim_end(chars~).to_owned() }
+  Seq::{ data: self.data.trim_end(chars~).to_owned(), }
 }
 
 ///|
 /// Replace every occurrence of `old` with `new`.
 pub fn Seq::replace(self : Seq, old~ : String, new~ : String) -> Seq {
-  Seq::{ data: self.data.replace_all(old~, new~) }
+  Seq::{ data: self.data.replace_all(old~, new~), }
 }
 
 ///|
@@ -277,7 +277,7 @@ pub fn Seq::replace(self : Seq, old~ : String, new~ : String) -> Seq {
 pub fn Seq::split(self : Seq, sep : String) -> Array[Seq] {
   let out = Array::new()
   for part in self.data.split(sep) {
-    out.push(Seq::{ data: part.to_owned() })
+    out.push(Seq::{ data: part.to_owned(), })
   }
   out
 }
@@ -293,7 +293,7 @@ pub fn Seq::join(self : Seq, others : Array[Seq]) -> Seq {
     }
     buf.write_string(s.data)
   }
-  Seq::{ data: buf.to_string() }
+  Seq::{ data: buf.to_string(), }
 }
 
 // ---------------------------------------------------------------------------
@@ -304,14 +304,14 @@ pub fn Seq::join(self : Seq, others : Array[Seq]) -> Seq {
 /// Return the complement as a DNA sequence. Any U is treated as a T,
 /// matching BioPython's Seq.complement().
 pub fn Seq::complement(self : Seq) -> Seq {
-  Seq::{ data: complement_chars(self.data, dna_complement_arr) }
+  Seq::{ data: complement_chars(self.data, dna_complement_arr), }
 }
 
 ///|
 /// Return the complement as an RNA sequence. Any T is treated as a U,
 /// matching BioPython's Seq.complement_rna().
 pub fn Seq::complement_rna(self : Seq) -> Seq {
-  Seq::{ data: complement_chars(self.data, rna_complement_arr) }
+  Seq::{ data: complement_chars(self.data, rna_complement_arr), }
 }
 
 ///|
@@ -325,21 +325,21 @@ pub fn Seq::reverse(self : Seq) -> Seq {
   for i = 0; i < n; i = i + 1 {
     buf[i] = src.unsafe_get(n - 1 - i)
   }
-  Seq::{ data: unsafe_from_uint16_fixedarray(buf) }
+  Seq::{ data: unsafe_from_uint16_fixedarray(buf), }
 }
 
 ///|
 /// Return the reverse complement as a DNA sequence. Uses a single-pass
 /// reverse-complement to avoid allocating an intermediate reversed string.
 pub fn Seq::reverse_complement(self : Seq) -> Seq {
-  Seq::{ data: reverse_complement_chars(self.data, dna_complement_arr) }
+  Seq::{ data: reverse_complement_chars(self.data, dna_complement_arr), }
 }
 
 ///|
 /// Return the reverse complement as an RNA sequence. Uses a single-pass
 /// reverse-complement to avoid allocating an intermediate reversed string.
 pub fn Seq::reverse_complement_rna(self : Seq) -> Seq {
-  Seq::{ data: reverse_complement_chars(self.data, rna_complement_arr) }
+  Seq::{ data: reverse_complement_chars(self.data, rna_complement_arr), }
 }
 
 ///|
@@ -364,7 +364,7 @@ pub fn Seq::transcribe(self : Seq) -> Seq {
       buf[i] = ci
     }
   }
-  Seq::{ data: unsafe_from_uint16_fixedarray(buf) }
+  Seq::{ data: unsafe_from_uint16_fixedarray(buf), }
 }
 
 ///|
@@ -388,7 +388,7 @@ pub fn Seq::back_transcribe(self : Seq) -> Seq {
       buf[i] = ci
     }
   }
-  Seq::{ data: unsafe_from_uint16_fixedarray(buf) }
+  Seq::{ data: unsafe_from_uint16_fixedarray(buf), }
 }
 
 ///|
@@ -460,13 +460,13 @@ pub fn Seq::translate(
       i = i + 3
     }
     if amino_len == max_amino {
-      return Seq::{ data: unsafe_from_uint16_fixedarray(amino_buf) }
+      return Seq::{ data: unsafe_from_uint16_fixedarray(amino_buf), }
     }
     let final_buf : FixedArray[UInt16] = FixedArray::make(amino_len, 0)
     for k = 0; k < amino_len; k = k + 1 {
       final_buf[k] = amino_buf[k]
     }
-    return Seq::{ data: unsafe_from_uint16_fixedarray(final_buf) }
+    return Seq::{ data: unsafe_from_uint16_fixedarray(final_buf), }
   }
 
   let limit = n - n % 3
@@ -491,7 +491,7 @@ pub fn Seq::translate(
           for k = 0; k < amino_len; k = k + 1 {
             final_buf[k] = amino_buf[k]
           }
-          return Seq::{ data: unsafe_from_uint16_fixedarray(final_buf) }
+          return Seq::{ data: unsafe_from_uint16_fixedarray(final_buf), }
         }
         amino_buf[amino_len] = stop_code
       } else {
@@ -511,13 +511,13 @@ pub fn Seq::translate(
   }
 
   if amino_len == max_amino {
-    return Seq::{ data: unsafe_from_uint16_fixedarray(amino_buf) }
+    return Seq::{ data: unsafe_from_uint16_fixedarray(amino_buf), }
   }
   let final_buf : FixedArray[UInt16] = FixedArray::make(amino_len, 0)
   for k = 0; k < amino_len; k = k + 1 {
     final_buf[k] = amino_buf[k]
   }
-  Seq::{ data: unsafe_from_uint16_fixedarray(final_buf) }
+  Seq::{ data: unsafe_from_uint16_fixedarray(final_buf), }
 }
 
 ///|
@@ -676,7 +676,7 @@ pub fn MutableSeq::to_string(self : MutableSeq) -> String {
 ///|
 /// Convert to an immutable Seq.
 pub fn MutableSeq::to_seq(self : MutableSeq) -> Seq {
-  Seq::{ data: self.to_string() }
+  Seq::{ data: self.to_string(), }
 }
 
 ///|
@@ -782,7 +782,7 @@ pub fn MutableSeq::copy(self : MutableSeq) -> MutableSeq {
   for c in self.data {
     new_data.push(c)
   }
-  MutableSeq::{ data: new_data }
+  MutableSeq::{ data: new_data, }
 }
 
 ///|

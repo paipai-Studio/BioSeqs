@@ -19,7 +19,7 @@ pub struct ConsensusNode {
 
 ///|
 pub fn ConsensusNode::new(name : String, is_internal : Bool) -> ConsensusNode {
-  ConsensusNode::{ name, children: Array::new(), support: 0.0, is_internal }
+  ConsensusNode::{ name, children: Array::new(), support: 0.0, is_internal, }
 }
 
 ///|
@@ -83,18 +83,18 @@ pub struct Split {
 
 ///|
 pub fn Split::new(taxa : Array[String]) -> Split {
-  Split::{ taxa, support: 0.0 }
+  Split::{ taxa, support: 0.0, }
 }
 
 ///|
 pub fn Split::set_support(self : Split, support : Double) -> Split {
-  Split::{ taxa: self.taxa, support }
+  Split::{ taxa: self.taxa, support, }
 }
 
 ///|
 pub fn Split::normalize(self : Split) -> Split {
   let sorted = sort_strings(self.taxa)
-  Split::{ taxa: sorted, support: self.support }
+  Split::{ taxa: sorted, support: self.support, }
 }
 
 ///|
@@ -215,7 +215,7 @@ pub fn build_consensus(
   threshold : Double,
 ) -> ConsensusTree {
   if trees.length() == 0 {
-    return ConsensusTree::{ nodes: Array::new(), root: None }
+    return ConsensusTree::{ nodes: Array::new(), root: None, }
   }
 
   let all_taxa = get_all_taxa(trees[0])
@@ -262,7 +262,7 @@ pub fn build_consensus(
 
   let consensus_root = build_tree_from_splits(all_taxa, consensus_splits)
 
-  ConsensusTree::{ nodes: Array::new(), root: Some(consensus_root) }
+  ConsensusTree::{ nodes: Array::new(), root: Some(consensus_root), }
 }
 
 ///|
@@ -511,8 +511,8 @@ fn parse_newick_recursive(s : String, i : Int) -> (ConsensusNode, Int) {
 ///|
 pub fn newick_to_tree(newick : String) -> ConsensusTree {
   match parse_consensus_newick(newick) {
-    Some(root) => ConsensusTree::{ nodes: Array::new(), root: Some(root) }
-    None => ConsensusTree::{ nodes: Array::new(), root: None }
+    Some(root) => ConsensusTree::{ nodes: Array::new(), root: Some(root), }
+    None => ConsensusTree::{ nodes: Array::new(), root: None, }
   }
 }
 

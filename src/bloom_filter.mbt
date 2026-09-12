@@ -73,7 +73,7 @@ struct BitArray {
 
 ///|
 fn BitArray::new(num_bits : Int) -> BitArray {
-  BitArray::{ bits: FixedArray::make(num_bits, 0), num_bits }
+  BitArray::{ bits: FixedArray::make(num_bits, 0), num_bits, }
 }
 
 ///|
@@ -314,7 +314,7 @@ pub struct KmerCounter {
 ///|
 /// Create a k-mer counter for k-mer size `k`.
 pub fn KmerCounter::new(k : Int) -> KmerCounter {
-  KmerCounter::{ k, counts: Map([], capacity=0), total_kmers: 0 }
+  KmerCounter::{ k, counts: Map([], capacity=0), total_kmers: 0, }
 }
 
 ///|
@@ -374,7 +374,7 @@ pub fn KmerCounter::top_k(self : KmerCounter, n : Int) -> Array[KmerCount] {
       Some(v) => v
       None => 0
     }
-    entries.push(KmerCount::{ kmer, count: cnt })
+    entries.push(KmerCount::{ kmer, count: cnt, })
   }
   // Simple selection sort for top-n (efficient for small n).
   let result : Array[KmerCount] = Array::new()

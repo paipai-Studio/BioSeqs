@@ -46,7 +46,7 @@ pub fn FilterCondition::new(
   operator : String,
   value : String,
 ) -> FilterCondition {
-  FilterCondition::{ field, operator, value }
+  FilterCondition::{ field, operator, value, }
 }
 
 ///|

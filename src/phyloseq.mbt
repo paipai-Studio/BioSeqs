@@ -14,7 +14,7 @@ pub fn OTU::new(
   taxonomy : Array[String],
   abundance : Array[Double],
 ) -> OTU {
-  OTU::{ id, taxonomy, abundance }
+  OTU::{ id, taxonomy, abundance, }
 }
 
 ///|
@@ -25,7 +25,7 @@ pub struct Sample {
 
 ///|
 pub fn Sample::new(id : String, metadata : Map[String, String]) -> Sample {
-  Sample::{ id, metadata }
+  Sample::{ id, metadata, }
 }
 
 ///|
@@ -49,7 +49,7 @@ pub fn TaxRank::new(
   genus : String,
   species : String,
 ) -> TaxRank {
-  TaxRank::{ kingdom, phylum, class, order, family, genus, species }
+  TaxRank::{ kingdom, phylum, class, order, family, genus, species, }
 }
 
 ///|

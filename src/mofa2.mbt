@@ -54,7 +54,7 @@ pub fn MofaView::new(
   sample_names : Array[String],
   view_type? : String = "gaussian",
 ) -> MofaView {
-  MofaView::{ view_name, data, feature_names, sample_names, view_type }
+  MofaView::{ view_name, data, feature_names, sample_names, view_type, }
 }
 
 ///|
@@ -88,7 +88,7 @@ pub fn MofaParams::create(
   ard_threshold? : Double = 0.01,
   seed? : Int = 42,
 ) -> MofaParams {
-  MofaParams::{ n_factors, max_iterations, tolerance, ard_threshold, seed }
+  MofaParams::{ n_factors, max_iterations, tolerance, ard_threshold, seed, }
 }
 
 ///|

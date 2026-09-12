@@ -240,7 +240,7 @@ pub fn ReportColumn::new(
   values : Array[String],
   numeric : Bool,
 ) -> ReportColumn {
-  ReportColumn::{ name, values, numeric }
+  ReportColumn::{ name, values, numeric, }
 }
 
 ///|
@@ -263,7 +263,7 @@ pub fn ReportTable::new(
     })
     i = i + 1
   }
-  ReportTable::{ table_id, title, columns, caption }
+  ReportTable::{ table_id, title, columns, caption, }
 }
 
 ///|
@@ -274,7 +274,7 @@ pub fn ReportTable::from_columns(
   columns : Array[ReportColumn],
   caption : String,
 ) -> ReportTable {
-  ReportTable::{ table_id, title, columns, caption }
+  ReportTable::{ table_id, title, columns, caption, }
 }
 
 ///|

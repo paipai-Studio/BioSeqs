@@ -108,7 +108,7 @@ pub struct Bmat {
 pub fn Bmat::new(data : Array[Array[Double]], param : BmatParam) -> Bmat {
   let dim_rows = data.length()
   if dim_rows == 0 {
-    return { dim_rows: 0, dim_cols: 0, data: Array::make(0, 0.0), param }
+    return { dim_rows: 0, dim_cols: 0, data: Array::make(0, 0.0), param, }
   }
   let dim_cols = data[0].length()
   let flat : Array[Double] = []
@@ -117,14 +117,14 @@ pub fn Bmat::new(data : Array[Array[Double]], param : BmatParam) -> Bmat {
       flat.push(data[i][j])
     }
   }
-  { dim_rows, dim_cols, data: flat, param }
+  { dim_rows, dim_cols, data: flat, param, }
 }
 
 ///|
 /// Create a zero-filled Bmat.
 pub fn Bmat::zeros(dim_rows : Int, dim_cols : Int) -> Bmat {
   let data = Array::make(dim_rows * dim_cols, 0.0)
-  { dim_rows, dim_cols, data, param: BmatParam::new() }
+  { dim_rows, dim_cols, data, param: BmatParam::new(), }
 }
 
 ///|

@@ -285,7 +285,7 @@ pub fn TrackPoint::new(
   value : Double,
   label : String,
 ) -> TrackPoint {
-  TrackPoint::{ chromosome, position, value, label }
+  TrackPoint::{ chromosome, position, value, label, }
 }
 
 ///|
@@ -297,7 +297,7 @@ pub fn KaryotypeRegion::new(
   label : String,
   color : String,
 ) -> KaryotypeRegion {
-  KaryotypeRegion::{ chromosome, start, end, label, color }
+  KaryotypeRegion::{ chromosome, start, end, label, color, }
 }
 
 ///|
@@ -309,7 +309,7 @@ pub fn IdeogramBand::new(
   band_name : String,
   stain : String,
 ) -> IdeogramBand {
-  IdeogramBand::{ chromosome, start, end, band_name, stain }
+  IdeogramBand::{ chromosome, start, end, band_name, stain, }
 }
 
 ///|

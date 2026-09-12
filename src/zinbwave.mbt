@@ -1570,7 +1570,7 @@ pub fn zinbwave_sce(
   enriched.metadata["zinbwave_iterations"] = model.diagnostics.iterations.to_string()
   enriched.metadata["zinbwave_converged"] = model.diagnostics.converged.to_string()
   enriched.metadata["zinbwave_log_likelihood"] = model.log_likelihood.to_string()
-  ZinbWaveSCEOutput::{ experiment: enriched, model }
+  ZinbWaveSCEOutput::{ experiment: enriched, model, }
 }
 
 ///|

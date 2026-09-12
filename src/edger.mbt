@@ -38,7 +38,7 @@ pub fn dge_list(
 
   let norm_factors : Array[Double] = Array::make(n_cols, 1.0)
 
-  DGEList::{ counts, group, genes, lib_size, norm_factors }
+  DGEList::{ counts, group, genes, lib_size, norm_factors, }
 }
 
 ///|
@@ -188,7 +188,7 @@ pub fn exact_test(
     }
   }
 
-  DEGEResults::{ genes: dge.genes, log_fc, log_cpm, p_value, fdr }
+  DEGEResults::{ genes: dge.genes, log_fc, log_cpm, p_value, fdr, }
 }
 
 ///|
@@ -226,7 +226,7 @@ pub fn top_tags(results : DEGEResults, n : Int) -> DEGEResults {
     fdr[i] = results.fdr[idx]
   }
 
-  DEGEResults::{ genes, log_fc, log_cpm, p_value, fdr }
+  DEGEResults::{ genes, log_fc, log_cpm, p_value, fdr, }
 }
 
 ///|
@@ -285,5 +285,5 @@ pub fn glm_lrt(
     }
   }
 
-  DEGEResults::{ genes: dge.genes, log_fc, log_cpm, p_value, fdr }
+  DEGEResults::{ genes: dge.genes, log_fc, log_cpm, p_value, fdr, }
 }

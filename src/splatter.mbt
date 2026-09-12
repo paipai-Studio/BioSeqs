@@ -111,7 +111,11 @@ pub fn SplatParams::create(
   path_shift_scale? : Double = 0.1,
   path_probability? : Double = 0.5,
 ) -> SplatParams {
-  let effective_groups = if group_cells.length() > 0 { group_cells } else { [n_cells] }
+  let effective_groups = if group_cells.length() > 0 {
+    group_cells
+  } else {
+    [n_cells]
+  }
   SplatParams::{
     n_genes,
     mean_shape,
@@ -249,7 +253,11 @@ fn splat_lognormal(loc : Double, scale : Double, state : Int) -> (Int, Double) {
 
 ///|
 /// Logistic dropout probability for a log10 mean.
-fn splat_dropout_probability(log10_mean : Double, mid : Double, shape : Double) -> Double {
+fn splat_dropout_probability(
+  log10_mean : Double,
+  mid : Double,
+  shape : Double,
+) -> Double {
   1.0 / (1.0 + @math.exp(shape * (log10_mean - mid)))
 }
 
@@ -270,14 +278,24 @@ fn splat_draw_factors(
     current = s1
     let (s2, magnitude) = splat_lognormal(loc, scale, current)
     current = s2
-    factors.push(if direction < down_probability { 1.0 / magnitude } else { magnitude })
+    factors.push(
+      if direction < down_probability {
+        1.0 / magnitude
+      } else {
+        magnitude
+      },
+    )
   }
   (current, factors)
 }
 
 ///|
 /// Select gene indices below a uniform probability threshold.
-fn splat_select_genes(n_genes : Int, probability : Double, state : Int) -> (Int, Array[Int]) {
+fn splat_select_genes(
+  n_genes : Int,
+  probability : Double,
+  state : Int,
+) -> (Int, Array[Int]) {
   let mut current = state
   let selected : Array[Int] = []
   for g in 0..<n_genes {
@@ -373,7 +391,13 @@ pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
     }
     state = state1
     let (state2, path_shifts) = if is_path_group {
-      splat_draw_factors(path_genes.length(), 0.5, 0.0, params.path_shift_scale, state)
+      splat_draw_factors(
+        path_genes.length(),
+        0.5,
+        0.0,
+        params.path_shift_scale,
+        state,
+      )
     } else {
       (state, [])
     }
@@ -424,7 +448,11 @@ pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
   for _b in 0..<n_batches {
     let factors : Array[Double] = Array::new(capacity=n_genes)
     for _g in 0..<n_genes {
-      let (s1, factor) = splat_lognormal(params.batch_fac_loc, params.batch_fac_scale, state)
+      let (s1, factor) = splat_lognormal(
+        params.batch_fac_loc,
+        params.batch_fac_scale,
+        state,
+      )
       state = s1
       factors.push(factor)
     }
@@ -443,7 +471,8 @@ pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
         // pseudotime progress along the path
         let step = params.n_path_steps.max(1)
         let progress = (c % step).to_double() / step.to_double()
-        log_mean = log_mean + progress * @math.ln((base_means[g].max(1.0e-15)) * 10.0)
+        log_mean = log_mean +
+          progress * @math.ln(base_means[g].max(1.0e-15) * 10.0)
       }
       let mu = @math.exp(log_mean) * batch_factors[batch][g] * lib_factors[c]
       let dispersion = params.bcv_common + 1.0 / mu.max(1.0e-15).sqrt()
@@ -463,7 +492,9 @@ pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
     for g in 0..<n_genes {
       for c in 0..<n_cells {
         let group = cell_group[c]
-        let log10_mean = @math.log10((@math.exp(group_log_means[group][g])).max(1.0e-15))
+        let log10_mean = @math.log10(
+          @math.exp(group_log_means[group][g]).max(1.0e-15),
+        )
         let probability = splat_dropout_probability(
           log10_mean,
           params.dropout_mid,

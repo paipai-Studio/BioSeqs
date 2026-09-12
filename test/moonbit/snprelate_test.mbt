@@ -78,7 +78,10 @@ test "snpgds_ibd_king_parent_offspring" {
 ///|
 test "snpgds_ibd_king_homo" {
   let stats = @src.snpgds_snp_stats(snp_test_dosages())
-  let king = @src.snpgds_ibd_king_homo(snp_test_dosages(), stats.allele_frequency)
+  let king = @src.snpgds_ibd_king_homo(
+    snp_test_dosages(),
+    stats.allele_frequency,
+  )
   assert_eq(king.k0.length(), 4)
   // mirror: sum p(1-p) = 0.984375, sum p^2(1-p)^2 = 0.242431640625
   // pair (0,1): SumSq=1, IBS0=0 -> theta = 0.5 - 1/7.875, k0 = 0
@@ -90,7 +93,9 @@ test "snpgds_ibd_king_homo" {
   let k0_02 = 1.0 / (2.0 * 0.242431640625)
   let theta02 = 0.5 - 6.0 / (8.0 * 0.984375)
   assert_true(snp_close(king.k0[0][2], k0_02, 1.0e-12))
-  assert_true(snp_close(king.k1[0][2], 2.0 - 2.0 * k0_02 - 4.0 * theta02, 1.0e-12))
+  assert_true(
+    snp_close(king.k1[0][2], 2.0 - 2.0 * k0_02 - 4.0 * theta02, 1.0e-12),
+  )
 }
 
 ///|
@@ -139,11 +144,7 @@ test "snpgds_pca_planted_structure" {
 
 ///|
 test "snpgds_pca_handles_missing" {
-  let dosages = [
-    [0, 0, 2, 2],
-    [-1, 0, 1, 2],
-    [1, 1, 0, 0],
-  ]
+  let dosages = [[0, 0, 2, 2], [-1, 0, 1, 2], [1, 1, 0, 0]]
   let pca = @src.snpgds_pca(dosages, 2)
   assert_eq(pca.eigenvalues.length(), 2)
   for v in pca.eigenvalues {

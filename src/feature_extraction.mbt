@@ -105,7 +105,13 @@ fn reverse_complement_str(s : String) -> String {
 pub fn nucleotide_composition(seq : String) -> NucleotideComposition {
   let n = seq.length()
   if n == 0 {
-    return NucleotideComposition::{ a: 0.0, t: 0.0, g: 0.0, c: 0.0, other: 0.0 }
+    return NucleotideComposition::{
+      a: 0.0,
+      t: 0.0,
+      g: 0.0,
+      c: 0.0,
+      other: 0.0,
+    }
   }
 
   let mut a_count = 0.0

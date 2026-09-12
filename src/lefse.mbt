@@ -337,10 +337,7 @@ pub fn lefse_wilcoxon_rank_sum(
     pos = end + 1
   }
 
-  let var_u = n1_d *
-    n2_d /
-    12.0 *
-    ((n_d + 1.0) - tie_sum / (n_d * (n_d - 1.0)))
+  let var_u = n1_d * n2_d / 12.0 * (n_d + 1.0 - tie_sum / (n_d * (n_d - 1.0)))
 
   if var_u <= 0.0 {
     return (u, 1.0)
@@ -455,13 +452,7 @@ pub fn LEfSeInput::new(
   classes : Array[String],
   subclasses : Array[String],
 ) -> LEfSeInput {
-  LEfSeInput::{
-    features,
-    feature_names,
-    sample_names,
-    classes,
-    subclasses,
-  }
+  LEfSeInput::{ features, feature_names, sample_names, classes, subclasses, }
 }
 
 ///|
@@ -530,7 +521,7 @@ pub fn LEfSeOutput::new(
   results : Array[LEfSeResult],
   n_significant : Int,
 ) -> LEfSeOutput {
-  LEfSeOutput::{ results, n_significant }
+  LEfSeOutput::{ results, n_significant, }
 }
 
 ///|
@@ -640,28 +631,20 @@ pub fn lefse_run(
 
     // If KW test is not significant, skip this feature
     if kw_p >= alpha {
-      results.push(
-        LEfSeResult::new(feature_name, "", kw_p, 0.0, false),
-      )
+      results.push(LEfSeResult::new(feature_name, "", kw_p, 0.0, false))
       fi = fi + 1
       continue
     }
 
     // Step 2: Subclass Wilcoxon tests (if applicable)
     let wilcoxon_pass = if has_subclasses {
-      lefse_subclass_wilcoxon(
-        input.features[fi],
-        subclass_info,
-        alpha,
-      )
+      lefse_subclass_wilcoxon(input.features[fi], subclass_info, alpha)
     } else {
       true
     }
 
     if !wilcoxon_pass {
-      results.push(
-        LEfSeResult::new(feature_name, "", kw_p, 0.0, false),
-      )
+      results.push(LEfSeResult::new(feature_name, "", kw_p, 0.0, false))
       fi = fi + 1
       continue
     }
@@ -963,16 +946,15 @@ pub fn lefse_sample_data() -> LEfSeInput {
     "Ruminococcus",
   ]
   let sample_names = [
-    "H_A1", "H_A2", "H_B1", "H_B2", "H_B3", "D_A1", "D_A2", "D_B1", "D_B2",
-    "D_B3",
+    "H_A1", "H_A2", "H_B1", "H_B2", "H_B3", "D_A1", "D_A2", "D_B1", "D_B2", "D_B3",
   ]
   let classes = [
     "Healthy", "Healthy", "Healthy", "Healthy", "Healthy", "Disease", "Disease",
     "Disease", "Disease", "Disease",
   ]
   let subclasses = [
-    "SubjectA", "SubjectA", "SubjectB", "SubjectB", "SubjectB", "SubjectA",
-    "SubjectA", "SubjectB", "SubjectB", "SubjectB",
+    "SubjectA", "SubjectA", "SubjectB", "SubjectB", "SubjectB", "SubjectA", "SubjectA",
+    "SubjectB", "SubjectB", "SubjectB",
   ]
   // Features: rows = taxa, cols = samples
   // Features 0,1 are elevated in Disease; features 2-5 are similar.

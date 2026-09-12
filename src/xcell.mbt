@@ -33,7 +33,7 @@ pub fn XcellSignature::new(
   category : String,
   genes : Array[String],
 ) -> XcellSignature {
-  XcellSignature::{ cell_type, category, genes }
+  XcellSignature::{ cell_type, category, genes, }
 }
 
 ///|

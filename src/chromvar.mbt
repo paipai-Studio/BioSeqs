@@ -77,7 +77,7 @@ pub fn PeakSet::new(
   peaks : Array[(String, Int, Int)],
   names : Array[String],
 ) -> PeakSet {
-  PeakSet::{ peaks, names, annotation: [] }
+  PeakSet::{ peaks, names, annotation: [], }
 }
 
 ///|
@@ -86,7 +86,7 @@ pub fn ChromVARMotif::new(
   pwm : Array[Array[Double]],
   consensus : String,
 ) -> ChromVARMotif {
-  ChromVARMotif::{ name, pwm, consensus, family: "" }
+  ChromVARMotif::{ name, pwm, consensus, family: "", }
 }
 
 ///|
@@ -97,7 +97,7 @@ pub fn ChromVARData::new(
 ) -> ChromVARData {
   let n_peaks = peak_set.peaks.length()
   let gc = Array::make(n_peaks, 0.5)
-  ChromVARData::{ counts, peak_set, cell_names, motifs: [], gc_content: gc }
+  ChromVARData::{ counts, peak_set, cell_names, motifs: [], gc_content: gc, }
 }
 
 ///|
@@ -695,7 +695,7 @@ pub fn chromvar_annotate_peaks(peak_set : PeakSet, genome : String) -> PeakSet {
   }
   annotation.push(("genome", genome))
   annotation.push(("n_peaks", peak_set.peaks.length().to_string()))
-  PeakSet::{ peaks: peak_set.peaks, names: peak_set.names, annotation }
+  PeakSet::{ peaks: peak_set.peaks, names: peak_set.names, annotation, }
 }
 
 ///|

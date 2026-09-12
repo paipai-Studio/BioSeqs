@@ -1056,7 +1056,7 @@ fn blast_xml_parse_node(
   let self_closing = trimmed_opening.length() > 0 &&
     trimmed_opening.unsafe_get(trimmed_opening.length() - 1).to_int() == 47
   if self_closing {
-    return (BlastXmlNode::{ name, text: "", children: [] }, open_end + 1)
+    return (BlastXmlNode::{ name, text: "", children: [], }, open_end + 1)
   }
   let children : Array[BlastXmlNode] = []
   let content = StringBuilder::new()
@@ -1107,7 +1107,7 @@ fn blast_xml_parse_node(
     index = index + 1
   }
   blast_xml_fail("Premature end of BLAST XML document")
-  (BlastXmlNode::{ name: "", text: "", children: [] }, 0)
+  (BlastXmlNode::{ name: "", text: "", children: [], }, 0)
 }
 
 ///|
@@ -1191,7 +1191,7 @@ fn blast_xml_required_child(
     Some(child) => child
     None => {
       blast_xml_fail("Missing BLAST XML element: " + name)
-      BlastXmlNode::{ name: "", text: "", children: [] }
+      BlastXmlNode::{ name: "", text: "", children: [], }
     }
   }
 }
@@ -1415,10 +1415,10 @@ fn blast_xml_parse_query(
       if start < 0 || end <= start || end > length {
         blast_xml_fail("BLAST XML query-masking range is out of bounds")
       }
-      masks.push(BlastXmlMask::{ start, end })
+      masks.push(BlastXmlMask::{ start, end, })
     }
   }
-  BlastXmlQuery::{ id, description, length, sequence, masks }
+  BlastXmlQuery::{ id, description, length, sequence, masks, }
 }
 
 ///|
@@ -2085,7 +2085,7 @@ fn blast_xml_parse_hit(
     }
     hsps.push(hsp)
   }
-  BlastXmlHit::{ number, descriptions, length, hsps }
+  BlastXmlHit::{ number, descriptions, length, hsps, }
 }
 
 ///|

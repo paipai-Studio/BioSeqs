@@ -44,7 +44,11 @@ fn unify_set_annotation(
 /// Normalize a Swiss-Prot record into a SeqRecord.
 fn unify_swiss_to_record(entry : SwissProtRecord) -> SeqRecord raise SeqIOError {
   let annotations : Map[String, String] = Map([], capacity=16)
-  unify_set_annotation(annotations, "accessions", entry.accession_numbers.join(", "))
+  unify_set_annotation(
+    annotations,
+    "accessions",
+    entry.accession_numbers.join(", "),
+  )
   unify_set_annotation(annotations, "gene_names", entry.gene_names.join(", "))
   unify_set_annotation(annotations, "organism", entry.organism)
   unify_set_annotation(annotations, "organism_id", entry.organism_id)
@@ -60,13 +64,20 @@ fn unify_swiss_to_record(entry : SwissProtRecord) -> SeqRecord raise SeqIOError 
     "subcellular_location",
     entry.subcellular_location.join(", "),
   )
-  unify_set_annotation(annotations, "tissue_specificity", entry.tissue_specificity)
+  unify_set_annotation(
+    annotations,
+    "tissue_specificity",
+    entry.tissue_specificity,
+  )
   unify_set_annotation(annotations, "date_created", entry.date_created)
   unify_set_annotation(annotations, "date_modified", entry.date_modified)
   unify_set_annotation(annotations, "version", entry.version.to_string())
   let features : Array[SeqFeature] = Array::new()
   for f in entry.features {
-    let quals : Map[String, Array[String]] = Map([], capacity=f.qualifiers.length())
+    let quals : Map[String, Array[String]] = Map(
+      [],
+      capacity=f.qualifiers.length(),
+    )
     for k, v in f.qualifiers {
       quals[k] = [v]
     }
@@ -106,7 +117,9 @@ fn unify_swiss_to_record(entry : SwissProtRecord) -> SeqRecord raise SeqIOError 
 /// Parse Swiss-Prot flat file content into SeqRecords (one record per
 /// "//"-delimited entry). Raises "Malformed swiss entry" when no entry can
 /// be parsed.
-pub fn parse_swiss_records(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_swiss_records(
+  content : String,
+) -> Array[SeqRecord] raise SeqIOError {
   if content.trim() == "" {
     return []
   }
@@ -134,12 +147,7 @@ pub fn parse_uniprot_xml_records(
   let records : Array[SeqRecord] = Array::new()
   for entry in entries {
     let (id, description, sequence, annotations) = uniprot_to_seqrecord(entry)
-    let record = SeqRecord::new(
-      Seq::new(sequence),
-      id=id,
-      name=id,
-      description=description,
-    )
+    let record = SeqRecord::new(Seq::new(sequence), id~, name=id, description~)
     for k, v in annotations {
       record.annotations[k] = v
     }
@@ -151,7 +159,9 @@ pub fn parse_uniprot_xml_records(
 ///|
 /// Parse SeqXML content into SeqRecords, bridging the existing
 /// `seqxml_parse` + `seqxml_to_seq_records` pair.
-pub fn parse_seqxml_records(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_seqxml_records(
+  content : String,
+) -> Array[SeqRecord] raise SeqIOError {
   if content.trim() == "" {
     return []
   }
@@ -161,7 +171,9 @@ pub fn parse_seqxml_records(content : String) -> Array[SeqRecord] raise SeqIOErr
 ///|
 /// Parse IMGT content into SeqRecords: one record per IMGT entry with the
 /// 13 header fields mirrored into annotations (spec design 1.2.3).
-pub fn parse_imgt_records(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_imgt_records(
+  content : String,
+) -> Array[SeqRecord] raise SeqIOError {
   if content.trim() == "" {
     return []
   }
@@ -177,10 +189,18 @@ pub fn parse_imgt_records(content : String) -> Array[SeqRecord] raise SeqIOError
     )
     unify_set_annotation(record.annotations, "accession", header.accession)
     unify_set_annotation(record.annotations, "seq_id", header.seq_id)
-    unify_set_annotation(record.annotations, "official_name", header.official_name)
+    unify_set_annotation(
+      record.annotations,
+      "official_name",
+      header.official_name,
+    )
     unify_set_annotation(record.annotations, "region", header.region)
     unify_set_annotation(record.annotations, "date_update", header.date_update)
-    unify_set_annotation(record.annotations, "date_creation", header.date_creation)
+    unify_set_annotation(
+      record.annotations,
+      "date_creation",
+      header.date_creation,
+    )
     unify_set_annotation(record.annotations, "species", header.species)
     unify_set_annotation(record.annotations, "gene", header.gene)
     unify_set_annotation(record.annotations, "imgt_group", header.imgt_group)
@@ -213,7 +233,8 @@ fn unify_split_insdc(content : String) -> Array[String] {
   let mut buf = StringBuilder()
   for raw in raw_lines {
     let len = raw.length()
-    let line = if len > 0 && raw.unsafe_get(len - 1) == '\r'.to_int().to_uint16() {
+    let line = if len > 0 &&
+      raw.unsafe_get(len - 1) == '\r'.to_int().to_uint16() {
       raw[0:len - 1].to_owned()
     } else {
       raw.to_owned()
@@ -244,7 +265,7 @@ fn unify_insdc_to_record(record : InsdcRecord) -> SeqRecord {
   }
   let seq_record = SeqRecord::new(
     Seq::new(record.sequence),
-    id=id,
+    id~,
     name=record.locus_name,
     description=record.definition,
   )
@@ -253,7 +274,11 @@ fn unify_insdc_to_record(record : InsdcRecord) -> SeqRecord {
     "sequence_length",
     record.sequence_length.to_string(),
   )
-  unify_set_annotation(seq_record.annotations, "molecule_type", record.molecule_type)
+  unify_set_annotation(
+    seq_record.annotations,
+    "molecule_type",
+    record.molecule_type,
+  )
   unify_set_annotation(seq_record.annotations, "topology", record.topology)
   unify_set_annotation(seq_record.annotations, "division", record.division)
   unify_set_annotation(seq_record.annotations, "date", record.date)
@@ -283,7 +308,9 @@ fn unify_insdc_to_record(record : InsdcRecord) -> SeqRecord {
 /// Parse INSDC content (GenBank or EMBL records, mixed per record) into
 /// SeqRecords. Each record must start with a LOCUS (GenBank) or ID (EMBL)
 /// header line; the feature table is preserved through SeqRecord.features.
-pub fn parse_insdc_records(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_insdc_records(
+  content : String,
+) -> Array[SeqRecord] raise SeqIOError {
   if content.trim() == "" {
     return []
   }
@@ -365,11 +392,19 @@ pub fn parse_ace_records(content : String) -> Array[SeqRecord] raise SeqIOError 
       "reads_count",
       contig.reads.length().to_string(),
     )
-    unify_set_annotation(record.annotations, "length", contig.length.to_string())
+    unify_set_annotation(
+      record.annotations,
+      "length",
+      contig.length.to_string(),
+    )
     unify_set_annotation(
       record.annotations,
       "reverse_complemented",
-      if contig.reverse_complemented { "true" } else { "false" },
+      if contig.reverse_complemented {
+        "true"
+      } else {
+        "false"
+      },
     )
     if contig.base_qualities.length() == sequence.length() &&
       sequence.length() > 0 {

@@ -14,7 +14,7 @@ pub fn tree_node(
   branch_length : Double,
   children : Array[TreeNode],
 ) -> TreeNode {
-  TreeNode::{ name, branch_length, children }
+  TreeNode::{ name, branch_length, children, }
 }
 
 ///|
@@ -23,7 +23,7 @@ pub fn parse_newick(content : String) -> TreeNode {
   let n = trimmed.length()
 
   if n == 0 {
-    return TreeNode::{ name: "", branch_length: 0.0, children: [] }
+    return TreeNode::{ name: "", branch_length: 0.0, children: [], }
   }
 
   let leaves : Array[TreeNode] = Array::new()
@@ -72,11 +72,15 @@ pub fn parse_newick(content : String) -> TreeNode {
         }
       }
 
-      leaves.push(TreeNode::{ name: token, branch_length: length, children: [] })
+      leaves.push(TreeNode::{
+        name: token,
+        branch_length: length,
+        children: [],
+      })
     }
   }
 
-  TreeNode::{ name: "", branch_length: 0.0, children: leaves }
+  TreeNode::{ name: "", branch_length: 0.0, children: leaves, }
 }
 
 ///|

@@ -96,10 +96,7 @@ test "apcluster_cor_sim_mat" {
   assert_true(ap_approx(ss[0][1], 1.0, 1.0e-12))
   assert_true(ap_approx(ss[1][2], -1.0, 1.0e-12))
   // Spearman with ties: tied ranks average (R ties.method="average")
-  let t = [
-    [1.0, 2.0, 2.0, 3.0],
-    [10.0, 20.0, 20.0, 30.0],
-  ]
+  let t = [[1.0, 2.0, 2.0, 3.0], [10.0, 20.0, 20.0, 30.0]]
   let st = @src.ap_cor_sim_mat(t, method="spearman")
   assert_true(ap_approx(st[0][1], 1.0, 1.0e-12))
   // constant rows cannot be correlated (cor() would be NA)
@@ -129,10 +126,8 @@ test "apcluster_default_four_blobs" {
   assert_eq(res.exemplars(), [0, 9, 12, 23])
   // every blob maps to a single exemplar
   let expected_labels = [
-    0, 0, 0, 0, 0, 0,
-    9, 9, 9, 9, 9, 9,
-    12, 12, 12, 12, 12, 12,
-    23, 23, 23, 23, 23, 23,
+    0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9, 12, 12, 12, 12, 12, 12, 23, 23, 23, 23, 23,
+    23,
   ]
   assert_eq(res.labels(), expected_labels)
   assert_eq(res.num_clusters(), 4)
@@ -146,9 +141,7 @@ test "apcluster_default_four_blobs" {
   assert_true(ap_approx(res.expref(), -390.7963760995, 1.0e-6))
   assert_true(ap_approx(res.netsim(), -394.6186374494, 1.0e-6))
   // objective identity: netsim == dpsim + expref
-  assert_true(
-    ap_approx(res.netsim(), res.dpsim() + res.expref(), 1.0e-9),
-  )
+  assert_true(ap_approx(res.netsim(), res.dpsim() + res.expref(), 1.0e-9))
 }
 
 ///|
@@ -191,9 +184,7 @@ test "apcluster_k_exact_and_prune" {
 ///|
 test "apcluster_one_dim_two_groups" {
   // two tight groups on a line -> one exemplar each (the middle point)
-  let y = [
-    [0.0], [1.0], [2.0], [100.0], [101.0], [102.0],
-  ]
+  let y = [[0.0], [1.0], [2.0], [100.0], [101.0], [102.0]]
   let res = @src.apcluster(sim=@src.ap_neg_dist_mat(y))
   assert_true(res.converged())
   assert_eq(res.exemplars(), [1, 4])
@@ -206,9 +197,7 @@ test "apcluster_one_dim_two_groups" {
 
 ///|
 test "apcluster_extreme_preferences" {
-  let y = [
-    [0.0], [1.0], [2.0], [100.0], [101.0], [102.0],
-  ]
+  let y = [[0.0], [1.0], [2.0], [100.0], [101.0], [102.0]]
   let s = @src.ap_neg_dist_mat(y)
   // preference above every similarity: every point becomes its own exemplar
   let hi = @src.apcluster(sim=s, p=Some(10.0))

@@ -131,7 +131,7 @@ pub fn sc_norm_quantile_regression(
     residuals.push(y[i] - f)
     i = i + 1
   }
-  SCnormQuantFit::{ slope, intercept, fitted, residuals, tau }
+  SCnormQuantFit::{ slope, intercept, fitted, residuals, tau, }
 }
 
 ///|

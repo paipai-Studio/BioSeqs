@@ -189,7 +189,7 @@ pub fn AncombcFeature::new(
   name : String,
   counts : Array[Int],
 ) -> AncombcFeature {
-  AncombcFeature::{ name, counts }
+  AncombcFeature::{ name, counts, }
 }
 
 ///|
@@ -222,7 +222,7 @@ pub struct AncombcSample {
 ///|
 /// Construct an AncombcSample.
 pub fn AncombcSample::new(name : String, group : String) -> AncombcSample {
-  AncombcSample::{ name, group }
+  AncombcSample::{ name, group, }
 }
 
 ///|
@@ -253,7 +253,7 @@ pub fn AncombcData::new(
   feature_names : Array[String],
   counts : Array[Array[Int]],
 ) -> AncombcData {
-  AncombcData::{ sample_names, sample_groups, feature_names, counts }
+  AncombcData::{ sample_names, sample_groups, feature_names, counts, }
 }
 
 ///|

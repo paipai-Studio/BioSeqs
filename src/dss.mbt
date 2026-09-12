@@ -129,7 +129,7 @@ pub fn DSSDispResult::new(
   prior_df : Double,
   prior_var : Double,
 ) -> DSSDispResult {
-  DSSDispResult::{ dispersions, shrunken_dispersions, prior_df, prior_var }
+  DSSDispResult::{ dispersions, shrunken_dispersions, prior_df, prior_var, }
 }
 
 ///|
@@ -158,7 +158,7 @@ pub fn DSSCountData::new(
   groups : Array[String],
   lib_sizes : Array[Double],
 ) -> DSSCountData {
-  DSSCountData::{ gene_ids, counts, groups, lib_sizes }
+  DSSCountData::{ gene_ids, counts, groups, lib_sizes, }
 }
 
 ///|
@@ -330,7 +330,7 @@ pub fn DSSMethylData::new(
   total_counts : Array[Array[Double]],
   groups : Array[String],
 ) -> DSSMethylData {
-  DSSMethylData::{ cpg_ids, chrom, pos, meth_counts, total_counts, groups }
+  DSSMethylData::{ cpg_ids, chrom, pos, meth_counts, total_counts, groups, }
 }
 
 ///|

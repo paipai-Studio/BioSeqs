@@ -22,13 +22,14 @@
 /// adaptive `h0` estimators, NaN propagation) is verified bitwise against the
 /// reference R implementation on fixed input grids.
 
+///|
 /// Names of the nine adjustment procedures understood by `mt_rawp2adjp`,
 /// in the reference order used by `mt.rawp2adjp`.
 pub let mt_procs : Array[String] = [
-  "Bonferroni", "Holm", "Hochberg", "SidakSS", "SidakSD", "BH", "BY", "ABH",
-  "TSBH"
+  "Bonferroni", "Holm", "Hochberg", "SidakSS", "SidakSD", "BH", "BY", "ABH", "TSBH",
 ]
 
+///|
 /// Result of `mt_rawp2adjp`.
 ///
 /// - `rawp`: the input p-values sorted ascending, NaN entries last
@@ -58,9 +59,9 @@ pub struct MTPAdjustResult {
 /// always sorted last and propagated as NaN.
 pub fn mt_rawp2adjp(
   rawp~ : Array[Double],
-  procs~ : Array[String] = [],
-  alpha~ : Array[Double] = [0.05],
-  na_rm~ : Bool = false
+  procs? : Array[String] = [],
+  alpha? : Array[Double] = [0.05],
+  na_rm? : Bool = false,
 ) -> MTPAdjustResult raise SeqError {
   let procs = if procs.is_empty() { mt_procs } else { procs }
   let m = rawp.length()
@@ -71,13 +72,18 @@ pub fn mt_rawp2adjp(
     if !p.is_nan() && (p < 0.0 || p > 1.0) {
       raise SeqError(
         "mt_rawp2adjp: raw p-values must lie in [0,1] (got " +
-        p.to_string() + ")"
+        p.to_string() +
+        ")",
       )
     }
   }
   let mgood = if na_rm {
     rawp.fold(init=0, fn(acc : Int, p : Double) -> Int {
-      if p.is_nan() { acc } else { acc + 1 }
+      if p.is_nan() {
+        acc
+      } else {
+        acc + 1
+      }
     })
   } else {
     m
@@ -112,9 +118,7 @@ pub fn mt_rawp2adjp(
   let cols : Map[String, Array[Double]] = Map([], capacity=16)
   cols.set("rawp", spval.copy())
 
-  let want = fn(name : String) -> Bool {
-    procs.contains(name)
-  }
+  let want = fn(name : String) -> Bool { procs.contains(name) }
 
   // First-pass BH statistic shared by ABH and TSBH.
   let bh_first = fn() -> Array[Double] {
@@ -124,7 +128,7 @@ pub fn mt_rawp2adjp(
       if spval[i].is_nan() {
         tmp[i] = nan_value()
       } else {
-        let x = (mgood.to_double() / (i + 1).to_double()) * spval[i]
+        let x = mgood.to_double() / (i + 1).to_double() * spval[i]
         tmp[i] = rmin_ignore_nan(tmp[i + 1], rmin_ignore_nan(x, 1.0))
       }
       i = i - 1
@@ -153,7 +157,11 @@ pub fn mt_rawp2adjp(
   if want("Bonferroni") {
     let col = spval.map(fn(p) {
       let v = mgood.to_double() * p
-      if v > 1.0 { 1.0 } else { v }
+      if v > 1.0 {
+        1.0
+      } else {
+        v
+      }
     })
     cols.set("Bonferroni", col)
   }
@@ -176,10 +184,7 @@ pub fn mt_rawp2adjp(
         tmp[i] = nan_value()
       } else {
         let w = (mgood - i).to_double()
-        tmp[i] = rmin_ignore_nan(
-          tmp[i + 1],
-          rmin_ignore_nan(w * spval[i], 1.0)
-        )
+        tmp[i] = rmin_ignore_nan(tmp[i + 1], rmin_ignore_nan(w * spval[i], 1.0))
       }
       i = i - 1
     }
@@ -215,10 +220,7 @@ pub fn mt_rawp2adjp(
         tmp[i] = nan_value()
       } else {
         let x = mgood.to_double() * a / (i + 1).to_double() * spval[i]
-        tmp[i] = rmin_ignore_nan(
-          tmp[i + 1],
-          rmin_ignore_nan(x, 1.0)
-        )
+        tmp[i] = rmin_ignore_nan(tmp[i + 1], rmin_ignore_nan(x, 1.0))
       }
       i = i - 1
     }
@@ -232,8 +234,7 @@ pub fn mt_rawp2adjp(
     if mgood > 0 {
       let h0m : Array[Double] = Array::make(mgood, 0.0)
       for k = 0; k < mgood; k = k + 1 {
-        h0m[k] =
-          (mgood - k).to_double() / (1.0 - spval[k])
+        h0m[k] = (mgood - k).to_double() / (1.0 - spval[k])
       }
       // first strict increase of h0.m; R's grab indexes the earlier point
       let mut grab = -1
@@ -254,7 +255,7 @@ pub fn mt_rawp2adjp(
     cols.set("ABH", col)
   }
 
-  { rawp: spval, adjp: cols, index, h0_abh, h0_tsbh }
+  { rawp: spval, adjp: cols, index, h0_abh, h0_tsbh, }
 }
 
 ///|
@@ -265,7 +266,7 @@ pub fn mt_rawp2adjp(
 /// i-th hypothesis is rejected (NaN when the adjusted p is NaN).
 pub fn mt_reject(
   adjp~ : Array[Double],
-  alpha~ : Double = 0.05
+  alpha? : Double = 0.05,
 ) -> (Int, Array[Bool?]) raise SeqError {
   if adjp.length() == 0 {
     raise SeqError("mt_reject: adjp must have length > 0")
@@ -304,7 +305,7 @@ pub fn mt_reject(
 /// (`get_maxT`).
 pub fn mt_max_t(
   observed~ : Array[Double],
-  null_stats~ : Array[Array[Double]]
+  null_stats~ : Array[Array[Double]],
 ) -> Array[Double] raise SeqError {
   let (m, b) = check_null_matrix(observed~, null_stats~)
   let t = observed.map(fn(x) { x.abs() })
@@ -359,7 +360,7 @@ pub fn mt_max_t(
 /// monotone by ascending marginal p-value.
 pub fn mt_min_p(
   observed~ : Array[Double],
-  null_stats~ : Array[Array[Double]]
+  null_stats~ : Array[Array[Double]],
 ) -> Array[Double] raise SeqError {
   let (m, b) = check_null_matrix(observed~, null_stats~)
   let t = observed.map(fn(x) { x.abs() })
@@ -422,9 +423,10 @@ pub fn mt_min_p(
   adj
 }
 
+///|
 fn check_null_matrix(
   observed~ : Array[Double],
-  null_stats~ : Array[Array[Double]]
+  null_stats~ : Array[Array[Double]],
 ) -> (Int, Int) raise SeqError {
   let m = observed.length()
   if m == 0 {
@@ -432,7 +434,7 @@ fn check_null_matrix(
   }
   if null_stats.length() != m {
     raise SeqError(
-      "mt_max_t/mt_min_p: null_stats must have one row per hypothesis"
+      "mt_max_t/mt_min_p: null_stats must have one row per hypothesis",
     )
   }
   let b = null_stats[0].length()
@@ -447,11 +449,19 @@ fn check_null_matrix(
   (m, b)
 }
 
+///|
 /// R `min(x, 1)`: NaN propagates.
 fn rmin1(x : Double) -> Double {
-  if x.is_nan() { x } else if x < 1.0 { x } else { 1.0 }
+  if x.is_nan() {
+    x
+  } else if x < 1.0 {
+    x
+  } else {
+    1.0
+  }
 }
 
+///|
 /// R `min(..., na.rm = TRUE)`: NaN arguments ignored.
 fn rmin_ignore_nan(x : Double, y : Double) -> Double {
   if x.is_nan() {
@@ -465,6 +475,7 @@ fn rmin_ignore_nan(x : Double, y : Double) -> Double {
   }
 }
 
+///|
 /// R `max(...)` without na.rm: NaN propagates.
 fn rmax_propagate_nan(x : Double, y : Double) -> Double {
   if x.is_nan() || y.is_nan() {
@@ -476,6 +487,7 @@ fn rmax_propagate_nan(x : Double, y : Double) -> Double {
   }
 }
 
+///|
 /// R `(1-p)^n`: note `NA^0 == 1` in R, so exponent zero is exactly 1.
 fn sidak_pow(base : Double, n : Int) -> Double {
   if n == 0 {
@@ -485,6 +497,7 @@ fn sidak_pow(base : Double, n : Int) -> Double {
   }
 }
 
+///|
 /// Harmonic number H_n = sum(1/k, k=1..n); H_0 = 0 (as in R `sum(1/(1:0))`).
 fn harmonic_sum(n : Int) -> Double {
   let mut s = 0.0
@@ -494,6 +507,7 @@ fn harmonic_sum(n : Int) -> Double {
   s
 }
 
+///|
 fn nan_value() -> Double {
   0.0 / 0.0
 }

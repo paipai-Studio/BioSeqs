@@ -38,14 +38,14 @@ pub struct TopGOGraph {
 
 ///|
 pub fn TopGOGraph::new(root : String) -> TopGOGraph {
-  TopGOGraph::{ terms: Map([], capacity=1000), root }
+  TopGOGraph::{ terms: Map([], capacity=1000), root, }
 }
 
 ///|
 pub fn TopGOGraph::add_term(self : TopGOGraph, term : TopGOTerm) -> TopGOGraph {
   let terms = self.terms.copy()
   terms.set(term.go_id, term)
-  TopGOGraph::{ terms, root: self.root }
+  TopGOGraph::{ terms, root: self.root, }
 }
 
 ///|
@@ -86,7 +86,7 @@ pub fn TopGOGraph::add_edge(
     })
   }
 
-  TopGOGraph::{ terms, root: self.root }
+  TopGOGraph::{ terms, root: self.root, }
 }
 
 ///|

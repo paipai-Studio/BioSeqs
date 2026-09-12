@@ -61,7 +61,7 @@ fn bigwig_per_base(
   start : Int,
   end_ : Int,
 ) -> Array[Double] {
-  file.values(chrom, start=start, end_=Some(end_)) catch {
+  file.values(chrom, start~, end_=Some(end_)) catch {
     _ => abort("BigWig values query should not fail")
   }
 }
@@ -133,8 +133,7 @@ test "bigwig roundtrip chromosomes and header" {
   }
   let expected_values = bigwig_lcg_values(3000)
   let mut expected_sum = 1.0 * 10.0 + 2.5 * 10.0 + -3.0 * 10.0 + 7.5 * 100.0
-  let mut expected_sumsq =
-    1.0 * 1.0 * 10.0 +
+  let mut expected_sumsq = 1.0 * 1.0 * 10.0 +
     2.5 * 2.5 * 10.0 +
     3.0 * 3.0 * 10.0 +
     7.5 * 7.5 * 100.0
@@ -189,7 +188,8 @@ test "bigwig values with NaN gaps" {
   for candidate in [bigwig_roundtrip_file(true), bigwig_roundtrip_file(false)] {
     let values = bigwig_per_base(candidate, "chr1", 0, 35)
     inspect(values.length(), content="35")
-    if !bigwig_approx(values[0], 1.0) || !bigwig_approx(values[15], 2.5) ||
+    if !bigwig_approx(values[0], 1.0) ||
+      !bigwig_approx(values[15], 2.5) ||
       !bigwig_approx(values[25], -3.0) {
       abort("covered values mismatch")
     }
@@ -205,23 +205,35 @@ test "bigwig raw statistics" {
   if !bigwig_approx(bigwig_present(bigwig_binned(file, "chr1")[0]), 5.0 / 30.0) {
     abort("chr1 mean mismatch")
   }
-  if !bigwig_approx(bigwig_present(bigwig_binned(file, "chr1", stat="cov")[0]), 0.03) {
+  if !bigwig_approx(
+      bigwig_present(bigwig_binned(file, "chr1", stat="cov")[0]),
+      0.03,
+    ) {
     abort("chr1 cov mismatch")
   }
-  if !bigwig_approx(bigwig_present(bigwig_binned(file, "chr1", stat="sum")[0]), 5.0) {
+  if !bigwig_approx(
+      bigwig_present(bigwig_binned(file, "chr1", stat="sum")[0]),
+      5.0,
+    ) {
     abort("chr1 sum mismatch")
   }
-  if !bigwig_approx(bigwig_present(bigwig_binned(file, "chr1", stat="min")[0]), -3.0) {
+  if !bigwig_approx(
+      bigwig_present(bigwig_binned(file, "chr1", stat="min")[0]),
+      -3.0,
+    ) {
     abort("chr1 min mismatch")
   }
-  if !bigwig_approx(bigwig_present(bigwig_binned(file, "chr1", stat="max")[0]), 2.5) {
+  if !bigwig_approx(
+      bigwig_present(bigwig_binned(file, "chr1", stat="max")[0]),
+      2.5,
+    ) {
     abort("chr1 max mismatch")
   }
   let expected_std = ((162.5 - 25.0 / 30.0) / 29.0).sqrt()
   if !bigwig_approx(
-    bigwig_present(bigwig_binned(file, "chr1", stat="std")[0]),
-    expected_std,
-  ) {
+      bigwig_present(bigwig_binned(file, "chr1", stat="std")[0]),
+      expected_std,
+    ) {
     abort("chr1 std mismatch")
   }
   // Four bins over [0,100): [0.8, -3, gap, gap].
@@ -309,7 +321,7 @@ test "bigwig uses zoom data for wide bins" {
   ]
   for i in 0..<expectations.length() {
     let (stat, expected) = expectations[i]
-    let value = bigwig_present(bigwig_binned(file, "chr1", stat=stat)[0])
+    let value = bigwig_present(bigwig_binned(file, "chr1", stat~)[0])
     if !bigwig_approx(value, expected, tolerance=1.0e-5) {
       abort("zoom " + stat + " mismatch: " + value.to_string())
     }
@@ -318,7 +330,10 @@ test "bigwig uses zoom data for wide bins" {
   if !bigwig_approx(bigwig_present(bigwig_binned(file, "chr2")[0]), 7.5) {
     abort("chr2 raw fallback mean mismatch")
   }
-  if !bigwig_approx(bigwig_present(bigwig_binned(file, "chr2", stat="cov")[0]), 0.2) {
+  if !bigwig_approx(
+      bigwig_present(bigwig_binned(file, "chr2", stat="cov")[0]),
+      0.2,
+    ) {
     abort("chr2 raw fallback cov mismatch")
   }
   let five = bigwig_binned(file, "chr2", n_bins=5)
@@ -402,10 +417,7 @@ test "bigwig decodes variableStep fixedStep and bedGraph sections" {
 
 ///|
 test "bigwig writer validates input" {
-  let targets = [
-    bigwig_target("chr1", 100),
-    bigwig_target("chr2", 100),
-  ]
+  let targets = [bigwig_target("chr1", 100), bigwig_target("chr2", 100)]
   let good = [
     @src.BigWigInterval::create("chr1", 0, 10, 1.0),
     @src.BigWigInterval::create("chr2", 0, 5, 2.0),
@@ -414,58 +426,58 @@ test "bigwig writer validates input" {
     _ => abort("valid input should write")
   }
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let bad = [@src.BigWigInterval::create("chr3", 0, 10, 1.0)]
-    let _ = @src.bigwig_write(targets, bad)
-  }) {
+      let bad = [@src.BigWigInterval::create("chr3", 0, 10, 1.0)]
+      let _ = @src.bigwig_write(targets, bad)
+    }) {
     abort("unknown chromosome should fail")
   }
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let bad = [@src.BigWigInterval::create("chr1", 90, 101, 1.0)]
-    let _ = @src.bigwig_write(targets, bad)
-  }) {
+      let bad = [@src.BigWigInterval::create("chr1", 90, 101, 1.0)]
+      let _ = @src.bigwig_write(targets, bad)
+    }) {
     abort("out-of-range interval should fail")
   }
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let bad = [@src.BigWigInterval::create("chr1", 20, 20, 1.0)]
-    let _ = @src.bigwig_write(targets, bad)
-  }) {
+      let bad = [@src.BigWigInterval::create("chr1", 20, 20, 1.0)]
+      let _ = @src.bigwig_write(targets, bad)
+    }) {
     abort("empty interval should fail")
   }
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let bad = [
-      @src.BigWigInterval::create("chr1", 0, 10, 1.0),
-      @src.BigWigInterval::create("chr1", 5, 15, 2.0),
-    ]
-    let _ = @src.bigwig_write(targets, bad)
-  }) {
+      let bad = [
+        @src.BigWigInterval::create("chr1", 0, 10, 1.0),
+        @src.BigWigInterval::create("chr1", 5, 15, 2.0),
+      ]
+      let _ = @src.bigwig_write(targets, bad)
+    }) {
     abort("overlapping intervals should fail")
   }
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let bad = [@src.BigWigInterval::create("chr1", 0, 10, 1.0e39)]
-    let _ = @src.bigwig_write(targets, bad)
-  }) {
+      let bad = [@src.BigWigInterval::create("chr1", 0, 10, 1.0e39)]
+      let _ = @src.bigwig_write(targets, bad)
+    }) {
     abort("f32 overflow should fail")
   }
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let bad = [@src.BigWigInterval::create("chr1", 0, 10, 0.0 / 0.0)]
-    let _ = @src.bigwig_write(targets, bad)
-  }) {
+      let bad = [@src.BigWigInterval::create("chr1", 0, 10, 0.0 / 0.0)]
+      let _ = @src.bigwig_write(targets, bad)
+    }) {
     abort("NaN value should fail")
   }
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let _ = @src.BigWigWriteConfig::create(block_size=0)
-  }) {
+      let _ = @src.BigWigWriteConfig::create(block_size=0)
+    }) {
     abort("invalid block size should fail")
   }
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let dup = [bigwig_target("chr1", 100), bigwig_target("chr1", 100)]
-    let _ = @src.bigwig_write(dup, [])
-  }) {
+      let dup = [bigwig_target("chr1", 100), bigwig_target("chr1", 100)]
+      let _ = @src.bigwig_write(dup, [])
+    }) {
     abort("duplicate chromosome names should fail")
   }
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let _ = @src.bigwig_write([], [])
-  }) {
+      let _ = @src.bigwig_write([], [])
+    }) {
     abort("missing chromosomes should fail")
   }
 }
@@ -500,48 +512,48 @@ test "bigwig reader rejects malformed input" {
   let bad_magic = good.copy()
   bad_magic[0] = 0
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let _ = @src.bigwig_parse(bad_magic)
-  }) {
+      let _ = @src.bigwig_parse(bad_magic)
+    }) {
     abort("bad magic should fail")
   }
   let truncated = good.copy()
   truncated.truncate(good.length() - 4)
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let _ = @src.bigwig_parse(truncated)
-  }) {
+      let _ = @src.bigwig_parse(truncated)
+    }) {
     abort("missing trailing magic should fail")
   }
   let bad_tail = good.copy()
   bad_tail[bad_tail.length() - 1] = bad_tail[bad_tail.length() - 1] ^ 0xFF
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let _ = @src.bigwig_parse(bad_tail)
-  }) {
+      let _ = @src.bigwig_parse(bad_tail)
+    }) {
     abort("corrupt trailing magic should fail")
   }
   let file = bigwig_parsed(good)
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let _ = file.intervals("nope")
-  }) {
+      let _ = file.intervals("nope")
+    }) {
     abort("unknown chromosome query should fail")
   }
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let _ = file.intervals("chr1", start=10, end_=Some(5))
-  }) {
+      let _ = file.intervals("chr1", start=10, end_=Some(5))
+    }) {
     abort("reversed range should fail")
   }
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let _ = file.intervals("chr1", start=0, end_=Some(1001))
-  }) {
+      let _ = file.intervals("chr1", start=0, end_=Some(1001))
+    }) {
     abort("range past chromosome end should fail")
   }
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let _ = file.stats("chr1", n_bins=0)
-  }) {
+      let _ = file.stats("chr1", n_bins=0)
+    }) {
     abort("zero bins should fail")
   }
   if !bigwig_raises(fn() raise @src.BigWigError {
-    let _ = file.stats("chr1", stat="median")
-  }) {
+      let _ = file.stats("chr1", stat="median")
+    }) {
     abort("unknown statistic should fail")
   }
 }

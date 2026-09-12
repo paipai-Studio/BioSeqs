@@ -10,7 +10,7 @@ test "cram_magic" {
 ///|
 test "cram_record_is_paired" {
   let cigar : Array[BamCigarElement] = Array::new()
-  cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100 })
+  cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100, })
 
   let read_features = CramReadFeatures::{
     read_group: 0,
@@ -23,7 +23,7 @@ test "cram_record_is_paired" {
     tags: Array::new(),
   }
 
-  let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
+  let record = CramRecord::{ ref_id: 0, pos: 100, read_features, }
   assert_true((record.read_features.flags & 1) != 0)
 }
 
@@ -42,7 +42,7 @@ test "cram_record_is_mapped" {
     tags: Array::new(),
   }
 
-  let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
+  let record = CramRecord::{ ref_id: 0, pos: 100, read_features, }
   assert_true((record.read_features.flags & 4) == 0)
 }
 
@@ -61,7 +61,7 @@ test "cram_record_is_unmapped" {
     tags: Array::new(),
   }
 
-  let record = CramRecord::{ ref_id: -1, pos: 0, read_features }
+  let record = CramRecord::{ ref_id: -1, pos: 0, read_features, }
   assert_true((record.read_features.flags & 4) != 0)
 }
 
@@ -80,7 +80,7 @@ test "cram_record_is_reverse" {
     tags: Array::new(),
   }
 
-  let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
+  let record = CramRecord::{ ref_id: 0, pos: 100, read_features, }
   assert_true((record.read_features.flags & 16) != 0)
 }
 
@@ -107,7 +107,7 @@ test "cram_file_num_references" {
   })
 
   let header = CramHeader::{
-    version: CramVersion::{ major: 3, minor: 0 },
+    version: CramVersion::{ major: 3, minor: 0, },
     reference_count: 3,
     references,
     compression: CramCompression::Gzip,
@@ -115,14 +115,14 @@ test "cram_file_num_references" {
     stream_info: Array::new(),
     sam_header: "",
   }
-  let file = CramFile::{ header, records: Array::new() }
+  let file = CramFile::{ header, records: Array::new(), }
   assert_eq(file.header.references.length(), 3)
 }
 
 ///|
 test "cram_record_to_bam_record" {
   let cigar : Array[BamCigarElement] = Array::new()
-  cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100 })
+  cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100, })
 
   let read_features = CramReadFeatures::{
     read_group: 0,
@@ -135,7 +135,7 @@ test "cram_record_to_bam_record" {
     tags: Array::new(),
   }
 
-  let record = CramRecord::{ ref_id: 0, pos: 100, read_features }
+  let record = CramRecord::{ ref_id: 0, pos: 100, read_features, }
   let bam_record = record.to_bam_record()
 
   assert_eq(bam_record.ref_id, 0)

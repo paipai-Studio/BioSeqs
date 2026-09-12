@@ -172,10 +172,7 @@ test "raxml_basic_mla" {
   cmd.set_model("GTRGAMMA")
   cmd.set_algorithm("a")
   cmd.set_threads(4)
-  assert_eq(
-    cmd.build(),
-    "raxmlHPC -s align.phy -n run1 -m GTRGAMMA -f a -T 4",
-  )
+  assert_eq(cmd.build(), "raxmlHPC -s align.phy -n run1 -m GTRGAMMA -f a -T 4")
 }
 
 ///|

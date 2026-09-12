@@ -83,36 +83,10 @@ pub fn alignio_normalize_format(format : String) -> String raise AlignIOError {
 /// (canonical names, aliases resolved).
 pub fn seqio_supported_formats() -> Array[String] {
   [
-    "fasta",
-    "fastq-sanger",
-    "fastq-illumina",
-    "fastq-solexa",
-    "qual",
-    "genbank",
-    "embl",
-    "pir",
-    "tab",
-    "swiss",
-    "uniprot-xml",
-    "seqxml",
-    "imgt",
-    "ig",
-    "insdc",
-    "phd",
-    "ace",
-    "gfa",
-    "pdb-seqres",
-    "pdb-atom",
-    "2bit",
-    "sff",
-    "sff-trim",
-    "snapgene",
-    "gck",
-    "xdna",
-    "nib",
-    "fasta-2line",
-    "cif-seqres",
-    "cif-atom",
+    "fasta", "fastq-sanger", "fastq-illumina", "fastq-solexa", "qual", "genbank",
+    "embl", "pir", "tab", "swiss", "uniprot-xml", "seqxml", "imgt", "ig", "insdc",
+    "phd", "ace", "gfa", "pdb-seqres", "pdb-atom", "2bit", "sff", "sff-trim", "snapgene",
+    "gck", "xdna", "nib", "fasta-2line", "cif-seqres", "cif-atom",
   ]
 }
 
@@ -120,21 +94,8 @@ pub fn seqio_supported_formats() -> Array[String] {
 /// All sequence formats the unified write entry point can produce.
 pub fn seqio_writable_formats() -> Array[String] {
   [
-    "fasta",
-    "fastq-sanger",
-    "fastq-illumina",
-    "fastq-solexa",
-    "qual",
-    "genbank",
-    "tab",
-    "embl",
-    "pir",
-    "fasta-2line",
-    "seqxml",
-    "swiss",
-    "ig",
-    "imgt",
-    "phd",
+    "fasta", "fastq-sanger", "fastq-illumina", "fastq-solexa", "qual", "genbank",
+    "tab", "embl", "pir", "fasta-2line", "seqxml", "swiss", "ig", "imgt", "phd",
   ]
 }
 
@@ -142,16 +103,8 @@ pub fn seqio_writable_formats() -> Array[String] {
 /// All sequence formats the unified index entry point supports.
 pub fn seqio_indexable_formats() -> Array[String] {
   [
-    "fasta",
-    "fastq-sanger",
-    "fastq-illumina",
-    "fastq-solexa",
-    "genbank",
-    "embl",
-    "tab",
-    "qual",
-    "swiss",
-    "seqxml",
+    "fasta", "fastq-sanger", "fastq-illumina", "fastq-solexa", "genbank", "embl",
+    "tab", "qual", "swiss", "seqxml",
   ]
 }
 
@@ -159,13 +112,5 @@ pub fn seqio_indexable_formats() -> Array[String] {
 /// Formats whose payloads are binary and must be carried as base64 text
 /// by the in-memory unified entry point (spec 4.3.1).
 pub fn seqio_binary_formats() -> Array[String] {
-  [
-    "2bit",
-    "sff",
-    "sff-trim",
-    "snapgene",
-    "gck",
-    "xdna",
-    "nib",
-  ]
+  ["2bit", "sff", "sff-trim", "snapgene", "gck", "xdna", "nib"]
 }

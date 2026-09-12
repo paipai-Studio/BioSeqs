@@ -77,7 +77,7 @@ pub fn AlignClustalMetadata::create(
     align_clustal_validate_plain_text(header, "CLUSTAL header")
     header
   }
-  AlignClustalMetadata::{ program, version, header: canonical_header }
+  AlignClustalMetadata::{ program, version, header: canonical_header, }
 }
 
 ///|
@@ -97,7 +97,7 @@ pub fn AlignClustalSequence::create(
       "CLUSTAL sequence row must contain at least one residue",
     )
   }
-  AlignClustalSequence::{ id, sequence, aligned_sequence }
+  AlignClustalSequence::{ id, sequence, aligned_sequence, }
 }
 
 ///|
@@ -895,7 +895,7 @@ fn align_clustal_parse_block(
   if ids.length() == 0 || width <= 0 {
     raise AlignClustalError("CLUSTAL block contains no sequence rows")
   }
-  AlignClustalBlock::{ ids, segments, residue_counts, consensus, width }
+  AlignClustalBlock::{ ids, segments, residue_counts, consensus, width, }
 }
 
 ///|

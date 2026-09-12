@@ -1601,7 +1601,7 @@ pub fn mast_advanced_zlm_sce(
   enriched.metadata[output_prefix + ".significant"] = result
     .n_significant()
     .to_string()
-  MastAdvancedSCEOutput::{ experiment: enriched, result }
+  MastAdvancedSCEOutput::{ experiment: enriched, result, }
 }
 
 ///|

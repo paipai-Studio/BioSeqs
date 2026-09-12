@@ -38,7 +38,7 @@ pub fn IsoformExpression::new(
   tpm : Array[Double],
   fpkm : Array[Double],
 ) -> IsoformExpression {
-  IsoformExpression::{ isoform_id, gene_id, counts, tpm, fpkm }
+  IsoformExpression::{ isoform_id, gene_id, counts, tpm, fpkm, }
 }
 
 ///|
@@ -95,7 +95,7 @@ pub fn SwitchAnalyzeRlist::add_isoform(
     i = i + 1
   }
   new_expr.push(isoform)
-  SwitchAnalyzeRlist::{ ..self, isoform_expression: new_expr }
+  SwitchAnalyzeRlist::{ ..self, isoform_expression: new_expr, }
 }
 
 ///|
@@ -106,7 +106,7 @@ pub fn SwitchAnalyzeRlist::add_gene_annotation(
 ) -> SwitchAnalyzeRlist {
   let annot = self.gene_annotation
   annot.set(gene_id, gene_name)
-  SwitchAnalyzeRlist::{ ..self, gene_annotation: annot }
+  SwitchAnalyzeRlist::{ ..self, gene_annotation: annot, }
 }
 
 ///|

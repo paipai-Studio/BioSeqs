@@ -75,7 +75,7 @@ pub fn SurvRecord::new(
   group : String,
   covariates : Array[Double],
 ) -> SurvRecord {
-  SurvRecord::{ time, event, group, covariates }
+  SurvRecord::{ time, event, group, covariates, }
 }
 
 ///|

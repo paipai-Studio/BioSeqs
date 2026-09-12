@@ -40,7 +40,7 @@ pub fn SampleExpression::new(
   gene_names : Array[String],
   expression : Array[Double],
 ) -> SampleExpression {
-  SampleExpression::{ sample_id, gene_names, expression }
+  SampleExpression::{ sample_id, gene_names, expression, }
 }
 
 ///|
@@ -76,7 +76,7 @@ pub fn GeneSetSpec::new(
   up_genes : Array[String],
   down_genes? : Array[String] = [],
 ) -> GeneSetSpec {
-  GeneSetSpec::{ name, up_genes, down_genes }
+  GeneSetSpec::{ name, up_genes, down_genes, }
 }
 
 ///|

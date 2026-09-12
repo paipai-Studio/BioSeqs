@@ -928,7 +928,11 @@ pub fn bigpsl_schema() -> BigBedSchema {
       comment: custom_comments[index],
     })
   }
-  BigBedSchema::{ name: "bigPsl", comment: "bigPsl pairwise alignment", fields }
+  BigBedSchema::{
+    name: "bigPsl",
+    comment: "bigPsl pairwise alignment",
+    fields,
+  }
 }
 
 ///|
@@ -1626,13 +1630,13 @@ pub fn bigpsl_example_data() -> (Array[BigBedTarget], Array[BigPslAlignment]) ra
     BigBedTarget::create("chr1", 1000) catch {
       BigBedError(message) => {
         bigpsl_fail("BigBed: " + message)
-        BigBedTarget::{ name: "chr1", length: 1000 }
+        BigBedTarget::{ name: "chr1", length: 1000, }
       }
     },
     BigBedTarget::create("chr2", 800) catch {
       BigBedError(message) => {
         bigpsl_fail("BigBed: " + message)
-        BigBedTarget::{ name: "chr2", length: 800 }
+        BigBedTarget::{ name: "chr2", length: 800, }
       }
     },
   ]

@@ -65,7 +65,7 @@ pub fn EstExpression::new(
   sample_names : Array[String],
   matrix : Array[Array[Double]],
 ) -> EstExpression {
-  { gene_names, sample_names, matrix }
+  { gene_names, sample_names, matrix, }
 }
 
 ///|
@@ -92,7 +92,7 @@ pub fn EstSignature::new(
   stromal_genes : Array[String],
   immune_genes : Array[String],
 ) -> EstSignature {
-  { stromal_genes, immune_genes }
+  { stromal_genes, immune_genes, }
 }
 
 ///|
@@ -388,7 +388,7 @@ pub fn est_run(
       tumor_purity: purity,
     })
   }
-  { scores, sample_names: expr.sample_names.copy(), method_name: "estimate" }
+  { scores, sample_names: expr.sample_names.copy(), method_name: "estimate", }
 }
 
 // ============================================================================

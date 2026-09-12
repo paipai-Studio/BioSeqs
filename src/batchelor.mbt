@@ -18,7 +18,7 @@ pub fn BatchCorrectionResult::new(
   mnn_pairs : Array[(Int, Int)],
   var_explained : Array[Double],
 ) -> BatchCorrectionResult {
-  BatchCorrectionResult::{ corrected, batch_indices, mnn_pairs, var_explained }
+  BatchCorrectionResult::{ corrected, batch_indices, mnn_pairs, var_explained, }
 }
 
 ///|

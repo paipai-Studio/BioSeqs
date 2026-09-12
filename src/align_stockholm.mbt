@@ -2183,7 +2183,7 @@ fn align_stockholm_append_raw(
       return
     }
   }
-  values.push(AlignStockholmRawAnnotation::{ code, value })
+  values.push(AlignStockholmRawAnnotation::{ code, value, })
 }
 
 ///|

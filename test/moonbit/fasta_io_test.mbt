@@ -409,7 +409,9 @@ test "parse_qual_multiline_scores" {
   let qual = ">seq1\n10 20 30 40\n50 60\n>seq2\n70 80\n"
   let records = @src.parse_qual(qual)
   assert_eq(records.length(), 2)
-  assert_eq(records[0].letter_annotations["phred_quality"], [10, 20, 30, 40, 50, 60])
+  assert_eq(records[0].letter_annotations["phred_quality"], [
+    10, 20, 30, 40, 50, 60,
+  ])
   assert_eq(records[1].letter_annotations["phred_quality"], [70, 80])
 }
 
@@ -426,8 +428,12 @@ test "write_qual_roundtrip" {
   let written = @src.write_qual(records)
   let parsed_again = @src.parse_qual(written)
   assert_eq(parsed_again.length(), 2)
-  assert_eq(parsed_again[0].letter_annotations["phred_quality"], [10, 20, 30, 40])
-  assert_eq(parsed_again[1].letter_annotations["phred_quality"], [50, 60, 70, 80])
+  assert_eq(parsed_again[0].letter_annotations["phred_quality"], [
+    10, 20, 30, 40,
+  ])
+  assert_eq(parsed_again[1].letter_annotations["phred_quality"], [
+    50, 60, 70, 80,
+  ])
 }
 
 ///|
@@ -486,30 +492,62 @@ test "write_fastq_illumina_roundtrip" {
 ///|
 test "solexa_quality_from_phred_values" {
   // High scores: approximately equal (but not exactly, due to -1 in formula)
-  assert_true(close_double(@src.solexa_quality_from_phred(40.0), 40.0, tol=1.0e-3))
-  assert_true(close_double(@src.solexa_quality_from_phred(30.0), 30.0, tol=5.0e-3))
-  assert_true(close_double(@src.solexa_quality_from_phred(20.0), 19.96, tol=1.0e-2))
+  assert_true(
+    close_double(@src.solexa_quality_from_phred(40.0), 40.0, tol=1.0e-3),
+  )
+  assert_true(
+    close_double(@src.solexa_quality_from_phred(30.0), 30.0, tol=5.0e-3),
+  )
+  assert_true(
+    close_double(@src.solexa_quality_from_phred(20.0), 19.96, tol=1.0e-2),
+  )
   // Low scores: significant differences
-  assert_true(close_double(@src.solexa_quality_from_phred(10.0), 9.54, tol=1.0e-2))
-  assert_true(close_double(@src.solexa_quality_from_phred(5.0), 3.35, tol=1.0e-2))
-  assert_true(close_double(@src.solexa_quality_from_phred(3.0), -0.02, tol=1.0e-2))
-  assert_true(close_double(@src.solexa_quality_from_phred(2.0), -2.33, tol=1.0e-2))
-  assert_true(close_double(@src.solexa_quality_from_phred(1.0), -5.0, tol=1.0e-2))
+  assert_true(
+    close_double(@src.solexa_quality_from_phred(10.0), 9.54, tol=1.0e-2),
+  )
+  assert_true(
+    close_double(@src.solexa_quality_from_phred(5.0), 3.35, tol=1.0e-2),
+  )
+  assert_true(
+    close_double(@src.solexa_quality_from_phred(3.0), -0.02, tol=1.0e-2),
+  )
+  assert_true(
+    close_double(@src.solexa_quality_from_phred(2.0), -2.33, tol=1.0e-2),
+  )
+  assert_true(
+    close_double(@src.solexa_quality_from_phred(1.0), -5.0, tol=1.0e-2),
+  )
   // Zero and negative: map to -5.0
-  assert_true(close_double(@src.solexa_quality_from_phred(0.0), -5.0, tol=1.0e-2))
-  assert_true(close_double(@src.solexa_quality_from_phred(-1.0), -5.0, tol=1.0e-2))
+  assert_true(
+    close_double(@src.solexa_quality_from_phred(0.0), -5.0, tol=1.0e-2),
+  )
+  assert_true(
+    close_double(@src.solexa_quality_from_phred(-1.0), -5.0, tol=1.0e-2),
+  )
 }
 
 ///|
 test "phred_quality_from_solexa_values" {
   // Phred scores are always >= corresponding Solexa scores
-  assert_true(close_double(@src.phred_quality_from_solexa(40.0), 40.0, tol=1.0e-3))
-  assert_true(close_double(@src.phred_quality_from_solexa(30.0), 30.0, tol=5.0e-3))
-  assert_true(close_double(@src.phred_quality_from_solexa(20.0), 20.0, tol=5.0e-2))
-  assert_true(close_double(@src.phred_quality_from_solexa(10.0), 10.0, tol=5.0e-1))
+  assert_true(
+    close_double(@src.phred_quality_from_solexa(40.0), 40.0, tol=1.0e-3),
+  )
+  assert_true(
+    close_double(@src.phred_quality_from_solexa(30.0), 30.0, tol=5.0e-3),
+  )
+  assert_true(
+    close_double(@src.phred_quality_from_solexa(20.0), 20.0, tol=5.0e-2),
+  )
+  assert_true(
+    close_double(@src.phred_quality_from_solexa(10.0), 10.0, tol=5.0e-1),
+  )
   // Negative Solexa: map to zero
-  assert_true(close_double(@src.phred_quality_from_solexa(-5.0), 0.0, tol=1.0e-2))
-  assert_true(close_double(@src.phred_quality_from_solexa(-6.0), 0.0, tol=1.0e-2))
+  assert_true(
+    close_double(@src.phred_quality_from_solexa(-5.0), 0.0, tol=1.0e-2),
+  )
+  assert_true(
+    close_double(@src.phred_quality_from_solexa(-6.0), 0.0, tol=1.0e-2),
+  )
 }
 
 ///|

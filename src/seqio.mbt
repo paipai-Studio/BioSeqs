@@ -111,7 +111,7 @@ pub fn seqio_write(
     "ig" => write_ig_records(records)
     "imgt" => write_imgt_records(records)
     "phd" => write_phd_records(records)
-    _ => {
+    _ =>
       // Known but non-writable formats (e.g. 2bit, uniprot-xml) list the
       // writable set; truly unknown formats keep the legacy message.
       match (try? seqio_normalize_format(format)) {
@@ -126,7 +126,6 @@ pub fn seqio_write(
         }
         Err(SeqIOError(msg)) => raise SeqIOError(msg)
       }
-    }
   }
 }
 
@@ -167,9 +166,6 @@ pub fn seqio_to_dict(records : Array[SeqRecord]) -> Map[String, SeqRecord] {
 /// 
 /// Mirrors Biopython's approach of including line numbers in error messages.
 /// This makes debugging much easier for large files.
-pub fn seqio_error_with_line(
-  message : String,
-  line_number : Int,
-) -> SeqIOError {
+pub fn seqio_error_with_line(message : String, line_number : Int) -> SeqIOError {
   SeqIOError(message + " (at line " + line_number.to_string() + ")")
 }

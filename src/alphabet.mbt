@@ -18,7 +18,7 @@ pub fn Alphabet::new(
   letters : Array[String],
   is_gapped : Bool,
 ) -> Alphabet {
-  Alphabet::{ name, letters, is_gapped }
+  Alphabet::{ name, letters, is_gapped, }
 }
 
 ///|

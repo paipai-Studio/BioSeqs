@@ -82,7 +82,7 @@ pub struct GeoAttribute {
 ///|
 /// Create a GeoAttribute.
 pub fn GeoAttribute::new(name : String, value : String) -> GeoAttribute {
-  { name, value }
+  { name, value, }
 }
 
 ///|
@@ -107,7 +107,7 @@ pub struct GeoColumnDef {
 ///|
 /// Create a GeoColumnDef.
 pub fn GeoColumnDef::new(name : String, description : String) -> GeoColumnDef {
-  { name, description }
+  { name, description, }
 }
 
 ///|
@@ -135,7 +135,7 @@ pub fn GeoDataTable::new(
   columns : Array[GeoColumnDef],
   rows : Array[Array[String]],
 ) -> GeoDataTable {
-  { columns, rows }
+  { columns, rows, }
 }
 
 ///|
@@ -209,7 +209,7 @@ pub fn GeoRecord::new(
   attributes : Array[GeoAttribute],
   data_table : GeoDataTable,
 ) -> GeoRecord {
-  { entity_type, accession, attributes, data_table }
+  { entity_type, accession, attributes, data_table, }
 }
 
 ///|

@@ -187,7 +187,7 @@ pub struct TransfacRecordFull {
 ///|
 /// Create a new empty TransfacRecordFull.
 pub fn TransfacRecordFull::new() -> TransfacRecordFull {
-  TransfacRecordFull::{ version: "", motifs: Array::new() }
+  TransfacRecordFull::{ version: "", motifs: Array::new(), }
 }
 
 ///|

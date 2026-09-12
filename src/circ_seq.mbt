@@ -25,7 +25,7 @@ pub struct CircSeq {
 pub fn CircSeq::new(sequence~ : String) -> CircSeq {
   let length = sequence.length()
   let gc = compute_gc_content(sequence)
-  CircSeq::{ sequence, length, gc_content: gc, name: "" }
+  CircSeq::{ sequence, length, gc_content: gc, name: "", }
 }
 
 ///|
@@ -33,7 +33,7 @@ pub fn CircSeq::new(sequence~ : String) -> CircSeq {
 pub fn CircSeq::with_name(sequence~ : String, name~ : String) -> CircSeq {
   let length = sequence.length()
   let gc = compute_gc_content(sequence)
-  CircSeq::{ sequence, length, gc_content: gc, name }
+  CircSeq::{ sequence, length, gc_content: gc, name, }
 }
 
 ///|

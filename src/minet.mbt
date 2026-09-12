@@ -39,7 +39,11 @@ fn mt_log2(x : Double) -> Double {
 /// in each bin (rank/quantile based); `"equalwidth"` uses bins of equal
 /// value range. Returns bin indices in 1..nbin. Ties straddling an
 /// equal-frequency boundary share a single bin, as with R's cut().
-fn minet_discretize_row(row : Array[Double], nbin : Int, disc_method : String) -> Array[Int] {
+fn minet_discretize_row(
+  row : Array[Double],
+  nbin : Int,
+  disc_method : String,
+) -> Array[Int] {
   let n = row.length()
   let values : Array[Double] = []
   let mut i = 0
@@ -103,7 +107,7 @@ fn minet_discretize_row(row : Array[Double], nbin : Int, disc_method : String) -
     i = 0
     while i < n {
       let rank_pos = i // 0-based sorted position
-      let mut b = (rank_pos * nbin) / n + 1
+      let mut b = rank_pos * nbin / n + 1
       if b > nbin {
         b = nbin
       }
@@ -143,7 +147,9 @@ pub fn minet_discretize(
   let mut i = 0
   while i < data.length() {
     if data[i].length() != nsamples {
-      raise SeqError("minet_discretize: ragged expression matrix (row lengths differ)")
+      raise SeqError(
+        "minet_discretize: ragged expression matrix (row lengths differ)",
+      )
     }
     i = i + 1
   }
@@ -153,7 +159,7 @@ pub fn minet_discretize(
     )
   }
   let nb = if nbin == 0 {
-    (nsamples.to_double().sqrt()).floor().to_int()
+    nsamples.to_double().sqrt().floor().to_int()
   } else {
     nbin
   }
@@ -161,7 +167,9 @@ pub fn minet_discretize(
     raise SeqError("minet_discretize: nbin must be >= 2")
   }
   if nb > nsamples {
-    raise SeqError("minet_discretize: nbin (\{nb}) exceeds number of samples (\{nsamples})")
+    raise SeqError(
+      "minet_discretize: nbin (\{nb}) exceeds number of samples (\{nsamples})",
+    )
   }
   let result : Array[Array[Int]] = []
   i = 0
@@ -282,9 +290,10 @@ pub fn minet_entropy(
       }
       h
     }
-    _ => raise SeqError(
-      "minet_entropy: unknown estimator '\{estimator}' (expected empirical|mi.mm|mi.shrink|mi.sg)",
-    )
+    _ =>
+      raise SeqError(
+        "minet_entropy: unknown estimator '\{estimator}' (expected empirical|mi.mm|mi.shrink|mi.sg)",
+      )
   }
 }
 
@@ -400,7 +409,8 @@ fn minet_joint_entropy(
       while bx <= ktot_x {
         let mut by = 1
         while by <= ktot_y {
-          let p = (joint.get_or_default(bx * 100003 + by, 0).to_double() + beta) / denom
+          let p = (joint.get_or_default(bx * 100003 + by, 0).to_double() + beta) /
+            denom
           if p > 0.0 {
             h = h - p * mt_log2(p)
           }
@@ -410,9 +420,10 @@ fn minet_joint_entropy(
       }
       h
     }
-    _ => raise SeqError(
-      "minet_joint_entropy: unknown estimator '\{estimator}' (expected empirical|mi.mm|mi.shrink|mi.sg)",
-    )
+    _ =>
+      raise SeqError(
+        "minet_joint_entropy: unknown estimator '\{estimator}' (expected empirical|mi.mm|mi.shrink|mi.sg)",
+      )
   }
 }
 
@@ -425,10 +436,12 @@ pub fn minet_mutual_information(
   estimator? : String = "mi.mm",
 ) -> Double raise SeqError {
   if x.length() != y.length() || x.length() == 0 {
-    raise SeqError("minet_mutual_information: variables must be non-empty and equal length")
+    raise SeqError(
+      "minet_mutual_information: variables must be non-empty and equal length",
+    )
   }
-  let hx = minet_entropy(x, estimator=estimator)
-  let hy = minet_entropy(y, estimator=estimator)
+  let hx = minet_entropy(x, estimator~)
+  let hy = minet_entropy(y, estimator~)
   let hxy = minet_joint_entropy(x, y, estimator, 0, 0)
   let mi = hx + hy - hxy
   // guard tiny negative values from floating error
@@ -455,7 +468,9 @@ pub fn minet_build_mim(
   let mut g = 0
   while g < n_genes {
     if disc[g].length() != nsamples {
-      raise SeqError("minet_build_mim: ragged discretized matrix (row lengths differ)")
+      raise SeqError(
+        "minet_build_mim: ragged discretized matrix (row lengths differ)",
+      )
     }
     g = g + 1
   }
@@ -468,10 +483,10 @@ pub fn minet_build_mim(
   }
   i = 0
   while i < n_genes {
-    mim[i][i] = minet_entropy(disc[i], estimator=estimator)
+    mim[i][i] = minet_entropy(disc[i], estimator~)
     let mut j = i + 1
     while j < n_genes {
-      let mi = minet_mutual_information(disc[i], disc[j], estimator=estimator)
+      let mi = minet_mutual_information(disc[i], disc[j], estimator~)
       mim[i][j] = mi
       mim[j][i] = mi
       j = j + 1
@@ -486,7 +501,10 @@ pub fn minet_build_mim(
 /// triplet of variables and remove the weakest edge when it is
 /// significantly smaller than the second-weakest (tolerance `eps`,
 /// default 0.1). The MIM is not modified; a pruned copy is returned.
-pub fn minet_aracne(mim : Array[Array[Double]], eps? : Double = 0.1) -> Array[Array[Double]] {
+pub fn minet_aracne(
+  mim : Array[Array[Double]],
+  eps? : Double = 0.1,
+) -> Array[Array[Double]] {
   let n = mim.length()
   let net : Array[Array[Double]] = []
   let mut i = 0
@@ -681,15 +699,16 @@ pub fn minet(
   nbin? : Int = 0,
   eps? : Double = 0.1,
 ) -> Array[Array[Double]] raise SeqError {
-  let d = minet_discretize(data, disc_method=disc, nbin=nbin)
-  let mim = minet_build_mim(d, estimator=estimator)
+  let d = minet_discretize(data, disc_method=disc, nbin~)
+  let mim = minet_build_mim(d, estimator~)
   match net_method {
-    "aracne" => minet_aracne(mim, eps=eps)
+    "aracne" => minet_aracne(mim, eps~)
     "clr" => minet_clr(mim)
     "mrnet" => minet_mrnet(mim)
-    _ => raise SeqError(
-      "minet: unknown method '\{net_method}' (expected aracne|clr|mrnet)",
-    )
+    _ =>
+      raise SeqError(
+        "minet: unknown method '\{net_method}' (expected aracne|clr|mrnet)",
+      )
   }
 }
 
@@ -776,14 +795,26 @@ pub fn minet_validate(
     } else {
       fp = fp + 1
     }
-    let prec = if (tp + fp) > 0 {
+    let prec = if tp + fp > 0 {
       tp.to_double() / (tp + fp).to_double()
     } else {
       1.0
     }
-    let rec = if total_pos > 0 { tp.to_double() / total_pos.to_double() } else { 0.0 }
-    let f_p = if total_neg > 0 { fp.to_double() / total_neg.to_double() } else { 0.0 }
-    let fs = if prec + rec > 0.0 { 2.0 * prec * rec / (prec + rec) } else { 0.0 }
+    let rec = if total_pos > 0 {
+      tp.to_double() / total_pos.to_double()
+    } else {
+      0.0
+    }
+    let f_p = if total_neg > 0 {
+      fp.to_double() / total_neg.to_double()
+    } else {
+      0.0
+    }
+    let fs = if prec + rec > 0.0 {
+      2.0 * prec * rec / (prec + rec)
+    } else {
+      0.0
+    }
     thresholds.push(weights[idx])
     precision.push(prec)
     recall.push(rec)

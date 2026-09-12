@@ -37,7 +37,7 @@ pub struct MgMatrix {
 pub fn MgMatrix::new(data : Array[Array[Double]]) -> MgMatrix {
   let n_rows = data.length()
   if n_rows == 0 {
-    return { n_rows: 0, n_cols: 0, data: Array::make(0, 0.0) }
+    return { n_rows: 0, n_cols: 0, data: Array::make(0, 0.0), }
   }
   let n_cols = data[0].length()
   let flat : Array[Double] = []
@@ -46,14 +46,14 @@ pub fn MgMatrix::new(data : Array[Array[Double]]) -> MgMatrix {
       flat.push(data[i][j])
     }
   }
-  { n_rows, n_cols, data: flat }
+  { n_rows, n_cols, data: flat, }
 }
 
 ///|
 /// Create a matrix filled with a value.
 pub fn MgMatrix::zeros(n_rows : Int, n_cols : Int) -> MgMatrix {
   let data = Array::make(n_rows * n_cols, 0.0)
-  { n_rows, n_cols, data }
+  { n_rows, n_cols, data, }
 }
 
 ///|

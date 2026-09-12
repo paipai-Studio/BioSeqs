@@ -13,7 +13,7 @@ pub struct GeneSet {
 ///|
 /// Create a new gene set.
 pub fn GeneSet::new(name : String, genes : Array[String]) -> GeneSet {
-  GeneSet::{ name, genes }
+  GeneSet::{ name, genes, }
 }
 
 ///|
@@ -41,7 +41,16 @@ pub fn FgseaResult::new(
   size : Int,
   leadingEdge : Array[String],
 ) -> FgseaResult {
-  FgseaResult::{ pathway, pval, padj, es, nes, nMoreExtreme, size, leadingEdge }
+  FgseaResult::{
+    pathway,
+    pval,
+    padj,
+    es,
+    nes,
+    nMoreExtreme,
+    size,
+    leadingEdge,
+  }
 }
 
 ///|

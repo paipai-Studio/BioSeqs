@@ -161,9 +161,7 @@ test "um_ppm_to_pwm_tata" {
 test "um_pwm_to_ppm_roundtrip" {
   // PWM->PPM[0] = [0.875, 0.105769, 0.009615, 0.009615] (mirror)
   let bkg = [0.25, 0.25, 0.25, 0.25]
-  let ppm = @src.pwm_to_ppm(
-    [[1.807355, -1.241008, -4.70044, -4.70044]], bkg,
-  )
+  let ppm = @src.pwm_to_ppm([[1.807355, -1.241008, -4.70044, -4.70044]], bkg)
   assert_true(um_close(ppm[0][0], 0.875, tol=2.0e-3))
   assert_true(um_close(ppm[0][1], 0.105769, tol=2.0e-3))
   assert_true(um_close(ppm[0][3], 0.009615, tol=2.0e-3))
@@ -294,7 +292,10 @@ test "um_get_consensus_rna_uses_U" {
 ///|
 test "um_get_consensus_aa_returns_max_letter" {
   // For AA alphabet, the highest-prob letter is returned directly.
-  let row = [0.1, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+  let row = [
+    0.1, 0.2, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05,
+    0.05, 0.05, 0.05, 0.05, 0.05, 0.05,
+  ]
   // index 1 is "R"
   assert_eq(@src.get_consensus(row, "AA"), "R")
 }
@@ -341,7 +342,11 @@ test "um_consensus_letter_to_ppm_n_is_uniform" {
 ///|
 test "um_universalmotif_new_basic" {
   let m = @src.UniversalMotif::new(
-    "TATA-box", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=20.0,
+    "TATA-box",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   assert_eq(m.name, "TATA-box")
   assert_eq(m.alphabet, "DNA")
@@ -357,7 +362,10 @@ test "um_universalmotif_new_basic" {
 ///|
 test "um_universalmotif_new_default_bkg" {
   let m = @src.UniversalMotif::new(
-    "x", "DNA", [[0.25, 0.25, 0.25, 0.25]], @src.UMotifType::PPM,
+    "x",
+    "DNA",
+    [[0.25, 0.25, 0.25, 0.25]],
+    @src.UMotifType::PPM,
   )
   assert_eq(m.bkg.length(), 4)
   for v in m.bkg {
@@ -368,7 +376,11 @@ test "um_universalmotif_new_default_bkg" {
 ///|
 test "um_universalmotif_to_ppm_idempotent" {
   let m = @src.UniversalMotif::new(
-    "x", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=20.0,
+    "x",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let m2 = m.to_ppm()
   assert_true(m2.motif_type is @src.UMotifType::PPM)
@@ -378,7 +390,11 @@ test "um_universalmotif_to_ppm_idempotent" {
 ///|
 test "um_universalmotif_to_pwm" {
   let m = @src.UniversalMotif::new(
-    "x", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=20.0,
+    "x",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let pwm_m = m.to_pwm()
   assert_true(pwm_m.motif_type is @src.UMotifType::PWM)
@@ -389,7 +405,11 @@ test "um_universalmotif_to_pwm" {
 ///|
 test "um_universalmotif_to_icm" {
   let m = @src.UniversalMotif::new(
-    "x", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=20.0,
+    "x",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let icm_m = m.to_icm()
   assert_true(icm_m.motif_type is @src.UMotifType::ICM)
@@ -400,7 +420,11 @@ test "um_universalmotif_to_icm" {
 ///|
 test "um_universalmotif_to_icm_relative_entropy" {
   let m = @src.UniversalMotif::new(
-    "x", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=20.0,
+    "x",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let icm_m = m.to_icm(relative_entropy=true)
   let expected = 0.9 * @math.log2(0.9 / 0.25)
@@ -422,7 +446,10 @@ test "um_create_example_universal_motif" {
 ///|
 test "um_reverse_complement_motif_dna" {
   let m = @src.UniversalMotif::new(
-    "m", "DNA", um_tata_ppm(), @src.UMotifType::PPM,
+    "m",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
   )
   let rc = @src.reverse_complement_motif(m)
   // RC of position 0 ([0.9, 0.1, 0, 0]) should appear at the last position
@@ -437,9 +464,7 @@ test "um_reverse_complement_motif_dna" {
 ///|
 test "um_reverse_complement_motif_aa_unchanged" {
   let aa_ppm = [[0.5, 0.5]]
-  let m = @src.UniversalMotif::new(
-    "m", "AC", aa_ppm, @src.UMotifType::PPM,
-  )
+  let m = @src.UniversalMotif::new("m", "AC", aa_ppm, @src.UMotifType::PPM)
   let rc = @src.reverse_complement_motif(m)
   // AA / custom alphabets are returned unchanged
   assert_true(um_close_matrix(rc.motif, aa_ppm))
@@ -478,16 +503,34 @@ test "um_compare_positions_identical_rows" {
   let row = [0.4, 0.3, 0.2, 0.1]
   let bkg = [0.25, 0.25, 0.25, 0.25]
   let pcc = @src.compare_positions(
-    @src.UMetric::PCC, row, row, bkg, bkg, 100.0, 100.0,
+    @src.UMetric::PCC,
+    row,
+    row,
+    bkg,
+    bkg,
+    100.0,
+    100.0,
   )
   // PCC of identical vectors is 1 (or 1.0 by the denom<=0 fallback)
   assert_true(pcc >= 0.999)
   let eucl = @src.compare_positions(
-    @src.UMetric::EUCL, row, row, bkg, bkg, 100.0, 100.0,
+    @src.UMetric::EUCL,
+    row,
+    row,
+    bkg,
+    bkg,
+    100.0,
+    100.0,
   )
   assert_true(um_close(eucl, 0.0))
   let bhat = @src.compare_positions(
-    @src.UMetric::BHAT, row, row, bkg, bkg, 100.0, 100.0,
+    @src.UMetric::BHAT,
+    row,
+    row,
+    bkg,
+    bkg,
+    100.0,
+    100.0,
   )
   assert_true(um_close(bhat, 1.0))
 }
@@ -499,7 +542,13 @@ test "um_compare_positions_allr_ll_floor" {
   let row2 = [1.0, 0.0, 0.0, 0.0]
   let bkg = [0.25, 0.25, 0.25, 0.25]
   let v = @src.compare_positions(
-    @src.UMetric::ALLR_LL, row1, row2, bkg, bkg, 100.0, 100.0,
+    @src.UMetric::ALLR_LL,
+    row1,
+    row2,
+    bkg,
+    bkg,
+    100.0,
+    100.0,
   )
   assert_true(v >= -2.0 - 1.0e-9)
 }
@@ -511,20 +560,60 @@ test "um_compare_positions_allr_ll_floor" {
 ///|
 test "um_compare_motifs_identical" {
   let m = @src.UniversalMotif::new(
-    "x", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=20.0,
+    "x",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   // Mirror: PCC=5.0, EUCL=0, SW=10, BHAT=5, HELL=0, WPCC=5, MAN=0, SEUCL=0
-  let pcc = @src.compare_motifs(m, m, @src.UMetric::PCC, min_overlap=3, try_rc=false)
+  let pcc = @src.compare_motifs(
+    m,
+    m,
+    @src.UMetric::PCC,
+    min_overlap=3,
+    try_rc=false,
+  )
   assert_true(um_close(pcc, 5.0, tol=2.0e-3))
-  let eucl = @src.compare_motifs(m, m, @src.UMetric::EUCL, min_overlap=3, try_rc=false)
+  let eucl = @src.compare_motifs(
+    m,
+    m,
+    @src.UMetric::EUCL,
+    min_overlap=3,
+    try_rc=false,
+  )
   assert_true(um_close(eucl, 0.0, tol=2.0e-3))
-  let sw = @src.compare_motifs(m, m, @src.UMetric::SW, min_overlap=3, try_rc=false)
+  let sw = @src.compare_motifs(
+    m,
+    m,
+    @src.UMetric::SW,
+    min_overlap=3,
+    try_rc=false,
+  )
   assert_true(um_close(sw, 10.0, tol=2.0e-3))
-  let bhat = @src.compare_motifs(m, m, @src.UMetric::BHAT, min_overlap=3, try_rc=false)
+  let bhat = @src.compare_motifs(
+    m,
+    m,
+    @src.UMetric::BHAT,
+    min_overlap=3,
+    try_rc=false,
+  )
   assert_true(um_close(bhat, 5.0, tol=2.0e-3))
-  let hell = @src.compare_motifs(m, m, @src.UMetric::HELL, min_overlap=3, try_rc=false)
+  let hell = @src.compare_motifs(
+    m,
+    m,
+    @src.UMetric::HELL,
+    min_overlap=3,
+    try_rc=false,
+  )
   assert_true(um_close(hell, 0.0, tol=2.0e-3))
-  let wpcc = @src.compare_motifs(m, m, @src.UMetric::WPCC, min_overlap=3, try_rc=false)
+  let wpcc = @src.compare_motifs(
+    m,
+    m,
+    @src.UMetric::WPCC,
+    min_overlap=3,
+    try_rc=false,
+  )
   assert_true(um_close(wpcc, 5.0, tol=2.0e-3))
 }
 
@@ -532,7 +621,11 @@ test "um_compare_motifs_identical" {
 test "um_compare_motifs_shifted_by_one" {
   // Motif vs. itself shifted by 1 position: PCC ~ 4.1667 (mirror)
   let m = @src.UniversalMotif::new(
-    "x", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=20.0,
+    "x",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let shifted_ppm = [
     [0.0, 0.0, 0.9, 0.1],
@@ -542,9 +635,19 @@ test "um_compare_motifs_shifted_by_one" {
     [0.9, 0.1, 0.0, 0.0],
   ]
   let m2 = @src.UniversalMotif::new(
-    "y", "DNA", shifted_ppm, @src.UMotifType::PPM, nsites=20.0,
+    "y",
+    "DNA",
+    shifted_ppm,
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
-  let pcc = @src.compare_motifs(m, m2, @src.UMetric::PCC, min_overlap=3, try_rc=false)
+  let pcc = @src.compare_motifs(
+    m,
+    m2,
+    @src.UMetric::PCC,
+    min_overlap=3,
+    try_rc=false,
+  )
   assert_true(um_close(pcc, 3.2, tol=2.0e-3))
 }
 
@@ -553,15 +656,27 @@ test "um_compare_motifs_with_rc" {
   // Try_rc should find a strong match between a motif and its own reverse
   // complement.
   let m = @src.UniversalMotif::new(
-    "x", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=20.0,
+    "x",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let rc = @src.reverse_complement_motif(m)
   // Without RC: weak; with RC: should match (PCC high).
   let pcc_no_rc = @src.compare_motifs(
-    m, rc, @src.UMetric::PCC, min_overlap=3, try_rc=false,
+    m,
+    rc,
+    @src.UMetric::PCC,
+    min_overlap=3,
+    try_rc=false,
   )
   let pcc_rc = @src.compare_motifs(
-    m, rc, @src.UMetric::PCC, min_overlap=3, try_rc=true,
+    m,
+    rc,
+    @src.UMetric::PCC,
+    min_overlap=3,
+    try_rc=true,
   )
   assert_true(pcc_rc > pcc_no_rc)
   // With RC, an identical-motif-vs-its-RC match is at least as good as no-RC.
@@ -575,7 +690,11 @@ test "um_compare_motifs_with_rc" {
 ///|
 test "um_merge_motifs_identical_keeps_motif" {
   let m = @src.UniversalMotif::new(
-    "x", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=20.0,
+    "x",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let merged = @src.merge_motifs([m, m])
   // Merging identical motifs at offset 0 should keep the same PPM.
@@ -604,10 +723,18 @@ test "um_merge_motifs_extends_flanks" {
     [0.9, 0.1, 0.0, 0.0],
   ]
   let m1 = @src.UniversalMotif::new(
-    "a", "DNA", m1_ppm, @src.UMotifType::PPM, nsites=20.0,
+    "a",
+    "DNA",
+    m1_ppm,
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let m2 = @src.UniversalMotif::new(
-    "b", "DNA", m2_ppm, @src.UMotifType::PPM, nsites=20.0,
+    "b",
+    "DNA",
+    m2_ppm,
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let merged = @src.merge_motifs([m1, m2], min_overlap=3, try_rc=false)
   // Best alignment is at offset -1 (m2 shifted left by 1), giving 5 columns.
@@ -620,7 +747,11 @@ test "um_merge_motifs_extends_flanks" {
 ///|
 test "um_merge_motifs_single_input" {
   let m = @src.UniversalMotif::new(
-    "x", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=20.0,
+    "x",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let merged = @src.merge_motifs([m])
   assert_eq(merged.motif.length(), 5)
@@ -651,7 +782,11 @@ test "um_trim_motif_removes_low_ic_flanks" {
     [0.25, 0.25, 0.25, 0.25], // IC=0
   ]
   let m = @src.UniversalMotif::new(
-    "x", "DNA", extended, @src.UMotifType::PPM, nsites=20.0,
+    "x",
+    "DNA",
+    extended,
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let trimmed = @src.trim_motif(m)
   // Mirror: trim result width = 5 (mirror verifies IC of flanks is < 0.25)
@@ -667,7 +802,11 @@ test "um_trim_motif_left_only" {
     [0.25, 0.25, 0.25, 0.25],
   ]
   let m = @src.UniversalMotif::new(
-    "x", "DNA", extended, @src.UMotifType::PPM, nsites=20.0,
+    "x",
+    "DNA",
+    extended,
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let trimmed = @src.trim_motif(m, trim_from=@src.UTrimFrom::ULeft)
   // Left flank removed; right flank kept
@@ -683,7 +822,11 @@ test "um_trim_motif_right_only" {
     [0.25, 0.25, 0.25, 0.25],
   ]
   let m = @src.UniversalMotif::new(
-    "x", "DNA", extended, @src.UMotifType::PPM, nsites=20.0,
+    "x",
+    "DNA",
+    extended,
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let trimmed = @src.trim_motif(m, trim_from=@src.UTrimFrom::URight)
   assert_eq(trimmed.motif.length(), 3)
@@ -693,7 +836,11 @@ test "um_trim_motif_right_only" {
 test "um_trim_motif_all_below_threshold_returns_empty" {
   // A uniform motif has all-zero IC; trimming at any threshold leaves nothing.
   let m = @src.UniversalMotif::new(
-    "x", "DNA", [[0.25, 0.25, 0.25, 0.25]], @src.UMotifType::PPM, nsites=20.0,
+    "x",
+    "DNA",
+    [[0.25, 0.25, 0.25, 0.25]],
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let trimmed = @src.trim_motif(m)
   assert_eq(trimmed.motif.length(), 0)
@@ -706,7 +853,11 @@ test "um_trim_motif_all_below_threshold_returns_empty" {
 ///|
 test "um_write_meme_round_trips_with_read_meme" {
   let m = @src.UniversalMotif::new(
-    "TATA-box", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=20.0,
+    "TATA-box",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let text = @src.write_meme([m])
   let parsed = @src.read_meme(text)
@@ -725,7 +876,11 @@ test "um_write_meme_round_trips_with_read_meme" {
 ///|
 test "um_write_meme_header" {
   let m = @src.UniversalMotif::new(
-    "M1", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=20.0,
+    "M1",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let text = @src.write_meme([m])
   // Required MEME headers
@@ -768,7 +923,11 @@ test "um_read_meme_multiple_motifs" {
 ///|
 test "um_write_jaspar_round_trips_with_read_jaspar" {
   let m = @src.UniversalMotif::new(
-    "TATA-box", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=20.0,
+    "TATA-box",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=20.0,
   )
   let text = @src.write_jaspar(m)
   let parsed = @src.read_jaspar(text)
@@ -780,9 +939,7 @@ test "um_write_jaspar_round_trips_with_read_jaspar" {
   let m2_ppm = m2.to_ppm()
   for i = 0; i < 5; i = i + 1 {
     for j = 0; j < 4; j = j + 1 {
-      assert_true(
-        um_close(m2_ppm.motif[i][j], um_tata_ppm()[i][j], tol=0.06),
-      )
+      assert_true(um_close(m2_ppm.motif[i][j], um_tata_ppm()[i][j], tol=0.06))
     }
   }
 }
@@ -790,7 +947,11 @@ test "um_write_jaspar_round_trips_with_read_jaspar" {
 ///|
 test "um_write_jaspar_header_and_counts" {
   let m = @src.UniversalMotif::new(
-    "MA0001.1", "DNA", um_tata_ppm(), @src.UMotifType::PPM, nsites=100.0,
+    "MA0001.1",
+    "DNA",
+    um_tata_ppm(),
+    @src.UMotifType::PPM,
+    nsites=100.0,
   )
   let text = @src.write_jaspar(m)
   assert_true(text.contains(">MA0001.1"))

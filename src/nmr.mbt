@@ -212,7 +212,7 @@ pub fn noe_restraint_summary(
       None => continue
     }
   }
-  NmrRestraintSummary::{ total, violated, max_violation }
+  NmrRestraintSummary::{ total, violated, max_violation, }
 }
 
 // ============================================================================
@@ -349,7 +349,7 @@ pub fn ChemicalShift::new(
   shift_value~ : Double,
   error~ : Double?,
 ) -> ChemicalShift {
-  ChemicalShift::{ id, residue, atom_name, element, shift_value, error }
+  ChemicalShift::{ id, residue, atom_name, element, shift_value, error, }
 }
 
 ///|
@@ -527,7 +527,14 @@ pub fn NmrPeak::new(
   volume~ : Double?,
   merity~ : Double?,
 ) -> NmrPeak {
-  NmrPeak::{ peak_id, dimensions, chemical_shifts, intensities, volume, merity }
+  NmrPeak::{
+    peak_id,
+    dimensions,
+    chemical_shifts,
+    intensities,
+    volume,
+    merity,
+  }
 }
 
 ///|
@@ -545,7 +552,7 @@ pub fn PeakList::new(
   peaks~ : Array[NmrPeak],
   n_dim~ : Int,
 ) -> PeakList {
-  PeakList::{ label, peaks, n_dim }
+  PeakList::{ label, peaks, n_dim, }
 }
 
 ///|

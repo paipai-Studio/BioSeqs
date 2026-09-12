@@ -626,7 +626,7 @@ pub struct CompoundPathwayMap {
 ///|
 /// Create a new pathway map.
 pub fn CompoundPathwayMap::new(name : String) -> CompoundPathwayMap {
-  CompoundPathwayMap::{ name, compounds: [], reactions: [], description: "" }
+  CompoundPathwayMap::{ name, compounds: [], reactions: [], description: "", }
 }
 
 ///|

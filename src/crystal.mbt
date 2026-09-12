@@ -44,7 +44,7 @@ pub fn UnitCell::new(
   beta~ : Double,
   gamma~ : Double,
 ) -> UnitCell {
-  UnitCell::{ a, b, c, alpha, beta, gamma }
+  UnitCell::{ a, b, c, alpha, beta, gamma, }
 }
 
 ///|
@@ -207,7 +207,7 @@ pub struct SpaceGroup {
 ///|
 /// Construct a SpaceGroup.
 pub fn SpaceGroup::new(number~ : Int, symbol~ : String) -> SpaceGroup {
-  SpaceGroup::{ number, symbol }
+  SpaceGroup::{ number, symbol, }
 }
 
 ///|
@@ -266,7 +266,7 @@ pub fn CrystalAtom::new(
   occupancy? : Double = 1.0,
   is_fractional? : Bool = true,
 ) -> CrystalAtom {
-  CrystalAtom::{ label, element, x, y, z, occupancy, is_fractional }
+  CrystalAtom::{ label, element, x, y, z, occupancy, is_fractional, }
 }
 
 ///|
@@ -286,7 +286,7 @@ pub fn CrystalBond::new(
   bond_type? : String = "SINGLE",
   distance? : Double = 0.0,
 ) -> CrystalBond {
-  CrystalBond::{ atom1, atom2, bond_type, distance }
+  CrystalBond::{ atom1, atom2, bond_type, distance, }
 }
 
 ///|
@@ -460,7 +460,7 @@ pub struct CifBlock {
 ///|
 /// Construct a CifBlock.
 pub fn CifBlock::new(name~ : String) -> CifBlock {
-  CifBlock::{ name, items: Map([], capacity=64) }
+  CifBlock::{ name, items: Map([], capacity=64), }
 }
 
 ///|

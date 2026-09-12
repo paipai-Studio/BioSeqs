@@ -92,7 +92,7 @@ pub fn KEGGCompound::new(
   enzymes : Array[String],
   reactions : Array[String],
 ) -> KEGGCompound {
-  KEGGCompound::{ entry, name, formula, mass, pathways, enzymes, reactions }
+  KEGGCompound::{ entry, name, formula, mass, pathways, enzymes, reactions, }
 }
 
 ///|
@@ -116,7 +116,7 @@ pub fn KEGGEnzyme::new(
   reactions : Array[String],
   cofactors : Array[String],
 ) -> KEGGEnzyme {
-  KEGGEnzyme::{ entry, name, class, genes, pathways, reactions, cofactors }
+  KEGGEnzyme::{ entry, name, class, genes, pathways, reactions, cofactors, }
 }
 
 ///|

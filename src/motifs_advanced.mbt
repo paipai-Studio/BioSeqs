@@ -106,7 +106,7 @@ pub fn MotifAlignmentResult::new(
   strand : String,
   aligned_length : Int,
 ) -> MotifAlignmentResult {
-  MotifAlignmentResult::{ score, offset, strand, aligned_length }
+  MotifAlignmentResult::{ score, offset, strand, aligned_length, }
 }
 
 ///|
@@ -116,7 +116,7 @@ pub fn MotifCluster::new(
   representative : String,
   avg_similarity : Double,
 ) -> MotifCluster {
-  MotifCluster::{ cluster_id, motifs, representative, avg_similarity }
+  MotifCluster::{ cluster_id, motifs, representative, avg_similarity, }
 }
 
 // ============================================================================

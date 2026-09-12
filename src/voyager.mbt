@@ -161,7 +161,7 @@ fn VoyagerRng::new(seed : Int) -> VoyagerRng {
   } else {
     seed.to_int64()
   }
-  VoyagerRng::{ state: init + 0x9E3779B97F4A7C15L }
+  VoyagerRng::{ state: init + 0x9E3779B97F4A7C15L, }
 }
 
 ///|
@@ -347,7 +347,7 @@ pub fn VoyagerWeights::new(
       }
     }
   }
-  VoyagerWeights::{ style, n, neighbors, weights }
+  VoyagerWeights::{ style, n, neighbors, weights, }
 }
 
 ///|
@@ -552,7 +552,7 @@ pub fn voyager_weights_knn(
     raw.push(w)
   }
   let styled = voy_apply_style(neighbors, raw, style)
-  VoyagerWeights::{ style, n, neighbors, weights: styled }
+  VoyagerWeights::{ style, n, neighbors, weights: styled, }
 }
 
 ///|
@@ -598,7 +598,7 @@ pub fn voyager_weights_distance_band(
     raw.push(w)
   }
   let styled = voy_apply_style(neighbors, raw, style)
-  VoyagerWeights::{ style, n, neighbors, weights: styled }
+  VoyagerWeights::{ style, n, neighbors, weights: styled, }
 }
 
 ///|
@@ -646,7 +646,7 @@ pub fn voyager_weights_inverse_distance(
     raw.push(w)
   }
   let styled = voy_apply_style(neighbors, raw, style)
-  VoyagerWeights::{ style, n, neighbors, weights: styled }
+  VoyagerWeights::{ style, n, neighbors, weights: styled, }
 }
 
 // ===========================================================================
@@ -1804,7 +1804,7 @@ pub fn voyager_empirical_variogram(
     if counts[bin] > 0 {
       let lag = (bin.to_double() + 0.5) * lag_width
       let gamma = sums[bin] / (2.0 * counts[bin].to_double())
-      output.push(VoyagerVariogramPoint::{ lag, gamma, npairs: counts[bin] })
+      output.push(VoyagerVariogramPoint::{ lag, gamma, npairs: counts[bin], })
     }
   }
   if output.length() == 0 {
@@ -2129,7 +2129,7 @@ pub fn voyager_correlogram(
       continue
     }
     let styled = voy_apply_style(neighbors, raw, style)
-    let weights = VoyagerWeights::{ style, n, neighbors, weights: styled }
+    let weights = VoyagerWeights::{ style, n, neighbors, weights: styled, }
     if ssd <= 0.0 {
       output.push(VoyagerCorrelogramPoint::{
         lag: (bin_min + bin_max) / 2.0,

@@ -15,7 +15,7 @@ pub fn BPPARAM::new(
   progressbar : Bool,
   timeout : Int,
 ) -> BPPARAM {
-  BPPARAM::{ workers, progressbar, timeout, log_file: "" }
+  BPPARAM::{ workers, progressbar, timeout, log_file: "", }
 }
 
 ///|
@@ -25,7 +25,7 @@ pub fn BPPARAM::new_with_log(
   timeout : Int,
   log_file : String,
 ) -> BPPARAM {
-  BPPARAM::{ workers, progressbar, timeout, log_file }
+  BPPARAM::{ workers, progressbar, timeout, log_file, }
 }
 
 ///|
@@ -38,12 +38,12 @@ pub struct BPResult {
 
 ///|
 pub fn BPResult::success(result : Double, worker_id : Int) -> BPResult {
-  BPResult::{ success: true, result, error: "", worker_id }
+  BPResult::{ success: true, result, error: "", worker_id, }
 }
 
 ///|
 pub fn BPResult::error(error : String, worker_id : Int) -> BPResult {
-  BPResult::{ success: false, result: 0.0, error, worker_id }
+  BPResult::{ success: false, result: 0.0, error, worker_id, }
 }
 
 ///|
@@ -55,7 +55,7 @@ pub struct Task {
 
 ///|
 pub fn Task::new(id : String, data : Array[Double], priority : Int) -> Task {
-  Task::{ id, data, priority }
+  Task::{ id, data, priority, }
 }
 
 ///|
@@ -67,7 +67,7 @@ pub struct BPJob {
 
 ///|
 pub fn BPJob::new(name : String, params : BPPARAM) -> BPJob {
-  BPJob::{ name, tasks: Array::new(), params }
+  BPJob::{ name, tasks: Array::new(), params, }
 }
 
 ///|

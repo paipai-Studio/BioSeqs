@@ -12,7 +12,7 @@ pub struct MmcifDataItem {
 ///|
 /// Construct an MmcifDataItem.
 pub fn MmcifDataItem::new(name : String, value : String) -> MmcifDataItem {
-  MmcifDataItem::{ name, value }
+  MmcifDataItem::{ name, value, }
 }
 
 ///|
@@ -25,7 +25,7 @@ pub struct MmcifDataBlock {
 ///|
 /// Construct an MmcifDataBlock.
 pub fn MmcifDataBlock::new(name : String) -> MmcifDataBlock {
-  MmcifDataBlock::{ name, categories: Map([], capacity=32) }
+  MmcifDataBlock::{ name, categories: Map([], capacity=32), }
 }
 
 ///|

@@ -42,7 +42,7 @@ pub fn GlmDesign::new(
   coef_names : Array[String],
   matrix : Array[Array[Double]],
 ) -> GlmDesign {
-  { sample_names, coef_names, matrix }
+  { sample_names, coef_names, matrix, }
 }
 
 ///|
@@ -90,7 +90,7 @@ pub fn GlmFit::new(
   df_residual : Int,
   df_dispersion : Double,
 ) -> GlmFit {
-  { gene, coefficients, std_errors, dispersion, df_residual, df_dispersion }
+  { gene, coefficients, std_errors, dispersion, df_residual, df_dispersion, }
 }
 
 ///|
@@ -198,7 +198,7 @@ pub fn GlmPseudobulk::new(
   sample_groups : Array[Array[String]],
   counts : Array[Array[Double]],
 ) -> GlmPseudobulk {
-  { group_labels: [], sample_groups, counts, gene_names, group_names }
+  { group_labels: [], sample_groups, counts, gene_names, group_names, }
 }
 
 ///|

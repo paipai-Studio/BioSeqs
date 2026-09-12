@@ -59,7 +59,7 @@ pub fn MatrixEQTLResult::new(
   p_value : Double,
   fdr : Double,
 ) -> MatrixEQTLResult {
-  MatrixEQTLResult::{ snp_name, gene_name, beta, t_stat, p_value, fdr }
+  MatrixEQTLResult::{ snp_name, gene_name, beta, t_stat, p_value, fdr, }
 }
 
 ///|
@@ -75,7 +75,7 @@ pub fn MatrixEQTLOutput::new(
   results : Array[MatrixEQTLResult],
   n_tests : Int,
 ) -> MatrixEQTLOutput {
-  MatrixEQTLOutput::{ results, n_tests }
+  MatrixEQTLOutput::{ results, n_tests, }
 }
 
 ///|
@@ -607,5 +607,7 @@ pub fn sample_matrixeqtl_input() -> MatrixEQTLInput {
     [12.0, 10.5, 8.2, 10.3, 11.8, 10.6, 8.0, 10.4],
   ]
 
-  MatrixEQTLInput::new(snps, gene_expression, snp_names, gene_names, sample_names)
+  MatrixEQTLInput::new(
+    snps, gene_expression, snp_names, gene_names, sample_names,
+  )
 }

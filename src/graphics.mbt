@@ -13,7 +13,7 @@ pub struct SeqLogo {
 
 ///|
 pub fn SeqLogo::new(sequences : Array[String]) -> SeqLogo {
-  SeqLogo::{ sequences, height: 50, width: 400, colors: get_default_colors() }
+  SeqLogo::{ sequences, height: 50, width: 400, colors: get_default_colors(), }
 }
 
 ///|
@@ -64,7 +64,7 @@ pub fn FeaturePlot::new(
   features : Array[(String, Int, Int, String, String)],
   sequence_length : Int,
 ) -> FeaturePlot {
-  FeaturePlot::{ features, sequence_length, colors: get_feature_colors() }
+  FeaturePlot::{ features, sequence_length, colors: get_feature_colors(), }
 }
 
 ///|

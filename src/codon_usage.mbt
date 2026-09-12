@@ -390,7 +390,7 @@ pub fn CodonUsageResult::new(
   gc3 : Double,
   optimal_codons : Map[String, Double],
 ) -> CodonUsageResult {
-  CodonUsageResult::{ codon_counts, rscu, cai, enc, gc3, optimal_codons }
+  CodonUsageResult::{ codon_counts, rscu, cai, enc, gc3, optimal_codons, }
 }
 
 ///|

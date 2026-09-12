@@ -129,7 +129,7 @@ pub struct FastaMeta {
 
 ///|
 pub fn FastaMeta::new() -> FastaMeta {
-  FastaMeta::{ program: "", version: "", database: "", comments: [] }
+  FastaMeta::{ program: "", version: "", database: "", comments: [], }
 }
 
 ///|
@@ -147,7 +147,7 @@ pub fn FastaSearchResult::new(
   queries : Array[QueryResult],
   meta : FastaMeta,
 ) -> FastaSearchResult {
-  FastaSearchResult::{ queries, meta }
+  FastaSearchResult::{ queries, meta, }
 }
 
 // ============================================================================

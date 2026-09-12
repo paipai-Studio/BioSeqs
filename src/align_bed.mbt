@@ -335,7 +335,7 @@ pub fn AlignBedCoordinate::create(
   if target < 0 || query < 0 {
     align_bed_fail("BED coordinates must be non-negative")
   }
-  AlignBedCoordinate::{ target, query }
+  AlignBedCoordinate::{ target, query, }
 }
 
 ///|
@@ -409,7 +409,7 @@ pub fn AlignBedDocument::create(
   for alignment in copied {
     align_bed_validate_alignment(alignment)
   }
-  AlignBedDocument::{ alignments: copied }
+  AlignBedDocument::{ alignments: copied, }
 }
 
 ///|
@@ -696,7 +696,7 @@ fn align_bed_coordinates_from_blocks(
   let coordinates : Array[AlignBedCoordinate] = []
   let mut query_position = 0
   let mut target_position = chrom_start
-  coordinates.push(AlignBedCoordinate::{ target: chrom_start, query: 0 })
+  coordinates.push(AlignBedCoordinate::{ target: chrom_start, query: 0, })
   for index in 0..<sizes.length() {
     let block_start = chrom_start + starts[index]
     if block_start != target_position {

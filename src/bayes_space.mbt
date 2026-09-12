@@ -36,7 +36,7 @@ pub fn spot_coord(
   x : Double,
   y : Double,
 ) -> SpotCoord {
-  SpotCoord::{ spot_id, row, col, x, y }
+  SpotCoord::{ spot_id, row, col, x, y, }
 }
 
 ///|
@@ -300,7 +300,7 @@ pub fn bayes_space_run(
   let d_df = df
   let tolerance = tol
 
-  let rng : BayesRng = { state: seed }
+  let rng : BayesRng = { state: seed, }
 
   // Initialize centers using k-means++-like seeding
   let centers = bayes_space_init_centers(expression, q, rng)

@@ -5,12 +5,7 @@
 ///|
 fn gs_test_scores() -> @src.GScores raise @src.SeqIOError {
   let gss = @src.GScores::new("phastCons7way", "hg38")
-  gss.set_scores(
-    "chr1",
-    "default",
-    [100, 200, 300, 400],
-    [0.1, 0.5, 0.9, 0.4],
-  )
+  gss.set_scores("chr1", "default", [100, 200, 300, 400], [0.1, 0.5, 0.9, 0.4])
   gss
 }
 
@@ -70,9 +65,15 @@ test "gscores_range_summaries" {
   let gss = gs_test_scores()
   // closed range 100-400 covers all four stored scores
   assert_true(gs_close(gss.range_score("chr1", 100, 400), 0.475, 1.0e-12))
-  assert_true(gs_close(gss.range_score("chr1", 100, 400, summary="min"), 0.1, 1.0e-12))
-  assert_true(gs_close(gss.range_score("chr1", 100, 400, summary="max"), 0.9, 1.0e-12))
-  assert_true(gs_close(gss.range_score("chr1", 100, 400, summary="median"), 0.45, 1.0e-12))
+  assert_true(
+    gs_close(gss.range_score("chr1", 100, 400, summary="min"), 0.1, 1.0e-12),
+  )
+  assert_true(
+    gs_close(gss.range_score("chr1", 100, 400, summary="max"), 0.9, 1.0e-12),
+  )
+  assert_true(
+    gs_close(gss.range_score("chr1", 100, 400, summary="median"), 0.45, 1.0e-12),
+  )
   // range 100-200 covers only the two stored bases (150 has no data)
   assert_true(gs_close(gss.range_score("chr1", 100, 200), 0.3, 1.0e-12))
   // range without data: NaN
@@ -83,16 +84,23 @@ test "gscores_range_summaries" {
 ///|
 test "gscores_multiple_populations" {
   let gss = gs_test_scores()
-  gss.set_scores(
-    "chr1",
-    "phyloP",
-    [100, 200, 300, 400],
-    [0.9, 0.7, 0.2, 0.2],
-  )
+  gss.set_scores("chr1", "phyloP", [100, 200, 300, 400], [0.9, 0.7, 0.2, 0.2])
   let pops = gss.populations()
   assert_eq(pops.length(), 2)
-  assert_true(gs_close(gss.range_score("chr1", 100, 400, population="default"), 0.475, 1.0e-12))
-  assert_true(gs_close(gss.range_score("chr1", 100, 400, population="phyloP"), 0.5, 1.0e-12))
+  assert_true(
+    gs_close(
+      gss.range_score("chr1", 100, 400, population="default"),
+      0.475,
+      1.0e-12,
+    ),
+  )
+  assert_true(
+    gs_close(
+      gss.range_score("chr1", 100, 400, population="phyloP"),
+      0.5,
+      1.0e-12,
+    ),
+  )
   gss.set_default_population("phyloP")
   assert_true(gs_close(gss.score_at("chr1", 200), 0.7, 1.0e-12))
 }
@@ -100,12 +108,7 @@ test "gscores_multiple_populations" {
 ///|
 test "gscores_multiple_chromosomes_and_unsorted_input" {
   let gss = gs_test_scores()
-  gss.set_scores(
-    "chr2",
-    "default",
-    [500, 100, 300],
-    [0.3, 0.8, 0.2],
-  )
+  gss.set_scores("chr2", "default", [500, 100, 300], [0.3, 0.8, 0.2])
   assert_eq(gss.n_stored_positions("chr2"), 3)
   // unsorted input is sorted: position 100 now holds 0.8
   assert_true(gs_close(gss.score_at("chr2", 100), 0.8, 1.0e-12))

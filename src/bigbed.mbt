@@ -201,7 +201,7 @@ pub fn BigBedField::create(
     bigbed_fail("AutoSQL field name must not be empty")
   }
   bigbed_validate_text(name, "AutoSQL field name")
-  BigBedField::{ as_type, name, comment }
+  BigBedField::{ as_type, name, comment, }
 }
 
 ///|
@@ -236,7 +236,7 @@ pub fn BigBedSchema::create(
     }
     seen[field.name] = true
   }
-  BigBedSchema::{ name, comment, fields: fields.copy() }
+  BigBedSchema::{ name, comment, fields: fields.copy(), }
 }
 
 ///|
@@ -265,7 +265,7 @@ pub fn BigBedTarget::create(
   if length <= 0 {
     bigbed_fail("BigBed target length must be positive")
   }
-  BigBedTarget::{ name, length }
+  BigBedTarget::{ name, length, }
 }
 
 ///|
@@ -1162,7 +1162,7 @@ fn bigbed_build_huffman(
       next[length] = next[length] + 1
     }
   }
-  BigBedHuffman::{ counts, symbols }
+  BigBedHuffman::{ counts, symbols, }
 }
 
 ///|
@@ -2421,8 +2421,8 @@ pub fn BigBedFile::to_bed(self : BigBedFile) -> String raise BigBedError {
 ///|
 pub fn bigbed_example_data() -> (Array[BigBedTarget], Array[BigBedRecord]) {
   let targets = [
-    BigBedTarget::{ name: "chr1", length: 1000000 },
-    BigBedTarget::{ name: "chr2", length: 500000 },
+    BigBedTarget::{ name: "chr1", length: 1000000, },
+    BigBedTarget::{ name: "chr2", length: 500000, },
   ]
   let records = [
     BigBedRecord::{

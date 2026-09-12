@@ -23,7 +23,7 @@ pub fn UniGeneExtraField::new(
   key~ : String,
   value~ : String,
 ) -> UniGeneExtraField {
-  UniGeneExtraField::{ key, value }
+  UniGeneExtraField::{ key, value, }
 }
 
 ///|
@@ -185,7 +185,7 @@ pub fn UniGeneSTS::new(
   unists? : String = "",
   extra_fields? : Array[UniGeneExtraField] = [],
 ) -> UniGeneSTS {
-  UniGeneSTS::{ accession, unists, extra_fields }
+  UniGeneSTS::{ accession, unists, extra_fields, }
 }
 
 ///|
@@ -222,7 +222,7 @@ pub fn UniGeneTranscriptMap::new(
   radiation_hybrid_panel? : String = "",
   extra_fields? : Array[UniGeneExtraField] = [],
 ) -> UniGeneTranscriptMap {
-  UniGeneTranscriptMap::{ marker, radiation_hybrid_panel, extra_fields }
+  UniGeneTranscriptMap::{ marker, radiation_hybrid_panel, extra_fields, }
 }
 
 ///|

@@ -177,11 +177,10 @@ pub fn seq1(
     onecode[k.to_upper()] = v
   }
   match custom_map {
-    Some(cm) => {
+    Some(cm) =>
       for k, v in cm {
         onecode[k.to_upper()] = v
       }
-    }
     None => onecode["TER"] = "*"
   }
   let result = StringBuilder::new()
@@ -219,14 +218,16 @@ pub fn seq3(
   for i = 0; i < seq.length(); i = i + 1 {
     let aa = seq.unsafe_get(i).unsafe_to_char().to_string()
     let mapped = match custom_map {
-      Some(cm) => match cm.get(aa) {
-        Some(t) => t
-        None => protein_three_letter.get(aa).or(undef)
-      }
-      None => match aa {
-        "*" => "Ter"
-        _ => protein_three_letter.get(aa).or(undef)
-      }
+      Some(cm) =>
+        match cm.get(aa) {
+          Some(t) => t
+          None => protein_three_letter.get(aa).or(undef)
+        }
+      None =>
+        match aa {
+          "*" => "Ter"
+          _ => protein_three_letter.get(aa).or(undef)
+        }
     }
     result.write_string(mapped)
   }

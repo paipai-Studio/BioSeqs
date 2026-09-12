@@ -21,10 +21,7 @@ test "seq_record_annotations_roundtrip" {
 ///|
 test "seq_record_features_roundtrip" {
   let rec = @src.SeqRecord::new(@src.Seq::new("ACGT"), id="r1")
-  let f = @src.SeqFeature::new(
-    feature_type="CDS",
-    id="feat1",
-  )
+  let f = @src.SeqFeature::new(feature_type="CDS", id="feat1")
   rec.features.push(f)
   assert_eq(rec.features.length(), 1)
   assert_eq(rec.features[0].feature_type, "CDS")

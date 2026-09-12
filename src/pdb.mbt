@@ -12,7 +12,7 @@ pub struct Vector3 {
 ///|
 /// Construct a Vector3.
 pub fn Vector3::new(x : Double, y : Double, z : Double) -> Vector3 {
-  Vector3::{ x, y, z }
+  Vector3::{ x, y, z, }
 }
 
 ///|
@@ -100,7 +100,7 @@ pub fn Residue::new(
   atoms? : Array[Atom] = [],
   hetfield? : String = " ",
 ) -> Residue {
-  Residue::{ resname, chainid, resseq, icode: ' ', atoms, hetfield }
+  Residue::{ resname, chainid, resseq, icode: ' ', atoms, hetfield, }
 }
 
 ///|
@@ -168,7 +168,7 @@ pub struct Chain {
 ///|
 /// Construct a Chain.
 pub fn Chain::new(id~ : Char, residues? : Array[Residue] = []) -> Chain {
-  Chain::{ id, residues }
+  Chain::{ id, residues, }
 }
 
 ///|
@@ -222,7 +222,7 @@ pub struct Model {
 ///|
 /// Construct a Model.
 pub fn Model::new(id~ : Int, chains? : Array[Chain] = []) -> Model {
-  Model::{ id, chains }
+  Model::{ id, chains, }
 }
 
 ///|
@@ -290,7 +290,7 @@ pub struct Structure {
 ///|
 /// Construct a Structure.
 pub fn Structure::new(id~ : String, models? : Array[Model] = []) -> Structure {
-  Structure::{ id, models }
+  Structure::{ id, models, }
 }
 
 ///|

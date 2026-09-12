@@ -87,7 +87,7 @@ pub fn AlignExonerateMetadata::create(
 ) -> AlignExonerateMetadata raise AlignExonerateError {
   align_exonerate_validate_header_value(command_line, "Command line")
   align_exonerate_validate_header_value(hostname, "Hostname")
-  AlignExonerateMetadata::{ program: "exonerate", command_line, hostname }
+  AlignExonerateMetadata::{ program: "exonerate", command_line, hostname, }
 }
 
 ///|
@@ -98,7 +98,7 @@ pub fn AlignExonerateOperation::create(
   target_step : Int,
 ) -> AlignExonerateOperation raise AlignExonerateError {
   align_exonerate_validate_operation(code, query_step, target_step)
-  AlignExonerateOperation::{ code, query_step, target_step }
+  AlignExonerateOperation::{ code, query_step, target_step, }
 }
 
 ///|
@@ -189,7 +189,7 @@ pub fn AlignExonerateDocument::create(
     )
     copied.push(validated)
   }
-  AlignExonerateDocument::{ metadata, alignments: copied }
+  AlignExonerateDocument::{ metadata, alignments: copied, }
 }
 
 ///|

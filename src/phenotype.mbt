@@ -74,7 +74,7 @@ pub fn WellRecord::new(
   times : Array[Double],
   signals : Array[Double],
 ) -> WellRecord {
-  WellRecord::{ well_id, plate_id, times, signals }
+  WellRecord::{ well_id, plate_id, times, signals, }
 }
 
 ///|
@@ -181,7 +181,7 @@ pub fn PlateRecord::new(
   plate_id : String,
   times : Array[Double],
 ) -> PlateRecord {
-  PlateRecord::{ plate_id, wells: Array::new(), times }
+  PlateRecord::{ plate_id, wells: Array::new(), times, }
 }
 
 ///|
@@ -192,7 +192,7 @@ pub fn PlateRecord::phen_add_well(
 ) -> PlateRecord {
   let new_wells = self.wells.copy()
   new_wells.push(well)
-  PlateRecord::{ plate_id: self.plate_id, wells: new_wells, times: self.times }
+  PlateRecord::{ plate_id: self.plate_id, wells: new_wells, times: self.times, }
 }
 
 ///|
@@ -593,7 +593,7 @@ pub fn phen_subtract_control(
     }
     i = i + 1
   }
-  PhenControlSubtracted::{ well_ids, times: plate.times, signals }
+  PhenControlSubtracted::{ well_ids, times: plate.times, signals, }
 }
 
 // ===== CSV / JSON parsing =====

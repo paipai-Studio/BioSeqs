@@ -13,7 +13,7 @@ pub struct KMeans {
 
 ///|
 pub fn KMeans::new(k : Int, max_iter : Int, tol : Double) -> KMeans {
-  KMeans::{ k, centroids: [], labels: [], max_iter, tol }
+  KMeans::{ k, centroids: [], labels: [], max_iter, tol, }
 }
 
 ///|
@@ -128,7 +128,7 @@ pub fn update_centroids(
 pub fn KMeans::fit(self : KMeans, data : Array[Point]) -> KMeans {
   let n = data.length()
   if n == 0 {
-    return KMeans::{ ..self, centroids: [], labels: [] }
+    return KMeans::{ ..self, centroids: [], labels: [], }
   }
 
   let dim = data[0].length()
@@ -161,7 +161,7 @@ pub fn KMeans::fit(self : KMeans, data : Array[Point]) -> KMeans {
     }
   }
 
-  KMeans::{ ..self, centroids, labels }
+  KMeans::{ ..self, centroids, labels, }
 }
 
 ///|

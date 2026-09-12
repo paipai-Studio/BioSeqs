@@ -972,7 +972,10 @@ fn _sw_optimize_multiplier(
 /// Build the n x n unit-spline transformation matrix
 /// B (B'B + multiplier * Omega)^{-1} B' with the multiplier chosen so that
 /// the trace of the smoother equals 2 + `smooth_df` degrees of freedom.
-pub fn swfdr_unit_spline_matrix(x : Array[Double], smooth_df : Int) -> Array[Array[Double]] {
+pub fn swfdr_unit_spline_matrix(
+  x : Array[Double],
+  smooth_df : Int,
+) -> Array[Array[Double]] {
   let bmat = swfdr_bs_unit(x)
   let nbs = bmat[0].length()
   let xtx = _sw_ata(bmat)
@@ -1089,6 +1092,7 @@ fn _sw_logistic_mu(e : Double) -> Double {
   }
 }
 
+///|
 fn _sw_fit_logistic(
   y : Array[Double],
   zmat : Array[Array[Double]],

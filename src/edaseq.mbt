@@ -158,7 +158,7 @@ pub fn EDASeqGeneAnno::new(
   length : Double,
 ) -> EDASeqGeneAnno {
   let eff_len = if length > 200.0 { length } else { 200.0 }
-  EDASeqGeneAnno::{ gene_id, gc_content, length, effective_length: eff_len }
+  EDASeqGeneAnno::{ gene_id, gc_content, length, effective_length: eff_len, }
 }
 
 ///|
@@ -194,7 +194,7 @@ pub fn EDASeqDataSet::new(
     lib_sizes.push(sum)
     s = s + 1
   }
-  EDASeqDataSet::{ gene_ids, sample_ids, counts, annotations, lib_sizes }
+  EDASeqDataSet::{ gene_ids, sample_ids, counts, annotations, lib_sizes, }
 }
 
 ///|
@@ -391,7 +391,7 @@ fn eda_gc_correction(
     final_corrected.push(corrected[j] + mean_res)
     j = j + 1
   }
-  (final_corrected, EDASeqFit::{ span, fitted, residuals, converged: true })
+  (final_corrected, EDASeqFit::{ span, fitted, residuals, converged: true, })
 }
 
 ///|
@@ -437,7 +437,7 @@ fn eda_length_correction(
     final_corrected.push(corrected[k] + mean_res)
     k = k + 1
   }
-  (final_corrected, EDASeqFit::{ span, fitted, residuals, converged: true })
+  (final_corrected, EDASeqFit::{ span, fitted, residuals, converged: true, })
 }
 
 ///|

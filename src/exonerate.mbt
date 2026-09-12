@@ -38,7 +38,7 @@ pub fn AlignmentBlock::new(
   target_length : Int,
   block_score : Double,
 ) -> AlignmentBlock {
-  AlignmentBlock::{ code, query_length, target_length, block_score }
+  AlignmentBlock::{ code, query_length, target_length, block_score, }
 }
 
 ///|

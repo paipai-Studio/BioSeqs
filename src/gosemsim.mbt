@@ -92,7 +92,7 @@ pub fn GOTermNode::new(
   parents? : Array[String] = [],
   term_name? : String = "",
 ) -> GOTermNode {
-  GOTermNode::{ go_id, term_name, ic, parents, children: [] }
+  GOTermNode::{ go_id, term_name, ic, parents, children: [], }
 }
 
 ///|
@@ -111,13 +111,13 @@ pub fn GOGraph::get_root_id(self : GOGraph) -> String {
 ///|
 /// Create an empty GO graph.
 pub fn GOGraph::new() -> GOGraph {
-  GOGraph::{ root_id: "", terms: Map([], capacity=64) }
+  GOGraph::{ root_id: "", terms: Map([], capacity=64), }
 }
 
 ///|
 /// Set the root term ID.
 pub fn GOGraph::add_root(self : GOGraph, root_id : String) -> GOGraph {
-  GOGraph::{ root_id, terms: self.terms }
+  GOGraph::{ root_id, terms: self.terms, }
 }
 
 ///|
@@ -149,7 +149,7 @@ pub fn GOGraph::add_term(self : GOGraph, node : GOTermNode) -> GOGraph {
       }
     None => ()
   }
-  GOGraph::{ root_id: self.root_id, terms: self.terms }
+  GOGraph::{ root_id: self.root_id, terms: self.terms, }
 }
 
 ///|

@@ -275,10 +275,10 @@ pub struct HclustResult {
 pub fn hclust_complete(dist : Array[Array[Double]]) -> HclustResult {
   let n = dist.length()
   if n == 0 {
-    return HclustResult::{ merge: [], height: [], order: [], n: 0 }
+    return HclustResult::{ merge: [], height: [], order: [], n: 0, }
   }
   if n == 1 {
-    return HclustResult::{ merge: [], height: [], order: [0], n: 1 }
+    return HclustResult::{ merge: [], height: [], order: [0], n: 1, }
   }
   // cluster[i] = current cluster id for point i (initially -i-1 for leaves)
   let cluster : Array[Int] = Array::make(n, 0)
@@ -361,7 +361,7 @@ pub fn hclust_complete(dist : Array[Array[Double]]) -> HclustResult {
   }
   // Compute order via inorder traversal of merge tree
   let order = hclust_inorder(merge, n)
-  HclustResult::{ merge, height, order, n }
+  HclustResult::{ merge, height, order, n, }
 }
 
 ///|

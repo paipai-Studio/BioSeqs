@@ -32,7 +32,7 @@ pub fn ReducedAlphabet::new(
   mapping : Map[String, String],
   groups : Array[String],
 ) -> ReducedAlphabet {
-  ReducedAlphabet::{ name, n_groups: groups.length(), mapping, groups }
+  ReducedAlphabet::{ name, n_groups: groups.length(), mapping, groups, }
 }
 
 ///|

@@ -237,12 +237,12 @@ fn parse_bam_header(
 
     let (length, pos6) = read_int32_le(data, pos5)
 
-    references[ref_idx] = BamReference::{ name, length }
+    references[ref_idx] = BamReference::{ name, length, }
     ref_idx = ref_idx + 1
     current_pos = pos6
   }
 
-  (BamHeader::{ text, references }, current_pos)
+  (BamHeader::{ text, references, }, current_pos)
 }
 
 ///|
@@ -354,7 +354,7 @@ pub fn parse_bam(data : String) -> BamFile raise BamError {
     current_pos = pos_new + block_size + 4
   }
 
-  BamFile::{ header, records }
+  BamFile::{ header, records, }
 }
 
 ///|
@@ -735,7 +735,7 @@ fn cram_parse_version(
 ) -> (CramVersion, Int) raise CramError {
   let (major, pos1) = read_uint32_le(data, pos)
   let (minor, pos2) = read_uint32_le(data, pos1)
-  (CramVersion::{ major, minor }, pos2)
+  (CramVersion::{ major, minor, }, pos2)
 }
 
 ///|
@@ -771,7 +771,7 @@ fn cram_parse_header(
     let (length, pos6) = read_uint32_le(data, pos5)
     let (md5, pos7) = read_cstring(data, pos6)
     let (uri, pos8) = read_cstring(data, pos7)
-    references.push(CramReference::{ name, length, md5, uri })
+    references.push(CramReference::{ name, length, md5, uri, })
     current_pos = pos8
     ref_idx = ref_idx + 1
   }
@@ -832,7 +832,7 @@ fn cram_parse_read_features(
     let length = cigar_op_val >> 4
     let op_code = cigar_op_val & 0xF
     let op = cigar_op_from_code(op_code)
-    cigar.push(BamCigarElement::{ op, length })
+    cigar.push(BamCigarElement::{ op, length, })
     current_pos = pos_new
     cigar_idx = cigar_idx + 1
   }
@@ -858,7 +858,7 @@ fn cram_parse_read_features(
   while tag_idx < tag_count {
     let (key, pos_new) = read_cstring(data, current_pos)
     let (value, pos_new2) = read_cstring(data, pos_new)
-    tags.push(CramTag::{ key, value })
+    tags.push(CramTag::{ key, value, })
     current_pos = pos_new2
     tag_idx = tag_idx + 1
   }
@@ -887,7 +887,7 @@ fn cram_parse_record(
   let (ref_id, pos1) = read_int32_le(data, pos)
   let (pos_val, pos2) = read_int32_le(data, pos1)
   let (read_features, pos3) = cram_parse_read_features(data, pos2)
-  (CramRecord::{ ref_id, pos: pos_val, read_features }, pos3)
+  (CramRecord::{ ref_id, pos: pos_val, read_features, }, pos3)
 }
 
 ///|
@@ -920,7 +920,7 @@ pub fn parse_cram(data : String) -> CramFile raise CramError {
     current_pos = pos_new + record_size + 4
   }
 
-  CramFile::{ header, records }
+  CramFile::{ header, records, }
 }
 
 ///|
@@ -942,7 +942,7 @@ pub fn try_parse_cram_base64(base64_str : String) -> CramFile? {
 pub fn CramRecord::to_bam_record(self : CramRecord) -> BamRecord {
   let cigar_fixed : FixedArray[BamCigarElement] = FixedArray::make(
     self.read_features.cigar.length(),
-    BamCigarElement::{ op: BamCigarOp::Match, length: 0 },
+    BamCigarElement::{ op: BamCigarOp::Match, length: 0, },
   )
   let mut i = 0
   while i < self.read_features.cigar.length() {
@@ -973,7 +973,7 @@ pub fn CramRecord::to_bam_record(self : CramRecord) -> BamRecord {
 pub fn CramFile::to_bam(self : CramFile) -> BamFile {
   let refs_fixed : FixedArray[BamReference] = FixedArray::make(
     self.header.references.length(),
-    BamReference::{ name: "", length: 0 },
+    BamReference::{ name: "", length: 0, },
   )
   let mut i = 0
   while i < self.header.references.length() {
@@ -993,7 +993,7 @@ pub fn CramFile::to_bam(self : CramFile) -> BamFile {
     records.push(self.records[i].to_bam_record())
     i = i + 1
   }
-  BamFile::{ header, records }
+  BamFile::{ header, records, }
 }
 
 ///|

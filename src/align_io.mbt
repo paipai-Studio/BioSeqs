@@ -14,7 +14,7 @@ pub fn alignment(
   alphabet : String,
   description : String,
 ) -> Alignment {
-  Alignment::{ sequences, alphabet, description }
+  Alignment::{ sequences, alphabet, description, }
 }
 
 ///|
@@ -65,7 +65,7 @@ pub fn parse_clustalw(content : String) -> Alignment {
     sequences.push((keys[i], name_map[keys[i]]))
   }
 
-  Alignment::{ sequences, alphabet: "DNA", description: "ClustalW alignment" }
+  Alignment::{ sequences, alphabet: "DNA", description: "ClustalW alignment", }
 }
 
 ///|
@@ -107,7 +107,7 @@ pub fn parse_fasta_alignment(content : String) -> Alignment {
     sequences.push((current_name, current_seq))
   }
 
-  Alignment::{ sequences, alphabet: "DNA", description: "FASTA alignment" }
+  Alignment::{ sequences, alphabet: "DNA", description: "FASTA alignment", }
 }
 
 ///|
@@ -156,7 +156,7 @@ pub fn parse_stockholm(content : String) -> Alignment {
     sequences.push((keys[i], name_map[keys[i]]))
   }
 
-  Alignment::{ sequences, alphabet: "DNA", description: "Stockholm alignment" }
+  Alignment::{ sequences, alphabet: "DNA", description: "Stockholm alignment", }
 }
 
 ///|

@@ -64,7 +64,7 @@ pub fn Cdaotree::new(
   root_node_id? : String = "",
   name? : String? = None,
 ) -> Cdaotree {
-  Cdaotree::{ id, rooted, root_node_id, name }
+  Cdaotree::{ id, rooted, root_node_id, name, }
 }
 
 ///|
@@ -88,7 +88,7 @@ pub fn CdaoNode::new(
   branch_length? : Double? = None,
   label? : String? = None,
 ) -> CdaoNode {
-  CdaoNode::{ id, children, parent_id, tu_id, branch_length, label }
+  CdaoNode::{ id, children, parent_id, tu_id, branch_length, label, }
 }
 
 ///|
@@ -101,7 +101,7 @@ pub struct CdaoTU {
 ///|
 /// Construct a CdaoTU.
 pub fn CdaoTU::new(id : String, label? : String? = None) -> CdaoTU {
-  CdaoTU::{ id, label }
+  CdaoTU::{ id, label, }
 }
 
 ///|

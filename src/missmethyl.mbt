@@ -287,7 +287,7 @@ pub fn MmProbeAnnotation::new(
   island_relation : String,
   probe_type : String,
 ) -> MmProbeAnnotation {
-  MmProbeAnnotation::{ probe_id, chr, pos, gene, island_relation, probe_type }
+  MmProbeAnnotation::{ probe_id, chr, pos, gene, island_relation, probe_type, }
 }
 
 ///|
@@ -534,7 +534,7 @@ pub struct MmGoDatabase {
 ///|
 /// Construct an empty GO database.
 pub fn MmGoDatabase::new() -> MmGoDatabase {
-  MmGoDatabase::{ entries: Array::new() }
+  MmGoDatabase::{ entries: Array::new(), }
 }
 
 ///|

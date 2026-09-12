@@ -90,7 +90,7 @@ pub fn knn_options_with_method(
   k : Int,
 ) -> KNNOptions {
   let opts = knn_options_new()
-  KNNOptions::{ ..opts, method, k }
+  KNNOptions::{ ..opts, method, k, }
 }
 
 ///|
@@ -102,7 +102,7 @@ pub fn knn_options_full(
   n_trees : Int,
   search_k : Int,
 ) -> KNNOptions {
-  KNNOptions::{ method, k, distance, n_trees, search_k }
+  KNNOptions::{ method, k, distance, n_trees, search_k, }
 }
 
 ///|
@@ -114,14 +114,14 @@ priv struct LCG {
 ///|
 /// Create a new LCG with given seed.
 fn lcg_new(seed : Int) -> LCG {
-  LCG::{ state: if seed <= 0 { 12345 } else { seed } }
+  LCG::{ state: if seed <= 0 { 12345 } else { seed }, }
 }
 
 ///|
 /// Generate next random integer from LCG.
 fn lcg_next(lcg : LCG) -> Int {
   let next = lcg.state * 1103515245 + 12345
-  let _ = LCG::{ state: next }
+  let _ = LCG::{ state: next, }
   next
 }
 
@@ -130,7 +130,7 @@ fn lcg_next(lcg : LCG) -> Int {
 fn lcg_next_double(lcg : LCG) -> (LCG, Double) {
   let next = lcg_next(lcg)
   let val = (next & 0x7fffffff).to_double() / 2147483648.0
-  (LCG::{ state: next }, val)
+  (LCG::{ state: next, }, val)
 }
 
 ///|
@@ -649,7 +649,7 @@ pub fn knn_brute_force(
 ) -> KNNResult {
   if n_query == 0 || n_points == 0 || k == 0 {
     let actual_k = if k > n_points { n_points } else { k }
-    return KNNResult::{ indices: [], distances: [], n_query, k: actual_k }
+    return KNNResult::{ indices: [], distances: [], n_query, k: actual_k, }
   }
   let actual_k = if k > n_points { n_points } else { k }
   let all_indices : Array[Array[Int]] = []
@@ -724,7 +724,7 @@ pub fn knn_kmknn(
     } else {
       options.k
     }
-    return KNNResult::{ indices: [], distances: [], n_query, k: actual_k }
+    return KNNResult::{ indices: [], distances: [], n_query, k: actual_k, }
   }
   let actual_k = if options.k > index.n_points {
     index.n_points
@@ -847,7 +847,7 @@ pub fn knn_annoy(
     } else {
       options.k
     }
-    return KNNResult::{ indices: [], distances: [], n_query, k: actual_k }
+    return KNNResult::{ indices: [], distances: [], n_query, k: actual_k, }
   }
   let actual_k = if options.k > index.n_points {
     index.n_points

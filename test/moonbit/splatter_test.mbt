@@ -218,7 +218,9 @@ test "splat_simulate_path" {
   assert_eq(total, 2467)
   // pseudotime increases across the 10 path cells
   for c in 0..<10 {
-    assert_true(splat_close(result.cell_pseudotime[c], c.to_double() * 0.1, 1.0e-12))
+    assert_true(
+      splat_close(result.cell_pseudotime[c], c.to_double() * 0.1, 1.0e-12),
+    )
   }
   assert_eq(result.cell_group, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 }

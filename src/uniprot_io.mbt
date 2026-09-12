@@ -70,7 +70,7 @@ pub fn DbReference::new(
   id : String,
   properties? : Map[String, String] = Map([], capacity=8),
 ) -> DbReference {
-  DbReference::{ database, id, properties }
+  DbReference::{ database, id, properties, }
 }
 
 ///|
@@ -81,7 +81,7 @@ pub fn UniprotFeature::new(
   location : String,
   qualifiers? : Map[String, String] = Map([], capacity=8),
 ) -> UniprotFeature {
-  UniprotFeature::{ feature_type, description, location, qualifiers }
+  UniprotFeature::{ feature_type, description, location, qualifiers, }
 }
 
 ///|
@@ -94,7 +94,7 @@ pub fn UniprotReference::new(
   pubmed_id : String,
   doi : String,
 ) -> UniprotReference {
-  UniprotReference::{ key, title, authors, journal, pubmed_id, doi }
+  UniprotReference::{ key, title, authors, journal, pubmed_id, doi, }
 }
 
 ///|

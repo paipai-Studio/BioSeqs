@@ -62,7 +62,7 @@ pub fn FilterResult::new(
   statistics : Array[Double],
   p_values : Array[Double],
 ) -> FilterResult {
-  FilterResult::{ passing_genes, statistics, p_values }
+  FilterResult::{ passing_genes, statistics, p_values, }
 }
 
 ///|
@@ -78,7 +78,7 @@ pub fn GeneExpression::new(
   expression : Array[Array[Double]],
   groups : Array[String],
 ) -> GeneExpression {
-  GeneExpression::{ gene_ids, expression, groups }
+  GeneExpression::{ gene_ids, expression, groups, }
 }
 
 ///|

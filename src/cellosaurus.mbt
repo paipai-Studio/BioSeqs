@@ -23,7 +23,7 @@ pub fn CellosaurusCrossReference::new(
   database~ : String,
   accession~ : String,
 ) -> CellosaurusCrossReference {
-  CellosaurusCrossReference::{ database, accession }
+  CellosaurusCrossReference::{ database, accession, }
 }
 
 ///|

@@ -10,12 +10,12 @@ pub struct SpatialCoord {
 
 ///|
 pub fn SpatialCoord::new(x : Double, y : Double, z : Double) -> SpatialCoord {
-  SpatialCoord::{ x, y, z }
+  SpatialCoord::{ x, y, z, }
 }
 
 ///|
 pub fn SpatialCoord::new_2d(x : Double, y : Double) -> SpatialCoord {
-  SpatialCoord::{ x, y, z: 0.0 }
+  SpatialCoord::{ x, y, z: 0.0, }
 }
 
 ///|
@@ -31,7 +31,7 @@ pub fn SpatialImage::new(
   data : Array[Array[Double]],
   scale_factor : Double,
 ) -> SpatialImage {
-  SpatialImage::{ id, data, scale_factor }
+  SpatialImage::{ id, data, scale_factor, }
 }
 
 ///|

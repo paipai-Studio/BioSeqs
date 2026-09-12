@@ -35,7 +35,7 @@ pub fn CeClustering::new(
   reduced_dim~ : Int,
   subsample~ : Double,
 ) -> CeClustering {
-  CeClustering::{ labels, k, reduced_dim, subsample }
+  CeClustering::{ labels, k, reduced_dim, subsample, }
 }
 
 ///|
@@ -57,7 +57,7 @@ pub fn CeDendroNode::new(
   cluster_id~ : Int,
   members~ : Array[Int],
 ) -> CeDendroNode {
-  CeDendroNode::{ left, right, height, cluster_id, members }
+  CeDendroNode::{ left, right, height, cluster_id, members, }
 }
 
 ///|
@@ -623,7 +623,7 @@ fn ce_subsample(data : Array[Array[Double]], fraction : Double) -> CeSubsample {
       copy.push(data[i])
       idx.push(i)
     }
-    return CeSubsample::{ data: copy, indices: idx }
+    return CeSubsample::{ data: copy, indices: idx, }
   }
   let keep_count = if n.to_double() * fraction < 1.0 {
     1
@@ -641,7 +641,7 @@ fn ce_subsample(data : Array[Array[Double]], fraction : Double) -> CeSubsample {
     idx.push(ii)
     pos = pos + step
   }
-  CeSubsample::{ data: out, indices: idx }
+  CeSubsample::{ data: out, indices: idx, }
 }
 
 ///|

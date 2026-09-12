@@ -224,7 +224,7 @@ pub fn HMMcopySegment::new(
   num_bins~ : Int,
   mean_reads~ : Double,
 ) -> HMMcopySegment {
-  HMMcopySegment::{ chr, start, end, copy, state, num_bins, mean_reads }
+  HMMcopySegment::{ chr, start, end, copy, state, num_bins, mean_reads, }
 }
 
 // ===========================================================================

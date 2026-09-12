@@ -194,7 +194,7 @@ pub fn MSFeature::new(
   run : String,
   intensity : Double,
 ) -> MSFeature {
-  MSFeature::{ protein, peptide, transition, group, subject, run, intensity }
+  MSFeature::{ protein, peptide, transition, group, subject, run, intensity, }
 }
 
 ///|
@@ -613,7 +613,7 @@ pub fn ms_group_comparison(
     0
   }
 
-  MSGroupComparison::{ results: all_results, n_proteins, n_sig, fdr_threshold }
+  MSGroupComparison::{ results: all_results, n_proteins, n_sig, fdr_threshold, }
 }
 
 ///|

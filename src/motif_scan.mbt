@@ -59,7 +59,7 @@ pub fn PositionWeightMatrix::new(
   background? : Array[Double] = [0.25, 0.25, 0.25, 0.25],
   strand? : String = "+-",
 ) -> PositionWeightMatrix {
-  PositionWeightMatrix::{ motif_id, motif_name, matrix, background, strand }
+  PositionWeightMatrix::{ motif_id, motif_name, matrix, background, strand, }
 }
 
 ///|

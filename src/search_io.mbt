@@ -70,7 +70,7 @@ pub fn HSP::new(
   evalue : Double,
   score : Double,
 ) -> HSP {
-  HSP::{ hit_id, hit_def, fragments, bitscore, evalue, score }
+  HSP::{ hit_id, hit_def, fragments, bitscore, evalue, score, }
 }
 
 ///|
@@ -92,7 +92,7 @@ pub fn Hit::new(
   bitscore : Double,
   evalue : Double,
 ) -> Hit {
-  Hit::{ id, description, accession, hsps, bitscore, evalue }
+  Hit::{ id, description, accession, hsps, bitscore, evalue, }
 }
 
 ///|
@@ -116,7 +116,7 @@ pub fn QueryResult::new(
   version : String,
   target : String,
 ) -> QueryResult {
-  QueryResult::{ id, description, seq_len, hits, program, version, target }
+  QueryResult::{ id, description, seq_len, hits, program, version, target, }
 }
 
 ///|

@@ -49,7 +49,7 @@ pub fn BgTranscript::new(
   fpkm : Array[Double],
   cov : Array[Double],
 ) -> BgTranscript {
-  BgTranscript::{ id, gene_id, gene_name, chr, strand, num_exons, fpkm, cov }
+  BgTranscript::{ id, gene_id, gene_name, chr, strand, num_exons, fpkm, cov, }
 }
 
 ///|
@@ -62,7 +62,7 @@ pub fn BgExon::new(
   strand : String,
   transcript_ids : Array[String],
 ) -> BgExon {
-  BgExon::{ id, chr, start, end, strand, transcript_ids }
+  BgExon::{ id, chr, start, end, strand, transcript_ids, }
 }
 
 ///|
@@ -75,7 +75,7 @@ pub fn BgIntron::new(
   strand : String,
   transcript_ids : Array[String],
 ) -> BgIntron {
-  BgIntron::{ id, chr, start, end, strand, transcript_ids }
+  BgIntron::{ id, chr, start, end, strand, transcript_ids, }
 }
 
 ///|
@@ -95,7 +95,7 @@ pub fn Ballgown::new(
   exons : Array[BgExon],
   introns : Array[BgIntron],
 ) -> Ballgown {
-  Ballgown::{ sample_names, transcripts, exons, introns }
+  Ballgown::{ sample_names, transcripts, exons, introns, }
 }
 
 ///|

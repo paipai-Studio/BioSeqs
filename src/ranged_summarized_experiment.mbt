@@ -767,7 +767,7 @@ fn rse_take_ranges(row_ranges : GRanges, indices : Array[Int]) -> GRanges {
     strands.push(row_ranges.strands[index])
     widths.push(row_ranges.widths[index])
   }
-  GRanges::{ seqnames, starts, ends, strands, widths }
+  GRanges::{ seqnames, starts, ends, strands, widths, }
 }
 
 ///|

@@ -17,12 +17,12 @@ pub fn iranges(starts : Array[Int], ends : Array[Int]) -> IRanges {
     widths[i] = ends[i] - starts[i] + 1
   }
 
-  IRanges::{ starts, ends, widths }
+  IRanges::{ starts, ends, widths, }
 }
 
 ///|
 pub fn iranges_single(start : Int, end : Int) -> IRanges {
-  IRanges::{ starts: [start], ends: [end], widths: [end - start + 1] }
+  IRanges::{ starts: [start], ends: [end], widths: [end - start + 1], }
 }
 
 ///|
@@ -58,7 +58,7 @@ pub fn ir_shift(ir : IRanges, shift : Int) -> IRanges {
     new_widths[i] = ir.widths[i]
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
@@ -74,7 +74,7 @@ pub fn ir_narrow(ir : IRanges, start : Int, end : Int) -> IRanges {
     new_widths[i] = end - start + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
@@ -98,7 +98,7 @@ pub fn ir_resize(ir : IRanges, width : Int, fix : String) -> IRanges {
     }
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
@@ -120,7 +120,7 @@ pub fn ir_flank(
       new_ends[i] = ir.ends[i] + width
     }
 
-    IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+    IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
   } else if start {
     let new_starts : Array[Int] = Array::make(n, 0)
     let new_ends : Array[Int] = Array::make(n, 0)
@@ -131,7 +131,7 @@ pub fn ir_flank(
       new_ends[i] = ir.starts[i] - 1
     }
 
-    IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+    IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
   } else {
     let new_starts : Array[Int] = Array::make(n, 0)
     let new_ends : Array[Int] = Array::make(n, 0)
@@ -142,14 +142,14 @@ pub fn ir_flank(
       new_ends[i] = ir.ends[i] + width
     }
 
-    IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+    IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
   }
 }
 
 ///|
 pub fn ir_reduce(ir : IRanges, min_gapwidth : Int) -> IRanges {
   if ir.starts.length() == 0 {
-    return IRanges::{ starts: [], ends: [], widths: [] }
+    return IRanges::{ starts: [], ends: [], widths: [], }
   }
 
   let n = ir.starts.length()
@@ -193,13 +193,13 @@ pub fn ir_reduce(ir : IRanges, min_gapwidth : Int) -> IRanges {
     new_widths[i] = reduced[i].1 - reduced[i].0 + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
 pub fn ir_disjoin(ir : IRanges) -> IRanges {
   if ir.starts.length() == 0 {
-    return IRanges::{ starts: [], ends: [], widths: [] }
+    return IRanges::{ starts: [], ends: [], widths: [], }
   }
 
   let n = ir.starts.length()
@@ -247,7 +247,7 @@ pub fn ir_disjoin(ir : IRanges) -> IRanges {
     new_widths[i] = disjoined[i].1 - disjoined[i].0 + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
@@ -283,7 +283,7 @@ pub fn ir_intersect(ir1 : IRanges, ir2 : IRanges) -> IRanges {
     new_widths[i] = intersects[i].1 - intersects[i].0 + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
@@ -356,7 +356,7 @@ pub fn ir_setdiff(ir1 : IRanges, ir2 : IRanges) -> IRanges {
     new_widths[i] = diffs[i].1 - diffs[i].0 + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
@@ -671,7 +671,7 @@ pub fn ir_subset(ir : IRanges, keep : Array[Bool]) -> IRanges {
     i = i + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|
@@ -715,7 +715,7 @@ pub fn ir_sort(ir : IRanges) -> IRanges {
     k = k + 1
   }
 
-  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths }
+  IRanges::{ starts: new_starts, ends: new_ends, widths: new_widths, }
 }
 
 ///|

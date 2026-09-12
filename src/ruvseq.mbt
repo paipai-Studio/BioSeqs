@@ -14,7 +14,7 @@ pub fn RUVSeqData::new(
   samples : Array[String],
   batch : Array[String],
 ) -> RUVSeqData {
-  RUVSeqData::{ counts, genes, samples, batch, normalized: false }
+  RUVSeqData::{ counts, genes, samples, batch, normalized: false, }
 }
 
 ///|
@@ -137,7 +137,7 @@ pub struct RUVFactors {
 
 ///|
 pub fn RUVFactors::new(factors : Array[Array[Double]], k : Int) -> RUVFactors {
-  RUVFactors::{ factors, k }
+  RUVFactors::{ factors, k, }
 }
 
 ///|

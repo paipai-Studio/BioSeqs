@@ -48,7 +48,7 @@ pub fn KeggRestClient::new(
   fetch~ : (String) -> String raise KeggRestError,
   now? : () -> Double,
 ) -> KeggRestClient {
-  { fetch, now: now.unwrap_or(fn() { 0.0 }), previous: 0.0 }
+  { fetch, now: now.unwrap_or(fn() { 0.0 }), previous: 0.0, }
 }
 
 ///|
@@ -57,7 +57,10 @@ pub let kegg_rest_base_url : String = "https://rest.kegg.jp/"
 
 ///|
 /// Enforce the "up to three queries per second" rule and issue the request.
-fn KeggRestClient::call(self : KeggRestClient, path : String) -> String raise KeggRestError {
+fn KeggRestClient::call(
+  self : KeggRestClient,
+  path : String,
+) -> String raise KeggRestError {
   // Biopython uses a delay of one third of a second between calls.
   let delay = 0.333333333
   let current = (self.now)()
@@ -98,7 +101,10 @@ pub fn kegg_rest_url(
 /// The argument db can be a KEGG database name (e.g. 'pathway' or its
 /// official abbreviation, 'path'), or a KEGG organism code or T number
 /// (e.g. 'hsa' or 'T01001' for human).
-pub fn kegg_rest_info(client : KeggRestClient, database : String) -> String raise KeggRestError {
+pub fn kegg_rest_info(
+  client : KeggRestClient,
+  database : String,
+) -> String raise KeggRestError {
   client.call("info/" + database)
 }
 

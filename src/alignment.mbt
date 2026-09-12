@@ -25,19 +25,19 @@ pub struct Protein {
 ///|
 /// Create a DNA sequence from a string.
 pub fn DNA::new(s : String) -> DNA {
-  DNA::{ seq: Seq::new(s) }
+  DNA::{ seq: Seq::new(s), }
 }
 
 ///|
 /// Create an RNA sequence from a string.
 pub fn RNA::new(s : String) -> RNA {
-  RNA::{ seq: Seq::new(s) }
+  RNA::{ seq: Seq::new(s), }
 }
 
 ///|
 /// Create a Protein sequence from a string.
 pub fn Protein::new(s : String) -> Protein {
-  Protein::{ seq: Seq::new(s) }
+  Protein::{ seq: Seq::new(s), }
 }
 
 ///|
@@ -125,7 +125,7 @@ pub fn TabularMSA::new(
   records : Array[SeqRecord],
   dtype : String,
 ) -> TabularMSA {
-  TabularMSA::{ records, dtype }
+  TabularMSA::{ records, dtype, }
 }
 
 ///|

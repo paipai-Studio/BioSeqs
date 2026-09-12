@@ -111,7 +111,7 @@ pub fn AnnotationHub::new(
   cache_dir : String,
   default_genome : String,
 ) -> AnnotationHub {
-  AnnotationHub::{ resources: Array::new(), cache_dir, default_genome }
+  AnnotationHub::{ resources: Array::new(), cache_dir, default_genome, }
 }
 
 ///|

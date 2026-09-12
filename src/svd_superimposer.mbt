@@ -19,7 +19,7 @@ pub fn AtomCoordinate::new(
   y : Double,
   z : Double,
 ) -> AtomCoordinate {
-  AtomCoordinate::{ x, y, z }
+  AtomCoordinate::{ x, y, z, }
 }
 
 ///|
@@ -462,7 +462,7 @@ pub fn SVDSuperimposer::set(
   }
   let rmsd = (rmsd_sum / n.to_double()).sqrt()
 
-  SVDSuperimposer::{ rot, tran, rmsd }
+  SVDSuperimposer::{ rot, tran, rmsd, }
 }
 
 ///|

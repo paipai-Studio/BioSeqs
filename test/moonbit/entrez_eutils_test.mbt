@@ -222,12 +222,9 @@ test "elink_repeated_id_params_and_parse" {
   let xml = "<eLinkResult><LinkSet><DbFrom>pubmed</DbFrom><LinkSetDb><DbTo>pmc</DbTo><LinkName>pubmed_pmc</LinkName><Link><Id>27854912</Id></Link><Link><Id>27854913</Id></Link></LinkSetDb></LinkSet></eLinkResult>"
   let log : Array[CapturedRequest] = []
   let client = capture_client(xml, log)
-  let sets = @src.elink(
-    client,
-    dbfrom="pubmed",
-    db="pmc",
-    ids=["27854912", "27854913"],
-  )
+  let sets = @src.elink(client, dbfrom="pubmed", db="pmc", ids=[
+    "27854912", "27854913",
+  ])
   assert_eq(log.length(), 1)
   // multiple ids are transmitted as repeated "id" parameters
   assert_eq(
@@ -293,7 +290,9 @@ test "ecitmatch_sends_bdata_with_pipes" {
   // are not URL-encoded (ecitmatch expects literal "|"); short requests
   // go over GET, so the bdata is in the url
   assert_eq(
-    log[0].url.contains("bdata=proc+natl+acad+sci+u+s+a|1990|87|8227|Lifes+P|10fips%0Dcell|1991|64|671|Smith+J|11fips"),
+    log[0].url.contains(
+      "bdata=proc+natl+acad+sci+u+s+a|1990|87|8227|Lifes+P|10fips%0Dcell|1991|64|671|Smith+J|11fips",
+    ),
     true,
   )
 }
@@ -302,16 +301,16 @@ test "ecitmatch_sends_bdata_with_pipes" {
 test "parse_ecitmatch_txt_and_xml_forms" {
   // plain-text pipe form: key and pmid are the last two fields
   let txt = "j|1990|87|8227|L P|key1|9025659\nj2|1991|64|671|S J|key2|20048972\n"
-  assert_eq(
-    @src.parse_ecitmatch(txt),
-    [("key1", "9025659"), ("key2", "20048972")],
-  )
+  assert_eq(@src.parse_ecitmatch(txt), [
+    ("key1", "9025659"),
+    ("key2", "20048972"),
+  ])
   // XML form with ByteId elements
   let xml = "<eCitMatchResult><ByteId key=\"key1\" id=\"9025659\"/><ByteId key=\"key2\" id=\"20048972\"/></eCitMatchResult>"
-  assert_eq(
-    @src.parse_ecitmatch(xml),
-    [("key1", "9025659"), ("key2", "20048972")],
-  )
+  assert_eq(@src.parse_ecitmatch(xml), [
+    ("key1", "9025659"),
+    ("key2", "20048972"),
+  ])
 }
 
 ///|
@@ -379,8 +378,7 @@ test "esearch_optional_params_and_history" {
 test "esearch_missing_count_raises" {
   let r = try {
     let _ = capture_client("<eSearchResult><IdList/></eSearchResult>", []).esearch(
-      "pubmed",
-      "biopython",
+      "pubmed", "biopython",
     )
     false
   } catch {

@@ -984,7 +984,7 @@ pub fn BranchPoint::new(
   position : Array[Double],
   branch_cells : Array[(Array[Int], Array[Int])],
 ) -> BranchPoint {
-  BranchPoint::{ node_id, position, branch_cells }
+  BranchPoint::{ node_id, position, branch_cells, }
 }
 
 ///|

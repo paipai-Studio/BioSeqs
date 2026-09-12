@@ -147,7 +147,11 @@ fn bc_binomial(n : Int, p : Double) -> Int {
 ///|
 /// Randomly assign elements to clusters, making sure each cluster receives
 /// at least one element (port of randomassign in cluster.c).
-fn bc_randomassign(nclusters : Int, nelements : Int, clusterid : Array[Int]) -> Unit {
+fn bc_randomassign(
+  nclusters : Int,
+  nelements : Int,
+  clusterid : Array[Int],
+) -> Unit {
   let mut k = 0
   let mut n = nelements - nclusters
   let mut i = 0
@@ -229,7 +233,11 @@ fn bc_sort_index(n : Int, data : Array[Double], index : Array[Int]) -> Unit {
 /// Calculate the ranks of the elements in the data array. Elements with the
 /// same value get the same rank, equal to the average of the ranks had the
 /// elements been different (port of getrank in cluster.c).
-fn bc_getrank(n : Int, data : Array[Double], weight : Array[Double]) -> Array[Double] {
+fn bc_getrank(
+  n : Int,
+  data : Array[Double],
+  weight : Array[Double],
+) -> Array[Double] {
   let rank : Array[Double] = Array::make(n, 0.0)
   if n < 1 {
     return rank
@@ -450,8 +458,17 @@ fn bc_correlation(
   transpose : Int,
 ) -> Double {
   bc_correlation_core(
-    n, data1, data2, mask1, mask2, weight, index1, index2, transpose,
-    absolute=false, uncentered=false,
+    n,
+    data1,
+    data2,
+    mask1,
+    mask2,
+    weight,
+    index1,
+    index2,
+    transpose,
+    absolute=false,
+    uncentered=false,
   )
 }
 
@@ -468,8 +485,17 @@ fn bc_acorrelation(
   transpose : Int,
 ) -> Double {
   bc_correlation_core(
-    n, data1, data2, mask1, mask2, weight, index1, index2, transpose,
-    absolute=true, uncentered=false,
+    n,
+    data1,
+    data2,
+    mask1,
+    mask2,
+    weight,
+    index1,
+    index2,
+    transpose,
+    absolute=true,
+    uncentered=false,
   )
 }
 
@@ -486,8 +512,17 @@ fn bc_ucorrelation(
   transpose : Int,
 ) -> Double {
   bc_correlation_core(
-    n, data1, data2, mask1, mask2, weight, index1, index2, transpose,
-    absolute=false, uncentered=true,
+    n,
+    data1,
+    data2,
+    mask1,
+    mask2,
+    weight,
+    index1,
+    index2,
+    transpose,
+    absolute=false,
+    uncentered=true,
   )
 }
 
@@ -504,8 +539,17 @@ fn bc_uacorrelation(
   transpose : Int,
 ) -> Double {
   bc_correlation_core(
-    n, data1, data2, mask1, mask2, weight, index1, index2, transpose,
-    absolute=true, uncentered=true,
+    n,
+    data1,
+    data2,
+    mask1,
+    mask2,
+    weight,
+    index1,
+    index2,
+    transpose,
+    absolute=true,
+    uncentered=true,
   )
 }
 
@@ -733,7 +777,9 @@ pub fn distancematrix(
   }
   for i = 1; i < n; i = i + 1 {
     for j = 0; j < i; j = j + 1 {
-      matrix[i].push(metric(ndata, data, data, m, m, w, i, j, if tr { 1 } else { 0 }))
+      matrix[i].push(
+        metric(ndata, data, data, m, m, w, i, j, if tr { 1 } else { 0 }),
+      )
     }
   }
   matrix
@@ -775,7 +821,9 @@ fn bc_ones_weight(n : Int) -> Array[Double] {
 
 ///|
 /// Deep copy of a ragged lower-triangular distance matrix.
-fn bc_copy_distmatrix(distmatrix : Array[Array[Double]]) -> Array[Array[Double]] {
+fn bc_copy_distmatrix(
+  distmatrix : Array[Array[Double]],
+) -> Array[Array[Double]] {
   let copy : Array[Array[Double]] = Array::new()
   for i = 0; i < distmatrix.length(); i = i + 1 {
     let row : Array[Double] = Array::new()
@@ -864,7 +912,10 @@ pub fn ClusterTree::cut(self : ClusterTree, nclusters? : Int) -> Array[Int] {
 /// elements in left-to-right order tend to have increasing order values.
 /// Returns the indices of the elements in left-to-right order in the
 /// dendrogram (port of sorttree). This mutates the tree.
-pub fn ClusterTree::sort(self : ClusterTree, order? : Array[Double]) -> Array[Int] {
+pub fn ClusterTree::sort(
+  self : ClusterTree,
+  order? : Array[Double],
+) -> Array[Int] {
   let nnodes = self.nodes.length()
   let nelements = nnodes + 1
   let ord = order.unwrap_or(Array::make(nelements, 1.0))
@@ -1001,7 +1052,7 @@ fn bc_pslcluster(
   let vector : Array[Int] = Array::make(nnodes, 0)
   let result : Array[ClusterNode] = Array::new()
   for _i = 0; _i < nelements; _i = _i + 1 {
-    result.push({ left: 0, right: 0, distance: bc_DBL_MAX })
+    result.push({ left: 0, right: 0, distance: bc_DBL_MAX, })
   }
   for i = 0; i < nnodes; i = i + 1 {
     vector[i] = i
@@ -1079,7 +1130,7 @@ fn bc_pmlcluster(
   let clusterid : Array[Int] = Array::make(nelements, 0)
   let result : Array[ClusterNode] = Array::new()
   for _i = 0; _i < nelements - 1; _i = _i + 1 {
-    result.push({ left: 0, right: 0, distance: 0.0 })
+    result.push({ left: 0, right: 0, distance: 0.0, })
   }
   // Setup a list specifying to which cluster an element belongs
   for j = 0; j < nelements; j = j + 1 {
@@ -1128,7 +1179,7 @@ fn bc_palcluster(
   let number : Array[Int] = Array::make(nelements, 0)
   let result : Array[ClusterNode] = Array::new()
   for _i = 0; _i < nelements - 1; _i = _i + 1 {
-    result.push({ left: 0, right: 0, distance: 0.0 })
+    result.push({ left: 0, right: 0, distance: 0.0, })
   }
   // Setup a list specifying to which cluster an element belongs, and keep
   // track of the number of elements in each cluster.
@@ -1148,19 +1199,25 @@ fn bc_palcluster(
     // Fix the distances
     let sum = number[is_idx] + number[js]
     for j = 0; j < js; j = j + 1 {
-      distmatrix[js][j] = (distmatrix[is_idx][j] * number[is_idx].to_double() +
-      distmatrix[js][j] * number[js].to_double()) /
-      sum.to_double()
+      distmatrix[js][j] = (
+          distmatrix[is_idx][j] * number[is_idx].to_double() +
+          distmatrix[js][j] * number[js].to_double()
+        ) /
+        sum.to_double()
     }
     for j = js + 1; j < is_idx; j = j + 1 {
-      distmatrix[j][js] = (distmatrix[is_idx][j] * number[is_idx].to_double() +
-      distmatrix[j][js] * number[js].to_double()) /
-      sum.to_double()
+      distmatrix[j][js] = (
+          distmatrix[is_idx][j] * number[is_idx].to_double() +
+          distmatrix[j][js] * number[js].to_double()
+        ) /
+        sum.to_double()
     }
     for j = is_idx + 1; j < n; j = j + 1 {
-      distmatrix[j][js] = (distmatrix[j][is_idx] * number[is_idx].to_double() +
-      distmatrix[j][js] * number[js].to_double()) /
-      sum.to_double()
+      distmatrix[j][js] = (
+          distmatrix[j][is_idx] * number[is_idx].to_double() +
+          distmatrix[j][js] * number[js].to_double()
+        ) /
+        sum.to_double()
     }
     for j = 0; j < is_idx; j = j + 1 {
       distmatrix[is_idx][j] = distmatrix[n - 1][j]
@@ -1199,7 +1256,7 @@ fn bc_pclcluster(
   let distid : Array[Int] = Array::make(nelements, 0)
   let result : Array[ClusterNode] = Array::new()
   for _i = 0; _i < nnodes; _i = _i + 1 {
-    result.push({ left: 0, right: 0, distance: 0.0 })
+    result.push({ left: 0, right: 0, distance: 0.0, })
   }
   // Storage for node data (a private copy of data and mask)
   let newdata : Array[Array[Double]] = Array::new()
@@ -1250,10 +1307,14 @@ fn bc_pclcluster(
     }
     distid[js] = -inode - 1
     for i = 0; i < js; i = i + 1 {
-      distmatrix[js][i] = metric(ndata, newdata, newdata, newmask, newmask, weight, js, i, 0)
+      distmatrix[js][i] = metric(
+        ndata, newdata, newdata, newmask, newmask, weight, js, i, 0,
+      )
     }
     for i = js + 1; i < nnodes - inode; i = i + 1 {
-      distmatrix[i][js] = metric(ndata, newdata, newdata, newmask, newmask, weight, js, i, 0)
+      distmatrix[i][js] = metric(
+        ndata, newdata, newdata, newmask, newmask, weight, js, i, 0,
+      )
     }
   }
   result
@@ -1286,7 +1347,7 @@ pub fn treecluster(
   let ncolumns = if nrows > 0 { data[0].length() } else { 0 }
   let nelements = if tr { ncolumns } else { nrows }
   if nelements < 2 {
-    return { nodes: Array::new(), nelements }
+    return { nodes: Array::new(), nelements, }
   }
   let ndata = if tr { nrows } else { ncolumns }
   let m = mask.unwrap_or(bc_ones_mask(nrows, ncolumns))
@@ -1301,17 +1362,33 @@ pub fn treecluster(
   let metric = bc_setmetric(d)
   for i = 1; i < nelements; i = i + 1 {
     for j = 0; j < i; j = j + 1 {
-      distmatrix[i].push(metric(ndata, data, data, m, m, w, i, j, if tr { 1 } else { 0 }))
+      distmatrix[i].push(
+        metric(ndata, data, data, m, m, w, i, j, if tr { 1 } else { 0 }),
+      )
     }
   }
   let nodes = match meth {
     "s" => bc_pslcluster(nelements, distmatrix)
     "a" => bc_palcluster(nelements, distmatrix)
-    "c" => bc_pclcluster(nrows, ncolumns, data, m, w, distmatrix, d, if tr { 1 } else { 0 })
+    "c" =>
+      bc_pclcluster(
+        nrows,
+        ncolumns,
+        data,
+        m,
+        w,
+        distmatrix,
+        d,
+        if tr {
+          1
+        } else {
+          0
+        },
+      )
     "m" => bc_pmlcluster(nelements, distmatrix)
     _ => Array::new()
   }
-  { nodes, nelements }
+  { nodes, nelements, }
 }
 
 ///|
@@ -1325,7 +1402,7 @@ pub fn treecluster_from_distance(
 ) -> ClusterTree {
   let nelements = distance.length()
   if nelements < 2 {
-    return { nodes: Array::new(), nelements }
+    return { nodes: Array::new(), nelements, }
   }
   let meth = method.unwrap_or("m")
   let distmatrix = bc_copy_distmatrix(distance)
@@ -1335,7 +1412,7 @@ pub fn treecluster_from_distance(
     "m" => bc_pmlcluster(nelements, distmatrix)
     _ => Array::new()
   }
-  { nodes, nelements }
+  { nodes, nelements, }
 }
 
 // ---------------------------------------------------------------------------
@@ -1582,13 +1659,12 @@ fn bc_kmeans(
       // Find the center
       if use_medians {
         bc_getclustermedians(
-          nclusters, nrows, ncolumns, data, mask, tclusterid, cdata, cmask,
-          transpose, cache,
+          nclusters, nrows, ncolumns, data, mask, tclusterid, cdata, cmask, transpose,
+          cache,
         )
       } else {
         bc_getclustermeans(
-          nclusters, nrows, ncolumns, data, mask, tclusterid, cdata, cmask,
-          transpose,
+          nclusters, nrows, ncolumns, data, mask, tclusterid, cdata, cmask, transpose,
         )
       }
       for i = 0; i < nelements; i = i + 1 {
@@ -1599,12 +1675,16 @@ fn bc_kmeans(
         }
         // No reassignment if that would lead to an empty cluster.
         // Treat the present cluster as a special case.
-        let mut distance = metric(ndata, data, cdata, mask, cmask, weight, i, k, transpose)
+        let mut distance = metric(
+          ndata, data, cdata, mask, cmask, weight, i, k, transpose,
+        )
         for j = 0; j < nclusters; j = j + 1 {
           if j == k {
             continue
           }
-          let tdistance = metric(ndata, data, cdata, mask, cmask, weight, i, j, transpose)
+          let tdistance = metric(
+            ndata, data, cdata, mask, cmask, weight, i, j, transpose,
+          )
           if tdistance < distance {
             distance = tdistance
             counts[tclusterid[i]] = counts[tclusterid[i]] - 1
@@ -1735,7 +1815,7 @@ pub fn kcluster(
   }
   if nelements < k {
     // More clusters asked for than elements available
-    return { clusterid, error: 0.0, ifound: 0 }
+    return { clusterid, error: 0.0, ifound: 0, }
   }
   let m = mask.unwrap_or(bc_ones_mask(nrows, ncolumns))
   let w = weight.unwrap_or(bc_ones_weight(ndata))
@@ -1749,10 +1829,25 @@ pub fn kcluster(
   }
   let use_medians = meth == "m"
   let (ifound, error) = bc_kmeans(
-    k, nrows, ncolumns, data, m, w, if tr { 1 } else { 0 }, passes, d,
-    cdata, cmask, clusterid, use_medians,
+    k,
+    nrows,
+    ncolumns,
+    data,
+    m,
+    w,
+    if tr {
+      1
+    } else {
+      0
+    },
+    passes,
+    d,
+    cdata,
+    cmask,
+    clusterid,
+    use_medians,
   )
-  { clusterid, error, ifound }
+  { clusterid, error, ifound, }
 }
 
 // ---------------------------------------------------------------------------
@@ -1809,7 +1904,7 @@ pub fn kmedoids(
   }
   if nelements < k {
     // More clusters asked for than elements available
-    return { clusterid, error: 0.0, ifound: 0 }
+    return { clusterid, error: 0.0, ifound: 0, }
   }
   let tclusterid : Array[Int] = Array::make(nelements, 0)
   let saved : Array[Int] = Array::make(nelements, 0)
@@ -1842,7 +1937,9 @@ pub fn kmedoids(
       }
       counter = counter + 1
       // Find the center
-      bc_getclustermedoids(k, nelements, distance, tclusterid, centroids, errors)
+      bc_getclustermedoids(
+        k, nelements, distance, tclusterid, centroids, errors,
+      )
       for i = 0; i < nelements; i = i + 1 {
         // Find the closest cluster
         let mut dist = bc_DBL_MAX
@@ -1906,7 +2003,7 @@ pub fn kmedoids(
       break
     }
   }
-  { clusterid, error, ifound }
+  { clusterid, error, ifound, }
 }
 
 // ---------------------------------------------------------------------------
@@ -1963,8 +2060,7 @@ pub fn clustercentroids(
     "m" => {
       let cache : Array[Double] = Array::make(nelements, 0.0)
       bc_getclustermedians(
-        nclusters, nrows, ncolumns, data, m, ids, cdata, cmask, transpose_i,
-        cache,
+        nclusters, nrows, ncolumns, data, m, ids, cdata, cmask, transpose_i, cache,
       )
     }
     "a" =>
@@ -1973,7 +2069,7 @@ pub fn clustercentroids(
       )
     _ => () // unknown method: return zero-filled centroids
   }
-  { cdata, cmask }
+  { cdata, cmask, }
 }
 
 ///|
@@ -2233,7 +2329,8 @@ pub fn clusterdistance(
         for i2 = 0; i2 < n2; i2 = i2 + 1 {
           let j1 = idx1[i1]
           let j2 = idx2[i2]
-          distance = distance + metric(ndata, data, data, m, m, w, j1, j2, transpose_i)
+          distance = distance +
+            metric(ndata, data, data, m, m, w, j1, j2, transpose_i)
         }
       }
       distance / (n1 * n2).to_double()
@@ -2285,7 +2382,7 @@ fn bc_somworker(
   let ndata = if transpose == 0 { ncolumns } else { nrows }
   let metric = bc_setmetric(dist)
   // Maximum radius in which nodes are adjusted
-  let maxradius = ((nxgrid * nxgrid + nygrid * nygrid).to_double()).sqrt()
+  let maxradius = (nxgrid * nxgrid + nygrid * nygrid).to_double().sqrt()
   // Calculate the standard deviation for each row or column
   let stddata : Array[Double] = Array::make(nelements, 0.0)
   if transpose == 0 {
@@ -2365,13 +2462,27 @@ fn bc_somworker(
     let tau = inittau * (1.0 - iter.to_double() / niter.to_double())
     if transpose == 0 {
       let mut closest = metric(
-        ndata, data, celldata[ixbest], mask, dummymask, weights, iobject, iybest,
+        ndata,
+        data,
+        celldata[ixbest],
+        mask,
+        dummymask,
+        weights,
+        iobject,
+        iybest,
         transpose,
       )
       for ix = 0; ix < nxgrid; ix = ix + 1 {
         for iy = 0; iy < nygrid; iy = iy + 1 {
           let distance = metric(
-            ndata, data, celldata[ix], mask, dummymask, weights, iobject, iy,
+            ndata,
+            data,
+            celldata[ix],
+            mask,
+            dummymask,
+            weights,
+            iobject,
+            iy,
             transpose,
           )
           if distance < closest {
@@ -2386,11 +2497,13 @@ fn bc_somworker(
         for iy = 0; iy < nygrid; iy = iy + 1 {
           let dx = ix - ixbest
           let dy = iy - iybest
-          if ((dx * dx + dy * dy).to_double()).sqrt() < radius {
+          if (dx * dx + dy * dy).to_double().sqrt() < radius {
             let mut sum = 0.0
             for i = 0; i < ndata; i = i + 1 {
               if mask[iobject][i] != 0 {
-                celldata[ix][iy][i] = celldata[ix][iy][i] + tau * (data[iobject][i] / stddata[iobject] - celldata[ix][iy][i])
+                celldata[ix][iy][i] = celldata[ix][iy][i] +
+                  tau *
+                  (data[iobject][i] / stddata[iobject] - celldata[ix][iy][i])
               }
             }
             for i = 0; i < ndata; i = i + 1 {
@@ -2417,8 +2530,7 @@ fn bc_somworker(
         cellvector[i][0] = celldata[ixbest][iybest][i]
       }
       let mut closest = metric(
-        ndata, data, cellvector, mask, dummymask, weights, iobject, 0,
-        transpose,
+        ndata, data, cellvector, mask, dummymask, weights, iobject, 0, transpose,
       )
       for ix = 0; ix < nxgrid; ix = ix + 1 {
         for iy = 0; iy < nygrid; iy = iy + 1 {
@@ -2429,8 +2541,7 @@ fn bc_somworker(
             cellvector[i][0] = celldata[ixbest][iybest][i]
           }
           let distance = metric(
-            ndata, data, cellvector, mask, dummymask, weights, iobject, 0,
-            transpose,
+            ndata, data, cellvector, mask, dummymask, weights, iobject, 0, transpose,
           )
           if distance < closest {
             ixbest = ix
@@ -2444,11 +2555,13 @@ fn bc_somworker(
         for iy = 0; iy < nygrid; iy = iy + 1 {
           let dx = ix - ixbest
           let dy = iy - iybest
-          if ((dx * dx + dy * dy).to_double()).sqrt() < radius {
+          if (dx * dx + dy * dy).to_double().sqrt() < radius {
             let mut sum = 0.0
             for i = 0; i < ndata; i = i + 1 {
               if mask[i][iobject] != 0 {
-                celldata[ix][iy][i] = celldata[ix][iy][i] + tau * (data[i][iobject] / stddata[iobject] - celldata[ix][iy][i])
+                celldata[ix][iy][i] = celldata[ix][iy][i] +
+                  tau *
+                  (data[i][iobject] / stddata[iobject] - celldata[ix][iy][i])
               }
             }
             for i = 0; i < ndata; i = i + 1 {
@@ -2495,13 +2608,27 @@ fn bc_somassign(
       let mut ixbest = 0
       let mut iybest = 0
       let mut closest = metric(
-        ndata, data, celldata[ixbest], mask, dummymask, weights, i, iybest,
+        ndata,
+        data,
+        celldata[ixbest],
+        mask,
+        dummymask,
+        weights,
+        i,
+        iybest,
         transpose,
       )
       for ix = 0; ix < nxgrid; ix = ix + 1 {
         for iy = 0; iy < nygrid; iy = iy + 1 {
           let distance = metric(
-            ndata, data, celldata[ix], mask, dummymask, weights, i, iy,
+            ndata,
+            data,
+            celldata[ix],
+            mask,
+            dummymask,
+            weights,
+            i,
+            iy,
             transpose,
           )
           if distance < closest {
@@ -2608,7 +2735,7 @@ pub fn somcluster(
       clusterid.push(ids[i])
     }
   }
-  { clusterid, celldata }
+  { clusterid, celldata, }
 }
 
 // ---------------------------------------------------------------------------
@@ -2644,9 +2771,7 @@ pub fn ClusterPcaResult::pc(self : ClusterPcaResult) -> Array[Array[Double]] {
 }
 
 ///|
-pub fn ClusterPcaResult::eigenvalues(
-  self : ClusterPcaResult,
-) -> Array[Double] {
+pub fn ClusterPcaResult::eigenvalues(self : ClusterPcaResult) -> Array[Double] {
   self.eigenvalues
 }
 
@@ -2761,7 +2886,7 @@ fn bc_svd(
       if i < n - 1 {
         if g != 0.0 {
           for j = l; j < n; j = j + 1 {
-            vt[i][j] = (u[i][j] / u[i][l]) / g
+            vt[i][j] = u[i][j] / u[i][l] / g
           }
           // Double division avoids possible underflow
           for j = l; j < n; j = j + 1 {
@@ -2800,7 +2925,7 @@ fn bc_svd(
               s = s + u[k][i] * u[k][j]
             }
             // Double division avoids possible underflow
-            f = (s / u[i][i]) / g
+            f = s / u[i][i] / g
             for k = i; k < m; k = k + 1 {
               u[k][j] = u[k][j] + f * u[k][i]
             }
@@ -2880,7 +3005,11 @@ fn bc_svd(
           h = rv1[k]
           f = ((y - z) * (y + z) + (g - h) * (g + h)) / (2.0 * h * y)
           g = (f * f + 1.0).sqrt()
-          f = ((x - z) * (x + z) + h * (y / (f + (if f >= 0.0 { g } else { -g })) - h)) / x
+          f = (
+              (x - z) * (x + z) +
+              h * (y / (f + (if f >= 0.0 { g } else { -g })) - h)
+            ) /
+            x
           // Next QR transformation
           c = 1.0
           s = 1.0
@@ -3007,7 +3136,7 @@ fn bc_svd(
       if i < m - 1 {
         if g != 0.0 {
           for j = l; j < m; j = j + 1 {
-            vt[j][i] = (u[j][i] / u[l][i]) / g
+            vt[j][i] = u[j][i] / u[l][i] / g
           }
           // Double division avoids possible underflow
           for j = l; j < m; j = j + 1 {
@@ -3046,7 +3175,7 @@ fn bc_svd(
               s = s + u[i][k] * u[j][k]
             }
             // Double division avoids possible underflow
-            f = (s / u[i][i]) / g
+            f = s / u[i][i] / g
             for k = i; k < n; k = k + 1 {
               u[j][k] = u[j][k] + f * u[i][k]
             }
@@ -3126,7 +3255,11 @@ fn bc_svd(
           h = rv1[k]
           f = ((y - z) * (y + z) + (g - h) * (g + h)) / (2.0 * h * y)
           g = (f * f + 1.0).sqrt()
-          f = ((x - z) * (x + z) + h * (y / (f + (if f >= 0.0 { g } else { -g })) - h)) / x
+          f = (
+              (x - z) * (x + z) +
+              h * (y / (f + (if f >= 0.0 { g } else { -g })) - h)
+            ) /
+            x
           // Next QR transformation
           c = 1.0
           s = 1.0
@@ -3336,15 +3469,24 @@ pub fn cluster_pca(
   }
   let eigenvalues : Array[Double] = Array::make(nmin, 0.0)
   let error = bc_pca_core(
-    nrows, ncols,
-    if nrows >= ncols { coordinates } else { pc },
-    if nrows >= ncols { pc } else { coordinates },
+    nrows,
+    ncols,
+    if nrows >= ncols {
+      coordinates
+    } else {
+      pc
+    },
+    if nrows >= ncols {
+      pc
+    } else {
+      coordinates
+    },
     eigenvalues,
   )
   if error > 0 {
     raise ClusterError("Singular value decomposition failed to converge")
   }
-  { columnmean, coordinates, pc, eigenvalues }
+  { columnmean, coordinates, pc, eigenvalues, }
 }
 
 // ---------------------------------------------------------------------------
@@ -3373,14 +3515,14 @@ pub fn cluster_pca(
 ///                 input file
 pub struct Record {
   data : Array[Array[Double]]
-  mask : Option[Array[Array[Int]]]
+  mask : Array[Array[Int]]?
   geneid : Array[String]
-  genename : Option[Array[String]]
-  gweight : Option[Array[Double]]
-  gorder : Option[Array[Double]]
+  genename : Array[String]?
+  gweight : Array[Double]?
+  gorder : Array[Double]?
   expid : Array[String]
-  eweight : Option[Array[Double]]
-  eorder : Option[Array[Double]]
+  eweight : Array[Double]?
+  eorder : Array[Double]?
   uniqid : String
 }
 
@@ -3390,7 +3532,7 @@ pub fn Record::data(self : Record) -> Array[Array[Double]] {
 }
 
 ///|
-pub fn Record::mask(self : Record) -> Option[Array[Array[Int]]] {
+pub fn Record::mask(self : Record) -> Array[Array[Int]]? {
   self.mask
 }
 
@@ -3400,17 +3542,17 @@ pub fn Record::geneid(self : Record) -> Array[String] {
 }
 
 ///|
-pub fn Record::genename(self : Record) -> Option[Array[String]] {
+pub fn Record::genename(self : Record) -> Array[String]? {
   self.genename
 }
 
 ///|
-pub fn Record::gweight(self : Record) -> Option[Array[Double]] {
+pub fn Record::gweight(self : Record) -> Array[Double]? {
   self.gweight
 }
 
 ///|
-pub fn Record::gorder(self : Record) -> Option[Array[Double]] {
+pub fn Record::gorder(self : Record) -> Array[Double]? {
   self.gorder
 }
 
@@ -3420,12 +3562,12 @@ pub fn Record::expid(self : Record) -> Array[String] {
 }
 
 ///|
-pub fn Record::eweight(self : Record) -> Option[Array[Double]] {
+pub fn Record::eweight(self : Record) -> Array[Double]? {
   self.eweight
 }
 
 ///|
-pub fn Record::eorder(self : Record) -> Option[Array[Double]] {
+pub fn Record::eorder(self : Record) -> Array[Double]? {
   self.eorder
 }
 
@@ -3460,7 +3602,7 @@ fn bc_strip_eol(line : String) -> String {
   if start == 0 && end == n {
     line
   } else {
-    line.substring(start=start, end=end).to_string()
+    line.substring(start~, end~).to_string()
   }
 }
 
@@ -3479,9 +3621,7 @@ fn bc_split_tabs(line : String) -> Array[String] {
 /// Eisen's Cluster/TreeView program, and return a Record (port of
 /// Bio.Cluster.read / Record.__init__). The content should be the complete
 /// text file; lines are separated by newlines and columns by tabs.
-pub fn bio_cluster_read(
-  content : String,
-) -> Record raise ClusterError {
+pub fn bio_cluster_read(content : String) -> Record raise ClusterError {
   let lines : Array[String] = Array::new()
   for part in content.split("\n") {
     lines.push(bc_strip_eol(part.to_string()))
@@ -3520,8 +3660,8 @@ pub fn bio_cluster_read(
   let gorder : Array[Double] = Array::new()
   let data : Array[Array[Double]] = Array::new()
   let mask : Array[Array[Int]] = Array::new()
-  let mut eweight : Option[Array[Double]] = None
-  let mut eorder : Option[Array[Double]] = None
+  let mut eweight : Array[Double]? = None
+  let mut eorder : Array[Double]? = None
   let mut needmask = false
   for li = 1; li < lines.length(); li = li + 1 {
     let line = bc_split_tabs(lines[li])
@@ -3558,36 +3698,30 @@ pub fn bio_cluster_read(
         gweight.push(bc_parse_double(word))
       } else if i == gorder_col {
         gorder.push(bc_parse_double(word))
+      } else if word.length() == 0 {
+        rowdata.push(0.0)
+        rowmask.push(0)
+        needmask = true
       } else {
-        if word.length() == 0 {
-          rowdata.push(0.0)
-          rowmask.push(0)
-          needmask = true
-        } else {
-          rowdata.push(bc_parse_double(word))
-          rowmask.push(1)
-        }
+        rowdata.push(bc_parse_double(word))
+        rowmask.push(1)
       }
     }
     data.push(rowdata)
     mask.push(rowmask)
   }
-  let mask_opt : Option[Array[Array[Int]]] = if needmask {
-    Some(mask)
-  } else {
-    None
-  }
-  let gweight_opt : Option[Array[Double]] = if gweight.length() > 0 {
+  let mask_opt : Array[Array[Int]]? = if needmask { Some(mask) } else { None }
+  let gweight_opt : Array[Double]? = if gweight.length() > 0 {
     Some(gweight)
   } else {
     None
   }
-  let gorder_opt : Option[Array[Double]] = if gorder.length() > 0 {
+  let gorder_opt : Array[Double]? = if gorder.length() > 0 {
     Some(gorder)
   } else {
     None
   }
-  let genename_opt : Option[Array[String]] = if genename.length() > 0 {
+  let genename_opt : Array[String]? = if genename.length() > 0 {
     Some(genename)
   } else {
     None
@@ -3618,10 +3752,7 @@ pub fn Record::treecluster(
 ) -> ClusterTree {
   let tr = transpose.unwrap_or(false)
   let weight = if tr { self.gweight } else { self.eweight }
-  treecluster(
-    self.data, mask?=self.mask, weight?=weight, transpose=tr, method?=method,
-    dist?=dist,
-  )
+  treecluster(self.data, mask?=self.mask, weight?, transpose=tr, method?, dist?)
 }
 
 ///|
@@ -3639,9 +3770,15 @@ pub fn Record::kcluster(
   let tr = transpose.unwrap_or(false)
   let weight = if tr { self.gweight } else { self.eweight }
   kcluster(
-    self.data, nclusters?=nclusters, mask?=self.mask, weight?=weight,
-    transpose=tr, npass?=npass, method?=method, dist?=dist,
-    initialid?=initialid,
+    self.data,
+    nclusters?,
+    mask?=self.mask,
+    weight?,
+    transpose=tr,
+    npass?,
+    method?,
+    dist?,
+    initialid?,
   )
 }
 
@@ -3660,8 +3797,15 @@ pub fn Record::somcluster(
   let tr = transpose.unwrap_or(false)
   let weight = if tr { self.gweight } else { self.eweight }
   somcluster(
-    self.data, mask?=self.mask, weight?=weight, transpose=tr, nxgrid?=nxgrid,
-    nygrid?=nygrid, inittau?=inittau, niter?=niter, dist?=dist,
+    self.data,
+    mask?=self.mask,
+    weight?,
+    transpose=tr,
+    nxgrid?,
+    nygrid?,
+    inittau?,
+    niter?,
+    dist?,
   )
 }
 
@@ -3674,10 +3818,7 @@ pub fn Record::clustercentroids(
   method? : String,
   transpose? : Bool,
 ) -> CentroidsResult {
-  clustercentroids(
-    self.data, mask?=self.mask, clusterid?=clusterid, method?=method,
-    transpose?=transpose,
-  )
+  clustercentroids(self.data, mask?=self.mask, clusterid?, method?, transpose?)
 }
 
 ///|
@@ -3694,8 +3835,14 @@ pub fn Record::clusterdistance(
   let tr = transpose.unwrap_or(false)
   let weight = if tr { self.gweight } else { self.eweight }
   clusterdistance(
-    self.data, mask?=self.mask, weight?=weight, index1?=index1,
-    index2?=index2, method?=method, dist?=dist, transpose=tr,
+    self.data,
+    mask?=self.mask,
+    weight?,
+    index1?,
+    index2?,
+    method?,
+    dist?,
+    transpose=tr,
   )
 }
 
@@ -3709,7 +3856,5 @@ pub fn Record::distancematrix(
 ) -> Array[Array[Double]] {
   let tr = transpose.unwrap_or(false)
   let weight = if tr { self.gweight } else { self.eweight }
-  distancematrix(
-    self.data, mask?=self.mask, weight?=weight, transpose=tr, dist?=dist,
-  )
+  distancematrix(self.data, mask?=self.mask, weight?, transpose=tr, dist?)
 }

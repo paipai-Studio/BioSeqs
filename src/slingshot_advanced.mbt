@@ -2120,7 +2120,7 @@ pub fn slingshot_advanced_sce(
     .length()
     .to_string()
   output.metadata[output_prefix + ".converged"] = result.converged.to_string()
-  SlingshotAdvancedSceOutput::{ experiment: output, result }
+  SlingshotAdvancedSceOutput::{ experiment: output, result, }
 }
 
 ///|

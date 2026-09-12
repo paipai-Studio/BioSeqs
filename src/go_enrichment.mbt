@@ -17,7 +17,7 @@ pub fn GOTerm::new(
   namespace : String,
   genes : Array[String],
 ) -> GOTerm {
-  GOTerm::{ go_id, term_name, namespace, genes }
+  GOTerm::{ go_id, term_name, namespace, genes, }
 }
 
 ///|

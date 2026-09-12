@@ -25,10 +25,9 @@ fn hmm_approx_vec(a : Array[Double], b : Array[Double], tol : Double) -> Bool {
 /// Build the CpG-style two-state model used by the Biopython tutorial:
 /// states ('0', '1'), emissions ACGT, all transitions allowed.
 fn hmm_build_cpg() -> @src.HiddenMarkovModel raise {
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["0", "1"],
-    emission_alphabet=["A", "C", "G", "T"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["0", "1"], emission_alphabet=[
+    "A", "C", "G", "T",
+  ])
   b.allow_all_transitions()
   let initial : Map[String, Double] = Map([], capacity=2)
   initial.set("0", 1.0)
@@ -49,10 +48,9 @@ fn hmm_build_cpg() -> @src.HiddenMarkovModel raise {
 
 ///|
 test "hmm_builder_defaults" {
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["0", "1"],
-    emission_alphabet=["A", "C", "G", "T"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["0", "1"], emission_alphabet=[
+    "A", "C", "G", "T",
+  ])
   // by default: no transitions, all emissions allowed with zero
   // probability and a pseudo count of 1
   assert_eq(b.emission_pair_count(), 8)
@@ -67,10 +65,9 @@ test "hmm_builder_defaults" {
 
 ///|
 test "hmm_set_initial_probabilities_residual" {
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   // fully specified
   let p1 : Map[String, Double] = Map([], capacity=2)
   p1.set("A", 1.0)
@@ -91,10 +88,9 @@ test "hmm_set_initial_probabilities_residual" {
 
 ///|
 test "hmm_set_initial_probabilities_errors" {
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   // unknown state
   let bad : Map[String, Double] = Map([], capacity=2)
   bad.set("Z", 1.0)
@@ -120,10 +116,9 @@ test "hmm_set_initial_probabilities_errors" {
 
 ///|
 test "hmm_get_markov_model_requires_initial_probabilities" {
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   let r = try {
     ignore(b.get_markov_model())
     false
@@ -135,10 +130,9 @@ test "hmm_get_markov_model_requires_initial_probabilities" {
 
 ///|
 test "hmm_transitions_management" {
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   b.allow_transition(from_state="A", to_state="B")
   assert_eq(b.transition_count(), 1)
   // duplicate allow raises
@@ -178,10 +172,9 @@ test "hmm_transitions_management" {
 
 ///|
 test "hmm_allow_all_transitions_preserves_scores" {
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   b.allow_transition(from_state="A", to_state="B", probability=0.5)
   b.allow_all_transitions()
   assert_eq(b.transition_count(), 4)
@@ -193,10 +186,9 @@ test "hmm_allow_all_transitions_preserves_scores" {
 test "hmm_set_equal_probabilities" {
   // reference: Biopython 1.84 behaviour, including the original quirk
   // that initial probabilities are divided by the number of transitions
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   b.allow_transition(from_state="A", to_state="B")
   b.allow_transition(from_state="B", to_state="A")
   b.set_equal_probabilities()
@@ -210,10 +202,9 @@ test "hmm_set_equal_probabilities" {
 
 ///|
 test "hmm_set_random_probabilities_deterministic" {
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   b.allow_all_transitions()
   @src.hmm_seed(42)
   b.set_random_probabilities()
@@ -224,20 +215,26 @@ test "hmm_set_random_probabilities_deterministic" {
   let emis_sum = b.emission_score("A", "x") + b.emission_score("A", "y")
   assert_true(hmm_approx(emis_sum, 1.0, 1.0e-9))
   // reproducible with the same seed
-  let b2 = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let b2 = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   b2.allow_all_transitions()
   @src.hmm_seed(42)
   b2.set_random_probabilities()
-  assert_true(hmm_approx(b2.transition_score("A", "A"), b.transition_score("A", "A"), 1.0e-30))
-  assert_true(hmm_approx(b2.emission_score("B", "y"), b.emission_score("B", "y"), 1.0e-30))
-  // random transitions without allowed transitions raise
-  let b3 = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
+  assert_true(
+    hmm_approx(
+      b2.transition_score("A", "A"),
+      b.transition_score("A", "A"),
+      1.0e-30,
+    ),
   )
+  assert_true(
+    hmm_approx(b2.emission_score("B", "y"), b.emission_score("B", "y"), 1.0e-30),
+  )
+  // random transitions without allowed transitions raise
+  let b3 = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   let r = try {
     let _ = b3.set_random_transition_probabilities()
     false
@@ -251,20 +248,16 @@ test "hmm_set_random_probabilities_deterministic" {
 test "hmm_viterbi_cpg" {
   let mm = hmm_build_cpg()
   let result = mm.viterbi(["A", "C", "G", "C", "G", "A", "T", "C"])
-  assert_eq(
-    result.state_path(),
-    ["0", "1", "1", "1", "1", "1", "1", "1"],
-  )
+  assert_eq(result.state_path(), ["0", "1", "1", "1", "1", "1", "1", "1"])
   assert_true(hmm_approx(result.prob(), -11.997777535359305, 1.0e-9))
 }
 
 ///|
 test "hmm_viterbi_zero_probability_transition" {
   // a transition with score 0 is avoided by the log transform
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   b.allow_transition(from_state="A", to_state="A")
   b.allow_transition(from_state="A", to_state="B")
   b.allow_transition(from_state="B", to_state="A")
@@ -289,10 +282,9 @@ test "hmm_viterbi_zero_probability_transition" {
 ///|
 test "hmm_viterbi_no_incoming_transitions_raises" {
   // state B has no incoming transitions: the original raises ValueError
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   b.allow_transition(from_state="A", to_state="A")
   let initial : Map[String, Double] = Map([], capacity=2)
   initial.set("A", 1.0)
@@ -389,48 +381,93 @@ test "hmm_baum_welch_cpg" {
     state_path=[],
   )
   let trainer = @src.BaumWelchTrainer::new(markov_model=mm)
-  let trained = trainer.train(
-    [t1, t2],
-    fn(change : Double, iterations : Int) {
-      change < 1.0e-12 || iterations >= 100
-    },
-  )
+  let trained = trainer.train([t1, t2], fn(change : Double, iterations : Int) {
+    change < 1.0e-12 || iterations >= 100
+  })
   // reference values from the original Biopython implementation
   assert_true(
-    hmm_approx(trained.get_transition_probability("0", "0"), 0.7269202953382092, 1.0e-9),
+    hmm_approx(
+      trained.get_transition_probability("0", "0"),
+      0.7269202953382092,
+      1.0e-9,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_transition_probability("0", "1"), 0.2730797046617907, 1.0e-9),
+    hmm_approx(
+      trained.get_transition_probability("0", "1"),
+      0.2730797046617907,
+      1.0e-9,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_transition_probability("1", "0"), 0.4627381457672509, 1.0e-9),
+    hmm_approx(
+      trained.get_transition_probability("1", "0"),
+      0.4627381457672509,
+      1.0e-9,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_transition_probability("1", "1"), 0.5372618542327491, 1.0e-9),
+    hmm_approx(
+      trained.get_transition_probability("1", "1"),
+      0.5372618542327491,
+      1.0e-9,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("0", "A"), 0.3919273904378798, 1.0e-9),
+    hmm_approx(
+      trained.get_emission_probability("0", "A"),
+      0.3919273904378798,
+      1.0e-9,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("0", "C"), 0.16357350192453832, 1.0e-9),
+    hmm_approx(
+      trained.get_emission_probability("0", "C"),
+      0.16357350192453832,
+      1.0e-9,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("0", "G"), 0.08791659993166538, 1.0e-9),
+    hmm_approx(
+      trained.get_emission_probability("0", "G"),
+      0.08791659993166538,
+      1.0e-9,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("0", "T"), 0.3565825077059167, 1.0e-9),
+    hmm_approx(
+      trained.get_emission_probability("0", "T"),
+      0.3565825077059167,
+      1.0e-9,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("1", "A"), 0.05842511383179566, 1.0e-9),
+    hmm_approx(
+      trained.get_emission_probability("1", "A"),
+      0.05842511383179566,
+      1.0e-9,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("1", "C"), 0.37346131792199144, 1.0e-9),
+    hmm_approx(
+      trained.get_emission_probability("1", "C"),
+      0.37346131792199144,
+      1.0e-9,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("1", "G"), 0.5205622956341125, 1.0e-9),
+    hmm_approx(
+      trained.get_emission_probability("1", "G"),
+      0.5205622956341125,
+      1.0e-9,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("1", "T"), 0.04755127261210037, 1.0e-9),
+    hmm_approx(
+      trained.get_emission_probability("1", "T"),
+      0.04755127261210037,
+      1.0e-9,
+    ),
   )
 }
 
@@ -443,46 +480,89 @@ test "hmm_known_state_trainer_cpg" {
   )
   let trainer = @src.KnownStateTrainer::new(markov_model=mm)
   let trained = trainer.train([ts])
-  assert_true(hmm_approx(trained.get_transition_probability("0", "0"), 0.5, 1.0e-12))
-  assert_true(hmm_approx(trained.get_transition_probability("0", "1"), 0.5, 1.0e-12))
   assert_true(
-    hmm_approx(trained.get_transition_probability("1", "0"), 0.2857142857142857, 1.0e-12),
+    hmm_approx(trained.get_transition_probability("0", "0"), 0.5, 1.0e-12),
   )
   assert_true(
-    hmm_approx(trained.get_transition_probability("1", "1"), 0.7142857142857143, 1.0e-12),
+    hmm_approx(trained.get_transition_probability("0", "1"), 0.5, 1.0e-12),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("0", "A"), 0.2857142857142857, 1.0e-12),
+    hmm_approx(
+      trained.get_transition_probability("1", "0"),
+      0.2857142857142857,
+      1.0e-12,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("0", "C"), 0.42857142857142855, 1.0e-12),
+    hmm_approx(
+      trained.get_transition_probability("1", "1"),
+      0.7142857142857143,
+      1.0e-12,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("0", "G"), 0.14285714285714285, 1.0e-12),
+    hmm_approx(
+      trained.get_emission_probability("0", "A"),
+      0.2857142857142857,
+      1.0e-12,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("0", "T"), 0.14285714285714285, 1.0e-12),
+    hmm_approx(
+      trained.get_emission_probability("0", "C"),
+      0.42857142857142855,
+      1.0e-12,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("1", "A"), 0.2222222222222222, 1.0e-12),
+    hmm_approx(
+      trained.get_emission_probability("0", "G"),
+      0.14285714285714285,
+      1.0e-12,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("1", "C"), 0.2222222222222222, 1.0e-12),
+    hmm_approx(
+      trained.get_emission_probability("0", "T"),
+      0.14285714285714285,
+      1.0e-12,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("1", "G"), 0.3333333333333333, 1.0e-12),
+    hmm_approx(
+      trained.get_emission_probability("1", "A"),
+      0.2222222222222222,
+      1.0e-12,
+    ),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("1", "T"), 0.2222222222222222, 1.0e-12),
+    hmm_approx(
+      trained.get_emission_probability("1", "C"),
+      0.2222222222222222,
+      1.0e-12,
+    ),
+  )
+  assert_true(
+    hmm_approx(
+      trained.get_emission_probability("1", "G"),
+      0.3333333333333333,
+      1.0e-12,
+    ),
+  )
+  assert_true(
+    hmm_approx(
+      trained.get_emission_probability("1", "T"),
+      0.2222222222222222,
+      1.0e-12,
+    ),
   )
 }
 
 ///|
 test "hmm_known_state_trainer_unexpected_transition" {
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   b.allow_transition(from_state="A", to_state="B")
   let initial : Map[String, Double] = Map([], capacity=2)
   initial.set("A", 1.0)
@@ -490,10 +570,9 @@ test "hmm_known_state_trainer_unexpected_transition" {
   let mm = b.get_markov_model()
   let trainer = @src.KnownStateTrainer::new(markov_model=mm)
   // the path contains the disallowed A -> A transition
-  let ts = @src.TrainingSequence::new(
-    emissions=["x", "y", "x", "y"],
-    state_path=["A", "A", "B", "B"],
-  )
+  let ts = @src.TrainingSequence::new(emissions=["x", "y", "x", "y"], state_path=[
+    "A", "A", "B", "B",
+  ])
   let r = try {
     ignore(trainer.train([ts]))
     false
@@ -506,10 +585,9 @@ test "hmm_known_state_trainer_unexpected_transition" {
 ///|
 test "hmm_known_state_trainer_pseudocount_smoothing" {
   // emissions not observed in training are smoothed by the pseudo counts
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   b.allow_transition(from_state="A", to_state="B")
   b.allow_transition(from_state="B", to_state="B")
   let initial : Map[String, Double] = Map([], capacity=2)
@@ -517,29 +595,43 @@ test "hmm_known_state_trainer_pseudocount_smoothing" {
   b.set_initial_probabilities(initial)
   let mm = b.get_markov_model()
   let trainer = @src.KnownStateTrainer::new(markov_model=mm)
-  let ts = @src.TrainingSequence::new(
-    emissions=["x", "y", "x"],
-    state_path=["A", "B", "B"],
-  )
+  let ts = @src.TrainingSequence::new(emissions=["x", "y", "x"], state_path=[
+    "A", "B", "B",
+  ])
   let trained = trainer.train([ts])
-  assert_true(hmm_approx(trained.get_transition_probability("A", "B"), 1.0, 1.0e-12))
-  assert_true(hmm_approx(trained.get_transition_probability("B", "B"), 1.0, 1.0e-12))
   assert_true(
-    hmm_approx(trained.get_emission_probability("A", "x"), 0.6666666666666666, 1.0e-12),
+    hmm_approx(trained.get_transition_probability("A", "B"), 1.0, 1.0e-12),
   )
   assert_true(
-    hmm_approx(trained.get_emission_probability("A", "y"), 0.3333333333333333, 1.0e-12),
+    hmm_approx(trained.get_transition_probability("B", "B"), 1.0, 1.0e-12),
   )
-  assert_true(hmm_approx(trained.get_emission_probability("B", "x"), 0.5, 1.0e-12))
-  assert_true(hmm_approx(trained.get_emission_probability("B", "y"), 0.5, 1.0e-12))
+  assert_true(
+    hmm_approx(
+      trained.get_emission_probability("A", "x"),
+      0.6666666666666666,
+      1.0e-12,
+    ),
+  )
+  assert_true(
+    hmm_approx(
+      trained.get_emission_probability("A", "y"),
+      0.3333333333333333,
+      1.0e-12,
+    ),
+  )
+  assert_true(
+    hmm_approx(trained.get_emission_probability("B", "x"), 0.5, 1.0e-12),
+  )
+  assert_true(
+    hmm_approx(trained.get_emission_probability("B", "y"), 0.5, 1.0e-12),
+  )
 }
 
 ///|
 test "hmm_transitions_from_to" {
-  let b = @src.MarkovModelBuilder::new(
-    state_alphabet=["A", "B"],
-    emission_alphabet=["x", "y"],
-  )
+  let b = @src.MarkovModelBuilder::new(state_alphabet=["A", "B"], emission_alphabet=[
+    "x", "y",
+  ])
   b.allow_transition(from_state="B", to_state="A")
   b.allow_transition(from_state="A", to_state="B")
   let initial : Map[String, Double] = Map([], capacity=2)

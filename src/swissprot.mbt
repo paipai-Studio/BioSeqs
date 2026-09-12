@@ -61,7 +61,7 @@ pub fn SwissProtReference::new(
   pubmed_id : String,
   doi : String,
 ) -> SwissProtReference {
-  SwissProtReference::{ number, title, authors, journal, pubmed_id, doi }
+  SwissProtReference::{ number, title, authors, journal, pubmed_id, doi, }
 }
 
 ///|
@@ -73,7 +73,7 @@ pub fn SwissProtFeature::new(
   end : Int,
   qualifiers : Map[String, String],
 ) -> SwissProtFeature {
-  SwissProtFeature::{ feature_type, description, start, end, qualifiers }
+  SwissProtFeature::{ feature_type, description, start, end, qualifiers, }
 }
 
 ///|

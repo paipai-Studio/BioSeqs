@@ -134,7 +134,11 @@ test "dnacopy_sdundo_merges_when_sd_large" {
   let cna = dc_make_cna(chrom, vals)
   let res = @src.segment(
     cna,
-    options=@src.DnaCopyOptions::of(nperm=500, undo_splits="sdundo", undo_sd=1000.0),
+    options=@src.DnaCopyOptions::of(
+      nperm=500,
+      undo_splits="sdundo",
+      undo_sd=1000.0,
+    ),
   )
   assert_eq(res.segments.length(), 1)
   assert_eq(res.segments[0].num_mark, 60)
@@ -161,7 +165,11 @@ test "dnacopy_sdundo_keeps_when_sd_tiny" {
   let cna = dc_make_cna(chrom, vals)
   let res = @src.segment(
     cna,
-    options=@src.DnaCopyOptions::of(nperm=500, undo_splits="sdundo", undo_sd=0.001),
+    options=@src.DnaCopyOptions::of(
+      nperm=500,
+      undo_splits="sdundo",
+      undo_sd=0.001,
+    ),
   )
   assert_eq(res.segments.length(), 4)
 }
@@ -189,7 +197,9 @@ test "dnacopy_invalid_min_width_raises" {
 test "dnacopy_invalid_undo_splits_raises" {
   let cna = dc_make_cna(Array::make(4, "chr1"), [0.0, 1.0, 0.0, 0.0])
   let result = try {
-    ignore(@src.segment(cna, options=@src.DnaCopyOptions::of(undo_splits="prune")))
+    ignore(
+      @src.segment(cna, options=@src.DnaCopyOptions::of(undo_splits="prune")),
+    )
     false
   } catch {
     SeqError(_) => true

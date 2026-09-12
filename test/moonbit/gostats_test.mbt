@@ -43,10 +43,12 @@ test "gostats_log_choose_symmetry" {
   // C(n,k) == C(n,n-k)
   let n = 10
   assert_true(
-    (@src.gostats_log_choose(n, 2) - @src.gostats_log_choose(n, 8)).abs() < 1.0e-10
+    (@src.gostats_log_choose(n, 2) - @src.gostats_log_choose(n, 8)).abs() <
+    1.0e-10,
   )
   assert_true(
-    (@src.gostats_log_choose(n, 3) - @src.gostats_log_choose(n, 7)).abs() < 1.0e-10
+    (@src.gostats_log_choose(n, 3) - @src.gostats_log_choose(n, 7)).abs() <
+    1.0e-10,
   )
 }
 
@@ -189,9 +191,7 @@ test "gostats_conditional_test_basic" {
   let graph = graph.add_term(child_term)
   let graph = graph.add_term(parent_term)
 
-  let universe = [
-    "g1", "g2", "g3", "g4", "g5", "g6", "g7", "g8", "g9", "g10",
-  ]
+  let universe = ["g1", "g2", "g3", "g4", "g5", "g6", "g7", "g8", "g9", "g10"]
   let selected = ["g1", "g2", "g3"]
 
   let hg_test = @src.GOHyperGeoTest::new(universe, selected, graph)
@@ -241,7 +241,11 @@ test "gostats_filter_results_by_fdr" {
 ///|
 test "gostats_graph_add_and_get_term" {
   let term = @src.GOStatsTerm::new(
-    "GO:0008150", "biological_process", "BP", [], ["g1"],
+    "GO:0008150",
+    "biological_process",
+    "BP",
+    [],
+    ["g1"],
   )
   let graph = @src.GOStatsGraph::new(Map([]))
   let graph = graph.add_term(term)

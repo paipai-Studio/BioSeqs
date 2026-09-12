@@ -91,7 +91,7 @@ pub fn GckFeature::new(
   direction~ : Int,
   segments~ : Array[(Int, Int)],
 ) -> GckFeature {
-  GckFeature::{ name, type_, direction, segments }
+  GckFeature::{ name, type_, direction, segments, }
 }
 
 ///|

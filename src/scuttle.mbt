@@ -572,7 +572,7 @@ pub fn ScuttleNamedCellSubset::create(
   indices : Array[Int],
 ) -> ScuttleNamedCellSubset raise ScuttleError {
   scuttle_validate_name(name, "cell subset")
-  ScuttleNamedCellSubset::{ name, indices: indices.copy() }
+  ScuttleNamedCellSubset::{ name, indices: indices.copy(), }
 }
 
 ///|
@@ -665,7 +665,7 @@ pub fn ScuttleFeatureSet::create(
   indices : Array[Int],
 ) -> ScuttleFeatureSet raise ScuttleError {
   scuttle_validate_name(name, "feature set")
-  ScuttleFeatureSet::{ name, indices: indices.copy() }
+  ScuttleFeatureSet::{ name, indices: indices.copy(), }
 }
 
 ///|
@@ -732,7 +732,7 @@ pub fn scuttle_aggregate_feature_sets(
     }
     values.push(row)
   }
-  ScuttleFeatureAggregation::{ names, values, sizes }
+  ScuttleFeatureAggregation::{ names, values, sizes, }
 }
 
 ///|
@@ -763,7 +763,7 @@ pub fn scuttle_aggregate_features_by_ids(
         indices.push(feature)
       }
     }
-    feature_sets.push(ScuttleFeatureSet::{ name, indices })
+    feature_sets.push(ScuttleFeatureSet::{ name, indices, })
   }
   scuttle_aggregate_feature_sets(
     expression,
@@ -1189,7 +1189,7 @@ pub fn scuttle_per_feature_qc_sce(
     )
   }
   output.metadata[output_prefix + ".assay"] = assay_name
-  ScuttleFeatureQcSceOutput::{ experiment: output, metrics }
+  ScuttleFeatureQcSceOutput::{ experiment: output, metrics, }
 }
 
 ///|

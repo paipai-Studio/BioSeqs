@@ -1398,7 +1398,7 @@ pub fn dirichlet_multinomial_select(
       best_index = components - 1
     }
   }
-  DmnModelSelection::{ fits, scores, best_index, criterion }
+  DmnModelSelection::{ fits, scores, best_index, criterion, }
 }
 
 ///|

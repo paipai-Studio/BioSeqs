@@ -6,7 +6,7 @@ fn blat_close(a : Double, b : Double) -> Bool {
 ///|
 fn blat_parse_raises(content : String, pslx : Bool) -> Bool {
   try {
-    ignore(@src.blat_psl_parse(content, pslx=pslx))
+    ignore(@src.blat_psl_parse(content, pslx~))
     false
   } catch {
     SeqError(_) => true
@@ -14,9 +14,12 @@ fn blat_parse_raises(content : String, pslx : Bool) -> Bool {
 }
 
 ///|
-fn blat_write_raises(qresults : Array[@src.BlatQueryResult], pslx : Bool) -> Bool {
+fn blat_write_raises(
+  qresults : Array[@src.BlatQueryResult],
+  pslx : Bool,
+) -> Bool {
   try {
-    ignore(@src.blat_psl_write(qresults, pslx=pslx))
+    ignore(@src.blat_psl_write(qresults, pslx~))
     false
   } catch {
     SeqError(_) => true
@@ -35,6 +38,7 @@ let blat_pslx_text : String = "18\t1\t1\t0\t1\t4\t0\t0\t+\tqx\t60\t5\t29\tchrA\t
 ///|
 let blat_header_text : String = "psLayout version 3\n\nmatch\tmis- \trep. \tN's\tQ gap\tQ gap\tT gap\tT gap\tstrand\tQ        \tQ   \tQ    \tQ  \tT        \tT   \tT    \tT  \tblock\tblockSizes \tqStarts\t tStarts\n     \tmatch\tmatch\t   \tcount\tbases\tcount\tbases\t      \tname     \tsize\tstart\tend\tname     \tsize\tstart\tend\tcount\n---------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
 
+///|
 test "blat-psl parse: nucleotide rows grouped into qresults and hits" {
   let nuc = @src.blat_psl_parse(blat_nuc_text) catch {
     _ => abort("valid PSL should parse")
@@ -180,6 +184,7 @@ test "blat-psl parse: nucleotide rows grouped into qresults and hits" {
   println("nuc structure ok")
 }
 
+///|
 test "blat-psl parse: single-char strand and protein query" {
   let mix = @src.blat_psl_parse(blat_mix_text) catch {
     _ => abort("valid PSL should parse")
@@ -258,6 +263,7 @@ test "blat-psl parse: single-char strand and protein query" {
   println("mix structure ok")
 }
 
+///|
 test "blat-pslx parse: block sequences and minus/plus strands" {
   let pslx_res = @src.blat_psl_parse(blat_pslx_text, pslx=true) catch {
     _ => abort("valid PSLX should parse")
@@ -319,7 +325,9 @@ test "blat-pslx parse: block sequences and minus/plus strands" {
   assert_eq(pslx_res[0].hits[1].hsps[0].query_is_protein, false)
   assert_eq(pslx_res[0].hits[1].hsps[0].has_hit_strand, true)
   assert_eq(pslx_res[0].hits[1].hsps[0].score, 13)
-  assert_true(blat_close(pslx_res[0].hits[1].hsps[0].ident_pct, 88.88888888888889))
+  assert_true(
+    blat_close(pslx_res[0].hits[1].hsps[0].ident_pct, 88.88888888888889),
+  )
   assert_eq(pslx_res[0].hits[1].hsps[0].blocks.length(), 2)
   assert_eq(pslx_res[0].hits[1].hsps[0].blocks[0].query_start, 50)
   assert_eq(pslx_res[0].hits[1].hsps[0].blocks[0].query_end, 58)
@@ -340,14 +348,17 @@ test "blat-pslx parse: block sequences and minus/plus strands" {
   println("pslx structure ok")
 }
 
+///|
 test "blat-psl parse: empty and header-only content yields no qresults" {
   assert_eq(@src.blat_psl_parse("").length(), 0)
   assert_eq(@src.blat_psl_parse("\n\n").length(), 0)
   assert_eq(@src.blat_psl_parse(blat_header_text).length(), 0)
 }
 
+///|
 test "blat-psl parse: wrong column counts raise SeqError" {
-  let bad_cols = blat_nuc_text + "1\t2\t3\t4\t5\t6\t7\t8\t+\tq\t10\t0\t10\tc\t20\t0\t10\t1\t10,\t0,\n"
+  let bad_cols = blat_nuc_text +
+    "1\t2\t3\t4\t5\t6\t7\t8\t+\tq\t10\t0\t10\tc\t20\t0\t10\t1\t10,\t0,\n"
   assert_true(blat_parse_raises(bad_cols, false))
   // 21-column PSL rows fed to the 23-column PSLX parser
   assert_true(blat_parse_raises(blat_nuc_text, true))
@@ -355,6 +366,7 @@ test "blat-psl parse: wrong column counts raise SeqError" {
   assert_true(blat_parse_raises(blat_pslx_text, false))
 }
 
+///|
 test "blat-psl write: exact text and counters match Biopython" {
   let nuc = @src.blat_psl_parse(blat_nuc_text) catch {
     _ => abort("valid PSL should parse")
@@ -362,29 +374,43 @@ test "blat-psl write: exact text and counters match Biopython" {
   let written = @src.blat_psl_write(nuc) catch {
     _ => abort("write should not fail")
   }
-  assert_eq(written, "40\t2\t1\t0\t1\t5\t1\t8\t+\tq1\t100\t10\t45\tchr1\t1000\t100\t138\t2\t20,10,\t10,35,\t100,128,\n10\t0\t0\t0\t0\t0\t0\t0\t+\tq1\t100\t80\t90\tchr1\t1000\t200\t210\t1\t10,\t80,\t200,\n27\t2\t1\t0\t2\t25\t2\t20\t--\tq1\t100\t10\t65\tchr2\t500\t100\t150\t3\t10,10,10,\t80,60,35,\t390,370,350,\n15\t1\t0\t1\t0\t0\t0\t0\t+\tq2\t80\t0\t16\tchr1\t1000\t500\t516\t1\t16,\t0,\t500,\n")
+  assert_eq(
+    written, "40\t2\t1\t0\t1\t5\t1\t8\t+\tq1\t100\t10\t45\tchr1\t1000\t100\t138\t2\t20,10,\t10,35,\t100,128,\n10\t0\t0\t0\t0\t0\t0\t0\t+\tq1\t100\t80\t90\tchr1\t1000\t200\t210\t1\t10,\t80,\t200,\n27\t2\t1\t0\t2\t25\t2\t20\t--\tq1\t100\t10\t65\tchr2\t500\t100\t150\t3\t10,10,10,\t80,60,35,\t390,370,350,\n15\t1\t0\t1\t0\t0\t0\t0\t+\tq2\t80\t0\t16\tchr1\t1000\t500\t516\t1\t16,\t0,\t500,\n",
+  )
   let written_h = @src.blat_psl_write(nuc, header=true) catch {
     _ => abort("write should not fail")
   }
-  assert_eq(written_h, "psLayout version 3\n\nmatch\tmis- \trep. \tN's\tQ gap\tQ gap\tT gap\tT gap\tstrand\tQ        \tQ   \tQ    \tQ  \tT        \tT   \tT    \tT  \tblock\tblockSizes \tqStarts\t tStarts\n     \tmatch\tmatch\t   \tcount\tbases\tcount\tbases\t      \tname     \tsize\tstart\tend\tname     \tsize\tstart\tend\tcount\n---------------------------------------------------------------------------------------------------------------------------------------------------------------\n40\t2\t1\t0\t1\t5\t1\t8\t+\tq1\t100\t10\t45\tchr1\t1000\t100\t138\t2\t20,10,\t10,35,\t100,128,\n10\t0\t0\t0\t0\t0\t0\t0\t+\tq1\t100\t80\t90\tchr1\t1000\t200\t210\t1\t10,\t80,\t200,\n27\t2\t1\t0\t2\t25\t2\t20\t--\tq1\t100\t10\t65\tchr2\t500\t100\t150\t3\t10,10,10,\t80,60,35,\t390,370,350,\n15\t1\t0\t1\t0\t0\t0\t0\t+\tq2\t80\t0\t16\tchr1\t1000\t500\t516\t1\t16,\t0,\t500,\n")
+  assert_eq(
+    written_h, "psLayout version 3\n\nmatch\tmis- \trep. \tN's\tQ gap\tQ gap\tT gap\tT gap\tstrand\tQ        \tQ   \tQ    \tQ  \tT        \tT   \tT    \tT  \tblock\tblockSizes \tqStarts\t tStarts\n     \tmatch\tmatch\t   \tcount\tbases\tcount\tbases\t      \tname     \tsize\tstart\tend\tname     \tsize\tstart\tend\tcount\n---------------------------------------------------------------------------------------------------------------------------------------------------------------\n40\t2\t1\t0\t1\t5\t1\t8\t+\tq1\t100\t10\t45\tchr1\t1000\t100\t138\t2\t20,10,\t10,35,\t100,128,\n10\t0\t0\t0\t0\t0\t0\t0\t+\tq1\t100\t80\t90\tchr1\t1000\t200\t210\t1\t10,\t80,\t200,\n27\t2\t1\t0\t2\t25\t2\t20\t--\tq1\t100\t10\t65\tchr2\t500\t100\t150\t3\t10,10,10,\t80,60,35,\t390,370,350,\n15\t1\t0\t1\t0\t0\t0\t0\t+\tq2\t80\t0\t16\tchr1\t1000\t500\t516\t1\t16,\t0,\t500,\n",
+  )
   let stats = @src.blat_psl_write_stats(nuc)
-  assert_eq((stats.qresults, stats.hits, stats.hsps, stats.fragments), (2, 3, 4, 7))
+  assert_eq(
+    (stats.qresults, stats.hits, stats.hsps, stats.fragments),
+    (2, 3, 4, 7),
+  )
   let pslx_res = @src.blat_psl_parse(blat_pslx_text, pslx=true) catch {
     _ => abort("valid PSLX should parse")
   }
   let written_x = @src.blat_psl_write(pslx_res, pslx=true) catch {
     _ => abort("write should not fail")
   }
-  assert_eq(written_x, "18\t1\t1\t0\t1\t4\t0\t0\t+\tqx\t60\t5\t29\tchrA\t900\t50\t74\t2\t10,10,\t5,19,\t50,64,\tAAAAATTTTT,CCCCCGGGGG,\tAAAAATTT-T,CCCCCGGGGG,\n16\t2\t0\t0\t0\t0\t1\t6\t-+\tqx\t60\t38\t58\tchrB\t700\t100\t120\t2\t8,8,\t2,14,\t100,112,\tACGTACGT,TGCATGCA,\tAC-TACGT,TGC-TGCA,\n")
+  assert_eq(
+    written_x, "18\t1\t1\t0\t1\t4\t0\t0\t+\tqx\t60\t5\t29\tchrA\t900\t50\t74\t2\t10,10,\t5,19,\t50,64,\tAAAAATTTTT,CCCCCGGGGG,\tAAAAATTT-T,CCCCCGGGGG,\n16\t2\t0\t0\t0\t0\t1\t6\t-+\tqx\t60\t38\t58\tchrB\t700\t100\t120\t2\t8,8,\t2,14,\t100,112,\tACGTACGT,TGCATGCA,\tAC-TACGT,TGC-TGCA,\n",
+  )
   let stats_x = @src.blat_psl_write_stats(pslx_res)
-  assert_eq((stats_x.qresults, stats_x.hits, stats_x.hsps, stats_x.fragments), (1, 2, 2, 4))
+  assert_eq(
+    (stats_x.qresults, stats_x.hits, stats_x.hsps, stats_x.fragments),
+    (1, 2, 2, 4),
+  )
 }
 
+///|
 test "blat-psl header: psLayout version 3 preamble" {
   assert_eq(@src.blat_psl_header(), blat_header_text)
   assert_eq(@src.blat_psl_header().length(), 159 + 268)
 }
 
+///|
 test "blat-psl round trip: re-parsed writer output matches Biopython" {
   let nuc = @src.blat_psl_parse(blat_nuc_text) catch {
     _ => abort("valid PSL should parse")
@@ -417,7 +443,9 @@ test "blat-psl round trip: re-parsed writer output matches Biopython" {
   assert_eq(rt_nuc[0].hits[0].hsps[0].query_is_protein, false)
   assert_eq(rt_nuc[0].hits[0].hsps[0].has_hit_strand, false)
   assert_eq(rt_nuc[0].hits[0].hsps[0].score, 36)
-  assert_true(blat_close(rt_nuc[0].hits[0].hsps[0].ident_pct, 93.02325581395348))
+  assert_true(
+    blat_close(rt_nuc[0].hits[0].hsps[0].ident_pct, 93.02325581395348),
+  )
   assert_eq(rt_nuc[0].hits[0].hsps[0].blocks.length(), 2)
   assert_eq(rt_nuc[0].hits[0].hsps[0].blocks[0].query_start, 10)
   assert_eq(rt_nuc[0].hits[0].hsps[0].blocks[0].query_end, 30)
@@ -536,6 +564,7 @@ test "blat-psl round trip: re-parsed writer output matches Biopython" {
   println("roundtrip nuc structure ok")
 }
 
+///|
 test "blat-pslx round trip: sequences survive writing" {
   let pslx_res = @src.blat_psl_parse(blat_pslx_text, pslx=true) catch {
     _ => abort("valid PSLX should parse")
@@ -603,7 +632,9 @@ test "blat-pslx round trip: sequences survive writing" {
   assert_eq(rt_pslx[0].hits[1].hsps[0].query_is_protein, false)
   assert_eq(rt_pslx[0].hits[1].hsps[0].has_hit_strand, true)
   assert_eq(rt_pslx[0].hits[1].hsps[0].score, 13)
-  assert_true(blat_close(rt_pslx[0].hits[1].hsps[0].ident_pct, 88.88888888888889))
+  assert_true(
+    blat_close(rt_pslx[0].hits[1].hsps[0].ident_pct, 88.88888888888889),
+  )
   assert_eq(rt_pslx[0].hits[1].hsps[0].blocks.length(), 2)
   assert_eq(rt_pslx[0].hits[1].hsps[0].blocks[0].query_start, 50)
   assert_eq(rt_pslx[0].hits[1].hsps[0].blocks[0].query_end, 58)
@@ -624,6 +655,7 @@ test "blat-pslx round trip: sequences survive writing" {
   println("roundtrip pslx structure ok")
 }
 
+///|
 test "BlatQueryResult.to_search_io converts to the generic SearchIO model" {
   let nuc = @src.blat_psl_parse(blat_nuc_text) catch {
     _ => abort("valid PSL should parse")
@@ -647,14 +679,23 @@ test "BlatQueryResult.to_search_io converts to the generic SearchIO model" {
   }
   assert_eq(generic_mix[1].to_search_io().hits[0].hsps[0].query_start, 6)
   assert_eq(generic_mix[1].to_search_io().hits[0].hsps[0].query_end, 35)
-  assert_true(blat_close(generic_mix[1].to_search_io().hits[0].hsps[0].bitscore, 79.0))
+  assert_true(
+    blat_close(generic_mix[1].to_search_io().hits[0].hsps[0].bitscore, 79.0),
+  )
   let generic_x = @src.blat_psl_parse(blat_pslx_text, pslx=true) catch {
     _ => abort("valid PSLX should parse")
   }
-  assert_eq(generic_x[0].to_search_io().hits[0].hsps[0].query_seq, "AAAAATTTTTCCCCCGGGGG")
-  assert_eq(generic_x[0].to_search_io().hits[0].hsps[0].hit_seq, "AAAAATTT-TCCCCCGGGGG")
+  assert_eq(
+    generic_x[0].to_search_io().hits[0].hsps[0].query_seq,
+    "AAAAATTTTTCCCCCGGGGG",
+  )
+  assert_eq(
+    generic_x[0].to_search_io().hits[0].hsps[0].hit_seq,
+    "AAAAATTT-TCCCCCGGGGG",
+  )
 }
 
+///|
 test "blat-psl write: PSLX data can be written as plain PSL" {
   let pslx_res = @src.blat_psl_parse(blat_pslx_text, pslx=true) catch {
     _ => abort("valid PSLX should parse")

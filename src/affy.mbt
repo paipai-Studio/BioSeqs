@@ -14,7 +14,7 @@ pub fn ProbeSet::new(
   pm_intensities : Array[Array[Double]],
   mm_intensities : Array[Array[Double]],
 ) -> ProbeSet {
-  ProbeSet::{ probe_set_id, pm_intensities, mm_intensities }
+  ProbeSet::{ probe_set_id, pm_intensities, mm_intensities, }
 }
 
 ///|

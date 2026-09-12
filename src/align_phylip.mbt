@@ -77,7 +77,7 @@ pub fn AlignPhylipAlignment::create(
   for sequence in sequences {
     copied.push(sequence)
   }
-  let alignment = AlignPhylipAlignment::{ sequences: copied, source_layout }
+  let alignment = AlignPhylipAlignment::{ sequences: copied, source_layout, }
   align_phylip_validate_alignment(alignment)
   alignment
 }

@@ -97,7 +97,7 @@ pub fn GenomicFilesCollection::new(
   files : Array[GenomicFile],
   sample_names : Array[String],
 ) -> GenomicFilesCollection {
-  GenomicFilesCollection::{ files, sample_names, yield_size: 1000 }
+  GenomicFilesCollection::{ files, sample_names, yield_size: 1000, }
 }
 
 ///|
@@ -126,7 +126,7 @@ pub struct ScanResult {
 ///|
 /// Create a new empty ScanResult for a given seqname.
 pub fn ScanResult::new(seqname : String) -> ScanResult {
-  ScanResult::{ seqname, ranges: Array::new(), values: Array::new() }
+  ScanResult::{ seqname, ranges: Array::new(), values: Array::new(), }
 }
 
 ///|

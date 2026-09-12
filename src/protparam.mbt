@@ -437,15 +437,19 @@ pub fn ProteinAnalysis::flexibility(
       let back = seq.unsafe_get(i + window - j - 1).unsafe_to_char()
       let fv = match flex_values.get(front) {
         Some(v) => v
-        None => raise SeqError(
-          "flexibility: " + front.to_string() + " is not a standard amino acid",
-        )
+        None =>
+          raise SeqError(
+            "flexibility: " +
+            front.to_string() +
+            " is not a standard amino acid",
+          )
       }
       let bv = match flex_values.get(back) {
         Some(v) => v
-        None => raise SeqError(
-          "flexibility: " + back.to_string() + " is not a standard amino acid",
-        )
+        None =>
+          raise SeqError(
+            "flexibility: " + back.to_string() + " is not a standard amino acid",
+          )
       }
       score = score + (fv + bv) * flex_weights[j]
       j = j + 1
@@ -454,9 +458,10 @@ pub fn ProteinAnalysis::flexibility(
     let middle = seq.unsafe_get(i + window / 2 + 1).unsafe_to_char()
     let mv = match flex_values.get(middle) {
       Some(v) => v
-      None => raise SeqError(
-        "flexibility: " + middle.to_string() + " is not a standard amino acid",
-      )
+      None =>
+        raise SeqError(
+          "flexibility: " + middle.to_string() + " is not a standard amino acid",
+        )
     }
     score = score + mv
     scores.push(score / 5.25)
@@ -551,8 +556,13 @@ pub fn ProteinAnalysis::secondary_structure_fraction(
     if c == 'N' || c == 'P' || c == 'G' || c == 'S' || c == 'D' {
       turn = turn + 1
     }
-    if c == 'V' || c == 'I' || c == 'Y' || c == 'F' || c == 'W' ||
-         c == 'L' || c == 'T' {
+    if c == 'V' ||
+      c == 'I' ||
+      c == 'Y' ||
+      c == 'F' ||
+      c == 'W' ||
+      c == 'L' ||
+      c == 'T' {
       sheet = sheet + 1
     }
     i = i + 1
@@ -567,7 +577,9 @@ pub fn ProteinAnalysis::secondary_structure_fraction(
 /// Returns (reduced, oxidized): reduced counts Trp (5500) and Tyr (1490)
 /// contributions; oxidized additionally adds 125 per cystine pair
 /// (number of Cys // 2).
-pub fn ProteinAnalysis::molar_extinction_coefficient(self : ProteinAnalysis) -> (Int, Int) {
+pub fn ProteinAnalysis::molar_extinction_coefficient(
+  self : ProteinAnalysis,
+) -> (Int, Int) {
   let seq = self.sequence.to_upper()
   let mut n_w = 0
   let mut n_y = 0
@@ -585,7 +597,7 @@ pub fn ProteinAnalysis::molar_extinction_coefficient(self : ProteinAnalysis) -> 
     i = i + 1
   }
   let reduced = n_w * 5500 + n_y * 1490
-  let oxidized = reduced + (n_c / 2) * 125
+  let oxidized = reduced + n_c / 2 * 125
   (reduced, oxidized)
 }
 
@@ -624,10 +636,9 @@ pub fn ProteinAnalysis::gravy_scale(
 /// Names of all hydrophobicity scales usable with gravy_scale.
 pub fn gravy_scale_names() -> Array[String] {
   [
-    "KyteDoolitle", "Aboderin", "AbrahamLeo", "Argos", "BlackMould",
-    "BullBreese", "Casari", "Cid", "Cowan3.4", "Cowan7.5", "Eisenberg",
-    "Engelman", "Fasman", "Fauchere", "GoldSack", "Guy", "Jones",
-    "Juretic", "Kidera", "Miyazawa", "Parker", "Ponnuswamy", "Rose",
-    "Roseman", "Sweet", "Tanford", "Wilson", "Zimmerman",
+    "KyteDoolitle", "Aboderin", "AbrahamLeo", "Argos", "BlackMould", "BullBreese",
+    "Casari", "Cid", "Cowan3.4", "Cowan7.5", "Eisenberg", "Engelman", "Fasman", "Fauchere",
+    "GoldSack", "Guy", "Jones", "Juretic", "Kidera", "Miyazawa", "Parker", "Ponnuswamy",
+    "Rose", "Roseman", "Sweet", "Tanford", "Wilson", "Zimmerman",
   ]
 }

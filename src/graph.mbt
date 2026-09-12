@@ -7,7 +7,7 @@ pub struct Node {
 
 ///|
 pub fn Node::new(node_id : String, label : String) -> Node {
-  Node::{ node_id, label, attributes: Map([], capacity=5) }
+  Node::{ node_id, label, attributes: Map([], capacity=5), }
 }
 
 ///|
@@ -26,7 +26,7 @@ pub struct Edge {
 
 ///|
 pub fn Edge::new(source : String, target : String, weight : Double) -> Edge {
-  Edge::{ source, target, weight, label: "", attributes: Map([], capacity=5) }
+  Edge::{ source, target, weight, label: "", attributes: Map([], capacity=5), }
 }
 
 ///|
@@ -76,7 +76,7 @@ pub struct Graph {
 
 ///|
 pub fn Graph::new(name : String, graph_type : GraphType) -> Graph {
-  Graph::{ nodes: Array::new(), edges: Array::new(), graph_type, name }
+  Graph::{ nodes: Array::new(), edges: Array::new(), graph_type, name, }
 }
 
 ///|

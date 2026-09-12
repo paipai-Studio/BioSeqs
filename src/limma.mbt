@@ -16,7 +16,7 @@ pub struct Matrix {
 ///|
 /// Create a matrix from flat array.
 pub fn Matrix::new(rows : Int, cols : Int, data : Array[Double]) -> Matrix {
-  Matrix::{ rows, cols, data }
+  Matrix::{ rows, cols, data, }
 }
 
 ///|
@@ -43,7 +43,7 @@ pub fn Matrix::from_2d(
 /// Create a zero matrix.
 pub fn Matrix::zeros(rows : Int, cols : Int) -> Matrix {
   let data = Array::make(rows * cols, 0.0)
-  Matrix::{ rows, cols, data }
+  Matrix::{ rows, cols, data, }
 }
 
 ///|
@@ -55,7 +55,7 @@ pub fn Matrix::identity(n : Int) -> Matrix {
     data[i * n + i] = 1.0
     i = i + 1
   }
-  Matrix::{ rows: n, cols: n, data }
+  Matrix::{ rows: n, cols: n, data, }
 }
 
 ///|
@@ -506,7 +506,7 @@ pub fn TopTableRow::new(
   adj_p_value : Double,
   b : Double,
 ) -> TopTableRow {
-  TopTableRow::{ log_fc, ave_exp, t, p_value, adj_p_value, b }
+  TopTableRow::{ log_fc, ave_exp, t, p_value, adj_p_value, b, }
 }
 
 ///|
