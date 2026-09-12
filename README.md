@@ -139,6 +139,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **NeXML** | `Bio.Phylo.NeXML` | NeXML 格式解析与序列化、OTUs/Trees/Characters 数据模型、Newick 转换 |
 | **CDAO** | `Bio.Phylo.CDAO` | CDAO 本体 RDF/XML 格式、Tree/Node/TU/Edge 三元组建模、Newick 双向转换、命名空间处理 |
 | **Parsimony** | `Bio.Phylo.Parsimony` | Fitch 算法（状态集交集/并集）、Sankoff 算法（动态规划+代价矩阵） |
+| **Parsimony Tree Construction** | `Bio.Phylo.TreeConstruction` | `ParsimonyScorer`（Fitch/Sankoff、无根树自动中点定根）、`NNITreeSearcher` NNI 爬山搜索、`ParsimonyTreeConstructor`（默认 identity-UPGMA 起始树，Biopython 等权平均/平局取后规则）、`Tree.root_at_midpoint` 中点定根 |
 | **Consensus** | `Bio.Phylo.Consensus` | 多数规则（含 cutoff）/严格/Adam 一致性树、clade 支持度标注 `get_support`、非参数 bootstrap（列重采样索引、NJ 重复树、`bootstrap_consensus` 一站式）、共识树 Newick 序列化 |
 | **Phylo Metrics** | `Bio.Phylo` (metrics) | Colless 平衡指数、Robinson-Foulds 距离、距离矩阵 |
 | **Trie** | `Bio.Phylo.Trie` | 前缀树数据结构、插入/查找/前缀匹配/最长前缀/子串搜索、限制酶位点检测、引物匹配 |
@@ -535,12 +536,12 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.9)
-├── src/                              # 源代码（484 个 .mbt 模块）
+├── src/                              # 源代码（485 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
 │   ├── searchio.mbt / blast_*.mbt / ... # 搜索结果解析（BLAST/HMMER/Infernal/...）
-│   ├── phylo.mbt / tree_*.mbt / paml_*.mbt # 发育树 + PAML 分子进化
+│   ├── phylo.mbt / tree_*.mbt / parsimony.mbt / parsimony_tree.mbt / paml_*.mbt # 发育树 + 最大简约建树 + PAML 分子进化
 │   ├── pdb*.mbt / mmcif*.mbt / binary_cif.mbt / ... # 结构分析与格式
 │   ├── sam.mbt / bam.mbt / bgzf.mbt / vcf.mbt / cram_wbtest.mbt # NGS 文件（BGZF 压缩/随机访问）
 │   ├── seqio_index.mbt / ncbiblast_web.mbt # SeqIO 字节偏移索引 / NCBI WWW qblast 客户端
@@ -550,7 +551,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（444 个演示 demo）
+├── examples/                         # 示例程序（445 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── pqs_demo/                     # pqsfinder G-四链体检测（评分系统/双链/deep density 与 maxScores/overlapping/序列提取）
@@ -587,6 +588,7 @@ IvanAXu/BioSeqs/
 │   ├── splatter_demo/                # splatter（基础模拟/分组 DE/批次效应/dropout/pseudotime 路径/RNG 流）
 │   ├── phylo_applications_demo/      # Bio.Phylo.Applications（FastTree/PhyML/RAxML 命令行构建）
 │   ├── tree_construction_demo/       # DistanceCalculator（identity/blastn/BLOSUM62 全模型距离 + UPGMA/NJ/WPGMA 建树）
+│   ├── parsimony_tree_demo/          # Bio.Phylo.TreeConstruction 最大简约（Fitch/Sankoff 打分、NNI 爬山、默认 identity-UPGMA 起始树、中点定根）
 │   ├── phylo_bootstrap_demo/         # Bio.Phylo.Consensus（strict/majority/Adam 共识树 + get_support 支持度 + 比对列 bootstrap）
 │   ├── propeller_demo/               # speckle propeller（细胞类型比例变换、moderated t/ANOVA、robust eBayes、normCounts、Beta 参数）
 │   ├── substitution_matrices_demo/   # 替换矩阵注册表与 30 个 Biopython 权威矩阵（IUPAC NUC.4.4/BLOSUM/PAM/密码子）
@@ -598,7 +600,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（467 个测试文件，13097 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（468 个测试文件，13106 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -618,7 +620,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13097 个测试全部通过
+moon test                                               # ✅ 13106 个测试全部通过
 ```
 
 ---
@@ -627,7 +629,7 @@ moon test                                               # ✅ 13097 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13097 个测试用例)
+moon test       # 运行全部测试 (13106 个测试用例)
 ```
 
 ---
