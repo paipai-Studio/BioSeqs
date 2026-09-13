@@ -8,7 +8,7 @@
 
 ## 项目概述
 
-BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.9`。
+BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.10`。
 
 ## 目录
 
@@ -208,8 +208,11 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Primer3** | `Bio.Emboss.Primer3` | Wallace/盐校正 Tm、GC 含量、自互补/交叉二聚体评分、发夹 3' 端检测、正/反向候选流水线 |
 | **FreqTable** | `Bio.SubsMat.FreqTable` | 计数/频率字典、read_count/read_freq 文本解析、Shannon 熵、KL 散度、Jensen-Shannon 距离、归一化 |
 | **Affy** | `Bio.Affy` | Affymetrix 芯片、RMA 标准化、背景校正、分位数归一化 |
+| **Affy CelFile** | `Bio.Affy.CelFile` | Affymetrix CEL 文本格式（v3.x/v4 ASCII）解析：`[HEADER]`/`[INTENSITY]`/`[MASK]`/`[OUTLIERS]`/`[MODIFIED]` 段、DatHeader 网格解析、行优先 intensities/stdevs/npix 矩阵、probe-level 统计（mean/median/range/percentile/IQR/MAS5 background）、mask/outlier 比例 |
 | **Graphics / GenomeDiagram** | `Bio.Graphics` / `Bio.Graphics.GenomeDiagram` | Track/Feature/Diagram 数据模型、Rectangle/Arrow/Diamond 形状、SVG 生成、自动标注 |
 | **Chromosome** | `Bio.Graphics.Chromosome` | 染色体/特征/区域/带、SVG 线性/圆形渲染、G 带染色、核型图 |
+| **DistributionPlot** | `Bio.Graphics.DistributionPlot` | SVG 分布图：Histogram（自动/手动 bin、nice ticks）、ScatterPlot、LinePlot（多 series polyline）、DistributionPage 网格布局多 panel、轴刻度与标题、独立 SVG 文档输出 |
+| **KGML_vis** | `Bio.Graphics.KGML_vis` | KEGG KGML 通路图 SVG 渲染：KgmlCanvas 自动 bbox 缩放、gene/enzyme/ortholog rect、compound circle、map 虚线 rect、relation 按 rtype 着色（ECrel/PPrel/GErel/PCrel/maplink）、reaction 不可逆/可逆双向箭头、entry 标签开关、kgml_to_svg 便捷接口 |
 | **Wise2** | `Bio.Wise` | GeneWise/ESTwise 输出解析、外显子/内含子/比对列、剪接相位、比特分数 |
 | **PCD 质谱** | `Bio.PCD` | 质谱 PCD 解析（Scan/RT/PEPMASS）、峰列表、TIC/BPC 色谱图、m/z 过滤、前体离子 |
 | **NMR** | `Bio.NMR` | NOE 距离约束（XPLOR/CNS）、二面角约束、化学位移表（BMRB-like）、NMRView .xpk、约束违反 |
@@ -225,6 +228,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **File 压缩** | `Bio.File` | 自动 gzip/bzip2 检测、透明压缩读写、文件操作接口 |
 | **BGZF 块 GZIP** | `Bio.bgzf` | 解压 bgzf_decompress / parse_bam_from_bgzf；写入 bgzf_compress / BgzfWriter（stored DEFLATE 分块，单块 payload ≤65505 字节，收尾 28 字节标准 EOF 块）、BgzfReader 随机访问（read(size)/readline/seek/tell）、虚拟偏移 bgzf_make/split_virtual_offset（coffset<<16｜uoffset，BAM/tabix 索引语义）、bgzf_blocks 块元数据扫描（start/block_length/data_offset/data_length）；修复 DEFLATE 位读取 LSB 位序、gzip CM/FLG 偏移、stored block LEN/NLEN 小端读取、BGZF trailer 位置计算等潜伏解压 bug |
 | **Bio.NaiveBayes** | `Bio.NaiveBayes` | k-mer 频率朴素贝叶斯、Laplace 平滑、top-K 预测 |
+| **Bio.kNN** | `Bio.kNN` | k 近邻监督分类器：Manhattan/Euclidean 距离、逆距离加权投票（d=0 精确匹配直返）、分类概率、留一法交叉验证、混淆矩阵、min-max/z-score 特征归一化（列/样本集） |
 | **Bio.Markov** | `Bio.Markov` | 1/2/3 阶马尔可夫链训练、转移概率、序列对数概率、CpG 岛 log-odds 检测、稳态分布 |
 | **Bio.LogisticRegression** | `Bio.LogisticRegression` | 二分类、Newton-Raphson、Hessian、操纵子预测示例 |
 | **Bio.MaxEntropy** | `Bio.MaxEntropy` | IIS 训练、指示特征函数、softmax 归一化 |
