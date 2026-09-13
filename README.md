@@ -406,6 +406,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | :--- | :--- | :--- |
 | **clusterProfiler** | clusterProfiler | 功能富集统一框架、超几何检验、多重检验校正、结果过滤与可视化 |
 | **DOSE** | DOSE | Fisher 精确检验（two-sided/greater/less，Haldane-Anscombe 零格修正 OR）、超几何富集检验、BH–FDR / Bonferroni 多重检验校正、fold enrichment、odds ratio、批量疾病本体富集（`enrich_disease_fisher`/`enrich_disease_hyper`）、结果按 adj-p 升序+FE 降序排序、结果访问器与过滤 |
+| **GOSemSim** | GOSemSim | GO 语义相似度五种经典算法：Resnik（IC(MICA)）、Lin（2*IC/(IC1+IC2)）、Rel/Schlicker（Lin×(1−exp(−IC))）、Jiang（1−min(1, IC1+IC2−2*IC)）、Wang（纯拓扑 SV 传播，is_a 权重 0.8，topNode SV=0）；基因级 combine：max/avg/rcmax/BMA（rcmax.avg）；GOGraph/GOTermNode DAG 数据结构 |
 | **ReactomePA** | ReactomePA | Reactome 通路富集、按顶层术语分组、通路注释查询 |
 | **topGO** | topGO | 拓扑 GO 富集（elim/weight01 算法、Fisher 精确检验、GO 图） |
 | **enrichplot** | enrichplot | 富集结果可视化：dotplot/barplot/heatmap/cnetplot/enrichment map |
@@ -595,12 +596,12 @@ IvanAXu/BioSeqs/
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ / rankprod_demo/ # 差异表达
-│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE 疾病本体富集 / Pathway 生化通路
+│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ / gosemsim_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE / Pathway / GOSemSim GO语义相似度
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（466 个测试文件，13149 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（466 个测试文件，13167 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -620,7 +621,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13149 个测试全部通过
+moon test                                               # ✅ 13167 个测试全部通过
 ```
 
 ---
@@ -629,7 +630,7 @@ moon test                                               # ✅ 13149 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13149 个测试用例)
+moon test       # 运行全部测试 (13167 个测试用例)
 ```
 
 ---

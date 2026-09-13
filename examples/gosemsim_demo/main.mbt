@@ -1,69 +1,77 @@
-///|
-/// GOSemSim GO semantic similarity demo.
-/// Demonstrates computing semantic similarity between GO terms.
+/// Demo: GOSemSim — GO semantic similarity (Bioconductor).
+///
+/// Ported from GOSemSim R package (Yu et al., 2010).
+/// Five measures: Resnik, Lin, Rel (Schlicker), Jiang, Wang.
+/// Gene-level combine: max, avg, rcmax, BMA.
 
 fn main {
-  println("=== GOSemSim GO Semantic Similarity Demo ===")
+  let g = @src.gosemsim_example_graph()
+
+  println("=== GOSemSim Demo (Bioconductor) ===")
+  println("GO semantic similarity — 5 measures × gene-level combine")
   println("")
 
-  // Build example GO graph
-  let g = @bio.gosemsim_example_graph()
-
-  println("GO graph built with root: biological_process")
-  println("Terms in graph: 9")
-
-  // Define test term pairs
-  println("")
-  println("Term Similarity Measures:")
+  println("Example GO DAG (root=GO:0008150):")
+  println("  GO:0008150(ic=0.0) biological_process")
+  println("    ├── GO:0050896(0.3) response_to_stimulus")
+  println("    │    ├── GO:0009987(0.5) cellular_process → GO:0006810(0.7) transport")
+  println("    │    └── GO:0023046(0.4) signaling → GO:0007165(0.6) signal_transduction")
+  println("    └── GO:0009058(0.2) biosynthetic_process → GO:0010467(0.35) gene_expression")
   println("")
 
-  // Compute similarity for each pair
-  let resnik1 = @bio.gosemsim_term_sim(g, "GO:0006810", "GO:0009987", @bio.resnik_measure())
-  let lin1 = @bio.gosemsim_term_sim(g, "GO:0006810", "GO:0009987", @bio.lin_measure())
-  let rel1 = @bio.gosemsim_term_sim(g, "GO:0006810", "GO:0009987", @bio.rel_measure())
-  let jiang1 = @bio.gosemsim_term_sim(g, "GO:0006810", "GO:0009987", @bio.jiang_measure())
-  let wang1 = @bio.gosemsim_term_sim(g, "GO:0006810", "GO:0009987", @bio.wang_measure())
-  println("  transport vs cellular_process:")
-  println("    Resnik=\{resnik1.to_string()}, Lin=\{lin1.to_string()}, Rel=\{rel1.to_string()}")
-  println("    Jiang=\{jiang1.to_string()}, Wang=\{wang1.to_string()}")
+  // ── Term-level comparison ──────────────────────────────────────────
+  println("=== Term-level similarity (5 measures) ===")
 
-  let resnik2 = @bio.gosemsim_term_sim(g, "GO:0006810", "GO:0007165", @bio.resnik_measure())
-  let lin2 = @bio.gosemsim_term_sim(g, "GO:0006810", "GO:0007165", @bio.lin_measure())
-  let rel2 = @bio.gosemsim_term_sim(g, "GO:0006810", "GO:0007165", @bio.rel_measure())
-  println("  transport vs signal_transduction:")
-  println("    Resnik=\{resnik2.to_string()}, Lin=\{lin2.to_string()}, Rel=\{rel2.to_string()}")
+  fn fmt(v : Double) -> String {
+    v.to_string()
+  }
 
-  let resnik3 = @bio.gosemsim_term_sim(g, "GO:0006810", "GO:0006810", @bio.resnik_measure())
-  let lin3 = @bio.gosemsim_term_sim(g, "GO:0006810", "GO:0006810", @bio.lin_measure())
-  println("  transport vs transport (self):")
-  println("    Resnik=\{resnik3.to_string()}, Lin=\{lin3.to_string()}")
+  let pair : Array[(String, String, String)] = Array::new()
+  pair.push(("GO:0006810", "GO:0006810", "self"))
+  pair.push(("GO:0006810", "GO:0009987", "parent-child"))
+  pair.push(("GO:0006810", "GO:0007165", "sibling_subtree"))
+  pair.push(("GO:0009987", "GO:0023046", "siblings"))
+  pair.push(("GO:0006810", "GO:0010467", "no_common"))
+  pair.push(("GO:0007165", "GO:0010467", "distant_root"))
 
-  let resnik4 = @bio.gosemsim_term_sim(g, "GO:0009987", "GO:0009058", @bio.resnik_measure())
-  let lin4 = @bio.gosemsim_term_sim(g, "GO:0009987", "GO:0009058", @bio.lin_measure())
-  println("  cellular_process vs biosynthetic_process:")
-  println("    Resnik=\{resnik4.to_string()}, Lin=\{lin4.to_string()}")
-
-  // Gene-level similarity
+  println("Pair\tResnik\tLin\tRel\tJiang\tWang")
+  let mut i = 0
+  while i < pair.length() {
+    let (t1, t2, desc) = pair[i]
+    let resnik = @src.gosemsim_term_sim(g, t1, t2, @src.resnik_measure())
+    let lin = @src.gosemsim_term_sim(g, t1, t2, @src.lin_measure())
+    let rel = @src.gosemsim_term_sim(g, t1, t2, @src.rel_measure())
+    let jiang = @src.gosemsim_term_sim(g, t1, t2, @src.jiang_measure())
+    let wang = @src.gosemsim_term_sim(g, t1, t2, @src.wang_measure())
+    println(desc + "\t" + fmt(resnik) + "\t" + fmt(lin) + "\t" +
+            fmt(rel) + "\t" + fmt(jiang) + "\t" + fmt(wang))
+    i = i + 1
+  }
   println("")
-  println("=== Gene-Level Similarity ===")
+
+  // ── Gene-level combine methods ──────────────────────────────────────
+  println("=== Gene-level similarity (Resnik × combine) ===")
+  let go1 : Array[String] = ["GO:0006810", "GO:0007165"]
+  let go2 : Array[String] = ["GO:0006810", "GO:0009987"]
+
+  // Resnik 2x2 matrix:
+  //   GO:0006810 vs GO:0006810 = 0.7
+  //   GO:0006810 vs GO:0009987 = 0.5
+  //   GO:0007165 vs GO:0006810 = 0.3
+  //   GO:0007165 vs GO:0009987 = 0.3
+  let max_v = @src.gosemsim_gen_sim(g, go1, go2, @src.resnik_measure(), combine="max")
+  let avg_v = @src.gosemsim_gen_sim(g, go1, go2, @src.resnik_measure(), combine="avg")
+  let rcmax_v = @src.gosemsim_gen_sim(g, go1, go2, @src.resnik_measure(), combine="rcmax")
+  let bma_v = @src.gosemsim_gen_sim(g, go1, go2, @src.resnik_measure(), combine="BMA")
+
+  println("  Gene1: transport(0.7) + signal_transduction(0.6)")
+  println("  Gene2: transport(0.7) + cellular_process(0.5)")
+  println("  Resnik matrix: [[0.7, 0.5], [0.3, 0.3]]")
+  println("  combine=max    → " + fmt(max_v))
+  println("  combine=avg    → " + fmt(avg_v))
+  println("  combine=rcmax  → " + fmt(rcmax_v))
+  println("  combine=BMA    → " + fmt(bma_v))
   println("")
 
-  let go1 = ["GO:0006810", "GO:0007165", "GO:0009987"]
-  let go2 = ["GO:0009987", "GO:0023046", "GO:0009058"]
-
-  println("Gene 1 GO terms: \{go1}")
-  println("Gene 2 GO terms: \{go2}")
-
-  let sim_max = @bio.gosemsim_gen_sim(g, go1, go2, @bio.resnik_measure(), combine = "max")
-  let sim_avg = @bio.gosemsim_gen_sim(g, go1, go2, @bio.lin_measure(), combine = "avg")
-  let sim_rcmax = @bio.gosemsim_gen_sim(g, go1, go2, @bio.rel_measure(), combine = "rcmax")
-
-  println("")
-  println("Combined similarity:")
-  println("  Max (Resnik): \{sim_max.to_string()}")
-  println("  Avg (Lin):    \{sim_avg.to_string()}")
-  println("  RCMax (Rel):  \{sim_rcmax.to_string()}")
-
-  println("")
-  println("Done!")
+  println("=== Done ===")
 }

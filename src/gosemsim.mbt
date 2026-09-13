@@ -1,8 +1,18 @@
 ///|
 /// GOSemSim - GO semantic similarity measures.
-/// Inspired by the GOSemSim R package (Yu et al., 2010).
-/// Implements Resnik, Lin, Rel, Jiang, and Wang similarity measures
+/// Inspired by the GOSemSim R package (Yu et al., 2010; Bioconductor).
+/// Implements Resnik, Lin, Rel (Schlicker), Jiang, and Wang similarity measures
 /// based on Information Content (IC) of GO terms in the GO DAG.
+///
+/// Five measure formulas (canonical from GOSemSim R source):
+///   Resnik = IC(MICA)
+///   Lin    = 2*IC(MICA) / (IC(id1) + IC(id2))
+///   Jiang  = 1 - min(1, IC(id1) + IC(id2) - 2*IC(MICA))
+///   Rel    = Lin * (1 - exp(-IC_orig(MICA)))
+///   Wang   = sum of SV on common nodes / sum of all SV (with is_a weight=0.8)
+///
+/// Reference: https://rdrr.io/bioc/GOSemSim/src/R/ICMethods.R
+///            https://rdrr.io/bioc/GOSemSim/src/R/WangMethod.R
 
 ///|
 /// Semantic similarity measure types.
@@ -12,7 +22,7 @@ pub enum SimMeasure {
   Rel
   Jiang
   Wang
-}
+} derive(Eq, Debug)
 
 ///|
 /// Construct Resnik measure.
@@ -27,7 +37,7 @@ pub fn lin_measure() -> SimMeasure {
 }
 
 ///|
-/// Construct Rel measure.
+/// Construct Rel (Schlicker) measure.
 pub fn rel_measure() -> SimMeasure {
   Rel
 }
@@ -39,20 +49,24 @@ pub fn jiang_measure() -> SimMeasure {
 }
 
 ///|
-/// Construct Wang measure.
+/// Construct Wang measure (graph-based, no IC needed).
 pub fn wang_measure() -> SimMeasure {
   Wang
 }
 
+// ──────────────────────────────────────────────────────────────────────
+//  GO DAG data structures
+// ──────────────────────────────────────────────────────────────────────
+
 ///|
-/// A node in the GO graph.
+/// A node in the GO DAG.
 pub struct GOTermNode {
   pub go_id : String
   pub term_name : String
   pub ic : Double
   pub parents : Array[String]
   pub children : Array[String]
-}
+} derive(Debug)
 
 ///|
 /// Get GO term ID.
@@ -100,7 +114,7 @@ pub fn GOTermNode::new(
 pub struct GOGraph {
   pub root_id : String
   terms : Map[String, GOTermNode]
-}
+} derive(Debug)
 
 ///|
 /// Get root term ID.
@@ -121,35 +135,32 @@ pub fn GOGraph::add_root(self : GOGraph, root_id : String) -> GOGraph {
 }
 
 ///|
-/// Add a term to the GO graph and update parent references.
+/// Add a term to the GO graph and update parent references' children.
 pub fn GOGraph::add_term(self : GOGraph, node : GOTermNode) -> GOGraph {
-  self.terms.set(node.go_id, node)
-  // Update parent's children list
-  match self.terms.get(node.go_id) {
-    Some(_) =>
-      for parent_id in node.parents {
-        match self.terms.get(parent_id) {
-          Some(parent) => {
-            let new_children : Array[String] = Array::new()
-            for c in parent.children {
-              new_children.push(c)
-            }
-            new_children.push(node.go_id)
-            let updated = GOTermNode::{
-              go_id: parent.go_id,
-              term_name: parent.term_name,
-              ic: parent.ic,
-              parents: parent.parents,
-              children: new_children,
-            }
-            self.terms.set(parent_id, updated)
-          }
-          None => ()
+  // Update parents' children lists first (before setting our node)
+  let terms : Map[String, GOTermNode] = self.terms
+  for parent_id in node.parents {
+    match terms.get(parent_id) {
+      Some(parent) => {
+        let new_children : Array[String] = Array::new()
+        for c in parent.children {
+          new_children.push(c)
         }
+        new_children.push(node.go_id)
+        let updated = GOTermNode::{
+          go_id: parent.go_id,
+          term_name: parent.term_name,
+          ic: parent.ic,
+          parents: parent.parents,
+          children: new_children,
+        }
+        terms.set(parent_id, updated)
       }
-    None => ()
+      None => ()
+    }
   }
-  GOGraph::{ root_id: self.root_id, terms: self.terms, }
+  terms.set(node.go_id, node)
+  GOGraph::{ root_id: self.root_id, terms, }
 }
 
 ///|
@@ -162,54 +173,99 @@ pub fn GOGraph::get_term(self : GOGraph, go_id : String) -> GOTermNode? {
 }
 
 ///|
+/// Get all term IDs in the graph.
+pub fn GOGraph::term_ids(self : GOGraph) -> Array[String] {
+  self.terms.keys().collect()
+}
+
+///|
+/// Get ancestors of a term (including itself) — iterative BFS.
+pub fn GOGraph::ancestors(self : GOGraph, go_id : String) -> Array[String] {
+  let result : Array[String] = Array::new()
+  let visited : Map[String, Bool] = Map([], capacity=32)
+  let mut queue : Array[String] = Array::new()
+  queue.push(go_id)
+  visited.set(go_id, true)
+  while queue.length() > 0 {
+    let cur = queue[0]
+    let rest : Array[String] = Array::new()
+    let mut i = 1
+    while i < queue.length() {
+      rest.push(queue[i])
+      i = i + 1
+    }
+    queue = rest
+    result.push(cur)
+    match self.terms.get(cur) {
+      Some(term) =>
+        for p in term.parents {
+          if !visited.get_or_default(p, false) {
+            visited.set(p, true)
+            queue.push(p)
+          }
+        }
+      None => ()
+    }
+  }
+  result
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//  IC-based measures
+// ──────────────────────────────────────────────────────────────────────
+
+///|
 /// Compute semantic similarity between two GO terms.
+/// Five canonical measures from GOSemSim R package.
+///
+/// Reference formulas (from ICMethods.R commented canonical code):
+///   Resnik = IC(MICA)
+///   Lin    = 2*IC(MICA) / (IC(id1) + IC(id2))
+///   Jiang  = 1 - min(1, IC(id1) + IC(id2) - 2*IC(MICA))
+///   Rel    = Lin * (1 - exp(-IC_orig(MICA)))
+///   Wang   = graph-based, see WangMethod.R SV propagation
+///
+/// All IC-based measures use ORIGINAL IC values (not normalized by max_IC).
 pub fn gosemsim_term_sim(
   graph : GOGraph,
   id1 : String,
   id2 : String,
   measure : SimMeasure,
 ) -> Double {
+  // Wang measure is graph-based (no IC needed), handles missing terms below
+  if measure == Wang {
+    return gosemsim_wang_sim(graph, id1, id2)
+  }
+
   match (graph.get_term(id1), graph.get_term(id2)) {
     (Some(t1), Some(t2)) => {
-      let (mica_id, mica_ic) = gosemsim_mica_ic(graph, id1, id2)
+      let (_, mica_ic) = gosemsim_mica(graph, id1, id2)
+      let ic1 = t1.ic
+      let ic2 = t2.ic
       match measure {
         Resnik => mica_ic
         Lin =>
-          if t1.ic + t2.ic > 1.0e-10 {
-            2.0 * mica_ic / (t1.ic + t2.ic)
-          } else {
-            0.0
-          }
-        Rel =>
-          if t1.ic + t2.ic > 1.0e-10 {
-            let lin = 2.0 * mica_ic / (t1.ic + t2.ic)
-            let rel = lin *
-              (1.0 - mica_ic / (if t1.ic > t2.ic { t1.ic } else { t2.ic }))
-            rel
+          if ic1 + ic2 > 1.0e-15 {
+            2.0 * mica_ic / (ic1 + ic2)
           } else {
             0.0
           }
         Jiang => {
-          let common_ancestors = gosemsim_ancestors(graph, id1)
-          let d1 = gosemsim_distance_to(graph, id1, common_ancestors)
-          let d2 = gosemsim_distance_to(graph, id2, common_ancestors)
-          let d_mica = gosemsim_distance_to(graph, mica_id, common_ancestors)
-          let combined = d1 + d2 - 2.0 * d_mica
-          if combined > 1.0e-10 {
-            1.0 / combined
+          let delta = ic1 + ic2 - 2.0 * mica_ic
+          if delta > 1.0 {
+            0.0
           } else {
-            1.0
+            1.0 - delta
           }
         }
-        Wang => {
-          let s1 = gosemsim_wang_score(graph, id1)
-          let s2 = gosemsim_wang_score(graph, id2)
-          let s_common = gosemsim_wang_common_score(graph, id1, id2)
-          if s1 + s2 > 1.0e-10 {
-            s_common / (s1 + s2 - s_common)
-          } else {
-            0.0
-          }
+        Rel => {
+          let lin_v =
+            if ic1 + ic2 > 1.0e-15 {
+              2.0 * mica_ic / (ic1 + ic2)
+            } else {
+              0.0
+            }
+          lin_v * (1.0 - @math.exp(0.0 - mica_ic))
         }
         _ => 0.0
       }
@@ -218,8 +274,183 @@ pub fn gosemsim_term_sim(
   }
 }
 
+// ──────────────────────────────────────────────────────────────────────
+//  MICA (Most Informative Common Ancestor)
+// ──────────────────────────────────────────────────────────────────────
+
 ///|
-/// Compute semantic similarity between two gene products (sets of GO terms).
+/// Find the Most Informative Common Ancestor (MICA):
+/// the common ancestor of id1 and id2 with the highest IC.
+/// Returns (mica_id, mica_ic_orig).
+/// Falls back to root with IC=0.0 if no common ancestor found.
+fn gosemsim_mica(graph : GOGraph, id1 : String, id2 : String) -> (String, Double) {
+  let anc1 = graph.ancestors(id1)
+  let anc2 = graph.ancestors(id2)
+
+  // Build lookup for anc1
+  let seen : Map[String, Bool] = Map([], capacity=anc1.length())
+  for a in anc1 {
+    seen.set(a, true)
+  }
+
+  let mut best_id = ""
+  let mut best_ic = -1.0
+
+  for a in anc2 {
+    if seen.get_or_default(a, false) {
+      match graph.get_term(a) {
+        Some(term) =>
+          if term.ic > best_ic {
+            best_ic = term.ic
+            best_id = a
+          }
+        None => ()
+      }
+    }
+  }
+
+  if best_ic < 0.0 {
+    (graph.root_id, 0.0)
+  } else {
+    (best_id, best_ic)
+  }
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//  Wang measure — SV propagation (canonical from WangMethod.R)
+// ──────────────────────────────────────────────────────────────────────
+
+///|
+/// Wang semantic similarity — pure graph-based, no IC needed.
+///
+/// Reference: https://rdrr.io/bioc/GOSemSim/src/R/WangMethod.R
+///
+/// SV (Semantic Value) propagation:
+///   1. Initial: SV[term] = 1.0
+///   2. Upward propagation: for each parent p of current nodes,
+///      SV[p] = weight(is_a) * SV[child], with weight = 0.8 for is_a edges
+///   3. topNode SV is forced to 0 (if not DO ontology — for GO this applies)
+///   4. Similarity = sum(SV on common nodes for both terms) / sum(all SV for both terms)
+pub fn gosemsim_wang_sim(graph : GOGraph, id1 : String, id2 : String) -> Double {
+  if id1 == id2 {
+    return 1.0
+  }
+  match (graph.get_term(id1), graph.get_term(id2)) {
+    (Some(_), Some(_)) => ()
+    _ => return 0.0
+  }
+
+  let sv1 = gosemsim_compute_sv(graph, id1)
+  let sv2 = gosemsim_compute_sv(graph, id2)
+
+  // Find common nodes (node IDs present in both SV maps)
+  let inter_sum = gosemsim_inter_sum(sv1, sv2)
+  let total_sum = gosemsim_total_sum(sv1) + gosemsim_total_sum(sv2)
+
+  if total_sum < 1.0e-15 {
+    0.0
+  } else {
+    inter_sum / total_sum
+  }
+}
+
+///|
+/// Compute SV (Semantic Value) vector for a term via upward weight propagation.
+///
+/// Algorithm (from WangMethod.R getSV):
+///   sv[term] = 1.0  (initial)
+///   BFS upward: for each child in frontier, each parent gets
+///     sv[parent] = weight(relationship) * sv[child]
+///   weight for is_a = 0.8 (default GO relationship weight)
+///   topNode SV forced to 0.0
+///
+/// Returns Map[node_id -> sv_value]
+fn gosemsim_compute_sv(graph : GOGraph, start_id : String) -> Map[String, Double] {
+  let sv : Map[String, Double] = Map([], capacity=16)
+  sv.set(start_id, 1.0)
+
+  let root_id = graph.root_id
+  let weight : Double = 0.8 // is_a relationship weight
+
+  // BFS upward
+  let mut frontier : Array[String] = Array::new()
+  frontier.push(start_id)
+  let visited : Map[String, Bool] = Map([], capacity=32)
+  visited.set(start_id, true)
+
+  while frontier.length() > 0 {
+    let cur = frontier[0]
+    let rest : Array[String] = Array::new()
+    let mut i = 1
+    while i < frontier.length() {
+      rest.push(frontier[i])
+      i = i + 1
+    }
+    frontier = rest
+
+    let cur_sv = sv.get_or_default(cur, 0.0)
+    match graph.get_term(cur) {
+      Some(term) =>
+        for p in term.parents {
+          if !visited.get_or_default(p, false) {
+            visited.set(p, true)
+            let parent_sv = weight * cur_sv
+            sv.set(p, parent_sv)
+            frontier.push(p)
+          }
+        }
+      None => ()
+    }
+  }
+
+  // Force topNode SV = 0 (per GOSemSim R implementation for non-DO ontologies)
+  if root_id.length() > 0 {
+    sv.set(root_id, 0.0)
+  }
+
+  sv
+}
+
+///|
+/// Sum of SV values for common nodes across both maps.
+fn gosemsim_inter_sum(sv_a : Map[String, Double], sv_b : Map[String, Double]) -> Double {
+  let mut total = 0.0
+  for k in sv_a.keys().collect() {
+    let va = sv_a.get_or_default(k, 0.0)
+    match sv_b.get(k) {
+      Some(vb) => total = total + va + vb
+      None => ()
+    }
+  }
+  total
+}
+
+///|
+/// Sum of all SV values in one map.
+fn gosemsim_total_sum(sv : Map[String, Double]) -> Double {
+  let mut total = 0.0
+  for v in sv.values().to_array() {
+    total = total + v
+  }
+  total
+}
+
+// ──────────────────────────────────────────────────────────────────────
+//  Gene-level similarity (combine sets of GO terms)
+// ──────────────────────────────────────────────────────────────────────
+
+///|
+/// Compute semantic similarity between two gene products
+/// (each represented by a set of GO terms).
+///
+/// Combine methods (from GOSemSim R combineScores):
+///   "max"     : maximum of term-pair similarities
+///   "avg"     : arithmetic mean of all term-pair similarities
+///   "rcmax"   : max(row-wise mean, col-wise mean)  (Bioconductor-style)
+///   "BMA"     : (sum(row_max) + sum(col_max)) / (n_rows + n_cols)
+///   "rcmax.avg": same as BMA
+///
+/// Default: "max"
 pub fn gosemsim_gen_sim(
   graph : GOGraph,
   go_ids1 : Array[String],
@@ -227,7 +458,26 @@ pub fn gosemsim_gen_sim(
   measure : SimMeasure,
   combine? : String = "max",
 ) -> Double {
-  let sim_matrix : Array[Array[Double]] = Array::new()
+  let sim_matrix = gosemsim_build_sim_matrix(graph, go_ids1, go_ids2, measure)
+  match combine {
+    "max" => gosemsim_matrix_max(sim_matrix)
+    "avg" => gosemsim_matrix_avg(sim_matrix)
+    "rcmax" => gosemsim_matrix_rcmax(sim_matrix)
+    "BMA" => gosemsim_matrix_bma(sim_matrix)
+    "rcmax.avg" => gosemsim_matrix_bma(sim_matrix)
+    _ => gosemsim_matrix_max(sim_matrix)
+  }
+}
+
+///|
+/// Build similarity matrix between two GO term sets.
+fn gosemsim_build_sim_matrix(
+  graph : GOGraph,
+  go_ids1 : Array[String],
+  go_ids2 : Array[String],
+  measure : SimMeasure,
+) -> Array[Array[Double]] {
+  let matrix : Array[Array[Double]] = Array::new()
   let mut i = 0
   while i < go_ids1.length() {
     let row : Array[Double] = Array::new()
@@ -236,32 +486,28 @@ pub fn gosemsim_gen_sim(
       row.push(gosemsim_term_sim(graph, go_ids1[i], go_ids2[j], measure))
       j = j + 1
     }
-    sim_matrix.push(row)
+    matrix.push(row)
     i = i + 1
   }
-
-  match combine {
-    "max" => gosemsim_matrix_max(sim_matrix)
-    "avg" => gosemsim_matrix_avg(sim_matrix)
-    "rcmax" => gosemsim_matrix_rcmax(sim_matrix)
-    _ => gosemsim_matrix_max(sim_matrix)
-  }
+  matrix
 }
 
 ///|
+/// Max combine: maximum value in matrix.
 fn gosemsim_matrix_max(matrix : Array[Array[Double]]) -> Double {
-  let mut max_val = 0.0
+  let mut best = 0.0
   for row in matrix {
     for v in row {
-      if v > max_val {
-        max_val = v
+      if v > best {
+        best = v
       }
     }
   }
-  max_val
+  best
 }
 
 ///|
+/// Avg combine: arithmetic mean of all entries.
 fn gosemsim_matrix_avg(matrix : Array[Array[Double]]) -> Double {
   let mut sum = 0.0
   let mut count = 0
@@ -279,11 +525,70 @@ fn gosemsim_matrix_avg(matrix : Array[Array[Double]]) -> Double {
 }
 
 ///|
+/// rcmax combine: max(row-wise max mean, col-wise max mean).
+/// Reference: GOSemSim R combineMethods.R
+///   rowScore = mean(apply(SimScores, 1, max))
+///   colScore = mean(apply(SimScores, 2, max))
+///   result = max(rowScore, colScore)
 fn gosemsim_matrix_rcmax(matrix : Array[Array[Double]]) -> Double {
   let n_rows = matrix.length()
   let n_cols = if n_rows > 0 { matrix[0].length() } else { 0 }
+  if n_rows == 0 || n_cols == 0 {
+    return 0.0
+  }
 
-  // Row-wise max and column-wise max, average of the larger set
+  // Row-wise max values
+  let mut row_max_sum = 0.0
+  let mut i = 0
+  while i < n_rows {
+    let mut row_max = 0.0
+    let mut j = 0
+    while j < n_cols {
+      if matrix[i][j] > row_max {
+        row_max = matrix[i][j]
+      }
+      j = j + 1
+    }
+    row_max_sum = row_max_sum + row_max
+    i = i + 1
+  }
+  let row_score = row_max_sum / n_rows.to_double()
+
+  // Column-wise max values
+  let mut col_max_sum = 0.0
+  let mut j = 0
+  while j < n_cols {
+    let mut col_max = 0.0
+    let mut i2 = 0
+    while i2 < n_rows {
+      if matrix[i2][j] > col_max {
+        col_max = matrix[i2][j]
+      }
+      i2 = i2 + 1
+    }
+    col_max_sum = col_max_sum + col_max
+    j = j + 1
+  }
+  let col_score = col_max_sum / n_cols.to_double()
+
+  if row_score > col_score {
+    row_score
+  } else {
+    col_score
+  }
+}
+
+///|
+/// BMA / rcmax.avg combine: (sum(row_max) + sum(col_max)) / (n_rows + n_cols).
+/// Reference: GOSemSim R combineMethods.R
+///   result = ( sum(apply(SimScores, 1, max)) + sum(apply(SimScores, 2, max)) ) / sum(dim(SimScores))
+fn gosemsim_matrix_bma(matrix : Array[Array[Double]]) -> Double {
+  let n_rows = matrix.length()
+  let n_cols = if n_rows > 0 { matrix[0].length() } else { 0 }
+  if n_rows == 0 || n_cols == 0 {
+    return 0.0
+  }
+
   let mut row_max_sum = 0.0
   let mut i = 0
   while i < n_rows {
@@ -314,199 +619,30 @@ fn gosemsim_matrix_rcmax(matrix : Array[Array[Double]]) -> Double {
     j = j + 1
   }
 
-  let n = if n_rows > n_cols { n_rows } else { n_cols }
-  if n > 0 {
-    (row_max_sum + col_max_sum) / (2.0 * n.to_double())
-  } else {
-    0.0
-  }
+  (row_max_sum + col_max_sum) / (n_rows + n_cols).to_double()
 }
 
-///|
-/// Find the Most Informative Common Ancestor (MICA) and its IC.
-fn gosemsim_mica_ic(
-  graph : GOGraph,
-  id1 : String,
-  id2 : String,
-) -> (String, Double) {
-  let anc1 = gosemsim_ancestors(graph, id1)
-  let anc2 = gosemsim_ancestors(graph, id2)
-
-  // Find common ancestors
-  let seen : Map[String, Bool] = Map([], capacity=anc1.length())
-  for a in anc1 {
-    seen.set(a, true)
-  }
-
-  let mut best_id = ""
-  let mut best_ic = -1.0
-
-  for a in anc2 {
-    if seen.get_or_default(a, false) {
-      match graph.get_term(a) {
-        Some(term) =>
-          if term.ic > best_ic {
-            best_ic = term.ic
-            best_id = a
-          }
-        None => ()
-      }
-    }
-  }
-
-  if best_ic < 0.0 {
-    (graph.root_id, 0.0)
-  } else {
-    (best_id, best_ic)
-  }
-}
+// ──────────────────────────────────────────────────────────────────────
+//  Example graph (must match MoonBit Python frozen-value generator)
+// ──────────────────────────────────────────────────────────────────────
 
 ///|
-/// Get all ancestors of a term (including itself).
-fn gosemsim_ancestors(graph : GOGraph, go_id : String) -> Array[String] {
-  let ancestors : Array[String] = Array::new()
-  let visited : Map[String, Bool] = Map([], capacity=32)
-  gosemsim_ancestors_recursive(graph, go_id, ancestors, visited)
-  ancestors
-}
-
-///|
-fn gosemsim_ancestors_recursive(
-  graph : GOGraph,
-  go_id : String,
-  ancestors : Array[String],
-  visited : Map[String, Bool],
-) -> Unit {
-  if visited.get_or_default(go_id, false) {
-    return
-  }
-  visited.set(go_id, true)
-  ancestors.push(go_id)
-
-  match graph.get_term(go_id) {
-    Some(term) =>
-      for parent in term.parents {
-        gosemsim_ancestors_recursive(graph, parent, ancestors, visited)
-      }
-    None => ()
-  }
-}
-
-///|
-/// Compute path distance to a common ancestor set.
-fn gosemsim_distance_to(
-  graph : GOGraph,
-  go_id : String,
-  ancestors : Array[String],
-) -> Double {
-  // Simple BFS to find shortest path to any ancestor
-  if ancestors.length() == 0 {
-    return 0.0
-  }
-
-  let target_set : Map[String, Bool] = Map([], capacity=ancestors.length())
-  for a in ancestors {
-    target_set.set(a, true)
-  }
-
-  let mut current : Array[(String, Double)] = Array::new()
-  let visited : Map[String, Bool] = Map([], capacity=64)
-  current.push((go_id, 0.0))
-  visited.set(go_id, true)
-
-  let mut found = false
-  while current.length() > 0 {
-    let (node_id, dist) = current[0]
-    let rest : Array[(String, Double)] = Array::new()
-    let mut i = 1
-    while i < current.length() {
-      rest.push(current[i])
-      i = i + 1
-    }
-    current = rest
-
-    if target_set.get_or_default(node_id, false) {
-      found = true
-      return dist
-    }
-
-    match graph.get_term(node_id) {
-      Some(term) =>
-        for parent in term.parents {
-          if !visited.get_or_default(parent, false) {
-            visited.set(parent, true)
-            current.push((parent, dist + 1.0))
-          }
-        }
-      None => ()
-    }
-  }
-
-  if found {
-    0.0
-  } else {
-    100.0
-  }
-}
-
-///|
-/// Compute Wang's similarity score components.
-fn gosemsim_wang_score(graph : GOGraph, go_id : String) -> Double {
-  let ancestors = gosemsim_ancestors(graph, go_id)
-  let mut score = 0.0
-  for anc_id in ancestors {
-    match graph.get_term(anc_id) {
-      Some(term) => {
-        // Score based on depth from root
-        score = score + 1.0
-        let mut parent_count = term.parents.length().to_double()
-        if parent_count < 1.0 {
-          parent_count = 1.0
-        }
-        score = score + 1.0 / parent_count
-      }
-      None => ()
-    }
-  }
-  score
-}
-
-///|
-/// Compute Wang common score (overlap of ancestor sets).
-fn gosemsim_wang_common_score(
-  graph : GOGraph,
-  id1 : String,
-  id2 : String,
-) -> Double {
-  let anc1 = gosemsim_ancestors(graph, id1)
-  let anc2 = gosemsim_ancestors(graph, id2)
-
-  let set1 : Map[String, Bool] = Map([], capacity=anc1.length())
-  for a in anc1 {
-    set1.set(a, true)
-  }
-
-  let mut score = 0.0
-  for anc_id in anc2 {
-    if set1.get_or_default(anc_id, false) {
-      score = score + 1.0
-      match graph.get_term(anc_id) {
-        Some(term) => {
-          let mut parent_count = term.parents.length().to_double()
-          if parent_count < 1.0 {
-            parent_count = 1.0
-          }
-          score = score + 1.0 / parent_count
-        }
-        None => ()
-      }
-    }
-  }
-  score
-}
-
-///|
-/// Build a small example GO graph for testing.
+/// Build a small example GO DAG for testing.
+///
+/// Topology (all is_a edges, root=GO:0008150 biological_process):
+///
+///          GO:0008150 (ic=0.0)
+///           /              \
+///   GO:0050896(0.3)     GO:0009058(0.2)
+///    /      \               |
+/// GO:0009987 GO:0023046   GO:0010467(0.35)
+/// (0.5)       (0.4)
+///   |           |
+/// GO:0006810  GO:0007165
+/// (0.7)        (0.6)
+///
+/// Used by both MoonBit tests and Python frozen-value generator
+/// (/tmp/gosemsim_frozen.py) to ensure exact correspondence.
 pub fn gosemsim_example_graph() -> GOGraph {
   let g = GOGraph::new()
   let g1 = g.add_root("GO:0008150")
@@ -523,7 +659,7 @@ pub fn gosemsim_example_graph() -> GOGraph {
       "GO:0050896",
       ic=0.3,
       parents=["GO:0008150"],
-      term_name="response to stimulus",
+      term_name="response_to_stimulus",
     ),
   )
   let g4 = g3.add_term(
@@ -531,7 +667,7 @@ pub fn gosemsim_example_graph() -> GOGraph {
       "GO:0009987",
       ic=0.5,
       parents=["GO:0050896"],
-      term_name="cellular process",
+      term_name="cellular_process",
     ),
   )
   let g5 = g4.add_term(
@@ -555,7 +691,7 @@ pub fn gosemsim_example_graph() -> GOGraph {
       "GO:0007165",
       ic=0.6,
       parents=["GO:0023046"],
-      term_name="signal transduction",
+      term_name="signal_transduction",
     ),
   )
   let g8 = g2.add_term(
@@ -563,7 +699,7 @@ pub fn gosemsim_example_graph() -> GOGraph {
       "GO:0009058",
       ic=0.2,
       parents=["GO:0008150"],
-      term_name="biosynthetic process",
+      term_name="biosynthetic_process",
     ),
   )
   let g9 = g8.add_term(
@@ -571,7 +707,7 @@ pub fn gosemsim_example_graph() -> GOGraph {
       "GO:0010467",
       ic=0.35,
       parents=["GO:0009058"],
-      term_name="gene expression",
+      term_name="gene_expression",
     ),
   )
   g9
