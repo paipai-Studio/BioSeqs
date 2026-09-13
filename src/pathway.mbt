@@ -1,186 +1,451 @@
 ///|
 /// Bio.Pathway - Biochemical pathway analysis.
+/// Ported from Biopython 1.88 Bio.Pathway module.
+///
+/// Core objects:
+/// - **Species**  — a biochemical species (substrate, product, enzyme, …).
+/// - **Reaction** — a (potentially reversible) biochemical transformation.
+///   Species with negative stoichiometric coefficient are consumed
+///   (substrates); species with positive coefficient are produced.
+/// - **System**   — a collection of reactions; provides the
+///   ``stochiometry`` matrix (species × reactions).
+/// - **Network**  — a directed multigraph whose nodes are Species and
+///   whose edges are Interaction references.
+///
+/// Graph algorithms (``Graph`` / ``MultiGraph``, BFS / DFS) live in
+/// ``pathway_graph.mbt`` alongside this module.
+
+// ===========================================================================
+// Species
+// ===========================================================================
 
 ///|
+/// A biochemical species.  The same species participates in many
+/// reactions as substrate, product, or catalyst.
 pub struct Species {
   id : String
   name : String
 }
 
 ///|
-pub fn Species::new(id : String, name : String) -> Species {
-  Species::{ id, name, }
+/// Create a Species with the given id and name (falls back to id when
+/// no name is supplied).
+pub fn Species::new(id : String, name? : String) -> Species {
+  let nm = match name {
+    Some(n) => n
+    None => id
+  }
+  Species::{ id, name: nm }
 }
 
 ///|
+/// Species equality by id (Biopython convention).
+pub fn Species::eq(self : Species, other : Species) -> Bool {
+  self.id == other.id
+}
+
+// ===========================================================================
+// Reaction
+// ===========================================================================
+
+///|
+/// A biochemical reaction.
+///
+/// The ``reactants`` map uses signed stoichiometric coefficients so that
+/// the same map represents both substrates and products:
+///
+/// ```
+/// // 2 glucose + 2 ATP -> 2 G6P + 2 ADP
+/// Reaction::new({"glucose": -2.0, "atp": -2.0, "g6p": 2.0, "adp": 2.0}, catalysts, reversible)
+/// ```
+///
+/// - **negative** coefficient ⇒ substrate / consumed
+/// - **positive** coefficient ⇒ product / produced
 pub struct Reaction {
   id : String
-  name : String
-  reactants : Array[String]
-  products : Array[String]
+  reactants : Map[String, Double]
+  catalysts : Array[String]
   reversible : Bool
 }
 
 ///|
+/// Create a new Reaction.
+///
+/// - ``reactants``: signed stoichiometric map (neg=substrate, pos=product).
+///   Entries with coefficient == 0 are silently dropped.
+/// - ``catalysts`` : enzyme names (empty by default).
+/// - ``reversible``: whether the reaction can run in both directions.
 pub fn Reaction::new(
   id : String,
-  name : String,
-  reactants : Array[String],
-  products : Array[String],
-  reversible : Bool,
+  reactants : Map[String, Double],
+  catalysts? : Array[String],
+  reversible? : Bool,
 ) -> Reaction {
-  Reaction::{ id, name, reactants, products, reversible, }
+  let clean : Map[String, Double] = Map([])
+  let keys = reactants.keys().collect()
+  let mut i = 0
+  while i < keys.length() {
+    let k = keys[i]
+    let v = reactants[k]
+    if v != 0.0 {
+      clean[k] = v
+    }
+    i = i + 1
+  }
+  let cat = match catalysts {
+    Some(c) => c
+    None => []
+  }
+  let rev = match reversible {
+    Some(r) => r
+    None => false
+  }
+  Reaction::{ id, reactants: clean, catalysts: cat, reversible: rev }
 }
 
 ///|
+/// Return a reversed version of this reaction (all stoichiometric
+/// signs flipped; catalysts preserved).
+pub fn Reaction::reverse(self : Reaction) -> Reaction {
+  let flipped : Map[String, Double] = Map([])
+  let keys = self.reactants.keys().collect()
+  let mut i = 0
+  while i < keys.length() {
+    let k = keys[i]
+    flipped[k] = -self.reactants[k]
+    i = i + 1
+  }
+  Reaction::{
+    id: self.id + "::rev",
+    reactants: flipped,
+    catalysts: self.catalysts,
+    reversible: self.reversible,
+  }
+}
+
+///|
+/// Species involved in this reaction (substrates + products).
+pub fn Reaction::species(self : Reaction) -> Array[String] {
+  self.reactants.keys().collect()
+}
+
+///|
+/// Human-readable string: ``S1 + S2 --> P1 + P2`` or with ``<->`` for
+/// reversible reactions.
 pub fn Reaction::to_string(self : Reaction) -> String {
-  let arrow = if self.reversible { "<->" } else { "->" }
-  let reactants_str = self.reactants.join(", ")
-  let products_str = self.products.join(", ")
-  reactants_str + arrow + products_str
+  let substrates : Array[String] = Array::new()
+  let products : Array[String] = Array::new()
+  let keys = self.reactants.keys().collect()
+  let mut i = 0
+  while i < keys.length() {
+    let k = keys[i]
+    let c = self.reactants[k]
+    if c < 0.0 {
+      substrates.push((-c).to_string() + " " + k)
+    } else if c > 0.0 {
+      products.push(c.to_string() + " " + k)
+    }
+    i = i + 1
+  }
+  let arrow = if self.reversible { " <-> " } else { " --> " }
+  let lhs = if substrates.length() == 0 { "..." } else { substrates.join(" + ") }
+  let rhs = if products.length() == 0 { "..." } else { products.join(" + ") }
+  lhs + arrow + rhs
 }
 
+// ===========================================================================
+// System  (a collection of reactions + stoichiometry matrix)
+// ===========================================================================
+
 ///|
-pub struct Pathway {
+/// A collection of reactions without explicit species/edge connectivity.
+pub struct System {
   id : String
-  name : String
-  species : Array[Species]
   reactions : Array[Reaction]
 }
 
 ///|
-pub fn Pathway::new(
-  id : String,
-  name : String,
-  species : Array[Species],
-  reactions : Array[Reaction],
-) -> Pathway {
-  Pathway::{ id, name, species, reactions, }
+/// Create a System from a slice of reactions.
+pub fn System::new(id : String, reactions : Array[Reaction]) -> System {
+  System::{ id, reactions }
 }
 
 ///|
-pub fn pathway_find_species(pathway : Pathway, id : String) -> Species? {
+/// All unique species referenced by any reaction in this system.
+pub fn System::species(self : System) -> Array[String] {
+  let seen : Map[String, Bool] = Map([])
   let mut i = 0
-  while i < pathway.species.length() {
-    if pathway.species[i].id == id {
-      return Some(pathway.species[i])
-    }
-    i = i + 1
-  }
-  None
-}
-
-///|
-pub fn pathway_find_reactions_with_species(
-  pathway : Pathway,
-  species_id : String,
-) -> Array[Reaction] {
-  let result : Array[Reaction] = Array::new()
-
-  let mut i = 0
-  while i < pathway.reactions.length() {
-    let reaction = pathway.reactions[i]
-
+  while i < self.reactions.length() {
+    let sp = self.reactions[i].species()
     let mut j = 0
-    while j < reaction.reactants.length() {
-      if reaction.reactants[j] == species_id {
-        result.push(reaction)
-        break
-      }
+    while j < sp.length() {
+      seen[sp[j]] = true
       j = j + 1
     }
+    i = i + 1
+  }
+  seen.keys().collect()
+}
 
-    if j == reaction.reactants.length() {
-      j = 0
-      while j < reaction.products.length() {
-        if reaction.products[j] == species_id {
-          result.push(reaction)
-          break
-        }
-        j = j + 1
-      }
-    }
+///|
+/// The reactions registered in this system.
+pub fn System::reactions(self : System) -> Array[Reaction] {
+  self.reactions
+}
 
+///|
+/// Compute the stoichiometry matrix for this system.
+///
+/// Returns a triple ``(species, reactions, stoch)`` where
+/// ``stoch[row_idx][col_idx]`` is the signed coefficient of
+/// species ``species[row_idx]`` in reaction ``reactions[col_idx]``.
+/// Negative ⇒ substrate, positive ⇒ product.
+pub fn System::stochiometry(self : System) -> (Array[String], Array[Reaction], Array[Array[Double]]) {
+  let species = self.species()
+  let reactions = self.reactions
+  let n_sp = species.length()
+  let n_rx = reactions.length()
+
+  // Initialize matrix with zeros.
+  let stoch : Array[Array[Double]] = Array::new()
+  let mut i = 0
+  while i < n_sp {
+    let row : Array[Double] = Array::make(n_rx, 0.0)
+    stoch.push(row)
     i = i + 1
   }
 
+  // Fill in coefficients.
+  let mut j = 0
+  while j < n_rx {
+    let rxn = reactions[j]
+    let keys = rxn.reactants.keys().collect()
+    let mut k = 0
+    while k < keys.length() {
+      let sp = keys[k]
+      let coef = rxn.reactants[sp]
+      // Find row index for this species.
+      let mut ri = 0
+      while ri < n_sp {
+        if species[ri] == sp {
+          stoch[ri][j] = coef
+          break
+        }
+        ri = ri + 1
+      }
+      k = k + 1
+    }
+    j = j + 1
+  }
+
+  (species, reactions, stoch)
+}
+
+// ===========================================================================
+// Interaction (biochemical edge abstraction)
+// ===========================================================================
+
+///|
+/// An arbitrary interaction between species.  In Bio.Pathway this is
+/// just a wrapper; here we store ``source`` and ``sink`` species and
+/// an optional label (typically a reference to the Reaction that
+/// accounts for the edge).
+pub struct Interaction {
+  source : String
+  sink : String
+  label : String
+  data : String?
+}
+
+///|
+/// Build an Interaction.
+pub fn Interaction::new(
+  source : String,
+  sink : String,
+  label? : String,
+  data? : String,
+) -> Interaction {
+  let lbl = match label {
+    Some(l) => l
+    None => ""
+  }
+  Interaction::{ source, sink, label: lbl, data }
+}
+
+// ===========================================================================
+// Network  (directed multigraph with labelled edges)
+// ===========================================================================
+
+///|
+/// A directed multigraph whose nodes are species and whose labelled
+/// edges are Interactions.
+///
+/// This is the Bio.Pathway.Network class, re-implemented here so that
+/// it does not depend on Bio.Pathway.Rep.{Graph,MultiGraph}.
+pub struct Network {
+  nodes : Map[String, Bool]
+  /// Outgoing adjacency: node -> list of (neighbor, label)
+  out_adj : Map[String, Array[(String, String)]]
+  /// Incoming adjacency: node -> list of (neighbor, label)
+  in_adj : Map[String, Array[(String, String)]]
+}
+
+///|
+/// Create an empty Network.
+pub fn Network::new() -> Network {
+  Network::{ nodes: Map([]), out_adj: Map([]), in_adj: Map([]) }
+}
+
+///|
+/// Register a species in this network (no-op if already present).
+pub fn Network::add_species(self : Network, species : String) -> Unit {
+  self.nodes[species] = true
+  if !self.out_adj.contains(species) {
+    self.out_adj[species] = []
+  }
+  if !self.in_adj.contains(species) {
+    self.in_adj[species] = []
+  }
+}
+
+fn _pathway_get_or_empty(m : Map[String, Array[(String, String)]], key : String) -> Array[(String, String)] {
+  match m.get(key) {
+    Some(arr) => arr
+    None => []
+  }
+}
+
+///|
+/// Add a directed edge ``source -> sink`` labelled by ``interaction_id``.
+///
+/// Both endpoints are auto-registered as nodes.
+pub fn Network::add_interaction(
+  self : Network,
+  source : String,
+  sink : String,
+  interaction_id : String,
+) -> Unit {
+  self.add_species(source)
+  self.add_species(sink)
+
+  // Append to outgoing.
+  let outs = _pathway_get_or_empty(self.out_adj, source)
+  outs.push((sink, interaction_id))
+  self.out_adj[source] = outs
+
+  // Append to incoming.
+  let ins = _pathway_get_or_empty(self.in_adj, sink)
+  ins.push((source, interaction_id))
+  self.in_adj[sink] = ins
+}
+
+///|
+/// The set of species in this network.
+pub fn Network::species(self : Network) -> Array[String] {
+  self.nodes.keys().collect()
+}
+
+///|
+/// Species that have a directed edge towards the given node
+/// (i.e. who *produce* it).
+pub fn Network::source(self : Network, species : String) -> Array[String] {
+  let ins = _pathway_get_or_empty(self.in_adj, species)
+  let result : Array[String] = Array::new()
+  let seen : Map[String, Bool] = Map([])
+  let mut i = 0
+  while i < ins.length() {
+    let s = ins[i].0
+    if !seen.contains(s) {
+      seen[s] = true
+      result.push(s)
+    }
+    i = i + 1
+  }
   result
 }
 
 ///|
-pub fn species_degree(pathway : Pathway, species_id : String) -> Int {
-  let reactions = pathway_find_reactions_with_species(pathway, species_id)
-  reactions.length()
+/// Species that this node has a directed edge towards
+/// (i.e. that it *produces*).
+pub fn Network::sink(self : Network, species : String) -> Array[String] {
+  let outs = _pathway_get_or_empty(self.out_adj, species)
+  let result : Array[String] = Array::new()
+  let seen : Map[String, Bool] = Map([])
+  let mut i = 0
+  while i < outs.length() {
+    let s = outs[i].0
+    if !seen.contains(s) {
+      seen[s] = true
+      result.push(s)
+    }
+    i = i + 1
+  }
+  result
 }
 
 ///|
-pub fn pathway_count_species(pathway : Pathway) -> Int {
-  pathway.species.length()
+/// ``(source, label)`` pairs whose edge produces the given species.
+pub fn Network::source_interactions(
+  self : Network,
+  species : String,
+) -> Array[(String, String)] {
+  _pathway_get_or_empty(self.in_adj, species)
 }
 
 ///|
-pub fn pathway_count_reactions(pathway : Pathway) -> Int {
-  pathway.reactions.length()
+/// ``(sink, label)`` pairs whose edge is produced by the given species.
+pub fn Network::sink_interactions(
+  self : Network,
+  species : String,
+) -> Array[(String, String)] {
+  _pathway_get_or_empty(self.out_adj, species)
 }
 
+// ===========================================================================
+// Example glycolysis system (for demos / tests)
+// ===========================================================================
+
 ///|
-pub fn create_example_pathway() -> Pathway {
-  let glucose = Species::new("glucose", "Glucose")
-  let g6p = Species::new("g6p", "Glucose-6-phosphate")
-  let f6p = Species::new("f6p", "Fructose-6-phosphate")
-  let f16bp = Species::new("f16bp", "Fructose-1,6-bisphosphate")
-  let dhap = Species::new("dhap", "Dihydroxyacetone phosphate")
-  let g3p = Species::new("g3p", "Glyceraldehyde-3-phosphate")
-
-  let species : Array[Species] = Array::new()
-  species.push(glucose)
-  species.push(g6p)
-  species.push(f6p)
-  species.push(f16bp)
-  species.push(dhap)
-  species.push(g3p)
-
-  let reactants1 : Array[String] = Array::new()
-  reactants1.push("glucose")
-  let products1 : Array[String] = Array::new()
-  products1.push("g6p")
-  let r1 = Reaction::new("r1", "Hexokinase", reactants1, products1, false)
-
-  let reactants2 : Array[String] = Array::new()
-  reactants2.push("g6p")
-  let products2 : Array[String] = Array::new()
-  products2.push("f6p")
-  let r2 = Reaction::new("r2", "Isomerase", reactants2, products2, true)
-
-  let reactants3 : Array[String] = Array::new()
-  reactants3.push("f6p")
-  let products3 : Array[String] = Array::new()
-  products3.push("f16bp")
-  let r3 = Reaction::new(
-    "r3", "Phosphofructokinase", reactants3, products3, false,
+/// Build a tiny 3-reaction system reminiscent of glycolysis.
+/// Reactions (all irreversible, stoichiometry 1:1):
+///
+/// ```
+///   hexokinase   : glucose + ATP -> G6P + ADP
+///   gpi          : G6P           -> F6P
+///   pfk          : F6P      + ATP -> F16BP + ADP
+/// ```
+pub fn create_example_pathway() -> System {
+  let r_hk = Reaction::new(
+    "hexokinase",
+    Map([("glucose", -1.0), ("atp", -1.0), ("g6p", 1.0), ("adp", 1.0)]),
+    catalysts=["Hexokinase"],
+    reversible=false,
   )
-
-  let reactants4 : Array[String] = Array::new()
-  reactants4.push("f16bp")
-  let products4 : Array[String] = Array::new()
-  products4.push("dhap")
-  products4.push("g3p")
-  let r4 = Reaction::new("r4", "Aldolase", reactants4, products4, true)
-
-  let reactants5 : Array[String] = Array::new()
-  reactants5.push("dhap")
-  let products5 : Array[String] = Array::new()
-  products5.push("g3p")
-  let r5 = Reaction::new(
-    "r5", "Triose-phosphate isomerase", reactants5, products5, true,
+  let r_gpi = Reaction::new(
+    "gpi",
+    Map([("g6p", -1.0), ("f6p", 1.0)]),
+    catalysts=["G6P isomerase"],
+    reversible=true,
   )
+  let r_pfk = Reaction::new(
+    "pfk",
+    Map([("f6p", -1.0), ("atp", -1.0), ("f16bp", 1.0), ("adp", 1.0)]),
+    catalysts=["Phosphofructokinase"],
+    reversible=false,
+  )
+  System::new("glycolysis_core", [r_hk, r_gpi, r_pfk])
+}
 
-  let reactions : Array[Reaction] = Array::new()
-  reactions.push(r1)
-  reactions.push(r2)
-  reactions.push(r3)
-  reactions.push(r4)
-  reactions.push(r5)
-
-  Pathway::new("glycolysis", "Glycolysis", species, reactions)
+///|
+/// Build the corresponding Network (S -> A -> B -> P linear chain).
+pub fn create_example_network() -> Network {
+  let net = Network::new()
+  net.add_species("S")
+  net.add_species("A")
+  net.add_species("B")
+  net.add_species("P")
+  net.add_interaction("S", "A", "r1")
+  net.add_interaction("A", "B", "r2")
+  net.add_interaction("B", "P", "r3")
+  net
 }

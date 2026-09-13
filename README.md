@@ -215,7 +215,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **NMR** | `Bio.NMR` | NOE 距离约束（XPLOR/CNS）、二面角约束、化学位移表（BMRB-like）、NMRView .xpk、约束违反 |
 | **Crystal** | `Bio.Crystal` | 小分子 CIF 解析、单胞参数/空间群、原子/化学键、分数↔笛卡尔变换、单胞体积/密度 |
 | **RNA 二级结构** | `Bio.SeqUtils` (RNA) | Nussinov 动态规划算法、发夹环/内部环/凸出环/多环识别 |
-| **Pathway** | `Bio.Pathway` | 物种/反应/通路数据结构及分析函数 |
+| **Pathway** | `Bio.Pathway` | Species/Reaction（正负系数表示底物/产物）、System 化学计量矩阵（stochiometry）、Network 有向多图（source/sink/source_interactions）、Interaction；Graph/MultiGraph 带标签边图、BFS（bf_search）/DFS（df_search）遍历 |
 | **phenotype** | `Bio.phenotype` | PlateRecord/WellRecord、logistic/Gompertz 生长曲线、CSV/JSON 解析 |
 | **Cluster 数值聚类** | `Bio.Cluster` (cluster.c) | C 聚类库核心：8 种距离（欧氏[平方均值]/City Block/Pearson/绝对 Pearson/非中心/绝对非中心/Spearman/Kendall）、clusterdistance、层次聚类 treecluster（SLINK 单连接/完全/平均/质心连接）+ Tree cut/sort、kcluster（k-means/k-medians EM）、kmedoids、clustercentroids（均值/中位数/medoid）、somcluster 自组织映射、PCA（Golub-Reinsch SVD）、distancematrix、Record（Eisen Cluster/TreeView 格式读写 + 全套方法） |
 | **Cluster 序列聚类** | `Bio.Cluster` | 距离矩阵、层次聚类、Newick 输出、轮廓系数 |
@@ -536,7 +536,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.9)
-├── src/                              # 源代码（485 个 .mbt 模块）
+├── src/                              # 源代码（486 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -551,7 +551,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（442 个演示 demo）
+├── examples/                         # 示例程序（443 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── pqs_demo/                     # pqsfinder G-四链体检测（评分系统/双链/deep density 与 maxScores/overlapping/序列提取）
@@ -595,12 +595,12 @@ IvanAXu/BioSeqs/
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ / rankprod_demo/ # 差异表达
-│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE 疾病本体富集
+│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE 疾病本体富集 / Pathway 生化通路
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（465 个测试文件，13131 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（466 个测试文件，13149 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -620,7 +620,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13131 个测试全部通过
+moon test                                               # ✅ 13149 个测试全部通过
 ```
 
 ---
@@ -629,7 +629,7 @@ moon test                                               # ✅ 13131 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13131 个测试用例)
+moon test       # 运行全部测试 (13149 个测试用例)
 ```
 
 ---

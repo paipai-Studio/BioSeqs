@@ -1,61 +1,80 @@
-///|
-/// Pathway demo.
+/// Demo: Bio.Pathway — a tiny glycolysis-like system.
 ///
-/// Run: moon run examples/pathway_demo/main.mbt
+/// Run with: moon run examples/pathway_demo
+
 fn main {
-  println("=== Pathway Demo ===\n")
-
-  println("1. Create example pathway (Glycolysis):")
-  let pathway = @bio.create_example_pathway()
-  println("   Pathway ID: \{pathway.id}")
-  println("   Pathway name: \{pathway.name}")
-
-  println("\n2. Count species and reactions:")
-  let species_count = @bio.pathway_count_species(pathway)
-  let reaction_count = @bio.pathway_count_reactions(pathway)
-  println("   Species count: \{species_count}")
-  println("   Reaction count: \{reaction_count}")
-
-  println("\n3. Find species:")
-  let glucose = @bio.pathway_find_species(pathway, "glucose")
-  match glucose {
-    Some(s) => println("   Found: \{s.id} - \{s.name}")
-    None => println("   Not found")
-  }
-
-  let g6p = @bio.pathway_find_species(pathway, "g6p")
-  match g6p {
-    Some(s) => println("   Found: \{s.id} - \{s.name}")
-    None => println("   Not found")
-  }
-
-  println("\n4. Find reactions with species 'g6p':")
-  let reactions_with_g6p = @bio.pathway_find_reactions_with_species(pathway, "g6p")
-  println("   Reactions involving g6p: \{reactions_with_g6p.length()}")
+  // ---- System with 3 reactions -------------------------------------
+  let sys = @src.create_example_pathway()
+  println("=== System: " + sys.id + " ===")
   let mut i = 0
-  while i < reactions_with_g6p.length() {
-    let r = reactions_with_g6p[i]
-    println("   - \{r.id}: \{r.name}")
+  while i < sys.reactions.length() {
+    let rxn = sys.reactions[i]
+    let rev = if rxn.reversible { " (reversible)" } else { "" }
+    println("  [" + rxn.id + "] " + rxn.to_string() + rev)
     i = i + 1
   }
 
-  println("\n5. Species degree (number of reactions):")
-  let glucose_degree = @bio.species_degree(pathway, "glucose")
-  let g6p_degree = @bio.species_degree(pathway, "g6p")
-  let g3p_degree = @bio.species_degree(pathway, "g3p")
-  println("   glucose degree: \{glucose_degree}")
-  println("   g6p degree: \{g6p_degree}")
-  println("   g3p degree: \{g3p_degree}")
+  // ---- Stoichiometry matrix ---------------------------------------
+  let (species, _rxns, stoch) = sys.stochiometry()
+  println("")
+  println("=== Stoichiometry matrix ===")
+  let mut hdr = "  species"
+  let mut j = 0
+  while j < sys.reactions.length() {
+    hdr = hdr + " | " + sys.reactions[j].id
+    j = j + 1
+  }
+  println(hdr)
 
-  println("\n6. Reaction string representation:")
-  let reactants : Array[String] = Array::new()
-  reactants.push("A")
-  let products : Array[String] = Array::new()
-  products.push("B")
-  let r1 = @bio.Reaction::new("r1", "Test", reactants, products, true)
-  let r2 = @bio.Reaction::new("r2", "Test2", reactants, products, false)
-  println("   Reversible: \{@bio.Reaction::to_string(r1)}")
-  println("   Irreversible: \{@bio.Reaction::to_string(r2)}")
+  let mut k = 0
+  while k < species.length() {
+    let mut row = "  " + species[k]
+    let mut j2 = 0
+    while j2 < stoch[k].length() {
+      let v = stoch[k][j2]
+      let cell = v.to_string()
+      row = row + " | " + cell
+      j2 = j2 + 1
+    }
+    println(row)
+    k = k + 1
+  }
 
-  println("\n=== Demo Complete ===")
+  // ---- Network: source / sink -------------------------------------
+  println("")
+  println("=== Network (linear S -> A -> B -> P chain) ===")
+  let net = @src.create_example_network()
+  let nodes = net.species()
+  nodes.sort_by(fn(a : String, b : String) -> Int {
+    if a < b { -1 } else if a > b { 1 } else { 0 }
+  })
+  let mut m = 0
+  while m < nodes.length() {
+    let sp = nodes[m]
+    let src = net.source(sp)
+    let snk = net.sink(sp)
+    let src_s = if src.length() == 0 { "none" } else { src.join(",") }
+    let snk_s = if snk.length() == 0 { "none" } else { snk.join(",") }
+    println("  source(" + sp + ") = [" + src_s + "]   sink(" + sp + ") = [" + snk_s + "]")
+    m = m + 1
+  }
+
+  // ---- BFS / DFS on PathwayMultiGraph -----------------------------
+  println("")
+  println("=== Graph traversals (MultiGraph A->B->C->D->E + shortcut A->C) ===")
+  let mg = @src.PathwayMultiGraph::new()
+  mg.add_node("A"); mg.add_node("B"); mg.add_node("C"); mg.add_node("D"); mg.add_node("E")
+  mg.add_edge("A", "B", "e1")
+  mg.add_edge("B", "C", "e2")
+  mg.add_edge("C", "D", "e3")
+  mg.add_edge("D", "E", "e4")
+  mg.add_edge("A", "C", "e5")
+
+  let bfs_order = @src.bf_search(mg, root="A")
+  let dfs_order = @src.df_search(mg, root="A")
+  println("  BFS from A: " + bfs_order.join(" -> "))
+  println("  DFS from A: " + dfs_order.join(" -> "))
+
+  println("")
+  println("=== Done ===")
 }
