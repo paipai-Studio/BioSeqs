@@ -74,7 +74,7 @@ fn main {
   disease_db["DOID:9012"] = ["GAPDH", "ACTB"]
   disease_db["DOID:3456"] = ["MYC", "EGFR"]
 
-  let dose_result = @bio.enrich_disease(gene_list, disease_db, background_genes)
+  let dose_result = @bio.enrich_disease_fisher(gene_list, disease_db, background_genes)
 
   println("1. Enrichment Results")
   println("   Total enriched terms: \{dose_result.terms.length().to_string()}")
@@ -83,7 +83,8 @@ fn main {
   println("")
 
   println("2. Top 3 Enriched Terms")
-  let top_terms = @bio.get_top_terms(dose_result, 3)
+  let top_dose = @bio.dose_top_terms(dose_result, 3)
+  let top_terms = top_dose.terms
   i = 0
   while i < top_terms.length() {
     let term = top_terms[i]
@@ -93,18 +94,18 @@ fn main {
     println("     - Gene count: \{term.gene_count.to_string()}")
     println("     - P-value: \{term.p_value.to_string()}")
     println("     - Adjusted P-value: \{term.adjusted_p_value.to_string()}")
-    println("     - Enrichment score: \{term.enrichment_score.to_string()}")
+    println("     - Enrichment score: \{term.fold_enrichment.to_string()}")
     println("")
     i = i + 1
   }
 
   println("3. Filtered Results (adjusted p-value < 0.05)")
-  let filtered = @bio.filter_results(dose_result, 0.05)
+  let filtered = @bio.dose_filter_by_adjp(dose_result, 0.05)
   println("   Significant terms: \{filtered.terms.length().to_string()}")
   println("")
 
   println("4. Summary")
-  println(@bio.summarize_result(dose_result))
+  println(@bio.dose_summarize(dose_result))
   println("")
 
   println("\n")
