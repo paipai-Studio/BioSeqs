@@ -8,7 +8,7 @@
 
 ## 项目概述
 
-BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.10`。
+BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.11`。
 
 ## 目录
 
@@ -460,10 +460,12 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | 功能模块 | 对应 Bioconductor | 核心功能 |
 | :--- | :--- | :--- |
 | **affy / gcrma / preprocessCore** | affy / gcrma / preprocessCore | RMA 标准化、背景校正（IdealMM/Express）、GC 校正、分位数归一化；quantile/invariant set/cyclic loess/contrast/percentile shift 归一化、log2 变换组合、归一化质量统计 |
+| **affyPLM** | affyPLM | 探针级模型（PLM）IRLS 稳健拟合（Huber/Tukey M-estimator）、探针/芯片效应分离、NUSE/RLE 质控统计 |
 | **vsn** | vsn | 方差稳定化归一化 glog 变换、vsn2 |
 | **EDASeq** | EDASeq | RNA-seq 探索性分析、GC 含量归一化、基因长度校正 Loess、样本间归一化、RPKM |
 | **HTSFilter** | HTSFilter | RNA-seq count 过滤、CPM 归一化、按组最小样本数阈值、keep mask、文库大小 |
 | **RUVSeq / sva / ComBat** | RUVSeq / sva | RNA-seq 批次效应去除、log2 转换、RUVg/RUVs；替代变量分析、经验贝叶斯方法、PCA、ComBat/removeBatchEffect |
+| **BEclear** | BEclear | 批次效应检测（per-batch 中位数偏差）、受影响块识别、中位数平移校正、BEscore 残余效应评估 |
 | **NanoString** | NanoString | nCounter 数字条码：阳性/阴性对照归一化、管家基因归一化、content 归一化、LOQ 过滤、成像 QC、线性度、差异表达 |
 | **QFeatures** | QFeatures | 多 assay 层级容器（PSM/peptide/protein）、跨层级特征链接、聚合（sum/mean/median/max）、过滤/归一化/缺失值插补（KNN/mean/zero） |
 | **MSnbase / MsCoreUtils / MSstats** | MSnbase / MsCoreUtils / MSstats | Spectrum/Chromatogram/MSnSet、peak 查找、TIC 归一化、MA 平滑、SNIP 基线校正、SNR centroiding、refineCentroids、localMaxima、joinPeaks m/z 匹配、Savitzky-Golay 平滑、KNN 插补、medianPolish 聚合、肽段→蛋白汇总、样本 QC、质谱数据归一化与组间比较 |
@@ -489,6 +491,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **HilbertCurve** | HilbertCurve | Hilbert 曲线编码/解码、距离计算、基因组线性化、网格映射 |
 | **flowCore / openCyto / FlowSOM / diffcyt** | flowCore / openCyto / FlowSOM / diffcyt | FCS 处理、荧光补偿、门控（矩形/多边形/椭球/四象限/mindensity KDD/tailgate/flowClust t 混合 EM/rangeGate）、模板驱动门控流水线；高维流式：FlowSOM 聚类、负二项 GLM DA 检验、经验贝叶斯调节 t 检验 DS、BH-FDR |
 | **universalmotif** | universalmotif | Motif 结构、共识序列计算 |
+| **motifmatchr** | motifmatchr | PWM 模体匹配：PFM→PWM→PSSM 转换、正反向互补扫描、hit/score/count/maxScore 矩阵 |
+| **motifbreakR** | motifbreakR | 模体破坏变异预测：SNP + PWM → ref/alt 打分 → delta → gain/loss/neutral 效应分类 |
 | **SystemPipeR** | SystemPipeR | 流水线编排、步骤管理、依赖关系、进度追踪 |
 | **pqsfinder** | pqsfinder | G-四链体（PQS）检测：G-run 穷举搜索、四分体加分/bulge/错配罚分评分系统、loop 长度惩罚、正负链搜索、非重叠/全重叠（overlapping）导出、deep 搜索逐位置 density 与 maxScores 向量、PQS 序列提取 |
 | **DNAcopy** | DNAcopy | 循环二分分割（CBS）拷贝数分割：置换检验显著性（alpha/nperm）、trimmed variance、max 统计量、多染色体独立分割、sdundo 相邻片段合并 |
@@ -540,7 +544,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ```
 IvanAXu/BioSeqs/
-├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.9)
+├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.11)
 ├── src/                              # 源代码（486 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
