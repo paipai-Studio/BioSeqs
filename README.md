@@ -8,7 +8,7 @@
 
 ## 项目概述
 
-BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.11`。
+BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.13`。
 
 ## 目录
 
@@ -202,6 +202,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Entrez** | `Bio.Entrez` | NCBI 数据库 ESearch/EFetch、PubMed/Gene/Taxonomy 解析 |
 | **Entrez E-utilities** | `Bio.Entrez` | 全套 9 个 E-utility：EInfo（数据库列表/字段与链接名，20190110 DTD）、ESearch（Count/RetMax/RetStart/IdList/QueryTranslation/QueryKey/WebEnv 历史）、EFetch（rettype/retmode 原始记录与 history 拉取，≥200 ID 自动 POST）、EPost（WebEnv/QueryKey 会话）、ESummary（DocSum/Item 文档摘要）、ESpell（拼写建议与 Replaced 列表）、ELink（跨库 LinkSetDb/LinkName 关联）、EGQuery（全局跨库计数）、ECitMatch（引文字符串 bdata 检索 PMID）、entrez_quote_plus URL 编码、可注入 fetch/now 传输、内置限速（无 API key 每秒 3 次） |
 | **Datastore** | BagIt 风格（Bio.Entrez 缓存思路） | MD5（RFC 1321 完整实现）内容寻址 bag：add/manifest-md5.txt/bagit.txt/bag-info.txt（Payload-Oxum）、fetch-through 缓存（hit/miss 统计）、verify 校验、外部清单 load_bag 加载、字典序 names/tags |
+| **BiocFileCache** | BiocFileCache | 本地文件缓存管理：add/get/remove/clean、bfcrpath 路径解析、bfcquery 模糊搜索、bfcneedsupdate 远程 staleness 检测、etag 更新、标签管理、FNV-1a 内容校验、hit/miss 统计 |
 | **Taxonomy** | `Bio.Taxonomy` | NCBI 分类数据库、分类树操作、谱系查询、共同祖先计算 |
 | **Medline** | `Bio.Medline` | Medline/PubMed 记录解析、APA 引用、MeSH 过滤 |
 | **EMBOSS 工具** | EMBOSS suite | GC 偏斜、AT 偏斜、分子量、Tm、ORF 查找、距离计算、蛋白质参数 |
@@ -318,6 +319,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **metagenomeSeq** | metagenomeSeq | 零膨胀模型、归一化、零膨胀概率计算、差异检验 |
 | **zinbwave** | zinbwave | 零膨胀负二项低维模型、cell/gene 协变量与 offset、latent factors、dispersion shrinkage、observational weights |
 | **DSS** | DSS | RNA-seq 差异表达 Wald 检验 + BH-FDR；差异甲基化 DML/DMR 检测 |
+| **methylGSA** | methylGSA | 甲基化基因集分析：CpG→基因最小 p 值聚合、methylRRA-OLS（均值 -log10 统计 + 经验 p 值）、methylRRA-Robust（Robust Rank Aggregation Beta 顺序统计量）、BH-FDR 多重检验校正 |
 | **tradeSeq** | tradeSeq 1.27.0 | gene × cell 计数合同、cell × lineage 拟时间/权重、多 lineage 负二项 GAM、惩罚 B-spline、五类 Wald 检验、Slingshot 直连 |
 | **stageR** | stageR | 两阶段检验（筛选+确认）、Simes 聚合、BH-FDR、Holm 步降、OFDR 控制、Dte/Dtu |
 | **EBSeq** | EBSeq | 经验贝叶斯差异表达、负二项模型、PPDE 后验概率、Laplace 近似边际似然、Stirling lgamma 近似 |
@@ -476,6 +478,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **ballgown** | ballgown | 转录组水平差异、FPKM、t 检验、基因/转录本结构 |
 | **IsoformSwitchAnalyzeR** | IsoformSwitchAnalyzeR | 转录本异构体切换、PSI/DPSI/DIF、功能后果预测 |
 | **tximport** | tximport | Salmon quant.sf 解析、转录本→基因级别汇总、低表达过滤、ExpressionSet 转换 |
+| **tximeta** | tximeta | 元数据感知定量导入：linkTxome 转录本来源注入（sha/genome/organism/release/source）、coldata 合并、基因级别汇总、验证与元数据导出 |
 | **impute** | impute | KNN/mean/median/LOCF/NOCB 缺失值插补 |
 | **Hmisc / rstatix** | Hmisc / rstatix | 相关性（Pearson/Spearman）、变量聚类、描述性统计、Somers' d、缺失值插补；T/Wilcoxon/ANOVA/Kruskal-Wallis/Friedman、BH-FDR/Bonferroni |
 | **PCAtools / factoextra** | PCAtools / factoextra | scree/biplot/outliers PCA 工具；特征值计算、方差解释率、个体/变量坐标、cos2 质量、贡献度评分、维度描述 |
@@ -491,6 +494,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **HilbertCurve** | HilbertCurve | Hilbert 曲线编码/解码、距离计算、基因组线性化、网格映射 |
 | **flowCore / openCyto / FlowSOM / diffcyt** | flowCore / openCyto / FlowSOM / diffcyt | FCS 处理、荧光补偿、门控（矩形/多边形/椭球/四象限/mindensity KDD/tailgate/flowClust t 混合 EM/rangeGate）、模板驱动门控流水线；高维流式：FlowSOM 聚类、负二项 GLM DA 检验、经验贝叶斯调节 t 检验 DS、BH-FDR |
 | **universalmotif** | universalmotif | Motif 结构、共识序列计算 |
+| **motifStack** | motifStack | 模体堆叠聚类：Pearson 距离矩阵、平均链接层次聚类、ASCII logo 渲染、信息含量 IC、堆叠顺序、模体节点遍历 |
 | **motifmatchr** | motifmatchr | PWM 模体匹配：PFM→PWM→PSSM 转换、正反向互补扫描、hit/score/count/maxScore 矩阵 |
 | **motifbreakR** | motifbreakR | 模体破坏变异预测：SNP + PWM → ref/alt 打分 → delta → gain/loss/neutral 效应分类 |
 | **SystemPipeR** | SystemPipeR | 流水线编排、步骤管理、依赖关系、进度追踪 |
@@ -544,7 +548,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ```
 IvanAXu/BioSeqs/
-├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.11)
+├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.13)
 ├── src/                              # 源代码（486 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
