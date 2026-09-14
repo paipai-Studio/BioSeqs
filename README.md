@@ -8,7 +8,7 @@
 
 ## 项目概述
 
-BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.13`。
+BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.14`。
 
 ## 目录
 
@@ -431,6 +431,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | 功能模块 | 对应 Bioconductor | 核心功能 |
 | :--- | :--- | :--- |
 | **phyloseq** | phyloseq | OTU 丰度计算、分类学过滤、相对丰度、稀疏化处理 |
+| **dada2** | dada2 | 扩增子序列变异（ASV）推断：序列去重（dereplicate）、误差模型学习（learnErrors/loessErr）、DADA 推断（分区+Poisson 丰度 p 值检验）、双端合并（mergePairs/overlap）、嵌合体检测与去除（isBimera/removeChimeras）、ASV×样本计数矩阵（makeSequenceTable）、朴素贝叶斯 k-mer 分类（assignTaxonomy）、完整流水线（runPipeline） |
 | **microbiome** | microbiome | Alpha 多样性（Shannon/Simpson/Chao1/ACE/Fisher/Pielou）、Beta 多样性（Bray-Curtis/Jaccard/JSD/weighted/unweighted UniFrac）、PCoA、差异丰度（Welch t/Wilcoxon/BH） |
 | **CellChat** | CellChat | 配体-受体互作对数据库、置换检验、互作评分、细胞类型聚合、显著性检验、FDR 校正 |
 | **CIBERSORT** | CIBERSORT 风格 | NNLS 非负最小二乘求解细胞类型分数、投影梯度下降、LM22 风格特征矩阵、Pearson 拟合优度+RMSE、分数归一化（Σ=1.0） |
@@ -608,12 +609,12 @@ IvanAXu/BioSeqs/
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ / rankprod_demo/ # 差异表达
-│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ / gosemsim_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE / Pathway / GOSemSim GO语义相似度
+│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ / gosemsim_demo/ / dada2_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE / Pathway / GOSemSim GO语义相似度 / DADA2 ASV推断
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（466 个测试文件，13167 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（478 个测试文件，13105 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -633,7 +634,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13167 个测试全部通过
+moon test                                               # ✅ 13105 个测试全部通过
 ```
 
 ---
@@ -642,7 +643,7 @@ moon test                                               # ✅ 13167 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13167 个测试用例)
+moon test       # 运行全部测试 (13105 个测试用例)
 ```
 
 ---
