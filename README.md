@@ -8,7 +8,7 @@
 
 ## 项目概述
 
-BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.16`。
+BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.18`。
 
 ## 目录
 
@@ -181,6 +181,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **PSEA** | `Bio.PDB.PSEA` | 二级结构预测（CA-CA 距离、虚拟键角/二面角、H/E/C 三态→八态） |
 | **FragmentMapper** | `Bio.PDB.FragmentMapper` | DSSP 二级结构分类 (H/E/S/L/T/C)、片段分配/合并/过滤、覆盖率 |
 | **internal_coords** | `Bio.PDB.internal_coords` | 键长/键角/扭矩角 (phi/psi/omega/chi)、二面角计算、内部→笛卡儿转换、扩展链构建、旋转异构体库、Ramachandran 区域 |
+| **ic_rebuild** | `Bio.PDB.ic_rebuild` | NeRF（Natural Extension Reference Frame）算法：内坐标→笛卡尔坐标重建、链重建、键长/键角/二面角提取、round-trip 验证 |
+| **AbstractPropertyMap** | `Bio.PDB.AbstractPropertyMap` | 残基属性统一访问接口：按 (chain, resseq, icode) 索引、属性过滤、统计汇总、TSV 导出、多映射合并 |
+| **Nexus Trees/Nodes** | `Bio.Nexus.Trees` / `Bio.Nexus.Nodes` | NEXUS TREES 块解析：TREE 行、TRANSLATE 表、多树集合、Newick 往返、patristic 距离、总枝长、叶节点查询 |
 | **Vectors** | `Bio.PDB.vectors` | 3D Vector3、RotationMatrix3、叉积、Kabsch 叠合、二面角 |
 | **chem_utils** | `Bio.PDB.chem_utils` | 范德华/共价半径、键长/键角/二面角、经验式/分子式量、氢键长度 |
 | **PDB 结构分析高级** | `Bio.PDB` (advanced) | 主链二面角、氢键检测、二级结构分配、疏水性分析 |
@@ -196,6 +199,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Motifs 阈值** | `Bio.motifs.thresholds` | PSSM 打分分布动态规划（motif/background 双密度网格）、threshold_fpr/fnr、balanced（FNR=FPR×rate）、patser（FPR=2^-IC）、标量 pseudocount 计数直建 |
 | **AlignAce / MEME / MAST / Transfac** | `Bio.Motifs.*` | AlignAce PFM 解析、MEME PSPM/E 值/背景、MAST p 值/E 值、TRANSFAC PFM/AC/ID/DE/BF/CC、序列化往返 |
 | **Motif Scan (FIMO)** | FIMO 风格 | PWM→PSSM log2 似然比、正反向互补扫描、动态规划 p 值卷积、匹配汇总 |
+| **Motif Matrix** | `Bio.motifs.matrix` | PFM/PPM/PWM/PSSM 统一矩阵抽象、PFM→PPM→PWM→PSSM 转换管线、信息含量（bits）、log-odds 打分、序列扫描、反向互补 PWM、共识序列 |
+| **ClusterBuster** | `Bio.motifs.clusterbuster` | ClusterBuster 聚类 motif 格式解析：>cluster 头、motif 名、概率 PFM 行、多簇/多 motif 序列化往返、与 MotifPFM 互转、簇评分 |
 | **seqLogo** | Bioconductor seqLogo 风格 | PWM 构建、信息含量 IC、ASCII 艺术 logo 渲染、一致性序列、自定义背景频率 |
 | **Prosite** | `Bio.Prosite` | Prosite 模体数据库搜索、模式解析、匹配算法、得分计算 |
 | **Restriction** | `Bio.Restriction` | REBASE **1088 个酶**全量数据库（`restriction_db.mbt`）：IUPAC 简并位点、回文识别、单切/双切/未表征酶、线性/环状 search（切点 1-based，跨原点桥接）与 catalyse 片段、elucidate/frequency/端型（blunt/5'/3'/unknown）/供应商目录、compatible_overhang/compatible_ends 粘性端相容、isoschizomer/neoschizomer/equischizomer 同裂酶关系、RestrictionBatch 批量检索（add/remove/add_supplier/elements）、RestrictionAnalysis 全套过滤（with/without/n_sites、blunt、overhang5/3、defined、between/only_between/show_only_between、outside/only_outside、do_not_cut） |
@@ -209,6 +214,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Medline** | `Bio.Medline` | Medline/PubMed 记录解析、APA 引用、MeSH 过滤 |
 | **EMBOSS 工具** | EMBOSS suite | GC 偏斜、AT 偏斜、分子量、Tm、ORF 查找、距离计算、蛋白质参数 |
 | **Primer3** | `Bio.Emboss.Primer3` | Wallace/盐校正 Tm、GC 含量、自互补/交叉二聚体评分、发夹 3' 端检测、正/反向候选流水线 |
+| **PrimerSearch** | `Bio.Emboss.PrimerSearch` | EMBOSS primersearch 风格引物匹配：引物对文件解析、错配容忍搜索、PCR 产物推断（正/反向链）、产物大小过滤、EMBOSS 输出格式化 |
 | **FreqTable** | `Bio.SubsMat.FreqTable` | 计数/频率字典、read_count/read_freq 文本解析、Shannon 熵、KL 散度、Jensen-Shannon 距离、归一化 |
 | **Affy** | `Bio.Affy` | Affymetrix 芯片、RMA 标准化、背景校正、分位数归一化 |
 | **Affy CelFile** | `Bio.Affy.CelFile` | Affymetrix CEL 文本格式（v3.x/v4 ASCII）解析：`[HEADER]`/`[INTENSITY]`/`[MASK]`/`[OUTLIERS]`/`[MODIFIED]` 段、DatHeader 网格解析、行优先 intensities/stdevs/npix 矩阵、probe-level 统计（mean/median/range/percentile/IQR/MAS5 background）、mask/outlier 比例 |
@@ -612,12 +618,12 @@ IvanAXu/BioSeqs/
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ / rankprod_demo/ # 差异表达
-│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ / gosemsim_demo/ / dada2_demo/ / decipher_demo/ / treeio_demo/ / tidytree_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE / Pathway / GOSemSim GO语义相似度 / DADA2 ASV推断 / DECIPHER序列分析 / treeio树I/O / tidytree tidy操作
+│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ / gosemsim_demo/ / dada2_demo/ / decipher_demo/ / treeio_demo/ / tidytree_demo/ / motif_matrix_demo/ / ic_rebuild_demo/ / abstract_property_map_demo/ / primersearch_demo/ / motif_clusterbuster_demo/ / nexus_trees_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE / Pathway / GOSemSim GO语义相似度 / DADA2 ASV推断 / DECIPHER序列分析 / treeio树I/O / tidytree tidy操作 / motif矩阵 / NeRF内坐标重建 / 残基属性映射 / 引物搜索 / 聚类motif / Nexus树集合
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（484 个测试文件，13166 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（490 个测试文件，13236 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -637,7 +643,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13166 个测试全部通过
+moon test                                               # ✅ 13236 个测试全部通过
 ```
 
 ---
@@ -646,7 +652,7 @@ moon test                                               # ✅ 13166 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13166 个测试用例)
+moon test       # 运行全部测试 (13236 个测试用例)
 ```
 
 ---
