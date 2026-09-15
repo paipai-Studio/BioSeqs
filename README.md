@@ -216,6 +216,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **BiocFileCache** | BiocFileCache | 本地文件缓存管理：add/get/remove/clean、bfcrpath 路径解析、bfcquery 模糊搜索、bfcneedsupdate 远程 staleness 检测、etag 更新、标签管理、FNV-1a 内容校验、hit/miss 统计 |
 | **Taxonomy** | `Bio.Taxonomy` | NCBI 分类数据库、分类树操作、谱系查询、共同祖先计算 |
 | **Medline** | `Bio.Medline` | Medline/PubMed 记录解析、APA 引用、MeSH 过滤 |
+| **mirna_targets** | `targetscan` 风格 / Biopython 思路 | microRNA 靶标预测：seed 区域提取（miRNA 2-8 位）、seed 类型（6mer/7mer-m8/7mer-A1/8mer）分类、3'UTR 扫描（正向+反向互补匹配，GU 摆动）、context++ 简化打分（seed 权重 + 局部 AU 富集 + 位置权重）、miRNA:mRNA 双向查询、靶位点 TSV 导出 |
+| **orfik** | `ORFik` R/Bioconductor | ORFik 风格 ORF 精细化：六框 ORF 扫描（ATG + 可选起始密码子）、ORF 分类（5'UTR / CDS / 3'UTR / uORF / dORF / overlapping）、Kozak 共识打分（gccRccAUGG：-3 A/G +4 G 强权重）、长度过滤、ORF 序列提取与翻译验证、GFF 导出 |
+| **xcms_peaks** | `xcms` R/Bioconductor | xcms 风格色谱峰检测：chromatogram 数据结构（rt + intensity）、基线估计（滚动最小值/分位数）、噪声估计（MAD）、centWave 简化版（连续高于阈值区域 + 高斯/抛物线拟合峰边界）、matchedFilter 简化版（移动平均滤波 + 局部极大值检测）、峰特征（mz/rt/rtmin/rtmax/面积/snr/fwhm）、ASCII 可视化 |
 | **EMBOSS 工具** | EMBOSS suite | GC 偏斜、AT 偏斜、分子量、Tm、ORF 查找、距离计算、蛋白质参数 |
 | **Primer3** | `Bio.Emboss.Primer3` | Wallace/盐校正 Tm、GC 含量、自互补/交叉二聚体评分、发夹 3' 端检测、正/反向候选流水线 |
 | **PrimerSearch** | `Bio.Emboss.PrimerSearch` | EMBOSS primersearch 风格引物匹配：引物对文件解析、错配容忍搜索、PCR 产物推断（正/反向链）、产物大小过滤、EMBOSS 输出格式化 |
@@ -622,7 +625,7 @@ IvanAXu/BioSeqs/
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ / rankprod_demo/ # 差异表达
-│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ / gosemsim_demo/ / dada2_demo/ / decipher_demo/ / treeio_demo/ / tidytree_demo/ / motif_matrix_demo/ / ic_rebuild_demo/ / abstract_property_map_demo/ / primersearch_demo/ / motif_clusterbuster_demo/ / nexus_trees_demo/ / isoelectric_point_demo/ / quaternion_superimposer_demo/ / msigdbr_demo/ / ashr_demo/ / ebimage_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE / Pathway / GOSemSim GO语义相似度 / DADA2 ASV推断 / DECIPHER序列分析 / treeio树I/O / tidytree tidy操作 / motif矩阵 / NeRF内坐标重建 / 残基属性映射 / 引物搜索 / 聚类motif / Nexus树集合 / 等电点 / Quaternion叠合 / MSigDB基因集库 / 自适应收缩 / 细胞影像分析
+│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ / gosemsim_demo/ / dada2_demo/ / decipher_demo/ / treeio_demo/ / tidytree_demo/ / motif_matrix_demo/ / ic_rebuild_demo/ / abstract_property_map_demo/ / primersearch_demo/ / motif_clusterbuster_demo/ / nexus_trees_demo/ / isoelectric_point_demo/ / quaternion_superimposer_demo/ / msigdbr_demo/ / ashr_demo/ / ebimage_demo/ / mirna_targets_demo/ / orfik_demo/ / xcms_peaks_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE / Pathway / GOSemSim GO语义相似度 / DADA2 ASV推断 / DECIPHER序列分析 / treeio树I/O / tidytree tidy操作 / motif矩阵 / NeRF内坐标重建 / 残基属性映射 / 引物搜索 / 聚类motif / Nexus树集合 / 等电点 / Quaternion叠合 / MSigDB基因集库 / 自适应收缩 / 细胞影像分析 / miRNA靶标预测 / ORFik风格ORF检测 / xcms色谱峰检测
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
