@@ -8,7 +8,7 @@
 
 ## 项目概述
 
-BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.19`。
+BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.20`。
 
 ## 目录
 
@@ -175,6 +175,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **SVDSuperimposer** | `Bio.PDB.SVDSuperimposer` | SVD 蛋白质结构叠合、旋转矩阵、平移向量、RMSD |
 | **QCPSuperimposer** | `Bio.PDB.QCPSuperimposer` | 四元数特征多项式叠合、高精度旋转、RMSD |
 | **QuaternionSuperimposer** | `Bio.PDB.Superimposer` | 四元数结构叠合（Coutsias N 矩阵 + Jacobi 特征分解求最大特征向量）、旋转矩阵/平移向量/RMSD、变换应用、正交性保证 |
+| **msigdbr** | `Bioconductor msigdbr` | MSigDB 基因集库（Hallmark H / Curated canonical C2 / Ontology C5 内置目录）、GMT 读写往返、基因 ID 映射（symbol↔Entrez，未映射保留）、集合大小过滤、基因出现频率、集合 Jaccard 相似度，与 GSEABase `GmtGeneSet` 结构互通 |
+| **ashr** | `Bioconductor ashr` | 自适应收缩（经验贝叶斯）：unimodal 正态混合先验 + EM 估计、后验均值/后验标准差、局部错误符号率 lfsr、收缩因子、z-score 便捷接口，用于 DESeq2/edgeR/limma 下游 logFC 稳定化 |
+| **EBImage** | `Bioconductor EBImage` | 灰度影像处理：Otsu 阈值分割、高斯平滑、Sobel 边缘、腐蚀/膨胀/开闭运算（cross/square/disk 结构元素）、4/8 连通域标记、目标特征（面积/质心/外接框）、marker 分水岭分割、ASCII 可视化 |
 | **CEAligner** | `Bio.PDB.cealign` | CA/C4' 引导原子、AFP 路径搜索、CE Z-score、QCP 刚体叠合、全原子变换 |
 | **MAalign** | `Bio.PDB.MAalign` | 多蛋白质结构比对、Kabsch 算法迭代对齐、保守性分析 |
 | **StructureAlignment** | `Bio.PDB.StructureAlignment` | 多结构比对、动态规划、RMSD/TM-score、渐进式多结构比对 |
@@ -559,8 +562,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ```
 IvanAXu/BioSeqs/
-├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.19)
-├── src/                              # 源代码（510 个 .mbt 模块）
+├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.20)
+├── src/                              # 源代码（513 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -619,12 +622,12 @@ IvanAXu/BioSeqs/
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ / rankprod_demo/ # 差异表达
-│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ / gosemsim_demo/ / dada2_demo/ / decipher_demo/ / treeio_demo/ / tidytree_demo/ / motif_matrix_demo/ / ic_rebuild_demo/ / abstract_property_map_demo/ / primersearch_demo/ / motif_clusterbuster_demo/ / nexus_trees_demo/ / isoelectric_point_demo/ / quaternion_superimposer_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE / Pathway / GOSemSim GO语义相似度 / DADA2 ASV推断 / DECIPHER序列分析 / treeio树I/O / tidytree tidy操作 / motif矩阵 / NeRF内坐标重建 / 残基属性映射 / 引物搜索 / 聚类motif / Nexus树集合 / 等电点 / Quaternion叠合
+│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ / gosemsim_demo/ / dada2_demo/ / decipher_demo/ / treeio_demo/ / tidytree_demo/ / motif_matrix_demo/ / ic_rebuild_demo/ / abstract_property_map_demo/ / primersearch_demo/ / motif_clusterbuster_demo/ / nexus_trees_demo/ / isoelectric_point_demo/ / quaternion_superimposer_demo/ / msigdbr_demo/ / ashr_demo/ / ebimage_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE / Pathway / GOSemSim GO语义相似度 / DADA2 ASV推断 / DECIPHER序列分析 / treeio树I/O / tidytree tidy操作 / motif矩阵 / NeRF内坐标重建 / 残基属性映射 / 引物搜索 / 聚类motif / Nexus树集合 / 等电点 / Quaternion叠合 / MSigDB基因集库 / 自适应收缩 / 细胞影像分析
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（492 个测试文件，13273 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（495 个测试文件，13325 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -644,7 +647,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13490 个测试全部通过
+moon test                                               # ✅ 13542 个测试全部通过
 ```
 
 ---
@@ -653,7 +656,7 @@ moon test                                               # ✅ 13490 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13490 个测试用例)
+moon test       # 运行全部测试 (13542 个测试用例)
 ```
 
 ---
