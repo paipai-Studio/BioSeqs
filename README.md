@@ -8,7 +8,7 @@
 
 ## 项目概述
 
-BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.20`。
+BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.22`。
 
 ## 目录
 
@@ -432,6 +432,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **topGO** | topGO | 拓扑 GO 富集（elim/weight01 算法、Fisher 精确检验、GO 图） |
 | **enrichplot** | enrichplot | 富集结果可视化：dotplot/barplot/heatmap/cnetplot/enrichment map |
 | **fgsea** | fgsea | 快速基因集富集、置换检验、NES/ES、Leading Edge 基因、BH-FDR |
+| **rrvgo** | rrvgo | GO 术语语义冗余去重：Wang 语义相似度矩阵、平均连接层次聚类、按相似度阈值切簇、每簇选最低 score 代表、PCoA 2D 可视化坐标 |
+| **pgsea** | pgsea | 参数化基因集富集分析：z-score 标准化均值评分、Welch t 检验、不完全 beta 函数 p 值（连分数展开+Lanczos lgamma）、结果排序与 TSV 导出 |
+| **pathview** | pathview | KEGG 通路可视化：logFC→RGB 颜色映射（绿→灰→红）、SVG 渲染（node 矩形+边线+标签）、每 node 统计、颜色刻度图例 |
 | **limma camera** | limma | rankSumTestWithCorrelation 基因内相关秩和检验、cameraPR 预计算统计量竞争性检验、camera.default 经验贝叶斯 moderated-t、VIF 基因间相关估计/截断、Hill t→z 转换、BH-FDR |
 | **GSVA** | GSVA | 单样本通路评分（ssGSEA/zscore/PLAGE）、富集分析、置换检验、enrichment map、phenotype correlation、survival analysis |
 | **GAGE** | GAGE | fold change、t 检验、BH-FDR 校正、配对检验 |
@@ -565,8 +568,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ```
 IvanAXu/BioSeqs/
-├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.20)
-├── src/                              # 源代码（513 个 .mbt 模块）
+├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.22)
+├── src/                              # 源代码（519 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -625,12 +628,12 @@ IvanAXu/BioSeqs/
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ / rankprod_demo/ # 差异表达
-│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ / gosemsim_demo/ / dada2_demo/ / decipher_demo/ / treeio_demo/ / tidytree_demo/ / motif_matrix_demo/ / ic_rebuild_demo/ / abstract_property_map_demo/ / primersearch_demo/ / motif_clusterbuster_demo/ / nexus_trees_demo/ / isoelectric_point_demo/ / quaternion_superimposer_demo/ / msigdbr_demo/ / ashr_demo/ / ebimage_demo/ / mirna_targets_demo/ / orfik_demo/ / xcms_peaks_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE / Pathway / GOSemSim GO语义相似度 / DADA2 ASV推断 / DECIPHER序列分析 / treeio树I/O / tidytree tidy操作 / motif矩阵 / NeRF内坐标重建 / 残基属性映射 / 引物搜索 / 聚类motif / Nexus树集合 / 等电点 / Quaternion叠合 / MSigDB基因集库 / 自适应收缩 / 细胞影像分析 / miRNA靶标预测 / ORFik风格ORF检测 / xcms色谱峰检测
+│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ / gosemsim_demo/ / dada2_demo/ / decipher_demo/ / treeio_demo/ / tidytree_demo/ / motif_matrix_demo/ / ic_rebuild_demo/ / abstract_property_map_demo/ / primersearch_demo/ / motif_clusterbuster_demo/ / nexus_trees_demo/ / isoelectric_point_demo/ / quaternion_superimposer_demo/ / msigdbr_demo/ / ashr_demo/ / ebimage_demo/ / mirna_targets_demo/ / orfik_demo/ / xcms_peaks_demo/ / rrvgo_demo/ / pgsea_demo/ / pathview_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE / Pathway / GOSemSim GO语义相似度 / DADA2 ASV推断 / DECIPHER序列分析 / treeio树I/O / tidytree tidy操作 / motif矩阵 / NeRF内坐标重建 / 残基属性映射 / 引物搜索 / 聚类motif / Nexus树集合 / 等电点 / Quaternion叠合 / MSigDB基因集库 / 自适应收缩 / 细胞影像分析 / miRNA靶标预测 / ORFik风格ORF检测 / xcms色谱峰检测 / rrvgo GO术语冗余去重 / pgsea参数化基因集富集 / pathview KEGG通路可视化
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（495 个测试文件，13325 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（501 个测试文件，13383 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -650,7 +653,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13542 个测试全部通过
+moon test                                               # ✅ 13383 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -659,7 +662,7 @@ moon test                                               # ✅ 13542 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13542 个测试用例)
+moon test       # 运行全部测试 (13383 个测试用例，test/moonbit 包)
 ```
 
 ---

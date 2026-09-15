@@ -1,0 +1,4 @@
+import {
+  "IvanAXu/BioSeqs/src",
+}
+pkgtype(kind: "executable")
