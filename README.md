@@ -8,7 +8,7 @@
 
 ## 项目概述
 
-BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.18`。
+BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.19`。
 
 ## 目录
 
@@ -34,7 +34,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Bio.Alphabet** | `Bio.Alphabet` | IUPAC DNA/RNA/蛋白质字母表、简化字母表、空位字母表 |
 | **Bio.Data** | `Bio.Data` | IUPAC 数据、氨基酸映射、密码子表、互补碱基表 |
 | **SeqUtils** | `Bio.SeqUtils` | GC 含量（gc_fraction 支持 remove/ignore/weighted 三种歧义碱基模式）、GC/AT 滑动窗口偏斜、GC123 密码子位置 GC、nt_search IUPAC 模糊序列搜索、six_frame_translations 六框翻译与 GC 可视化、seq3/seq1 三字母与单字母转换（IUPAC 扩展码 + custom_map/undef_code）、分子量、Tm 值（Wallace/盐校正）、ORF 预测、序列相似度、Hamming/Levenshtein 距离、CheckSum（GCG/SEGUID） |
-| **SeqUtils 高级** | `Bio.SeqUtils` / `Bio.SeqUtils.ProtParam` / `MolWt` / `MeltingTemp` | 蛋白质参数（不稳定指数/GRAVY 28 种 scale/等电点/信号肽/二级结构倾向、Vihinen 柔性 `flexibility`、`protein_scale` 滑窗剖面、helix/turn/sheet 分数、280nm 摩尔消光系数）、分子量/消光系数/吸光度、Chou-Fasman 二级结构、IUPred 无序区、COILS 卷曲螺旋、Kolaskar 抗原性、Emini 可及性、Karplus-Schulz 柔性、ProtDao 无序预测、CircSeq 环状 DNA 酶切、**MeltingTemp 完整解链温度**（Tm_Wallace 经验法则、Tm_GC 八套经验公式、Tm_NN 近邻热力学 8 套 DNA/RNA/杂交参数表、盐校正方法 1-7 含 Mg2+/dNTP/Tris、错配与悬挂末端、自互补双链、DMSO/甲酰胺化学校正、自定义热力学表） |
+| **SeqUtils 高级** | `Bio.SeqUtils` / `Bio.SeqUtils.ProtParam` / `MolWt` / `MeltingTemp` | 蛋白质参数（不稳定指数/GRAVY 28 种 scale/等电点/信号肽/二级结构倾向、Vihinen 柔性 `flexibility`、`protein_scale` 滑窗剖面、helix/turn/sheet 分数、280nm 摩尔消光系数）、分子量/消光系数/吸光度、Chou-Fasman 二级结构、IUPred 无序区、COILS 卷曲螺旋、Kolaskar 抗原性、Emini 可及性、Karplus-Schulz 柔性、ProtDao 无序预测、CircSeq 环状 DNA 酶切、**MeltingTemp 完整解链温度**（Tm_Wallace 经验法则、Tm_GC 八套经验公式、Tm_NN 近邻热力学 8 套 DNA/RNA/杂交参数表、盐校正方法 1-7 含 Mg2+/dNTP/Tris、错配与悬挂末端、自互补双链、DMSO/甲酰胺化学校正、自定义热力学表）、**独立等电点模块**（pKa 表 + 二分搜索净电荷零点，支持自定义 pKa 表） |
 | **FreqAnalysis** | `Bio.FreqAnalysis` / `Bio.SeqUtils` | k-mer 计数、密码子使用频率、Shannon 熵、Wooton-Federhen 局部组成复杂度 (LCC)、语言学复杂度、DUST、CGR 混沌游戏表示、序列签名 |
 | **CodonUsage** | `Bio.SeqUtils.CodonUsage` / `Bio.codonalign` | CAI 密码子适应指数、RSCU 相对同义密码子使用、ENC 有效密码子数、GC3 偏斜、CBI/Fop、最优/稀有密码子检测、物种参考表 |
 | **Kmer** | `Bio.Kmer` | k-mer 计数与频率分析、Jaccard 相似度、Hamming 距离、k-mer 谱 |
@@ -174,6 +174,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **ParsePDBHeader** | `Bio.PDB.ParsePDBHeader` | PDB 头部元数据解析（HEADER/TITLE/COMPOUND/SOURCE/REMARK/AUTH/DBREF） |
 | **SVDSuperimposer** | `Bio.PDB.SVDSuperimposer` | SVD 蛋白质结构叠合、旋转矩阵、平移向量、RMSD |
 | **QCPSuperimposer** | `Bio.PDB.QCPSuperimposer` | 四元数特征多项式叠合、高精度旋转、RMSD |
+| **QuaternionSuperimposer** | `Bio.PDB.Superimposer` | 四元数结构叠合（Coutsias N 矩阵 + Jacobi 特征分解求最大特征向量）、旋转矩阵/平移向量/RMSD、变换应用、正交性保证 |
 | **CEAligner** | `Bio.PDB.cealign` | CA/C4' 引导原子、AFP 路径搜索、CE Z-score、QCP 刚体叠合、全原子变换 |
 | **MAalign** | `Bio.PDB.MAalign` | 多蛋白质结构比对、Kabsch 算法迭代对齐、保守性分析 |
 | **StructureAlignment** | `Bio.PDB.StructureAlignment` | 多结构比对、动态规划、RMSD/TM-score、渐进式多结构比对 |
@@ -558,8 +559,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ```
 IvanAXu/BioSeqs/
-├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.13)
-├── src/                              # 源代码（486 个 .mbt 模块）
+├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.19)
+├── src/                              # 源代码（510 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -618,12 +619,12 @@ IvanAXu/BioSeqs/
 │   ├── datastore_demo/               # Bio.Datastore（MD5/BagIt 清单/标签/fetch-through 缓存/校验）
 │   ├── pdb_demo/ / phylo_demo/       # 结构与发育树
 │   ├── deseq2_demo/ / edger_demo/ / limma_demo/ / rankprod_demo/ # 差异表达
-│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ / gosemsim_demo/ / dada2_demo/ / decipher_demo/ / treeio_demo/ / tidytree_demo/ / motif_matrix_demo/ / ic_rebuild_demo/ / abstract_property_map_demo/ / primersearch_demo/ / motif_clusterbuster_demo/ / nexus_trees_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE / Pathway / GOSemSim GO语义相似度 / DADA2 ASV推断 / DECIPHER序列分析 / treeio树I/O / tidytree tidy操作 / motif矩阵 / NeRF内坐标重建 / 残基属性映射 / 引物搜索 / 聚类motif / Nexus树集合
+│   ├── ebseq_demo/ / matrixeqtl_demo/ / dmrcate_demo/ / gostats_demo/ / lefse_demo/ / dose_demo/ / pathway_demo/ / gosemsim_demo/ / dada2_demo/ / decipher_demo/ / treeio_demo/ / tidytree_demo/ / motif_matrix_demo/ / ic_rebuild_demo/ / abstract_property_map_demo/ / primersearch_demo/ / motif_clusterbuster_demo/ / nexus_trees_demo/ / isoelectric_point_demo/ / quaternion_superimposer_demo/ # EBSeq/eQTL/DMR/GO/LEfSe/DOSE / Pathway / GOSemSim GO语义相似度 / DADA2 ASV推断 / DECIPHER序列分析 / treeio树I/O / tidytree tidy操作 / motif矩阵 / NeRF内坐标重建 / 残基属性映射 / 引物搜索 / 聚类motif / Nexus树集合 / 等电点 / Quaternion叠合
 │   ├── seurat_demo/ / milo_demo/ / monocle3_demo/ # 单细胞
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（490 个测试文件，13236 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（492 个测试文件，13273 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -643,7 +644,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13236 个测试全部通过
+moon test                                               # ✅ 13490 个测试全部通过
 ```
 
 ---
@@ -652,7 +653,7 @@ moon test                                               # ✅ 13236 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13236 个测试用例)
+moon test       # 运行全部测试 (13490 个测试用例)
 ```
 
 ---
