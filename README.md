@@ -8,7 +8,7 @@
 
 ## 项目概述
 
-BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.23`。
+BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，复刻主流生物信息学库（Biopython、Bioconductor、scikit-bio 等）的核心功能，并实现高效的序列组装算法。项目当前版本：`0.1.24`。
 
 ## 目录
 
@@ -526,6 +526,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **SystemPipeR** | SystemPipeR | 流水线编排、步骤管理、依赖关系、进度追踪 |
 | **pqsfinder** | pqsfinder | G-四链体（PQS）检测：G-run 穷举搜索、四分体加分/bulge/错配罚分评分系统、loop 长度惩罚、正负链搜索、非重叠/全重叠（overlapping）导出、deep 搜索逐位置 density 与 maxScores 向量、PQS 序列提取 |
 | **DNAcopy** | DNAcopy | 循环二分分割（CBS）拷贝数分割：置换检验显著性（alpha/nperm）、trimmed variance、max 统计量、多染色体独立分割、sdundo 相邻片段合并 |
+| **CAGEr** | CAGEr | CAGE 数据 TSS 分析：CTSS 位点数据结构、SimpleTPM/Power-law 归一化、CTSS 聚类（距离阈值内合并相邻 CTSS）、TSS 形状分类（sharp/broad 基于主导 TSS 标签占比）、差异 TSS 使用（log2FC）、基因注释、簇统计摘要 |
+| **TFBSTools / PWMEnrich** | TFBSTools + PWMEnrich | 转录因子结合位点分析：JASPAR 矩阵结构、PFM 归一化（伪计数）、PFM→PWM（log-odds）、共识序列、信息含量、序列扫描（正向+反向链）、批量扫描、超几何富集检验（正态近似）、BH-FDR 校正、内置示例 JASPAR 矩阵 |
+| **conumee** | conumee | 拷贝数统一接口：CnmProbe/CnmSegment/CnmSample/CnmQC/CnmComparison 结构、从数组构造样本、中位数/MAD 计算、包装 DNAcopy 的 CBS 分段、基因注释（基于重叠）、样本间比较（探针相关性+分段比较）、分段 TSV 导出、ASCII 拷贝数图 |
 | **copynumber** | copynumber | 分段常数拟合（PCF）拷贝数分割：runmed 中位数滤波（keep + smoothEnds + Tukey 端点）、MAD 尺度估计、madWins/pcfWins 离群值 Winsorize、exactPcf 精确最小二乘动态规划分段（kmin/gamma 惩罚、MAD 归一化）、multiPCF 多样本联合共享分段（逐样本 MAD 标准化、样本权重、零方差退化单段） |
 | **regioneR** | regioneR | 基因组区域置换检验 permTest：randomizeRegions 随机化（保宽度/染色体、避开 mask 掩蔽区）、circularRandomizeRegions 环状平移、numOverlaps/meanDistance 统计、z-score 与经验 p 值（greater/less/two.sided）、可复现种子 |
 | **MatrixEQTL** | MatrixEQTL | 快速 eQTL 分析、线性回归 SNP-基因关联、Benjamini-Hochberg FDR 校正、t 统计量、正则化不完全 Beta 函数 p 值 |
@@ -575,7 +578,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.23)
-├── src/                              # 源代码（522 个 .mbt 模块）
+├── src/                              # 源代码（525 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -599,6 +602,9 @@ IvanAXu/BioSeqs/
 │   ├── protparam_demo/               # ProtParam 蛋白参数（MW/pI/不稳定指数、flexibility 柔性、protein_scale 滑窗、28 种 GRAVY scale、消光系数、结构分数）
 │   ├── dnacopy_demo/                 # DNAcopy CBS 拷贝数分割（sdundo 合并/多染色体）
 │   ├── copynumber_demo/              # copynumber PCF 分段常数拟合（madWins 离群值/pcf_plain/multiPCF 共享分段）
+│   ├── cage_demo/                    # CAGEr CAGE 数据 TSS 分析（CTSS 聚类/TSS 形状分类/差异 TSS 使用）
+│   ├── tfbstools_demo/               # TFBSTools 转录因子结合位点（JASPAR 矩阵/PFM→PWM/序列扫描/富集分析）
+│   ├── conumee_demo/                 # conumee 拷贝数统一接口（CBS 分段/基因注释/样本比较/ASCII 图）
 │   ├── regione_r_demo/               # regioneR 区域置换检验（随机化/mask/permTest）
 │   ├── minet_demo/                   # minet 互信息网络（离散化/MIM/ARACNE/CLR/MRNET/AUROC 验证）
 │   ├── qvalue_demo/                  # qvalue FDR 全流程（π₀ smoother/bootstrap、q-value/pFDR、lfdr、empPvals、BH 对比）
@@ -640,7 +646,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（508 个测试文件，13714 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（511 个测试文件，13736 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -660,7 +666,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13714 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13736 个测试全部通过（test/moonbit 包）
 ```
 
 ---

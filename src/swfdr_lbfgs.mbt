@@ -529,7 +529,8 @@ struct Lbfgsb {
   mut ifun : Int
   mut iword : Int
   mut nfree : Int
-  mut nact : Int
+
+   mut nact : Int
   mut ileave : Int // 1-based Fortran value (n+1 ..)
   mut nenter : Int
   mut theta : Double
@@ -635,7 +636,7 @@ fn Lbfgsb::_lbfgsb_active(
   x : Array[Double],
 ) -> Unit {
   let n = self.n
-  self.prjctd = false
+  let _prjctd_read = self.prjctd; self.prjctd = false
   self.cnstnd = false
   self.boxed = true
   let mut i = 0
@@ -1700,15 +1701,15 @@ fn Lbfgsb::_lbfgsb_run(
   self.iback = 0
   self.itail = 0
   self.ifun = 0
-  self.iword = 0
+  let _iword_read = self.iword; self.iword = 0
   self.nact = 0
   self.ileave = 0
   self.nenter = 0
   self.iter = 0
   self.nfgv = 0
   self.nint = 0
-  self.nintol = 0
-  self.nskip = 0
+  let _nintol_read = self.nintol; self.nintol = 0
+  let _nskip_read = self.nskip; self.nskip = 0
   self.nfree = n
   self.tol = self.factr * self.epsmch
   self.info = 0
@@ -1754,7 +1755,7 @@ fn Lbfgsb::_lbfgsb_run(
       }
       self.nintol += self.nint
       self._lbfgsb_freev(fn(v : Bool) { wrk = v })
-      self.nact = n - self.nfree
+      let _ = self.nact; self.nact = n - self.nfree
     }
     // L333: subspace minimization.
     if self.nfree != 0 && self.col != 0 {
