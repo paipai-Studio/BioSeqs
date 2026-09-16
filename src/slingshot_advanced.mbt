@@ -2124,6 +2124,100 @@ pub fn slingshot_advanced_sce(
 }
 
 ///|
+pub fn SlingshotLineageModel::lineages_string(result : SlingshotLineageModel) -> Array[Array[String]] {
+  let out : Array[Array[String]] = []
+  let mut i = 0
+  while i < result.lineages.length() {
+    let line : Array[String] = []
+    let mut j = 0
+    while j < result.lineages[i].length() {
+      let idx = result.lineages[i][j]
+      line.push(result.cluster_names[idx])
+      j = j + 1
+    }
+    out.push(line)
+    i = i + 1
+  }
+  out
+}
+
+///|
+pub fn SlingshotLineageModel::roots_string(result : SlingshotLineageModel) -> Array[String] {
+  let out : Array[String] = []
+  let mut i = 0
+  while i < result.roots.length() {
+    out.push(result.cluster_names[result.roots[i]])
+    i = i + 1
+  }
+  out
+}
+
+///|
+pub fn SlingshotLineageModel::edges(result : SlingshotLineageModel) -> Array[SlingshotLineageEdge] {
+  result.edges.copy()
+}
+
+///|
+pub fn SlingshotLineageModel::cluster_names(result : SlingshotLineageModel) -> Array[String] {
+  result.cluster_names.copy()
+}
+
+///|
+pub fn SlingshotAdvancedResult::lineages_string(result : SlingshotAdvancedResult) -> Array[Array[String]] {
+  SlingshotLineageModel::lineages_string(result.lineage_model)
+}
+
+///|
+pub fn SlingshotAdvancedResult::roots_string(result : SlingshotAdvancedResult) -> Array[String] {
+  SlingshotLineageModel::roots_string(result.lineage_model)
+}
+
+///|
+pub fn SlingshotAdvancedResult::curves(result : SlingshotAdvancedResult) -> Array[SlingshotAdvancedCurve] {
+  result.curves.copy()
+}
+
+///|
+pub fn SlingshotAdvancedResult::converged(result : SlingshotAdvancedResult) -> Bool {
+  result.converged
+}
+
+///|
+pub fn SlingshotAdvancedResult::iterations(result : SlingshotAdvancedResult) -> Int {
+  result.iterations
+}
+
+///|
+pub fn SlingshotAdvancedCurve::points(result : SlingshotAdvancedCurve) -> Array[Array[Double]] {
+  result.points.copy()
+}
+
+///|
+pub fn SlingshotAdvancedCurve::pseudotime(result : SlingshotAdvancedCurve) -> Array[Double] {
+  result.pseudotime.copy()
+}
+
+///|
+pub fn SlingshotAdvancedCurve::distances(result : SlingshotAdvancedCurve) -> Array[Double] {
+  result.distances.copy()
+}
+
+///|
+pub fn SlingshotAdvancedCurve::weights(result : SlingshotAdvancedCurve) -> Array[Double] {
+  result.weights.copy()
+}
+
+///|
+pub fn SlingshotAdvancedCurve::curve_length(result : SlingshotAdvancedCurve) -> Double {
+  result.length
+}
+
+///|
+pub fn SlingshotAdvancedCurve::curve_name(result : SlingshotAdvancedCurve) -> String {
+  result.name
+}
+
+///|
 pub fn slingshot_advanced_summary(result : SlingshotAdvancedResult) -> String {
   let mut occupied = 0
   for row in result.lineage_model.cluster_weights {
