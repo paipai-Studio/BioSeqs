@@ -333,7 +333,7 @@ fn main {
 
   println("2. Pick Soft Threshold")
   let powers = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0]
-  let best_power = @bio.pick_soft_threshold(wgcna_data, powers)
+  let best_power = @bio.pick_soft_threshold(wgcna_data, powers, 0.8)
   println("   Best power: \{best_power.to_string()}")
   println("")
 
