@@ -36,7 +36,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **SeqUtils** | `Bio.SeqUtils` | GC 含量（gc_fraction 支持 remove/ignore/weighted 三种歧义碱基模式）、GC/AT 滑动窗口偏斜、GC123 密码子位置 GC、nt_search IUPAC 模糊序列搜索、six_frame_translations 六框翻译与 GC 可视化、seq3/seq1 三字母与单字母转换（IUPAC 扩展码 + custom_map/undef_code）、分子量、Tm 值（Wallace/盐校正）、ORF 预测、序列相似度、Hamming/Levenshtein 距离、CheckSum（GCG/SEGUID） |
 | **SeqUtils 高级** | `Bio.SeqUtils` / `Bio.SeqUtils.ProtParam` / `MolWt` / `MeltingTemp` | 蛋白质参数（不稳定指数/GRAVY 28 种 scale/等电点/信号肽/二级结构倾向、Vihinen 柔性 `flexibility`、`protein_scale` 滑窗剖面、helix/turn/sheet 分数、280nm 摩尔消光系数）、分子量/消光系数/吸光度、Chou-Fasman 二级结构、IUPred 无序区、COILS 卷曲螺旋、Kolaskar 抗原性、Emini 可及性、Karplus-Schulz 柔性、ProtDao 无序预测、CircSeq 环状 DNA 酶切、**MeltingTemp 完整解链温度**（Tm_Wallace 经验法则、Tm_GC 八套经验公式、Tm_NN 近邻热力学 8 套 DNA/RNA/杂交参数表、盐校正方法 1-7 含 Mg2+/dNTP/Tris、错配与悬挂末端、自互补双链、DMSO/甲酰胺化学校正、自定义热力学表）、**独立等电点模块**（pKa 表 + 二分搜索净电荷零点，支持自定义 pKa 表） |
 | **FreqAnalysis** | `Bio.FreqAnalysis` / `Bio.SeqUtils` | k-mer 计数、密码子使用频率、Shannon 熵、Wooton-Federhen 局部组成复杂度 (LCC)、语言学复杂度、DUST、CGR 混沌游戏表示、序列签名 |
-| **CodonUsage** | `Bio.SeqUtils.CodonUsage` / `Bio.codonalign` | CAI 密码子适应指数、RSCU 相对同义密码子使用、ENC 有效密码子数、GC3 偏斜、CBI/Fop、最优/稀有密码子检测、物种参考表 |
+| **CodonUsage** | `Bio.SeqUtils.CodonUsage` / `Bio.codonalign` / `Bio.SeqUtils` | **CodonUtils 密码子分析套件**：NCBI 密码子表 1-3（标准/Vertebrate Mito/Yeast Mito）、GC123 密码子三位点 GC 含量、六框翻译（`seq_six_frame_translations` 支持多密码子表返回结构化结果）、**CAI 密码子适应指数**（Sharp & Li 1987，`cai_weights` + `codon_adaptation_index`，任意参考序列集）、**Nc 有效密码子数**（Wright 1990 精确 20-AA 算法，`seq_enc_wright`）、RSCU、GC3 偏斜、CBI/Fop、最优/稀有密码子检测 |
 | **Kmer** | `Bio.Kmer` | k-mer 计数与频率分析、Jaccard 相似度、Hamming 距离、k-mer 谱 |
 | **ApproxMatch** | `Bio.Seq.Approximate` | 近似字符串匹配（Levenshtein、错配/插入/缺失检测） |
 
@@ -593,6 +593,7 @@ IvanAXu/BioSeqs/
 ├── examples/                         # 示例程序（443 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
+│   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 表 1-3/GC123/六框翻译/CAI/Nc Wright 1990）
 │   ├── pqs_demo/                     # pqsfinder G-四链体检测（评分系统/双链/deep density 与 maxScores/overlapping/序列提取）
 │   ├── melting_temp_demo/            # MeltingTemp 解链温度（Tm_GC 八套公式/Tm_NN 近邻热力学/盐与 Mg2+/错配/DMSO）
 │   ├── protparam_demo/               # ProtParam 蛋白参数（MW/pI/不稳定指数、flexibility 柔性、protein_scale 滑窗、28 种 GRAVY scale、消光系数、结构分数）
@@ -639,7 +640,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（504 个测试文件，13416 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（505 个测试文件，13662 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -659,7 +660,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13416 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13662 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -668,7 +669,7 @@ moon test                                               # ✅ 13416 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13416 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (13662 个测试用例，test/moonbit 包)
 ```
 
 ---
