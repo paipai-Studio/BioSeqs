@@ -174,6 +174,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Packing** | `Bio.PDB.Packing` | 局部包装密度、SASA Lee-Richards、范德华半径、低包装区域识别、球体点生成 |
 | **Dice + Selection** | `Bio.PDB.Dice` | PDB 结构切割（链/残基/原子/模型提取）、B 因子/occupancy 过滤、几何选择、结构统计、序列提取 |
 | **PDBList** | `Bio.PDB.PDBList` | PDB 结构下载管理、文件路径生成、过期 PDB 解析 |
+| **alphafold_db** | `Bio.PDB.alphafold_db` | AlphaFold 结构预测数据库客户端：预测列表 URL 构造（`/api/prediction/{accession}`）、预测 JSON 解析（entryId/cifUrl/pdbUrl/pdbId/uniprot 区间/版本）、mmCIF 文件名提取、可注入 fetch 传输 |
 | **ParsePDBHeader** | `Bio.PDB.ParsePDBHeader` | PDB 头部元数据解析（HEADER/TITLE/COMPOUND/SOURCE/REMARK/AUTH/DBREF） |
 | **SVDSuperimposer** | `Bio.PDB.SVDSuperimposer` | SVD 蛋白质结构叠合、旋转矩阵、平移向量、RMSD |
 | **QCPSuperimposer** | `Bio.PDB.QCPSuperimposer` | 四元数特征多项式叠合、高精度旋转、RMSD |
@@ -586,7 +587,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.23)
-├── src/                              # 源代码（533 个 .mbt 模块）
+├── src/                              # 源代码（534 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -601,7 +602,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（494 个演示 demo）
+├── examples/                         # 示例程序（495 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -654,7 +655,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（519 个测试文件，13616 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（520 个测试文件，13621 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -674,7 +675,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13616 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13621 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -683,7 +684,7 @@ moon test                                               # ✅ 13616 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13616 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (13621 个测试用例，test/moonbit 包)
 ```
 
 ---
