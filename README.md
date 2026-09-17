@@ -523,6 +523,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **genefilter** | genefilter | t/Wilcoxon 检验、方差过滤、CV 过滤、分位数过滤 |
 | **mixOmics** | mixOmics | 多组学整合：PLS 回归、稀疏 PLS (sPLS)、DIABLO 多块整合 |
 | **ropls** | ropls | NIPALS PCA、PLS1/PLS2 回归与 PLS-DA（dummy 编码、自动成分选择、W*、B、VIP）、OPLS/OPLS-DA（Trygg-Wold 正交滤波、正交 VIP）、k 折交叉验证 R2X/R2Y/Q2、RMSEE、响应置换检验（相似度与经验 p 值） |
+| **pcaMethods** | pcaMethods | 缺失值降维：PPCA（概率 PCA，Tipping-Bishop EM）、BPCA（贝叶斯 PCA，Oba 2003 变分 EM + ARD 自动相关确定），产出主成分轴/得分/噪声方差/精度/缺失值插补 |
 | **destiny / Rtsne / uwot** | destiny / Rtsne / uwot | 扩散映射（距离矩阵/高斯核/特征分解）；t-SNE（条件概率/梯度下降/Barnes-Hut）；UMAP（kNN/模糊单纯集/SGD/负采样） |
 | **GENESIS** | GENESIS | 亲属关系矩阵估计、PCA、遗传距离（欧氏/曼哈顿/IBS）、群体结构 |
 | **SNPRelate** | SNPRelate | SNP 遗传关系分析（剂量矩阵输入，-1 缺失）：snpgdsSnpStats 等位基因频率/MAF/缺失率、snpgdsIBDKING KING 稳健亲缘（phi = 0.5 − SumSq/(4·min(N_Aa))）+ IBS0 比例、snpgdsIBDKingHomo k0/k1 IBD 状态、snpgdsIBS/snpgdsDist、snpgdsPCA EIGMIX 协方差特征分解（特征值/方差解释率/载荷）、snpgdsLD 相关系数、snpgdsLDpruning 滑窗贪婪 LD 剪枝（threshold/maf/slide.max.bp） |
@@ -587,7 +588,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.23)
-├── src/                              # 源代码（534 个 .mbt 模块）
+├── src/                              # 源代码（535 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -602,7 +603,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（495 个演示 demo）
+├── examples/                         # 示例程序（496 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -655,7 +656,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（520 个测试文件，13621 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（521 个测试文件，13625 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -675,7 +676,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13621 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13625 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -684,7 +685,7 @@ moon test                                               # ✅ 13621 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13621 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (13625 个测试用例，test/moonbit 包)
 ```
 
 ---
