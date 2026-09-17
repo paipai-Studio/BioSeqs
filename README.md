@@ -63,6 +63,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **ACE** | `Bio.Sequencing.Ace` | ACE contig 组装格式：reads/contigs 解析、共有序列、覆盖度、GC 含量 |
 | **Smart 结构域** | `Bio.Smart` | SMART 蛋白质结构域数据库解析、SMART/Pfam/SignalP/Transmembrane 分类、E 值过滤、GO 注释 |
 | **ExPASy** | `Bio.ExPASy` | Swiss-Prot 条目解析、酶数据库查询、蛋白质参数计算、Cellosaurus 细胞系数据库平面文本解析 |
+| **ExPASy ScanProsite** | `Bio.ExPASy.ScanProsite` | ScanProsite Web 服务：查询 URL 构造（seq/sig/db 等参数、`urllib.parse.urlencode` 的 quote_plus 编码、仅支持 output=xml）、`<scanprosite_response>` XML 解析为 Record（n_match/n_seq + matches 列表：sequence_ac/id/db、signature_ac、start/stop、level/level_tag，未知元素入 extras）、可注入 fetch 传输 |
+| **ExPASy Prodoc** | `Bio.ExPASy.Prodoc` | prosite.doc 记录解析：`{PDOC}` accession、`{PS; NAME}` PROSITE 交叉引用、`{BEGIN}`/`{END}` 文本体、`[ 1]`/`[E1]` 文献与电子引用、多行作者续行与引文续行、`+----` 版权块跳过；prodoc_read（严格单记录）/ prodoc_parse（多记录迭代） |
 | **UniGene** | `Bio.UniGene` | NCBI UniGene 固定宽度记录、序列/蛋白相似性/STS/转录本映射、SCOUNT 校验 |
 | **GOA** | `Bio.UniProt.GOA` | GAF 2.2 基因本体注释 17 列格式、按 GO ID/aspect/evidence/taxon 过滤、序列化往返 |
 | **GEO SOFT** | `Bio.Geo` | ^PLATFORM/^SAMPLE/^SERIES 实体、!属性行、#列定义、数据表、按类型/编号查询 |
@@ -578,7 +580,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.23)
-├── src/                              # 源代码（525 个 .mbt 模块）
+├── src/                              # 源代码（528 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -593,7 +595,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（443 个演示 demo）
+├── examples/                         # 示例程序（489 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -646,7 +648,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（509 个测试文件，13795 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（514 个测试文件，13594 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -666,7 +668,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13795 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13594 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -675,7 +677,7 @@ moon test                                               # ✅ 13795 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13795 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (13594 个测试用例，test/moonbit 包)
 ```
 
 ---
