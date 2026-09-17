@@ -164,6 +164,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **PDB 数据类型** | `Bio.PDB` | 原子/残基/链/模型解析、结构操作 |
 | **PDB 结构 I/O** | `Bio.PDB.PDBParser` / `MMCIFParser` | PDB 文件 I/O、mmCIF 数据块/类别/原子位点提取 |
 | **mmCIF writer** | `Bio.PDB.mmcifio` | Structure 对象序列化、data block/header/atom_site loop 20 列格式化、HETATM 支持、round-trip 验证 |
+| **MMCIF2Dict** | `Bio.PDB.MMCIF2Dict` | mmCIF 原始 tokenizer → 扁平 `{token: [values]}`：单/双引号字符串、`;` 多行块、`#` 注释、`loop_` 列展开、`data_` 块标记 |
 | **BinaryCIF** | `Bio.PDB.binary_cif` | 纯 MoonBit MessagePack 解析、ByteArray/FixedPoint/IntervalQuantization/RunLength/Delta/IntegerPacking/StringArray 七类逆编码、三态缺失值、Structure 转换 |
 | **MMTF** | `Bio.PDB.mmtf` | MMTF 二进制、IEEE 754 浮点、MsgPack 风格整数、Run-length/Delta/Recursive 编码、层级结构、键/实体/晶体学 |
 | **NACCESS** | `Bio.PDB.NACCESS` | NACCESS .rsa/.asa 解析、残基/原子级 ASA、绝对/相对/侧链/主链、链总和、Structure 互转 |
@@ -210,6 +211,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **seqLogo** | Bioconductor seqLogo 风格 | PWM 构建、信息含量 IC、ASCII 艺术 logo 渲染、一致性序列、自定义背景频率 |
 | **Prosite** | `Bio.Prosite` | Prosite 模体数据库搜索、模式解析、匹配算法、得分计算 |
 | **Restriction** | `Bio.Restriction` | REBASE **1088 个酶**全量数据库（`restriction_db.mbt`）：IUPAC 简并位点、回文识别、单切/双切/未表征酶、线性/环状 search（切点 1-based，跨原点桥接）与 catalyse 片段、elucidate/frequency/端型（blunt/5'/3'/unknown）/供应商目录、compatible_overhang/compatible_ends 粘性端相容、isoschizomer/neoschizomer/equischizomer 同裂酶关系、RestrictionBatch 批量检索（add/remove/add_supplier/elements）、RestrictionAnalysis 全套过滤（with/without/n_sites、blunt、overhang5/3、defined、between/only_between/show_only_between、outside/only_outside、do_not_cut） |
+| **Restriction PrintFormat** | `Bio.Restriction.PrintFormat` | 酶切结果三种排版：list（字母序列表）、number（按酶切次数分组）、map（正/反链图形化图谱，60 列分段 + 切点标注） |
 | **ProtParam** | `Bio.SeqUtils.ProtParam` | 分子量、不稳定指数、GRAVY（28 种注册疏水性 scale 命名切换）、等电点、信号肽、二级结构倾向、Vihinen 柔性窗口 `flexibility`、任意氨基酸 scale 滑窗剖面 `protein_scale`（edge 线性权重）、helix/turn/sheet 残基分数 `secondary_structure_fraction`、280nm 摩尔消光系数 `molar_extinction_coefficient` |
 | **Proteomics** | `Bio.SeqUtils.Proteomics` | 8 种蛋白酶切（胰酶/糜酶/胃酶/LysC/ArgC/CNBr/GluC/AspN）、同位素分布、b/y 碎片离子 |
 | **Entrez** | `Bio.Entrez` | NCBI 数据库 ESearch/EFetch、PubMed/Gene/Taxonomy 解析 |
@@ -583,7 +585,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.23)
-├── src/                              # 源代码（530 个 .mbt 模块）
+├── src/                              # 源代码（532 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -598,7 +600,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（491 个演示 demo）
+├── examples/                         # 示例程序（493 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -651,7 +653,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（516 个测试文件，13605 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（518 个测试文件，13613 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -671,7 +673,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13605 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13613 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -680,7 +682,7 @@ moon test                                               # ✅ 13605 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13605 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (13613 个测试用例，test/moonbit 包)
 ```
 
 ---
