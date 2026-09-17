@@ -468,6 +468,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **dada2** | dada2 | 扩增子序列变异（ASV）推断：序列去重（dereplicate）、误差模型学习（learnErrors/loessErr）、DADA 推断（分区+Poisson 丰度 p 值检验）、双端合并（mergePairs/overlap）、嵌合体检测与去除（isBimera/removeChimeras）、ASV×样本计数矩阵（makeSequenceTable）、朴素贝叶斯 k-mer 分类（assignTaxonomy）、完整流水线（runPipeline） |
 | **DECIPHER** | DECIPHER | 生物序列分析工具包：Needleman-Wunsch 仿射间隙全局比对（Gotoh 算法）、序列批量比对（AlignSeqs）、Profile 构建/Profile-Profile 比对（AlignProfiles）、距离矩阵计算、序列同一性聚类（IdClusters/Union-Find）、Neighbor-Joining 系统发育树推断 + Newick 输出、三亲本嵌合体检测（FindChimeras）、共识序列（Consensus）、序列数据库（Seqs2Db/SearchDb）、GC 含量与序列复杂度（Shannon 熵） |
 | **microbiome** | microbiome | Alpha 多样性（Shannon/Simpson/Chao1/ACE/Fisher/Pielou）、Beta 多样性（Bray-Curtis/Jaccard/JSD/weighted/unweighted UniFrac）、PCoA、差异丰度（Welch t/Wilcoxon/BH） |
+| **skbio alpha** | `skbio.diversity.alpha` | scikit-bio Alpha 多样性指标（vegan 未覆盖部分）：sobs/observed_otus/singles/doubles/osd、dominance/simpson_d/inv_simpson/enspie/berger_parker_d/simpson_e/heip_e/goods_coverage、margalef/menhinick/mcintosh_d/mcintosh_e/brillouin_d/strong、renyi/tsallis/hill 广义熵 |
 | **CellChat** | CellChat | 配体-受体互作对数据库、置换检验、互作评分、细胞类型聚合、显著性检验、FDR 校正 |
 | **CIBERSORT** | CIBERSORT 风格 | NNLS 非负最小二乘求解细胞类型分数、投影梯度下降、LM22 风格特征矩阵、Pearson 拟合优度+RMSE、分数归一化（Σ=1.0） |
 | **MCPcounter** | MCPcounter | 标记基因几何均值表达评分（Becht 2016）、10 种细胞种群默认标记集、对数域稳健计算 |
@@ -589,7 +590,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.23)
-├── src/                              # 源代码（536 个 .mbt 模块）
+├── src/                              # 源代码（537 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -604,7 +605,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（497 个演示 demo）
+├── examples/                         # 示例程序（498 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -657,7 +658,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（522 个测试文件，13631 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（523 个测试文件，13636 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -677,7 +678,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13631 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13636 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -686,7 +687,7 @@ moon test                                               # ✅ 13631 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13631 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (13636 个测试用例，test/moonbit 包)
 ```
 
 ---
