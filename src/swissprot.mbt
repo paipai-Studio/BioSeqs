@@ -123,11 +123,11 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
       continue
     }
 
-    let code = line[0:2].to_string()
+    let code = line[0:2].to_owned()
 
     if code == "ID" {
       let content = if line.length() > 5 {
-        line[5:].trim().to_string()
+        line[5:].trim().to_owned()
       } else {
         ""
       }
@@ -137,25 +137,25 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
       }
     } else if code == "AC" {
       let content = if line.length() > 5 {
-        line[5:].trim().to_string()
+        line[5:].trim().to_owned()
       } else {
         ""
       }
       let acs = split_by_char(content, ';'.to_int())
       for ac in acs {
-        let trimmed = ac.trim().to_string()
+        let trimmed = ac.trim().to_owned()
         if trimmed.length() > 0 {
           accession_numbers.push(trimmed)
         }
       }
     } else if code == "DE" {
-      let content = if line.length() > 5 { line[5:].to_string() } else { "" }
+      let content = if line.length() > 5 { line[5:].to_owned() } else { "" }
       let recname_pos = find_substring(content, "RecName: Full=")
       if recname_pos >= 0 {
         let start_pos = recname_pos + 14
         let end_pos = find_substring_from(content, ";", start_pos)
         if end_pos > start_pos {
-          protein_name = content[start_pos:end_pos].to_string()
+          protein_name = content[start_pos:end_pos].to_owned()
         }
       }
       let ec_pos = find_substring(content, "EC=")
@@ -163,24 +163,24 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
         let ec_start = ec_pos + 3
         let ec_end = find_substring_from(content, ";", ec_start)
         if ec_end > ec_start {
-          let ec = content[ec_start:ec_end].to_string()
+          let ec = content[ec_start:ec_end].to_owned()
           ec_numbers.push(ec)
         }
       }
     } else if code == "GN" {
-      let content = if line.length() > 5 { line[5:].to_string() } else { "" }
+      let content = if line.length() > 5 { line[5:].to_owned() } else { "" }
       let name_pos = find_substring(content, "Name=")
       if name_pos >= 0 {
         let name_start = name_pos + 5
         let name_end = find_substring_from(content, ";", name_start)
         if name_end > name_start {
-          let gene = content[name_start:name_end].to_string()
+          let gene = content[name_start:name_end].to_owned()
           gene_names.push(gene)
         }
       }
     } else if code == "OS" {
       let content = if line.length() > 5 {
-        line[5:].trim().to_string()
+        line[5:].trim().to_owned()
       } else {
         ""
       }
@@ -193,30 +193,30 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
       } else {
         content.length()
       }
-      organism = content[:end_pos].trim().to_string()
+      organism = content[:end_pos].trim().to_owned()
     } else if code == "OX" {
-      let content = if line.length() > 5 { line[5:].to_string() } else { "" }
+      let content = if line.length() > 5 { line[5:].to_owned() } else { "" }
       let taxid_pos = find_substring(content, "NCBI_TaxID=")
       if taxid_pos >= 0 {
         let id_start = taxid_pos + 11
         let id_end = find_substring_from(content, ";", id_start)
         if id_end > id_start {
-          organism_id = content[id_start:id_end].to_string()
+          organism_id = content[id_start:id_end].to_owned()
         }
       }
     } else if code == "OC" {
       let content = if line.length() > 5 {
-        line[5:].trim().to_string()
+        line[5:].trim().to_owned()
       } else {
         ""
       }
       let parts = split_by_char(content, ';'.to_int())
       for part in parts {
-        let trimmed = part.trim().to_string()
+        let trimmed = part.trim().to_owned()
         if trimmed.length() > 0 {
           let dot_pos = find_substring(trimmed, ".")
           if dot_pos >= 0 {
-            taxonomy.push(trimmed[:dot_pos].to_string())
+            taxonomy.push(trimmed[:dot_pos].to_owned())
           } else {
             taxonomy.push(trimmed)
           }
@@ -224,33 +224,33 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
       }
     } else if code == "KW" {
       let content = if line.length() > 5 {
-        line[5:].trim().to_string()
+        line[5:].trim().to_owned()
       } else {
         ""
       }
       let parts = split_by_char(content, ';'.to_int())
       for part in parts {
-        let trimmed = part.trim().to_string()
+        let trimmed = part.trim().to_owned()
         if trimmed.length() > 0 {
           let dot_pos = find_substring(trimmed, ".")
           if dot_pos >= 0 {
-            keywords.push(trimmed[:dot_pos].to_string())
+            keywords.push(trimmed[:dot_pos].to_owned())
           } else {
             keywords.push(trimmed)
           }
         }
       }
     } else if code == "FT" {
-      let content = if line.length() > 5 { line[5:].to_string() } else { "" }
+      let content = if line.length() > 5 { line[5:].to_owned() } else { "" }
       if content.length() >= 30 {
-        let ft_type = content[:15].trim().to_string()
-        let ft_desc = content[15:30].trim().to_string()
-        let ft_pos = content[30:].trim().to_string()
+        let ft_type = content[:15].trim().to_owned()
+        let ft_desc = content[15:30].trim().to_owned()
+        let ft_pos = content[30:].trim().to_owned()
         if ft_type.length() > 0 && ft_pos.length() > 0 {
           let dotdot = find_substring(ft_pos, "..")
           if dotdot >= 0 {
-            let start_str = ft_pos[:dotdot].to_string()
-            let end_str = ft_pos[dotdot + 2:].to_string()
+            let start_str = ft_pos[:dotdot].to_owned()
+            let end_str = ft_pos[dotdot + 2:].to_owned()
             let mut s = 0
             let mut e = 0
             s = parse_int(start_str)
@@ -261,7 +261,7 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
         }
       }
     } else if code == "CC" {
-      let content = if line.length() > 5 { line[5:].to_string() } else { "" }
+      let content = if line.length() > 5 { line[5:].to_owned() } else { "" }
       if find_substring(content, "-!- FUNCTION:") >= 0 {
         in_comment = true
         comment_topic = "FUNCTION"
@@ -278,22 +278,22 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
         if in_comment &&
           comment_topic == "FUNCTION" &&
           comment_text.length() > 0 {
-          function = comment_text.trim().to_string()
+          function = comment_text.trim().to_owned()
         } else if in_comment &&
           comment_topic == "TISSUE_SPECIFICITY" &&
           comment_text.length() > 0 {
-          tissue_specificity = comment_text.trim().to_string()
+          tissue_specificity = comment_text.trim().to_owned()
         }
         in_comment = false
       } else if in_comment {
-        let trimmed = content.trim().to_string()
+        let trimmed = content.trim().to_owned()
         if trimmed.length() > 0 {
           comment_text = comment_text + " " + trimmed
         }
         if comment_topic == "SUBCELLULAR_LOCATION" {
           let locs = split_by_char(trimmed, '.'.to_int())
           for loc in locs {
-            let loc_trim = loc.trim().to_string()
+            let loc_trim = loc.trim().to_owned()
             if loc_trim.length() > 0 {
               subcellular_location.push(loc_trim)
             }
@@ -302,7 +302,7 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
       }
     } else if code == "RN" {
       if current_ref_num > 0 {
-        let ref = SwissProtReference::new(
+        let reference = SwissProtReference::new(
           current_ref_num,
           current_ref_title,
           copy_string_array(current_ref_authors),
@@ -310,7 +310,7 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
           current_ref_pubmed,
           current_ref_doi,
         )
-        references.push(ref)
+        references.push(reference)
       }
       current_ref_num = current_ref_num + 1
       current_ref_title = ""
@@ -320,7 +320,7 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
       current_ref_doi = ""
     } else if code == "RT" {
       let content = if line.length() > 5 {
-        line[5:].trim().to_string()
+        line[5:].trim().to_owned()
       } else {
         ""
       }
@@ -329,32 +329,32 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
       }
     } else if code == "RA" {
       let content = if line.length() > 5 {
-        line[5:].trim().to_string()
+        line[5:].trim().to_owned()
       } else {
         ""
       }
       let authors_list = split_by_char(content, ','.to_int())
       for author in authors_list {
-        let trimmed = author.trim().to_string()
+        let trimmed = author.trim().to_owned()
         if trimmed.length() > 0 {
           current_ref_authors.push(trimmed)
         }
       }
     } else if code == "RL" {
       let content = if line.length() > 5 {
-        line[5:].trim().to_string()
+        line[5:].trim().to_owned()
       } else {
         ""
       }
       current_ref_journal = current_ref_journal + " " + content
     } else if code == "RX" {
-      let content = if line.length() > 5 { line[5:].to_string() } else { "" }
+      let content = if line.length() > 5 { line[5:].to_owned() } else { "" }
       let pubmed_pos = find_substring(content, "PUBMED=")
       if pubmed_pos >= 0 {
         let pm_start = pubmed_pos + 7
         let pm_end = find_substring_from(content, ";", pm_start)
         if pm_end > pm_start {
-          current_ref_pubmed = content[pm_start:pm_end].to_string()
+          current_ref_pubmed = content[pm_start:pm_end].to_owned()
         }
       }
       let doi_pos = find_substring(content, "DOI=")
@@ -362,31 +362,31 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
         let doi_start = doi_pos + 4
         let doi_end = find_substring_from(content, ";", doi_start)
         if doi_end > doi_start {
-          current_ref_doi = content[doi_start:doi_end].to_string()
+          current_ref_doi = content[doi_start:doi_end].to_owned()
         }
       }
     } else if code == "DT" {
-      let content = if line.length() > 5 { line[5:].to_string() } else { "" }
+      let content = if line.length() > 5 { line[5:].to_owned() } else { "" }
       if find_substring(content, "CREATED") >= 0 {
-        date_created = content[:11].trim().to_string()
+        date_created = content[:11].trim().to_owned()
       } else if find_substring(content, "SEQUENCE UPDATED") >= 0 {
-        date_modified = content[:11].trim().to_string()
+        date_modified = content[:11].trim().to_owned()
       } else if find_substring(content, "VERSION") >= 0 {
         let v_pos = find_substring(content, "v")
         if v_pos >= 0 {
-          let v_str = content[v_pos + 1:].trim().to_string()
+          let v_str = content[v_pos + 1:].trim().to_owned()
           version = parse_int(v_str)
         }
       }
     } else if code == "SQ" {
       in_sequence = true
-      let content = if line.length() > 5 { line[5:].to_string() } else { "" }
+      let content = if line.length() > 5 { line[5:].to_owned() } else { "" }
       let aa_pos = find_substring(content, "AA;")
       if aa_pos >= 0 {
-        let before_aa = content[:aa_pos].trim().to_string()
+        let before_aa = content[:aa_pos].trim().to_owned()
         let space_pos = find_substring_rev(before_aa, " ")
         let num_str = if space_pos >= 0 {
-          before_aa[space_pos + 1:].trim().to_string()
+          before_aa[space_pos + 1:].trim().to_owned()
         } else {
           before_aa
         }
@@ -394,7 +394,7 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
       }
       let mass_pos = find_substring(content, "Mass:")
       if mass_pos >= 0 {
-        let mass_str = content[mass_pos + 5:].trim().to_string()
+        let mass_str = content[mass_pos + 5:].trim().to_owned()
         let mass_num = split_by_char(mass_str, ' '.to_int())
         if mass_num.length() > 0 {
           match parse_double(mass_num[0]) {
@@ -404,12 +404,12 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
         }
       }
     } else if code == "  " && in_sequence {
-      let content = line.trim().to_string()
+      let content = line.trim().to_owned()
       let cleaned = content.replace_all(old=" ", new="")
       sequence = sequence + cleaned
     } else if code == "//" {
       if current_ref_num > 0 {
-        let ref = SwissProtReference::new(
+        let reference = SwissProtReference::new(
           current_ref_num,
           current_ref_title,
           copy_string_array(current_ref_authors),
@@ -417,14 +417,14 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
           current_ref_pubmed,
           current_ref_doi,
         )
-        references.push(ref)
+        references.push(reference)
       }
       if in_comment && comment_topic == "FUNCTION" && comment_text.length() > 0 {
-        function = comment_text.trim().to_string()
+        function = comment_text.trim().to_owned()
       } else if in_comment &&
         comment_topic == "TISSUE_SPECIFICITY" &&
         comment_text.length() > 0 {
-        tissue_specificity = comment_text.trim().to_string()
+        tissue_specificity = comment_text.trim().to_owned()
       }
       in_sequence = false
       in_comment = false
@@ -484,11 +484,11 @@ fn copy_string_array(arr : Array[String]) -> Array[String] {
 pub fn parse_swissprot_all(text : String) -> Array[SwissProtRecord] {
   let records : Array[SwissProtRecord] = Array::new()
   let lines = split_by_char(text, '\n'.to_int())
-  let chunk : StringBuilder = StringBuilder::new()
+  let chunk : StringBuilder = StringBuilder()
   for line in lines {
     chunk.write_string(line)
     chunk.write_char('\n')
-    if line.trim().to_string() == "//" {
+    if line.trim().to_owned() == "//" {
       match parse_swissprot(chunk.to_string()) {
         Some(entry) => records.push(entry)
         None => ()
