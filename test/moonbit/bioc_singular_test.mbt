@@ -437,3 +437,39 @@ test "exact_svd_larger_matrix_sorted" {
   assert_true(result.d[0] >= result.d[1])
   assert_true(result.d[1] >= result.d[2])
 }
+
+///|
+test "eigh_symmetric_tridiagonal_3x3" {
+  let matrix = [[2.0, 1.0, 0.0], [1.0, 2.0, 1.0], [0.0, 1.0, 2.0]]
+  let (eigenvalues, _) = @src.eigh_symmetric(matrix, 3)
+  let sorted = [eigenvalues[0], eigenvalues[1], eigenvalues[2]]
+  for i = 0; i < 2; i = i + 1 {
+    for j = i + 1; j < 3; j = j + 1 {
+      if sorted[i] > sorted[j] {
+        let t = sorted[i]
+        sorted[i] = sorted[j]
+        sorted[j] = t
+      }
+    }
+  }
+  assert_true((sorted[0] - 0.58578644).abs() < 1.0e-6)
+  assert_true((sorted[1] - 2.0).abs() < 1.0e-9)
+  assert_true((sorted[2] - 3.41421356).abs() < 1.0e-6)
+}
+
+///|
+test "exact_svd_2x2_correct_values" {
+  let matrix = [1.0, 2.0, 3.0, 4.0]
+  let result = @src.run_exact_svd(matrix, 2, 2, 0)
+  assert_true((result.d[0] - 5.4649857).abs() < 1.0e-6)
+  assert_true((result.d[1] - 0.36596619).abs() < 1.0e-6)
+}
+
+///|
+test "exact_svd_3x3_correct_values" {
+  let matrix = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0]
+  let result = @src.run_exact_svd(matrix, 3, 3, 0)
+  assert_true((result.d[0] - 16.848103).abs() < 1.0e-5)
+  assert_true((result.d[1] - 1.0683695).abs() < 1.0e-5)
+  assert_true(result.d[2].abs() < 1.0e-6)
+}

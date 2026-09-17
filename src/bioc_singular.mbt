@@ -209,16 +209,17 @@ fn svd_ata(
 ) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = Array::new()
   for i = 0; i < ncol; i = i + 1 {
-    let row = Array::make(ncol, 0.0)
+    result.push(Array::make(ncol, 0.0))
+  }
+  for i = 0; i < ncol; i = i + 1 {
     for j = i; j < ncol; j = j + 1 {
       let mut sum = 0.0
       for k = 0; k < nrow; k = k + 1 {
         sum = sum + matrix[k * ncol + i] * matrix[k * ncol + j]
       }
-      row[j] = sum
-      row[i] = sum
+      result[i][j] = sum
+      result[j][i] = sum
     }
-    result.push(row)
   }
   result
 }
@@ -233,16 +234,17 @@ fn svd_aat(
 ) -> Array[Array[Double]] {
   let result : Array[Array[Double]] = Array::new()
   for i = 0; i < nrow; i = i + 1 {
-    let row = Array::make(nrow, 0.0)
+    result.push(Array::make(nrow, 0.0))
+  }
+  for i = 0; i < nrow; i = i + 1 {
     for j = i; j < nrow; j = j + 1 {
       let mut sum = 0.0
       for k = 0; k < ncol; k = k + 1 {
         sum = sum + matrix[i * ncol + k] * matrix[j * ncol + k]
       }
-      row[j] = sum
-      row[i] = sum
+      result[i][j] = sum
+      result[j][i] = sum
     }
-    result.push(row)
   }
   result
 }
@@ -308,12 +310,11 @@ pub fn jacobi_rotation(
 
     let new_app = app * c * c + aqq * s * s + 2.0 * apq * c * s
     let new_aqq = app * s * s + aqq * c * c - 2.0 * apq * c * s
-    let new_apq = (app - aqq) * c * s + apq * (c * c - s * s)
 
     a[p][p] = new_app
     a[q][q] = new_aqq
-    a[p][q] = new_apq
-    a[q][p] = new_apq
+    a[p][q] = 0.0
+    a[q][p] = 0.0
 
     for k = 0; k < n; k = k + 1 {
       if k != p && k != q {
