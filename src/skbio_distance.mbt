@@ -261,3 +261,149 @@ pub fn skbio_permanova(
   }
   PermanovaResult::{ statistic: obs, p_value, n, num_groups: g }
 }
+///|
+pub struct PermdispResult {
+  statistic : Double
+  p_value : Double
+  n : Int
+  num_groups : Int
+}
+
+///|
+/// Grouped distance-to-centroid arrays used by the one-way ANOVA.
+fn skbd_permdisp_distances(
+  pc : Array[Array[Double]],
+  grouping : Array[Int],
+) -> Array[Array[Double]] {
+  let n = pc.length()
+  let d = if n > 0 { pc[0].length() } else { 0 }
+  let seen : Array[Int] = Array::new()
+  let result : Array[Array[Double]] = Array::new()
+  for g in grouping {
+    let mut dup = false
+    for s in seen {
+      if s == g {
+        dup = true
+        break
+      }
+    }
+    if dup {
+      continue
+    }
+    seen.push(g)
+    let members : Array[Int] = Array::new()
+    for i = 0; i < n; i = i + 1 {
+      if grouping[i] == g {
+        members.push(i)
+      }
+    }
+    let ng = members.length()
+    let centroid = Array::make(d, 0.0)
+    for j = 0; j < d; j = j + 1 {
+      let mut s = 0.0
+      for m in members {
+        s = s + pc[m][j]
+      }
+      centroid[j] = s / ng.to_double()
+    }
+    let dists : Array[Double] = Array::new()
+    for m in members {
+      let mut sq = 0.0
+      for j = 0; j < d; j = j + 1 {
+        let diff = pc[m][j] - centroid[j]
+        sq = sq + diff * diff
+      }
+      dists.push(sq.sqrt())
+    }
+    result.push(dists)
+  }
+  result
+}
+
+///|
+/// One-way ANOVA F-statistic over the grouped distances.
+fn skbd_one_way_anova_f(dist_grouped : Array[Array[Double]]) -> Double {
+  let a = dist_grouped.length()
+  let mut grand_sum = 0.0
+  let mut grand_n = 0
+  for g in dist_grouped {
+    for v in g {
+      grand_sum = grand_sum + v
+      grand_n = grand_n + 1
+    }
+  }
+  let grand_mean = grand_sum / grand_n.to_double()
+  let mut ss_between = 0.0
+  let mut ss_within = 0.0
+  for g in dist_grouped {
+    let ng = g.length()
+    let mut s = 0.0
+    for v in g {
+      s = s + v
+    }
+    let mean_g = s / ng.to_double()
+    ss_between = ss_between + ng.to_double() * (mean_g - grand_mean) * (mean_g - grand_mean)
+    for v in g {
+      ss_within = ss_within + (v - mean_g) * (v - mean_g)
+    }
+  }
+  let df_between = a - 1
+  let df_within = grand_n - a
+  (ss_between / df_between.to_double()) / (ss_within / df_within.to_double())
+}
+
+///|
+fn skbd_permdisp_f(pc : Array[Array[Double]], grouping : Array[Int]) -> Double {
+  skbd_one_way_anova_f(skbd_permdisp_distances(pc, grouping))
+}
+
+///|
+/// PERMDISP (permutational multivariate dispersion, centroid test).
+pub fn skbio_permdisp(
+  dm : Array[Array[Double]],
+  grouping : Array[Int],
+  permutations : Int,
+  seed : Int,
+) -> PermdispResult {
+  let n = dm.length()
+  // principal coordinates via PCoA (Gower centering + eigen)
+  let b = skbio_center_distance_matrix(dm)
+  let (raw_evals, raw_evecs) = eigh_symmetric(b, n)
+  let (evals, evecs) = linalg_sort_eigen(raw_evals, raw_evecs, n)
+  let mut d = 0
+  while d < n && evals[d] > 1.0e-12 {
+    d = d + 1
+  }
+  let pc : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(d, 0.0)
+    for j = 0; j < d; j = j + 1 {
+      row[j] = evecs[i][j] * evals[j].sqrt()
+    }
+    pc.push(row)
+  }
+  let obs = skbd_permdisp_f(pc, grouping)
+  let mut count_better = 0
+  let mut rng = seed
+  for _p = 0; _p < permutations; _p = _p + 1 {
+    let g = grouping.copy()
+    let mut i = n - 1
+    while i > 0 {
+      rng = skbd_lcg(rng)
+      let j = rng % (i + 1)
+      let t = g[i]
+      g[i] = g[j]
+      g[j] = t
+      i = i - 1
+    }
+    if skbd_permdisp_f(pc, g) >= obs {
+      count_better = count_better + 1
+    }
+  }
+  let p_value = if permutations == 0 {
+    skbd_nan()
+  } else {
+    (count_better + 1).to_double() / (permutations + 1).to_double()
+  }
+  PermdispResult::{ statistic: obs, p_value, n, num_groups: skbd_num_groups(grouping) }
+}

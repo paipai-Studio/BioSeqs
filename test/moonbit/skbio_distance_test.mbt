@@ -45,3 +45,21 @@ test "skbio_anosim_permanova_3groups" {
   assert_eq(p.num_groups, 3)
   assert_true(p.p_value > 0.0 && p.p_value <= 1.0)
 }
+///|
+test "skbio_permdisp_statistic" {
+  let dm = [
+    [0.0, 0.223607, 0.111803, 2.828427, 3.162278, 3.590265],
+    [0.223607, 0.0, 0.304138, 2.617250, 3.008322, 3.373426],
+    [0.111803, 0.304138, 0.0, 2.865746, 3.148412, 3.677295],
+    [2.828427, 2.617250, 2.865746, 0.0, 1.414214, 1.920937],
+    [3.162278, 3.008322, 3.148412, 1.414214, 0.0, 3.330165],
+    [3.590265, 3.373426, 3.677295, 1.920937, 3.330165, 0.0],
+  ]
+  let g = [0, 0, 0, 1, 1, 1]
+  let r = @src.skbio_permdisp(dm, g, 99, 42)
+  // scikit-bio permdisp(test='centroid') F = 4.410991776452
+  assert_true(assert_close(r.statistic, 4.410991776452, 1.0e-5))
+  assert_eq(r.n, 6)
+  assert_eq(r.num_groups, 2)
+  assert_true(r.p_value > 0.0 && r.p_value <= 1.0)
+}
