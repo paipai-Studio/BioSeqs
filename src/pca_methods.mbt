@@ -74,50 +74,7 @@ fn pm_identity(n : Int) -> Array[Array[Double]] {
 
 ///|
 fn pm_inverse(a : Array[Array[Double]]) -> Array[Array[Double]] {
-  let n = a.length()
-  let m : Array[Array[Double]] = Array::new()
-  for i = 0; i < n; i = i + 1 {
-    let row = Array::make(2 * n, 0.0)
-    for j = 0; j < n; j = j + 1 {
-      row[j] = a[i][j]
-    }
-    row[n + i] = 1.0
-    m.push(row)
-  }
-  for col = 0; col < n; col = col + 1 {
-    let mut pivot = col
-    let mut best = m[col][col].abs()
-    for r = col + 1; r < n; r = r + 1 {
-      if m[r][col].abs() > best {
-        best = m[r][col].abs()
-        pivot = r
-      }
-    }
-    let tmp = m[col]
-    m[col] = m[pivot]
-    m[pivot] = tmp
-    let pv = m[col][col]
-    for j = 0; j < 2 * n; j = j + 1 {
-      m[col][j] = m[col][j] / pv
-    }
-    for r = 0; r < n; r = r + 1 {
-      if r != col {
-        let factor = m[r][col]
-        for j = 0; j < 2 * n; j = j + 1 {
-          m[r][j] = m[r][j] - factor * m[col][j]
-        }
-      }
-    }
-  }
-  let inv : Array[Array[Double]] = Array::new()
-  for i = 0; i < n; i = i + 1 {
-    let row = Array::make(n, 0.0)
-    for j = 0; j < n; j = j + 1 {
-      row[j] = m[i][n + j]
-    }
-    inv.push(row)
-  }
-  inv
+  linalg_inverse(a)
 }
 
 ///|
@@ -235,70 +192,7 @@ fn pm_orth(a : Array[Array[Double]]) -> Array[Array[Double]] {
 /// Correct Jacobi eigenvalue decomposition for a symmetric matrix. Columns of
 /// the returned matrix are the eigenvectors.
 fn pm_eigh_sym(a : Array[Array[Double]]) -> (Array[Double], Array[Array[Double]]) {
-  let n = a.length()
-  let m : Array[Array[Double]] = Array::new()
-  for i = 0; i < n; i = i + 1 {
-    let row = Array::make(n, 0.0)
-    for j = 0; j < n; j = j + 1 {
-      row[j] = a[i][j]
-    }
-    m.push(row)
-  }
-  let v : Array[Array[Double]] = Array::new()
-  for i = 0; i < n; i = i + 1 {
-    let row = Array::make(n, 0.0)
-    row[i] = 1.0
-    v.push(row)
-  }
-  let tol = 1.0e-15
-  for _it = 0; _it < 100 * n * n + 1; _it = _it + 1 {
-    let mut p = 0
-    let mut q = 1
-    let mut maxv = 0.0
-    for i = 0; i < n; i = i + 1 {
-      for j = i + 1; j < n; j = j + 1 {
-        if m[i][j].abs() > maxv {
-          maxv = m[i][j].abs()
-          p = i
-          q = j
-        }
-      }
-    }
-    if maxv < tol {
-      break
-    }
-    let app = m[p][p]
-    let aqq = m[q][q]
-    let apq = m[p][q]
-    let theta = 0.5 * @math.atan2(2.0 * apq, app - aqq)
-    let c = @math.cos(theta)
-    let s = @math.sin(theta)
-    m[p][p] = c * c * app + 2.0 * s * c * apq + s * s * aqq
-    m[q][q] = s * s * app - 2.0 * s * c * apq + c * c * aqq
-    m[p][q] = 0.0
-    m[q][p] = 0.0
-    for k = 0; k < n; k = k + 1 {
-      if k != p && k != q {
-        let mpk = m[p][k]
-        let mqk = m[q][k]
-        m[p][k] = c * mpk + s * mqk
-        m[k][p] = m[p][k]
-        m[q][k] = -s * mpk + c * mqk
-        m[k][q] = m[q][k]
-      }
-    }
-    for k = 0; k < n; k = k + 1 {
-      let vkp = v[k][p]
-      let vkq = v[k][q]
-      v[k][p] = c * vkp + s * vkq
-      v[k][q] = -s * vkp + c * vkq
-    }
-  }
-  let evals = Array::make(n, 0.0)
-  for i = 0; i < n; i = i + 1 {
-    evals[i] = m[i][i]
-  }
-  (evals, v)
+  linalg_jacobi(a, a.length(), 100 * a.length() * a.length())
 }
 
 ///|

@@ -262,87 +262,7 @@ pub fn jacobi_rotation(
   n : Int,
   max_iter : Int,
 ) -> (Array[Double], Array[Array[Double]]) {
-  let a : Array[Array[Double]] = Array::new()
-  for i = 0; i < n; i = i + 1 {
-    let row = Array::make(n, 0.0)
-    for j = 0; j < n; j = j + 1 {
-      row[j] = matrix[i][j]
-    }
-    a.push(row)
-  }
-
-  let v : Array[Array[Double]] = Array::new()
-  for i = 0; i < n; i = i + 1 {
-    let row = Array::make(n, 0.0)
-    row[i] = 1.0
-    v.push(row)
-  }
-
-  let tol = 1.0e-12
-  let mut iter = 0
-
-  while iter < max_iter {
-    let mut max_off = 0.0
-    let mut p = 0
-    let mut q = 1
-
-    for i = 0; i < n; i = i + 1 {
-      for j = i + 1; j < n; j = j + 1 {
-        if a[i][j].abs() > max_off {
-          max_off = a[i][j].abs()
-          p = i
-          q = j
-        }
-      }
-    }
-
-    if max_off < tol {
-      break
-    }
-
-    let app = a[p][p]
-    let aqq = a[q][q]
-    let apq = a[p][q]
-
-    let theta = 0.5 * @math.atan2(2.0 * apq, app - aqq)
-    let c = @math.cos(theta)
-    let s = @math.sin(theta)
-
-    let new_app = app * c * c + aqq * s * s + 2.0 * apq * c * s
-    let new_aqq = app * s * s + aqq * c * c - 2.0 * apq * c * s
-
-    a[p][p] = new_app
-    a[q][q] = new_aqq
-    a[p][q] = 0.0
-    a[q][p] = 0.0
-
-    for k = 0; k < n; k = k + 1 {
-      if k != p && k != q {
-        let aik = a[k][p]
-        let ajk = a[k][q]
-        a[k][p] = aik * c + ajk * s
-        a[p][k] = a[k][p]
-        a[k][q] = -aik * s + ajk * c
-        a[q][k] = a[k][q]
-      }
-    }
-
-    for k = 0; k < n; k = k + 1 {
-      let vik = v[k][p]
-      let vjk = v[k][q]
-      v[k][p] = vik * c + vjk * s
-      v[k][q] = -vik * s + vjk * c
-    }
-
-    iter = iter + 1
-  }
-
-  let eigenvalues = Array::make(n, 0.0)
-  for i = 0; i < n; i = i + 1 {
-    eigenvalues[i] = a[i][i]
-  }
-
-  (eigenvalues, v)
+  linalg_jacobi(matrix, n, max_iter)
 }
 
 ///|
@@ -352,7 +272,7 @@ pub fn eigh_symmetric(
   matrix : Array[Array[Double]],
   n : Int,
 ) -> (Array[Double], Array[Array[Double]]) {
-  jacobi_rotation(matrix, n, 100)
+  linalg_jacobi(matrix, n, 100)
 }
 
 ///|
