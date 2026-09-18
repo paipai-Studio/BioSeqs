@@ -614,11 +614,13 @@ pub fn bpca(
     let rxinv_full = pm_inverse(rx)
     // Dw = Rxinv + tau * T^T PA Rxinv + diag(alpha)/rows
     let tpat = pm_transpose(tacc)
+    // hoisted: the k×k term T^T · PA · Rxinv is constant across (i, j)
+    let tpat_pa_rxinv = pm_mul(tpat, pm_mul(pa, rxinv_full))
     let dw : Array[Array[Double]] = Array::new()
     for i = 0; i < k; i = i + 1 {
       let row = Array::make(k, 0.0)
       for j = 0; j < k; j = j + 1 {
-        row[j] = rxinv_full[i][j] + tau * pm_mul(tpat, pm_mul(pa, rxinv_full))[i][j] + (if i == j { alpha[i] } else { 0.0 }) / rows.to_double()
+        row[j] = rxinv_full[i][j] + tau * tpat_pa_rxinv[i][j] + (if i == j { alpha[i] } else { 0.0 }) / rows.to_double()
       }
       dw.push(row)
     }
