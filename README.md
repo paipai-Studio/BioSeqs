@@ -302,6 +302,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **InteractionSet** | InteractionSet | 染色质互作数据：Anchor/InteractionSet 结构、Hi-C 互作矩阵、区域对操作、距离计算、重叠检测 |
 | **SeqArray** | SeqArray | GDS 层级容器（GdsNode/GdsFile 路径寻址、GdsInt/Double/String/Int2D/Int3D 值类型）、seqVCF2GDS VCF 导入（样本/变异/基因型三节点）、SeqVarData 过滤视图（seqSetFilter 语义：sample/variant/chrom/range 过滤与 reset）、基因型剂量提取（0/1/2 计数、-1 缺失、单倍型/多等位基因/缺失处理）、allele_frequencies/missing_rates/summary（seqSummary）与 apply_per_variant 逐变异统计 |
 
+| **BAM 记录解析** | htslib/pysam | BAM 二进制比对记录解析（标准 htslib 布局）：32 字节核心头（bin_mq_nl/flag_nc 打包）、CIGAR、4-bit 序列解码（=ACMGRSVTWYHKDBN）、Phred 质量、辅助 tags（A/c/C/s/S/i/I/f/Z/H/B 数组类型）、flag 位解码（paired/proper/unmapped/reverse/read1/read2/secondary/supplementary/qcfail/duplicate）、cigarstring |
 | **BAM index (BAI)** | Rsamtools（HTSlib） | BAI（`.bai`）索引解析：magic、n_ref、每参考序列 fixed-size bin 层级 + 16 kb linear index、末尾 n_no_coor；`bai_reg2bins` 区间→bin 映射、`bai_query` 按半开区间返回 BGZF 虚拟偏移块（配合 `BgzfReader::seek` 随机访问） |
 | **Tabix (.tbi)** | Rsamtools（HTSlib）/ htslib tabix | Tabix 索引解析：header（format/col_seq/col_beg/col_end/meta/skip/l_nm/序列名）+ 共享 BAI binning；`tabix_query` 按半开区间返回压缩块虚拟偏移 |
 | **BCF（二进制 VCF）** | Rsamtools（HTSlib）/ bcftools | BCF2.2 二进制解析：magic `BCF\2\2`、l_text 头部文本（FILTER/INFO/FORMAT/contig/sample 字典由解析文本隐式得到）、record 32 字节固定头 + shared 块（ID/REF+ALT/FILTER/INFO）+ indiv 块（FORMAT/samples）的 typed 值解码（size byte `count<<4|type`、int8/16/32、float32、char、null/flag）、GT 相位解码 |
@@ -606,7 +607,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（499 个演示 demo）
+├── examples/                         # 示例程序（500 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -659,7 +660,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（524 个测试文件，13641 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（524 个测试文件，13640 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -679,7 +680,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13641 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13640 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -688,7 +689,7 @@ moon test                                               # ✅ 13641 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13641 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (13640 个测试用例，test/moonbit 包)
 ```
 
 ---

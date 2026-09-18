@@ -74,6 +74,25 @@ pub struct BamCigarElement {
 } derive(Eq)
 
 ///|
+/// A typed value of a BAM auxiliary tag.
+pub enum BamTagValue {
+  Char(Char)
+  Int(Int)
+  Float(Double)
+  Str(String)
+  IntArray(Array[Int])
+  FloatArray(Array[Double])
+}
+
+///|
+/// A BAM auxiliary tag (optional field after the quality string).
+pub struct BamTag {
+  name : String
+  type_code : Char
+  value : BamTagValue
+}
+
+///|
 /// BAM alignment record.
 pub struct BamRecord {
   ref_id : Int
@@ -91,6 +110,7 @@ pub struct BamRecord {
   cigar : FixedArray[BamCigarElement]
   seq : String
   qual : String
+  tags : Array[BamTag]
 }
 
 ///|
@@ -167,25 +187,153 @@ fn read_cstring(data : String, pos : Int) -> (String, Int) {
 }
 
 ///|
+/// Read a signed int8.
+fn read_int8_signed(data : String, pos : Int) -> (Int, Int) {
+  let b = data.unsafe_get(pos).to_int() & 0xFF
+  let v = if b >= 128 { b - 256 } else { b }
+  (v, pos + 1)
+}
+
+///|
+/// Read a signed int16 (little-endian).
+fn read_int16_le(data : String, pos : Int) -> (Int, Int) {
+  let (u, np) = read_uint16_le(data, pos)
+  let v = if u >= 32768 { u - 65536 } else { u }
+  (v, np)
+}
+
+///|
+/// Read an IEEE 754 float32 (4 little-endian bytes) as a Double.
+fn read_float32_le(data : String, pos : Int) -> (Double, Int) {
+  let b0 = data.unsafe_get(pos).to_int() & 0xFF
+  let b1 = data.unsafe_get(pos + 1).to_int() & 0xFF
+  let b2 = data.unsafe_get(pos + 2).to_int() & 0xFF
+  let b3 = data.unsafe_get(pos + 3).to_int() & 0xFF
+  let sign = if b3 >= 128 { -1.0 } else { 1.0 }
+  let exponent = (b3 & 0x7F) * 2 + (b2 >> 7)
+  let mantissa = (b2 & 0x7F) * 65536 + b1 * 256 + b0
+  let v = if exponent == 255 {
+    0.0 / 0.0
+  } else if exponent == 0 {
+    sign * mantissa.to_double() * @math.pow(2.0, -149.0)
+  } else {
+    sign * (1.0 + mantissa.to_double() / 8388608.0) * @math.pow(2.0, (exponent - 127).to_double())
+  }
+  (v, pos + 4)
+}
+
+///|
+/// Parse BAM auxiliary tags from `pos` until `end`.
+fn parse_bam_tags(
+  data : String,
+  pos : Int,
+  end : Int,
+) -> (Array[BamTag], Int) raise BamError {
+  let tags : Array[BamTag] = Array::new()
+  let mut p = pos
+  while p < end {
+    if p + 3 > end {
+      raise BamError("Truncated BAM tag")
+    }
+    let name = data[p:p + 2].to_owned()
+    let type_code = data.unsafe_get(p + 2).unsafe_to_char()
+    p = p + 3
+    if type_code == 'A' {
+      if p + 1 > end {
+        raise BamError("Truncated A tag")
+      }
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Char(data.unsafe_get(p).unsafe_to_char()) })
+      p = p + 1
+    } else if type_code == 'c' {
+      let (v, np) = read_int8_signed(data, p)
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v) })
+      p = np
+    } else if type_code == 'C' {
+      let (v, np) = read_int8(data, p)
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v) })
+      p = np
+    } else if type_code == 's' {
+      let (v, np) = read_int16_le(data, p)
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v) })
+      p = np
+    } else if type_code == 'S' {
+      let (v, np) = read_uint16_le(data, p)
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v) })
+      p = np
+    } else if type_code == 'i' {
+      let (v, np) = read_int32_le(data, p)
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v) })
+      p = np
+    } else if type_code == 'I' {
+      let (v, np) = read_uint32_le(data, p)
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Int(v) })
+      p = np
+    } else if type_code == 'f' {
+      let (v, np) = read_float32_le(data, p)
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Float(v) })
+      p = np
+    } else if type_code == 'Z' || type_code == 'H' {
+      let (v, np) = read_cstring(data, p)
+      tags.push(BamTag::{ name, type_code, value: BamTagValue::Str(v) })
+      p = np
+    } else if type_code == 'B' {
+      if p + 1 > end {
+        raise BamError("Truncated B tag")
+      }
+      let subtype = data.unsafe_get(p).unsafe_to_char()
+      p = p + 1
+      let (count, np) = read_int32_le(data, p)
+      p = np
+      if subtype == 'f' {
+        let arr : Array[Double] = Array::new()
+        for _j = 0; _j < count; _j = _j + 1 {
+          let (v, np2) = read_float32_le(data, p)
+          arr.push(v)
+          p = np2
+        }
+        tags.push(BamTag::{ name, type_code, value: BamTagValue::FloatArray(arr) })
+      } else {
+        let arr : Array[Int] = Array::new()
+        for _j = 0; _j < count; _j = _j + 1 {
+          let pair = if subtype == 'c' {
+            read_int8_signed(data, p)
+          } else if subtype == 'C' {
+            read_int8(data, p)
+          } else if subtype == 's' {
+            read_int16_le(data, p)
+          } else if subtype == 'S' {
+            read_uint16_le(data, p)
+          } else if subtype == 'i' {
+            read_int32_le(data, p)
+          } else if subtype == 'I' {
+            read_uint32_le(data, p)
+          } else {
+            raise BamError("Unknown BAM array subtype")
+          }
+          arr.push(pair.0)
+          p = pair.1
+        }
+        tags.push(BamTag::{ name, type_code, value: BamTagValue::IntArray(arr) })
+      }
+    } else {
+      raise BamError("Unknown BAM tag type")
+    }
+  }
+  (tags, p)
+}
+
+///|
 /// Decode BAM sequence from 4-bit encoding.
 /// Each byte encodes 2 nucleotides: high nibble first.
 fn decode_bam_seq(encoded : String, length : Int) -> String {
+  let lookup = "=ACMGRSVTWYHKDBN"
   let buf : FixedArray[UInt16] = FixedArray::make(length, 0)
   let mut i = 0
   while i < length {
     let byte_pos = i / 2
     let byte = encoded.unsafe_get(byte_pos).to_int()
-    let offset = i % 2 * 4
-    let code = (byte >> offset) & 0xF
-    let c = match code {
-      0 => 'A'.to_int().to_uint16()
-      1 => 'C'.to_int().to_uint16()
-      2 => 'G'.to_int().to_uint16()
-      4 => 'T'.to_int().to_uint16()
-      8 => 'N'.to_int().to_uint16()
-      _ => 'N'.to_int().to_uint16()
-    }
-    buf[i] = c
+    let code = if i % 2 == 0 { (byte >> 4) & 0xF } else { byte & 0xF }
+    buf[i] = lookup.unsafe_get(code)
     i = i + 1
   }
   unsafe_from_uint16_fixedarray(buf)
@@ -246,31 +394,35 @@ fn parse_bam_header(
 }
 
 ///|
-/// Parse a single BAM alignment record.
+/// Parse a single BAM alignment record (standard htslib layout).
 fn parse_bam_record(
   data : String,
   pos : Int,
+  end : Int,
 ) -> (BamRecord, Int) raise BamError {
   let (ref_id, pos1) = read_int32_le(data, pos)
   let (pos_val, pos2) = read_int32_le(data, pos1)
-  let (bin, pos3) = read_uint32_le(data, pos2)
-  let (mapq, pos4) = read_int8(data, pos3)
-  let (flag, pos5) = read_uint16_le(data, pos4)
-  let (l_read_name, pos6) = read_uint16_le(data, pos5)
-  let (cigar_len, pos7) = read_uint16_le(data, pos6)
-  let (seq_len, pos8) = read_uint32_le(data, pos7)
-  let (next_ref_id, pos9) = read_int32_le(data, pos8)
-  let (next_pos, pos10) = read_int32_le(data, pos9)
-  let (tlen, pos11) = read_int32_le(data, pos10)
+  let (bin_mq_nl, pos3) = read_uint32_le(data, pos2)
+  let (flag_nc, pos4) = read_uint32_le(data, pos3)
+  let (seq_len, pos5) = read_int32_le(data, pos4)
+  let (next_ref_id, pos6) = read_int32_le(data, pos5)
+  let (next_pos, pos7) = read_int32_le(data, pos6)
+  let (tlen, pos8) = read_int32_le(data, pos7)
 
-  let (qname, pos12) = read_cstring(data, pos11)
+  let bin = bin_mq_nl >> 16
+  let mapq = (bin_mq_nl >> 8) & 0xFF
+  let l_read_name = bin_mq_nl & 0xFF
+  let flag = flag_nc >> 16
+  let cigar_len = flag_nc & 0xFFFF
+
+  let (qname, pos9) = read_cstring(data, pos8)
 
   let cigar : FixedArray[BamCigarElement] = FixedArray::make(cigar_len, BamCigarElement::{
     op: BamCigarOp::Match,
     length: 0,
   })
   let mut cigar_idx = 0
-  let mut current_pos = pos12
+  let mut current_pos = pos9
   while cigar_idx < cigar_len {
     let (cigar_op_val, pos_new) = read_uint32_le(data, current_pos)
     let length = cigar_op_val >> 4
@@ -284,22 +436,24 @@ fn parse_bam_record(
   }
 
   let seq_bytes = (seq_len + 1) / 2
-  if current_pos + seq_bytes > data.length() {
+  if current_pos + seq_bytes > end {
     raise BamError("Truncated BAM sequence")
   }
   let encoded_seq = data[current_pos:current_pos + seq_bytes].to_owned()
-  let pos13 = current_pos + seq_bytes
+  let pos10 = current_pos + seq_bytes
 
   let seq = decode_bam_seq(encoded_seq, seq_len)
 
   let qual_bytes = seq_len
-  if pos13 + qual_bytes > data.length() {
+  if pos10 + qual_bytes > end {
     raise BamError("Truncated BAM quality")
   }
-  let encoded_qual = data[pos13:pos13 + qual_bytes].to_owned()
-  let pos14 = pos13 + qual_bytes
+  let encoded_qual = data[pos10:pos10 + qual_bytes].to_owned()
+  let pos11 = pos10 + qual_bytes
 
   let qual = decode_bam_qual(encoded_qual, seq_len)
+
+  let (tags, _) = parse_bam_tags(data, pos11, end)
 
   (
     BamRecord::{
@@ -318,14 +472,11 @@ fn parse_bam_record(
       cigar,
       seq,
       qual,
+      tags,
     },
-    pos14,
+    pos11,
   )
 }
-
-///|
-/// Parse raw BAM data (uncompressed).
-/// The input should be the raw BAM binary content after BGZF decompression.
 pub fn parse_bam(data : String) -> BamFile raise BamError {
   let n = data.length()
   if n < 4 {
@@ -348,10 +499,10 @@ pub fn parse_bam(data : String) -> BamFile raise BamError {
       break
     }
 
-    let (record, _) = parse_bam_record(data, pos_new)
+    let (record, _) = parse_bam_record(data, pos_new, pos_new + block_size)
 
     records.push(record)
-    current_pos = pos_new + block_size + 4
+    current_pos = pos_new + block_size
   }
 
   BamFile::{ header, records, }
@@ -428,6 +579,51 @@ pub fn BamRecord::is_secondary(self : BamRecord) -> Bool {
 /// Check if the read is filtered out.
 pub fn BamRecord::is_supplementary(self : BamRecord) -> Bool {
   (self.flag & 0x800) != 0
+}
+
+///|
+/// Check if the read fails vendor QC.
+pub fn BamRecord::is_qcfail(self : BamRecord) -> Bool {
+  (self.flag & 0x200) != 0
+}
+
+///|
+/// Check if the read is a PCR/optical duplicate.
+pub fn BamRecord::is_duplicate(self : BamRecord) -> Bool {
+  (self.flag & 0x400) != 0
+}
+
+///|
+/// Get a CIGAR string representation of this record (e.g. "8M1I5M").
+pub fn BamRecord::cigarstring(self : BamRecord) -> String {
+  let buf = StringBuilder::new()
+  for elem in self.cigar {
+    let op_char = match elem.op {
+      BamCigarOp::Match => 'M'
+      BamCigarOp::Insert => 'I'
+      BamCigarOp::Delete => 'D'
+      BamCigarOp::Skip => 'N'
+      BamCigarOp::SoftClip => 'S'
+      BamCigarOp::HardClip => 'H'
+      BamCigarOp::Pad => 'P'
+      BamCigarOp::Equal => '='
+      BamCigarOp::Diff => 'X'
+    }
+    buf.write_string(elem.length.to_string())
+    buf.write_char(op_char)
+  }
+  buf.to_string()
+}
+
+///|
+/// Look up an auxiliary tag by name (e.g. "NM", "MD").
+pub fn BamRecord::get_tag(self : BamRecord, tag : String) -> BamTagValue? {
+  for t in self.tags {
+    if t.name == tag {
+      return Some(t.value)
+    }
+  }
+  None
 }
 
 ///|
@@ -965,6 +1161,7 @@ pub fn CramRecord::to_bam_record(self : CramRecord) -> BamRecord {
     cigar: cigar_fixed,
     seq: self.read_features.sequence,
     qual: self.read_features.quality,
+    tags: [],
   }
 }
 
