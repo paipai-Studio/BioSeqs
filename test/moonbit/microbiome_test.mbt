@@ -324,3 +324,15 @@ test "get_example_taxa_names" {
   assert_eq(names[0], "Bacteroides")
   assert_eq(names[9], "Escherichia")
 }
+
+///|
+test "pcoa_cross_validated_eigenvalues" {
+  // a Euclidean distance matrix from points {0,1,2} on a line; scikit-bio
+  // pcoa yields eigenvalues [2, 0, 0] (one axis, variance explained = 1).
+  let dm = [[0.0, 1.0, 2.0], [1.0, 0.0, 1.0], [2.0, 1.0, 0.0]]
+  let r = @src.pcoa(dm)
+  assert_true((r.eigenvalues[0] - 2.0).abs() < 1.0e-9)
+  for v in r.eigenvalues {
+    assert_true(v >= -1.0e-12)
+  }
+}

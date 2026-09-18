@@ -117,3 +117,14 @@ test "sam_tags" {
   assert_eq(r2.tags.get("NM"), Some("2"))
   assert_eq(r2.tags.get("MD"), Some("48A20D28C2"))
 }
+
+///|
+test "sam_duplicate_qcfail_flag" {
+  let sam = @src.parse_sam("@HD\tVN:1.6\n@SQ\tSN:chr1\tLN:100\ndup\t1024\tchr1\t1\t30\t4M\t*\t0\t0\tACGT\t!!!!\nqcf\t512\tchr1\t10\t30\t4M\t*\t0\t0\tACGT\t!!!!\n")
+  let d = sam.records[0]
+  assert_true(d.is_duplicate())
+  assert_true(d.is_qcfail() == false)
+  let q = sam.records[1]
+  assert_true(q.is_duplicate() == false)
+  assert_true(q.is_qcfail())
+}

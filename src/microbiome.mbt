@@ -542,112 +542,41 @@ pub fn pcoa(dist_matrix : Array[Array[Double]]) -> PCoAResult {
     i = i + 1
   }
 
-  // Step 2: Simple power iteration for eigenvalues/vectors (first k)
-  // We'll compute first min(n-1, 5) principal coordinates
-  let k = if n - 1 < 5 { n - 1 } else { 5 }
+  // Step 2: eigen decomposition of the double-centered matrix (symmetric).
+  let (raw_evals, raw_evecs) = eigh_symmetric(b, n)
+  // sort eigenvalues descending and reorder eigenvector columns accordingly
+  let idx = Array::make(n, 0)
+  for u0 = 0; u0 < n; u0 = u0 + 1 {
+    idx[u0] = u0
+  }
+  for u0 = 0; u0 < n - 1; u0 = u0 + 1 {
+    for u1 = u0 + 1; u1 < n; u1 = u1 + 1 {
+      if raw_evals[idx[u1]] > raw_evals[idx[u0]] {
+        let t = idx[u0]
+        idx[u0] = idx[u1]
+        idx[u1] = t
+      }
+    }
+  }
 
   let eigenvalues : Array[Double] = Array::new()
   let vectors : Array[Array[Double]] = Array::new()
-
-  // Simple implementation using power iteration
-  let remaining = b.copy()
-
   let mut comp = 0
-  while comp < k {
-    // Power iteration
-    let v : Array[Double] = Array::make(n, 1.0)
-
-    let mut lambda = 0.0
-    let mut iter = 0
-    while iter < 100 {
-      // Multiply remaining matrix by v
-      let bv : Array[Double] = Array::new()
-      let mut i = 0
-      while i < n {
-        let mut sum = 0.0
-        let mut j = 0
-        while j < n {
-          sum = sum + remaining[i][j] * v[j]
-          j = j + 1
-        }
-        bv.push(sum)
-        i = i + 1
+  while comp < n {
+    let lam = raw_evals[idx[comp]]
+    if lam > 1.0e-12 {
+      let col = Array::make(n, 0.0)
+      for r = 0; r < n; r = r + 1 {
+        col[r] = raw_evecs[r][idx[comp]] * lam.sqrt()
       }
-
-      // Compute new lambda (Rayleigh quotient)
-      let mut v_norm = 0.0
-      let mut v_bv = 0.0
-      let mut i = 0
-      while i < n {
-        v_norm = v_norm + v[i] * v[i]
-        v_bv = v_bv + v[i] * bv[i]
-        i = i + 1
-      }
-
-      if v_norm == 0.0 {
-        break
-      }
-
-      let new_lambda = v_bv / v_norm
-
-      // Normalize bv
-      let bv_norm = 0.0
-      let mut i = 0
-      while i < n {
-        i = i + 1
-      }
-      let mut bv_len = 0.0
-      i = 0
-      while i < n {
-        bv_len = bv_len + bv[i] * bv[i]
-        i = i + 1
-      }
-      bv_len = bv_len.sqrt()
-
-      if bv_len == 0.0 {
-        break
-      }
-
-      i = 0
-      while i < n {
-        v[i] = bv[i] / bv_len
-        i = i + 1
-      }
-
-      if (new_lambda - lambda).abs() < 0.000001 {
-        lambda = new_lambda
-        break
-      }
-      lambda = new_lambda
-      iter = iter + 1
-    }
-
-    if lambda < 0.0 {
-      lambda = 0.0
-    }
-
-    eigenvalues.push(lambda)
-
-    // Scale eigenvector by sqrt(eigenvalue)
-    let scaled_v : Array[Double] = Array::new()
-    let mut i = 0
-    while i < n {
-      scaled_v.push(v[i] * lambda.sqrt())
-      i = i + 1
-    }
-    vectors.push(scaled_v)
-
-    // Deflate: remove this component from remaining
-    let mut i = 0
-    while i < n {
-      let mut j = 0
-      while j < n {
-        remaining[i][j] = remaining[i][j] - lambda * v[i] * v[j]
-        j = j + 1
-      }
-      i = i + 1
+      eigenvalues.push(lam)
+      vectors.push(col)
     }
     comp = comp + 1
+  }
+  if eigenvalues.length() == 0 {
+    eigenvalues.push(0.0)
+    vectors.push(Array::make(n, 0.0))
   }
 
   // Calculate variance explained

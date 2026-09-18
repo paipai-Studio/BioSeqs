@@ -189,3 +189,12 @@ test "bam_debug_magic" {
   let magic_ok = @src.is_bam_magic(raw_data)
   assert_true(magic_ok)
 }
+///|
+test "bam_negative_int32_fields" {
+  // next mate coordinates default to -1 (0xFFFFFFFF); confirm 32-bit two's
+  // complement reads them as -1, not a huge unsigned value.
+  let bam = @src.parse_bam_base64(test_bam_base64)
+  assert_eq(bam.records[0].next_ref_id, -1)
+  assert_eq(bam.records[0].next_pos, -1)
+  assert_eq(bam.records[0].tlen, 0)
+}

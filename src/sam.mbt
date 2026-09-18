@@ -350,6 +350,18 @@ pub fn SamRecord::is_supplementary(self : SamRecord) -> Bool {
 }
 
 ///|
+/// Check if the read fails vendor QC.
+pub fn SamRecord::is_qcfail(self : SamRecord) -> Bool {
+  (self.flag & 0x200) != 0
+}
+
+///|
+/// Check if the read is a PCR/optical duplicate.
+pub fn SamRecord::is_duplicate(self : SamRecord) -> Bool {
+  (self.flag & 0x400) != 0
+}
+
+///|
 /// Calculate the end position of the alignment.
 pub fn SamRecord::get_end(self : SamRecord) -> Int {
   if self.pos == 0 || self.cigar.length() == 0 {
