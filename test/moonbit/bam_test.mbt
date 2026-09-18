@@ -10,10 +10,6 @@
 ///   read3: 6M, flag 0x10, tags MC:c:1 SC:C:250 SI:s:-3 UI:S:60000
 let test_bam_base64 = "QkFNAR8AAABASEQJVk46MS42CkBTUQlTTjpjaHIxCUxOOjEwMDAKAQAAAAUAAABjaHIxAOgDAABNAAAAAAAAAGQAAAAGPEkSAQADAAgAAAD//////////wAAAAByZWFkMQCAAAAAEkgSSAAAAAAAAAAATk1pAAAAAE1EWjgAQVNpCAAAAFhTQStXAAAAAAAAAMgAAAAGFEkSAgAABgUAAAD//////////wAAAAByZWFkMgBAAAAAEQAAABJIEAAAAAAATk1pAQAAAEFTZgAAkEBSR1pncnAxAFhBQkMDAAAAAQIDRQAAAAAAAAAsAQAABihJEgEAEAAGAAAA//////////8AAAAAcmVhZDMAYAAAAP///wAAAAAAAE1DYwFTQ0P6U0lz/f9VSVNg6g=="
 
-///|
-fn bam_test_close(a : Double, b : Double) -> Bool {
-  (a - b).abs() < 1.0e-6
-}
 
 ///|
 test "bam_parse_header" {
@@ -81,7 +77,7 @@ test "bam_aux_tags" {
 
   let r2 = bam.records[1]
   match r2.get_tag("AS") {
-    Some(@src.BamTagValue::Float(v)) => assert_true(bam_test_close(v, 4.5))
+    Some(@src.BamTagValue::Float(v)) => assert_true(assert_close_e6(v, 4.5))
     _ => abort("AS should be float 4.5")
   }
   match r2.get_tag("RG") {

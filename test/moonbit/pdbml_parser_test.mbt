@@ -4,10 +4,6 @@
 /// expected to be Some(1.5) here because this port fixes Biopython's
 /// `_parse_resolution_from` presence-check bug (Biopython always returns None).
 
-///|
-fn pdbml_close(a : Double, b : Double, tol : Double) -> Bool {
-  (a - b).abs() < tol
-}
 
 ///|
 fn pm_xml() -> String {
@@ -34,7 +30,7 @@ test "pdbml_header" {
   assert_eq(s.header.deposition_date, "2020-01-02")
   assert_eq(s.header.structure_method, "X-RAY DIFFRACTION")
   match s.header.resolution {
-    Some(v) => assert_true(pdbml_close(v, 1.5, 1.0e-9))
+    Some(v) => assert_true(assert_close(v, 1.5, 1.0e-9))
     None => abort("resolution should be parsed")
   }
   assert_eq(s.idcode, "1ABC")
@@ -63,17 +59,17 @@ test "pdbml_structure_hierarchy" {
   assert_eq(a0.serial_number, 1)
   assert_eq(a0.element, "C")
   assert_eq(a0.altloc, ".")
-  assert_true(pdbml_close(a0.coord[0], 1.1, 1.0e-9))
-  assert_true(pdbml_close(a0.coord[1], 2.2, 1.0e-9))
-  assert_true(pdbml_close(a0.coord[2], 3.3, 1.0e-9))
-  assert_true(pdbml_close(a0.b_factor, 20.5, 1.0e-9))
-  assert_true(pdbml_close(a0.occupancy, 1.0, 1.0e-9))
+  assert_true(assert_close(a0.coord[0], 1.1, 1.0e-9))
+  assert_true(assert_close(a0.coord[1], 2.2, 1.0e-9))
+  assert_true(assert_close(a0.coord[2], 3.3, 1.0e-9))
+  assert_true(assert_close(a0.b_factor, 20.5, 1.0e-9))
+  assert_true(assert_close(a0.occupancy, 1.0, 1.0e-9))
 
   let a1 = r0.atoms[1]
   assert_eq(a1.name, "CB")
   assert_eq(a1.serial_number, 2)
-  assert_true(pdbml_close(a1.coord[0], 1.5, 1.0e-9))
-  assert_true(pdbml_close(a1.b_factor, 22.1, 1.0e-9))
+  assert_true(assert_close(a1.coord[0], 1.5, 1.0e-9))
+  assert_true(assert_close(a1.b_factor, 22.1, 1.0e-9))
 
   let c1 = s.models[0].chains[1]
   assert_eq(c1.chain_id, "B")
@@ -87,9 +83,9 @@ test "pdbml_structure_hierarchy" {
   assert_eq(a2.name, "O")
   assert_eq(a2.serial_number, 3)
   assert_eq(a2.element, "O")
-  assert_true(pdbml_close(a2.coord[2], 6.0, 1.0e-9))
-  assert_true(pdbml_close(a2.b_factor, 30.0, 1.0e-9))
-  assert_true(pdbml_close(a2.occupancy, 0.5, 1.0e-9))
+  assert_true(assert_close(a2.coord[2], 6.0, 1.0e-9))
+  assert_true(assert_close(a2.b_factor, 30.0, 1.0e-9))
+  assert_true(assert_close(a2.occupancy, 0.5, 1.0e-9))
 }
 
 ///|

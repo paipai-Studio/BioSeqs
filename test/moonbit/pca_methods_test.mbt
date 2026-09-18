@@ -24,44 +24,35 @@ fn pm_data() -> Array[Array[Double]] {
   ]
 }
 
-///|
-fn pm_close(a : Double, b : Double, tol : Double) -> Bool {
-  (a - b).abs() < tol
-}
 
-///|
-/// Sign-agnostic comparison (compares magnitudes).
-fn pm_close_mag(a : Double, b : Double, tol : Double) -> Bool {
-  (a.abs() - b.abs()).abs() < tol
-}
 
 ///|
 test "ppca_matches_reference" {
   let r = @src.ppca(matrix=pm_data(), n_pcs=2, max_iterations=2000, threshold=1.0e-5)
   // noise variance is invariant
-  assert_true(pm_close(r.sigma2, 0.0009643751, 1.0e-6))
+  assert_true(assert_close(r.sigma2, 0.0009643751, 1.0e-6))
   // loadings (D×k) — magnitudes match the numpy reference
-  assert_true(pm_close_mag(r.loadings[0][0], 0.708898, 1.0e-3))
-  assert_true(pm_close_mag(r.loadings[0][1], 0.292039, 1.0e-3))
-  assert_true(pm_close_mag(r.loadings[2][0], 0.435174, 1.0e-3))
-  assert_true(pm_close_mag(r.loadings[4][1], 0.642863, 1.0e-3))
+  assert_true(assert_close_mag(r.loadings[0][0], 0.708898, 1.0e-3))
+  assert_true(assert_close_mag(r.loadings[0][1], 0.292039, 1.0e-3))
+  assert_true(assert_close_mag(r.loadings[2][0], 0.435174, 1.0e-3))
+  assert_true(assert_close_mag(r.loadings[4][1], 0.642863, 1.0e-3))
   // scores first row
-  assert_true(pm_close_mag(r.scores[0][0], 0.629881, 1.0e-3))
-  assert_true(pm_close_mag(r.scores[0][1], 0.18862, 1.0e-3))
+  assert_true(assert_close_mag(r.scores[0][0], 0.629881, 1.0e-3))
+  assert_true(assert_close_mag(r.scores[0][1], 0.18862, 1.0e-3))
 }
 
 ///|
 test "bpca_matches_reference" {
   let r = @src.bpca(matrix=pm_data(), n_pcs=2, max_steps=2000, threshold=1.0e-4)
-  assert_true(pm_close(r.tau, 197.7274, 1.0e-2))
+  assert_true(assert_close(r.tau, 197.7274, 1.0e-2))
   // loadings (PA, D×k) — magnitudes
-  assert_true(pm_close_mag(r.loadings[0][0], 0.698969, 1.0e-2))
-  assert_true(pm_close_mag(r.loadings[0][1], 0.299191, 1.0e-2))
-  assert_true(pm_close_mag(r.loadings[2][0], 0.48304, 1.0e-2))
-  assert_true(pm_close_mag(r.loadings[4][1], 0.517957, 1.0e-2))
+  assert_true(assert_close_mag(r.loadings[0][0], 0.698969, 1.0e-2))
+  assert_true(assert_close_mag(r.loadings[0][1], 0.299191, 1.0e-2))
+  assert_true(assert_close_mag(r.loadings[2][0], 0.48304, 1.0e-2))
+  assert_true(assert_close_mag(r.loadings[4][1], 0.517957, 1.0e-2))
   // imputed values (exact — signs are meaningful here)
-  assert_true(pm_close(r.imputed[1][2], 0.598401, 1.0e-3))
-  assert_true(pm_close(r.imputed[5][0], -0.578966, 1.0e-3))
+  assert_true(assert_close(r.imputed[1][2], 0.598401, 1.0e-3))
+  assert_true(assert_close(r.imputed[5][0], -0.578966, 1.0e-3))
 }
 
 ///|
@@ -69,8 +60,8 @@ test "bpca_imputation_is_reasonable" {
   // held-out truth values: [1,2]=0.664, [5,0]=-0.769. The imputation should be
   // in the right ballpark (within ~0.3).
   let r = @src.bpca(matrix=pm_data(), n_pcs=2, max_steps=2000, threshold=1.0e-4)
-  assert_true(pm_close(r.imputed[1][2], 0.664209, 0.3))
-  assert_true(pm_close(r.imputed[5][0], -0.768631, 0.3))
+  assert_true(assert_close(r.imputed[1][2], 0.664209, 0.3))
+  assert_true(assert_close(r.imputed[5][0], -0.768631, 0.3))
 }
 
 ///|

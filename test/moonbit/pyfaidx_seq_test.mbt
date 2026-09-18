@@ -3,10 +3,6 @@
 /// pyfaidx 0.9.0.4 (`complement`, `Sequence.reverse`, sequence GC properties,
 /// `wrap_sequence`, `bed_split`, `ucsc_split`).
 
-///|
-fn pyf_close(a : Double, b : Double) -> Bool {
-  (a - b).abs() < 1.0e-9
-}
 
 ///|
 test "pyfaidx_complement_reverse" {
@@ -30,10 +26,10 @@ test "pyfaidx_complement_invalid_raises" {
 
 ///|
 test "pyfaidx_gc_content" {
-  assert_true(pyf_close(@src.pyfaidx_gc("ATCGTA"), 0.3333333333))
-  assert_true(pyf_close(@src.pyfaidx_gc("NMRATCGTA"), 0.2222222222))
-  assert_true(pyf_close(@src.pyfaidx_gc_strict("NMRATCGTA"), 0.3333333333))
-  assert_true(pyf_close(@src.pyfaidx_gc_iupac("NMRATCGTA"), 0.3611111111))
+  assert_true(assert_close_e9(@src.pyfaidx_gc("ATCGTA"), 0.3333333333))
+  assert_true(assert_close_e9(@src.pyfaidx_gc("NMRATCGTA"), 0.2222222222))
+  assert_true(assert_close_e9(@src.pyfaidx_gc_strict("NMRATCGTA"), 0.3333333333))
+  assert_true(assert_close_e9(@src.pyfaidx_gc_iupac("NMRATCGTA"), 0.3611111111))
 }
 
 ///|
