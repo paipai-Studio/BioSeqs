@@ -472,7 +472,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **DECIPHER** | DECIPHER | 生物序列分析工具包：Needleman-Wunsch 仿射间隙全局比对（Gotoh 算法）、序列批量比对（AlignSeqs）、Profile 构建/Profile-Profile 比对（AlignProfiles）、距离矩阵计算、序列同一性聚类（IdClusters/Union-Find）、Neighbor-Joining 系统发育树推断 + Newick 输出、三亲本嵌合体检测（FindChimeras）、共识序列（Consensus）、序列数据库（Seqs2Db/SearchDb）、GC 含量与序列复杂度（Shannon 熵） |
 | **microbiome** | microbiome | Alpha 多样性（Shannon/Simpson/Chao1/ACE/Fisher/Pielou）、Beta 多样性（Bray-Curtis/Jaccard/JSD/weighted/unweighted UniFrac）、PCoA、差异丰度（Welch t/Wilcoxon/BH） |
 | **skbio alpha** | `skbio.diversity.alpha` | scikit-bio Alpha 多样性指标（vegan 未覆盖部分）：sobs/observed_otus/singles/doubles/osd、dominance/simpson_d/inv_simpson/enspie/berger_parker_d/simpson_e/heip_e/goods_coverage、margalef/menhinick/mcintosh_d/mcintosh_e/brillouin_d/strong、renyi/tsallis/hill 广义熵 |
-| **skbio ordination** | `skbio.stats.ordination` / `skbio.stats.distance` | scikit-bio 排序与距离分析：Gower 中心化 `center_distance_matrix`（PCoA 前处理）、对应分析 `ca`（χ² 标准化 + SVD，scaling 1/2 的 sample/feature 坐标 + 特征值 + 解释比例）、Mantel 检验 `mantel`（两距离矩阵 Pearson 相关 + 置换 p 值） |
+| **skbio ordination** | `skbio.stats.ordination` / `skbio.stats.distance` | scikit-bio 排序与距离分析：Gower 中心化 `center_distance_matrix`（PCoA 前处理）、对应分析 `ca`（χ² 标准化 + SVD，scaling 1/2 的 sample/feature 坐标 + 特征值 + 解释比例）、冗余分析 `rda`（列中心化 + lstsq 回归 + 拟合值/残差双 SVD，scaling 1/2）、Mantel 检验 `mantel`（两距离矩阵 Pearson 相关 + 置换 p 值） |
 | **skbio distance** | `skbio.stats.distance` | scikit-bio 距离矩阵置换检验：ANOSIM（R 统计量，秩变换 + 组内/组间平均秩）、PERMANOVA（pseudo-F，组间/组内平方和分解）、PERMDISP（多元离差，PCoA 主坐标 → 距组质心距离 → 单因素 ANOVA F），p 值用确定性 LCG 置换 |
 | **CellChat** | CellChat | 配体-受体互作对数据库、置换检验、互作评分、细胞类型聚合、显著性检验、FDR 校正 |
 | **CIBERSORT** | CIBERSORT 风格 | NNLS 非负最小二乘求解细胞类型分数、投影梯度下降、LM22 风格特征矩阵、Pearson 拟合优度+RMSE、分数归一化（Σ=1.0） |
@@ -663,7 +663,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（529 个测试文件，13659 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（529 个测试文件，13661 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -683,7 +683,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13659 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13661 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -692,7 +692,7 @@ moon test                                               # ✅ 13659 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13659 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (13661 个测试用例，test/moonbit 包)
 ```
 
 ---

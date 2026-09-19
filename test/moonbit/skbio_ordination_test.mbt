@@ -73,3 +73,56 @@ test "skbio_mantel_correlation" {
   // p-value is permutation-based and must be a valid probability
   assert_true(r.p_value > 0.0 && r.p_value <= 1.0)
 }
+///|
+test "skbio_rda_eigenvalues" {
+  let y = [
+    [1.0, 0.0, 2.0],
+    [0.0, 3.0, 1.0],
+    [2.0, 1.0, 0.0],
+    [3.0, 1.0, 2.0],
+    [1.0, 2.0, 3.0],
+    [2.0, 0.0, 2.0],
+  ]
+  let x = [
+    [0.5, 1.0],
+    [1.0, 0.5],
+    [1.5, 2.0],
+    [2.5, 1.5],
+    [1.0, 3.0],
+    [2.0, 2.5],
+  ]
+  let r = @src.skbio_rda(y, x, 1)
+  assert_eq(r.eigvals.length(), 5)
+  assert_true(assert_close(r.eigvals[0], 2.109844, 1.0e-4))
+  assert_true(assert_close(r.eigvals[1], 1.068605, 1.0e-4))
+  assert_true(assert_close(r.eigvals[2], 2.681239, 1.0e-4))
+  assert_true(assert_close(r.eigvals[4], 0.766759, 1.0e-4))
+  assert_true(assert_close(r.proportion_explained[0], 0.242533, 1.0e-4))
+  assert_true(assert_close(r.proportion_explained[2], 0.308216, 1.0e-4))
+}
+
+///|
+test "skbio_rda_scores" {
+  let y = [
+    [1.0, 0.0, 2.0],
+    [0.0, 3.0, 1.0],
+    [2.0, 1.0, 0.0],
+    [3.0, 1.0, 2.0],
+    [1.0, 2.0, 3.0],
+    [2.0, 0.0, 2.0],
+  ]
+  let x = [
+    [0.5, 1.0],
+    [1.0, 0.5],
+    [1.5, 2.0],
+    [2.5, 1.5],
+    [1.0, 3.0],
+    [2.0, 2.5],
+  ]
+  let r = @src.skbio_rda(y, x, 1)
+  // scores are sign-ambiguous; compare magnitudes
+  assert_true(assert_close_mag(r.sample_scores[0][0], 0.039104, 1.0e-3))
+  assert_true(assert_close_mag(r.sample_scores[1][0], 0.998972, 1.0e-3))
+  assert_true(assert_close_mag(r.feature_scores[0][0], 1.939639, 1.0e-3))
+  assert_true(assert_close_mag(r.feature_scores[1][0], 0.643055, 1.0e-3))
+}

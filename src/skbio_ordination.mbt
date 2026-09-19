@@ -447,3 +447,109 @@ pub fn skbio_mantel(
   }
   MantelResult::{ corr_coeff: corr, p_value, n }
 }
+///|
+pub struct RdaResult {
+  eigvals : Array[Double]
+  proportion_explained : Array[Double]
+  sample_scores : Array[Array[Double]]
+  feature_scores : Array[Array[Double]]
+}
+
+///|
+/// Column-centering (subtract each column's mean).
+fn skb_center_columns(a : Array[Array[Double]]) -> Array[Array[Double]] {
+  let n = a.length()
+  let p = if n > 0 { a[0].length() } else { 0 }
+  let means = skb_col_sums(a).map(fn(x) { x / n.to_double() })
+  let out : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(p, 0.0)
+    for j = 0; j < p; j = j + 1 {
+      row[j] = a[i][j] - means[j]
+    }
+    out.push(row)
+  }
+  out
+}
+
+///|
+/// Redundancy Analysis (RDA). `y` is the response table (samples × features),
+/// `x` the explanatory table (samples × constraints). `scaling` is 1 or 2.
+pub fn skbio_rda(
+  y : Array[Array[Double]],
+  x : Array[Array[Double]],
+  scaling : Int,
+) -> RdaResult {
+  let n = y.length()
+  let p = if n > 0 { y[0].length() } else { 0 }
+  let y_c = skb_center_columns(y)
+  let x_c = skb_center_columns(x)
+  // B = (X'X)^-1 X'Y ; Y_hat = X B
+  let xt = skb_transpose(x_c)
+  let xtx_inv = linalg_inverse(skb_mul(xt, x_c))
+  let b = skb_mul(xtx_inv, skb_mul(xt, y_c))
+  let y_hat = skb_mul(x_c, b)
+  // SVD of Y_hat -> constrained axes
+  let (_l, s, u) = skb_svd_qbar(y_hat)
+  let rank = s.length()
+  let f = skb_mul(y_c, u)
+  let z = skb_mul(y_hat, u)
+  // residual
+  let y_res : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(p, 0.0)
+    for j = 0; j < p; j = j + 1 {
+      row[j] = y_c[i][j] - y_hat[i][j]
+    }
+    y_res.push(row)
+  }
+  let (_l2, s_res, u_res) = skb_svd_qbar(y_res)
+  let rank_res = s_res.length()
+  let f_res = skb_mul(y_res, u_res)
+  // concatenated eigenvalues (constrained block, then residual block)
+  let eigvals : Array[Double] = Array::new()
+  for v in s {
+    eigvals.push(v)
+  }
+  for v in s_res {
+    eigvals.push(v)
+  }
+  let mut sq_sum = 0.0
+  let mut eig_sum = 0.0
+  for v in eigvals {
+    sq_sum = sq_sum + v * v
+    eig_sum = eig_sum + v
+  }
+  // RDA's proportion explained is eigenvalue / sum(eigenvalues)
+  let proportion_explained = eigvals.map(fn(v) { v / eig_sum })
+  let cst = @math.pow(sq_sum, 0.25)
+  let k_total = eigvals.length()
+  let sf = Array::make(k_total, 0.0)
+  for i = 0; i < k_total; i = i + 1 {
+    sf[i] = if scaling == 1 { cst } else { eigvals[i] / cst }
+  }
+  // feature_scores = hstack(U, U_res) * sf ; sample_scores = hstack(F, F_res) / sf
+  let feature_scores : Array[Array[Double]] = Array::new()
+  for i = 0; i < p; i = i + 1 {
+    let row : Array[Double] = Array::new()
+    for k = 0; k < rank; k = k + 1 {
+      row.push(u[i][k] * sf[k])
+    }
+    for k = 0; k < rank_res; k = k + 1 {
+      row.push(u_res[i][k] * sf[rank + k])
+    }
+    feature_scores.push(row)
+  }
+  let sample_scores : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row : Array[Double] = Array::new()
+    for k = 0; k < rank; k = k + 1 {
+      row.push(f[i][k] / sf[k])
+    }
+    for k = 0; k < rank_res; k = k + 1 {
+      row.push(f_res[i][k] / sf[rank + k])
+    }
+    sample_scores.push(row)
+  }
+  RdaResult::{ eigvals, proportion_explained, sample_scores, feature_scores }
+}
