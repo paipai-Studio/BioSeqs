@@ -6,6 +6,13 @@
 
 ///|
 fn main {
+  println("=== Canonical Correspondence Analysis (CCA, scaling=1) ===")
+  let y = [[1.0, 0.0, 2.0], [0.0, 3.0, 1.0], [2.0, 1.0, 0.0], [3.0, 1.0, 2.0], [1.0, 2.0, 3.0], [2.0, 0.0, 2.0]]
+  let x = [[0.5, 1.0], [1.0, 0.5], [1.5, 2.0], [2.5, 1.5], [1.0, 3.0], [2.0, 2.5]]
+  let cca = @src.skbio_cca(y, x, 1)
+  println("eigvals   : \{cca.eigvals}")
+  println("prop. expl: \{cca.proportion_explained}")
+
   println("=== Redundancy Analysis (RDA, scaling=1) ===")
   let y = [[1.0, 0.0, 2.0], [0.0, 3.0, 1.0], [2.0, 1.0, 0.0], [3.0, 1.0, 2.0], [1.0, 2.0, 3.0], [2.0, 0.0, 2.0]]
   let x = [[0.5, 1.0], [1.0, 0.5], [1.5, 2.0], [2.5, 1.5], [1.0, 3.0], [2.0, 2.5]]

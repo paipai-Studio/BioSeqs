@@ -126,3 +126,56 @@ test "skbio_rda_scores" {
   assert_true(assert_close_mag(r.feature_scores[0][0], 1.939639, 1.0e-3))
   assert_true(assert_close_mag(r.feature_scores[1][0], 0.643055, 1.0e-3))
 }
+
+///|
+test "skbio_cca_eigenvalues" {
+  let y = [
+    [1.0, 0.0, 2.0],
+    [0.0, 3.0, 1.0],
+    [2.0, 1.0, 0.0],
+    [3.0, 1.0, 2.0],
+    [1.0, 2.0, 3.0],
+    [2.0, 0.0, 2.0],
+  ]
+  let x = [
+    [0.5, 1.0],
+    [1.0, 0.5],
+    [1.5, 2.0],
+    [2.5, 1.5],
+    [1.0, 3.0],
+    [2.0, 2.5],
+  ]
+  let r = @src.skbio_cca(y, x, 1)
+  assert_eq(r.eigvals.length(), 4)
+  assert_true(assert_close(r.eigvals[0], 0.101833, 1.0e-4))
+  assert_true(assert_close(r.eigvals[1], 0.019834, 1.0e-4))
+  assert_true(assert_close(r.eigvals[2], 0.232221, 1.0e-4))
+  assert_true(assert_close(r.eigvals[3], 0.090689, 1.0e-4))
+  assert_true(assert_close(r.proportion_explained[0], 0.229055, 1.0e-4))
+  assert_true(assert_close(r.proportion_explained[2], 0.522341, 1.0e-4))
+}
+
+///|
+test "skbio_cca_scores" {
+  let y = [
+    [1.0, 0.0, 2.0],
+    [0.0, 3.0, 1.0],
+    [2.0, 1.0, 0.0],
+    [3.0, 1.0, 2.0],
+    [1.0, 2.0, 3.0],
+    [2.0, 0.0, 2.0],
+  ]
+  let x = [
+    [0.5, 1.0],
+    [1.0, 0.5],
+    [1.5, 2.0],
+    [2.5, 1.5],
+    [1.0, 3.0],
+    [2.0, 2.5],
+  ]
+  let r = @src.skbio_cca(y, x, 1)
+  assert_true(assert_close_mag(r.sample_scores[0][0], 0.24825, 1.0e-3))
+  assert_true(assert_close_mag(r.sample_scores[1][0], 1.00457, 1.0e-3))
+  assert_true(assert_close_mag(r.feature_scores[0][0], 1.26215, 1.0e-3))
+  assert_true(assert_close_mag(r.feature_scores[1][0], 1.25320, 1.0e-3))
+}

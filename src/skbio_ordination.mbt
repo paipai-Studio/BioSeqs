@@ -553,3 +553,238 @@ pub fn skbio_rda(
   }
   RdaResult::{ eigvals, proportion_explained, sample_scores, feature_scores }
 }
+
+///|
+pub struct CcaResult {
+  eigvals : Array[Double]
+  proportion_explained : Array[Double]
+  sample_scores : Array[Array[Double]]
+  feature_scores : Array[Array[Double]]
+}
+
+///|
+/// Weighted centering + weighted standard deviation scaling (column-wise).
+fn skb_scale_weighted(
+  a : Array[Array[Double]],
+  weights : Array[Double],
+) -> Array[Array[Double]] {
+  let n = a.length()
+  let p = if n > 0 { a[0].length() } else { 0 }
+  let mut w_sum = 0.0
+  for w in weights {
+    w_sum = w_sum + w
+  }
+  let means = Array::make(p, 0.0)
+  for j = 0; j < p; j = j + 1 {
+    let mut s = 0.0
+    for i = 0; i < n; i = i + 1 {
+      s = s + weights[i] * a[i][j]
+    }
+    means[j] = s / w_sum
+  }
+  let stds = Array::make(p, 0.0)
+  for j = 0; j < p; j = j + 1 {
+    let mut s = 0.0
+    for i = 0; i < n; i = i + 1 {
+      let d = a[i][j] - means[j]
+      s = s + weights[i] * d * d
+    }
+    stds[j] = (s / w_sum).sqrt()
+  }
+  let out : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(p, 0.0)
+    for j = 0; j < p; j = j + 1 {
+      let std = if stds[j] == 0.0 { 1.0 } else { stds[j] }
+      row[j] = (a[i][j] - means[j]) / std
+    }
+    out.push(row)
+  }
+  out
+}
+
+///|
+/// Canonical Correspondence Analysis (CCA).
+pub fn skbio_cca(
+  y : Array[Array[Double]],
+  x : Array[Array[Double]],
+  scaling : Int,
+) -> CcaResult {
+  let n = y.length()
+  let p = if n > 0 { y[0].length() } else { 0 }
+  let m = if x.length() > 0 { x[0].length() } else { 0 }
+  // chi-square standardization of Y
+  let grand_total = skb_sum(y)
+  let q : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(p, 0.0)
+    for j = 0; j < p; j = j + 1 {
+      row[j] = y[i][j] / grand_total
+    }
+    q.push(row)
+  }
+  let row_marginals = skb_row_sums(q)
+  let column_marginals = skb_col_sums(q)
+  let q_bar : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(p, 0.0)
+    for j = 0; j < p; j = j + 1 {
+      let expected = row_marginals[i] * column_marginals[j]
+      row[j] = (q[i][j] - expected) / expected.sqrt()
+    }
+    q_bar.push(row)
+  }
+  // weighted scale of X
+  let x_scaled = skb_scale_weighted(x, row_marginals)
+  let x_weighted : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(m, 0.0)
+    for j = 0; j < m; j = j + 1 {
+      row[j] = row_marginals[i].sqrt() * x_scaled[i][j]
+    }
+    x_weighted.push(row)
+  }
+  // B = (Xw'Xw)^-1 Xw' Q_bar ; Y_hat = Xw B
+  let xt = skb_transpose(x_weighted)
+  let xtx_inv = linalg_inverse(skb_mul(xt, x_weighted))
+  let b = skb_mul(xtx_inv, skb_mul(xt, q_bar))
+  let y_hat = skb_mul(x_weighted, b)
+  let y_res : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(p, 0.0)
+    for j = 0; j < p; j = j + 1 {
+      row[j] = q_bar[i][j] - y_hat[i][j]
+    }
+    y_res.push(row)
+  }
+  // SVD of Y_hat
+  let (_l, s, u) = skb_svd_qbar(y_hat)
+  let rank = s.length()
+  let qu = skb_mul(q_bar, u)
+  let u_hat : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(rank, 0.0)
+    for k = 0; k < rank; k = k + 1 {
+      row[k] = qu[i][k] / s[k]
+    }
+    u_hat.push(row)
+  }
+  // SVD of Y_res
+  let (_l2, s_res, u_res) = skb_svd_qbar(y_res)
+  let rank_res = s_res.length()
+  let yru = skb_mul(y_res, u_res)
+  let u_hat_res : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(rank_res, 0.0)
+    for k = 0; k < rank_res; k = k + 1 {
+      row[k] = yru[i][k] / s_res[k]
+    }
+    u_hat_res.push(row)
+  }
+  // eigenvalues = squared singular values, concatenated
+  let eigvals : Array[Double] = Array::new()
+  for v in s {
+    eigvals.push(v * v)
+  }
+  for v in s_res {
+    eigvals.push(v * v)
+  }
+  let mut eig_sum = 0.0
+  for v in eigvals {
+    eig_sum = eig_sum + v
+  }
+  let proportion_explained = eigvals.map(fn(v) { v / eig_sum })
+  // V = col_marg^-1/2 * U ; V_hat = row_marg^-1/2 * U_hat ; F = V_hat * s ; F_hat = V * s
+  let v : Array[Array[Double]] = Array::new()
+  for j = 0; j < p; j = j + 1 {
+    let row = Array::make(rank, 0.0)
+    for k = 0; k < rank; k = k + 1 {
+      row[k] = u[j][k] / column_marginals[j].sqrt()
+    }
+    v.push(row)
+  }
+  let v_hat : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(rank, 0.0)
+    for k = 0; k < rank; k = k + 1 {
+      row[k] = u_hat[i][k] / row_marginals[i].sqrt()
+    }
+    v_hat.push(row)
+  }
+  let f : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(rank, 0.0)
+    for k = 0; k < rank; k = k + 1 {
+      row[k] = v_hat[i][k] * s[k]
+    }
+    f.push(row)
+  }
+  let f_hat : Array[Array[Double]] = Array::new()
+  for j = 0; j < p; j = j + 1 {
+    let row = Array::make(rank, 0.0)
+    for k = 0; k < rank; k = k + 1 {
+      row[k] = v[j][k] * s[k]
+    }
+    f_hat.push(row)
+  }
+  let v_res : Array[Array[Double]] = Array::new()
+  for j = 0; j < p; j = j + 1 {
+    let row = Array::make(rank_res, 0.0)
+    for k = 0; k < rank_res; k = k + 1 {
+      row[k] = u_res[j][k] / column_marginals[j].sqrt()
+    }
+    v_res.push(row)
+  }
+  let v_hat_res : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(rank_res, 0.0)
+    for k = 0; k < rank_res; k = k + 1 {
+      row[k] = u_hat_res[i][k] / row_marginals[i].sqrt()
+    }
+    v_hat_res.push(row)
+  }
+  let f_res : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(rank_res, 0.0)
+    for k = 0; k < rank_res; k = k + 1 {
+      row[k] = v_hat_res[i][k] * s_res[k]
+    }
+    f_res.push(row)
+  }
+  let f_hat_res : Array[Array[Double]] = Array::new()
+  for j = 0; j < p; j = j + 1 {
+    let row = Array::make(rank_res, 0.0)
+    for k = 0; k < rank_res; k = k + 1 {
+      row[k] = v_res[j][k] * s_res[k]
+    }
+    f_hat_res.push(row)
+  }
+  // concat feature/sample scores per scaling
+  let feature_scores : Array[Array[Double]] = Array::new()
+  let sample_scores : Array[Array[Double]] = Array::new()
+  for j = 0; j < p; j = j + 1 {
+    let row : Array[Double] = Array::new()
+    let src_f = if scaling == 1 { v } else { f_hat }
+    let src_r = if scaling == 1 { v_res } else { f_hat_res }
+    for k = 0; k < rank; k = k + 1 {
+      row.push(src_f[j][k])
+    }
+    for k = 0; k < rank_res; k = k + 1 {
+      row.push(src_r[j][k])
+    }
+    feature_scores.push(row)
+  }
+  for i = 0; i < n; i = i + 1 {
+    let row : Array[Double] = Array::new()
+    let src_f = if scaling == 1 { f } else { v_hat }
+    let src_r = if scaling == 1 { f_res } else { v_hat_res }
+    for k = 0; k < rank; k = k + 1 {
+      row.push(src_f[i][k])
+    }
+    for k = 0; k < rank_res; k = k + 1 {
+      row.push(src_r[i][k])
+    }
+    sample_scores.push(row)
+  }
+  CcaResult::{ eigvals, proportion_explained, sample_scores, feature_scores }
+}
