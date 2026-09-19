@@ -407,3 +407,119 @@ pub fn skbio_permdisp(
   }
   PermdispResult::{ statistic: obs, p_value, n, num_groups: skbd_num_groups(grouping) }
 }
+
+///|
+pub struct BioenvResult {
+  best_subsets : Array[Array[Int]]
+  correlations : Array[Double]
+}
+
+///|
+/// Column standardization (center then divide by sample std, ddof=1).
+fn skbd_standardize(a : Array[Array[Double]]) -> Array[Array[Double]] {
+  let n = a.length()
+  let p = if n > 0 { a[0].length() } else { 0 }
+  let means = Array::make(p, 0.0)
+  for j = 0; j < p; j = j + 1 {
+    let mut s = 0.0
+    for i = 0; i < n; i = i + 1 {
+      s = s + a[i][j]
+    }
+    means[j] = s / n.to_double()
+  }
+  let stds = Array::make(p, 0.0)
+  for j = 0; j < p; j = j + 1 {
+    let mut s = 0.0
+    for i = 0; i < n; i = i + 1 {
+      let d = a[i][j] - means[j]
+      s = s + d * d
+    }
+    stds[j] = (s / (n - 1).to_double()).sqrt()
+  }
+  let out : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(p, 0.0)
+    for j = 0; j < p; j = j + 1 {
+      row[j] = (a[i][j] - means[j]) / stds[j]
+    }
+    out.push(row)
+  }
+  out
+}
+
+///|
+/// Condensed Euclidean distance over a selected subset of columns.
+fn skbd_euclidean_condensed(a : Array[Array[Double]], cols : Array[Int]) -> Array[Double] {
+  let n = a.length()
+  let out : Array[Double] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    for j = i + 1; j < n; j = j + 1 {
+      let mut s = 0.0
+      for c in cols {
+        let d = a[i][c] - a[j][c]
+        s = s + d * d
+      }
+      out.push(s.sqrt())
+    }
+  }
+  out
+}
+
+///|
+/// Spearman rank correlation (Pearson on average-ranked vectors).
+fn skbd_spearman(x : Array[Double], y : Array[Double]) -> Double {
+  skb_pearson(skbd_rankdata_average(x), skbd_rankdata_average(y))
+}
+
+///|
+/// All k-element subsets of {0, .., n-1} (iterative combinations).
+fn skbd_combs(n : Int, k : Int) -> Array[Array[Int]] {
+  let result : Array[Array[Int]] = Array::new()
+  let idx = Array::make(k, 0)
+  for i = 0; i < k; i = i + 1 {
+    idx[i] = i
+  }
+  while true {
+    result.push(idx.copy())
+    let mut i = k - 1
+    while i >= 0 && idx[i] == n - k + i {
+      i = i - 1
+    }
+    if i < 0 {
+      break
+    }
+    idx[i] = idx[i] + 1
+    let mut j = i + 1
+    while j < k {
+      idx[j] = idx[j - 1] + 1
+      j = j + 1
+    }
+  }
+  result
+}
+
+///|
+/// BioEnv: for each subset size, find the environmental-variable subset whose
+/// Euclidean distances best rank-correlate (Spearman) with the distance matrix.
+pub fn skbio_bioenv(dm : Array[Array[Double]], data : Array[Array[Double]]) -> BioenvResult {
+  let p = if data.length() > 0 { data[0].length() } else { 0 }
+  let data_std = skbd_standardize(data)
+  let dm_flat = skbd_condensed(dm)
+  let best_subsets : Array[Array[Int]] = Array::new()
+  let correlations : Array[Double] = Array::new()
+  for k = 1; k <= p; k = k + 1 {
+    let mut best_rho = -2.0
+    let mut best_combo : Array[Int] = []
+    for combo in skbd_combs(p, k) {
+      let eucl = skbd_euclidean_condensed(data_std, combo)
+      let rho = skbd_spearman(dm_flat, eucl)
+      if rho > best_rho {
+        best_rho = rho
+        best_combo = combo.copy()
+      }
+    }
+    best_subsets.push(best_combo)
+    correlations.push(best_rho)
+  }
+  BioenvResult::{ best_subsets, correlations }
+}
