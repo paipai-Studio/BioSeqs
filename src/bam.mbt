@@ -1341,3 +1341,133 @@ pub fn sample_cram_file() -> CramFile? {
   let result = parse_cram(sample_cram_content()) catch { _ => return None }
   Some(result)
 }
+
+///|
+/// 0-based (inclusive) reference start position.
+pub fn BamRecord::reference_start(self : BamRecord) -> Int {
+  self.pos
+}
+
+///|
+/// 0-based (exclusive) reference end position.
+pub fn BamRecord::reference_end(self : BamRecord) -> Int {
+  let mut end = self.pos
+  for i = 0; i < self.cigar.length(); i = i + 1 {
+    let el = self.cigar[i]
+    match el.op {
+      BamCigarOp::Match | BamCigarOp::Delete | BamCigarOp::Skip | BamCigarOp::Equal | BamCigarOp::Diff =>
+        end = end + el.length
+      _ => ()
+    }
+  }
+  end
+}
+
+///|
+/// Reference positions covered by the read. Aligned bases (M/=/X) contribute a
+/// position; with `full_length`, insertions/soft clips contribute `None`
+/// placeholders. Deletions/skips are skipped entirely.
+pub fn BamRecord::get_reference_positions(self : BamRecord, full_length : Bool) -> Array[Int?] {
+  let out : Array[Int?] = Array::new()
+  let mut rpos = self.pos
+  for i = 0; i < self.cigar.length(); i = i + 1 {
+    let el = self.cigar[i]
+    let n = el.length
+    match el.op {
+      BamCigarOp::Match | BamCigarOp::Equal | BamCigarOp::Diff => {
+        let mut k = 0
+        while k < n {
+          out.push(Some(rpos + k))
+          k = k + 1
+        }
+        rpos = rpos + n
+      }
+      BamCigarOp::Insert | BamCigarOp::SoftClip => {
+        if full_length {
+          let mut k = 0
+          while k < n {
+            out.push(None)
+            k = k + 1
+          }
+        }
+      }
+      BamCigarOp::Delete | BamCigarOp::Skip => rpos = rpos + n
+      BamCigarOp::HardClip | BamCigarOp::Pad => ()
+    }
+  }
+  out
+}
+
+///|
+/// Number of aligned (M/=/X) reference bases of the read overlapping [beg, end).
+pub fn BamRecord::get_overlap(self : BamRecord, beg : Int, end : Int) -> Int {
+  let mut overlap = 0
+  let mut rpos = self.pos
+  for i = 0; i < self.cigar.length(); i = i + 1 {
+    let el = self.cigar[i]
+    let n = el.length
+    match el.op {
+      BamCigarOp::Match | BamCigarOp::Equal | BamCigarOp::Diff => {
+        let mut k = 0
+        while k < n {
+          let p = rpos + k
+          if p >= beg && p < end {
+            overlap = overlap + 1
+          }
+          k = k + 1
+        }
+        rpos = rpos + n
+      }
+      BamCigarOp::Delete | BamCigarOp::Skip => rpos = rpos + n
+      _ => ()
+    }
+  }
+  overlap
+}
+
+///|
+/// Query↔reference coordinate pairs. Insertions/soft clips yield
+/// `(query, None)`, deletions/skips `(None, ref)`. With `matches_only`, only
+/// aligned pairs (M/=/X) are kept.
+pub fn BamRecord::get_aligned_pairs(self : BamRecord, matches_only : Bool) -> Array[(Int?, Int?)] {
+  let out : Array[(Int?, Int?)] = Array::new()
+  let mut qpos = 0
+  let mut rpos = self.pos
+  for i = 0; i < self.cigar.length(); i = i + 1 {
+    let el = self.cigar[i]
+    let n = el.length
+    match el.op {
+      BamCigarOp::Match | BamCigarOp::Equal | BamCigarOp::Diff => {
+        let mut k = 0
+        while k < n {
+          out.push((Some(qpos + k), Some(rpos + k)))
+          k = k + 1
+        }
+        qpos = qpos + n
+        rpos = rpos + n
+      }
+      BamCigarOp::Insert | BamCigarOp::SoftClip => {
+        if not(matches_only) {
+          let mut k = 0
+          while k < n {
+            out.push((Some(qpos + k), None))
+            k = k + 1
+          }
+        }
+        qpos = qpos + n
+      }
+      BamCigarOp::Delete | BamCigarOp::Skip => {
+        if not(matches_only) {
+          let mut k = 0
+          while k < n {
+            out.push((None, Some(rpos + k)))
+            k = k + 1
+          }
+        }
+        rpos = rpos + n
+      }
+      BamCigarOp::HardClip | BamCigarOp::Pad => ()
+    }
+  }
+  out
+}
