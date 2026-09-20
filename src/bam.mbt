@@ -1615,3 +1615,126 @@ pub fn BamRecord::infer_query_length(self : BamRecord) -> Int {
   }
   length
 }
+
+///|
+pub struct FlagstatResult {
+  total : Int
+  primary : Int
+  secondary : Int
+  supplementary : Int
+  duplicates : Int
+  primary_duplicates : Int
+  mapped : Int
+  primary_mapped : Int
+  paired : Int
+  read1 : Int
+  read2 : Int
+  properly_paired : Int
+  both_mapped : Int
+  singletons : Int
+  mate_diff_chr : Int
+  mate_diff_chr_mapq5 : Int
+}
+
+///|
+/// Flag statistics over all records, matching `samtools flagstat` (bam_stat.c
+/// `flagstat_loop`). Counts are combined QC-pass + QC-fail.
+pub fn BamFile::flagstat(self : BamFile) -> FlagstatResult {
+  let mut total = 0
+  let mut primary = 0
+  let mut secondary = 0
+  let mut supplementary = 0
+  let mut duplicates = 0
+  let mut primary_duplicates = 0
+  let mut mapped = 0
+  let mut primary_mapped = 0
+  let mut paired = 0
+  let mut read1 = 0
+  let mut read2 = 0
+  let mut properly_paired = 0
+  let mut both_mapped = 0
+  let mut singletons = 0
+  let mut mate_diff_chr = 0
+  let mut mate_diff_chr_mapq5 = 0
+  for r in self.records {
+    let flag = r.flag
+    total = total + 1
+    if (flag & 0x100) != 0 {
+      secondary = secondary + 1
+    } else if (flag & 0x800) != 0 {
+      supplementary = supplementary + 1
+    } else {
+      primary = primary + 1
+      if (flag & 0x1) != 0 {
+        paired = paired + 1
+        if (flag & 0x2) != 0 && (flag & 0x4) == 0 {
+          properly_paired = properly_paired + 1
+        }
+        if (flag & 0x40) != 0 {
+          read1 = read1 + 1
+        }
+        if (flag & 0x80) != 0 {
+          read2 = read2 + 1
+        }
+        if (flag & 0x8) != 0 && (flag & 0x4) == 0 {
+          singletons = singletons + 1
+        }
+        if (flag & 0x4) == 0 && (flag & 0x8) == 0 {
+          both_mapped = both_mapped + 1
+          if r.ref_id != r.next_ref_id {
+            mate_diff_chr = mate_diff_chr + 1
+            if r.mapq >= 5 {
+              mate_diff_chr_mapq5 = mate_diff_chr_mapq5 + 1
+            }
+          }
+        }
+      }
+      if (flag & 0x4) == 0 {
+        primary_mapped = primary_mapped + 1
+      }
+      if (flag & 0x400) != 0 {
+        primary_duplicates = primary_duplicates + 1
+      }
+    }
+    if (flag & 0x4) == 0 {
+      mapped = mapped + 1
+    }
+    if (flag & 0x400) != 0 {
+      duplicates = duplicates + 1
+    }
+  }
+  FlagstatResult::{ total, primary, secondary, supplementary, duplicates, primary_duplicates, mapped, primary_mapped, paired, read1, read2, properly_paired, both_mapped, singletons, mate_diff_chr, mate_diff_chr_mapq5 }
+}
+
+///|
+pub struct IdxstatsResult {
+  ref_name : String
+  ref_length : Int
+  mapped : Int
+  unmapped : Int
+}
+
+///|
+/// Per-reference read counts (mapped/unmapped), matching `samtools idxstats`
+/// (bam_index.c `slow_idxstats`). A trailing "*" row carries unplaced reads.
+pub fn BamFile::idxstats(self : BamFile) -> Array[IdxstatsResult] {
+  let nref = self.header.references.length()
+  let mapped_cnt = Array::make(nref + 1, 0)
+  let unmapped_cnt = Array::make(nref + 1, 0)
+  for r in self.records {
+    let b = if r.ref_id < 0 { nref } else { r.ref_id }
+    if (r.flag & 0x4) != 0 {
+      unmapped_cnt[b] = unmapped_cnt[b] + 1
+    } else {
+      mapped_cnt[b] = mapped_cnt[b] + 1
+    }
+  }
+  let out : Array[IdxstatsResult] = Array::new()
+  for i = 0; i < nref; i = i + 1 {
+    out.push(
+      IdxstatsResult::{ ref_name: self.header.references[i].name, ref_length: self.header.references[i].length, mapped: mapped_cnt[i], unmapped: unmapped_cnt[i] },
+    )
+  }
+  out.push(IdxstatsResult::{ ref_name: "*", ref_length: 0, mapped: mapped_cnt[nref], unmapped: unmapped_cnt[nref] })
+  out
+}

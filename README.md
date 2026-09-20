@@ -307,6 +307,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **BAM 记录解析** | htslib/pysam | BAM 二进制比对记录解析（标准 htslib 布局）：32 字节核心头（bin_mq_nl/flag_nc 打包）、CIGAR、4-bit 序列解码（=ACMGRSVTWYHKDBN）、Phred 质量、辅助 tags（A/c/C/s/S/i/I/f/Z/H/B 数组类型）、flag 位解码（paired/proper/unmapped/reverse/read1/read2/secondary/supplementary/qcfail/duplicate）、cigarstring |
 | **BAM 比对几何** | htslib/pysam | BAM 记录比对几何：`reference_start`/`reference_end`（0-based）、`get_reference_positions`（full_length 时 I/S 置 None、D/N 跳过）、`get_overlap`（与半开区间的对齐碱基重叠数，M/=/X 计数）、`get_aligned_pairs`（query↔ref 坐标对，matches_only 过滤）、query 访问器（`query_sequence`/`query_qualities`/`query_length`/`infer_query_length` CIGAR 推导 M+I+S+=+X） |
 | **BAM pileup** | htslib/pysam | BAM 比对堆垛（`pileup`）：按参考位置产出一列覆盖 reads，每条给出 `query_position`（D/N 为 None）、`is_del`/`is_refskip`（htslib 的 N 同时置双标志的语义）、`indel`（前一个碱基后的 I 正 / D 负长度），匹配 pysam `stepper="all"` 语义 |
+| **BAM 统计** | htslib/samtools | `flagstat`（`bam_stat.c` 的 16 项 flag 分类计数：primary/secondary/supplementary/paired/read1/read2/proper/both-mapped/singleton/mate-diff-chr 等）+ `idxstats`（`bam_index.c` 的每参考序列 mapped/unmapped 计数 + `*` 未定位桶） |
 | **BAM index (BAI)** | Rsamtools（HTSlib） | BAI（`.bai`）索引解析：magic、n_ref、每参考序列 fixed-size bin 层级 + 16 kb linear index、末尾 n_no_coor；`bai_reg2bins` 区间→bin 映射、`bai_query` 按半开区间返回 BGZF 虚拟偏移块（配合 `BgzfReader::seek` 随机访问） |
 | **Tabix (.tbi)** | Rsamtools（HTSlib）/ htslib tabix | Tabix 索引解析：header（format/col_seq/col_beg/col_end/meta/skip/l_nm/序列名）+ 共享 BAI binning；`tabix_query` 按半开区间返回压缩块虚拟偏移 |
 | **CSI 索引** | htslib | CSI（Coordinate Sorted Index，VCF/BCF 的伴侣索引）：`parse_csi`（magic `CSI\1` + min_shift/n_lvls/l_aux + 每参考序列 `bin/loffset/n_chunk/chunks`，末尾 `n_no_coor`，无线性索引）+ `csi_reg2bins`（区间→bin 映射，按 min_shift/depth 泛化的 htslib `hts_reg2bins`）+ `csi_query`（按半开区间返回覆盖 chunks + 沿最深 bin 上溯取 loffset 的 `min_off`） |
@@ -669,7 +670,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（534 个测试文件，13700 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（535 个测试文件，13702 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -689,7 +690,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13700 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13702 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -698,7 +699,7 @@ moon test                                               # ✅ 13700 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13700 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (13702 个测试用例，test/moonbit 包)
 ```
 
 ---
