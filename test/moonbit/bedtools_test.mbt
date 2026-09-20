@@ -237,3 +237,35 @@ test "bedtools_flank_shift_slop" {
   assert_eq(sl2[0].start, 0)
   assert_eq(sl2[0].end, 70)
 }
+
+///|
+test "bedtools_intersect_frac_stranded" {
+  let a = [iv("chr1", 0, 100)]
+  // overlay 50/100 = 0.5
+  let frac_hit = @src.bedtools_intersect_frac(a, [iv("chr1", 50, 100)], 0.5)
+  assert_eq(frac_hit.length(), 1)
+  let frac_miss = @src.bedtools_intersect_frac(a, [iv("chr1", 50, 100)], 0.6)
+  assert_eq(frac_miss.length(), 0)
+  // strand：A '+'，B 一条 '+' 一条 '-'
+  let sa = ["+"]
+  let sb = ["+", "-"]
+  let hit = @src.bedtools_intersect_stranded([iv("chr1", 0, 10)], sa, [iv("chr1", 0, 10), iv("chr1", 0, 10)], sb)
+  assert_eq(hit.length(), 1)
+}
+
+///|
+test "bedtools_map" {
+  let a = [iv("chr1", 0, 100)]
+  let b = [iv("chr1", 0, 50), iv("chr1", 25, 75), iv("chr1", 200, 300)]
+  let bv = [10.0, 20.0, 5.0]
+  let cnt = @src.bedtools_map_count(a, b)
+  assert_eq(cnt[0], 2)
+  let sum = @src.bedtools_map_sum(a, b, bv)
+  assert_true(assert_close(sum[0], 30.0, 1.0e-9))
+  let mean = @src.bedtools_map_mean(a, b, bv)
+  assert_true(assert_close(mean[0], 15.0, 1.0e-9))
+  let mn = @src.bedtools_map_min(a, b, bv)
+  assert_true(assert_close(mn[0], 10.0, 1.0e-9))
+  let mx = @src.bedtools_map_max(a, b, bv)
+  assert_true(assert_close(mx[0], 20.0, 1.0e-9))
+}

@@ -674,3 +674,182 @@ pub fn bedtools_slop(
   }
   out
 }
+
+///|
+fn collect_overlap_vals(
+  ai : BedInterval,
+  b : Array[BedInterval],
+  b_values : Array[Double],
+) -> Array[Double] {
+  let vals : Array[Double] = Array::new()
+  for k = 0; k < b.length(); k = k + 1 {
+    if ai.chrom == b[k].chrom && ai.start < b[k].end && b[k].start < ai.end {
+      vals.push(b_values[k])
+    }
+  }
+  vals
+}
+
+///|
+/// Number of B features overlapping each A (matching `bedtools map -c 5 -o count`).
+pub fn bedtools_map_count(a : Array[BedInterval], b : Array[BedInterval]) -> Array[Int] {
+  let out : Array[Int] = Array::new()
+  for ai in a {
+    let mut c = 0
+    for bi in b {
+      if ai.chrom == bi.chrom && ai.start < bi.end && bi.start < ai.end {
+        c = c + 1
+      }
+    }
+    out.push(c)
+  }
+  out
+}
+
+///|
+pub fn bedtools_map_sum(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_values : Array[Double],
+) -> Array[Double] {
+  let out : Array[Double] = Array::new()
+  for ai in a {
+    let vals = collect_overlap_vals(ai, b, b_values)
+    let mut s = 0.0
+    for v in vals {
+      s = s + v
+    }
+    out.push(s)
+  }
+  out
+}
+
+///|
+pub fn bedtools_map_mean(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_values : Array[Double],
+) -> Array[Double] {
+  let out : Array[Double] = Array::new()
+  for ai in a {
+    let vals = collect_overlap_vals(ai, b, b_values)
+    if vals.length() == 0 {
+      out.push(0.0)
+    } else {
+      let mut s = 0.0
+      for v in vals {
+        s = s + v
+      }
+      out.push(s / vals.length().to_double())
+    }
+  }
+  out
+}
+
+///|
+pub fn bedtools_map_min(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_values : Array[Double],
+) -> Array[Double] {
+  let out : Array[Double] = Array::new()
+  for ai in a {
+    let vals = collect_overlap_vals(ai, b, b_values)
+    if vals.length() == 0 {
+      out.push(0.0)
+    } else {
+      let mut m = vals[0]
+      for v in vals {
+        if v < m {
+          m = v
+        }
+      }
+      out.push(m)
+    }
+  }
+  out
+}
+
+///|
+pub fn bedtools_map_max(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_values : Array[Double],
+) -> Array[Double] {
+  let out : Array[Double] = Array::new()
+  for ai in a {
+    let vals = collect_overlap_vals(ai, b, b_values)
+    if vals.length() == 0 {
+      out.push(0.0)
+    } else {
+      let mut m = vals[0]
+      for v in vals {
+        if v > m {
+          m = v
+        }
+      }
+      out.push(m)
+    }
+  }
+  out
+}
+
+
+///|
+/// Report A if a B overlaps at least `frac` of A's length (matching `bedtools
+/// intersect -f frac`).
+pub fn bedtools_intersect_frac(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  frac : Double,
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for ai in a {
+    let mut hit = false
+    for bi in b {
+      if ai.chrom == bi.chrom {
+        let ov = (if ai.end < bi.end { ai.end } else { bi.end }) -
+          (if ai.start > bi.start { ai.start } else { bi.start })
+        if ov > 0 && ov.to_double() / (ai.end - ai.start).to_double() >= frac {
+          hit = true
+          break
+        }
+      }
+    }
+    if hit {
+      out.push(ai)
+    }
+  }
+  out
+}
+
+///|
+/// Report A that overlaps a same-strand B (matching `bedtools intersect -s`).
+/// Strand values are "+", "-", or "." (unknown).
+pub fn bedtools_intersect_stranded(
+  a : Array[BedInterval],
+  a_strand : Array[String],
+  b : Array[BedInterval],
+  b_strand : Array[String],
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for i = 0; i < a.length(); i = i + 1 {
+    let ai = a[i]
+    let mut hit = false
+    for k = 0; k < b.length(); k = k + 1 {
+      let bi = b[k]
+      if ai.chrom == bi.chrom &&
+        ai.start < bi.end &&
+        bi.start < ai.end &&
+        a_strand[i] == b_strand[k] &&
+        a_strand[i] != "." {
+        hit = true
+        break
+      }
+    }
+    if hit {
+      out.push(ai)
+    }
+  }
+  out
+}
