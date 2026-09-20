@@ -893,15 +893,320 @@ fn sort_order_by_key(keys : Array[String], order : Array[Int]) -> Array[Int] {
 }
 
 ///|
-/// Group records (each an array of string columns) by `group_cols` (1-based)
-/// and aggregate the `value_col` (1-based) with `op` ("count"/"sum"/"mean"/
-/// "min"/"max"). Matching `bedtools groupby -g cols -c col -o op`.
-pub fn bedtools_groupby(
+/// Aggregation helpers shared by `map` and `groupby`. All numeric helpers
+/// return 0.0 on empty input — this module's established convention (bedtools
+/// instead prints its "." null value).
+/// NOTE on stddev: bedtools `stdev` is the POPULATION std dev (÷N) and
+/// `sstdev` is the SAMPLE std dev (÷N-1); the "s" prefix means "sample".
+
+///|
+fn sort_doubles_asc(vals : Array[Double]) -> Array[Double] {
+  let out = vals.copy()
+  let mut i = 1
+  while i < out.length() {
+    let key = out[i]
+    let mut j = i - 1
+    while j >= 0 && out[j] > key {
+      out[j + 1] = out[j]
+      j = j - 1
+    }
+    out[j + 1] = key
+    i = i + 1
+  }
+  out
+}
+
+///|
+fn dabs(v : Double) -> Double {
+  if v < 0.0 {
+    0.0 - v
+  } else {
+    v
+  }
+}
+
+///|
+fn agg_sum(vals : Array[Double]) -> Double {
+  let mut s = 0.0
+  for v in vals {
+    s = s + v
+  }
+  s
+}
+
+///|
+fn agg_mean(vals : Array[Double]) -> Double {
+  if vals.length() == 0 {
+    0.0
+  } else {
+    agg_sum(vals) / vals.length().to_double()
+  }
+}
+
+///|
+fn agg_median(vals : Array[Double]) -> Double {
+  let n = vals.length()
+  if n == 0 {
+    return 0.0
+  }
+  let sorted = sort_doubles_asc(vals)
+  if n % 2 == 1 {
+    sorted[n / 2]
+  } else {
+    (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0
+  }
+}
+
+///|
+fn agg_min(vals : Array[Double]) -> Double {
+  if vals.length() == 0 {
+    return 0.0
+  }
+  let mut m = vals[0]
+  for i = 1; i < vals.length(); i = i + 1 {
+    if vals[i] < m {
+      m = vals[i]
+    }
+  }
+  m
+}
+
+///|
+fn agg_max(vals : Array[Double]) -> Double {
+  if vals.length() == 0 {
+    return 0.0
+  }
+  let mut m = vals[0]
+  for i = 1; i < vals.length(); i = i + 1 {
+    if vals[i] > m {
+      m = vals[i]
+    }
+  }
+  m
+}
+
+///|
+fn agg_absmin(vals : Array[Double]) -> Double {
+  if vals.length() == 0 {
+    return 0.0
+  }
+  let mut m = dabs(vals[0])
+  for i = 1; i < vals.length(); i = i + 1 {
+    let a = dabs(vals[i])
+    if a < m {
+      m = a
+    }
+  }
+  m
+}
+
+///|
+fn agg_absmax(vals : Array[Double]) -> Double {
+  if vals.length() == 0 {
+    return 0.0
+  }
+  let mut m = dabs(vals[0])
+  for i = 1; i < vals.length(); i = i + 1 {
+    let a = dabs(vals[i])
+    if a > m {
+      m = a
+    }
+  }
+  m
+}
+
+///|
+/// Population standard deviation (÷N), matching `bedtools -o stdev`.
+fn agg_stdev(vals : Array[Double]) -> Double {
+  let n = vals.length()
+  if n == 0 {
+    return 0.0
+  }
+  let mean = agg_sum(vals) / n.to_double()
+  let mut sq = 0.0
+  for v in vals {
+    let d = v - mean
+    sq = sq + d * d
+  }
+  (sq / n.to_double()).sqrt()
+}
+
+///|
+/// Sample standard deviation (÷(N-1)), matching `bedtools -o sstdev`.
+/// N < 2 returns 0.0 (bedtools yields NaN → "." here).
+fn agg_sstdev(vals : Array[Double]) -> Double {
+  let n = vals.length()
+  if n < 2 {
+    return 0.0
+  }
+  let mean = agg_sum(vals) / n.to_double()
+  let mut sq = 0.0
+  for v in vals {
+    let d = v - mean
+    sq = sq + d * d
+  }
+  (sq / (n - 1).to_double()).sqrt()
+}
+
+///|
+/// String-aggregation helpers. They operate on the raw string form of the
+/// value column and mirror bedtools' `std::map<string,int>` frequency table,
+/// which is ordered lexicographically (NOT numerically).
+
+///|
+fn sort_strings_asc(vals : Array[String]) -> Array[String] {
+  let out = vals.copy()
+  let mut i = 1
+  while i < out.length() {
+    let key = out[i]
+    let mut j = i - 1
+    while j >= 0 && out[j] > key {
+      out[j + 1] = out[j]
+      j = j - 1
+    }
+    out[j + 1] = key
+    i = i + 1
+  }
+  out
+}
+
+///|
+/// Unique values (ascending lexicographic) with their occurrence counts,
+/// mirroring bedtools' `std::map<string,int>` frequency table.
+fn unique_counts_asc(vals : Array[String]) -> (Array[String], Array[Int]) {
+  let sorted = sort_strings_asc(vals)
+  let uniq : Array[String] = Array::new()
+  let counts : Array[Int] = Array::new()
+  let mut i = 0
+  while i < sorted.length() {
+    let v = sorted[i]
+    let mut j = i
+    while j < sorted.length() && sorted[j] == v {
+      j = j + 1
+    }
+    uniq.push(v)
+    counts.push(j - i)
+    i = j
+  }
+  (uniq, counts)
+}
+
+///|
+fn join_strs(vals : Array[String], delim : String) -> String {
+  let buf = StringBuilder::new()
+  let mut first = true
+  for v in vals {
+    if not(first) {
+      buf.write_string(delim)
+    }
+    buf.write_string(v)
+    first = false
+  }
+  buf.to_string()
+}
+
+///|
+/// Most frequent (`want_max`) or least frequent (otherwise) value; ties broken
+/// by the lexicographically smallest value, matching bedtools' mode/antimode.
+fn agg_mode_or_antimode(vals : Array[String], want_max : Bool) -> String {
+  if vals.length() == 0 {
+    return ""
+  }
+  let (uniq, counts) = unique_counts_asc(vals)
+  let mut best_idx = 0
+  let mut best_cnt = counts[0]
+  for i = 1; i < uniq.length(); i = i + 1 {
+    if (want_max && counts[i] > best_cnt) || (not(want_max) && counts[i] < best_cnt) {
+      best_idx = i
+      best_cnt = counts[i]
+    }
+  }
+  uniq[best_idx]
+}
+
+///|
+fn agg_mode(vals : Array[String]) -> String {
+  agg_mode_or_antimode(vals, true)
+}
+
+///|
+fn agg_antimode(vals : Array[String]) -> String {
+  agg_mode_or_antimode(vals, false)
+}
+
+///|
+/// Distinct values, ascending lexicographic, comma-joined (`-o distinct`).
+fn agg_distinct(vals : Array[String]) -> String {
+  if vals.length() == 0 {
+    return ""
+  }
+  let (uniq, _) = unique_counts_asc(vals)
+  join_strs(uniq, ",")
+}
+
+///|
+/// Values occurring exactly once, ascending lexicographic (`-o distinct_only`).
+fn agg_distinct_only(vals : Array[String]) -> String {
+  if vals.length() == 0 {
+    return ""
+  }
+  let (uniq, counts) = unique_counts_asc(vals)
+  let once : Array[String] = Array::new()
+  for i = 0; i < uniq.length(); i = i + 1 {
+    if counts[i] == 1 {
+      once.push(uniq[i])
+    }
+  }
+  join_strs(once, ",")
+}
+
+///|
+/// All values in original order, comma-joined, duplicates kept (`-o collapse`).
+fn agg_collapse(vals : Array[String]) -> String {
+  join_strs(vals, ",")
+}
+
+///|
+/// All values in original order, directly concatenated (`-o concat`).
+fn agg_concat(vals : Array[String]) -> String {
+  join_strs(vals, "")
+}
+
+///|
+fn agg_first(vals : Array[String]) -> String {
+  if vals.length() == 0 {
+    ""
+  } else {
+    vals[0]
+  }
+}
+
+///|
+fn agg_last(vals : Array[String]) -> String {
+  if vals.length() == 0 {
+    ""
+  } else {
+    vals[vals.length() - 1]
+  }
+}
+
+///|
+fn agg_count_distinct(vals : Array[String]) -> Int {
+  if vals.length() == 0 {
+    return 0
+  }
+  let (uniq, _) = unique_counts_asc(vals)
+  uniq.length()
+}
+
+///|
+/// Group records by `group_cols` (1-based) and return, per group in ascending
+/// key order, the group-column values and the `value_col` strings.
+fn group_by_cols(
   records : Array[Array[String]],
   group_cols : Array[Int],
   value_col : Int,
-  op : String,
-) -> Array[GroupbyResult] {
+) -> (Array[Array[String]], Array[Array[String]]) {
   let n = records.length()
   let keys = Array::make(n, "")
   let order = Array::make(n, 0)
@@ -910,67 +1215,428 @@ pub fn bedtools_groupby(
     order[i] = i
   }
   let sorted = sort_order_by_key(keys, order)
-  let out : Array[GroupbyResult] = Array::new()
+  let groups : Array[Array[String]] = Array::new()
+  let vals : Array[Array[String]] = Array::new()
   let mut i = 0
   while i < n {
-    let key = keys[sorted[i]]
-    let group : Array[Int] = Array::new()
-    let mut j = i
-    while j < n && keys[sorted[j]] == key {
-      group.push(sorted[j])
-      j = j + 1
-    }
-    let is_count = op == "count"
-    let vals : Array[Double] = Array::new()
-    for idx in group {
-      if not(is_count) {
-        match parse_double(records[idx][value_col - 1]) {
-          Some(v) => vals.push(v)
-          None => ()
-        }
-      }
-    }
-    let value = if op == "count" {
-      group.length().to_double()
-    } else if op == "sum" {
-      let mut s = 0.0
-      for v in vals {
-        s = s + v
-      }
-      s
-    } else if op == "mean" {
-      if vals.length() == 0 {
-        0.0
-      } else {
-        let mut s = 0.0
-        for v in vals {
-          s = s + v
-        }
-        s / vals.length().to_double()
-      }
-    } else if op == "min" {
-      let mut m = vals[0]
-      for v in vals {
-        if v < m {
-          m = v
-        }
-      }
-      m
-    } else {
-      let mut m = vals[0]
-      for v in vals {
-        if v > m {
-          m = v
-        }
-      }
-      m
-    }
     let gcols : Array[String] = Array::new()
     for c in group_cols {
       gcols.push(records[sorted[i]][c - 1])
     }
-    out.push(GroupbyResult::{ group: gcols, value })
+    let strs : Array[String] = Array::new()
+    let mut j = i
+    while j < n && keys[sorted[j]] == keys[sorted[i]] {
+      strs.push(records[sorted[j]][value_col - 1])
+      j = j + 1
+    }
+    groups.push(gcols)
+    vals.push(strs)
     i = j
+  }
+  (groups, vals)
+}
+
+///|
+/// Group records by `group_cols` (1-based) and aggregate `value_col` with a
+/// numeric `op` ("count"/"count_distinct"/"sum"/"mean"/"median"/"min"/"max"/
+/// "absmin"/"absmax"/"stdev"/"sstdev"). Matching `bedtools groupby -o`.
+/// Non-numeric values are skipped for numeric ops (see `bedtools_groupby_text`
+/// for the string ops).
+pub fn bedtools_groupby(
+  records : Array[Array[String]],
+  group_cols : Array[Int],
+  value_col : Int,
+  op : String,
+) -> Array[GroupbyResult] {
+  let (groups, vals_per_group) = group_by_cols(records, group_cols, value_col)
+  let out : Array[GroupbyResult] = Array::new()
+  for gi = 0; gi < groups.length(); gi = gi + 1 {
+    let strs = vals_per_group[gi]
+    let vals : Array[Double] = Array::new()
+    for s in strs {
+      match parse_double(s) {
+        Some(v) => vals.push(v)
+        None => ()
+      }
+    }
+    let value : Double = if op == "count" {
+      strs.length().to_double()
+    } else if op == "count_distinct" {
+      agg_count_distinct(strs).to_double()
+    } else if op == "sum" {
+      agg_sum(vals)
+    } else if op == "mean" {
+      agg_mean(vals)
+    } else if op == "median" {
+      agg_median(vals)
+    } else if op == "min" {
+      agg_min(vals)
+    } else if op == "max" {
+      agg_max(vals)
+    } else if op == "absmin" {
+      agg_absmin(vals)
+    } else if op == "absmax" {
+      agg_absmax(vals)
+    } else if op == "stdev" {
+      agg_stdev(vals)
+    } else if op == "sstdev" {
+      agg_sstdev(vals)
+    } else {
+      0.0
+    }
+    out.push(GroupbyResult::{ group: groups[gi], value })
+  }
+  out
+}
+
+///|
+pub struct GroupbyTextResult {
+  group : Array[String]
+  value : String
+}
+
+///|
+/// Group records by `group_cols` and aggregate `value_col` with a text `op`
+/// ("mode"/"antimode"/"distinct"/"distinct_only"/"collapse"/"concat"/
+/// "first"/"last"). Matching `bedtools groupby -o` for the non-numeric ops.
+pub fn bedtools_groupby_text(
+  records : Array[Array[String]],
+  group_cols : Array[Int],
+  value_col : Int,
+  op : String,
+) -> Array[GroupbyTextResult] {
+  let (groups, vals_per_group) = group_by_cols(records, group_cols, value_col)
+  let out : Array[GroupbyTextResult] = Array::new()
+  for gi = 0; gi < groups.length(); gi = gi + 1 {
+    let strs = vals_per_group[gi]
+    let value : String = if op == "mode" {
+      agg_mode(strs)
+    } else if op == "antimode" {
+      agg_antimode(strs)
+    } else if op == "distinct" {
+      agg_distinct(strs)
+    } else if op == "distinct_only" {
+      agg_distinct_only(strs)
+    } else if op == "collapse" {
+      agg_collapse(strs)
+    } else if op == "concat" {
+      agg_concat(strs)
+    } else if op == "first" {
+      agg_first(strs)
+    } else if op == "last" {
+      agg_last(strs)
+    } else {
+      ""
+    }
+    out.push(GroupbyTextResult::{ group: groups[gi], value })
+  }
+  out
+}
+
+///|
+fn collect_overlap_strs(
+  ai : BedInterval,
+  b : Array[BedInterval],
+  b_str : Array[String],
+) -> Array[String] {
+  let out : Array[String] = Array::new()
+  for k = 0; k < b.length(); k = k + 1 {
+    if ai.chrom == b[k].chrom && ai.start < b[k].end && b[k].start < ai.end {
+      out.push(b_str[k])
+    }
+  }
+  out
+}
+
+///|
+/// Median of the B values overlapping each A (`bedtools map -o median`).
+pub fn bedtools_map_median(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_values : Array[Double],
+) -> Array[Double] {
+  let out : Array[Double] = Array::new()
+  for ai in a {
+    out.push(agg_median(collect_overlap_vals(ai, b, b_values)))
+  }
+  out
+}
+
+///|
+/// Minimum absolute B value overlapping each A (`bedtools map -o absmin`).
+pub fn bedtools_map_absmin(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_values : Array[Double],
+) -> Array[Double] {
+  let out : Array[Double] = Array::new()
+  for ai in a {
+    out.push(agg_absmin(collect_overlap_vals(ai, b, b_values)))
+  }
+  out
+}
+
+///|
+/// Maximum absolute B value overlapping each A (`bedtools map -o absmax`).
+pub fn bedtools_map_absmax(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_values : Array[Double],
+) -> Array[Double] {
+  let out : Array[Double] = Array::new()
+  for ai in a {
+    out.push(agg_absmax(collect_overlap_vals(ai, b, b_values)))
+  }
+  out
+}
+
+///|
+/// Population standard deviation (÷N) of B values overlapping each A
+/// (`bedtools map -o stdev`).
+pub fn bedtools_map_stdev(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_values : Array[Double],
+) -> Array[Double] {
+  let out : Array[Double] = Array::new()
+  for ai in a {
+    out.push(agg_stdev(collect_overlap_vals(ai, b, b_values)))
+  }
+  out
+}
+
+///|
+/// Sample standard deviation (÷N-1) of B values overlapping each A
+/// (`bedtools map -o sstdev`).
+pub fn bedtools_map_sstdev(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_values : Array[Double],
+) -> Array[Double] {
+  let out : Array[Double] = Array::new()
+  for ai in a {
+    out.push(agg_sstdev(collect_overlap_vals(ai, b, b_values)))
+  }
+  out
+}
+
+///|
+/// Number of distinct B string values overlapping each A
+/// (`bedtools map -o count_distinct`).
+pub fn bedtools_map_count_distinct(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_str : Array[String],
+) -> Array[Int] {
+  let out : Array[Int] = Array::new()
+  for ai in a {
+    out.push(agg_count_distinct(collect_overlap_strs(ai, b, b_str)))
+  }
+  out
+}
+
+///|
+/// Most-frequent overlapping B string, ties → lexicographically smallest
+/// (`bedtools map -o mode`).
+pub fn bedtools_map_mode(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_str : Array[String],
+) -> Array[String] {
+  let out : Array[String] = Array::new()
+  for ai in a {
+    out.push(agg_mode(collect_overlap_strs(ai, b, b_str)))
+  }
+  out
+}
+
+///|
+/// Least-frequent overlapping B string, ties → lexicographically smallest
+/// (`bedtools map -o antimode`).
+pub fn bedtools_map_antimode(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_str : Array[String],
+) -> Array[String] {
+  let out : Array[String] = Array::new()
+  for ai in a {
+    out.push(agg_antimode(collect_overlap_strs(ai, b, b_str)))
+  }
+  out
+}
+
+///|
+/// Distinct overlapping B strings, ascending lexicographic, comma-joined
+/// (`bedtools map -o distinct`).
+pub fn bedtools_map_distinct(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_str : Array[String],
+) -> Array[String] {
+  let out : Array[String] = Array::new()
+  for ai in a {
+    out.push(agg_distinct(collect_overlap_strs(ai, b, b_str)))
+  }
+  out
+}
+
+///|
+/// Overlapping B strings occurring exactly once, ascending lexicographic,
+/// comma-joined (`bedtools map -o distinct_only`).
+pub fn bedtools_map_distinct_only(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_str : Array[String],
+) -> Array[String] {
+  let out : Array[String] = Array::new()
+  for ai in a {
+    out.push(agg_distinct_only(collect_overlap_strs(ai, b, b_str)))
+  }
+  out
+}
+
+///|
+/// All overlapping B strings in order, comma-joined, duplicates kept
+/// (`bedtools map -o collapse`).
+pub fn bedtools_map_collapse(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_str : Array[String],
+) -> Array[String] {
+  let out : Array[String] = Array::new()
+  for ai in a {
+    out.push(agg_collapse(collect_overlap_strs(ai, b, b_str)))
+  }
+  out
+}
+
+///|
+/// All overlapping B strings concatenated in order (`bedtools map -o concat`).
+pub fn bedtools_map_concat(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_str : Array[String],
+) -> Array[String] {
+  let out : Array[String] = Array::new()
+  for ai in a {
+    out.push(agg_concat(collect_overlap_strs(ai, b, b_str)))
+  }
+  out
+}
+
+///|
+/// First overlapping B string in order (`bedtools map -o first`).
+pub fn bedtools_map_first(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_str : Array[String],
+) -> Array[String] {
+  let out : Array[String] = Array::new()
+  for ai in a {
+    out.push(agg_first(collect_overlap_strs(ai, b, b_str)))
+  }
+  out
+}
+
+///|
+/// Last overlapping B string in order (`bedtools map -o last`).
+pub fn bedtools_map_last(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  b_str : Array[String],
+) -> Array[String] {
+  let out : Array[String] = Array::new()
+  for ai in a {
+    out.push(agg_last(collect_overlap_strs(ai, b, b_str)))
+  }
+  out
+}///|
+/// Report A that overlaps a B on the opposite strand (matching `bedtools
+/// intersect -S`). Strand values are "+", "-", or "." (unknown); unknown
+/// strands never satisfy opposite-strandedness.
+pub fn bedtools_intersect_opposite_strand(
+  a : Array[BedInterval],
+  a_strand : Array[String],
+  b : Array[BedInterval],
+  b_strand : Array[String],
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for i = 0; i < a.length(); i = i + 1 {
+    let ai = a[i]
+    let mut hit = false
+    for k = 0; k < b.length(); k = k + 1 {
+      let bi = b[k]
+      if ai.chrom == bi.chrom &&
+        ai.start < bi.end &&
+        bi.start < ai.end &&
+        a_strand[i] != "." &&
+        b_strand[k] != "." &&
+        a_strand[i] != b_strand[k] {
+        hit = true
+        break
+      }
+    }
+    if hit {
+      out.push(ai)
+    }
+  }
+  out
+}
+
+///|
+/// Report A if a B overlaps at least `frac` of B's length (matching `bedtools
+/// intersect -F frac`).
+pub fn bedtools_intersect_frac_b(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  frac : Double,
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for ai in a {
+    let mut hit = false
+    for bi in b {
+      if ai.chrom == bi.chrom {
+        let ov = (if ai.end < bi.end { ai.end } else { bi.end }) -
+          (if ai.start > bi.start { ai.start } else { bi.start })
+        if ov > 0 && ov.to_double() / (bi.end - bi.start).to_double() >= frac {
+          hit = true
+          break
+        }
+      }
+    }
+    if hit {
+      out.push(ai)
+    }
+  }
+  out
+}
+
+///|
+/// Report A if a B overlaps at least `frac` of both A and B (matching
+/// `bedtools intersect -f frac -r`, the reciprocal-overlap mode).
+pub fn bedtools_intersect_reciprocal(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  frac : Double,
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for ai in a {
+    let mut hit = false
+    for bi in b {
+      if ai.chrom == bi.chrom {
+        let ov = (if ai.end < bi.end { ai.end } else { bi.end }) -
+          (if ai.start > bi.start { ai.start } else { bi.start })
+        if ov > 0 &&
+          ov.to_double() / (ai.end - ai.start).to_double() >= frac &&
+          ov.to_double() / (bi.end - bi.start).to_double() >= frac {
+          hit = true
+          break
+        }
+      }
+    }
+    if hit {
+      out.push(ai)
+    }
   }
   out
 }

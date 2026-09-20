@@ -297,3 +297,118 @@ test "bedtools_groupby" {
   let mx = @src.bedtools_groupby(records, [1], 4, "max")
   assert_true(assert_close(mx[0].value, 30.0, 1.0e-9))
 }
+///|
+test "bedtools_map_text_ops" {
+  let a = [iv("chr1", 0, 100)]
+  let b = [iv("chr1", 0, 50), iv("chr1", 25, 75), iv("chr1", 50, 60)]
+  let bs = ["a", "b", "a"]
+  assert_eq(@src.bedtools_map_mode(a, b, bs)[0], "a")
+  assert_eq(@src.bedtools_map_antimode(a, b, bs)[0], "b")
+  assert_eq(@src.bedtools_map_distinct(a, b, bs)[0], "a,b")
+  assert_eq(@src.bedtools_map_distinct_only(a, b, bs)[0], "b")
+  assert_eq(@src.bedtools_map_collapse(a, b, bs)[0], "a,b,a")
+  assert_eq(@src.bedtools_map_concat(a, b, bs)[0], "aba")
+  assert_eq(@src.bedtools_map_first(a, b, bs)[0], "a")
+  assert_eq(@src.bedtools_map_last(a, b, bs)[0], "a")
+  assert_eq(@src.bedtools_map_count_distinct(a, b, bs)[0], 2)
+}
+
+///|
+test "bedtools_map_numeric_extended" {
+  let a = [iv("chr1", 0, 100)]
+  let b = [iv("chr1", 0, 50), iv("chr1", 25, 75), iv("chr1", 200, 300)]
+  let bv = [10.0, 20.0, 5.0]
+  // overlap values: [10, 20]
+  assert_true(assert_close(@src.bedtools_map_median(a, b, bv)[0], 15.0, 1.0e-9))
+  // population stddev (÷N)
+  assert_true(assert_close(@src.bedtools_map_stdev(a, b, bv)[0], 5.0, 1.0e-9))
+  // sample stddev (÷N-1)
+  assert_true(assert_close(@src.bedtools_map_sstdev(a, b, bv)[0], 7.0710678118654755, 1.0e-9))
+  assert_true(assert_close(@src.bedtools_map_absmin(a, b, bv)[0], 10.0, 1.0e-9))
+  assert_true(assert_close(@src.bedtools_map_absmax(a, b, bv)[0], 20.0, 1.0e-9))
+}
+
+///|
+test "bedtools_groupby_extended" {
+  let records = [
+    ["chr1", "100", "200", "10"],
+    ["chr1", "300", "400", "20"],
+    ["chr1", "350", "450", "30"],
+    ["chr2", "50", "60", "5"],
+  ]
+  let median = @src.bedtools_groupby(records, [1], 4, "median")
+  assert_true(assert_close(median[0].value, 20.0, 1.0e-9))
+  assert_true(assert_close(median[1].value, 5.0, 1.0e-9))
+  let stdev = @src.bedtools_groupby(records, [1], 4, "stdev")
+  assert_true(assert_close(stdev[0].value, 8.16496580927726, 1.0e-9))
+  assert_true(assert_close(stdev[1].value, 0.0, 1.0e-9))
+  let sstdev = @src.bedtools_groupby(records, [1], 4, "sstdev")
+  assert_true(assert_close(sstdev[0].value, 10.0, 1.0e-9))
+  assert_true(assert_close(sstdev[1].value, 0.0, 1.0e-9))
+  let absmin = @src.bedtools_groupby(records, [1], 4, "absmin")
+  assert_true(assert_close(absmin[0].value, 10.0, 1.0e-9))
+  let absmax = @src.bedtools_groupby(records, [1], 4, "absmax")
+  assert_true(assert_close(absmax[0].value, 30.0, 1.0e-9))
+  let cdist = @src.bedtools_groupby(records, [1], 4, "count_distinct")
+  assert_true(assert_close(cdist[0].value, 3.0, 1.0e-9))
+  assert_true(assert_close(cdist[1].value, 1.0, 1.0e-9))
+}
+
+///|
+test "bedtools_groupby_text" {
+  let records = [
+    ["chr1", "x", "a"],
+    ["chr1", "y", "b"],
+    ["chr1", "z", "a"],
+    ["chr2", "w", "c"],
+  ]
+  let mode = @src.bedtools_groupby_text(records, [1], 3, "mode")
+  assert_eq(mode[0].group[0], "chr1")
+  assert_eq(mode[0].value, "a")
+  assert_eq(mode[1].value, "c")
+  assert_eq(@src.bedtools_groupby_text(records, [1], 3, "antimode")[0].value, "b")
+  let distinct = @src.bedtools_groupby_text(records, [1], 3, "distinct")
+  assert_eq(distinct[0].value, "a,b")
+  assert_eq(distinct[1].value, "c")
+  let distinct_only = @src.bedtools_groupby_text(records, [1], 3, "distinct_only")
+  assert_eq(distinct_only[0].value, "b")
+  assert_eq(@src.bedtools_groupby_text(records, [1], 3, "collapse")[0].value, "a,b,a")
+  assert_eq(@src.bedtools_groupby_text(records, [1], 3, "concat")[0].value, "aba")
+  let first = @src.bedtools_groupby_text(records, [1], 3, "first")
+  assert_eq(first[0].value, "a")
+  assert_eq(first[1].value, "c")
+  let last = @src.bedtools_groupby_text(records, [1], 3, "last")
+  assert_eq(last[0].value, "a")
+  assert_eq(last[1].value, "c")
+}///|
+test "bedtools_intersect_opposite_strand" {
+  let a = [iv("chr1", 0, 10)]
+  let sa = ["+"]
+  // B has one "+" and one "-"; only "-" is opposite.
+  let b = [iv("chr1", 0, 10), iv("chr1", 0, 10)]
+  let sb = ["+", "-"]
+  assert_eq(@src.bedtools_intersect_opposite_strand(a, sa, b, sb).length(), 1)
+  // both same strand → no opposite hit
+  let b2 = [iv("chr1", 0, 10), iv("chr1", 0, 10)]
+  let sb2 = ["+", "+"]
+  assert_eq(@src.bedtools_intersect_opposite_strand(a, sa, b2, sb2).length(), 0)
+  // unknown strand never satisfies -S
+  let b3 = [iv("chr1", 0, 10)]
+  let sb3 = ["."]
+  assert_eq(@src.bedtools_intersect_opposite_strand(a, sa, b3, sb3).length(), 0)
+}
+///|
+test "bedtools_intersect_frac_b_reciprocal" {
+  // A(0,100) vs B(90,110): overlap=10, B.len=20 → overlap/B = 0.5
+  let a = [iv("chr1", 0, 100)]
+  let frac_b_hit = @src.bedtools_intersect_frac_b(a, [iv("chr1", 90, 110)], 0.5)
+  assert_eq(frac_b_hit.length(), 1)
+  let frac_b_miss = @src.bedtools_intersect_frac_b(a, [iv("chr1", 90, 110)], 0.6)
+  assert_eq(frac_b_miss.length(), 0)
+  // reciprocal: A(0,100) vs B(80,200): overlap=20, A.len=100, B.len=120
+  // overlap/A=0.2, overlap/B≈0.1667
+  let rec_hit = @src.bedtools_intersect_reciprocal(a, [iv("chr1", 80, 200)], 0.1)
+  assert_eq(rec_hit.length(), 1)
+  let rec_miss = @src.bedtools_intersect_reciprocal(a, [iv("chr1", 80, 200)], 0.2)
+  assert_eq(rec_miss.length(), 0)
+}
