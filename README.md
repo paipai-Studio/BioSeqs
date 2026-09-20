@@ -305,7 +305,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **SeqArray** | SeqArray | GDS 层级容器（GdsNode/GdsFile 路径寻址、GdsInt/Double/String/Int2D/Int3D 值类型）、seqVCF2GDS VCF 导入（样本/变异/基因型三节点）、SeqVarData 过滤视图（seqSetFilter 语义：sample/variant/chrom/range 过滤与 reset）、基因型剂量提取（0/1/2 计数、-1 缺失、单倍型/多等位基因/缺失处理）、allele_frequencies/missing_rates/summary（seqSummary）与 apply_per_variant 逐变异统计 |
 
 | **BAM 记录解析** | htslib/pysam | BAM 二进制比对记录解析（标准 htslib 布局）：32 字节核心头（bin_mq_nl/flag_nc 打包）、CIGAR、4-bit 序列解码（=ACMGRSVTWYHKDBN）、Phred 质量、辅助 tags（A/c/C/s/S/i/I/f/Z/H/B 数组类型）、flag 位解码（paired/proper/unmapped/reverse/read1/read2/secondary/supplementary/qcfail/duplicate）、cigarstring |
-| **BAM 比对几何** | htslib/pysam | BAM 记录比对几何：`reference_start`/`reference_end`（0-based）、`get_reference_positions`（full_length 时 I/S 置 None、D/N 跳过）、`get_overlap`（与半开区间的对齐碱基重叠数，M/=/X 计数）、`get_aligned_pairs`（query↔ref 坐标对，matches_only 过滤） |
+| **BAM 比对几何** | htslib/pysam | BAM 记录比对几何：`reference_start`/`reference_end`（0-based）、`get_reference_positions`（full_length 时 I/S 置 None、D/N 跳过）、`get_overlap`（与半开区间的对齐碱基重叠数，M/=/X 计数）、`get_aligned_pairs`（query↔ref 坐标对，matches_only 过滤）、query 访问器（`query_sequence`/`query_qualities`/`query_length`/`infer_query_length` CIGAR 推导 M+I+S+=+X） |
 | **BAM pileup** | htslib/pysam | BAM 比对堆垛（`pileup`）：按参考位置产出一列覆盖 reads，每条给出 `query_position`（D/N 为 None）、`is_del`/`is_refskip`（htslib 的 N 同时置双标志的语义）、`indel`（前一个碱基后的 I 正 / D 负长度），匹配 pysam `stepper="all"` 语义 |
 | **BAM index (BAI)** | Rsamtools（HTSlib） | BAI（`.bai`）索引解析：magic、n_ref、每参考序列 fixed-size bin 层级 + 16 kb linear index、末尾 n_no_coor；`bai_reg2bins` 区间→bin 映射、`bai_query` 按半开区间返回 BGZF 虚拟偏移块（配合 `BgzfReader::seek` 随机访问） |
 | **Tabix (.tbi)** | Rsamtools（HTSlib）/ htslib tabix | Tabix 索引解析：header（format/col_seq/col_beg/col_end/meta/skip/l_nm/序列名）+ 共享 BAI binning；`tabix_query` 按半开区间返回压缩块虚拟偏移 |
@@ -477,7 +477,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **DECIPHER** | DECIPHER | 生物序列分析工具包：Needleman-Wunsch 仿射间隙全局比对（Gotoh 算法）、序列批量比对（AlignSeqs）、Profile 构建/Profile-Profile 比对（AlignProfiles）、距离矩阵计算、序列同一性聚类（IdClusters/Union-Find）、Neighbor-Joining 系统发育树推断 + Newick 输出、三亲本嵌合体检测（FindChimeras）、共识序列（Consensus）、序列数据库（Seqs2Db/SearchDb）、GC 含量与序列复杂度（Shannon 熵） |
 | **microbiome** | microbiome | Alpha 多样性（Shannon/Simpson/Chao1/ACE/Fisher/Pielou）、Beta 多样性（Bray-Curtis/Jaccard/JSD/weighted/unweighted UniFrac）、PCoA、差异丰度（Welch t/Wilcoxon/BH） |
 | **skbio alpha** | `skbio.diversity.alpha` | scikit-bio Alpha 多样性指标（vegan 未覆盖部分）：sobs/observed_otus/singles/doubles/osd、dominance/simpson_d/inv_simpson/enspie/berger_parker_d/simpson_e/heip_e/goods_coverage、margalef/menhinick/mcintosh_d/mcintosh_e/brillouin_d/strong、renyi/tsallis/hill 广义熵 |
-| **skbio ordination** | `skbio.stats.ordination` / `skbio.stats.distance` | scikit-bio 排序与距离分析：Gower 中心化 `center_distance_matrix`（PCoA 前处理）、对应分析 `ca`（χ² 标准化 + SVD，scaling 1/2 的 sample/feature 坐标 + 特征值 + 解释比例）、冗余分析 `rda`（列中心化 + lstsq 回归 + 拟合值/残差双 SVD，scaling 1/2）、典范对应分析 `cca`（χ² 标准化 + 按行边际加权的 scale + lstsq，scaling 1/2，特征值取奇异值平方）、Mantel 检验 `mantel`（两距离矩阵 Pearson 相关 + 置换 p 值） |
+| **skbio ordination** | `skbio.stats.ordination` / `skbio.stats.distance` | scikit-bio 排序与距离分析：Gower 中心化 `center_distance_matrix`（PCoA 前处理）、对应分析 `ca`（χ² 标准化 + SVD，scaling 1/2 的 sample/feature 坐标 + 特征值 + 解释比例）、冗余分析 `rda`（列中心化 + lstsq 回归 + 拟合值/残差双 SVD，scaling 1/2）、典范对应分析 `cca`（χ² 标准化 + 按行边际加权的 scale + lstsq，scaling 1/2，特征值取奇异值平方）、Mantel 检验 `mantel`（两距离矩阵 Pearson 相关 + 置换 p 值） + 主坐标分析 `pcoa`（Gower 中心化→特征分解，特征值降序/负值置零，样本坐标 = 特征向量 × √特征值）+ `pcoa_biplot`（特征矩阵投影到 PCoA 轴）；基础 helper `e_matrix`（-D²/2）/`f_matrix`（Gower 双中心化）/`scale`/`corr`/`mean_and_std`/`svd_rank` |
 | **skbio distance** | `skbio.stats.distance` | scikit-bio 距离矩阵置换检验：ANOSIM（R 统计量，秩变换 + 组内/组间平均秩）、PERMANOVA（pseudo-F，组间/组内平方和分解）、PERMDISP（多元离差，PCoA 主坐标 → 距组质心距离 → 单因素 ANOVA F）、BioEnv（环境变量最优子集：标准化 + 子集欧氏距离 + Spearman 秩相关），p 值用确定性 LCG 置换 |
 | **CellChat** | CellChat | 配体-受体互作对数据库、置换检验、互作评分、细胞类型聚合、显著性检验、FDR 校正 |
 | **CIBERSORT** | CIBERSORT 风格 | NNLS 非负最小二乘求解细胞类型分数、投影梯度下降、LM22 风格特征矩阵、Pearson 拟合优度+RMSE、分数归一化（Σ=1.0） |
@@ -668,7 +668,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（533 个测试文件，13682 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（533 个测试文件，13687 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -688,7 +688,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13682 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13687 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -697,7 +697,7 @@ moon test                                               # ✅ 13682 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13682 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (13687 个测试用例，test/moonbit 包)
 ```
 
 ---

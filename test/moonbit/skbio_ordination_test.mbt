@@ -179,3 +179,75 @@ test "skbio_cca_scores" {
   assert_true(assert_close_mag(r.feature_scores[0][0], 1.26215, 1.0e-3))
   assert_true(assert_close_mag(r.feature_scores[1][0], 1.25320, 1.0e-3))
 }
+
+///|
+test "skbio_pcoa" {
+  let dm = [
+    [0.0, 1.0, 2.0, 3.0],
+    [1.0, 0.0, 1.0, 2.0],
+    [2.0, 1.0, 0.0, 1.0],
+    [3.0, 2.0, 1.0, 0.0],
+  ]
+  let r = @src.skbio_pcoa(dm)
+  assert_true(assert_close(r.eigvals[0], 5.0, 1.0e-9))
+  assert_true(assert_close(r.eigvals[1], 0.0, 1.0e-9))
+  assert_true(assert_close(r.proportion_explained[0], 1.0, 1.0e-9))
+  // samples are sign-ambiguous (eigenvector sign)
+  assert_true(assert_close_mag(r.samples[0][0], 1.5, 1.0e-6))
+  assert_true(assert_close_mag(r.samples[1][0], 0.5, 1.0e-6))
+  assert_true(assert_close_mag(r.samples[3][0], 1.5, 1.0e-6))
+}
+
+///|
+test "skbio_pcoa_biplot" {
+  let dm = [
+    [0.0, 1.0, 2.0, 3.0],
+    [1.0, 0.0, 1.0, 2.0],
+    [2.0, 1.0, 0.0, 1.0],
+    [3.0, 2.0, 1.0, 0.0],
+  ]
+  let r = @src.skbio_pcoa(dm)
+  let y = [[1.0, 4.0], [2.0, 3.0], [3.0, 2.0], [4.0, 1.0]]
+  let feat = @src.skbio_pcoa_biplot(r.samples, r.eigvals, y)
+  assert_true(assert_close_mag(feat[0][0], 1.0, 1.0e-6))
+  assert_true(assert_close_mag(feat[1][0], 1.0, 1.0e-6))
+}
+
+///|
+test "skbio_e_and_f_matrix" {
+  let dm = [
+    [0.0, 1.0, 2.0, 3.0],
+    [1.0, 0.0, 1.0, 2.0],
+    [2.0, 1.0, 0.0, 1.0],
+    [3.0, 2.0, 1.0, 0.0],
+  ]
+  let e = @src.skbio_e_matrix(dm)
+  assert_true(assert_close(e[0][1], -0.5, 1.0e-9))
+  assert_true(assert_close(e[0][3], -4.5, 1.0e-9))
+  let f = @src.skbio_f_matrix(e)
+  assert_true(assert_close(f[0][0], 2.25, 1.0e-9))
+  assert_true(assert_close(f[1][1], 0.25, 1.0e-9))
+  assert_true(assert_close(f[0][3], -2.25, 1.0e-9))
+}
+
+///|
+test "skbio_scale_corr_meanstd_svdrank" {
+  // scale (center only)
+  let a = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
+  let scaled = @src.skbio_scale(a, true, false, 0)
+  assert_true(assert_close(scaled[0][0], -1.5, 1.0e-9))
+  assert_true(assert_close(scaled[1][0], 1.5, 1.0e-9))
+  // corr
+  let x = [[1.0, 4.0], [2.0, 3.0], [3.0, 2.0], [4.0, 1.0]]
+  let y = [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0], [2.0, 2.0]]
+  let c = @src.skbio_corr(x, y)
+  assert_true(assert_close(c[0][0], 0.632456, 1.0e-5))
+  assert_true(assert_close(c[0][1], 0.948683, 1.0e-5))
+  assert_true(assert_close(c[1][0], -0.632456, 1.0e-5))
+  // mean_and_std
+  let (m, s) = @src.skbio_mean_and_std(x, 0)
+  assert_true(assert_close(m[0], 2.5, 1.0e-9))
+  assert_true(assert_close(s[0], 1.118034, 1.0e-5))
+  // svd_rank
+  assert_eq(@src.skbio_svd_rank([3.0, 2.0, 0.0, 0.0], 4, 4), 2)
+}

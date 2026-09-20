@@ -788,3 +788,203 @@ pub fn skbio_cca(
   }
   CcaResult::{ eigvals, proportion_explained, sample_scores, feature_scores }
 }
+
+///|
+/// e_matrix: `E = -D^2 / 2` (element-wise), the first half of Gower centering.
+pub fn skbio_e_matrix(dm : Array[Array[Double]]) -> Array[Array[Double]] {
+  let n = dm.length()
+  let out : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(n, 0.0)
+    for j = 0; j < n; j = j + 1 {
+      row[j] = dm[i][j] * dm[i][j] / -2.0
+    }
+    out.push(row)
+  }
+  out
+}
+
+///|
+/// f_matrix: Gower double centering `E - row_mean - col_mean + grand_mean`.
+pub fn skbio_f_matrix(e : Array[Array[Double]]) -> Array[Array[Double]] {
+  let n = e.length()
+  let row_means = skb_row_sums(e).map(fn(x) { x / n.to_double() })
+  let col_means = skb_col_sums(e).map(fn(x) { x / n.to_double() })
+  let grand_mean = skb_sum(e) / (n * n).to_double()
+  let out : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(n, 0.0)
+    for j = 0; j < n; j = j + 1 {
+      row[j] = e[i][j] - row_means[i] - col_means[j] + grand_mean
+    }
+    out.push(row)
+  }
+  out
+}
+
+///|
+/// Column-wise mean and standard deviation (unweighted, axis=0).
+pub fn skbio_mean_and_std(a : Array[Array[Double]], ddof : Int) -> (Array[Double], Array[Double]) {
+  let n = a.length()
+  let p = if n > 0 { a[0].length() } else { 0 }
+  let means = Array::make(p, 0.0)
+  let stds = Array::make(p, 0.0)
+  for j = 0; j < p; j = j + 1 {
+    let mut s = 0.0
+    for i = 0; i < n; i = i + 1 {
+      s = s + a[i][j]
+    }
+    means[j] = s / n.to_double()
+    let mut v = 0.0
+    for i = 0; i < n; i = i + 1 {
+      let d = a[i][j] - means[j]
+      v = v + d * d
+    }
+    stds[j] = (v / (n - ddof).to_double()).sqrt()
+  }
+  (means, stds)
+}
+
+///|
+/// Column-wise centering plus (optional) scaling to unit variance.
+pub fn skbio_scale(
+  a : Array[Array[Double]],
+  with_mean : Bool,
+  with_std : Bool,
+  ddof : Int,
+) -> Array[Array[Double]] {
+  let n = a.length()
+  let p = if n > 0 { a[0].length() } else { 0 }
+  let (means, stds) = skbio_mean_and_std(a, ddof)
+  let scaled_stds = Array::make(p, 0.0)
+  for j = 0; j < p; j = j + 1 {
+    scaled_stds[j] = if stds[j] == 0.0 { 1.0 } else { stds[j] }
+  }
+  let out : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(p, 0.0)
+    for j = 0; j < p; j = j + 1 {
+      let mut v = a[i][j]
+      if with_mean {
+        v = v - means[j]
+      }
+      if with_std {
+        v = v / scaled_stds[j]
+      }
+      row[j] = v
+    }
+    out.push(row)
+  }
+  out
+}
+
+///|
+/// Pearson correlation matrix between the columns of `x` and `y`.
+pub fn skbio_corr(x : Array[Array[Double]], y : Array[Array[Double]]) -> Array[Array[Double]] {
+  let n = x.length()
+  let xs = skbio_scale(x, true, true, 0)
+  let ys = skbio_scale(y, true, true, 0)
+  let prod = skb_mul(skb_transpose(xs), ys)
+  let out : Array[Array[Double]] = Array::new()
+  for i = 0; i < prod.length(); i = i + 1 {
+    let row = Array::make(prod[0].length(), 0.0)
+    for j = 0; j < prod[0].length(); j = j + 1 {
+      row[j] = prod[i][j] / n.to_double()
+    }
+    out.push(row)
+  }
+  out
+}
+
+///|
+/// Numerical rank: count of singular values above the tolerance
+/// `S.max() * max(m, n) * eps`.
+pub fn skbio_svd_rank(s : Array[Double], m : Int, n : Int) -> Int {
+  let mut smax = 0.0
+  for v in s {
+    if v > smax {
+      smax = v
+    }
+  }
+  let mx = if m > n { m } else { n }
+  let tol = smax * mx.to_double() * 2.220446049250313e-16
+  let mut rank = 0
+  for v in s {
+    if v > tol {
+      rank = rank + 1
+    }
+  }
+  rank
+}
+
+///|
+pub struct PcoaResult {
+  eigvals : Array[Double]
+  proportion_explained : Array[Double]
+  samples : Array[Array[Double]]
+}
+
+///|
+/// Principal Coordinate Analysis (PCoA): Gower-centered distance matrix →
+/// eigendecomposition → descending eigenvalues, proportion explained, and
+/// sample coordinates (eigenvectors scaled by sqrt(eigenvalue)).
+pub fn skbio_pcoa(dm : Array[Array[Double]]) -> PcoaResult {
+  let n = dm.length()
+  let b = skbio_center_distance_matrix(dm)
+  let (raw_evals, raw_evecs) = eigh_symmetric(b, n)
+  let (sorted_evals, sorted_evecs) = linalg_sort_eigen(raw_evals, raw_evecs, n)
+  let evals = Array::make(n, 0.0)
+  for j = 0; j < n; j = j + 1 {
+    evals[j] = if sorted_evals[j] < 0.0 { 0.0 } else { sorted_evals[j] }
+  }
+  let mut sum = 0.0
+  for v in evals {
+    sum = sum + v
+  }
+  let proportion_explained = Array::make(n, 0.0)
+  for j = 0; j < n; j = j + 1 {
+    proportion_explained[j] = evals[j] / sum
+  }
+  let samples : Array[Array[Double]] = Array::new()
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(n, 0.0)
+    for j = 0; j < n; j = j + 1 {
+      row[j] = sorted_evecs[i][j] * evals[j].sqrt()
+    }
+    samples.push(row)
+  }
+  PcoaResult::{ eigvals: evals, proportion_explained, samples }
+}
+
+///|
+/// PCoA biplot: project feature matrix `y` (samples × features) onto the PCoA
+/// axes. Returns the feature loadings (features × axes).
+pub fn skbio_pcoa_biplot(
+  samples : Array[Array[Double]],
+  eigvals : Array[Double],
+  y : Array[Array[Double]],
+) -> Array[Array[Double]] {
+  let n = samples.length()
+  let d = samples[0].length()
+  let p = y[0].length()
+  let scaled = skbio_scale(samples, true, true, 1)
+  // spc = (1/(N-1)) * y.T @ scaled  (p × d)
+  let yt = skb_transpose(y)
+  let spc = skb_mul(yt, scaled)
+  let inv_sqrt : Array[Double] = Array::new()
+  for j = 0; j < d; j = j + 1 {
+    inv_sqrt.push(if eigvals[j] > 0.0 { 1.0 / eigvals[j].sqrt() } else { 0.0 })
+  }
+  let rn = (n - 1).to_double().sqrt()
+  let out : Array[Array[Double]] = Array::new()
+  for i = 0; i < p; i = i + 1 {
+    let row = Array::make(d, 0.0)
+    for j = 0; j < d; j = j + 1 {
+      // Uproj = sqrt(N-1) * spc * diag(1/sqrt(eigval))  where spc = 1/(N-1)·Yᵀ·scale(coord)
+      // => Yᵀ·scale(coord) · 1/sqrt(eigval) / sqrt(N-1)
+      row[j] = spc[i][j] * inv_sqrt[j] / rn
+    }
+    out.push(row)
+  }
+  out
+}

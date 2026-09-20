@@ -71,3 +71,24 @@ test "bam_pileup_refskip" {
   assert_true(pl_is(e.pileups[0], Some(3), false, false, 0)) // read2
   assert_true(pl_is(e.pileups[1], Some(2), false, false, 0)) // read4
 }
+///|
+test "bam_query_accessors" {
+  let bam = @src.parse_bam_base64(pileup_bam_base64)
+  // read5 (index 0): 2S4M, seq ACGTAC
+  let r5 = bam.records[0]
+  assert_eq(r5.query_sequence(), "ACGTAC")
+  assert_eq(r5.infer_query_length(), 6) // 2S + 4M
+  assert_eq(r5.query_length(), 6)
+  // read3 (index 3): 3M1I2M
+  let r3 = bam.records[3]
+  assert_eq(r3.query_sequence(), "ACGTAC")
+  assert_eq(r3.infer_query_length(), 6) // 3M + 1I + 2M
+  // read2 (index 4): 2M1D3M, D excluded from query length
+  let r2 = bam.records[4]
+  assert_eq(r2.query_sequence(), "ACGTA")
+  assert_eq(r2.infer_query_length(), 5) // 2M + 3M
+  // read4 (index 5): 2M1N2M, N excluded
+  let r4 = bam.records[5]
+  assert_eq(r4.query_sequence(), "ACGT")
+  assert_eq(r4.infer_query_length(), 4) // 2M + 2M
+}

@@ -1581,3 +1581,37 @@ pub fn BamFile::pileup(
   }
   columns
 }
+
+///|
+/// The full query sequence (includes soft-clipped bases, no hard clips).
+pub fn BamRecord::query_sequence(self : BamRecord) -> String {
+  self.seq
+}
+
+///|
+/// The full query base qualities (aligned with `query_sequence`).
+pub fn BamRecord::query_qualities(self : BamRecord) -> String {
+  self.qual
+}
+
+///|
+/// Stored query length (`l_seq`).
+pub fn BamRecord::query_length(self : BamRecord) -> Int {
+  self.l_seq
+}
+
+///|
+/// Query length inferred from the CIGAR (M + I + S + = + X), matching htslib's
+/// `bam_cigar2qlen`.
+pub fn BamRecord::infer_query_length(self : BamRecord) -> Int {
+  let mut length = 0
+  for i = 0; i < self.cigar.length(); i = i + 1 {
+    let el = self.cigar[i]
+    match el.op {
+      BamCigarOp::Match | BamCigarOp::Insert | BamCigarOp::SoftClip | BamCigarOp::Equal | BamCigarOp::Diff =>
+        length = length + el.length
+      _ => ()
+    }
+  }
+  length
+}

@@ -6,6 +6,13 @@
 
 ///|
 fn main {
+  println("=== Principal Coordinate Analysis (PCoA) ===")
+  let dm = [[0.0, 1.0, 2.0, 3.0], [1.0, 0.0, 1.0, 2.0], [2.0, 1.0, 0.0, 1.0], [3.0, 2.0, 1.0, 0.0]]
+  let pcoa = @src.skbio_pcoa(dm)
+  println("eigvals   : \{pcoa.eigvals}")
+  println("prop. expl: \{pcoa.proportion_explained}")
+
+
   println("=== Canonical Correspondence Analysis (CCA, scaling=1) ===")
   let y = [[1.0, 0.0, 2.0], [0.0, 3.0, 1.0], [2.0, 1.0, 0.0], [3.0, 1.0, 2.0], [1.0, 2.0, 3.0], [2.0, 0.0, 2.0]]
   let x = [[0.5, 1.0], [1.0, 0.5], [1.5, 2.0], [2.5, 1.5], [1.0, 3.0], [2.0, 2.5]]
