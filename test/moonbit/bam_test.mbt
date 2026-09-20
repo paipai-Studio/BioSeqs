@@ -194,3 +194,15 @@ test "bam_negative_int32_fields" {
   assert_eq(bam.records[0].next_pos, -1)
   assert_eq(bam.records[0].tlen, 0)
 }
+///|
+test "bam_write_roundtrip" {
+  let bam = @src.parse_bam_base64(test_bam_base64)
+  // uncompressed BAM bytes round-trip
+  let raw = bam.to_bam_bytes()
+  let bam2 = @src.parse_bam(raw)
+  assert_eq(bam2.to_sam(), bam.to_sam())
+  // BGZF-compressed BAM round-trip (through bgzf_compress/decompress)
+  let bgzf = bam.to_bgzf_bytes()
+  let bam3 = @src.parse_bam_from_bgzf(bgzf)
+  assert_eq(bam3.to_sam(), bam.to_sam())
+}
