@@ -417,3 +417,49 @@ fn parse_fai_int(s : String) -> Int raise FastaIndexError {
   }
   result
 }
+
+///|
+/// Splice multiple 1-based inclusive intervals `[start, end]` (end included,
+/// clamped to the sequence length) into a single sequence.
+///
+/// With `rc`, the intervals are reverse-complemented in reverse order,
+/// matching pyfaidx's `Fasta.get_spliced_seq(name, intervals, rc=True)`.
+pub fn Fasta::get_spliced_seq(
+  self : Fasta,
+  name : String,
+  intervals : Array[(Int, Int)],
+  rc : Bool,
+) -> Seq? raise FastaIndexError {
+  match self.index.get_record(name) {
+    None => None
+    Some(rec) => {
+      let chunks : Array[String] = Array::new()
+      for (s, e) in intervals {
+        let start0 = s - 1
+        if start0 < 0 {
+          raise FastaIndexError("start coordinate must be >= 1, got " + s.to_string())
+        }
+        let end0 = if e > rec.length { rec.length } else { e }
+        chunks.push(self.extract_sequence(rec, start0, end0).to_string())
+      }
+      let buf = StringBuilder::new()
+      if rc {
+        let mut i = chunks.length() - 1
+        while i >= 0 {
+          let rc_seq = try {
+            pyfaidx_reverse_complement(chunks[i])
+          } catch {
+            PyfaidxError(msg) => raise FastaIndexError(msg)
+          }
+          buf.write_string(rc_seq)
+          i = i - 1
+        }
+      } else {
+        for c in chunks {
+          buf.write_string(c)
+        }
+      }
+      Some(Seq::new(buf.to_string()))
+    }
+  }
+}

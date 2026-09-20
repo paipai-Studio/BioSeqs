@@ -143,3 +143,24 @@ fn build_fasta(
 ) -> String {
   ">" + name1 + "\n" + seq1 + "\n>" + name2 + "\n" + seq2 + "\n"
 }
+
+///|
+test "fasta_get_spliced_seq" {
+  let fasta = ">chr1\nACGTACGTACGTACGT\n>chr2\nAAACCCGGGTTT\n"
+  let fa = @src.Fasta::from_content(fasta)
+  // 1-based inclusive intervals
+  let r1 = fa.get_spliced_seq("chr1", [(1, 5), (9, 13)], false)
+  assert_eq(r1.unwrap().to_string(), "ACGTAACGTA")
+  let r1r = fa.get_spliced_seq("chr1", [(1, 5), (9, 13)], true)
+  assert_eq(r1r.unwrap().to_string(), "TACGTTACGT")
+  // chr1 [[1,4],[5,7],[10,13]]
+  let r3 = fa.get_spliced_seq("chr1", [(1, 4), (5, 7), (10, 13)], false)
+  assert_eq(r3.unwrap().to_string(), "ACGTACGCGTA")
+  let r3r = fa.get_spliced_seq("chr1", [(1, 4), (5, 7), (10, 13)], true)
+  assert_eq(r3r.unwrap().to_string(), "TACGCGTACGT")
+  // chr2 [[1,4],[5,7],[10,13]]: end 13 clamped to length 12
+  let r2 = fa.get_spliced_seq("chr2", [(1, 4), (5, 7), (10, 13)], false)
+  assert_eq(r2.unwrap().to_string(), "AAACCCGTTT")
+  let r2r = fa.get_spliced_seq("chr2", [(1, 4), (5, 7), (10, 13)], true)
+  assert_eq(r2r.unwrap().to_string(), "AAACGGGTTT")
+}

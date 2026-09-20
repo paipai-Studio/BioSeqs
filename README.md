@@ -49,6 +49,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **FASTA / FASTQ / QUAL** | `Bio.SeqIO.FastaIO` / `QualityIO` | FASTA/FASTQ 解析与写入、质量编码处理、低级流式解析器（SimpleFastaParser / FastqGeneralIterator / 双行紧凑格式）、seqio_error_with_line 行号错误；QUAL 格式解析与写入（parse_qual / write_qual）、FASTQ 变体编码（fastq-illumina/ASCII 偏移 64、fastq-solexa/Solexa 编码）、质量分数转换（Phred ↔ Solexa）、PairedFastaQualIterator FASTA+QUAL 配对读取 |
 | **pyfaidx 序列工具** | pyfaidx | FASTA 随机访问（`.fai`）之上的序列级工具：IUPAC 补码/反向/反向互补（含全模糊碱基表与非法字符报错）、GC 含量（gc / gc_strict / gc_iupac 加权）、wrap_sequence 定宽换行、BED/UCSC 区域串解析（bed_split / ucsc_split） |
 | **pyfaidx 序列切片** | pyfaidx | pyfaidx `Sequence` 对象模型：`pyfaidx_slice_indices`（Python `slice.indices` 语义，含负索引/负步长/-1 哨兵）、切片/整数索引（1-based 与 0-based 坐标跟踪）、reverse/complement/reverse_complement、`fancy_name`、`orientation` |
+| **pyfaidx 拼接** | pyfaidx | `Fasta.get_spliced_seq`：多区间（1-based、end 含端，超长 clamp）拼接；`rc=True` 时反转区间顺序并逐段反向互补 |
 | **GenBank / EMBL** | `Bio.SeqIO.GenBankIO` / `EmblIO` | GenBank/EMBL 严格解析与写入（LOCUS/FEATURES/ORIGIN、ID/AC/DE/SQ） |
 | **PIR / Tab** | `Bio.SeqIO.PdbIO (PIR/NBRF)` / `TabIO` | PIR/NBRF 蛋白/核酸格式、Tab 分隔（ID+序列） |
 | **InsdcIO** | `Bio.SeqIO.InsdcIO` | INSDC 国际核苷酸序列数据库协作格式 |
@@ -614,7 +615,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn.mbt / suffix_array_tree.mbt / olc.mbt / bwt_fm.mbt # 序列组装四大算法
 │   ├── statistics.mbt / kmeans.mbt / hmm.mbt / neural_network.mbt / ... # ML 与统计
 │   └── utils.mbt / data.mbt / ...    # 通用工具与常量
-├── examples/                         # 示例程序（507 个演示 demo）
+├── examples/                         # 示例程序（508 个演示 demo）
 │   ├── basic_seq/                    # 基础序列操作
 │   ├── seqcode_demo/ / seq_utils_demo/ # SeqUtils 序列工具（gc_fraction/GC123/nt_search/六框翻译/seq3/seq1）
 │   ├── codon_utils_demo/               # CodonUtils 密码子分析（NCBI 27 表/GC123/六框翻译/CAI/Nc Wright 1990/表元数据）
@@ -667,7 +668,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（533 个测试文件，13680 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（533 个测试文件，13681 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -687,7 +688,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13680 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13681 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -696,7 +697,7 @@ moon test                                               # ✅ 13680 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13680 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (13681 个测试用例，test/moonbit 包)
 ```
 
 ---
