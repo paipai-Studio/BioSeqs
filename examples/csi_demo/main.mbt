@@ -16,4 +16,6 @@ fn main raise {
     }
   }
   println("reg2bins(100, 20000, 14, 6) = \{@src.csi_reg2bins(100, 20000, 14, 6)}")
+  let q = @src.csi_query(idx, 0, 0, 1000)
+  println("query chr1 [0,1000): min_off=\{q.min_off} chunks=\{q.chunks.length()}")
 }

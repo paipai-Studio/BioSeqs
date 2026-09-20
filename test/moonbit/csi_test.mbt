@@ -52,3 +52,35 @@ test "csi_reg2bins_matches_htslib" {
   // empty region
   assert_eq(@src.csi_reg2bins(5, 5, 14, 6).length(), 0)
 }
+///|
+test "csi_query" {
+  let idx = @src.parse_csi(@src.base64_decode(csi_base64))
+  // ref 0 (chr1): bin 37449 loffset=121 chunk(121,163)
+  let q0 = @src.csi_query(idx, 0, 0, 1000)
+  assert_eq(q0.min_off, 121L)
+  assert_eq(q0.chunks.length(), 1)
+  assert_eq(q0.chunks[0].chunk_beg, 121L)
+  assert_eq(q0.chunks[0].chunk_end, 163L)
+  // sub-region -> same bin
+  let q1 = @src.csi_query(idx, 0, 100, 200)
+  assert_eq(q1.min_off, 121L)
+  assert_eq(q1.chunks.length(), 1)
+  // region beyond data: bin walk 37450 -> 37449, empty chunks
+  let q2 = @src.csi_query(idx, 0, 16384, 20000)
+  assert_eq(q2.min_off, 121L)
+  assert_eq(q2.chunks.length(), 0)
+  // ref 1 (chr2): bin 37449 loffset=163 chunk(163, 10354688)
+  let q3 = @src.csi_query(idx, 1, 0, 500)
+  assert_eq(q3.min_off, 163L)
+  assert_eq(q3.chunks.length(), 1)
+  assert_eq(q3.chunks[0].chunk_beg, 163L)
+  assert_eq(q3.chunks[0].chunk_end, 10354688L)
+  // out-of-range ref
+  let raised = try {
+    ignore(@src.csi_query(idx, 5, 0, 100))
+    false
+  } catch {
+    CsiError(_) => true
+  }
+  assert_true(raised)
+}

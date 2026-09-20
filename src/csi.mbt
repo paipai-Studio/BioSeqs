@@ -159,3 +159,83 @@ pub fn csi_reg2bins(beg : Int, end : Int, min_shift : Int, n_lvls : Int) -> Arra
   }
   bins
 }
+///|
+pub struct CsiQueryResult {
+  min_off : Int64
+  chunks : Array[CsiChunk]
+}
+
+///|
+fn csi_bin_first(l : Int) -> Int {
+  ((1 << (3 * l)) - 1) / 7
+}
+
+///|
+fn csi_find_bin(reference : CsiReference, bin : Int) -> CsiBin? {
+  for b in reference.bins {
+    if b.bin == bin {
+      return Some(b)
+    }
+  }
+  None
+}
+
+///|
+/// Query a half-open interval `[beg, end)` against a CSI reference, returning
+/// the chunks (virtual-offset pairs) covering it plus the minimum starting
+/// offset (htslib's `loff` walk: the first overlapping record's offset).
+pub fn csi_query(
+  index : CsiIndex,
+  ref_id : Int,
+  beg : Int,
+  end : Int,
+) -> CsiQueryResult raise CsiError {
+  if ref_id < 0 || ref_id >= index.references.length() {
+    csi_fail("Reference id \{ref_id} out of range (n_ref = \{index.references.length()})")
+  }
+  if beg < 0 || end < beg {
+    csi_fail("Invalid query interval [\{beg}, \{end})")
+  }
+  let reference = index.references[ref_id]
+  // min_off: walk up the deepest bin covering `beg` until an existing bin (htslib)
+  let rel_off = beg >> index.min_shift
+  let mut bin = csi_bin_first(index.n_lvls) + rel_off
+  let mut min_off = 0L
+  let mut found = false
+  while not(found) && bin != 0 {
+    match csi_find_bin(reference, bin) {
+      Some(b) => {
+        min_off = b.loffset
+        found = true
+      }
+      None => {
+        let parent = (bin - 1) >> 3
+        let first = (parent << 3) + 1
+        if bin > first {
+          bin = bin - 1
+        } else {
+          bin = parent
+        }
+      }
+    }
+  }
+  if not(found) {
+    match csi_find_bin(reference, 0) {
+      Some(b) => min_off = b.loffset
+      None => ()
+    }
+  }
+  // chunks from covering bins
+  let chunks : Array[CsiChunk] = Array::new()
+  let bins = csi_reg2bins(beg, end, index.min_shift, index.n_lvls)
+  for b in bins {
+    match csi_find_bin(reference, b) {
+      Some(cb) =>
+        for c in cb.chunks {
+          chunks.push(c)
+        }
+      None => ()
+    }
+  }
+  CsiQueryResult::{ min_off, chunks }
+}
