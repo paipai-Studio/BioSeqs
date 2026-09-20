@@ -467,4 +467,30 @@ test "bedtools_reldist" {
   assert_true(assert_close(r[0].fraction, 0.5, 1.0e-9))
   assert_eq(r[1].rel_dist, 0.5)
   assert_eq(r[1].count, 1)
+}///|
+test "bedtools_getfasta_nuc" {
+  // chr1 = "AACCCGGGTNNX" (A2 C3 G3 T1 N2 X1, len 12)
+  let fasta = @src.Fasta::from_content(">chr1\nAACCCGGGTNNX\n")
+  // getfasta
+  let f = @src.bedtools_getfasta(fasta, [iv("chr1", 0, 4), iv("chr1", 5, 9)])
+  assert_eq(f.length(), 2)
+  assert_eq(f[0].header, ">chr1:0-4")
+  assert_eq(f[0].seq, "AACC")
+  assert_eq(f[1].header, ">chr1:5-9")
+  assert_eq(f[1].seq, "GGGT")
+  // nuc
+  let r = @src.bedtools_nuc(fasta, [iv("chr1", 0, 12)])
+  assert_eq(r.length(), 1)
+  assert_eq(r[0].a, 2)
+  assert_eq(r[0].c, 3)
+  assert_eq(r[0].g, 3)
+  assert_eq(r[0].t, 1)
+  assert_eq(r[0].n, 2)
+  assert_eq(r[0].other, 1)
+  assert_eq(r[0].length, 12)
+  assert_true(assert_close(r[0].pct_at, 0.25, 1.0e-9))
+  assert_true(assert_close(r[0].pct_gc, 0.5, 1.0e-9))
+  // out-of-range interval is skipped
+  let r2 = @src.bedtools_nuc(fasta, [iv("chr1", 0, 100)])
+  assert_eq(r2.length(), 0)
 }

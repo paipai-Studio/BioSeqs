@@ -1884,4 +1884,101 @@ pub fn bedtools_reldist(a : Array[BedInterval], b : Array[BedInterval]) -> Array
     })
   }
   out
+}///|
+pub struct GetFastaRecord {
+  header : String
+  seq : String
+}
+
+///|
+/// Extract the FASTA subsequence for each interval (`bedtools getfasta`):
+/// returns one record per interval with a `>chrom:start-end` header and the
+/// 0-based half-open `[start, end)` sequence. Intervals whose chromosome is
+/// missing or whose coordinates are out of range are skipped.
+pub fn bedtools_getfasta(
+  fasta : Fasta,
+  intervals : Array[BedInterval],
+) -> Array[GetFastaRecord] {
+  let out : Array[GetFastaRecord] = Array::new()
+  for iv in intervals {
+    match fasta.get_seq(iv.chrom) {
+      None => ()
+      Some(seq) => {
+        let full = seq.to_string()
+        let len = full.length()
+        if iv.start >= 0 && iv.end <= len && iv.start <= iv.end {
+          let sub = full[iv.start:iv.end].to_owned()
+          let header = ">" + iv.chrom + ":" + iv.start.to_string() + "-" + iv.end.to_string()
+          out.push(GetFastaRecord::{ header, seq: sub })
+        }
+      }
+    }
+  }
+  out
+}
+
+///|
+pub struct NucResult {
+  a : Int
+  c : Int
+  g : Int
+  t : Int
+  n : Int
+  other : Int
+  length : Int
+  pct_at : Double
+  pct_gc : Double
+}
+
+///|
+/// Nucleotide composition of each interval (`bedtools nuc`): counts of A/C/G/T/
+/// N/other (case-insensitive), interval length, and %AT / %GC. Intervals with
+/// missing chromosomes or out-of-range coordinates are skipped.
+pub fn bedtools_nuc(
+  fasta : Fasta,
+  intervals : Array[BedInterval],
+) -> Array[NucResult] {
+  let out : Array[NucResult] = Array::new()
+  for iv in intervals {
+    match fasta.get_seq(iv.chrom) {
+      None => ()
+      Some(seq) => {
+        let full = seq.to_string()
+        let len = full.length()
+        if iv.start >= 0 && iv.end <= len && iv.start <= iv.end {
+          let sub = full[iv.start:iv.end].to_owned()
+          let us = Seq::new(sub).upper().to_string()
+          let mut a = 0
+          let mut c = 0
+          let mut g = 0
+          let mut t = 0
+          let mut n = 0
+          let mut other = 0
+          let mut i = 0
+          while i < us.length() {
+            let ch = char_at(us, i)
+            if ch == "A" {
+              a = a + 1
+            } else if ch == "C" {
+              c = c + 1
+            } else if ch == "G" {
+              g = g + 1
+            } else if ch == "T" {
+              t = t + 1
+            } else if ch == "N" {
+              n = n + 1
+            } else {
+              other = other + 1
+            }
+            i = i + 1
+          }
+          let seq_len = us.length()
+          let pct_at = (a + t).to_double() / seq_len.to_double()
+          let pct_gc = (c + g).to_double() / seq_len.to_double()
+          out.push(NucResult::{ a, c, g, t, n, other, length: seq_len, pct_at, pct_gc })
+        }
+      }
+    }
+  }
+  out
 }
