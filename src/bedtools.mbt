@@ -388,3 +388,135 @@ pub fn bedtools_window(
   }
   out
 }
+
+///|
+pub struct CoverageResult {
+  a : BedInterval
+  count : Int
+  bases_covered : Int
+  length : Int
+  fraction : Double
+}
+
+///|
+/// For each A, count the overlapping B features and report bases covered,
+/// length, and covered fraction (matching `bedtools coverage` default).
+pub fn bedtools_coverage(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[CoverageResult] {
+  let out : Array[CoverageResult] = Array::new()
+  for ai in a {
+    let len = ai.end - ai.start
+    let depth : Array[Int] = Array::make(len, 0)
+    let mut count = 0
+    for bi in b {
+      if ai.chrom == bi.chrom && ai.start < bi.end && bi.start < ai.end {
+        let ms = if ai.start > bi.start { ai.start } else { bi.start }
+        let me = if ai.end < bi.end { ai.end } else { bi.end }
+        let mut p = ms
+        while p < me {
+          depth[p - ai.start] = depth[p - ai.start] + 1
+          p = p + 1
+        }
+        count = count + 1
+      }
+    }
+    let mut covered = 0
+    for i = 0; i < len; i = i + 1 {
+      if depth[i] >= 1 {
+        covered = covered + 1
+      }
+    }
+    let fraction = covered.to_double() / len.to_double()
+    out.push(CoverageResult::{ a: ai, count, bases_covered: covered, length: len, fraction })
+  }
+  out
+}
+
+///|
+pub struct GenomecovSegment {
+  chrom : String
+  start : Int
+  end : Int
+  depth : Int
+}
+
+///|
+fn sort_events(events : Array[(Int, Int)]) -> Array[(Int, Int)] {
+  let out = events.copy()
+  let mut i = 1
+  while i < out.length() {
+    let key = out[i]
+    let mut j = i - 1
+    while j >= 0 && out[j].0 > key.0 {
+      out[j + 1] = out[j]
+      j = j - 1
+    }
+    out[j + 1] = key
+    i = i + 1
+  }
+  out
+}
+
+///|
+/// Sweep one chromosome's intervals into bedgraph segments (depth >= 1),
+/// matching `bedtools genomecov -bg`.
+fn genomecov_bg_one_chrom(ivals : Array[(Int, Int)]) -> Array[(Int, Int, Int)] {
+  let events : Array[(Int, Int)] = Array::new()
+  for (s, e) in ivals {
+    events.push((s, 1))
+    events.push((e, -1))
+  }
+  let sorted = sort_events(events)
+  let out : Array[(Int, Int, Int)] = Array::new()
+  let mut cur_depth = 0
+  let mut i = 0
+  while i < sorted.length() {
+    let pos = sorted[i].0
+    let mut delta = 0
+    while i < sorted.length() && sorted[i].0 == pos {
+      delta = delta + sorted[i].1
+      i = i + 1
+    }
+    cur_depth = cur_depth + delta
+    if i < sorted.length() && cur_depth >= 1 {
+      out.push((pos, sorted[i].0, cur_depth))
+    }
+  }
+  out
+}
+
+///|
+/// Report contiguous depth segments (depth >= 1) via differential-event sweep.
+pub fn bedtools_genomecov_bg(intervals : Array[BedInterval]) -> Array[GenomecovSegment] {
+  let chroms : Array[String] = Array::new()
+  let per_chrom : Array[Array[BedInterval]] = Array::new()
+  for iv in intervals {
+    let mut found = -1
+    for k = 0; k < chroms.length(); k = k + 1 {
+      if chroms[k] == iv.chrom {
+        found = k
+        break
+      }
+    }
+    if found < 0 {
+      chroms.push(iv.chrom)
+      per_chrom.push(Array::new())
+      per_chrom[per_chrom.length() - 1].push(iv)
+    } else {
+      per_chrom[found].push(iv)
+    }
+  }
+  let out : Array[GenomecovSegment] = Array::new()
+  for k = 0; k < chroms.length(); k = k + 1 {
+    let ivs : Array[(Int, Int)] = Array::new()
+    for iv in per_chrom[k] {
+      ivs.push((iv.start, iv.end))
+    }
+    for (s, e, d) in genomecov_bg_one_chrom(ivs) {
+      out.push(GenomecovSegment::{ chrom: chroms[k], start: s, end: e, depth: d })
+    }
+  }
+  out
+}

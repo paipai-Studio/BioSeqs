@@ -37,4 +37,17 @@ fn main {
   for r in cl {
     println("  closest: \{r.a.start}-\{r.a.end} -> \{r.b.start}-\{r.b.end} (d=\{r.distance})")
   }
+
+  // coverage + genomecov
+  let cov = @src.bedtools_coverage(
+    [@src.BedInterval::new("chr1", 0, 10)],
+    [@src.BedInterval::new("chr1", 3, 7), @src.BedInterval::new("chr1", 6, 9)],
+  )
+  for c in cov {
+    println("  coverage: count=\{c.count} covered=\{c.bases_covered}/\{c.length} frac=\{c.fraction}")
+  }
+  let segs = @src.bedtools_genomecov_bg([@src.BedInterval::new("chr1", 3, 7), @src.BedInterval::new("chr1", 6, 9)])
+  for s in segs {
+    println("  genomecov: \{s.chrom}:\{s.start}-\{s.end} depth=\{s.depth}")
+  }
 }

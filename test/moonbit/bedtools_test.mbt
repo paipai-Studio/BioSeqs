@@ -147,3 +147,39 @@ test "bedtools_window" {
   let r3 = @src.bedtools_window([iv("chr1", 100, 200)], [iv("chr1", 205, 210)], 10)
   assert_eq(r3.length(), 1)
 }
+
+///|
+test "bedtools_coverage" {
+  let a = [iv("chr1", 0, 10), iv("chr1", 20, 30)]
+  let b = [iv("chr1", 3, 7), iv("chr1", 6, 9), iv("chr1", 25, 28)]
+  let r = @src.bedtools_coverage(a, b)
+  assert_eq(r.length(), 2)
+  // A(0,10): count=2, covered=6, len=10, frac=0.6
+  assert_eq(r[0].count, 2)
+  assert_eq(r[0].bases_covered, 6)
+  assert_eq(r[0].length, 10)
+  assert_true(assert_close(r[0].fraction, 0.6, 1.0e-9))
+  // A(20,30): count=1, covered=3, len=10, frac=0.3
+  assert_eq(r[1].count, 1)
+  assert_eq(r[1].bases_covered, 3)
+  assert_true(assert_close(r[1].fraction, 0.3, 1.0e-9))
+}
+
+///|
+test "bedtools_genomecov_bg" {
+  let ivs = [iv("chr1", 3, 7), iv("chr1", 6, 9), iv("chr1", 25, 28)]
+  let r = @src.bedtools_genomecov_bg(ivs)
+  assert_eq(r.length(), 4)
+  assert_eq(r[0].start, 3)
+  assert_eq(r[0].end, 6)
+  assert_eq(r[0].depth, 1)
+  assert_eq(r[1].start, 6)
+  assert_eq(r[1].end, 7)
+  assert_eq(r[1].depth, 2)
+  assert_eq(r[2].start, 7)
+  assert_eq(r[2].end, 9)
+  assert_eq(r[2].depth, 1)
+  assert_eq(r[3].start, 25)
+  assert_eq(r[3].end, 28)
+  assert_eq(r[3].depth, 1)
+}
