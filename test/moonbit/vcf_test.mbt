@@ -130,3 +130,49 @@ test "vcf_meta_headers" {
   assert_true(found_contig)
   assert_true(found_format)
 }
+///|
+test "vcf_write_roundtrip" {
+  let vcf = @src.parse_vcf(test_vcf_content)
+  let written = vcf.to_string()
+  let vcf2 = @src.parse_vcf(written)
+
+  // header survives round-trip
+  assert_eq(vcf2.num_meta_headers(), 11)
+  assert_eq(vcf2.get_version(), Some("VCFv4.2"))
+  assert_eq(vcf2.get_sample_names().length(), 3)
+  assert_eq(vcf2.get_sample_names()[0], "sample1")
+
+  // record fields survive round-trip
+  assert_eq(vcf2.len(), 4)
+  let r1 = vcf2.records[0]
+  assert_eq(r1.chrom, "chr1")
+  assert_eq(r1.pos, 100)
+  assert_eq(r1.ref_seq, "A")
+  assert_eq(r1.alt.length(), 1)
+  assert_eq(r1.alt[0], "T")
+  assert_true(r1.qual.is_some())
+  assert_true(assert_close(r1.qual.unwrap(), 60.5, 1.0e-9))
+  assert_eq(r1.filter.length(), 1)
+  assert_eq(r1.filter[0], "PASS")
+  assert_eq(r1.info.get("AC"), Some("1"))
+  assert_eq(r1.info.get("DP"), Some("12"))
+
+  // multi-allelic ALT + comma-in-INFO round-trip
+  let r2 = vcf2.records[1]
+  assert_eq(r2.alt.length(), 2)
+  assert_eq(r2.alt[0], "G")
+  assert_eq(r2.alt[1], "A")
+  assert_eq(r2.info.get("AC"), Some("2,1"))
+
+  // sample genotype round-trips through the comma-based sub-field convention
+  let g = r1.get_genotype("sample1")
+  assert_true(g.is_some())
+  assert_eq(g.unwrap().length(), 2)
+  assert_eq(g.unwrap()[0], "0/1:3")
+  assert_eq(g.unwrap()[1], "5")
+
+  // no-ALT / no-qual record
+  let r4 = vcf2.records[3]
+  assert_eq(r4.alt.length(), 0)
+  assert_true(r4.qual.is_none())
+}

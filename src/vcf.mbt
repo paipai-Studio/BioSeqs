@@ -333,3 +333,137 @@ pub fn VcfRecord::get_genotype(
     None => None
   }
 }
+///|
+fn join_str_array(arr : Array[String], sep : String) -> String {
+  if arr.length() == 0 {
+    return "."
+  }
+  let buf = StringBuilder::new()
+  let mut first = true
+  for v in arr {
+    if not(first) {
+      buf.write_string(sep)
+    }
+    buf.write_string(v)
+    first = false
+  }
+  buf.to_string()
+}
+
+///|
+fn vcf_format_qual(q : Double?) -> String {
+  match q {
+    None => "."
+    Some(v) => v.to_string()
+  }
+}
+
+///|
+/// Serialize INFO back to `k=v;k2=v2` (flag fields without `=` become bare `k`).
+fn vcf_format_info(info : Map[String, String]) -> String {
+  if info.length() == 0 {
+    return "."
+  }
+  let buf = StringBuilder::new()
+  let mut first = true
+  for k in info.keys() {
+    if not(first) {
+      buf.write_string(";")
+    }
+    buf.write_string(k)
+    match info.get(k) {
+      None => ()
+      Some(v) => {
+        if v != "" {
+          buf.write_string("=")
+          buf.write_string(v)
+        }
+      }
+    }
+    first = false
+  }
+  buf.to_string()
+}
+
+///|
+fn vcf_format_record(rec : VcfRecord, sample_names : Array[String]) -> String {
+  let parts : Array[String] = Array::new()
+  parts.push(rec.chrom)
+  parts.push(rec.pos.to_string())
+  parts.push(join_str_array(rec.id, ","))
+  parts.push(rec.ref_seq)
+  parts.push(join_str_array(rec.alt, ","))
+  parts.push(vcf_format_qual(rec.qual))
+  parts.push(join_str_array(rec.filter, ","))
+  parts.push(vcf_format_info(rec.info))
+  match rec.format {
+    None => ()
+    Some(fmt) => {
+      parts.push(join_str_array(fmt, ","))
+      for name in sample_names {
+        match rec.samples.get(name) {
+          None => parts.push(".")
+          Some(data) => parts.push(join_str_array(data, ","))
+        }
+      }
+    }
+  }
+  let buf = StringBuilder::new()
+  let mut first = true
+  for p in parts {
+    if not(first) {
+      buf.write_string("\t")
+    }
+    buf.write_string(p)
+    first = false
+  }
+  buf.to_string()
+}
+
+///|
+/// Serialize a `VcfFile` back to VCF text (`VariantFile.write` equivalent),
+/// including `##` meta headers, the `#CHROM ...` fixed header, and records.
+/// Round-trips with `parse_vcf`.
+pub fn VcfFile::to_string(self : VcfFile) -> String {
+  let lines : Array[String] = Array::new()
+  for mh in self.meta_headers {
+    let line = if mh.tags.length() == 0 {
+      "##" + mh.key + "=" + mh.value
+    } else {
+      "##" + mh.key + "=<" + mh.value + ">"
+    }
+    lines.push(line)
+  }
+  match self.fixed_header {
+    None => ()
+    Some(fh) => {
+      let mut hline = "#"
+      let mut first = true
+      for col in fh.columns {
+        if not(first) {
+          hline = hline + "\t"
+        }
+        hline = hline + col
+        first = false
+      }
+      lines.push(hline)
+      let sample_names : Array[String] = Array::new()
+      for j = 9; j < fh.columns.length(); j = j + 1 {
+        sample_names.push(fh.columns[j])
+      }
+      for rec in self.records {
+        lines.push(vcf_format_record(rec, sample_names))
+      }
+    }
+  }
+  let buf = StringBuilder::new()
+  let mut first = true
+  for l in lines {
+    if not(first) {
+      buf.write_string("\n")
+    }
+    buf.write_string(l)
+    first = false
+  }
+  buf.to_string()
+}
