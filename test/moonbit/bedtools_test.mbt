@@ -269,3 +269,31 @@ test "bedtools_map" {
   let mx = @src.bedtools_map_max(a, b, bv)
   assert_true(assert_close(mx[0], 20.0, 1.0e-9))
 }
+
+///|
+test "bedtools_groupby" {
+  let records = [
+    ["chr1", "100", "200", "10"],
+    ["chr1", "300", "400", "20"],
+    ["chr1", "350", "450", "30"],
+    ["chr2", "50", "60", "5"],
+  ]
+  // sum by chrom (col 1), aggregate col 4
+  let sum = @src.bedtools_groupby(records, [1], 4, "sum")
+  assert_eq(sum.length(), 2)
+  assert_eq(sum[0].group[0], "chr1")
+  assert_true(assert_close(sum[0].value, 60.0, 1.0e-9))
+  assert_eq(sum[1].group[0], "chr2")
+  assert_true(assert_close(sum[1].value, 5.0, 1.0e-9))
+  // count
+  let cnt = @src.bedtools_groupby(records, [1], 4, "count")
+  assert_true(assert_close(cnt[0].value, 3.0, 1.0e-9))
+  assert_true(assert_close(cnt[1].value, 1.0, 1.0e-9))
+  // mean / min / max
+  let mean = @src.bedtools_groupby(records, [1], 4, "mean")
+  assert_true(assert_close(mean[0].value, 20.0, 1.0e-9))
+  let mn = @src.bedtools_groupby(records, [1], 4, "min")
+  assert_true(assert_close(mn[0].value, 10.0, 1.0e-9))
+  let mx = @src.bedtools_groupby(records, [1], 4, "max")
+  assert_true(assert_close(mx[0].value, 30.0, 1.0e-9))
+}

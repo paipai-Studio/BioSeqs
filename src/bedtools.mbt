@@ -853,3 +853,124 @@ pub fn bedtools_intersect_stranded(
   }
   out
 }
+
+///|
+pub struct GroupbyResult {
+  group : Array[String]
+  value : Double
+}
+
+///|
+fn group_key(record : Array[String], group_cols : Array[Int]) -> String {
+  let buf = StringBuilder::new()
+  let mut first = true
+  for c in group_cols {
+    if not(first) {
+      buf.write_char('\t')
+    }
+    buf.write_string(record[c - 1])
+    first = false
+  }
+  buf.to_string()
+}
+
+///|
+fn sort_order_by_key(keys : Array[String], order : Array[Int]) -> Array[Int] {
+  let out = order.copy()
+  let mut i = 1
+  while i < out.length() {
+    let k = out[i]
+    let key = keys[k]
+    let mut j = i - 1
+    while j >= 0 && keys[out[j]] > key {
+      out[j + 1] = out[j]
+      j = j - 1
+    }
+    out[j + 1] = k
+    i = i + 1
+  }
+  out
+}
+
+///|
+/// Group records (each an array of string columns) by `group_cols` (1-based)
+/// and aggregate the `value_col` (1-based) with `op` ("count"/"sum"/"mean"/
+/// "min"/"max"). Matching `bedtools groupby -g cols -c col -o op`.
+pub fn bedtools_groupby(
+  records : Array[Array[String]],
+  group_cols : Array[Int],
+  value_col : Int,
+  op : String,
+) -> Array[GroupbyResult] {
+  let n = records.length()
+  let keys = Array::make(n, "")
+  let order = Array::make(n, 0)
+  for i = 0; i < n; i = i + 1 {
+    keys[i] = group_key(records[i], group_cols)
+    order[i] = i
+  }
+  let sorted = sort_order_by_key(keys, order)
+  let out : Array[GroupbyResult] = Array::new()
+  let mut i = 0
+  while i < n {
+    let key = keys[sorted[i]]
+    let group : Array[Int] = Array::new()
+    let mut j = i
+    while j < n && keys[sorted[j]] == key {
+      group.push(sorted[j])
+      j = j + 1
+    }
+    let is_count = op == "count"
+    let vals : Array[Double] = Array::new()
+    for idx in group {
+      if not(is_count) {
+        match parse_double(records[idx][value_col - 1]) {
+          Some(v) => vals.push(v)
+          None => ()
+        }
+      }
+    }
+    let value = if op == "count" {
+      group.length().to_double()
+    } else if op == "sum" {
+      let mut s = 0.0
+      for v in vals {
+        s = s + v
+      }
+      s
+    } else if op == "mean" {
+      if vals.length() == 0 {
+        0.0
+      } else {
+        let mut s = 0.0
+        for v in vals {
+          s = s + v
+        }
+        s / vals.length().to_double()
+      }
+    } else if op == "min" {
+      let mut m = vals[0]
+      for v in vals {
+        if v < m {
+          m = v
+        }
+      }
+      m
+    } else {
+      let mut m = vals[0]
+      for v in vals {
+        if v > m {
+          m = v
+        }
+      }
+      m
+    }
+    let gcols : Array[String] = Array::new()
+    for c in group_cols {
+      gcols.push(records[sorted[i]][c - 1])
+    }
+    out.push(GroupbyResult::{ group: gcols, value })
+    i = j
+  }
+  out
+}
