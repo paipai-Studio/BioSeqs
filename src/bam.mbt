@@ -1471,3 +1471,113 @@ pub fn BamRecord::get_aligned_pairs(self : BamRecord, matches_only : Bool) -> Ar
   }
   out
 }
+
+///|
+pub struct PileupRead {
+  record_index : Int
+  query_position : Int?
+  is_del : Bool
+  is_refskip : Bool
+  indel : Int
+}
+
+///|
+pub struct PileupColumn {
+  reference_pos : Int
+  nsegments : Int
+  pileups : Array[PileupRead]
+}
+
+///|
+/// The state of a record at reference position `p`, or None if it does not
+/// cover `p`. Returns (query_position, is_del, is_refskip, indel).
+fn bam_pileup_state(r : BamRecord, p : Int) -> (Int?, Bool, Bool, Int)? {
+  let mut qpos = 0
+  let mut rpos = r.pos
+  let mut i = 0
+  while i < r.cigar.length() {
+    let el = r.cigar[i]
+    let n = el.length
+    match el.op {
+      BamCigarOp::Match | BamCigarOp::Equal | BamCigarOp::Diff => {
+        if p >= rpos && p < rpos + n {
+          let q = qpos + (p - rpos)
+          // indel is reported on the base immediately preceding an I/D
+          let ind = if p == rpos + n - 1 {
+            if i + 1 < r.cigar.length() {
+              match r.cigar[i + 1].op {
+                BamCigarOp::Insert => r.cigar[i + 1].length
+                BamCigarOp::Delete => -(r.cigar[i + 1].length)
+                _ => 0
+              }
+            } else {
+              0
+            }
+          } else {
+            0
+          }
+          return Some((Some(q), false, false, ind))
+        }
+        qpos = qpos + n
+        rpos = rpos + n
+      }
+      BamCigarOp::Insert | BamCigarOp::SoftClip => qpos = qpos + n
+      BamCigarOp::Delete => {
+        if p >= rpos && p < rpos + n {
+          return Some((None, true, false, 0))
+        }
+        rpos = rpos + n
+      }
+      BamCigarOp::Skip => {
+        if p >= rpos && p < rpos + n {
+          return Some((None, true, true, 0))
+        }
+        rpos = rpos + n
+      }
+      BamCigarOp::HardClip | BamCigarOp::Pad => ()
+    }
+    i = i + 1
+  }
+  None
+}
+
+///|
+/// Pileup of all records on `contig` over the half-open region [start, stop).
+/// Returns one column per covered reference position, preserving record order
+/// (file order), matching pysam's `stepper="all"` no-filtering behavior.
+pub fn BamFile::pileup(
+  self : BamFile,
+  contig : String,
+  start : Int,
+  stop : Int,
+) -> Array[PileupColumn] {
+  let mut ref_id = -1
+  for j = 0; j < self.header.references.length(); j = j + 1 {
+    if self.header.references[j].name == contig {
+      ref_id = j
+      break
+    }
+  }
+  let columns : Array[PileupColumn] = Array::new()
+  for p = start; p < stop; p = p + 1 {
+    let pileups : Array[PileupRead] = Array::new()
+    for i = 0; i < self.records.length(); i = i + 1 {
+      let r = self.records[i]
+      if r.ref_id != ref_id {
+        continue
+      }
+      match bam_pileup_state(r, p) {
+        Some((qp, is_del, is_refskip, ind)) => {
+          pileups.push(
+            PileupRead::{ record_index: i, query_position: qp, is_del, is_refskip, indel: ind },
+          )
+        }
+        None => ()
+      }
+    }
+    if pileups.length() > 0 {
+      columns.push(PileupColumn::{ reference_pos: p, nsegments: pileups.length(), pileups })
+    }
+  }
+  columns
+}
