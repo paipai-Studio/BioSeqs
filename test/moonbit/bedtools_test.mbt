@@ -112,3 +112,38 @@ test "interval_tree_bruteforce" {
     assert_true(ints_eq(got, want))
   }
 }
+///|
+test "bedtools_closest" {
+  let a = [iv("chr1", 100, 200), iv("chr1", 500, 600), iv("chr1", 900, 1000)]
+  let b = [iv("chr1", 450, 480), iv("chr1", 250, 300), iv("chr1", 700, 750)]
+  let r = @src.bedtools_closest(a, b)
+  assert_eq(r.length(), 3)
+  // A(100,200) -> B(250,300) 下游 +51（gap+1）
+  assert_eq(r[0].b.start, 250)
+  assert_eq(r[0].distance, 51)
+  // A(500,600) -> B(450,480) 上游 -21
+  assert_eq(r[1].b.start, 450)
+  assert_eq(r[1].distance, -21)
+  // A(900,1000) -> B(700,750) 上游 -151
+  assert_eq(r[2].b.start, 700)
+  assert_eq(r[2].distance, -151)
+  // 重叠 distance 0
+  let r2 = @src.bedtools_closest([iv("chr1", 100, 200)], [iv("chr1", 150, 160)])
+  assert_eq(r2[0].distance, 0)
+}
+
+test "bedtools_window" {
+  let a = [iv("chr1", 100, 200), iv("chr1", 500, 600)]
+  let b = [iv("chr1", 130, 140), iv("chr1", 230, 240), iv("chr1", 480, 490)]
+  let r = @src.bedtools_window(a, b, 50)
+  assert_eq(r.length(), 2)
+  assert_eq(r[0].start, 100)
+  assert_eq(r[1].start, 500)
+  // w=10：fudge [90,210) 命中 130-140；[490,610) 不命中 480-490（490 是边界）
+  let r2 = @src.bedtools_window(a, b, 10)
+  assert_eq(r2.length(), 1)
+  assert_eq(r2[0].start, 100)
+  // A.end 下游附近命中（旧「围绕 start」语义会漏）
+  let r3 = @src.bedtools_window([iv("chr1", 100, 200)], [iv("chr1", 205, 210)], 10)
+  assert_eq(r3.length(), 1)
+}

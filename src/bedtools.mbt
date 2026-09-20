@@ -274,3 +274,117 @@ pub fn bedtools_intersect(
   }
   out
 }
+///|
+pub struct ClosestResult {
+  a : BedInterval
+  b : BedInterval
+  distance : Int
+}
+
+///|
+fn bed_distance(a : BedInterval, b : BedInterval) -> Int {
+  // Signed distance matching bedtools closest: overlap 0, downstream positive,
+  // upstream negative, with a +1 offset (adjacent features => distance 1).
+  if a.start < b.end && b.start < a.end {
+    0
+  } else if b.start >= a.end {
+    b.start - a.end + 1
+  } else {
+    -(a.start - b.end) - 1
+  }
+}
+
+///|
+/// For each A, the closest B on the same chromosome (minimum genomic distance,
+/// 0 when overlapping). Ties are broken by the smaller B start (matching
+/// `bedtools closest -t first`).
+pub fn bedtools_closest(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[ClosestResult] {
+  let out : Array[ClosestResult] = Array::new()
+  for ai in a {
+    let overlaps : Array[BedInterval] = Array::new()
+    let up_recs : Array[BedInterval] = Array::new()
+    let down_recs : Array[BedInterval] = Array::new()
+    let mut up_dist = 0
+    let mut down_dist = 0
+    let mut has_up = false
+    let mut has_down = false
+    for bi in b {
+      if ai.chrom != bi.chrom {
+        continue
+      }
+      if ai.start < bi.end && bi.start < ai.end {
+        overlaps.push(bi)
+      } else if bi.start >= ai.end {
+        let d = bi.start - ai.end + 1
+        if not(has_down) || d < down_dist {
+          down_dist = d
+          down_recs.clear()
+          down_recs.push(bi)
+          has_down = true
+        } else if d == down_dist {
+          down_recs.push(bi)
+        }
+      } else if ai.start >= bi.end {
+        let d = ai.start - bi.end + 1
+        if not(has_up) || d < up_dist {
+          up_dist = d
+          up_recs.clear()
+          up_recs.push(bi)
+          has_up = true
+        } else if d == up_dist {
+          up_recs.push(bi)
+        }
+      }
+    }
+    if overlaps.length() > 0 {
+      for bb in overlaps {
+        out.push(ClosestResult::{ a: ai, b: bb, distance: 0 })
+      }
+    } else {
+      // ALL_TIES: report the closer side(s); a tie reports both
+      let use_up = has_up && (not(has_down) || up_dist <= down_dist)
+      let use_down = has_down && (not(has_up) || down_dist <= up_dist)
+      if use_up {
+        for bb in up_recs {
+          out.push(ClosestResult::{ a: ai, b: bb, distance: 0 - up_dist })
+        }
+      }
+      if use_down {
+        for bb in down_recs {
+          out.push(ClosestResult::{ a: ai, b: bb, distance: down_dist })
+        }
+      }
+    }
+  }
+  out
+}
+
+///|
+/// Report A features that have a B feature within `w` bp of A's start (on both
+/// sides), matching `bedtools window -w w`.
+pub fn bedtools_window(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  w : Int,
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for ai in a {
+    // window extends w bp upstream of A.start and w bp downstream of A.end
+    let lo = ai.start - w
+    let hi = ai.end + w
+    let mut hit = false
+    for bi in b {
+      if ai.chrom == bi.chrom && bi.start < hi && bi.end > lo {
+        hit = true
+        break
+      }
+    }
+    if hit {
+      out.push(ai)
+    }
+  }
+  out
+}
