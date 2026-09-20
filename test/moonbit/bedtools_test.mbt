@@ -183,3 +183,57 @@ test "bedtools_genomecov_bg" {
   assert_eq(r[3].end, 28)
   assert_eq(r[3].depth, 1)
 }
+
+///|
+test "bedtools_subtract_complement" {
+  let sizes = [("chr1", 1000), ("chr2", 500)]
+  // subtract
+  let s = @src.bedtools_subtract([iv("chr1", 0, 100)], [iv("chr1", 30, 50), iv("chr1", 70, 80)])
+  assert_eq(s.length(), 3)
+  assert_eq(s[0].start, 0)
+  assert_eq(s[0].end, 30)
+  assert_eq(s[1].start, 50)
+  assert_eq(s[1].end, 70)
+  assert_eq(s[2].start, 80)
+  assert_eq(s[2].end, 100)
+  // 全被覆盖 → 空
+  assert_eq(@src.bedtools_subtract([iv("chr1", 0, 100)], [iv("chr1", 0, 100)]).length(), 0)
+  // complement
+  let c = @src.bedtools_complement([iv("chr1", 100, 200), iv("chr1", 300, 400)], sizes)
+  assert_eq(c.length(), 4)
+  assert_eq(c[0].start, 0)
+  assert_eq(c[0].end, 100)
+  assert_eq(c[1].start, 200)
+  assert_eq(c[1].end, 300)
+  assert_eq(c[2].start, 400)
+  assert_eq(c[2].end, 1000)
+  assert_eq(c[3].chrom, "chr2")
+  assert_eq(c[3].start, 0)
+  assert_eq(c[3].end, 500)
+}
+
+///|
+test "bedtools_flank_shift_slop" {
+  let sizes = [("chr1", 1000)]
+  // flank
+  let f = @src.bedtools_flank([iv("chr1", 100, 200)], sizes, 50, 50)
+  assert_eq(f.length(), 2)
+  assert_eq(f[0].start, 50)
+  assert_eq(f[0].end, 100)
+  assert_eq(f[1].start, 200)
+  assert_eq(f[1].end, 250)
+  // shift
+  let sh1 = @src.bedtools_shift([iv("chr1", 100, 200)], sizes, 50)
+  assert_eq(sh1[0].start, 150)
+  assert_eq(sh1[0].end, 250)
+  let sh2 = @src.bedtools_shift([iv("chr1", 100, 200)], sizes, -50)
+  assert_eq(sh2[0].start, 50)
+  assert_eq(sh2[0].end, 150)
+  // slop
+  let sl = @src.bedtools_slop([iv("chr1", 100, 200)], sizes, 50, 50)
+  assert_eq(sl[0].start, 50)
+  assert_eq(sl[0].end, 250)
+  let sl2 = @src.bedtools_slop([iv("chr1", 10, 20)], sizes, 50, 50)
+  assert_eq(sl2[0].start, 0)
+  assert_eq(sl2[0].end, 70)
+}

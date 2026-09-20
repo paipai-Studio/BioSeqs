@@ -520,3 +520,157 @@ pub fn bedtools_genomecov_bg(intervals : Array[BedInterval]) -> Array[GenomecovS
   }
   out
 }
+
+///|
+fn clamp_int(v : Int, lo : Int, hi : Int) -> Int {
+  if v < lo {
+    lo
+  } else if v > hi {
+    hi
+  } else {
+    v
+  }
+}
+
+///|
+fn chrom_size_lookup(chrom_sizes : Array[(String, Int)], chrom : String) -> Int {
+  for (c, s) in chrom_sizes {
+    if c == chrom {
+      return s
+    }
+  }
+  -1
+}
+
+///|
+/// Remove the portions of each A that overlap any B (matching `bedtools subtract`).
+pub fn bedtools_subtract(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for ai in a {
+    let len = ai.end - ai.start
+    let uncovered = Array::make(len, true)
+    for bi in b {
+      if ai.chrom == bi.chrom && ai.start < bi.end && bi.start < ai.end {
+        let ms = if ai.start > bi.start { ai.start } else { bi.start }
+        let me = if ai.end < bi.end { ai.end } else { bi.end }
+        let mut p = ms
+        while p < me {
+          uncovered[p - ai.start] = false
+          p = p + 1
+        }
+      }
+    }
+    let mut i = 0
+    while i < len {
+      if uncovered[i] {
+        let mut j = i
+        while j < len && uncovered[j] {
+          j = j + 1
+        }
+        out.push(BedInterval::{ chrom: ai.chrom, start: ai.start + i, end: ai.start + j })
+        i = j
+      } else {
+        i = i + 1
+      }
+    }
+  }
+  out
+}
+
+///|
+/// Report the genome gaps not covered by A (chrom lengths from `chrom_sizes`),
+/// matching `bedtools complement`.
+pub fn bedtools_complement(
+  a : Array[BedInterval],
+  chrom_sizes : Array[(String, Int)],
+) -> Array[BedInterval] {
+  let merged = bedtools_merge(a)
+  let out : Array[BedInterval] = Array::new()
+  for (chrom, size) in chrom_sizes {
+    let mut cur = 0
+    for iv in merged {
+      if iv.chrom == chrom {
+        if iv.start > cur {
+          out.push(BedInterval::{ chrom, start: cur, end: iv.start })
+        }
+        if iv.end > cur {
+          cur = iv.end
+        }
+      }
+    }
+    if cur < size {
+      out.push(BedInterval::{ chrom, start: cur, end: size })
+    }
+  }
+  out
+}
+
+///|
+/// Flanking regions of each A: `[start-L, start)` and `[end, end+R)`, clamped.
+pub fn bedtools_flank(
+  a : Array[BedInterval],
+  chrom_sizes : Array[(String, Int)],
+  left : Int,
+  right : Int,
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for ai in a {
+    let size = chrom_size_lookup(chrom_sizes, ai.chrom)
+    if size < 0 {
+      continue
+    }
+    if left > 0 && ai.start != 0 {
+      let s = if ai.start - left > 0 { ai.start - left } else { 0 }
+      out.push(BedInterval::{ chrom: ai.chrom, start: s, end: ai.start })
+    }
+    if right > 0 && ai.end < size {
+      let e = if ai.end + right < size { ai.end + right } else { size }
+      out.push(BedInterval::{ chrom: ai.chrom, start: ai.end, end: e })
+    }
+  }
+  out
+}
+
+///|
+/// Shift each A by signed `s` bp, clamped to the chromosome bounds.
+pub fn bedtools_shift(
+  a : Array[BedInterval],
+  chrom_sizes : Array[(String, Int)],
+  s : Int,
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for ai in a {
+    let size = chrom_size_lookup(chrom_sizes, ai.chrom)
+    if size < 0 {
+      continue
+    }
+    let ns = clamp_int(ai.start + s, 0, size - 1)
+    let ne = clamp_int(ai.end + s, 1, size)
+    out.push(BedInterval::{ chrom: ai.chrom, start: ns, end: ne })
+  }
+  out
+}
+
+///|
+/// Extend each A by `left` bp upstream and `right` bp downstream, clamped.
+pub fn bedtools_slop(
+  a : Array[BedInterval],
+  chrom_sizes : Array[(String, Int)],
+  left : Int,
+  right : Int,
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for ai in a {
+    let size = chrom_size_lookup(chrom_sizes, ai.chrom)
+    if size < 0 {
+      continue
+    }
+    let ns = clamp_int(ai.start - left, 0, size)
+    let ne = clamp_int(ai.end + right, 0, size)
+    out.push(BedInterval::{ chrom: ai.chrom, start: ns, end: ne })
+  }
+  out
+}
