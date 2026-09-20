@@ -411,4 +411,45 @@ test "bedtools_intersect_frac_b_reciprocal" {
   assert_eq(rec_hit.length(), 1)
   let rec_miss = @src.bedtools_intersect_reciprocal(a, [iv("chr1", 80, 200)], 0.2)
   assert_eq(rec_miss.length(), 0)
+}///|
+test "bedtools_jaccard" {
+  // a=[0,100), b=[50,150): a_len=100, b_len=100, overlap=50
+  let r = @src.bedtools_jaccard([iv("chr1", 0, 100)], [iv("chr1", 50, 150)])
+  assert_eq(r.intersection, 50)
+  assert_eq(r.union, 150)
+  assert_eq(r.n_intersections, 1)
+  assert_true(assert_close(r.jaccard, 1.0 / 3.0, 1.0e-9))
+  // disjoint -> intersection 0, jaccard 0
+  let r2 = @src.bedtools_jaccard([iv("chr1", 0, 100)], [iv("chr1", 200, 300)])
+  assert_eq(r2.intersection, 0)
+  assert_eq(r2.n_intersections, 0)
+  assert_true(assert_close(r2.jaccard, 0.0, 1.0e-12))
+}
+
+///|
+test "bedtools_makewindows" {
+  // chr1:10, size=3, step=3 -> [0,3),[3,6),[6,9),[9,10)
+  let w = @src.bedtools_makewindows([("chr1", 10)], 3, 3)
+  assert_eq(w.length(), 4)
+  assert_eq((w[0].start, w[0].end), (0, 3))
+  assert_eq((w[1].start, w[1].end), (3, 6))
+  assert_eq((w[2].start, w[2].end), (6, 9))
+  assert_eq((w[3].start, w[3].end), (9, 10))
+  // overlapping windows when step < size
+  let w2 = @src.bedtools_makewindows([("chr1", 10)], 4, 3)
+  assert_eq(w2.length(), 4)
+  assert_eq((w2[2].start, w2[2].end), (6, 10))
+}
+
+///|
+test "bedtools_makewindows_count" {
+  // chr1:10, count=3 -> [0,3),[3,6),[6,10)
+  let w = @src.bedtools_makewindows_count([("chr1", 10)], 3)
+  assert_eq(w.length(), 3)
+  assert_eq((w[0].start, w[0].end), (0, 3))
+  assert_eq((w[1].start, w[1].end), (3, 6))
+  assert_eq((w[2].start, w[2].end), (6, 10))
+  // count larger than length -> skipped
+  let w2 = @src.bedtools_makewindows_count([("chr1", 3)], 5)
+  assert_eq(w2.length(), 0)
 }

@@ -1639,4 +1639,105 @@ pub fn bedtools_intersect_reciprocal(
     }
   }
   out
+}///|
+pub struct JaccardResult {
+  intersection : Int
+  union : Int
+  jaccard : Double
+  n_intersections : Int
+}
+
+///|
+/// Jaccard statistic between two interval sets (`bedtools jaccard`):
+/// `intersection` = total overlapping bases (summed over every A–B pair),
+/// `union` = Σ|A| + Σ|B| − intersection, `jaccard` = intersection / union.
+/// `n_intersections` is the number of intersecting A–B pairs.
+pub fn bedtools_jaccard(a : Array[BedInterval], b : Array[BedInterval]) -> JaccardResult {
+  let mut a_len = 0
+  for ai in a {
+    a_len = a_len + ai.end - ai.start
+  }
+  let mut b_len = 0
+  for bi in b {
+    b_len = b_len + bi.end - bi.start
+  }
+  let mut intersection = 0
+  let mut n = 0
+  for ai in a {
+    for bi in b {
+      if ai.chrom == bi.chrom {
+        let ms = if ai.start > bi.start { ai.start } else { bi.start }
+        let me = if ai.end < bi.end { ai.end } else { bi.end }
+        if ms < me {
+          intersection = intersection + me - ms
+          n = n + 1
+        }
+      }
+    }
+  }
+  let union = a_len + b_len - intersection
+  let jaccard = if union == 0 {
+    0.0
+  } else {
+    intersection.to_double() / union.to_double()
+  }
+  JaccardResult::{ intersection, union, jaccard, n_intersections: n }
+}
+
+///|
+/// Generate windows of fixed `size` across each chromosome (from `chrom_sizes`,
+/// each `(name, length)`), advancing by `step` (`bedtools makewindows -w size
+/// -s step`). The final window on each chromosome is clamped to its end.
+pub fn bedtools_makewindows(
+  chrom_sizes : Array[(String, Int)],
+  size : Int,
+  step : Int,
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for (chrom, cend) in chrom_sizes {
+    let mut start = 0
+    while start <= cend {
+      if start + size <= cend {
+        out.push(BedInterval::{ chrom, start, end: start + size })
+      } else if start < cend {
+        out.push(BedInterval::{ chrom, start, end: cend })
+      }
+      start = start + step
+    }
+  }
+  out
+}
+
+///|
+/// Generate a fixed number (`count`) of windows across each chromosome
+/// (`bedtools makewindows -n count`): windows are `⌊len/count⌋` wide, with the
+/// last window extended to the chromosome end. Skips chromosomes shorter than
+/// `count` bases.
+pub fn bedtools_makewindows_count(
+  chrom_sizes : Array[(String, Int)],
+  count : Int,
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for (chrom, cend) in chrom_sizes {
+    if count <= 0 || cend / count == 0 {
+      continue
+    }
+    let window_size = cend / count
+    let mut start = 0
+    let mut i = 1
+    while start < cend {
+      if i == count {
+        out.push(BedInterval::{ chrom, start, end: cend })
+        break
+      }
+      let mut wend = start + window_size
+      if wend > cend {
+        wend = cend
+      }
+      out.push(BedInterval::{ chrom, start, end: wend })
+      start = start + window_size
+      i = i + 1
+    }
+  }
+  out
 }
