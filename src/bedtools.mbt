@@ -1740,4 +1740,148 @@ pub fn bedtools_makewindows_count(
     }
   }
   out
+}///|
+fn sort_ints_asc(arr : Array[Int]) -> Array[Int] {
+  let out = arr.copy()
+  let mut i = 1
+  while i < out.length() {
+    let key = out[i]
+    let mut j = i - 1
+    while j >= 0 && out[j] > key {
+      out[j + 1] = out[j]
+      j = j - 1
+    }
+    out[j + 1] = key
+    i = i + 1
+  }
+  out
+}
+
+///|
+fn lower_bound_ge(arr : Array[Int], v : Int) -> Int {
+  let mut lo = 0
+  let mut hi = arr.length()
+  while lo < hi {
+    let mid = (lo + hi) / 2
+    if arr[mid] < v {
+      lo = mid + 1
+    } else {
+      hi = mid
+    }
+  }
+  lo
+}
+
+///|
+fn iabs(v : Int) -> Int {
+  if v < 0 {
+    0 - v
+  } else {
+    v
+  }
+}
+
+///|
+pub struct RelDistBin {
+  rel_dist : Double
+  count : Int
+  total : Int
+  fraction : Double
+}
+
+///|
+/// Relative-distance histogram between A and B (`bedtools reldist`): for each
+/// A, find the two B midpoints bracketing A's midpoint and compute
+/// `min(|m−L|, |m−R|) / (R−L)` (0 if it coincides with a B midpoint), binned at
+/// 2-decimal precision. Returns bins sorted by relative distance.
+pub fn bedtools_reldist(a : Array[BedInterval], b : Array[BedInterval]) -> Array[RelDistBin] {
+  // Group B midpoints per chromosome, sorted ascending.
+  let chroms : Array[String] = Array::new()
+  let mids : Array[Array[Int]] = Array::new()
+  for bi in b {
+    let mp = (bi.start + bi.end) / 2
+    let mut found = -1
+    for k = 0; k < chroms.length(); k = k + 1 {
+      if chroms[k] == bi.chrom {
+        found = k
+        break
+      }
+    }
+    if found < 0 {
+      chroms.push(bi.chrom)
+      let arr : Array[Int] = Array::new()
+      arr.push(mp)
+      mids.push(arr)
+    } else {
+      mids[found].push(mp)
+    }
+  }
+  for k = 0; k < mids.length(); k = k + 1 {
+    mids[k] = sort_ints_asc(mids[k])
+  }
+
+  let counts : Map[Int, Int] = Map([], capacity=0)
+  let mut total = 0
+  for ai in a {
+    let mut found = -1
+    for k = 0; k < chroms.length(); k = k + 1 {
+      if chroms[k] == ai.chrom {
+        found = k
+        break
+      }
+    }
+    if found < 0 {
+      continue
+    }
+    let group = mids[found]
+    if group.length() < 2 {
+      continue
+    }
+    let mp = (ai.start + ai.end) / 2
+    let low = lower_bound_ge(group, mp)
+    let low_idx = if low == 0 { 0 } else { low - 1 }
+    // no right neighbor to bracket the midpoint
+    if low_idx == group.length() - 1 {
+      continue
+    }
+    let left = group[low_idx]
+    let right = group[low_idx + 1]
+    if left > mp {
+      continue
+    }
+    let ld = iabs(mp - left)
+    let rd = iabs(right - mp)
+    let nearer = if ld < rd { ld } else { rd }
+    let rel = if nearer == 0 {
+      0.0
+    } else {
+      nearer.to_double() / (right - left).to_double()
+    }
+    let bin_key = @math.floor(rel * 100.0).to_int()
+    match counts.get(bin_key) {
+      Some(c) => counts.set(bin_key, c + 1)
+      None => counts.set(bin_key, 1)
+    }
+    total = total + 1
+  }
+
+  let keys : Array[Int] = Array::new()
+  for k in counts.keys() {
+    keys.push(k)
+  }
+  let sorted_keys = sort_ints_asc(keys)
+  let out : Array[RelDistBin] = Array::new()
+  for k in sorted_keys {
+    let c = match counts.get(k) {
+      Some(v) => v
+      None => 0
+    }
+    out.push(RelDistBin::{
+      rel_dist: k.to_double() / 100.0,
+      count: c,
+      total,
+      fraction: c.to_double() / total.to_double(),
+    })
+  }
+  out
 }

@@ -452,4 +452,19 @@ test "bedtools_makewindows_count" {
   // count larger than length -> skipped
   let w2 = @src.bedtools_makewindows_count([("chr1", 3)], 5)
   assert_eq(w2.length(), 0)
+}///|
+test "bedtools_reldist" {
+  // B midpoints: [25, 75]
+  let b = [iv("chr1", 0, 50), iv("chr1", 50, 100)]
+  // A(0,100) midpoint 50 -> min(25,25)/(75-25) = 0.5
+  // A(0,50)  midpoint 25 -> coincides with left B midpoint -> 0.0
+  let a = [iv("chr1", 0, 100), iv("chr1", 0, 50)]
+  let r = @src.bedtools_reldist(a, b)
+  assert_eq(r.length(), 2)
+  assert_eq(r[0].rel_dist, 0.0)
+  assert_eq(r[0].count, 1)
+  assert_eq(r[0].total, 2)
+  assert_true(assert_close(r[0].fraction, 0.5, 1.0e-9))
+  assert_eq(r[1].rel_dist, 0.5)
+  assert_eq(r[1].count, 1)
 }
