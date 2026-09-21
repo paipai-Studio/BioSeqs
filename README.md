@@ -278,6 +278,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 | 功能模块 | 对应 Bioconductor | 核心功能 |
 | :--- | :--- | :--- |
+| **ExperimentHub** | ExperimentHub | 数据中枢元数据与查询层：`EhResource`（title/species/taxonomy_id/genome/description/dataprovider）、`eh_filter_species`（物种子串匹配，忽略大小写）、`eh_filter_taxonomy`（taxonomy_id 精确匹配）、`eh_search`（跨标题/物种/基因组/描述/数据提供方关键字搜索）、`eh_cache_root`（`<home>/.cache/ExperimentHub` 默认缓存根） |
 | **Biobase** | Biobase | ExpressionSet、AnnotatedDataFrame、数据归一化、log2 转换 |
 | **S4Vectors** | S4Vectors | Rle 游程编码、DataFrame 数据框、Hits 匹配数据结构 |
 | **BiocGenerics** | Bioconductor BiocGenerics | NA 处理、排序、集合运算、匹配、表统计 |
@@ -366,6 +367,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 | 功能模块 | 对应 Bioconductor | 核心功能 |
 | :--- | :--- | :--- |
+| **Signac** | Signac | 单细胞 ATAC-seq 分析核心：`signac_feature_matrix`（Tn5 片段 → 峰 × 细胞计数矩阵，片段与其重叠的每个峰各计一次，按 cell barcode 归列）、`signac_tss_enrichment`（TSS 中心窗口片段数 ÷ 两侧侧翼窗口均值，启动子相对富集 QC）、`signac_nucleosome_signal`（单核小体 147–294bp / 无核小体 <147bp 片段比值，片段长度周期性 QC） |
 | **scuttle 1.23.1** | scuttle | batch-aware median/MAD 异常值、subset per-feature QC、重叠 feature-set 聚合、精确无放回 count downsampling、batch/block coverage 等化 |
 | **scrapper** | scrapper | 批次感知 RNA QC、大小因子清洗与居中、log-normalization、LOWESS 方差趋势、HVG 选择、多因子 pseudo-bulk |
 | **scran** | scran | 单细胞归一化 sum_factors、SNN 图构建、Leiden 聚类、差异标志物 |
@@ -514,6 +516,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 | 功能模块 | 对应 Bioconductor | 核心功能 |
 | :--- | :--- | :--- |
+| **GWASTools** | GWASTools | GWAS 质控与关联核心：`gwas_minor_allele_frequency`（次等位基因频率 MAF）、`gwas_missing_call_rate`（缺失检出率）、`gwas_hwe_exact`（Hardy-Weinberg 平衡精确检验，条件精确 p 值，对位 `exactHWE`）、`gwas_chisq_assoc`（等位基因 2×2 病例/对照卡方关联检验，返回 chi2 与双尾渐近 p 值） |
 | **affy / gcrma / preprocessCore** | affy / gcrma / preprocessCore | RMA 标准化、背景校正（IdealMM/Express）、GC 校正、分位数归一化；quantile/invariant set/cyclic loess/contrast/percentile shift 归一化、log2 变换组合、归一化质量统计 |
 | **affyPLM** | affyPLM | 探针级模型（PLM）IRLS 稳健拟合（Huber/Tukey M-estimator）、探针/芯片效应分离、NUSE/RLE 质控统计 |
 | **vsn** | vsn | 方差稳定化归一化 glog 变换、vsn2 |
@@ -606,7 +609,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.23)
-├── src/                              # 源代码（549 个 .mbt 模块）
+├── src/                              # 源代码（552 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -674,7 +677,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（539 个测试文件，13740 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（542 个测试文件，13753 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -694,7 +697,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13740 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13753 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -703,7 +706,7 @@ moon test                                               # ✅ 13740 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13740 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (13753 个测试用例，test/moonbit 包)
 ```
 
 ---
