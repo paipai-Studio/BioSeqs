@@ -493,4 +493,78 @@ test "bedtools_getfasta_nuc" {
   // out-of-range interval is skipped
   let r2 = @src.bedtools_nuc(fasta, [iv("chr1", 0, 100)])
   assert_eq(r2.length(), 0)
+}///|
+fn ovl_b_start(r : @src.IntersectOverlap) -> Int {
+  match r.b {
+    None => -1
+    Some(bb) => bb.start
+  }
+}
+
+///|
+fn loj_b_start(r : @src.IntersectLeftJoin) -> Int {
+  match r.b {
+    None => -1
+    Some(bb) => bb.start
+  }
+}
+
+///|
+test "bedtools_intersect_wo" {
+  let a = [iv("chr1", 0, 10), iv("chr1", 15, 25), iv("chr1", 100, 110)]
+  let b = [iv("chr1", 5, 20), iv("chr1", 200, 300)]
+  let wo = @src.bedtools_intersect_wo(a, b)
+  assert_eq(wo.length(), 2)
+  assert_eq(wo[0].a.start, 0)
+  assert_eq(ovl_b_start(wo[0]), 5)
+  assert_eq(wo[0].overlap, 5)
+  assert_eq(wo[1].a.start, 15)
+  assert_eq(ovl_b_start(wo[1]), 5)
+  assert_eq(wo[1].overlap, 5)
+}
+
+///|
+test "bedtools_intersect_wao" {
+  let a = [iv("chr1", 0, 10), iv("chr1", 15, 25), iv("chr1", 100, 110)]
+  let b = [iv("chr1", 5, 20), iv("chr1", 200, 300)]
+  let wao = @src.bedtools_intersect_wao(a, b)
+  assert_eq(wao.length(), 3)
+  assert_eq(wao[0].a.start, 0)
+  assert_eq(ovl_b_start(wao[0]), 5)
+  assert_eq(wao[0].overlap, 5)
+  assert_eq(wao[1].a.start, 15)
+  assert_eq(wao[1].overlap, 5)
+  // non-overlapping A -> null B + 0 overlap
+  assert_eq(wao[2].a.start, 100)
+  assert_eq(ovl_b_start(wao[2]), -1)
+  assert_eq(wao[2].overlap, 0)
+}
+
+///|
+test "bedtools_intersect_loj" {
+  let a = [iv("chr1", 0, 10), iv("chr1", 15, 25), iv("chr1", 100, 110)]
+  let b = [iv("chr1", 5, 20), iv("chr1", 200, 300)]
+  let loj = @src.bedtools_intersect_loj(a, b)
+  assert_eq(loj.length(), 3)
+  assert_eq(loj[0].a.start, 0)
+  assert_eq(loj_b_start(loj[0]), 5)
+  assert_eq(loj[1].a.start, 15)
+  assert_eq(loj_b_start(loj[1]), 5)
+  assert_eq(loj[2].a.start, 100)
+  assert_eq(loj_b_start(loj[2]), -1)
+}
+
+///|
+test "bedtools_intersect_wo_multi_overlap" {
+  let a = [iv("chr1", 0, 100)]
+  let b = [iv("chr1", 10, 20), iv("chr1", 30, 40), iv("chr1", 0, 5)]
+  let wo = @src.bedtools_intersect_wo(a, b)
+  assert_eq(wo.length(), 3)
+  // sorted by B start ascending
+  assert_eq(ovl_b_start(wo[0]), 0)
+  assert_eq(wo[0].overlap, 5)
+  assert_eq(ovl_b_start(wo[1]), 10)
+  assert_eq(wo[1].overlap, 10)
+  assert_eq(ovl_b_start(wo[2]), 30)
+  assert_eq(wo[2].overlap, 10)
 }

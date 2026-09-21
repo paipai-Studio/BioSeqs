@@ -1981,4 +1981,182 @@ pub fn bedtools_nuc(
     }
   }
   out
+}///|
+/// Per-chromosome interval index over a B set (chroms / trees / global-index
+/// lookup), shared by the intersect report modes below.
+struct BedIndex {
+  chroms : Array[String]
+  trees : Array[IntervalTree]
+  b_per_chrom : Array[Array[Int]]
+  b : Array[BedInterval]
+}
+
+///|
+/// Group B intervals by chromosome and build one centered interval tree per
+/// chromosome (mirrors the grouping inside `bedtools_intersect`).
+fn build_bed_index(b : Array[BedInterval]) -> BedIndex {
+  let chroms : Array[String] = Array::new()
+  let b_per_chrom : Array[Array[Int]] = Array::new()
+  for i = 0; i < b.length(); i = i + 1 {
+    let c = b[i].chrom
+    let mut found = -1
+    for k = 0; k < chroms.length(); k = k + 1 {
+      if chroms[k] == c {
+        found = k
+        break
+      }
+    }
+    if found < 0 {
+      chroms.push(c)
+      b_per_chrom.push(Array::new())
+      b_per_chrom[b_per_chrom.length() - 1].push(i)
+    } else {
+      b_per_chrom[found].push(i)
+    }
+  }
+  let trees : Array[IntervalTree] = Array::new()
+  for k = 0; k < chroms.length(); k = k + 1 {
+    let idxs = b_per_chrom[k]
+    let starts : Array[Int] = Array::new()
+    let ends : Array[Int] = Array::new()
+    for i in idxs {
+      starts.push(b[i].start)
+      ends.push(b[i].end)
+    }
+    trees.push(interval_tree_new(starts, ends))
+  }
+  BedIndex::{ chroms, trees, b_per_chrom, b }
+}
+
+///|
+/// Number of overlapping base pairs between two half-open intervals (0 when
+/// disjoint): `min(end) - max(start)`.
+fn overlap_bp(a : BedInterval, b : BedInterval) -> Int {
+  let s = if a.start > b.start { a.start } else { b.start }
+  let e = if a.end < b.end { a.end } else { b.end }
+  if s < e {
+    e - s
+  } else {
+    0
+  }
+}
+
+///|
+/// (global B index, overlap bp) pairs for one A interval, ordered by B start
+/// then B end to match the sorted stream bedtools consumes.
+fn bed_overlap_pairs(iv : BedInterval, idx : BedIndex) -> Array[(Int, Int)] {
+  let raw : Array[(Int, Int)] = Array::new()
+  for k = 0; k < idx.chroms.length(); k = k + 1 {
+    if idx.chroms[k] == iv.chrom {
+      let locals = idx.trees[k].query(iv.start, iv.end)
+      let globals = idx.b_per_chrom[k]
+      for li in locals {
+        let bi = globals[li]
+        raw.push((bi, overlap_bp(iv, idx.b[bi])))
+      }
+      break
+    }
+  }
+  let out = raw.copy()
+  let mut i = 1
+  while i < out.length() {
+    let key = out[i]
+    let kb = idx.b[key.0]
+    let mut j = i - 1
+    while j >= 0 {
+      let jb = idx.b[out[j].0]
+      if jb.start > kb.start || (jb.start == kb.start && jb.end > kb.end) {
+        out[j + 1] = out[j]
+        j = j - 1
+      } else {
+        break
+      }
+    }
+    out[j + 1] = key
+    i = i + 1
+  }
+  out
+}
+
+///|
+/// One A–B pair with the number of overlapping base pairs (fields for the
+/// `bedtools intersect -wo` / `-wao` report modes; `b` is null for an A with no
+/// overlap under `-wao`).
+pub struct IntersectOverlap {
+  a : BedInterval
+  b : BedInterval?
+  overlap : Int
+}
+
+///|
+/// Report every A–B overlap pair with its overlap in bp (`bedtools intersect
+/// -wo`). Only A intervals with ≥1 overlap are reported; each A may yield one
+/// row per overlapping B.
+pub fn bedtools_intersect_wo(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[IntersectOverlap] {
+  let idx = build_bed_index(b)
+  let out : Array[IntersectOverlap] = Array::new()
+  for iv in a {
+    let pairs = bed_overlap_pairs(iv, idx)
+    for kv in pairs {
+      out.push(IntersectOverlap::{ a: iv, b: Some(idx.b[kv.0]), overlap: kv.1 })
+    }
+  }
+  out
+}
+
+///|
+/// Like `-wo` but forces the reporting of 0-overlap A features (`bedtools
+/// intersect -wao`): every A is emitted; an A with no overlap gets `b=None` and
+/// `overlap=0`. Matching bedtools `handle_wao` = `writeOverlap` + `writeAllOverlap`.
+pub fn bedtools_intersect_wao(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[IntersectOverlap] {
+  let idx = build_bed_index(b)
+  let out : Array[IntersectOverlap] = Array::new()
+  for iv in a {
+    let pairs = bed_overlap_pairs(iv, idx)
+    if pairs.length() == 0 {
+      out.push(IntersectOverlap::{ a: iv, b: None, overlap: 0 })
+    } else {
+      for kv in pairs {
+        out.push(IntersectOverlap::{ a: iv, b: Some(idx.b[kv.0]), overlap: kv.1 })
+      }
+    }
+  }
+  out
+}
+
+///|
+/// One A–B join row for `bedtools intersect -loj` (left outer join): A plus its
+/// B (`None` when A has no overlap). No overlap column, matching bedtools'
+/// `getLeftJoin` output (A \t B, or A \t `.` for a null B).
+pub struct IntersectLeftJoin {
+  a : BedInterval
+  b : BedInterval?
+}
+
+///|
+/// Left outer join (`bedtools intersect -loj`): for each A report each overlap
+/// with B, or a null B (`None`) when A has no overlap.
+pub fn bedtools_intersect_loj(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[IntersectLeftJoin] {
+  let idx = build_bed_index(b)
+  let out : Array[IntersectLeftJoin] = Array::new()
+  for iv in a {
+    let pairs = bed_overlap_pairs(iv, idx)
+    if pairs.length() == 0 {
+      out.push(IntersectLeftJoin::{ a: iv, b: None })
+    } else {
+      for kv in pairs {
+        out.push(IntersectLeftJoin::{ a: iv, b: Some(idx.b[kv.0]) })
+      }
+    }
+  }
+  out
 }
