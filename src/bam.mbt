@@ -1738,3 +1738,122 @@ pub fn BamFile::idxstats(self : BamFile) -> Array[IdxstatsResult] {
   out.push(IdxstatsResult::{ ref_name: "*", ref_length: 0, mapped: mapped_cnt[nref], unmapped: unmapped_cnt[nref] })
   out
 }
+///|
+pub struct MpileupLine {
+  chrom : String
+  pos : Int
+  ref_base : String
+  depth : Int
+  bases : String
+  quals : String
+}
+
+///|
+/// Build a single-character string from a code point. Used for the mapping
+/// quality byte that follows the `^` read-start marker (and any other raw
+/// base-quality byte), which `char_at` cannot produce for non-alphabetic
+/// codes.
+fn char_from_code(c : Int) -> String {
+  let buf : FixedArray[UInt16] = FixedArray::make(1, 0)
+  buf[0] = c.to_uint16()
+  unsafe_from_uint16_fixedarray(buf)
+}
+
+///|
+/// Reference-position column pileup matching `samtools mpileup` / `bcftools
+/// mpileup` tabular output (columns 1-6). Builds on `BamFile::pileup`
+/// (`stepper="all"` semantics), and for each covered position emits:
+///   - `chrom`, 1-based `pos`, uppercase `ref_base` (from `ref_seq`, 0-based),
+///   - `depth` = number of reads covering (including deletions/refskips),
+///   - `bases`: `.`/`,` forward/reverse match, `A..T`/`a..t` mismatch,
+///     `N`/`n` unknown base, `>`/`<` forward/reverse refskip, `*` deletion,
+///     `^`+mapq read start, `$` read end, `+<len><seq>` insertion and
+///     `-<len><ref>` deletion markers (matching htslib `mplp_func`),
+///   - `quals`: one Phred+33 byte per emitted base (no qual for
+///     deletion/refskip/indel/start/end markers).
+/// `ref_seq` is the reference sequence of `contig`; it must cover `[start, stop)`.
+pub fn BamFile::mpileup(
+  self : BamFile,
+  contig : String,
+  start : Int,
+  stop : Int,
+  ref_seq : String,
+) -> Array[MpileupLine] {
+  let columns = self.pileup(contig, start, stop)
+  let lines : Array[MpileupLine] = Array::new()
+  for col in columns {
+    let p = col.reference_pos
+    let ref_base = if p < ref_seq.length() {
+      to_uppercase(ref_seq[p:p + 1].to_owned())
+    } else {
+      "N"
+    }
+    let bases = StringBuilder::new()
+    let quals = StringBuilder::new()
+    for pr in col.pileups {
+      let r = self.records[pr.record_index]
+      let rev = r.is_reverse()
+      if p == r.pos {
+        bases.write_char('^')
+        bases.write_string(char_from_code(r.mapq + 33))
+      }
+      if pr.is_del {
+        bases.write_char('*')
+      } else if pr.is_refskip {
+        bases.write_char(if rev { '<' } else { '>' })
+      } else {
+        match pr.query_position {
+          None => ()
+          Some(qpos) => {
+            let read_base = if qpos < r.seq.length() {
+              r.seq[qpos:qpos + 1].to_owned()
+            } else {
+              "N"
+            }
+            let qual_char = if qpos < r.qual.length() {
+              r.qual[qpos:qpos + 1].to_owned()
+            } else {
+              "!"
+            }
+            if read_base == ref_base || read_base == "=" {
+              bases.write_char(if rev { ',' } else { '.' })
+              quals.write_string(qual_char)
+            } else {
+              bases.write_string(if rev { to_lowercase(read_base) } else { read_base })
+              quals.write_string(qual_char)
+            }
+          }
+        }
+      }
+      if pr.indel > 0 {
+        match pr.query_position {
+          None => ()
+          Some(qpos) => {
+            bases.write_char('+')
+            bases.write_string(pr.indel.to_string())
+            bases.write_string(r.seq[qpos + 1:qpos + 1 + pr.indel].to_owned())
+          }
+        }
+      } else if pr.indel < 0 {
+        let n = -pr.indel
+        bases.write_char('-')
+        bases.write_string(n.to_string())
+        bases.write_string(ref_seq[p + 1:p + 1 + n].to_owned())
+      }
+      if p == r.get_end() {
+        bases.write_char('$')
+      }
+    }
+    lines.push(
+      MpileupLine::{
+        chrom: contig,
+        pos: p + 1,
+        ref_base,
+        depth: col.pileups.length(),
+        bases: bases.to_string(),
+        quals: quals.to_string(),
+      },
+    )
+  }
+  lines
+}

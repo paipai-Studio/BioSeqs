@@ -346,3 +346,47 @@ pub fn trim(s : String) -> String {
   }
   s[start:end].to_string()
 }
+///|
+/// Convert string to uppercase.
+pub fn to_uppercase(s : String) -> String {
+  let mut result = ""
+  let mut i = 0
+  while i < s.length() {
+    let c = s.unsafe_get(i)
+    if c >= 97 && c <= 122 {
+      match c {
+        97 => result = result + "A"
+        98 => result = result + "B"
+        99 => result = result + "C"
+        100 => result = result + "D"
+        101 => result = result + "E"
+        102 => result = result + "F"
+        103 => result = result + "G"
+        104 => result = result + "H"
+        105 => result = result + "I"
+        106 => result = result + "J"
+        107 => result = result + "K"
+        108 => result = result + "L"
+        109 => result = result + "M"
+        110 => result = result + "N"
+        111 => result = result + "O"
+        112 => result = result + "P"
+        113 => result = result + "Q"
+        114 => result = result + "R"
+        115 => result = result + "S"
+        116 => result = result + "T"
+        117 => result = result + "U"
+        118 => result = result + "V"
+        119 => result = result + "W"
+        120 => result = result + "X"
+        121 => result = result + "Y"
+        122 => result = result + "Z"
+        _ => result = result + s[i:i + 1].to_string()
+      }
+    } else {
+      result = result + s[i:i + 1].to_string()
+    }
+    i = i + 1
+  }
+  result
+}
