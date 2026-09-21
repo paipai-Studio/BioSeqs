@@ -2160,3 +2160,49 @@ pub fn bedtools_intersect_loj(
   }
   out
 }
+
+///|
+/// Report the overlap (intersection) interval between each overlapping A–B
+/// pair (`bedtools intersect` default output): the shared `[max(start),
+/// min(end))` region, one record per overlapping pair. Unlike `bedtools_intersect`
+/// (full A once, `-u` style), this clips each output to the overlap.
+pub fn bedtools_intersect_overlap(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for ai in a {
+    for bi in b {
+      if ai.chrom == bi.chrom {
+        let ms = if ai.start > bi.start { ai.start } else { bi.start }
+        let me = if ai.end < bi.end { ai.end } else { bi.end }
+        if ms < me {
+          out.push(BedInterval::{ chrom: ai.chrom, start: ms, end: me })
+        }
+      }
+    }
+  }
+  out
+}
+
+///|
+/// Report A intervals that do NOT overlap any B (`bedtools intersect -v`).
+pub fn bedtools_intersect_v(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[BedInterval] {
+  let out : Array[BedInterval] = Array::new()
+  for ai in a {
+    let mut hit = false
+    for bi in b {
+      if ai.chrom == bi.chrom && ai.start < bi.end && bi.start < ai.end {
+        hit = true
+        break
+      }
+    }
+    if not(hit) {
+      out.push(ai)
+    }
+  }
+  out
+}

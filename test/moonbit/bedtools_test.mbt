@@ -567,4 +567,18 @@ test "bedtools_intersect_wo_multi_overlap" {
   assert_eq(wo[1].overlap, 10)
   assert_eq(ovl_b_start(wo[2]), 30)
   assert_eq(wo[2].overlap, 10)
+}///|
+test "bedtools_intersect_overlap_and_v" {
+  let a = [iv("chr1", 0, 10), iv("chr1", 15, 25), iv("chr1", 100, 110)]
+  let b = [iv("chr1", 5, 20), iv("chr1", 200, 300)]
+  // default overlap (intersection): a0∩b0=[5,10), a1∩b0=[15,20)
+  let ov = @src.bedtools_intersect_overlap(a, b)
+  assert_eq(ov.length(), 2)
+  assert_eq((ov[0].start, ov[0].end), (5, 10))
+  assert_eq((ov[1].start, ov[1].end), (15, 20))
+  // -v: only the A with no overlap
+  let v = @src.bedtools_intersect_v(a, b)
+  assert_eq(v.length(), 1)
+  assert_eq(v[0].start, 100)
+  assert_eq(v[0].end, 110)
 }
