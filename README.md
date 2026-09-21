@@ -367,6 +367,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 | 功能模块 | 对应 Bioconductor | 核心功能 |
 | :--- | :--- | :--- |
+| **AnnData** | anndata (Python) | 单细胞数据容器（scanpy 生态地基）：`AnnData`（`x` 主矩阵 n_obs×n_vars、`obs`/`variables` 注释、`layers`/`obsm`/`varm`/`obsp`/`varp`/`uns`、`obs_names`/`var_names`）、`shape`/`n_obs`/`n_vars`、`set_obs`/`set_var`/`set_layer`/`set_obsm`/`set_obsp` 链式赋值、`subset`（obs×var 索引切片，X/layers/obs/var/obsm/obsp 同步重索引）、`copy`（深拷贝） |
 | **Signac** | Signac | 单细胞 ATAC-seq 分析核心：`signac_feature_matrix`（Tn5 片段 → 峰 × 细胞计数矩阵，片段与其重叠的每个峰各计一次，按 cell barcode 归列）、`signac_tss_enrichment`（TSS 中心窗口片段数 ÷ 两侧侧翼窗口均值，启动子相对富集 QC）、`signac_nucleosome_signal`（单核小体 147–294bp / 无核小体 <147bp 片段比值，片段长度周期性 QC） |
 | **scuttle 1.23.1** | scuttle | batch-aware median/MAD 异常值、subset per-feature QC、重叠 feature-set 聚合、精确无放回 count downsampling、batch/block coverage 等化 |
 | **scrapper** | scrapper | 批次感知 RNA QC、大小因子清洗与居中、log-normalization、LOWESS 方差趋势、HVG 选择、多因子 pseudo-bulk |
@@ -609,7 +610,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 ```
 IvanAXu/BioSeqs/
 ├── moon.mod                          # 模块配置 (name="IvanAXu/BioSeqs", version=0.1.23)
-├── src/                              # 源代码（552 个 .mbt 模块）
+├── src/                              # 源代码（553 个 .mbt 模块）
 │   ├── seq.mbt                       # Bio.Seq 序列对象
 │   ├── seqio.mbt / fasta_io.mbt / ... # 序列 I/O（30+ 种格式）
 │   ├── alignment.mbt / align_*.mbt   # 比对算法 + 20+ 种比对格式严格 API
@@ -677,7 +678,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（542 个测试文件，13753 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（543 个测试文件，13757 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -697,7 +698,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 13753 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 13757 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -706,7 +707,7 @@ moon test                                               # ✅ 13753 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (13753 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (13757 个测试用例，test/moonbit 包)
 ```
 
 ---
