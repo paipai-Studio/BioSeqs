@@ -698,4 +698,74 @@ pub fn skallel_windowed_tajima_d(
     ws = ws + step
   }
   out
+}///|
+/// Hudson's Fst (block estimator) over an index window of variants, from
+/// precomputed per-variant π and Dxy.
+fn hudson_fst_block_from(
+  dxy : Array[Double],
+  pia : Array[Double],
+  pib : Array[Double],
+  ws : Int,
+  size : Int,
+) -> Double {
+  let mut sn = 0.0
+  let mut sd = 0.0
+  for v = ws; v < ws + size; v = v + 1 {
+    let num = dxy[v] - (pia[v] + pib[v]) / 2.0
+    sn = sn + num
+    sd = sd + dxy[v]
+  }
+  if sd == 0.0 {
+    0.0
+  } else {
+    sn / sd
+  }
+}
+
+///|
+/// Population branching statistic (PBS) comparing allele frequencies among
+/// three populations, in index windows (`allel.pbs`). Uses Hudson's Fst.
+pub fn skallel_pbs(
+  ac1 : Array[Array[Int]],
+  ac2 : Array[Array[Int]],
+  ac3 : Array[Array[Int]],
+  window_size : Int,
+  step : Int,
+  normed : Bool,
+) -> Array[Double] {
+  let pi1 = skallel_mean_pairwise_difference(ac1)
+  let pi2 = skallel_mean_pairwise_difference(ac2)
+  let pi3 = skallel_mean_pairwise_difference(ac3)
+  let dxy12 = skallel_mean_pairwise_difference_between(ac1, ac2)
+  let dxy13 = skallel_mean_pairwise_difference_between(ac1, ac3)
+  let dxy23 = skallel_mean_pairwise_difference_between(ac2, ac3)
+  let mut n = ac1.length()
+  if ac2.length() < n {
+    n = ac2.length()
+  }
+  if ac3.length() < n {
+    n = ac3.length()
+  }
+  let out : Array[Double] = Array::new()
+  let mut ws = 0
+  while ws + window_size <= n {
+    let f12 = hudson_fst_block_from(dxy12, pi1, pi2, ws, window_size)
+    let f13 = hudson_fst_block_from(dxy13, pi1, pi3, ws, window_size)
+    let f23 = hudson_fst_block_from(dxy23, pi2, pi3, ws, window_size)
+    let c12 = if f12 < 0.0 { 0.0 } else if f12 > 0.99999 { 0.99999 } else { f12 }
+    let c13 = if f13 < 0.0 { 0.0 } else if f13 > 0.99999 { 0.99999 } else { f13 }
+    let c23 = if f23 < 0.0 { 0.0 } else if f23 > 0.99999 { 0.99999 } else { f23 }
+    let t12 = -@math.ln(1.0 - c12)
+    let t13 = -@math.ln(1.0 - c13)
+    let t23 = -@math.ln(1.0 - c23)
+    let p = (t12 + t13 - t23) / 2.0
+    if normed {
+      let norm = 1.0 + (t12 + t13 + t23) / 2.0
+      out.push(p / norm)
+    } else {
+      out.push(p)
+    }
+    ws = ws + step
+  }
+  out
 }

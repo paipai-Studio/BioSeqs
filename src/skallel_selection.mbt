@@ -474,4 +474,93 @@ pub fn skallel_ihh_scan(
     vihh[i] = ssl2ihh(ssl, n_pairs, l_max, i, gaps, min_ehh, include_edges)
   }
   vihh
+}///|
+/// Whole-population NSL scan (no reference/alternate split), matching
+/// scikit-allel's `nsl_scan`: average shared-suffix length over all pairs.
+fn nsl_scan(h : Array[Array[Int]]) -> Array[Double] {
+  let n_variants = h.length()
+  let n_hap = if n_variants > 0 { h[0].length() } else { 0 }
+  let n_pairs = n_hap * (n_hap - 1) / 2
+  let ssl = Array::make(n_pairs, 0)
+  let vnsl = Array::make(n_variants, 0.0)
+  for i = 0; i < n_variants; i = i + 1 {
+    let mut u = 0
+    let mut ssl_sum = 0
+    for j = 0; j < n_hap; j = j + 1 {
+      let a1 = h[i][j]
+      for k = j + 1; k < n_hap; k = k + 1 {
+        let a2 = h[i][k]
+        let l = if a1 != a2 && a1 >= 0 && a2 >= 0 {
+          0
+        } else {
+          ssl[u] + 1
+        }
+        ssl[u] = l
+        ssl_sum = ssl_sum + l
+        u = u + 1
+      }
+    }
+    vnsl[i] = if n_pairs > 0 {
+      ssl_sum.to_double() / n_pairs.to_double()
+    } else {
+      0.0
+    }
+  }
+  vnsl
+}
+
+///|
+/// Cross-population extended haplotype homozygosity score (XPEHH): the log of
+/// the ratio of whole-population iHH between two populations (`allel.xpehh`).
+pub fn skallel_xpehh(
+  h1 : Array[Array[Int]],
+  h2 : Array[Array[Int]],
+  pos : Array[Int],
+  min_ehh : Double,
+  include_edges : Bool,
+) -> Array[Double] {
+  let gaps : Array[Double] = Array::new()
+  for k = 0; k < pos.length() - 1; k = k + 1 {
+    gaps.push((pos[k + 1] - pos[k]).to_double())
+  }
+  let ihh1_fwd = skallel_ihh_scan(h1, gaps, min_ehh, include_edges)
+  let ihh2_fwd = skallel_ihh_scan(h2, gaps, min_ehh, include_edges)
+  let ihh1_rev = reverse_doubles(
+    skallel_ihh_scan(reverse_variants(h1), reverse_doubles(gaps), min_ehh, include_edges),
+  )
+  let ihh2_rev = reverse_doubles(
+    skallel_ihh_scan(reverse_variants(h2), reverse_doubles(gaps), min_ehh, include_edges),
+  )
+  let out = Array::make(h1.length(), 0.0)
+  for i = 0; i < h1.length(); i = i + 1 {
+    let ihh1 = ihh1_fwd[i] + ihh1_rev[i]
+    let ihh2 = ihh2_fwd[i] + ihh2_rev[i]
+    out[i] = if ihh1 > 0.0 && ihh2 > 0.0 {
+      @math.ln(ihh1 / ihh2)
+    } else {
+      0.0
+    }
+  }
+  out
+}
+
+///|
+/// Cross-population NSL (XPNSL): the log of the ratio of whole-population nSL
+/// between two populations (`allel.xpnsl`).
+pub fn skallel_xpnsl(h1 : Array[Array[Int]], h2 : Array[Array[Int]]) -> Array[Double] {
+  let fwd1 = nsl_scan(h1)
+  let fwd2 = nsl_scan(h2)
+  let rev1 = reverse_doubles(nsl_scan(reverse_variants(h1)))
+  let rev2 = reverse_doubles(nsl_scan(reverse_variants(h2)))
+  let out = Array::make(h1.length(), 0.0)
+  for i = 0; i < h1.length(); i = i + 1 {
+    let nsl1 = fwd1[i] + rev1[i]
+    let nsl2 = fwd2[i] + rev2[i]
+    out[i] = if nsl1 > 0.0 && nsl2 > 0.0 {
+      @math.ln(nsl1 / nsl2)
+    } else {
+      0.0
+    }
+  }
+  out
 }

@@ -634,6 +634,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **EHH / iHH** | `skallel_ehh_decay`、`skallel_ihh_scan` | 扩展单倍型纯合度（EHH 衰减）与整合单倍型纯合度（iHH，共享后缀长度扫描 + 梯形积分） |
 | **iHS / nSL** | `skallel_ihs`、`skallel_nsl` | 整合单倍型分数（ref/alt iHH 比值对数）与按长度分离位点数（nSL），双向扫描汇总 |
 | **标准化** | `skallel_standardize`、`skallel_standardize_by_allele_count` | z-score 标准化 + 按 alternate 等位基因计数分档标准化（`make_similar_sized_bins` 相似规模分档） |
+| **XPEHH / XPNSL** | `skallel_xpehh`、`skallel_xpnsl` | 跨群体 EHH/nSL：两群体全样本 iHH/nSL 比值对数（复用 `ihh_scan`/`nsl_scan`） |
+| **PBS** | `skallel_pbs` | 三群体群体分支统计：逐窗口 Hudson Fst → `(t12+t13−t23)/2`，可归一化（PBSn1） |
 | **窗口化 Tajima D** | `skallel_windowed_tajima_d`、`skallel_index_windows` | 索引窗口封装，复用 `popgen_tajima_d` 逐窗口计算 |
 
 ## 架构设计
