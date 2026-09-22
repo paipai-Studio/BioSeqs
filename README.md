@@ -620,6 +620,15 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **seqkit mutate** | 突变编辑 | `seqkit_mutate_point`（`-p pos:base` 点突变）、`seqkit_mutate_delete`（`-d start:end` 删除）、`seqkit_mutate_insert`（`-i pos:seq` 插入） |
 | **seqkit shuffle / sample** | 随机化 | `seqkit_shuffle`（LCG Fisher–Yates 确定性洗牌）、`seqkit_sample`（`-n N` 抽样） |
 
+### scikit-allel 群体遗传统计
+
+| 模块 | 对应函数 | 功能说明 |
+| :--- | :--- | :--- |
+| **Hudson Fst** | `skallel_hudson_fst` / `_block` | Hudson (1992)/Bhatia 法 Fst：`num = Dxy−(π1+π2)/2`、`den = Dxy`，逐位点与区块估计 |
+| **π / Dxy** | `skallel_mean_pairwise_difference` / `_between` | 群体内平均成对差异（π）与群体间（Dxy），任意等位基因数 |
+| **LD (Rogers–Huff r)** | `skallel_rogers_huff_r` | 基因型剂量矩阵成对 Pearson 相关系数（压缩上三角），缺失成对排除 |
+| **PCA (Patterson)** | `skallel_pca` | 双等位基因剂量 Patterson 标定 → gram 矩阵 → Jacobi 特征分解，输出样本坐标 + 方差解释率 |
+
 ## 架构设计
 
 ### 项目结构
