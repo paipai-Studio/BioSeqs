@@ -231,4 +231,190 @@ pub fn skallel_pca(gn : Array[Array[Int]], n_components : Int) -> SkallelPca {
   }
 
   SkallelPca::{ coords, explained_variance_ratio: ratio }
+}///|
+fn wc_het_count(gv : Array[Array[Int]], subpops : Array[Array[Int]], d : Int) -> Int {
+  let mut cnt = 0
+  for p = 0; p < subpops.length(); p = p + 1 {
+    for si in subpops[p] {
+      let a1 = gv[si][0]
+      let a2 = gv[si][1]
+      if a1 == d && a2 != d && a2 >= 0 {
+        cnt = cnt + 1
+      } else if a2 == d && a1 != d && a1 >= 0 {
+        cnt = cnt + 1
+      }
+    }
+  }
+  cnt
+}
+
+///|
+/// Per-variant Weir & Cockerham (1984) variance components `(a, b, c)` for one
+/// variant, following scikit-allel's `_weir_cockerham_fst`.
+fn wc_fst_variant(
+  gv : Array[Array[Int]],
+  subpops : Array[Array[Int]],
+  max_allele : Int,
+) -> (Array[Double], Array[Double], Array[Double]) {
+  let n_alleles = max_allele + 1
+  let r = subpops.length()
+
+  // ac[d][p] = count of allele d in subpopulation p
+  let ac : Array[Array[Int]] = Array::new()
+  for d = 0; d < n_alleles; d = d + 1 {
+    ac.push(Array::make(r, 0))
+  }
+  let an = Array::make(r, 0)
+  for p = 0; p < r; p = p + 1 {
+    for si in subpops[p] {
+      for k = 0; k < 2; k = k + 1 {
+        let allele = gv[si][k]
+        if allele >= 0 && allele < n_alleles {
+          ac[allele][p] = ac[allele][p] + 1
+          an[p] = an[p] + 1
+        }
+      }
+    }
+  }
+
+  let n = Array::make(r, 0)
+  let mut n_total = 0
+  for p = 0; p < r; p = p + 1 {
+    n[p] = an[p] / 2
+    n_total = n_total + n[p]
+  }
+
+  let a = Array::make(n_alleles, 0.0)
+  let b = Array::make(n_alleles, 0.0)
+  let c = Array::make(n_alleles, 0.0)
+  if n_total <= 0 || r < 2 {
+    return (a, b, c)
+  }
+
+  let n_bar = n_total.to_double() / r.to_double()
+  let mut sum_n2 = 0
+  for p = 0; p < r; p = p + 1 {
+    sum_n2 = sum_n2 + n[p] * n[p]
+  }
+  let n_C =
+    (n_total.to_double() - sum_n2.to_double() / n_total.to_double()) /
+    (r - 1).to_double()
+
+  let mut an_total = 0
+  for p = 0; p < r; p = p + 1 {
+    an_total = an_total + an[p]
+  }
+
+  for d = 0; d < n_alleles; d = d + 1 {
+    let mut ac_total_d = 0
+    for p = 0; p < r; p = p + 1 {
+      ac_total_d = ac_total_d + ac[d][p]
+    }
+    let p_bar = ac_total_d.to_double() / an_total.to_double()
+
+    let mut ss_num = 0.0
+    for p = 0; p < r; p = p + 1 {
+      let p_dp = if an[p] > 0 {
+        ac[d][p].to_double() / an[p].to_double()
+      } else {
+        0.0
+      }
+      let diff = p_dp - p_bar
+      ss_num = ss_num + n[p].to_double() * diff * diff
+    }
+    let s_squared = ss_num / (n_bar * (r - 1).to_double())
+
+    let h_bar = wc_het_count(gv, subpops, d).to_double() / n_total.to_double()
+
+    a[d] = (n_bar / n_C) *
+      (
+        s_squared -
+        (1.0 / (n_bar - 1.0)) *
+        (p_bar * (1.0 - p_bar) - (r - 1).to_double() * s_squared / r.to_double() - h_bar / 4.0)
+      )
+    b[d] = (n_bar / (n_bar - 1.0)) *
+      (
+        p_bar * (1.0 - p_bar) -
+        (r - 1).to_double() * s_squared / r.to_double() -
+        ((2.0 * n_bar - 1.0) * h_bar) / (4.0 * n_bar)
+      )
+    c[d] = h_bar / 2.0
+  }
+
+  (a, b, c)
+}
+
+///|
+/// Weir & Cockerham (1984) variance components for every variant, from a
+/// diploid genotype array (n_variants × n_samples × 2, −1 = missing) and a
+/// list of subpopulation sample indices (`allel.weir_cockerham_fst`). Returns
+/// `(a, b, c)` each of shape (n_variants × n_alleles).
+pub fn skallel_weir_cockerham_fst(
+  g : Array[Array[Array[Int]]],
+  subpops : Array[Array[Int]],
+  max_allele : Int,
+) -> (Array[Array[Double]], Array[Array[Double]], Array[Array[Double]]) {
+  let a : Array[Array[Double]] = Array::new()
+  let b : Array[Array[Double]] = Array::new()
+  let c : Array[Array[Double]] = Array::new()
+  for v = 0; v < g.length(); v = v + 1 {
+    let (av, bv, cv) = wc_fst_variant(g[v], subpops, max_allele)
+    a.push(av)
+    b.push(bv)
+    c.push(cv)
+  }
+  (a, b, c)
+}
+
+///|
+/// Per-variant Weir & Cockerham Fst, averaging variance components over
+/// alleles: `Σa / (Σa + Σb + Σc)`. Returns 0.0 where the denominator is zero
+/// (scikit-allel's NaN).
+pub fn skallel_weir_cockerham_fst_variant(
+  g : Array[Array[Array[Int]]],
+  subpops : Array[Array[Int]],
+  max_allele : Int,
+) -> Array[Double] {
+  let (a, b, c) = skallel_weir_cockerham_fst(g, subpops, max_allele)
+  let out : Array[Double] = Array::new()
+  for v = 0; v < a.length(); v = v + 1 {
+    let mut sa = 0.0
+    let mut sb = 0.0
+    let mut sc = 0.0
+    for d = 0; d < a[v].length(); d = d + 1 {
+      sa = sa + a[v][d]
+      sb = sb + b[v][d]
+      sc = sc + c[v][d]
+    }
+    let den = sa + sb + sc
+    out.push(if den == 0.0 { 0.0 } else { sa / den })
+  }
+  out
+}
+
+///|
+/// Weir & Cockerham Fst averaged over all variants and alleles (block
+/// estimator): `Σa / (Σa + Σb + Σc)`.
+pub fn skallel_weir_cockerham_fst_block(
+  g : Array[Array[Array[Int]]],
+  subpops : Array[Array[Int]],
+  max_allele : Int,
+) -> Double {
+  let (a, b, c) = skallel_weir_cockerham_fst(g, subpops, max_allele)
+  let mut sa = 0.0
+  let mut sb = 0.0
+  let mut sc = 0.0
+  for v = 0; v < a.length(); v = v + 1 {
+    for d = 0; d < a[v].length(); d = d + 1 {
+      sa = sa + a[v][d]
+      sb = sb + b[v][d]
+      sc = sc + c[v][d]
+    }
+  }
+  let den = sa + sb + sc
+  if den == 0.0 {
+    0.0
+  } else {
+    sa / den
+  }
 }
