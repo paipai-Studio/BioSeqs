@@ -417,4 +417,285 @@ pub fn skallel_weir_cockerham_fst_block(
   } else {
     sa / den
   }
+}///|
+/// scikit-allel `admixture.py` — unbiased allele-frequency estimators of
+/// heterozygosity and the Patterson F2/F3/F4(D) statistics (Patterson et al.
+/// 2012, Appendix A). All take biallelic allele-count arrays (n_variants × 2).
+
+///|
+fn alt_freq(ac_i : Array[Int]) -> Double {
+  let an = ac_i[0] + ac_i[1]
+  if an == 0 {
+    0.0
+  } else {
+    ac_i[1].to_double() / an.to_double()
+  }
+}
+
+///|
+/// Unbiased estimator of `h`, where `2h` is the heterozygosity
+/// (`allel.admixture.h_hat`).
+pub fn skallel_h_hat(ac : Array[Array[Int]]) -> Array[Double] {
+  let out : Array[Double] = Array::new()
+  for aci in ac {
+    let an = aci[0] + aci[1]
+    if an < 2 {
+      out.push(0.0)
+    } else {
+      out.push((aci[0] * aci[1]).to_double() / (an * (an - 1)).to_double())
+    }
+  }
+  out
+}
+
+///|
+/// Unbiased estimator of F2(A, B), the branch length between two populations
+/// (`allel.patterson_f2`).
+pub fn skallel_patterson_f2(
+  aca : Array[Array[Int]],
+  acb : Array[Array[Int]],
+) -> Array[Double] {
+  let ha = skallel_h_hat(aca)
+  let hb = skallel_h_hat(acb)
+  let out : Array[Double] = Array::new()
+  let n = if aca.length() < acb.length() { aca.length() } else { acb.length() }
+  for i = 0; i < n; i = i + 1 {
+    let sa = (aca[i][0] + aca[i][1]).to_double()
+    let sb = (acb[i][0] + acb[i][1]).to_double()
+    let a = alt_freq(aca[i])
+    let b = alt_freq(acb[i])
+    let d = a - b
+    out.push(d * d - ha[i] / sa - hb[i] / sb)
+  }
+  out
+}
+
+///|
+/// Unbiased estimator of F3(C; A, B). Returns `(T, B)`: per-variant
+/// un-normalised f3 estimates and the heterozygosity in C (`allel.patterson_f3`).
+pub fn skallel_patterson_f3(
+  acc : Array[Array[Int]],
+  aca : Array[Array[Int]],
+  acb : Array[Array[Int]],
+) -> (Array[Double], Array[Double]) {
+  let hc = skallel_h_hat(acc)
+  let t : Array[Double] = Array::new()
+  let b : Array[Double] = Array::new()
+  let mut n = if acc.length() < aca.length() { acc.length() } else { aca.length() }
+  if n > acb.length() {
+    n = acb.length()
+  }
+  for i = 0; i < n; i = i + 1 {
+    let sc = (acc[i][0] + acc[i][1]).to_double()
+    let c = alt_freq(acc[i])
+    let a = alt_freq(aca[i])
+    let b_ = alt_freq(acb[i])
+    t.push((c - a) * (c - b_) - hc[i] / sc)
+    b.push(2.0 * hc[i])
+  }
+  (t, b)
+}
+
+///|
+/// Unbiased estimator of the four-population statistic D(A, B; C, D), a.k.a.
+/// the ABBA-BABA test. Returns `(num, den)` per variant; the averaged D is
+/// `Σnum / Σden` (`allel.patterson_d`).
+pub fn skallel_patterson_d(
+  aca : Array[Array[Int]],
+  acb : Array[Array[Int]],
+  acc : Array[Array[Int]],
+  acd : Array[Array[Int]],
+) -> (Array[Double], Array[Double]) {
+  let num : Array[Double] = Array::new()
+  let den : Array[Double] = Array::new()
+  let mut n = aca.length()
+  n = if n < acb.length() { n } else { acb.length() }
+  n = if n < acc.length() { n } else { acc.length() }
+  n = if n < acd.length() { n } else { acd.length() }
+  for i = 0; i < n; i = i + 1 {
+    let a = alt_freq(aca[i])
+    let b = alt_freq(acb[i])
+    let c = alt_freq(acc[i])
+    let d = alt_freq(acd[i])
+    num.push((a - b) * (c - d))
+    den.push((a + b - 2.0 * a * b) * (c + d - 2.0 * c * d))
+  }
+  (num, den)
+}
+
+///|
+/// Averaged D statistic over variants (the block estimator): `Σnum / Σden`.
+pub fn skallel_patterson_d_average(
+  aca : Array[Array[Int]],
+  acb : Array[Array[Int]],
+  acc : Array[Array[Int]],
+  acd : Array[Array[Int]],
+) -> Double {
+  let (num, den) = skallel_patterson_d(aca, acb, acc, acd)
+  let mut sn = 0.0
+  let mut sd = 0.0
+  for i = 0; i < num.length(); i = i + 1 {
+    sn = sn + num[i]
+    sd = sd + den[i]
+  }
+  if sd == 0.0 {
+    0.0
+  } else {
+    sn / sd
+  }
+}
+
+///|
+/// scikit-allel `selection.py` (Garud H) + windowing — haplotype-diversity and
+/// soft-sweep statistics, and a windowed Tajima's D wrapper.
+
+///|
+fn skallel_sort_strings_asc(arr : Array[String]) -> Array[String] {
+  let out = arr.copy()
+  let mut i = 1
+  while i < out.length() {
+    let key = out[i]
+    let mut j = i - 1
+    while j >= 0 && out[j] > key {
+      out[j + 1] = out[j]
+      j = j - 1
+    }
+    out[j + 1] = key
+    i = i + 1
+  }
+  out
+}
+
+///|
+fn skallel_sort_doubles_desc(arr : Array[Double]) -> Array[Double] {
+  let out = arr.copy()
+  let mut i = 1
+  while i < out.length() {
+    let key = out[i]
+    let mut j = i - 1
+    while j >= 0 && out[j] < key {
+      out[j + 1] = out[j]
+      j = j - 1
+    }
+    out[j + 1] = key
+    i = i + 1
+  }
+  out
+}
+
+///|
+/// Frequencies of distinct haplotype columns in a haplotype array
+/// (n_variants × n_haplotypes), sorted descending.
+fn distinct_haplotype_frequencies(h : Array[Array[Int]]) -> Array[Double] {
+  let n_variants = h.length()
+  let n_hap = if n_variants > 0 { h[0].length() } else { 0 }
+  if n_hap == 0 {
+    return []
+  }
+  let haps : Array[String] = Array::new()
+  for c = 0; c < n_hap; c = c + 1 {
+    let sb = StringBuilder::new()
+    for v = 0; v < n_variants; v = v + 1 {
+      sb.write_char((h[v][c] + 48).to_uint16().unsafe_to_char())
+    }
+    haps.push(sb.to_string())
+  }
+  let sorted = skallel_sort_strings_asc(haps)
+  let freqs : Array[Double] = Array::new()
+  let mut i = 0
+  while i < n_hap {
+    let mut j = i
+    while j < n_hap && sorted[j] == sorted[i] {
+      j = j + 1
+    }
+    freqs.push((j - i).to_double() / n_hap.to_double())
+    i = j
+  }
+  skallel_sort_doubles_desc(freqs)
+}
+
+///|
+/// Haplotype diversity of a haplotype array (`allel.haplotype_diversity`): the
+/// unbiased estimator `(1 − Σf²) · n/(n−1)` over distinct haplotype
+/// frequencies.
+pub fn skallel_haplotype_diversity(h : Array[Array[Int]]) -> Double {
+  let n_hap = if h.length() > 0 { h[0].length() } else { 0 }
+  if n_hap <= 1 {
+    return 0.0
+  }
+  let f = distinct_haplotype_frequencies(h)
+  let mut sum_sq = 0.0
+  for fi in f {
+    sum_sq = sum_sq + fi * fi
+  }
+  (1.0 - sum_sq) * n_hap.to_double() / (n_hap - 1).to_double()
+}
+
+///|
+/// Garud et al. (2015) H1, H12, H123 and H2/H1 statistics for detecting soft
+/// sweeps (`allel.garud_h`).
+pub fn skallel_garud_h(h : Array[Array[Int]]) -> (Double, Double, Double, Double) {
+  let f = distinct_haplotype_frequencies(h)
+  let mut h1 = 0.0
+  for fi in f {
+    h1 = h1 + fi * fi
+  }
+  let f0 = if f.length() > 0 { f[0] } else { 0.0 }
+  let f1 = if f.length() > 1 { f[1] } else { 0.0 }
+  let f2 = if f.length() > 2 { f[2] } else { 0.0 }
+  let mut tail2 = 0.0
+  for i = 2; i < f.length(); i = i + 1 {
+    tail2 = tail2 + f[i] * f[i]
+  }
+  let mut tail3 = 0.0
+  for i = 3; i < f.length(); i = i + 1 {
+    tail3 = tail3 + f[i] * f[i]
+  }
+  let h12 = (f0 + f1) * (f0 + f1) + tail2
+  let h123 = (f0 + f1 + f2) * (f0 + f1 + f2) + tail3
+  let h2 = h1 - f0 * f0
+  (h1, h12, h123, if h1 > 0.0 { h2 / h1 } else { 0.0 })
+}
+
+///|
+/// Equal-sized index windows `[start, stop)` over `n` items, stepping by
+/// `step`; a trailing partial window is dropped.
+pub fn skallel_index_windows(n : Int, size : Int, step : Int) -> Array[(Int, Int)] {
+  let out : Array[(Int, Int)] = Array::new()
+  let mut ws = 0
+  while ws + size <= n {
+    out.push((ws, ws + size))
+    ws = ws + step
+  }
+  out
+}
+
+///|
+/// Tajima's D computed over non-overlapping (or stepped) index windows of
+/// biallelic allele counts, reusing `popgen_tajima_d` per window. Returns one
+/// D value per window.
+pub fn skallel_windowed_tajima_d(
+  ac : Array[Array[Int]],
+  n_haplotypes : Int,
+  size : Int,
+  step : Int,
+) -> Array[Double] {
+  let pi = skallel_mean_pairwise_difference(ac)
+  let out : Array[Double] = Array::new()
+  let n = ac.length()
+  let mut ws = 0
+  while ws + size <= n {
+    let mut s = 0
+    let mut pi_sum = 0.0
+    for i = ws; i < ws + size; i = i + 1 {
+      pi_sum = pi_sum + pi[i]
+      if ac[i].length() >= 2 && ac[i][1] > 0 && ac[i][0] > 0 {
+        s = s + 1
+      }
+    }
+    let res = popgen_tajima_d(pi_sum, s, n_haplotypes, size)
+    out.push(res.statistic)
+    ws = ws + step
+  }
+  out
 }

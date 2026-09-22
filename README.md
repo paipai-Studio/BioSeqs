@@ -629,6 +629,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **π / Dxy** | `skallel_mean_pairwise_difference` / `_between` | 群体内平均成对差异（π）与群体间（Dxy），任意等位基因数 |
 | **LD (Rogers–Huff r)** | `skallel_rogers_huff_r` | 基因型剂量矩阵成对 Pearson 相关系数（压缩上三角），缺失成对排除 |
 | **PCA (Patterson)** | `skallel_pca` | 双等位基因剂量 Patterson 标定 → gram 矩阵 → Jacobi 特征分解，输出样本坐标 + 方差解释率 |
+| **Patterson F2/F3/D** | `skallel_patterson_f2` / `_f3` / `_d` / `_d_average`、`skallel_h_hat` | Patterson (2012) 无偏估计：ĥ 杂合度、F2 枝长、F3 混合检验（T/B）、四群体 D（ABBA-BABA），逐变异 + 平均 |
+| **Garud H** | `skallel_garud_h`、`skallel_haplotype_diversity` | 单倍型阵列：单倍型多样性 + 软扫荡 H1/H12/H123/H2-H1 统计量 |
+| **窗口化 Tajima D** | `skallel_windowed_tajima_d`、`skallel_index_windows` | 索引窗口封装，复用 `popgen_tajima_d` 逐窗口计算 |
 
 ## 架构设计
 
