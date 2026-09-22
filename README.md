@@ -645,6 +645,10 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **树平衡度量** | `dendropy_colless` / `_sackin` / `_n_bar` / `_b1` | Colless 不平衡指数、Sackin 指数、N̄ 平均祖先数、B1 统计量（操作 `phylo.Clade`） |
 | **树高** | `dendropy_tree_height` | 根到叶最大枝长和 |
 | **RF 距离** | `dendropy_symmetric_difference` | 无加权 Robinson–Foulds 对称差（非平凡分裂集合之差） |
+| **加权 RF 距离** | `dendropy_weighted_robinson_foulds` | 边加权 Robinson–Foulds：所有分裂枝长差的绝对值之和（缺失分裂计其枝长） |
+| **patristic 距离/矩阵** | `dendropy_patristic_distance` / `_matrix` | 成对树路径枝长和（经 LCA），全成对距离矩阵 |
+| **Pybus–Harvey γ** | `dendropy_pybus_harvey_gamma` | 多样化速率恒定性检验（超度量树节点年龄等待时间） |
+| **一致树（sumtrees）** | `phylo_consensus`（已有） | 严格/多数/half 一致树见 `build_*_consensus`，此为 Bio.Phylo.Consensus 端口，与 DendroPy 的 sumtrees 功能对等 |
 
 ## 架构设计
 
