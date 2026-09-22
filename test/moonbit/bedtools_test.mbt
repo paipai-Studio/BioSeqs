@@ -581,4 +581,10 @@ test "bedtools_intersect_overlap_and_v" {
   assert_eq(v.length(), 1)
   assert_eq(v[0].start, 100)
   assert_eq(v[0].end, 110)
+}///|
+test "bedtools_intersect_count_alias" {
+  let a = [iv("chr1", 0, 100)]
+  let b = [iv("chr1", 0, 50), iv("chr1", 25, 75), iv("chr1", 200, 300)]
+  // `intersect_count` is an alias of `map_count` (-c semantics)
+  assert_eq(@src.bedtools_intersect_count(a, b)[0], 2)
 }

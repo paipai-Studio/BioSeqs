@@ -216,59 +216,17 @@ pub fn bedtools_merge(intervals : Array[BedInterval]) -> Array[BedInterval] {
 }
 
 ///|
-/// Report A intervals that overlap any B interval by ≥1 bp (same chromosome).
-/// Matching `bedtools intersect` default (`-wa`-style full-A output).
+/// Report each A interval that overlaps any B interval by ≥1 bp, once per A
+/// (`bedtools intersect -u` semantics: full A, deduplicated). The default
+/// intersection output is `bedtools_intersect_overlap`.
 pub fn bedtools_intersect(
   a : Array[BedInterval],
   b : Array[BedInterval],
 ) -> Array[BedInterval] {
-  // group B indices by chrom
-  let chroms : Array[String] = Array::new()
-  let b_per_chrom : Array[Array[Int]] = Array::new()
-  for i = 0; i < b.length(); i = i + 1 {
-    let c = b[i].chrom
-    let mut found = -1
-    for k = 0; k < chroms.length(); k = k + 1 {
-      if chroms[k] == c {
-        found = k
-        break
-      }
-    }
-    if found < 0 {
-      chroms.push(c)
-      b_per_chrom.push(Array::new())
-      b_per_chrom[b_per_chrom.length() - 1].push(i)
-    } else {
-      b_per_chrom[found].push(i)
-    }
-  }
-  // build one interval tree per chrom
-  let tree_chroms : Array[String] = Array::new()
-  let trees : Array[IntervalTree] = Array::new()
-  for k = 0; k < chroms.length(); k = k + 1 {
-    let idxs = b_per_chrom[k]
-    let starts : Array[Int] = Array::new()
-    let ends : Array[Int] = Array::new()
-    for i in idxs {
-      starts.push(b[i].start)
-      ends.push(b[i].end)
-    }
-    tree_chroms.push(chroms[k])
-    trees.push(interval_tree_new(starts, ends))
-  }
+  let idx = build_bed_index(b)
   let out : Array[BedInterval] = Array::new()
   for iv in a {
-    let mut hits = false
-    for k = 0; k < tree_chroms.length(); k = k + 1 {
-      if tree_chroms[k] == iv.chrom {
-        let q = trees[k].query(iv.start, iv.end)
-        if q.length() > 0 {
-          hits = true
-        }
-        break
-      }
-    }
-    if hits {
+    if bed_overlap_pairs(iv, idx).length() > 0 {
       out.push(iv)
     }
   }
@@ -2164,22 +2122,21 @@ pub fn bedtools_intersect_loj(
 ///|
 /// Report the overlap (intersection) interval between each overlapping A–B
 /// pair (`bedtools intersect` default output): the shared `[max(start),
-/// min(end))` region, one record per overlapping pair. Unlike `bedtools_intersect`
-/// (full A once, `-u` style), this clips each output to the overlap.
+/// min(end))` region, one record per overlapping pair (ordered by B start).
+/// Unlike `bedtools_intersect` (full A once, `-u` style), this clips each
+/// output to the overlap.
 pub fn bedtools_intersect_overlap(
   a : Array[BedInterval],
   b : Array[BedInterval],
 ) -> Array[BedInterval] {
+  let idx = build_bed_index(b)
   let out : Array[BedInterval] = Array::new()
-  for ai in a {
-    for bi in b {
-      if ai.chrom == bi.chrom {
-        let ms = if ai.start > bi.start { ai.start } else { bi.start }
-        let me = if ai.end < bi.end { ai.end } else { bi.end }
-        if ms < me {
-          out.push(BedInterval::{ chrom: ai.chrom, start: ms, end: me })
-        }
-      }
+  for iv in a {
+    for (bi, _) in bed_overlap_pairs(iv, idx) {
+      let bb = idx.b[bi]
+      let ms = if iv.start > bb.start { iv.start } else { bb.start }
+      let me = if iv.end < bb.end { iv.end } else { bb.end }
+      out.push(BedInterval::{ chrom: iv.chrom, start: ms, end: me })
     }
   }
   out
@@ -2191,18 +2148,23 @@ pub fn bedtools_intersect_v(
   a : Array[BedInterval],
   b : Array[BedInterval],
 ) -> Array[BedInterval] {
+  let idx = build_bed_index(b)
   let out : Array[BedInterval] = Array::new()
-  for ai in a {
-    let mut hit = false
-    for bi in b {
-      if ai.chrom == bi.chrom && ai.start < bi.end && bi.start < ai.end {
-        hit = true
-        break
-      }
-    }
-    if not(hit) {
-      out.push(ai)
+  for iv in a {
+    if bed_overlap_pairs(iv, idx).length() == 0 {
+      out.push(iv)
     }
   }
   out
+}
+
+///|
+/// Number of B intervals overlapping each A (`bedtools intersect -c`).
+/// Alias of `bedtools_map_count`, kept under the `intersect` name for
+/// discoverability.
+pub fn bedtools_intersect_count(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[Int] {
+  bedtools_map_count(a, b)
 }
