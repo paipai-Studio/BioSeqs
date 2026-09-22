@@ -638,6 +638,14 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **PBS** | `skallel_pbs` | 三群体群体分支统计：逐窗口 Hudson Fst → `(t12+t13−t23)/2`，可归一化（PBSn1） |
 | **窗口化 Tajima D** | `skallel_windowed_tajima_d`、`skallel_index_windows` | 索引窗口封装，复用 `popgen_tajima_d` 逐窗口计算 |
 
+### DendroPy 系统发育树统计
+
+| 模块 | 对应函数 | 功能说明 |
+| :--- | :--- | :--- |
+| **树平衡度量** | `dendropy_colless` / `_sackin` / `_n_bar` / `_b1` | Colless 不平衡指数、Sackin 指数、N̄ 平均祖先数、B1 统计量（操作 `phylo.Clade`） |
+| **树高** | `dendropy_tree_height` | 根到叶最大枝长和 |
+| **RF 距离** | `dendropy_symmetric_difference` | 无加权 Robinson–Foulds 对称差（非平凡分裂集合之差） |
+
 ## 架构设计
 
 ### 项目结构
