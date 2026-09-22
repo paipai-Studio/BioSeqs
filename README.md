@@ -650,6 +650,14 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Pybus–Harvey γ** | `dendropy_pybus_harvey_gamma` | 多样化速率恒定性检验（超度量树节点年龄等待时间） |
 | **一致树（sumtrees）** | `phylo_consensus`（已有） | 严格/多数/half 一致树见 `build_*_consensus`，此为 Bio.Phylo.Consensus 端口，与 DendroPy 的 sumtrees 功能对等 |
 
+### gffutils 注释操作
+
+| 模块 | 对应函数 | 功能说明 |
+| :--- | :--- | :--- |
+| **区间谓词** | `gffutils_overlaps` / `_contains` / `_within` / `_intersects` / `_distance` | GFFFeature 重叠/包含/被包含/相交/距离（1-based 闭区间） |
+| **父子遍历** | `gffutils_children` / `_parents` / `_all_children` / `_all_parents` | 通用 ID/Parent 双向索引，及传递闭包（不硬编码 gene→mRNA→exon） |
+| **合并** | `gffutils_merge` | 同 seqid+类型+链重叠/相邻特征合并（扫描线） |
+
 ## 架构设计
 
 ### 项目结构
