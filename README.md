@@ -624,6 +624,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 | 模块 | 对应函数 | 功能说明 |
 | :--- | :--- | :--- |
+| **VCF→数组桥接** | `skallel_vcf_genotypes` / `_parse_gt` | VCF GT 字段 → 基因型矩阵 (variants×samples×ploidy，缺失 −1) |
+| **基因型→剂量/单倍型/计数** | `skallel_gt_to_n_alt` / `_to_haplotypes` / `_count_alleles` / `_count_alleles_subpop` | 基因型 → 0/1/2 剂量 gn、单倍型 h、等位基因计数 ac（供 LD/PCA/iHS/nSL/Fst 消费） |
 | **Hudson Fst** | `skallel_hudson_fst` / `_block` | Hudson (1992)/Bhatia 法 Fst：`num = Dxy−(π1+π2)/2`、`den = Dxy`，逐位点与区块估计 |
 | **Weir-Cockerham Fst** | `skallel_weir_cockerham_fst` / `_variant` / `_block` | Weir & Cockerham (1984) 方差分量分解（a/b/c），Fst=Σa/(Σa+Σb+Σc)，逐变异逐等位 + 区块估计 |
 | **π / Dxy** | `skallel_mean_pairwise_difference` / `_between` | 群体内平均成对差异（π）与群体间（Dxy），任意等位基因数 |
