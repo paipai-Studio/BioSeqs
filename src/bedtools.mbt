@@ -634,16 +634,10 @@ pub fn bedtools_slop(
 }
 
 ///|
-fn collect_overlap_vals(
-  ai : BedInterval,
-  b : Array[BedInterval],
-  b_values : Array[Double],
-) -> Array[Double] {
+fn collect_overlap_vals(ai : BedInterval, idx : BedIndex, b_values : Array[Double]) -> Array[Double] {
   let vals : Array[Double] = Array::new()
-  for k = 0; k < b.length(); k = k + 1 {
-    if ai.chrom == b[k].chrom && ai.start < b[k].end && b[k].start < ai.end {
-      vals.push(b_values[k])
-    }
+  for (bi, _) in bed_overlap_pairs(ai, idx) {
+    vals.push(b_values[bi])
   }
   vals
 }
@@ -651,15 +645,10 @@ fn collect_overlap_vals(
 ///|
 /// Number of B features overlapping each A (matching `bedtools map -c 5 -o count`).
 pub fn bedtools_map_count(a : Array[BedInterval], b : Array[BedInterval]) -> Array[Int] {
+  let idx = build_bed_index(b)
   let out : Array[Int] = Array::new()
   for ai in a {
-    let mut c = 0
-    for bi in b {
-      if ai.chrom == bi.chrom && ai.start < bi.end && bi.start < ai.end {
-        c = c + 1
-      }
-    }
-    out.push(c)
+    out.push(bed_overlap_pairs(ai, idx).length())
   }
   out
 }
@@ -670,9 +659,10 @@ pub fn bedtools_map_sum(
   b : Array[BedInterval],
   b_values : Array[Double],
 ) -> Array[Double] {
+  let idx = build_bed_index(b)
   let out : Array[Double] = Array::new()
   for ai in a {
-    let vals = collect_overlap_vals(ai, b, b_values)
+    let vals = collect_overlap_vals(ai, idx, b_values)
     let mut s = 0.0
     for v in vals {
       s = s + v
@@ -688,9 +678,10 @@ pub fn bedtools_map_mean(
   b : Array[BedInterval],
   b_values : Array[Double],
 ) -> Array[Double] {
+  let idx = build_bed_index(b)
   let out : Array[Double] = Array::new()
   for ai in a {
-    let vals = collect_overlap_vals(ai, b, b_values)
+    let vals = collect_overlap_vals(ai, idx, b_values)
     if vals.length() == 0 {
       out.push(0.0)
     } else {
@@ -710,9 +701,10 @@ pub fn bedtools_map_min(
   b : Array[BedInterval],
   b_values : Array[Double],
 ) -> Array[Double] {
+  let idx = build_bed_index(b)
   let out : Array[Double] = Array::new()
   for ai in a {
-    let vals = collect_overlap_vals(ai, b, b_values)
+    let vals = collect_overlap_vals(ai, idx, b_values)
     if vals.length() == 0 {
       out.push(0.0)
     } else {
@@ -734,9 +726,10 @@ pub fn bedtools_map_max(
   b : Array[BedInterval],
   b_values : Array[Double],
 ) -> Array[Double] {
+  let idx = build_bed_index(b)
   let out : Array[Double] = Array::new()
   for ai in a {
-    let vals = collect_overlap_vals(ai, b, b_values)
+    let vals = collect_overlap_vals(ai, idx, b_values)
     if vals.length() == 0 {
       out.push(0.0)
     } else {
@@ -754,24 +747,21 @@ pub fn bedtools_map_max(
 
 
 ///|
-/// Report A if a B overlaps at least `frac` of A's length (matching `bedtools
+/// Report A if a B overlaps at least `frac` of A's length (`bedtools
 /// intersect -f frac`).
 pub fn bedtools_intersect_frac(
   a : Array[BedInterval],
   b : Array[BedInterval],
   frac : Double,
 ) -> Array[BedInterval] {
+  let idx = build_bed_index(b)
   let out : Array[BedInterval] = Array::new()
   for ai in a {
     let mut hit = false
-    for bi in b {
-      if ai.chrom == bi.chrom {
-        let ov = (if ai.end < bi.end { ai.end } else { bi.end }) -
-          (if ai.start > bi.start { ai.start } else { bi.start })
-        if ov > 0 && ov.to_double() / (ai.end - ai.start).to_double() >= frac {
-          hit = true
-          break
-        }
+    for (_, ov) in bed_overlap_pairs(ai, idx) {
+      if ov.to_double() / (ai.end - ai.start).to_double() >= frac {
+        hit = true
+        break
       }
     }
     if hit {
@@ -1292,16 +1282,10 @@ pub fn bedtools_groupby_text(
 }
 
 ///|
-fn collect_overlap_strs(
-  ai : BedInterval,
-  b : Array[BedInterval],
-  b_str : Array[String],
-) -> Array[String] {
+fn collect_overlap_strs(ai : BedInterval, idx : BedIndex, b_str : Array[String]) -> Array[String] {
   let out : Array[String] = Array::new()
-  for k = 0; k < b.length(); k = k + 1 {
-    if ai.chrom == b[k].chrom && ai.start < b[k].end && b[k].start < ai.end {
-      out.push(b_str[k])
-    }
+  for (bi, _) in bed_overlap_pairs(ai, idx) {
+    out.push(b_str[bi])
   }
   out
 }
@@ -1313,9 +1297,10 @@ pub fn bedtools_map_median(
   b : Array[BedInterval],
   b_values : Array[Double],
 ) -> Array[Double] {
+  let idx = build_bed_index(b)
   let out : Array[Double] = Array::new()
   for ai in a {
-    out.push(agg_median(collect_overlap_vals(ai, b, b_values)))
+    out.push(agg_median(collect_overlap_vals(ai, idx, b_values)))
   }
   out
 }
@@ -1327,9 +1312,10 @@ pub fn bedtools_map_absmin(
   b : Array[BedInterval],
   b_values : Array[Double],
 ) -> Array[Double] {
+  let idx = build_bed_index(b)
   let out : Array[Double] = Array::new()
   for ai in a {
-    out.push(agg_absmin(collect_overlap_vals(ai, b, b_values)))
+    out.push(agg_absmin(collect_overlap_vals(ai, idx, b_values)))
   }
   out
 }
@@ -1341,9 +1327,10 @@ pub fn bedtools_map_absmax(
   b : Array[BedInterval],
   b_values : Array[Double],
 ) -> Array[Double] {
+  let idx = build_bed_index(b)
   let out : Array[Double] = Array::new()
   for ai in a {
-    out.push(agg_absmax(collect_overlap_vals(ai, b, b_values)))
+    out.push(agg_absmax(collect_overlap_vals(ai, idx, b_values)))
   }
   out
 }
@@ -1356,9 +1343,10 @@ pub fn bedtools_map_stdev(
   b : Array[BedInterval],
   b_values : Array[Double],
 ) -> Array[Double] {
+  let idx = build_bed_index(b)
   let out : Array[Double] = Array::new()
   for ai in a {
-    out.push(agg_stdev(collect_overlap_vals(ai, b, b_values)))
+    out.push(agg_stdev(collect_overlap_vals(ai, idx, b_values)))
   }
   out
 }
@@ -1371,9 +1359,10 @@ pub fn bedtools_map_sstdev(
   b : Array[BedInterval],
   b_values : Array[Double],
 ) -> Array[Double] {
+  let idx = build_bed_index(b)
   let out : Array[Double] = Array::new()
   for ai in a {
-    out.push(agg_sstdev(collect_overlap_vals(ai, b, b_values)))
+    out.push(agg_sstdev(collect_overlap_vals(ai, idx, b_values)))
   }
   out
 }
@@ -1386,9 +1375,10 @@ pub fn bedtools_map_count_distinct(
   b : Array[BedInterval],
   b_str : Array[String],
 ) -> Array[Int] {
+  let idx = build_bed_index(b)
   let out : Array[Int] = Array::new()
   for ai in a {
-    out.push(agg_count_distinct(collect_overlap_strs(ai, b, b_str)))
+    out.push(agg_count_distinct(collect_overlap_strs(ai, idx, b_str)))
   }
   out
 }
@@ -1401,9 +1391,10 @@ pub fn bedtools_map_mode(
   b : Array[BedInterval],
   b_str : Array[String],
 ) -> Array[String] {
+  let idx = build_bed_index(b)
   let out : Array[String] = Array::new()
   for ai in a {
-    out.push(agg_mode(collect_overlap_strs(ai, b, b_str)))
+    out.push(agg_mode(collect_overlap_strs(ai, idx, b_str)))
   }
   out
 }
@@ -1416,9 +1407,10 @@ pub fn bedtools_map_antimode(
   b : Array[BedInterval],
   b_str : Array[String],
 ) -> Array[String] {
+  let idx = build_bed_index(b)
   let out : Array[String] = Array::new()
   for ai in a {
-    out.push(agg_antimode(collect_overlap_strs(ai, b, b_str)))
+    out.push(agg_antimode(collect_overlap_strs(ai, idx, b_str)))
   }
   out
 }
@@ -1431,9 +1423,10 @@ pub fn bedtools_map_distinct(
   b : Array[BedInterval],
   b_str : Array[String],
 ) -> Array[String] {
+  let idx = build_bed_index(b)
   let out : Array[String] = Array::new()
   for ai in a {
-    out.push(agg_distinct(collect_overlap_strs(ai, b, b_str)))
+    out.push(agg_distinct(collect_overlap_strs(ai, idx, b_str)))
   }
   out
 }
@@ -1446,9 +1439,10 @@ pub fn bedtools_map_distinct_only(
   b : Array[BedInterval],
   b_str : Array[String],
 ) -> Array[String] {
+  let idx = build_bed_index(b)
   let out : Array[String] = Array::new()
   for ai in a {
-    out.push(agg_distinct_only(collect_overlap_strs(ai, b, b_str)))
+    out.push(agg_distinct_only(collect_overlap_strs(ai, idx, b_str)))
   }
   out
 }
@@ -1461,9 +1455,10 @@ pub fn bedtools_map_collapse(
   b : Array[BedInterval],
   b_str : Array[String],
 ) -> Array[String] {
+  let idx = build_bed_index(b)
   let out : Array[String] = Array::new()
   for ai in a {
-    out.push(agg_collapse(collect_overlap_strs(ai, b, b_str)))
+    out.push(agg_collapse(collect_overlap_strs(ai, idx, b_str)))
   }
   out
 }
@@ -1475,9 +1470,10 @@ pub fn bedtools_map_concat(
   b : Array[BedInterval],
   b_str : Array[String],
 ) -> Array[String] {
+  let idx = build_bed_index(b)
   let out : Array[String] = Array::new()
   for ai in a {
-    out.push(agg_concat(collect_overlap_strs(ai, b, b_str)))
+    out.push(agg_concat(collect_overlap_strs(ai, idx, b_str)))
   }
   out
 }
@@ -1489,9 +1485,10 @@ pub fn bedtools_map_first(
   b : Array[BedInterval],
   b_str : Array[String],
 ) -> Array[String] {
+  let idx = build_bed_index(b)
   let out : Array[String] = Array::new()
   for ai in a {
-    out.push(agg_first(collect_overlap_strs(ai, b, b_str)))
+    out.push(agg_first(collect_overlap_strs(ai, idx, b_str)))
   }
   out
 }
@@ -1503,9 +1500,10 @@ pub fn bedtools_map_last(
   b : Array[BedInterval],
   b_str : Array[String],
 ) -> Array[String] {
+  let idx = build_bed_index(b)
   let out : Array[String] = Array::new()
   for ai in a {
-    out.push(agg_last(collect_overlap_strs(ai, b, b_str)))
+    out.push(agg_last(collect_overlap_strs(ai, idx, b_str)))
   }
   out
 }///|
@@ -1542,24 +1540,22 @@ pub fn bedtools_intersect_opposite_strand(
 }
 
 ///|
-/// Report A if a B overlaps at least `frac` of B's length (matching `bedtools
+/// Report A if a B overlaps at least `frac` of B's length (`bedtools
 /// intersect -F frac`).
 pub fn bedtools_intersect_frac_b(
   a : Array[BedInterval],
   b : Array[BedInterval],
   frac : Double,
 ) -> Array[BedInterval] {
+  let idx = build_bed_index(b)
   let out : Array[BedInterval] = Array::new()
   for ai in a {
     let mut hit = false
-    for bi in b {
-      if ai.chrom == bi.chrom {
-        let ov = (if ai.end < bi.end { ai.end } else { bi.end }) -
-          (if ai.start > bi.start { ai.start } else { bi.start })
-        if ov > 0 && ov.to_double() / (bi.end - bi.start).to_double() >= frac {
-          hit = true
-          break
-        }
+    for (bi, ov) in bed_overlap_pairs(ai, idx) {
+      let bb = idx.b[bi]
+      if ov.to_double() / (bb.end - bb.start).to_double() >= frac {
+        hit = true
+        break
       }
     }
     if hit {
@@ -1570,26 +1566,23 @@ pub fn bedtools_intersect_frac_b(
 }
 
 ///|
-/// Report A if a B overlaps at least `frac` of both A and B (matching
-/// `bedtools intersect -f frac -r`, the reciprocal-overlap mode).
+/// Report A if a B overlaps at least `frac` of both A and B (`bedtools
+/// intersect -f frac -r`, the reciprocal-overlap mode).
 pub fn bedtools_intersect_reciprocal(
   a : Array[BedInterval],
   b : Array[BedInterval],
   frac : Double,
 ) -> Array[BedInterval] {
+  let idx = build_bed_index(b)
   let out : Array[BedInterval] = Array::new()
   for ai in a {
     let mut hit = false
-    for bi in b {
-      if ai.chrom == bi.chrom {
-        let ov = (if ai.end < bi.end { ai.end } else { bi.end }) -
-          (if ai.start > bi.start { ai.start } else { bi.start })
-        if ov > 0 &&
-          ov.to_double() / (ai.end - ai.start).to_double() >= frac &&
-          ov.to_double() / (bi.end - bi.start).to_double() >= frac {
-          hit = true
-          break
-        }
+    for (bi, ov) in bed_overlap_pairs(ai, idx) {
+      let bb = idx.b[bi]
+      if ov.to_double() / (ai.end - ai.start).to_double() >= frac &&
+        ov.to_double() / (bb.end - bb.start).to_double() >= frac {
+        hit = true
+        break
       }
     }
     if hit {
@@ -1597,7 +1590,7 @@ pub fn bedtools_intersect_reciprocal(
     }
   }
   out
-}///|
+}
 pub struct JaccardResult {
   intersection : Int
   union : Int
@@ -2167,4 +2160,47 @@ pub fn bedtools_intersect_count(
   b : Array[BedInterval],
 ) -> Array[Int] {
   bedtools_map_count(a, b)
+}
+
+///|
+/// Report the B interval for each overlapping A–B pair (`bedtools intersect
+/// -wb`), ordered by A then B start.
+pub fn bedtools_intersect_wb(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[BedInterval] {
+  let idx = build_bed_index(b)
+  let out : Array[BedInterval] = Array::new()
+  for ai in a {
+    for (bi, _) in bed_overlap_pairs(ai, idx) {
+      out.push(idx.b[bi])
+    }
+  }
+  out
+}///|
+/// Report A if a B overlaps it satisfying EITHER the A-fraction or the
+/// B-fraction threshold (`bedtools intersect -f frac -e`): overlap/A ≥ frac
+/// OR overlap/B ≥ frac.
+pub fn bedtools_intersect_either(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+  frac : Double,
+) -> Array[BedInterval] {
+  let idx = build_bed_index(b)
+  let out : Array[BedInterval] = Array::new()
+  for ai in a {
+    let mut hit = false
+    for (bi, ov) in bed_overlap_pairs(ai, idx) {
+      let bb = idx.b[bi]
+      if ov.to_double() / (ai.end - ai.start).to_double() >= frac ||
+        ov.to_double() / (bb.end - bb.start).to_double() >= frac {
+        hit = true
+        break
+      }
+    }
+    if hit {
+      out.push(ai)
+    }
+  }
+  out
 }

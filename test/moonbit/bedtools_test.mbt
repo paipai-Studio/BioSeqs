@@ -587,4 +587,18 @@ test "bedtools_intersect_count_alias" {
   let b = [iv("chr1", 0, 50), iv("chr1", 25, 75), iv("chr1", 200, 300)]
   // `intersect_count` is an alias of `map_count` (-c semantics)
   assert_eq(@src.bedtools_intersect_count(a, b)[0], 2)
+}///|
+test "bedtools_intersect_wb_either" {
+  let a = [iv("chr1", 0, 10), iv("chr1", 15, 25)]
+  let b = [iv("chr1", 5, 20)]
+  // -wb: B interval per overlapping pair
+  let wb = @src.bedtools_intersect_wb(a, b)
+  assert_eq(wb.length(), 2)
+  assert_eq((wb[0].start, wb[0].end), (5, 20))
+  assert_eq((wb[1].start, wb[1].end), (5, 20))
+  // -e: either A-fraction or B-fraction is satisfied
+  let a2 = [iv("chr1", 0, 100)]
+  let b2 = [iv("chr1", 80, 120)] // overlap=20, overlap/A=0.2, overlap/B=0.5
+  assert_eq(@src.bedtools_intersect_either(a2, b2, 0.5).length(), 1)
+  assert_eq(@src.bedtools_intersect_either(a2, b2, 0.6).length(), 0)
 }
