@@ -631,6 +631,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **PCA (Patterson)** | `skallel_pca` | 双等位基因剂量 Patterson 标定 → gram 矩阵 → Jacobi 特征分解，输出样本坐标 + 方差解释率 |
 | **Patterson F2/F3/D** | `skallel_patterson_f2` / `_f3` / `_d` / `_d_average`、`skallel_h_hat` | Patterson (2012) 无偏估计：ĥ 杂合度、F2 枝长、F3 混合检验（T/B）、四群体 D（ABBA-BABA），逐变异 + 平均 |
 | **Garud H** | `skallel_garud_h`、`skallel_haplotype_diversity` | 单倍型阵列：单倍型多样性 + 软扫荡 H1/H12/H123/H2-H1 统计量 |
+| **EHH / iHH** | `skallel_ehh_decay`、`skallel_ihh_scan` | 扩展单倍型纯合度（EHH 衰减）与整合单倍型纯合度（iHH，共享后缀长度扫描 + 梯形积分） |
+| **iHS / nSL** | `skallel_ihs`、`skallel_nsl` | 整合单倍型分数（ref/alt iHH 比值对数）与按长度分离位点数（nSL），双向扫描汇总 |
+| **标准化** | `skallel_standardize`、`skallel_standardize_by_allele_count` | z-score 标准化 + 按 alternate 等位基因计数分档标准化（`make_similar_sized_bins` 相似规模分档） |
 | **窗口化 Tajima D** | `skallel_windowed_tajima_d`、`skallel_index_windows` | 索引窗口封装，复用 `popgen_tajima_d` 逐窗口计算 |
 
 ## 架构设计
