@@ -111,4 +111,30 @@ pub fn seqkit_tab2fx(content : String) -> String {
     }
   }
   buf.to_string()
+}///|
+/// Build the `.fai` (FASTA index) text for a FASTA (`seqkit faidx`).
+pub fn seqkit_faidx(fasta_content : String) -> String {
+  write_fai(build_fai(fasta_content))
+}
+
+///|
+/// Extract a subsequence by 1-based inclusive coordinates (`seqkit subseq
+/// -r start:end`, positive coordinates only). Returns "" for an unknown
+/// chromosome or an out-of-range region.
+pub fn seqkit_subseq(fasta : Fasta, chrom : String, start : Int, end : Int) -> String {
+  if start < 1 || end < start {
+    return ""
+  }
+  match fasta.get_seq(chrom) {
+    None => ""
+    Some(seq) => {
+      let full = seq.to_string()
+      let s0 = start - 1
+      if s0 >= 0 && end <= full.length() {
+        full[s0:end].to_owned()
+      } else {
+        ""
+      }
+    }
+  }
 }

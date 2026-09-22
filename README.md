@@ -612,6 +612,10 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **seqkit stats** | `seqkit stats -a` | FASTA/FASTQ 序列统计：num_seqs/sum_len/min/avg/max_len、Q1/Q2/Q3 四分位长度、N50/L50、sum_gap、GC(%)、sum_n，FASTQ 额外 Q20(%)/Q30(%)/AvgQual（误差概率对数的 -10·log10） |
 | **seqkit seq** | `seqkit seq -r/-p/-g` | 纯文本序列转换：`seqkit_reverse`、`seqkit_complement`（IUPAC 互补表，大小写保留、未知字符透传）、`seqkit_reverse_complement`、`seqkit_remove_gaps`（`-`/空格/tab/`.`） |
 | **seqkit fq2fa / fx2tab / tab2fx** | 格式转换 | `seqkit_fq2fa`（FASTQ→FASTA，即 `write_fasta` 去质量）、`seqkit_fx2tab`（FASTA/FASTQ→`id \t seq [\t qual]` 表格）、`seqkit_tab2fx`（表格→FASTA/FASTQ，2 列 FASTA / 3 列 FASTQ） |
+| **seqkit head / range / grep** | 子集与筛选 | `seqkit_head`（前 N）、`seqkit_range`（1-based 闭区间）、`seqkit_grep`（按完整 header 子串匹配，可 invert） |
+| **seqkit sort / rename** | 排序与重命名 | `seqkit_sort_length`（按长度，可降序）、`seqkit_sort_name`（按 id）、`seqkit_renumber`（ID 重编为 1..N） |
+| **seqkit dup / rmdup / common** | 去重与交集 | `seqkit_duplicate`（复制 N 次）、`seqkit_rmdup`（按序列去重保留首个）、`seqkit_common`（按完整 header 求交集） |
+| **seqkit faidx / subseq** | 索引与抽子序列 | `seqkit_faidx`（建 `.fai` 索引，即 `write_fai(build_fai)`）、`seqkit_subseq`（`-r start:end` 1-based 闭区间抽子序列，接 `Fasta`） |
 
 ## 架构设计
 
