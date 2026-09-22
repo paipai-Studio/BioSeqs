@@ -218,40 +218,118 @@ fn gffutils_sort_features(record : GFFRecord) -> Array[GFFFeature] {
 }
 
 ///|
-/// Merge overlapping (or book-ended) features of the same `seqid`, feature type
-/// and strand into larger features, returning the merged features
-/// (`gffutils.create_db(...).merge()`). Merged features carry the first
-/// feature's source/type strand and an empty attribute set.
-pub fn gffutils_merge(record : GFFRecord) -> Array[GFFFeature] {
+/// Merge features matching the default criteria of `gffutils.FeatureDB.merge()`
+/// — same `seqid`, feature type and strand, with `cur.start <= acc.end +
+/// min_dist` — into larger features. A merged feature carries the first
+/// component's attributes plus a fresh `ID` of the form `<featuretype>_<N>` and
+/// a comma-joined `source`; standalone features are returned unchanged.
+pub fn gffutils_merge(record : GFFRecord, min_dist? : Int = 1) -> Array[GFFFeature] {
   let sorted = gffutils_sort_features(record)
   let out : Array[GFFFeature] = Array::new()
+  let counters : Map[String, Int] = Map([], capacity=0)
   let mut i = 0
   while i < sorted.length() {
-    let base = sorted[i]
-    let mut merged = base
+    let first = sorted[i]
+    let mut max_end = first.end
+    let children : Array[GFFFeature] = Array::new()
+    children.push(first)
     let mut j = i + 1
     while j < sorted.length() {
-      let f = sorted[j]
-      if f.seqid == merged.seqid && f.feature_type == merged.feature_type &&
-        f.strand == merged.strand && f.start <= merged.end + 1 {
-        merged = GFFFeature::{
-          seqid: merged.seqid,
-          source: merged.source,
-          feature_type: merged.feature_type,
-          start: merged.start,
-          end: if f.end > merged.end { f.end } else { merged.end },
-          score: None,
-          strand: merged.strand,
-          phase: None,
-          attributes: Map([], capacity=0),
+      let cur = sorted[j]
+      if cur.seqid == first.seqid && cur.strand == first.strand &&
+        cur.feature_type == first.feature_type && cur.start <= max_end + min_dist {
+        if cur.end > max_end {
+          max_end = cur.end
         }
+        children.push(cur)
         j = j + 1
       } else {
         break
       }
     }
-    out.push(merged)
+    if children.length() == 1 {
+      out.push(first)
+    } else {
+      let ft = first.feature_type
+      let n = match counters.get(ft) {
+        None => {
+          counters.set(ft, 1)
+          1
+        }
+        Some(c) => {
+          counters.set(ft, c + 1)
+          c + 1
+        }
+      }
+      let new_id = ft + "_" + n.to_string()
+      let seen_src : Map[String, Bool] = Map([], capacity=0)
+      let src_sb = StringBuilder::new()
+      let mut first_src = true
+      for ch in children {
+        match seen_src.get(ch.source) {
+          Some(_) => ()
+          None => {
+            seen_src.set(ch.source, true)
+            if not(first_src) {
+              src_sb.write_char(',')
+            }
+            src_sb.write_string(ch.source)
+            first_src = false
+          }
+        }
+      }
+      let attrs : Map[String, String] = Map([], capacity=0)
+      for (k, v) in first.attributes {
+        attrs.set(k, v)
+      }
+      attrs.set("ID", new_id)
+      out.push(
+        GFFFeature::{
+          seqid: first.seqid,
+          source: src_sb.to_string(),
+          feature_type: ft,
+          start: first.start,
+          end: max_end,
+          score: first.score,
+          strand: first.strand,
+          phase: first.phase,
+          attributes: attrs,
+        },
+      )
+    }
     i = j
   }
   out
+}
+
+///|
+/// Convert a `GFFFeature` to a BED line (0-based half-open coordinates), with
+/// columns `chrom, chromStart, chromEnd, name, score, strand`.
+pub fn gffutils_to_bed(feature : GFFFeature) -> String {
+  let name = match feature.get_id() {
+    None => "."
+    Some(id) => id
+  }
+  let score = match feature.score {
+    None => "."
+    Some(s) => s.to_string()
+  }
+  let strand = if feature.strand.length() == 0 { "." } else { feature.strand }
+  feature.seqid + "\t" + (feature.start - 1).to_string() + "\t" +
+    feature.end.to_string() + "\t" + name + "\t" + score + "\t" + strand
+}
+
+///|
+/// Convert all features of a `GFFRecord` to BED text (one line per feature).
+pub fn gffutils_record_to_bed(record : GFFRecord) -> String {
+  let sb = StringBuilder::new()
+  let mut first = true
+  for f in record.features {
+    if not(first) {
+      sb.write_char('\n')
+    }
+    sb.write_string(gffutils_to_bed(f))
+    first = false
+  }
+  sb.to_string()
 }

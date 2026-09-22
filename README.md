@@ -656,7 +656,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | :--- | :--- | :--- |
 | **区间谓词** | `gffutils_overlaps` / `_contains` / `_within` / `_intersects` / `_distance` | GFFFeature 重叠/包含/被包含/相交/距离（1-based 闭区间） |
 | **父子遍历** | `gffutils_children` / `_parents` / `_all_children` / `_all_parents` | 通用 ID/Parent 双向索引，及传递闭包（不硬编码 gene→mRNA→exon） |
-| **合并** | `gffutils_merge` | 同 seqid+类型+链重叠/相邻特征合并（扫描线） |
+| **合并** | `gffutils_merge` | 同 seqid+类型+链、`start<=end+min_dist` 合并；合并项得新 ID（`<type>_<N>`）+ 保留首项属性 + 逗号合并 source |
+| **GFF→BED** | `gffutils_to_bed` / `_record_to_bed` | GFFFeature→BED 行（1-based 闭区间 → 0-based 半开区间坐标换算） |
 
 ## 架构设计
 
