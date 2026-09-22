@@ -370,15 +370,18 @@ pub fn jensen_shannon_divergence(
 }
 
 ///|
-/// Calculate weighted Unifrac-like distance (simplified version using abundance weights).
-/// This is a simplified Bray-Curtis with phylogenetic weighting placeholder.
+/// Tree-free stand-in for weighted UniFrac: returns the abundance-weighted
+/// Bray-Curtis distance. Note this is NOT the true tree-based UniFrac; use
+/// `skbio_weighted_unifrac` in `skbio_tree.mbt` for that.
 pub fn weighted_unifrac(x : Array[Double], y : Array[Double]) -> Double {
   // Simplified: use abundance-weighted Bray-Curtis as approximation
   bray_curtis(x, y)
 }
 
 ///|
-/// Calculate unweighted Unifrac-like distance (simplified version using presence/absence).
+/// Tree-free stand-in for unweighted UniFrac: returns the Jaccard distance
+/// (presence/absence). Use `skbio_unweighted_unifrac` in `skbio_tree.mbt` for the
+/// true tree-based UniFrac.
 pub fn unweighted_unifrac(x : Array[Double], y : Array[Double]) -> Double {
   // Simplified: use Jaccard distance as approximation
   jaccard_distance(x, y)

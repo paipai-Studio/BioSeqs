@@ -901,7 +901,7 @@ pub fn tgr_strand_levels(tgr : TidifiedGRanges) -> Array[String] {
 }
 
 ///|
-/// Compute GC content of ranges (placeholder - needs sequence data).
+/// Compute GC content of each range against the provided sequences.
 pub fn tgr_compute_gc(
   tgr : TidifiedGRanges,
   sequences : Map[String, String],
