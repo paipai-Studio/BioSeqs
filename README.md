@@ -605,6 +605,12 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 
 ---
 
+### SeqKit 工具
+
+| 模块 | 对应命令 | 功能说明 |
+| :--- | :--- | :--- |
+| **seqkit stats** | `seqkit stats -a` | FASTA/FASTQ 序列统计：num_seqs/sum_len/min/avg/max_len、Q1/Q2/Q3 四分位长度、N50/L50、sum_gap、GC(%)、sum_n，FASTQ 额外 Q20(%)/Q30(%)/AvgQual（误差概率对数的 -10·log10） |
+
 ## 架构设计
 
 ### 项目结构
