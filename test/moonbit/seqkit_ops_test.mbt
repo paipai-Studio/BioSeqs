@@ -71,4 +71,30 @@ test "seqkit_faidx_subseq" {
   assert_eq(@src.seqkit_subseq(fasta, "chr1", 1, 8), "ACGTACGT")
   assert_eq(@src.seqkit_subseq(fasta, "chr1", 1, 100), "")
   assert_eq(@src.seqkit_subseq(fasta, "chrX", 1, 4), "")
+}///|
+test "seqkit_sliding_translate_mutate" {
+  // sliding: "ACGTACGT", window 4, step 3 -> "ACGT","TACG"
+  let win = @src.seqkit_sliding("ACGTACGT", 4, 3)
+  assert_eq(win.length(), 2)
+  assert_eq(win[0], "ACGT")
+  assert_eq(win[1], "TACG")
+  // translate: ATG=M, GCC=A
+  assert_eq(@src.seqkit_translate("ATGGCC", 1), "MA")
+  // frame 2 skips the first base: TGG=W
+  assert_eq(@src.seqkit_translate("ATGGCC", 2), "W")
+  // mutate point / delete / insert
+  assert_eq(@src.seqkit_mutate_point("ACGTACGT", 2, "X"), "AXGTACGT")
+  assert_eq(@src.seqkit_mutate_delete("ACGTACGT", 2, 4), "AACGT")
+  assert_eq(@src.seqkit_mutate_insert("ACGT", 0, "TT"), "TTACGT")
+  assert_eq(@src.seqkit_mutate_insert("ACGT", 2, "NN"), "ACNNGT")
+}
+
+///|
+test "seqkit_shuffle_sample" {
+  let r = @src.seqkit_head(@src.seqkit_renumber(sq_records()), 100)
+  assert_eq(@src.seqkit_shuffle(r, 11).length(), 4)
+  let s = @src.seqkit_sample(r, 2, 11)
+  assert_eq(s.length(), 2)
+  // sampling is without replacement (distinct ids)
+  assert_true(s[0].id != s[1].id)
 }

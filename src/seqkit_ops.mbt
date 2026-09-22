@@ -204,4 +204,90 @@ pub fn seqkit_common(a : Array[SeqRecord], b : Array[SeqRecord]) -> Array[SeqRec
     }
   }
   out
+}///|
+/// Sliding-window subsequences (`seqkit sliding -W window -s step`,
+/// non-greedy): windows `[i, i+window)` for i = 0, step, 2·step, … while they
+/// fit; a partial trailing window is dropped.
+pub fn seqkit_sliding(seq : String, window : Int, step : Int) -> Array[String] {
+  let out : Array[String] = Array::new()
+  let l = seq.length()
+  let mut i = 0
+  while i + window <= l {
+    out.push(seq[i:i + window].to_owned())
+    i = i + step
+  }
+  out
+}
+
+///|
+/// Translate a DNA/RNA sequence to protein (`seqkit translate -f frame`),
+/// forward frames 1/2/3 (frame 2/3 skip the leading 1/2 bases). Uses the
+/// standard codon table via `Seq::translate`.
+pub fn seqkit_translate(seq : String, frame : Int) -> String raise SeqError {
+  let s = if frame <= 1 {
+    seq
+  } else {
+    seq[frame - 1:seq.length()].to_owned()
+  }
+  Seq::new(s).translate().to_string()
+}
+
+///|
+/// Point mutation: set the 1-based `pos`-th base to `base` (`seqkit mutate -p`).
+pub fn seqkit_mutate_point(seq : String, pos : Int, base : String) -> String {
+  let idx = pos - 1
+  if idx < 0 || idx >= seq.length() {
+    return seq
+  }
+  seq[0:idx].to_owned() + base + seq[idx + 1:seq.length()].to_owned()
+}
+
+///|
+/// Deletion: remove the 1-based inclusive range `[start, end]` (`seqkit mutate
+/// -d`).
+pub fn seqkit_mutate_delete(seq : String, start : Int, end : Int) -> String {
+  let s = start - 1
+  if s < 0 || end > seq.length() || s >= end {
+    return seq
+  }
+  seq[0:s].to_owned() + seq[end:seq.length()].to_owned()
+}
+
+///|
+/// Insertion: insert `ins` before the 0-based index `pos` (`seqkit mutate -i`;
+/// pos 0 = beginning, pos = length = end).
+pub fn seqkit_mutate_insert(seq : String, pos : Int, ins : String) -> String {
+  if pos < 0 || pos > seq.length() {
+    return seq
+  }
+  seq[0:pos].to_owned() + ins + seq[pos:seq.length()].to_owned()
+}
+
+///|
+fn seqkit_lcg(seed : Int) -> Int {
+  (seed * 1103515245 + 12345) & 0x7FFFFFFF
+}
+
+///|
+/// Deterministically shuffle records (`seqkit shuffle -s seed`, LCG-based
+/// Fisher–Yates).
+pub fn seqkit_shuffle(records : Array[SeqRecord], seed : Int) -> Array[SeqRecord] {
+  let out = records.copy()
+  let mut s = seed
+  let mut i = out.length() - 1
+  while i > 0 {
+    s = seqkit_lcg(s)
+    let j = s % (i + 1)
+    let tmp = out[i]
+    out[i] = out[j]
+    out[j] = tmp
+    i = i - 1
+  }
+  out
+}
+
+///|
+/// Randomly sample up to `n` records (`seqkit sample -n n`).
+pub fn seqkit_sample(records : Array[SeqRecord], n : Int, seed : Int) -> Array[SeqRecord] {
+  seqkit_head(seqkit_shuffle(records, seed), n)
 }

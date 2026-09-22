@@ -616,6 +616,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **seqkit sort / rename** | 排序与重命名 | `seqkit_sort_length`（按长度，可降序）、`seqkit_sort_name`（按 id）、`seqkit_renumber`（ID 重编为 1..N） |
 | **seqkit dup / rmdup / common** | 去重与交集 | `seqkit_duplicate`（复制 N 次）、`seqkit_rmdup`（按序列去重保留首个）、`seqkit_common`（按完整 header 求交集） |
 | **seqkit faidx / subseq** | 索引与抽子序列 | `seqkit_faidx`（建 `.fai` 索引，即 `write_fai(build_fai)`）、`seqkit_subseq`（`-r start:end` 1-based 闭区间抽子序列，接 `Fasta`） |
+| **seqkit sliding / translate** | 滑窗与翻译 | `seqkit_sliding`（`-W` 窗口 `-s` 步长，非贪心，丢弃末尾不足窗）、`seqkit_translate`（DNA/RNA→蛋白，`-f` 正向 frame 1/2/3，复用 `Seq::translate`） |
+| **seqkit mutate** | 突变编辑 | `seqkit_mutate_point`（`-p pos:base` 点突变）、`seqkit_mutate_delete`（`-d start:end` 删除）、`seqkit_mutate_insert`（`-i pos:seq` 插入） |
+| **seqkit shuffle / sample** | 随机化 | `seqkit_shuffle`（LCG Fisher–Yates 确定性洗牌）、`seqkit_sample`（`-n N` 抽样） |
 
 ## 架构设计
 
