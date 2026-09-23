@@ -316,3 +316,21 @@ fn copy_string_map(m : Map[String, String]) -> Map[String, String] {
   }
   out
 }
+
+///|
+/// Return the dense `n_obs × n_vars` expression matrix.
+pub fn AnnData::x_matrix(self : AnnData) -> Array[Array[Double]] {
+  self.x
+}
+
+///|
+/// Observation (cell) names.
+pub fn AnnData::get_obs_names(self : AnnData) -> Array[String] {
+  self.obs_names
+}
+
+///|
+/// Variable (gene) names.
+pub fn AnnData::get_var_names(self : AnnData) -> Array[String] {
+  self.var_names
+}
