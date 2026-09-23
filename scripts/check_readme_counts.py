@@ -30,15 +30,16 @@ def count_examples() -> int:
 
 
 def count_test_cases() -> int:
-    d = os.path.join(REPO, "test", "moonbit")
     n = 0
-    for f in os.listdir(d):
-        if not f.endswith(".mbt"):
-            continue
-        with open(os.path.join(d, f), encoding="utf-8") as fh:
-            for line in fh:
-                if line.startswith('test "'):
-                    n += 1
+    for root in ("test/moonbit", "src"):
+        d = os.path.join(REPO, root)
+        for f in os.listdir(d):
+            if not f.endswith(".mbt"):
+                continue
+            with open(os.path.join(d, f), encoding="utf-8") as fh:
+                for line in fh:
+                    if line.startswith('test "'):
+                        n += 1
     return n
 
 

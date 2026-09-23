@@ -61,4 +61,32 @@ fn main {
   for row in pca.coords {
     println(fmt_d(row))
   }
+  // --- SFS / Hardy–Weinberg / Patterson Fst ---
+  let ac = @src.skallel_gt_count_alleles(g, 1)
+  let dac : Array[Int] = Array::new()
+  for aci in ac {
+    dac.push(aci[1])
+  }
+  println("\n-- SFS unfolded (ALT allele count, n=12 chromosomes) --")
+  println(fmt_i(@src.skallel_sfs(dac, Some(12))))
+  println("-- SFS folded (minor allele count) --")
+  println(fmt_i(@src.skallel_sfs_folded(ac, Some(12))))
+
+  println("\n-- observed heterozygosity Ho (per variant) --")
+  println(fmt_d(@src.skallel_heterozygosity_observed(g, -1.0)))
+  println("-- inbreeding coefficient F (per variant; -999 = He=0) --")
+  println(fmt_d(@src.skallel_inbreeding_coefficient(g, -999.0)))
+
+  println("\n-- Patterson Fst (S1-S3 vs S4-S6) --")
+  let ac1 = @src.skallel_gt_count_alleles_subpop(g, [0, 1, 2], 1)
+  let ac2 = @src.skallel_gt_count_alleles_subpop(g, [3, 4, 5], 1)
+  let (num, den) = @src.skallel_patterson_fst(ac1, ac2)
+  let mut sn = 0.0
+  let mut sd = 0.0
+  for i = 0; i < num.length(); i = i + 1 {
+    sn = sn + num[i]
+    sd = sd + den[i]
+  }
+  println("averaged Fst = " + (sn / sd).to_string())
+
 }
