@@ -74,9 +74,6 @@ fn col_sds(m : Array[Array[Double]]) -> Array[Double] {
 fn pad_right(s : String, n : Int) -> String {
   if s.length() >= n { s } else { s + " ".repeat(n - s.length()) }
 }
-fn pad_left(s : String, n : Int) -> String {
-  if s.length() >= n { s } else { " ".repeat(n - s.length()) + s }
-}
 fn string_index_of(s : String, sub : String) -> Int {
   let n = s.length()
   let kn = sub.length()

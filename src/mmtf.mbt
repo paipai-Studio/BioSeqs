@@ -540,53 +540,11 @@ pub fn MmtfStructure::count_chains(self : MmtfStructure) -> Int {
 
 
 
-///|
-fn mmtf_hex_char(n : Int) -> Char {
-  if n < 10 {
-    Char::from_int(48 + n)
-  } else {
-    Char::from_int(87 + n)
-  }
-}
-
-///|
-fn mmtf_hex_val(c : Int) -> Int {
-  if c >= 48 && c <= 57 {
-    c - 48
-  } else if c >= 65 && c <= 70 {
-    c - 55
-  } else if c >= 97 && c <= 102 {
-    c - 87
-  } else {
-    0
-  }
-}
 
 
-///|
-/// Write a uint32 big-endian.
-fn mmtf_write_u32_be(data : Array[Int], offset : Int, value : Int) -> Unit {
-  data[offset] = (value >> 24) & 0xFF
-  data[offset + 1] = (value >> 16) & 0xFF
-  data[offset + 2] = (value >> 8) & 0xFF
-  data[offset + 3] = value & 0xFF
-}
 
 
-///|
-fn pow2(n : Int) -> Double {
-  let mut result = 1.0
-  if n >= 0 {
-    for _ in 0..<n {
-      result = result * 2.0
-    }
-  } else {
-    for _ in 0..<-n {
-      result = result / 2.0
-    }
-  }
-  result
-}
+
 
 
 

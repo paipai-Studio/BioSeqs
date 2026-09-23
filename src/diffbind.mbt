@@ -1478,11 +1478,6 @@ fn diffbind_covariance(x : Array[Double], y : Array[Double]) -> Double {
   sum / (x.length() - 1).to_double()
 }
 
-///|
-/// Compute variance of an array.
-fn diffbind_variance(arr : Array[Double]) -> Double {
-  diffbind_covariance(arr, arr)
-}
 
 
 ///|

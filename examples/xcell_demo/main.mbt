@@ -11,28 +11,6 @@
 ///
 /// Inspired by Aran, Hu, Butte (2017); xCell Bioconductor package.
 
-fn top_n(arr : Array[Double], n : Int) -> Array[(Int, Double)] {
-  let pairs : Array[(Int, Double)] = []
-  for i = 0; i < arr.length(); i = i + 1 {
-    pairs.push((i, arr[i]))
-  }
-  // Bubble-sort descending by score
-  for i = 0; i < pairs.length(); i = i + 1 {
-    for j = i + 1; j < pairs.length(); j = j + 1 {
-      if pairs[j].1 > pairs[i].1 {
-        let tmp = pairs[i]
-        pairs[i] = pairs[j]
-        pairs[j] = tmp
-      }
-    }
-  }
-  let result : Array[(Int, Double)] = []
-  let k = if n < pairs.length() { n } else { pairs.length() }
-  for i = 0; i < k; i = i + 1 {
-    result.push(pairs[i])
-  }
-  result
-}
 
 fn format_score(s : Double) -> String {
   s.to_string().substring(start=0, end=if s < 0.0 { 7 } else { 6 })
@@ -69,18 +47,6 @@ fn array_index_of(arr : Array[String], target : String) -> Int {
     if arr[i] == target { return i }
   }
   -1
-}
-fn fmt_fixed(d : Double, decimals : Int) -> String {
-  let s = d.to_string()
-  let dot_idx = string_index_of(s, ".")
-  if dot_idx >= 0 {
-    let end = if dot_idx + 1 + decimals < s.length() { dot_idx + 1 + decimals } else { s.length() }
-    s.substring(start=0, end=end)
-  } else {
-    let mut r = s + "."
-    while r.length() < s.length() + 1 + decimals { r = r + "0" }
-    r
-  }
 }
 
 ///|

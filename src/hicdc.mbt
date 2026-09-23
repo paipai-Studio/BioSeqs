@@ -307,39 +307,6 @@ fn hc_normal_cdf(x : Double) -> Double {
 }
 
 
-///|
-/// Upper incomplete gamma function Q(a, x) via continued fraction.
-fn hc_upper_gamma_q(a : Double, x : Double) -> Double {
-  if x <= 0.0 {
-    return 1.0
-  }
-  let tiny = 0.000000000000000000000000000000000000001
-  let mut b = x + 1.0 - a
-  let mut c = 1.0 / tiny
-  let mut d = 1.0 / b
-  let mut h = d
-  let mut i = 1
-  while i < 200 {
-    let an = -i.to_double() * (i.to_double() - a)
-    b = b + 2.0
-    d = an * d + b
-    if hc_abs(d) < tiny {
-      d = tiny
-    }
-    c = b + an / c
-    if hc_abs(c) < tiny {
-      c = tiny
-    }
-    d = 1.0 / d
-    let del = d * c
-    h = h * del
-    if hc_abs(del - 1.0) < 0.0000001 {
-      break
-    }
-    i = i + 1
-  }
-  h * hc_exp(-x + a * hc_log(x) - hc_log_gamma(a))
-}
 
 ///|
 /// Log-gamma function via Lanczos approximation.

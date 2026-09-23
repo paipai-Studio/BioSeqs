@@ -396,11 +396,6 @@ fn find_tag_end(xml : String, open_start : Int, tag_name : String) -> Int {
   n
 }
 
-///|
-/// Check if a string contains nested XML elements (child tags).
-fn has_nested_elements(s : String) -> Bool {
-  s.find("<").is_some()
-}
 
 
 

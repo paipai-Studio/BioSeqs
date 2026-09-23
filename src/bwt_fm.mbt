@@ -347,20 +347,6 @@ fn fm_backward_search_fn(fm : FMIndex, pattern : String) -> (Int, Int) {
 }
 
 
-///|
-/// Single LF step (internal helper).
-fn fm_lf_step_fn(fm : FMIndex, i : Int) -> Int {
-  let c = fm.bwt_str.unsafe_get(i).unsafe_to_char()
-  let c_val = match fm.c_table.get(c) {
-    Some(v) => v
-    None => 0
-  }
-  let rank = match fm.occ.get(c) {
-    Some(arr) => if i < arr.length() { arr[i] } else { 0 }
-    None => 0
-  }
-  c_val + rank - 1
-}
 
 // ---------------------------------------------------------------------------
 // Suffix array construction (explicit, for reference)

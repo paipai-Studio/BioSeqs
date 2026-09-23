@@ -358,45 +358,6 @@ fn abi_read_string(bytes : Array[Int], pos : Int, length : Int) -> String {
 
 // ===== Directory parsing =====
 
-///|
-/// Parse a single directory entry from the byte array at the given position.
-fn abi_parse_dir_entry(bytes : Array[Int], pos : Int) -> AbiDirEntry {
-  // 4 bytes: tag name
-  let tag_name = abi_read_tag_name(bytes, pos)
-  // 4 bytes: tag number
-  let tag_number = abi_read_i32(bytes, pos + 4)
-  // 2 bytes: element type
-  let element_type = abi_read_u16(bytes, pos + 8)
-  // 2 bytes: element size
-  let element_size = abi_read_u16(bytes, pos + 10)
-  // 4 bytes: number of elements
-  let num_elements = abi_read_u32(bytes, pos + 12)
-  // 4 bytes: data size in bytes
-  let data_size = abi_read_u32(bytes, pos + 16)
-  // 4 bytes: data offset (or inline if data_size <= 4)
-  let data_offset = abi_read_u32(bytes, pos + 20)
-  // 4 bytes: inline data (we store the first 4 bytes if data_size <= 4)
-  let inline_data : Array[Int] = Array(capacity=0)
-  if data_size <= 4 {
-    let mut i = 0
-    while i < 4 {
-      if pos + 24 + i < bytes.length() {
-        inline_data.push(bytes[pos + 24 + i])
-      }
-      i = i + 1
-    }
-  }
-  AbiDirEntry::{
-    tag_name,
-    tag_number,
-    element_type,
-    element_size,
-    num_elements,
-    data_size,
-    data_offset,
-    inline_data,
-  }
-}
 
 
 ///|

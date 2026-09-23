@@ -98,24 +98,6 @@ pub fn Split::normalize(self : Split) -> Split {
 }
 
 
-///|
-fn string_gt(a : String, b : String) -> Bool {
-  let n = a.length()
-  let m = b.length()
-  let min_len = if n < m { n } else { m }
-  let mut i = 0
-  while i < min_len {
-    let ca = a.unsafe_get(i).to_int()
-    let cb = b.unsafe_get(i).to_int()
-    if ca > cb {
-      return true
-    } else if ca < cb {
-      return false
-    }
-    i = i + 1
-  }
-  n > m
-}
 
 ///|
 pub fn Split::hash(self : Split) -> String {

@@ -187,18 +187,6 @@ fn vr_exp(x : Double) -> Double {
   @math.exp(x)
 }
 
-///|
-fn vr_mean(arr : Array[Double]) -> Double {
-  let n = arr.length()
-  if n == 0 {
-    return 0.0
-  }
-  let mut s = 0.0
-  for v in arr {
-    s = s + v
-  }
-  s / n.to_double()
-}
 
 
 ///|

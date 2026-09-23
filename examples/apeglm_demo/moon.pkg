@@ -1,7 +1,6 @@
 import {
   "moonbitlang/core/math",
   "IvanAXu/BioSeqs/src",
-  "moonbitlang/core/hashmap",
 }
 
 pkgtype(kind: "executable")

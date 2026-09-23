@@ -262,12 +262,3 @@ let valid_letter_table : FixedArray[Bool] = {
   t
 }
 
-///|
-/// Check if a code unit (as Int) is a valid (ambiguous) nucleotide letter.
-fn valid_letter(c : Int) -> Bool {
-  if c < 128 {
-    valid_letter_table[c]
-  } else {
-    false
-  }
-}

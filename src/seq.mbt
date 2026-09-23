@@ -536,14 +536,6 @@ fn codon_to_string(seq : String, i : Int) -> String {
 
 
 
-///|
-/// Encode 3 characters at index `i` as an Int key for Map lookup.
-fn codon_key(seq : String, i : Int) -> Int {
-  let c0 = seq.unsafe_get(i).to_int()
-  let c1 = seq.unsafe_get(i + 1).to_int()
-  let c2 = seq.unsafe_get(i + 2).to_int()
-  c0 * 65536 + c1 * 256 + c2
-}
 
 
 
