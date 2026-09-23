@@ -1,64 +1,46 @@
 ///|
-/// scikit-allel end-to-end demo: a simulated hard-sweep VCF (20 variants,
-/// 6 samples, 12 haplotypes) → genotype/haplotype arrays → iHS / nSL / PCA,
-/// through the `allel.io` bridge. The sweep carries a conserved ALT haplotype
-/// (sample S1) over variants 5–15, giving a positive iHS/nSL signal.
+/// Simulation sanity test: a hard-sweep VCF should produce (1) a positive,
+/// localized iHS signal near the sweep, and (2) a non-degenerate PCA.
 
 ///|
-fn fmt_i(row : Array[Int]) -> String {
-  let sb = StringBuilder::new()
-  let mut first = true
-  for x in row {
-    if not(first) {
-      sb.write_char(' ')
-    }
-    sb.write_string(x.to_string())
-    first = false
-  }
-  sb.to_string()
-}
-
-///|
-fn fmt_d(row : Array[Double]) -> String {
-  let sb = StringBuilder::new()
-  let mut first = true
-  for x in row {
-    if not(first) {
-      sb.write_char(' ')
-    }
-    sb.write_string(x.to_string())
-    first = false
-  }
-  sb.to_string()
-}
-
-///|
-fn main {
+test "skallel_sim_sweep" {
   let vcf_text = "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT\tS1\tS2\tS3\tS4\tS5\tS6\nchr1\t1\t.\tA\tT\t.\t.\t.\tGT\t1/0\t1/1\t1/1\t1/0\t0/1\t1/0\nchr1\t2\t.\tA\tT\t.\t.\t.\tGT\t0/1\t1/1\t0/1\t1/1\t1/0\t1/0\nchr1\t3\t.\tA\tT\t.\t.\t.\tGT\t1/0\t1/0\t0/0\t1/0\t0/0\t0/0\nchr1\t4\t.\tA\tT\t.\t.\t.\tGT\t1/1\t0/0\t0/1\t1/0\t1/0\t0/0\nchr1\t5\t.\tA\tT\t.\t.\t.\tGT\t0/0\t0/1\t0/1\t0/0\t0/0\t1/1\nchr1\t6\t.\tA\tT\t.\t.\t.\tGT\t1/1\t1/1\t0/1\t1/0\t0/1\t0/1\nchr1\t7\t.\tA\tT\t.\t.\t.\tGT\t1/1\t0/1\t0/0\t1/1\t1/1\t0/0\nchr1\t8\t.\tA\tT\t.\t.\t.\tGT\t1/1\t1/0\t0/0\t0/0\t1/1\t0/0\nchr1\t9\t.\tA\tT\t.\t.\t.\tGT\t1/1\t1/0\t1/1\t0/0\t0/1\t1/1\nchr1\t10\t.\tA\tT\t.\t.\t.\tGT\t1/1\t0/1\t0/1\t0/0\t1/1\t1/0\nchr1\t11\t.\tA\tT\t.\t.\t.\tGT\t1/1\t1/1\t0/1\t0/1\t1/1\t1/1\nchr1\t12\t.\tA\tT\t.\t.\t.\tGT\t1/1\t0/0\t0/1\t1/1\t1/0\t0/0\nchr1\t13\t.\tA\tT\t.\t.\t.\tGT\t1/1\t1/1\t0/1\t0/0\t0/0\t1/1\nchr1\t14\t.\tA\tT\t.\t.\t.\tGT\t1/1\t1/1\t0/0\t0/1\t0/0\t1/0\nchr1\t15\t.\tA\tT\t.\t.\t.\tGT\t1/1\t0/1\t0/0\t1/0\t1/0\t0/0\nchr1\t16\t.\tA\tT\t.\t.\t.\tGT\t1/1\t1/1\t0/0\t0/1\t1/1\t0/1\nchr1\t17\t.\tA\tT\t.\t.\t.\tGT\t0/1\t1/0\t0/1\t0/1\t1/1\t0/0\nchr1\t18\t.\tA\tT\t.\t.\t.\tGT\t1/0\t0/1\t0/1\t0/1\t1/0\t0/0\nchr1\t19\t.\tA\tT\t.\t.\t.\tGT\t1/0\t0/1\t0/0\t1/1\t1/0\t1/0\nchr1\t20\t.\tA\tT\t.\t.\t.\tGT\t0/1\t1/0\t0/1\t1/0\t1/0\t0/0\n"
   let vcf = @src.parse_vcf(vcf_text)
   let samples = vcf.get_sample_names()
   let g = @src.skallel_vcf_genotypes(vcf, samples)
   let h = @src.skallel_gt_to_haplotypes(g)
-  let gn = @src.skallel_gt_to_n_alt(g, fill=-1)
+  let gn = @src.skallel_gt_to_n_alt(g)
 
-  let pos2 : Array[Int] = Array::new()
+  let pos : Array[Int] = Array::new()
   for v = 0; v < 20; v = v + 1 {
-    pos2.push(v + 1)
+    pos.push(v + 1)
   }
 
-  println("samples = \{samples}")
-  println("\n-- iHS (unstandardized; sweep peak expected near variants 3–11) --")
-  println(fmt_d(@src.skallel_ihs(h, pos2, 0.0, false)))
-  println("\n-- nSL (unstandardized) --")
-  println(fmt_d(@src.skallel_nsl(h)))
-  println("\n-- LD (Rogers–Huff r, condensed) --")
-  println(fmt_d(@src.skallel_rogers_huff_r(gn)))
+  // iHS: a clear positive peak within the sweep region (variants 3..12)
+  let ihs = @src.skallel_ihs(h, pos, 0.0, false)
+  assert_eq(ihs.length(), 20)
+  let mut max_v = 0.0
+  let mut max_i = 0
+  for i = 0; i < 20; i = i + 1 {
+    if ihs[i] > max_v {
+      max_v = ihs[i]
+      max_i = i
+    }
+  }
+  assert_true(max_v > 0.5)
+  assert_true(max_i >= 2 && max_i <= 12)
 
+  // nSL: at least one positive peak (sweep region is non-degenerate)
+  let nsl = @src.skallel_nsl(h)
+  let mut nsl_max = 0.0
+  for x in nsl {
+    if x > nsl_max {
+      nsl_max = x
+    }
+  }
+  assert_true(nsl_max > 0.3)
+
+  // PCA: non-degenerate (first component explains < 90% of variance)
   let pca = @src.skallel_pca(gn, 5)
-  println("\n-- PCA explained-variance ratio --")
-  println(fmt_d(pca.explained_variance_ratio))
-  println("-- PCA coordinates (samples x components; S1 = sweep sample) --")
-  for row in pca.coords {
-    println(fmt_d(row))
-  }
+  assert_true(pca.explained_variance_ratio[0] < 0.9)
 }
