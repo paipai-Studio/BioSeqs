@@ -647,6 +647,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **位点频谱 SFS** | `skallel_sfs` / `_folded` / `_scaled` / `_folded_scaled` | 展开谱（派生等位基因计数 bincount）、折叠谱（次要等位频率）、缩放谱（k 或 k(n−k)/n 加权） |
 | **联合 SFS** | `skallel_joint_sfs` / `_folded` | 两群体联合频谱（(i,j) 元 = i/j 等位基因数的变异数），展开与折叠 |
 | **折叠转换** | `skallel_fold_sfs` / `_fold_joint_sfs` | 展开谱 → 折叠谱：`s[k]+s[n−k]`，含二维四象限折叠 |
+| **Hardy–Weinberg** | `skallel_heterozygosity_observed` / `_expected` / `skallel_inbreeding_coefficient` | 数组粒度：每变异观测杂合度（n_het/n_called）、期望杂合度（1−Σaf^ploidy）、近交系数 F=1−Ho/He |
 | **Garud H** | `skallel_garud_h`、`skallel_haplotype_diversity` | 单倍型阵列：单倍型多样性 + 软扫荡 H1/H12/H123/H2-H1 统计量 |
 | **EHH / iHH** | `skallel_ehh_decay`、`skallel_ihh_scan` | 扩展单倍型纯合度（EHH 衰减）与整合单倍型纯合度（iHH，共享后缀长度扫描 + 梯形积分） |
 | **iHS / nSL** | `skallel_ihs`、`skallel_nsl` | 整合单倍型分数（ref/alt iHH 比值对数）与按长度分离位点数（nSL），双向扫描汇总 |
