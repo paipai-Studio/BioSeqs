@@ -175,13 +175,6 @@ fn vr_sqrt(x : Double) -> Double {
   guess
 }
 
-///|
-fn vr_log(x : Double) -> Double {
-  if x <= 0.0 {
-    return -700.0
-  }
-  @math.ln(x)
-}
 
 ///|
 fn vr_exp(x : Double) -> Double {
@@ -207,20 +200,6 @@ fn vr_mean(arr : Array[Double]) -> Double {
   s / n.to_double()
 }
 
-///|
-fn vr_variance(arr : Array[Double]) -> Double {
-  let n = arr.length()
-  if n < 2 {
-    return 0.0
-  }
-  let m = vr_mean(arr)
-  let mut s = 0.0
-  for v in arr {
-    let d = v - m
-    s = s + d * d
-  }
-  s / (n - 1).to_double()
-}
 
 ///|
 fn vr_lcg_rand(state : Int) -> (Int, Double) {

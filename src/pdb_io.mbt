@@ -243,39 +243,6 @@ fn pdb_parse_int_fast(s : StringView) -> Int {
   }
 }
 
-///|
-/// Parse an integer from a string.
-fn pdb_parse_int(s : String) -> Int? {
-  let n = s.length()
-  if n == 0 {
-    None
-  } else {
-    let mut result = 0
-    let zero = '0'.to_int()
-    let mut i = 0
-    let mut is_negative = false
-
-    if s.unsafe_get(0).to_int() == 45 {
-      is_negative = true
-      i = 1
-    }
-
-    while i < n {
-      let c = s.unsafe_get(i).to_int()
-      if c < zero || c > zero + 9 {
-        return None
-      }
-      result = result * 10 + (c - zero)
-      i = i + 1
-    }
-
-    if is_negative {
-      Some(-result)
-    } else {
-      Some(result)
-    }
-  }
-}
 
 ///|
 /// Fast double parser for PDB format (no error checking).
@@ -330,60 +297,6 @@ fn pdb_parse_double_fast(s : StringView) -> Double {
   }
 }
 
-///|
-/// Parse a double from a string.
-fn pdb_parse_double(s : String) -> Double? {
-  let n = s.length()
-  if n == 0 {
-    None
-  } else {
-    let mut result = 0.0
-    let mut decimal = 0.0
-    let mut decimal_places = 0
-    let mut is_negative = false
-    let zero = '0'.to_int()
-    let mut i = 0
-
-    if s.unsafe_get(0).to_int() == 45 {
-      is_negative = true
-      i = 1
-    }
-
-    while i < n {
-      let c = s.unsafe_get(i).to_int()
-      if c == 46 {
-        i = i + 1
-        while i < n {
-          let dc = s.unsafe_get(i).to_int()
-          if dc < zero || dc > zero + 9 {
-            break
-          }
-          decimal = decimal * 10.0 + (dc - zero).to_double()
-          decimal_places = decimal_places + 1
-          i = i + 1
-        }
-        break
-      }
-      if c < zero || c > zero + 9 {
-        return None
-      }
-      result = result * 10.0 + (c - zero).to_double()
-      i = i + 1
-    }
-
-    while decimal_places > 0 {
-      decimal = decimal / 10.0
-      decimal_places = decimal_places - 1
-    }
-
-    let final_result = result + decimal
-    if is_negative {
-      Some(-final_result)
-    } else {
-      Some(final_result)
-    }
-  }
-}
 
 ///|
 /// Write a Structure to PDB format string.

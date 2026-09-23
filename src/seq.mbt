@@ -533,43 +533,8 @@ fn codon_to_string(seq : String, i : Int) -> String {
   buf.to_string()
 }
 
-///|
-/// Check if the 3 characters at `i` form a stop codon (TAA/TAG/TGA) without
-/// allocating a substring.
-fn is_stop_codon_at(seq : String, i : Int) -> Bool {
-  let c0 = seq.unsafe_get(i).to_int()
-  let c1 = seq.unsafe_get(i + 1).to_int()
-  let c2 = seq.unsafe_get(i + 2).to_int()
-  let t = 'T'.to_int()
-  let u = 'U'.to_int()
-  let a = 'A'.to_int()
-  let g = 'G'.to_int()
-  ((c0 == t || c0 == u) && c1 == a && (c2 == a || c2 == g)) ||
-  ((c0 == t || c0 == u) && c1 == g && c2 == a)
-}
 
-///|
-/// Check if the 3 characters at `i` form a start codon (ATG/CTG/TTG) without
-/// allocating a substring.
-fn is_start_codon_at(seq : String, i : Int) -> Bool {
-  let c0 = seq.unsafe_get(i).to_int()
-  let c1 = seq.unsafe_get(i + 1).to_int()
-  let c2 = seq.unsafe_get(i + 2).to_int()
-  let a = 'A'.to_int()
-  let c = 'C'.to_int()
-  let t = 'T'.to_int()
-  let u = 'U'.to_int()
-  let g = 'G'.to_int()
-  (c0 == a || c0 == c || c0 == t || c0 == u) && (c1 == t || c1 == u) && c2 == g
-}
 
-///|
-/// Look up the amino acid for the codon at index `i` without allocating a
-/// substring. Uses the precomputed codon-to-Int key for fast Map lookup.
-fn lookup_codon(seq : String, i : Int) -> Char? {
-  let key = codon_key(seq, i)
-  codon_forward_table.get(key)
-}
 
 ///|
 /// Encode 3 characters at index `i` as an Int key for Map lookup.
@@ -580,23 +545,7 @@ fn codon_key(seq : String, i : Int) -> Int {
   c0 * 65536 + c1 * 256 + c2
 }
 
-///|
-/// Check if the 3 characters at `i` are all valid (ambiguous) nucleotide
-/// letters, without allocating a substring.
-fn all_valid_letters_at(seq : String, i : Int) -> Bool {
-  valid_letter(seq.unsafe_get(i).to_int()) &&
-  valid_letter(seq.unsafe_get(i + 1).to_int()) &&
-  valid_letter(seq.unsafe_get(i + 2).to_int())
-}
 
-///|
-/// Check if the 3 characters at `i` are all equal to `gap`.
-fn is_gap_codon_at(seq : String, i : Int, gap : Char) -> Bool {
-  let g = gap.to_int()
-  seq.unsafe_get(i).to_int() == g &&
-  seq.unsafe_get(i + 1).to_int() == g &&
-  seq.unsafe_get(i + 2).to_int() == g
-}
 
 ///|
 /// Fast version of is_stop_codon_at that uses already-read UInt16 values.
@@ -626,15 +575,6 @@ fn is_start_codon_fast(seq : String, i : Int) -> Bool {
   (c0 == a || c0 == c || c0 == t || c0 == u) && (c1 == t || c1 == u) && c2 == g
 }
 
-///|
-/// Fast version of valid_letter that takes UInt16 directly.
-fn valid_letter_fast(c : UInt16) -> Bool {
-  if c < 128 {
-    valid_letter_table[c.to_int()]
-  } else {
-    false
-  }
-}
 
 // ---------------------------------------------------------------------------
 // MutableSeq - Mutable counterpart to Seq, mirroring Bio.Seq.MutableSeq

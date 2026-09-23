@@ -346,18 +346,6 @@ fn fm_backward_search_fn(fm : FMIndex, pattern : String) -> (Int, Int) {
   (l, r)
 }
 
-///|
-/// Convert a suffix array index to the original text position.
-/// Computed by walking LF mapping until we reach the sentinel.
-fn fm_sa_position_fn(fm : FMIndex, sa_idx : Int) -> Int {
-  let mut pos = sa_idx
-  let mut distance = 0
-  while fm.bwt_str.unsafe_get(pos).unsafe_to_char() != bwt_sentinel {
-    pos = fm_lf_step_fn(fm, pos)
-    distance = distance + 1
-  }
-  fm.text_len - 1 - distance
-}
 
 ///|
 /// Single LF step (internal helper).

@@ -817,15 +817,6 @@ fn tm_resolve(
   }
 }
 
-///|
-/// Look up a duplex key in a table, trying the key and its reverse; returns
-/// Some((dH, dS)) or None.
-fn tm_table_lookup(table : ThermoTable, key : String) -> (Double, Double)? {
-  match table.get(key) {
-    Some(v) => Some(v)
-    None => table.get(mt_reverse(key))
-  }
-}
 
 ///|
 /// Raise or silently ignore a missing-neighbor condition (strict mode).

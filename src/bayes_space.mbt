@@ -156,12 +156,6 @@ fn bayes_rng_next(rng : BayesRng) -> Int {
   rng.state
 }
 
-///|
-/// Return a uniform pseudo-random double in [0, 1).
-fn bayes_rng_uniform(rng : BayesRng) -> Double {
-  let v = bayes_rng_next(rng)
-  v.to_double() / 2147483648.0
-}
 
 ///|
 /// Log of the Student's t-distribution density at point x given location mu,

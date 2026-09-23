@@ -1460,17 +1460,6 @@ fn diffbind_extract_column(
   col
 }
 
-///|
-/// Compute sum of array elements.
-fn diffbind_sum(arr : Array[Double]) -> Double {
-  let mut sum = 0.0
-  let mut i = 0
-  while i < arr.length() {
-    sum = sum + arr[i]
-    i = i + 1
-  }
-  sum
-}
 
 ///|
 /// Compute covariance between two arrays.
@@ -1495,17 +1484,6 @@ fn diffbind_variance(arr : Array[Double]) -> Double {
   diffbind_covariance(arr, arr)
 }
 
-///|
-/// Compute Pearson correlation between two arrays.
-fn diffbind_correlation(x : Array[Double], y : Array[Double]) -> Double {
-  let cov = diffbind_covariance(x, y)
-  let std_x = diffbind_sqrt(diffbind_variance(x))
-  let std_y = diffbind_sqrt(diffbind_variance(y))
-  if std_x == 0.0 || std_y == 0.0 {
-    return 0.0
-  }
-  cov / (std_x * std_y)
-}
 
 ///|
 /// Compute PCA on a matrix (samples x peaks).

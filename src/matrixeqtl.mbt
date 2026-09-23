@@ -91,39 +91,7 @@ fn meqtl_mean(data : Array[Double]) -> Double {
   sum / data.length().to_double()
 }
 
-///|
-/// Compute variance of a Double array (sample variance, denominator n-1).
-fn meqtl_variance(data : Array[Double]) -> Double {
-  let n = data.length()
-  if n <= 1 {
-    return 0.0
-  }
-  let mean = meqtl_mean(data)
-  let mut sum_sq = 0.0
-  for v in data {
-    let diff = v - mean
-    sum_sq = sum_sq + diff * diff
-  }
-  sum_sq / (n.to_double() - 1.0)
-}
 
-///|
-/// Compute covariance between two Double arrays.
-fn meqtl_covariance(x : Array[Double], y : Array[Double]) -> Double {
-  let n = x.length()
-  if n <= 1 || n != y.length() {
-    return 0.0
-  }
-  let mean_x = meqtl_mean(x)
-  let mean_y = meqtl_mean(y)
-  let mut sum_xy = 0.0
-  let mut i = 0
-  while i < n {
-    sum_xy = sum_xy + (x[i] - mean_x) * (y[i] - mean_y)
-    i = i + 1
-  }
-  sum_xy / (n.to_double() - 1.0)
-}
 
 ///|
 /// Approximate cumulative distribution function of the standard normal.

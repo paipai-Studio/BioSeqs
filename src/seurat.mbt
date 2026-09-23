@@ -283,10 +283,6 @@ fn find_neighbors_helper(
   neighbors
 }
 
-///|
-fn sort_distances(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
-  stat_sort_indices_desc(arr)
-}
 
 ///|
 pub fn find_clusters(obj : SeuratObject) -> SeuratObject {
@@ -616,29 +612,7 @@ fn sort_by_p_value(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
   stat_sort_indices_asc(arr)
 }
 
-///|
-fn sort_indices_desc(arr : Array[(Double, Int)]) -> Array[(Double, Int)] {
-  stat_sort_indices_desc(arr)
-}
 
-///|
-fn t_cdf(t : Double, df : Double) -> Double {
-  let x = t / (1.0 + t * t / df).sqrt()
-  let z = (1.0 + x) / 2.0
-
-  let mut sum = z
-  let mut term = z * (1.0 - z)
-  let mut i = 1
-  while i <= 50 {
-    let coeff = ((df - 1.0) / 2.0 + i.to_double() - 1.0) /
-      (i.to_double() * (df / 2.0 + i.to_double() - 1.0))
-    sum = sum + coeff * term
-    term = term * (1.0 - z) * z
-    i = i + 1
-  }
-
-  0.5 * (1.0 + sum)
-}
 
 ///|
 pub fn seurat_create_example_data() -> SeuratObject {

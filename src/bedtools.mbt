@@ -239,18 +239,6 @@ pub struct ClosestResult {
   distance : Int
 }
 
-///|
-fn bed_distance(a : BedInterval, b : BedInterval) -> Int {
-  // Signed distance matching bedtools closest: overlap 0, downstream positive,
-  // upstream negative, with a +1 offset (adjacent features => distance 1).
-  if a.start < b.end && b.start < a.end {
-    0
-  } else if b.start >= a.end {
-    b.start - a.end + 1
-  } else {
-    -(a.start - b.end) - 1
-  }
-}
 
 ///|
 /// For each A, the closest B on the same chromosome (minimum genomic distance,

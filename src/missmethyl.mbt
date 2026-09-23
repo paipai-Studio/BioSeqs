@@ -215,17 +215,6 @@ fn mm_contains(arr : Array[String], val : String) -> Bool {
   false
 }
 
-///|
-/// Return the unique strings of an array, preserving first-seen order.
-fn mm_unique(arr : Array[String]) -> Array[String] {
-  let result : Array[String] = Array(capacity=0)
-  for v in arr {
-    if !(mm_contains(result, v)) {
-      result.push(v)
-    }
-  }
-  result
-}
 
 ///|
 /// Intersection of two string arrays (unique, first-seen order).

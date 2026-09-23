@@ -63,18 +63,6 @@ fn plm_abs(x : Double) -> Double {
   }
 }
 
-///|
-/// sqrt via Newton's method.
-fn plm_sqrt(x : Double) -> Double {
-  if x <= 0.0 {
-    return 0.0
-  }
-  let mut guess = x
-  for _ in 0..<50 {
-    guess = (guess + x / guess) / 2.0
-  }
-  guess
-}
 
 ///|
 /// Median absolute deviation (MAD) of a flat array.

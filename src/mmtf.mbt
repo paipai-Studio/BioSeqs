@@ -538,30 +538,7 @@ pub fn MmtfStructure::count_chains(self : MmtfStructure) -> Int {
 // Binary helpers
 // ============================================================================
 
-///|
-/// Convert a hex string to a byte array.
-fn mmtf_hex_to_bytes(hex : String) -> Array[Int] {
-  let n = hex.length()
-  let bytes = Array::make(n / 2, 0)
-  for i in 0..<bytes.length() {
-    let high = mmtf_hex_val(hex.unsafe_get(i * 2).to_int())
-    let low = mmtf_hex_val(hex.unsafe_get(i * 2 + 1).to_int())
-    bytes[i] = high * 16 + low
-  }
-  bytes
-}
 
-///|
-/// Convert a byte array to a lowercase hex string.
-fn mmtf_bytes_to_hex(data : Array[Int]) -> String {
-  let sb = StringBuilder()
-  for i in 0..<data.length() {
-    let b = data[i] & 0xFF
-    sb.write_char(mmtf_hex_char((b >> 4) & 0xF))
-    sb.write_char(mmtf_hex_char(b & 0xF))
-  }
-  sb.to_string()
-}
 
 ///|
 fn mmtf_hex_char(n : Int) -> Char {
@@ -585,14 +562,6 @@ fn mmtf_hex_val(c : Int) -> Int {
   }
 }
 
-///|
-/// Read a uint32 big-endian.
-fn mmtf_read_u32_be(data : Array[Int], offset : Int) -> Int {
-  (data[offset] & 0xFF) * 16777216 +
-  (data[offset + 1] & 0xFF) * 65536 +
-  (data[offset + 2] & 0xFF) * 256 +
-  (data[offset + 3] & 0xFF)
-}
 
 ///|
 /// Write a uint32 big-endian.
@@ -603,29 +572,6 @@ fn mmtf_write_u32_be(data : Array[Int], offset : Int, value : Int) -> Unit {
   data[offset + 3] = value & 0xFF
 }
 
-///|
-/// Read a float32 big-endian (IEEE 754).
-fn mmtf_read_f32_be(data : Array[Int], offset : Int) -> Double {
-  let b0 = data[offset] & 0xFF
-  let b1 = data[offset + 1] & 0xFF
-  let b2 = data[offset + 2] & 0xFF
-  let b3 = data[offset + 3] & 0xFF
-  let bits = b0 * 16777216 + b1 * 65536 + b2 * 256 + b3
-  let sign = if bits >> 31 == 1 { -1.0 } else { 1.0 }
-  let exponent = (bits >> 23) & 0xFF
-  let mantissa = bits & 0x7FFFFF
-  if exponent == 0 && mantissa == 0 {
-    0.0
-  } else if exponent == 0 {
-    // Denormalized number
-    sign * mantissa.to_double() * pow2(-149)
-  } else if exponent == 255 {
-    // Infinity or NaN - return 0.0 for simplicity
-    0.0
-  } else {
-    sign * (mantissa.to_double() + 8388608.0) * pow2(exponent - 127 - 23)
-  }
-}
 
 ///|
 fn pow2(n : Int) -> Double {
@@ -642,61 +588,8 @@ fn pow2(n : Int) -> Double {
   result
 }
 
-///|
-/// Write a float32 big-endian (IEEE 754, simplified for common values).
-fn mmtf_write_f32_be(data : Array[Int], offset : Int, value : Double) -> Unit {
-  // Handle simple cases
-  if value == 0.0 {
-    data[offset] = 0
-    data[offset + 1] = 0
-    data[offset + 2] = 0
-    data[offset + 3] = 0
-    return
-  }
-  let sign_bit : Int = if value < 0.0 { 1 } else { 0 }
-  let abs_val = if value < 0.0 { -value } else { value }
-  // Find exponent
-  let mut exp = 0
-  let mut mant = abs_val
-  while mant >= 2.0 && exp < 128 {
-    mant = mant / 2.0
-    exp = exp + 1
-  }
-  while mant < 1.0 && exp > -127 {
-    mant = mant * 2.0
-    exp = exp - 1
-  }
-  let biased_exp = exp + 127
-  let int_mantissa = ((mant - 1.0) * 8388608.0 + 0.5).to_int()
-  let sign_bits = if sign_bit == 1 { 0x80000000 } else { 0 }
-  let bits = sign_bits + biased_exp * 8388608 + int_mantissa
-  mmtf_write_u32_be(data, offset, bits)
-}
 
-///|
-/// Convert ASCII byte array slice to a string.
-fn mmtf_ascii_to_string(
-  data : Array[Int],
-  offset : Int,
-  length : Int,
-) -> String {
-  let sb = StringBuilder()
-  for i in 0..<length {
-    sb.write_char(Char::from_int(data[offset + i] & 0xFF))
-  }
-  sb.to_string()
-}
 
-///|
-/// Convert a string to an ASCII byte array.
-fn mmtf_string_to_ascii(s : String) -> Array[Int] {
-  let n = s.length()
-  let out = Array::make(n, 0)
-  for i in 0..<n {
-    out[i] = s.unsafe_get(i).to_int() & 0xFF
-  }
-  out
-}
 
 // ============================================================================
 // Run-length decoding (used by MMTF for integer arrays)

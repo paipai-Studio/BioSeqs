@@ -414,37 +414,7 @@ pub fn bio_enrichplot_heatmap(
   result
 }
 
-///|
-fn copy_tuple_array(arr : Array[(String, Int)]) -> Array[(String, Int)] {
-  let len = arr.length()
-  let result : Array[(String, Int)] = Array(capacity=0)
-  let mut i = 0
-  while i < len {
-    result.push(arr[i])
-    i = i + 1
-  }
-  result
-}
 
-///|
-fn set_tuple_array(
-  arr : Array[(String, Int)],
-  index : Int,
-  value : (String, Int),
-) -> Array[(String, Int)] {
-  let len = arr.length()
-  let result : Array[(String, Int)] = Array(capacity=0)
-  let mut i = 0
-  while i < len {
-    if i == index {
-      result.push(value)
-    } else {
-      result.push(arr[i])
-    }
-    i = i + 1
-  }
-  result
-}
 
 ///|
 fn contains_gene(genes : Array[String], gene : String) -> Bool {

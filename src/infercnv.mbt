@@ -479,14 +479,6 @@ fn pyramidal_weights(half : Int) -> Array[Double] {
   w
 }
 
-///|
-fn array_sum_weighted(vec : Array[Double], w : Array[Double]) -> Double {
-  let mut sum = 0.0
-  for i in 0..<w.length() {
-    sum += vec[i] * w[i]
-  }
-  sum
-}
 
 ///|
 fn smooth_vector(vec : Array[Double], half_window : Int) -> Array[Double] {

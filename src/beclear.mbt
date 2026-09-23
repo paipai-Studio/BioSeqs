@@ -65,18 +65,6 @@ fn beclear_median(arr : Array[Double]) -> Double {
   }
 }
 
-///|
-/// Mean of an array.
-fn beclear_mean(arr : Array[Double]) -> Double {
-  if arr.is_empty() {
-    return 0.0
-  }
-  let mut sum = 0.0
-  for v in arr {
-    sum += v
-  }
-  sum / arr.length().to_double()
-}
 
 ///|
 /// Absolute value.

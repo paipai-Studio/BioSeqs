@@ -421,15 +421,6 @@ fn chr_min(a : Double, b : Double) -> Double {
   }
 }
 
-///|
-/// Helper: abs of double.
-fn chr_abs(x : Double) -> Double {
-  if x < 0.0 {
-    -x
-  } else {
-    x
-  }
-}
 
 ///|
 /// Helper: PI constant.

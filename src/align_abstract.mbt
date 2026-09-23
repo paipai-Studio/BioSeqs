@@ -154,14 +154,6 @@ fn char_to_upper(c : UInt16) -> UInt16 {
   }
 }
 
-///|
-fn char_to_lower(c : UInt16) -> UInt16 {
-  if c >= 65 && c <= 90 {
-    c + 32
-  } else {
-    c
-  }
-}
 
 ///|
 /// Convert a UInt16 character code to its 1-character String representation.

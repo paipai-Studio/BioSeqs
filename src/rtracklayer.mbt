@@ -697,14 +697,3 @@ fn find_char(s : String, c : Char) -> Int {
   -1
 }
 
-///|
-fn find_char_from(s : String, c : Char, start : Int) -> Int {
-  let mut i = start
-  while i < s.length() {
-    if s.unsafe_get(i).unsafe_to_char() == c {
-      return i
-    }
-    i = i + 1
-  }
-  -1
-}

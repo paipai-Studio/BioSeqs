@@ -345,25 +345,6 @@ fn sqrt_d_mast(x : Double) -> Double {
   }
 }
 
-///|
-fn chisq_test_2x2(a : Int, b : Int, c : Int, d : Int) -> Double {
-  let n = (a + b + c + d).to_double()
-  if n == 0.0 {
-    1.0
-  } else {
-    let e11 = (a + b).to_double() * (a + c).to_double() / n
-    let e12 = (a + b).to_double() * (b + d).to_double() / n
-    let e21 = (c + d).to_double() * (a + c).to_double() / n
-    let e22 = (c + d).to_double() * (b + d).to_double() / n
-
-    let chi2 = (a.to_double() - e11) * (a.to_double() - e11) / e11 +
-      (b.to_double() - e12) * (b.to_double() - e12) / e12 +
-      (c.to_double() - e21) * (c.to_double() - e21) / e21 +
-      (d.to_double() - e22) * (d.to_double() - e22) / e22
-
-    chisq_pval(chi2, 1.0)
-  }
-}
 
 ///|
 fn chisq_pval(chi2 : Double, df : Double) -> Double {

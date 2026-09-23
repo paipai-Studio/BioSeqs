@@ -22,10 +22,6 @@ pub struct PcaMethodsResult {
 // Small dense-matrix helpers (rows × columns)
 // ---------------------------------------------------------------------------
 
-///|
-fn pm_nan() -> Double {
-  0.0 / 0.0
-}
 
 ///|
 fn pm_mul(a : Array[Array[Double]], b : Array[Array[Double]]) -> Array[Array[Double]] {

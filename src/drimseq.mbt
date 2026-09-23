@@ -772,17 +772,6 @@ fn array_sub(a : Array[Double], b : Array[Double]) -> Array[Double] {
   result
 }
 
-///|
-fn array_dot(a : Array[Double], b : Array[Double]) -> Double {
-  let len = min_int(a.length(), b.length())
-  let mut s = 0.0
-  let mut i = 0
-  while i < len {
-    s = s + a[i] * b[i]
-    i = i + 1
-  }
-  s
-}
 
 ///|
 fn slice_array(arr : Array[Double], start : Int, end : Int) -> Array[Double] {

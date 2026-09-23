@@ -733,30 +733,3 @@ pub fn ga_evolve(
   )
 }
 
-///|
-/// Sort indices by fitness (descending).
-fn ga_sort_indices(individuals : Array[GAIndividual]) -> Array[Int] {
-  let n = individuals.length()
-  let indices : Array[Int] = Array(capacity=0)
-  let mut i = 0
-  while i < n {
-    indices.push(i)
-    i = i + 1
-  }
-  // Simple bubble sort by fitness descending
-  let arr = indices
-  let mut j = 0
-  while j < n {
-    let mut k = j + 1
-    while k < n {
-      if individuals[arr[k]].fitness > individuals[arr[j]].fitness {
-        let temp = arr[j]
-        arr[j] = arr[k]
-        arr[k] = temp
-      }
-      k = k + 1
-    }
-    j = j + 1
-  }
-  arr
-}

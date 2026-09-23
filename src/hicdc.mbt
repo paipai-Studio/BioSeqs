@@ -306,31 +306,6 @@ fn hc_normal_cdf(x : Double) -> Double {
   }
 }
 
-///|
-/// Lower incomplete gamma function P(a, x) via series expansion.
-fn hc_lower_gamma_p(a : Double, x : Double) -> Double {
-  if x <= 0.0 {
-    return 0.0
-  }
-  if x < a + 1.0 {
-    // Series expansion.
-    let mut term = 1.0 / a
-    let mut sum = term
-    let mut n = 1
-    while n < 200 {
-      term = term * x / (a + n.to_double())
-      sum = sum + term
-      if hc_abs(term) < hc_abs(sum) * 0.0000001 {
-        break
-      }
-      n = n + 1
-    }
-    sum * hc_exp(-x + a * hc_log(x) - hc_log_gamma(a))
-  } else {
-    // Continued fraction for upper incomplete gamma Q(a, x).
-    1.0 - hc_upper_gamma_q(a, x)
-  }
-}
 
 ///|
 /// Upper incomplete gamma function Q(a, x) via continued fraction.

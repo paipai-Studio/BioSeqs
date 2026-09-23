@@ -355,15 +355,6 @@ fn abi_read_string(bytes : Array[Int], pos : Int, length : Int) -> String {
   sb.to_string()
 }
 
-///|
-/// Read a Pascal string (length-prefixed) from a byte array.
-fn abi_read_pstring(bytes : Array[Int], pos : Int) -> String {
-  if pos >= bytes.length() {
-    return ""
-  }
-  let len = bytes[pos]
-  abi_read_string(bytes, pos + 1, len)
-}
 
 // ===== Directory parsing =====
 
@@ -407,24 +398,6 @@ fn abi_parse_dir_entry(bytes : Array[Int], pos : Int) -> AbiDirEntry {
   }
 }
 
-///|
-/// Parse all directory entries from an ABIF file.
-fn abi_parse_directory(
-  bytes : Array[Int],
-  dir_offset : Int,
-  num_entries : Int,
-) -> Array[AbiDirEntry] {
-  let entries : Array[AbiDirEntry] = Array(capacity=0)
-  let mut i = 0
-  while i < num_entries {
-    let pos = dir_offset + i * abi_dir_entry_size
-    if pos + abi_dir_entry_size <= bytes.length() {
-      entries.push(abi_parse_dir_entry(bytes, pos))
-    }
-    i = i + 1
-  }
-  entries
-}
 
 ///|
 /// Find a directory entry by tag name and number.

@@ -165,11 +165,6 @@ fn psea_arccos_deg(x : Double) -> Double {
   @math.acos(x) * 180.0 / 3.141592653589793
 }
 
-///|
-/// Arctangent2 in degrees.
-fn psea_atan2_deg(y : Double, x : Double) -> Double {
-  @math.atan2(y, x) * 180.0 / 3.141592653589793
-}
 
 // ===== Geometry computation =====
 

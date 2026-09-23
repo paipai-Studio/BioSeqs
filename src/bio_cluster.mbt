@@ -785,21 +785,6 @@ pub fn distancematrix(
   matrix
 }
 
-///|
-/// Ragged lower-triangular matrix filled with zeros.
-fn bc_zero_distmatrix(n : Int) -> Array[Array[Double]] {
-  let matrix : Array[Array[Double]] = Array(capacity=0)
-  for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array(capacity=0)
-    matrix.push(row)
-  }
-  for i = 1; i < n; i = i + 1 {
-    for _j = 0; _j < i; _j = _j + 1 {
-      matrix[i].push(0.0)
-    }
-  }
-  matrix
-}
 
 ///|
 fn bc_ones_mask(nrows : Int, ncolumns : Int) -> Array[Array[Int]] {

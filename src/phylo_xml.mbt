@@ -357,30 +357,6 @@ fn xml_find_close_tag(
   None
 }
 
-///|
-/// Get the text content between an element's start and end tags.
-fn xml_get_text_content(
-  xml : String,
-  open_start : Int,
-  close_start : Int,
-  tag_name : String,
-) -> String {
-  let n = xml.length()
-  let search_tag = tag_name
-  let tag_end = find_tag_end(xml, open_start, search_tag)
-  if tag_end >= close_start {
-    return ""
-  }
-  let content = xml[tag_end:close_start].to_owned()
-  let trimmed = trim(content)
-  if trimmed.length() == 0 {
-    return ""
-  }
-  if has_nested_elements(trimmed) {
-    return ""
-  }
-  trimmed
-}
 
 ///|
 /// Find the position after the closing ">" of the tag that starts at open_start.
@@ -426,44 +402,7 @@ fn has_nested_elements(s : String) -> Bool {
   s.find("<").is_some()
 }
 
-///|
-/// Extract a complete XML element by tag name.
-/// Returns (attributes_map, children_text) or (empty_map, "").
-fn xml_extract_element(
-  xml : String,
-  tag_name : String,
-) -> (Map[String, String], String) {
-  let open_opt = xml_find_open_tag(xml, tag_name, 0)
-  if open_opt.is_none() {
-    return (Map([], capacity=4), "")
-  }
-  let (open_start, attrs, is_self_closing) = open_opt.unwrap()
-  if is_self_closing {
-    return (attrs, "")
-  }
-  let close_opt = xml_find_close_tag(xml, tag_name, open_start)
-  if close_opt.is_none() {
-    return (attrs, "")
-  }
-  let close_start = close_opt.unwrap()
-  let tag_end = find_tag_end(xml, open_start, tag_name)
-  let children_text = xml[tag_end:close_start].to_owned()
-  (attrs, children_text)
-}
 
-///|
-/// Get text content between an open tag and close tag positions.
-fn xml_get_text_between(
-  xml : String,
-  open_tag : Int,
-  close_tag : Int,
-) -> String {
-  if open_tag >= close_tag {
-    return ""
-  }
-  let content = xml[open_tag:close_tag].to_owned()
-  trim(content)
-}
 
 // ============================================================================
 // XML Parser

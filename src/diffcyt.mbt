@@ -266,17 +266,6 @@ fn dc_log(x : Double) -> Double {
   @math.ln(x)
 }
 
-///|
-/// Logistic sigmoid.
-fn dc_sigmoid(x : Double) -> Double {
-  if x >= 40.0 {
-    return 1.0
-  }
-  if x <= -40.0 {
-    return 0.0000000001
-  }
-  1.0 / (1.0 + @math.exp(-x))
-}
 
 ///|
 /// Normal CDF approximation (Abramowitz & Stegun).

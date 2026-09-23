@@ -53,11 +53,6 @@ fn chem_atomic_weight(symbol : String) -> Double {
   }
 }
 
-///|
-/// Whether a symbol is a recognized element.
-fn chem_is_element(symbol : String) -> Bool {
-  chem_atomic_weight(symbol) > 0.0
-}
 
 // ============================================================================
 // SDF atom and bond

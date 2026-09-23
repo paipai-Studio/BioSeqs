@@ -117,26 +117,6 @@ pub fn cage_normalize_tpm(cs : CageSet) -> CageSet {
   CageSet::{ name: cs.name, samples: samples, normalization: "simpleTPM" }
 }
 
-/// 按 count 对 CTSS 数组降序排序（返回新数组）。
-fn cage_sort_ctss_desc(ctss : Array[CageCtss]) -> Array[CageCtss] {
-  let sorted = ctss.copy()
-  let n = sorted.length()
-  for i in 0..<n {
-    let mut max_idx = i
-    let j_start = i + 1
-    for j in j_start..<n {
-      if sorted[j].count > sorted[max_idx].count {
-        max_idx = j
-      }
-    }
-    if max_idx != i {
-      let tmp = sorted[i]
-      sorted[i] = sorted[max_idx]
-      sorted[max_idx] = tmp
-    }
-  }
-  sorted
-}
 
 /// power-law 归一化（CAGEr 风格：以占比次方缩放，压缩高表达位点）。
 pub fn cage_normalize_powerlaw(cs : CageSet, alpha? : Double = 1.2) -> CageSet {

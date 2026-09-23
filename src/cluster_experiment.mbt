@@ -1339,29 +1339,6 @@ fn ce_sequential_split(
   out
 }
 
-///|
-/// Build a labels array (0 for small, 1 for large) for the proportion test.
-fn ce_labels_for(
-  all : Array[Int],
-  small : Array[Int],
-  large : Array[Int],
-) -> Array[Int] {
-  let n = all.length()
-  let out = Array::make(n, -1)
-  for i in 0..<n {
-    for s in small {
-      if all[i] == s {
-        out[i] = 0
-      }
-    }
-    for l in large {
-      if all[i] == l {
-        out[i] = 1
-      }
-    }
-  }
-  out
-}
 
 // ============================================================================
 // RSEC: the full pipeline

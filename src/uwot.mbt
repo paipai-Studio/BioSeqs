@@ -338,11 +338,6 @@ fn build_graph(
 // Low-dimensional embedding
 // ============================================================
 
-///|
-/// Compute the low-dimensional probability (using curve from min_dist and spread).
-fn low_dim_probability(q_dist : Double, a : Double, b : Double) -> Double {
-  1.0 / (1.0 + a * @math.pow(q_dist, 2.0 * b))
-}
 
 ///|
 /// Find a and b parameters based on min_dist and spread.

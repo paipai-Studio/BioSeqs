@@ -239,62 +239,6 @@ fn ggtree_collect_internal_ids_recursive(
   result.push(node.id)
 }
 
-///|
-/// Compute bounding box from positions map.
-fn ggtree_compute_bounds(
-  nodes : Array[LayoutNode],
-  positions : Map[String, (Double, Double, Double)],
-) -> (Double, Double, Double, Double) {
-  if nodes.length() == 0 {
-    return (0.0, 0.0, 0.0, 0.0)
-  }
-
-  let mut min_x = positions[nodes[0].id].0
-  let mut max_x = positions[nodes[0].id].0
-  let mut min_y = positions[nodes[0].id].1
-  let mut max_y = positions[nodes[0].id].1
-
-  for node in nodes {
-    if positions.contains(node.id) {
-      let pos = positions[node.id]
-      if pos.0 < min_x {
-        min_x = pos.0
-      }
-      if pos.0 > max_x {
-        max_x = pos.0
-      }
-      if pos.1 < min_y {
-        min_y = pos.1
-      }
-      if pos.1 > max_y {
-        max_y = pos.1
-      }
-    }
-    // Recursively check children
-    let mut i = 0
-    while i < node.children.length() {
-      let (child_min_x, child_max_x, child_min_y, child_max_y) = ggtree_compute_bounds(
-        [node.children[i]],
-        positions,
-      )
-      if child_min_x < min_x {
-        min_x = child_min_x
-      }
-      if child_max_x > max_x {
-        max_x = child_max_x
-      }
-      if child_min_y < min_y {
-        min_y = child_min_y
-      }
-      if child_max_y > max_y {
-        max_y = child_max_y
-      }
-      i = i + 1
-    }
-  }
-
-  (min_x, max_x, min_y, max_y)
-}
 
 ///|
 /// Collect all node ids in the tree (for bounds computation).

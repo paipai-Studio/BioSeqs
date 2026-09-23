@@ -97,33 +97,6 @@ pub fn Split::normalize(self : Split) -> Split {
   Split::{ taxa: sorted, support: self.support, }
 }
 
-///|
-fn sort_taxa_strings(arr : Array[String]) -> Array[String] {
-  let n = arr.length()
-  let result = Array::make(n, "")
-
-  let mut i = 0
-  while i < n {
-    result[i] = arr[i]
-    i = i + 1
-  }
-
-  i = 0
-  while i < n - 1 {
-    let mut j = i + 1
-    while j < n {
-      if string_gt(result[i], result[j]) {
-        let tmp = result[i]
-        result[i] = result[j]
-        result[j] = tmp
-      }
-      j = j + 1
-    }
-    i = i + 1
-  }
-
-  result
-}
 
 ///|
 fn string_gt(a : String, b : String) -> Bool {
