@@ -158,11 +158,11 @@ pub fn alignace_parse(text : String) -> AlignAceRecord {
     let line = lines[i]
     let trimmed = line.trim().to_string()
     // Header and comment lines
-    if trimmed.starts_with("#") {
+    if trimmed.has_prefix("#") {
       let content = trimmed[1:].to_string().trim().to_string()
-      if content.starts_with("AlignACE version") {
+      if content.has_prefix("AlignACE version") {
         record.version = content[16:].to_string().trim().to_string()
-      } else if content.starts_with("Command:") {
+      } else if content.has_prefix("Command:") {
         record.command = content[8:].to_string().trim().to_string()
       } else if content == "Parameters used:" {
         in_parameters = true
@@ -175,16 +175,16 @@ pub fn alignace_parse(text : String) -> AlignAceRecord {
           let val = parts[1].trim().to_string()
           record.parameters[key] = val
         }
-      } else if content.starts_with("Sites:") {
+      } else if content.has_prefix("Sites:") {
         // Next lines will be sites for the current motif
         i = i + 1
         if record.motifs.length() > 0 {
           let last_idx = record.motifs.length() - 1
           while i < n {
             let sline = lines[i].trim().to_string()
-            if sline.starts_with("#") {
+            if sline.has_prefix("#") {
               let scontent = sline[1:].to_string().trim().to_string()
-              if scontent == "" || scontent.starts_with("Sites:") {
+              if scontent == "" || scontent.has_prefix("Sites:") {
                 break
               }
               // Parse site line: "seq_id position strand sequence"
@@ -205,7 +205,7 @@ pub fn alignace_parse(text : String) -> AlignAceRecord {
       continue
     }
     // Motif matrix starts with a line beginning with "i"
-    if trimmed.starts_with("i ") || trimmed.starts_with("i\t") {
+    if trimmed.has_prefix("i ") || trimmed.has_prefix("i\t") {
       let motif = alignace_parse_motif(lines, i)
       match motif {
         Some(m) => {

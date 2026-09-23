@@ -559,7 +559,7 @@ fn is_x_chromosome(chr : String) -> Bool {
 ///|
 fn is_male(sample : String) -> Bool {
   let lower_sample = to_lowercase(sample)
-  lower_sample.ends_with("_male") ||
+  lower_sample.has_suffix("_male") ||
   contains_substring(lower_sample, "father") ||
   contains_substring(lower_sample, "son")
 }

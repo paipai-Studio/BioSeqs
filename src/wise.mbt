@@ -290,7 +290,7 @@ pub fn wise_parse(content : String) -> WiseResult {
       continue
     }
     // Parse score line: "Score: 123.45"
-    if trimmed.starts_with("Score:") {
+    if trimmed.has_prefix("Score:") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
         result.score = parse_double(parts[1].to_string().trim().to_string()).unwrap_or(
@@ -299,7 +299,7 @@ pub fn wise_parse(content : String) -> WiseResult {
       }
     }
     // Parse bits score: "Bits: 45.67"
-    if trimmed.starts_with("Bits:") {
+    if trimmed.has_prefix("Bits:") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
         result.bits_score = parse_double(
@@ -308,14 +308,14 @@ pub fn wise_parse(content : String) -> WiseResult {
       }
     }
     // Parse protein ID: "Protein: P12345"
-    if trimmed.starts_with("Protein:") {
+    if trimmed.has_prefix("Protein:") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
         result.protein_id = parts[1].to_string().trim().to_string()
       }
     }
     // Parse gene ID: "Gene: G67890"
-    if trimmed.starts_with("Gene:") {
+    if trimmed.has_prefix("Gene:") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
         result.gene_id = parts[1].to_string().trim().to_string()
@@ -323,7 +323,7 @@ pub fn wise_parse(content : String) -> WiseResult {
     }
     // Parse exon line:
     // "Exon 1: 100-200 (phase 0) score 45.5 protein 1-33"
-    if trimmed.starts_with("Exon") {
+    if trimmed.has_prefix("Exon") {
       let exon = wise_parse_exon_line(trimmed)
       match exon {
         Some(e) => result.add_exon(e)
@@ -332,7 +332,7 @@ pub fn wise_parse(content : String) -> WiseResult {
     }
     // Parse intron line:
     // "Intron 1: 201-300 donor 12.5 acceptor 8.3"
-    if trimmed.starts_with("Intron") {
+    if trimmed.has_prefix("Intron") {
       let intron = wise_parse_intron_line(trimmed)
       match intron {
         Some(i) => result.add_intron(i)
@@ -341,12 +341,12 @@ pub fn wise_parse(content : String) -> WiseResult {
     }
     // Parse parameter lines: "Parameter: value"
     if trimmed.contains(":") &&
-      !trimmed.starts_with("Exon") &&
-      !trimmed.starts_with("Intron") &&
-      !trimmed.starts_with("Score") &&
-      !trimmed.starts_with("Bits") &&
-      !trimmed.starts_with("Protein") &&
-      !trimmed.starts_with("Gene") {
+      !trimmed.has_prefix("Exon") &&
+      !trimmed.has_prefix("Intron") &&
+      !trimmed.has_prefix("Score") &&
+      !trimmed.has_prefix("Bits") &&
+      !trimmed.has_prefix("Protein") &&
+      !trimmed.has_prefix("Gene") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
         let key = parts[0].to_string().trim().to_string()

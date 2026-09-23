@@ -199,7 +199,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
       continue
     }
     // Version line
-    if line.starts_with("MEME version") {
+    if line.has_prefix("MEME version") {
       let parts = line.split(" ").to_array()
       if parts.length() >= 3 {
         record.version = parts[2].trim().to_string()
@@ -208,19 +208,19 @@ pub fn meme_parse(text : String) -> MemeRecord {
       continue
     }
     // Alphabet line
-    if line.starts_with("ALPHABET=") {
+    if line.has_prefix("ALPHABET=") {
       record.alphabet = line.substring(start=9).trim().to_string()
       i = i + 1
       continue
     }
     // Strands line
-    if line.starts_with("strands:") {
+    if line.has_prefix("strands:") {
       record.strands = line.substring(start=8).trim().to_string()
       i = i + 1
       continue
     }
     // Background letter frequencies header
-    if line.starts_with("Background letter frequencies") {
+    if line.has_prefix("Background letter frequencies") {
       in_background = true
       i = i + 1
       continue
@@ -271,7 +271,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
       }
     }
     // MOTIF line
-    if line.starts_with("MOTIF") {
+    if line.has_prefix("MOTIF") {
       // If we were building a motif, save it first
       if has_motif {
         finalize_motif(
@@ -302,7 +302,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
       continue
     }
     // letter-probability matrix header
-    if line.starts_with("letter-probability matrix:") {
+    if line.has_prefix("letter-probability matrix:") {
       in_matrix = true
       matrix_rows = Array(capacity=0)
       // Parse alength, w, nsites, E from the header
@@ -315,7 +315,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
       continue
     }
     // URL line (handle even after matrix is finalized, while still in motif)
-    if has_motif && line.starts_with("URL") {
+    if has_motif && line.has_prefix("URL") {
       m_url = line.substring(start=4).trim().to_string()
       in_matrix = false
       finalize_motif(
@@ -341,7 +341,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
               Some(v) => v
               None => 0.0
             }
-            if val > 0.0 || s == "0" || s.starts_with("0.") {
+            if val > 0.0 || s == "0" || s.has_prefix("0.") {
               row.push(val)
             }
           }
@@ -456,7 +456,7 @@ fn parse_meme_double_field(text : String, field : String) -> Double {
         Some(x) => x
         None => 0.0
       }
-      if v > 0.0 || s == "0" || s.starts_with("0.") {
+      if v > 0.0 || s == "0" || s.has_prefix("0.") {
         return v
       }
       return 0.0

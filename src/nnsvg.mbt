@@ -1216,8 +1216,8 @@ pub fn nnsvg_filter_genes(
     let low_expression = detected < required_spots
     let mitochondrial = filter_mitochondrial &&
       (
-        gene_names[gene].starts_with("MT-") ||
-        gene_names[gene].starts_with("mt-")
+        gene_names[gene].has_prefix("MT-") ||
+        gene_names[gene].has_prefix("mt-")
       )
     if low_expression {
       removed_low_expression.push(gene)

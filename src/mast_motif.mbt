@@ -222,12 +222,12 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
       continue
     }
     // MAST version
-    if trimmed.starts_with("MAST") && trimmed.contains("version") {
+    if trimmed.has_prefix("MAST") && trimmed.contains("version") {
       let parts = trimmed.split(" ").to_array()
       for p in parts {
         let s = p.trim().to_string()
         if s.length() > 0 {
-          if s.starts_with("v") ||
+          if s.has_prefix("v") ||
             (s[0:1].to_string() >= "0" && s[0:1].to_string() <= "9") {
             record.version = s
           }
@@ -237,7 +237,7 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
       continue
     }
     // Database line
-    if trimmed.starts_with("DATABASE") || trimmed.contains("database") {
+    if trimmed.has_prefix("DATABASE") || trimmed.contains("database") {
       if trimmed.contains("=") {
         let parts = trimmed.split("=").to_array()
         if parts.length() >= 2 {
@@ -253,23 +253,23 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
       continue
     }
     // Section header
-    if trimmed.starts_with("SECTION") {
+    if trimmed.has_prefix("SECTION") {
       section = trimmed
       i = i + 1
       continue
     }
     // Motif info lines (in MOTIF section)
     if section.contains("MOTIF") || section.contains("I") {
-      if trimmed.starts_with("Motif") || trimmed.contains("width=") {
+      if trimmed.has_prefix("Motif") || trimmed.contains("width=") {
         let parts = trimmed.split(" ").to_array()
         let mut motif_id = ""
         let mut width = 0
         for p in parts {
           let s = p.trim().to_string()
-          if s.starts_with("width=") {
+          if s.has_prefix("width=") {
             let w_str = s.substring(start=6)
             width = parse_int(w_str)
-          } else if s.starts_with("Motif") {
+          } else if s.has_prefix("Motif") {
             motif_id = s.substring(start=5)
           }
         }

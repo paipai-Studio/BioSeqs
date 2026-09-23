@@ -422,7 +422,7 @@ pub fn parse_complement_location(
 ) -> (ParsedLocation, Int) raise LocationParserError {
   let trimmed = trim_whitespace(loc_string)
   let prefix = "complement("
-  if !trimmed.starts_with(prefix) {
+  if !trimmed.has_prefix(prefix) {
     raise LocationParserError("Expected 'complement(' prefix in: " + trimmed)
   }
   let paren_start = prefix.length() - 1
@@ -451,9 +451,9 @@ pub fn parse_join_location(
   loc_string : String,
 ) -> CompoundLocation raise LocationParserError {
   let trimmed = trim_whitespace(loc_string)
-  let (operator, after_op) = if trimmed.starts_with("join(") {
+  let (operator, after_op) = if trimmed.has_prefix("join(") {
     ("join", trimmed[4:trimmed.length()].to_owned())
-  } else if trimmed.starts_with("order(") {
+  } else if trimmed.has_prefix("order(") {
     ("order", trimmed[5:trimmed.length()].to_owned())
   } else {
     raise LocationParserError("Expected 'join(' or 'order(' in: " + trimmed)
@@ -506,7 +506,7 @@ pub fn parse_location_string(
     raise LocationParserError("Empty location string")
   }
 
-  if trimmed.starts_with("complement(") {
+  if trimmed.has_prefix("complement(") {
     let (parsed, strand) = parse_complement_location(trimmed)
     match parsed {
       ParsedFeatureLocation(loc) => {
@@ -528,7 +528,7 @@ pub fn parse_location_string(
     }
   }
 
-  if trimmed.starts_with("join(") || trimmed.starts_with("order(") {
+  if trimmed.has_prefix("join(") || trimmed.has_prefix("order(") {
     let compound = parse_join_location(trimmed)
     return ParsedCompoundLocation(compound)
   }

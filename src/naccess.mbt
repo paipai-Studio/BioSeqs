@@ -200,7 +200,7 @@ pub fn naccess_parse_rsa(content : String) -> Array[NaccessResidue] {
       continue
     }
     // Lines starting with "RES" are residue records
-    if trimmed.starts_with("RES ") {
+    if trimmed.has_prefix("RES ") {
       let parts = trimmed.split(" ").to_array()
       // Filter out empty strings from multiple spaces
       let filtered = Array(capacity=0)
@@ -306,7 +306,7 @@ pub fn naccess_parse_asa(content : String) -> Array[NaccessAtom] {
       continue
     }
     // Lines starting with "ATM" are atom records
-    if trimmed.starts_with("ATM ") || trimmed.starts_with("HETATM") {
+    if trimmed.has_prefix("ATM ") || trimmed.has_prefix("HETATM") {
       let parts = trimmed.split(" ").to_array()
       let filtered = Array(capacity=0)
       for p in parts {

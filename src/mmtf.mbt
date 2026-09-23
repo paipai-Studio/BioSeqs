@@ -967,35 +967,35 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
     if trimmed == "MMTF" {
       continue
     }
-    if trimmed.starts_with("structureId=") {
+    if trimmed.has_prefix("structureId=") {
       structure.structure_id = trimmed.substring(start=12)
-    } else if trimmed.starts_with("totalNumBonds=") {
+    } else if trimmed.has_prefix("totalNumBonds=") {
       structure.total_num_bonds = parse_int(trimmed.substring(start=14))
-    } else if trimmed.starts_with("totalNumAtoms=") {
+    } else if trimmed.has_prefix("totalNumAtoms=") {
       structure.total_num_atoms = parse_int(trimmed.substring(start=14))
-    } else if trimmed.starts_with("totalNumGroups=") {
+    } else if trimmed.has_prefix("totalNumGroups=") {
       structure.total_num_groups = parse_int(trimmed.substring(start=15))
-    } else if trimmed.starts_with("totalNumChains=") {
+    } else if trimmed.has_prefix("totalNumChains=") {
       structure.total_num_chains = parse_int(trimmed.substring(start=15))
-    } else if trimmed.starts_with("totalNumModels=") {
+    } else if trimmed.has_prefix("totalNumModels=") {
       structure.total_num_models = parse_int(trimmed.substring(start=15))
-    } else if trimmed.starts_with("title=") {
+    } else if trimmed.has_prefix("title=") {
       header.title = trimmed.substring(start=6)
-    } else if trimmed.starts_with("depositionDate=") {
+    } else if trimmed.has_prefix("depositionDate=") {
       header.deposition_date = trimmed.substring(start=15)
-    } else if trimmed.starts_with("releaseDate=") {
+    } else if trimmed.has_prefix("releaseDate=") {
       header.release_date = trimmed.substring(start=12)
-    } else if trimmed.starts_with("resolution=") {
+    } else if trimmed.has_prefix("resolution=") {
       header.resolution = parse_double(trimmed.substring(start=11)).unwrap_or(
         0.0,
       )
-    } else if trimmed.starts_with("rWork=") {
+    } else if trimmed.has_prefix("rWork=") {
       header.r_work = parse_double(trimmed.substring(start=6)).unwrap_or(0.0)
-    } else if trimmed.starts_with("rFree=") {
+    } else if trimmed.has_prefix("rFree=") {
       header.r_free = parse_double(trimmed.substring(start=6)).unwrap_or(0.0)
-    } else if trimmed.starts_with("spaceGroup=") {
+    } else if trimmed.has_prefix("spaceGroup=") {
       xtal.space_group = trimmed.substring(start=11)
-    } else if trimmed.starts_with("MODEL ") {
+    } else if trimmed.has_prefix("MODEL ") {
       // Save previous group/chain/model
       match current_group {
         Some(g) =>
@@ -1029,7 +1029,7 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
         0
       }
       current_model = Some(MmtfModel::new(model_id~))
-    } else if trimmed.starts_with("  CHAIN ") {
+    } else if trimmed.has_prefix("  CHAIN ") {
       // Save previous group
       match current_group {
         Some(g) =>
@@ -1060,7 +1060,7 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
         chain_id
       }
       current_chain = Some(MmtfChain::new(chain_id~, chain_name~))
-    } else if trimmed.starts_with("    GROUP ") {
+    } else if trimmed.has_prefix("    GROUP ") {
       // Save previous group
       match current_group {
         Some(g) =>
@@ -1109,7 +1109,7 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
           sec_struct=ss,
         ),
       )
-    } else if trimmed.starts_with("      ATOM ") {
+    } else if trimmed.has_prefix("      ATOM ") {
       let parts = trimmed
         .split(" ")
         .to_array()
@@ -1146,7 +1146,7 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
         Some(g) => g.add_atom(atom)
         None => ()
       }
-    } else if trimmed.starts_with("BOND ") {
+    } else if trimmed.has_prefix("BOND ") {
       let parts = trimmed
         .split(" ")
         .to_array()

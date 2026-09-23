@@ -47,19 +47,19 @@ pub fn CellQCStats::to_string(self : CellQCStats) -> String {
 
 ///|
 fn scater_is_mito_gene(gene_name : String) -> Bool {
-  to_lowercase(gene_name).starts_with("mt-") ||
-  to_lowercase(gene_name).starts_with("mt.") ||
-  gene_name.starts_with("MT-") ||
-  gene_name.starts_with("MT.")
+  to_lowercase(gene_name).has_prefix("mt-") ||
+  to_lowercase(gene_name).has_prefix("mt.") ||
+  gene_name.has_prefix("MT-") ||
+  gene_name.has_prefix("MT.")
 }
 
 ///|
 fn scater_is_ribo_gene(gene_name : String) -> Bool {
   let lower = to_lowercase(gene_name)
-  lower.starts_with("rpl") ||
-  lower.starts_with("rps") ||
-  lower.starts_with("mrpl") ||
-  lower.starts_with("mrps")
+  lower.has_prefix("rpl") ||
+  lower.has_prefix("rps") ||
+  lower.has_prefix("mrpl") ||
+  lower.has_prefix("mrps")
 }
 
 ///|

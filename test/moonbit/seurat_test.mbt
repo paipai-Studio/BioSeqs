@@ -228,9 +228,9 @@ test "integrate_data" {
   let mut has_ref_prefix = false
   let mut has_query_prefix = false
   for name in integrated.col_names {
-    if name.starts_with("ref_") {
+    if name.has_prefix("ref_") {
       has_ref_prefix = true
-    } else if name.starts_with("query_") {
+    } else if name.has_prefix("query_") {
       has_query_prefix = true
     }
   }

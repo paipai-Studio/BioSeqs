@@ -33,7 +33,7 @@ test "one_of_position" {
   assert_eq(pos.get(), 7)
   assert_eq(pos.is_exact(), false)
   let s = pos.to_string()
-  assert_eq(s.starts_with("{"), true)
+  assert_eq(s.has_prefix("{"), true)
   assert_eq(s.contains("5"), true)
   assert_eq(s.contains("7"), true)
   assert_eq(s.contains("9"), true)
@@ -49,7 +49,7 @@ test "within_position" {
   assert_eq(pos.get(), 50)
   assert_eq(pos.is_exact(), false)
   let s = pos.to_string()
-  assert_eq(s.starts_with("("), true)
+  assert_eq(s.has_prefix("("), true)
   assert_eq(s.contains("40"), true)
   assert_eq(s.contains("60"), true)
 }

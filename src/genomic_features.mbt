@@ -305,7 +305,7 @@ pub fn genome_annotation_summarize(annotation : GenomeAnnotation) -> String {
 pub fn parse_gtf_line(
   line : String,
 ) -> (String, String, String, Int, Int, String, Map[String, String])? {
-  if line.length() == 0 || line.starts_with("#") {
+  if line.length() == 0 || line.has_prefix("#") {
     return None
   }
 

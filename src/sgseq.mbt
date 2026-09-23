@@ -349,7 +349,7 @@ pub fn sgseq_build_splice_graph(
   // Group junctions by chr
   let by_chr : Map[String, Array[SGSeqJunction]] = Map([], capacity=10)
   for j in junctions {
-    let arr = by_chr.get(j.chr).or(Array(capacity=0))
+    let arr = by_chr.get(j.chr).unwrap_or(Array(capacity=0))
     arr.push(j)
     by_chr[j.chr] = arr
   }
@@ -526,7 +526,7 @@ pub fn sgseq_detect_a5ss(
   let groups : Map[String, Array[SGSeqJunction]] = Map([], capacity=20)
   for j in junctions {
     let key = j.chr + ":" + j.end.to_string()
-    let arr = groups.get(key).or(Array(capacity=0))
+    let arr = groups.get(key).unwrap_or(Array(capacity=0))
     arr.push(j)
     groups[key] = arr
   }
@@ -599,7 +599,7 @@ pub fn sgseq_detect_a3ss(
   let groups : Map[String, Array[SGSeqJunction]] = Map([], capacity=20)
   for j in junctions {
     let key = j.chr + ":" + j.start.to_string()
-    let arr = groups.get(key).or(Array(capacity=0))
+    let arr = groups.get(key).unwrap_or(Array(capacity=0))
     arr.push(j)
     groups[key] = arr
   }
@@ -914,7 +914,7 @@ pub fn sgseq_summary(variants : Array[SGSeqVariant]) -> Map[String, Int] {
   let counts : Map[String, Int] = Map([], capacity=5)
   for v in variants {
     let name = v.type_name()
-    let cur = counts.get(name).or(0)
+    let cur = counts.get(name).unwrap_or(0)
     counts[name] = cur + 1
   }
   counts

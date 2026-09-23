@@ -188,7 +188,7 @@ pub fn seq1(
   let mut i = 0
   while i < n {
     let triplet = seq.substring(start=i, end=i + 3).to_upper()
-    result.write_string(onecode.get(triplet).or(undef))
+    result.write_string(onecode.get(triplet).unwrap_or(undef))
     i = i + 3
   }
   result.to_string()
@@ -221,12 +221,12 @@ pub fn seq3(
       Some(cm) =>
         match cm.get(aa) {
           Some(t) => t
-          None => protein_three_letter.get(aa).or(undef)
+          None => protein_three_letter.get(aa).unwrap_or(undef)
         }
       None =>
         match aa {
           "*" => "Ter"
-          _ => protein_three_letter.get(aa).or(undef)
+          _ => protein_three_letter.get(aa).unwrap_or(undef)
         }
     }
     result.write_string(mapped)

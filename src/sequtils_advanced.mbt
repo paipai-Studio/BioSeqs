@@ -37,11 +37,11 @@ fn sequtils_count_chars(seq : String, chars : String) -> Int {
   let counts : Map[Int, Int] = Map([], capacity=64)
   for i = 0; i < seq.length(); i = i + 1 {
     let c = seq.unsafe_get(i).to_int()
-    counts[c] = counts.get(c).or(0) + 1
+    counts[c] = counts.get(c).unwrap_or(0) + 1
   }
   let mut total = 0
   for j = 0; j < chars.length(); j = j + 1 {
-    total = total + counts.get(chars.unsafe_get(j).to_int()).or(0)
+    total = total + counts.get(chars.unsafe_get(j).to_int()).unwrap_or(0)
   }
   total
 }
@@ -80,7 +80,7 @@ pub fn gc_fraction(
   if ambiguous == "weighted" {
     for x in ["B", "D", "H", "K", "M", "N", "R", "V", "X", "Y"] {
       let c = sequtils_count_chars(seq, x + x.to_lower()).to_double()
-      gc_total = gc_total + c * sequtils_gc_values.get(x).or(0.0)
+      gc_total = gc_total + c * sequtils_gc_values.get(x).unwrap_or(0.0)
     }
   }
   if length == 0.0 {

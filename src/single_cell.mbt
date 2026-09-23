@@ -65,7 +65,7 @@ pub fn calculate_qc_metrics(
       if j < gene_names.length() {
         let gene_name = gene_names[j]
         let gene_upper = gene_name.to_upper()
-        if gene_upper.starts_with("MT-") || gene_upper.starts_with("MT") {
+        if gene_upper.has_prefix("MT-") || gene_upper.has_prefix("MT") {
           mito_total = mito_total + count
         }
       }

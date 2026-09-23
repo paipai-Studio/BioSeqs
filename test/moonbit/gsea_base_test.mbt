@@ -158,7 +158,7 @@ test "write_gmx_roundtrip" {
   let g2 = @src.GmtGeneSet::new("s2", "d2", ["D", "E"])
   let col = @src.GmtGeneSetCollection::new([g1, g2])
   let gmx_str = @src.write_gmx(col)
-  assert_true(gmx_str.starts_with("s1\ts2"))
+  assert_true(gmx_str.has_prefix("s1\ts2"))
 }
 
 ///|

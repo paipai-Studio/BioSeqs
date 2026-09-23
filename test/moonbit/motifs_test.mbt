@@ -87,7 +87,7 @@ test "motif_to_meme" {
   let sites = ["ACGT"]
   let motif = @src.create_motif("test", sites)
   let meme = @src.motif_to_meme(motif)
-  assert_true(meme.starts_with("MEME"))
+  assert_true(meme.has_prefix("MEME"))
 }
 
 ///|

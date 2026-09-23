@@ -419,7 +419,7 @@ test "Bio.Align.msf pads official W short rows" {
   let alignment = msf_test_parse(msf_test_w_protein_text())
   assert_eq(alignment.sequences[6].length, 93)
   assert_eq(alignment.sequences[6].aligned_sequence.length(), 99)
-  assert_true(alignment.sequences[6].aligned_sequence.ends_with("RLT------"))
+  assert_true(alignment.sequences[6].aligned_sequence.has_suffix("RLT------"))
   assert_eq(alignment.sequences[6].checksum, 9483)
 }
 

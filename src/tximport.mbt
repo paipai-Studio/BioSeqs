@@ -57,7 +57,7 @@ pub fn parse_quant_sf(
   let mut i = 0
   while i < lines.length() {
     let line = lines[i]
-    if line.length() == 0 || line.starts_with("#") {
+    if line.length() == 0 || line.has_prefix("#") {
       i = i + 1
       continue
     }
@@ -140,7 +140,7 @@ fn extract_sample_name(content : String) -> String {
   let lines = split_by_char(content, '\n'.to_int())
   if lines.length() > 0 {
     let first_line = lines[0]
-    if first_line.starts_with("#") {
+    if first_line.has_prefix("#") {
       let idx = first_line.find(":")
       if idx.is_some() {
         return first_line[idx.unwrap() + 1:].to_string()

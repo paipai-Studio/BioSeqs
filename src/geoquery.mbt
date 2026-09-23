@@ -132,14 +132,14 @@ pub fn parse_geo_series_matrix(content : String) -> GEOData {
   let mut i = 0
   while i < lines.length() {
     let line = lines[i]
-    if line.starts_with("!Series_geo_accession") {
+    if line.has_prefix("!Series_geo_accession") {
       series_id = parse_geo_header_value(line)
-    } else if line.starts_with("!Platform_geo_accession") {
+    } else if line.has_prefix("!Platform_geo_accession") {
       platform_id = parse_geo_header_value(line)
-    } else if line.starts_with("!Sample_geo_accession") {
+    } else if line.has_prefix("!Sample_geo_accession") {
       sample_ids.push(parse_geo_header_value(line))
-    } else if line.starts_with("!") &&
-      !line.starts_with("!series_matrix_table_begin") {
+    } else if line.has_prefix("!") &&
+      !line.has_prefix("!series_matrix_table_begin") {
       let key_value = parse_geo_header_key_value(line)
       if key_value.is_some() {
         let (key, value) = key_value.unwrap()
@@ -148,7 +148,7 @@ pub fn parse_geo_series_matrix(content : String) -> GEOData {
         }
         sample_info[key].push(value)
       }
-    } else if line.starts_with("ID_REF") {
+    } else if line.has_prefix("ID_REF") {
       sample_ids.clear()
       let header_parts = split_by_char(line, 9)
       if header_parts.length() > 1 {
@@ -161,7 +161,7 @@ pub fn parse_geo_series_matrix(content : String) -> GEOData {
           j = j + 1
         }
       }
-    } else if line.length() > 0 && !line.starts_with("!") {
+    } else if line.length() > 0 && !line.has_prefix("!") {
       let parts = split_by_char(line, 9)
       if parts.length() > 1 {
         let gene_name = parts[0]
@@ -206,21 +206,21 @@ pub fn parse_soft_format(content : String) -> GEOSeries {
   let mut i = 0
   while i < lines.length() {
     let line = lines[i]
-    if line.starts_with("^SAMPLE=") {
+    if line.has_prefix("^SAMPLE=") {
       let idx = line.find("=")
       if idx.is_some() {
         sample_ids.push(line[idx.unwrap() + 1:].to_string())
       }
-    } else if line.starts_with("!Sample_platform_id") {
+    } else if line.has_prefix("!Sample_platform_id") {
       let val = parse_geo_header_value(line)
       if val.length() > 0 && !platform_ids.contains(val) {
         platform_ids.push(val)
       }
-    } else if line.starts_with("!Series_geo_accession") {
+    } else if line.has_prefix("!Series_geo_accession") {
       gse_id = parse_geo_header_value(line)
-    } else if line.starts_with("!Series_title") {
+    } else if line.has_prefix("!Series_title") {
       title = parse_geo_header_value(line)
-    } else if line.starts_with("!Series_summary") {
+    } else if line.has_prefix("!Series_summary") {
       description = parse_geo_header_value(line)
     }
     i = i + 1

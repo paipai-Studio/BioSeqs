@@ -328,9 +328,9 @@ pub fn parse_insdc_records(
     if first == "" {
       continue
     }
-    let record = if first.unsafe_get(0) == 'L' && first.starts_with("LOCUS") {
+    let record = if first.unsafe_get(0) == 'L' && first.has_prefix("LOCUS") {
       unify_insdc_to_record(parse_genbank_record(chunk))
-    } else if first.starts_with("ID") {
+    } else if first.has_prefix("ID") {
       unify_insdc_to_record(parse_embl_record(chunk))
     } else {
       raise SeqIOError("Unrecognized INSDC record: " + first)

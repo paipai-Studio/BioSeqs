@@ -72,7 +72,7 @@ test "qblast_put_url_basic_parameters" {
       ""
     }
   }
-  assert_true(url.starts_with("https://blast.ncbi.nlm.nih.gov/Blast.cgi?"))
+  assert_true(url.has_prefix("https://blast.ncbi.nlm.nih.gov/Blast.cgi?"))
   assert_true(url.contains("CMD=Put"))
   assert_true(url.contains("PROGRAM=blastn"))
   assert_true(url.contains("DATABASE=nr"))
