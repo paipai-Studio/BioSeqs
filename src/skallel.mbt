@@ -769,3 +769,20 @@ pub fn skallel_pbs(
   }
   out
 }
+///|
+/// Patterson F-statistic between two populations (`allel.patterson_fst`).
+/// Returns the per-variant `(num, den)`; the Fst estimate is `Σnum / Σden`.
+pub fn skallel_patterson_fst(
+  aca : Array[Array[Int]],
+  acb : Array[Array[Int]],
+) -> (Array[Double], Array[Double]) {
+  let num = skallel_patterson_f2(aca, acb)
+  let ha = skallel_h_hat(aca)
+  let hb = skallel_h_hat(acb)
+  let den : Array[Double] = Array::new()
+  let nt = if aca.length() < acb.length() { aca.length() } else { acb.length() }
+  for i = 0; i < nt; i = i + 1 {
+    den.push(num[i] + ha[i] + hb[i])
+  }
+  (num, den)
+}

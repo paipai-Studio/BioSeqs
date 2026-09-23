@@ -643,6 +643,10 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **LD (Rogers–Huff r)** | `skallel_rogers_huff_r` | 基因型剂量矩阵成对 Pearson 相关系数（压缩上三角），缺失成对排除 |
 | **PCA (Patterson)** | `skallel_pca` | 双等位基因剂量 Patterson 标定 → gram 矩阵 → Jacobi 特征分解，输出样本坐标 + 方差解释率 |
 | **Patterson F2/F3/D** | `skallel_patterson_f2` / `_f3` / `_d` / `_d_average`、`skallel_h_hat` | Patterson (2012) 无偏估计：ĥ 杂合度、F2 枝长、F3 混合检验（T/B）、四群体 D（ABBA-BABA），逐变异 + 平均 |
+| **Patterson Fst** | `skallel_patterson_fst` | Patterson (2012) Fst：`num=F2(A,B)`、`den=num+ĥ(A)+ĥ(B)`，Fst=Σnum/Σden |
+| **位点频谱 SFS** | `skallel_sfs` / `_folded` / `_scaled` / `_folded_scaled` | 展开谱（派生等位基因计数 bincount）、折叠谱（次要等位频率）、缩放谱（k 或 k(n−k)/n 加权） |
+| **联合 SFS** | `skallel_joint_sfs` / `_folded` | 两群体联合频谱（(i,j) 元 = i/j 等位基因数的变异数），展开与折叠 |
+| **折叠转换** | `skallel_fold_sfs` / `_fold_joint_sfs` | 展开谱 → 折叠谱：`s[k]+s[n−k]`，含二维四象限折叠 |
 | **Garud H** | `skallel_garud_h`、`skallel_haplotype_diversity` | 单倍型阵列：单倍型多样性 + 软扫荡 H1/H12/H123/H2-H1 统计量 |
 | **EHH / iHH** | `skallel_ehh_decay`、`skallel_ihh_scan` | 扩展单倍型纯合度（EHH 衰减）与整合单倍型纯合度（iHH，共享后缀长度扫描 + 梯形积分） |
 | **iHS / nSL** | `skallel_ihs`、`skallel_nsl` | 整合单倍型分数（ref/alt iHH 比值对数）与按长度分离位点数（nSL），双向扫描汇总 |
