@@ -29,7 +29,7 @@ pub fn DEXSeqDataSet::new(
   exon_counts : Array[ExonCount],
   sample_groups : Array[String],
 ) -> DEXSeqDataSet {
-  let gene_ids : Array[String] = Array::new()
+  let gene_ids : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([], capacity=100)
 
   for ec in exon_counts {
@@ -79,7 +79,7 @@ pub fn DEXSeqResult::new(
 
 ///|
 pub fn dexseq_normalize_counts(dataset : DEXSeqDataSet) -> DEXSeqDataSet {
-  let normalized : Array[ExonCount] = Array::new()
+  let normalized : Array[ExonCount] = Array(capacity=0)
 
   for ec in dataset.exon_counts {
     let mut total = 0
@@ -89,7 +89,7 @@ pub fn dexseq_normalize_counts(dataset : DEXSeqDataSet) -> DEXSeqDataSet {
       i = i + 1
     }
     if total > 0 {
-      let norm_counts : Array[Int] = Array::new()
+      let norm_counts : Array[Int] = Array(capacity=0)
       for count in ec.counts {
         norm_counts.push(count * 1000000 / total)
       }
@@ -110,10 +110,10 @@ pub fn dexseq_normalize_counts(dataset : DEXSeqDataSet) -> DEXSeqDataSet {
 pub fn dexseq_test_for_exon_usage(
   dataset : DEXSeqDataSet,
 ) -> Array[DEXSeqResult] {
-  let results : Array[DEXSeqResult] = Array::new()
+  let results : Array[DEXSeqResult] = Array(capacity=0)
 
-  let group0_indices : Array[Int] = Array::new()
-  let group1_indices : Array[Int] = Array::new()
+  let group0_indices : Array[Int] = Array(capacity=0)
+  let group1_indices : Array[Int] = Array(capacity=0)
 
   let mut i = 0
   while i < dataset.sample_groups.length() {
@@ -187,7 +187,7 @@ pub fn dexseq_filter_results(
   min_log2fc : Double,
   max_padj : Double,
 ) -> Array[DEXSeqResult] {
-  let filtered : Array[DEXSeqResult] = Array::new()
+  let filtered : Array[DEXSeqResult] = Array(capacity=0)
 
   for result in results {
     if result.log2_fold_change.abs() >= min_log2fc &&
@@ -201,7 +201,7 @@ pub fn dexseq_filter_results(
 
 ///|
 pub fn create_example_dexseq_dataset() -> DEXSeqDataSet {
-  let exon_counts : Array[ExonCount] = Array::new()
+  let exon_counts : Array[ExonCount] = Array(capacity=0)
 
   exon_counts.push(ExonCount::new("gene1", "exon1", [10, 12, 15, 8, 25, 30]))
   exon_counts.push(ExonCount::new("gene1", "exon2", [5, 6, 7, 4, 10, 12]))

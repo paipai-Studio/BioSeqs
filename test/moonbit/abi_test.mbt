@@ -156,7 +156,7 @@ test "abi_parse_sample_bytes" {
 
 ///|
 test "abi_parse_empty_bytes" {
-  let bytes : Array[Int] = Array::new()
+  let bytes : Array[Int] = Array(capacity=0)
   let trace = @src.abi_parse(bytes)
   // Empty input should return an empty trace
   assert_eq(trace.bases, "")

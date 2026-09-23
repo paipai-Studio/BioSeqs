@@ -76,7 +76,7 @@ fn main {
   }
 
   println("\n8. Identify trajectory marker genes (q-value < 0.05):")
-  let markers : Array[String] = Array::new()
+  let markers : Array[String] = Array(capacity=0)
   i = 0
   while i < result.gene.length() {
     if result.q_value[i] < 0.05 {

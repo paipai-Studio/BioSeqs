@@ -10,7 +10,7 @@ pub fn skallel_heterozygosity_observed(
   g : Array[Array[Array[Int]]],
   fill : Double,
 ) -> Array[Double] {
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for gi in g {
     let mut het = 0
     let mut called = 0
@@ -42,7 +42,7 @@ pub fn skallel_heterozygosity_expected(
   ploidy : Int,
   fill : Double,
 ) -> Array[Double] {
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for afi in af {
     let mut s = 0.0
     let mut total = 0.0
@@ -77,7 +77,7 @@ pub fn skallel_inbreeding_coefficient(
     }
   }
   let counts = skallel_gt_count_alleles(g, max_allele)
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for i = 0; i < g.length(); i = i + 1 {
     let gi = g[i]
     let mut het = 0

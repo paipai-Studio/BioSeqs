@@ -394,7 +394,7 @@ pub fn nib_to_hex(nib : NibSequence) -> String {
 /// `length` argument is the number of bases (which may be less than
 /// `4 * hex.length() / 2` when the last byte is only partially used).
 pub fn nib_from_hex(seq_id : String, hex : String, length : Int) -> NibSequence {
-  let packed : Array[Int] = Array::new()
+  let packed : Array[Int] = Array(capacity=0)
   let len = hex.length()
   let mut i = 0
   while i + 1 < len {

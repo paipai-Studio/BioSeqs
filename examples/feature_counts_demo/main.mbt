@@ -9,7 +9,7 @@ fn main {
 
   // Create feature annotation
   println("=== Feature Annotation ===")
-  let features : Array[@bio.FeatureAnnotation] = Array::new()
+  let features : Array[@bio.FeatureAnnotation] = Array(capacity=0)
   features.push(@bio.FeatureAnnotation::new(
     chr="chr1", start=1000, end_=2000, strand="+",
     gene_id="BRCA1", feature_id="exon_1",
@@ -33,7 +33,7 @@ fn main {
 
   // Create reads
   println("=== Read Alignments ===")
-  let reads : Array[@bio.ReadAlignment] = Array::new()
+  let reads : Array[@bio.ReadAlignment] = Array(capacity=0)
   reads.push(@bio.ReadAlignment::new(
     read_id="read_1", chr="chr1", start=1500, end_=1600, strand="+", mapq=60,
   ))
@@ -92,7 +92,7 @@ fn main {
 
   // Paired-end reads
   println("=== Paired-End Read Counting ===")
-  let pe_reads : Array[@bio.ReadAlignment] = Array::new()
+  let pe_reads : Array[@bio.ReadAlignment] = Array(capacity=0)
   pe_reads.push(@bio.ReadAlignment::new_paired(
     read_id="pe_read_1", chr="chr1", start=1500, end_=1600,
     strand="+", mate_start=1800,
@@ -103,7 +103,7 @@ fn main {
 
   // Multi-sample counting
   println("=== Multi-Sample Counting ===")
-  let multi_reads : Array[@bio.ReadAlignment] = Array::new()
+  let multi_reads : Array[@bio.ReadAlignment] = Array(capacity=0)
   multi_reads.push(@bio.ReadAlignment::new(read_id="r1", chr="chr1", start=1500, end_=1600))
   multi_reads.push(@bio.ReadAlignment::new(read_id="r2", chr="chr1", start=3500, end_=3600))
   let multi_result = @bio.feature_counts_count(

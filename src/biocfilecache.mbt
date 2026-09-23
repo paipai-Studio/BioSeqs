@@ -150,7 +150,7 @@ pub fn BfcCache::bfcquery(
   self : BfcCache,
   keyword : String,
 ) -> Array[BfcEntry] {
-  let results : Array[BfcEntry] = Array::new()
+  let results : Array[BfcEntry] = Array(capacity=0)
   for rid in self.entries.keys() {
     match self.entries.get(rid) {
       Some(e) => {
@@ -237,7 +237,7 @@ pub fn BfcCache::set_tag(
 /// Remove all entries whose `expires` field equals `marker` (used to
 /// simulate `cleanbfc` expiry sweeping).
 pub fn BfcCache::clean_cache(self : BfcCache, marker : String) -> Int {
-  let doomed : Array[String] = Array::new()
+  let doomed : Array[String] = Array(capacity=0)
   for rid in self.entries.keys() {
     match self.entries.get(rid) {
       Some(e) => {

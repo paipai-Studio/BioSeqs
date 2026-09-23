@@ -279,17 +279,17 @@ pub fn levenshtein_distance(s1 : String, s2 : String) -> Int {
     return len1
   }
 
-  let mut prev : Array[Int] = Array::new()
+  let mut prev : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i <= len2 {
     prev.push(i)
     i = i + 1
   }
 
-  let mut row : Array[Int] = Array::new()
+  let mut row : Array[Int] = Array(capacity=0)
   i = 1
   while i <= len1 {
-    row = Array::new()
+    row = Array(capacity=0)
     row.push(i)
     let c1 = s1.substring(start=i - 1, end=i).to_upper()
 
@@ -331,7 +331,7 @@ pub fn approx_find_all(
 ) -> Array[ApproxMatch] {
   let pat_len = pattern.length()
   let qry_len = query.length()
-  let results : Array[ApproxMatch] = Array::new()
+  let results : Array[ApproxMatch] = Array(capacity=0)
 
   if pat_len == 0 || qry_len < pat_len {
     return results

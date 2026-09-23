@@ -202,7 +202,7 @@ fn get_flat_int(arr : Array[Int], i : Int, j : Int, m_plus_1 : Int) -> Int {
 /// Helper: initialize flat Double matrix of size (n+1) x (m+1) with fill_val
 fn init_flat_double(n : Int, m : Int, fill_val : Double) -> Array[Double] {
   let size = (n + 1) * (m + 1)
-  let arr : Array[Double] = Array::new()
+  let arr : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < size {
     arr.push(fill_val)
@@ -215,7 +215,7 @@ fn init_flat_double(n : Int, m : Int, fill_val : Double) -> Array[Double] {
 /// Helper: initialize flat Int matrix of size (n+1) x (m+1) with fill_val
 fn init_flat_int(n : Int, m : Int, fill_val : Int) -> Array[Int] {
   let size = (n + 1) * (m + 1)
-  let arr : Array[Int] = Array::new()
+  let arr : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < size {
     arr.push(fill_val)

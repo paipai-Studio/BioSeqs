@@ -299,7 +299,7 @@ pub fn scan_sequence(
   seq_id : String,
   pvalue_threshold : Double,
 ) -> Array[MotifMatch] {
-  let matches : Array[MotifMatch] = Array::new()
+  let matches : Array[MotifMatch] = Array(capacity=0)
   let n_bases = pssm.scores.length()
   if n_bases == 0 {
     return matches
@@ -365,7 +365,7 @@ pub fn scan_sequences(
   sequences : Array[(String, String)],
   pvalue_threshold : Double,
 ) -> Array[MotifMatch] {
-  let result : Array[MotifMatch] = Array::new()
+  let result : Array[MotifMatch] = Array(capacity=0)
   for i in 0..<sequences.length() {
     let pair = sequences[i]
     let seq_id = pair.0
@@ -402,7 +402,7 @@ pub fn filter_matches(
   matches : Array[MotifMatch],
   pvalue_threshold : Double,
 ) -> Array[MotifMatch] {
-  let result : Array[MotifMatch] = Array::new()
+  let result : Array[MotifMatch] = Array(capacity=0)
   for i in 0..<matches.length() {
     if matches[i].p_value <= pvalue_threshold {
       result.push(matches[i])
@@ -485,7 +485,7 @@ fn ms_log2(x : Double) -> Double {
 /// Create a 2D array with distinct inner arrays (Array::make shares references
 /// for mutable element types, so each row must be allocated separately).
 fn ms_make_2d(rows : Int, cols : Int, init : Double) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<rows {
     result.push(Array::make(cols, init))
   }

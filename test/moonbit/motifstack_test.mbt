@@ -64,7 +64,7 @@ test "stackmotif hclust three leaves" {
 
 ///|
 test "stackmotif hclust empty returns none" {
-  let dm : Array[Array[Double]] = Array::new()
+  let dm : Array[Array[Double]] = Array(capacity=0)
   assert_true(@src.motifstack_hclust(dm) is None)
 }
 

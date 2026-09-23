@@ -209,11 +209,11 @@ pub struct RaggedExperiment {
 /// Create an empty RaggedExperiment.
 pub fn RaggedExperiment::new() -> RaggedExperiment {
   RaggedExperiment::{
-    rownames: Array::new(),
-    colnames: Array::new(),
-    data: Array::new(),
-    counts: Array::new(),
-    sample_tmb: Array::new(),
+    rownames: Array(capacity=0),
+    colnames: Array(capacity=0),
+    data: Array(capacity=0),
+    counts: Array(capacity=0),
+    sample_tmb: Array(capacity=0),
   }
 }
 
@@ -250,14 +250,14 @@ pub fn RaggedExperiment::add_record(
 
   if row_idx < 0 {
     self.rownames.push(record.gene_symbol)
-    let new_row : Array[Array[MutationRecord]] = Array::new()
+    let new_row : Array[Array[MutationRecord]] = Array(capacity=0)
     let mut c = 0
     while c < self.colnames.length() {
-      new_row.push(Array::new())
+      new_row.push(Array(capacity=0))
       c = c + 1
     }
     self.data.push(new_row)
-    let count_row : Array[Int] = Array::new()
+    let count_row : Array[Int] = Array(capacity=0)
     let mut c2 = 0
     while c2 < self.colnames.length() {
       count_row.push(0)
@@ -281,7 +281,7 @@ pub fn RaggedExperiment::add_record(
     self.colnames.push(record.sample_id)
     let mut r = 0
     while r < self.data.length() {
-      self.data[r].push(Array::new())
+      self.data[r].push(Array(capacity=0))
       self.counts[r].push(0)
       r = r + 1
     }
@@ -298,10 +298,10 @@ pub fn RaggedExperiment::recalculate(self : RaggedExperiment) -> Unit {
   // Recount from data
   let n_rows = self.rownames.length()
   let n_cols = self.colnames.length()
-  let new_counts : Array[Array[Int]] = Array::new()
+  let new_counts : Array[Array[Int]] = Array(capacity=0)
   let mut r = 0
   while r < n_rows {
-    let row_counts : Array[Int] = Array::new()
+    let row_counts : Array[Int] = Array(capacity=0)
     let mut c = 0
     while c < n_cols {
       row_counts.push(self.data[r][c].length())
@@ -313,7 +313,7 @@ pub fn RaggedExperiment::recalculate(self : RaggedExperiment) -> Unit {
   self.counts = new_counts
 
   // Calculate TMB per sample
-  let tmb : Array[Double] = Array::new()
+  let tmb : Array[Double] = Array(capacity=0)
   let mut c2 = 0
   while c2 < n_cols {
     let mut total = 0
@@ -362,7 +362,7 @@ pub fn RaggedExperiment::get_records(
   let ri = row_index(self, gene)
   let ci = col_index(self, sample)
   if ri < 0 || ci < 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   self.data[ri][ci]
 }
@@ -375,9 +375,9 @@ pub fn RaggedExperiment::get_gene_records(
 ) -> Array[MutationRecord] {
   let ri = row_index(self, gene)
   if ri < 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
-  let result : Array[MutationRecord] = Array::new()
+  let result : Array[MutationRecord] = Array(capacity=0)
   let mut c = 0
   while c < self.colnames.length() {
     let recs = self.data[ri][c]
@@ -399,9 +399,9 @@ pub fn RaggedExperiment::get_sample_records(
 ) -> Array[MutationRecord] {
   let ci = col_index(self, sample)
   if ci < 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
-  let result : Array[MutationRecord] = Array::new()
+  let result : Array[MutationRecord] = Array(capacity=0)
   let mut r = 0
   while r < self.rownames.length() {
     let recs = self.data[r][ci]
@@ -440,7 +440,7 @@ pub fn RaggedExperiment::get_tmb_per_mb(
   genome_size_mb? : Double = 3000.0,
 ) -> Array[Double] {
   let tmb = self.get_tmb()
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < tmb.length() {
     result.push(tmb[i] / genome_size_mb)
@@ -456,7 +456,7 @@ pub fn RaggedExperiment::genes_mutated_per_sample(
 ) -> Array[Int] {
   let n_cols = self.colnames.length()
   let n_rows = self.rownames.length()
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   let mut c = 0
   while c < n_cols {
     let mut count = 0

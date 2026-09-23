@@ -272,7 +272,7 @@ fn splat_draw_factors(
   state : Int,
 ) -> (Int, Array[Double]) {
   let mut current = state
-  let factors : Array[Double] = Array::new(capacity=n)
+  let factors : Array[Double] = Array(capacity=n)
   for _i in 0..<n {
     let (s1, direction) = splat_lcg(current)
     current = s1
@@ -326,7 +326,7 @@ pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
   let mut state = if seed <= 0 { 1 } else { seed }
   let n_genes = params.n_genes
   // 1. base gene means
-  let base_means : Array[Double] = Array::new(capacity=n_genes)
+  let base_means : Array[Double] = Array(capacity=n_genes)
   for _g in 0..<n_genes {
     let (s1, mean) = splat_gamma(params.mean_shape, state)
     state = s1
@@ -346,7 +346,7 @@ pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
     [n_cells]
   }
   // align batches to the total number of cells by trimming/extending
-  let effective_batch_cells : Array[Int] = Array::new()
+  let effective_batch_cells : Array[Int] = Array(capacity=0)
   let mut assigned = 0
   for c in batch_cells {
     if assigned >= n_cells {
@@ -361,7 +361,7 @@ pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
   }
   let cell_batch = splat_expand_cells(effective_batch_cells)
   // 3. library size factors
-  let lib_sizes : Array[Double] = Array::new(capacity=n_cells)
+  let lib_sizes : Array[Double] = Array(capacity=n_cells)
   for _c in 0..<n_cells {
     let (s1, size) = splat_lognormal(params.lib_loc, params.lib_scale, state)
     state = s1
@@ -374,15 +374,15 @@ pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
     }
     @math.exp(total / n_cells.to_double())
   }
-  let lib_factors : Array[Double] = Array::new(capacity=n_cells)
+  let lib_factors : Array[Double] = Array(capacity=n_cells)
   for v in lib_sizes {
     lib_factors.push(v / lib_geomean)
   }
   // 4. group log-means: base means + optional path + DE shifts
   let n_groups = group_cells.length()
-  let group_log_means : Array[Array[Double]] = Array::new(capacity=n_groups)
+  let group_log_means : Array[Array[Double]] = Array(capacity=n_groups)
   for group in 0..<n_groups {
-    let log_means : Array[Double] = Array::new(capacity=n_genes)
+    let log_means : Array[Double] = Array(capacity=n_genes)
     let is_path_group = params.enable_path && group == 0
     let (state1, path_genes) = if is_path_group {
       splat_select_genes(n_genes, params.path_probability, state)
@@ -444,9 +444,9 @@ pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
   }
   // 5. batch factors (per batch, applied to all genes)
   let n_batches = effective_batch_cells.length()
-  let batch_factors : Array[Array[Double]] = Array::new(capacity=n_batches)
+  let batch_factors : Array[Array[Double]] = Array(capacity=n_batches)
   for _b in 0..<n_batches {
-    let factors : Array[Double] = Array::new(capacity=n_genes)
+    let factors : Array[Double] = Array(capacity=n_genes)
     for _g in 0..<n_genes {
       let (s1, factor) = splat_lognormal(
         params.batch_fac_loc,
@@ -460,9 +460,9 @@ pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
   }
   // 6. counts: NB(mu = exp(log_mean) * batch_factor * lib_factor, dispersion)
   //    dispersion = bcv_common + 1/sqrt(mean)
-  let counts : Array[Array[Int]] = Array::new(capacity=n_genes)
+  let counts : Array[Array[Int]] = Array(capacity=n_genes)
   for g in 0..<n_genes {
-    let row : Array[Int] = Array::new(capacity=n_cells)
+    let row : Array[Int] = Array(capacity=n_cells)
     for c in 0..<n_cells {
       let group = cell_group[c]
       let batch = cell_batch[c]
@@ -509,7 +509,7 @@ pub fn splat_simulate(params : SplatParams, seed : Int) -> SplatResult {
       }
     }
   }
-  let pseudotime : Array[Double] = Array::new(capacity=n_cells)
+  let pseudotime : Array[Double] = Array(capacity=n_cells)
   for c in 0..<n_cells {
     if params.enable_path && cell_group[c] == 0 {
       let step = params.n_path_steps.max(1)

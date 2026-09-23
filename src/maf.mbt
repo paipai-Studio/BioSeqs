@@ -149,9 +149,9 @@ pub fn new_maf_block() -> MAFBlock {
   MAFBlock::{
     score: None,
     attributes: Map([], capacity=10),
-    sequences: Array::new(),
-    comments: Array::new(),
-    events: Array::new(),
+    sequences: Array(capacity=0),
+    comments: Array(capacity=0),
+    events: Array(capacity=0),
     is_complete: false,
   }
 }
@@ -219,7 +219,7 @@ pub fn maf_block_percent_identity(block : MAFBlock) -> Double {
   let mut total_pairs = 0
 
   for col = 0; col < aln_len; col = col + 1 {
-    let bases = Array::new()
+    let bases = Array(capacity=0)
     for s = 0; s < block.sequences.length(); s = s + 1 {
       let seq = block.sequences[s]
       let c = seq.aligned_seq.unsafe_get(col)
@@ -270,8 +270,8 @@ pub fn new_maf_alignment() -> MAFAliignment {
   MAFAliignment::{
     version: "1",
     score: None,
-    comments: Array::new(),
-    blocks: Array::new(),
+    comments: Array(capacity=0),
+    blocks: Array(capacity=0),
   }
 }
 
@@ -301,7 +301,7 @@ pub fn maf_total_length(ali : MAFAliignment) -> Int {
 ///|
 /// Get all sequence names across all blocks.
 pub fn maf_all_seq_names(ali : MAFAliignment) -> Array[String] {
-  let names = Array::new()
+  let names = Array(capacity=0)
   for b = 0; b < ali.blocks.length(); b = b + 1 {
     let block = ali.blocks[b]
     for s = 0; s < block.sequences.length(); s = s + 1 {
@@ -780,7 +780,7 @@ pub fn maf_compute_stats(ali : MAFAliignment) -> MAFStats {
   let avg_percent_identity = maf_average_percent_identity(ali)
 
   let mut total_coverage = 0.0
-  let lengths = Array::new()
+  let lengths = Array(capacity=0)
   let mut min_len = 99999999
   let mut max_len = 0
 

@@ -96,16 +96,16 @@ pub fn DBASample::new(
     replicate,
     peak_file: "",
     bam_file: "",
-    peaks: Array::new(),
+    peaks: Array(capacity=0),
   }
 }
 
 ///|
 /// Construct a new DBAConfig from an array of samples.
 pub fn DBAConfig::new(samples : Array[DBASample]) -> DBAConfig {
-  let conditions : Array[String] = Array::new()
-  let replicates : Array[Int] = Array::new()
-  let peaks : Array[Array[DBAPeak]] = Array::new()
+  let conditions : Array[String] = Array(capacity=0)
+  let replicates : Array[Int] = Array(capacity=0)
+  let peaks : Array[Array[DBAPeak]] = Array(capacity=0)
   let mut i = 0
   while i < samples.length() {
     conditions.push(samples[i].condition)
@@ -480,12 +480,12 @@ pub fn diffbind_consensus_peaks(
   min_overlap : Double,
 ) -> Array[DBAPeak] {
   if samples.length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let n_samples = samples.length()
   let threshold = min_overlap * n_samples.to_double()
   // Collect all peaks across samples.
-  let all_peaks : Array[DBAPeak] = Array::new()
+  let all_peaks : Array[DBAPeak] = Array(capacity=0)
   let mut s = 0
   while s < n_samples {
     let mut p = 0
@@ -496,12 +496,12 @@ pub fn diffbind_consensus_peaks(
     s = s + 1
   }
   if all_peaks.length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   // Sort peaks by chromosome then start.
   let sorted = diffbind_sort_peaks(all_peaks)
   // Merge overlapping peaks within the same chromosome.
-  let merged : Array[DBAPeak] = Array::new()
+  let merged : Array[DBAPeak] = Array(capacity=0)
   merged.push(sorted[0])
   let mut i = 1
   while i < sorted.length() {
@@ -532,7 +532,7 @@ pub fn diffbind_consensus_peaks(
     i = i + 1
   }
   // For each merged peak, count how many samples contain an overlapping peak.
-  let consensus : Array[DBAPeak] = Array::new()
+  let consensus : Array[DBAPeak] = Array(capacity=0)
   let mut m = 0
   while m < merged.length() {
     let mut sample_count = 0
@@ -574,13 +574,13 @@ pub fn diffbind_overlap(
   min_overlap : Double,
 ) -> OverlapResult {
   let consensus = diffbind_consensus_peaks(config.samples, min_overlap)
-  let sample_names : Array[String] = Array::new()
+  let sample_names : Array[String] = Array(capacity=0)
   let mut s = 0
   while s < config.samples.length() {
     sample_names.push(config.samples[s].sample_id)
     s = s + 1
   }
-  let overlap_matrix : Array[Array[Int]] = Array::new()
+  let overlap_matrix : Array[Array[Int]] = Array(capacity=0)
   let mut i = 0
   while i < consensus.length() {
     let row : Array[Int] = Array::make(config.samples.length(), 0)
@@ -631,7 +631,7 @@ pub fn diffbind_merge_peaks(
   peaks1 : Array[DBAPeak],
   peaks2 : Array[DBAPeak],
 ) -> Array[DBAPeak] {
-  let combined : Array[DBAPeak] = Array::new()
+  let combined : Array[DBAPeak] = Array(capacity=0)
   let mut i = 0
   while i < peaks1.length() {
     combined.push(peaks1[i])
@@ -643,10 +643,10 @@ pub fn diffbind_merge_peaks(
     j = j + 1
   }
   if combined.length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let sorted = diffbind_sort_peaks(combined)
-  let merged : Array[DBAPeak] = Array::new()
+  let merged : Array[DBAPeak] = Array(capacity=0)
   merged.push(sorted[0])
   let mut k = 1
   while k < sorted.length() {
@@ -680,7 +680,7 @@ pub fn diffbind_merge_peaks(
 pub fn diffbind_compute_tmm(counts : Array[Array[Double]]) -> Array[Double] {
   let n_genes = counts.length()
   if n_genes == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let n_samples = counts[0].length()
   let factors : Array[Double] = Array::make(n_samples, 1.0)
@@ -713,9 +713,9 @@ pub fn diffbind_compute_tmm(counts : Array[Array[Double]]) -> Array[Double] {
       continue
     }
     // Collect (M, A) values for genes with positive counts in both samples.
-    let m_values : Array[Double] = Array::new()
-    let a_values : Array[Double] = Array::new()
-    let weights : Array[Double] = Array::new()
+    let m_values : Array[Double] = Array(capacity=0)
+    let a_values : Array[Double] = Array(capacity=0)
+    let weights : Array[Double] = Array(capacity=0)
     let mut g = 0
     while g < n_genes {
       let y_ref = counts[g][0]
@@ -814,10 +814,10 @@ pub fn diffbind_negative_binomial_test(
 pub fn diffbind_bh_fdr(pvalues : Array[Double]) -> Array[Double] {
   let n = pvalues.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   // Create (original_index, pvalue) pairs.
-  let indexed : Array[(Int, Double)] = Array::new()
+  let indexed : Array[(Int, Double)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((i, pvalues[i]))
@@ -869,7 +869,7 @@ fn diffbind_build_count_matrix(
 ) -> Array[Array[Double]] {
   let n_peaks = consensus.length()
   let n_samples = config.samples.length()
-  let counts : Array[Array[Double]] = Array::new()
+  let counts : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_peaks {
     let row : Array[Double] = Array::make(n_samples, 0.0)
@@ -1102,10 +1102,10 @@ pub fn diffbind_analyze(
   condition2 : String,
 ) -> DBAResult {
   let empty_result = DBAResult::{
-    peaks: Array::new(),
-    pvalues: Array::new(),
-    fdrs: Array::new(),
-    fold_changes: Array::new(),
+    peaks: Array(capacity=0),
+    pvalues: Array(capacity=0),
+    fdrs: Array(capacity=0),
+    fold_changes: Array(capacity=0),
     contrast: (condition1, condition2),
     n_significant: 0,
   }
@@ -1113,8 +1113,8 @@ pub fn diffbind_analyze(
     return empty_result
   }
   // Identify sample indices for each condition.
-  let group1_idx : Array[Int] = Array::new()
-  let group2_idx : Array[Int] = Array::new()
+  let group1_idx : Array[Int] = Array(capacity=0)
+  let group2_idx : Array[Int] = Array(capacity=0)
   let mut s = 0
   while s < config.samples.length() {
     if config.samples[s].condition == condition1 {
@@ -1202,7 +1202,7 @@ pub fn diffbind_report(
   result : DBAResult,
   threshold : Double,
 ) -> Array[DBAPeak] {
-  let significant : Array[DBAPeak] = Array::new()
+  let significant : Array[DBAPeak] = Array(capacity=0)
   let mut i = 0
   while i < result.peaks.length() {
     if result.fdrs[i] < threshold {
@@ -1216,7 +1216,7 @@ pub fn diffbind_report(
 ///|
 /// Generate volcano plot data: (fold_change, -log10(pvalue)) pairs.
 pub fn diffbind_volcano_data(result : DBAResult) -> Array[(Double, Double)] {
-  let data : Array[(Double, Double)] = Array::new()
+  let data : Array[(Double, Double)] = Array(capacity=0)
   let mut i = 0
   while i < result.peaks.length() {
     let fc = result.fold_changes[i]
@@ -1231,7 +1231,7 @@ pub fn diffbind_volcano_data(result : DBAResult) -> Array[(Double, Double)] {
 ///|
 /// Generate MA plot data: (mean_expression_log2, log2_fold_change) pairs.
 pub fn diffbind_ma_data(result : DBAResult) -> Array[(Double, Double)] {
-  let data : Array[(Double, Double)] = Array::new()
+  let data : Array[(Double, Double)] = Array(capacity=0)
   let mut i = 0
   while i < result.peaks.length() {
     let fc = result.fold_changes[i]
@@ -1252,7 +1252,7 @@ pub fn diffbind_ma_data(result : DBAResult) -> Array[(Double, Double)] {
 ///|
 /// Create an example DBAConfig with two conditions and multiple replicates.
 pub fn diffbind_create_example_config() -> DBAConfig {
-  let samples : Array[DBASample] = Array::new()
+  let samples : Array[DBASample] = Array(capacity=0)
   // Condition A: 2 replicates.
   samples.push(DBASample::{
     sample_id: "A1",
@@ -1293,7 +1293,7 @@ pub fn diffbind_create_example_config() -> DBAConfig {
 ///|
 /// Create an example array of peaks (ConditionA baseline).
 pub fn diffbind_create_example_peaks() -> Array[DBAPeak] {
-  let peaks : Array[DBAPeak] = Array::new()
+  let peaks : Array[DBAPeak] = Array(capacity=0)
   peaks.push(DBAPeak::{
     chr: "chr1",
     start: 1000,
@@ -1335,7 +1335,7 @@ pub fn diffbind_create_example_peaks() -> Array[DBAPeak] {
 ///|
 /// Create an example array of peaks for ConditionB (with shifted scores).
 pub fn diffbind_create_example_peaks_alt() -> Array[DBAPeak] {
-  let peaks : Array[DBAPeak] = Array::new()
+  let peaks : Array[DBAPeak] = Array(capacity=0)
   peaks.push(DBAPeak::{
     chr: "chr1",
     start: 1000,
@@ -1409,7 +1409,7 @@ pub fn diffbind_contrast(
 /// Transpose a matrix (peaks x samples -> samples x peaks).
 fn diffbind_transpose(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
   if matrix.length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let n_rows = matrix.length()
   let n_cols = matrix[0].length()
@@ -1514,7 +1514,7 @@ fn diffbind_pca(
   matrix : Array[Array[Double]],
 ) -> (Array[Array[Double]], Array[Double]) {
   if matrix.length() == 0 || matrix[0].length() == 0 {
-    return (Array::new(), Array::new())
+    return (Array(capacity=0), Array(capacity=0))
   }
   let n_samples = matrix.length()
   let n_peaks = matrix[0].length()

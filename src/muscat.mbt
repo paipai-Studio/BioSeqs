@@ -209,13 +209,13 @@ pub fn aggregate_cells(
   while i < cells.length() {
     let cell = cells[i]
     let key = cell.sample_id + "::" + cell.cluster_id
-    let arr = groups.get(key).unwrap_or(Array::new())
+    let arr = groups.get(key).unwrap_or(Array(capacity=0))
     arr.push(cell)
     groups.set(key, arr)
     i = i + 1
   }
 
-  let result : Array[PseudoBulk] = Array::new()
+  let result : Array[PseudoBulk] = Array(capacity=0)
   let group_keys = groups.keys().collect()
   let mut gk = 0
   while gk < group_keys.length() {
@@ -246,7 +246,7 @@ pub fn aggregate_cells(
     let mut ggi = 0
     while ggi < gene_id_list.length() {
       let gid = gene_id_list[ggi]
-      let values : Array[Double] = Array::new()
+      let values : Array[Double] = Array(capacity=0)
       let mut ci = 0
       while ci < v.length() {
         let c = v[ci].gene_counts.get(gid).unwrap_or(0.0)
@@ -366,13 +366,13 @@ pub fn run_ds_analysis(
   let mut i = 0
   while i < pb_samples.length() {
     let pb = pb_samples[i]
-    let arr = cluster_groups.get(pb.cluster_id).unwrap_or(Array::new())
+    let arr = cluster_groups.get(pb.cluster_id).unwrap_or(Array(capacity=0))
     arr.push(pb)
     cluster_groups.set(pb.cluster_id, arr)
     i = i + 1
   }
 
-  let all_results : Array[DSResult] = Array::new()
+  let all_results : Array[DSResult] = Array(capacity=0)
   let n_clusters = cluster_groups.size()
 
   let cluster_keys = cluster_groups.keys().collect()
@@ -381,8 +381,8 @@ pub fn run_ds_analysis(
     let cluster_id = cluster_keys[cki]
     let samples = cluster_groups.get(cluster_id).unwrap()
     // Split into control and stimulation groups
-    let ctrl : Array[PseudoBulk] = Array::new()
-    let stim : Array[PseudoBulk] = Array::new()
+    let ctrl : Array[PseudoBulk] = Array(capacity=0)
+    let stim : Array[PseudoBulk] = Array(capacity=0)
     let mut si = 0
     while si < samples.length() {
       if samples[si].group_id == "ctrl" || samples[si].group_id == "control" {
@@ -411,13 +411,13 @@ pub fn run_ds_analysis(
     while ggi < gene_id_list.length() {
       let gid = gene_id_list[ggi]
       // Get counts for control and stim
-      let ctrl_counts : Array[Double] = Array::new()
+      let ctrl_counts : Array[Double] = Array(capacity=0)
       let mut cci = 0
       while cci < ctrl.length() {
         ctrl_counts.push(ctrl[cci].gene_counts.get(gid).unwrap_or(0.0))
         cci = cci + 1
       }
-      let stim_counts : Array[Double] = Array::new()
+      let stim_counts : Array[Double] = Array(capacity=0)
       let mut sci = 0
       while sci < stim.length() {
         stim_counts.push(stim[sci].gene_counts.get(gid).unwrap_or(0.0))
@@ -458,7 +458,7 @@ pub fn run_ds_analysis(
   }
 
   // Apply Benjamini-Hochberg correction
-  let p_values : Array[Double] = Array::new()
+  let p_values : Array[Double] = Array(capacity=0)
   let mut ri = 0
   while ri < all_results.length() {
     p_values.push(all_results[ri].p_val)
@@ -603,11 +603,11 @@ fn compute_ttest_pvalue(ctrl : Array[Double], stim : Array[Double]) -> Double {
 fn muscat_bh_adjust(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   // Create index-value pairs and sort by p-value
-  let indexed : Array[(Int, Double)] = Array::new()
+  let indexed : Array[(Int, Double)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((i, p_values[i]))
@@ -630,7 +630,7 @@ fn muscat_bh_adjust(p_values : Array[Double]) -> Array[Double] {
   }
 
   // Compute adjusted p-values
-  let adjusted : Array[Double] = Array::new()
+  let adjusted : Array[Double] = Array(capacity=0)
   let mut ai = 0
   while ai < n {
     adjusted.push(0.0)
@@ -666,7 +666,7 @@ pub fn DSResults::get_n_results(self : DSResults) -> Int {
 ///|
 /// Get significant results only.
 pub fn DSResults::get_significant(self : DSResults) -> Array[DSResult] {
-  let sig : Array[DSResult] = Array::new()
+  let sig : Array[DSResult] = Array(capacity=0)
   let mut i = 0
   while i < self.results.length() {
     if self.results[i].significant {
@@ -683,7 +683,7 @@ pub fn DSResults::get_cluster_results(
   self : DSResults,
   cluster_id : String,
 ) -> Array[DSResult] {
-  let filtered : Array[DSResult] = Array::new()
+  let filtered : Array[DSResult] = Array(capacity=0)
   let mut i = 0
   while i < self.results.length() {
     if self.results[i].cluster_id == cluster_id {
@@ -713,7 +713,7 @@ pub fn DSResults::get_top_genes(self : DSResults, n : Int) -> Array[DSResult] {
     i = i + 1
   }
 
-  let result : Array[DSResult] = Array::new()
+  let result : Array[DSResult] = Array(capacity=0)
   let take = if n < len { n } else { len }
   let mut k = 0
   while k < take {
@@ -743,7 +743,7 @@ pub fn DSResults::summary(self : DSResults) -> String {
 ///|
 /// Compute QC summary for pseudo-bulk samples.
 pub fn compute_qc(pb_samples : Array[PseudoBulk]) -> Array[SampleQC] {
-  let qc_list : Array[SampleQC] = Array::new()
+  let qc_list : Array[SampleQC] = Array(capacity=0)
   let mut i = 0
   while i < pb_samples.length() {
     let pb = pb_samples[i]
@@ -766,7 +766,7 @@ pub fn compute_qc(pb_samples : Array[PseudoBulk]) -> Array[SampleQC] {
 ///|
 /// Create sample single-cell data for testing.
 pub fn muscat_sample_data() -> Array[SingleCell] {
-  let cells : Array[SingleCell] = Array::new()
+  let cells : Array[SingleCell] = Array(capacity=0)
   let genes = ["Gene1", "Gene2", "Gene3", "Gene4", "Gene5"]
   let samples = ["S1", "S2", "S3", "S4"]
   let clusters = ["C1", "C2"]

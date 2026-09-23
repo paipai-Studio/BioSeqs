@@ -16,15 +16,15 @@ fn main raise {
   // DMR signal: cases have elevated methylation at CpGs 3-7 on chr1
   let n_cpgs = 10
   let n_samples = 6
-  let beta_values : Array[Array[Double]] = Array::new()
-  let positions : Array[Int] = Array::new()
-  let chr : Array[String] = Array::new()
+  let beta_values : Array[Array[Double]] = Array(capacity=0)
+  let positions : Array[Int] = Array(capacity=0)
+  let chr : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < n_cpgs {
     chr.push("chr1")
     positions.push(10000 + i * 200)
-    let vals : Array[Double] = Array::new()
+    let vals : Array[Double] = Array(capacity=0)
     let mut s = 0
     while s < n_samples {
       let mut beta = 0.4
@@ -48,8 +48,8 @@ fn main raise {
   }
 
   // Design matrix: intercept + group indicator
-  let intercept : Array[Double] = Array::new()
-  let group : Array[Double] = Array::new()
+  let intercept : Array[Double] = Array(capacity=0)
+  let group : Array[Double] = Array(capacity=0)
   let mut s = 0
   while s < n_samples {
     intercept.push(1.0)

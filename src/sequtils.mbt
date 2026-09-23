@@ -7,7 +7,7 @@ let crc32_table : Array[Int] = make_crc32_table()
 
 ///|
 fn make_crc32_table() -> Array[Int] {
-  let table = Array::new()
+  let table = Array(capacity=0)
   let mut i = 0
   while i < 256 {
     let mut c = i & 0xFFFFFFFF
@@ -122,7 +122,7 @@ pub fn sha1_string(s : String) -> Array[Int] {
 
 ///|
 pub fn string_to_bytes(s : String) -> Array[Int] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   let mut i = 0
   while i < s.length() {
     match s.get_char(i) {
@@ -236,7 +236,7 @@ pub fn sha1(message : Array[Int]) -> Array[Int] {
 
   let original_len = message.length()
   let padded_len = ((original_len + 8) / 64 + 1) * 64
-  let padded = Array::new()
+  let padded = Array(capacity=0)
   let mut i = 0
   while i < padded_len {
     if i < original_len {
@@ -255,7 +255,7 @@ pub fn sha1(message : Array[Int]) -> Array[Int] {
 
   let mut block_idx = 0
   while block_idx < padded.length() {
-    let w = Array::new()
+    let w = Array(capacity=0)
     let mut j = 0
     while j < 80 {
       if j < 16 {
@@ -321,7 +321,7 @@ pub fn sha1(message : Array[Int]) -> Array[Int] {
     block_idx = block_idx + 64
   }
 
-  let result = Array::new()
+  let result = Array(capacity=0)
   result.push(u32_shr(h0, 24) & 255)
   result.push(u32_shr(h0, 16) & 255)
   result.push(u32_shr(h0, 8) & 255)

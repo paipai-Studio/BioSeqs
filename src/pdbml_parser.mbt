@@ -436,18 +436,18 @@ fn pdbml_same_residue(a : PdbmlAtomEntry, b : PdbmlAtomEntry) -> Bool {
 
 ///|
 fn pdbml_group(entries : Array[PdbmlAtomEntry]) -> Array[PdbmlModel] {
-  let models : Array[PdbmlModel] = Array::new()
+  let models : Array[PdbmlModel] = Array(capacity=0)
   let n = entries.length()
   let mut i = 0
   while i < n {
     let mn = entries[i].model_number
-    let chains : Array[PdbmlChain] = Array::new()
+    let chains : Array[PdbmlChain] = Array(capacity=0)
     while i < n && entries[i].model_number == mn {
       let cid = entries[i].chain_id
-      let residues : Array[PdbmlResidue] = Array::new()
+      let residues : Array[PdbmlResidue] = Array(capacity=0)
       while i < n && entries[i].model_number == mn && entries[i].chain_id == cid {
         let key = entries[i]
-        let atoms : Array[PdbmlAtom] = Array::new()
+        let atoms : Array[PdbmlAtom] = Array(capacity=0)
         while i < n && entries[i].model_number == mn && entries[i].chain_id == cid &&
         pdbml_same_residue(entries[i], key) {
           atoms.push(entries[i].atom)
@@ -474,7 +474,7 @@ fn pdbml_group(entries : Array[PdbmlAtomEntry]) -> Array[PdbmlModel] {
 pub fn pdbml_get_structure(xml : String) -> PdbmlStructure raise PdbmlError {
   let root = pdbml_parse_document(xml)
   let header = pdbml_parse_header(root)
-  let entries : Array[PdbmlAtomEntry] = Array::new()
+  let entries : Array[PdbmlAtomEntry] = Array(capacity=0)
   match pdbml_find_child(root, "atom_siteCategory") {
     Some(category) => {
       for elem in category.children {

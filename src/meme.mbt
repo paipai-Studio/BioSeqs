@@ -87,7 +87,7 @@ pub fn MemeMotif::consensus(self : MemeMotif) -> String {
 ///|
 /// Convert alphabet string to array of single-character strings.
 pub fn MemeMotif::alphabet_to_array(self : MemeMotif) -> Array[String] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   let mut i = 0
   while i < self.alphabet.length() {
     result.push(self.alphabet[i:i + 1].to_owned())
@@ -146,8 +146,8 @@ pub fn MemeRecord::new() -> MemeRecord {
     version: "4",
     alphabet: "ACGT",
     strands: "+ -",
-    background_frequencies: Array::new(),
-    motifs: Array::new(),
+    background_frequencies: Array(capacity=0),
+    motifs: Array(capacity=0),
   }
 }
 
@@ -181,7 +181,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
   let n = lines.length()
   let mut in_background = false
   let mut in_matrix = false
-  let mut matrix_rows : Array[Array[Double]] = Array::new()
+  let mut matrix_rows : Array[Array[Double]] = Array(capacity=0)
   let mut expected_width = 0
   // Motif building variables
   let mut has_motif = false
@@ -280,7 +280,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
         )
       }
       in_matrix = false
-      matrix_rows = Array::new()
+      matrix_rows = Array(capacity=0)
       let parts = line.split(" ").to_array()
       m_name = if parts.length() >= 2 {
         parts[1].trim().to_string()
@@ -304,7 +304,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
     // letter-probability matrix header
     if line.starts_with("letter-probability matrix:") {
       in_matrix = true
-      matrix_rows = Array::new()
+      matrix_rows = Array(capacity=0)
       // Parse alength, w, nsites, E from the header
       let header = line.substring(start=26)
       expected_width = parse_meme_int_field(header, "w=")
@@ -332,7 +332,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
       let trimmed = line.trim().to_string()
       if trimmed.length() > 0 {
         let parts = trimmed.split(" ").to_array()
-        let row : Array[Double] = Array::new()
+        let row : Array[Double] = Array(capacity=0)
         for p in parts {
           let s = p.trim().to_string()
           if s.length() > 0 {

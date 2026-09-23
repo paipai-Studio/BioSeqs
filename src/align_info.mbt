@@ -104,7 +104,7 @@ pub fn calc_column_statistics(
   }
   let n_cols = alignments[0].length()
   let n_seqs = alignments.length()
-  let result : Array[AlignmentColumn] = Array::new()
+  let result : Array[AlignmentColumn] = Array(capacity=0)
   let mut col_idx = 0
   while col_idx < n_cols {
     let counts : Map[Char, Int] = Map([], capacity=16)
@@ -191,7 +191,7 @@ pub fn find_conserved_positions(
   alignments : Array[String],
   min_conservation? : Double = 0.8,
 ) -> Array[(Int, Char, Double)] {
-  let result : Array[(Int, Char, Double)] = Array::new()
+  let result : Array[(Int, Char, Double)] = Array(capacity=0)
   let cols = calc_column_statistics(alignments)
   for col in cols {
     let frac = col.consensus_fraction()
@@ -209,7 +209,7 @@ pub fn find_variable_positions(
   alignments : Array[String],
   max_conservation? : Double = 0.5,
 ) -> Array[(Int, Double)] {
-  let result : Array[(Int, Double)] = Array::new()
+  let result : Array[(Int, Double)] = Array(capacity=0)
   let cols = calc_column_statistics(alignments)
   for col in cols {
     let frac = col.consensus_fraction()
@@ -241,7 +241,7 @@ pub fn entropy_profile(alignments : Array[String]) -> Array[Double] {
 pub fn pairwise_identity(
   alignments : Array[String],
 ) -> Array[(String, String, Double)] {
-  let result : Array[(String, String, Double)] = Array::new()
+  let result : Array[(String, String, Double)] = Array(capacity=0)
   let n = alignments.length()
   let mut i = 0
   while i < n {

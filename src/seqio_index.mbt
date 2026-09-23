@@ -49,7 +49,7 @@ pub fn SeqIndex::length(self : SeqIndex) -> Int {
 ///|
 /// All record keys, in file order.
 pub fn SeqIndex::keys(self : SeqIndex) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < self.entries.length() {
     result.push(self.entries[i].key)
@@ -138,7 +138,7 @@ struct IndexedLine {
 ///|
 /// Split text into lines, remembering the start offset of each line.
 fn seq_index_split_lines(data : String) -> Array[IndexedLine] {
-  let lines : Array[IndexedLine] = Array::new()
+  let lines : Array[IndexedLine] = Array(capacity=0)
   let n = data.length()
   let mut line_start = 0
   let mut i = 0
@@ -196,7 +196,7 @@ fn seq_index_scan_fasta(
   data : String,
   lines : Array[IndexedLine],
 ) -> Array[SeqIndexEntry] raise SeqIOError {
-  let entries : Array[SeqIndexEntry] = Array::new()
+  let entries : Array[SeqIndexEntry] = Array(capacity=0)
   let mut i = 0
   while i < lines.length() {
     let line = lines[i]
@@ -234,7 +234,7 @@ fn seq_index_scan_fastq(
   data : String,
   lines : Array[IndexedLine],
 ) -> Array[SeqIndexEntry] raise SeqIOError {
-  let entries : Array[SeqIndexEntry] = Array::new()
+  let entries : Array[SeqIndexEntry] = Array(capacity=0)
   let n = lines.length()
   let mut i = 0
   while i < n {
@@ -279,7 +279,7 @@ fn seq_index_scan_delimiter(
   prefix : String,
   kind : String,
 ) -> Array[SeqIndexEntry] raise SeqIOError {
-  let entries : Array[SeqIndexEntry] = Array::new()
+  let entries : Array[SeqIndexEntry] = Array(capacity=0)
   let n = lines.length()
   let mut i = 0
   while i < n {
@@ -332,7 +332,7 @@ fn seq_index_scan_tab(
   data : String,
   lines : Array[IndexedLine],
 ) -> Array[SeqIndexEntry] raise SeqIOError {
-  let entries : Array[SeqIndexEntry] = Array::new()
+  let entries : Array[SeqIndexEntry] = Array(capacity=0)
   let mut i = 0
   while i < lines.length() {
     let line = lines[i]

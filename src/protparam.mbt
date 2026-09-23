@@ -27,7 +27,7 @@ fn instability_score(a1 : Char, a2 : Char) -> Double {
     'A', 'R', 'N', 'D', 'C', 'E', 'Q', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S',
     'T', 'W', 'Y', 'V',
   ]
-  let scores : Array[Array[Double]] = Array::new()
+  let scores : Array[Array[Double]] = Array(capacity=0)
 
   scores.push([
     4.9, -1.8, -4.8, -3.5, 0.2, -8.0, -4.1, 0.0, -4.6, 4.2, 4.9, -3.9, 1.9, 2.8,
@@ -424,7 +424,7 @@ pub fn ProteinAnalysis::flexibility(
   let seq = self.sequence.to_upper()
   let n = seq.length()
   let window = 9
-  let scores : Array[Double] = Array::new()
+  let scores : Array[Double] = Array(capacity=0)
   if n <= window {
     return scores
   }
@@ -491,7 +491,7 @@ pub fn ProteinAnalysis::protein_scale(
   let n = seq.length()
   let half = window / 2
   let unit = 2.0 * (1.0 - edge) / (window - 1).to_double()
-  let weights : Array[Double] = Array::new()
+  let weights : Array[Double] = Array(capacity=0)
   let mut k = 0
   while k < half {
     weights.push(edge + unit * k.to_double())
@@ -501,7 +501,7 @@ pub fn ProteinAnalysis::protein_scale(
   for w in weights {
     sum_of_weights = sum_of_weights + 2.0 * w
   }
-  let scores : Array[Double] = Array::new()
+  let scores : Array[Double] = Array(capacity=0)
   if n < window {
     return scores
   }

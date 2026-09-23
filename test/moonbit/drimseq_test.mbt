@@ -29,7 +29,7 @@ test "drimseq_transcript_count_proportion_zero" {
 
 ///|
 test "drimseq_filter_counts" {
-  let counts : Array[@src.TranscriptCount] = Array::new()
+  let counts : Array[@src.TranscriptCount] = Array(capacity=0)
   counts.push(
     @src.TranscriptCount::new(
       transcript_id="tx1",
@@ -58,7 +58,7 @@ test "drimseq_filter_counts" {
 
 ///|
 test "drimseq_aggregate_by_gene" {
-  let counts : Array[@src.TranscriptCount] = Array::new()
+  let counts : Array[@src.TranscriptCount] = Array(capacity=0)
   counts.push(
     @src.TranscriptCount::new(
       transcript_id="tx1",
@@ -95,7 +95,7 @@ test "drimseq_aggregate_by_gene" {
 
 ///|
 test "drimseq_compute_proportions" {
-  let counts : Array[@src.TranscriptCount] = Array::new()
+  let counts : Array[@src.TranscriptCount] = Array(capacity=0)
   counts.push(
     @src.TranscriptCount::new(
       transcript_id="tx1",
@@ -115,7 +115,7 @@ test "drimseq_compute_proportions" {
     ),
   )
 
-  let gene_counts : Array[@src.TranscriptCount] = Array::new()
+  let gene_counts : Array[@src.TranscriptCount] = Array(capacity=0)
   gene_counts.push(
     @src.TranscriptCount::new(
       transcript_id="__gene__",
@@ -133,10 +133,10 @@ test "drimseq_compute_proportions" {
 
 ///|
 test "drimseq_wald_test_same" {
-  let a : Array[Double] = Array::new()
+  let a : Array[Double] = Array(capacity=0)
   a.push(0.5)
   a.push(0.5)
-  let b : Array[Double] = Array::new()
+  let b : Array[Double] = Array(capacity=0)
   b.push(0.5)
   b.push(0.5)
 
@@ -146,10 +146,10 @@ test "drimseq_wald_test_same" {
 
 ///|
 test "drimseq_wald_test_different" {
-  let a : Array[Double] = Array::new()
+  let a : Array[Double] = Array(capacity=0)
   a.push(0.8)
   a.push(0.2)
-  let b : Array[Double] = Array::new()
+  let b : Array[Double] = Array(capacity=0)
   b.push(0.2)
   b.push(0.8)
 
@@ -217,7 +217,7 @@ test "drimseq_full_pipeline" {
 
 ///|
 test "drimseq_empty_data" {
-  let empty : Array[@src.TranscriptCount] = Array::new()
+  let empty : Array[@src.TranscriptCount] = Array(capacity=0)
   let result = @src.drimseq_test_differential(empty)
   assert_eq(result.n_genes_tested, 0)
 }

@@ -87,7 +87,7 @@ fn hilbert_inverse(hc : HilbertCurve, x : Array[Int], s : Int) -> Unit {
 
 ///|
 pub fn hilbert_decode(hc : HilbertCurve, index : Int) -> Array[Int] {
-  let x : Array[Int] = Array::new()
+  let x : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < hc.dimension {
     x.push(0)
@@ -125,7 +125,7 @@ pub fn hilbert_point_to_segment(
   start : Int,
   end : Int,
 ) -> Array[(Int, Int)] {
-  let segments : Array[(Int, Int)] = Array::new()
+  let segments : Array[(Int, Int)] = Array(capacity=0)
 
   let mut i = start
   while i <= end {
@@ -160,7 +160,7 @@ pub fn hilbert_linearize_genome(
   let hc = HilbertCurve::new(levels, 2)
   let max_coord = (1 << levels) - 1
 
-  let segments : Array[(Int, Int)] = Array::new()
+  let segments : Array[(Int, Int)] = Array(capacity=0)
 
   let mut i = 0
   while i < genome_length {
@@ -181,11 +181,11 @@ pub fn hilbert_map_to_grid(
   values : Array[Double],
 ) -> Array[Array[Double]] {
   let size = hc.max_coordinate + 1
-  let grid : Array[Array[Double]] = Array::new()
+  let grid : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < size {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < size {
       row.push(0.0)

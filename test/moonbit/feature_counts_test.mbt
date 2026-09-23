@@ -195,7 +195,7 @@ test "feature_counts_summary" {
 
 ///|
 test "feature_counts_multi_sample" {
-  let features : Array[@src.FeatureAnnotation] = Array::new()
+  let features : Array[@src.FeatureAnnotation] = Array(capacity=0)
   features.push(
     @src.FeatureAnnotation::new(
       chr="chr1",
@@ -207,7 +207,7 @@ test "feature_counts_multi_sample" {
     ),
   )
 
-  let reads : Array[@src.ReadAlignment] = Array::new()
+  let reads : Array[@src.ReadAlignment] = Array(capacity=0)
   reads.push(
     @src.ReadAlignment::new(
       read_id="read_s1_1",
@@ -225,7 +225,7 @@ test "feature_counts_multi_sample" {
     ),
   )
 
-  let sample_names : Array[String] = Array::new()
+  let sample_names : Array[String] = Array(capacity=0)
   sample_names.push("sample1")
   sample_names.push("sample2")
 

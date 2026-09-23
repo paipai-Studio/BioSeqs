@@ -214,7 +214,7 @@ fn harmony_init_centroids(
   }
   let n_dims = data.embeddings[0].length()
 
-  let centroids : Array[Array[Double]] = Array::new()
+  let centroids : Array[Array[Double]] = Array(capacity=0)
   let mut rng_state = seed
 
   let first_idx = harmony_next_rand(rng_state) % n_cells
@@ -276,7 +276,7 @@ fn harmony_compute_membership(
 ) -> Array[Array[Double]] {
   let n_cells = embeddings.length()
   let n_clusters = centroids.length()
-  let membership : Array[Array[Double]] = Array::new()
+  let membership : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_cells {
@@ -324,7 +324,7 @@ fn harmony_update_centroids(
 ) -> Array[Array[Double]] {
   let n_cells = embeddings.length()
   let n_dims = if n_cells > 0 { embeddings[0].length() } else { 0 }
-  let centroids : Array[Array[Double]] = Array::new()
+  let centroids : Array[Array[Double]] = Array(capacity=0)
 
   let mut k = 0
   while k < n_clusters {
@@ -367,7 +367,7 @@ fn harmony_batch_corrections(
   let n_dims = if n_cells > 0 { data.embeddings[0].length() } else { 0 }
 
   // Get unique batches
-  let unique_batches : Array[String] = Array::new()
+  let unique_batches : Array[String] = Array(capacity=0)
   {
     let seen : Map[String, Bool] = Map([], capacity=16)
     let mut i = 0
@@ -462,7 +462,7 @@ fn harmony_apply_correction(
   let n_batches = if n_clusters > 0 { corrections[0].length() } else { 0 }
 
   // Get unique batches from correction dimensions
-  let corrected : Array[Array[Double]] = Array::new()
+  let corrected : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_cells {
     let new_cell : Array[Double] = Array::make(n_dims, 0.0)
@@ -554,9 +554,9 @@ pub fn harmony_create_example(
   n_batches : Int,
   n_dims : Int,
 ) -> HarmonyData {
-  let embeddings : Array[Array[Double]] = Array::new()
-  let batch_labels : Array[String] = Array::new()
-  let cell_ids : Array[String] = Array::new()
+  let embeddings : Array[Array[Double]] = Array(capacity=0)
+  let batch_labels : Array[String] = Array(capacity=0)
+  let cell_ids : Array[String] = Array(capacity=0)
   let mut rng = 42
 
   let mut i = 0

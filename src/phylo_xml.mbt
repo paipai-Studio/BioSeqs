@@ -497,7 +497,7 @@ pub fn find_element(xml : String, tag : String) -> (Int, Int, String) {
 /// Find all XML elements by tag name (non-overlapping, top-level only within the search range).
 /// Returns array of (start_pos, end_pos) tuples.
 pub fn find_all_elements(xml : String, tag : String) -> Array[(Int, Int)] {
-  let result : Array[(Int, Int)] = Array::new()
+  let result : Array[(Int, Int)] = Array(capacity=0)
   let mut search_start = 0
   let n = xml.length()
   while search_start < n {
@@ -586,8 +586,8 @@ pub fn parse_phyloxml(xml_text : String) -> PhyloXMLResult {
   }
 
   let metadata : Map[String, String] = Map([], capacity=8)
-  let namespaces : Array[TaxonNamespace] = Array::new()
-  let trees : Array[PhyloXMLTree] = Array::new()
+  let namespaces : Array[TaxonNamespace] = Array(capacity=0)
+  let trees : Array[PhyloXMLTree] = Array(capacity=0)
 
   let tree_blocks = find_all_elements(trimmed, "phylogeny")
   for block in tree_blocks {
@@ -755,7 +755,7 @@ fn parse_node_from_content(xml : String) -> PhyloXMLNode {
     None => 0.0
   }
 
-  let children : Array[PhyloXMLNode] = Array::new()
+  let children : Array[PhyloXMLNode] = Array(capacity=0)
   let mut search_start = 0
   let n = xml.length()
   while search_start < n {
@@ -1129,7 +1129,7 @@ fn parse_newick_subtree(s : String, start : Int) -> PhyloXMLNode {
   }
 
   if char_at(trimmed, 0) == "(" {
-    let children : Array[PhyloXMLNode] = Array::new()
+    let children : Array[PhyloXMLNode] = Array(capacity=0)
     let mut depth = 1
     let mut child_start = 1
     let mut i = 1
@@ -1313,7 +1313,7 @@ pub fn phyloxml_node_to_newick(node : PhyloXMLNode) -> String {
 ///|
 /// Get all tree names from a PhyloXMLResult.
 pub fn get_tree_names(result : PhyloXMLResult) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   for tree in result.trees {
     names.push(tree.name)
   }
@@ -1323,7 +1323,7 @@ pub fn get_tree_names(result : PhyloXMLResult) -> Array[String] {
 ///|
 /// Get all leaf (tip) names from a PhyloXMLTree.
 pub fn get_all_tips(tree : PhyloXMLTree) -> Array[String] {
-  let tips : Array[String] = Array::new()
+  let tips : Array[String] = Array(capacity=0)
   collect_tips(tree.root, tips)
   tips
 }
@@ -1343,7 +1343,7 @@ fn collect_tips(node : PhyloXMLNode, tips : Array[String]) -> Unit {
 /// Count the total number of nodes in a PhyloXMLTree.
 pub fn phyloxml_get_node_count(tree : PhyloXMLTree) -> Int {
   let mut count = 0
-  let stack : Array[PhyloXMLNode] = Array::new()
+  let stack : Array[PhyloXMLNode] = Array(capacity=0)
   stack.push(tree.root)
   while stack.length() > 0 {
     let current = match stack.pop() {

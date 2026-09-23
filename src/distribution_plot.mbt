@@ -87,7 +87,7 @@ pub fn Histogram::from_data(
     return Histogram::{ bins, data_min: lo, data_max: hi, total: data.length(), }
   }
   let width = span / n.to_double()
-  let counts : Array[Int] = Array::new()
+  let counts : Array[Int] = Array(capacity=0)
   for _i in 0..<n {
     counts.push(0)
   }
@@ -101,7 +101,7 @@ pub fn Histogram::from_data(
     }
     counts[idx] = counts[idx] + 1
   }
-  let bins : Array[HistBin] = Array::new()
+  let bins : Array[HistBin] = Array(capacity=0)
   for i in 0..<n {
     let bin_lo = lo + i.to_double() * width
     let bin_hi = if i == n - 1 { hi } else { bin_lo + width }
@@ -180,7 +180,7 @@ pub fn DistributionPage::add_panel(
   self : DistributionPage,
   panel : PlotPanel,
 ) -> DistributionPage {
-  let panels = Array::new()
+  let panels = Array(capacity=0)
   for existing in self.panels {
     panels.push(existing)
   }
@@ -253,7 +253,7 @@ fn plot_ticks(lo : Double, hi : Double, target~ : Int = 5) -> Array[Double] {
   let span = hi - lo
   let step = plot_nice_num(span / target.to_double(), round=true)
   let mut start = (lo / step).floor() * step
-  let ticks : Array[Double] = Array::new()
+  let ticks : Array[Double] = Array(capacity=0)
   let mut iter_count = 0
   while start <= hi + step * 0.5 && iter_count < 64 {
     if start >= lo - step * 0.5 {

@@ -185,7 +185,7 @@ fn rstatix_wilcox_signed(
   alternative : String,
   method_name : String,
 ) -> RstatixTTestResult {
-  let non_zero = Array::new()
+  let non_zero = Array(capacity=0)
   let mut i = 0
   while i < x.length() {
     if x[i].abs() > 1.0e-15 {
@@ -423,7 +423,7 @@ pub fn rstatix_anova_test(
       p_adj: @double.not_a_number,
     }
   }
-  let all_data = Array::new()
+  let all_data = Array(capacity=0)
   let n_groups = Array::make(k, 0)
   let group_means = Array::make(k, 0.0)
   let mut total_n = 0
@@ -516,8 +516,8 @@ pub fn rstatix_kruskal_test(
       p_adj: @double.not_a_number,
     }
   }
-  let all_data = Array::new()
-  let group_ids = Array::new()
+  let all_data = Array(capacity=0)
+  let group_ids = Array(capacity=0)
   let mut n_total = 0
   let mut i = 0
   while i < k {
@@ -626,7 +626,7 @@ pub fn rstatix_friedman_test(
 pub fn rstatix_bh_correct(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let result = Array::make(n, 0.0)
   let indices = Array::make(n, 0)

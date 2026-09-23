@@ -281,7 +281,7 @@ fn entrez_extract_text(xml : String, tag : String) -> String? {
 ///|
 /// Extract the text of every occurrence of a tag.
 fn entrez_extract_all(xml : String, tag : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut remaining = xml
   while remaining.length() > 0 {
     let start_pos = remaining.find("<" + tag + ">")
@@ -321,7 +321,7 @@ fn entrez_attr(opening : String, name : String) -> String? {
 ///|
 /// Cut out every occurrence of a `<tag ...>...</tag>` block.
 fn entrez_blocks(xml : String, tag : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut remaining = xml
   while remaining.length() > 0 {
     let start_pos = remaining.find("<" + tag)
@@ -510,7 +510,7 @@ pub fn esummary(
 /// Scan a DocSum block for `<Item Name=... Type=...>value</Item>` entries,
 /// returning (name, type, value) triples in document order.
 fn entrez_scan_items(block : String) -> Array[(String, String, String)] {
-  let result : Array[(String, String, String)] = Array::new()
+  let result : Array[(String, String, String)] = Array(capacity=0)
   let mut rest = block
   let mut go = true
   while go {
@@ -539,13 +539,13 @@ fn entrez_scan_items(block : String) -> Array[(String, String, String)] {
 pub fn parse_esummary(
   xml : String,
 ) -> Array[EntrezDocSum] raise EntrezUtilError {
-  let result : Array[EntrezDocSum] = Array::new()
+  let result : Array[EntrezDocSum] = Array(capacity=0)
   for block in entrez_blocks(xml, "DocSum") {
     let id = match entrez_extract_text(block, "Id") {
       Some(v) => v
       None => entrez_util_fail("DocSum is missing Id")
     }
-    let items : Array[EntrezItem] = Array::new()
+    let items : Array[EntrezItem] = Array(capacity=0)
     for triple in entrez_scan_items(block) {
       let (name, type_, value) = triple
       items.push(EntrezItem::new(name~, type_~, value~))
@@ -732,14 +732,14 @@ pub fn elink(
 ///|
 /// Parse an ELink XML response.
 pub fn parse_elink(xml : String) -> Array[EntrezLinkSet] raise EntrezUtilError {
-  let result : Array[EntrezLinkSet] = Array::new()
+  let result : Array[EntrezLinkSet] = Array(capacity=0)
   for block in entrez_blocks(xml, "LinkSet") {
     let db_from = entrez_extract_text(block, "DbFrom").unwrap_or("")
-    let link_set_dbs : Array[EntrezLinkSetDb] = Array::new()
+    let link_set_dbs : Array[EntrezLinkSetDb] = Array(capacity=0)
     for lsd in entrez_blocks(block, "LinkSetDb") {
       let db_to = entrez_extract_text(lsd, "DbTo").unwrap_or("")
       let link_name = entrez_extract_text(lsd, "LinkName").unwrap_or("")
-      let ids : Array[String] = Array::new()
+      let ids : Array[String] = Array(capacity=0)
       for link in entrez_blocks(lsd, "Link") {
         match entrez_extract_text(link, "Id") {
           Some(v) => ids.push(v)
@@ -834,7 +834,7 @@ pub fn ecitmatch(
 pub fn parse_ecitmatch(
   text : String,
 ) -> Array[(String, String)] raise EntrezUtilError {
-  let result : Array[(String, String)] = Array::new()
+  let result : Array[(String, String)] = Array(capacity=0)
   match text.find("<") {
     Some(_) => {
       // scan every <ByteId key="..." id="..."/> element in the document
@@ -1151,14 +1151,14 @@ pub fn parse_einfo(xml : String) -> EInfoResult {
       link_names=[],
     )
   } else {
-    let fields : Array[String] = Array::new()
+    let fields : Array[String] = Array(capacity=0)
     for block in entrez_blocks(xml, "Field") {
       match entrez_extract_text(block, "Name") {
         Some(v) => fields.push(v)
         None => ()
       }
     }
-    let links : Array[String] = Array::new()
+    let links : Array[String] = Array(capacity=0)
     for block in entrez_blocks(xml, "Link") {
       match entrez_extract_text(block, "Name") {
         Some(v) => links.push(v)
@@ -1269,7 +1269,7 @@ pub fn EGQueryResult::get(self : EGQueryResult, dbname : String) -> Int? {
 /// Parse an egquery.fcgi XML response.
 pub fn parse_egquery(xml : String) -> EGQueryResult {
   let term = entrez_extract_text(xml, "Term").unwrap_or("")
-  let rows : Array[EGQueryRow] = Array::new()
+  let rows : Array[EGQueryRow] = Array(capacity=0)
   for block in entrez_blocks(xml, "Result") {
     let dbname = entrez_extract_text(block, "DbName").unwrap_or("")
     let count_text = entrez_extract_text(block, "Count").unwrap_or("0")

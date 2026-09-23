@@ -103,7 +103,7 @@ test "interval_tree_bruteforce" {
     rng = (rng * 1103515245 + 12345) & 0x7FFFFFFF
     let b = a + 1 + rng % 100
     let got = sort_ints(tree.query(a, b))
-    let want : Array[Int] = Array::new()
+    let want : Array[Int] = Array(capacity=0)
     for i = 0; i < n; i = i + 1 {
       if starts[i] < b && ends[i] > a {
         want.push(i)

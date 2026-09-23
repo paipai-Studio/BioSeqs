@@ -148,7 +148,7 @@ pub fn parse_seqres_line(line : String) -> (String, Array[String]) {
   } else {
     " "
   }
-  let residues = Array::new()
+  let residues = Array(capacity=0)
   let mut i = 19
   while i + 3 <= n {
     if i > 69 {
@@ -173,8 +173,8 @@ pub fn parse_seqres_line(line : String) -> (String, Array[String]) {
 pub fn pdb_seqres_parser(content : String) -> Array[SeqRecord] {
   let lines = content.split("\n").to_array()
   let pdb_id = extract_pdb_id_from_content(content)
-  let chain_ids : Array[String] = Array::new()
-  let chain_residues : Array[Array[String]] = Array::new()
+  let chain_ids : Array[String] = Array(capacity=0)
+  let chain_residues : Array[Array[String]] = Array(capacity=0)
 
   for line in lines {
     let n = line.length()
@@ -197,7 +197,7 @@ pub fn pdb_seqres_parser(content : String) -> Array[SeqRecord] {
     }
     if idx < 0 {
       chain_ids.push(chain_id)
-      let new_arr : Array[String] = Array::new()
+      let new_arr : Array[String] = Array(capacity=0)
       for r in residues {
         new_arr.push(r)
       }
@@ -210,7 +210,7 @@ pub fn pdb_seqres_parser(content : String) -> Array[SeqRecord] {
     }
   }
 
-  let records = Array::new()
+  let records = Array(capacity=0)
   for k = 0; k < chain_ids.length(); k = k + 1 {
     let chain_id = chain_ids[k]
     let residues = chain_residues[k]
@@ -258,7 +258,7 @@ fn build_records_from_structure(
   pdb_id : String,
   source_label : String,
 ) -> Array[SeqRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   if structure.models.length() == 0 {
     return records
   }

@@ -236,7 +236,7 @@ fn _quantile_normalize(data : Array[Array[Double]]) -> Array[Array[Double]] {
   }
   let n_cols = data[0].length()
 
-  let sorted_data : Array[Array[Double]] = Array::new()
+  let sorted_data : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_rows {
     sorted_data.push(data[i].copy())
@@ -244,10 +244,10 @@ fn _quantile_normalize(data : Array[Array[Double]]) -> Array[Array[Double]] {
     i = i + 1
   }
 
-  let quantiles : Array[Double] = Array::new()
+  let quantiles : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < n_cols {
-    let col_vals : Array[Double] = Array::new()
+    let col_vals : Array[Double] = Array(capacity=0)
     let mut k = 0
     while k < n_rows {
       col_vals.push(sorted_data[k][j])
@@ -257,13 +257,13 @@ fn _quantile_normalize(data : Array[Array[Double]]) -> Array[Array[Double]] {
     j = j + 1
   }
 
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   i = 0
   while i < n_rows {
     let row = data[i]
     let sorted_row = row.copy()
     sorted_row.sort()
-    let ranks : Array[Int] = Array::new()
+    let ranks : Array[Int] = Array(capacity=0)
     let mut m = 0
     while m < row.length() {
       let val = row[m]
@@ -279,7 +279,7 @@ fn _quantile_normalize(data : Array[Array[Double]]) -> Array[Array[Double]] {
       ranks.push(rank)
       m = m + 1
     }
-    let normalized_row : Array[Double] = Array::new()
+    let normalized_row : Array[Double] = Array(capacity=0)
     m = 0
     while m < ranks.length() {
       normalized_row.push(quantiles[ranks[m]])
@@ -316,7 +316,7 @@ pub fn gcrma_background_correction(
   if n == 0 {
     return pm
   }
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   if bg_method == "Express" {
     while i < n {
@@ -328,8 +328,8 @@ pub fn gcrma_background_correction(
       i = i + 1
     }
   } else {
-    let pm_arr : Array[Double] = Array::new()
-    let mm_arr : Array[Double] = Array::new()
+    let pm_arr : Array[Double] = Array(capacity=0)
+    let mm_arr : Array[Double] = Array(capacity=0)
     i = 0
     while i < n {
       pm_arr.push(pm[i])
@@ -374,7 +374,7 @@ pub fn gcrma_gc_correction(
     return pm_values
   }
   let gc_lookup = compute_gc_lookup_table(probe_info)
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let gc = if i < gc_counts.length() { gc_counts[i] } else { 0 }
@@ -435,7 +435,7 @@ pub fn gcrma_summarize(
     let summarized : Array[Double] = Array::make(n_samples, 0.0)
     let mut c = 0
     while c < n_samples {
-      let col_vals : Array[Double] = Array::new()
+      let col_vals : Array[Double] = Array(capacity=0)
       let mut pi = 0
       while pi < n_probes {
         let row_idx = indices[pi]
@@ -464,7 +464,7 @@ fn _median_polish(matrix : Array[Array[Double]]) -> Array[Double] {
   if n_cols == 0 {
     return []
   }
-  let residuals : Array[Array[Double]] = Array::new()
+  let residuals : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_rows {
     let row_copy = matrix[i].copy()
@@ -501,7 +501,7 @@ fn _median_polish(matrix : Array[Array[Double]]) -> Array[Double] {
     let col_medians : Array[Double] = Array::make(n_cols, 0.0)
     let mut c = 0
     while c < n_cols {
-      let col_vals : Array[Double] = Array::new()
+      let col_vals : Array[Double] = Array(capacity=0)
       r = 0
       while r < n_rows {
         col_vals.push(residuals[r][c])
@@ -541,7 +541,7 @@ fn _median_polish(matrix : Array[Array[Double]]) -> Array[Double] {
     iter = iter + 1
   }
   let row_grand_median = _median(row_effects)
-  let final_effects : Array[Double] = Array::new()
+  let final_effects : Array[Double] = Array(capacity=0)
   let mut cc = 0
   while cc < n_cols {
     final_effects.push(col_effects[cc] + row_grand_median)
@@ -594,7 +594,7 @@ pub fn gcrma_process_with_config(
   }
   let n_samples = cel_data[0].length()
   let bg_method = config.background_method
-  let bg_corrected : Array[Array[Double]] = Array::new()
+  let bg_corrected : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_probes {
     let gc = if i < probe_info.length() {
@@ -612,7 +612,7 @@ pub fn gcrma_process_with_config(
     let corrected_row = gcrma_background_correction(
       pm_row, mm_row, gc, bg_method,
     )
-    let log_row : Array[Double] = Array::new()
+    let log_row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < corrected_row.length() {
       let v = corrected_row[j]
@@ -650,7 +650,7 @@ fn _gc_correction_logged(
   if n_probes == 0 {
     return log_intensities
   }
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_probes {
     let row = log_intensities[i]
@@ -666,7 +666,7 @@ fn _gc_correction_logged(
       0.0
     }
     let correction_factor = @math.exp(-gc_frac * 0.5)
-    let corrected_row : Array[Double] = Array::new()
+    let corrected_row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < row.length() {
       corrected_row.push(row[j] * correction_factor)

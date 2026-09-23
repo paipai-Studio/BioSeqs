@@ -199,7 +199,7 @@ fn bc_median(n : Int, x : Array[Double]) -> Double {
   if n == 2 {
     return 0.5 * (x[0] + x[1])
   }
-  let arr : Array[Double] = Array::new()
+  let arr : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     arr.push(x[i])
   }
@@ -567,8 +567,8 @@ fn bc_spearman(
   transpose : Int,
 ) -> Double {
   let mut m = 0
-  let tdata1 : Array[Double] = Array::new()
-  let tdata2 : Array[Double] = Array::new()
+  let tdata1 : Array[Double] = Array(capacity=0)
+  let tdata2 : Array[Double] = Array(capacity=0)
   if transpose == 0 {
     for i = 0; i < n; i = i + 1 {
       if mask1[index1][i] != 0 && mask2[index2][i] != 0 {
@@ -770,9 +770,9 @@ pub fn distancematrix(
   let m = mask.unwrap_or(bc_ones_mask(nrows, ncolumns))
   let w = weight.unwrap_or(bc_ones_weight(ndata))
   let metric = bc_setmetric(d)
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     matrix.push(row)
   }
   for i = 1; i < n; i = i + 1 {
@@ -788,9 +788,9 @@ pub fn distancematrix(
 ///|
 /// Ragged lower-triangular matrix filled with zeros.
 fn bc_zero_distmatrix(n : Int) -> Array[Array[Double]] {
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     matrix.push(row)
   }
   for i = 1; i < n; i = i + 1 {
@@ -803,9 +803,9 @@ fn bc_zero_distmatrix(n : Int) -> Array[Array[Double]] {
 
 ///|
 fn bc_ones_mask(nrows : Int, ncolumns : Int) -> Array[Array[Int]] {
-  let mask : Array[Array[Int]] = Array::new()
+  let mask : Array[Array[Int]] = Array(capacity=0)
   for _i = 0; _i < nrows; _i = _i + 1 {
-    let row : Array[Int] = Array::new()
+    let row : Array[Int] = Array(capacity=0)
     for _j = 0; _j < ncolumns; _j = _j + 1 {
       row.push(1)
     }
@@ -824,9 +824,9 @@ fn bc_ones_weight(n : Int) -> Array[Double] {
 fn bc_copy_distmatrix(
   distmatrix : Array[Array[Double]],
 ) -> Array[Array[Double]] {
-  let copy : Array[Array[Double]] = Array::new()
+  let copy : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < distmatrix.length(); i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < distmatrix[i].length(); j = j + 1 {
       row.push(distmatrix[i][j])
     }
@@ -1050,7 +1050,7 @@ fn bc_pslcluster(
   let nnodes = nelements - 1
   let temp : Array[Double] = Array::make(nnodes, 0.0)
   let vector : Array[Int] = Array::make(nnodes, 0)
-  let result : Array[ClusterNode] = Array::new()
+  let result : Array[ClusterNode] = Array(capacity=0)
   for _i = 0; _i < nelements; _i = _i + 1 {
     result.push({ left: 0, right: 0, distance: bc_DBL_MAX, })
   }
@@ -1084,7 +1084,7 @@ fn bc_pslcluster(
   for i = 0; i < nnodes; i = i + 1 {
     result[i].left = i
   }
-  let sorted : Array[ClusterNode] = Array::new()
+  let sorted : Array[ClusterNode] = Array(capacity=0)
   for i = 0; i < nnodes; i = i + 1 {
     sorted.push(result[i])
   }
@@ -1113,7 +1113,7 @@ fn bc_pslcluster(
     index[k] = -i - 1
   }
   // Trim to nnodes entries
-  let trimmed : Array[ClusterNode] = Array::new()
+  let trimmed : Array[ClusterNode] = Array(capacity=0)
   for i = 0; i < nnodes; i = i + 1 {
     trimmed.push(sorted[i])
   }
@@ -1128,7 +1128,7 @@ fn bc_pmlcluster(
   distmatrix : Array[Array[Double]],
 ) -> Array[ClusterNode] {
   let clusterid : Array[Int] = Array::make(nelements, 0)
-  let result : Array[ClusterNode] = Array::new()
+  let result : Array[ClusterNode] = Array(capacity=0)
   for _i = 0; _i < nelements - 1; _i = _i + 1 {
     result.push({ left: 0, right: 0, distance: 0.0, })
   }
@@ -1177,7 +1177,7 @@ fn bc_palcluster(
 ) -> Array[ClusterNode] {
   let clusterid : Array[Int] = Array::make(nelements, 0)
   let number : Array[Int] = Array::make(nelements, 0)
-  let result : Array[ClusterNode] = Array::new()
+  let result : Array[ClusterNode] = Array(capacity=0)
   for _i = 0; _i < nelements - 1; _i = _i + 1 {
     result.push({ left: 0, right: 0, distance: 0.0, })
   }
@@ -1254,16 +1254,16 @@ fn bc_pclcluster(
   let nnodes = nelements - 1
   let metric = bc_setmetric(dist)
   let distid : Array[Int] = Array::make(nelements, 0)
-  let result : Array[ClusterNode] = Array::new()
+  let result : Array[ClusterNode] = Array(capacity=0)
   for _i = 0; _i < nnodes; _i = _i + 1 {
     result.push({ left: 0, right: 0, distance: 0.0, })
   }
   // Storage for node data (a private copy of data and mask)
-  let newdata : Array[Array[Double]] = Array::new()
-  let newmask : Array[Array[Int]] = Array::new()
+  let newdata : Array[Array[Double]] = Array(capacity=0)
+  let newmask : Array[Array[Int]] = Array(capacity=0)
   for i = 0; i < nelements; i = i + 1 {
-    let rowd : Array[Double] = Array::new()
-    let rowm : Array[Int] = Array::new()
+    let rowd : Array[Double] = Array(capacity=0)
+    let rowm : Array[Int] = Array(capacity=0)
     for j = 0; j < ndata; j = j + 1 {
       if transpose == 0 {
         rowd.push(data[i][j])
@@ -1347,7 +1347,7 @@ pub fn treecluster(
   let ncolumns = if nrows > 0 { data[0].length() } else { 0 }
   let nelements = if tr { ncolumns } else { nrows }
   if nelements < 2 {
-    return { nodes: Array::new(), nelements, }
+    return { nodes: Array(capacity=0), nelements, }
   }
   let ndata = if tr { nrows } else { ncolumns }
   let m = mask.unwrap_or(bc_ones_mask(nrows, ncolumns))
@@ -1355,9 +1355,9 @@ pub fn treecluster(
   let d = dist.unwrap_or("e")
   let meth = method.unwrap_or("m")
   // Calculate the distance matrix (ragged lower triangle)
-  let distmatrix : Array[Array[Double]] = Array::new()
+  let distmatrix : Array[Array[Double]] = Array(capacity=0)
   for _i = 0; _i < nelements; _i = _i + 1 {
-    distmatrix.push(Array::new())
+    distmatrix.push(Array(capacity=0))
   }
   let metric = bc_setmetric(d)
   for i = 1; i < nelements; i = i + 1 {
@@ -1386,7 +1386,7 @@ pub fn treecluster(
         },
       )
     "m" => bc_pmlcluster(nelements, distmatrix)
-    _ => Array::new()
+    _ => Array(capacity=0)
   }
   { nodes, nelements, }
 }
@@ -1402,7 +1402,7 @@ pub fn treecluster_from_distance(
 ) -> ClusterTree {
   let nelements = distance.length()
   if nelements < 2 {
-    return { nodes: Array::new(), nelements, }
+    return { nodes: Array(capacity=0), nelements, }
   }
   let meth = method.unwrap_or("m")
   let distmatrix = bc_copy_distmatrix(distance)
@@ -1410,7 +1410,7 @@ pub fn treecluster_from_distance(
     "s" => bc_pslcluster(nelements, distmatrix)
     "a" => bc_palcluster(nelements, distmatrix)
     "m" => bc_pmlcluster(nelements, distmatrix)
-    _ => Array::new()
+    _ => Array(capacity=0)
   }
   { nodes, nelements, }
 }
@@ -1805,7 +1805,7 @@ pub fn kcluster(
   let clusterid : Array[Int] = match initialid {
     Some(init) => {
       passes = 0 // deterministic single run from the given clustering
-      let arr : Array[Int] = Array::new()
+      let arr : Array[Int] = Array(capacity=0)
       for i = 0; i < nelements; i = i + 1 {
         arr.push(init[i])
       }
@@ -1821,8 +1821,8 @@ pub fn kcluster(
   let w = weight.unwrap_or(bc_ones_weight(ndata))
   // Allocate space to store the centroid data
   let (crow, ccol) = if tr { (ndata, k) } else { (k, ndata) }
-  let cdata : Array[Array[Double]] = Array::new()
-  let cmask : Array[Array[Int]] = Array::new()
+  let cdata : Array[Array[Double]] = Array(capacity=0)
+  let cmask : Array[Array[Int]] = Array(capacity=0)
   for _i = 0; _i < crow; _i = _i + 1 {
     cdata.push(Array::make(ccol, 0.0))
     cmask.push(Array::make(ccol, 0))
@@ -1894,7 +1894,7 @@ pub fn kmedoids(
   let clusterid : Array[Int] = match initialid {
     Some(init) => {
       passes = 0
-      let arr : Array[Int] = Array::new()
+      let arr : Array[Int] = Array(capacity=0)
       for i = 0; i < nelements; i = i + 1 {
         arr.push(init[i])
       }
@@ -2043,8 +2043,8 @@ pub fn clustercentroids(
       nclusters = ids[i] + 1
     }
   }
-  let cdata : Array[Array[Double]] = Array::new()
-  let cmask : Array[Array[Int]] = Array::new()
+  let cdata : Array[Array[Double]] = Array(capacity=0)
+  let cmask : Array[Array[Int]] = Array(capacity=0)
   if transpose_i == 0 {
     for _i = 0; _i < nclusters; _i = _i + 1 {
       cdata.push(Array::make(ncolumns, 0.0))
@@ -2129,9 +2129,9 @@ pub fn clusterdistance(
   match meth {
     "a" => {
       // Distance between the arithmetic means of the two clusters
-      let cdata : Array[Array[Double]] = Array::new()
-      let cmask : Array[Array[Int]] = Array::new()
-      let count : Array[Array[Int]] = Array::new()
+      let cdata : Array[Array[Double]] = Array(capacity=0)
+      let cmask : Array[Array[Int]] = Array(capacity=0)
+      let count : Array[Array[Int]] = Array(capacity=0)
       if transpose_i == 0 {
         for _i = 0; _i < 2; _i = _i + 1 {
           cdata.push(Array::make(ncolumns, 0.0))
@@ -2206,8 +2206,8 @@ pub fn clusterdistance(
     }
     "m" => {
       // Distance between the medians of the two clusters
-      let cdata : Array[Array[Double]] = Array::new()
-      let cmask : Array[Array[Int]] = Array::new()
+      let cdata : Array[Array[Double]] = Array(capacity=0)
+      let cmask : Array[Array[Int]] = Array(capacity=0)
       if transpose_i == 0 {
         for _i = 0; _i < 2; _i = _i + 1 {
           cdata.push(Array::make(ncolumns, 0.0))
@@ -2417,7 +2417,7 @@ fn bc_somworker(
     }
   }
   // Dummy mask (all ones) used when comparing data with cell vectors
-  let dummymask : Array[Array[Int]] = Array::new()
+  let dummymask : Array[Array[Int]] = Array(capacity=0)
   if transpose == 0 {
     for _i = 0; _i < nygrid; _i = _i + 1 {
       dummymask.push(Array::make(ndata, 1))
@@ -2522,7 +2522,7 @@ fn bc_somworker(
     } else {
       // The cell vector is presented to the metric as a matrix with one
       // column; row i contains celldata[ix][iy][i].
-      let cellvector : Array[Array[Double]] = Array::new()
+      let cellvector : Array[Array[Double]] = Array(capacity=0)
       for _i = 0; _i < ndata; _i = _i + 1 {
         cellvector.push([0.0])
       }
@@ -2598,9 +2598,9 @@ fn bc_somassign(
 ) -> Array[(Int, Int)] {
   let ndata = if transpose == 0 { ncolumns } else { nrows }
   let metric = bc_setmetric(dist)
-  let clusterid : Array[(Int, Int)] = Array::new()
+  let clusterid : Array[(Int, Int)] = Array(capacity=0)
   if transpose == 0 {
-    let dummymask : Array[Array[Int]] = Array::new()
+    let dummymask : Array[Array[Int]] = Array(capacity=0)
     for _i = 0; _i < nygrid; _i = _i + 1 {
       dummymask.push(Array::make(ncolumns, 1))
     }
@@ -2641,14 +2641,14 @@ fn bc_somassign(
       clusterid.push((ixbest, iybest))
     }
   } else {
-    let dummymask : Array[Array[Int]] = Array::new()
+    let dummymask : Array[Array[Int]] = Array(capacity=0)
     for _i = 0; _i < nrows; _i = _i + 1 {
       dummymask.push(Array::make(1, 1))
     }
     for i = 0; i < ncolumns; i = i + 1 {
       let mut ixbest = 0
       let mut iybest = 0
-      let cellvector : Array[Array[Double]] = Array::new()
+      let cellvector : Array[Array[Double]] = Array(capacity=0)
       for _j = 0; _j < ndata; _j = _j + 1 {
         cellvector.push([0.0])
       }
@@ -2715,15 +2715,15 @@ pub fn somcluster(
   let ndata = if transpose_i == 0 { ncolumns } else { nrows }
   let m = mask.unwrap_or(bc_ones_mask(nrows, ncolumns))
   let w = weight.unwrap_or(bc_ones_weight(ndata))
-  let celldata : Array[Array[Array[Double]]] = Array::new()
+  let celldata : Array[Array[Array[Double]]] = Array(capacity=0)
   for _ix = 0; _ix < nx; _ix = _ix + 1 {
-    let plane : Array[Array[Double]] = Array::new()
+    let plane : Array[Array[Double]] = Array(capacity=0)
     for _iy = 0; _iy < ny; _iy = _iy + 1 {
       plane.push(Array::make(ndata, 0.0))
     }
     celldata.push(plane)
   }
-  let clusterid : Array[(Int, Int)] = Array::new()
+  let clusterid : Array[(Int, Int)] = Array(capacity=0)
   if nobjects >= 2 {
     bc_somworker(
       nrows, ncolumns, data, m, w, transpose_i, nx, ny, tau, celldata, iters, d,
@@ -3442,11 +3442,11 @@ pub fn cluster_pca(
   // Subtract the mean of each column. Depending on the shape of the matrix,
   // the mean-centered data is loaded into the coordinates buffer (nrows >=
   // ncolumns) or into the pc buffer (nrows < ncolumns).
-  let coordinates : Array[Array[Double]] = Array::new()
-  let pc : Array[Array[Double]] = Array::new()
+  let coordinates : Array[Array[Double]] = Array(capacity=0)
+  let pc : Array[Array[Double]] = Array(capacity=0)
   if nrows >= ncols {
     for i = 0; i < nrows; i = i + 1 {
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       for j = 0; j < ncols; j = j + 1 {
         row.push(data[i][j] - columnmean[j])
       }
@@ -3457,7 +3457,7 @@ pub fn cluster_pca(
     }
   } else {
     for i = 0; i < nrows; i = i + 1 {
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       for j = 0; j < ncols; j = j + 1 {
         row.push(data[i][j] - columnmean[j])
       }
@@ -3609,7 +3609,7 @@ fn bc_strip_eol(line : String) -> String {
 ///|
 /// Split a string on tab characters into an array of Strings.
 fn bc_split_tabs(line : String) -> Array[String] {
-  let parts : Array[String] = Array::new()
+  let parts : Array[String] = Array(capacity=0)
   for part in line.split("\t") {
     parts.push(part.to_string())
   }
@@ -3622,7 +3622,7 @@ fn bc_split_tabs(line : String) -> Array[String] {
 /// Bio.Cluster.read / Record.__init__). The content should be the complete
 /// text file; lines are separated by newlines and columns by tabs.
 pub fn bio_cluster_read(content : String) -> Record raise ClusterError {
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   for part in content.split("\n") {
     lines.push(bc_strip_eol(part.to_string()))
   }
@@ -3636,7 +3636,7 @@ pub fn bio_cluster_read(content : String) -> Record raise ClusterError {
   let header = bc_split_tabs(lines[0])
   let n = header.length()
   let uniqid = header[0]
-  let expid : Array[String] = Array::new()
+  let expid : Array[String] = Array(capacity=0)
   // Column layout: 0 is always the GENEID column; NAME, GWEIGHT and GORDER
   // columns are optional and identified by their header word.
   let mut name_col = -1
@@ -3654,12 +3654,12 @@ pub fn bio_cluster_read(content : String) -> Record raise ClusterError {
       expid.push(word)
     }
   }
-  let geneid : Array[String] = Array::new()
-  let genename : Array[String] = Array::new()
-  let gweight : Array[Double] = Array::new()
-  let gorder : Array[Double] = Array::new()
-  let data : Array[Array[Double]] = Array::new()
-  let mask : Array[Array[Int]] = Array::new()
+  let geneid : Array[String] = Array(capacity=0)
+  let genename : Array[String] = Array(capacity=0)
+  let gweight : Array[Double] = Array(capacity=0)
+  let gorder : Array[Double] = Array(capacity=0)
+  let data : Array[Array[Double]] = Array(capacity=0)
+  let mask : Array[Array[Int]] = Array(capacity=0)
   let mut eweight : Array[Double]? = None
   let mut eorder : Array[Double]? = None
   let mut needmask = false
@@ -3671,7 +3671,7 @@ pub fn bio_cluster_read(content : String) -> Record raise ClusterError {
       )
     }
     if line[0] == "EWEIGHT" {
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       for i = n - expid.length(); i < n; i = i + 1 {
         row.push(bc_parse_double(line[i]))
       }
@@ -3679,15 +3679,15 @@ pub fn bio_cluster_read(content : String) -> Record raise ClusterError {
       continue
     }
     if line[0] == "EORDER" {
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       for i = n - expid.length(); i < n; i = i + 1 {
         row.push(bc_parse_double(line[i]))
       }
       eorder = Some(row)
       continue
     }
-    let rowdata : Array[Double] = Array::new()
-    let rowmask : Array[Int] = Array::new()
+    let rowdata : Array[Double] = Array(capacity=0)
+    let rowmask : Array[Int] = Array(capacity=0)
     for i = 0; i < n; i = i + 1 {
       let word = line[i]
       if i == 0 {

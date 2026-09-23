@@ -163,7 +163,7 @@ pub fn InteractionSet::interaction_matrix(
   chroms : Array[String],
 ) -> Array[Array[Int]] {
   let n = chroms.length()
-  let matrix : Array[Array[Int]] = Array::new()
+  let matrix : Array[Array[Int]] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let row : Array[Int] = Array::make(n, 0)
@@ -199,8 +199,8 @@ pub fn InteractionSet::distance_distribution(
   self : InteractionSet,
   bin_width : Int,
 ) -> Array[(Int, Int)] {
-  let result : Array[(Int, Int)] = Array::new()
-  let distances : Array[Int] = Array::new()
+  let result : Array[(Int, Int)] = Array(capacity=0)
+  let distances : Array[Int] = Array(capacity=0)
   for i in self.interactions {
     match i.distance() {
       Some(d) => distances.push(d)
@@ -253,7 +253,7 @@ pub fn InteractionSet::top_interactions(
     }
     i = i + 1
   }
-  let result : Array[GInteraction] = Array::new()
+  let result : Array[GInteraction] = Array(capacity=0)
   let mut k = 0
   while k < n && k < sorted.length() {
     result.push(sorted[k])
@@ -277,7 +277,7 @@ pub fn InteractionSet::inter_fraction(self : InteractionSet) -> Double {
 ///|
 /// Get anchor regions from interactions.
 pub fn InteractionSet::anchors(self : InteractionSet) -> Array[Anchor] {
-  let result : Array[Anchor] = Array::new()
+  let result : Array[Anchor] = Array(capacity=0)
   for i in self.interactions {
     result.push(i.anchor1)
     result.push(i.anchor2)
@@ -292,7 +292,7 @@ pub fn create_binned_interactions(
   bins : Array[(Int, Int)],
   counts : Array[Array[Int]],
 ) -> InteractionSet {
-  let interactions : Array[GInteraction] = Array::new()
+  let interactions : Array[GInteraction] = Array(capacity=0)
   let n = bins.length()
   let mut i = 0
   while i < n {

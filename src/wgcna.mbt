@@ -230,7 +230,7 @@ pub fn pick_soft_threshold(
   while i < powers.length() {
     let power = powers[i]
     let adj = _wgcna_build_adjacency(wgcna.expression_matrix, n, power)
-    let k : Array[Double] = Array::new()
+    let k : Array[Double] = Array(capacity=0)
     let mut ki = 0
     while ki < n {
       let mut s = 0.0
@@ -260,7 +260,7 @@ pub fn pick_soft_threshold(
 
 fn _wgcna_log_binning(k : Array[Double], n_bins : Int) -> (Array[Double], Array[Double]) {
   let eps = 0.001
-  let log_k : Array[Double] = Array::new()
+  let log_k : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < k.length() {
     let val = k[i]
@@ -291,8 +291,8 @@ fn _wgcna_log_binning(k : Array[Double], n_bins : Int) -> (Array[Double], Array[
     kk = kk + 1
   }
 
-  let out_x : Array[Double] = Array::new()
-  let out_y : Array[Double] = Array::new()
+  let out_x : Array[Double] = Array(capacity=0)
+  let out_y : Array[Double] = Array(capacity=0)
   let mut bi = 0
   while bi < n_bins {
     if bin_counts[bi] > 0 {
@@ -373,7 +373,7 @@ pub fn module_eigengenes(wgcna : WGCNAData) -> Array[ModuleEigengene] {
       Option::None => { i = i + 1; continue }
       Some(g) => g
     }
-    let indices : Array[Int] = Array::new()
+    let indices : Array[Int] = Array(capacity=0)
     let mut gidx = 0
     while gidx < genes_in_mod.length() {
       let gn = genes_in_mod[gidx]
@@ -391,7 +391,7 @@ pub fn module_eigengenes(wgcna : WGCNAData) -> Array[ModuleEigengene] {
       continue
     }
     // 模块平均表达, 然后归一化
-    let avg_expr : Array[Double] = Array::new()
+    let avg_expr : Array[Double] = Array(capacity=0)
     let mut si = 0
     while si < n_samples {
       let mut s = 0.0
@@ -420,7 +420,7 @@ fn _wgcna_norm(x : Array[Double]) -> Array[Double] {
   while i < x.length() { norm = norm + x[i] * x[i]; i = i + 1 }
   norm = norm.sqrt()
   if norm < 0.00000000000000000001 { return Array::make(x.length(), 0.0) }
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < x.length() { out.push(x[j] / norm); j = j + 1 }
   out

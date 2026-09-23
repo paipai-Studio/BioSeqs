@@ -294,7 +294,7 @@ pub fn AbstractAlignment::abstract_get_column(
   self : AbstractAlignment,
   col_idx : Int,
 ) -> Array[UInt16] {
-  let column : Array[UInt16] = Array::new()
+  let column : Array[UInt16] = Array(capacity=0)
   if col_idx >= 0 && col_idx < self.alignment_length {
     for seq in self.sequences {
       column.push(seq.unsafe_get(col_idx))
@@ -404,7 +404,7 @@ pub fn abstract_column_stats(
 pub fn abstract_all_column_stats(
   alignment : AbstractAlignment,
 ) -> Array[AlignAbstractColumnStats] {
-  let stats : Array[AlignAbstractColumnStats] = Array::new()
+  let stats : Array[AlignAbstractColumnStats] = Array(capacity=0)
   let mut i = 0
   while i < alignment.alignment_length {
     stats.push(abstract_column_stats(alignment, i))
@@ -439,10 +439,10 @@ pub fn abstract_identity_matrix(
   alignment : AbstractAlignment,
 ) -> Array[Array[Double]] {
   let n = alignment.n_seqs
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       let identity = seq_identity(
@@ -644,10 +644,10 @@ pub fn abstract_distance_matrix(
   alignment : AbstractAlignment,
 ) -> Array[Array[Double]] {
   let n = alignment.n_seqs
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       let dist = pairwise_distance(
@@ -691,7 +691,7 @@ pub fn abstract_filter_gaps(
   alignment : AbstractAlignment,
   max_gap_fraction : Double,
 ) -> AbstractAlignment {
-  let keep_columns : Array[Int] = Array::new()
+  let keep_columns : Array[Int] = Array(capacity=0)
   let mut col = 0
   while col < alignment.alignment_length {
     let stats = abstract_column_stats(alignment, col)
@@ -701,7 +701,7 @@ pub fn abstract_filter_gaps(
     col = col + 1
   }
 
-  let new_seqs : Array[String] = Array::new()
+  let new_seqs : Array[String] = Array(capacity=0)
   let mut seq_idx = 0
   while seq_idx < alignment.n_seqs {
     let seq = alignment.sequences[seq_idx]
@@ -729,7 +729,7 @@ pub fn abstract_filter_coverage(
   alignment : AbstractAlignment,
   min_coverage : Double,
 ) -> AbstractAlignment {
-  let keep_seqs : Array[Int] = Array::new()
+  let keep_seqs : Array[Int] = Array(capacity=0)
   let mut idx = 0
   while idx < alignment.n_seqs {
     let seq = alignment.sequences[idx]
@@ -749,8 +749,8 @@ pub fn abstract_filter_coverage(
     idx = idx + 1
   }
 
-  let new_seqs : Array[String] = Array::new()
-  let new_ids : Array[String] = Array::new()
+  let new_seqs : Array[String] = Array(capacity=0)
+  let new_ids : Array[String] = Array(capacity=0)
   for idx2 in keep_seqs {
     new_seqs.push(alignment.sequences[idx2])
     new_ids.push(alignment.identifiers[idx2])
@@ -777,7 +777,7 @@ pub fn abstract_trim(
     alignment.alignment_length - 1
   }
 
-  let new_seqs : Array[String] = Array::new()
+  let new_seqs : Array[String] = Array(capacity=0)
   for seq in alignment.sequences {
     let trimmed = seq.substring(start=s, end=e + 1)
     new_seqs.push(trimmed)

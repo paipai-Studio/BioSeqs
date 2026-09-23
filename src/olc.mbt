@@ -13,7 +13,7 @@
 
 ///|
 fn sa_copy_array(arr : Array[Int]) -> Array[Int] {
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   for i = 0; i < arr.length(); i = i + 1 {
     result.push(arr[i])
   }
@@ -75,7 +75,7 @@ pub fn compute_all_overlaps(
   min_overlap : Int,
 ) -> Array[Overlap] {
   let n = reads.length()
-  let overlaps : Array[Overlap] = Array::new()
+  let overlaps : Array[Overlap] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     for j = 0; j < n; j = j + 1 {
       if i == j {
@@ -98,7 +98,7 @@ pub fn compute_overlap_graph(
   let n = reads.length()
   let graph : Map[Int, Array[(Int, Int)]] = Map([], capacity=n)
   for i = 0; i < n; i = i + 1 {
-    let edges : Array[(Int, Int)] = Array::new()
+    let edges : Array[(Int, Int)] = Array(capacity=0)
     for j = 0; j < n; j = j + 1 {
       if i == j {
         continue
@@ -123,10 +123,10 @@ pub fn compute_overlap_graph(
 pub fn find_layout_path(reads : Array[String], min_overlap : Int) -> Array[Int] {
   let n = reads.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   if n == 1 {
-    let path : Array[Int] = Array::new()
+    let path : Array[Int] = Array(capacity=0)
     path.push(0)
     return path
   }
@@ -139,18 +139,18 @@ fn find_hamiltonian_path(
   graph : Map[Int, Array[(Int, Int)]],
   n : Int,
 ) -> Array[Int] {
-  let visited : Array[Bool] = Array::new()
+  let visited : Array[Bool] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     visited.push(false)
   }
   for start = 0; start < n; start = start + 1 {
-    let path : Array[Int] = Array::new()
+    let path : Array[Int] = Array(capacity=0)
     let (found, result_path) = dfs_hamiltonian(graph, start, visited, path, n)
     if found {
       return result_path
     }
   }
-  let path : Array[Int] = Array::new()
+  let path : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     path.push(i)
   }
@@ -189,7 +189,7 @@ fn dfs_hamiltonian(
     None => ()
   }
   visited[current] = false
-  (false, Array::new())
+  (false, Array(capacity=0))
 }
 
 // ---------------------------------------------------------------------------
@@ -275,7 +275,7 @@ pub fn correct_errors(
   min_overlap : Int,
 ) -> Array[String] {
   let n = reads.length()
-  let corrected : Array[String] = Array::new()
+  let corrected : Array[String] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let read = reads[i]
     let corrected_read = correct_read(reads, i, min_overlap)
@@ -288,7 +288,7 @@ pub fn correct_errors(
 fn correct_read(reads : Array[String], idx : Int, min_overlap : Int) -> String {
   let n = reads.length()
   let read = reads[idx]
-  let overlaps : Array[(String, Int)] = Array::new()
+  let overlaps : Array[(String, Int)] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     if i == idx {
       continue

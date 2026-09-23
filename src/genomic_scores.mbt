@@ -83,7 +83,7 @@ pub fn GScores::set_scores(
     }
   }
   let n = positions.length()
-  let order : Array[Int] = Array::new(capacity=n)
+  let order : Array[Int] = Array(capacity=n)
   for i in 0..<n {
     order.push(i)
   }
@@ -99,8 +99,8 @@ pub fn GScores::set_scores(
     order[j + 1] = key
     i = i + 1
   }
-  let sorted_positions : Array[Int] = Array::new(capacity=n)
-  let sorted_scores : Array[Double] = Array::new(capacity=n)
+  let sorted_positions : Array[Int] = Array(capacity=n)
+  let sorted_scores : Array[Double] = Array(capacity=n)
   for idx in order {
     sorted_positions.push(positions[idx])
     sorted_scores.push(scores[idx])
@@ -172,7 +172,7 @@ fn gs_align_series(
   _dst_mirror : Array[Int],
 ) -> Array[Double] {
   let _ = _dst_mirror
-  let out : Array[Double] = Array::new(capacity=dst_positions.length())
+  let out : Array[Double] = Array(capacity=dst_positions.length())
   let mut s = 0
   for d in dst_positions {
     let mut value = 0.0 / 0.0
@@ -382,7 +382,7 @@ pub fn gscores_fetch(
   if seqnames.length() != starts.length() || starts.length() != ends.length() {
     raise SeqIOError("gscores_fetch: seqnames/starts/ends length mismatch")
   }
-  let out : Array[Double] = Array::new(capacity=seqnames.length())
+  let out : Array[Double] = Array(capacity=seqnames.length())
   for i in 0..<seqnames.length() {
     out.push(
       gss.range_score(seqnames[i], starts[i], ends[i], summary~, population~),

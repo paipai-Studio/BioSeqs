@@ -25,7 +25,7 @@ fn ac_sum(ac : Array[Int]) -> Int {
 /// (`allel.mean_pairwise_difference`). Returns 0.0 for variants with fewer
 /// than two haplotypes (scikit-allel's NaN fill).
 pub fn skallel_mean_pairwise_difference(ac : Array[Array[Int]]) -> Array[Double] {
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for aci in ac {
     let an = ac_sum(aci)
     if an < 2 {
@@ -50,7 +50,7 @@ pub fn skallel_mean_pairwise_difference_between(
   ac1 : Array[Array[Int]],
   ac2 : Array[Array[Int]],
 ) -> Array[Double] {
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   let n = if ac1.length() < ac2.length() { ac1.length() } else { ac2.length() }
   for i = 0; i < n; i = i + 1 {
     let an1 = ac_sum(ac1[i])
@@ -85,7 +85,7 @@ pub fn skallel_hudson_fst(
   let pi1 = skallel_mean_pairwise_difference(ac1)
   let pi2 = skallel_mean_pairwise_difference(ac2)
   let dxy = skallel_mean_pairwise_difference_between(ac1, ac2)
-  let num : Array[Double] = Array::new()
+  let num : Array[Double] = Array(capacity=0)
   for i = 0; i < dxy.length(); i = i + 1 {
     num.push(dxy[i] - (pi1[i] + pi2[i]) / 2.0)
   }
@@ -149,7 +149,7 @@ fn pearson_r_pairwise(x : Array[Int], y : Array[Int]) -> Double {
 /// every pair of variants, in condensed form (upper triangle, row-major)
 /// (`allel.rogers_huff_r`). Missing genotypes (−1) are excluded pairwise.
 pub fn skallel_rogers_huff_r(gn : Array[Array[Int]]) -> Array[Double] {
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   let n = gn.length()
   for i = 0; i < n; i = i + 1 {
     for j = i + 1; j < n; j = j + 1 {
@@ -172,7 +172,7 @@ pub fn skallel_pca(gn : Array[Array[Int]], n_components : Int) -> SkallelPca {
   }
 
   // Patterson scaling: x' = (gn − 2p) / sqrt(2·p·(1−p)), p = mean(gn)/2
-  let gn_norm : Array[Array[Double]] = Array::new()
+  let gn_norm : Array[Array[Double]] = Array(capacity=0)
   for v = 0; v < n_variants; v = v + 1 {
     let mut sum = 0.0
     for s = 0; s < n_samples; s = s + 1 {
@@ -181,7 +181,7 @@ pub fn skallel_pca(gn : Array[Array[Int]], n_components : Int) -> SkallelPca {
     let mean = sum / n_samples.to_double()
     let p = mean / 2.0
     let scale = (2.0 * p * (1.0 - p)).sqrt()
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for s = 0; s < n_samples; s = s + 1 {
       if scale > 0.0 {
         row.push((gn[v][s].to_double() - mean) / scale)
@@ -193,7 +193,7 @@ pub fn skallel_pca(gn : Array[Array[Int]], n_components : Int) -> SkallelPca {
   }
 
   // Gram matrix (n_samples × n_samples): G[i][j] = Σ_v gn_norm[v][i]·gn_norm[v][j]
-  let gram : Array[Array[Double]] = Array::new()
+  let gram : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n_samples; i = i + 1 {
     let row = Array::make(n_samples, 0.0)
     for j = 0; j < n_samples; j = j + 1 {
@@ -210,19 +210,19 @@ pub fn skallel_pca(gn : Array[Array[Int]], n_components : Int) -> SkallelPca {
   let (evals, evecs) = linalg_sort_eigen(eigenvalues, eigenvectors, n_samples)
 
   let nc = if n_components < n_samples { n_components } else { n_samples }
-  let coords : Array[Array[Double]] = Array::new()
+  let coords : Array[Array[Double]] = Array(capacity=0)
   let mut var_sum = 0.0
   for c = 0; c < nc; c = c + 1 {
     if evals[c] > 0.0 {
       var_sum = var_sum + evals[c]
     }
   }
-  let ratio : Array[Double] = Array::new()
+  let ratio : Array[Double] = Array(capacity=0)
   for c = 0; c < nc; c = c + 1 {
     ratio.push(if var_sum > 0.0 { evals[c] / var_sum } else { 0.0 })
   }
   for s = 0; s < n_samples; s = s + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for c = 0; c < nc; c = c + 1 {
       let scale = if evals[c] > 0.0 { evals[c].sqrt() } else { 0.0 }
       row.push(evecs[s][c] * scale)
@@ -260,7 +260,7 @@ fn wc_fst_variant(
   let r = subpops.length()
 
   // ac[d][p] = count of allele d in subpopulation p
-  let ac : Array[Array[Int]] = Array::new()
+  let ac : Array[Array[Int]] = Array(capacity=0)
   for d = 0; d < n_alleles; d = d + 1 {
     ac.push(Array::make(r, 0))
   }
@@ -354,9 +354,9 @@ pub fn skallel_weir_cockerham_fst(
   subpops : Array[Array[Int]],
   max_allele : Int,
 ) -> (Array[Array[Double]], Array[Array[Double]], Array[Array[Double]]) {
-  let a : Array[Array[Double]] = Array::new()
-  let b : Array[Array[Double]] = Array::new()
-  let c : Array[Array[Double]] = Array::new()
+  let a : Array[Array[Double]] = Array(capacity=0)
+  let b : Array[Array[Double]] = Array(capacity=0)
+  let c : Array[Array[Double]] = Array(capacity=0)
   for v = 0; v < g.length(); v = v + 1 {
     let (av, bv, cv) = wc_fst_variant(g[v], subpops, max_allele)
     a.push(av)
@@ -376,7 +376,7 @@ pub fn skallel_weir_cockerham_fst_variant(
   max_allele : Int,
 ) -> Array[Double] {
   let (a, b, c) = skallel_weir_cockerham_fst(g, subpops, max_allele)
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for v = 0; v < a.length(); v = v + 1 {
     let mut sa = 0.0
     let mut sb = 0.0
@@ -436,7 +436,7 @@ fn alt_freq(ac_i : Array[Int]) -> Double {
 /// Unbiased estimator of `h`, where `2h` is the heterozygosity
 /// (`allel.admixture.h_hat`).
 pub fn skallel_h_hat(ac : Array[Array[Int]]) -> Array[Double] {
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for aci in ac {
     let an = aci[0] + aci[1]
     if an < 2 {
@@ -457,7 +457,7 @@ pub fn skallel_patterson_f2(
 ) -> Array[Double] {
   let ha = skallel_h_hat(aca)
   let hb = skallel_h_hat(acb)
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   let n = if aca.length() < acb.length() { aca.length() } else { acb.length() }
   for i = 0; i < n; i = i + 1 {
     let sa = (aca[i][0] + aca[i][1]).to_double()
@@ -479,8 +479,8 @@ pub fn skallel_patterson_f3(
   acb : Array[Array[Int]],
 ) -> (Array[Double], Array[Double]) {
   let hc = skallel_h_hat(acc)
-  let t : Array[Double] = Array::new()
-  let b : Array[Double] = Array::new()
+  let t : Array[Double] = Array(capacity=0)
+  let b : Array[Double] = Array(capacity=0)
   let mut n = if acc.length() < aca.length() { acc.length() } else { aca.length() }
   if n > acb.length() {
     n = acb.length()
@@ -506,8 +506,8 @@ pub fn skallel_patterson_d(
   acc : Array[Array[Int]],
   acd : Array[Array[Int]],
 ) -> (Array[Double], Array[Double]) {
-  let num : Array[Double] = Array::new()
-  let den : Array[Double] = Array::new()
+  let num : Array[Double] = Array(capacity=0)
+  let den : Array[Double] = Array(capacity=0)
   let mut n = aca.length()
   n = if n < acb.length() { n } else { acb.length() }
   n = if n < acc.length() { n } else { acc.length() }
@@ -592,7 +592,7 @@ fn distinct_haplotype_frequencies(h : Array[Array[Int]]) -> Array[Double] {
   if n_hap == 0 {
     return []
   }
-  let haps : Array[String] = Array::new()
+  let haps : Array[String] = Array(capacity=0)
   for c = 0; c < n_hap; c = c + 1 {
     let sb = StringBuilder::new()
     for v = 0; v < n_variants; v = v + 1 {
@@ -601,7 +601,7 @@ fn distinct_haplotype_frequencies(h : Array[Array[Int]]) -> Array[Double] {
     haps.push(sb.to_string())
   }
   let sorted = skallel_sort_strings_asc(haps)
-  let freqs : Array[Double] = Array::new()
+  let freqs : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n_hap {
     let mut j = i
@@ -661,7 +661,7 @@ pub fn skallel_garud_h(h : Array[Array[Int]]) -> (Double, Double, Double, Double
 /// Equal-sized index windows `[start, stop)` over `n` items, stepping by
 /// `step`; a trailing partial window is dropped.
 pub fn skallel_index_windows(n : Int, size : Int, step : Int) -> Array[(Int, Int)] {
-  let out : Array[(Int, Int)] = Array::new()
+  let out : Array[(Int, Int)] = Array(capacity=0)
   let mut ws = 0
   while ws + size <= n {
     out.push((ws, ws + size))
@@ -681,7 +681,7 @@ pub fn skallel_windowed_tajima_d(
   step : Int,
 ) -> Array[Double] {
   let pi = skallel_mean_pairwise_difference(ac)
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   let n = ac.length()
   let mut ws = 0
   while ws + size <= n {
@@ -746,7 +746,7 @@ pub fn skallel_pbs(
   if ac3.length() < n {
     n = ac3.length()
   }
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   let mut ws = 0
   while ws + window_size <= n {
     let f12 = hudson_fst_block_from(dxy12, pi1, pi2, ws, window_size)
@@ -779,7 +779,7 @@ pub fn skallel_patterson_fst(
   let num = skallel_patterson_f2(aca, acb)
   let ha = skallel_h_hat(aca)
   let hb = skallel_h_hat(acb)
-  let den : Array[Double] = Array::new()
+  let den : Array[Double] = Array(capacity=0)
   let nt = if aca.length() < acb.length() { aca.length() } else { acb.length() }
   for i = 0; i < nt; i = i + 1 {
     den.push(num[i] + ha[i] + hb[i])

@@ -97,14 +97,14 @@ pub fn cage_total_tags(cs : CageSet) -> Int {
 
 /// simpleTPM 归一化（tags per million）。
 pub fn cage_normalize_tpm(cs : CageSet) -> CageSet {
-  let samples : Array[CageSample] = Array::new()
+  let samples : Array[CageSample] = Array(capacity=0)
   for s in cs.samples {
     let nf = if s.total_tags > 0 {
       s.total_tags.to_double() / 1.0e6
     } else {
       1.0
     }
-    let norm_ctss : Array[CageCtss] = Array::new()
+    let norm_ctss : Array[CageCtss] = Array(capacity=0)
     for c in s.ctss {
       let norm_val = if nf > 0.0 { c.count.to_double() / nf } else { 0.0 }
       norm_ctss.push(CageCtss::{
@@ -141,9 +141,9 @@ fn cage_sort_ctss_desc(ctss : Array[CageCtss]) -> Array[CageCtss] {
 /// power-law 归一化（CAGEr 风格：以占比次方缩放，压缩高表达位点）。
 pub fn cage_normalize_powerlaw(cs : CageSet, alpha? : Double = 1.2) -> CageSet {
   let alpha = alpha
-  let samples : Array[CageSample] = Array::new()
+  let samples : Array[CageSample] = Array(capacity=0)
   for s in cs.samples {
-    let norm_ctss : Array[CageCtss] = Array::new()
+    let norm_ctss : Array[CageCtss] = Array(capacity=0)
     for c in s.ctss {
       let frac = if s.total_tags > 0 {
         c.count.to_double() / s.total_tags.to_double()
@@ -182,7 +182,7 @@ fn cage_merge_ctss_list(
       merged.set(key, (c.chr, c.pos, c.strand, old + c.count))
     }
   }
-  let list : Array[(String, Int, String, Int)] = Array::new()
+  let list : Array[(String, Int, String, Int)] = Array(capacity=0)
   for key in merged.keys() {
     list.push(merged.get(key).unwrap_or(("", 0, "+", 0)))
   }
@@ -217,7 +217,7 @@ pub fn cage_cluster(
   let min_tags = min_tags
   let list = cage_merge_ctss_list(cs)
   let n = list.length()
-  let clusters : Array[CageCluster] = Array::new()
+  let clusters : Array[CageCluster] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let (chr_i, pos_i, strand_i, cnt_i) = list[i]
@@ -299,7 +299,7 @@ pub fn cage_diff_tss(
     }
     merged.set(key, (c.chr, c.pos, c.strand, old, c.count))
   }
-  let results : Array[(String, Int, String, Double, Double)] = Array::new()
+  let results : Array[(String, Int, String, Double, Double)] = Array(capacity=0)
   for key in merged.keys() {
     let (chr, pos, strand, ca, cb) = merged.get(key).unwrap_or(("", 0, "+", 0, 0))
     let norm_a = ca.to_double() / nf_a + pseudo
@@ -319,7 +319,7 @@ pub fn cage_annotate_tss(
 ) -> Array[CageAnnotation] {
   let upstream = promoter_upstream
   let downstream = promoter_downstream
-  let annotations : Array[CageAnnotation] = Array::new()
+  let annotations : Array[CageAnnotation] = Array(capacity=0)
   for cl in clusters {
     var min_dist = 1000000000
     var nearest_gene = ""

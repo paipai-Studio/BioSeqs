@@ -26,7 +26,7 @@ pub fn parse_newick(content : String) -> TreeNode {
     return TreeNode::{ name: "", branch_length: 0.0, children: [], }
   }
 
-  let leaves : Array[TreeNode] = Array::new()
+  let leaves : Array[TreeNode] = Array(capacity=0)
   let mut i = 0
 
   while i < n {
@@ -134,8 +134,8 @@ pub fn write_newick(node : TreeNode, show_lengths : Bool) -> String {
 
 ///|
 pub fn get_leaves(node : TreeNode) -> Array[String] {
-  let leaves : Array[String] = Array::new()
-  let stack : Array[TreeNode] = Array::new()
+  let leaves : Array[String] = Array(capacity=0)
+  let stack : Array[TreeNode] = Array(capacity=0)
 
   stack.push(node)
 
@@ -160,7 +160,7 @@ pub fn get_leaves(node : TreeNode) -> Array[String] {
 ///|
 pub fn get_leaf_count(node : TreeNode) -> Int {
   let mut count = 0
-  let stack : Array[TreeNode] = Array::new()
+  let stack : Array[TreeNode] = Array(capacity=0)
 
   stack.push(node)
 
@@ -185,7 +185,7 @@ pub fn get_leaf_count(node : TreeNode) -> Int {
 ///|
 pub fn get_node_count(node : TreeNode) -> Int {
   let mut count = 0
-  let stack : Array[TreeNode] = Array::new()
+  let stack : Array[TreeNode] = Array(capacity=0)
 
   stack.push(node)
 
@@ -207,7 +207,7 @@ pub fn get_node_count(node : TreeNode) -> Int {
 ///|
 pub fn get_tree_depth(node : TreeNode) -> Double {
   let mut max_depth = 0.0
-  let stack : Array[(TreeNode, Double)] = Array::new()
+  let stack : Array[(TreeNode, Double)] = Array(capacity=0)
 
   stack.push((node, 0.0))
 
@@ -235,7 +235,7 @@ pub fn get_tree_depth(node : TreeNode) -> Double {
 ///|
 pub fn total_branch_length(node : TreeNode) -> Double {
   let mut total = 0.0
-  let stack : Array[TreeNode] = Array::new()
+  let stack : Array[TreeNode] = Array(capacity=0)
 
   stack.push(node)
 
@@ -256,7 +256,7 @@ pub fn total_branch_length(node : TreeNode) -> Double {
 
 ///|
 pub fn find_node(node : TreeNode, name : String) -> TreeNode? {
-  let stack : Array[TreeNode] = Array::new()
+  let stack : Array[TreeNode] = Array(capacity=0)
 
   stack.push(node)
 
@@ -297,7 +297,7 @@ fn prune_node(n : TreeNode, keep : Map[String, Bool]) -> TreeNode? {
       None
     }
   } else {
-    let new_children : Array[TreeNode] = Array::new()
+    let new_children : Array[TreeNode] = Array(capacity=0)
 
     for i = 0; i < n.children.length(); i = i + 1 {
       match prune_node(n.children[i], keep) {

@@ -60,7 +60,7 @@ fn hmm_uniform() -> Double {
 ///|
 /// Return an array of n random numbers summing to 1.0.
 fn hmm_gen_random_array(n : Int) -> Array[Double] {
-  let rand_array : Array[Double] = Array::new(capacity=n)
+  let rand_array : Array[Double] = Array(capacity=n)
   let mut total = 0.0
   for i = 0; i < n; i = i + 1 {
     let v = hmm_uniform()
@@ -202,12 +202,11 @@ pub fn MarkovModelBuilder::new(
   state_alphabet~ : Array[String],
   emission_alphabet~ : Array[String],
 ) -> MarkovModelBuilder {
-  let states : Array[String] = Array::new(capacity=state_alphabet.length())
+  let states : Array[String] = Array(capacity=state_alphabet.length())
   for s in state_alphabet {
     states.push(s)
   }
-  let emissions : Array[String] = Array::new(
-    capacity=emission_alphabet.length(),
+  let emissions : Array[String] = Array(capacity=emission_alphabet.length(),
   )
   for s in emission_alphabet {
     emissions.push(s)
@@ -250,8 +249,7 @@ pub fn MarkovModelBuilder::get_markov_model(
   for k, v in self.initial_prob {
     initial.set(k, v)
   }
-  let order : Array[(String, String)] = Array::new(
-    capacity=self.transition_order.length(),
+  let order : Array[(String, String)] = Array(capacity=self.transition_order.length(),
   )
   for key in self.transition_order {
     order.push(key)
@@ -1058,7 +1056,7 @@ pub fn HiddenMarkovModel::viterbi(
     }
   }
   // --- traceback
-  let traceback_seq : Array[String] = Array::new(capacity=seq_len)
+  let traceback_seq : Array[String] = Array(capacity=seq_len)
   let mut state = last_state
   traceback_seq.push(state)
   for i = seq_len - 1; i >= 1; i = i - 1 {
@@ -1317,11 +1315,11 @@ pub fn TrainingSequence::new(
   if state_path.length() > 0 && emissions.length() != state_path.length() {
     hmm_fail("State path does not match associated emissions.")
   }
-  let emissions_copy : Array[String] = Array::new(capacity=emissions.length())
+  let emissions_copy : Array[String] = Array(capacity=emissions.length())
   for e in emissions {
     emissions_copy.push(e)
   }
-  let states_copy : Array[String] = Array::new(capacity=state_path.length())
+  let states_copy : Array[String] = Array(capacity=state_path.length())
   for s in state_path {
     states_copy.push(s)
   }

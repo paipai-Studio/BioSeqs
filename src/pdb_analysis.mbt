@@ -271,7 +271,7 @@ pub fn calc_omega(res : Residue, next_res : Residue) -> Double? {
 pub fn calc_chain_dihedrals(
   chain : Chain,
 ) -> Array[(Int, Double?, Double?, Double?)] {
-  let result : Array[(Int, Double?, Double?, Double?)] = Array::new()
+  let result : Array[(Int, Double?, Double?, Double?)] = Array(capacity=0)
   let residues = chain.get_residues()
   let n = residues.length()
   let mut i = 0
@@ -292,7 +292,7 @@ pub fn calc_chain_dihedrals(
 /// between CA of residue i and CA of residue j.
 pub fn calc_ca_distance_matrix(chain : Chain) -> Array[Array[Double]] {
   let residues = chain.get_residues()
-  let ca_atoms : Array[Vector3] = Array::new()
+  let ca_atoms : Array[Vector3] = Array(capacity=0)
   for res in residues {
     match res.get_ca() {
       Some(ca) => ca_atoms.push(ca.coord)
@@ -300,10 +300,10 @@ pub fn calc_ca_distance_matrix(chain : Chain) -> Array[Array[Double]] {
     }
   }
   let n = ca_atoms.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(ca_atoms[i].distance(ca_atoms[j]))
@@ -324,10 +324,10 @@ pub fn calc_contact_map(
 ) -> Array[Array[Bool]] {
   let matrix = calc_ca_distance_matrix(chain)
   let n = matrix.length()
-  let contact : Array[Array[Bool]] = Array::new()
+  let contact : Array[Array[Bool]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Bool] = Array::new()
+    let row : Array[Bool] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(matrix[i][j] < threshold && i != j)
@@ -349,7 +349,7 @@ pub fn detect_hydrogen_bonds(
   max_dist? : Double = 3.5,
   min_angle? : Double = 90.0,
 ) -> Array[HydrogenBond] {
-  let result : Array[HydrogenBond] = Array::new()
+  let result : Array[HydrogenBond] = Array(capacity=0)
   let residues = chain.get_residues()
   let n = residues.length()
   let mut i = 0
@@ -401,7 +401,7 @@ pub fn detect_hydrogen_bonds(
 /// Assign secondary structure based on phi/psi angles and hydrogen bond patterns.
 /// Uses a simplified Ramachandran-based classification.
 pub fn assign_secondary_structure(chain : Chain) -> Array[(Int, SSType)] {
-  let result : Array[(Int, SSType)] = Array::new()
+  let result : Array[(Int, SSType)] = Array(capacity=0)
   let dihedrals = calc_chain_dihedrals(chain)
   let hbonds = detect_hydrogen_bonds(chain)
 
@@ -411,7 +411,7 @@ pub fn assign_secondary_structure(chain : Chain) -> Array[(Int, SSType)] {
     match hbond_map.get(hb.donor_resseq) {
       Some(arr) => arr.push(hb.acceptor_resseq)
       None => {
-        let arr : Array[Int] = Array::new()
+        let arr : Array[Int] = Array(capacity=0)
         arr.push(hb.acceptor_resseq)
         hbond_map[hb.donor_resseq] = arr
       }
@@ -484,7 +484,7 @@ pub fn count_secondary_structure(
 /// Measures the overall size/compactness of the protein.
 pub fn calc_radius_of_gyration(chain : Chain) -> Double? {
   let residues = chain.get_residues()
-  let coords : Array[Vector3] = Array::new()
+  let coords : Array[Vector3] = Array(capacity=0)
   for res in residues {
     match res.get_ca() {
       Some(ca) => coords.push(ca.coord)
@@ -522,7 +522,7 @@ pub fn calc_radius_of_gyration(chain : Chain) -> Double? {
 /// Calculate the Ramachandran plot data for a chain.
 /// Returns an array of (resseq, resname, phi, psi) tuples.
 pub fn ramachandran_plot(chain : Chain) -> Array[(Int, String, Double, Double)] {
-  let result : Array[(Int, String, Double, Double)] = Array::new()
+  let result : Array[(Int, String, Double, Double)] = Array(capacity=0)
   let dihedrals = calc_chain_dihedrals(chain)
   let residues = chain.get_residues()
   let n = dihedrals.length()
@@ -681,7 +681,7 @@ pub fn vdw_radius(atom_name : String) -> Double {
 /// Generate sphere points using the golden spiral method.
 /// Returns an array of unit vector points on a sphere.
 fn generate_sphere_points(n_points : Int) -> Array[Vector3] {
-  let points : Array[Vector3] = Array::new()
+  let points : Array[Vector3] = Array(capacity=0)
   let golden_angle = 3.14159265358979323846 * (3.0 - 5.0.sqrt())
 
   let mut i = 0
@@ -709,11 +709,11 @@ pub fn calc_sasa(
   probe_radius? : Double = 1.4,
   n_points? : Int = 100,
 ) -> Array[(String, Double)] {
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
   let residues = chain.get_residues()
 
   // Collect all atoms with radii
-  let atoms : Array[(Vector3, Double, String)] = Array::new()
+  let atoms : Array[(Vector3, Double, String)] = Array(capacity=0)
   for res in residues {
     for atom in res.atoms {
       let radius = vdw_radius(atom.name) + probe_radius
@@ -802,7 +802,7 @@ pub fn calc_residue_sasa(
   chain : Chain,
   probe_radius? : Double = 1.4,
 ) -> Array[(Int, String, Double)] {
-  let result : Array[(Int, String, Double)] = Array::new()
+  let result : Array[(Int, String, Double)] = Array(capacity=0)
   let residues = chain.get_residues()
   let atom_sasa = calc_sasa(chain, probe_radius~)
 
@@ -862,11 +862,11 @@ pub fn ramachandran_quality(chain : Chain) -> (Double, Double, Double) {
 pub fn calc_sequence_property_matrix(chain : Chain) -> Array[Array[Double]] {
   let residues = chain.get_residues()
   let n = residues.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let prop_i = get_hydrophobicity(residues[i].resname)
     let mut j = 0
     while j < n {

@@ -63,14 +63,14 @@ pub fn glm_qlf_fit(dge : DGEList) -> QLFData {
   let n_samples = dge.group.length()
 
   // Compute effective library sizes
-  let eff_lib : Array[Double] = Array::new()
+  let eff_lib : Array[Double] = Array(capacity=0)
   for j = 0; j < n_samples; j = j + 1 {
     eff_lib.push(dge.lib_size[j] * dge.norm_factors[j])
   }
 
   // Design matrix: intercept + group indicator (2-group design)
   // For simplicity, we use a 2-column design: [1, group_indicator]
-  let group_labels : Array[String] = Array::new()
+  let group_labels : Array[String] = Array(capacity=0)
   let mut has_group0 = false
   let mut has_group1 = false
   for g in dge.group {
@@ -81,7 +81,7 @@ pub fn glm_qlf_fit(dge : DGEList) -> QLFData {
   let n_groups = group_labels.length()
 
   // Build design matrix
-  let design : Array[Array[Double]] = Array::new()
+  let design : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < n_samples; j = j + 1 {
     let row : Array[Double] = [1.0]
     if n_groups > 1 {
@@ -97,9 +97,9 @@ pub fn glm_qlf_fit(dge : DGEList) -> QLFData {
   let n_coef = if n_groups > 1 { 2 } else { 1 }
 
   // Fit NB GLM for each gene using IRLS (Iteratively Reweighted Least Squares)
-  let coefficients : Array[Array[Double]] = Array::new()
-  let fitted_values : Array[Array[Double]] = Array::new()
-  let raw_ql_disp : Array[Double] = Array::new()
+  let coefficients : Array[Array[Double]] = Array(capacity=0)
+  let fitted_values : Array[Array[Double]] = Array(capacity=0)
+  let raw_ql_disp : Array[Double] = Array(capacity=0)
 
   for i = 0; i < n_genes; i = i + 1 {
     let (coefs, fitted, deviance) = fit_nb_glm(
@@ -138,7 +138,7 @@ pub fn glm_qlf_fit(dge : DGEList) -> QLFData {
   let sorted_disps = sort_array(raw_ql_disp.copy())
   let trend = if n_genes > 0 {
     // Filter out NaN values for median computation
-    let valid_disps : Array[Double] = Array::new()
+    let valid_disps : Array[Double] = Array(capacity=0)
     for d in sorted_disps {
       if !d.is_nan() && d.abs() <= 1.0e300 {
         valid_disps.push(if d < 0.001 { 0.001 } else { d })
@@ -162,7 +162,7 @@ pub fn glm_qlf_fit(dge : DGEList) -> QLFData {
   // Using a simple shrinkage: ql_shrunk = (raw_df * raw + prior_df * trend) / (raw_df + prior_df)
   let prior_df = 2.0 // prior degrees of freedom
   let residual_df = (n_samples - n_coef).to_double()
-  let shrunk_ql_disp : Array[Double] = Array::new()
+  let shrunk_ql_disp : Array[Double] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     let raw = if raw_ql_disp[i].is_nan() || raw_ql_disp[i].abs() > 1.0e300 {
       1.0
@@ -400,10 +400,10 @@ pub fn glm_qlf_test(qlf_data : QLFData, coef? : Int = 1) -> QLFResult {
   }
   let residual_df = n_samples - n_coef
 
-  let log_fc : Array[Double] = Array::new()
-  let f_stat : Array[Double] = Array::new()
-  let p_value : Array[Double] = Array::new()
-  let ql_disp : Array[Double] = Array::new()
+  let log_fc : Array[Double] = Array(capacity=0)
+  let f_stat : Array[Double] = Array(capacity=0)
+  let p_value : Array[Double] = Array(capacity=0)
+  let ql_disp : Array[Double] = Array(capacity=0)
 
   for i = 0; i < n_genes; i = i + 1 {
     // Log-fold change from the coefficient
@@ -711,7 +711,7 @@ fn sort_array(arr : Array[Double]) -> Array[Double] {
 /// NaN values are treated as the largest (placed at the end).
 fn sort_indices(arr : Array[Double]) -> Array[Int] {
   let n = arr.length()
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
   let used : Array[Bool] = Array::make(n, false)
   let is_nan_arr : Array[Bool] = Array::make(n, false)
   let mut nan_count = 0
@@ -777,9 +777,9 @@ pub fn camera(
   let n_genes = qlf_result.genes.length()
 
   // Identify genes in the set
-  let set_indices : Array[Int] = Array::new()
-  let set_stats : Array[Double] = Array::new()
-  let all_stats : Array[Double] = Array::new()
+  let set_indices : Array[Int] = Array(capacity=0)
+  let set_stats : Array[Double] = Array(capacity=0)
+  let all_stats : Array[Double] = Array(capacity=0)
 
   for i = 0; i < n_genes; i = i + 1 {
     all_stats.push(qlf_result.f_stat[i])
@@ -799,7 +799,7 @@ pub fn camera(
   let n_set = set_stats.length()
 
   // Compute mean and variance for genes NOT in the set
-  let unset_stats : Array[Double] = Array::new()
+  let unset_stats : Array[Double] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     if !gene_set.contains(qlf_result.genes[i]) {
       unset_stats.push(qlf_result.f_stat[i])
@@ -845,7 +845,7 @@ pub fn roast(
   let n_genes = qlf_result.genes.length()
 
   // Collect statistics for genes in the set
-  let set_stats : Array[Double] = Array::new()
+  let set_stats : Array[Double] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     if gene_set.contains(qlf_result.genes[i]) {
       set_stats.push(qlf_result.f_stat[i])
@@ -942,7 +942,7 @@ pub fn qlf_significant_genes(
   alpha? : Double = 0.05,
   lfc_threshold? : Double = 0.0,
 ) -> Array[String] {
-  let genes : Array[String] = Array::new()
+  let genes : Array[String] = Array(capacity=0)
   for i = 0; i < result.genes.length(); i = i + 1 {
     if result.fdr[i] < alpha && result.log_fc[i].abs() > lfc_threshold {
       genes.push(result.genes[i])
@@ -961,7 +961,7 @@ pub fn qlf_top_genes(
   let actual_n = if n < n_genes { n } else { n_genes }
 
   let indices = sort_indices(result.fdr)
-  let top : Array[(String, Double, Double, Double)] = Array::new()
+  let top : Array[(String, Double, Double, Double)] = Array(capacity=0)
   for i = 0; i < actual_n; i = i + 1 {
     let idx = indices[i]
     top.push(

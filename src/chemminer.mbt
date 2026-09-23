@@ -282,7 +282,7 @@ pub fn chem_molecular_formula(mol : SdfMolecule) -> String {
     counts.remove("H")
   }
   // Remaining elements in alphabetical order.
-  let remaining : Array[String] = Array::new()
+  let remaining : Array[String] = Array(capacity=0)
   for k in counts.keys() {
     remaining.push(k)
   }
@@ -429,16 +429,16 @@ fn chem_bfs_distance(mol : SdfMolecule, start : Int, end : Int) -> Int {
   let visited = Array::make(n, false)
   let dist = Array::make(n, -1)
   // Build adjacency list.
-  let adj : Array[Array[Int]] = Array::new()
+  let adj : Array[Array[Int]] = Array(capacity=0)
   for _ in 0..<n {
-    adj.push(Array::new())
+    adj.push(Array(capacity=0))
   }
   for b in mol.bonds {
     adj[b.atom1].push(b.atom2)
     adj[b.atom2].push(b.atom1)
   }
   // BFS.
-  let queue : Array[Int] = Array::new()
+  let queue : Array[Int] = Array(capacity=0)
   queue.push(start)
   visited[start] = true
   dist[start] = 0
@@ -494,7 +494,7 @@ pub fn chem_atom_pair_fingerprint(mol : SdfMolecule) -> Array[Int] {
       fp_set[hash] = true
     }
   }
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   for k in fp_set.keys() {
     result.push(k)
   }
@@ -662,18 +662,18 @@ pub fn chem_substructure_match(
     return false
   }
   // Build target adjacency: for each atom, list of (neighbor, bond_type).
-  let t_adj : Array[Array[(Int, Int)]] = Array::new()
+  let t_adj : Array[Array[(Int, Int)]] = Array(capacity=0)
   for _ in 0..<tn {
-    t_adj.push(Array::new())
+    t_adj.push(Array(capacity=0))
   }
   for b in target.bonds {
     t_adj[b.atom1].push((b.atom2, b.bond_type))
     t_adj[b.atom2].push((b.atom1, b.bond_type))
   }
   // Build query adjacency.
-  let q_adj : Array[Array[(Int, Int)]] = Array::new()
+  let q_adj : Array[Array[(Int, Int)]] = Array(capacity=0)
   for _ in 0..<qn {
-    q_adj.push(Array::new())
+    q_adj.push(Array(capacity=0))
   }
   for b in query.bonds {
     q_adj[b.atom1].push((b.atom2, b.bond_type))
@@ -751,7 +751,7 @@ fn chem_parse_int_field(s : StringView) -> Int {
 /// $$$$
 /// ```
 pub fn chem_parse_sdf(content : String) -> Array[SdfMolecule] {
-  let molecules = Array::new()
+  let molecules = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let n_lines = lines.length()
   let mut idx = 0
@@ -779,7 +779,7 @@ pub fn chem_parse_sdf(content : String) -> Array[SdfMolecule] {
     let n_atoms = chem_parse_int_field(counts_line[0:3])
     let n_bonds = chem_parse_int_field(counts_line[3:6])
     // Parse atom block.
-    let atoms : Array[SdfAtom] = Array::new()
+    let atoms : Array[SdfAtom] = Array(capacity=0)
     for _ in 0..<n_atoms {
       if idx >= n_lines {
         break
@@ -810,7 +810,7 @@ pub fn chem_parse_sdf(content : String) -> Array[SdfMolecule] {
       atoms.push(SdfAtom::new(symbol, x, y, z, charge))
     }
     // Parse bond block.
-    let bonds : Array[SdfBond] = Array::new()
+    let bonds : Array[SdfBond] = Array(capacity=0)
     for _ in 0..<n_bonds {
       if idx >= n_lines {
         break

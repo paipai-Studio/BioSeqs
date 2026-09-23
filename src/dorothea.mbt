@@ -251,7 +251,7 @@ pub fn dorothea_get_target_expression(
   gene_names : Array[String],
   regulon : Regulon,
 ) -> Array[(String, Double)] {
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
   for target in regulon.targets {
     let idx = dorothea_find_gene_index(gene_names, target.gene)
     if idx >= 0 {
@@ -346,7 +346,7 @@ pub fn dorothea_permutation_test(
   )
 
   // Generate null distribution by shuffling gene labels
-  let null_scores : Array[Double] = Array::new()
+  let null_scores : Array[Double] = Array(capacity=0)
   let n_genes = cell_expression.length()
 
   let mut perm = 0
@@ -443,7 +443,7 @@ pub fn dorothea_analyze_cell(
   regulons : Array[Regulon],
   params : DorotheaParams,
 ) -> Array[TFActivityResult] {
-  let results : Array[TFActivityResult] = Array::new()
+  let results : Array[TFActivityResult] = Array(capacity=0)
 
   for regulon in regulons {
     if regulon.targets.length() < params.min_targets {
@@ -497,7 +497,7 @@ pub fn dorothea_analyze_cells(
   // Process each cell
   let mut c = 0
   while c < n_cells {
-    let cell_expr : Array[Double] = Array::new()
+    let cell_expr : Array[Double] = Array(capacity=0)
     let n_genes = counts.length()
     let mut g = 0
     while g < n_genes {
@@ -520,7 +520,7 @@ pub fn dorothea_analyze_cells(
   }
 
   // Compute summary statistics
-  let results : Array[TFActivityResult] = Array::new()
+  let results : Array[TFActivityResult] = Array(capacity=0)
   let keys = tf_activities.keys()
   for tf in keys {
     let activities = tf_activities.get(tf).unwrap_or([])
@@ -562,7 +562,7 @@ pub fn dorothea_filter_results(
   results : Array[TFActivityResult],
   alpha : Double,
 ) -> Array[TFActivityResult] {
-  let filtered : Array[TFActivityResult] = Array::new()
+  let filtered : Array[TFActivityResult] = Array(capacity=0)
   for result in results {
     if result.p_value <= alpha {
       filtered.push(result)
@@ -605,7 +605,7 @@ pub fn dorothea_create_test_data() -> (
   let regulons = dorothea_get_regulons()
 
   // Collect all unique genes from regulons
-  let gene_names : Array[String] = Array::new()
+  let gene_names : Array[String] = Array(capacity=0)
   for regulon in regulons {
     for target in regulon.targets {
       if !gene_names.contains(target.gene) {
@@ -618,12 +618,12 @@ pub fn dorothea_create_test_data() -> (
   let n_cells = 10
 
   // Create expression data
-  let gene_expr : Array[Array[Double]] = Array::new()
-  let cell_ids : Array[String] = Array::new()
+  let gene_expr : Array[Array[Double]] = Array(capacity=0)
+  let cell_ids : Array[String] = Array(capacity=0)
 
   let mut g = 0
   while g < n_genes {
-    let col : Array[Double] = Array::new()
+    let col : Array[Double] = Array(capacity=0)
     let mut c = 0
     while c < n_cells {
       // Vary expression across cells with some structure
@@ -654,7 +654,7 @@ pub fn dorothea_get_top_tfs(
   n : Int,
 ) -> Array[TFActivityResult] {
   let sorted = dorothea_sort_by_activity(results)
-  let top : Array[TFActivityResult] = Array::new()
+  let top : Array[TFActivityResult] = Array(capacity=0)
   let limit = if n < sorted.length() { n } else { sorted.length() }
   let mut i = 0
   while i < limit {

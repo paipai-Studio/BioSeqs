@@ -873,7 +873,7 @@ fn gst_assemble_results(
     }
     i += 1
   }
-  let fdrs = if nsets > 1 { gst_bh(p_values) } else { Array::new() }
+  let fdrs = if nsets > 1 { gst_bh(p_values) } else { Array(capacity=0) }
   let order = if sort && nsets > 1 {
     gst_order_by_p(p_values)
   } else {
@@ -1313,7 +1313,7 @@ pub fn camera_default(
     }
     i += 1
   }
-  let fdrs = if nsets > 1 { gst_bh(p_values) } else { Array::new() }
+  let fdrs = if nsets > 1 { gst_bh(p_values) } else { Array(capacity=0) }
   let order = if sort && nsets > 1 {
     gst_order_by_p(p_values)
   } else {

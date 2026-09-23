@@ -73,7 +73,7 @@ pub fn cnm_from_arrays(
   if pos.length() != n || logratio.length() != n {
     return None
   }
-  let probes : Array[CnmProbe] = Array::new()
+  let probes : Array[CnmProbe] = Array(capacity=0)
   for i in 0..<n {
     probes.push(CnmProbe::new(chr[i], pos[i], logratio[i]))
   }
@@ -115,7 +115,7 @@ pub fn cnm_mad(vals : Array[Double]) -> Double {
     return 0.0
   }
   let med = cnm_median(vals)
-  let devs : Array[Double] = Array::new()
+  let devs : Array[Double] = Array(capacity=0)
   for v in vals {
     let d = v - med
     devs.push(if d < 0.0 { -d } else { d })
@@ -136,9 +136,9 @@ pub fn cnm_segment(
   }
   // 构建 Cna
   let n = sample.probes.length()
-  let chrom_arr : Array[String] = Array::new()
-  let pos_arr : Array[Int] = Array::new()
-  let lr_arr : Array[Double] = Array::new()
+  let chrom_arr : Array[String] = Array(capacity=0)
+  let pos_arr : Array[Int] = Array(capacity=0)
+  let lr_arr : Array[Double] = Array(capacity=0)
   for p in sample.probes {
     chrom_arr.push(p.chr)
     pos_arr.push(p.pos)
@@ -159,7 +159,7 @@ pub fn cnm_segment(
     SeqError(_) => return sample
   }
   // 转换分段
-  let segments : Array[CnmSegment] = Array::new()
+  let segments : Array[CnmSegment] = Array(capacity=0)
   for seg in result.segments {
     let cn = 2.0 * @math.pow(2.0, seg.seg_mean)
     segments.push(CnmSegment::{
@@ -169,7 +169,7 @@ pub fn cnm_segment(
     })
   }
   // QC
-  let lr_vals : Array[Double] = Array::new()
+  let lr_vals : Array[Double] = Array(capacity=0)
   for p in sample.probes {
     lr_vals.push(p.logratio)
   }
@@ -189,9 +189,9 @@ pub fn cnm_annotate_genes(
   sample : CnmSample,
   gene_positions : Array[(String, Int, Int, String)],  // (chr, start, end, gene)
 ) -> CnmSample {
-  let annotated : Array[CnmSegment] = Array::new()
+  let annotated : Array[CnmSegment] = Array(capacity=0)
   for seg in sample.segments {
-    let genes : Array[String] = Array::new()
+    let genes : Array[String] = Array(capacity=0)
     for g in gene_positions {
       let (g_chr, g_start, g_end, g_symbol) = g
       if g_chr != seg.chr {
@@ -218,7 +218,7 @@ pub fn cnm_filter_segments(
 ) -> Array[CnmSegment] {
   let gain = gain_threshold
   let loss = loss_threshold
-  let filtered : Array[CnmSegment] = Array::new()
+  let filtered : Array[CnmSegment] = Array(capacity=0)
   for seg in sample.segments {
     if seg.copy_number >= gain || seg.copy_number <= loss {
       filtered.push(seg)
@@ -235,7 +235,7 @@ fn cnm_seg_key(seg : CnmSegment) -> String {
 /// 两样本比较。
 pub fn cnm_compare_samples(a : CnmSample, b : CnmSample) -> CnmComparison {
   // 探针水平相关性
-  let corr_pairs : Array[(Double, Double)] = Array::new()
+  let corr_pairs : Array[(Double, Double)] = Array(capacity=0)
   for pa in a.probes {
     for pb in b.probes {
       if pa.chr == pb.chr && pa.pos == pb.pos {
@@ -268,8 +268,8 @@ pub fn cnm_compare_samples(a : CnmSample, b : CnmSample) -> CnmComparison {
   for sb in b.segments {
     b_keys.set(cnm_seg_key(sb), 1)
   }
-  let shared : Array[CnmSegment] = Array::new()
-  let unique_a : Array[CnmSegment] = Array::new()
+  let shared : Array[CnmSegment] = Array(capacity=0)
+  let unique_a : Array[CnmSegment] = Array(capacity=0)
   for sa in a.segments {
     if b_keys.contains(cnm_seg_key(sa)) {
       shared.push(sa)
@@ -281,7 +281,7 @@ pub fn cnm_compare_samples(a : CnmSample, b : CnmSample) -> CnmComparison {
   for sa in a.segments {
     a_keys.set(cnm_seg_key(sa), 1)
   }
-  let unique_b : Array[CnmSegment] = Array::new()
+  let unique_b : Array[CnmSegment] = Array(capacity=0)
   for sb in b.segments {
     if not(a_keys.contains(cnm_seg_key(sb))) {
       unique_b.push(sb)
@@ -324,7 +324,7 @@ pub fn cnm_ascii_plot(
   width? : Int = 60,
 ) -> String {
   let width = width
-  let chr_segs : Array[CnmSegment] = Array::new()
+  let chr_segs : Array[CnmSegment] = Array(capacity=0)
   for seg in segments {
     if seg.chr == chr {
       chr_segs.push(seg)

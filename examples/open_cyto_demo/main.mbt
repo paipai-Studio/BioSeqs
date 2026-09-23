@@ -13,10 +13,10 @@ fn main() -> Unit {
   let sample_names = ["sample_01", "sample_02"]
 
   // Generate events for 2 samples
-  let all_data : Array[Array[Array[Double]]] = Array::new()
+  let all_data : Array[Array[Array[Double]]] = Array(capacity=0)
 
   for _s in 0..<2 {
-    let events : Array[Array[Double]] = Array::new()
+    let events : Array[Array[Double]] = Array(capacity=0)
     // 500 events: mix of negative and positive populations
     for i in 0..<500 {
       let fsc = 100.0 + (i.to_double() * 0.3)
@@ -54,7 +54,7 @@ fn main() -> Unit {
   let args2 : Map[String, Double] = Map([], capacity=4)
   args2["K"] = 2.0
 
-  let template : Array[@bio.OcGatingRule] = Array::new()
+  let template : Array[@bio.OcGatingRule] = Array(capacity=0)
   template.push(
     @bio.OcGatingRule::new(
       parent="root",

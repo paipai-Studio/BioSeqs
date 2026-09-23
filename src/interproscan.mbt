@@ -237,10 +237,10 @@ fn ips_normalize(s : String) -> String {
 fn ips_split_go_terms(s : String) -> Array[String] {
   let normalized = ips_normalize(s)
   if normalized.length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let parts = split_by_char(normalized, '|'.to_int())
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for p in parts {
     if p.length() > 0 {
       result.push(p)
@@ -330,7 +330,7 @@ pub fn parse_interproscan(content : String) -> Array[InterproScanRecord] {
 /// Explicit TSV parser for InterProScan output.
 /// Skips comment lines (starting with "#"), blank lines, and "No hits" lines.
 pub fn parse_interproscan_tsv(content : String) -> Array[InterproScanRecord] {
-  let records : Array[InterproScanRecord] = Array::new()
+  let records : Array[InterproScanRecord] = Array(capacity=0)
   let lines = split_by_char(content, '\n'.to_int())
   for line in lines {
     match ips_parse_line(line) {
@@ -580,7 +580,7 @@ pub fn interproscan_filter_by_analysis(
   records : Array[InterproScanRecord],
   analysis : String,
 ) -> Array[InterproScanRecord] {
-  let result : Array[InterproScanRecord] = Array::new()
+  let result : Array[InterproScanRecord] = Array(capacity=0)
   for r in records {
     if r.analysis == analysis {
       result.push(r)
@@ -595,7 +595,7 @@ pub fn interproscan_filter_by_protein(
   records : Array[InterproScanRecord],
   protein_id : String,
 ) -> Array[InterproScanRecord] {
-  let result : Array[InterproScanRecord] = Array::new()
+  let result : Array[InterproScanRecord] = Array(capacity=0)
   for r in records {
     if r.protein_id == protein_id {
       result.push(r)
@@ -613,7 +613,7 @@ pub fn interproscan_filter_by_protein(
 pub fn interproscan_get_unique_proteins(
   records : Array[InterproScanRecord],
 ) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([], capacity=0)
   for r in records {
     if !seen.contains(r.protein_id) {
@@ -629,7 +629,7 @@ pub fn interproscan_get_unique_proteins(
 pub fn interproscan_get_unique_signatures(
   records : Array[InterproScanRecord],
 ) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([], capacity=0)
   for r in records {
     if !seen.contains(r.signature_acc) {
@@ -645,7 +645,7 @@ pub fn interproscan_get_unique_signatures(
 pub fn interproscan_get_go_terms(
   records : Array[InterproScanRecord],
 ) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([], capacity=0)
   for r in records {
     for g in r.go_terms {
@@ -669,7 +669,7 @@ pub fn interproscan_summary(records : Array[InterproScanRecord]) -> String {
   let total = records.length()
   let proteins = interproscan_get_unique_proteins(records)
   let signatures = interproscan_get_unique_signatures(records)
-  let analyses : Array[String] = Array::new()
+  let analyses : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([], capacity=0)
   for r in records {
     if !seen.contains(r.analysis) {
@@ -697,7 +697,7 @@ pub fn interproscan_summary(records : Array[InterproScanRecord]) -> String {
 pub fn interproscan_group_by_protein(
   records : Array[InterproScanRecord],
 ) -> Array[(String, Array[InterproScanRecord])] {
-  let groups : Array[(String, Array[InterproScanRecord])] = Array::new()
+  let groups : Array[(String, Array[InterproScanRecord])] = Array(capacity=0)
   let indices : Map[String, Int] = Map([], capacity=0)
   for r in records {
     let pid = r.protein_id
@@ -708,7 +708,7 @@ pub fn interproscan_group_by_protein(
     } else {
       let idx = groups.length()
       indices[pid] = idx
-      let arr : Array[InterproScanRecord] = Array::new()
+      let arr : Array[InterproScanRecord] = Array(capacity=0)
       arr.push(r)
       groups.push((pid, arr))
     }

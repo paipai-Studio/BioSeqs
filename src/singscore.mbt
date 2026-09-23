@@ -184,7 +184,7 @@ pub fn singscore_score_multiple(
   sample : SampleExpression,
   specs : Array[GeneSetSpec],
 ) -> Array[SingscoreResult] {
-  let results : Array[SingscoreResult] = Array::new()
+  let results : Array[SingscoreResult] = Array(capacity=0)
   for spec in specs {
     results.push(singscore_score(sample, spec, sample.sample_id))
   }
@@ -300,7 +300,7 @@ fn singscore_compute_dispersion(
   is_up : Bool,
   gene_idx : Map[String, Int],
 ) -> Double {
-  let ranks_found : Array[Double] = Array::new()
+  let ranks_found : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < genes.length() {
     let gene = genes[i]

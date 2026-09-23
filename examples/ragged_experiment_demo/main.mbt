@@ -75,7 +75,7 @@ fn main {
 
   // Filtering
   println("=== Filtering by Mutation Type ===")
-  let types : Array[@bio.MutationType] = Array::new()
+  let types : Array[@bio.MutationType] = Array(capacity=0)
   types.push(@bio.mutation_missense())
   types.push(@bio.mutation_nonsense())
   let filtered_type = exp.filter_by_type(types=types)
@@ -83,7 +83,7 @@ fn main {
   println("")
 
   println("=== Filtering by Genes ===")
-  let genes : Array[String] = Array::new()
+  let genes : Array[String] = Array(capacity=0)
   genes.push("TP53")
   genes.push("KRAS")
   let filtered_genes = exp.filter_by_genes(genes=genes)
@@ -91,7 +91,7 @@ fn main {
   println("")
 
   println("=== Filtering by Samples ===")
-  let samples : Array[String] = Array::new()
+  let samples : Array[String] = Array(capacity=0)
   samples.push("Sample1")
   samples.push("Sample2")
   let filtered_samples = exp.filter_by_samples(samples=samples)
@@ -116,7 +116,7 @@ fn main {
 
   // Loss-of-function detection
   println("=== Loss-of-Function Mutations ===")
-  let records : Array[@bio.MutationRecord] = Array::new()
+  let records : Array[@bio.MutationRecord] = Array(capacity=0)
   records.push(@bio.MutationRecord::new(
     sample_id="S1", gene_symbol="TP53",
     chrom="chr17", pos=7577121,

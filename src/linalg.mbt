@@ -18,7 +18,7 @@ pub fn linalg_jacobi(
   n : Int,
   max_iter : Int,
 ) -> (Array[Double], Array[Array[Double]]) {
-  let a : Array[Array[Double]] = Array::new()
+  let a : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -27,7 +27,7 @@ pub fn linalg_jacobi(
     a.push(row)
   }
 
-  let v : Array[Array[Double]] = Array::new()
+  let v : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     row[i] = 1.0
@@ -128,7 +128,7 @@ pub fn linalg_sort_eigen(
     sorted_eigenvalues[i] = eigenvalues[indices[i]]
   }
 
-  let sorted_eigenvectors : Array[Array[Double]] = Array::new()
+  let sorted_eigenvectors : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -145,7 +145,7 @@ pub fn linalg_sort_eigen(
 /// Assumes the matrix is invertible.
 pub fn linalg_inverse(a : Array[Array[Double]]) -> Array[Array[Double]] {
   let n = a.length()
-  let m : Array[Array[Double]] = Array::new()
+  let m : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(2 * n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -179,7 +179,7 @@ pub fn linalg_inverse(a : Array[Array[Double]]) -> Array[Array[Double]] {
       }
     }
   }
-  let inv : Array[Array[Double]] = Array::new()
+  let inv : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -199,7 +199,7 @@ pub fn linalg_mat_mul(
   let m = a.length()
   let k = if m > 0 { a[0].length() } else { 0 }
   let n = if b.length() > 0 { b[0].length() } else { 0 }
-  let c : Array[Array[Double]] = Array::new()
+  let c : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < m; i = i + 1 {
     let row = Array::make(n, 0.0)
     for kk = 0; kk < k; kk = kk + 1 {
@@ -218,7 +218,7 @@ pub fn linalg_mat_mul(
 pub fn linalg_transpose(a : Array[Array[Double]]) -> Array[Array[Double]] {
   let m = a.length()
   let n = if m > 0 { a[0].length() } else { 0 }
-  let t : Array[Array[Double]] = Array::new()
+  let t : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < n; j = j + 1 {
     let row = Array::make(m, 0.0)
     for i = 0; i < m; i = i + 1 {

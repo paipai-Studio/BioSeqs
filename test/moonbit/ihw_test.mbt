@@ -88,7 +88,7 @@ test "bonferroni_ihw_clamped_at_1" {
 
 ///|
 test "bonferroni_ihw_empty" {
-  let pvals : Array[Double] = Array::new()
+  let pvals : Array[Double] = Array(capacity=0)
   let result = @src.bonferroni_ihw(pvals)
   assert_eq(result.length(), 0)
 }
@@ -272,7 +272,7 @@ test "ihw_multiple_single_covariate" {
 ///|
 test "ihw_multiple_no_covariates" {
   let pvals = [0.001, 0.01, 0.03]
-  let covs : Array[Array[Double]] = Array::new()
+  let covs : Array[Array[Double]] = Array(capacity=0)
   let result = @src.ihw_multiple(pvals, covs, 0.05)
   assert_eq(result.adjusted_p_values().length(), 3)
 }
@@ -297,8 +297,8 @@ test "storey_ihw_basic" {
 
 ///|
 test "storey_ihw_empty" {
-  let pvals : Array[Double] = Array::new()
-  let covs : Array[Double] = Array::new()
+  let pvals : Array[Double] = Array(capacity=0)
+  let covs : Array[Double] = Array(capacity=0)
   let result = @src.storey_ihw(pvals, covs)
   assert_eq(result.length(), 0)
 }
@@ -370,8 +370,8 @@ test "ihw_weights_via_accessor" {
 
 ///|
 test "ihw_empty_input" {
-  let pvals : Array[Double] = Array::new()
-  let covs : Array[Double] = Array::new()
+  let pvals : Array[Double] = Array(capacity=0)
+  let covs : Array[Double] = Array(capacity=0)
   let result = @src.ihw(pvals, covs, 0.05)
   assert_eq(result.p_values().length(), 0)
   assert_eq(result.adjusted_p_values().length(), 0)

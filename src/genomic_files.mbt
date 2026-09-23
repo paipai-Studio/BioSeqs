@@ -48,7 +48,7 @@ pub fn GenomicFile::new(
     file_path,
     file_type,
     index_path: file_path + ".idx",
-    seqnames: Array::new(),
+    seqnames: Array(capacity=0),
     seq_lengths: Map([], capacity=10),
   }
 }
@@ -126,7 +126,7 @@ pub struct ScanResult {
 ///|
 /// Create a new empty ScanResult for a given seqname.
 pub fn ScanResult::new(seqname : String) -> ScanResult {
-  ScanResult::{ seqname, ranges: Array::new(), values: Array::new(), }
+  ScanResult::{ seqname, ranges: Array(capacity=0), values: Array(capacity=0), }
 }
 
 ///|
@@ -332,7 +332,7 @@ pub fn genomic_files_scan_bam(
   let mut i = 0
   while i < ranges.length() {
     let (seqname, start, end) = ranges[i]
-    let values : Array[Double] = Array::new()
+    let values : Array[Double] = Array(capacity=0)
     let mut read_count = 0
     let mut mapq_sum = 0
     if has_content {
@@ -385,7 +385,7 @@ pub fn genomic_files_scan_bed(
   }
   let first_seqname = ranges[0].0
   let result = ScanResult::new(first_seqname)
-  let bed_features : Array[(String, Int, Int, Double)] = Array::new()
+  let bed_features : Array[(String, Int, Int, Double)] = Array(capacity=0)
   if contains(file.file_path, "\n") {
     let lines = split_by_char(file.file_path, '\n'.to_int())
     let mut j = 0
@@ -403,7 +403,7 @@ pub fn genomic_files_scan_bed(
   let mut i = 0
   while i < ranges.length() {
     let (seqname, start, end) = ranges[i]
-    let values : Array[Double] = Array::new()
+    let values : Array[Double] = Array(capacity=0)
     let mut feature_count = 0
     let mut score_sum = 0.0
     let mut k = 0
@@ -443,7 +443,7 @@ pub fn genomic_files_scan_vcf(
   }
   let first_seqname = ranges[0].0
   let result = ScanResult::new(first_seqname)
-  let vcf_records : Array[(String, Int, String, String, Double)] = Array::new()
+  let vcf_records : Array[(String, Int, String, String, Double)] = Array(capacity=0)
   if contains(file.file_path, "\n") {
     let lines = split_by_char(file.file_path, '\n'.to_int())
     let mut j = 0
@@ -474,7 +474,7 @@ pub fn genomic_files_scan_vcf(
   let mut i = 0
   while i < ranges.length() {
     let (seqname, start, end) = ranges[i]
-    let values : Array[Double] = Array::new()
+    let values : Array[Double] = Array(capacity=0)
     let mut variant_count = 0
     let mut qual_sum = 0.0
     let mut k = 0
@@ -587,7 +587,7 @@ pub fn genomic_files_yield_reads(
   file : GenomicFile,
   yield_size : Int,
 ) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   if yield_size <= 0 {
     return result
   }
@@ -595,7 +595,7 @@ pub fn genomic_files_yield_reads(
     return result
   }
   let lines = split_by_char(file.file_path, '\n'.to_int())
-  let current_batch : Array[String] = Array::new()
+  let current_batch : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < lines.length() {
     let line = lines[i]
@@ -734,7 +734,7 @@ pub fn genomic_files_summarize_ranges(
   collection : GenomicFilesCollection,
   ranges : Array[(String, Int, Int)],
 ) -> Array[ScanResult] {
-  let result : Array[ScanResult] = Array::new()
+  let result : Array[ScanResult] = Array(capacity=0)
   let mut i = 0
   while i < collection.files.length() {
     let file = collection.files[i]
@@ -770,7 +770,7 @@ pub fn genomic_files_create_example_file() -> GenomicFile {
 ///|
 /// Create an example GenomicFilesCollection for testing.
 pub fn genomic_files_create_example_collection() -> GenomicFilesCollection {
-  let files : Array[GenomicFile] = Array::new()
+  let files : Array[GenomicFile] = Array(capacity=0)
   let bam_file = genomic_files_create_example_file()
   files.push(bam_file)
   let bed_file = GenomicFile::new(

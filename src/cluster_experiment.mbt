@@ -209,7 +209,7 @@ pub fn ce_median(values : Array[Double]) -> Double {
   if n == 0 {
     return 0.0
   }
-  let sorted = Array::new()
+  let sorted = Array(capacity=0)
   for v in values {
     sorted.push(v)
   }
@@ -233,7 +233,7 @@ pub fn ce_median(values : Array[Double]) -> Double {
 ///|
 /// Create an n×m matrix filled with a constant.
 pub fn ce_make_matrix(n : Int, m : Int, fill : Double) -> Array[Array[Double]] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for _ in 0..<n {
     let row = Array::make(m, fill)
     out.push(row)
@@ -249,9 +249,9 @@ pub fn ce_transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
     return []
   }
   let p = m[0].length()
-  let out = Array::new()
+  let out = Array(capacity=0)
   for j in 0..<p {
-    let row = Array::new()
+    let row = Array(capacity=0)
     for i in 0..<n {
       row.push(m[i][j])
     }
@@ -272,12 +272,12 @@ pub fn ce_center_columns(m : Array[Array[Double]]) -> Array[Array[Double]] {
     return []
   }
   let p = m[0].length()
-  let out = Array::new()
+  let out = Array(capacity=0)
   for row in m {
     out.push(Array::make(p, 0.0))
   }
   for j in 0..<p {
-    let col = Array::new()
+    let col = Array(capacity=0)
     for i in 0..<n {
       col.push(m[i][j])
     }
@@ -308,7 +308,7 @@ pub fn ce_pca(
   let k = if n_components < p { n_components } else { p }
   // Project by accumulating leading eigenvectors of (1/n) X^T X
   // For each component: power-iterate on residual covariance.
-  let components : Array[Array[Double]] = Array::new()
+  let components : Array[Array[Double]] = Array(capacity=0)
   let residual = centered
   for _ in 0..<k {
     let comp = Array::make(p, 0.0)
@@ -377,7 +377,7 @@ pub fn ce_pca(
     components.push(comp)
   }
   // Project original centered data onto components
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<n {
     let row = Array::make(k, 0.0)
     for c in 0..<k {
@@ -412,7 +412,7 @@ pub fn ce_kmeans(
     return (Array::make(n, 0), [ce_centroid(data)])
   }
   let mut best_labels = Array::make(n, 0)
-  let mut best_centroids : Array[Array[Double]] = Array::new()
+  let mut best_centroids : Array[Array[Double]] = Array(capacity=0)
   let mut best_inertia = 1.0e300
   for _ in 0..<n_init {
     let (labels, centroids, inertia) = ce_kmeans_single(data, k, max_iter)
@@ -473,7 +473,7 @@ fn ce_kmeans_single(
       new_inertia = new_inertia + best_d * best_d
     }
     // update
-    let sums : Array[Array[Double]] = Array::new()
+    let sums : Array[Array[Double]] = Array(capacity=0)
     let counts = Array::make(k, 0)
     for c in 0..<k {
       sums.push(Array::make(data[0].length(), 0.0))
@@ -510,7 +510,7 @@ fn ce_kmeans_pp_init(
   k : Int,
 ) -> Array[Array[Double]] {
   let n = data.length()
-  let centroids : Array[Array[Double]] = Array::new()
+  let centroids : Array[Array[Double]] = Array(capacity=0)
   // pick the point closest to the global centroid as first seed
   let global_center = ce_centroid(data)
   let mut best = 0
@@ -571,14 +571,14 @@ pub fn ce_cluster_many(
   data : Array[Array[Double]],
   params : CeRsecParams,
 ) -> Array[CeClustering] {
-  let results : Array[CeClustering] = Array::new()
+  let results : Array[CeClustering] = Array(capacity=0)
   for k in params.ks {
     for rd in params.reduced_dims {
       for ss in params.subsamples {
         let work = if rd > 0 {
           ce_pca(data, rd)
         } else {
-          let copy : Array[Array[Double]] = Array::new()
+          let copy : Array[Array[Double]] = Array(capacity=0)
           for row in data {
             copy.push(row)
           }
@@ -617,8 +617,8 @@ struct CeSubsample {
 fn ce_subsample(data : Array[Array[Double]], fraction : Double) -> CeSubsample {
   let n = data.length()
   if fraction >= 1.0 {
-    let copy : Array[Array[Double]] = Array::new()
-    let idx : Array[Int] = Array::new()
+    let copy : Array[Array[Double]] = Array(capacity=0)
+    let idx : Array[Int] = Array(capacity=0)
     for i in 0..<n {
       copy.push(data[i])
       idx.push(i)
@@ -631,8 +631,8 @@ fn ce_subsample(data : Array[Array[Double]], fraction : Double) -> CeSubsample {
     (n.to_double() * fraction).to_int()
   }
   let step = n.to_double() / keep_count.to_double()
-  let out : Array[Array[Double]] = Array::new()
-  let idx : Array[Int] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
+  let idx : Array[Int] = Array(capacity=0)
   let mut pos = 0.0
   for _ in 0..<keep_count {
     let i = pos.to_int()
@@ -721,19 +721,19 @@ pub fn ce_hclust_cut(dist : Array[Array[Double]], k : Int) -> Array[Int] {
     return []
   }
   if k >= n {
-    let out = Array::new()
+    let out = Array(capacity=0)
     for i in 0..<n {
       out.push(i)
     }
     return out
   }
   // each sample starts in its own cluster
-  let clusters : Array[Array[Int]] = Array::new()
+  let clusters : Array[Array[Int]] = Array(capacity=0)
   for i in 0..<n {
     clusters.push([i])
   }
   // active cluster indices
-  let active : Array[Int] = Array::new()
+  let active : Array[Int] = Array(capacity=0)
   for i in 0..<n {
     active.push(i)
   }
@@ -805,7 +805,7 @@ pub fn ce_make_dendrogram(
   labels : Array[Int],
 ) -> CeDendroNode? {
   // collect cluster ids
-  let ids : Array[Int] = Array::new()
+  let ids : Array[Int] = Array(capacity=0)
   for l in labels {
     if l >= 0 {
       let mut found = false
@@ -824,9 +824,9 @@ pub fn ce_make_dendrogram(
     return None
   }
   // compute medoids
-  let medoids : Array[(Int, Array[Double])] = Array::new()
+  let medoids : Array[(Int, Array[Double])] = Array(capacity=0)
   for id in ids {
-    let pts : Array[Array[Double]] = Array::new()
+    let pts : Array[Array[Double]] = Array(capacity=0)
     for i in 0..<data.length() {
       if labels[i] == id {
         pts.push(data[i])
@@ -845,7 +845,7 @@ pub fn ce_make_dendrogram(
     }
   }
   // agglomerative merge, recording nodes
-  let nodes : Array[CeDendroNode] = Array::new()
+  let nodes : Array[CeDendroNode] = Array(capacity=0)
   for i in 0..<m {
     nodes.push(
       CeDendroNode::new(left=None, right=None, height=0.0, cluster_id=i, members=[
@@ -853,7 +853,7 @@ pub fn ce_make_dendrogram(
       ]),
     )
   }
-  let active : Array[Int] = Array::new()
+  let active : Array[Int] = Array(capacity=0)
   for i in 0..<m {
     active.push(i)
   }
@@ -882,7 +882,7 @@ pub fn ce_make_dendrogram(
     }
     let na = active[best_a]
     let nb = active[best_b]
-    let merged_members = Array::new()
+    let merged_members = Array(capacity=0)
     for x in nodes[na].members {
       merged_members.push(x)
     }
@@ -934,13 +934,13 @@ pub fn ce_merge_clusters(
   dendro : CeDendroNode?,
   merge_cutoff : Double,
 ) -> (Array[Int], Array[CeMergeInfo]) {
-  let info : Array[CeMergeInfo] = Array::new()
+  let info : Array[CeMergeInfo] = Array(capacity=0)
   if dendro is None {
     return (labels, info)
   }
   let root = dendro.unwrap()
   // collect leaf order via in-order traversal
-  let leaves : Array[Int] = Array::new()
+  let leaves : Array[Int] = Array(capacity=0)
   ce_collect_leaves(root, leaves)
   // map cluster index -> original cluster id
   // (leaves are in dendrogram order)
@@ -950,7 +950,7 @@ pub fn ce_merge_clusters(
     parent[i] = leaves[i]
   }
   // walk internal nodes in order of increasing height
-  let internals : Array[CeDendroNode] = Array::new()
+  let internals : Array[CeDendroNode] = Array(capacity=0)
   ce_collect_internals(root, internals)
   // sort by height ascending (insertion sort, small n)
   for i in 1..<internals.length() {
@@ -964,8 +964,8 @@ pub fn ce_merge_clusters(
   }
   let mut node_id = 0
   for node in internals {
-    let left_leaves : Array[Int] = Array::new()
-    let right_leaves : Array[Int] = Array::new()
+    let left_leaves : Array[Int] = Array(capacity=0)
+    let right_leaves : Array[Int] = Array(capacity=0)
     match node.left {
       Some(l) => ce_collect_leaves(l, left_leaves)
       None => ()
@@ -1088,8 +1088,8 @@ fn ce_proportion_test(
     return (0.0, 1.0)
   }
   // gather samples per cluster
-  let a_idx : Array[Int] = Array::new()
-  let b_idx : Array[Int] = Array::new()
+  let a_idx : Array[Int] = Array(capacity=0)
+  let b_idx : Array[Int] = Array(capacity=0)
   for i in 0..<n {
     if labels[i] == cluster_a {
       a_idx.push(i)
@@ -1102,10 +1102,10 @@ fn ce_proportion_test(
   }
   // per-feature two-sample t-test (unequal variance)
   let mut max_t = 0.0
-  let pvals : Array[Double] = Array::new()
+  let pvals : Array[Double] = Array(capacity=0)
   for j in 0..<p {
-    let a_vals : Array[Double] = Array::new()
-    let b_vals : Array[Double] = Array::new()
+    let a_vals : Array[Double] = Array(capacity=0)
+    let b_vals : Array[Double] = Array(capacity=0)
     for i in a_idx {
       a_vals.push(data[i][j])
     }
@@ -1178,7 +1178,7 @@ pub fn ce_bh_fdr(pvals : Array[Double]) -> Array[Double] {
     return []
   }
   // sort indices by p-value ascending
-  let order : Array[Int] = Array::new()
+  let order : Array[Int] = Array(capacity=0)
   for i in 0..<n {
     order.push(i)
   }
@@ -1237,7 +1237,7 @@ pub fn ce_sequential_cluster(
   let n = data.length()
   let out = Array::make(n, -1)
   // collect current cluster ids
-  let ids : Array[Int] = Array::new()
+  let ids : Array[Int] = Array(capacity=0)
   for l in labels {
     let mut found = false
     for id in ids {
@@ -1253,7 +1253,7 @@ pub fn ce_sequential_cluster(
   let mut next_id = 0
   for id in ids {
     // gather samples in this cluster
-    let idx : Array[Int] = Array::new()
+    let idx : Array[Int] = Array(capacity=0)
     for i in 0..<n {
       if labels[i] == id {
         idx.push(i)
@@ -1287,17 +1287,17 @@ fn ce_sequential_split(
   alpha : Double,
   beta : Double,
 ) -> Array[Array[Int]] {
-  let out : Array[Array[Int]] = Array::new()
+  let out : Array[Array[Int]] = Array(capacity=0)
   let mut current = idx
   while current.length() >= 4 {
     // k-means with k=2
-    let pts : Array[Array[Double]] = Array::new()
+    let pts : Array[Array[Double]] = Array(capacity=0)
     for i in current {
       pts.push(data[i])
     }
     let (sub_labels, _) = ce_kmeans(pts, 2, 3, 50)
-    let group_a : Array[Int] = Array::new()
-    let group_b : Array[Int] = Array::new()
+    let group_a : Array[Int] = Array(capacity=0)
+    let group_b : Array[Int] = Array(capacity=0)
     for i in 0..<current.length() {
       if sub_labels[i] == 0 {
         group_a.push(current[i])
@@ -1315,8 +1315,8 @@ fn ce_sequential_split(
       break
     }
     // significance test: build a subset data matrix with labels
-    let subset_data : Array[Array[Double]] = Array::new()
-    let subset_labels : Array[Int] = Array::new()
+    let subset_data : Array[Array[Double]] = Array(capacity=0)
+    let subset_labels : Array[Int] = Array(capacity=0)
     for idx in small {
       subset_data.push(data[idx])
       subset_labels.push(0)
@@ -1386,7 +1386,7 @@ pub fn ce_rsec(
   // 2. consensus
   let cocluster = ce_cocluster_matrix(ensemble, n)
   // pick the median k from the grid as the consensus k
-  let sorted_ks = Array::new()
+  let sorted_ks = Array(capacity=0)
   for k in params.ks {
     sorted_ks.push(k)
   }
@@ -1418,7 +1418,7 @@ pub fn ce_rsec(
     params.sequential_beta,
   )
   // count clusters
-  let ids : Array[Int] = Array::new()
+  let ids : Array[Int] = Array(capacity=0)
   for l in final_labels {
     if l >= 0 {
       let mut found = false
@@ -1450,7 +1450,7 @@ pub fn ce_rsec(
 ///|
 /// Count the number of distinct non-negative labels.
 pub fn ce_count_clusters(labels : Array[Int]) -> Int {
-  let ids : Array[Int] = Array::new()
+  let ids : Array[Int] = Array(capacity=0)
   for l in labels {
     if l >= 0 {
       let mut found = false
@@ -1471,8 +1471,8 @@ pub fn ce_count_clusters(labels : Array[Int]) -> Int {
 ///|
 /// Compute cluster sizes (map cluster id -> size).
 pub fn ce_cluster_sizes(labels : Array[Int]) -> Array[(Int, Int)] {
-  let ids : Array[Int] = Array::new()
-  let sizes : Array[Int] = Array::new()
+  let ids : Array[Int] = Array(capacity=0)
+  let sizes : Array[Int] = Array(capacity=0)
   for l in labels {
     if l < 0 {
       continue
@@ -1491,7 +1491,7 @@ pub fn ce_cluster_sizes(labels : Array[Int]) -> Array[(Int, Int)] {
       sizes[idx] = sizes[idx] + 1
     }
   }
-  let out : Array[(Int, Int)] = Array::new()
+  let out : Array[(Int, Int)] = Array(capacity=0)
   for i in 0..<ids.length() {
     out.push((ids[i], sizes[i]))
   }

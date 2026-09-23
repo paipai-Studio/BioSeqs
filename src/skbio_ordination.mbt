@@ -31,7 +31,7 @@ pub struct MantelResult {
 fn skb_transpose(a : Array[Array[Double]]) -> Array[Array[Double]] {
   let m = a.length()
   let n = if m > 0 { a[0].length() } else { 0 }
-  let t : Array[Array[Double]] = Array::new()
+  let t : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < n; j = j + 1 {
     let row = Array::make(m, 0.0)
     for i = 0; i < m; i = i + 1 {
@@ -47,7 +47,7 @@ fn skb_mul(a : Array[Array[Double]], b : Array[Array[Double]]) -> Array[Array[Do
   let m = a.length()
   let k = if m > 0 { a[0].length() } else { 0 }
   let n = if b.length() > 0 { b[0].length() } else { 0 }
-  let c : Array[Array[Double]] = Array::new()
+  let c : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < m; i = i + 1 {
     let row = Array::make(n, 0.0)
     for kk = 0; kk < k; kk = kk + 1 {
@@ -74,7 +74,7 @@ fn skb_sum(a : Array[Array[Double]]) -> Double {
 
 ///|
 fn skb_row_sums(a : Array[Array[Double]]) -> Array[Double] {
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for i = 0; i < a.length(); i = i + 1 {
     let mut s = 0.0
     for j = 0; j < a[i].length(); j = j + 1 {
@@ -108,7 +108,7 @@ pub fn skbio_center_distance_matrix(
 ) -> Array[Array[Double]] {
   let n = matrix.length()
   // E = -D^2 / 2
-  let e : Array[Array[Double]] = Array::new()
+  let e : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -119,7 +119,7 @@ pub fn skbio_center_distance_matrix(
   let row_means = skb_row_sums(e).map(fn(x) { x / n.to_double() })
   let col_means = skb_col_sums(e).map(fn(x) { x / n.to_double() })
   let matrix_mean = skb_sum(e) / (n * n).to_double()
-  let f : Array[Array[Double]] = Array::new()
+  let f : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -158,7 +158,7 @@ fn skb_sort_eigen(
   for i = 0; i < n; i = i + 1 {
     sorted_evals[i] = evals[idx[i]]
   }
-  let sorted_evecs : Array[Array[Double]] = Array::new()
+  let sorted_evecs : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -199,7 +199,7 @@ fn skb_svd_qbar(
   }
 
   // U_hat = sorted_evecs[:, 0:rank]  (n × rank)
-  let u_hat : Array[Array[Double]] = Array::new()
+  let u_hat : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(rank, 0.0)
     for k = 0; k < rank; k = k + 1 {
@@ -209,14 +209,14 @@ fn skb_svd_qbar(
   }
 
   // U = Q_bar^T U_hat / W  (m × rank)
-  let u : Array[Array[Double]] = Array::new()
+  let u : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < m; j = j + 1 {
     let row = Array::make(rank, 0.0)
     u.push(row)
   }
   for k = 0; k < rank; k = k + 1 {
     // col = Q_bar^T @ U_hat[:,k]
-    let qtu : Array[Double] = Array::new()
+    let qtu : Array[Double] = Array(capacity=0)
     for j = 0; j < m; j = j + 1 {
       let mut s2 = 0.0
       for i = 0; i < n; i = i + 1 {
@@ -240,7 +240,7 @@ pub fn skbio_ca(x : Array[Array[Double]], scaling : Int) -> CaResult {
   let m = if n > 0 { x[0].length() } else { 0 }
   let grand_total = skb_sum(x)
   // Q = x / grand_total
-  let q : Array[Array[Double]] = Array::new()
+  let q : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(m, 0.0)
     for j = 0; j < m; j = j + 1 {
@@ -251,7 +251,7 @@ pub fn skbio_ca(x : Array[Array[Double]], scaling : Int) -> CaResult {
   let row_marginals = skb_row_sums(q)
   let col_marginals = skb_col_sums(q)
   // Q_bar = (Q - expected) / sqrt(expected)
-  let qbar : Array[Array[Double]] = Array::new()
+  let qbar : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(m, 0.0)
     for j = 0; j < m; j = j + 1 {
@@ -264,7 +264,7 @@ pub fn skbio_ca(x : Array[Array[Double]], scaling : Int) -> CaResult {
   let rank = w.length()
 
   // V = col_marginals^-1/2 * U ; V_hat = row_marginals^-1/2 * U_hat
-  let v : Array[Array[Double]] = Array::new()
+  let v : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < m; j = j + 1 {
     let row = Array::make(rank, 0.0)
     let denom = col_marginals[j].sqrt()
@@ -273,7 +273,7 @@ pub fn skbio_ca(x : Array[Array[Double]], scaling : Int) -> CaResult {
     }
     v.push(row)
   }
-  let v_hat : Array[Array[Double]] = Array::new()
+  let v_hat : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(rank, 0.0)
     let denom = row_marginals[i].sqrt()
@@ -283,7 +283,7 @@ pub fn skbio_ca(x : Array[Array[Double]], scaling : Int) -> CaResult {
     v_hat.push(row)
   }
   // F = V_hat * W ; F_hat = V * W
-  let f : Array[Array[Double]] = Array::new()
+  let f : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(rank, 0.0)
     for k = 0; k < rank; k = k + 1 {
@@ -291,7 +291,7 @@ pub fn skbio_ca(x : Array[Array[Double]], scaling : Int) -> CaResult {
     }
     f.push(row)
   }
-  let f_hat : Array[Array[Double]] = Array::new()
+  let f_hat : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < m; j = j + 1 {
     let row = Array::make(rank, 0.0)
     for k = 0; k < rank; k = k + 1 {
@@ -326,7 +326,7 @@ pub fn skbio_ca(x : Array[Array[Double]], scaling : Int) -> CaResult {
 /// Condensed (upper-triangle) form of a square distance matrix.
 fn skb_condensed(matrix : Array[Array[Double]]) -> Array[Double] {
   let n = matrix.length()
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     for j = i + 1; j < n; j = j + 1 {
       out.push(matrix[i][j])
@@ -385,7 +385,7 @@ fn skb_permute_matrix(
   order : Array[Int],
 ) -> Array[Array[Double]] {
   let n = matrix.length()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -461,7 +461,7 @@ fn skb_center_columns(a : Array[Array[Double]]) -> Array[Array[Double]] {
   let n = a.length()
   let p = if n > 0 { a[0].length() } else { 0 }
   let means = skb_col_sums(a).map(fn(x) { x / n.to_double() })
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(p, 0.0)
     for j = 0; j < p; j = j + 1 {
@@ -495,7 +495,7 @@ pub fn skbio_rda(
   let f = skb_mul(y_c, u)
   let z = skb_mul(y_hat, u)
   // residual
-  let y_res : Array[Array[Double]] = Array::new()
+  let y_res : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(p, 0.0)
     for j = 0; j < p; j = j + 1 {
@@ -507,7 +507,7 @@ pub fn skbio_rda(
   let rank_res = s_res.length()
   let f_res = skb_mul(y_res, u_res)
   // concatenated eigenvalues (constrained block, then residual block)
-  let eigvals : Array[Double] = Array::new()
+  let eigvals : Array[Double] = Array(capacity=0)
   for v in s {
     eigvals.push(v)
   }
@@ -529,9 +529,9 @@ pub fn skbio_rda(
     sf[i] = if scaling == 1 { cst } else { eigvals[i] / cst }
   }
   // feature_scores = hstack(U, U_res) * sf ; sample_scores = hstack(F, F_res) / sf
-  let feature_scores : Array[Array[Double]] = Array::new()
+  let feature_scores : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < p; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for k = 0; k < rank; k = k + 1 {
       row.push(u[i][k] * sf[k])
     }
@@ -540,9 +540,9 @@ pub fn skbio_rda(
     }
     feature_scores.push(row)
   }
-  let sample_scores : Array[Array[Double]] = Array::new()
+  let sample_scores : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for k = 0; k < rank; k = k + 1 {
       row.push(f[i][k] / sf[k])
     }
@@ -591,7 +591,7 @@ fn skb_scale_weighted(
     }
     stds[j] = (s / w_sum).sqrt()
   }
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(p, 0.0)
     for j = 0; j < p; j = j + 1 {
@@ -615,7 +615,7 @@ pub fn skbio_cca(
   let m = if x.length() > 0 { x[0].length() } else { 0 }
   // chi-square standardization of Y
   let grand_total = skb_sum(y)
-  let q : Array[Array[Double]] = Array::new()
+  let q : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(p, 0.0)
     for j = 0; j < p; j = j + 1 {
@@ -625,7 +625,7 @@ pub fn skbio_cca(
   }
   let row_marginals = skb_row_sums(q)
   let column_marginals = skb_col_sums(q)
-  let q_bar : Array[Array[Double]] = Array::new()
+  let q_bar : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(p, 0.0)
     for j = 0; j < p; j = j + 1 {
@@ -636,7 +636,7 @@ pub fn skbio_cca(
   }
   // weighted scale of X
   let x_scaled = skb_scale_weighted(x, row_marginals)
-  let x_weighted : Array[Array[Double]] = Array::new()
+  let x_weighted : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(m, 0.0)
     for j = 0; j < m; j = j + 1 {
@@ -649,7 +649,7 @@ pub fn skbio_cca(
   let xtx_inv = linalg_inverse(skb_mul(xt, x_weighted))
   let b = skb_mul(xtx_inv, skb_mul(xt, q_bar))
   let y_hat = skb_mul(x_weighted, b)
-  let y_res : Array[Array[Double]] = Array::new()
+  let y_res : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(p, 0.0)
     for j = 0; j < p; j = j + 1 {
@@ -661,7 +661,7 @@ pub fn skbio_cca(
   let (_l, s, u) = skb_svd_qbar(y_hat)
   let rank = s.length()
   let qu = skb_mul(q_bar, u)
-  let u_hat : Array[Array[Double]] = Array::new()
+  let u_hat : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(rank, 0.0)
     for k = 0; k < rank; k = k + 1 {
@@ -673,7 +673,7 @@ pub fn skbio_cca(
   let (_l2, s_res, u_res) = skb_svd_qbar(y_res)
   let rank_res = s_res.length()
   let yru = skb_mul(y_res, u_res)
-  let u_hat_res : Array[Array[Double]] = Array::new()
+  let u_hat_res : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(rank_res, 0.0)
     for k = 0; k < rank_res; k = k + 1 {
@@ -682,7 +682,7 @@ pub fn skbio_cca(
     u_hat_res.push(row)
   }
   // eigenvalues = squared singular values, concatenated
-  let eigvals : Array[Double] = Array::new()
+  let eigvals : Array[Double] = Array(capacity=0)
   for v in s {
     eigvals.push(v * v)
   }
@@ -695,7 +695,7 @@ pub fn skbio_cca(
   }
   let proportion_explained = eigvals.map(fn(v) { v / eig_sum })
   // V = col_marg^-1/2 * U ; V_hat = row_marg^-1/2 * U_hat ; F = V_hat * s ; F_hat = V * s
-  let v : Array[Array[Double]] = Array::new()
+  let v : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < p; j = j + 1 {
     let row = Array::make(rank, 0.0)
     for k = 0; k < rank; k = k + 1 {
@@ -703,7 +703,7 @@ pub fn skbio_cca(
     }
     v.push(row)
   }
-  let v_hat : Array[Array[Double]] = Array::new()
+  let v_hat : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(rank, 0.0)
     for k = 0; k < rank; k = k + 1 {
@@ -711,7 +711,7 @@ pub fn skbio_cca(
     }
     v_hat.push(row)
   }
-  let f : Array[Array[Double]] = Array::new()
+  let f : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(rank, 0.0)
     for k = 0; k < rank; k = k + 1 {
@@ -719,7 +719,7 @@ pub fn skbio_cca(
     }
     f.push(row)
   }
-  let f_hat : Array[Array[Double]] = Array::new()
+  let f_hat : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < p; j = j + 1 {
     let row = Array::make(rank, 0.0)
     for k = 0; k < rank; k = k + 1 {
@@ -727,7 +727,7 @@ pub fn skbio_cca(
     }
     f_hat.push(row)
   }
-  let v_res : Array[Array[Double]] = Array::new()
+  let v_res : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < p; j = j + 1 {
     let row = Array::make(rank_res, 0.0)
     for k = 0; k < rank_res; k = k + 1 {
@@ -735,7 +735,7 @@ pub fn skbio_cca(
     }
     v_res.push(row)
   }
-  let v_hat_res : Array[Array[Double]] = Array::new()
+  let v_hat_res : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(rank_res, 0.0)
     for k = 0; k < rank_res; k = k + 1 {
@@ -743,7 +743,7 @@ pub fn skbio_cca(
     }
     v_hat_res.push(row)
   }
-  let f_res : Array[Array[Double]] = Array::new()
+  let f_res : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(rank_res, 0.0)
     for k = 0; k < rank_res; k = k + 1 {
@@ -751,7 +751,7 @@ pub fn skbio_cca(
     }
     f_res.push(row)
   }
-  let f_hat_res : Array[Array[Double]] = Array::new()
+  let f_hat_res : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < p; j = j + 1 {
     let row = Array::make(rank_res, 0.0)
     for k = 0; k < rank_res; k = k + 1 {
@@ -760,10 +760,10 @@ pub fn skbio_cca(
     f_hat_res.push(row)
   }
   // concat feature/sample scores per scaling
-  let feature_scores : Array[Array[Double]] = Array::new()
-  let sample_scores : Array[Array[Double]] = Array::new()
+  let feature_scores : Array[Array[Double]] = Array(capacity=0)
+  let sample_scores : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < p; j = j + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let src_f = if scaling == 1 { v } else { f_hat }
     let src_r = if scaling == 1 { v_res } else { f_hat_res }
     for k = 0; k < rank; k = k + 1 {
@@ -775,7 +775,7 @@ pub fn skbio_cca(
     feature_scores.push(row)
   }
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let src_f = if scaling == 1 { f } else { v_hat }
     let src_r = if scaling == 1 { f_res } else { v_hat_res }
     for k = 0; k < rank; k = k + 1 {
@@ -793,7 +793,7 @@ pub fn skbio_cca(
 /// e_matrix: `E = -D^2 / 2` (element-wise), the first half of Gower centering.
 pub fn skbio_e_matrix(dm : Array[Array[Double]]) -> Array[Array[Double]] {
   let n = dm.length()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -811,7 +811,7 @@ pub fn skbio_f_matrix(e : Array[Array[Double]]) -> Array[Array[Double]] {
   let row_means = skb_row_sums(e).map(fn(x) { x / n.to_double() })
   let col_means = skb_col_sums(e).map(fn(x) { x / n.to_double() })
   let grand_mean = skb_sum(e) / (n * n).to_double()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -860,7 +860,7 @@ pub fn skbio_scale(
   for j = 0; j < p; j = j + 1 {
     scaled_stds[j] = if stds[j] == 0.0 { 1.0 } else { stds[j] }
   }
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(p, 0.0)
     for j = 0; j < p; j = j + 1 {
@@ -885,7 +885,7 @@ pub fn skbio_corr(x : Array[Array[Double]], y : Array[Array[Double]]) -> Array[A
   let xs = skbio_scale(x, true, true, 0)
   let ys = skbio_scale(y, true, true, 0)
   let prod = skb_mul(skb_transpose(xs), ys)
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < prod.length(); i = i + 1 {
     let row = Array::make(prod[0].length(), 0.0)
     for j = 0; j < prod[0].length(); j = j + 1 {
@@ -945,7 +945,7 @@ pub fn skbio_pcoa(dm : Array[Array[Double]]) -> PcoaResult {
   for j = 0; j < n; j = j + 1 {
     proportion_explained[j] = evals[j] / sum
   }
-  let samples : Array[Array[Double]] = Array::new()
+  let samples : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -971,12 +971,12 @@ pub fn skbio_pcoa_biplot(
   // spc = (1/(N-1)) * y.T @ scaled  (p × d)
   let yt = skb_transpose(y)
   let spc = skb_mul(yt, scaled)
-  let inv_sqrt : Array[Double] = Array::new()
+  let inv_sqrt : Array[Double] = Array(capacity=0)
   for j = 0; j < d; j = j + 1 {
     inv_sqrt.push(if eigvals[j] > 0.0 { 1.0 / eigvals[j].sqrt() } else { 0.0 })
   }
   let rn = (n - 1).to_double().sqrt()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < p; i = i + 1 {
     let row = Array::make(d, 0.0)
     for j = 0; j < d; j = j + 1 {

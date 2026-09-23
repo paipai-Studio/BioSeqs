@@ -405,7 +405,7 @@ fn sg_json_escape(s : String) -> String {
 ///|
 /// Parse the features packet XML-like text into an array of features.
 fn sg_parse_features(text : String) -> Array[SnapgeneFeature] {
-  let features = Array::new()
+  let features = Array(capacity=0)
   // Features are stored in <Feature> elements
   let segments = text.split("<Feature").to_array()
   for seg in segments {
@@ -439,7 +439,7 @@ fn sg_parse_one_feature(text : String) -> SnapgeneFeature? {
     _ => 0
   }
   // Extract segments
-  let segs = Array::new()
+  let segs = Array(capacity=0)
   let seg_parts = text.split("<Segment").to_array()
   for sp in seg_parts {
     let sp_str = sp.to_string()
@@ -600,7 +600,7 @@ fn sg_xml_escape(s : String) -> String {
 ///|
 /// Parse the primers packet binary data into an array of primers.
 fn sg_parse_primers(data : Array[Int]) -> Array[SnapgenePrimer] {
-  let primers = Array::new()
+  let primers = Array(capacity=0)
   let n = data.length()
   let mut offset = 0
   while offset + 4 <= n {
@@ -664,7 +664,7 @@ fn sg_parse_primers(data : Array[Int]) -> Array[SnapgenePrimer] {
 ///|
 /// Build the primers packet binary data from an array of primers.
 fn sg_build_primers(primers : Array[SnapgenePrimer]) -> Array[Int] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<primers.length() {
     let p = primers[i]
     // Primer ID
@@ -769,7 +769,7 @@ pub fn snapgene_from_bytes(data : Array[Int]) -> SnapgeneFile {
       }
       3 => {
         // Primers packet
-        let primer_bytes = Array::new()
+        let primer_bytes = Array(capacity=0)
         for i in 0..<pkt_len {
           primer_bytes.push(data[pkt_data_offset + i])
         }
@@ -785,7 +785,7 @@ pub fn snapgene_from_bytes(data : Array[Int]) -> SnapgeneFile {
       }
       _ => {
         // Unknown packet type — store raw bytes
-        let raw = Array::new()
+        let raw = Array(capacity=0)
         for i in 0..<pkt_len {
           raw.push(data[pkt_data_offset + i])
         }
@@ -808,7 +808,7 @@ pub fn snapgene_write(file : SnapgeneFile) -> String {
 ///|
 /// Serialize a SnapgeneFile to a byte array.
 pub fn snapgene_to_bytes(file : SnapgeneFile) -> Array[Int] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   // Packet 0: Comments
   let comments_text = sg_build_comments(
     file.seq_type,

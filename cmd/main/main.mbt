@@ -27,7 +27,7 @@ fn record_bool(cases : Array[Case], name : String, result : Bool) -> Unit {
 /// Run every test case and return the list of results, mirroring
 /// tests/python_reference.py.
 fn run_cases() -> Array[Case] {
-  let cases = Array::new()
+  let cases = Array(capacity=0)
   let s = @lib.Seq::new("ATGGCCATTGTAATGGGCCGCTGAAAGGGTGCCCGATAG")
 
   // --- Basic construction ---

@@ -61,10 +61,10 @@ pub fn tfbs_pfm_normalize(
   pseudocount? : Double = 0.8,
 ) -> Array[Array[Double]] {
   let pseudo = pseudocount
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<counts.length() {
     let mut total = 0.0
-    let col : Array[Double] = Array::new()
+    let col : Array[Double] = Array(capacity=0)
     for j in 0..<4 {
       col.push(counts[i][j] + pseudo)
       total = total + counts[i][j] + pseudo
@@ -86,9 +86,9 @@ pub fn tfbs_pfm_to_pwm(
   bg? : Array[Double],
 ) -> Array[Array[Double]] {
   let bg = if bg is Some(_) { bg.unwrap() } else { [0.25, 0.25, 0.25, 0.25] }
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<pfm.length() {
-    let col : Array[Double] = Array::new()
+    let col : Array[Double] = Array(capacity=0)
     for j in 0..<4 {
       let p = pfm[i][j]
       let ratio = if bg[j] > 0.0 {
@@ -130,7 +130,7 @@ pub fn tfbs_consensus(pfm : Array[Array[Double]]) -> String {
 
 /// 信息含量（每位置 bits + 总 bits）。
 pub fn tfbs_info_content(pfm : Array[Array[Double]]) -> (Array[Double], Double) {
-  let per_pos : Array[Double] = Array::new()
+  let per_pos : Array[Double] = Array(capacity=0)
   let mut total = 0.0
   for i in 0..<pfm.length() {
     let mut ic = 0.0
@@ -184,7 +184,7 @@ pub fn tfbs_scan_sequence(
   let both = both_strands
   let width = pwm.length()
   let seq_len = sequence.length()
-  let hits : Array[TfbsHit] = Array::new()
+  let hits : Array[TfbsHit] = Array(capacity=0)
   if width == 0 || seq_len < width {
     return hits
   }
@@ -241,7 +241,7 @@ pub fn tfbs_scan_batch(
   threshold? : Double = 0.0,
 ) -> Array[TfbsHit] {
   let threshold = threshold
-  let all_hits : Array[TfbsHit] = Array::new()
+  let all_hits : Array[TfbsHit] = Array(capacity=0)
   for entry in sequences {
     let (seq_id, seq) = entry
     let hits = tfbs_scan_sequence(seq, pwm, threshold=threshold, both_strands=true)
@@ -342,7 +342,7 @@ pub fn tfbs_adjust_pvalues(results : Array[TfbsEnrichResult]) -> Array[TfbsEnric
     }
   }
   // BH 校正并构建新结果
-   let adjusted : Array[TfbsEnrichResult] = Array::new()
+   let adjusted : Array[TfbsEnrichResult] = Array(capacity=0)
   for i in 0..<n {
     let adj = sorted[i].p_value * n.to_double() / (i + 1).to_double()
     let adj_p = if adj > 1.0 { 1.0 } else { adj }

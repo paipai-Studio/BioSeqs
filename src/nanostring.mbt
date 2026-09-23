@@ -223,25 +223,25 @@ pub fn NsSample::new(
   housekeeping_indices : Array[Int],
   endogenous_indices : Array[Int],
 ) -> NsSample {
-  let positive_controls : Array[Int] = Array::new()
+  let positive_controls : Array[Int] = Array(capacity=0)
   for idx in positive_control_indices {
     if idx >= 0 && idx < raw_counts.length() {
       positive_controls.push(raw_counts[idx])
     }
   }
-  let negative_controls : Array[Int] = Array::new()
+  let negative_controls : Array[Int] = Array(capacity=0)
   for idx in negative_control_indices {
     if idx >= 0 && idx < raw_counts.length() {
       negative_controls.push(raw_counts[idx])
     }
   }
-  let housekeeping : Array[Int] = Array::new()
+  let housekeeping : Array[Int] = Array(capacity=0)
   for idx in housekeeping_indices {
     if idx >= 0 && idx < raw_counts.length() {
       housekeeping.push(raw_counts[idx])
     }
   }
-  let endogenous : Array[Int] = Array::new()
+  let endogenous : Array[Int] = Array(capacity=0)
   for idx in endogenous_indices {
     if idx >= 0 && idx < raw_counts.length() {
       endogenous.push(raw_counts[idx])
@@ -306,7 +306,7 @@ pub struct NsNanostringData {
 /// Construct an empty NsNanostringData with the given endogenous gene names.
 pub fn NsNanostringData::new(gene_names : Array[String]) -> NsNanostringData {
   NsNanostringData::{
-    samples: Array::new(),
+    samples: Array(capacity=0),
     gene_names,
     n_genes: gene_names.length(),
     n_samples: 0,
@@ -470,7 +470,7 @@ pub fn ns_geometric_mean(values : Array[Double]) -> Double {
 ///|
 /// Log2 transform counts with a 0.5 pseudocount: log2(x + 0.5).
 pub fn ns_log2_counts(counts : Array[Double]) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   for c in counts {
     result.push(@math.log2(c + 0.5))
   }
@@ -488,21 +488,21 @@ pub fn ns_log2_counts(counts : Array[Double]) -> Array[Double] {
 pub fn ns_positive_control_norm(data : NsNanostringData) -> Array[NsNormResult] {
   let samples = data.samples()
   let n_genes = data.n_genes()
-  let sample_geo_means : Array[Double] = Array::new()
+  let sample_geo_means : Array[Double] = Array(capacity=0)
   for sample in samples {
-    let pos_doubles : Array[Double] = Array::new()
+    let pos_doubles : Array[Double] = Array(capacity=0)
     for c in sample.positive_controls() {
       pos_doubles.push(c.to_double())
     }
     sample_geo_means.push(ns_geometric_mean(pos_doubles))
   }
   let target = ns_geometric_mean(sample_geo_means)
-  let results : Array[NsNormResult] = Array::new()
+  let results : Array[NsNormResult] = Array(capacity=0)
   for i in 0..<samples.length() {
     let sample = samples[i]
     let gm = sample_geo_means[i]
     let factor = if gm > 0.0 { target / gm } else { 1.0 }
-    let norm_counts : Array[Double] = Array::new()
+    let norm_counts : Array[Double] = Array(capacity=0)
     let endo = sample.endogenous()
     for g in 0..<n_genes {
       if g < endo.length() {
@@ -530,16 +530,16 @@ pub fn ns_positive_control_norm(data : NsNanostringData) -> Array[NsNormResult] 
 pub fn ns_negative_control_norm(data : NsNanostringData) -> Array[NsNormResult] {
   let samples = data.samples()
   let n_genes = data.n_genes()
-  let results : Array[NsNormResult] = Array::new()
+  let results : Array[NsNormResult] = Array(capacity=0)
   for sample in samples {
-    let neg_doubles : Array[Double] = Array::new()
+    let neg_doubles : Array[Double] = Array(capacity=0)
     for c in sample.negative_controls() {
       neg_doubles.push(c.to_double())
     }
     let mean = ns_mean(neg_doubles)
     let sd = ns_std(neg_doubles, mean)
     let threshold = mean + 2.0 * sd
-    let norm_counts : Array[Double] = Array::new()
+    let norm_counts : Array[Double] = Array(capacity=0)
     let endo = sample.endogenous()
     for g in 0..<n_genes {
       if g < endo.length() {
@@ -568,21 +568,21 @@ pub fn ns_negative_control_norm(data : NsNanostringData) -> Array[NsNormResult] 
 pub fn ns_housekeeping_norm(data : NsNanostringData) -> Array[NsNormResult] {
   let samples = data.samples()
   let n_genes = data.n_genes()
-  let sample_geo_means : Array[Double] = Array::new()
+  let sample_geo_means : Array[Double] = Array(capacity=0)
   for sample in samples {
-    let hk_doubles : Array[Double] = Array::new()
+    let hk_doubles : Array[Double] = Array(capacity=0)
     for c in sample.housekeeping() {
       hk_doubles.push(c.to_double())
     }
     sample_geo_means.push(ns_geometric_mean(hk_doubles))
   }
   let target = ns_geometric_mean(sample_geo_means)
-  let results : Array[NsNormResult] = Array::new()
+  let results : Array[NsNormResult] = Array(capacity=0)
   for i in 0..<samples.length() {
     let sample = samples[i]
     let gm = sample_geo_means[i]
     let factor = if gm > 0.0 { target / gm } else { 1.0 }
-    let norm_counts : Array[Double] = Array::new()
+    let norm_counts : Array[Double] = Array(capacity=0)
     let endo = sample.endogenous()
     for g in 0..<n_genes {
       if g < endo.length() {
@@ -612,7 +612,7 @@ pub fn ns_content_norm(data : NsNanostringData) -> Array[NsNormResult] {
   let n_genes = data.n_genes()
   // Build housekeeping geometric means from the positive-control-scaled
   // housekeeping counts.
-  let hk_geo_means : Array[Double] = Array::new()
+  let hk_geo_means : Array[Double] = Array(capacity=0)
   for i in 0..<samples.length() {
     let sample = samples[i]
     let pos_factor = if pos_results[i].norm_factors().length() > 0 {
@@ -620,14 +620,14 @@ pub fn ns_content_norm(data : NsNanostringData) -> Array[NsNormResult] {
     } else {
       1.0
     }
-    let hk_doubles : Array[Double] = Array::new()
+    let hk_doubles : Array[Double] = Array(capacity=0)
     for c in sample.housekeeping() {
       hk_doubles.push(c.to_double() * pos_factor)
     }
     hk_geo_means.push(ns_geometric_mean(hk_doubles))
   }
   let target = ns_geometric_mean(hk_geo_means)
-  let results : Array[NsNormResult] = Array::new()
+  let results : Array[NsNormResult] = Array(capacity=0)
   for i in 0..<samples.length() {
     let pos_factor = if pos_results[i].norm_factors().length() > 0 {
       pos_results[i].norm_factors()[0]
@@ -636,7 +636,7 @@ pub fn ns_content_norm(data : NsNanostringData) -> Array[NsNormResult] {
     }
     let gm = hk_geo_means[i]
     let hk_factor = if gm > 0.0 { target / gm } else { 1.0 }
-    let norm_counts : Array[Double] = Array::new()
+    let norm_counts : Array[Double] = Array(capacity=0)
     let pos_counts = pos_results[i].normalized_counts()
     for g in 0..<n_genes {
       if g < pos_counts.length() {
@@ -665,7 +665,7 @@ pub fn ns_content_norm(data : NsNanostringData) -> Array[NsNormResult] {
 /// Imaging QC: flag samples whose average positive-control binding density
 /// (used here as a proxy) is at least `threshold`.
 pub fn ns_imaging_qc(data : NsNanostringData, threshold : Int) -> Array[Bool] {
-  let results : Array[Bool] = Array::new()
+  let results : Array[Bool] = Array(capacity=0)
   for sample in data.samples() {
     let pos = sample.positive_controls()
     let mut total = 0
@@ -685,12 +685,12 @@ pub fn ns_imaging_qc(data : NsNanostringData, threshold : Int) -> Array[Bool] {
 pub fn ns_pos_linearity_qc(data : NsNanostringData) -> (Double, Double) {
   // Standard NanoString positive control dilution series (fM).
   let concentrations = [128.0, 32.0, 8.0, 2.0, 0.5, 0.125]
-  let log_conc : Array[Double] = Array::new()
+  let log_conc : Array[Double] = Array(capacity=0)
   for c in concentrations {
     log_conc.push(@math.log2(c))
   }
-  let xs : Array[Double] = Array::new()
-  let ys : Array[Double] = Array::new()
+  let xs : Array[Double] = Array(capacity=0)
+  let ys : Array[Double] = Array(capacity=0)
   for sample in data.samples() {
     let pos = sample.positive_controls()
     for i in 0..<pos.length() {
@@ -711,7 +711,7 @@ pub fn ns_pos_linearity_qc(data : NsNanostringData) -> (Double, Double) {
 /// Limit of quantification QC.
 /// For each sample, count endogenous genes whose raw count is below `loq`.
 pub fn ns_loq_qc(data : NsNanostringData, loq : Int) -> Array[Int] {
-  let results : Array[Int] = Array::new()
+  let results : Array[Int] = Array(capacity=0)
   for sample in data.samples() {
     let mut count = 0
     for c in sample.endogenous() {
@@ -792,7 +792,7 @@ pub fn ns_t_test(g1 : Array[Double], g2 : Array[Double]) -> (Double, Double) {
 pub fn ns_bh_correct(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let indices = Array::make(n, 0)
   for i in 0..<n {
@@ -845,8 +845,8 @@ pub fn ns_differential_expression(
   let log_fcs = Array::make(n_genes, 0.0)
   let t_stats = Array::make(n_genes, 0.0)
   for g in 0..<n_genes {
-    let treat : Array[Double] = Array::new()
-    let ctrl : Array[Double] = Array::new()
+    let treat : Array[Double] = Array(capacity=0)
+    let ctrl : Array[Double] = Array(capacity=0)
     for s in 0..<n_samples {
       let counts = norm_results[s].normalized_counts()
       if g < counts.length() {
@@ -864,7 +864,7 @@ pub fn ns_differential_expression(
     log_fcs[g] = ns_mean(treat) - ns_mean(ctrl)
   }
   let adj_p = ns_bh_correct(p_values)
-  let results : Array[NsDeResult] = Array::new()
+  let results : Array[NsDeResult] = Array(capacity=0)
   for g in 0..<n_genes {
     results.push(
       NsDeResult::new(
@@ -984,7 +984,7 @@ pub fn ns_sample_data() -> NsNanostringData {
   ]
   let sample_ids = ["C1", "C2", "C3", "T1", "T2", "T3"]
   for s in 0..<6 {
-    let raw : Array[Int] = Array::new()
+    let raw : Array[Int] = Array(capacity=0)
     // Endogenous genes 0-4: up-regulated in treatment.
     for g in 0..<5 {
       if s < 3 {

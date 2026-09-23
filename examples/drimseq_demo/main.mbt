@@ -12,7 +12,7 @@ fn main {
   let counts = @bio.drimseq_sample_data()
   println("Total transcript counts: " + counts.length().to_string())
   let mut i = 0
-  let genes : Array[String] = Array::new()
+  let genes : Array[String] = Array(capacity=0)
   while i < counts.length() {
     let g = counts[i].gene_id
     let mut found = false

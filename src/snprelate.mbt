@@ -19,9 +19,9 @@ pub struct SnpVariantStats {
 /// and missing call rate.
 pub fn snpgds_snp_stats(dosages : Array[Array[Int]]) -> SnpVariantStats {
   let n_snp = dosages.length()
-  let af : Array[Double] = Array::new(capacity=n_snp)
-  let maf : Array[Double] = Array::new(capacity=n_snp)
-  let miss : Array[Double] = Array::new(capacity=n_snp)
+  let af : Array[Double] = Array(capacity=n_snp)
+  let maf : Array[Double] = Array(capacity=n_snp)
+  let miss : Array[Double] = Array(capacity=n_snp)
   for row in dosages {
     let mut called = 0
     let mut alt = 0
@@ -51,7 +51,7 @@ pub fn snpgds_snp_stats(dosages : Array[Array[Int]]) -> SnpVariantStats {
 ///|
 /// Extract one sample's dosage column (across all SNPs).
 fn snp_sample_column(dosages : Array[Array[Int]], sample : Int) -> Array[Int] {
-  let col : Array[Int] = Array::new(capacity=dosages.length())
+  let col : Array[Int] = Array(capacity=dosages.length())
   for row in dosages {
     col.push(row[sample])
   }
@@ -116,7 +116,7 @@ pub struct SnpKingResult {
 /// Compute KING-robust kinship and IBS0 proportion matrices.
 pub fn snpgds_ibd_king(dosages : Array[Array[Int]]) -> SnpKingResult {
   let n = if dosages.length() > 0 { dosages[0].length() } else { 0 }
-  let columns : Array[Array[Int]] = Array::new(capacity=n)
+  let columns : Array[Array[Int]] = Array(capacity=n)
   let mut s = 0
   while s < n {
     columns.push(snp_sample_column(dosages, s))
@@ -175,7 +175,7 @@ pub fn snpgds_ibd_king_homo(
   allele_freqs : Array[Double],
 ) -> SnpKingHomoResult {
   let n = if dosages.length() > 0 { dosages[0].length() } else { 0 }
-  let columns : Array[Array[Int]] = Array::new(capacity=n)
+  let columns : Array[Array[Int]] = Array(capacity=n)
   let mut s = 0
   while s < n {
     columns.push(snp_sample_column(dosages, s))
@@ -313,11 +313,11 @@ pub fn snpgds_pca(
   }
   let scale = if scale_sum > 0.0 { 1.0 / scale_sum.sqrt() } else { 0.0 }
   // centered scaled genotype matrix g[snp][sample]
-  let scaled : Array[Array[Double]] = Array::new(capacity=n_snp)
+  let scaled : Array[Array[Double]] = Array(capacity=n_snp)
   k = 0
   while k < n_snp {
     let two_p = 2.0 * stats.allele_frequency[k]
-    let row : Array[Double] = Array::new(capacity=n)
+    let row : Array[Double] = Array(capacity=n)
     let mut s = 0
     while s < n {
       let g = dosages[k][s]
@@ -486,7 +486,7 @@ pub fn snpgds_ld_pruning(
 
 ///|
 fn snp_make_matrix(n : Int, fill : Double) -> Array[Array[Double]] {
-  let out : Array[Array[Double]] = Array::new(capacity=n)
+  let out : Array[Array[Double]] = Array(capacity=n)
   let mut i = 0
   while i < n {
     out.push(Array::make(n, fill))
@@ -507,12 +507,12 @@ fn snp_eigen_decomposition(
   if n == 0 {
     return ([], [])
   }
-  let a : Array[Array[Double]] = Array::new(capacity=n)
-  let v : Array[Array[Double]] = Array::new(capacity=n)
+  let a : Array[Array[Double]] = Array(capacity=n)
+  let v : Array[Array[Double]] = Array(capacity=n)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new(capacity=n)
-    let ident : Array[Double] = Array::new(capacity=n)
+    let row : Array[Double] = Array(capacity=n)
+    let ident : Array[Double] = Array(capacity=n)
     let mut j = 0
     while j < n {
       row.push(matrix[i][j])
@@ -572,7 +572,7 @@ fn snp_eigen_decomposition(
     sweep = sweep + 1
   }
   // collect diagonal and sort descending
-  let diag : Array[(Double, Int)] = Array::new()
+  let diag : Array[(Double, Int)] = Array(capacity=0)
   i = 0
   while i < n {
     diag.push((a[i][i], i))
@@ -592,13 +592,13 @@ fn snp_eigen_decomposition(
     j = j + 1
   }
   let count = if n_components < n { n_components } else { n }
-  let values : Array[Double] = Array::new(capacity=count)
-  let vectors : Array[Array[Double]] = Array::new(capacity=count)
+  let values : Array[Double] = Array(capacity=count)
+  let vectors : Array[Array[Double]] = Array(capacity=count)
   i = 0
   while i < count {
     values.push(diag[i].0)
     let idx = diag[i].1
-    let vec : Array[Double] = Array::new(capacity=n)
+    let vec : Array[Double] = Array(capacity=n)
     let mut s = 0
     while s < n {
       vec.push(v[s][idx])

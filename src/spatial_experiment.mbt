@@ -48,10 +48,10 @@ pub struct SpatialExperiment {
 pub fn SpatialExperiment::new() -> SpatialExperiment {
   SpatialExperiment::{
     assay: Map([], capacity=0),
-    row_data: Array::new(),
-    col_data: Array::new(),
-    spatial_coords: Array::new(),
-    images: Array::new(),
+    row_data: Array(capacity=0),
+    col_data: Array(capacity=0),
+    spatial_coords: Array(capacity=0),
+    images: Array(capacity=0),
     metadata: Map([], capacity=0),
   }
 }
@@ -243,7 +243,7 @@ pub fn create_example_spatial_experiment() -> SpatialExperiment {
   se.spatial_coords.push(SpatialCoord::new_2d(300.0, 250.0))
   se.spatial_coords.push(SpatialCoord::new_2d(350.0, 150.0))
 
-  let image_data : Array[Array[Double]] = Array::new()
+  let image_data : Array[Array[Double]] = Array(capacity=0)
   let image = SpatialImage::new("HE", image_data, 0.1)
   se.images.push(image)
 

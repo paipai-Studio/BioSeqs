@@ -40,7 +40,7 @@ fn comp_max(x : Array[Double]) -> Double {
 /// Close a composition to sum to 1: x_i / Σx (`skbio.stats.composition.closure`).
 pub fn skbio_closure(x : Array[Double]) -> Array[Double] {
   let s = comp_sum(x)
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for v in x {
     out.push(v / s)
   }
@@ -61,7 +61,7 @@ fn multi_replace_impl(x : Array[Double], delta : Double) -> Array[Double] {
     }
   }
   let zcnt = 1.0 - z.to_double() * delta
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for v in closed {
     if v == 0.0 {
       out.push(delta)
@@ -90,7 +90,7 @@ pub fn skbio_multi_replace_delta(x : Array[Double], delta : Double) -> Array[Dou
 pub fn skbio_perturb(x : Array[Double], y : Array[Double]) -> Array[Double] {
   let cx = skbio_closure(x)
   let cy = skbio_closure(y)
-  let prod : Array[Double] = Array::new()
+  let prod : Array[Double] = Array(capacity=0)
   for i = 0; i < x.length(); i = i + 1 {
     prod.push(cx[i] * cy[i])
   }
@@ -102,7 +102,7 @@ pub fn skbio_perturb(x : Array[Double], y : Array[Double]) -> Array[Double] {
 pub fn skbio_perturb_inv(x : Array[Double], y : Array[Double]) -> Array[Double] {
   let cx = skbio_closure(x)
   let cy = skbio_closure(y)
-  let q : Array[Double] = Array::new()
+  let q : Array[Double] = Array(capacity=0)
   for i = 0; i < x.length(); i = i + 1 {
     q.push(cx[i] / cy[i])
   }
@@ -113,7 +113,7 @@ pub fn skbio_perturb_inv(x : Array[Double], y : Array[Double]) -> Array[Double] 
 /// Aitchison power: x ⊙ a = closure(x^a) (`power`).
 pub fn skbio_power(x : Array[Double], a : Double) -> Array[Double] {
   let cx = skbio_closure(x)
-  let p : Array[Double] = Array::new()
+  let p : Array[Double] = Array(capacity=0)
   for v in cx {
     p.push(comp_exp(a * comp_ln(v)))
   }
@@ -123,7 +123,7 @@ pub fn skbio_power(x : Array[Double], a : Double) -> Array[Double] {
 ///|
 /// Centered log-ratio transform: clr(x) = ln(x) - mean(ln(x)) (`clr`).
 pub fn skbio_clr(x : Array[Double]) -> Array[Double] {
-  let logs : Array[Double] = Array::new()
+  let logs : Array[Double] = Array(capacity=0)
   let mut s = 0.0
   for v in x {
     let l = comp_ln(v)
@@ -131,7 +131,7 @@ pub fn skbio_clr(x : Array[Double]) -> Array[Double] {
     s = s + l
   }
   let mean = s / x.length().to_double()
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for l in logs {
     out.push(l - mean)
   }
@@ -142,7 +142,7 @@ pub fn skbio_clr(x : Array[Double]) -> Array[Double] {
 /// Inverse clr: closure(exp(x - max(x))) (`clr_inv`, numerically stable).
 pub fn skbio_clr_inv(x : Array[Double]) -> Array[Double] {
   let mx = comp_max(x)
-  let e : Array[Double] = Array::new()
+  let e : Array[Double] = Array(capacity=0)
   for v in x {
     e.push(comp_exp(v - mx))
   }
@@ -166,7 +166,7 @@ pub fn skbio_inner(x : Array[Double], y : Array[Double]) -> Double {
 /// (`alr` with `ref_idx`, default 0 = first component is the denominator).
 pub fn skbio_alr(x : Array[Double], ref_idx : Int) -> Array[Double] {
   let ref_l = comp_ln(x[ref_idx])
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for i = 0; i < x.length(); i = i + 1 {
     if i != ref_idx {
       out.push(comp_ln(x[i]) - ref_l)
@@ -178,7 +178,7 @@ pub fn skbio_alr(x : Array[Double], ref_idx : Int) -> Array[Double] {
 ///|
 /// Inverse alr: insert 0 at `ref_idx`, then closure(exp(v - max(v))) (`alr_inv`).
 pub fn skbio_alr_inv(x : Array[Double], ref_idx : Int) -> Array[Double] {
-  let comp : Array[Double] = Array::new()
+  let comp : Array[Double] = Array(capacity=0)
   for i = 0; i < ref_idx; i = i + 1 {
     comp.push(x[i])
   }
@@ -193,12 +193,12 @@ pub fn skbio_alr_inv(x : Array[Double], ref_idx : Int) -> Array[Double] {
 /// Default orthonormal ILR basis (shape `(n-1) × n`), the J. J. Egozcue basis
 /// built by Gram–Schmidt orthogonalization (scikit-bio `_gram_schmidt_basis`).
 pub fn skbio_gram_schmidt_basis(n : Int) -> Array[Array[Double]] {
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < n - 1; j = j + 1 {
     let i = j + 1
     let id = i.to_double()
     let s = (id / (id + 1.0)).sqrt()
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for d = 0; d < n; d = d + 1 {
       let v = if d <= j {
         1.0 / id * s
@@ -219,7 +219,7 @@ pub fn skbio_gram_schmidt_basis(n : Int) -> Array[Array[Double]] {
 /// `(n-1) × n`; use `skbio_gram_schmidt_basis(n)` for the default basis.
 pub fn skbio_ilr(x : Array[Double], basis : Array[Array[Double]]) -> Array[Double] {
   let c = skbio_clr(x)
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for j = 0; j < basis.length(); j = j + 1 {
     let row = basis[j]
     let mut s = 0.0
@@ -236,7 +236,7 @@ pub fn skbio_ilr(x : Array[Double], basis : Array[Array[Double]]) -> Array[Doubl
 /// `(n-1)`-dimensional and `basis` is `(n-1) × n`.
 pub fn skbio_ilr_inv(x : Array[Double], basis : Array[Array[Double]]) -> Array[Double] {
   let n = basis[0].length()
-  let comp : Array[Double] = Array::new()
+  let comp : Array[Double] = Array(capacity=0)
   for d = 0; d < n; d = d + 1 {
     let mut s = 0.0
     for j = 0; j < x.length(); j = j + 1 {
@@ -263,16 +263,16 @@ fn comp_col_gmean(mat : Array[Array[Double]], col : Int) -> Double {
 /// perturb_inv(closure(matᵢ), gmean(closure(mat), axis=0)) (`centralize`).
 /// `mat` is a list of compositions (rows); returns the centered matrix.
 pub fn skbio_centralize(mat : Array[Array[Double]]) -> Array[Array[Double]] {
-  let closed : Array[Array[Double]] = Array::new()
+  let closed : Array[Array[Double]] = Array(capacity=0)
   for row in mat {
     closed.push(skbio_closure(row))
   }
   let d = mat[0].length()
-  let cen : Array[Double] = Array::new()
+  let cen : Array[Double] = Array(capacity=0)
   for col = 0; col < d; col = col + 1 {
     cen.push(comp_col_gmean(closed, col))
   }
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for row in closed {
     out.push(skbio_perturb_inv(row, cen))
   }

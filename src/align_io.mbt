@@ -19,7 +19,7 @@ pub fn alignment(
 
 ///|
 pub fn parse_clustalw(content : String) -> Alignment {
-  let sequences : Array[(String, String)] = Array::new()
+  let sequences : Array[(String, String)] = Array(capacity=0)
   let name_map : Map[String, String] = Map([], capacity=10)
   let n = content.length()
 
@@ -70,7 +70,7 @@ pub fn parse_clustalw(content : String) -> Alignment {
 
 ///|
 pub fn parse_fasta_alignment(content : String) -> Alignment {
-  let sequences : Array[(String, String)] = Array::new()
+  let sequences : Array[(String, String)] = Array(capacity=0)
   let n = content.length()
 
   let mut current_name = ""
@@ -112,7 +112,7 @@ pub fn parse_fasta_alignment(content : String) -> Alignment {
 
 ///|
 pub fn parse_stockholm(content : String) -> Alignment {
-  let sequences : Array[(String, String)] = Array::new()
+  let sequences : Array[(String, String)] = Array(capacity=0)
   let name_map : Map[String, String] = Map([], capacity=10)
   let n = content.length()
 
@@ -304,7 +304,7 @@ pub fn consensus_sequence(align : Alignment) -> String {
 
 ///|
 fn split_by_whitespace(s : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut current_word = ""
 
   for i = 0; i < s.length(); i = i + 1 {

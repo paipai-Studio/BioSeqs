@@ -505,10 +505,10 @@ pub fn position_specific_features(
 ) -> Array[Double] {
   let len = seq.length()
   if len == 0 || n_positions <= 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
-  let features : Array[Double] = Array::new()
+  let features : Array[Double] = Array(capacity=0)
   let upper_seq = seq.to_upper()
 
   for i in 0..<n_positions {
@@ -526,7 +526,7 @@ pub fn position_specific_features(
 
 ///|
 pub fn protein_feature_vector(seq : String) -> Array[Double] {
-  let features : Array[Double] = Array::new()
+  let features : Array[Double] = Array(capacity=0)
 
   let aa_order : Array[UInt16] = [
     'A', 'R', 'N', 'D', 'C', 'E', 'Q', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S',
@@ -564,7 +564,7 @@ pub fn protein_feature_vector(seq : String) -> Array[Double] {
 
 ///|
 pub fn dna_feature_vector(seq : String) -> Array[Double] {
-  let features : Array[Double] = Array::new()
+  let features : Array[Double] = Array(capacity=0)
 
   let comp = nucleotide_composition(seq)
   features.push(comp.a)
@@ -596,7 +596,7 @@ pub fn dna_feature_vector(seq : String) -> Array[Double] {
 
 ///|
 pub fn protein_feature_names() -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
 
   let aa_order : Array[UInt16] = [
     'A', 'R', 'N', 'D', 'C', 'E', 'Q', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S',
@@ -629,7 +629,7 @@ pub fn protein_feature_names() -> Array[String] {
 
 ///|
 pub fn dna_feature_names() -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
 
   names.push("A")
   names.push("T")

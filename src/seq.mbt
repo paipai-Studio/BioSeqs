@@ -277,7 +277,7 @@ pub fn Seq::replace(self : Seq, old~ : String, new~ : String) -> Seq {
 ///|
 /// Split the sequence on `sep` into a list of Seq objects.
 pub fn Seq::split(self : Seq, sep : String) -> Array[Seq] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for part in self.data.split(sep) {
     out.push(Seq::{ data: part.to_owned(), })
   }
@@ -650,7 +650,7 @@ pub struct MutableSeq {
 ///|
 /// Construct a MutableSeq from a String.
 pub fn MutableSeq::new(s : String) -> MutableSeq {
-  let data = Array::new()
+  let data = Array(capacity=0)
   let mut i = 0
   while i < s.length() {
     data.push(s.unsafe_get(i).unsafe_to_char())
@@ -716,7 +716,7 @@ pub fn MutableSeq::append(self : MutableSeq, other : MutableSeq) -> Unit {
 ///|
 /// Insert a character at position `i`, shifting subsequent characters.
 pub fn MutableSeq::insert(self : MutableSeq, i : Int, c : Char) -> Unit {
-  let new_data = Array::new()
+  let new_data = Array(capacity=0)
   let mut idx = 0
   while idx < i && idx < self.data.length() {
     new_data.push(self.data[idx])
@@ -733,7 +733,7 @@ pub fn MutableSeq::insert(self : MutableSeq, i : Int, c : Char) -> Unit {
 ///|
 /// Delete the character at position `i`.
 pub fn MutableSeq::delete(self : MutableSeq, i : Int) -> Unit {
-  let new_data = Array::new()
+  let new_data = Array(capacity=0)
   let mut idx = 0
   while idx < self.data.length() {
     if idx != i {
@@ -751,7 +751,7 @@ pub fn MutableSeq::delete_range(
   start : Int,
   end : Int,
 ) -> Unit {
-  let new_data = Array::new()
+  let new_data = Array(capacity=0)
   let mut idx = 0
   while idx < self.data.length() {
     if idx < start || idx >= end {
@@ -769,7 +769,7 @@ pub fn MutableSeq::pop(self : MutableSeq) -> Char? {
     return None
   }
   let last = self.data[self.data.length() - 1]
-  let new_data = Array::new()
+  let new_data = Array(capacity=0)
   for i = 0; i < self.data.length() - 1; i = i + 1 {
     new_data.push(self.data[i])
   }
@@ -780,7 +780,7 @@ pub fn MutableSeq::pop(self : MutableSeq) -> Char? {
 ///|
 /// Return a copy (deep clone).
 pub fn MutableSeq::copy(self : MutableSeq) -> MutableSeq {
-  let new_data = Array::new()
+  let new_data = Array(capacity=0)
   for c in self.data {
     new_data.push(c)
   }

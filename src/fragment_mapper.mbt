@@ -263,7 +263,7 @@ pub fn FragmentMapperResult::num_fragments(self : FragmentMapperResult) -> Int {
 pub fn fm_classify_secondary_structure(
   ss_string : String,
 ) -> Array[FragmentType] {
-  let result : Array[FragmentType] = Array::new()
+  let result : Array[FragmentType] = Array(capacity=0)
   let mut i = 0
   while i < ss_string.length() {
     let c = ss_string.unsafe_get(i).to_int()
@@ -286,7 +286,7 @@ pub fn fm_assign_fragments(
   let frag_len = ss_types.length()
   let total = if seq_len > frag_len { seq_len } else { frag_len }
 
-  let fragments : Array[Fragment] = Array::new()
+  let fragments : Array[Fragment] = Array(capacity=0)
   let coverage : Map[Int, Double] = Map([], capacity=total)
 
   let mut i = 0
@@ -299,7 +299,7 @@ pub fn fm_assign_fragments(
       end = end + 1
     }
 
-    let residues : Array[FragmentResidue] = Array::new()
+    let residues : Array[FragmentResidue] = Array(capacity=0)
     let mut j = start
     while j <= end {
       let res_name = if j < seq_len { char_at(sequence, j) } else { "X" }
@@ -429,7 +429,7 @@ pub fn fm_parse_fragments(content : String) -> FragmentMapperResult {
     }
   }
 
-  let fragments : Array[Fragment] = Array::new()
+  let fragments : Array[Fragment] = Array(capacity=0)
   let coverage : Map[Int, Double] = Map([], capacity=sequence.length())
 
   let mut frag_idx = 0
@@ -538,7 +538,7 @@ pub fn fm_merge_fragments(fragments : Array[Fragment]) -> Array[Fragment] {
   }
 
   let sorted = _sort_fragments_by_position(fragments)
-  let result : Array[Fragment] = Array::new()
+  let result : Array[Fragment] = Array(capacity=0)
   let mut current = sorted[0]
 
   let mut i = 1
@@ -602,7 +602,7 @@ fn _concat_arrays(
   a : Array[FragmentResidue],
   b : Array[FragmentResidue],
 ) -> Array[FragmentResidue] {
-  let result : Array[FragmentResidue] = Array::new()
+  let result : Array[FragmentResidue] = Array(capacity=0)
   for item in a {
     result.push(item)
   }
@@ -619,7 +619,7 @@ pub fn fm_filter_by_length(
   fragments : Array[Fragment],
   min_length : Int,
 ) -> Array[Fragment] {
-  let result : Array[Fragment] = Array::new()
+  let result : Array[Fragment] = Array(capacity=0)
   for frag in fragments {
     if frag.length() >= min_length {
       result.push(frag)

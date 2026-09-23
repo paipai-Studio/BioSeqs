@@ -197,7 +197,7 @@ pub fn pheatmap_distance_matrix(
   method : DistanceMethod,
 ) -> Array[Array[Double]] {
   let n = data.length()
-  let dist : Array[Array[Double]] = Array::new()
+  let dist : Array[Array[Double]] = Array(capacity=0)
   let mut ri = 0
   while ri < n {
     dist.push(Array::make(n, 0.0))
@@ -236,7 +236,7 @@ pub fn pheatmap_column_distance_matrix(
     return []
   }
   let p = data[0].length()
-  let col_data : Array[Array[Double]] = Array::new()
+  let col_data : Array[Array[Double]] = Array(capacity=0)
   let mut cj = 0
   while cj < p {
     col_data.push(Array::make(n, 0.0))
@@ -288,7 +288,7 @@ pub fn hclust_complete(dist : Array[Array[Double]]) -> HclustResult {
     i = i + 1
   }
   // Working distance matrix for merging
-  let work_dist : Array[Array[Double]] = Array::new()
+  let work_dist : Array[Array[Double]] = Array(capacity=0)
   let mut wi = 0
   while wi < n {
     work_dist.push(Array::make(n, 0.0))
@@ -303,8 +303,8 @@ pub fn hclust_complete(dist : Array[Array[Double]]) -> HclustResult {
     }
     ri = ri + 1
   }
-  let merge : Array[(Int, Int)] = Array::new()
-  let height : Array[Double] = Array::new()
+  let merge : Array[(Int, Int)] = Array(capacity=0)
+  let height : Array[Double] = Array(capacity=0)
   // Process n-1 merges
   let mut step = 0
   while step < n - 1 {
@@ -366,7 +366,7 @@ pub fn hclust_complete(dist : Array[Array[Double]]) -> HclustResult {
 
 ///|
 fn hclust_inorder(merge : Array[(Int, Int)], n : Int) -> Array[Int] {
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   if n <= 0 {
     return result
   }
@@ -398,7 +398,7 @@ fn hclust_inorder_rec(merge : Array[(Int, Int)], node : Int) -> Array[Int] {
     let merge_idx = node - 1
     let left = hclust_inorder_rec(merge, merge[merge_idx].0)
     let right = hclust_inorder_rec(merge, merge[merge_idx].1)
-    let result : Array[Int] = Array::new()
+    let result : Array[Int] = Array(capacity=0)
     let mut i = 0
     while i < left.length() {
       result.push(left[i])
@@ -500,7 +500,7 @@ pub fn pretty_breaks(
 ///|
 /// Generate a heat color palette (blue to red).
 pub fn heat_colors(n : Int) -> Array[String] {
-  let colors : Array[String] = Array::new()
+  let colors : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let t = i.to_double() / (n.to_double() - 1.0)
@@ -550,7 +550,7 @@ fn pheatmap_int_to_hex(v : Int) -> String {
 ///|
 /// Generate a blues color palette (white to blue).
 pub fn blues_colors(n : Int) -> Array[String] {
-  let colors : Array[String] = Array::new()
+  let colors : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let t = i.to_double() / (n.to_double() - 1.0)
@@ -568,7 +568,7 @@ pub fn blues_colors(n : Int) -> Array[String] {
 ///|
 /// Generate a greys color palette (black to white).
 pub fn greys_colors(n : Int) -> Array[String] {
-  let colors : Array[String] = Array::new()
+  let colors : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let t = i.to_double() / (n.to_double() - 1.0)
@@ -1115,8 +1115,8 @@ pub fn pheatmap_render(input : PheatmapInput) -> PheatmapResult {
     col_order[j] = j
     j = j + 1
   }
-  let mut row_clusters : Array[Int] = Array::new()
-  let mut col_clusters : Array[Int] = Array::new()
+  let mut row_clusters : Array[Int] = Array(capacity=0)
+  let mut col_clusters : Array[Int] = Array(capacity=0)
   let mut row_dendrogram = ""
   let mut col_dendrogram = ""
   if input.cluster_rows && n > 1 {
@@ -1167,7 +1167,7 @@ fn pheatmap_build_text(
   row_clusters : Array[Int],
   col_clusters : Array[Int],
 ) -> String {
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   if input.main_title.length() > 0 {
     lines.push(input.main_title)
     lines.push("")
@@ -1185,7 +1185,7 @@ fn pheatmap_build_text(
       j = j + 1
     }
     // Actually, let's build it as a single line
-    let header_parts : Array[String] = Array::new()
+    let header_parts : Array[String] = Array(capacity=0)
     let _ = header
     let mut header_line = "      "
     let mut k = 0
@@ -1331,7 +1331,7 @@ fn pheatmap_build_legend(
   if n == 0 {
     return ""
   }
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   lines.push("Legend:")
   lines.push("  Min: \{breaks[0]}")
   let mid_idx = n / 2

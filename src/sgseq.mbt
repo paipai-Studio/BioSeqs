@@ -255,7 +255,7 @@ pub fn SGSeqVariant::is_significant(self : SGSeqVariant) -> Bool {
 /// Format: chr<TAB>start<TAB>end<TAB>strand<TAB>count
 /// Or STAR SJ.out.tab format: chr<TAB>start<TAB>end<TAB>strand(0/1/2)<TAB>intron_motif<TAB>annotated<TAB>unique<TAB>multi<TAB>max_overhang
 pub fn sgseq_parse_junctions(text : String) -> Array[SGSeqJunction] {
-  let junctions = Array::new()
+  let junctions = Array(capacity=0)
   let lines = text.split("\n").to_array()
   for line in lines {
     let trimmed = line.to_string()
@@ -308,7 +308,7 @@ pub fn sgseq_build_splice_graph(
     return []
   }
   // Collect all splice sites
-  let sites = Array::new()
+  let sites = Array(capacity=0)
   for j in junctions {
     sites.push(j.start)
     sites.push(j.end)
@@ -328,7 +328,7 @@ pub fn sgseq_build_splice_graph(
     i = i + 1
   }
   // Remove duplicates
-  let unique_sites = Array::new()
+  let unique_sites = Array(capacity=0)
   for s in sites {
     if unique_sites.length() == 0 ||
       unique_sites[unique_sites.length() - 1] != s {
@@ -343,13 +343,13 @@ pub fn sgseq_build_splice_graph(
   //   - upstream exon ends at 'start' (last base of exon)
   //   - downstream exon starts at 'end' (first base of exon)
   // So exon between two junctions: [j1.end, j2.start]
-  let exons = Array::new()
+  let exons = Array(capacity=0)
   let chr = junctions[0].chr
   let strand = junctions[0].strand
   // Group junctions by chr
   let by_chr : Map[String, Array[SGSeqJunction]] = Map([], capacity=10)
   for j in junctions {
-    let arr = by_chr.get(j.chr).or(Array::new())
+    let arr = by_chr.get(j.chr).or(Array(capacity=0))
     arr.push(j)
     by_chr[j.chr] = arr
   }
@@ -417,7 +417,7 @@ pub fn sgseq_to_features(
   junctions : Array[SGSeqJunction],
   exons : Array[SGSeqExon],
 ) -> Array[SGSeqFeature] {
-  let features = Array::new()
+  let features = Array(capacity=0)
   for e in exons {
     features.push(
       SGSeqFeature::new(
@@ -458,15 +458,15 @@ pub fn sgseq_detect_se(
   junctions : Array[SGSeqJunction],
   exons : Array[SGSeqExon],
 ) -> Array[SGSeqVariant] {
-  let variants = Array::new()
+  let variants = Array(capacity=0)
   for exon in exons {
     if exon.length() < 3 {
       continue
     }
     // Find junctions ending at exon.start (upstream junction into this exon)
-    let upstream = Array::new()
-    let downstream = Array::new()
-    let skipping = Array::new()
+    let upstream = Array(capacity=0)
+    let downstream = Array(capacity=0)
+    let skipping = Array(capacity=0)
     for j in junctions {
       if j.chr != exon.chr {
         continue
@@ -521,12 +521,12 @@ pub fn sgseq_detect_se(
 pub fn sgseq_detect_a5ss(
   junctions : Array[SGSeqJunction],
 ) -> Array[SGSeqVariant] {
-  let variants = Array::new()
+  let variants = Array(capacity=0)
   // Group by (chr, end) = same acceptor
   let groups : Map[String, Array[SGSeqJunction]] = Map([], capacity=20)
   for j in junctions {
     let key = j.chr + ":" + j.end.to_string()
-    let arr = groups.get(key).or(Array::new())
+    let arr = groups.get(key).or(Array(capacity=0))
     arr.push(j)
     groups[key] = arr
   }
@@ -536,7 +536,7 @@ pub fn sgseq_detect_a5ss(
       continue
     }
     // Different donor sites (start) with same acceptor (end)
-    let starts = Array::new()
+    let starts = Array(capacity=0)
     for j in group {
       let mut found = false
       for s in starts {
@@ -594,12 +594,12 @@ pub fn sgseq_detect_a5ss(
 pub fn sgseq_detect_a3ss(
   junctions : Array[SGSeqJunction],
 ) -> Array[SGSeqVariant] {
-  let variants = Array::new()
+  let variants = Array(capacity=0)
   // Group by (chr, start) = same donor
   let groups : Map[String, Array[SGSeqJunction]] = Map([], capacity=20)
   for j in junctions {
     let key = j.chr + ":" + j.start.to_string()
-    let arr = groups.get(key).or(Array::new())
+    let arr = groups.get(key).or(Array(capacity=0))
     arr.push(j)
     groups[key] = arr
   }
@@ -609,7 +609,7 @@ pub fn sgseq_detect_a3ss(
       continue
     }
     // Different acceptor sites (end) with same donor (start)
-    let ends = Array::new()
+    let ends = Array(capacity=0)
     for j in group {
       let mut found = false
       for e in ends {
@@ -668,7 +668,7 @@ pub fn sgseq_detect_mxe(
   junctions : Array[SGSeqJunction],
   exons : Array[SGSeqExon],
 ) -> Array[SGSeqVariant] {
-  let variants = Array::new()
+  let variants = Array(capacity=0)
   // Look for pairs of exons that are mutually exclusive
   let mut i = 0
   while i < exons.length() {
@@ -738,7 +738,7 @@ pub fn sgseq_detect_ri(
   junctions : Array[SGSeqJunction],
   exons : Array[SGSeqExon],
 ) -> Array[SGSeqVariant] {
-  let variants = Array::new()
+  let variants = Array(capacity=0)
   for j in junctions {
     // Check if this junction has very low count relative to neighbors
     // An RI event: the intron (j.start+1 to j.end-1) is sometimes retained
@@ -782,7 +782,7 @@ pub fn sgseq_detect_variants(
   junctions : Array[SGSeqJunction],
   exons : Array[SGSeqExon],
 ) -> Array[SGSeqVariant] {
-  let variants = Array::new()
+  let variants = Array(capacity=0)
   for v in sgseq_detect_se(junctions, exons) {
     variants.push(v)
   }
@@ -845,7 +845,7 @@ pub fn sgseq_filter_variants(
   variants : Array[SGSeqVariant],
   min_reads? : Int = 10,
 ) -> Array[SGSeqVariant] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for v in variants {
     if v.inclusion_count + v.exclusion_count >= min_reads {
       result.push(v)

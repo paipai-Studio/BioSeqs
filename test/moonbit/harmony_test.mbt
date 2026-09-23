@@ -29,9 +29,9 @@ test "harmony_run_basic" {
 ///|
 test "harmony_single_batch" {
   // Single batch should remain largely unchanged
-  let embeddings : Array[Array[Double]] = Array::new()
-  let batch_labels : Array[String] = Array::new()
-  let cell_ids : Array[String] = Array::new()
+  let embeddings : Array[Array[Double]] = Array(capacity=0)
+  let batch_labels : Array[String] = Array(capacity=0)
+  let cell_ids : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < 20 {
     embeddings.push([1.0, 2.0, 3.0])
@@ -61,9 +61,9 @@ test "harmony_convergence" {
 ///|
 test "harmony_batch_alignment" {
   // Two batches with different means should be aligned
-  let embeddings : Array[Array[Double]] = Array::new()
-  let batch_labels : Array[String] = Array::new()
-  let cell_ids : Array[String] = Array::new()
+  let embeddings : Array[Array[Double]] = Array(capacity=0)
+  let batch_labels : Array[String] = Array(capacity=0)
+  let cell_ids : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < 40 {
     let batch_idx = if i < 20 { 0 } else { 1 }

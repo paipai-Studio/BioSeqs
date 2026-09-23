@@ -28,9 +28,9 @@ pub fn scanpy_diffmap(
     }
   }
   // symmetrized transition P_sym = D^-1/2 A D^-1/2
-  let psym : Array[Array[Double]] = Array::new()
+  let psym : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n; j = j + 1 {
       let di = deg[i]
       let dj = deg[j]
@@ -47,13 +47,13 @@ pub fn scanpy_diffmap(
   let (evals, evecs) = linalg_sort_eigen(eigenvalues, eigenvectors, n)
 
   let nc = if n_comps < n { n_comps } else { n }
-  let basis : Array[Array[Double]] = Array::new()
-  let vals : Array[Double] = Array::new()
+  let basis : Array[Array[Double]] = Array(capacity=0)
+  let vals : Array[Double] = Array(capacity=0)
   for t = 0; t < nc; t = t + 1 {
     vals.push(evals[t])
   }
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for t = 0; t < nc; t = t + 1 {
       row.push(evecs[i][t])
     }

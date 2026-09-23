@@ -340,7 +340,7 @@ test "ragged_experiment_summary" {
 ///|
 test "ragged_experiment_filter_by_type" {
   let exp = @src.ragged_sample_data()
-  let types : Array[@src.MutationType] = Array::new()
+  let types : Array[@src.MutationType] = Array(capacity=0)
   types.push(@src.mutation_nonsense())
   let filtered = exp.filter_by_type(types~)
   assert_true(filtered.n_rows() > 0)
@@ -349,7 +349,7 @@ test "ragged_experiment_filter_by_type" {
 ///|
 test "ragged_experiment_filter_by_genes" {
   let exp = @src.ragged_sample_data()
-  let genes : Array[String] = Array::new()
+  let genes : Array[String] = Array(capacity=0)
   genes.push("TP53")
   let filtered = exp.filter_by_genes(genes~)
   assert_eq(filtered.n_rows(), 1)
@@ -358,7 +358,7 @@ test "ragged_experiment_filter_by_genes" {
 ///|
 test "ragged_experiment_filter_by_samples" {
   let exp = @src.ragged_sample_data()
-  let samples : Array[String] = Array::new()
+  let samples : Array[String] = Array(capacity=0)
   samples.push("Sample1")
   let filtered = exp.filter_by_samples(samples~)
   assert_eq(filtered.n_cols(), 1)

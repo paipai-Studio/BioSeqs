@@ -467,7 +467,7 @@ pub fn kgml_to_svg(
 /// Count entries by type for a quick visual summary.
 pub fn kgml_entry_summary(pathway : KgmlPathway) -> Array[(String, Int)] {
   let counts : Map[String, Int] = Map([])
-  let order : Array[String] = Array::new()
+  let order : Array[String] = Array(capacity=0)
   for entry in pathway.entries() {
     let t = entry.etype()
     if !(counts.contains(t)) {
@@ -476,7 +476,7 @@ pub fn kgml_entry_summary(pathway : KgmlPathway) -> Array[(String, Int)] {
     }
     counts.set(t, counts.get(t).unwrap_or(0) + 1)
   }
-  let result : Array[(String, Int)] = Array::new()
+  let result : Array[(String, Int)] = Array(capacity=0)
   for t in order {
     result.push((t, counts.get(t).unwrap_or(0)))
   }

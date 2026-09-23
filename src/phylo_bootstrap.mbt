@@ -78,7 +78,7 @@ fn bstr_count_ones(bs : BStr) -> Int {
 
 ///|
 fn bstr_index_one(bs : BStr) -> Array[Int] {
-  let idx = Array::new()
+  let idx = Array(capacity=0)
   for i in 0..<bs.bits.length() {
     if bs.bits[i] {
       idx.push(i)
@@ -153,7 +153,7 @@ fn count_clades(
     raise PhyloConsensusError("No trees provided")
   }
   let terms = trees[0].get_terminals()
-  let term_names = Array::new()
+  let term_names = Array(capacity=0)
   for t in terms {
     match t.name {
       Some(n) => term_names.push(n)
@@ -165,7 +165,7 @@ fn count_clades(
   expected.sort()
   let counts : Map[String, CladeCount] = Map::new()
   for tree in trees {
-    let these_names = Array::new()
+    let these_names = Array(capacity=0)
     for t in tree.get_terminals() {
       match t.name {
         Some(n) => these_names.push(n)
@@ -208,7 +208,7 @@ fn count_clades(
 /// Sorted terminal-name signature of a clade, used as its identity key
 /// (clades are considered equal when their terminal sets agree).
 fn clade_tip_key(c : Clade) -> String {
-  let names = Array::new()
+  let names = Array(capacity=0)
   for t in c.get_terminals() {
     match t.name {
       Some(n) => names.push(n)
@@ -249,7 +249,7 @@ pub fn consensus_strict(trees : Array[Tree]) -> Tree raise PhyloConsensusError {
   let root_key = bstr_key(bstr_ones(n))
 
   // strict clades, sorted by decreasing number of terminals
-  let strict_keys = Array::new()
+  let strict_keys = Array(capacity=0)
   for kv in counts.iter() {
     if kv.1.count == trees.length() {
       strict_keys.push(kv.0)
@@ -271,7 +271,7 @@ pub fn consensus_strict(trees : Array[Tree]) -> Tree raise PhyloConsensusError {
 
   for key in strict_keys[1:] {
     let bs = bstr_from_key(key)
-    let clade_terms = Array::new()
+    let clade_terms = Array(capacity=0)
     for i in bstr_index_one(bs) {
       clade_terms.push(terms[i])
     }
@@ -327,7 +327,7 @@ pub fn consensus_majority(
   let n = terms.length()
   let tree_count = trees.length().to_double()
 
-  let entries = Array::new()
+  let entries = Array(capacity=0)
   for kv in counts.iter() {
     let cc = kv.1
     entries.push(MajorityEntry::{
@@ -367,7 +367,7 @@ pub fn consensus_majority(
     if confidence < cutoff * 100.0 {
       break
     }
-    let clade_terms = Array::new()
+    let clade_terms = Array(capacity=0)
     for i in bstr_index_one(bitstr) {
       clade_terms.push(terms[i])
     }
@@ -379,7 +379,7 @@ pub fn consensus_majority(
       inner.clades.push(t)
     }
 
-    let bsckeys = Array::new()
+    let bsckeys = Array(capacity=0)
     for kv in bitstr_clades.iter() {
       bsckeys.push(kv.0)
     }
@@ -391,7 +391,7 @@ pub fn consensus_majority(
 
     let mut compatible = true
     let mut parent_key : String? = Option::None
-    let child_keys = Array::new()
+    let child_keys = Array(capacity=0)
     for k in bsckeys {
       let bs = bstr_from_key(k)
       if !bstr_iscompatible(bs, bitstr) {
@@ -435,7 +435,7 @@ pub fn consensus_majority(
     }
 
     if !child_keys.is_empty() {
-      let remove_idx = Array::new()
+      let remove_idx = Array(capacity=0)
       for ck in child_keys {
         for i in bstr_index_one(bstr_from_key(ck)) {
           remove_idx.push(i)
@@ -445,7 +445,7 @@ pub fn consensus_majority(
         remove_first_identical(pc.clades, child_clade)
         inner.clades.push(child_clade)
       }
-      let remove_terms = Array::new()
+      let remove_terms = Array(capacity=0)
       for i in remove_idx {
         remove_terms.push(terms[i])
       }
@@ -480,7 +480,7 @@ pub fn consensus_adam(trees : Array[Tree]) -> Tree raise PhyloConsensusError {
   if trees.is_empty() {
     raise PhyloConsensusError("No trees provided")
   }
-  let roots = Array::new()
+  let roots = Array(capacity=0)
   for t in trees {
     roots.push(t.get_root())
   }
@@ -494,7 +494,7 @@ fn adam_part(clades : Array[Clade]) -> Clade raise PhyloConsensusError {
   if terms.length() == 1 || terms.length() == 2 {
     return clades[0]
   }
-  let term_names = Array::new()
+  let term_names = Array(capacity=0)
   for t in terms {
     match t.name {
       Some(n) => term_names.push(n)
@@ -507,8 +507,8 @@ fn adam_part(clades : Array[Clade]) -> Clade raise PhyloConsensusError {
   for clade in clades {
     for child in clade.clades {
       let bitstr = clade_to_bstr(child, term_names)
-      let to_remove = Array::new()
-      let to_add = Array::new()
+      let to_remove = Array(capacity=0)
+      let to_add = Array(capacity=0)
       for bs in parts.copy() {
         let bkey = bstr_key(bs)
         let ikey = bstr_key(bitstr)
@@ -564,11 +564,11 @@ fn adam_part(clades : Array[Clade]) -> Clade raise PhyloConsensusError {
       bifur.clades.push(terms[indices[1]])
       new_clade.clades.push(bifur)
     } else if indices.length() > 2 {
-      let part_names = Array::new()
+      let part_names = Array(capacity=0)
       for i in indices {
         part_names.push(term_names[i])
       }
-      let next_clades = Array::new()
+      let next_clades = Array(capacity=0)
       for clade in clades {
         next_clades.push(adam_sub_clade(clade, part_names))
       }
@@ -585,7 +585,7 @@ fn adam_sub_clade(
   clade : Clade,
   term_names : Array[String],
 ) -> Clade raise PhyloConsensusError {
-  let term_clades = Array::new()
+  let term_clades = Array(capacity=0)
   for n in term_names {
     match clade.find_any(name=Some(n)) {
       Some(tc) => term_clades.push(tc)
@@ -606,7 +606,7 @@ fn adam_sub_clade(
       if same_clade(c, top) {
         continue
       }
-      let children = Array::new()
+      let children = Array(capacity=0)
       for t in c.get_terminals() {
         if term_clades.any(fn(x) { same_clade(t, x) }) {
           children.push(t)
@@ -643,7 +643,7 @@ fn Clade::clade_common_ancestor(
   self : Clade,
   term_clades : Array[Clade],
 ) -> Clade {
-  let mut common : Array[Clade] = Array::new()
+  let mut common : Array[Clade] = Array(capacity=0)
   for i in 0..<term_clades.length() {
     let t = term_clades[i]
     let name = match t.name {
@@ -660,7 +660,7 @@ fn Clade::clade_common_ancestor(
             same_clade(common[depth], path[depth]) {
         depth += 1
       }
-      let narrowed = Array::new()
+      let narrowed = Array(capacity=0)
       for k in 0..<depth {
         narrowed.push(common[k])
       }
@@ -694,7 +694,7 @@ pub fn tree_get_support(
   trees : Array[Tree],
   len_trees? : Int? = None,
 ) -> Tree raise PhyloConsensusError {
-  let term_names = Array::new()
+  let term_names = Array(capacity=0)
   for t in target.find_clades(terminal=Some(true)) {
     match t.name {
       Some(n) => term_names.push(n)
@@ -744,7 +744,7 @@ fn support_apply_clade(
   if c.is_terminal() {
     return c
   }
-  let new_children = Array::new()
+  let new_children = Array(capacity=0)
   for child in c.clades {
     new_children.push(support_apply_clade(child, term_names, support))
   }
@@ -801,9 +801,9 @@ pub fn bootstrap_column_indices(
   }
   let seed_state = if seed == 0 { 1 } else if seed < 0 { -seed } else { seed }
   let rng = ParkMiller::{ state: seed_state, }
-  let result = Array::new()
+  let result = Array(capacity=0)
   for _ in 0..<times {
-    let cols = Array::new()
+    let cols = Array(capacity=0)
     for _ in 0..<length {
       cols.push((park_miller_next(rng) - 1) % length)
     }
@@ -845,14 +845,14 @@ pub fn bootstrap_trees(
       raise PhyloConsensusError("Unsupported distance model: " + msg)
   }
   let tree_constructor = TreeConstructor::new(tree_method~)
-  let result = Array::new()
+  let result = Array(capacity=0)
   for cols in columns {
-    let replicate = Array::new()
+    let replicate = Array(capacity=0)
     for seq in sequences {
       replicate.push(resample_sequence(seq, cols))
     }
     let ntax = names.length()
-    let matrix = Array::new()
+    let matrix = Array(capacity=0)
     for _ in 0..<ntax {
       matrix.push(Array::make(ntax, 0.0))
     }

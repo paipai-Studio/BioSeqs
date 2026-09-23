@@ -98,7 +98,7 @@ fn plm_mad(arr : Array[Double]) -> Double {
   } else {
     (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0
   }
-  let devs : Array[Double] = Array::new()
+  let devs : Array[Double] = Array(capacity=0)
   for v in arr {
     devs.push(plm_abs(v - med))
   }
@@ -188,9 +188,9 @@ pub fn fit_plm(
       sigma: 0.0,
     }
   }
-  let log_data : Array[Array[Double]] = Array::new()
+  let log_data : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n_probes {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j in 0..<n_samples {
       let v = probeset.probes[i][j]
       row.push(plm_log2_safe(v))
@@ -209,14 +209,14 @@ pub fn fit_plm(
   for j in 0..<n_samples {
     chip[j] = grand_mean
   }
-  let weights : Array[Array[Double]] = Array::new()
+  let weights : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n_probes {
     let row : Array[Double] = Array::make(n_samples, 1.0)
     weights.push(row)
   }
   let mut sigma = 1.0
   let mut iter = 0
-  let residuals : Array[Array[Double]] = Array::new()
+  let residuals : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n_probes {
     let row : Array[Double] = Array::make(n_samples, 0.0)
     residuals.push(row)
@@ -227,7 +227,7 @@ pub fn fit_plm(
         residuals[i][j] = log_data[i][j] - chip[j] - probe[i]
       }
     }
-    let flat_resid : Array[Double] = Array::new()
+    let flat_resid : Array[Double] = Array(capacity=0)
     for i in 0..<n_probes {
       for j in 0..<n_samples {
         flat_resid.push(residuals[i][j])
@@ -364,9 +364,9 @@ pub fn nuse(fits : Array[PlmFit]) -> Array[Double] {
   if n_samples == 0 {
     return []
   }
-  let col_weights : Array[Array[Double]] = Array::new()
+  let col_weights : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<n_samples {
-    col_weights.push(Array::new())
+    col_weights.push(Array(capacity=0))
   }
   for fit in fits {
     for j in 0..<n_samples {
@@ -383,7 +383,7 @@ pub fn nuse(fits : Array[PlmFit]) -> Array[Double] {
       }
     }
   }
-  let nuse_vals : Array[Double] = Array::new()
+  let nuse_vals : Array[Double] = Array(capacity=0)
   for j in 0..<n_samples {
     let med = beclear_median_ref(col_weights[j])
     nuse_vals.push(med)
@@ -392,7 +392,7 @@ pub fn nuse(fits : Array[PlmFit]) -> Array[Double] {
   if overall <= 0.0 {
     return nuse_vals
   }
-  let normalized : Array[Double] = Array::new()
+  let normalized : Array[Double] = Array(capacity=0)
   for v in nuse_vals {
     normalized.push(v / overall)
   }
@@ -413,9 +413,9 @@ pub fn rle(fits : Array[PlmFit]) -> Array[Double] {
   if n_samples == 0 {
     return []
   }
-  let deviations : Array[Array[Double]] = Array::new()
+  let deviations : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<n_samples {
-    deviations.push(Array::new())
+    deviations.push(Array(capacity=0))
   }
   for fit in fits {
     let chip = fit.chip_effects
@@ -424,7 +424,7 @@ pub fn rle(fits : Array[PlmFit]) -> Array[Double] {
       deviations[j].push(chip[j] - med)
     }
   }
-  let rle_vals : Array[Double] = Array::new()
+  let rle_vals : Array[Double] = Array(capacity=0)
   for j in 0..<n_samples {
     rle_vals.push(beclear_median_ref(deviations[j]))
   }

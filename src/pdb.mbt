@@ -203,7 +203,7 @@ pub fn Chain::find_residue(self : Chain, resseq : Int) -> Residue? {
 ///|
 /// Get all atoms in this chain.
 pub fn Chain::get_atoms(self : Chain) -> Array[Atom] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for residue in self.residues {
     for atom in residue.atoms {
       result.push(atom)
@@ -257,7 +257,7 @@ pub fn Model::find_chain(self : Model, id : Char) -> Chain? {
 ///|
 /// Get all residues in this model.
 pub fn Model::get_residues(self : Model) -> Array[Residue] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for chain in self.chains {
     for residue in chain.residues {
       result.push(residue)
@@ -269,7 +269,7 @@ pub fn Model::get_residues(self : Model) -> Array[Residue] {
 ///|
 /// Get all atoms in this model.
 pub fn Model::get_atoms(self : Model) -> Array[Atom] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for chain in self.chains {
     for residue in chain.residues {
       for atom in residue.atoms {
@@ -343,7 +343,7 @@ pub fn Structure::find_model(self : Structure, id : Int) -> Model? {
 ///|
 /// Get all chains in this structure.
 pub fn Structure::get_chains(self : Structure) -> Array[Chain] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for model in self.models {
     for chain in model.chains {
       result.push(chain)
@@ -355,7 +355,7 @@ pub fn Structure::get_chains(self : Structure) -> Array[Chain] {
 ///|
 /// Get all residues in this structure.
 pub fn Structure::get_residues(self : Structure) -> Array[Residue] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for model in self.models {
     for chain in model.chains {
       for residue in chain.residues {
@@ -369,7 +369,7 @@ pub fn Structure::get_residues(self : Structure) -> Array[Residue] {
 ///|
 /// Get all atoms in this structure.
 pub fn Structure::get_atoms(self : Structure) -> Array[Atom] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for model in self.models {
     for chain in model.chains {
       for residue in chain.residues {

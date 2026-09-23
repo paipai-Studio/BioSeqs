@@ -29,9 +29,9 @@ pub fn PAMLResult::new(ln_likelihood : Double) -> PAMLResult {
   PAMLResult::{
     ln_likelihood,
     parameters: Map([], capacity=10),
-    dnds_ratios: Array::new(),
-    substitution_rates: Array::new(),
-    ancestral_sequences: Array::new(),
+    dnds_ratios: Array(capacity=0),
+    substitution_rates: Array(capacity=0),
+    ancestral_sequences: Array(capacity=0),
   }
 }
 
@@ -391,7 +391,7 @@ pub fn paml_create_example_alignment() -> PAMLAlignment {
 pub fn paml_run_likelihood(alignment : PAMLAlignment) -> PAMLResult {
   let result = paml_estimate_parameters(alignment)
 
-  let dnds_results : Array[(String, Double)] = Array::new()
+  let dnds_results : Array[(String, Double)] = Array(capacity=0)
 
   let seqs = alignment.sequences
   let mut i = 0

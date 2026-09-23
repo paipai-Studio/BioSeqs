@@ -285,7 +285,7 @@ fn parse_otus_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
     let otus_xml = xml[start:end].to_owned()
     let otus_id = get_attribute(otus_xml, "id")
 
-    let otu_list : Array[NeXMLOTU] = Array::new()
+    let otu_list : Array[NeXMLOTU] = Array(capacity=0)
     let otu_elements = find_all_elements(otus_xml, "otu")
 
     for j = 0; j < otu_elements.length(); j = j + 1 {
@@ -321,7 +321,7 @@ fn parse_characters_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
       let xtype = get_attribute(chars_xml, "type")
       let final_type = if xtype.length() > 0 { xtype } else { "StandardCells" }
 
-      let char_list : Array[NeXMLCharacter] = Array::new()
+      let char_list : Array[NeXMLCharacter] = Array(capacity=0)
       let char_elements = find_all_elements(chars_xml, "char")
 
       for j = 0; j < char_elements.length(); j = j + 1 {
@@ -340,7 +340,7 @@ fn parse_characters_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
         let row_xml = chars_xml[r_start:r_end].to_owned()
         let otu = get_attribute(row_xml, "otu")
         let cell_elements = find_all_elements(row_xml, "cell")
-        let row_data : Array[String] = Array::new()
+        let row_data : Array[String] = Array(capacity=0)
 
         for k = 0; k < cell_elements.length(); k = k + 1 {
           let (c_start2, c_end2) = cell_elements[k]
@@ -356,7 +356,7 @@ fn parse_characters_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
         NeXMLCharacters::new(chars_id, otus_id, final_type, char_list, matrix),
       )
     } else {
-      let char_list : Array[NeXMLCharacter] = Array::new()
+      let char_list : Array[NeXMLCharacter] = Array(capacity=0)
       let char_elements = find_all_elements(chars_xml, "char")
 
       for j = 0; j < char_elements.length(); j = j + 1 {
@@ -375,7 +375,7 @@ fn parse_characters_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
         let row_xml = chars_xml[r_start:r_end].to_owned()
         let otu = get_attribute(row_xml, "otu")
         let cell_elements = find_all_elements(row_xml, "cell")
-        let row_data : Array[String] = Array::new()
+        let row_data : Array[String] = Array(capacity=0)
 
         for k = 0; k < cell_elements.length(); k = k + 1 {
           let (c_start2, c_end2) = cell_elements[k]
@@ -407,7 +407,7 @@ fn parse_trees_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
     let trees_id = get_attribute(trees_xml, "id")
     let otus_id = get_attribute(trees_xml, "otus")
 
-    let tree_list : Array[NeXMLTree] = Array::new()
+    let tree_list : Array[NeXMLTree] = Array(capacity=0)
     let tree_elements = find_all_elements(trees_xml, "tree")
 
     for j = 0; j < tree_elements.length(); j = j + 1 {
@@ -420,7 +420,7 @@ fn parse_trees_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
       let ttype = get_attribute(tree_xml, "xsi:type")
       let final_type = if ttype.length() > 0 { ttype } else { "FloatTree" }
 
-      let node_list : Array[NeXMLNode] = Array::new()
+      let node_list : Array[NeXMLNode] = Array(capacity=0)
       let node_elements = find_all_elements(tree_xml, "node")
 
       for k = 0; k < node_elements.length(); k = k + 1 {
@@ -440,7 +440,7 @@ fn parse_trees_blocks(xml : String, doc : NeXMLDocument) -> NeXMLDocument {
         node_list.push(NeXMLNode::new(nid, nlabel, notu, length=nlength))
       }
 
-      let edge_list : Array[NeXMLEdge] = Array::new()
+      let edge_list : Array[NeXMLEdge] = Array(capacity=0)
       let edge_elements = find_all_elements(tree_xml, "edge")
 
       for k = 0; k < edge_elements.length(); k = k + 1 {
@@ -701,7 +701,7 @@ fn build_newick(
 ///|
 /// Get all OTU labels from a NeXML document.
 pub fn nexml_get_all_otu_labels(doc : NeXMLDocument) -> Array[String] {
-  let labels : Array[String] = Array::new()
+  let labels : Array[String] = Array(capacity=0)
   for i = 0; i < doc.otus_blocks.length(); i = i + 1 {
     let otus_block = doc.otus_blocks[i]
     for j = 0; j < otus_block.otus.length(); j = j + 1 {
@@ -714,7 +714,7 @@ pub fn nexml_get_all_otu_labels(doc : NeXMLDocument) -> Array[String] {
 ///|
 /// Get all tree names from a NeXML document.
 pub fn nexml_get_tree_names(doc : NeXMLDocument) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   for i = 0; i < doc.trees_blocks.length(); i = i + 1 {
     let trees_block = doc.trees_blocks[i]
     for j = 0; j < trees_block.trees.length(); j = j + 1 {

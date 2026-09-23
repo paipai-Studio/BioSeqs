@@ -188,7 +188,7 @@ fn fitch_set_intersection(
   a : Array[String],
   b : Array[String],
 ) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < a.length() {
     let mut j = 0
@@ -207,7 +207,7 @@ fn fitch_set_intersection(
 ///|
 /// Compute the union of two state sets (preserving order, no duplicates).
 fn fitch_set_union(a : Array[String], b : Array[String]) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < a.length() {
     result.push(a[i])

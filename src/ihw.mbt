@@ -370,7 +370,7 @@ fn initialize_weights(
 ) -> Array[Double] {
   let n = covariates.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   if scale_type == "global" {
     return Array::make(n, 1.0)

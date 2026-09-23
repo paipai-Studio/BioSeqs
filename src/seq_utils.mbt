@@ -434,7 +434,7 @@ pub fn gc_skew(
   window_size : Int,
   step_size : Int,
 ) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let len = seq.length()
   if len < window_size {
     return result
@@ -475,7 +475,7 @@ pub fn at_skew(
   window_size : Int,
   step_size : Int,
 ) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let len = seq.length()
   if len < window_size {
     return result

@@ -20,8 +20,8 @@ pub fn BSGenome::new(
     organism,
     provider,
     release,
-    chromosomes: Array::new(),
-    chromosome_lengths: Array::new(),
+    chromosomes: Array(capacity=0),
+    chromosome_lengths: Array(capacity=0),
   }
 }
 
@@ -47,7 +47,7 @@ pub fn BSGenome::add_chromosome(
 
 ///|
 pub fn BSGenome::chromosome_names(self : BSGenome) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < self.chromosomes.length() {
     names.push(self.chromosomes[i].0)
@@ -136,7 +136,7 @@ pub fn BSGenome::chromosome_count(self : BSGenome) -> Int {
 
 ///|
 pub fn BSGenome::get_chromosome_names(self : BSGenome) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < self.chromosomes.length() {
     names.push(self.chromosomes[i].0)
@@ -180,7 +180,7 @@ pub fn BSGenome::extract_gene(
 ///|
 fn rev_comp(s : String) -> String {
   let n = s.length()
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut i = n - 1
   while i >= 0 {
     let c = s.unsafe_get(i).unsafe_to_char().to_string().to_upper()

@@ -139,7 +139,7 @@ pub fn facto_pca(
     vi = vi + 1
   }
   // Build eigenvalue list
-  let eigenvalues_list : Array[EigenValue] = Array::new()
+  let eigenvalues_list : Array[EigenValue] = Array(capacity=0)
   let mut cv : Double = 0.0
   let mut ei = 0
   while ei < n_components {
@@ -497,7 +497,7 @@ pub fn facto_var_contrib_dim(
   if d < 0 || d >= result.n_dims {
     return []
   }
-  let contribs : Array[(String, Double)] = Array::new()
+  let contribs : Array[(String, Double)] = Array(capacity=0)
   let mut i = 0
   while i < result.n_var {
     contribs.push(("var_\{i + 1}", result.var_.contrib[i][d]))
@@ -536,7 +536,7 @@ pub fn facto_ind_contrib_dim(
   if d < 0 || d >= result.n_dims {
     return []
   }
-  let contribs : Array[(String, Double)] = Array::new()
+  let contribs : Array[(String, Double)] = Array(capacity=0)
   let mut i = 0
   while i < result.n_ind {
     contribs.push(("ind_\{i + 1}", result.ind.contrib[i][d]))
@@ -574,7 +574,7 @@ pub fn facto_var_cos2_dim(
   if d < 0 || d >= result.n_dims {
     return []
   }
-  let cos2s : Array[(String, Double)] = Array::new()
+  let cos2s : Array[(String, Double)] = Array(capacity=0)
   let mut i = 0
   while i < result.n_var {
     cos2s.push(("var_\{i + 1}", result.var_.cos2[i][d]))
@@ -593,7 +593,7 @@ pub fn facto_ind_cos2_dim(
   if d < 0 || d >= result.n_dims {
     return []
   }
-  let cos2s : Array[(String, Double)] = Array::new()
+  let cos2s : Array[(String, Double)] = Array(capacity=0)
   let mut i = 0
   while i < result.n_ind {
     cos2s.push(("ind_\{i + 1}", result.ind.cos2[i][d]))
@@ -622,7 +622,7 @@ pub fn facto_dimdesc(
   }
   let n = data.length()
   let p = data[0].length()
-  let desc : Array[DimDesc] = Array::new()
+  let desc : Array[DimDesc] = Array(capacity=0)
   let pc_scores : Array[Double] = Array::make(n, 0.0)
   let mut i = 0
   while i < n {
@@ -781,7 +781,7 @@ pub fn facto_loadings(result : PcaResult) -> Array[Array[Double]] {
 /// Print a summary of the PCA result.
 pub fn facto_print_summary(result : PcaResult) -> String {
   let s = facto_summary(result)
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   lines.push("PCA Summary:")
   lines.push("  Individuals: \{s.n_individuals}")
   lines.push("  Variables: \{s.n_variables}")

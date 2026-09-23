@@ -51,8 +51,8 @@ fn pt_emit_fixed6(
     sb.write_char('-')
     p = p + 1
   }
-  let int_digits : Array[Char] = Array::new()
-  let frac_digits : Array[Char] = Array::new()
+  let int_digits : Array[Char] = Array(capacity=0)
+  let frac_digits : Array[Char] = Array(capacity=0)
   let mut in_frac = false
   while p < hi {
     let c = cs[p]
@@ -70,7 +70,7 @@ fn pt_emit_fixed6(
   if int_digits.length() == 0 {
     int_digits.push('0')
   }
-  let out_frac : Array[Char] = Array::new()
+  let out_frac : Array[Char] = Array(capacity=0)
   let mut q = 0
   while q < 6 {
     if q < frac_digits.length() {
@@ -165,7 +165,7 @@ fn pt_assert_climb(
     let mut best_score = scorer.get_score(work, alignment)
     assert_eq(best_score, exp.0)
     let neighbors = @src.nni_get_neighbors(work)
-    let scores : Array[Int] = Array::new()
+    let scores : Array[Int] = Array(capacity=0)
     let mut accepted = -1
     let mut i = 0
     while i < neighbors.length() {

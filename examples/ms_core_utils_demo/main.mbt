@@ -11,8 +11,8 @@ fn main() -> Unit {
   println("--- 1. Peak Detection & Centroiding ---\n")
 
   // Simulate profile-mode MS data with 3 peaks
-  let mz : Array[Double] = Array::new()
-  let intensity : Array[Double] = Array::new()
+  let mz : Array[Double] = Array(capacity=0)
+  let intensity : Array[Double] = Array(capacity=0)
   for i in 0..<300 {
     let x = 100.0 + i.to_double() * 0.5
     mz.push(x)
@@ -57,7 +57,7 @@ fn main() -> Unit {
   let baseline = @bio.mc_baseline_snip(signal, 4)
   println("Signal:    " + arr_to_string(signal))
   println("Baseline:  " + arr_to_string(baseline))
-  let corrected = Array::new()
+  let corrected = Array(capacity=0)
   for i in 0..<signal.length() {
     let c = signal[i] - baseline[i]
     corrected.push(if c > 0.0 { c } else { 0.0 })

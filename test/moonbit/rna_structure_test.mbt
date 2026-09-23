@@ -4,7 +4,7 @@
 ///|
 /// Helper: convert String to Array[UInt16]
 fn str_to_u16_array(s : String) -> Array[UInt16] {
-  let arr : Array[UInt16] = Array::new()
+  let arr : Array[UInt16] = Array(capacity=0)
   for i = 0; i < s.length(); i = i + 1 {
     arr.push(s.unsafe_get(i))
   }

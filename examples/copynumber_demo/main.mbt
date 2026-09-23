@@ -19,7 +19,7 @@ fn make_profile(
 ) -> Array[Double] {
   let n = 120
   let edges = [0, 30, 60, 90, n]
-  let y = Array::new()
+  let y = Array(capacity=0)
   let mut i = 0
   while i < n {
     let mut level = levels[3]
@@ -101,7 +101,7 @@ fn main raise {
       "   probes \{seg.start}-\{seg.start + seg.length - 1}  n=\{seg.length}  mean=\{seg.mean}",
     )
   }
-  let fitted = Array::new()
+  let fitted = Array(capacity=0)
   for seg in fit.segments {
     let mut j = 0
     while j < seg.length {

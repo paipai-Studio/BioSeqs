@@ -41,7 +41,7 @@ fn nni_new_node(
 }
 
 fn nni_from_clade(clade : Clade) -> NniNode {
-  let children : Array[NniNode] = Array::new()
+  let children : Array[NniNode] = Array(capacity=0)
   for child in clade.clades {
     children.push(nni_from_clade(child))
   }
@@ -49,7 +49,7 @@ fn nni_from_clade(clade : Clade) -> NniNode {
 }
 
 fn nni_to_clade(node : NniNode) -> Clade {
-  let children : Array[Clade] = Array::new()
+  let children : Array[Clade] = Array(capacity=0)
   for child in node.children {
     children.push(nni_to_clade(child))
   }
@@ -62,7 +62,7 @@ fn nni_to_clade(node : NniNode) -> Clade {
 }
 
 fn nni_clone(node : NniNode) -> NniNode {
-  let children : Array[NniNode] = Array::new()
+  let children : Array[NniNode] = Array(capacity=0)
   for child in node.children {
     children.push(nni_clone(child))
   }
@@ -104,9 +104,9 @@ fn nni_collect_preorder(root : NniNode, out : Array[NniNode]) -> Unit {
 ///|
 /// All terminals in preorder.
 fn nni_terminals(root : NniNode) -> Array[NniNode] {
-  let all : Array[NniNode] = Array::new()
+  let all : Array[NniNode] = Array(capacity=0)
   nni_collect_preorder(root, all)
-  let tips : Array[NniNode] = Array::new()
+  let tips : Array[NniNode] = Array(capacity=0)
   for node in all {
     if node.children.length() == 0 {
       tips.push(node)
@@ -118,7 +118,7 @@ fn nni_terminals(root : NniNode) -> Array[NniNode] {
 ///|
 /// Internal (non-terminal) nodes in breadth-first ("level") order.
 fn nni_nonterminals_level(root : NniNode) -> Array[NniNode] {
-  let result : Array[NniNode] = Array::new()
+  let result : Array[NniNode] = Array(capacity=0)
   let queue : Array[NniNode] = [root]
   let mut head = 0
   while head < queue.length() {
@@ -216,8 +216,8 @@ pub fn nni_get_neighbors(tree : Tree) -> Array[Tree] {
 
 fn nni_neighbors_of(root : NniNode) -> Array[Tree] {
   let parents = nni_parent_map(root)
-  let neighbors : Array[Tree] = Array::new()
-  let root_child_ids : Array[Int] = Array::new()
+  let neighbors : Array[Tree] = Array(capacity=0)
+  let root_child_ids : Array[Int] = Array(capacity=0)
   let internals = nni_nonterminals_level(root)
   for clade in internals {
     if clade.nid == root.nid {
@@ -305,7 +305,7 @@ fn nni_neighbors_of(root : NniNode) -> Array[Tree] {
 ///|
 /// Full node path from the root (included) to the node with ``nid``.
 fn nni_root_path(root : NniNode, nid : Int, parents : Map[Int, NniNode]) -> Array[NniNode] {
-  let chain : Array[NniNode] = Array::new()
+  let chain : Array[NniNode] = Array(capacity=0)
   let mut current = match nni_find(root, nid) {
     Some(node) => node
     None => abort("nni: internal path error")
@@ -316,7 +316,7 @@ fn nni_root_path(root : NniNode, nid : Int, parents : Map[Int, NniNode]) -> Arra
     chain.push(current)
   }
   // reverse into a new array (tip -> root becomes root -> tip)
-  let path : Array[NniNode] = Array::new()
+  let path : Array[NniNode] = Array(capacity=0)
   let mut i = chain.length() - 1
   while i >= 0 {
     path.push(chain[i])
@@ -431,7 +431,7 @@ fn nni_depths(
   let depths : Map[Int, Double] = Map([])
   let parents = nni_parent_map(root)
   depths[root.nid] = nni_bl_or_zero(root)
-  let order : Array[NniNode] = Array::new()
+  let order : Array[NniNode] = Array(capacity=0)
   nni_collect_preorder(root, order)
   for node in order {
     if node.nid == root.nid {
@@ -603,7 +603,7 @@ pub fn ParsimonyScorer::get_score(
       )
     }
   // validate taxon names
-  let term_names : Array[String] = Array::new()
+  let term_names : Array[String] = Array(capacity=0)
   for tip in scored_tree.root.get_terminals() {
     match tip.name {
       Some(n) => term_names.push(n)
@@ -756,19 +756,19 @@ fn nni_biopython_upgma(
   names : Array[String],
 ) -> Tree {
   let n = names.length()
-  let dm : Array[Array[Double]] = Array::new()
+  let dm : Array[Array[Double]] = Array(capacity=0)
   for row in matrix {
-    let copy : Array[Double] = Array::new()
+    let copy : Array[Double] = Array(capacity=0)
     for v in row {
       copy.push(v)
     }
     dm.push(copy)
   }
-  let clades : Array[Clade] = Array::new()
+  let clades : Array[Clade] = Array(capacity=0)
   for name in names {
     clades.push(Clade::new(name=Some(name)))
   }
-  let heights : Array[Double] = Array::new()
+  let heights : Array[Double] = Array(capacity=0)
   let mut k = 0
   while k < n {
     heights.push(0.0)

@@ -459,7 +459,7 @@ pub fn MmtfStructure::get_num_models(self : MmtfStructure) -> Int {
 ///|
 /// Get all chains across all models.
 pub fn MmtfStructure::get_chains(self : MmtfStructure) -> Array[MmtfChain] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for model in self.models {
     for chain in model.chains {
       result.push(chain)
@@ -471,7 +471,7 @@ pub fn MmtfStructure::get_chains(self : MmtfStructure) -> Array[MmtfChain] {
 ///|
 /// Get all groups (residues) across all models and chains.
 pub fn MmtfStructure::get_groups(self : MmtfStructure) -> Array[MmtfGroup] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for model in self.models {
     for chain in model.chains {
       for group in chain.groups {
@@ -485,7 +485,7 @@ pub fn MmtfStructure::get_groups(self : MmtfStructure) -> Array[MmtfGroup] {
 ///|
 /// Get all atoms across all models, chains, and groups.
 pub fn MmtfStructure::get_atoms(self : MmtfStructure) -> Array[MmtfAtom] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for model in self.models {
     for chain in model.chains {
       for group in chain.groups {
@@ -706,7 +706,7 @@ fn mmtf_string_to_ascii(s : String) -> Array[Int] {
 /// Decode a run-length encoded integer array.
 /// Input: pairs of (value, count) -> output: value repeated count times.
 pub fn mmtf_decode_run_length(encoded : Array[Int]) -> Array[Int] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   let mut i = 0
   while i + 1 < encoded.length() {
     let value = encoded[i]
@@ -722,7 +722,7 @@ pub fn mmtf_decode_run_length(encoded : Array[Int]) -> Array[Int] {
 ///|
 /// Encode an integer array using run-length encoding.
 pub fn mmtf_encode_run_length(data : Array[Int]) -> Array[Int] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   if data.length() == 0 {
     return result
   }
@@ -751,7 +751,7 @@ pub fn mmtf_encode_run_length(data : Array[Int]) -> Array[Int] {
 /// Decode a delta-encoded integer array.
 /// Each value is the difference from the previous value.
 pub fn mmtf_decode_delta(encoded : Array[Int]) -> Array[Int] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   if encoded.length() == 0 {
     return result
   }
@@ -767,7 +767,7 @@ pub fn mmtf_decode_delta(encoded : Array[Int]) -> Array[Int] {
 ///|
 /// Encode an integer array using delta encoding.
 pub fn mmtf_encode_delta(data : Array[Int]) -> Array[Int] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   if data.length() == 0 {
     return result
   }
@@ -789,7 +789,7 @@ pub fn mmtf_recursive_index_decode(
   encoded : Array[Int],
   factor : Int,
 ) -> Array[Int] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   let mut i = 0
   while i < encoded.length() {
     let val = encoded[i]
@@ -805,7 +805,7 @@ pub fn mmtf_recursive_index_decode(
     }
   }
   // Apply scaling factor
-  let scaled = Array::new()
+  let scaled = Array(capacity=0)
   for v in result {
     scaled.push(v)
   }
@@ -1355,9 +1355,9 @@ pub fn mmtf_summary(structure : MmtfStructure) -> String {
 ///|
 /// Convert MmtfStructure to PDB Structure.
 pub fn mmtf_to_pdb_structure(mmtf : MmtfStructure) -> Structure {
-  let pdb_models = Array::new()
+  let pdb_models = Array(capacity=0)
   for mmtf_model in mmtf.models {
-    let pdb_chains = Array::new()
+    let pdb_chains = Array(capacity=0)
     for mmtf_chain in mmtf_model.chains {
       let chain_id : Char = if mmtf_chain.chain_name.length() > 0 {
         Char::from_int(mmtf_chain.chain_name.unsafe_get(0).to_int())
@@ -1366,12 +1366,12 @@ pub fn mmtf_to_pdb_structure(mmtf : MmtfStructure) -> Structure {
       } else {
         'A'
       }
-      let pdb_residues = Array::new()
+      let pdb_residues = Array(capacity=0)
       for mmtf_group in mmtf_chain.groups {
         let is_het = mmtf_group.group_name == "HOH" ||
           mmtf_group.group_type == "non-polymer"
         let hetfield = if is_het { "H" } else { " " }
-        let pdb_atoms = Array::new()
+        let pdb_atoms = Array(capacity=0)
         for mmtf_atom in mmtf_group.atoms {
           pdb_atoms.push(
             Atom::new(

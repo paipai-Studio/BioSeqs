@@ -144,7 +144,7 @@ pub fn svd_mat_mat(
   other : Array[Array[Double]],
   other_cols : Int,
 ) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < nrow; i = i + 1 {
     let row = Array::make(other_cols, 0.0)
     for j = 0; j < other_cols; j = j + 1 {
@@ -167,7 +167,7 @@ pub fn svd_transpose(
   nrow : Int,
   ncol : Int,
 ) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < ncol; i = i + 1 {
     let row = Array::make(nrow, 0.0)
     for j = 0; j < nrow; j = j + 1 {
@@ -189,7 +189,7 @@ pub fn svd_multiply(
   b : Array[Array[Double]],
   ncol_b : Int,
 ) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < nrow_a; i = i + 1 {
     let row = Array::make(ncol_b, 0.0)
     for j = 0; j < ncol_b; j = j + 1 {
@@ -212,7 +212,7 @@ fn svd_ata(
   nrow : Int,
   ncol : Int,
 ) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < ncol; i = i + 1 {
     result.push(Array::make(ncol, 0.0))
   }
@@ -237,7 +237,7 @@ fn svd_aat(
   nrow : Int,
   ncol : Int,
 ) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < nrow; i = i + 1 {
     result.push(Array::make(nrow, 0.0))
   }
@@ -307,7 +307,7 @@ fn sort_eigen(
     sorted_eigenvalues[i] = eigenvalues[indices[i]]
   }
 
-  let sorted_eigenvectors : Array[Array[Double]] = Array::new()
+  let sorted_eigenvectors : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -328,7 +328,7 @@ fn sort_eigen(
 /// Uses Box-Muller transform with LCG.
 pub fn svd_random_matrix(rows : Int, cols : Int) -> Array[Array[Double]] {
   let mut rng = rng_new(42)
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < rows; i = i + 1 {
     let row = Array::make(cols, 0.0)
     for j = 0; j < cols; j = j + 1 {
@@ -348,12 +348,12 @@ pub fn svd_qr_decompose(
   a : Array[Array[Double]],
   n : Int,
 ) -> (Array[Array[Double]], Array[Array[Double]]) {
-  let r : Array[Array[Double]] = Array::new()
+  let r : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     r.push(Array::make(n, 0.0))
   }
 
-  let q : Array[Array[Double]] = Array::new()
+  let q : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let col = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -388,7 +388,7 @@ pub fn svd_qr_decompose(
     }
   }
 
-  let q_t : Array[Array[Double]] = Array::new()
+  let q_t : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -408,12 +408,12 @@ fn svd_qr_decompose_rect(
   n : Int,
   k : Int,
 ) -> (Array[Array[Double]], Array[Array[Double]]) {
-  let r : Array[Array[Double]] = Array::new()
+  let r : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < k; i = i + 1 {
     r.push(Array::make(k, 0.0))
   }
 
-  let q : Array[Array[Double]] = Array::new()
+  let q : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     q.push(Array::make(k, 0.0))
   }
@@ -512,9 +512,9 @@ pub fn run_exact_svd(
 
   if nrow == 0 || ncol == 0 {
     return SVResult::{
-      d: Array::new(),
-      u: Array::new(),
-      v: Array::new(),
+      d: Array(capacity=0),
+      u: Array(capacity=0),
+      v: Array(capacity=0),
       nrow,
       ncol,
       rank: 0,
@@ -529,8 +529,8 @@ pub fn run_exact_svd(
     )
 
     let d = Array::make(effective_rank, 0.0)
-    let v : Array[Array[Double]] = Array::new()
-    let u : Array[Array[Double]] = Array::new()
+    let v : Array[Array[Double]] = Array(capacity=0)
+    let u : Array[Array[Double]] = Array(capacity=0)
 
     for i = 0; i < effective_rank; i = i + 1 {
       let sigma = if sorted_evals[i] > 0.0 {
@@ -567,8 +567,8 @@ pub fn run_exact_svd(
     )
 
     let d = Array::make(effective_rank, 0.0)
-    let u : Array[Array[Double]] = Array::new()
-    let v : Array[Array[Double]] = Array::new()
+    let u : Array[Array[Double]] = Array(capacity=0)
+    let v : Array[Array[Double]] = Array(capacity=0)
 
     for i = 0; i < effective_rank; i = i + 1 {
       let sigma = if sorted_evals[i] > 0.0 {
@@ -615,7 +615,7 @@ fn svd_bidiagonal_small(
   let ncol = n
   let nrow = n
 
-  let a : Array[Array[Double]] = Array::new()
+  let a : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     a.push(row)
@@ -632,8 +632,8 @@ fn svd_bidiagonal_small(
   let (sorted_evals, sorted_evecs) = sort_eigen(eigenvalues, eigenvectors, n)
 
   let d = Array::make(n, 0.0)
-  let v : Array[Array[Double]] = Array::new()
-  let u : Array[Array[Double]] = Array::new()
+  let v : Array[Array[Double]] = Array(capacity=0)
+  let u : Array[Array[Double]] = Array(capacity=0)
 
   for i = 0; i < n; i = i + 1 {
     let sigma = if sorted_evals[i] > 0.0 { sorted_evals[i].sqrt() } else { 0.0 }
@@ -682,9 +682,9 @@ pub fn run_irlba(
 
   if nrow == 0 || ncol == 0 {
     return SVResult::{
-      d: Array::new(),
-      u: Array::new(),
-      v: Array::new(),
+      d: Array(capacity=0),
+      u: Array(capacity=0),
+      v: Array(capacity=0),
       nrow,
       ncol,
       rank: 0,
@@ -704,8 +704,8 @@ pub fn run_irlba(
   }
 
   let mut rng = rng_new(123)
-  let u_vecs : Array[Array[Double]] = Array::new()
-  let v_vecs : Array[Array[Double]] = Array::new()
+  let u_vecs : Array[Array[Double]] = Array(capacity=0)
+  let v_vecs : Array[Array[Double]] = Array(capacity=0)
 
   let x = Array::make(ncol, 0.0)
   for j = 0; j < ncol; j = j + 1 {
@@ -828,8 +828,8 @@ pub fn run_irlba(
     let (s, u_hat, v_hat) = svd_bidiagonal_small(alphas, betas, l)
 
     let d = Array::make(effective_rank, 0.0)
-    let u_result : Array[Array[Double]] = Array::new()
-    let v_result : Array[Array[Double]] = Array::new()
+    let u_result : Array[Array[Double]] = Array(capacity=0)
+    let v_result : Array[Array[Double]] = Array(capacity=0)
 
     for i = 0; i < effective_rank; i = i + 1 {
       d[i] = s[i]
@@ -892,9 +892,9 @@ pub fn run_irlba(
   }
 
   SVResult::{
-    d: Array::new(),
-    u: Array::new(),
-    v: Array::new(),
+    d: Array(capacity=0),
+    u: Array(capacity=0),
+    v: Array(capacity=0),
     nrow,
     ncol,
     rank: 0,
@@ -920,9 +920,9 @@ pub fn run_randomized_svd(
 
   if nrow == 0 || ncol == 0 {
     return SVResult::{
-      d: Array::new(),
-      u: Array::new(),
-      v: Array::new(),
+      d: Array(capacity=0),
+      u: Array(capacity=0),
+      v: Array(capacity=0),
       nrow,
       ncol,
       rank: 0,
@@ -938,7 +938,7 @@ pub fn run_randomized_svd(
   let l = if sketch_size > mn { mn } else { sketch_size }
 
   let omega = svd_random_matrix(ncol, l)
-  let y : Array[Array[Double]] = Array::new()
+  let y : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < nrow; i = i + 1 {
     let row = Array::make(l, 0.0)
     for j = 0; j < l; j = j + 1 {
@@ -953,7 +953,7 @@ pub fn run_randomized_svd(
 
   let (q, _r) = svd_qr_decompose_rect(y, nrow, l)
 
-  let b : Array[Array[Double]] = Array::new()
+  let b : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < l; i = i + 1 {
     let row = Array::make(ncol, 0.0)
     for j = 0; j < ncol; j = j + 1 {
@@ -977,9 +977,9 @@ pub fn run_randomized_svd(
 
   if b_result.d.length() == 0 {
     return SVResult::{
-      d: Array::new(),
-      u: Array::new(),
-      v: Array::new(),
+      d: Array(capacity=0),
+      u: Array(capacity=0),
+      v: Array(capacity=0),
       nrow,
       ncol,
       rank: 0,
@@ -989,7 +989,7 @@ pub fn run_randomized_svd(
   let d = b_result.d
   let v = b_result.v
 
-  let u : Array[Array[Double]] = Array::new()
+  let u : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < effective_rank; i = i + 1 {
     let u_col = Array::make(nrow, 0.0)
     for j = 0; j < nrow; j = j + 1 {

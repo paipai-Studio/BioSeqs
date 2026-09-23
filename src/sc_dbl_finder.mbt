@@ -38,7 +38,7 @@ pub fn scdf_compute_doublet_score(
   let n_cells = data.cell_names.length()
   let n_genes = data.gene_names.length()
 
-  let scores : Array[DoubletScore] = Array::new()
+  let scores : Array[DoubletScore] = Array(capacity=0)
 
   let mut i = 0
   while i < n_cells {
@@ -84,7 +84,7 @@ pub fn scdf_find_nearest_neighbors(
   k : Int,
 ) -> Array[(String, Double)] {
   let n_cells = data.cell_names.length()
-  let distances : Array[(String, Double)] = Array::new()
+  let distances : Array[(String, Double)] = Array(capacity=0)
 
   let mut i = 0
   while i < n_cells {
@@ -96,7 +96,7 @@ pub fn scdf_find_nearest_neighbors(
   }
 
   let sorted = scdf_sort_by_distance(distances)
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
   let mut j = 0
   while j < k && j < sorted.length() {
     result.push(sorted[j])
@@ -146,7 +146,7 @@ pub fn scdf_detect_doublets(
   scores : Array[DoubletScore],
   threshold : Double,
 ) -> Array[String] {
-  let doublets : Array[String] = Array::new()
+  let doublets : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < scores.length() {
@@ -205,8 +205,8 @@ pub fn scdf_filter_doublets(
   data : SingleCellData,
   scores : Array[DoubletScore],
 ) -> SingleCellData {
-  let new_counts : Array[Array[Double]] = Array::new()
-  let new_cell_names : Array[String] = Array::new()
+  let new_counts : Array[Array[Double]] = Array(capacity=0)
+  let new_cell_names : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < scores.length() {
@@ -228,7 +228,7 @@ pub fn scdf_compute_pca(
   let n_cells = data.cell_names.length()
   let n_genes = data.gene_names.length()
 
-  let col_means : Array[Double] = Array::new()
+  let col_means : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < n_genes {
     let mut sum = 0.0
@@ -241,10 +241,10 @@ pub fn scdf_compute_pca(
     j = j + 1
   }
 
-  let centered : Array[Array[Double]] = Array::new()
+  let centered : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_cells {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_genes {
       row.push(data.counts[i][j] - col_means[j])
@@ -254,10 +254,10 @@ pub fn scdf_compute_pca(
     i = i + 1
   }
 
-  let cov_matrix : Array[Array[Double]] = Array::new()
+  let cov_matrix : Array[Array[Double]] = Array(capacity=0)
   let mut k = 0
   while k < n_genes {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut l = 0
     while l < n_genes {
       let mut sum = 0.0
@@ -274,11 +274,11 @@ pub fn scdf_compute_pca(
   }
 
   let eigenvalues = scdf_compute_eigenvalues(cov_matrix)
-  let pca_result : Array[Array[Double]] = Array::new()
+  let pca_result : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_cells {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_components && j < eigenvalues.length() {
       let mut sum = 0.0
@@ -300,11 +300,11 @@ pub fn scdf_compute_pca(
 ///|
 pub fn scdf_compute_eigenvalues(matrix : Array[Array[Double]]) -> Array[Double] {
   let n = matrix.length()
-  let eigenvalues : Array[Double] = Array::new()
+  let eigenvalues : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < n && i < 10 {
-    let v : Array[Double] = Array::new()
+    let v : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       v.push(1.0)
@@ -313,7 +313,7 @@ pub fn scdf_compute_eigenvalues(matrix : Array[Array[Double]]) -> Array[Double] 
 
     let mut iteration = 0
     while iteration < 50 {
-      let new_v : Array[Double] = Array::new()
+      let new_v : Array[Double] = Array(capacity=0)
       let mut j = 0
       while j < n {
         let mut sum = 0.0
@@ -375,7 +375,7 @@ pub fn scdf_compute_eigenvalues(matrix : Array[Array[Double]]) -> Array[Double] 
 
 ///|
 pub fn scdf_create_example_data() -> SingleCellData {
-  let cell_names : Array[String] = Array::new()
+  let cell_names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < 50 {
     cell_names.push("Cell_" + i.to_string())
@@ -386,10 +386,10 @@ pub fn scdf_create_example_data() -> SingleCellData {
     "TP53", "BRCA1", "BRCA2", "ATM", "CDK4", "MYC", "EGFR", "ACTB", "GAPDH", "RB1",
   ]
 
-  let counts : Array[Array[Double]] = Array::new()
+  let counts : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < 50 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < 10 {
       if i < 10 {

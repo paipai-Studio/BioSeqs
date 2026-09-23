@@ -25,9 +25,9 @@ pub fn Taxon::new(
     parent_tax_id,
     rank,
     scientific_name: "",
-    common_names: Array::new(),
-    synonyms: Array::new(),
-    lineage: Array::new(),
+    common_names: Array(capacity=0),
+    synonyms: Array(capacity=0),
+    lineage: Array(capacity=0),
   }
 }
 
@@ -142,7 +142,7 @@ pub fn TaxonomyDatabase::get_ancestors(
   self : TaxonomyDatabase,
   tax_id : String,
 ) -> Array[Taxon] {
-  let result : Array[Taxon] = Array::new()
+  let result : Array[Taxon] = Array(capacity=0)
   let mut current_id = tax_id
 
   while current_id != "" && current_id != "1" && current_id != "0" {
@@ -173,7 +173,7 @@ pub fn TaxonomyDatabase::get_descendants(
   self : TaxonomyDatabase,
   tax_id : String,
 ) -> Array[Taxon] {
-  let result : Array[Taxon] = Array::new()
+  let result : Array[Taxon] = Array(capacity=0)
   ignore(find_descendants(self, tax_id, result))
   result
 }
@@ -202,7 +202,7 @@ pub fn TaxonomyDatabase::get_lineage(
   tax_id : String,
 ) -> Array[String] {
   let ancestors = self.get_ancestors(tax_id)
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
 
   let mut i = ancestors.length() - 1
   while i >= 0 {
@@ -247,7 +247,7 @@ pub fn TaxonomyDatabase::get_common_names(
 ) -> Array[String] {
   match self.get_taxon(tax_id) {
     Some(taxon) => taxon.common_names
-    None => Array::new()
+    None => Array(capacity=0)
   }
 }
 
@@ -258,7 +258,7 @@ pub fn TaxonomyDatabase::get_synonyms(
 ) -> Array[String] {
   match self.get_taxon(tax_id) {
     Some(taxon) => taxon.synonyms
-    None => Array::new()
+    None => Array(capacity=0)
   }
 }
 
@@ -273,7 +273,7 @@ pub fn parse_nodes_dmp(
     let line = trim(lines[i])
     if line != "" {
       let fields = split_by_char(line, '\t'.to_int())
-      let pipe_fields = Array::new()
+      let pipe_fields = Array(capacity=0)
       let mut j = 0
       while j < fields.length() {
         let f = trim(fields[j])
@@ -307,7 +307,7 @@ pub fn parse_names_dmp(
     let line = trim(lines[i])
     if line != "" {
       let fields = split_by_char(line, '\t'.to_int())
-      let pipe_fields = Array::new()
+      let pipe_fields = Array(capacity=0)
       let mut j = 0
       while j < fields.length() {
         let f = trim(fields[j])
@@ -450,7 +450,7 @@ pub fn TaxonomyDatabase::get_taxa_by_rank(
   self : TaxonomyDatabase,
   rank : String,
 ) -> Array[Taxon] {
-  let result : Array[Taxon] = Array::new()
+  let result : Array[Taxon] = Array(capacity=0)
   let entries = self.taxa.iter().collect()
   let mut i = 0
   while i < entries.length() {

@@ -114,13 +114,13 @@ pub fn UniprotEntry::new(
     sequence,
     seq_length: sequence.length(),
     seq_mass: 0.0,
-    ec_numbers: Array::new(),
-    subcellular_location: Array::new(),
-    keywords: Array::new(),
-    db_references: Array::new(),
-    features: Array::new(),
-    references: Array::new(),
-    comments: Array::new(),
+    ec_numbers: Array(capacity=0),
+    subcellular_location: Array(capacity=0),
+    keywords: Array(capacity=0),
+    db_references: Array(capacity=0),
+    features: Array(capacity=0),
+    references: Array(capacity=0),
+    comments: Array(capacity=0),
   }
 }
 
@@ -273,7 +273,7 @@ fn extract_first_tag(xml : String, tag : String) -> String {
 ///|
 /// Extract all occurrences of a tag's content.
 fn extract_all_tags(xml : String, tag : String) -> Array[String] {
-  let results : Array[String] = Array::new()
+  let results : Array[String] = Array(capacity=0)
   let open_tag = "<" + tag
   let close_tag = "</" + tag + ">"
   let mut search_start = 0
@@ -304,7 +304,7 @@ fn extract_all_tags_with_attrs(
   xml : String,
   tag : String,
 ) -> Array[(String, String)] {
-  let results : Array[(String, String)] = Array::new()
+  let results : Array[(String, String)] = Array(capacity=0)
   let open_tag = "<" + tag
   let close_tag = "</" + tag + ">"
   let mut search_start = 0
@@ -333,7 +333,7 @@ fn extract_all_tags_with_attrs(
 ///|
 /// Extract all gene names from a UniProt entry XML.
 fn extract_gene_names(entry_xml : String) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   let gene_blocks = extract_all_tags(entry_xml, "gene")
   for gb in gene_blocks {
     let names_in_gene = extract_all_tags(gb, "name")
@@ -441,7 +441,7 @@ fn extract_attribute(xml : String, tag : String, attr : String) -> String {
 ///|
 /// Extract database cross-references from entry XML.
 fn extract_db_references(entry_xml : String) -> Array[DbReference] {
-  let refs : Array[DbReference] = Array::new()
+  let refs : Array[DbReference] = Array(capacity=0)
   let blocks = extract_all_tags_with_attrs(entry_xml, "dbReference")
   let mut bi = 0
   while bi < blocks.length() {
@@ -471,7 +471,7 @@ fn extract_db_references(entry_xml : String) -> Array[DbReference] {
 ///|
 /// Extract features from entry XML.
 fn extract_features(entry_xml : String) -> Array[UniprotFeature] {
-  let features : Array[UniprotFeature] = Array::new()
+  let features : Array[UniprotFeature] = Array(capacity=0)
   let blocks = extract_all_tags_with_attrs(entry_xml, "feature")
   let mut bi = 0
   while bi < blocks.length() {
@@ -511,14 +511,14 @@ fn extract_features(entry_xml : String) -> Array[UniprotFeature] {
 ///|
 /// Extract references from entry XML.
 fn extract_references(entry_xml : String) -> Array[UniprotReference] {
-  let refs : Array[UniprotReference] = Array::new()
+  let refs : Array[UniprotReference] = Array(capacity=0)
   let blocks = extract_all_tags(entry_xml, "reference")
   for b in blocks {
     let key = extract_attribute(b, "reference", "key")
     let citation = extract_first_tag(b, "citation")
     let title = extract_tag_content(citation, "title")
     let journal = extract_tag_content(citation, "journal")
-    let authors : Array[String] = Array::new()
+    let authors : Array[String] = Array(capacity=0)
     let person_blocks = extract_all_tags(citation, "person")
     for pb in person_blocks {
       let person_name = extract_attribute(pb, "person", "name")
@@ -549,7 +549,7 @@ fn extract_references(entry_xml : String) -> Array[UniprotReference] {
 ///|
 /// Extract keywords from entry XML.
 fn extract_keywords(entry_xml : String) -> Array[String] {
-  let words : Array[String] = Array::new()
+  let words : Array[String] = Array(capacity=0)
   let blocks = extract_all_tags(entry_xml, "keyword")
   for b in blocks {
     let kw_id = extract_attribute(b, "keyword", "id")
@@ -563,7 +563,7 @@ fn extract_keywords(entry_xml : String) -> Array[String] {
 ///|
 /// Extract subcellular location from entry XML comments.
 fn extract_subcellular(entry_xml : String) -> Array[String] {
-  let locations : Array[String] = Array::new()
+  let locations : Array[String] = Array(capacity=0)
   let comment_blocks = extract_all_tags(entry_xml, "comment")
   for cb in comment_blocks {
     let comment_type = extract_attribute(cb, "comment", "type")
@@ -616,7 +616,7 @@ pub fn parse_uniprot_entry(entry_xml : String) -> UniprotEntry {
 ///|
 /// Parse UniProt XML content containing one or more entries.
 pub fn parse_uniprot_xml(content : String) -> Array[UniprotEntry] {
-  let entries : Array[UniprotEntry] = Array::new()
+  let entries : Array[UniprotEntry] = Array(capacity=0)
   let mut search_start = 0
   while true {
     let entry_start = u_index_of_from(content, "<entry>", search_start)

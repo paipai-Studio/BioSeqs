@@ -117,7 +117,7 @@ pub fn oc_extract_channel(
   events : Array[Array[Double]],
   channel_idx : Int,
 ) -> Array[Double] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for ev in events {
     if channel_idx < ev.length() {
       out.push(ev[channel_idx])
@@ -197,7 +197,7 @@ pub fn oc_median(values : Array[Double]) -> Double {
   if n == 0 {
     return 0.0
   }
-  let sorted = Array::new()
+  let sorted = Array(capacity=0)
   for v in values {
     sorted.push(v)
   }
@@ -216,7 +216,7 @@ pub fn oc_quantile(values : Array[Double], q : Double) -> Double {
   if n == 0 {
     return 0.0
   }
-  let sorted = Array::new()
+  let sorted = Array(capacity=0)
   for v in values {
     sorted.push(v)
   }
@@ -303,8 +303,8 @@ pub fn oc_kde_grid(
   let pad = range * 0.1
   lo = lo - pad
   hi = hi + pad
-  let gx = Array::new()
-  let gy = Array::new()
+  let gx = Array(capacity=0)
+  let gy = Array(capacity=0)
   for i in 0..<n_points {
     let x = lo + (hi - lo) * i.to_double() / (n_points - 1).to_double()
     gx.push(x)
@@ -360,7 +360,7 @@ pub fn oc_mindensity(
     return OcGate::new1d(dim~, min=oc_median(values), max=1.0e30)
   }
   // find local maxima (peaks)
-  let peaks : Array[Int] = Array::new()
+  let peaks : Array[Int] = Array(capacity=0)
   for i in 1..<(gy.length() - 1) {
     if gy[i] > gy[i - 1] && gy[i] >= gy[i + 1] {
       peaks.push(i)
@@ -486,7 +486,7 @@ pub fn oc_range_gate(
   if n == 0 {
     return OcGate::new1d(dim~, min=0.0, max=1.0e30)
   }
-  let sorted = Array::new()
+  let sorted = Array(capacity=0)
   for v in values {
     sorted.push(v)
   }
@@ -494,8 +494,8 @@ pub fn oc_range_gate(
   // compute CDF and find max derivative (max density)
   let n_points = if n < 100 { n } else { 100 }
   let step = n.to_double() / n_points.to_double()
-  let cdf_x = Array::new()
-  let cdf_y = Array::new()
+  let cdf_x = Array(capacity=0)
+  let cdf_y = Array(capacity=0)
   for i in 0..<n_points {
     let idx = (i.to_double() * step).to_int()
     let ii = if idx >= n { n - 1 } else { idx }
@@ -550,7 +550,7 @@ pub fn oc_flow_clust(
   if dim2 is None {
     let (means, _) = oc_em_t_mixture_1d(values1, n_clusters, 50)
     // sort means
-    let sorted_means = Array::new()
+    let sorted_means = Array(capacity=0)
     for m in means {
       sorted_means.push(m)
     }
@@ -613,7 +613,7 @@ pub fn oc_em_t_mixture_1d(
     return ([oc_mean(data)], [1.0])
   }
   // initialize means via quantiles
-  let means = Array::new()
+  let means = Array(capacity=0)
   for k in 0..<n_clusters {
     means.push(
       oc_quantile(data, (k + 1).to_double() / (n_clusters + 1).to_double()),
@@ -682,8 +682,8 @@ pub fn oc_em_t_mixture_2d(
   if n_clusters == 1 {
     return ([oc_mean(data1)], [oc_mean(data2)])
   }
-  let means1 = Array::new()
-  let means2 = Array::new()
+  let means1 = Array(capacity=0)
+  let means2 = Array(capacity=0)
   for k in 0..<n_clusters {
     let q = (k + 1).to_double() / (n_clusters + 1).to_double()
     means1.push(oc_quantile(data1, q))
@@ -814,7 +814,7 @@ fn oc_sort_d(arr : Array[Double]) -> Unit {
 /// Topologically sort the gating template so that parents are evaluated
 /// before children. Returns the sorted list of rules.
 pub fn oc_topo_sort(rules : Array[OcGatingRule]) -> Array[OcGatingRule] {
-  let out : Array[OcGatingRule] = Array::new()
+  let out : Array[OcGatingRule] = Array(capacity=0)
   let visited : Map[String, Bool] = Map([], capacity=16)
   // build a map of child -> rule
   for rule in rules {
@@ -860,7 +860,7 @@ pub fn oc_gate_flow_set(
   template : Array[OcGatingRule],
 ) -> Array[OcGatingResult] {
   let sorted_rules = oc_topo_sort(template)
-  let results : Array[OcGatingResult] = Array::new()
+  let results : Array[OcGatingResult] = Array(capacity=0)
   // for each sample, evaluate the template
   for s in 0..<flowset.data.length() {
     let sample_name = flowset.sample_names[s]
@@ -877,7 +877,7 @@ pub fn oc_gate_flow_set(
         None => Array::make(n_events, true)
       }
       // gather parent events
-      let parent_event_indices : Array[Int] = Array::new()
+      let parent_event_indices : Array[Int] = Array(capacity=0)
       for i in 0..<n_events {
         if parent_flags[i] {
           parent_event_indices.push(i)
@@ -892,7 +892,7 @@ pub fn oc_gate_flow_set(
             gate~,
             parent_events=0,
             child_events=0,
-            indices=Array::new(),
+            indices=Array(capacity=0),
           ),
         )
         pop_indices[rule.child] = Array::make(n_events, false)
@@ -903,31 +903,31 @@ pub fn oc_gate_flow_set(
       let gate = if dim_idx < 0 {
         OcGate::new1d(dim=rule.dims[0], min=0.0, max=0.0)
       } else if rule.method == "mindensity" {
-        let vals = Array::new()
+        let vals = Array(capacity=0)
         for i in parent_event_indices {
           vals.push(events[i][dim_idx])
         }
         oc_mindensity(vals, rule.dims[0], rule.args)
       } else if rule.method == "tailgate" {
-        let vals = Array::new()
+        let vals = Array(capacity=0)
         for i in parent_event_indices {
           vals.push(events[i][dim_idx])
         }
         oc_tailgate(vals, rule.dims[0], rule.args)
       } else if rule.method == "quantileGate" {
-        let vals = Array::new()
+        let vals = Array(capacity=0)
         for i in parent_event_indices {
           vals.push(events[i][dim_idx])
         }
         oc_quantile_gate(vals, rule.dims[0], rule.args)
       } else if rule.method == "rangeGate" {
-        let vals = Array::new()
+        let vals = Array(capacity=0)
         for i in parent_event_indices {
           vals.push(events[i][dim_idx])
         }
         oc_range_gate(vals, rule.dims[0], rule.args)
       } else if rule.method == "flowClust" {
-        let vals1 = Array::new()
+        let vals1 = Array(capacity=0)
         for i in parent_event_indices {
           vals1.push(events[i][dim_idx])
         }
@@ -938,7 +938,7 @@ pub fn oc_gate_flow_set(
         if rule.dims.length() >= 2 {
           let dim2_idx = oc_resolve_channel(flowset.channel_names, rule.dims[1])
           if dim2_idx >= 0 {
-            let vals2 = Array::new()
+            let vals2 = Array(capacity=0)
             for i in parent_event_indices {
               vals2.push(events[i][dim2_idx])
             }
@@ -958,7 +958,7 @@ pub fn oc_gate_flow_set(
         }
       } else {
         // unknown method: use median split
-        let vals = Array::new()
+        let vals = Array(capacity=0)
         for i in parent_event_indices {
           vals.push(events[i][dim_idx])
         }
@@ -1053,7 +1053,7 @@ pub fn oc_population_stats(
   results : Array[OcGatingResult],
   total_events : Int,
 ) -> Array[OcPopStat] {
-  let out : Array[OcPopStat] = Array::new()
+  let out : Array[OcPopStat] = Array(capacity=0)
   for r in results {
     let pop = r.parent_events
     let pop_pct = if pop > 0 {

@@ -423,7 +423,7 @@ test "rstatix_bh_correct basic" {
 
 ///|
 test "rstatix_bh_correct empty" {
-  let p_values : Array[Double] = Array::new()
+  let p_values : Array[Double] = Array(capacity=0)
   let result = @src.rstatix_bh_correct(p_values)
   assert_true(result.length() == 0)
 }
@@ -484,7 +484,7 @@ test "rstatix_bonferroni basic" {
 
 ///|
 test "rstatix_bonferroni empty" {
-  let p_values : Array[Double] = Array::new()
+  let p_values : Array[Double] = Array(capacity=0)
   let result = @src.rstatix_bonferroni(p_values)
   assert_true(result.length() == 0)
 }

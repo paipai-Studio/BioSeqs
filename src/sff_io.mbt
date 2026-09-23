@@ -139,7 +139,7 @@ pub fn SffHeader::sff_key_sequence(self : SffHeader) -> String {
 ///|
 /// Validate the header fields.
 pub fn SffHeader::sff_validate(self : SffHeader) -> Array[String] {
-  let errors : Array[String] = Array::new()
+  let errors : Array[String] = Array(capacity=0)
   if self.magic != sff_magic {
     errors.push(
       "Invalid magic number: expected " +
@@ -276,7 +276,7 @@ pub fn SffRead::sff_clipped_qualities(self : SffRead) -> Array[Int] {
   } else {
     self.n_bases
   }
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   if left >= right || left >= self.n_bases {
     return result
   }
@@ -424,7 +424,7 @@ fn sff_read_u64(bytes : Array[Int], pos : Int) -> Int {
 ///|
 /// Encode a string as ASCII bytes.
 fn sff_encode_string(s : String) -> Array[Int] {
-  let bytes : Array[Int] = Array::new()
+  let bytes : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < s.length() {
     bytes.push(s[i].to_int())
@@ -438,7 +438,7 @@ fn sff_encode_string(s : String) -> Array[Int] {
 ///|
 /// Encode an SFF file as a byte array (big-endian binary format).
 pub fn sff_encode(file : SffFile) -> Array[Int] {
-  let bytes : Array[Int] = Array::new()
+  let bytes : Array[Int] = Array(capacity=0)
   // ===== Common Header (31 bytes fixed + flow_chars + key_sequence, padded to 8) =====
   // magic (4 bytes)
   let magic_bytes = sff_encode_u32(file.header.magic)
@@ -646,7 +646,7 @@ pub fn sff_parse(bytes : Array[Int]) -> SffFile? {
     key_sequence,
   }
   // ===== Per-read data =====
-  let reads : Array[SffRead] = Array::new()
+  let reads : Array[SffRead] = Array(capacity=0)
   let mut pos = header_length
   let mut r = 0
   while r < n_reads {
@@ -664,7 +664,7 @@ pub fn sff_parse(bytes : Array[Int]) -> SffFile? {
     // Data section starts after read header
     let data_start = pos + read_header_length
     // flowgram values: n_flows * 2 bytes
-    let flowgram : Array[Double] = Array::new()
+    let flowgram : Array[Double] = Array(capacity=0)
     let mut fi = 0
     while fi < n_flows {
       let fv = sff_read_u16(bytes, data_start + fi * 2)
@@ -673,7 +673,7 @@ pub fn sff_parse(bytes : Array[Int]) -> SffFile? {
     }
     let flow_index_start = data_start + n_flows * 2
     // flow index per base: n_bases bytes
-    let flow_index : Array[Int] = Array::new()
+    let flow_index : Array[Int] = Array(capacity=0)
     let mut fii = 0
     while fii < n_bases {
       flow_index.push(bytes[flow_index_start + fii])
@@ -684,7 +684,7 @@ pub fn sff_parse(bytes : Array[Int]) -> SffFile? {
     let bases = sff_read_string(bytes, bases_start, n_bases)
     let qual_start = bases_start + n_bases
     // quality scores: n_bases bytes
-    let qualities : Array[Int] = Array::new()
+    let qualities : Array[Int] = Array(capacity=0)
     let mut qi = 0
     while qi < n_bases {
       qualities.push(bytes[qual_start + qi])

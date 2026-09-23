@@ -37,7 +37,7 @@ pub fn scanpy_paga(
   }
 
   // inter-cluster weight
-  let inter : Array[Array[Double]] = Array::new()
+  let inter : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n_clusters; i = i + 1 {
     inter.push(Array::make(n_clusters, 0.0))
   }
@@ -48,7 +48,7 @@ pub fn scanpy_paga(
   }
 
   // connectivity = inter / null-model expectation, clamped to [0,1]
-  let conn : Array[Array[Double]] = Array::new()
+  let conn : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n_clusters; i = i + 1 {
     conn.push(Array::make(n_clusters, 0.0))
   }

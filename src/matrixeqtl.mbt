@@ -361,7 +361,7 @@ pub fn matrixeqtl_bh_fdr(p_values : Array[Double]) -> Array[Double] {
   }
 
   // Create index array and sort by p-value
-  let sorted_indices : Array[Int] = Array::new()
+  let sorted_indices : Array[Int] = Array(capacity=0)
   for i = 0; i < m; i = i + 1 {
     sorted_indices.push(i)
   }
@@ -396,7 +396,7 @@ pub fn matrixeqtl_bh_fdr(p_values : Array[Double]) -> Array[Double] {
   }
 
   // Cap at 1.0
-  let final_padj : Array[Double] = Array::new()
+  let final_padj : Array[Double] = Array(capacity=0)
   for p in padj {
     final_padj.push(if p > 1.0 { 1.0 } else { p })
   }
@@ -428,11 +428,11 @@ pub fn matrixeqtl_run(
   }
 
   // Collect all SNP-gene test results
-  let all_snp_names : Array[String] = Array::new()
-  let all_gene_names : Array[String] = Array::new()
-  let all_betas : Array[Double] = Array::new()
-  let all_t_stats : Array[Double] = Array::new()
-  let all_p_values : Array[Double] = Array::new()
+  let all_snp_names : Array[String] = Array(capacity=0)
+  let all_gene_names : Array[String] = Array(capacity=0)
+  let all_betas : Array[Double] = Array(capacity=0)
+  let all_t_stats : Array[Double] = Array(capacity=0)
+  let all_p_values : Array[Double] = Array(capacity=0)
 
   // Pre-compute SNP statistics for efficiency
   // For each SNP, pre-compute mean, ssx (sum of squared deviations)
@@ -543,7 +543,7 @@ pub fn matrixeqtl_run(
   let fdr_values = matrixeqtl_bh_fdr(all_p_values)
 
   // Filter results by p-value threshold
-  let results : Array[MatrixEQTLResult] = Array::new()
+  let results : Array[MatrixEQTLResult] = Array(capacity=0)
   let mut i = 0
   while i < all_p_values.length() {
     if all_p_values[i] <= pv_threshold {

@@ -25,7 +25,7 @@ test "after_position" {
 
 ///|
 test "one_of_position" {
-  let opts : Array[@src.Pos] = Array::new()
+  let opts : Array[@src.Pos] = Array(capacity=0)
   opts.push(@src.exact_position(5))
   opts.push(@src.exact_position(7))
   opts.push(@src.exact_position(9))
@@ -122,7 +122,7 @@ test "compound_location_basic" {
     @src.exact_position(200),
     @src.exact_position(350),
   )
-  let locs : Array[@src.Loc] = Array::new()
+  let locs : Array[@src.Loc] = Array(capacity=0)
   locs.push(exon1)
   locs.push(exon2)
   let cl = @src.compound_location(locs, strand="+")
@@ -151,7 +151,7 @@ test "compound_location_overlaps" {
     @src.exact_position(200),
     @src.exact_position(350),
   )
-  let locs : Array[@src.Loc] = Array::new()
+  let locs : Array[@src.Loc] = Array(capacity=0)
   locs.push(exon1)
   locs.push(exon2)
   let cl = @src.compound_location(locs)
@@ -178,7 +178,7 @@ test "compound_location_contains" {
     @src.exact_position(200),
     @src.exact_position(350),
   )
-  let locs : Array[@src.Loc] = Array::new()
+  let locs : Array[@src.Loc] = Array(capacity=0)
   locs.push(exon1)
   locs.push(exon2)
   let cl = @src.compound_location(locs)

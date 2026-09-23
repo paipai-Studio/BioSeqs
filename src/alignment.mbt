@@ -203,7 +203,7 @@ pub fn TabularMSA::consensus(self : TabularMSA) -> DNA {
 pub fn TabularMSA::conservation(self : TabularMSA) -> Array[Double] {
   let align_len = self.get_alignment_length()
   let n = self.num_records().to_double()
-  let result = Array::new()
+  let result = Array(capacity=0)
   for col in 0..<align_len {
     let col_str = self.column(col).unwrap()
     let counts = Map([], capacity=0)
@@ -340,7 +340,7 @@ fn global_align(
 ) -> ((String, String), Double) {
   let n = s1.length()
   let m = s2.length()
-  let dp = Array::new()
+  let dp = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
     dp.push(FixedArray::make(m + 1, 0.0))
   }
@@ -414,7 +414,7 @@ fn local_align(
 ) -> ((String, String), Double, (Int, Int), (Int, Int)) {
   let n = s1.length()
   let m = s2.length()
-  let dp = Array::new()
+  let dp = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
     dp.push(FixedArray::make(m + 1, 0.0))
   }

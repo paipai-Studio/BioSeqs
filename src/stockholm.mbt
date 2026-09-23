@@ -109,15 +109,15 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
   let version = "1.0"
   let gf_annotations : Map[String, String] = Map([], capacity=16)
   let gs_annotations : Map[String, String] = Map([], capacity=16)
-  let markup : Array[String] = Array::new()
+  let markup : Array[String] = Array(capacity=0)
 
-  let blocks : Array[StockholmBlock] = Array::new()
+  let blocks : Array[StockholmBlock] = Array(capacity=0)
 
   let mut i = 0
-  let mut current_seqs : Array[StockholmSequence] = Array::new()
+  let mut current_seqs : Array[StockholmSequence] = Array(capacity=0)
   let mut current_gc : Map[String, String] = Map([], capacity=8)
   let mut current_gr : Map[String, String] = Map([], capacity=8)
-  let mut current_annotations : Array[String] = Array::new()
+  let mut current_annotations : Array[String] = Array(capacity=0)
   let mut has_block_content = false
   let mut done = false
 
@@ -131,10 +131,10 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
           current_seqs, current_gc, current_gr, current_annotations,
         )
         blocks.push(block)
-        current_seqs = Array::new()
+        current_seqs = Array(capacity=0)
         current_gc = Map([], capacity=8)
         current_gr = Map([], capacity=8)
-        current_annotations = Array::new()
+        current_annotations = Array(capacity=0)
         has_block_content = false
       }
       i = i + 1
@@ -147,10 +147,10 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
           current_seqs, current_gc, current_gr, current_annotations,
         )
         blocks.push(block)
-        current_seqs = Array::new()
+        current_seqs = Array(capacity=0)
         current_gc = Map([], capacity=8)
         current_gr = Map([], capacity=8)
-        current_annotations = Array::new()
+        current_annotations = Array(capacity=0)
         has_block_content = false
       }
       done = true
@@ -368,7 +368,7 @@ pub fn stockholm_write(ali : StockholmAlignment) -> String {
       gci = gci + 1
     }
 
-    let seq_names : Array[String] = Array::new()
+    let seq_names : Array[String] = Array(capacity=0)
     let mut si = 0
     while si < block.sequences.length() {
       let seq = block.sequences[si]
@@ -485,7 +485,7 @@ pub fn stockholm_percent_identity(block : StockholmBlock) -> Double {
 /// Returns an array of Double values representing conservation at each column.
 /// Uses frequency of the most common residue (excluding gaps).
 pub fn stockholm_conservation(block : StockholmBlock) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let seqs = block.sequences
   let n = seqs.length()
   if n == 0 {
@@ -582,7 +582,7 @@ pub fn stockholm_merge_blocks(ali : StockholmAlignment) -> StockholmAlignment {
     return ali
   }
 
-  let merged_seqs : Array[StockholmSequence] = Array::new()
+  let merged_seqs : Array[StockholmSequence] = Array(capacity=0)
   let seq_map : Map[String, StringBuilder] = Map([], capacity=32)
   let seq_info : Map[String, StockholmSequence] = Map([], capacity=32)
 
@@ -625,10 +625,10 @@ pub fn stockholm_merge_blocks(ali : StockholmAlignment) -> StockholmAlignment {
 
   let merged_gc : Map[String, String] = Map([], capacity=8)
   let merged_gr : Map[String, String] = Map([], capacity=8)
-  let merged_annotations : Array[String] = Array::new()
+  let merged_annotations : Array[String] = Array(capacity=0)
 
-  let gc_keys : Array[String] = Array::new()
-  let gr_keys : Array[String] = Array::new()
+  let gc_keys : Array[String] = Array(capacity=0)
+  let gr_keys : Array[String] = Array(capacity=0)
 
   let mut ci = 0
   while ci < ali.blocks.length() {
@@ -698,7 +698,7 @@ pub fn stockholm_merge_blocks(ali : StockholmAlignment) -> StockholmAlignment {
 
 ///|
 fn stockholm_filter_parts(parts : Array[String]) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < parts.length() {
     if parts[i].length() > 0 {

@@ -374,14 +374,14 @@ pub fn sqt_trim_reads(
   qual_config : QualityConfig,
   adapter_config : AdapterConfig?,
 ) -> Array[TrimResult] {
-  let results : Array[TrimResult] = Array::new()
+  let results : Array[TrimResult] = Array(capacity=0)
 
   for read in reads {
     let original_seq = read.sequence
     let original_qual = read.quality
     let mut trimmed_seq = original_seq
     let mut trimmed_qual = original_qual
-    let trim_types : Array[String] = Array::new()
+    let trim_types : Array[String] = Array(capacity=0)
 
     let (q_seq, q_qual) = sqt_quality_trim(
       trimmed_seq,
@@ -518,7 +518,7 @@ pub fn sqt_compute_stats(
 /// Handles Sanger/Phred+33 encoded FASTQ format. Each record consists of
 /// four lines: @header, sequence, +separator, and quality string.
 pub fn sqt_fastq_parse(content : String) -> Array[FastqRead] {
-  let reads : Array[FastqRead] = Array::new()
+  let reads : Array[FastqRead] = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let n = lines.length()
   let mut i = 0

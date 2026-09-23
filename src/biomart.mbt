@@ -20,8 +20,8 @@ pub fn BioMartDataset::new(
     description,
     host,
     dataset,
-    mappings: Array::new(),
-    annotations: Array::new(),
+    mappings: Array(capacity=0),
+    annotations: Array(capacity=0),
   }
 }
 
@@ -81,7 +81,7 @@ pub fn BioMartDataset::map_ids(
   self : BioMartDataset,
   ids : Array[String],
 ) -> Array[(String, String?)] {
-  let results : Array[(String, String?)] = Array::new()
+  let results : Array[(String, String?)] = Array(capacity=0)
   let mut i = 0
   while i < ids.length() {
     results.push((ids[i], self.get_mapping(ids[i])))
@@ -185,9 +185,9 @@ pub fn BioMartDataset::query(
   gene_ids : Array[String],
   attributes : Array[String],
 ) -> Array[Array[String]] {
-  let results : Array[Array[String]] = Array::new()
+  let results : Array[Array[String]] = Array(capacity=0)
 
-  let header : Array[String] = Array::new()
+  let header : Array[String] = Array(capacity=0)
   header.push("gene_id")
   let mut i = 0
   while i < attributes.length() {
@@ -198,7 +198,7 @@ pub fn BioMartDataset::query(
 
   let mut j = 0
   while j < gene_ids.length() {
-    let row : Array[String] = Array::new()
+    let row : Array[String] = Array(capacity=0)
     row.push(gene_ids[j])
 
     let mut k = 0

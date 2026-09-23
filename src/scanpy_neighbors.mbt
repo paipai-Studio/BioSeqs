@@ -7,9 +7,9 @@
 /// Pairwise Euclidean distance matrix (n × n).
 fn scanpy_euclidean_distances(x : Array[Array[Double]]) -> Array[Array[Double]] {
   let n = x.length()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n; j = j + 1 {
       let mut acc = 0.0
       for d = 0; d < x[i].length(); d = d + 1 {
@@ -54,12 +54,12 @@ fn scanpy_knn(
   k : Int,
 ) -> (Array[Array[Int]], Array[Array[Double]]) {
   let n = dist.length()
-  let idx : Array[Array[Int]] = Array::new()
-  let d : Array[Array[Double]] = Array::new()
+  let idx : Array[Array[Int]] = Array(capacity=0)
+  let d : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let sorted = scanpy_argsort(dist[i])
-    let idx_row : Array[Int] = Array::new()
-    let d_row : Array[Double] = Array::new()
+    let idx_row : Array[Int] = Array(capacity=0)
+    let d_row : Array[Double] = Array(capacity=0)
     for t = 0; t < k; t = t + 1 {
       idx_row.push(sorted[t])
       d_row.push(dist[i][sorted[t]])
@@ -80,8 +80,8 @@ fn scanpy_smooth_knn_dist(
 ) -> (Array[Double], Array[Double]) {
   let n = knn_dists.length()
   let target = @math.log2(k.to_double())
-  let rhos : Array[Double] = Array::new()
-  let sigmas : Array[Double] = Array::new()
+  let rhos : Array[Double] = Array(capacity=0)
+  let sigmas : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let rho = knn_dists[i][1]
     let mut lo = 0.0
@@ -127,7 +127,7 @@ pub fn scanpy_neighbors(x : Array[Array[Double]], n_neighbors : Int) -> Array[Ar
   let (rhos, sigmas) = scanpy_smooth_knn_dist(knn_dists, k)
 
   // directed membership strengths d (self = 1)
-  let d : Array[Array[Double]] = Array::new()
+  let d : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     row[i] = 1.0
@@ -147,9 +147,9 @@ pub fn scanpy_neighbors(x : Array[Array[Double]], n_neighbors : Int) -> Array[Ar
   }
 
   // fuzzy union: conn = d + dᵀ - d ∘ dᵀ
-  let conn : Array[Array[Double]] = Array::new()
+  let conn : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n; j = j + 1 {
       row.push(d[i][j] + d[j][i] - d[i][j] * d[j][i])
     }

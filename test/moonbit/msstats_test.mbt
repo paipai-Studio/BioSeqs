@@ -13,7 +13,7 @@ test "msstats_feature_creation" {
 
 ///|
 test "msstats_data_process_log_transform" {
-  let features : Array[@src.MSFeature] = Array::new()
+  let features : Array[@src.MSFeature] = Array(capacity=0)
   features.push(
     @src.MSFeature::new("P1", "pep1", "tr1", "Ctrl", "S1", "R1", 1024.0),
   )
@@ -34,7 +34,7 @@ test "msstats_data_process_log_transform" {
 
 ///|
 test "msstats_data_process_median_norm" {
-  let features : Array[@src.MSFeature] = Array::new()
+  let features : Array[@src.MSFeature] = Array(capacity=0)
   features.push(
     @src.MSFeature::new("P1", "pep1", "tr1", "Ctrl", "S1", "R1", 1024.0),
   )
@@ -62,7 +62,7 @@ test "msstats_data_process_median_norm" {
 
 ///|
 test "msstats_data_process_zero_intensity" {
-  let features : Array[@src.MSFeature] = Array::new()
+  let features : Array[@src.MSFeature] = Array(capacity=0)
   features.push(
     @src.MSFeature::new("P1", "pep1", "tr1", "Ctrl", "S1", "R1", 0.0),
   )
@@ -77,7 +77,7 @@ test "msstats_data_process_zero_intensity" {
 
 ///|
 test "msstats_summarize_tukey" {
-  let features : Array[@src.MSFeature] = Array::new()
+  let features : Array[@src.MSFeature] = Array(capacity=0)
   // Two peptides for protein P1 in run R1
   features.push(
     @src.MSFeature::new("P1", "pep1", "tr1", "Ctrl", "S1", "R1", 1024.0),
@@ -100,7 +100,7 @@ test "msstats_summarize_tukey" {
 
 ///|
 test "msstats_summarize_linear" {
-  let features : Array[@src.MSFeature] = Array::new()
+  let features : Array[@src.MSFeature] = Array(capacity=0)
   features.push(
     @src.MSFeature::new("P1", "pep1", "tr1", "Ctrl", "S1", "R1", 1024.0),
   )

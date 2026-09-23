@@ -93,9 +93,9 @@ pub fn GeneExpressionData::new(
 ///|
 pub fn TrajectoryData::new() -> TrajectoryData {
   TrajectoryData::{
-    points: Array::new(),
-    genes: Array::new(),
-    conditions: Array::new(),
+    points: Array(capacity=0),
+    genes: Array(capacity=0),
+    conditions: Array(capacity=0),
     n_points: 0,
     n_genes: 0,
   }
@@ -151,19 +151,19 @@ pub fn fit_gam(gene_data : GeneExpressionData, n_knots : Int) -> GAMFit {
   if n < 3 {
     return GAMFit::{
       gene_id: gene_data.gene_id,
-      coefficients: Array::new(),
+      coefficients: Array(capacity=0),
       fitted_values: expression,
-      residuals: Array::new(),
+      residuals: Array(capacity=0),
       r_squared: 0.0,
       degrees_of_freedom: 1.0,
-      smoothing_basis: Array::new(),
+      smoothing_basis: Array(capacity=0),
     }
   }
 
   // Sort by pseudotime
   let sorted_indices = tradeseq_sort_indices(pseudotime)
-  let sorted_expression : Array[Double] = Array::new()
-  let sorted_pseudotime : Array[Double] = Array::new()
+  let sorted_expression : Array[Double] = Array(capacity=0)
+  let sorted_pseudotime : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -183,7 +183,7 @@ pub fn fit_gam(gene_data : GeneExpressionData, n_knots : Int) -> GAMFit {
   let fitted_values = tradeseq_compute_fitted(basis, coefficients)
 
   // Calculate residuals
-  let residuals : Array[Double] = Array::new()
+  let residuals : Array[Double] = Array(capacity=0)
   i = 0
   while i < n {
     residuals.push(sorted_expression[i] - fitted_values[i])
@@ -298,7 +298,7 @@ pub fn run_tradeseq_analysis(
   n_knots : Int,
   fdr : Double,
 ) -> TradeSeqResult {
-  let gene_results : Array[DifferentialExpressionResult] = Array::new()
+  let gene_results : Array[DifferentialExpressionResult] = Array(capacity=0)
 
   // For each gene, perform differential expression test
   let mut i = 0
@@ -306,9 +306,9 @@ pub fn run_tradeseq_analysis(
     let gene = genes[i]
 
     // Create gene expression data
-    let expression : Array[Double] = Array::new()
-    let pseudotime : Array[Double] = Array::new()
-    let conditions_arr : Array[String] = Array::new()
+    let expression : Array[Double] = Array(capacity=0)
+    let pseudotime : Array[Double] = Array(capacity=0)
+    let conditions_arr : Array[String] = Array(capacity=0)
 
     let mut j = 0
     while j < trajectory_data.points.length() {
@@ -400,8 +400,8 @@ pub fn calculate_gene_smooth(
   n_knots : Int,
   n_points : Int,
 ) -> SmoothResult {
-  let expression : Array[Double] = Array::new()
-  let pseudotime : Array[Double] = Array::new()
+  let expression : Array[Double] = Array(capacity=0)
+  let pseudotime : Array[Double] = Array(capacity=0)
 
   let gene_idx = tradeseq_find_gene_index(trajectory_data.genes, gene)
 
@@ -435,10 +435,10 @@ pub fn calculate_gene_smooth(
     j = j + 1
   }
 
-  let smooth_pseudotime : Array[Double] = Array::new()
-  let smooth_fitted : Array[Double] = Array::new()
-  let smooth_lower : Array[Double] = Array::new()
-  let smooth_upper : Array[Double] = Array::new()
+  let smooth_pseudotime : Array[Double] = Array(capacity=0)
+  let smooth_fitted : Array[Double] = Array(capacity=0)
+  let smooth_lower : Array[Double] = Array(capacity=0)
+  let smooth_upper : Array[Double] = Array(capacity=0)
 
   let pt_range = max_pt - min_pt
   let k = gam_fit.degrees_of_freedom.to_int()
@@ -582,8 +582,8 @@ fn tradeseq_contains_string(arr : Array[String], value : String) -> Bool {
 ///|
 fn tradeseq_sort_indices(arr : Array[Double]) -> Array[Int] {
   let n = arr.length()
-  let indices : Array[Int] = Array::new()
-  let values : Array[Double] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
+  let values : Array[Double] = Array(capacity=0)
 
   // Copy values and indices
   let mut i = 0
@@ -625,11 +625,11 @@ fn tradeseq_create_basis(
   let n_basis = n_knots + 2 // Interior knots + boundary
 
   // Create natural cubic spline basis
-  let basis : Array[Array[Double]] = Array::new()
+  let basis : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let x = pseudotime[i]
 
     let mut j = 0
@@ -662,7 +662,7 @@ fn tradeseq_fit_coefficients(
 
   // Simple least squares approximation
   // X'X β = X'y
-  let coefficients : Array[Double] = Array::new()
+  let coefficients : Array[Double] = Array(capacity=0)
 
   let mut j = 0
   while j < n_basis {
@@ -691,7 +691,7 @@ fn tradeseq_compute_fitted(
   let n = basis.length()
   let n_basis = coefficients.length()
 
-  let fitted : Array[Double] = Array::new()
+  let fitted : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -773,8 +773,8 @@ fn tradeseq_sort_by_pvalue(
   results : Array[DifferentialExpressionResult],
 ) -> Array[Int] {
   let n = results.length()
-  let indices : Array[Int] = Array::new()
-  let values : Array[Double] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
+  let values : Array[Double] = Array(capacity=0)
 
   // Initialize
   let mut i = 0
@@ -819,7 +819,7 @@ fn tradeseq_bh_correction(
   let sorted_indices = tradeseq_sort_by_pvalue(results)
 
   // Extract sorted p-values
-  let sorted_pvalues : Array[Double] = Array::new()
+  let sorted_pvalues : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     sorted_pvalues.push(results[sorted_indices[i]].p_value)
@@ -827,7 +827,7 @@ fn tradeseq_bh_correction(
   }
 
   // Apply BH correction
-  let adjusted : Array[Double] = Array::new()
+  let adjusted : Array[Double] = Array(capacity=0)
   let mut k = 0
   while k < n {
     let rank = (k + 1).to_double()
@@ -849,7 +849,7 @@ fn tradeseq_bh_correction(
   }
 
   // Map back to original positions
-  let final_results : Array[DifferentialExpressionResult] = Array::new()
+  let final_results : Array[DifferentialExpressionResult] = Array(capacity=0)
   let mut m = 0
   while m < n {
     let orig_idx = sorted_indices[m]

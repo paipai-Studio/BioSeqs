@@ -137,7 +137,7 @@ pub fn fishers_exact_test(a : Int, b : Int, c : Int, d : Int) -> Double {
 ///|
 pub fn bonferroni_correction(p_values : Array[Double]) -> Array[Double] {
   let m = p_values.length().to_double()
-  let corrected : Array[Double] = Array::new()
+  let corrected : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < p_values.length() {
     let corrected_val = p_values[i] * m
@@ -151,17 +151,17 @@ pub fn bonferroni_correction(p_values : Array[Double]) -> Array[Double] {
 pub fn bh_correction(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
     i = i + 1
   }
 
-  let sorted_with_idx : Array[(Double, Int)] = Array::new()
+  let sorted_with_idx : Array[(Double, Int)] = Array(capacity=0)
   i = 0
   while i < n {
     sorted_with_idx.push((p_values[i], indices[i]))
@@ -182,7 +182,7 @@ pub fn bh_correction(p_values : Array[Double]) -> Array[Double] {
     j = j + 1
   }
 
-  let corrected_sorted : Array[Double] = Array::new()
+  let corrected_sorted : Array[Double] = Array(capacity=0)
   i = 0
   while i < n {
     let rank = (i + 1).to_double()
@@ -198,7 +198,7 @@ pub fn bh_correction(p_values : Array[Double]) -> Array[Double] {
     }
   }
 
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   i = 0
   while i < n {
     result.push(0.0)
@@ -221,22 +221,22 @@ pub fn go_enrich(
   go_terms : Array[GOTerm],
   universe_size : Int,
 ) -> Array[GOEnrichmentResult] {
-  let gene_set = Array::new()
+  let gene_set = Array(capacity=0)
   let mut i = 0
   while i < genes.length() {
     gene_set.push(genes[i])
     i = i + 1
   }
 
-  let results : Array[GOEnrichmentResult] = Array::new()
-  let p_values : Array[Double] = Array::new()
+  let results : Array[GOEnrichmentResult] = Array(capacity=0)
+  let p_values : Array[Double] = Array(capacity=0)
 
   i = 0
   while i < go_terms.length() {
     let go_term = go_terms[i]
 
     let mut count = 0
-    let enriched_genes : Array[String] = Array::new()
+    let enriched_genes : Array[String] = Array(capacity=0)
     let mut j = 0
     while j < gene_set.length() {
       let mut k = 0
@@ -325,7 +325,7 @@ pub fn filter_enrichment(
   p_adjust_cutoff : Double,
   min_count : Int,
 ) -> Array[GOEnrichmentResult] {
-  let filtered : Array[GOEnrichmentResult] = Array::new()
+  let filtered : Array[GOEnrichmentResult] = Array(capacity=0)
   let mut i = 0
   while i < results.length() {
     let r = results[i]
@@ -342,7 +342,7 @@ pub fn go_terms_by_namespace(
   go_terms : Array[GOTerm],
   namespace : String,
 ) -> Array[GOTerm] {
-  let filtered : Array[GOTerm] = Array::new()
+  let filtered : Array[GOTerm] = Array(capacity=0)
   let mut i = 0
   while i < go_terms.length() {
     if go_terms[i].namespace == namespace {

@@ -84,7 +84,7 @@ fn lr_solve(matrix : Array[Array[Double]], b : Array[Double]) -> Array[Double]? 
     return Some([])
   }
   // Augmented matrix [matrix | b]
-  let m : Array[Array[Double]] = Array::new()
+  let m : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n {
     let row = Array::make(n + 1, 0.0)
     for j in 0..<n {
@@ -165,7 +165,7 @@ pub fn logistic_regression_train(
   // Each observation gets a leading constant 1.0 for the bias term.
   let ndims = if n > 0 { xs[0].length() + 1 } else { 1 }
   // Build design matrix x_design (n × ndims) with leading 1.0.
-  let x_design : Array[Array[Double]] = Array::new()
+  let x_design : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n {
     let row = Array::make(ndims, 1.0)
     for j in 1..<ndims {
@@ -226,7 +226,7 @@ pub fn logistic_regression_train(
       grad[j] = s
     }
     // Hessian: x_design^T W x_design, where W = diag(p*(1-p)).
-    let h : Array[Array[Double]] = Array::new()
+    let h : Array[Array[Double]] = Array(capacity=0)
     for _ in 0..<ndims {
       h.push(Array::make(ndims, 0.0))
     }

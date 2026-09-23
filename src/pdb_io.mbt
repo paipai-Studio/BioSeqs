@@ -5,10 +5,10 @@
 /// Parse a PDB file content into a Structure.
 pub fn parse_pdb(content : String) -> Structure {
   let lines = content.split("\n").to_array()
-  let models = Array::new()
-  let mut current_model_chains = Array::new()
-  let mut current_chain_residues = Array::new()
-  let mut current_residue_atoms = Array::new()
+  let models = Array(capacity=0)
+  let mut current_model_chains = Array(capacity=0)
+  let mut current_chain_residues = Array(capacity=0)
+  let mut current_residue_atoms = Array(capacity=0)
   let mut current_resname = ""
   let mut current_chainid = ' '
   let mut current_resseq = 1
@@ -39,17 +39,17 @@ pub fn parse_pdb(content : String) -> Structure {
           hetfield=current_hetfield,
         )
         current_chain_residues.push(r)
-        current_residue_atoms = Array::new()
+        current_residue_atoms = Array(capacity=0)
       }
       if current_chain_residues.length() > 0 {
         let c = Chain::new(id=current_chainid, residues=current_chain_residues)
         current_model_chains.push(c)
-        current_chain_residues = Array::new()
+        current_chain_residues = Array(capacity=0)
       }
       if current_model_chains.length() > 0 {
         let m = Model::new(id=models.length() + 1, chains=current_model_chains)
         models.push(m)
-        current_model_chains = Array::new()
+        current_model_chains = Array(capacity=0)
       }
     } else if record_type[0:4] == "ATOM" || record_type == "HETATM" {
       let atom = parse_atom_line(line, record_type == "HETATM")
@@ -64,7 +64,7 @@ pub fn parse_pdb(content : String) -> Structure {
           hetfield=current_hetfield,
         )
         current_chain_residues.push(r)
-        current_residue_atoms = Array::new()
+        current_residue_atoms = Array(capacity=0)
 
         if atom.chainid != current_chainid {
           let c = Chain::new(
@@ -72,7 +72,7 @@ pub fn parse_pdb(content : String) -> Structure {
             residues=current_chain_residues,
           )
           current_model_chains.push(c)
-          current_chain_residues = Array::new()
+          current_chain_residues = Array(capacity=0)
         }
       }
 
@@ -91,12 +91,12 @@ pub fn parse_pdb(content : String) -> Structure {
           hetfield=current_hetfield,
         )
         current_chain_residues.push(r)
-        current_residue_atoms = Array::new()
+        current_residue_atoms = Array(capacity=0)
       }
       if current_chain_residues.length() > 0 {
         let c = Chain::new(id=current_chainid, residues=current_chain_residues)
         current_model_chains.push(c)
-        current_chain_residues = Array::new()
+        current_chain_residues = Array(capacity=0)
       }
     } else if record_type == "ENDMDL" {
       if current_residue_atoms.length() > 0 {
@@ -108,17 +108,17 @@ pub fn parse_pdb(content : String) -> Structure {
           hetfield=current_hetfield,
         )
         current_chain_residues.push(r)
-        current_residue_atoms = Array::new()
+        current_residue_atoms = Array(capacity=0)
       }
       if current_chain_residues.length() > 0 {
         let c = Chain::new(id=current_chainid, residues=current_chain_residues)
         current_model_chains.push(c)
-        current_chain_residues = Array::new()
+        current_chain_residues = Array(capacity=0)
       }
       if current_model_chains.length() > 0 {
         let m = Model::new(id=models.length() + 1, chains=current_model_chains)
         models.push(m)
-        current_model_chains = Array::new()
+        current_model_chains = Array(capacity=0)
       }
     }
   }

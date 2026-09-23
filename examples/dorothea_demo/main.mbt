@@ -53,7 +53,7 @@ fn main {
   println("")
   
   println("6. Analyzing single cell in detail...")
-  let cell_expr : Array[Double] = Array::new()
+  let cell_expr : Array[Double] = Array(capacity=0)
   let n_genes = expr_data.length()
   let mut g = 0
   while g < n_genes {

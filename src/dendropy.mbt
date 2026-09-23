@@ -31,7 +31,7 @@ fn dendropy_colless_rec(clade : Clade) -> (Int, Int) {
   }
   let mut total = 0
   let mut csum = 0
-  let child_leaves : Array[Int] = Array::new()
+  let child_leaves : Array[Int] = Array(capacity=0)
   for ch in clade.clades {
     let (leaves, cs) = dendropy_colless_rec(ch)
     total = total + leaves
@@ -171,7 +171,7 @@ fn dendropy_leaf_names(clade : Clade) -> Array[String] {
       Some(n) => [n]
     }
   } else {
-    let out : Array[String] = Array::new()
+    let out : Array[String] = Array(capacity=0)
     for ch in clade.clades {
       for n in dendropy_leaf_names(ch) {
         out.push(n)
@@ -184,7 +184,7 @@ fn dendropy_leaf_names(clade : Clade) -> Array[String] {
 ///|
 /// Complement of `sub` within `all` (both sorted).
 fn dendropy_complement(all : Array[String], sub : Array[String]) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   let mut si = 0
   for x in all {
     if si < sub.length() && sub[si] == x {
@@ -211,7 +211,7 @@ fn dendropy_split_rec(
     }
   } else {
     let keys : Map[String, Bool] = Map([], capacity=0)
-    let sub : Array[String] = Array::new()
+    let sub : Array[String] = Array(capacity=0)
     for ch in clade.clades {
       let (names, child_keys) = dendropy_split_rec(ch, all_names, n)
       for nm in names {
@@ -281,7 +281,7 @@ fn dendropy_split_lengths_rec(
     }
   } else {
     let keys : Map[String, Double] = Map([], capacity=0)
-    let sub : Array[String] = Array::new()
+    let sub : Array[String] = Array(capacity=0)
     for ch in clade.clades {
       let (names, child_keys) = dendropy_split_lengths_rec(ch, all_names, n)
       for nm in names {
@@ -353,7 +353,7 @@ fn dendropy_lca_find(clade : Clade, name1 : String, name2 : String) -> Clade? {
       None => None
     }
   } else {
-    let found : Array[Clade] = Array::new()
+    let found : Array[Clade] = Array(capacity=0)
     for ch in clade.clades {
       match dendropy_lca_find(ch, name1, name2) {
         None => ()
@@ -415,9 +415,9 @@ pub fn dendropy_patristic_distance_matrix(
 ) -> (Array[String], Array[Array[Double]]) {
   let names = dendropy_leaf_names(clade)
   let nn = names.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < nn; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < nn; j = j + 1 {
       row.push(dendropy_patristic_distance(clade, names[i], names[j]))
     }
@@ -487,13 +487,13 @@ fn dendropy_gamma_collect(clade : Clade, ages : Array[Double]) -> Int {
 /// Pybus & Harvey (2000) gamma statistic of diversification-rate constancy.
 /// Assumes an ultrametric, bifurcating tree.
 pub fn dendropy_pybus_harvey_gamma(clade : Clade) -> Double {
-  let ages : Array[Double] = Array::new()
+  let ages : Array[Double] = Array(capacity=0)
   let n = dendropy_gamma_collect(clade, ages)
   if n < 3 || ages.length() == 0 {
     return 0.0
   }
   let sorted = dendropy_sort_doubles_desc(ages)
-  let g : Array[Double] = Array::new()
+  let g : Array[Double] = Array(capacity=0)
   let mut older = sorted[0]
   for i = 1; i < sorted.length(); i = i + 1 {
     g.push(older - sorted[i])

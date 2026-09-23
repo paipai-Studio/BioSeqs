@@ -15,8 +15,8 @@ pub fn Rle::new(values : Array[String], lengths : Array[Int]) -> Rle {
 
 ///|
 pub fn Rle::from_vector(vec : Array[String]) -> Rle {
-  let values : Array[String] = Array::new()
-  let lengths : Array[Int] = Array::new()
+  let values : Array[String] = Array(capacity=0)
+  let lengths : Array[Int] = Array(capacity=0)
 
   if vec.length() == 0 {
     return Rle::{ values, lengths, }
@@ -57,7 +57,7 @@ pub fn Rle::length(self : Rle) -> Int {
 
 ///|
 pub fn Rle::decode(self : Rle) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < self.values.length() {
@@ -143,7 +143,7 @@ pub fn S4DataFrame::ncol(self : S4DataFrame) -> Int {
 
 ///|
 pub fn S4DataFrame::colnames(self : S4DataFrame) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < self.columns.length() {
@@ -172,7 +172,7 @@ pub fn S4DataFrame::get_column(
 
 ///|
 pub fn S4DataFrame::get_row(self : S4DataFrame, idx : Int) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < self.columns.length() {
@@ -192,12 +192,12 @@ pub fn S4DataFrame::subset_rows(
   self : S4DataFrame,
   indices : Array[Int],
 ) -> S4DataFrame {
-  let new_columns : Array[S4DataFrameColumn] = Array::new()
-  let new_row_names : Array[String] = Array::new()
+  let new_columns : Array[S4DataFrameColumn] = Array(capacity=0)
+  let new_row_names : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < self.columns.length() {
-    let col_values : Array[String] = Array::new()
+    let col_values : Array[String] = Array(capacity=0)
     let mut j = 0
     while j < indices.length() {
       let idx = indices[j]
@@ -279,7 +279,7 @@ pub fn Hits::count_subject_hits(self : Hits) -> Array[Int] {
 
 ///|
 pub fn Hits::find_hits(self : Hits, query_idx : Int) -> Array[Int] {
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
 
   let mut i = 0
   while i < self.query_hits.length() {
@@ -294,7 +294,7 @@ pub fn Hits::find_hits(self : Hits, query_idx : Int) -> Array[Int] {
 
 ///|
 pub fn Hits::as_matrix(self : Hits) -> Array[(Int, Int)] {
-  let result : Array[(Int, Int)] = Array::new()
+  let result : Array[(Int, Int)] = Array(capacity=0)
 
   let mut i = 0
   while i < self.query_hits.length() {

@@ -478,10 +478,10 @@ pub fn zlm_hurdle(data : MastData, group1 : Int, group2 : Int) -> HurdleResult {
   while g < data.n_genes {
     result.gene[g] = data.gene_names[g]
 
-    let group1_expr : Array[Double] = Array::new()
-    let group2_expr : Array[Double] = Array::new()
-    let group1_detected : Array[Bool] = Array::new()
-    let group2_detected : Array[Bool] = Array::new()
+    let group1_expr : Array[Double] = Array(capacity=0)
+    let group2_expr : Array[Double] = Array(capacity=0)
+    let group1_detected : Array[Bool] = Array(capacity=0)
+    let group2_detected : Array[Bool] = Array(capacity=0)
 
     let mut i = 0
     while i < data.n_cells {
@@ -515,8 +515,8 @@ pub fn zlm_hurdle(data : MastData, group1 : Int, group2 : Int) -> HurdleResult {
     )
     result.discrete_pval[g] = discrete_pval
 
-    let group1_positive : Array[Double] = Array::new()
-    let group2_positive : Array[Double] = Array::new()
+    let group1_positive : Array[Double] = Array(capacity=0)
+    let group2_positive : Array[Double] = Array(capacity=0)
 
     let mut j = 0
     while j < group1_expr.length() {
@@ -653,7 +653,7 @@ pub fn MastSummary::new(
   let mut n_discrete = 0
   let mut n_continuous = 0
 
-  let top : Array[String] = Array::new()
+  let top : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < result.gene.length() {
     if result.combined_fdr[i] < threshold {

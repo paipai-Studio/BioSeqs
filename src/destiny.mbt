@@ -77,7 +77,7 @@ pub fn compute_distance_matrix(
   metric : String,
 ) -> DistanceMatrix {
   let n = cells.length()
-  let cell_ids : Array[String] = Array::new()
+  let cell_ids : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -86,10 +86,10 @@ pub fn compute_distance_matrix(
   }
 
   // Compute pairwise distances
-  let distances : Array[Array[Double]] = Array::new()
+  let distances : Array[Array[Double]] = Array(capacity=0)
   i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       let dist = destiny_compute_distance(
@@ -158,10 +158,10 @@ pub fn compute_gaussian_kernel(
   let n = dist_matrix.n_cells
   let cells = dist_matrix.cells
 
-  let kernel : Array[Array[Double]] = Array::new()
+  let kernel : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       let dist = dist_matrix.distances[i][j]
@@ -184,7 +184,7 @@ pub fn find_sigma_automatic(dist_matrix : DistanceMatrix) -> Double {
   }
 
   // Calculate pairwise distances and use median
-  let distances : Array[Double] = Array::new()
+  let distances : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let mut j = i + 1
@@ -224,7 +224,7 @@ pub fn compute_diffusion_map(
   sigma : Double,
 ) -> DiffusionResult {
   let n = cells.length()
-  let cell_ids : Array[String] = Array::new()
+  let cell_ids : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -254,7 +254,7 @@ pub fn compute_diffusion_map(
 
   // Calculate explained variance
   let total_var = destiny_sum_array(eigen_result.eigen_values)
-  let explained_variance : Array[Double] = Array::new()
+  let explained_variance : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < n_comp {
     let var_ = if total_var > 0.0 {
@@ -277,14 +277,14 @@ pub fn compute_diffusion_map(
 ///|
 fn destiny_normalize_kernel(kernel : KernelMatrix) -> KernelMatrix {
   let n = kernel.cells.length()
-  let normalized : Array[Array[Double]] = Array::new()
+  let normalized : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
     let row = kernel.kernel[i]
     let row_sum = destiny_sum_array(row)
 
-    let normalized_row : Array[Double] = Array::new()
+    let normalized_row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       let val = if row_sum > 0.0 { row[j] / row_sum } else { 0.0 }
@@ -312,13 +312,13 @@ fn destiny_eigen_decomposition(
   let n = matrix.length()
 
   // Use power iteration for eigenvalue computation
-  let eigen_values : Array[Double] = Array::new()
-  let eigen_vectors : Array[Array[Double]] = Array::new()
+  let eigen_values : Array[Double] = Array(capacity=0)
+  let eigen_vectors : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_components {
     // Initialize random vector
-    let mut vector : Array[Double] = Array::new()
+    let mut vector : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       vector.push(
@@ -334,7 +334,7 @@ fn destiny_eigen_decomposition(
     let mut iteration = 0
     while iteration < 50 {
       // Matrix-vector multiplication
-      let new_vector : Array[Double] = Array::new()
+      let new_vector : Array[Double] = Array(capacity=0)
       let mut k = 0
       while k < n {
         let mut sum = 0.0
@@ -356,7 +356,7 @@ fn destiny_eigen_decomposition(
     eigen_values.push(lambda)
 
     // Store eigenvector
-    let ev : Array[Double] = Array::new()
+    let ev : Array[Double] = Array(capacity=0)
     let mut m = 0
     while m < n {
       ev.push(vector[m])
@@ -365,10 +365,10 @@ fn destiny_eigen_decomposition(
     eigen_vectors.push(ev)
 
     // Deflate matrix
-    let deflated : Array[Array[Double]] = Array::new()
+    let deflated : Array[Array[Double]] = Array(capacity=0)
     let mut p = 0
     while p < n {
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       let mut q = 0
       while q < n {
         let val = matrix[p][q] - lambda * vector[p] * vector[q]
@@ -404,11 +404,11 @@ fn destiny_compute_embedding(
     0
   }
 
-  let embedding : Array[Array[Double]] = Array::new()
+  let embedding : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_cells {
-    let cell_embedding : Array[Double] = Array::new()
+    let cell_embedding : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_components {
       if j < n_components_actual {
@@ -445,7 +445,7 @@ pub fn destiny_plot_coordinates(
   component_x : Int,
   component_y : Int,
 ) -> Array[(String, Double, Double)] {
-  let coordinates : Array[(String, Double, Double)] = Array::new()
+  let coordinates : Array[(String, Double, Double)] = Array(capacity=0)
   let n = result.cell_ids.length()
 
   let mut i = 0
@@ -490,11 +490,11 @@ pub fn destiny_summary(result : DiffusionResult) -> String {
 
 ///|
 pub fn create_example_sc_data(n_cells : Int, n_genes : Int) -> Array[CellData] {
-  let cells : Array[CellData] = Array::new()
+  let cells : Array[CellData] = Array(capacity=0)
 
   let mut i = 0
   while i < n_cells {
-    let expression : Array[Double] = Array::new()
+    let expression : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_genes {
       // Create some structured data with two clusters
@@ -560,7 +560,7 @@ fn destiny_sum_array(arr : Array[Double]) -> Double {
 fn destiny_normalize_vector(v : Array[Double]) -> Array[Double] {
   let norm = destiny_vector_norm(v)
   if norm == 0.0 {
-    let result : Array[Double] = Array::new()
+    let result : Array[Double] = Array(capacity=0)
     let mut i = 0
     while i < v.length() {
       result.push(0.0)
@@ -569,7 +569,7 @@ fn destiny_normalize_vector(v : Array[Double]) -> Array[Double] {
     return result
   }
 
-  let normalized : Array[Double] = Array::new()
+  let normalized : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < v.length() {
     normalized.push(v[i] / norm)

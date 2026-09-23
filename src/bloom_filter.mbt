@@ -51,7 +51,7 @@ fn bloom_positions(
   num_hashes : Int,
   bits : Int,
 ) -> Array[Int] {
-  let positions : Array[Int] = Array::new()
+  let positions : Array[Int] = Array(capacity=0)
   for i = 0; i < num_hashes; i = i + 1 {
     let combined = h1 + i * h2
     let pos = combined % bits
@@ -366,7 +366,7 @@ pub fn KmerCounter::k(self : KmerCounter) -> Int {
 /// Get all k-mer counts as an array of `KmerCount` entries,
 /// sorted by count (descending).
 pub fn KmerCounter::top_k(self : KmerCounter, n : Int) -> Array[KmerCount] {
-  let entries : Array[KmerCount] = Array::new()
+  let entries : Array[KmerCount] = Array(capacity=0)
   let keys = self.counts.keys().collect()
   for i = 0; i < keys.length(); i = i + 1 {
     let kmer = keys[i]
@@ -377,7 +377,7 @@ pub fn KmerCounter::top_k(self : KmerCounter, n : Int) -> Array[KmerCount] {
     entries.push(KmerCount::{ kmer, count: cnt, })
   }
   // Simple selection sort for top-n (efficient for small n).
-  let result : Array[KmerCount] = Array::new()
+  let result : Array[KmerCount] = Array(capacity=0)
   let len = entries.length()
   let mut remaining = entries
   let limit = if n < len { n } else { len }
@@ -399,7 +399,7 @@ pub fn KmerCounter::top_k(self : KmerCounter, n : Int) -> Array[KmerCount] {
 ///|
 /// Remove element at index from array, returning a new array.
 fn remove_at(arr : Array[KmerCount], idx : Int) -> Array[KmerCount] {
-  let result : Array[KmerCount] = Array::new()
+  let result : Array[KmerCount] = Array(capacity=0)
   for i = 0; i < arr.length(); i = i + 1 {
     if i != idx {
       result.push(arr[i])

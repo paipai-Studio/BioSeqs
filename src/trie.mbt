@@ -139,7 +139,7 @@ pub fn trie_with_prefix(
   trie : Trie,
   prefix : String,
 ) -> Array[(String, String)] {
-  let result : Array[(String, String)] = Array::new()
+  let result : Array[(String, String)] = Array(capacity=0)
   let start_node = trie_find_node(trie.root, prefix)
   match start_node {
     Some(n) => trie_collect_pairs(n, prefix, result)
@@ -151,7 +151,7 @@ pub fn trie_with_prefix(
 ///|
 /// Get all keys in the trie.
 pub fn trie_keys(trie : Trie) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   trie_collect_keys(trie.root, "", result)
   result
 }
@@ -159,7 +159,7 @@ pub fn trie_keys(trie : Trie) -> Array[String] {
 ///|
 /// Get all (key, value) pairs in the trie.
 pub fn trie_items(trie : Trie) -> Array[(String, String)] {
-  let result : Array[(String, String)] = Array::new()
+  let result : Array[(String, String)] = Array(capacity=0)
   trie_collect_pairs(trie.root, "", result)
   result
 }
@@ -235,7 +235,7 @@ pub fn triefind_match_all(
   trie : Trie,
   text : String,
 ) -> Array[(String, String)] {
-  let result : Array[(String, String)] = Array::new()
+  let result : Array[(String, String)] = Array(capacity=0)
   let mut current = trie.root
   let mut prefix = ""
   let mut i = 0
@@ -265,7 +265,7 @@ pub fn triefind_find(
   trie : Trie,
   text : String,
 ) -> Array[(String, String, Int, Int)] {
-  let result : Array[(String, String, Int, Int)] = Array::new()
+  let result : Array[(String, String, Int, Int)] = Array(capacity=0)
   let mut start = 0
   while start < text.length() {
     let matches = triefind_match_all(trie, text[start:text.length()].to_owned())
@@ -291,7 +291,7 @@ pub fn triefind_find_words(
   trie : Trie,
   text : String,
 ) -> Array[(String, String, Int, Int)] {
-  let result : Array[(String, String, Int, Int)] = Array::new()
+  let result : Array[(String, String, Int, Int)] = Array(capacity=0)
   let mut start = 0
   while start < text.length() {
     // Check if this position is at a word boundary

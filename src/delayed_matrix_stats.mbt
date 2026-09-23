@@ -69,11 +69,11 @@ pub fn delayed_matrix_subset(
   rows : Array[Int],
   cols : Array[Int],
 ) -> DelayedMatrix {
-  let new_data : Array[Array[Double]] = Array::new()
-  let new_row_names : Array[String] = Array::new()
+  let new_data : Array[Array[Double]] = Array(capacity=0)
+  let new_row_names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < rows.length() {
-    let row_data : Array[Double] = Array::new()
+    let row_data : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < cols.length() {
       row_data.push(matrix.data[rows[i]][cols[j]])
@@ -85,7 +85,7 @@ pub fn delayed_matrix_subset(
     }
     i = i + 1
   }
-  let new_col_names : Array[String] = Array::new()
+  let new_col_names : Array[String] = Array(capacity=0)
   if matrix.col_names.length() > 0 {
     let mut j = 0
     while j < cols.length() {
@@ -109,7 +109,7 @@ fn get_row_values(matrix : DelayedMatrix, i : Int) -> Array[Double] {
 
 ///|
 fn get_col_values(matrix : DelayedMatrix, j : Int) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < matrix.nrow {
     result.push(matrix.data[i][j])
@@ -125,7 +125,7 @@ fn compute_single_stat(values : Array[Double], stat : String) -> Double {
     return 0.0
   }
 
-  let valid : Array[Double] = Array::new()
+  let valid : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     if !values[i].is_nan() {
@@ -215,7 +215,7 @@ fn compute_single_stat(values : Array[Double], stat : String) -> Double {
 
 ///|
 pub fn row_stats(matrix : DelayedMatrix, stat : String) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < matrix.nrow {
     let vals = get_row_values(matrix, i)
@@ -227,7 +227,7 @@ pub fn row_stats(matrix : DelayedMatrix, stat : String) -> Array[Double] {
 
 ///|
 pub fn col_stats(matrix : DelayedMatrix, stat : String) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < matrix.ncol {
     let vals = get_col_values(matrix, j)
@@ -274,7 +274,7 @@ pub fn row_allsums(matrix : DelayedMatrix) -> Array[Double] {
 
 ///|
 pub fn row_n(matrix : DelayedMatrix) -> Array[Int] {
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < matrix.nrow {
     let vals = get_row_values(matrix, i)
@@ -294,7 +294,7 @@ pub fn row_n(matrix : DelayedMatrix) -> Array[Int] {
 
 ///|
 pub fn col_n(matrix : DelayedMatrix) -> Array[Int] {
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   let mut j = 0
   while j < matrix.ncol {
     let vals = get_col_values(matrix, j)

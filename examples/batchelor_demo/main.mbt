@@ -19,7 +19,7 @@ fn main {
   println("")
   
   println("2. Evaluating batch mixing before correction...")
-  let raw_data : Array[Array[Double]] = Array::new()
+  let raw_data : Array[Array[Double]] = Array(capacity=0)
   for cell in batches[0] {
     raw_data.push(cell)
   }
@@ -27,7 +27,7 @@ fn main {
     raw_data.push(cell)
   }
   
-  let raw_batch_indices : Array[Int] = Array::new()
+  let raw_batch_indices : Array[Int] = Array(capacity=0)
   let mut idx = 0
   while idx < 100 {
     raw_batch_indices.push(0)

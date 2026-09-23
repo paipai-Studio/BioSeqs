@@ -33,7 +33,7 @@ pub fn scanpy_pca(x : Array[Array[Double]], n_comps : Int) -> ScanpyPca {
   }
 
   // centred matrix + covariance (Xcᵀ Xc), eigendecomposed (n_vars × n_vars)
-  let cov : Array[Array[Double]] = Array::new()
+  let cov : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < n_vars; j = j + 1 {
     let row = Array::make(n_vars, 0.0)
     for k = 0; k < n_vars; k = k + 1 {
@@ -58,23 +58,23 @@ pub fn scanpy_pca(x : Array[Array[Double]], n_comps : Int) -> ScanpyPca {
     }
   }
 
-  let ratio : Array[Double] = Array::new()
+  let ratio : Array[Double] = Array(capacity=0)
   for c = 0; c < nc; c = c + 1 {
     ratio.push(if var_sum > 0.0 { evals[c] / var_sum } else { 0.0 })
   }
 
-  let loadings : Array[Array[Double]] = Array::new()
+  let loadings : Array[Array[Double]] = Array(capacity=0)
   for c = 0; c < nc; c = c + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n_vars; j = j + 1 {
       row.push(evecs[j][c])
     }
     loadings.push(row)
   }
 
-  let coords : Array[Array[Double]] = Array::new()
+  let coords : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n_obs; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for c = 0; c < nc; c = c + 1 {
       let mut acc = 0.0
       for j = 0; j < n_vars; j = j + 1 {

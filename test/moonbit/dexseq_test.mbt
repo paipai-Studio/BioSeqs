@@ -9,7 +9,7 @@ test "ExonCount creation" {
 
 ///|
 test "DEXSeqDataSet creation" {
-  let exon_counts : Array[@src.ExonCount] = Array::new()
+  let exon_counts : Array[@src.ExonCount] = Array(capacity=0)
   exon_counts.push(@src.ExonCount::new("gene1", "exon1", [10, 12, 15]))
   exon_counts.push(@src.ExonCount::new("gene1", "exon2", [5, 6, 7]))
   let sample_groups = ["control", "control", "treatment"]

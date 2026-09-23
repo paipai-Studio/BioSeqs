@@ -189,7 +189,7 @@ fn circ_rev_comp(seq : String) -> String {
 /// Find all occurrences of a pattern in the circular sequence.
 /// Returns an array of start positions (0-based).
 pub fn CircSeq::circ_find_all(self : CircSeq, pattern : String) -> Array[Int] {
-  let results : Array[Int] = Array::new()
+  let results : Array[Int] = Array(capacity=0)
   let plen = pattern.length()
   if plen == 0 || plen > self.length {
     return results
@@ -253,7 +253,7 @@ pub fn CircSeq::circ_find_sites(
   self : CircSeq,
   site : String,
 ) -> Array[(Int, String)] {
-  let results : Array[(Int, String)] = Array::new()
+  let results : Array[(Int, String)] = Array(capacity=0)
   let fwd = self.circ_find_all(site)
   for pos in fwd {
     results.push((pos, "+"))
@@ -272,7 +272,7 @@ pub fn CircSeq::circ_digest(
   self : CircSeq,
   sites : Array[String],
 ) -> Array[Int] {
-  let cut_positions : Array[Int] = Array::new()
+  let cut_positions : Array[Int] = Array(capacity=0)
 
   // Collect all cut positions from both strands for all enzymes
   for site in sites {
@@ -290,7 +290,7 @@ pub fn CircSeq::circ_digest(
   let sorted = sort_positions(cut_positions)
 
   // Compute fragment sizes
-  let fragments : Array[Int] = Array::new()
+  let fragments : Array[Int] = Array(capacity=0)
   if sorted.length() == 0 {
     // No cuts - the whole molecule is one fragment
     fragments.push(self.length)
@@ -298,7 +298,7 @@ pub fn CircSeq::circ_digest(
   }
 
   // Remove duplicates
-  let unique : Array[Int] = Array::new()
+  let unique : Array[Int] = Array(capacity=0)
   for pos in sorted {
     if unique.length() == 0 || pos != unique[unique.length() - 1] {
       unique.push(pos)
@@ -529,7 +529,7 @@ pub fn circular_overlap(
 
 ///|
 fn expand_range(start : Int, end : Int, length : Int) -> Array[Int] {
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   if start <= end {
     let mut i = start
     while i <= end {
@@ -703,7 +703,7 @@ pub fn circ_common_restriction_sites() -> Array[(String, String)] {
 /// Find all unique restriction fragments from a digest.
 pub fn circ_unique_fragments(digest_fragments : Array[Int]) -> Array[Int] {
   let sorted = sort_positions(digest_fragments)
-  let unique : Array[Int] = Array::new()
+  let unique : Array[Int] = Array(capacity=0)
   for frag in sorted {
     if unique.length() == 0 || frag != unique[unique.length() - 1] {
       unique.push(frag)

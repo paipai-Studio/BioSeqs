@@ -100,17 +100,17 @@ fn quantile_normalize(data : Array[Array[Double]]) -> Array[Array[Double]] {
   }
   let n_cols = data[0].length()
 
-  let sorted_data : Array[Array[Double]] = Array::new()
+  let sorted_data : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_rows {
     sorted_data.push(sort_doubles(data[i]))
     i = i + 1
   }
 
-  let quantiles : Array[Double] = Array::new()
+  let quantiles : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < n_cols {
-    let col_vals : Array[Double] = Array::new()
+    let col_vals : Array[Double] = Array(capacity=0)
     let mut k = 0
     while k < n_rows {
       col_vals.push(sorted_data[k][j])
@@ -120,12 +120,12 @@ fn quantile_normalize(data : Array[Array[Double]]) -> Array[Array[Double]] {
     j = j + 1
   }
 
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   i = 0
   while i < n_rows {
     let row = data[i]
     let sorted_row = sort_doubles(row)
-    let ranks : Array[Int] = Array::new()
+    let ranks : Array[Int] = Array(capacity=0)
     let mut m = 0
     while m < row.length() {
       let val = row[m]
@@ -142,7 +142,7 @@ fn quantile_normalize(data : Array[Array[Double]]) -> Array[Array[Double]] {
       m = m + 1
     }
 
-    let normalized_row : Array[Double] = Array::new()
+    let normalized_row : Array[Double] = Array(capacity=0)
     m = 0
     while m < ranks.length() {
       normalized_row.push(quantiles[ranks[m]])
@@ -165,10 +165,10 @@ pub fn background_correct_rma(
   }
   let n_samples = pm_intensities[0].length()
 
-  let corrected : Array[Array[Double]] = Array::new()
+  let corrected : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_probes {
-    let probe_vals : Array[Double] = Array::new()
+    let probe_vals : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       let val = pm_intensities[i][j]
@@ -186,7 +186,7 @@ pub fn background_correct_rma(
 
 ///|
 pub fn rma_normalize(affy_batch : AffyBatch) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < affy_batch.probe_sets.length() {
@@ -195,10 +195,10 @@ pub fn rma_normalize(affy_batch : AffyBatch) -> Array[Array[Double]] {
 
     let bg_corrected = background_correct_rma(pm)
 
-    let log_transformed : Array[Array[Double]] = Array::new()
+    let log_transformed : Array[Array[Double]] = Array(capacity=0)
     let mut j = 0
     while j < bg_corrected.length() {
-      let log_row : Array[Double] = Array::new()
+      let log_row : Array[Double] = Array(capacity=0)
       let mut k = 0
       while k < bg_corrected[j].length() {
         log_row.push(log2(bg_corrected[j][k]))
@@ -210,10 +210,10 @@ pub fn rma_normalize(affy_batch : AffyBatch) -> Array[Array[Double]] {
 
     let normalized = quantile_normalize(log_transformed)
 
-    let summarized : Array[Double] = Array::new()
+    let summarized : Array[Double] = Array(capacity=0)
     j = 0
     while j < affy_batch.n_samples {
-      let col_vals : Array[Double] = Array::new()
+      let col_vals : Array[Double] = Array(capacity=0)
       let mut k = 0
       while k < normalized.length() {
         col_vals.push(normalized[k][j])
@@ -236,10 +236,10 @@ pub fn affy_batch_from_matrix(
   pm_matrix : Array[Array[Array[Double]]],
   sample_names : Array[String],
 ) -> AffyBatch {
-  let probe_sets : Array[ProbeSet] = Array::new()
+  let probe_sets : Array[ProbeSet] = Array(capacity=0)
   let mut i = 0
   while i < probe_set_ids.length() {
-    let mm : Array[Array[Double]] = Array::new()
+    let mm : Array[Array[Double]] = Array(capacity=0)
     probe_sets.push(ProbeSet::new(probe_set_ids[i], pm_matrix[i], mm))
     i = i + 1
   }
@@ -248,10 +248,10 @@ pub fn affy_batch_from_matrix(
 
 ///|
 pub fn compute_pm_mm_difference(probe_set : ProbeSet) -> Array[Array[Double]] {
-  let diff : Array[Array[Double]] = Array::new()
+  let diff : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < probe_set.pm_intensities.length() {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < probe_set.pm_intensities[i].length() {
       let mm_val = if i < probe_set.mm_intensities.length() &&
@@ -277,10 +277,10 @@ pub fn summarize_probeset(
   let pm = probe_set.pm_intensities
   let n_samples = if pm.length() > 0 { pm[0].length() } else { 0 }
 
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n_samples {
-    let vals : Array[Double] = Array::new()
+    let vals : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < pm.length() {
       vals.push(pm[j][i])
@@ -313,7 +313,7 @@ pub fn affy_batch_summarize(
   affy_batch : AffyBatch,
   method_name : String,
 ) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < affy_batch.probe_sets.length() {
     result.push(summarize_probeset(affy_batch.probe_sets[i], method_name))

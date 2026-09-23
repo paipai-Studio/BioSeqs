@@ -15,7 +15,7 @@ fn main {
   println("")
   
   println("2. CBS segmentation analysis...")
-  let segments : Array[@src.CNVSegment] = Array::new()
+  let segments : Array[@src.CNVSegment] = Array(capacity=0)
   let probes = dataset.probes
   let n = probes.length()
   
@@ -24,7 +24,7 @@ fn main {
   let mut i = 0
   while i < chromosomes.length() {
     let chrom = chromosomes[i]
-    let chrom_probes : Array[@src.CNVProbe] = Array::new()
+    let chrom_probes : Array[@src.CNVProbe] = Array(capacity=0)
     
     let mut j = 0
     while j < n {

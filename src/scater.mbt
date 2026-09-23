@@ -208,7 +208,7 @@ pub fn scater_filter_cells(
 ) -> (Array[Int], Array[Bool]) {
   let n = stats.cell_id.length()
   let keep : Array[Bool] = Array::make(n, false)
-  let kept_indices : Array[Int] = Array::new()
+  let kept_indices : Array[Int] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -235,7 +235,7 @@ pub fn scater_filter_counts(
   counts : Array[Array[Int]],
   keep_cells : Array[Bool],
 ) -> Array[Array[Int]] {
-  let filtered : Array[Array[Int]] = Array::new()
+  let filtered : Array[Array[Int]] = Array(capacity=0)
 
   let mut i = 0
   while i < counts.length() {
@@ -347,7 +347,7 @@ pub fn scater_filter_features(
 ) -> (Array[Int], Array[Bool]) {
   let n = stats.gene_id.length()
   let keep : Array[Bool] = Array::make(n, false)
-  let kept_indices : Array[Int] = Array::new()
+  let kept_indices : Array[Int] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -514,7 +514,7 @@ pub fn scater_find_hvgs(
     i = i + 1
   }
 
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let top_n = if n_hvgs < n_genes { n_hvgs } else { n_genes }
   let mut p = 0
   while p < top_n {

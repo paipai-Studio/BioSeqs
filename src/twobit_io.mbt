@@ -137,9 +137,9 @@ pub fn TwoBitSequence::new(name : String, dna_size : Int) -> TwoBitSequence {
   TwoBitSequence::{
     name,
     dna_size,
-    packed_dna: Array::new(),
-    n_blocks: Array::new(),
-    mask_blocks: Array::new(),
+    packed_dna: Array(capacity=0),
+    n_blocks: Array(capacity=0),
+    mask_blocks: Array(capacity=0),
   }
 }
 
@@ -221,7 +221,7 @@ pub struct TwoBitFile {
 ///|
 /// Construct an empty TwoBitFile (version 0).
 pub fn TwoBitFile::new() -> TwoBitFile {
-  TwoBitFile::{ sequences: Array::new(), version: twobit_version, }
+  TwoBitFile::{ sequences: Array(capacity=0), version: twobit_version, }
 }
 
 ///|
@@ -270,7 +270,7 @@ pub fn TwoBitFile::get_sequence(
 ///|
 /// Names of all sequences in the file.
 pub fn TwoBitFile::sequence_names(self : TwoBitFile) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   for i in 0..<self.sequences.length() {
     names.push(self.sequences[i].name)
   }
@@ -324,9 +324,9 @@ pub fn twobit_code_to_base(code : Int) -> Char {
 pub fn twobit_pack_sequence(
   sequence : String,
 ) -> (Array[Int], Array[TwoBitNBlock], Array[TwoBitMaskBlock]) {
-  let packed : Array[Int] = Array::new()
-  let n_blocks : Array[TwoBitNBlock] = Array::new()
-  let mask_blocks : Array[TwoBitMaskBlock] = Array::new()
+  let packed : Array[Int] = Array(capacity=0)
+  let n_blocks : Array[TwoBitNBlock] = Array(capacity=0)
+  let mask_blocks : Array[TwoBitMaskBlock] = Array(capacity=0)
   let len = sequence.length()
   let n_bytes = (len + 3) / 4
   // Initialize all packed bytes to 0.
@@ -422,7 +422,7 @@ pub fn twobit_unpack_sequence(
   mask_blocks : Array[TwoBitMaskBlock],
 ) -> String {
   // Decode each base from the packed bytes into an array of ASCII codes.
-  let codes : Array[Int] = Array::new()
+  let codes : Array[Int] = Array(capacity=0)
   for i in 0..<dna_size {
     let byte_idx = i / 4
     let shift = 6 - i % 4 * 2
@@ -483,7 +483,7 @@ fn twobit_read_u32_le(bytes : Array[Int], pos : Int) -> Int {
 ///|
 /// Serialize a TwoBitFile to a byte array in 2bit binary format (little-endian).
 pub fn twobit_to_bytes(tbf : TwoBitFile) -> Array[Int] {
-  let bytes : Array[Int] = Array::new()
+  let bytes : Array[Int] = Array(capacity=0)
   let seqs = tbf.sequences
   let n_seq = seqs.length()
   // Compute the total index size to determine sequence offsets.
@@ -492,7 +492,7 @@ pub fn twobit_to_bytes(tbf : TwoBitFile) -> Array[Int] {
     index_size = index_size + 1 + seqs[i].name.length() + 4
   }
   // Compute the absolute offset of each sequence's data block.
-  let offsets : Array[Int] = Array::new()
+  let offsets : Array[Int] = Array(capacity=0)
   let mut current_offset = 16 + index_size // 16 = header size
   for i in 0..<n_seq {
     offsets.push(current_offset)
@@ -605,8 +605,8 @@ pub fn twobit_from_bytes(data : Array[Int]) -> TwoBitFile {
   let version = twobit_read_u32_le(data, 4)
   let seq_count = twobit_read_u32_le(data, 8)
   // Read the index.
-  let names : Array[String] = Array::new()
-  let offsets : Array[Int] = Array::new()
+  let names : Array[String] = Array(capacity=0)
+  let offsets : Array[Int] = Array(capacity=0)
   let mut pos = 16
   for i in 0..<seq_count {
     let name_len = data[pos]
@@ -621,12 +621,12 @@ pub fn twobit_from_bytes(data : Array[Int]) -> TwoBitFile {
     pos = pos + 4
   }
   // Read per-sequence data.
-  let sequences : Array[TwoBitSequence] = Array::new()
+  let sequences : Array[TwoBitSequence] = Array(capacity=0)
   for i in 0..<seq_count {
     let p = offsets[i]
     let dna_size = twobit_read_u32_le(data, p)
     let packed_size = (dna_size + 3) / 4
-    let packed : Array[Int] = Array::new()
+    let packed : Array[Int] = Array(capacity=0)
     let mut q = p + 4
     for j in 0..<packed_size {
       packed.push(data[q])
@@ -634,7 +634,7 @@ pub fn twobit_from_bytes(data : Array[Int]) -> TwoBitFile {
     }
     let n_count = twobit_read_u32_le(data, q)
     q = q + 4
-    let n_blocks : Array[TwoBitNBlock] = Array::new()
+    let n_blocks : Array[TwoBitNBlock] = Array(capacity=0)
     for j in 0..<n_count {
       let start = twobit_read_u32_le(data, q)
       let size = twobit_read_u32_le(data, q + 4)
@@ -643,7 +643,7 @@ pub fn twobit_from_bytes(data : Array[Int]) -> TwoBitFile {
     }
     let mask_count = twobit_read_u32_le(data, q)
     q = q + 4
-    let mask_blocks : Array[TwoBitMaskBlock] = Array::new()
+    let mask_blocks : Array[TwoBitMaskBlock] = Array(capacity=0)
     for j in 0..<mask_count {
       let start = twobit_read_u32_le(data, q)
       let size = twobit_read_u32_le(data, q + 4)
@@ -711,7 +711,7 @@ pub fn twobit_write(tbf : TwoBitFile) -> String {
 ///|
 /// Deserialize a TwoBitFile from a hex string produced by `twobit_write`.
 pub fn twobit_read(data : String) -> TwoBitFile {
-  let bytes : Array[Int] = Array::new()
+  let bytes : Array[Int] = Array(capacity=0)
   let len = data.length()
   let mut i = 0
   while i + 1 < len {
@@ -749,7 +749,7 @@ pub fn twobit_get_sequence_string(tbf : TwoBitFile, name : String) -> String? {
 /// Convert all sequences in a TwoBitFile to an array of SeqRecord objects.
 /// Each sequence's name becomes the SeqRecord id and name.
 pub fn twobit_to_seq_records(tbf : TwoBitFile) -> Array[SeqRecord] {
-  let records : Array[SeqRecord] = Array::new()
+  let records : Array[SeqRecord] = Array(capacity=0)
   for i in 0..<tbf.sequences.length() {
     let seq = tbf.sequences[i]
     let dna_str = twobit_unpack_sequence(

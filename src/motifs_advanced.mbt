@@ -226,7 +226,7 @@ fn adv_index_of(s : String, sub : String) -> Int {
 
 ///|
 fn split_whitespace(s : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let len = s.length()
   let mut i = 0
   while i < len {
@@ -255,7 +255,7 @@ fn split_whitespace(s : String) -> Array[String] {
 ///|
 /// Parse a JASPAR PFM (Position Frequency Matrix) format string.
 pub fn parse_jaspar_pfm(content : String) -> Array[JasparMotif] {
-  let motifs : Array[JasparMotif] = Array::new()
+  let motifs : Array[JasparMotif] = Array(capacity=0)
   let lines_view = content.split("\n")
   let lines = lines_view.to_array()
 
@@ -276,10 +276,10 @@ pub fn parse_jaspar_pfm(content : String) -> Array[JasparMotif] {
         name = parts[1].trim().to_owned()
       }
 
-      let mut a_counts : Array[Double] = Array::new()
-      let mut c_counts : Array[Double] = Array::new()
-      let mut g_counts : Array[Double] = Array::new()
-      let mut t_counts : Array[Double] = Array::new()
+      let mut a_counts : Array[Double] = Array(capacity=0)
+      let mut c_counts : Array[Double] = Array(capacity=0)
+      let mut g_counts : Array[Double] = Array(capacity=0)
+      let mut t_counts : Array[Double] = Array(capacity=0)
 
       let mut j = i + 1
       while j < lines.length() && !lines[j].trim().has_prefix(">") {
@@ -336,7 +336,7 @@ pub fn parse_jaspar_pfm(content : String) -> Array[JasparMotif] {
 
 ///|
 fn parse_jaspar_row(line : String) -> (String, Array[Double]) {
-  let counts : Array[Double] = Array::new()
+  let counts : Array[Double] = Array(capacity=0)
   let mut base = ""
 
   if line.length() >= 1 {
@@ -414,7 +414,7 @@ pub fn jaspar_pfm_to_pwm(
 ///|
 /// Parse TRANSFAC matrix format.
 pub fn parse_transfac(content : String) -> Array[TransfacMotif] {
-  let motifs : Array[TransfacMotif] = Array::new()
+  let motifs : Array[TransfacMotif] = Array(capacity=0)
   let lines_view = content.split("\n")
   let lines = lines_view.to_array()
 
@@ -427,8 +427,8 @@ pub fn parse_transfac(content : String) -> Array[TransfacMotif] {
       let mut id = ""
       let mut name = ""
       let mut description = ""
-      let matrix_rows : Array[Array[Double]] = Array::new()
-      let binding_sites : Array[String] = Array::new()
+      let matrix_rows : Array[Array[Double]] = Array(capacity=0)
+      let binding_sites : Array[String] = Array(capacity=0)
       let mut in_matrix = false
 
       let mut j = i + 1
@@ -447,7 +447,7 @@ pub fn parse_transfac(content : String) -> Array[TransfacMotif] {
         } else if in_matrix && row_line.length() > 0 {
           let parts = split_whitespace(row_line)
           if parts.length() >= 5 {
-            let row : Array[Double] = Array::new()
+            let row : Array[Double] = Array(capacity=0)
             for k = 1; k < 5 && k < parts.length(); k = k + 1 {
               let parsed = adv_parse_float(parts[k])
               match parsed {
@@ -710,13 +710,13 @@ pub fn cluster_motifs(
     }
   }
 
-  let clusters : Array[MotifCluster] = Array::new()
+  let clusters : Array[MotifCluster] = Array(capacity=0)
   let assigned = Array::make(n, false)
 
   for i = 0; i < n; i = i + 1 {
     if !assigned[i] {
-      let cluster_members : Array[String] = Array::new()
-      let cluster_indices : Array[Int] = Array::new()
+      let cluster_members : Array[String] = Array(capacity=0)
+      let cluster_indices : Array[Int] = Array(capacity=0)
 
       for j = i; j < n; j = j + 1 {
         if !assigned[j] {
@@ -835,7 +835,7 @@ pub fn randomize_motif(
   let pwm = Array::make(width, Array::make(alphabet_size, 0.0))
 
   for pos = 0; pos < width; pos = pos + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut total = 0.0
 
     for i = 0; i < alphabet_size; i = i + 1 {

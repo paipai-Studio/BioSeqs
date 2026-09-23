@@ -142,7 +142,7 @@ pub fn MultipleSeqAlignment::slice(
     col_end
   }
 
-  let new_records = Array::new()
+  let new_records = Array(capacity=0)
   for i = rs; i < re; i = i + 1 {
     let rec = self.records[i]
     let sliced_seq = rec.seq.slice(start=cs, end=ce)
@@ -167,7 +167,7 @@ pub fn MultipleSeqAlignment::add_sequence(
   if align_len > 0 && seq.length() != align_len {
     raise AlignIOError("Sequence length does not match alignment length")
   }
-  let new_records = Array::new()
+  let new_records = Array(capacity=0)
   for r in self.records {
     new_records.push(r)
   }

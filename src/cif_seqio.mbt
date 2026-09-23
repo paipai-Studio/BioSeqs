@@ -27,7 +27,7 @@ fn cif_category(
     Some(data) =>
       if data.length() > 1 {
         let headers = data[0]
-        let rows : Array[Array[String]] = Array::new()
+        let rows : Array[Array[String]] = Array(capacity=0)
         for i = 1; i < data.length(); i = i + 1 {
           rows.push(data[i])
         }
@@ -51,7 +51,7 @@ fn cif_category(
 /// without raising (spec 5.2.3.2).
 pub fn parse_cif_seqres(content : String) -> Array[SeqRecord] raise SeqIOError {
   let block = parse_mmcif(content)
-  let records : Array[SeqRecord] = Array::new()
+  let records : Array[SeqRecord] = Array(capacity=0)
   let (headers, rows) = cif_category(block, "entity_poly_seq")
   if rows.length() == 0 {
     return records
@@ -62,8 +62,8 @@ pub fn parse_cif_seqres(content : String) -> Array[SeqRecord] raise SeqIOError {
   if entity_idx < 0 || mon_idx < 0 {
     return records
   }
-  let entity_ids : Array[String] = Array::new()
-  let entity_residues : Array[Array[CifResidue]] = Array::new()
+  let entity_ids : Array[String] = Array(capacity=0)
+  let entity_residues : Array[Array[CifResidue]] = Array(capacity=0)
   for row in rows {
     let entity = if entity_idx < row.length() { row[entity_idx] } else { "" }
     if entity.length() == 0 {
@@ -105,7 +105,7 @@ pub fn parse_cif_seqres(content : String) -> Array[SeqRecord] raise SeqIOError {
       }
     }
     let ordered : Array[CifResidue] = if all_numbered {
-      let sorted : Array[CifResidue] = Array::new()
+      let sorted : Array[CifResidue] = Array(capacity=0)
       for r in residues {
         sorted.push(r)
       }
@@ -150,7 +150,7 @@ pub fn parse_cif_seqres(content : String) -> Array[SeqRecord] raise SeqIOError {
 /// category returns an empty array (spec 5.2.3.2).
 pub fn parse_cif_atom(content : String) -> Array[SeqRecord] raise SeqIOError {
   let block = parse_mmcif(content)
-  let records : Array[SeqRecord] = Array::new()
+  let records : Array[SeqRecord] = Array(capacity=0)
   let (headers, rows) = cif_category(block, "atom_site")
   if rows.length() == 0 {
     return records
@@ -161,9 +161,9 @@ pub fn parse_cif_atom(content : String) -> Array[SeqRecord] raise SeqIOError {
   if chain_idx < 0 || comp_idx < 0 {
     return records
   }
-  let chain_ids : Array[String] = Array::new()
-  let chain_seqs : Array[StringBuilder] = Array::new()
-  let chain_keys : Array[Array[String]] = Array::new()
+  let chain_ids : Array[String] = Array(capacity=0)
+  let chain_seqs : Array[StringBuilder] = Array(capacity=0)
+  let chain_keys : Array[Array[String]] = Array(capacity=0)
   for row in rows {
     let chain = if chain_idx < row.length() { row[chain_idx] } else { "" }
     let comp = if comp_idx < row.length() { row[comp_idx] } else { "" }
@@ -189,7 +189,7 @@ pub fn parse_cif_atom(content : String) -> Array[SeqRecord] raise SeqIOError {
     if slot < 0 {
       chain_ids.push(chain)
       chain_seqs.push(StringBuilder::new())
-      let keys : Array[String] = Array::new()
+      let keys : Array[String] = Array(capacity=0)
       keys.push(dedup_key)
       chain_keys.push(keys)
       chain_seqs[chain_ids.length() - 1].write_string(three_to_one_aa(comp))

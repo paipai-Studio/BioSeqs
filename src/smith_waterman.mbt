@@ -202,13 +202,13 @@ pub fn smith_waterman(
   let n = seq1.length()
   let m = seq2.length()
   // Build score matrix: (n+1) x (m+1), initialised to 0.
-  let dp : Array[Array[Double]] = Array::new()
-  let trace : Array[Array[TraceDirection]] = Array::new()
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[TraceDirection]] = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
     let row = FixedArray::make(m + 1, 0.0)
     let trow = FixedArray::make(m + 1, TraceDirection::Stop)
-    let drow : Array[Double] = Array::new()
-    let trrow : Array[TraceDirection] = Array::new()
+    let drow : Array[Double] = Array(capacity=0)
+    let trrow : Array[TraceDirection] = Array(capacity=0)
     for j = 0; j <= m; j = j + 1 {
       drow.push(row[j])
       trrow.push(trow[j])
@@ -321,13 +321,13 @@ pub fn smith_waterman_with_matrix(
 ) -> SWResult {
   let n = seq1.length()
   let m = seq2.length()
-  let dp : Array[Array[Double]] = Array::new()
-  let trace : Array[Array[TraceDirection]] = Array::new()
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[TraceDirection]] = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
     let row = FixedArray::make(m + 1, 0.0)
     let trow = FixedArray::make(m + 1, TraceDirection::Stop)
-    let drow : Array[Double] = Array::new()
-    let trrow : Array[TraceDirection] = Array::new()
+    let drow : Array[Double] = Array(capacity=0)
+    let trrow : Array[TraceDirection] = Array(capacity=0)
     for j = 0; j <= m; j = j + 1 {
       drow.push(row[j])
       trrow.push(trow[j])

@@ -43,7 +43,7 @@ fn lefse_rank(data : Array[Double]) -> Array[Double] {
   let result : Array[Double] = Array::make(n, 0.0)
 
   // Build indexed array: [value, original_index]
-  let indexed : Array[(Double, Int)] = Array::new()
+  let indexed : Array[(Double, Int)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((data[i], i))
@@ -132,7 +132,7 @@ fn lefse_chi2_sf(x : Double, df : Int) -> Double {
 /// Get unique string values from an array, preserving first-occurrence order.
 fn lefse_unique_strings(arr : Array[String]) -> Array[String] {
   let seen : Map[String, Bool] = Map([], capacity=arr.length())
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < arr.length() {
     if !seen.contains(arr[i]) {
@@ -173,8 +173,8 @@ pub fn lefse_kruskal_wallis(groups : Array[Array[Double]]) -> (Double, Double) {
   }
 
   // Combine all values and compute ranks
-  let combined : Array[Double] = Array::new()
-  let group_sizes : Array[Int] = Array::new()
+  let combined : Array[Double] = Array(capacity=0)
+  let group_sizes : Array[Int] = Array(capacity=0)
   let mut total_n = 0
   i = 0
   while i < k {
@@ -285,7 +285,7 @@ pub fn lefse_wilcoxon_rank_sum(
   }
 
   // Combine and rank
-  let combined : Array[Double] = Array::new()
+  let combined : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n1 {
     combined.push(x[i])
@@ -385,7 +385,7 @@ pub fn lefse_lda_score(
   // Add pseudocount to avoid log(0)
   let pseudocount = 1.0e-10
   let mut i = 0
-  let safe_means : Array[Double] = Array::new()
+  let safe_means : Array[Double] = Array(capacity=0)
   while i < k {
     let v = class_means[i]
     safe_means.push(if v > 0.0 { v } else { pseudocount })
@@ -563,7 +563,7 @@ pub fn lefse_run(
   let n_samples = input.sample_names.length()
 
   if n_features == 0 || n_samples == 0 {
-    return LEfSeOutput::new(Array::new(), 0)
+    return LEfSeOutput::new(Array(capacity=0), 0)
   }
 
   // Get unique class labels
@@ -571,17 +571,17 @@ pub fn lefse_run(
   let n_classes = unique_classes.length()
 
   if n_classes < 2 {
-    return LEfSeOutput::new(Array::new(), 0)
+    return LEfSeOutput::new(Array(capacity=0), 0)
   }
 
   // Check if subclasses are meaningful (not all empty or identical)
   let has_subclasses = lefse_has_subclasses(input.subclasses)
 
   // Build class-to-sample-index mapping
-  let class_indices : Array[Array[Int]] = Array::new()
+  let class_indices : Array[Array[Int]] = Array(capacity=0)
   let mut ci = 0
   while ci < n_classes {
-    let indices : Array[Int] = Array::new()
+    let indices : Array[Int] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       if input.classes[j] == unique_classes[ci] {
@@ -597,11 +597,11 @@ pub fn lefse_run(
   let subclass_info = if has_subclasses {
     lefse_build_subclass_info(input.classes, input.subclasses, unique_classes)
   } else {
-    Array::new()
+    Array(capacity=0)
   }
 
   // Process each feature
-  let results : Array[LEfSeResult] = Array::new()
+  let results : Array[LEfSeResult] = Array(capacity=0)
   let mut n_sig = 0
 
   let mut fi = 0
@@ -614,10 +614,10 @@ pub fn lefse_run(
 
     // Step 1: Kruskal-Wallis test
     // Build groups for this feature
-    let kw_groups : Array[Array[Double]] = Array::new()
+    let kw_groups : Array[Array[Double]] = Array(capacity=0)
     let mut ci2 = 0
     while ci2 < n_classes {
-      let group_vals : Array[Double] = Array::new()
+      let group_vals : Array[Double] = Array(capacity=0)
       let mut j = 0
       while j < class_indices[ci2].length() {
         group_vals.push(input.features[fi][class_indices[ci2][j]])
@@ -650,10 +650,10 @@ pub fn lefse_run(
     }
 
     // Step 3: Compute class means and LDA score
-    let class_means : Array[Double] = Array::new()
+    let class_means : Array[Double] = Array(capacity=0)
     let mut ci3 = 0
     while ci3 < n_classes {
-      let group_vals : Array[Double] = Array::new()
+      let group_vals : Array[Double] = Array(capacity=0)
       let mut j = 0
       while j < class_indices[ci3].length() {
         group_vals.push(input.features[fi][class_indices[ci3][j]])
@@ -735,7 +735,7 @@ fn lefse_build_subclass_info(
   unique_classes : Array[String],
 ) -> Array[(String, String, Array[Int])] {
   let n = classes.length()
-  let info : Array[(String, String, Array[Int])] = Array::new()
+  let info : Array[(String, String, Array[Int])] = Array(capacity=0)
 
   // Collect all unique subclass labels
   let unique_subclasses = lefse_unique_strings(subclasses)
@@ -747,7 +747,7 @@ fn lefse_build_subclass_info(
     let mut ci = 0
     while ci < unique_classes.length() {
       let cls = unique_classes[ci]
-      let indices : Array[Int] = Array::new()
+      let indices : Array[Int] = Array(capacity=0)
       let mut j = 0
       while j < n {
         if subclasses[j] == sub && classes[j] == cls {
@@ -778,7 +778,7 @@ fn lefse_subclass_wilcoxon(
   alpha : Double,
 ) -> Bool {
   // Group by subclass
-  let unique_subclasses : Array[String] = Array::new()
+  let unique_subclasses : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < subclass_info.length() {
     let sub = subclass_info[i].0
@@ -797,7 +797,7 @@ fn lefse_subclass_wilcoxon(
   }
 
   // Get unique classes
-  let unique_classes : Array[String] = Array::new()
+  let unique_classes : Array[String] = Array(capacity=0)
   i = 0
   while i < subclass_info.length() {
     let cls = subclass_info[i].1
@@ -840,13 +840,13 @@ fn lefse_subclass_wilcoxon(
         // Only test if both groups have samples
         if indices1.length() >= 1 && indices2.length() >= 1 {
           // Extract feature values
-          let vals1 : Array[Double] = Array::new()
+          let vals1 : Array[Double] = Array(capacity=0)
           let mut k = 0
           while k < indices1.length() {
             vals1.push(feature_values[indices1[k]])
             k = k + 1
           }
-          let vals2 : Array[Double] = Array::new()
+          let vals2 : Array[Double] = Array(capacity=0)
           k = 0
           while k < indices2.length() {
             vals2.push(feature_values[indices2[k]])
@@ -880,7 +880,7 @@ fn lefse_get_subclass_class_indices(
   subclass : String,
   class_ : String,
 ) -> Array[Int] {
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < subclass_info.length() {
     if subclass_info[i].0 == subclass && subclass_info[i].1 == class_ {

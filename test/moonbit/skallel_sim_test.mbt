@@ -11,7 +11,7 @@ test "skallel_sim_sweep" {
   let h = @src.skallel_gt_to_haplotypes(g)
   let gn = @src.skallel_gt_to_n_alt(g)
 
-  let pos : Array[Int] = Array::new()
+  let pos : Array[Int] = Array(capacity=0)
   for v = 0; v < 20; v = v + 1 {
     pos.push(v + 1)
   }

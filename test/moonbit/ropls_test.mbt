@@ -644,16 +644,16 @@ let e_pls1_2_B : Array[Array[Double]] = [
 ]
 
 ///|
-let e_pls1_2_To : Array[Array[Double]] = Array::new()
+let e_pls1_2_To : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_pls1_2_Po : Array[Array[Double]] = Array::new()
+let e_pls1_2_Po : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_pls1_2_Wo : Array[Array[Double]] = Array::new()
+let e_pls1_2_Wo : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_pls1_2_Co : Array[Array[Double]] = Array::new()
+let e_pls1_2_Co : Array[Array[Double]] = Array(capacity=0)
 
 ///|
 let e_pls1_2_vip : Array[Double] = [
@@ -840,16 +840,16 @@ let e_pls1_1_B : Array[Array[Double]] = [
 ]
 
 ///|
-let e_pls1_1_To : Array[Array[Double]] = Array::new()
+let e_pls1_1_To : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_pls1_1_Po : Array[Array[Double]] = Array::new()
+let e_pls1_1_Po : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_pls1_1_Wo : Array[Array[Double]] = Array::new()
+let e_pls1_1_Wo : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_pls1_1_Co : Array[Array[Double]] = Array::new()
+let e_pls1_1_Co : Array[Array[Double]] = Array(capacity=0)
 
 ///|
 let e_pls1_1_vip : Array[Double] = [
@@ -1039,16 +1039,16 @@ let e_pls2_2_B : Array[Array[Double]] = [
 ]
 
 ///|
-let e_pls2_2_To : Array[Array[Double]] = Array::new()
+let e_pls2_2_To : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_pls2_2_Po : Array[Array[Double]] = Array::new()
+let e_pls2_2_Po : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_pls2_2_Wo : Array[Array[Double]] = Array::new()
+let e_pls2_2_Wo : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_pls2_2_Co : Array[Array[Double]] = Array::new()
+let e_pls2_2_Co : Array[Array[Double]] = Array(capacity=0)
 
 ///|
 let e_pls2_2_vip : Array[Double] = [
@@ -1237,16 +1237,16 @@ let e_plsda2_2_B : Array[Array[Double]] = [
 ]
 
 ///|
-let e_plsda2_2_To : Array[Array[Double]] = Array::new()
+let e_plsda2_2_To : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_plsda2_2_Po : Array[Array[Double]] = Array::new()
+let e_plsda2_2_Po : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_plsda2_2_Wo : Array[Array[Double]] = Array::new()
+let e_plsda2_2_Wo : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_plsda2_2_Co : Array[Array[Double]] = Array::new()
+let e_plsda2_2_Co : Array[Array[Double]] = Array(capacity=0)
 
 ///|
 let e_plsda2_2_vip : Array[Double] = [
@@ -1443,16 +1443,16 @@ let e_plsda3_2_B : Array[Array[Double]] = [
 ]
 
 ///|
-let e_plsda3_2_To : Array[Array[Double]] = Array::new()
+let e_plsda3_2_To : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_plsda3_2_Po : Array[Array[Double]] = Array::new()
+let e_plsda3_2_Po : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_plsda3_2_Wo : Array[Array[Double]] = Array::new()
+let e_plsda3_2_Wo : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_plsda3_2_Co : Array[Array[Double]] = Array::new()
+let e_plsda3_2_Co : Array[Array[Double]] = Array(capacity=0)
 
 ///|
 let e_plsda3_2_vip : Array[Double] = [
@@ -1652,16 +1652,16 @@ let e_pls1_auto_B : Array[Array[Double]] = [
 ]
 
 ///|
-let e_pls1_auto_To : Array[Array[Double]] = Array::new()
+let e_pls1_auto_To : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_pls1_auto_Po : Array[Array[Double]] = Array::new()
+let e_pls1_auto_Po : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_pls1_auto_Wo : Array[Array[Double]] = Array::new()
+let e_pls1_auto_Wo : Array[Array[Double]] = Array(capacity=0)
 
 ///|
-let e_pls1_auto_Co : Array[Array[Double]] = Array::new()
+let e_pls1_auto_Co : Array[Array[Double]] = Array(capacity=0)
 
 ///|
 let e_pls1_auto_vip : Array[Double] = [
@@ -2822,7 +2822,7 @@ test "ropls PLS-DA: lexicographic class levels and classification" {
 ///|
 test "ropls predict: continuous response on new X rows" {
   let m = @src.ropls_fit(ropls_x, y=@src.RoplsY::Continuous(ropls_y1), ncomp=2)
-  let sub6 : Array[Array[Double]] = Array::new()
+  let sub6 : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<6 {
     sub6.push(ropls_x[i])
   }
@@ -2833,7 +2833,7 @@ test "ropls predict: continuous response on new X rows" {
 ///|
 test "ropls predict: class labels on new X rows" {
   let m = @src.ropls_fit(ropls_x, y=@src.RoplsY::Classes(ropls_g3), ncomp=2)
-  let sub9 : Array[Array[Double]] = Array::new()
+  let sub9 : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<9 {
     sub9.push(ropls_x[i])
   }
@@ -2933,7 +2933,7 @@ test "ropls input validation rejects invalid calls" {
   } catch {
     _ => true
   }
-  let empty_perms : Array[Array[Int]] = Array::new()
+  let empty_perms : Array[Array[Int]] = Array(capacity=0)
   let ok7 = try {
     ignore(
       @src.ropls_permutation(

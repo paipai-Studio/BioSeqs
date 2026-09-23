@@ -91,7 +91,7 @@ pub fn filter_violated_restraints(
   restraints : Array[NoeRestraint],
   threshold : Double,
 ) -> Array[NoeRestraint] {
-  let out : Array[NoeRestraint] = Array::new()
+  let out : Array[NoeRestraint] = Array(capacity=0)
   for r in restraints {
     match r.observed {
       Some(d) => {
@@ -120,7 +120,7 @@ pub fn filter_violated_restraints(
 /// Columns: id, atom1, atom2, lower, upper, observed?, energy?
 /// Lines beginning with '#' or '!' are treated as comments.
 pub fn parse_noe_restraints(text : String) -> Array[NoeRestraint] {
-  let restraints : Array[NoeRestraint] = Array::new()
+  let restraints : Array[NoeRestraint] = Array(capacity=0)
   let lines = nmr_split_lines(text)
   for line in lines {
     let trimmed = line.trim().to_owned()
@@ -280,7 +280,7 @@ pub fn dihedral_violation(
 /// Parse a dihedral-restraint table (id, angle, residue, lower, upper,
 /// observed?, energy?).
 pub fn parse_dihedral_restraints(text : String) -> Array[DihedralRestraint] {
-  let out : Array[DihedralRestraint] = Array::new()
+  let out : Array[DihedralRestraint] = Array(capacity=0)
   let lines = nmr_split_lines(text)
   for line in lines {
     let trimmed = line.trim().to_owned()
@@ -387,7 +387,7 @@ pub fn shifts_for_residue(
   table : ChemicalShiftTable,
   residue : Int,
 ) -> Array[ChemicalShift] {
-  let out : Array[ChemicalShift] = Array::new()
+  let out : Array[ChemicalShift] = Array(capacity=0)
   for s in table.shifts {
     if s.residue == residue {
       out.push(s)
@@ -402,7 +402,7 @@ pub fn shifts_for_element(
   table : ChemicalShiftTable,
   element : String,
 ) -> Array[ChemicalShift] {
-  let out : Array[ChemicalShift] = Array::new()
+  let out : Array[ChemicalShift] = Array(capacity=0)
   for s in table.shifts {
     if s.element == element {
       out.push(s)
@@ -435,7 +435,7 @@ pub fn mean_shift_by_element(
 /// Expected columns: id, residue, atom_name, element, shift, error?
 /// Lines beginning with '#' or '!' are comments.
 pub fn parse_chemical_shifts(text : String) -> ChemicalShiftTable {
-  let shifts : Array[ChemicalShift] = Array::new()
+  let shifts : Array[ChemicalShift] = Array(capacity=0)
   let lines = nmr_split_lines(text)
   for line in lines {
     let trimmed = line.trim().to_owned()
@@ -562,7 +562,7 @@ pub fn peaks_by_residue(
   residue : Int,
   dim : Int,
 ) -> Array[NmrPeak] {
-  let out : Array[NmrPeak] = Array::new()
+  let out : Array[NmrPeak] = Array(capacity=0)
   let prefix = residue.to_string()
   for p in list.peaks {
     if dim < 0 || dim >= p.dimensions.length() {
@@ -584,7 +584,7 @@ pub fn peaks_by_atom(
   atom : String,
   dim : Int,
 ) -> Array[NmrPeak] {
-  let out : Array[NmrPeak] = Array::new()
+  let out : Array[NmrPeak] = Array(capacity=0)
   for p in list.peaks {
     if dim < 0 || dim >= p.dimensions.length() {
       continue
@@ -638,7 +638,7 @@ pub fn max_peak_volume(list : PeakList) -> Double {
 ///   id  w1  w1_ppm  w1_int  w2  w2_ppm  w2_int  volume  merit
 ///   1  15.HN  8.34  1.0e6  15.N  118.5  1.0e6  2.3e6  0.95
 pub fn parse_peak_list(text : String) -> PeakList {
-  let peaks : Array[NmrPeak] = Array::new()
+  let peaks : Array[NmrPeak] = Array(capacity=0)
   let lines = nmr_split_lines(text)
   let mut label = ""
   let mut n_dim = 0
@@ -674,9 +674,9 @@ pub fn parse_peak_list(text : String) -> PeakList {
     if n_dim == 0 && nd > 0 {
       n_dim = nd
     }
-    let dimensions : Array[String] = Array::new()
-    let shifts : Array[Double] = Array::new()
-    let intensities : Array[Double] = Array::new()
+    let dimensions : Array[String] = Array(capacity=0)
+    let shifts : Array[Double] = Array(capacity=0)
+    let intensities : Array[Double] = Array(capacity=0)
     let mut idx = 1
     for _ in 0..<nd {
       if idx >= fields.length() {
@@ -937,7 +937,7 @@ pub fn nmr_sample_dihedral_restraints() -> Array[DihedralRestraint] {
 ///|
 /// Split a string into lines (handling \n and \r\n).
 fn nmr_split_lines(text : String) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   let mut cur = ""
   for i in 0..<text.length() {
     let c = text[i:i + 1].to_owned()
@@ -965,7 +965,7 @@ fn nmr_split_lines(text : String) -> Array[String] {
 ///|
 /// Split a string on whitespace (spaces and tabs), ignoring empty fields.
 fn nmr_split_whitespace(s : String) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   let mut cur = ""
   for i in 0..<s.length() {
     let c = s[i:i + 1].to_owned()

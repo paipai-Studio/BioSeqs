@@ -411,8 +411,8 @@ pub fn dnashape_predict(
 ) -> DnaShapeResult {
   let n = seq.length()
   let k = feature.kmer_size()
-  let values = Array::new()
-  let positions = Array::new()
+  let values = Array(capacity=0)
+  let positions = Array(capacity=0)
   if n < k {
     // sequence too short: all NaN
     let mut i = 0

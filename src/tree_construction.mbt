@@ -360,10 +360,10 @@ pub fn DistanceCalculator::get_distance(
   sequences : Array[(String, String)],
 ) -> Array[Array[Double]] raise SeqError {
   let n = sequences.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
 
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n; j = j + 1 {
       if i == j {
         row.push(0.0)
@@ -456,7 +456,7 @@ fn build_upgma(
     return Clade::new(name=Some(names[0]))
   }
 
-  let mut clusters : Array[BuildNode] = Array::new()
+  let mut clusters : Array[BuildNode] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     clusters.push(build_node_leaf(i, names[i]))
   }
@@ -481,7 +481,7 @@ fn build_upgma(
     )
     next_id = next_id + 1
 
-    let new_dists_row : Array[Double] = Array::new()
+    let new_dists_row : Array[Double] = Array(capacity=0)
 
     let mut k = 0
     while k < ni {
@@ -498,7 +498,7 @@ fn build_upgma(
     }
     new_dists_row.push(0.0)
 
-    let new_clusters : Array[BuildNode] = Array::new()
+    let new_clusters : Array[BuildNode] = Array(capacity=0)
     k = 0
     while k < ni {
       if k != i && k != j {
@@ -508,12 +508,12 @@ fn build_upgma(
     }
     new_clusters.push(new_cluster)
 
-    let new_dist_matrix : Array[Array[Double]] = Array::new()
+    let new_dist_matrix : Array[Array[Double]] = Array(capacity=0)
     let mut ridx = 0
     let mut r = 0
     while r < ni {
       if r != i && r != j {
-        let row : Array[Double] = Array::new()
+        let row : Array[Double] = Array(capacity=0)
         let mut c = 0
         while c < ni {
           if c != i && c != j {
@@ -551,7 +551,7 @@ fn build_wpgma(
     return Clade::new(name=Some(names[0]))
   }
 
-  let mut clusters : Array[BuildNode] = Array::new()
+  let mut clusters : Array[BuildNode] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     clusters.push(build_node_leaf(i, names[i]))
   }
@@ -576,7 +576,7 @@ fn build_wpgma(
     )
     next_id = next_id + 1
 
-    let new_dists_row : Array[Double] = Array::new()
+    let new_dists_row : Array[Double] = Array(capacity=0)
     let mut k = 0
     while k < ni {
       if k != i && k != j {
@@ -587,7 +587,7 @@ fn build_wpgma(
     }
     new_dists_row.push(0.0)
 
-    let new_clusters : Array[BuildNode] = Array::new()
+    let new_clusters : Array[BuildNode] = Array(capacity=0)
     k = 0
     while k < ni {
       if k != i && k != j {
@@ -597,12 +597,12 @@ fn build_wpgma(
     }
     new_clusters.push(new_cluster)
 
-    let new_dist_matrix : Array[Array[Double]] = Array::new()
+    let new_dist_matrix : Array[Array[Double]] = Array(capacity=0)
     let mut ridx = 0
     let mut r = 0
     while r < ni {
       if r != i && r != j {
-        let row : Array[Double] = Array::new()
+        let row : Array[Double] = Array(capacity=0)
         let mut c = 0
         while c < ni {
           if c != i && c != j {
@@ -643,13 +643,13 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
     return Clade::new(clades=[c1, c2])
   }
 
-  let mut active : Array[Int] = Array::new()
+  let mut active : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     active.push(i)
   }
 
   let mut dist = copy_matrix(distances)
-  let nodes : Array[BuildNode] = Array::new()
+  let nodes : Array[BuildNode] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     nodes.push(build_node_leaf(i, names[i]))
   }
@@ -658,7 +658,7 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
   while active.length() > 2 {
     let m = active.length()
 
-    let row_sums : Array[Double] = Array::new()
+    let row_sums : Array[Double] = Array(capacity=0)
     for i = 0; i < m; i = i + 1 {
       let mut s = 0.0
       for j = 0; j < m; j = j + 1 {
@@ -701,17 +701,17 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
     let idx_new_node = next_id - 1
     nodes.push(new_node)
 
-    let keep_indices : Array[Int] = Array::new()
+    let keep_indices : Array[Int] = Array(capacity=0)
     for k = 0; k < m; k = k + 1 {
       if k != min_i && k != min_j {
         keep_indices.push(k)
       }
     }
 
-    let new_dist_matrix : Array[Array[Double]] = Array::new()
+    let new_dist_matrix : Array[Array[Double]] = Array(capacity=0)
 
     for r = 0; r < keep_indices.length(); r = r + 1 {
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       for c = 0; c < keep_indices.length(); c = c + 1 {
         row.push(dist[keep_indices[r]][keep_indices[c]])
       }
@@ -721,7 +721,7 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
       new_dist_matrix.push(row)
     }
 
-    let last_row : Array[Double] = Array::new()
+    let last_row : Array[Double] = Array(capacity=0)
     for c = 0; c < keep_indices.length(); c = c + 1 {
       let ku = keep_indices[c]
       let duk = (dist[min_i][ku] + dist[min_j][ku] - dij) / 2.0
@@ -730,7 +730,7 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
     last_row.push(0.0)
     new_dist_matrix.push(last_row)
 
-    let new_active_list : Array[Int] = Array::new()
+    let new_active_list : Array[Int] = Array(capacity=0)
     for k in keep_indices {
       new_active_list.push(active[k])
     }
@@ -755,9 +755,9 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
 ///|
 /// Copy a distance matrix.
 fn copy_matrix(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   for row in matrix {
-    let new_row : Array[Double] = Array::new()
+    let new_row : Array[Double] = Array(capacity=0)
     for v in row {
       new_row.push(v)
     }

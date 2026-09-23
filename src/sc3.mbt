@@ -39,11 +39,11 @@ pub fn sc3_preprocess(data : Array[Array[Double]]) -> Array[Array[Double]] {
   let n = data.length()
   let dim = if n > 0 { data[0].length() } else { 0 }
 
-  let processed : Array[Array[Double]] = Array::new()
+  let processed : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut sum = 0.0
     let mut j = 0
     while j < dim {
@@ -73,7 +73,7 @@ pub fn sc3_pca(
   let n = data.length()
   let dim = if n > 0 { data[0].length() } else { 0 }
 
-  let means : Array[Double] = Array::new()
+  let means : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < dim {
     let mut sum = 0.0
@@ -86,10 +86,10 @@ pub fn sc3_pca(
     i = i + 1
   }
 
-  let centered : Array[Array[Double]] = Array::new()
+  let centered : Array[Array[Double]] = Array(capacity=0)
   let mut k = 0
   while k < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut l = 0
     while l < dim {
       row.push(data[k][l] - means[l])
@@ -99,10 +99,10 @@ pub fn sc3_pca(
     k = k + 1
   }
 
-  let covariance : Array[Array[Double]] = Array::new()
+  let covariance : Array[Array[Double]] = Array(capacity=0)
   let mut m = 0
   while m < dim {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut p = 0
     while p < dim {
       let mut sum = 0.0
@@ -120,10 +120,10 @@ pub fn sc3_pca(
 
   let eigenvalues = sc3_power_iteration(covariance, n_components)
 
-  let components : Array[Array[Double]] = Array::new()
+  let components : Array[Array[Double]] = Array(capacity=0)
   let mut r = 0
   while r < n_components && r < eigenvalues.length() {
-    let component : Array[Double] = Array::new()
+    let component : Array[Double] = Array(capacity=0)
     let mut s = 0
     while s < n {
       let mut sum = 0.0
@@ -139,10 +139,10 @@ pub fn sc3_pca(
     r = r + 1
   }
 
-  let transposed : Array[Array[Double]] = Array::new()
+  let transposed : Array[Array[Double]] = Array(capacity=0)
   let mut u = 0
   while u < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut v = 0
     while v < components.length() {
       row.push(components[v][u])
@@ -162,11 +162,11 @@ pub fn sc3_power_iteration(
   n_components : Int,
 ) -> Array[Array[Double]] {
   let n = matrix.length()
-  let components : Array[Array[Double]] = Array::new()
+  let components : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_components {
-    let v : Array[Double] = Array::new()
+    let v : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       v.push((i + 1).to_double() / (j + 1).to_double() - 0.5)
@@ -175,7 +175,7 @@ pub fn sc3_power_iteration(
 
     let mut iter = 0
     while iter < 100 {
-      let v_new : Array[Double] = Array::new()
+      let v_new : Array[Double] = Array(capacity=0)
       let mut k = 0
       while k < n {
         let mut sum = 0.0
@@ -238,10 +238,10 @@ pub fn sc3_calculate_consensus_matrix(
 ) -> Array[Array[Double]] {
   let n = data.length()
 
-  let consensus : Array[Array[Double]] = Array::new()
+  let consensus : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(0.0)
@@ -289,14 +289,14 @@ pub fn sc3_kmeans(data : Array[Array[Double]], k : Int) -> Array[Int] {
   let n = data.length()
   let dim = if n > 0 { data[0].length() } else { 0 }
 
-  let centroids : Array[Array[Double]] = Array::new()
+  let centroids : Array[Array[Double]] = Array(capacity=0)
   let mut c = 0
   while c < k && c < n {
     centroids.push(data[c])
     c = c + 1
   }
 
-  let labels : Array[Int] = Array::new()
+  let labels : Array[Int] = Array(capacity=0)
   let mut j = 0
   while j < n {
     labels.push(0)
@@ -332,7 +332,7 @@ pub fn sc3_kmeans(data : Array[Array[Double]], k : Int) -> Array[Int] {
 
     let mut r = 0
     while r < centroids.length() {
-      let sum : Array[Double] = Array::new()
+      let sum : Array[Double] = Array(capacity=0)
       let mut s = 0
       while s < dim {
         sum.push(0.0)
@@ -390,7 +390,7 @@ pub fn sc3_calculate_silhouette(
   k : Int,
 ) -> Array[Double] {
   let n = data.length()
-  let scores : Array[Double] = Array::new()
+  let scores : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -453,7 +453,7 @@ pub fn sc3_calculate_gap_statistics(
 ) -> Array[Double] {
   let n = data.length()
 
-  let gaps : Array[Double] = Array::new()
+  let gaps : Array[Double] = Array(capacity=0)
 
   let mut current_k = 1
   while current_k <= k {
@@ -483,10 +483,10 @@ pub fn sc3_calculate_wcss(data : Array[Array[Double]], k : Int) -> Double {
   let n = data.length()
   let dim = if n > 0 { data[0].length() } else { 0 }
 
-  let centroids : Array[Array[Double]] = Array::new()
+  let centroids : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < k {
-    let centroid : Array[Double] = Array::new()
+    let centroid : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < dim {
       centroid.push(0.0)
@@ -496,7 +496,7 @@ pub fn sc3_calculate_wcss(data : Array[Array[Double]], k : Int) -> Double {
     i = i + 1
   }
 
-  let counts : Array[Int] = Array::new()
+  let counts : Array[Int] = Array(capacity=0)
   let mut c = 0
   while c < k {
     counts.push(0)
@@ -547,8 +547,8 @@ pub fn sc3_generate_null_data(
   let n = data.length()
   let dim = if n > 0 { data[0].length() } else { 0 }
 
-  let mins : Array[Double] = Array::new()
-  let maxes : Array[Double] = Array::new()
+  let mins : Array[Double] = Array(capacity=0)
+  let maxes : Array[Double] = Array(capacity=0)
 
   let mut j = 0
   while j < dim {
@@ -566,10 +566,10 @@ pub fn sc3_generate_null_data(
     j = j + 1
   }
 
-  let null_data : Array[Array[Double]] = Array::new()
+  let null_data : Array[Array[Double]] = Array(capacity=0)
   let mut k = 0
   while k < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut l = 0
     while l < dim {
       let state = ((seed * 1103515245 + k * 12345 + l * 98765) >> 16) & 0x7fff

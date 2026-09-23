@@ -47,7 +47,7 @@ pub fn compute_sum_factors(
 
   let target_size = effective_sizes[0]
 
-  let all_sfs : Array[Array[Double]] = Array::new()
+  let all_sfs : Array[Array[Double]] = Array(capacity=0)
 
   let mut iteration = 0
   while iteration < 3 {
@@ -73,10 +73,10 @@ pub fn compute_sum_factors(
       }
     }
 
-    let ranks : Array[Array[(Double, Int)]] = Array::new()
+    let ranks : Array[Array[(Double, Int)]] = Array(capacity=0)
     let mut i = 0
     while i < n_genes {
-      let gene_ranks : Array[(Double, Int)] = Array::new()
+      let gene_ranks : Array[(Double, Int)] = Array(capacity=0)
       let mut j = 0
       while j < n_cells {
         let norm_val = if current_sfs[j] > 0.0 {
@@ -109,10 +109,10 @@ pub fn compute_sum_factors(
       j = j + 1
     }
 
-    let subsets : Array[Array[Int]] = Array::new()
+    let subsets : Array[Array[Int]] = Array(capacity=0)
     let mut seed = 0
     while subsets.length() < 100 {
-      let subset : Array[Int] = Array::new()
+      let subset : Array[Int] = Array(capacity=0)
       let used : Map[Int, Bool] = Map([], capacity=n_cells)
 
       let mut m = 0
@@ -240,11 +240,11 @@ pub fn scran_log_normalize(
   let n_cells = counts.length()
   let n_genes = if n_cells > 0 { counts[0].length() } else { 0 }
 
-  let normalized : Array[Array[Double]] = Array::new()
+  let normalized : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_cells {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_genes {
       let sf = if i < size_factors.length() { size_factors[i] } else { 1.0 }
@@ -273,7 +273,7 @@ pub fn build_snn_graph(
 
   let mut i = 0
   while i < n_cells {
-    let distances : Array[(Double, Int)] = Array::new()
+    let distances : Array[(Double, Int)] = Array(capacity=0)
 
     let mut j = 0
     while j < n_cells {
@@ -307,8 +307,8 @@ pub fn build_snn_graph(
     } else {
       distances.length()
     }
-    let neighbors : Array[Int] = Array::new()
-    let neighbor_weights : Array[Double] = Array::new()
+    let neighbors : Array[Int] = Array(capacity=0)
+    let neighbor_weights : Array[Double] = Array(capacity=0)
 
     let mut j = 1
     while j < k_neighbors {
@@ -363,7 +363,7 @@ pub fn leiden_clustering(
         j = j + 1
       }
 
-      let keys_array : Array[Int] = Array::new()
+      let keys_array : Array[Int] = Array(capacity=0)
       let keys_iter = considered_clusters.keys().collect()
       let mut k = 0
       while k < keys_iter.length() {
@@ -477,10 +477,10 @@ pub fn score_markers(
     i = i + 1
   }
 
-  let gene_result : Array[String] = Array::new()
-  let cluster_result : Array[Int] = Array::new()
-  let avg_log2_fc_result : Array[Double] = Array::new()
-  let p_value_result : Array[Double] = Array::new()
+  let gene_result : Array[String] = Array(capacity=0)
+  let cluster_result : Array[Int] = Array(capacity=0)
+  let avg_log2_fc_result : Array[Double] = Array(capacity=0)
+  let p_value_result : Array[Double] = Array(capacity=0)
 
   i = 0
   while i < n_genes {
@@ -647,7 +647,7 @@ fn combination(n : Int, k : Int) -> Double {
 fn benjamini_hochberg_markers(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
 
-  let indexed : Array[(Double, Int)] = Array::new()
+  let indexed : Array[(Double, Int)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((p_values[i], i))
@@ -694,8 +694,8 @@ pub fn create_example_scran_data() -> (Array[Array[Int]], Array[String]) {
   let n_cells = 100
   let n_genes = 500
 
-  let counts : Array[Array[Int]] = Array::new()
-  let gene_names : Array[String] = Array::new()
+  let counts : Array[Array[Int]] = Array(capacity=0)
+  let gene_names : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < n_genes {
@@ -705,7 +705,7 @@ pub fn create_example_scran_data() -> (Array[Array[Int]], Array[String]) {
 
   let mut i = 0
   while i < n_cells {
-    let row : Array[Int] = Array::new()
+    let row : Array[Int] = Array(capacity=0)
 
     let cluster = i / 20
 

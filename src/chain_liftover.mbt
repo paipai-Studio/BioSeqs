@@ -52,7 +52,7 @@ pub struct ChainFile {
 /// to a region of the query genome.
 pub fn cl_parse_chain(content : String) -> ChainFile {
   let lines = cl_split_lines(content)
-  let alignments : Array[ChainAlignment] = Array::new()
+  let alignments : Array[ChainAlignment] = Array(capacity=0)
 
   let mut i = 0
   let mut current_target_name = ""
@@ -305,7 +305,7 @@ pub fn cl_find_chain_for_pos(
 ///|
 /// Split a string by newline character.
 fn cl_split_lines(s : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut start = 0
   let mut i = 0
   while i < s.length() {
@@ -368,7 +368,7 @@ fn cl_starts_with(s : String, prefix : String) -> Bool {
 ///|
 /// Split a string by whitespace (spaces and tabs).
 fn cl_split_spaces(s : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut start = 0
   let mut i = 0
   while i < s.length() {
@@ -474,7 +474,7 @@ fn cl_parse_chain_blocks(
   lines : Array[String],
   start_idx : Int,
 ) -> Array[ChainBlock] {
-  let blocks : Array[ChainBlock] = Array::new()
+  let blocks : Array[ChainBlock] = Array(capacity=0)
   let mut i = start_idx
 
   while i < lines.length() {

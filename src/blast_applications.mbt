@@ -216,7 +216,7 @@ pub fn BlastCommandline::blastapp_build_command(
 pub fn BlastCommandline::blastapp_validate(
   self : BlastCommandline,
 ) -> Array[String] {
-  let errors : Array[String] = Array::new()
+  let errors : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < self.param_specs.length() {
     let spec = self.param_specs[i]

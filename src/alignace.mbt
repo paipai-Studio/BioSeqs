@@ -147,7 +147,7 @@ pub fn alignace_parse(text : String) -> AlignAceRecord {
   let record = AlignAceRecord::new()
   // Convert StringView array to String array for indexed access
   let lines_raw = text.split("\n").to_array()
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   for l in lines_raw {
     lines.push(l.to_string())
   }
@@ -233,7 +233,7 @@ fn alignace_parse_motif(lines : Array[String], start : Int) -> AlignAceMotif? {
   // Line 4: "G   0   8   0   0   0   0   0   8   0   0"
   // Line 5: "T   7   0   0   8   7   8   0   0   8   7"
   let base_rows = ["A", "C", "G", "T"]
-  let count_matrix : Array[Array[Int]] = Array::new()
+  let count_matrix : Array[Array[Int]] = Array(capacity=0)
   for row_idx in 0..<4 {
     let line_idx = start + 2 + row_idx
     if line_idx >= lines.length() {
@@ -249,7 +249,7 @@ fn alignace_parse_motif(lines : Array[String], start : Int) -> AlignAceMotif? {
     if parts[0].to_upper() != base_rows[row_idx] {
       return None
     }
-    let counts = Array::new()
+    let counts = Array(capacity=0)
     for j in 1..<parts.length() {
       counts.push(parse_int(parts[j]))
     }
@@ -286,7 +286,7 @@ fn alignace_parse_site(text : String) -> AlignAceSite? {
 ///|
 /// Split a string by whitespace, returning non-empty parts.
 fn alignace_split_whitespace(s : String) -> Array[String] {
-  let parts = Array::new()
+  let parts = Array(capacity=0)
   let sb = StringBuilder::new()
   for c in s.to_array() {
     if c == ' ' || c == '\t' {
@@ -345,7 +345,7 @@ pub fn alignace_motif_consensus(motif : AlignAceMotif) -> String {
 /// counts to frequencies.
 pub fn alignace_to_pwm(motif : AlignAceMotif) -> Array[Array[Double]] {
   let width = motif.width
-  let pwm : Array[Array[Double]] = Array::new()
+  let pwm : Array[Array[Double]] = Array(capacity=0)
   for row in 0..<4 {
     let freq_row = Array::make(width, 0.0)
     for col in 0..<width {

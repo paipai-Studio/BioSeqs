@@ -481,7 +481,7 @@ test "mm_sample_annotations_validation" {
   assert_eq(annotations[19].chr(), "chr3")
   assert_eq(annotations[19].gene(), "D")
   // Verify gene diversity: genes A-H are present.
-  let genes : Array[String] = Array::new()
+  let genes : Array[String] = Array(capacity=0)
   for ann in annotations {
     if !genes.contains(ann.gene()) {
       genes.push(ann.gene())

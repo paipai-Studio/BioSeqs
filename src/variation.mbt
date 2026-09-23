@@ -277,7 +277,7 @@ pub fn detect_mutations(
   variant_position : Int,
   alt_allele : String,
 ) -> Array[Mutation] {
-  let mutations : Array[Mutation] = Array::new()
+  let mutations : Array[Mutation] = Array(capacity=0)
 
   let codon_start = (variant_position - 1) / 3 * 3
   let codon_end = codon_start + 3
@@ -537,14 +537,14 @@ pub fn parse_vcf_line(line : String) -> VariationRecord? {
       position,
       ref_allele,
       alt_allele,
-      Array::new(),
+      Array(capacity=0),
     ),
   )
 }
 
 ///|
 pub fn create_example_variation_data() -> Array[VariationRecord] {
-  let records : Array[VariationRecord] = Array::new()
+  let records : Array[VariationRecord] = Array(capacity=0)
 
   let mutations1 = [
     Mutation::new(

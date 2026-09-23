@@ -219,10 +219,10 @@ fn gostats_odds_ratio(n_univ : Int, m : Int, n : Int, k : Int) -> Double {
 pub fn gostats_bh_fdr(p_values : Array[Double]) -> Array[Double] {
   let nn : Int = p_values.length()
   if nn == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
-  let sorted_with_idx : Array[(Double, Int)] = Array::new()
+  let sorted_with_idx : Array[(Double, Int)] = Array(capacity=0)
   let mut i : Int = 0
   while i < nn {
     sorted_with_idx.push((p_values[i], i))
@@ -243,7 +243,7 @@ pub fn gostats_bh_fdr(p_values : Array[Double]) -> Array[Double] {
     j = j + 1
   }
 
-  let corrected_sorted : Array[Double] = Array::new()
+  let corrected_sorted : Array[Double] = Array(capacity=0)
   i = 0
   while i < nn {
     let rank : Double = (i + 1).to_double()
@@ -305,7 +305,7 @@ fn gostats_intersection_genes(
   arr : Array[String],
   set : Map[String, Bool],
 ) -> Array[String] {
-  let inter_result : Array[String] = Array::new()
+  let inter_result : Array[String] = Array(capacity=0)
   let mut i : Int = 0
   while i < arr.length() {
     if set.contains(arr[i]) {
@@ -328,8 +328,8 @@ pub fn gostats_hypergeometric_test(
   let n_univ : Int = hg_test.universe.length()
   let n_sel : Int = hg_test.selected.length()
 
-  let hyp_results : Array[GOHyperGeoResult] = Array::new()
-  let hyp_p_values : Array[Double] = Array::new()
+  let hyp_results : Array[GOHyperGeoResult] = Array(capacity=0)
+  let hyp_p_values : Array[Double] = Array(capacity=0)
 
   let term_keys : Array[String] = hg_test.go_graph.terms.keys().collect()
   let mut i : Int = 0
@@ -422,7 +422,7 @@ pub fn gostats_hypergeometric_test(
 fn gostats_term_depth(go_graph : GOStatsGraph, go_id : String) -> Int {
   let visited : Map[String, Bool] = Map([], capacity=50)
   visited.set(go_id, true)
-  let depth_queue : Array[(String, Int)] = Array::new()
+  let depth_queue : Array[(String, Int)] = Array(capacity=0)
   depth_queue.push((go_id, 0))
   let mut max_depth : Int = 0
   let mut idx : Int = 0
@@ -468,7 +468,7 @@ pub fn gostats_conditional_test(
 
   let cond_term_keys : Array[String] = hg_test.go_graph.terms.keys().collect()
 
-  let filtered_terms : Array[String] = Array::new()
+  let filtered_terms : Array[String] = Array(capacity=0)
   let mut fi : Int = 0
   while fi < cond_term_keys.length() {
     let fid : String = cond_term_keys[fi]
@@ -488,7 +488,7 @@ pub fn gostats_conditional_test(
     ti = ti + 1
   }
 
-  let sorted_terms : Array[String] = Array::new()
+  let sorted_terms : Array[String] = Array(capacity=0)
   ti = 0
   while ti < filtered_terms.length() {
     sorted_terms.push(filtered_terms[ti])
@@ -512,8 +512,8 @@ pub fn gostats_conditional_test(
   }
 
   let removed_genes : Map[String, Bool] = Map([], capacity=cond_n)
-  let cond_results : Array[GOHyperGeoResult] = Array::new()
-  let cond_p_values : Array[Double] = Array::new()
+  let cond_results : Array[GOHyperGeoResult] = Array(capacity=0)
+  let cond_p_values : Array[Double] = Array(capacity=0)
 
   let mut si : Int = 0
   while si < sorted_terms.length() {
@@ -524,7 +524,7 @@ pub fn gostats_conditional_test(
       sterm.gene_ids,
       cond_universe_set,
     )
-    let effective_genes : Array[String] = Array::new()
+    let effective_genes : Array[String] = Array(capacity=0)
     let mut egi : Int = 0
     while egi < s_term_genes.length() {
       let egene : String = s_term_genes[egi]
@@ -639,7 +639,7 @@ pub fn gostats_filter_results(
   fdr_cutoff : Double,
   min_observed : Int,
 ) -> Array[GOHyperGeoResult] {
-  let filtered : Array[GOHyperGeoResult] = Array::new()
+  let filtered : Array[GOHyperGeoResult] = Array(capacity=0)
   let mut i4 : Int = 0
   while i4 < results.length() {
     let r : GOHyperGeoResult = results[i4]

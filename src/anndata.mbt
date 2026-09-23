@@ -133,7 +133,7 @@ pub fn AnnData::var_column(self : AnnData, key : String) -> Array[String]? {
 
 ///|
 fn pick_strs(a : Array[String], idx : Array[Int]) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for i in idx {
     if i < a.length() {
       out.push(a[i])
@@ -146,12 +146,12 @@ fn pick_strs(a : Array[String], idx : Array[Int]) -> Array[String] {
 
 ///|
 fn pick_rows(mat : Array[Array[Double]], idx : Array[Int]) -> Array[Array[Double]] {
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i in idx {
     if i < mat.length() {
       out.push(mat[i].copy())
     } else {
-      out.push(Array::new())
+      out.push(Array(capacity=0))
     }
   }
   out
@@ -163,9 +163,9 @@ fn pick_rc(
   r_idx : Array[Int],
   c_idx : Array[Int],
 ) -> Array[Array[Double]] {
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for r in r_idx {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     if r < mat.length() {
       for c in c_idx {
         if c < mat[r].length() {
@@ -298,7 +298,7 @@ pub fn AnnData::copy(self : AnnData) -> AnnData {
 ///|
 /// Indices `0..n-1`.
 fn range(n : Int) -> Array[Int] {
-  let out : Array[Int] = Array::new()
+  let out : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < n {
     out.push(i)

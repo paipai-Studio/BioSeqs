@@ -93,7 +93,7 @@ test "compute_batch_mixing_score" {
 
   assert_true(score >= 0.0 && score <= 1.0)
 
-  let raw_data : Array[Array[Double]] = Array::new()
+  let raw_data : Array[Array[Double]] = Array(capacity=0)
   for cell in batches[0] {
     raw_data.push(cell)
   }
@@ -101,7 +101,7 @@ test "compute_batch_mixing_score" {
     raw_data.push(cell)
   }
 
-  let raw_batch_indices : Array[Int] = Array::new()
+  let raw_batch_indices : Array[Int] = Array(capacity=0)
   let mut idx = 0
   while idx < 50 {
     raw_batch_indices.push(0)
@@ -124,7 +124,7 @@ test "rescale_batches_correction_effect" {
     2, 50, 100, 2.0,
   )
 
-  let raw_data : Array[Array[Double]] = Array::new()
+  let raw_data : Array[Array[Double]] = Array(capacity=0)
   for cell in batches[0] {
     raw_data.push(cell)
   }
@@ -132,7 +132,7 @@ test "rescale_batches_correction_effect" {
     raw_data.push(cell)
   }
 
-  let raw_batch_indices : Array[Int] = Array::new()
+  let raw_batch_indices : Array[Int] = Array(capacity=0)
   let mut idx = 0
   while idx < 50 {
     raw_batch_indices.push(0)
@@ -161,7 +161,7 @@ test "fast_mnn_correction_effect" {
     2, 50, 100, 2.0,
   )
 
-  let raw_data : Array[Array[Double]] = Array::new()
+  let raw_data : Array[Array[Double]] = Array(capacity=0)
   for cell in batches[0] {
     raw_data.push(cell)
   }
@@ -169,7 +169,7 @@ test "fast_mnn_correction_effect" {
     raw_data.push(cell)
   }
 
-  let raw_batch_indices : Array[Int] = Array::new()
+  let raw_batch_indices : Array[Int] = Array(capacity=0)
   let mut idx = 0
   while idx < 50 {
     raw_batch_indices.push(0)

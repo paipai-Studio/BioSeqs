@@ -88,7 +88,7 @@ fn insdc_copy_quals(
 ///|
 /// Split a string on ASCII whitespace, returning non-empty tokens.
 fn insdc_split_whitespace(s : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let len = s.length()
   let sp : UInt16 = ' '.to_int().to_uint16()
   let tab : UInt16 = '\t'.to_int().to_uint16()
@@ -121,7 +121,7 @@ fn insdc_split_whitespace(s : String) -> Array[String] {
 ///|
 /// Split a string on a single delimiter character code.
 fn insdc_split_char(s : String, delim : Int) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let n = s.length()
   let mut start = 0
   let mut i = 0
@@ -182,7 +182,7 @@ fn insdc_trim(s : String) -> String {
 /// EMBL-style lines (each line prefixed with `FT   `). The `FEATURES` header
 /// line and `FH` lines are tolerated and skipped.
 pub fn parse_insdc_feature_table(lines : Array[String]) -> Array[InsdcFeature] {
-  let features : Array[InsdcFeature] = Array::new()
+  let features : Array[InsdcFeature] = Array(capacity=0)
   let n = lines.length()
   let sp : UInt16 = ' '.to_int().to_uint16()
   let cr : UInt16 = '\r'.to_int().to_uint16()
@@ -404,7 +404,7 @@ pub fn format_insdc_feature(
   feature : InsdcFeature,
   indent : Int,
 ) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
 
   // First line: indent + feature_type (padded to 16) + location.
   let first = StringBuilder::new()
@@ -440,7 +440,7 @@ pub fn format_insdc_feature(
 /// - Long value: opening quote on first line, closing quote on last line,
 ///   continuation lines indented to column 21.
 fn format_insdc_qualifier(key : String, value : String) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   let indent_str = "                     " // 21 spaces
 
   if value.length() == 0 {
@@ -531,10 +531,10 @@ pub fn parse_genbank_record(content : String) -> InsdcRecord {
   let mut accession = ""
   let mut version = ""
   let mut organism = ""
-  let features : Array[InsdcFeature] = Array::new()
+  let features : Array[InsdcFeature] = Array(capacity=0)
   let seq_buf = StringBuilder::new()
 
-  let feature_lines : Array[String] = Array::new()
+  let feature_lines : Array[String] = Array(capacity=0)
   let mut in_features = false
   let mut in_origin = false
 
@@ -889,10 +889,10 @@ pub fn parse_embl_record(content : String) -> InsdcRecord {
   let mut accession = ""
   let mut version = ""
   let mut organism = ""
-  let features : Array[InsdcFeature] = Array::new()
+  let features : Array[InsdcFeature] = Array(capacity=0)
   let seq_buf = StringBuilder::new()
 
-  let feature_lines : Array[String] = Array::new()
+  let feature_lines : Array[String] = Array(capacity=0)
   let mut in_ft = false
   let mut in_sq = false
 

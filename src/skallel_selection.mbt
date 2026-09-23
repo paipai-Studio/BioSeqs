@@ -11,7 +11,7 @@
 /// Reverse the variant (row) order of a haplotype array.
 fn reverse_variants(h : Array[Array[Int]]) -> Array[Array[Int]] {
   let n = h.length()
-  let out : Array[Array[Int]] = Array::new()
+  let out : Array[Array[Int]] = Array(capacity=0)
   let mut i = n - 1
   while i >= 0 {
     out.push(h[i])
@@ -23,7 +23,7 @@ fn reverse_variants(h : Array[Array[Int]]) -> Array[Array[Int]] {
 ///|
 fn reverse_doubles(a : Array[Double]) -> Array[Double] {
   let n = a.length()
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   let mut i = n - 1
   while i >= 0 {
     out.push(a[i])
@@ -198,7 +198,7 @@ pub fn skallel_ihs(
   min_ehh : Double,
   include_edges : Bool,
 ) -> Array[Double] {
-  let gaps : Array[Double] = Array::new()
+  let gaps : Array[Double] = Array(capacity=0)
   for k = 0; k < pos.length() - 1; k = k + 1 {
     gaps.push((pos[k + 1] - pos[k]).to_double())
   }
@@ -321,7 +321,7 @@ fn sort_ints_asc_copy(arr : Array[Int]) -> Array[Int] {
 /// `make_similar_sized_bins`).
 fn make_similar_sized_bins(x : Array[Int], n : Int) -> Array[Int] {
   let y = sort_ints_asc_copy(x)
-  let bins : Array[Int] = Array::new()
+  let bins : Array[Int] = Array(capacity=0)
   if y.length() == 0 {
     return bins
   }
@@ -361,7 +361,7 @@ pub fn skallel_standardize(score : Array[Double]) -> Array[Double] {
     variance = variance + d * d
   }
   let std = (variance / n.to_double()).sqrt()
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for x in score {
     if std > 0.0 {
       out.push((x - mean) / std)
@@ -519,7 +519,7 @@ pub fn skallel_xpehh(
   min_ehh : Double,
   include_edges : Bool,
 ) -> Array[Double] {
-  let gaps : Array[Double] = Array::new()
+  let gaps : Array[Double] = Array(capacity=0)
   for k = 0; k < pos.length() - 1; k = k + 1 {
     gaps.push((pos[k + 1] - pos[k]).to_double())
   }

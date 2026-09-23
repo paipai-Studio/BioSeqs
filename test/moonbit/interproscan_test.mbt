@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 
 test "ips_record_construction" {
-  let go : Array[String] = Array::new()
+  let go : Array[String] = Array(capacity=0)
   go.push("GO:0003674")
   go.push("GO:0008150")
   let r = @src.InterproScanRecord::new(
@@ -45,7 +45,7 @@ test "ips_record_construction" {
 
 ///|
 test "ips_record_accessors_empty_go" {
-  let empty_go : Array[String] = Array::new()
+  let empty_go : Array[String] = Array(capacity=0)
   let r = @src.InterproScanRecord::new(
     protein_id="sp|Q9Y6K9|XYZ_HUMAN",
     md5="def789",
@@ -67,7 +67,7 @@ test "ips_record_accessors_empty_go" {
 
 ///|
 test "ips_record_to_string" {
-  let go : Array[String] = Array::new()
+  let go : Array[String] = Array(capacity=0)
   go.push("GO:0003674")
   let r = @src.InterproScanRecord::new(
     protein_id="sp|P12345|PROT_HUMAN",
@@ -541,7 +541,7 @@ test "ips_filter_by_protein_no_match" {
 
 ///|
 test "ips_filter_on_empty_records" {
-  let empty : Array[@src.InterproScanRecord] = Array::new()
+  let empty : Array[@src.InterproScanRecord] = Array(capacity=0)
   assert_eq(@src.interproscan_filter_by_analysis(empty, "Pfam").length(), 0)
   assert_eq(@src.interproscan_filter_by_protein(empty, "prot1").length(), 0)
 }
@@ -579,7 +579,7 @@ test "ips_get_unique_signatures" {
 
 ///|
 test "ips_get_unique_signatures_empty" {
-  let empty : Array[@src.InterproScanRecord] = Array::new()
+  let empty : Array[@src.InterproScanRecord] = Array(capacity=0)
   let sigs = @src.interproscan_get_unique_signatures(empty)
   assert_eq(sigs.length(), 0)
 }
@@ -605,7 +605,7 @@ test "ips_get_go_terms" {
 
 ///|
 test "ips_get_go_terms_empty" {
-  let empty : Array[@src.InterproScanRecord] = Array::new()
+  let empty : Array[@src.InterproScanRecord] = Array(capacity=0)
   let go = @src.interproscan_get_go_terms(empty)
   assert_eq(go.length(), 0)
 }
@@ -712,7 +712,7 @@ test "ips_group_by_protein_preserves_order" {
 
 ///|
 test "ips_group_by_protein_empty" {
-  let empty : Array[@src.InterproScanRecord] = Array::new()
+  let empty : Array[@src.InterproScanRecord] = Array(capacity=0)
   let groups = @src.interproscan_group_by_protein(empty)
   assert_eq(groups.length(), 0)
 }
@@ -784,7 +784,7 @@ test "ips_summary_lists_analyses" {
 
 ///|
 test "ips_summary_empty" {
-  let empty : Array[@src.InterproScanRecord] = Array::new()
+  let empty : Array[@src.InterproScanRecord] = Array(capacity=0)
   let s = @src.interproscan_summary(empty)
   assert_true(s.contains("Total records: 0"))
   assert_true(s.contains("Unique proteins: 0"))

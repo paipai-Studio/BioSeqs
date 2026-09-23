@@ -38,7 +38,7 @@ fn fmt_strs(v : Array[String]) -> String {
 /// Deterministic two-group dataset (12 samples, 5 variables). Variables 0-2
 /// separate the groups; variables 3-4 are pure noise.
 fn make_x() -> Array[Array[Double]] {
-  let x : Array[Array[Double]] = Array::new()
+  let x : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<12 {
     let shift = if i < 6 { -2.0 } else { 2.0 }
     let row = [
@@ -55,7 +55,7 @@ fn make_x() -> Array[Array[Double]] {
 
 fn make_y(x : Array[Array[Double]]) -> Array[Array[Double]] {
   // Continuous response mostly driven by variables 0 and 2.
-  let y : Array[Array[Double]] = Array::new()
+  let y : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<x.length() {
     y.push([1.5 * x[i][0] - 0.8 * x[i][2] + 0.2 * @math.sin(i.to_double())])
   }
@@ -64,7 +64,7 @@ fn make_y(x : Array[Array[Double]]) -> Array[Array[Double]] {
 
 fn main raise {
   let x = make_x()
-  let labels : Array[String] = Array::new()
+  let labels : Array[String] = Array(capacity=0)
   for i in 0..<x.length() {
     labels.push(if i < 6 { "ctrl" } else { "treat" })
   }
@@ -114,9 +114,9 @@ fn main raise {
   println("")
   println("== Response permutation test (10 deterministic permutations) ==")
   let n = x.length()
-  let perms : Array[Array[Int]] = Array::new()
+  let perms : Array[Array[Int]] = Array(capacity=0)
   for k in 0..<10 {
-    let p : Array[Int] = Array::new()
+    let p : Array[Int] = Array(capacity=0)
     for i in 0..<n {
       p.push((i + 2 * k + 1) % n)
     }

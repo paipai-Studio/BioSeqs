@@ -36,7 +36,7 @@ test "noiseq_sample_n_expressed" {
 
 ///|
 test "noiseq_normalize_tmm" {
-  let samples : Array[@src.NOISeqSample] = Array::new()
+  let samples : Array[@src.NOISeqSample] = Array(capacity=0)
   let s1 = @src.NOISeqSample::new("s1", "ctrl")
   s1.set_count("Gene1", 100.0)
   s1.set_count("Gene2", 200.0)
@@ -55,7 +55,7 @@ test "noiseq_normalize_tmm" {
 
 ///|
 test "noiseq_normalize_rpkm" {
-  let samples : Array[@src.NOISeqSample] = Array::new()
+  let samples : Array[@src.NOISeqSample] = Array(capacity=0)
   let s1 = @src.NOISeqSample::new("s1", "ctrl")
   s1.set_count("Gene1", 500000.0)
   samples.push(s1)
@@ -67,7 +67,7 @@ test "noiseq_normalize_rpkm" {
 
 ///|
 test "noiseq_normalize_none" {
-  let samples : Array[@src.NOISeqSample] = Array::new()
+  let samples : Array[@src.NOISeqSample] = Array(capacity=0)
   let s1 = @src.NOISeqSample::new("s1", "ctrl")
   s1.set_count("Gene1", 100.0)
   samples.push(s1)
@@ -124,7 +124,7 @@ test "noiseq_run_summary" {
 ///|
 test "noiseq_qc" {
   let (ctrl, trt) = @src.noiseq_sample_data()
-  let all : Array[@src.NOISeqSample] = Array::new()
+  let all : Array[@src.NOISeqSample] = Array(capacity=0)
   let mut i = 0
   while i < ctrl.length() {
     all.push(ctrl[i])

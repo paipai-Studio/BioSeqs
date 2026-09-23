@@ -137,7 +137,7 @@ pub fn AceData::new(
 ///|
 /// Split a line into tokens by whitespace.
 fn ace_tokenize(line : String) -> Array[String] {
-  let tokens : Array[String] = Array::new()
+  let tokens : Array[String] = Array(capacity=0)
   let n = line.length()
   let mut i = 0
   while i < n {
@@ -164,7 +164,7 @@ fn ace_parse_quality_lines(
   start_idx : Int,
   expected_length : Int,
 ) -> (Array[Int], Int) {
-  let qual : Array[Int] = Array::new()
+  let qual : Array[Int] = Array(capacity=0)
   let mut idx = start_idx
 
   while idx < lines.length() && qual.length() < expected_length {
@@ -237,7 +237,7 @@ fn ace_quality_to_string(qualities : Array[Int]) -> String {
 ///|
 /// Parse ACE format content into AceData.
 pub fn ace_parse(content : String) -> AceData {
-  let contigs : Array[AceContig] = Array::new()
+  let contigs : Array[AceContig] = Array(capacity=0)
 
   let lines = split_by_char(content, '\n'.to_int())
   let n = lines.length()
@@ -286,7 +286,7 @@ pub fn ace_parse(content : String) -> AceData {
 ///|
 /// Parse only the reads section from ACE content.
 pub fn ace_parse_reads(content : String) -> Array[AceRead] {
-  let reads : Array[AceRead] = Array::new()
+  let reads : Array[AceRead] = Array(capacity=0)
   let lines = split_by_char(content, '\n'.to_int())
   let n = lines.length()
   let mut i = 0
@@ -310,7 +310,7 @@ pub fn ace_parse_reads(content : String) -> Array[AceRead] {
 ///|
 /// Parse only the contigs section from ACE content.
 pub fn ace_parse_contigs(content : String) -> Array[AceContig] {
-  let contigs : Array[AceContig] = Array::new()
+  let contigs : Array[AceContig] = Array(capacity=0)
   let lines = split_by_char(content, '\n'.to_int())
   let reads_map : Map[String, AceRead] = Map([], capacity=64)
   let n = lines.length()
@@ -535,7 +535,7 @@ fn ace_parse_contig_block(
   idx = new_idx
 
   // Parse AF alignment lines
-  let reads : Array[AceRead] = Array::new()
+  let reads : Array[AceRead] = Array(capacity=0)
   let alignment_positions : Map[String, (Int, Int, Int, Int, Int, Int, String)] = Map(
     [],
     capacity=32,

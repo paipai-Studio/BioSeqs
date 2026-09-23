@@ -58,7 +58,7 @@ fn b64_char_value(code : Int) -> Int {
 /// extend with the format name. ASCII whitespace is skipped between
 /// groups.
 fn b64_decode_impl(content : String) -> Array[Int] raise SeqIOError {
-  let sig : Array[Int] = Array::new()
+  let sig : Array[Int] = Array(capacity=0)
   let n = content.length()
   for i in 0..<n {
     let c = content.unsafe_get(i).to_int()
@@ -84,7 +84,7 @@ fn b64_decode_impl(content : String) -> Array[Int] raise SeqIOError {
   if alpha % 4 == 1 {
     raise SeqIOError("invalid base64 content")
   }
-  let out : Array[Int] = Array::new()
+  let out : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < alpha {
     let chars = if i + 4 <= alpha { 4 } else { alpha - i }
@@ -161,7 +161,7 @@ fn unify_sff_records(
     Some(f) => f
     None => raise SeqIOError("Malformed SFF data")
   }
-  let records : Array[SeqRecord] = Array::new()
+  let records : Array[SeqRecord] = Array(capacity=0)
   for read in file.sff_reads() {
     let record = if trim {
       SeqRecord::new(
@@ -239,7 +239,7 @@ pub fn parse_xdna_records(
   }
   let bytes = unify_b64_decode(content, "xdna")
   let file = xdna_from_bytes(bytes)
-  let records : Array[SeqRecord] = Array::new()
+  let records : Array[SeqRecord] = Array(capacity=0)
   for rec in file.records() {
     let record = SeqRecord::new(
       Seq::new(rec.sequence()),

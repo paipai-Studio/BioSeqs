@@ -125,7 +125,7 @@ pub fn calculate_hse(
 
 ///|
 pub fn create_example_atoms() -> Array[PDBAtom] {
-  let atoms : Array[PDBAtom] = Array::new()
+  let atoms : Array[PDBAtom] = Array(capacity=0)
 
   atoms.push(PDBAtom::new("CA1", 0.0, 0.0, 0.0))
   atoms.push(PDBAtom::new("CB1", 1.5, 0.0, 0.0))

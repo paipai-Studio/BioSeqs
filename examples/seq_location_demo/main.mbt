@@ -19,7 +19,7 @@ fn main {
 
   // OneOf position
   println("=== OneOf Position ===")
-  let opts : Array[@bio.Pos] = Array::new()
+  let opts : Array[@bio.Pos] = Array(capacity=0)
   opts.push(@bio.exact_position(5))
   opts.push(@bio.exact_position(7))
   opts.push(@bio.exact_position(9))
@@ -58,7 +58,7 @@ fn main {
   let exon1 = @bio.simple_location(@bio.exact_position(0), @bio.exact_position(100), strand="+")
   let exon2 = @bio.simple_location(@bio.exact_position(200), @bio.exact_position(350), strand="+")
   let exon3 = @bio.simple_location(@bio.exact_position(500), @bio.exact_position(600), strand="+")
-  let exon_locs : Array[@bio.Loc] = Array::new()
+  let exon_locs : Array[@bio.Loc] = Array(capacity=0)
   exon_locs.push(exon1)
   exon_locs.push(exon2)
   exon_locs.push(exon3)

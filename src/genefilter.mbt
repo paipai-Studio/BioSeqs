@@ -87,16 +87,16 @@ pub fn row_ttest(
   group1 : String,
   group2 : String,
 ) -> FilterResult {
-  let passing_genes : Array[String] = Array::new()
-  let statistics : Array[Double] = Array::new()
-  let p_values : Array[Double] = Array::new()
+  let passing_genes : Array[String] = Array(capacity=0)
+  let statistics : Array[Double] = Array(capacity=0)
+  let p_values : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < expression.gene_ids.length() {
     let expr = expression.expression[i]
 
-    let group1_vals : Array[Double] = Array::new()
-    let group2_vals : Array[Double] = Array::new()
+    let group1_vals : Array[Double] = Array(capacity=0)
+    let group2_vals : Array[Double] = Array(capacity=0)
 
     let mut j = 0
     while j < expression.groups.length() {
@@ -139,16 +139,16 @@ pub fn row_wilcoxon(
   group1 : String,
   group2 : String,
 ) -> FilterResult {
-  let passing_genes : Array[String] = Array::new()
-  let statistics : Array[Double] = Array::new()
-  let p_values : Array[Double] = Array::new()
+  let passing_genes : Array[String] = Array(capacity=0)
+  let statistics : Array[Double] = Array(capacity=0)
+  let p_values : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < expression.gene_ids.length() {
     let expr = expression.expression[i]
 
-    let group1_vals : Array[Double] = Array::new()
-    let group2_vals : Array[Double] = Array::new()
+    let group1_vals : Array[Double] = Array(capacity=0)
+    let group2_vals : Array[Double] = Array(capacity=0)
 
     let mut j = 0
     while j < expression.groups.length() {
@@ -217,7 +217,7 @@ pub fn variance_filter(
   expression : GeneExpression,
   threshold : Double,
 ) -> Array[String] {
-  let passing_genes : Array[String] = Array::new()
+  let passing_genes : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < expression.gene_ids.length() {
@@ -239,7 +239,7 @@ pub fn cv_filter(
   expression : GeneExpression,
   threshold : Double,
 ) -> Array[String] {
-  let passing_genes : Array[String] = Array::new()
+  let passing_genes : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < expression.gene_ids.length() {
@@ -263,9 +263,9 @@ pub fn row_quantile_filter(
   q_low : Double,
   q_high : Double,
 ) -> Array[String] {
-  let passing_genes : Array[String] = Array::new()
+  let passing_genes : Array[String] = Array(capacity=0)
 
-  let all_vals : Array[Double] = Array::new()
+  let all_vals : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < expression.expression.length() {

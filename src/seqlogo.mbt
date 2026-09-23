@@ -109,10 +109,10 @@ pub fn SeqLogoPwm::new(matrix : Array[Array[Double]]) -> SeqLogoPwm {
 pub fn SeqLogoPwm::from_sequences(sequences : Array[String]) -> SeqLogoPwm {
   let n = sequences.length()
   if n == 0 {
-    return SeqLogoPwm::new(Array::new())
+    return SeqLogoPwm::new(Array(capacity=0))
   }
   let width = sequences[0].length()
-  let counts : Array[Array[Double]] = Array::new()
+  let counts : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<4 {
     counts.push(Array::make(width, 0.0))
   }
@@ -127,7 +127,7 @@ pub fn SeqLogoPwm::from_sequences(sequences : Array[String]) -> SeqLogoPwm {
       }
     }
   }
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<4 {
     matrix.push(Array::make(width, 0.0))
   }
@@ -239,7 +239,7 @@ pub fn SeqLogoColumn::new(
   position : Int,
   info_content : Double,
 ) -> SeqLogoColumn {
-  SeqLogoColumn::{ letters: Array::new(), info_content, position, }
+  SeqLogoColumn::{ letters: Array(capacity=0), info_content, position, }
 }
 
 ///|
@@ -415,7 +415,7 @@ pub fn seqlogo_compute_logo_bg(
 ) -> SeqLogoResult {
   let ic_arr = seqlogo_information_content_bg(pwm, background)
   let max_ic = seqlogo_max_information_content(pwm.alphabet_size())
-  let columns : Array[SeqLogoColumn] = Array::new()
+  let columns : Array[SeqLogoColumn] = Array(capacity=0)
   for pos in 0..<pwm.width() {
     let raw_ic = ic_arr[pos]
     let ic = if raw_ic < 0.0 {
@@ -425,7 +425,7 @@ pub fn seqlogo_compute_logo_bg(
     } else {
       raw_ic
     }
-    let pairs : Array[(Double, Int)] = Array::new()
+    let pairs : Array[(Double, Int)] = Array(capacity=0)
     for base in 0..<pwm.alphabet_size() {
       pairs.push((pwm.get(base, pos), base))
     }
@@ -461,9 +461,9 @@ pub fn seqlogo_to_ascii(logo : SeqLogoResult, max_height : Int) -> String {
   let max_ic = seqlogo_max_information_content(4)
   let scale = if max_ic > 0.0 { max_height.to_double() / max_ic } else { 0.0 }
   // Build a per-column stack of characters from bottom (index 0) to top.
-  let stacks : Array[Array[Char]] = Array::new()
+  let stacks : Array[Array[Char]] = Array(capacity=0)
   for col in logo.columns() {
-    let stack : Array[Char] = Array::new()
+    let stack : Array[Char] = Array(capacity=0)
     let letters = col.letters()
     // Iterate from lowest frequency (bottom) to highest (top).
     let mut i = letters.length() - 1

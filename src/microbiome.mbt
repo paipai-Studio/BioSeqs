@@ -252,7 +252,7 @@ pub fn calc_alpha_diversity(counts : Array[Double]) -> AlphaDiversity {
 pub fn calc_alpha_diversity_table(
   otu_table : Array[Array[Double]],
 ) -> Array[AlphaDiversity] {
-  let result : Array[AlphaDiversity] = Array::new()
+  let result : Array[AlphaDiversity] = Array(capacity=0)
   if otu_table.length() == 0 {
     return result
   }
@@ -260,7 +260,7 @@ pub fn calc_alpha_diversity_table(
   let num_samples = otu_table[0].length()
   let mut j = 0
   while j < num_samples {
-    let sample_counts : Array[Double] = Array::new()
+    let sample_counts : Array[Double] = Array(capacity=0)
     let mut i = 0
     while i < otu_table.length() {
       sample_counts.push(otu_table[i][j])
@@ -395,16 +395,16 @@ pub fn calc_beta_diversity_matrix(
   dist_method : String,
 ) -> Array[Array[Double]] {
   if otu_table.length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   let num_samples = otu_table[0].length()
-  let dist_matrix : Array[Array[Double]] = Array::new()
+  let dist_matrix : Array[Array[Double]] = Array(capacity=0)
 
   // Initialize distance matrix
   let mut i = 0
   while i < num_samples {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < num_samples {
       row.push(0.0)
@@ -419,8 +419,8 @@ pub fn calc_beta_diversity_matrix(
   while i < num_samples {
     let mut j = i + 1
     while j < num_samples {
-      let sample_i : Array[Double] = Array::new()
-      let sample_j : Array[Double] = Array::new()
+      let sample_i : Array[Double] = Array(capacity=0)
+      let sample_j : Array[Double] = Array(capacity=0)
       let mut k = 0
       while k < otu_table.length() {
         sample_i.push(otu_table[k][i])
@@ -463,10 +463,10 @@ pub struct PCoAResult {
 ///|
 pub fn PCoAResult::new() -> PCoAResult {
   PCoAResult::{
-    eigenvalues: Array::new(),
-    vectors: Array::new(),
-    variance_explained: Array::new(),
-    cumulative_variance: Array::new(),
+    eigenvalues: Array(capacity=0),
+    vectors: Array(capacity=0),
+    variance_explained: Array(capacity=0),
+    cumulative_variance: Array(capacity=0),
   }
 }
 
@@ -482,10 +482,10 @@ pub fn pcoa(dist_matrix : Array[Array[Double]]) -> PCoAResult {
 
   // Step 1: Center the distance matrix
   // Convert distances to similarities and double-center
-  let d2 : Array[Array[Double]] = Array::new()
+  let d2 : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(-0.5 * dist_matrix[i][j] * dist_matrix[i][j])
@@ -496,7 +496,7 @@ pub fn pcoa(dist_matrix : Array[Array[Double]]) -> PCoAResult {
   }
 
   // Calculate row means, column means, and grand mean
-  let row_means : Array[Double] = Array::new()
+  let row_means : Array[Double] = Array(capacity=0)
   i = 0
   while i < n {
     let mut sum = 0.0
@@ -509,7 +509,7 @@ pub fn pcoa(dist_matrix : Array[Array[Double]]) -> PCoAResult {
     i = i + 1
   }
 
-  let col_means : Array[Double] = Array::new()
+  let col_means : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < n {
     let mut sum = 0.0
@@ -531,10 +531,10 @@ pub fn pcoa(dist_matrix : Array[Array[Double]]) -> PCoAResult {
   grand_mean = grand_mean / n.to_double()
 
   // Double-center the matrix
-  let b : Array[Array[Double]] = Array::new()
+  let b : Array[Array[Double]] = Array(capacity=0)
   i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       let val = d2[i][j] - row_means[i] - col_means[j] + grand_mean
@@ -562,8 +562,8 @@ pub fn pcoa(dist_matrix : Array[Array[Double]]) -> PCoAResult {
     }
   }
 
-  let eigenvalues : Array[Double] = Array::new()
-  let vectors : Array[Array[Double]] = Array::new()
+  let eigenvalues : Array[Double] = Array(capacity=0)
+  let vectors : Array[Array[Double]] = Array(capacity=0)
   let mut comp = 0
   while comp < n {
     let lam = raw_evals[idx[comp]]
@@ -585,8 +585,8 @@ pub fn pcoa(dist_matrix : Array[Array[Double]]) -> PCoAResult {
   // Calculate variance explained
   let total_var = sum_double(eigenvalues)
 
-  let variance_explained : Array[Double] = Array::new()
-  let cumulative_variance : Array[Double] = Array::new()
+  let variance_explained : Array[Double] = Array(capacity=0)
+  let cumulative_variance : Array[Double] = Array(capacity=0)
   let mut cum_var = 0.0
 
   let mut i = 0
@@ -599,12 +599,12 @@ pub fn pcoa(dist_matrix : Array[Array[Double]]) -> PCoAResult {
   }
 
   // Transpose vectors to get samples x components
-  let transposed : Array[Array[Double]] = Array::new()
+  let transposed : Array[Array[Double]] = Array(capacity=0)
   if vectors.length() > 0 {
     let n_samples = vectors[0].length()
     let mut i = 0
     while i < n_samples {
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       let mut j = 0
       while j < vectors.length() {
         row.push(vectors[j][i])
@@ -666,7 +666,7 @@ pub fn differential_abundance(
   group1_indices : Array[Int],
   group2_indices : Array[Int],
 ) -> Array[DAResult] {
-  let results : Array[DAResult] = Array::new()
+  let results : Array[DAResult] = Array(capacity=0)
 
   if otu_table.length() == 0 ||
     group1_indices.length() == 0 ||
@@ -674,16 +674,16 @@ pub fn differential_abundance(
     return results
   }
 
-  let p_values : Array[Double] = Array::new()
-  let log2_fcs : Array[Double] = Array::new()
-  let mean1s : Array[Double] = Array::new()
-  let mean2s : Array[Double] = Array::new()
-  let taxon_names : Array[String] = Array::new()
+  let p_values : Array[Double] = Array(capacity=0)
+  let log2_fcs : Array[Double] = Array(capacity=0)
+  let mean1s : Array[Double] = Array(capacity=0)
+  let mean2s : Array[Double] = Array(capacity=0)
+  let taxon_names : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < otu_table.length() {
     // Extract group 1 values
-    let group1 : Array[Double] = Array::new()
+    let group1 : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < group1_indices.length() {
       group1.push(otu_table[i][group1_indices[j]])
@@ -691,7 +691,7 @@ pub fn differential_abundance(
     }
 
     // Extract group 2 values
-    let group2 : Array[Double] = Array::new()
+    let group2 : Array[Double] = Array(capacity=0)
     j = 0
     while j < group2_indices.length() {
       group2.push(otu_table[i][group2_indices[j]])
@@ -858,12 +858,12 @@ fn micro_erf(x : Double) -> Double {
 fn micro_bh_correction(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   // Create indexed pairs
-  let indices : Array[Int] = Array::new()
-  let sorted_p : Array[Double] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
+  let sorted_p : Array[Double] = Array(capacity=0)
 
   // Simple bubble sort (since n may be small)
   let mut i = 0
@@ -893,7 +893,7 @@ fn micro_bh_correction(p_values : Array[Double]) -> Array[Double] {
   }
 
   // BH adjustment
-  let adj_sorted : Array[Double] = Array::new()
+  let adj_sorted : Array[Double] = Array(capacity=0)
   let mut min_adj = 1.0
   let mut i = n - 1
   while i >= 0 {
@@ -910,7 +910,7 @@ fn micro_bh_correction(p_values : Array[Double]) -> Array[Double] {
   }
 
   // Reverse back
-  let adj_sorted_rev : Array[Double] = Array::new()
+  let adj_sorted_rev : Array[Double] = Array(capacity=0)
   let mut i = adj_sorted.length() - 1
   while i >= 0 {
     adj_sorted_rev.push(adj_sorted[i])
@@ -918,7 +918,7 @@ fn micro_bh_correction(p_values : Array[Double]) -> Array[Double] {
   }
 
   // Map back to original order
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     result.push(0.0)
@@ -938,7 +938,7 @@ fn micro_bh_correction(p_values : Array[Double]) -> Array[Double] {
 /// Create example OTU table for testing/demo.
 pub fn create_example_otu_table() -> Array[Array[Double]] {
   // 10 taxa, 6 samples (3 control, 3 treatment)
-  let otu_table : Array[Array[Double]] = Array::new()
+  let otu_table : Array[Array[Double]] = Array(capacity=0)
 
   // Taxon 1: High in control
   let t1 : Array[Double] = [120.0, 150.0, 130.0, 30.0, 25.0, 35.0]

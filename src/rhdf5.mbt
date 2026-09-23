@@ -132,7 +132,7 @@ pub fn HDF5File::new(filename : String, mode : String) -> HDF5File {
 
 ///|
 fn split_path(path : String) -> Array[String] {
-  let parts : Array[String] = Array::new()
+  let parts : Array[String] = Array(capacity=0)
   let mut current = ""
   let mut i = 0
   while i < path.length() {
@@ -157,12 +157,12 @@ fn split_path(path : String) -> Array[String] {
 fn split_path_and_name(path : String) -> (Array[String], String) {
   let parts = split_path(path)
   if parts.length() == 0 {
-    (Array::new(), "")
+    (Array(capacity=0), "")
   } else if parts.length() == 1 {
-    (Array::new(), parts[0])
+    (Array(capacity=0), parts[0])
   } else {
     let name = parts[parts.length() - 1]
-    let group_parts : Array[String] = Array::new()
+    let group_parts : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < parts.length() - 1 {
       group_parts.push(parts[i])
@@ -294,7 +294,7 @@ pub fn h5read_dataset(file : HDF5File, path : String) -> HDF5Dataset? {
 
 ///|
 pub fn h5ls(file : HDF5File) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   ignore(list_group(file.root, "", result))
   result
 }

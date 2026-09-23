@@ -128,9 +128,9 @@ fn motifbreakr_pssm(
 ) -> Array[Array[Double]] {
   let n_bases = pwm.length()
   let width = if n_bases == 0 { 0 } else { pwm[0].length() }
-  let pssm : Array[Array[Double]] = Array::new()
+  let pssm : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n_bases {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j in 0..<width {
       let p = pwm[i][j]
       let ratio = p / bg[i]
@@ -262,7 +262,7 @@ pub fn motif_break(
   bg~ : Array[Double] = motifbreakr_default_bg(),
   threshold~ : Double = 0.0,
 ) -> Array[MotifbreakrResult] {
-  let results : Array[MotifbreakrResult] = Array::new()
+  let results : Array[MotifbreakrResult] = Array(capacity=0)
   for variant in variants {
     let seq = sequences.get(variant.chrom)
     match seq {
@@ -288,7 +288,7 @@ pub fn motif_break(
 pub fn motifbreakr_significant(
   results : Array[MotifbreakrResult],
 ) -> Array[MotifbreakrResult] {
-  let out : Array[MotifbreakrResult] = Array::new()
+  let out : Array[MotifbreakrResult] = Array(capacity=0)
   for r in results {
     if r.effect != MotifbreakrEffect::Neutral {
       out.push(r)

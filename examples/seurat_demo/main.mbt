@@ -54,7 +54,7 @@ fn main {
   println("7. Finding clusters...")
   let with_clusters = @bio.find_clusters(with_neighbors)
   
-  let unique_clusters : Array[Int] = Array::new()
+  let unique_clusters : Array[Int] = Array(capacity=0)
   for c in with_clusters.clusters {
     let mut exists = false
     for u in unique_clusters {

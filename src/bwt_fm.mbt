@@ -29,7 +29,7 @@ pub fn bwt(s : String) -> String {
   let text = s + "$"
   let n = text.length()
   // Build suffix array (indices of rotation start positions).
-  let sa : Array[Int] = Array::new()
+  let sa : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     sa.push(i)
   }
@@ -153,7 +153,7 @@ fn bwt_compute_c_table(bwt_str : String) -> Map[Char, Int] {
     }
   }
   // Collect characters and sort.
-  let chars : Array[Char] = Array::new()
+  let chars : Array[Char] = Array(capacity=0)
   let keys = counts.keys().collect()
   for i = 0; i < keys.length(); i = i + 1 {
     chars.push(keys[i])
@@ -212,7 +212,7 @@ pub fn FMIndex::new(text : String) -> FMIndex {
   let c_table = bwt_compute_c_table(bwt_str)
   // Build suffix array.
   let t = text + "$"
-  let sa_arr : Array[Int] = Array::new()
+  let sa_arr : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     sa_arr.push(i)
   }
@@ -223,7 +223,7 @@ pub fn FMIndex::new(text : String) -> FMIndex {
   let chars = c_table.keys().collect()
   for ci = 0; ci < chars.length(); ci = ci + 1 {
     let c = chars[ci]
-    let arr : Array[Int] = Array::new()
+    let arr : Array[Int] = Array(capacity=0)
     let mut count = 0
     for i = 0; i < n; i = i + 1 {
       if bwt_str.unsafe_get(i).unsafe_to_char() == c {
@@ -268,7 +268,7 @@ pub fn FMIndex::count(self : FMIndex, pattern : String) -> Int {
 /// Positions are sorted.
 pub fn FMIndex::locate(self : FMIndex, pattern : String) -> Array[Int] {
   let (l, r) = fm_backward_search_fn(self, pattern)
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   if l > r {
     return result
   }
@@ -387,7 +387,7 @@ fn fm_lf_step_fn(fm : FMIndex, i : Int) -> Int {
 pub fn suffix_array(text : String) -> Array[Int] {
   let t = text + "$"
   let n = t.length()
-  let sa : Array[Int] = Array::new()
+  let sa : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     sa.push(i)
   }

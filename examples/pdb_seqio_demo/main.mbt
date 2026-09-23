@@ -96,7 +96,7 @@ fn main {
   // === 6. extract_sequence_from_pdb_lines ===
   println("\n=== 6. extract_sequence_from_pdb_lines (chain A) ===")
   let split_result = pdb_text.split("\n").to_array()
-  let pdb_lines : Array[String] = Array::new()
+  let pdb_lines : Array[String] = Array(capacity=0)
   let mut li = 0
   while li < split_result.length() {
     pdb_lines.push(split_result[li].to_owned())

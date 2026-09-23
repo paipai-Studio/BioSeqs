@@ -83,9 +83,9 @@ pub fn CNVSegment::new(
 ///|
 pub fn CNVDataset::new() -> CNVDataset {
   CNVDataset::{
-    probes: Array::new(),
-    segments: Array::new(),
-    chromosomes: Array::new(),
+    probes: Array(capacity=0),
+    segments: Array(capacity=0),
+    chromosomes: Array(capacity=0),
   }
 }
 
@@ -121,7 +121,7 @@ pub fn CNVDataset::filter_chromosome(
   self : CNVDataset,
   chrom : String,
 ) -> CNVDataset {
-  let filtered : Array[CNVProbe] = Array::new()
+  let filtered : Array[CNVProbe] = Array(capacity=0)
   let mut i = 0
   while i < self.probes.length() {
     if self.probes[i].chromosome == chrom {
@@ -130,7 +130,7 @@ pub fn CNVDataset::filter_chromosome(
     i = i + 1
   }
 
-  let segments : Array[CNVSegment] = Array::new()
+  let segments : Array[CNVSegment] = Array(capacity=0)
   let mut j = 0
   while j < self.segments.length() {
     if self.segments[j].chromosome == chrom {
@@ -147,14 +147,14 @@ pub fn cbs_segment(probes : Array[CNVProbe], alpha : Double) -> CBSResult {
   let n = probes.length()
   if n == 0 {
     return CBSResult::{
-      segments: Array::new(),
-      breakpoints: Array::new(),
+      segments: Array(capacity=0),
+      breakpoints: Array(capacity=0),
       n_segments: 0,
     }
   }
 
   // Extract log2 ratios
-  let log2ratios : Array[Double] = Array::new()
+  let log2ratios : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     log2ratios.push(probes[i].log2_ratio)
@@ -173,7 +173,7 @@ pub fn cbs_segment(probes : Array[CNVProbe], alpha : Double) -> CBSResult {
 ///|
 fn cbs_find_breakpoints(data : Array[Double], alpha : Double) -> Array[Int] {
   let n = data.length()
-  let breakpoints : Array[Int] = Array::new()
+  let breakpoints : Array[Int] = Array(capacity=0)
 
   if n == 0 {
     return breakpoints
@@ -307,7 +307,7 @@ fn cbs_create_segments(
   probes : Array[CNVProbe],
   breakpoints : Array[Int],
 ) -> Array[CNVSegment] {
-  let segments : Array[CNVSegment] = Array::new()
+  let segments : Array[CNVSegment] = Array(capacity=0)
   let n = breakpoints.length()
 
   if n < 2 {
@@ -368,7 +368,7 @@ pub fn smooth_log2_ratios(
   window_size : Int,
 ) -> Array[CNVProbe] {
   let n = probes.length()
-  let smoothed : Array[CNVProbe] = Array::new()
+  let smoothed : Array[CNVProbe] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -402,7 +402,7 @@ pub fn detect_breakpoints(
   segments : Array[CNVSegment],
   threshold : Double,
 ) -> Array[(Int, String)] {
-  let breakpoints : Array[(Int, String)] = Array::new()
+  let breakpoints : Array[(Int, String)] = Array(capacity=0)
   let n = segments.length()
 
   if n < 2 {
@@ -436,7 +436,7 @@ pub fn call_copy_numbers(
   segments : Array[CNVSegment],
   ploidy : Int,
 ) -> Array[CopyNumberCall] {
-  let calls : Array[CopyNumberCall] = Array::new()
+  let calls : Array[CopyNumberCall] = Array(capacity=0)
 
   let mut i = 0
   while i < segments.length() {

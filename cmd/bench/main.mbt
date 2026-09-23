@@ -203,7 +203,7 @@ fn main {
   )
 
   // FASTQ write
-  let fq_records = @lib.parse_fastq(fastq_content) catch { _ => Array::new() }
+  let fq_records = @lib.parse_fastq(fastq_content) catch { _ => Array(capacity=0) }
   ignore(
     bench("write_fastq (100x1000)", iters_small, fn() {
       ignore(@lib.write_fastq(fq_records)) catch {

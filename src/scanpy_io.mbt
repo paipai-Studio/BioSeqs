@@ -8,7 +8,7 @@
 /// occurrences, matching `anndata.utils.make_index_unique`.
 pub fn scanpy_make_index_unique(names : Array[String]) -> Array[String] {
   let counts : Map[String, Int] = Map([], capacity=64)
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for name in names {
     match counts.get(name) {
       None => {
@@ -65,7 +65,7 @@ pub fn scanpy_parse_mtx(
   let dims = scanpy_split_ws(size_line)
   let n_rows = parse_int(dims[0])
   let n_cols = parse_int(dims[1])
-  let mat : Array[Array[Double]] = Array::new()
+  let mat : Array[Array[Double]] = Array(capacity=0)
   for _r = 0; _r < n_rows; _r = _r + 1 {
     mat.push(Array::make(n_cols, 0.0))
   }
@@ -127,7 +127,7 @@ fn scanpy_trim(s : String) -> String {
 
 ///|
 fn scanpy_split_ws(s : String) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   let mut cur = StringBuilder::new()
   let mut has = false
   let mut i = 0
@@ -171,9 +171,9 @@ pub fn scanpy_read_10x_mtx(
   let barcodes_u = gunzip_if_needed(barcodes) catch { _ => barcodes }
   let (gmat, n_genes, n_cells) = scanpy_parse_mtx(mtx_u)
   // transpose genes × cells -> cells × genes
-  let x : Array[Array[Double]] = Array::new()
+  let x : Array[Array[Double]] = Array(capacity=0)
   for c = 0; c < n_cells; c = c + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for g = 0; g < n_genes; g = g + 1 {
       row.push(gmat[g][c])
     }
@@ -181,9 +181,9 @@ pub fn scanpy_read_10x_mtx(
   }
 
   // parse features.tsv (3 columns)
-  let gene_ids : Array[String] = Array::new()
-  let gene_symbols : Array[String] = Array::new()
-  let feature_types : Array[String] = Array::new()
+  let gene_ids : Array[String] = Array(capacity=0)
+  let gene_symbols : Array[String] = Array(capacity=0)
+  let feature_types : Array[String] = Array(capacity=0)
   for line in features_u.split("\n") {
     let t = scanpy_trim(line.to_owned())
     if t.length() == 0 {
@@ -196,7 +196,7 @@ pub fn scanpy_read_10x_mtx(
   }
 
   // parse barcodes.tsv (1 column)
-  let obs_names : Array[String] = Array::new()
+  let obs_names : Array[String] = Array(capacity=0)
   for line in barcodes_u.split("\n") {
     let t = scanpy_trim(line.to_owned())
     if t.length() == 0 {
@@ -233,23 +233,23 @@ pub fn scanpy_read_10x_mtx(
 
   if gex_only {
     // keep only "Gene Expression" features (rows of adata → filter columns of X)
-    let keep : Array[Int] = Array::new()
+    let keep : Array[Int] = Array(capacity=0)
     for gi = 0; gi < feature_types.length(); gi = gi + 1 {
       if feature_types[gi] == "Gene Expression" {
         keep.push(gi)
       }
     }
-    let new_var_names : Array[String] = Array::new()
-    let new_companion : Array[String] = Array::new()
-    let new_ftypes : Array[String] = Array::new()
+    let new_var_names : Array[String] = Array(capacity=0)
+    let new_companion : Array[String] = Array(capacity=0)
+    let new_ftypes : Array[String] = Array(capacity=0)
     for k in keep {
       new_var_names.push(unique_names[k])
       new_companion.push(companion_vals[k])
       new_ftypes.push(feature_types[k])
     }
-    let new_x : Array[Array[Double]] = Array::new()
+    let new_x : Array[Array[Double]] = Array(capacity=0)
     for c = 0; c < x.length(); c = c + 1 {
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       for k in keep {
         row.push(x[c][k])
       }

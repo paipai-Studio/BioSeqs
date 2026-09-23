@@ -85,7 +85,7 @@ pub fn parse_clustal(
     i = i + 1
   }
 
-  let seq_records = Array::new()
+  let seq_records = Array(capacity=0)
   for name, sb in records {
     let seq = Seq::new(sb.to_string())
     seq_records.push(SeqRecord::{

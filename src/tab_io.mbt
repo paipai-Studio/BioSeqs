@@ -19,7 +19,7 @@
 /// Mirrors BioPython's SeqIO.parse(handle, "tab").
 /// Raises SeqIOError if a line has anything other than exactly one tab.
 pub fn parse_tab(content : String) -> Array[SeqRecord] raise SeqIOError {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let cr : UInt16 = '\r'.to_int().to_uint16()
   let tab : UInt16 = '\t'.to_int().to_uint16()

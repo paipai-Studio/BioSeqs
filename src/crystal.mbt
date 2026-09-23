@@ -327,7 +327,7 @@ pub fn CrystalStructure::new(
 /// Convert all atoms in a crystal structure to fractional coordinates
 /// (in place-style: returns a new array of atoms).
 pub fn atoms_to_fractional(structure : CrystalStructure) -> Array[CrystalAtom] {
-  let out : Array[CrystalAtom] = Array::new()
+  let out : Array[CrystalAtom] = Array(capacity=0)
   for a in structure.atoms {
     if a.is_fractional {
       out.push(a)
@@ -352,7 +352,7 @@ pub fn atoms_to_fractional(structure : CrystalStructure) -> Array[CrystalAtom] {
 ///|
 /// Convert all atoms in a crystal structure to Cartesian coordinates.
 pub fn atoms_to_cartesian(structure : CrystalStructure) -> Array[CrystalAtom] {
-  let out : Array[CrystalAtom] = Array::new()
+  let out : Array[CrystalAtom] = Array(capacity=0)
   for a in structure.atoms {
     if !a.is_fractional {
       out.push(a)
@@ -509,7 +509,7 @@ pub fn CifBlock::get_loop(
 ///|
 /// Get all data item names in this block.
 pub fn CifBlock::keys(self : CifBlock) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for k in self.items.keys() {
     out.push(k)
   }
@@ -529,7 +529,7 @@ pub fn CifBlock::keys(self : CifBlock) -> Array[String] {
 ///
 /// Multi-line semicolon-delimited text values are not supported.
 pub fn parse_cif(text : String) -> Array[CifBlock] {
-  let blocks : Array[CifBlock] = Array::new()
+  let blocks : Array[CifBlock] = Array(capacity=0)
   let tokens = cif_tokenize(text)
   let mut i = 0
   let mut current : CifBlock? = None
@@ -553,7 +553,7 @@ pub fn parse_cif(text : String) -> Array[CifBlock] {
         }
       }
       i = i + 1
-      let headers : Array[String] = Array::new()
+      let headers : Array[String] = Array(capacity=0)
       while i < tokens.length() {
         let h = tokens[i]
         if h.length() > 0 && h[0:1].to_owned() == "_" {
@@ -564,7 +564,7 @@ pub fn parse_cif(text : String) -> Array[CifBlock] {
         }
       }
       let n_cols = headers.length()
-      let rows : Array[Array[String]] = Array::new()
+      let rows : Array[Array[String]] = Array(capacity=0)
       while i < tokens.length() {
         let r = tokens[i]
         if r == "loop_" || (r.length() >= 5 && r[0:5].to_owned() == "data_") {
@@ -575,7 +575,7 @@ pub fn parse_cif(text : String) -> Array[CifBlock] {
           break
         }
         // Begin a new row.
-        let row : Array[String] = Array::new()
+        let row : Array[String] = Array(capacity=0)
         row.push(r)
         i = i + 1
         while i < tokens.length() && row.length() < n_cols {
@@ -651,7 +651,7 @@ pub fn cif_block_to_crystal(block : CifBlock) -> CrystalStructure {
   }
   // Atom sites (loop_).
   let (headers, rows) = block.get_loop("_atom_site_label")
-  let atoms : Array[CrystalAtom] = Array::new()
+  let atoms : Array[CrystalAtom] = Array(capacity=0)
   if headers.length() > 0 && rows.length() > 0 {
     let label_idx = cif_find_header(headers, "_atom_site_label")
     let type_idx = cif_find_header(headers, "_atom_site_type_symbol")
@@ -705,7 +705,7 @@ pub fn cif_block_to_crystal(block : CifBlock) -> CrystalStructure {
   }
   // Bonds (geom loop), if present.
   let (gheaders, grows) = block.get_loop("_geom_bond_atom_site_label_1")
-  let bonds : Array[CrystalBond] = Array::new()
+  let bonds : Array[CrystalBond] = Array(capacity=0)
   if gheaders.length() > 0 && grows.length() > 0 {
     let a1_idx = cif_find_header(gheaders, "_geom_bond_atom_site_label_1")
     let a2_idx = cif_find_header(gheaders, "_geom_bond_atom_site_label_2")
@@ -927,7 +927,7 @@ pub fn crystal_sample_structure() -> CrystalStructure {
 ///|
 /// Tokenize a CIF text into a list of tokens (data_, loop_, _key, value).
 fn cif_tokenize(text : String) -> Array[String] {
-  let tokens : Array[String] = Array::new()
+  let tokens : Array[String] = Array(capacity=0)
   let n = text.length()
   let mut i = 0
   while i < n {

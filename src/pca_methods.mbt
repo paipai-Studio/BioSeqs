@@ -32,7 +32,7 @@ fn pm_mul(a : Array[Array[Double]], b : Array[Array[Double]]) -> Array[Array[Dou
   let m = a.length()
   let n = if m > 0 { a[0].length() } else { 0 }
   let p = if b.length() > 0 { b[0].length() } else { 0 }
-  let c : Array[Array[Double]] = Array::new()
+  let c : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < m; i = i + 1 {
     let row = Array::make(p, 0.0)
     for k = 0; k < n; k = k + 1 {
@@ -50,7 +50,7 @@ fn pm_mul(a : Array[Array[Double]], b : Array[Array[Double]]) -> Array[Array[Dou
 fn pm_transpose(a : Array[Array[Double]]) -> Array[Array[Double]] {
   let m = a.length()
   let n = if m > 0 { a[0].length() } else { 0 }
-  let t : Array[Array[Double]] = Array::new()
+  let t : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < n; j = j + 1 {
     let row = Array::make(m, 0.0)
     for i = 0; i < m; i = i + 1 {
@@ -63,7 +63,7 @@ fn pm_transpose(a : Array[Array[Double]]) -> Array[Array[Double]] {
 
 ///|
 fn pm_identity(n : Int) -> Array[Array[Double]] {
-  let m : Array[Array[Double]] = Array::new()
+  let m : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     row[i] = 1.0
@@ -139,7 +139,7 @@ fn pm_covariance(x : Array[Array[Double]]) -> Array[Array[Double]] {
     }
     means[j] = s / n.to_double()
   }
-  let cov : Array[Array[Double]] = Array::new()
+  let cov : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < d; j = j + 1 {
     cov.push(Array::make(d, 0.0))
   }
@@ -167,7 +167,7 @@ fn pm_orth(a : Array[Array[Double]]) -> Array[Array[Double]] {
   let k = if d > 0 { a[0].length() } else { 0 }
   let ata = pm_mul(pm_transpose(a), a)
   let (evals, v) = pm_top_eigen(ata, k)
-  let q : Array[Array[Double]] = Array::new()
+  let q : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < d; i = i + 1 {
     q.push(Array::make(k, 0.0))
   }
@@ -218,7 +218,7 @@ fn pm_top_eigen(
     }
   }
   let top_evals = Array::make(k, 0.0)
-  let top_evecs : Array[Array[Double]] = Array::new()
+  let top_evecs : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(k, 0.0)
     for j = 0; j < k; j = j + 1 {
@@ -289,7 +289,7 @@ pub fn ppca(
   let d = if n > 0 { matrix[0].length() } else { 0 }
   let k = n_pcs
   // working copy M with NA -> 0
-  let m : Array[Array[Double]] = Array::new()
+  let m : Array[Array[Double]] = Array(capacity=0)
   let mut missing = 0
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(d, 0.0)
@@ -306,7 +306,7 @@ pub fn ppca(
   }
   // deterministic init: C = first k rows transposed (D×k)
   let c0 = pm_transpose(Array::make(0, [])) // placeholder
-  let c_init : Array[Array[Double]] = Array::new()
+  let c_init : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < d; j = j + 1 {
     let row = Array::make(k, 0.0)
     for l = 0; l < k; l = l + 1 {
@@ -406,8 +406,8 @@ pub fn bpca(
   let cols = if rows > 0 { matrix[0].length() } else { 0 }
   let k = n_pcs
   // nan mask, yest (NA -> 0)
-  let nan : Array[Array[Bool]] = Array::new()
-  let yest : Array[Array[Double]] = Array::new()
+  let nan : Array[Array[Bool]] = Array(capacity=0)
+  let yest : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < rows; i = i + 1 {
     let nr = Array::make(cols, false)
     let yr = Array::make(cols, 0.0)
@@ -456,7 +456,7 @@ pub fn bpca(
   let covy = pm_covariance(yest)
   let (evals, evecs) = pm_top_eigen(covy, k)
   // PA = U sqrt(S)
-  let mut pa : Array[Array[Double]] = Array::new()
+  let mut pa : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < cols; j = j + 1 {
     let row = Array::make(k, 0.0)
     for l = 0; l < k; l = l + 1 {
@@ -490,7 +490,7 @@ pub fn bpca(
       }
     }
     let rxinv = pm_inverse(rx)
-    let tacc : Array[Array[Double]] = Array::new()
+    let tacc : Array[Array[Double]] = Array(capacity=0)
     for _j = 0; _j < cols; _j = _j + 1 {
       tacc.push(Array::make(k, 0.0))
     }
@@ -498,7 +498,7 @@ pub fn bpca(
     // complete rows
     if row_nomiss.length() > 0 {
       // dy = y[complete] - mean  (n_c × d)
-      let dy : Array[Array[Double]] = Array::new()
+      let dy : Array[Array[Double]] = Array(capacity=0)
       for idx in row_nomiss {
         let row = Array::make(cols, 0.0)
         for j = 0; j < cols; j = j + 1 {
@@ -530,8 +530,8 @@ pub fn bpca(
       }
       let d_o = obs.length()
       // Wm = PA[missing rows] (d_m × k), Wo = PA[observed rows] (d_o × k)
-      let wm : Array[Array[Double]] = Array::new()
-      let wo : Array[Array[Double]] = Array::new()
+      let wm : Array[Array[Double]] = Array(capacity=0)
+      let wo : Array[Array[Double]] = Array(capacity=0)
       for j = 0; j < cols; j = j + 1 {
         if nan[idx][j] {
           wm.push(pa[j])
@@ -541,7 +541,7 @@ pub fn bpca(
       }
       // rxinv2 = inv(rx - tau * Wm^T Wm)
       let wmtwm = pm_mul(pm_transpose(wm), wm)
-      let rx2 : Array[Array[Double]] = Array::new()
+      let rx2 : Array[Array[Double]] = Array(capacity=0)
       for i = 0; i < k; i = i + 1 {
         let row = Array::make(k, 0.0)
         for j = 0; j < k; j = j + 1 {
@@ -551,7 +551,7 @@ pub fn bpca(
       }
       let rxinv2 = pm_inverse(rx2)
       // ex = tau * Wo^T dyo^T (k×1)
-      let dyo_mat : Array[Array[Double]] = Array::new()
+      let dyo_mat : Array[Array[Double]] = Array(capacity=0)
       dyo_mat.push(dyo_vals)  // 1×d_o
       let ex = pm_scale(pm_mul(pm_transpose(wo), pm_transpose(dyo_mat)), tau)
       let xx = pm_mul(rxinv2, ex)  // k×1
@@ -616,7 +616,7 @@ pub fn bpca(
     let tpat = pm_transpose(tacc)
     // hoisted: the k×k term T^T · PA · Rxinv is constant across (i, j)
     let tpat_pa_rxinv = pm_mul(tpat, pm_mul(pa, rxinv_full))
-    let dw : Array[Array[Double]] = Array::new()
+    let dw : Array[Array[Double]] = Array(capacity=0)
     for i = 0; i < k; i = i + 1 {
       let row = Array::make(k, 0.0)
       for j = 0; j < k; j = j + 1 {
@@ -671,7 +671,7 @@ pub fn bpca(
 ///|
 fn pm_plus_identity_scaled(a : Array[Array[Double]], s : Double) -> Array[Array[Double]] {
   let n = a.length()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {
@@ -685,7 +685,7 @@ fn pm_plus_identity_scaled(a : Array[Array[Double]], s : Double) -> Array[Array[
 
 ///|
 fn pm_scale(a : Array[Array[Double]], s : Double) -> Array[Array[Double]] {
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < a.length(); i = i + 1 {
     let row = Array::make(a[i].length(), 0.0)
     for j = 0; j < a[i].length(); j = j + 1 {
@@ -698,7 +698,7 @@ fn pm_scale(a : Array[Array[Double]], s : Double) -> Array[Array[Double]] {
 
 ///|
 fn pm_add(a : Array[Array[Double]], b : Array[Array[Double]]) -> Array[Array[Double]] {
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < a.length(); i = i + 1 {
     let row = Array::make(a[i].length(), 0.0)
     for j = 0; j < a[i].length(); j = j + 1 {
@@ -711,7 +711,7 @@ fn pm_add(a : Array[Array[Double]], b : Array[Array[Double]]) -> Array[Array[Dou
 
 ///|
 fn pm_sub(a : Array[Array[Double]], b : Array[Array[Double]]) -> Array[Array[Double]] {
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < a.length(); i = i + 1 {
     let row = Array::make(a[i].length(), 0.0)
     for j = 0; j < a[i].length(); j = j + 1 {
@@ -736,7 +736,7 @@ fn pm_sum(a : Array[Double]) -> Double {
 /// pivoting). Returns ln(det).
 fn pm_log_det(a : Array[Array[Double]]) -> Double {
   let n = a.length()
-  let m : Array[Array[Double]] = Array::new()
+  let m : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(n, 0.0)
     for j = 0; j < n; j = j + 1 {

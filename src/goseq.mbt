@@ -233,11 +233,11 @@ pub fn goseq_nullp(
 ) -> Array[Double] {
   let n = gene_lengths.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   // Sort gene lengths and DE status together
-  let sorted_pairs : Array[(Double, Int)] = Array::new()
+  let sorted_pairs : Array[(Double, Int)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     sorted_pairs.push((gene_lengths[i], de_status[i]))
@@ -369,17 +369,17 @@ fn goseq_calculate_odds(
 fn goseq_bh_correction(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
     i = i + 1
   }
 
-  let sorted_with_idx : Array[(Double, Int)] = Array::new()
+  let sorted_with_idx : Array[(Double, Int)] = Array(capacity=0)
   i = 0
   while i < n {
     sorted_with_idx.push((p_values[i], indices[i]))
@@ -468,7 +468,7 @@ pub fn goseq(
 ) -> Array[GoseqResult] {
   let n = gene_names.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   // Step 1: Calculate PWF
@@ -493,10 +493,10 @@ pub fn goseq(
   }
 
   // Step 4: For each GO term, compute Wallenius p-value
-  let results : Array[GoseqResult] = Array::new()
-  let p_values : Array[Double] = Array::new()
+  let results : Array[GoseqResult] = Array(capacity=0)
+  let p_values : Array[Double] = Array(capacity=0)
 
-  let all_indices : Array[Int] = Array::new()
+  let all_indices : Array[Int] = Array(capacity=0)
   i = 0
   while i < n {
     all_indices.push(i)
@@ -508,8 +508,8 @@ pub fn goseq(
     let go_set = go_sets[gs]
 
     // Find indices of genes in this GO term that are in our gene list
-    let term_gene_indices : Array[Int] = Array::new()
-    let term_genes_in_list : Array[String] = Array::new()
+    let term_gene_indices : Array[Int] = Array(capacity=0)
+    let term_genes_in_list : Array[String] = Array(capacity=0)
     let mut gi = 0
     while gi < go_set.gene_ids.length() {
       let gid = go_set.gene_ids[gi]
@@ -615,7 +615,7 @@ pub fn goseq_filter_results(
   p_adjust_cutoff : Double,
   min_overlap : Int,
 ) -> Array[GoseqResult] {
-  let filtered : Array[GoseqResult] = Array::new()
+  let filtered : Array[GoseqResult] = Array(capacity=0)
   let mut i = 0
   while i < results.length() {
     let r = results[i]

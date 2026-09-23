@@ -124,9 +124,9 @@ pub fn parse_geo_series_matrix(content : String) -> GEOData {
 
   let mut series_id = ""
   let mut platform_id = ""
-  let sample_ids : Array[String] = Array::new()
-  let gene_names : Array[String] = Array::new()
-  let data : Array[Array[Double]] = Array::new()
+  let sample_ids : Array[String] = Array(capacity=0)
+  let gene_names : Array[String] = Array(capacity=0)
+  let data : Array[Array[Double]] = Array(capacity=0)
   let sample_info : Map[String, Array[String]] = Map([], capacity=10)
 
   let mut i = 0
@@ -200,8 +200,8 @@ pub fn parse_soft_format(content : String) -> GEOSeries {
   let mut gse_id = ""
   let mut title = ""
   let mut description = ""
-  let platform_ids : Array[String] = Array::new()
-  let sample_ids : Array[String] = Array::new()
+  let platform_ids : Array[String] = Array(capacity=0)
+  let sample_ids : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -262,8 +262,8 @@ pub fn geo_data_filter_genes(
   min_expression : Double,
   max_expression : Double,
 ) -> GEOData {
-  let filtered_data : Array[Array[Double]] = Array::new()
-  let filtered_genes : Array[String] = Array::new()
+  let filtered_data : Array[Array[Double]] = Array(capacity=0)
+  let filtered_genes : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < geo.data.length() {
@@ -297,12 +297,12 @@ pub fn geo_data_filter_genes(
 
 ///|
 pub fn geo_data_log2_transform(geo : GEOData) -> GEOData {
-  let transformed_data : Array[Array[Double]] = Array::new()
+  let transformed_data : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < geo.data.length() {
     let row = geo.data[i]
-    let new_row : Array[Double] = Array::new()
+    let new_row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < row.length() {
       if row[j] > 0.0 {

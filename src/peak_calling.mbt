@@ -395,7 +395,7 @@ fn pc_get_chromosomes(
   treatment : Array[ChipSeqRead],
   control : Array[ChipSeqRead],
 ) -> Array[String] {
-  let chrs : Array[String] = Array::new()
+  let chrs : Array[String] = Array(capacity=0)
   let push_if_new = fn(c : String) -> Unit {
     let mut found = false
     for existing in chrs {
@@ -473,7 +473,7 @@ pub fn call_peaks(
   }
   let win_size_d = params.window_size.to_double()
 
-  let candidates : Array[CandidatePeak] = Array::new()
+  let candidates : Array[CandidatePeak] = Array(capacity=0)
 
   for chr in chrs {
     let max_pos = pc_max_position(treatment, control, chr)
@@ -565,7 +565,7 @@ pub fn merge_peaks(
 ) -> Array[CandidatePeak] {
   let n = peaks.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   // Sort by (chr, start) using a simple stable comparator.
   let sorted = peaks.copy()
@@ -583,7 +583,7 @@ pub fn merge_peaks(
     }
   })
 
-  let merged : Array[CandidatePeak] = Array::new()
+  let merged : Array[CandidatePeak] = Array(capacity=0)
   let mut cur = sorted[0]
   let mut i = 1
   while i < n {
@@ -658,7 +658,7 @@ pub fn apply_fdr(
   }
 
   // Build (p_value, original_index) pairs and sort by p_value ascending.
-  let indexed : Array[(Double, Int)] = Array::new()
+  let indexed : Array[(Double, Int)] = Array(capacity=0)
   let mut j = 0
   while j < n {
     indexed.push((peaks[j].p_value, j))
@@ -717,7 +717,7 @@ pub fn filter_peaks(
   peaks : Array[CandidatePeak],
   params : PeakCallingParams,
 ) -> Array[CandidatePeak] {
-  let out : Array[CandidatePeak] = Array::new()
+  let out : Array[CandidatePeak] = Array(capacity=0)
   for p in peaks {
     if p.p_value <= params.pvalue_threshold &&
       p.fold_enrichment >= params.min_fold_enrichment &&
@@ -737,8 +737,8 @@ pub fn filter_peaks(
 /// regions on chr1 and a matched control sample with background
 /// reads. Returns `(treatment, control)`.
 pub fn peak_calling_sample_data() -> (Array[ChipSeqRead], Array[ChipSeqRead]) {
-  let treatment : Array[ChipSeqRead] = Array::new()
-  let control : Array[ChipSeqRead] = Array::new()
+  let treatment : Array[ChipSeqRead] = Array(capacity=0)
+  let control : Array[ChipSeqRead] = Array(capacity=0)
 
   // Three enriched regions on chr1.
   // Region A: ~1000-1500 (strong, 30 reads)

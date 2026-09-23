@@ -51,9 +51,9 @@ pub fn JasparMatrix::new(
     width,
     total_counts: 0,
     collection: "",
-    species: Array::new(),
-    pubmed_ids: Array::new(),
-    comments: Array::new(),
+    species: Array(capacity=0),
+    pubmed_ids: Array(capacity=0),
+    comments: Array(capacity=0),
   }
 }
 
@@ -103,7 +103,7 @@ pub fn JasparMatrix::iupac_consensus(self : JasparMatrix) -> String {
   ]
   let mut col = 0
   while col < self.width {
-    let bases_present : Array[String] = Array::new()
+    let bases_present : Array[String] = Array(capacity=0)
     let total = get_col_total(self, col)
     let mut row = 0
     while row < self.alphabet.length() {
@@ -193,11 +193,11 @@ pub fn JasparMatrix::to_pwm(
   self : JasparMatrix,
   pseudocount? : Double = 0.01,
 ) -> Array[Array[Double]] {
-  let pwm = Array::new()
+  let pwm = Array(capacity=0)
   let bg = 0.25
   let mut row = 0
   while row < self.alphabet.length() {
-    let col_scores : Array[Double] = Array::new()
+    let col_scores : Array[Double] = Array(capacity=0)
     let mut col = 0
     while col < self.width {
       let total = get_col_total(self, col).to_double()
@@ -216,7 +216,7 @@ pub fn JasparMatrix::to_pwm(
 ///|
 /// Calculate information content at each position (bits).
 pub fn JasparMatrix::information_content(self : JasparMatrix) -> Array[Double] {
-  let ic : Array[Double] = Array::new()
+  let ic : Array[Double] = Array(capacity=0)
   let mut col = 0
   while col < self.width {
     let total = get_col_total(self, col).to_double()
@@ -257,7 +257,7 @@ pub fn JasparMatrix::scan_sequence(
   let pwm = self.to_pwm()
   let upper_seq = sequence.to_upper()
   let seq_len = upper_seq.length()
-  let results : Array[(Int, Double, String)] = Array::new()
+  let results : Array[(Int, Double, String)] = Array(capacity=0)
   if seq_len < self.width {
     return results
   }
@@ -331,7 +331,7 @@ pub fn jaspar_sort_results(
 /// Parse a JASPAR PFM format string into an array of JasparMatrix.
 /// Handles both single matrix and multi-matrix formats.
 pub fn parse_jaspar(content : String) -> Array[JasparMatrix] {
-  let matrices : Array[JasparMatrix] = Array::new()
+  let matrices : Array[JasparMatrix] = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let mut i = 0
   while i < lines.length() {
@@ -345,7 +345,7 @@ pub fn parse_jaspar(content : String) -> Array[JasparMatrix] {
       let header = line[1:line.length()].trim().to_owned()
       // Split by tab or space
       let parts_views = header.split("\t").to_array()
-      let parts : Array[String] = Array::new()
+      let parts : Array[String] = Array(capacity=0)
       for pv in parts_views {
         let trimmed = pv.trim().to_owned()
         if trimmed.length() > 0 {
@@ -362,7 +362,7 @@ pub fn parse_jaspar(content : String) -> Array[JasparMatrix] {
       let id = if parts.length() > 0 { parts[0] } else { "" }
       let name = if parts.length() > 1 { parts[1] } else { "" }
       // Parse the 4 rows of the matrix
-      let pfm : Array[Array[Int]] = Array::new()
+      let pfm : Array[Array[Int]] = Array(capacity=0)
       let bases = ["A", "C", "G", "T"]
       let mut row_idx = 0
       let mut j = i + 1
@@ -411,7 +411,7 @@ pub fn parse_jaspar(content : String) -> Array[JasparMatrix] {
 ///|
 /// Parse a space-separated string of integers into an array.
 fn parse_int_array(s : String) -> Array[Int] {
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   let parts = s.split(" ").to_array()
   for p in parts {
     let trimmed = p.trim().to_owned()
@@ -449,7 +449,7 @@ pub fn jaspar_get_matrix(
     }
   }
   // Return a default empty matrix
-  let empty_pfm : Array[Array[Int]] = Array::new()
+  let empty_pfm : Array[Array[Int]] = Array(capacity=0)
   JasparMatrix::new("", "", empty_pfm)
 }
 
@@ -459,7 +459,7 @@ pub fn jaspar_filter_by_collection(
   matrices : Array[JasparMatrix],
   collection : String,
 ) -> Array[JasparMatrix] {
-  let result : Array[JasparMatrix] = Array::new()
+  let result : Array[JasparMatrix] = Array(capacity=0)
   for m in matrices {
     if m.collection == collection {
       result.push(m)
@@ -474,7 +474,7 @@ pub fn jaspar_filter_by_name(
   matrices : Array[JasparMatrix],
   pattern : String,
 ) -> Array[JasparMatrix] {
-  let result : Array[JasparMatrix] = Array::new()
+  let result : Array[JasparMatrix] = Array(capacity=0)
   let upper_pattern = pattern.to_upper()
   for m in matrices {
     let upper_name = m.name.to_upper()

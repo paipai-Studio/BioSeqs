@@ -22,9 +22,9 @@
 /// Returns a new GRanges with the tiled sub-ranges.
 pub fn granges_tile(gr : GRanges, n? : Int = 0, width? : Int = 0) -> GRanges {
   let n_ranges = gr.seqnames.length()
-  let result_seqnames : Array[String] = Array::new()
-  let result_ranges : Array[(Int, Int)] = Array::new()
-  let result_strands : Array[Strand] = Array::new()
+  let result_seqnames : Array[String] = Array(capacity=0)
+  let result_ranges : Array[(Int, Int)] = Array(capacity=0)
+  let result_strands : Array[Strand] = Array(capacity=0)
 
   for i = 0; i < n_ranges; i = i + 1 {
     let seqname = gr.seqnames[i]
@@ -87,9 +87,9 @@ pub fn granges_sliding_windows(
   step : Int,
 ) -> GRanges {
   let n_ranges = gr.seqnames.length()
-  let result_seqnames : Array[String] = Array::new()
-  let result_ranges : Array[(Int, Int)] = Array::new()
-  let result_strands : Array[Strand] = Array::new()
+  let result_seqnames : Array[String] = Array(capacity=0)
+  let result_ranges : Array[(Int, Int)] = Array(capacity=0)
+  let result_strands : Array[Strand] = Array(capacity=0)
 
   for i = 0; i < n_ranges; i = i + 1 {
     let seqname = gr.seqnames[i]
@@ -125,9 +125,9 @@ pub fn granges_sliding_windows(
 ///
 /// Returns a GRanges with tiles covering the entire genome.
 pub fn tile_genome(seqlengths : Array[(String, Int)], width : Int) -> GRanges {
-  let result_seqnames : Array[String] = Array::new()
-  let result_ranges : Array[(Int, Int)] = Array::new()
-  let result_strands : Array[Strand] = Array::new()
+  let result_seqnames : Array[String] = Array(capacity=0)
+  let result_ranges : Array[(Int, Int)] = Array(capacity=0)
+  let result_strands : Array[Strand] = Array(capacity=0)
 
   for pair in seqlengths {
     let (chrom, length) = pair
@@ -160,9 +160,9 @@ pub fn tile_genome(seqlengths : Array[(String, Int)], width : Int) -> GRanges {
 /// Returns a new GRanges with exactly n tiles per input range.
 pub fn tile_by_ranges(gr : GRanges, n : Int) -> GRanges {
   let n_ranges = gr.seqnames.length()
-  let result_seqnames : Array[String] = Array::new()
-  let result_ranges : Array[(Int, Int)] = Array::new()
-  let result_strands : Array[Strand] = Array::new()
+  let result_seqnames : Array[String] = Array(capacity=0)
+  let result_ranges : Array[(Int, Int)] = Array(capacity=0)
+  let result_strands : Array[Strand] = Array(capacity=0)
 
   for i = 0; i < n_ranges; i = i + 1 {
     let start = gr.starts[i]
@@ -206,10 +206,10 @@ pub fn coverage_by_window(
   width : Int,
   step : Int,
 ) -> Array[(Int, Int, Int)] {
-  let result : Array[(Int, Int, Int)] = Array::new()
+  let result : Array[(Int, Int, Int)] = Array(capacity=0)
 
   // Filter ranges for this chromosome
-  let chrom_ranges : Array[(Int, Int)] = Array::new()
+  let chrom_ranges : Array[(Int, Int)] = Array(capacity=0)
   for i = 0; i < gr.seqnames.length(); i = i + 1 {
     if gr.seqnames[i] == seqname {
       chrom_ranges.push((gr.starts[i], gr.ends[i]))
@@ -256,7 +256,7 @@ pub fn bin_genome(
   seqlengths : Array[(String, Int)],
   bin_width : Int,
 ) -> Array[(String, Int, Int, Int, Double)] {
-  let result : Array[(String, Int, Int, Int, Double)] = Array::new()
+  let result : Array[(String, Int, Int, Int, Double)] = Array(capacity=0)
 
   // Group ranges by chromosome
   let chrom_map : Map[String, Array[(Int, Int)]] = Map(
@@ -438,9 +438,9 @@ pub fn granges_gaps(
     }
   }
 
-  let result_seqnames : Array[String] = Array::new()
-  let result_ranges : Array[(Int, Int)] = Array::new()
-  let result_strands : Array[Strand] = Array::new()
+  let result_seqnames : Array[String] = Array(capacity=0)
+  let result_ranges : Array[(Int, Int)] = Array(capacity=0)
+  let result_strands : Array[Strand] = Array(capacity=0)
 
   // For each chromosome, sort ranges and find gaps
   let chrom_keys = chrom_map.keys().collect()
@@ -506,9 +506,9 @@ fn sort_ranges(ranges : Array[(Int, Int)]) -> Array[(Int, Int)] {
 ///|
 /// Subtract ranges: find regions in gr1 not covered by gr2.
 pub fn granges_subtract(gr1 : GRanges, gr2 : GRanges) -> GRanges {
-  let result_seqnames : Array[String] = Array::new()
-  let result_ranges : Array[(Int, Int)] = Array::new()
-  let result_strands : Array[Strand] = Array::new()
+  let result_seqnames : Array[String] = Array(capacity=0)
+  let result_ranges : Array[(Int, Int)] = Array(capacity=0)
+  let result_strands : Array[Strand] = Array(capacity=0)
 
   for i = 0; i < gr1.seqnames.length(); i = i + 1 {
     let chrom = gr1.seqnames[i]
@@ -517,7 +517,7 @@ pub fn granges_subtract(gr1 : GRanges, gr2 : GRanges) -> GRanges {
     // Subtract each range from gr2 that overlaps
     for j = 0; j < gr2.seqnames.length(); j = j + 1 {
       if gr2.seqnames[j] == chrom {
-        let new_segments : Array[(Int, Int)] = Array::new()
+        let new_segments : Array[(Int, Int)] = Array(capacity=0)
         for seg in segments {
           let (s, e) = seg
           let sub_s = gr2.starts[j]

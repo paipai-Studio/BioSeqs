@@ -26,8 +26,8 @@ pub struct NnLayer {
 /// Construct a new layer with given input and output sizes. Weights are
 /// initialized with small random values; biases to zero.
 pub fn NnLayer::new(n_in : Int, n_out : Int) -> NnLayer {
-  let weights : Array[Array[Double]] = Array::new()
-  let weight_grads : Array[Array[Double]] = Array::new()
+  let weights : Array[Array[Double]] = Array(capacity=0)
+  let weight_grads : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<n_out {
     let row = Array::make(n_in, 0.0)
     let grad_row = Array::make(n_in, 0.0)
@@ -108,11 +108,11 @@ pub fn NeuralNetwork::new(
   let hidden = NnLayer::new(n_input, n_hidden)
   let output = NnLayer::new(n_hidden, n_output)
   let input = NnLayer::new(n_input, n_input) // pass-through (identity)
-  let prev_hidden_deltas : Array[Array[Double]] = Array::new()
+  let prev_hidden_deltas : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<n_hidden {
     prev_hidden_deltas.push(Array::make(n_input, 0.0))
   }
-  let prev_output_deltas : Array[Array[Double]] = Array::new()
+  let prev_output_deltas : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<n_output {
     prev_output_deltas.push(Array::make(n_hidden, 0.0))
   }

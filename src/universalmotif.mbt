@@ -158,7 +158,7 @@ pub fn um_alphabet_letters(alphabet : String) -> Array[String] {
       "S", "T", "W", "Y", "V",
     ]
   }
-  let result = Array::new()
+  let result = Array(capacity=0)
   let mut i = 0
   while i < alphabet.length() {
     result.push(alphabet[i:i + 1].to_owned())
@@ -214,7 +214,7 @@ pub fn um_is_similarity(metric : UMetric) -> Bool {
 ///|
 /// Deep-copy a matrix.
 fn um_copy_matrix(m : Array[Array[Double]]) -> Array[Array[Double]] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i = 0; i < m.length(); i = i + 1 {
     out.push(m[i].copy())
   }
@@ -228,7 +228,7 @@ fn um_make_matrix(
   cols : Int,
   default : Double,
 ) -> Array[Array[Double]] {
-  let m = Array::new()
+  let m = Array(capacity=0)
   let mut i = 0
   while i < rows {
     m.push(Array::make(cols, default))
@@ -244,7 +244,7 @@ fn um_make_matrix_int(
   cols : Int,
   default : Int,
 ) -> Array[Array[Int]] {
-  let m = Array::new()
+  let m = Array(capacity=0)
   let mut i = 0
   while i < rows {
     m.push(Array::make(cols, default))
@@ -1177,7 +1177,7 @@ fn um_score_alignment(
     let end1 = if offset + l2 < l1 { offset + l2 } else { l1 }
     let overlap_len = end1 - start1
     if overlap_len >= min_overlap && overlap_len > 0 {
-      let pos_scores = Array::new()
+      let pos_scores = Array(capacity=0)
       let mut ic1_sum = 0.0
       let mut ic2_sum = 0.0
       let mut i = start1
@@ -1492,7 +1492,7 @@ fn um_find_best_offset(
       let end1 = if offset + l2 < l1 { offset + l2 } else { l1 }
       let overlap_len = end1 - start1
       if overlap_len >= min_overlap && overlap_len > 0 {
-        let pos_scores = Array::new()
+        let pos_scores = Array(capacity=0)
         let mut ic1_sum = 0.0
         let mut ic2_sum = 0.0
         let mut i = start1
@@ -1601,7 +1601,7 @@ pub fn trim_motif(
       strand=motif.strand,
     )
   }
-  let new_ppm = Array::new()
+  let new_ppm = Array(capacity=0)
   for pos = cut_left; pos < len - cut_right; pos = pos + 1 {
     new_ppm.push(ppm[pos].copy())
   }
@@ -1719,7 +1719,7 @@ pub fn write_meme(motifs : Array[UniversalMotif]) -> String {
 /// `Background letter frequencies` and `MOTIF` / `letter-probability matrix:`
 /// blocks.
 pub fn read_meme(text : String) -> Array[UniversalMotif] {
-  let motifs = Array::new()
+  let motifs = Array(capacity=0)
   let lines = text.split("\n").to_array()
   let n = lines.length()
   let mut alphabet = "DNA"
@@ -1771,7 +1771,7 @@ pub fn read_meme(text : String) -> Array[UniversalMotif] {
       if width == 0 {
         continue
       }
-      let matrix : Array[Array[Double]] = Array::new()
+      let matrix : Array[Array[Double]] = Array(capacity=0)
       let mut read = 0
       while i < n && read < width {
         let ml = lines[i].trim().to_owned()
@@ -1783,7 +1783,7 @@ pub fn read_meme(text : String) -> Array[UniversalMotif] {
           break
         }
         let parts = ml.split(" ").to_array()
-        let row = Array::new()
+        let row = Array(capacity=0)
         for p = 0; p < parts.length(); p = p + 1 {
           let t = parts[p].trim().to_owned()
           if t.length() > 0 {
@@ -1832,7 +1832,7 @@ fn um_parse_lpm_header(line : String) -> UmLpmHeader {
   let mut nsites = 100.0
   let parts = line.split(" ").to_array()
   // Collect non-empty tokens to handle variable spacing
-  let tokens = Array::new()
+  let tokens = Array(capacity=0)
   for p = 0; p < parts.length(); p = p + 1 {
     let t = parts[p].trim().to_owned()
     if t.length() > 0 {
@@ -1932,7 +1932,7 @@ pub fn write_jaspar(motif : UniversalMotif) -> String {
 /// header line `>name altname` is followed by one row per letter:
 /// `LETTER [ c1 c2 ... cn ]`.
 pub fn read_jaspar(text : String) -> Array[UniversalMotif] {
-  let motifs = Array::new()
+  let motifs = Array(capacity=0)
   let lines = text.split("\n").to_array()
   let n = lines.length()
   let mut i = 0
@@ -1955,8 +1955,8 @@ pub fn read_jaspar(text : String) -> Array[UniversalMotif] {
       } else {
         ""
       }
-      let row_labels : Array[String] = Array::new()
-      let row_counts : Array[Array[Double]] = Array::new()
+      let row_labels : Array[String] = Array(capacity=0)
+      let row_counts : Array[Array[Double]] = Array(capacity=0)
       i = i + 1
       while i < n {
         let rl = lines[i].trim().to_owned()
@@ -1979,7 +1979,7 @@ pub fn read_jaspar(text : String) -> Array[UniversalMotif] {
             ""
           }
           let nums = cleaned.split(" ").to_array()
-          let counts = Array::new()
+          let counts = Array(capacity=0)
           for p = 0; p < nums.length(); p = p + 1 {
             let t = nums[p].trim().to_owned()
             if t.length() > 0 {

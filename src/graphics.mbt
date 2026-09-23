@@ -30,7 +30,7 @@ pub fn LogoColumn::new(position : Int) -> LogoColumn {
     position,
     letter_frequencies: Map([], capacity=4),
     information_content: 0.0,
-    letters: Array::new(),
+    letters: Array(capacity=0),
   }
 }
 
@@ -46,7 +46,7 @@ pub struct AlignmentPlot {
 pub fn AlignmentPlot::new(sequences : Array[(String, String)]) -> AlignmentPlot {
   AlignmentPlot::{
     sequences,
-    highlight_regions: Array::new(),
+    highlight_regions: Array(capacity=0),
     consensus: "",
     show_consensus: true,
   }
@@ -125,7 +125,7 @@ pub fn get_feature_colors() -> Map[String, String] {
 pub fn seqlogo_calculate_columns(
   sequences : Array[String],
 ) -> Array[LogoColumn] {
-  let columns : Array[LogoColumn] = Array::new()
+  let columns : Array[LogoColumn] = Array(capacity=0)
 
   if sequences.length() == 0 {
     return columns
@@ -184,7 +184,7 @@ pub fn seqlogo_calculate_columns(
 
       let info_content = ic / ic_max * ic_max
 
-      let sorted_letters : Array[(String, Double)] = Array::new()
+      let sorted_letters : Array[(String, Double)] = Array(capacity=0)
       let mut k = 0
       while k < count_keys.length() {
         let key = count_keys[k]
@@ -208,7 +208,7 @@ pub fn seqlogo_calculate_columns(
         l = l + 1
       }
 
-      let letters : Array[(String, Double, Double)] = Array::new()
+      let letters : Array[(String, Double, Double)] = Array(capacity=0)
       let mut cum_height = 0.0
       let mut n = 0
       while n < sorted_letters.length() {

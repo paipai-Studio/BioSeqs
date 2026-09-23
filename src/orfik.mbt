@@ -156,7 +156,7 @@ fn orff_scan_frame(
   seq : String, frame : OrffFrame, min_length : Int,
   start_codons : Array[String], stop_codons : Array[String],
 ) -> Array[OrffORF] {
-  let orfs : Array[OrffORF] = Array::new()
+  let orfs : Array[OrffORF] = Array(capacity=0)
   let n = seq.length()
   let offset = orff_frame_offset(frame)
   let is_rev = orff_is_reverse(frame)
@@ -216,7 +216,7 @@ pub fn orff_find_all_orfs(
   stop_codons? : Array[String] = ["TAA", "TAG", "TGA"],
 ) -> Array[OrffORF] {
   let s = seq.to_upper()
-  let all_orfs : Array[OrffORF] = Array::new()
+  let all_orfs : Array[OrffORF] = Array(capacity=0)
   let frames = [OrffFrameF0, OrffFrameF1, OrffFrameF2,
     OrffFrameR0, OrffFrameR1, OrffFrameR2]
   for f in frames {
@@ -241,7 +241,7 @@ pub fn orff_classify_orf(orf : OrffORF, cds_start : Int, cds_stop : Int) -> Orff
 pub fn orff_classify_all(
   orfs : Array[OrffORF], cds_start : Int, cds_stop : Int,
 ) -> Array[OrffORF] {
-  let result : Array[OrffORF] = Array::new()
+  let result : Array[OrffORF] = Array(capacity=0)
   for orf in orfs {
     let cls = orff_classify_orf(orf, cds_start, cds_stop)
     result.push(OrffORF::{
@@ -255,7 +255,7 @@ pub fn orff_classify_all(
 
 pub fn orff_find_uorfs(seq : String, cds_start : Int, min_length? : Int = 30) -> Array[OrffORF] {
   let all = orff_find_all_orfs(seq, min_length=min_length)
-  let uorfs : Array[OrffORF] = Array::new()
+  let uorfs : Array[OrffORF] = Array(capacity=0)
   for orf in all {
     if orf.stop <= cds_start {
       uorfs.push(OrffORF::{
@@ -270,7 +270,7 @@ pub fn orff_find_uorfs(seq : String, cds_start : Int, min_length? : Int = 30) ->
 
 pub fn orff_find_dorfs(seq : String, cds_stop : Int, min_length? : Int = 30) -> Array[OrffORF] {
   let all = orff_find_all_orfs(seq, min_length=min_length)
-  let dorfs : Array[OrffORF] = Array::new()
+  let dorfs : Array[OrffORF] = Array(capacity=0)
   for orf in all {
     if orf.start >= cds_stop {
       dorfs.push(OrffORF::{
@@ -284,7 +284,7 @@ pub fn orff_find_dorfs(seq : String, cds_stop : Int, min_length? : Int = 30) -> 
 }
 
 pub fn orff_overlapping_orfs(orfs : Array[OrffORF]) -> Array[(OrffORF, OrffORF)] {
-  let pairs : Array[(OrffORF, OrffORF)] = Array::new()
+  let pairs : Array[(OrffORF, OrffORF)] = Array(capacity=0)
   let n = orfs.length()
   for i in 0..<n {
     let j_start = i + 1
@@ -300,7 +300,7 @@ pub fn orff_overlapping_orfs(orfs : Array[OrffORF]) -> Array[(OrffORF, OrffORF)]
 }
 
 pub fn orff_filter_by_kozak(orfs : Array[OrffORF], min_kozak : Double) -> Array[OrffORF] {
-  let result : Array[OrffORF] = Array::new()
+  let result : Array[OrffORF] = Array(capacity=0)
   for orf in orfs {
     if orf.kozak_score >= min_kozak { result.push(orf) }
   }
@@ -308,7 +308,7 @@ pub fn orff_filter_by_kozak(orfs : Array[OrffORF], min_kozak : Double) -> Array[
 }
 
 pub fn orff_filter_by_aa_length(orfs : Array[OrffORF], min_aa : Int) -> Array[OrffORF] {
-  let result : Array[OrffORF] = Array::new()
+  let result : Array[OrffORF] = Array(capacity=0)
   for orf in orfs {
     if orf.protein.length() >= min_aa { result.push(orf) }
   }

@@ -107,7 +107,7 @@ fn ncbi_blast_hex_digit(d : Int) -> String {
 ///|
 /// Encode ordered key/value pairs as an urlencoded query string.
 fn qblast_urlencode(params : Array[(String, String)]) -> String {
-  let parts : Array[String] = Array::new()
+  let parts : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < params.length() {
     let (key, value) = params[i]
@@ -181,7 +181,7 @@ pub fn qblast_put_url(
     ncbiblast_fail("No sequence supplied for BLAST search")
   }
 
-  let params : Array[(String, String)] = Array::new()
+  let params : Array[(String, String)] = Array(capacity=0)
   params.push(("CMD", "Put"))
   if megablast {
     // Biopython keeps PROGRAM as blastn for megablast, which just adds SERVICE.
@@ -239,7 +239,7 @@ pub fn qblast_search_info_url(rid : String) -> String {
 ///|
 /// Build the GET URL used to download the finished result.
 pub fn qblast_result_url(rid : String, format_type? : String = "XML") -> String {
-  let params : Array[(String, String)] = Array::new()
+  let params : Array[(String, String)] = Array(capacity=0)
   params.push(("CMD", "Get"))
   params.push(("RID", rid))
   params.push(("FORMAT_TYPE", format_type))

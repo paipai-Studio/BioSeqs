@@ -84,7 +84,7 @@ pub fn Clade::count_terminals(self : Clade) -> Int {
 ///|
 /// Get all terminal (leaf) clades in this subtree.
 pub fn Clade::get_terminals(self : Clade) -> Array[Clade] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   self.collect_terminals_into(result)
   result
 }
@@ -104,7 +104,7 @@ fn Clade::collect_terminals_into(self : Clade, result : Array[Clade]) -> Unit {
 ///|
 /// Get all non-terminal (internal) clades in this subtree.
 pub fn Clade::get_nonterminals(self : Clade) -> Array[Clade] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   self.collect_nonterminals_into(result)
   result
 }
@@ -130,7 +130,7 @@ pub fn Clade::find_clades(
   name? : String? = None,
   terminal? : Bool? = None,
 ) -> Array[Clade] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   self.find_clades_into(name, terminal, result)
   result
 }
@@ -206,14 +206,14 @@ pub fn Clade::is_bifurcating(self : Clade) -> Bool {
 /// Find a path from this clade to a descendant with the given name.
 pub fn Clade::get_path(self : Clade, name : String) -> Array[Clade]? {
   if self.name == Some(name) {
-    let path = Array::new()
+    let path = Array(capacity=0)
     path.push(self)
     Some(path)
   } else {
     for clade in self.clades {
       match clade.get_path(name) {
         Some(child_path) => {
-          let path = Array::new()
+          let path = Array(capacity=0)
           path.push(self)
           for c in child_path {
             path.push(c)
@@ -233,7 +233,7 @@ pub fn Clade::depths(
   self : Clade,
   current_depth? : Double? = None,
 ) -> Array[(String, Double)] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   self.depths_helper(current_depth, result)
   result
 }
@@ -417,7 +417,7 @@ pub fn Tree::common_ancestor(self : Tree, names : Array[String]) -> Clade? {
     return None
   }
 
-  let paths : Array[Array[Clade]] = Array::new()
+  let paths : Array[Array[Clade]] = Array(capacity=0)
   for name in names {
     match self.root.get_path(name) {
       Some(path) => paths.push(path)

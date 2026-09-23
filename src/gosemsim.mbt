@@ -146,7 +146,7 @@ pub fn GOGraph::add_term(self : GOGraph, node : GOTermNode) -> GOGraph {
   for parent_id in node.parents {
     match terms.get(parent_id) {
       Some(parent) => {
-        let new_children : Array[String] = Array::new()
+        let new_children : Array[String] = Array(capacity=0)
         for c in parent.children {
           new_children.push(c)
         }
@@ -185,14 +185,14 @@ pub fn GOGraph::term_ids(self : GOGraph) -> Array[String] {
 ///|
 /// Get ancestors of a term (including itself) — iterative BFS.
 pub fn GOGraph::ancestors(self : GOGraph, go_id : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let visited : Map[String, Bool] = Map([], capacity=32)
-  let mut queue : Array[String] = Array::new()
+  let mut queue : Array[String] = Array(capacity=0)
   queue.push(go_id)
   visited.set(go_id, true)
   while queue.length() > 0 {
     let cur = queue[0]
-    let rest : Array[String] = Array::new()
+    let rest : Array[String] = Array(capacity=0)
     let mut i = 1
     while i < queue.length() {
       rest.push(queue[i])
@@ -377,14 +377,14 @@ fn gosemsim_compute_sv(graph : GOGraph, start_id : String) -> Map[String, Double
   let weight : Double = 0.8 // is_a relationship weight
 
   // BFS upward
-  let mut frontier : Array[String] = Array::new()
+  let mut frontier : Array[String] = Array(capacity=0)
   frontier.push(start_id)
   let visited : Map[String, Bool] = Map([], capacity=32)
   visited.set(start_id, true)
 
   while frontier.length() > 0 {
     let cur = frontier[0]
-    let rest : Array[String] = Array::new()
+    let rest : Array[String] = Array(capacity=0)
     let mut i = 1
     while i < frontier.length() {
       rest.push(frontier[i])
@@ -481,10 +481,10 @@ fn gosemsim_build_sim_matrix(
   go_ids2 : Array[String],
   measure : SimMeasure,
 ) -> Array[Array[Double]] {
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < go_ids1.length() {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < go_ids2.length() {
       row.push(gosemsim_term_sim(graph, go_ids1[i], go_ids2[j], measure))

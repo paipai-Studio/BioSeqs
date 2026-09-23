@@ -74,12 +74,12 @@ pub fn run_gage(
   fdr_threshold? : Double = 0.05,
   paired? : Bool = false,
 ) -> GageResults {
-  let all_results : Array[GageResult] = Array::new()
+  let all_results : Array[GageResult] = Array(capacity=0)
   let mut gsi = 0
   while gsi < gene_sets.length() {
     let gs = gene_sets[gsi]
     // Collect fold changes for genes in this set
-    let fcs : Array[Double] = Array::new()
+    let fcs : Array[Double] = Array(capacity=0)
     let mut gi = 0
     while gi < gs.gene_ids.length() {
       let gid = gs.gene_ids[gi]
@@ -114,7 +114,7 @@ pub fn run_gage(
     gsi = gsi + 1
   }
   // Apply BH correction
-  let p_values : Array[Double] = Array::new()
+  let p_values : Array[Double] = Array(capacity=0)
   let mut ri = 0
   while ri < all_results.length() {
     p_values.push(all_results[ri].p_val)
@@ -219,10 +219,10 @@ fn erfc_approx(x : Double) -> Double {
 fn gage_bh_adjust(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   // Create index-value pairs and sort by p-value
-  let indexed : Array[(Int, Double)] = Array::new()
+  let indexed : Array[(Int, Double)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((i, p_values[i]))
@@ -243,7 +243,7 @@ fn gage_bh_adjust(p_values : Array[Double]) -> Array[Double] {
     j = j + 1
   }
   // Compute adjusted p-values
-  let adjusted : Array[Double] = Array::new()
+  let adjusted : Array[Double] = Array(capacity=0)
   let mut ai = 0
   while ai < n {
     adjusted.push(0.0)
@@ -271,7 +271,7 @@ fn gage_bh_adjust(p_values : Array[Double]) -> Array[Double] {
 ///|
 /// Get significant results only.
 pub fn GageResults::get_significant(self : GageResults) -> Array[GageResult] {
-  let sig : Array[GageResult] = Array::new()
+  let sig : Array[GageResult] = Array(capacity=0)
   let mut i = 0
   while i < self.results.length() {
     if self.results[i].significant {
@@ -285,7 +285,7 @@ pub fn GageResults::get_significant(self : GageResults) -> Array[GageResult] {
 ///|
 /// Get up-regulated gene sets.
 pub fn GageResults::get_upregulated(self : GageResults) -> Array[GageResult] {
-  let up : Array[GageResult] = Array::new()
+  let up : Array[GageResult] = Array(capacity=0)
   let mut i = 0
   while i < self.results.length() {
     if self.results[i].is_up {
@@ -299,7 +299,7 @@ pub fn GageResults::get_upregulated(self : GageResults) -> Array[GageResult] {
 ///|
 /// Get down-regulated gene sets.
 pub fn GageResults::get_downregulated(self : GageResults) -> Array[GageResult] {
-  let down : Array[GageResult] = Array::new()
+  let down : Array[GageResult] = Array(capacity=0)
   let mut i = 0
   while i < self.results.length() {
     if self.results[i].is_down {
@@ -331,7 +331,7 @@ pub fn GageResults::get_top_sets(
     }
     i = i + 1
   }
-  let result : Array[GageResult] = Array::new()
+  let result : Array[GageResult] = Array(capacity=0)
   let take = if n < len { n } else { len }
   let mut k = 0
   while k < take {
@@ -359,7 +359,7 @@ pub fn GageResults::summary(self : GageResults) -> String {
 ///|
 /// Create sample gene sets for testing.
 pub fn gage_sample_gene_sets() -> Array[GageGeneSet] {
-  let sets : Array[GageGeneSet] = Array::new()
+  let sets : Array[GageGeneSet] = Array(capacity=0)
   sets.push(GageGeneSet::new("GS1", "Pathway A", ["Gene1", "Gene2", "Gene3"]))
   sets.push(GageGeneSet::new("GS2", "Pathway B", ["Gene4", "Gene5", "Gene6"]))
   sets.push(GageGeneSet::new("GS3", "Pathway C", ["Gene1", "Gene4", "Gene7"]))

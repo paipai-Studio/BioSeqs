@@ -41,7 +41,7 @@ fn main {
   let h = @src.skallel_gt_to_haplotypes(g)
   let gn = @src.skallel_gt_to_n_alt(g, fill=-1)
 
-  let pos2 : Array[Int] = Array::new()
+  let pos2 : Array[Int] = Array(capacity=0)
   for v = 0; v < 20; v = v + 1 {
     pos2.push(v + 1)
   }
@@ -63,7 +63,7 @@ fn main {
   }
   // --- SFS / Hardy–Weinberg / Patterson Fst ---
   let ac = @src.skallel_gt_count_alleles(g, 1)
-  let dac : Array[Int] = Array::new()
+  let dac : Array[Int] = Array(capacity=0)
   for aci in ac {
     dac.push(aci[1])
   }

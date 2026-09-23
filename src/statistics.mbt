@@ -139,7 +139,7 @@ pub fn stat_sum(data : Array[Double]) -> Double {
 ///|
 /// Calculate the cumulative sum.
 pub fn stat_cumsum(data : Array[Double]) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut cumsum = 0.0
   let mut i = 0
   while i < data.length() {
@@ -213,7 +213,7 @@ pub fn stat_rank(data : Array[Double]) -> Array[Double] {
   let n = data.length()
   let result : Array[Double] = Array::make(n, 0.0)
 
-  let indexed : Array[Array[Double]] = Array::new()
+  let indexed : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let row = [data[i], i.to_double()]
@@ -265,7 +265,7 @@ pub fn stat_zscore(value : Double, mean : Double, std : Double) -> Double {
 pub fn stat_zscores(data : Array[Double]) -> Array[Double] {
   let mean = stat_mean(data)
   let std = stat_std(data)
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < data.length() {
     result.push(stat_zscore(data[i], mean, std))
@@ -405,7 +405,7 @@ pub fn stat_frequency_counts(data : Array[Double]) -> Map[Double, Int] {
 /// Get unique values in an array.
 pub fn stat_unique_values(data : Array[Double]) -> Array[Double] {
   let map : Map[Double, Bool] = Map([], capacity=data.length())
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < data.length() {
     let val = data[i]
@@ -482,8 +482,8 @@ pub fn stat_sort_indices_desc(
     return data.copy()
   }
   let pivot = data[0]
-  let left : Array[(Double, Int)] = Array::new()
-  let right : Array[(Double, Int)] = Array::new()
+  let left : Array[(Double, Int)] = Array(capacity=0)
+  let right : Array[(Double, Int)] = Array(capacity=0)
   let mut i = 1
   while i < data.length() {
     if data[i].0 >= pivot.0 {
@@ -513,8 +513,8 @@ pub fn stat_sort_indices_asc(
     return data.copy()
   }
   let pivot = data[0]
-  let left : Array[(Double, Int)] = Array::new()
-  let right : Array[(Double, Int)] = Array::new()
+  let left : Array[(Double, Int)] = Array(capacity=0)
+  let right : Array[(Double, Int)] = Array(capacity=0)
   let mut i = 1
   while i < data.length() {
     if data[i].0 <= pivot.0 {
@@ -573,7 +573,7 @@ pub fn stat_mean_var(data : Array[Double]) -> (Double, Double) {
 pub fn stat_standardize(data : Array[Double]) -> Array[Double] {
   let (mean, var_) = stat_mean_var(data)
   let std = if var_ > 0.0 { var_.sqrt() } else { 1.0 }
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < data.length() {
     result.push((data[i] - mean) / std)
@@ -594,7 +594,7 @@ pub fn stat_wilcoxon_signed_rank(
     return (0.0, 1.0)
   }
 
-  let diffs : Array[Double] = Array::new()
+  let diffs : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let d = x[i] - y[i]
@@ -610,7 +610,7 @@ pub fn stat_wilcoxon_signed_rank(
   }
 
   // Rank absolute differences
-  let abs_diffs : Array[Double] = Array::new()
+  let abs_diffs : Array[Double] = Array(capacity=0)
   for d in diffs {
     abs_diffs.push(d.abs())
   }
@@ -664,7 +664,7 @@ pub fn stat_mann_whitney(
   }
 
   // Combine and rank
-  let combined : Array[Double] = Array::new()
+  let combined : Array[Double] = Array(capacity=0)
   for v in x {
     combined.push(v)
   }
@@ -869,7 +869,7 @@ pub fn stat_ks_test(
   }
 
   // Combine all values and compute ECDF
-  let combined : Array[Double] = Array::new()
+  let combined : Array[Double] = Array(capacity=0)
   for v in sample1 {
     combined.push(v)
   }
@@ -960,7 +960,7 @@ fn stat_kolmogorov_cdf(lambda : Double) -> Double {
 /// Bonferroni correction for multiple testing.
 pub fn stat_bonferroni(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let corrected = p_values[i] * n.to_double()
@@ -983,11 +983,11 @@ pub fn stat_bonferroni(p_values : Array[Double]) -> Array[Double] {
 pub fn stat_holm(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   // Create indexed pairs and sort by p-value
-  let indexed : Array[(Double, Int)] = Array::new()
+  let indexed : Array[(Double, Int)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((p_values[i], i))
@@ -1020,7 +1020,7 @@ pub fn stat_holm(p_values : Array[Double]) -> Array[Double] {
 pub fn stat_by(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   // Harmonic number for BY correction
@@ -1031,7 +1031,7 @@ pub fn stat_by(p_values : Array[Double]) -> Array[Double] {
     k = k + 1
   }
 
-  let indexed : Array[(Double, Int)] = Array::new()
+  let indexed : Array[(Double, Int)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((p_values[i], i))
@@ -1140,8 +1140,8 @@ pub fn stat_bartlett_test(samples : Array[Array[Double]]) -> (Double, Double) {
     return (0.0, 1.0)
   }
 
-  let variances : Array[Double] = Array::new()
-  let sizes : Array[Int] = Array::new()
+  let variances : Array[Double] = Array(capacity=0)
+  let sizes : Array[Int] = Array(capacity=0)
   let mut total_n = 0
   let mut i = 0
   while i < k {
@@ -1214,9 +1214,9 @@ pub fn stat_levene_test(samples : Array[Array[Double]]) -> (Double, Double) {
   }
 
   // Compute group medians
-  let medians : Array[Double] = Array::new()
-  let sizes : Array[Int] = Array::new()
-  let all_deviations : Array[Array[Double]] = Array::new()
+  let medians : Array[Double] = Array(capacity=0)
+  let sizes : Array[Int] = Array(capacity=0)
+  let all_deviations : Array[Array[Double]] = Array(capacity=0)
   let mut total_n = 0
 
   let mut i = 0
@@ -1231,7 +1231,7 @@ pub fn stat_levene_test(samples : Array[Array[Double]]) -> (Double, Double) {
     total_n = total_n + n
 
     // Absolute deviations from median
-    let devs : Array[Double] = Array::new()
+    let devs : Array[Double] = Array(capacity=0)
     for v in samples[i] {
       devs.push((v - med).abs())
     }
@@ -1240,7 +1240,7 @@ pub fn stat_levene_test(samples : Array[Array[Double]]) -> (Double, Double) {
   }
 
   // Compute overall mean of deviations
-  let all_devs_flat : Array[Double] = Array::new()
+  let all_devs_flat : Array[Double] = Array(capacity=0)
   for devs in all_deviations {
     for d in devs {
       all_devs_flat.push(d)
@@ -1249,8 +1249,8 @@ pub fn stat_levene_test(samples : Array[Array[Double]]) -> (Double, Double) {
   let grand_mean = stat_mean(all_devs_flat)
 
   // Compute group means and variances of deviations
-  let group_means : Array[Double] = Array::new()
-  let group_vars : Array[Double] = Array::new()
+  let group_means : Array[Double] = Array(capacity=0)
+  let group_vars : Array[Double] = Array(capacity=0)
   i = 0
   while i < k {
     group_means.push(stat_mean(all_deviations[i]))
@@ -1568,10 +1568,10 @@ pub fn stat_t_test_two_sample(
 pub fn stat_bh(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
-  let indexed : Array[(Double, Int)] = Array::new()
+  let indexed : Array[(Double, Int)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let p = if p_values[i].is_nan() { 1.0 } else { p_values[i] }
@@ -1664,7 +1664,7 @@ pub fn stat_mad(data : Array[Double], constant? : Double = 1.4826) -> Double {
     return 0.0
   }
   let med = stat_median(data)
-  let devs : Array[Double] = Array::new()
+  let devs : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < data.length() {
     devs.push((data[i] - med).abs())
@@ -1687,7 +1687,7 @@ pub fn stat_logrank_test(
   }
 
   // Sort by time
-  let indexed : Array[(Double, Bool, Int)] = Array::new()
+  let indexed : Array[(Double, Bool, Int)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((time[i], event[i], group[i]))
@@ -1770,9 +1770,9 @@ pub fn stat_anova(samples : Array[Array[Double]]) -> (Double, Double) {
     return (0.0, 1.0)
   }
 
-  let sizes : Array[Int] = Array::new()
-  let means : Array[Double] = Array::new()
-  let variances : Array[Double] = Array::new()
+  let sizes : Array[Int] = Array(capacity=0)
+  let means : Array[Double] = Array(capacity=0)
+  let variances : Array[Double] = Array(capacity=0)
   let mut total_n = 0
 
   let mut i = 0
@@ -1789,7 +1789,7 @@ pub fn stat_anova(samples : Array[Array[Double]]) -> (Double, Double) {
   }
 
   // Overall mean
-  let all_vals : Array[Double] = Array::new()
+  let all_vals : Array[Double] = Array(capacity=0)
   i = 0
   while i < k {
     for v in samples[i] {

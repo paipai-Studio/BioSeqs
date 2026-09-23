@@ -133,13 +133,13 @@ fn main {
   // 5. GO enrichment at the gene level (Fisher's exact + BH-FDR)
   // ------------------------------------------------------------------
   println("=== 5. GO enrichment (gene-level) ===")
-  let sig_probes : Array[String] = Array::new()
+  let sig_probes : Array[String] = Array(capacity=0)
   for r in sorted {
     if r.is_significant(0.05) {
       sig_probes.push(r.probe_id())
     }
   }
-  let all_probes : Array[String] = Array::new()
+  let all_probes : Array[String] = Array(capacity=0)
   for ann in annotations {
     all_probes.push(ann.probe_id())
   }

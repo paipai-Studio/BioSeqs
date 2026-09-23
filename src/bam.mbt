@@ -232,7 +232,7 @@ fn parse_bam_tags(
   pos : Int,
   end : Int,
 ) -> (Array[BamTag], Int) raise BamError {
-  let tags : Array[BamTag] = Array::new()
+  let tags : Array[BamTag] = Array(capacity=0)
   let mut p = pos
   while p < end {
     if p + 3 > end {
@@ -288,7 +288,7 @@ fn parse_bam_tags(
       let (count, np) = read_int32_le(data, p)
       p = np
       if subtype == 'f' {
-        let arr : Array[Double] = Array::new()
+        let arr : Array[Double] = Array(capacity=0)
         for _j = 0; _j < count; _j = _j + 1 {
           let (v, np2) = read_float32_le(data, p)
           arr.push(v)
@@ -296,7 +296,7 @@ fn parse_bam_tags(
         }
         tags.push(BamTag::{ name, type_code, value: BamTagValue::FloatArray(arr) })
       } else {
-        let arr : Array[Int] = Array::new()
+        let arr : Array[Int] = Array(capacity=0)
         for _j = 0; _j < count; _j = _j + 1 {
           let pair = if subtype == 'c' {
             read_int8_signed(data, p)
@@ -494,7 +494,7 @@ pub fn parse_bam(data : String) -> BamFile raise BamError {
 
   let (header, pos) = parse_bam_header(data, 4)
 
-  let records = Array::new()
+  let records = Array(capacity=0)
   let mut current_pos = pos
   while current_pos < n {
     let (block_size, pos_new) = read_int32_le(data, current_pos)
@@ -644,7 +644,7 @@ pub fn BamFile::num_references(self : BamFile) -> Int {
 ///|
 /// Get all reference sequence names.
 pub fn BamFile::get_reference_names(self : BamFile) -> Array[String] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for ref_ in self.header.references {
     result.push(ref_.name)
   }
@@ -962,7 +962,7 @@ fn cram_parse_header(
 
   let compression = cram_parse_compression(compression_code)
 
-  let references : Array[CramReference] = Array::new()
+  let references : Array[CramReference] = Array(capacity=0)
   let mut current_pos = pos4
   let mut ref_idx = 0
   while ref_idx < ref_count {
@@ -975,7 +975,7 @@ fn cram_parse_header(
     ref_idx = ref_idx + 1
   }
 
-  let stream_info : Array[String] = Array::new()
+  let stream_info : Array[String] = Array(capacity=0)
   let mut stream_idx = 0
   while stream_idx < stream_count {
     let (info, pos_new) = read_cstring(data, current_pos)
@@ -1023,7 +1023,7 @@ fn cram_parse_read_features(
   let pos5 = pos4 + name_len
 
   let (cigar_len, pos6) = read_uint32_le(data, pos5)
-  let cigar : Array[BamCigarElement] = Array::new()
+  let cigar : Array[BamCigarElement] = Array(capacity=0)
   let mut current_pos = pos6
   let mut cigar_idx = 0
   while cigar_idx < cigar_len {
@@ -1051,7 +1051,7 @@ fn cram_parse_read_features(
   let pos10 = pos9 + qual_len
 
   let (tag_count, pos11) = read_uint32_le(data, pos10)
-  let tags : Array[CramTag] = Array::new()
+  let tags : Array[CramTag] = Array(capacity=0)
   current_pos = pos11
   let mut tag_idx = 0
   while tag_idx < tag_count {
@@ -1107,7 +1107,7 @@ pub fn parse_cram(data : String) -> CramFile raise CramError {
 
   let (header, pos) = cram_parse_header(data, 4)
 
-  let records : Array[CramRecord] = Array::new()
+  let records : Array[CramRecord] = Array(capacity=0)
   let mut current_pos = pos
   while current_pos < n - 8 {
     let (record_size, pos_new) = read_uint32_le(data, current_pos)
@@ -1187,7 +1187,7 @@ pub fn CramFile::to_bam(self : CramFile) -> BamFile {
     text: self.header.sam_header,
     references: refs_fixed,
   }
-  let records : Array[BamRecord] = Array::new()
+  let records : Array[BamRecord] = Array(capacity=0)
   let mut i = 0
   while i < self.records.length() {
     records.push(self.records[i].to_bam_record())
@@ -1211,7 +1211,7 @@ pub fn CramFile::num_references(self : CramFile) -> Int {
 ///|
 /// Get all reference sequence names.
 pub fn CramFile::get_reference_names(self : CramFile) -> Array[String] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   let mut i = 0
   while i < self.header.references.length() {
     result.push(self.header.references[i].name)
@@ -1371,7 +1371,7 @@ pub fn BamRecord::reference_end(self : BamRecord) -> Int {
 /// position; with `full_length`, insertions/soft clips contribute `None`
 /// placeholders. Deletions/skips are skipped entirely.
 pub fn BamRecord::get_reference_positions(self : BamRecord, full_length : Bool) -> Array[Int?] {
-  let out : Array[Int?] = Array::new()
+  let out : Array[Int?] = Array(capacity=0)
   let mut rpos = self.pos
   for i = 0; i < self.cigar.length(); i = i + 1 {
     let el = self.cigar[i]
@@ -1433,7 +1433,7 @@ pub fn BamRecord::get_overlap(self : BamRecord, beg : Int, end : Int) -> Int {
 /// `(query, None)`, deletions/skips `(None, ref)`. With `matches_only`, only
 /// aligned pairs (M/=/X) are kept.
 pub fn BamRecord::get_aligned_pairs(self : BamRecord, matches_only : Bool) -> Array[(Int?, Int?)] {
-  let out : Array[(Int?, Int?)] = Array::new()
+  let out : Array[(Int?, Int?)] = Array(capacity=0)
   let mut qpos = 0
   let mut rpos = self.pos
   for i = 0; i < self.cigar.length(); i = i + 1 {
@@ -1561,9 +1561,9 @@ pub fn BamFile::pileup(
       break
     }
   }
-  let columns : Array[PileupColumn] = Array::new()
+  let columns : Array[PileupColumn] = Array(capacity=0)
   for p = start; p < stop; p = p + 1 {
-    let pileups : Array[PileupRead] = Array::new()
+    let pileups : Array[PileupRead] = Array(capacity=0)
     for i = 0; i < self.records.length(); i = i + 1 {
       let r = self.records[i]
       if r.ref_id != ref_id {
@@ -1732,7 +1732,7 @@ pub fn BamFile::idxstats(self : BamFile) -> Array[IdxstatsResult] {
       mapped_cnt[b] = mapped_cnt[b] + 1
     }
   }
-  let out : Array[IdxstatsResult] = Array::new()
+  let out : Array[IdxstatsResult] = Array(capacity=0)
   for i = 0; i < nref; i = i + 1 {
     out.push(
       IdxstatsResult::{ ref_name: self.header.references[i].name, ref_length: self.header.references[i].length, mapped: mapped_cnt[i], unmapped: unmapped_cnt[i] },
@@ -1783,7 +1783,7 @@ pub fn BamFile::mpileup(
   ref_seq : String,
 ) -> Array[MpileupLine] {
   let columns = self.pileup(contig, start, stop)
-  let lines : Array[MpileupLine] = Array::new()
+  let lines : Array[MpileupLine] = Array(capacity=0)
   for col in columns {
     let p = col.reference_pos
     let ref_base = if p < ref_seq.length() {

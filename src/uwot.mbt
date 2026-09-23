@@ -64,7 +64,7 @@ pub struct UmapResult {
 
 ///|
 pub fn UmapResult::new() -> UmapResult {
-  UmapResult::{ embedding: Array::new(), n_epochs: 0, }
+  UmapResult::{ embedding: Array(capacity=0), n_epochs: 0, }
 }
 
 // ============================================================
@@ -90,7 +90,7 @@ pub fn uwot_distance_matrix(
   data : Array[Array[Double]],
 ) -> Array[Array[Double]] {
   let n = data.length()
-  let dist_matrix : Array[Array[Double]] = Array::new()
+  let dist_matrix : Array[Array[Double]] = Array(capacity=0)
 
   if n == 0 {
     return dist_matrix
@@ -98,7 +98,7 @@ pub fn uwot_distance_matrix(
 
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(0.0)
@@ -131,7 +131,7 @@ fn find_knn(
   k : Int,
 ) -> Array[Array[(Int, Double)]] {
   let n = dist_matrix.length()
-  let result : Array[Array[(Int, Double)]] = Array::new()
+  let result : Array[Array[(Int, Double)]] = Array(capacity=0)
 
   if n == 0 || k <= 0 {
     return result
@@ -142,7 +142,7 @@ fn find_knn(
   let mut i = 0
   while i < n {
     // Create list of (index, distance) for all other points
-    let neighbors : Array[(Int, Double)] = Array::new()
+    let neighbors : Array[(Int, Double)] = Array(capacity=0)
     let mut j = 0
     while j < n {
       if i != j {
@@ -152,7 +152,7 @@ fn find_knn(
     }
 
     // Simple selection sort to find k nearest
-    let knn : Array[(Int, Double)] = Array::new()
+    let knn : Array[(Int, Double)] = Array(capacity=0)
     let mut selected = 0
     while selected < actual_k && selected < neighbors.length() {
       let mut min_dist = 1.0e300
@@ -256,10 +256,10 @@ fn build_graph(
   let n_neighbors = config.n_neighbors
 
   // Initialize graph
-  let graph : Array[Array[Double]] = Array::new()
+  let graph : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(0.0)
@@ -273,8 +273,8 @@ fn build_graph(
   let target_log2 = @math.log2(n_neighbors.to_double())
 
   // For each point, compute rho (distance to nearest neighbor) and sigma
-  let sigmas : Array[Double] = Array::new()
-  let rhos : Array[Double] = Array::new()
+  let sigmas : Array[Double] = Array(capacity=0)
+  let rhos : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -287,7 +287,7 @@ fn build_graph(
     rhos.push(rho)
 
     // Find sigma using binary search
-    let distances : Array[Double] = Array::new()
+    let distances : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < knn_distances[i].length() {
       distances.push(knn_distances[i][j])
@@ -367,11 +367,11 @@ fn initialize_embedding(
   n_components : Int,
   seed : Int,
 ) -> Array[Array[Double]] {
-  let embedding : Array[Array[Double]] = Array::new()
+  let embedding : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_components {
       let seed_val = (i * n_components + j + seed).to_double()
@@ -400,8 +400,8 @@ pub fn uwot_umap(
 
   if n < 2 {
     let result = UmapResult::new()
-    let embedding : Array[Array[Double]] = Array::new()
-    let row : Array[Double] = Array::new()
+    let embedding : Array[Array[Double]] = Array(capacity=0)
+    let row : Array[Double] = Array(capacity=0)
     let mut i = 0
     while i < config.n_components {
       row.push(0.0)
@@ -419,13 +419,13 @@ pub fn uwot_umap(
   let knn = find_knn(dist_matrix, k)
 
   // Extract knn indices and distances
-  let knn_indices : Array[Array[Int]] = Array::new()
-  let knn_distances : Array[Array[Double]] = Array::new()
+  let knn_indices : Array[Array[Int]] = Array(capacity=0)
+  let knn_distances : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
-    let indices : Array[Int] = Array::new()
-    let distances : Array[Double] = Array::new()
+    let indices : Array[Int] = Array(capacity=0)
+    let distances : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < knn[i].length() {
       indices.push(knn[i][j].0)
@@ -451,13 +451,13 @@ pub fn uwot_umap(
   )
 
   // Step 6: Optimize embedding using stochastic gradient descent
-  let epochs_per_sample : Array[Array[Int]] = Array::new()
-  let epoch_of_next_sample : Array[Array[Double]] = Array::new()
+  let epochs_per_sample : Array[Array[Int]] = Array(capacity=0)
+  let epoch_of_next_sample : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
-    let eps_row : Array[Int] = Array::new()
-    let eons_row : Array[Double] = Array::new()
+    let eps_row : Array[Int] = Array(capacity=0)
+    let eons_row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       eps_row.push(0)
@@ -616,11 +616,11 @@ pub fn create_umap_test_data(
   n_samples : Int,
   n_features : Int,
 ) -> Array[Array[Double]] {
-  let data : Array[Array[Double]] = Array::new()
+  let data : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_samples {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let group = i % 4 // 4 clusters
 
     let mut j = 0

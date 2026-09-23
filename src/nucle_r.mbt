@@ -165,7 +165,7 @@ pub fn NucCallResult::nuc_filter_by_occupancy(
   self : NucCallResult,
   threshold : Double,
 ) -> NucCallResult {
-  let filtered : Array[NucPosition] = Array::new()
+  let filtered : Array[NucPosition] = Array(capacity=0)
 
   let mut i = 0
   while i < self.nucleosomes.length() {
@@ -447,7 +447,7 @@ pub fn nuc_find_peaks(
   min_distance : Int,
 ) -> Array[Int] {
   let n = track.signal.length()
-  let peaks : Array[Int] = Array::new()
+  let peaks : Array[Int] = Array(capacity=0)
 
   let mut i = 1
   while i < n - 1 {
@@ -541,7 +541,7 @@ pub fn nuc_call_nucleosomes(
   )
 
   // Convert peaks to nucleosome positions
-  let nucleosomes : Array[NucPosition] = Array::new()
+  let nucleosomes : Array[NucPosition] = Array(capacity=0)
 
   let mut i = 0
   while i < peak_indices.length() {
@@ -622,7 +622,7 @@ fn calculate_mean_spacing(nucleosomes : Array[NucPosition]) -> Double {
   }
 
   // Sort by position
-  let sorted : Array[NucPosition] = Array::new()
+  let sorted : Array[NucPosition] = Array(capacity=0)
   let mut i = 0
   while i < nucleosomes.length() {
     sorted.push(nucleosomes[i])
@@ -703,9 +703,9 @@ pub fn nuc_compare_positioning(
   result2 : NucCallResult,
   tolerance : Int,
 ) -> NucDynamicResult {
-  let shared : Array[NucPosition] = Array::new()
-  let gained : Array[NucPosition] = Array::new()
-  let lost : Array[NucPosition] = Array::new()
+  let shared : Array[NucPosition] = Array(capacity=0)
+  let gained : Array[NucPosition] = Array(capacity=0)
+  let lost : Array[NucPosition] = Array(capacity=0)
 
   // Find shared nucleosomes (within tolerance)
   let mut i = 0

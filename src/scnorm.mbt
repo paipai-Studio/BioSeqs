@@ -114,16 +114,16 @@ pub fn sc_norm_quantile_regression(
     return SCnormQuantFit::{
       slope: 0.0,
       intercept: 0.0,
-      fitted: Array::new(),
-      residuals: Array::new(),
+      fitted: Array(capacity=0),
+      residuals: Array(capacity=0),
       tau,
     }
   }
   // Compute depth (x-axis) and log-counts (y-axis)
   let (slope, intercept) = sc_norm_simple_quantile_fit(x, y, tau)
   // Compute fitted values
-  let fitted : Array[Double] = Array::new()
-  let residuals : Array[Double] = Array::new()
+  let fitted : Array[Double] = Array(capacity=0)
+  let residuals : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let f = slope * x[i] + intercept
@@ -202,7 +202,7 @@ fn sc_norm_find_best_intercept(
   let n = x.length()
   // Compute residuals at multiple intercepts
   // Use the median residual as starting point
-  let residuals : Array[Double] = Array::new()
+  let residuals : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     residuals.push(y[i] - slope * x[i])
@@ -299,7 +299,7 @@ fn sc_norm_sort_array(arr : Array[Double]) -> Array[Double] {
 pub fn sc_norm_library_sizes(counts : Array[Array[Double]]) -> Array[Double] {
   let n_genes = counts.length()
   let n_cells = if n_genes > 0 { counts[0].length() } else { 0 }
-  let sizes : Array[Double] = Array::new()
+  let sizes : Array[Double] = Array(capacity=0)
   let mut c = 0
   while c < n_cells {
     let mut sum = 0.0
@@ -324,8 +324,8 @@ pub fn sc_norm_normalize_gene(
 ) -> SCnormGeneNormResult {
   let n = counts.length()
   // Compute log-transformed counts
-  let log_counts : Array[Double] = Array::new()
-  let log_lib_sizes : Array[Double] = Array::new()
+  let log_counts : Array[Double] = Array(capacity=0)
+  let log_lib_sizes : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let c = if counts[i] > 0.0 { counts[i] } else { 0.5 }
@@ -341,7 +341,7 @@ pub fn sc_norm_normalize_gene(
     params.quantile,
   )
   // Compute normalized counts
-  let norm_counts : Array[Double] = Array::new()
+  let norm_counts : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < n {
     let predicted = quant_fit.slope * log_lib_sizes[j] + quant_fit.intercept
@@ -408,9 +408,9 @@ pub fn sc_norm_run(
   // Compute library sizes
   let lib_sizes = sc_norm_library_sizes(count_matrix)
   // Normalize each gene
-  let gene_results : Array[SCnormGeneNormResult] = Array::new()
-  let norm_matrix : Array[Array[Double]] = Array::new()
-  let result_gene_ids : Array[String] = Array::new()
+  let gene_results : Array[SCnormGeneNormResult] = Array(capacity=0)
+  let norm_matrix : Array[Array[Double]] = Array(capacity=0)
+  let result_gene_ids : Array[String] = Array(capacity=0)
   let mut g = 0
   while g < n_genes {
     let gene_counts = count_matrix[g]
@@ -455,11 +455,11 @@ pub fn sc_norm_loess_smooth(
   if n < 3 {
     return y.copy()
   }
-  let smoothed : Array[Double] = Array::new()
+  let smoothed : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     // Find neighbors within span
-    let neighbors : Array[(Double, Double)] = Array::new()
+    let neighbors : Array[(Double, Double)] = Array(capacity=0)
     let xi = x[i]
     let half_span = span * 0.5
     let mut j = 0
@@ -474,9 +474,9 @@ pub fn sc_norm_loess_smooth(
     let n_neighbors = neighbors.length()
     let eff_neighbors = if n_neighbors >= 2 { n_neighbors } else { n }
     // Weighted least squares fit
-    let w : Array[Double] = Array::new()
-    let xs : Array[Double] = Array::new()
-    let ys : Array[Double] = Array::new()
+    let w : Array[Double] = Array(capacity=0)
+    let xs : Array[Double] = Array(capacity=0)
+    let ys : Array[Double] = Array(capacity=0)
     let mut k = 0
     while k < eff_neighbors {
       let idx = if k < n_neighbors { k } else { k }
@@ -535,14 +535,14 @@ pub fn sc_norm_spline_smooth(
   } else {
     1.0
   }
-  let knots : Array[Double] = Array::new()
+  let knots : Array[Double] = Array(capacity=0)
   let mut k = 0
   while k < n_knots {
     knots.push(x_min + knot_span * k.to_double())
     k = k + 1
   }
   // Fit using basis function approach (simplified)
-  let smoothed : Array[Double] = Array::new()
+  let smoothed : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let xi = x[i]
@@ -661,7 +661,7 @@ pub fn SCnormResult::sc_norm_get_cell(
   self : SCnormResult,
   cell_idx : Int,
 ) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < self.norm_matrix.length() {
     result.push(self.norm_matrix[i][cell_idx])

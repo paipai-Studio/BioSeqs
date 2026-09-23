@@ -68,7 +68,7 @@ pub struct TsneResult {
 
 ///|
 pub fn TsneResult::new() -> TsneResult {
-  TsneResult::{ embedding: Array::new(), costs: Array::new(), n_iter: 0, }
+  TsneResult::{ embedding: Array(capacity=0), costs: Array(capacity=0), n_iter: 0, }
 }
 
 // ============================================================
@@ -83,7 +83,7 @@ pub fn calc_distance_matrix(
   data : Array[Array[Double]],
 ) -> Array[Array[Double]] {
   let n = data.length()
-  let dist_matrix : Array[Array[Double]] = Array::new()
+  let dist_matrix : Array[Array[Double]] = Array(capacity=0)
 
   if n == 0 {
     return dist_matrix
@@ -91,7 +91,7 @@ pub fn calc_distance_matrix(
 
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(0.0)
@@ -140,7 +140,7 @@ fn compute_p_ji(
   perplexity : Double,
   n : Int,
 ) -> Array[Double] {
-  let p : Array[Double] = Array::new()
+  let p : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     p.push(0.0)
@@ -219,10 +219,10 @@ fn compute_p_matrix(
 ) -> Array[Array[Double]] {
   let n = dist_matrix.length()
 
-  let p_matrix : Array[Array[Double]] = Array::new()
+  let p_matrix : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(0.0)
@@ -275,8 +275,8 @@ pub fn tsne(data : Array[Array[Double]], config : TsneConfig) -> TsneResult {
 
   if n < 2 {
     let result = TsneResult::new()
-    let embedding : Array[Array[Double]] = Array::new()
-    let row : Array[Double] = Array::new()
+    let embedding : Array[Array[Double]] = Array(capacity=0)
+    let row : Array[Double] = Array(capacity=0)
     let mut i = 0
     while i < config.dims {
       row.push(0.0)
@@ -293,10 +293,10 @@ pub fn tsne(data : Array[Array[Double]], config : TsneConfig) -> TsneResult {
   let p_matrix = compute_p_matrix(dist_matrix, config.perplexity)
 
   // Step 3: Initialize Y (the embedding) with small random values
-  let y : Array[Array[Double]] = Array::new()
+  let y : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < config.dims {
       // Simple pseudo-random initialization (deterministic for reproducibility)
@@ -310,15 +310,15 @@ pub fn tsne(data : Array[Array[Double]], config : TsneConfig) -> TsneResult {
   }
 
   // Step 4: Gradient descent
-  let d_y : Array[Array[Double]] = Array::new() // gradient
-  let u_y : Array[Array[Double]] = Array::new() // update (momentum)
-  let gains : Array[Array[Double]] = Array::new() // learning rate gains
+  let d_y : Array[Array[Double]] = Array(capacity=0) // gradient
+  let u_y : Array[Array[Double]] = Array(capacity=0) // update (momentum)
+  let gains : Array[Array[Double]] = Array(capacity=0) // learning rate gains
 
   let mut i = 0
   while i < n {
-    let d_row : Array[Double] = Array::new()
-    let u_row : Array[Double] = Array::new()
-    let g_row : Array[Double] = Array::new()
+    let d_row : Array[Double] = Array(capacity=0)
+    let u_row : Array[Double] = Array(capacity=0)
+    let g_row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < config.dims {
       d_row.push(0.0)
@@ -332,18 +332,18 @@ pub fn tsne(data : Array[Array[Double]], config : TsneConfig) -> TsneResult {
     i = i + 1
   }
 
-  let costs : Array[Double] = Array::new()
+  let costs : Array[Double] = Array(capacity=0)
   let mut momentum = config.momentum
 
   let mut iter = 0
   while iter < config.max_iter {
     // Compute Q matrix (low-dimensional similarities)
-    let q_matrix : Array[Array[Double]] = Array::new()
+    let q_matrix : Array[Array[Double]] = Array(capacity=0)
     let mut sum_q = 0.0
 
     let mut i = 0
     while i < n {
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       let mut j = 0
       while j < n {
         row.push(0.0)
@@ -524,11 +524,11 @@ pub fn create_tsne_test_data(
   n_samples : Int,
   n_features : Int,
 ) -> Array[Array[Double]] {
-  let data : Array[Array[Double]] = Array::new()
+  let data : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_samples {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let group = i % 3 // 3 clusters
 
     let mut j = 0

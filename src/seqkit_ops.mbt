@@ -39,7 +39,7 @@ fn str_contains(s : String, sub : String) -> Bool {
 ///|
 /// First `n` records (`seqkit head -n n`).
 pub fn seqkit_head(records : Array[SeqRecord], n : Int) -> Array[SeqRecord] {
-  let out : Array[SeqRecord] = Array::new()
+  let out : Array[SeqRecord] = Array(capacity=0)
   let limit = if n < records.length() { n } else { records.length() }
   let mut i = 0
   while i < limit {
@@ -56,7 +56,7 @@ pub fn seqkit_range(
   start : Int,
   end : Int,
 ) -> Array[SeqRecord] {
-  let out : Array[SeqRecord] = Array::new()
+  let out : Array[SeqRecord] = Array(capacity=0)
   let mut i = start - 1
   while i < end && i < records.length() {
     if i >= 0 {
@@ -75,7 +75,7 @@ pub fn seqkit_grep(
   pattern : String,
   invert : Bool,
 ) -> Array[SeqRecord] {
-  let out : Array[SeqRecord] = Array::new()
+  let out : Array[SeqRecord] = Array(capacity=0)
   for rec in records {
     let matched = str_contains(seqkit_full_name(rec), pattern)
     if matched != invert {
@@ -138,7 +138,7 @@ pub fn seqkit_sort_name(records : Array[SeqRecord]) -> Array[SeqRecord] {
 /// Renumber records (`seqkit rename` default): IDs become `1`, `2`, … and the
 /// description is cleared.
 pub fn seqkit_renumber(records : Array[SeqRecord]) -> Array[SeqRecord] {
-  let out : Array[SeqRecord] = Array::new()
+  let out : Array[SeqRecord] = Array(capacity=0)
   let mut i = 0
   while i < records.length() {
     let rec = records[i]
@@ -160,7 +160,7 @@ pub fn seqkit_renumber(records : Array[SeqRecord]) -> Array[SeqRecord] {
 ///|
 /// Write each record `n` times (`seqkit duplicate -n n`).
 pub fn seqkit_duplicate(records : Array[SeqRecord], n : Int) -> Array[SeqRecord] {
-  let out : Array[SeqRecord] = Array::new()
+  let out : Array[SeqRecord] = Array(capacity=0)
   for rec in records {
     for _k = 0; _k < n; _k = _k + 1 {
       out.push(rec)
@@ -174,7 +174,7 @@ pub fn seqkit_duplicate(records : Array[SeqRecord], n : Int) -> Array[SeqRecord]
 /// (`seqkit rmdup -s`).
 pub fn seqkit_rmdup(records : Array[SeqRecord]) -> Array[SeqRecord] {
   let seen : Map[String, Bool] = Map([], capacity=0)
-  let out : Array[SeqRecord] = Array::new()
+  let out : Array[SeqRecord] = Array(capacity=0)
   for rec in records {
     let s = rec.seq.to_string()
     match seen.get(s) {
@@ -196,7 +196,7 @@ pub fn seqkit_common(a : Array[SeqRecord], b : Array[SeqRecord]) -> Array[SeqRec
   for rec in b {
     b_names.set(seqkit_full_name(rec), true)
   }
-  let out : Array[SeqRecord] = Array::new()
+  let out : Array[SeqRecord] = Array(capacity=0)
   for rec in a {
     match b_names.get(seqkit_full_name(rec)) {
       Some(_) => out.push(rec)
@@ -209,7 +209,7 @@ pub fn seqkit_common(a : Array[SeqRecord], b : Array[SeqRecord]) -> Array[SeqRec
 /// non-greedy): windows `[i, i+window)` for i = 0, step, 2·step, … while they
 /// fit; a partial trailing window is dropped.
 pub fn seqkit_sliding(seq : String, window : Int, step : Int) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   let l = seq.length()
   let mut i = 0
   while i + window <= l {

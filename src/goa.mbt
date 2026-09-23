@@ -267,7 +267,7 @@ pub fn GafRecord::references(self : GafRecord) -> Array[String] {
 /// Extract numeric NCBI taxon IDs from the taxon column.
 /// For "taxon:9606|taxon:9606" returns ["9606", "9606"].
 pub fn GafRecord::taxon_ids(self : GafRecord) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let parts = split_by_char(self.taxon, '|'.to_int())
   let mut i = 0
   while i < parts.length() {
@@ -314,7 +314,7 @@ pub struct GoaDatabase {
 ///|
 /// Create an empty GoaDatabase.
 pub fn GoaDatabase::new() -> GoaDatabase {
-  GoaDatabase::{ records: Array::new(), version: "", created_by: "", }
+  GoaDatabase::{ records: Array(capacity=0), version: "", created_by: "", }
 }
 
 ///|
@@ -362,7 +362,7 @@ fn goa_find_char(s : String, ch : Int) -> Int {
 ///|
 /// Split a pipe-separated string into trimmed, non-empty parts.
 fn goa_split_pipe(s : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   if s.length() == 0 {
     return result
   }
@@ -440,7 +440,7 @@ pub fn goa_parse_line(line : String) -> GafRecord? {
 /// Header lines "!gaf-version:" and "!generated-by:" populate the database
 /// metadata; all data lines are parsed into records.
 pub fn goa_parse(content : String) -> GoaDatabase {
-  let records : Array[GafRecord] = Array::new()
+  let records : Array[GafRecord] = Array(capacity=0)
   let mut version = ""
   let mut created_by = ""
   let lines = split_by_char(content, '\n'.to_int())
@@ -483,7 +483,7 @@ pub fn goa_filter_by_go_id(
   db : GoaDatabase,
   go_id : String,
 ) -> Array[GafRecord] {
-  let result : Array[GafRecord] = Array::new()
+  let result : Array[GafRecord] = Array(capacity=0)
   let recs = db.records
   let mut i = 0
   while i < recs.length() {
@@ -502,7 +502,7 @@ pub fn goa_filter_by_aspect(
   aspect : GafAspect,
 ) -> Array[GafRecord] {
   let target = aspect.to_string()
-  let result : Array[GafRecord] = Array::new()
+  let result : Array[GafRecord] = Array(capacity=0)
   let recs = db.records
   let mut i = 0
   while i < recs.length() {
@@ -520,7 +520,7 @@ pub fn goa_filter_by_evidence(
   db : GoaDatabase,
   evidence : String,
 ) -> Array[GafRecord] {
-  let result : Array[GafRecord] = Array::new()
+  let result : Array[GafRecord] = Array(capacity=0)
   let recs = db.records
   let mut i = 0
   while i < recs.length() {
@@ -539,7 +539,7 @@ pub fn goa_filter_by_taxon(
   db : GoaDatabase,
   taxon_id : String,
 ) -> Array[GafRecord] {
-  let result : Array[GafRecord] = Array::new()
+  let result : Array[GafRecord] = Array(capacity=0)
   let recs = db.records
   let mut i = 0
   while i < recs.length() {
@@ -567,7 +567,7 @@ pub fn goa_filter_by_db_object_id(
   db : GoaDatabase,
   object_id : String,
 ) -> Array[GafRecord] {
-  let result : Array[GafRecord] = Array::new()
+  let result : Array[GafRecord] = Array(capacity=0)
   let recs = db.records
   let mut i = 0
   while i < recs.length() {
@@ -586,7 +586,7 @@ pub fn goa_filter_by_db_object_id(
 ///|
 /// Collect all unique GO IDs found across the database, preserving first-seen order.
 pub fn goa_unique_go_ids(db : GoaDatabase) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([], capacity=0)
   let recs = db.records
   let mut i = 0
@@ -604,7 +604,7 @@ pub fn goa_unique_go_ids(db : GoaDatabase) -> Array[String] {
 ///|
 /// Collect all unique evidence codes found across the database.
 pub fn goa_unique_evidence_codes(db : GoaDatabase) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([], capacity=0)
   let recs = db.records
   let mut i = 0
@@ -622,7 +622,7 @@ pub fn goa_unique_evidence_codes(db : GoaDatabase) -> Array[String] {
 ///|
 /// Collect all unique numeric taxon IDs found across the database.
 pub fn goa_unique_taxon_ids(db : GoaDatabase) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([], capacity=0)
   let recs = db.records
   let mut i = 0
@@ -734,7 +734,7 @@ pub fn goa_to_summary(db : GoaDatabase) -> String {
 /// aspects (F/P/C), evidence codes (IDA/IEA/EXP/ISS/IPI), and taxa
 /// (9606 human, 4932 yeast, 7227 fly).
 pub fn goa_sample_database() -> GoaDatabase {
-  let records : Array[GafRecord] = Array::new()
+  let records : Array[GafRecord] = Array(capacity=0)
   // Record 1: PROT1, molecular function, IDA, human
   records.push(
     GafRecord::new(

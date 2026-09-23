@@ -130,7 +130,7 @@ fn ap_check_matrix(x : Array[Array[Double]]) -> (Int, Int) raise ApError {
 ///|
 /// Allocate an n x n matrix filled with 0.0 (independent rows).
 fn ap_zero_matrix(n : Int) -> Array[Array[Double]] {
-  let m : Array[Array[Double]] = Array::new(capacity=n)
+  let m : Array[Array[Double]] = Array(capacity=n)
   for _i in 0..<n {
     m.push(Array::make(n, 0.0))
   }
@@ -141,7 +141,7 @@ fn ap_zero_matrix(n : Int) -> Array[Array[Double]] {
 /// Deep copy of a square matrix.
 fn ap_copy_matrix(m : Array[Array[Double]]) -> Array[Array[Double]] {
   let n = m.length()
-  let out : Array[Array[Double]] = Array::new(capacity=n)
+  let out : Array[Array[Double]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
     out.push(m[i].copy())
   }
@@ -283,7 +283,7 @@ pub fn ap_lin_sim_mat(
 fn ap_average_ranks(v : Array[Double]) -> Array[Double] {
   let p = v.length()
   // index-sort by value (stable; ties get adjacent positions)
-  let idx : Array[Int] = Array::new(capacity=p)
+  let idx : Array[Int] = Array(capacity=p)
   for i = 0; i < p; i = i + 1 {
     idx.push(i)
   }
@@ -352,8 +352,8 @@ pub fn ap_cor_sim_mat(
 ) -> Array[Array[Double]] raise ApError {
   let (n, p) = ap_check_matrix(x)
   // precompute transformed rows and their means
-  let rows : Array[Array[Double]] = Array::new(capacity=n)
-  let means : Array[Double] = Array::new(capacity=n)
+  let rows : Array[Array[Double]] = Array(capacity=n)
+  let means : Array[Double] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
     let row = match method {
       "pearson" => x[i].copy()
@@ -686,7 +686,7 @@ fn ap_assemble(
       exemplars.push(i)
     }
   }
-  let clusters : Array[Array[Int]] = Array::new(capacity=exemplars.length())
+  let clusters : Array[Array[Int]] = Array(capacity=exemplars.length())
   for e in exemplars {
     let members : Array[Int] = []
     for i = 0; i < n; i = i + 1 {

@@ -136,7 +136,7 @@ pub fn spiral_color_at(sp : ColorSpiral, idx : Int) -> SpiralColor {
 
 /// 取一串（n 个）颜色。
 pub fn spiral_colors(sp : ColorSpiral, n : Int) -> Array[SpiralColor] {
-  let out : Array[SpiralColor] = Array::new()
+  let out : Array[SpiralColor] = Array(capacity=0)
   for i in 0..<n {
     out.push(spiral_color_at(sp, i))
   }

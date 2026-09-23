@@ -86,7 +86,7 @@ fn main {
   )
 
   println("\n6. Top markers for cluster 0 (by log2FC):")
-  let top_markers : Array[(Double, String)] = Array::new()
+  let top_markers : Array[(Double, String)] = Array(capacity=0)
   i = 0
   while i < markers.gene.length() {
     if markers.cluster[i] == 0 && markers.fdr[i] < 0.05 {

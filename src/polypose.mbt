@@ -150,7 +150,7 @@ pub fn ppy_atom(r : PpyResidue, atom_name : String) -> PpyAtom? {
 
 /// 残基内按原子名取全部原子（含 altLoc 变体）。
 pub fn ppy_atoms(r : PpyResidue, atom_name : String) -> Array[PpyAtom] {
-  let out : Array[PpyAtom] = Array::new()
+  let out : Array[PpyAtom] = Array(capacity=0)
   for a in r.atoms {
     if a.atom_name == atom_name {
       out.push(a)
@@ -167,7 +167,7 @@ pub fn ppy_altloc_ids(r : PpyResidue) -> Array[String] {
       seen.set(a.altloc, 1)
     }
   }
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for k in seen.keys() {
     out.push(k)
   }
@@ -189,7 +189,7 @@ pub fn ppy_altloc_residue_count(c : PpyConformer) -> Int {
 /// 按原子名提取构象的坐标（跨残基，顺序为残基顺序）。
 /// 跳过找不到该原子的残基。
 pub fn ppy_coords(c : PpyConformer, atom_name : String) -> Array[PpyCoord] {
-  let out : Array[PpyCoord] = Array::new()
+  let out : Array[PpyCoord] = Array(capacity=0)
   for r in c.residues {
     match ppy_atom(r, atom_name) {
       Some(a) => out.push(PpyCoord::{ x: a.x, y: a.y, z: a.z })
@@ -201,7 +201,7 @@ pub fn ppy_coords(c : PpyConformer, atom_name : String) -> Array[PpyCoord] {
 
 /// 构象对应残基标签（chain:resseq），与 ppy_coords 顺序对齐。
 pub fn ppy_residue_labels(c : PpyConformer, atom_name : String) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for r in c.residues {
     match ppy_atom(r, atom_name) {
       Some(_) => out.push(r.chain_id + ":" + r.resseq.to_string())
@@ -222,7 +222,7 @@ pub fn ppy_structure_coords(
   }
   let first = ppy_coords(st.conformers[0], atom_name)
   let n = first.length()
-  let out : Array[Array[PpyCoord]] = Array::new()
+  let out : Array[Array[PpyCoord]] = Array(capacity=0)
   out.push(first)
   for i in 1..<st.conformers.length() {
     let coords = ppy_coords(st.conformers[i], atom_name)
@@ -236,7 +236,7 @@ pub fn ppy_structure_coords(
 
 /// 将坐标数组转换为叠合器可用的 QsPoint 数组。
 fn ppy_to_qspoint(vals : Array[PpyCoord]) -> Array[QsPoint] {
-  let out : Array[QsPoint] = Array::new()
+  let out : Array[QsPoint] = Array(capacity=0)
   for p in vals {
     out.push(QsPoint::{ x: p.x, y: p.y, z: p.z })
   }
@@ -268,7 +268,7 @@ pub fn ppy_kabsch_rmsd(a : Array[PpyCoord], b : Array[PpyCoord]) -> Double {
 
 /// 将 b 叠合到 a（返回叠合后的坐标）。
 pub fn ppy_superpose(a : Array[PpyCoord], b : Array[PpyCoord]) -> Array[PpyCoord] {
-  let out : Array[PpyCoord] = Array::new()
+  let out : Array[PpyCoord] = Array(capacity=0)
   if a.length() != b.length() {
     return out
   }
@@ -296,7 +296,7 @@ pub fn ppy_pairwise_rmsds(
     None => None
     Some(coords) => {
       let n = coords.length()
-      let mat : Array[Array[Double]] = Array::new()
+      let mat : Array[Array[Double]] = Array(capacity=0)
       for i in 0..<n {
         let row : Array[Double] = Array::make(n, 0.0)
         for j in 0..<n {
@@ -365,8 +365,8 @@ pub fn ppy_convergence(
           max_min_rmsd: 0.0, mean_to_reference: 0.0,
         })
       }
-      let rmsds : Array[Double] = Array::new()
-      let reference_rmsds : Array[Double] = Array::new()
+      let rmsds : Array[Double] = Array(capacity=0)
+      let reference_rmsds : Array[Double] = Array(capacity=0)
       let mut max_min = 0.0
       for i in 0..<n {
         let mut min_for_i = 1.0e18
@@ -446,7 +446,7 @@ pub fn ppy_mean_structure(
           sums[i] = (sx + aligned[i].x, sy2 + aligned[i].y, sz + aligned[i].z)
         }
       }
-      let out : Array[PpyCoord] = Array::new()
+      let out : Array[PpyCoord] = Array(capacity=0)
       let nf = n_conf.to_double()
       for i in 0..<n_atoms {
         let (sx, sy2, sz) = sums[i]
@@ -488,7 +488,7 @@ pub fn ppy_coords_from_residues(
   residues : Array[PpyResidue],
   atom_name : String,
 ) -> Array[PpyCoord] {
-  let out : Array[PpyCoord] = Array::new()
+  let out : Array[PpyCoord] = Array(capacity=0)
   for r in residues {
     match ppy_atom(r, atom_name) {
       Some(a) => out.push(PpyCoord::{ x: a.x, y: a.y, z: a.z })

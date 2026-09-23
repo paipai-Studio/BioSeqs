@@ -113,7 +113,7 @@ test "find_clusters" {
 
   assert_eq(with_clusters.clusters.length(), 200)
 
-  let unique_clusters : Array[Int] = Array::new()
+  let unique_clusters : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < with_clusters.clusters.length() {
     let c = with_clusters.clusters[i]

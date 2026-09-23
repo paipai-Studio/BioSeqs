@@ -34,7 +34,7 @@ fn skbd_nan() -> Double {
 /// Condensed (upper-triangle off-diagonal) form of a square distance matrix.
 fn skbd_condensed(matrix : Array[Array[Double]]) -> Array[Double] {
   let n = matrix.length()
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     for j = i + 1; j < n; j = j + 1 {
       out.push(matrix[i][j])
@@ -46,7 +46,7 @@ fn skbd_condensed(matrix : Array[Array[Double]]) -> Array[Double] {
 ///|
 /// Number of distinct group labels.
 fn skbd_num_groups(grouping : Array[Int]) -> Int {
-  let seen : Array[Int] = Array::new()
+  let seen : Array[Int] = Array(capacity=0)
   for g in grouping {
     let mut found = false
     for s in seen {
@@ -172,7 +172,7 @@ pub fn skbio_anosim(
 fn skbd_permanova_s_w(dm : Array[Array[Double]], grouping : Array[Int]) -> Double {
   let n = dm.length()
   let mut s_w = 0.0
-  let seen : Array[Int] = Array::new()
+  let seen : Array[Int] = Array(capacity=0)
   for g in grouping {
     let mut dup = false
     for s in seen {
@@ -277,8 +277,8 @@ fn skbd_permdisp_distances(
 ) -> Array[Array[Double]] {
   let n = pc.length()
   let d = if n > 0 { pc[0].length() } else { 0 }
-  let seen : Array[Int] = Array::new()
-  let result : Array[Array[Double]] = Array::new()
+  let seen : Array[Int] = Array(capacity=0)
+  let result : Array[Array[Double]] = Array(capacity=0)
   for g in grouping {
     let mut dup = false
     for s in seen {
@@ -291,7 +291,7 @@ fn skbd_permdisp_distances(
       continue
     }
     seen.push(g)
-    let members : Array[Int] = Array::new()
+    let members : Array[Int] = Array(capacity=0)
     for i = 0; i < n; i = i + 1 {
       if grouping[i] == g {
         members.push(i)
@@ -306,7 +306,7 @@ fn skbd_permdisp_distances(
       }
       centroid[j] = s / ng.to_double()
     }
-    let dists : Array[Double] = Array::new()
+    let dists : Array[Double] = Array(capacity=0)
     for m in members {
       let mut sq = 0.0
       for j = 0; j < d; j = j + 1 {
@@ -374,7 +374,7 @@ pub fn skbio_permdisp(
   while d < n && evals[d] > 1.0e-12 {
     d = d + 1
   }
-  let pc : Array[Array[Double]] = Array::new()
+  let pc : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(d, 0.0)
     for j = 0; j < d; j = j + 1 {
@@ -436,7 +436,7 @@ fn skbd_standardize(a : Array[Array[Double]]) -> Array[Array[Double]] {
     }
     stds[j] = (s / (n - 1).to_double()).sqrt()
   }
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = Array::make(p, 0.0)
     for j = 0; j < p; j = j + 1 {
@@ -451,7 +451,7 @@ fn skbd_standardize(a : Array[Array[Double]]) -> Array[Array[Double]] {
 /// Condensed Euclidean distance over a selected subset of columns.
 fn skbd_euclidean_condensed(a : Array[Array[Double]], cols : Array[Int]) -> Array[Double] {
   let n = a.length()
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     for j = i + 1; j < n; j = j + 1 {
       let mut s = 0.0
@@ -474,7 +474,7 @@ fn skbd_spearman(x : Array[Double], y : Array[Double]) -> Double {
 ///|
 /// All k-element subsets of {0, .., n-1} (iterative combinations).
 fn skbd_combs(n : Int, k : Int) -> Array[Array[Int]] {
-  let result : Array[Array[Int]] = Array::new()
+  let result : Array[Array[Int]] = Array(capacity=0)
   let idx = Array::make(k, 0)
   for i = 0; i < k; i = i + 1 {
     idx[i] = i
@@ -505,8 +505,8 @@ pub fn skbio_bioenv(dm : Array[Array[Double]], data : Array[Array[Double]]) -> B
   let p = if data.length() > 0 { data[0].length() } else { 0 }
   let data_std = skbd_standardize(data)
   let dm_flat = skbd_condensed(dm)
-  let best_subsets : Array[Array[Int]] = Array::new()
-  let correlations : Array[Double] = Array::new()
+  let best_subsets : Array[Array[Int]] = Array(capacity=0)
+  let correlations : Array[Double] = Array(capacity=0)
   for k = 1; k <= p; k = k + 1 {
     let mut best_rho = -2.0
     let mut best_combo : Array[Int] = []

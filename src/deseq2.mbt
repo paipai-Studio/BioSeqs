@@ -69,18 +69,18 @@ pub fn estimate_size_factors(dds : DESeqDataSet) -> DESeqDataSet {
   let n_genes = dds.counts.length()
   let n_samples = dds.col_names.length()
 
-  let geo_means : Array[Double] = Array::new()
+  let geo_means : Array[Double] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
-    let gene_counts : Array[Double] = Array::new()
+    let gene_counts : Array[Double] = Array(capacity=0)
     for j = 0; j < n_samples; j = j + 1 {
       gene_counts.push(dds.counts[i][j].to_double())
     }
     geo_means.push(stat_geometric_mean(gene_counts))
   }
 
-  let size_factors : Array[Double] = Array::new()
+  let size_factors : Array[Double] = Array(capacity=0)
   for j = 0; j < n_samples; j = j + 1 {
-    let ratios : Array[Double] = Array::new()
+    let ratios : Array[Double] = Array(capacity=0)
     for i = 0; i < n_genes; i = i + 1 {
       if geo_means[i] > 0.0 && dds.counts[i][j] > 0 {
         ratios.push(dds.counts[i][j].to_double() / geo_means[i])
@@ -97,7 +97,7 @@ pub fn estimate_size_factors(dds : DESeqDataSet) -> DESeqDataSet {
   }
   mean_sf = mean_sf / n_samples.to_double()
 
-  let norm_sf : Array[Double] = Array::new()
+  let norm_sf : Array[Double] = Array(capacity=0)
   for sf in size_factors {
     norm_sf.push(sf / mean_sf)
   }
@@ -117,9 +117,9 @@ pub fn normalize_counts(dds : DESeqDataSet) -> Array[Array[Double]] {
   let n_genes = dds.counts.length()
   let n_samples = dds.col_names.length()
 
-  let normalized : Array[Array[Double]] = Array::new()
+  let normalized : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n_samples; j = j + 1 {
       if dds.size_factors[j] > 0.0 {
         row.push(dds.counts[i][j].to_double() / dds.size_factors[j])
@@ -139,7 +139,7 @@ pub fn log2_cpm(dds : DESeqDataSet) -> Array[Array[Double]] {
 
   let normalized = normalize_counts(dds)
 
-  let lib_sizes : Array[Double] = Array::new()
+  let lib_sizes : Array[Double] = Array(capacity=0)
   for j = 0; j < n_samples; j = j + 1 {
     let mut sum = 0.0
     for i = 0; i < n_genes; i = i + 1 {
@@ -148,9 +148,9 @@ pub fn log2_cpm(dds : DESeqDataSet) -> Array[Array[Double]] {
     lib_sizes.push(sum)
   }
 
-  let log2_cpm : Array[Array[Double]] = Array::new()
+  let log2_cpm : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n_samples; j = j + 1 {
       let cpm = if lib_sizes[j] > 0.0 {
         normalized[i][j] * 1000000.0 / lib_sizes[j]
@@ -171,7 +171,7 @@ pub fn estimate_dispersions(dds : DESeqDataSet) -> DESeqDataSet {
 
   let normalized = normalize_counts(dds)
 
-  let log_means : Array[Double] = Array::new()
+  let log_means : Array[Double] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     let mut sum = 0.0
     for j = 0; j < n_samples; j = j + 1 {
@@ -186,7 +186,7 @@ pub fn estimate_dispersions(dds : DESeqDataSet) -> DESeqDataSet {
     )
   }
 
-  let dispersions : Array[Double] = Array::new()
+  let dispersions : Array[Double] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     let mut sum_counts = 0.0
     for j = 0; j < n_samples; j = j + 1 {
@@ -216,7 +216,7 @@ pub fn estimate_dispersions(dds : DESeqDataSet) -> DESeqDataSet {
   let alpha = 0.1
   let beta = 0.5
 
-  let final_dispersions : Array[Double] = Array::new()
+  let final_dispersions : Array[Double] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     let raw_disp = dispersions[i]
     let prior_disp = alpha * @math.exp(-beta * log_means[i])
@@ -257,11 +257,11 @@ pub fn deseq(dds : DESeqDataSet) -> DESeqResults {
   let n_samples = dds.col_names.length()
   let n_coefs = if dds.design.length() > 0 { dds.design[0].length() } else { 0 }
 
-  let base_mean : Array[Double] = Array::new()
-  let log2_fold_change : Array[Double] = Array::new()
-  let lfc_se : Array[Double] = Array::new()
-  let stat : Array[Double] = Array::new()
-  let p_value : Array[Double] = Array::new()
+  let base_mean : Array[Double] = Array(capacity=0)
+  let log2_fold_change : Array[Double] = Array(capacity=0)
+  let lfc_se : Array[Double] = Array(capacity=0)
+  let stat : Array[Double] = Array(capacity=0)
+  let p_value : Array[Double] = Array(capacity=0)
 
   let normalized = normalize_counts(dds)
 
@@ -352,12 +352,12 @@ fn deseq2_adjust_p_values(p_values : Array[Double]) -> Array[Double] {
     return []
   }
 
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     indices.push(i)
   }
 
-  let sorted_indices = Array::new()
+  let sorted_indices = Array(capacity=0)
   for idx in indices {
     sorted_indices.push(idx)
   }
@@ -385,7 +385,7 @@ fn deseq2_adjust_p_values(p_values : Array[Double]) -> Array[Double] {
     i = i - 1
   }
 
-  let final_padj : Array[Double] = Array::new()
+  let final_padj : Array[Double] = Array(capacity=0)
   for p in padj {
     final_padj.push(if p > 1.0 { 1.0 } else { p })
   }
@@ -395,7 +395,7 @@ fn deseq2_adjust_p_values(p_values : Array[Double]) -> Array[Double] {
 ///|
 /// 对 Double 数组做原地排序（简单冒泡排序，测试用）
 fn _ds2_sort_doubles(arr : Array[Double]) -> Array[Double] {
-  let sorted : Array[Double] = Array::new()
+  let sorted : Array[Double] = Array(capacity=0)
   for v in arr {
     sorted.push(v)
   }
@@ -458,8 +458,8 @@ fn _ds2_estimate_prior_var(logfcs : Array[Double], ses : Array[Double]) -> Doubl
     return 0.5
   }
 
-  let z2 : Array[Double] = Array::new()
-  let se2 : Array[Double] = Array::new()
+  let z2 : Array[Double] = Array(capacity=0)
+  let se2 : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let se = ses[i]
@@ -515,8 +515,8 @@ pub fn lfc_shrink(
 ) -> DESeqResults {
   let n_genes = res.log2_fold_change.length()
 
-  let shrunk_lfc : Array[Double] = Array::new()
-  let shrunk_se : Array[Double] = Array::new()
+  let shrunk_lfc : Array[Double] = Array(capacity=0)
+  let shrunk_se : Array[Double] = Array(capacity=0)
 
   // DESeq2 "normal" method: 从数据估计 prior_var
   let prior_var = _ds2_estimate_prior_var(res.log2_fold_change, res.lfc_se)
@@ -555,7 +555,7 @@ pub fn significant_genes(
   alpha? : Double = 0.05,
   lfc_threshold? : Double = 0.0,
 ) -> Array[String] {
-  let genes : Array[String] = Array::new()
+  let genes : Array[String] = Array(capacity=0)
   for i = 0; i < results.row_names.length(); i = i + 1 {
     if results.padj[i] < alpha &&
       results.log2_fold_change[i].abs() > lfc_threshold {
@@ -573,12 +573,12 @@ pub fn top_genes(
   let n_genes = results.row_names.length()
   let actual_n = if n < n_genes { n } else { n_genes }
 
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     indices.push(i)
   }
 
-  let sorted_indices = Array::new()
+  let sorted_indices = Array(capacity=0)
   for idx in indices {
     sorted_indices.push(idx)
   }
@@ -592,7 +592,7 @@ pub fn top_genes(
     }
   }
 
-  let top : Array[(String, Double, Double)] = Array::new()
+  let top : Array[(String, Double, Double)] = Array(capacity=0)
   for i = 0; i < actual_n; i = i + 1 {
     let idx = sorted_indices[i]
     top.push(
@@ -611,9 +611,9 @@ pub fn sample_deseq_dataset() -> DESeqDataSet {
   ]
   let samples = ["Ctrl1", "Ctrl2", "Ctrl3", "Treat1", "Treat2", "Treat3"]
 
-  let counts : Array[Array[Int]] = Array::new()
+  let counts : Array[Array[Int]] = Array(capacity=0)
   for i = 0; i < 20; i = i + 1 {
-    let row : Array[Int] = Array::new()
+    let row : Array[Int] = Array(capacity=0)
     let base = 100.0 + i.to_double() * 50.0
 
     for j = 0; j < 3; j = j + 1 {

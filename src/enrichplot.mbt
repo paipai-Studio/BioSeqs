@@ -52,7 +52,7 @@ pub fn EnrichResult::new(
 ///|
 fn copy_enrich_term_array(arr : Array[EnrichTerm]) -> Array[EnrichTerm] {
   let len = arr.length()
-  let result : Array[EnrichTerm] = Array::new()
+  let result : Array[EnrichTerm] = Array(capacity=0)
   let mut i = 0
   while i < len {
     result.push(arr[i])
@@ -68,7 +68,7 @@ fn set_enrich_term_array(
   value : EnrichTerm,
 ) -> Array[EnrichTerm] {
   let len = arr.length()
-  let result : Array[EnrichTerm] = Array::new()
+  let result : Array[EnrichTerm] = Array(capacity=0)
   let mut i = 0
   while i < len {
     if i == index {
@@ -84,7 +84,7 @@ fn set_enrich_term_array(
 ///|
 fn sort_terms_by_padj(terms : Array[EnrichTerm]) -> Array[EnrichTerm] {
   let len = terms.length()
-  let mut result : Array[EnrichTerm] = Array::new()
+  let mut result : Array[EnrichTerm] = Array(capacity=0)
   let mut i = 0
   while i < len {
     result.push(terms[i])
@@ -113,7 +113,7 @@ fn sort_terms_by_padj(terms : Array[EnrichTerm]) -> Array[EnrichTerm] {
 ///|
 fn sort_terms_by_pvalue(terms : Array[EnrichTerm]) -> Array[EnrichTerm] {
   let len = terms.length()
-  let mut result : Array[EnrichTerm] = Array::new()
+  let mut result : Array[EnrichTerm] = Array(capacity=0)
   let mut i = 0
   while i < len {
     result.push(terms[i])
@@ -142,7 +142,7 @@ fn sort_terms_by_pvalue(terms : Array[EnrichTerm]) -> Array[EnrichTerm] {
 ///|
 fn sort_terms_by_es(terms : Array[EnrichTerm]) -> Array[EnrichTerm] {
   let len = terms.length()
-  let mut result : Array[EnrichTerm] = Array::new()
+  let mut result : Array[EnrichTerm] = Array(capacity=0)
   let mut i = 0
   while i < len {
     result.push(terms[i])
@@ -171,7 +171,7 @@ fn sort_terms_by_es(terms : Array[EnrichTerm]) -> Array[EnrichTerm] {
 ///|
 fn sort_terms_by_nes(terms : Array[EnrichTerm]) -> Array[EnrichTerm] {
   let len = terms.length()
-  let mut result : Array[EnrichTerm] = Array::new()
+  let mut result : Array[EnrichTerm] = Array(capacity=0)
   let mut i = 0
   while i < len {
     result.push(terms[i])
@@ -349,13 +349,13 @@ pub fn bio_enrichplot_heatmap(
 
   let gene_entries = gene_counts.iter().collect()
   let gene_len = gene_entries.length()
-  let mut selected_genes : Array[String] = Array::new()
+  let mut selected_genes : Array[String] = Array(capacity=0)
   let mut k = 0
   while k < gene_len {
     let (gene, count) = gene_entries[k]
     if count >= 2 {
       let sg_len = selected_genes.length()
-      let new_sg : Array[String] = Array::new()
+      let new_sg : Array[String] = Array(capacity=0)
       let mut m = 0
       while m < sg_len {
         new_sg.push(selected_genes[m])
@@ -417,7 +417,7 @@ pub fn bio_enrichplot_heatmap(
 ///|
 fn copy_tuple_array(arr : Array[(String, Int)]) -> Array[(String, Int)] {
   let len = arr.length()
-  let result : Array[(String, Int)] = Array::new()
+  let result : Array[(String, Int)] = Array(capacity=0)
   let mut i = 0
   while i < len {
     result.push(arr[i])
@@ -433,7 +433,7 @@ fn set_tuple_array(
   value : (String, Int),
 ) -> Array[(String, Int)] {
   let len = arr.length()
-  let result : Array[(String, Int)] = Array::new()
+  let result : Array[(String, Int)] = Array(capacity=0)
   let mut i = 0
   while i < len {
     if i == index {
@@ -476,9 +476,9 @@ pub fn bio_enrichplot_cnetplot(
   let term_colors : Map[String, String] = Map([], capacity=0)
   let color_map = term_colors
 
-  let mut term_nodes : Array[String] = Array::new()
-  let mut gene_nodes : Array[String] = Array::new()
-  let mut edges : Array[(String, String)] = Array::new()
+  let mut term_nodes : Array[String] = Array(capacity=0)
+  let mut gene_nodes : Array[String] = Array(capacity=0)
+  let mut edges : Array[(String, String)] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -487,7 +487,7 @@ pub fn bio_enrichplot_cnetplot(
     let color = colors[i % colors.length()]
 
     let tn_len = term_nodes.length()
-    let new_tn : Array[String] = Array::new()
+    let new_tn : Array[String] = Array(capacity=0)
     let mut j = 0
     while j < tn_len {
       new_tn.push(term_nodes[j])
@@ -513,7 +513,7 @@ pub fn bio_enrichplot_cnetplot(
       }
       if !found {
         let new_gn_len = gene_nodes.length()
-        let new_gn : Array[String] = Array::new()
+        let new_gn : Array[String] = Array(capacity=0)
         let mut m = 0
         while m < new_gn_len {
           new_gn.push(gene_nodes[m])
@@ -524,7 +524,7 @@ pub fn bio_enrichplot_cnetplot(
       }
 
       let e_len = edges.length()
-      let new_e : Array[(String, String)] = Array::new()
+      let new_e : Array[(String, String)] = Array(capacity=0)
       let mut n = 0
       while n < e_len {
         new_e.push(edges[n])
@@ -583,14 +583,14 @@ pub fn bio_enrichplot_emapplot(
 
   let n = sorted.length()
 
-  let mut term_sets : Array[Map[String, Bool]] = Array::new()
-  let mut term_names : Array[String] = Array::new()
+  let mut term_sets : Array[Map[String, Bool]] = Array(capacity=0)
+  let mut term_names : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
     let term = sorted[i]
     let ts_len = term_sets.length()
-    let new_ts : Array[Map[String, Bool]] = Array::new()
+    let new_ts : Array[Map[String, Bool]] = Array(capacity=0)
     let mut j = 0
     while j < ts_len {
       new_ts.push(term_sets[j])
@@ -600,7 +600,7 @@ pub fn bio_enrichplot_emapplot(
     term_sets = new_ts
 
     let tn_len = term_names.length()
-    let new_tn : Array[String] = Array::new()
+    let new_tn : Array[String] = Array(capacity=0)
     let mut k = 0
     while k < tn_len {
       new_tn.push(term_names[k])

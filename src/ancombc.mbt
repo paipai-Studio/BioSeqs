@@ -143,7 +143,7 @@ fn abc_bh_fdr(pvalues : Array[Double]) -> Array[Double] {
     return []
   }
   // Create index-value pairs and sort by p-value ascending.
-  let indexed : Array[(Int, Double)] = Array::new()
+  let indexed : Array[(Int, Double)] = Array(capacity=0)
   for i in 0..<m {
     indexed.push((i, pvalues[i]))
   }
@@ -300,7 +300,7 @@ pub fn AncombcData::get_count(
 /// Unique group labels in the data.
 pub fn AncombcData::groups(self : AncombcData) -> Array[String] {
   let seen : Map[String, Bool] = Map([], capacity=4)
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for g in self.sample_groups {
     if !seen.contains(g) {
       seen[g] = true
@@ -340,7 +340,7 @@ pub fn ancombc_sampling_fractions(data : AncombcData) -> Array[Double] {
   if total <= 0.0 {
     return Array::make(data.n_samples(), 0.0)
   }
-  let fracs = Array::new()
+  let fracs = Array(capacity=0)
   for s in sizes {
     fracs.push(s.to_double() / total)
   }
@@ -363,9 +363,9 @@ pub fn ancombc_bias_corrected_log(data : AncombcData) -> Array[Array[Double]] {
   let n_samples = data.n_samples()
   let fracs = ancombc_sampling_fractions(data)
   let n = n_features.to_double()
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n_features {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j in 0..<n_samples {
       let count = data.counts[i][j].to_double()
       let adjusted_total = fracs[j] * n
@@ -541,8 +541,8 @@ pub fn ancombc_test(
   let n_features = data.n_features()
   let n_samples = data.n_samples()
   // Assign samples to groups.
-  let g1_indices : Array[Int] = Array::new()
-  let g2_indices : Array[Int] = Array::new()
+  let g1_indices : Array[Int] = Array(capacity=0)
+  let g2_indices : Array[Int] = Array(capacity=0)
   for j in 0..<n_samples {
     if data.sample_groups[j] == group1 {
       g1_indices.push(j)
@@ -556,9 +556,9 @@ pub fn ancombc_test(
   let ref_idx = ancombc_reference_feature(data)
   let ref_name = if ref_idx >= 0 { data.feature_names[ref_idx] } else { "" }
   // Compute log-ratios relative to reference: y_i - y_ref for each sample.
-  let log_ratios : Array[Array[Double]] = Array::new()
+  let log_ratios : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n_features {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j in 0..<n_samples {
       if ref_idx >= 0 {
         row.push(log_data[i][j] - log_data[ref_idx][j])
@@ -576,8 +576,8 @@ pub fn ancombc_test(
   let log_fcs : Array[Double] = Array::make(n_features, 0.0)
   // For each feature, compute t-test on log-ratios relative to reference.
   for i in 0..<n_features {
-    let g1_vals : Array[Double] = Array::new()
-    let g2_vals : Array[Double] = Array::new()
+    let g1_vals : Array[Double] = Array(capacity=0)
+    let g2_vals : Array[Double] = Array(capacity=0)
     for j in g1_indices {
       g1_vals.push(log_ratios[i][j])
     }
@@ -598,8 +598,8 @@ pub fn ancombc_test(
         continue
       }
       // Log-ratio of feature i relative to feature j.
-      let g1_vals : Array[Double] = Array::new()
-      let g2_vals : Array[Double] = Array::new()
+      let g1_vals : Array[Double] = Array(capacity=0)
+      let g2_vals : Array[Double] = Array(capacity=0)
       for k in g1_indices {
         g1_vals.push(log_data[i][k] - log_data[j][k])
       }
@@ -618,7 +618,7 @@ pub fn ancombc_test(
   // W threshold: 0.7 * (n_features - 1).
   let w_threshold = ((n_features - 1).to_double() * 0.7).to_int()
   // Build results.
-  let results : Array[AncombcResult] = Array::new()
+  let results : Array[AncombcResult] = Array(capacity=0)
   for i in 0..<n_features {
     let sig = qvalues[i] <= alpha && w_stats[i] > w_threshold
     results.push(

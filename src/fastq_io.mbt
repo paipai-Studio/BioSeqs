@@ -20,7 +20,7 @@
 ///
 /// Mirrors BioPython's SeqIO.parse(handle, "fastq").
 pub fn parse_fastq(content : String) -> Array[SeqRecord] raise SeqIOError {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let n = lines.length()
   let mut i = 0
@@ -95,7 +95,7 @@ pub fn parse_fastq(content : String) -> Array[SeqRecord] raise SeqIOError {
     for j = 0; j < trimmed3; j = j + 1 {
       quals[j] = line3.unsafe_get(j).to_int() - 33
     }
-    let quals_arr = Array::new()
+    let quals_arr = Array(capacity=0)
     for j = 0; j < trimmed3; j = j + 1 {
       quals_arr.push(quals[j])
     }
@@ -192,7 +192,7 @@ fn parse_fastq_offset(
   content : String,
   offset : Int,
 ) -> Array[SeqRecord] raise SeqIOError {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let n = lines.length()
   let mut i = 0
@@ -267,7 +267,7 @@ fn parse_fastq_offset(
     for j = 0; j < trimmed3; j = j + 1 {
       quals[j] = line3.unsafe_get(j).to_int() - offset
     }
-    let quals_arr = Array::new()
+    let quals_arr = Array(capacity=0)
     for j = 0; j < trimmed3; j = j + 1 {
       quals_arr.push(quals[j])
     }

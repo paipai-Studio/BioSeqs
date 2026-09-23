@@ -24,8 +24,8 @@ pub fn TopGOTerm::new(
     name,
     namespace,
     level,
-    parents: Array::new(),
-    children: Array::new(),
+    parents: Array(capacity=0),
+    children: Array(capacity=0),
     gene_count: 0,
   }
 }
@@ -179,10 +179,10 @@ pub fn topgo_elim_algorithm(
   all_genes : Array[String],
   namespace : String,
 ) -> Array[TopGOEnrichmentResult] {
-  let results : Array[TopGOEnrichmentResult] = Array::new()
+  let results : Array[TopGOEnrichmentResult] = Array(capacity=0)
   let visited : Map[String, Bool] = Map([], capacity=1000)
 
-  let queue : Array[String] = Array::new()
+  let queue : Array[String] = Array(capacity=0)
   queue.push(graph.root)
 
   let mut idx = 0
@@ -245,7 +245,7 @@ pub fn topgo_weight01_algorithm(
   all_genes : Array[String],
   namespace : String,
 ) -> Array[TopGOEnrichmentResult] {
-  let results : Array[TopGOEnrichmentResult] = Array::new()
+  let results : Array[TopGOEnrichmentResult] = Array(capacity=0)
 
   for key in graph.terms.keys() {
     let term = graph.terms.get(key).unwrap()

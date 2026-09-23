@@ -432,7 +432,7 @@ pub fn markov_score_per_base(
   sequence : String,
 ) -> Array[Double] {
   let n = sequence.length()
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   if n <= model.order {
     return result
   }

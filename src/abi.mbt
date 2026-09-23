@@ -109,7 +109,7 @@ pub fn AbiDirEntry::new(tag_name : String, tag_number : Int) -> AbiDirEntry {
     num_elements: 0,
     data_size: 0,
     data_offset: 0,
-    inline_data: Array::new(),
+    inline_data: Array(capacity=0),
   }
 }
 
@@ -169,15 +169,15 @@ pub fn AbiTrace::new() -> AbiTrace {
     run_name: "",
     base_order: "GATC",
     bases: "",
-    base_positions: Array::new(),
-    qualities: Array::new(),
-    traces: Array::new(),
+    base_positions: Array(capacity=0),
+    qualities: Array(capacity=0),
+    traces: Array(capacity=0),
     trace_names: ["G", "A", "T", "C"],
     run_date: AbiDate::new(0, 0, 0),
     run_time: AbiTime::new(0, 0, 0),
     num_bases: 0,
     num_points: 0,
-    directory: Array::new(),
+    directory: Array(capacity=0),
   }
 }
 
@@ -188,7 +188,7 @@ pub fn AbiTrace::trace_for_base(self : AbiTrace, base : String) -> Array[Int] {
   if idx >= 0 && idx < self.traces.length() {
     return self.traces[idx]
   }
-  Array::new()
+  Array(capacity=0)
 }
 
 ///|
@@ -385,7 +385,7 @@ fn abi_parse_dir_entry(bytes : Array[Int], pos : Int) -> AbiDirEntry {
   // 4 bytes: data offset (or inline if data_size <= 4)
   let data_offset = abi_read_u32(bytes, pos + 20)
   // 4 bytes: inline data (we store the first 4 bytes if data_size <= 4)
-  let inline_data : Array[Int] = Array::new()
+  let inline_data : Array[Int] = Array(capacity=0)
   if data_size <= 4 {
     let mut i = 0
     while i < 4 {
@@ -414,7 +414,7 @@ fn abi_parse_directory(
   dir_offset : Int,
   num_entries : Int,
 ) -> Array[AbiDirEntry] {
-  let entries : Array[AbiDirEntry] = Array::new()
+  let entries : Array[AbiDirEntry] = Array(capacity=0)
   let mut i = 0
   while i < num_entries {
     let pos = dir_offset + i * abi_dir_entry_size
@@ -444,7 +444,7 @@ fn abi_find_entry(
 ///|
 /// Read raw data bytes for a directory entry from the file bytes.
 fn abi_read_entry_data(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
-  let data : Array[Int] = Array::new()
+  let data : Array[Int] = Array(capacity=0)
   // If data fits inline (data_size <= 4), use inline_data
   if entry.data_size <= 4 {
     let mut i = 0
@@ -472,7 +472,7 @@ fn abi_read_entry_data(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
 /// Read trace data (array of Int) for a directory entry.
 /// Trace data is typically 2-byte (word) values.
 fn abi_read_trace_data(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
-  let data : Array[Int] = Array::new()
+  let data : Array[Int] = Array(capacity=0)
   let raw = abi_read_entry_data(bytes, entry)
   // If element type is word (3) or short (4), read as 2-byte values
   if entry.element_size == 2 {
@@ -502,7 +502,7 @@ fn abi_read_trace_data(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
 ///|
 /// Read integer array data for a directory entry (e.g., base positions).
 fn abi_read_int_array(bytes : Array[Int], entry : AbiDirEntry) -> Array[Int] {
-  let data : Array[Int] = Array::new()
+  let data : Array[Int] = Array(capacity=0)
   let raw = abi_read_entry_data(bytes, entry)
   // For PLOC (base positions), element type is short (4), size 2
   if entry.element_size == 2 {
@@ -812,7 +812,7 @@ fn abi_parse_directory_v2(
   dir_offset : Int,
   num_entries : Int,
 ) -> Array[AbiDirEntry] {
-  let entries : Array[AbiDirEntry] = Array::new()
+  let entries : Array[AbiDirEntry] = Array(capacity=0)
   let entry_size = 28 // Standard ABIF directory entry size
   let mut i = 0
   while i < num_entries {
@@ -844,7 +844,7 @@ fn abi_parse_dir_entry_v2(bytes : Array[Int], pos : Int) -> AbiDirEntry {
   let data_offset = abi_read_u32(bytes, pos + 20)
   // 4 bytes: data handle (unused, bytes 24-27)
   // Inline data (if data_size <= 4, data is stored at offset 20)
-  let inline_data : Array[Int] = Array::new()
+  let inline_data : Array[Int] = Array(capacity=0)
   if data_size <= 4 {
     let mut i = 0
     while i < 4 {
@@ -887,7 +887,7 @@ fn abi_write_u16(bytes : Array[Int], value : Int) -> Unit {
 ///|
 /// Encode a string to bytes.
 fn abi_encode_string(s : String) -> Array[Int] {
-  let bytes : Array[Int] = Array::new()
+  let bytes : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < s.length() {
     bytes.push(s[i].to_int())
@@ -901,7 +901,7 @@ fn abi_encode_string(s : String) -> Array[Int] {
 ///
 /// This creates a valid ABIF file with the essential tags.
 pub fn abi_encode(trace : AbiTrace) -> Array[Int] {
-  let bytes : Array[Int] = Array::new()
+  let bytes : Array[Int] = Array(capacity=0)
   // Header: "ABIF" + version (0x0200)
   abi_write_u32(bytes, abi_magic)
   abi_write_u16(bytes, abi_version_1)
@@ -944,7 +944,7 @@ pub fn abi_encode(trace : AbiTrace) -> Array[Int] {
   let mut data_pos = data_start
   // Helper to add a directory entry
   // We'll collect data separately and append after
-  let data_bytes : Array[Int] = Array::new()
+  let data_bytes : Array[Int] = Array(capacity=0)
   let _ = data_bytes
   // For simplicity, just create a minimal valid structure
   // Directory entries (28 bytes each):
@@ -1021,7 +1021,7 @@ fn abi_write_tag_name(bytes : Array[Int], tag : String) -> Unit {
 ///
 /// This creates a minimal valid ABIF structure with a small sequence.
 pub fn abi_sample_bytes() -> Array[Int] {
-  let bytes : Array[Int] = Array::new()
+  let bytes : Array[Int] = Array(capacity=0)
   // Magic: "ABIF"
   abi_write_u32(bytes, abi_magic)
   // Version: 0x0200
@@ -1083,10 +1083,10 @@ pub fn abi_sample_trace() -> AbiTrace {
   trace.base_positions = [10, 25, 40, 55, 70, 85, 100, 115, 130, 145, 160, 175]
   trace.qualities = [20, 30, 40, 35, 25, 45, 50, 30, 20, 35, 40, 45]
   // Trace data: 4 channels (G, A, T, C), each with some peaks
-  let g_trace : Array[Int] = Array::new()
-  let a_trace : Array[Int] = Array::new()
-  let t_trace : Array[Int] = Array::new()
-  let c_trace : Array[Int] = Array::new()
+  let g_trace : Array[Int] = Array(capacity=0)
+  let a_trace : Array[Int] = Array(capacity=0)
+  let t_trace : Array[Int] = Array(capacity=0)
+  let c_trace : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < 200 {
     // Simple peak patterns at base positions

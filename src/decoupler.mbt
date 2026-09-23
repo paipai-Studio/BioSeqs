@@ -128,7 +128,7 @@ fn decoupler_build_weight_matrix(
   // Build weight matrix: rows = regulators, cols = targets (using tgt_indices positions)
   let n_reg = reg_list.length()
   let n_tgt = tgt_indices.length()
-  let w : Array[Array[Double]] = Array::new()
+  let w : Array[Array[Double]] = Array(capacity=0)
   let mut wi = 0
   while wi < n_reg {
     w.push(Array::make(n_tgt, 0.0))
@@ -177,7 +177,7 @@ fn decoupler_wsum(
   )
   let n_reg = reg_list.length()
   let n_samples = expression.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut mri = 0
   while mri < n_reg {
     matrix.push(Array::make(n_samples, 0.0))
@@ -216,7 +216,7 @@ fn decoupler_wmean(
   )
   let n_reg = reg_list.length()
   let n_samples = expression.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut mri = 0
   while mri < n_reg {
     matrix.push(Array::make(n_samples, 0.0))
@@ -262,7 +262,7 @@ fn decoupler_norm(
   let wmean_result = decoupler_wmean(expression, sample_names, gene_names, pkn)
   let n_reg = wmean_result.regulators.length()
   let n_samples = sample_names.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut mri = 0
   while mri < n_reg {
     matrix.push(Array::make(n_samples, 0.0))
@@ -405,7 +405,7 @@ fn decoupler_ulm(
   )
   let n_reg = reg_list.length()
   let n_samples = expression.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut mri = 0
   while mri < n_reg {
     matrix.push(Array::make(n_samples, 0.0))
@@ -511,7 +511,7 @@ fn decoupler_mlm(
   )
   let n_reg = reg_list.length()
   let n_samples = expression.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut mri = 0
   while mri < n_reg {
     matrix.push(Array::make(n_samples, 0.0))

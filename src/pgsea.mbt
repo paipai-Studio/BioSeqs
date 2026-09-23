@@ -107,7 +107,7 @@ pub fn pgsea_score_matrix(
   let n_samples = pgsea_n_samples(expr)
   let (means, sds) = pgsea_gene_stats(expr)
   let matrix : Array[Array[Double]] = Array::make(n_sets, [])
-  let set_names : Array[String] = Array::new()
+  let set_names : Array[String] = Array(capacity=0)
   for i in 0..<n_sets {
     let (name, gs) = gene_sets[i]
     set_names.push(name)
@@ -142,12 +142,12 @@ pub fn pgsea_run(
 ) -> Array[PgseaResult] {
   let (matrix, set_names) = pgsea_score_matrix(expr, gene_names, gene_sets)
   let n_samples = pgsea_n_samples(expr)
-  let results : Array[PgseaResult] = Array::new()
+  let results : Array[PgseaResult] = Array(capacity=0)
   for i in 0..<set_names.length() {
     let scores = matrix[i]
     // Partition samples into control / treatment
-    let control_scores : Array[Double] = Array::new()
-    let treatment_scores : Array[Double] = Array::new()
+    let control_scores : Array[Double] = Array(capacity=0)
+    let treatment_scores : Array[Double] = Array(capacity=0)
     for s in 0..<n_samples {
       if sample_labels[s] == control_label {
         control_scores.push(scores[s])
@@ -325,12 +325,12 @@ fn pgsea_lgamma(x : Double) -> Double {
 ///|
 /// Convenience: top gene sets ranked by significance (smallest p-value).
 pub fn pgsea_top(results : Array[PgseaResult], k : Int) -> Array[PgseaResult] {
-  let sorted : Array[PgseaResult] = Array::new()
+  let sorted : Array[PgseaResult] = Array(capacity=0)
   for r in results {
     sorted.push(r)
   }
   sorted.sort_by(fn(a, b) { a.p_value.compare(b.p_value) })
-  let out : Array[PgseaResult] = Array::new()
+  let out : Array[PgseaResult] = Array(capacity=0)
   let limit = if k < sorted.length() { k } else { sorted.length() }
   for i in 0..<limit {
     out.push(sorted[i])

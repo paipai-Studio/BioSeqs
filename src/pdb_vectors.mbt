@@ -626,8 +626,8 @@ pub fn vector_superposition_rmsd(
   let centroid_a = vector_centroid(set_a)
   let centroid_b = vector_centroid(set_b)
 
-  let centered_a : Array[Vector3] = Array::new()
-  let centered_b : Array[Vector3] = Array::new()
+  let centered_a : Array[Vector3] = Array(capacity=0)
+  let centered_b : Array[Vector3] = Array(capacity=0)
   let mut i = 0
   while i < n {
     centered_a.push(set_a[i].sub(centroid_a))
@@ -637,7 +637,7 @@ pub fn vector_superposition_rmsd(
 
   let opt_rotation = compute_optimal_rotation(centered_a, centered_b)
 
-  let rotated_a : Array[Vector3] = Array::new()
+  let rotated_a : Array[Vector3] = Array(capacity=0)
   i = 0
   while i < n {
     rotated_a.push(opt_rotation.transform(centered_a[i]))
@@ -770,8 +770,8 @@ pub fn vector_superposition_transform(
   let centroid_a = vector_centroid(set_a)
   let centroid_b = vector_centroid(set_b)
 
-  let centered_a : Array[Vector3] = Array::new()
-  let centered_b : Array[Vector3] = Array::new()
+  let centered_a : Array[Vector3] = Array(capacity=0)
+  let centered_b : Array[Vector3] = Array(capacity=0)
   let mut i = 0
   while i < n {
     centered_a.push(set_a[i].sub(centroid_a))
@@ -793,7 +793,7 @@ pub fn vector_apply_transform(
   rotation : RotationMatrix3,
   translation : Vector3,
 ) -> Array[Vector3] {
-  let result : Array[Vector3] = Array::new()
+  let result : Array[Vector3] = Array(capacity=0)
   for v in vectors {
     let rotated = rotation.transform(v)
     result.push(rotated.add(translation))

@@ -150,7 +150,7 @@ fn protein_aa_frequency_at(
   alignment : Array[String],
   pos : Int,
 ) -> Array[Double] {
-  let freqs : Array[Double] = Array::new()
+  let freqs : Array[Double] = Array(capacity=0)
   let n = alignment.length().to_double()
   if n == 0.0 {
     return freqs
@@ -198,7 +198,7 @@ pub fn protein_conservation(alignment : Array[String]) -> Array[Double] {
   }
   let aln_len = alignment[0].length()
   let alphabet_size = 20.0
-  let conservation : Array[Double] = Array::new()
+  let conservation : Array[Double] = Array(capacity=0)
   let mut pos = 0
   while pos < aln_len {
     let aa_freq = protein_aa_frequency_at(alignment, pos)
@@ -219,7 +219,7 @@ pub fn protein_hydropathy(
 ) -> Array[Double] {
   let seq = sequence.to_upper()
   let w = if window <= 0 { 7 } else { window }
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   if seq.length() < w {
     return result
   }
@@ -243,7 +243,7 @@ pub fn protein_hydropathy(
 /// Returns array of ('H' for helix, 'E' for sheet, 'T' for turn, 'C' for coil).
 pub fn protein_secondary_structure(sequence : String) -> Array[String] {
   let seq = sequence.to_upper()
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < seq.length() {
     let c = seq.unsafe_get(i).unsafe_to_char()
@@ -268,7 +268,7 @@ pub fn protein_secondary_structure(sequence : String) -> Array[String] {
 /// Positive values indicate potential antigenic sites.
 pub fn protein_antigenicity(sequence : String) -> Array[Double] {
   let seq = sequence.to_upper()
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < seq.length() {
     let c = seq.unsafe_get(i).unsafe_to_char()
@@ -311,7 +311,7 @@ pub fn protein_transmembrane(
 ) -> Array[Double] {
   let seq = sequence.to_upper()
   let w = if window <= 0 { 19 } else { window }
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   if seq.length() < w {
     return result
   }
@@ -411,7 +411,7 @@ pub fn protein_summary(sequence : String) -> String {
   out = out + "Length: " + seq.length().to_string() + " residues\n"
   let comp = protein_aa_composition(seq)
   let keys = comp.keys().collect()
-  let sorted_keys : Array[Char] = Array::new()
+  let sorted_keys : Array[Char] = Array(capacity=0)
   let mut ki = 0
   while ki < keys.length() {
     sorted_keys.push(keys[ki])

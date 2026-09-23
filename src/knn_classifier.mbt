@@ -97,7 +97,7 @@ fn knn_exact_match_label(
   train : Array[KnnSample],
   query : Array[Double],
 ) -> String? {
-  let winners : Array[String] = Array::new()
+  let winners : Array[String] = Array(capacity=0)
   for sample in train {
     if knn_distance(sample.features, query) == 0.0 {
       if !(winners.contains(sample.label)) {
@@ -123,14 +123,14 @@ pub fn knn_classify_votes(
   k : Int,
   query : Array[Double],
 ) -> Array[KnnVote] {
-  let distances : Array[(Double, String)] = Array::new()
+  let distances : Array[(Double, String)] = Array(capacity=0)
   for sample in train {
     distances.push((knn_distance(sample.features, query), sample.label))
   }
   distances.sort_by((a, b) => compare_double(a.0, b.0))
   let take = if k < distances.length() { k } else { distances.length() }
   let votes : Map[String, Double] = Map([], capacity=take)
-  let order : Array[String] = Array::new()
+  let order : Array[String] = Array(capacity=0)
   for i in 0..<take {
     let (d, label) = distances[i]
     if d == 0.0 {
@@ -144,7 +144,7 @@ pub fn knn_classify_votes(
     }
     votes.set(label, votes.get(label).unwrap_or(0.0) + 1.0 / d)
   }
-  let result : Array[KnnVote] = Array::new()
+  let result : Array[KnnVote] = Array(capacity=0)
   for label in order {
     result.push(KnnVote::{ label, weight: votes.get(label).unwrap_or(0.0), })
   }
@@ -222,7 +222,7 @@ pub fn knn_loo_accuracy(train : Array[KnnSample], k : Int) -> Double {
   }
   let mut correct = 0
   for i in 0..<train.length() {
-    let rest : Array[KnnSample] = Array::new()
+    let rest : Array[KnnSample] = Array(capacity=0)
     for j in 0..<train.length() {
       if j != i {
         rest.push(train[j])
@@ -238,7 +238,7 @@ pub fn knn_loo_accuracy(train : Array[KnnSample], k : Int) -> Double {
 ///|
 /// Distinct labels in order of first appearance.
 pub fn knn_labels(train : Array[KnnSample]) -> Array[String] {
-  let labels : Array[String] = Array::new()
+  let labels : Array[String] = Array(capacity=0)
   for sample in train {
     if !(labels.contains(sample.label)) {
       labels.push(sample.label)
@@ -261,9 +261,9 @@ pub fn knn_confusion_matrix(
   for i in 0..<labels.length() {
     index.set(labels[i], i)
   }
-  let matrix : Array[Array[Int]] = Array::new()
+  let matrix : Array[Array[Int]] = Array(capacity=0)
   for _i in 0..<labels.length() {
-    let row : Array[Int] = Array::new()
+    let row : Array[Int] = Array(capacity=0)
     for _j in 0..<labels.length() {
       row.push(0)
     }
@@ -332,9 +332,9 @@ pub fn knn_normalize_samples(
     return []
   }
   let n_dims = train[0].features.length()
-  let normalized : Array[Array[Double]] = Array::new()
+  let normalized : Array[Array[Double]] = Array(capacity=0)
   for dim in 0..<n_dims {
-    let column : Array[Double] = Array::new()
+    let column : Array[Double] = Array(capacity=0)
     for sample in train {
       column.push(sample.features[dim])
     }
@@ -346,9 +346,9 @@ pub fn knn_normalize_samples(
       },
     )
   }
-  let result : Array[KnnSample] = Array::new()
+  let result : Array[KnnSample] = Array(capacity=0)
   for i in 0..<train.length() {
-    let feats : Array[Double] = Array::new()
+    let feats : Array[Double] = Array(capacity=0)
     for dim in 0..<n_dims {
       feats.push(normalized[dim][i])
     }

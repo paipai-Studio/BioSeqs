@@ -39,7 +39,7 @@ test "cyclone_score_phase" {
   let (counts, cell_ids, gene_names) = test_data
 
   // Score the first cell (should be G1 phase)
-  let cell_expr : Array[Double] = Array::new()
+  let cell_expr : Array[Double] = Array(capacity=0)
   let n_genes = counts.length()
   let mut g = 0
   while g < n_genes {
@@ -58,7 +58,7 @@ test "cyclone_score_cell" {
   let test_data = @src.cyclone_create_test_data()
   let (counts, cell_ids, gene_names) = test_data
 
-  let cell_expr : Array[Double] = Array::new()
+  let cell_expr : Array[Double] = Array(capacity=0)
   let n_genes = counts.length()
   let mut g = 0
   while g < n_genes {
@@ -94,7 +94,7 @@ test "cyclone_score_single_cell" {
   let test_data = @src.cyclone_create_test_data()
   let (counts, cell_ids, gene_names) = test_data
 
-  let cell_expr : Array[Double] = Array::new()
+  let cell_expr : Array[Double] = Array(capacity=0)
   let n_genes = counts.length()
   let mut g = 0
   while g < n_genes {
@@ -174,9 +174,9 @@ test "cyclone_params_with_params" {
 
 ///|
 test "cyclone_score_empty_cells" {
-  let gene_names : Array[String] = Array::new()
-  let cell_ids : Array[String] = Array::new()
-  let counts : Array[Array[Double]] = Array::new()
+  let gene_names : Array[String] = Array(capacity=0)
+  let cell_ids : Array[String] = Array(capacity=0)
+  let counts : Array[Array[Double]] = Array(capacity=0)
 
   let results = @src.cyclone_score_cells(counts, cell_ids, gene_names)
   assert_eq(results.length(), 0)
@@ -184,7 +184,7 @@ test "cyclone_score_empty_cells" {
 
 ///|
 test "cyclone_phase_distribution_empty" {
-  let results : Array[@src.CycloneResult] = Array::new()
+  let results : Array[@src.CycloneResult] = Array(capacity=0)
   let dist = @src.cyclone_phase_distribution(results)
   assert_eq(dist.size(), 0)
 }
@@ -206,7 +206,7 @@ test "cyclone_average_scores" {
 
 ///|
 test "cyclone_average_scores_empty" {
-  let results : Array[@src.CycloneResult] = Array::new()
+  let results : Array[@src.CycloneResult] = Array(capacity=0)
   let avg = @src.cyclone_average_scores(results)
   assert_eq(avg.size(), 0)
 }

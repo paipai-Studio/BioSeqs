@@ -189,7 +189,7 @@ pub fn search_motif(
   let background = [0.25, 0.25, 0.25, 0.25]
   let pssm = pssm_from_pwm(motif.pwm, background)
   let width = pssm.length()
-  let hits : Array[MotifHit] = Array::new()
+  let hits : Array[MotifHit] = Array(capacity=0)
 
   for pos = 0; pos <= sequence.length() - width; pos = pos + 1 {
     let subseq = sequence[pos:pos + width].to_owned()
@@ -282,7 +282,7 @@ pub fn motif_ic(motif : Motif) -> Double {
 pub fn meme_to_motif(meme_content : String) -> Motif {
   let lines = meme_content.split("\n").to_array()
   let mut name = ""
-  let sites : Array[String] = Array::new()
+  let sites : Array[String] = Array(capacity=0)
 
   let mut in_sites = false
   for i = 0; i < lines.length(); i = i + 1 {
@@ -373,7 +373,7 @@ pub fn align_motifs(motif1 : Motif, motif2 : Motif) -> Double {
 /// Calculate per-position information content for a motif.
 /// Returns an array of information content values for each position.
 pub fn motif_per_position_ic(motif : Motif) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   if motif.pwm.length() == 0 {
     return result
   }
@@ -417,11 +417,11 @@ pub fn generate_logo_data(
   sequences : Array[String],
 ) -> Array[(Int, String, Double, Double)] {
   if sequences.length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   let width = sequences[0].length()
-  let logo_data : Array[(Int, String, Double, Double)] = Array::new()
+  let logo_data : Array[(Int, String, Double, Double)] = Array(capacity=0)
 
   let alphabet = ["A", "C", "G", "T"]
   let n = sequences.length().to_double()
@@ -523,7 +523,7 @@ pub fn motif_enrichment(
   sequences : Array[String],
   background? : Array[String] = [],
 ) -> Array[(String, Double, Double)] {
-  let results : Array[(String, Double, Double)] = Array::new()
+  let results : Array[(String, Double, Double)] = Array(capacity=0)
 
   // Count motif occurrences in target sequences
   let motif_counts : Map[String, Int] = Map([], capacity=motifs.length())

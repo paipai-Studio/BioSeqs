@@ -32,10 +32,10 @@ pub fn BiocMatrix::new(
     matrix_type,
     nrow,
     ncol,
-    data: Array::new(),
-    row_indices: Array::new(),
-    col_indices: Array::new(),
-    ptr: Array::new(),
+    data: Array(capacity=0),
+    row_indices: Array(capacity=0),
+    col_indices: Array(capacity=0),
+    ptr: Array(capacity=0),
   }
 }
 
@@ -44,7 +44,7 @@ pub fn BiocMatrix::dense_from_array(data : Array[Array[Double]]) -> BiocMatrix {
   let nrow = data.length()
   let ncol = if nrow > 0 { data[0].length() } else { 0 }
 
-  let flat_data : Array[Double] = Array::new()
+  let flat_data : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < nrow {
     let mut j = 0
@@ -60,9 +60,9 @@ pub fn BiocMatrix::dense_from_array(data : Array[Array[Double]]) -> BiocMatrix {
     nrow,
     ncol,
     data: flat_data,
-    row_indices: Array::new(),
-    col_indices: Array::new(),
-    ptr: Array::new(),
+    row_indices: Array(capacity=0),
+    col_indices: Array(capacity=0),
+    ptr: Array(capacity=0),
   }
 }
 
@@ -79,7 +79,7 @@ pub fn BiocMatrix::csc_from_triplets(
   let sorted_cols = sorted_indices.1
   let sorted_values = sorted_indices.2
 
-  let ptr : Array[Int] = Array::new()
+  let ptr : Array[Int] = Array(capacity=0)
   ptr.push(0)
 
   let mut current_col = 0
@@ -122,7 +122,7 @@ pub fn BiocMatrix::csr_from_triplets(
   let sorted_cols = sorted_indices.1
   let sorted_values = sorted_indices.2
 
-  let ptr : Array[Int] = Array::new()
+  let ptr : Array[Int] = Array(capacity=0)
   ptr.push(0)
 
   let mut current_row = 0
@@ -159,7 +159,7 @@ fn sort_triplets(
   values : Array[Double],
 ) -> (Array[Int], Array[Int], Array[Double]) {
   let n = row_idx.length()
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
@@ -186,9 +186,9 @@ fn sort_triplets(
     }
   }
 
-  let sorted_rows : Array[Int] = Array::new()
-  let sorted_cols : Array[Int] = Array::new()
-  let sorted_values : Array[Double] = Array::new()
+  let sorted_rows : Array[Int] = Array(capacity=0)
+  let sorted_cols : Array[Int] = Array(capacity=0)
+  let sorted_values : Array[Double] = Array(capacity=0)
 
   i = 0
   while i < n {
@@ -208,7 +208,7 @@ fn sort_triplets_by_row(
   values : Array[Double],
 ) -> (Array[Int], Array[Int], Array[Double]) {
   let n = row_idx.length()
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
@@ -235,9 +235,9 @@ fn sort_triplets_by_row(
     }
   }
 
-  let sorted_rows : Array[Int] = Array::new()
-  let sorted_cols : Array[Int] = Array::new()
-  let sorted_values : Array[Double] = Array::new()
+  let sorted_rows : Array[Int] = Array(capacity=0)
+  let sorted_cols : Array[Int] = Array(capacity=0)
+  let sorted_values : Array[Double] = Array(capacity=0)
 
   i = 0
   while i < n {
@@ -334,10 +334,10 @@ pub fn BiocMatrix::set(
 pub fn BiocMatrix::transpose(self : BiocMatrix) -> BiocMatrix {
   match self.matrix_type {
     BiocDenseMatrix => {
-      let result_data : Array[Array[Double]] = Array::new()
+      let result_data : Array[Array[Double]] = Array(capacity=0)
       let mut j = 0
       while j < self.ncol {
-        let row : Array[Double] = Array::new()
+        let row : Array[Double] = Array(capacity=0)
         let mut i = 0
         while i < self.nrow {
           row.push(self.get(i, j))
@@ -374,10 +374,10 @@ pub fn BiocMatrix::add(self : BiocMatrix, other : BiocMatrix) -> BiocMatrix? {
     return None
   }
 
-  let result_data : Array[Array[Double]] = Array::new()
+  let result_data : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < self.nrow {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < self.ncol {
       row.push(self.get(i, j) + other.get(i, j))
@@ -399,10 +399,10 @@ pub fn BiocMatrix::multiply(
     return None
   }
 
-  let result_data : Array[Array[Double]] = Array::new()
+  let result_data : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < self.nrow {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < other.ncol {
       let mut sum = 0.0
@@ -423,7 +423,7 @@ pub fn BiocMatrix::multiply(
 
 ///|
 pub fn BiocMatrix::row_sums(self : BiocMatrix) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < self.nrow {
     let mut sum = 0.0
@@ -440,7 +440,7 @@ pub fn BiocMatrix::row_sums(self : BiocMatrix) -> Array[Double] {
 
 ///|
 pub fn BiocMatrix::col_sums(self : BiocMatrix) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < self.ncol {
     let mut sum = 0.0
@@ -458,7 +458,7 @@ pub fn BiocMatrix::col_sums(self : BiocMatrix) -> Array[Double] {
 ///|
 pub fn BiocMatrix::row_means(self : BiocMatrix) -> Array[Double] {
   let sums = self.row_sums()
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < sums.length() {
     result.push(sums[i] / self.ncol.to_double())
@@ -470,7 +470,7 @@ pub fn BiocMatrix::row_means(self : BiocMatrix) -> Array[Double] {
 ///|
 pub fn BiocMatrix::col_means(self : BiocMatrix) -> Array[Double] {
   let sums = self.col_sums()
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < sums.length() {
     result.push(sums[i] / self.nrow.to_double())

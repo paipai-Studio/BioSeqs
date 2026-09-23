@@ -213,7 +213,7 @@ pub fn esearch(
   term : String,
   retmax? : Int = 10,
 ) -> Array[SearchResult] {
-  let results : Array[SearchResult] = Array::new()
+  let results : Array[SearchResult] = Array(capacity=0)
   match db {
     Pubmed =>
       if term.contains("CRISPR") || term.contains("crispr") {
@@ -524,7 +524,7 @@ fn extract_tag(xml : String, tag : String) -> String? {
 ///|
 /// Extract the content of multiple XML tags.
 fn extract_tags(xml : String, tag : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let start_tag = "<" + tag + ">"
   let end_tag = "</" + tag + ">"
   let mut remaining = xml
@@ -562,7 +562,7 @@ pub fn einfo() -> Map[String, String] {
 ///|
 /// Simulated EGQuery: Global query for multiple databases.
 pub fn egquery(term : String) -> Array[(String, Int)] {
-  let results : Array[(String, Int)] = Array::new()
+  let results : Array[(String, Int)] = Array(capacity=0)
   let mut count = 100
   if term.contains("CRISPR") || term.contains("crispr") {
     count = 5000

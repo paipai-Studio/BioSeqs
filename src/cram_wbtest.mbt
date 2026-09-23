@@ -9,7 +9,7 @@ test "cram_magic" {
 
 ///|
 test "cram_record_is_paired" {
-  let cigar : Array[BamCigarElement] = Array::new()
+  let cigar : Array[BamCigarElement] = Array(capacity=0)
   cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100, })
 
   let read_features = CramReadFeatures::{
@@ -20,7 +20,7 @@ test "cram_record_is_paired" {
     cigar,
     sequence: "ACGT",
     quality: "!!!!",
-    tags: Array::new(),
+    tags: Array(capacity=0),
   }
 
   let record = CramRecord::{ ref_id: 0, pos: 100, read_features, }
@@ -29,7 +29,7 @@ test "cram_record_is_paired" {
 
 ///|
 test "cram_record_is_mapped" {
-  let cigar : Array[BamCigarElement] = Array::new()
+  let cigar : Array[BamCigarElement] = Array(capacity=0)
 
   let read_features = CramReadFeatures::{
     read_group: 0,
@@ -39,7 +39,7 @@ test "cram_record_is_mapped" {
     cigar,
     sequence: "ACGT",
     quality: "!!!!",
-    tags: Array::new(),
+    tags: Array(capacity=0),
   }
 
   let record = CramRecord::{ ref_id: 0, pos: 100, read_features, }
@@ -48,7 +48,7 @@ test "cram_record_is_mapped" {
 
 ///|
 test "cram_record_is_unmapped" {
-  let cigar : Array[BamCigarElement] = Array::new()
+  let cigar : Array[BamCigarElement] = Array(capacity=0)
 
   let read_features = CramReadFeatures::{
     read_group: 0,
@@ -58,7 +58,7 @@ test "cram_record_is_unmapped" {
     cigar,
     sequence: "ACGT",
     quality: "!!!!",
-    tags: Array::new(),
+    tags: Array(capacity=0),
   }
 
   let record = CramRecord::{ ref_id: -1, pos: 0, read_features, }
@@ -67,7 +67,7 @@ test "cram_record_is_unmapped" {
 
 ///|
 test "cram_record_is_reverse" {
-  let cigar : Array[BamCigarElement] = Array::new()
+  let cigar : Array[BamCigarElement] = Array(capacity=0)
 
   let read_features = CramReadFeatures::{
     read_group: 0,
@@ -77,7 +77,7 @@ test "cram_record_is_reverse" {
     cigar,
     sequence: "ACGT",
     quality: "!!!!",
-    tags: Array::new(),
+    tags: Array(capacity=0),
   }
 
   let record = CramRecord::{ ref_id: 0, pos: 100, read_features, }
@@ -86,7 +86,7 @@ test "cram_record_is_reverse" {
 
 ///|
 test "cram_file_num_references" {
-  let references : Array[CramReference] = Array::new()
+  let references : Array[CramReference] = Array(capacity=0)
   references.push(CramReference::{
     name: "chr1",
     length: 1000,
@@ -112,16 +112,16 @@ test "cram_file_num_references" {
     references,
     compression: CramCompression::Gzip,
     stream_count: 0,
-    stream_info: Array::new(),
+    stream_info: Array(capacity=0),
     sam_header: "",
   }
-  let file = CramFile::{ header, records: Array::new(), }
+  let file = CramFile::{ header, records: Array(capacity=0), }
   assert_eq(file.header.references.length(), 3)
 }
 
 ///|
 test "cram_record_to_bam_record" {
-  let cigar : Array[BamCigarElement] = Array::new()
+  let cigar : Array[BamCigarElement] = Array(capacity=0)
   cigar.push(BamCigarElement::{ op: BamCigarOp::Match, length: 100, })
 
   let read_features = CramReadFeatures::{
@@ -132,7 +132,7 @@ test "cram_record_to_bam_record" {
     cigar,
     sequence: "ACGT",
     quality: "!!!!",
-    tags: Array::new(),
+    tags: Array(capacity=0),
   }
 
   let record = CramRecord::{ ref_id: 0, pos: 100, read_features, }

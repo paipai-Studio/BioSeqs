@@ -93,7 +93,7 @@ pub fn locate_variants(
   vcf_records : Array[VcfRecord],
   txdb : TxDb,
 ) -> Array[VariantAnnotation] {
-  let result : Array[VariantAnnotation] = Array::new()
+  let result : Array[VariantAnnotation] = Array(capacity=0)
 
   let mut i = 0
   while i < vcf_records.length() {
@@ -334,7 +334,7 @@ pub fn predict_coding(
   txdb : TxDb,
   reference : Map[String, String],
 ) -> Array[CodingPrediction] {
-  let result : Array[CodingPrediction] = Array::new()
+  let result : Array[CodingPrediction] = Array(capacity=0)
 
   let mut i = 0
   while i < vcf_records.length() {

@@ -278,7 +278,7 @@ pub fn find_orfs(
   min_length? : Int = 30,
 ) -> Array[(Int, Int, String)] {
   let s = seq.to_upper()
-  let result : Array[(Int, Int, String)] = Array::new()
+  let result : Array[(Int, Int, String)] = Array(capacity=0)
   let start_codons = ["ATG"]
   let stop_codons = ["TAA", "TAG", "TGA"]
   let n = s.length()
@@ -361,10 +361,10 @@ pub fn emboss_levenshtein_distance(seq1 : String, seq2 : String) -> Int {
   let m = s1.length()
   let n = s2.length()
 
-  let matrix : Array[Array[Int]] = Array::new()
+  let matrix : Array[Array[Int]] = Array(capacity=0)
   let mut i = 0
   while i <= m {
-    let row : Array[Int] = Array::new()
+    let row : Array[Int] = Array(capacity=0)
     let mut j = 0
     while j <= n {
       row.push(0)
@@ -627,7 +627,7 @@ fn instability_pair_score(a1 : Char, a2 : Char) -> Double {
     'A', 'R', 'N', 'D', 'C', 'E', 'Q', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S',
     'T', 'W', 'Y', 'V',
   ]
-  let scores : Array[Array[Double]] = Array::new()
+  let scores : Array[Array[Double]] = Array(capacity=0)
   scores.push([
     4.9, -1.8, -4.8, -3.5, 0.2, -8.0, -4.1, 0.0, -4.6, 4.2, 4.9, -3.9, 1.9, 2.8,
     -4.6, 0.4, 0.5, -0.9, -1.3, 4.2,

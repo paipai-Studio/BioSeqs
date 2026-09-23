@@ -169,7 +169,7 @@ pub fn mauve_seq_coverage(seq : MauveSequence) -> Double {
 ///|
 /// Create a new empty MauveLCB.
 pub fn new_mauve_lcb(id : String) -> MauveLCB {
-  MauveLCB::{ id, score: 0.0, sequences: Array::new(), is_collinear: true, }
+  MauveLCB::{ id, score: 0.0, sequences: Array(capacity=0), is_collinear: true, }
 }
 
 ///|
@@ -208,7 +208,7 @@ pub fn mauve_lcb_is_consistent(lcb : MauveLCB) -> Bool {
 ///|
 /// Get the sequence names in this LCB.
 pub fn mauve_lcb_seq_names(lcb : MauveLCB) -> Array[String] {
-  let names = Array::new()
+  let names = Array(capacity=0)
   for s = 0; s < lcb.sequences.length(); s = s + 1 {
     names.push(lcb.sequences[s].name)
   }
@@ -224,10 +224,10 @@ pub fn mauve_lcb_seq_names(lcb : MauveLCB) -> Array[String] {
 pub fn new_mauve_alignment() -> MauveAlignment {
   MauveAlignment::{
     version: "1.0",
-    lcbs: Array::new(),
-    sequences: Array::new(),
-    inversions: Array::new(),
-    breakpoints: Array::new(),
+    lcbs: Array(capacity=0),
+    sequences: Array(capacity=0),
+    inversions: Array(capacity=0),
+    breakpoints: Array(capacity=0),
     groups: Map([], capacity=10),
   }
 }
@@ -247,7 +247,7 @@ pub fn mauve_num_lcbs(ali : MauveAlignment) -> Int {
 ///|
 /// Get all sequence names across all LCBs.
 pub fn mauve_all_seq_names(ali : MauveAlignment) -> Array[String] {
-  let names = Array::new()
+  let names = Array(capacity=0)
   for l = 0; l < ali.lcbs.length(); l = l + 1 {
     let lcb = ali.lcbs[l]
     for s = 0; s < lcb.sequences.length(); s = s + 1 {
@@ -266,7 +266,7 @@ pub fn mauve_get_genome_seqs(
   ali : MauveAlignment,
   genome_name : String,
 ) -> Array[MauveSequence] {
-  let seqs = Array::new()
+  let seqs = Array(capacity=0)
   let prefix_len = genome_name.length()
   for l = 0; l < ali.lcbs.length(); l = l + 1 {
     let lcb = ali.lcbs[l]
@@ -410,7 +410,7 @@ pub fn parse_mauve(content : String) -> MauveAlignment {
         let group_arr = if existing is Some(_) {
           existing.unwrap()
         } else {
-          let arr = Array::new()
+          let arr = Array(capacity=0)
           result.groups[group_num] = arr
           arr
         }
@@ -471,7 +471,7 @@ pub fn detect_mauve_inversions(ali : MauveAlignment) -> MauveAlignment {
           } else {
             prev.start - curr.end
           },
-          affected_lcbs: Array::new(),
+          affected_lcbs: Array(capacity=0),
         }
 
         for l = 0; l < result.lcbs.length(); l = l + 1 {
@@ -557,7 +557,7 @@ pub fn new_mauve_inversion(
   end : Int,
   length : Int,
 ) -> MauveInversion {
-  MauveInversion::{ seq_name, start, end, length, affected_lcbs: Array::new(), }
+  MauveInversion::{ seq_name, start, end, length, affected_lcbs: Array(capacity=0), }
 }
 
 ///|
@@ -623,8 +623,8 @@ pub fn mauve_rearrangement_rate(ali : MauveAlignment) -> Double {
 ///|
 /// Get syntenic regions (consecutive collinear LCBs).
 pub fn mauve_syntenic_regions(ali : MauveAlignment) -> Array[Array[String]] {
-  let regions = Array::new()
-  let mut current_region = Array::new()
+  let regions = Array(capacity=0)
+  let mut current_region = Array(capacity=0)
   let mut prev_collinear = true
 
   for l = 0; l < ali.lcbs.length(); l = l + 1 {
@@ -635,7 +635,7 @@ pub fn mauve_syntenic_regions(ali : MauveAlignment) -> Array[Array[String]] {
       if current_region.length() > 0 {
         regions.push(current_region)
       }
-      current_region = Array::new()
+      current_region = Array(capacity=0)
       if lcb.is_collinear {
         current_region.push(lcb.id)
       }
@@ -658,9 +658,9 @@ pub fn mauve_filter_lcbs(
 ) -> MauveAlignment {
   let mut result = MauveAlignment::{
     ..ali,
-    lcbs: Array::new(),
-    inversions: Array::new(),
-    breakpoints: Array::new(),
+    lcbs: Array(capacity=0),
+    inversions: Array(capacity=0),
+    breakpoints: Array(capacity=0),
   }
 
   for l = 0; l < ali.lcbs.length(); l = l + 1 {
@@ -695,9 +695,9 @@ pub struct MauveProgressiveAligner {
 /// Create a new progressive aligner.
 pub fn new_mauve_progressive_aligner() -> MauveProgressiveAligner {
   MauveProgressiveAligner::{
-    pending_seqs: Array::new(),
+    pending_seqs: Array(capacity=0),
     alignment: new_mauve_alignment(),
-    guide_tree: Array::new(),
+    guide_tree: Array(capacity=0),
   }
 }
 
@@ -713,9 +713,9 @@ pub fn mauve_add_sequence(
 ///|
 /// Build the guide tree for progressive alignment.
 pub fn mauve_build_guide_tree(aligner : MauveProgressiveAligner) -> Unit {
-  let groups = Array::new()
+  let groups = Array(capacity=0)
   for s = 0; s < aligner.pending_seqs.length(); s = s + 1 {
-    let group = Array::new()
+    let group = Array(capacity=0)
     group.push(aligner.pending_seqs[s])
     groups.push(group)
   }

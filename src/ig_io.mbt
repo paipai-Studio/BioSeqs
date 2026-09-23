@@ -204,10 +204,10 @@ fn ig_remove_whitespace(s : String) -> String {
 /// - Subsequent lines until the next ";" (or EOF) are sequence lines.
 ///   Whitespace is removed. A trailing "1" terminator is stripped.
 pub fn ig_parse(content : String) -> Array[IgRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let raw_lines = content.split("\n").to_array()
   // Materialize lines as owned strings up-front for simpler downstream use.
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   for i in 0..<raw_lines.length() {
     lines.push(raw_lines[i].to_owned())
   }
@@ -241,7 +241,7 @@ pub fn ig_parse(content : String) -> Array[IgRecord] {
       continue
     }
     // Collect comment lines.
-    let comment_parts : Array[String] = Array::new()
+    let comment_parts : Array[String] = Array(capacity=0)
     while idx < n_lines {
       let line2 = ig_strip_cr(lines[idx])
       if ig_starts_with(line2, semi) {
@@ -453,7 +453,7 @@ pub fn ig_to_seq_record(record : IgRecord) -> SeqRecord {
 ///|
 /// Convert an array of `IgRecord` objects to an array of `SeqRecord` objects.
 pub fn ig_to_seq_records(records : Array[IgRecord]) -> Array[SeqRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     out.push(ig_to_seq_record(records[i]))
   }
@@ -479,7 +479,7 @@ pub fn ig_from_seq_record(record : SeqRecord) -> IgRecord {
 ///|
 /// Convert an array of `SeqRecord` objects to an array of `IgRecord` objects.
 pub fn ig_from_seq_records(records : Array[SeqRecord]) -> Array[IgRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     out.push(ig_from_seq_record(records[i]))
   }

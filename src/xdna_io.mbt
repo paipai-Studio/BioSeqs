@@ -172,7 +172,7 @@ pub struct XdnaFile {
 ///|
 /// Construct an empty XdnaFile with the default version (1).
 pub fn XdnaFile::new() -> XdnaFile {
-  XdnaFile::{ records: Array::new(), version: 1, }
+  XdnaFile::{ records: Array(capacity=0), version: 1, }
 }
 
 ///|
@@ -306,7 +306,7 @@ pub fn xdna_write_u32_be(value : Int) -> Array[Int] {
 /// otherwise), and annotation bytes. A 4-byte big-endian checksum
 /// (sum of all preceding bytes) is appended at the end.
 pub fn xdna_to_bytes(file : XdnaFile) -> Array[Int] {
-  let bytes : Array[Int] = Array::new()
+  let bytes : Array[Int] = Array(capacity=0)
   for ri in 0..<file.records.length() {
     let rec = file.records[ri]
     // 20-byte record header.
@@ -447,7 +447,7 @@ pub fn xdna_write(file : XdnaFile) -> String {
 ///|
 /// Parse a hex string produced by `xdna_write` back into an XdnaFile.
 pub fn xdna_read(data : String) -> XdnaFile {
-  let bytes : Array[Int] = Array::new()
+  let bytes : Array[Int] = Array(capacity=0)
   let len = data.length()
   let mut i = 0
   while i + 1 < len {
@@ -473,7 +473,7 @@ pub fn xdna_get_sequence_string(record : XdnaRecord) -> String {
 /// Convert all XdnaRecords in a file to SeqRecord objects. The record name
 /// becomes the id, name, and description.
 pub fn xdna_to_seq_records(file : XdnaFile) -> Array[SeqRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   for i in 0..<file.records.length() {
     let rec = file.records[i]
     records.push(
@@ -527,7 +527,7 @@ pub fn xdna_sample_file() -> XdnaFile {
 /// Convert a String to an array of ASCII byte values (one byte per char,
 /// taking the low 8 bits of each code unit).
 fn string_to_ascii_bytes(s : String) -> Array[Int] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   let n = s.length()
   for i in 0..<n {
     out.push(s.unsafe_get(i).to_int() & 0xFF)

@@ -151,7 +151,7 @@ pub fn CelRecord::mean_intensity(self : CelRecord) -> Double {
 ///|
 /// Median intensity over all cells.
 pub fn CelRecord::median_intensity(self : CelRecord) -> Double {
-  let flat : Array[Double] = Array::new()
+  let flat : Array[Double] = Array(capacity=0)
   for row in self.intensities {
     for value in row {
       flat.push(value)
@@ -217,7 +217,7 @@ pub fn CelRecord::percent_masked(self : CelRecord) -> Double {
 ///|
 /// All cell intensities flattened in row-major order.
 pub fn CelRecord::intensity_values(self : CelRecord) -> Array[Double] {
-  let flat : Array[Double] = Array::new()
+  let flat : Array[Double] = Array(capacity=0)
   for row in self.intensities {
     for value in row {
       flat.push(value)
@@ -288,9 +288,9 @@ pub fn CelRecord::stdev_at(self : CelRecord, x : Int, y : Int) -> Double {
 
 ///|
 fn cel_matrix(rows : Int, cols : Int) -> Array[Array[Double]] {
-  let grid : Array[Array[Double]] = Array::new()
+  let grid : Array[Array[Double]] = Array(capacity=0)
   for _y in 0..<rows {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for _x in 0..<cols {
       row.push(0.0)
     }
@@ -301,9 +301,9 @@ fn cel_matrix(rows : Int, cols : Int) -> Array[Array[Double]] {
 
 ///|
 fn cel_int_matrix(rows : Int, cols : Int) -> Array[Array[Int]] {
-  let grid : Array[Array[Int]] = Array::new()
+  let grid : Array[Array[Int]] = Array(capacity=0)
   for _y in 0..<rows {
-    let row : Array[Int] = Array::new()
+    let row : Array[Int] = Array(capacity=0)
     for _x in 0..<cols {
       row.push(0)
     }
@@ -316,7 +316,7 @@ fn cel_int_matrix(rows : Int, cols : Int) -> Array[Array[Int]] {
 /// Split a header/dat line into whitespace-separated fields
 /// (both spaces and tabs act as separators).
 fn cel_fields(line : String) -> Array[String] {
-  let fields : Array[String] = Array::new()
+  let fields : Array[String] = Array(capacity=0)
   for tab_chunk_view in line.split("\t") {
     for field_view in tab_chunk_view.split(" ") {
       let field = field_view.trim().to_owned()
@@ -362,16 +362,16 @@ pub fn cel_parse_dat_header(value : String) -> (Int, Int) {
 /// Parse a text CEL file, equivalent to `Bio.Affy.CelFile.read`.
 pub fn cel_read(content : String) -> CelRecord raise CelError {
   let mut version = ""
-  let headers : Array[(String, String)] = Array::new()
+  let headers : Array[(String, String)] = Array(capacity=0)
   let mut n_rows = 0
   let mut n_cols = 0
   let mut n_cells = 0
   let mut intensities : Array[Array[Double]] = []
   let mut stdevs : Array[Array[Double]] = []
   let mut npix : Array[Array[Int]] = []
-  let mask : Array[Int] = Array::new()
-  let outliers : Array[Int] = Array::new()
-  let modified : Array[Int] = Array::new()
+  let mask : Array[Int] = Array(capacity=0)
+  let outliers : Array[Int] = Array(capacity=0)
+  let modified : Array[Int] = Array(capacity=0)
   let mut cells_read = 0
   let mut section = ""
   let mut intensity_meta_seen = false

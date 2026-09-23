@@ -110,10 +110,10 @@ pub fn SurvRecord::covariates(self : SurvRecord) -> Array[Double] {
 /// Create an empty SurvData container.
 pub fn SurvData::new() -> SurvData {
   SurvData::{
-    records: Array::new(),
+    records: Array(capacity=0),
     n_samples: 0,
     n_groups: 0,
-    group_names: Array::new(),
+    group_names: Array(capacity=0),
   }
 }
 
@@ -121,7 +121,7 @@ pub fn SurvData::new() -> SurvData {
 /// Build a SurvData from a set of records, computing group metadata.
 pub fn SurvData::from_records(records : Array[SurvRecord]) -> SurvData {
   let n = records.length()
-  let group_names : Array[String] = Array::new()
+  let group_names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let g = records[i].group
@@ -198,7 +198,7 @@ pub fn SurvData::filter_by_group(
   self : SurvData,
   group : String,
 ) -> Array[SurvRecord] {
-  let result : Array[SurvRecord] = Array::new()
+  let result : Array[SurvRecord] = Array(capacity=0)
   let recs = self.records
   let n = recs.length()
   let mut i = 0
@@ -306,9 +306,9 @@ fn survival_solve_linear(
   n : Int,
 ) -> Array[Double] {
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
-  let m : Array[Array[Double]] = Array::new()
+  let m : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let row : Array[Double] = Array::make(n + 1, 0.0)
@@ -368,9 +368,9 @@ fn survival_solve_linear(
 fn survival_invert_matrix(m : Array[Array[Double]]) -> Array[Array[Double]] {
   let n = m.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
-  let aug : Array[Array[Double]] = Array::new()
+  let aug : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let row : Array[Double] = Array::make(2 * n, 0.0)
@@ -429,10 +429,10 @@ fn survival_invert_matrix(m : Array[Array[Double]]) -> Array[Array[Double]] {
     }
     col = col + 1
   }
-  let inv : Array[Array[Double]] = Array::new()
+  let inv : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       row.push(aug[i][n + j])
@@ -471,11 +471,11 @@ pub fn survival_kaplan_meier(
   let group_records = data.filter_by_group(group)
   let n = group_records.length()
 
-  let times : Array[Double] = Array::new()
-  let survival_arr : Array[Double] = Array::new()
-  let std_err_arr : Array[Double] = Array::new()
-  let n_at_risk_arr : Array[Int] = Array::new()
-  let n_events_arr : Array[Int] = Array::new()
+  let times : Array[Double] = Array(capacity=0)
+  let survival_arr : Array[Double] = Array(capacity=0)
+  let std_err_arr : Array[Double] = Array(capacity=0)
+  let n_at_risk_arr : Array[Int] = Array(capacity=0)
+  let n_events_arr : Array[Int] = Array(capacity=0)
 
   // Start with S(0) = 1.0
   times.push(0.0)
@@ -564,7 +564,7 @@ pub fn survival_log_rank(
   let n2_total = r2.length()
 
   // (time, event_flag, group_idx)
-  let combined : Array[(Double, Int, Int)] = Array::new()
+  let combined : Array[(Double, Int, Int)] = Array(capacity=0)
   for r in r1 {
     combined.push((r.time, if r.event { 1 } else { 0 }, 0))
   }
@@ -664,7 +664,7 @@ fn survival_cox_score_info(
   p : Int,
 ) -> (Array[Double], Array[Array[Double]], Double) {
   let u : Array[Double] = Array::make(p, 0.0)
-  let info : Array[Array[Double]] = Array::new()
+  let info : Array[Array[Double]] = Array(capacity=0)
   let mut kk = 0
   while kk < p {
     info.push(Array::make(p, 0.0))
@@ -680,7 +680,7 @@ fn survival_cox_score_info(
     // Build the risk set (subjects with time >= t): order[idx .. n-1].
     let mut s_w = 0.0
     let sz : Array[Double] = Array::make(p, 0.0)
-    let szz : Array[Array[Double]] = Array::new()
+    let szz : Array[Array[Double]] = Array(capacity=0)
     let mut qi = 0
     while qi < p {
       szz.push(Array::make(p, 0.0))
@@ -711,7 +711,7 @@ fn survival_cox_score_info(
     }
 
     // Subjects with an event at this time.
-    let event_subjs : Array[Int] = Array::new()
+    let event_subjs : Array[Int] = Array(capacity=0)
     let mut d = 0
     let mut m = idx
     while m < n && times[order[m]] == t {
@@ -771,11 +771,11 @@ pub fn survival_cox_fit(
 
   if n == 0 || p == 0 {
     return CoxResult::{
-      coefficients: Array::new(),
-      std_errors: Array::new(),
-      hazard_ratios: Array::new(),
-      z_values: Array::new(),
-      p_values: Array::new(),
+      coefficients: Array(capacity=0),
+      std_errors: Array(capacity=0),
+      hazard_ratios: Array(capacity=0),
+      z_values: Array(capacity=0),
+      p_values: Array(capacity=0),
       covariate_names,
       log_likelihood: 0.0,
       n_samples: n,
@@ -785,7 +785,7 @@ pub fn survival_cox_fit(
 
   let times : Array[Double] = Array::make(n, 0.0)
   let events : Array[Int] = Array::make(n, 0)
-  let z : Array[Array[Double]] = Array::new()
+  let z : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
     times[i] = records[i].time
@@ -989,7 +989,7 @@ pub fn survival_km_to_string(result : KaplanMeierResult) -> String {
 /// Sample survival data with two groups (control / treatment) and two
 /// covariates per record (age, treatment indicator). 15 records total.
 pub fn survival_sample_data() -> SurvData {
-  let records : Array[SurvRecord] = Array::new()
+  let records : Array[SurvRecord] = Array(capacity=0)
   // Control group: covariates = [age, treatment_indicator]
   records.push(SurvRecord::new(6.0, true, "control", [55.0, 0.0]))
   records.push(SurvRecord::new(13.0, true, "control", [62.0, 0.0]))

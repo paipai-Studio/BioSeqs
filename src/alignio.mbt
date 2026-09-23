@@ -68,7 +68,7 @@ fn parse_fasta_as_alignment(
 ///|
 /// Write alignments as FASTA format.
 fn write_fasta_as_alignment(alignments : Array[MultipleSeqAlignment]) -> String {
-  let all_records = Array::new()
+  let all_records = Array(capacity=0)
   for align in alignments {
     for rec in align.iter() {
       all_records.push(rec)

@@ -72,7 +72,7 @@ fn unify_swiss_to_record(entry : SwissProtRecord) -> SeqRecord raise SeqIOError 
   unify_set_annotation(annotations, "date_created", entry.date_created)
   unify_set_annotation(annotations, "date_modified", entry.date_modified)
   unify_set_annotation(annotations, "version", entry.version.to_string())
-  let features : Array[SeqFeature] = Array::new()
+  let features : Array[SeqFeature] = Array(capacity=0)
   for f in entry.features {
     let quals : Map[String, Array[String]] = Map(
       [],
@@ -127,7 +127,7 @@ pub fn parse_swiss_records(
   if entries.length() == 0 {
     raise SeqIOError("Malformed swiss entry")
   }
-  let records : Array[SeqRecord] = Array::new()
+  let records : Array[SeqRecord] = Array(capacity=0)
   for entry in entries {
     records.push(unify_swiss_to_record(entry))
   }
@@ -144,7 +144,7 @@ pub fn parse_uniprot_xml_records(
     return []
   }
   let entries = parse_uniprot_xml(content)
-  let records : Array[SeqRecord] = Array::new()
+  let records : Array[SeqRecord] = Array(capacity=0)
   for entry in entries {
     let (id, description, sequence, annotations) = uniprot_to_seqrecord(entry)
     let record = SeqRecord::new(Seq::new(sequence), id~, name=id, description~)
@@ -178,7 +178,7 @@ pub fn parse_imgt_records(
     return []
   }
   let entries = imgt_parse(content)
-  let records : Array[SeqRecord] = Array::new()
+  let records : Array[SeqRecord] = Array(capacity=0)
   for entry in entries {
     let header = entry.header()
     let record = SeqRecord::new(
@@ -229,7 +229,7 @@ pub fn parse_ig_records(content : String) -> Array[SeqRecord] raise SeqIOError {
 /// underlying single-record parsers behave unchanged.
 fn unify_split_insdc(content : String) -> Array[String] {
   let raw_lines = content.split("\n").to_array()
-  let chunks : Array[String] = Array::new()
+  let chunks : Array[String] = Array(capacity=0)
   let mut buf = StringBuilder()
   for raw in raw_lines {
     let len = raw.length()
@@ -315,7 +315,7 @@ pub fn parse_insdc_records(
     return []
   }
   let chunks = unify_split_insdc(content)
-  let records : Array[SeqRecord] = Array::new()
+  let records : Array[SeqRecord] = Array(capacity=0)
   for chunk in chunks {
     let mut first = ""
     for line in chunk.split("\n") {
@@ -348,10 +348,10 @@ pub fn parse_phd_records(content : String) -> Array[SeqRecord] raise SeqIOError 
     return []
   }
   let file = phd_parse(content)
-  let records : Array[SeqRecord] = Array::new()
+  let records : Array[SeqRecord] = Array(capacity=0)
   for read in file.reads {
     let bases = StringBuilder()
-    let qualities : Array[Int] = Array::new()
+    let qualities : Array[Int] = Array(capacity=0)
     for base in read.bases {
       bases.write_string(base.base)
       qualities.push(base.quality)
@@ -378,7 +378,7 @@ pub fn parse_ace_records(content : String) -> Array[SeqRecord] raise SeqIOError 
     return []
   }
   let data = ace_parse(content)
-  let records : Array[SeqRecord] = Array::new()
+  let records : Array[SeqRecord] = Array(capacity=0)
   for contig in data.contigs {
     let sequence = ace_consensus_sequence(contig)
     let record = SeqRecord::new(

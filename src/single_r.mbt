@@ -157,7 +157,7 @@ pub fn single_r_pearson_correlation(
 /// Compute rank values for an array (average ranks for ties).
 pub fn single_r_rank_values(values : Array[Double]) -> Array[Double] {
   let n = values.length()
-  let ranked : Array[(Double, Int)] = Array::new()
+  let ranked : Array[(Double, Int)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     ranked.push((values[i], i))
@@ -256,7 +256,7 @@ pub fn ReferenceDataset::new(
   let n_profiles = profiles.length()
   let gene_names = if n_profiles > 0 { profiles[0].gene_names } else { [] }
   let n_genes = gene_names.length()
-  let cell_types : Array[String] = Array::new()
+  let cell_types : Array[String] = Array(capacity=0)
   for p in profiles {
     cell_types.push(p.cell_type)
   }
@@ -270,7 +270,7 @@ pub fn ReferenceDataset::from_matrix(
   cell_types : Array[String],
   gene_names : Array[String],
 ) -> ReferenceDataset {
-  let profiles : Array[ReferenceProfile] = Array::new()
+  let profiles : Array[ReferenceProfile] = Array(capacity=0)
   let n_samples = expression_data.length()
   let mut i = 0
   while i < n_samples {
@@ -336,7 +336,7 @@ pub fn single_r_compute_correlations(
   reference : ReferenceDataset,
   method : String,
 ) -> Array[Double] {
-  let scores : Array[Double] = Array::new()
+  let scores : Array[Double] = Array(capacity=0)
   for profile in reference.profiles {
     let score = if method == "pearson" {
       single_r_pearson_correlation(cell_expression, profile.expression)
@@ -355,7 +355,7 @@ pub fn single_r_get_top_scores(
   n : Int,
 ) -> Array[(Int, Double)] {
   let n_scores = scores.length()
-  let top : Array[(Int, Double)] = Array::new()
+  let top : Array[(Int, Double)] = Array(capacity=0)
 
   let mut i = 0
   while i < n_scores {
@@ -366,7 +366,7 @@ pub fn single_r_get_top_scores(
   // Sort by score descending
   let sorted = single_r_sort_int_double_array(top)
 
-  let result : Array[(Int, Double)] = Array::new()
+  let result : Array[(Int, Double)] = Array(capacity=0)
   let limit = if n < sorted.length() { n } else { sorted.length() }
   let mut l = 0
   while l < limit {
@@ -467,7 +467,7 @@ pub fn single_r_compute_delta_score(
   scores_by_type : Map[String, Double],
 ) -> Double {
   let keys = scores_by_type.keys()
-  let sorted_scores : Array[(String, Double)] = Array::new()
+  let sorted_scores : Array[(String, Double)] = Array(capacity=0)
   for key in keys {
     sorted_scores.push((key, scores_by_type.get(key).unwrap_or(0.0)))
   }
@@ -503,9 +503,9 @@ pub fn single_r_fine_tune_annotation(
   method : String,
 ) -> (String, Double) {
   // Find profiles matching the initial label
-  let marker_profiles : Array[Array[Double]] = Array::new()
-  let other_profiles : Array[Array[Double]] = Array::new()
-  let other_types : Array[String] = Array::new()
+  let marker_profiles : Array[Array[Double]] = Array(capacity=0)
+  let other_profiles : Array[Array[Double]] = Array(capacity=0)
+  let other_types : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < reference.n_profiles {
@@ -538,7 +538,7 @@ pub fn single_r_fine_tune_annotation(
   }
 
   // Compute correlations with other cell types
-  let other_scores : Array[Double] = Array::new()
+  let other_scores : Array[Double] = Array(capacity=0)
   for p in other_profiles {
     other_scores.push(
       if method == "pearson" {
@@ -626,9 +626,9 @@ pub fn single_r_annotate_cell(
   }
 
   // Build result
-  let labels : Array[String] = Array::new()
-  let scores_arr : Array[Double] = Array::new()
-  let delta_arr : Array[Double] = Array::new()
+  let labels : Array[String] = Array(capacity=0)
+  let scores_arr : Array[Double] = Array(capacity=0)
+  let delta_arr : Array[Double] = Array(capacity=0)
 
   let keys = agg_scores.keys()
   for key in keys {
@@ -662,7 +662,7 @@ fn single_r_sort_labels_by_score(
   scores : Array[Double],
 ) -> Array[String] {
   let n = labels.length()
-  let pairs : Array[(String, Double)] = Array::new()
+  let pairs : Array[(String, Double)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     pairs.push((labels[i], scores[i]))
@@ -682,7 +682,7 @@ fn single_r_sort_labels_by_score(
     j = j + 1
   }
 
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for p in pairs {
     result.push(p.0)
   }
@@ -702,12 +702,12 @@ pub fn single_r_annotate_cells(
   reference : ReferenceDataset,
   params : SingleRParams,
 ) -> SingleRFullResult {
-  let cell_ids : Array[String] = Array::new()
-  let labels : Array[String] = Array::new()
-  let scores : Array[Double] = Array::new()
-  let delta_scores : Array[Double] = Array::new()
-  let first_labels : Array[String] = Array::new()
-  let fine_annotations : Array[String] = Array::new()
+  let cell_ids : Array[String] = Array(capacity=0)
+  let labels : Array[String] = Array(capacity=0)
+  let scores : Array[Double] = Array(capacity=0)
+  let delta_scores : Array[Double] = Array(capacity=0)
+  let first_labels : Array[String] = Array(capacity=0)
+  let fine_annotations : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < data.n_cells {
@@ -754,7 +754,7 @@ fn single_r_get_cell_expression(
   cell_idx : Int,
 ) -> Array[Double] {
   let n_genes = data.n_genes
-  let expr : Array[Double] = Array::new()
+  let expr : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n_genes {
     expr.push(data.counts[i][cell_idx])
@@ -920,10 +920,10 @@ pub fn single_r_create_test_data() -> SingleRData {
   let n_cells = 50
 
   // Create expression matrix (genes x cells)
-  let counts : Array[Array[Double]] = Array::new()
+  let counts : Array[Array[Double]] = Array(capacity=0)
   let mut gene_i = 0
   while gene_i < n_genes {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut cell_j = 0
     while cell_j < n_cells {
       // Simulate different cell types
@@ -1003,7 +1003,7 @@ pub fn single_r_create_test_data() -> SingleRData {
     gene_i = gene_i + 1
   }
 
-  let cell_names : Array[String] = Array::new()
+  let cell_names : Array[String] = Array(capacity=0)
   let mut c = 0
   while c < n_cells {
     cell_names.push("cell_".to_string() + c.to_string())

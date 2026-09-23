@@ -123,10 +123,10 @@ pub fn QueryResult::new(
 pub fn parse_hmmer3_tab(content : String) -> Array[QueryResult] {
   let lines = split_by_char(content, '\n'.to_int())
 
-  let results : Array[QueryResult] = Array::new()
+  let results : Array[QueryResult] = Array(capacity=0)
   let mut cq = ""
   let mut hc = false
-  let mut ch : Array[Hit] = Array::new()
+  let mut ch : Array[Hit] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -161,11 +161,11 @@ pub fn parse_hmmer3_tab(content : String) -> Array[QueryResult] {
         results.push(QueryResult::new(cq, "", 0, ch, "hmmscan", "3.0", ta))
       }
       cq = qn
-      ch = Array::new()
+      ch = Array(capacity=0)
       hc = true
     }
 
-    let frags : Array[HSPFragment] = Array::new()
+    let frags : Array[HSPFragment] = Array(capacity=0)
     frags.push(
       HSPFragment::new(
         0,
@@ -183,7 +183,7 @@ pub fn parse_hmmer3_tab(content : String) -> Array[QueryResult] {
         "",
       ),
     )
-    let hsps_arr : Array[HSP] = Array::new()
+    let hsps_arr : Array[HSP] = Array(capacity=0)
     hsps_arr.push(HSP::new(tn, desc, frags, bs, ev, sc))
     ch.push(Hit::new(tn, desc, ta, hsps_arr, bs, ev))
 
@@ -201,10 +201,10 @@ pub fn parse_hmmer3_tab(content : String) -> Array[QueryResult] {
 pub fn parse_blat_psl(content : String) -> Array[QueryResult] {
   let lines = split_by_char(content, '\n'.to_int())
 
-  let results : Array[QueryResult] = Array::new()
+  let results : Array[QueryResult] = Array(capacity=0)
   let mut cq = ""
   let mut hc = false
-  let mut ch : Array[Hit] = Array::new()
+  let mut ch : Array[Hit] = Array(capacity=0)
   let mut cqs = 0
 
   let mut i = 0
@@ -252,11 +252,11 @@ pub fn parse_blat_psl(content : String) -> Array[QueryResult] {
       }
       cq = qn
       cqs = qsz
-      ch = Array::new()
+      ch = Array(capacity=0)
       hc = true
     }
 
-    let frags : Array[HSPFragment] = Array::new()
+    let frags : Array[HSPFragment] = Array(capacity=0)
 
     let mut j = 0
     while j < bc {
@@ -284,7 +284,7 @@ pub fn parse_blat_psl(content : String) -> Array[QueryResult] {
       j = j + 1
     }
 
-    let hsps_arr : Array[HSP] = Array::new()
+    let hsps_arr : Array[HSP] = Array(capacity=0)
     hsps_arr.push(HSP::new(tn, "", frags, score, 0.0, score))
     ch.push(Hit::new(tn, "", "", hsps_arr, score, 0.0))
 
@@ -302,23 +302,23 @@ pub fn parse_blat_psl(content : String) -> Array[QueryResult] {
 pub fn blast_to_searchio(
   blast_records : Array[BlastRecord],
 ) -> Array[QueryResult] {
-  let results : Array[QueryResult] = Array::new()
+  let results : Array[QueryResult] = Array(capacity=0)
 
   let mut i = 0
   while i < blast_records.length() {
     let record = blast_records[i]
-    let hits : Array[Hit] = Array::new()
+    let hits : Array[Hit] = Array(capacity=0)
 
     let mut j = 0
     while j < record.hits.length() {
       let bh = record.hits[j]
-      let hsps_arr : Array[HSP] = Array::new()
+      let hsps_arr : Array[HSP] = Array(capacity=0)
 
       let mut k = 0
       while k < bh.hsps.length() {
         let bhsp = bh.hsps[k]
 
-        let frags : Array[HSPFragment] = Array::new()
+        let frags : Array[HSPFragment] = Array(capacity=0)
         frags.push(
           HSPFragment::new(
             bhsp.query_start(),
@@ -386,7 +386,7 @@ pub fn blast_to_searchio(
 
 ///|
 pub fn top_hits(qr : QueryResult, n : Int, threshold : Double) -> Array[Hit] {
-  let filtered : Array[Hit] = Array::new()
+  let filtered : Array[Hit] = Array(capacity=0)
 
   let mut i = 0
   while i < qr.hits.length() {
@@ -397,7 +397,7 @@ pub fn top_hits(qr : QueryResult, n : Int, threshold : Double) -> Array[Hit] {
   }
 
   let cnt = filtered.length()
-  let sorted : Array[Hit] = Array::new()
+  let sorted : Array[Hit] = Array(capacity=0)
   let mut j = 0
   while j < cnt {
     sorted.push(filtered[j])
@@ -419,7 +419,7 @@ pub fn top_hits(qr : QueryResult, n : Int, threshold : Double) -> Array[Hit] {
   }
 
   let take = if n < cnt { n } else { cnt }
-  let result : Array[Hit] = Array::new()
+  let result : Array[Hit] = Array(capacity=0)
   let mut m = 0
   while m < take {
     result.push(sorted[m])

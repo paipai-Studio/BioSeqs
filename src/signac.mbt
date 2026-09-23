@@ -58,7 +58,7 @@ pub fn signac_feature_matrix(
 ) -> FeatureMatrix {
   let npeaks = peaks.length()
   let ncells = cells.length()
-  let counts : Array[Array[Int]] = Array::make(npeaks, Array::new())
+  let counts : Array[Array[Int]] = Array::make(npeaks, Array(capacity=0))
   for pi = 0; pi < npeaks; pi = pi + 1 {
     counts[pi] = Array::make(ncells, 0)
   }

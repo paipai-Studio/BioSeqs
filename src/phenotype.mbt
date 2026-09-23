@@ -181,7 +181,7 @@ pub fn PlateRecord::new(
   plate_id : String,
   times : Array[Double],
 ) -> PlateRecord {
-  PlateRecord::{ plate_id, wells: Array::new(), times, }
+  PlateRecord::{ plate_id, wells: Array(capacity=0), times, }
 }
 
 ///|
@@ -529,7 +529,7 @@ pub fn phen_predict(
   fit : PhenFitParams,
   times : Array[Double],
 ) -> Array[Double] {
-  let preds : Array[Double] = Array::new()
+  let preds : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < times.length() {
     let pred = if fit.model == "logistic" {
@@ -566,9 +566,9 @@ pub fn phen_subtract_control(
   control_well_id : String,
 ) -> PhenControlSubtracted {
   let control_opt = plate.phen_get_well(control_well_id)
-  let well_ids : Array[String] = Array::new()
-  let signals : Array[Array[Double]] = Array::new()
-  let mut control_signals : Array[Double] = Array::new()
+  let well_ids : Array[String] = Array(capacity=0)
+  let signals : Array[Array[Double]] = Array(capacity=0)
+  let mut control_signals : Array[Double] = Array(capacity=0)
   if control_opt is Some(_) {
     control_signals = control_opt.unwrap().signals
   }
@@ -577,7 +577,7 @@ pub fn phen_subtract_control(
     let w = plate.wells[i]
     if w.well_id != control_well_id {
       well_ids.push(w.well_id)
-      let sub : Array[Double] = Array::new()
+      let sub : Array[Double] = Array(capacity=0)
       let mut j = 0
       while j < w.signals.length() {
         let ctrl = if j < control_signals.length() {
@@ -609,8 +609,8 @@ pub fn phen_parse_csv(csv_text : String) -> PlateRecord {
   let lines = csv_text.split("\n").to_array()
   // Group wells
   let well_map : Map[String, WellRecord] = Map([], capacity=96)
-  let times_collected : Array[Double] = Array::new()
-  let plate_id_var : Array[String] = Array::new()
+  let times_collected : Array[Double] = Array(capacity=0)
+  let plate_id_var : Array[String] = Array(capacity=0)
   // Skip header line; parse rest
   let mut idx = 0
   while idx < lines.length() {
@@ -642,9 +642,9 @@ pub fn phen_parse_csv(csv_text : String) -> PlateRecord {
           signals: new_signals,
         })
       } else {
-        let new_times : Array[Double] = Array::new()
+        let new_times : Array[Double] = Array(capacity=0)
         new_times.push(t)
-        let new_signals : Array[Double] = Array::new()
+        let new_signals : Array[Double] = Array(capacity=0)
         new_signals.push(s)
         well_map.set(wid, WellRecord::{
           well_id: wid,
@@ -715,7 +715,7 @@ fn phen_json_extract_string(json : String, key : String) -> String {
 ///|
 /// Extract a numeric array for a key from simplified JSON.
 fn phen_json_extract_double_array(json : String, key : String) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let pattern = "\"" + key + "\":["
   let start = json.find(pattern)
   if start is None {
@@ -741,7 +741,7 @@ fn phen_json_extract_double_array(json : String, key : String) -> Array[Double] 
 ///|
 /// Extract wells array from simplified JSON.
 fn phen_json_extract_wells(json : String) -> Array[WellRecord] {
-  let wells : Array[WellRecord] = Array::new()
+  let wells : Array[WellRecord] = Array(capacity=0)
   let pattern = "\"wells\":["
   let start = json.find(pattern)
   if start is None {
@@ -845,7 +845,7 @@ fn phen_dedup_sort(arr : Array[Double]) -> Array[Double] {
     sorted[j + 1] = key
     i = i + 1
   }
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut k = 0
   while k < sorted.length() {
     if result.length() == 0 ||

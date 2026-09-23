@@ -143,10 +143,10 @@ pub fn EnsDb::new(version : String, species : String) -> EnsDb {
   EnsDb::{
     version,
     species,
-    genes: Array::new(),
-    transcripts: Array::new(),
-    exons: Array::new(),
-    cds: Array::new(),
+    genes: Array(capacity=0),
+    transcripts: Array(capacity=0),
+    exons: Array(capacity=0),
+    cds: Array(capacity=0),
     metadata: Map([], capacity=0),
   }
 }
@@ -215,7 +215,7 @@ pub fn edb_get_gene_by_id(db : EnsDb, gene_id : String) -> EnsDbGene? {
 
 ///|
 pub fn edb_get_gene_by_name(db : EnsDb, gene_name : String) -> Array[EnsDbGene] {
-  let results : Array[EnsDbGene] = Array::new()
+  let results : Array[EnsDbGene] = Array(capacity=0)
 
   let mut i = 0
   while i < db.genes.length() {
@@ -233,7 +233,7 @@ pub fn edb_get_transcripts_by_gene(
   db : EnsDb,
   gene_id : String,
 ) -> Array[EnsDbTranscript] {
-  let results : Array[EnsDbTranscript] = Array::new()
+  let results : Array[EnsDbTranscript] = Array(capacity=0)
 
   let mut i = 0
   while i < db.transcripts.length() {
@@ -251,7 +251,7 @@ pub fn edb_get_exons_by_transcript(
   db : EnsDb,
   tx_id : String,
 ) -> Array[EnsDbExon] {
-  let results : Array[EnsDbExon] = Array::new()
+  let results : Array[EnsDbExon] = Array(capacity=0)
 
   let mut i = 0
   while i < db.exons.length() {
@@ -266,7 +266,7 @@ pub fn edb_get_exons_by_transcript(
 
 ///|
 pub fn edb_get_cds_by_transcript(db : EnsDb, tx_id : String) -> Array[EnsDbCDS] {
-  let results : Array[EnsDbCDS] = Array::new()
+  let results : Array[EnsDbCDS] = Array(capacity=0)
 
   let mut i = 0
   while i < db.cds.length() {

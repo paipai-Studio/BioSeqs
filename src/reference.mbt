@@ -65,7 +65,7 @@ pub fn BioReference::new(
     pubmed_id_val: "",
     doi_val: "",
     type_val: "journal article",
-    locations: Array::new(),
+    locations: Array(capacity=0),
     comment: "",
     data_pgr: "",
   }
@@ -272,7 +272,7 @@ pub struct ReferenceList {
 ///|
 /// Create a new reference list.
 pub fn ReferenceList::new() -> ReferenceList {
-  ReferenceList::{ refs: Array::new(), }
+  ReferenceList::{ refs: Array(capacity=0), }
 }
 
 ///|
@@ -309,7 +309,7 @@ pub fn ReferenceList::by_author(
   self : ReferenceList,
   author : String,
 ) -> Array[BioReference] {
-  let result : Array[BioReference] = Array::new()
+  let result : Array[BioReference] = Array(capacity=0)
   let mut i = 0
   while i < self.refs.length() {
     if self.refs[i].authors_val.contains(author) {
@@ -326,7 +326,7 @@ pub fn ReferenceList::by_year(
   self : ReferenceList,
   year : String,
 ) -> Array[BioReference] {
-  let result : Array[BioReference] = Array::new()
+  let result : Array[BioReference] = Array(capacity=0)
   let mut i = 0
   while i < self.refs.length() {
     if self.refs[i].year_val == year {
@@ -340,7 +340,7 @@ pub fn ReferenceList::by_year(
 ///|
 /// Get references with PubMed IDs.
 pub fn ReferenceList::with_pubmed(self : ReferenceList) -> Array[BioReference] {
-  let result : Array[BioReference] = Array::new()
+  let result : Array[BioReference] = Array(capacity=0)
   let mut i = 0
   while i < self.refs.length() {
     if self.refs[i].pubmed_id_val.length() > 0 {

@@ -72,7 +72,7 @@ test "olc_single_read" {
 
 ///|
 test "olc_empty_reads" {
-  let reads : Array[String] = Array::new()
+  let reads : Array[String] = Array(capacity=0)
   let assembly = @src.olc_assemble(reads, 2)
   assert_eq(assembly, "")
 }

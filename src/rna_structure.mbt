@@ -131,9 +131,9 @@ pub fn nussinov_matrix(
     return []
   }
 
-  let dp : Array[Array[Double]] = Array::new()
+  let dp : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n; j = j + 1 {
       row.push(0.0)
     }
@@ -162,7 +162,7 @@ pub fn nussinov_traceback(
   predictor : RNAStructurePredictor,
 ) -> Array[(Int, Int)] {
   let n = sequence.length()
-  let base_pairs : Array[(Int, Int)] = Array::new()
+  let base_pairs : Array[(Int, Int)] = Array(capacity=0)
   if n == 0 {
     return base_pairs
   }
@@ -194,7 +194,7 @@ pub fn rna_predict_secondary_structure(
     }
   }
 
-  let seq_arr : Array[UInt16] = Array::new()
+  let seq_arr : Array[UInt16] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     seq_arr.push(sequence.unsafe_get(i))
   }
@@ -260,7 +260,7 @@ pub fn identify_loop_regions(
   base_pairs : Array[(Int, Int)],
   predictor : RNAStructurePredictor,
 ) -> Array[LoopRegion] {
-  let loop_regions : Array[LoopRegion] = Array::new()
+  let loop_regions : Array[LoopRegion] = Array(capacity=0)
   let n = sequence.length()
   if n == 0 {
     return loop_regions

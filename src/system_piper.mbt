@@ -105,7 +105,7 @@ pub fn Pipeline::new(pipeline_id : String, name : String) -> Pipeline {
     pipeline_id,
     name,
     description: "",
-    steps: Array::new(),
+    steps: Array(capacity=0),
     global_params: Map([], capacity=10),
   }
 }
@@ -179,14 +179,14 @@ pub fn Pipeline::get_step(self : Pipeline, step_id : String) -> PipelineStep {
     name: "not_found",
     description: "",
     command: "",
-    args: Array::new(),
+    args: Array(capacity=0),
     status: StepStatus::Pending,
     exit_code: -1,
     log: "",
     duration_seconds: 0.0,
-    dependencies: Array::new(),
-    input_files: Array::new(),
-    output_files: Array::new(),
+    dependencies: Array(capacity=0),
+    input_files: Array(capacity=0),
+    output_files: Array(capacity=0),
     parameter_file: "",
   }
 }
@@ -295,14 +295,14 @@ pub fn PipelineStep::new(
     name,
     description: "",
     command,
-    args: Array::new(),
+    args: Array(capacity=0),
     status: StepStatus::Pending,
     exit_code: 0,
     log: "",
     duration_seconds: 0.0,
-    dependencies: Array::new(),
-    input_files: Array::new(),
-    output_files: Array::new(),
+    dependencies: Array(capacity=0),
+    input_files: Array(capacity=0),
+    output_files: Array(capacity=0),
     parameter_file: "",
   }
 }

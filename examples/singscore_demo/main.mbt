@@ -36,7 +36,7 @@ fn main {
 
   let genes = sample.gene_names
   let n_genes = genes.length()
-  let samples : Array[@bio.SampleExpression] = Array::new()
+  let samples : Array[@bio.SampleExpression] = Array(capacity=0)
 
   // Activated immune cell (high expression)
   {

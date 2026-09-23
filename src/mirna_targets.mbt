@@ -147,7 +147,7 @@ pub fn mir_find_seed_matches(
   let u = utr.to_upper().replace(old="U", new="T")
   let n_mir = mir.length()
   let n_utr = u.length()
-  let sites : Array[MirTargetSite] = Array::new()
+  let sites : Array[MirTargetSite] = Array(capacity=0)
   if n_mir < 7 || n_utr < 6 { return sites }
 
   let seed7 = mir_extract_seed(mir)
@@ -254,7 +254,7 @@ pub fn mir_predict_targets(
   min_seed_type? : Int = 0,
   allow_gu_wobble? : Bool = false,
 ) -> Array[MirTargetResult] {
-  let results : Array[MirTargetResult] = Array::new()
+  let results : Array[MirTargetResult] = Array(capacity=0)
   for mir_entry in mirnas {
     let mir_id = mir_entry.0
     let mir_seq = mir_entry.1

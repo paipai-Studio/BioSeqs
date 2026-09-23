@@ -374,7 +374,7 @@ pub fn ch_hclust(
   clust_method : String,
 ) -> Array[Int] {
   let n = dist_matrix.length()
-  let mut clusters : Array[Array[Int]] = Array::make(n, Array::new())
+  let mut clusters : Array[Array[Int]] = Array::make(n, Array(capacity=0))
   let mut i = 0
   while i < n {
     clusters[i] = [i]
@@ -449,7 +449,7 @@ pub fn ch_hclust(
     let merged = clusters[min_i] + clusters[min_j]
     let new_clusters : Array[Array[Int]] = Array::make(
       clusters.length() - 1,
-      Array::new(),
+      Array(capacity=0),
     )
     let mut idx = 0
     let mut k = 0
@@ -509,7 +509,7 @@ pub fn ch_row_scale(
   center : Bool,
 ) -> Array[Array[Double]] {
   let n_rows = matrix.length()
-  let scaled : Array[Array[Double]] = Array::make(n_rows, Array::new())
+  let scaled : Array[Array[Double]] = Array::make(n_rows, Array(capacity=0))
   let mut i = 0
   while i < n_rows {
     let row = matrix[i]
@@ -658,7 +658,7 @@ pub fn ch_draw_heatmap(
     col_order = ch_cluster_cols(matrix, options.cluster_method)
   }
 
-  let all_values : Array[Double] = Array::new()
+  let all_values : Array[Double] = Array(capacity=0)
   let mut x = 0
   while x < matrix.length() {
     let mut y = 0
@@ -827,7 +827,7 @@ pub fn ch_row_split(
     i = i + 1
   }
 
-  let row_order : Array[Int] = Array::new()
+  let row_order : Array[Int] = Array(capacity=0)
   for group in group_map.keys().collect() {
     let indices = group_map[group]
     let mut j = 0
@@ -873,7 +873,7 @@ pub fn ch_col_split(
     i = i + 1
   }
 
-  let col_order : Array[Int] = Array::new()
+  let col_order : Array[Int] = Array(capacity=0)
   for group in group_map.keys().collect() {
     let indices = group_map[group]
     let mut j = 0

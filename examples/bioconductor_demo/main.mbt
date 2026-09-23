@@ -21,7 +21,7 @@ fn main {
     ),
   ]
 
-  let peak_objs : Array[@bio.Peak] = Array::new()
+  let peak_objs : Array[@bio.Peak] = Array(capacity=0)
   let mut i = 0
   while i < peak_specs.length() {
     let (chr, start, end) = peak_specs[i]
@@ -398,14 +398,14 @@ fn main {
   println("")
 
   println("2. Evaluate batch mixing before correction")
-  let raw_data : Array[Array[Double]] = Array::new()
+  let raw_data : Array[Array[Double]] = Array(capacity=0)
   for cell in batches[0] {
     raw_data.push(cell)
   }
   for cell in batches[1] {
     raw_data.push(cell)
   }
-  let raw_batch_indices : Array[Int] = Array::new()
+  let raw_batch_indices : Array[Int] = Array(capacity=0)
   let mut bi = 0
   while bi < 50 {
     raw_batch_indices.push(0)
@@ -503,7 +503,7 @@ fn main {
   println("7. Find clusters")
   let seurat_clusters = @bio.find_clusters(seurat_neighbors)
   
-  let unique_clusters : Array[Int] = Array::new()
+  let unique_clusters : Array[Int] = Array(capacity=0)
   for c in seurat_clusters.clusters {
     let mut exists = false
     for u in unique_clusters {

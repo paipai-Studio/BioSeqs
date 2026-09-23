@@ -390,7 +390,7 @@ pub fn enrich_disease_fisher(
 
   // Collect overlaps and store raw p-values per term.
   let rows : Array[Array[Double]] = Array::make(n_terms, [0.0, 0.0, 0.0, 0.0, 0.0])
-  let overlap_genes : Array[Array[String]] = Array::make(n_terms, Array::new())
+  let overlap_genes : Array[Array[String]] = Array::make(n_terms, Array(capacity=0))
 
   i = 0
   while i < n_terms {
@@ -399,7 +399,7 @@ pub fn enrich_disease_fisher(
     let n_term = term_genes.length()
 
     // Count overlap, restricted to genes present in the background universe.
-    let overlap : Array[String] = Array::new()
+    let overlap : Array[String] = Array(capacity=0)
     let mut j = 0
     while j < gene_list.length() {
       let g = gene_list[j]
@@ -463,7 +463,7 @@ pub fn enrich_disease_fisher(
   }
 
   // Build term list and sort by adjusted p ascending (ties → FE desc).
-  let term_objs : Array[DOSETerm] = Array::new()
+  let term_objs : Array[DOSETerm] = Array(capacity=0)
   i = 0
   while i < n_terms {
     let term_id = term_ids[i]
@@ -526,7 +526,7 @@ pub fn enrich_disease_hyper(
 ///|
 /// Keep only terms whose adjusted p-value is below the given cutoff.
 pub fn dose_filter_by_adjp(result : DOSEResult, cutoff : Double) -> DOSEResult {
-  let filtered : Array[DOSETerm] = Array::new()
+  let filtered : Array[DOSETerm] = Array(capacity=0)
   let mut i = 0
   while i < result.terms.length() {
     if result.terms[i].adjusted_p_value < cutoff {
@@ -545,7 +545,7 @@ pub fn dose_filter_by_adjp(result : DOSEResult, cutoff : Double) -> DOSEResult {
 ///|
 /// Keep at most ``n`` top terms (lowest adjusted p-value).
 pub fn dose_top_terms(result : DOSEResult, n : Int) -> DOSEResult {
-  let top : Array[DOSETerm] = Array::new()
+  let top : Array[DOSETerm] = Array(capacity=0)
   let mut i = 0
   while i < result.terms.length() && i < n {
     top.push(result.terms[i])
@@ -587,7 +587,7 @@ pub fn dose_summarize(result : DOSEResult) -> String {
 ///|
 /// Term identifiers in the current sorted order.
 pub fn dose_term_ids(result : DOSEResult) -> Array[String] {
-  let ids : Array[String] = Array::new()
+  let ids : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < result.terms.length() {
     ids.push(result.terms[i].term_id)
@@ -599,7 +599,7 @@ pub fn dose_term_ids(result : DOSEResult) -> Array[String] {
 ///|
 /// Adjusted p-values, matching the current term order.
 pub fn dose_adjusted_pvalues(result : DOSEResult) -> Array[Double] {
-  let vals : Array[Double] = Array::new()
+  let vals : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < result.terms.length() {
     vals.push(result.terms[i].adjusted_p_value)

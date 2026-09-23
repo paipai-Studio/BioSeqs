@@ -182,7 +182,7 @@ fn to_upper(s : String) -> String {
 /// Split PDB text into lines, removing empty lines.
 fn split_pdb_lines(text : String) -> Array[String] {
   let parts = text.split("\n").to_array()
-  let result = Array::new()
+  let result = Array(capacity=0)
   for part in parts {
     let line = part.to_string()
     if line.length() > 0 {
@@ -221,7 +221,7 @@ fn extract_record_section(
 /// Parse semicolon-separated fields into an array of trimmed strings.
 fn parse_semicolon_fields(text : String) -> Array[String] {
   let parts = text.split(";").to_array()
-  let result = Array::new()
+  let result = Array(capacity=0)
   for part in parts {
     let trimmed = trim_sv(part)
     if trimmed.length() > 0 {
@@ -385,7 +385,7 @@ fn join_record_text(lines : Array[String], start : Int, end : Int) -> String {
 /// Parse the chain IDs string (e.g., "A, B, C") into an array of strings.
 fn parse_chain_ids_str(s : String) -> Array[String] {
   let parts = s.split(",").to_array()
-  let result = Array::new()
+  let result = Array(capacity=0)
   for part in parts {
     let trimmed = trim_sv(part)
     if trimmed.length() > 0 {
@@ -610,7 +610,7 @@ pub fn parse_keywords_record(
   }
   let text = join_record_text(lines, start, end)
   let parts = text.split(";").to_array()
-  let result = Array::new()
+  let result = Array(capacity=0)
   for part in parts {
     let trimmed = trim_sv(part)
     if trimmed.length() > 0 {
@@ -663,7 +663,7 @@ pub fn parse_authors_record(
   }
   let text = join_record_text(lines, start, end)
   let parts = text.split(";").to_array()
-  let result = Array::new()
+  let result = Array(capacity=0)
   for part in parts {
     let trimmed = trim_sv(part)
     if trimmed.length() > 0 {

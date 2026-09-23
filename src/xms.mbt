@@ -57,9 +57,9 @@ fn xms_upper(s : String) -> String {
 /// 解析 XMS 文本，返回 motif 列表（支持多个 `>name` 块）。
 pub fn xms_parse(text : String) -> Array[XmsMotif] {
   let lines = text.split("\n")
-  let motifs : Array[XmsMotif] = Array::new()
+  let motifs : Array[XmsMotif] = Array(capacity=0)
   let mut name = ""
-  let mut sites : Array[XmsSite] = Array::new()
+  let mut sites : Array[XmsSite] = Array(capacity=0)
   for raw_view in lines {
     let line = xms_trim(raw_view.to_owned())
     if line.length() == 0 {
@@ -68,7 +68,7 @@ pub fn xms_parse(text : String) -> Array[XmsMotif] {
     if line[0] == '>' {
       if sites.length() > 0 || name != "" {
         motifs.push(XmsMotif::{ name: name, sites: sites })
-        sites = Array::new()
+        sites = Array(capacity=0)
       }
       name = line.substring(start=1)
       continue
@@ -95,7 +95,7 @@ pub fn xms_parse(text : String) -> Array[XmsMotif] {
 /// microRNA 记录解析（fasta 风格）。
 pub fn mirs_parse(text : String) -> Array[MirsRecord] {
   let lines = text.split("\n")
-  let records : Array[MirsRecord] = Array::new()
+  let records : Array[MirsRecord] = Array(capacity=0)
   let mut id = ""
   let mut comment = ""
   for raw_view in lines {
@@ -133,7 +133,7 @@ pub fn xms_counts(motif : XmsMotif) -> Array[Array[Double]] {
       length = s.sequence.length()
     }
   }
-  let mat : Array[Array[Double]] = Array::new()
+  let mat : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<length {
     mat.push([0.0, 0.0, 0.0, 0.0])
   }
@@ -168,13 +168,13 @@ fn xms_base_index(b : Char) -> Int {
 
 /// 计数矩阵行归一化 → 频率矩阵（PFM）。
 pub fn xms_pfm(counts : Array[Array[Double]]) -> Array[Array[Double]] {
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for row in counts {
     let mut total = 0.0
     for v in row {
       total = total + v
     }
-    let new_row : Array[Double] = Array::new()
+    let new_row : Array[Double] = Array(capacity=0)
     if total > 0.0 {
       for v in row {
         new_row.push(v / total)
@@ -197,9 +197,9 @@ pub fn xms_pwm(
   let bg = if background.is_some() { background.unwrap() } else {
     [0.25, 0.25, 0.25, 0.25]
   }
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for row in pfm {
-    let new_row : Array[Double] = Array::new()
+    let new_row : Array[Double] = Array(capacity=0)
     for i in 0..<4 {
       let ratio = if bg[i] > 0.0 {
         max_double(row[i], 1.0e-9) / bg[i]
@@ -258,7 +258,7 @@ fn xms_base_char(idx : Int) -> Char {
 
 /// 每位置信息含量（bits，最大 2.0）与总信息含量。
 pub fn xms_info_content(pfm : Array[Array[Double]]) -> (Array[Double], Double) {
-  let per_pos : Array[Double] = Array::new()
+  let per_pos : Array[Double] = Array(capacity=0)
   let mut total = 0.0
   for row in pfm {
     let mut ic = 0.0
@@ -292,7 +292,7 @@ pub fn xms_write(motif : XmsMotif) -> String {
 
 /// 全部位点序列。
 pub fn xms_site_sequences(motif : XmsMotif) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for s in motif.sites {
     out.push(s.sequence)
   }
@@ -329,7 +329,7 @@ pub fn mirs_seed_8mer(mature : String) -> String? {
 
 /// 按顺序列出该成熟序列的全部 seed 类型与序列。
 pub fn mirs_classify_seeds(mature : String) -> Array[(String, String)] {
-  let out : Array[(String, String)] = Array::new()
+  let out : Array[(String, String)] = Array(capacity=0)
   let six = mirs_seed_6mer(mature)
   let a1 = mirs_seed_7mer_a1(mature)
   let m8 = mirs_seed_7mer_m8(mature)
@@ -381,7 +381,7 @@ fn mirs_complement(b : Char) -> Char {
 
 /// microRNA 位点计数矩阵（等价 xms_counts，接受序列数组）。
 pub fn mirs_pfm(seqs : Array[String]) -> Array[Array[Double]] {
-  let sites : Array[XmsSite] = Array::new()
+  let sites : Array[XmsSite] = Array(capacity=0)
   for s in seqs {
     sites.push(XmsSite::{ sequence: s, weight: 1.0 })
   }

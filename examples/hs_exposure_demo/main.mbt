@@ -14,7 +14,7 @@ fn main {
   println("   N: \{n.name} (\{n.x}, \{n.y}, \{n.z})")
 
   println("\n2. Prepare all CA atoms:")
-  let all_ca : Array[@bio.PDBAtom] = Array::new()
+  let all_ca : Array[@bio.PDBAtom] = Array(capacity=0)
   all_ca.push(ca)
   all_ca.push(@bio.PDBAtom::new("CA2", 5.0, 0.0, 0.0))
   all_ca.push(@bio.PDBAtom::new("CA3", 0.0, 5.0, 0.0))

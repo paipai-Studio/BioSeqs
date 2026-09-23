@@ -547,7 +547,7 @@ pub fn sv_parse_vcf_line(line : String) -> SvRecord? {
 /// Parse multiple VCF lines into an array of SvRecords. Header lines
 /// (starting with #) are skipped.
 pub fn sv_parse_vcf(content : String) -> Array[SvRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   for line in lines {
     match sv_parse_vcf_line(line.to_owned()) {
@@ -567,7 +567,7 @@ pub fn sv_parse_vcf(content : String) -> Array[SvRecord] {
 /// partners if record A's breakend mate location matches record B's
 /// location (and vice versa). Returns an array of (id_a, id_b) pairs.
 pub fn sv_find_partners(records : Array[SvRecord]) -> Array[(String, String)] {
-  let pairs : Array[(String, String)] = Array::new()
+  let pairs : Array[(String, String)] = Array(capacity=0)
   let n = records.length()
   let matched : Array[Bool] = Array::make(n, false)
   for i in 0..<n {
@@ -727,7 +727,7 @@ pub fn sv_annotate(
   records : Array[SvRecord],
   genes : Array[SvGeneRegion],
 ) -> Array[SvAnnotation] {
-  let annotations : Array[SvAnnotation] = Array::new()
+  let annotations : Array[SvAnnotation] = Array(capacity=0)
   for rec in records {
     let sv_start = rec.pos
     let sv_end = if rec.end > rec.pos {
@@ -739,7 +739,7 @@ pub fn sv_annotate(
       }
     }
     let sv_chrom = rec.chrom
-    let overlapping : Array[String] = Array::new()
+    let overlapping : Array[String] = Array(capacity=0)
     for gene in genes {
       if gene.overlaps(sv_chrom, sv_start, sv_end) {
         overlapping.push(gene.gene)
@@ -776,7 +776,7 @@ pub fn sv_filter_by_quality(
   records : Array[SvRecord],
   min_qual : Double,
 ) -> Array[SvRecord] {
-  let result : Array[SvRecord] = Array::new()
+  let result : Array[SvRecord] = Array(capacity=0)
   for rec in records {
     if rec.quality >= min_qual {
       result.push(rec)
@@ -792,7 +792,7 @@ pub fn sv_filter_by_size(
   records : Array[SvRecord],
   min_size : Int,
 ) -> Array[SvRecord] {
-  let result : Array[SvRecord] = Array::new()
+  let result : Array[SvRecord] = Array(capacity=0)
   for rec in records {
     if rec.size() >= min_size {
       result.push(rec)
@@ -807,7 +807,7 @@ pub fn sv_filter_by_type(
   records : Array[SvRecord],
   t : SvType,
 ) -> Array[SvRecord] {
-  let result : Array[SvRecord] = Array::new()
+  let result : Array[SvRecord] = Array(capacity=0)
   for rec in records {
     if sv_type_label(rec.sv_type) == sv_type_label(t) {
       result.push(rec)

@@ -537,7 +537,7 @@ test "peak_calling_apply_fdr_empty" {
 test "peak_calling_apply_fdr_monotonic" {
   // BH-adjusted p-values should be monotonic when sorted.
   let pvals = [1.0e-10, 1.0e-8, 1.0e-6, 1.0e-4, 0.01]
-  let peaks : Array[@src.CandidatePeak] = Array::new()
+  let peaks : Array[@src.CandidatePeak] = Array(capacity=0)
   let mut i = 0
   while i < pvals.length() {
     peaks.push(
@@ -556,7 +556,7 @@ test "peak_calling_apply_fdr_monotonic" {
   }
   let result = @src.apply_fdr(peaks, 1.0)
   // Collect (p_value, fdr) pairs sorted by p_value ascending.
-  let pairs : Array[(Double, Double)] = Array::new()
+  let pairs : Array[(Double, Double)] = Array(capacity=0)
   for p in result {
     pairs.push((p.p_value, p.fdr))
   }

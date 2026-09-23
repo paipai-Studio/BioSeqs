@@ -249,9 +249,9 @@ pub fn build_distance_matrix(
   sequence_ids : Array[String],
 ) -> MSADistanceMatrix {
   let n = sequences.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n; j = j + 1 {
       if i == j {
         row.push(0.0)
@@ -284,13 +284,13 @@ pub fn upgma_tree(distance_matrix : MSADistanceMatrix) -> GuideTree {
     return GuideTree::{ nodes: [node], }
   }
 
-  let nodes : Array[GuideTreeNode] = Array::new()
+  let nodes : Array[GuideTreeNode] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     nodes.push(guide_tree_leaf(i, i))
   }
 
   let mut dist = copy_distance_matrix(distance_matrix.matrix)
-  let mut active : Array[Int] = Array::new()
+  let mut active : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     active.push(i)
   }
@@ -325,7 +325,7 @@ pub fn upgma_tree(distance_matrix : MSADistanceMatrix) -> GuideTree {
     let new_node_idx = next_id
     next_id = next_id + 1
 
-    let new_dists_row : Array[Double] = Array::new()
+    let new_dists_row : Array[Double] = Array(capacity=0)
     for k = 0; k < m; k = k + 1 {
       if k != min_i && k != min_j {
         let d = (
@@ -338,7 +338,7 @@ pub fn upgma_tree(distance_matrix : MSADistanceMatrix) -> GuideTree {
     }
     new_dists_row.push(0.0)
 
-    let new_active : Array[Int] = Array::new()
+    let new_active : Array[Int] = Array(capacity=0)
     for k = 0; k < m; k = k + 1 {
       if k != min_i && k != min_j {
         new_active.push(active[k])
@@ -346,10 +346,10 @@ pub fn upgma_tree(distance_matrix : MSADistanceMatrix) -> GuideTree {
     }
     new_active.push(new_node_idx)
 
-    let new_dist : Array[Array[Double]] = Array::new()
+    let new_dist : Array[Array[Double]] = Array(capacity=0)
     for r = 0; r < m; r = r + 1 {
       if r != min_i && r != min_j {
-        let row : Array[Double] = Array::new()
+        let row : Array[Double] = Array(capacity=0)
         for c = 0; c < m; c = c + 1 {
           if c != min_i && c != min_j {
             row.push(dist[r][c])
@@ -386,9 +386,9 @@ fn count_leaves_in_node(nodes : Array[GuideTreeNode], node_idx : Int) -> Int {
 ///|
 /// Copy a distance matrix.
 fn copy_distance_matrix(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   for row in matrix {
-    let new_row : Array[Double] = Array::new()
+    let new_row : Array[Double] = Array(capacity=0)
     for v in row {
       new_row.push(v)
     }
@@ -435,11 +435,11 @@ pub fn align_pairwise_with_scoring(
     return (seq1, gap_seq, extend_gap * n.to_double())
   }
 
-  let dp : Array[Array[Double]] = Array::new()
-  let trace : Array[Array[Int]] = Array::new()
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[Int]] = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
-    let drow : Array[Double] = Array::new()
-    let trow : Array[Int] = Array::new()
+    let drow : Array[Double] = Array(capacity=0)
+    let trow : Array[Int] = Array(capacity=0)
     for j = 0; j <= m; j = j + 1 {
       drow.push(0.0)
       trow.push(0)
@@ -535,10 +535,10 @@ pub fn profile_from_sequences(
   }
   let n_cols = sequences[0].length()
   let n_seqs = sequences.length()
-  let profile : Array[Array[Double]] = Array::new()
+  let profile : Array[Array[Double]] = Array(capacity=0)
 
   for col = 0; col < n_cols; col = col + 1 {
-    let col_freq : Array[Double] = Array::new()
+    let col_freq : Array[Double] = Array(capacity=0)
     for k = 0; k < PROFILE_ALPHABET_SIZE; k = k + 1 {
       col_freq.push(0.0)
     }
@@ -611,11 +611,11 @@ pub fn align_profiles(
   let len1 = profile1_matrix.length()
   let len2 = profile2_matrix.length()
 
-  let dp : Array[Array[Double]] = Array::new()
-  let trace : Array[Array[Int]] = Array::new()
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[Int]] = Array(capacity=0)
   for i = 0; i <= len1; i = i + 1 {
-    let drow : Array[Double] = Array::new()
-    let trow : Array[Int] = Array::new()
+    let drow : Array[Double] = Array(capacity=0)
+    let trow : Array[Int] = Array(capacity=0)
     for j = 0; j <= len2; j = j + 1 {
       drow.push(0.0)
       trow.push(0)
@@ -770,7 +770,7 @@ pub fn progressive_alignment(
     if node.is_leaf {
       processed[node_idx] = true
     } else {
-      let child_results : Array[Array[String]] = Array::new()
+      let child_results : Array[Array[String]] = Array(capacity=0)
       let mut all_processed = true
       for child_idx in node.children {
         match processed.get(child_idx) {
@@ -788,8 +788,8 @@ pub fn progressive_alignment(
         let (aligned_left, aligned_right, _) = align_profiles(
           left_profile, right_profile,
         )
-        let left_aligned_profile : Array[String] = Array::new()
-        let right_aligned_profile : Array[String] = Array::new()
+        let left_aligned_profile : Array[String] = Array(capacity=0)
+        let right_aligned_profile : Array[String] = Array(capacity=0)
         for s in left_profile {
           let new_s = apply_alignment_to_sequence(s, aligned_left)
           left_aligned_profile.push(new_s)
@@ -798,7 +798,7 @@ pub fn progressive_alignment(
           let new_s = apply_alignment_to_sequence(s, aligned_right)
           right_aligned_profile.push(new_s)
         }
-        let combined : Array[String] = Array::new()
+        let combined : Array[String] = Array(capacity=0)
         for s in left_aligned_profile {
           combined.push(s)
         }
@@ -823,18 +823,18 @@ pub fn progressive_alignment(
   let final_profiles = match alignment_map.get(root_idx) {
     Some(p) => p
     None => {
-      let profiles : Array[Array[String]] = Array::new()
+      let profiles : Array[Array[String]] = Array(capacity=0)
       for i = 0; i < n; i = i + 1 {
         profiles.push([sequences[i]])
       }
       let mut result = profiles[0]
       for i = 1; i < n; i = i + 1 {
         let (a1, a2, _) = align_profiles(result, profiles[i])
-        let new_result : Array[String] = Array::new()
+        let new_result : Array[String] = Array(capacity=0)
         for s in result {
           new_result.push(apply_alignment_to_sequence(s, a1))
         }
-        let new_i : Array[String] = Array::new()
+        let new_i : Array[String] = Array(capacity=0)
         for s in profiles[i] {
           new_i.push(apply_alignment_to_sequence(s, a2))
         }
@@ -847,7 +847,7 @@ pub fn progressive_alignment(
     }
   }
 
-  let records : Array[SeqRecord] = Array::new()
+  let records : Array[SeqRecord] = Array(capacity=0)
   let mut seq_id_idx = 0
   for s in final_profiles {
     let id = if seq_id_idx < sequence_ids.length() {
@@ -878,11 +878,11 @@ fn create_msa_safe(records : Array[SeqRecord]) -> MultipleSeqAlignment {
 /// Topologically sort guide tree nodes (leaves first, root last).
 fn topological_sort_nodes(nodes : Array[GuideTreeNode]) -> Array[Int] {
   let n = nodes.length()
-  let visited : Array[Bool] = Array::new()
+  let visited : Array[Bool] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     visited.push(false)
   }
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     if !visited[i] {
       topological_sort_visit(nodes, i, visited, result)
@@ -954,12 +954,12 @@ pub fn get_aligned_sequences(
   clusterer : AlignClusterer,
   sequences : Array[String],
 ) -> Array[String] {
-  let ids : Array[String] = Array::new()
+  let ids : Array[String] = Array(capacity=0)
   for i = 0; i < sequences.length(); i = i + 1 {
     ids.push("seq_" + i.to_string())
   }
   let alignment = progressive_alignment(clusterer, sequences, ids)
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for rec in alignment.iter() {
     result.push(rec.seq.to_string())
   }

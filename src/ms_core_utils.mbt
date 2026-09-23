@@ -39,7 +39,7 @@ pub fn mc_median(values : Array[Double]) -> Double {
   if n == 0 {
     return 0.0
   }
-  let sorted = Array::new()
+  let sorted = Array(capacity=0)
   for v in values {
     sorted.push(v)
   }
@@ -74,7 +74,7 @@ pub fn mc_quantile(values : Array[Double], q : Double) -> Double {
   if n == 0 {
     return 0.0
   }
-  let sorted = Array::new()
+  let sorted = Array(capacity=0)
   for v in values {
     sorted.push(v)
   }
@@ -119,8 +119,8 @@ pub fn mc_refine_centroids(
   peak_indices : Array[Int],
   half_window : Int,
 ) -> (Array[Double], Array[Double]) {
-  let out_mz = Array::new()
-  let out_int = Array::new()
+  let out_mz = Array(capacity=0)
+  let out_int = Array(capacity=0)
   let n = mz.length()
   for p in peak_indices {
     if p < 0 || p >= n {
@@ -160,7 +160,7 @@ pub fn mc_refine_centroids(
 /// Returns the indices of all local maxima.
 pub fn mc_local_maxima(intensity : Array[Double]) -> Array[Int] {
   let n = intensity.length()
-  let out = Array::new()
+  let out = Array(capacity=0)
   if n < 3 {
     if n == 1 && intensity[0] > 0.0 {
       out.push(0)
@@ -200,7 +200,7 @@ pub fn mc_join_peaks(
   tolerance : Double,
   use_ppm : Bool,
 ) -> Array[(Int, Int)] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<x.length() {
     let mut best_j = -1
     let mut best_d = 1.0e300
@@ -367,7 +367,7 @@ pub fn mc_baseline_snip(
   // SNIP iterations
   let max_window = if max_iter < n / 2 { max_iter } else { n / 2 }
   for w in 1..<=max_window {
-    let prev = Array::new()
+    let prev = Array(capacity=0)
     for i in 0..<n {
       prev.push(v[i])
     }
@@ -411,8 +411,8 @@ pub fn mc_calibrate(
   let out = Array::make(n, 0.0)
   if method == "linear" {
     // collect matched (obs, cal) pairs
-    let obs_pairs = Array::new()
-    let cal_pairs = Array::new()
+    let obs_pairs = Array(capacity=0)
+    let cal_pairs = Array(capacity=0)
     for i in 0..<n {
       let mut best_j = -1
       let mut best_d = 1.0e300
@@ -531,7 +531,7 @@ pub fn mc_impute(
   }
   let p = matrix[0].length()
   // copy matrix
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<n {
     out.push(Array::make(p, 0.0))
     for j in 0..<p {
@@ -568,7 +568,7 @@ pub fn mc_impute(
   }
   if method == "mean" {
     for i in 0..<n {
-      let vals = Array::new()
+      let vals = Array(capacity=0)
       for j in 0..<p {
         if !mc_is_missing(out[i][j]) {
           vals.push(out[i][j])
@@ -585,7 +585,7 @@ pub fn mc_impute(
   }
   if method == "median" {
     for i in 0..<n {
-      let vals = Array::new()
+      let vals = Array(capacity=0)
       for j in 0..<p {
         if !mc_is_missing(out[i][j]) {
           vals.push(out[i][j])
@@ -608,7 +608,7 @@ pub fn mc_impute(
       for j in 0..<p {
         if mc_is_missing(out[i][j]) {
           // find k nearest rows that have a value at column j
-          let distances : Array[(Int, Double)] = Array::new()
+          let distances : Array[(Int, Double)] = Array(capacity=0)
           for r in 0..<n {
             if r == i || mc_is_missing(out[r][j]) {
               continue
@@ -675,7 +675,7 @@ pub fn mc_median_polish(
   }
   let p = matrix[0].length()
   // copy
-  let r = Array::new()
+  let r = Array(capacity=0)
   for i in 0..<n {
     r.push(Array::make(p, 0.0))
     for j in 0..<p {
@@ -689,7 +689,7 @@ pub fn mc_median_polish(
     let mut max_delta = 0.0
     // row sweep
     for i in 0..<n {
-      let row_vals = Array::new()
+      let row_vals = Array(capacity=0)
       for j in 0..<p {
         row_vals.push(r[i][j])
       }
@@ -705,7 +705,7 @@ pub fn mc_median_polish(
     }
     // column sweep
     for j in 0..<p {
-      let col_vals = Array::new()
+      let col_vals = Array(capacity=0)
       for i in 0..<n {
         col_vals.push(r[i][j])
       }
@@ -745,7 +745,7 @@ pub fn mc_robust_summary(matrix : Array[Array[Double]]) -> Array[Double] {
   let p = matrix[0].length()
   let out = Array::make(p, 0.0)
   for j in 0..<p {
-    let col = Array::new()
+    let col = Array(capacity=0)
     for i in 0..<n {
       col.push(matrix[i][j])
     }
@@ -758,7 +758,7 @@ pub fn mc_robust_summary(matrix : Array[Array[Double]]) -> Array[Double] {
 /// Median absolute deviation (MAD).
 pub fn mc_mad(values : Array[Double]) -> Double {
   let m = mc_median(values)
-  let deviations = Array::new()
+  let deviations = Array(capacity=0)
   for v in values {
     deviations.push((v - m).abs())
   }
@@ -821,7 +821,7 @@ pub fn mc_aggregate_rows(
   }
   let p = matrix[0].length()
   // collect unique group ids
-  let group_ids : Array[Int] = Array::new()
+  let group_ids : Array[Int] = Array(capacity=0)
   for g in groups {
     let mut found = false
     for id in group_ids {
@@ -844,11 +844,11 @@ pub fn mc_aggregate_rows(
     }
     group_ids[j + 1] = key
   }
-  let out = Array::new()
+  let out = Array(capacity=0)
   for g in group_ids {
     let row = Array::make(p, 0.0)
     for j in 0..<p {
-      let vals = Array::new()
+      let vals = Array(capacity=0)
       for i in 0..<n {
         if groups[i] == g {
           vals.push(matrix[i][j])
@@ -874,7 +874,7 @@ pub fn mc_normalize_tic(intensity : Array[Double]) -> Array[Double] {
   if total <= 0.0 {
     return Array::make(intensity.length(), 0.0)
   }
-  let out = Array::new()
+  let out = Array(capacity=0)
   for v in intensity {
     out.push(v / total * 100.0)
   }

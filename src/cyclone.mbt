@@ -111,7 +111,7 @@ pub fn cyclone_get_gene_pairs() -> Array[GenePair] {
 ///|
 /// Get the unique phases from gene pairs.
 pub fn cyclone_get_phases(gene_pairs : Array[GenePair]) -> Array[String] {
-  let phases : Array[String] = Array::new()
+  let phases : Array[String] = Array(capacity=0)
   for pair in gene_pairs {
     if !phases.contains(pair.phase) {
       phases.push(pair.phase)
@@ -253,12 +253,12 @@ pub fn cyclone_score_cells(
   gene_names : Array[String],
 ) -> Array[CycloneResult] {
   let gene_pairs = cyclone_get_gene_pairs()
-  let results : Array[CycloneResult] = Array::new()
+  let results : Array[CycloneResult] = Array(capacity=0)
   let n_cells = cell_ids.length()
 
   let mut i = 0
   while i < n_cells {
-    let cell_expr : Array[Double] = Array::new()
+    let cell_expr : Array[Double] = Array(capacity=0)
     let n_genes = counts.length()
     let mut j = 0
     while j < n_genes {
@@ -314,7 +314,7 @@ pub fn cyclone_create_test_data() -> (
   let gene_pairs = cyclone_get_gene_pairs()
 
   // Collect all unique gene names from pairs
-  let gene_names : Array[String] = Array::new()
+  let gene_names : Array[String] = Array(capacity=0)
   for pair in gene_pairs {
     if !gene_names.contains(pair.up_gene) {
       gene_names.push(pair.up_gene)
@@ -328,14 +328,14 @@ pub fn cyclone_create_test_data() -> (
   let n_cells = 20
 
   // Create expression data with phase-specific patterns
-  let counts : Array[Array[Double]] = Array::new()
-  let cell_ids : Array[String] = Array::new()
+  let counts : Array[Array[Double]] = Array(capacity=0)
+  let cell_ids : Array[String] = Array(capacity=0)
 
   // Create cells for each phase: 5 G1, 5 S, 5 G2, 5 M
-  let gene_expr : Array[Array[Double]] = Array::new()
+  let gene_expr : Array[Array[Double]] = Array(capacity=0)
   let mut g = 0
   while g < n_genes {
-    let col : Array[Double] = Array::new()
+    let col : Array[Double] = Array(capacity=0)
     let mut c = 0
     while c < n_cells {
       // Determine which phase this cell belongs to

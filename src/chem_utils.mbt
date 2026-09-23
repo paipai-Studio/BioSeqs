@@ -308,7 +308,7 @@ pub fn chem_empirical_formula(element_counts : Map[String, Int]) -> String {
     }
   }
   // Remaining elements alphabetically
-  let remaining = Array::new()
+  let remaining = Array(capacity=0)
   for el in elements {
     if el != "C" && el != "H" {
       remaining.push(el)

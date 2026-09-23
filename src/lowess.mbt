@@ -191,7 +191,7 @@ pub fn lowess(
 ) -> Array[Double] {
   let n = x.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   if n == 1 {
     return [y[0]]
@@ -246,7 +246,7 @@ pub fn lowess(
     }
     // Compute robustness weights for the next iteration
     if step < n_steps {
-      let residuals : Array[Double] = Array::new()
+      let residuals : Array[Double] = Array(capacity=0)
       let mut k = 0
       while k < n {
         residuals.push((y[k] - ys[k]).abs())
@@ -398,7 +398,7 @@ pub fn lowess_smooth_series(
 ) -> Array[Double] {
   let n = values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let x : Array[Double] = Array::make(n, 0.0)
   let mut i = 0

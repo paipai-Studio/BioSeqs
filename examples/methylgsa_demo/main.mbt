@@ -59,7 +59,7 @@ fn main {
   }
 
   println("\n6. BH-FDR correction")
-  let results : Array[@src.MethylgsaResult] = Array::new()
+  let results : Array[@src.MethylgsaResult] = Array(capacity=0)
   results.push(
     @src.methylgsa_result_new(
       set_name="SetA", set_size=10, statistic=5.0,

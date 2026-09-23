@@ -11,9 +11,9 @@ fn main {
   // Longer genes are more likely to be differentially expressed
   println("--- Step 1: Create Gene Data ---")
 
-  let gene_names : Array[String] = Array::new()
-  let gene_lengths : Array[Double] = Array::new()
-  let de_status : Array[Int] = Array::new()
+  let gene_names : Array[String] = Array(capacity=0)
+  let gene_lengths : Array[Double] = Array(capacity=0)
+  let de_status : Array[Int] = Array(capacity=0)
 
   // Short genes (500-1500 bp): 10% DE
   let mut i = 0

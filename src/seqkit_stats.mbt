@@ -78,7 +78,7 @@ pub fn seqkit_stats(
   is_nucleotide : Bool,
   is_fastq : Bool,
 ) -> SeqkitStats {
-  let lengths : Array[Int] = Array::new()
+  let lengths : Array[Int] = Array(capacity=0)
   let mut sum_len = 0
   let mut gc = 0
   let mut gap = 0

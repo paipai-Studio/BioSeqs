@@ -122,7 +122,7 @@ fn ebseq_median(vals : Array[Double]) -> Double {
     return 0.0
   }
   // Copy and sort
-  let sorted : Array[Double] = Array::new()
+  let sorted : Array[Double] = Array(capacity=0)
   for v in vals {
     sorted.push(v)
   }
@@ -150,9 +150,9 @@ pub fn ebseq_estimate_size_factors(data : EBSeqDataSet) -> EBSeqDataSet {
   let n_samples = data.sample_names.length()
 
   // Compute geometric mean per gene
-  let geo_means : Array[Double] = Array::new()
+  let geo_means : Array[Double] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
-    let gene_vals : Array[Double] = Array::new()
+    let gene_vals : Array[Double] = Array(capacity=0)
     for j = 0; j < n_samples; j = j + 1 {
       gene_vals.push(data.counts[i][j].to_double())
     }
@@ -160,9 +160,9 @@ pub fn ebseq_estimate_size_factors(data : EBSeqDataSet) -> EBSeqDataSet {
   }
 
   // Compute size factor per sample as median of ratios
-  let size_factors : Array[Double] = Array::new()
+  let size_factors : Array[Double] = Array(capacity=0)
   for j = 0; j < n_samples; j = j + 1 {
-    let ratios : Array[Double] = Array::new()
+    let ratios : Array[Double] = Array(capacity=0)
     for i = 0; i < n_genes; i = i + 1 {
       if geo_means[i] > 0.0 && data.counts[i][j] > 0 {
         ratios.push(data.counts[i][j].to_double() / geo_means[i])
@@ -178,7 +178,7 @@ pub fn ebseq_estimate_size_factors(data : EBSeqDataSet) -> EBSeqDataSet {
 
   // Normalize so geometric mean of size factors is 1
   let gm = ebseq_geometric_mean(size_factors)
-  let norm_sf : Array[Double] = Array::new()
+  let norm_sf : Array[Double] = Array(capacity=0)
   for sf in size_factors {
     if gm > 0.0 {
       norm_sf.push(sf / gm)
@@ -207,8 +207,8 @@ pub fn ebseq_estimate_dispersion(data : EBSeqDataSet) -> EBSeqDataSet {
   let n_samples = data.sample_names.length()
 
   // Get indices for each condition
-  let cond1_idx : Array[Int] = Array::new()
-  let cond2_idx : Array[Int] = Array::new()
+  let cond1_idx : Array[Int] = Array(capacity=0)
+  let cond2_idx : Array[Int] = Array(capacity=0)
   for j = 0; j < n_samples; j = j + 1 {
     if data.conditions[j] == 0 {
       cond1_idx.push(j)
@@ -217,12 +217,12 @@ pub fn ebseq_estimate_dispersion(data : EBSeqDataSet) -> EBSeqDataSet {
     }
   }
 
-  let raw_dispersions : Array[Double] = Array::new()
-  let norm_means : Array[Double] = Array::new()
+  let raw_dispersions : Array[Double] = Array(capacity=0)
+  let norm_means : Array[Double] = Array(capacity=0)
 
   for i = 0; i < n_genes; i = i + 1 {
     // Compute normalized counts for this gene across all samples
-    let norm_counts : Array[Double] = Array::new()
+    let norm_counts : Array[Double] = Array(capacity=0)
     for j = 0; j < n_samples; j = j + 1 {
       if data.size_factors[j] > 0.0 {
         norm_counts.push(data.counts[i][j].to_double() / data.size_factors[j])
@@ -261,7 +261,7 @@ pub fn ebseq_estimate_dispersion(data : EBSeqDataSet) -> EBSeqDataSet {
   let alpha_trend = 0.1
   let beta_trend = 0.5
 
-  let final_dispersions : Array[Double] = Array::new()
+  let final_dispersions : Array[Double] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     let raw_disp = raw_dispersions[i]
     let prior_disp = alpha_trend + beta_trend * @math.exp(-norm_means[i])
@@ -445,8 +445,8 @@ pub fn ebseq_ppde(data : EBSeqDataSet) -> Array[Double] {
   let n_samples = data.sample_names.length()
 
   // Get condition indices
-  let cond1_idx : Array[Int] = Array::new()
-  let cond2_idx : Array[Int] = Array::new()
+  let cond1_idx : Array[Int] = Array(capacity=0)
+  let cond2_idx : Array[Int] = Array(capacity=0)
   for j = 0; j < n_samples; j = j + 1 {
     if data.conditions[j] == 0 {
       cond1_idx.push(j)
@@ -456,8 +456,8 @@ pub fn ebseq_ppde(data : EBSeqDataSet) -> Array[Double] {
   }
 
   // Compute marginal likelihoods for each gene
-  let log_ee : Array[Double] = Array::new()
-  let log_de : Array[Double] = Array::new()
+  let log_ee : Array[Double] = Array(capacity=0)
+  let log_de : Array[Double] = Array(capacity=0)
 
   for i = 0; i < n_genes; i = i + 1 {
     let l_ee = ebseq_marginal_ee(
@@ -502,7 +502,7 @@ pub fn ebseq_ppde(data : EBSeqDataSet) -> Array[Double] {
   let p_ee = 1.0 - p_de
 
   // Compute PPDE for each gene
-  let ppde : Array[Double] = Array::new()
+  let ppde : Array[Double] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     // Work in log space to avoid overflow/underflow
     let log_num = @math.ln(p_de) + log_de[i]
@@ -551,8 +551,8 @@ pub fn ebseq_test(
   let n_samples = data.sample_names.length()
 
   // Get condition indices
-  let cond1_idx : Array[Int] = Array::new()
-  let cond2_idx : Array[Int] = Array::new()
+  let cond1_idx : Array[Int] = Array(capacity=0)
+  let cond2_idx : Array[Int] = Array(capacity=0)
   for j = 0; j < n_samples; j = j + 1 {
     if data.conditions[j] == 0 {
       cond1_idx.push(j)
@@ -565,9 +565,9 @@ pub fn ebseq_test(
   let ppde = ebseq_ppde(data)
 
   // Compute condition means and log2 fold change
-  let mean_cond1 : Array[Double] = Array::new()
-  let mean_cond2 : Array[Double] = Array::new()
-  let log2_fc : Array[Double] = Array::new()
+  let mean_cond1 : Array[Double] = Array(capacity=0)
+  let mean_cond2 : Array[Double] = Array(capacity=0)
+  let log2_fc : Array[Double] = Array(capacity=0)
 
   for i = 0; i < n_genes; i = i + 1 {
     // Mean for condition 1 (normalized)
@@ -613,7 +613,7 @@ pub fn ebseq_test(
   }
 
   // Flag DE genes
-  let flag_de : Array[Bool] = Array::new()
+  let flag_de : Array[Bool] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     flag_de.push(ppde[i] >= threshold)
   }
@@ -643,7 +643,7 @@ pub fn ebseq_count_de(result : EBSeqResult) -> Int {
 ///|
 /// Get names of differentially expressed genes.
 pub fn ebseq_get_de_genes(result : EBSeqResult) -> Array[String] {
-  let genes : Array[String] = Array::new()
+  let genes : Array[String] = Array(capacity=0)
   for i = 0; i < result.gene_names.length(); i = i + 1 {
     if result.flag_de[i] {
       genes.push(result.gene_names[i])
@@ -662,7 +662,7 @@ pub fn ebseq_top_genes(
   let actual_n = if n < n_genes { n } else { n_genes }
 
   // Sort indices by PPDE descending (bubble sort)
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     indices.push(i)
   }
@@ -676,7 +676,7 @@ pub fn ebseq_top_genes(
     }
   }
 
-  let top : Array[(String, Double, Double)] = Array::new()
+  let top : Array[(String, Double, Double)] = Array(capacity=0)
   for i = 0; i < actual_n; i = i + 1 {
     let idx = indices[i]
     top.push((result.gene_names[idx], result.ppde[idx], result.log2_fc[idx]))
@@ -699,9 +699,9 @@ pub fn ebseq_sample_dataset() -> EBSeqDataSet {
   ]
   let conditions = [0, 0, 0, 1, 1, 1]
 
-  let counts : Array[Array[Int]] = Array::new()
+  let counts : Array[Array[Int]] = Array(capacity=0)
   for i = 0; i < 20; i = i + 1 {
-    let row : Array[Int] = Array::new()
+    let row : Array[Int] = Array(capacity=0)
     let base = 100.0 + i.to_double() * 50.0
 
     // Determine fold change for condition 2

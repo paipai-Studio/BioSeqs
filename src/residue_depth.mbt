@@ -331,7 +331,7 @@ pub fn calculate_residue_depth_default(
 ///|
 /// Collect all atoms from residues.
 pub fn collect_all_atoms(residues : Array[RDResidue]) -> Array[RDAtom] {
-  let atoms : Array[RDAtom] = Array::new()
+  let atoms : Array[RDAtom] = Array(capacity=0)
 
   let mut i = 0
   while i < residues.length() {
@@ -354,7 +354,7 @@ pub fn analyze_residue_depth(
   probe_radius : Double,
   grid_spacing : Double,
 ) -> Array[RDResult] {
-  let results : Array[RDResult] = Array::new()
+  let results : Array[RDResult] = Array(capacity=0)
 
   let mut i = 0
   while i < residues.length() {
@@ -407,7 +407,7 @@ pub fn find_surface_residues(
   results : Array[RDResult],
   depth_threshold : Double,
 ) -> Array[RDResult] {
-  let surface : Array[RDResult] = Array::new()
+  let surface : Array[RDResult] = Array(capacity=0)
 
   let mut i = 0
   while i < results.length() {
@@ -435,7 +435,7 @@ pub fn find_core_residues(
   results : Array[RDResult],
   depth_threshold : Double,
 ) -> Array[RDResult] {
-  let core : Array[RDResult] = Array::new()
+  let core : Array[RDResult] = Array(capacity=0)
 
   let mut i = 0
   while i < results.length() {

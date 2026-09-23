@@ -259,7 +259,7 @@ fn sasa_is_backbone(name : String) -> Bool {
 /// Fibonacci spiral (golden angle) algorithm. Returns unit vectors.
 /// `n` is clamped to at least 1.
 pub fn sasa_generate_sphere_points(n : Int) -> Array[Vector3] {
-  let points : Array[Vector3] = Array::new()
+  let points : Array[Vector3] = Array(capacity=0)
   let count = if n < 1 { 1 } else { n }
   if count == 1 {
     points.push(Vector3::new(0.0, 0.0, 1.0))
@@ -289,7 +289,7 @@ pub fn sasa_calc(
   n_points : Int,
   probe_radius : Double,
 ) -> Array[SasaResult] {
-  let results : Array[SasaResult] = Array::new()
+  let results : Array[SasaResult] = Array(capacity=0)
   let atoms = structure.get_atoms()
   let n_atoms = atoms.length()
   if n_atoms == 0 {
@@ -297,8 +297,8 @@ pub fn sasa_calc(
   }
 
   // Collect coordinates and per-atom probe-sphere radii.
-  let coords : Array[Vector3] = Array::new()
-  let radii : Array[Double] = Array::new()
+  let coords : Array[Vector3] = Array(capacity=0)
+  let radii : Array[Double] = Array(capacity=0)
   for i in 0..<n_atoms {
     let a = atoms[i]
     coords.push(a.coord)
@@ -325,9 +325,9 @@ pub fn sasa_calc(
 
   // Precompute neighbors for pruning: a point on atom i's sphere can be
   // buried by atom j only if dist(i, j) < radii[i] + radii[j].
-  let neighbors : Array[Array[Int]] = Array::new()
+  let neighbors : Array[Array[Int]] = Array(capacity=0)
   for i in 0..<n_atoms {
-    let nb : Array[Int] = Array::new()
+    let nb : Array[Int] = Array(capacity=0)
     let ci = coords[i]
     let ri = radii[i]
     for j in 0..<n_atoms {
@@ -399,7 +399,7 @@ pub fn sasa_calc_residue(
   atom_results : Array[SasaResult],
   structure : Structure,
 ) -> Array[ResidueSasa] {
-  let results : Array[ResidueSasa] = Array::new()
+  let results : Array[ResidueSasa] = Array(capacity=0)
 
   // Map atom index -> sasa value for robust lookup.
   let sasa_map : Map[Int, Double] = Map([], capacity=atom_results.length())

@@ -19,7 +19,7 @@ pub struct ConsensusNode {
 
 ///|
 pub fn ConsensusNode::new(name : String, is_internal : Bool) -> ConsensusNode {
-  ConsensusNode::{ name, children: Array::new(), support: 0.0, is_internal, }
+  ConsensusNode::{ name, children: Array(capacity=0), support: 0.0, is_internal, }
 }
 
 ///|
@@ -57,7 +57,7 @@ pub fn ConsensusNode::is_leaf(self : ConsensusNode) -> Bool {
 
 ///|
 pub fn ConsensusNode::get_leaves(self : ConsensusNode) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   ignore(get_leaves_recursive(self, result))
   result
 }
@@ -160,7 +160,7 @@ pub fn get_all_splits(
   node : ConsensusNode,
   all_taxa : Array[String],
 ) -> Array[Split] {
-  let result : Array[Split] = Array::new()
+  let result : Array[Split] = Array(capacity=0)
   ignore(get_splits_recursive(node, all_taxa, result))
   result
 }
@@ -174,7 +174,7 @@ fn get_splits_recursive(
   if !node.is_leaf() {
     let node_leaves = node.get_leaves()
 
-    let other_leaves : Array[String] = Array::new()
+    let other_leaves : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < all_taxa.length() {
       let found = contains_string(node_leaves, all_taxa[i])
@@ -215,7 +215,7 @@ pub fn build_consensus(
   threshold : Double,
 ) -> ConsensusTree {
   if trees.length() == 0 {
-    return ConsensusTree::{ nodes: Array::new(), root: None, }
+    return ConsensusTree::{ nodes: Array(capacity=0), root: None, }
   }
 
   let all_taxa = get_all_taxa(trees[0])
@@ -245,7 +245,7 @@ pub fn build_consensus(
   }
 
   let n_trees = trees.length().to_double()
-  let consensus_splits : Array[Split] = Array::new()
+  let consensus_splits : Array[Split] = Array(capacity=0)
 
   let entries = split_counts.iter().collect()
   let mut k = 0
@@ -262,7 +262,7 @@ pub fn build_consensus(
 
   let consensus_root = build_tree_from_splits(all_taxa, consensus_splits)
 
-  ConsensusTree::{ nodes: Array::new(), root: Some(consensus_root), }
+  ConsensusTree::{ nodes: Array(capacity=0), root: Some(consensus_root), }
 }
 
 ///|
@@ -284,7 +284,7 @@ pub fn build_half_consensus(trees : Array[ConsensusTree]) -> ConsensusTree {
 fn get_all_taxa(tree : ConsensusTree) -> Array[String] {
   match tree.root {
     Some(root) => root.get_leaves()
-    None => Array::new()
+    None => Array(capacity=0)
   }
 }
 
@@ -320,8 +320,8 @@ fn build_tree_from_splits(
     let split = sorted_splits[j]
     let split_taxa = split.taxa
 
-    let group = Array::new()
-    let remaining = Array::new()
+    let group = Array(capacity=0)
+    let remaining = Array(capacity=0)
 
     let keys = leaves.keys().collect()
     let mut k = 0
@@ -374,7 +374,7 @@ fn build_tree_from_splits(
 ///|
 fn sort_splits_by_support(splits : Array[Split]) -> Array[Split] {
   let n = splits.length()
-  let result = Array::make(n, Split::new(Array::new()))
+  let result = Array::make(n, Split::new(Array(capacity=0)))
 
   let mut i = 0
   while i < n {
@@ -436,7 +436,7 @@ fn trim_newick(s : String) -> String {
 
 ///|
 fn parse_newick_recursive(s : String, i : Int) -> (ConsensusNode, Int) {
-  let children = Array::new()
+  let children = Array(capacity=0)
 
   let mut idx = i + 1
 
@@ -511,8 +511,8 @@ fn parse_newick_recursive(s : String, i : Int) -> (ConsensusNode, Int) {
 ///|
 pub fn newick_to_tree(newick : String) -> ConsensusTree {
   match parse_consensus_newick(newick) {
-    Some(root) => ConsensusTree::{ nodes: Array::new(), root: Some(root), }
-    None => ConsensusTree::{ nodes: Array::new(), root: None, }
+    Some(root) => ConsensusTree::{ nodes: Array(capacity=0), root: Some(root), }
+    None => ConsensusTree::{ nodes: Array(capacity=0), root: None, }
   }
 }
 
@@ -655,7 +655,7 @@ pub fn calculate_consensus_support(
 ///|
 pub fn get_all_splits_from_trees(trees : Array[ConsensusTree]) -> Array[Split] {
   if trees.length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   let all_taxa = get_all_taxa(trees[0])

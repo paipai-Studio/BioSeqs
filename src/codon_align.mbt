@@ -297,7 +297,7 @@ pub fn count_codon_sites(codon : String) -> (Double, Double) {
 ///|
 /// Get all possible codons reachable via single nucleotide changes.
 fn get_possible_codons(codon : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let bases = ['A', 'T', 'C', 'G']
   let c = codon
   let mut pos = 0
@@ -409,7 +409,7 @@ pub fn calc_dnds_nei_gojobori(seq1 : String, seq2 : String) -> DnDsResult {
 pub fn pairwise_dnds(
   sequences : Array[String],
 ) -> Array[(String, String, DnDsResult)] {
-  let result : Array[(String, String, DnDsResult)] = Array::new()
+  let result : Array[(String, String, DnDsResult)] = Array(capacity=0)
   let n = sequences.length()
   let mut i = 0
   while i < n {
@@ -467,7 +467,7 @@ pub fn codon_usage_bias(seq : String) -> Map[String, Double] {
 ///|
 /// Get all synonymous codons for a given amino acid.
 fn get_synonymous_codons(aa : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let codons = [
     "AAA", "AAC", "AAG", "AAT", "ACA", "ACC", "ACG", "ACT", "AGA", "AGC", "AGG",
     "AGT", "ATA", "ATC", "ATG", "ATT", "CAA", "CAC", "CAG", "CAT", "CCA", "CCC",
@@ -507,7 +507,7 @@ pub fn effective_number_of_codons(seq : String) -> Double {
       let codons = get_synonymous_codons(aa)
       let n_syn = codons.length()
       if n_syn > 1 {
-        let codon_freqs : Array[Double] = Array::new()
+        let codon_freqs : Array[Double] = Array(capacity=0)
         let mut total = 0
         for codon in codons {
           let count = count_codon_in_sequence(seq, codon)

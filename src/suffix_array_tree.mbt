@@ -15,8 +15,8 @@ pub struct SuffixArray {
 pub fn SuffixArray::new(text : String) -> SuffixArray {
   let t = text + "$"
   let n = t.length()
-  let sa : Array[Int] = Array::new()
-  let rank : Array[Int] = Array::new()
+  let sa : Array[Int] = Array(capacity=0)
+  let rank : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     sa.push(i)
     rank.push(t.unsafe_get(i).unsafe_to_char().to_int())
@@ -80,7 +80,7 @@ fn sa_compute_new_rank(
   n : Int,
   k : Int,
 ) -> Array[Int] {
-  let new_rank : Array[Int] = Array::new()
+  let new_rank : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     new_rank.push(0)
   }
@@ -201,7 +201,7 @@ pub fn SuffixArray::count(self : SuffixArray, pattern : String) -> Int {
 pub fn SuffixArray::locate(self : SuffixArray, pattern : String) -> Array[Int] {
   let lower = self.find_lower(pattern)
   let upper = self.find_upper(pattern)
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   if lower == -1 || upper == -1 {
     return result
   }
@@ -259,14 +259,14 @@ pub struct LCPArray {
 pub fn LCPArray::new(sa : SuffixArray) -> LCPArray {
   let n = sa.sa.length()
   let text = sa.text + "$"
-  let rank : Array[Int] = Array::new()
+  let rank : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     rank.push(0)
   }
   for i = 0; i < n; i = i + 1 {
     rank[sa.sa[i]] = i
   }
-  let lcp : Array[Int] = Array::new()
+  let lcp : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     lcp.push(0)
   }
@@ -284,7 +284,7 @@ fn lcp_kasai(
   rank : Array[Int],
   n : Int,
 ) -> Array[Int] {
-  let k_values : Array[Int] = Array::new()
+  let k_values : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     k_values.push(0)
   }
@@ -381,7 +381,7 @@ pub fn SuffixTree::contains(self : SuffixTree, pattern : String) -> Bool {
 
 ///|
 pub fn SuffixTree::locate(self : SuffixTree, pattern : String) -> Array[Int] {
-  let positions : Array[Int] = Array::new()
+  let positions : Array[Int] = Array(capacity=0)
   let t = self.text + "$"
   let n = t.length()
   let m = pattern.length()

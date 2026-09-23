@@ -543,8 +543,8 @@ pub fn BSData::new(
   records : Array[BSRecord],
   sample_names : Array[String],
 ) -> BSData {
-  let coverage : Array[Int] = Array::new()
-  let methylation : Array[Double] = Array::new()
+  let coverage : Array[Int] = Array(capacity=0)
+  let methylation : Array[Double] = Array(capacity=0)
   let chr_set : Map[String, Bool] = Map([], capacity=32)
   let mut i = 0
   while i < records.length() {
@@ -830,7 +830,7 @@ pub fn CovMatrix::to_string(self : CovMatrix) -> String {
 /// Columns are tab- or space-separated. Lines starting with '#' or "chrom" are skipped.
 pub fn bsseq_parse_bed(content : String) -> BSData {
   let lines = split_by_char(content, '\n'.to_int())
-  let records : Array[BSRecord] = Array::new()
+  let records : Array[BSRecord] = Array(capacity=0)
   let mut i = 0
   while i < lines.length() {
     let raw = lines[i]
@@ -898,7 +898,7 @@ pub fn bsseq_parse_bed(content : String) -> BSData {
 /// Lines starting with '#' or "Bismark" are skipped.
 pub fn bsseq_parse_bismark(content : String) -> BSData {
   let lines = split_by_char(content, '\n'.to_int())
-  let records : Array[BSRecord] = Array::new()
+  let records : Array[BSRecord] = Array(capacity=0)
   let mut i = 0
   while i < lines.length() {
     let raw = lines[i]
@@ -962,7 +962,7 @@ pub fn bsseq_parse_bismark(content : String) -> BSData {
 ///|
 /// Return the per-record coverage array.
 pub fn bsseq_get_coverage(bsdata : BSData) -> Array[Int] {
-  let cov : Array[Int] = Array::new()
+  let cov : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < bsdata.records.length() {
     let r = bsdata.records[i]
@@ -975,7 +975,7 @@ pub fn bsseq_get_coverage(bsdata : BSData) -> Array[Int] {
 ///|
 /// Return the per-record methylation rate array (values in [0,1]).
 pub fn bsseq_get_methylation(bsdata : BSData) -> Array[Double] {
-  let meth : Array[Double] = Array::new()
+  let meth : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < bsdata.records.length() {
     let r = bsdata.records[i]
@@ -992,7 +992,7 @@ pub fn bsseq_filter_by_coverage(
   min_cov : Int,
   max_cov : Int,
 ) -> BSData {
-  let filtered : Array[BSRecord] = Array::new()
+  let filtered : Array[BSRecord] = Array(capacity=0)
   let mut i = 0
   while i < bsdata.records.length() {
     let r = bsdata.records[i]
@@ -1008,7 +1008,7 @@ pub fn bsseq_filter_by_coverage(
 ///|
 /// Filter records by methylation context ("CpG", "CHG", or "CHH").
 pub fn bsseq_filter_by_context(bsdata : BSData, context : String) -> BSData {
-  let filtered : Array[BSRecord] = Array::new()
+  let filtered : Array[BSRecord] = Array(capacity=0)
   let mut i = 0
   while i < bsdata.records.length() {
     let r = bsdata.records[i]
@@ -1096,10 +1096,10 @@ pub fn bsseq_bsmooth(bsdata : BSData, window_size : Int) -> BSmoothResult {
   }
   // Multiple chromosomes: smooth the first chromosome for simplicity.
   let target_chr = bsdata.chr_names[0]
-  let pos : Array[Int] = Array::new()
-  let meth_arr : Array[Int] = Array::new()
-  let cov_arr : Array[Int] = Array::new()
-  let raw : Array[Double] = Array::new()
+  let pos : Array[Int] = Array(capacity=0)
+  let meth_arr : Array[Int] = Array(capacity=0)
+  let cov_arr : Array[Int] = Array(capacity=0)
+  let raw : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < bsdata.records.length() {
     let r = bsdata.records[i]
@@ -1173,7 +1173,7 @@ pub fn bsseq_find_dmr(
     return BsseqDMRResult::new([], threshold)
   }
   // Collect indices of significant positions, in input order.
-  let sig_idx : Array[Int] = Array::new()
+  let sig_idx : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < n {
     if tstat_result.t_stat[i].abs() >= threshold {
@@ -1204,7 +1204,7 @@ pub fn bsseq_find_dmr(
     a = a + 1
   }
   // Merge consecutive significant positions into regions.
-  let regions : Array[DMRegion] = Array::new()
+  let regions : Array[DMRegion] = Array(capacity=0)
   let mut start_idx = 0
   let mut k = 1
   while k <= m {
@@ -1223,9 +1223,9 @@ pub fn bsseq_find_dmr(
       let region_end = positions[last]
       let n_cpg = k - start_idx
       // Mean methylation difference over the region.
-      let diffs : Array[Double] = Array::new()
-      let pvals : Array[Double] = Array::new()
-      let fdrs : Array[Double] = Array::new()
+      let diffs : Array[Double] = Array(capacity=0)
+      let pvals : Array[Double] = Array(capacity=0)
+      let fdrs : Array[Double] = Array(capacity=0)
       let mut q = start_idx
       while q < k {
         diffs.push(tstat_result.mean_diff[sig_idx[q]])
@@ -1314,7 +1314,7 @@ pub fn bsseq_dmr_test(
 ///|
 /// Return DMRs whose direction is "hyper" (increased methylation in group 1).
 pub fn bsseq_find_hyper_dmr(dmr_result : BsseqDMRResult) -> Array[DMRegion] {
-  let result : Array[DMRegion] = Array::new()
+  let result : Array[DMRegion] = Array(capacity=0)
   let mut i = 0
   while i < dmr_result.regions.length() {
     if dmr_result.regions[i].direction == "hyper" {
@@ -1328,7 +1328,7 @@ pub fn bsseq_find_hyper_dmr(dmr_result : BsseqDMRResult) -> Array[DMRegion] {
 ///|
 /// Return DMRs whose direction is "hypo" (decreased methylation in group 1).
 pub fn bsseq_find_hypo_dmr(dmr_result : BsseqDMRResult) -> Array[DMRegion] {
-  let result : Array[DMRegion] = Array::new()
+  let result : Array[DMRegion] = Array(capacity=0)
   let mut i = 0
   while i < dmr_result.regions.length() {
     if dmr_result.regions[i].direction == "hypo" {
@@ -1379,7 +1379,7 @@ pub fn bsseq_merge_cpgs(
     }
     i = i + 1
   }
-  let merged : Array[BSRecord] = Array::new()
+  let merged : Array[BSRecord] = Array(capacity=0)
   let mut cur = sorted[0]
   let mut k = 1
   while k < n {
@@ -1441,7 +1441,7 @@ pub fn bsseq_region_methylation(
 ///   becomes 0.5, then recompute meth/unmeth counts preserving coverage.
 pub fn bsseq_normalize(bsdata : BSData, method : String) -> BSData {
   if method == "none" {
-    let copied : Array[BSRecord] = Array::new()
+    let copied : Array[BSRecord] = Array(capacity=0)
     let mut i = 0
     while i < bsdata.records.length() {
       let r = bsdata.records[i]
@@ -1462,7 +1462,7 @@ pub fn bsseq_normalize(bsdata : BSData, method : String) -> BSData {
   if method == "global" {
     let mean_meth = bsseq_mean(bsdata.methylation)
     if mean_meth <= 0.0 || mean_meth >= 1.0 {
-      let copied : Array[BSRecord] = Array::new()
+      let copied : Array[BSRecord] = Array(capacity=0)
       let mut i = 0
       while i < bsdata.records.length() {
         let r = bsdata.records[i]
@@ -1481,7 +1481,7 @@ pub fn bsseq_normalize(bsdata : BSData, method : String) -> BSData {
       return BSData::new(copied, bsdata.sample_names.copy())
     }
     let scale = 0.5 / mean_meth
-    let normalized : Array[BSRecord] = Array::new()
+    let normalized : Array[BSRecord] = Array(capacity=0)
     let mut i = 0
     while i < bsdata.records.length() {
       let r = bsdata.records[i]
@@ -1511,7 +1511,7 @@ pub fn bsseq_normalize(bsdata : BSData, method : String) -> BSData {
     return BSData::new(normalized, bsdata.sample_names.copy())
   }
   // Unknown method: return a copy.
-  let copied : Array[BSRecord] = Array::new()
+  let copied : Array[BSRecord] = Array(capacity=0)
   let mut i = 0
   while i < bsdata.records.length() {
     let r = bsdata.records[i]
@@ -1543,7 +1543,7 @@ pub fn bsseq_summary(bsdata : BSData) -> String {
     "\n"
   let mean_cov = bsseq_mean(
     {
-      let arr : Array[Double] = Array::new()
+      let arr : Array[Double] = Array(capacity=0)
       let mut i = 0
       while i < bsdata.coverage.length() {
         arr.push(bsdata.coverage[i].to_double())
@@ -1553,7 +1553,7 @@ pub fn bsseq_summary(bsdata : BSData) -> String {
     },
   )
   let median_cov = {
-    let arr : Array[Double] = Array::new()
+    let arr : Array[Double] = Array(capacity=0)
     let mut i = 0
     while i < bsdata.coverage.length() {
       arr.push(bsdata.coverage[i].to_double())
@@ -1599,7 +1599,7 @@ pub fn bsseq_combine_samples(samples : Array[BSData]) -> CovMatrix {
   // Build a map from "chr:pos" to (chr, pos) and per-sample lookup.
   let key_to_chr : Map[String, String] = Map([], capacity=1024)
   let key_to_pos : Map[String, Int] = Map([], capacity=1024)
-  let keys : Array[String] = Array::new()
+  let keys : Array[String] = Array(capacity=0)
   let mut s = 0
   while s < n_samples {
     let sample = samples[s]
@@ -1641,10 +1641,10 @@ pub fn bsseq_combine_samples(samples : Array[BSData]) -> CovMatrix {
     i = i + 1
   }
   // Build output arrays.
-  let chr_arr : Array[String] = Array::new()
-  let pos_arr : Array[Int] = Array::new()
-  let cov_arr : Array[Array[Int]] = Array::new()
-  let meth_arr : Array[Array[Int]] = Array::new()
+  let chr_arr : Array[String] = Array(capacity=0)
+  let pos_arr : Array[Int] = Array(capacity=0)
+  let cov_arr : Array[Array[Int]] = Array(capacity=0)
+  let meth_arr : Array[Array[Int]] = Array(capacity=0)
   let mut k = 0
   while k < n_keys {
     let key = keys[k]

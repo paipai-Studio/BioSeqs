@@ -160,7 +160,7 @@ pub fn sce_median(arr : Array[Double]) -> Double {
   if n == 0 {
     return 0.0
   }
-  let sorted : Array[Double] = Array::new()
+  let sorted : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     sorted.push(arr[i])
@@ -275,8 +275,8 @@ pub fn SingleCellExperiment::new(
 pub fn SCEBuilder::new() -> SCEBuilder {
   SCEBuilder::{
     assays: Map([], capacity=4),
-    row_names: Array::new(),
-    col_names: Array::new(),
+    row_names: Array(capacity=0),
+    col_names: Array(capacity=0),
     row_data: Map([], capacity=4),
     col_data: Map([], capacity=4),
     reduced_dims: Map([], capacity=4),
@@ -349,7 +349,7 @@ pub fn SCEBuilder::build(self : SCEBuilder) -> SingleCellExperiment {
     } else {
       0
     }
-    let names : Array[String] = Array::new()
+    let names : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < n {
       names.push("Gene" + (i + 1).to_string())
@@ -370,7 +370,7 @@ pub fn SCEBuilder::build(self : SCEBuilder) -> SingleCellExperiment {
     } else {
       0
     }
-    let names : Array[String] = Array::new()
+    let names : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < n {
       names.push("Cell" + (i + 1).to_string())
@@ -442,11 +442,11 @@ pub fn sce_compute_logcounts(
   size_factors : Array[Double],
 ) -> Array[Array[Double]] {
   let n_genes = counts.length()
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_genes {
     let row_len = counts[i].length()
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < row_len {
       let sf = if j < size_factors.length() && size_factors[j] > 0.0 {
@@ -568,7 +568,7 @@ pub fn sce_compute_size_factors(
   } else {
     sce_compute_library_size_factors(counts)
   }
-  let log_means : Array[Double] = Array::new()
+  let log_means : Array[Double] = Array(capacity=0)
   let n_cells = factors.length()
   let mut i = 0
   while i < n_cells {
@@ -595,10 +595,10 @@ fn sce_center_matrix(m : Array[Array[Double]]) -> Array[Array[Double]] {
     means[j] = sum / rows.to_double()
     j = j + 1
   }
-  let centered : Array[Array[Double]] = Array::new()
+  let centered : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < rows {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < cols {
       row.push(m[i][j] - means[j])
@@ -618,10 +618,10 @@ fn sce_transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
     return []
   }
   let cols = m[0].length()
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < cols {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < rows {
       row.push(m[j][i])
@@ -636,7 +636,7 @@ fn sce_transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 /// Matrix-vector product.
 fn sce_matmul_vec(m : Array[Array[Double]], v : Array[Double]) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < m.length() {
     let mut sum = 0.0
@@ -708,8 +708,8 @@ pub fn sce_compute_pca(
   let centered = sce_center_matrix(transposed)
   let mut cov = sce_covariance(centered)
   let n = cov.length()
-  let components : Array[Array[Double]] = Array::new()
-  let eigenvalues : Array[Double] = Array::new()
+  let components : Array[Array[Double]] = Array(capacity=0)
+  let eigenvalues : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n_components {
     let v = Array::make(n, 0.0)
@@ -771,7 +771,7 @@ pub fn sce_compute_pca(
     }
     s
   }
-  let variance_explained : Array[Double] = Array::new()
+  let variance_explained : Array[Double] = Array(capacity=0)
   let mut y = 0
   while y < eigenvalues.length() {
     variance_explained.push(
@@ -800,10 +800,10 @@ fn sce_matmul(
   let m = a.length()
   let n = if m > 0 { a[0].length() } else { 0 }
   let p = if b.length() > 0 { b[0].length() } else { 0 }
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < m {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < p {
       let mut sum = 0.0
@@ -841,10 +841,10 @@ pub fn sce_compute_tsne(
   }
   let _ = perplexity
   let pca = sce_compute_pca(logcounts, 2)
-  let y : Array[Array[Double]] = Array::new()
+  let y : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < pca.coordinates.length() {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < pca.coordinates[i].length() {
       row.push(pca.coordinates[i][j] + 0.0001 * (i + 1).to_double())
@@ -950,10 +950,10 @@ pub fn sce_compute_umap(
     }
   }
   let pca = sce_compute_pca(logcounts, n_components)
-  let emb : Array[Array[Double]] = Array::new()
+  let emb : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < pca.coordinates.length() {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < pca.coordinates[i].length() {
       row.push(pca.coordinates[i][j])
@@ -972,7 +972,7 @@ pub fn sce_compute_umap(
     )
     let mut a = 0
     while a < n {
-      let neighbors : Array[(Double, Int)] = Array::new()
+      let neighbors : Array[(Double, Int)] = Array(capacity=0)
       let mut b = 0
       while b < n {
         if a != b {
@@ -1078,7 +1078,7 @@ pub fn sce_filter_genes(
   let counts = sce_get_counts(sce)
   let n_genes = counts.length()
   let n_cells = if n_genes > 0 { counts[0].length() } else { 0 }
-  let keep : Array[Int] = Array::new()
+  let keep : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < n_genes {
     let mut n_expressed = 0
@@ -1106,7 +1106,7 @@ pub fn sce_filter_cells(
   let counts = sce_get_counts(sce)
   let n_genes = counts.length()
   let n_cells = if n_genes > 0 { counts[0].length() } else { 0 }
-  let keep : Array[Int] = Array::new()
+  let keep : Array[Int] = Array(capacity=0)
   let mut j = 0
   while j < n_cells {
     let mut n_expressed = 0
@@ -1164,11 +1164,11 @@ pub fn sce_subset_genes(
   while a < assay_names.length() {
     let name = assay_names[a]
     let old = sce.assays[name]
-    let new_mat : Array[Array[Double]] = Array::new()
+    let new_mat : Array[Array[Double]] = Array(capacity=0)
     let mut i = 0
     while i < gene_indices.length() {
       let idx = gene_indices[i]
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       if idx < old.length() {
         let mut j = 0
         while j < old[idx].length() {
@@ -1182,7 +1182,7 @@ pub fn sce_subset_genes(
     new_assays[name] = new_mat
     a = a + 1
   }
-  let new_row_names : Array[String] = Array::new()
+  let new_row_names : Array[String] = Array(capacity=0)
   let mut r = 0
   while r < gene_indices.length() {
     let idx = gene_indices[r]
@@ -1202,7 +1202,7 @@ pub fn sce_subset_genes(
   while k < rd_keys.length() {
     let key = rd_keys[k]
     let old_col = sce.row_data[key]
-    let new_col : Array[String] = Array::new()
+    let new_col : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < gene_indices.length() {
       let idx = gene_indices[i]
@@ -1243,10 +1243,10 @@ pub fn sce_subset_cells(
   while a < assay_names.length() {
     let name = assay_names[a]
     let old = sce.assays[name]
-    let new_mat : Array[Array[Double]] = Array::new()
+    let new_mat : Array[Array[Double]] = Array(capacity=0)
     let mut i = 0
     while i < old.length() {
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       let mut j = 0
       while j < cell_indices.length() {
         let idx = cell_indices[j]
@@ -1263,7 +1263,7 @@ pub fn sce_subset_cells(
     new_assays[name] = new_mat
     a = a + 1
   }
-  let new_col_names : Array[String] = Array::new()
+  let new_col_names : Array[String] = Array(capacity=0)
   let mut c = 0
   while c < cell_indices.length() {
     let idx = cell_indices[c]
@@ -1283,7 +1283,7 @@ pub fn sce_subset_cells(
   while k < cd_keys.length() {
     let key = cd_keys[k]
     let old_col = sce.col_data[key]
-    let new_col : Array[String] = Array::new()
+    let new_col : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < cell_indices.length() {
       let idx = cell_indices[i]
@@ -1306,11 +1306,11 @@ pub fn sce_subset_cells(
   while r < rd_keys.length() {
     let key = rd_keys[r]
     let old = sce.reduced_dims[key]
-    let new_mat : Array[Array[Double]] = Array::new()
+    let new_mat : Array[Array[Double]] = Array(capacity=0)
     let mut i = 0
     while i < cell_indices.length() {
       let idx = cell_indices[i]
-      let row : Array[Double] = Array::new()
+      let row : Array[Double] = Array(capacity=0)
       if idx < old.length() {
         let mut j = 0
         while j < old[idx].length() {
@@ -1376,7 +1376,7 @@ pub fn sce_merge(
   let mut a = 0
   while a < assay_names.length() {
     let name = assay_names[a]
-    let combined : Array[Array[Double]] = Array::new()
+    let combined : Array[Array[Double]] = Array(capacity=0)
     let mut e = 0
     while e < experiments.length() {
       let exp = experiments[e]
@@ -1384,7 +1384,7 @@ pub fn sce_merge(
         Some(m) => {
           let mut i = 0
           while i < m.length() {
-            let row : Array[Double] = Array::new()
+            let row : Array[Double] = Array(capacity=0)
             let mut j = 0
             while j < m[i].length() && j < n_cells {
               row.push(m[i][j])
@@ -1404,7 +1404,7 @@ pub fn sce_merge(
     merged_assays[name] = combined
     a = a + 1
   }
-  let merged_row_names : Array[String] = Array::new()
+  let merged_row_names : Array[String] = Array(capacity=0)
   let mut e = 0
   while e < experiments.length() {
     let exp = experiments[e]
@@ -1418,7 +1418,7 @@ pub fn sce_merge(
   let col_names = if first.col_names.length() > 0 {
     first.col_names
   } else {
-    let names : Array[String] = Array::new()
+    let names : Array[String] = Array(capacity=0)
     let mut i = 0
     while i < n_cells {
       names.push("Cell" + (i + 1).to_string())

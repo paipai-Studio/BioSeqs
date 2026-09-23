@@ -16,12 +16,12 @@ fn vsn_is_na(x : Double) -> Bool {
 ///|
 fn vsn_copy(mat : Array[Array[Double]]) -> Array[Array[Double]] {
   let n = mat.length()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let row = mat[i]
     let m = row.length()
-    let nr : Array[Double] = Array::new()
+    let nr : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < m {
       nr.push(row[j])
@@ -142,7 +142,7 @@ fn vsn_lm(
   let mut a = (sy - b * sx) / n.to_double()
   let mut _it = 0
   while _it < max_iter {
-    let resid : Array[(Int, Double)] = Array::new()
+    let resid : Array[(Int, Double)] = Array(capacity=0)
     let mut i2 = 0
     while i2 < n {
       let e = y[i2] - (a + b * x[i2])
@@ -204,7 +204,7 @@ fn vsn_fit_col(
   ctrl : VSNControl,
 ) -> (VSNColParam, Array[(Double, Double)]) {
   let n = mat.length()
-  let row_means : Array[Double] = Array::new()
+  let row_means : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let mut s = 0.0
@@ -223,8 +223,8 @@ fn vsn_fit_col(
     row_means.push(if c == 0 { 0.0 } else { s / c.to_double() })
     i = i + 1
   }
-  let xs : Array[Double] = Array::new()
-  let ys : Array[Double] = Array::new()
+  let xs : Array[Double] = Array(capacity=0)
+  let ys : Array[Double] = Array(capacity=0)
   let mut i2 = 0
   while i2 < n {
     let v = mat[i2][j]
@@ -237,7 +237,7 @@ fn vsn_fit_col(
   }
   let n_bins = if ctrl.n_bins < 1 { 1 } else { ctrl.n_bins }
   let pts = xs.length()
-  let order : Array[(Double, Double)] = Array::new()
+  let order : Array[(Double, Double)] = Array(capacity=0)
   let mut ii = 0
   while ii < pts {
     order.push((xs[ii], ys[ii]))
@@ -252,8 +252,8 @@ fn vsn_fit_col(
       0
     }
   })
-  let bin_x : Array[Double] = Array::new()
-  let bin_y : Array[Double] = Array::new()
+  let bin_x : Array[Double] = Array(capacity=0)
+  let bin_y : Array[Double] = Array(capacity=0)
   if pts > 0 {
     let bin_size = if pts / n_bins < ctrl.min_bin_count {
       if ctrl.min_bin_count < 1 {
@@ -308,7 +308,7 @@ fn vsn_fit_col(
   }
   let (a, b_fit) = vsn_lm(bin_x, bin_y, ctrl.lts_frac, ctrl.max_iter)
   let bb = if b_fit <= 0.0 { 1.0 } else { b_fit }
-  let ref_ms : Array[(Double, Double)] = Array::new()
+  let ref_ms : Array[(Double, Double)] = Array(capacity=0)
   let mut t = 0
   while t < bin_x.length() {
     ref_ms.push((bin_x[t], bin_y[t]))
@@ -323,7 +323,7 @@ fn vsn_fit(mat : Array[Array[Double]], ctrl : VSNControl) -> VSNResult {
     return VSNResult::{ params: [], reference_mean_sd: [], }
   }
   let cols = mat[0].length()
-  let params : Array[VSNColParam] = Array::new()
+  let params : Array[VSNColParam] = Array(capacity=0)
   let mut ref_out : Array[(Double, Double)] = []
   let mut j = 0
   while j < cols {
@@ -397,10 +397,10 @@ pub fn mean_sd_bins(
 ) -> Array[MeanSDBin] {
   let n = mat.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let cols = mat[0].length()
-  let pts : Array[(Double, Double)] = Array::new()
+  let pts : Array[(Double, Double)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let mut j = 0
@@ -425,7 +425,7 @@ pub fn mean_sd_bins(
   })
   let nb = if n_bins < 1 { 1 } else { n_bins }
   let total = pts.length()
-  let out : Array[MeanSDBin] = Array::new()
+  let out : Array[MeanSDBin] = Array(capacity=0)
   if total == 0 {
     return out
   }
@@ -555,14 +555,14 @@ pub fn vsn_denoise(
     return out
   }
   let cols = out[0].length()
-  let vars : Array[Double] = Array::new()
+  let vars : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < cols {
     let (_, sd) = vsn_col_mean_sd(out, j)
     vars.push(sd * sd)
     j = j + 1
   }
-  let sorted_vars : Array[Double] = Array::new()
+  let sorted_vars : Array[Double] = Array(capacity=0)
   for v in vars {
     sorted_vars.push(v)
   }

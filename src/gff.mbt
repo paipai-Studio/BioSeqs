@@ -145,7 +145,7 @@ pub struct GFFRecord {
 ///|
 pub fn GFFRecord::new() -> GFFRecord {
   GFFRecord::{
-    features: Array::new(),
+    features: Array(capacity=0),
     sequences: Map([], capacity=0),
     version: "3",
   }
@@ -194,7 +194,7 @@ pub fn GFFRecord::get_features_by_type(
   self : GFFRecord,
   feature_type : String,
 ) -> Array[GFFFeature] {
-  let result : Array[GFFFeature] = Array::new()
+  let result : Array[GFFFeature] = Array(capacity=0)
   let mut i = 0
   while i < self.features.length() {
     if self.features[i].feature_type == feature_type {
@@ -210,7 +210,7 @@ pub fn GFFRecord::get_features_by_seqid(
   self : GFFRecord,
   seqid : String,
 ) -> Array[GFFFeature] {
-  let result : Array[GFFFeature] = Array::new()
+  let result : Array[GFFFeature] = Array(capacity=0)
   let mut i = 0
   while i < self.features.length() {
     if self.features[i].seqid == seqid {
@@ -226,7 +226,7 @@ pub fn GFFRecord::get_features_by_id(
   self : GFFRecord,
   id : String,
 ) -> Array[GFFFeature] {
-  let result : Array[GFFFeature] = Array::new()
+  let result : Array[GFFFeature] = Array(capacity=0)
   let mut i = 0
   while i < self.features.length() {
     match self.features[i].get_id() {
@@ -243,7 +243,7 @@ pub fn GFFRecord::get_child_features(
   self : GFFRecord,
   parent_id : String,
 ) -> Array[GFFFeature] {
-  let result : Array[GFFFeature] = Array::new()
+  let result : Array[GFFFeature] = Array(capacity=0)
   let mut i = 0
   while i < self.features.length() {
     match self.features[i].get_parent() {
@@ -299,7 +299,7 @@ pub fn GFFRecord::get_cds_for_transcript(
   self : GFFRecord,
   transcript_id : String,
 ) -> Array[GFFFeature] {
-  let result : Array[GFFFeature] = Array::new()
+  let result : Array[GFFFeature] = Array(capacity=0)
   let children = self.get_child_features(transcript_id)
 
   let mut i = 0
@@ -567,7 +567,7 @@ pub fn GFFRecord::count_features(self : GFFRecord) -> Int {
 
 ///|
 pub fn GFFRecord::get_unique_seqids(self : GFFRecord) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([], capacity=0)
 
   let mut i = 0
@@ -585,7 +585,7 @@ pub fn GFFRecord::get_unique_seqids(self : GFFRecord) -> Array[String] {
 
 ///|
 pub fn GFFRecord::get_unique_feature_types(self : GFFRecord) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([], capacity=0)
 
   let mut i = 0
@@ -608,7 +608,7 @@ pub fn GFFRecord::get_features_in_range(
   start : Int,
   end : Int,
 ) -> Array[GFFFeature] {
-  let result : Array[GFFFeature] = Array::new()
+  let result : Array[GFFFeature] = Array(capacity=0)
   let mut i = 0
   while i < self.features.length() {
     let f = self.features[i]

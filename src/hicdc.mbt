@@ -447,8 +447,8 @@ pub fn hicdc_fit_background(
   let beta = Array::make(n_params, 0.0)
   beta[0] = log_total // start from mean
   // Build design matrix.
-  let design : Array[Array[Double]] = Array::new()
-  let y : Array[Double] = Array::new()
+  let design : Array[Array[Double]] = Array(capacity=0)
+  let y : Array[Double] = Array(capacity=0)
   for c in contacts {
     let row = [
       1.0,
@@ -493,7 +493,7 @@ pub fn hicdc_fit_background(
       z[i] = eta
     }
     // Weighted least squares.
-    let xtwx = Array::new()
+    let xtwx = Array(capacity=0)
     for _ in 0..<n_params {
       xtwx.push(Array::make(n_params, 0.0))
     }
@@ -534,7 +534,7 @@ pub fn hicdc_predict_expected(
   beta_gc : Double,
   beta_map : Double,
 ) -> Array[Double] {
-  let expected : Array[Double] = Array::new()
+  let expected : Array[Double] = Array(capacity=0)
   for c in contacts {
     let eta = intercept +
       beta_dist * hc_log(1.0 + c.distance.to_double()) +
@@ -564,7 +564,7 @@ pub fn hicdc_test_significance(
   dispersion : Double,
 ) -> Array[HiCDCResult] {
   let n = contacts.length()
-  let results : Array[HiCDCResult] = Array::new()
+  let results : Array[HiCDCResult] = Array(capacity=0)
   for c in contacts {
     let eta = intercept +
       beta_dist * hc_log(1.0 + c.distance.to_double()) +
@@ -717,7 +717,7 @@ pub fn hicdc_call_tads(
   chr : String,
 ) -> Array[TADBoundary] {
   let di = hicdc_directionality_index(contacts, n_bins, window)
-  let boundaries : Array[TADBoundary] = Array::new()
+  let boundaries : Array[TADBoundary] = Array(capacity=0)
   for i in 1..<n_bins {
     // Detect sign change from negative to positive (boundary).
     if di[i - 1] < 0.0 && di[i] >= 0.0 {
@@ -746,7 +746,7 @@ pub fn hicdc_call_compartments(
   chr : String,
 ) -> Array[CompartmentCall] {
   // Build contact matrix.
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   for _ in 0..<n_bins {
     matrix.push(Array::make(n_bins, 0.0))
   }
@@ -761,7 +761,7 @@ pub fn hicdc_call_compartments(
     }
   }
   // Compute Pearson correlation matrix.
-  let corr = Array::new()
+  let corr = Array(capacity=0)
   for i in 0..<n_bins {
     let row = Array::make(n_bins, 0.0)
     let mean_i = hc_mean(matrix[i])
@@ -783,7 +783,7 @@ pub fn hicdc_call_compartments(
   // Power iteration for first principal component.
   let pc1 = hc_power_iteration(corr, n_bins, 100)
   // Assign compartments based on sign.
-  let result : Array[CompartmentCall] = Array::new()
+  let result : Array[CompartmentCall] = Array(capacity=0)
   for i in 0..<n_bins {
     let comp = if pc1[i] >= 0.0 { "A" } else { "B" }
     result.push(CompartmentCall::{
@@ -887,7 +887,7 @@ fn hc_solve(matrix : Array[Array[Double]], b : Array[Double]) -> Array[Double]? 
   if n == 0 {
     return Some([])
   }
-  let m : Array[Array[Double]] = Array::new()
+  let m : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n {
     let row = Array::make(n + 1, 0.0)
     for j in 0..<n {
@@ -963,7 +963,7 @@ pub fn hicdc_differential(
     map2.set(key, c)
   }
   // Fit background on pooled data.
-  let pooled : Array[HiCContact] = Array::new()
+  let pooled : Array[HiCContact] = Array(capacity=0)
   for c in contacts1 {
     pooled.push(c)
   }
@@ -974,7 +974,7 @@ pub fn hicdc_differential(
     pooled,
   )
   // Test each contact from condition 1 for differential enrichment.
-  let results : Array[HiCDCResult] = Array::new()
+  let results : Array[HiCDCResult] = Array(capacity=0)
   for c1 in contacts1 {
     let key = c1.chr + "_" + c1.bin1.to_string() + "_" + c1.bin2.to_string()
     let c2_opt = map2.get(key)
@@ -1048,7 +1048,7 @@ pub fn hicdc_run(
 /// Simulates contacts on a single chromosome with 20 bins.
 /// Includes distance-dependent decay and some enriched (loop) contacts.
 pub fn hicdc_sample_data() -> Array[HiCContact] {
-  let contacts : Array[HiCContact] = Array::new()
+  let contacts : Array[HiCContact] = Array(capacity=0)
   let chr = "chr1"
   let bin_size = 1 // simplified bin index
   let n_bins = 20

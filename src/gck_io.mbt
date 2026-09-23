@@ -315,7 +315,7 @@ pub fn gck_from_bytes(data : Array[Int]) -> GckFile {
     }
     let seg_count = gck_read_u16_be(data, offset)
     offset = offset + 2
-    let segs = Array::new()
+    let segs = Array(capacity=0)
     for _ in 0..<seg_count {
       if offset + 8 > n {
         break
@@ -354,7 +354,7 @@ pub fn gck_write(file : GckFile) -> String {
 ///|
 /// Serialize a GckFile to a byte array.
 pub fn gck_to_bytes(file : GckFile) -> Array[Int] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   // Magic
   let magic = gck_string_to_ascii("GCK_FILE")
   for b in magic {

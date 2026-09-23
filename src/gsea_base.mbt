@@ -79,7 +79,7 @@ fn gs_trim(s : String) -> String {
 
 ///|
 fn gs_split(s : String, sep_u16 : UInt16) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   let mut buf = StringBuilder::new()
   let n = s.length()
   let mut i = 0
@@ -186,8 +186,8 @@ pub fn GmtGeneSet::new(
   description : String,
   gene_ids : Array[String],
 ) -> GmtGeneSet {
-  let uniq : Array[String] = Array::new()
-  let seen : Array[String] = Array::new()
+  let uniq : Array[String] = Array(capacity=0)
+  let seen : Array[String] = Array(capacity=0)
   for x in gene_ids {
     let t = gs_trim(x)
     if t.length() == 0 {
@@ -291,8 +291,8 @@ pub fn gene_set_overlap_coef(a : GmtGeneSet, b : GmtGeneSet) -> Double {
 
 ///|
 pub fn gene_set_union_arr(a : GmtGeneSet, b : GmtGeneSet) -> Array[String] {
-  let out : Array[String] = Array::new()
-  let seen : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
+  let seen : Array[String] = Array(capacity=0)
   for g in a.gene_ids {
     let u = gs_str_upper(g)
     let mut f = false
@@ -326,7 +326,7 @@ pub fn gene_set_union_arr(a : GmtGeneSet, b : GmtGeneSet) -> Array[String] {
 
 ///|
 pub fn gene_set_intersect_arr(a : GmtGeneSet, b : GmtGeneSet) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for g in a.gene_ids {
     if b.has_gene(g) {
       out.push(g)
@@ -337,7 +337,7 @@ pub fn gene_set_intersect_arr(a : GmtGeneSet, b : GmtGeneSet) -> Array[String] {
 
 ///|
 pub fn gene_set_setdiff(a : GmtGeneSet, b : GmtGeneSet) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for g in a.gene_ids {
     if !b.has_gene(g) {
       out.push(g)
@@ -359,7 +359,7 @@ pub struct GmtGeneSetCollection {
 pub fn GmtGeneSetCollection::new(
   sets : Array[GmtGeneSet],
 ) -> GmtGeneSetCollection {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   for s in sets {
     names.push(s.name)
   }
@@ -398,7 +398,7 @@ pub fn GmtGeneSetCollection::at(
 pub fn GmtGeneSetCollection::all_sizes(
   self : GmtGeneSetCollection,
 ) -> Array[Int] {
-  let out : Array[Int] = Array::new()
+  let out : Array[Int] = Array(capacity=0)
   for s in self.sets {
     out.push(s.size())
   }
@@ -458,7 +458,7 @@ pub fn collection_filter_by_size(
   min_size : Int,
   max_size : Int,
 ) -> GmtGeneSetCollection {
-  let kept : Array[GmtGeneSet] = Array::new()
+  let kept : Array[GmtGeneSet] = Array(capacity=0)
   for s in col.sets {
     let sz = s.size()
     if sz >= min_size && sz <= max_size {
@@ -473,13 +473,13 @@ pub fn collection_filter_by_gene(
   col : GmtGeneSetCollection,
   gene_universe : Array[String],
 ) -> GmtGeneSetCollection {
-  let kept : Array[GmtGeneSet] = Array::new()
-  let univ : Array[String] = Array::new()
+  let kept : Array[GmtGeneSet] = Array(capacity=0)
+  let univ : Array[String] = Array(capacity=0)
   for g in gene_universe {
     univ.push(gs_str_upper(gs_trim(g)))
   }
   for s in col.sets {
-    let filt : Array[String] = Array::new()
+    let filt : Array[String] = Array(capacity=0)
     for g in s.gene_ids {
       let gu = gs_str_upper(g)
       for u in univ {
@@ -502,8 +502,8 @@ pub fn collection_filter_by_gene(
 
 ///|
 pub fn collection_gene_union(col : GmtGeneSetCollection) -> Array[String] {
-  let out : Array[String] = Array::new()
-  let seen : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
+  let seen : Array[String] = Array(capacity=0)
   for s in col.sets {
     for g in s.gene_ids {
       let u = gs_str_upper(g)
@@ -528,10 +528,10 @@ pub fn collection_pairwise_jaccard(
   col : GmtGeneSetCollection,
 ) -> Array[Array[Double]] {
   let n = col.sets.length()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       let v = if i == j {
@@ -553,7 +553,7 @@ pub fn collection_pairwise_jaccard(
 ///|
 pub fn parse_gmt(content : String) -> GmtGeneSetCollection {
   let lines = gs_split(content, '\n'.to_int().to_uint16())
-  let result : Array[GmtGeneSet] = Array::new()
+  let result : Array[GmtGeneSet] = Array(capacity=0)
   let n = lines.length()
   let mut idx = 0
   while idx < n {
@@ -578,7 +578,7 @@ pub fn parse_gmt(content : String) -> GmtGeneSetCollection {
     }
     let name = gs_trim(parts[0])
     let desc = gs_trim(parts[1])
-    let genes : Array[String] = Array::new()
+    let genes : Array[String] = Array(capacity=0)
     let plen = parts.length()
     let mut i = 2
     while i < plen {
@@ -618,7 +618,7 @@ pub fn write_gmt(col : GmtGeneSetCollection) -> String {
 pub fn parse_gmx(content : String) -> GmtGeneSetCollection {
   let tab16 = '\t'.to_int().to_uint16()
   let lines = gs_split(content, '\n'.to_int().to_uint16())
-  let nonblank : Array[Array[String]] = Array::new()
+  let nonblank : Array[Array[String]] = Array(capacity=0)
   for raw in lines {
     let line = gs_trim(raw)
     if line.length() == 0 {
@@ -635,7 +635,7 @@ pub fn parse_gmx(content : String) -> GmtGeneSetCollection {
   let headers = nonblank[0]
   let descs = nonblank[1]
   let n_sets = headers.length()
-  let set_genes : Array[Array[String]] = Array::new()
+  let set_genes : Array[Array[String]] = Array(capacity=0)
   let mut set_i = 0
   while set_i < n_sets {
     set_genes.push([])
@@ -660,7 +660,7 @@ pub fn parse_gmx(content : String) -> GmtGeneSetCollection {
     }
     row_i = row_i + 1
   }
-  let result : Array[GmtGeneSet] = Array::new()
+  let result : Array[GmtGeneSet] = Array(capacity=0)
   let mut j = 0
   while j < n_sets {
     let nm = gs_trim(headers[j])

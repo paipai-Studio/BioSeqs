@@ -85,9 +85,9 @@ pub fn motif_pwm_from_counts(
 ) -> Array[Array[Double]] {
   let n_bases = counts.length()
   let width = if n_bases == 0 { 0 } else { counts[0].length() }
-  let pwm : Array[Array[Double]] = Array::new()
+  let pwm : Array[Array[Double]] = Array(capacity=0)
   for _i in 0..<n_bases {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for _j in 0..<width {
       row.push(0.0)
     }
@@ -117,9 +117,9 @@ pub fn motif_pssm_from_pwm(
 ) -> Array[Array[Double]] {
   let n_bases = pwm.length()
   let width = if n_bases == 0 { 0 } else { pwm[0].length() }
-  let pssm : Array[Array[Double]] = Array::new()
+  let pssm : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n_bases {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j in 0..<width {
       let p = pwm[i][j]
       let ratio = p / bg[i]
@@ -229,8 +229,8 @@ fn motifmatchr_scan_one(
   cutoff : Double,
 ) -> (Array[Bool], Array[Double], Int, Double) {
   let n = seq.length()
-  let hits : Array[Bool] = Array::new()
-  let scores : Array[Double] = Array::new()
+  let hits : Array[Bool] = Array(capacity=0)
+  let scores : Array[Double] = Array(capacity=0)
   let mut count = 0
   let mut max_score = -1.0e9
   if width == 0 || n < width {
@@ -267,7 +267,7 @@ pub fn match_motifs(
   bg~ : Array[Double] = motifmatchr_default_bg(),
   cutoff~ : Double = 0.0,
 ) -> Array[MotifMatches] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   for i in 0..<sequences.length() {
     if i < seq_names.length() {
       names.push(seq_names[i])
@@ -275,14 +275,14 @@ pub fn match_motifs(
       names.push("seq" + i.to_string())
     }
   }
-  let results : Array[MotifMatches] = Array::new()
+  let results : Array[MotifMatches] = Array(capacity=0)
   for motif in motifs {
     let pssm = motif_pssm_from_pwm(motif.pwm, bg~)
     let width = motif.len()
-    let hits_all : Array[Array[Bool]] = Array::new()
-    let scores_all : Array[Array[Double]] = Array::new()
-    let counts : Array[Int] = Array::new()
-    let max_scores : Array[Double] = Array::new()
+    let hits_all : Array[Array[Bool]] = Array(capacity=0)
+    let scores_all : Array[Array[Double]] = Array(capacity=0)
+    let counts : Array[Int] = Array(capacity=0)
+    let max_scores : Array[Double] = Array(capacity=0)
     for seq in sequences {
       let (hits, scores, count, best) = motifmatchr_scan_one(
         pssm, seq, width, cutoff,
@@ -331,7 +331,7 @@ pub fn MotifMatches::best_score(self : MotifMatches) -> Double {
 ///|
 /// Hit matrix as a flat list of `(seq_index, position)` pairs.
 pub fn MotifMatches::hit_positions(self : MotifMatches) -> Array[(Int, Int)] {
-  let positions : Array[(Int, Int)] = Array::new()
+  let positions : Array[(Int, Int)] = Array(capacity=0)
   for seq_idx in 0..<self.hits.length() {
     for pos in 0..<self.hits[seq_idx].length() {
       if self.hits[seq_idx][pos] {

@@ -47,7 +47,7 @@ fn tgw_is_space(c : Char) -> Bool {
 ///|
 /// Convert a string to an array of characters (code points).
 fn tgw_chars(s : String) -> Array[Char] {
-  let out : Array[Char] = Array::new(capacity=s.length())
+  let out : Array[Char] = Array(capacity=s.length())
   for ch in s {
     out.push(ch)
   }

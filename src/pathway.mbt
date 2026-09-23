@@ -133,8 +133,8 @@ pub fn Reaction::species(self : Reaction) -> Array[String] {
 /// Human-readable string: ``S1 + S2 --> P1 + P2`` or with ``<->`` for
 /// reversible reactions.
 pub fn Reaction::to_string(self : Reaction) -> String {
-  let substrates : Array[String] = Array::new()
-  let products : Array[String] = Array::new()
+  let substrates : Array[String] = Array(capacity=0)
+  let products : Array[String] = Array(capacity=0)
   let keys = self.reactants.keys().collect()
   let mut i = 0
   while i < keys.length() {
@@ -207,7 +207,7 @@ pub fn System::stochiometry(self : System) -> (Array[String], Array[Reaction], A
   let n_rx = reactions.length()
 
   // Initialize matrix with zeros.
-  let stoch : Array[Array[Double]] = Array::new()
+  let stoch : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n_sp {
     let row : Array[Double] = Array::make(n_rx, 0.0)
@@ -350,7 +350,7 @@ pub fn Network::species(self : Network) -> Array[String] {
 /// (i.e. who *produce* it).
 pub fn Network::source(self : Network, species : String) -> Array[String] {
   let ins = _pathway_get_or_empty(self.in_adj, species)
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([])
   let mut i = 0
   while i < ins.length() {
@@ -369,7 +369,7 @@ pub fn Network::source(self : Network, species : String) -> Array[String] {
 /// (i.e. that it *produces*).
 pub fn Network::sink(self : Network, species : String) -> Array[String] {
   let outs = _pathway_get_or_empty(self.out_adj, species)
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([])
   let mut i = 0
   while i < outs.length() {

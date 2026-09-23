@@ -74,7 +74,7 @@ test "methylrra_robust empty set" {
 
 ///|
 test "methylgsa bh correction monotone" {
-  let results : Array[@src.MethylgsaResult] = Array::new()
+  let results : Array[@src.MethylgsaResult] = Array(capacity=0)
   results.push(
     @src.methylgsa_result_new(
       set_name="a",

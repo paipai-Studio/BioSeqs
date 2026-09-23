@@ -574,8 +574,8 @@ pub fn feature_counts_count(
     1
   }
 
-  let feat_ids : Array[String] = Array::new()
-  let gene_ids : Array[String] = Array::new()
+  let feat_ids : Array[String] = Array(capacity=0)
+  let gene_ids : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n_features {
     feat_ids.push(features[i].feature_id)
@@ -583,10 +583,10 @@ pub fn feature_counts_count(
     i = i + 1
   }
 
-  let counts : Array[Array[Double]] = Array::new()
+  let counts : Array[Array[Double]] = Array(capacity=0)
   let mut s = 0
   while s < n_samples {
-    let sample_counts : Array[Double] = Array::new()
+    let sample_counts : Array[Double] = Array(capacity=0)
     let mut f = 0
     while f < n_features {
       sample_counts.push(0.0)
@@ -596,13 +596,13 @@ pub fn feature_counts_count(
     s = s + 1
   }
 
-  let total_reads : Array[Int] = Array::new()
-  let assigned_reads : Array[Int] = Array::new()
-  let unassigned_no_features : Array[Int] = Array::new()
-  let unassigned_ambiguous : Array[Int] = Array::new()
-  let unassigned_multi : Array[Int] = Array::new()
-  let unassigned_low_quality : Array[Int] = Array::new()
-  let unassigned_overlap : Array[Int] = Array::new()
+  let total_reads : Array[Int] = Array(capacity=0)
+  let assigned_reads : Array[Int] = Array(capacity=0)
+  let unassigned_no_features : Array[Int] = Array(capacity=0)
+  let unassigned_ambiguous : Array[Int] = Array(capacity=0)
+  let unassigned_multi : Array[Int] = Array(capacity=0)
+  let unassigned_low_quality : Array[Int] = Array(capacity=0)
+  let unassigned_overlap : Array[Int] = Array(capacity=0)
 
   let mut si = 0
   while si < n_samples {
@@ -619,7 +619,7 @@ pub fn feature_counts_count(
   let sn = if sample_names.length() > 0 {
     sample_names
   } else {
-    let def : Array[String] = Array::new()
+    let def : Array[String] = Array(capacity=0)
     def.push("sample_1")
     def
   }
@@ -646,7 +646,7 @@ pub fn feature_counts_count(
 
     let read_len = f_end - f_start + 1
 
-    let overlapping : Array[(Int, Int)] = Array::new()
+    let overlapping : Array[(Int, Int)] = Array(capacity=0)
     let mut fi = 0
     while fi < n_features {
       let feat = features[fi]
@@ -739,7 +739,7 @@ pub fn feature_counts_sample_data() -> (
   Array[ReadAlignment],
   Array[String],
 ) {
-  let features : Array[FeatureAnnotation] = Array::new()
+  let features : Array[FeatureAnnotation] = Array(capacity=0)
   features.push(
     FeatureAnnotation::new(
       chr="chr1",
@@ -781,7 +781,7 @@ pub fn feature_counts_sample_data() -> (
     ),
   )
 
-  let reads : Array[ReadAlignment] = Array::new()
+  let reads : Array[ReadAlignment] = Array(capacity=0)
   reads.push(
     ReadAlignment::new(read_id="read1", chr="chr1", start=1500, end_=1600),
   )
@@ -816,7 +816,7 @@ pub fn feature_counts_sample_data() -> (
     ReadAlignment::new(read_id="read7", chr="chr1", start=1700, end_=1800),
   )
 
-  let sample_names : Array[String] = Array::new()
+  let sample_names : Array[String] = Array(capacity=0)
   sample_names.push("sample_1")
 
   (features, reads, sample_names)

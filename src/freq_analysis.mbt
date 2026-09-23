@@ -50,7 +50,7 @@ pub fn FreqAnalysisResult::fa_get_total_count(self : FreqAnalysisResult) -> Int 
 pub fn FreqAnalysisResult::fa_get_patterns(
   self : FreqAnalysisResult,
 ) -> Array[String] {
-  let patterns : Array[String] = Array::new()
+  let patterns : Array[String] = Array(capacity=0)
   for key in self.frequencies.keys() {
     patterns.push(key)
   }
@@ -283,7 +283,7 @@ pub fn fa_find_overrepresented(
 ///|
 /// Find all occurrences of a motif in a sequence.
 pub fn fa_find_motif(sequence : String, motif : String) -> Array[Int] {
-  let positions : Array[Int] = Array::new()
+  let positions : Array[Int] = Array(capacity=0)
   let motif_len = motif.length()
   let seq_len = sequence.length()
 

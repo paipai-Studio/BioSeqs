@@ -583,7 +583,7 @@ pub fn annotate_peaks(
   genes : Array[GeneAnnotation],
   promoter_window : Int,
 ) -> Array[PeakAnnotation] {
-  let result : Array[PeakAnnotation] = Array::new()
+  let result : Array[PeakAnnotation] = Array(capacity=0)
   for peak in peaks {
     result.push(annotate_peak(peak, genes, promoter_window))
   }
@@ -632,7 +632,7 @@ pub fn filter_by_feature(
   annotations : Array[PeakAnnotation],
   feature : String,
 ) -> Array[PeakAnnotation] {
-  let result : Array[PeakAnnotation] = Array::new()
+  let result : Array[PeakAnnotation] = Array(capacity=0)
   for ann in annotations {
     if ann.feature == feature {
       result.push(ann)
@@ -649,7 +649,7 @@ pub fn filter_by_distance(
   annotations : Array[PeakAnnotation],
   max_distance : Int,
 ) -> Array[PeakAnnotation] {
-  let result : Array[PeakAnnotation] = Array::new()
+  let result : Array[PeakAnnotation] = Array(capacity=0)
   for ann in annotations {
     if ann.distance_to_tss.abs() <= max_distance {
       result.push(ann)

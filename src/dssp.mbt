@@ -49,7 +49,7 @@ pub fn DSSPResult::new(records : Array[DSSPRecord]) -> DSSPResult {
 
 ///|
 pub fn parse_dssp(data : String) -> DSSPResult {
-  let records : Array[DSSPRecord] = Array::new()
+  let records : Array[DSSPRecord] = Array(capacity=0)
 
   let lines = split_by_char(data, '\n'.to_int())
   let mut i = 0
@@ -137,7 +137,7 @@ pub fn calculate_solvent_accessibility(
   sequence : String,
   structure : String,
 ) -> Array[Int] {
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
 
   let mut i = 0
   while i < sequence.length() {
@@ -209,7 +209,7 @@ fn estimate_accessibility(
 pub fn calculate_ramachandran_plot(
   records : Array[DSSPRecord],
 ) -> Array[(Double, Double)] {
-  let result : Array[(Double, Double)] = Array::new()
+  let result : Array[(Double, Double)] = Array(capacity=0)
 
   let mut i = 0
   while i < records.length() {
@@ -251,7 +251,7 @@ pub fn analyze_structure_composition(
 
 ///|
 pub fn create_example_dssp_data() -> DSSPResult {
-  let records : Array[DSSPRecord] = Array::new()
+  let records : Array[DSSPRecord] = Array(capacity=0)
 
   records.push(DSSPRecord::new("A", 1, "", "M", "-", 100, -60.0, -40.0))
   records.push(DSSPRecord::new("A", 2, "", "S", "H", 50, -57.0, -47.0))

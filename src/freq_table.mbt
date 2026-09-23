@@ -67,7 +67,7 @@ pub fn FreqTable::new(
 ) -> FreqTable {
   let data : Map[String, Double] = Map([], capacity=16)
   let count : Map[String, Int] = Map([], capacity=16)
-  let alph : Array[String] = Array::new()
+  let alph : Array[String] = Array(capacity=0)
   // Determine the alphabet.
   match alphabet {
     Some(a) =>
@@ -200,7 +200,7 @@ pub fn FreqTable::contains(self : FreqTable, letter : String) -> Bool {
 ///|
 /// All letters in the table (sorted alphabetically).
 pub fn FreqTable::letters(self : FreqTable) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for ch in self.alphabet {
     out.push(ch)
   }
@@ -235,7 +235,7 @@ pub fn FreqTable::to_string(self : FreqTable) -> String {
 /// Split a text blob into non-empty trimmed tokens, handling whitespace
 /// (spaces, tabs, newlines) uniformly.
 fn freq_table_tokenize(text : String) -> Array[String] {
-  let tokens : Array[String] = Array::new()
+  let tokens : Array[String] = Array(capacity=0)
   let n = text.length()
   let mut i = 0
   let mut buf = StringBuilder::new()

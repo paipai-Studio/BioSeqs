@@ -95,7 +95,7 @@ pub fn hmisc_describe(
   values : Array[Double],
   name? : String = "",
 ) -> HmiscDescriptiveStats {
-  let valid : Array[Double] = Array::new()
+  let valid : Array[Double] = Array(capacity=0)
   let mut n_missing = 0
   let mut i = 0
   while i < values.length() {
@@ -285,9 +285,9 @@ pub fn hmisc_rcorr(
     }
     default_names
   }
-  let matrix : Array[Array[Double]] = Array::new()
-  let p_values : Array[Array[Double]] = Array::new()
-  let n_matrix : Array[Array[Int]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
+  let p_values : Array[Array[Double]] = Array(capacity=0)
+  let n_matrix : Array[Array[Int]] = Array(capacity=0)
   let mut i = 0
   while i < n_vars {
     matrix.push(Array::make(n_vars, 0.0))
@@ -304,8 +304,8 @@ pub fn hmisc_rcorr(
         p_values[i][j] = 0.0
         n_matrix[i][j] = n_obs
       } else if i < j {
-        let x : Array[Double] = Array::new()
-        let y : Array[Double] = Array::new()
+        let x : Array[Double] = Array(capacity=0)
+        let y : Array[Double] = Array(capacity=0)
         let mut k = 0
         while k < n_obs {
           if !data[i][k].is_nan() && !data[j][k].is_nan() {
@@ -468,8 +468,8 @@ pub fn hmisc_varclus(
       i = i + 1
     }
     return HmiscVarClusResult::{
-      merges: Array::new(),
-      heights: Array::new(),
+      merges: Array(capacity=0),
+      heights: Array(capacity=0),
       cluster_assignments: assignments,
       n_clusters: 1,
       names: var_names,
@@ -486,8 +486,8 @@ pub fn hmisc_varclus(
     assignments[i] = i
     i = i + 1
   }
-  let merges : Array[Array[Int]] = Array::new()
-  let heights : Array[Double] = Array::new()
+  let merges : Array[Array[Int]] = Array(capacity=0)
+  let heights : Array[Double] = Array(capacity=0)
   let mut current_n = n_vars
   let max_clusters = hmisc_max_cluster_count(n_vars, min_cluster_size)
   while current_n > max_clusters {
@@ -572,8 +572,8 @@ fn hmisc_cluster_similarity(
   cluster_a : Int,
   cluster_b : Int,
 ) -> Double {
-  let members_a : Array[Int] = Array::new()
-  let members_b : Array[Int] = Array::new()
+  let members_a : Array[Int] = Array(capacity=0)
+  let members_b : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < assignments.length() {
     if assignments[i] == cluster_a {
@@ -613,7 +613,7 @@ fn hmisc_cluster_similarity(
 fn hmisc_unique_values(arr : Array[Int]) -> Array[Int] {
   let sorted = arr.copy()
   sorted.sort()
-  let result = Array::new()
+  let result = Array(capacity=0)
   let mut i = 0
   while i < sorted.length() {
     if i == 0 || sorted[i] != sorted[i - 1] {
@@ -690,7 +690,7 @@ pub fn hmisc_impute(data : Array[Array[Double]]) -> Array[Array[Double]] {
     col_means[col] = if count > 0 { sum / count.to_double() } else { 0.0 }
     col = col + 1
   }
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut row = 0
   while row < n_rows {
     let new_row = Array::make(n_cols, 0.0)

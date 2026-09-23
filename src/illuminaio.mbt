@@ -146,7 +146,7 @@ pub fn parse_idat(data : String) -> IdatResult raise IdatError {
   let n_snps_read = idat_i32(data, ns_off)
 
   let read_i32_array = fn(off : Int) -> Array[Int] raise IdatError {
-    let arr : Array[Int] = Array::new()
+    let arr : Array[Int] = Array(capacity=0)
     let mut k = 0
     while k < n_snps_read {
       arr.push(idat_i32(data, off + 4 * k))
@@ -156,7 +156,7 @@ pub fn parse_idat(data : String) -> IdatResult raise IdatError {
   }
 
   let read_u16_array = fn(off : Int) -> Array[Int] raise IdatError {
-    let arr : Array[Int] = Array::new()
+    let arr : Array[Int] = Array(capacity=0)
     let mut k = 0
     while k < n_snps_read {
       arr.push(idat_u16(data, off + 2 * k))
@@ -166,7 +166,7 @@ pub fn parse_idat(data : String) -> IdatResult raise IdatError {
   }
 
   let read_u8_array = fn(off : Int) -> Array[Int] raise IdatError {
-    let arr : Array[Int] = Array::new()
+    let arr : Array[Int] = Array(capacity=0)
     let mut k = 0
     while k < n_snps_read {
       arr.push(idat_u8(data, off + k))

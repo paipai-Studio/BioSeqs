@@ -210,9 +210,9 @@ test "goseq_set_new" {
 test "goseq_longer_genes_bias_detection" {
   // Test that goseq can detect length bias:
   // Longer genes are more likely to be DE
-  let genes = Array::new()
-  let lengths = Array::new()
-  let de = Array::new()
+  let genes = Array(capacity=0)
+  let lengths = Array(capacity=0)
+  let de = Array(capacity=0)
   let mut i = 0
   while i < 50 {
     // Short genes: 500-1500 bp, mostly non-DE

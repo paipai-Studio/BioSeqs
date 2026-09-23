@@ -568,7 +568,7 @@ pub fn ma_center_coordinates(
   coords : Array[(Double, Double, Double)],
 ) -> Array[(Double, Double, Double)] {
   let centroid = ma_compute_centroid(coords)
-  let result : Array[(Double, Double, Double)] = Array::new()
+  let result : Array[(Double, Double, Double)] = Array(capacity=0)
   let mut i = 0
   while i < coords.length() {
     let (x, y, z) = coords[i]
@@ -588,10 +588,10 @@ pub fn ma_compute_distance_matrix(
 ) -> Array[Array[Double]] {
   let n = coords1.length()
   let m = coords2.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < m {
       row.push(ma_point_distance(coords1[i], coords2[j]))
@@ -614,7 +614,7 @@ pub fn find_corresponding_atoms(
 ) -> Array[(Int, Int)] {
   let n = dist_mat1.length()
   let m = dist_mat2.length()
-  let correspondences : Array[(Int, Int)] = Array::new()
+  let correspondences : Array[(Int, Int)] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -733,7 +733,7 @@ pub fn apply_rotation(
   rotation : (Double, Double, Double),
 ) -> Array[(Double, Double, Double)] {
   let rot = ma_build_rotation_matrix(rotation)
-  let result : Array[(Double, Double, Double)] = Array::new()
+  let result : Array[(Double, Double, Double)] = Array(capacity=0)
   let mut i = 0
   while i < coords.length() {
     let (x, y, z) = coords[i]
@@ -804,7 +804,7 @@ fn ma_compute_average_structure(
   }
   let n_structures = coords_list.length()
   let n_atoms = coords_list[0].length()
-  let avg : Array[(Double, Double, Double)] = Array::new()
+  let avg : Array[(Double, Double, Double)] = Array(capacity=0)
   let mut i = 0
   while i < n_atoms {
     let mut sx = 0.0
@@ -841,7 +841,7 @@ pub fn build_conservation_profile(
   }
   let n_seqs = aligned_sequences.length()
   let aln_len = aligned_sequences[0].length()
-  let conservation : Array[Double] = Array::new()
+  let conservation : Array[Double] = Array(capacity=0)
 
   let mut col = 0
   while col < aln_len {
@@ -882,7 +882,7 @@ fn ma_build_aligned_sequences(
   structures : Array[StructureData],
   aligned_coords_list : Array[Array[(Double, Double, Double)]],
 ) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let n_structures = structures.length()
 
   let mut i = 0
@@ -913,10 +913,10 @@ fn ma_compute_pairwise_rmsd(
   coords_list : Array[Array[(Double, Double, Double)]],
 ) -> Array[Array[Double]] {
   let n = coords_list.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       if i == j {
@@ -962,7 +962,7 @@ pub fn iterate_alignment(
   }
 
   let ref_coords = structures[0].ca_coordinates.copy()
-  let aligned_all : Array[Array[(Double, Double, Double)]] = Array::new()
+  let aligned_all : Array[Array[(Double, Double, Double)]] = Array(capacity=0)
 
   aligned_all.push(ref_coords.copy())
 
@@ -1016,7 +1016,7 @@ pub fn align_multiple(
   }
 
   let ref_coords = structures[0].ca_coordinates.copy()
-  let mut aligned_all : Array[Array[(Double, Double, Double)]] = Array::new()
+  let mut aligned_all : Array[Array[(Double, Double, Double)]] = Array(capacity=0)
   aligned_all.push(ref_coords.copy())
 
   let mut max_rmsd = 0.0
@@ -1037,7 +1037,7 @@ pub fn align_multiple(
   let mut iter = 0
   while iter < aligner.max_iterations {
     let new_ref = ma_compute_average_structure(aligned_all)
-    let new_aligned : Array[Array[(Double, Double, Double)]] = Array::new()
+    let new_aligned : Array[Array[(Double, Double, Double)]] = Array(capacity=0)
     new_aligned.push(new_ref.copy())
 
     let mut iter_max_rmsd = 0.0
@@ -1065,7 +1065,7 @@ pub fn align_multiple(
     iter = iter + 1
   }
 
-  let ids : Array[String] = Array::new()
+  let ids : Array[String] = Array(capacity=0)
   let mut k = 0
   while k < n {
     ids.push(structures[k].structure_id)

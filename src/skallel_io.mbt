@@ -7,7 +7,7 @@
 /// Parse a GT field string ("0/1", "1|0", "./.", "2", …) into allele indices
 /// (missing calls become −1).
 pub fn skallel_parse_gt(s : String) -> Array[Int] {
-  let out : Array[Int] = Array::new()
+  let out : Array[Int] = Array(capacity=0)
   let mut cur = StringBuilder::new()
   let mut i = 0
   while i <= s.length() {
@@ -52,13 +52,13 @@ pub fn skallel_vcf_genotypes(
   vcf : VcfFile,
   sample_names : Array[String],
 ) -> Array[Array[Array[Int]]] {
-  let out : Array[Array[Array[Int]]] = Array::new()
+  let out : Array[Array[Array[Int]]] = Array(capacity=0)
   for rec in vcf.records {
     let gt_idx = match rec.format {
       None => 0
       Some(fmt) => skallel_gt_index(fmt)
     }
-    let row : Array[Array[Int]] = Array::new()
+    let row : Array[Array[Int]] = Array(capacity=0)
     for name in sample_names {
       match rec.samples.get(name) {
         None => row.push([-1, -1])
@@ -85,9 +85,9 @@ pub fn skallel_gt_to_n_alt(
   g : Array[Array[Array[Int]]],
   fill? : Int = 0,
 ) -> Array[Array[Int]] {
-  let out : Array[Array[Int]] = Array::new()
+  let out : Array[Array[Int]] = Array(capacity=0)
   for row in g {
-    let out_row : Array[Int] = Array::new()
+    let out_row : Array[Int] = Array(capacity=0)
     for call in row {
       let mut n_alt = 0
       let mut has_missing = false
@@ -109,9 +109,9 @@ pub fn skallel_gt_to_n_alt(
 /// Reshape a genotype array to haplotypes (`GenotypeArray.to_haplotypes()`): a
 /// `(n_variants × n_samples·ploidy)` array flattening each sample's alleles.
 pub fn skallel_gt_to_haplotypes(g : Array[Array[Array[Int]]]) -> Array[Array[Int]] {
-  let out : Array[Array[Int]] = Array::new()
+  let out : Array[Array[Int]] = Array(capacity=0)
   for row in g {
-    let out_row : Array[Int] = Array::new()
+    let out_row : Array[Int] = Array(capacity=0)
     for call in row {
       for a in call {
         out_row.push(a)
@@ -129,7 +129,7 @@ pub fn skallel_gt_count_alleles(
   g : Array[Array[Array[Int]]],
   max_allele : Int,
 ) -> Array[Array[Int]] {
-  let out : Array[Array[Int]] = Array::new()
+  let out : Array[Array[Int]] = Array(capacity=0)
   for row in g {
     let counts = Array::make(max_allele + 1, 0)
     for call in row {
@@ -152,7 +152,7 @@ pub fn skallel_gt_count_alleles_subpop(
   sample_indices : Array[Int],
   max_allele : Int,
 ) -> Array[Array[Int]] {
-  let out : Array[Array[Int]] = Array::new()
+  let out : Array[Array[Int]] = Array(capacity=0)
   for row in g {
     let counts = Array::make(max_allele + 1, 0)
     for si in sample_indices {

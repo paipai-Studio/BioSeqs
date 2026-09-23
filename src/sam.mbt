@@ -123,7 +123,7 @@ fn parse_cigar_op(c : Char) -> CigarOp {
 ///|
 /// Parse CIGAR string into CigarElement array.
 pub fn parse_cigar(cigar_str : String) -> Array[CigarElement] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   if cigar_str == "*" {
     return result
   }
@@ -261,8 +261,8 @@ fn parse_sam_record(line : String) -> SamRecord? {
 ///|
 /// Parse SAM content from string.
 pub fn parse_sam(content : String) -> SamFile {
-  let headers = Array::new()
-  let records = Array::new()
+  let headers = Array(capacity=0)
+  let records = Array(capacity=0)
 
   let lines = content.split("\n").to_array()
   let mut i = 0
@@ -422,7 +422,7 @@ pub fn SamFile::num_headers(self : SamFile) -> Int {
 ///|
 /// Get all sequence names from @SQ headers.
 pub fn SamFile::get_sequence_names(self : SamFile) -> Array[String] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   let mut i = 0
   while i < self.headers.length() {
     let header = self.headers[i]

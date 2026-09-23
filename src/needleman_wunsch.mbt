@@ -226,11 +226,11 @@ pub fn needleman_wunsch(
   let n = seq1.length()
   let m = seq2.length()
   // Build score matrix: (n+1) x (m+1).
-  let dp : Array[Array[Double]] = Array::new()
-  let trace : Array[Array[NWTrace]] = Array::new()
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[NWTrace]] = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
-    let drow : Array[Double] = Array::new()
-    let trow : Array[NWTrace] = Array::new()
+    let drow : Array[Double] = Array(capacity=0)
+    let trow : Array[NWTrace] = Array(capacity=0)
     for j = 0; j <= m; j = j + 1 {
       drow.push(0.0)
       trow.push(NWTrace::Start)
@@ -341,11 +341,11 @@ pub fn needleman_wunsch_with_matrix(
 ) -> NWResult {
   let n = seq1.length()
   let m = seq2.length()
-  let dp : Array[Array[Double]] = Array::new()
-  let trace : Array[Array[NWTrace]] = Array::new()
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[NWTrace]] = Array(capacity=0)
   for i = 0; i <= n; i = i + 1 {
-    let drow : Array[Double] = Array::new()
-    let trow : Array[NWTrace] = Array::new()
+    let drow : Array[Double] = Array(capacity=0)
+    let trow : Array[NWTrace] = Array(capacity=0)
     for j = 0; j <= m; j = j + 1 {
       drow.push(0.0)
       trow.push(NWTrace::Start)

@@ -103,11 +103,11 @@ pub fn parse_csi(data : String) -> CsiIndex raise CsiError {
   let mut pos = 16 + l_meta
   let n_ref = csi_read_u32(data, pos)
   pos = pos + 4
-  let references : Array[CsiReference] = Array::new()
+  let references : Array[CsiReference] = Array(capacity=0)
   for _r = 0; _r < n_ref; _r = _r + 1 {
     let n_bin = csi_read_u32(data, pos)
     pos = pos + 4
-    let bins : Array[CsiBin] = Array::new()
+    let bins : Array[CsiBin] = Array(capacity=0)
     for _b = 0; _b < n_bin; _b = _b + 1 {
       let bin = csi_read_u32(data, pos)
       pos = pos + 4
@@ -115,7 +115,7 @@ pub fn parse_csi(data : String) -> CsiIndex raise CsiError {
       pos = pos + 8
       let n_chunk = csi_read_u32(data, pos)
       pos = pos + 4
-      let chunks : Array[CsiChunk] = Array::new()
+      let chunks : Array[CsiChunk] = Array(capacity=0)
       for _c = 0; _c < n_chunk; _c = _c + 1 {
         let beg = csi_read_u64(data, pos)
         pos = pos + 8
@@ -139,7 +139,7 @@ pub fn parse_csi(data : String) -> CsiIndex raise CsiError {
 /// The list of bin numbers that may contain a half-open interval `[beg, end)`,
 /// generalized by `min_shift` and `n_lvls` (mirrors htslib `hts_reg2bins`).
 pub fn csi_reg2bins(beg : Int, end : Int, min_shift : Int, n_lvls : Int) -> Array[Int] {
-  let bins : Array[Int] = Array::new()
+  let bins : Array[Int] = Array(capacity=0)
   if beg >= end {
     return bins
   }
@@ -226,7 +226,7 @@ pub fn csi_query(
     }
   }
   // chunks from covering bins
-  let chunks : Array[CsiChunk] = Array::new()
+  let chunks : Array[CsiChunk] = Array(capacity=0)
   let bins = csi_reg2bins(beg, end, index.min_shift, index.n_lvls)
   for b in bins {
     match csi_find_bin(reference, b) {

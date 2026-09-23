@@ -76,7 +76,7 @@ pub fn BioKmerCounter::get_top_kmers(
   self : BioKmerCounter,
   n : Int,
 ) -> Array[(String, Int)] {
-  let items : Array[(String, Int)] = Array::new()
+  let items : Array[(String, Int)] = Array(capacity=0)
   for key in self.counts.keys() {
     items.push((key, self.counts.get(key).unwrap()))
   }
@@ -98,7 +98,7 @@ pub fn BioKmerCounter::get_top_kmers(
     }
   }
 
-  let result : Array[(String, Int)] = Array::new()
+  let result : Array[(String, Int)] = Array(capacity=0)
   let mut k = 0
   while k < n && k < items.length() {
     result.push(items[k])
@@ -183,7 +183,7 @@ pub fn bio_count_kmers(seq : String, k : Int) -> Map[String, Int] {
 
 ///|
 pub fn kmer_spectrum(seq : String, min_k : Int, max_k : Int) -> Array[Int] {
-  let spectrum : Array[Int] = Array::new()
+  let spectrum : Array[Int] = Array(capacity=0)
 
   let mut k = min_k
   while k <= max_k {

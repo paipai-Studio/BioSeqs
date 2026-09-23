@@ -205,7 +205,7 @@ pub fn max_entropy_train(
 ) -> MaxEntropyModel {
   let n = training_set.length()
   // Collect unique classes.
-  let classes : Array[String] = Array::new()
+  let classes : Array[String] = Array(capacity=0)
   for r in results {
     if !classes.contains(r) {
       classes.push(r)

@@ -89,7 +89,7 @@ fn main {
   println("\nStep 7: Gene variability (standard deviation) after VST:")
   let sds = @bio.gene_sd(vst_result)
   // Sort by SD descending (simple selection of top 3)
-  let top_genes : Array[(String, Double)] = Array::new()
+  let top_genes : Array[(String, Double)] = Array(capacity=0)
   for g in sds {
     top_genes.push(g)
   }

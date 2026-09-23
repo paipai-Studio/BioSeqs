@@ -50,7 +50,7 @@ pub extend FastaIndex with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 /// Parse a .fai index file and return a FastaIndex.
 pub fn parse_fai(content : String) -> FastaIndex raise FastaIndexError {
-  let records : Array[FaiRecord] = Array::new()
+  let records : Array[FaiRecord] = Array(capacity=0)
   let index : Map[String, Int] = Map([], capacity=32)
   let lines = content.split("\n").to_array()
   let mut line_num = 0
@@ -114,7 +114,7 @@ pub fn FastaIndex::num_sequences(self : FastaIndex) -> Int {
 ///|
 /// Get the names of all sequences in the index.
 pub fn FastaIndex::get_names(self : FastaIndex) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   for rec in self.records {
     names.push(rec.name)
   }
@@ -142,7 +142,7 @@ pub fn FastaIndex::contains(self : FastaIndex, name : String) -> Bool {
 /// This scans the FASTA content once and computes the offset, line_len,
 /// and line_blen for each sequence, matching pyfaidx's index generation.
 pub fn build_fai(content : String) -> FastaIndex {
-  let records : Array[FaiRecord] = Array::new()
+  let records : Array[FaiRecord] = Array(capacity=0)
   let index : Map[String, Int] = Map([], capacity=32)
   let mut pos = 0
   let n = content.length()
@@ -436,7 +436,7 @@ pub fn Fasta::get_spliced_seq(
   match self.index.get_record(name) {
     None => None
     Some(rec) => {
-      let chunks : Array[String] = Array::new()
+      let chunks : Array[String] = Array(capacity=0)
       for (s, e) in intervals {
         let start0 = s - 1
         if start0 < 0 {

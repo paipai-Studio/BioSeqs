@@ -67,17 +67,17 @@ pub fn parse_medline(text : String) -> MedlineRecord? {
   let mut pmid = ""
   let mut title = ""
   let mut abstract_text = ""
-  let authors : Array[String] = Array::new()
+  let authors : Array[String] = Array(capacity=0)
   let mut journal = ""
   let mut volume = ""
   let mut issue = ""
   let mut pages = ""
   let mut publication_date = ""
-  let mesh_terms : Array[String] = Array::new()
-  let keywords : Array[String] = Array::new()
-  let affiliations : Array[String] = Array::new()
+  let mesh_terms : Array[String] = Array(capacity=0)
+  let keywords : Array[String] = Array(capacity=0)
+  let affiliations : Array[String] = Array(capacity=0)
   let mut language = ""
-  let pub_types : Array[String] = Array::new()
+  let pub_types : Array[String] = Array(capacity=0)
   let mut doi = ""
   let mut pmc = ""
 
@@ -153,7 +153,7 @@ pub fn parse_medline(text : String) -> MedlineRecord? {
 
 ///|
 pub fn parse_medline_records(text : String) -> Array[MedlineRecord] {
-  let records : Array[MedlineRecord] = Array::new()
+  let records : Array[MedlineRecord] = Array(capacity=0)
   let lines = split_by_char(text, '\n'.to_int())
 
   let mut current_block = ""
@@ -270,7 +270,7 @@ pub fn filter_by_author(
   records : Array[MedlineRecord],
   author_name : String,
 ) -> Array[MedlineRecord] {
-  let filtered : Array[MedlineRecord] = Array::new()
+  let filtered : Array[MedlineRecord] = Array(capacity=0)
   let mut i = 0
   while i < records.length() {
     let mut j = 0
@@ -288,7 +288,7 @@ pub fn filter_by_author(
 
 ///|
 pub fn extract_pmids(records : Array[MedlineRecord]) -> Array[String] {
-  let pmids : Array[String] = Array::new()
+  let pmids : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < records.length() {
     pmids.push(records[i].pmid)
@@ -302,7 +302,7 @@ pub fn filter_by_mesh(
   records : Array[MedlineRecord],
   mesh_term : String,
 ) -> Array[MedlineRecord] {
-  let filtered : Array[MedlineRecord] = Array::new()
+  let filtered : Array[MedlineRecord] = Array(capacity=0)
   let mut i = 0
   while i < records.length() {
     let mut j = 0
@@ -341,7 +341,7 @@ fn medline_contains(s : String, substr : String) -> Bool {
 
 ///|
 pub fn count_by_year(records : Array[MedlineRecord]) -> Array[(String, Int)] {
-  let year_counts : Array[(String, Int)] = Array::new()
+  let year_counts : Array[(String, Int)] = Array(capacity=0)
 
   let mut i = 0
   while i < records.length() {

@@ -249,7 +249,7 @@ pub fn hmmcopy_correct_gc(
   }
   let global_mean = total_reads.to_double() / n.to_double()
   // Group bins by GC content
-  let gc_bins = Array::make(num_gc_bins, Array::new())
+  let gc_bins = Array::make(num_gc_bins, Array(capacity=0))
   for b in bins {
     let gc_idx = (b.gc * num_gc_bins.to_double()).to_int()
     let clamped = if gc_idx < 0 {
@@ -278,7 +278,7 @@ pub fn hmmcopy_correct_gc(
     i = i + 1
   }
   // Correct each bin: scale reads so that GC bin mean equals global mean
-  let result = Array::new()
+  let result = Array(capacity=0)
   for b in bins {
     let gc_idx = (b.gc * num_gc_bins.to_double()).to_int()
     let clamped = if gc_idx < 0 {
@@ -347,8 +347,8 @@ pub fn hmmcopy_viterbi(
     mean_cov = 1.0
   }
   // Viterbi matrix: viterbi[t][s] = best log-prob of being in state s at time t
-  let viterbi : Array[Array[Double]] = Array::new()
-  let backptr : Array[Array[Int]] = Array::new()
+  let viterbi : Array[Array[Double]] = Array(capacity=0)
+  let backptr : Array[Array[Int]] = Array(capacity=0)
   let mut vi = 0
   while vi < n {
     viterbi.push(Array::make(k, -1.0e30))
@@ -428,7 +428,7 @@ pub fn hmmcopy_call_cnv(
   model : HMMcopyModel,
 ) -> Array[HMMcopyBin] {
   let states = hmmcopy_viterbi(bins, model)
-  let result = Array::new()
+  let result = Array(capacity=0)
   let mut i = 0
   while i < bins.length() {
     let b = HMMcopyBin::new(
@@ -451,7 +451,7 @@ pub fn hmmcopy_call_cnv(
 ///|
 /// Segment bins by merging consecutive bins with the same copy number.
 pub fn hmmcopy_segment(bins : Array[HMMcopyBin]) -> Array[HMMcopySegment] {
-  let segments = Array::new()
+  let segments = Array(capacity=0)
   let n = bins.length()
   if n == 0 {
     return segments
@@ -507,7 +507,7 @@ pub fn hmmcopy_log_likelihood(
   }
   // Forward algorithm
   let k = model.num_states
-  let alpha : Array[Array[Double]] = Array::new()
+  let alpha : Array[Array[Double]] = Array(capacity=0)
   let mut ai = 0
   while ai < n {
     alpha.push(Array::make(k, 0.0))
@@ -580,7 +580,7 @@ pub fn hmmcopy_log_likelihood(
 /// Generate sample bins for testing (simulated CNV data).
 /// 100 bins on chr1, with a CN0 region (bins 10-19) and CN3 region (bins 60-69).
 pub fn hmmcopy_sample_bins() -> Array[HMMcopyBin] {
-  let bins = Array::new()
+  let bins = Array(capacity=0)
   let mut i = 0
   while i < 100 {
     let reads = if i >= 10 && i < 20 {

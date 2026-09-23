@@ -15,7 +15,7 @@ pub struct AbstractCommandline {
 pub fn AbstractCommandline::new(executable : String) -> AbstractCommandline {
   AbstractCommandline::{
     executable,
-    arguments: Array::new(),
+    arguments: Array(capacity=0),
     stdin: "",
     stdout: "",
     stderr: "",

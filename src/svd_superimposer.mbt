@@ -83,7 +83,7 @@ fn center_coords(
   let cy = sum_y / n.to_double()
   let cz = sum_z / n.to_double()
 
-  let centered : Array[AtomCoordinate] = Array::new()
+  let centered : Array[AtomCoordinate] = Array(capacity=0)
   i = 0
   while i < n {
     centered.push(
@@ -101,10 +101,10 @@ fn matmul_3x3(
   a : Array[Array[Double]],
   b : Array[Array[Double]],
 ) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < 3 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < 3 {
       let mut sum = 0.0
@@ -125,7 +125,7 @@ fn matmul_3x3(
 ///|
 /// Multiply 3x3 matrix with 3D vector.
 fn matmul_vec_3x3(m : Array[Array[Double]], v : Array[Double]) -> Array[Double] {
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < 3 {
     let mut sum = 0.0
@@ -143,10 +143,10 @@ fn matmul_vec_3x3(m : Array[Array[Double]], v : Array[Double]) -> Array[Double] 
 ///|
 /// Transpose 3x3 matrix.
 fn mat_transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < 3 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < 3 {
       row.push(m[j][i])
@@ -209,7 +209,7 @@ fn determinant_3x3(m : Array[Array[Double]]) -> Double {
 fn jacobi_eigenvalue_3x3(
   m : Array[Array[Double]],
 ) -> (Array[Double], Array[Array[Double]]) {
-  let mut a = Array::new()
+  let mut a = Array(capacity=0)
   let mut i = 0
   while i < 3 {
     let row = Array::make(3, 0.0)
@@ -222,7 +222,7 @@ fn jacobi_eigenvalue_3x3(
     i = i + 1
   }
 
-  let mut v = Array::new()
+  let mut v = Array(capacity=0)
   i = 0
   while i < 3 {
     let row = Array::make(3, 0.0)
@@ -263,7 +263,7 @@ fn jacobi_eigenvalue_3x3(
     let c = @math.cos(theta)
     let s = @math.sin(theta)
 
-    let new_a = Array::new()
+    let new_a = Array(capacity=0)
     let mut r = 0
     while r < 3 {
       let row = Array::make(3, 0.0)
@@ -296,7 +296,7 @@ fn jacobi_eigenvalue_3x3(
 
     a = new_a
 
-    let new_v = Array::new()
+    let new_v = Array(capacity=0)
     r = 0
     while r < 3 {
       let row = Array::make(3, 0.0)
@@ -355,8 +355,8 @@ fn svd_3x3(
     i = i + 1
   }
 
-  let s : Array[Double] = Array::new()
-  let v_sorted : Array[Array[Double]] = Array::new()
+  let s : Array[Double] = Array(capacity=0)
+  let v_sorted : Array[Array[Double]] = Array(capacity=0)
   i = 0
   while i < 3 {
     let idx = sorted_indices[i]
@@ -373,7 +373,7 @@ fn svd_3x3(
     i = i + 1
   }
 
-  let u : Array[Array[Double]] = Array::new()
+  let u : Array[Array[Double]] = Array(capacity=0)
   i = 0
   while i < 3 {
     if s[i] > 0.0000000001 {
@@ -419,7 +419,7 @@ pub fn SVDSuperimposer::set(
 
   let det = determinant_3x3(rot)
   if det < 0.0 {
-    let u_adj = Array::new()
+    let u_adj = Array(capacity=0)
     let mut i = 0
     while i < 3 {
       let row = Array::make(3, 0.0)
@@ -435,7 +435,7 @@ pub fn SVDSuperimposer::set(
     u_adj_row2[0] = -u_adj[2][0]
     u_adj_row2[1] = -u_adj[2][1]
     u_adj_row2[2] = -u_adj[2][2]
-    let u_adj_fixed = Array::new()
+    let u_adj_fixed = Array(capacity=0)
     u_adj_fixed.push(u_adj[0])
     u_adj_fixed.push(u_adj[1])
     u_adj_fixed.push(u_adj_row2)
@@ -443,7 +443,7 @@ pub fn SVDSuperimposer::set(
   }
 
   let rot_center1 = matmul_vec_3x3(rot, center1)
-  let tran : Array[Double] = Array::new()
+  let tran : Array[Double] = Array(capacity=0)
   let mut k = 0
   while k < 3 {
     tran.push(center2[k] - rot_center1[k])
@@ -493,7 +493,7 @@ pub fn SVDSuperimposer::apply(
   self : SVDSuperimposer,
   coords : Array[AtomCoordinate],
 ) -> Array[AtomCoordinate] {
-  let result : Array[AtomCoordinate] = Array::new()
+  let result : Array[AtomCoordinate] = Array(capacity=0)
   let mut i = 0
   while i < coords.length() {
     let transformed = matmul_vec_3x3(self.rot, coords[i].to_array())

@@ -386,14 +386,14 @@ pub fn tile_methylation(
   sites : Array[CytosineSite],
   params : MethylSeekRParams,
 ) -> Array[MethylTile] {
-  let tiles : Array[MethylTile] = Array::new()
+  let tiles : Array[MethylTile] = Array(capacity=0)
   let n = sites.length()
   if n == 0 || params.tile_size <= 0 {
     return tiles
   }
   // Aggregate counts per (chr, tile_index).
   let agg : Map[String, (String, Int, Int, Int)] = Map([], capacity=256)
-  let keys : Array[String] = Array::new()
+  let keys : Array[String] = Array(capacity=0)
   for site in sites {
     if site.position < 0 {
       continue
@@ -415,7 +415,7 @@ pub fn tile_methylation(
     }
   }
   // Build an entries list and sort by (chr, tile_index) using selection sort.
-  let entries : Array[(String, Int, Int, Int)] = Array::new()
+  let entries : Array[(String, Int, Int, Int)] = Array(capacity=0)
   for key in keys {
     entries.push(agg[key])
   }
@@ -529,7 +529,7 @@ pub fn detect_pmds(
     }
     let chr = tiles[i].chr
     // Collect a maximal contiguous run of candidate tiles.
-    let run : Array[Int] = Array::new()
+    let run : Array[Int] = Array(capacity=0)
     run.push(i)
     let mut j = i + 1
     while j < n {
@@ -563,7 +563,7 @@ pub fn merge_regions(
   tiles : Array[MethylTile],
   params : MethylSeekRParams,
 ) -> Array[MethylRegion] {
-  let result : Array[MethylRegion] = Array::new()
+  let result : Array[MethylRegion] = Array(capacity=0)
   let n = tiles.length()
   if n == 0 {
     return result
@@ -636,7 +636,7 @@ pub fn filter_regions(
   regions : Array[MethylRegion],
   region_type : String,
 ) -> Array[MethylRegion] {
-  let result : Array[MethylRegion] = Array::new()
+  let result : Array[MethylRegion] = Array(capacity=0)
   for r in regions {
     if r.region_type == region_type {
       result.push(r)
@@ -716,7 +716,7 @@ pub fn region_summary(regions : Array[MethylRegion]) -> String {
 /// - 10-25 kb:  60% methylation -> PMD  (tiles 10-24, broad domain < gamma)
 /// - 25-30 kb:  90% methylation -> FMR  (tiles 25-29)
 pub fn methyl_seekr_sample_data() -> Array[CytosineSite] {
-  let sites : Array[CytosineSite] = Array::new()
+  let sites : Array[CytosineSite] = Array(capacity=0)
   // Each entry: (first_tile, last_tile, methylated, unmethylated) per site.
   let regions : Array[(Int, Int, Int, Int)] = [
     (0, 4, 1, 19), // UMR: 5% methylation

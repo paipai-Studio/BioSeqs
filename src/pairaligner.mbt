@@ -862,10 +862,10 @@ fn pairaligner_make_matrix(
   cols : Int,
   val : Double,
 ) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < rows {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < cols {
       row.push(val)
@@ -883,10 +883,10 @@ fn pairaligner_make_trace_matrix(
   rows : Int,
   cols : Int,
 ) -> Array[Array[TraceDir]] {
-  let result : Array[Array[TraceDir]] = Array::new()
+  let result : Array[Array[TraceDir]] = Array(capacity=0)
   let mut i = 0
   while i < rows {
-    let row : Array[TraceDir] = Array::new()
+    let row : Array[TraceDir] = Array(capacity=0)
     let mut j = 0
     while j < cols {
       row.push(TraceDir::Stop)

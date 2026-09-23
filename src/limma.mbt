@@ -1174,7 +1174,7 @@ pub fn voom(counts : Matrix, design : Matrix) -> Matrix {
 pub fn limma_remove_batch_effect(
   y : Matrix,
   batch : Array[String],
-  group? : Array[String] = Array::new(),
+  group? : Array[String] = Array(capacity=0),
 ) -> Matrix {
   let n_genes = y.rows
   let n_samples = y.cols
@@ -1184,7 +1184,7 @@ pub fn limma_remove_batch_effect(
   }
 
   // Create batch design matrix
-  let unique_batches : Array[String] = Array::new()
+  let unique_batches : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n_samples {
     let b = batch[i]
@@ -1219,7 +1219,7 @@ pub fn limma_remove_batch_effect(
 
   // Add group information to design if provided
   let design = if group.length() > 0 && group.length() == n_samples {
-    let unique_groups : Array[String] = Array::new()
+    let unique_groups : Array[String] = Array(capacity=0)
     i = 0
     while i < n_samples {
       let g = group[i]
@@ -1582,7 +1582,7 @@ pub fn plot_mds_distances(y : Matrix, n_top_genes : Int) -> Matrix {
 
   // Find top variable genes
   let n_top = if n_top_genes < n_genes { n_top_genes } else { n_genes }
-  let top_indices : Array[Int] = Array::new()
+  let top_indices : Array[Int] = Array(capacity=0)
   let used : Array[Bool] = Array::make(n_genes, false)
 
   i = 0
@@ -1741,10 +1741,10 @@ pub fn limma_quantile_normalize(y : Matrix) -> Matrix {
   let result = Matrix::zeros(n_genes, n_samples)
 
   // Sort each column
-  let sorted_cols : Array[Array[Double]] = Array::new()
+  let sorted_cols : Array[Array[Double]] = Array(capacity=0)
   let mut j = 0
   while j < n_samples {
-    let col : Array[Double] = Array::new()
+    let col : Array[Double] = Array(capacity=0)
     let mut i = 0
     while i < n_genes {
       col.push(y.get(i, j))
@@ -1822,7 +1822,7 @@ pub fn limma_quantile_normalize(y : Matrix) -> Matrix {
 pub fn limma_combat(
   y : Matrix,
   batch : Array[String],
-  group? : Array[String] = Array::new(),
+  group? : Array[String] = Array(capacity=0),
 ) -> Matrix {
   let n_genes = y.rows
   let n_samples = y.cols
@@ -1832,7 +1832,7 @@ pub fn limma_combat(
   }
 
   // Find unique batches
-  let unique_batches : Array[String] = Array::new()
+  let unique_batches : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n_samples {
     let found = unique_batches.contains(batch[i])
@@ -1878,7 +1878,7 @@ pub fn limma_combat(
   while b < n_batches {
     let batch_label = unique_batches[b]
     // Find sample indices in this batch
-    let batch_indices : Array[Int] = Array::new()
+    let batch_indices : Array[Int] = Array(capacity=0)
     let mut s = 0
     while s < n_samples {
       if batch[s] == batch_label {

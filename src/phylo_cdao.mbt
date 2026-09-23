@@ -147,7 +147,7 @@ struct CdaoTriple {
 ///|
 /// Parse RDF/XML into a list of triples.
 fn cdao_parse_rdf_xml(xml : String) -> Array[CdaoTriple] {
-  let triples : Array[CdaoTriple] = Array::new()
+  let triples : Array[CdaoTriple] = Array(capacity=0)
   let normalized = cdao_normalize_xml(xml)
   cdao_extract_elements(normalized, triples)
   triples
@@ -413,7 +413,7 @@ fn cdao_build_document(doc : CdaoDocument, triples : Array[CdaoTriple]) -> Unit 
 ///|
 /// Convert a CdaoDocument to an array of BioSeqs Tree objects.
 pub fn cdao_to_trees(doc : CdaoDocument) -> Array[Tree] {
-  let result : Array[Tree] = Array::new()
+  let result : Array[Tree] = Array(capacity=0)
   let mut i = 0
   while i < doc.trees.length() {
     let cdao_tree = doc.trees[i]
@@ -451,7 +451,7 @@ fn cdao_build_clade(doc : CdaoDocument, node_id : String) -> Clade {
             None => None
           }
       }
-      let children : Array[Clade] = Array::new()
+      let children : Array[Clade] = Array(capacity=0)
       let mut ci = 0
       while ci < n.children.length() {
         children.push(cdao_build_clade(doc, n.children[ci]))
@@ -552,7 +552,7 @@ fn cdao_write_clade(
       "\"/>\n"
   }
   // Collect child URIs
-  let child_uris : Array[String] = Array::new()
+  let child_uris : Array[String] = Array(capacity=0)
   let mut ci = 0
   while ci < clade.clades.length() {
     state.node_counter = state.node_counter + 1

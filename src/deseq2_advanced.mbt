@@ -98,9 +98,9 @@ pub fn variance_stabilizing_transformation(
   }
 
   // Apply VST to each element
-  let transformed : Array[Array[Double]] = Array::new()
+  let transformed : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n_samples; j = j + 1 {
       row.push(vst_transform_single(normalized[i][j], mean_disp))
     }
@@ -184,9 +184,9 @@ pub fn vst(dds : DESeqDataSet, nsub? : Int = 1000) -> VSTResult {
   }
 
   // Apply VST using estimated dispersion
-  let transformed : Array[Array[Double]] = Array::new()
+  let transformed : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n_samples; j = j + 1 {
       row.push(vst_transform_single(normalized[i][j], est_disp))
     }
@@ -216,7 +216,7 @@ pub fn plot_pca(vst_result : VSTResult, ntop? : Int = 500) -> PCAResult {
   let actual_ntop = if ntop < n_genes { ntop } else { n_genes }
 
   // Compute row variances and select top variable genes
-  let gene_vars : Array[(Int, Double)] = Array::new()
+  let gene_vars : Array[(Int, Double)] = Array(capacity=0)
   for i = 0; i < n_genes; i = i + 1 {
     let mut sum = 0.0
     for j = 0; j < n_samples; j = j + 1 {
@@ -233,7 +233,7 @@ pub fn plot_pca(vst_result : VSTResult, ntop? : Int = 500) -> PCAResult {
   }
 
   // Sort by variance descending (simple selection sort for top N)
-  let selected_indices : Array[Int] = Array::new()
+  let selected_indices : Array[Int] = Array(capacity=0)
   let used : Array[Bool] = Array::make(n_genes, false)
   for _k = 0; _k < actual_ntop; _k = _k + 1 {
     let mut max_idx = -1
@@ -251,9 +251,9 @@ pub fn plot_pca(vst_result : VSTResult, ntop? : Int = 500) -> PCAResult {
   }
 
   // Build matrix of selected genes (samples x genes)
-  let mat : Array[Array[Double]] = Array::new()
+  let mat : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < n_samples; j = j + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for idx in selected_indices {
       row.push(vst_result.transformed[idx][j])
     }
@@ -292,8 +292,8 @@ pub fn plot_pca(vst_result : VSTResult, ntop? : Int = 500) -> PCAResult {
   let (eigenvalues, eigenvectors) = power_iteration_top2(cov, n_samples)
 
   // Project samples onto principal components
-  let pc1 : Array[Double] = Array::new()
-  let pc2 : Array[Double] = Array::new()
+  let pc1 : Array[Double] = Array(capacity=0)
+  let pc2 : Array[Double] = Array(capacity=0)
   for i = 0; i < n_samples; i = i + 1 {
     let mut proj1 = 0.0
     let mut proj2 = 0.0
@@ -356,7 +356,7 @@ fn power_iteration_single(
   orthogonal_to : Array[Double]?,
 ) -> (Double, Array[Double]) {
   // Initialize random vector
-  let mut v : Array[Double] = Array::new()
+  let mut v : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     v.push(1.0 / n.to_double() + (i % 3).to_double() * 0.1)
@@ -423,7 +423,7 @@ fn normalize_vector(v : Array[Double], n : Int) -> Array[Double] {
     norm = norm + v[i] * v[i]
   }
   norm = norm.sqrt()
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     if norm > 0.0 {
       result.push(v[i] / norm)
@@ -445,7 +445,7 @@ fn orthogonalize(
   for i = 0; i < n; i = i + 1 {
     dot = dot + v[i] * u[i]
   }
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     result.push(v[i] - dot * u[i])
   }
@@ -464,7 +464,7 @@ pub fn get_transformed_matrix(vst_result : VSTResult) -> Array[Array[Double]] {
 pub fn gene_sd(vst_result : VSTResult) -> Array[(String, Double)] {
   let n_genes = vst_result.transformed.length()
   let n_samples = vst_result.col_names.length()
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
 
   for i = 0; i < n_genes; i = i + 1 {
     let mut sum = 0.0

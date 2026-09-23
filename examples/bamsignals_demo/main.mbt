@@ -36,8 +36,8 @@ fn main {
   // 3. Build Map of records by chromosome
   println("")
   println("3. Build records-by-chromosome map:")
-  let chr1_records : Array[@bio.BamsigRecord] = Array::new()
-  let chr2_records : Array[@bio.BamsigRecord] = Array::new()
+  let chr1_records : Array[@bio.BamsigRecord] = Array(capacity=0)
+  let chr2_records : Array[@bio.BamsigRecord] = Array(capacity=0)
   let mut k = 0
   while k < records.length() {
     let rec = records[k]

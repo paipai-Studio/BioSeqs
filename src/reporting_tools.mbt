@@ -104,8 +104,8 @@ pub fn ReportDocument::new(title : String) -> ReportDocument {
   ReportDocument::{
     title,
     author: "BioSeqs",
-    sections: Array::new(),
-    tables: Array::new(),
+    sections: Array(capacity=0),
+    tables: Array(capacity=0),
     timestamp: "",
     version: "1.0.0",
   }
@@ -141,7 +141,7 @@ pub fn ReportDocument::add_text(
     section_type: ReportSectionType::Text,
     title,
     content,
-    children: Array::new(),
+    children: Array(capacity=0),
     level: 1,
   })
   ReportDocument::{
@@ -169,7 +169,7 @@ pub fn ReportDocument::add_table(
     section_type: ReportSectionType::Table,
     title: table.title,
     content: table.table_id,
-    children: Array::new(),
+    children: Array(capacity=0),
     level: 1,
   })
   ReportDocument::{
@@ -196,7 +196,7 @@ pub fn ReportDocument::add_plot(
     section_type: ReportSectionType::Plot,
     title,
     content: plot_ascii,
-    children: Array::new(),
+    children: Array(capacity=0),
     level: 1,
   })
   ReportDocument::{
@@ -252,7 +252,7 @@ pub fn ReportTable::new(
   column_data : Array[Array[String]],
   caption : String,
 ) -> ReportTable {
-  let columns : Array[ReportColumn] = Array::new()
+  let columns : Array[ReportColumn] = Array(capacity=0)
   let n = column_names.length()
   let mut i = 0
   while i < n {
@@ -280,7 +280,7 @@ pub fn ReportTable::from_columns(
 ///|
 /// Get column names.
 pub fn ReportTable::get_column_names(table : ReportTable) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < table.columns.length() {
     names.push(table.columns[i].name)
@@ -339,7 +339,7 @@ pub fn ReportTable::to_ascii(table : ReportTable) -> String {
   let n_rows = table.get_n_rows()
 
   // Calculate column widths based on max of name length and data value lengths
-  let widths : Array[Int] = Array::new()
+  let widths : Array[Int] = Array(capacity=0)
   let mut ci = 0
   while ci < n_cols {
     let name_len = names[ci].length()
@@ -424,7 +424,7 @@ pub fn ReportDocument::get_section(
     section_type: ReportSectionType::Text,
     title: "",
     content: "Section not found",
-    children: Array::new(),
+    children: Array(capacity=0),
     level: 0,
   }
 }

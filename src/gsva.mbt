@@ -357,7 +357,7 @@ pub fn gsva_rank_genes(
 ) -> Array[Array[Double]] {
   let n_genes = expression.length()
   let n_samples = if n_genes > 0 { expression[0].length() } else { 0 }
-  let ranks : Array[Array[Double]] = Array::new()
+  let ranks : Array[Array[Double]] = Array(capacity=0)
 
   let mut sample_idx = 0
   while sample_idx < n_samples {
@@ -1315,14 +1315,14 @@ pub fn GSVAEnrichment::to_string(self : GSVAEnrichment) -> String {
 ///|
 /// Create example GSVA data for testing.
 pub fn gsva_create_example_data() -> GSVAData {
-  let genes : Array[String] = Array::new()
-  let samples : Array[String] = Array::new()
-  let expression : Array[Array[Double]] = Array::new()
+  let genes : Array[String] = Array(capacity=0)
+  let samples : Array[String] = Array(capacity=0)
+  let expression : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < 100 {
     genes.push("Gene".to_string() + i.to_string())
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < 10 {
       row.push((i % 10 - 5).to_double() + j.to_double() * 0.1)
@@ -1835,7 +1835,7 @@ pub fn gsva_score_distribution(scores : GSVAScores) -> String {
     return plot + "No gene sets\n"
   }
 
-  let all_scores : Array[Double] = Array::new()
+  let all_scores : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n_sets {
     let mut j = 0

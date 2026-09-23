@@ -176,7 +176,7 @@ pub fn prot_dao_predict(
   threshold_long? : Double = 0.686,
 ) -> DisorderResult {
   let seq_len = sequence.length()
-  let residues : Array[DisorderResidue] = Array::new()
+  let residues : Array[DisorderResidue] = Array(capacity=0)
 
   // Step 1: Compute raw disorder scores per residue
   let mut i = 0
@@ -193,7 +193,7 @@ pub fn prot_dao_predict(
   let half_w = window / 2
 
   // Compute smoothed scores
-  let smoothed : Array[Double] = Array::new()
+  let smoothed : Array[Double] = Array(capacity=0)
   let mut si = 0
   while si < seq_len {
     let start = if si - half_w < 0 { 0 } else { si - half_w }
@@ -228,7 +228,7 @@ pub fn prot_dao_predict(
   }
 
   // Step 4: Find contiguous disordered regions
-  let regions : Array[DisorderRegion] = Array::new()
+  let regions : Array[DisorderRegion] = Array(capacity=0)
   let mut ri = 0
   while ri < seq_len {
     if residues[ri].is_disordered {
@@ -361,7 +361,7 @@ pub fn DisorderResult::disordered_sequence(self : DisorderResult) -> String {
 ///|
 /// Get disorder score array.
 pub fn DisorderResult::get_scores(self : DisorderResult) -> Array[Double] {
-  let scores : Array[Double] = Array::new()
+  let scores : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < self.residues.length() {
     scores.push(self.residues[i].disorder_score)

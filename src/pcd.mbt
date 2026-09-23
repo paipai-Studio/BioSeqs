@@ -334,7 +334,7 @@ pub fn pcd_spectra_by_rt(
   min_rt : Double,
   max_rt : Double,
 ) -> Array[PcdSpectrum] {
-  let result : Array[PcdSpectrum] = Array::new()
+  let result : Array[PcdSpectrum] = Array(capacity=0)
   let mut i = 0
   while i < file.spectra.length() {
     let s = file.spectra[i]
@@ -349,7 +349,7 @@ pub fn pcd_spectra_by_rt(
 ///|
 /// Get the total ion chromatogram (TIC) - total intensity per spectrum.
 pub fn pcd_tic(file : PcdFile) -> Array[Double] {
-  let tic : Array[Double] = Array::new()
+  let tic : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < file.spectra.length() {
     let s = file.spectra[i]
@@ -362,7 +362,7 @@ pub fn pcd_tic(file : PcdFile) -> Array[Double] {
 ///|
 /// Get the base peak chromatogram (BPC) - maximum intensity per spectrum.
 pub fn pcd_bpc(file : PcdFile) -> Array[Double] {
-  let bpc : Array[Double] = Array::new()
+  let bpc : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < file.spectra.length() {
     let s = file.spectra[i]
@@ -386,7 +386,7 @@ pub fn pcd_find_peaks_above(
   file : PcdFile,
   threshold : Double,
 ) -> Array[(Int, Double, Double)] {
-  let peaks : Array[(Int, Double, Double)] = Array::new()
+  let peaks : Array[(Int, Double, Double)] = Array(capacity=0)
   let mut i = 0
   while i < file.spectra.length() {
     let s = file.spectra[i]
@@ -532,7 +532,7 @@ pub fn pcd_summary(file : PcdFile) -> String {
 ///|
 /// Split a string into lines.
 fn pcd_split_lines(content : String) -> Array[String] {
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   let mut start = 0
   let mut i = 0
   while i < content.length() {
@@ -559,7 +559,7 @@ fn pcd_split_lines(content : String) -> Array[String] {
 ///|
 /// Split a string by whitespace (tabs or spaces).
 fn pcd_split_whitespace(line : String) -> Array[String] {
-  let cols : Array[String] = Array::new()
+  let cols : Array[String] = Array(capacity=0)
   let mut start = -1
   let mut i = 0
   while i < line.length() {

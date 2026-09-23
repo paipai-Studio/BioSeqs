@@ -20,7 +20,7 @@ fn seq_index_scan_seqxml(
   data : String,
   lines : Array[IndexedLine],
 ) -> Array[SeqIndexEntry] raise SeqIOError {
-  let entries : Array[SeqIndexEntry] = Array::new()
+  let entries : Array[SeqIndexEntry] = Array(capacity=0)
   let n = lines.length()
   let mut i = 0
   while i < n {

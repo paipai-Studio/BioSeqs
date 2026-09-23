@@ -217,12 +217,12 @@ pub fn seq_vcf2gds(vcf : VcfFile) -> SeqVarData {
     ),
   )
 
-  let variant_ids : Array[String] = Array::new(capacity=vcf.len())
-  let chroms : Array[String] = Array::new(capacity=vcf.len())
-  let positions : Array[Int] = Array::new(capacity=vcf.len())
-  let alleles : Array[Array[String]] = Array::new(capacity=vcf.len())
+  let variant_ids : Array[String] = Array(capacity=vcf.len())
+  let chroms : Array[String] = Array(capacity=vcf.len())
+  let positions : Array[Int] = Array(capacity=vcf.len())
+  let alleles : Array[Array[String]] = Array(capacity=vcf.len())
   // genotypes[variant][sample] = [a1, a2]
-  let genotypes : Array[Array[Array[Int]]] = Array::new(capacity=vcf.len())
+  let genotypes : Array[Array[Array[Int]]] = Array(capacity=vcf.len())
 
   let mut v = 0
   while v < vcf.len() {
@@ -235,14 +235,14 @@ pub fn seq_vcf2gds(vcf : VcfFile) -> SeqVarData {
     variant_ids.push(vid)
     chroms.push(rec.chrom)
     positions.push(rec.pos)
-    let alts : Array[String] = Array::new(capacity=rec.alt.length() + 1)
+    let alts : Array[String] = Array(capacity=rec.alt.length() + 1)
     alts.push(rec.ref_seq)
     for a in rec.alt {
       alts.push(a)
     }
     alleles.push(alts)
 
-    let per_sample : Array[Array[Int]] = Array::new(capacity=n_samples)
+    let per_sample : Array[Array[Int]] = Array(capacity=n_samples)
     for s in 0..<n_samples {
       let name = sample_names[s]
       let mut a1 = -1

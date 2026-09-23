@@ -66,7 +66,7 @@ pub fn rvgo_dist_matrix(sim : Array[Array[Double]]) -> Array[Array[Double]] {
 /// refers to leaf `-id - 1`.
 pub fn rvgo_hclust(dist : Array[Array[Double]]) -> Array[RvgoMerge] {
   let n = dist.length()
-  let merges : Array[RvgoMerge] = Array::new()
+  let merges : Array[RvgoMerge] = Array(capacity=0)
   if n <= 1 {
     return merges
   }
@@ -118,7 +118,7 @@ pub fn rvgo_hclust(dist : Array[Array[Double]]) -> Array[RvgoMerge] {
     // Merge best_a and best_b into next_id
     merges.push(RvgoMerge::{ first: best_a, second: best_b, height: best_d })
     // Build merged membership
-    let merged_members : Array[Int] = Array::new()
+    let merged_members : Array[Int] = Array(capacity=0)
     for m in members_index(members, best_a) {
       merged_members.push(m)
     }
@@ -136,7 +136,7 @@ pub fn rvgo_hclust(dist : Array[Array[Double]]) -> Array[RvgoMerge] {
       cdist.set(key_of(next_id, oc), davg)
     }
     // Remove best_a, best_b from active; add next_id
-    let new_active : Array[Int] = Array::new()
+    let new_active : Array[Int] = Array(capacity=0)
     for c in active {
       if c != best_a && c != best_b {
         new_active.push(c)
@@ -258,7 +258,7 @@ fn cluster_leaves(cluster_id : Int, merges : Array[RvgoMerge], n : Int) -> Array
     return []
   }
   let m = merges[midx]
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   for l in cluster_leaves(m.first, merges, n) {
     result.push(l)
   }
@@ -350,7 +350,7 @@ pub fn rvgo_representative(reduced : RvgoReduced, cluster : Int) -> String {
 ///|
 /// Get the term IDs assigned to a cluster.
 pub fn rvgo_cluster_terms(reduced : RvgoReduced, cluster : Int) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for i in 0..<reduced.term_ids.length() {
     if reduced.cluster_id[i] == cluster {
       result.push(reduced.term_ids[i])
@@ -379,7 +379,7 @@ pub fn rvgo_export(reduced : RvgoReduced) -> String {
 /// top two eigenpairs.
 pub fn rvgo_mds_2d(dist : Array[Array[Double]]) -> Array[(Double, Double)] {
   let n = dist.length()
-  let coords : Array[(Double, Double)] = Array::new()
+  let coords : Array[(Double, Double)] = Array(capacity=0)
   if n == 0 {
     return coords
   }
@@ -435,8 +435,8 @@ fn rvgo_topeigen(
   k : Int,
 ) -> (Array[Double], Array[Array[Double]]) {
   let n = m.length()
-  let evals : Array[Double] = Array::new()
-  let evecs : Array[Array[Double]] = Array::new()
+  let evals : Array[Double] = Array(capacity=0)
+  let evecs : Array[Array[Double]] = Array(capacity=0)
   if n == 0 {
     return (evals, evecs)
   }

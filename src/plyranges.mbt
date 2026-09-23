@@ -197,11 +197,11 @@ pub fn tgr_filter_metadata_str(
 ///|
 pub fn tgr_subset(tgr : TidifiedGRanges, keep : Array[Bool]) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
-  let new_seqnames : Array[String] = Array::new()
-  let new_starts : Array[Int] = Array::new()
-  let new_ends : Array[Int] = Array::new()
-  let new_strands : Array[String] = Array::new()
-  let new_widths : Array[Int] = Array::new()
+  let new_seqnames : Array[String] = Array(capacity=0)
+  let new_starts : Array[Int] = Array(capacity=0)
+  let new_ends : Array[Int] = Array(capacity=0)
+  let new_strands : Array[String] = Array(capacity=0)
+  let new_widths : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < n {
     if keep[i] {
@@ -217,7 +217,7 @@ pub fn tgr_subset(tgr : TidifiedGRanges, keep : Array[Bool]) -> TidifiedGRanges 
   let new_metadata_str = Map::new()
   for key in tgr.metadata.keys() {
     let old = tgr.metadata[key]
-    let nv : Array[Double] = Array::new()
+    let nv : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n {
       if keep[j] {
@@ -229,7 +229,7 @@ pub fn tgr_subset(tgr : TidifiedGRanges, keep : Array[Bool]) -> TidifiedGRanges 
   }
   for key in tgr.metadata_str.keys() {
     let old = tgr.metadata_str[key]
-    let nv : Array[String] = Array::new()
+    let nv : Array[String] = Array(capacity=0)
     let mut j = 0
     while j < n {
       if keep[j] {
@@ -507,7 +507,7 @@ pub fn tgr_summarise(
     return []
   }
   let groups = tgr_get_unique_strings(data)
-  let result : Array[GroupSummary] = Array::new()
+  let result : Array[GroupSummary] = Array(capacity=0)
   for g in groups {
     let mut count = 0
     let mut i = 0
@@ -563,7 +563,7 @@ pub fn tgr_summarise(
 ///|
 fn tgr_get_unique_strings(arr : Array[String]) -> Array[String] {
   let seen = Map::new()
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for s in arr {
     if !seen.contains(s) {
       seen[s] = true
@@ -586,7 +586,7 @@ pub fn tgr_group_mean(
     return []
   }
   let groups = tgr_get_unique_strings(data)
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
   for g in groups {
     let mut s = 0.0
     let mut c = 0
@@ -616,7 +616,7 @@ pub fn tgr_group_sum(
     return []
   }
   let groups = tgr_get_unique_strings(data)
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
   for g in groups {
     let mut s = 0.0
     let mut i = 0
@@ -637,7 +637,7 @@ pub fn tgr_join_overlap(
   left : TidifiedGRanges,
   right : TidifiedGRanges,
 ) -> Array[(Int, Int)] {
-  let result : Array[(Int, Int)] = Array::new()
+  let result : Array[(Int, Int)] = Array(capacity=0)
   let nl = left.seqnames.length()
   let nr = right.seqnames.length()
   let mut i = 0
@@ -848,11 +848,11 @@ pub fn tgr_flank(
   downstream : Int,
 ) -> TidifiedGRanges {
   let n = tgr.seqnames.length()
-  let new_seqnames : Array[String] = Array::new()
-  let new_starts : Array[Int] = Array::new()
-  let new_ends : Array[Int] = Array::new()
-  let new_strands : Array[String] = Array::new()
-  let new_widths : Array[Int] = Array::new()
+  let new_seqnames : Array[String] = Array(capacity=0)
+  let new_starts : Array[Int] = Array(capacity=0)
+  let new_ends : Array[Int] = Array(capacity=0)
+  let new_strands : Array[String] = Array(capacity=0)
+  let new_widths : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < n {
     // Upstream flank
@@ -952,7 +952,7 @@ pub fn tgr_intervene(
   if n == 0 {
     return []
   }
-  let result : Array[(String, Int)] = Array::new()
+  let result : Array[(String, Int)] = Array(capacity=0)
   // Compute pairwise overlaps
   let mut i = 0
   while i < n {
@@ -978,7 +978,7 @@ pub fn tgr_intervene(
 /// Convert TidifiedGRanges to BED format string.
 pub fn tgr_to_bed(tgr : TidifiedGRanges) -> String {
   let n = tgr.seqnames.length()
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < n {
     let line = "\{tgr.seqnames[i]}\t\{tgr.starts[i] - 1}\t\{tgr.ends[i]}"
@@ -1086,11 +1086,11 @@ pub fn tgr_intersect(
   b : TidifiedGRanges,
 ) -> TidifiedGRanges {
   let overlaps = tgr_join_overlap(a, b)
-  let result_seqnames : Array[String] = Array::new()
-  let result_starts : Array[Int] = Array::new()
-  let result_ends : Array[Int] = Array::new()
-  let result_strands : Array[String] = Array::new()
-  let result_widths : Array[Int] = Array::new()
+  let result_seqnames : Array[String] = Array(capacity=0)
+  let result_starts : Array[Int] = Array(capacity=0)
+  let result_ends : Array[Int] = Array(capacity=0)
+  let result_strands : Array[String] = Array(capacity=0)
+  let result_widths : Array[Int] = Array(capacity=0)
   for pair in overlaps {
     let i = pair.0
     let j = pair.1
@@ -1127,11 +1127,11 @@ pub fn tgr_union(a : TidifiedGRanges, b : TidifiedGRanges) -> TidifiedGRanges {
   for pair in overlaps {
     b_overlapping[pair.1] = true
   }
-  let result_seqnames : Array[String] = Array::new()
-  let result_starts : Array[Int] = Array::new()
-  let result_ends : Array[Int] = Array::new()
-  let result_strands : Array[String] = Array::new()
-  let result_widths : Array[Int] = Array::new()
+  let result_seqnames : Array[String] = Array(capacity=0)
+  let result_starts : Array[Int] = Array(capacity=0)
+  let result_ends : Array[Int] = Array(capacity=0)
+  let result_strands : Array[String] = Array(capacity=0)
+  let result_widths : Array[Int] = Array(capacity=0)
   // Add all from a
   let mut i = 0
   while i < a.seqnames.length() {

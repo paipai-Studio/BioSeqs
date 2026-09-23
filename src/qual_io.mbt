@@ -23,10 +23,10 @@
 ///
 /// Mirrors BioPython's SeqIO.parse(handle, "qual").
 pub fn parse_qual(content : String) -> Array[SeqRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let mut current_title : String? = None
-  let mut current_quals = Array::new() // Array[Int]
+  let mut current_quals = Array(capacity=0) // Array[Int]
   let gt : UInt16 = '>'.to_int().to_uint16()
   let cr : UInt16 = '\r'.to_int().to_uint16()
   let sp : UInt16 = ' '.to_int().to_uint16()
@@ -53,7 +53,7 @@ pub fn parse_qual(content : String) -> Array[SeqRecord] {
           ""
         },
       )
-      current_quals = Array::new()
+      current_quals = Array(capacity=0)
     } else {
       // Parse space-separated integer tokens from the line
       let mut num_start = -1
@@ -191,7 +191,7 @@ pub fn paired_fasta_qual_iterator(
     qual_by_id[qrec.id] = qrec
   }
   // Match and combine
-  let result = Array::new()
+  let result = Array(capacity=0)
   for frec in fasta_records {
     match qual_by_id.get(frec.id) {
       Some(qrec) =>

@@ -312,7 +312,7 @@ pub fn ga_evaluate_population(
   individuals : Array[GAIndividual],
   fitness_fn : (GAIndividual) -> Double,
 ) -> Array[GAIndividual] {
-  let result : Array[GAIndividual] = Array::new()
+  let result : Array[GAIndividual] = Array(capacity=0)
   for ind in individuals {
     let fit = fitness_fn(ind)
     result.push(
@@ -636,7 +636,7 @@ pub fn ga_evolve(
   fitness_fn : (GAIndividual) -> Double,
 ) -> GAResult {
   // Initialize population
-  let mut individuals : Array[GAIndividual] = Array::new()
+  let mut individuals : Array[GAIndividual] = Array(capacity=0)
   let mut i = 0
   while i < config.population_size {
     let seq = ga_random_sequence(config.sequence_length, config.alphabet)
@@ -658,7 +658,7 @@ pub fn ga_evolve(
   while generation < config.max_generations && !converged {
     generation = generation + 1
 
-    let mut offspring : Array[GAIndividual] = Array::new()
+    let mut offspring : Array[GAIndividual] = Array(capacity=0)
 
     // Elitism: keep best individual
     if config.elitism {
@@ -737,7 +737,7 @@ pub fn ga_evolve(
 /// Sort indices by fitness (descending).
 fn ga_sort_indices(individuals : Array[GAIndividual]) -> Array[Int] {
   let n = individuals.length()
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)

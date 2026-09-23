@@ -184,7 +184,7 @@ pub fn tajima_d(population : Array[String]) -> Double {
 
 ///|
 pub fn fst(subpop1 : Array[String], subpop2 : Array[String]) -> Double {
-  let combined : Array[String] = Array::new()
+  let combined : Array[String] = Array(capacity=0)
   for i = 0; i < subpop1.length(); i = i + 1 {
     combined.push(subpop1[i])
   }
@@ -225,7 +225,7 @@ pub fn fst_multiple(populations : Array[Array[String]]) -> Double {
     return 0.0
   }
 
-  let combined : Array[String] = Array::new()
+  let combined : Array[String] = Array(capacity=0)
   for i = 0; i < populations.length(); i = i + 1 {
     for j = 0; j < populations[i].length(); j = j + 1 {
       combined.push(populations[i][j])

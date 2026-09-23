@@ -107,7 +107,7 @@ pub fn detect_batch_effect(
   matrix : BEclearMatrix,
   threshold~ : Double = 0.05,
 ) -> Array[BEclearBatchSummary] {
-  let summaries : Array[BEclearBatchSummary] = Array::new()
+  let summaries : Array[BEclearBatchSummary] = Array(capacity=0)
   for i in 0..<matrix.n_rows() {
     let batch_values : Map[Int, Array[Double]] = Map::new()
     for j in 0..<matrix.n_cols() {
@@ -123,7 +123,7 @@ pub fn detect_batch_effect(
       }
     }
     let batch_medians : Map[Int, Double] = Map::new()
-    let all_values : Array[Double] = Array::new()
+    let all_values : Array[Double] = Array(capacity=0)
     for b in batch_values.keys() {
       match batch_values.get(b) {
         Some(arr) => {
@@ -173,7 +173,7 @@ pub fn beclear_affected_blocks(
   threshold~ : Double = 0.05,
 ) -> Array[(Int, Int)] {
   let summaries = detect_batch_effect(matrix, threshold~)
-  let blocks : Array[(Int, Int)] = Array::new()
+  let blocks : Array[(Int, Int)] = Array(capacity=0)
   for i in 0..<summaries.length() {
     let s = summaries[i]
     if s.affected {
@@ -203,7 +203,7 @@ fn beclear_correct_block(
   batch_id : Int,
   overall_median : Double,
 ) -> Unit {
-  let batch_vals : Array[Double] = Array::new()
+  let batch_vals : Array[Double] = Array(capacity=0)
   for j in 0..<matrix.n_cols() {
     let col_name = matrix.col_names[j]
     match matrix.batch.get(col_name) {
@@ -241,9 +241,9 @@ pub fn beclear(
 ) -> Array[Array[Double]] {
   let n_rows = matrix.n_rows()
   let n_cols = matrix.n_cols()
-  let corrected : Array[Array[Double]] = Array::new()
+  let corrected : Array[Array[Double]] = Array(capacity=0)
   for i in 0..<n_rows {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j in 0..<n_cols {
       row.push(matrix.data[i][j])
     }

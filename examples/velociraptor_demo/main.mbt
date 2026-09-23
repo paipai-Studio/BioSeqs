@@ -59,7 +59,7 @@ fn main {
   // 3. Kinetic model (EM)
   // ------------------------------------------------------------------
   println("=== 3. Kinetic Model (EM) ===")
-  let kinetics : Array[@bio.GeneKinetics] = Array::new()
+  let kinetics : Array[@bio.GeneKinetics] = Array(capacity=0)
   for gd in gene_data {
     let k = @bio.velocity_kinetic_model(
       gd.gene_name(), gd.spliced(), gd.unspliced(), 50

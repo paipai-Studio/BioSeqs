@@ -81,7 +81,7 @@ pub fn volcano_plot(
   y_label? : String = "-log10(p-value)",
 ) -> VolcanoResult {
   let n = gene_ids.length()
-  let genes : Array[VolcanoGene] = Array::new()
+  let genes : Array[VolcanoGene] = Array(capacity=0)
   let mut n_up = 0
   let mut n_down = 0
   let mut n_nonsig = 0
@@ -195,7 +195,7 @@ pub fn VolcanoResult::get_genes(self : VolcanoResult) -> Array[VolcanoGene] {
 pub fn VolcanoResult::get_significant_genes(
   self : VolcanoResult,
 ) -> Array[VolcanoGene] {
-  let sig : Array[VolcanoGene] = Array::new()
+  let sig : Array[VolcanoGene] = Array(capacity=0)
   let mut i = 0
   while i < self.genes.length() {
     if self.genes[i].significant {
@@ -229,7 +229,7 @@ pub fn VolcanoResult::get_top_genes(
     i = i + 1
   }
 
-  let result : Array[VolcanoGene] = Array::new()
+  let result : Array[VolcanoGene] = Array(capacity=0)
   let take = if n < len { n } else { len }
   let mut k = 0
   while k < take {
@@ -242,7 +242,7 @@ pub fn VolcanoResult::get_top_genes(
 ///|
 /// Get up-regulated genes.
 pub fn VolcanoResult::get_up_genes(self : VolcanoResult) -> Array[VolcanoGene] {
-  let up : Array[VolcanoGene] = Array::new()
+  let up : Array[VolcanoGene] = Array(capacity=0)
   let mut i = 0
   while i < self.genes.length() {
     if self.genes[i].classification is VolcanoClassification::Up {
@@ -258,7 +258,7 @@ pub fn VolcanoResult::get_up_genes(self : VolcanoResult) -> Array[VolcanoGene] {
 pub fn VolcanoResult::get_down_genes(
   self : VolcanoResult,
 ) -> Array[VolcanoGene] {
-  let down : Array[VolcanoGene] = Array::new()
+  let down : Array[VolcanoGene] = Array(capacity=0)
   let mut i = 0
   while i < self.genes.length() {
     if self.genes[i].classification is VolcanoClassification::Down {
@@ -316,10 +316,10 @@ pub fn VolcanoResult::to_ascii(
   let nlp_range = if max_neglog < 0.5 { 1.0 } else { max_neglog }
 
   // Build plot
-  let plot : Array[Array[String]] = Array::new()
+  let plot : Array[Array[String]] = Array(capacity=0)
   let mut r = 0
   while r < h {
-    let row : Array[String] = Array::new()
+    let row : Array[String] = Array(capacity=0)
     let mut c = 0
     while c < w {
       row.push(".")
@@ -431,9 +431,9 @@ pub fn VolcanoResult::summary(self : VolcanoResult) -> String {
 /// Create sample data for demo purposes.
 pub fn volcano_sample(n_genes : Int) -> VolcanoResult {
   let n = if n_genes < 10 { 10 } else { n_genes }
-  let ids : Array[String] = Array::new()
-  let lfcs : Array[Double] = Array::new()
-  let pvals : Array[Double] = Array::new()
+  let ids : Array[String] = Array(capacity=0)
+  let lfcs : Array[Double] = Array(capacity=0)
+  let pvals : Array[Double] = Array(capacity=0)
 
   // Generate deterministic sample data
   let names = [

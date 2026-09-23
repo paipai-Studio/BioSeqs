@@ -68,7 +68,7 @@ pub fn MastMotifSeq::new(name : String) -> MastMotifSeq {
     length: 0,
     combined_pvalue: 1.0,
     combined_evalue: 0.0,
-    matches: Array::new(),
+    matches: Array(capacity=0),
     diagram: "",
   }
 }
@@ -136,8 +136,8 @@ pub fn MastMotifRecord::new() -> MastMotifRecord {
   MastMotifRecord::{
     version: "",
     database: "",
-    motifs: Array::new(),
-    sequences: Array::new(),
+    motifs: Array(capacity=0),
+    sequences: Array(capacity=0),
     motif_count: 0,
     sequence_count: 0,
     hit_count: 0,
@@ -170,7 +170,7 @@ pub fn MastMotifRecord::motif_matches(
   self : MastMotifRecord,
   motif_id : String,
 ) -> Array[MastMotifMatch] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   for seq in self.sequences {
     for m in seq.matches {
       if m.motif_id == motif_id {
@@ -285,7 +285,7 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
       // Parse sequence lines with p-values
       // Format: "sequence_name description length p-value e-value"
       let parts = trimmed.split(" ").to_array()
-      let filtered : Array[String] = Array::new()
+      let filtered : Array[String] = Array(capacity=0)
       for p in parts {
         let s = p.trim().to_string()
         if s.length() > 0 {

@@ -170,7 +170,7 @@ pub fn DeBruijnGraph::all_nodes(self : DeBruijnGraph) -> Array[String] {
 
 ///|
 pub fn DeBruijnGraph::start_nodes(self : DeBruijnGraph) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let keys = self.node_info.keys().collect()
   for i = 0; i < keys.length(); i = i + 1 {
     match self.node_info.get(keys[i]) {
@@ -183,7 +183,7 @@ pub fn DeBruijnGraph::start_nodes(self : DeBruijnGraph) -> Array[String] {
 
 ///|
 pub fn DeBruijnGraph::end_nodes(self : DeBruijnGraph) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let keys = self.node_info.keys().collect()
   for i = 0; i < keys.length(); i = i + 1 {
     match self.node_info.get(keys[i]) {
@@ -196,7 +196,7 @@ pub fn DeBruijnGraph::end_nodes(self : DeBruijnGraph) -> Array[String] {
 
 ///|
 pub fn DeBruijnGraph::branch_nodes(self : DeBruijnGraph) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let keys = self.node_info.keys().collect()
   for i = 0; i < keys.length(); i = i + 1 {
     match self.node_info.get(keys[i]) {
@@ -212,8 +212,8 @@ pub fn DeBruijnGraph::hierholzer(
   self : DeBruijnGraph,
   start : String,
 ) -> Array[String] {
-  let current_path : Array[String] = Array::new()
-  let circuit : Array[String] = Array::new()
+  let current_path : Array[String] = Array(capacity=0)
+  let circuit : Array[String] = Array(capacity=0)
   let available : Map[String, Array[String]] = Map([], capacity=0)
   let edge_keys = self.edges.keys().collect()
   for i = 0; i < edge_keys.length(); i = i + 1 {
@@ -248,7 +248,7 @@ pub fn DeBruijnGraph::hierholzer(
       }
     }
   }
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for i = circuit.length() - 1; i >= 0; i = i - 1 {
     result.push(circuit[i])
   }

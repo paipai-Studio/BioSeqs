@@ -135,7 +135,7 @@ pub fn center_coordinates(
 ) -> Array[QCPAtomCoordinate] {
   let centroid = calculate_centroid(coords)
 
-  let result : Array[QCPAtomCoordinate] = Array::new()
+  let result : Array[QCPAtomCoordinate] = Array(capacity=0)
   for coord in coords {
     result.push(
       QCPAtomCoordinate::new(
@@ -558,7 +558,7 @@ pub fn QCPSuperimposer::apply(
   self : QCPSuperimposer,
   coords : Array[QCPAtomCoordinate],
 ) -> Array[QCPAtomCoordinate] {
-  let result : Array[QCPAtomCoordinate] = Array::new()
+  let result : Array[QCPAtomCoordinate] = Array(capacity=0)
 
   let mut i = 0
   while i < coords.length() {

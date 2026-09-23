@@ -21,9 +21,9 @@ test "biomart_get_annotation" {
 ///|
 test "biomart_query" {
   let mart = @src.create_human_mart()
-  let gene_ids = Array::new()
+  let gene_ids = Array(capacity=0)
   gene_ids.push("ENSG00000139618")
-  let attributes = Array::new()
+  let attributes = Array(capacity=0)
   attributes.push("external_gene_name")
   attributes.push("description")
   let results = mart.query(gene_ids, attributes)

@@ -188,11 +188,11 @@ pub fn DSSCountData::dss_n_samples(self : DSSCountData) -> Int {
 pub fn DSSCountData::dss_normalize(self : DSSCountData) -> Array[Array[Double]] {
   let n_genes = self.counts.length()
   let n_samples = if n_genes > 0 { self.counts[0].length() } else { 0 }
-  let normalized : Array[Array[Double]] = Array::new()
+  let normalized : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_genes {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < n_samples {
       let lib_size = if j < self.lib_sizes.length() {
@@ -217,8 +217,8 @@ pub fn DSSCountData::dss_filter_low_counts(
   min_count : Double,
   min_samples : Int,
 ) -> DSSCountData {
-  let new_gene_ids : Array[String] = Array::new()
-  let new_counts : Array[Array[Double]] = Array::new()
+  let new_gene_ids : Array[String] = Array(capacity=0)
+  let new_counts : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < self.gene_ids.length() {
@@ -501,7 +501,7 @@ pub fn dss_estimate_dispersion(counts_data : DSSCountData) -> DSSDispResult {
   let n_genes = counts_data.dss_n_genes()
   let n_samples = counts_data.dss_n_samples()
 
-  let dispersions : Array[Double] = Array::new()
+  let dispersions : Array[Double] = Array(capacity=0)
   let norm_counts = counts_data.dss_normalize()
 
   let mut i = 0
@@ -527,7 +527,7 @@ pub fn dss_estimate_dispersion(counts_data : DSSCountData) -> DSSDispResult {
   }
   let prior_var = mean_disp
 
-  let shrunken : Array[Double] = Array::new()
+  let shrunken : Array[Double] = Array(capacity=0)
   i = 0
   while i < n_genes {
     let disp = dispersions[i]
@@ -552,8 +552,8 @@ pub fn dss_deseq(
   let n_samples = counts_data.dss_n_samples()
   let norm_counts = counts_data.dss_normalize()
 
-  let group1_idx : Array[Int] = Array::new()
-  let group2_idx : Array[Int] = Array::new()
+  let group1_idx : Array[Int] = Array(capacity=0)
+  let group2_idx : Array[Int] = Array(capacity=0)
 
   let mut j = 0
   while j < n_samples {
@@ -568,12 +568,12 @@ pub fn dss_deseq(
   let n1 = group1_idx.length().to_double()
   let n2 = group2_idx.length().to_double()
 
-  let mean1_arr : Array[Double] = Array::new()
-  let mean2_arr : Array[Double] = Array::new()
-  let disp_arr : Array[Double] = Array::new()
-  let wald_stat_arr : Array[Double] = Array::new()
-  let p_values_arr : Array[Double] = Array::new()
-  let gene_ids_arr : Array[String] = Array::new()
+  let mean1_arr : Array[Double] = Array(capacity=0)
+  let mean2_arr : Array[Double] = Array(capacity=0)
+  let disp_arr : Array[Double] = Array(capacity=0)
+  let wald_stat_arr : Array[Double] = Array(capacity=0)
+  let p_values_arr : Array[Double] = Array(capacity=0)
+  let gene_ids_arr : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < n_genes {
@@ -637,7 +637,7 @@ pub fn dss_deseq(
   let adj_p_values = dss_benjamini_hochberg(p_values_arr)
 
   // Determine significance (FDR < 0.05)
-  let significant : Array[Bool] = Array::new()
+  let significant : Array[Bool] = Array(capacity=0)
   let mut k = 0
   while k < n_genes {
     significant.push(adj_p_values[k] < 0.05)
@@ -656,8 +656,8 @@ pub fn dss_dml(methyl_data : DSSMethylData) -> DSSDMResult {
   let n_sites = methyl_data.dss_n_cpgs()
   let n_samples = methyl_data.dss_n_samples()
 
-  let group1_idx : Array[Int] = Array::new()
-  let group2_idx : Array[Int] = Array::new()
+  let group1_idx : Array[Int] = Array(capacity=0)
+  let group2_idx : Array[Int] = Array(capacity=0)
 
   let mut j = 0
   while j < n_samples {
@@ -672,12 +672,12 @@ pub fn dss_dml(methyl_data : DSSMethylData) -> DSSDMResult {
   let n1 = group1_idx.length().to_double()
   let n2 = group2_idx.length().to_double()
 
-  let meth_mean1_arr : Array[Double] = Array::new()
-  let meth_mean2_arr : Array[Double] = Array::new()
-  let delta_meth_arr : Array[Double] = Array::new()
-  let stats_arr : Array[Double] = Array::new()
-  let p_values_arr : Array[Double] = Array::new()
-  let cpg_ids_arr : Array[String] = Array::new()
+  let meth_mean1_arr : Array[Double] = Array(capacity=0)
+  let meth_mean2_arr : Array[Double] = Array(capacity=0)
+  let delta_meth_arr : Array[Double] = Array(capacity=0)
+  let stats_arr : Array[Double] = Array(capacity=0)
+  let p_values_arr : Array[Double] = Array(capacity=0)
+  let cpg_ids_arr : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < n_sites {
@@ -733,7 +733,7 @@ pub fn dss_dml(methyl_data : DSSMethylData) -> DSSDMResult {
   // Multiple testing correction
   let adj_p_values = dss_benjamini_hochberg(p_values_arr)
 
-  let significant : Array[Bool] = Array::new()
+  let significant : Array[Bool] = Array(capacity=0)
   let mut s = 0
   while s < n_sites {
     significant.push(adj_p_values[s] < 0.05)
@@ -754,14 +754,14 @@ pub fn dss_dmr(
   min_cpgs : Int,
   min_delta : Double,
 ) -> DSSDMRResult {
-  let dmr_ids : Array[String] = Array::new()
-  let chrom_arr : Array[String] = Array::new()
-  let start_arr : Array[Int] = Array::new()
-  let end_arr : Array[Int] = Array::new()
-  let n_cpgs_arr : Array[Int] = Array::new()
-  let mean_delta_arr : Array[Double] = Array::new()
-  let stats_arr : Array[Double] = Array::new()
-  let p_values_arr : Array[Double] = Array::new()
+  let dmr_ids : Array[String] = Array(capacity=0)
+  let chrom_arr : Array[String] = Array(capacity=0)
+  let start_arr : Array[Int] = Array(capacity=0)
+  let end_arr : Array[Int] = Array(capacity=0)
+  let n_cpgs_arr : Array[Int] = Array(capacity=0)
+  let mean_delta_arr : Array[Double] = Array(capacity=0)
+  let stats_arr : Array[Double] = Array(capacity=0)
+  let p_values_arr : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < dm_result.cpg_ids.length() {
@@ -867,8 +867,8 @@ fn dss_benjamini_hochberg(p_values : Array[Double]) -> Array[Double] {
   }
 
   // Create index array and sort by p-value
-  let indices : Array[Int] = Array::new()
-  let sorted_pvals : Array[Double] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
+  let sorted_pvals : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < n {

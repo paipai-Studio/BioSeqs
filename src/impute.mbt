@@ -76,11 +76,11 @@ pub fn KNNImputeParam::with_k(k : Int) -> KNNImputeParam {
 ///|
 fn impute_copy_matrix(mat : Array[Array[Double]]) -> Array[Array[Double]] {
   let n = mat.length()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = mat[i]
     let m = row.length()
-    let new_row : Array[Double] = Array::new()
+    let new_row : Array[Double] = Array(capacity=0)
     for j = 0; j < m; j = j + 1 {
       new_row.push(row[j])
     }
@@ -92,13 +92,13 @@ fn impute_copy_matrix(mat : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 fn impute_transpose(mat : Array[Array[Double]]) -> Array[Array[Double]] {
   if mat.length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let rows = mat.length()
   let cols = mat[0].length()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < cols; j = j + 1 {
-    let col : Array[Double] = Array::new()
+    let col : Array[Double] = Array(capacity=0)
     for i = 0; i < rows; i = i + 1 {
       col.push(mat[i][j])
     }
@@ -110,9 +110,9 @@ fn impute_transpose(mat : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 /// Mark which positions are missing (NA).  True => NA.
 pub fn make_na_mask(mat : Array[Array[Double]]) -> Array[Array[Bool]] {
-  let out : Array[Array[Bool]] = Array::new()
+  let out : Array[Array[Bool]] = Array(capacity=0)
   for row in mat {
-    let r : Array[Bool] = Array::new()
+    let r : Array[Bool] = Array(capacity=0)
     for v in row {
       r.push(impute_is_na(v))
     }
@@ -127,7 +127,7 @@ pub fn impute_na_stats(mat : Array[Array[Double]]) -> ImputeNAStats {
   let rows = mat.length()
   let cols = if rows == 0 { 0 } else { mat[0].length() }
   let mut total = 0
-  let row_counts : Array[Int] = Array::new()
+  let row_counts : Array[Int] = Array(capacity=0)
   let col_counts : Array[Int] = Array::make(cols, 0)
   let mut r_na = 0
   for i = 0; i < rows; i = i + 1 {
@@ -199,7 +199,7 @@ fn impute_mean_clean(arr : Array[Double]) -> Double {
 
 ///|
 fn impute_median_clean(arr : Array[Double]) -> Double {
-  let clean : Array[Double] = Array::new()
+  let clean : Array[Double] = Array(capacity=0)
   for x in arr {
     if !impute_is_na(x) {
       clean.push(x)
@@ -302,12 +302,12 @@ pub fn impute_by_row_mean(mat : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 pub fn impute_by_col_mean(mat : Array[Array[Double]]) -> Array[Array[Double]] {
   if mat.length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let cols = mat[0].length()
-  let means : Array[Double] = Array::new()
+  let means : Array[Double] = Array(capacity=0)
   for j = 0; j < cols; j = j + 1 {
-    let c : Array[Double] = Array::new()
+    let c : Array[Double] = Array(capacity=0)
     for i = 0; i < mat.length(); i = i + 1 {
       c.push(mat[i][j])
     }
@@ -341,12 +341,12 @@ pub fn impute_by_row_median(mat : Array[Array[Double]]) -> Array[Array[Double]] 
 ///|
 pub fn impute_by_col_median(mat : Array[Array[Double]]) -> Array[Array[Double]] {
   if mat.length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let cols = mat[0].length()
-  let meds : Array[Double] = Array::new()
+  let meds : Array[Double] = Array(capacity=0)
   for j = 0; j < cols; j = j + 1 {
-    let c : Array[Double] = Array::new()
+    let c : Array[Double] = Array(capacity=0)
     for i = 0; i < mat.length(); i = i + 1 {
       c.push(mat[i][j])
     }
@@ -380,12 +380,12 @@ pub fn impute_by_row_min(mat : Array[Array[Double]]) -> Array[Array[Double]] {
 ///|
 pub fn impute_by_col_min(mat : Array[Array[Double]]) -> Array[Array[Double]] {
   if mat.length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let cols = mat[0].length()
-  let mins : Array[Double] = Array::new()
+  let mins : Array[Double] = Array(capacity=0)
   for j = 0; j < cols; j = j + 1 {
-    let c : Array[Double] = Array::new()
+    let c : Array[Double] = Array(capacity=0)
     for i = 0; i < mat.length(); i = i + 1 {
       c.push(mat[i][j])
     }
@@ -522,9 +522,9 @@ fn impute_compute_all_pair_distances(
   eps : Double,
 ) -> Array[Array[Double]] {
   let n = m.length()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n; j = j + 1 {
       let d = if i == j {
         0.0
@@ -544,7 +544,7 @@ fn impute_choose_k_neighbors(
   k : Int,
   self_i : Int,
 ) -> Array[(Int, Double)] {
-  let pairs : Array[(Int, Double)] = Array::new()
+  let pairs : Array[(Int, Double)] = Array(capacity=0)
   let n = dist_row.length()
   for i = 0; i < n; i = i + 1 {
     if i == self_i {
@@ -562,7 +562,7 @@ fn impute_choose_k_neighbors(
     }
   })
   let m = if k < pairs.length() { k } else { pairs.length() }
-  let out : Array[(Int, Double)] = Array::new()
+  let out : Array[(Int, Double)] = Array(capacity=0)
   for i = 0; i < m; i = i + 1 {
     out.push(pairs[i])
   }

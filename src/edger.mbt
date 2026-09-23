@@ -112,8 +112,8 @@ pub fn exact_test(
   let p_value : Array[Double] = Array::make(n_genes, 1.0)
   let fdr : Array[Double] = Array::make(n_genes, 1.0)
 
-  let group1_indices : Array[Int] = Array::new()
-  let group2_indices : Array[Int] = Array::new()
+  let group1_indices : Array[Int] = Array(capacity=0)
+  let group2_indices : Array[Int] = Array(capacity=0)
 
   for j = 0; j < n_cols; j = j + 1 {
     if dge.group[j] == group1 {

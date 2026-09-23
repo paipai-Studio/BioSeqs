@@ -390,7 +390,7 @@ pub fn genie3_run(
   let sym = symmetrize
 
   // Initialize weight matrix W[i][j] = importance of gene i for predicting gene j
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   let mut mi = 0
   while mi < n_genes {
     matrix.push(Array::make(n_genes, 0.0))
@@ -411,7 +411,7 @@ pub fn genie3_run(
       }
       gi = gi + 1
     }
-    let predictor_matrix : Array[Array[Double]] = Array::new()
+    let predictor_matrix : Array[Array[Double]] = Array(capacity=0)
     let mut pm = 0
     while pm < n_samples {
       predictor_matrix.push(Array::make(predictor_indices.length(), 0.0))

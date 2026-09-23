@@ -52,13 +52,13 @@ pub fn GAlignments::filter_by_mapq(
   self : GAlignments,
   min_mapq : Int,
 ) -> GAlignments {
-  let seqnames : Array[String] = Array::new()
-  let starts : Array[Int] = Array::new()
-  let ends : Array[Int] = Array::new()
-  let strands : Array[Strand] = Array::new()
-  let qnames : Array[String] = Array::new()
-  let mapqs : Array[Int] = Array::new()
-  let flags : Array[Int] = Array::new()
+  let seqnames : Array[String] = Array(capacity=0)
+  let starts : Array[Int] = Array(capacity=0)
+  let ends : Array[Int] = Array(capacity=0)
+  let strands : Array[Strand] = Array(capacity=0)
+  let qnames : Array[String] = Array(capacity=0)
+  let mapqs : Array[Int] = Array(capacity=0)
+  let flags : Array[Int] = Array(capacity=0)
 
   let mut i = 0
   while i < self.length() {
@@ -82,13 +82,13 @@ pub fn GAlignments::filter_by_strand(
   self : GAlignments,
   strand : Strand,
 ) -> GAlignments {
-  let seqnames : Array[String] = Array::new()
-  let starts : Array[Int] = Array::new()
-  let ends : Array[Int] = Array::new()
-  let strands : Array[Strand] = Array::new()
-  let qnames : Array[String] = Array::new()
-  let mapqs : Array[Int] = Array::new()
-  let flags : Array[Int] = Array::new()
+  let seqnames : Array[String] = Array(capacity=0)
+  let starts : Array[Int] = Array(capacity=0)
+  let ends : Array[Int] = Array(capacity=0)
+  let strands : Array[Strand] = Array(capacity=0)
+  let qnames : Array[String] = Array(capacity=0)
+  let mapqs : Array[Int] = Array(capacity=0)
+  let flags : Array[Int] = Array(capacity=0)
 
   let mut i = 0
   while i < self.length() {
@@ -128,9 +128,9 @@ pub struct Coverage {
 
 ///|
 pub fn coverage(galn : GAlignments) -> Array[Coverage] {
-  let seqnames : Array[String] = Array::new()
-  let all_positions : Array[Array[Int]] = Array::new()
-  let all_depths : Array[Array[Int]] = Array::new()
+  let seqnames : Array[String] = Array(capacity=0)
+  let all_positions : Array[Array[Int]] = Array(capacity=0)
+  let all_depths : Array[Array[Int]] = Array(capacity=0)
 
   let mut i = 0
   while i < galn.length() {
@@ -149,8 +149,8 @@ pub fn coverage(galn : GAlignments) -> Array[Coverage] {
 
     if seq_idx == -1 {
       seqnames.push(seqname)
-      all_positions.push(Array::new())
-      all_depths.push(Array::new())
+      all_positions.push(Array(capacity=0))
+      all_depths.push(Array(capacity=0))
       seq_idx = seqnames.length() - 1
     }
 
@@ -175,7 +175,7 @@ pub fn coverage(galn : GAlignments) -> Array[Coverage] {
     i = i + 1
   }
 
-  let result : Array[Coverage] = Array::new()
+  let result : Array[Coverage] = Array(capacity=0)
   let mut l = 0
   while l < seqnames.length() {
     let n_pos = all_positions[l].length()
@@ -318,7 +318,7 @@ pub fn pileup(
   galn : GAlignments,
   reference : Map[String, String],
 ) -> Array[PileupElement] {
-  let result : Array[PileupElement] = Array::new()
+  let result : Array[PileupElement] = Array(capacity=0)
 
   let mut i = 0
   while i < galn.length() {

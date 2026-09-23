@@ -239,7 +239,7 @@ fn _compute_qvalues(p_values : Array[Double], pi0 : Double) -> Array[Double] {
       [q]
     }
   } else {
-    let indexed : Array[Array[Double]] = Array::new()
+    let indexed : Array[Array[Double]] = Array(capacity=0)
     let mut i = 0
     while i < n {
       indexed.push([p_values[i], i.to_double()])
@@ -685,7 +685,7 @@ fn _check_pvalues_strict(p : Array[Double]) -> Unit raise QValueError {
 ///|
 /// Default lambda grid: seq(0.05, 0.95, 0.05) (19 values).
 fn _default_lambdas() -> Array[Double] {
-  let v : Array[Double] = Array::new()
+  let v : Array[Double] = Array(capacity=0)
   let mut i = 1
   while i <= 19 {
     v.push(i.to_double() * 0.05)
@@ -724,7 +724,7 @@ fn _pi0_lambda_path(
 ///|
 /// Allocate a dense r x c matrix of zeros (independent rows).
 fn _mat_new(r : Int, c : Int) -> Array[Array[Double]] {
-  let m : Array[Array[Double]] = Array::new()
+  let m : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < r {
     m.push(Array::make(c, 0.0))
@@ -736,7 +736,7 @@ fn _mat_new(r : Int, c : Int) -> Array[Array[Double]] {
 ///|
 /// Deep-copy a matrix.
 fn _mat_copy(a : Array[Array[Double]]) -> Array[Array[Double]] {
-  let m : Array[Array[Double]] = Array::new()
+  let m : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < a.length() {
     m.push(a[i].copy())
@@ -848,7 +848,7 @@ fn _jacobi_sym(
     ev0[i] = if a[i][i] < 0.0 { 0.0 } else { a[i][i] }
     i = i + 1
   }
-  let idx : Array[Int] = Array::new()
+  let idx : Array[Int] = Array(capacity=0)
   i = 0
   while i < m {
     idx.push(i)
@@ -1530,7 +1530,7 @@ pub fn qvalue_lfdr(
     }
   }
   if monotone {
-    let order : Array[Int] = Array::new()
+    let order : Array[Int] = Array(capacity=0)
     let mut i = 0
     while i < n {
       order.push(i)
@@ -1588,7 +1588,7 @@ pub fn empirical_pvalues(
     return pvals
   }
   // Merged entries: [value, is_observed (1.0/0.0), original index]
-  let merged : Array[Array[Double]] = Array::new()
+  let merged : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < m {
     merged.push([stat[i], 1.0, i.to_double()])
@@ -1791,7 +1791,7 @@ fn _compute_qvalues_official(
   if n == 0 {
     return []
   }
-  let indexed : Array[Array[Double]] = Array::new()
+  let indexed : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push([p_values[i], i.to_double()])

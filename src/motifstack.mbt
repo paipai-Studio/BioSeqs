@@ -40,7 +40,7 @@ pub fn StackMotif::len(self : StackMotif) -> Int {
 /// Flatten a 4 x L PWM into a length-4L vector for distance
 /// computation.
 pub fn motifstack_flatten(motif : StackMotif) -> Array[Double] {
-  let flat : Array[Double] = Array::new()
+  let flat : Array[Double] = Array(capacity=0)
   for row in motif.pwm {
     for v in row {
       flat.push(v)
@@ -113,7 +113,7 @@ pub fn motifstack_distance_matrix(
   motifs : Array[StackMotif],
 ) -> Array[Array[Double]] {
   let n = motifs.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
   for _i in 0..<n {
     matrix.push(Array::make(n, 0.0))
   }
@@ -138,7 +138,7 @@ pub(all) enum MotifStackNode {
 ///|
 /// Collect leaves of a subtree in order.
 pub fn MotifStackNode::leaves(self : MotifStackNode) -> Array[Int] {
-  let out : Array[Int] = Array::new()
+  let out : Array[Int] = Array(capacity=0)
   match self {
     MotifStackNode::Leaf(i) => out.push(i)
     MotifStackNode::Merge(l, r, _) => {
@@ -177,8 +177,8 @@ pub fn motifstack_hclust(
   if n == 1 {
     return Some(MotifStackNode::Leaf(0))
   }
-  let clusters : Array[MotifStackNode] = Array::new()
-  let members : Array[Array[Int]] = Array::new()
+  let clusters : Array[MotifStackNode] = Array(capacity=0)
+  let members : Array[Array[Int]] = Array(capacity=0)
   for i in 0..<n {
     clusters.push(MotifStackNode::Leaf(i))
     members.push([i])
@@ -218,8 +218,8 @@ pub fn motifstack_hclust(
       best_d,
     )
     let merged_members = members[best_i] + members[best_j]
-    let new_clusters : Array[MotifStackNode] = Array::new()
-    let new_members : Array[Array[Int]] = Array::new()
+    let new_clusters : Array[MotifStackNode] = Array(capacity=0)
+    let new_members : Array[Array[Int]] = Array(capacity=0)
     for a in 0..<m {
       if a != best_i && a != best_j {
         new_clusters.push(clusters[a])
@@ -256,7 +256,7 @@ pub fn motifstack_stack_order(motifs : Array[StackMotif]) -> Array[Int] {
 /// IC_j = sum_i p * log2(p / 0.25).
 pub fn motifstack_column_ic(motif : StackMotif) -> Array[Double] {
   let width = motif.len()
-  let ics : Array[Double] = Array::new()
+  let ics : Array[Double] = Array(capacity=0)
   for j in 0..<width {
     let mut ic = 0.0
     for i in 0..<4 {

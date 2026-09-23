@@ -28,9 +28,9 @@ pub fn calculate_droplet_stats(
   let n_barcodes = counts.length()
   let n_genes = if n_barcodes > 0 { counts[0].length() } else { 0 }
 
-  let total_counts : Array[Double] = Array::new()
-  let gene_counts : Array[Int] = Array::new()
-  let features : Array[(String, Double, Int)] = Array::new()
+  let total_counts : Array[Double] = Array(capacity=0)
+  let gene_counts : Array[Int] = Array(capacity=0)
+  let features : Array[(String, Double, Int)] = Array(capacity=0)
 
   let mut i = 0
   while i < n_barcodes {
@@ -66,7 +66,7 @@ pub fn calculate_droplet_stats(
 
 ///|
 pub fn barcode_ranking(total_counts : Array[Double]) -> Array[(Double, Int)] {
-  let ranked : Array[(Double, Int)] = Array::new()
+  let ranked : Array[(Double, Int)] = Array(capacity=0)
 
   let mut i = 0
   while i < total_counts.length() {
@@ -147,8 +147,8 @@ pub fn empty_drops(
 
   let stats = calculate_droplet_stats(counts, barcodes)
 
-  let ambient_barcodes : Array[Array[Int]] = Array::new()
-  let ambient_indices : Array[Int] = Array::new()
+  let ambient_barcodes : Array[Array[Int]] = Array(capacity=0)
+  let ambient_indices : Array[Int] = Array(capacity=0)
 
   let mut i = 0
   while i < n_barcodes {
@@ -182,10 +182,10 @@ pub fn empty_drops(
     i = i + 1
   }
 
-  let barcodes_result : Array[String] = Array::new()
-  let total_result : Array[Double] = Array::new()
-  let log_prob_empty_result : Array[Double] = Array::new()
-  let p_value_result : Array[Double] = Array::new()
+  let barcodes_result : Array[String] = Array(capacity=0)
+  let total_result : Array[Double] = Array(capacity=0)
+  let log_prob_empty_result : Array[Double] = Array(capacity=0)
+  let p_value_result : Array[Double] = Array(capacity=0)
 
   i = 0
   while i < n_barcodes {
@@ -270,7 +270,7 @@ pub fn empty_drops(
 
   let fdr_result = benjamini_hochberg(p_value_result)
 
-  let is_cell_result : Array[Bool] = Array::new()
+  let is_cell_result : Array[Bool] = Array(capacity=0)
   i = 0
   while i < fdr_result.length() {
     is_cell_result.push(fdr_result[i] <= 0.01)
@@ -291,7 +291,7 @@ pub fn empty_drops(
 fn benjamini_hochberg(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
 
-  let indexed : Array[(Double, Int)] = Array::new()
+  let indexed : Array[(Double, Int)] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push((p_values[i], i))
@@ -341,8 +341,8 @@ pub fn filter_cells_by_empty_drops(
   barcodes : Array[String],
   result : EmptyDropsResult,
 ) -> (Array[Array[Int]], Array[String]) {
-  let filtered_counts : Array[Array[Int]] = Array::new()
-  let filtered_barcodes : Array[String] = Array::new()
+  let filtered_counts : Array[Array[Int]] = Array(capacity=0)
+  let filtered_barcodes : Array[String] = Array(capacity=0)
 
   let barcode_map : Map[String, Bool] = Map(
     [],
@@ -386,12 +386,12 @@ pub fn create_example_droplet_data() -> (Array[Array[Int]], Array[String]) {
   let n_barcodes = 100
   let n_genes = 500
 
-  let counts : Array[Array[Int]] = Array::new()
-  let barcodes : Array[String] = Array::new()
+  let counts : Array[Array[Int]] = Array(capacity=0)
+  let barcodes : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < n_barcodes {
-    let row : Array[Int] = Array::new()
+    let row : Array[Int] = Array(capacity=0)
     let s = i.to_string()
     let pad = "00000000"
     let padded = if s.length() < 8 {

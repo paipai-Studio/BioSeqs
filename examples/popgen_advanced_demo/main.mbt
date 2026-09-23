@@ -7,7 +7,7 @@ fn main {
   println("=== Advanced Population Genetics Demo ===\n")
 
   println("1. Creating polymorphic sites...")
-  let sites : Array[@src.PolymorphicSite] = Array::new()
+  let sites : Array[@src.PolymorphicSite] = Array(capacity=0)
   let sample_size = 30
   let mut i = 0
   while i < 10 {

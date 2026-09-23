@@ -121,7 +121,7 @@ fn main {
   // ---- Section 11: Fit signatures to a sample ----
   println("=== 11. Fit Signatures to Sample S1 ===")
   // Use S1 frequencies as sample profile
-  let s1_profile : Array[Double] = Array::new()
+  let s1_profile : Array[Double] = Array(capacity=0)
   let mut pp = 0
   while pp < 96 {
     s1_profile.push(freqs[pp][0])

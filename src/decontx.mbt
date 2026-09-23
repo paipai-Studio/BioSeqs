@@ -136,7 +136,7 @@ pub struct DecontXSCEOutput {
 
 ///|
 fn decontx_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut row = 0
   while row < rows {
     result.push(Array::make(columns, 0.0))
@@ -147,7 +147,7 @@ fn decontx_zero_matrix(rows : Int, columns : Int) -> Array[Array[Double]] {
 
 ///|
 fn decontx_copy_matrix(matrix : Array[Array[Double]]) -> Array[Array[Double]] {
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   let mut row = 0
   while row < matrix.length() {
     result.push(matrix[row].copy())
@@ -205,7 +205,7 @@ fn decontx_prepare_names(
       prefix + " names must match the matrix dimension",
     )
   }
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   let mut index = 0
   while index < length {
     let name = if supplied.length() == 0 {
@@ -241,8 +241,8 @@ fn decontx_encode_clusters(
       "cluster labels must match the number of cells",
     )
   }
-  let names : Array[String] = Array::new()
-  let indices : Array[Int] = Array::new()
+  let names : Array[String] = Array(capacity=0)
+  let indices : Array[Int] = Array(capacity=0)
   let mut cell = 0
   while cell < labels.length() {
     let label = labels[cell]
@@ -527,7 +527,7 @@ pub fn decontx(
   )
   let contamination = Array::make(n_cells, config.initial_contamination)
   let library_sizes = decontx_library_sizes(counts)
-  let log_likelihoods : Array[Double] = Array::new()
+  let log_likelihoods : Array[Double] = Array(capacity=0)
   let mut iterations = 0
   let mut converged = false
   while iterations < config.max_iterations && !converged {
@@ -655,10 +655,10 @@ pub fn decontx_auto(
     )
   }
   let library_sizes = decontx_library_sizes(counts)
-  let points : Array[Point] = Array::new()
+  let points : Array[Point] = Array(capacity=0)
   let mut cell = 0
   while cell < n_cells {
-    let point : Array[Double] = Array::new()
+    let point : Array[Double] = Array(capacity=0)
     let scale = if library_sizes[cell] > 0.0 {
       10000.0 / library_sizes[cell]
     } else {
@@ -673,7 +673,7 @@ pub fn decontx_auto(
     cell = cell + 1
   }
   let model = KMeans::new(n_clusters, 100, 1.0e-8).fit(points)
-  let labels : Array[String] = Array::new()
+  let labels : Array[String] = Array(capacity=0)
   let assigned = model.get_labels()
   cell = 0
   while cell < assigned.length() {
@@ -770,7 +770,7 @@ pub fn DecontXResult::cell_estimate(
 pub fn DecontXResult::cluster_estimates(
   self : DecontXResult,
 ) -> Array[DecontXClusterEstimate] {
-  let result : Array[DecontXClusterEstimate] = Array::new()
+  let result : Array[DecontXClusterEstimate] = Array(capacity=0)
   let mut cluster = 0
   while cluster < self.cluster_names.length() {
     let mut n_cells = 0
@@ -816,7 +816,7 @@ pub fn DecontXResult::most_contaminated_cells(
   if n <= 0 {
     return []
   }
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
   let mut cell = 0
   while cell < self.n_cells() {
     indices.push(cell)
@@ -840,7 +840,7 @@ pub fn DecontXResult::most_contaminated_cells(
     }
     position = position + 1
   }
-  let result : Array[DecontXCellEstimate] = Array::new()
+  let result : Array[DecontXCellEstimate] = Array(capacity=0)
   let limit = if n < indices.length() { n } else { indices.length() }
   position = 0
   while position < limit {
@@ -959,7 +959,7 @@ pub fn decontx_sce(
   )
   let enriched = decontx_copy_sce(sce)
   enriched.assays[output_assay] = decontx_copy_matrix(result.corrected_counts)
-  let contamination_strings : Array[String] = Array::new()
+  let contamination_strings : Array[String] = Array(capacity=0)
   let mut cell = 0
   while cell < result.contamination.length() {
     contamination_strings.push(result.contamination[cell].to_string())

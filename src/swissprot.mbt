@@ -82,24 +82,24 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
   let lines = split_by_char(text, '\n'.to_int())
 
   let mut entry_name = ""
-  let accession_numbers : Array[String] = Array::new()
+  let accession_numbers : Array[String] = Array(capacity=0)
   let mut protein_name = ""
-  let gene_names : Array[String] = Array::new()
+  let gene_names : Array[String] = Array(capacity=0)
   let mut organism = ""
   let mut organism_id = ""
-  let taxonomy : Array[String] = Array::new()
+  let taxonomy : Array[String] = Array(capacity=0)
   let mut sequence = ""
   let mut seq_length = 0
   let mut seq_mass = 0.0
-  let keywords : Array[String] = Array::new()
+  let keywords : Array[String] = Array(capacity=0)
   let mut function = ""
-  let subcellular_location : Array[String] = Array::new()
+  let subcellular_location : Array[String] = Array(capacity=0)
   let mut tissue_specificity = ""
-  let ec_numbers : Array[String] = Array::new()
-  let domains : Array[String] = Array::new()
-  let references : Array[SwissProtReference] = Array::new()
-  let comments : Array[(String, String)] = Array::new()
-  let features : Array[SwissProtFeature] = Array::new()
+  let ec_numbers : Array[String] = Array(capacity=0)
+  let domains : Array[String] = Array(capacity=0)
+  let references : Array[SwissProtReference] = Array(capacity=0)
+  let comments : Array[(String, String)] = Array(capacity=0)
+  let features : Array[SwissProtFeature] = Array(capacity=0)
   let mut date_created = ""
   let mut date_modified = ""
   let mut version = 0
@@ -108,7 +108,7 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
   let mut in_sequence = false
   let mut current_ref_num = 0
   let mut current_ref_title = ""
-  let current_ref_authors : Array[String] = Array::new()
+  let current_ref_authors : Array[String] = Array(capacity=0)
   let mut current_ref_journal = ""
   let mut current_ref_pubmed = ""
   let mut current_ref_doi = ""
@@ -466,7 +466,7 @@ pub fn parse_swissprot(text : String) -> SwissProtRecord? {
 ///|
 /// Copy a string array.
 fn copy_string_array(arr : Array[String]) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   for s in arr {
     result.push(s)
   }
@@ -482,7 +482,7 @@ fn copy_string_array(arr : Array[String]) -> Array[String] {
 /// exactly when no entry could be parsed. The first entry alone is also
 /// available through `parse_swissprot`.
 pub fn parse_swissprot_all(text : String) -> Array[SwissProtRecord] {
-  let records : Array[SwissProtRecord] = Array::new()
+  let records : Array[SwissProtRecord] = Array(capacity=0)
   let lines = split_by_char(text, '\n'.to_int())
   let chunk : StringBuilder = StringBuilder()
   for line in lines {
@@ -606,7 +606,7 @@ pub fn SwissProtRecord::get_features(
   self : SwissProtRecord,
   feature_type : String,
 ) -> Array[SwissProtFeature] {
-  let result : Array[SwissProtFeature] = Array::new()
+  let result : Array[SwissProtFeature] = Array(capacity=0)
   for f in self.features {
     if f.feature_type == feature_type {
       result.push(f)

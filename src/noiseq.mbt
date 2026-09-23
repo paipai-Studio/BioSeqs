@@ -185,7 +185,7 @@ pub fn noiseq_normalize(
     NOISeqNorm::None => samples
     NOISeqNorm::RPKM => {
       // RPKM: Reads Per Kilobase Million (simplified: just scale to library size)
-      let normalized : Array[NOISeqSample] = Array::new()
+      let normalized : Array[NOISeqSample] = Array(capacity=0)
       let mut i = 0
       while i < samples.length() {
         let sample = samples[i]
@@ -209,7 +209,7 @@ pub fn noiseq_normalize(
     NOISeqNorm::TMM => {
       // TMM: Trimmed Mean of M-values (simplified version)
       // Compute normalization factors relative to first sample
-      let normalized : Array[NOISeqSample] = Array::new()
+      let normalized : Array[NOISeqSample] = Array(capacity=0)
       if samples.length() == 0 {
         return normalized
       }
@@ -245,14 +245,14 @@ pub fn noiseq_normalize(
     }
     NOISeqNorm::UpperQuartile => {
       // Upper Quartile normalization
-      let normalized : Array[NOISeqSample] = Array::new()
+      let normalized : Array[NOISeqSample] = Array(capacity=0)
       let mut i = 0
       while i < samples.length() {
         let sample = samples[i]
         let norm_sample = NOISeqSample::new(sample.sample_id, sample.condition)
 
         // Collect non-zero counts
-        let counts : Array[Double] = Array::new()
+        let counts : Array[Double] = Array(capacity=0)
         let key_list = sample.counts.keys().collect()
         let mut ki = 0
         while ki < key_list.length() {
@@ -345,20 +345,20 @@ pub fn noiseq_run(
     ti = ti + 1
   }
 
-  let results : Array[NOISeqResult] = Array::new()
+  let results : Array[NOISeqResult] = Array(capacity=0)
 
   let gid_list = gene_ids.keys().collect()
   let mut gi = 0
   while gi < gid_list.length() {
     let gid = gid_list[gi]
     // Compute mean expression per condition
-    let ctrl_vals : Array[Double] = Array::new()
+    let ctrl_vals : Array[Double] = Array(capacity=0)
     let mut ci2 = 0
     while ci2 < norm_ctrl.length() {
       ctrl_vals.push(norm_ctrl[ci2].get_count(gid))
       ci2 = ci2 + 1
     }
-    let trt_vals : Array[Double] = Array::new()
+    let trt_vals : Array[Double] = Array(capacity=0)
     let mut ti2 = 0
     while ti2 < norm_trt.length() {
       trt_vals.push(norm_trt[ti2].get_count(gid))
@@ -532,7 +532,7 @@ pub fn NOISeqResults::get_n_results(self : NOISeqResults) -> Int {
 pub fn NOISeqResults::get_significant(
   self : NOISeqResults,
 ) -> Array[NOISeqResult] {
-  let sig : Array[NOISeqResult] = Array::new()
+  let sig : Array[NOISeqResult] = Array(capacity=0)
   let mut i = 0
   while i < self.results.length() {
     if self.results[i].significant {
@@ -549,7 +549,7 @@ pub fn NOISeqResults::get_top_genes(
   self : NOISeqResults,
   n : Int,
 ) -> Array[NOISeqResult] {
-  let result : Array[NOISeqResult] = Array::new()
+  let result : Array[NOISeqResult] = Array(capacity=0)
   let take = if n < self.results.length() { n } else { self.results.length() }
   let mut i = 0
   while i < take {
@@ -564,7 +564,7 @@ pub fn NOISeqResults::get_top_genes(
 pub fn NOISeqResults::get_up_regulated(
   self : NOISeqResults,
 ) -> Array[NOISeqResult] {
-  let result : Array[NOISeqResult] = Array::new()
+  let result : Array[NOISeqResult] = Array(capacity=0)
   let mut i = 0
   while i < self.results.length() {
     if self.results[i].significant && self.results[i].log2fc > 0.0 {
@@ -580,7 +580,7 @@ pub fn NOISeqResults::get_up_regulated(
 pub fn NOISeqResults::get_down_regulated(
   self : NOISeqResults,
 ) -> Array[NOISeqResult] {
-  let result : Array[NOISeqResult] = Array::new()
+  let result : Array[NOISeqResult] = Array(capacity=0)
   let mut i = 0
   while i < self.results.length() {
     if self.results[i].significant && self.results[i].log2fc < 0.0 {
@@ -636,7 +636,7 @@ pub fn noiseq_qc(samples : Array[NOISeqSample]) -> NOISeqQC {
   length_dist.set("5000+", 5)
 
   // Bias detection (simplified: check if library sizes are very different)
-  let lib_sizes : Array[Double] = Array::new()
+  let lib_sizes : Array[Double] = Array(capacity=0)
   let mut li = 0
   while li < samples.length() {
     lib_sizes.push(samples[li].library_size())
@@ -676,7 +676,7 @@ pub fn noiseq_sample_data() -> (Array[NOISeqSample], Array[NOISeqSample]) {
   ]
 
   // Control samples
-  let ctrl_samples : Array[NOISeqSample] = Array::new()
+  let ctrl_samples : Array[NOISeqSample] = Array(capacity=0)
   let mut si = 0
   while si < 3 {
     let sample = NOISeqSample::new("ctrl_" + si.to_string(), "control")
@@ -691,7 +691,7 @@ pub fn noiseq_sample_data() -> (Array[NOISeqSample], Array[NOISeqSample]) {
   }
 
   // Treatment samples (with differential expression)
-  let trt_samples : Array[NOISeqSample] = Array::new()
+  let trt_samples : Array[NOISeqSample] = Array(capacity=0)
   let mut si2 = 0
   while si2 < 3 {
     let sample = NOISeqSample::new("trt_" + si2.to_string(), "treatment")

@@ -78,7 +78,7 @@ pub fn af_filter(
   annotations : Array[Annotation],
   conditions : Array[FilterCondition],
 ) -> Array[Annotation] {
-  let result : Array[Annotation] = Array::new()
+  let result : Array[Annotation] = Array(capacity=0)
   let mut i = 0
   while i < annotations.length() {
     let mut match_all = true
@@ -128,7 +128,7 @@ pub fn af_filter_region(
   start : Int,
   end : Int,
 ) -> Array[Annotation] {
-  let result : Array[Annotation] = Array::new()
+  let result : Array[Annotation] = Array(capacity=0)
   let mut i = 0
   while i < annotations.length() {
     let ann = annotations[i]
@@ -163,7 +163,7 @@ pub fn af_filter_biotype_in(
   annotations : Array[Annotation],
   biotypes : Array[String],
 ) -> Array[Annotation] {
-  let result : Array[Annotation] = Array::new()
+  let result : Array[Annotation] = Array(capacity=0)
   let mut i = 0
   while i < annotations.length() {
     let mut match_biotype = false
@@ -188,7 +188,7 @@ pub fn af_filter_by_multiple_conditions(
   conditions : Array[FilterCondition],
   logic : String,
 ) -> Array[Annotation] {
-  let result : Array[Annotation] = Array::new()
+  let result : Array[Annotation] = Array(capacity=0)
   let mut i = 0
   while i < annotations.length() {
     let mut match_result = match logic {

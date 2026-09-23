@@ -781,11 +781,11 @@ pub fn coverage_as_granges(
   gr : GRanges,
   seqlengths : Map[String, Int],
 ) -> GRanges {
-  let result_seqnames : Array[String] = Array::new()
-  let result_starts : Array[Int] = Array::new()
-  let result_ends : Array[Int] = Array::new()
-  let result_strands : Array[Strand] = Array::new()
-  let result_widths : Array[Int] = Array::new()
+  let result_seqnames : Array[String] = Array(capacity=0)
+  let result_starts : Array[Int] = Array(capacity=0)
+  let result_ends : Array[Int] = Array(capacity=0)
+  let result_strands : Array[Strand] = Array(capacity=0)
+  let result_widths : Array[Int] = Array(capacity=0)
 
   let cov_map = coverage_granges(gr, seqlengths)
 
@@ -877,11 +877,11 @@ pub fn distance_to_nearest(gr : GRanges) -> Array[Int] {
 /// Subset GRanges by a logical condition (as boolean indices).
 pub fn granges_subset(gr : GRanges, keep : Array[Bool]) -> GRanges {
   let n = gr.seqnames.length()
-  let new_seqnames : Array[String] = Array::new()
-  let new_starts : Array[Int] = Array::new()
-  let new_ends : Array[Int] = Array::new()
-  let new_strands : Array[Strand] = Array::new()
-  let new_widths : Array[Int] = Array::new()
+  let new_seqnames : Array[String] = Array(capacity=0)
+  let new_starts : Array[Int] = Array(capacity=0)
+  let new_ends : Array[Int] = Array(capacity=0)
+  let new_strands : Array[Strand] = Array(capacity=0)
+  let new_widths : Array[Int] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -915,7 +915,7 @@ pub fn granges_sort(gr : GRanges) -> GRanges {
     i = i + 1
   }
 
-  let mut sorted_indices : Array[Int] = Array::new()
+  let mut sorted_indices : Array[Int] = Array(capacity=0)
   // Simple bubble sort for demonstration
   let arr = indices.copy()
   let mut swapped = true
@@ -938,11 +938,11 @@ pub fn granges_sort(gr : GRanges) -> GRanges {
 
   sorted_indices = arr
 
-  let new_seqnames : Array[String] = Array::new()
-  let new_starts : Array[Int] = Array::new()
-  let new_ends : Array[Int] = Array::new()
-  let new_strands : Array[Strand] = Array::new()
-  let new_widths : Array[Int] = Array::new()
+  let new_seqnames : Array[String] = Array(capacity=0)
+  let new_starts : Array[Int] = Array(capacity=0)
+  let new_ends : Array[Int] = Array(capacity=0)
+  let new_strands : Array[Strand] = Array(capacity=0)
+  let new_widths : Array[Int] = Array(capacity=0)
 
   let mut k = 0
   while k < sorted_indices.length() {

@@ -324,7 +324,7 @@ fn _cu_aa_groups(codon_map : Map[String, String]) -> Map[String, Array[String]] 
       Some(aa) => {
         if aa != "*" {
           if !groups.contains(aa) {
-            groups[aa] = Array::new()
+            groups[aa] = Array(capacity=0)
           }
           groups[aa].push(codon)
         }
@@ -373,7 +373,7 @@ pub fn seq_gc123(seq : String) -> Array[Double] {
     i = i + 3
   }
 
-  let result : Array[Double] = Array::new()
+  let result : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < 3 {
     if total_counts[j] == 0 {
@@ -402,7 +402,7 @@ pub fn seq_gc123(seq : String) -> Array[Double] {
 pub fn seq_six_frame_translations(seq : String, table? : Int = 1) -> Array[SixFrameTranslation] {
   let seq_upper = seq.to_upper()
   let codon_map = codon_table(table)
-  let result : Array[SixFrameTranslation] = Array::new()
+  let result : Array[SixFrameTranslation] = Array(capacity=0)
 
   let mut frame = 0
   while frame < 3 {
@@ -491,7 +491,7 @@ pub fn cai_weights(sequences : Array[String], table? : Int = 1) -> Map[String, D
     let aa = aa_keys[a]
     let aa_codons = match aa_groups.get(aa) {
       Some(c) => c
-      None => Array::new()
+      None => Array(capacity=0)
     }
 
     let mut max_freq = 0.0
@@ -548,7 +548,7 @@ pub fn codon_adaptation_index(
   let seq_upper = seq.to_upper()
   let codon_map = codon_table(table)
 
-  let ln_w_values : Array[Double] = Array::new()
+  let ln_w_values : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i + 3 <= seq_upper.length() {
     let codon = seq_upper[i:i + 3].to_owned().to_upper()
@@ -616,7 +616,7 @@ pub fn seq_enc_wright(seq : String, table? : Int = 1) -> Double {
     let aa = aa_keys[a]
     let aa_codons = match aa_groups.get(aa) {
       Some(c) => c
-      None => Array::new()
+      None => Array(capacity=0)
     }
 
     if aa_codons.length() <= 1 {
@@ -742,7 +742,7 @@ pub fn codon_table_reverse(table_id? : Int = 1) -> Map[String, Array[String]] {
       Some(aa) => {
         if aa != "*" {
           if !reverse.contains(aa) {
-            reverse[aa] = Array::new()
+            reverse[aa] = Array(capacity=0)
           }
           reverse[aa].push(codon)
         }

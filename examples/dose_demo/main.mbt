@@ -19,7 +19,7 @@ fn main {
   let db : Map[String, Array[String]] = Map([])
 
   // TERM_A: 28 of 180 query genes are in this term → strong enrichment
-  let ta : Array[String] = Array::new()
+  let ta : Array[String] = Array(capacity=0)
   let mut i = 1
   while i <= 600 { ta.push("TA" + i.to_string()); i = i + 1 }
   let qa = ["Q001","Q002","Q003","Q004","Q005","Q006","Q007","Q008",
@@ -31,7 +31,7 @@ fn main {
   db["TERM_A (Cancer Signaling)"] = ta
 
   // TERM_B: 15 of 180 → weak enrichment
-  let tb : Array[String] = Array::new()
+  let tb : Array[String] = Array(capacity=0)
   i = 1
   while i <= 900 { tb.push("TB" + i.to_string()); i = i + 1 }
   let qb = ["Q001","Q002","Q003","Q004","Q005","Q006","Q007","Q008",
@@ -41,7 +41,7 @@ fn main {
   db["TERM_B (Cell Cycle)"] = tb
 
   // TERM_C: 12 of 180 → moderate enrichment
-  let tc : Array[String] = Array::new()
+  let tc : Array[String] = Array(capacity=0)
   i = 1
   while i <= 400 { tc.push("TC" + i.to_string()); i = i + 1 }
   let qc = ["Q001","Q002","Q003","Q004","Q005","Q006","Q007","Q008",
@@ -51,7 +51,7 @@ fn main {
   db["TERM_C (Apoptosis)"] = tc
 
   // TERM_D: 8 of 180 in a huge 1500-gene term → depletion
-  let td : Array[String] = Array::new()
+  let td : Array[String] = Array(capacity=0)
   i = 1
   while i <= 1500 { td.push("TD" + i.to_string()); i = i + 1 }
   let qd = ["Q001","Q002","Q003","Q004","Q005","Q006","Q007","Q008"]
@@ -60,7 +60,7 @@ fn main {
   db["TERM_D (Ubiquitous Housekeeping)"] = td
 
   // TERM_E: 15 of 180 in a small 250-gene term → strong enrichment
-  let te : Array[String] = Array::new()
+  let te : Array[String] = Array(capacity=0)
   i = 1
   while i <= 250 { te.push("TE" + i.to_string()); i = i + 1 }
   let qe = ["Q010","Q011","Q012","Q013","Q014","Q015","Q016","Q017",
@@ -75,7 +75,7 @@ fn main {
   // 2. Build query gene list and background.
   // ---------------------------------------------------------------------
   println("\n2. Query and background")
-  let query : Array[String] = Array::new()
+  let query : Array[String] = Array(capacity=0)
   i = 1
   while i <= 180 {
     // Pad to 3 digits so "Q1" → "Q001", matching the term-gene names.
@@ -90,7 +90,7 @@ fn main {
     query.push("Q" + suffix)
     i = i + 1
   }
-  let bg : Array[String] = Array::new()
+  let bg : Array[String] = Array(capacity=0)
   let keys = db.keys().collect()
   i = 0
   while i < keys.length() {

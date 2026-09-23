@@ -143,7 +143,7 @@ pub fn compound_from_simple(
   ends : Array[Int],
   strand? : String = "+",
 ) -> Loc {
-  let locs : Array[Loc] = Array::new()
+  let locs : Array[Loc] = Array(capacity=0)
   let mut i = 0
   while i < starts.length() {
     let sp = exact_position(starts[i])
@@ -231,7 +231,7 @@ pub fn loc_is_compound(loc : Loc) -> Bool {
 pub fn loc_parts(loc : Loc) -> Array[Loc] {
   match loc {
     SimpleLocation(_, _, _, _) => {
-      let result : Array[Loc] = Array::new()
+      let result : Array[Loc] = Array(capacity=0)
       result.push(loc)
       result
     }
@@ -491,7 +491,7 @@ fn parse_int_trimmed(sv : StringView) -> Int {
 ///|
 /// Create a sample location for testing.
 pub fn seq_location_sample() -> Array[Loc] {
-  let locs : Array[Loc] = Array::new()
+  let locs : Array[Loc] = Array(capacity=0)
   locs.push(simple_location(exact_position(10), exact_position(50), strand="+"))
   locs.push(
     simple_location(exact_position(100), exact_position(200), strand="-"),
@@ -511,7 +511,7 @@ pub fn seq_location_sample() -> Array[Loc] {
     exact_position(600),
     strand="+",
   )
-  let exon_locs : Array[Loc] = Array::new()
+  let exon_locs : Array[Loc] = Array(capacity=0)
   exon_locs.push(exon1)
   exon_locs.push(exon2)
   exon_locs.push(exon3)
@@ -519,7 +519,7 @@ pub fn seq_location_sample() -> Array[Loc] {
   locs.push(
     simple_location(before_position(50), after_position(100), strand="+"),
   )
-  let opts : Array[Pos] = Array::new()
+  let opts : Array[Pos] = Array(capacity=0)
   opts.push(exact_position(5))
   opts.push(exact_position(7))
   opts.push(exact_position(9))

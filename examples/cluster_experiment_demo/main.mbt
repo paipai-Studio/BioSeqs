@@ -8,11 +8,11 @@ fn main() -> Unit {
   println("=== clusterExperiment RSEC Demo ===\n")
 
   // Create synthetic data: 3 well-separated clusters in 5D space
-  let data : Array[Array[Double]] = Array::new()
+  let data : Array[Array[Double]] = Array(capacity=0)
 
   // Cluster 0: 10 samples centered at (1, 1, 1, 1, 1)
   for i in 0..<10 {
-    let pt = Array::new()
+    let pt = Array(capacity=0)
     for j in 0..<5 {
       pt.push(1.0 + (i.to_double() - 5.0) * 0.05)
     }
@@ -21,7 +21,7 @@ fn main() -> Unit {
 
   // Cluster 1: 10 samples centered at (5, 5, 5, 5, 5)
   for i in 0..<10 {
-    let pt = Array::new()
+    let pt = Array(capacity=0)
     for j in 0..<5 {
       pt.push(5.0 + (i.to_double() - 5.0) * 0.05)
     }
@@ -30,7 +30,7 @@ fn main() -> Unit {
 
   // Cluster 2: 8 samples centered at (9, 1, 9, 1, 9)
   for i in 0..<8 {
-    let pt = Array::new()
+    let pt = Array(capacity=0)
     pt.push(9.0 + (i.to_double() - 4.0) * 0.05)
     pt.push(1.0 + (i.to_double() - 4.0) * 0.05)
     pt.push(9.0 + (i.to_double() - 4.0) * 0.05)

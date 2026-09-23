@@ -192,7 +192,7 @@ pub fn NaccessResult::get_num_atoms(self : NaccessResult) -> Int {
 ///   RES  NUM  CHN  ABS_ALL  REL_ALL  ABS_SIDE  REL_SIDE  ABS_MAIN  REL_MAIN
 ///   NON_POL_ABS  NON_POL_REL  POL_ABS  POL_REL
 pub fn naccess_parse_rsa(content : String) -> Array[NaccessResidue] {
-  let residues = Array::new()
+  let residues = Array(capacity=0)
   let lines = content.split("\n").to_array()
   for line in lines {
     let trimmed = line.to_string()
@@ -203,7 +203,7 @@ pub fn naccess_parse_rsa(content : String) -> Array[NaccessResidue] {
     if trimmed.starts_with("RES ") {
       let parts = trimmed.split(" ").to_array()
       // Filter out empty strings from multiple spaces
-      let filtered = Array::new()
+      let filtered = Array(capacity=0)
       for p in parts {
         let s = p.to_string()
         if s.length() > 0 {
@@ -298,7 +298,7 @@ pub fn naccess_parse_rsa(content : String) -> Array[NaccessResidue] {
 /// ASA file format (space-separated columns):
 ///   ATM  NUM  RES  CHN  ATOM_NAME  ...  ABS_ASA  REL_ASA
 pub fn naccess_parse_asa(content : String) -> Array[NaccessAtom] {
-  let atoms = Array::new()
+  let atoms = Array(capacity=0)
   let lines = content.split("\n").to_array()
   for line in lines {
     let trimmed = line.to_string()
@@ -308,7 +308,7 @@ pub fn naccess_parse_asa(content : String) -> Array[NaccessAtom] {
     // Lines starting with "ATM" are atom records
     if trimmed.starts_with("ATM ") || trimmed.starts_with("HETATM") {
       let parts = trimmed.split(" ").to_array()
-      let filtered = Array::new()
+      let filtered = Array(capacity=0)
       for p in parts {
         let s = p.to_string()
         if s.length() > 0 {
@@ -479,7 +479,7 @@ pub fn naccess_exposed_residues(
   result : NaccessResult,
   threshold : Double,
 ) -> Array[NaccessResidue] {
-  let exposed = Array::new()
+  let exposed = Array(capacity=0)
   for r in result.residues {
     if r.rel_all > threshold {
       exposed.push(r)
@@ -494,7 +494,7 @@ pub fn naccess_buried_residues(
   result : NaccessResult,
   threshold : Double,
 ) -> Array[NaccessResidue] {
-  let buried = Array::new()
+  let buried = Array(capacity=0)
   for r in result.residues {
     if r.rel_all < threshold {
       buried.push(r)
@@ -522,7 +522,7 @@ pub fn naccess_get_chain_residues(
   result : NaccessResult,
   chain_id : String,
 ) -> Array[NaccessResidue] {
-  let chain_res = Array::new()
+  let chain_res = Array(capacity=0)
   for r in result.residues {
     if r.chain_id == chain_id {
       chain_res.push(r)

@@ -168,7 +168,7 @@ pub fn ir_reduce(ir : IRanges, min_gapwidth : Int) -> IRanges {
     }
   }
 
-  let reduced : Array[(Int, Int)] = Array::new()
+  let reduced : Array[(Int, Int)] = Array(capacity=0)
   reduced.push(indices[0])
 
   for i = 1; i < n; i = i + 1 {
@@ -221,7 +221,7 @@ pub fn ir_disjoin(ir : IRanges) -> IRanges {
     }
   }
 
-  let disjoined : Array[(Int, Int)] = Array::new()
+  let disjoined : Array[(Int, Int)] = Array(capacity=0)
   let mut coverage = 0
   let mut current_start = 0
 
@@ -252,7 +252,7 @@ pub fn ir_disjoin(ir : IRanges) -> IRanges {
 
 ///|
 pub fn ir_intersect(ir1 : IRanges, ir2 : IRanges) -> IRanges {
-  let intersects : Array[(Int, Int)] = Array::new()
+  let intersects : Array[(Int, Int)] = Array(capacity=0)
 
   for i = 0; i < ir1.starts.length(); i = i + 1 {
     for j = 0; j < ir2.starts.length(); j = j + 1 {
@@ -318,7 +318,7 @@ pub fn ir_setdiff(ir1 : IRanges, ir2 : IRanges) -> IRanges {
   let disjoined = ir_disjoin(ir_union(ir1, ir2))
   let intersected = ir_intersect(ir1, ir2)
 
-  let diffs : Array[(Int, Int)] = Array::new()
+  let diffs : Array[(Int, Int)] = Array(capacity=0)
 
   for i = 0; i < disjoined.starts.length(); i = i + 1 {
     let mut is_in_intersect = false
@@ -361,7 +361,7 @@ pub fn ir_setdiff(ir1 : IRanges, ir2 : IRanges) -> IRanges {
 
 ///|
 pub fn ir_overlaps(ir1 : IRanges, ir2 : IRanges) -> Array[(Int, Int)] {
-  let overlaps : Array[(Int, Int)] = Array::new()
+  let overlaps : Array[(Int, Int)] = Array(capacity=0)
 
   for i = 0; i < ir1.starts.length(); i = i + 1 {
     for j = 0; j < ir2.starts.length(); j = j + 1 {
@@ -400,7 +400,7 @@ pub fn find_overlaps_advanced(
   subject~ : IRanges,
   type_? : String = "any",
 ) -> Array[(Int, Int)] {
-  let results : Array[(Int, Int)] = Array::new()
+  let results : Array[(Int, Int)] = Array(capacity=0)
 
   let mut i = 0
   while i < query.starts.length() {
@@ -558,7 +558,7 @@ pub fn ir_coverage(ir : IRanges, max_end : Int) -> Array[Int] {
 /// Calculate coverage as run-length encoded ranges.
 pub fn ir_coverage_rle(ir : IRanges, max_end : Int) -> Array[(Int, Int, Int)] {
   let cov = ir_coverage(ir, max_end)
-  let results : Array[(Int, Int, Int)] = Array::new()
+  let results : Array[(Int, Int, Int)] = Array(capacity=0)
 
   let n = cov.length()
   let mut i = 0
@@ -657,9 +657,9 @@ pub fn ir_distance_to_nearest(ir : IRanges) -> Array[Int] {
 /// Subset IRanges by a boolean mask.
 pub fn ir_subset(ir : IRanges, keep : Array[Bool]) -> IRanges {
   let n = ir.starts.length()
-  let new_starts : Array[Int] = Array::new()
-  let new_ends : Array[Int] = Array::new()
-  let new_widths : Array[Int] = Array::new()
+  let new_starts : Array[Int] = Array(capacity=0)
+  let new_ends : Array[Int] = Array(capacity=0)
+  let new_widths : Array[Int] = Array(capacity=0)
 
   let mut i = 0
   while i < n {

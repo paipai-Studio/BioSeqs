@@ -72,7 +72,7 @@ fn main {
 
   // QC diagnostics
   println("=== QC Diagnostics ===")
-  let all : Array[@bio.NOISeqSample] = Array::new()
+  let all : Array[@bio.NOISeqSample] = Array(capacity=0)
   let mut ci = 0
   while ci < ctrl.length() {
     all.push(ctrl[ci])

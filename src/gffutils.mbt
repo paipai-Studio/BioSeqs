@@ -69,7 +69,7 @@ fn gffutils_parent_ids(f : GFFFeature) -> Array[String] {
   match f.attributes.get("Parent") {
     None => []
     Some(p) => {
-      let out : Array[String] = Array::new()
+      let out : Array[String] = Array(capacity=0)
       for part in p.split(",") {
         let t = gffutils_trim(part.to_owned())
         if t.length() > 0 {
@@ -85,7 +85,7 @@ fn gffutils_parent_ids(f : GFFFeature) -> Array[String] {
 /// Immediate children of a feature: features whose `Parent` attribute lists the
 /// given feature ID.
 pub fn gffutils_children(record : GFFRecord, feature_id : String) -> Array[GFFFeature] {
-  let out : Array[GFFFeature] = Array::new()
+  let out : Array[GFFFeature] = Array(capacity=0)
   for f in record.features {
     for p in gffutils_parent_ids(f) {
       if p == feature_id {
@@ -113,7 +113,7 @@ pub fn gffutils_parents(record : GFFRecord, feature_id : String) -> Array[GFFFea
         }
     }
   }
-  let out : Array[GFFFeature] = Array::new()
+  let out : Array[GFFFeature] = Array(capacity=0)
   for f in record.features {
     match f.get_id() {
       None => ()
@@ -132,10 +132,10 @@ pub fn gffutils_parents(record : GFFRecord, feature_id : String) -> Array[GFFFea
 /// attribute).
 pub fn gffutils_all_children(record : GFFRecord, feature_id : String) -> Array[GFFFeature] {
   let seen : Map[String, Bool] = Map([], capacity=0)
-  let out : Array[GFFFeature] = Array::new()
+  let out : Array[GFFFeature] = Array(capacity=0)
   let mut frontier = gffutils_children(record, feature_id)
   while frontier.length() > 0 {
-    let next : Array[GFFFeature] = Array::new()
+    let next : Array[GFFFeature] = Array(capacity=0)
     for f in frontier {
       let key = match f.get_id() {
         None => continue
@@ -160,10 +160,10 @@ pub fn gffutils_all_children(record : GFFRecord, feature_id : String) -> Array[G
 /// All transitive ancestors of a feature (via the `Parent` attribute).
 pub fn gffutils_all_parents(record : GFFRecord, feature_id : String) -> Array[GFFFeature] {
   let seen : Map[String, Bool] = Map([], capacity=0)
-  let out : Array[GFFFeature] = Array::new()
+  let out : Array[GFFFeature] = Array(capacity=0)
   let mut frontier = gffutils_parents(record, feature_id)
   while frontier.length() > 0 {
-    let next : Array[GFFFeature] = Array::new()
+    let next : Array[GFFFeature] = Array(capacity=0)
     for f in frontier {
       let key = match f.get_id() {
         None => continue
@@ -225,13 +225,13 @@ fn gffutils_sort_features(record : GFFRecord) -> Array[GFFFeature] {
 /// a comma-joined `source`; standalone features are returned unchanged.
 pub fn gffutils_merge(record : GFFRecord, min_dist? : Int = 1) -> Array[GFFFeature] {
   let sorted = gffutils_sort_features(record)
-  let out : Array[GFFFeature] = Array::new()
+  let out : Array[GFFFeature] = Array(capacity=0)
   let counters : Map[String, Int] = Map([], capacity=0)
   let mut i = 0
   while i < sorted.length() {
     let first = sorted[i]
     let mut max_end = first.end
-    let children : Array[GFFFeature] = Array::new()
+    let children : Array[GFFFeature] = Array(capacity=0)
     children.push(first)
     let mut j = i + 1
     while j < sorted.length() {

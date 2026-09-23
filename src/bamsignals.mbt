@@ -353,9 +353,9 @@ pub fn BamsigSignal::bamsig_filter(
   min_count : Double,
   min_samples : Int,
 ) -> BamsigSignal {
-  let new_region_ids : Array[String] = Array::new()
-  let new_counts : Array[Array[Double]] = Array::new()
-  let new_norm_counts : Array[Array[Double]] = Array::new()
+  let new_region_ids : Array[String] = Array(capacity=0)
+  let new_counts : Array[Array[Double]] = Array(capacity=0)
+  let new_norm_counts : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < self.region_ids.length() {
@@ -531,7 +531,7 @@ pub fn bamsig_count_signals(
   params : BamsigParams,
 ) -> Array[Array[Double]] {
   let n_regions = regions.length()
-  let counts : Array[Array[Double]] = Array::new()
+  let counts : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_regions {
@@ -591,12 +591,12 @@ pub fn bamsig_normalize_signals(
   total_reads : Array[Double],
   norm_method : BamsigNormMethod,
 ) -> Array[Array[Double]] {
-  let norm_counts : Array[Array[Double]] = Array::new()
+  let norm_counts : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < counts.length() {
     let row = counts[i]
-    let norm_row : Array[Double] = Array::new()
+    let norm_row : Array[Double] = Array(capacity=0)
 
     let mut j = 0
     while j < row.length() {
@@ -717,13 +717,13 @@ pub fn bamsig_create_example_signal() -> BamsigSignal {
   let n_regions = regions.length()
   let _n_samples = 2
 
-  let region_ids : Array[String] = Array::new()
-  let counts : Array[Array[Double]] = Array::new()
+  let region_ids : Array[String] = Array(capacity=0)
+  let counts : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n_regions {
     region_ids.push(regions[i].id)
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     row.push((i + 1).to_double() * 50.0)
     row.push((i + 1).to_double() * 45.0)
     counts.push(row)

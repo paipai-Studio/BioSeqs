@@ -53,8 +53,8 @@ pub fn NexusFile::new(
 
 ///|
 pub fn parse_nexus(content : String) -> NexusFile {
-  let blocks : Array[NexusBlock] = Array::new()
-  let taxa : Array[String] = Array::new()
+  let blocks : Array[NexusBlock] = Array(capacity=0)
+  let taxa : Array[String] = Array(capacity=0)
   let lines = split_by_char(content, '\n'.to_int())
   let mut i = 0
   while i < lines.length() {
@@ -115,7 +115,7 @@ pub fn parse_nexus(content : String) -> NexusFile {
 
 ///|
 fn parse_taxa_from_string(content : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let lines = split_by_char(content, '\n'.to_int())
   let mut i = 0
   while i < lines.length() {
@@ -149,7 +149,7 @@ fn parse_taxa_from_string(content : String) -> Array[String] {
 
 ///|
 pub fn NexusFile::get_data_matrix(self : NexusFile) -> Array[NexusRow] {
-  let result : Array[NexusRow] = Array::new()
+  let result : Array[NexusRow] = Array(capacity=0)
   let mut block_idx = 0
   while block_idx < self.blocks.length() {
     let block = self.blocks[block_idx]
@@ -197,7 +197,7 @@ pub fn NexusFile::get_data_matrix(self : NexusFile) -> Array[NexusRow] {
 
 ///|
 pub fn NexusFile::get_trees(self : NexusFile) -> Array[(String, String)] {
-  let result : Array[(String, String)] = Array::new()
+  let result : Array[(String, String)] = Array(capacity=0)
   let mut block_idx = 0
   while block_idx < self.blocks.length() {
     let block = self.blocks[block_idx]

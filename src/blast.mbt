@@ -426,7 +426,7 @@ pub fn parse_blast_tabular(content : String) -> BlastRecord? {
   let mut query_id = "unknown"
   let mut query_def = ""
   let query_length = 0
-  let hits : Array[BlastHit] = Array::new()
+  let hits : Array[BlastHit] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -550,7 +550,7 @@ pub fn parse_blast_tabular(content : String) -> BlastRecord? {
         }
 
         if !found {
-          let hsps : Array[BlastHsp] = Array::new()
+          let hsps : Array[BlastHsp] = Array(capacity=0)
           hsps.push(hsp)
           hits.push(BlastHit::new(sseqid, sseqid, 0, hsps))
         }

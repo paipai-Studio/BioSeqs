@@ -44,13 +44,13 @@ pub fn scanpy_normalize_total(
   x : Array[Array[Double]],
   target_sum : Double,
 ) -> Array[Array[Double]] {
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for row in x {
     let mut s = 0.0
     for v in row {
       s = s + v
     }
-    let nor : Array[Double] = Array::new()
+    let nor : Array[Double] = Array(capacity=0)
     if s == 0.0 {
       for v in row {
         nor.push(0.0)
@@ -69,9 +69,9 @@ pub fn scanpy_normalize_total(
 ///|
 /// Natural-log transform `x -> ln(1 + x)` element-wise (`pp.log1p`).
 pub fn scanpy_log1p(x : Array[Array[Double]]) -> Array[Array[Double]] {
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for row in x {
-    let r : Array[Double] = Array::new()
+    let r : Array[Double] = Array(capacity=0)
     for v in row {
       r.push(@math.ln(1.0 + v))
     }
@@ -89,7 +89,7 @@ pub fn scanpy_scale(
   max_value : Double?,
 ) -> Array[Array[Double]] {
   let n_genes = if x.length() == 0 { 0 } else { x[0].length() }
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < x.length() {
     out.push(Array::make(n_genes, 0.0))
@@ -176,8 +176,8 @@ pub fn scanpy_highly_variable_genes(
   min_disp : Double,
 ) -> HvgResult {
   let n_genes = if x.length() == 0 { 0 } else { x[0].length() }
-  let means : Array[Double] = Array::new()
-  let dispersions : Array[Double] = Array::new()
+  let means : Array[Double] = Array(capacity=0)
+  let dispersions : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < n_genes {
     let raw_mean = col_mean(x, j)
@@ -262,9 +262,9 @@ pub fn scanpy_regress_out(
   let n_vars = if n_obs > 0 { x[0].length() } else { 0 }
   let n_cov = if n_obs > 0 { covariates[0].length() } else { 0 }
   // R = [1 | covariates]
-  let r : Array[Array[Double]] = Array::new()
+  let r : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n_obs; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     row.push(1.0)
     for d = 0; d < n_cov; d = d + 1 {
       row.push(covariates[i][d])
@@ -277,9 +277,9 @@ pub fn scanpy_regress_out(
   let rt_x = linalg_mat_mul(rt, x)
   let coeff = linalg_mat_mul(gram_inv, rt_x)
   let fitted = linalg_mat_mul(r, coeff)
-  let resid : Array[Array[Double]] = Array::new()
+  let resid : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n_obs; i = i + 1 {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     for j = 0; j < n_vars; j = j + 1 {
       row.push(x[i][j] - fitted[i][j])
     }

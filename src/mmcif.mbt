@@ -53,8 +53,8 @@ pub fn parse_mmcif(content : String) -> MmcifDataBlock {
   let lines = split_by_char(content, '\n'.to_int())
   let block = MmcifDataBlock::new("default")
   let mut current_category = ""
-  let mut current_data : Array[Array[String]] = Array::new()
-  let mut headers : Array[String] = Array::new()
+  let mut current_data : Array[Array[String]] = Array(capacity=0)
+  let mut headers : Array[String] = Array(capacity=0)
   let mut in_loop = false
 
   let mut i = 0
@@ -76,8 +76,8 @@ pub fn parse_mmcif(content : String) -> MmcifDataBlock {
 
     if starts_with(line, 0, "loop_") {
       in_loop = true
-      headers = Array::new()
-      current_data = Array::new()
+      headers = Array(capacity=0)
+      current_data = Array(capacity=0)
       i = i + 1
       continue
     }
@@ -125,7 +125,7 @@ pub fn parse_mmcif(content : String) -> MmcifDataBlock {
           let existing : Array[Array[String]] = match
             block.categories.get(cat_name) {
             Some(arr) => arr
-            None => Array::new()
+            None => Array(capacity=0)
           }
           existing.push([cat_attr, value])
           block.categories[cat_name] = existing
@@ -137,7 +137,7 @@ pub fn parse_mmcif(content : String) -> MmcifDataBlock {
 
     if in_loop && headers.length() > 0 {
       let values = split_by_char(line, ' '.to_int())
-      let filtered : Array[String] = Array::new()
+      let filtered : Array[String] = Array(capacity=0)
       for v in values {
         let tv = trim(v)
         if tv.length() > 0 {
@@ -151,7 +151,7 @@ pub fn parse_mmcif(content : String) -> MmcifDataBlock {
       let existing : Array[Array[String]] = match
         block.categories.get(current_category) {
         Some(arr) => arr
-        None => Array::new()
+        None => Array(capacity=0)
       }
       existing.push([current_category + ".value", line])
       block.categories[current_category] = existing
@@ -180,7 +180,7 @@ pub fn parse_mmcif(content : String) -> MmcifDataBlock {
     } else {
       "unknown"
     }
-    let result : Array[Array[String]] = Array::new()
+    let result : Array[Array[String]] = Array(capacity=0)
     result.push(headers)
     for row in current_data {
       result.push(row)
@@ -198,7 +198,7 @@ pub fn MmcifDataBlock::get_atom_sites(
 ) -> Array[Array[String]] {
   match self.categories.get("atom_site") {
     Some(data) => data
-    None => Array::new()
+    None => Array(capacity=0)
   }
 }
 
@@ -209,7 +209,7 @@ pub fn MmcifDataBlock::get_entity(
 ) -> Array[Array[String]] {
   match self.categories.get("entity") {
     Some(data) => data
-    None => Array::new()
+    None => Array(capacity=0)
   }
 }
 
@@ -220,7 +220,7 @@ pub fn MmcifDataBlock::get_struct(
 ) -> Array[Array[String]] {
   match self.categories.get("struct") {
     Some(data) => data
-    None => Array::new()
+    None => Array(capacity=0)
   }
 }
 
@@ -235,9 +235,9 @@ pub fn MmcifDataBlock::get_category_headers(
       if data.length() > 0 && starts_with(data[0][0], 0, "_") {
         data[0]
       } else {
-        Array::new()
+        Array(capacity=0)
       }
-    None => Array::new()
+    None => Array(capacity=0)
   }
 }
 
@@ -250,7 +250,7 @@ pub fn MmcifDataBlock::get_category_rows(
   match self.categories.get(name) {
     Some(data) =>
       if data.length() > 0 && starts_with(data[0][0], 0, "_") {
-        let result : Array[Array[String]] = Array::new()
+        let result : Array[Array[String]] = Array(capacity=0)
         let mut j = 1
         while j < data.length() {
           result.push(data[j])
@@ -260,7 +260,7 @@ pub fn MmcifDataBlock::get_category_rows(
       } else {
         data
       }
-    None => Array::new()
+    None => Array(capacity=0)
   }
 }
 
@@ -268,14 +268,14 @@ pub fn MmcifDataBlock::get_category_rows(
 /// Convert mmCIF atom sites to Atom objects (compatible with PDB module).
 pub fn MmcifDataBlock::to_atoms(self : MmcifDataBlock) -> Array[Atom] {
   let sites = self.get_atom_sites()
-  let atoms : Array[Atom] = Array::new()
+  let atoms : Array[Atom] = Array(capacity=0)
   if sites.length() < 2 {
     return atoms
   }
 
   let headers = sites[0]
   let rows_len = sites.length() - 1
-  let rows : Array[Array[String]] = Array::new()
+  let rows : Array[Array[String]] = Array(capacity=0)
   let mut k = 1
   while k < sites.length() {
     rows.push(sites[k])

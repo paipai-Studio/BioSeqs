@@ -66,7 +66,7 @@ pub fn MGResult::new(
 
 ///|
 pub fn mg_normalize_counts(obj : MRexperiment) -> MRexperiment {
-  let total_counts : Array[Int] = Array::new()
+  let total_counts : Array[Int] = Array(capacity=0)
   let mut j = 0
   while j < obj.sample_names.length() {
     let mut sum = 0
@@ -81,10 +81,10 @@ pub fn mg_normalize_counts(obj : MRexperiment) -> MRexperiment {
 
   let median_depth = median_int(total_counts)
 
-  let normalized : Array[Array[Int]] = Array::new()
+  let normalized : Array[Array[Int]] = Array(capacity=0)
   let mut i = 0
   while i < obj.taxa_names.length() {
-    let row : Array[Int] = Array::new()
+    let row : Array[Int] = Array(capacity=0)
     let mut j = 0
     while j < obj.sample_names.length() {
       if total_counts[j] > 0 {
@@ -135,7 +135,7 @@ fn median_int(arr : Array[Int]) -> Int {
 
 ///|
 pub fn mg_calculate_zero_inflation(obj : MRexperiment) -> Array[Double] {
-  let zero_probs : Array[Double] = Array::new()
+  let zero_probs : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < obj.taxa_names.length() {
@@ -159,10 +159,10 @@ pub fn mg_test_zero_inflated(
   obj : MRexperiment,
   group : Array[String],
 ) -> Array[MGResult] {
-  let results : Array[MGResult] = Array::new()
+  let results : Array[MGResult] = Array(capacity=0)
 
-  let group0_indices : Array[Int] = Array::new()
-  let group1_indices : Array[Int] = Array::new()
+  let group0_indices : Array[Int] = Array(capacity=0)
+  let group1_indices : Array[Int] = Array(capacity=0)
 
   let mut i = 0
   while i < group.length() {

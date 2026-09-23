@@ -157,7 +157,7 @@ pub fn tximeta_summarize_to_gene(
   data : TximetaData,
   tx2gene~ : Map[String, String],
 ) -> (Array[String], Array[Array[Int]], Array[Array[Double]]) {
-  let gene_order : Array[String] = Array::new()
+  let gene_order : Array[String] = Array(capacity=0)
   let gene_index : Map[String, Int] = Map::new()
   for i in 0..<data.transcript_names.length() {
     let tx = data.transcript_names[i]
@@ -173,8 +173,8 @@ pub fn tximeta_summarize_to_gene(
   }
   let n_genes = gene_order.length()
   let n_samples = data.sample_names.length()
-  let gene_counts : Array[Array[Int]] = Array::new()
-  let gene_abundance : Array[Array[Double]] = Array::new()
+  let gene_counts : Array[Array[Int]] = Array(capacity=0)
+  let gene_abundance : Array[Array[Double]] = Array(capacity=0)
   for _g in 0..<n_genes {
     gene_counts.push(Array::make(n_samples, 0))
     gene_abundance.push(Array::make(n_samples, 0.0))

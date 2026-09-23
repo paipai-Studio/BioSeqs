@@ -31,7 +31,7 @@ pub fn GFGene::new(
     end,
     strand,
     description,
-    transcripts: Array::new(),
+    transcripts: Array(capacity=0),
   }
 }
 
@@ -90,10 +90,10 @@ pub fn GFTranscript::new(
     start,
     end,
     strand,
-    exons: Array::new(),
-    cds: Array::new(),
-    utr5: Array::new(),
-    utr3: Array::new(),
+    exons: Array(capacity=0),
+    cds: Array(capacity=0),
+    utr5: Array(capacity=0),
+    utr3: Array(capacity=0),
   }
 }
 
@@ -135,8 +135,8 @@ pub fn GenomeAnnotation::new(
   source : String,
 ) -> GenomeAnnotation {
   GenomeAnnotation::{
-    genes: Array::new(),
-    transcripts: Array::new(),
+    genes: Array(capacity=0),
+    transcripts: Array(capacity=0),
     genome,
     version,
     source,
@@ -180,7 +180,7 @@ pub fn genome_annotation_get_gene_by_name(
   annotation : GenomeAnnotation,
   gene_name : String,
 ) -> Array[GFGene] {
-  let results : Array[GFGene] = Array::new()
+  let results : Array[GFGene] = Array(capacity=0)
   let mut i = 0
   while i < annotation.genes.length() {
     let gene = annotation.genes[i]
@@ -197,7 +197,7 @@ pub fn genome_annotation_get_transcripts_by_gene(
   annotation : GenomeAnnotation,
   gene_id : String,
 ) -> Array[GFTranscript] {
-  let results : Array[GFTranscript] = Array::new()
+  let results : Array[GFTranscript] = Array(capacity=0)
   let mut i = 0
   while i < annotation.transcripts.length() {
     let transcript = annotation.transcripts[i]
@@ -214,7 +214,7 @@ pub fn genome_annotation_genes_on_chromosome(
   annotation : GenomeAnnotation,
   chromosome : String,
 ) -> Array[GFGene] {
-  let results : Array[GFGene] = Array::new()
+  let results : Array[GFGene] = Array(capacity=0)
   let mut i = 0
   while i < annotation.genes.length() {
     let gene = annotation.genes[i]
@@ -233,7 +233,7 @@ pub fn genome_annotation_genes_in_region(
   start : Int,
   end : Int,
 ) -> Array[GFGene] {
-  let results : Array[GFGene] = Array::new()
+  let results : Array[GFGene] = Array(capacity=0)
   let mut i = 0
   while i < annotation.genes.length() {
     let gene = annotation.genes[i]
@@ -275,7 +275,7 @@ pub fn genome_annotation_summarize(annotation : GenomeAnnotation) -> String {
     "\n"
 
   let biotype_counts : Map[String, Int] = Map([], capacity=10)
-  let biotype_names : Array[String] = Array::new()
+  let biotype_names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < annotation.genes.length() {
     let gene = annotation.genes[i]

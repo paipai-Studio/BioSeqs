@@ -359,11 +359,11 @@ pub struct GfaGraph {
 /// Construct an empty GfaGraph.
 pub fn GfaGraph::new() -> GfaGraph {
   GfaGraph::{
-    headers: Array::new(),
-    segments: Array::new(),
-    links: Array::new(),
-    containments: Array::new(),
-    paths: Array::new(),
+    headers: Array(capacity=0),
+    segments: Array(capacity=0),
+    links: Array(capacity=0),
+    containments: Array(capacity=0),
+    paths: Array(capacity=0),
   }
 }
 
@@ -440,7 +440,7 @@ pub fn GfaGraph::add_path(self : GfaGraph, path : GfaPath) -> Unit {
 /// the pieces into `Array[String]`.)
 fn gfa_split_strings(s : String, delim : String) -> Array[String] {
   let views = s.split(delim).to_array()
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for i in 0..<views.length() {
     out.push(views[i].to_owned())
   }
@@ -477,7 +477,7 @@ pub fn gfa_parse_tag(field : String) -> GfaTag? {
 /// Parse all tag fields in `fields` starting from index `start`. Non-tag
 /// fields (those lacking two ':') are silently skipped.
 fn gfa_parse_tags(fields : Array[String], start : Int) -> Array[GfaTag] {
-  let tags = Array::new()
+  let tags = Array(capacity=0)
   for i in start..<fields.length() {
     match gfa_parse_tag(fields[i]) {
       Some(t) => tags.push(t)
@@ -509,7 +509,7 @@ pub fn gfa_parse_segment(fields : Array[String]) -> GfaSegment {
   let n = fields.length()
   let name = if n > 1 { fields[1] } else { "" }
   let sequence = if n > 2 { fields[2] } else { "*" }
-  let tags = if n > 3 { gfa_parse_tags(fields, 3) } else { Array::new() }
+  let tags = if n > 3 { gfa_parse_tags(fields, 3) } else { Array(capacity=0) }
   GfaSegment::{ name, sequence, tags, }
 }
 
@@ -522,7 +522,7 @@ pub fn gfa_parse_link(fields : Array[String]) -> GfaLink {
   let to_segment = if n > 3 { fields[3] } else { "" }
   let to_orient = if n > 4 { fields[4] } else { "+" }
   let overlap = if n > 5 { fields[5] } else { "*" }
-  let tags = if n > 6 { gfa_parse_tags(fields, 6) } else { Array::new() }
+  let tags = if n > 6 { gfa_parse_tags(fields, 6) } else { Array(capacity=0) }
   GfaLink::{ from_segment, from_orient, to_segment, to_orient, overlap, tags, }
 }
 
@@ -537,7 +537,7 @@ pub fn gfa_parse_containment(fields : Array[String]) -> GfaContainment {
   let contained_orient = if n > 4 { fields[4] } else { "+" }
   let position = if n > 5 { parse_int(fields[5]) } else { 0 }
   let overlap = if n > 6 { fields[6] } else { "*" }
-  let tags = if n > 7 { gfa_parse_tags(fields, 7) } else { Array::new() }
+  let tags = if n > 7 { gfa_parse_tags(fields, 7) } else { Array(capacity=0) }
   GfaContainment::{
     container,
     container_orient,
@@ -559,14 +559,14 @@ pub fn gfa_parse_path(fields : Array[String]) -> GfaPath {
   let segment_list = if n > 2 && fields[2].length() > 0 {
     gfa_split_strings(fields[2], ",")
   } else {
-    Array::new()
+    Array(capacity=0)
   }
   let overlaps = if n > 3 && fields[3].length() > 0 {
     gfa_split_strings(fields[3], ",")
   } else {
-    Array::new()
+    Array(capacity=0)
   }
-  let tags = if n > 4 { gfa_parse_tags(fields, 4) } else { Array::new() }
+  let tags = if n > 4 { gfa_parse_tags(fields, 4) } else { Array(capacity=0) }
   GfaPath::{ name, segment_list, overlaps, tags, }
 }
 
@@ -819,7 +819,7 @@ pub fn gfa_get_segment(graph : GfaGraph, name : String) -> GfaSegment? {
 /// Convert all segments with real sequence data (not "*") to SeqRecord
 /// objects. The segment name becomes the record id, name, and description.
 pub fn gfa_get_segments_as_records(graph : GfaGraph) -> Array[SeqRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   for i in 0..<graph.segments.length() {
     let seg = graph.segments[i]
     let seq_str = if seg.sequence == "*" { "" } else { seg.sequence }

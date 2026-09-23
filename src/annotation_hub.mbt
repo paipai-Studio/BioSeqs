@@ -111,7 +111,7 @@ pub fn AnnotationHub::new(
   cache_dir : String,
   default_genome : String,
 ) -> AnnotationHub {
-  AnnotationHub::{ resources: Array::new(), cache_dir, default_genome, }
+  AnnotationHub::{ resources: Array(capacity=0), cache_dir, default_genome, }
 }
 
 ///|
@@ -127,7 +127,7 @@ pub fn annotation_hub_search_by_type(
   hub : AnnotationHub,
   resource_type_str : String,
 ) -> Array[HubResource] {
-  let results : Array[HubResource] = Array::new()
+  let results : Array[HubResource] = Array(capacity=0)
   let mut i = 0
   while i < hub.resources.length() {
     let r = hub.resources[i]
@@ -144,7 +144,7 @@ pub fn annotation_hub_search_by_provider(
   hub : AnnotationHub,
   provider_str : String,
 ) -> Array[HubResource] {
-  let results : Array[HubResource] = Array::new()
+  let results : Array[HubResource] = Array(capacity=0)
   let mut i = 0
   while i < hub.resources.length() {
     let r = hub.resources[i]
@@ -161,7 +161,7 @@ pub fn annotation_hub_search_by_genome(
   hub : AnnotationHub,
   genome : String,
 ) -> Array[HubResource] {
-  let results : Array[HubResource] = Array::new()
+  let results : Array[HubResource] = Array(capacity=0)
   let mut i = 0
   while i < hub.resources.length() {
     let r = hub.resources[i]
@@ -178,7 +178,7 @@ pub fn annotation_hub_search(
   hub : AnnotationHub,
   query : String,
 ) -> Array[HubResource] {
-  let results : Array[HubResource] = Array::new()
+  let results : Array[HubResource] = Array(capacity=0)
   let query_lower = to_lowercase(query)
   let mut i = 0
   while i < hub.resources.length() {
@@ -226,7 +226,7 @@ pub fn annotation_hub_summarize(hub : AnnotationHub) -> String {
   result = result + "Default genome: " + hub.default_genome + "\n\n"
 
   let type_counts : Map[String, Int] = Map([], capacity=7)
-  let type_names : Array[String] = Array::new()
+  let type_names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < hub.resources.length() {
     let r = hub.resources[i]

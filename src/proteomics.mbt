@@ -125,7 +125,7 @@ pub fn proteomics_select_enzyme(name : String) -> CleavageAgent? {
   let key = name.to_lower()
   match enzyme_data.get(key) {
     Some((residues, _, _)) => {
-      let sites : Array[CleavageSite] = Array::new()
+      let sites : Array[CleavageSite] = Array(capacity=0)
       let mut i = 0
       while i < residues.length() {
         let r = residues[i:i + 1].to_owned()
@@ -148,7 +148,7 @@ pub fn proteomics_cleavage_sites(
   protein_sequence : String,
   enzyme : String,
 ) -> Array[Int] {
-  let sites : Array[Int] = Array::new()
+  let sites : Array[Int] = Array(capacity=0)
   let seq = protein_sequence.to_upper()
   let key = enzyme.to_lower()
 
@@ -194,15 +194,15 @@ pub fn proteomics_digest(
 
   let sorted_sites = proteomics_sort_ints(sites)
 
-  let peptides : Array[PeptideMassResult] = Array::new()
+  let peptides : Array[PeptideMassResult] = Array(capacity=0)
 
-  let starts : Array[Int] = Array::new()
+  let starts : Array[Int] = Array(capacity=0)
   starts.push(0)
   for site in sorted_sites {
     starts.push(site)
   }
 
-  let ends : Array[Int] = Array::new()
+  let ends : Array[Int] = Array(capacity=0)
   for site in sorted_sites {
     ends.push(site)
   }
@@ -249,15 +249,15 @@ pub fn proteomics_trypsin_digest(
   let sites = proteomics_cleavage_sites(seq, "trypsin")
   let sorted_sites = proteomics_sort_ints(sites)
 
-  let peptides : Array[PeptideMassResult] = Array::new()
+  let peptides : Array[PeptideMassResult] = Array(capacity=0)
 
-  let starts : Array[Int] = Array::new()
+  let starts : Array[Int] = Array(capacity=0)
   starts.push(0)
   for site in sorted_sites {
     starts.push(site)
   }
 
-  let ends : Array[Int] = Array::new()
+  let ends : Array[Int] = Array(capacity=0)
   for site in sorted_sites {
     ends.push(site)
   }
@@ -381,8 +381,8 @@ pub fn proteomics_isotope_pattern(
   let mono_mass = proteomics_calculate_mass(seq, true)
   let avg_mass = proteomics_calculate_mass(seq, false)
 
-  let masses : Array[Double] = Array::new()
-  let abundances : Array[Double] = Array::new()
+  let masses : Array[Double] = Array(capacity=0)
+  let abundances : Array[Double] = Array(capacity=0)
 
   let delta_mass = if n > 0 {
     (avg_mass - mono_mass) / n.to_double()
@@ -405,7 +405,7 @@ pub fn proteomics_isotope_pattern(
   }
 
   let max_ab = abundances.get(0).unwrap_or(1.0)
-  let normalized : Array[Double] = Array::new()
+  let normalized : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < abundances.length() {
     normalized.push(abundances[j] / max_ab)
@@ -498,7 +498,7 @@ pub fn proteomics_fragment_ions(
   charge : Int,
 ) -> Array[PeptideMassResult] {
   let seq = peptide.to_upper()
-  let frags : Array[PeptideMassResult] = Array::new()
+  let frags : Array[PeptideMassResult] = Array(capacity=0)
 
   let n = seq.length()
   if n == 0 {

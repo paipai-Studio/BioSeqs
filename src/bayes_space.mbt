@@ -69,10 +69,10 @@ pub fn bayes_space_hex_neighbors(spots : Array[SpotCoord]) -> Array[Array[Int]] 
     coord_map.set(key, i)
     i = i + 1
   }
-  let neighbors : Array[Array[Int]] = Array::new()
+  let neighbors : Array[Array[Int]] = Array(capacity=0)
   let mut k = 0
   while k < n {
-    neighbors.push(Array::new())
+    neighbors.push(Array(capacity=0))
     k = k + 1
   }
   i = 0
@@ -118,10 +118,10 @@ pub fn bayes_space_square_neighbors(
     coord_map.set(key, i)
     i = i + 1
   }
-  let neighbors : Array[Array[Int]] = Array::new()
+  let neighbors : Array[Array[Int]] = Array(capacity=0)
   let mut k = 0
   while k < n {
-    neighbors.push(Array::new())
+    neighbors.push(Array(capacity=0))
     k = k + 1
   }
   i = 0
@@ -197,7 +197,7 @@ fn bayes_space_init_centers(
 ) -> Array[Array[Double]] {
   let n = expression.length()
   let d = if n > 0 { expression[0].length() } else { 0 }
-  let centers : Array[Array[Double]] = Array::new()
+  let centers : Array[Array[Double]] = Array(capacity=0)
   let mut ci = 0
   while ci < q {
     centers.push(Array::make(d, 0.0))
@@ -310,7 +310,7 @@ pub fn bayes_space_run(
   let pis : Array[Double] = Array::make(q, 1.0 / q.to_double())
 
   // Initialize responsibilities by nearest-center assignment
-  let resp : Array[Array[Double]] = Array::new()
+  let resp : Array[Array[Double]] = Array(capacity=0)
   let mut ri = 0
   while ri < n_spots {
     resp.push(Array::make(q, 0.0))
@@ -341,7 +341,7 @@ pub fn bayes_space_run(
     // ---- E-step: compute responsibilities with spatial prior ----
     // log_prob[i][k] = log(pi_k) + log_t_density(x_i | mu_k, sigma_k, df)
     //                 + gamma * sum over neighbors j of resp[j][k]  (Potts field)
-    let log_prob : Array[Array[Double]] = Array::new()
+    let log_prob : Array[Array[Double]] = Array(capacity=0)
     let mut lpi = 0
     while lpi < n_spots {
       log_prob.push(Array::make(q, 0.0))

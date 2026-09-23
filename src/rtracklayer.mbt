@@ -23,7 +23,7 @@ pub struct BedRecord {
 /// Parse BED format (3-12 columns).
 pub fn parse_bed(content : String) -> Array[BedRecord] {
   let lines = split_by_char(content, '\n'.to_int())
-  let records : Array[BedRecord] = Array::new()
+  let records : Array[BedRecord] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -73,7 +73,7 @@ pub fn parse_bed(content : String) -> Array[BedRecord] {
 
     let block_sizes = if fields.length() > 10 {
       let sizes = split_by_char(fields[10], ','.to_int())
-      let sizes_arr : Array[Int] = Array::new()
+      let sizes_arr : Array[Int] = Array(capacity=0)
       let mut j = 0
       while j < sizes.length() {
         if sizes[j].length() > 0 {
@@ -88,7 +88,7 @@ pub fn parse_bed(content : String) -> Array[BedRecord] {
 
     let block_starts = if fields.length() > 11 {
       let starts = split_by_char(fields[11], ','.to_int())
-      let starts_arr : Array[Int] = Array::new()
+      let starts_arr : Array[Int] = Array(capacity=0)
       let mut j = 0
       while j < starts.length() {
         if starts[j].length() > 0 {
@@ -235,15 +235,15 @@ pub struct WigRecord {
 /// Parse WIG format.
 pub fn parse_wig(content : String) -> Array[WigRecord] {
   let lines = split_by_char(content, '\n'.to_int())
-  let records : Array[WigRecord] = Array::new()
+  let records : Array[WigRecord] = Array(capacity=0)
 
   let mut current_chrom = ""
   let mut current_start = 0
   let mut current_step = 1
   let mut current_span : Int? = None
   let mut is_fixed_step = false
-  let mut positions : Array[Int] = Array::new()
-  let mut values : Array[Double] = Array::new()
+  let mut positions : Array[Int] = Array(capacity=0)
+  let mut values : Array[Double] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -267,8 +267,8 @@ pub fn parse_wig(content : String) -> Array[WigRecord] {
           positions: positions.copy(),
           values: values.copy(),
         })
-        positions = Array::new()
-        values = Array::new()
+        positions = Array(capacity=0)
+        values = Array(capacity=0)
       }
       current_chrom = extract_param(trimmed, "chrom=")
       let span_str = extract_param(trimmed, "span=")
@@ -291,8 +291,8 @@ pub fn parse_wig(content : String) -> Array[WigRecord] {
           positions: positions.copy(),
           values: values.copy(),
         })
-        positions = Array::new()
-        values = Array::new()
+        positions = Array(capacity=0)
+        values = Array(capacity=0)
       }
       current_chrom = extract_param(trimmed, "chrom=")
       let start_str = extract_param(trimmed, "start=")
@@ -403,7 +403,7 @@ pub struct BedGraphRecord {
 /// Parse BEDGraph format.
 pub fn parse_bedgraph(content : String) -> Array[BedGraphRecord] {
   let lines = split_by_char(content, '\n'.to_int())
-  let records : Array[BedGraphRecord] = Array::new()
+  let records : Array[BedGraphRecord] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -478,7 +478,7 @@ pub struct GffRecord {
 /// Parse GFF/GTF format (GFF3 and GTF).
 pub fn parse_gff(content : String) -> Array[GffRecord] {
   let lines = split_by_char(content, '\n'.to_int())
-  let records : Array[GffRecord] = Array::new()
+  let records : Array[GffRecord] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {

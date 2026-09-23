@@ -45,7 +45,7 @@ fn skbio_collect_tips(node : SkbioNode, out : Array[String]) -> Unit {
 ///|
 /// Names of all tip (leaf) nodes, in preorder.
 pub fn SkbioNode::tips(self : SkbioNode) -> Array[String] {
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   skbio_collect_tips(self, out)
   out
 }
@@ -90,7 +90,7 @@ fn skbio_parse_label(s : String, i : Int) -> (String?, Double, Int) {
 fn skbio_parse_node(s : String, i : Int) -> (SkbioNode, Int) {
   if char_at(s, i) == "(" {
     let mut j = i + 1
-    let children : Array[SkbioNode] = Array::new()
+    let children : Array[SkbioNode] = Array(capacity=0)
     let (c, nj) = skbio_parse_node(s, j)
     children.push(c)
     j = nj
@@ -177,9 +177,9 @@ fn skbio_unifrac_arrays(
   u_counts : Array[Double],
   v_counts : Array[Double],
 ) -> (Array[Double], Array[Double], Array[Double]) {
-  let lengths : Array[Double] = Array::new()
-  let cu : Array[Double] = Array::new()
-  let cv : Array[Double] = Array::new()
+  let lengths : Array[Double] = Array(capacity=0)
+  let cu : Array[Double] = Array(capacity=0)
+  let cv : Array[Double] = Array(capacity=0)
   let (_, _) = skbio_unifrac_accumulate(tree, taxa, u_counts, v_counts, lengths, cu, cv)
   (lengths, cu, cv)
 }

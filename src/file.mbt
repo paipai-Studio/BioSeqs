@@ -279,7 +279,7 @@ pub fn SmartFile::set_lines(
 pub fn smart_file_from_string(path : String, content : String) -> SmartFile {
   let sf = SmartFile::new(path, mode="r")
   let iter = content.split("\n")
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   for sv in iter {
     lines.push(sv.to_owned())
   }

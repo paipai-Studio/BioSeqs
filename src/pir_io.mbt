@@ -29,7 +29,7 @@
 ///
 /// Mirrors BioPython's SeqIO.parse(handle, "pir").
 pub fn parse_pir(content : String) -> Array[SeqRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let n = lines.length()
   let mut i = 0

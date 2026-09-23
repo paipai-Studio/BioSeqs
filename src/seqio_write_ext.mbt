@@ -37,7 +37,7 @@ fn writeext_annotation(
 ///|
 /// Split a comma-joined annotation value back into its items.
 fn writeext_split_annotation(value : String) -> Array[String] {
-  let items : Array[String] = Array::new()
+  let items : Array[String] = Array(capacity=0)
   for part in value.split(", ") {
     let trimmed = part.trim().to_string()
     if trimmed.length() > 0 {
@@ -95,7 +95,7 @@ pub fn write_swiss_records(
     // Sequence in 10-character groups, 60 characters per line.
     let mut i = 0
     while i < seq.length() {
-      let groups : Array[String] = Array::new()
+      let groups : Array[String] = Array(capacity=0)
       let mut j = i
       while j < seq.length() && j < i + 60 {
         let end = if j + 10 < seq.length() && j + 10 <= i + 60 {
@@ -172,7 +172,7 @@ pub fn write_embl_records(
   let buf = StringBuilder::new()
   for rec in records {
     let seq = rec.seq.to_string()
-    let features : Array[InsdcFeature] = Array::new()
+    let features : Array[InsdcFeature] = Array(capacity=0)
     for feature in rec.features {
       let location = writeext_location_string(feature)
       if location.length() == 0 {
@@ -210,7 +210,7 @@ pub fn write_embl_records(
 pub fn write_imgt_records(
   records : Array[SeqRecord],
 ) -> String raise SeqIOError {
-  let imgt_records : Array[ImgtRecord] = Array::new()
+  let imgt_records : Array[ImgtRecord] = Array(capacity=0)
   for rec in records {
     let header = ImgtHeader::new(
       writeext_annotation(rec, "accession", rec.id),

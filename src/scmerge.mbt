@@ -66,11 +66,11 @@ fn scm_variance(arr : Array[Double]) -> Double {
 /// Returns a matrix where each gene has mean=0, std=1.
 pub fn scm_zscore_matrix(data : Array[Array[Double]]) -> Array[Array[Double]] {
   if data.length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let n_genes = data.length()
   let n_cells = data[0].length()
-  let result : Array[Array[Double]] = Array::make(n_genes, Array::new())
+  let result : Array[Array[Double]] = Array::make(n_genes, Array(capacity=0))
   let mut i = 0
   while i < n_genes {
     let row = data[i]
@@ -104,17 +104,17 @@ pub fn scm_find_seg(
 ) -> Array[Int] {
   let n_batches = batches.length()
   if n_batches == 0 || batches[0].length() == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   let n_genes = batches[0][0].length()
   let n_cells_total = batches[0].length()
   if n_genes == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   // Compute gene-wise variance within each batch
-  let gene_variances : Array[Array[Double]] = Array::make(n_genes, Array::new())
+  let gene_variances : Array[Array[Double]] = Array::make(n_genes, Array(capacity=0))
   let mut g = 0
   while g < n_genes {
     let batch_variances : Array[Double] = Array::make(n_batches, 0.0)
@@ -208,7 +208,7 @@ pub fn scm_ruv4(
   // X = [1, batch1, batch2, ...] (intercept + batch indicators)
   let n_design = n_batches
   // Create design matrix X (n_cells x n_design)
-  let design : Array[Array[Double]] = Array::make(n_cells, Array::new())
+  let design : Array[Array[Double]] = Array::make(n_cells, Array(capacity=0))
   let mut c = 0
   while c < n_cells {
     let row : Array[Double] = Array::make(n_design, 0.0)
@@ -226,7 +226,7 @@ pub fn scm_ruv4(
 
   // Extract SEG rows
   let n_seg = seg_genes.length()
-  let seg_data : Array[Array[Double]] = Array::make(n_seg, Array::new())
+  let seg_data : Array[Array[Double]] = Array::make(n_seg, Array(capacity=0))
   let mut s = 0
   while s < n_seg {
     seg_data[s] = data[seg_genes[s]]
@@ -238,7 +238,7 @@ pub fn scm_ruv4(
   // For each gene, fit a linear model and get residuals
 
   // Compute X'X (n_design x n_design)
-  let xtx : Array[Array[Double]] = Array::make(n_design, Array::new())
+  let xtx : Array[Array[Double]] = Array::make(n_design, Array(capacity=0))
   s = 0
   while s < n_design {
     xtx[s] = Array::make(n_design, 0.0)
@@ -259,7 +259,7 @@ pub fn scm_ruv4(
   }
 
   // Compute X'Y (n_design x n_genes) - for all genes
-  let xty_all : Array[Array[Double]] = Array::make(n_design, Array::new())
+  let xty_all : Array[Array[Double]] = Array::make(n_design, Array(capacity=0))
   s = 0
   while s < n_design {
     xty_all[s] = Array::make(n_genes, 0.0)
@@ -283,7 +283,7 @@ pub fn scm_ruv4(
   let xtx_inv : Array[Array[Double]] = scm_invert_matrix(xtx, n_design)
 
   // Compute beta = (X'X)^{-1} X'Y
-  let beta_all : Array[Array[Double]] = Array::make(n_design, Array::new())
+  let beta_all : Array[Array[Double]] = Array::make(n_design, Array(capacity=0))
   s = 0
   while s < n_design {
     beta_all[s] = Array::make(n_genes, 0.0)
@@ -306,7 +306,7 @@ pub fn scm_ruv4(
   }
 
   // Compute residuals: R = Y - X * beta_hat
-  let residuals : Array[Array[Double]] = Array::make(n_genes, Array::new())
+  let residuals : Array[Array[Double]] = Array::make(n_genes, Array(capacity=0))
   let mut g = 0
   while g < n_genes {
     let res_row : Array[Double] = Array::make(n_cells, 0.0)
@@ -326,7 +326,7 @@ pub fn scm_ruv4(
   }
 
   // Extract SEG residuals for SVD
-  let seg_residuals : Array[Array[Double]] = Array::make(n_seg, Array::new())
+  let seg_residuals : Array[Array[Double]] = Array::make(n_seg, Array(capacity=0))
   s = 0
   while s < n_seg {
     seg_residuals[s] = residuals[seg_genes[s]]
@@ -339,7 +339,7 @@ pub fn scm_ruv4(
 
   // Compute alpha = (W'W)^{-1} W' * Y
   // For each gene, regress W on the original data
-  let corrected : Array[Array[Double]] = Array::make(n_genes, Array::new())
+  let corrected : Array[Array[Double]] = Array::make(n_genes, Array(capacity=0))
   g = 0
   while g < n_genes {
     let y = data[g]
@@ -358,7 +358,7 @@ pub fn scm_ruv4(
     }
 
     // Compute W'W (n_factors x n_factors)
-    let wtw : Array[Array[Double]] = Array::make(n_factors, Array::new())
+    let wtw : Array[Array[Double]] = Array::make(n_factors, Array(capacity=0))
     s = 0
     while s < n_factors {
       wtw[s] = Array::make(n_factors, 0.0)
@@ -436,7 +436,7 @@ pub fn scm_invert_matrix(
   n : Int,
 ) -> Array[Array[Double]] {
   // Augmented matrix [A | I]
-  let aug : Array[Array[Double]] = Array::make(n, Array::new())
+  let aug : Array[Array[Double]] = Array::make(n, Array(capacity=0))
   let mut i = 0
   while i < n {
     let row : Array[Double] = Array::make(2 * n, 0.0)
@@ -517,7 +517,7 @@ pub fn scm_invert_matrix(
   }
 
   // Extract inverse
-  let result : Array[Array[Double]] = Array::make(n, Array::new())
+  let result : Array[Array[Double]] = Array::make(n, Array(capacity=0))
   i = 0
   while i < n {
     let row : Array[Double] = Array::make(n, 0.0)
@@ -542,17 +542,17 @@ pub fn scm_randomized_svd(
 ) -> Array[Array[Double]] {
   let n_rows = matrix.length()
   if n_rows == 0 || k <= 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   let n_cols = matrix[0].length()
   let k_eff = if k < n_cols { k } else { n_cols }
   if k_eff <= 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   // Use power iteration to compute dominant right singular vectors
   // Initialize V randomly
-  let v : Array[Array[Double]] = Array::make(k_eff, Array::new())
+  let v : Array[Array[Double]] = Array::make(k_eff, Array(capacity=0))
   let mut i = 0
   while i < k_eff {
     let row : Array[Double] = Array::make(n_cols, 0.0)
@@ -584,7 +584,7 @@ pub fn scm_randomized_svd(
   let mut iter = 0
   while iter < 3 {
     // Compute A * V (n_rows x k_eff)
-    let av : Array[Array[Double]] = Array::make(n_rows, Array::new())
+    let av : Array[Array[Double]] = Array::make(n_rows, Array(capacity=0))
     i = 0
     while i < n_rows {
       let row : Array[Double] = Array::make(k_eff, 0.0)
@@ -604,7 +604,7 @@ pub fn scm_randomized_svd(
     }
 
     // Compute A' * (A * V) = (A'A) * V (n_cols x k_eff)
-    let atav : Array[Array[Double]] = Array::make(k_eff, Array::new())
+    let atav : Array[Array[Double]] = Array::make(k_eff, Array(capacity=0))
     i = 0
     while i < k_eff {
       let row : Array[Double] = Array::make(n_cols, 0.0)
@@ -653,7 +653,7 @@ pub fn scm_randomized_svd(
   }
 
   // Transpose v to get (n_cells x k_eff)
-  let result : Array[Array[Double]] = Array::make(n_cols, Array::new())
+  let result : Array[Array[Double]] = Array::make(n_cols, Array(capacity=0))
   let mut c = 0
   while c < n_cols {
     let row : Array[Double] = Array::make(k_eff, 0.0)
@@ -710,7 +710,7 @@ pub fn scmerge(
 
   let mut offset = 0
 
-  let combined : Array[Array[Double]] = Array::make(n_genes, Array::new())
+  let combined : Array[Array[Double]] = Array::make(n_genes, Array(capacity=0))
   let mut g = 0
   while g < n_genes {
     let row : Array[Double] = Array::make(total, 0.0)
@@ -764,7 +764,7 @@ pub fn scmerge(
   // Transpose corrected data back to (n_cells x n_genes) format
   let corrected_by_cell : Array[Array[Double]] = Array::make(
     total,
-    Array::new(),
+    Array(capacity=0),
   )
   let mut c = 0
   while c < total {
@@ -781,7 +781,7 @@ pub fn scmerge(
   // Estimate batch factors (simplified: just the RUV factors)
   let estimated_batch_factors : Array[Array[Double]] = Array::make(
     total,
-    Array::new(),
+    Array(capacity=0),
   )
   let mut c2 = 0
   while c2 < total {

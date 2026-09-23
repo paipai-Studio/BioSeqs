@@ -287,11 +287,11 @@ pub fn aln_calculate_dn_ds_matrix(
   sequences : Array[String],
 ) -> Array[Array[AlnAnalysisResult]] {
   let n = sequences.length()
-  let matrix : Array[Array[AlnAnalysisResult]] = Array::new()
+  let matrix : Array[Array[AlnAnalysisResult]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
-    let row : Array[AlnAnalysisResult] = Array::new()
+    let row : Array[AlnAnalysisResult] = Array(capacity=0)
     let mut j = 0
     while j < n {
       if i == j {
@@ -415,7 +415,7 @@ pub fn aln_jukes_cantor_matrix(
   sequences : Array[String],
 ) -> Array[Array[Double]] {
   let n = sequences.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {
@@ -448,7 +448,7 @@ pub fn aln_jukes_cantor_matrix(
 /// Calculate distance matrix using Kimura 2-parameter method.
 pub fn aln_kimura_2p_matrix(sequences : Array[String]) -> Array[Array[Double]] {
   let n = sequences.length()
-  let matrix : Array[Array[Double]] = Array::new()
+  let matrix : Array[Array[Double]] = Array(capacity=0)
 
   let mut i = 0
   while i < n {

@@ -120,10 +120,10 @@ test "stockholm_sequence_struct" {
 
 ///|
 test "stockholm_block_struct" {
-  let seqs : Array[@src.StockholmSequence] = Array::new()
+  let seqs : Array[@src.StockholmSequence] = Array(capacity=0)
   let gc : Map[String, String] = Map([], capacity=0)
   let gr : Map[String, String] = Map([], capacity=0)
-  let ann : Array[String] = Array::new()
+  let ann : Array[String] = Array(capacity=0)
   let block = @src.StockholmBlock::new(seqs, "ss", "cons", ann, gc, gr)
   assert_eq(block.secondary_structure, "ss")
   assert_eq(block.consensus, "cons")
@@ -131,10 +131,10 @@ test "stockholm_block_struct" {
 
 ///|
 test "stockholm_alignment_struct" {
-  let blocks : Array[@src.StockholmBlock] = Array::new()
+  let blocks : Array[@src.StockholmBlock] = Array(capacity=0)
   let gf : Map[String, String] = Map([], capacity=0)
   let gs : Map[String, String] = Map([], capacity=0)
-  let markup : Array[String] = Array::new()
+  let markup : Array[String] = Array(capacity=0)
   let ali = @src.StockholmAlignment::new("1.0", blocks, gf, gs, markup)
   assert_eq(ali.version, "1.0")
   assert_eq(ali.blocks.length(), 0)

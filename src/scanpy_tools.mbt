@@ -59,8 +59,8 @@ pub fn scanpy_rank_genes_groups(
   target_label : String,
 ) -> Array[RankGenesResult] {
   // collect row indices for the two groups
-  let ref_idx : Array[Int] = Array::new()
-  let target_idx : Array[Int] = Array::new()
+  let ref_idx : Array[Int] = Array(capacity=0)
+  let target_idx : Array[Int] = Array(capacity=0)
   for i = 0; i < groups.length(); i = i + 1 {
     if groups[i] == ref_label {
       ref_idx.push(i)
@@ -71,7 +71,7 @@ pub fn scanpy_rank_genes_groups(
   let n_genes = if x.length() == 0 { 0 } else { x[0].length() }
   let n_ref = ref_idx.length()
   let n_target = target_idx.length()
-  let out : Array[RankGenesResult] = Array::new()
+  let out : Array[RankGenesResult] = Array(capacity=0)
   let mut j = 0
   while j < n_genes {
     let (mean_ref, var_ref) = sub_mean_var(x, j, ref_idx)

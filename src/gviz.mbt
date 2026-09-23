@@ -196,8 +196,8 @@ pub fn gviz_track(
     chromosome,
     start,
     end_,
-    features: Array::new(),
-    data_values: Array::new(),
+    features: Array(capacity=0),
+    data_values: Array(capacity=0),
     color: "black",
     display_label: track_name,
   }
@@ -250,7 +250,7 @@ pub fn GvizTrack::get_features_in_region(
   start : Int,
   end_ : Int,
 ) -> Array[GvizFeature] {
-  let result : Array[GvizFeature] = Array::new()
+  let result : Array[GvizFeature] = Array(capacity=0)
   let mut i = 0
   while i < self.features.length() {
     let f = self.features[i]
@@ -269,7 +269,7 @@ pub fn GvizTrack::get_data_in_region(
   start : Int,
   end_ : Int,
 ) -> Array[(Int, Double)] {
-  let result : Array[(Int, Double)] = Array::new()
+  let result : Array[(Int, Double)] = Array(capacity=0)
   let mut i = 0
   while i < self.data_values.length() {
     let (pos, val) = self.data_values[i]
@@ -295,7 +295,7 @@ pub fn gviz_plot(
   width? : Int = 80,
   height? : Int = 25,
 ) -> GvizPlot {
-  GvizPlot::{ tracks: Array::new(), region, title, width, height, }
+  GvizPlot::{ tracks: Array(capacity=0), region, title, width, height, }
 }
 
 ///|
@@ -432,7 +432,7 @@ fn gviz_render_features(
   }
 
   // Build the rendering grid
-  let grid : Array[String] = Array::new()
+  let grid : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < width {
     grid.push(" ")
@@ -510,7 +510,7 @@ fn gviz_render_labels(
     return ""
   }
 
-  let grid : Array[String] = Array::new()
+  let grid : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < width {
     grid.push(" ")
@@ -578,10 +578,10 @@ fn gviz_render_data(
 
   // Build bar chart
   let bar_height = 5
-  let grid : Array[Array[String]] = Array::new()
+  let grid : Array[Array[String]] = Array(capacity=0)
   let mut ri = 0
   while ri < bar_height {
-    let row : Array[String] = Array::new()
+    let row : Array[String] = Array(capacity=0)
     let mut ci = 0
     while ci < width {
       row.push(" ")

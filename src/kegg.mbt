@@ -128,9 +128,9 @@ pub fn parse_kegg_gene(text : String) -> KEGGGene? {
   let mut definition = ""
   let mut orthology = ""
   let mut organism = ""
-  let pathways : Array[String] = Array::new()
+  let pathways : Array[String] = Array(capacity=0)
   let mut position = ""
-  let dblinks : Array[(String, String)] = Array::new()
+  let dblinks : Array[(String, String)] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -180,10 +180,10 @@ pub fn parse_kegg_pathway(text : String) -> KEGGPathway? {
   let mut name = ""
   let mut definition = ""
   let mut class = ""
-  let genes : Array[(String, String)] = Array::new()
-  let compounds : Array[String] = Array::new()
-  let enzymes : Array[String] = Array::new()
-  let organisms : Array[String] = Array::new()
+  let genes : Array[(String, String)] = Array(capacity=0)
+  let compounds : Array[String] = Array(capacity=0)
+  let enzymes : Array[String] = Array(capacity=0)
+  let organisms : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -246,9 +246,9 @@ pub fn parse_kegg_compound(text : String) -> KEGGCompound? {
   let mut name = ""
   let mut formula = ""
   let mut mass = 0.0
-  let pathways : Array[String] = Array::new()
-  let enzymes : Array[String] = Array::new()
-  let reactions : Array[String] = Array::new()
+  let pathways : Array[String] = Array(capacity=0)
+  let enzymes : Array[String] = Array(capacity=0)
+  let reactions : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -295,10 +295,10 @@ pub fn parse_kegg_enzyme(text : String) -> KEGGEnzyme? {
   let mut entry = ""
   let mut name = ""
   let mut class = ""
-  let genes : Array[(String, String)] = Array::new()
-  let pathways : Array[String] = Array::new()
-  let reactions : Array[String] = Array::new()
-  let cofactors : Array[String] = Array::new()
+  let genes : Array[(String, String)] = Array(capacity=0)
+  let pathways : Array[String] = Array(capacity=0)
+  let reactions : Array[String] = Array(capacity=0)
+  let cofactors : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < lines.length() {
@@ -351,7 +351,7 @@ pub fn parse_kegg_enzyme(text : String) -> KEGGEnzyme? {
 
 ///|
 pub fn kegg_pathway_gene_ids(pathway : KEGGPathway) -> Array[String] {
-  let ids : Array[String] = Array::new()
+  let ids : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < pathway.genes.length() {
     ids.push(pathway.genes[i].0)

@@ -193,7 +193,7 @@ pub fn naive_bayes_predict_log_probs(
   classifier : NaiveBayesClassifier,
   sequence : String,
 ) -> Array[(String, Double)] {
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
   let vocab_size = classifier.vocabulary.length().to_double()
   let alpha = classifier.alpha
   let kmers = naive_bayes_extract_kmers(sequence, classifier.kmer_size)
@@ -255,7 +255,7 @@ pub fn naive_bayes_predict_proba(
   sequence : String,
 ) -> Array[(String, Double)] {
   let log_probs = naive_bayes_predict_log_probs(classifier, sequence)
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
   if log_probs.length() == 0 {
     return result
   }
@@ -267,7 +267,7 @@ pub fn naive_bayes_predict_proba(
     }
   }
 
-  let exps : Array[Double] = Array::new()
+  let exps : Array[Double] = Array(capacity=0)
   let mut sum = 0.0
   for lp in log_probs {
     let e = @math.exp(lp.1 - max_log)
@@ -310,7 +310,7 @@ pub fn naive_bayes_top_k(
     i = i + 1
   }
 
-  let result : Array[(String, Double)] = Array::new()
+  let result : Array[(String, Double)] = Array(capacity=0)
   let limit = if k < probs.length() { k } else { probs.length() }
   let mut idx = 0
   while idx < limit {

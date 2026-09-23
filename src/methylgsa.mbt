@@ -161,7 +161,7 @@ fn methylgsa_exp(x : Double) -> Double {
 fn methylgsa_collect_names(
   gene_sets : Map[String, Array[String]],
 ) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   for k in gene_sets.keys() {
     names.push(k)
   }
@@ -179,18 +179,18 @@ pub fn methylrra_ols(
   gene_sets~ : Map[String, Array[String]],
 ) -> Array[MethylgsaResult] {
   let gene_min = methylgsa_gene_min_p(input)
-  let universe : Array[String] = Array::new()
+  let universe : Array[String] = Array(capacity=0)
   for g in gene_min.keys() {
     universe.push(g)
   }
-  let background : Array[Double] = Array::new()
+  let background : Array[Double] = Array(capacity=0)
   for g in universe {
     let singleton : Map[String, Array[String]] = Map::new()
     singleton.set("bg", [g])
     let (stat, _) = methylgsa_ols_statistic(gene_min, singleton["bg"])
     background.push(stat)
   }
-  let results : Array[MethylgsaResult] = Array::new()
+  let results : Array[MethylgsaResult] = Array(capacity=0)
   for name in methylgsa_collect_names(gene_sets) {
     match gene_sets.get(name) {
       Some(genes) => {
@@ -235,12 +235,12 @@ pub fn methylrra_robust(
   gene_sets~ : Map[String, Array[String]],
 ) -> Array[MethylgsaResult] {
   let gene_min = methylgsa_gene_min_p(input)
-  let universe : Array[String] = Array::new()
+  let universe : Array[String] = Array(capacity=0)
   for g in gene_min.keys() {
     universe.push(g)
   }
   let n_universe = universe.length()
-  let sorted_p : Array[Double] = Array::new()
+  let sorted_p : Array[Double] = Array(capacity=0)
   for g in universe {
     match gene_min.get(g) {
       Some(p) => sorted_p.push(p)
@@ -257,11 +257,11 @@ pub fn methylrra_robust(
       0
     }
   })
-  let results : Array[MethylgsaResult] = Array::new()
+  let results : Array[MethylgsaResult] = Array(capacity=0)
   for name in methylgsa_collect_names(gene_sets) {
     match gene_sets.get(name) {
       Some(genes) => {
-        let fractions : Array[Double] = Array::new()
+        let fractions : Array[Double] = Array(capacity=0)
         let mut size = 0
         for g in genes {
           match gene_min.get(g) {
@@ -342,7 +342,7 @@ pub fn methylgsa_bh(results : Array[MethylgsaResult]) -> Array[MethylgsaResult] 
   if n == 0 {
     return results
   }
-  let order : Array[Int] = Array::new()
+  let order : Array[Int] = Array(capacity=0)
   for i in 0..<n {
     order.push(i)
   }

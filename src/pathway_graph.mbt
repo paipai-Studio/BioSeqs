@@ -89,7 +89,7 @@ pub fn PathwayGraph::edges(self : PathwayGraph, label : String) -> (String, Stri
 ///|
 /// All edge labels that leave ``node``.
 pub fn PathwayGraph::children(self : PathwayGraph, node : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let keys = self.edge_map.keys().collect()
   let mut i = 0
   while i < keys.length() {
@@ -106,7 +106,7 @@ pub fn PathwayGraph::children(self : PathwayGraph, node : String) -> Array[Strin
 ///|
 /// All edge labels that arrive at ``node``.
 pub fn PathwayGraph::parents(self : PathwayGraph, node : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let keys = self.edge_map.keys().collect()
   let mut i = 0
   while i < keys.length() {
@@ -123,7 +123,7 @@ pub fn PathwayGraph::parents(self : PathwayGraph, node : String) -> Array[String
 ///|
 /// ``(target, edge_label)`` pairs for every edge leaving ``node``.
 pub fn PathwayGraph::child_edges(self : PathwayGraph, node : String) -> Array[(String, String)] {
-  let result : Array[(String, String)] = Array::new()
+  let result : Array[(String, String)] = Array(capacity=0)
   let keys = self.edge_map.keys().collect()
   let mut i = 0
   while i < keys.length() {
@@ -140,7 +140,7 @@ pub fn PathwayGraph::child_edges(self : PathwayGraph, node : String) -> Array[(S
 ///|
 /// ``(source, edge_label)`` pairs for every edge arriving at ``node``.
 pub fn PathwayGraph::parent_edges(self : PathwayGraph, node : String) -> Array[(String, String)] {
-  let result : Array[(String, String)] = Array::new()
+  let result : Array[(String, String)] = Array(capacity=0)
   let keys = self.edge_map.keys().collect()
   let mut i = 0
   while i < keys.length() {
@@ -222,7 +222,7 @@ pub fn PathwayMultiGraph::edges(self : PathwayMultiGraph, label : String) -> Arr
 ///|
 /// All distinct edge labels that leave ``node``.
 pub fn PathwayMultiGraph::children(self : PathwayMultiGraph, node : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([])
   let keys = self.edge_map.keys().collect()
   let mut i = 0
@@ -246,7 +246,7 @@ pub fn PathwayMultiGraph::children(self : PathwayMultiGraph, node : String) -> A
 ///|
 /// All distinct edge labels that arrive at ``node``.
 pub fn PathwayMultiGraph::parents(self : PathwayMultiGraph, node : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let seen : Map[String, Bool] = Map([])
   let keys = self.edge_map.keys().collect()
   let mut i = 0
@@ -271,7 +271,7 @@ pub fn PathwayMultiGraph::parents(self : PathwayMultiGraph, node : String) -> Ar
 /// ``(target, edge_label)`` pairs for every edge leaving ``node``.
 /// For parallel edges this returns **one entry per physical edge**.
 pub fn PathwayMultiGraph::child_edges(self : PathwayMultiGraph, node : String) -> Array[(String, String)] {
-  let result : Array[(String, String)] = Array::new()
+  let result : Array[(String, String)] = Array(capacity=0)
   let keys = self.edge_map.keys().collect()
   let mut i = 0
   while i < keys.length() {
@@ -293,7 +293,7 @@ pub fn PathwayMultiGraph::child_edges(self : PathwayMultiGraph, node : String) -
 ///|
 /// ``(source, edge_label)`` pairs for every edge arriving at ``node``.
 pub fn PathwayMultiGraph::parent_edges(self : PathwayMultiGraph, node : String) -> Array[(String, String)] {
-  let result : Array[(String, String)] = Array::new()
+  let result : Array[(String, String)] = Array(capacity=0)
   let keys = self.edge_map.keys().collect()
   let mut i = 0
   while i < keys.length() {
@@ -317,7 +317,7 @@ pub fn PathwayMultiGraph::parent_edges(self : PathwayMultiGraph, node : String) 
 // ===========================================================================
 
 fn _pg_neighbors(g : PathwayGraph, node : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let keys = g.edge_map.keys().collect()
   let mut i = 0
   while i < keys.length() {
@@ -331,7 +331,7 @@ fn _pg_neighbors(g : PathwayGraph, node : String) -> Array[String] {
 }
 
 fn _pmg_neighbors(g : PathwayMultiGraph, node : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let keys = g.edge_map.keys().collect()
   let mut i = 0
   while i < keys.length() {
@@ -367,8 +367,8 @@ pub fn bf_search(g : PathwayMultiGraph, root? : String) -> Array[String] {
     None => all_nodes[0]
   }
   let seen : Map[String, Bool] = Map([])
-  let result : Array[String] = Array::new()
-  let queue : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
+  let queue : Array[String] = Array(capacity=0)
 
   seen[start] = true
   result.push(start)
@@ -411,8 +411,8 @@ pub fn df_search(g : PathwayMultiGraph, root? : String) -> Array[String] {
     None => all_nodes[0]
   }
   let seen : Map[String, Bool] = Map([])
-  let result : Array[String] = Array::new()
-  let stack : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
+  let stack : Array[String] = Array(capacity=0)
 
   seen[start] = true
   result.push(start)
@@ -452,8 +452,8 @@ pub fn bf_search_graph(g : PathwayGraph, root? : String) -> Array[String] {
     None => all_nodes[0]
   }
   let seen : Map[String, Bool] = Map([])
-  let result : Array[String] = Array::new()
-  let queue : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
+  let queue : Array[String] = Array(capacity=0)
 
   seen[start] = true
   result.push(start)
@@ -490,8 +490,8 @@ pub fn df_search_graph(g : PathwayGraph, root? : String) -> Array[String] {
     None => all_nodes[0]
   }
   let seen : Map[String, Bool] = Map([])
-  let result : Array[String] = Array::new()
-  let stack : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
+  let stack : Array[String] = Array(capacity=0)
 
   seen[start] = true
   result.push(start)

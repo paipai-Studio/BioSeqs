@@ -519,7 +519,7 @@ fn bcif_parse_message(
   }
   if marker >= 0x90 && marker <= 0x9F {
     let length = marker & 0x0F
-    let values = Array::new(capacity=length)
+    let values = Array(capacity=length)
     for _ in 0..<length {
       values.push(bcif_parse_message(reader, depth + 1))
     }
@@ -553,7 +553,7 @@ fn bcif_parse_message(
     0xDB => BcifTextValue(bcif_read_utf8(reader, bcif_read_unsigned(reader, 4)))
     0xDC => {
       let length = bcif_read_unsigned(reader, 2)
-      let values = Array::new(capacity=length)
+      let values = Array(capacity=length)
       for _ in 0..<length {
         values.push(bcif_parse_message(reader, depth + 1))
       }
@@ -561,7 +561,7 @@ fn bcif_parse_message(
     }
     0xDD => {
       let length = bcif_read_unsigned(reader, 4)
-      let values = Array::new(capacity=length)
+      let values = Array(capacity=length)
       for _ in 0..<length {
         values.push(bcif_parse_message(reader, depth + 1))
       }
@@ -761,7 +761,7 @@ pub fn binary_cif_decode_int_bytes(
   if data.length() % width != 0 {
     raise BinaryCifError("BinaryCIF byte array has an invalid length")
   }
-  let result = Array::new(capacity=data.length() / width)
+  let result = Array(capacity=data.length() / width)
   let mut offset = 0
   while offset < data.length() {
     let value = match type_code {
@@ -803,7 +803,7 @@ pub fn binary_cif_decode_float_bytes(
       "BinaryCIF floating-point byte array has an invalid length",
     )
   }
-  let result = Array::new(capacity=data.length() / width)
+  let result = Array(capacity=data.length() / width)
   let mut offset = 0
   while offset < data.length() {
     if type_code == 32 {
@@ -854,7 +854,7 @@ pub fn binary_cif_decode_integer_packing(
   } else {
     -32768
   }
-  let result = Array::new(capacity=source_size)
+  let result = Array(capacity=source_size)
   let mut accumulator = 0
   for value in data {
     if value < lower || value > upper {
@@ -883,7 +883,7 @@ pub fn binary_cif_decode_run_length(
   if source_size < 0 || data.length() % 2 != 0 {
     raise BinaryCifError("Invalid BinaryCIF run-length encoding")
   }
-  let result = Array::new(capacity=source_size)
+  let result = Array(capacity=source_size)
   let mut index = 0
   while index < data.length() {
     let value = data[index]
@@ -904,7 +904,7 @@ pub fn binary_cif_decode_run_length(
 
 ///|
 pub fn binary_cif_decode_delta(data : Array[Int], origin : Int) -> Array[Int] {
-  let result = Array::new(capacity=data.length())
+  let result = Array(capacity=data.length())
   let mut current = origin
   for value in data {
     current = current + value
@@ -923,7 +923,7 @@ pub fn binary_cif_decode_fixed_point(
       "BinaryCIF fixed-point factor must be finite and non-zero",
     )
   }
-  let result = Array::new(capacity=data.length())
+  let result = Array(capacity=data.length())
   for value in data {
     result.push(value.to_double() / factor)
   }
@@ -944,7 +944,7 @@ pub fn binary_cif_decode_interval_quantization(
     raise BinaryCifError("Invalid BinaryCIF interval quantization parameters")
   }
   let step = (maximum - minimum) / (number_of_steps - 1).to_double()
-  let result = Array::new(capacity=data.length())
+  let result = Array(capacity=data.length())
   for value in data {
     if value < 0 || value >= number_of_steps {
       raise BinaryCifError("BinaryCIF quantized value is outside its interval")
@@ -973,11 +973,11 @@ pub fn binary_cif_decode_string_array(
       "BinaryCIF string offsets do not cover the string data",
     )
   }
-  let dictionary = Array::new(capacity=offsets.length() - 1)
+  let dictionary = Array(capacity=offsets.length() - 1)
   for i in 0..<(offsets.length() - 1) {
     dictionary.push(string_data[offsets[i]:offsets[i + 1]].to_owned())
   }
-  let result = Array::new(capacity=indices.length())
+  let result = Array(capacity=indices.length())
   for index in indices {
     if index < 0 || index >= dictionary.length() {
       raise BinaryCifError("BinaryCIF string lookup index is out of bounds")
@@ -1251,7 +1251,7 @@ fn bcif_parse_category(
     bcif_required(category, "columns", "BinaryCIF category"),
     "BinaryCIF category.columns",
   )
-  let columns = Array::new(capacity=raw_columns.length())
+  let columns = Array(capacity=raw_columns.length())
   let seen : Map[String, Bool] = Map([], capacity=raw_columns.length())
   for raw_column in raw_columns {
     let column = bcif_parse_column(raw_column, row_count)
@@ -1277,7 +1277,7 @@ fn bcif_parse_block(
     bcif_required(block, "categories", "BinaryCIF data block"),
     "BinaryCIF data block.categories",
   )
-  let categories = Array::new(capacity=raw_categories.length())
+  let categories = Array(capacity=raw_categories.length())
   let seen : Map[String, Bool] = Map([], capacity=raw_categories.length())
   for raw_category in raw_categories {
     let category = bcif_parse_category(raw_category)
@@ -1329,7 +1329,7 @@ pub fn binary_cif_parse(
   if raw_blocks.length() == 0 {
     raise BinaryCifError("BinaryCIF document has no data blocks")
   }
-  let data_blocks = Array::new(capacity=raw_blocks.length())
+  let data_blocks = Array(capacity=raw_blocks.length())
   for raw_block in raw_blocks {
     data_blocks.push(bcif_parse_block(raw_block))
   }
@@ -1616,13 +1616,12 @@ pub fn binary_cif_to_structure(
       charge: bcif_optional_int(atom_site, "pdbx_formal_charge", row, 0),
     })
   }
-  let models = Array::new(capacity=builders.length())
+  let models = Array(capacity=builders.length())
   for model_index in 0..<builders.length() {
-    let chain_values = Array::new(
-      capacity=builders[model_index].chains.length(),
+    let chain_values = Array(capacity=builders[model_index].chains.length(),
     )
     for chain_builder in builders[model_index].chains {
-      let residues = Array::new(capacity=chain_builder.residues.length())
+      let residues = Array(capacity=chain_builder.residues.length())
       for residue_builder in chain_builder.residues {
         residues.push(Residue::{
           resname: residue_builder.resname,
@@ -1827,7 +1826,7 @@ fn bcif_byte_array_encoding(type_code : Int) -> BcifMessage {
 
 ///|
 fn bcif_sample_int_column(name : String, values : Array[Int]) -> BcifMessage {
-  let bytes = Array::new(capacity=values.length() * 4)
+  let bytes = Array(capacity=values.length() * 4)
   for value in values {
     bcif_write_i32_le(bytes, value)
   }
@@ -1849,13 +1848,13 @@ fn bcif_sample_fixed_column(
   scaled_values : Array[Int],
   factor : Int,
 ) -> BcifMessage {
-  let deltas = Array::new(capacity=scaled_values.length())
+  let deltas = Array(capacity=scaled_values.length())
   let mut previous = 0
   for value in scaled_values {
     deltas.push(value - previous)
     previous = value
   }
-  let bytes = Array::new(capacity=deltas.length() * 4)
+  let bytes = Array(capacity=deltas.length() * 4)
   for value in deltas {
     bcif_write_i32_le(bytes, value)
   }
@@ -1913,11 +1912,11 @@ fn bcif_sample_string_column(
     string_data = string_data + value
     offsets.push(string_data.length())
   }
-  let offset_bytes = Array::new(capacity=offsets.length() * 4)
+  let offset_bytes = Array(capacity=offsets.length() * 4)
   for value in offsets {
     bcif_write_i32_le(offset_bytes, value)
   }
-  let index_bytes = Array::new(capacity=indices.length())
+  let index_bytes = Array(capacity=indices.length())
   for value in indices {
     index_bytes.push(value)
   }

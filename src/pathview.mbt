@@ -71,7 +71,7 @@ pub fn pathview_new(pathway_id : String) -> PathviewPathway {
 ///|
 /// Add a node to the pathway.
 pub fn pathview_add_node(pw : PathviewPathway, node : PathviewNode) -> PathviewPathway {
-  let nodes : Array[PathviewNode] = Array::new()
+  let nodes : Array[PathviewNode] = Array(capacity=0)
   for n in pw.nodes {
     nodes.push(n)
   }
@@ -82,7 +82,7 @@ pub fn pathview_add_node(pw : PathviewPathway, node : PathviewNode) -> PathviewP
 ///|
 /// Add an edge to the pathway.
 pub fn pathview_add_edge(pw : PathviewPathway, edge : PathviewEdge) -> PathviewPathway {
-  let edges : Array[PathviewEdge] = Array::new()
+  let edges : Array[PathviewEdge] = Array(capacity=0)
   for e in pw.edges {
     edges.push(e)
   }
@@ -188,7 +188,7 @@ pub fn pathview_node_stats(
       None => ()
     }
   }
-  let results : Array[PathviewNodeStat] = Array::new()
+  let results : Array[PathviewNodeStat] = Array(capacity=0)
   for node_id in node_sums.keys().collect() {
     let cnt = node_counts.get(node_id).unwrap_or(0)
     let mean = if cnt > 0 { node_sums.get(node_id).unwrap_or(0.0) / cnt.to_double() } else { 0.0 }

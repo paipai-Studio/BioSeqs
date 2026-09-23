@@ -177,7 +177,7 @@ pub fn ExonerateRecord::alignment_blocks(
 ///|
 /// Split a string by whitespace (space and tab), returning non-empty tokens.
 fn exo_split_whitespace(s : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let len = s.length()
   let mut i = 0
   while i < len {
@@ -199,7 +199,7 @@ fn exo_split_whitespace(s : String) -> Array[String] {
 ///|
 /// Split content into lines by newline (handles \r\n and \n).
 fn exo_split_lines(content : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let len = content.length()
   let mut start = 0
   let mut i = 0
@@ -386,7 +386,7 @@ fn exo_is_numeric_token(s : String) -> Bool {
 /// of inputs where splice-site codes (5/3) omit the score, we treat a
 /// following code as a boundary and default the score to 0.
 fn exo_parse_vulgar_blocks(tokens : Array[String]) -> Array[AlignmentBlock] {
-  let blocks : Array[AlignmentBlock] = Array::new()
+  let blocks : Array[AlignmentBlock] = Array(capacity=0)
   let n = tokens.length()
   let mut i = 0
   while i < n {
@@ -430,7 +430,7 @@ fn exo_parse_vulgar_line(line : String) -> ExonerateRecord? {
   let target_end = exo_parse_int(tokens[7])
   let target_strand = tokens[8]
   let score = exo_parse_double(tokens[9])
-  let block_tokens : Array[String] = Array::new()
+  let block_tokens : Array[String] = Array(capacity=0)
   for j in 10..<tokens.length() {
     block_tokens.push(tokens[j])
   }
@@ -447,7 +447,7 @@ fn exo_parse_vulgar_line(line : String) -> ExonerateRecord? {
 /// Parse Exonerate vulgar format output. Returns one ExonerateRecord per
 /// "vulgar:" line. Blank lines and non-vulgar lines are ignored.
 pub fn parse_exonerate_vulgar(content : String) -> Array[ExonerateRecord] {
-  let records : Array[ExonerateRecord] = Array::new()
+  let records : Array[ExonerateRecord] = Array(capacity=0)
   let lines = exo_split_lines(content)
   for line in lines {
     let trimmed = line.trim()
@@ -489,7 +489,7 @@ fn exo_cigar_lengths(code : String, length : Int) -> (Int, Int, Double) {
 /// Parse the cigar block tokens (code/length pairs) into AlignmentBlock
 /// entries.
 fn exo_parse_cigar_blocks(tokens : Array[String]) -> Array[AlignmentBlock] {
-  let blocks : Array[AlignmentBlock] = Array::new()
+  let blocks : Array[AlignmentBlock] = Array(capacity=0)
   let n = tokens.length()
   let mut i = 0
   while i + 1 < n {
@@ -521,7 +521,7 @@ fn exo_parse_cigar_line(line : String) -> ExonerateRecord? {
   let target_end = exo_parse_int(tokens[7])
   let target_strand = tokens[8]
   let score = exo_parse_double(tokens[9])
-  let block_tokens : Array[String] = Array::new()
+  let block_tokens : Array[String] = Array(capacity=0)
   for j in 10..<tokens.length() {
     block_tokens.push(tokens[j])
   }
@@ -538,7 +538,7 @@ fn exo_parse_cigar_line(line : String) -> ExonerateRecord? {
 /// Parse Exonerate cigar format output. Returns one ExonerateRecord per
 /// "cigar:" line. Blank lines and non-cigar lines are ignored.
 pub fn parse_exonerate_cigar(content : String) -> Array[ExonerateRecord] {
-  let records : Array[ExonerateRecord] = Array::new()
+  let records : Array[ExonerateRecord] = Array(capacity=0)
   let lines = exo_split_lines(content)
   for line in lines {
     let trimmed = line.trim()
@@ -564,7 +564,7 @@ pub fn parse_exonerate_cigar(content : String) -> Array[ExonerateRecord] {
 /// Mixed inputs (some vulgar lines, some cigar lines) are supported; each
 /// line is dispatched by its prefix.
 pub fn parse_exonerate(content : String) -> Array[ExonerateRecord] {
-  let records : Array[ExonerateRecord] = Array::new()
+  let records : Array[ExonerateRecord] = Array(capacity=0)
   let lines = exo_split_lines(content)
   for line in lines {
     let trimmed = line.trim()
@@ -597,7 +597,7 @@ pub fn exonerate_filter_by_score(
   records : Array[ExonerateRecord],
   threshold : Double,
 ) -> Array[ExonerateRecord] {
-  let result : Array[ExonerateRecord] = Array::new()
+  let result : Array[ExonerateRecord] = Array(capacity=0)
   for rec in records {
     if rec.score >= threshold {
       result.push(rec)

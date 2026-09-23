@@ -27,7 +27,7 @@ fn pbs_tree(root : @src.Clade) -> @src.Tree {
 
 ///|
 fn pbs_key(clade : @src.Clade) -> String {
-  let names = Array::new()
+  let names = Array(capacity=0)
   for t in clade.get_terminals() {
     match t.name {
       Some(n) => names.push(n)
@@ -47,7 +47,7 @@ fn pbs_key(clade : @src.Clade) -> String {
 
 ///|
 fn pbs_preorder_names(tree : @src.Tree) -> Array[String] {
-  let names = Array::new()
+  let names = Array(capacity=0)
   for t in tree.find_clades(terminal=Some(true)) {
     match t.name {
       Some(n) => names.push(n)
@@ -69,7 +69,7 @@ fn pbs_find_internal(tree : @src.Tree, key : String) -> @src.Clade {
 
 ///|
 fn pbs_child_keys(clade : @src.Clade) -> Array[String] {
-  let keys = Array::new()
+  let keys = Array(capacity=0)
   for c in clade.clades {
     keys.push(pbs_key(c))
   }
@@ -346,7 +346,7 @@ fn pbs_frozen_msa() -> (Array[String], Array[String]) {
 test "pbs_bootstrap_replicate0_distances_match_biopython" {
   let (seqs, _) = pbs_frozen_msa()
   let cols = pbs_frozen_columns()[0]
-  let repl = Array::new()
+  let repl = Array(capacity=0)
   for s in seqs {
     repl.push(pbs_resample(s, cols))
   }
@@ -465,7 +465,7 @@ test "pbs_clade_to_newick_smoke" {
 
 ///|
 test "pbs_consensus_empty_trees_raises" {
-  let trees : Array[@src.Tree] = Array::new()
+  let trees : Array[@src.Tree] = Array(capacity=0)
   assert_true(pbs_raise_strict(trees) != "NO_ERROR")
 }
 

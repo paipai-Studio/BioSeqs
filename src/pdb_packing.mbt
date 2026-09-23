@@ -190,7 +190,7 @@ pub fn PackingAnalysisResult::summary(self : PackingAnalysisResult) -> String {
 pub fn generate_packing_sphere_points(
   n_points? : Int = 100,
 ) -> Array[SpherePoint] {
-  let points : Array[SpherePoint] = Array::new()
+  let points : Array[SpherePoint] = Array(capacity=0)
   let n = if n_points < 1 { 1 } else { n_points }
   let golden_angle = 3.14159265358979323846 * (3.0 - 5.0.sqrt())
 
@@ -338,14 +338,14 @@ pub fn packing_density_per_residue(
     match residue_groups.get(key) {
       Some(arr) => arr.push(atom)
       None => {
-        let arr : Array[PackingAtom] = Array::new()
+        let arr : Array[PackingAtom] = Array(capacity=0)
         arr.push(atom)
         residue_groups[key] = arr
       }
     }
   }
 
-  let results : Array[PackingResult] = Array::new()
+  let results : Array[PackingResult] = Array(capacity=0)
   let all_keys = residue_groups.keys().collect()
   let mut ki = 0
   while ki < all_keys.length() {
@@ -383,7 +383,7 @@ pub fn packing_density_per_residue(
 
   let mean_d = sum / n.to_double()
 
-  let sorted_densities : Array[Double] = Array::new()
+  let sorted_densities : Array[Double] = Array(capacity=0)
   for r in results {
     sorted_densities.push(r.density)
   }
@@ -519,7 +519,7 @@ pub fn identify_low_packing(
   analysis : PackingAnalysisResult,
   cutoff? : Double = 0.5,
 ) -> Array[String] {
-  let low_residues : Array[String] = Array::new()
+  let low_residues : Array[String] = Array(capacity=0)
   let results = analysis.results
 
   for r in results {

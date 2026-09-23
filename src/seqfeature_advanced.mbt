@@ -100,7 +100,7 @@ fn parse_int_at(s : String, pos : Int) -> (Int, Int) raise LocationParserError {
 /// Split a string by commas that are at the top parenthesis nesting level.
 /// Returns an array of trimmed substring contents.
 fn split_top_level_commas(s : String) -> Array[String] {
-  let parts : Array[String] = Array::new()
+  let parts : Array[String] = Array(capacity=0)
   let n = s.length()
   let mut depth = 0
   let mut start = 0
@@ -467,7 +467,7 @@ pub fn parse_join_location(
   }
   let inner = trim_whitespace(after_op[1:close_paren].to_owned())
   let part_strings = split_top_level_commas(inner)
-  let parts : Array[FeatureLocation] = Array::new()
+  let parts : Array[FeatureLocation] = Array(capacity=0)
   for part_str in part_strings {
     if part_str.length() == 0 {
       continue
@@ -514,7 +514,7 @@ pub fn parse_location_string(
         return ParsedFeatureLocation(new_loc)
       }
       ParsedCompoundLocation(comp) => {
-        let new_parts : Array[FeatureLocation] = Array::new()
+        let new_parts : Array[FeatureLocation] = Array(capacity=0)
         for part in comp.parts {
           new_parts.push(_set_strand(part, strand))
         }

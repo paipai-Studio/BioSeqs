@@ -188,7 +188,7 @@ pub fn xcp_centwave(
   let rt = chrom.rt
   let intensity = chrom.intensity
   let n = rt.length()
-  let peaks : Array[XcpPeak] = Array::new()
+  let peaks : Array[XcpPeak] = Array(capacity=0)
   if n < 5 {
     return peaks
   }
@@ -262,7 +262,7 @@ pub fn xcp_matched_filter(
   let rt = chrom.rt
   let intensity = chrom.intensity
   let n = rt.length()
-  let peaks : Array[XcpPeak] = Array::new()
+  let peaks : Array[XcpPeak] = Array(capacity=0)
   if n < 5 {
     return peaks
   }
@@ -347,7 +347,7 @@ pub fn xcp_merge_peaks(
   }
   sorted.sort_by(fn(a, b) { a.rtmin.compare(b.rtmin) })
 
-  let merged : Array[XcpPeak] = Array::new()
+  let merged : Array[XcpPeak] = Array(capacity=0)
   let mut current = sorted[0]
   for i in 1..<n {
     let next = sorted[i]

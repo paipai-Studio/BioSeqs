@@ -159,7 +159,7 @@ pub fn scop_raf_seqmap_parse(line : String) -> ScopSeqMap raise ScopRafError {
   }
   let datestamp = text[14:20].to_owned()
   let flags = text[21:27].to_owned()
-  let res : Array[ScopRafRes] = Array::new()
+  let res : Array[ScopRafRes] = Array(capacity=0)
   let mut i = header_len
   while i < text.length() {
     let f = text[i:i + 7].to_owned()
@@ -179,7 +179,7 @@ pub fn scop_raf_seqmap_parse(line : String) -> ScopSeqMap raise ScopRafError {
 /// Iterate over a RAF file, giving a SeqMap object for each line.
 /// Empty (all whitespace) lines are skipped.
 pub fn scop_raf_parse(text : String) -> Array[ScopSeqMap] raise ScopRafError {
-  let result : Array[ScopSeqMap] = Array::new()
+  let result : Array[ScopSeqMap] = Array(capacity=0)
   for line in split_by_char(text, '\n'.to_int()) {
     if line.trim().length() == 0 {
       continue
@@ -248,7 +248,7 @@ pub fn ScopSeqMap::slice(
   start : Int,
   end_ : Int,
 ) -> ScopSeqMap {
-  let res : Array[ScopRafRes] = Array::new()
+  let res : Array[ScopRafRes] = Array(capacity=0)
   for i in start..<end_ {
     res.push(self.res[i])
   }
@@ -465,7 +465,7 @@ pub fn scop_dom_record_parse(line : String) -> DomRecord raise ScopDomError {
 /// Iterate over a DOM file as a Dom record for each line.
 /// Lines starting with "#" are comments and are skipped.
 pub fn scop_dom_parse(text : String) -> Array[DomRecord] raise ScopDomError {
-  let result : Array[DomRecord] = Array::new()
+  let result : Array[DomRecord] = Array(capacity=0)
   for line in split_by_char(text, '\n'.to_int()) {
     if line.length() == 0 {
       continue

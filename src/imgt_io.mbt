@@ -263,7 +263,7 @@ pub fn ImgtRecord::to_string(self : ImgtRecord) -> String {
 /// the pieces into `Array[String]`.)
 fn imgt_split_strings(s : String, delim : String) -> Array[String] {
   let views = s.split(delim).to_array()
-  let out : Array[String] = Array::new()
+  let out : Array[String] = Array(capacity=0)
   for i in 0..<views.length() {
     out.push(views[i].to_owned())
   }
@@ -340,7 +340,7 @@ fn imgt_field_or_empty(fields : Array[String], count : Int, i : Int) -> String {
 /// lines start with '>'; sequence lines are concatenated until the next
 /// header.
 pub fn imgt_parse(content : String) -> Array[ImgtRecord] {
-  let records = Array::new()
+  let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let mut current_header : ImgtHeader? = None
   let mut current_seq = StringBuilder::new()
@@ -461,7 +461,7 @@ pub fn imgt_get_by_species(
   records : Array[ImgtRecord],
   species : String,
 ) -> Array[ImgtRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     if records[i].header.species == species {
       out.push(records[i])
@@ -476,7 +476,7 @@ pub fn imgt_get_by_gene(
   records : Array[ImgtRecord],
   gene : String,
 ) -> Array[ImgtRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     if records[i].header.gene == gene {
       out.push(records[i])
@@ -491,7 +491,7 @@ pub fn imgt_filter_by_locus(
   records : Array[ImgtRecord],
   locus : String,
 ) -> Array[ImgtRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     if records[i].header.locus == locus {
       out.push(records[i])
@@ -504,7 +504,7 @@ pub fn imgt_filter_by_locus(
 /// Return the set of distinct species values across all records, in order of
 /// first appearance.
 pub fn imgt_unique_species(records : Array[ImgtRecord]) -> Array[String] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     let s = records[i].header.species
     if !string_array_contains(out, s) {
@@ -518,7 +518,7 @@ pub fn imgt_unique_species(records : Array[ImgtRecord]) -> Array[String] {
 /// Return the set of distinct gene designations across all records, in order
 /// of first appearance.
 pub fn imgt_unique_genes(records : Array[ImgtRecord]) -> Array[String] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     let g = records[i].header.gene
     if !string_array_contains(out, g) {
@@ -567,7 +567,7 @@ pub fn imgt_summary(records : Array[ImgtRecord]) -> String {
 /// Convert ImgtRecord objects to SeqRecord objects. The id and name become the
 /// header's seq_id; the description becomes the full pipe-separated header.
 pub fn imgt_to_seq_records(records : Array[ImgtRecord]) -> Array[SeqRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     let r = records[i]
     out.push(
@@ -587,7 +587,7 @@ pub fn imgt_to_seq_records(records : Array[ImgtRecord]) -> Array[SeqRecord] {
 /// header: accession and seq_id are set to the record id, the seq_length is
 /// derived from the sequence length, and all other fields are empty.
 pub fn imgt_from_seq_records(records : Array[SeqRecord]) -> Array[ImgtRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   for i in 0..<records.length() {
     let rec = records[i]
     let seq_str = rec.seq.to_string()
@@ -620,7 +620,7 @@ pub fn imgt_from_seq_records(records : Array[SeqRecord]) -> Array[ImgtRecord] {
 /// Return 3 sample IMGT records: 2 HLA-A alleles (human) and 1 HLA-B allele
 /// (human), suitable for tests and demos.
 pub fn imgt_sample_records() -> Array[ImgtRecord] {
-  let out = Array::new()
+  let out = Array(capacity=0)
   // HLA-A*01:01:01:01 (human)
   out.push(ImgtRecord::{
     header: ImgtHeader::{

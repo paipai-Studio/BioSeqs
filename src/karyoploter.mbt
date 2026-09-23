@@ -118,11 +118,11 @@ pub fn TrackType::to_string(self : TrackType) -> String {
 ///|
 /// Create a new karyotype plot for a genome.
 pub fn KaryotypePlot::new(genome : String) -> KaryotypePlot {
-  let chromosomes : Array[String] = Array::new()
+  let chromosomes : Array[String] = Array(capacity=0)
   let chromosome_sizes : Map[String, Int] = Map([], capacity=25)
-  let tracks : Array[KaryotypeTrack] = Array::new()
-  let regions : Array[KaryotypeRegion] = Array::new()
-  let ideograms : Array[IdeogramBand] = Array::new()
+  let tracks : Array[KaryotypeTrack] = Array(capacity=0)
+  let regions : Array[KaryotypeRegion] = Array(capacity=0)
+  let ideograms : Array[IdeogramBand] = Array(capacity=0)
 
   // Set up default human chromosomes
   if genome == "hg38" || genome == "hg19" || genome == "human" {
@@ -247,7 +247,7 @@ pub fn KaryotypeTrack::new(
     chromosome,
     start,
     end,
-    data: Array::new(),
+    data: Array(capacity=0),
     color: "#3366CC".to_string(),
     y_min: 0.0,
     y_max: 1.0,
@@ -371,7 +371,7 @@ pub fn KaryotypeTrack::filter_chromosome(
   track : KaryotypeTrack,
   chr : String,
 ) -> KaryotypeTrack {
-  let filtered : Array[TrackPoint] = Array::new()
+  let filtered : Array[TrackPoint] = Array(capacity=0)
   let mut i = 0
   while i < track.data.length() {
     if track.data[i].chromosome == chr {

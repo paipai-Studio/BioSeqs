@@ -533,8 +533,8 @@ pub fn primer3_design_primers(
   config : Primer3Config,
 ) -> Primer3Design {
   let n = template.length()
-  let forward = Array::new()
-  let reverse = Array::new()
+  let forward = Array(capacity=0)
+  let reverse = Array(capacity=0)
   if n < config.primer_length_max + config.flank * 2 {
     return Primer3Design::new(forward, reverse)
   }

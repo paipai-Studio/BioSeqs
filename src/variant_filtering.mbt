@@ -78,8 +78,8 @@ pub fn VariantFilteringParam::new() -> VariantFilteringParam {
 ///|
 pub fn VariantFilterResult::new() -> VariantFilterResult {
   VariantFilterResult::{
-    passed_variants: Array::new(),
-    filtered_variants: Array::new(),
+    passed_variants: Array(capacity=0),
+    filtered_variants: Array(capacity=0),
     filter_stats: Map([], capacity=0),
   }
 }
@@ -119,7 +119,7 @@ pub fn bio_vfilter_filter(
   let mut i = 0
   while i < len {
     let variant = variants[i]
-    let mut filter_reasons : Array[String] = Array::new()
+    let mut filter_reasons : Array[String] = Array(capacity=0)
 
     if variant.qual < params.min_qual {
       filter_reasons = push_string(filter_reasons, "QUAL below threshold")
@@ -188,7 +188,7 @@ pub fn bio_vfilter_filter(
 ///|
 fn push_string(arr : Array[String], s : String) -> Array[String] {
   let len = arr.length()
-  let new_arr : Array[String] = Array::new()
+  let new_arr : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < len {
     new_arr.push(arr[i])
@@ -204,7 +204,7 @@ fn push_variant(
   v : Variant,
 ) -> VariantFilterResult {
   let len = result.passed_variants.length()
-  let new_passed : Array[Variant] = Array::new()
+  let new_passed : Array[Variant] = Array(capacity=0)
   let mut i = 0
   while i < len {
     new_passed.push(result.passed_variants[i])
@@ -220,7 +220,7 @@ fn push_filtered_variant(
   v : (Variant, String),
 ) -> VariantFilterResult {
   let len = result.filtered_variants.length()
-  let new_filtered : Array[(Variant, String)] = Array::new()
+  let new_filtered : Array[(Variant, String)] = Array(capacity=0)
   let mut i = 0
   while i < len {
     new_filtered.push(result.filtered_variants[i])
@@ -592,7 +592,7 @@ pub fn bio_vfilter_filter_by_inheritance(
   phenotypes : Map[String, Bool],
 ) -> Array[Variant] {
   let len = variants.length()
-  let mut result : Array[Variant] = Array::new()
+  let mut result : Array[Variant] = Array(capacity=0)
   let mut i = 0
   while i < len {
     let v = variants[i]
@@ -607,7 +607,7 @@ pub fn bio_vfilter_filter_by_inheritance(
 ///|
 fn push_variant_array(arr : Array[Variant], v : Variant) -> Array[Variant] {
   let len = arr.length()
-  let new_arr : Array[Variant] = Array::new()
+  let new_arr : Array[Variant] = Array(capacity=0)
   let mut i = 0
   while i < len {
     new_arr.push(arr[i])
@@ -641,7 +641,7 @@ pub fn bio_vfilter_summary(result : VariantFilterResult) -> String {
   let entries = result.filter_stats.iter().collect()
   let entries_len = entries.length()
 
-  let mut sorted : Array[(String, Int)] = Array::new()
+  let mut sorted : Array[(String, Int)] = Array(capacity=0)
   let mut i = 0
   while i < entries_len {
     sorted.push(entries[i])
@@ -654,7 +654,7 @@ pub fn bio_vfilter_summary(result : VariantFilterResult) -> String {
     while k < entries_len {
       if sorted[k].1 > sorted[j].1 {
         let temp = sorted[j]
-        let new_arr : Array[(String, Int)] = Array::new()
+        let new_arr : Array[(String, Int)] = Array(capacity=0)
         let mut m = 0
         while m < entries_len {
           if m == j {

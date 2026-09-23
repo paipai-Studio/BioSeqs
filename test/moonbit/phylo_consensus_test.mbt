@@ -130,7 +130,7 @@ test "create_simple_tree" {
 
 ///|
 test "build_consensus_empty" {
-  let trees : Array[@src.ConsensusTree] = Array::new()
+  let trees : Array[@src.ConsensusTree] = Array(capacity=0)
   let consensus = @src.build_consensus(trees, 0.5)
   match consensus.root {
     Some(_) => assert_true(false)

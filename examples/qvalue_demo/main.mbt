@@ -28,7 +28,7 @@ fn benjamini_hochberg(p_values : Array[Double]) -> Array[Double] {
     return []
   }
 
-  let indexed : Array[Array[Double]] = Array::new()
+  let indexed : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indexed.push([p_values[i], i.to_double()])

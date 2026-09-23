@@ -30,7 +30,7 @@ pub fn scanpy_umap(
   let n = connectivities.length()
   if n < 3 {
     // too few points to embed meaningfully: return a trivial layout
-    let out : Array[Array[Double]] = Array::new()
+    let out : Array[Array[Double]] = Array(capacity=0)
     for i = 0; i < n; i = i + 1 {
       out.push([i.to_double(), 0.0])
     }
@@ -38,9 +38,9 @@ pub fn scanpy_umap(
   }
 
   // collect positive-weight edges (upper triangle of the symmetric graph)
-  let head : Array[Int] = Array::new()
-  let tail : Array[Int] = Array::new()
-  let weights : Array[Double] = Array::new()
+  let head : Array[Int] = Array(capacity=0)
+  let tail : Array[Int] = Array(capacity=0)
+  let weights : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     for j = i + 1; j < n; j = j + 1 {
       let w = connectivities[i][j]
@@ -55,7 +55,7 @@ pub fn scanpy_umap(
 
   // spectral init: eigenvectors 1 and 2 of the diffmap (skip the constant 0)
   let dm = scanpy_diffmap(connectivities, 3)
-  let embedding : Array[Array[Double]] = Array::new()
+  let embedding : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     embedding.push([
       dm.eigen_basis[i][1],

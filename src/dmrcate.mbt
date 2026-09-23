@@ -429,11 +429,11 @@ fn dmrcate_t_two_sided_pval(t : Double, df : Double) -> Double {
 fn dmrcate_bh_correct(p_values : Array[Double]) -> Array[Double] {
   let n = p_values.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   // Create index array and sort by p-value (selection sort)
-  let indices : Array[Int] = Array::new()
-  let sorted_p : Array[Double] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
+  let sorted_p : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     indices.push(i)
@@ -506,11 +506,11 @@ fn dmrcate_lm_fit(
   let n_cpgs = y.length()
   if n_cpgs == 0 {
     return (
-      Array::new(),
-      Array::new(),
-      Array::new(),
-      Array::new(),
-      Array::new(),
+      Array(capacity=0),
+      Array(capacity=0),
+      Array(capacity=0),
+      Array(capacity=0),
+      Array(capacity=0),
       0,
     )
   }
@@ -518,7 +518,7 @@ fn dmrcate_lm_fit(
   let n_coefs = design.length()
 
   // Build X'X matrix (n_coefs x n_coefs)
-  let xtx : Array[Array[Double]] = Array::new()
+  let xtx : Array[Array[Double]] = Array(capacity=0)
   let mut k_init = 0
   while k_init < n_coefs {
     xtx.push(Array::make(n_coefs, 0.0))
@@ -546,9 +546,9 @@ fn dmrcate_lm_fit(
   let df_residual = n_samples - n_coefs
 
   // Per-CpG: compute coefficients, residuals, sigma
-  let all_coefs : Array[Array[Double]] = Array::new()
-  let all_stdev_unscaled : Array[Double] = Array::new()
-  let all_sigma : Array[Double] = Array::new()
+  let all_coefs : Array[Array[Double]] = Array(capacity=0)
+  let all_stdev_unscaled : Array[Double] = Array(capacity=0)
+  let all_sigma : Array[Double] = Array(capacity=0)
 
   i = 0
   while i < n_cpgs {
@@ -614,8 +614,8 @@ fn dmrcate_lm_fit(
   // Empirical Bayes moderation of variances
   let (prior_df, prior_var) = dmrcate_ebayes_prior(all_sigma, df_residual)
 
-  let t_stats : Array[Double] = Array::new()
-  let p_values : Array[Double] = Array::new()
+  let t_stats : Array[Double] = Array(capacity=0)
+  let p_values : Array[Double] = Array(capacity=0)
   let df_total = df_residual.to_double() + prior_df
 
   i = 0
@@ -655,7 +655,7 @@ fn dmrcate_ebayes_prior(
   let df_r = df_residual.to_double()
 
   // Compute sigma^2 values
-  let sigma_sq : Array[Double] = Array::new()
+  let sigma_sq : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < n {
     sigma_sq.push(sigma[i] * sigma[i])
@@ -697,11 +697,11 @@ fn dmrcate_mat_inverse(
   n : Int,
 ) -> Array[Array[Double]] {
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
   // Create augmented matrix [A | I]
   let size = 2 * n
-  let aug : Array[Array[Double]] = Array::new()
+  let aug : Array[Array[Double]] = Array(capacity=0)
   let mut aug_init = 0
   while aug_init < n {
     aug.push(Array::make(size, 0.0))
@@ -748,7 +748,7 @@ fn dmrcate_mat_inverse(
     let pivot_val = aug[pivot_row][pivot_row]
     if pivot_val.abs() < 1.0e-12 {
       // Singular matrix: return identity as fallback
-      let result : Array[Array[Double]] = Array::new()
+      let result : Array[Array[Double]] = Array(capacity=0)
       let mut ii = 0
       while ii < n {
         let row : Array[Double] = Array::make(n, 0.0)
@@ -784,7 +784,7 @@ fn dmrcate_mat_inverse(
   }
 
   // Extract inverse from augmented matrix
-  let result : Array[Array[Double]] = Array::new()
+  let result : Array[Array[Double]] = Array(capacity=0)
   i = 0
   while i < n {
     let row : Array[Double] = Array::make(n, 0.0)
@@ -826,7 +826,7 @@ fn dmrcate_kernel_smooth(
 ) -> Array[Double] {
   let n = cpg_results.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   let smoothed : Array[Double] = Array::make(n, 0.0)
@@ -851,7 +851,7 @@ fn dmrcate_kernel_smooth(
   let mut ci = 0
   while ci < chrs.length() {
     let chr = chrs[ci]
-    let indices = chr_groups.get(chr).unwrap_or(Array::new())
+    let indices = chr_groups.get(chr).unwrap_or(Array(capacity=0))
     let n_chr = indices.length()
 
     let mut j = 0
@@ -908,11 +908,11 @@ pub fn dmrcate_cluster_cpgs(
 ) -> Array[Array[Int]] {
   let n = cpg_results.length()
   if n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
   // Sort CpG results by (chr, pos) using indices
-  let sorted_indices : Array[Int] = Array::new()
+  let sorted_indices : Array[Int] = Array(capacity=0)
   let mut i = 0
   while i < n {
     sorted_indices.push(i)
@@ -945,8 +945,8 @@ pub fn dmrcate_cluster_cpgs(
   }
 
   // Cluster: group consecutive CpGs on same chr within lambda bp
-  let clusters : Array[Array[Int]] = Array::new()
-  let mut cluster : Array[Int] = Array::new()
+  let clusters : Array[Array[Int]] = Array(capacity=0)
+  let mut cluster : Array[Int] = Array(capacity=0)
 
   i = 0
   while i < n {
@@ -964,7 +964,7 @@ pub fn dmrcate_cluster_cpgs(
         if cluster.length() > 0 {
           clusters.push(cluster.copy())
         }
-        cluster = Array::new()
+        cluster = Array(capacity=0)
         cluster.push(idx)
       }
     }
@@ -1000,14 +1000,14 @@ pub fn dmrcate_test(
 ) -> DMRcateResult {
   let n_cpgs = input.n_cpgs()
   if n_cpgs == 0 {
-    return DMRcateResult::new(Array::new(), Array::new())
+    return DMRcateResult::new(Array(capacity=0), Array(capacity=0))
   }
 
   let n_samples = input.n_samples()
   let n_coefs = input.design.length()
 
   if n_samples == 0 || n_coefs == 0 {
-    return DMRcateResult::new(Array::new(), Array::new())
+    return DMRcateResult::new(Array(capacity=0), Array(capacity=0))
   }
 
   // Step 1: Fit linear model and get moderated t-statistics
@@ -1020,7 +1020,7 @@ pub fn dmrcate_test(
   let adj_p_values = dmrcate_bh_correct(p_values)
 
   // Step 3: Build CpGResult array
-  let cpg_results : Array[CpGResult] = Array::new()
+  let cpg_results : Array[CpGResult] = Array(capacity=0)
   let mut i = 0
   while i < n_cpgs {
     let cpg_name = "CpG_" + (i + 1).to_string()
@@ -1046,8 +1046,8 @@ pub fn dmrcate_test(
 
   // Step 5: Update CpG results with smoothed t-statistics and recompute p-values
   // Use the smoothed t-statistics for significance testing
-  let updated_cpg_results : Array[CpGResult] = Array::new()
-  let smoothed_p_values : Array[Double] = Array::new()
+  let updated_cpg_results : Array[CpGResult] = Array(capacity=0)
+  let smoothed_p_values : Array[Double] = Array(capacity=0)
 
   // Estimate degrees of freedom for smoothed t-statistics
   // (approximate: use residual df from the model)
@@ -1072,7 +1072,7 @@ pub fn dmrcate_test(
   let adj_smoothed_p = dmrcate_bh_correct(smoothed_p_values)
 
   // Update CpG results with FDR-corrected p-values
-  let final_cpg_results : Array[CpGResult] = Array::new()
+  let final_cpg_results : Array[CpGResult] = Array(capacity=0)
   i = 0
   while i < n_cpgs {
     let cr = updated_cpg_results[i]
@@ -1090,7 +1090,7 @@ pub fn dmrcate_test(
   }
 
   // Step 7: Identify significant CpGs and cluster into DMRs
-  let sig_indices : Array[Int] = Array::new()
+  let sig_indices : Array[Int] = Array(capacity=0)
   i = 0
   while i < n_cpgs {
     if adj_smoothed_p[i] < fdr_threshold {
@@ -1100,7 +1100,7 @@ pub fn dmrcate_test(
   }
 
   // Build significant CpG results for clustering
-  let sig_cpg_results : Array[CpGResult] = Array::new()
+  let sig_cpg_results : Array[CpGResult] = Array(capacity=0)
   i = 0
   while i < sig_indices.length() {
     sig_cpg_results.push(final_cpg_results[sig_indices[i]])
@@ -1111,7 +1111,7 @@ pub fn dmrcate_test(
   let clusters = dmrcate_cluster_cpgs(sig_cpg_results, lambda)
 
   // Step 8: Build DMRs from clusters
-  let dmrs : Array[DMR] = Array::new()
+  let dmrs : Array[DMR] = Array(capacity=0)
   i = 0
   while i < clusters.length() {
     let cluster = clusters[i]
@@ -1129,7 +1129,7 @@ pub fn dmrcate_test(
     let mut end_dmr = first_cpg.pos
     let mut sum_t = 0.0
     let mut sum_beta = 0.0
-    let cpg_names : Array[String] = Array::new()
+    let cpg_names : Array[String] = Array(capacity=0)
 
     let mut j = 0
     while j < n_cluster {
@@ -1239,7 +1239,7 @@ pub fn dmrcate_filter_dmrs(
   min_cpgs : Int,
   max_pvalue : Double,
 ) -> Array[DMR] {
-  let filtered : Array[DMR] = Array::new()
+  let filtered : Array[DMR] = Array(capacity=0)
   let mut i = 0
   while i < dmrs.length() {
     if dmrs[i].n_cpgs >= min_cpgs && dmrs[i].p_value <= max_pvalue {
@@ -1253,7 +1253,7 @@ pub fn dmrcate_filter_dmrs(
 ///|
 /// Extract all CpG names from a set of DMRs.
 pub fn dmrcate_dmr_cpg_names(dmrs : Array[DMR]) -> Array[String] {
-  let names : Array[String] = Array::new()
+  let names : Array[String] = Array(capacity=0)
   let mut i = 0
   while i < dmrs.length() {
     let mut j = 0
@@ -1355,9 +1355,9 @@ pub fn dmrcate_example_data() -> DMRcateInput {
   let n_cpgs = 50
   let n_samples = 8
 
-  let beta_values : Array[Array[Double]] = Array::new()
-  let positions : Array[Int] = Array::new()
-  let chr : Array[String] = Array::new()
+  let beta_values : Array[Array[Double]] = Array(capacity=0)
+  let positions : Array[Int] = Array(capacity=0)
+  let chr : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < n_cpgs {
@@ -1366,7 +1366,7 @@ pub fn dmrcate_example_data() -> DMRcateInput {
     chr.push(c)
     positions.push(pos)
 
-    let sample_vals : Array[Double] = Array::new()
+    let sample_vals : Array[Double] = Array(capacity=0)
     let mut s = 0
     while s < n_samples {
       // Base methylation level
@@ -1394,9 +1394,9 @@ pub fn dmrcate_example_data() -> DMRcateInput {
   // Design matrix: intercept + group effect
   // design[0] = intercept (all 1s)
   // design[1] = group indicator (1 for cases, 0 for controls)
-  let design : Array[Array[Double]] = Array::new()
-  let intercept : Array[Double] = Array::new()
-  let group : Array[Double] = Array::new()
+  let design : Array[Array[Double]] = Array(capacity=0)
+  let intercept : Array[Double] = Array(capacity=0)
+  let group : Array[Double] = Array(capacity=0)
   let mut s = 0
   while s < n_samples {
     intercept.push(1.0)
@@ -1406,7 +1406,7 @@ pub fn dmrcate_example_data() -> DMRcateInput {
   design.push(intercept)
   design.push(group)
 
-  let sample_names : Array[String] = Array::new()
+  let sample_names : Array[String] = Array(capacity=0)
   s = 0
   while s < n_samples {
     if s < 4 {

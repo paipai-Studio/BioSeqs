@@ -271,7 +271,7 @@ fn mk_tiny_test_case() -> (Array[String], Map[String, Array[String]], Array[Stri
   let tz : Array[String] = ["S01","S02","S03","S04","S05","S06","S07","S08","S09","S10"]
   db["TERM_Z"] = tz
   // Background: 200 genes including all term genes + query genes
-  let bg : Array[String] = Array::new()
+  let bg : Array[String] = Array(capacity=0)
   let all_term_keys = db.keys().collect()
   let mut i = 0
   while i < all_term_keys.length() {

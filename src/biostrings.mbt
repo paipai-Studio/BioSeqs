@@ -301,10 +301,10 @@ pub fn rscu(seq : String) -> Map[String, Double] {
 pub fn gc_content_by_position(seq : String, window_size : Int) -> Array[Double] {
   let n = seq.length()
   if window_size <= 0 || n == 0 {
-    return Array::new()
+    return Array(capacity=0)
   }
 
-  let result = Array::new()
+  let result = Array(capacity=0)
   let step = window_size
   let mut start = 0
 
@@ -414,7 +414,7 @@ pub fn dust_complexity(seq : String) -> Double {
 
 ///|
 pub fn iupac_match(pattern : String, subject : String) -> Array[(Int, Int)] {
-  let result = Array::new()
+  let result = Array(capacity=0)
   let n = subject.length()
   let m = pattern.length()
 
@@ -722,7 +722,7 @@ pub fn match_pattern(
   let n = pattern.length()
   let m = subject.length()
 
-  let hits : Array[MatchHit] = Array::new()
+  let hits : Array[MatchHit] = Array(capacity=0)
 
   if n == 0 || m == 0 {
     return MatchPatternResult::{
@@ -790,7 +790,7 @@ pub fn find_palindromes(
   seq~ : String,
   min_length? : Int = 4,
 ) -> Array[(Int, Int)] {
-  let results : Array[(Int, Int)] = Array::new()
+  let results : Array[(Int, Int)] = Array(capacity=0)
   let n = seq.length()
 
   let mut i = 0
@@ -818,7 +818,7 @@ pub fn find_direct_repeats(
   max_unit_length? : Int = 10,
   min_copies? : Int = 2,
 ) -> Array[(Int, Int, Int)] {
-  let results : Array[(Int, Int, Int)] = Array::new()
+  let results : Array[(Int, Int, Int)] = Array(capacity=0)
   let n = seq.length()
 
   let mut unit_len = min_unit_length
@@ -854,7 +854,7 @@ pub fn find_inverted_repeats(
   seq~ : String,
   min_length? : Int = 4,
 ) -> Array[(Int, Int, Int, Int)] {
-  let results : Array[(Int, Int, Int, Int)] = Array::new()
+  let results : Array[(Int, Int, Int, Int)] = Array(capacity=0)
   let n = seq.length()
 
   let mut i = 0
@@ -881,7 +881,7 @@ pub fn find_inverted_repeats(
 pub fn find_motif_iupac(pattern : String, subject : String) -> Array[Int] {
   let n = pattern.length()
   let m = subject.length()
-  let positions : Array[Int] = Array::new()
+  let positions : Array[Int] = Array(capacity=0)
 
   if n == 0 || m < n {
     return positions
@@ -920,7 +920,7 @@ pub fn gc_content_sliding(
   window_size? : Int = 100,
   step? : Int = 10,
 ) -> Array[(Int, Double)] {
-  let results : Array[(Int, Double)] = Array::new()
+  let results : Array[(Int, Double)] = Array(capacity=0)
   let n = seq.length()
 
   if n < window_size {
@@ -945,7 +945,7 @@ pub fn tm_sliding(
   window_size? : Int = 100,
   step? : Int = 10,
 ) -> Array[(Int, Double)] {
-  let results : Array[(Int, Double)] = Array::new()
+  let results : Array[(Int, Double)] = Array(capacity=0)
   let n = seq.length()
 
   if n < window_size {

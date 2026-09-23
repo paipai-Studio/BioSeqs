@@ -19,10 +19,10 @@ fn pca_transpose(a : Array[Array[Double]]) -> Array[Array[Double]] {
     return []
   }
   let m = a[0].length()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   let mut j = 0
   while j < m {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut i = 0
     while i < n {
       row.push(a[i][j])
@@ -36,9 +36,9 @@ fn pca_transpose(a : Array[Array[Double]]) -> Array[Array[Double]] {
 
 ///|
 fn pca_copy(a : Array[Array[Double]]) -> Array[Array[Double]] {
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   for row in a {
-    let nr : Array[Double] = Array::new()
+    let nr : Array[Double] = Array(capacity=0)
     for x in row {
       nr.push(x)
     }
@@ -57,8 +57,8 @@ fn center_and_scale_cols(
     return ([], [], [])
   }
   let p = data[0].length()
-  let means : Array[Double] = Array::new()
-  let sds : Array[Double] = Array::new()
+  let means : Array[Double] = Array(capacity=0)
+  let sds : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < p {
     let mut s = 0.0
@@ -120,11 +120,11 @@ fn compute_covariance_matrix(x : Array[Array[Double]]) -> Array[Array[Double]] {
     return []
   }
   let p = x[0].length()
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   let denom = (if n - 1 < 1 { 1 } else { n - 1 }).to_double()
   let mut i = 0
   while i < p {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < p {
       let mut s = 0.0
@@ -158,13 +158,13 @@ fn power_iteration_pca(
   } else {
     n_components
   }
-  let eigvecs_rows : Array[Array[Double]] = Array::new()
-  let eigvals : Array[Double] = Array::new()
+  let eigvecs_rows : Array[Array[Double]] = Array(capacity=0)
+  let eigvals : Array[Double] = Array(capacity=0)
   let c = pca_copy(cov)
   let zero_eps = 0.000000000001
   let mut comp = 0
   while comp < k {
-    let mut v : Array[Double] = Array::new()
+    let mut v : Array[Double] = Array(capacity=0)
     let mut ii = 0
     while ii < p {
       let vv = if ii == comp { 1.0 } else { 0.5.pow(comp.to_double()) }
@@ -186,7 +186,7 @@ fn power_iteration_pca(
     let mut eig = 0.0
     let mut iter_count = 0
     while iter_count < 200 {
-      let v_new : Array[Double] = Array::new()
+      let v_new : Array[Double] = Array(capacity=0)
       let mut iii = 0
       while iii < p {
         let mut dot = 0.0
@@ -273,10 +273,10 @@ fn pca_matmul(
   let kb = b.length()
   let p = if kb == 0 { 0 } else { b[0].length() }
   let k = if ka < kb { ka } else { kb }
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   let mut i = 0
   while i < n {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut j = 0
     while j < p {
       let mut s = 0.0
@@ -300,7 +300,7 @@ fn compute_variance_explained(eigvals : Array[Double]) -> Array[Double] {
   for e in eigvals {
     total = total + e
   }
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   if total == 0.0 {
     for e in eigvals {
       let _e2 = e
@@ -316,7 +316,7 @@ fn compute_variance_explained(eigvals : Array[Double]) -> Array[Double] {
 
 ///|
 fn compute_cumulative(x : Array[Double]) -> Array[Double] {
-  let out : Array[Double] = Array::new()
+  let out : Array[Double] = Array(capacity=0)
   let mut s = 0.0
   for v in x {
     s = s + v
@@ -543,10 +543,10 @@ pub fn pca_biplot_ascii(
   let yr = if ymax - ymin == 0.0 { 1.0 } else { ymax - ymin }
   let w = if opts.width < 10 { 10 } else { opts.width }
   let h = if opts.height < 5 { 5 } else { opts.height }
-  let grid : Array[Array[Int]] = Array::new()
+  let grid : Array[Array[Int]] = Array(capacity=0)
   let mut _r = 0
   while _r < h {
-    let row : Array[Int] = Array::new()
+    let row : Array[Int] = Array(capacity=0)
     let mut _cc = 0
     while _cc < w {
       row.push(' '.to_int())
@@ -589,7 +589,7 @@ pub fn pca_biplot_ascii(
   // loadings
   let loadings_nrow = res.loadings.length()
   if loadings_nrow > 0 && iy < res.loadings[0].length() {
-    let ranked : Array[(Int, Double)] = Array::new()
+    let ranked : Array[(Int, Double)] = Array(capacity=0)
     let mut idx = 0
     while idx < loadings_nrow {
       let lx = res.loadings[idx][ix]
@@ -683,7 +683,7 @@ fn quantile_simple(xs_in : Array[Double], q : Double) -> Double {
   if xs_in.length() == 0 {
     return 0.0
   }
-  let xs : Array[Double] = Array::new()
+  let xs : Array[Double] = Array(capacity=0)
   for x in xs_in {
     xs.push(x)
   }
@@ -722,7 +722,7 @@ pub fn find_pca_outliers(
       cutoff: 0.0,
     }
   }
-  let distances : Array[Double] = Array::new()
+  let distances : Array[Double] = Array(capacity=0)
   let mut _tot = 0.0
   for s in res.scores {
     let mut d2 = 0.0
@@ -740,8 +740,8 @@ pub fn find_pca_outliers(
     _tot = _tot + d2
   }
   let cutoff = quantile_simple(distances, quantile_cutoff)
-  let outliers : Array[Int] = Array::new()
-  let out_scores : Array[Double] = Array::new()
+  let outliers : Array[Int] = Array(capacity=0)
+  let out_scores : Array[Double] = Array(capacity=0)
   let mut i = 0
   while i < distances.length() {
     if distances[i] > cutoff {
@@ -779,8 +779,8 @@ pub fn variable_correlations(
   } else {
     which_pcs
   }
-  let means : Array[Double] = Array::new()
-  let sds : Array[Double] = Array::new()
+  let means : Array[Double] = Array(capacity=0)
+  let sds : Array[Double] = Array(capacity=0)
   let mut j = 0
   while j < p {
     let mut s = 0.0
@@ -813,8 +813,8 @@ pub fn variable_correlations(
     sds.push(sd)
     j = j + 1
   }
-  let pc_means : Array[Double] = Array::new()
-  let pc_sds : Array[Double] = Array::new()
+  let pc_means : Array[Double] = Array(capacity=0)
+  let pc_sds : Array[Double] = Array(capacity=0)
   let mut t = 0
   while t < k {
     let mut s = 0.0
@@ -837,10 +837,10 @@ pub fn variable_correlations(
     pc_sds.push(sd)
     t = t + 1
   }
-  let out : Array[Array[Double]] = Array::new()
+  let out : Array[Array[Double]] = Array(capacity=0)
   let mut jj = 0
   while jj < p {
-    let row : Array[Double] = Array::new()
+    let row : Array[Double] = Array(capacity=0)
     let mut tt = 0
     while tt < k {
       let mut sum_prod = 0.0

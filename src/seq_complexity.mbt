@@ -307,7 +307,7 @@ pub fn sequence_similarity_kmer(
 /// (k-words) of a given length k, normalized by the maximum possible.
 pub fn lcc(seq : String, window? : Int = 12, k? : Int = 3) -> Array[Double] {
   let n = seq.length()
-  let result = Array::new()
+  let result = Array(capacity=0)
   if n < window || k <= 0 {
     return result
   }
@@ -339,7 +339,7 @@ pub fn lcc_low_complexity_regions(
   threshold? : Double = 0.5,
 ) -> Array[(Int, Int)] {
   let scores = lcc(seq, window~, k~)
-  let regions = Array::new()
+  let regions = Array(capacity=0)
   let mut i = 0
   while i < scores.length() {
     if scores[i] < threshold {

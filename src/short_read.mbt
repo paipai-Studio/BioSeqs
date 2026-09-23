@@ -282,8 +282,8 @@ pub fn filter_reads(
   min_length : Int,
   max_n : Int,
 ) -> (Array[String], Array[String]) {
-  let filtered_seqs : Array[String] = Array::new()
-  let filtered_quals : Array[String] = Array::new()
+  let filtered_seqs : Array[String] = Array(capacity=0)
+  let filtered_quals : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < sequences.length() {
@@ -405,8 +405,8 @@ pub fn generate_fastqc_report(
 pub fn reads_to_sequences(
   records : Array[SeqRecord],
 ) -> (Array[String], Array[String]) {
-  let seqs : Array[String] = Array::new()
-  let quals : Array[String] = Array::new()
+  let seqs : Array[String] = Array(capacity=0)
+  let quals : Array[String] = Array(capacity=0)
 
   let mut i = 0
   while i < records.length() {

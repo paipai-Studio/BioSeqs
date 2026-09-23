@@ -203,9 +203,9 @@ fn parse_vcf_record(line : String, sample_names : Array[String]) -> VcfRecord? {
 ///|
 /// Parse VCF content from string.
 pub fn parse_vcf(content : String) -> VcfFile {
-  let meta_headers = Array::new()
+  let meta_headers = Array(capacity=0)
   let mut fixed_header : VcfFixedHeader? = None
-  let records = Array::new()
+  let records = Array(capacity=0)
 
   let lines = content.split("\n").to_array()
   let mut i = 0
@@ -233,7 +233,7 @@ pub fn parse_vcf(content : String) -> VcfFile {
     } else {
       let sample_names = match fixed_header {
         Some(h) => {
-          let names = Array::new()
+          let names = Array(capacity=0)
           let mut j = 9
           while j < h.columns.length() {
             names.push(h.columns[j])
@@ -271,7 +271,7 @@ pub fn VcfFile::num_meta_headers(self : VcfFile) -> Int {
 pub fn VcfFile::get_sample_names(self : VcfFile) -> Array[String] {
   match self.fixed_header {
     Some(h) => {
-      let result = Array::new()
+      let result = Array(capacity=0)
       let mut i = 9
       while i < h.columns.length() {
         result.push(h.columns[i])
@@ -388,7 +388,7 @@ fn vcf_format_info(info : Map[String, String]) -> String {
 
 ///|
 fn vcf_format_record(rec : VcfRecord, sample_names : Array[String]) -> String {
-  let parts : Array[String] = Array::new()
+  let parts : Array[String] = Array(capacity=0)
   parts.push(rec.chrom)
   parts.push(rec.pos.to_string())
   parts.push(join_str_array(rec.id, ","))
@@ -426,7 +426,7 @@ fn vcf_format_record(rec : VcfRecord, sample_names : Array[String]) -> String {
 /// including `##` meta headers, the `#CHROM ...` fixed header, and records.
 /// Round-trips with `parse_vcf`.
 pub fn VcfFile::to_string(self : VcfFile) -> String {
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   for mh in self.meta_headers {
     let line = if mh.tags.length() == 0 {
       "##" + mh.key + "=" + mh.value
@@ -448,7 +448,7 @@ pub fn VcfFile::to_string(self : VcfFile) -> String {
         first = false
       }
       lines.push(hline)
-      let sample_names : Array[String] = Array::new()
+      let sample_names : Array[String] = Array(capacity=0)
       for j = 9; j < fh.columns.length(); j = j + 1 {
         sample_names.push(fh.columns[j])
       }

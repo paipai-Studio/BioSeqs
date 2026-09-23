@@ -70,8 +70,8 @@ test "bamsig_count_signals" {
   let records = @src.bamsig_create_example_records()
   let params = @src.BamsigParams::new()
 
-  let chr1_records : Array[@src.BamsigRecord] = Array::new()
-  let chr2_records : Array[@src.BamsigRecord] = Array::new()
+  let chr1_records : Array[@src.BamsigRecord] = Array(capacity=0)
+  let chr2_records : Array[@src.BamsigRecord] = Array(capacity=0)
   for r in records {
     if r.chrom == "chr1" {
       chr1_records.push(r)

@@ -26,7 +26,7 @@ fn main {
     v.to_string()
   }
 
-  let pair : Array[(String, String, String)] = Array::new()
+  let pair : Array[(String, String, String)] = Array(capacity=0)
   pair.push(("GO:0006810", "GO:0006810", "self"))
   pair.push(("GO:0006810", "GO:0009987", "parent-child"))
   pair.push(("GO:0006810", "GO:0007165", "sibling_subtree"))

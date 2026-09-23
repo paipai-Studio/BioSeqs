@@ -262,7 +262,7 @@ test "limma_rpkm_basic" {
 ///|
 test "limma_rpkm_empty_lengths" {
   let counts = @src.Matrix::from_2d(2, 2, [[10.0, 20.0], [30.0, 40.0]])
-  let gene_lengths : Array[Double] = Array::new()
+  let gene_lengths : Array[Double] = Array(capacity=0)
   let result = @src.limma_rpkm(counts, gene_lengths)
   assert_eq(result.rows, 2)
   assert_eq(result.cols, 2)

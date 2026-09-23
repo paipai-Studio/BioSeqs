@@ -11,7 +11,7 @@ pub fn scanpy_louvain(adjacency : Array[Array[Double]]) -> Array[Int] {
     return []
   }
   // adjacency with zeroed diagonal (no self-loops for modularity)
-  let a : Array[Array[Double]] = Array::new()
+  let a : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     let row = adjacency[i].copy()
     row[i] = 0.0
@@ -146,7 +146,7 @@ pub fn scanpy_leiden(adjacency : Array[Array[Double]]) -> Array[Int] {
       continue
     }
     let comm = base[seed]
-    let frontier : Array[Int] = Array::new()
+    let frontier : Array[Int] = Array(capacity=0)
     frontier.push(seed)
     visited[seed] = true
     let mut head = 0

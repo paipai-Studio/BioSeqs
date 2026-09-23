@@ -30,7 +30,7 @@ pub fn EhResource::new(
 /// (case-insensitive substring, matching ExperimentHub's `query` semantics).
 pub fn eh_filter_species(resources : Array[EhResource], species : String) -> Array[Int] {
   let key = to_lowercase(species)
-  let out : Array[Int] = Array::new()
+  let out : Array[Int] = Array(capacity=0)
   for i = 0; i < resources.length(); i = i + 1 {
     if contains(to_lowercase(resources[i].species), key) {
       out.push(i)
@@ -42,7 +42,7 @@ pub fn eh_filter_species(resources : Array[EhResource], species : String) -> Arr
 ///|
 /// Indices of resources with an exact matching `taxonomy_id`.
 pub fn eh_filter_taxonomy(resources : Array[EhResource], taxid : Int) -> Array[Int] {
-  let out : Array[Int] = Array::new()
+  let out : Array[Int] = Array(capacity=0)
   for i = 0; i < resources.length(); i = i + 1 {
     if resources[i].taxonomy_id == taxid {
       out.push(i)
@@ -56,7 +56,7 @@ pub fn eh_filter_taxonomy(resources : Array[EhResource], taxid : Int) -> Array[I
 /// of title / species / genome / description / dataprovider.
 pub fn eh_search(resources : Array[EhResource], keyword : String) -> Array[Int] {
   let key = to_lowercase(keyword)
-  let out : Array[Int] = Array::new()
+  let out : Array[Int] = Array(capacity=0)
   for i = 0; i < resources.length(); i = i + 1 {
     let r = resources[i]
     let hay = to_lowercase(

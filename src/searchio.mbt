@@ -461,7 +461,7 @@ pub fn SearchIOHit::new(
   description~ : String,
   seq_length~ : Int,
 ) -> SearchIOHit {
-  SearchIOHit::{ id, description, seq_length, hsps: Array::new(), }
+  SearchIOHit::{ id, description, seq_length, hsps: Array(capacity=0), }
 }
 
 ///|
@@ -548,7 +548,7 @@ pub fn SearchIOQueryResult::new(
     seq_length,
     database,
     n_hits: 0,
-    hits: Array::new(),
+    hits: Array(capacity=0),
     total_hits: 0,
   }
 }
@@ -628,7 +628,7 @@ pub fn SearchIOQueryResult::filter_evalue(
   self : SearchIOQueryResult,
   threshold : Double,
 ) -> SearchIOQueryResult {
-  let filtered : Array[SearchIOHit] = Array::new()
+  let filtered : Array[SearchIOHit] = Array(capacity=0)
   let mut i = 0
   while i < self.hits.length() {
     let hit = self.hits[i]
@@ -665,7 +665,7 @@ pub fn SearchIOQueryResult::top_n(
   if sorted.hits.length() <= n {
     return sorted.hits
   }
-  let result : Array[SearchIOHit] = Array::new()
+  let result : Array[SearchIOHit] = Array(capacity=0)
   let mut i = 0
   while i < n {
     result.push(sorted.hits[i])
@@ -702,7 +702,7 @@ pub fn SearchIOIterator::new(
 pub fn SearchIOIterator::parse_blast_tabular(
   self : SearchIOIterator,
 ) -> Array[SearchIOQueryResult] {
-  let results : Array[SearchIOQueryResult] = Array::new()
+  let results : Array[SearchIOQueryResult] = Array(capacity=0)
   let mut current_query_id = ""
   let mut current_query : SearchIOQueryResult? = None
 
@@ -827,7 +827,7 @@ pub fn SearchIOIterator::parse_blast_tabular(
 pub fn SearchIOIterator::parse_blast_text(
   self : SearchIOIterator,
 ) -> Array[SearchIOQueryResult] {
-  let results : Array[SearchIOQueryResult] = Array::new()
+  let results : Array[SearchIOQueryResult] = Array(capacity=0)
   let mut current_query : SearchIOQueryResult? = None
 
   let mut line_idx = 0
@@ -946,14 +946,14 @@ pub fn SearchIOIterator::parse(
     SearchIOFormat::BlastText => self.parse_blast_text()
     SearchIOFormat::BlastXml => self.parse_blast_tabular()
     SearchIOFormat::HmmscanDomtbl => self.parse_blast_tabular()
-    _ => Array::new()
+    _ => Array(capacity=0)
   }
 }
 
 ///|
 /// Split content into lines by newline.
 fn split_lines(content : String) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut current = ""
   let mut i = 0
   while i < content.length() {
@@ -977,7 +977,7 @@ fn split_lines(content : String) -> Array[String] {
 ///|
 /// Split a line by tab characters.
 fn split_tab(line : StringView) -> Array[String] {
-  let result : Array[String] = Array::new()
+  let result : Array[String] = Array(capacity=0)
   let mut current = ""
   let mut i = 0
   while i < line.length() {

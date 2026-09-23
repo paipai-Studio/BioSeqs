@@ -175,7 +175,7 @@ pub fn smart_find_domains(
   result : SmartResult,
   name : String,
 ) -> Array[SmartDomain] {
-  let matches : Array[SmartDomain] = Array::new()
+  let matches : Array[SmartDomain] = Array(capacity=0)
   let mut i = 0
   while i < result.domains.length() {
     if result.domains[i].domain_name.contains(name) {
@@ -200,7 +200,7 @@ pub fn smart_find_overlapping_domains(
   start : Int,
   end : Int,
 ) -> Array[SmartDomain] {
-  let matches : Array[SmartDomain] = Array::new()
+  let matches : Array[SmartDomain] = Array(capacity=0)
   let mut i = 0
   while i < result.domains.length() {
     let d = result.domains[i]
@@ -261,7 +261,7 @@ pub fn smart_filter_evalue(
   result : SmartResult,
   max_evalue : Double,
 ) -> Array[SmartDomain] {
-  let filtered : Array[SmartDomain] = Array::new()
+  let filtered : Array[SmartDomain] = Array(capacity=0)
   let mut i = 0
   while i < result.domains.length() {
     if result.domains[i].evalue <= max_evalue {
@@ -346,7 +346,7 @@ pub fn smart_summary(result : SmartResult) -> String {
 ///|
 /// Split a string into lines.
 fn smart_split_lines(content : String) -> Array[String] {
-  let lines : Array[String] = Array::new()
+  let lines : Array[String] = Array(capacity=0)
   let mut start = 0
   let mut i = 0
   while i < content.length() {
@@ -373,7 +373,7 @@ fn smart_split_lines(content : String) -> Array[String] {
 ///|
 /// Split a string by tab delimiter.
 fn smart_split_tab(line : String) -> Array[String] {
-  let cols : Array[String] = Array::new()
+  let cols : Array[String] = Array(capacity=0)
   let mut start = 0
   let mut i = 0
   while i < line.length() {
@@ -390,7 +390,7 @@ fn smart_split_tab(line : String) -> Array[String] {
 ///|
 /// Split a string by semicolon delimiter.
 fn smart_split_semicolon(s : String) -> Array[String] {
-  let items : Array[String] = Array::new()
+  let items : Array[String] = Array(capacity=0)
   if s.length() == 0 {
     return items
   }

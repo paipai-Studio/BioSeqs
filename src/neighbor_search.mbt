@@ -25,7 +25,7 @@ pub struct NeighborSearch {
 /// Create a new NeighborSearch from a list of atoms.
 pub fn NeighborSearch::new(atoms : Array[Atom]) -> NeighborSearch {
   let n = atoms.length()
-  let indices : Array[Int] = Array::new()
+  let indices : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     indices.push(i)
   }
@@ -51,8 +51,8 @@ fn build_kd_tree(
 
   let median = n / 2
 
-  let left_indices : Array[Int] = Array::new()
-  let right_indices : Array[Int] = Array::new()
+  let left_indices : Array[Int] = Array(capacity=0)
+  let right_indices : Array[Int] = Array(capacity=0)
 
   for i = 0; i < median; i = i + 1 {
     left_indices.push(sorted_indices[i])
@@ -78,7 +78,7 @@ fn sort_indices_by_axis(
   axis : Int,
 ) -> Array[Int] {
   let n = indices.length()
-  let result : Array[Int] = Array::new()
+  let result : Array[Int] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     result.push(indices[i])
   }
@@ -123,12 +123,12 @@ pub fn NeighborSearch::search(
   center : Vector3,
   radius : Double,
 ) -> Array[Atom] {
-  let result_indices : Array[Int] = Array::new()
+  let result_indices : Array[Int] = Array(capacity=0)
   match self.root {
     Some(root) => radius_search(root, center, radius, result_indices)
     None => ()
   }
-  let result : Array[Atom] = Array::new()
+  let result : Array[Atom] = Array(capacity=0)
   for idx in result_indices {
     result.push(self.atoms[idx])
   }
@@ -184,7 +184,7 @@ pub fn NeighborSearch::search_all(
   self : NeighborSearch,
   radius : Double,
 ) -> Array[(Atom, Atom)] {
-  let result : Array[(Atom, Atom)] = Array::new()
+  let result : Array[(Atom, Atom)] = Array(capacity=0)
   let n = self.atoms.length()
   for i = 0; i < n; i = i + 1 {
     let atom = self.atoms[i]

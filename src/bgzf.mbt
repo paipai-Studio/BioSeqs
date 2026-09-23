@@ -958,7 +958,7 @@ pub extend BgzfBlockInfo with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 /// Scan a BGZF stream and describe every block without decompressing.
 pub fn bgzf_blocks(data : String) -> Array[BgzfBlockInfo] raise BgzfError {
-  let blocks : Array[BgzfBlockInfo] = Array::new()
+  let blocks : Array[BgzfBlockInfo] = Array(capacity=0)
   let n = data.length()
   let mut pos = 0
   let mut data_offset = 0

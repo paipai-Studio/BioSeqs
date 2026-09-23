@@ -87,7 +87,7 @@ fn parse_phylip_generic(
 
   i = i + 1
   let records : Map[String, StringBuilder] = Map([], capacity=num_seqs)
-  let current_names = Array::new()
+  let current_names = Array(capacity=0)
 
   while i < n {
     let line = lines[i]
@@ -130,7 +130,7 @@ fn parse_phylip_generic(
     i = i + 1
   }
 
-  let seq_records = Array::new()
+  let seq_records = Array(capacity=0)
   for name in current_names {
     match records.get(name) {
       Some(sb) => {

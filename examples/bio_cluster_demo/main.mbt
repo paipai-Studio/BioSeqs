@@ -21,7 +21,7 @@ fn fmt(value : Double, decimals : Int) -> String {
 }
 
 fn print_vector(name : String, v : Array[Double]) -> Unit {
-  let parts : Array[String] = Array::new()
+  let parts : Array[String] = Array(capacity=0)
   for x in v {
     parts.push(fmt(x, 4))
   }
@@ -31,7 +31,7 @@ fn print_vector(name : String, v : Array[Double]) -> Unit {
 fn print_matrix(name : String, m : Array[Array[Double]]) -> Unit {
   println("\{name}:")
   for row in m {
-    let parts : Array[String] = Array::new()
+    let parts : Array[String] = Array(capacity=0)
     for x in row {
       parts.push(fmt(x, 4))
     }
@@ -40,7 +40,7 @@ fn print_matrix(name : String, m : Array[Array[Double]]) -> Unit {
 }
 
 fn print_int_array(name : String, v : Array[Int]) -> Unit {
-  let parts : Array[String] = Array::new()
+  let parts : Array[String] = Array(capacity=0)
   for x in v {
     parts.push("\{x}")
   }
@@ -84,7 +84,7 @@ fn main raise {
   let dm = @src.distancematrix(data)
   println("lower-triangular distance matrix (\{dm.length()} rows):")
   for i = 0; i < dm.length(); i = i + 1 {
-    let parts : Array[String] = Array::new()
+    let parts : Array[String] = Array(capacity=0)
     for j = 0; j < dm[i].length(); j = j + 1 {
       parts.push(fmt(dm[i][j], 4))
     }
