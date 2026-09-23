@@ -412,3 +412,25 @@ test "all_valid_tables_accessible" {
     i = i + 1
   }
 }
+
+///|
+test "nuc_to_2bit" {
+  let a = 'A'.to_int().to_uint16()
+  let c = 'C'.to_int().to_uint16()
+  let g = 'G'.to_int().to_uint16()
+  let t = 'T'.to_int().to_uint16()
+  assert_eq(@src.nuc_to_2bit(a), 0)
+  assert_eq(@src.nuc_to_2bit(c), 1)
+  assert_eq(@src.nuc_to_2bit(g), 2)
+  assert_eq(@src.nuc_to_2bit(t), 3)
+  // U 等价于 T
+  assert_eq(@src.nuc_to_2bit('U'.to_int().to_uint16()), 3)
+  // 小写等价
+  assert_eq(@src.nuc_to_2bit('a'.to_int().to_uint16()), 0)
+  assert_eq(@src.nuc_to_2bit('g'.to_int().to_uint16()), 2)
+  // 歧义碱基 N/M/R/... 映射为 4
+  assert_eq(@src.nuc_to_2bit('N'.to_int().to_uint16()), 4)
+  assert_eq(@src.nuc_to_2bit('y'.to_int().to_uint16()), 4)
+  // 真正的非法字符（如 gap '-'）返回 -1
+  assert_eq(@src.nuc_to_2bit('-'.to_int().to_uint16()), -1)
+}

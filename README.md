@@ -754,7 +754,7 @@ IvanAXu/BioSeqs/
 │   ├── de_bruijn_demo/ / olc_demo/   # 序列组装算法
 │   └── ... （更多 examples/*_demo/）
 ├── test/
-│   ├── moonbit/                      # MoonBit 单元测试（568 个测试文件，14048 用例）
+│   ├── moonbit/                      # MoonBit 单元测试（571 个测试文件，14058 用例）
 │   │   ├── bio_seq_test.mbt / seqio_wb_test.mbt / ...
 │   │   ├── alignment_test.mbt / pdb_test.mbt / phylo_test.mbt / ...
 │   │   ├── deseq2_test.mbt / rankprod_test.mbt / seurat_test.mbt / scran_test.mbt / ...
@@ -774,7 +774,7 @@ IvanAXu/BioSeqs/
 
 ```bash
 moon build                                              # ✅ 成功
-moon test                                               # ✅ 14048 个测试全部通过（test/moonbit 包）
+moon test                                               # ✅ 14058 个测试全部通过（test/moonbit 包）
 ```
 
 ---
@@ -783,7 +783,7 @@ moon test                                               # ✅ 14048 个测试全
 
 ```bash
 moon build      # 构建项目
-moon test       # 运行全部测试 (14048 个测试用例，test/moonbit 包)
+moon test       # 运行全部测试 (14058 个测试用例，test/moonbit 包)
 ```
 
 ---

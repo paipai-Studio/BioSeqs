@@ -113,7 +113,7 @@ fn parse_phylip_generic(
     while k < trimmed && line.unsafe_get(k) == sp {
       k = k + 1
     }
-    let seq_part = line[k:trimmed].replace(old=" ", new="").to_owned()
+    let seq_part = line[k:trimmed].replace_all(old=" ", new="").to_owned()
 
     match records.get(name) {
       Some(sb) => sb.write_string(seq_part)
