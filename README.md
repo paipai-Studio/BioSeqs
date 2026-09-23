@@ -376,6 +376,9 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **scanpy regress_out** | scanpy (Python) | scanpy `pp.regress_out`（数值协变量）：R=[1\|cov] 最小二乘去混杂，coeff=gram⁻¹RᵀX、resid=X−R·coeff（含截距） |
 | **scanpy louvain** | scanpy (Python) | scanpy `tl.louvain`（模块度局部移动）：Blondel 增益公式 `ΔQ=(k_in(B)−k_in(A))/m − k_u(Σtot(B)−Σtot(A)+k_u)/(2m²)`，重标为稠密 0..k−1 |
 | **scanpy diffmap** | scanpy (Python) | scanpy `tl.diffmap`：对称随机游走 `D⁻½AD⁻½` 的 Jacobi 特征分解 → `ScanpyDiffmap`（`eigen_basis` 扩散坐标、`eigen_values`） |
+| **scanpy leiden** | scanpy (Python) | scanpy `tl.leiden`（连通性精化）：Louvain 局部移动 + 诱导子图拆分断开社区，保证每个社区连通 |
+| **scanpy dpt** | scanpy (Python) | scanpy `tl.dpt`（扩散伪时间）：`Σ_t λ_t/(1−λ_t)·(ψ_t(i)−ψ_t(root))²`，从根出发累加扩散距离 |
+| **scanpy paga** | scanpy (Python) | scanpy `tl.paga`：簇间连通度按随机图零模型归一（`v/((es_i·n_j+es_j·n_i)/(n−1))`，clamp [0,1]） |
 | **Signac** | Signac | 单细胞 ATAC-seq 分析核心：`signac_feature_matrix`（Tn5 片段 → 峰 × 细胞计数矩阵，片段与其重叠的每个峰各计一次，按 cell barcode 归列）、`signac_tss_enrichment`（TSS 中心窗口片段数 ÷ 两侧侧翼窗口均值，启动子相对富集 QC）、`signac_nucleosome_signal`（单核小体 147–294bp / 无核小体 <147bp 片段比值，片段长度周期性 QC） |
 | **scuttle 1.23.1** | scuttle | batch-aware median/MAD 异常值、subset per-feature QC、重叠 feature-set 聚合、精确无放回 count downsampling、batch/block coverage 等化 |
 | **scrapper** | scrapper | 批次感知 RNA QC、大小因子清洗与居中、log-normalization、LOWESS 方差趋势、HVG 选择、多因子 pseudo-bulk |

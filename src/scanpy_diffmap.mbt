@@ -61,3 +61,25 @@ pub fn scanpy_diffmap(
   }
   ScanpyDiffmap::{ eigen_basis: basis, eigen_values: vals }
 }
+///|
+/// Diffusion pseudotime from a rooted diffusion map: the cumulative diffusion
+/// distance from the root cell, `Σ_t λ_t/(1−λ_t)·(ψ_t(i)−ψ_t(root))²` over the
+/// non-trivial diffusion components (`t ≥ 1`).
+pub fn scanpy_dpt(diffmap : ScanpyDiffmap, root : Int) -> Array[Double] {
+  let n = diffmap.eigen_basis.length()
+  let nc = diffmap.eigen_values.length()
+  let out = Array::make(n, 0.0)
+  for i = 0; i < n; i = i + 1 {
+    let mut acc = 0.0
+    for t = 1; t < nc; t = t + 1 {
+      let lambda = diffmap.eigen_values[t]
+      let denom = 1.0 - lambda
+      if denom > 1.0e-12 {
+        let diff = diffmap.eigen_basis[i][t] - diffmap.eigen_basis[root][t]
+        acc = acc + (lambda / denom) * diff * diff
+      }
+    }
+    out[i] = acc
+  }
+  out
+}

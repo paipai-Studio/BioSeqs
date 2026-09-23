@@ -131,3 +131,37 @@ pub fn scanpy_louvain(adjacency : Array[Array[Double]]) -> Array[Int] {
   }
   out
 }
+///|
+/// Leiden-style connectivity refinement: run Louvain local moving, then split
+/// any disconnected community (in the induced subgraph) into its connected
+/// components, guaranteeing every returned community is connected.
+pub fn scanpy_leiden(adjacency : Array[Array[Double]]) -> Array[Int] {
+  let n = adjacency.length()
+  let base = scanpy_louvain(adjacency)
+  let out = Array::make(n, 0)
+  let visited = Array::make(n, false)
+  let mut next_label = 0
+  for seed = 0; seed < n; seed = seed + 1 {
+    if visited[seed] {
+      continue
+    }
+    let comm = base[seed]
+    let frontier : Array[Int] = Array::new()
+    frontier.push(seed)
+    visited[seed] = true
+    let mut head = 0
+    while head < frontier.length() {
+      let u = frontier[head]
+      head = head + 1
+      out[u] = next_label
+      for v = 0; v < n; v = v + 1 {
+        if not(visited[v]) && base[v] == comm && adjacency[u][v] > 0.0 {
+          visited[v] = true
+          frontier.push(v)
+        }
+      }
+    }
+    next_label = next_label + 1
+  }
+  out
+}
