@@ -22,26 +22,6 @@ fn pad_right(s : String, n : Int) -> String {
 fn pad_left(s : String, n : Int) -> String {
   if s.length() >= n { s } else { " ".repeat(n - s.length()) + s }
 }
-fn string_index_of(s : String, sub : String) -> Int {
-  let n = s.length()
-  let kn = sub.length()
-  if kn == 0 || kn > n { return -1 }
-  let mut i = 0
-  while i <= n - kn {
-    let mut matched = true
-    let mut j = 0
-    while j < kn {
-      if s.unsafe_get(i + j) != sub.unsafe_get(j) {
-        matched = false
-        break
-      }
-      j = j + 1
-    }
-    if matched { return i }
-    i = i + 1
-  }
-  -1
-}
 fn array_index_of(arr : Array[String], target : String) -> Int {
   for i = 0; i < arr.length(); i = i + 1 {
     if arr[i] == target { return i }

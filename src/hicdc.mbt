@@ -308,28 +308,6 @@ fn hc_normal_cdf(x : Double) -> Double {
 
 
 
-///|
-/// Log-gamma function via Lanczos approximation.
-fn hc_log_gamma(x : Double) -> Double {
-  if x < 0.5 {
-    return hc_log(
-      3.141592653589793 /
-      (hc_sin(3.141592653589793 * x) * hc_exp(hc_log_gamma(1.0 - x))),
-    )
-  }
-  let g = 7.0
-  let c = [
-    0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
-    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
-    1.5056327351493116e-7,
-  ]
-  let mut a = c[0]
-  let t = x + g - 0.5
-  for i in 1..<9 {
-    a = a + c[i] / (x + i.to_double() - 1.0)
-  }
-  0.5 * hc_log(2.0 * 3.141592653589793) + (x - 0.5) * hc_log(t) - t + hc_log(a)
-}
 
 ///|
 /// Sine function via Taylor series.
