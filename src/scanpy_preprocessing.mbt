@@ -249,3 +249,41 @@ pub fn scanpy_highly_variable_genes(
   }
   HvgResult::{ means, dispersions, dispersions_norm, highly_variable }
 }
+///|
+/// Regress out unwanted sources of variation by linear least squares
+/// (`scanpy.pp.regress_out`, numeric covariates). Fits `X ~ [1, covariates]`
+/// per gene and returns the residuals, removing the linear effect of the
+/// confounders (including the intercept).
+pub fn scanpy_regress_out(
+  x : Array[Array[Double]],
+  covariates : Array[Array[Double]],
+) -> Array[Array[Double]] {
+  let n_obs = x.length()
+  let n_vars = if n_obs > 0 { x[0].length() } else { 0 }
+  let n_cov = if n_obs > 0 { covariates[0].length() } else { 0 }
+  // R = [1 | covariates]
+  let r : Array[Array[Double]] = Array::new()
+  for i = 0; i < n_obs; i = i + 1 {
+    let row : Array[Double] = Array::new()
+    row.push(1.0)
+    for d = 0; d < n_cov; d = d + 1 {
+      row.push(covariates[i][d])
+    }
+    r.push(row)
+  }
+  let rt = linalg_transpose(r)
+  let gram = linalg_mat_mul(rt, r)
+  let gram_inv = linalg_inverse(gram)
+  let rt_x = linalg_mat_mul(rt, x)
+  let coeff = linalg_mat_mul(gram_inv, rt_x)
+  let fitted = linalg_mat_mul(r, coeff)
+  let resid : Array[Array[Double]] = Array::new()
+  for i = 0; i < n_obs; i = i + 1 {
+    let row : Array[Double] = Array::new()
+    for j = 0; j < n_vars; j = j + 1 {
+      row.push(x[i][j] - fitted[i][j])
+    }
+    resid.push(row)
+  }
+  resid
+}
