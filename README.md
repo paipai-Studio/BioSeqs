@@ -372,6 +372,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **scanpy 差异表达** | scanpy (Python) | scanpy `tools` 核心（第一批）：`scanpy_rank_genes_groups`（Welch t-test 差异表达——每基因比 `ref` vs `target` 两组，返回 t 统计量/p 值/两组均值/log2 倍率，p 值经 `stat_pvalue_t` 正态近似） |
 | **scanpy IO** | scanpy (Python) | scanpy `read_10x_mtx`：Matrix Market 坐标解析（`scanpy_parse_mtx`：integer/real/pattern、general/symmetric）+ features/barcodes → `AnnData`（转置为 cells×genes，`gene_symbols`/`gene_ids` var_names、`scanpy_make_index_unique`、`gex_only` 过滤非 Gene Expression） |
 | **scanpy PCA** | scanpy (Python) | scanpy `pp.pca`（sklearn 约定）：中心化列 + 协方差 Jacobi 特征分解 → `ScanpyPca`（细胞坐标 `coords`、基因载荷 `loadings`、`variance_ratio`） |
+| **scanpy neighbors** | scanpy (Python) | scanpy `pp.neighbors`（`method="umap"`）：欧氏距离 kNN + UMAP fuzzy simplicial set（`smooth_knn_dist` rho/sigma 二分找 perplexity、 membership strengths、fuzzy union `d+dᵀ−d∘dᵀ`）→ 对称连接矩阵 |
 | **Signac** | Signac | 单细胞 ATAC-seq 分析核心：`signac_feature_matrix`（Tn5 片段 → 峰 × 细胞计数矩阵，片段与其重叠的每个峰各计一次，按 cell barcode 归列）、`signac_tss_enrichment`（TSS 中心窗口片段数 ÷ 两侧侧翼窗口均值，启动子相对富集 QC）、`signac_nucleosome_signal`（单核小体 147–294bp / 无核小体 <147bp 片段比值，片段长度周期性 QC） |
 | **scuttle 1.23.1** | scuttle | batch-aware median/MAD 异常值、subset per-feature QC、重叠 feature-set 聚合、精确无放回 count downsampling、batch/block coverage 等化 |
 | **scrapper** | scrapper | 批次感知 RNA QC、大小因子清洗与居中、log-normalization、LOWESS 方差趋势、HVG 选择、多因子 pseudo-bulk |
