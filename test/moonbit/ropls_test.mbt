@@ -20,7 +20,7 @@ fn ropls_vec_close(a : Array[Double], b : Array[Double], tol : Double) -> Bool {
     return false
   }
   for i in 0..<a.length() {
-    if not(ropls_close(a[i], b[i], tol)) {
+    if !(ropls_close(a[i], b[i], tol)) {
       return false
     }
   }
@@ -41,7 +41,7 @@ fn ropls_mat_close(
       return false
     }
     for j in 0..<a[i].length() {
-      if not(ropls_close(a[i][j], b[i][j], tol)) {
+      if !(ropls_close(a[i][j], b[i][j], tol)) {
         return false
       }
     }

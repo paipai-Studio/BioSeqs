@@ -153,7 +153,7 @@ fn dendropy_join(names : Array[String]) -> String {
   let sb = StringBuilder()
   let mut first = true
   for n in names {
-    if not(first) {
+    if !(first) {
       sb.write_char(',')
     }
     sb.write_string(n)

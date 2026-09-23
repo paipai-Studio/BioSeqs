@@ -94,7 +94,7 @@ pub fn is_csi_magic(data : String) -> Bool {
 ///|
 /// Parse a raw (decompressed) CSI index.
 pub fn parse_csi(data : String) -> CsiIndex raise CsiError {
-  if not(is_csi_magic(data)) {
+  if !(is_csi_magic(data)) {
     csi_fail("Invalid CSI magic")
   }
   let min_shift = csi_read_u32(data, 4)
@@ -202,7 +202,7 @@ pub fn csi_query(
   let mut bin = csi_bin_first(index.n_lvls) + rel_off
   let mut min_off = 0L
   let mut found = false
-  while not(found) && bin != 0 {
+  while !(found) && bin != 0 {
     match csi_find_bin(reference, bin) {
       Some(b) => {
         min_off = b.loffset
@@ -219,7 +219,7 @@ pub fn csi_query(
       }
     }
   }
-  if not(found) {
+  if !(found) {
     match csi_find_bin(reference, 0) {
       Some(b) => min_off = b.loffset
       None => ()

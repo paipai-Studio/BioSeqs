@@ -257,7 +257,7 @@ pub fn motif_pwm_score(pwm : MotifPWM, seq : String) -> Double {
       }
       a = a + 1
     }
-    if not(found) {
+    if !(found) {
       return -1.0e30
     }
     p = p + 1
@@ -285,7 +285,7 @@ pub fn motif_pssm_score(pssm : MotifPSSM, seq : String) -> Int {
       }
       a = a + 1
     }
-    if not(found) {
+    if !(found) {
       return -2147483648
     }
     p = p + 1

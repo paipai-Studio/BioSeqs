@@ -539,7 +539,7 @@ pub fn ropls_pca(
   let keep : Array[Int] = []
   let drop_set = dropped.copy()
   for j = 0; j < p0; j = j + 1 {
-    if not(drop_set.contains(j)) {
+    if !(drop_set.contains(j)) {
       keep.push(j)
     }
   }
@@ -710,7 +710,7 @@ fn rop_dummy(
 ) -> (Array[String], Array[Array[Double]]) raise {
   let levels : Array[String] = []
   for lab in labels {
-    if not(levels.contains(lab)) {
+    if !(levels.contains(lab)) {
       levels.push(lab)
     }
   }
@@ -737,7 +737,7 @@ fn rop_dummy(
           found = true
         }
       }
-      if not(found) {
+      if !(found) {
         raise SeqError("ropls: internal dummy coding error")
       }
     }
@@ -787,7 +787,7 @@ fn rop_prepare(
   }
   let keep : Array[Int] = []
   for j = 0; j < p0; j = j + 1 {
-    if not(dropped.contains(j)) {
+    if !(dropped.contains(j)) {
       keep.push(j)
     }
   }
@@ -921,7 +921,7 @@ fn rop_pls_press(
     let tr : Array[Int] = []
     let testset = fold
     for i = 0; i < xn.length(); i = i + 1 {
-      if not(testset.contains(i)) {
+      if !(testset.contains(i)) {
         tr.push(i)
       }
     }
@@ -1477,7 +1477,7 @@ fn rop_fit_opls(
   for fold in folds {
     let tr : Array[Int] = []
     for i = 0; i < n; i = i + 1 {
-      if not(fold.contains(i)) {
+      if !(fold.contains(i)) {
         tr.push(i)
       }
     }
@@ -2066,7 +2066,7 @@ fn rop_scale_new(
   if model.dropped.length() > 0 {
     let keep : Array[Int] = []
     for j = 0; j < pfull; j = j + 1 {
-      if not(model.dropped.contains(j)) {
+      if !(model.dropped.contains(j)) {
         keep.push(j)
       }
     }

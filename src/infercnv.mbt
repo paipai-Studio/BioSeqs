@@ -162,7 +162,7 @@ pub fn exclude_chromosomes(
   let lower_excluded = excluded.map(fn(s) -> String { s.to_lower() })
   let kept = og.gene_order.filter(fn(gp : GenePosition) -> Bool {
     let c = gp.chromosome.to_lower()
-    not(lower_excluded.contains(c))
+    !(lower_excluded.contains(c))
   })
   ordered_genes(kept)
 }
@@ -623,7 +623,7 @@ fn per_category_scores(
         break
       }
     }
-    if not(found) {
+    if !(found) {
       cats.push(cat)
       sums.push(scores[i])
       counts.push(1)

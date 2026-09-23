@@ -35,7 +35,7 @@ fn afreq_mat_close(
     }
     let mut j = 0
     while j < a[i].length() {
-      if not(afreq_close(a[i][j], b[i][j], tol~)) {
+      if !(afreq_close(a[i][j], b[i][j], tol~)) {
         return false
       }
       j = j + 1

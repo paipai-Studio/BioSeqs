@@ -270,7 +270,7 @@ pub fn gffutils_merge(record : GFFRecord, min_dist? : Int = 1) -> Array[GFFFeatu
           Some(_) => ()
           None => {
             seen_src.set(ch.source, true)
-            if not(first_src) {
+            if !(first_src) {
               src_sb.write_char(',')
             }
             src_sb.write_string(ch.source)
@@ -325,7 +325,7 @@ pub fn gffutils_record_to_bed(record : GFFRecord) -> String {
   let sb = StringBuilder()
   let mut first = true
   for f in record.features {
-    if not(first) {
+    if !(first) {
       sb.write_char('\n')
     }
     sb.write_string(gffutils_to_bed(f))

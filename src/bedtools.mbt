@@ -277,7 +277,7 @@ pub fn bedtools_closest(
         overlaps.push(bi)
       } else if bi.start >= ai.end {
         let d = bi.start - ai.end + 1
-        if not(has_down) || d < down_dist {
+        if !(has_down) || d < down_dist {
           down_dist = d
           down_recs.clear()
           down_recs.push(bi)
@@ -287,7 +287,7 @@ pub fn bedtools_closest(
         }
       } else if ai.start >= bi.end {
         let d = ai.start - bi.end + 1
-        if not(has_up) || d < up_dist {
+        if !(has_up) || d < up_dist {
           up_dist = d
           up_recs.clear()
           up_recs.push(bi)
@@ -303,8 +303,8 @@ pub fn bedtools_closest(
       }
     } else {
       // ALL_TIES: report the closer side(s); a tie reports both
-      let use_up = has_up && (not(has_down) || up_dist <= down_dist)
-      let use_down = has_down && (not(has_up) || down_dist <= up_dist)
+      let use_up = has_up && (!(has_down) || up_dist <= down_dist)
+      let use_down = has_down && (!(has_up) || down_dist <= up_dist)
       if use_up {
         for bb in up_recs {
           out.push(ClosestResult::{ a: ai, b: bb, distance: 0 - up_dist })
@@ -813,7 +813,7 @@ fn group_key(record : Array[String], group_cols : Array[Int]) -> String {
   let buf = StringBuilder()
   let mut first = true
   for c in group_cols {
-    if not(first) {
+    if !(first) {
       buf.write_char('\t')
     }
     buf.write_string(record[c - 1])
@@ -1044,7 +1044,7 @@ fn join_strs(vals : Array[String], delim : String) -> String {
   let buf = StringBuilder()
   let mut first = true
   for v in vals {
-    if not(first) {
+    if !(first) {
       buf.write_string(delim)
     }
     buf.write_string(v)
@@ -1064,7 +1064,7 @@ fn agg_mode_or_antimode(vals : Array[String], want_max : Bool) -> String {
   let mut best_idx = 0
   let mut best_cnt = counts[0]
   for i = 1; i < uniq.length(); i = i + 1 {
-    if (want_max && counts[i] > best_cnt) || (not(want_max) && counts[i] < best_cnt) {
+    if (want_max && counts[i] > best_cnt) || (!(want_max) && counts[i] < best_cnt) {
       best_idx = i
       best_cnt = counts[i]
     }

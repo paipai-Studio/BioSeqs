@@ -163,12 +163,12 @@ fn afreq_alphabet(
     while j < ncols {
       let ch = row.unsafe_get(j).unsafe_to_char()
       if afreq_is_gap(ch) {
-        if include_gaps && not(afreq_contains(letters, "-")) {
+        if include_gaps && !(afreq_contains(letters, "-")) {
           letters.push("-")
         }
       } else {
         let key = ch.to_string()
-        if not(afreq_contains(letters, key)) {
+        if !(afreq_contains(letters, key)) {
           letters.push(key)
         }
       }
@@ -341,7 +341,7 @@ pub fn alignment_substitution_matrix(
       while j < ncols {
         let c1 = seq1.unsafe_get(j).unsafe_to_char()
         let c2 = seq2.unsafe_get(j).unsafe_to_char()
-        if not(afreq_is_gap(c1)) && not(afreq_is_gap(c2)) {
+        if !(afreq_is_gap(c1)) && !(afreq_is_gap(c2)) {
           let k1 = afreq_require_index(letters, c1.to_string())
           let k2 = afreq_require_index(letters, c2.to_string())
           m[k1][k2] += w1 * w2
@@ -488,7 +488,7 @@ pub fn SubstitutionCountMatrix::relative_frequencies_expected(
   while i < n {
     match expected.get(self.letters[i]) {
       Some(v) => {
-        if not(afreq_is_finite(v)) || v <= 0.0 {
+        if !(afreq_is_finite(v)) || v <= 0.0 {
           raise AlignmentFrequenciesError(
             "expected frequency of '" +
             self.letters[i] +

@@ -33,10 +33,10 @@ test "gffutils_intervals" {
   let exon1 = @src.GFFFeature::new("chr1", "src", "exon", 100, 200, "+")
   let exon2 = @src.GFFFeature::new("chr1", "src", "exon", 300, 400, "+")
   assert_true(@src.gffutils_overlaps(gene1, exon1))
-  assert_true(not(@src.gffutils_overlaps(gene1, gene2)))
+  assert_true(!(@src.gffutils_overlaps(gene1, gene2)))
   assert_true(@src.gffutils_contains(gene1, exon1))
   assert_true(@src.gffutils_within(exon1, gene1))
-  assert_true(not(@src.gffutils_contains(exon1, gene1)))
+  assert_true(!(@src.gffutils_contains(exon1, gene1)))
   assert_eq(@src.gffutils_distance(exon1, gene1), 0)
   assert_eq(@src.gffutils_distance(exon1, exon2), 99)
 }

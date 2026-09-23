@@ -22,7 +22,7 @@ fn _gs_eq(a : Double, b : Double) -> Bool {
 }
 
 fn _gs_assert(value : Double, expected : Double, label : String) -> Unit {
-  if not(_gs_eq(value, expected)) {
+  if !(_gs_eq(value, expected)) {
     abort("\{label}: expected \{expected}, got \{value}")
   }
 }

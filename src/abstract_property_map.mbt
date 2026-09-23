@@ -57,7 +57,7 @@ pub fn AbstractPropertyMap::add(
   let key = ResidueKey::new(chain_id, resseq, icode~)
   let skey = residue_key_to_string(key)
   let record = PropertyRecord::{ key, props }
-  if not(self.records.contains(skey)) {
+  if !(self.records.contains(skey)) {
     self.n_residues = self.n_residues + 1
   }
   self.records[skey] = record
@@ -230,7 +230,7 @@ pub fn AbstractPropertyMap::merge(
   let mut i = 0
   while i < a.property_names.length() {
     let n = a.property_names[i]
-    if not(seen.contains(n)) {
+    if !(seen.contains(n)) {
       merged_names.push(n)
       seen[n] = true
     }
@@ -239,7 +239,7 @@ pub fn AbstractPropertyMap::merge(
   let mut j = 0
   while j < b.property_names.length() {
     let n = b.property_names[j]
-    if not(seen.contains(n)) {
+    if !(seen.contains(n)) {
       merged_names.push(n)
       seen[n] = true
     }

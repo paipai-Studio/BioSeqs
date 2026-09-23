@@ -316,7 +316,7 @@ fn nexus_trees_parse_tree_line(line : String) -> NexusTree? {
           match rb {
             Some(pos) => {
               let flag = right[0:pos].to_string()
-              tree.rooted = flag.contains("R") && not(flag.contains("U"))
+              tree.rooted = flag.contains("R") && !(flag.contains("U"))
               tree.weight = 1.0
               let rest_start = pos + 1
               let newick_part = right[rest_start:right.length()].trim(chars=" \t").to_string()
@@ -371,7 +371,7 @@ pub fn nexus_trees_parse(content : String) -> NexusTreeCollection {
           }
           // parse "num label," entries
           let clean = tline.trim(chars=" \t\r,;").to_string()
-          if clean.length() > 0 && not(clean.to_lower().contains("translate")) {
+          if clean.length() > 0 && !(clean.to_lower().contains("translate")) {
             let fields = clean.split(" ").to_array()
             if fields.length() >= 2 {
               let num = fields[0].to_string()

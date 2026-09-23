@@ -29,7 +29,7 @@ test "beclear_detect_batch_effect no effect with high threshold" {
   let m = @src.beclear_sample_matrix()
   let summaries = @src.detect_batch_effect(m, threshold=100.0)
   for s in summaries {
-    assert_true(not(s.affected))
+    assert_true(!(s.affected))
   }
 }
 

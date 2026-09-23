@@ -39,7 +39,7 @@ fn main {
   }
   let mut all_found = true
   for i = 0; i < kmers.length(); i = i + 1 {
-    if not(@bio.BloomFilter::contains(bf2, kmers[i])) {
+    if !(@bio.BloomFilter::contains(bf2, kmers[i])) {
       all_found = false
     }
   }

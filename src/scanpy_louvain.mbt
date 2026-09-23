@@ -155,7 +155,7 @@ pub fn scanpy_leiden(adjacency : Array[Array[Double]]) -> Array[Int] {
       head = head + 1
       out[u] = next_label
       for v = 0; v < n; v = v + 1 {
-        if not(visited[v]) && base[v] == comm && adjacency[u][v] > 0.0 {
+        if !(visited[v]) && base[v] == comm && adjacency[u][v] > 0.0 {
           visited[v] = true
           frontier.push(v)
         }

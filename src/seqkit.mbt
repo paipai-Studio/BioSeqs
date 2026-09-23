@@ -40,7 +40,7 @@ pub fn seqkit_remove_gaps(seq : String) -> String {
   let buf = StringBuilder()
   for i = 0; i < seq.length(); i = i + 1 {
     let c = seq.unsafe_get(i).unsafe_to_char()
-    if not(is_gap_char(c)) {
+    if !(is_gap_char(c)) {
       buf.write_char(c)
     }
   }
@@ -70,7 +70,7 @@ pub fn seqkit_fx2tab(records : Array[SeqRecord], is_fastq : Bool) -> String {
   let buf = StringBuilder()
   let mut first = true
   for rec in records {
-    if not(first) {
+    if !(first) {
       buf.write_char('\n')
     }
     buf.write_string(rec.id)

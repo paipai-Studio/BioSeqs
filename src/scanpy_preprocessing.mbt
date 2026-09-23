@@ -211,7 +211,7 @@ pub fn scanpy_highly_variable_genes(
         if t >= n_bins { n_bins - 1 } else if t < 0 { 0 } else { t }
       }
       gene_bin[g] = b
-      if not(is_nan(dispersions[g])) {
+      if !(is_nan(dispersions[g])) {
         bin_count[b] = bin_count[b] + 1
         bin_sum[b] = bin_sum[b] + dispersions[g]
         bin_sumsq[b] = bin_sumsq[b] + dispersions[g] * dispersions[g]
@@ -226,10 +226,10 @@ pub fn scanpy_highly_variable_genes(
         let avg = bin_sum[b] / bin_count[b].to_double()
         let dev = ((bin_sumsq[b] - bin_count[b].to_double() * avg * avg) /
           (bin_count[b] - 1).to_double()).sqrt()
-        if dev > 0.0 && not(is_nan(dispersions[k])) {
+        if dev > 0.0 && !(is_nan(dispersions[k])) {
           dispersions_norm[k] = (dispersions[k] - avg) / dev
         }
-      } else if not(is_nan(dispersions[k])) {
+      } else if !(is_nan(dispersions[k])) {
         // single valid gene in bin -> normalized dispersion of 1
         dispersions_norm[k] = 1.0
       } else {

@@ -117,7 +117,7 @@ fn decoupler_build_weight_matrix(
     let idx_opt = gene_index.get(t)
     match idx_opt {
       Some(idx) =>
-        if not(tgt_seen.contains(idx)) {
+        if !(tgt_seen.contains(idx)) {
           tgt_seen.set(idx, ())
           tgt_indices.push(idx)
         }

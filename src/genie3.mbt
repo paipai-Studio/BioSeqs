@@ -101,7 +101,7 @@ pub fn RegressionTree::feature_importance(
   while stack.length() > 0 {
     let node_idx = stack.pop().unwrap()
     let node = self.nodes[node_idx]
-    if not(node.is_leaf) {
+    if !(node.is_leaf) {
       importance[node.feature] = importance[node.feature] + node.importance_gain
       stack.push(node.left_idx)
       stack.push(node.right_idx)

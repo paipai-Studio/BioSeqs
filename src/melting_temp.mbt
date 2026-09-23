@@ -219,7 +219,7 @@ pub fn mt_is_valid_dna(seq : String) -> Bool {
   }
   let mut i = 0
   while i < seq.length() {
-    if not(valid.contains(seq[i])) {
+    if !(valid.contains(seq[i])) {
       return false
     }
     i = i + 1

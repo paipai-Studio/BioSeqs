@@ -9,7 +9,7 @@ fn fmt_d(row : Array[Double]) -> String {
   let sb = StringBuilder()
   let mut first = true
   for x in row {
-    if not(first) {
+    if !(first) {
       sb.write_char(' ')
     }
     sb.write_string(x.to_string())
@@ -23,7 +23,7 @@ fn fmt_i(row : Array[Int]) -> String {
   let sb = StringBuilder()
   let mut first = true
   for x in row {
-    if not(first) {
+    if !(first) {
       sb.write_char(' ')
     }
     sb.write_string(x.to_string())

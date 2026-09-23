@@ -222,7 +222,7 @@ pub fn pyfaidx_seq_fancy_name(seq : PyfaidxSequence) -> String {
 pub fn pyfaidx_seq_orientation(seq : PyfaidxSequence) -> Int? {
   match (seq.start, seq.end) {
     (Some(s), Some(e)) => {
-      if s < e && not(seq.comp) {
+      if s < e && !(seq.comp) {
         Some(1)
       } else if s > e && seq.comp {
         Some(-1)

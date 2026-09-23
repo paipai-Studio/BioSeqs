@@ -77,14 +77,14 @@ fn clusterbuster_atof_opt(s : String) -> Double? {
       } else {
         int_part = int_part * 10.0 + digit
       }
-    } else if c == 46 && not(in_frac) {
+    } else if c == 46 && !(in_frac) {
       in_frac = true
     } else if c == 101 || c == 69 {
       // scientific notation exponent: parse rest as int
       let exp_str = t[k + 1:t.length()].to_string()
       match clusterbuster_atof_opt(exp_str) {
         Some(exp_v) => {
-          if not(any_digit) {
+          if !(any_digit) {
             return None
           }
           let base = int_part + frac_part
@@ -103,7 +103,7 @@ fn clusterbuster_atof_opt(s : String) -> Double? {
     }
     k = k + 1
   }
-  if not(any_digit) {
+  if !(any_digit) {
     return None
   }
   let value = int_part + frac_part

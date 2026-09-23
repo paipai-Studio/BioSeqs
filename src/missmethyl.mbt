@@ -220,7 +220,7 @@ fn mm_contains(arr : Array[String], val : String) -> Bool {
 fn mm_unique(arr : Array[String]) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   for v in arr {
-    if not(mm_contains(result, v)) {
+    if !(mm_contains(result, v)) {
       result.push(v)
     }
   }
@@ -232,7 +232,7 @@ fn mm_unique(arr : Array[String]) -> Array[String] {
 fn mm_intersect(a : Array[String], b : Array[String]) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   for v in a {
-    if mm_contains(b, v) && not(mm_contains(result, v)) {
+    if mm_contains(b, v) && !(mm_contains(result, v)) {
       result.push(v)
     }
   }
@@ -244,7 +244,7 @@ fn mm_intersect(a : Array[String], b : Array[String]) -> Array[String] {
 fn mm_unique_go_ids(db : MmGoDatabase) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   for entry in db.entries {
-    if not(mm_contains(result, entry.0)) {
+    if !(mm_contains(result, entry.0)) {
       result.push(entry.0)
     }
   }
@@ -557,7 +557,7 @@ pub fn MmGoDatabase::genes_for_go(
 ) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   for entry in self.entries {
-    if entry.0 == go_id && not(mm_contains(result, entry.1)) {
+    if entry.0 == go_id && !(mm_contains(result, entry.1)) {
       result.push(entry.1)
     }
   }
@@ -572,7 +572,7 @@ pub fn MmGoDatabase::go_for_gene(
 ) -> Array[String] {
   let result : Array[String] = Array(capacity=0)
   for entry in self.entries {
-    if entry.1 == gene && not(mm_contains(result, entry.0)) {
+    if entry.1 == gene && !(mm_contains(result, entry.0)) {
       result.push(entry.0)
     }
   }
@@ -803,7 +803,7 @@ pub fn mm_map_probes_to_genes(
   let result : Array[String] = Array(capacity=0)
   for ann in annotations {
     if mm_contains(probes, ann.probe_id()) &&
-      not(mm_contains(result, ann.gene())) {
+      !(mm_contains(result, ann.gene())) {
       result.push(ann.gene())
     }
   }
@@ -819,7 +819,7 @@ fn mm_probes_for_genes(
   let result : Array[String] = Array(capacity=0)
   for ann in annotations {
     if mm_contains(genes, ann.gene()) &&
-      not(mm_contains(result, ann.probe_id())) {
+      !(mm_contains(result, ann.probe_id())) {
       result.push(ann.probe_id())
     }
   }

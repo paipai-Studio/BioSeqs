@@ -283,7 +283,7 @@ pub fn cnm_compare_samples(a : CnmSample, b : CnmSample) -> CnmComparison {
   }
   let unique_b : Array[CnmSegment] = Array(capacity=0)
   for sb in b.segments {
-    if not(a_keys.contains(cnm_seg_key(sb))) {
+    if !(a_keys.contains(cnm_seg_key(sb))) {
       unique_b.push(sb)
     }
   }

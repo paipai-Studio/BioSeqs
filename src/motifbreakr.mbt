@@ -215,7 +215,7 @@ fn motifbreakr_eval_one(
     } else {
       best_delta
     }
-    if abs_delta > abs_best || not(found) {
+    if abs_delta > abs_best || !(found) {
       best_delta = delta
       best_ref = ref_s
       best_alt = alt_s
@@ -223,7 +223,7 @@ fn motifbreakr_eval_one(
       found = true
     }
   }
-  if not(found) {
+  if !(found) {
     return None
   }
   let effect = if best_delta > threshold {

@@ -1450,7 +1450,7 @@ pub fn BamRecord::get_aligned_pairs(self : BamRecord, matches_only : Bool) -> Ar
         rpos = rpos + n
       }
       BamCigarOp::Insert | BamCigarOp::SoftClip => {
-        if not(matches_only) {
+        if !(matches_only) {
           let mut k = 0
           while k < n {
             out.push((Some(qpos + k), None))
@@ -1460,7 +1460,7 @@ pub fn BamRecord::get_aligned_pairs(self : BamRecord, matches_only : Bool) -> Ar
         qpos = qpos + n
       }
       BamCigarOp::Delete | BamCigarOp::Skip => {
-        if not(matches_only) {
+        if !(matches_only) {
           let mut k = 0
           while k < n {
             out.push((None, Some(rpos + k)))
