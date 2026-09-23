@@ -370,7 +370,8 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **AnnData** | anndata (Python) | 单细胞数据容器（scanpy 生态地基）：`AnnData`（`x` 主矩阵 n_obs×n_vars、`obs`/`variables` 注释、`layers`/`obsm`/`varm`/`obsp`/`varp`/`uns`、`obs_names`/`var_names`）、`shape`/`n_obs`/`n_vars`、`set_obs`/`set_var`/`set_layer`/`set_obsm`/`set_obsp` 链式赋值、`subset`（obs×var 索引切片，X/layers/obs/var/obsm/obsp 同步重索引）、`copy`（深拷贝） |
 | **scanpy 预处理** | scanpy (Python) | scanpy `preprocessing` 核心：`scanpy_normalize_total`（每细胞文库归一化到 target_sum）、`scanpy_log1p`（`ln(1+x)`）、`scanpy_scale`（每基因 z-score ddof=1 + `max_value` 裁剪）、`scanpy_highly_variable_genes`（Seurat flavor：log 分散度/log1p 均值、`n_bins` 等宽分箱 + 箱内 z-score、cutoff min_disp/min_mean/max_mean） |
 | **scanpy 差异表达** | scanpy (Python) | scanpy `tools` 核心（第一批）：`scanpy_rank_genes_groups`（Welch t-test 差异表达——每基因比 `ref` vs `target` 两组，返回 t 统计量/p 值/两组均值/log2 倍率，p 值经 `stat_pvalue_t` 正态近似） |
-| **scanpy IO** | scanpy (Python) | scanpy `read_10x_mtx`：Matrix Market 坐标解析（`scanpy_parse_mtx`：integer/real/pattern、general/symmetric）+ features/barcodes → `AnnData`（转置为 cells×genes，`gene_symbols`/`gene_ids` var_names、`scanpy_make_index_unique`、`gex_only` 过滤非 Gene Expression） |
+| **scanpy IO** | scanpy (Python) | scanpy `read_10x_mtx`：Matrix Market 坐标解析 + features/barcodes → `AnnData`（转置、var_names、make_unique、gex_only）；**自动 gunzip** 处理 `.gz` 输入 |
+| **gzip** | RFC 1952 | `gzip_decompress` / `gunzip_if_needed`：标准 gzip 解压（复用 bgzf 的 DEFLATE 解码器） |
 | **scanpy PCA** | scanpy (Python) | scanpy `pp.pca`（sklearn 约定）：中心化列 + 协方差 Jacobi 特征分解 → `ScanpyPca`（细胞坐标 `coords`、基因载荷 `loadings`、`variance_ratio`） |
 | **scanpy neighbors** | scanpy (Python) | scanpy `pp.neighbors`（`method="umap"`）：欧氏距离 kNN + UMAP fuzzy simplicial set（`smooth_knn_dist` rho/sigma 二分找 perplexity、 membership strengths、fuzzy union `d+dᵀ−d∘dᵀ`）→ 对称连接矩阵 |
 | **scanpy regress_out** | scanpy (Python) | scanpy `pp.regress_out`（数值协变量）：R=[1\|cov] 最小二乘去混杂，coeff=gram⁻¹RᵀX、resid=X−R·coeff（含截距） |

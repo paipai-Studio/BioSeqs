@@ -65,6 +65,9 @@ fn bit_reader_new(data : String) -> BitReader {
 /// Read a single bit. DEFLATE packs bits LSB-first within each byte
 /// (RFC 1951 section 3.1.1), so bit 0 of a byte is read first.
 fn bit_reader_read_bit(br : BitReader) -> (Int, BitReader) {
+  if br.pos >= br.data.length() {
+    return (0, br)
+  }
   let byte = br.data.unsafe_get(br.pos).to_int() & 0xFF
   let bit = (byte >> br.bit_pos) & 1
   let new_bit_pos = br.bit_pos + 1
@@ -135,6 +138,7 @@ fn bit_reader_remaining(br : BitReader) -> Int {
 /// Huffman decoder using a lookup table.
 struct HuffmanDecoder {
   codes : FixedArray[Int]
+  lens : FixedArray[Int]
 }
 
 ///|
@@ -161,6 +165,7 @@ fn build_huffman_decoder(
   }
 
   let codes : FixedArray[Int] = FixedArray::make(65536, -1)
+  let lens : FixedArray[Int] = FixedArray::make(65536, 0)
   let mut i = 0
   while i < max_symbols {
     let len = lengths[i]
@@ -169,35 +174,44 @@ fn build_huffman_decoder(
       next_code[len] = c + 1
       if len <= 12 {
         let step = 1 << (12 - len)
-        let mut j = c
-        while j < 4096 {
+        let mut j = c << (12 - len)
+        let end = j + step
+        while j < end {
           codes[j] = i
-          j = j + step
+          lens[j] = len
+          j = j + 1
         }
       } else {
-        codes[c & 0xFFFF] = i
+        let step = 1 << (16 - len)
+        let mut j = c << (16 - len)
+        let end = j + step
+        while j < end {
+          codes[j] = i
+          lens[j] = len
+          j = j + 1
+        }
       }
     }
     i = i + 1
   }
 
-  HuffmanDecoder::{ codes, }
+  HuffmanDecoder::{ codes, lens, }
 }
 
 ///|
 /// Decode a symbol from bit reader using the Huffman decoder.
+fn bit_reader_advance(br : BitReader, n : Int) -> BitReader {
+  let total = br.pos * 8 + br.bit_pos + n
+  BitReader::{ data: br.data, pos: total / 8, bit_pos: total % 8, }
+}
+
 fn huffman_decode(decoder : HuffmanDecoder, br : BitReader) -> (Int, BitReader) {
-  let (bits12, r1) = bit_reader_read_bits(br, 12)
+  let (bits12, _) = bit_reader_read_bits(br, 12)
   if decoder.codes[bits12] != -1 {
-    (decoder.codes[bits12], r1)
+    (decoder.codes[bits12], bit_reader_advance(br, decoder.lens[bits12]))
   } else {
-    let (bits14, r2) = bit_reader_read_bits(br, 14)
-    if decoder.codes[bits14] != -1 {
-      (decoder.codes[bits14], r2)
-    } else {
-      let (bits16, r3) = bit_reader_read_bits(br, 16)
-      (decoder.codes[bits16], r3)
-    }
+    let (bits16, _) = bit_reader_read_bits(br, 16)
+    (decoder.codes[bits16], bit_reader_advance(br, decoder.lens[bits16]))
   }
 }
 

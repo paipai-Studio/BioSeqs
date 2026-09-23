@@ -166,7 +166,10 @@ pub fn scanpy_read_10x_mtx(
   make_unique : Bool,
   gex_only : Bool,
 ) -> AnnData {
-  let (gmat, n_genes, n_cells) = scanpy_parse_mtx(mtx)
+  let mtx_u = gunzip_if_needed(mtx) catch { _ => mtx }
+  let features_u = gunzip_if_needed(features) catch { _ => features }
+  let barcodes_u = gunzip_if_needed(barcodes) catch { _ => barcodes }
+  let (gmat, n_genes, n_cells) = scanpy_parse_mtx(mtx_u)
   // transpose genes × cells -> cells × genes
   let x : Array[Array[Double]] = Array::new()
   for c = 0; c < n_cells; c = c + 1 {
@@ -181,7 +184,7 @@ pub fn scanpy_read_10x_mtx(
   let gene_ids : Array[String] = Array::new()
   let gene_symbols : Array[String] = Array::new()
   let feature_types : Array[String] = Array::new()
-  for line in features.split("\n") {
+  for line in features_u.split("\n") {
     let t = scanpy_trim(line.to_owned())
     if t.length() == 0 {
       continue
@@ -194,7 +197,7 @@ pub fn scanpy_read_10x_mtx(
 
   // parse barcodes.tsv (1 column)
   let obs_names : Array[String] = Array::new()
-  for line in barcodes.split("\n") {
+  for line in barcodes_u.split("\n") {
     let t = scanpy_trim(line.to_owned())
     if t.length() == 0 {
       continue
