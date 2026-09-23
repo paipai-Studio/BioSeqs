@@ -67,13 +67,13 @@ pub fn wise_make_block_type(name : String) -> WiseBlockType {
 ///|
 /// An exon in a gene prediction.
 pub struct WiseExon {
-  pub start : Int // gene start position (0-based)
-  pub end : Int // gene end position (0-based, inclusive)
-  pub phase : Int // reading frame phase (0, 1, or 2)
-  pub end_phase : Int // end phase (0, 1, or 2)
-  pub score : Double // exon score
-  pub protein_start : Int // start position in protein
-  pub protein_end : Int // end position in protein
+  start : Int // gene start position (0-based)
+  end : Int // gene end position (0-based, inclusive)
+  phase : Int // reading frame phase (0, 1, or 2)
+  end_phase : Int // end phase (0, 1, or 2)
+  score : Double // exon score
+  protein_start : Int // start position in protein
+  protein_end : Int // end position in protein
 }
 
 ///|
@@ -99,11 +99,11 @@ pub fn WiseExon::length(self : WiseExon) -> Int {
 ///|
 /// An intron between exons.
 pub struct WiseIntron {
-  pub start : Int // intron start position
-  pub end : Int // intron end position
-  pub donor_score : Double // 5' splice site score
-  pub acceptor_score : Double // 3' splice site score
-  pub length : Int
+  start : Int // intron start position
+  end : Int // intron end position
+  donor_score : Double // 5' splice site score
+  acceptor_score : Double // 3' splice site score
+  length : Int
 }
 
 ///|
@@ -121,11 +121,11 @@ pub fn WiseIntron::new(
 ///|
 /// A single position in a GeneWise alignment.
 pub struct WiseAlignmentColumn {
-  pub protein_char : Char // amino acid in protein
-  pub gene_codon : String // 3-nucleotide codon
-  pub match_type : String // " " = match, " " = mismatch, "*" = stop
-  pub gene_position : Int
-  pub protein_position : Int
+  protein_char : Char // amino acid in protein
+  gene_codon : String // 3-nucleotide codon
+  match_type : String // " " = match, " " = mismatch, "*" = stop
+  gene_position : Int
+  protein_position : Int
 }
 
 ///|
@@ -149,17 +149,17 @@ pub fn WiseAlignmentColumn::new(
 ///|
 /// A complete GeneWise result.
 pub struct WiseResult {
-  pub mut protein_id : String
-  pub mut gene_id : String
-  pub mut score : Double // overall alignment score
-  pub mut bits_score : Double // score in bits
-  pub probability : Double // probability of alignment
-  pub protein_sequence : String
-  pub gene_sequence : String
+  mut protein_id : String
+  mut gene_id : String
+  mut score : Double // overall alignment score
+  mut bits_score : Double // score in bits
+  probability : Double // probability of alignment
+  protein_sequence : String
+  gene_sequence : String
   exons : Array[WiseExon]
   introns : Array[WiseIntron]
   alignment : Array[WiseAlignmentColumn]
-  pub parameters : Map[String, String]
+  parameters : Map[String, String]
 }
 
 ///|
@@ -706,11 +706,11 @@ pub fn wise_percent_identity(
 ///|
 /// A GenomeWise segment result.
 pub struct GenomeWiseSegment {
-  pub segment_id : String
-  pub start : Int
-  pub end : Int
-  pub score : Double
-  pub wise_result : WiseResult
+  segment_id : String
+  start : Int
+  end : Int
+  score : Double
+  wise_result : WiseResult
 }
 
 ///|
@@ -733,8 +733,8 @@ pub fn GenomeWiseSegment::new(
 ///|
 /// A complete GenomeWise result containing multiple segments.
 pub struct GenomeWiseResult {
-  pub gene_id : String
-  pub total_score : Double
+  gene_id : String
+  total_score : Double
   segments : Array[GenomeWiseSegment]
 }
 

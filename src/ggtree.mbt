@@ -6,11 +6,11 @@
 ///|
 /// Layout-specific tree node with immutable structure.
 pub struct LayoutNode {
-  pub id : String
-  pub label : String
-  pub branch_length : Double
-  pub is_leaf : Bool
-  pub children : Array[LayoutNode]
+  id : String
+  label : String
+  branch_length : Double
+  is_leaf : Bool
+  children : Array[LayoutNode]
 }
 
 ///|
@@ -25,15 +25,15 @@ pub fn LayoutNode::new(
 
 ///|
 pub struct TreeLayout {
-  pub nodes : Array[LayoutNode]
-  pub positions : Map[String, (Double, Double, Double)]
-  pub leaf_order : Array[String]
-  pub node_order : Array[String]
-  pub max_x : Double
-  pub max_y : Double
-  pub min_x : Double
-  pub min_y : Double
-  pub layout_type : String
+  nodes : Array[LayoutNode]
+  positions : Map[String, (Double, Double, Double)]
+  leaf_order : Array[String]
+  node_order : Array[String]
+  max_x : Double
+  max_y : Double
+  min_x : Double
+  min_y : Double
+  layout_type : String
 }
 
 ///|
@@ -63,9 +63,9 @@ pub fn TreeLayout::new(
 
 ///|
 pub struct TreeData {
-  pub newick : String
-  pub root_id : String
-  pub nodes : Array[LayoutNode]
+  newick : String
+  root_id : String
+  nodes : Array[LayoutNode]
 }
 
 ///|

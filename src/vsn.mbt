@@ -74,10 +74,10 @@ pub struct VSNResult {
 
 ///|
 pub struct VSNControl {
-  pub n_bins : Int
-  pub min_bin_count : Int
-  pub max_iter : Int
-  pub lts_frac : Double
+  n_bins : Int
+  min_bin_count : Int
+  max_iter : Int
+  lts_frac : Double
 }
 
 ///|

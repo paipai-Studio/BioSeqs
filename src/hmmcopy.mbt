@@ -19,15 +19,15 @@
 ///|
 /// A genomic bin with read coverage.
 pub struct HMMcopyBin {
-  pub chr : String
-  pub start : Int
-  pub end : Int
-  pub reads : Int
-  pub gc : Double // GC content (0..1)
-  pub mappability : Double // mappability score (0..1)
-  pub mut corrected_reads : Double // GC-corrected coverage
-  pub mut copy : Int // inferred copy number (after Viterbi)
-  pub mut state : Int // HMM state index (0=CN0,1=CN1,2=CN2,...)
+  chr : String
+  start : Int
+  end : Int
+  reads : Int
+  gc : Double // GC content (0..1)
+  mappability : Double // mappability score (0..1)
+  mut corrected_reads : Double // GC-corrected coverage
+  mut copy : Int // inferred copy number (after Viterbi)
+  mut state : Int // HMM state index (0=CN0,1=CN1,2=CN2,...)
 }
 
 ///|
@@ -91,12 +91,12 @@ pub fn HMMcopyBin::normalized_coverage(self : HMMcopyBin) -> Double {
 ///|
 /// HMM model parameters.
 pub struct HMMcopyModel {
-  pub num_states : Int // e.g. 7: CN0..CN6
-  pub transition : Array[Array[Double]] // transition[s_from][s_to]
-  pub emissions : Array[Double] // mean coverage per state (in CN2 units)
-  pub variances : Array[Double] // variance per state
-  pub initial : Array[Double] // initial state distribution
-  pub ploidy : Int // expected copy number (default 2)
+  num_states : Int // e.g. 7: CN0..CN6
+  transition : Array[Array[Double]] // transition[s_from][s_to]
+  emissions : Array[Double] // mean coverage per state (in CN2 units)
+  variances : Array[Double] // variance per state
+  initial : Array[Double] // initial state distribution
+  ploidy : Int // expected copy number (default 2)
 }
 
 ///|
@@ -204,13 +204,13 @@ pub fn HMMcopyModel::copy_to_state(self : HMMcopyModel, copy : Int) -> Int {
 ///|
 /// A segment of consecutive bins with the same copy number.
 pub struct HMMcopySegment {
-  pub chr : String
-  pub start : Int
-  pub end : Int
-  pub copy : Int
-  pub state : Int
-  pub num_bins : Int
-  pub mean_reads : Double
+  chr : String
+  start : Int
+  end : Int
+  copy : Int
+  state : Int
+  num_bins : Int
+  mean_reads : Double
 }
 
 ///|

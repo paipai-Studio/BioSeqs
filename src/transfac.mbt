@@ -36,11 +36,11 @@
 ///|
 /// A TRANSFAC reference entry.
 pub struct TransfacReference {
-  pub mut number : String // RN field (reference number)
-  pub mut authors : String // RA field (authors)
-  pub mut title : String // RT field (title)
-  pub mut journal : String // RL field (journal/data)
-  pub mut pubmed_id : String // RX field (PubMed ID)
+  mut number : String // RN field (reference number)
+  mut authors : String // RA field (authors)
+  mut title : String // RT field (title)
+  mut journal : String // RL field (journal/data)
+  mut pubmed_id : String // RX field (PubMed ID)
 }
 
 ///|
@@ -58,23 +58,23 @@ pub fn TransfacReference::new() -> TransfacReference {
 ///|
 /// A TRANSFAC motif with position frequency matrix and metadata.
 pub struct TransfacMotifFull {
-  pub accession : String // AC field (accession number)
-  pub mut identifier : String // ID field (identifier)
-  pub mut description : String // DE field (short description)
-  pub mut binding_factors : Array[String] // BF field (binding factors)
-  pub mut comments : String // CC field (comments)
-  pub mut copyright : String // CO field (copyright notice)
-  pub mut name : String // NA field (name of binding factor)
-  pub mut species : String // OS field (species/taxon)
-  pub mut taxonomic_class : String // OC field (taxonomic classification)
-  pub mut pfm : Array[Array[Int]] // position frequency matrix (width x 4 for A,C,G,T)
-  pub mut alphabet : Array[String] // alphabet (default: A,C,G,T)
-  pub mut width : Int // motif width
-  pub mut references : Array[TransfacReference] // references list
-  pub mut binding_sites : Array[String] // BS field (binding sites)
-  pub mut external_refs : Array[String] // DR field (external database references)
-  pub mut creation_date : String // DT field (date)
-  pub mut motif_type : String // TY field (type)
+  accession : String // AC field (accession number)
+  mut identifier : String // ID field (identifier)
+  mut description : String // DE field (short description)
+  mut binding_factors : Array[String] // BF field (binding factors)
+  mut comments : String // CC field (comments)
+  mut copyright : String // CO field (copyright notice)
+  mut name : String // NA field (name of binding factor)
+  mut species : String // OS field (species/taxon)
+  mut taxonomic_class : String // OC field (taxonomic classification)
+  mut pfm : Array[Array[Int]] // position frequency matrix (width x 4 for A,C,G,T)
+  mut alphabet : Array[String] // alphabet (default: A,C,G,T)
+  mut width : Int // motif width
+  mut references : Array[TransfacReference] // references list
+  mut binding_sites : Array[String] // BS field (binding sites)
+  mut external_refs : Array[String] // DR field (external database references)
+  mut creation_date : String // DT field (date)
+  mut motif_type : String // TY field (type)
 }
 
 ///|
@@ -180,8 +180,8 @@ pub fn TransfacMotifFull::alphabet_index(
 ///|
 /// A TRANSFAC record (file-level container for multiple motifs).
 pub struct TransfacRecordFull {
-  pub mut version : String // VV field (version)
-  pub motifs : Array[TransfacMotifFull] // list of motifs
+  mut version : String // VV field (version)
+  motifs : Array[TransfacMotifFull] // list of motifs
 }
 
 ///|

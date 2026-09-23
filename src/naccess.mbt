@@ -30,14 +30,14 @@
 ///|
 /// Atomic solvent accessible area record.
 pub struct NaccessAtom {
-  pub atom_name : String // e.g. "CA", "N", "O"
-  pub atom_num : Int
-  pub res_name : String // 3-letter residue code
-  pub res_num : Int
-  pub chain_id : String
-  pub abs_asa : Double // absolute accessible surface area (Å²)
-  pub rel_asa : Double // relative accessible surface area (%)
-  pub element : String
+  atom_name : String // e.g. "CA", "N", "O"
+  atom_num : Int
+  res_name : String // 3-letter residue code
+  res_num : Int
+  chain_id : String
+  abs_asa : Double // absolute accessible surface area (Å²)
+  rel_asa : Double // relative accessible surface area (%)
+  element : String
 }
 
 ///|
@@ -67,19 +67,19 @@ pub fn NaccessAtom::new(
 ///|
 /// Residue solvent accessible area record.
 pub struct NaccessResidue {
-  pub res_name : String // 3-letter code
-  pub res_num : Int
-  pub chain_id : String
-  pub abs_all : Double // absolute ASA for all atoms
-  pub abs_side_chain : Double // absolute ASA for side chain
-  pub abs_main_chain : Double // absolute ASA for main chain
-  pub rel_all : Double // relative ASA for all atoms (%)
-  pub rel_side_chain : Double // relative ASA for side chain (%)
-  pub rel_main_chain : Double // relative ASA for main chain (%)
-  pub non_polar_abs : Double // non-polar absolute ASA
-  pub non_polar_rel : Double // non-polar relative ASA
-  pub polar_abs : Double // polar absolute ASA
-  pub polar_rel : Double // polar relative ASA
+  res_name : String // 3-letter code
+  res_num : Int
+  chain_id : String
+  abs_all : Double // absolute ASA for all atoms
+  abs_side_chain : Double // absolute ASA for side chain
+  abs_main_chain : Double // absolute ASA for main chain
+  rel_all : Double // relative ASA for all atoms (%)
+  rel_side_chain : Double // relative ASA for side chain (%)
+  rel_main_chain : Double // relative ASA for main chain (%)
+  non_polar_abs : Double // non-polar absolute ASA
+  non_polar_rel : Double // non-polar relative ASA
+  polar_abs : Double // polar absolute ASA
+  polar_rel : Double // polar relative ASA
 }
 
 ///|
@@ -119,12 +119,12 @@ pub fn NaccessResidue::new(
 ///|
 /// A parsed NACCESS result.
 pub struct NaccessResult {
-  pub structure_id : String
+  structure_id : String
   residues : Array[NaccessResidue]
   atoms : Array[NaccessAtom]
-  pub mut total_abs_asa : Double
-  pub total_rel_asa : Double
-  pub chain_totals : Map[String, Double]
+  mut total_abs_asa : Double
+  total_rel_asa : Double
+  chain_totals : Map[String, Double]
 }
 
 ///|

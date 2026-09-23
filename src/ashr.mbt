@@ -15,14 +15,14 @@
 ///|
 /// Result of an adaptive shrinkage fit.
 pub struct AshrFit {
-  pub posterior_mean : Array[Double]
-  pub posterior_sd : Array[Double]
-  pub lfsr : Array[Double]
-  pub prior_grid : Array[Double]
-  pub prior_weights : Array[Double]
-  pub log_likelihood : Double
-  pub iterations : Int
-  pub n : Int
+  posterior_mean : Array[Double]
+  posterior_sd : Array[Double]
+  lfsr : Array[Double]
+  prior_grid : Array[Double]
+  prior_weights : Array[Double]
+  log_likelihood : Double
+  iterations : Int
+  n : Int
 }
 
 // ---- univariate normal helpers -------------------------------------------

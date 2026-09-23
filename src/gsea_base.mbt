@@ -172,12 +172,12 @@ pub fn GeneSetCollectionType::show(self : GeneSetCollectionType) -> String {
 
 ///|
 pub struct GmtGeneSet {
-  pub name : String
-  pub description : String
-  pub gene_ids : Array[String]
-  pub mut collection_type : GeneSetCollectionType
-  pub mut organism : String
-  pub mut id : String
+  name : String
+  description : String
+  gene_ids : Array[String]
+  mut collection_type : GeneSetCollectionType
+  mut organism : String
+  mut id : String
 }
 
 ///|
@@ -350,9 +350,9 @@ pub fn gene_set_setdiff(a : GmtGeneSet, b : GmtGeneSet) -> Array[String] {
 
 ///|
 pub struct GmtGeneSetCollection {
-  pub sets : Array[GmtGeneSet]
-  pub names : Array[String]
-  pub mut size : Int
+  sets : Array[GmtGeneSet]
+  names : Array[String]
+  mut size : Int
 }
 
 ///|

@@ -71,16 +71,16 @@ pub fn MmtfSecStruct::from_int(code : Int) -> MmtfSecStruct {
 ///|
 /// An atom in an MMTF structure.
 pub struct MmtfAtom {
-  pub name : String // e.g. "CA", "N", "O"
-  pub serial : Int
-  pub alt_loc_id : String // alternative location identifier
-  pub x : Double
-  pub y : Double
-  pub z : Double
-  pub occupancy : Double
-  pub b_factor : Double // temperature factor
-  pub element : String // e.g. "C", "N", "O"
-  pub charge : Int // formal charge
+  name : String // e.g. "CA", "N", "O"
+  serial : Int
+  alt_loc_id : String // alternative location identifier
+  x : Double
+  y : Double
+  z : Double
+  occupancy : Double
+  b_factor : Double // temperature factor
+  element : String // e.g. "C", "N", "O"
+  charge : Int // formal charge
 }
 
 ///|
@@ -114,13 +114,13 @@ pub fn MmtfAtom::new(
 ///|
 /// A group (residue) in an MMTF structure.
 pub struct MmtfGroup {
-  pub group_name : String // e.g. "ALA", "GLY", "HOH"
-  pub group_number : Int // residue number
-  pub insertion_code : String
-  pub group_type : String // chemcomp type
-  pub single_letter_code : String // one-letter amino acid code
-  pub sec_struct : MmtfSecStruct
-  pub sequence_index : Int
+  group_name : String // e.g. "ALA", "GLY", "HOH"
+  group_number : Int // residue number
+  insertion_code : String
+  group_type : String // chemcomp type
+  single_letter_code : String // one-letter amino acid code
+  sec_struct : MmtfSecStruct
+  sequence_index : Int
   atoms : Array[MmtfAtom]
 }
 
@@ -168,8 +168,8 @@ pub fn MmtfGroup::get_num_atoms(self : MmtfGroup) -> Int {
 ///|
 /// A chain in an MMTF structure.
 pub struct MmtfChain {
-  pub chain_id : String // asym chain id (from mmCIF)
-  pub chain_name : String // auth chain id
+  chain_id : String // asym chain id (from mmCIF)
+  chain_name : String // auth chain id
   groups : Array[MmtfGroup]
 }
 
@@ -203,7 +203,7 @@ pub fn MmtfChain::get_num_groups(self : MmtfChain) -> Int {
 ///|
 /// A model in an MMTF structure.
 pub struct MmtfModel {
-  pub model_id : Int
+  model_id : Int
   chains : Array[MmtfChain]
 }
 
@@ -269,10 +269,10 @@ pub fn MmtfEntityType::from_string(s : String) -> MmtfEntityType {
 ///|
 /// Entity information for a structure.
 pub struct MmtfEntity {
-  pub chain_indices : Array[Int]
-  pub sequence : String
-  pub description : String
-  pub entity_type : MmtfEntityType
+  chain_indices : Array[Int]
+  sequence : String
+  description : String
+  entity_type : MmtfEntityType
 }
 
 ///|
@@ -289,13 +289,13 @@ pub fn MmtfEntity::new(
 ///|
 /// Header information for an MMTF structure.
 pub struct MmtfHeader {
-  pub mut r_free : Double
-  pub mut r_work : Double
-  pub mut resolution : Double
-  pub mut title : String
-  pub mut deposition_date : String
-  pub mut release_date : String
-  pub mut experimental_methods : Array[String]
+  mut r_free : Double
+  mut r_work : Double
+  mut resolution : Double
+  mut title : String
+  mut deposition_date : String
+  mut release_date : String
+  mut experimental_methods : Array[String]
 }
 
 ///|
@@ -315,8 +315,8 @@ pub fn MmtfHeader::new() -> MmtfHeader {
 ///|
 /// Crystallographic information.
 pub struct MmtfXtalInfo {
-  pub mut space_group : String
-  pub mut unit_cell : Array[Double] // [a, b, c, alpha, beta, gamma]
+  mut space_group : String
+  mut unit_cell : Array[Double] // [a, b, c, alpha, beta, gamma]
 }
 
 ///|
@@ -328,9 +328,9 @@ pub fn MmtfXtalInfo::new() -> MmtfXtalInfo {
 ///|
 /// A bond between two atoms.
 pub struct MmtfBond {
-  pub atom_index1 : Int
-  pub atom_index2 : Int
-  pub bond_order : Int // 1 = single, 2 = double
+  atom_index1 : Int
+  atom_index2 : Int
+  bond_order : Int // 1 = single, 2 = double
 }
 
 ///|
@@ -346,31 +346,31 @@ pub fn MmtfBond::new(
 ///|
 /// A complete MMTF structure.
 pub struct MmtfStructure {
-  pub mut structure_id : String
-  pub mut total_num_bonds : Int
-  pub mut total_num_atoms : Int
-  pub mut total_num_groups : Int
-  pub mut total_num_chains : Int
-  pub mut total_num_models : Int
+  mut structure_id : String
+  mut total_num_bonds : Int
+  mut total_num_atoms : Int
+  mut total_num_groups : Int
+  mut total_num_chains : Int
+  mut total_num_models : Int
   mut header : MmtfHeader
   mut xtal_info : MmtfXtalInfo
-  pub entities : Array[MmtfEntity]
-  pub bonds : Array[MmtfBond]
+  entities : Array[MmtfEntity]
+  bonds : Array[MmtfBond]
   models : Array[MmtfModel]
-  pub group_list : Array[MmtfGroupType] // group type definitions
+  group_list : Array[MmtfGroupType] // group type definitions
 }
 
 ///|
 /// A group type definition (shared by groups of the same type).
 pub struct MmtfGroupType {
-  pub group_name : String
-  pub chem_comp_type : String
-  pub single_letter_code : String
-  pub atom_name_list : Array[String]
-  pub element_list : Array[String]
-  pub bond_atom_list : Array[Int]
-  pub bond_order_list : Array[Int]
-  pub formal_charge_list : Array[Int]
+  group_name : String
+  chem_comp_type : String
+  single_letter_code : String
+  atom_name_list : Array[String]
+  element_list : Array[String]
+  bond_atom_list : Array[Int]
+  bond_order_list : Array[Int]
+  formal_charge_list : Array[Int]
 }
 
 ///|

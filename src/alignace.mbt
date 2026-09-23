@@ -91,8 +91,8 @@ pub fn AlignAceSite::new(
 ///|
 /// A complete AlignACE output record, containing version, parameters, and motifs.
 pub struct AlignAceRecord {
-  pub mut version : String
-  pub mut command : String
+  mut version : String
+  mut command : String
   parameters : Map[String, String]
   motifs : Array[AlignAceMotif]
 }

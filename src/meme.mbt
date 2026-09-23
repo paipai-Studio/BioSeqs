@@ -28,15 +28,15 @@
 ///|
 /// A MEME motif with position-specific probability matrix (PSPM).
 pub struct MemeMotif {
-  pub name : String // motif identifier (e.g., "motif1" or "1")
-  pub mut alt_name : String // alternative name (may be empty)
-  pub alphabet : String // e.g., "ACGT" or "ACDEFGHIKLMNPQRSTVWY"
-  pub mut width : Int // motif width (number of positions)
-  pub mut nsites : Int // number of sites used to build the motif
-  pub mut evalue : Double // E-value of the motif
-  pub pspm : Array[Array[Double]] // position-specific probability matrix (width x alphabet_len)
-  pub mut url : String // optional motif URL
-  pub mut strands : String // strand info (e.g., "+ -" or "+")
+  name : String // motif identifier (e.g., "motif1" or "1")
+  mut alt_name : String // alternative name (may be empty)
+  alphabet : String // e.g., "ACGT" or "ACDEFGHIKLMNPQRSTVWY"
+  mut width : Int // motif width (number of positions)
+  mut nsites : Int // number of sites used to build the motif
+  mut evalue : Double // E-value of the motif
+  pspm : Array[Array[Double]] // position-specific probability matrix (width x alphabet_len)
+  mut url : String // optional motif URL
+  mut strands : String // strand info (e.g., "+ -" or "+")
 }
 
 ///|
@@ -132,11 +132,11 @@ pub fn MemeMotif::information_content(self : MemeMotif) -> Double {
 ///|
 /// A MEME record holding parsed motifs and metadata.
 pub struct MemeRecord {
-  pub mut version : String // MEME version string (e.g., "4")
-  pub mut alphabet : String // alphabet (e.g., "ACGT")
-  pub mut strands : String // strand info
-  pub background_frequencies : Array[(String, Double)] // background letter frequencies
-  pub motifs : Array[MemeMotif] // list of motifs
+  mut version : String // MEME version string (e.g., "4")
+  mut alphabet : String // alphabet (e.g., "ACGT")
+  mut strands : String // strand info
+  background_frequencies : Array[(String, Double)] // background letter frequencies
+  motifs : Array[MemeMotif] // list of motifs
 }
 
 ///|

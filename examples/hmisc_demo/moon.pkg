@@ -1,4 +1,6 @@
 import {
+  "moonbitlang/core/double",
+  "moonbitlang/core/math",
   "IvanAXu/BioSeqs/src" @bio,
 }
 

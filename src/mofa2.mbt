@@ -8,11 +8,11 @@
 ///|
 /// A single omics view.
 pub struct MofaView {
-  pub view_name : String
-  pub data : Array[Array[Double]]
-  pub feature_names : Array[String]
-  pub sample_names : Array[String]
-  pub view_type : String
+  view_name : String
+  data : Array[Array[Double]]
+  feature_names : Array[String]
+  sample_names : Array[String]
+  view_type : String
 }
 
 ///|
@@ -94,14 +94,14 @@ pub fn MofaParams::create(
 ///|
 /// Result of MOFA2 factor analysis.
 pub struct MofaResult {
-  pub factors : Array[Array[Double]]
-  pub loadings : Array[Array[Array[Double]]]
-  pub factor_vars : Array[Double]
-  pub view_vars : Array[Array[Double]]
+  factors : Array[Array[Double]]
+  loadings : Array[Array[Array[Double]]]
+  factor_vars : Array[Double]
+  view_vars : Array[Array[Double]]
   sigma : Array[Array[Double]]
-  pub n_iterations : Int
-  pub converged : Bool
-  pub active_factors : Int
+  n_iterations : Int
+  converged : Bool
+  active_factors : Int
 }
 
 ///|

@@ -88,14 +88,14 @@ let abi_type_bool : Int = 18
 ///|
 /// A directory entry in an ABIF file (128 bytes in the binary file).
 pub struct AbiDirEntry {
-  pub tag_name : String // 4-character tag name (e.g., "DATA", "PBAS")
-  pub tag_number : Int // tag number (1-based)
-  pub element_type : Int // ABIF element type code
-  pub element_size : Int // size of each element in bytes
-  pub num_elements : Int // number of elements
-  pub data_size : Int // total data size in bytes
-  pub data_offset : Int // offset in file (or 0 if data is inline)
-  pub inline_data : Array[Int] // inline data bytes (if data_size <= 4)
+  tag_name : String // 4-character tag name (e.g., "DATA", "PBAS")
+  tag_number : Int // tag number (1-based)
+  element_type : Int // ABIF element type code
+  element_size : Int // size of each element in bytes
+  num_elements : Int // number of elements
+  data_size : Int // total data size in bytes
+  data_offset : Int // offset in file (or 0 if data is inline)
+  inline_data : Array[Int] // inline data bytes (if data_size <= 4)
 }
 
 ///|
@@ -116,9 +116,9 @@ pub fn AbiDirEntry::new(tag_name : String, tag_number : Int) -> AbiDirEntry {
 ///|
 /// ABIF date (year, month, day).
 pub struct AbiDate {
-  pub year : Int
-  pub month : Int
-  pub day : Int
+  year : Int
+  month : Int
+  day : Int
 }
 
 ///|
@@ -130,9 +130,9 @@ pub fn AbiDate::new(year : Int, month : Int, day : Int) -> AbiDate {
 ///|
 /// ABIF time (hours, minutes, seconds).
 pub struct AbiTime {
-  pub hours : Int
-  pub minutes : Int
-  pub seconds : Int
+  hours : Int
+  minutes : Int
+  seconds : Int
 }
 
 ///|
@@ -144,20 +144,20 @@ pub fn AbiTime::new(hours : Int, minutes : Int, seconds : Int) -> AbiTime {
 ///|
 /// An ABI trace file containing sequence, quality, and trace data.
 pub struct AbiTrace {
-  pub mut sample_name : String // SMPL tag: sample name
-  pub mut capillary_id : String // CTID tag: capillary type
-  pub mut run_name : String // RPrN tag: run name
-  pub mut base_order : String // FWO_ tag: color wheel order (e.g., "GATC")
-  pub mut bases : String // PBAS tag: called base sequence
-  pub mut base_positions : Array[Int] // PLOC tag: peak positions
-  pub mut qualities : Array[Int] // PCON tag: Phred quality values
-  pub traces : Array[Array[Int]] // DATA 1-4: raw trace arrays (4 channels)
-  pub mut trace_names : Array[String] // channel names corresponding to traces
-  pub mut run_date : AbiDate // RUND tag: run start date
-  pub mut run_time : AbiTime // RUNT tag: run start time
-  pub mut num_bases : Int // number of called bases
-  pub mut num_points : Int // number of trace data points per channel
-  pub mut directory : Array[AbiDirEntry] // parsed directory entries
+  mut sample_name : String // SMPL tag: sample name
+  mut capillary_id : String // CTID tag: capillary type
+  mut run_name : String // RPrN tag: run name
+  mut base_order : String // FWO_ tag: color wheel order (e.g., "GATC")
+  mut bases : String // PBAS tag: called base sequence
+  mut base_positions : Array[Int] // PLOC tag: peak positions
+  mut qualities : Array[Int] // PCON tag: Phred quality values
+  traces : Array[Array[Int]] // DATA 1-4: raw trace arrays (4 channels)
+  mut trace_names : Array[String] // channel names corresponding to traces
+  mut run_date : AbiDate // RUND tag: run start date
+  mut run_time : AbiTime // RUNT tag: run start time
+  mut num_bases : Int // number of called bases
+  mut num_points : Int // number of trace data points per channel
+  mut directory : Array[AbiDirEntry] // parsed directory entries
 }
 
 ///|

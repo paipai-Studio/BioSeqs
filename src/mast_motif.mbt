@@ -20,13 +20,13 @@
 ///|
 /// A single motif match at a specific position in a sequence.
 pub struct MastMotifMatch {
-  pub motif_id : String // motif identifier
-  pub position : Int // start position (1-based)
-  pub length : Int // motif length
-  pub pvalue : Double // p-value of the match
-  pub score : Double // match score
-  pub strand : String // strand ("+" or "-")
-  pub sequence : String // matched sequence substring
+  motif_id : String // motif identifier
+  position : Int // start position (1-based)
+  length : Int // motif length
+  pvalue : Double // p-value of the match
+  score : Double // match score
+  strand : String // strand ("+" or "-")
+  sequence : String // matched sequence substring
 }
 
 ///|
@@ -50,13 +50,13 @@ pub fn MastMotifMatch::new(
 ///|
 /// A sequence with its motif match results from MAST.
 pub struct MastMotifSeq {
-  pub name : String // sequence name
-  pub mut description : String // sequence description
-  pub mut length : Int // sequence length
-  pub mut combined_pvalue : Double // combined p-value
-  pub mut combined_evalue : Double // combined E-value
-  pub matches : Array[MastMotifMatch] // individual motif matches
-  pub diagram : String // motif diagram string
+  name : String // sequence name
+  mut description : String // sequence description
+  mut length : Int // sequence length
+  mut combined_pvalue : Double // combined p-value
+  mut combined_evalue : Double // combined E-value
+  matches : Array[MastMotifMatch] // individual motif matches
+  diagram : String // motif diagram string
 }
 
 ///|
@@ -106,10 +106,10 @@ pub fn MastMotifSeq::best_match(self : MastMotifSeq) -> MastMotifMatch? {
 ///|
 /// A motif used in the MAST search.
 pub struct MastMotifInfo {
-  pub id : String // motif identifier
-  pub name : String // motif name
-  pub width : Int // motif width
-  pub alphabet : String // alphabet used
+  id : String // motif identifier
+  name : String // motif name
+  width : Int // motif width
+  alphabet : String // alphabet used
 }
 
 ///|
@@ -121,13 +121,13 @@ pub fn MastMotifInfo::new(id : String, width : Int) -> MastMotifInfo {
 ///|
 /// A MAST record holding all search results.
 pub struct MastMotifRecord {
-  pub mut version : String // MAST version
-  pub mut database : String // database name
-  pub motifs : Array[MastMotifInfo] // motifs used in search
-  pub sequences : Array[MastMotifSeq] // sequences with matches
-  pub mut motif_count : Int // number of motifs
-  pub mut sequence_count : Int // number of sequences searched
-  pub mut hit_count : Int // number of sequences with hits
+  mut version : String // MAST version
+  mut database : String // database name
+  motifs : Array[MastMotifInfo] // motifs used in search
+  sequences : Array[MastMotifSeq] // sequences with matches
+  mut motif_count : Int // number of motifs
+  mut sequence_count : Int // number of sequences searched
+  mut hit_count : Int // number of sequences with hits
 }
 
 ///|

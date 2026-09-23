@@ -68,9 +68,9 @@ pub fn DnaShapeFeature::kmer_size(self : DnaShapeFeature) -> Int {
 ///|
 /// Result of predicting a single shape feature for a sequence.
 pub struct DnaShapeResult {
-  pub feature : DnaShapeFeature
-  pub values : Array[Double] // per-position values (NaN at boundaries)
-  pub positions : Array[Int] // 1-based positions where values are defined
+  feature : DnaShapeFeature
+  values : Array[Double] // per-position values (NaN at boundaries)
+  positions : Array[Int] // 1-based positions where values are defined
 }
 
 ///|
@@ -154,11 +154,11 @@ pub fn DnaShapeResult::max(self : DnaShapeResult) -> Double {
 ///|
 /// Complete shape prediction for a sequence (all features).
 pub struct DnaShapePrediction {
-  pub sequence : String
-  pub mgw : DnaShapeResult
-  pub roll : DnaShapeResult
-  pub prot : DnaShapeResult
-  pub helt : DnaShapeResult
+  sequence : String
+  mgw : DnaShapeResult
+  roll : DnaShapeResult
+  prot : DnaShapeResult
+  helt : DnaShapeResult
 }
 
 // ===========================================================================

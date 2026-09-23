@@ -63,11 +63,11 @@ pub fn wang_measure() -> SimMeasure {
 ///|
 /// A node in the GO DAG.
 pub struct GOTermNode {
-  pub go_id : String
-  pub term_name : String
-  pub ic : Double
-  pub parents : Array[String]
-  pub children : Array[String]
+  go_id : String
+  term_name : String
+  ic : Double
+  parents : Array[String]
+  children : Array[String]
 } derive(Debug)
 pub extend GOTermNode with @moonbitlang/core/debug.Debug::{to_repr}
 
@@ -115,7 +115,7 @@ pub fn GOTermNode::new(
 ///|
 /// Gene Ontology Directed Acyclic Graph.
 pub struct GOGraph {
-  pub root_id : String
+  root_id : String
   terms : Map[String, GOTermNode]
 } derive(Debug)
 pub extend GOGraph with @moonbitlang/core/debug.Debug::{to_repr}

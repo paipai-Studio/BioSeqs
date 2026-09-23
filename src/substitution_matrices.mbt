@@ -42,9 +42,9 @@ pub fn subs_nucleotide_alphabet() -> Array[String] {
 /// A 2D numeric array with row and column labels.
 /// Used internally by SubsMatrix for score storage.
 pub struct ArrayData {
-  pub rows : Array[String] // row labels
-  pub cols : Array[String] // column labels
-  pub data : Array[Array[Double]] // row x col values
+  rows : Array[String] // row labels
+  cols : Array[String] // column labels
+  data : Array[Array[Double]] // row x col values
 }
 
 ///|

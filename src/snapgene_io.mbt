@@ -106,14 +106,14 @@ pub fn SnapgenePrimer::new(
 ///|
 /// A parsed SnapGene .dna file.
 pub struct SnapgeneFile {
-  pub mut seq_type : SnapgeneSeqType
-  pub mut comments : String // raw comments text
-  pub mut export_version : String
-  pub mut sequence : String
+  mut seq_type : SnapgeneSeqType
+  mut comments : String // raw comments text
+  mut export_version : String
+  mut sequence : String
   features : Array[SnapgeneFeature]
   primers : Array[SnapgenePrimer]
-  pub mut notes : String // raw notes text
-  pub mut is_circular : Bool
+  mut notes : String // raw notes text
+  mut is_circular : Bool
   extra_packets : Array[(Int, Array[Int])] // (type, raw_bytes) for unknown types
 }
 

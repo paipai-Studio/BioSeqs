@@ -44,11 +44,11 @@ pub struct ImputeNAStats {
 
 ///|
 pub struct KNNImputeParam {
-  pub mut k : Int
-  pub by_row : Bool
-  pub eps : Double
-  pub max_value : Double?
-  pub min_value : Double?
+  mut k : Int
+  by_row : Bool
+  eps : Double
+  max_value : Double?
+  min_value : Double?
 }
 
 ///|

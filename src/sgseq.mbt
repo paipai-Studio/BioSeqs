@@ -55,11 +55,11 @@ pub fn sgseq_make_variant_type(name : String) -> SGSeqVariantType {
 ///|
 /// A splice junction from split-read alignments.
 pub struct SGSeqJunction {
-  pub chr : String
-  pub start : Int // donor (5') site (1-based, inclusive)
-  pub end : Int // acceptor (3') site (1-based, inclusive)
-  pub strand : String // "+", "-", or "*"
-  pub count : Int // number of supporting reads
+  chr : String
+  start : Int // donor (5') site (1-based, inclusive)
+  end : Int // acceptor (3') site (1-based, inclusive)
+  strand : String // "+", "-", or "*"
+  count : Int // number of supporting reads
 }
 
 ///|
@@ -101,12 +101,12 @@ pub fn SGSeqJunction::same_acceptor(
 ///|
 /// An exon inferred from junction coordinates.
 pub struct SGSeqExon {
-  pub chr : String
-  pub start : Int
-  pub end : Int
-  pub strand : String
-  pub count : Int
-  pub mut is_cassette : Bool // potentially skipped exon
+  chr : String
+  start : Int
+  end : Int
+  strand : String
+  count : Int
+  mut is_cassette : Bool // potentially skipped exon
 }
 
 ///|
@@ -135,12 +135,12 @@ pub fn SGSeqExon::contains(self : SGSeqExon, pos : Int) -> Bool {
 ///|
 /// A splice graph feature (exon or junction).
 pub struct SGSeqFeature {
-  pub type_ : String // "E" for exon, "J" for junction
-  pub chr : String
-  pub start : Int
-  pub end : Int
-  pub strand : String
-  pub count : Int
+  type_ : String // "E" for exon, "J" for junction
+  chr : String
+  start : Int
+  end : Int
+  strand : String
+  count : Int
 }
 
 ///|
@@ -159,15 +159,15 @@ pub fn SGSeqFeature::new(
 ///|
 /// A detected splice variant event.
 pub struct SGSeqVariant {
-  pub chr : String
-  pub start : Int
-  pub end : Int
-  pub strand : String
-  pub variant_type : SGSeqVariantType
-  pub mut inclusion_count : Int // reads supporting inclusion
-  pub mut exclusion_count : Int // reads supporting exclusion
-  pub mut psi : Double // Percent Spliced In (0..1)
-  pub mut details : String // event-specific coordinates
+  chr : String
+  start : Int
+  end : Int
+  strand : String
+  variant_type : SGSeqVariantType
+  mut inclusion_count : Int // reads supporting inclusion
+  mut exclusion_count : Int // reads supporting exclusion
+  mut psi : Double // Percent Spliced In (0..1)
+  mut details : String // event-specific coordinates
 }
 
 ///|

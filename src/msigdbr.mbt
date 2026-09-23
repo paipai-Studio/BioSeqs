@@ -118,9 +118,9 @@ pub fn msig_category_from_string(s : String) -> MsigCategory {
 /// A named MSigDB collection: one category, an optional subcategory (e.g.
 /// "CP:KEGG", "GO:BP") and the gene sets it contains.
 pub struct MsigCollection {
-  pub category : MsigCategory
-  pub subcategory : String
-  pub sets : Array[GmtGeneSet]
+  category : MsigCategory
+  subcategory : String
+  sets : Array[GmtGeneSet]
 }
 
 ///|

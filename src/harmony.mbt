@@ -6,9 +6,9 @@
 ///|
 /// Input data for Harmony batch correction.
 pub struct HarmonyData {
-  pub embeddings : Array[Array[Double]]
-  pub batch_labels : Array[String]
-  pub cell_ids : Array[String]
+  embeddings : Array[Array[Double]]
+  batch_labels : Array[String]
+  cell_ids : Array[String]
 }
 
 ///|
@@ -90,11 +90,11 @@ pub fn HarmonyParams::create(
 ///|
 /// Result of Harmony batch correction.
 pub struct HarmonyResult {
-  pub corrected : Array[Array[Double]]
-  pub membership : Array[Array[Double]]
-  pub centroids : Array[Array[Double]]
-  pub n_iterations : Int
-  pub converged : Bool
+  corrected : Array[Array[Double]]
+  membership : Array[Array[Double]]
+  centroids : Array[Array[Double]]
+  n_iterations : Int
+  converged : Bool
   var_explained : Array[Double]
 }
 

@@ -6,9 +6,9 @@
 ///|
 /// A single sample expression profile.
 pub struct SampleExpression {
-  pub sample_id : String
-  pub gene_names : Array[String]
-  pub expression : Array[Double]
+  sample_id : String
+  gene_names : Array[String]
+  expression : Array[Double]
 }
 
 ///|
@@ -46,9 +46,9 @@ pub fn SampleExpression::new(
 ///|
 /// A gene set specification with up-regulated and down-regulated genes.
 pub struct GeneSetSpec {
-  pub name : String
-  pub up_genes : Array[String]
-  pub down_genes : Array[String]
+  name : String
+  up_genes : Array[String]
+  down_genes : Array[String]
 }
 
 ///|
@@ -82,14 +82,14 @@ pub fn GeneSetSpec::new(
 ///|
 /// Result of singscore computation.
 pub struct SingscoreResult {
-  pub sample_id : String
-  pub score : Double
-  pub up_score : Double
-  pub down_score : Double
-  pub up_dispersion : Double
-  pub down_dispersion : Double
-  pub n_up_found : Int
-  pub n_down_found : Int
+  sample_id : String
+  score : Double
+  up_score : Double
+  down_score : Double
+  up_dispersion : Double
+  down_dispersion : Double
+  n_up_found : Int
+  n_down_found : Int
 }
 
 ///|

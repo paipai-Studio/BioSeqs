@@ -58,11 +58,11 @@ pub fn ft_turn() -> FragmentType {
 ///|
 /// A single residue within a fragment.
 pub struct FragmentResidue {
-  pub res_name : String
-  pub res_num : Int
-  pub atom_count : Int
-  pub is_c_alpha : Bool
-  pub is_sidechain : Bool
+  res_name : String
+  res_num : Int
+  atom_count : Int
+  is_c_alpha : Bool
+  is_sidechain : Bool
 } derive(Eq, Debug)
 pub extend FragmentResidue with Eq::{equal, not_equal}
 pub extend FragmentResidue with @moonbitlang/core/debug.Debug::{to_repr}
@@ -70,12 +70,12 @@ pub extend FragmentResidue with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 /// A protein structure fragment.
 pub struct Fragment {
-  pub id : String
-  pub start_residue : Int
-  pub end_residue : Int
-  pub chain_id : String
-  pub fragment_type : FragmentType
-  pub residues : Array[FragmentResidue]
+  id : String
+  start_residue : Int
+  end_residue : Int
+  chain_id : String
+  fragment_type : FragmentType
+  residues : Array[FragmentResidue]
 } derive(Eq, Debug)
 pub extend Fragment with Eq::{equal, not_equal}
 pub extend Fragment with @moonbitlang/core/debug.Debug::{to_repr}
@@ -83,10 +83,10 @@ pub extend Fragment with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 /// Result of fragment mapping operation.
 pub struct FragmentMapperResult {
-  pub fragments : Array[Fragment]
-  pub protein_sequence : String
-  pub sequence_length : Int
-  pub coverage : Map[Int, Double]
+  fragments : Array[Fragment]
+  protein_sequence : String
+  sequence_length : Int
+  coverage : Map[Int, Double]
 }
 
 // ---------------------------------------------------------------------------

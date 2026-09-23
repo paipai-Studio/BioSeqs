@@ -11,9 +11,9 @@
 ///|
 /// A single-channel (grayscale) image stored row-major with `data[y*width+x]`.
 pub struct EbiImage {
-  pub width : Int
-  pub height : Int
-  pub data : Array[Double]
+  width : Int
+  height : Int
+  data : Array[Double]
 }
 
 ///|
@@ -474,14 +474,14 @@ pub fn ebi_label(img : EbiImage, connectivity~ : Int = 8) -> (Array[Int], Int) {
 ///|
 /// Per-object morphology measurements.
 pub struct EbiObject {
-  pub label : Int
-  pub area : Int
-  pub cx : Double
-  pub cy : Double
-  pub min_x : Int
-  pub max_x : Int
-  pub min_y : Int
-  pub max_y : Int
+  label : Int
+  area : Int
+  cx : Double
+  cy : Double
+  min_x : Int
+  max_x : Int
+  min_y : Int
+  max_y : Int
 }
 
 ///|

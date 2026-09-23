@@ -75,21 +75,21 @@ pub extend UTrimFrom with Eq::{equal, not_equal}
 /// Fields mirror the slots of the Bioconductor S4 `universalmotif` class. The
 /// `motif` matrix is the single source of truth, disambiguated by `motif_type`.
 pub struct UniversalMotif {
-  pub name : String
-  pub altname : String
-  pub family : String
-  pub organism : String
-  pub motif : Array[Array[Double]]
-  pub alphabet : String
-  pub motif_type : UMotifType
-  pub icscore : Double
-  pub nsites : Double
-  pub pseudocount : Double
-  pub bkg : Array[Double]
-  pub consensus : String
-  pub strand : String
-  pub bkgsites : Double
-  pub extrainfo : String
+  name : String
+  altname : String
+  family : String
+  organism : String
+  motif : Array[Array[Double]]
+  alphabet : String
+  motif_type : UMotifType
+  icscore : Double
+  nsites : Double
+  pseudocount : Double
+  bkg : Array[Double]
+  consensus : String
+  strand : String
+  bkgsites : Double
+  extrainfo : String
 }
 
 ///|

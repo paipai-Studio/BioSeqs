@@ -98,10 +98,10 @@ pub fn GckFeature::new(
 ///|
 /// A parsed GCK file.
 pub struct GckFile {
-  pub mut version : Int
-  pub mut seq_type : GckSeqType
-  pub mut is_circular : Bool
-  pub mut sequence : String
+  mut version : Int
+  mut seq_type : GckSeqType
+  mut is_circular : Bool
+  mut sequence : String
   features : Array[GckFeature]
 }
 

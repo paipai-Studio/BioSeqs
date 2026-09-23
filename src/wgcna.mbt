@@ -1,28 +1,28 @@
 ///|
 pub struct WGCNAData {
-  pub expression_matrix : Array[Array[Double]]
-  pub gene_names : Array[String]
-  pub sample_names : Array[String]
-  pub adjacency_matrix : Array[Array[Double]]
-  pub tom_matrix : Array[Array[Double]]
-  pub modules : Map[String, Array[String]]
-  pub module_colors : Map[String, String]
+  expression_matrix : Array[Array[Double]]
+  gene_names : Array[String]
+  sample_names : Array[String]
+  adjacency_matrix : Array[Array[Double]]
+  tom_matrix : Array[Array[Double]]
+  modules : Map[String, Array[String]]
+  module_colors : Map[String, String]
 }
 
 ///|
 pub struct ModuleEigengene {
-  pub module_name : String
-  pub eigengene : Array[Double]
-  pub variance_explained : Double
+  module_name : String
+  eigengene : Array[Double]
+  variance_explained : Double
 }
 
 ///|
 pub struct GeneModuleInfo {
-  pub gene_name : String
-  pub module_name : String
-  pub module_color : String
-  pub kme : Double
-  pub connectivity : Double
+  gene_name : String
+  module_name : String
+  module_color : String
+  kme : Double
+  connectivity : Double
 }
 
 // ================================================================

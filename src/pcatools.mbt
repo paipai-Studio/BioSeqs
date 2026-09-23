@@ -329,17 +329,17 @@ fn compute_cumulative(x : Array[Double]) -> Array[Double] {
 
 ///|
 pub struct FullPCAResult {
-  pub scores : Array[Array[Double]]
-  pub loadings : Array[Array[Double]]
-  pub eigenvalues : Array[Double]
-  pub variance_explained : Array[Double]
-  pub cumulative_variance : Array[Double]
-  pub n_samples : Int
-  pub n_variables : Int
-  pub n_components : Int
-  pub center : Array[Double]
-  pub scale : Array[Double]
-  pub used_scaling : Bool
+  scores : Array[Array[Double]]
+  loadings : Array[Array[Double]]
+  eigenvalues : Array[Double]
+  variance_explained : Array[Double]
+  cumulative_variance : Array[Double]
+  n_samples : Int
+  n_variables : Int
+  n_components : Int
+  center : Array[Double]
+  scale : Array[Double]
+  used_scaling : Bool
 }
 
 ///|
@@ -486,11 +486,11 @@ pub fn scree_plot_ascii(
 
 ///|
 pub struct BiplotOptions {
-  pub pc_x : Int
-  pub pc_y : Int
-  pub width : Int
-  pub height : Int
-  pub max_loadings : Int
+  pc_x : Int
+  pc_y : Int
+  width : Int
+  height : Int
+  max_loadings : Int
 }
 
 ///|
@@ -672,10 +672,10 @@ pub fn pca_biplot_ascii(
 
 ///|
 pub struct PCAOutlierResult {
-  pub indices : Array[Int]
-  pub scores : Array[Double]
-  pub n_tested : Int
-  pub cutoff : Double
+  indices : Array[Int]
+  scores : Array[Double]
+  n_tested : Int
+  cutoff : Double
 }
 
 ///|
