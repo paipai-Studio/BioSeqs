@@ -16,6 +16,7 @@ pub struct CellosaurusCrossReference {
   database : String
   accession : String
 } derive(Eq)
+pub extend CellosaurusCrossReference with Eq::{equal, not_equal}
 
 ///|
 /// Create a Cellosaurus cross-reference.
@@ -50,6 +51,7 @@ pub struct CellosaurusRecord {
   category : String
   date : String
 } derive(Eq)
+pub extend CellosaurusRecord with Eq::{equal, not_equal}
 
 ///|
 /// Create a Cellosaurus record.

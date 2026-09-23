@@ -44,6 +44,7 @@ pub struct BamReference {
   name : String
   length : Int
 } derive(Eq)
+pub extend BamReference with Eq::{equal, not_equal}
 
 ///|
 /// BAM header structure.
@@ -65,6 +66,7 @@ pub enum BamCigarOp {
   Equal
   Diff
 } derive(Eq)
+pub extend BamCigarOp with Eq::{equal, not_equal}
 
 ///|
 /// CIGAR element: operation + length.
@@ -72,6 +74,7 @@ pub struct BamCigarElement {
   op : BamCigarOp
   length : Int
 } derive(Eq)
+pub extend BamCigarElement with Eq::{equal, not_equal}
 
 ///|
 /// A typed value of a BAM auxiliary tag.

@@ -24,6 +24,8 @@ pub struct ApeglmConfig {
   max_step : Double
   random_starts : Int
 } derive(Eq, Debug)
+pub extend ApeglmConfig with Eq::{equal, not_equal}
+pub extend ApeglmConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn ApeglmConfig::create(
@@ -123,6 +125,7 @@ pub struct ApeglmPriorControl {
   prior_no_shrink_scale : Double
   adaptive : Bool
 } derive(Debug)
+pub extend ApeglmPriorControl with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ApeglmGeneResult {
@@ -141,6 +144,7 @@ pub struct ApeglmGeneResult {
   converged : Bool
   iterations : Int
 } derive(Debug)
+pub extend ApeglmGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ApeglmResult {
@@ -153,6 +157,7 @@ pub struct ApeglmResult {
   interval_level : Double
   config : ApeglmConfig
 } derive(Debug)
+pub extend ApeglmResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ApeglmSummary {
@@ -164,6 +169,8 @@ pub struct ApeglmSummary {
   median_absolute_effect : Double
   coefficient_name : String
 } derive(Eq, Debug)
+pub extend ApeglmSummary with Eq::{equal, not_equal}
+pub extend ApeglmSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ApeglmSummarizedExperimentOutput {

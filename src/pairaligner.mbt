@@ -24,6 +24,8 @@ pub enum AlignmentMode {
   Global
   Local
 } derive(Eq, Debug)
+pub extend AlignmentMode with Eq::{equal, not_equal}
+pub extend AlignmentMode with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Create a Global alignment mode.
@@ -43,6 +45,8 @@ pub enum SubstitutionMatrixChoice {
   NoSubstMatrix
   Blosum62
 } derive(Eq, Debug)
+pub extend SubstitutionMatrixChoice with Eq::{equal, not_equal}
+pub extend SubstitutionMatrixChoice with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Create NoSubstMatrix choice (use match/mismatch scores).

@@ -31,6 +31,7 @@ pub struct SeqRecord {
   annotations : Map[String, String]
   features : Array[SeqFeature]
 } derive(Eq)
+pub extend SeqRecord with Eq::{equal, not_equal}
 
 ///|
 /// Construct a SeqRecord with the given sequence and metadata.

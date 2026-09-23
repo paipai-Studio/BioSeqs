@@ -14,6 +14,8 @@ pub enum LisaCurveKind {
   LisaStandardizedK
   LisaCenteredL
 } derive(Eq, Debug)
+pub extend LisaCurveKind with Eq::{equal, not_equal}
+pub extend LisaCurveKind with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn lisa_k_curve() -> LisaCurveKind {
@@ -30,6 +32,8 @@ pub enum LisaWindowKind {
   LisaRectangle
   LisaConvexHull
 } derive(Eq, Debug)
+pub extend LisaWindowKind with Eq::{equal, not_equal}
+pub extend LisaWindowKind with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn lisa_rectangle_window() -> LisaWindowKind {
@@ -54,6 +58,8 @@ pub struct LisaCell {
   x : Double
   y : Double
 } derive(Eq, Debug)
+pub extend LisaCell with Eq::{equal, not_equal}
+pub extend LisaCell with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn LisaCell::create(
@@ -95,6 +101,7 @@ pub struct LisaConfig {
   seed : Int
   region_prefix : String
 } derive(Debug)
+pub extend LisaConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn LisaConfig::create(
@@ -200,12 +207,14 @@ pub struct LisaImageWindow {
   area : Double
   max_radius : Double
 } derive(Debug)
+pub extend LisaImageWindow with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct LisaImageRadii {
   image_id : String
   radii : Array[Double]
 } derive(Debug)
+pub extend LisaImageRadii with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct LisaCurveSet {
@@ -220,6 +229,7 @@ pub struct LisaCurveSet {
   windows : Array[LisaImageWindow]
   curve_kind : LisaCurveKind
 } derive(Debug)
+pub extend LisaCurveSet with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn LisaCurveSet::n_cells(self : LisaCurveSet) -> Int {
@@ -295,6 +305,7 @@ pub struct LisaRegionEnrichment {
   expected : Double
   relative_frequency : Double
 } derive(Debug)
+pub extend LisaRegionEnrichment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct LisaRegionSummary {
@@ -303,6 +314,7 @@ pub struct LisaRegionSummary {
   dominant_cell_type : String
   maximum_enrichment : Double
 } derive(Debug)
+pub extend LisaRegionSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct LisaResult {
@@ -319,6 +331,7 @@ pub struct LisaResult {
   region_summaries : Array[LisaRegionSummary]
   config : LisaConfig
 } derive(Debug)
+pub extend LisaResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn LisaResult::n_cells(self : LisaResult) -> Int {

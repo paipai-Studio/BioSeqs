@@ -18,6 +18,8 @@ pub(all) enum ExonerateTextStrand {
   ExonerateTextReverse
   ExonerateTextProtein
 } derive(Eq, Debug)
+pub extend ExonerateTextStrand with Eq::{equal, not_equal}
+pub extend ExonerateTextStrand with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A normalized zero-based half-open coordinate range.
@@ -25,6 +27,8 @@ pub struct ExonerateTextRange {
   start : Int
   end : Int
 } derive(Eq, Debug)
+pub extend ExonerateTextRange with Eq::{equal, not_equal}
+pub extend ExonerateTextRange with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// File-level metadata from an Exonerate report.
@@ -33,6 +37,8 @@ pub struct ExonerateTextMetadata {
   command_line : String
   hostname : String
 } derive(Eq, Debug)
+pub extend ExonerateTextMetadata with Eq::{equal, not_equal}
+pub extend ExonerateTextMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One uninterrupted aligned fragment.
@@ -58,6 +64,8 @@ pub struct ExonerateTextFragment {
   query_step : Int
   hit_step : Int
 } derive(Eq, Debug)
+pub extend ExonerateTextFragment with Eq::{equal, not_equal}
+pub extend ExonerateTextFragment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One Exonerate high-scoring pair, potentially split into many fragments.
@@ -74,6 +82,8 @@ pub struct ExonerateTextHsp {
   query_split_codons : Array[ExonerateTextRange]
   hit_split_codons : Array[ExonerateTextRange]
 } derive(Eq, Debug)
+pub extend ExonerateTextHsp with Eq::{equal, not_equal}
+pub extend ExonerateTextHsp with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One target and all HSPs associated with it.
@@ -82,6 +92,8 @@ pub struct ExonerateTextHit {
   description : String
   hsps : Array[ExonerateTextHsp]
 } derive(Eq, Debug)
+pub extend ExonerateTextHit with Eq::{equal, not_equal}
+pub extend ExonerateTextHit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One query result and all target hits associated with it.
@@ -91,6 +103,8 @@ pub struct ExonerateTextQueryResult {
   model : String
   hits : Array[ExonerateTextHit]
 } derive(Eq, Debug)
+pub extend ExonerateTextQueryResult with Eq::{equal, not_equal}
+pub extend ExonerateTextQueryResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A complete Exonerate human-readable report.
@@ -98,6 +112,8 @@ pub struct ExonerateTextDocument {
   metadata : ExonerateTextMetadata
   queries : Array[ExonerateTextQueryResult]
 } derive(Eq, Debug)
+pub extend ExonerateTextDocument with Eq::{equal, not_equal}
+pub extend ExonerateTextDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Aggregate statistics for one HSP.
@@ -113,6 +129,8 @@ pub struct ExonerateTextCounts {
   introns_or_ner_gaps : Int
   frameshift_gaps : Int
 } derive(Eq, Debug)
+pub extend ExonerateTextCounts with Eq::{equal, not_equal}
+pub extend ExonerateTextCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct a normalized coordinate range.

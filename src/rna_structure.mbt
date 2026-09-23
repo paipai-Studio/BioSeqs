@@ -30,6 +30,7 @@ pub struct LoopRegion {
   end : Int
   loop_type : String
 } derive(Eq)
+pub extend LoopRegion with Eq::{equal, not_equal}
 
 ///|
 /// Configurable parameters for RNA structure prediction.

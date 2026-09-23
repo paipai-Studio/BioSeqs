@@ -320,6 +320,7 @@ pub struct VoyagerWeights {
   neighbors : Array[Array[Int]]
   weights : Array[Array[Double]]
 } derive(Debug)
+pub extend VoyagerWeights with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn VoyagerWeights::new(
@@ -666,6 +667,7 @@ pub struct VoyagerGlobalMoranI {
   s1 : Double
   s2 : Double
 } derive(Debug)
+pub extend VoyagerGlobalMoranI with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Internal Moran's I numerator and denominator for a given (permuted) vector.
@@ -781,6 +783,7 @@ pub struct VoyagerGlobalGearyC {
   s1 : Double
   s2 : Double
 } derive(Debug)
+pub extend VoyagerGlobalGearyC with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Global Geary's c with the Cliff–Ord randomization expectation and variance.
@@ -925,6 +928,7 @@ pub struct VoyagerLocalMoranI {
   permutations : Int
   style : String
 } derive(Debug)
+pub extend VoyagerLocalMoranI with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Quadrant classification from the Moran scatter plot. The spatial lag is the
@@ -1143,6 +1147,7 @@ pub struct VoyagerLocalGearyC {
   n : Int
   permutations : Int
 } derive(Debug)
+pub extend VoyagerLocalGearyC with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn voy_local_gearys_point(
@@ -1281,6 +1286,7 @@ pub struct VoyagerLocalGetisOrd {
   star : Bool
   n : Int
 } derive(Debug)
+pub extend VoyagerLocalGetisOrd with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Local Getis–Ord Gi (excludes self) or Gi* (includes self with w_ii = 1).
@@ -1406,6 +1412,7 @@ pub struct VoyagerLeesL {
   n : Int
   s0 : Double
 } derive(Debug)
+pub extend VoyagerLeesL with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Lee's L (Lee 2001) bivariate spatial association. Returns the global L
@@ -1566,6 +1573,7 @@ pub struct VoyagerMultivariateLocalGeary {
   n_features : Int
   permutations : Int
 } derive(Debug)
+pub extend VoyagerMultivariateLocalGeary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn voy_multivariate_local_geary_point(
@@ -1728,6 +1736,7 @@ pub struct VoyagerVariogramPoint {
   gamma : Double
   npairs : Int
 } derive(Debug)
+pub extend VoyagerVariogramPoint with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct VoyagerVariogramModel {
@@ -1738,6 +1747,7 @@ pub struct VoyagerVariogramModel {
   fitted_sse : Double
   n_points : Int
 } derive(Debug)
+pub extend VoyagerVariogramModel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Empirical (sample) variogram. Pairs of spots are binned into `n_lags`
@@ -2044,6 +2054,7 @@ pub struct VoyagerCorrelogramPoint {
   expectation : Double
   npairs : Int
 } derive(Debug)
+pub extend VoyagerCorrelogramPoint with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Moran correlogram. Builds binary distance-band weights at each of `n_lags`

@@ -17,6 +17,7 @@ pub struct UniGeneExtraField {
   key : String
   value : String
 } derive(Eq)
+pub extend UniGeneExtraField with Eq::{equal, not_equal}
 
 ///|
 pub fn UniGeneExtraField::new(
@@ -42,6 +43,7 @@ pub struct UniGeneSequence {
   image_id : String
   extra_fields : Array[UniGeneExtraField]
 } derive(Eq)
+pub extend UniGeneSequence with Eq::{equal, not_equal}
 
 ///|
 pub fn UniGeneSequence::new(
@@ -119,6 +121,7 @@ pub struct UniGeneProteinSimilarity {
   alignment_length : String
   extra_fields : Array[UniGeneExtraField]
 } derive(Eq)
+pub extend UniGeneProteinSimilarity with Eq::{equal, not_equal}
 
 ///|
 pub fn UniGeneProteinSimilarity::new(
@@ -178,6 +181,7 @@ pub struct UniGeneSTS {
   unists : String
   extra_fields : Array[UniGeneExtraField]
 } derive(Eq)
+pub extend UniGeneSTS with Eq::{equal, not_equal}
 
 ///|
 pub fn UniGeneSTS::new(
@@ -215,6 +219,7 @@ pub struct UniGeneTranscriptMap {
   radiation_hybrid_panel : String
   extra_fields : Array[UniGeneExtraField]
 } derive(Eq)
+pub extend UniGeneTranscriptMap with Eq::{equal, not_equal}
 
 ///|
 pub fn UniGeneTranscriptMap::new(
@@ -269,6 +274,7 @@ pub struct UniGeneRecord {
   transcript_maps : Array[UniGeneTranscriptMap]
   declared_sequence_count : Int
 } derive(Eq)
+pub extend UniGeneRecord with Eq::{equal, not_equal}
 
 ///|
 pub fn UniGeneRecord::new(

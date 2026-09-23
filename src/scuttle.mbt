@@ -19,6 +19,8 @@ pub enum ScuttleOutlierDirection {
   ScuttleLower
   ScuttleHigher
 } derive(Eq, Debug)
+pub extend ScuttleOutlierDirection with Eq::{equal, not_equal}
+pub extend ScuttleOutlierDirection with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub enum ScuttleBatchSummary {
@@ -26,6 +28,8 @@ pub enum ScuttleBatchSummary {
   ScuttleBatchMean
   ScuttleBatchGeometricMean
 } derive(Eq, Debug)
+pub extend ScuttleBatchSummary with Eq::{equal, not_equal}
+pub extend ScuttleBatchSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ScuttleOutlierConfig {

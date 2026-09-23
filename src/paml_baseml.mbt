@@ -15,6 +15,8 @@ pub struct BasemlOption {
   name : String
   value : String
 } derive(Eq, Debug)
+pub extend BasemlOption with Eq::{equal, not_equal}
+pub extend BasemlOption with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A BASEML control file.
@@ -24,6 +26,8 @@ pub struct BasemlControl {
   tree_file : String
   options : Array[BasemlOption]
 } derive(Eq, Debug)
+pub extend BasemlControl with Eq::{equal, not_equal}
+pub extend BasemlControl with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Nucleotide frequencies in PAML's T, C, A, G order.
@@ -33,6 +37,8 @@ pub struct BasemlBaseFrequencies {
   adenine : Double
   guanine : Double
 } derive(Eq, Debug)
+pub extend BasemlBaseFrequencies with Eq::{equal, not_equal}
+pub extend BasemlBaseFrequencies with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A nucleotide rate matrix and its reported average transition/transversion
@@ -41,6 +47,8 @@ pub struct BasemlQMatrix {
   average_ts_tv : Double?
   rows : Array[Array[Double]]
 } derive(Eq, Debug)
+pub extend BasemlQMatrix with Eq::{equal, not_equal}
+pub extend BasemlQMatrix with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Branch-specific quantities emitted by a non-homogeneous kappa model.
@@ -51,6 +59,8 @@ pub struct BasemlBranchParameter {
   transitions : Double
   transversions : Double
 } derive(Eq, Debug)
+pub extend BasemlBranchParameter with Eq::{equal, not_equal}
+pub extend BasemlBranchParameter with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Frequency parameters and optional realized frequencies for one node.
@@ -60,6 +70,8 @@ pub struct BasemlNodeFrequencies {
   frequency_parameters : Array[Double]
   base_frequencies : BasemlBaseFrequencies?
 } derive(Eq, Debug)
+pub extend BasemlNodeFrequencies with Eq::{equal, not_equal}
+pub extend BasemlNodeFrequencies with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Parsed BASEML maximum-likelihood result.
@@ -85,6 +97,8 @@ pub struct BasemlResults {
   base_frequencies : BasemlBaseFrequencies?
   nodes : Array[BasemlNodeFrequencies]
 } derive(Eq, Debug)
+pub extend BasemlResults with Eq::{equal, not_equal}
+pub extend BasemlResults with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Likelihood-ratio comparison between nested BASEML models.
@@ -95,6 +109,8 @@ pub struct BasemlLikelihoodRatio {
   alpha : Double
   significant : Bool
 } derive(Eq, Debug)
+pub extend BasemlLikelihoodRatio with Eq::{equal, not_equal}
+pub extend BasemlLikelihoodRatio with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn baseml_fail(message : String) -> Unit raise BasemlError {

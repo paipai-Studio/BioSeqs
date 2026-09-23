@@ -32,6 +32,8 @@ pub enum SSType {
   Bend // S
   Coil // -
 } derive(Eq, Show, Debug)
+pub extend SSType with Eq::{equal, not_equal}
+pub extend SSType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct AlphaHelix SSType.
@@ -544,6 +546,8 @@ pub enum RamachandranRegion {
   Allowed // Allowed region
   Generous // Generous/outlier region
 } derive(Eq, Show, Debug)
+pub extend RamachandranRegion with Eq::{equal, not_equal}
+pub extend RamachandranRegion with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct Favored RamachandranRegion.

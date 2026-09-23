@@ -135,6 +135,7 @@ pub enum GateType {
   QuadrantGate
   BooleanGate
 } derive(Eq)
+pub extend GateType with Eq::{equal, not_equal}
 
 ///|
 /// Transformation type enumeration.
@@ -144,6 +145,7 @@ pub enum TransformType {
   LogicleTransform
   LinearTransform
 } derive(Eq)
+pub extend TransformType with Eq::{equal, not_equal}
 
 ///|
 /// String representation of GateType.

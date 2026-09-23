@@ -27,6 +27,8 @@ pub enum MSLevel {
   MS2
   MSn(Int)
 } derive(Eq, Debug)
+pub extend MSLevel with Eq::{equal, not_equal}
+pub extend MSLevel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Create MS1 level.
@@ -53,6 +55,8 @@ pub enum Polarity {
   Negative
   Unknown
 } derive(Eq, Debug)
+pub extend Polarity with Eq::{equal, not_equal}
+pub extend Polarity with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Create positive polarity.

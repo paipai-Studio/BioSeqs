@@ -20,6 +20,7 @@ pub struct SeqIndexEntry {
   offset : Int
   length : Int
 } derive(Debug)
+pub extend SeqIndexEntry with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SeqIndexEntry::new(
@@ -37,6 +38,7 @@ pub struct SeqIndex {
   entries : Array[SeqIndexEntry]
   positions : Map[String, Int]
 } derive(Debug)
+pub extend SeqIndex with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Number of indexed records.

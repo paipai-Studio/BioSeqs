@@ -19,6 +19,8 @@ pub(all) enum BanksySpatialMode {
   BanksyKnnUniform
   BanksyRadiusGaussian
 } derive(Eq, Debug)
+pub extend BanksySpatialMode with Eq::{equal, not_equal}
+pub extend BanksySpatialMode with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn banksy_knn_median() -> BanksySpatialMode {
@@ -64,6 +66,7 @@ pub struct BanksyComputeConfig {
   seed : Int
   center_harmonics : Bool
 } derive(Debug)
+pub extend BanksyComputeConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn BanksyComputeConfig::create(
@@ -149,6 +152,8 @@ pub struct BanksyNeighbor {
   weight : Double
   angle : Double
 } derive(Eq, Debug)
+pub extend BanksyNeighbor with Eq::{equal, not_equal}
+pub extend BanksyNeighbor with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BanksyModel {
@@ -160,6 +165,7 @@ pub struct BanksyModel {
   neighbors : Array[Array[Array[BanksyNeighbor]]]
   config : BanksyComputeConfig
 } derive(Debug)
+pub extend BanksyModel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BanksyMatrix {
@@ -170,6 +176,7 @@ pub struct BanksyMatrix {
   max_harmonic : Int
   scaled : Bool
 } derive(Debug)
+pub extend BanksyMatrix with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BanksyPcaResult {
@@ -179,6 +186,7 @@ pub struct BanksyPcaResult {
   variance_explained : Array[Double]
   n_components : Int
 } derive(Debug)
+pub extend BanksyPcaResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BanksyClusterConfig {
@@ -188,6 +196,8 @@ pub struct BanksyClusterConfig {
   tolerance : Double
   seed : Int
 } derive(Eq, Debug)
+pub extend BanksyClusterConfig with Eq::{equal, not_equal}
+pub extend BanksyClusterConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn BanksyClusterConfig::create(
@@ -242,6 +252,7 @@ pub struct BanksyClusterResult {
   converged : Bool
   silhouette : Double
 } derive(Debug)
+pub extend BanksyClusterResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BanksySmoothingResult {
@@ -250,6 +261,8 @@ pub struct BanksySmoothingResult {
   changed_labels : Int
   converged : Bool
 } derive(Eq, Debug)
+pub extend BanksySmoothingResult with Eq::{equal, not_equal}
+pub extend BanksySmoothingResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BanksyRun {
@@ -260,6 +273,7 @@ pub struct BanksyRun {
   smoothing : BanksySmoothingResult?
   spatial_agreement : Double
 } derive(Debug)
+pub extend BanksyRun with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BanksySpatialExperimentOutput {

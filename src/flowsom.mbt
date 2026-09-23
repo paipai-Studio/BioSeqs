@@ -14,6 +14,8 @@ pub enum FlowSomDistance {
   FlowSomChebyshev
   FlowSomCosine
 } derive(Eq, Debug)
+pub extend FlowSomDistance with Eq::{equal, not_equal}
+pub extend FlowSomDistance with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub enum FlowSomInitialization {
@@ -21,6 +23,8 @@ pub enum FlowSomInitialization {
   FlowSomKwsp
   FlowSomPca
 } derive(Eq, Debug)
+pub extend FlowSomInitialization with Eq::{equal, not_equal}
+pub extend FlowSomInitialization with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn flowsom_manhattan_distance() -> FlowSomDistance {
@@ -75,6 +79,7 @@ pub struct FlowSomConfig {
   outlier_mad : Double
   seed : Int
 } derive(Debug)
+pub extend FlowSomConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn FlowSomConfig::create(
@@ -158,12 +163,15 @@ pub struct FlowSomMstEdge {
   to : Int
   weight : Double
 } derive(Eq, Debug)
+pub extend FlowSomMstEdge with Eq::{equal, not_equal}
+pub extend FlowSomMstEdge with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct FlowSomMapping {
   clusters : Array[Int]
   distances : Array[Double]
 } derive(Debug)
+pub extend FlowSomMapping with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct FlowSomOutlierReport {
@@ -174,6 +182,7 @@ pub struct FlowSomOutlierReport {
   maximum_distances : Array[Double?]
   per_cell : Array[Bool]
 } derive(Debug)
+pub extend FlowSomOutlierReport with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct FlowSomModel {
@@ -198,6 +207,7 @@ pub struct FlowSomModel {
   iterations : Int
   config : FlowSomConfig
 } derive(Debug)
+pub extend FlowSomModel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct FlowSomMappedData {
@@ -205,6 +215,7 @@ pub struct FlowSomMappedData {
   meta_clusters : Array[Int]
   outliers : Array[Bool]
 } derive(Debug)
+pub extend FlowSomMappedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct FlowSomPurity {
@@ -212,6 +223,7 @@ pub struct FlowSomPurity {
   worst : Double
   below_075 : Int
 } derive(Debug)
+pub extend FlowSomPurity with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct FlowSomSceOutput {

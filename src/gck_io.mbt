@@ -40,6 +40,7 @@ pub enum GckSeqType {
   GckProtein
   GckUnknown
 } derive(Eq)
+pub extend GckSeqType with Eq::{equal, not_equal}
 
 ///|
 /// Convert a GCK sequence type to its integer code.

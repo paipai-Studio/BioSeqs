@@ -9,6 +9,7 @@ pub enum CodonSubstitution {
   NonSynonymous // dN - amino acid change
   Unknown // ambiguous or stop codon
 } derive(Eq, Show)
+pub extend CodonSubstitution with Eq::{equal, not_equal}
 
 ///|
 /// Construct Synonymous CodonSubstitution.

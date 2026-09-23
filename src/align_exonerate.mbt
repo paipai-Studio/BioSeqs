@@ -17,6 +17,8 @@ pub(all) enum AlignExonerateStrand {
   AlignExonerateReverse
   AlignExonerateProtein
 } derive(Eq, Debug)
+pub extend AlignExonerateStrand with Eq::{equal, not_equal}
+pub extend AlignExonerateStrand with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// File-level Exonerate metadata.
@@ -25,6 +27,8 @@ pub struct AlignExonerateMetadata {
   command_line : String
   hostname : String
 } derive(Eq, Debug)
+pub extend AlignExonerateMetadata with Eq::{equal, not_equal}
+pub extend AlignExonerateMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One normalized Exonerate path operation.
@@ -38,6 +42,8 @@ pub struct AlignExonerateOperation {
   query_step : Int
   target_step : Int
 } derive(Eq, Debug)
+pub extend AlignExonerateOperation with Eq::{equal, not_equal}
+pub extend AlignExonerateOperation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One pairwise alignment from an Exonerate report.
@@ -53,6 +59,8 @@ pub struct AlignExonerateAlignment {
   score : Double
   operations : Array[AlignExonerateOperation]
 } derive(Eq, Debug)
+pub extend AlignExonerateAlignment with Eq::{equal, not_equal}
+pub extend AlignExonerateAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A complete Exonerate report.
@@ -60,6 +68,8 @@ pub struct AlignExonerateDocument {
   metadata : AlignExonerateMetadata
   alignments : Array[AlignExonerateAlignment]
 } derive(Eq, Debug)
+pub extend AlignExonerateDocument with Eq::{equal, not_equal}
+pub extend AlignExonerateDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Operation and coordinate statistics for one Exonerate alignment.
@@ -78,6 +88,8 @@ pub struct AlignExonerateCounts {
   split_codons : Int
   frameshifts : Int
 } derive(Eq, Debug)
+pub extend AlignExonerateCounts with Eq::{equal, not_equal}
+pub extend AlignExonerateCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct Exonerate file metadata.

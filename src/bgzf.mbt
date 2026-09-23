@@ -953,6 +953,7 @@ pub struct BgzfBlockInfo {
   data_offset : Int
   data_length : Int
 } derive(Debug)
+pub extend BgzfBlockInfo with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Scan a BGZF stream and describe every block without decompressing.

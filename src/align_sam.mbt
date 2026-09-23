@@ -17,6 +17,8 @@ pub(all) enum AlignSamOperation {
   SamEqual
   SamMismatch
 } derive(Eq, Debug)
+pub extend AlignSamOperation with Eq::{equal, not_equal}
+pub extend AlignSamOperation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub(all) enum AlignSamTagValue {
@@ -28,12 +30,15 @@ pub(all) enum AlignSamTagValue {
   SamTagIntegerArray(String, Array[Int])
   SamTagFloatArray(Array[Double])
 } derive(Debug)
+pub extend AlignSamTagValue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignSamHeaderField {
   key : String
   value : String
 } derive(Eq, Debug)
+pub extend AlignSamHeaderField with Eq::{equal, not_equal}
+pub extend AlignSamHeaderField with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignSamHeader {
@@ -41,6 +46,7 @@ pub struct AlignSamHeader {
   fields : Array[AlignSamHeaderField]
   comment : String
 } derive(Debug)
+pub extend AlignSamHeader with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignSamReference {
@@ -48,18 +54,22 @@ pub struct AlignSamReference {
   length : Int
   annotations : Array[AlignSamHeaderField]
 } derive(Debug)
+pub extend AlignSamReference with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignSamCigarElement {
   operation : String
   length : Int
 } derive(Eq, Debug)
+pub extend AlignSamCigarElement with Eq::{equal, not_equal}
+pub extend AlignSamCigarElement with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignSamTag {
   name : String
   value : AlignSamTagValue
 } derive(Debug)
+pub extend AlignSamTag with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignSamStats {
@@ -72,6 +82,8 @@ pub struct AlignSamStats {
   soft_clipped : Int
   hard_clipped : Int
 } derive(Eq, Debug)
+pub extend AlignSamStats with Eq::{equal, not_equal}
+pub extend AlignSamStats with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignSamAlignment {

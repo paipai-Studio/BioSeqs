@@ -15,6 +15,7 @@ pub struct SequenceAnnotation {
   symbol : String
   uri : String
 } derive(Eq)
+pub extend SequenceAnnotation with Eq::{equal, not_equal}
 
 ///|
 /// Taxonomic information associated with a PhyloXML node.
@@ -25,6 +26,7 @@ pub struct TaxonInfo {
   authority : String
   taxon_rank : String
 } derive(Eq)
+pub extend TaxonInfo with Eq::{equal, not_equal}
 
 ///|
 /// Taxon namespace definition for PhyloXML.
@@ -32,6 +34,7 @@ pub struct TaxonNamespace {
   namespace_id : String
   name : String
 } derive(Eq)
+pub extend TaxonNamespace with Eq::{equal, not_equal}
 
 ///|
 /// A node (clade) in a PhyloXML tree.
@@ -45,6 +48,7 @@ pub struct PhyloXMLNode {
   sequence_annotation : SequenceAnnotation?
   taxon : TaxonInfo?
 } derive(Eq)
+pub extend PhyloXMLNode with Eq::{equal, not_equal}
 
 ///|
 /// A phylogenetic tree in PhyloXML format.
@@ -56,6 +60,7 @@ pub struct PhyloXMLTree {
   phylogeny_metadata : Map[String, String]
   taxon_namespaces : Array[TaxonNamespace]
 } derive(Eq)
+pub extend PhyloXMLTree with Eq::{equal, not_equal}
 
 ///|
 /// Top-level result of PhyloXML parsing.
@@ -64,6 +69,7 @@ pub struct PhyloXMLResult {
   metadata : Map[String, String]
   taxon_namespaces : Array[TaxonNamespace]
 } derive(Eq)
+pub extend PhyloXMLResult with Eq::{equal, not_equal}
 
 // ============================================================================
 // Constructors

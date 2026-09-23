@@ -13,6 +13,7 @@ pub enum PeakFormat {
   BroadPeak
   MacsXls
 } derive(Eq)
+pub extend PeakFormat with Eq::{equal, not_equal}
 
 ///|
 /// Score type enumeration for peak scoring.
@@ -22,6 +23,7 @@ pub enum ScoreType {
   DBA_SCORE_RPKM
   DBA_SCORE_NORMALIZED
 } derive(Eq)
+pub extend ScoreType with Eq::{equal, not_equal}
 
 ///|
 /// Genomic peak region.

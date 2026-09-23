@@ -17,6 +17,7 @@ pub struct JasparMotif {
   pwm : Array[Array[Double]]
   alphabet : Array[String]
 } derive(Eq)
+pub extend JasparMotif with Eq::{equal, not_equal}
 
 ///|
 /// TRANSFAC motif record.
@@ -29,6 +30,7 @@ pub struct TransfacMotif {
   alphabet : Array[String]
   binding_sites : Array[String]
 } derive(Eq)
+pub extend TransfacMotif with Eq::{equal, not_equal}
 
 ///|
 /// Motif alignment result.
@@ -38,6 +40,7 @@ pub struct MotifAlignmentResult {
   strand : String
   aligned_length : Int
 } derive(Eq)
+pub extend MotifAlignmentResult with Eq::{equal, not_equal}
 
 ///|
 /// Clustered motif group.
@@ -47,6 +50,7 @@ pub struct MotifCluster {
   representative : String
   avg_similarity : Double
 } derive(Eq)
+pub extend MotifCluster with Eq::{equal, not_equal}
 
 ///|
 let dna_alphabet_jaspar : Array[String] = ["A", "C", "G", "T"]

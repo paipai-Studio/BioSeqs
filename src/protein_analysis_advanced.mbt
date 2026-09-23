@@ -127,6 +127,7 @@ pub struct ChouFasmanResult {
   sheets : Array[(Int, Int)]
   turns : Array[(Int, Int)]
 } derive(Debug)
+pub extend ChouFasmanResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn ChouFasmanResult::sequence(self : ChouFasmanResult) -> String {
@@ -459,6 +460,7 @@ pub struct IupredResult {
   scores : Array[Double]
   disordered_regions : Array[(Int, Int)]
 } derive(Debug)
+pub extend IupredResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn IupredResult::sequence(self : IupredResult) -> String {
@@ -612,6 +614,7 @@ pub struct CoilsResult {
   scores : Array[Double]
   coiled_coil_regions : Array[(Int, Int)]
 } derive(Debug)
+pub extend CoilsResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn CoilsResult::sequence(self : CoilsResult) -> String {
@@ -724,6 +727,7 @@ pub struct AntigenicityResult {
   scores : Array[Double]
   antigenic_sites : Array[(Int, Int)]
 } derive(Debug)
+pub extend AntigenicityResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn AntigenicityResult::sequence(self : AntigenicityResult) -> String {

@@ -20,6 +20,8 @@ pub struct AlignClustalMetadata {
   version : String
   header : String
 } derive(Eq, Debug)
+pub extend AlignClustalMetadata with Eq::{equal, not_equal}
+pub extend AlignClustalMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One coordinate-bearing row in a CLUSTAL alignment.
@@ -28,6 +30,8 @@ pub struct AlignClustalSequence {
   sequence : String
   aligned_sequence : String
 } derive(Eq, Debug)
+pub extend AlignClustalSequence with Eq::{equal, not_equal}
+pub extend AlignClustalSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A modern CLUSTAL multiple sequence alignment.
@@ -39,6 +43,8 @@ pub struct AlignClustalAlignment {
   sequences : Array[AlignClustalSequence]
   consensus : String?
 } derive(Eq, Debug)
+pub extend AlignClustalAlignment with Eq::{equal, not_equal}
+pub extend AlignClustalAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise or all-pairs alignment statistics.
@@ -51,6 +57,8 @@ pub struct AlignClustalCounts {
   double_gap_columns : Int
   gap_opens : Int
 } derive(Eq, Debug)
+pub extend AlignClustalCounts with Eq::{equal, not_equal}
+pub extend AlignClustalCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One parsed interleaved block.

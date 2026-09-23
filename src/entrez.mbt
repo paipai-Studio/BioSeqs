@@ -12,6 +12,7 @@ pub enum EntrezDB {
   SNP // Single nucleotide polymorphisms
   Taxonomy // Taxonomy data
 } derive(Eq, Show)
+pub extend EntrezDB with Eq::{equal, not_equal}
 
 ///|
 /// Construct Pubmed EntrezDB.

@@ -69,6 +69,8 @@ pub struct GenePosition {
   start : Int
   end : Int
 } derive(Debug, Default)
+pub extend GenePosition with @moonbitlang/core/debug.Debug::{to_repr}
+pub extend GenePosition with Default::{default}
 
 ///|
 /// Create a GenePosition.
@@ -87,6 +89,8 @@ pub struct OrderedGenes {
   gene_order : Array[GenePosition] // sorted by chr, then start position
   n_genes : Int
 } derive(Debug, Default)
+pub extend OrderedGenes with @moonbitlang/core/debug.Debug::{to_repr}
+pub extend OrderedGenes with Default::{default}
 
 ///|
 /// Build an OrderedGenes struct from an unordered list of GenePositions.
@@ -173,6 +177,8 @@ pub struct CellAnnotation {
   cell_id : String
   category : String // e.g. cell type / sample label
 } derive(Debug, Default)
+pub extend CellAnnotation with @moonbitlang/core/debug.Debug::{to_repr}
+pub extend CellAnnotation with Default::{default}
 
 ///|
 /// Create a cell annotation.
@@ -192,6 +198,8 @@ pub struct InferCNVInput {
   annotations : Array[CellAnnotation] // length n_cells
   ordered_genes : OrderedGenes
 } derive(Debug, Default)
+pub extend InferCNVInput with @moonbitlang/core/debug.Debug::{to_repr}
+pub extend InferCNVInput with Default::{default}
 
 // ============================================================================
 // Utility: raw count normalization (TP100K -> log)

@@ -17,6 +17,8 @@ pub(all) enum AlignPhylipLayout {
   PhylipSequential
   PhylipInterleaved
 } derive(Eq, Debug)
+pub extend AlignPhylipLayout with Eq::{equal, not_equal}
+pub extend AlignPhylipLayout with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One coordinate-bearing PHYLIP row.
@@ -25,6 +27,8 @@ pub struct AlignPhylipSequence {
   sequence : String
   aligned_sequence : String
 } derive(Eq, Debug)
+pub extend AlignPhylipSequence with Eq::{equal, not_equal}
+pub extend AlignPhylipSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A modern PHYLIP multiple sequence alignment.
@@ -36,6 +40,8 @@ pub struct AlignPhylipAlignment {
   sequences : Array[AlignPhylipSequence]
   source_layout : AlignPhylipLayout
 } derive(Eq, Debug)
+pub extend AlignPhylipAlignment with Eq::{equal, not_equal}
+pub extend AlignPhylipAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise or all-pairs alignment statistics.
@@ -48,6 +54,8 @@ pub struct AlignPhylipCounts {
   double_gap_columns : Int
   gap_opens : Int
 } derive(Eq, Debug)
+pub extend AlignPhylipCounts with Eq::{equal, not_equal}
+pub extend AlignPhylipCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct one validated PHYLIP row from its printed aligned sequence.

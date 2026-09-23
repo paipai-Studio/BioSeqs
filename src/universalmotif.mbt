@@ -25,6 +25,7 @@ pub(all) enum UMotifType {
   PWM
   ICM
 } derive(Eq)
+pub extend UMotifType with Eq::{equal, not_equal}
 
 ///|
 /// Comparison metrics supported by `compare_motifs`.
@@ -66,6 +67,7 @@ pub(all) enum UTrimFrom {
   ULeft
   URight
 } derive(Eq)
+pub extend UTrimFrom with Eq::{equal, not_equal}
 
 ///|
 /// The unified motif object.

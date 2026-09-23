@@ -15,6 +15,8 @@ pub enum AlignBedScore {
   AlignBedNumeric(Double)
   AlignBedText(String)
 } derive(Eq, Debug)
+pub extend AlignBedScore with Eq::{equal, not_equal}
+pub extend AlignBedScore with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One point in the target/query absolute coordinate path.
@@ -22,6 +24,8 @@ pub struct AlignBedCoordinate {
   target : Int
   query : Int
 } derive(Eq, Debug)
+pub extend AlignBedCoordinate with Eq::{equal, not_equal}
+pub extend AlignBedCoordinate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One aligned BED block in absolute target and query coordinates.
@@ -31,6 +35,8 @@ pub struct AlignBedBlock {
   query_start : Int
   query_end : Int
 } derive(Eq, Debug)
+pub extend AlignBedBlock with Eq::{equal, not_equal}
+pub extend AlignBedBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Coordinate-only alignment counts.
@@ -43,6 +49,8 @@ pub struct AlignBedCounts {
   blocks : Int
   columns : Int
 } derive(Eq, Debug)
+pub extend AlignBedCounts with Eq::{equal, not_equal}
+pub extend AlignBedCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One BED pairwise alignment.
@@ -60,6 +68,8 @@ pub struct AlignBedAlignment {
   item_rgb : String?
   source_columns : Int
 } derive(Eq, Debug)
+pub extend AlignBedAlignment with Eq::{equal, not_equal}
+pub extend AlignBedAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Summary across all records in a BED document.
@@ -72,12 +82,16 @@ pub struct AlignBedSummary {
   aligned_bases : Int
   target_skip_bases : Int
 } derive(Eq, Debug)
+pub extend AlignBedSummary with Eq::{equal, not_equal}
+pub extend AlignBedSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A standalone BED document containing zero or more pairwise alignments.
 pub struct AlignBedDocument {
   alignments : Array[AlignBedAlignment]
 } derive(Eq, Debug)
+pub extend AlignBedDocument with Eq::{equal, not_equal}
+pub extend AlignBedDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn align_bed_fail(message : String) -> Unit raise AlignBedError {

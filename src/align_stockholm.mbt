@@ -19,6 +19,8 @@ pub struct AlignStockholmAnnotation {
   feature : String
   value : String
 } derive(Eq, Debug)
+pub extend AlignStockholmAnnotation with Eq::{equal, not_equal}
+pub extend AlignStockholmAnnotation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A mapped GC annotation with one character per retained alignment column.
@@ -27,6 +29,8 @@ pub struct AlignStockholmColumnAnnotation {
   feature : String
   value : String
 } derive(Eq, Debug)
+pub extend AlignStockholmColumnAnnotation with Eq::{equal, not_equal}
+pub extend AlignStockholmColumnAnnotation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A mapped GR annotation.
@@ -39,6 +43,8 @@ pub struct AlignStockholmLetterAnnotation {
   value : String
   aligned_value : String
 } derive(Eq, Debug)
+pub extend AlignStockholmLetterAnnotation with Eq::{equal, not_equal}
+pub extend AlignStockholmLetterAnnotation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One structured Stockholm reference.
@@ -50,6 +56,8 @@ pub struct AlignStockholmReference {
   location : String
   comment : String
 } derive(Eq, Debug)
+pub extend AlignStockholmReference with Eq::{equal, not_equal}
+pub extend AlignStockholmReference with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One structured database reference.
@@ -57,6 +65,8 @@ pub struct AlignStockholmDatabaseReference {
   reference : String
   comment : String
 } derive(Eq, Debug)
+pub extend AlignStockholmDatabaseReference with Eq::{equal, not_equal}
+pub extend AlignStockholmDatabaseReference with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One nested-domain annotation.
@@ -64,6 +74,8 @@ pub struct AlignStockholmNestedDomain {
   accession : String
   location : String
 } derive(Eq, Debug)
+pub extend AlignStockholmNestedDomain with Eq::{equal, not_equal}
+pub extend AlignStockholmNestedDomain with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One sequence row and its GS/GR annotations.
@@ -76,6 +88,8 @@ pub struct AlignStockholmSequence {
   dbxrefs : Array[String]
   letter_annotations : Array[AlignStockholmLetterAnnotation]
 } derive(Eq, Debug)
+pub extend AlignStockholmSequence with Eq::{equal, not_equal}
+pub extend AlignStockholmSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A coordinate-aware Stockholm 1.0 alignment.
@@ -95,6 +109,8 @@ pub struct AlignStockholmAlignment {
   source_columns : Int
   removed_all_gap_columns : Int
 } derive(Eq, Debug)
+pub extend AlignStockholmAlignment with Eq::{equal, not_equal}
+pub extend AlignStockholmAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise or all-pairs Stockholm alignment statistics.
@@ -107,6 +123,8 @@ pub struct AlignStockholmCounts {
   double_gap_columns : Int
   gap_opens : Int
 } derive(Eq, Debug)
+pub extend AlignStockholmCounts with Eq::{equal, not_equal}
+pub extend AlignStockholmCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 priv struct AlignStockholmRawAnnotation {

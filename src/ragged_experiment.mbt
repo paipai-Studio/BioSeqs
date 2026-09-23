@@ -24,6 +24,8 @@ pub enum MutationType {
   Silent_Mutation
   Other
 } derive(Eq, Debug)
+pub extend MutationType with Eq::{equal, not_equal}
+pub extend MutationType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Create a missense mutation type.

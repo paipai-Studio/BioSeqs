@@ -26,6 +26,8 @@ pub struct AlignmentGapScores {
   open_right_deletion_score : Double
   extend_right_deletion_score : Double
 } derive(Eq, Debug)
+pub extend AlignmentGapScores with Eq::{equal, not_equal}
+pub extend AlignmentGapScores with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn alignment_counts_is_finite(value : Double) -> Bool {
@@ -287,6 +289,7 @@ pub struct AlignmentCounts {
   substitution_score : Double?
   score : Double?
 } derive(Debug)
+pub extend AlignmentCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn AlignmentCounts::left_insertions(self : AlignmentCounts) -> Int {

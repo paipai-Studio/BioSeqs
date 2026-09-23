@@ -65,6 +65,8 @@ pub struct PLSOptions {
   max_iter : Int
   tol : Double
 } derive(Eq, Debug)
+pub extend PLSOptions with Eq::{equal, not_equal}
+pub extend PLSOptions with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Options for sparse PLS computation.
@@ -76,6 +78,8 @@ pub struct SPLSOptions {
   max_iter : Int
   tol : Double
 } derive(Eq, Debug)
+pub extend SPLSOptions with Eq::{equal, not_equal}
+pub extend SPLSOptions with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Options for DIABLO multi-block integration.
@@ -87,6 +91,8 @@ pub struct DIABLOOptions {
   max_iter : Int
   tol : Double
 } derive(Eq, Debug)
+pub extend DIABLOOptions with Eq::{equal, not_equal}
+pub extend DIABLOOptions with @moonbitlang/core/debug.Debug::{to_repr}
 
 // ============================================================================
 // Helper Functions

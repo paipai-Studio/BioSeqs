@@ -13,6 +13,7 @@ pub struct VariancePartitionFixedEffect {
   column_names : Array[String]
   columns : Array[Array[Double]]
 } derive(Debug)
+pub extend VariancePartitionFixedEffect with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct VariancePartitionRandomEffect {
@@ -20,6 +21,7 @@ pub struct VariancePartitionRandomEffect {
   levels : Array[String]
   level_indices : Array[Int]
 } derive(Debug)
+pub extend VariancePartitionRandomEffect with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct VariancePartitionDesign {
@@ -32,6 +34,7 @@ pub struct VariancePartitionDesign {
   fixed_widths : Array[Int]
   intercept : Bool
 } derive(Debug)
+pub extend VariancePartitionDesign with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct VariancePartitionBLUP {
@@ -39,6 +42,7 @@ pub struct VariancePartitionBLUP {
   levels : Array[String]
   estimates : Array[Double]
 } derive(Debug)
+pub extend VariancePartitionBLUP with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct VariancePartitionFit {
@@ -61,6 +65,7 @@ pub struct VariancePartitionFit {
   iterations : Int
   reml : Bool
 } derive(Debug)
+pub extend VariancePartitionFit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct VariancePartitionResult {
@@ -70,12 +75,14 @@ pub struct VariancePartitionResult {
   median_fractions : Array[Double]
   fits : Array[VariancePartitionFit]
 } derive(Debug)
+pub extend VariancePartitionResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamContrast {
   name : String
   coefficients : Array[Double]
 } derive(Debug)
+pub extend DreamContrast with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamGeneResult {
@@ -90,6 +97,7 @@ pub struct DreamGeneResult {
   random_variances : Array[Double]
   residual_variance : Double
 } derive(Debug)
+pub extend DreamGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamResult {
@@ -97,6 +105,7 @@ pub struct DreamResult {
   coefficient_names : Array[String]
   genes : Array[DreamGeneResult]
 } derive(Debug)
+pub extend DreamResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 priv struct VariancePartitionEvaluation {

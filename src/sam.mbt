@@ -10,6 +10,7 @@ pub enum SamHeaderType {
   PG
   CO
 } derive(Eq)
+pub extend SamHeaderType with Eq::{equal, not_equal}
 
 ///|
 /// SAM header record.
@@ -31,6 +32,7 @@ pub enum CigarOp {
   Equal
   Diff
 } derive(Eq)
+pub extend CigarOp with Eq::{equal, not_equal}
 
 ///|
 /// CIGAR element: operation + length.
@@ -38,6 +40,7 @@ pub struct CigarElement {
   op : CigarOp
   length : Int
 } derive(Eq)
+pub extend CigarElement with Eq::{equal, not_equal}
 
 ///|
 /// SAM alignment record (11 mandatory fields + optional tags).

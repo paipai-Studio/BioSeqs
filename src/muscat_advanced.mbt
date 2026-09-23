@@ -19,6 +19,8 @@ pub enum MuscatAdvancedAggregation {
   ProportionDetected
   NumberDetected
 } derive(Eq, Debug)
+pub extend MuscatAdvancedAggregation with Eq::{equal, not_equal}
+pub extend MuscatAdvancedAggregation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn muscat_sum_counts() -> MuscatAdvancedAggregation {
@@ -60,6 +62,7 @@ pub struct MuscatAdvancedConfig {
   lfc_threshold : Double
   detection_filter : Double
 } derive(Debug)
+pub extend MuscatAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn MuscatAdvancedConfig::create(
@@ -168,6 +171,7 @@ pub struct MuscatAdvancedData {
   cluster_names : Array[String]
   group_names : Array[String]
 } derive(Debug)
+pub extend MuscatAdvancedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MuscatAdvancedPseudoBulk {
@@ -181,6 +185,7 @@ pub struct MuscatAdvancedPseudoBulk {
   aggregation : MuscatAdvancedAggregation
   scaled_cpm : Bool
 } derive(Debug)
+pub extend MuscatAdvancedPseudoBulk with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MuscatAdvancedDesign {
@@ -188,12 +193,14 @@ pub struct MuscatAdvancedDesign {
   sample_names : Array[String]
   coefficient_names : Array[String]
 } derive(Debug)
+pub extend MuscatAdvancedDesign with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MuscatAdvancedContrast {
   values : Array[Double]
   name : String
 } derive(Debug)
+pub extend MuscatAdvancedContrast with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MuscatAdvancedGeneResult {
@@ -214,6 +221,7 @@ pub struct MuscatAdvancedGeneResult {
   n_samples : Int
   converged : Bool
 } derive(Debug)
+pub extend MuscatAdvancedGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MuscatAdvancedResults {
@@ -224,6 +232,7 @@ pub struct MuscatAdvancedResults {
   mode : String
   fdr_threshold : Double
 } derive(Debug)
+pub extend MuscatAdvancedResults with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MuscatStagewiseGeneResult {
@@ -238,6 +247,7 @@ pub struct MuscatStagewiseGeneResult {
   mut dd_confirmation : Double
   mut classification : String
 } derive(Debug)
+pub extend MuscatStagewiseGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MuscatStagewiseResults {
@@ -247,6 +257,7 @@ pub struct MuscatStagewiseResults {
   contrast_names : Array[String]
   alpha : Double
 } derive(Debug)
+pub extend MuscatStagewiseResults with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MuscatAdvancedSCEOutput {

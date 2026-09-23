@@ -18,6 +18,8 @@ pub(all) enum A2mColumnState {
   A2mMatch
   A2mInsertion
 } derive(Eq, Debug)
+pub extend A2mColumnState with Eq::{equal, not_equal}
+pub extend A2mColumnState with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One normalized sequence row in an A2M alignment.
@@ -30,6 +32,8 @@ pub struct A2mSequence {
   sequence : String
   aligned_sequence : String
 } derive(Eq, Debug)
+pub extend A2mSequence with Eq::{equal, not_equal}
+pub extend A2mSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A state-aware A2M multiple sequence alignment.
@@ -40,6 +44,8 @@ pub struct A2mAlignment {
   sequences : Array[A2mSequence]
   states : String
 } derive(Eq, Debug)
+pub extend A2mAlignment with Eq::{equal, not_equal}
+pub extend A2mAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A contiguous run of insertion-state columns.
@@ -53,6 +59,8 @@ pub struct A2mInsertionRun {
   end_column : Int
   width : Int
 } derive(Eq, Debug)
+pub extend A2mInsertionRun with Eq::{equal, not_equal}
+pub extend A2mInsertionRun with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise statistics for two rows in an A2M alignment.
@@ -66,6 +74,8 @@ pub struct A2mPairCounts {
   match_aligned : Int
   insertion_aligned : Int
 } derive(Eq, Debug)
+pub extend A2mPairCounts with Eq::{equal, not_equal}
+pub extend A2mPairCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct a normalized A2M sequence row.

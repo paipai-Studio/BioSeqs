@@ -17,6 +17,7 @@ pub struct MethylgsaInput {
   cpg_pvalues : Array[Double]
   cpg_to_gene : Map[String, String]
 } derive(Eq)
+pub extend MethylgsaInput with Eq::{equal, not_equal}
 
 ///|
 pub fn MethylgsaInput::new(
@@ -36,6 +37,8 @@ pub struct MethylgsaResult {
   pvalue : Double
   qvalue : Double
 } derive(Eq, Show, Debug)
+pub extend MethylgsaResult with Eq::{equal, not_equal}
+pub extend MethylgsaResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn methylgsa_result_new(

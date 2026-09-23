@@ -33,6 +33,7 @@ pub enum WiseBlockType {
   WiseInsertion // insertion (gap in protein)
   WiseDeletion // deletion (gap in gene)
 } derive(Eq)
+pub extend WiseBlockType with Eq::{equal, not_equal}
 
 ///|
 /// Convert block type to string.

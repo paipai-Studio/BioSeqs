@@ -17,6 +17,7 @@ pub enum ChrOrientation {
   Reverse
   None
 } derive(Eq)
+pub extend ChrOrientation with Eq::{equal, not_equal}
 
 ///|
 /// Create a Forward orientation.
@@ -50,6 +51,7 @@ pub enum ChrFeatureType {
   Marker
   Breakpoint
 } derive(Eq)
+pub extend ChrFeatureType with Eq::{equal, not_equal}
 
 ///|
 /// Create a Gene feature type.

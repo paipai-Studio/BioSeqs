@@ -25,6 +25,7 @@ pub struct MauveLCB {
   /// Whether this block is collinear (no rearrangements)
   is_collinear : Bool
 } derive(Eq)
+pub extend MauveLCB with Eq::{equal, not_equal}
 
 ///|
 /// Represents a sequence entry in a Mauve alignment block.
@@ -48,6 +49,7 @@ pub struct MauveSequence {
   /// Parent block ID (for progressive alignment)
   parent_id : String
 } derive(Eq)
+pub extend MauveSequence with Eq::{equal, not_equal}
 
 ///|
 /// Represents a breakpoint between LCBs.
@@ -63,6 +65,7 @@ pub struct MauveBreakpoint {
   /// Breakpoint type (inversion, translocation, etc.)
   breakpoint_type : String
 } derive(Eq)
+pub extend MauveBreakpoint with Eq::{equal, not_equal}
 
 ///|
 /// Represents an inversion in a Mauve alignment.
@@ -78,6 +81,7 @@ pub struct MauveInversion {
   /// Affected LCB IDs
   affected_lcbs : Array[String]
 } derive(Eq)
+pub extend MauveInversion with Eq::{equal, not_equal}
 
 ///|
 /// Configuration for Mauve alignment parsing and analysis.
@@ -91,6 +95,7 @@ pub struct MauveConfig {
   /// Whether to detect breakpoints
   detect_breakpoints : Bool
 } derive(Eq)
+pub extend MauveConfig with Eq::{equal, not_equal}
 
 ///|
 /// Default Mauve configuration.
@@ -119,6 +124,7 @@ pub struct MauveAlignment {
   /// Progressive alignment groups
   groups : Map[Int, Array[String]]
 } derive(Eq)
+pub extend MauveAlignment with Eq::{equal, not_equal}
 
 // ============================================================================
 // MauveSequence Implementation

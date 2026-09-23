@@ -16,6 +16,8 @@ pub struct AlignMauveMetadataEntry {
   key : String
   value : String
 } derive(Eq, Debug)
+pub extend AlignMauveMetadataEntry with Eq::{equal, not_equal}
+pub extend AlignMauveMetadataEntry with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One sequence declared by `#SequenceN*` header fields.
@@ -29,6 +31,8 @@ pub struct AlignMauveSource {
   format : String
   identifier : String
 } derive(Eq, Debug)
+pub extend AlignMauveSource with Eq::{equal, not_equal}
+pub extend AlignMauveSource with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One aligned row in a locally collinear XMFA block.
@@ -47,6 +51,8 @@ pub struct AlignMauveRow {
   source_sequence : String
   coordinates : Array[Int]
 } derive(Eq, Debug)
+pub extend AlignMauveRow with Eq::{equal, not_equal}
+pub extend AlignMauveRow with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One Mauve locally collinear block.
@@ -54,6 +60,8 @@ pub struct AlignMauveBlock {
   rows : Array[AlignMauveRow]
   width : Int
 } derive(Eq, Debug)
+pub extend AlignMauveBlock with Eq::{equal, not_equal}
+pub extend AlignMauveBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A complete XMFA document.
@@ -63,6 +71,8 @@ pub struct AlignMauveDocument {
   metadata : Array[AlignMauveMetadataEntry]
   blocks : Array[AlignMauveBlock]
 } derive(Eq, Debug)
+pub extend AlignMauveDocument with Eq::{equal, not_equal}
+pub extend AlignMauveDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise statistics summed over all unordered row pairs in one or more
@@ -78,6 +88,8 @@ pub struct AlignMauveCounts {
   gap_opens : Int
   double_gap_columns : Int
 } derive(Eq, Debug)
+pub extend AlignMauveCounts with Eq::{equal, not_equal}
+pub extend AlignMauveCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One interval-index entry for an aligned source segment.
@@ -89,6 +101,8 @@ pub struct AlignMauveIndexEntry {
   row_index : Int
   strand : String
 } derive(Eq, Debug)
+pub extend AlignMauveIndexEntry with Eq::{equal, not_equal}
+pub extend AlignMauveIndexEntry with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// In-memory interval index over all non-empty XMFA rows.
@@ -96,6 +110,8 @@ pub struct AlignMauveIndex {
   identifiers : Array[String]
   entries : Array[AlignMauveIndexEntry]
 } derive(Eq, Debug)
+pub extend AlignMauveIndex with Eq::{equal, not_equal}
+pub extend AlignMauveIndex with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One exact residue-to-residue coordinate projection.
@@ -105,6 +121,8 @@ pub struct AlignMauvePositionMapping {
   source_position : Int
   target_position : Int
 } derive(Eq, Debug)
+pub extend AlignMauvePositionMapping with Eq::{equal, not_equal}
+pub extend AlignMauvePositionMapping with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One contiguous aligned part of a projected source interval.
@@ -122,6 +140,8 @@ pub struct AlignMauveRangeMapping {
   source_strand : String
   target_strand : String
 } derive(Eq, Debug)
+pub extend AlignMauveRangeMapping with Eq::{equal, not_equal}
+pub extend AlignMauveRangeMapping with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Aggregate document summary.
@@ -135,6 +155,8 @@ pub struct AlignMauveSummary {
   mismatches : Int
   gaps : Int
 } derive(Eq, Debug)
+pub extend AlignMauveSummary with Eq::{equal, not_equal}
+pub extend AlignMauveSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 priv struct AlignMauvePendingRow {

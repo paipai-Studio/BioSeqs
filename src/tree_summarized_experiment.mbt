@@ -62,6 +62,7 @@ pub enum TseAggregation {
   Min
   Max
 } derive(Eq)
+pub extend TseAggregation with Eq::{equal, not_equal}
 
 ///|
 /// Create a sum aggregation strategy.

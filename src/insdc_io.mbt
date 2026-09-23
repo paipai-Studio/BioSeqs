@@ -31,6 +31,7 @@ pub struct InsdcFeature {
   location_str : String
   qualifiers : Map[String, Array[String]]
 } derive(Eq)
+pub extend InsdcFeature with Eq::{equal, not_equal}
 
 ///|
 /// INSDC record combining header metadata, features, and sequence.
@@ -48,6 +49,7 @@ pub struct InsdcRecord {
   features : Array[InsdcFeature]
   sequence : String
 } derive(Eq)
+pub extend InsdcRecord with Eq::{equal, not_equal}
 
 // ---------------------------------------------------------------------------
 // Internal helpers

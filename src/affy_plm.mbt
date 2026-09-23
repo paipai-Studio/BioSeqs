@@ -15,6 +15,7 @@ pub(all) enum PlmEstimator {
   Huber(Double)
   Tukey(Double)
 } derive(Eq)
+pub extend PlmEstimator with Eq::{equal, not_equal}
 
 ///|
 /// Default Huber estimator with k = 1.345.
@@ -29,6 +30,7 @@ pub struct PlmProbeset {
   name : String
   probes : Array[Array[Double]]
 } derive(Eq)
+pub extend PlmProbeset with Eq::{equal, not_equal}
 
 ///|
 pub fn PlmProbeset::new(
@@ -49,6 +51,7 @@ pub struct PlmFit {
   n_iterations : Int
   sigma : Double
 } derive(Eq)
+pub extend PlmFit with Eq::{equal, not_equal}
 
 ///|
 /// Absolute value.
@@ -459,6 +462,7 @@ pub struct PlmQCReport {
   rle : Array[Double]
   n_probesets : Int
 } derive(Eq)
+pub extend PlmQCReport with Eq::{equal, not_equal}
 
 ///|
 pub fn affy_plm_qc(fits : Array[PlmFit]) -> PlmQCReport {

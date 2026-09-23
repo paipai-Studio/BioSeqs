@@ -45,6 +45,8 @@ pub enum ScrapperCenterMode {
   Lowest
   PerBlock
 } derive(Eq, Debug)
+pub extend ScrapperCenterMode with Eq::{equal, not_equal}
+pub extend ScrapperCenterMode with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ScrapperVarianceTrend {

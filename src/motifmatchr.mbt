@@ -17,6 +17,7 @@ pub struct MatchrMotif {
   name : String
   pwm : Array[Array[Double]]
 } derive(Eq)
+pub extend MatchrMotif with Eq::{equal, not_equal}
 
 ///|
 pub fn MatchrMotif::new(
@@ -51,6 +52,7 @@ pub struct MotifMatches {
   counts : Array[Int]
   max_scores : Array[Double]
 } derive(Eq)
+pub extend MotifMatches with Eq::{equal, not_equal}
 
 ///|
 /// Default uniform background nucleotide frequencies.

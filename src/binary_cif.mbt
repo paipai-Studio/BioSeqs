@@ -14,6 +14,8 @@ pub enum BinaryCifMask {
   BinaryCifNotPresent
   BinaryCifUnknown
 } derive(Eq, Debug)
+pub extend BinaryCifMask with Eq::{equal, not_equal}
+pub extend BinaryCifMask with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub enum BinaryCifColumnKind {
@@ -21,6 +23,8 @@ pub enum BinaryCifColumnKind {
   BinaryCifFloat
   BinaryCifText
 } derive(Eq, Debug)
+pub extend BinaryCifColumnKind with Eq::{equal, not_equal}
+pub extend BinaryCifColumnKind with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub enum BinaryCifColumnData {

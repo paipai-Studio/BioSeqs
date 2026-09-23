@@ -17,6 +17,8 @@ pub enum AlignTabularTrace {
   Btop
   Cigar
 } derive(Eq, Debug)
+pub extend AlignTabularTrace with Eq::{equal, not_equal}
+pub extend AlignTabularTrace with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One run in a tabular alignment path.
@@ -28,6 +30,8 @@ pub enum AlignTabularOperation {
   QueryGap
   TargetGap
 } derive(Eq, Debug)
+pub extend AlignTabularOperation with Eq::{equal, not_equal}
+pub extend AlignTabularOperation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One original field/value pair from a tabular row.
@@ -35,6 +39,8 @@ pub struct AlignTabularField {
   name : String
   value : String
 } derive(Eq, Debug)
+pub extend AlignTabularField with Eq::{equal, not_equal}
+pub extend AlignTabularField with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Metadata attached to one BLAST or FASTA query block.
@@ -45,6 +51,8 @@ pub struct AlignTabularMetadata {
   database : String
   rid : String
 } derive(Eq, Debug)
+pub extend AlignTabularMetadata with Eq::{equal, not_equal}
+pub extend AlignTabularMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One pairwise alignment parsed from a tabular row.
@@ -77,6 +85,7 @@ pub struct AlignTabularAlignment {
   query_units_per_residue : Int
   fields : Array[AlignTabularField]
 } derive(Debug)
+pub extend AlignTabularAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One query block, including zero-hit queries.
@@ -90,6 +99,7 @@ pub struct AlignTabularQueryResult {
   declared_hits : Int
   alignments : Array[AlignTabularAlignment]
 } derive(Debug)
+pub extend AlignTabularQueryResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Complete parsed document.
@@ -97,6 +107,7 @@ pub struct AlignTabularDocument {
   queries : Array[AlignTabularQueryResult]
   processed_queries : Int?
 } derive(Debug)
+pub extend AlignTabularDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 priv struct AlignTabularRelativePath {

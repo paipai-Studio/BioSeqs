@@ -25,6 +25,7 @@ pub struct FaiRecord {
   line_len : Int
   line_blen : Int
 } derive(Debug)
+pub extend FaiRecord with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Create a new FaiRecord.
@@ -44,6 +45,7 @@ pub struct FastaIndex {
   records : Array[FaiRecord]
   index : Map[String, Int]
 } derive(Debug)
+pub extend FastaIndex with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Parse a .fai index file and return a FastaIndex.
@@ -257,6 +259,7 @@ pub struct Fasta {
   content : String
   index : FastaIndex
 } derive(Debug)
+pub extend Fasta with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Create a Fasta from FASTA content and .fai index content.

@@ -155,6 +155,7 @@ pub struct SelectionTestResult {
   test_type : String // "positive" | "purifying" | "neutrality"
   conclusion : String // human-readable conclusion
 } derive(Debug)
+pub extend SelectionTestResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SelectionTestResult::dn(self : SelectionTestResult) -> Double {
@@ -394,6 +395,7 @@ pub struct CodonNeutralityTestResult {
   test_type : String
   conclusion : String
 } derive(Debug)
+pub extend CodonNeutralityTestResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn CodonNeutralityTestResult::p_value(
@@ -518,6 +520,7 @@ pub struct CodonAlignment {
   names : Array[String]
   n_codons : Int // number of codon columns (including gap columns)
 } derive(Debug)
+pub extend CodonAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn CodonAlignment::sequences(self : CodonAlignment) -> Array[String] {
@@ -645,6 +648,7 @@ pub struct WindowDnDs {
   dnds : Double
   n_codons : Int // number of valid codon pairs in the window
 } derive(Debug)
+pub extend WindowDnDs with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn WindowDnDs::start_codon(self : WindowDnDs) -> Int {
@@ -681,6 +685,7 @@ pub fn WindowDnDs::n_codons(self : WindowDnDs) -> Int {
 pub struct SlidingWindowResult {
   windows : Array[WindowDnDs]
 } derive(Debug)
+pub extend SlidingWindowResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SlidingWindowResult::windows(
@@ -813,6 +818,7 @@ pub struct KaksTableRow {
   fdr : Double
   conclusion : String
 } derive(Debug)
+pub extend KaksTableRow with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn KaksTableRow::seq1_name(self : KaksTableRow) -> String {

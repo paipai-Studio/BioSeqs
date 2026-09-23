@@ -20,6 +20,8 @@ pub struct DecontXConfig {
   initial_contamination : Double
   minimum_probability : Double
 } derive(Eq, Debug)
+pub extend DecontXConfig with Eq::{equal, not_equal}
+pub extend DecontXConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn DecontXConfig::create(
@@ -81,6 +83,8 @@ pub struct DecontXDiagnostics {
   final_log_likelihood : Double
   log_likelihoods : Array[Double]
 } derive(Eq, Debug)
+pub extend DecontXDiagnostics with Eq::{equal, not_equal}
+pub extend DecontXDiagnostics with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DecontXCellEstimate {
@@ -91,6 +95,8 @@ pub struct DecontXCellEstimate {
   native_counts : Double
   contaminant_counts : Double
 } derive(Eq, Debug)
+pub extend DecontXCellEstimate with Eq::{equal, not_equal}
+pub extend DecontXCellEstimate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DecontXClusterEstimate {
@@ -101,6 +107,8 @@ pub struct DecontXClusterEstimate {
   native_counts : Double
   contaminant_counts : Double
 } derive(Eq, Debug)
+pub extend DecontXClusterEstimate with Eq::{equal, not_equal}
+pub extend DecontXClusterEstimate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DecontXResult {
@@ -116,6 +124,8 @@ pub struct DecontXResult {
   used_background : Bool
   diagnostics : DecontXDiagnostics
 } derive(Eq, Debug)
+pub extend DecontXResult with Eq::{equal, not_equal}
+pub extend DecontXResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Result of adding decontamination outputs to a SingleCellExperiment copy.

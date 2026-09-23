@@ -99,6 +99,7 @@ pub struct GC123Result {
   gc2 : Double
   gc3 : Double
 } derive(Eq, Show)
+pub extend GC123Result with Eq::{equal, not_equal}
 
 ///|
 /// Calculate G+C content: total, for first, second and third codon positions.
@@ -182,6 +183,7 @@ pub struct NtSearchResult {
   pattern : String
   positions : Array[Int]
 } derive(Eq, Show)
+pub extend NtSearchResult with Eq::{equal, not_equal}
 
 ///|
 /// IUPAC ambiguous DNA values, mirroring Bio.Data.IUPACData.ambiguous_dna_values.

@@ -13,6 +13,8 @@ pub(all) enum DmnCriterion {
   DmnBic
   DmnAic
 } derive(Eq, Debug)
+pub extend DmnCriterion with Eq::{equal, not_equal}
+pub extend DmnCriterion with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DmnConfig {
@@ -28,6 +30,8 @@ pub struct DmnConfig {
   prior_rate : Double
   min_alpha : Double
 } derive(Eq, Debug)
+pub extend DmnConfig with Eq::{equal, not_equal}
+pub extend DmnConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn DmnConfig::create(
@@ -151,6 +155,8 @@ pub struct DmnGoodnessOfFit {
   bic : Double
   aic : Double
 } derive(Eq, Debug)
+pub extend DmnGoodnessOfFit with Eq::{equal, not_equal}
+pub extend DmnGoodnessOfFit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DmnFit {
@@ -203,6 +209,8 @@ pub struct DmnRoc {
   auc : Double
   best_threshold : Double
 } derive(Eq, Debug)
+pub extend DmnRoc with Eq::{equal, not_equal}
+pub extend DmnRoc with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn dmn_is_finite(value : Double) -> Bool {

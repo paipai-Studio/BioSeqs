@@ -14,6 +14,7 @@ pub struct SVResult {
   ncol : Int
   rank : Int
 } derive(Eq)
+pub extend SVResult with Eq::{equal, not_equal}
 
 ///|
 /// SVD computation method.
@@ -22,6 +23,8 @@ pub enum SVDMethod {
   IRLBA
   Randomized
 } derive(Eq, Debug)
+pub extend SVDMethod with Eq::{equal, not_equal}
+pub extend SVDMethod with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Create ExactSVD method variant.
@@ -50,6 +53,8 @@ pub struct SVDOptions {
   max_iter : Int
   n_oversamples : Int
 } derive(Eq, Debug)
+pub extend SVDOptions with Eq::{equal, not_equal}
+pub extend SVDOptions with @moonbitlang/core/debug.Debug::{to_repr}
 
 // ============================================================================
 // Random number generation utilities

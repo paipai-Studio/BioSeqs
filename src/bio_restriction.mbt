@@ -35,6 +35,7 @@ pub struct BioRestrictionEnzyme {
   spec : Int
   elucidation : String
 } derive(Eq)
+pub extend BioRestrictionEnzyme with Eq::{equal, not_equal}
 
 ///|
 /// All 1088 enzymes as records.

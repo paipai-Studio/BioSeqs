@@ -17,6 +17,8 @@ pub enum InfernalTabularFormat {
   Format2
   Format3
 } derive(Eq, Debug)
+pub extend InfernalTabularFormat with Eq::{equal, not_equal}
+pub extend InfernalTabularFormat with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct InfernalFragment {
@@ -34,6 +36,7 @@ pub struct InfernalFragment {
   model_omission_before : Int
   sequence_omission_before : Int
 } derive(Debug)
+pub extend InfernalFragment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct InfernalHSP {
@@ -57,6 +60,7 @@ pub struct InfernalHSP {
   winner_overlap_fraction : Double?
   winner_reciprocal_fraction : Double?
 } derive(Debug)
+pub extend InfernalHSP with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct InfernalHit {
@@ -66,6 +70,7 @@ pub struct InfernalHit {
   model_length : Int
   hsps : Array[InfernalHSP]
 } derive(Debug)
+pub extend InfernalHit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct InfernalQueryResult {
@@ -79,6 +84,7 @@ pub struct InfernalQueryResult {
   target : String
   hits : Array[InfernalHit]
 } derive(Debug)
+pub extend InfernalQueryResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 priv struct InfernalTabRow {

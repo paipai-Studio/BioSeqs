@@ -29,6 +29,7 @@ pub enum CswFilterStatus {
   /// Window excluded
   Excluded
 } derive(Eq)
+pub extend CswFilterStatus with Eq::{equal, not_equal}
 
 ///|
 /// A single genomic window

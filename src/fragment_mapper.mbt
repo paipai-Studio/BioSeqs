@@ -16,6 +16,8 @@ pub enum FragmentType {
   Bridge
   Turn
 } derive(Eq, Debug)
+pub extend FragmentType with Eq::{equal, not_equal}
+pub extend FragmentType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct a Helix FragmentType.
@@ -62,6 +64,8 @@ pub struct FragmentResidue {
   pub is_c_alpha : Bool
   pub is_sidechain : Bool
 } derive(Eq, Debug)
+pub extend FragmentResidue with Eq::{equal, not_equal}
+pub extend FragmentResidue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A protein structure fragment.
@@ -73,6 +77,8 @@ pub struct Fragment {
   pub fragment_type : FragmentType
   pub residues : Array[FragmentResidue]
 } derive(Eq, Debug)
+pub extend Fragment with Eq::{equal, not_equal}
+pub extend Fragment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Result of fragment mapping operation.

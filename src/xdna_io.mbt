@@ -34,6 +34,7 @@ pub enum XdnaSeqType {
   ProteinType
   UnknownType
 } derive(Eq)
+pub extend XdnaSeqType with Eq::{equal, not_equal}
 
 ///|
 /// Convert a sequence type to its integer code: DNA=0, RNA=1, Protein=2,

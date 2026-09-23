@@ -16,6 +16,8 @@ pub(all) enum BigPslSequenceType {
   BigPslNucleotide
   BigPslProtein
 } derive(Eq, Debug)
+pub extend BigPslSequenceType with Eq::{equal, not_equal}
+pub extend BigPslSequenceType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub(all) enum BigPslMaskMode {
@@ -23,6 +25,8 @@ pub(all) enum BigPslMaskMode {
   BigPslMaskLower
   BigPslMaskUpper
 } derive(Eq, Debug)
+pub extend BigPslMaskMode with Eq::{equal, not_equal}
+pub extend BigPslMaskMode with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigPslBlock {
@@ -33,6 +37,8 @@ pub struct BigPslBlock {
   target_size : Int
   query_size : Int
 } derive(Eq, Debug)
+pub extend BigPslBlock with Eq::{equal, not_equal}
+pub extend BigPslBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigPslAlignment {
@@ -54,6 +60,8 @@ pub struct BigPslAlignment {
   n_count : Int
   sequence_type : BigPslSequenceType
 } derive(Eq, Debug)
+pub extend BigPslAlignment with Eq::{equal, not_equal}
+pub extend BigPslAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigPslWriteConfig {
@@ -63,6 +71,8 @@ pub struct BigPslWriteConfig {
   store_query_sequence : Bool
   store_cds : Bool
 } derive(Eq, Debug)
+pub extend BigPslWriteConfig with Eq::{equal, not_equal}
+pub extend BigPslWriteConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigPslAlignmentCounts {
@@ -73,6 +83,8 @@ pub struct BigPslAlignmentCounts {
   target_insert_events : Int
   block_count : Int
 } derive(Eq, Debug)
+pub extend BigPslAlignmentCounts with Eq::{equal, not_equal}
+pub extend BigPslAlignmentCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigPslSummary {
@@ -85,6 +97,8 @@ pub struct BigPslSummary {
   covered_target_bases : Int
   compressed : Bool
 } derive(Eq, Debug)
+pub extend BigPslSummary with Eq::{equal, not_equal}
+pub extend BigPslSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigPslFile {

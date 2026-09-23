@@ -16,6 +16,8 @@ pub struct CodemlOption {
   name : String
   value : String
 } derive(Eq, Debug)
+pub extend CodemlOption with Eq::{equal, not_equal}
+pub extend CodemlOption with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A CODEML control file.
@@ -25,6 +27,8 @@ pub struct CodemlControl {
   tree_file : String
   options : Array[CodemlOption]
 } derive(Eq, Debug)
+pub extend CodemlControl with Eq::{equal, not_equal}
+pub extend CodemlControl with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One named floating-point parameter.
@@ -32,6 +36,8 @@ pub struct CodemlNamedValue {
   name : String
   value : Double
 } derive(Eq, Debug)
+pub extend CodemlNamedValue with Eq::{equal, not_equal}
+pub extend CodemlNamedValue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Per-gene kappa and omega estimates from a multi-gene model.
@@ -40,6 +46,8 @@ pub struct CodemlGeneParameter {
   kappa : Double
   omega : Double
 } derive(Eq, Debug)
+pub extend CodemlGeneParameter with Eq::{equal, not_equal}
+pub extend CodemlGeneParameter with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One CODEML site class.
@@ -49,6 +57,8 @@ pub struct CodemlSiteClass {
   omega : Double?
   branch_types : Array[CodemlNamedValue]
 } derive(Eq, Debug)
+pub extend CodemlSiteClass with Eq::{equal, not_equal}
+pub extend CodemlSiteClass with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One row from CODEML's branch dN/dS table.
@@ -66,6 +76,8 @@ pub struct CodemlBranchResult {
   n_times_dn : Double?
   s_times_ds : Double?
 } derive(Eq, Debug)
+pub extend CodemlBranchResult with Eq::{equal, not_equal}
+pub extend CodemlBranchResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One positively selected site reported by NEB or BEB.
@@ -78,6 +90,8 @@ pub struct CodemlPositiveSite {
   posterior_mean_omega : Double?
   standard_error : Double?
 } derive(Eq, Debug)
+pub extend CodemlPositiveSite with Eq::{equal, not_equal}
+pub extend CodemlPositiveSite with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One fitted CODEML NSsites model or one multi-gene result section.
@@ -105,6 +119,8 @@ pub struct CodemlModelResult {
   branches : Array[CodemlBranchResult]
   positive_sites : Array[CodemlPositiveSite]
 } derive(Eq, Debug)
+pub extend CodemlModelResult with Eq::{equal, not_equal}
+pub extend CodemlModelResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One maximum-likelihood pairwise codon comparison.
@@ -119,6 +135,8 @@ pub struct CodemlPairwiseResult {
   dn : Double
   ds : Double
 } derive(Eq, Debug)
+pub extend CodemlPairwiseResult with Eq::{equal, not_equal}
+pub extend CodemlPairwiseResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One symmetric amino-acid distance matrix entry.
@@ -128,6 +146,8 @@ pub struct CodemlDistance {
   second : String
   value : Double
 } derive(Eq, Debug)
+pub extend CodemlDistance with Eq::{equal, not_equal}
+pub extend CodemlDistance with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Parsed CODEML or AAML results.
@@ -144,6 +164,8 @@ pub struct CodemlResults {
   pairwise : Array[CodemlPairwiseResult]
   distances : Array[CodemlDistance]
 } derive(Eq, Debug)
+pub extend CodemlResults with Eq::{equal, not_equal}
+pub extend CodemlResults with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Likelihood-ratio comparison between nested CODEML models.
@@ -154,6 +176,8 @@ pub struct CodemlLikelihoodRatio {
   alpha : Double
   significant : Bool
 } derive(Eq, Debug)
+pub extend CodemlLikelihoodRatio with Eq::{equal, not_equal}
+pub extend CodemlLikelihoodRatio with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 priv struct CodemlPendingPair {

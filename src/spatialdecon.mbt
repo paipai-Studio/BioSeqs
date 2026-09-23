@@ -11,6 +11,7 @@ pub struct SpatialDeconProfile {
   cell_types : Array[String]
   values : Array[Array[Double]]
 } derive(Debug)
+pub extend SpatialDeconProfile with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SpatialDeconData {
@@ -20,6 +21,7 @@ pub struct SpatialDeconData {
   background : Array[Array[Double]]
   weights : Array[Array[Double]]
 } derive(Debug)
+pub extend SpatialDeconData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SpatialDeconConfig {
@@ -35,6 +37,7 @@ pub struct SpatialDeconConfig {
   tolerance : Double
   ridge : Double
 } derive(Debug)
+pub extend SpatialDeconConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SpatialDeconAbundance {
@@ -45,6 +48,7 @@ pub struct SpatialDeconAbundance {
   standard_error : Double
   p_value : Double
 } derive(Debug)
+pub extend SpatialDeconAbundance with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SpatialDeconResult {
@@ -69,12 +73,14 @@ pub struct SpatialDeconResult {
   converged : Array[Bool]
   config : SpatialDeconConfig
 } derive(Debug)
+pub extend SpatialDeconResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SpatialDeconCellMerge {
   name : String
   members : Array[String]
 } derive(Debug)
+pub extend SpatialDeconCellMerge with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SpatialDeconReverseResult {
@@ -90,6 +96,7 @@ pub struct SpatialDeconReverseResult {
   iterations : Array[Int]
   converged : Array[Bool]
 } derive(Debug)
+pub extend SpatialDeconReverseResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SpatialDeconSpatialExperimentOutput {

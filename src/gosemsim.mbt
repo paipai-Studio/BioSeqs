@@ -23,6 +23,8 @@ pub enum SimMeasure {
   Jiang
   Wang
 } derive(Eq, Debug)
+pub extend SimMeasure with Eq::{equal, not_equal}
+pub extend SimMeasure with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct Resnik measure.
@@ -67,6 +69,7 @@ pub struct GOTermNode {
   pub parents : Array[String]
   pub children : Array[String]
 } derive(Debug)
+pub extend GOTermNode with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Get GO term ID.
@@ -115,6 +118,7 @@ pub struct GOGraph {
   pub root_id : String
   terms : Map[String, GOTermNode]
 } derive(Debug)
+pub extend GOGraph with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Get root term ID.

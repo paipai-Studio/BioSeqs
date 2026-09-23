@@ -31,6 +31,7 @@ pub enum SeqXmlType {
   ProteinType
   UnknownType
 } derive(Eq)
+pub extend SeqXmlType with Eq::{equal, not_equal}
 
 ///|
 /// A single SeqXML entry: an identifier, an optional description, a

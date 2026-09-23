@@ -15,6 +15,7 @@ pub enum TraceDirection {
   Up // gap in seq2 (deletion): comes from (i-1, j)
   Left // gap in seq1 (insertion): comes from (i, j-1)
 } derive(Eq, Show)
+pub extend TraceDirection with Eq::{equal, not_equal}
 
 ///|
 /// Scoring scheme for sequence alignment.

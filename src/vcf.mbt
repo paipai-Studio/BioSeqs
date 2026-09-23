@@ -7,6 +7,7 @@ pub enum VcfHeaderType {
   Meta
   Fixed
 } derive(Eq)
+pub extend VcfHeaderType with Eq::{equal, not_equal}
 
 ///|
 /// VCF meta header record (## lines).

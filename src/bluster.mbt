@@ -13,6 +13,8 @@ pub enum BlusterDistance {
   BlusterManhattan
   BlusterCosine
 } derive(Eq, Debug)
+pub extend BlusterDistance with Eq::{equal, not_equal}
+pub extend BlusterDistance with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub enum BlusterSnnWeight {
@@ -20,6 +22,8 @@ pub enum BlusterSnnWeight {
   BlusterNumber
   BlusterJaccard
 } derive(Eq, Debug)
+pub extend BlusterSnnWeight with Eq::{equal, not_equal}
+pub extend BlusterSnnWeight with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub enum BlusterLinkDenominator {
@@ -27,6 +31,8 @@ pub enum BlusterLinkDenominator {
   BlusterLinkMaximum
   BlusterLinkUnion
 } derive(Eq, Debug)
+pub extend BlusterLinkDenominator with Eq::{equal, not_equal}
+pub extend BlusterLinkDenominator with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn bluster_euclidean_distance() -> BlusterDistance {
@@ -80,6 +86,7 @@ pub struct BlusterGraph {
   k : Int
   graph_kind : String
 } derive(Debug)
+pub extend BlusterGraph with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn BlusterGraph::node_count(self : BlusterGraph) -> Int {
@@ -117,6 +124,8 @@ pub struct BlusterKmeansConfig {
   tolerance : Double
   seed : Int
 } derive(Eq, Debug)
+pub extend BlusterKmeansConfig with Eq::{equal, not_equal}
+pub extend BlusterKmeansConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn BlusterKmeansConfig::create(
@@ -152,6 +161,7 @@ pub struct BlusterKmeansResult {
   total_within_sum_squares : Double
   iterations : Int
 } derive(Debug)
+pub extend BlusterKmeansResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BlusterGraphConfig {
@@ -163,6 +173,8 @@ pub struct BlusterGraphConfig {
   max_iterations : Int
   seed : Int
 } derive(Eq, Debug)
+pub extend BlusterGraphConfig with Eq::{equal, not_equal}
+pub extend BlusterGraphConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn BlusterGraphConfig::create(
@@ -204,6 +216,7 @@ pub struct BlusterGraphClusterResult {
   modularity : Double
   iterations : Int
 } derive(Debug)
+pub extend BlusterGraphClusterResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BlusterTwoStepConfig {
@@ -217,6 +230,8 @@ pub struct BlusterTwoStepConfig {
   second_max_iterations : Int
   seed : Int
 } derive(Eq, Debug)
+pub extend BlusterTwoStepConfig with Eq::{equal, not_equal}
+pub extend BlusterTwoStepConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn BlusterTwoStepConfig::create(
@@ -269,6 +284,7 @@ pub struct BlusterTwoStepResult {
   graph : BlusterGraph
   modularity : Double
 } derive(Debug)
+pub extend BlusterTwoStepResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BlusterRandResult {
@@ -279,6 +295,7 @@ pub struct BlusterRandResult {
   index : Double?
   adjusted : Bool
 } derive(Debug)
+pub extend BlusterRandResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BlusterSilhouetteResult {
@@ -286,12 +303,14 @@ pub struct BlusterSilhouetteResult {
   other_clusters : Array[Int]
   widths : Array[Double]
 } derive(Debug)
+pub extend BlusterSilhouetteResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BlusterClusterMetric {
   cluster_names : Array[Int]
   values : Array[Double?]
 } derive(Debug)
+pub extend BlusterClusterMetric with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BlusterPurityResult {
@@ -299,6 +318,7 @@ pub struct BlusterPurityResult {
   maximum_clusters : Array[Int]
   radius : Double
 } derive(Debug)
+pub extend BlusterPurityResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BlusterModularityResult {
@@ -309,6 +329,7 @@ pub struct BlusterModularityResult {
   ratios : Array[Array[Double?]]
   total_weight : Double
 } derive(Debug)
+pub extend BlusterModularityResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BlusterNestedResult {
@@ -319,6 +340,7 @@ pub struct BlusterNestedResult {
   alternative_maximum : Array[Double]
   reference_scores : Array[Double]
 } derive(Debug)
+pub extend BlusterNestedResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BlusterStabilityResult {
@@ -326,6 +348,7 @@ pub struct BlusterStabilityResult {
   ratios : Array[Array[Double?]]
   adjusted_indices : Array[Double?]
 } derive(Debug)
+pub extend BlusterStabilityResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BlusterSceOutput {

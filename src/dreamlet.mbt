@@ -15,6 +15,7 @@ pub enum DreamletEffectKind {
   Categorical
   Random
 } derive(Debug)
+pub extend DreamletEffectKind with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletEffectSpec {
@@ -22,12 +23,14 @@ pub struct DreamletEffectSpec {
   kind : DreamletEffectKind
   reference : String
 } derive(Debug)
+pub extend DreamletEffectSpec with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletModelSpec {
   effects : Array[DreamletEffectSpec]
   intercept : Bool
 } derive(Debug)
+pub extend DreamletModelSpec with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletPseudobulkAssay {
@@ -38,6 +41,7 @@ pub struct DreamletPseudobulkAssay {
   library_sizes : Array[Double]
   metadata : Map[String, Array[String]]
 } derive(Debug)
+pub extend DreamletPseudobulkAssay with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletPseudobulk {
@@ -45,6 +49,7 @@ pub struct DreamletPseudobulk {
   sample_names : Array[String]
   assays : Array[DreamletPseudobulkAssay]
 } derive(Debug)
+pub extend DreamletPseudobulk with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletProcessConfig {
@@ -62,18 +67,21 @@ pub struct DreamletProcessConfig {
   max_iterations : Int
   tolerance : Double
 } derive(Debug)
+pub extend DreamletProcessConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletTmmResult {
   factors : Array[Double]
   reference_sample : Int
 } derive(Debug)
+pub extend DreamletTmmResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletExclusion {
   cluster_id : String
   reason : String
 } derive(Debug)
+pub extend DreamletExclusion with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletProcessedAssay {
@@ -99,6 +107,7 @@ pub struct DreamletProcessedAssay {
   voom_y : Array[Double]
   voom_fitted : Array[Double]
 } derive(Debug)
+pub extend DreamletProcessedAssay with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletProcessedData {
@@ -106,12 +115,14 @@ pub struct DreamletProcessedData {
   exclusions : Array[DreamletExclusion]
   config : DreamletProcessConfig
 } derive(Debug)
+pub extend DreamletProcessedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletAssayResult {
   cluster_id : String
   result : DreamResult
 } derive(Debug)
+pub extend DreamletAssayResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletGeneResult {
@@ -128,6 +139,7 @@ pub struct DreamletGeneResult {
   random_variances : Array[Double]
   residual_variance : Double
 } derive(Debug)
+pub extend DreamletGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DreamletResult {
@@ -137,6 +149,7 @@ pub struct DreamletResult {
   genes : Array[DreamletGeneResult]
   exclusions : Array[DreamletExclusion]
 } derive(Debug)
+pub extend DreamletResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn dreamlet_fail(message : String) -> Unit raise DreamletError {

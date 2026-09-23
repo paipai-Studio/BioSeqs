@@ -22,6 +22,7 @@ pub struct SingleRAdvancedConfig {
   marker_count : Int
   combine_marker_count : Int
 } derive(Debug)
+pub extend SingleRAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SingleRAdvancedConfig::create(
@@ -95,6 +96,7 @@ pub struct SingleRAdvancedReference {
   n_genes : Int
   n_samples : Int
 } derive(Debug)
+pub extend SingleRAdvancedReference with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SingleRAdvancedData {
@@ -104,6 +106,7 @@ pub struct SingleRAdvancedData {
   n_genes : Int
   n_cells : Int
 } derive(Debug)
+pub extend SingleRAdvancedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SingleRAdvancedTraining {
@@ -118,6 +121,7 @@ pub struct SingleRAdvancedTraining {
   common_markers : Array[Int]
   marker_count : Int
 } derive(Debug)
+pub extend SingleRAdvancedTraining with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SingleRAdvancedResult {
@@ -136,6 +140,7 @@ pub struct SingleRAdvancedResult {
   reference_name : String
   quantile : Double
 } derive(Debug)
+pub extend SingleRAdvancedResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SingleRAdvancedCombinedResult {
@@ -149,6 +154,7 @@ pub struct SingleRAdvancedCombinedResult {
   per_reference : Array[SingleRAdvancedResult]
   marker_gene_names : Array[String]
 } derive(Debug)
+pub extend SingleRAdvancedCombinedResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SingleRAdvancedSCEOutput {

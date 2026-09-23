@@ -12,6 +12,8 @@ pub struct KNNResult {
   n_query : Int
   k : Int
 } derive(Eq, Debug)
+pub extend KNNResult with Eq::{equal, not_equal}
+pub extend KNNResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Neighbor search method enumeration.
@@ -20,6 +22,8 @@ pub enum NeighborSearchMethod {
   Annoy
   BruteForce
 } derive(Eq, Debug)
+pub extend NeighborSearchMethod with Eq::{equal, not_equal}
+pub extend NeighborSearchMethod with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Create KMKNN neighbor search method.
@@ -48,6 +52,8 @@ pub struct KNNOptions {
   n_trees : Int
   search_k : Int
 } derive(Eq, Debug)
+pub extend KNNOptions with Eq::{equal, not_equal}
+pub extend KNNOptions with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Index result for fast nearest neighbor lookup.
@@ -59,6 +65,8 @@ pub struct IndexResult {
   centroids : Array[Array[Double]]
   tree_nodes : Array[AnnoyNode]
 } derive(Eq, Debug)
+pub extend IndexResult with Eq::{equal, not_equal}
+pub extend IndexResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A node in the Annoy tree structure.
@@ -70,6 +78,8 @@ pub struct AnnoyNode {
   children : Array[Int]
   point_indices : Array[Int]
 } derive(Eq, Debug)
+pub extend AnnoyNode with Eq::{equal, not_equal}
+pub extend AnnoyNode with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Create default KNN options with brute force method and k=10.

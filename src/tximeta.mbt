@@ -19,6 +19,8 @@ pub struct TximetaTxome {
   source : String
    versioned_tags : Array[String]
 } derive(Eq, Show, Debug)
+pub extend TximetaTxome with Eq::{equal, not_equal}
+pub extend TximetaTxome with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn TximetaTxome::new(
@@ -43,6 +45,8 @@ pub struct TximetaData {
   txome : TximetaTxome?
    linked : Bool
 } derive(Eq, Show, Debug)
+pub extend TximetaData with Eq::{equal, not_equal}
+pub extend TximetaData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn TximetaData::new(

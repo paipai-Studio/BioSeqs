@@ -34,6 +34,7 @@ pub enum MmtfSecStruct {
   MmtfSecCoil
   MmtfSecUndefined
 } derive(Eq)
+pub extend MmtfSecStruct with Eq::{equal, not_equal}
 
 ///|
 /// Convert a secondary structure code to its string name.
@@ -239,6 +240,7 @@ pub enum MmtfEntityType {
   MmtfEntityBranched
   MmtfEntityUndefined
 } derive(Eq)
+pub extend MmtfEntityType with Eq::{equal, not_equal}
 
 ///|
 /// Convert entity type to string.

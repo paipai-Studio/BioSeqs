@@ -14,6 +14,8 @@ pub(all) enum PslSequenceType {
   PslNucleotide
   PslProtein
 } derive(Eq, Debug)
+pub extend PslSequenceType with Eq::{equal, not_equal}
+pub extend PslSequenceType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub(all) enum PslMaskMode {
@@ -21,6 +23,8 @@ pub(all) enum PslMaskMode {
   PslMaskLower
   PslMaskUpper
 } derive(Eq, Debug)
+pub extend PslMaskMode with Eq::{equal, not_equal}
+pub extend PslMaskMode with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct PslBlock {
@@ -33,6 +37,8 @@ pub struct PslBlock {
   query_sequence : String
   target_sequence : String
 } derive(Eq, Debug)
+pub extend PslBlock with Eq::{equal, not_equal}
+pub extend PslBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct PslCounts {
@@ -43,6 +49,8 @@ pub struct PslCounts {
   target_insert_bases : Int
   block_count : Int
 } derive(Eq, Debug)
+pub extend PslCounts with Eq::{equal, not_equal}
+pub extend PslCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct PslAlignment {

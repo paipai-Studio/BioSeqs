@@ -16,6 +16,8 @@ pub struct BigMafInsertion {
   right_status : String
   right_count : Int
 } derive(Eq, Debug)
+pub extend BigMafInsertion with Eq::{equal, not_equal}
+pub extend BigMafInsertion with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigMafComponent {
@@ -28,6 +30,8 @@ pub struct BigMafComponent {
   insertion : BigMafInsertion?
   quality : String?
 } derive(Eq, Debug)
+pub extend BigMafComponent with Eq::{equal, not_equal}
+pub extend BigMafComponent with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigMafEmptyComponent {
@@ -38,6 +42,8 @@ pub struct BigMafEmptyComponent {
   source_size : Int
   status : String
 } derive(Eq, Debug)
+pub extend BigMafEmptyComponent with Eq::{equal, not_equal}
+pub extend BigMafEmptyComponent with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigMafBlock {
@@ -47,6 +53,8 @@ pub struct BigMafBlock {
   empty_components : Array[BigMafEmptyComponent]
   comments : Array[String]
 } derive(Eq, Debug)
+pub extend BigMafBlock with Eq::{equal, not_equal}
+pub extend BigMafBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigMafWriteConfig {
@@ -54,6 +62,8 @@ pub struct BigMafWriteConfig {
   block_size : Int
   items_per_slot : Int
 } derive(Eq, Debug)
+pub extend BigMafWriteConfig with Eq::{equal, not_equal}
+pub extend BigMafWriteConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigMafSummary {
@@ -65,6 +75,8 @@ pub struct BigMafSummary {
   covered_reference_bases : Int
   compressed : Bool
 } derive(Eq, Debug)
+pub extend BigMafSummary with Eq::{equal, not_equal}
+pub extend BigMafSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigMafFile {

@@ -54,6 +54,7 @@ pub struct AlignClusterer {
   open_gap_penalty : Double
   extend_gap_penalty : Double
 } derive(Eq)
+pub extend AlignClusterer with Eq::{equal, not_equal}
 
 ///|
 /// Create an AlignClusterer with default scoring parameters.
@@ -94,6 +95,7 @@ pub struct MSADistanceMatrix {
   matrix : Array[Array[Double]]
   sequence_ids : Array[String]
 } derive(Eq)
+pub extend MSADistanceMatrix with Eq::{equal, not_equal}
 
 ///|
 /// Create a new MSADistanceMatrix.
@@ -139,6 +141,7 @@ pub struct GuideTreeNode {
   is_leaf : Bool
   sequence_index : Int
 } derive(Eq)
+pub extend GuideTreeNode with Eq::{equal, not_equal}
 
 ///|
 /// Create a leaf guide tree node.
@@ -173,6 +176,7 @@ fn guide_tree_internal(
 pub struct GuideTree {
   nodes : Array[GuideTreeNode]
 } derive(Eq)
+pub extend GuideTree with Eq::{equal, not_equal}
 
 ///|
 /// Create a new GuideTree from an array of nodes.

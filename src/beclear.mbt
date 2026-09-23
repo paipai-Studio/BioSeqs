@@ -17,6 +17,7 @@ pub struct BEclearMatrix {
   data : Array[Array[Double]]
   batch : Map[String, Int]
 } derive(Eq)
+pub extend BEclearMatrix with Eq::{equal, not_equal}
 
 ///|
 pub fn BEclearMatrix::new(
@@ -96,6 +97,7 @@ pub struct BEclearBatchSummary {
   max_deviation : Double
   affected : Bool
 } derive(Eq)
+pub extend BEclearBatchSummary with Eq::{equal, not_equal}
 
 ///|
 /// Detect batch effects: for each row, compute per-batch medians and

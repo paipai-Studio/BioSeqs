@@ -19,6 +19,7 @@ pub struct StructureData {
   sequence : String
   residue_names : Array[String]
 } derive(Eq)
+pub extend StructureData with Eq::{equal, not_equal}
 
 ///|
 /// Create a new StructureData.

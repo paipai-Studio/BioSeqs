@@ -35,6 +35,7 @@ pub enum SnapgeneSeqType {
   SnapgeneProtein
   SnapgeneUnknown
 } derive(Eq)
+pub extend SnapgeneSeqType with Eq::{equal, not_equal}
 
 ///|
 /// Convert a sequence type to its string name.

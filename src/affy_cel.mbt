@@ -34,6 +34,7 @@ pub struct CelRecord {
   modified : Array[Int]
   cells_read : Int
 } derive(Eq)
+pub extend CelRecord with Eq::{equal, not_equal}
 
 ///|
 fn cel_fail(message : String) -> Unit raise CelError {

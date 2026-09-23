@@ -9,18 +9,21 @@ pub suberror AlignError {
 pub struct DNA {
   seq : Seq
 } derive(Eq)
+pub extend DNA with Eq::{equal, not_equal}
 
 ///|
 /// RNA sequence type.
 pub struct RNA {
   seq : Seq
 } derive(Eq)
+pub extend RNA with Eq::{equal, not_equal}
 
 ///|
 /// Protein sequence type.
 pub struct Protein {
   seq : Seq
 } derive(Eq)
+pub extend Protein with Eq::{equal, not_equal}
 
 ///|
 /// Create a DNA sequence from a string.
@@ -118,6 +121,7 @@ pub struct TabularMSA {
   records : Array[SeqRecord]
   dtype : String
 } derive(Eq)
+pub extend TabularMSA with Eq::{equal, not_equal}
 
 ///|
 /// Create a new TabularMSA from SeqRecords.

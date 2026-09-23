@@ -10,6 +10,8 @@ pub enum ChainType {
   SecondOrder
   ThirdOrder
 } derive(Eq, Debug)
+pub extend ChainType with Eq::{equal, not_equal}
+pub extend ChainType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Create a FirstOrder chain type.

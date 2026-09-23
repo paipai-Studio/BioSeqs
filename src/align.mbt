@@ -23,6 +23,7 @@ pub struct MultipleSeqAlignment {
   pub annotations : Map[String, String]
   pub column_annotations : Map[String, Array[String]]
 } derive(Eq)
+pub extend MultipleSeqAlignment with Eq::{equal, not_equal}
 
 ///|
 /// Create a new MultipleSeqAlignment from an array of SeqRecords.

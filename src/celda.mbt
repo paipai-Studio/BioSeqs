@@ -13,6 +13,8 @@ pub(all) enum CeldaAlgorithm {
   CeldaEm
   CeldaGibbs
 } derive(Eq, Debug)
+pub extend CeldaAlgorithm with Eq::{equal, not_equal}
+pub extend CeldaAlgorithm with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub(all) enum CeldaCGCriterion {
@@ -20,6 +22,8 @@ pub(all) enum CeldaCGCriterion {
   CeldaPerplexity
   CeldaLogLikelihood
 } derive(Eq, Debug)
+pub extend CeldaCGCriterion with Eq::{equal, not_equal}
+pub extend CeldaCGCriterion with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct CeldaCGConfig {
@@ -36,6 +40,8 @@ pub struct CeldaCGConfig {
   tolerance : Double
   seed : Int
 } derive(Eq, Debug)
+pub extend CeldaCGConfig with Eq::{equal, not_equal}
+pub extend CeldaCGConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn CeldaCGConfig::create(
@@ -131,6 +137,8 @@ pub struct CeldaCGDiagnostics {
   chain_scores : Array[Double]
   best_chain : Int
 } derive(Eq, Debug)
+pub extend CeldaCGDiagnostics with Eq::{equal, not_equal}
+pub extend CeldaCGDiagnostics with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct CeldaFeatureScore {
@@ -139,6 +147,8 @@ pub struct CeldaFeatureScore {
   probability : Double
   total_count : Double
 } derive(Eq, Debug)
+pub extend CeldaFeatureScore with Eq::{equal, not_equal}
+pub extend CeldaFeatureScore with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct CeldaCGResult {
@@ -168,6 +178,8 @@ pub struct CeldaCGPrediction {
   probabilities : Array[Array[Double]]
   assignments : Array[Int]
 } derive(Eq, Debug)
+pub extend CeldaCGPrediction with Eq::{equal, not_equal}
+pub extend CeldaCGPrediction with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct CeldaCGGridEntry {

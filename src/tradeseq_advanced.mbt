@@ -20,6 +20,7 @@ pub struct TradeSeqAdvancedConfig {
   fdr_threshold : Double
   test_points : Int
 } derive(Debug)
+pub extend TradeSeqAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn TradeSeqAdvancedConfig::create(
@@ -110,6 +111,7 @@ pub struct TradeSeqGeneModel {
   converged : Bool
   iterations : Int
 } derive(Debug)
+pub extend TradeSeqGeneModel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct TradeSeqAdvancedFit {
@@ -126,6 +128,7 @@ pub struct TradeSeqAdvancedFit {
   n_cells : Int
   n_lineages : Int
 } derive(Debug)
+pub extend TradeSeqAdvancedFit with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct TradeSeqAdvancedTestResult {
@@ -137,6 +140,7 @@ pub struct TradeSeqAdvancedTestResult {
   log2_fold_change : Double
   significant : Bool
 } derive(Debug)
+pub extend TradeSeqAdvancedTestResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct TradeSeqAdvancedTestTable {
@@ -144,6 +148,7 @@ pub struct TradeSeqAdvancedTestTable {
   results : Array[TradeSeqAdvancedTestResult]
   fdr_threshold : Double
 } derive(Debug)
+pub extend TradeSeqAdvancedTestTable with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct TradeSeqKnotEvaluation {
@@ -152,6 +157,7 @@ pub struct TradeSeqKnotEvaluation {
   mean_aic : Array[Double]
   selected_n_knots : Int
 } derive(Debug)
+pub extend TradeSeqKnotEvaluation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct TradeSeqSmoothPrediction {
@@ -160,6 +166,7 @@ pub struct TradeSeqSmoothPrediction {
   fitted : Array[Array[Double]]
   standard_errors : Array[Array[Double]]
 } derive(Debug)
+pub extend TradeSeqSmoothPrediction with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct TradeSeqAdvancedSceOutput {

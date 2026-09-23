@@ -15,6 +15,8 @@ pub struct Yn00Option {
   name : String
   value : String
 } derive(Eq, Debug)
+pub extend Yn00Option with Eq::{equal, not_equal}
+pub extend Yn00Option with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A YN00 control file.
@@ -23,6 +25,8 @@ pub struct Yn00Control {
   output_file : String
   options : Array[Yn00Option]
 } derive(Eq, Debug)
+pub extend Yn00Control with Eq::{equal, not_equal}
+pub extend Yn00Control with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Nei-Gojobori (1986) estimates for one sequence pair.
@@ -31,6 +35,8 @@ pub struct Yn00Ng86Estimate {
   dn : Double
   ds : Double
 } derive(Eq, Debug)
+pub extend Yn00Ng86Estimate with Eq::{equal, not_equal}
+pub extend Yn00Ng86Estimate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Yang-Nielsen (2000) estimates and standard errors for one sequence pair.
@@ -45,6 +51,8 @@ pub struct Yn00YangNielsenEstimate {
   ds : Double
   ds_standard_error : Double
 } derive(Eq, Debug)
+pub extend Yn00YangNielsenEstimate with Eq::{equal, not_equal}
+pub extend Yn00YangNielsenEstimate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// An estimate from LWL85, modified LWL85, or LPB93.
@@ -60,6 +68,8 @@ pub struct Yn00CountingEstimate {
   nonsynonymous_sites : Double?
   rho : Double?
 } derive(Eq, Debug)
+pub extend Yn00CountingEstimate with Eq::{equal, not_equal}
+pub extend Yn00CountingEstimate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// All five YN00 estimates for one unordered sequence pair.
@@ -72,6 +82,8 @@ pub struct Yn00PairResult {
   lwl85_modified : Yn00CountingEstimate
   lpb93 : Yn00CountingEstimate
 } derive(Eq, Debug)
+pub extend Yn00PairResult with Eq::{equal, not_equal}
+pub extend Yn00PairResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A symmetric matrix for one method/statistic combination.
@@ -79,6 +91,8 @@ pub struct Yn00DistanceMatrix {
   names : Array[String]
   values : Array[Array[Double?]]
 } derive(Eq, Debug)
+pub extend Yn00DistanceMatrix with Eq::{equal, not_equal}
+pub extend Yn00DistanceMatrix with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Parsed YN00 pairwise results.
@@ -89,6 +103,8 @@ pub struct Yn00Results {
   sequence_names : Array[String]
   pairs : Array[Yn00PairResult]
 } derive(Eq, Debug)
+pub extend Yn00Results with Eq::{equal, not_equal}
+pub extend Yn00Results with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 priv struct Yn00PairBuilder {

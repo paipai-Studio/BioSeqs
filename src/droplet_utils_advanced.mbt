@@ -14,6 +14,7 @@ pub struct DropletCountMatrix {
   feature_names : Array[String]
   barcodes : Array[String]
 } derive(Debug)
+pub extend DropletCountMatrix with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DropletUtilsConfig {
@@ -32,6 +33,7 @@ pub struct DropletUtilsConfig {
   round_counts : Bool
   seed : Int
 } derive(Debug)
+pub extend DropletUtilsConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DropletAmbientProfile {
@@ -41,6 +43,7 @@ pub struct DropletAmbientProfile {
   lower : Int
   total : Int
 } derive(Debug)
+pub extend DropletAmbientProfile with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DropletBarcodeRanks {
@@ -50,6 +53,7 @@ pub struct DropletBarcodeRanks {
   knee : Double
   inflection : Double
 } derive(Debug)
+pub extend DropletBarcodeRanks with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DropletEmptyDropsResult {
@@ -69,6 +73,7 @@ pub struct DropletEmptyDropsResult {
   iterations : Int
   fdr_threshold : Double
 } derive(Debug)
+pub extend DropletEmptyDropsResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct DropletUtilsSingleCellExperimentOutput {

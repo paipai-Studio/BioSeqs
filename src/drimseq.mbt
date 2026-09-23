@@ -15,6 +15,7 @@ pub enum DRIMSeqNorm {
   TMM
   Sum
 } derive(Eq)
+pub extend DRIMSeqNorm with Eq::{equal, not_equal}
 
 ///|
 /// Create no normalization.

@@ -16,6 +16,8 @@ pub struct AlignChainCoordinate {
   target : Int
   query : Int
 } derive(Eq, Debug)
+pub extend AlignChainCoordinate with Eq::{equal, not_equal}
+pub extend AlignChainCoordinate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One canonical UCSC chain block.
@@ -27,6 +29,8 @@ pub struct AlignChainBlock {
   target_gap : Int
   query_gap : Int
 } derive(Eq, Debug)
+pub extend AlignChainBlock with Eq::{equal, not_equal}
+pub extend AlignChainBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One aligned part of a requested genomic range.
@@ -40,6 +44,8 @@ pub struct AlignChainRangeMapping {
   target_strand : String
   query_strand : String
 } derive(Eq, Debug)
+pub extend AlignChainRangeMapping with Eq::{equal, not_equal}
+pub extend AlignChainRangeMapping with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One aligned residue pair in forward genomic coordinates.
@@ -47,6 +53,8 @@ pub struct AlignChainPair {
   target : Int
   query : Int
 } derive(Eq, Debug)
+pub extend AlignChainPair with Eq::{equal, not_equal}
+pub extend AlignChainPair with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Coordinate-only chain alignment statistics.
@@ -60,6 +68,8 @@ pub struct AlignChainCounts {
   aligned_blocks : Int
   path_segments : Int
 } derive(Eq, Debug)
+pub extend AlignChainCounts with Eq::{equal, not_equal}
+pub extend AlignChainCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A coordinate-aware pairwise chain alignment.
@@ -76,6 +86,8 @@ pub struct AlignChainAlignment {
   chain_id : String
   coordinates : Array[AlignChainCoordinate]
 } derive(Eq, Debug)
+pub extend AlignChainAlignment with Eq::{equal, not_equal}
+pub extend AlignChainAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn align_chain_fail(message : String) -> Unit raise AlignChainError {

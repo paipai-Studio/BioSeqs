@@ -7,6 +7,8 @@ pub enum Strand {
   Minus
   Star
 } derive(Eq, Debug)
+pub extend Strand with Eq::{equal, not_equal}
+pub extend Strand with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn strand_plus() -> Strand {

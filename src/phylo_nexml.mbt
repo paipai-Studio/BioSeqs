@@ -13,6 +13,7 @@ pub struct NeXMLState {
   id : String
   symbol : String
 } derive(Eq)
+pub extend NeXMLState with Eq::{equal, not_equal}
 
 ///|
 /// NeXML character definition.
@@ -21,6 +22,7 @@ pub struct NeXMLCharacter {
   label : String
   states : Array[String]
 } derive(Eq)
+pub extend NeXMLCharacter with Eq::{equal, not_equal}
 
 ///|
 /// NeXML characters matrix.
@@ -31,6 +33,7 @@ pub struct NeXMLCharacters {
   characters : Array[NeXMLCharacter]
   matrix : Map[String, Array[String]]
 } derive(Eq)
+pub extend NeXMLCharacters with Eq::{equal, not_equal}
 
 ///|
 /// NeXML OTU (Operational Taxonomic Unit).
@@ -38,6 +41,7 @@ pub struct NeXMLOTU {
   id : String
   label : String
 } derive(Eq)
+pub extend NeXMLOTU with Eq::{equal, not_equal}
 
 ///|
 /// NeXML OTUs block.
@@ -45,6 +49,7 @@ pub struct NeXMLOTUs {
   id : String
   otus : Array[NeXMLOTU]
 } derive(Eq)
+pub extend NeXMLOTUs with Eq::{equal, not_equal}
 
 ///|
 /// NeXML tree node.
@@ -54,6 +59,7 @@ pub struct NeXMLNode {
   otu : String
   length : Double?
 } derive(Eq)
+pub extend NeXMLNode with Eq::{equal, not_equal}
 
 ///|
 /// NeXML tree edge.
@@ -63,6 +69,7 @@ pub struct NeXMLEdge {
   target : String
   length : Double?
 } derive(Eq)
+pub extend NeXMLEdge with Eq::{equal, not_equal}
 
 ///|
 /// NeXML tree (edges + nodes).
@@ -74,6 +81,7 @@ pub struct NeXMLTree {
   nodes : Array[NeXMLNode]
   edges : Array[NeXMLEdge]
 } derive(Eq)
+pub extend NeXMLTree with Eq::{equal, not_equal}
 
 ///|
 /// NeXML trees block.
@@ -82,6 +90,7 @@ pub struct NeXMLTrees {
   otus_id : String
   trees : Array[NeXMLTree]
 } derive(Eq)
+pub extend NeXMLTrees with Eq::{equal, not_equal}
 
 ///|
 /// NeXML document root.
@@ -92,6 +101,7 @@ pub struct NeXMLDocument {
   characters_blocks : Array[NeXMLCharacters]
   trees_blocks : Array[NeXMLTrees]
 } derive(Eq)
+pub extend NeXMLDocument with Eq::{equal, not_equal}
 
 // ============================================================================
 // Constructors

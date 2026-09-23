@@ -15,6 +15,7 @@ pub enum Position {
   UncertainPosition(Int)
   UnknownPosition
 } derive(Eq)
+pub extend Position with Eq::{equal, not_equal}
 
 ///|
 pub fn Position::new_exact(pos : Int) -> Position {
@@ -114,6 +115,7 @@ pub struct FeatureLocation {
   ref_seq : String?
   ref_db : String?
 } derive(Eq)
+pub extend FeatureLocation with Eq::{equal, not_equal}
 
 ///|
 pub fn FeatureLocation::new(
@@ -272,6 +274,7 @@ pub struct CompoundLocation {
   ref_seq : String?
   ref_db : String?
 } derive(Eq)
+pub extend CompoundLocation with Eq::{equal, not_equal}
 
 ///|
 pub fn CompoundLocation::new(
@@ -338,6 +341,7 @@ pub struct SeqFeature {
   ref_db : String?
   strand : Int?
 } derive(Eq)
+pub extend SeqFeature with Eq::{equal, not_equal}
 
 ///|
 pub fn SeqFeature::new(
@@ -510,6 +514,7 @@ pub struct Reference {
   pubmed_id : String
   comment : String
 } derive(Eq)
+pub extend Reference with Eq::{equal, not_equal}
 
 ///|
 pub fn Reference::new(

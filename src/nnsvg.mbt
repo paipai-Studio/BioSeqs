@@ -20,6 +20,8 @@ pub enum NnsvgOrdering {
   Ammd
   SumCoordinates
 } derive(Eq, Debug)
+pub extend NnsvgOrdering with Eq::{equal, not_equal}
+pub extend NnsvgOrdering with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn nnsvg_ammd_ordering() -> NnsvgOrdering {
@@ -43,6 +45,8 @@ pub struct NnsvgConfig {
   minimum_variance : Double
   fdr_threshold : Double
 } derive(Eq, Debug)
+pub extend NnsvgConfig with Eq::{equal, not_equal}
+pub extend NnsvgConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn NnsvgConfig::create(
@@ -120,6 +124,7 @@ pub struct NnsvgNeighborGraph {
   ordering : NnsvgOrdering
   range_scale : Double
 } derive(Debug)
+pub extend NnsvgNeighborGraph with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct NnsvgGeneResult {
@@ -141,6 +146,7 @@ pub struct NnsvgGeneResult {
   beta : Array[Double]
   converged : Bool
 } derive(Debug)
+pub extend NnsvgGeneResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct NnsvgResult {
@@ -150,6 +156,7 @@ pub struct NnsvgResult {
   design_columns : Int
   config : NnsvgConfig
 } derive(Debug)
+pub extend NnsvgResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct NnsvgFilterResult {
@@ -159,6 +166,7 @@ pub struct NnsvgFilterResult {
   removed_low_expression : Array[Int]
   removed_mitochondrial : Array[Int]
 } derive(Debug)
+pub extend NnsvgFilterResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct NnsvgSpatialFilterOutput {

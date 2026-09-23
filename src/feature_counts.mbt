@@ -15,6 +15,7 @@ pub enum StrandMode {
   Stranded
   Reversed
 } derive(Eq)
+pub extend StrandMode with Eq::{equal, not_equal}
 
 ///|
 /// Create unstranded mode.

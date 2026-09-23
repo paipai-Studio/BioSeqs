@@ -15,6 +15,8 @@ pub struct StackMotif {
   name : String
   pwm : Array[Array[Double]]
 } derive(Eq, Show, Debug)
+pub extend StackMotif with Eq::{equal, not_equal}
+pub extend StackMotif with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn StackMotif::new(

@@ -25,6 +25,7 @@ pub struct ScDblFinderConfig {
   cluster_count : Int
   seed : Int
 } derive(Debug)
+pub extend ScDblFinderConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ScDblFinderArtificialData {
@@ -34,6 +35,7 @@ pub struct ScDblFinderArtificialData {
   parent_two : Array[Int]
   origins : Array[String]
 } derive(Debug)
+pub extend ScDblFinderArtificialData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ScDblFinderThreshold {
@@ -43,6 +45,7 @@ pub struct ScDblFinderThreshold {
   false_negative_rate : Double
   called_rate : Double
 } derive(Debug)
+pub extend ScDblFinderThreshold with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ScDblFinderCellResult {
@@ -58,6 +61,7 @@ pub struct ScDblFinderCellResult {
   origin : String
   origin_ambiguity : Double
 } derive(Debug)
+pub extend ScDblFinderCellResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ScDblFinderResult {
@@ -89,6 +93,7 @@ pub struct ScDblFinderResult {
   classifier_iterations : Int
   config : ScDblFinderConfig
 } derive(Debug)
+pub extend ScDblFinderResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ScDblFinderEnrichment {
@@ -99,6 +104,7 @@ pub struct ScDblFinderEnrichment {
   p_value : Double
   adjusted_p_value : Double
 } derive(Debug)
+pub extend ScDblFinderEnrichment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ScDblFinderSingleCellExperimentOutput {

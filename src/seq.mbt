@@ -56,6 +56,8 @@ fn find_from(s : String, sub : String, from : Int) -> Int? {
 pub struct Seq {
   data : String
 } derive(Eq, Hash)
+pub extend Seq with Eq::{equal, not_equal}
+pub extend Seq with Hash::{hash, hash_combine}
 
 ///|
 /// Construct a Seq from a String.

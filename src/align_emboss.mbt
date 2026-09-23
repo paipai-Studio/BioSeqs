@@ -17,6 +17,8 @@ pub(all) enum AlignEmbossStrand {
   AlignEmbossForward
   AlignEmbossReverse
 } derive(Eq, Debug)
+pub extend AlignEmbossStrand with Eq::{equal, not_equal}
+pub extend AlignEmbossStrand with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// File-level metadata from the EMBOSS report header.
@@ -27,6 +29,8 @@ pub struct AlignEmbossMetadata {
   align_format : String
   command_line : String
 } derive(Eq, Debug)
+pub extend AlignEmbossMetadata with Eq::{equal, not_equal}
+pub extend AlignEmbossMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Per-alignment annotations reported by EMBOSS.
@@ -44,6 +48,8 @@ pub struct AlignEmbossAnnotations {
   shortest_identity : String
   shortest_similarity : String
 } derive(Eq, Debug)
+pub extend AlignEmbossAnnotations with Eq::{equal, not_equal}
+pub extend AlignEmbossAnnotations with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One sequence row in an EMBOSS alignment.
@@ -60,6 +66,8 @@ pub struct AlignEmbossSequence {
   end : Int
   strand : AlignEmbossStrand
 } derive(Eq, Debug)
+pub extend AlignEmbossSequence with Eq::{equal, not_equal}
+pub extend AlignEmbossSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One parsed EMBOSS pairwise or multiple sequence alignment.
@@ -68,6 +76,8 @@ pub struct AlignEmbossAlignment {
   consensus : String
   annotations : AlignEmbossAnnotations
 } derive(Eq, Debug)
+pub extend AlignEmbossAlignment with Eq::{equal, not_equal}
+pub extend AlignEmbossAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A complete EMBOSS report containing one or more alignments.
@@ -75,6 +85,8 @@ pub struct AlignEmbossDocument {
   metadata : AlignEmbossMetadata
   alignments : Array[AlignEmbossAlignment]
 } derive(Eq, Debug)
+pub extend AlignEmbossDocument with Eq::{equal, not_equal}
+pub extend AlignEmbossDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise statistics for two rows in an EMBOSS alignment.
@@ -90,6 +102,8 @@ pub struct AlignEmbossPairCounts {
   deletion_opens : Int
   positives : Int
 } derive(Eq, Debug)
+pub extend AlignEmbossPairCounts with Eq::{equal, not_equal}
+pub extend AlignEmbossPairCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct file-level EMBOSS metadata.

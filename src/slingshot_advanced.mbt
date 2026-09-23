@@ -13,6 +13,8 @@ pub enum SlingshotClusterDistance {
   SlingshotScaledDiagonal
   SlingshotScaledFull
 } derive(Eq, Debug)
+pub extend SlingshotClusterDistance with Eq::{equal, not_equal}
+pub extend SlingshotClusterDistance with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub enum SlingshotCurveExtension {
@@ -20,6 +22,8 @@ pub enum SlingshotCurveExtension {
   SlingshotExtendLine
   SlingshotExtendPc1
 } derive(Eq, Debug)
+pub extend SlingshotCurveExtension with Eq::{equal, not_equal}
+pub extend SlingshotCurveExtension with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn slingshot_center_euclidean() -> SlingshotClusterDistance {
@@ -70,6 +74,7 @@ pub struct SlingshotAdvancedConfig {
   curve_points : Int
   covariance_ridge : Double
 } derive(Debug)
+pub extend SlingshotAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SlingshotAdvancedConfig::create(
@@ -153,6 +158,7 @@ pub struct SlingshotClusterSummary {
   covariance : Array[Array[Double]]
   size : Double
 } derive(Debug)
+pub extend SlingshotClusterSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SlingshotLineageEdge {
@@ -160,6 +166,8 @@ pub struct SlingshotLineageEdge {
   to : Int
   distance : Double
 } derive(Eq, Debug)
+pub extend SlingshotLineageEdge with Eq::{equal, not_equal}
+pub extend SlingshotLineageEdge with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SlingshotLineageModel {
@@ -175,6 +183,7 @@ pub struct SlingshotLineageModel {
   initial_weights : Array[Array[Double]]
   omega_threshold : Double
 } derive(Debug)
+pub extend SlingshotLineageModel with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SlingshotAdvancedCurve {
@@ -186,6 +195,7 @@ pub struct SlingshotAdvancedCurve {
   weights : Array[Double]
   length : Double
 } derive(Debug)
+pub extend SlingshotAdvancedCurve with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SlingshotAdvancedResult {
@@ -200,6 +210,7 @@ pub struct SlingshotAdvancedResult {
   total_distance : Double
   config : SlingshotAdvancedConfig
 } derive(Debug)
+pub extend SlingshotAdvancedResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SlingshotProjection {
@@ -209,6 +220,7 @@ pub struct SlingshotProjection {
   average_pseudotime : Array[Double]
   branch_ids : Array[String]
 } derive(Debug)
+pub extend SlingshotProjection with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SlingshotAdvancedSceOutput {

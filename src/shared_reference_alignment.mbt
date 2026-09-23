@@ -21,6 +21,8 @@ pub struct SharedReferenceSequence {
   start : Int
   end : Int
 } derive(Eq, Debug)
+pub extend SharedReferenceSequence with Eq::{equal, not_equal}
+pub extend SharedReferenceSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// An alignment containing one reference row and one or more query rows.
@@ -33,6 +35,8 @@ pub struct SharedReferenceInput {
   reference_end : Int
   queries : Array[SharedReferenceSequence]
 } derive(Eq, Debug)
+pub extend SharedReferenceInput with Eq::{equal, not_equal}
+pub extend SharedReferenceInput with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Counts comparing one merged query row with the shared reference.
@@ -43,6 +47,8 @@ pub struct SharedReferenceCounts {
   deletions : Int
   aligned_pairs : Int
 } derive(Eq, Debug)
+pub extend SharedReferenceCounts with Eq::{equal, not_equal}
+pub extend SharedReferenceCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A multiple sequence alignment formed without realigning the input queries.
@@ -56,6 +62,8 @@ pub struct SharedReferenceAlignment {
   queries : Array[SharedReferenceSequence]
   insertion_widths : Array[Int]
 } derive(Eq, Debug)
+pub extend SharedReferenceAlignment with Eq::{equal, not_equal}
+pub extend SharedReferenceAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Remove gap characters from an aligned sequence.

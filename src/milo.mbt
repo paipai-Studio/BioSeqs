@@ -19,6 +19,8 @@ pub enum MiloSpatialWeighting {
   GraphOverlap
   NoSpatialWeighting
 } derive(Eq, Debug)
+pub extend MiloSpatialWeighting with Eq::{equal, not_equal}
+pub extend MiloSpatialWeighting with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MiloExperiment {
@@ -34,6 +36,7 @@ pub struct MiloExperiment {
   sample_names : Array[String]
   neighborhood_counts : Array[Array[Int]]
 } derive(Debug)
+pub extend MiloExperiment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MiloDesign {
@@ -42,6 +45,7 @@ pub struct MiloDesign {
   reference : String
   coefficient_name : String
 } derive(Debug)
+pub extend MiloDesign with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MiloDAResult {
@@ -57,6 +61,7 @@ pub struct MiloDAResult {
   dispersion : Double
   mean_count : Double
 } derive(Debug)
+pub extend MiloDAResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MiloSampleData {
@@ -66,6 +71,7 @@ pub struct MiloSampleData {
   sample_names : Array[String]
   sample_conditions : Array[String]
 } derive(Debug)
+pub extend MiloSampleData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 priv struct MiloFit {

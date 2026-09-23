@@ -27,6 +27,7 @@ pub struct IHWResult {
   alpha : Double
   n_attempts : Int
 } derive(Eq)
+pub extend IHWResult with Eq::{equal, not_equal}
 
 ///|
 /// Create a new IHWResult.
@@ -99,6 +100,7 @@ pub struct IHWConfig {
   n_attempts : Int
   scale_type : String
 } derive(Eq)
+pub extend IHWConfig with Eq::{equal, not_equal}
 
 ///|
 /// Create a new IHWConfig.

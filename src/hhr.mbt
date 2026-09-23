@@ -24,6 +24,7 @@ pub struct HhrMetadata {
   run_date : String
   command_line : String
 } derive(Eq)
+pub extend HhrMetadata with Eq::{equal, not_equal}
 
 ///|
 /// Create HHR file-level metadata.
@@ -72,6 +73,7 @@ pub struct HhrHitSummary {
   target_end : Int
   target_length : Int
 } derive(Eq)
+pub extend HhrHitSummary with Eq::{equal, not_equal}
 
 ///|
 /// One detailed pairwise profile alignment from an HHR file.
@@ -108,6 +110,7 @@ pub struct HhrAlignment {
   column_score : String
   confidence : String
 } derive(Eq)
+pub extend HhrAlignment with Eq::{equal, not_equal}
 
 ///|
 /// A complete HHR document.
@@ -116,6 +119,7 @@ pub struct HhrRecord {
   hit_summaries : Array[HhrHitSummary]
   alignments : Array[HhrAlignment]
 } derive(Eq)
+pub extend HhrRecord with Eq::{equal, not_equal}
 
 ///|
 /// Return the number of detailed hit alignments.

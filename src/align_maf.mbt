@@ -18,6 +18,8 @@ pub struct AlignMafTrack {
   visibility : String?
   species_order : Array[String]
 } derive(Eq, Debug)
+pub extend AlignMafTrack with Eq::{equal, not_equal}
+pub extend AlignMafTrack with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignMafDocument {
@@ -28,12 +30,16 @@ pub struct AlignMafDocument {
   track : AlignMafTrack?
   blocks : Array[BigMafBlock]
 } derive(Eq, Debug)
+pub extend AlignMafDocument with Eq::{equal, not_equal}
+pub extend AlignMafDocument with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignMafCoordinate {
   column : Int
   positions : Array[Int]
 } derive(Eq, Debug)
+pub extend AlignMafCoordinate with Eq::{equal, not_equal}
+pub extend AlignMafCoordinate with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignMafIndexEntry {
@@ -41,6 +47,8 @@ pub struct AlignMafIndexEntry {
   start : Int
   end : Int
 } derive(Eq, Debug)
+pub extend AlignMafIndexEntry with Eq::{equal, not_equal}
+pub extend AlignMafIndexEntry with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignMafIndex {
@@ -50,12 +58,16 @@ pub struct AlignMafIndex {
   entries : Array[AlignMafIndexEntry]
   blocks : Array[BigMafBlock]
 } derive(Eq, Debug)
+pub extend AlignMafIndex with Eq::{equal, not_equal}
+pub extend AlignMafIndex with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignMafSplicedSequence {
   source : String
   text : String
 } derive(Eq, Debug)
+pub extend AlignMafSplicedSequence with Eq::{equal, not_equal}
+pub extend AlignMafSplicedSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignMafSplicedAlignment {
@@ -66,6 +78,8 @@ pub struct AlignMafSplicedAlignment {
   sequences : Array[AlignMafSplicedSequence]
   columns : Int
 } derive(Eq, Debug)
+pub extend AlignMafSplicedAlignment with Eq::{equal, not_equal}
+pub extend AlignMafSplicedAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct AlignMafSummary {
@@ -76,6 +90,8 @@ pub struct AlignMafSummary {
   reference_bases : Int
   source_count : Int
 } derive(Eq, Debug)
+pub extend AlignMafSummary with Eq::{equal, not_equal}
+pub extend AlignMafSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn align_maf_fail(message : String) -> Unit raise AlignMafError {

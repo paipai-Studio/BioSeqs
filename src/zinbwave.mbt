@@ -22,6 +22,8 @@ pub struct ZinbWaveConfig {
   minimum_mean : Double
   minimum_probability : Double
 } derive(Eq, Debug)
+pub extend ZinbWaveConfig with Eq::{equal, not_equal}
+pub extend ZinbWaveConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn ZinbWaveConfig::create(
@@ -98,6 +100,8 @@ pub struct ZinbWaveDiagnostics {
   log_likelihoods : Array[Double]
   maximum_parameter_change : Double
 } derive(Eq, Debug)
+pub extend ZinbWaveDiagnostics with Eq::{equal, not_equal}
+pub extend ZinbWaveDiagnostics with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ZinbWaveGeneSummary {
@@ -109,6 +113,8 @@ pub struct ZinbWaveGeneSummary {
   mean_count : Double
   mean_fitted : Double
 } derive(Eq, Debug)
+pub extend ZinbWaveGeneSummary with Eq::{equal, not_equal}
+pub extend ZinbWaveGeneSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct ZinbWaveModel {

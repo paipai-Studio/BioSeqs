@@ -16,6 +16,8 @@ pub(all) enum MsfSequenceType {
   MsfProtein
   MsfNucleotide
 } derive(Eq, Debug)
+pub extend MsfSequenceType with Eq::{equal, not_equal}
+pub extend MsfSequenceType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// File-level metadata from one GCG MSF alignment.
@@ -33,6 +35,8 @@ pub struct MsfMetadata {
   checksum_label : String
   declared_checksum : Int
 } derive(Eq, Debug)
+pub extend MsfMetadata with Eq::{equal, not_equal}
+pub extend MsfMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One row and its descriptor metadata in an MSF alignment.
@@ -48,6 +52,8 @@ pub struct MsfSequence {
   checksum : Int
   weight : Double
 } derive(Eq, Debug)
+pub extend MsfSequence with Eq::{equal, not_equal}
+pub extend MsfSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A coordinate-aware GCG MSF multiple sequence alignment.
@@ -55,6 +61,8 @@ pub struct MsfAlignment {
   metadata : MsfMetadata
   sequences : Array[MsfSequence]
 } derive(Eq, Debug)
+pub extend MsfAlignment with Eq::{equal, not_equal}
+pub extend MsfAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise statistics for two rows in an MSF alignment.
@@ -67,6 +75,8 @@ pub struct MsfPairCounts {
   double_gap_columns : Int
   gap_opens : Int
 } derive(Eq, Debug)
+pub extend MsfPairCounts with Eq::{equal, not_equal}
+pub extend MsfPairCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct validated file-level MSF metadata.

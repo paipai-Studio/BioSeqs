@@ -15,6 +15,8 @@ pub(all) enum Aldex2Denominator {
   Aldex2Lvha
   Aldex2User
 } derive(Eq, Debug)
+pub extend Aldex2Denominator with Eq::{equal, not_equal}
+pub extend Aldex2Denominator with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct Aldex2Config {
@@ -26,6 +28,8 @@ pub struct Aldex2Config {
   paired : Bool
   interval_level : Double
 } derive(Eq, Debug)
+pub extend Aldex2Config with Eq::{equal, not_equal}
+pub extend Aldex2Config with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn Aldex2Config::create(
@@ -108,6 +112,8 @@ pub struct Aldex2TestFeature {
   wilcoxon_p_value : Double
   wilcoxon_adjusted : Double
 } derive(Eq, Debug)
+pub extend Aldex2TestFeature with Eq::{equal, not_equal}
+pub extend Aldex2TestFeature with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct Aldex2TestResult {
@@ -131,6 +137,8 @@ pub struct Aldex2EffectFeature {
   effect_high : Double
   overlap : Double
 } derive(Eq, Debug)
+pub extend Aldex2EffectFeature with Eq::{equal, not_equal}
+pub extend Aldex2EffectFeature with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct Aldex2EffectResult {
@@ -162,6 +170,8 @@ pub struct Aldex2Summary {
   denominator : String
   scale_model : Bool
 } derive(Eq, Debug)
+pub extend Aldex2Summary with Eq::{equal, not_equal}
+pub extend Aldex2Summary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct Aldex2SummarizedExperimentOutput {

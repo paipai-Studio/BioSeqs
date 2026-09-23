@@ -572,6 +572,7 @@ pub struct SeqFeatureExtended {
   id : String
   description : String
 } derive(Eq)
+pub extend SeqFeatureExtended with Eq::{equal, not_equal}
 
 ///|
 /// Create a new SeqFeatureExtended.

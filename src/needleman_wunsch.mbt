@@ -19,6 +19,7 @@ pub enum NWTrace {
   Left // gap in seq1 (insertion): comes from (i, j-1)
   Start // only used at (0, 0) to terminate traceback
 } derive(Eq, Show)
+pub extend NWTrace with Eq::{equal, not_equal}
 
 ///|
 /// Scoring scheme for global alignment.

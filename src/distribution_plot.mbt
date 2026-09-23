@@ -14,6 +14,7 @@ pub struct PlotPoint {
   x : Double
   y : Double
 } derive(Eq)
+pub extend PlotPoint with Eq::{equal, not_equal}
 
 ///|
 pub fn PlotPoint::new(x~ : Double, y~ : Double) -> PlotPoint {
@@ -27,6 +28,7 @@ pub struct PlotSeries {
   color : String
   label : String
 } derive(Eq)
+pub extend PlotSeries with Eq::{equal, not_equal}
 
 ///|
 pub fn PlotSeries::new(
@@ -44,6 +46,7 @@ pub struct HistBin {
   hi : Double
   count : Int
 } derive(Eq)
+pub extend HistBin with Eq::{equal, not_equal}
 
 ///|
 /// Histogram data: bin edges plus counts, ready to render.
@@ -53,6 +56,7 @@ pub struct Histogram {
   data_max : Double
   total : Int
 } derive(Eq)
+pub extend Histogram with Eq::{equal, not_equal}
 
 ///|
 /// Build a histogram from raw values.
@@ -123,6 +127,7 @@ pub fn Histogram::max_count(self : Histogram) -> Int {
 pub struct ScatterPlot {
   series : Array[PlotSeries]
 } derive(Eq)
+pub extend ScatterPlot with Eq::{equal, not_equal}
 
 ///|
 pub fn ScatterPlot::new(series~ : Array[PlotSeries]) -> ScatterPlot {
@@ -134,6 +139,7 @@ pub fn ScatterPlot::new(series~ : Array[PlotSeries]) -> ScatterPlot {
 pub struct LinePlot {
   series : Array[PlotSeries]
 } derive(Eq)
+pub extend LinePlot with Eq::{equal, not_equal}
 
 ///|
 pub fn LinePlot::new(series~ : Array[PlotSeries]) -> LinePlot {
@@ -147,6 +153,7 @@ pub(all) enum PlotPanel {
   ScatterPanel(String, ScatterPlot)
   LinePanel(String, LinePlot)
 } derive(Eq)
+pub extend PlotPanel with Eq::{equal, not_equal}
 
 ///|
 /// A grid of panels rendered together, mirroring `DistributionPage`.
@@ -156,6 +163,7 @@ pub struct DistributionPage {
   cols : Int
   panels : Array[PlotPanel]
 } derive(Eq)
+pub extend DistributionPage with Eq::{equal, not_equal}
 
 ///|
 pub fn DistributionPage::new(

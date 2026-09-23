@@ -15,6 +15,7 @@ pub enum BamsigCountMode {
   /// Count paired-end reads as single events
   PairedEnd
 } derive(Eq)
+pub extend BamsigCountMode with Eq::{equal, not_equal}
 
 ///|
 /// Normalization method for signal

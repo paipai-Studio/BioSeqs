@@ -15,6 +15,7 @@ pub struct ResidueId {
   resseq : Int
   icode : Char
 } derive(Eq)
+pub extend ResidueId with Eq::{equal, not_equal}
 
 ///|
 /// Selection level enum for structure traversal.
@@ -35,6 +36,7 @@ pub struct DiceResult {
   num_chains : Int
   num_models : Int
 } derive(Eq)
+pub extend DiceResult with Eq::{equal, not_equal}
 
 // ============================================================================
 // Constructors

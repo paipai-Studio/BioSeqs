@@ -15,6 +15,8 @@ pub(all) enum MotifbreakrEffect {
   Loss
   Neutral
 } derive(Eq, Show, Debug)
+pub extend MotifbreakrEffect with Eq::{equal, not_equal}
+pub extend MotifbreakrEffect with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A single nucleotide variant to evaluate.
@@ -25,6 +27,7 @@ pub struct MotifbreakrVariant {
   ref_allele : String
   alt_allele : String
 } derive(Eq)
+pub extend MotifbreakrVariant with Eq::{equal, not_equal}
 
 ///|
 pub fn MotifbreakrVariant::new(
@@ -50,6 +53,7 @@ pub struct MotifbreakrResult {
   effect : MotifbreakrEffect
   strand : String
 } derive(Eq)
+pub extend MotifbreakrResult with Eq::{equal, not_equal}
 
 ///|
 /// Index of a nucleotide in A,C,G,T ordering; returns -1 for non-ACGT.

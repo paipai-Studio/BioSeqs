@@ -18,6 +18,8 @@ pub(all) enum AlignNexusDataType {
   AlignNexusProtein
   AlignNexusStandard
 } derive(Eq, Debug)
+pub extend AlignNexusDataType with Eq::{equal, not_equal}
+pub extend AlignNexusDataType with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// File-level metadata retained from a DATA or CHARACTERS block.
@@ -38,6 +40,8 @@ pub struct AlignNexusMetadata {
   symbols : String
   removed_all_gap_columns : Int
 } derive(Eq, Debug)
+pub extend AlignNexusMetadata with Eq::{equal, not_equal}
+pub extend AlignNexusMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One NEXUS matrix row.
@@ -49,6 +53,8 @@ pub struct AlignNexusSequence {
   sequence : String
   aligned_sequence : String
 } derive(Eq, Debug)
+pub extend AlignNexusSequence with Eq::{equal, not_equal}
+pub extend AlignNexusSequence with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A coordinate-aware NEXUS multiple sequence alignment.
@@ -56,6 +62,8 @@ pub struct AlignNexusAlignment {
   metadata : AlignNexusMetadata
   sequences : Array[AlignNexusSequence]
 } derive(Eq, Debug)
+pub extend AlignNexusAlignment with Eq::{equal, not_equal}
+pub extend AlignNexusAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Pairwise or all-pairs alignment statistics.
@@ -68,6 +76,8 @@ pub struct AlignNexusCounts {
   double_gap_columns : Int
   gap_opens : Int
 } derive(Eq, Debug)
+pub extend AlignNexusCounts with Eq::{equal, not_equal}
+pub extend AlignNexusCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Internal FORMAT state used while parsing commands.

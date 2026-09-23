@@ -31,6 +31,8 @@ pub struct BigWigInterval {
   end : Int
   value : Double
 } derive(Eq, Debug)
+pub extend BigWigInterval with Eq::{equal, not_equal}
+pub extend BigWigInterval with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn BigWigInterval::create(
@@ -51,6 +53,8 @@ pub struct BigWigSummary {
   sum_data : Double
   sum_squares : Double
 } derive(Eq, Debug)
+pub extend BigWigSummary with Eq::{equal, not_equal}
+pub extend BigWigSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// One zoom (reduction) level: reduction width and file offsets.
@@ -59,6 +63,8 @@ pub struct BigWigZoomHeader {
   data_offset : Int
   index_offset : Int
 } derive(Eq, Debug)
+pub extend BigWigZoomHeader with Eq::{equal, not_equal}
+pub extend BigWigZoomHeader with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigWigHeader {
@@ -71,12 +77,16 @@ pub struct BigWigHeader {
   total_summary_offset : Int
   uncompress_buffer_size : Int
 } derive(Eq, Debug)
+pub extend BigWigHeader with Eq::{equal, not_equal}
+pub extend BigWigHeader with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigWigWriteConfig {
   block_size : Int
   compress : Bool
 } derive(Eq, Debug)
+pub extend BigWigWriteConfig with Eq::{equal, not_equal}
+pub extend BigWigWriteConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigWigFile {

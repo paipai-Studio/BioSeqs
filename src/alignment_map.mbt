@@ -18,6 +18,8 @@ pub struct CoordinateAlignmentBlock {
   query_end : Int
   size : Int
 } derive(Eq, Debug)
+pub extend CoordinateAlignmentBlock with Eq::{equal, not_equal}
+pub extend CoordinateAlignmentBlock with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Coordinate representation of a pairwise alignment.
@@ -35,6 +37,8 @@ pub struct CoordinatePairwiseAlignment {
   target_coordinates : Array[Int]
   query_coordinates : Array[Int]
 } derive(Eq, Debug)
+pub extend CoordinatePairwiseAlignment with Eq::{equal, not_equal}
+pub extend CoordinatePairwiseAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Coordinate representation of a multiple sequence alignment.
@@ -43,6 +47,8 @@ pub struct CoordinateMultipleAlignment {
   sequences : Array[String]
   coordinates : Array[Array[Int]]
 } derive(Eq, Debug)
+pub extend CoordinateMultipleAlignment with Eq::{equal, not_equal}
+pub extend CoordinateMultipleAlignment with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Basic alignment statistics derived from a coordinate path.
@@ -54,6 +60,8 @@ pub struct CoordinateAlignmentCounts {
   query_gap_events : Int
   blocks : Int
 } derive(Eq, Debug)
+pub extend CoordinateAlignmentCounts with Eq::{equal, not_equal}
+pub extend CoordinateAlignmentCounts with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 fn alignment_map_copy_ints(values : Array[Int]) -> Array[Int] {

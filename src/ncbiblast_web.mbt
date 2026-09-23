@@ -44,6 +44,7 @@ pub enum NcbiBlastStatus {
   Failed
   Unknown
 } derive(Debug)
+pub extend NcbiBlastStatus with @moonbitlang/core/debug.Debug::{to_repr}
 
 // ============================================================================
 // URL construction

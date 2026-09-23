@@ -16,6 +16,8 @@ pub struct BigBedField {
   name : String
   comment : String
 } derive(Eq, Debug)
+pub extend BigBedField with Eq::{equal, not_equal}
+pub extend BigBedField with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedSchema {
@@ -23,12 +25,16 @@ pub struct BigBedSchema {
   comment : String
   fields : Array[BigBedField]
 } derive(Eq, Debug)
+pub extend BigBedSchema with Eq::{equal, not_equal}
+pub extend BigBedSchema with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedTarget {
   name : String
   length : Int
 } derive(Eq, Debug)
+pub extend BigBedTarget with Eq::{equal, not_equal}
+pub extend BigBedTarget with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedRecord {
@@ -46,6 +52,8 @@ pub struct BigBedRecord {
   block_starts : Array[Int]
   extra_fields : Array[String]
 } derive(Eq, Debug)
+pub extend BigBedRecord with Eq::{equal, not_equal}
+pub extend BigBedRecord with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedWriteConfig {
@@ -57,6 +65,8 @@ pub struct BigBedWriteConfig {
   schema_comment : String
   custom_fields : Array[BigBedField]
 } derive(Eq, Debug)
+pub extend BigBedWriteConfig with Eq::{equal, not_equal}
+pub extend BigBedWriteConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedHeader {
@@ -73,6 +83,8 @@ pub struct BigBedHeader {
   uncompress_buffer_size : Int
   extra_indices_offset : Int
 } derive(Eq, Debug)
+pub extend BigBedHeader with Eq::{equal, not_equal}
+pub extend BigBedHeader with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedBlockIndex {
@@ -83,6 +95,8 @@ pub struct BigBedBlockIndex {
   data_offset : Int
   data_size : Int
 } derive(Eq, Debug)
+pub extend BigBedBlockIndex with Eq::{equal, not_equal}
+pub extend BigBedBlockIndex with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedSummary {
@@ -94,6 +108,8 @@ pub struct BigBedSummary {
   maximum_span : Int
   compressed : Bool
 } derive(Eq, Debug)
+pub extend BigBedSummary with Eq::{equal, not_equal}
+pub extend BigBedSummary with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct BigBedFile {
@@ -110,6 +126,7 @@ enum BigBedEndian {
   BigBedLittleEndian
   BigBedBigEndian
 } derive(Eq)
+pub extend BigBedEndian with Eq::{equal, not_equal}
 
 ///|
 let bigbed_magic : Int = 0x8789F2EB

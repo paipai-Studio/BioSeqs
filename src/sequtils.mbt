@@ -374,6 +374,7 @@ pub fn gc(seq : String) -> Double {
 pub struct ProteinAnalysis {
   sequence : String
 } derive(Eq)
+pub extend ProteinAnalysis with Eq::{equal, not_equal}
 
 ///|
 pub fn ProteinAnalysis::new(sequence : String) -> ProteinAnalysis {

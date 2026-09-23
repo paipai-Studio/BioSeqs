@@ -14,6 +14,8 @@ pub enum SpicyModelKind {
   WeightedLinear
   WeightedRandomIntercept
 } derive(Eq, Debug)
+pub extend SpicyModelKind with Eq::{equal, not_equal}
+pub extend SpicyModelKind with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SpicyCell {
@@ -22,6 +24,8 @@ pub struct SpicyCell {
   x : Double
   y : Double
 } derive(Eq, Debug)
+pub extend SpicyCell with Eq::{equal, not_equal}
+pub extend SpicyCell with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SpicyCell::create(
@@ -49,6 +53,7 @@ pub struct SpicyImageMetadata {
   subject : String
   covariates : Map[String, Double]
 } derive(Debug)
+pub extend SpicyImageMetadata with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SpicyImageMetadata::create(
@@ -82,6 +87,8 @@ pub struct SpicyPair {
   from_cell_type : String
   to_cell_type : String
 } derive(Eq, Debug)
+pub extend SpicyPair with Eq::{equal, not_equal}
+pub extend SpicyPair with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SpicyPair::create(
@@ -112,6 +119,7 @@ pub struct SpicyConfig {
   max_iterations : Int
   tolerance : Double
 } derive(Debug)
+pub extend SpicyConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SpicyConfig::create(
@@ -202,6 +210,7 @@ pub struct SpicyAssociation {
   available : Bool
   weight : Double
 } derive(Debug)
+pub extend SpicyAssociation with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn SpicyAssociation::create(
@@ -252,6 +261,7 @@ pub struct SpicyConditionResult {
   adjusted_p_value : Double
   converged : Bool
 } derive(Debug)
+pub extend SpicyConditionResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SpicyPairResult {
@@ -263,6 +273,7 @@ pub struct SpicyPairResult {
   residual_variance : Double
   associations : Array[SpicyAssociation]
 } derive(Debug)
+pub extend SpicyPairResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SpicyResult {
@@ -272,6 +283,7 @@ pub struct SpicyResult {
   pairs : Array[SpicyPairResult]
   config : SpicyConfig
 } derive(Debug)
+pub extend SpicyResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct SpicySpatialExperimentOutput {

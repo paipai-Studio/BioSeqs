@@ -22,6 +22,7 @@ pub struct MastAdvancedConfig {
   minimum_probability : Double
   fdr_threshold : Double
 } derive(Debug)
+pub extend MastAdvancedConfig with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub fn MastAdvancedConfig::create(
@@ -103,6 +104,7 @@ pub struct MastAdvancedData {
   n_cells : Int
   n_coefficients : Int
 } derive(Debug)
+pub extend MastAdvancedData with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MastAdvancedResult {
@@ -136,6 +138,7 @@ pub struct MastAdvancedResult {
   empirical_bayes : Bool
   fdr_threshold : Double
 } derive(Debug)
+pub extend MastAdvancedResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 pub struct MastAdvancedSCEOutput {
