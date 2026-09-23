@@ -77,7 +77,7 @@ pub fn parse_clustal(
     match records.get(name) {
       Some(sb) => sb.write_string(seq_part)
       None => {
-        let sb = StringBuilder::new()
+        let sb = StringBuilder()
         sb.write_string(seq_part)
         records[name] = sb
       }
@@ -104,7 +104,7 @@ pub fn parse_clustal(
 ///|
 /// Write a MultipleSeqAlignment to ClustalW format text.
 pub fn write_clustal(align : MultipleSeqAlignment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("CLUSTAL X (1.81) multiple sequence alignment\n\n\n")
 
   let records = align.iter()

@@ -488,7 +488,7 @@ pub fn get_significant_hypotheses(result : StageRResult) -> Array[(Int, Int)] {
 ///|
 /// Generate a summary string of the stageR result.
 pub fn stage_r_summary(result : StageRResult) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("StageR Two-Stage Testing Summary\n")
   buf.write_string(
     "  Method: " + stage_r_method_name(result.stageMethod) + "\n",

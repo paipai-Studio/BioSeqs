@@ -85,7 +85,7 @@ pub fn pyfaidx_slice_indices(
 ///|
 /// Extract a substring given normalized (start, stop, step) indices.
 fn pyfaidx_string_slice(s : String, sstart : Int, sstop : Int, sstep : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   if sstep > 0 {
     let mut k = sstart
     while k < sstop {

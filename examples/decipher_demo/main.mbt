@@ -28,7 +28,7 @@ fn main {
   println("Distance matrix (" + dist.length().to_string() + "x" + dist.length().to_string() + "):")
   let mut i = 0
   while i < dist.length() {
-    let sb = StringBuilder::new()
+    let sb = StringBuilder()
     sb.write_string("  [")
     let mut j = 0
     while j < dist[i].length() {
@@ -51,7 +51,7 @@ fn main {
   let mut ci = 0
   while ci < clusters.n_clusters {
     let members = clusters.clusters[ci]
-    let sb = StringBuilder::new()
+    let sb = StringBuilder()
     sb.write_string("  Cluster " + (ci + 1).to_string() + " (size=" + members.length().to_string() + "): ")
     let mut mi = 0
     while mi < members.length() {

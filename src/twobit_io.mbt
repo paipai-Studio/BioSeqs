@@ -450,7 +450,7 @@ pub fn twobit_unpack_sequence(
     }
   }
   // Build the result string.
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<codes.length() {
     sb.write_char(Int::unsafe_to_char(codes[i]))
   }
@@ -611,7 +611,7 @@ pub fn twobit_from_bytes(data : Array[Int]) -> TwoBitFile {
   for i in 0..<seq_count {
     let name_len = data[pos]
     pos = pos + 1
-    let name_sb = StringBuilder::new()
+    let name_sb = StringBuilder()
     for j in 0..<name_len {
       name_sb.write_char(Int::unsafe_to_char(data[pos + j]))
     }
@@ -699,7 +699,7 @@ fn twobit_hex_value(c : Int) -> Int {
 /// Each byte is encoded as two lowercase hex characters.
 pub fn twobit_write(tbf : TwoBitFile) -> String {
   let bytes = twobit_to_bytes(tbf)
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<bytes.length() {
     let b = bytes[i]
     sb.write_char(twobit_hex_digit((b >> 4) & 0xF))

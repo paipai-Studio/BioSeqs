@@ -168,7 +168,7 @@ pub fn NWResult::percent_identity(self : NWResult) -> Double {
 ///|
 /// Format the alignment as a readable block (3 lines).
 pub fn NWResult::format(self : NWResult) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(self.aligned_seq1)
   buf.write_char('\n')
   buf.write_string(self.match_line)
@@ -181,7 +181,7 @@ pub fn NWResult::format(self : NWResult) -> String {
 /// Format the alignment with line wrapping for long sequences.
 /// `width` — number of characters per line.
 pub fn NWResult::format_wrapped(self : NWResult, width : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let total = self.aligned_seq1.length()
   let mut start = 0
   let mut block = 1
@@ -274,8 +274,8 @@ pub fn needleman_wunsch(
     }
   }
   // Traceback from (n, m) to (0, 0).
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
   let mut i = n
   let mut j = m
   while i > 0 || j > 0 {
@@ -380,8 +380,8 @@ pub fn needleman_wunsch_with_matrix(
       trace[i][j] = dir
     }
   }
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
   let mut i = n
   let mut j = m
   while i > 0 || j > 0 {
@@ -441,7 +441,7 @@ pub fn needleman_wunsch_pam250(
 ///|
 /// Build the match line: '|' for match, '.' for mismatch, ' ' for gap.
 fn nw_build_match_line(s1 : String, s2 : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < s1.length(); i = i + 1 {
     let c1 = s1.unsafe_get(i).unsafe_to_char()
     let c2 = s2.unsafe_get(i).unsafe_to_char()
@@ -460,7 +460,7 @@ fn nw_build_match_line(s1 : String, s2 : String) -> String {
 /// Reverse a string (local to avoid clashing with alignment.mbt).
 fn nw_reverse_string(s : String) -> String {
   let n = s.length()
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut i = n - 1
   while i >= 0 {
     result.write_char(s.unsafe_get(i).unsafe_to_char())

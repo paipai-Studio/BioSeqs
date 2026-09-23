@@ -810,7 +810,7 @@ pub struct GroupbyResult {
 
 ///|
 fn group_key(record : Array[String], group_cols : Array[Int]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut first = true
   for c in group_cols {
     if not(first) {
@@ -1041,7 +1041,7 @@ fn unique_counts_asc(vals : Array[String]) -> (Array[String], Array[Int]) {
 
 ///|
 fn join_strs(vals : Array[String], delim : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut first = true
   for v in vals {
     if not(first) {

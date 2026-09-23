@@ -164,7 +164,7 @@ fn RrRng::next_bound(self : RrRng, bound : Int) -> Int {
 /// Merge and sort a set of intervals (1-based, inclusive) per chromosome.
 /// Returns a map from chromosome name to the sorted, merged interval list.
 fn rr_mask_by_chrom(mask : GRanges) -> Map[String, Array[(Int, Int)]] {
-  let raw : Map[String, Array[(Int, Int)]] = Map::new()
+  let raw : Map[String, Array[(Int, Int)]] = Map([])
   let n = granges_length(mask)
   let mut i = 0
   while i < n {
@@ -175,7 +175,7 @@ fn rr_mask_by_chrom(mask : GRanges) -> Map[String, Array[(Int, Int)]] {
     }
     i = i + 1
   }
-  let merged : Map[String, Array[(Int, Int)]] = Map::new()
+  let merged : Map[String, Array[(Int, Int)]] = Map([])
   for chrom, ivs in raw {
     ivs.sort_by(fn(a : (Int, Int), b : (Int, Int)) -> Int {
       let c = a.0.compare(b.0)
@@ -325,7 +325,7 @@ fn rr_randomize_with_rng(
   let new_ends : Array[Int] = Array::make(n, 0)
   // cache of allowed-interval lists: per chromosome + width in
   // per-chromosome mode, per width across the whole genome otherwise
-  let iv_cache : Map[String, RrAllowed] = Map::new()
+  let iv_cache : Map[String, RrAllowed] = Map([])
   let mut i = 0
   while i < n {
     let w = a.ends[i] - a.starts[i] + 1

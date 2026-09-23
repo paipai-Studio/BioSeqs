@@ -84,7 +84,7 @@ fn mmcifio_replace_all(s : String, from : String, to : String) -> String {
   if from_len == 0 {
     return s
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let n = s.length()
   let mut i = 0
   while i < n {
@@ -182,7 +182,7 @@ pub fn mmcif_format_atom_with_group(
 ///|
 /// Write the mmCIF header categories (`entry` and `entity`) for a Structure.
 pub fn write_mmcif_header(structure : Structure) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let sid = if structure.id.length() > 0 { structure.id } else { "XXXX" }
   buf.write_string("_entry.id   ")
   buf.write_string(sid)
@@ -198,7 +198,7 @@ pub fn write_mmcif_header(structure : Structure) -> String {
 ///|
 /// Write the `_atom_site` loop category for a Structure.
 pub fn write_mmcif_atom_site(structure : Structure) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("loop_\n")
   buf.write_string("_atom_site.group_PDB\n")
   buf.write_string("_atom_site.id\n")
@@ -240,7 +240,7 @@ pub fn write_mmcif_atom_site(structure : Structure) -> String {
 ///|
 /// Write a Structure to an mmCIF format string.
 pub fn write_mmcif(structure : Structure) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let sid = if structure.id.length() > 0 { structure.id } else { "XXXX" }
   buf.write_string("data_")
   buf.write_string(sid)

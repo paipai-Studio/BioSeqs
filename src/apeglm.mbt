@@ -1363,7 +1363,7 @@ pub fn ApeglmResult::to_tsv(
   self : ApeglmResult,
   log2_scale? : Bool = true,
 ) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   let scale_label = if log2_scale { "log2" } else { "ln" }
   output.write_string(
     "gene\tbaseMean\t" +

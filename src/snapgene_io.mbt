@@ -255,7 +255,7 @@ fn sg_hex_to_bytes(hex : String) -> Array[Int] {
 ///|
 /// Convert a byte array to a lowercase hex string.
 fn sg_bytes_to_hex(data : Array[Int]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<data.length() {
     let b = data[i] & 0xFF
     sb.write_char(sg_hex_digit((b >> 4) & 0xF))
@@ -267,7 +267,7 @@ fn sg_bytes_to_hex(data : Array[Int]) -> String {
 ///|
 /// Convert ASCII byte array slice to a string.
 fn sg_ascii_to_string(data : Array[Int], offset : Int, length : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<length {
     let b = data[offset + i] & 0xFF
     sb.write_char(Char::from_int(b))
@@ -337,7 +337,7 @@ fn sg_json_extract_string(text : String, key : String) -> String {
     return ""
   }
   i = i + 1
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   while i < chars.length() && chars[i] != '"' {
     if chars[i] == '\\' && i + 1 < chars.length() {
       // Escape sequence
@@ -384,7 +384,7 @@ fn sg_build_comments(
 ///|
 /// Escape a string for JSON.
 fn sg_json_escape(s : String) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for c in s.to_array() {
     match c {
       '"' => sb.write_string("\\\"")
@@ -482,7 +482,7 @@ fn sg_xml_attr(text : String, attr : String) -> String {
     Some(p) => {
       let start = p + pattern.length()
       let chars = text.to_array()
-      let sb = StringBuilder::new()
+      let sb = StringBuilder()
       let mut i = start
       while i < chars.length() && chars[i] != '"' {
         sb.write_char(chars[i])
@@ -532,7 +532,7 @@ fn sg_all_digits(s : String) -> Bool {
 ///|
 /// Build the features packet XML-like text from an array of features.
 fn sg_build_features(features : Array[SnapgeneFeature]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("<Features>")
   for f in features {
     let dir_str = if f.direction == 1 {
@@ -580,7 +580,7 @@ fn sg_build_features(features : Array[SnapgeneFeature]) -> String {
 ///|
 /// Escape a string for XML attribute values.
 fn sg_xml_escape(s : String) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for c in s.to_array() {
     match c {
       '"' => sb.write_string("&quot;")
@@ -948,7 +948,7 @@ pub fn snapgene_seq_length(file : SnapgeneFile) -> Int {
 ///|
 /// Generate a summary string for a SnapgeneFile.
 pub fn snapgene_summary(file : SnapgeneFile) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("SnapGene File Summary:\n")
   sb.write_string("  Type: " + file.seq_type.to_string() + "\n")
   sb.write_string("  Circular: " + file.is_circular.to_string() + "\n")

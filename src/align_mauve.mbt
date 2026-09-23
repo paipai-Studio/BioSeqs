@@ -541,7 +541,7 @@ fn align_mauve_validate_aligned_sequence(
 
 ///|
 fn align_mauve_remove_gaps(sequence : String) -> String {
-  let output = StringBuilder::new(size_hint=sequence.length())
+  let output = StringBuilder(size_hint=sequence.length())
   for index in 0..<sequence.length() {
     let base = sequence.unsafe_get(index).unsafe_to_char()
     if base != '-' {
@@ -555,7 +555,7 @@ fn align_mauve_remove_gaps(sequence : String) -> String {
 fn align_mauve_reverse_complement(
   sequence : String,
 ) -> String raise AlignMauveError {
-  let output = StringBuilder::new(size_hint=sequence.length())
+  let output = StringBuilder(size_hint=sequence.length())
   let mut index = sequence.length() - 1
   while index >= 0 {
     output.write_char(
@@ -1081,7 +1081,7 @@ pub fn align_mauve_write(
   if document.sources.length() == 0 {
     align_mauve_fail("XMFA document must declare at least one source")
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("#FormatVersion ")
   output.write_string(document.format_version)
   output.write_char('\n')
@@ -2020,7 +2020,7 @@ pub fn align_mauve_reconstruct_sequence(
       }
     }
   }
-  let output = StringBuilder::new(size_hint=length)
+  let output = StringBuilder(size_hint=length)
   for base in sequence {
     output.write_char(base)
   }

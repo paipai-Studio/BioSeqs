@@ -329,7 +329,7 @@ pub fn MmProbeAnnotation::probe_type(self : MmProbeAnnotation) -> String {
 ///|
 /// Human-readable representation.
 pub fn MmProbeAnnotation::to_string(self : MmProbeAnnotation) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("MmProbeAnnotation(probe_id=")
   buf.write_string(self.probe_id)
   buf.write_string(", chr=")
@@ -1009,7 +1009,7 @@ pub fn mm_summary(dmp_results : Array[MmDmpResult]) -> String {
       n_sig_01 = n_sig_01 + 1
     }
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("DMP Analysis Summary\n")
   buf.write_string("====================\n")
   buf.write_string("Total probes tested: ")
@@ -1031,7 +1031,7 @@ pub fn mm_summary(dmp_results : Array[MmDmpResult]) -> String {
 pub fn mm_go_summary(go_results : Array[MmGoResult]) -> String {
   let n = go_results.length()
   let mut n_sig = 0
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("GO Enrichment Summary\n")
   buf.write_string("=====================\n")
   buf.write_string("GO terms tested: ")

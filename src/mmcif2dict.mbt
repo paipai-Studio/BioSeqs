@@ -51,7 +51,7 @@ fn m2d_rstrip(s : String) -> String {
 
 ///|
 fn m2d_join(arr : Array[String], sep : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < arr.length(); i = i + 1 {
     if i > 0 {
       buf.write_string(sep)

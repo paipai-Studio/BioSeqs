@@ -190,8 +190,8 @@ pub fn align_nw_affine(
     }
   }
   // Reverse
-  let ra = StringBuilder::new()
-  let rb = StringBuilder::new()
+  let ra = StringBuilder()
+  let rb = StringBuilder()
   let mut k = aligned_a.length() - 1
   while k >= 0 {
     ra.write_char(aligned_a[k])
@@ -331,7 +331,7 @@ pub fn decipher_align_profiles(
 ///|
 /// Convert profile to consensus sequence.
 pub fn profile_to_consensus(profile : Profile) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut pos = 0
   while pos < profile.length {
     let mut best_idx = 0
@@ -786,7 +786,7 @@ pub fn decipher_consensus(aligned_seqs : Array[String]) -> String {
     return ""
   }
   let n_pos = aligned_seqs[0].length()
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut pos = 0
   while pos < n_pos {
     let counts : Array[Int] = Array::make(5, 0) // A, C, G, T, gap
@@ -829,7 +829,7 @@ pub fn decipher_consensus(aligned_seqs : Array[String]) -> String {
 ///|
 /// Browse sequences: format for display (ASCII art style).
 pub fn browse_seqs(sequences : Array[String], names~ : Array[String] = []) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let max_name = if names.length() > 0 {
     let mut mx = 0
     let mut i = 0

@@ -421,7 +421,7 @@ fn bcif_read_utf8(
     raise BinaryCifError("Truncated MessagePack string")
   }
   let end = reader.position + length
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   while reader.position < end {
     let first = bcif_read_byte(reader)
     if first < 0x80 {

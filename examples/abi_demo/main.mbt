@@ -60,7 +60,7 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 4. Peak Positions ===")
   let mut p = 0
-  let parts = StringBuilder::new()
+  let parts = StringBuilder()
   while p < trace.base_positions.length() {
     if p > 0 {
       parts.write_string(", ")

@@ -834,7 +834,7 @@ pub fn sv_count_by_type(records : Array[SvRecord]) -> Map[String, Int] {
 ///|
 /// Text summary of a single SV record.
 pub fn sv_record_summary(rec : SvRecord) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("ID: ")
   sb.write_string(rec.id)
   sb.write_char('\n')
@@ -882,7 +882,7 @@ pub fn sv_record_summary(rec : SvRecord) -> String {
 ///|
 /// Text summary of an SV annotation.
 pub fn sv_annotation_summary(ann : SvAnnotation) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string(sv_record_summary(ann.record))
   if ann.genes.length() > 0 {
     sb.write_string("  Overlapping genes: ")
@@ -907,7 +907,7 @@ pub fn sv_annotation_summary(ann : SvAnnotation) -> String {
 /// Sample VCF text with structural variants: a DEL, DUP, INV, INS, and
 /// two paired BND records (translocation).
 pub fn sv_sample_vcf() -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let lines = [
     "##fileformat=VCFv4.2", "##fileDate=20260101", "##ALT=<ID=DEL,Description=\"Deletion\">",
     "##ALT=<ID=DUP,Description=\"Duplication\">", "##ALT=<ID=INV,Description=\"Inversion\">",

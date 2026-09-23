@@ -4,7 +4,7 @@
 
 ///|
 fn pf_sp(n : Int) -> String {
-  let b = StringBuilder::new()
+  let b = StringBuilder()
   for i = 0; i < n; i = i + 1 {
     b.write_char(' ')
   }

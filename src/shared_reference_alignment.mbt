@@ -68,7 +68,7 @@ pub extend SharedReferenceAlignment with @moonbitlang/core/debug.Debug::{to_repr
 ///|
 /// Remove gap characters from an aligned sequence.
 fn shared_reference_ungap(sequence : String) -> String {
-  let result = StringBuilder::new(size_hint=sequence.length())
+  let result = StringBuilder(size_hint=sequence.length())
   let mut index = 0
   while index < sequence.length() {
     let residue = sequence.unsafe_get(index).unsafe_to_char()
@@ -304,7 +304,7 @@ fn shared_reference_render_reference(
   span : Int,
   insertion_widths : Array[Int],
 ) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut boundary = 0
   while boundary <= span {
     result.write_string("-".repeat(insertion_widths[boundary]))
@@ -330,7 +330,7 @@ fn shared_reference_project_query(
   let bases = Array::make(span, '-')
   let mut boundary = 0
   while boundary <= span {
-    insertions.push(StringBuilder::new())
+    insertions.push(StringBuilder())
     boundary = boundary + 1
   }
   let mut reference_offset = 0
@@ -358,7 +358,7 @@ fn shared_reference_project_query(
       "query projection did not cover the reference span",
     )
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   boundary = 0
   while boundary <= span {
     let insertion = insertions[boundary].to_string()
@@ -540,7 +540,7 @@ pub fn SharedReferenceAlignment::column(
   if index < 0 || index >= self.alignment_length() {
     return None
   }
-  let result = StringBuilder::new(size_hint=self.num_sequences())
+  let result = StringBuilder(size_hint=self.num_sequences())
   result.write_char(self.aligned_reference.unsafe_get(index).unsafe_to_char())
   for query in self.queries {
     result.write_char(query.aligned_sequence.unsafe_get(index).unsafe_to_char())
@@ -772,7 +772,7 @@ pub fn SharedReferenceAlignment::to_msa(
 pub fn SharedReferenceAlignment::to_fasta(
   self : SharedReferenceAlignment,
 ) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   result.write_char('>')
   result.write_string(self.reference_name)
   if self.reference_description != "" {

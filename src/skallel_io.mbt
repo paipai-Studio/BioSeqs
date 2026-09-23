@@ -8,7 +8,7 @@
 /// (missing calls become −1).
 pub fn skallel_parse_gt(s : String) -> Array[Int] {
   let out : Array[Int] = Array(capacity=0)
-  let mut cur = StringBuilder::new()
+  let mut cur = StringBuilder()
   let mut i = 0
   while i <= s.length() {
     let is_sep = if i == s.length() {
@@ -26,7 +26,7 @@ pub fn skallel_parse_gt(s : String) -> Array[Int] {
           out.push(parse_int(token))
         }
       }
-      cur = StringBuilder::new()
+      cur = StringBuilder()
     } else {
       cur.write_char(s.unsafe_get(i).unsafe_to_char())
     }

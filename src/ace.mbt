@@ -220,7 +220,7 @@ fn ace_write_wrapped(buf : StringBuilder, s : String, line_width : Int) -> Unit 
 ///|
 /// Convert quality array to space-separated string via StringBuilder.
 fn ace_quality_to_string(qualities : Array[Int]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut i = 0
   while i < qualities.length() {
     if i > 0 {
@@ -638,7 +638,7 @@ fn ace_parse_contig_block(
 ///|
 /// Serialize AceData back to ACE format string.
 pub fn ace_to_string(data : AceData) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   let mut ci = 0
   while ci < data.contigs.length() {

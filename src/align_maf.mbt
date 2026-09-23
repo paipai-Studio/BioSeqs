@@ -540,7 +540,7 @@ fn align_maf_parse_track(line : String) -> AlignMafTrack raise AlignMafError {
 
 ///|
 fn align_maf_normalize_text(value : String) -> String {
-  let output = StringBuilder::new(size_hint=value.length())
+  let output = StringBuilder(size_hint=value.length())
   for index in 0..<value.length() {
     let code = value.unsafe_get(index).to_int()
     if code == '.'.to_int() || code == '='.to_int() || code == '_'.to_int() {
@@ -844,7 +844,7 @@ pub fn align_maf_parse(text : String) -> AlignMafDocument raise AlignMafError {
 ///|
 fn align_maf_quote_track(value : String) -> String {
   let mut needs_quotes = false
-  let output = StringBuilder::new(size_hint=value.length())
+  let output = StringBuilder(size_hint=value.length())
   for index in 0..<value.length() {
     let code = value.unsafe_get(index).to_int()
     if align_maf_is_space(code) {
@@ -890,7 +890,7 @@ fn align_maf_write_track(output : StringBuilder, track : AlignMafTrack) -> Unit 
     None => ()
   }
   if track.species_order.length() > 0 {
-    let species = StringBuilder::new()
+    let species = StringBuilder()
     for index in 0..<track.species_order.length() {
       if index > 0 {
         species.write_char(' ')
@@ -916,7 +916,7 @@ pub fn align_maf_write(
     comments=document.comments,
     track=document.track,
   )
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   match validated.track {
     Some(track) => align_maf_write_track(output, track)
     None => ()
@@ -1229,7 +1229,7 @@ pub fn AlignMafIndex::entry_count(self : AlignMafIndex) -> Int {
 
 ///|
 fn align_maf_repeat(value : String, count : Int) -> String {
-  let output = StringBuilder::new(size_hint=count)
+  let output = StringBuilder(size_hint=count)
   for _ in 0..<count {
     output.write_string(value)
   }

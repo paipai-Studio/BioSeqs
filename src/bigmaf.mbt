@@ -467,7 +467,7 @@ pub fn BigMafWriteConfig::default() -> BigMafWriteConfig {
 
 ///|
 pub fn BigMafComponent::sequence(self : BigMafComponent) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index in 0..<self.text.length() {
     if self.text.unsafe_get(index).to_int() != '-'.to_int() {
       output.write_string(self.text[index:index + 1].to_owned())
@@ -682,7 +682,7 @@ fn bigmaf_write_component(
 
 ///|
 fn bigmaf_format_block(block : BigMafBlock, delimiter : String) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for comment in block.comments {
     output.write_string("# " + comment + delimiter)
   }
@@ -1250,7 +1250,7 @@ pub fn BigMafFile::is_compressed(self : BigMafFile) -> Bool {
 
 ///|
 pub fn BigMafFile::to_maf(self : BigMafFile) -> String raise BigMafError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("##maf version=1\n\n")
   for block in self.blocks() {
     output.write_string(block.to_maf())

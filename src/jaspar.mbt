@@ -60,7 +60,7 @@ pub fn JasparMatrix::new(
 ///|
 /// Get the consensus sequence of the PFM.
 pub fn JasparMatrix::consensus(self : JasparMatrix) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut col = 0
   while col < self.width {
     let mut max_count = -1
@@ -83,7 +83,7 @@ pub fn JasparMatrix::consensus(self : JasparMatrix) -> String {
 ///|
 /// Get the IUPAC consensus sequence (using ambiguity codes).
 pub fn JasparMatrix::iupac_consensus(self : JasparMatrix) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let iupac_map : Array[(Array[String], String)] = [
     (["A"], "A"),
     (["C"], "C"),
@@ -503,7 +503,7 @@ pub fn jaspar_sample_pfm() -> String {
 ///|
 /// Convert a JasparMatrix to a display string.
 pub fn JasparMatrix::to_string(self : JasparMatrix) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   result.write_string(">" + self.id + " " + self.name + "\n")
   let mut row = 0
   while row < self.alphabet.length() {

@@ -881,7 +881,7 @@ fn bigpsl_storage(alignment : BigPslAlignment) -> BigPslStorage {
 
 ///|
 fn bigpsl_join_ints(values : Array[Int], trailing : Bool) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index in 0..<values.length() {
     if index > 0 {
       output.write_char(',')
@@ -1576,7 +1576,7 @@ pub fn BigPslAlignment::to_psl(self : BigPslAlignment) -> String {
 
 ///|
 pub fn BigPslFile::to_psl(self : BigPslFile) -> String raise BigPslError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for alignment in self.alignments() {
     output.write_string(alignment.to_psl())
   }

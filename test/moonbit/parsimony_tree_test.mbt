@@ -122,7 +122,7 @@ fn pt_emit_fixed6(
 /// decimal digits, so MoonBit raw-Double output can be compared against the
 /// 6-decimal strings frozen from Biopython.
 fn pt_norm6(s : String) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let cs = s.to_array()
   let mut i = 0
   while i < cs.length() {

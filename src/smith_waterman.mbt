@@ -144,7 +144,7 @@ pub fn SWResult::percent_identity(self : SWResult) -> Double {
 ///|
 /// Format the alignment as a readable block (3 lines).
 pub fn SWResult::format(self : SWResult) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(self.aligned_seq1)
   buf.write_char('\n')
   buf.write_string(self.match_line)
@@ -157,7 +157,7 @@ pub fn SWResult::format(self : SWResult) -> String {
 /// Format the alignment with line wrapping for long sequences.
 /// `width` — number of characters per line.
 pub fn SWResult::format_wrapped(self : SWResult, width : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let total = self.aligned_seq1.length()
   let mut start = 0
   let mut block = 1
@@ -252,8 +252,8 @@ pub fn smith_waterman(
     }
   }
   // Traceback from (max_i, max_j) until a Stop cell.
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
   let mut i = max_i
   let mut j = max_j
   while i > 0 && j > 0 {
@@ -364,8 +364,8 @@ pub fn smith_waterman_with_matrix(
       }
     }
   }
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
   let mut i = max_i
   let mut j = max_j
   while i > 0 && j > 0 {
@@ -427,7 +427,7 @@ pub fn smith_waterman_pam250(
 ///|
 /// Build the match line: '|' for match, '.' for mismatch, ' ' for gap.
 fn build_match_line(s1 : String, s2 : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < s1.length(); i = i + 1 {
     let c1 = s1.unsafe_get(i).unsafe_to_char()
     let c2 = s2.unsafe_get(i).unsafe_to_char()

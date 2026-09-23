@@ -360,7 +360,7 @@ pub fn mast_motif_match_to_string(m : MastMotifMatch) -> String {
 ///|
 /// Serialize a MastMotifSeq to string.
 pub fn mast_motif_seq_to_string(seq : MastMotifSeq) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("Sequence: " + seq.name)
   if seq.description.length() > 0 {
     sb.write_string(" (" + seq.description + ")")
@@ -386,7 +386,7 @@ pub fn mast_motif_seq_to_string(seq : MastMotifSeq) -> String {
 ///|
 /// Serialize a MastMotifRecord to string summary.
 pub fn mast_motif_record_to_string(record : MastMotifRecord) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("MAST Record\n")
   sb.write_string("  Version: " + record.version + "\n")
   sb.write_string("  Database: " + record.database + "\n")

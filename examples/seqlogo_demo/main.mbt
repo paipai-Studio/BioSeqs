@@ -68,7 +68,7 @@ fn main {
   let logo = @bio.seqlogo_compute_logo(pwm)
   let columns = logo.columns()
   for col in columns {
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     buf.write_string("  pos ")
     buf.write_string(col.position().to_string())
     buf.write_string(" (IC=")

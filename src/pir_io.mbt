@@ -77,7 +77,7 @@ pub fn parse_pir(content : String) -> Array[SeqRecord] {
       }
 
       // Sequence lines until "*" (included) or next ">"
-      let seq_buf = StringBuilder::new()
+      let seq_buf = StringBuilder()
       while i < n {
         let sl = lines[i]
         let sll = sl.length()

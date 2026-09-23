@@ -314,7 +314,7 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
 ///|
 /// Write StockholmAlignment to Stockholm format string.
 pub fn stockholm_write(ali : StockholmAlignment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("# STOCKHOLM ")
   buf.write_string(ali.version)
   buf.write_string("\n")
@@ -540,7 +540,7 @@ pub fn stockholm_conservation(block : StockholmBlock) -> Array[Double] {
 ///|
 /// Convert Stockholm alignment to FASTA format string.
 pub fn stockholm_to_fasta(ali : StockholmAlignment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   let seen : Map[String, Bool] = Map([], capacity=32)
 
@@ -595,7 +595,7 @@ pub fn stockholm_merge_blocks(ali : StockholmAlignment) -> StockholmAlignment {
       match seq_map.get(seq.name) {
         Some(sb) => sb.write_string(seq.aligned_seq)
         None => {
-          let sb = StringBuilder::new()
+          let sb = StringBuilder()
           sb.write_string(seq.aligned_seq)
           seq_map[seq.name] = sb
           seq_info[seq.name] = seq

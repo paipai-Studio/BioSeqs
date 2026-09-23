@@ -104,7 +104,7 @@ pub fn TransfacMotifFull::new(accession? : String = "") -> TransfacMotifFull {
 ///|
 /// Get the consensus sequence of the PFM.
 pub fn TransfacMotifFull::consensus(self : TransfacMotifFull) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   for col = 0; col < self.width; col = col + 1 {
     let mut max_count = -1
     let mut max_base = "N"
@@ -552,7 +552,7 @@ fn transfac_matrix_width(pfm : Array[Array[Int]]) -> Int {
 ///|
 /// Serialize a TransfacMotifFull to TRANSFAC format.
 pub fn transfac_motif_full_to_string(motif : TransfacMotifFull) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("AC  " + motif.accession + "\nXX\n")
   if motif.identifier.length() > 0 {
     sb.write_string("ID  " + motif.identifier + "\nXX\n")
@@ -612,7 +612,7 @@ pub fn transfac_motif_full_to_string(motif : TransfacMotifFull) -> String {
 ///|
 /// Serialize a TransfacRecordFull to TRANSFAC format.
 pub fn transfac_record_full_to_string(record : TransfacRecordFull) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   if record.version.length() > 0 {
     sb.write_string("VV  " + record.version + "\nXX\n//\n")
   }

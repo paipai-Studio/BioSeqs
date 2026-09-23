@@ -54,7 +54,7 @@ pub fn methylgsa_result_new(
 ///|
 /// Per-gene minimal CpG p-value (first step of methylRRA).
 pub fn methylgsa_gene_min_p(input : MethylgsaInput) -> Map[String, Double] {
-  let gene_min : Map[String, Double] = Map::new()
+  let gene_min : Map[String, Double] = Map([])
   for i in 0..<input.cpg_ids.length() {
     let cpg = input.cpg_ids[i]
     let p = if i < input.cpg_pvalues.length() {
@@ -185,7 +185,7 @@ pub fn methylrra_ols(
   }
   let background : Array[Double] = Array(capacity=0)
   for g in universe {
-    let singleton : Map[String, Array[String]] = Map::new()
+    let singleton : Map[String, Array[String]] = Map([])
     singleton.set("bg", [g])
     let (stat, _) = methylgsa_ols_statistic(gene_min, singleton["bg"])
     background.push(stat)
@@ -385,7 +385,7 @@ pub fn methylgsa_sample_input() -> MethylgsaInput {
     cpg_ids=["cg1", "cg2", "cg3", "cg4", "cg5", "cg6", "cg7", "cg8"],
     cpg_pvalues=[0.001, 0.010, 0.400, 0.900, 0.002, 0.700, 0.500, 0.030],
     cpg_to_gene={
-      let m : Map[String, String] = Map::new()
+      let m : Map[String, String] = Map([])
       m.set("cg1", "GENE_A")
       m.set("cg2", "GENE_A")
       m.set("cg3", "GENE_B")
@@ -402,7 +402,7 @@ pub fn methylgsa_sample_input() -> MethylgsaInput {
 ///|
 /// Sample gene sets over the sample universe.
 pub fn methylgsa_sample_gene_sets() -> Map[String, Array[String]] {
-  let m : Map[String, Array[String]] = Map::new()
+  let m : Map[String, Array[String]] = Map([])
   m.set("SIGNIFICANT_SET", ["GENE_A", "GENE_D"])
   m.set("NEUTRAL_SET", ["GENE_C", "GENE_E"])
   m

@@ -362,7 +362,7 @@ pub fn align_emboss_write(
   if document.alignments.length() == 0 {
     raise AlignEmbossError("EMBOSS document must contain an alignment")
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("########################################\n")
   if document.metadata.program.length() > 0 {
     output.write_string("# Program: " + document.metadata.program + "\n")
@@ -553,7 +553,7 @@ pub fn AlignEmbossAlignment::column(
   if column < 0 || column >= self.alignment_length() {
     return None
   }
-  let result = StringBuilder::new(size_hint=self.sequences.length())
+  let result = StringBuilder(size_hint=self.sequences.length())
   for sequence in self.sequences {
     result.write_char(
       sequence.aligned_sequence.unsafe_get(column).unsafe_to_char(),
@@ -984,7 +984,7 @@ fn align_emboss_parse_alignment(
     ends.push(0)
     directions.push(0)
   }
-  let consensus_builder = StringBuilder::new(size_hint=length)
+  let consensus_builder = StringBuilder(size_hint=length)
   let mut consensus_seen = false
   let mut row_index = 0
   let mut block_width = 0
@@ -1646,7 +1646,7 @@ fn align_emboss_validate_optional_nonnegative_double(
 
 ///|
 fn align_emboss_remove_gaps(sequence : String) -> String {
-  let result = StringBuilder::new(size_hint=sequence.length())
+  let result = StringBuilder(size_hint=sequence.length())
   for index = 0; index < sequence.length(); index = index + 1 {
     let code = sequence.unsafe_get(index).to_int()
     if code != '-'.to_int() {

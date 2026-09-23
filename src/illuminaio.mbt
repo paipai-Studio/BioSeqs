@@ -96,7 +96,7 @@ fn idat_read_string(data : String, pos : Int) -> (String, Int) raise IdatError {
   if p + n > data.length() {
     idat_fail("Truncated IDAT string field")
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut k = 0
   while k < n {
     buf.write_char(data.unsafe_get(p + k).unsafe_to_char())

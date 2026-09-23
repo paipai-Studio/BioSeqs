@@ -25,7 +25,7 @@ pub fn parse_fasta(content : String) -> Array[SeqRecord] {
   let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let mut current_title : String? = None
-  let mut current_seq = StringBuilder::new()
+  let mut current_seq = StringBuilder()
   let gt : UInt16 = '>'.to_int().to_uint16()
   let cr : UInt16 = '\r'.to_int().to_uint16()
   let sp : UInt16 = ' '.to_int().to_uint16()
@@ -53,7 +53,7 @@ pub fn parse_fasta(content : String) -> Array[SeqRecord] {
           ""
         },
       )
-      current_seq = StringBuilder::new()
+      current_seq = StringBuilder()
     } else {
       for i = 0; i < trimmed_len; i = i + 1 {
         let c = line.unsafe_get(i)
@@ -99,7 +99,7 @@ fn fasta_title_to_record(title : String, seq_str : String) -> SeqRecord {
 ///   or ">" + id + " " + description (otherwise).
 /// - Sequences are wrapped at 60 characters per line.
 pub fn write_fasta(records : Array[SeqRecord]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for rec in records {
     // Determine the title line, matching BioPython's FastaIO logic:
     //   - If description starts with id: title = description
@@ -158,7 +158,7 @@ pub fn simple_fasta_parser(content : String) -> Array[(String, String)] {
   let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let mut current_title = ""
-  let mut current_seq = StringBuilder::new()
+  let mut current_seq = StringBuilder()
   let gt : UInt16 = '>'.to_int().to_uint16()
   let cr : UInt16 = '\r'.to_int().to_uint16()
   let sp : UInt16 = ' '.to_int().to_uint16()
@@ -189,7 +189,7 @@ pub fn simple_fasta_parser(content : String) -> Array[(String, String)] {
       if current_title.length() > 0 {
         records.push((current_title, current_seq.to_string()))
         current_title = ""
-        current_seq = StringBuilder::new()
+        current_seq = StringBuilder()
       }
       current_title = if trimmed_len > 1 {
         line[1:trimmed_len].to_owned()
@@ -414,7 +414,7 @@ pub fn write_fasta_record(
   record : SeqRecord,
   width? : Int = fasta_line_width,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_char('>')
   buf.write_string(build_fasta_title(record.id, record.description))
   buf.write_char('\n')
@@ -437,7 +437,7 @@ pub fn write_fasta_records(
   records : Array[SeqRecord],
   width? : Int = fasta_line_width,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for rec in records {
     buf.write_string(write_fasta_record(rec, width~))
   }

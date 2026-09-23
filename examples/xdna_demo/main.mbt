@@ -68,7 +68,7 @@ fn main {
   let packed = @bio.xdna_pack_sequence(dna)
   println("Sequence: \{dna}")
   println("Packed bytes (\{packed.length()} byte(s)):")
-  let pack_sb = StringBuilder::new()
+  let pack_sb = StringBuilder()
   pack_sb.write_string("  ")
   for i in 0..<packed.length() {
     if i > 0 {
@@ -90,7 +90,7 @@ fn main {
   println("Serialized to \{bytes.length()} byte(s)")
   // Show first 20 bytes as a preview.
   let preview_len = if bytes.length() < 20 { bytes.length() } else { 20 }
-  let byte_sb = StringBuilder::new()
+  let byte_sb = StringBuilder()
   byte_sb.write_string("  first ")
   byte_sb.write_string(preview_len.to_string())
   byte_sb.write_string(" byte(s): ")

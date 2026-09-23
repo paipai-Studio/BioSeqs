@@ -6,7 +6,7 @@ fn main {
   let seq = @src.motifbreakr_sample_sequence()
   let variants = @src.motifbreakr_sample_variants()
   let sequences = {
-    let m : Map[String, String] = Map::new()
+    let m : Map[String, String] = Map([])
     m.set("chr1", seq)
     m
   }

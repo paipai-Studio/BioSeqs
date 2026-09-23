@@ -12,7 +12,7 @@ fn is_gap_char(c : Char) -> Bool {
 ///|
 /// Reverse a sequence string (`seqkit seq -r`).
 pub fn seqkit_reverse(seq : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut i = seq.length() - 1
   while i >= 0 {
     buf.write_char(seq.unsafe_get(i).unsafe_to_char())
@@ -37,7 +37,7 @@ pub fn seqkit_reverse_complement(seq : String) -> String {
 ///|
 /// Remove gap letters (`seqkit seq -g`): `-`, space, tab and `.`.
 pub fn seqkit_remove_gaps(seq : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < seq.length(); i = i + 1 {
     let c = seq.unsafe_get(i).unsafe_to_char()
     if not(is_gap_char(c)) {
@@ -56,7 +56,7 @@ pub fn seqkit_fq2fa(records : Array[SeqRecord]) -> String {
 
 ///|
 fn phred_to_qual(quals : Array[Int]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for q in quals {
     buf.write_char((q + 33).to_uint16().unsafe_to_char())
   }
@@ -67,7 +67,7 @@ fn phred_to_qual(quals : Array[Int]) -> String {
 /// Convert FASTA/FASTQ records to tabular text (`seqkit fx2tab`): one record
 /// per line as `id \t seq` (FASTA) or `id \t seq \t qual` (FASTQ).
 pub fn seqkit_fx2tab(records : Array[SeqRecord], is_fastq : Bool) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut first = true
   for rec in records {
     if not(first) {
@@ -93,7 +93,7 @@ pub fn seqkit_fx2tab(records : Array[SeqRecord], is_fastq : Bool) -> String {
 /// becomes a FASTA record, a 3-column line becomes a FASTQ record.
 pub fn seqkit_tab2fx(content : String) -> String {
   let lines = content.split("\n")
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for line in lines {
     if line.length() == 0 {
       continue

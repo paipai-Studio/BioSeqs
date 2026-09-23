@@ -36,7 +36,7 @@ pub fn bwt(s : String) -> String {
   // Sort suffix array by rotation.
   bwt_suffix_sort(sa, text, n)
   // Build BWT: last column of sorted rotations.
-  let bwt_buf = StringBuilder::new()
+  let bwt_buf = StringBuilder()
   for i = 0; i < n; i = i + 1 {
     let rot_start = sa[i]
     // Last character of rotation is at (rot_start - 1) mod n.
@@ -66,7 +66,7 @@ pub fn bwt_inverse(bwt_str : String) -> String {
     }
   }
   // Reconstruct text from right to left using LF mapping.
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut current = dollar_pos
   for idx = 0; idx < n; idx = idx + 1 {
     let c = bwt_str.unsafe_get(current).unsafe_to_char()
@@ -403,7 +403,7 @@ pub fn suffix_array(text : String) -> Array[Int] {
 /// Reverse a string.
 fn bwt_reverse_string(s : String) -> String {
   let n = s.length()
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut i = n - 1
   while i >= 0 {
     result.write_char(s.unsafe_get(i).unsafe_to_char())

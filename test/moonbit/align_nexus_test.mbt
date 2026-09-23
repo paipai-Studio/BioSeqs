@@ -496,8 +496,8 @@ test "Bio.Align.nexus writer uses canonical terminator" {
 
 ///|
 test "Bio.Align.nexus writer auto-interleaves above 1000 columns" {
-  let short_builder = StringBuilder::new(size_hint=1000)
-  let long_builder = StringBuilder::new(size_hint=1001)
+  let short_builder = StringBuilder(size_hint=1000)
+  let long_builder = StringBuilder(size_hint=1001)
   for _index = 0; _index < 1000; _index = _index + 1 {
     short_builder.write_char('A')
     long_builder.write_char('A')

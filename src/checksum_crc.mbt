@@ -101,7 +101,7 @@ let checksum_crc64_table_h : Array[UInt] = [
 /// Format a UInt as exactly 8 uppercase hexadecimal digits.
 fn crc_u32_to_hex8(value : UInt) -> String {
   let digits = "0123456789ABCDEF"
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for shift in [28, 24, 20, 16, 12, 8, 4, 0] {
     let nibble = ((value >> shift) & 0xFU).to_int()
     buf.write_char(Char::from_int(digits.unsafe_get(nibble).to_int()))

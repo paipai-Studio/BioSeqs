@@ -162,7 +162,7 @@ fn pdbml_parse_open_tag(
       pdbml_fail("Expected quoted attribute value")
     }
     j = j + 1
-    let val = StringBuilder::new()
+    let val = StringBuilder()
     while j < s.length() && s.unsafe_get(j).to_int() != q {
       val.write_char(s.unsafe_get(j).unsafe_to_char())
       j = j + 1
@@ -204,7 +204,7 @@ fn pdbml_parse_element(
       j,
     )
   }
-  let text = StringBuilder::new()
+  let text = StringBuilder()
   let children : Array[PdbmlXmlElem] = []
   while j < s.length() {
     let cp = s.unsafe_get(j).to_int()

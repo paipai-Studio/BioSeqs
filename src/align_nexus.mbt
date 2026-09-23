@@ -292,7 +292,7 @@ pub fn align_nexus_parse(
   if lines[0].trim() != "#NEXUS" {
     raise AlignNexusError("File does not start with NEXUS header")
   }
-  let body_builder = StringBuilder::new()
+  let body_builder = StringBuilder()
   for index = 1; index < lines.length(); index = index + 1 {
     if index > 1 {
       body_builder.write_char('\n')
@@ -500,7 +500,7 @@ pub fn align_nexus_write(
       name_width = safe.length()
     }
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("#NEXUS\n")
   output.write_string("begin data;\n")
   output.write_string(
@@ -640,7 +640,7 @@ pub fn AlignNexusAlignment::column(
   if column < 0 || column >= self.alignment_length() {
     return None
   }
-  let output = StringBuilder::new(size_hint=self.sequences.length())
+  let output = StringBuilder(size_hint=self.sequences.length())
   for sequence in self.sequences {
     output.write_char(
       sequence.aligned_sequence.unsafe_get(column).unsafe_to_char(),
@@ -864,7 +864,7 @@ pub fn AlignNexusAlignment::consensus(
       "NEXUS consensus minimum fraction must be between 0 and 1",
     )
   }
-  let output = StringBuilder::new(size_hint=self.alignment_length())
+  let output = StringBuilder(size_hint=self.alignment_length())
   for column = 0; column < self.alignment_length(); column = column + 1 {
     let counts = Array::make(128, 0)
     let mut residues = 0
@@ -1088,7 +1088,7 @@ fn align_nexus_scan_commands(
   body : String,
 ) -> Array[String] raise AlignNexusError {
   let commands : Array[String] = []
-  let mut current = StringBuilder::new()
+  let mut current = StringBuilder()
   let mut quote = 0
   let mut comment_depth = 0
   let mut index = 0
@@ -1131,7 +1131,7 @@ fn align_nexus_scan_commands(
       if command.length() > 0 {
         commands.push(command)
       }
-      current = StringBuilder::new()
+      current = StringBuilder()
     } else {
       current.write_char(code.unsafe_to_char())
     }
@@ -1187,7 +1187,7 @@ fn align_nexus_tokenize(text : String) -> Array[String] raise AlignNexusError {
     }
     if code == '\''.to_int() || code == '"'.to_int() {
       let quote = code
-      let output = StringBuilder::new()
+      let output = StringBuilder()
       index = index + 1
       let mut closed = false
       while index < text.length() {
@@ -1622,7 +1622,7 @@ fn align_nexus_parse_labeled_line(
   let code = line.unsafe_get(index).to_int()
   if code == '\''.to_int() || code == '"'.to_int() {
     let quote = code
-    let label = StringBuilder::new()
+    let label = StringBuilder()
     index = index + 1
     let mut closed = false
     while index < line.length() {
@@ -1669,7 +1669,7 @@ fn align_nexus_resolve_and_normalize_rows(
 ) -> Array[String] raise AlignNexusError {
   let resolved : Array[String] = []
   for row_index = 0; row_index < rows.length(); row_index = row_index + 1 {
-    let output = StringBuilder::new(size_hint=rows[row_index].length())
+    let output = StringBuilder(size_hint=rows[row_index].length())
     for column = 0; column < rows[row_index].length(); column = column + 1 {
       let mut code = rows[row_index].unsafe_get(column).to_int()
       match format.match_character {
@@ -1709,7 +1709,7 @@ fn align_nexus_normalize_row(
   symbols : String,
   respect_case : Bool,
 ) -> String raise AlignNexusError {
-  let output = StringBuilder::new(size_hint=row.length())
+  let output = StringBuilder(size_hint=row.length())
   let missing_code = missing_character.unsafe_get(0).to_int()
   let gap_code = gap_character.unsafe_get(0).to_int()
   for index = 0; index < row.length(); index = index + 1 {
@@ -1865,7 +1865,7 @@ fn align_nexus_remove_all_gap_columns(
   }
   let result : Array[String] = []
   for row in rows {
-    let output = StringBuilder::new(size_hint=width - removed)
+    let output = StringBuilder(size_hint=width - removed)
     for column = 0; column < width; column = column + 1 {
       if keep[column] {
         output.write_char(row.unsafe_get(column).unsafe_to_char())
@@ -1903,8 +1903,8 @@ fn align_nexus_labels_equivalent(first : String, second : String) -> Bool {
   if first == second {
     return true
   }
-  let left = StringBuilder::new(size_hint=first.length())
-  let right = StringBuilder::new(size_hint=second.length())
+  let left = StringBuilder(size_hint=first.length())
+  let right = StringBuilder(size_hint=second.length())
   for index = 0; index < first.length(); index = index + 1 {
     let code = first.unsafe_get(index).to_int()
     left.write_char(
@@ -1938,7 +1938,7 @@ fn align_nexus_safe_name(id : String) -> String {
   if !quote {
     return id
   }
-  let output = StringBuilder::new(size_hint=id.length() + 2)
+  let output = StringBuilder(size_hint=id.length() + 2)
   output.write_char('\'')
   for index = 0; index < id.length(); index = index + 1 {
     let code = id.unsafe_get(index).to_int()
@@ -1958,7 +1958,7 @@ fn align_nexus_output_fragment(
   end : Int,
   gap_character : String,
 ) -> String {
-  let output = StringBuilder::new(size_hint=end - start)
+  let output = StringBuilder(size_hint=end - start)
   let gap_code = gap_character.unsafe_get(0).to_int()
   for index = start; index < end; index = index + 1 {
     let code = row.unsafe_get(index).to_int()
@@ -1971,7 +1971,7 @@ fn align_nexus_output_fragment(
 
 ///|
 fn align_nexus_escape_double_quotes(value : String) -> String {
-  let output = StringBuilder::new(size_hint=value.length())
+  let output = StringBuilder(size_hint=value.length())
   for index = 0; index < value.length(); index = index + 1 {
     let code = value.unsafe_get(index).to_int()
     output.write_char(code.unsafe_to_char())
@@ -1984,7 +1984,7 @@ fn align_nexus_escape_double_quotes(value : String) -> String {
 
 ///|
 fn align_nexus_remove_gaps(sequence : String) -> String {
-  let output = StringBuilder::new(size_hint=sequence.length())
+  let output = StringBuilder(size_hint=sequence.length())
   for index = 0; index < sequence.length(); index = index + 1 {
     let code = sequence.unsafe_get(index).to_int()
     if code != '-'.to_int() {
@@ -1996,7 +1996,7 @@ fn align_nexus_remove_gaps(sequence : String) -> String {
 
 ///|
 fn align_nexus_remove_whitespace(value : String) -> String {
-  let output = StringBuilder::new(size_hint=value.length())
+  let output = StringBuilder(size_hint=value.length())
   for index = 0; index < value.length(); index = index + 1 {
     let code = value.unsafe_get(index).to_int()
     if !align_nexus_is_whitespace(code) {
@@ -2103,7 +2103,7 @@ fn align_nexus_pad_right(value : String, width : Int) -> String {
   if value.length() >= width {
     return value
   }
-  let output = StringBuilder::new(size_hint=width)
+  let output = StringBuilder(size_hint=width)
   output.write_string(value)
   for _index = value.length(); _index < width; _index = _index + 1 {
     output.write_char(' ')

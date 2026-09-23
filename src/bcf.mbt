@@ -325,7 +325,7 @@ fn bcf_tag_value(line : String, tag : String) -> String {
         line.unsafe_get(i - 1).to_int() == 60
       if boundary {
         let mut j = i + needle.length()
-        let buf = StringBuilder::new()
+        let buf = StringBuilder()
         while j < line.length() {
           let c = line.unsafe_get(j).to_int()
           if c == 44 || c == 62 {

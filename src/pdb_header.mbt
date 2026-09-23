@@ -156,7 +156,7 @@ fn trim_sv(sv : StringView) -> String {
 ///|
 /// Convert a string to uppercase.
 fn to_upper(s : String) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut i = 0
   while i < s.length() {
     let code = s.unsafe_get(i).to_int()
@@ -368,7 +368,7 @@ fn find_colon(s : String) -> Int {
 /// Join text content from a multi-line record section.
 /// Extracts text from cols 11-80 (index 10-80) of each line.
 fn join_record_text(lines : Array[String], start : Int, end : Int) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut i = start
   while i <= end && i < lines.length() {
     let line = lines[i]

@@ -284,7 +284,7 @@ test "oc_event_in_gate_2d" {
 test "oc_mindensity_bimodal" {
   // Two clear clusters around 1.0 and 5.0; valley near 3.0.
   let data = [1.0, 1.1, 0.9, 1.2, 5.0, 5.1, 4.9, 5.2]
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   args.set("bandwidth", 0.5)
   let g = @src.oc_mindensity(data, "FSC", args)
   assert_eq(g.dim1, "FSC")
@@ -295,7 +295,7 @@ test "oc_mindensity_bimodal" {
 
 ///|
 test "oc_mindensity_empty" {
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   let g = @src.oc_mindensity([], "FSC", args)
   assert_eq(g.dim1, "FSC")
   assert_true((g.min1 - 0.0).abs() < 0.001)
@@ -305,7 +305,7 @@ test "oc_mindensity_empty" {
 test "oc_mindensity_single_peak" {
   // Unimodal data -> falls back to the median.
   let data = [1.0, 1.1, 1.0, 1.2, 0.9, 1.1]
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   let g = @src.oc_mindensity(data, "FSC", args)
   let med = @src.oc_median(data)
   assert_true((g.min1 - med).abs() < 0.001)
@@ -319,7 +319,7 @@ test "oc_mindensity_single_peak" {
 test "oc_tailgate_default_quantile" {
   // Default quantile = 0.99.
   let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   let g = @src.oc_tailgate(data, "CD4", args)
   assert_eq(g.dim1, "CD4")
   // pos = 0.99 * 9 = 8.91 -> 9.0*0.09 + 10.0*0.91 = 9.91
@@ -329,7 +329,7 @@ test "oc_tailgate_default_quantile" {
 ///|
 test "oc_tailgate_custom_quantile" {
   let data = [10.0, 20.0, 30.0, 40.0, 50.0]
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   args.set("quantile", 0.5)
   let g = @src.oc_tailgate(data, "CD4", args)
   // pos = 0.5 * 4 = 2.0 -> threshold = 30.0
@@ -338,7 +338,7 @@ test "oc_tailgate_custom_quantile" {
 
 ///|
 test "oc_tailgate_empty" {
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   let g = @src.oc_tailgate([], "CD4", args)
   assert_true((g.min1 - 0.0).abs() < 0.001)
 }
@@ -351,7 +351,7 @@ test "oc_tailgate_empty" {
 test "oc_quantile_gate_default" {
   // Default probs = 0.95.
   let data = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   let g = @src.oc_quantile_gate(data, "CD8", args)
   assert_eq(g.dim1, "CD8")
   // pos = 0.95 * 9 = 8.55 -> 9.0*0.45 + 10.0*0.55 = 9.55
@@ -361,7 +361,7 @@ test "oc_quantile_gate_default" {
 ///|
 test "oc_quantile_gate_custom" {
   let data = [10.0, 20.0, 30.0, 40.0, 50.0]
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   args.set("probs", 0.5)
   let g = @src.oc_quantile_gate(data, "CD8", args)
   assert_true((g.min1 - 30.0).abs() < 0.001)
@@ -369,7 +369,7 @@ test "oc_quantile_gate_custom" {
 
 ///|
 test "oc_quantile_gate_empty" {
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   let g = @src.oc_quantile_gate([], "CD8", args)
   assert_true((g.min1 - 0.0).abs() < 0.001)
 }
@@ -381,7 +381,7 @@ test "oc_quantile_gate_empty" {
 ///|
 test "oc_range_gate_bimodal" {
   let data = [1.0, 1.1, 0.9, 1.2, 5.0, 5.1, 4.9, 5.2]
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   let g = @src.oc_range_gate(data, "FSC", args)
   assert_eq(g.dim1, "FSC")
   // Threshold must lie within the data range.
@@ -391,7 +391,7 @@ test "oc_range_gate_bimodal" {
 
 ///|
 test "oc_range_gate_empty" {
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   let g = @src.oc_range_gate([], "FSC", args)
   assert_true((g.min1 - 0.0).abs() < 0.001)
 }
@@ -403,7 +403,7 @@ test "oc_range_gate_empty" {
 ///|
 test "oc_flow_clust_1d_bimodal" {
   let data = [1.0, 1.1, 0.9, 1.2, 5.0, 5.1, 4.9, 5.2]
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   let g = @src.oc_flow_clust(data, [], "FSC", None, args, 2)
   assert_eq(g.dim1, "FSC")
   // Boundary is the midpoint of the two fitted means -> near 3.0.
@@ -415,7 +415,7 @@ test "oc_flow_clust_1d_bimodal" {
 test "oc_flow_clust_2d_returns_2d_gate" {
   let v1 = [1.0, 1.1, 0.9, 1.2, 5.0, 5.1, 4.9, 5.2]
   let v2 = [10.0, 10.1, 9.9, 10.2, 50.0, 50.1, 49.9, 50.2]
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   let g = @src.oc_flow_clust(v1, v2, "FSC", Some("SSC"), args, 2)
   assert_eq(g.dim1, "FSC")
   assert_eq(g.dim2.unwrap(), "SSC")
@@ -426,7 +426,7 @@ test "oc_flow_clust_2d_returns_2d_gate" {
 
 ///|
 test "oc_flow_clust_1d_empty" {
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   let g = @src.oc_flow_clust([], [], "FSC", None, args, 2)
   assert_true((g.min1 - 0.0).abs() < 0.001)
 }
@@ -571,21 +571,21 @@ test "oc_topo_sort_parent_before_child" {
     child="cd4",
     method="tailgate",
     dims=["CD4"],
-    args=Map::new(),
+    args=Map([]),
   )
   let rule_cd8 = @src.OcGatingRule::new(
     parent="lymph",
     child="cd8",
     method="tailgate",
     dims=["CD8"],
-    args=Map::new(),
+    args=Map([]),
   )
   let rule_lymph = @src.OcGatingRule::new(
     parent="root",
     child="lymph",
     method="mindensity",
     dims=["FSC"],
-    args=Map::new(),
+    args=Map([]),
   )
   let sorted = @src.oc_topo_sort([rule_cd4, rule_cd8, rule_lymph])
   assert_eq(sorted.length(), 3)
@@ -654,7 +654,7 @@ test "oc_flowset_construction" {
 
 ///|
 test "oc_gating_rule_construction" {
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   args.set("probs", 0.95)
   let r = @src.OcGatingRule::new(
     parent="root",
@@ -681,7 +681,7 @@ test "oc_gate_flow_set_single_rule" {
   let fs = @src.OcFlowSet::new(sample_names=["S1"], channel_names=["FSC"], data=[
     [[1.0], [1.1], [0.9], [1.2], [5.0], [5.1], [4.9], [5.2]],
   ])
-  let args : Map[String, Double] = Map::new()
+  let args : Map[String, Double] = Map([])
   args.set("bandwidth", 0.5)
   let rule = @src.OcGatingRule::new(
     parent="root",
@@ -722,7 +722,7 @@ test "oc_gate_flow_set_chain" {
       ],
     ],
   )
-  let args1 : Map[String, Double] = Map::new()
+  let args1 : Map[String, Double] = Map([])
   args1.set("bandwidth", 0.5)
   let rule_cells = @src.OcGatingRule::new(
     parent="root",
@@ -731,7 +731,7 @@ test "oc_gate_flow_set_chain" {
     dims=["FSC"],
     args=args1,
   )
-  let args2 : Map[String, Double] = Map::new()
+  let args2 : Map[String, Double] = Map([])
   args2.set("quantile", 0.5)
   let rule_cd4 = @src.OcGatingRule::new(
     parent="cells",

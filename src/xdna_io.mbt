@@ -143,7 +143,7 @@ pub fn XdnaRecord::checksum(self : XdnaRecord) -> Int {
 ///|
 /// Human-readable representation of this record.
 pub fn XdnaRecord::to_string(self : XdnaRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("XdnaRecord(name=")
   buf.write_string(self.name)
   buf.write_string(", seq_type=")
@@ -258,7 +258,7 @@ pub fn xdna_pack_sequence(sequence : String) -> Array[Int] {
 ///|
 /// Unpack 2-bit bytes back into a DNA string of length `seq_len`.
 pub fn xdna_unpack_sequence(packed : Array[Int], seq_len : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<seq_len {
     let byte_idx = i / 4
     let shift = 6 - i % 4 * 2
@@ -435,7 +435,7 @@ pub fn xdna_from_bytes(data : Array[Int]) -> XdnaFile {
 /// suitable for text storage.
 pub fn xdna_write(file : XdnaFile) -> String {
   let bytes = xdna_to_bytes(file)
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<bytes.length() {
     let b = bytes[i]
     sb.write_char(xdna_hex_digit((b >> 4) & 0xF))
@@ -539,7 +539,7 @@ fn string_to_ascii_bytes(s : String) -> Array[Int] {
 /// Read `len` bytes from `data` starting at `offset` and return them as an
 /// ASCII string.
 fn ascii_bytes_to_string(data : Array[Int], offset : Int, len : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<len {
     if offset + i < data.length() {
       sb.write_char(Int::unsafe_to_char(data[offset + i] & 0xFF))

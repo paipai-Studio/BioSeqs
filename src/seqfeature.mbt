@@ -207,7 +207,7 @@ pub fn FeatureLocation::end_int(self : FeatureLocation) -> Int {
 
 ///|
 pub fn FeatureLocation::repr(self : FeatureLocation) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("FeatureLocation(")
   buf.write_string(self.start.repr())
   buf.write_string(", ")
@@ -222,7 +222,7 @@ pub fn FeatureLocation::repr(self : FeatureLocation) -> String {
 
 ///|
 pub fn FeatureLocation::str(self : FeatureLocation) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_char('[')
   buf.write_string(self.start.str())
   buf.write_char(':')
@@ -300,7 +300,7 @@ pub fn CompoundLocation::operator(self : CompoundLocation) -> String {
 
 ///|
 pub fn CompoundLocation::repr(self : CompoundLocation) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("CompoundLocation(")
   buf.write_string(self.operator)
   buf.write_char(',')
@@ -316,7 +316,7 @@ pub fn CompoundLocation::repr(self : CompoundLocation) -> String {
 
 ///|
 pub fn CompoundLocation::str(self : CompoundLocation) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(self.operator)
   buf.write_char('(')
   for i, part in self.parts {
@@ -428,7 +428,7 @@ pub fn SeqFeature::ref_db(self : SeqFeature) -> String? {
 
 ///|
 pub fn SeqFeature::repr(self : SeqFeature) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("SeqFeature(")
   match self.location {
     Some(l) => buf.write_string(l.repr())
@@ -443,7 +443,7 @@ pub fn SeqFeature::repr(self : SeqFeature) -> String {
 
 ///|
 pub fn SeqFeature::str(self : SeqFeature) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(self.feature_type)
   match self.location {
     Some(l) => {

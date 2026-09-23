@@ -935,7 +935,7 @@ fn blast_xml_entity_character(entity : String) -> Char? {
 
 ///|
 fn blast_xml_unescape_once(value : String) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   let mut index = 0
   while index < value.length() {
     if value.unsafe_get(index).to_int() == 38 {
@@ -1081,7 +1081,7 @@ fn blast_xml_parse_node(
     return (BlastXmlNode::{ name, text: "", children: [], }, open_end + 1)
   }
   let children : Array[BlastXmlNode] = []
-  let content = StringBuilder::new()
+  let content = StringBuilder()
   let mut index = open_end + 1
   while index < text.length() {
     if blast_xml_starts_at(text, index, "</") {
@@ -2338,7 +2338,7 @@ pub fn blast_xml_parse(text : String) -> BlastXmlDocument raise BlastXmlError {
 
 ///|
 fn blast_xml_escape(value : String) -> String raise BlastXmlError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index = 0; index < value.length(); index = index + 1 {
     let code = value.unsafe_get(index).to_int()
     match code {
@@ -2640,7 +2640,7 @@ fn blast_xml_write_statistics(
 
 ///|
 fn blast_xml_legacy_description(hit : BlastXmlHit) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(hit.descriptions[0].title)
   for index = 1; index < hit.descriptions.length(); index = index + 1 {
     let description = hit.descriptions[index]
@@ -2853,7 +2853,7 @@ fn blast_xml_write_record_xml1(
 fn blast_xml_write_xml1(
   document : BlastXmlDocument,
 ) -> String raise BlastXmlError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("<?xml version=\"1.0\"?>\n")
   output.write_string(
     "<!DOCTYPE BlastOutput PUBLIC \"-//NCBI//NCBI BlastOutput/EN\" \"http://www.ncbi.nlm.nih.gov/dtd/NCBI_BlastOutput.dtd\">\n",
@@ -3183,7 +3183,7 @@ fn blast_xml_write_output_xml2(
 fn blast_xml_write_xml2(
   document : BlastXmlDocument,
 ) -> String raise BlastXmlError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("<?xml version=\"1.0\"?>\n")
   output.write_string(
     "<BlastXML2 xmlns=\"http://www.ncbi.nlm.nih.gov\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema-instance\" xs:schemaLocation=\"http://www.ncbi.nlm.nih.gov http://www.ncbi.nlm.nih.gov/data_specs/schema_alt/NCBI_BlastOutput2.xsd\">\n",

@@ -85,7 +85,7 @@ pub let entrez_eutils_base_url : String = "https://eutils.ncbi.nlm.nih.gov/entre
 /// (space becomes '+', unreserved characters kept, everything else
 /// percent-encoded over UTF-8 bytes).
 pub fn entrez_quote_plus(text : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for ch in text {
     let cp = ch.to_int()
     let unreserved = (cp >= 65 && cp <= 90) ||
@@ -162,7 +162,7 @@ fn entrez_build_query(
   params : Array[(String, String)],
   ecitmatch : Bool,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut first = true
   for kv in params {
     let (k, v) = kv
@@ -189,7 +189,7 @@ fn entrez_replace(text : String, from : String, to : String) -> String {
   if from.length() == 0 {
     return text
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut i = 0
   while i < text.length() {
     if i + from.length() <= text.length() &&
@@ -403,7 +403,7 @@ pub fn epost(
 ///|
 /// Join ids with commas (the E-utilities id list convention).
 fn join_comma(ids : Array[String]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut first = true
   for id in ids {
     if !first {
@@ -808,7 +808,7 @@ pub fn ecitmatch(
 ) -> Array[(String, String)] raise EntrezUtilError {
   // XML is the only supported value, and it actually returns TXT.
   let params : Array[(String, String)] = [("retmode", "xml"), ("db", db)]
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut first = true
   for cit in citations {
     if !first {

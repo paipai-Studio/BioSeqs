@@ -183,7 +183,7 @@ pub fn seq1(
       }
     None => onecode["TER"] = "*"
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let n = seq.length() / 3 * 3
   let mut i = 0
   while i < n {
@@ -214,7 +214,7 @@ pub fn seq3(
     Some(u) => u
     None => "Xaa"
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   for i = 0; i < seq.length(); i = i + 1 {
     let aa = seq.unsafe_get(i).unsafe_to_char().to_string()
     let mapped = match custom_map {

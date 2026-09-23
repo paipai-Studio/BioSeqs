@@ -483,8 +483,8 @@ pub fn align_pairwise_with_scoring(
     }
   }
 
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
   let mut i = n
   let mut j = m
   while i > 0 || j > 0 {
@@ -658,8 +658,8 @@ pub fn align_profiles(
     }
   }
 
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
   let mut i = len1
   let mut j = len2
   while i > 0 || j > 0 {
@@ -927,7 +927,7 @@ fn apply_alignment_to_sequence(
   if aligned_len == 0 {
     return ""
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut orig_pos = 0
   for i = 0; i < aligned_len; i = i + 1 {
     let c = aligned_representative.unsafe_get(i)
@@ -969,7 +969,7 @@ pub fn get_aligned_sequences(
 ///|
 /// Create a string of repeated characters.
 fn repeat_char(c : Char, n : Int) -> String {
-  let buf = StringBuilder::new(size_hint=n)
+  let buf = StringBuilder(size_hint=n)
   for i = 0; i < n; i = i + 1 {
     buf.write_char(c)
   }

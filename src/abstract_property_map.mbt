@@ -190,7 +190,7 @@ pub fn AbstractPropertyMap::stats_property(
 ///|
 /// Export to TSV (tab-separated values) format.
 pub fn AbstractPropertyMap::to_tsv(self : AbstractPropertyMap) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("chain_id\tresseq\ticode")
   let mut i = 0
   while i < self.property_names.length() {

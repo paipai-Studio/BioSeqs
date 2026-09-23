@@ -288,7 +288,7 @@ pub fn Seq::split(self : Seq, sep : String) -> Array[Seq] {
 /// Join the sequences in `others` with `self` as the spacer, like
 /// BioPython's Seq.join.
 pub fn Seq::join(self : Seq, others : Array[Seq]) -> Seq {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i, s in others {
     if i > 0 {
       buf.write_string(self.data)
@@ -526,7 +526,7 @@ pub fn Seq::translate(
 /// Read 3 characters starting at index `i` as a String. Used only for error
 /// messages.
 fn codon_to_string(seq : String, i : Int) -> String {
-  let buf = StringBuilder::new(size_hint=3)
+  let buf = StringBuilder(size_hint=3)
   buf.write_char(seq.unsafe_get(i).unsafe_to_char())
   buf.write_char(seq.unsafe_get(i + 1).unsafe_to_char())
   buf.write_char(seq.unsafe_get(i + 2).unsafe_to_char())
@@ -668,7 +668,7 @@ pub fn MutableSeq::from_seq(seq : Seq) -> MutableSeq {
 ///|
 /// Return the underlying sequence as a String.
 pub fn MutableSeq::to_string(self : MutableSeq) -> String {
-  let buf = StringBuilder::new(size_hint=self.data.length())
+  let buf = StringBuilder(size_hint=self.data.length())
   for c in self.data {
     buf.write_char(c)
   }

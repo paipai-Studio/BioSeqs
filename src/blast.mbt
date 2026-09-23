@@ -772,7 +772,7 @@ fn build_hsp_from_fields(fields : Map[String, String]) -> BlastHsp? {
 ///|
 /// Format a BlastRecord as a human-readable string.
 pub fn BlastRecord::to_string(self : BlastRecord) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("Query: " + self.query_id())
   if self.query_def().length() > 0 {
     sb.write_string(" (" + self.query_def() + ")")

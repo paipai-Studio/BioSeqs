@@ -190,7 +190,7 @@ pub fn a2m_parse(text : String) -> A2mAlignment raise A2mError {
   if width == 0 {
     raise A2mError("A2M sequences must not be empty")
   }
-  let states_builder = StringBuilder::new(size_hint=width)
+  let states_builder = StringBuilder(size_hint=width)
   for column = 0; column < width; column = column + 1 {
     let code = encoded_rows[0].unsafe_get(column).to_int()
     if a2m_is_upper(code) || code == '-'.to_int() {
@@ -218,7 +218,7 @@ pub fn a2m_parse(text : String) -> A2mAlignment raise A2mError {
         width.to_string(),
       )
     }
-    let normalized = StringBuilder::new(size_hint=width)
+    let normalized = StringBuilder(size_hint=width)
     for column = 0; column < width; column = column + 1 {
       let code = encoded.unsafe_get(column).to_int()
       let state = states.unsafe_get(column).to_int()
@@ -271,7 +271,7 @@ pub fn a2m_write(
   if line_width < 0 {
     raise A2mError("A2M line width must be non-negative")
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for row = 0; row < alignment.sequences.length(); row = row + 1 {
     let sequence = alignment.sequences[row]
     output.write_char('>')
@@ -353,7 +353,7 @@ pub fn A2mAlignment::column(self : A2mAlignment, column : Int) -> String? {
   if column < 0 || column >= self.states.length() {
     return None
   }
-  let result = StringBuilder::new(size_hint=self.sequences.length())
+  let result = StringBuilder(size_hint=self.sequences.length())
   for sequence in self.sequences {
     result.write_char(
       sequence.aligned_sequence.unsafe_get(column).unsafe_to_char(),
@@ -383,7 +383,7 @@ pub fn A2mAlignment::encoded_sequence(
     return None
   }
   let aligned = self.sequences[row].aligned_sequence
-  let result = StringBuilder::new(size_hint=self.states.length())
+  let result = StringBuilder(size_hint=self.states.length())
   for column = 0; column < self.states.length(); column = column + 1 {
     let code = aligned.unsafe_get(column).to_int()
     if self.states.unsafe_get(column).to_int() == 'D'.to_int() {
@@ -615,7 +615,7 @@ pub fn A2mAlignment::consensus(
     minimum_fraction > 1.0 {
     raise A2mError("A2M consensus minimum fraction must be between 0 and 1")
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   for column = 0; column < self.states.length(); column = column + 1 {
     if !include_insertions &&
       self.states.unsafe_get(column).to_int() == 'I'.to_int() {
@@ -678,7 +678,7 @@ pub fn A2mAlignment::match_projection(
   if match_count == 0 {
     raise A2mError("A2M alignment has no match columns to project")
   }
-  let states = StringBuilder::new(size_hint=match_count)
+  let states = StringBuilder(size_hint=match_count)
   let mut emitted = 0
   while emitted < match_count {
     states.write_char('D')
@@ -686,7 +686,7 @@ pub fn A2mAlignment::match_projection(
   }
   let sequences : Array[A2mSequence] = []
   for sequence in self.sequences {
-    let row = StringBuilder::new(size_hint=match_count)
+    let row = StringBuilder(size_hint=match_count)
     for column = 0; column < self.states.length(); column = column + 1 {
       if self.states.unsafe_get(column).to_int() == 'D'.to_int() {
         row.write_char(
@@ -855,7 +855,7 @@ fn a2m_validate_encoded_fragment(fragment : String) -> Unit raise A2mError {
 
 ///|
 fn a2m_normalize_aligned_sequence(sequence : String) -> String raise A2mError {
-  let result = StringBuilder::new(size_hint=sequence.length())
+  let result = StringBuilder(size_hint=sequence.length())
   for index = 0; index < sequence.length(); index = index + 1 {
     let code = sequence.unsafe_get(index).to_int()
     if code == '-'.to_int() {
@@ -876,7 +876,7 @@ fn a2m_normalize_aligned_sequence(sequence : String) -> String raise A2mError {
 
 ///|
 fn a2m_remove_gaps(sequence : String) -> String {
-  let result = StringBuilder::new(size_hint=sequence.length())
+  let result = StringBuilder(size_hint=sequence.length())
   for index = 0; index < sequence.length(); index = index + 1 {
     let code = sequence.unsafe_get(index).to_int()
     if code != '-'.to_int() {

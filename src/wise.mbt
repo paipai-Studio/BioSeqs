@@ -528,7 +528,7 @@ fn wise_extract_after(s : String, pattern : String) -> String {
 ///|
 /// Serialize a WiseResult to GeneWise-like text format.
 pub fn wise_write(result : WiseResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("GeneWise Result\n")
   sb.write_string("Protein: " + result.protein_id + "\n")
   sb.write_string("Gene: " + result.gene_id + "\n")
@@ -589,7 +589,7 @@ pub fn wise_write(result : WiseResult) -> String {
 ///|
 /// Get the gene structure as a list of exons and introns.
 pub fn wise_gene_structure(result : WiseResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<result.exons.length() {
     let e = result.exons[i]
     sb.write_string(
@@ -629,7 +629,7 @@ pub fn wise_translate_gene(
   result : WiseResult,
   gene_sequence : String,
 ) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for exon in result.exons {
     let exon_seq = gene_sequence.substring(start=exon.start, end=exon.end + 1)
     // Translate codon by codon
@@ -786,7 +786,7 @@ pub fn wise_sample() -> WiseResult {
 ///|
 /// Generate a summary string.
 pub fn wise_summary(result : WiseResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("GeneWise Result Summary:\n")
   sb.write_string("  Protein ID: " + result.protein_id + "\n")
   sb.write_string("  Gene ID: " + result.gene_id + "\n")

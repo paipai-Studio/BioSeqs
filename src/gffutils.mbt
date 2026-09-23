@@ -263,7 +263,7 @@ pub fn gffutils_merge(record : GFFRecord, min_dist? : Int = 1) -> Array[GFFFeatu
       }
       let new_id = ft + "_" + n.to_string()
       let seen_src : Map[String, Bool] = Map([], capacity=0)
-      let src_sb = StringBuilder::new()
+      let src_sb = StringBuilder()
       let mut first_src = true
       for ch in children {
         match seen_src.get(ch.source) {
@@ -322,7 +322,7 @@ pub fn gffutils_to_bed(feature : GFFFeature) -> String {
 ///|
 /// Convert all features of a `GFFRecord` to BED text (one line per feature).
 pub fn gffutils_record_to_bed(record : GFFRecord) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut first = true
   for f in record.features {
     if not(first) {

@@ -24,7 +24,7 @@ fn main {
   let pos_str = if pos.length() == 0 {
     "none"
   } else {
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     for i = 0; i < pos.length(); i = i + 1 {
       if i > 0 {
         buf.write_string(", ")
@@ -63,7 +63,7 @@ fn main {
   let st_pos_str = if st_pos.length() == 0 {
     "none"
   } else {
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     for i = 0; i < st_pos.length(); i = i + 1 {
       if i > 0 {
         buf.write_string(", ")
@@ -93,7 +93,7 @@ fn main {
   let dna_pos_str = if dna_pos.length() == 0 {
     "none"
   } else {
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     for i = 0; i < dna_pos.length(); i = i + 1 {
       if i > 0 {
         buf.write_string(", ")

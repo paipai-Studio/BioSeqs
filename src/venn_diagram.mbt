@@ -327,7 +327,7 @@ pub fn venn_pairwise_overlap(
   } else {
     0.0
   }
-  let map = Map::new()
+  let map = Map([])
   map["intersection_count"] = inter.to_double()
   map["union_count"] = union.to_double()
   map["jaccard_index"] = jaccard
@@ -431,10 +431,10 @@ pub fn venn_counts_only(
   let n_regions = 1 << n_sets
   let counts = Array::make(n_regions, 0)
   // For each set, build a Map for O(1) lookup
-  let set_maps = Array::make(n_sets, Map::new())
+  let set_maps = Array::make(n_sets, Map([]))
   let mut i = 0
   while i < n_sets {
-    let m = Map::new()
+    let m = Map([])
     let s = sets[i]
     let mut j = 0
     while j < s.length() {
@@ -490,7 +490,7 @@ fn compute_region_position(
   n_sets : Int,
 ) -> Map[String, Double] {
   // Place sets in a circle, then compute region positions as weighted average
-  let m = Map::new()
+  let m = Map([])
   if n_sets == 0 {
     m["x"] = 0.0
     m["y"] = 0.0

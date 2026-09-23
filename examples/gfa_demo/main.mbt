@@ -86,7 +86,7 @@ fn main {
       println("  name: \{path.name()}")
       let seg_list = path.segment_list()
       let overlaps = path.overlaps()
-      let seg_sb = StringBuilder::new()
+      let seg_sb = StringBuilder()
       for j in 0..<seg_list.length() {
         if j > 0 {
           seg_sb.write_string(", ")
@@ -94,7 +94,7 @@ fn main {
         seg_sb.write_string(seg_list[j])
       }
       println("  segments: \{seg_sb.to_string()}")
-      let ov_sb = StringBuilder::new()
+      let ov_sb = StringBuilder()
       for j in 0..<overlaps.length() {
         if j > 0 {
           ov_sb.write_string(", ")

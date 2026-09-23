@@ -1,6 +1,6 @@
 ///|
 fn coordinate_text(values : Array[Int]) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_char('[')
   for index in 0..<values.length() {
     if index > 0 {

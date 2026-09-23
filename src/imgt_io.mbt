@@ -238,7 +238,7 @@ pub fn ImgtRecord::description(self : ImgtRecord) -> String {
 ///|
 /// Human-readable representation of this record.
 pub fn ImgtRecord::to_string(self : ImgtRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("ImgtRecord(id=")
   buf.write_string(self.header.seq_id)
   buf.write_string(", accession=")
@@ -343,7 +343,7 @@ pub fn imgt_parse(content : String) -> Array[ImgtRecord] {
   let records = Array(capacity=0)
   let lines = content.split("\n").to_array()
   let mut current_header : ImgtHeader? = None
-  let mut current_seq = StringBuilder::new()
+  let mut current_seq = StringBuilder()
   let gt : UInt16 = '>'.to_int().to_uint16()
   let cr : UInt16 = '\r'.to_int().to_uint16()
   let sp : UInt16 = ' '.to_int().to_uint16()
@@ -370,7 +370,7 @@ pub fn imgt_parse(content : String) -> Array[ImgtRecord] {
         Some(h) => current_header = Some(h)
         None => current_header = None
       }
-      current_seq = StringBuilder::new()
+      current_seq = StringBuilder()
     } else {
       for i = 0; i < trimmed_len; i = i + 1 {
         let c = line.unsafe_get(i)
@@ -404,7 +404,7 @@ pub fn imgt_header_to_string(header : ImgtHeader) -> String {
 /// sequence wrapped at `imgt_line_width` characters per line. A trailing
 /// newline is included.
 pub fn imgt_record_to_string(record : ImgtRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(imgt_header_to_string(record.header))
   buf.write_string("\n")
   let seq = record.sequence
@@ -422,7 +422,7 @@ pub fn imgt_record_to_string(record : ImgtRecord) -> String {
 ///|
 /// Serialize an array of ImgtRecord objects to IMGT text.
 pub fn imgt_write(records : Array[ImgtRecord]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i in 0..<records.length() {
     buf.write_string(imgt_record_to_string(records[i]))
   }
@@ -534,7 +534,7 @@ pub fn imgt_unique_genes(records : Array[ImgtRecord]) -> Array[String] {
 pub fn imgt_summary(records : Array[ImgtRecord]) -> String {
   let species = imgt_unique_species(records)
   let genes = imgt_unique_genes(records)
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("IMGT records: ")
   buf.write_string(records.length().to_string())
   buf.write_string(", species: ")

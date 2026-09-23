@@ -47,8 +47,8 @@ pub fn tgr_create(
     ends,
     strands,
     widths,
-    metadata: Map::new(),
-    metadata_str: Map::new(),
+    metadata: Map([]),
+    metadata_str: Map([]),
   }
 }
 
@@ -213,8 +213,8 @@ pub fn tgr_subset(tgr : TidifiedGRanges, keep : Array[Bool]) -> TidifiedGRanges 
     }
     i = i + 1
   }
-  let new_metadata = Map::new()
-  let new_metadata_str = Map::new()
+  let new_metadata = Map([])
+  let new_metadata_str = Map([])
   for key in tgr.metadata.keys() {
     let old = tgr.metadata[key]
     let nv : Array[Double] = Array(capacity=0)
@@ -257,7 +257,7 @@ pub fn tgr_mutate(
   name : String,
   values : Array[Double],
 ) -> TidifiedGRanges {
-  let new_meta = Map::new()
+  let new_meta = Map([])
   for key in tgr.metadata.keys() {
     new_meta[key] = tgr.metadata[key]
   }
@@ -280,7 +280,7 @@ pub fn tgr_mutate_str(
   name : String,
   values : Array[String],
 ) -> TidifiedGRanges {
-  let new_meta = Map::new()
+  let new_meta = Map([])
   for key in tgr.metadata_str.keys() {
     new_meta[key] = tgr.metadata_str[key]
   }
@@ -391,8 +391,8 @@ fn tgr_reorder(tgr : TidifiedGRanges, indices : Array[Int]) -> TidifiedGRanges {
     new_widths[i] = tgr.widths[indices[i]]
     i = i + 1
   }
-  let new_metadata = Map::new()
-  let new_metadata_str = Map::new()
+  let new_metadata = Map([])
+  let new_metadata_str = Map([])
   for key in tgr.metadata.keys() {
     let old = tgr.metadata[key]
     let nv : Array[Double] = Array::make(n, 0.0)
@@ -431,7 +431,7 @@ pub fn tgr_rename(
   old_name : String,
   new_name : String,
 ) -> TidifiedGRanges {
-  let new_meta = Map::new()
+  let new_meta = Map([])
   for key in tgr.metadata.keys() {
     if key == old_name {
       new_meta[new_name] = tgr.metadata[key]
@@ -439,7 +439,7 @@ pub fn tgr_rename(
       new_meta[key] = tgr.metadata[key]
     }
   }
-  let new_meta_str = Map::new()
+  let new_meta_str = Map([])
   for key in tgr.metadata_str.keys() {
     if key == old_name {
       new_meta_str[new_name] = tgr.metadata_str[key]
@@ -464,8 +464,8 @@ pub fn tgr_select(
   tgr : TidifiedGRanges,
   columns : Array[String],
 ) -> TidifiedGRanges {
-  let new_meta = Map::new()
-  let new_meta_str = Map::new()
+  let new_meta = Map([])
+  let new_meta_str = Map([])
   for col in columns {
     if tgr.metadata.contains(col) {
       new_meta[col] = tgr.metadata[col]
@@ -517,10 +517,10 @@ pub fn tgr_summarise(
       }
       i = i + 1
     }
-    let mean_vals = Map::new()
-    let sum_vals = Map::new()
-    let min_vals = Map::new()
-    let max_vals = Map::new()
+    let mean_vals = Map([])
+    let sum_vals = Map([])
+    let min_vals = Map([])
+    let max_vals = Map([])
     for col in value_cols {
       if tgr.metadata.contains(col) {
         let col_data = tgr.metadata[col]
@@ -562,7 +562,7 @@ pub fn tgr_summarise(
 
 ///|
 fn tgr_get_unique_strings(arr : Array[String]) -> Array[String] {
-  let seen = Map::new()
+  let seen = Map([])
   let result : Array[String] = Array(capacity=0)
   for s in arr {
     if !seen.contains(s) {
@@ -686,11 +686,11 @@ pub fn tgr_left_join(
 ) -> TidifiedGRanges {
   let overlaps = tgr_join_overlap(left, right)
   let n_left = left.seqnames.length()
-  let matched_right = Map::new()
+  let matched_right = Map([])
   for pair in overlaps {
     matched_right[pair.0] = pair.1
   }
-  let new_meta = Map::new()
+  let new_meta = Map([])
   for key in right.metadata.keys() {
     let old = right.metadata[key]
     let nv : Array[Double] = Array::make(n_left, 0.0)
@@ -705,7 +705,7 @@ pub fn tgr_left_join(
     }
     new_meta[key] = nv
   }
-  let new_meta_str = Map::new()
+  let new_meta_str = Map([])
   for key in right.metadata_str.keys() {
     let old = right.metadata_str[key]
     let nv : Array[String] = Array::make(n_left, "")
@@ -721,7 +721,7 @@ pub fn tgr_left_join(
     new_meta_str[key] = nv
   }
   // Merge with left metadata
-  let merged_meta = Map::new()
+  let merged_meta = Map([])
   for key in left.metadata.keys() {
     merged_meta[key] = left.metadata[key]
   }
@@ -730,7 +730,7 @@ pub fn tgr_left_join(
       merged_meta[key] = new_meta[key]
     }
   }
-  let merged_meta_str = Map::new()
+  let merged_meta_str = Map([])
   for key in left.metadata_str.keys() {
     merged_meta_str[key] = left.metadata_str[key]
   }
@@ -883,8 +883,8 @@ pub fn tgr_flank(
     ends: new_ends,
     strands: new_strands,
     widths: new_widths,
-    metadata: Map::new(),
-    metadata_str: Map::new(),
+    metadata: Map([]),
+    metadata_str: Map([]),
   }
 }
 
@@ -1114,8 +1114,8 @@ pub fn tgr_intersect(
     ends: result_ends,
     strands: result_strands,
     widths: result_widths,
-    metadata: Map::new(),
-    metadata_str: Map::new(),
+    metadata: Map([]),
+    metadata_str: Map([]),
   }
 }
 
@@ -1123,7 +1123,7 @@ pub fn tgr_intersect(
 /// Set operations: union of two TidifiedGRanges (no merging of overlapping).
 pub fn tgr_union(a : TidifiedGRanges, b : TidifiedGRanges) -> TidifiedGRanges {
   let overlaps = tgr_join_overlap(a, b)
-  let b_overlapping = Map::new()
+  let b_overlapping = Map([])
   for pair in overlaps {
     b_overlapping[pair.1] = true
   }
@@ -1160,8 +1160,8 @@ pub fn tgr_union(a : TidifiedGRanges, b : TidifiedGRanges) -> TidifiedGRanges {
     ends: result_ends,
     strands: result_strands,
     widths: result_widths,
-    metadata: Map::new(),
-    metadata_str: Map::new(),
+    metadata: Map([]),
+    metadata_str: Map([]),
   }
 }
 

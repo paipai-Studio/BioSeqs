@@ -337,7 +337,7 @@ pub fn msf_parse(
         "MSF sequence row has no residues at line " + line_number.to_string(),
       )
     }
-    let fragment_builder = StringBuilder::new()
+    let fragment_builder = StringBuilder()
     for word_index = 1; word_index < words.length(); word_index = word_index + 1 {
       fragment_builder.write_string(words[word_index])
     }
@@ -432,7 +432,7 @@ pub fn msf_write(
   if gap_character != "." && gap_character != "~" && gap_character != "-" {
     raise MsfError("MSF output gap character must be '.', '~', or '-'")
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(alignment.metadata.header)
   output.write_char('\n')
   for line in alignment.metadata.preamble {
@@ -552,7 +552,7 @@ pub fn MsfAlignment::column(self : MsfAlignment, column : Int) -> String? {
   if column < 0 || column >= self.alignment_length() {
     return None
   }
-  let result = StringBuilder::new(size_hint=self.sequences.length())
+  let result = StringBuilder(size_hint=self.sequences.length())
   for sequence in self.sequences {
     result.write_char(
       sequence.aligned_sequence.unsafe_get(column).unsafe_to_char(),
@@ -781,7 +781,7 @@ pub fn MsfAlignment::consensus(
     minimum_fraction > 1.0 {
     raise MsfError("MSF consensus minimum fraction must be between 0 and 1")
   }
-  let output = StringBuilder::new(size_hint=self.alignment_length())
+  let output = StringBuilder(size_hint=self.alignment_length())
   for column = 0; column < self.alignment_length(); column = column + 1 {
     let counts = Array::make(128, 0)
     let mut residues = 0
@@ -1164,7 +1164,7 @@ fn msf_normalize_aligned_sequence(
   sequence : String,
   sequence_type : MsfSequenceType,
 ) -> String raise MsfError {
-  let output = StringBuilder::new(size_hint=sequence.length())
+  let output = StringBuilder(size_hint=sequence.length())
   for index = 0; index < sequence.length(); index = index + 1 {
     let original = sequence.unsafe_get(index).to_int()
     let code = msf_upper_code(original)
@@ -1208,7 +1208,7 @@ fn msf_upper_code(code : Int) -> Int {
 
 ///|
 fn msf_remove_gaps(sequence : String) -> String {
-  let output = StringBuilder::new(size_hint=sequence.length())
+  let output = StringBuilder(size_hint=sequence.length())
   for index = 0; index < sequence.length(); index = index + 1 {
     let code = sequence.unsafe_get(index).to_int()
     if code != '-'.to_int() {
@@ -1350,7 +1350,7 @@ fn msf_find_last_checksum_label(words : Array[String]) -> Int {
 
 ///|
 fn msf_join_words(words : Array[String], start : Int, end : Int) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index = start; index < end; index = index + 1 {
     if index > start {
       output.write_char(' ')
@@ -1365,7 +1365,7 @@ fn msf_pad_right(value : String, width : Int, character : Char) -> String {
   if value.length() >= width {
     return value
   }
-  let output = StringBuilder::new(size_hint=width)
+  let output = StringBuilder(size_hint=width)
   output.write_string(value)
   for _index = value.length(); _index < width; _index = _index + 1 {
     output.write_char(character)

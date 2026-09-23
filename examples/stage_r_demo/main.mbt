@@ -122,7 +122,7 @@ fn main {
 }
 
 fn p_screen_to_string(arr : Array[Double]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("[")
   let mut i = 0
   while i < arr.length() {
@@ -137,7 +137,7 @@ fn p_screen_to_string(arr : Array[Double]) -> String {
 }
 
 fn p_conf_to_string(arr : Array[Double]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("[")
   let mut i = 0
   while i < arr.length() {
@@ -152,7 +152,7 @@ fn p_conf_to_string(arr : Array[Double]) -> String {
 }
 
 fn int_array_to_string(arr : Array[Int]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("[")
   let mut i = 0
   while i < arr.length() {
@@ -167,7 +167,7 @@ fn int_array_to_string(arr : Array[Int]) -> String {
 }
 
 fn bool_row_to_string(row : Array[Bool]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("[")
   let mut i = 0
   while i < row.length() {

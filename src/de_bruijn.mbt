@@ -306,7 +306,7 @@ pub fn DeBruijnGraph::find_eulerian_path(self : DeBruijnGraph) -> String? {
   if path.length() == 0 {
     return None
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   result.write_string(path[0])
   for i = 1; i < path.length(); i = i + 1 {
     let node = path[i]
@@ -319,7 +319,7 @@ pub fn DeBruijnGraph::find_eulerian_path(self : DeBruijnGraph) -> String? {
 
 ///|
 pub fn DeBruijnGraph::to_string(self : DeBruijnGraph) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("De Bruijn Graph (k=")
   buf.write_string(self.k.to_string())
   buf.write_string("):\n")

@@ -8,7 +8,7 @@ let demo_bam_base64 = "QkFNAS0AAABASEQJVk46MS42CVNPOmNvb3JkaW5hdGUKQFNRCVNOOmNoc
 fn main raise {
   let bam = @src.parse_bam_base64(demo_bam_base64)
   for col in bam.pileup("chr1", 0, 25) {
-    let parts = StringBuilder::new()
+    let parts = StringBuilder()
     for pr in col.pileups {
       let name = bam.records[pr.record_index].qname
       match pr.query_position {

@@ -126,7 +126,7 @@ pub fn NOISeqSample::new(
   sample_id : String,
   condition : String,
 ) -> NOISeqSample {
-  NOISeqSample::{ sample_id, condition, counts: Map::new(), }
+  NOISeqSample::{ sample_id, condition, counts: Map([]), }
 }
 
 ///|
@@ -323,7 +323,7 @@ pub fn noiseq_run(
   let norm_trt = noiseq_normalize(treatment_samples, norm_method=norm)
 
   // Collect all gene ids
-  let gene_ids : Map[String, Unit] = Map::new()
+  let gene_ids : Map[String, Unit] = Map([])
   let mut ci = 0
   while ci < norm_ctrl.length() {
     let ctrl_gid_list = norm_ctrl[ci].counts.keys().collect()
@@ -614,9 +614,9 @@ pub fn NOISeqResults::summary(self : NOISeqResults) -> String {
 ///|
 /// Compute QC diagnostics for the data.
 pub fn noiseq_qc(samples : Array[NOISeqSample]) -> NOISeqQC {
-  let biotype_counts : Map[String, Int] = Map::new()
+  let biotype_counts : Map[String, Int] = Map([])
   let gc_content = 50.0 // Simplified: assume 50% GC on average
-  let length_dist : Map[String, Int] = Map::new()
+  let length_dist : Map[String, Int] = Map([])
 
   // Count genes per biotype (simplified: all genes are "protein_coding")
   let mut total_genes = 0

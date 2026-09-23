@@ -246,8 +246,8 @@ pub fn ms_data_process(
     MSNormalization::None => ()
     MSNormalization::Median => {
       // Compute median per run
-      let run_medians : Map[String, Double] = Map::new()
-      let run_values : Map[String, Array[Double]] = Map::new()
+      let run_medians : Map[String, Double] = Map([])
+      let run_values : Map[String, Array[Double]] = Map([])
       let mut ri = 0
       while ri < processed.length() {
         let run = processed[ri].run
@@ -365,7 +365,7 @@ pub fn ms_summarize(
   method? : MSSummarization = MSSummarization::Tukey,
 ) -> Array[MSProteinAbundance] {
   // Group by (protein, run)
-  let groups : Map[String, Array[MSFeature]] = Map::new()
+  let groups : Map[String, Array[MSFeature]] = Map([])
   let mut i = 0
   while i < features.length() {
     let key = features[i].protein + "::" + features[i].run
@@ -464,7 +464,7 @@ pub fn ms_group_comparison(
   log2fc_threshold? : Double = 1.0,
 ) -> MSGroupComparison {
   // Group by protein
-  let protein_groups : Map[String, Array[MSProteinAbundance]] = Map::new()
+  let protein_groups : Map[String, Array[MSProteinAbundance]] = Map([])
   let mut i = 0
   while i < abundances.length() {
     let key = abundances[i].protein
@@ -482,7 +482,7 @@ pub fn ms_group_comparison(
     let protein = protein_list[pli]
     let abuns = protein_groups.get(protein).unwrap()
     // Split into groups
-    let group_data : Map[String, Array[Double]] = Map::new()
+    let group_data : Map[String, Array[Double]] = Map([])
     let mut ai = 0
     while ai < abuns.length() {
       let grp = abuns[ai].group
@@ -602,7 +602,7 @@ pub fn ms_group_comparison(
   }
 
   let n_proteins = if all_results.length() > 0 {
-    let ps : Map[String, Unit] = Map::new()
+    let ps : Map[String, Unit] = Map([])
     let mut pi = 0
     while pi < all_results.length() {
       ps.set(all_results[pi].protein, ())

@@ -232,7 +232,7 @@ pub fn build_fai(content : String) -> FastaIndex {
 ///|
 /// Write a FastaIndex to .fai format string.
 pub fn write_fai(idx : FastaIndex) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for rec in idx.records {
     buf.write_string(rec.name)
     buf.write_char('\t')
@@ -381,7 +381,7 @@ fn Fasta::extract_sequence(
   // Extract raw bytes
   let raw = self.content[byte_start:byte_end].to_owned()
   // Filter out line endings and whitespace
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let nl = '\n'.to_int().to_uint16()
   let cr = '\r'.to_int().to_uint16()
   let sp = ' '.to_int().to_uint16()
@@ -445,7 +445,7 @@ pub fn Fasta::get_spliced_seq(
         let end0 = if e > rec.length { rec.length } else { e }
         chunks.push(self.extract_sequence(rec, start0, end0).to_string())
       }
-      let buf = StringBuilder::new()
+      let buf = StringBuilder()
       if rc {
         let mut i = chunks.length() - 1
         while i >= 0 {

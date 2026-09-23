@@ -395,7 +395,7 @@ pub fn UniGeneRecord::summary(self : UniGeneRecord) -> String {
 ///|
 /// Serialize this record to canonical fixed-width UniGene text.
 pub fn UniGeneRecord::to_string(self : UniGeneRecord) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   unigene_write_line(output, "ID", self.identifier)
   unigene_write_line(output, "TITLE", self.title)
   unigene_write_line(output, "GENE", self.symbol)

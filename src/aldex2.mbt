@@ -1398,7 +1398,7 @@ pub fn Aldex2Clr::expected_distance(self : Aldex2Clr) -> Array[Array[Double]] {
 
 ///|
 pub fn Aldex2Result::to_tsv(self : Aldex2Result) -> String {
-  let buffer = StringBuilder::new()
+  let buffer = StringBuilder()
   buffer.write_string(
     "feature\trab.all\trab.group.a\trab.group.b\tdiff.btw\tdiff.win\teffect\teffect.low\teffect.high\toverlap\twe.ep\twe.eBH\twi.ep\twi.eBH\n",
   )

@@ -38,8 +38,8 @@ pub struct PriorKnowledgeNetwork {
 /// Build a PriorKnowledgeNetwork from a list of edges.
 pub fn pkn_from_edges(edges : Array[PKNEdge]) -> PriorKnowledgeNetwork {
   // Collect unique regulators and targets
-  let reg_map : Map[String, Unit] = Map::new()
-  let tgt_map : Map[String, Unit] = Map::new()
+  let reg_map : Map[String, Unit] = Map([])
+  let tgt_map : Map[String, Unit] = Map([])
   let mut i = 0
   while i < edges.length() {
     reg_map.set(edges[i].source, ())
@@ -86,7 +86,7 @@ fn decoupler_build_weight_matrix(
   gene_names : Array[String],
 ) -> (Array[String], Array[Int], Array[Array[Double]]) {
   // Map gene names to column indices in the expression matrix
-  let gene_index : Map[String, Int] = Map::new()
+  let gene_index : Map[String, Int] = Map([])
   let mut i = 0
   while i < gene_names.length() {
     gene_index.set(gene_names[i], i)
@@ -102,7 +102,7 @@ fn decoupler_build_weight_matrix(
     ri = ri + 1
   }
   // Map regulator to row index
-  let reg_index : Map[String, Int] = Map::new()
+  let reg_index : Map[String, Int] = Map([])
   let mut ri = 0
   while ri < reg_list.length() {
     reg_index.set(reg_list[ri], ri)
@@ -110,7 +110,7 @@ fn decoupler_build_weight_matrix(
   }
   // Only include targets that appear in expression matrix
   let tgt_indices : Array[Int] = []
-  let tgt_seen : Map[Int, Unit] = Map::new()
+  let tgt_seen : Map[Int, Unit] = Map([])
   let mut ti = 0
   while ti < pkn.targets.length() {
     let t = pkn.targets[ti]

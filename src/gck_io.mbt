@@ -222,7 +222,7 @@ fn gck_hex_to_bytes(hex : String) -> Array[Int] {
 ///|
 /// Convert a byte array to a lowercase hex string.
 fn gck_bytes_to_hex(data : Array[Int]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<data.length() {
     let b = data[i] & 0xFF
     sb.write_char(gck_hex_digit((b >> 4) & 0xF))
@@ -234,7 +234,7 @@ fn gck_bytes_to_hex(data : Array[Int]) -> String {
 ///|
 /// Convert ASCII byte array slice to a string.
 fn gck_ascii_to_string(data : Array[Int], offset : Int, length : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<length {
     let b = data[offset + i] & 0xFF
     sb.write_char(Char::from_int(b))
@@ -472,7 +472,7 @@ pub fn gck_seq_length(file : GckFile) -> Int {
 ///|
 /// Generate a summary string.
 pub fn gck_summary(file : GckFile) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("GCK File Summary:\n")
   sb.write_string("  Version: " + file.version.to_string() + "\n")
   sb.write_string("  Type: " + file.seq_type.to_string() + "\n")

@@ -697,7 +697,7 @@ pub fn eh_row_means(mat : NormalizedMatrix) -> Array[Double] {
 ///|
 /// Generate a summary string of the normalized matrix.
 pub fn enriched_heatmap_summary(mat : NormalizedMatrix) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("EnrichedHeatmap Normalized Matrix Summary\n")
   buf.write_string("  Rows (targets): " + mat.nRows.to_string() + "\n")
   buf.write_string("  Columns (windows): " + mat.nCols.to_string() + "\n")

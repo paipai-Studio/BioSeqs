@@ -554,7 +554,7 @@ fn mmtf_hex_to_bytes(hex : String) -> Array[Int] {
 ///|
 /// Convert a byte array to a lowercase hex string.
 fn mmtf_bytes_to_hex(data : Array[Int]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<data.length() {
     let b = data[i] & 0xFF
     sb.write_char(mmtf_hex_char((b >> 4) & 0xF))
@@ -680,7 +680,7 @@ fn mmtf_ascii_to_string(
   offset : Int,
   length : Int,
 ) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<length {
     sb.write_char(Char::from_int(data[offset + i] & 0xFF))
   }
@@ -820,7 +820,7 @@ pub fn mmtf_recursive_index_decode(
 /// Serialize an MmtfStructure to a simplified text representation.
 /// Format: key=value pairs, one per line, with nested sections.
 pub fn mmtf_write_text(structure : MmtfStructure) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let header = structure.get_header()
   let xtal = structure.get_xtal_info()
   sb.write_string("MMTF\n")
@@ -1299,7 +1299,7 @@ pub fn mmtf_sample() -> MmtfStructure {
 ///|
 /// Get the sequence of a chain (single-letter codes).
 pub fn mmtf_chain_sequence(chain : MmtfChain) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for group in chain.groups {
     if group.single_letter_code != "" && group.single_letter_code != "?" {
       sb.write_string(group.single_letter_code)
@@ -1331,7 +1331,7 @@ pub fn mmtf_model_num_atoms(model : MmtfModel) -> Int {
 ///|
 /// Generate a summary string.
 pub fn mmtf_summary(structure : MmtfStructure) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let header = structure.get_header()
   let xtal = structure.get_xtal_info()
   sb.write_string("MMTF Structure Summary:\n")

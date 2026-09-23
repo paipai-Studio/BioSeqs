@@ -594,7 +594,7 @@ fn distinct_haplotype_frequencies(h : Array[Array[Int]]) -> Array[Double] {
   }
   let haps : Array[String] = Array(capacity=0)
   for c = 0; c < n_hap; c = c + 1 {
-    let sb = StringBuilder::new()
+    let sb = StringBuilder()
     for v = 0; v < n_variants; v = v + 1 {
       sb.write_char((h[v][c] + 48).to_uint16().unsafe_to_char())
     }

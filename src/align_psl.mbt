@@ -916,7 +916,7 @@ fn psl_storage(alignment : PslAlignment) -> PslStorage {
 
 ///|
 fn psl_join_ints(values : Array[Int]) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index in 0..<values.length() {
     if index > 0 {
       output.write_char(',')
@@ -931,7 +931,7 @@ fn psl_join_ints(values : Array[Int]) -> String {
 
 ///|
 fn psl_join_strings(values : Array[String]) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index in 0..<values.length() {
     if index > 0 {
       output.write_char(',')
@@ -1020,7 +1020,7 @@ pub fn PslAlignment::format(
   }
   let storage = psl_storage(alignment)
   let counts = alignment.counts()
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   let fields = [
     alignment.matches.to_string(),
     alignment.mismatches.to_string(),
@@ -1067,7 +1067,7 @@ pub fn psl_write(
   config? : PslWriteConfig = PslWriteConfig::default(),
   version? : String = "3",
 ) -> String raise PslError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   if config.header {
     output.write_string(psl_header(version~))
   }

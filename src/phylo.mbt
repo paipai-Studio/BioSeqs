@@ -462,7 +462,7 @@ pub fn Tree::common_ancestor(self : Tree, names : Array[String]) -> Clade? {
 ///|
 /// Generate ASCII art representation of the tree.
 pub fn Tree::draw_ascii(self : Tree) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   Clade::draw_ascii_helper(self.root, "", true, buf)
   buf.to_string()
 }
@@ -501,7 +501,7 @@ fn Clade::draw_ascii_helper(
 ///|
 /// Return a string representation of the tree.
 pub fn Tree::repr(self : Tree) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("Tree(rooted=")
   buf.write_string(if self.rooted { "true" } else { "false" })
   buf.write_string(", weight=")

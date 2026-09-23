@@ -288,7 +288,7 @@ pub fn chem_total_charge(charges : Array[Double]) -> Double {
 ///|
 /// Calculate empirical formula from element counts.
 pub fn chem_empirical_formula(element_counts : Map[String, Int]) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   // Standard Hill system: C first, H second, then alphabetical
   let elements = element_counts.keys().collect()
   let has_c = elements.contains("C")

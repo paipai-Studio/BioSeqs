@@ -295,7 +295,7 @@ pub fn AlignExonerateAlignment::num_operations(
 pub fn AlignExonerateAlignment::operation_codes(
   self : AlignExonerateAlignment,
 ) -> String {
-  let output = StringBuilder::new(size_hint=self.operations.length())
+  let output = StringBuilder(size_hint=self.operations.length())
   for operation in self.operations {
     output.write_string(operation.code)
   }
@@ -542,7 +542,7 @@ pub fn align_exonerate_write(
     document.metadata,
     document.alignments,
   )
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(
     "Command line: [" + validated.metadata.command_line + "]\n",
   )

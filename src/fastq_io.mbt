@@ -123,7 +123,7 @@ pub fn parse_fastq(content : String) -> Array[SeqRecord] raise SeqIOError {
 /// - Records must have phred_quality letter annotations.
 /// - Quality scores are encoded as chr(Q + 33).
 pub fn write_fastq(records : Array[SeqRecord]) -> String raise SeqIOError {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for rec in records {
     let quals = match rec.letter_annotations.get("phred_quality") {
       Some(q) => q
@@ -320,7 +320,7 @@ fn write_fastq_offset(
   records : Array[SeqRecord],
   offset : Int,
 ) -> String raise SeqIOError {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for rec in records {
     let quals = match rec.letter_annotations.get("phred_quality") {
       Some(q) => q

@@ -557,7 +557,7 @@ pub fn BigBedRecord::annotation(
 
 ///|
 fn bigbed_escape_auto_sql(value : String) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   for i in 0..<value.length() {
     let code = value.unsafe_get(i).to_int()
     if code == '"'.to_int() {
@@ -571,7 +571,7 @@ fn bigbed_escape_auto_sql(value : String) -> String {
 
 ///|
 pub fn BigBedSchema::to_auto_sql(self : BigBedSchema) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("table " + self.name + "\n")
   output.write_string("\"" + bigbed_escape_auto_sql(self.comment) + "\"\n")
   output.write_string("(\n")
@@ -810,7 +810,7 @@ fn bigbed_read_text(
   end : Int,
 ) -> String raise BigBedError {
   bigbed_check_range(data, start, end - start, "text")
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   for i in start..<end {
     builder.write_char(Int::unsafe_to_char(data[i] & 0xFF))
   }
@@ -875,7 +875,7 @@ fn bigbed_parse_csv_ints(
 
 ///|
 fn bigbed_csv(values : Array[Int]) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for value in values {
     output.write_string(value.to_string())
     output.write_string(",")
@@ -1026,7 +1026,7 @@ fn bigbed_rest_fields(
 
 ///|
 fn bigbed_join_tabs(fields : Array[String]) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for i in 0..<fields.length() {
     if i > 0 {
       output.write_string("\t")
@@ -2417,7 +2417,7 @@ pub fn BigBedFile::summary(
 
 ///|
 pub fn BigBedFile::to_bed(self : BigBedFile) -> String raise BigBedError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   let bed_columns = self.header.defined_field_count
   for record in self.records() {
     output.write_string(record.chrom)

@@ -9,7 +9,7 @@
 /// Python's json.dumps string escaping for the characters that appear in
 /// our test data (backslash, double-quote, newline, tab).
 fn json_escape(s : String) -> String {
-  let buf = StringBuilder::new(size_hint=s.length() + 2)
+  let buf = StringBuilder(size_hint=s.length() + 2)
   for c in s.iter() {
     match c {
       '\\' => buf.write_string("\\\\")
@@ -32,7 +32,7 @@ fn json_string(s : String) -> String {
 /// Convert a SeqRecord to a JSON object string, matching BioPython's
 /// record_to_dict. Key order: id, name, description, seq, length[, qual].
 fn record_to_json(rec : @lib.SeqRecord, include_qual? : Bool = false) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("{\"id\": ")
   buf.write_string(json_string(rec.id))
   buf.write_string(", \"name\": ")
@@ -68,7 +68,7 @@ fn records_to_json(
   records : Array[@lib.SeqRecord],
   include_qual? : Bool = false,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_char('[')
   for i, rec in records {
     if i > 0 {
@@ -137,7 +137,7 @@ fn seqio_test() -> Unit {
   // 6. to_dict — keyed by id, ordered by record appearance (matching
   // Python dict insertion order).
   let d = @lib.seqio_to_dict(recs)
-  let dbuf = StringBuilder::new()
+  let dbuf = StringBuilder()
   dbuf.write_char('{')
   for i, rec in recs {
     if i > 0 {

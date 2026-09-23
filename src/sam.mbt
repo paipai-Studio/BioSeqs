@@ -134,7 +134,7 @@ pub fn parse_cigar(cigar_str : String) -> Array[CigarElement] {
     let c = cigar_str.unsafe_get(i)
     let ci = c.to_int()
     if ci >= '0'.to_int() && ci <= '9'.to_int() {
-      let num_str = StringBuilder::new()
+      let num_str = StringBuilder()
       while i < n {
         let d = cigar_str.unsafe_get(i)
         let di = d.to_int()

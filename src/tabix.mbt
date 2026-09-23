@@ -98,12 +98,12 @@ fn tbx_check_magic(data : String) -> Bool {
 /// Split the NUL-terminated sequence names (total `l_nm` bytes).
 fn tbx_parse_names(data : String, pos : Int, l_nm : Int) -> Array[String] {
   let names : Array[String] = []
-  let mut cur = StringBuilder::new()
+  let mut cur = StringBuilder()
   for i = 0; i < l_nm; i = i + 1 {
     let byte = data.unsafe_get(pos + i).to_int() & 0xFF
     if byte == 0 {
       names.push(cur.to_string())
-      cur = StringBuilder::new()
+      cur = StringBuilder()
     } else {
       cur.write_char(data.unsafe_get(pos + i).unsafe_to_char())
     }

@@ -2015,7 +2015,7 @@ pub fn parse_matrix(content : String) -> SubstitutionMatrix? {
 ///|
 /// Format substitution matrix to string.
 pub fn SubstitutionMatrix::to_string(self : SubstitutionMatrix) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string(" " + self.alphabet.join(" ") + "\n")
 
   let mut i = 0

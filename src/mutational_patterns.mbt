@@ -311,7 +311,7 @@ pub fn build_mutation_matrix(
     i = i + 1
   }
   // Build sample index lookup
-  let sample_idx : Map[String, Int] = Map::new()
+  let sample_idx : Map[String, Int] = Map([])
   let mut si = 0
   while si < n_samples {
     sample_idx.set(sample_ids[si], si)

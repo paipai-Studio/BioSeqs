@@ -128,7 +128,7 @@ fn scanpy_trim(s : String) -> String {
 ///|
 fn scanpy_split_ws(s : String) -> Array[String] {
   let out : Array[String] = Array(capacity=0)
-  let mut cur = StringBuilder::new()
+  let mut cur = StringBuilder()
   let mut has = false
   let mut i = 0
   while i <= s.length() {
@@ -142,7 +142,7 @@ fn scanpy_split_ws(s : String) -> Array[String] {
       if has {
         out.push(cur.to_string())
       }
-      cur = StringBuilder::new()
+      cur = StringBuilder()
       has = false
     } else {
       cur.write_char(s.unsafe_get(i).unsafe_to_char())

@@ -131,7 +131,7 @@ test "markov_generate_sequence_length_and_alphabet" {
   let m = @src.markov_build_model(seqs, order=1)
   let g = @src.markov_generate_sequence(m, 20, seed=42)
   assert_eq(g.length(), 20)
-  let states_set : Map[String, Unit] = Map::new()
+  let states_set : Map[String, Unit] = Map([])
   let mut si = 0
   while si < m.states.length() {
     states_set.set(m.states[si], ())

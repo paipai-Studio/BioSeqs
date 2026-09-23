@@ -8,7 +8,7 @@
 /// Generate a deterministic pseudo-random DNA sequence of length `n`
 /// using a simple LCG so results are reproducible across runs.
 fn gen_dna(n : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let bases = ['A', 'C', 'G', 'T']
   let mut state = 12345
   for i = 0; i < n; i = i + 1 {
@@ -55,7 +55,7 @@ fn bench_err(label : String, iters : Int, f : () -> Unit) -> Double {
 ///|
 /// Generate a FASTA string with `n_records` records, each of length `seq_len`.
 fn gen_fasta(n_records : Int, seq_len : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < n_records; i = i + 1 {
     buf.write_char('>')
     buf.write_string("seq")
@@ -73,7 +73,7 @@ fn gen_fasta(n_records : Int, seq_len : Int) -> String {
 ///|
 /// Generate a FASTQ string with `n_records` records, each of length `seq_len`.
 fn gen_fastq(n_records : Int, seq_len : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < n_records; i = i + 1 {
     buf.write_char('@')
     buf.write_string("seq")
@@ -422,7 +422,7 @@ fn main {
   )
 
   // Generate a larger tree for more meaningful benchmarks
-  let large_newick_buf = StringBuilder::new()
+  let large_newick_buf = StringBuilder()
   large_newick_buf.write_char('(')
   for i = 0; i < 50; i = i + 1 {
     if i > 0 {
@@ -464,7 +464,7 @@ fn main {
   println("")
 
   // Generate PDB content
-  let pdb_buf = StringBuilder::new()
+  let pdb_buf = StringBuilder()
   pdb_buf.write_string("MODEL     1\n")
   for i = 0; i < 100; i = i + 1 {
     pdb_buf.write_string("ATOM      1  N   ALA A   ")
@@ -611,7 +611,7 @@ fn main {
   println("")
 
   // Generate CRAM test data
-  let cram_buf = StringBuilder::new()
+  let cram_buf = StringBuilder()
   cram_buf.write_string("CRAM")
   cram_buf.write_char('\u{0001}')
   cram_buf.write_char('\u{0003}')

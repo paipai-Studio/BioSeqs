@@ -731,7 +731,7 @@ pub fn ns_qc_summary(data : NsNanostringData) -> String {
   let imaging = ns_imaging_qc(data, 100)
   let (r_sq, slope) = ns_pos_linearity_qc(data)
   let loq = ns_loq_qc(data, 50)
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("NanoString QC Summary\n")
   buf.write_string("======================\n")
   buf.write_string("Samples: ")
@@ -886,7 +886,7 @@ pub fn ns_differential_expression(
 ///|
 /// Build a textual summary of a NanoString experiment.
 pub fn ns_summary(data : NsNanostringData) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("NanoString Data Summary\n")
   buf.write_string("=======================\n")
   buf.write_string("Samples: ")
@@ -925,7 +925,7 @@ pub fn ns_de_summary(results : Array[NsDeResult]) -> String {
       }
     }
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("Differential Expression Summary\n")
   buf.write_string("================================\n")
   buf.write_string("Genes tested: ")

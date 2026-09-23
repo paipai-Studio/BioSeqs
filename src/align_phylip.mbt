@@ -217,7 +217,7 @@ pub fn align_phylip_write(
   for sequence in alignment.sequences {
     names.push(align_phylip_normalize_id(sequence.id))
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(alignment.num_sequences().to_string())
   output.write_char(' ')
   output.write_string(width.to_string())
@@ -299,7 +299,7 @@ pub fn align_phylip_write(
 pub fn align_phylip_normalize_id(id : String) -> String raise AlignPhylipError {
   align_phylip_validate_id(id)
   let trimmed = id.trim().to_owned()
-  let output = StringBuilder::new(size_hint=trimmed.length())
+  let output = StringBuilder(size_hint=trimmed.length())
   for index = 0; index < trimmed.length(); index = index + 1 {
     let code = trimmed.unsafe_get(index).to_int()
     if code == '['.to_int() ||
@@ -398,7 +398,7 @@ pub fn AlignPhylipAlignment::column(
   if column < 0 || column >= self.alignment_length() {
     return None
   }
-  let result = StringBuilder::new(size_hint=self.sequences.length())
+  let result = StringBuilder(size_hint=self.sequences.length())
   for sequence in self.sequences {
     result.write_char(
       sequence.aligned_sequence.unsafe_get(column).unsafe_to_char(),
@@ -643,7 +643,7 @@ pub fn AlignPhylipAlignment::majority_consensus(
       "PHYLIP consensus minimum fraction must be between 0 and 1",
     )
   }
-  let output = StringBuilder::new(size_hint=self.alignment_length())
+  let output = StringBuilder(size_hint=self.alignment_length())
   for column = 0; column < self.alignment_length(); column = column + 1 {
     let frequencies = Array::make(128, 0)
     let mut residues = 0
@@ -725,7 +725,7 @@ fn align_phylip_parse_sequential(
     }
     let (id, first_segment) = align_phylip_parse_named_row(lines[line_index])
     line_index = line_index + 1
-    let output = StringBuilder::new(size_hint=number_of_columns)
+    let output = StringBuilder(size_hint=number_of_columns)
     output.write_string(first_segment)
     let mut length = first_segment.length()
     if length > number_of_columns {
@@ -789,7 +789,7 @@ fn align_phylip_parse_interleaved(
       )
     }
     ids.push(id)
-    let output = StringBuilder::new(size_hint=number_of_columns)
+    let output = StringBuilder(size_hint=number_of_columns)
     output.write_string(segment)
     builders.push(output)
     lengths[row] = segment.length()
@@ -1063,7 +1063,7 @@ fn align_phylip_validate_row(
 
 ///|
 fn align_phylip_compact_segment(value : String) -> String {
-  let output = StringBuilder::new(size_hint=value.length())
+  let output = StringBuilder(size_hint=value.length())
   for index = 0; index < value.length(); index = index + 1 {
     let code = value.unsafe_get(index).to_int()
     if code != ' '.to_int() && code != '\t'.to_int() {
@@ -1075,7 +1075,7 @@ fn align_phylip_compact_segment(value : String) -> String {
 
 ///|
 fn align_phylip_remove_gaps(value : String) -> String {
-  let output = StringBuilder::new(size_hint=value.length())
+  let output = StringBuilder(size_hint=value.length())
   for index = 0; index < value.length(); index = index + 1 {
     let code = value.unsafe_get(index).to_int()
     if code != '-'.to_int() {

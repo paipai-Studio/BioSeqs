@@ -87,7 +87,7 @@ pub fn IgRecord::length(self : IgRecord) -> Int {
 ///|
 /// Human-readable representation of this record.
 pub fn IgRecord::to_string(self : IgRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("IgRecord(id=")
   buf.write_string(self.title)
   buf.write_string(", length=")
@@ -179,7 +179,7 @@ fn ig_strip(s : String) -> String {
 /// Remove all whitespace from a string (used for sequence lines).
 fn ig_remove_whitespace(s : String) -> String {
   let n = s.length()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let sp = ig_char_code(' ')
   let tab = ig_char_code('\t')
   let cr = ig_char_code('\r')
@@ -275,7 +275,7 @@ pub fn ig_parse(content : String) -> Array[IgRecord] {
       break
     }
     // Collect sequence lines until the next ";" or EOF.
-    let seq_buf = StringBuilder::new()
+    let seq_buf = StringBuilder()
     let mut hit_next_record = false
     while idx < n_lines {
       let line2 = ig_strip_cr(lines[idx])
@@ -314,7 +314,7 @@ fn ig_join_lines(parts : Array[String]) -> String {
   while end > 0 && parts[end - 1].length() == 0 {
     end = end - 1
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < end; i = i + 1 {
     if i > 0 {
       buf.write_char('\n')
@@ -350,7 +350,7 @@ pub fn ig_record_to_string(record : IgRecord) -> String {
 /// Render an `IgRecord` with a custom sequence line width. A width <= 0
 /// disables wrapping (the sequence is emitted on a single line).
 pub fn ig_record_to_string_width(record : IgRecord, width : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   // Comment lines.
   if record.comment.length() > 0 {
     let parts = record.comment.split("\n").to_array()
@@ -402,7 +402,7 @@ pub fn ig_records_to_string(
   records : Array[IgRecord],
   file_header : Array[String]?,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   // Optional file header.
   match file_header {
     Some(hs) =>

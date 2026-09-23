@@ -211,7 +211,7 @@ pub fn FreqTable::letters(self : FreqTable) -> Array[String] {
 /// Pretty-print the table as a multi-line string, one letter per line:
 ///   "<letter> <frequency>" (and "<count>" appended when counts exist).
 pub fn FreqTable::to_string(self : FreqTable) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for ch in self.alphabet {
     let freq = self.data.get_or_default(ch, 0.0)
     sb.write_string(ch)
@@ -238,13 +238,13 @@ fn freq_table_tokenize(text : String) -> Array[String] {
   let tokens : Array[String] = Array(capacity=0)
   let n = text.length()
   let mut i = 0
-  let mut buf = StringBuilder::new()
+  let mut buf = StringBuilder()
   while i < n {
     let ch = substring(text, i, 1)
     if ch == " " || ch == "\t" || ch == "\n" || ch == "\r" {
       if buf.to_string().length() > 0 {
         tokens.push(buf.to_string())
-        buf = StringBuilder::new()
+        buf = StringBuilder()
       }
     } else {
       buf.write_string(ch)

@@ -650,7 +650,7 @@ pub fn ancombc_test(
 ///|
 /// Text summary of the ANCOMBC test result.
 pub fn ancombc_result_summary(result : AncombcTestResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("=== ANCOMBC Differential Abundance Test ===\n")
   sb.write_string("Comparison: ")
   sb.write_string(result.group1)

@@ -150,7 +150,7 @@ fn dendropy_sort_strings(arr : Array[String]) -> Array[String] {
 
 ///|
 fn dendropy_join(names : Array[String]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut first = true
   for n in names {
     if not(first) {

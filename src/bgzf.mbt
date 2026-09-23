@@ -702,7 +702,7 @@ fn decompress_bgzf_block(
 ///|
 /// Decompress entire BGZF data.
 pub fn bgzf_decompress(data : String) -> String raise BgzfError {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut pos = 0
   let n = data.length()
 
@@ -870,7 +870,7 @@ pub struct BgzfWriter {
 pub fn BgzfWriter::new() -> BgzfWriter {
   BgzfWriter::{
     buffer: "",
-    output: StringBuilder::new(),
+    output: StringBuilder(),
     block_offset: 0,
     closed: false,
   }
@@ -1087,7 +1087,7 @@ pub fn BgzfReader::read(
   self : BgzfReader,
   size? : Int,
 ) -> String raise BgzfError {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut remaining = size
   while true {
     if self.block_index >= self.blocks.length() {
@@ -1128,7 +1128,7 @@ pub fn BgzfReader::read(
 ///|
 /// Read one line (including the trailing newline when present).
 pub fn BgzfReader::readline(self : BgzfReader) -> String raise BgzfError {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   while true {
     if self.block_index >= self.blocks.length() {
       break

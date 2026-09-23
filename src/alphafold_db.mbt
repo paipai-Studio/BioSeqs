@@ -96,7 +96,7 @@ fn af_hex4(s : String, i : Int) -> Int raise AlphafoldError {
 /// Parse a JSON string starting at the opening quote (handles common escapes
 /// and \uXXXX). Returns (string, next index).
 fn af_parse_string(s : String, i : Int) -> (String, Int) raise AlphafoldError {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut j = i + 1
   while j < s.length() {
     let c = s.unsafe_get(j).to_int()

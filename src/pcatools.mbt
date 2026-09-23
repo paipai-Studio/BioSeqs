@@ -390,7 +390,7 @@ pub fn pcatools_run_pca(
 
 ///|
 pub fn pcatools_summary(res : FullPCAResult) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "PCAResult: \{res.n_samples} samples, \{res.n_variables} variables\n",
   )
@@ -432,7 +432,7 @@ pub fn scree_plot_ascii(
   if k == 0 {
     return "(no PCs available for scree plot)".to_string()
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut max_ve = 0.0
   if res.variance_explained.length() > 0 {
     max_ve = res.variance_explained[0]
@@ -503,7 +503,7 @@ pub fn pca_biplot_ascii(
   res : FullPCAResult,
   opts? : BiplotOptions = BiplotOptions::new(),
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   if res.scores.length() == 0 || res.n_components < 2 {
     return "(insufficient data for PCA biplot)".to_string()
   }

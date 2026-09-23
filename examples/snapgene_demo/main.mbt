@@ -90,7 +90,7 @@ fn main {
   let bytes = @bio.snapgene_to_bytes(file)
   println("Serialized to \{bytes.length()} byte(s)")
   let preview_len = if bytes.length() < 20 { bytes.length() } else { 20 }
-  let byte_sb = StringBuilder::new()
+  let byte_sb = StringBuilder()
   byte_sb.write_string("  first ")
   byte_sb.write_string(preview_len.to_string())
   byte_sb.write_string(" byte(s): ")

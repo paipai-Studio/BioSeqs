@@ -535,7 +535,7 @@ pub struct MergedPair {
 pub fn dada_reverse_complement(seq : String) -> String {
   let bytes = seq.to_array()
   let n = bytes.length()
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut i = 0
   while i < n {
     let c = bytes[n - 1 - i]
@@ -607,7 +607,7 @@ pub fn merge_pair(
     }
   }
   // Build merged sequence
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   // Part from forward only
   let mut i = 0
   while i < best_start {
@@ -1005,7 +1005,7 @@ pub fn extract_kmers(seq : String, k : Int) -> Array[String] {
   let n = seq.length() - k + 1
   let mut i = 0
   while i < n {
-    let sb = StringBuilder::new()
+    let sb = StringBuilder()
     let mut j = 0
     while j < k {
       sb.write_char(seq[i + j].unsafe_to_char())

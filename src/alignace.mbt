@@ -287,7 +287,7 @@ fn alignace_parse_site(text : String) -> AlignAceSite? {
 /// Split a string by whitespace, returning non-empty parts.
 fn alignace_split_whitespace(s : String) -> Array[String] {
   let parts = Array(capacity=0)
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for c in s.to_array() {
     if c == ' ' || c == '\t' {
       let built = sb.to_string()
@@ -319,7 +319,7 @@ fn alignace_consensus(count_matrix : Array[Array[Int]]) -> String {
   }
   let width = count_matrix[0].length()
   let bases = ["A", "C", "G", "T"]
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for col in 0..<width {
     let mut best_base = "A"
     let mut best_count = count_matrix[0][col]
@@ -403,7 +403,7 @@ pub fn alignace_total_ic(motif : AlignAceMotif) -> Double {
 ///|
 /// Serialize an AlignAceRecord to AlignACE output format text.
 pub fn alignace_write(record : AlignAceRecord) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   // Header
   sb.write_string("# AlignACE version " + record.version + "\n")
   sb.write_string("# Program: AlignACE\n")
@@ -427,7 +427,7 @@ pub fn alignace_write(record : AlignAceRecord) -> String {
 ///|
 /// Serialize a single motif to AlignACE matrix format.
 fn alignace_write_motif(motif : AlignAceMotif) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let width = motif.width
   // Consensus line
   sb.write_string("i")
@@ -511,7 +511,7 @@ pub fn alignace_get_motif(
 ///|
 /// Generate a summary string for an AlignAceRecord.
 pub fn alignace_summary(record : AlignAceRecord) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("AlignACE Record Summary:\n")
   sb.write_string("  Version: " + record.version + "\n")
   sb.write_string("  Command: " + record.command + "\n")

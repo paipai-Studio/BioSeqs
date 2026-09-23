@@ -6,7 +6,7 @@
 
 ///|
 fn fmt_i(row : Array[Int]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut first = true
   for x in row {
     if not(first) {
@@ -20,7 +20,7 @@ fn fmt_i(row : Array[Int]) -> String {
 
 ///|
 fn fmt_d(row : Array[Double]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut first = true
   for x in row {
     if not(first) {

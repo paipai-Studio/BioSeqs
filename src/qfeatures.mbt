@@ -236,7 +236,7 @@ pub fn QfAssay::col_sums(self : QfAssay) -> Array[Double] {
 ///|
 /// String representation of the assay.
 pub fn QfAssay::to_string(self : QfAssay) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "QfAssay '\{self.name}': \{self.n_rows} rows x \{self.n_cols} cols",
   )
@@ -1289,7 +1289,7 @@ pub fn qf_count_na_by_row(assay : QfAssay) -> Array[Int] {
 /// Print a summary of the QFeatures container: number of assays, names,
 /// dimensions, and link count.
 pub fn qf_summary(qf : QFeatures) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("QFeatures Summary\n")
   buf.write_string("================\n")
   buf.write_string("Number of assays: \{qf.n_assays}\n")
@@ -1306,7 +1306,7 @@ pub fn qf_summary(qf : QFeatures) -> String {
 ///|
 /// Print an assay summary: dimensions, mean, range, and NA count.
 pub fn qf_assay_summary(assay : QfAssay) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("QfAssay Summary: '\{assay.name}'\n")
   buf.write_string(
     "  Dimensions: \{assay.n_rows} rows x \{assay.n_cols} cols\n",

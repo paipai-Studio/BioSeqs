@@ -369,7 +369,7 @@ pub fn gage_sample_gene_sets() -> Array[GageGeneSet] {
 ///|
 /// Create sample fold changes for testing.
 pub fn gage_sample_fold_changes() -> Map[String, Double] {
-  let fcs : Map[String, Double] = Map::new()
+  let fcs : Map[String, Double] = Map([])
   fcs.set("Gene1", 2.0)
   fcs.set("Gene2", 1.5)
   fcs.set("Gene3", 1.8)

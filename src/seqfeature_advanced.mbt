@@ -240,7 +240,7 @@ pub fn CompoundLocation::compound_extract(
   if self.parts.length() == 0 {
     return ""
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for part in self.parts {
     let extracted = part.extract(parent_sequence)
     buf.write_string(extracted.to_string())
@@ -252,7 +252,7 @@ pub fn CompoundLocation::compound_extract(
 /// Generate a GenBank-format string representation of this compound location.
 /// Example: "join(1..100,complement(200..300))"
 pub fn CompoundLocation::compound_to_string(self : CompoundLocation) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let strand = self._compound_strand()
   if strand == Some(-1) {
     buf.write_string("complement(")
@@ -680,7 +680,7 @@ pub fn SeqFeatureExtended::get_qualifier(
 pub fn SeqFeatureExtended::seq_feature_to_string(
   self : SeqFeatureExtended,
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(self.type_)
   buf.write_char(' ')
   buf.write_string(location_to_string(self.location))

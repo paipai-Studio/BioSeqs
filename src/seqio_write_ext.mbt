@@ -54,7 +54,7 @@ fn writeext_split_annotation(value : String) -> Array[String] {
 pub fn write_swiss_records(
   records : Array[SeqRecord],
 ) -> String raise SeqIOError {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for rec in records {
     let seq = rec.seq.to_string()
     buf.write_string("ID   ")
@@ -122,7 +122,7 @@ pub fn write_swiss_records(
 /// Write records in PIR/NBRF format: ">P1;<id>" header, description line,
 /// and the sequence wrapped at 60 columns with a trailing '*'.
 pub fn write_pir_records(records : Array[SeqRecord]) -> String raise SeqIOError {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for rec in records {
     let seq = rec.seq.to_string()
     buf.write_string(">P1;")
@@ -169,7 +169,7 @@ fn writeext_location_string(feature : SeqFeature) -> String {
 pub fn write_embl_records(
   records : Array[SeqRecord],
 ) -> String raise SeqIOError {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for rec in records {
     let seq = rec.seq.to_string()
     let features : Array[InsdcFeature] = Array(capacity=0)
@@ -254,7 +254,7 @@ pub fn write_seqxml_records(
 /// length-mismatched) quality track raises before any output text is
 /// produced for that record (spec 5.3.1.4 / 5.3.3.2).
 pub fn write_phd_records(records : Array[SeqRecord]) -> String raise SeqIOError {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for rec in records {
     let seq = rec.seq.to_string()
     let qualities = match rec.phred_quality() {

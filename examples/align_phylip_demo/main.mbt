@@ -17,7 +17,7 @@ fn phylip_demo_write(
 
 ///|
 fn phylip_demo_path(path : Array[Int]) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_char('[')
   for index = 0; index < path.length(); index = index + 1 {
     if index > 0 {

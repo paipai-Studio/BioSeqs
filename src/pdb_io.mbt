@@ -388,7 +388,7 @@ fn pdb_parse_double(s : String) -> Double? {
 ///|
 /// Write a Structure to PDB format string.
 pub fn write_pdb(structure : Structure) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   let mut model_idx = 0
   for model in structure.models {
@@ -417,7 +417,7 @@ pub fn write_pdb(structure : Structure) -> String {
 ///|
 /// Write an atom to a PDB ATOM or HETATM line.
 fn write_atom_line(atom : Atom, is_hetatm : Bool) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   buf.write_string(if is_hetatm { "HETATM" } else { "ATOM  " })
 

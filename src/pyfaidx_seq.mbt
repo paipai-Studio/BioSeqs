@@ -18,7 +18,7 @@ fn[T] pyfaidx_fail(msg : String) -> T raise PyfaidxError {
 
 ///|
 fn pyfaidx_uppercase(s : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < s.length(); i = i + 1 {
     let c = s.unsafe_get(i).to_int()
     let u = if c >= 97 && c <= 122 { c - 32 } else { c }
@@ -85,7 +85,7 @@ fn pyfaidx_complement_target() -> String {
 pub fn pyfaidx_complement(seq : String) -> String raise PyfaidxError {
   let source = pyfaidx_complement_source()
   let target = pyfaidx_complement_target()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < seq.length(); i = i + 1 {
     let c = seq.unsafe_get(i).unsafe_to_char()
     let mut found = false
@@ -106,7 +106,7 @@ pub fn pyfaidx_complement(seq : String) -> String raise PyfaidxError {
 ///|
 /// Reverse a sequence string.
 pub fn pyfaidx_reverse(seq : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut i = seq.length() - 1
   while i >= 0 {
     buf.write_char(seq.unsafe_get(i).unsafe_to_char())
@@ -204,7 +204,7 @@ pub fn pyfaidx_gc_iupac(seq : String) -> Double {
 ///|
 /// Wrap a sequence into lines of `n` characters, each followed by a newline.
 pub fn pyfaidx_wrap_sequence(n : Int, seq : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let len = seq.length()
   let mut i = 0
   while i < len {

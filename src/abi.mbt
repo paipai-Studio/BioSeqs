@@ -324,7 +324,7 @@ fn abi_read_i16(bytes : Array[Int], pos : Int) -> Int {
 ///|
 /// Read a tag name (4 characters) from a byte array.
 fn abi_read_tag_name(bytes : Array[Int], pos : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut i = 0
   while i < 4 {
     if pos + i < bytes.length() {
@@ -341,7 +341,7 @@ fn abi_read_tag_name(bytes : Array[Int], pos : Int) -> String {
 ///|
 /// Read a string of given length from a byte array.
 fn abi_read_string(bytes : Array[Int], pos : Int, length : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut i = 0
   while i < length {
     if pos + i < bytes.length() {

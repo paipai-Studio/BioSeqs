@@ -57,7 +57,7 @@ test "beclear_score zero for no effect" {
   let col_names = ["s1", "s2"]
   let data = [[1.0, 1.0]]
   let batch = {
-    let b : Map[String, Int] = Map::new()
+    let b : Map[String, Int] = Map([])
     b.set("s1", 1)
     b.set("s2", 1)
     b
@@ -100,7 +100,7 @@ test "beclear_idempotent on clean matrix" {
     [3.0, 3.1, 2.9],
   ]
   let batch = {
-    let b : Map[String, Int] = Map::new()
+    let b : Map[String, Int] = Map([])
     b.set("s1", 1)
     b.set("s2", 1)
     b.set("s3", 1)

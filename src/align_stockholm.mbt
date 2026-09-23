@@ -448,7 +448,7 @@ pub fn align_stockholm_write(
   if columns == 0 {
     raise AlignStockholmError("Non-empty Stockholm sequences are required")
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("# STOCKHOLM 1.0\n")
   for annotation in alignment.annotations {
     if !align_stockholm_is_known_gf(annotation.code) {
@@ -572,7 +572,7 @@ pub fn align_stockholm_write(
 pub fn align_stockholm_write_all(
   alignments : Array[AlignStockholmAlignment],
 ) -> String raise AlignStockholmError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for alignment in alignments {
     output.write_string(align_stockholm_write(alignment))
   }
@@ -701,7 +701,7 @@ pub fn AlignStockholmAlignment::column(
   if column < 0 || column >= self.alignment_length() {
     return None
   }
-  let output = StringBuilder::new(size_hint=self.sequences.length())
+  let output = StringBuilder(size_hint=self.sequences.length())
   for sequence in self.sequences {
     output.write_char(
       sequence.aligned_sequence.unsafe_get(column).unsafe_to_char(),
@@ -982,7 +982,7 @@ pub fn AlignStockholmAlignment::consensus(
       "Stockholm consensus ambiguous symbol must be one character",
     )
   }
-  let output = StringBuilder::new(size_hint=self.alignment_length())
+  let output = StringBuilder(size_hint=self.alignment_length())
   for column = 0; column < self.alignment_length(); column = column + 1 {
     let symbols : Array[Int] = []
     let counts : Array[Int] = []
@@ -1659,7 +1659,7 @@ fn align_stockholm_prepare_rows(
   }
   let normalized : Array[String] = []
   for row in rows {
-    let output = StringBuilder::new(size_hint=width)
+    let output = StringBuilder(size_hint=width)
     for column = 0; column < width; column = column + 1 {
       if !all_gap[column] {
         let code = row.unsafe_get(column).to_int()
@@ -1670,7 +1670,7 @@ fn align_stockholm_prepare_rows(
     }
     normalized.push(output.to_string())
   }
-  let operation_output = StringBuilder::new(size_hint=width)
+  let operation_output = StringBuilder(size_hint=width)
   for column = 0; column < width; column = column + 1 {
     if !all_gap[column] {
       operation_output.write_char(operations[column].unsafe_to_char())
@@ -2001,7 +2001,7 @@ fn align_stockholm_infer_operations(
   } else {
     sequences[0].aligned_sequence.length()
   }
-  let output = StringBuilder::new(size_hint=width)
+  let output = StringBuilder(size_hint=width)
   for column = 0; column < width; column = column + 1 {
     let mut has_gap = false
     for sequence in sequences {
@@ -2017,7 +2017,7 @@ fn align_stockholm_infer_operations(
 
 ///|
 fn align_stockholm_render_row(row : String, operations : String) -> String {
-  let output = StringBuilder::new(size_hint=row.length())
+  let output = StringBuilder(size_hint=row.length())
   for column = 0; column < row.length(); column = column + 1 {
     let code = row.unsafe_get(column).to_int()
     if code == '-'.to_int() &&
@@ -2035,7 +2035,7 @@ fn align_stockholm_render_letter_annotation(
   sequence : AlignStockholmSequence,
   value : String,
 ) -> String {
-  let output = StringBuilder::new(size_hint=sequence.aligned_sequence.length())
+  let output = StringBuilder(size_hint=sequence.aligned_sequence.length())
   let mut residue = 0
   for column = 0
       column < sequence.aligned_sequence.length()
@@ -2055,7 +2055,7 @@ fn align_stockholm_residue_annotation_value(
   aligned_sequence : String,
   aligned_value : String,
 ) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for column = 0; column < aligned_sequence.length(); column = column + 1 {
     if aligned_sequence.unsafe_get(column).to_int() != '-'.to_int() {
       output.write_char(aligned_value.unsafe_get(column).unsafe_to_char())
@@ -2069,7 +2069,7 @@ fn align_stockholm_remove_columns(
   value : String,
   removed : Array[Bool],
 ) -> String {
-  let output = StringBuilder::new(size_hint=value.length())
+  let output = StringBuilder(size_hint=value.length())
   for index = 0; index < value.length(); index = index + 1 {
     if !removed[index] {
       output.write_char(value.unsafe_get(index).unsafe_to_char())
@@ -2091,7 +2091,7 @@ fn align_stockholm_count_true(values : Array[Bool]) -> Int {
 
 ///|
 fn align_stockholm_remove_gaps(sequence : String) -> String {
-  let output = StringBuilder::new(size_hint=sequence.length())
+  let output = StringBuilder(size_hint=sequence.length())
   for index = 0; index < sequence.length(); index = index + 1 {
     let code = sequence.unsafe_get(index).to_int()
     if code != '-'.to_int() && code != '.'.to_int() {
@@ -2103,7 +2103,7 @@ fn align_stockholm_remove_gaps(sequence : String) -> String {
 
 ///|
 fn align_stockholm_remove_character(value : String, target : Int) -> String {
-  let output = StringBuilder::new(size_hint=value.length())
+  let output = StringBuilder(size_hint=value.length())
   for index = 0; index < value.length(); index = index + 1 {
     let code = value.unsafe_get(index).to_int()
     if code != target {
@@ -2118,7 +2118,7 @@ fn align_stockholm_normalize_row(
   row : String,
 ) -> String raise AlignStockholmError {
   align_stockholm_validate_printed_row(row)
-  let output = StringBuilder::new(size_hint=row.length())
+  let output = StringBuilder(size_hint=row.length())
   for index = 0; index < row.length(); index = index + 1 {
     let code = row.unsafe_get(index).to_int()
     output.write_char(
@@ -2275,7 +2275,7 @@ fn align_stockholm_merge_wikipedia(values : Array[String]) -> Array[String] {
   let merged : Array[String] = []
   let mut index = 0
   while index < values.length() {
-    let output = StringBuilder::new()
+    let output = StringBuilder()
     let mut value = values[index]
     while value.length() > 0 &&
           value.unsafe_get(value.length() - 1).to_int() == '/'.to_int() &&
@@ -2300,7 +2300,7 @@ fn align_stockholm_wrap_text(prefix : String, text : String) -> String {
   if words.length() == 0 {
     return prefix + "\n"
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   let mut line = prefix
   for word in words {
     let separator = if line.length() == prefix.length() { "" } else { " " }
@@ -2372,7 +2372,7 @@ fn align_stockholm_find_string(values : Array[String], target : String) -> Int {
 
 ///|
 fn align_stockholm_join(values : Array[String], separator : String) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index = 0; index < values.length(); index = index + 1 {
     if index > 0 {
       output.write_string(separator)
@@ -2396,7 +2396,7 @@ fn align_stockholm_pad_right(value : String, width : Int) -> String {
   if value.length() >= width {
     return value
   }
-  let output = StringBuilder::new(size_hint=width)
+  let output = StringBuilder(size_hint=width)
   output.write_string(value)
   for _index = value.length(); _index < width; _index = _index + 1 {
     output.write_char(' ')

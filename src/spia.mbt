@@ -589,7 +589,7 @@ pub fn spia_sample_pathways() -> Array[SignalingPathway] {
 ///|
 /// Create sample DE genes for testing.
 pub fn spia_sample_de_genes() -> Map[String, Double] {
-  let de : Map[String, Double] = Map::new()
+  let de : Map[String, Double] = Map([])
   de.set("Gene1", 2.5) // upregulated
   de.set("Gene2", 1.8)
   de.set("Gene5", -1.5) // downregulated

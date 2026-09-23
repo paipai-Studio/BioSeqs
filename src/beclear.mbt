@@ -109,7 +109,7 @@ pub fn detect_batch_effect(
 ) -> Array[BEclearBatchSummary] {
   let summaries : Array[BEclearBatchSummary] = Array(capacity=0)
   for i in 0..<matrix.n_rows() {
-    let batch_values : Map[Int, Array[Double]] = Map::new()
+    let batch_values : Map[Int, Array[Double]] = Map([])
     for j in 0..<matrix.n_cols() {
       let col_name = matrix.col_names[j]
       match matrix.batch.get(col_name) {
@@ -122,7 +122,7 @@ pub fn detect_batch_effect(
         None => ()
       }
     }
-    let batch_medians : Map[Int, Double] = Map::new()
+    let batch_medians : Map[Int, Double] = Map([])
     let all_values : Array[Double] = Array(capacity=0)
     for b in batch_values.keys() {
       match batch_values.get(b) {
@@ -321,7 +321,7 @@ pub fn beclear_sample_matrix() -> BEclearMatrix {
     [3.0, 3.1, 3.5, 3.6],
   ]
   let batch = {
-    let m : Map[String, Int] = Map::new()
+    let m : Map[String, Int] = Map([])
     m.set("s1", 1)
     m.set("s2", 1)
     m.set("s3", 2)

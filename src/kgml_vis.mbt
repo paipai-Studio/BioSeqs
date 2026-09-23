@@ -249,7 +249,7 @@ pub fn KgmlCanvas::to_svg(
   width~ : Int = 600,
   height~ : Int = 400,
 ) -> String {
-  let svg = StringBuilder::new()
+  let svg = StringBuilder()
   svg.write_string(
     "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"" +
     width.to_string() +

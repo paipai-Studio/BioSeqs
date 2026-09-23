@@ -772,7 +772,7 @@ pub fn flow_core_read_fcs(file_path : String) -> FlowFrame {
 /// Write a FlowFrame to FCS format string.
 pub fn flow_core_write_fcs(frame : FlowFrame, file_path : String) -> String {
   let _ = file_path
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("FCS3.1\n")
   buf.write_string("$FCSVERSION\t3.1\n")
   buf.write_string("$TOT\t" + frame.n_events.to_string() + "\n")

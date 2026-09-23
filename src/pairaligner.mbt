@@ -522,7 +522,7 @@ fn pairaligner_get_subst_score(
 ///|
 /// Build the match line: '|' match, '.' mismatch, ' ' gap.
 fn pairaligner_build_match_line(s1 : String, s2 : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut i = 0
   while i < s1.length() {
     let c1 = s1.unsafe_get(i).unsafe_to_char()
@@ -543,7 +543,7 @@ fn pairaligner_build_match_line(s1 : String, s2 : String) -> String {
 /// Reverse a string (local to pairaligner to avoid name clashes).
 fn pairaligner_reverse_string(s : String) -> String {
   let n = s.length()
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut i = n - 1
   while i >= 0 {
     result.write_char(s.unsafe_get(i).unsafe_to_char())
@@ -765,8 +765,8 @@ pub fn pairaligner_align(
   }
 
   // ---- Traceback ----
-  let r_target = StringBuilder::new()
-  let r_query = StringBuilder::new()
+  let r_target = StringBuilder()
+  let r_query = StringBuilder()
   let mut i_pos = start_i
   let mut j_pos = start_j
 

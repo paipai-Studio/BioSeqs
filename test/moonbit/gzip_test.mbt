@@ -3,7 +3,7 @@
 
 ///|
 fn bytes_str(bytes : Array[Int]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for b in bytes {
     sb.write_char(b.to_uint16().unsafe_to_char())
   }

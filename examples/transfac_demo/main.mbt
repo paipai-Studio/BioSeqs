@@ -63,7 +63,7 @@ fn main {
     println("  Width: " + m.width.to_string())
     println("  Alphabet: " + alphabet_to_string_impl(m.alphabet))
     // Print PFM header
-    let header = StringBuilder::new()
+    let header = StringBuilder()
     header.write_string("  pos  ")
     for a in m.alphabet {
       header.write_string(" " + a + " ")
@@ -72,7 +72,7 @@ fn main {
     // Print PFM rows (transposed: positions are columns)
     let mut col = 0
     while col < m.width {
-      let row = StringBuilder::new()
+      let row = StringBuilder()
       let row_num = if col + 1 < 10 { "0" + (col + 1).to_string() } else { (col + 1).to_string() }
       row.write_string("  " + row_num + "  ")
       let mut r = 0
@@ -198,7 +198,7 @@ fn main {
 ///|
 /// Helper to convert alphabet array to comma-separated string.
 fn alphabet_to_string_impl(alphabet : Array[String]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut first = true
   for a in alphabet {
     if !first {

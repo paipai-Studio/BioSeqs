@@ -86,7 +86,7 @@ pub fn NexusTree::to_newick(self : NexusTree) -> String {
   if self.root < 0 {
     return ";"
   }
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   fn write_node(nid : Int) -> Unit {
     match self.nodes.get(nid) {
       Some(node) => {

@@ -473,7 +473,7 @@ pub fn align_sam_cigar_string(elements : Array[AlignSamCigarElement]) -> String 
   if elements.length() == 0 {
     return "*"
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for element in elements {
     output.write_string(element.length.to_string())
     output.write_string(element.operation)
@@ -704,7 +704,7 @@ fn align_sam_tag_text(tag : AlignSamTag) -> String {
     SamTagString(value) => prefix + "Z:" + value
     SamTagHex(value) => prefix + "H:" + value
     SamTagIntegerArray(kind, values) => {
-      let output = StringBuilder::new()
+      let output = StringBuilder()
       output.write_string(prefix)
       output.write_string("B:")
       output.write_string(kind)
@@ -715,7 +715,7 @@ fn align_sam_tag_text(tag : AlignSamTag) -> String {
       output.to_string()
     }
     SamTagFloatArray(values) => {
-      let output = StringBuilder::new()
+      let output = StringBuilder()
       output.write_string(prefix)
       output.write_string("B:f")
       for value in values {
@@ -778,7 +778,7 @@ pub fn align_sam_integer_array_tag(
   subtype : String,
   values : Array[Int],
 ) -> AlignSamTag raise AlignSamError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(name)
   output.write_string(":B:")
   output.write_string(subtype)
@@ -794,7 +794,7 @@ pub fn align_sam_float_array_tag(
   name : String,
   values : Array[Double],
 ) -> AlignSamTag raise AlignSamError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(name)
   output.write_string(":B:f")
   for value in values {
@@ -1644,8 +1644,8 @@ pub fn AlignSamAlignment::aligned_rows(
   }
   let (md_positions, md_values) = align_sam_reference_from_md(self)
   let raw_sequence = align_sam_raw_sequence(self)
-  let target_row = StringBuilder::new()
-  let query_row = StringBuilder::new()
+  let target_row = StringBuilder()
+  let query_row = StringBuilder()
   let mut target = match self.reference_start() {
     Some(value) => value
     None => 0
@@ -1780,7 +1780,7 @@ pub fn align_sam_calculate_md(
   }
   let mut query = 0
   let mut matches = 0
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for element in alignment.cigar {
     let operation = element.operation
     if operation == "S" {
@@ -1829,7 +1829,7 @@ fn align_sam_quality_text(
   } else {
     align_sam_copy_ints(alignment.qualities)
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for value in values {
     if value < 0 || value > 93 {
       align_sam_fail("PHRED quality must be between 0 and 93")
@@ -1845,7 +1845,7 @@ pub fn align_sam_format(
   calculate_md? : Bool = false,
   reference_sequence? : String = "",
 ) -> String raise AlignSamError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(alignment.query_name)
   output.write_char('\t')
   output.write_string(alignment.flag.to_string())
@@ -1915,7 +1915,7 @@ pub fn align_sam_format(
 
 ///|
 fn align_sam_header_text(header : AlignSamHeader) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_char('@')
   output.write_string(header.record_type)
   if header.record_type == "CO" {
@@ -1939,7 +1939,7 @@ fn align_sam_header_text(header : AlignSamHeader) -> String {
 pub fn align_sam_write(
   document : AlignSamDocument,
 ) -> String raise AlignSamError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for header in document.headers {
     output.write_string(align_sam_header_text(header))
   }
@@ -1951,7 +1951,7 @@ pub fn align_sam_write(
 
 ///|
 fn align_sam_format_tags(tags : Array[AlignSamTag]) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for tag in tags {
     output.write_char('\t')
     output.write_string(align_sam_tag_text(tag))
@@ -1963,7 +1963,7 @@ fn align_sam_format_tags(tags : Array[AlignSamTag]) -> String {
 fn align_sam_quality_from_values(
   qualities : Array[Int],
 ) -> String raise AlignSamError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for value in qualities {
     if value < 0 || value > 93 {
       align_sam_fail("PHRED quality must be between 0 and 93")

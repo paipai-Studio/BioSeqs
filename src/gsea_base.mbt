@@ -80,14 +80,14 @@ fn gs_trim(s : String) -> String {
 ///|
 fn gs_split(s : String, sep_u16 : UInt16) -> Array[String] {
   let out : Array[String] = Array(capacity=0)
-  let mut buf = StringBuilder::new()
+  let mut buf = StringBuilder()
   let n = s.length()
   let mut i = 0
   while i < n {
     let c = s.unsafe_get(i)
     if c == sep_u16 {
       out.push(buf.to_string())
-      buf = StringBuilder::new()
+      buf = StringBuilder()
     } else {
       let ch = c.to_char()
       match ch {
@@ -419,7 +419,7 @@ pub fn GmtGeneSetCollection::push_s(
 
 ///|
 pub fn GmtGeneSetCollection::summary(self : GmtGeneSetCollection) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("GmtGeneSetCollection: \{self.size} sets\n")
   if self.size == 0 {
     return buf.to_string()
@@ -598,7 +598,7 @@ pub fn parse_gmt(content : String) -> GmtGeneSetCollection {
 
 ///|
 pub fn write_gmt(col : GmtGeneSetCollection) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for gs in col.sets {
     buf.write_string(gs.name)
     buf.write_char('\t')
@@ -681,7 +681,7 @@ pub fn parse_gmx(content : String) -> GmtGeneSetCollection {
 
 ///|
 pub fn write_gmx(col : GmtGeneSetCollection) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let n = col.sets.length()
   let mut i = 0
   while i < n {

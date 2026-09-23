@@ -164,7 +164,7 @@ pub fn TabularMSA::column(self : TabularMSA, col : Int) -> String? {
   if col < 0 || col >= align_len {
     return None
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   for rec in self.records {
     match rec.seq.get_char(col) {
       Some(c) => result.write_char(c)
@@ -178,7 +178,7 @@ pub fn TabularMSA::column(self : TabularMSA, col : Int) -> String? {
 /// Compute consensus sequence.
 pub fn TabularMSA::consensus(self : TabularMSA) -> DNA {
   let align_len = self.get_alignment_length()
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   for col in 0..<align_len {
     let col_str = self.column(col).unwrap()
     let counts = Map([], capacity=0)
@@ -320,7 +320,7 @@ pub fn align_score(msa : TabularMSA) -> Double {
 /// Reverse a string.
 fn reverse_string(s : String) -> String {
   let n = s.length()
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut i = n - 1
   while i >= 0 {
     result.write_char(s.unsafe_get(i).unsafe_to_char())
@@ -372,8 +372,8 @@ fn global_align(
 
   let mut i = n
   let mut j = m
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
 
   while i > 0 || j > 0 {
     if i > 0 && j > 0 {
@@ -452,8 +452,8 @@ fn local_align(
 
   let mut i = max_i
   let mut j = max_j
-  let r1 = StringBuilder::new()
-  let r2 = StringBuilder::new()
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
 
   while i > 0 && j > 0 && dp[i][j] > 0.0 {
     let c1 = s1.unsafe_get(i - 1).unsafe_to_char()

@@ -172,7 +172,7 @@ fn wise_build_expected_protein() -> String {
 ///|
 /// Repeat a pattern string to fill an exact length.
 fn wise_repeat_pattern(pattern : String, length : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let chars = pattern.to_array()
   let plen = chars.length()
   for i in 0..<length {
@@ -184,7 +184,7 @@ fn wise_repeat_pattern(pattern : String, length : Int) -> String {
 ///|
 /// Repeat a character to fill an exact length.
 fn wise_repeat_char(c : Char, length : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for _ in 0..<length {
     sb.write_char(c)
   }

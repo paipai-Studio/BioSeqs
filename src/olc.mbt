@@ -201,7 +201,7 @@ pub fn generate_consensus(reads : Array[String], path : Array[Int]) -> String {
   if path.length() == 0 {
     return ""
   }
-  let consensus = StringBuilder::new()
+  let consensus = StringBuilder()
   consensus.write_string(reads[path[0]])
   for i = 1; i < path.length(); i = i + 1 {
     let prev_idx = path[i - 1]
@@ -228,7 +228,7 @@ pub fn olc_assemble(reads : Array[String], min_overlap : Int) -> String {
 ///|
 pub fn overlap_graph_to_dot(reads : Array[String], min_overlap : Int) -> String {
   let graph = compute_overlap_graph(reads, min_overlap)
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("digraph OverlapGraph {\n")
   buf.write_string("  node [shape=ellipse];\n")
   for i = 0; i < reads.length(); i = i + 1 {

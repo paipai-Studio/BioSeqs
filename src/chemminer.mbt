@@ -262,7 +262,7 @@ pub fn chem_molecular_formula(mol : SdfMolecule) -> String {
     counts[up] = counts.get_or_default(up, 0) + 1
   }
   // Hill order: C, H, then alphabetical.
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   // Carbon
   if counts.contains("C") {
     let c = counts["C"]
@@ -910,7 +910,7 @@ fn chem_format_int3(v : Int) -> String {
 ///|
 /// Serialize a single molecule to SDF text.
 pub fn chem_molecule_to_sdf(mol : SdfMolecule) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   // Header: name, timestamp, comment.
   sb.write_string(mol.name)
   sb.write_char('\n')
@@ -963,7 +963,7 @@ pub fn chem_molecule_to_sdf(mol : SdfMolecule) -> String {
 ///|
 /// Serialize an array of molecules to SDF text.
 pub fn chem_molecules_to_sdf(molecules : Array[SdfMolecule]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for mol in molecules {
     sb.write_string(chem_molecule_to_sdf(mol))
   }

@@ -947,7 +947,7 @@ pub fn codeml_parse_control(text : String) -> CodemlControl raise CodemlError {
 ///|
 /// Write a canonical CODEML control file.
 pub fn codeml_write_control(control : CodemlControl) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("seqfile = " + control.sequence_file + "\n")
   output.write_string("outfile = " + control.output_file + "\n")
   output.write_string("treefile = " + control.tree_file + "\n")

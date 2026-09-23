@@ -696,7 +696,7 @@ pub fn hhr_parse(text : String) -> HhrRecord raise HhrError {
 ///|
 /// Serialize a parsed HHR document to a canonical, parseable HHR form.
 pub fn HhrRecord::to_string(self : HhrRecord) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("Query         " + self.metadata.query_name + "\n")
   output.write_string(
     "Match_columns " + self.metadata.match_columns.to_string() + "\n",
@@ -1610,7 +1610,7 @@ fn hhr_suffix(
 
 ///|
 fn hhr_join_words(words : Array[String], start : Int, end : Int) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for i = start; i < end; i = i + 1 {
     if i > start {
       output.write_char(' ')
@@ -1622,7 +1622,7 @@ fn hhr_join_words(words : Array[String], start : Int, end : Int) -> String {
 
 ///|
 fn hhr_remove_gaps(sequence : String) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for i = 0; i < sequence.length(); i = i + 1 {
     let code = sequence.unsafe_get(i).to_int()
     if code != '-'.to_int() {

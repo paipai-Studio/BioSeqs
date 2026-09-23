@@ -62,7 +62,7 @@ pub fn seguid(seq : String) -> String {
   let seq_upper = seq.to_upper()
   let hash_result = sha1_string(seq_upper)
   let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut i = 0
   while i < hash_result.length() {
     let byte = hash_result[i]
@@ -137,7 +137,7 @@ pub fn string_to_bytes(s : String) -> Array[Int] {
 ///|
 pub fn bytes_to_base64(bytes : Array[Int]) -> String {
   let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut i = 0
   while i < bytes.length() {
     let byte = bytes[i]

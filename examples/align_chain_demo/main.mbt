@@ -2,7 +2,7 @@
 fn chain_coordinate_path_text(
   coordinates : Array[@src.AlignChainCoordinate],
 ) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index = 0; index < coordinates.length(); index = index + 1 {
     if index > 0 {
       output.write_string(" -> ")

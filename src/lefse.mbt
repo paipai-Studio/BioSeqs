@@ -903,7 +903,7 @@ fn lefse_get_subclass_class_indices(
 ///|
 /// Generate a text summary of LEfSe analysis results.
 pub fn lefse_result_summary(output : LEfSeOutput) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("=== LEfSe Analysis Results ===\n")
   sb.write_string("Total features tested: ")
   sb.write_string(output.results.length().to_string())

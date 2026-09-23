@@ -599,7 +599,7 @@ pub fn BamRecord::is_duplicate(self : BamRecord) -> Bool {
 ///|
 /// Get a CIGAR string representation of this record (e.g. "8M1I5M").
 pub fn BamRecord::cigarstring(self : BamRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for elem in self.cigar {
     let op_char = match elem.op {
       BamCigarOp::Match => 'M'
@@ -786,7 +786,7 @@ pub fn BamRecord::get_alignment_length(self : BamRecord) -> Int {
 /// Convert BAM record to SAM-like string representation.
 pub fn BamRecord::to_sam_string(self : BamRecord, header : BamHeader) -> String {
   let rname = self.get_reference_name(header)
-  let cigar_str = StringBuilder::new()
+  let cigar_str = StringBuilder()
   for elem in self.cigar {
     let op_char = match elem.op {
       BamCigarOp::Match => 'M'
@@ -814,7 +814,7 @@ pub fn BamRecord::to_sam_string(self : BamRecord, header : BamHeader) -> String 
 ///|
 /// Convert BAM file to SAM format string.
 pub fn BamFile::to_sam(self : BamFile) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string(self.header.text)
   for record in self.records {
     sb.write_string(record.to_sam_string(self.header))
@@ -1791,8 +1791,8 @@ pub fn BamFile::mpileup(
     } else {
       "N"
     }
-    let bases = StringBuilder::new()
-    let quals = StringBuilder::new()
+    let bases = StringBuilder()
+    let quals = StringBuilder()
     for pr in col.pileups {
       let r = self.records[pr.record_index]
       let rev = r.is_reverse()

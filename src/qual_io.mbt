@@ -112,7 +112,7 @@ fn qual_build_record(title : String, quals : Array[Int]) -> SeqRecord {
 /// Scores are wrapped at 60 characters per line (matching Biopython).
 /// Records must have phred_quality letter annotations.
 pub fn write_qual(records : Array[SeqRecord]) -> String raise SeqIOError {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for rec in records {
     let quals = match rec.letter_annotations.get("phred_quality") {
       Some(q) => q
@@ -128,7 +128,7 @@ pub fn write_qual(records : Array[SeqRecord]) -> String raise SeqIOError {
     // Quality scores: space-separated, wrapped at ~60 chars per line
     // Biopython wraps at 60 characters (not scores), so roughly 30 scores per line
     let line_len = 60
-    let mut line_buf = StringBuilder::new()
+    let mut line_buf = StringBuilder()
     let mut line_pos = 0
     for j = 0; j < quals.length(); j = j + 1 {
       let token = quals[j].to_string()
@@ -136,7 +136,7 @@ pub fn write_qual(records : Array[SeqRecord]) -> String raise SeqIOError {
       if line_pos > 0 && line_pos + 1 + token_len > line_len {
         buf.write_string(line_buf.to_string())
         buf.write_char('\n')
-        line_buf = StringBuilder::new()
+        line_buf = StringBuilder()
         line_pos = 0
       }
       if line_pos > 0 {

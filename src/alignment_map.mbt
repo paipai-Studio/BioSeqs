@@ -797,8 +797,8 @@ pub fn CoordinatePairwiseAlignment::aligned_rows(
   if self.target_sequence.length() == 0 || self.query_sequence.length() == 0 {
     return None
   }
-  let target = StringBuilder::new()
-  let query = StringBuilder::new()
+  let target = StringBuilder()
+  let query = StringBuilder()
   let mut index = 0
   while index + 1 < self.target_coordinates.length() {
     let target_start = self.target_coordinates[index]
@@ -848,7 +848,7 @@ pub fn CoordinatePairwiseAlignment::aligned_rows(
 
 ///|
 fn alignment_map_join_ints(values : Array[Int]) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   let mut index = 0
   while index < values.length() {
     if index > 0 {
@@ -960,7 +960,7 @@ pub fn CoordinatePairwiseAlignment::summary(
 
 ///|
 fn alignment_map_ungap(sequence : String) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   let mut index = 0
   while index < sequence.length() {
     let residue = sequence.unsafe_get(index).unsafe_to_char()
@@ -1297,7 +1297,7 @@ pub fn CoordinateMultipleAlignment::row(
   if sequence.length() == 0 {
     return None
   }
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   let mut point = 0
   while point + 1 < self.coordinates[index].length() {
     let start = self.coordinates[index][point]
@@ -1327,7 +1327,7 @@ pub fn CoordinateMultipleAlignment::row(
 pub fn CoordinateMultipleAlignment::to_fasta(
   self : CoordinateMultipleAlignment,
 ) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   let mut index = 0
   while index < self.names.length() {
     builder.write_char('>')

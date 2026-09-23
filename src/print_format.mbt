@@ -28,7 +28,7 @@ fn pf_linesize(cfg : PrintFormatConfig) -> Int {
 
 ///|
 fn pf_repeat(s : String, n : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < n; i = i + 1 {
     buf.write_string(s)
   }
@@ -57,7 +57,7 @@ fn pf_rjust(s : String, width : Int) -> String {
 
 ///|
 fn pf_join(arr : Array[String], sep : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < arr.length(); i = i + 1 {
     if i > 0 {
       buf.write_string(sep)
@@ -71,7 +71,7 @@ fn pf_join(arr : Array[String], sep : String) -> String {
 /// The enzyme-name suffix for a cut position: a leading space then the names
 /// joined by single spaces (matches Python's " ".join((s, n))).
 fn pf_names_suffix(names : Array[String]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for name in names {
     buf.write_char(' ')
     buf.write_string(name)
@@ -82,7 +82,7 @@ fn pf_names_suffix(names : Array[String]) -> String {
 ///|
 /// DNA complement (IUPAC) for the reverse strand of the map.
 fn pf_complement(seq : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = 0; i < seq.length(); i = i + 1 {
     match seq.unsafe_get(i).to_int() {
       65 => buf.write_char('T')
@@ -172,7 +172,7 @@ fn pf_next_section(
   })
   let mut out = into
   for (name, sites) in sorted {
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     for j = 0; j < sites.length(); j = j + 1 {
       if j > 0 {
         buf.write_string(", ")

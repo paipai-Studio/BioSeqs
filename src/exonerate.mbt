@@ -665,7 +665,7 @@ pub fn exonerate_count_matches(record : ExonerateRecord) -> Int {
 /// Reconstruct the vulgar block string from a record's alignment blocks.
 /// Each block is rendered as `code qlen tlen score` (score as an integer).
 pub fn exonerate_to_vulgar_string(record : ExonerateRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let n = record.alignment_blocks.length()
   for i in 0..<n {
     let block = record.alignment_blocks[i]
@@ -689,7 +689,7 @@ pub fn exonerate_to_vulgar_string(record : ExonerateRecord) -> String {
 /// length for "I" blocks, the query length for "V"/"D" blocks, the target
 /// length for "U" blocks, and the query length otherwise.
 pub fn exonerate_to_cigar_string(record : ExonerateRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let n = record.alignment_blocks.length()
   for i in 0..<n {
     let block = record.alignment_blocks[i]
@@ -715,7 +715,7 @@ pub fn exonerate_to_cigar_string(record : ExonerateRecord) -> String {
 ///|
 /// Generate a human-readable summary of a list of exonerate records.
 pub fn exonerate_summary(records : Array[ExonerateRecord]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("Exonerate records: ")
   buf.write_string(records.length().to_string())
   buf.write_string("\n")

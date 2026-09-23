@@ -116,13 +116,13 @@ fn sp_ws_strip(s : String) -> String {
 /// Split on runs of whitespace, dropping empty pieces (like str.split()).
 fn sp_split_ws(s : String) -> Array[String] {
   let out : Array[String] = []
-  let mut cur = StringBuilder::new()
+  let mut cur = StringBuilder()
   let mut has = false
   for i = 0; i < s.length(); i = i + 1 {
     if sp_is_ws(s.unsafe_get(i).to_int()) {
       if has {
         out.push(cur.to_string())
-        cur = StringBuilder::new()
+        cur = StringBuilder()
         has = false
       }
     } else {
@@ -203,7 +203,7 @@ pub fn scanprosite_url(
   }
   let m = mirror.unwrap_or(SCANPROSITE_URL)
   let extra = params.unwrap_or([])
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("seq=")
   buf.write_string(entrez_quote_plus(seq))
   buf.write_string("&output=")
@@ -252,7 +252,7 @@ enum SpXmlToken {
 fn sp_tokenize(xml : String) -> Array[SpXmlToken] raise ScanPrositeError {
   let tokens : Array[SpXmlToken] = []
   let mut i = 0
-  let mut text = StringBuilder::new()
+  let mut text = StringBuilder()
   let mut text_has_nonspace = false
   let n = xml.length()
   while i < n {
@@ -262,7 +262,7 @@ fn sp_tokenize(xml : String) -> Array[SpXmlToken] raise ScanPrositeError {
       if text_has_nonspace {
         tokens.push(Text(text.to_string()))
       }
-      text = StringBuilder::new()
+      text = StringBuilder()
       text_has_nonspace = false
       let j = sp_index_of_char_from(xml, i, 62)
       if j < 0 {
@@ -332,7 +332,7 @@ fn sp_parse_node(
     Open(name, attrs) => {
       let node = SpNode::{ name, attrs, children: [], text: "" }
       let mut i = pos + 1
-      let tb = StringBuilder::new()
+      let tb = StringBuilder()
       while i < tokens.length() {
         match tokens[i] {
           Close(_) => {

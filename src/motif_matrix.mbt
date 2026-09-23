@@ -318,7 +318,7 @@ pub fn motif_pwm_scan(
 /// Consensus sequence from PPM (most likely base at each position).
 pub fn motif_ppm_consensus(ppm : MotifPPM) -> String {
   let n_pos = ppm.values.length()
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut p = 0
   while p < n_pos {
     let mut best_a = 0
@@ -385,7 +385,7 @@ pub fn motif_pwm_reverse_complement(pwm : MotifPWM) -> MotifPWM {
 ///|
 /// Format a PFM as a human-readable table.
 pub fn motif_pfm_to_string(pfm : MotifPFM) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("PFM (")
   sb.write_string(pfm.n_seqs.to_string())
   sb.write_string(" sequences):\n")
@@ -408,7 +408,7 @@ pub fn motif_pfm_to_string(pfm : MotifPFM) -> String {
 ///|
 /// Format a PWM as a human-readable table.
 pub fn motif_pwm_to_string(pwm : MotifPWM) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("PWM (log-odds):\n")
   let mut a = 0
   while a < pwm.alphabet.length() {

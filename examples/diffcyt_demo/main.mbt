@@ -62,7 +62,7 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 4. Design Matrix ===")
   let conditions_arr : Array[String] = Array(capacity=0)
-  let cond_map : Map[String, String] = Map::new()
+  let cond_map : Map[String, String] = Map([])
   for cell in cells {
     cond_map.set(cell.sample_id(), cell.condition())
   }

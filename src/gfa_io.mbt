@@ -130,7 +130,7 @@ pub fn GfaSegment::tags(self : GfaSegment) -> Array[GfaTag] {
 ///|
 /// Human-readable representation of this segment.
 pub fn GfaSegment::to_string(self : GfaSegment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("GfaSegment(name=")
   buf.write_string(self.name)
   buf.write_string(", sequence=")
@@ -657,7 +657,7 @@ pub fn gfa_tag_to_string(tag : GfaTag) -> String {
 ///|
 /// Render a GfaHeader as an H line (without trailing newline).
 pub fn gfa_header_to_line(header : GfaHeader) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("H")
   for i in 0..<header.tags.length() {
     buf.write_string("\t")
@@ -669,7 +669,7 @@ pub fn gfa_header_to_line(header : GfaHeader) -> String {
 ///|
 /// Render a GfaSegment as an S line (without trailing newline).
 pub fn gfa_segment_to_line(segment : GfaSegment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("S\t")
   buf.write_string(segment.name)
   buf.write_string("\t")
@@ -684,7 +684,7 @@ pub fn gfa_segment_to_line(segment : GfaSegment) -> String {
 ///|
 /// Render a GfaLink as an L line (without trailing newline).
 pub fn gfa_link_to_line(link : GfaLink) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("L\t")
   buf.write_string(link.from_segment)
   buf.write_string("\t")
@@ -705,7 +705,7 @@ pub fn gfa_link_to_line(link : GfaLink) -> String {
 ///|
 /// Render a GfaContainment as a C line (without trailing newline).
 pub fn gfa_containment_to_line(cont : GfaContainment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("C\t")
   buf.write_string(cont.container)
   buf.write_string("\t")
@@ -728,7 +728,7 @@ pub fn gfa_containment_to_line(cont : GfaContainment) -> String {
 ///|
 /// Render a GfaPath as a P line (without trailing newline).
 pub fn gfa_path_to_line(path : GfaPath) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("P\t")
   buf.write_string(path.name)
   buf.write_string("\t")
@@ -756,7 +756,7 @@ pub fn gfa_path_to_line(path : GfaPath) -> String {
 /// Serialize a complete GfaGraph to GFA text. Headers, segments, links,
 /// containments, and paths are emitted in that order, one record per line.
 pub fn gfa_to_string(graph : GfaGraph) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i in 0..<graph.headers.length() {
     buf.write_string(gfa_header_to_line(graph.headers[i]))
     buf.write_string("\n")
@@ -860,7 +860,7 @@ pub fn gfa_graph_summary(graph : GfaGraph) -> String {
       total_len = total_len + seq.length()
     }
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("GfaGraph(headers=")
   buf.write_string(graph.headers.length().to_string())
   buf.write_string(", segments=")

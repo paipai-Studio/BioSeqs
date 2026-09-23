@@ -891,7 +891,7 @@ fn ma_build_aligned_sequences(
     let coords_len = aligned_coords_list[i].length()
     let orig_len = structures[i].length()
 
-    let sb = StringBuilder::new()
+    let sb = StringBuilder()
     let mut j = 0
     while j < coords_len {
       if j < orig_len && j < seq.length() {

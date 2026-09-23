@@ -118,7 +118,7 @@ fn parse_phylip_generic(
     match records.get(name) {
       Some(sb) => sb.write_string(seq_part)
       None => {
-        let sb = StringBuilder::new()
+        let sb = StringBuilder()
         sb.write_string(seq_part)
         records[name] = sb
         current_names.push(name)
@@ -154,7 +154,7 @@ fn parse_phylip_generic(
 ///|
 /// Write a MultipleSeqAlignment to PHYLIP interlaced format text.
 pub fn write_phylip(align : MultipleSeqAlignment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let records = align.iter()
   let n_seqs = records.length()
   let n_cols = align.get_alignment_length()
@@ -204,7 +204,7 @@ pub fn write_phylip(align : MultipleSeqAlignment) -> String {
 ///|
 /// Write a MultipleSeqAlignment to PHYLIP sequential format text.
 pub fn write_phylip_sequential(align : MultipleSeqAlignment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let records = align.iter()
   let n_seqs = records.length()
   let n_cols = align.get_alignment_length()

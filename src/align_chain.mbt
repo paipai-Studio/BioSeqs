@@ -908,7 +908,7 @@ pub fn align_chain_write(
   alignment : AlignChainAlignment,
 ) -> String raise AlignChainError {
   align_chain_validate_alignment(alignment)
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string("chain ")
   output.write_string(alignment.score.to_string())
   output.write_char(' ')
@@ -957,7 +957,7 @@ pub fn align_chain_write(
 pub fn align_chain_write_all(
   alignments : Array[AlignChainAlignment],
 ) -> String raise AlignChainError {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for alignment in alignments {
     output.write_string(align_chain_write(alignment))
   }
@@ -972,7 +972,7 @@ pub fn align_chain_write_all(
 pub fn AlignChainAlignment::operation_path(
   self : AlignChainAlignment,
 ) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index in 0..<(self.coordinates.length() - 1) {
     let current = self.coordinates[index]
     let next = self.coordinates[index + 1]

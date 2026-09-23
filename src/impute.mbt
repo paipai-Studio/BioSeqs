@@ -165,7 +165,7 @@ pub fn impute_na_stats(mat : Array[Array[Double]]) -> ImputeNAStats {
 
 ///|
 pub fn impute_na_summary(stats : ImputeNAStats) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "ImputeNAStats [\{stats.total_rows} x \{stats.total_cols}]\n",
   )

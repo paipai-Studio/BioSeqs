@@ -269,7 +269,7 @@ pub fn parse_nib_records(content : String) -> Array[SeqRecord] raise SeqIOError 
     return []
   }
   let bytes = unify_b64_decode(content, "nib")
-  let hex = StringBuilder::new()
+  let hex = StringBuilder()
   for b in bytes {
     hex.write_char(nib_hex_digit((b >> 4) & 0xF))
     hex.write_char(nib_hex_digit(b & 0xF))

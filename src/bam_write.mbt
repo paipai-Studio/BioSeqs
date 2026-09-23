@@ -304,7 +304,7 @@ fn encode_bam_header(header : BamHeader) -> String {
 /// Serialize a `BamFile` into uncompressed BAM bytes (magic `BAM\1` + header +
 /// records). The inverse of `parse_bam`.
 pub fn BamFile::to_bam_bytes(self : BamFile) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(encode_bam_header(self.header))
   for rec in self.records {
     buf.write_string(encode_bam_record(rec))

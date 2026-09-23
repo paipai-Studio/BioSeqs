@@ -473,7 +473,7 @@ fn tidy_pre_order_rec(
 ///|
 /// Print tibble as a table (for debugging/display).
 pub fn tidy_print(tibble : TreeTibble) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("node\tparent\tbranch_length\tlabel\tisTip\tx\ty\n")
   let mut i = 0
   while i < tibble.rows.length() {

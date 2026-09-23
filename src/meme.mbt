@@ -63,7 +63,7 @@ pub fn MemeMotif::new(
 ///|
 /// Get the consensus sequence of the motif.
 pub fn MemeMotif::consensus(self : MemeMotif) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let alphabet = self.alphabet_to_array()
   let mut pos = 0
   while pos < self.pspm.length() {
@@ -407,7 +407,7 @@ fn parse_meme_int_field(text : String, field : String) -> Int {
   let idx = meme_index_of(text, field)
   if idx >= 0 {
     let rest = text.substring(start=idx + field.length()).trim().to_string()
-    let num_str = StringBuilder::new()
+    let num_str = StringBuilder()
     let mut i = 0
     while i < rest.length() {
       let ch = rest[i:i + 1].to_string()
@@ -433,7 +433,7 @@ fn parse_meme_double_field(text : String, field : String) -> Double {
   let idx = meme_index_of(text, field)
   if idx >= 0 {
     let rest = text.substring(start=idx + field.length()).trim().to_string()
-    let num_str = StringBuilder::new()
+    let num_str = StringBuilder()
     let mut i = 0
     while i < rest.length() {
       let ch = rest[i:i + 1].to_string()
@@ -473,7 +473,7 @@ fn parse_meme_double_field(text : String, field : String) -> Double {
 ///|
 /// Serialize a MemeMotif to MEME minimal motif format.
 pub fn meme_motif_to_string(motif : MemeMotif) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("MOTIF " + motif.name)
   if motif.alt_name.length() > 0 {
     sb.write_string(" " + motif.alt_name)
@@ -514,7 +514,7 @@ pub fn meme_motif_to_string(motif : MemeMotif) -> String {
 ///|
 /// Serialize a MemeRecord to MEME minimal motif format.
 pub fn meme_record_to_string(record : MemeRecord) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("MEME version " + record.version + "\n\n")
   sb.write_string("ALPHABET= " + record.alphabet + "\n\n")
   if record.strands.length() > 0 {

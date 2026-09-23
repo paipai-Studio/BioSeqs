@@ -698,7 +698,7 @@ pub fn seqxml_parse_entry_id(line : String) -> String? {
 /// Convert a single SeqXmlEntry to its XML representation, indented as it
 /// would appear inside a <seqXML> document (2-space base indent).
 pub fn seqxml_entry_to_xml(entry : SeqXmlEntry) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   // Opening <entry> tag with id (and optional desc).
   buf.write_string("  <entry id=\"")
   buf.write_string(seqxml_escape_attr(entry.id))
@@ -735,7 +735,7 @@ pub fn seqxml_entry_to_xml(entry : SeqXmlEntry) -> String {
 /// Convert a full SeqXmlDocument to its SeqXML string representation,
 /// including the XML declaration, header metadata, and all entries.
 pub fn seqxml_to_xml(doc : SeqXmlDocument) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
   buf.write_string("<seqXML>\n")
   // Species header (if either name or taxid is set).

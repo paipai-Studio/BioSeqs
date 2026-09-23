@@ -373,7 +373,7 @@ pub fn scop_raf_get_atoms(
     res_set.set((chainid, r.resid), r)
   }
   let found : Map[(String, String), ScopRafRes] = Map([], capacity=16)
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for line in split_by_char(pdb_content, '\n'.to_int()) {
     if line.length() < 27 {
       continue
@@ -489,7 +489,7 @@ pub fn DomRecord::to_string(self : DomRecord) -> String {
     "-"
   } else {
     // replace separating spaces with tabs (sid \t pdbid \t residues)
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     for ch in res_str {
       if ch == ' ' {
         buf.write_char('\t')

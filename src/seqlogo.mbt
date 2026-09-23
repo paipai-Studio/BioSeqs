@@ -171,7 +171,7 @@ pub fn SeqLogoPwm::get(self : SeqLogoPwm, base : Int, pos : Int) -> Double {
 ///|
 /// Human-readable representation of the PWM.
 pub fn SeqLogoPwm::to_string(self : SeqLogoPwm) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("SeqLogoPwm(width=")
   buf.write_string(self.width.to_string())
   buf.write_string(")\n")
@@ -484,7 +484,7 @@ pub fn seqlogo_to_ascii(logo : SeqLogoResult, max_height : Int) -> String {
     stacks.push(stack)
   }
   let width = logo.width()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut row = max_height - 1
   while row >= 0 {
     let mut col_idx = 0
@@ -507,7 +507,7 @@ pub fn seqlogo_to_ascii(logo : SeqLogoResult, max_height : Int) -> String {
 /// Render a sequence logo as a tab-separated table.
 /// Columns: position, base, height, IC.
 pub fn seqlogo_to_text_table(logo : SeqLogoResult) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("position\tbase\theight\tIC\n")
   for col in logo.columns() {
     let pos_str = col.position().to_string()
@@ -533,7 +533,7 @@ pub fn seqlogo_to_text_table(logo : SeqLogoResult) -> String {
 ///|
 /// Return the consensus sequence (most frequent base at each position).
 pub fn seqlogo_consensus_sequence(pwm : SeqLogoPwm) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for pos in 0..<pwm.width() {
     let mut max_freq = -1.0
     let mut max_base = 0
@@ -552,7 +552,7 @@ pub fn seqlogo_consensus_sequence(pwm : SeqLogoPwm) -> String {
 ///|
 /// Build a textual summary of a sequence logo.
 pub fn seqlogo_logo_summary(logo : SeqLogoResult) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("Sequence Logo Summary\n")
   buf.write_string("======================\n")
   buf.write_string("Width: ")

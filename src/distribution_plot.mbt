@@ -319,7 +319,7 @@ pub fn Histogram::svg_rect(
   w : Double,
   h : Double,
 ) -> String {
-  let svg = StringBuilder::new()
+  let svg = StringBuilder()
   let margin_l = 8.0
   let margin_r = 4.0
   let margin_t = 4.0
@@ -370,7 +370,7 @@ pub fn ScatterPlot::svg_rect(
   w : Double,
   h : Double,
 ) -> String {
-  let svg = StringBuilder::new()
+  let svg = StringBuilder()
   let margin_l = 8.0
   let margin_r = 4.0
   let margin_t = 4.0
@@ -411,7 +411,7 @@ pub fn LinePlot::svg_rect(
   w : Double,
   h : Double,
 ) -> String {
-  let svg = StringBuilder::new()
+  let svg = StringBuilder()
   let margin_l = 8.0
   let margin_r = 4.0
   let margin_t = 4.0
@@ -497,7 +497,7 @@ pub fn DistributionPage::to_svg(
   width~ : Int = 600,
   height~ : Int = 400,
 ) -> String {
-  let svg = StringBuilder::new()
+  let svg = StringBuilder()
   svg.write_string(
     "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"" +
     width.to_string() +

@@ -258,7 +258,7 @@ fn main {
   // Run the Seq comparison tests (JSON array output for compare.sh)
   let cases = run_cases()
   // Output as JSON array
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_char('[')
   for i, c in cases {
     if i > 0 {

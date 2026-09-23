@@ -155,7 +155,7 @@ pub fn CellosaurusRecord::repr(self : CellosaurusRecord) -> String {
 ///|
 /// Serialize a record to canonical Cellosaurus flat-file text.
 pub fn CellosaurusRecord::to_string(self : CellosaurusRecord) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   cellosaurus_write_field(output, "ID", self.identifier)
   cellosaurus_write_field(output, "AC", self.accession)
   cellosaurus_write_field(output, "AS", self.secondary_accessions)

@@ -505,7 +505,7 @@ fn gp_count_loci(populations : Array[GenePopPopulation]) -> Int {
 ///|
 /// Serialize a GenePopRecord back to GenePop file format text.
 pub fn genepop_to_string(record : GenePopRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   // Title line.
   if record.title.length() > 0 {
     buf.write_string(record.title)
@@ -726,7 +726,7 @@ pub fn genepop_expected_heterozygosity(
 ///|
 /// Return a short human-readable summary of the record.
 pub fn genepop_summary(record : GenePopRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("GenePop Record Summary\n")
   buf.write_string("  Title: " + record.title + "\n")
   buf.write_string(

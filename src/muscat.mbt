@@ -147,7 +147,7 @@ pub fn SingleCell::new(
     sample_id,
     cluster_id,
     group_id,
-    gene_counts: Map::new(),
+    gene_counts: Map([]),
   }
 }
 
@@ -204,7 +204,7 @@ pub fn aggregate_cells(
   method? : AggregationMethod = AggregationMethod::Sum,
 ) -> Array[PseudoBulk] {
   // Group cells by (sample_id, cluster_id)
-  let groups : Map[String, Array[SingleCell]] = Map::new()
+  let groups : Map[String, Array[SingleCell]] = Map([])
   let mut i = 0
   while i < cells.length() {
     let cell = cells[i]
@@ -229,7 +229,7 @@ pub fn aggregate_cells(
     let group_id = if v.length() > 0 { v[0].group_id } else { "" }
 
     // Collect all gene ids
-    let gene_ids : Map[String, Unit] = Map::new()
+    let gene_ids : Map[String, Unit] = Map([])
     let mut idx = 0
     while idx < v.length() {
       let cell_keys = v[idx].gene_counts.keys().collect()
@@ -241,7 +241,7 @@ pub fn aggregate_cells(
       idx = idx + 1
     }
 
-    let pb_counts : Map[String, Double] = Map::new()
+    let pb_counts : Map[String, Double] = Map([])
     let gene_id_list = gene_ids.keys().collect()
     let mut ggi = 0
     while ggi < gene_id_list.length() {
@@ -362,7 +362,7 @@ pub fn run_ds_analysis(
   log2fc_threshold? : Double = 1.0,
 ) -> DSResults {
   // Group by cluster_id
-  let cluster_groups : Map[String, Array[PseudoBulk]] = Map::new()
+  let cluster_groups : Map[String, Array[PseudoBulk]] = Map([])
   let mut i = 0
   while i < pb_samples.length() {
     let pb = pb_samples[i]
@@ -394,7 +394,7 @@ pub fn run_ds_analysis(
     }
 
     // Collect all gene ids
-    let gene_ids : Map[String, Unit] = Map::new()
+    let gene_ids : Map[String, Unit] = Map([])
     let mut ci = 0
     while ci < samples.length() {
       let sck = samples[ci].gene_counts.keys().collect()
@@ -490,7 +490,7 @@ pub fn run_ds_analysis(
   }
 
   let n_genes = if all_results.length() > 0 {
-    let gene_set : Map[String, Unit] = Map::new()
+    let gene_set : Map[String, Unit] = Map([])
     let mut gi = 0
     while gi < all_results.length() {
       gene_set.set(all_results[gi].gene_id, ())

@@ -573,7 +573,7 @@ pub fn Diagram::to_svg(self : Diagram, width : Int, height : Int) -> String {
   let usable_w = w - 2.0 * pad
   let scale = usable_w / len.to_double()
 
-  let svg = StringBuilder::new()
+  let svg = StringBuilder()
   svg.write_string("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"")
   svg.write_string(width.to_string())
   svg.write_string("\" height=\"")

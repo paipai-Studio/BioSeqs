@@ -89,7 +89,7 @@ pub fn MultipleSeqAlignment::column(
   if col < 0 || col >= self.get_alignment_length() {
     return None
   }
-  let buf = StringBuilder::new(size_hint=self.records.length())
+  let buf = StringBuilder(size_hint=self.records.length())
   for rec in self.records {
     match rec.seq.get_char(col) {
       Some(c) => buf.write_char(c)
@@ -178,7 +178,7 @@ pub fn MultipleSeqAlignment::add_sequence(
 ///|
 /// Convert the alignment to a string representation (similar to BioPython's __str__).
 pub fn MultipleSeqAlignment::repr(self : MultipleSeqAlignment) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let n_records = self.records.length()
   let n_cols = self.get_alignment_length()
   buf.write_string("Alignment with ")

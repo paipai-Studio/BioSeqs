@@ -123,7 +123,7 @@ pub fn parse_cif_seqres(content : String) -> Array[SeqRecord] raise SeqIOError {
     } else {
       residues
     }
-    let seq_buf = StringBuilder::new()
+    let seq_buf = StringBuilder()
     for r in ordered {
       seq_buf.write_string(three_to_one_aa(r.mon))
     }
@@ -188,7 +188,7 @@ pub fn parse_cif_atom(content : String) -> Array[SeqRecord] raise SeqIOError {
     }
     if slot < 0 {
       chain_ids.push(chain)
-      chain_seqs.push(StringBuilder::new())
+      chain_seqs.push(StringBuilder())
       let keys : Array[String] = Array(capacity=0)
       keys.push(dedup_key)
       chain_keys.push(keys)

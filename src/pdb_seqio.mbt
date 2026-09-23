@@ -214,7 +214,7 @@ pub fn pdb_seqres_parser(content : String) -> Array[SeqRecord] {
   for k = 0; k < chain_ids.length(); k = k + 1 {
     let chain_id = chain_ids[k]
     let residues = chain_residues[k]
-    let seq_buf = StringBuilder::new()
+    let seq_buf = StringBuilder()
     for r in residues {
       seq_buf.write_string(three_to_one_aa(r))
     }
@@ -239,7 +239,7 @@ pub fn pdb_seqres_parser(content : String) -> Array[SeqRecord] {
 /// Extract the amino acid sequence of a single chain as a 1-letter string.
 /// Water molecules (HOH/WAT) are skipped; non-standard residues become "X".
 pub fn extract_sequence_from_chain(chain : Chain) -> String {
-  let seq_buf = StringBuilder::new()
+  let seq_buf = StringBuilder()
   for residue in chain.residues {
     let name = residue.resname
     if name == "HOH" || name == "WAT" {
@@ -328,7 +328,7 @@ pub fn extract_sequence_from_pdb_lines(
   lines : Array[String],
   chain_id : String,
 ) -> String {
-  let seq_buf = StringBuilder::new()
+  let seq_buf = StringBuilder()
   let mut prev_resseq : Int? = None
   let mut prev_icode : Char = ' '
   for line in lines {
@@ -397,7 +397,7 @@ pub fn pdb_to_seqrecords(
 /// record, using `record.name` as the chain identifier. Up to 13 residues
 /// are placed on each SEQRES line.
 pub fn write_pdb_seqrecords(records : Array[SeqRecord]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for record in records {
     let seq_str = record.seq.to_string()
     let num_res = seq_str.length()
@@ -414,7 +414,7 @@ pub fn write_pdb_seqrecords(records : Array[SeqRecord]) -> String {
     let mut ser = 1
     let mut idx = 0
     while idx < num_res {
-      let line_buf = StringBuilder::new()
+      let line_buf = StringBuilder()
       line_buf.write_string("SEQRES ")
       line_buf.write_string(pdb_pad_left(ser.to_string(), 3, ' '))
       line_buf.write_char(' ')

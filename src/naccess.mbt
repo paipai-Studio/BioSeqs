@@ -446,7 +446,7 @@ pub fn naccess_atom_to_asa(a : NaccessAtom) -> String {
 ///|
 /// Serialize a NaccessResult to RSA file content.
 pub fn naccess_write_rsa(result : NaccessResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("NACCESS  Version 2.1\n")
   sb.write_string(
     "RES     NUM  CHN  ABS_ALL  REL_ALL  ABS_SIDE  REL_SIDE  ABS_MAIN  REL_MAIN  NP_ABS  NP_REL  P_ABS  P_REL\n",
@@ -460,7 +460,7 @@ pub fn naccess_write_rsa(result : NaccessResult) -> String {
 ///|
 /// Serialize a NaccessResult to ASA file content.
 pub fn naccess_write_asa(result : NaccessResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("NACCESS  Version 2.1\n")
   sb.write_string("ATM     NUM  RES  CHN  ATOM_NAME  ABS_ASA  REL_ASA\n")
   for a in result.atoms {
@@ -622,7 +622,7 @@ pub fn naccess_sample() -> NaccessResult {
 ///|
 /// Generate a summary string.
 pub fn naccess_summary(result : NaccessResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("NACCESS Result Summary:\n")
   sb.write_string("  Residues: " + result.get_num_residues().to_string() + "\n")
   sb.write_string("  Atoms: " + result.get_num_atoms().to_string() + "\n")

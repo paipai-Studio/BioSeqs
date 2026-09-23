@@ -800,7 +800,7 @@ fn exonerate_text_stitch_rows(
   }
   let builders : Array[StringBuilder] = []
   for index = 0; index < row_count; index = index + 1 {
-    builders.push(StringBuilder::new())
+    builders.push(StringBuilder())
   }
   for block in blocks {
     if block.length() == row_count {
@@ -1555,7 +1555,7 @@ fn exonerate_text_append_split_codons(
 
 ///|
 fn exonerate_text_aa_sequence(sequence : String, phase : Int) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   let mut index = 0
   if phase > 0 && sequence.length() > 0 {
     output.write_char('X')
@@ -1577,7 +1577,7 @@ fn exonerate_text_triplet_annotation(
   annotation : String,
   phase : Int,
 ) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   let mut index = 0
   if phase > 0 && annotation.length() > 0 {
     output.write_char(
@@ -1838,8 +1838,8 @@ fn exonerate_text_flip_codons(
   if codon.length() != target.length() {
     raise ExonerateTextError("Exonerate codon rows have unequal widths")
   }
-  let first = StringBuilder::new(size_hint=codon.length())
-  let second = StringBuilder::new(size_hint=codon.length())
+  let first = StringBuilder(size_hint=codon.length())
+  let second = StringBuilder(size_hint=codon.length())
   for index = 0; index < codon.length(); index = index + 1 {
     let c = codon.unsafe_get(index).to_int()
     let t = target.unsafe_get(index).to_int()
@@ -2049,7 +2049,7 @@ fn exonerate_text_find_dot_run(text : String, from : Int) -> (Int, Int) {
 
 ///|
 fn exonerate_text_remove_braces(text : String) -> String {
-  let output = StringBuilder::new(size_hint=text.length())
+  let output = StringBuilder(size_hint=text.length())
   for index = 0; index < text.length(); index = index + 1 {
     let code = text.unsafe_get(index).to_int()
     if code != '{'.to_int() && code != '}'.to_int() {

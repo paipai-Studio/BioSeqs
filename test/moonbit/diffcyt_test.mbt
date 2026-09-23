@@ -161,7 +161,7 @@ test "dc_testDA_returns_results" {
   let samples = @src.diffcyt_unique_samples(cells)
   let counts = @src.diffcyt_calc_counts(cells, 5, samples)
   let conditions : Array[String] = []
-  let cond_map : Map[String, String] = Map::new()
+  let cond_map : Map[String, String] = Map([])
   for cell in cells {
     cond_map.set(cell.sample_id, cell.condition)
   }
@@ -188,7 +188,7 @@ test "dc_testDA_fdr_monotonic" {
   let samples = @src.diffcyt_unique_samples(cells)
   let counts = @src.diffcyt_calc_counts(cells, 4, samples)
   let conditions : Array[String] = []
-  let cond_map : Map[String, String] = Map::new()
+  let cond_map : Map[String, String] = Map([])
   for cell in cells {
     cond_map.set(cell.sample_id, cell.condition)
   }
@@ -213,7 +213,7 @@ test "dc_testDS_returns_results" {
   let _ = @src.diffcyt_cluster_cells(cells, 3, 10)
   let samples = @src.diffcyt_unique_samples(cells)
   let conditions : Array[String] = []
-  let cond_map : Map[String, String] = Map::new()
+  let cond_map : Map[String, String] = Map([])
   for cell in cells {
     cond_map.set(cell.sample_id, cell.condition)
   }
@@ -240,7 +240,7 @@ test "dc_testDS_marker_names" {
   let _ = @src.diffcyt_cluster_cells(cells, 2, 10)
   let samples = @src.diffcyt_unique_samples(cells)
   let conditions : Array[String] = []
-  let cond_map : Map[String, String] = Map::new()
+  let cond_map : Map[String, String] = Map([])
   for cell in cells {
     cond_map.set(cell.sample_id, cell.condition)
   }
@@ -288,7 +288,7 @@ test "dc_top_clusters_da" {
   let samples = @src.diffcyt_unique_samples(cells)
   let counts = @src.diffcyt_calc_counts(cells, 5, samples)
   let conditions : Array[String] = []
-  let cond_map : Map[String, String] = Map::new()
+  let cond_map : Map[String, String] = Map([])
   for cell in cells {
     cond_map.set(cell.sample_id, cell.condition)
   }
@@ -310,7 +310,7 @@ test "dc_top_table_ds" {
   let _ = @src.diffcyt_cluster_cells(cells, 3, 10)
   let samples = @src.diffcyt_unique_samples(cells)
   let conditions : Array[String] = []
-  let cond_map : Map[String, String] = Map::new()
+  let cond_map : Map[String, String] = Map([])
   for cell in cells {
     cond_map.set(cell.sample_id, cell.condition)
   }

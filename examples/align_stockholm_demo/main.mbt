@@ -1,6 +1,6 @@
 ///|
 fn stockholm_integer_array_text(values : Array[Int]) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_char('[')
   for index = 0; index < values.length(); index = index + 1 {
     if index > 0 {

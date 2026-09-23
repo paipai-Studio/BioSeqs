@@ -858,7 +858,7 @@ fn parse_taxon_namespace_element(xml : String) -> TaxonNamespace {
 ///|
 /// Serialize a PhyloXMLResult to an XML string.
 pub fn phyloxml_to_xml(result : PhyloXMLResult) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
   buf.write_string("<phyloxml xmlns=\"http://www.phyloxml.org/1.0\">\n")
 
@@ -885,7 +885,7 @@ pub fn phyloxml_to_xml(result : PhyloXMLResult) -> String {
 ///|
 /// Serialize a single PhyloXMLTree to XML.
 pub fn tree_to_xml(tree : PhyloXMLTree) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let indent = "  "
   buf.write_string(indent)
   buf.write_string("<phylogeny")
@@ -924,7 +924,7 @@ pub fn tree_to_xml(tree : PhyloXMLTree) -> String {
 ///|
 /// Serialize a PhyloXMLNode to XML recursively with indentation.
 pub fn node_to_xml(node : PhyloXMLNode, indent : Int) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let prefix = make_indent(indent)
   let prefix2 = make_indent(indent + 1)
 
@@ -1050,7 +1050,7 @@ pub fn node_to_xml(node : PhyloXMLNode, indent : Int) -> String {
 pub fn indent_xml(xml : String, indent : Int) -> String {
   let prefix = make_indent(indent)
   let lines = xml.split("\n").to_array()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut i = 0
   while i < lines.length() {
     let line = lines[i].to_owned()
@@ -1262,7 +1262,7 @@ fn find_first_of(s : String, chars : Array[String]) -> Int? {
 ///|
 /// Convert PhyloXMLResult to Newick format string.
 pub fn phyloxml_to_newick(result : PhyloXMLResult) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut i = 0
   for tree in result.trees {
     if i > 0 {
@@ -1286,7 +1286,7 @@ pub fn phyloxml_node_to_newick(node : PhyloXMLNode) -> String {
     }
     result
   } else {
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     buf.write_string("(")
     let mut i = 0
     for child in node.children {

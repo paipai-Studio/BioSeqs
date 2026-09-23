@@ -10,7 +10,7 @@ fn r3(v : Double) -> String {
 }
 
 fn fmt_vec(v : Array[Double]) -> String {
-  let s = StringBuilder::new()
+  let s = StringBuilder()
   s.write_char('[')
   for i in 0..<v.length() {
     if i > 0 {
@@ -23,7 +23,7 @@ fn fmt_vec(v : Array[Double]) -> String {
 }
 
 fn fmt_strs(v : Array[String]) -> String {
-  let s = StringBuilder::new()
+  let s = StringBuilder()
   s.write_char('[')
   for i in 0..<v.length() {
     if i > 0 {

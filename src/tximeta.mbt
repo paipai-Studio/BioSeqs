@@ -55,7 +55,7 @@ pub fn TximetaData::new(
   counts~ : Array[Array[Int]],
   abundance~ : Array[Array[Double]],
   coldata~ : Map[String, Map[String, String]] = {
-    let m : Map[String, Map[String, String]] = Map::new()
+    let m : Map[String, Map[String, String]] = Map([])
     m
   },
 ) -> TximetaData {
@@ -113,7 +113,7 @@ pub fn tximeta_validate_linked(data : TximetaData) -> Bool {
 /// Merged metadata: coldata keys plus transcriptome provenance
 /// (`tximeta`-style metadata slot).
 pub fn tximeta_metadata(data : TximetaData) -> Map[String, String] {
-  let meta : Map[String, String] = Map::new()
+  let meta : Map[String, String] = Map([])
   for sample in data.coldata.keys() {
     match data.coldata.get(sample) {
       Some(cols) => {
@@ -158,7 +158,7 @@ pub fn tximeta_summarize_to_gene(
   tx2gene~ : Map[String, String],
 ) -> (Array[String], Array[Array[Int]], Array[Array[Double]]) {
   let gene_order : Array[String] = Array(capacity=0)
-  let gene_index : Map[String, Int] = Map::new()
+  let gene_index : Map[String, Int] = Map([])
   for i in 0..<data.transcript_names.length() {
     let tx = data.transcript_names[i]
     match tx2gene.get(tx) {
@@ -248,17 +248,17 @@ pub fn tximeta_sample_data() -> TximetaData {
     [10.0, 11.0, 9.5, 9.0],
     [0.5, 0.4, 2.0, 2.2],
   ]
-  let coldata : Map[String, Map[String, String]] = Map::new()
-  let g1 : Map[String, String] = Map::new()
+  let coldata : Map[String, Map[String, String]] = Map([])
+  let g1 : Map[String, String] = Map([])
   g1.set("condition", "control")
   coldata.set("ctrl1", g1)
-  let g2 : Map[String, String] = Map::new()
+  let g2 : Map[String, String] = Map([])
   g2.set("condition", "control")
   coldata.set("ctrl2", g2)
-  let g3 : Map[String, String] = Map::new()
+  let g3 : Map[String, String] = Map([])
   g3.set("condition", "treated")
   coldata.set("treated1", g3)
-  let g4 : Map[String, String] = Map::new()
+  let g4 : Map[String, String] = Map([])
   g4.set("condition", "treated")
   coldata.set("treated2", g4)
   let data = TximetaData::new(
@@ -284,7 +284,7 @@ pub fn tximeta_sample_data() -> TximetaData {
 ///|
 /// Sample tx2gene mapping matching the sample dataset.
 pub fn tximeta_sample_tx2gene() -> Map[String, String] {
-  let m : Map[String, String] = Map::new()
+  let m : Map[String, String] = Map([])
   m.set("ENST1", "GENE_A")
   m.set("ENST2", "GENE_B")
   m.set("ENST3", "GENE_A")

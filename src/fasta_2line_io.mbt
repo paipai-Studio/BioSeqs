@@ -25,7 +25,7 @@ pub fn parse_fasta_2line(content : String) -> Array[SeqRecord] raise SeqIOError 
 /// Write records as two-line FASTA: one ">" header line plus one single
 /// unwrapped sequence line per record.
 pub fn write_fasta_2line(records : Array[SeqRecord]) -> String raise SeqIOError {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for rec in records {
     buf.write_char('>')
     buf.write_string(build_fasta_title(rec.id, rec.description))

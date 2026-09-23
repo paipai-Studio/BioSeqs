@@ -194,10 +194,10 @@ pub fn parse_insdc_feature_table(lines : Array[String]) -> Array[InsdcFeature] {
   let cap_t : UInt16 = 'T'.to_int().to_uint16()
 
   let mut cur_type = ""
-  let cur_loc = StringBuilder::new()
+  let cur_loc = StringBuilder()
   let mut cur_quals : Map[String, Array[String]] = Map([], capacity=0)
   let mut cur_qual_key = ""
-  let cur_qual_val = StringBuilder::new()
+  let cur_qual_val = StringBuilder()
   let mut in_quote = false
   let mut have_feature = false
 
@@ -376,7 +376,7 @@ pub fn parse_insdc_location(loc_str : String) -> String {
   let tab : UInt16 = '\t'.to_int().to_uint16()
   let nl : UInt16 = '\n'.to_int().to_uint16()
   let cr : UInt16 = '\r'.to_int().to_uint16()
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let n = loc_str.length()
   for i = 0; i < n; i = i + 1 {
     let c = loc_str.unsafe_get(i)
@@ -407,7 +407,7 @@ pub fn format_insdc_feature(
   let out : Array[String] = Array(capacity=0)
 
   // First line: indent + feature_type (padded to 16) + location.
-  let first = StringBuilder::new()
+  let first = StringBuilder()
   for _j = 0; _j < indent; _j = _j + 1 {
     first.write_char(' ')
   }
@@ -532,7 +532,7 @@ pub fn parse_genbank_record(content : String) -> InsdcRecord {
   let mut version = ""
   let mut organism = ""
   let features : Array[InsdcFeature] = Array(capacity=0)
-  let seq_buf = StringBuilder::new()
+  let seq_buf = StringBuilder()
 
   let feature_lines : Array[String] = Array(capacity=0)
   let mut in_features = false
@@ -594,7 +594,7 @@ pub fn parse_genbank_record(content : String) -> InsdcRecord {
           idx = idx + 1
         }
         if idx < tokens.length() {
-          let date_buf = StringBuilder::new()
+          let date_buf = StringBuilder()
           for d = idx; d < tokens.length(); d = d + 1 {
             if d > idx {
               date_buf.write_char(' ')
@@ -610,7 +610,7 @@ pub fn parse_genbank_record(content : String) -> InsdcRecord {
 
     // DEFINITION line (and continuations indented by spaces).
     if ll >= 10 && line.has_prefix("DEFINITION") {
-      let def_buf = StringBuilder::new()
+      let def_buf = StringBuilder()
       if ll > 10 {
         def_buf.write_string(insdc_trim(line[10:ll].to_owned()))
       }
@@ -747,7 +747,7 @@ pub fn parse_genbank_record(content : String) -> InsdcRecord {
 /// (one feature per record), and an ORIGIN section with the sequence wrapped
 /// at 60 bases per line in groups of 10. The record ends with `//`.
 pub fn write_genbank_record(record : InsdcRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // --- LOCUS line ---
   // LOCUS       <name>      <len> bp    <mol>    <topo>   <div> <date>
@@ -839,7 +839,7 @@ pub fn write_genbank_record(record : InsdcRecord) -> String {
 /// "      1 atgcatgcat gcatgcatgc ..." with a 1-indexed position label
 /// right-aligned in 9 columns and 6 groups of 10 bases per line.
 fn insdc_build_genbank_sequence(seq : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let total = seq.length()
   let mut i = 0
   let mut line_start = 0
@@ -890,7 +890,7 @@ pub fn parse_embl_record(content : String) -> InsdcRecord {
   let mut version = ""
   let mut organism = ""
   let features : Array[InsdcFeature] = Array(capacity=0)
-  let seq_buf = StringBuilder::new()
+  let seq_buf = StringBuilder()
 
   let feature_lines : Array[String] = Array(capacity=0)
   let mut in_ft = false
@@ -1011,7 +1011,7 @@ pub fn parse_embl_record(content : String) -> InsdcRecord {
       line.unsafe_get(0) == 'D'.to_int().to_uint16() &&
       line.unsafe_get(1) == 'E'.to_int().to_uint16() &&
       (ll == 2 || line.unsafe_get(2) == sp) {
-      let def_buf = StringBuilder::new()
+      let def_buf = StringBuilder()
       if ll > 2 {
         def_buf.write_string(insdc_trim(line[2:ll].to_owned()))
       }
@@ -1048,7 +1048,7 @@ pub fn parse_embl_record(content : String) -> InsdcRecord {
       line.unsafe_get(0) == 'O'.to_int().to_uint16() &&
       line.unsafe_get(1) == 'S'.to_int().to_uint16() &&
       (ll == 2 || line.unsafe_get(2) == sp) {
-      let org_buf = StringBuilder::new()
+      let org_buf = StringBuilder()
       if ll > 2 {
         org_buf.write_string(insdc_trim(line[2:ll].to_owned()))
       }
@@ -1172,7 +1172,7 @@ pub fn parse_embl_record(content : String) -> InsdcRecord {
 /// with the sequence wrapped at 60 bases per line in groups of 10. The
 /// record ends with `//`.
 pub fn write_embl_record(record : InsdcRecord) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
 
   // --- ID line ---
   // ID   <name>; SV <ver>; <topology>; <mol_type>; STD; <division>; <len> BP.
@@ -1272,7 +1272,7 @@ pub fn write_embl_record(record : InsdcRecord) -> String {
 ///|
 /// Build the EMBL sequence section: 5-space indent, 6 groups of 10 bases.
 fn insdc_build_embl_sequence(seq : String) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let total = seq.length()
   let mut i = 0
   while i < total {

@@ -29,7 +29,7 @@ test "motifbreakr_motif_break basic" {
   let seq = @src.motifbreakr_sample_sequence()
   let variants = @src.motifbreakr_sample_variants()
   let sequences = {
-    let m : Map[String, String] = Map::new()
+    let m : Map[String, String] = Map([])
     m.set("chr1", seq)
     m
   }
@@ -60,7 +60,7 @@ test "motifbreakr_motif_break gain variant" {
     ),
   ]
   let sequences = {
-    let m : Map[String, String] = Map::new()
+    let m : Map[String, String] = Map([])
     m.set("chr1", seq)
     m
   }
@@ -74,7 +74,7 @@ test "motifbreakr_significant filters neutral" {
   let seq = @src.motifbreakr_sample_sequence()
   let variants = @src.motifbreakr_sample_variants()
   let sequences = {
-    let m : Map[String, String] = Map::new()
+    let m : Map[String, String] = Map([])
     m.set("chr1", seq)
     m
   }
@@ -91,7 +91,7 @@ test "motifbreakr_sort_by_delta descending" {
   let seq = @src.motifbreakr_sample_sequence()
   let variants = @src.motifbreakr_sample_variants()
   let sequences = {
-    let m : Map[String, String] = Map::new()
+    let m : Map[String, String] = Map([])
     m.set("chr1", seq)
     m
   }
@@ -125,7 +125,7 @@ test "motifbreakr_motif_break missing chrom" {
     ),
   ]
   let sequences = {
-    let m : Map[String, String] = Map::new()
+    let m : Map[String, String] = Map([])
     m.set("chr1", "ACGTACGT")
     m
   }
@@ -146,7 +146,7 @@ test "motifbreakr_motif_break variant outside motif width" {
     ),
   ]
   let sequences = {
-    let m : Map[String, String] = Map::new()
+    let m : Map[String, String] = Map([])
     m.set("chr1", "GGGGAGATAAGGGG")
     m
   }

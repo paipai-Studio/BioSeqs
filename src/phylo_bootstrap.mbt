@@ -121,7 +121,7 @@ fn clade_to_bstr(
   clade : Clade,
   term_names : Array[String],
 ) -> BStr raise PhyloConsensusError {
-  let name_set : Map[String, Unit] = Map::new()
+  let name_set : Map[String, Unit] = Map([])
   for t in clade.get_terminals() {
     match t.name {
       Some(n) => name_set.set(n, ())
@@ -163,7 +163,7 @@ fn count_clades(
   }
   let expected = term_names.copy()
   expected.sort()
-  let counts : Map[String, CladeCount] = Map::new()
+  let counts : Map[String, CladeCount] = Map([])
   for tree in trees {
     let these_names = Array(capacity=0)
     for t in tree.get_terminals() {
@@ -266,7 +266,7 @@ pub fn consensus_strict(trees : Array[Tree]) -> Tree raise PhyloConsensusError {
   for t in terms {
     root.clades.push(t)
   }
-  let bitstr_clades : Map[String, Clade] = Map::new()
+  let bitstr_clades : Map[String, Clade] = Map([])
   bitstr_clades.set(root_key, root)
 
   for key in strict_keys[1:] {
@@ -358,7 +358,7 @@ pub fn consensus_majority(
   for t in terms {
     root.clades.push(t)
   }
-  let bitstr_clades : Map[String, Clade] = Map::new()
+  let bitstr_clades : Map[String, Clade] = Map([])
   bitstr_clades.set(entries[0].key, root)
 
   for entry in entries[1:] {
@@ -702,11 +702,11 @@ pub fn tree_get_support(
     }
   }
   term_names.sort()
-  let target_keys : Map[String, Unit] = Map::new()
+  let target_keys : Map[String, Unit] = Map([])
   for c in target.find_clades(terminal=Some(false)) {
     target_keys.set(bstr_key(clade_to_bstr(c, term_names)), ())
   }
-  let seen : Map[String, Int] = Map::new()
+  let seen : Map[String, Int] = Map([])
   for k in target_keys.keys() {
     seen.set(k, 0)
   }
@@ -722,7 +722,7 @@ pub fn tree_get_support(
       }
     }
   }
-  let support : Map[String, Double] = Map::new()
+  let support : Map[String, Double] = Map([])
   for kv in seen.iter() {
     support.set(kv.0, kv.1.to_double() * 100.0 / size.to_double())
   }

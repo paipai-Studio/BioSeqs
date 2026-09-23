@@ -501,7 +501,7 @@ pub fn mean_sd_ascii(mat : Array[Array[Double]], n_bins? : Int = 40) -> String {
     grid[row_idx][xii] = nc
     idx = idx + 1
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string(
     "mean-SD plot (mean=[\{xmin},\{xmax}] sd=[\{ymin},\{ymax}])\n",
   )
@@ -530,7 +530,7 @@ pub fn mean_sd_ascii(mat : Array[Array[Double]], n_bins? : Int = 40) -> String {
 
 ///|
 pub fn summarize_vsn_fit(fit : VSNResult) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let n = fit.params.length()
   buf.write_string("VSNResult: \{n} columns fitted\n")
   let mut i = 0

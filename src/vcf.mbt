@@ -339,7 +339,7 @@ fn join_str_array(arr : Array[String], sep : String) -> String {
   if arr.length() == 0 {
     return "."
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut first = true
   for v in arr {
     if not(first) {
@@ -365,7 +365,7 @@ fn vcf_format_info(info : Map[String, String]) -> String {
   if info.length() == 0 {
     return "."
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut first = true
   for k in info.keys() {
     if not(first) {
@@ -409,7 +409,7 @@ fn vcf_format_record(rec : VcfRecord, sample_names : Array[String]) -> String {
       }
     }
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut first = true
   for p in parts {
     if not(first) {
@@ -457,7 +457,7 @@ pub fn VcfFile::to_string(self : VcfFile) -> String {
       }
     }
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   let mut first = true
   for l in lines {
     if not(first) {

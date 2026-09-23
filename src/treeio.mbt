@@ -277,7 +277,7 @@ fn treeio_newick_from_tree(tree : TreeioTreeData, node_id : Int) -> String {
     }
     return node.label
   }
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_char('(')
   let mut i = 0
   while i < node.children.length() {
@@ -395,7 +395,7 @@ pub fn treeio_parse_beast(newick : String) -> TreeioTreeData {
 
 ///|
 fn treeio_strip_beast(s : String) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut i = 0
   let bytes = s.to_array()
   while i < bytes.length() {

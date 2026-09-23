@@ -1,6 +1,6 @@
 ///|
 fn psl_test_join(values : Array[String], separator : String) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index in 0..<values.length() {
     if index > 0 {
       output.write_string(separator)

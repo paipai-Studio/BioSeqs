@@ -68,7 +68,7 @@ fn main {
     let m = record.motifs[0]
     let alphabet = m.alphabet_to_array()
     // Header
-    let header = StringBuilder::new()
+    let header = StringBuilder()
     header.write_string("  pos  ")
     for a in alphabet {
       header.write_string("   " + a + "   ")
@@ -78,7 +78,7 @@ fn main {
     let mut pos = 0
     while pos < m.pspm.length() {
       let row = m.pspm[pos]
-      let line = StringBuilder::new()
+      let line = StringBuilder()
       line.write_string("  " + pos.to_string() + "   ")
       let mut j = 0
       while j < row.length() {

@@ -80,7 +80,7 @@ fn write_fasta_as_alignment(alignments : Array[MultipleSeqAlignment]) -> String 
 ///|
 /// Write multiple alignments as Clustal format (concatenated).
 fn write_clustal_multiple(alignments : Array[MultipleSeqAlignment]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i, align in alignments {
     if i > 0 {
       buf.write_char('\n')
@@ -93,7 +93,7 @@ fn write_clustal_multiple(alignments : Array[MultipleSeqAlignment]) -> String {
 ///|
 /// Write multiple alignments as PHYLIP interlaced format (concatenated).
 fn write_phylip_multiple(alignments : Array[MultipleSeqAlignment]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i, align in alignments {
     if i > 0 {
       buf.write_char('\n')
@@ -108,7 +108,7 @@ fn write_phylip_multiple(alignments : Array[MultipleSeqAlignment]) -> String {
 fn write_phylip_sequential_multiple(
   alignments : Array[MultipleSeqAlignment],
 ) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i, align in alignments {
     if i > 0 {
       buf.write_char('\n')

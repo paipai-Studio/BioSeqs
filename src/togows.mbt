@@ -66,7 +66,7 @@ fn tgw_strip(s : String) -> String {
   while end > start && tgw_is_space(chars[end - 1]) {
     end = end - 1
   }
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i = start; i < end; i = i + 1 {
     buf.write_char(chars[i])
   }
@@ -78,13 +78,13 @@ fn tgw_strip(s : String) -> String {
 /// drop empty pieces.
 fn tgw_split_whitespace(s : String) -> Array[String] {
   let out : Array[String] = []
-  let mut current = StringBuilder::new()
+  let mut current = StringBuilder()
   let mut has = false
   for ch in s {
     if tgw_is_space(ch) {
       if has {
         out.push(current.to_string())
-        current = StringBuilder::new()
+        current = StringBuilder()
         has = false
       }
     } else {
@@ -101,7 +101,7 @@ fn tgw_split_whitespace(s : String) -> Array[String] {
 ///|
 /// Join identifiers with commas, like Python's ",".join(ids).
 fn tgw_join_comma(ids : Array[String]) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i, id in ids {
     if i > 0 {
       buf.write_string(",")
@@ -139,7 +139,7 @@ fn tgw_cmp_str(a : String, b : String) -> Int {
 fn tgw_sorted_join(words : Array[String]) -> String {
   let sorted = words.copy()
   sorted.sort_by(fn(a : String, b : String) -> Int { tgw_cmp_str(a, b) })
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for i, w in sorted {
     if i > 0 {
       buf.write_string(", ")
@@ -200,7 +200,7 @@ fn tgw_parse_int(s : String) -> Int? {
 /// Two-digit uppercase hexadecimal representation of a byte.
 fn tgw_hex2(byte : Int) -> String {
   let digits = tgw_chars("0123456789ABCDEF")
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_char(digits[byte >> 4])
   buf.write_char(digits[byte & 0xF])
   buf.to_string()
@@ -241,7 +241,7 @@ fn tgw_quote_byte(byte : Int, buf : StringBuilder) -> Unit {
 /// and everything else is encoded with UTF-8 percent escapes.
 pub fn togows_quote(text~ : String, safe? : String) -> String {
   let safe_chars = safe.unwrap_or("/")
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   for ch in text {
     let cp = ch.to_int()
     let always_safe = (cp >= 65 && cp <= 90) ||
@@ -547,11 +547,11 @@ pub fn TogoWSClient::get_convert_formats(
 /// Split "a.b" on the single dot, like Python's pair.split(".").
 fn tgw_split_dot(token : String) -> Array[String] {
   let out : Array[String] = []
-  let mut current = StringBuilder::new()
+  let mut current = StringBuilder()
   for ch in token {
     if ch.to_int() == 46 {
       out.push(current.to_string())
-      current = StringBuilder::new()
+      current = StringBuilder()
     } else {
       current.write_char(ch)
     }
@@ -768,7 +768,7 @@ pub fn TogoWSClient::convert(
     }
   }
   if !supported {
-    let buf = StringBuilder::new()
+    let buf = StringBuilder()
     for i, pair in pairs {
       if i > 0 {
         buf.write_string("\n")

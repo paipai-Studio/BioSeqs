@@ -1068,7 +1068,7 @@ pub fn AlignBedAlignment::overlaps(
 
 ///|
 fn align_bed_join_tabs(fields : Array[String]) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for index in 0..<fields.length() {
     if index > 0 {
       output.write_char('\t')
@@ -1080,7 +1080,7 @@ fn align_bed_join_tabs(fields : Array[String]) -> String {
 
 ///|
 fn align_bed_integer_list(values : Array[Int]) -> String {
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for value in values {
     output.write_string(value.to_string())
     output.write_char(',')
@@ -1174,7 +1174,7 @@ pub fn align_bed_write(
   bed_columns? : Int = 12,
 ) -> String raise AlignBedError {
   let validated = AlignBedDocument::create(document.alignments)
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   for alignment in validated.alignments {
     output.write_string(align_bed_format(alignment, bed_columns~))
   }

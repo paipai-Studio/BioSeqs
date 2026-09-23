@@ -202,7 +202,7 @@ pub fn clusterbuster_parse(content : String) -> Array[ClusterBusterCluster] {
 ///|
 /// Serialize clusters to ClusterBuster format.
 pub fn clusterbuster_to_string(clusters : Array[ClusterBusterCluster]) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut c = 0
   while c < clusters.length() {
     let cl = clusters[c]

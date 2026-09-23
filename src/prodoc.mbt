@@ -126,14 +126,14 @@ fn pd_lines(content : String) -> Array[String] {
 /// Python's line.split("; ").
 fn pd_split_semicolon_space(s : String) -> Array[String] {
   let out : Array[String] = []
-  let mut cur = StringBuilder::new()
+  let mut cur = StringBuilder()
   let mut i = 0
   while i < s.length() {
     if i + 1 < s.length() &&
       s.unsafe_get(i).to_int() == 59 &&
       s.unsafe_get(i + 1).to_int() == 32 {
       out.push(cur.to_string())
-      cur = StringBuilder::new()
+      cur = StringBuilder()
       i = i + 2
     } else {
       cur.write_char(s.unsafe_get(i).unsafe_to_char())
@@ -251,7 +251,7 @@ fn pd_next_record(
   // Read text / references / copyright until "{END}".
   // mode: 1 = text, 2 = reference, 3 = copyright, 0 = none (skip).
   let mut mode = 1
-  let text_buf = StringBuilder::new()
+  let text_buf = StringBuilder()
   while i < n {
     let line = lines[i]
     if starts_with(line, 0, "{END}") {

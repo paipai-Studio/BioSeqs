@@ -80,7 +80,7 @@ pub fn primersearch_read_primers(content : String) -> Array[PrimerPair] {
 ///|
 /// Reverse complement a DNA sequence.
 pub fn primersearch_revcomp(seq : String) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   let mut i = seq.length() - 1
   while i >= 0 {
     let c = seq[i]
@@ -200,7 +200,7 @@ pub fn primersearch_run(
 ///|
 /// Format results in EMBOSS primersearch output style.
 pub fn primersearch_to_string(result : PrimerSearchResult) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("Primer searching\n\n")
   let mut i = 0
   while i < result.products.length() {

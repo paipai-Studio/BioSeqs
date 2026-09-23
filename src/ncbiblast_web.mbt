@@ -55,7 +55,7 @@ pub extend NcbiBlastStatus with @moonbitlang/core/debug.Debug::{to_repr}
 /// strings: alphanumerics and a small set of punctuation pass through,
 /// spaces become '+' and every other byte becomes %XX.
 pub fn qblast_quote(value : String) -> String {
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   let mut i = 0
   while i < value.length() {
     let code = value.unsafe_get(i).to_int()
@@ -114,7 +114,7 @@ fn qblast_urlencode(params : Array[(String, String)]) -> String {
     parts.push(qblast_quote(key) + "=" + qblast_quote(value))
     i = i + 1
   }
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   i = 0
   while i < parts.length() {
     if i > 0 {

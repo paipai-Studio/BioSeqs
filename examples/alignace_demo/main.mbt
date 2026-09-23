@@ -41,7 +41,7 @@ fn main {
         // Show count matrix
         let bases = ["A", "C", "G", "T"]
         for row in 0..<4 {
-          let sb = StringBuilder::new()
+          let sb = StringBuilder()
           sb.write_string("  " + bases[row] + ":")
           for col in 0..<m.width {
             sb.write_string(" " + m.count_matrix[row][col].to_string())
@@ -72,7 +72,7 @@ fn main {
       let bases = ["A", "C", "G", "T"]
       println("PWM for motif 1 (frequencies):")
       for row in 0..<4 {
-        let sb = StringBuilder::new()
+        let sb = StringBuilder()
         sb.write_string("  " + bases[row] + ":")
         for col in 0..<m0.width {
           sb.write_string(" " + pwm[row][col].to_string())
@@ -91,7 +91,7 @@ fn main {
   match @bio.alignace_get_motif(record, 0) {
     Some(m0) => {
       let ic = @bio.alignace_information_content(m0)
-      let sb = StringBuilder::new()
+      let sb = StringBuilder()
       sb.write_string("  IC (bits):")
       for col in 0..<ic.length() {
         sb.write_string(" " + ic[col].to_string())

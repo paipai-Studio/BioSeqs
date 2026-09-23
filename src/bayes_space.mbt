@@ -62,7 +62,7 @@ pub struct BayesSpaceResult {
 pub fn bayes_space_hex_neighbors(spots : Array[SpotCoord]) -> Array[Array[Int]] {
   let n = spots.length()
   // Build a map from (row, col) to spot index
-  let coord_map : Map[String, Int] = Map::new()
+  let coord_map : Map[String, Int] = Map([])
   let mut i = 0
   while i < n {
     let key = spots[i].row.to_string() + "," + spots[i].col.to_string()
@@ -111,7 +111,7 @@ pub fn bayes_space_square_neighbors(
   spots : Array[SpotCoord],
 ) -> Array[Array[Int]] {
   let n = spots.length()
-  let coord_map : Map[String, Int] = Map::new()
+  let coord_map : Map[String, Int] = Map([])
   let mut i = 0
   while i < n {
     let key = spots[i].row.to_string() + "," + spots[i].col.to_string()

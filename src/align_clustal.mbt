@@ -206,10 +206,10 @@ pub fn align_clustal_parse(
       )
     }
     seen_ids.push(id)
-    builders.push(StringBuilder::new())
+    builders.push(StringBuilder())
   }
 
-  let consensus_builder = StringBuilder::new()
+  let consensus_builder = StringBuilder()
   let mut has_consensus = false
   for block_index = 0
       block_index < blocks.length()
@@ -295,7 +295,7 @@ pub fn align_clustal_write(
       )
     }
   }
-  let output = StringBuilder::new()
+  let output = StringBuilder()
   output.write_string(
     align_clustal_canonical_header(
       alignment.metadata.program,
@@ -387,7 +387,7 @@ pub fn AlignClustalAlignment::column(
   if column < 0 || column >= self.alignment_length() {
     return None
   }
-  let result = StringBuilder::new(size_hint=self.sequences.length())
+  let result = StringBuilder(size_hint=self.sequences.length())
   for sequence in self.sequences {
     result.write_char(
       sequence.aligned_sequence.unsafe_get(column).unsafe_to_char(),
@@ -632,7 +632,7 @@ pub fn AlignClustalAlignment::majority_consensus(
       "CLUSTAL consensus minimum fraction must be between 0 and 1",
     )
   }
-  let output = StringBuilder::new(size_hint=self.alignment_length())
+  let output = StringBuilder(size_hint=self.alignment_length())
   for column = 0; column < self.alignment_length(); column = column + 1 {
     let frequencies = Array::make(128, 0)
     let mut residues = 0
@@ -676,7 +676,7 @@ pub fn AlignClustalAlignment::majority_consensus(
 pub fn AlignClustalAlignment::calculated_consensus(
   self : AlignClustalAlignment,
 ) -> String {
-  let output = StringBuilder::new(size_hint=self.alignment_length())
+  let output = StringBuilder(size_hint=self.alignment_length())
   let nucleotide = align_clustal_is_nucleotide(self)
   let strong_groups = [
     "STA", "NEQK", "NHQK", "NDEQ", "QHRK", "MILV", "MILF", "HY", "FYW",
@@ -922,7 +922,7 @@ fn align_clustal_extract_consensus(
       )
     }
   }
-  let output = StringBuilder::new(size_hint=width)
+  let output = StringBuilder(size_hint=width)
   for offset = 0; offset < width; offset = offset + 1 {
     let index = start + offset
     if index >= line.length() {
@@ -1303,7 +1303,7 @@ fn align_clustal_residue_count(segment : String) -> Int {
 
 ///|
 fn align_clustal_remove_gaps(value : String) -> String {
-  let output = StringBuilder::new(size_hint=value.length())
+  let output = StringBuilder(size_hint=value.length())
   for index = 0; index < value.length(); index = index + 1 {
     let code = value.unsafe_get(index).to_int()
     if code != '-'.to_int() {

@@ -120,7 +120,7 @@ pub fn nib_encode(sequence : String) -> Array[Int] {
 /// returns uppercase characters. If `packed` is shorter than
 /// ceil(length/4), missing bytes are treated as 0 (T).
 pub fn nib_decode(packed : Array[Int], length : Int) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<length {
     let byte_idx = i / 4
     let shift = 6 - i % 4 * 2
@@ -203,7 +203,7 @@ pub fn NibSequence::is_uppercase(self : NibSequence) -> Bool {
 ///|
 /// Human-readable summary of the NibSequence.
 pub fn NibSequence::to_string(self : NibSequence) -> String {
-  let buf = StringBuilder::new()
+  let buf = StringBuilder()
   buf.write_string("NibSequence(seq_id=")
   buf.write_string(self.seq_id)
   buf.write_string(", length=")
@@ -228,7 +228,7 @@ pub fn nib_to_string(nib : NibSequence) -> String {
   if nib.is_uppercase {
     decoded
   } else {
-    let sb = StringBuilder::new()
+    let sb = StringBuilder()
     for c in decoded {
       let code = c.to_int()
       let code_A = 'A'.to_int()
@@ -300,7 +300,7 @@ pub fn nib_subsequence(nib : NibSequence, start : Int, length : Int) -> String {
   }
   let avail = nib.length - start
   let take = if length < avail { length } else { avail }
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<take {
     let pos = start + i
     let byte_idx = pos / 4
@@ -326,7 +326,7 @@ pub fn nib_subsequence(nib : NibSequence, start : Int, length : Int) -> String {
 /// to 'N'.
 pub fn nib_reverse_complement(nib : NibSequence) -> NibSequence {
   let decoded = nib_decode(nib.packed_data, nib.length)
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i = nib.length - 1; i >= 0; i = i - 1 {
     let base = decoded[i].unsafe_to_char()
     let comp : Char = match base {
@@ -378,7 +378,7 @@ pub fn nib_gc_content(nib : NibSequence) -> Double {
 /// Convert the packed data to a lowercase hex string (two hex digits per
 /// packed byte), suitable for text storage.
 pub fn nib_to_hex(nib : NibSequence) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i in 0..<nib.packed_data.length() {
     let b = nib.packed_data[i]
     sb.write_char(nib_hex_digit((b >> 4) & 0xF))
