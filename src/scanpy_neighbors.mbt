@@ -1,7 +1,8 @@
 ///|
 /// scanpy `pp.neighbors` — k-nearest-neighbour graph and UMAP connectivities
 /// (`method='umap'`), computing the fuzzy simplicial set from Euclidean
-/// distances on a dense matrix.
+/// distances. The connectivities are returned as a `SparseGraph` (O(n·k))
+/// instead of a dense `n × n` matrix.
 
 ///|
 /// Pairwise Euclidean distance matrix (n × n).
@@ -113,27 +114,22 @@ fn scanpy_smooth_knn_dist(
 
 ///|
 /// Compute the UMAP neighborhood connectivities (fuzzy simplicial set with
-/// `local_connectivity=1`, `set_op_mix_ratio=1`). Returns a symmetric dense
-/// `n_obs × n_obs` matrix whose `[i, j]` entry is the fuzzy union of the
-/// membership strengths between cells `i` and `j`.
-pub fn scanpy_neighbors(x : Array[Array[Double]], n_neighbors : Int) -> Array[Array[Double]] {
+/// `local_connectivity=1`, `set_op_mix_ratio=1`) and return them as a sparse
+/// symmetric graph (O(n·k) edges). Diagonal self-weights are 1.
+pub fn scanpy_neighbors(x : Array[Array[Double]], n_neighbors : Int) -> SparseGraph {
   let n = x.length()
   if n == 0 {
-    return []
+    return SparseGraph::{ n: 0, diag: [], adj: [] }
   }
   let k = if n_neighbors < n { n_neighbors } else { n }
   let dist = scanpy_euclidean_distances(x)
   let (knn_idx, knn_dists) = scanpy_knn(dist, k)
   let (rhos, sigmas) = scanpy_smooth_knn_dist(knn_dists, k)
 
-  // directed membership strengths d (self = 1)
-  let d : Array[Array[Double]] = Array(capacity=0)
+  // directed membership strengths d (self = 1), stored per-vertex as Map[j -> w]
+  let directed : Array[Map[Int, Double]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
-    let row = Array::make(n, 0.0)
-    row[i] = 1.0
-    d.push(row)
-  }
-  for i = 0; i < n; i = i + 1 {
+    let row : Map[Int, Double] = Map([], capacity=k)
     for j = 1; j < k; j = j + 1 {
       let nb = knn_idx[i][j]
       let delta = knn_dists[i][j] - rhos[i]
@@ -142,18 +138,50 @@ pub fn scanpy_neighbors(x : Array[Array[Double]], n_neighbors : Int) -> Array[Ar
       } else {
         1.0
       }
-      d[i][nb] = w
+      row.set(nb, w)
+    }
+    directed.push(row)
+  }
+
+  // fuzzy union conn = d + dᵀ - d ∘ dᵀ, deduplicated undirected edges by a
+  // canonical Int key (a * n + b with a < b).
+  let undirected : Map[Int, Double] = Map([], capacity=n * k)
+  for i = 0; i < n; i = i + 1 {
+    for nb in directed[i] {
+      let j = nb.0
+      if j == i {
+        continue
+      }
+      let a = if i < j { i } else { j }
+      let b = if i < j { j } else { i }
+      let key = a * n + b
+      if undirected.contains(key) {
+        continue
+      }
+      let w_ij = nb.1
+      let w_ji = match directed[j].get(i) {
+        None => 0.0
+        Some(x) => x
+      }
+      let conn = w_ij + w_ji - w_ij * w_ji
+      if conn > 0.0 {
+        undirected.set(key, conn)
+      }
     }
   }
 
-  // fuzzy union: conn = d + dᵀ - d ∘ dᵀ
-  let conn : Array[Array[Double]] = Array(capacity=0)
+  // diagonal self-weight = 1 (fuzzy union of a self-loop with itself)
+  let diag : Array[Double] = Array::make(n, 1.0)
+  let adj : Array[Array[(Int, Double)]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array(capacity=0)
-    for j = 0; j < n; j = j + 1 {
-      row.push(d[i][j] + d[j][i] - d[i][j] * d[j][i])
-    }
-    conn.push(row)
+    adj.push([])
   }
-  conn
+  for e in undirected {
+    let a = e.0 / n
+    let b = e.0 % n
+    let w = e.1
+    adj[a].push((b, w))
+    adj[b].push((a, w))
+  }
+  SparseGraph::{ n, diag, adj }
 }

@@ -13,35 +13,37 @@ pub struct ScanpyDiffmap {
 
 ///|
 pub fn scanpy_diffmap(
-  connectivities : Array[Array[Double]],
+  graph : SparseGraph,
   n_comps : Int,
 ) -> ScanpyDiffmap {
-  let n = connectivities.length()
+  let n = graph.num_vertices()
   if n == 0 {
     return ScanpyDiffmap::{ eigen_basis: [], eigen_values: [] }
   }
-  // degrees
+  // degrees (diagonal self-weight + incident edge weights)
   let deg = Array::make(n, 0.0)
   for i = 0; i < n; i = i + 1 {
-    for j = 0; j < n; j = j + 1 {
-      deg[i] = deg[i] + connectivities[i][j]
-    }
+    deg[i] = graph.degree(i)
   }
-  // symmetrized transition P_sym = D^-1/2 A D^-1/2
+  // symmetrized transition P_sym = D^-1/2 A D^-1/2 (densified for the eigensolver)
   let psym : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array(capacity=0)
-    for j = 0; j < n; j = j + 1 {
-      let di = deg[i]
-      let dj = deg[j]
-      let v = if di > 0.0 && dj > 0.0 {
-        connectivities[i][j] / (di * dj).sqrt()
-      } else {
-        0.0
-      }
-      row.push(v)
+    let row = Array::make(n, 0.0)
+    let di = deg[i]
+    if di > 0.0 {
+      row[i] = graph.diag[i] / di
     }
     psym.push(row)
+  }
+  for i = 0; i < n; i = i + 1 {
+    let di = deg[i]
+    for nb in graph.adj[i] {
+      let j = nb.0
+      let dj = deg[j]
+      if di > 0.0 && dj > 0.0 {
+        psym[i][j] = nb.1 / (di * dj).sqrt()
+      }
+    }
   }
   let (eigenvalues, eigenvectors) = linalg_jacobi(psym, n, 100 * n * n)
   let (evals, evecs) = linalg_sort_eigen(eigenvalues, eigenvectors, n)

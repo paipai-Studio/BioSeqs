@@ -12,7 +12,7 @@ test "scanpy_diffmap_two_clusters" {
     [0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
     [0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
   ]
-  let dm = @src.scanpy_diffmap(conn, 6)
+  let dm = @src.scanpy_diffmap(@src.sparse_graph_from_dense(conn), 6)
   assert_eq(dm.eigen_basis.length(), 6)
   assert_eq(dm.eigen_values.length(), 6)
   // top eigenvalue ~1 (constant)

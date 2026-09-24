@@ -12,7 +12,7 @@ test "scanpy_leiden_connected" {
     [0.0, 0.0, 0.0, 1.0, 0.0, 1.0],
     [0.0, 0.0, 0.0, 1.0, 1.0, 0.0],
   ]
-  let labels = @src.scanpy_leiden(a)
+  let labels = @src.scanpy_leiden(@src.sparse_graph_from_dense(a))
   assert_eq(labels.length(), 6)
   assert_eq((labels[0], labels[1], labels[2]), (labels[0], labels[0], labels[0]))
   assert_eq((labels[3], labels[4], labels[5]), (labels[3], labels[3], labels[3]))
@@ -29,7 +29,7 @@ test "scanpy_dpt" {
     [0.0, 0.0, 1.0, 1.0, 1.0],
     [0.0, 0.0, 0.0, 1.0, 1.0],
   ]
-  let dm = @src.scanpy_diffmap(conn, 5)
+  let dm = @src.scanpy_diffmap(@src.sparse_graph_from_dense(conn), 5)
   let dpt = @src.scanpy_dpt(dm, 0)
   assert_eq(dpt.length(), 5)
   assert_true(dpt[0] < 1.0e-9) // root has (near) zero pseudotime
@@ -50,7 +50,7 @@ test "scanpy_paga" {
     [0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
   ]
   let labels = [0, 0, 0, 1, 1, 1]
-  let paga = @src.scanpy_paga(conn, labels)
+  let paga = @src.scanpy_paga(@src.sparse_graph_from_dense(conn), labels)
   assert_eq(paga.length(), 2)
   assert_eq(paga[0].length(), 2)
   // diagonal stays 0, off-diagonal is the (low) cross-cluster connectivity

@@ -375,7 +375,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **scanpy PCA** | scanpy (Python) | scanpy `pp.pca`（sklearn 约定）：中心化列 + 协方差 Jacobi 特征分解 → `ScanpyPca`（细胞坐标 `coords`、基因载荷 `loadings`、`variance_ratio`） |
 | **scanpy neighbors** | scanpy (Python) | scanpy `pp.neighbors`（`method="umap"`）：欧氏距离 kNN + UMAP fuzzy simplicial set（`smooth_knn_dist` rho/sigma 二分找 perplexity、 membership strengths、fuzzy union `d+dᵀ−d∘dᵀ`）→ 对称连接矩阵 |
 | **scanpy regress_out** | scanpy (Python) | scanpy `pp.regress_out`（数值协变量）：R=[1\|cov] 最小二乘去混杂，coeff=gram⁻¹RᵀX、resid=X−R·coeff（含截距） |
-| **scanpy louvain** | scanpy (Python) | scanpy `tl.louvain`（模块度局部移动）：Blondel 增益公式 `ΔQ=(k_in(B)−k_in(A))/m − k_u(Σtot(B)−Σtot(A)+k_u)/(2m²)`，重标为稠密 0..k−1 |
+| **scanpy louvain** | scanpy (Python) | scanpy `tl.louvain`（模块度局部移动）：消费稀疏 `SparseGraph`，Blondel 增益公式 `ΔQ=(k_in(B)−k_in(A))/m − k_u(Σtot(B)−Σtot(A)+k_u)/(2m²)`，重标 0..k−1 |
 | **scanpy diffmap** | scanpy (Python) | scanpy `tl.diffmap`：对称随机游走 `D⁻½AD⁻½` 的 Jacobi 特征分解 → `ScanpyDiffmap`（`eigen_basis` 扩散坐标、`eigen_values`） |
 | **scanpy leiden** | scanpy (Python) | scanpy `tl.leiden`（连通性精化）：Louvain 局部移动 + 诱导子图拆分断开社区，保证每个社区连通 |
 | **scanpy dpt** | scanpy (Python) | scanpy `tl.dpt`（扩散伪时间）：`Σ_t λ_t/(1−λ_t)·(ψ_t(i)−ψ_t(root))²`，从根出发累加扩散距离 |

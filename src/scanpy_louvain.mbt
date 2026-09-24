@@ -1,26 +1,20 @@
 ///|
-/// scanpy `tl.louvain` — Louvain modularity-based community detection on a
-/// symmetric weighted adjacency matrix (e.g. the `pp.neighbors` connectivities).
-/// Implements the local-moving pass (one level) with the standard modularity
-/// gain of Blondel et al. (2008); the result is relabelled to dense 0..k−1.
+/// scanpy `tl.louvain` — Louvain modularity-based community detection on the
+/// sparse `pp.neighbors` graph. Implements the local-moving pass (one level)
+/// with the standard modularity gain of Blondel et al. (2008); the result is
+/// relabelled to dense 0..k−1.
 
 ///|
-pub fn scanpy_louvain(adjacency : Array[Array[Double]]) -> Array[Int] {
-  let n = adjacency.length()
+pub fn scanpy_louvain(graph : SparseGraph) -> Array[Int] {
+  let n = graph.n
   if n == 0 {
     return []
   }
-  // adjacency with zeroed diagonal (no self-loops for modularity)
-  let a : Array[Array[Double]] = Array(capacity=0)
-  for i = 0; i < n; i = i + 1 {
-    let row = adjacency[i].copy()
-    row[i] = 0.0
-    a.push(row)
-  }
+  // weighted degrees (no self-loops: `adj` stores only off-diagonal edges)
   let deg = Array::make(n, 0.0)
   for i = 0; i < n; i = i + 1 {
-    for j = 0; j < n; j = j + 1 {
-      deg[i] = deg[i] + a[i][j]
+    for nb in graph.adj[i] {
+      deg[i] = deg[i] + nb.1
     }
   }
   let mut m = 0.0
@@ -29,8 +23,7 @@ pub fn scanpy_louvain(adjacency : Array[Array[Double]]) -> Array[Int] {
   }
   m = m / 2.0
   if m <= 0.0 {
-    let out = Array::make(n, 0)
-    return out
+    return Array::make(n, 0)
   }
 
   let comm = Array::make(n, 0)
@@ -51,13 +44,11 @@ pub fn scanpy_louvain(adjacency : Array[Array[Double]]) -> Array[Int] {
       let cu = comm[u]
       // k_u,in per neighbour community
       let kin : Map[Int, Double] = Map([], capacity=16)
-      for v = 0; v < n; v = v + 1 {
-        if v != u && a[u][v] > 0.0 {
-          let cv = comm[v]
-          match kin.get(cv) {
-            None => kin.set(cv, a[u][v])
-            Some(x) => kin.set(cv, x + a[u][v])
-          }
+      for nb in graph.adj[u] {
+        let cv = comm[nb.0]
+        match kin.get(cv) {
+          None => kin.set(cv, nb.1)
+          Some(x) => kin.set(cv, x + nb.1)
         }
       }
       let kin_a = match kin.get(cu) {
@@ -70,19 +61,20 @@ pub fn scanpy_louvain(adjacency : Array[Array[Double]]) -> Array[Int] {
       }
       let mut best_gain = 0.0
       let mut best_c = cu
-      for (c, kin_c) in kin {
-        if c == cu {
+      for c in kin {
+        let key = c.0
+        if key == cu {
           continue
         }
-        let stot_c = match stot.get(c) {
+        let stot_c = match stot.get(key) {
           None => 0.0
           Some(x) => x
         }
-        let gain = (kin_c - kin_a) / m -
+        let gain = (c.1 - kin_a) / m -
           k_u * (stot_c - stot_cu + k_u) / (2.0 * m * m)
         if gain > best_gain {
           best_gain = gain
-          best_c = c
+          best_c = key
         }
       }
       // leave current community and become a singleton
@@ -94,7 +86,6 @@ pub fn scanpy_louvain(adjacency : Array[Array[Double]]) -> Array[Int] {
       }
 
       if best_c != cu {
-        // remove u from cu
         stot.set(cu, stot_cu - k_u)
         let target = if best_c == -1 {
           let t = next_id
@@ -131,13 +122,14 @@ pub fn scanpy_louvain(adjacency : Array[Array[Double]]) -> Array[Int] {
   }
   out
 }
+
 ///|
 /// Leiden-style connectivity refinement: run Louvain local moving, then split
 /// any disconnected community (in the induced subgraph) into its connected
 /// components, guaranteeing every returned community is connected.
-pub fn scanpy_leiden(adjacency : Array[Array[Double]]) -> Array[Int] {
-  let n = adjacency.length()
-  let base = scanpy_louvain(adjacency)
+pub fn scanpy_leiden(graph : SparseGraph) -> Array[Int] {
+  let n = graph.n
+  let base = scanpy_louvain(graph)
   let out = Array::make(n, 0)
   let visited = Array::make(n, false)
   let mut next_label = 0
@@ -154,8 +146,9 @@ pub fn scanpy_leiden(adjacency : Array[Array[Double]]) -> Array[Int] {
       let u = frontier[head]
       head = head + 1
       out[u] = next_label
-      for v = 0; v < n; v = v + 1 {
-        if !(visited[v]) && base[v] == comm && adjacency[u][v] > 0.0 {
+      for nb in graph.adj[u] {
+        let v = nb.0
+        if !(visited[v]) && base[v] == comm {
           visited[v] = true
           frontier.push(v)
         }

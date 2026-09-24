@@ -24,10 +24,10 @@ fn scanpy_umap_clip(x : Double) -> Double {
 /// Uniform Manifold Approximation and Projection (2D). `connectivities` is the
 /// symmetric fuzzy graph from `scanpy_neighbors`; returns an `n × 2` embedding.
 pub fn scanpy_umap(
-  connectivities : Array[Array[Double]],
+  graph : SparseGraph,
   n_epochs : Int,
 ) -> Array[Array[Double]] {
-  let n = connectivities.length()
+  let n = graph.num_vertices()
   if n < 3 {
     // too few points to embed meaningfully: return a trivial layout
     let out : Array[Array[Double]] = Array(capacity=0)
@@ -42,19 +42,18 @@ pub fn scanpy_umap(
   let tail : Array[Int] = Array(capacity=0)
   let weights : Array[Double] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    for j = i + 1; j < n; j = j + 1 {
-      let w = connectivities[i][j]
-      if w > 0.0 {
+    for nb in graph.adj[i] {
+      if nb.0 > i {
         head.push(i)
-        tail.push(j)
-        weights.push(w)
+        tail.push(nb.0)
+        weights.push(nb.1)
       }
     }
   }
   let n_edges = head.length()
 
   // spectral init: eigenvectors 1 and 2 of the diffmap (skip the constant 0)
-  let dm = scanpy_diffmap(connectivities, 3)
+  let dm = scanpy_diffmap(graph, 3)
   let embedding : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
     embedding.push([

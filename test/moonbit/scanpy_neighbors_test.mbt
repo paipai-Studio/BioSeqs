@@ -12,7 +12,8 @@ test "scanpy_neighbors" {
     [5.0, 5.1],
     [5.0, 5.2],
   ]
-  let conn = @src.scanpy_neighbors(x, 3)
+  let g = @src.scanpy_neighbors(x, 3)
+  let conn = g.to_dense()
   assert_eq(conn.length(), 6)
   assert_eq(conn[0].length(), 6)
 

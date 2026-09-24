@@ -4,10 +4,10 @@
 
 ///|
 pub fn scanpy_paga(
-  connectivities : Array[Array[Double]],
+  graph : SparseGraph,
   labels : Array[Int],
 ) -> Array[Array[Double]] {
-  let n = connectivities.length()
+  let n = graph.num_vertices()
   if n == 0 {
     return []
   }
@@ -27,9 +27,7 @@ pub fn scanpy_paga(
   // degree + incident weight per cluster
   let deg = Array::make(n, 0.0)
   for u = 0; u < n; u = u + 1 {
-    for v = 0; v < n; v = v + 1 {
-      deg[u] = deg[u] + connectivities[u][v]
-    }
+    deg[u] = graph.degree(u)
   }
   let es = Array::make(n_clusters, 0.0)
   for u = 0; u < n; u = u + 1 {
@@ -42,8 +40,8 @@ pub fn scanpy_paga(
     inter.push(Array::make(n_clusters, 0.0))
   }
   for u = 0; u < n; u = u + 1 {
-    for v = 0; v < n; v = v + 1 {
-      inter[labels[u]][labels[v]] = inter[labels[u]][labels[v]] + connectivities[u][v]
+    for nb in graph.adj[u] {
+      inter[labels[u]][labels[nb.0]] = inter[labels[u]][labels[nb.0]] + nb.1
     }
   }
 

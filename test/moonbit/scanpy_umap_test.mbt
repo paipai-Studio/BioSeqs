@@ -12,7 +12,7 @@ test "scanpy_umap_separates_clusters" {
     [0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
     [0.0, 0.0, 0.0, 1.0, 1.0, 1.0],
   ]
-  let emb = @src.scanpy_umap(conn, 200)
+  let emb = @src.scanpy_umap(@src.sparse_graph_from_dense(conn), 200)
   assert_eq(emb.length(), 6)
   assert_eq(emb[0].length(), 2)
   // cluster centroid distance should be much larger than within-cluster spread
