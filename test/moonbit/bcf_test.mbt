@@ -151,3 +151,69 @@ test "parse_bcf_bad_magic" {
   }
   assert_true(r)
 }
+///|
+fn bcf_val_eq(a : @src.BcfValue, b : @src.BcfValue) -> Bool {
+  match (a, b) {
+    (@src.BcfFlag, @src.BcfFlag) => true
+    (@src.BcfInt(x), @src.BcfInt(y)) => x == y
+    (@src.BcfFloat(x), @src.BcfFloat(y)) => assert_close(x, y, 1.0e-6)
+    (@src.BcfStr(x), @src.BcfStr(y)) => x == y
+    _ => false
+  }
+}
+
+///|
+test "bcf_roundtrip" {
+  let f = @src.parse_bcf(bcf_fixture()) catch {
+    _ => abort("BCF should parse")
+  }
+  let bytes = f.to_bcf_bytes()
+  let g = @src.parse_bcf(bytes) catch {
+    _ => abort("round-tripped BCF should parse")
+  }
+
+  assert_eq(g.header.text, f.header.text)
+  assert_eq(g.header.contig_names, f.header.contig_names)
+  assert_eq(g.header.id_names, f.header.id_names)
+  assert_eq(g.header.filter_ids, f.header.filter_ids)
+  assert_eq(g.header.info_ids, f.header.info_ids)
+  assert_eq(g.header.format_ids, f.header.format_ids)
+  assert_eq(g.header.sample_names, f.header.sample_names)
+  assert_eq(g.records.length(), f.records.length())
+
+  for i = 0; i < f.records.length(); i = i + 1 {
+    let a = f.records[i]
+    let b = g.records[i]
+    assert_eq(a.rid, b.rid)
+    assert_eq(a.pos, b.pos)
+    assert_eq(a.rlen, b.rlen)
+    assert_eq(a.id, b.id)
+    assert_eq(a.ref_seq, b.ref_seq)
+    assert_eq(a.alt, b.alt)
+    assert_eq(a.filter_ids, b.filter_ids)
+    assert_eq(a.n_sample, b.n_sample)
+    assert_eq(a.n_fmt, b.n_fmt)
+    match (a.qual, b.qual) {
+      (None, None) => ()
+      (Some(qa), Some(qb)) => assert_true(assert_close(qa, qb, 1.0e-5))
+      _ => assert_true(false)
+    }
+    assert_eq(a.info.length(), b.info.length())
+    for j = 0; j < a.info.length(); j = j + 1 {
+      assert_eq(a.info[j].key_id, b.info[j].key_id)
+      assert_eq(a.info[j].values.length(), b.info[j].values.length())
+      for k = 0; k < a.info[j].values.length(); k = k + 1 {
+        assert_true(bcf_val_eq(a.info[j].values[k], b.info[j].values[k]))
+      }
+    }
+    assert_eq(a.formats.length(), b.formats.length())
+    for j = 0; j < a.formats.length(); j = j + 1 {
+      assert_eq(a.formats[j].key_id, b.formats[j].key_id)
+      assert_eq(a.formats[j].values_per_sample, b.formats[j].values_per_sample)
+      assert_eq(a.formats[j].values.length(), b.formats[j].values.length())
+      for k = 0; k < a.formats[j].values.length(); k = k + 1 {
+        assert_true(bcf_val_eq(a.formats[j].values[k], b.formats[j].values[k]))
+      }
+    }
+  }
+}
