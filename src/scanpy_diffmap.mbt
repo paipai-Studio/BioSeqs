@@ -25,30 +25,26 @@ pub fn scanpy_diffmap(
   for i = 0; i < n; i = i + 1 {
     deg[i] = graph.degree(i)
   }
-  // symmetrized transition P_sym = D^-1/2 A D^-1/2 (densified for the eigensolver)
-  let psym : Array[Array[Double]] = Array(capacity=0)
-  for i = 0; i < n; i = i + 1 {
-    let row = Array::make(n, 0.0)
-    let di = deg[i]
-    if di > 0.0 {
-      row[i] = graph.diag[i] / di
-    }
-    psym.push(row)
-  }
-  for i = 0; i < n; i = i + 1 {
-    let di = deg[i]
-    for nb in graph.adj[i] {
-      let j = nb.0
-      let dj = deg[j]
-      if di > 0.0 && dj > 0.0 {
-        psym[i][j] = nb.1 / (di * dj).sqrt()
+  // 稀疏 P_sym = D^-1/2 A D^-1/2 的矩阵向量乘（不物化 n×n 矩阵）
+  let mat_vec = fn(v : Array[Double]) -> Array[Double] {
+    let out = Array::make(n, 0.0)
+    for i = 0; i < n; i = i + 1 {
+      let di = deg[i]
+      let mut acc = if di > 0.0 { graph.diag[i] / di * v[i] } else { 0.0 }
+      for nb in graph.adj[i] {
+        let j = nb.0
+        let dj = deg[j]
+        if di > 0.0 && dj > 0.0 {
+          acc = acc + nb.1 / (di * dj).sqrt() * v[j]
+        }
       }
+      out[i] = acc
     }
+    out
   }
-  let (eigenvalues, eigenvectors) = linalg_jacobi(psym, n, 100 * n * n)
-  let (evals, evecs) = linalg_sort_eigen(eigenvalues, eigenvectors, n)
 
   let nc = if n_comps < n { n_comps } else { n }
+  let (evals, evecs) = linalg_lanczos_topk(mat_vec, n, nc)
   let basis : Array[Array[Double]] = Array(capacity=0)
   let vals : Array[Double] = Array(capacity=0)
   for t = 0; t < nc; t = t + 1 {
