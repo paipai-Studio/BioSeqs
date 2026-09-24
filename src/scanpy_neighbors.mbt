@@ -5,26 +5,6 @@
 /// instead of a dense `n × n` matrix.
 
 ///|
-/// Pairwise Euclidean distance matrix (n × n).
-fn scanpy_euclidean_distances(x : Array[Array[Double]]) -> Array[Array[Double]] {
-  let n = x.length()
-  let out : Array[Array[Double]] = Array(capacity=0)
-  for i = 0; i < n; i = i + 1 {
-    let row : Array[Double] = Array(capacity=0)
-    for j = 0; j < n; j = j + 1 {
-      let mut acc = 0.0
-      for d = 0; d < x[i].length(); d = d + 1 {
-        let diff = x[i][d] - x[j][d]
-        acc = acc + diff * diff
-      }
-      row.push(acc.sqrt())
-    }
-    out.push(row)
-  }
-  out
-}
-
-///|
 /// Arg-sort a distance row ascending (indices, not values).
 fn scanpy_argsort(dist_row : Array[Double]) -> Array[Int] {
   let n = dist_row.length()
@@ -49,21 +29,31 @@ fn scanpy_argsort(dist_row : Array[Double]) -> Array[Int] {
 
 ///|
 /// kNN indices and distances (each row sorted ascending; index 0 is self at
-/// distance 0).
-fn scanpy_knn(
-  dist : Array[Array[Double]],
+/// distance 0). Computed row-by-row so no `n × n` distance matrix is ever
+/// materialized: peak transient memory is `O(n)` per row instead of `O(n²)`.
+fn scanpy_knn_distances(
+  x : Array[Array[Double]],
   k : Int,
 ) -> (Array[Array[Int]], Array[Array[Double]]) {
-  let n = dist.length()
-  let idx : Array[Array[Int]] = Array(capacity=0)
-  let d : Array[Array[Double]] = Array(capacity=0)
+  let n = x.length()
+  let idx : Array[Array[Int]] = Array(capacity=n)
+  let d : Array[Array[Double]] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
-    let sorted = scanpy_argsort(dist[i])
-    let idx_row : Array[Int] = Array(capacity=0)
-    let d_row : Array[Double] = Array(capacity=0)
+    let row : Array[Double] = Array(capacity=n)
+    for j = 0; j < n; j = j + 1 {
+      let mut acc = 0.0
+      for dim = 0; dim < x[i].length(); dim = dim + 1 {
+        let diff = x[i][dim] - x[j][dim]
+        acc = acc + diff * diff
+      }
+      row.push(acc.sqrt())
+    }
+    let sorted = scanpy_argsort(row)
+    let idx_row : Array[Int] = Array(capacity=k)
+    let d_row : Array[Double] = Array(capacity=k)
     for t = 0; t < k; t = t + 1 {
       idx_row.push(sorted[t])
-      d_row.push(dist[i][sorted[t]])
+      d_row.push(row[sorted[t]])
     }
     idx.push(idx_row)
     d.push(d_row)
@@ -122,8 +112,7 @@ pub fn scanpy_neighbors(x : Array[Array[Double]], n_neighbors : Int) -> SparseGr
     return SparseGraph::{ n: 0, diag: [], adj: [] }
   }
   let k = if n_neighbors < n { n_neighbors } else { n }
-  let dist = scanpy_euclidean_distances(x)
-  let (knn_idx, knn_dists) = scanpy_knn(dist, k)
+  let (knn_idx, knn_dists) = scanpy_knn_distances(x, k)
   let (rhos, sigmas) = scanpy_smooth_knn_dist(knn_dists, k)
 
   // directed membership strengths d (self = 1), stored per-vertex as Map[j -> w]
