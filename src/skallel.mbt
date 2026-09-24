@@ -206,10 +206,19 @@ pub fn skallel_pca(gn : Array[Array[Int]], n_components : Int) -> SkallelPca {
     gram.push(row)
   }
 
-  let (eigenvalues, eigenvectors) = linalg_jacobi(gram, n_samples, 100 * n_samples * n_samples)
-  let (evals, evecs) = linalg_sort_eigen(eigenvalues, eigenvectors, n_samples)
-
   let nc = if n_components < n_samples { n_components } else { n_samples }
+  let mat_vec = fn(v : Array[Double]) -> Array[Double] {
+    let out = Array::make(n_samples, 0.0)
+    for i = 0; i < n_samples; i = i + 1 {
+      let mut s = 0.0
+      for j = 0; j < n_samples; j = j + 1 {
+        s = s + gram[i][j] * v[j]
+      }
+      out[i] = s
+    }
+    out
+  }
+  let (evals, evecs) = linalg_lanczos_topk(mat_vec, n_samples, nc)
   let coords : Array[Array[Double]] = Array(capacity=0)
   let mut var_sum = 0.0
   for c = 0; c < nc; c = c + 1 {

@@ -46,10 +46,19 @@ pub fn scanpy_pca(x : Array[Array[Double]], n_comps : Int) -> ScanpyPca {
     cov.push(row)
   }
 
-  let (eigenvalues, eigenvectors) = linalg_jacobi(cov, n_vars, 100 * n_vars * n_vars)
-  let (evals, evecs) = linalg_sort_eigen(eigenvalues, eigenvectors, n_vars)
-
   let nc = if n_comps < n_vars { n_comps } else { n_vars }
+  let mat_vec = fn(v : Array[Double]) -> Array[Double] {
+    let out = Array::make(n_vars, 0.0)
+    for j = 0; j < n_vars; j = j + 1 {
+      let mut s = 0.0
+      for k = 0; k < n_vars; k = k + 1 {
+        s = s + cov[j][k] * v[k]
+      }
+      out[j] = s
+    }
+    out
+  }
+  let (evals, evecs) = linalg_lanczos_topk(mat_vec, n_vars, nc)
 
   let mut var_sum = 0.0
   for c = 0; c < nc; c = c + 1 {

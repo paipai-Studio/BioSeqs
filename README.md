@@ -372,11 +372,11 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **scanpy 差异表达** | scanpy (Python) | scanpy `tools` 核心（第一批）：`scanpy_rank_genes_groups`（Welch t-test 差异表达——每基因比 `ref` vs `target` 两组，返回 t 统计量/p 值/两组均值/log2 倍率，p 值经 `stat_pvalue_t` 正态近似） |
 | **scanpy IO** | scanpy (Python) | scanpy `read_10x_mtx`：Matrix Market 坐标解析 + features/barcodes → `AnnData`（转置、var_names、make_unique、gex_only）；**自动 gunzip** 处理 `.gz` 输入 |
 | **gzip** | RFC 1952 | `gzip_decompress` / `gunzip_if_needed`：标准 gzip 解压（复用 bgzf 的 DEFLATE 解码器） |
-| **scanpy PCA** | scanpy (Python) | scanpy `pp.pca`（sklearn 约定）：中心化列 + 协方差 Jacobi 特征分解 → `ScanpyPca`（细胞坐标 `coords`、基因载荷 `loadings`、`variance_ratio`） |
+| **scanpy PCA** | scanpy (Python) | scanpy `pp.pca`（sklearn 约定）：中心化列 + 协方差 Lanczos top-k 特征分解 → `ScanpyPca`（细胞坐标 `coords`、基因载荷 `loadings`、`variance_ratio`） |
 | **scanpy neighbors** | scanpy (Python) | scanpy `pp.neighbors`（`method="umap"`）：欧氏距离 kNN + UMAP fuzzy simplicial set（`smooth_knn_dist` rho/sigma 二分找 perplexity、 membership strengths、fuzzy union `d+dᵀ−d∘dᵀ`）→ 对称连接矩阵 |
 | **scanpy regress_out** | scanpy (Python) | scanpy `pp.regress_out`（数值协变量）：R=[1\|cov] 最小二乘去混杂，coeff=gram⁻¹RᵀX、resid=X−R·coeff（含截距） |
 | **scanpy louvain** | scanpy (Python) | scanpy `tl.louvain`（模块度局部移动）：消费稀疏 `SparseGraph`，Blondel 增益公式 `ΔQ=(k_in(B)−k_in(A))/m − k_u(Σtot(B)−Σtot(A)+k_u)/(2m²)`，重标 0..k−1 |
-| **scanpy diffmap** | scanpy (Python) | scanpy `tl.diffmap`：对称随机游走 `D⁻½AD⁻½` 的 Jacobi 特征分解 → `ScanpyDiffmap`（`eigen_basis` 扩散坐标、`eigen_values`） |
+| **scanpy diffmap** | scanpy (Python) | scanpy `tl.diffmap`：对称随机游走 `D⁻½AD⁻½` 的稀疏 Lanczos top-k 特征分解 → `ScanpyDiffmap`（`eigen_basis` 扩散坐标、`eigen_values`） |
 | **scanpy leiden** | scanpy (Python) | scanpy `tl.leiden`（连通性精化）：Louvain 局部移动 + 诱导子图拆分断开社区，保证每个社区连通 |
 | **scanpy dpt** | scanpy (Python) | scanpy `tl.dpt`（扩散伪时间）：`Σ_t λ_t/(1−λ_t)·(ψ_t(i)−ψ_t(root))²`，从根出发累加扩散距离 |
 | **scanpy paga** | scanpy (Python) | scanpy `tl.paga`：簇间连通度按随机图零模型归一（`v/((es_i·n_j+es_j·n_i)/(n−1))`，clamp [0,1]） |
@@ -641,7 +641,7 @@ BioSeqs 是一个基于 **MoonBit** 语言开发的生物信息学工具库，�
 | **Weir-Cockerham Fst** | `skallel_weir_cockerham_fst` / `_variant` / `_block` | Weir & Cockerham (1984) 方差分量分解（a/b/c），Fst=Σa/(Σa+Σb+Σc)，逐变异逐等位 + 区块估计 |
 | **π / Dxy** | `skallel_mean_pairwise_difference` / `_between` | 群体内平均成对差异（π）与群体间（Dxy），任意等位基因数 |
 | **LD (Rogers–Huff r)** | `skallel_rogers_huff_r` | 基因型剂量矩阵成对 Pearson 相关系数（压缩上三角），缺失成对排除 |
-| **PCA (Patterson)** | `skallel_pca` | 双等位基因剂量 Patterson 标定 → gram 矩阵 → Jacobi 特征分解，输出样本坐标 + 方差解释率 |
+| **PCA (Patterson)** | `skallel_pca` | 双等位基因剂量 Patterson 标定 → gram 矩阵 → Lanczos top-k 特征分解，输出样本坐标 + 方差解释率 |
 | **Patterson F2/F3/D** | `skallel_patterson_f2` / `_f3` / `_d` / `_d_average`、`skallel_h_hat` | Patterson (2012) 无偏估计：ĥ 杂合度、F2 枝长、F3 混合检验（T/B）、四群体 D（ABBA-BABA），逐变异 + 平均 |
 | **Patterson Fst** | `skallel_patterson_fst` | Patterson (2012) Fst：`num=F2(A,B)`、`den=num+ĥ(A)+ĥ(B)`，Fst=Σnum/Σden |
 | **位点频谱 SFS** | `skallel_sfs` / `_folded` / `_scaled` / `_folded_scaled` | 展开谱（派生等位基因计数 bincount）、折叠谱（次要等位频率）、缩放谱（k 或 k(n−k)/n 加权） |
