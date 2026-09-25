@@ -1116,7 +1116,7 @@ pub fn parse_cram(data : String) -> CramFile raise CramError {
     }
     let (record, _) = cram_parse_record(data, pos_new)
     records.push(record)
-    current_pos = pos_new + record_size + 4
+    current_pos = pos_new + record_size
   }
 
   CramFile::{ header, records, }
@@ -1285,57 +1285,144 @@ pub fn CramRecord::get_reference_name(
 ///|
 /// Sample CRAM content for testing.
 pub fn sample_cram_content() -> String {
-  let magic = "CRAM"
-  let version = "\u{0002}\u{0000}\u{0000}\u{0000}"
-  let ref_count = "\u{0001}\u{0000}\u{0000}\u{0000}"
-  let compression = "\u{0000}\u{0000}\u{0000}\u{0000}"
-  let stream_count = "\u{0000}\u{0000}\u{0000}\u{0000}"
-  let ref_name = "chr1\u{0000}"
-  let ref_length = "\u{0064}\u{0000}\u{0000}\u{0000}"
-  let ref_md5 = "\u{0000}"
-  let ref_uri = "\u{0000}"
-  let sam_header_len = "\u{0014}\u{0000}\u{0000}\u{0000}"
-  let sam_header = "@SQ SN:chr1 LN:100\u{0000}"
-  let header = magic +
-    version +
-    ref_count +
-    compression +
-    stream_count +
-    ref_name +
-    ref_length +
-    ref_md5 +
-    ref_uri +
-    sam_header_len +
-    sam_header
-  let ref_id = "\u{0000}\u{0000}\u{0000}\u{0000}"
-  let pos = "\u{0001}\u{0000}\u{0000}\u{0000}"
-  let read_group = "\u{0000}\u{0000}\u{0000}\u{0000}"
-  let flags = "\u{0000}\u{0000}\u{0000}\u{0000}"
-  let mapq = "\u{003c}"
-  let name_len = "\u{0005}\u{0000}\u{0000}\u{0000}"
-  let read_name = "read1\u{0000}"
-  let cigar_len = "\u{0001}\u{0000}\u{0000}\u{0000}"
-  let cigar_val = "\u{0008}\u{0000}\u{0000}\u{0000}"
-  let seq_len = "\u{0008}\u{0000}\u{0000}\u{0000}"
-  let sequence = "ATGCATGC"
-  let qual_len = "\u{0008}\u{0000}\u{0000}\u{0000}"
-  let quality = "!!!!!!!!"
-  let tags_len = "\u{0000}\u{0000}\u{0000}\u{0000}"
-  let record = ref_id +
-    pos +
-    read_group +
-    flags +
-    mapq +
-    name_len +
-    read_name +
-    cigar_len +
-    cigar_val +
-    seq_len +
-    sequence +
-    qual_len +
-    quality +
-    tags_len
-  header + record
+  // Build CRAM binary programmatically (avoids manual escape-sequence errors).
+  let buf : Array[Int] = []
+  // Magic "CRAM"
+  buf.push(67)
+  buf.push(82)
+  buf.push(65)
+  buf.push(77)
+  // Version: major=2 (uint32_le) + minor=0 (uint32_le)
+  buf.push(2)
+  buf.push(0)
+  buf.push(0)
+  buf.push(0)
+  buf.push(0)
+  buf.push(0)
+  buf.push(0)
+  buf.push(0)
+  // ref_count=1
+  buf.push(1)
+  buf.push(0)
+  buf.push(0)
+  buf.push(0)
+  // compression=0 (None)
+  buf.push(0)
+  buf.push(0)
+  buf.push(0)
+  buf.push(0)
+  // stream_count=0
+  buf.push(0)
+  buf.push(0)
+  buf.push(0)
+  buf.push(0)
+  // ref: name="chr1" (cstring), length=100, md5="" (cstring), uri="" (cstring)
+  buf.push(99)   // c
+  buf.push(104)  // h
+  buf.push(114)  // r
+  buf.push(49)   // 1
+  buf.push(0)    // null
+  // ref_length=100 = 0x64
+  buf.push(100)
+  buf.push(0)
+  buf.push(0)
+  buf.push(0)
+  // md5="" (empty cstring)
+  buf.push(0)
+  // uri="" (empty cstring)
+  buf.push(0)
+  // sam_header = "@SQ\tSN:chr1\tLN:100" (18 bytes)
+  let hdr = "@SQ\tSN:chr1\tLN:100"
+  buf.push(hdr.length())
+  buf.push(0)
+  buf.push(0)
+  buf.push(0)
+  for i = 0; i < hdr.length(); i = i + 1 {
+    buf.push(hdr.unsafe_get(i).to_int() & 0xFF)
+  }
+  // Record body (built separately to know its size)
+  let body : Array[Int] = []
+  // ref_id=0 (int32_le)
+  body.push(0)
+  body.push(0)
+  body.push(0)
+  body.push(0)
+  // pos=1 (int32_le)
+  body.push(1)
+  body.push(0)
+  body.push(0)
+  body.push(0)
+  // read_group=0
+  body.push(0)
+  body.push(0)
+  body.push(0)
+  body.push(0)
+  // flags=0
+  body.push(0)
+  body.push(0)
+  body.push(0)
+  body.push(0)
+  // mapq=60 (int8)
+  body.push(60)
+  // read_name: len=5 + "read1"
+  body.push(5)
+  body.push(0)
+  body.push(0)
+  body.push(0)
+  body.push(114)  // r
+  body.push(101)  // e
+  body.push(97)   // a
+  body.push(100)  // d
+  body.push(49)   // 1
+  // cigar: count=1, val=100M = (100<<4)|0 = 1600 = 0x640
+  body.push(1)
+  body.push(0)
+  body.push(0)
+  body.push(0)
+  body.push(0x40)
+  body.push(0x06)
+  body.push(0)
+  body.push(0)
+  // seq: len=8, "ATGCATGC"
+  body.push(8)
+  body.push(0)
+  body.push(0)
+  body.push(0)
+  body.push(65)   // A
+  body.push(84)   // T
+  body.push(71)   // G
+  body.push(67)   // C
+  body.push(65)   // A
+  body.push(84)   // T
+  body.push(71)   // G
+  body.push(67)   // C
+  // qual: len=8, "!!!!!!!!"
+  body.push(8)
+  body.push(0)
+  body.push(0)
+  body.push(0)
+  for _ in 0..<8 {
+    body.push(33)  // !
+  }
+  // tags: count=0
+  body.push(0)
+  body.push(0)
+  body.push(0)
+  body.push(0)
+  // Record size prefix + body
+  buf.push(body.length())
+  buf.push(0)
+  buf.push(0)
+  buf.push(0)
+  for i = 0; i < body.length(); i = i + 1 {
+    buf.push(body[i])
+  }
+  // Convert to String
+  let sb = StringBuilder()
+  for i = 0; i < buf.length(); i = i + 1 {
+    sb.write_char(buf[i].to_uint16().unsafe_to_char())
+  }
+  sb.to_string()
 }
 
 ///|
