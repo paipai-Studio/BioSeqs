@@ -194,7 +194,7 @@ pub fn distance_correlation(a : Array[Double], b : Array[Double]) -> Double {
 ///|
 pub fn pheatmap_distance_matrix(
   data : Array[Array[Double]],
-  method : DistanceMethod,
+  method_ : DistanceMethod,
 ) -> Array[Array[Double]] {
   let n = data.length()
   let dist : Array[Array[Double]] = Array(capacity=0)
@@ -210,7 +210,7 @@ pub fn pheatmap_distance_matrix(
       if i == j {
         dist[i][j] = 0.0
       } else if i < j {
-        let d = match method {
+        let d = match method_ {
           DistanceMethod::Euclidean => distance_euclidean(data[i], data[j])
           DistanceMethod::Manhattan => distance_manhattan(data[i], data[j])
           DistanceMethod::Maximum => distance_maximum(data[i], data[j])
@@ -229,7 +229,7 @@ pub fn pheatmap_distance_matrix(
 ///|
 pub fn pheatmap_column_distance_matrix(
   data : Array[Array[Double]],
-  method : DistanceMethod,
+  method_ : DistanceMethod,
 ) -> Array[Array[Double]] {
   let n = data.length()
   if n == 0 {
@@ -251,7 +251,7 @@ pub fn pheatmap_column_distance_matrix(
     }
     j = j + 1
   }
-  pheatmap_distance_matrix(col_data, method)
+  pheatmap_distance_matrix(col_data, method_)
 }
 
 ///|

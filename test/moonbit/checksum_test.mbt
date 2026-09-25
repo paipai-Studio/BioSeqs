@@ -2,7 +2,7 @@
 test "checksum_gcg_basic" {
   let seq = "ACDEFGHIKLMNPQRSTVWY"
   let result = @src.checksum_gcg(seq)
-  assert_eq(result.method, "gcg")
+  assert_eq(result.method_, "gcg")
   assert_true(result.checksum.length() == 4)
 }
 
@@ -10,7 +10,7 @@ test "checksum_gcg_basic" {
 test "checksum_gcg_simple" {
   let seq = "ABC"
   let result = @src.checksum_gcg(seq)
-  assert_eq(result.method, "gcg")
+  assert_eq(result.method_, "gcg")
   assert_true(result.checksum.length() == 4)
 }
 
@@ -18,7 +18,7 @@ test "checksum_gcg_simple" {
 test "checksum_seguid_basic" {
   let seq = "ACGT"
   let result = @src.checksum_seguid(seq)
-  assert_eq(result.method, "seguid")
+  assert_eq(result.method_, "seguid")
   assert_true(result.checksum.length() > 0)
 }
 
@@ -26,7 +26,7 @@ test "checksum_seguid_basic" {
 test "checksum_seguid_dna" {
   let seq = "AGCTTTTCATTCTGACTGCAACGGGCAATATGTCTCTGTGTGGATTAAAAAAAGAGTGTCTGATAGCAGC"
   let result = @src.checksum_seguid(seq)
-  assert_eq(result.method, "seguid")
+  assert_eq(result.method_, "seguid")
   assert_true(result.checksum.length() > 0)
 }
 

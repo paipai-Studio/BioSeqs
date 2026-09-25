@@ -271,8 +271,8 @@ fn holm_stepdown(
 
 ///|
 /// Compute the adjustment multiplier vector for a given method.
-fn get_adjustment_vector(method : StageRMethod, n : Int) -> Array[Double] {
-  if method is None {
+fn get_adjustment_vector(method_ : StageRMethod, n : Int) -> Array[Double] {
+  if method_ is None {
     let adj : Array[Double] = []
     let mut i = 0
     while i < n {
@@ -281,7 +281,7 @@ fn get_adjustment_vector(method : StageRMethod, n : Int) -> Array[Double] {
     }
     return adj
   }
-  if method is Holm || method is Dte {
+  if method_ is Holm || method_ is Dte {
     // adjustment = [n-1, n-1, n-2, ..., 1] (but at least 1 for each)
     // Actually: c(n-1, (n-1):1) = [n-1, n-1, n-2, ..., 2, 1]
     let adj : Array[Double] = []
@@ -297,7 +297,7 @@ fn get_adjustment_vector(method : StageRMethod, n : Int) -> Array[Double] {
     }
     return adj
   }
-  if method is Dtu {
+  if method_ is Dtu {
     // DTU: screening implies >=2 hypotheses are false.
     // adjustment = c(n-2, n-2, (n-2):1) for n >= 3
     let adj : Array[Double] = []
@@ -516,8 +516,8 @@ pub fn stage_r_summary(result : StageRResult) -> String {
 }
 
 ///|
-fn stage_r_method_name(method : StageRMethod) -> String {
-  match method {
+fn stage_r_method_name(method_ : StageRMethod) -> String {
+  match method_ {
     None => "none"
     Holm => "holm"
     Dte => "dte"

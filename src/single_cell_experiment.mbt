@@ -234,7 +234,7 @@ pub struct SCEBuilder {
 ///|
 /// Result of a dimensionality reduction computation (PCA / t-SNE / UMAP).
 pub struct ReducedDimResult {
-  method : String
+  method_ : String
   coordinates : Array[Array[Double]]
   variance_explained : Array[Double]
   n_components : Int
@@ -244,7 +244,7 @@ pub struct ReducedDimResult {
 /// Result of size factor computation.
 pub struct SizeFactorResult {
   size_factors : Array[Double]
-  method : String
+  method_ : String
   log_means : Array[Double]
 }
 
@@ -561,9 +561,9 @@ pub fn sce_compute_deconv_size_factors(
 /// Compute size factors using the requested method ("library" or "deconv").
 pub fn sce_compute_size_factors(
   counts : Array[Array[Double]],
-  method : String,
+  method_ : String,
 ) -> SizeFactorResult {
-  let factors = if method == "deconv" {
+  let factors = if method_ == "deconv" {
     sce_compute_deconv_size_factors(counts)
   } else {
     sce_compute_library_size_factors(counts)
@@ -575,7 +575,7 @@ pub fn sce_compute_size_factors(
     log_means.push(if factors[i] > 0.0 { sce_ln(factors[i]) } else { 0.0 })
     i = i + 1
   }
-  SizeFactorResult::{ size_factors: factors, method, log_means, }
+  SizeFactorResult::{ size_factors: factors, method_, log_means, }
 }
 
 ///|
@@ -698,7 +698,7 @@ pub fn sce_compute_pca(
   let n_cells = if n_genes > 0 { logcounts[0].length() } else { 0 }
   if n_cells == 0 || n_genes == 0 {
     return ReducedDimResult::{
-      method: "PCA",
+      method_: "PCA",
       coordinates: [],
       variance_explained: [],
       n_components: 0,
@@ -784,7 +784,7 @@ pub fn sce_compute_pca(
     y = y + 1
   }
   ReducedDimResult::{
-    method: "PCA",
+    method_: "PCA",
     coordinates: projected,
     variance_explained,
     n_components,
@@ -833,7 +833,7 @@ pub fn sce_compute_tsne(
   let n_components = 2
   if n_cells == 0 || n_genes == 0 {
     return ReducedDimResult::{
-      method: "tSNE",
+      method_: "tSNE",
       coordinates: [],
       variance_explained: [],
       n_components: 0,
@@ -925,7 +925,7 @@ pub fn sce_compute_tsne(
     iter = iter + 1
   }
   ReducedDimResult::{
-    method: "tSNE",
+    method_: "tSNE",
     coordinates: y,
     variance_explained: [],
     n_components,
@@ -943,7 +943,7 @@ pub fn sce_compute_umap(
   let n_cells = if n_genes > 0 { logcounts[0].length() } else { 0 }
   if n_cells == 0 || n_genes == 0 || n_components <= 0 {
     return ReducedDimResult::{
-      method: "UMAP",
+      method_: "UMAP",
       coordinates: [],
       variance_explained: [],
       n_components: 0,
@@ -1044,7 +1044,7 @@ pub fn sce_compute_umap(
     iter = iter + 1
   }
   ReducedDimResult::{
-    method: "UMAP",
+    method_: "UMAP",
     coordinates: emb,
     variance_explained: [],
     n_components,
@@ -1056,10 +1056,10 @@ pub fn sce_compute_umap(
 /// Supported methods: "library" (default) and "deconv".
 pub fn sce_normalize(
   sce : SingleCellExperiment,
-  method : String,
+  method_ : String,
 ) -> SingleCellExperiment {
   let counts = sce_get_counts(sce)
-  let sf = if method == "deconv" {
+  let sf = if method_ == "deconv" {
     sce_compute_deconv_size_factors(counts)
   } else {
     sce_compute_library_size_factors(counts)
@@ -1498,7 +1498,7 @@ pub fn SingleCellExperiment::to_string(self : SingleCellExperiment) -> String {
 pub fn ReducedDimResult::to_string(self : ReducedDimResult) -> String {
   let mut result = "ReducedDimResult\n"
   result = result + "================\n"
-  result = result + "Method: " + self.method + "\n"
+  result = result + "Method: " + self.method_ + "\n"
   result = result + "Components: " + self.n_components.to_string() + "\n"
   result = result + "Samples: " + self.coordinates.length().to_string() + "\n"
   if self.variance_explained.length() > 0 {
@@ -1521,7 +1521,7 @@ pub fn ReducedDimResult::to_string(self : ReducedDimResult) -> String {
 pub fn SizeFactorResult::to_string(self : SizeFactorResult) -> String {
   let mut result = "SizeFactorResult\n"
   result = result + "================\n"
-  result = result + "Method: " + self.method + "\n"
+  result = result + "Method: " + self.method_ + "\n"
   result = result + "Size factors: "
   let mut i = 0
   while i < self.size_factors.length() {

@@ -503,14 +503,14 @@ pub fn compute_regulon_activity(
 pub fn binarize_activity(
   auc_matrix : Array[Array[Double]],
   n_cells : Int,
-  method? : BinarizeMethod = BinarizeMethod::MeanStd,
+  method_? : BinarizeMethod = BinarizeMethod::MeanStd,
 ) -> (Array[Array[Int]], Array[Double]) {
   let n_regulons = auc_matrix.length()
   let binary : Array[Array[Int]] = []
   let thresholds : Array[Double] = []
   for r in 0..<n_regulons {
     let row = auc_matrix[r]
-    let threshold = match method {
+    let threshold = match method_ {
       BinarizeMethod::MeanStd => {
         let mut sum = 0.0
         for v in row {
@@ -718,7 +718,7 @@ pub fn run_scenic(
   let (binary_matrix, thresholds) = binarize_activity(
     auc_matrix,
     input.n_cells,
-    method=binarize_method,
+    method_=binarize_method,
   )
   let regulon_names = regulons.map(fn(r) -> String { r.tf_name })
   let (cell_states, n_clusters, masters) = assign_cell_states(

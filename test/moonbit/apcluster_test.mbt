@@ -92,12 +92,12 @@ test "apcluster_cor_sim_mat" {
   assert_true(ap_approx(sp[0][2], -1.0, 1.0e-12))
   assert_eq(sp[0][0], 1.0)
   // Spearman of monotone rows is also 1; reversed-monotone -1
-  let ss = @src.ap_cor_sim_mat(x, method="spearman")
+  let ss = @src.ap_cor_sim_mat(x, method_="spearman")
   assert_true(ap_approx(ss[0][1], 1.0, 1.0e-12))
   assert_true(ap_approx(ss[1][2], -1.0, 1.0e-12))
   // Spearman with ties: tied ranks average (R ties.method="average")
   let t = [[1.0, 2.0, 2.0, 3.0], [10.0, 20.0, 20.0, 30.0]]
-  let st = @src.ap_cor_sim_mat(t, method="spearman")
+  let st = @src.ap_cor_sim_mat(t, method_="spearman")
   assert_true(ap_approx(st[0][1], 1.0, 1.0e-12))
   // constant rows cannot be correlated (cor() would be NA)
   let c = [[1.0, 1.0, 1.0], [1.0, 2.0, 3.0]]
@@ -110,7 +110,7 @@ test "apcluster_cor_sim_mat" {
   assert_true(raised)
   // unknown correlation method
   let raised2 = try {
-    let _ = @src.ap_cor_sim_mat([[1.0, 2.0], [3.0, 4.0]], method="kendall")
+    let _ = @src.ap_cor_sim_mat([[1.0, 2.0], [3.0, 4.0]], method_="kendall")
     false
   } catch {
     ApError(_) => true

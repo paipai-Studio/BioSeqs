@@ -47,7 +47,7 @@ pub fn randomized_method() -> SVDMethod {
 ///|
 /// Options for SVD computation.
 pub struct SVDOptions {
-  method : SVDMethod
+  method_ : SVDMethod
   rank : Int
   tol : Double
   max_iter : Int
@@ -460,7 +460,7 @@ fn svd_qr_decompose_rect(
 /// Method: ExactSVD, rank: 0 (auto), tol: 1e-7, max_iter: 1000, n_oversamples: 10.
 pub fn svd_options_new() -> SVDOptions {
   SVDOptions::{
-    method: ExactSVD,
+    method_: ExactSVD,
     rank: 0,
     tol: 1.0e-7,
     max_iter: 1000,
@@ -470,10 +470,10 @@ pub fn svd_options_new() -> SVDOptions {
 
 ///|
 /// Create SVD options with specified method.
-pub fn svd_options_with_method(method : SVDMethod) -> SVDOptions {
+pub fn svd_options_with_method(method_ : SVDMethod) -> SVDOptions {
   let opts = svd_options_new()
   SVDOptions::{
-    method,
+    method_,
     rank: opts.rank,
     tol: opts.tol,
     max_iter: opts.max_iter,
@@ -488,9 +488,9 @@ pub fn svd_options_full(
   tol : Double,
   max_iter : Int,
   n_oversamples : Int,
-  method : SVDMethod,
+  method_ : SVDMethod,
 ) -> SVDOptions {
-  SVDOptions::{ method, rank, tol, max_iter, n_oversamples, }
+  SVDOptions::{ method_, rank, tol, max_iter, n_oversamples, }
 }
 
 // ============================================================================
@@ -1018,7 +1018,7 @@ pub fn run_svd(
   ncol : Int,
   options : SVDOptions,
 ) -> SVResult {
-  match options.method {
+  match options.method_ {
     ExactSVD => run_exact_svd(matrix, nrow, ncol, options.rank)
     IRLBA => run_irlba(matrix, nrow, ncol, options.rank, options)
     Randomized => run_randomized_svd(matrix, nrow, ncol, options.rank, options)

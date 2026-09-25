@@ -35,7 +35,7 @@ fn main {
 
   // Summarization
   println("=== Protein Summarization (Tukey) ===")
-  let summarized = @bio.ms_summarize(processed, method=@bio.ms_summary_tukey())
+  let summarized = @bio.ms_summarize(processed, method_=@bio.ms_summary_tukey())
   println("Protein-level results: \{summarized.length()}")
   let mut j = 0
   while j < summarized.length() {

@@ -14,14 +14,14 @@ test "knn_options_new" {
 test "knn_options_with_method" {
   let opts = @src.knn_options_with_method(@src.kmknn_method(), 5)
   assert_eq(opts.k, 5)
-  assert_true(opts.method == @src.kmknn_method())
+  assert_true(opts.method_ == @src.kmknn_method())
   assert_eq(opts.distance, "euclidean")
 }
 
 ///|
 test "knn_options_full" {
   let opts = @src.knn_options_full(@src.annoy_method(), 8, "manhattan", 30, 100)
-  assert_true(opts.method == @src.annoy_method())
+  assert_true(opts.method_ == @src.annoy_method())
   assert_eq(opts.k, 8)
   assert_eq(opts.distance, "manhattan")
   assert_eq(opts.n_trees, 30)
@@ -155,7 +155,7 @@ test "build_knn_index_kmknn" {
   ]
   let opts = @src.knn_options_full(@src.kmknn_method(), 2, "euclidean", 50, -1)
   let index = @src.build_knn_index(data, 8, 2, opts)
-  assert_true(index.method == @src.kmknn_method())
+  assert_true(index.method_ == @src.kmknn_method())
   assert_true(index.centroids.length() > 0)
 }
 
@@ -173,7 +173,7 @@ test "build_knn_index_annoy" {
   ]
   let opts = @src.knn_options_full(@src.annoy_method(), 2, "euclidean", 5, -1)
   let index = @src.build_knn_index(data, 8, 2, opts)
-  assert_true(index.method == @src.annoy_method())
+  assert_true(index.method_ == @src.annoy_method())
   assert_true(index.tree_nodes.length() > 0)
 }
 
@@ -673,7 +673,7 @@ test "knn_options_roundtrip" {
     25,
     50,
   )
-  assert_true(opts.method == @src.brute_force_method())
+  assert_true(opts.method_ == @src.brute_force_method())
   assert_eq(opts.k, 7)
   assert_eq(opts.distance, "cosine")
   assert_eq(opts.n_trees, 25)
@@ -706,7 +706,7 @@ test "build_knn_index_kmknn_small_data" {
   let data = [[1.0, 2.0]]
   let opts = @src.knn_options_full(@src.kmknn_method(), 1, "euclidean", 50, -1)
   let index = @src.build_knn_index(data, 1, 2, opts)
-  assert_true(index.method == @src.kmknn_method())
+  assert_true(index.method_ == @src.kmknn_method())
   assert_eq(index.n_points, 1)
 }
 

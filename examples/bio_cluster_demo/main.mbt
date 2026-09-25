@@ -70,7 +70,7 @@ fn main raise {
   println("spearman(g0, g1)   = \{fmt(d_spear, 4)}")
 
   println("\n=== 2. Hierarchical clustering (treecluster) ===")
-  let tree = @src.treecluster(data, method="a", dist="e")
+  let tree = @src.treecluster(data, method_="a", dist="e")
   println("number of nodes = \{tree.length()}")
   for i = 0; i < tree.length(); i = i + 1 {
     let n = tree.node(i)
@@ -90,7 +90,7 @@ fn main raise {
     }
     println("  [\{parts.join(", ")}]")
   }
-  let tree2 = @src.treecluster_from_distance(dm, method="s")
+  let tree2 = @src.treecluster_from_distance(dm, method_="s")
   print_int_array("single-linkage cut into 2 clusters", tree2.cut(nclusters=2))
 
   println("\n=== 4. k-means / k-medoids clustering ===")
@@ -104,7 +104,7 @@ fn main raise {
   println("kmedoids total distance = \{fmt(kmed.error(), 4)}")
 
   println("\n=== 5. Cluster centroids ===")
-  let cent = @src.clustercentroids(data, clusterid=[0, 0, 1, 1], method="a")
+  let cent = @src.clustercentroids(data, clusterid=[0, 0, 1, 1], method_="a")
   print_matrix("cluster means", cent.cdata())
 
   println("\n=== 6. Self-organizing map (somcluster) ===")
@@ -137,7 +137,7 @@ fn main raise {
     None => "(none)"
   }
   println("genename = [\{names}]")
-  let rt = rec.treecluster(method="s")
+  let rt = rec.treecluster(method_="s")
   print_int_array("Record.treecluster(method=\"s\") cut into 2",
     rt.cut(nclusters=2))
   let rk = rec.kcluster(nclusters=2, initialid=[0, 0, 1, 1])

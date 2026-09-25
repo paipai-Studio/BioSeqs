@@ -820,8 +820,8 @@ pub fn lisa_curves(
       config.min_density,
     )
     let local_by_global : Map[Int, Int] = Map([])
-    for local in 0..<indices.length() {
-      local_by_global[indices[local]] = local
+    for local_ in 0..<indices.length() {
+      local_by_global[indices[local_]] = local_
     }
     for source_local in 0..<indices.length() {
       let source_global = indices[source_local]

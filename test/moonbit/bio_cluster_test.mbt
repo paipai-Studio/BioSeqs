@@ -192,7 +192,7 @@ test "bc_distancematrix_lower_triangular" {
 test "bc_treecluster_four_linkages" {
   let data : Array[Array[Double]] = [[0.0], [1.0], [10.0], [11.0]]
   // single linkage: top = min pairwise squared = 81
-  let s = @src.treecluster(data, method="s")
+  let s = @src.treecluster(data, method_="s")
   assert_eq(s.length(), 3)
   assert_true(s.node(0).left == 0 && s.node(0).right == 1)
   assert_true(s.node(1).left == 2 && s.node(1).right == 3)
@@ -200,18 +200,18 @@ test "bc_treecluster_four_linkages" {
   assert_true(bc_approx(s.node(2).distance, 81.0, 1.0e-12))
   assert_eq(s.cut(nclusters=2), [0, 0, 1, 1])
   // complete linkage: top = max pairwise squared = 121
-  let m = @src.treecluster(data, method="m")
+  let m = @src.treecluster(data, method_="m")
   assert_true(m.node(0).left == 1 && m.node(0).right == 0)
   assert_true(m.node(1).left == 2 && m.node(1).right == 3)
   assert_true(m.node(2).left == -2 && m.node(2).right == -1)
   assert_true(bc_approx(m.node(2).distance, 121.0, 1.0e-12))
   assert_eq(m.cut(nclusters=2), [1, 1, 0, 0])
   // average linkage: top = (100+121+81+100)/4 = 100.5
-  let a = @src.treecluster(data, method="a")
+  let a = @src.treecluster(data, method_="a")
   assert_true(bc_approx(a.node(2).distance, 100.5, 1.0e-12))
   assert_eq(a.cut(nclusters=2), [1, 1, 0, 0])
   // centroid linkage: top = (0.5 - 10.5)^2 = 100
-  let c = @src.treecluster(data, method="c")
+  let c = @src.treecluster(data, method_="c")
   assert_true(c.node(0).left == 0 && c.node(0).right == 1)
   assert_true(c.node(1).left == 3 && c.node(1).right == 2)
   assert_true(bc_approx(c.node(2).distance, 100.0, 1.0e-12))
@@ -222,19 +222,19 @@ test "bc_treecluster_four_linkages" {
 test "bc_treecluster_three_elements" {
   let data : Array[Array[Double]] = [[0.0], [1.0], [5.0]]
   // d(1,0)=1, d(2,0)=25, d(2,1)=16 in squared space
-  let s = @src.treecluster(data, method="s")
+  let s = @src.treecluster(data, method_="s")
   assert_true(s.node(0).left == 0 && s.node(0).right == 1)
   assert_true(s.node(1).left == -1 && s.node(1).right == 2)
   assert_true(bc_approx(s.node(1).distance, 16.0, 1.0e-12))
   assert_eq(s.cut(nclusters=2), [0, 0, 1])
-  let m = @src.treecluster(data, method="m")
+  let m = @src.treecluster(data, method_="m")
   assert_true(m.node(1).left == 2 && m.node(1).right == -1)
   assert_true(bc_approx(m.node(1).distance, 25.0, 1.0e-12))
   assert_eq(m.cut(nclusters=2), [1, 1, 0])
-  let a = @src.treecluster(data, method="a")
+  let a = @src.treecluster(data, method_="a")
   assert_true(bc_approx(a.node(1).distance, 20.5, 1.0e-12))
   assert_eq(a.cut(nclusters=2), [1, 1, 0])
-  let c = @src.treecluster(data, method="c")
+  let c = @src.treecluster(data, method_="c")
   assert_true(bc_approx(c.node(1).distance, 20.25, 1.0e-12))
   assert_eq(c.cut(nclusters=2), [0, 0, 1])
 }
@@ -242,21 +242,21 @@ test "bc_treecluster_three_elements" {
 ///|
 test "bc_treecluster_from_distance" {
   let dist : Array[Array[Double]] = [[], [1.0], [25.0, 16.0]]
-  let s = @src.treecluster_from_distance(dist, method="s")
+  let s = @src.treecluster_from_distance(dist, method_="s")
   assert_true(s.node(0).left == 0 && s.node(0).right == 1)
   assert_true(s.node(1).left == -1 && s.node(1).right == 2)
   assert_true(bc_approx(s.node(1).distance, 16.0, 1.0e-12))
-  let m = @src.treecluster_from_distance(dist, method="m")
+  let m = @src.treecluster_from_distance(dist, method_="m")
   assert_true(m.node(1).left == 2 && m.node(1).right == -1)
   assert_true(bc_approx(m.node(1).distance, 25.0, 1.0e-12))
-  let a = @src.treecluster_from_distance(dist, method="a")
+  let a = @src.treecluster_from_distance(dist, method_="a")
   assert_true(bc_approx(a.node(1).distance, 20.5, 1.0e-12))
 }
 
 ///|
 test "bc_tree_cut_variants" {
   let data : Array[Array[Double]] = [[0.0], [1.0], [10.0], [11.0]]
-  let tree = @src.treecluster(data, method="s")
+  let tree = @src.treecluster(data, method_="s")
   assert_eq(tree.cut(nclusters=1), [0, 0, 0, 0])
   assert_eq(tree.cut(nclusters=2), [0, 0, 1, 1])
   assert_eq(tree.cut(nclusters=4), [0, 1, 2, 3])
@@ -267,12 +267,12 @@ test "bc_tree_cut_variants" {
 ///|
 test "bc_tree_sort" {
   let data : Array[Array[Double]] = [[0.0], [1.0], [10.0], [11.0]]
-  let c = @src.treecluster(data, method="c")
+  let c = @src.treecluster(data, method_="c")
   let idx = c.sort(order=[3.0, 1.0, 2.0, 4.0])
   assert_eq(idx, [1, 0, 2, 3])
   // sorting swaps children of node 0 (order 3 > 1)
   assert_true(c.node(0).left == 1 && c.node(0).right == 0)
-  let s = @src.treecluster(data, method="s")
+  let s = @src.treecluster(data, method_="s")
   let idx2 = s.sort(order=[1.0, 4.0, 3.0, 2.0])
   assert_eq(idx2, [0, 1, 3, 2])
   // sorting swaps children of node 1 (order 3 > 2)
@@ -308,7 +308,7 @@ test "bc_kcluster_median" {
     [10.0, 10.0],
     [11.0, 11.0],
   ]
-  let r = @src.kcluster(data, nclusters=2, initialid=[0, 0, 1, 1], method="m")
+  let r = @src.kcluster(data, nclusters=2, initialid=[0, 0, 1, 1], method_="m")
   assert_eq(r.clusterid(), [0, 0, 1, 1])
   assert_true(bc_approx(r.error(), 1.0, 1.0e-12))
 }
@@ -402,10 +402,10 @@ test "bc_clustercentroids_mean_median" {
     [5.0, 6.0],
     [7.0, 8.0],
   ]
-  let mean = @src.clustercentroids(data, clusterid=[0, 0, 1, 1], method="a")
+  let mean = @src.clustercentroids(data, clusterid=[0, 0, 1, 1], method_="a")
   assert_true(bc_approx_mat(mean.cdata(), [[2.0, 3.0], [6.0, 7.0]], 1.0e-12))
   assert_eq(mean.cmask(), [[1, 1], [1, 1]])
-  let median = @src.clustercentroids(data, clusterid=[0, 0, 1, 1], method="m")
+  let median = @src.clustercentroids(data, clusterid=[0, 0, 1, 1], method_="m")
   assert_true(bc_approx_mat(median.cdata(), [[2.0, 3.0], [6.0, 7.0]], 1.0e-12))
   assert_eq(median.cmask(), [[1, 1], [1, 1]])
 }
@@ -419,7 +419,7 @@ test "bc_clustercentroids_with_mask" {
     [7.0, 8.0],
   ]
   let mask : Array[Array[Int]] = [[1, 1], [1, 1], [1, 0], [1, 1]]
-  let r = @src.clustercentroids(data, mask~, clusterid=[0, 1, 0, 1], method="a")
+  let r = @src.clustercentroids(data, mask~, clusterid=[0, 1, 0, 1], method_="a")
   // cluster 0: mean of [1,2] and [5,missing] = [3, 2]
   // cluster 1: mean of [3,4] and [7,8] = [5, 6]
   assert_true(bc_approx_mat(r.cdata(), [[3.0, 2.0], [5.0, 6.0]], 1.0e-12))
@@ -437,7 +437,7 @@ test "bc_clusterdistance_methods" {
   // means: (0.5 - 5)^2 = 20.25
   assert_true(
     bc_approx(
-      @src.clusterdistance(data, index1=idx1, index2=idx2, method="a"),
+      @src.clusterdistance(data, index1=idx1, index2=idx2, method_="a"),
       20.25,
       1.0e-12,
     ),
@@ -445,7 +445,7 @@ test "bc_clusterdistance_methods" {
   // medians: median{0,1} = 0.5 -> 20.25
   assert_true(
     bc_approx(
-      @src.clusterdistance(data, index1=idx1, index2=idx2, method="m"),
+      @src.clusterdistance(data, index1=idx1, index2=idx2, method_="m"),
       20.25,
       1.0e-12,
     ),
@@ -453,7 +453,7 @@ test "bc_clusterdistance_methods" {
   // shortest pairwise: min(25,16) = 16
   assert_true(
     bc_approx(
-      @src.clusterdistance(data, index1=idx1, index2=idx2, method="s"),
+      @src.clusterdistance(data, index1=idx1, index2=idx2, method_="s"),
       16.0,
       1.0e-12,
     ),
@@ -461,7 +461,7 @@ test "bc_clusterdistance_methods" {
   // longest pairwise: max(25,16) = 25
   assert_true(
     bc_approx(
-      @src.clusterdistance(data, index1=idx1, index2=idx2, method="x"),
+      @src.clusterdistance(data, index1=idx1, index2=idx2, method_="x"),
       25.0,
       1.0e-12,
     ),
@@ -469,7 +469,7 @@ test "bc_clusterdistance_methods" {
   // average pairwise: (25+16)/2 = 20.5
   assert_true(
     bc_approx(
-      @src.clusterdistance(data, index1=idx1, index2=idx2, method="v"),
+      @src.clusterdistance(data, index1=idx1, index2=idx2, method_="v"),
       20.5,
       1.0e-12,
     ),
@@ -477,7 +477,7 @@ test "bc_clusterdistance_methods" {
   // invalid index -> -1
   let bad : Array[Int] = [99]
   assert_true(
-    @src.clusterdistance(data, index1=bad, index2=idx2, method="a") == -1.0,
+    @src.clusterdistance(data, index1=bad, index2=idx2, method_="a") == -1.0,
   )
 }
 
@@ -771,7 +771,7 @@ test "bc_record_read_empty" {
 test "bc_record_methods" {
   let content = "UID\texp1\texp2\ng1\t0.0\t0.0\ng2\t1.0\t1.0\ng3\t10.0\t10.0\ng4\t11.0\t11.0\n"
   let rec = @src.bio_cluster_read(content)
-  let tree = rec.treecluster(method="s")
+  let tree = rec.treecluster(method_="s")
   assert_eq(tree.length(), 3)
   let kc = rec.kcluster(nclusters=2, initialid=[0, 0, 1, 1])
   assert_eq(kc.clusterid(), [0, 0, 1, 1])

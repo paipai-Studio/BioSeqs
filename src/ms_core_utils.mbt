@@ -326,9 +326,9 @@ pub fn mc_smooth_savitzky_golay(
 pub fn mc_smooth(
   values : Array[Double],
   half_window : Int,
-  method : String,
+  method_ : String,
 ) -> Array[Double] {
-  if method == "SavitzkyGolay" {
+  if method_ == "SavitzkyGolay" {
     mc_smooth_savitzky_golay(values, half_window)
   } else {
     mc_smooth_moving_average(values, half_window)
@@ -405,11 +405,11 @@ pub fn mc_calibrate(
   observed : Array[Double],
   calibrants : Array[Double],
   tolerance : Double,
-  method : String,
+  method_ : String,
 ) -> Array[Double] {
   let n = observed.length()
   let out = Array::make(n, 0.0)
-  if method == "linear" {
+  if method_ == "linear" {
     // collect matched (obs, cal) pairs
     let obs_pairs = Array(capacity=0)
     let cal_pairs = Array(capacity=0)
@@ -522,7 +522,7 @@ pub fn mc_is_missing(v : Double) -> Bool {
 ///|
 pub fn mc_impute(
   matrix : Array[Array[Double]],
-  method : String,
+  method_ : String,
   k : Int,
 ) -> Array[Array[Double]] {
   let n = matrix.length()
@@ -538,7 +538,7 @@ pub fn mc_impute(
       out[i][j] = matrix[i][j]
     }
   }
-  if method == "zero" {
+  if method_ == "zero" {
     for i in 0..<n {
       for j in 0..<p {
         if mc_is_missing(out[i][j]) {
@@ -548,7 +548,7 @@ pub fn mc_impute(
     }
     return out
   }
-  if method == "halfMin" {
+  if method_ == "halfMin" {
     for i in 0..<n {
       // find row min of non-missing
       let mut min_val = 1.0e300
@@ -566,7 +566,7 @@ pub fn mc_impute(
     }
     return out
   }
-  if method == "mean" {
+  if method_ == "mean" {
     for i in 0..<n {
       let vals = Array(capacity=0)
       for j in 0..<p {
@@ -583,7 +583,7 @@ pub fn mc_impute(
     }
     return out
   }
-  if method == "median" {
+  if method_ == "median" {
     for i in 0..<n {
       let vals = Array(capacity=0)
       for j in 0..<p {
@@ -600,7 +600,7 @@ pub fn mc_impute(
     }
     return out
   }
-  if method == "knn" {
+  if method_ == "knn" {
     // KNN imputation: for each row with missing values, find the k nearest
     // rows (by Euclidean distance on non-missing columns) and impute from
     // their values.
@@ -813,7 +813,7 @@ pub fn mc_has_missing(matrix : Array[Array[Double]]) -> Bool {
 pub fn mc_aggregate_rows(
   matrix : Array[Array[Double]],
   groups : Array[Int],
-  method : String,
+  method_ : String,
 ) -> Array[Array[Double]] {
   let n = matrix.length()
   if n == 0 {
@@ -854,9 +854,9 @@ pub fn mc_aggregate_rows(
           vals.push(matrix[i][j])
         }
       }
-      if method == "sum" {
+      if method_ == "sum" {
         row[j] = mc_sum(vals)
-      } else if method == "mean" {
+      } else if method_ == "mean" {
         row[j] = mc_mean(vals)
       } else {
         row[j] = mc_median(vals)

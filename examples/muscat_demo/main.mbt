@@ -28,7 +28,7 @@ fn main {
 
   // Aggregate cells to pseudo-bulk
   println("=== Pseudo-bulk Aggregation (Sum) ===")
-  let pb = @bio.aggregate_cells(cells, method=@bio.aggregation_sum())
+  let pb = @bio.aggregate_cells(cells, method_=@bio.aggregation_sum())
   println("Pseudo-bulk samples: \{pb.length()}")
   let mut j = 0
   while j < pb.length() {
@@ -49,7 +49,7 @@ fn main {
 
   // Run DS analysis
   println("=== Differential State Analysis ===")
-  let results = @bio.run_ds_analysis(pb, method=@bio.ds_method_edger(), fdr_threshold=0.1, log2fc_threshold=0.5)
+  let results = @bio.run_ds_analysis(pb, method_=@bio.ds_method_edger(), fdr_threshold=0.1, log2fc_threshold=0.5)
   println(results.summary())
   println("")
 
@@ -72,8 +72,8 @@ fn main {
 
   // Aggregation methods comparison
   println("=== Aggregation Methods ===")
-  let pb_mean = @bio.aggregate_cells(cells, method=@bio.aggregation_mean())
-  let pb_med = @bio.aggregate_cells(cells, method=@bio.aggregation_median())
+  let pb_mean = @bio.aggregate_cells(cells, method_=@bio.aggregation_mean())
+  let pb_med = @bio.aggregate_cells(cells, method_=@bio.aggregation_median())
   println("Sum aggregation: \{pb.length()} samples")
   println("Mean aggregation: \{pb_mean.length()} samples")
   println("Median aggregation: \{pb_med.length()} samples")

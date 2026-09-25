@@ -104,7 +104,7 @@ fn main {
   let deconv_sf = @src.sce_compute_deconv_size_factors(raw_counts)
   println("  deconv size factors: " + deconv_sf.length().to_string())
   let sf_result = @src.sce_compute_size_factors(raw_counts, "library")
-  println("  size factor method: " + sf_result.method)
+  println("  size factor method: " + sf_result.method_)
 
   // 9. Demonstrate normalization
   println("\n9. Normalize:")

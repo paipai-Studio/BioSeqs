@@ -1324,7 +1324,7 @@ pub fn treecluster(
   mask? : Array[Array[Int]],
   weight? : Array[Double],
   transpose? : Bool,
-  method? : String,
+  method_? : String,
   dist? : String,
 ) -> ClusterTree {
   let tr = transpose.unwrap_or(false)
@@ -1338,7 +1338,7 @@ pub fn treecluster(
   let m = mask.unwrap_or(bc_ones_mask(nrows, ncolumns))
   let w = weight.unwrap_or(bc_ones_weight(ndata))
   let d = dist.unwrap_or("e")
-  let meth = method.unwrap_or("m")
+  let meth = method_.unwrap_or("m")
   // Calculate the distance matrix (ragged lower triangle)
   let distmatrix : Array[Array[Double]] = Array(capacity=0)
   for _i = 0; _i < nelements; _i = _i + 1 {
@@ -1383,13 +1383,13 @@ pub fn treecluster(
 /// are available; centroid linkage requires the original data.
 pub fn treecluster_from_distance(
   distance : Array[Array[Double]],
-  method? : String,
+  method_? : String,
 ) -> ClusterTree {
   let nelements = distance.length()
   if nelements < 2 {
     return { nodes: Array(capacity=0), nelements, }
   }
-  let meth = method.unwrap_or("m")
+  let meth = method_.unwrap_or("m")
   let distmatrix = bc_copy_distmatrix(distance)
   let nodes = match meth {
     "s" => bc_pslcluster(nelements, distmatrix)
@@ -1774,7 +1774,7 @@ pub fn kcluster(
   weight? : Array[Double],
   transpose? : Bool,
   npass? : Int,
-  method? : String,
+  method_? : String,
   dist? : String,
   initialid? : Array[Int],
 ) -> KClusterResult {
@@ -1785,7 +1785,7 @@ pub fn kcluster(
   let ndata = if tr { nrows } else { ncolumns }
   let k = nclusters.unwrap_or(2)
   let mut passes = npass.unwrap_or(1)
-  let meth = method.unwrap_or("a")
+  let meth = method_.unwrap_or("a")
   let d = dist.unwrap_or("e")
   let clusterid : Array[Int] = match initialid {
     Some(init) => {
@@ -2008,12 +2008,12 @@ pub fn clustercentroids(
   data : Array[Array[Double]],
   mask? : Array[Array[Int]],
   clusterid? : Array[Int],
-  method? : String,
+  method_? : String,
   transpose? : Bool,
 ) -> CentroidsResult {
   let tr = transpose.unwrap_or(false)
   let transpose_i = if tr { 1 } else { 0 }
-  let meth = method.unwrap_or("a")
+  let meth = method_.unwrap_or("a")
   let nrows = data.length()
   let ncolumns = if nrows > 0 { data[0].length() } else { 0 }
   let m = mask.unwrap_or(bc_ones_mask(nrows, ncolumns))
@@ -2052,7 +2052,7 @@ pub fn clustercentroids(
       bc_getclustermeans(
         nclusters, nrows, ncolumns, data, m, ids, cdata, cmask, transpose_i,
       )
-    _ => () // unknown method: return zero-filled centroids
+    _ => () // unknown method_: return zero-filled centroids
   }
   { cdata, cmask, }
 }
@@ -2077,13 +2077,13 @@ pub fn clusterdistance(
   weight? : Array[Double],
   index1? : Array[Int],
   index2? : Array[Int],
-  method? : String,
+  method_? : String,
   dist? : String,
   transpose? : Bool,
 ) -> Double {
   let tr = transpose.unwrap_or(false)
   let transpose_i = if tr { 1 } else { 0 }
-  let meth = method.unwrap_or("a")
+  let meth = method_.unwrap_or("a")
   let d = dist.unwrap_or("e")
   let nrows = data.length()
   let ncolumns = if nrows > 0 { data[0].length() } else { 0 }
@@ -3732,12 +3732,12 @@ pub fn bio_cluster_read(content : String) -> Record raise ClusterError {
 pub fn Record::treecluster(
   self : Record,
   transpose? : Bool,
-  method? : String,
+  method_? : String,
   dist? : String,
 ) -> ClusterTree {
   let tr = transpose.unwrap_or(false)
   let weight = if tr { self.gweight } else { self.eweight }
-  treecluster(self.data, mask?=self.mask, weight?, transpose=tr, method?, dist?)
+  treecluster(self.data, mask?=self.mask, weight?, transpose=tr, method_?, dist?)
 }
 
 ///|
@@ -3748,7 +3748,7 @@ pub fn Record::kcluster(
   nclusters? : Int,
   transpose? : Bool,
   npass? : Int,
-  method? : String,
+  method_? : String,
   dist? : String,
   initialid? : Array[Int],
 ) -> KClusterResult {
@@ -3761,7 +3761,7 @@ pub fn Record::kcluster(
     weight?,
     transpose=tr,
     npass?,
-    method?,
+    method_?,
     dist?,
     initialid?,
   )
@@ -3800,10 +3800,10 @@ pub fn Record::somcluster(
 pub fn Record::clustercentroids(
   self : Record,
   clusterid? : Array[Int],
-  method? : String,
+  method_? : String,
   transpose? : Bool,
 ) -> CentroidsResult {
-  clustercentroids(self.data, mask?=self.mask, clusterid?, method?, transpose?)
+  clustercentroids(self.data, mask?=self.mask, clusterid?, method_?, transpose?)
 }
 
 ///|
@@ -3813,7 +3813,7 @@ pub fn Record::clusterdistance(
   self : Record,
   index1? : Array[Int],
   index2? : Array[Int],
-  method? : String,
+  method_? : String,
   dist? : String,
   transpose? : Bool,
 ) -> Double {
@@ -3825,7 +3825,7 @@ pub fn Record::clusterdistance(
     weight?,
     index1?,
     index2?,
-    method?,
+    method_?,
     dist?,
     transpose=tr,
   )

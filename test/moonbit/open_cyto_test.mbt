@@ -569,21 +569,21 @@ test "oc_topo_sort_parent_before_child" {
   let rule_cd4 = @src.OcGatingRule::new(
     parent="lymph",
     child="cd4",
-    method="tailgate",
+    method_="tailgate",
     dims=["CD4"],
     args=Map([]),
   )
   let rule_cd8 = @src.OcGatingRule::new(
     parent="lymph",
     child="cd8",
-    method="tailgate",
+    method_="tailgate",
     dims=["CD8"],
     args=Map([]),
   )
   let rule_lymph = @src.OcGatingRule::new(
     parent="root",
     child="lymph",
-    method="mindensity",
+    method_="mindensity",
     dims=["FSC"],
     args=Map([]),
   )
@@ -659,13 +659,13 @@ test "oc_gating_rule_construction" {
   let r = @src.OcGatingRule::new(
     parent="root",
     child="tcells",
-    method="quantileGate",
+    method_="quantileGate",
     dims=["CD3"],
     args~,
   )
   assert_eq(r.parent, "root")
   assert_eq(r.child, "tcells")
-  assert_eq(r.method, "quantileGate")
+  assert_eq(r.method_, "quantileGate")
   assert_eq(r.dims.length(), 1)
   assert_eq(r.dims[0], "CD3")
   assert_true((r.args.get("probs").unwrap() - 0.95).abs() < 0.001)
@@ -686,7 +686,7 @@ test "oc_gate_flow_set_single_rule" {
   let rule = @src.OcGatingRule::new(
     parent="root",
     child="cells",
-    method="mindensity",
+    method_="mindensity",
     dims=["FSC"],
     args~,
   )
@@ -727,7 +727,7 @@ test "oc_gate_flow_set_chain" {
   let rule_cells = @src.OcGatingRule::new(
     parent="root",
     child="cells",
-    method="mindensity",
+    method_="mindensity",
     dims=["FSC"],
     args=args1,
   )
@@ -736,7 +736,7 @@ test "oc_gate_flow_set_chain" {
   let rule_cd4 = @src.OcGatingRule::new(
     parent="cells",
     child="cd4pos",
-    method="tailgate",
+    method_="tailgate",
     dims=["CD4"],
     args=args2,
   )

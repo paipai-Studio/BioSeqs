@@ -354,7 +354,7 @@ pub struct NsNormResult {
   sample_id : String
   norm_factors : Array[Double]
   normalized_counts : Array[Double]
-  method : String
+  method_ : String
 }
 
 ///|
@@ -363,9 +363,9 @@ pub fn NsNormResult::new(
   sample_id : String,
   norm_factors : Array[Double],
   normalized_counts : Array[Double],
-  method : String,
+  method_ : String,
 ) -> NsNormResult {
-  NsNormResult::{ sample_id, norm_factors, normalized_counts, method, }
+  NsNormResult::{ sample_id, norm_factors, normalized_counts, method_, }
 }
 
 ///|
@@ -388,8 +388,8 @@ pub fn NsNormResult::normalized_counts(self : NsNormResult) -> Array[Double] {
 
 ///|
 /// Normalization method name.
-pub fn NsNormResult::method(self : NsNormResult) -> String {
-  self.method
+pub fn NsNormResult::method_(self : NsNormResult) -> String {
+  self.method_
 }
 
 ///|

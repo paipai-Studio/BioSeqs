@@ -313,7 +313,7 @@ fn main {
   println(line + "]")
 
   // (b) Impute missing values (row mean)
-  let imputed = msnset.impute_missing(method="mean")
+  let imputed = msnset.impute_missing(method_="mean")
   println("\n  b) Mean imputation of missing (zero/NaN):")
   println("     Feature '\{peptide_names[2]}' (A3 had missing in sample1):")
   println("       orig:    \{prot_exprs[2]}")
@@ -346,10 +346,10 @@ fn main {
   println("  3 methods: 'sum' (default), 'mean', 'median'")
   let methods_arr : Array[String] = ["sum", "mean", "median"]
   for midx = 0; midx < methods_arr.length(); midx = midx + 1 {
-    let method = methods_arr[midx]
-    let prots = msnset.summarize_to_proteins(method=method)
+    let method_ = methods_arr[midx]
+    let prots = msnset.summarize_to_proteins(method_=method_)
     println("")
-    println("  --- method='\{method}' ---")
+    println("  --- method='\{method_}' ---")
     println("    protein features: \{prots.n_features()} (\{prots.feature_names().join(", ")})")
     // Print each protein row
     let pnames = prots.feature_names()

@@ -362,7 +362,7 @@ pub fn ms_data_process(
 /// Summarize feature-level data to protein-level.
 pub fn ms_summarize(
   features : Array[MSFeature],
-  method? : MSSummarization = MSSummarization::Tukey,
+  method_? : MSSummarization = MSSummarization::Tukey,
 ) -> Array[MSProteinAbundance] {
   // Group by (protein, run)
   let groups : Map[String, Array[MSFeature]] = Map([])
@@ -393,7 +393,7 @@ pub fn ms_summarize(
       fi = fi + 1
     }
 
-    let abundance = match method {
+    let abundance = match method_ {
       MSSummarization::Tukey => {
         // Tukey median polish (simplified: use median)
         let sorted = intensities.copy()

@@ -20,13 +20,13 @@
 pub struct QuantileNormConfig {
   copy : Bool
   keep_names : Bool
-  method : String
+  method_ : String
 }
 
 ///|
 /// Create default quantile normalization config.
 pub fn QuantileNormConfig::new() -> QuantileNormConfig {
-  QuantileNormConfig::{ copy: true, keep_names: true, method: "quantile", }
+  QuantileNormConfig::{ copy: true, keep_names: true, method_: "quantile", }
 }
 
 ///|

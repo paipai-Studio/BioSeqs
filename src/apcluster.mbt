@@ -348,17 +348,17 @@ fn ap_pearson(
 /// average ranks of features within each row). Diagonal = 1.
 pub fn ap_cor_sim_mat(
   x : Array[Array[Double]],
-  method? : String = "pearson",
+  method_? : String = "pearson",
 ) -> Array[Array[Double]] raise ApError {
   let (n, p) = ap_check_matrix(x)
   // precompute transformed rows and their means
   let rows : Array[Array[Double]] = Array(capacity=n)
   let means : Array[Double] = Array(capacity=n)
   for i = 0; i < n; i = i + 1 {
-    let row = match method {
+    let row = match method_ {
       "pearson" => x[i].copy()
       "spearman" => ap_average_ranks(x[i])
-      _ => ap_fail("unknown correlation method: \{method}")
+      _ => ap_fail("unknown correlation method: \{method_}")
     }
     let mut mean = 0.0
     for v in row {

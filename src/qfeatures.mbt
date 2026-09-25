@@ -479,7 +479,7 @@ fn qf_median(values : Array[Double]) -> Double {
 
 ///|
 /// Aggregate a list of values using the specified method (skipping NaN).
-fn qf_aggregate_values(values : Array[Double], method : String) -> Double {
+fn qf_aggregate_values(values : Array[Double], method_ : String) -> Double {
   let clean : Array[Double] = Array(capacity=0)
   for v in values {
     if !qf_is_na(v) {
@@ -489,7 +489,7 @@ fn qf_aggregate_values(values : Array[Double], method : String) -> Double {
   if clean.length() == 0 {
     return 0.0 / 0.0
   }
-  match method {
+  match method_ {
     "sum" => {
       let mut s = 0.0
       for v in clean {
@@ -575,7 +575,7 @@ pub fn qf_aggregate(
   from_assay : String,
   to_assay : String,
   mapping : Array[(Int, String)],
-  method : String,
+  method_ : String,
 ) -> QFeatures {
   let src = match qf.get_assay(from_assay) {
     Some(a) => a
@@ -624,7 +624,7 @@ pub fn qf_aggregate(
           values.push(src.data[r][j])
         }
       }
-      row[j] = qf_aggregate_values(values, method)
+      row[j] = qf_aggregate_values(values, method_)
     }
     new_data.push(row)
   }
@@ -662,7 +662,7 @@ pub fn qf_aggregate_by_col(
   from_assay : String,
   to_assay : String,
   group_labels : Array[String],
-  method : String,
+  method_ : String,
 ) -> QFeatures {
   let src = match qf.get_assay(from_assay) {
     Some(a) => a
@@ -712,7 +712,7 @@ pub fn qf_aggregate_by_col(
       for j in group_cols[g] {
         values.push(src.data[i][j])
       }
-      match method {
+      match method_ {
         "sum" => {
           let mut s = 0.0
           for v in values {

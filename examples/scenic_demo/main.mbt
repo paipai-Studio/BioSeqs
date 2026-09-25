@@ -79,7 +79,7 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 5. Step 4: Binarization + cell state assignment ===")
   let (binary, thresholds) = @bio.binarize_activity(
-    auc_matrix, input.n_cells, method=@bio.binarize_kmeans2(),
+    auc_matrix, input.n_cells, method_=@bio.binarize_kmeans2(),
   )
   let (cell_states, n_clusters, masters) = @bio.assign_cell_states(
     binary, regulons.map(fn (r) -> String { r.tf_name }), input.n_cells,

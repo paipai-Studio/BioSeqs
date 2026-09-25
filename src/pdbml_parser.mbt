@@ -136,18 +136,18 @@ fn pdbml_parse_open_tag(
   i : Int,
 ) -> (String, Map[String, String], Bool, Int) raise PdbmlError {
   let (tname, tk) = pdbml_read_name(s, i + 1)
-  let local = pdbml_local_name(tname)
+  let local_ = pdbml_local_name(tname)
   let attrs : Map[String, String] = Map([], capacity=8)
   let mut j = tk
   while j < s.length() {
     j = pdbml_skip_ws(s, j)
     let cp = s.unsafe_get(j).to_int()
     if cp == '>'.to_int() {
-      return (local, attrs, false, j + 1)
+      return (local_, attrs, false, j + 1)
     }
     if cp == '/'.to_int() {
       if j + 1 < s.length() && s.unsafe_get(j + 1).to_int() == '>'.to_int() {
-        return (local, attrs, true, j + 2)
+        return (local_, attrs, true, j + 2)
       }
       pdbml_fail("Malformed self-closing tag")
     }

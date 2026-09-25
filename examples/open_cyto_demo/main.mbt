@@ -59,7 +59,7 @@ fn main() -> Unit {
     @bio.OcGatingRule::new(
       parent="root",
       child="cells",
-      method="mindensity",
+      method_="mindensity",
       dims=["FSC-A"],
       args=args1,
     ),
@@ -68,7 +68,7 @@ fn main() -> Unit {
     @bio.OcGatingRule::new(
       parent="cells",
       child="fitc_pos",
-      method="mindensity",
+      method_="mindensity",
       dims=["FITC-A"],
       args=args1,
     ),
@@ -77,7 +77,7 @@ fn main() -> Unit {
     @bio.OcGatingRule::new(
       parent="fitc_pos",
       child="double_pos",
-      method="flowClust",
+      method_="flowClust",
       dims=["FITC-A", "PE-A"],
       args=args2,
     ),
@@ -90,7 +90,7 @@ fn main() -> Unit {
     if rule.dims.length() > 1 {
       dims_str = rule.dims[0] + ", " + rule.dims[1]
     }
-    println("  " + rule.parent + " -> " + rule.child + " (" + rule.method + " on " + dims_str + ")")
+    println("  " + rule.parent + " -> " + rule.child + " (" + rule.method_ + " on " + dims_str + ")")
   }
   println("")
 

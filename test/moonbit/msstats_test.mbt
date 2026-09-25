@@ -90,7 +90,7 @@ test "msstats_summarize_tukey" {
     features,
     normalization=@src.ms_norm_none(),
   )
-  let summarized = @src.ms_summarize(processed, method=@src.ms_summary_tukey())
+  let summarized = @src.ms_summarize(processed, method_=@src.ms_summary_tukey())
   assert_eq(summarized.length(), 1) // One protein-run combo
   assert_eq(summarized[0].protein, "P1")
   assert_eq(summarized[0].run, "R1")
@@ -112,7 +112,7 @@ test "msstats_summarize_linear" {
     features,
     normalization=@src.ms_norm_none(),
   )
-  let summarized = @src.ms_summarize(processed, method=@src.ms_summary_linear())
+  let summarized = @src.ms_summarize(processed, method_=@src.ms_summary_linear())
   // Mean of log2(1024)=10 and log2(4096)=12 is 11
   assert_true((summarized[0].log2_abundance - 11.0).abs() < 0.01)
 }

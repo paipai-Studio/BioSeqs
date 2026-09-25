@@ -260,7 +260,7 @@ pub fn DRIMSeqConfig::set_min_count(
 /// Set normalization method.
 pub fn DRIMSeqConfig::set_norm_method(
   self : DRIMSeqConfig,
-  method~ : DRIMSeqNorm,
+  method_~ : DRIMSeqNorm,
 ) -> DRIMSeqConfig {
   DRIMSeqConfig::{
     min_count: self.min_count,
@@ -268,7 +268,7 @@ pub fn DRIMSeqConfig::set_norm_method(
     tolerance: self.tolerance,
     max_iter: self.max_iter,
     alpha: self.alpha,
-    norm_method: method,
+    norm_method: method_,
   }
 }
 

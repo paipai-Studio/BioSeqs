@@ -650,7 +650,7 @@ pub fn MSnSet::log2_transform(self : MSnSet, offset? : Double = 1.0) -> MSnSet {
 ///          "zero" (set to 0), "min" (row min / 2)
 pub fn MSnSet::impute_missing(
   self : MSnSet,
-  method? : String = "mean",
+  method_? : String = "mean",
 ) -> MSnSet {
   let n_f = self.n_features
   let n_s = self.n_samples
@@ -669,7 +669,7 @@ pub fn MSnSet::impute_missing(
       }
     }
     if non_missing.length() > 0 {
-      let replace_val = if method == "median" {
+      let replace_val = if method_ == "median" {
         // Simple median
         let sorted = mbn_sort_dbl(non_missing)
         let k = sorted.length()
@@ -678,10 +678,10 @@ pub fn MSnSet::impute_missing(
         } else {
           sorted[k / 2]
         }
-      } else if method == "min" {
+      } else if method_ == "min" {
         let sorted = mbn_sort_dbl(non_missing)
         sorted[0] / 2.0
-      } else if method == "zero" {
+      } else if method_ == "zero" {
         0.0
       } else {
         // mean
@@ -794,7 +794,7 @@ pub fn MSnSet::normalize_median_center(self : MSnSet) -> MSnSet {
 /// Returns new MSnSet with one row per unique protein accession.
 pub fn MSnSet::summarize_to_proteins(
   self : MSnSet,
-  method? : String = "sum",
+  method_? : String = "sum",
 ) -> MSnSet {
   // Map from protein accession -> list of row indices
   let protein_rows : Map[String, Array[Int]] = Map([], capacity=0)
@@ -873,7 +873,7 @@ pub fn MSnSet::summarize_to_proteins(
         }
       }
       if vals.length() > 0 {
-        if method == "median" {
+        if method_ == "median" {
           let sorted = mbn_sort_dbl(vals)
           let k = sorted.length()
           prot_row[j] = if k % 2 == 0 {
@@ -881,7 +881,7 @@ pub fn MSnSet::summarize_to_proteins(
           } else {
             sorted[k / 2]
           }
-        } else if method == "mean" {
+        } else if method_ == "mean" {
           let mut s = 0.0
           for v in vals {
             s = s + v

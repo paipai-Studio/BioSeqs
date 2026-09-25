@@ -27,10 +27,10 @@
 pub struct OcGatingRule {
   parent : String // parent population name ("root" = all events)
   child : String // child population name
-  method : String // "mindensity", "tailgate", "quantileGate",
+  method_ : String // "mindensity", "tailgate", "quantileGate",
   //                "flowClust", "rangeGate"
   dims : Array[String] // channel(s) / marker(s)
-  args : Map[String, Double] // method-specific arguments
+  args : Map[String, Double] // method_-specific arguments
 }
 
 ///|
@@ -38,11 +38,11 @@ pub struct OcGatingRule {
 pub fn OcGatingRule::new(
   parent~ : String,
   child~ : String,
-  method~ : String,
+  method_~ : String,
   dims~ : Array[String],
   args~ : Map[String, Double],
 ) -> OcGatingRule {
-  OcGatingRule::{ parent, child, method, dims, args, }
+  OcGatingRule::{ parent, child, method_, dims, args, }
 }
 
 ///|
@@ -902,31 +902,31 @@ pub fn oc_gate_flow_set(
       let dim_idx = oc_resolve_channel(flowset.channel_names, rule.dims[0])
       let gate = if dim_idx < 0 {
         OcGate::new1d(dim=rule.dims[0], min=0.0, max=0.0)
-      } else if rule.method == "mindensity" {
+      } else if rule.method_ == "mindensity" {
         let vals = Array(capacity=0)
         for i in parent_event_indices {
           vals.push(events[i][dim_idx])
         }
         oc_mindensity(vals, rule.dims[0], rule.args)
-      } else if rule.method == "tailgate" {
+      } else if rule.method_ == "tailgate" {
         let vals = Array(capacity=0)
         for i in parent_event_indices {
           vals.push(events[i][dim_idx])
         }
         oc_tailgate(vals, rule.dims[0], rule.args)
-      } else if rule.method == "quantileGate" {
+      } else if rule.method_ == "quantileGate" {
         let vals = Array(capacity=0)
         for i in parent_event_indices {
           vals.push(events[i][dim_idx])
         }
         oc_quantile_gate(vals, rule.dims[0], rule.args)
-      } else if rule.method == "rangeGate" {
+      } else if rule.method_ == "rangeGate" {
         let vals = Array(capacity=0)
         for i in parent_event_indices {
           vals.push(events[i][dim_idx])
         }
         oc_range_gate(vals, rule.dims[0], rule.args)
-      } else if rule.method == "flowClust" {
+      } else if rule.method_ == "flowClust" {
         let vals1 = Array(capacity=0)
         for i in parent_event_indices {
           vals1.push(events[i][dim_idx])

@@ -3,35 +3,35 @@
 
 test "mt_wallace basic" {
   let result = @src.mt_wallace("ACGT")
-  assert_eq(result.method, "wallace")
+  assert_eq(result.method_, "wallace")
   // ACGT: 2 GC + 2 AT = 4*2 + 2*2 = 12
   assert_true((result.tm - 12.0).abs() < 1.0e-9)
 }
 
 test "mt_gc_content basic" {
   let result = @src.mt_gc_content("ACGT")
-  assert_eq(result.method, "gc_content")
+  assert_eq(result.method_, "gc_content")
   // GC-content method can give negative values for short sequences
   assert_true(result.tm < 100.0)
 }
 
 test "mt_nearest_neighbor short" {
   let result = @src.mt_nearest_neighbor("ACGT")
-  assert_eq(result.method, "nearest_neighbor")
+  assert_eq(result.method_, "nearest_neighbor")
   // NN method for short sequences may give unrealistic values
   // This is expected for very short oligos
   assert_true(result.tm < 100.0)
 }
 
 test "mt_with_salt" {
-  let result = @src.mt_with_salt("ACGT", na_conc=0.05, mg_conc=0.0, method="nearest_neighbor")
+  let result = @src.mt_with_salt("ACGT", na_conc=0.05, mg_conc=0.0, method_="nearest_neighbor")
   // NN method for short sequences may give unrealistic values
   assert_true(result.tm < 100.0)
 }
 
 test "mt_nearest_neighbor longer" {
   let result = @src.mt_nearest_neighbor("AGCTGATCGATCGATCGATCGATCGATCGATCGATCG")
-  assert_eq(result.method, "nearest_neighbor")
+  assert_eq(result.method_, "nearest_neighbor")
   assert_true(result.tm > 0.0)
 }
 

@@ -201,7 +201,7 @@ pub fn SingleCell::n_expressed(self : SingleCell) -> Int {
 /// Aggregate single cells into pseudo-bulk samples.
 pub fn aggregate_cells(
   cells : Array[SingleCell],
-  method? : AggregationMethod = AggregationMethod::Sum,
+  method_? : AggregationMethod = AggregationMethod::Sum,
 ) -> Array[PseudoBulk] {
   // Group cells by (sample_id, cluster_id)
   let groups : Map[String, Array[SingleCell]] = Map([])
@@ -253,7 +253,7 @@ pub fn aggregate_cells(
         values.push(c)
         ci = ci + 1
       }
-      let agg = match method {
+      let agg = match method_ {
         AggregationMethod::Sum => {
           let mut s = 0.0
           let mut vi = 0
@@ -357,7 +357,7 @@ pub fn PseudoBulk::n_expressed(self : PseudoBulk) -> Int {
 /// Run differential state analysis on pseudo-bulk data.
 pub fn run_ds_analysis(
   pb_samples : Array[PseudoBulk],
-  method? : DSMethod = DSMethod::EdgeR,
+  method_? : DSMethod = DSMethod::EdgeR,
   fdr_threshold? : Double = 0.05,
   log2fc_threshold? : Double = 1.0,
 ) -> DSResults {
@@ -503,7 +503,7 @@ pub fn run_ds_analysis(
 
   DSResults::{
     results: all_results,
-    ds_method: method,
+    ds_method: method_,
     n_genes,
     n_clusters,
     n_sig: n_sig_count,

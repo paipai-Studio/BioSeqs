@@ -909,7 +909,7 @@ fn diffbind_build_count_matrix(
 /// Supported methods: "TMM", "RPKM", "CPM", "library" (default).
 pub fn diffbind_normalize(
   config : DBAConfig,
-  method : String,
+  method_ : String,
 ) -> Array[Array[Double]] {
   let consensus = diffbind_consensus_peaks(config.samples, 0.5)
   let counts = diffbind_build_count_matrix(config, consensus)
@@ -921,7 +921,7 @@ pub fn diffbind_normalize(
   if n_samples == 0 {
     return counts
   }
-  if method == "TMM" {
+  if method_ == "TMM" {
     let factors = diffbind_compute_tmm(counts)
     let mut i = 0
     while i < n_peaks {
@@ -933,7 +933,7 @@ pub fn diffbind_normalize(
       }
       i = i + 1
     }
-  } else if method == "RPKM" {
+  } else if method_ == "RPKM" {
     let lib_sizes : Array[Double] = Array::make(n_samples, 0.0)
     let mut s = 0
     while s < n_samples {
@@ -961,7 +961,7 @@ pub fn diffbind_normalize(
       }
       i = i + 1
     }
-  } else if method == "CPM" {
+  } else if method_ == "CPM" {
     let lib_sizes : Array[Double] = Array::make(n_samples, 0.0)
     let mut s = 0
     while s < n_samples {
@@ -1635,12 +1635,12 @@ fn diffbind_pca(
 
 ///|
 /// Generate PCA plot data for visualization.
-pub fn diffbind_plot_pca(config : DBAConfig, method : String) -> String {
+pub fn diffbind_plot_pca(config : DBAConfig, method_ : String) -> String {
   let consensus = diffbind_consensus_peaks(config.samples, 0.5)
   if consensus.length() == 0 {
     return "PCA Plot: No consensus peaks found\n"
   }
-  let counts = diffbind_normalize(config, method)
+  let counts = diffbind_normalize(config, method_)
   let matrix = diffbind_transpose(counts)
 
   let (pc_scores, explained_var) = diffbind_pca(matrix)

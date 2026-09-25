@@ -48,7 +48,7 @@ test "muscat_aggregation_sum" {
   c2.set_count("Gene2", 3.0)
   cells.push(c2)
 
-  let pb = @src.aggregate_cells(cells, method=@src.aggregation_sum())
+  let pb = @src.aggregate_cells(cells, method_=@src.aggregation_sum())
   assert_eq(pb.length(), 1)
   assert_eq(pb[0].get_count("Gene1"), 30.0)
   assert_eq(pb[0].get_count("Gene2"), 8.0)
@@ -65,7 +65,7 @@ test "muscat_aggregation_mean" {
   c2.set_count("Gene1", 20.0)
   cells.push(c2)
 
-  let pb = @src.aggregate_cells(cells, method=@src.aggregation_mean())
+  let pb = @src.aggregate_cells(cells, method_=@src.aggregation_mean())
   assert_eq(pb.length(), 1)
   assert_eq(pb[0].get_count("Gene1"), 15.0)
 }
@@ -86,7 +86,7 @@ test "muscat_aggregation_multiple_samples" {
   c3.set_count("Gene1", 15.0)
   cells.push(c3)
 
-  let pb = @src.aggregate_cells(cells, method=@src.aggregation_sum())
+  let pb = @src.aggregate_cells(cells, method_=@src.aggregation_sum())
   assert_eq(pb.length(), 3) // 3 (sample, cluster) combinations
 }
 
@@ -117,7 +117,7 @@ test "muscat_pseudobulk_n_expressed" {
   c2.set_count("Gene3", 5.0)
   cells.push(c2)
 
-  let pb = @src.aggregate_cells(cells, method=@src.aggregation_sum())
+  let pb = @src.aggregate_cells(cells, method_=@src.aggregation_sum())
   assert_eq(pb[0].n_expressed(), 2) // Gene1 and Gene3 > 0
 }
 

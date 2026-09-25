@@ -78,7 +78,7 @@ test "prot_dao_predict_ordered_sequence" {
   let result = @src.prot_dao_predict(ordered_seq)
   assert_eq(result.sequence, ordered_seq)
   assert_eq(result.residues.length(), ordered_seq.length())
-  assert_eq(result.method, "IUPred-like")
+  assert_eq(result.method_, "IUPred-like")
 }
 
 ///|

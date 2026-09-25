@@ -1211,19 +1211,19 @@ pub fn milo_sample_data() -> MiloSampleData {
     sample_conditions.push(condition)
     let left_count = if condition == "A" { 3 } else { 1 }
     let right_count = 4 - left_count
-    for local in 0..<left_count {
+    for local_ in 0..<left_count {
       coordinates.push([
-        (sample % 4).to_double() * 0.03 + local.to_double() * 0.08,
-        local.to_double() * 0.15,
+        (sample % 4).to_double() * 0.03 + local_.to_double() * 0.08,
+        local_.to_double() * 0.15,
       ])
       cell_names.push("Cell" + cell_number.to_string())
       sample_ids.push(sample_name)
       cell_number = cell_number + 1
     }
-    for local in 0..<right_count {
+    for local_ in 0..<right_count {
       coordinates.push([
-        5.0 + (sample % 4).to_double() * 0.03 + local.to_double() * 0.08,
-        local.to_double() * 0.15,
+        5.0 + (sample % 4).to_double() * 0.03 + local_.to_double() * 0.08,
+        local_.to_double() * 0.15,
       ])
       cell_names.push("Cell" + cell_number.to_string())
       sample_ids.push(sample_name)

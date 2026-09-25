@@ -5,7 +5,7 @@ test "go_enrichment_goterm_new" {
 
   assert_eq(go_term.go_id, "GO:0005515")
   assert_eq(go_term.term_name, "protein binding")
-  assert_eq(go_term.namespace, "BP")
+  assert_eq(go_term.namespace_, "BP")
   assert_eq(go_term.genes.length(), 3)
 }
 
@@ -113,5 +113,5 @@ test "go_enrichment_go_terms_by_namespace" {
   let bp_terms = @src.go_terms_by_namespace(go_terms, "BP")
 
   assert_eq(bp_terms.length(), 1)
-  assert_eq(bp_terms[0].namespace, "BP")
+  assert_eq(bp_terms[0].namespace_, "BP")
 }

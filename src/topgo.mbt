@@ -5,7 +5,7 @@
 pub struct TopGOTerm {
   go_id : String
   name : String
-  namespace : String
+  namespace_ : String
   level : Int
   parents : Array[String]
   children : Array[String]
@@ -16,13 +16,13 @@ pub struct TopGOTerm {
 pub fn TopGOTerm::new(
   go_id : String,
   name : String,
-  namespace : String,
+  namespace_ : String,
   level : Int,
 ) -> TopGOTerm {
   TopGOTerm::{
     go_id,
     name,
-    namespace,
+    namespace_,
     level,
     parents: Array(capacity=0),
     children: Array(capacity=0),
@@ -63,7 +63,7 @@ pub fn TopGOGraph::add_edge(
     terms.set(parent_id, TopGOTerm::{
       go_id: parent.go_id,
       name: parent.name,
-      namespace: parent.namespace,
+      namespace_: parent.namespace_,
       level: parent.level,
       parents: parent.parents,
       children,
@@ -78,7 +78,7 @@ pub fn TopGOGraph::add_edge(
     terms.set(child_id, TopGOTerm::{
       go_id: child.go_id,
       name: child.name,
-      namespace: child.namespace,
+      namespace_: child.namespace_,
       level: child.level,
       parents,
       children: child.children,
@@ -93,7 +93,7 @@ pub fn TopGOGraph::add_edge(
 pub struct TopGOEnrichmentResult {
   go_id : String
   term_name : String
-  namespace : String
+  namespace_ : String
   level : Int
   p_value : Double
   adjusted_p_value : Double
@@ -107,7 +107,7 @@ pub struct TopGOEnrichmentResult {
 pub fn TopGOEnrichmentResult::new(
   go_id : String,
   term_name : String,
-  namespace : String,
+  namespace_ : String,
   level : Int,
   p_value : Double,
   adjusted_p_value : Double,
@@ -119,7 +119,7 @@ pub fn TopGOEnrichmentResult::new(
   TopGOEnrichmentResult::{
     go_id,
     term_name,
-    namespace,
+    namespace_,
     level,
     p_value,
     adjusted_p_value,
@@ -177,7 +177,7 @@ pub fn topgo_elim_algorithm(
   graph : TopGOGraph,
   genes_of_interest : Array[String],
   all_genes : Array[String],
-  namespace : String,
+  namespace_ : String,
 ) -> Array[TopGOEnrichmentResult] {
   let results : Array[TopGOEnrichmentResult] = Array(capacity=0)
   let visited : Map[String, Bool] = Map([], capacity=1000)
@@ -195,7 +195,7 @@ pub fn topgo_elim_algorithm(
       if graph.terms.contains(node_id) {
         let term = graph.terms.get(node_id).unwrap()
 
-        if namespace == "" || term.namespace == namespace {
+        if namespace_ == "" || term.namespace_ == namespace_ {
           let gene_count = term.gene_count
           let total_genes = all_genes.length()
           let bg_count = gene_count
@@ -218,7 +218,7 @@ pub fn topgo_elim_algorithm(
           let result = TopGOEnrichmentResult::new(
             term.go_id,
             term.name,
-            term.namespace,
+            term.namespace_,
             term.level,
             p_value,
             p_value * 0.1,
@@ -243,14 +243,14 @@ pub fn topgo_weight01_algorithm(
   graph : TopGOGraph,
   genes_of_interest : Array[String],
   all_genes : Array[String],
-  namespace : String,
+  namespace_ : String,
 ) -> Array[TopGOEnrichmentResult] {
   let results : Array[TopGOEnrichmentResult] = Array(capacity=0)
 
   for key in graph.terms.keys() {
     let term = graph.terms.get(key).unwrap()
 
-    if namespace == "" || term.namespace == namespace {
+    if namespace_ == "" || term.namespace_ == namespace_ {
       let gene_count = term.gene_count
       let total_genes = all_genes.length()
       let bg_count = gene_count
@@ -269,7 +269,7 @@ pub fn topgo_weight01_algorithm(
       let result = TopGOEnrichmentResult::new(
         term.go_id,
         term.name,
-        term.namespace,
+        term.namespace_,
         term.level,
         p_value,
         adjusted_p,
@@ -296,7 +296,7 @@ pub fn create_example_topgo_graph() -> TopGOGraph {
   let term1 = TopGOTerm::{
     go_id: term1.go_id,
     name: term1.name,
-    namespace: term1.namespace,
+    namespace_: term1.namespace_,
     level: term1.level,
     parents: term1.parents,
     children: term1.children,
@@ -311,7 +311,7 @@ pub fn create_example_topgo_graph() -> TopGOGraph {
   let term2 = TopGOTerm::{
     go_id: term2.go_id,
     name: term2.name,
-    namespace: term2.namespace,
+    namespace_: term2.namespace_,
     level: term2.level,
     parents: term2.parents,
     children: term2.children,
@@ -324,7 +324,7 @@ pub fn create_example_topgo_graph() -> TopGOGraph {
   let term3 = TopGOTerm::{
     go_id: term3.go_id,
     name: term3.name,
-    namespace: term3.namespace,
+    namespace_: term3.namespace_,
     level: term3.level,
     parents: term3.parents,
     children: term3.children,

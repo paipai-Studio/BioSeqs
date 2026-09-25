@@ -6,15 +6,15 @@
 ///|
 pub struct MeltingTempResult {
   tm : Double
-  method : String
+  method_ : String
 }
 
 ///|
 pub fn MeltingTempResult::new(
   tm : Double,
-  method : String,
+  method_ : String,
 ) -> MeltingTempResult {
-  MeltingTempResult::{ tm, method, }
+  MeltingTempResult::{ tm, method_, }
 }
 
 ///|
@@ -176,11 +176,11 @@ pub fn mt_with_salt(
   seq : String,
   na_conc~ : Double = 0.05,
   mg_conc~ : Double = 0.0,
-  method~ : String = "nearest_neighbor"
+  method_~ : String = "nearest_neighbor"
 ) -> MeltingTempResult {
-  let base_tm = if method == "wallace" {
+  let base_tm = if method_ == "wallace" {
     mt_wallace(seq).tm
-  } else if method == "gc_content" {
+  } else if method_ == "gc_content" {
     mt_gc_content(seq).tm
   } else {
     mt_nearest_neighbor(seq).tm
@@ -192,7 +192,7 @@ pub fn mt_with_salt(
     mt_salt_correction_na(base_tm, na_conc)
   }
 
-  MeltingTempResult::new(tm_final, method + "_with_salt")
+  MeltingTempResult::new(tm_final, method_ + "_with_salt")
 }
 
 ///|
@@ -250,10 +250,10 @@ pub fn create_example_dna() -> String {
 ///|
 /// Calculate Tm for a primer sequence (convenience wrapper).
 pub fn mt_primer(primer : String) -> MeltingTempResult {
-  let method = recommend_tm_method(primer)
-  if method == "wallace" {
+  let method_ = recommend_tm_method(primer)
+  if method_ == "wallace" {
     mt_wallace(primer)
-  } else if method == "nearest_neighbor" {
+  } else if method_ == "nearest_neighbor" {
     mt_nearest_neighbor(primer)
   } else {
     mt_gc_content(primer)

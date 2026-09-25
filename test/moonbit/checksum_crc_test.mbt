@@ -20,7 +20,7 @@ test "checksum_crc32_matches_biopython" {
     let (seq, expected) = case
     let result = @src.checksum_crc32(seq)
     assert_eq(result.checksum, expected)
-    assert_eq(result.method, "crc32")
+    assert_eq(result.method_, "crc32")
   }
 }
 
@@ -41,7 +41,7 @@ test "checksum_crc64_matches_biopython" {
     let (seq, expected) = case
     let result = @src.checksum_crc64(seq)
     assert_eq(result.checksum, expected)
-    assert_eq(result.method, "crc64")
+    assert_eq(result.method_, "crc64")
   }
 }
 

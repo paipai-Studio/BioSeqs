@@ -401,11 +401,11 @@ test "pi0est_uniform_smoother_near_one" {
 ///|
 test "pi0est_uniform_bootstrap_near_one" {
   let p = qv_uniform_pvalues(1000)
-  let r = @src.qvalue_pi0est(p, method="bootstrap")
+  let r = @src.qvalue_pi0est(p, method_="bootstrap")
   assert_true(r.pi0() >= 0.9 && r.pi0() <= 1.0)
   assert_eq(r.pi0_smooth().length(), 0)
   // closed-form bootstrap is deterministic: repeated calls agree exactly
-  let r2 = @src.qvalue_pi0est(p, method="bootstrap")
+  let r2 = @src.qvalue_pi0est(p, method_="bootstrap")
   assert_true(qv_close(r.pi0(), r2.pi0(), 1.0e-12))
 }
 
@@ -413,7 +413,7 @@ test "pi0est_uniform_bootstrap_near_one" {
 test "pi0est_mixture_near_half" {
   let p = qv_mixture_pvalues()
   let rs = @src.qvalue_pi0est(p)
-  let rb = @src.qvalue_pi0est(p, method="bootstrap")
+  let rb = @src.qvalue_pi0est(p, method_="bootstrap")
   let rl = @src.qvalue_pi0est(p, smooth_log=true)
   assert_true(rs.pi0() >= 0.35 && rs.pi0() <= 0.65)
   assert_true(rb.pi0() >= 0.35 && rb.pi0() <= 0.65)
@@ -462,7 +462,7 @@ test "pi0est_rejects_bad_lambda_grid" {
   }
   assert_true(neg)
   let bad_method = try {
-    ignore(@src.qvalue_pi0est(p, method="nope"))
+    ignore(@src.qvalue_pi0est(p, method_="nope"))
     false
   } catch {
     QValueError(_) => true
@@ -732,7 +732,7 @@ test "analyze_options" {
   let r1 = @src.qvalue_analyze(p, lfdr_out=false)
   assert_eq(r1.lfdr().length(), 0)
   // bootstrap pi0 path runs through the main entry point
-  let r2 = @src.qvalue_analyze(p, method="bootstrap")
+  let r2 = @src.qvalue_analyze(p, method_="bootstrap")
   assert_true(r2.pi0() >= 0.35 && r2.pi0() <= 0.65)
   assert_eq(r2.pi0_method(), "bootstrap")
   // explicit pi0 override: no lambda path is computed

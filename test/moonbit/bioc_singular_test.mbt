@@ -6,7 +6,7 @@ test "svd_options_new_defaults" {
   let opts = @src.svd_options_new()
   assert_eq(opts.rank, 0)
   let default_method = @src.exact_svd_method()
-  assert_true(opts.method == default_method)
+  assert_true(opts.method_ == default_method)
   assert_true((opts.tol - 1.0e-7).abs() < 1.0e-15)
   assert_eq(opts.max_iter, 1000)
   assert_eq(opts.n_oversamples, 10)
@@ -16,7 +16,7 @@ test "svd_options_new_defaults" {
 test "svd_options_with_method_irlba" {
   let opts = @src.svd_options_with_method(@src.irlba_method())
   let m = @src.irlba_method()
-  assert_true(opts.method == m)
+  assert_true(opts.method_ == m)
   assert_eq(opts.rank, 0)
   assert_eq(opts.max_iter, 1000)
 }
@@ -25,7 +25,7 @@ test "svd_options_with_method_irlba" {
 test "svd_options_with_method_randomized" {
   let opts = @src.svd_options_with_method(@src.randomized_method())
   let m = @src.randomized_method()
-  assert_true(opts.method == m)
+  assert_true(opts.method_ == m)
 }
 
 ///|
@@ -36,7 +36,7 @@ test "svd_options_full_custom" {
   assert_eq(opts.max_iter, 500)
   assert_eq(opts.n_oversamples, 5)
   let m = @src.irlba_method()
-  assert_true(opts.method == m)
+  assert_true(opts.method_ == m)
 }
 
 ///|

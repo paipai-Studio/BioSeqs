@@ -103,8 +103,8 @@ fn main {
   ]
   let mut m = 0
   while m < methods.length() {
-    let (name, method) = methods[m]
-    let cfg = @bio.StageRConfig::new(alpha=0.05, pScreenAdjusted=false, stageMethod=method)
+    let (name, method_) = methods[m]
+    let cfg = @bio.StageRConfig::new(alpha=0.05, pScreenAdjusted=false, stageMethod=method_)
     let res = @bio.stage_wise_adjustment(pScreen, pConfirmation, cfg)
     let sigs = @bio.get_significant_hypotheses(res)
     println("  " + name + ": " + sigs.length().to_string() + " significant hypotheses")

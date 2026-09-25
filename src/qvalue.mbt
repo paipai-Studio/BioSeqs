@@ -1322,7 +1322,7 @@ fn _kde_at_points(x : Array[Double], adj : Double) -> Array[Double] {
 pub fn qvalue_pi0est(
   p_values : Array[Double],
   lambdas? : Array[Double] = _default_lambdas(),
-  method? : String = "smoother",
+  method_? : String = "smoother",
   smooth_log? : Bool = false,
 ) -> Pi0EstResult raise QValueError {
   _check_pvalues_strict(p_values)
@@ -1354,7 +1354,7 @@ pub fn qvalue_pi0est(
     }
     return Pi0EstResult::{ pi0, pi0_lambda, lambdas: lams, pi0_smooth: [], }
   }
-  if method == "smoother" {
+  if method_ == "smoother" {
     let mut yfit : Array[Double] = []
     if smooth_log {
       let ylog = Array::make(ll, 0.0)
@@ -1388,7 +1388,7 @@ pub fn qvalue_pi0est(
       )
     }
     Pi0EstResult::{ pi0, pi0_lambda, lambdas: lams, pi0_smooth: yfit, }
-  } else if method == "bootstrap" {
+  } else if method_ == "bootstrap" {
     let sorted_pi0 = pi0_lambda.copy()
     sorted_pi0.sort()
     let minpi0 = _quantile7_sorted(sorted_pi0, 0.1)
@@ -1711,7 +1711,7 @@ pub fn qvalue_analyze(
   pfdr? : Bool = false,
   pi0? : Double? = None,
   lambdas? : Array[Double]? = None,
-  method? : String = "smoother",
+  method_? : String = "smoother",
   smooth_log? : Bool = false,
   lfdr_out? : Bool = true,
 ) -> QValueFullResult raise QValueError {
@@ -1736,8 +1736,8 @@ pub fn qvalue_analyze(
     }
     None => {
       let est = match lambdas {
-        Some(ls) => qvalue_pi0est(p_values, lambdas=ls, method~, smooth_log~)
-        None => qvalue_pi0est(p_values, method~, smooth_log~)
+        Some(ls) => qvalue_pi0est(p_values, lambdas=ls, method_~, smooth_log~)
+        None => qvalue_pi0est(p_values, method_~, smooth_log~)
       }
       pi0_lambda = est.pi0_lambda
       lams = est.lambdas
@@ -1774,7 +1774,7 @@ pub fn qvalue_analyze(
     pi0_lambda,
     lambdas: lams,
     pi0_smooth,
-    pi0_method: method,
+    pi0_method: method_,
     pfdr,
   }
 }

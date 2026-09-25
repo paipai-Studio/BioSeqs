@@ -1439,8 +1439,8 @@ pub fn bsseq_region_methylation(
 /// - "none": no normalization (returns a copy).
 /// - "global": rescale per-record methylation rates so the global mean
 ///   becomes 0.5, then recompute meth/unmeth counts preserving coverage.
-pub fn bsseq_normalize(bsdata : BSData, method : String) -> BSData {
-  if method == "none" {
+pub fn bsseq_normalize(bsdata : BSData, method_ : String) -> BSData {
+  if method_ == "none" {
     let copied : Array[BSRecord] = Array(capacity=0)
     let mut i = 0
     while i < bsdata.records.length() {
@@ -1459,7 +1459,7 @@ pub fn bsseq_normalize(bsdata : BSData, method : String) -> BSData {
     }
     return BSData::new(copied, bsdata.sample_names.copy())
   }
-  if method == "global" {
+  if method_ == "global" {
     let mean_meth = bsseq_mean(bsdata.methylation)
     if mean_meth <= 0.0 || mean_meth >= 1.0 {
       let copied : Array[BSRecord] = Array(capacity=0)

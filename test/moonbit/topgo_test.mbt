@@ -4,7 +4,7 @@ test "TopGOTerm creation" {
   let term = @src.TopGOTerm::new("GO:0008150", "biological_process", "BP", 0)
   assert_eq(term.go_id, "GO:0008150")
   assert_eq(term.name, "biological_process")
-  assert_eq(term.namespace, "BP")
+  assert_eq(term.namespace_, "BP")
   assert_eq(term.level, 0)
   assert_eq(term.gene_count, 0)
 }

@@ -6,7 +6,7 @@
 pub struct GOTerm {
   go_id : String
   term_name : String
-  namespace : String
+  namespace_ : String
   genes : Array[String]
 }
 
@@ -14,17 +14,17 @@ pub struct GOTerm {
 pub fn GOTerm::new(
   go_id : String,
   term_name : String,
-  namespace : String,
+  namespace_ : String,
   genes : Array[String],
 ) -> GOTerm {
-  GOTerm::{ go_id, term_name, namespace, genes, }
+  GOTerm::{ go_id, term_name, namespace_, genes, }
 }
 
 ///|
 pub struct GOEnrichmentResult {
   go_id : String
   term_name : String
-  namespace : String
+  namespace_ : String
   p_value : Double
   mut adjusted_p_value : Double
   odds_ratio : Double
@@ -39,7 +39,7 @@ pub struct GOEnrichmentResult {
 pub fn GOEnrichmentResult::new(
   go_id : String,
   term_name : String,
-  namespace : String,
+  namespace_ : String,
   p_value : Double,
   adjusted_p_value : Double,
   odds_ratio : Double,
@@ -52,7 +52,7 @@ pub fn GOEnrichmentResult::new(
   GOEnrichmentResult::{
     go_id,
     term_name,
-    namespace,
+    namespace_,
     p_value,
     adjusted_p_value,
     odds_ratio,
@@ -279,7 +279,7 @@ pub fn go_enrich(
       GOEnrichmentResult::new(
         go_term.go_id,
         go_term.term_name,
-        go_term.namespace,
+        go_term.namespace_,
         p_value,
         0.0,
         odds_ratio,
@@ -340,12 +340,12 @@ pub fn filter_enrichment(
 ///|
 pub fn go_terms_by_namespace(
   go_terms : Array[GOTerm],
-  namespace : String,
+  namespace_ : String,
 ) -> Array[GOTerm] {
   let filtered : Array[GOTerm] = Array(capacity=0)
   let mut i = 0
   while i < go_terms.length() {
-    if go_terms[i].namespace == namespace {
+    if go_terms[i].namespace_ == namespace_ {
       filtered.push(go_terms[i])
     }
     i = i + 1

@@ -631,8 +631,8 @@ fn decompress_bgzf_block(
   // gzip member layout: [0..4) magic (1f 8b), [2] CM=8, [3] FLG,
   // [4..8) MTIME, [8] XFL, [9] OS, [10..12) XLEN (if FEXTRA), ...
   // The 4-byte BGZF magic already covers CM and FLG; check CM explicitly.
-  let method = data.unsafe_get(pos + 2).to_int() & 0xFF
-  if method != gzip_deflate_method {
+  let method_ = data.unsafe_get(pos + 2).to_int() & 0xFF
+  if method_ != gzip_deflate_method {
     raise BgzfError("Unsupported compression method")
   }
 

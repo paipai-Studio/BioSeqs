@@ -73,7 +73,7 @@ pub struct DecoupleRResult {
   samples : Array[String]
   matrix : Array[Array[Double]] // matrix[i][j] = activity of regulator i in sample j
   scores : Array[ActivityScore] // flat list of scores
-  method : String
+  method_ : String
 }
 
 ///|
@@ -483,7 +483,7 @@ fn decoupler_ulm(
     samples: sample_names,
     matrix,
     scores,
-    method: "ulm",
+    method_: "ulm",
   }
 }
 
@@ -558,7 +558,7 @@ fn decoupler_mlm(
     samples: sample_names,
     matrix,
     scores,
-    method: "mlm",
+    method_: "mlm",
   }
 }
 
@@ -620,7 +620,7 @@ fn decoupler_pack_result(
   regulators : Array[String],
   samples : Array[String],
   matrix : Array[Array[Double]],
-  method : String,
+  method_ : String,
 ) -> DecoupleRResult {
   let scores : Array[ActivityScore] = []
   let mut i = 0
@@ -637,7 +637,7 @@ fn decoupler_pack_result(
     }
     i = i + 1
   }
-  DecoupleRResult::{ regulators, samples, matrix, scores, method, }
+  DecoupleRResult::{ regulators, samples, matrix, scores, method_, }
 }
 
 ///|
@@ -654,9 +654,9 @@ pub fn decoupler_run(
   sample_names : Array[String],
   gene_names : Array[String],
   pkn : PriorKnowledgeNetwork,
-  method? : DecoupleRMethod = DecoupleRMethod::ULM,
+  method_? : DecoupleRMethod = DecoupleRMethod::ULM,
 ) -> DecoupleRResult {
-  match method {
+  match method_ {
     DecoupleRMethod::WSum =>
       decoupler_wsum(expression, sample_names, gene_names, pkn)
     DecoupleRMethod::WMean =>

@@ -1013,7 +1013,7 @@ test "rankprod_top_genes num_gene and cutoff match frozen topGene output" {
   let (tc_down, tc_up) = @src.rankprod_top_genes(
     result=rp,
     cutoff=Some(0.5),
-    method="pfp",
+    method_="pfp",
   )
   rpt_ivec(tc_down.indices(), [7, 1])
   rpt_ivec(tc_up.indices(), [12, 11])
@@ -1021,7 +1021,7 @@ test "rankprod_top_genes num_gene and cutoff match frozen topGene output" {
   let (tp_down, _) = @src.rankprod_top_genes(
     result=rp,
     cutoff=Some(0.01),
-    method="pval",
+    method_="pval",
   )
   rpt_ivec(tp_down.indices(), [7])
   // Error paths.
@@ -1039,7 +1039,7 @@ test "rankprod_top_genes num_gene and cutoff match frozen topGene output" {
     let _ = @src.rankprod_top_genes(
       result=rp,
       cutoff=Some(0.5),
-      method="bogus",
+      method_="bogus",
     )
   }))
 }

@@ -51,7 +51,7 @@ fn main {
   let cell_assignments = @bio.scmap_cell(reference, query, 5, 0.5)
   for a in cell_assignments {
     println(
-      "  \{a.cell_name()} -> \{a.assigned_type()} (best_corr=\{a.best_correlation()}, method=\{a.method()})",
+      "  \{a.cell_name()} -> \{a.assigned_type()} (best_corr=\{a.best_correlation()}, method=\{a.method_()})",
     )
   }
   println("")

@@ -128,7 +128,7 @@ fn main raise {
 
   // Threshold on pfp: the planted genes should be the only calls at 0.05.
   let (cut_down, cut_up) =
-    @src.rankprod_top_genes(result=rp, cutoff=Some(0.05), method="pfp")
+    @src.rankprod_top_genes(result=rp, cutoff=Some(0.05), method_="pfp")
   println("\n  Genes called at pfp < 0.05:")
   // Tables are ordered by ascending statistic, so gene 3 precedes gene 2.
   println("    down: \{cut_down.indices()} (expected [0, 1])")
@@ -136,7 +136,7 @@ fn main raise {
 
   // Same selection with a raw p-value threshold.
   let (p_down, p_up) =
-    @src.rankprod_top_genes(result=rp, cutoff=Some(0.01), method="pval")
+    @src.rankprod_top_genes(result=rp, cutoff=Some(0.01), method_="pval")
   println("  Genes called at P.value < 0.01:")
   println("    down: \{p_down.indices()}, up: \{p_up.indices()}")
 

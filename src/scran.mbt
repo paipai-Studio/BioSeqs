@@ -5,7 +5,7 @@
 ///|
 pub struct SizeFactors {
   factors : Array[Double]
-  method : String
+  method_ : String
 }
 
 ///|
@@ -229,7 +229,7 @@ pub fn compute_sum_factors(
     i = i + 1
   }
 
-  SizeFactors::{ factors: final_sfs, method: "sum_factors".to_string(), }
+  SizeFactors::{ factors: final_sfs, method_: "sum_factors".to_string(), }
 }
 
 ///|

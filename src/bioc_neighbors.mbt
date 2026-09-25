@@ -46,7 +46,7 @@ pub fn brute_force_method() -> NeighborSearchMethod {
 ///|
 /// Options for k-nearest neighbor search.
 pub struct KNNOptions {
-  method : NeighborSearchMethod
+  method_ : NeighborSearchMethod
   k : Int
   distance : String
   n_trees : Int
@@ -58,7 +58,7 @@ pub extend KNNOptions with @moonbitlang/core/debug.Debug::{to_repr}
 ///|
 /// Index result for fast nearest neighbor lookup.
 pub struct IndexResult {
-  method : NeighborSearchMethod
+  method_ : NeighborSearchMethod
   n_points : Int
   n_dim : Int
   data : Array[Array[Double]]
@@ -85,7 +85,7 @@ pub extend AnnoyNode with @moonbitlang/core/debug.Debug::{to_repr}
 /// Create default KNN options with brute force method and k=10.
 pub fn knn_options_new() -> KNNOptions {
   KNNOptions::{
-    method: BruteForce,
+    method_: BruteForce,
     k: 10,
     distance: "euclidean",
     n_trees: 50,
@@ -96,23 +96,23 @@ pub fn knn_options_new() -> KNNOptions {
 ///|
 /// Create KNN options with specified method and k value.
 pub fn knn_options_with_method(
-  method : NeighborSearchMethod,
+  method_ : NeighborSearchMethod,
   k : Int,
 ) -> KNNOptions {
   let opts = knn_options_new()
-  KNNOptions::{ ..opts, method, k, }
+  KNNOptions::{ ..opts, method_, k, }
 }
 
 ///|
 /// Create KNN options with all parameters specified.
 pub fn knn_options_full(
-  method : NeighborSearchMethod,
+  method_ : NeighborSearchMethod,
   k : Int,
   distance : String,
   n_trees : Int,
   search_k : Int,
 ) -> KNNOptions {
-  KNNOptions::{ method, k, distance, n_trees, search_k, }
+  KNNOptions::{ method_, k, distance, n_trees, search_k, }
 }
 
 ///|
@@ -149,11 +149,11 @@ fn lcg_next_double(lcg : LCG) -> (LCG, Double) {
 pub fn knn_compute_distance(
   p1 : Array[Double],
   p2 : Array[Double],
-  method : String,
+  method_ : String,
 ) -> Double {
-  if method == "manhattan" {
+  if method_ == "manhattan" {
     manhattan_distance(p1, p2)
-  } else if method == "cosine" {
+  } else if method_ == "cosine" {
     cosine_distance(p1, p2)
   } else {
     euclidean_distance(p1, p2)
@@ -303,12 +303,12 @@ pub fn build_knn_index(
   n_dim : Int,
   options : KNNOptions,
 ) -> IndexResult {
-  match options.method {
+  match options.method_ {
     KMKNN => build_kmknn_index(data, n_points, n_dim, options)
     Annoy => build_annoy_index(data, n_points, n_dim, options)
     BruteForce =>
       IndexResult::{
-        method: BruteForce,
+        method_: BruteForce,
         n_points,
         n_dim,
         data: data.copy(),
@@ -329,7 +329,7 @@ pub fn build_kmknn_index(
 ) -> IndexResult {
   if n_points == 0 {
     return IndexResult::{
-      method: KMKNN,
+      method_: KMKNN,
       n_points: 0,
       n_dim,
       data: [],
@@ -349,7 +349,7 @@ pub fn build_kmknn_index(
   }
   let (centroids, _) = km_kmeans(data, n_points, n_dim, n_clusters, 20)
   IndexResult::{
-    method: KMKNN,
+    method_: KMKNN,
     n_points,
     n_dim,
     data: data.copy(),
@@ -501,7 +501,7 @@ pub fn build_annoy_index(
 ) -> IndexResult {
   if n_points == 0 {
     return IndexResult::{
-      method: Annoy,
+      method_: Annoy,
       n_points: 0,
       n_dim,
       data: [],
@@ -567,7 +567,7 @@ pub fn build_annoy_index(
   }
 
   IndexResult::{
-    method: Annoy,
+    method_: Annoy,
     n_points,
     n_dim,
     data: data.copy(),
@@ -703,7 +703,7 @@ pub fn run_knn(
   n_query : Int,
   options : KNNOptions,
 ) -> KNNResult {
-  match index.method {
+  match index.method_ {
     KMKNN => knn_kmknn(index, query_data, n_query, options)
     Annoy => knn_annoy(index, query_data, n_query, options)
     BruteForce =>

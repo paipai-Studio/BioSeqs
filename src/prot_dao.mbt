@@ -153,7 +153,7 @@ pub struct DisorderResult {
   fraction_disordered : Double
   threshold_disordered : Double
   threshold_long : Double
-  method : String
+  method_ : String
 }
 
 // ============================================================================
@@ -283,7 +283,7 @@ pub fn prot_dao_predict(
     fraction_disordered: frac,
     threshold_disordered,
     threshold_long,
-    method: "IUPred-like",
+    method_: "IUPred-like",
   }
 }
 
@@ -374,7 +374,7 @@ pub fn DisorderResult::get_scores(self : DisorderResult) -> Array[Double] {
 /// Summary of disorder prediction.
 pub fn DisorderResult::summary(self : DisorderResult) -> String {
   let mut s = "Disorder Prediction Summary\n"
-  s = s + "Method: " + self.method + "\n"
+  s = s + "Method: " + self.method_ + "\n"
   s = s + "Sequence length: " + self.sequence.length().to_string() + "\n"
   s = s +
     "Disordered residues: " +

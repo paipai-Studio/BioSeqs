@@ -4,15 +4,15 @@
 ///|
 pub struct CheckSumResult {
   checksum : String
-  method : String
+  method_ : String
 }
 
 ///|
 pub fn CheckSumResult::new(
   checksum : String,
-  method : String,
+  method_ : String,
 ) -> CheckSumResult {
-  CheckSumResult::{ checksum, method, }
+  CheckSumResult::{ checksum, method_, }
 }
 
 ///|
@@ -145,9 +145,9 @@ pub fn create_example_sequence() -> String {
 pub fn verify_checksum(
   seq : String,
   expected_checksum : String,
-  method : String,
+  method_ : String,
 ) -> Bool {
-  let result = if method == "gcg" {
+  let result = if method_ == "gcg" {
     checksum_gcg(seq)
   } else {
     checksum_seguid(seq)

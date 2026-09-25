@@ -71,7 +71,7 @@ pub struct SingleRFullResult {
 ///|
 /// Parameters for SingleR annotation.
 pub struct SingleRParams {
-  method : String
+  method_ : String
   n_top_scores : Int
   fine_tune : Bool
   min_score : Double
@@ -302,7 +302,7 @@ pub fn SingleRData::new(
 /// Create default SingleR parameters.
 pub fn SingleRParams::new() -> SingleRParams {
   SingleRParams::{
-    method: "spearman",
+    method_: "spearman",
     n_top_scores: 1,
     fine_tune: true,
     min_score: 0.0,
@@ -312,21 +312,21 @@ pub fn SingleRParams::new() -> SingleRParams {
 
 ///|
 /// Create custom SingleR parameters with specific method.
-pub fn SingleRParams::with_method(method : String) -> SingleRParams {
+pub fn SingleRParams::with_method(method_ : String) -> SingleRParams {
   let base = SingleRParams::new()
-  SingleRParams::{ ..base, method, }
+  SingleRParams::{ ..base, method_, }
 }
 
 ///|
 /// Create custom SingleR parameters with all fields specified.
 pub fn SingleRParams::with_all(
   fine_tune : Bool,
-  method : String,
+  method_ : String,
   n_top_scores : Int,
   min_score : Double,
   quantile_score : Bool,
 ) -> SingleRParams {
-  SingleRParams::{ method, n_top_scores, fine_tune, min_score, quantile_score, }
+  SingleRParams::{ method_, n_top_scores, fine_tune, min_score, quantile_score, }
 }
 
 ///|
@@ -334,11 +334,11 @@ pub fn SingleRParams::with_all(
 pub fn single_r_compute_correlations(
   cell_expression : Array[Double],
   reference : ReferenceDataset,
-  method : String,
+  method_ : String,
 ) -> Array[Double] {
   let scores : Array[Double] = Array(capacity=0)
   for profile in reference.profiles {
-    let score = if method == "pearson" {
+    let score = if method_ == "pearson" {
       single_r_pearson_correlation(cell_expression, profile.expression)
     } else {
       single_r_spearman_correlation(cell_expression, profile.expression)
@@ -500,7 +500,7 @@ pub fn single_r_fine_tune_annotation(
   reference : ReferenceDataset,
   initial_label : String,
   n_markers : Int,
-  method : String,
+  method_ : String,
 ) -> (String, Double) {
   // Find profiles matching the initial label
   let marker_profiles : Array[Array[Double]] = Array(capacity=0)
@@ -524,7 +524,7 @@ pub fn single_r_fine_tune_annotation(
       let mut sum = 0.0
       for p in marker_profiles {
         sum = sum +
-          (if method == "pearson" {
+          (if method_ == "pearson" {
             single_r_pearson_correlation(cell_expression, p)
           } else {
             single_r_spearman_correlation(cell_expression, p)
@@ -541,7 +541,7 @@ pub fn single_r_fine_tune_annotation(
   let other_scores : Array[Double] = Array(capacity=0)
   for p in other_profiles {
     other_scores.push(
-      if method == "pearson" {
+      if method_ == "pearson" {
         single_r_pearson_correlation(cell_expression, p)
       } else {
         single_r_spearman_correlation(cell_expression, p)
@@ -567,7 +567,7 @@ pub fn single_r_fine_tune_annotation(
     let mut sum = 0.0
     for p in marker_profiles {
       sum = sum +
-        (if method == "pearson" {
+        (if method_ == "pearson" {
           single_r_pearson_correlation(cell_expression, p)
         } else {
           single_r_spearman_correlation(cell_expression, p)
@@ -598,7 +598,7 @@ pub fn single_r_annotate_cell(
   let raw_scores = single_r_compute_correlations(
     cell_expression,
     reference,
-    params.method,
+    params.method_,
   )
 
   // Aggregate scores by cell type
@@ -619,7 +619,7 @@ pub fn single_r_annotate_cell(
       reference,
       best_label,
       50,
-      params.method,
+      params.method_,
     )
   } else {
     (best_label, best_score)

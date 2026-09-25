@@ -199,7 +199,7 @@ test "single_r_annotation_summary" {
 ///|
 test "single_r_params_default" {
   let params = @src.SingleRParams::new()
-  assert_eq(params.method, "spearman")
+  assert_eq(params.method_, "spearman")
   assert_eq(params.n_top_scores, 1)
   assert_true(params.fine_tune)
   assert_true((params.min_score - 0.0).abs() < 0.001)
@@ -208,7 +208,7 @@ test "single_r_params_default" {
 ///|
 test "single_r_params_pearson" {
   let params = @src.SingleRParams::with_method("pearson")
-  assert_eq(params.method, "pearson")
+  assert_eq(params.method_, "pearson")
 }
 
 ///|

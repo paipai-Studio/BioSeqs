@@ -245,7 +245,7 @@ fn main raise {
     mi = mi + 1
   }
   let pi0_smooth = @src.qvalue_pi0est(mix_p)
-  let pi0_boot = @src.qvalue_pi0est(mix_p, method="bootstrap")
+  let pi0_boot = @src.qvalue_pi0est(mix_p, method_="bootstrap")
   println("  smoother  pi0 = \{fmt(pi0_smooth.pi0(), 4)} (cubic spline, df = 3)")
   println("  bootstrap pi0 = \{fmt(pi0_boot.pi0(), 4)} (closed-form MSE, deterministic)")
   println("  pi0(lambda) path at selected lambdas:")

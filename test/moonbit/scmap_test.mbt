@@ -39,7 +39,7 @@ test "scmap_assignment_creation" {
   assert_eq(a.assigned_type(), "T_cell")
   assert_eq(a.best_correlation(), 0.85)
   assert_eq(a.second_best_correlation(), 0.3)
-  assert_eq(a.method(), "cluster")
+  assert_eq(a.method_(), "cluster")
 }
 
 // ---------------------------------------------------------------------------
@@ -55,7 +55,7 @@ test "scmap_cluster_classifies_t_cell" {
   // query_T should be classified as T_cell
   assert_eq(assignments[0].cell_name(), "query_T")
   assert_eq(assignments[0].assigned_type(), "T_cell")
-  assert_eq(assignments[0].method(), "cluster")
+  assert_eq(assignments[0].method_(), "cluster")
 }
 
 ///|
@@ -111,7 +111,7 @@ test "scmap_cell_classifies_t_cell" {
   let assignments = @src.scmap_cell(ref, query, 3, 0.5)
   assert_eq(assignments.length(), 3)
   assert_eq(assignments[0].cell_name(), "query_T")
-  assert_eq(assignments[0].method(), "cell")
+  assert_eq(assignments[0].method_(), "cell")
 }
 
 ///|

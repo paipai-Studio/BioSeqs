@@ -1399,7 +1399,7 @@ pub fn rankprod_top_genes(
   result~ : RankProdResult,
   cutoff~ : Double? = None,
   num_gene~ : Int? = None,
-  method~ : String = "pfp",
+  method_~ : String = "pfp",
   logbase~ : Double = 2.0,
 ) -> (RankProdTopTable, RankProdTopTable) raise RankProdError {
   if cutoff is None && num_gene is None {
@@ -1412,9 +1412,9 @@ pub fn rankprod_top_genes(
       "rankprod_top_genes: cutoff and num_gene are mutually exclusive",
     )
   }
-  let use_pfp = if method == "pfp" {
+  let use_pfp = if method_ == "pfp" {
     true
-  } else if method == "pval" {
+  } else if method_ == "pval" {
     false
   } else {
     raise RankProdError(

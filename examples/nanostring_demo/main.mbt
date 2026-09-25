@@ -61,7 +61,7 @@ fn main {
         ": factor=" +
         r.norm_factors()[0].to_string() +
         " method=" +
-        r.method() +
+        r.method_() +
         " first_count=" +
         r.normalized_counts()[0].to_string(),
     )
@@ -80,7 +80,7 @@ fn main {
         ": factor=" +
         r.norm_factors()[0].to_string() +
         " method=" +
-        r.method() +
+        r.method_() +
         " first_count=" +
         r.normalized_counts()[0].to_string(),
     )
@@ -99,7 +99,7 @@ fn main {
         ": factor=" +
         r.norm_factors()[0].to_string() +
         " method=" +
-        r.method() +
+        r.method_() +
         " first_count=" +
         r.normalized_counts()[0].to_string(),
     )
@@ -124,7 +124,7 @@ fn main {
         ": " +
         factors_str +
         " method=" +
-        r.method() +
+        r.method_() +
         " first_count=" +
         r.normalized_counts()[0].to_string(),
     )

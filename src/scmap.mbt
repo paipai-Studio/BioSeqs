@@ -130,7 +130,7 @@ pub struct ScmapAssignment {
   assigned_type : String // "unassigned" if below threshold
   best_correlation : Double
   second_best_correlation : Double
-  method : String // "cluster" or "cell"
+  method_ : String // "cluster" or "cell"
 }
 
 ///|
@@ -140,14 +140,14 @@ pub fn ScmapAssignment::new(
   assigned_type : String,
   best_correlation : Double,
   second_best_correlation : Double,
-  method : String,
+  method_ : String,
 ) -> ScmapAssignment {
   {
     cell_name,
     assigned_type,
     best_correlation,
     second_best_correlation,
-    method,
+    method_,
   }
 }
 
@@ -179,8 +179,8 @@ pub fn ScmapAssignment::second_best_correlation(
 
 ///|
 /// Get method name.
-pub fn ScmapAssignment::method(self : ScmapAssignment) -> String {
-  self.method
+pub fn ScmapAssignment::method_(self : ScmapAssignment) -> String {
+  self.method_
 }
 
 // ============================================================================
@@ -443,7 +443,7 @@ pub fn ScmapAssignment::to_string(self : ScmapAssignment) -> String {
   " (corr=" +
   self.best_correlation.to_string() +
   ", method=" +
-  self.method +
+  self.method_ +
   ")"
 }
 
@@ -464,7 +464,7 @@ pub fn scmap_assignments_to_string(
       "\t" +
       a.best_correlation.to_string() +
       "\t" +
-      a.method +
+      a.method_ +
       "\n"
   }
   s

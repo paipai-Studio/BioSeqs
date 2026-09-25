@@ -207,7 +207,7 @@ test "scenic_binarize_mean_std" {
   let (binary, thresholds) = @src.binarize_activity(
     auc_matrix,
     6,
-    method=@src.binarize_mean_std(),
+    method_=@src.binarize_mean_std(),
   )
   assert_eq(thresholds.length(), 1)
   assert_true(thresholds[0] > 0.3 && thresholds[0] < 0.7)
@@ -224,7 +224,7 @@ test "scenic_binarize_kmeans2" {
   let (binary, thresholds) = @src.binarize_activity(
     auc_matrix,
     6,
-    method=@src.binarize_kmeans2(),
+    method_=@src.binarize_kmeans2(),
   )
   // K-means should separate at ~0.5
   assert_true(thresholds[0] > 0.3 && thresholds[0] < 0.7)
@@ -238,7 +238,7 @@ test "scenic_binarize_median" {
   let (binary, _thresholds) = @src.binarize_activity(
     auc_matrix,
     6,
-    method=@src.binarize_median(),
+    method_=@src.binarize_median(),
   )
   // Median of sorted [0.1,0.2,0.3,0.4,0.5,0.9] = 0.35
   // Values > 0.35: 0.4, 0.5, 0.9 -> 1

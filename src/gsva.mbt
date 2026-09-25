@@ -26,14 +26,14 @@ pub struct GSVAScores {
   scores : Array[Array[Double]]
   gene_set_names : Array[String]
   sample_names : Array[String]
-  method : String
+  method_ : String
   params : Map[String, String]
 }
 
 ///|
 /// Parameters for GSVA analysis.
 pub struct GSVAParams {
-  method : String
+  method_ : String
   kcdf : String
   min_size : Int
   max_size : Int
@@ -86,7 +86,7 @@ pub fn GSVAData::new(
 /// Create default GSVA parameters.
 pub fn GSVAParams::new() -> GSVAParams {
   GSVAParams::{
-    method: "ssgsea",
+    method_: "ssgsea",
     kcdf: "Gaussian",
     min_size: 1,
     max_size: 500,
@@ -353,7 +353,7 @@ pub fn gsva_filter_gene_sets(
 /// Rank genes by expression values for each sample.
 pub fn gsva_rank_genes(
   expression : Array[Array[Double]],
-  method : String,
+  method_ : String,
 ) -> Array[Array[Double]] {
   let n_genes = expression.length()
   let n_samples = if n_genes > 0 { expression[0].length() } else { 0 }
@@ -364,7 +364,7 @@ pub fn gsva_rank_genes(
     let gene_values : Array[(Int, Double)] = []
     let mut gene_idx = 0
     while gene_idx < n_genes {
-      let val = if method == "abs" {
+      let val = if method_ == "abs" {
         gsva_abs(expression[gene_idx][sample_idx])
       } else {
         expression[gene_idx][sample_idx]
@@ -651,7 +651,7 @@ pub fn gsva_score_gsva(
 /// Normalize scores using specified method.
 pub fn gsva_normalize_scores(
   scores : Array[Array[Double]],
-  method : String,
+  method_ : String,
 ) -> Array[Array[Double]] {
   let n_sets = scores.length()
   let n_samples = if n_sets > 0 { scores[0].length() } else { 0 }
@@ -666,7 +666,7 @@ pub fn gsva_normalize_scores(
       i = i + 1
     }
 
-    if method == "zscore" {
+    if method_ == "zscore" {
       let mean = gsva_mean(set_scores)
       let sd = gsva_std(set_scores)
       let mut j = 0
@@ -674,7 +674,7 @@ pub fn gsva_normalize_scores(
         set_scores[j] = if sd > 0.0 { (set_scores[j] - mean) / sd } else { 0.0 }
         j = j + 1
       }
-    } else if method == "rank" {
+    } else if method_ == "rank" {
       let ranked = gsva_percent_rank(set_scores)
       let mut j = 0
       while j < n_samples {
@@ -713,11 +713,11 @@ pub fn gsva_run(
   while i < n_sets {
     gene_set_names[i] = filtered_sets[i].name
 
-    let set_scores = if params.method == "ssgsea" {
+    let set_scores = if params.method_ == "ssgsea" {
       gsva_score_ssgsea(data.expression, filtered_sets[i], data.gene_names)
-    } else if params.method == "zscore" {
+    } else if params.method_ == "zscore" {
       gsva_score_zscore(data.expression, filtered_sets[i], data.gene_names)
-    } else if params.method == "plage" {
+    } else if params.method_ == "plage" {
       gsva_score_plage(data.expression, filtered_sets[i], data.gene_names)
     } else {
       gsva_score_gsva(
@@ -737,7 +737,7 @@ pub fn gsva_run(
   let abs_rank_str = if params.abs_ranking { "true" } else { "false" }
   let verbose_str = if params.verbose { "true" } else { "false" }
   let param_pairs = [
-    ("method", params.method),
+    ("method", params.method_),
     ("kcdf", params.kcdf),
     ("min_size", params.min_size.to_string()),
     ("max_size", params.max_size.to_string()),
@@ -750,7 +750,7 @@ pub fn gsva_run(
     scores: normalized_scores,
     gene_set_names,
     sample_names: data.sample_names,
-    method: params.method,
+    method_: params.method_,
     params: param_map,
   }
 }
@@ -1033,7 +1033,7 @@ pub fn gsva_statistics(scores : Array[Array[Double]]) -> GSVAStat {
 pub fn gsva_summarize(scores : GSVAScores) -> String {
   let mut summary = "GSVA Results Summary\n"
   summary = summary + "===================\n\n"
-  summary = summary + "Method: " + scores.method + "\n"
+  summary = summary + "Method: " + scores.method_ + "\n"
   summary = summary +
     "Gene Sets: " +
     scores.gene_set_names.length().to_string() +
@@ -1246,7 +1246,7 @@ pub fn GSVAScores::to_string(self : GSVAScores) -> String {
 
   let mut result = "GSVAScores\n"
   result = result + "-----------\n"
-  result = result + "Method: " + self.method + "\n"
+  result = result + "Method: " + self.method_ + "\n"
   result = result + "Gene Sets: " + n_sets.to_string() + "\n"
   result = result + "Samples: " + n_samples.to_string() + "\n"
   result = result +
@@ -1264,7 +1264,7 @@ pub fn GSVAScores::to_string(self : GSVAScores) -> String {
 pub fn GSVAParams::to_string(self : GSVAParams) -> String {
   let mut result = "GSVAParams\n"
   result = result + "-----------\n"
-  result = result + "method: " + self.method + "\n"
+  result = result + "method: " + self.method_ + "\n"
   result = result + "kcdf: " + self.kcdf + "\n"
   result = result + "min_size: " + self.min_size.to_string() + "\n"
   result = result + "max_size: " + self.max_size.to_string() + "\n"

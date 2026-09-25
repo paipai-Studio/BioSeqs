@@ -43,7 +43,7 @@ pub struct DNDSResult {
   se_dN : Double
   se_dS : Double
   se_omega : Double
-  method : String
+  method_ : String
 }
 
 ///|
@@ -55,7 +55,7 @@ pub fn DNDSResult::new(dN : Double, dS : Double, omega : Double) -> DNDSResult {
     se_dN: 0.0,
     se_dS: 0.0,
     se_omega: 0.0,
-    method: "Nei-Gojobori",
+    method_: "Nei-Gojobori",
   }
 }
 
@@ -63,7 +63,7 @@ pub fn DNDSResult::new(dN : Double, dS : Double, omega : Double) -> DNDSResult {
 pub fn paml_calculate_dnds(
   seq1 : String,
   seq2 : String,
-  method : String,
+  method_ : String,
 ) -> DNDSResult {
   let aligned_seq1 = to_lowercase(seq1)
   let aligned_seq2 = to_lowercase(seq2)
