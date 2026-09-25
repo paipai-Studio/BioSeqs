@@ -30,7 +30,7 @@ test "annotation_dbi_get_gene_info" {
   @src.add_gene_info(db, gene_info)
 
   let result = @src.annotation_dbi_get_gene_info(db, "ENSG00000130203")
-  assert_true(result.is_some())
+  assert_true(result is Some(_))
 }
 
 ///|

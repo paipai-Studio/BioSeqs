@@ -349,7 +349,7 @@ pub fn DisorderResult::disordered_sequence(self : DisorderResult) -> String {
   let mut i = 0
   while i < self.residues.length() {
     if self.residues[i].is_disordered {
-      s = s + self.residues[i].amino_acid.to_char().to_string()
+      s = s + self.residues[i].amino_acid.unsafe_to_char().to_string()
     } else {
       s = s + "-"
     }
@@ -438,7 +438,7 @@ pub fn DisorderResult::to_ascii(
         } else {
           spaces.length()
         }
-        ruler = ruler + spaces.substring(start=0, end=take)
+        ruler = ruler + spaces[0:take].to_owned()
       }
       ruler = ruler + label
     } else {

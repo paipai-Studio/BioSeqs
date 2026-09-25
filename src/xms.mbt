@@ -41,7 +41,7 @@ fn xms_trim(s : String) -> String {
   if i >= j {
     ""
   } else {
-    s.substring(start=i, end=j)
+    s[i:j].to_owned()
   }
 }
 
@@ -70,7 +70,7 @@ pub fn xms_parse(text : String) -> Array[XmsMotif] {
         motifs.push(XmsMotif::{ name: name, sites: sites })
         sites = Array(capacity=0)
       }
-      name = line.substring(start=1)
+      name = line[1:].to_owned()
       continue
     }
     let parts = line.split(" ").to_array()
@@ -104,7 +104,7 @@ pub fn mirs_parse(text : String) -> Array[MirsRecord] {
       continue
     }
     if line[0] == '>' {
-      let sp = line.substring(start=1).split(" ").to_array()
+      let sp = line[1:].split(" ").to_array()
       id = xms_trim(sp[0].to_owned())
       let mut comment_part = ""
       if sp.length() > 1 {
@@ -194,7 +194,7 @@ pub fn xms_pwm(
   pfm : Array[Array[Double]],
   background? : Array[Double],
 ) -> Array[Array[Double]] {
-  let bg = if background.is_some() { background.unwrap() } else {
+  let bg = if background is Some(_) { background.unwrap() } else {
     [0.25, 0.25, 0.25, 0.25]
   }
   let out : Array[Array[Double]] = Array(capacity=0)
@@ -304,7 +304,7 @@ pub fn mirs_seed(mature : String, start : Int, end : Int) -> String? {
   if start < 1 || end > mature.length() || start > end {
     return None
   }
-  Some(mature.substring(start=start - 1, end=end))
+  Some(mature[start - 1:end].to_owned())
 }
 
 /// 6mer seed：成熟序列第 2-7 位。
@@ -334,16 +334,16 @@ pub fn mirs_classify_seeds(mature : String) -> Array[(String, String)] {
   let a1 = mirs_seed_7mer_a1(mature)
   let m8 = mirs_seed_7mer_m8(mature)
   let eight = mirs_seed_8mer(mature)
-  if eight.is_some() {
+  if eight is Some(_) {
     out.push(("8mer", eight.unwrap()))
   }
-  if m8.is_some() {
+  if m8 is Some(_) {
     out.push(("7mer-m8", m8.unwrap()))
   }
-  if a1.is_some() {
+  if a1 is Some(_) {
     out.push(("7mer-A1", a1.unwrap()))
   }
-  if six.is_some() {
+  if six is Some(_) {
     out.push(("6mer", six.unwrap()))
   }
   out

@@ -132,9 +132,9 @@ test "sw_format_output" {
   // Should contain 3 lines separated by \n
   let lines = formatted.split("\n").to_array()
   assert_eq(lines.length(), 3)
-  assert_eq(lines[0].to_string(), "ACGT")
-  assert_eq(lines[1].to_string(), "||||")
-  assert_eq(lines[2].to_string(), "ACGT")
+  assert_eq(lines[0].to_owned(), "ACGT")
+  assert_eq(lines[1].to_owned(), "||||")
+  assert_eq(lines[2].to_owned(), "ACGT")
 }
 
 ///|

@@ -159,9 +159,9 @@ pub fn spiral_hsv_at(sp : ColorSpiral, idx : Int) -> (Double, Double, Double) {
 
 fn hex_digit(v : Int) -> Char {
   if v < 10 {
-    return Char::from_int('0'.to_int() + v)
+    return ('0'.to_int() + v).unsafe_to_char()
   }
-  Char::from_int('A'.to_int() + v - 10)
+  ('A'.to_int() + v - 10).unsafe_to_char()
 }
 
 /// RGB 转十六进制字符串（如 "#FF0000"）。
@@ -215,7 +215,7 @@ pub fn spiral_svg_palette(
       "<rect x=\"" + x.to_string() + "\" y=\"5\" width=\"55\" height=\"30\" fill=\"" +
       spiral_hex(colors[i]) + "\" stroke=\"#000\" stroke-width=\"1\"/>\n",
     )
-    if labels.is_some() && labels.unwrap().length() > i {
+    if labels is Some(_) && labels.unwrap().length() > i {
       sb.write_string(
         "<text x=\"" + (x + 27).to_string() + "\" y=\"47\" font-size=\"9\" text-anchor=\"middle\">" +
         labels.unwrap()[i] + "</text>\n",

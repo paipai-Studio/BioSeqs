@@ -222,8 +222,8 @@ pub fn aggregate_cells(
     let k = group_keys[gk]
     let v = groups.get(k).unwrap()
     let parts = k.split("::")
-    let sample_id = parts.next().unwrap_or("").to_string()
-    let cluster_id = parts.next().unwrap_or("").to_string()
+    let sample_id = parts.next().unwrap_or("").to_owned()
+    let cluster_id = parts.next().unwrap_or("").to_owned()
 
     // Determine group_id from first cell
     let group_id = if v.length() > 0 { v[0].group_id } else { "" }
@@ -373,7 +373,7 @@ pub fn run_ds_analysis(
   }
 
   let all_results : Array[DSResult] = Array(capacity=0)
-  let n_clusters = cluster_groups.size()
+  let n_clusters = cluster_groups.length()
 
   let cluster_keys = cluster_groups.keys().collect()
   let mut cki = 0
@@ -496,7 +496,7 @@ pub fn run_ds_analysis(
       gene_set.set(all_results[gi].gene_id, ())
       gi = gi + 1
     }
-    gene_set.size()
+    gene_set.length()
   } else {
     0
   }

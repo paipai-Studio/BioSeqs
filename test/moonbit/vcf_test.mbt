@@ -55,7 +55,7 @@ test "vcf_parse_info" {
   assert_eq(r2.info.get("AF"), Some("0.5,0.25"))
 
   let r4 = records[3]
-  assert_true(r4.info.get("AC").is_none())
+  assert_true(r4.info.get("AC") is None)
 }
 
 ///|
@@ -86,11 +86,11 @@ test "vcf_parse_samples" {
 
   let r1 = records[0]
   let gt1 = r1.get_genotype("sample1")
-  assert_true(gt1.is_some())
+  assert_true(gt1 is Some(_))
   assert_eq(gt1.unwrap().length(), 2)
 
   let gt2 = r1.get_genotype("sample2")
-  assert_true(gt2.is_some())
+  assert_true(gt2 is Some(_))
 }
 
 ///|
@@ -150,7 +150,7 @@ test "vcf_write_roundtrip" {
   assert_eq(r1.ref_seq, "A")
   assert_eq(r1.alt.length(), 1)
   assert_eq(r1.alt[0], "T")
-  assert_true(r1.qual.is_some())
+  assert_true(r1.qual is Some(_))
   assert_true(assert_close(r1.qual.unwrap(), 60.5, 1.0e-9))
   assert_eq(r1.filter.length(), 1)
   assert_eq(r1.filter[0], "PASS")
@@ -166,7 +166,7 @@ test "vcf_write_roundtrip" {
 
   // sample genotype round-trips through the comma-based sub-field convention
   let g = r1.get_genotype("sample1")
-  assert_true(g.is_some())
+  assert_true(g is Some(_))
   assert_eq(g.unwrap().length(), 2)
   assert_eq(g.unwrap()[0], "0/1:3")
   assert_eq(g.unwrap()[1], "5")
@@ -174,5 +174,5 @@ test "vcf_write_roundtrip" {
   // no-ALT / no-qual record
   let r4 = vcf2.records[3]
   assert_eq(r4.alt.length(), 0)
-  assert_true(r4.qual.is_none())
+  assert_true(r4.qual is None)
 }

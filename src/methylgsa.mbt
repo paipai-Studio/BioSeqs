@@ -36,7 +36,7 @@ pub struct MethylgsaResult {
   statistic : Double
   pvalue : Double
   qvalue : Double
-} derive(Eq, Show, Debug)
+} derive(Eq, Debug)
 pub extend MethylgsaResult with Eq::{equal, not_equal}
 pub extend MethylgsaResult with @moonbitlang/core/debug.Debug::{to_repr}
 

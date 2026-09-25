@@ -134,7 +134,7 @@ pub fn parse_kegg_gene(text : String) -> KEGGGene? {
 
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
 
     if starts_with(line, 0, "ENTRY") {
       entry = line[6:].trim().to_owned()
@@ -187,7 +187,7 @@ pub fn parse_kegg_pathway(text : String) -> KEGGPathway? {
 
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
 
     if starts_with(line, 0, "ENTRY") {
       entry = line[6:].trim().to_owned()
@@ -252,7 +252,7 @@ pub fn parse_kegg_compound(text : String) -> KEGGCompound? {
 
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
 
     if starts_with(line, 0, "ENTRY") {
       entry = line[6:].trim().to_owned()
@@ -302,7 +302,7 @@ pub fn parse_kegg_enzyme(text : String) -> KEGGEnzyme? {
 
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
 
     if starts_with(line, 0, "ENTRY") {
       entry = line[6:].trim().to_owned()
@@ -378,7 +378,7 @@ pub fn kegg_compound_in_pathway(
     let path_len = path.length()
     if path_len >= id_len {
       let sub = path[0:id_len]
-      if sub.to_string() == pathway_id {
+      if sub.to_owned() == pathway_id {
         return true
       }
     }

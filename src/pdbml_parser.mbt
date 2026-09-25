@@ -113,7 +113,7 @@ fn pdbml_read_name(s : String, i : Int) -> (String, Int) {
   while j < s.length() && pdbml_is_name_char(s.unsafe_get(j).to_int()) {
     j = j + 1
   }
-  (s[i:j].to_string(), j)
+  (s[i:j].to_owned(), j)
 }
 
 ///|
@@ -240,7 +240,7 @@ fn pdbml_parse_element(
     while k2 < s.length() && s.unsafe_get(k2).to_int() != '<'.to_int() {
       k2 = k2 + 1
     }
-    text.write_string(s[j:k2].to_string())
+    text.write_string(s[j:k2].to_owned())
     j = k2
   }
   pdbml_fail("Unterminated element")

@@ -26,16 +26,16 @@ pub struct ClusterBusterCluster {
 ///|
 /// Parse a string of doubles inside brackets "[a b c d]".
 fn clusterbuster_parse_probs(line : String) -> Array[Double]? {
-  let trimmed = line.trim(chars=" \t\r").to_string()
+  let trimmed = line.trim(chars=" \t\r").to_owned()
   if trimmed.length() < 2 || trimmed[0] != 91 || trimmed[trimmed.length() - 1] != 93 {
     return None // '[' ... ']'
   }
-  let inner = trimmed[1:trimmed.length() - 1].to_string()
+  let inner = trimmed[1:trimmed.length() - 1].to_owned()
   let fields = inner.split(" ").to_array()
   let probs : Array[Double] = []
   let mut i = 0
   while i < fields.length() {
-    let f = fields[i].trim(chars=" \t").to_string()
+    let f = fields[i].trim(chars=" \t").to_owned()
     if f.length() > 0 {
       match clusterbuster_atof_opt(f) {
         Some(v) => probs.push(v)
@@ -54,7 +54,7 @@ fn clusterbuster_parse_probs(line : String) -> Array[Double]? {
 ///|
 /// Parse double or None.
 fn clusterbuster_atof_opt(s : String) -> Double? {
-  let t = s.trim(chars=" \t\r").to_string()
+  let t = s.trim(chars=" \t\r").to_owned()
   if t.length() == 0 {
     return None
   }
@@ -81,7 +81,7 @@ fn clusterbuster_atof_opt(s : String) -> Double? {
       in_frac = true
     } else if c == 101 || c == 69 {
       // scientific notation exponent: parse rest as int
-      let exp_str = t[k + 1:t.length()].to_string()
+      let exp_str = t[k + 1:t.length()].to_owned()
       match clusterbuster_atof_opt(exp_str) {
         Some(exp_v) => {
           if !(any_digit) {
@@ -120,7 +120,7 @@ pub fn clusterbuster_parse(content : String) -> Array[ClusterBusterCluster] {
   let mut i = 0
   while i < lines.length() {
     let raw = lines[i]
-    let line = raw.trim(chars=" \t\r").to_string()
+    let line = raw.trim(chars=" \t\r").to_owned()
     if line.length() == 0 || line[0] == 35 {
       // skip empty and comment lines
       i = i + 1
@@ -143,11 +143,11 @@ pub fn clusterbuster_parse(content : String) -> Array[ClusterBusterCluster] {
         None => ()
       }
       // parse header: >name score
-      let header = line[1:line.length()].to_string()
+      let header = line[1:line.length()].to_owned()
       let fields = header.split(" ").to_array()
-      let name = if fields.length() > 0 { fields[0].to_string() } else { "" }
+      let name = if fields.length() > 0 { fields[0].to_owned() } else { "" }
       let score = if fields.length() > 1 {
-        match clusterbuster_atof_opt(fields[1].to_string()) {
+        match clusterbuster_atof_opt(fields[1].to_owned()) {
           Some(v) => v
           None => 0.0
         }

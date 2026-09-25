@@ -219,7 +219,7 @@ fn main {
 
   println("2. Gene Info Query")
   let tp53_info = @bio.annotation_dbi_get_gene_info(db, "ENSG00000130203")
-  if tp53_info.is_some() {
+  if tp53_info is Some(_) {
     println("   Found TP53: \{tp53_info.unwrap().symbol}")
   } else {
     println("   TP53 not found")

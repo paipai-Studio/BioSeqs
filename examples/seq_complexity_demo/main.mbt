@@ -99,7 +99,7 @@ fn main {
   println("\n6. Sequence Signature (k-mer frequency, k=2):")
   println("==============================================")
   let sig = @src.sequence_signature("ATCGATCG", k=2)
-  println("  Unique 2-mers: " + sig.size().to_string())
+  println("  Unique 2-mers: " + sig.length().to_string())
   let sig_kmers = ["AT", "TC", "CG", "GA"]
   let mut ski = 0
   while ski < sig_kmers.length() {

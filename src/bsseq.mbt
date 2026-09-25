@@ -431,7 +431,7 @@ fn bsseq_trim(s : String) -> String {
   if start >= end {
     ""
   } else {
-    s[start:end].to_string()
+    s[start:end].to_owned()
   }
 }
 
@@ -447,7 +447,7 @@ fn bsseq_is_header_line(line : String) -> Bool {
   }
   // Lines beginning with "chr" but containing "chrom" as a header word.
   if line.length() >= 5 {
-    let prefix = line[0:5].to_string()
+    let prefix = line[0:5].to_owned()
     if prefix == "chrom" || prefix == "Chrom" {
       return true
     }
@@ -913,7 +913,7 @@ pub fn bsseq_parse_bismark(content : String) -> BSData {
     }
     // Skip the Bismark methylation extractor preamble line.
     if line.length() >= 6 {
-      let prefix = line[0:6].to_string()
+      let prefix = line[0:6].to_owned()
       if prefix == "Bismar" {
         i = i + 1
         continue

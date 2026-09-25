@@ -23,7 +23,7 @@ fn main raise {
   println("n_ref = \{idx.n_ref}")
   for i = 0; i < idx.references.length(); i = i + 1 {
     let r = idx.references[i]
-    println("  ref \{i}: \{r.bins.size()} bins, \{r.linear.length()} linear entries")
+    println("  ref \{i}: \{r.bins.length()} bins, \{r.linear.length()} linear entries")
   }
 
   println("\n=== 3. Query a region on ref 0 ===")

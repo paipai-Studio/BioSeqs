@@ -531,7 +531,7 @@ pub fn sc3_calculate_wcss(data : Array[Array[Double]], k : Int) -> Double {
   let mut s = 0
   while s < n {
     let label = labels[s]
-    wcss = wcss + sc3_euclidean_distance(data[s], centroids[label]).pow(2)
+    wcss = wcss + @math.pow(sc3_euclidean_distance(data[s], centroids[label]), 2)
     s = s + 1
   }
 

@@ -162,9 +162,9 @@ fn protein_aa_frequency_at(
     if pos < seq.length() {
       let char_code = seq.unsafe_get(pos).to_int()
       let c = if char_code >= 97 && char_code <= 122 {
-        Char::from_int(char_code - 32)
+        (char_code - 32).unsafe_to_char()
       } else {
-        Char::from_int(char_code)
+        (char_code).unsafe_to_char()
       }
       let count = match aa_map.get(c) {
         Some(v) => v + 1.0

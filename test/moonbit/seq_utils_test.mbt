@@ -70,7 +70,7 @@ test "is_protein" {
 ///|
 test "count_kmers" {
   let counts = @src.count_kmers("AAAA", 2)
-  assert_true(counts.size() > 0)
+  assert_true(counts.length() > 0)
 }
 
 ///|
@@ -88,7 +88,7 @@ test "ambiguity_codes" {
 ///|
 test "codon_usage" {
   let usage = @src.codon_usage("ATGATG")
-  assert_true(usage.size() > 0)
+  assert_true(usage.length() > 0)
 }
 
 ///|

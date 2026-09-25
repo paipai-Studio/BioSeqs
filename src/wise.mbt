@@ -285,7 +285,7 @@ pub fn wise_parse(content : String) -> WiseResult {
   let result = WiseResult::new()
   let lines = content.split("\n").to_array()
   for line in lines {
-    let trimmed = line.to_string()
+    let trimmed = line.to_owned()
     if trimmed.length() == 0 {
       continue
     }
@@ -293,7 +293,7 @@ pub fn wise_parse(content : String) -> WiseResult {
     if trimmed.has_prefix("Score:") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
-        result.score = parse_double(parts[1].to_string().trim().to_string()).unwrap_or(
+        result.score = parse_double(parts[1].to_owned().trim().to_owned()).unwrap_or(
           0.0,
         )
       }
@@ -303,7 +303,7 @@ pub fn wise_parse(content : String) -> WiseResult {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
         result.bits_score = parse_double(
-          parts[1].to_string().trim().to_string(),
+          parts[1].to_owned().trim().to_owned(),
         ).unwrap_or(0.0)
       }
     }
@@ -311,14 +311,14 @@ pub fn wise_parse(content : String) -> WiseResult {
     if trimmed.has_prefix("Protein:") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
-        result.protein_id = parts[1].to_string().trim().to_string()
+        result.protein_id = parts[1].to_owned().trim().to_owned()
       }
     }
     // Parse gene ID: "Gene: G67890"
     if trimmed.has_prefix("Gene:") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
-        result.gene_id = parts[1].to_string().trim().to_string()
+        result.gene_id = parts[1].to_owned().trim().to_owned()
       }
     }
     // Parse exon line:
@@ -349,8 +349,8 @@ pub fn wise_parse(content : String) -> WiseResult {
       !trimmed.has_prefix("Gene") {
       let parts = trimmed.split(":").to_array()
       if parts.length() >= 2 {
-        let key = parts[0].to_string().trim().to_string()
-        let value = parts[1].to_string().trim().to_string()
+        let key = parts[0].to_owned().trim().to_owned()
+        let value = parts[1].to_owned().trim().to_owned()
         if key.length() > 0 && value.length() > 0 && !key.contains(" ") {
           result.parameters[key] = value
         }
@@ -371,8 +371,8 @@ fn wise_parse_exon_line(line : String) -> WiseExon? {
   match dash_pos {
     Some(dp) => {
       // Find the start of the number before dash
-      let before = line[0:dp].to_string()
-      let after = line[dp + 1:].to_string()
+      let before = line[0:dp].to_owned()
+      let after = line[dp + 1:].to_owned()
       // Parse start number from before (last number)
       start = wise_extract_last_number(before)
       // Parse end number from after (first number)
@@ -401,10 +401,10 @@ fn wise_parse_exon_line(line : String) -> WiseExon? {
     match dash {
       Some(dp) => {
         protein_start = wise_extract_first_number(
-          protein_part[0:dp].to_string(),
+          protein_part[0:dp].to_owned(),
         )
         protein_end = wise_extract_first_number(
-          protein_part[dp + 1:].to_string(),
+          protein_part[dp + 1:].to_owned(),
         )
       }
       None => ()
@@ -424,8 +424,8 @@ fn wise_parse_intron_line(line : String) -> WiseIntron? {
   let mut end = 0
   match dash_pos {
     Some(dp) => {
-      let before = line[0:dp].to_string()
-      let after = line[dp + 1:].to_string()
+      let before = line[0:dp].to_owned()
+      let after = line[dp + 1:].to_owned()
       start = wise_extract_last_number(before)
       end = wise_extract_first_number(after)
     }
@@ -516,7 +516,7 @@ fn wise_extract_first_double(s : String) -> Double {
 /// Extract the substring after a pattern.
 fn wise_extract_after(s : String, pattern : String) -> String {
   match s.find(pattern) {
-    Some(pos) => s[pos + pattern.length():].to_string()
+    Some(pos) => s[pos + pattern.length():].to_owned()
     None => ""
   }
 }
@@ -631,11 +631,11 @@ pub fn wise_translate_gene(
 ) -> String {
   let sb = StringBuilder()
   for exon in result.exons {
-    let exon_seq = gene_sequence.substring(start=exon.start, end=exon.end + 1)
+    let exon_seq = gene_sequence[exon.start:exon.end + 1]
     // Translate codon by codon
     let mut i = 0
     while i + 2 < exon_seq.length() {
-      let codon = exon_seq[i:i + 3].to_string()
+      let codon = exon_seq[i:i + 3].to_owned()
       let aa = wise_translate_codon(codon)
       sb.write_char(aa)
       i = i + 3
@@ -800,7 +800,7 @@ pub fn wise_summary(result : WiseResult) -> String {
     " nt\n",
   )
   sb.write_string(
-    "  Parameters: " + result.parameters.size().to_string() + "\n",
+    "  Parameters: " + result.parameters.length().to_string() + "\n",
   )
   sb.to_string()
 }

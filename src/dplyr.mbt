@@ -141,7 +141,7 @@ pub fn dataframe_select(
   let mut i = 0
   while i < column_names.length() {
     let col_opt = dataframe_get_column(df, column_names[i])
-    if col_opt.is_some() {
+    if col_opt is Some(_) {
       selected.push(col_opt.unwrap())
     }
     i = i + 1
@@ -279,7 +279,7 @@ pub fn dataframe_arrange(
   descending : Bool,
 ) -> DataFrame {
   let col_idx_opt = dataframe_get_column_index(df, column_name)
-  if col_idx_opt.is_none() {
+  if col_idx_opt is None {
     return df
   }
   let col_idx = col_idx_opt.unwrap()
@@ -338,7 +338,7 @@ pub fn dataframe_group_by(
   group_column : String,
 ) -> Array[(String, DataFrame)] {
   let col_idx_opt = dataframe_get_column_index(df, group_column)
-  if col_idx_opt.is_none() {
+  if col_idx_opt is None {
     return []
   }
   let col_idx = col_idx_opt.unwrap()
@@ -432,7 +432,7 @@ pub fn dataframe_summarize(
     while k < agg_columns.length() {
       let (_, agg_func) = agg_columns[k]
       let col_idx_opt = dataframe_get_column_index(group_df, agg_columns[k].0)
-      if col_idx_opt.is_some() {
+      if col_idx_opt is Some(_) {
         let col_idx = col_idx_opt.unwrap()
         result_cols[k + 1].values.push(
           agg_func(group_df.columns[col_idx].values),
@@ -456,10 +456,10 @@ pub fn dataframe_inner_join(
 ) -> DataFrame {
   let col1_idx_opt = dataframe_get_column_index(df1, by)
   let col2_idx_opt = dataframe_get_column_index(df2, by)
-  if col1_idx_opt.is_none() {
+  if col1_idx_opt is None {
     return df1
   }
-  if col2_idx_opt.is_none() {
+  if col2_idx_opt is None {
     return df2
   }
   let col1_idx = col1_idx_opt.unwrap()
@@ -530,10 +530,10 @@ pub fn dataframe_left_join(
 ) -> DataFrame {
   let col1_idx_opt = dataframe_get_column_index(df1, by)
   let col2_idx_opt = dataframe_get_column_index(df2, by)
-  if col1_idx_opt.is_none() {
+  if col1_idx_opt is None {
     return df1
   }
-  if col2_idx_opt.is_none() {
+  if col2_idx_opt is None {
     let all_cols : Array[Column] = []
     let mut i = 0
     while i < df1.ncol {

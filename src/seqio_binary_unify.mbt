@@ -123,9 +123,8 @@ fn unify_b64_decode(
   content : String,
   format : String,
 ) -> Array[Int] raise SeqIOError {
-  match (try? b64_decode_impl(content)) {
-    Ok(bytes) => bytes
-    Err(SeqIOError(msg)) => raise SeqIOError(msg + " for " + format)
+  try b64_decode_impl(content) catch {
+    SeqIOError(msg) => raise SeqIOError(msg + " for " + format)
   }
 }
 

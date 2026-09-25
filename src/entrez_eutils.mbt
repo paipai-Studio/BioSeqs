@@ -193,7 +193,7 @@ fn entrez_replace(text : String, from : String, to : String) -> String {
   let mut i = 0
   while i < text.length() {
     if i + from.length() <= text.length() &&
-      text[i:i + from.length()].to_string() == from {
+      text[i:i + from.length()].to_owned() == from {
       buf.write_string(to)
       i = i + from.length()
     } else {

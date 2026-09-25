@@ -31,8 +31,8 @@ test "annotation_hub_search_by_genome" {
 test "annotation_hub_get_resource" {
   let hub = @src.create_example_hub()
   let resource = @src.annotation_hub_get_resource(hub, "AH12345")
-  assert_true(resource.is_some())
-  if resource.is_some() {
+  assert_true(resource is Some(_))
+  if resource is Some(_) {
     assert_eq(resource.unwrap().resource_id, "AH12345")
   }
 }
@@ -55,7 +55,7 @@ test "annotation_hub_summarize" {
 test "annotation_hub_resource_to_string" {
   let hub = @src.create_example_hub()
   let resource = @src.annotation_hub_get_resource(hub, "AH12345")
-  if resource.is_some() {
+  if resource is Some(_) {
     let str = resource.unwrap().to_string()
     assert_true(@src.contains(str, "AH12345"))
   }

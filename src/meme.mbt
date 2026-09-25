@@ -193,7 +193,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
   let mut m_url = ""
   let mut m_strands = "+ -"
   while i < n {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
     if line.length() == 0 {
       i = i + 1
       continue
@@ -202,20 +202,20 @@ pub fn meme_parse(text : String) -> MemeRecord {
     if line.has_prefix("MEME version") {
       let parts = line.split(" ").to_array()
       if parts.length() >= 3 {
-        record.version = parts[2].trim().to_string()
+        record.version = parts[2].trim().to_owned()
       }
       i = i + 1
       continue
     }
     // Alphabet line
     if line.has_prefix("ALPHABET=") {
-      record.alphabet = line.substring(start=9).trim().to_string()
+      record.alphabet = line[9:].trim().to_owned()
       i = i + 1
       continue
     }
     // Strands line
     if line.has_prefix("strands:") {
-      record.strands = line.substring(start=8).trim().to_string()
+      record.strands = line[8:].trim().to_owned()
       i = i + 1
       continue
     }
@@ -231,8 +231,8 @@ pub fn meme_parse(text : String) -> MemeRecord {
       let parts = line.split(" ").to_array()
       let mut j = 0
       while j + 1 < parts.length() {
-        let letter = parts[j].trim().to_string()
-        let freq_str = parts[j + 1].trim().to_string()
+        let letter = parts[j].trim().to_owned()
+        let freq_str = parts[j + 1].trim().to_owned()
         let freq_opt = parse_double(freq_str)
         let freq = match freq_opt {
           Some(v) => v
@@ -283,12 +283,12 @@ pub fn meme_parse(text : String) -> MemeRecord {
       matrix_rows = Array(capacity=0)
       let parts = line.split(" ").to_array()
       m_name = if parts.length() >= 2 {
-        parts[1].trim().to_string()
+        parts[1].trim().to_owned()
       } else {
         ""
       }
       m_alt_name = if parts.length() >= 3 {
-        parts[2].trim().to_string()
+        parts[2].trim().to_owned()
       } else {
         ""
       }
@@ -306,7 +306,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
       in_matrix = true
       matrix_rows = Array(capacity=0)
       // Parse alength, w, nsites, E from the header
-      let header = line.substring(start=26)
+      let header = line[26:].to_owned()
       expected_width = parse_meme_int_field(header, "w=")
       let _alength = parse_meme_int_field(header, "alength=")
       m_nsites = parse_meme_int_field(header, "nsites=")
@@ -316,7 +316,7 @@ pub fn meme_parse(text : String) -> MemeRecord {
     }
     // URL line (handle even after matrix is finalized, while still in motif)
     if has_motif && line.has_prefix("URL") {
-      m_url = line.substring(start=4).trim().to_string()
+      m_url = line[4:].trim().to_owned()
       in_matrix = false
       finalize_motif(
         record, has_motif, m_name, m_alt_name, m_alphabet, m_nsites, m_evalue, m_url,
@@ -329,12 +329,12 @@ pub fn meme_parse(text : String) -> MemeRecord {
     // Matrix data rows
     if in_matrix && has_motif {
       // Try to parse as matrix row (starts with spaces and contains numbers)
-      let trimmed = line.trim().to_string()
+      let trimmed = line.trim().to_owned()
       if trimmed.length() > 0 {
         let parts = trimmed.split(" ").to_array()
         let row : Array[Double] = Array(capacity=0)
         for p in parts {
-          let s = p.trim().to_string()
+          let s = p.trim().to_owned()
           if s.length() > 0 {
             let val_opt = parse_double(s)
             let val = match val_opt {
@@ -406,11 +406,11 @@ fn meme_index_of(s : String, sub : String) -> Int {
 fn parse_meme_int_field(text : String, field : String) -> Int {
   let idx = meme_index_of(text, field)
   if idx >= 0 {
-    let rest = text.substring(start=idx + field.length()).trim().to_string()
+    let rest = text[idx + field.length():].trim().to_owned()
     let num_str = StringBuilder()
     let mut i = 0
     while i < rest.length() {
-      let ch = rest[i:i + 1].to_string()
+      let ch = rest[i:i + 1].to_owned()
       if ch >= "0" && ch <= "9" {
         num_str.write_string(ch)
         i = i + 1
@@ -432,11 +432,11 @@ fn parse_meme_int_field(text : String, field : String) -> Int {
 fn parse_meme_double_field(text : String, field : String) -> Double {
   let idx = meme_index_of(text, field)
   if idx >= 0 {
-    let rest = text.substring(start=idx + field.length()).trim().to_string()
+    let rest = text[idx + field.length():].trim().to_owned()
     let num_str = StringBuilder()
     let mut i = 0
     while i < rest.length() {
-      let ch = rest[i:i + 1].to_string()
+      let ch = rest[i:i + 1].to_owned()
       if (ch >= "0" && ch <= "9") ||
         ch == "." ||
         ch == "-" ||

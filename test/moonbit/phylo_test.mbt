@@ -24,7 +24,7 @@ test "phylo_newick_parse_with_branch_lengths" {
   assert_eq(@src.get_leaf_count(tree), 4)
 
   let found = @src.find_node(tree, "A")
-  assert_eq(found.is_some(), true)
+  assert_eq(found is Some(_), true)
 }
 
 ///|
@@ -86,10 +86,10 @@ test "phylo_find_node" {
   let tree = @src.parse_newick(newick)
 
   let found = @src.find_node(tree, "A")
-  assert_eq(found.is_some(), true)
+  assert_eq(found is Some(_), true)
 
   let not_found = @src.find_node(tree, "Z")
-  assert_eq(not_found.is_none(), true)
+  assert_eq(not_found is None, true)
 }
 
 ///|
@@ -98,7 +98,7 @@ test "phylo_prune_tree" {
   let tree = @src.parse_newick(newick)
 
   let pruned = @src.prune_tree(tree, ["A", "B"])
-  assert_eq(pruned.is_some(), true)
+  assert_eq(pruned is Some(_), true)
 
   match pruned {
     Some(p) => assert_eq(@src.get_leaf_count(p), 2)

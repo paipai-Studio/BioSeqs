@@ -154,18 +154,18 @@ test "bam_alignment_stats" {
 test "bam_to_sam_string" {
   let bam = @src.parse_bam_base64(test_bam_base64)
   let sam_str = bam.records[0].to_sam_string(bam.header)
-  assert_true(sam_str.find("read1").is_some())
-  assert_true(sam_str.find("chr1").is_some())
-  assert_true(sam_str.find("8M").is_some())
+  assert_true(sam_str.find("read1") is Some(_))
+  assert_true(sam_str.find("chr1") is Some(_))
+  assert_true(sam_str.find("8M") is Some(_))
 }
 
 ///|
 test "bam_to_sam" {
   let bam = @src.parse_bam_base64(test_bam_base64)
   let sam_str = bam.to_sam()
-  assert_true(sam_str.find("@HD").is_some())
-  assert_true(sam_str.find("@SQ").is_some())
-  assert_true(sam_str.find("read1").is_some())
+  assert_true(sam_str.find("@HD") is Some(_))
+  assert_true(sam_str.find("@SQ") is Some(_))
+  assert_true(sam_str.find("read1") is Some(_))
 }
 
 ///|

@@ -10,8 +10,8 @@ test "genomic_features_get_gene_by_id" {
   let gene = @src.genome_annotation_get_gene_by_id(
     annotation, "ENSG00000130203",
   )
-  assert_true(gene.is_some())
-  if gene.is_some() {
+  assert_true(gene is Some(_))
+  if gene is Some(_) {
     assert_eq(gene.unwrap().gene_name, "TP53")
   }
 }
@@ -77,7 +77,7 @@ test "genomic_features_gene_to_string" {
   let gene = @src.genome_annotation_get_gene_by_id(
     annotation, "ENSG00000130203",
   )
-  if gene.is_some() {
+  if gene is Some(_) {
     let str = gene.unwrap().to_string()
     assert_true(@src.contains(str, "TP53"))
   }

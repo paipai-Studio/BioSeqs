@@ -924,7 +924,7 @@ fn validate_alignment(
 fn resample_sequence(seq : String, columns : Array[Int]) -> String {
   let sb = StringBuilder(size_hint=columns.length())
   for j in columns {
-    sb.write_char(Char::from_int(seq.unsafe_get(j).to_int()))
+    sb.write_char((seq.unsafe_get(j).to_int()).unsafe_to_char())
   }
   sb.to_string()
 }
@@ -997,6 +997,6 @@ fn fmt_fixed6(v : Double) -> String {
   if end == 0 {
     neg_prefix + int_part
   } else {
-    neg_prefix + int_part + "." + frac.substring(end~)
+    neg_prefix + int_part + "." + frac[:end].to_owned()
   }
 }

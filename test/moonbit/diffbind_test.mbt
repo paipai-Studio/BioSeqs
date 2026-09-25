@@ -339,28 +339,28 @@ test "diffbind_contrast_valid" {
 test "diffbind_plot_pca" {
   let config = @src.diffbind_create_example_config()
   let plot = @src.diffbind_plot_pca(config, "TMM")
-  assert_true(plot.find("PCA Plot").is_some())
+  assert_true(plot.find("PCA Plot") is Some(_))
 }
 
 ///|
 test "diffbind_plot_heatmap" {
   let result = @src.diffbind_create_example_result()
   let heatmap = @src.diffbind_plot_heatmap(result, 5)
-  assert_true(heatmap.find("Heatmap").is_some())
+  assert_true(heatmap.find("Heatmap") is Some(_))
 }
 
 ///|
 test "diffbind_plot_volcano" {
   let result = @src.diffbind_create_example_result()
   let volcano = @src.diffbind_plot_volcano(result)
-  assert_true(volcano.find("Volcano Plot").is_some())
+  assert_true(volcano.find("Volcano Plot") is Some(_))
 }
 
 ///|
 test "diffbind_plot_ma" {
   let result = @src.diffbind_create_example_result()
   let ma = @src.diffbind_plot_ma(result)
-  assert_true(ma.find("MA Plot").is_some())
+  assert_true(ma.find("MA Plot") is Some(_))
 }
 
 ///|

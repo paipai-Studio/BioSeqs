@@ -184,7 +184,7 @@ fn split_pdb_lines(text : String) -> Array[String] {
   let parts = text.split("\n").to_array()
   let result = Array(capacity=0)
   for part in parts {
-    let line = part.to_string()
+    let line = part.to_owned()
     if line.length() > 0 {
       result.push(line)
     }
@@ -345,7 +345,7 @@ fn strip_field_prefix(field : String) -> String {
     }
   }
   if i > 0 {
-    field[i:].to_string()
+    field[i:].to_owned()
   } else {
     field
   }
@@ -373,7 +373,7 @@ fn join_record_text(lines : Array[String], start : Int, end : Int) -> String {
   while i <= end && i < lines.length() {
     let line = lines[i]
     if line.length() > 10 {
-      let text = line[10:].to_string()
+      let text = line[10:].to_owned()
       result.write_string(text)
     }
     i = i + 1
@@ -627,7 +627,7 @@ pub fn parse_resolution_record(line : String) -> Double {
   if idx < 0 {
     return 0.0
   }
-  let after = line[idx + 11:].to_string()
+  let after = line[idx + 11:].to_owned()
   let trimmed = after.trim().to_owned()
   if trimmed.length() == 0 {
     return 0.0
@@ -642,7 +642,7 @@ pub fn parse_rfactor_record(line : String) -> Double {
   if idx < 0 {
     return 0.0
   }
-  let after = line[idx + 9:].to_string()
+  let after = line[idx + 9:].to_owned()
   let trimmed = after.trim().to_owned()
   if trimmed.length() == 0 {
     return 0.0
@@ -832,7 +832,7 @@ fn parse_first_number(s : String) -> Double {
     return 0.0
   }
 
-  let num_str = s[start:i].to_string()
+  let num_str = s[start:i].to_owned()
   parse_double_safe(num_str)
 }
 

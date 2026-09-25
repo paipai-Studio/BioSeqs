@@ -317,7 +317,7 @@ fn phd_extract_value(line : String) -> String {
           break
         }
       }
-      return line[i:n].to_string()
+      return line[i:n].to_owned()
     }
     i = i + 1
   }

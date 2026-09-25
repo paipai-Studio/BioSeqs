@@ -357,14 +357,14 @@ fn geo_entity_type_from_keyword(keyword : String) -> GeoEntityType {
 /// Returns (name, value) or None if not a valid attribute.
 fn geo_parse_attribute_line(line : String) -> GeoAttribute? {
   // line starts with "!"
-  let rest = line[1:line.length()].to_string()
+  let rest = line[1:line.length()].to_owned()
   // Find "=" position
   let eq_pos = geo_find_char(rest, '='.to_int())
   if eq_pos < 0 {
     return None
   }
-  let name = trim(rest[0:eq_pos].to_string())
-  let value = trim(rest[eq_pos + 1:rest.length()].to_string())
+  let name = trim(rest[0:eq_pos].to_owned())
+  let value = trim(rest[eq_pos + 1:rest.length()].to_owned())
   Some(GeoAttribute::new(name, value))
 }
 
@@ -386,13 +386,13 @@ fn geo_find_char(s : String, ch : Int) -> Int {
 /// Parse a column definition line: #NAME = description
 fn geo_parse_column_line(line : String) -> GeoColumnDef? {
   // line starts with "#"
-  let rest = line[1:line.length()].to_string()
+  let rest = line[1:line.length()].to_owned()
   let eq_pos = geo_find_char(rest, '='.to_int())
   if eq_pos < 0 {
     return None
   }
-  let name = trim(rest[0:eq_pos].to_string())
-  let desc = trim(rest[eq_pos + 1:rest.length()].to_string())
+  let name = trim(rest[0:eq_pos].to_owned())
+  let desc = trim(rest[eq_pos + 1:rest.length()].to_owned())
   Some(GeoColumnDef::new(name, desc))
 }
 
@@ -411,11 +411,11 @@ pub fn geo_parse(text : String) -> GeoFile {
     }
     // Check for entity marker (^PLATFORM, ^SAMPLE, etc.)
     if line.unsafe_get(0).to_int() == '^'.to_int() {
-      let rest = line[1:line.length()].to_string()
+      let rest = line[1:line.length()].to_owned()
       let eq_pos = geo_find_char(rest, '='.to_int())
       if eq_pos >= 0 {
-        let keyword = trim(rest[0:eq_pos].to_string())
-        let accession = trim(rest[eq_pos + 1:rest.length()].to_string())
+        let keyword = trim(rest[0:eq_pos].to_owned())
+        let accession = trim(rest[eq_pos + 1:rest.length()].to_owned())
         let etype = geo_entity_type_from_keyword(keyword)
         let (record, next) = geo_parse_record(lines, idx + 1, etype, accession)
         records.push(record)

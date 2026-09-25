@@ -135,7 +135,7 @@ fn gstt_check_row(
 test "cameraPR default parametric test matches limma" {
   let results = @src.camera_pr(gstt_statistic_s(), gstt_sets(), sort=false)
   assert_eq(results.length(), 4)
-  assert_true(results[0].correlation().is_none())
+  assert_true(results[0].correlation() is None)
   gstt_check_row(
     results[0],
     name="UP",
@@ -308,8 +308,8 @@ test "cameraPR single set has no FDR or Correlation" {
     @src.CameraGeneSet::create("one", gstt_index_six()),
   ])
   assert_eq(results.length(), 1)
-  assert_true(results[0].correlation().is_none())
-  assert_true(results[0].fdr().is_none())
+  assert_true(results[0].correlation() is None)
+  assert_true(results[0].fdr() is None)
   gstt_check_row(
     results[0],
     name="one",
@@ -536,7 +536,7 @@ test "camera.default fixed correlation parametric test matches limma" {
   let y = @src.Matrix::new(40, 8, gstt_y_data())
   let results = @src.camera_default(y, gstt_sets(), gstt_design(), sort=false)
   assert_eq(results.length(), 4)
-  assert_true(results[0].correlation().is_none())
+  assert_true(results[0].correlation() is None)
   gstt_check_row(
     results[0],
     name="UP",
@@ -650,7 +650,7 @@ test "camera.default estimated correlation matches limma" {
       tolerance=1.0e-8,
     ),
   )
-  assert_true(results[3].correlation().is_none())
+  assert_true(results[3].correlation() is None)
   gstt_check_row(
     results[0],
     name="UP",

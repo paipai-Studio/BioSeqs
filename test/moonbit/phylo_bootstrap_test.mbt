@@ -85,7 +85,7 @@ fn pbs_near(a : Double, b : Double) -> Bool {
 fn pbs_resample(seq : String, cols : Array[Int]) -> String {
   let sb = StringBuilder()
   for j in cols {
-    sb.write_char(Char::from_int(seq.unsafe_get(j).to_int()))
+    sb.write_char((seq.unsafe_get(j).to_int()).unsafe_to_char())
   }
   sb.to_string()
 }

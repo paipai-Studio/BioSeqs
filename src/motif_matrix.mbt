@@ -304,7 +304,7 @@ pub fn motif_pwm_scan(
   let results : Array[(Int, Double)] = []
   let mut i = 0
   while i <= seq.length() - n_pos {
-    let sub = seq[i:i + n_pos].to_string()
+    let sub = seq[i:i + n_pos].to_owned()
     let score = motif_pwm_score(pwm, sub)
     if score >= threshold {
       results.push((i, score))

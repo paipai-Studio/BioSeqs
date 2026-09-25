@@ -448,9 +448,9 @@ test "seqlogo_consensus_from_sequences" {
   let consensus = @src.seqlogo_consensus_sequence(pwm)
   assert_eq(consensus.length(), 4)
   // Position 0: all A
-  assert_eq(consensus[0:1].to_string(), "A")
+  assert_eq(consensus[0:1].to_owned(), "A")
   // Position 2: all A (most frequent)
-  assert_eq(consensus[2:3].to_string(), "A")
+  assert_eq(consensus[2:3].to_owned(), "A")
 }
 
 ///|
@@ -519,7 +519,7 @@ test "seqlogo_sample_pwm_from_sample_sequences" {
   // Position 0 of sample sequences is mostly A
   let consensus = @src.seqlogo_consensus_sequence(pwm)
   assert_eq(consensus.length(), 10)
-  assert_eq(consensus[0:1].to_string(), "A")
+  assert_eq(consensus[0:1].to_owned(), "A")
 }
 
 // ============================================================================

@@ -245,7 +245,7 @@ pub fn trade_test_condition_effect(
     while j < n {
       if (gene_data.pseudotime[j] - pseudotime_point).abs() < bandwidth &&
         gene_data.condition[j] == condition1 {
-        s = s + (gene_data.expression[j] - mean1).pow(2.0)
+        s = s + @math.pow(gene_data.expression[j] - mean1, 2.0)
         j = j + 1
       } else {
         j = j + 1
@@ -262,7 +262,7 @@ pub fn trade_test_condition_effect(
     while j < n {
       if (gene_data.pseudotime[j] - pseudotime_point).abs() < bandwidth &&
         gene_data.condition[j] == condition2 {
-        s = s + (gene_data.expression[j] - mean2).pow(2.0)
+        s = s + @math.pow(gene_data.expression[j] - mean2, 2.0)
         j = j + 1
       } else {
         j = j + 1
@@ -728,7 +728,7 @@ fn tradeseq_calculate_r_squared(
   let mut ss_total = 0.0
   i = 0
   while i < n {
-    ss_total = ss_total + (observed[i] - mean_y).pow(2.0)
+    ss_total = ss_total + @math.pow(observed[i] - mean_y, 2.0)
     i = i + 1
   }
 
@@ -736,7 +736,7 @@ fn tradeseq_calculate_r_squared(
   let mut ss_residual = 0.0
   i = 0
   while i < n {
-    ss_residual = ss_residual + (observed[i] - fitted[i]).pow(2.0)
+    ss_residual = ss_residual + @math.pow(observed[i] - fitted[i], 2.0)
     i = i + 1
   }
 

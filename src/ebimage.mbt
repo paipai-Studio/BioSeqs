@@ -581,7 +581,7 @@ pub fn ebi_watershed(img : EbiImage, markers : Array[Int]) -> Array[Int] {
   let mut guard_count = 0
   while heap.length() > 0 && guard_count < total * 8 {
     let popped = heap.pop()
-    if popped.is_none() {
+    if popped is None {
       break
     }
     let cur_data = popped.unwrap()

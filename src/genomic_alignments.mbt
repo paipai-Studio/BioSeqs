@@ -333,7 +333,7 @@ pub fn pileup(
     let mut pos = start
     let mut seq_pos = 0
     while pos <= galn.ends[i] && seq_pos < seq.length() {
-      let base = seq[seq_pos:seq_pos + 1].to_string()
+      let base = seq[seq_pos:seq_pos + 1].to_owned()
 
       let mut found = false
       let mut j = 0
@@ -362,7 +362,7 @@ pub fn pileup(
 
       if !found {
         let ref_base = if pos > 0 && pos <= ref_seq.length() {
-          ref_seq[pos - 1:pos].to_string()
+          ref_seq[pos - 1:pos].to_owned()
         } else {
           "N"
         }

@@ -487,21 +487,21 @@ pub fn BiocMatrix::norm(self : BiocMatrix, p : Double) -> Double {
     BiocDenseMatrix => {
       let mut i = 0
       while i < self.data.length() {
-        sum = sum + @math.pow(@double.abs(self.data[i]), p)
+        sum = sum + @math.pow((self.data[i]).abs(), p)
         i = i + 1
       }
     }
     BiocSparseMatrixCSC | BiocSparseMatrixCSR => {
       let mut i = 0
       while i < self.data.length() {
-        sum = sum + @math.pow(@double.abs(self.data[i]), p)
+        sum = sum + @math.pow((self.data[i]).abs(), p)
         i = i + 1
       }
     }
     BiocDiagonalMatrix => {
       let mut i = 0
       while i < self.data.length() {
-        sum = sum + @math.pow(@double.abs(self.data[i]), p)
+        sum = sum + @math.pow((self.data[i]).abs(), p)
         i = i + 1
       }
     }

@@ -364,7 +364,7 @@ pub fn filter_cells_by_empty_drops(
       i.to_string()
     }
     let is_cell = barcode_map.get(barcode)
-    if is_cell.is_some() && is_cell.unwrap() {
+    if is_cell is Some(_) && is_cell.unwrap() {
       filtered_counts.push(counts[i])
       filtered_barcodes.push(barcode)
     }
@@ -395,7 +395,7 @@ pub fn create_example_droplet_data() -> (Array[Array[Int]], Array[String]) {
     let s = i.to_string()
     let pad = "00000000"
     let padded = if s.length() < 8 {
-      pad[0:8 - s.length()].to_string() + s
+      pad[0:8 - s.length()].to_owned() + s
     } else {
       s
     }

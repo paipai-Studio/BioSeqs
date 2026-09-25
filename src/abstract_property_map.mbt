@@ -285,7 +285,7 @@ pub fn AbstractPropertyMap::merge(
 ///|
 /// Simple string to double.
 fn abstract_property_atof(s : String) -> Double {
-  let s_trim = s.trim().to_string()
+  let s_trim = s.trim().to_owned()
   if s_trim.length() == 0 {
     return 0.0
   }

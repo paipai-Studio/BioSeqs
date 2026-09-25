@@ -204,7 +204,7 @@ pub fn xcell_ssgsea_single(
   let pw_over = n_set.to_double() / n_total.to_double()
   let mut sum_weight_set = 0.0
   for k in 1..<(n + 1) {
-    sum_weight_set = sum_weight_set + k.to_double().pow(alpha) * pw_over
+    sum_weight_set = sum_weight_set + @math.pow(k.to_double(), alpha) * pw_over
   }
   // Actually use the proper formula
   let mut score = 0.0
@@ -226,7 +226,7 @@ pub fn xcell_ssgsea_single(
       }
     }
     let rank_d = rank.to_double()
-    let w = rank_d.pow(alpha)
+    let w = @math.pow(rank_d, alpha)
     if in_set {
       cumulate_set = cumulate_set + w
     } else {

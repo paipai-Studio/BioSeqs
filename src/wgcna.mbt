@@ -544,6 +544,6 @@ pub fn summarize_wgcna(wgcna : WGCNAData) -> String {
   let mut buf = "WGCNA Analysis Summary\n"
   buf = buf + "  Genes: " + wgcna.gene_names.length().to_string() + "\n"
   buf = buf + "  Samples: " + wgcna.sample_names.length().to_string() + "\n"
-  buf = buf + "  Modules: " + wgcna.modules.size().to_string() + "\n"
+  buf = buf + "  Modules: " + wgcna.modules.length().to_string() + "\n"
   buf
 }

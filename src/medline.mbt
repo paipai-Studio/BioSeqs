@@ -83,7 +83,7 @@ pub fn parse_medline(text : String) -> MedlineRecord? {
 
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
 
     if line.length() >= 4 {
       let tag = line[0:4].trim().to_owned()
@@ -159,11 +159,11 @@ pub fn parse_medline_records(text : String) -> Array[MedlineRecord] {
   let mut current_block = ""
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim().to_string()
+    let line = lines[i].trim().to_owned()
     if line == "" {
       if current_block.length() > 0 && starts_with(current_block, 0, "PMID") {
         let parsed = parse_medline(current_block)
-        if parsed.is_some() {
+        if parsed is Some(_) {
           records.push(parsed.unwrap())
         }
         current_block = ""
@@ -178,7 +178,7 @@ pub fn parse_medline_records(text : String) -> Array[MedlineRecord] {
 
   if current_block.length() > 0 && starts_with(current_block, 0, "PMID") {
     let parsed = parse_medline(current_block)
-    if parsed.is_some() {
+    if parsed is Some(_) {
       records.push(parsed.unwrap())
     }
   }

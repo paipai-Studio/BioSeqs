@@ -39,7 +39,7 @@ fn writeext_annotation(
 fn writeext_split_annotation(value : String) -> Array[String] {
   let items : Array[String] = Array(capacity=0)
   for part in value.split(", ") {
-    let trimmed = part.trim().to_string()
+    let trimmed = part.trim().to_owned()
     if trimmed.length() > 0 {
       items.push(trimmed)
     }

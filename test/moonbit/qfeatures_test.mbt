@@ -96,8 +96,8 @@ test "qf_assay_row_col_stats" {
 ///|
 test "qf_assay_row_col_stats_with_nan" {
   let data : Array[Array[Double]] = [
-    [1.0, Double::nan(), 3.0],
-    [4.0, 5.0, Double::nan()],
+    [1.0, @double.not_a_number, 3.0],
+    [4.0, 5.0, @double.not_a_number],
   ]
   let assay = @src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1", "c2"], data)
   let rmeans = assay.row_means()
@@ -164,7 +164,7 @@ test "qf_features_empty" {
   assert_eq(qf.assays().length(), 0)
   assert_eq(qf.assay_names().length(), 0)
   assert_eq(qf.links().n_links(), 0)
-  assert_true(qf.get_assay("missing").is_empty())
+  assert_true(qf.get_assay("missing") is None)
 }
 
 ///|
@@ -191,7 +191,7 @@ test "qf_features_add_assay_and_get" {
     Some(a) => assert_eq(a.n_rows(), 4)
     None => assert_true(false)
   }
-  assert_true(qf.get_assay("nonexistent").is_empty())
+  assert_true(qf.get_assay("nonexistent") is None)
 }
 
 ///|
@@ -371,7 +371,7 @@ test "qf_filter_samples" {
 ///|
 test "qf_filter_na" {
   let qf = @src.QFeatures::new()
-  let nan = Double::nan()
+  let nan = @double.not_a_number
   let data : Array[Array[Double]] = [
     [1.0, 2.0, 3.0],
     [nan, nan, 6.0],
@@ -504,7 +504,7 @@ test "qf_log_transform" {
 
 ///|
 test "qf_log_transform_preserves_nan" {
-  let data : Array[Array[Double]] = [[Double::nan(), 1.0]]
+  let data : Array[Array[Double]] = [[@double.not_a_number, 1.0]]
   let assay = @src.QfAssay::new("a", ["r0"], ["c0", "c1"], data)
   let logged = @src.qf_log_transform(assay, 2.0, 1.0)
   assert_true(@src.qf_is_na(logged.get(0, 0)))
@@ -518,7 +518,7 @@ test "qf_impute_knn" {
   // Distance(row0, row2) on shared columns [0, 2]: sqrt(((1-3)^2 + (3-7)^2)/2) = sqrt(10)
   // So row 1 is the nearest neighbor; with k=1 the imputed value should be row1[1] = 5.0.
   let data : Array[Array[Double]] = [
-    [1.0, Double::nan(), 3.0],
+    [1.0, @double.not_a_number, 3.0],
     [2.0, 5.0, 4.0],
     [3.0, 6.0, 7.0],
   ]
@@ -539,7 +539,7 @@ test "qf_impute_knn" {
 ///|
 test "qf_impute_mean" {
   // Col means (skip NaN): col0 = (1+4)/2 = 2.5, col1 = 5.0, col2 = (3+6)/2 = 4.5
-  let data : Array[Array[Double]] = [[1.0, Double::nan(), 3.0], [4.0, 5.0, 6.0]]
+  let data : Array[Array[Double]] = [[1.0, @double.not_a_number, 3.0], [4.0, 5.0, 6.0]]
   let assay = @src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1", "c2"], data)
   let imputed = @src.qf_impute_mean(assay)
   assert_true((imputed.get(0, 1) - 5.0).abs() < 0.001)
@@ -553,7 +553,7 @@ test "qf_impute_mean" {
 
 ///|
 test "qf_impute_zero" {
-  let data : Array[Array[Double]] = [[1.0, Double::nan()], [Double::nan(), 2.0]]
+  let data : Array[Array[Double]] = [[1.0, @double.not_a_number], [@double.not_a_number, 2.0]]
   let assay = @src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1"], data)
   let imputed = @src.qf_impute_zero(assay)
   assert_true((imputed.get(0, 0) - 1.0).abs() < 0.001)
@@ -564,13 +564,13 @@ test "qf_impute_zero" {
 
 ///|
 test "qf_count_na_and_is_na" {
-  assert_true(@src.qf_is_na(Double::nan()))
+  assert_true(@src.qf_is_na(@double.not_a_number))
   assert_true(!@src.qf_is_na(0.0))
   assert_true(!@src.qf_is_na(1.5))
   assert_true(!@src.qf_is_na(-1.0))
   let data : Array[Array[Double]] = [
-    [1.0, Double::nan(), 3.0],
-    [Double::nan(), Double::nan(), 6.0],
+    [1.0, @double.not_a_number, 3.0],
+    [@double.not_a_number, @double.not_a_number, 6.0],
   ]
   let assay = @src.QfAssay::new("a", ["r0", "r1"], ["c0", "c1", "c2"], data)
   assert_eq(@src.qf_count_na(assay), 3)
@@ -696,7 +696,7 @@ test "qf_sample_data_values" {
 test "qf_edge_case_empty_qfeatures" {
   let qf = @src.QFeatures::new()
   assert_eq(qf.n_assays(), 0)
-  assert_true(qf.get_assay("anything").is_empty())
+  assert_true(qf.get_assay("anything") is None)
   assert_eq(qf.n_features("anything"), 0)
   assert_eq(qf.n_samples("anything"), 0)
   // Aggregating from a missing assay should return the original qf unchanged.
@@ -724,7 +724,7 @@ test "qf_edge_case_single_cell_assay" {
 
 ///|
 test "qf_edge_case_all_nan_assay" {
-  let nan = Double::nan()
+  let nan = @double.not_a_number
   let data : Array[Array[Double]] = [[nan, nan], [nan, nan]]
   let assay = @src.QfAssay::new("allnan", ["r0", "r1"], ["c0", "c1"], data)
   assert_eq(@src.qf_count_na(assay), 4)

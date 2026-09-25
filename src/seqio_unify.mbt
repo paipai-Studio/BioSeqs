@@ -82,9 +82,8 @@ fn unify_swiss_to_record(entry : SwissProtRecord) -> SeqRecord raise SeqIOError 
       quals[k] = [v]
     }
     let location : FeatureLocation? = if f.start > 0 || f.end > 0 {
-      match (try? FeatureLocation::new_exact(f.start, f.end)) {
-        Ok(loc) => Some(loc)
-        Err(_) => None
+      try Some(FeatureLocation::new_exact(f.start, f.end)) catch {
+        _ => None
       }
     } else {
       None

@@ -50,9 +50,9 @@ test "pyfaidx_region_parsing" {
     _ => abort("bed_split should parse chr1:10-20")
   }
   let b2 = @src.pyfaidx_bed_split("#foo")
-  assert_true(b2.0.is_none())
-  assert_true(b2.1.is_none())
-  assert_true(b2.2.is_none())
+  assert_true(b2.0 is None)
+  assert_true(b2.1 is None)
+  assert_true(b2.2 is None)
 
   let u1 = @src.pyfaidx_ucsc_split("chr1:100-200")
   match (u1.1, u1.2) {
@@ -66,6 +66,6 @@ test "pyfaidx_region_parsing" {
 
   let u2 = @src.pyfaidx_ucsc_split("chr1")
   assert_eq(u2.0, "chr1")
-  assert_true(u2.1.is_none())
-  assert_true(u2.2.is_none())
+  assert_true(u2.1 is None)
+  assert_true(u2.2 is None)
 }

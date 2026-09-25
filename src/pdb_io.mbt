@@ -207,7 +207,7 @@ fn pdb_trim_string(s : StringView) -> String {
     end = end - 1
   }
 
-  s[start:end + 1].to_string()
+  s[start:end + 1].to_owned()
 }
 
 ///|
@@ -409,14 +409,14 @@ fn pad_right(s : String, width : Int, pad_char : Char) -> String {
 fn format_double(value : Double, width : Int, precision : Int) -> String {
   let s = value.to_string()
   let parts = s.split(".").to_array()
-  let int_part = if parts.length() > 0 { parts[0].to_string() } else { "0" }
-  let frac_part = if parts.length() > 1 { parts[1].to_string() } else { "" }
+  let int_part = if parts.length() > 0 { parts[0].to_owned() } else { "0" }
+  let frac_part = if parts.length() > 1 { parts[1].to_owned() } else { "" }
 
   let mut padded_frac = frac_part
   if padded_frac.length() < precision {
     padded_frac = padded_frac + "0".repeat(precision - padded_frac.length())
   } else if padded_frac.length() > precision {
-    padded_frac = padded_frac[0:precision].to_string()
+    padded_frac = padded_frac[0:precision].to_owned()
   }
 
   let result = int_part + "." + padded_frac

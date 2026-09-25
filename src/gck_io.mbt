@@ -155,9 +155,9 @@ pub fn GckFile::add_feature(self : GckFile, f : GckFeature) -> Unit {
 /// Convert an integer 0-15 to a lowercase hex digit character.
 fn gck_hex_digit(n : Int) -> Char {
   if n < 10 {
-    Char::from_int(48 + n)
+    (48 + n).unsafe_to_char()
   } else {
-    Char::from_int(87 + n)
+    (87 + n).unsafe_to_char()
   }
 }
 
@@ -237,7 +237,7 @@ fn gck_ascii_to_string(data : Array[Int], offset : Int, length : Int) -> String 
   let sb = StringBuilder()
   for i in 0..<length {
     let b = data[offset + i] & 0xFF
-    sb.write_char(Char::from_int(b))
+    sb.write_char((b).unsafe_to_char())
   }
   sb.to_string()
 }

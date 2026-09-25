@@ -445,7 +445,7 @@ pub fn five_prime_utrs(txdb : TxDb) -> GRanges {
     }
 
     let tx_opt = find_transcript_by_id(txdb, tx_id)
-    if tx_opt.is_none() {
+    if tx_opt is None {
       i = i + 1
       continue
     }
@@ -533,7 +533,7 @@ pub fn three_prime_utrs(txdb : TxDb) -> GRanges {
     }
 
     let tx_opt = find_transcript_by_id(txdb, tx_id)
-    if tx_opt.is_none() {
+    if tx_opt is None {
       i = i + 1
       continue
     }
@@ -730,14 +730,14 @@ pub fn parse_gtf(gtf_content : String) -> TxDb {
     let seqname = fields[0]
     let feature_type = fields[2]
     let start_opt = parse_double(fields[3])
-    if start_opt.is_none() {
+    if start_opt is None {
       i = i + 1
       continue
     }
     let start = start_opt.unwrap().to_int()
 
     let end_opt = parse_double(fields[4])
-    if end_opt.is_none() {
+    if end_opt is None {
       i = i + 1
       continue
     }
@@ -784,7 +784,7 @@ pub fn parse_gtf(gtf_content : String) -> TxDb {
         let r = attr_map["exon_number"]
         let cleaned = r.replace(old="\"", new="").replace(old=";", new="")
         let d_opt = parse_double(cleaned)
-        if d_opt.is_some() {
+        if d_opt is Some(_) {
           d_opt.unwrap().to_int()
         } else {
           1
@@ -808,7 +808,7 @@ pub fn parse_gtf(gtf_content : String) -> TxDb {
         let r = attr_map["exon_number"]
         let cleaned = r.replace(old="\"", new="").replace(old=";", new="")
         let d_opt = parse_double(cleaned)
-        if d_opt.is_some() {
+        if d_opt is Some(_) {
           d_opt.unwrap().to_int()
         } else {
           1

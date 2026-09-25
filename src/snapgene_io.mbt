@@ -201,9 +201,9 @@ pub fn SnapgeneFile::add_primer(
 /// Convert an integer 0-15 to a lowercase hex digit character.
 fn sg_hex_digit(n : Int) -> Char {
   if n < 10 {
-    Char::from_int(48 + n) // '0'..'9'
+    (48 + n).unsafe_to_char() // '0'..'9'
   } else {
-    Char::from_int(87 + n) // 'a'..'f'
+    (87 + n).unsafe_to_char() // 'a'..'f'
   }
 }
 
@@ -270,7 +270,7 @@ fn sg_ascii_to_string(data : Array[Int], offset : Int, length : Int) -> String {
   let sb = StringBuilder()
   for i in 0..<length {
     let b = data[offset + i] & 0xFF
-    sb.write_char(Char::from_int(b))
+    sb.write_char((b).unsafe_to_char())
   }
   sb.to_string()
 }
@@ -409,8 +409,8 @@ fn sg_parse_features(text : String) -> Array[SnapgeneFeature] {
   // Features are stored in <Feature> elements
   let segments = text.split("<Feature").to_array()
   for seg in segments {
-    let seg_str = seg.to_string()
-    if seg_str.length() > 0 && seg_str[0:1].to_string() != "<" {
+    let seg_str = seg.to_owned()
+    if seg_str.length() > 0 && seg_str[0:1].to_owned() != "<" {
       // Try to parse this feature segment
       let feature = sg_parse_one_feature(seg_str)
       match feature {
@@ -442,7 +442,7 @@ fn sg_parse_one_feature(text : String) -> SnapgeneFeature? {
   let segs = Array(capacity=0)
   let seg_parts = text.split("<Segment").to_array()
   for sp in seg_parts {
-    let sp_str = sp.to_string()
+    let sp_str = sp.to_owned()
     if sp_str.contains("range=\"") {
       let range = sg_xml_attr(sp_str, "range")
       if range != "" {
@@ -458,7 +458,7 @@ fn sg_parse_one_feature(text : String) -> SnapgeneFeature? {
   let qualifiers : Map[String, String] = Map([], capacity=0)
   let q_parts = text.split("<Q").to_array()
   for qp in q_parts {
-    let qp_str = qp.to_string()
+    let qp_str = qp.to_owned()
     if qp_str.contains("name=\"") && qp_str.contains("content=\"") {
       let qname = sg_xml_attr(qp_str, "name")
       let qcontent = sg_xml_attr(qp_str, "content")
@@ -499,8 +499,8 @@ fn sg_parse_range(s : String) -> (Int, Int)? {
   // SnapGene ranges can be "1234..5678" format
   let parts = s.split("..").to_array()
   if parts.length() == 2 {
-    let start = parts[0].trim().to_string()
-    let end = parts[1].trim().to_string()
+    let start = parts[0].trim().to_owned()
+    let end = parts[1].trim().to_owned()
     // Validate that both parts are numeric (non-empty digits)
     if start.length() == 0 || end.length() == 0 {
       return None

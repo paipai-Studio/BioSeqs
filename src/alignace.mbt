@@ -149,21 +149,21 @@ pub fn alignace_parse(text : String) -> AlignAceRecord {
   let lines_raw = text.split("\n").to_array()
   let lines : Array[String] = Array(capacity=0)
   for l in lines_raw {
-    lines.push(l.to_string())
+    lines.push(l.to_owned())
   }
   let n = lines.length()
   let mut i = 0
   let mut in_parameters = false
   while i < n {
     let line = lines[i]
-    let trimmed = line.trim().to_string()
+    let trimmed = line.trim().to_owned()
     // Header and comment lines
     if trimmed.has_prefix("#") {
-      let content = trimmed[1:].to_string().trim().to_string()
+      let content = trimmed[1:].to_owned().trim().to_owned()
       if content.has_prefix("AlignACE version") {
-        record.version = content[16:].to_string().trim().to_string()
+        record.version = content[16:].to_owned().trim().to_owned()
       } else if content.has_prefix("Command:") {
-        record.command = content[8:].to_string().trim().to_string()
+        record.command = content[8:].to_owned().trim().to_owned()
       } else if content == "Parameters used:" {
         in_parameters = true
       } else if content == "" {
@@ -171,8 +171,8 @@ pub fn alignace_parse(text : String) -> AlignAceRecord {
       } else if in_parameters && content.contains("=") {
         let parts = content.split("=").to_array()
         if parts.length() == 2 {
-          let key = parts[0].trim().to_string()
-          let val = parts[1].trim().to_string()
+          let key = parts[0].trim().to_owned()
+          let val = parts[1].trim().to_owned()
           record.parameters[key] = val
         }
       } else if content.has_prefix("Sites:") {
@@ -181,9 +181,9 @@ pub fn alignace_parse(text : String) -> AlignAceRecord {
         if record.motifs.length() > 0 {
           let last_idx = record.motifs.length() - 1
           while i < n {
-            let sline = lines[i].trim().to_string()
+            let sline = lines[i].trim().to_owned()
             if sline.has_prefix("#") {
-              let scontent = sline[1:].to_string().trim().to_string()
+              let scontent = sline[1:].to_owned().trim().to_owned()
               if scontent == "" || scontent.has_prefix("Sites:") {
                 break
               }
@@ -239,7 +239,7 @@ fn alignace_parse_motif(lines : Array[String], start : Int) -> AlignAceMotif? {
     if line_idx >= lines.length() {
       return None
     }
-    let line = lines[line_idx].trim().to_string()
+    let line = lines[line_idx].trim().to_owned()
     // Parse "A 1 0 8 0 ..."
     let parts = alignace_split_whitespace(line)
     if parts.length() < 2 {
@@ -516,7 +516,7 @@ pub fn alignace_summary(record : AlignAceRecord) -> String {
   sb.write_string("  Version: " + record.version + "\n")
   sb.write_string("  Command: " + record.command + "\n")
   sb.write_string(
-    "  Parameters: " + record.parameters.size().to_string() + "\n",
+    "  Parameters: " + record.parameters.length().to_string() + "\n",
   )
   let keys = record.parameters.keys()
   for k in keys {

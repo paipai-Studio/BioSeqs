@@ -362,7 +362,7 @@ pub fn predict_coding(
         if codon_start >= 1 && codon_start + 2 <= cds.end - cds.start + 1 {
           let ref_start = cds.start + codon_start - 1
           if ref_start >= 0 && ref_start + 2 < ref_seq.length() {
-            original_codon = ref_seq[ref_start:ref_start + 3].to_string()
+            original_codon = ref_seq[ref_start:ref_start + 3].to_owned()
           }
         }
 
@@ -372,9 +372,9 @@ pub fn predict_coding(
           codon_pos >= 0 &&
           codon_pos < 3 &&
           alt.length() == 1 {
-          let c0 = original_codon[0:1].to_string()
-          let c1 = original_codon[1:2].to_string()
-          let c2 = original_codon[2:3].to_string()
+          let c0 = original_codon[0:1].to_owned()
+          let c1 = original_codon[1:2].to_owned()
+          let c2 = original_codon[2:3].to_owned()
           if codon_pos == 0 {
             mutated_codon = alt + c1 + c2
           } else if codon_pos == 1 {

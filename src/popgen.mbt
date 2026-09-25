@@ -467,7 +467,7 @@ pub fn fishers_alpha(counts : Array[Int]) -> Double {
   let mut iter = 0
   while iter < max_iter {
     let prev = alpha
-    let exp_val = alpha * (1.0 - (1.0 + total_d / alpha).pow(-1.0))
+    let exp_val = alpha * (1.0 - @math.pow(1.0 + total_d / alpha, -1.0))
     alpha = alpha + (s_d - exp_val) * alpha / total_d
     if (alpha - prev).abs() < tol {
       break

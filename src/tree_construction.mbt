@@ -191,7 +191,7 @@ pub fn DistanceCalculator::model_name(self : DistanceCalculator) -> String {
 /// conversion is exact.
 fn codeunit_to_string(c : UInt16) -> String {
   let buf = StringBuilder()
-  buf.write_char(Char::from_int(c.to_int()))
+  buf.write_char((c.to_int()).unsafe_to_char())
   buf.to_string()
 }
 

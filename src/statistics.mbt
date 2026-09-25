@@ -945,7 +945,7 @@ fn stat_kolmogorov_cdf(lambda : Double) -> Double {
   let mut k = 1
   while k <= 100 {
     let k_dbl = k.to_double()
-    let term = (-1.0).pow(k_dbl - 1.0) *
+    let term = @math.pow(-1.0, k_dbl - 1.0) *
       @math.exp(-2.0 * k_dbl * k_dbl * lambda * lambda)
     sum = sum + term
     if term.abs() < 1.0e-15 {
@@ -1199,7 +1199,7 @@ fn stat_chi2_sf(x : Double, df : Int) -> Double {
 
   // Wilson-Hilferty approximation
   let df_d = df.to_double()
-  let z = ((x / df_d).pow(1.0 / 3.0) - (1.0 - 2.0 / (9.0 * df_d))) /
+  let z = (@math.pow(x / df_d, 1.0 / 3.0) - (1.0 - 2.0 / (9.0 * df_d))) /
     (2.0 / (9.0 * df_d)).sqrt()
   stat_pvalue_zscore(z)
 }
@@ -1263,7 +1263,7 @@ pub fn stat_levene_test(samples : Array[Array[Double]]) -> (Double, Double) {
   i = 0
   while i < k {
     let n = sizes[i].to_double()
-    numerator = numerator + n * (group_means[i] - grand_mean).pow(2.0)
+    numerator = numerator + n * @math.pow(group_means[i] - grand_mean, 2.0)
     i = i + 1
   }
 
@@ -1404,7 +1404,7 @@ pub fn stat_chi2_cdf(x : Double, df : Int) -> Double {
 
   let df_d = df.to_double()
   // Wilson-Hilferty approximation
-  let z = ((x / df_d).pow(1.0 / 3.0) - (1.0 - 2.0 / (9.0 * df_d))) /
+  let z = (@math.pow(x / df_d, 1.0 / 3.0) - (1.0 - 2.0 / (9.0 * df_d))) /
     (2.0 / (9.0 * df_d)).sqrt()
   let p = stat_normal_cdf(z)
   if p.is_nan() || p < 0.0 {
@@ -1804,7 +1804,7 @@ pub fn stat_anova(samples : Array[Array[Double]]) -> (Double, Double) {
   i = 0
   while i < k {
     ss_between = ss_between +
-      sizes[i].to_double() * (means[i] - grand_mean).pow(2.0)
+      sizes[i].to_double() * @math.pow(means[i] - grand_mean, 2.0)
     i = i + 1
   }
 
@@ -1814,7 +1814,7 @@ pub fn stat_anova(samples : Array[Array[Double]]) -> (Double, Double) {
   while i < k {
     let m = means[i]
     for v in samples[i] {
-      ss_within = ss_within + (v - m).pow(2.0)
+      ss_within = ss_within + @math.pow(v - m, 2.0)
     }
     i = i + 1
   }

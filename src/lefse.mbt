@@ -123,7 +123,7 @@ fn lefse_chi2_sf(x : Double, df : Int) -> Double {
     return 1.0
   }
   let df_d = df.to_double()
-  let z = ((x / df_d).pow(1.0 / 3.0) - (1.0 - 2.0 / (9.0 * df_d))) /
+  let z = (@math.pow(x / df_d, 1.0 / 3.0) - (1.0 - 2.0 / (9.0 * df_d))) /
     (2.0 / (9.0 * df_d)).sqrt()
   lefse_pvalue_z(z)
 }

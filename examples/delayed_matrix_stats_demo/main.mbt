@@ -76,9 +76,9 @@ fn main {
 
   println("\n=== 5. Handling NA Values ===")
   let na_data : Array[Array[Double]] = [
-    [1.0, Double::nan(), 3.0, 4.0],
-    [Double::nan(), 5.5, Double::nan(), 7.5],
-    [10.0, 20.0, Double::nan(), 40.0],
+    [1.0, @double.not_a_number, 3.0, 4.0],
+    [@double.not_a_number, 5.5, @double.not_a_number, 7.5],
+    [10.0, 20.0, @double.not_a_number, 40.0],
     [5.0, 7.0, 9.0, 11.0],
   ]
   let na_matrix = @bio.create_delayed_matrix(

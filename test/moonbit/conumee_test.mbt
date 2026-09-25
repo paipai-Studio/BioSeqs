@@ -33,7 +33,7 @@ test "cnm_from_arrays_mismatch" {
     [1000],
     [0.5],
   )
-  assert_true(opt.is_none())
+  assert_true(opt is None)
 }
 
 test "cnm_sample_creation" {

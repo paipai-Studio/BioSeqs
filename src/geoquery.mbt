@@ -88,34 +88,34 @@ pub fn geo_platform_new(
 ///|
 fn parse_geo_header_value(line : String) -> String {
   let idx = line.find("=")
-  if idx.is_none() {
+  if idx is None {
     return ""
   }
   let pos = idx.unwrap() + 1
-  let result = line[pos:].to_string()
+  let result = line[pos:].to_owned()
   let mut start = 0
   while start < result.length() &&
         result.unsafe_get(start).to_int() == ' '.to_int() {
     start = start + 1
   }
-  result[start:].to_string()
+  result[start:].to_owned()
 }
 
 ///|
 fn parse_geo_header_key_value(line : String) -> (String, String)? {
   let idx = line.find("=")
-  if idx.is_none() {
+  if idx is None {
     return None
   }
   let pos = idx.unwrap()
-  let key = line[1:pos].to_string()
-  let value = line[pos + 1:].to_string()
+  let key = line[1:pos].to_owned()
+  let value = line[pos + 1:].to_owned()
   let mut start = 0
   while start < value.length() &&
         value.unsafe_get(start).to_int() == ' '.to_int() {
     start = start + 1
   }
-  Some((key, value[start:].to_string()))
+  Some((key, value[start:].to_owned()))
 }
 
 ///|
@@ -141,7 +141,7 @@ pub fn parse_geo_series_matrix(content : String) -> GEOData {
     } else if line.has_prefix("!") &&
       !line.has_prefix("!series_matrix_table_begin") {
       let key_value = parse_geo_header_key_value(line)
-      if key_value.is_some() {
+      if key_value is Some(_) {
         let (key, value) = key_value.unwrap()
         if !sample_info.contains(key) {
           sample_info[key] = []
@@ -208,8 +208,8 @@ pub fn parse_soft_format(content : String) -> GEOSeries {
     let line = lines[i]
     if line.has_prefix("^SAMPLE=") {
       let idx = line.find("=")
-      if idx.is_some() {
-        sample_ids.push(line[idx.unwrap() + 1:].to_string())
+      if idx is Some(_) {
+        sample_ids.push(line[idx.unwrap() + 1:].to_owned())
       }
     } else if line.has_prefix("!Sample_platform_id") {
       let val = parse_geo_header_value(line)

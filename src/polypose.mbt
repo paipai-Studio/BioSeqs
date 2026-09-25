@@ -140,7 +140,7 @@ pub fn ppy_atom(r : PpyResidue, atom_name : String) -> PpyAtom? {
       if a.altloc == "" {
         return Some(a)
       }
-      if fallback.is_none() {
+      if fallback is None {
         fallback = Some(a)
       }
     }

@@ -72,7 +72,7 @@ test "nexus_trees_parse_translate" {
   let content = "#NEXUS\nBEGIN TREES;\nTRANSLATE\n  1 Homo_sapiens,\n  2 Mus_musculus\n  ;\n  TREE tree1 = ((1:0.1,2:0.2):0.3);\nEND;\n"
   let collection = @src.nexus_trees_parse(content)
   assert_eq(collection.trees.length(), 1)
-  assert_eq(collection.translate.size() |> ignore, ())
+  assert_eq(collection.translate.length() |> ignore, ())
   // resolve taxon
   let label = collection.resolve_taxon("1")
   assert_eq(label, "Homo_sapiens")

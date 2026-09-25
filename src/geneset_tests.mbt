@@ -1173,7 +1173,7 @@ pub fn camera_default(
   // Orthonormal basis of the residual space (R uses qr.qty effects; any
   // orthonormal basis spanning the nullspace gives identical VIF values).
   let dfree = n - p
-  let residuals_needed = fixed_cor_value.is_none()
+  let residuals_needed = fixed_cor_value is None
   let q2 = if residuals_needed {
     gst_qr_nullspace(reordered, n, p)
   } else {
@@ -1335,7 +1335,7 @@ pub fn camera_default(
   })
   let mut pos = 0
   for k in order {
-    let corr = if fixed_cor_value.is_none() {
+    let corr = if fixed_cor_value is None {
       if has_cor[k] {
         Some(cors[k])
       } else {

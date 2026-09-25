@@ -258,7 +258,7 @@ test "submat_registry_initialize_and_list" {
 test "submat_registry_load_existing_matrix" {
   @src.subs_initialize_registry()
   let opt = @src.load_matrix("BLOSUM62")
-  assert_true(opt.is_some())
+  assert_true(opt is Some(_))
   let m = opt.unwrap()
   assert_eq(m.name(), "BLOSUM62")
   assert_true((m.get_score("A", "A") - 4.0).abs() < 1.0e-10)
@@ -268,7 +268,7 @@ test "submat_registry_load_existing_matrix" {
 test "submat_registry_load_missing_returns_none" {
   @src.subs_initialize_registry()
   let opt = @src.load_matrix("NONEXISTENT_MATRIX_XYZ")
-  assert_true(opt.is_none())
+  assert_true(opt is None)
 }
 
 ///|
@@ -283,7 +283,7 @@ test "submat_registry_register_custom_matrix" {
   let custom = @src.subs_matrix_from_pairs("CUSTOM_TEST_MATRIX", alpha, pairs)
   @src.register_matrix("CUSTOM_TEST_MATRIX", custom)
   let opt = @src.load_matrix("CUSTOM_TEST_MATRIX")
-  assert_true(opt.is_some())
+  assert_true(opt is Some(_))
   let loaded = opt.unwrap()
   assert_true((loaded.get_score("A", "A") - 1.0).abs() < 1.0e-10)
 }
@@ -481,7 +481,7 @@ test "submat_parse_ncbi_matrix_simple" {
     #|A  1 -1
     #|C -1  1
   let opt = @src.parse_ncbi_matrix(content)
-  assert_true(opt.is_some())
+  assert_true(opt is Some(_))
   let m = opt.unwrap()
   assert_true((m.get_score("A", "A") - 1.0).abs() < 1.0e-10)
   assert_true((m.get_score("A", "C") - -1.0).abs() < 1.0e-10)
@@ -499,7 +499,7 @@ test "submat_parse_ncbi_matrix_with_comments" {
     #|G -4 -4  5 -4
     #|T -4 -4 -4  5
   let opt = @src.parse_ncbi_matrix(content)
-  assert_true(opt.is_some())
+  assert_true(opt is Some(_))
   let m = opt.unwrap()
   assert_true((m.get_score("A", "A") - 5.0).abs() < 1.0e-10)
   assert_true((m.get_score("C", "C") - 5.0).abs() < 1.0e-10)
@@ -511,14 +511,14 @@ test "submat_parse_ncbi_matrix_with_comments" {
 test "submat_parse_ncbi_matrix_empty_returns_none" {
   let content = "# only comments\n# nothing else\n"
   let opt = @src.parse_ncbi_matrix(content)
-  assert_true(opt.is_none())
+  assert_true(opt is None)
 }
 
 ///|
 test "submat_parse_ncbi_matrix_handles_extra_whitespace" {
   let content = "A    C\nA   2   -3\nC  -3    2\n"
   let opt = @src.parse_ncbi_matrix(content)
-  assert_true(opt.is_some())
+  assert_true(opt is Some(_))
   let m = opt.unwrap()
   assert_true((m.get_score("A", "A") - 2.0).abs() < 1.0e-10)
   assert_true((m.get_score("C", "C") - 2.0).abs() < 1.0e-10)
@@ -577,7 +577,7 @@ test "submat_registry_contains_all_30_biopython_matrices" {
   ]
   for name in expected {
     let m = @src.load_matrix(name)
-    assert_true(m.is_some(), msg=name)
+    assert_true(m is Some(_), msg=name)
   }
 }
 

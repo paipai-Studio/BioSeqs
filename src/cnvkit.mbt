@@ -454,7 +454,7 @@ pub fn call_copy_numbers(
 ///|
 fn cbs_log2_to_copynumber(log2_ratio : Double, ploidy : Int) -> Double {
   let ploidy_double = ploidy.to_double()
-  let ratio = 2.0.pow(log2_ratio)
+  let ratio = @math.pow(2.0, log2_ratio)
   (ploidy_double * ratio).round()
 }
 

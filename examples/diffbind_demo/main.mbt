@@ -52,7 +52,7 @@ fn main {
   while j < count_keys.length() {
     let key = count_keys[j]
     let val = counts.get(key)
-    let val_str = if val.is_some() { val.unwrap().to_string() } else { "0" }
+    let val_str = if val is Some(_) { val.unwrap().to_string() } else { "0" }
     println("  " + key + ": " + val_str + " peaks")
     j = j + 1
   }

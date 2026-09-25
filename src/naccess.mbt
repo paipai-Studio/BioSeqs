@@ -195,7 +195,7 @@ pub fn naccess_parse_rsa(content : String) -> Array[NaccessResidue] {
   let residues = Array(capacity=0)
   let lines = content.split("\n").to_array()
   for line in lines {
-    let trimmed = line.to_string()
+    let trimmed = line.to_owned()
     if trimmed.length() < 10 {
       continue
     }
@@ -205,7 +205,7 @@ pub fn naccess_parse_rsa(content : String) -> Array[NaccessResidue] {
       // Filter out empty strings from multiple spaces
       let filtered = Array(capacity=0)
       for p in parts {
-        let s = p.to_string()
+        let s = p.to_owned()
         if s.length() > 0 {
           filtered.push(s)
         }
@@ -301,7 +301,7 @@ pub fn naccess_parse_asa(content : String) -> Array[NaccessAtom] {
   let atoms = Array(capacity=0)
   let lines = content.split("\n").to_array()
   for line in lines {
-    let trimmed = line.to_string()
+    let trimmed = line.to_owned()
     if trimmed.length() < 10 {
       continue
     }
@@ -310,7 +310,7 @@ pub fn naccess_parse_asa(content : String) -> Array[NaccessAtom] {
       let parts = trimmed.split(" ").to_array()
       let filtered = Array(capacity=0)
       for p in parts {
-        let s = p.to_string()
+        let s = p.to_owned()
         if s.length() > 0 {
           filtered.push(s)
         }
@@ -642,7 +642,7 @@ pub fn naccess_summary(result : NaccessResult) -> String {
     (result.get_num_residues() - naccess_count_exposed(result, 20.0)).to_string() +
     "\n",
   )
-  sb.write_string("  Chains: " + result.chain_totals.size().to_string() + "\n")
+  sb.write_string("  Chains: " + result.chain_totals.length().to_string() + "\n")
   for chain_id in result.chain_totals.keys() {
     match result.chain_totals.get(chain_id) {
       Some(v) =>

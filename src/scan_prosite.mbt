@@ -109,7 +109,7 @@ fn sp_ws_strip(s : String) -> String {
   while end > start && sp_is_ws(s.unsafe_get(end - 1).to_int()) {
     end = end - 1
   }
-  s[start:end].to_string()
+  s[start:end].to_owned()
 }
 
 ///|
@@ -174,7 +174,7 @@ fn sp_strip_quotes(s : String) -> String {
       end = end - 1
     }
   }
-  s[start:end].to_string()
+  s[start:end].to_owned()
 }
 
 // ---------------------------------------------------------------------------
@@ -270,11 +270,11 @@ fn sp_tokenize(xml : String) -> Array[SpXmlToken] raise ScanPrositeError {
       }
       if i + 1 < n && xml.unsafe_get(i + 1).to_int() == 47 {
         // closing tag </name>
-        let name = sp_ws_strip(xml[i + 2:j].to_string())
+        let name = sp_ws_strip(xml[i + 2:j].to_owned())
         tokens.push(Close(name))
         i = j + 1
       } else {
-        let (name, attrs) = sp_parse_open_tag(xml[i + 1:j].to_string())
+        let (name, attrs) = sp_parse_open_tag(xml[i + 1:j].to_owned())
         tokens.push(Open(name, attrs))
         i = j + 1
       }
@@ -303,8 +303,8 @@ fn sp_parse_open_tag(inner : String) -> (String, Map[String, String]) {
     let p = parts[k]
     let eq = sp_index_of_char(p, 61)
     if eq >= 0 {
-      let key = p[0:eq].to_string()
-      let value = sp_strip_quotes(p[eq + 1:p.length()].to_string())
+      let key = p[0:eq].to_owned()
+      let value = sp_strip_quotes(p[eq + 1:p.length()].to_owned())
       attrs.set(key, value)
     }
     k = k + 1

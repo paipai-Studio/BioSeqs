@@ -107,7 +107,7 @@ fn af_parse_string(s : String, i : Int) -> (String, Int) raise AlphafoldError {
       let e = s.unsafe_get(j + 1).to_int()
       if e == 117 {
         let code = af_hex4(s, j + 2)
-        buf.write_char(Char::from_int(code))
+        buf.write_char((code).unsafe_to_char())
         j = j + 6
         continue
       }
@@ -124,9 +124,9 @@ fn af_parse_string(s : String, i : Int) -> (String, Int) raise AlphafoldError {
       } else if e == 114 {
         buf.write_char('\r')
       } else if e == 98 {
-        buf.write_char(Char::from_int(8))
+        buf.write_char((8).unsafe_to_char())
       } else if e == 102 {
-        buf.write_char(Char::from_int(12))
+        buf.write_char((12).unsafe_to_char())
       } else {
         af_fail("Invalid JSON escape character")
       }
@@ -154,7 +154,7 @@ fn af_parse_value(s : String, i : Int) -> (String, Int) raise AlphafoldError {
     }
     j = j + 1
   }
-  let raw = s[i:j].to_string()
+  let raw = s[i:j].to_owned()
   let raw = trim(raw)
   if raw == "null" {
     ("", j)

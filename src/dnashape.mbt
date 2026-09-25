@@ -189,7 +189,7 @@ pub fn dnashape_encode_kmer(kmer : String) -> Int {
   let mut result = 0
   let mut i = 0
   while i < n {
-    let b = kmer[i:i + 1].to_string()
+    let b = kmer[i:i + 1].to_owned()
     let code = dnashape_encode_base(b)
     if code < 0 {
       return -1
@@ -226,7 +226,7 @@ pub fn dnashape_revcomp(seq : String) -> String {
   let mut result = ""
   let mut i = n - 1
   while i >= 0 {
-    let c = seq[i:i + 1].to_string()
+    let c = seq[i:i + 1].to_owned()
     let complement = if c == "A" || c == "a" {
       "T"
     } else if c == "C" || c == "c" {
@@ -431,13 +431,13 @@ pub fn dnashape_predict(
   let mut i = 0
   while i <= n - k {
     // Extract k-mer
-    let kmer = seq[i:i + k].to_string()
+    let kmer = seq[i:i + k].to_owned()
     // For each k-mer, average the (k-1) overlapping dinucleotide values
     let mut sum = 0.0
     let mut count = 0
     let mut j = 0
     while j < k - 1 {
-      let dinuc = kmer[j:j + 2].to_string()
+      let dinuc = kmer[j:j + 2].to_owned()
       let idx = dnashape_encode_kmer(dinuc)
       if idx >= 0 {
         sum = sum + dnashape_lookup_dinuc(idx, feature)
@@ -530,7 +530,7 @@ pub fn dnashape_dinuc_composition(seq : String) -> Array[Int] {
   let n = seq.length()
   let mut i = 0
   while i < n - 1 {
-    let dinuc = seq[i:i + 2].to_string()
+    let dinuc = seq[i:i + 2].to_owned()
     let idx = dnashape_encode_kmer(dinuc)
     if idx >= 0 {
       counts[idx] = counts[idx] + 1
@@ -550,7 +550,7 @@ pub fn dnashape_gc_content(seq : String) -> Double {
   let mut gc = 0
   let mut i = 0
   while i < n {
-    let c = seq[i:i + 1].to_string()
+    let c = seq[i:i + 1].to_owned()
     if c == "G" || c == "g" || c == "C" || c == "c" {
       gc = gc + 1
     }

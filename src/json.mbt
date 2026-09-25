@@ -11,7 +11,7 @@ pub enum JsonValue {
   JsonStr(String)
   JsonArr(Array[JsonValue])
   JsonObj(Map[String, JsonValue])
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Skip JSON whitespace (space, tab, LF, CR).
@@ -161,7 +161,7 @@ fn json_parse_number(s : String, pos : Int) -> (JsonValue?, Int) {
       }
     }
   }
-  let text = s[start:p].to_string()
+  let text = s[start:p].to_owned()
   let v = parse_double(text)
   match v {
     None => (None, pos)

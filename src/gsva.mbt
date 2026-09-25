@@ -1148,7 +1148,7 @@ pub fn gsva_heatmap(scores : GSVAScores) -> String {
   let mut i = 0
   while i < display_samples {
     let name = if scores.sample_names[i].length() > 8 {
-      scores.sample_names[i][0:8].to_string()
+      scores.sample_names[i][0:8].to_owned()
     } else {
       scores.sample_names[i]
     }
@@ -1160,7 +1160,7 @@ pub fn gsva_heatmap(scores : GSVAScores) -> String {
   i = 0
   while i < display_sets {
     let set_name = if scores.gene_set_names[i].length() > 12 {
-      scores.gene_set_names[i][0:12].to_string()
+      scores.gene_set_names[i][0:12].to_owned()
     } else {
       scores.gene_set_names[i]
     }

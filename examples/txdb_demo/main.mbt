@@ -95,7 +95,7 @@ fn main {
   while i < tx_ids.length() {
     let tx_id = tx_ids[i]
     let introns_opt = introns_map.get(tx_id)
-    if introns_opt.is_some() {
+    if introns_opt is Some(_) {
       let introns = introns_opt.unwrap()
       println("  \{tx_id}:")
       let mut j = 0

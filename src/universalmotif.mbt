@@ -1731,13 +1731,13 @@ pub fn read_meme(text : String) -> Array[UniversalMotif] {
       continue
     }
     if line.has_prefix("ALPHABET=") {
-      let alpha = line.substring(start=9).trim().to_owned()
+      let alpha = line[9:].trim().to_owned()
       alphabet = um_infer_alphabet(alpha)
       i = i + 1
       continue
     }
     if line.has_prefix("MOTIF ") {
-      let header = line.substring(start=6).trim().to_owned()
+      let header = line[6:].trim().to_owned()
       let parts = header.split(" ").to_array()
       let name = if parts.length() >= 1 {
         parts[0].trim().to_owned()
@@ -1842,21 +1842,21 @@ fn um_parse_lpm_header(line : String) -> UmLpmHeader {
   for p = 0; p < tokens.length(); p = p + 1 {
     let t = tokens[p]
     if t.has_prefix("alength=") {
-      let rest = t.substring(start=8).trim().to_owned()
+      let rest = t[8:].trim().to_owned()
       if rest.length() > 0 {
         alen = parse_int(rest)
       } else if p + 1 < tokens.length() {
         alen = parse_int(tokens[p + 1])
       }
     } else if t.has_prefix("w=") {
-      let rest = t.substring(start=2).trim().to_owned()
+      let rest = t[2:].trim().to_owned()
       if rest.length() > 0 {
         width = parse_int(rest)
       } else if p + 1 < tokens.length() {
         width = parse_int(tokens[p + 1])
       }
     } else if t.has_prefix("nsites=") {
-      let rest = t.substring(start=7).trim().to_owned()
+      let rest = t[7:].trim().to_owned()
       if rest.length() > 0 {
         match parse_double(rest) {
           Some(x) => nsites = x
@@ -1885,7 +1885,7 @@ fn um_infer_alphabet(alpha : String) -> String {
   }
   let aa = "ACDEFGHIKLMNPQRSTVWY"
   if a.length() >= 20 {
-    let prefix = a.substring(start=0, end=20)
+    let prefix = a[0:20]
     if aa.contains(prefix) {
       return "AA"
     }
@@ -1943,7 +1943,7 @@ pub fn read_jaspar(text : String) -> Array[UniversalMotif] {
       continue
     }
     if line.has_prefix(">") {
-      let header = line.substring(start=1).trim().to_owned()
+      let header = line[1:].trim().to_owned()
       let parts = header.split(" ").to_array()
       let name = if parts.length() >= 1 {
         parts[0].trim().to_owned()
@@ -2048,7 +2048,7 @@ fn um_infer_alphabet_from_labels(labels : Array[String]) -> String {
   }
   let aa = "ACDEFGHIKLMNPQRSTVWY"
   if joined.length() >= 20 {
-    let prefix = joined.substring(start=0, end=20)
+    let prefix = joined[0:20]
     if aa.contains(prefix) {
       return "AA"
     }

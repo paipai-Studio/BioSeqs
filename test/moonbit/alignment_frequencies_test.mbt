@@ -226,7 +226,7 @@ test "alignment_background_frequencies" {
   assert_true(afreq_close(afreq_val(col_bg, "C"), 3.0 / 14.0))
   assert_true(afreq_close(afreq_val(col_bg, "G"), 2.0 / 14.0))
   assert_true(afreq_close(afreq_val(col_bg, "T"), 5.0 / 14.0))
-  assert_true(col_bg.get("-").is_none())
+  assert_true(col_bg.get("-") is None)
 
   let m = @src.alignment_substitution_matrix(rows) catch {
     _ => abort("substitution matrix should build")

@@ -201,7 +201,7 @@ pub fn ga_random_sequence(length : Int, alphabet : String) -> String {
   while i < length {
     let idx = (ga_pseudo_random() * n.to_double()).to_int()
     let safe_idx = if idx >= n { n - 1 } else if idx < 0 { 0 } else { idx }
-    result = result + alphabet[safe_idx:safe_idx + 1].to_string()
+    result = result + alphabet[safe_idx:safe_idx + 1].to_owned()
     i = i + 1
   }
   result
@@ -264,7 +264,7 @@ pub fn ga_fitness_match(target : String) -> (GAIndividual) -> Double {
     let mut matches = 0
     let mut i = 0
     while i < n {
-      if seq[i:i + 1].to_string() == target[i:i + 1].to_string() {
+      if seq[i:i + 1].to_owned() == target[i:i + 1].to_owned() {
         matches = matches + 1
       }
       i = i + 1
@@ -286,7 +286,7 @@ pub fn ga_fitness_gc_content(target_gc : Double) -> (GAIndividual) -> Double {
     let mut gc_count = 0
     let mut i = 0
     while i < n {
-      let base = seq[i:i + 1].to_string()
+      let base = seq[i:i + 1].to_owned()
       if base == "G" || base == "C" {
         gc_count = gc_count + 1
       }
@@ -436,8 +436,8 @@ pub fn ga_single_point_crossover(
     1 + ga_rand_int(n - 1)
   }
 
-  let child1_seq = (seq1[0:actual_point] + seq2[actual_point:n]).to_string()
-  let child2_seq = (seq2[0:actual_point] + seq1[actual_point:n]).to_string()
+  let child1_seq = (seq1[0:actual_point] + seq2[actual_point:n]).to_owned()
+  let child2_seq = (seq2[0:actual_point] + seq1[actual_point:n]).to_owned()
 
   (
     GAIndividual::new(
@@ -476,8 +476,8 @@ pub fn ga_two_point_crossover(
   let p1 = ga_rand_int(n - 1) + 1
   let p2 = p1 + 1 + ga_rand_int(n - p1 - 1)
 
-  let child1_seq = (seq1[0:p1] + seq2[p1:p2] + seq1[p2:n]).to_string()
-  let child2_seq = (seq2[0:p1] + seq1[p1:p2] + seq2[p2:n]).to_string()
+  let child1_seq = (seq1[0:p1] + seq2[p1:p2] + seq1[p2:n]).to_owned()
+  let child2_seq = (seq2[0:p1] + seq1[p1:p2] + seq2[p2:n]).to_owned()
 
   (
     GAIndividual::new(
@@ -516,11 +516,11 @@ pub fn ga_uniform_crossover(
   let mut i = 0
   while i < n {
     if ga_pseudo_random() < swap_prob {
-      child1_seq = child1_seq + seq2[i:i + 1].to_string()
-      child2_seq = child2_seq + seq1[i:i + 1].to_string()
+      child1_seq = child1_seq + seq2[i:i + 1].to_owned()
+      child2_seq = child2_seq + seq1[i:i + 1].to_owned()
     } else {
-      child1_seq = child1_seq + seq1[i:i + 1].to_string()
-      child2_seq = child2_seq + seq2[i:i + 1].to_string()
+      child1_seq = child1_seq + seq1[i:i + 1].to_owned()
+      child2_seq = child2_seq + seq2[i:i + 1].to_owned()
     }
     i = i + 1
   }
@@ -563,10 +563,10 @@ pub fn ga_point_mutate(
   while i < n {
     if ga_pseudo_random() < mutation_rate {
       let alphabet_idx = ga_rand_int(alphabet.length())
-      let new_base = alphabet[alphabet_idx:alphabet_idx + 1].to_string()
+      let new_base = alphabet[alphabet_idx:alphabet_idx + 1].to_owned()
       new_seq = new_seq + new_base
     } else {
-      new_seq = new_seq + seq[i:i + 1].to_string()
+      new_seq = new_seq + seq[i:i + 1].to_owned()
     }
     i = i + 1
   }
@@ -593,9 +593,9 @@ pub fn ga_insertion_mutate(
 
   let pos = ga_rand_int(n + 1)
   let new_base_idx = ga_rand_int(alphabet.length())
-  let new_base = alphabet[new_base_idx:new_base_idx + 1].to_string()
+  let new_base = alphabet[new_base_idx:new_base_idx + 1].to_owned()
 
-  let new_seq = (seq[0:pos] + new_base + seq[pos:n]).to_string()
+  let new_seq = (seq[0:pos] + new_base + seq[pos:n]).to_owned()
 
   GAIndividual::new(
     sequence=new_seq,
@@ -615,7 +615,7 @@ pub fn ga_deletion_mutate(individual : GAIndividual) -> GAIndividual {
   }
 
   let pos = ga_rand_int(n)
-  let new_seq = (seq[0:pos] + seq[pos + 1:n]).to_string()
+  let new_seq = (seq[0:pos] + seq[pos + 1:n]).to_owned()
 
   GAIndividual::new(
     sequence=new_seq,

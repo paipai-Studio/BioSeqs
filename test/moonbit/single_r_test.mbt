@@ -113,7 +113,7 @@ test "single_r_aggregate_scores_by_type" {
     "spearman",
   )
   let agg = @src.single_r_aggregate_scores_by_type(scores, ref_data, 1)
-  assert_true(agg.size() > 0)
+  assert_true(agg.length() > 0)
   assert_true(agg.contains("T cells"))
 }
 
@@ -189,7 +189,7 @@ test "single_r_annotation_summary" {
   let result = @src.single_r_annotate_cells(test_data, ref_data, params)
   let summary = @src.single_r_annotation_summary(result)
 
-  assert_true(summary.size() > 0)
+  assert_true(summary.length() > 0)
   assert_true(summary.contains("n_cells"))
   assert_eq(summary.get("n_cells").unwrap_or(0.0), 50.0)
   assert_true(summary.contains("avg_score"))

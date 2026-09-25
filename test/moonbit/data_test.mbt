@@ -1,7 +1,7 @@
 ///|
 test "iupac_ambiguous_dna_map" {
   let m = @src.iupac_ambiguous_dna_map()
-  assert_eq(m.size(), 11)
+  assert_eq(m.length(), 11)
   let r = m.get("R").unwrap()
   assert_eq(r, ["G", "A"])
   let y = m.get("Y").unwrap()
@@ -13,7 +13,7 @@ test "iupac_ambiguous_dna_map" {
 ///|
 test "iupac_ambiguous_rna_map" {
   let m = @src.iupac_ambiguous_rna_map()
-  assert_eq(m.size(), 11)
+  assert_eq(m.length(), 11)
   let u = m.get("Y").unwrap()
   assert_eq(u, ["C", "U"])
 }
@@ -56,7 +56,7 @@ test "amino_3_to_1" {
   let m = @src.amino_3_to_1()
   assert_eq(m.get("Ala").unwrap(), "A")
   assert_eq(m.get("Ter").unwrap(), "*")
-  assert_eq(m.size(), 21) // 20 standard + Ter
+  assert_eq(m.length(), 21) // 20 standard + Ter
 }
 
 ///|
@@ -64,7 +64,7 @@ test "amino_1_to_3" {
   let m = @src.amino_1_to_3()
   assert_eq(m.get("A").unwrap(), "Ala")
   assert_eq(m.get("*").unwrap(), "Ter")
-  assert_eq(m.size(), 21)
+  assert_eq(m.length(), 21)
 }
 
 ///|
@@ -100,7 +100,7 @@ test "amino_acid_properties" {
 ///|
 test "standard_codon_table" {
   let t = @src.standard_codon_table()
-  assert_eq(t.size(), 64)
+  assert_eq(t.length(), 64)
   assert_eq(t.get("ATG").unwrap(), "M") // Start codon
   assert_eq(t.get("TAA").unwrap(), "*") // Stop
   assert_eq(t.get("TAG").unwrap(), "*") // Stop

@@ -72,7 +72,7 @@ test "subsmat_standard_alphabet" {
 test "subsmat_parse_matrix" {
   let content = "A R N\n" + "A 5 -1 0\n" + "R -1 6 1\n" + "N 0 1 5\n"
   let matrix_opt = @src.parse_matrix(content)
-  assert_true(matrix_opt.is_some())
+  assert_true(matrix_opt is Some(_))
   let matrix = matrix_opt.unwrap()
   assert_eq(matrix.get_score("A", "A"), 5)
   assert_eq(matrix.get_score("R", "N"), 1)

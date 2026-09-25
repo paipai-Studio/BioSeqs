@@ -531,7 +531,7 @@ fn gviz_render_labels(
         let label = f.label
         let mut li = 0
         while li < label.length() && rel_mid + li < width {
-          grid.set(rel_mid + li, label.substring(start=li, end=li + 1))
+          grid.set(rel_mid + li, label[li:li + 1].to_owned())
           li = li + 1
         }
       }
@@ -677,7 +677,7 @@ fn gviz_render_sequence(
   let mut i = 0
   while i < display_len {
     let idx = (region_start + i) % chars.length()
-    s = s + chars.substring(start=idx, end=idx + 1)
+    s = s + chars[idx:idx + 1].to_owned()
     i = i + 1
   }
 

@@ -142,8 +142,8 @@ fn extract_sample_name(content : String) -> String {
     let first_line = lines[0]
     if first_line.has_prefix("#") {
       let idx = first_line.find(":")
-      if idx.is_some() {
-        return first_line[idx.unwrap() + 1:].to_string()
+      if idx is Some(_) {
+        return first_line[idx.unwrap() + 1:].to_owned()
       }
     }
   }
@@ -192,8 +192,8 @@ fn map_tx_to_gene(
 ///|
 fn remove_tx_version(tx_id : String) -> String {
   let idx = tx_id.find(".")
-  if idx.is_some() {
-    tx_id[0:idx.unwrap()].to_string()
+  if idx is Some(_) {
+    tx_id[0:idx.unwrap()].to_owned()
   } else {
     tx_id
   }

@@ -22,7 +22,7 @@ fn pyfaidx_uppercase(s : String) -> String {
   for i = 0; i < s.length(); i = i + 1 {
     let c = s.unsafe_get(i).to_int()
     let u = if c >= 97 && c <= 122 { c - 32 } else { c }
-    buf.write_char(Char::from_int(u))
+    buf.write_char((u).unsafe_to_char())
   }
   buf.to_string()
 }
@@ -48,7 +48,7 @@ fn pyfaidx_ws_tokens(s : String) -> Array[String] {
     while i < n && !pyfaidx_is_ws(s.unsafe_get(i).unsafe_to_char()) {
       i = i + 1
     }
-    tokens.push(s[start:i].to_string())
+    tokens.push(s[start:i].to_owned())
   }
   tokens
 }
@@ -209,7 +209,7 @@ pub fn pyfaidx_wrap_sequence(n : Int, seq : String) -> String {
   let mut i = 0
   while i < len {
     let end = if i + n < len { i + n } else { len }
-    buf.write_string(seq[i:end].to_string())
+    buf.write_string(seq[i:end].to_owned())
     buf.write_char('\n')
     i = end
   }
@@ -238,13 +238,13 @@ pub fn pyfaidx_ucsc_split(region : String) -> (String, Int?, Int?) {
   if colon < 0 {
     return (region, None, None)
   }
-  let rname = region[0:colon].to_string()
-  let interval = region[colon + 1:region.length()].to_string()
+  let rname = region[0:colon].to_owned()
+  let interval = region[colon + 1:region.length()].to_owned()
   let dash = pyfaidx_index_of_char(interval, '-'.to_int())
   if dash < 0 {
     return (rname, None, None)
   }
-  let start = parse_int(interval[0:dash].to_string()) - 1
-  let end = parse_int(interval[dash + 1:interval.length()].to_string())
+  let start = parse_int(interval[0:dash].to_owned()) - 1
+  let end = parse_int(interval[dash + 1:interval.length()].to_owned())
   (rname, Some(start), Some(end))
 }

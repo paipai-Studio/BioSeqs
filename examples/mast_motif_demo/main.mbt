@@ -137,7 +137,7 @@ fn main {
   println("  Serialized (" + lines.length().to_string() + " lines), first 5:")
   let mut l = 0
   while l < 5 && l < lines.length() {
-    println("    " + lines[l].to_string())
+    println("    " + lines[l].to_owned())
     l = l + 1
   }
   println("")

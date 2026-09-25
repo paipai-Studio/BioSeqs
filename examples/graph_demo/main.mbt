@@ -29,7 +29,7 @@ fn main {
 
   println("\n5. Shortest path from TP53 to CHEK2:")
   let path = @src.graph_shortest_path(ppi_graph, "TP53", "CHEK2")
-  if path.is_some() {
+  if path is Some(_) {
     let path_arr = path.unwrap()
     i = 0
     while i < path_arr.length() {
@@ -54,7 +54,7 @@ fn main {
 
   println("\n8. Shortest path from G1 to M phase:")
   let cell_cycle_path = @src.graph_shortest_path(pathway_graph, "G1", "M")
-  if cell_cycle_path.is_some() {
+  if cell_cycle_path is Some(_) {
     let cc_path_arr = cell_cycle_path.unwrap()
     i = 0
     while i < cc_path_arr.length() {

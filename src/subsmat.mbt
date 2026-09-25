@@ -76,11 +76,11 @@ pub fn SubstitutionMatrix::get_score(
   aa2 : String,
 ) -> Int {
   let row = self.data.get(aa1)
-  if row.is_none() {
+  if row is None {
     return 0
   }
   let score = row.unwrap().get(aa2)
-  if score.is_none() {
+  if score is None {
     return 0
   }
   score.unwrap()
@@ -1993,7 +1993,7 @@ pub fn parse_matrix(content : String) -> SubstitutionMatrix? {
       j = 1
       while j < tokens.length() && j - 1 < alphabet.length() {
         let score_opt = parse_double(tokens[j])
-        if score_opt.is_some() {
+        if score_opt is Some(_) {
           row[alphabet[j - 1]] = score_opt.unwrap().to_int()
         }
         j = j + 1

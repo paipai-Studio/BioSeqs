@@ -127,7 +127,7 @@ fn natural_chrom_key(chr : String) -> String {
   //   other -> "B" + original
   let s = chr.to_lower()
   let base = if s.has_prefix("chr") {
-    s.substring(start=3, end=s.length())
+    s[3:s.length()].to_owned()
   } else {
     s
   }

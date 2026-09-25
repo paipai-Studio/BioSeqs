@@ -47,7 +47,7 @@ fn main {
   while i < clusters.clusters.length() {
     let c = clusters.clusters[i]
     let current = cluster_counts.get(c)
-    if current.is_some() {
+    if current is Some(_) {
       cluster_counts[c] = current.unwrap() + 1
     } else {
       cluster_counts[c] = 1
@@ -65,7 +65,7 @@ fn main {
   k = 0
   while k < keys.length() {
     let v = cluster_counts.get(keys[k])
-    if v.is_some() {
+    if v is Some(_) {
       println(
         "    Cluster " +
         keys[k].to_string() +

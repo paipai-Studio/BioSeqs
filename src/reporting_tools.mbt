@@ -308,7 +308,7 @@ pub fn ReportTable::get_n_columns(table : ReportTable) -> Int {
 ///|
 fn rt_pad_right(s : String, width : Int) -> String {
   if s.length() >= width {
-    s.substring(start=0, end=width).to_string()
+    s[0:width].to_owned()
   } else {
     let mut result = s
     let mut i = s.length()

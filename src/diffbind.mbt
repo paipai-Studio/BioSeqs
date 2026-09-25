@@ -1732,7 +1732,7 @@ pub fn diffbind_plot_pca(config : DBAConfig, method_ : String) -> String {
   let mut cond_idx = 0
   while cond_idx < config.conditions.length() {
     let cond = config.conditions[cond_idx]
-    if colors.get(cond).is_none() {
+    if colors.get(cond) is None {
       if colors.length() == 0 {
         colors[cond] = "A"
       } else {

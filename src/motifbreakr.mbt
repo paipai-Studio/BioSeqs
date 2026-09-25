@@ -14,7 +14,7 @@ pub(all) enum MotifbreakrEffect {
   Gain
   Loss
   Neutral
-} derive(Eq, Show, Debug)
+} derive(Eq, Debug)
 pub extend MotifbreakrEffect with Eq::{equal, not_equal}
 pub extend MotifbreakrEffect with @moonbitlang/core/debug.Debug::{to_repr}
 

@@ -9,7 +9,7 @@ fn main {
   println("======================")
   let xml = @bio.kgml_sample_pathway()
   let pw_opt = @bio.parse_kgml(xml)
-  if pw_opt.is_some() {
+  if pw_opt is Some(_) {
     let pw = pw_opt.unwrap()
     println("Name: " + pw.name())
     println("Organism: " + pw.org())
@@ -25,7 +25,7 @@ fn main {
   // 2. Browse entries
   println("\n2. Browse Pathway Entries:")
   println("==========================")
-  if pw_opt.is_some() {
+  if pw_opt is Some(_) {
     let pw = pw_opt.unwrap()
     for e in pw.entries() {
       println("Entry " + e.id().to_string() + ": " + e.name() + " (type=" + e.etype() + ")")
@@ -33,7 +33,7 @@ fn main {
         println("  Reaction: " + e.reaction())
       }
       let g = e.graphics()
-      if g.is_some() {
+      if g is Some(_) {
         let gfx = g.unwrap()
         println("  Graphics: type=" + gfx.gtype() + " x=" + gfx.x().to_string() + " y=" + gfx.y().to_string())
         println("  Colors: fg=" + gfx.fgcolor() + " bg=" + gfx.bgcolor())
@@ -44,7 +44,7 @@ fn main {
   // 3. Browse relations
   println("\n3. Browse Relations:")
   println("====================")
-  if pw_opt.is_some() {
+  if pw_opt is Some(_) {
     let pw = pw_opt.unwrap()
     for r in pw.relations() {
       println("Relation: " + r.entry1().to_string() + " -> " + r.entry2().to_string() + " (type=" + r.rtype() + ")")
@@ -57,7 +57,7 @@ fn main {
   // 4. Browse reactions
   println("\n4. Browse Reactions:")
   println("====================")
-  if pw_opt.is_some() {
+  if pw_opt is Some(_) {
     let pw = pw_opt.unwrap()
     for rxn in pw.reactions() {
       println("Reaction: " + rxn.name() + " (type=" + rxn.rtype() + ")")
@@ -73,7 +73,7 @@ fn main {
   // 5. Query entries by type
   println("\n5. Query Entries by Type:")
   println("=========================")
-  if pw_opt.is_some() {
+  if pw_opt is Some(_) {
     let pw = pw_opt.unwrap()
     let genes = pw.get_entries_by_type("gene")
     println("Gene entries: " + genes.length().to_string())
@@ -86,7 +86,7 @@ fn main {
   // 6. Serialize back to KGML
   println("\n6. Serialize Pathway to KGML:")
   println("=============================")
-  if pw_opt.is_some() {
+  if pw_opt is Some(_) {
     let pw = pw_opt.unwrap()
     let output = @bio.kgml_to_string(pw)
     println("Serialized length: " + output.length().to_string() + " chars")

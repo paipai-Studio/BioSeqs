@@ -84,7 +84,7 @@ fn main {
       while j < row.length() {
         let val = row[j]
         let raw = val.to_string()
-        let s = if raw.length() > 4 { raw[0:4].to_string() } else { raw }
+        let s = if raw.length() > 4 { raw[0:4].to_owned() } else { raw }
         // Pad to 4 chars
         let padded = if s.length() >= 4 { s } else { s + "    ".substring(start=0, end=4 - s.length()) }
         line.write_string(" " + padded + " ")
@@ -146,7 +146,7 @@ fn main {
   println("Serialized record (" + lines.length().to_string() + " lines):")
   let mut l = 0
   while l < 5 && l < lines.length() {
-    println("  " + lines[l].to_string())
+    println("  " + lines[l].to_owned())
     l = l + 1
   }
   println("  ...")

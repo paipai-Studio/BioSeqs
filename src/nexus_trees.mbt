@@ -139,13 +139,13 @@ fn nexus_trees_split_commas(s : String) -> Array[String] {
     } else if c == 41 {
       depth = depth - 1
     } else if c == 44 && depth == 0 {
-      parts.push(s[start:i].to_string())
+      parts.push(s[start:i].to_owned())
       start = i + 1
     }
     i = i + 1
   }
   if start < s.length() {
-    parts.push(s[start:s.length()].to_string())
+    parts.push(s[start:s.length()].to_owned())
   }
   parts
 }
@@ -158,7 +158,7 @@ fn nexus_trees_parse_newick_inner(
   next_id : Int
 ) -> (Int, Int) {
   // Returns (node_id, next_available_id)
-  let trimmed = newick.trim(chars=" \t\r;").to_string()
+  let trimmed = newick.trim(chars=" \t\r;").to_owned()
   if trimmed.length() == 0 {
     return (-1, next_id)
   }
@@ -184,9 +184,9 @@ fn nexus_trees_parse_newick_inner(
     if close_pos < 0 {
       return (-1, next_id)
     }
-    let inner_str = trimmed[1:close_pos].to_string()
+    let inner_str = trimmed[1:close_pos].to_owned()
     // remainder after ')': label and/or :branch_length
-    let rest = trimmed[close_pos + 1:trimmed.length()].to_string()
+    let rest = trimmed[close_pos + 1:trimmed.length()].to_owned()
     // parse label + branch length from rest
     let (label, blen) = nexus_trees_parse_label_branch(rest)
     // create internal node
@@ -240,13 +240,13 @@ fn nexus_trees_parse_newick_inner(
 ///|
 /// Parse "label:branch" suffix into (label, branch_length).
 fn nexus_trees_parse_label_branch(s : String) -> (String, Double) {
-  let trimmed = s.trim(chars=" \t\r").to_string()
+  let trimmed = s.trim(chars=" \t\r").to_owned()
   // find last ':' not inside quotes (simplified: first ':')
   let colon = trimmed.find(":")
   match colon {
     Some(pos) => {
-      let label = trimmed[0:pos].to_string()
-      let branch_str = trimmed[pos + 1:trimmed.length()].to_string()
+      let label = trimmed[0:pos].to_owned()
+      let branch_str = trimmed[pos + 1:trimmed.length()].to_owned()
       let blen = nexus_trees_atof(branch_str)
       (label, blen)
     }
@@ -257,7 +257,7 @@ fn nexus_trees_parse_label_branch(s : String) -> (String, Double) {
 ///|
 /// Simple string to double.
 fn nexus_trees_atof(s : String) -> Double {
-  let t = s.trim(chars=" \t\r").to_string()
+  let t = s.trim(chars=" \t\r").to_owned()
   if t.length() == 0 {
     return 0.0
   }
@@ -293,20 +293,20 @@ fn nexus_trees_atof(s : String) -> Double {
 ///|
 /// Parse a single TREE line: "tree name = newick" or "TREE name = [&R] newick".
 fn nexus_trees_parse_tree_line(line : String) -> NexusTree? {
-  let trimmed = line.trim(chars=" \t\r;").to_string()
+  let trimmed = line.trim(chars=" \t\r;").to_owned()
   if trimmed.length() == 0 {
     return None
   }
   // find '='
   match trimmed.find("=") {
     Some(eq_pos) => {
-      let left = trimmed[0:eq_pos].trim(chars=" \t").to_string()
-      let right = trimmed[eq_pos + 1:trimmed.length()].trim(chars=" \t").to_string()
+      let left = trimmed[0:eq_pos].trim(chars=" \t").to_owned()
+      let right = trimmed[eq_pos + 1:trimmed.length()].trim(chars=" \t").to_owned()
       // left: "tree name" or "translate"
       let left_fields = left.split(" ").to_array()
-      let kw = if left_fields.length() > 0 { left_fields[0].to_string() } else { "" }
+      let kw = if left_fields.length() > 0 { left_fields[0].to_owned() } else { "" }
       if kw == "tree" || kw == "TREE" {
-        let name = if left_fields.length() > 1 { left_fields[1].to_string() } else { "tree" }
+        let name = if left_fields.length() > 1 { left_fields[1].to_owned() } else { "tree" }
         let tree = NexusTree::new(name)
         // check rooted flag [&R] or [&U]
         let newick_part = right
@@ -315,11 +315,11 @@ fn nexus_trees_parse_tree_line(line : String) -> NexusTree? {
           let rb = right.find("]")
           match rb {
             Some(pos) => {
-              let flag = right[0:pos].to_string()
+              let flag = right[0:pos].to_owned()
               tree.rooted = flag.contains("R") && !(flag.contains("U"))
               tree.weight = 1.0
               let rest_start = pos + 1
-              let newick_part = right[rest_start:right.length()].trim(chars=" \t").to_string()
+              let newick_part = right[rest_start:right.length()].trim(chars=" \t").to_owned()
               let (root_id, _) = nexus_trees_parse_newick_inner(newick_part, tree, 0)
               tree.root = root_id
               let leaves = tree.get_leaves()
@@ -350,7 +350,7 @@ pub fn nexus_trees_parse(content : String) -> NexusTreeCollection {
   let mut in_trees_block = in_trees
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim(chars=" \t\r").to_string()
+    let line = lines[i].trim(chars=" \t\r").to_owned()
     let upper = line.to_lower()
     if upper.contains("begin trees") {
       in_trees_block = true
@@ -361,7 +361,7 @@ pub fn nexus_trees_parse(content : String) -> NexusTreeCollection {
         // TRANSLATE lines: "1 Homo_sapiens," etc (until ';')
         let mut j = i
         while j < lines.length() {
-          let tline = lines[j].trim(chars=" \t\r").to_string()
+          let tline = lines[j].trim(chars=" \t\r").to_owned()
           if j > i {
             let tupper = tline.to_lower()
             if tupper.contains("end;") {
@@ -370,12 +370,12 @@ pub fn nexus_trees_parse(content : String) -> NexusTreeCollection {
             }
           }
           // parse "num label," entries
-          let clean = tline.trim(chars=" \t\r,;").to_string()
+          let clean = tline.trim(chars=" \t\r,;").to_owned()
           if clean.length() > 0 && !(clean.to_lower().contains("translate")) {
             let fields = clean.split(" ").to_array()
             if fields.length() >= 2 {
-              let num = fields[0].to_string()
-              let label = fields[1].to_string()
+              let num = fields[0].to_owned()
+              let label = fields[1].to_owned()
               collection.translate[num] = label
             }
           }

@@ -94,7 +94,7 @@ pub fn fitch_parsimony_score(
   tree : Tree,
   alignment : Map[String, String],
 ) -> Double {
-  if alignment.size() == 0 {
+  if alignment.length() == 0 {
     return -1.0
   }
   let mut aln_len = 0
@@ -247,7 +247,7 @@ pub fn sankoff_parsimony_score(
   alignment : Map[String, String],
   matrix : ParsimonyMatrix,
 ) -> Double {
-  if alignment.size() == 0 {
+  if alignment.length() == 0 {
     return -1.0
   }
   let mut aln_len = 0

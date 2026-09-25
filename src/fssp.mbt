@@ -296,7 +296,7 @@ fn fssp_tokenize(line : String) -> Array[String] {
 fn fssp_extract_after_keyword(line : String, keyword : String) -> String {
   let trimmed = trim(line)
   if starts_with(trimmed, 0, keyword) {
-    let rest = trimmed[keyword.length():trimmed.length()].to_string()
+    let rest = trimmed[keyword.length():trimmed.length()].to_owned()
     trim(rest)
   } else {
     ""
@@ -333,7 +333,7 @@ fn fssp_parse_header(lines : Array[String]) -> (FsspHeader, Int) {
         // Strip \_ prefix from PDB ID if present
         let raw_pdbid = tokens[0]
         if starts_with(raw_pdbid, 0, "\\_") {
-          pdbid = raw_pdbid[2:raw_pdbid.length()].to_string()
+          pdbid = raw_pdbid[2:raw_pdbid.length()].to_owned()
         } else {
           pdbid = raw_pdbid
         }

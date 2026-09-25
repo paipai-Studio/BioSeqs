@@ -187,7 +187,7 @@ pub fn seq1(
   let n = seq.length() / 3 * 3
   let mut i = 0
   while i < n {
-    let triplet = seq.substring(start=i, end=i + 3).to_upper()
+    let triplet = seq[i:i + 3].to_owned().to_upper()
     result.write_string(onecode.get(triplet).unwrap_or(undef))
     i = i + 3
   }

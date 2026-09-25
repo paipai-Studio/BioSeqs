@@ -56,7 +56,7 @@ test "align_io_get_sequence" {
   )
 
   let seq = @src.get_sequence(align, "Seq1")
-  assert_eq(seq.is_some(), true)
+  assert_eq(seq is Some(_), true)
 }
 
 ///|

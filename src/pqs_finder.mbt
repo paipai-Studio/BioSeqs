@@ -596,7 +596,7 @@ pub struct PqsResult {
 /// sequence. Mirrors `as(pqs, "DNAStringSet")`: minus-strand hits return
 /// the corresponding C-rich substring of the input.
 pub fn Pqs::sequence(self : Pqs, seq : String) -> String {
-  seq[self.start:self.end].to_string()
+  seq[self.start:self.end].to_owned()
 }
 
 ///|

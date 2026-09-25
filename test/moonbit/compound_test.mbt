@@ -89,7 +89,7 @@ test "parse_formula_with_metals" {
 ///|
 test "parse_formula_empty" {
   let counts = @src.parse_formula("")
-  assert_eq(counts.size(), 0)
+  assert_eq(counts.length(), 0)
 }
 
 ///|

@@ -363,7 +363,7 @@ test "alignace_sample_version" {
 ///|
 test "alignace_sample_has_parameters" {
   let record = @src.alignace_sample()
-  assert_true(record.parameters.size() >= 1)
+  assert_true(record.parameters.length() >= 1)
 }
 
 ///|

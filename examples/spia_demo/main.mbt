@@ -42,7 +42,7 @@ fn main {
   // ---- Section 2: Load DE genes ----
   println("=== 2. Differentially Expressed Genes ===")
   let de = @bio.spia_sample_de_genes()
-  println("Total DE genes: " + de.size().to_string())
+  println("Total DE genes: " + de.length().to_string())
   let keys = de.keys().collect()
   let mut ki = 0
   while ki < keys.length() {

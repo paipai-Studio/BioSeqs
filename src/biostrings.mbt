@@ -797,7 +797,7 @@ pub fn find_palindromes(
   while i <= n - min_length {
     let mut j = n
     while j >= i + min_length {
-      let subseq = seq.substring(start=i, end=j)
+      let subseq = seq[i:j].to_owned()
       let rc = iupac_reverse_complement(subseq)
       if subseq.to_upper() == rc.to_upper() && subseq.length() >= min_length {
         results.push((i + 1, j))
@@ -825,11 +825,11 @@ pub fn find_direct_repeats(
   while unit_len <= max_unit_length {
     let mut i = 0
     while i <= n - unit_len * min_copies {
-      let unit = seq.substring(start=i, end=i + unit_len).to_upper()
+      let unit = seq[i:i + unit_len].to_upper()
       let mut copies = 1
       let mut j = i + unit_len
       while j + unit_len <= n {
-        let next_unit = seq.substring(start=j, end=j + unit_len).to_upper()
+        let next_unit = seq[j:j + unit_len].to_upper()
         if next_unit == unit {
           copies = copies + 1
           j = j + unit_len
@@ -862,8 +862,8 @@ pub fn find_inverted_repeats(
     let mut j = i + min_length
     while j <= n - min_length {
       let len = min_length
-      let sub1 = seq.substring(start=i, end=i + len).to_upper()
-      let sub2 = seq.substring(start=j, end=j + len).to_upper()
+      let sub1 = seq[i:i + len].to_upper()
+      let sub2 = seq[j:j + len].to_owned().to_upper()
       let rc2 = iupac_reverse_complement(sub2)
       if sub1 == rc2 {
         results.push((i + 1, i + len, j + 1, j + len))
@@ -929,7 +929,7 @@ pub fn gc_content_sliding(
 
   let mut i = 0
   while i <= n - window_size {
-    let window = seq.substring(start=i, end=i + window_size)
+    let window = seq[i:i + window_size].to_owned()
     let gc = gc_content(window)
     results.push((i + 1, gc))
     i = i + step
@@ -954,7 +954,7 @@ pub fn tm_sliding(
 
   let mut i = 0
   while i <= n - window_size {
-    let window = seq.substring(start=i, end=i + window_size)
+    let window = seq[i:i + window_size].to_owned()
     let tm = tm_nn(window)
     results.push((i + 1, tm))
     i = i + step
@@ -1240,7 +1240,7 @@ pub fn sequence_complexity(seq : String, word_size : Int) -> Double {
 
   let mut i = 0
   while i < total_positions {
-    let sub = seq.substring(start=i, end=i + word_size)
+    let sub = seq[i:i + word_size]
     let buf : FixedArray[UInt16] = FixedArray::make(word_size, 0)
     let mut j = 0
     while j < word_size {

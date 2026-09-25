@@ -142,7 +142,7 @@ pub fn qblast_validate_program(program : String) -> Unit raise NcbiBlastError {
       "Program specified is " +
       program +
       " but should be one of " +
-      ncbi_blast_programs.to_string(),
+      ncbi_blast_programs.join(", "),
     )
   }
 }

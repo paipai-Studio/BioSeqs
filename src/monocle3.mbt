@@ -905,7 +905,7 @@ pub fn fit_models(
   let mut i = 0
   while i < n_genes {
     let gene_idx = find_gene_index(cds.gene_names, gene_names[i])
-    if gene_idx.is_some() {
+    if gene_idx is Some(_) {
       let idx = gene_idx.unwrap()
 
       let mut sum_expr = 0.0
@@ -1039,7 +1039,7 @@ pub fn differential_gene_test_branches(
   let mut i = 0
   while i < n_genes {
     let gene_idx = find_gene_index(cds.gene_names, gene_names[i])
-    if gene_idx.is_some() {
+    if gene_idx is Some(_) {
       let idx = gene_idx.unwrap()
 
       let mut sum_branch1 = 0.0

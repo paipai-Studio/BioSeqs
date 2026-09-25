@@ -54,7 +54,7 @@ fn main {
   println("--- Step 4: Round-trip Serialization ---")
   let output = @src.clusterbuster_to_string(clusters)
   println("Serialized (first 100 chars):")
-  println("  " + output[0:100].to_string() + "...")
+  println("  " + output[0:100].to_owned() + "...")
   let reparsed = @src.clusterbuster_parse(output)
   println("Re-parsed clusters: " + reparsed.length().to_string())
   println("")

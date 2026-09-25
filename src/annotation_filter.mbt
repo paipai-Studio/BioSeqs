@@ -223,7 +223,7 @@ pub fn af_count_by_biotype(annotations : Array[Annotation]) -> Map[String, Int] 
   while i < annotations.length() {
     let biotype = annotations[i].biotype
     let current = counts.get(biotype)
-    counts[biotype] = if current.is_some() { current.unwrap() + 1 } else { 1 }
+    counts[biotype] = if current is Some(_) { current.unwrap() + 1 } else { 1 }
     i = i + 1
   }
   counts
@@ -238,7 +238,7 @@ pub fn af_count_by_chromosome(
   while i < annotations.length() {
     let chr = annotations[i].chromosome
     let current = counts.get(chr)
-    counts[chr] = if current.is_some() { current.unwrap() + 1 } else { 1 }
+    counts[chr] = if current is Some(_) { current.unwrap() + 1 } else { 1 }
     i = i + 1
   }
   counts
@@ -257,7 +257,7 @@ pub fn af_filter_summary(annotations : Array[Annotation]) -> String {
   result = result + "\nBiotype distribution:\n"
   for key in biotype_counts.keys() {
     let value = biotype_counts.get(key)
-    if value.is_some() {
+    if value is Some(_) {
       result = result + "  " + key + ": " + value.unwrap().to_string() + "\n"
     }
   }
@@ -266,7 +266,7 @@ pub fn af_filter_summary(annotations : Array[Annotation]) -> String {
   result = result + "\nChromosome distribution:\n"
   for key in chr_counts.keys() {
     let value = chr_counts.get(key)
-    if value.is_some() {
+    if value is Some(_) {
       result = result + "  " + key + ": " + value.unwrap().to_string() + "\n"
     }
   }

@@ -771,7 +771,7 @@ pub fn abstract_trim(
 
   let new_seqs : Array[String] = Array(capacity=0)
   for seq in alignment.sequences {
-    let trimmed = seq.substring(start=s, end=e + 1)
+    let trimmed = seq[s:e + 1].to_owned()
     new_seqs.push(trimmed)
   }
 

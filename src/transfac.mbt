@@ -246,18 +246,18 @@ pub fn transfac_parse_full(text : String) -> TransfacRecordFull {
   let mut ref_journal = ""
   let mut ref_pubmed = ""
   for line in lines {
-    let trimmed = line.trim().to_string()
+    let trimmed = line.trim().to_owned()
     if trimmed.length() == 0 {
       continue
     }
     // Get the two-letter field code
     let field = if trimmed.length() >= 2 {
-      trimmed[0:2].to_string()
+      trimmed[0:2].to_owned()
     } else {
       ""
     }
     let value = if trimmed.length() > 2 {
-      trimmed[2:].trim().to_string()
+      trimmed[2:].trim().to_owned()
     } else {
       ""
     }
@@ -465,7 +465,7 @@ pub fn transfac_parse_full(text : String) -> TransfacRecordFull {
       let header_parts = value.split(" ").to_array()
       let alphabet : Array[String] = Array(capacity=0)
       for p in header_parts {
-        let s = p.trim().to_string()
+        let s = p.trim().to_owned()
         if s.length() > 0 {
           alphabet.push(s)
         }
@@ -486,14 +486,14 @@ pub fn transfac_parse_full(text : String) -> TransfacRecordFull {
     // Matrix data rows (start with digits)
     if in_matrix &&
       field.length() >= 2 &&
-      field[0:1].to_string() >= "0" &&
-      field[0:1].to_string() <= "9" {
+      field[0:1].to_owned() >= "0" &&
+      field[0:1].to_owned() <= "9" {
       // Parse the row number and counts
       let parts = trimmed.split(" ").to_array()
       let counts : Array[Int] = Array(capacity=0)
       let mut first = true
       for p in parts {
-        let s = p.trim().to_string()
+        let s = p.trim().to_owned()
         if first {
           // Skip the row number (01, 02, etc.)
           first = false

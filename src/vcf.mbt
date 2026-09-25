@@ -59,7 +59,7 @@ fn parse_info(info_str : String) -> Map[String, String] {
   while i < entries.length() {
     let entry = entries[i]
     let eq_pos = entry.find("=")
-    if eq_pos.is_some() {
+    if eq_pos is Some(_) {
       let pos = eq_pos.unwrap()
       let key = entry[0:pos].to_owned()
       let value = if pos + 1 < entry.length() {
@@ -97,7 +97,7 @@ fn parse_vcf_meta_header(line : String) -> VcfMetaHeader? {
 
   let content = line[2:line.length()].to_owned()
   let eq_pos = content.find("=")
-  if eq_pos.is_none() {
+  if eq_pos is None {
     return None
   }
 
@@ -118,7 +118,7 @@ fn parse_vcf_meta_header(line : String) -> VcfMetaHeader? {
       while i < fields.length() {
         let field = fields[i]
         let feq_pos = field.find("=")
-        if feq_pos.is_some() {
+        if feq_pos is Some(_) {
           let fpos = feq_pos.unwrap()
           let fkey = field[0:fpos].to_owned()
           let fvalue = if fpos + 1 < field.length() {
@@ -171,7 +171,7 @@ fn parse_vcf_record(line : String, sample_names : Array[String]) -> VcfRecord? {
   let format = if parts.length() > 8 { parse_format(parts[8]) } else { None }
 
   let samples = Map([], capacity=0)
-  if parts.length() > 9 && format.is_some() {
+  if parts.length() > 9 && format is Some(_) {
     let format_cols = format.unwrap()
     let mut i = 9
     while i < parts.length() {
@@ -221,12 +221,12 @@ pub fn parse_vcf(content : String) -> VcfFile {
     if line.unsafe_get(0).to_int() == '#'.to_int() {
       if line.length() > 1 && line.unsafe_get(1).to_int() == '#'.to_int() {
         let meta_opt = parse_vcf_meta_header(line)
-        if meta_opt.is_some() {
+        if meta_opt is Some(_) {
           meta_headers.push(meta_opt.unwrap())
         }
       } else {
         let fixed_opt = parse_vcf_fixed_header(line)
-        if fixed_opt.is_some() {
+        if fixed_opt is Some(_) {
           fixed_header = fixed_opt
         }
       }
@@ -244,7 +244,7 @@ pub fn parse_vcf(content : String) -> VcfFile {
         None => []
       }
       let record_opt = parse_vcf_record(line, sample_names)
-      if record_opt.is_some() {
+      if record_opt is Some(_) {
         records.push(record_opt.unwrap())
       }
     }

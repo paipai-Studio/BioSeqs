@@ -187,7 +187,7 @@ fn parse_sam_header(line : String) -> SamHeader? {
   while i < parts.length() {
     let tag = parts[i]
     let colon_pos = tag.find(":")
-    if colon_pos.is_some() {
+    if colon_pos is Some(_) {
       let pos = colon_pos.unwrap()
       let key = tag[0:pos].to_owned()
       let value = if pos + 1 < tag.length() {
@@ -228,11 +228,11 @@ fn parse_sam_record(line : String) -> SamRecord? {
   while i < parts.length() {
     let tag = parts[i]
     let colon_pos = tag.find(":")
-    if colon_pos.is_some() {
+    if colon_pos is Some(_) {
       let pos1 = colon_pos.unwrap()
       let sub = tag[pos1 + 1:tag.length()]
       let colon_pos2 = sub.find(":")
-      if colon_pos2.is_some() {
+      if colon_pos2 is Some(_) {
         let pos2 = colon_pos2.unwrap()
         let key = tag[0:pos1].to_owned()
         let value = sub[pos2 + 1:sub.length()].to_owned()
@@ -277,12 +277,12 @@ pub fn parse_sam(content : String) -> SamFile {
 
     if line.unsafe_get(0).to_int() == '@'.to_int() {
       let header_opt = parse_sam_header(line)
-      if header_opt.is_some() {
+      if header_opt is Some(_) {
         headers.push(header_opt.unwrap())
       }
     } else {
       let record_opt = parse_sam_record(line)
-      if record_opt.is_some() {
+      if record_opt is Some(_) {
         records.push(record_opt.unwrap())
       }
     }
@@ -428,7 +428,7 @@ pub fn SamFile::get_sequence_names(self : SamFile) -> Array[String] {
     let header = self.headers[i]
     if header.header_type == SamHeaderType::SQ {
       let sn_opt = header.tags.get("SN")
-      if sn_opt.is_some() {
+      if sn_opt is Some(_) {
         result.push(sn_opt.unwrap())
       }
     }
@@ -445,9 +445,9 @@ pub fn SamFile::get_sequence_length(self : SamFile, name : String) -> Int? {
     let header = self.headers[i]
     if header.header_type == SamHeaderType::SQ {
       let sn_opt = header.tags.get("SN")
-      if sn_opt.is_some() && sn_opt.unwrap() == name {
+      if sn_opt is Some(_) && sn_opt.unwrap() == name {
         let ln_opt = header.tags.get("LN")
-        if ln_opt.is_some() {
+        if ln_opt is Some(_) {
           return Some(parse_int(ln_opt.unwrap()))
         }
       }

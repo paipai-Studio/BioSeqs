@@ -330,7 +330,7 @@ fn abi_read_tag_name(bytes : Array[Int], pos : Int) -> String {
     if pos + i < bytes.length() {
       let ch = bytes[pos + i]
       if ch > 0 {
-        sb.write_char(Char::from_int(ch))
+        sb.write_char((ch).unsafe_to_char())
       }
     }
     i = i + 1
@@ -347,7 +347,7 @@ fn abi_read_string(bytes : Array[Int], pos : Int, length : Int) -> String {
     if pos + i < bytes.length() {
       let ch = bytes[pos + i]
       if ch > 0 {
-        sb.write_char(Char::from_int(ch))
+        sb.write_char((ch).unsafe_to_char())
       }
     }
     i = i + 1

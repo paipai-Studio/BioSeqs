@@ -95,15 +95,15 @@ pub fn CircSeq::circ_subseq(self : CircSeq, start : Int, end : Int) -> String {
   if wrapped_start <= wrapped_end {
     // Simple linear case
     if wrapped_end + 1 <= self.length {
-      return self.sequence.substring(start=wrapped_start, end=wrapped_end + 1)
+      return self.sequence[wrapped_start:wrapped_end + 1].to_owned()
     }
     // Edge case: wrapped_end == length (shouldn't happen with modulo)
-    return self.sequence.substring(start=wrapped_start)
+    return self.sequence[wrapped_start:].to_owned()
   } else {
     // Wraps around: start > end in linear space
     // e.g., length=10, start=8, end=2 -> get 8,9,0,1,2
-    let first_part = self.sequence.substring(start=wrapped_start)
-    let second_part = self.sequence.substring(start=0, end=wrapped_end + 1)
+    let first_part = self.sequence[wrapped_start:].to_owned()
+    let second_part = self.sequence[0:wrapped_end + 1].to_owned()
     return first_part + second_part
   }
 }
@@ -130,8 +130,8 @@ pub fn CircSeq::circ_rotate(self : CircSeq, new_origin : Int) -> CircSeq {
     return self
   }
   // New sequence: seq[wrapped:] + seq[:wrapped]
-  let new_seq = self.sequence.substring(start=wrapped) +
-    self.sequence.substring(start=0, end=wrapped)
+  let new_seq = self.sequence[wrapped:].to_owned() +
+    self.sequence[0:wrapped].to_owned()
   let gc = compute_gc_content(new_seq)
   CircSeq::{
     sequence: new_seq,
@@ -410,9 +410,9 @@ pub fn CircSeq::circ_insert(
   insert_seq : String,
 ) -> CircSeq {
   let wrapped = modulo_pos(pos, self.length)
-  let new_seq = self.sequence.substring(start=0, end=wrapped) +
+  let new_seq = self.sequence[0:wrapped].to_owned() +
     insert_seq +
-    self.sequence.substring(start=wrapped)
+    self.sequence[wrapped:].to_owned()
   let new_length = new_seq.length()
   let gc = compute_gc_content(new_seq)
   CircSeq::{
@@ -444,11 +444,11 @@ fn circular_delete(seq : String, start : Int, end : Int) -> String {
 
   if wrapped_start <= wrapped_end {
     // Linear delete
-    return seq.substring(start=0, end=wrapped_start) +
-      seq.substring(start=wrapped_end + 1)
+    return seq[0:wrapped_start].to_owned() +
+      seq[wrapped_end + 1:].to_owned()
   } else {
     // Wraps around: delete from wrapped_start to end, and from start to wrapped_end
-    return seq.substring(start=wrapped_end + 1, end=wrapped_start)
+    return seq[wrapped_end + 1:wrapped_start].to_owned()
   }
 }
 

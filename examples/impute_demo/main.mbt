@@ -3,9 +3,9 @@ fn main {
 
   println("--- 1. Data with missing values ---")
   let data = [
-    [1.0, 2.0, Double::nan(), 4.0, 5.0],
-    [Double::nan(), 7.0, 8.0, Double::nan(), 10.0],
-    [11.0, Double::nan(), 13.0, 14.0, Double::nan()],
+    [1.0, 2.0, @double.not_a_number, 4.0, 5.0],
+    [@double.not_a_number, 7.0, 8.0, @double.not_a_number, 10.0],
+    [11.0, @double.not_a_number, 13.0, 14.0, @double.not_a_number],
   ]
   let stats = @bio.impute_na_stats(data)
   println(@bio.impute_na_summary(stats))

@@ -75,7 +75,7 @@ fn mt_charge_at_ph(seq : String, ph : Double) -> Double {
 
   let mut i = 0
   while i < seq_upper.length() {
-    let aa = seq_upper[i:i + 1].to_string()
+    let aa = seq_upper[i:i + 1].to_owned()
     let groups = mt_get_pka(aa)
 
     let mut g = 0
@@ -207,7 +207,7 @@ pub fn mt_isoelectric_point_custom(
 
     let mut i = 0
     while i < seq_upper.length() {
-      let aa = seq_upper[i:i + 1].to_string()
+      let aa = seq_upper[i:i + 1].to_owned()
       match pka_table.get(aa) {
         Some(groups) => {
           let mut g = 0

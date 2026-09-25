@@ -151,7 +151,7 @@ fn pf_wrap(output : String, linesize : Int) -> Array[String] {
     if cut < 0 {
       cut = end - 1
     }
-    chunks.push(output[start:cut + 1].to_string())
+    chunks.push(output[start:cut + 1].to_owned())
     start = cut + 1
   }
   chunks
@@ -338,21 +338,21 @@ fn pf_make_map_only(
     for key in cutloc.get(win - 60).unwrap_or([]) {
       let s = pf_names_suffix(enzymemap.get(key).unwrap_or([]))
       if key == win {
-        let chunk = line[0:59].to_string()
+        let chunk = line[0:59].to_owned()
         map = map + chunk + key.to_string() + s + "\n" + chunk + a + "\n"
         break
       }
       let k = key % 60
-      let lineo = line[0:k - 1].to_string() + key.to_string() + s + "\n"
-      line = line[0:k - 1].to_string() + a + line[k:line.length()].to_string()
-      let line2 = line[0:k - 1].to_string() + a + line[k:line.length()].to_string() + "\n"
+      let lineo = line[0:k - 1].to_owned() + key.to_string() + s + "\n"
+      line = line[0:k - 1].to_owned() + a + line[k:line.length()].to_owned()
+      let line2 = line[0:k - 1].to_owned() + a + line[k:line.length()].to_owned() + "\n"
       map = map + lineo + line2
     }
     let mapunit = pf_join(
       [
-        sequence[win - 60:win].to_string(),
+        sequence[win - 60:win].to_owned(),
         pf_repeat(a, 60),
-        revsequence[win - 60:win].to_string(),
+        revsequence[win - 60:win].to_owned(),
         pf_ljust((win - 59).to_string(), 15) + pf_repeat(" ", 30) +
           pf_rjust(win.to_string(), 15) + "\n\n",
       ],
@@ -367,19 +367,19 @@ fn pf_make_map_only(
   for key in cutloc.get(x).unwrap_or([]) {
     let s = pf_names_suffix(enzymemap.get(key).unwrap_or([]))
     if key == length {
-      let chunk = line[0:length - 1].to_string()
+      let chunk = line[0:length - 1].to_owned()
       map = map + chunk + key.to_string() + s + "\n" + chunk + a + "\n"
       break
     }
     let k = key % 60
-    let lineo = line[0:k - 1].to_string() + key.to_string() + s + "\n"
-    line = line[0:k - 1].to_string() + a + line[k:line.length()].to_string()
-    let line2 = line[0:k - 1].to_string() + a + line[k:line.length()].to_string() + "\n"
+    let lineo = line[0:k - 1].to_owned() + key.to_string() + s + "\n"
+    line = line[0:k - 1].to_owned() + a + line[k:line.length()].to_owned()
+    let line2 = line[0:k - 1].to_owned() + a + line[k:line.length()].to_owned() + "\n"
     map = map + lineo + line2
   }
-  let mapunit = sequence[x:length].to_string() + "\n" +
+  let mapunit = sequence[x:length].to_owned() + "\n" +
     pf_repeat(a, length - x) + "\n" +
-    revsequence[x:length].to_string() + "\n" +
+    revsequence[x:length].to_owned() + "\n" +
     pf_ljust((x + 1).to_string(), 15) + pf_repeat(" ", length - x - 30) +
     pf_rjust(length.to_string(), 15) + "\n\n"
   map + mapunit

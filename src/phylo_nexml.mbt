@@ -523,7 +523,7 @@ pub fn nexml_to_xml(doc : NeXMLDocument) -> String {
     xml = xml + "    <matrix>\n"
     for otu in chars_block.matrix.keys() {
       let row_opt = chars_block.matrix.get(otu)
-      if row_opt.is_some() {
+      if row_opt is Some(_) {
         let row = row_opt.unwrap()
         xml = xml + "      <row otu=\"" + otu + "\">\n"
         for k = 0; k < row.length(); k = k + 1 {
@@ -632,7 +632,7 @@ pub fn nexml_tree_to_newick(tree : NeXMLTree) -> String {
   let mut root_id = ""
   for i = 0; i < tree.nodes.length(); i = i + 1 {
     let node = tree.nodes[i]
-    if parent_map.get(node.id).is_none() {
+    if parent_map.get(node.id) is None {
       root_id = node.id
       break
     }

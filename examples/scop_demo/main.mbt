@@ -29,7 +29,7 @@ fn main {
   println("\n3. Look Up Domain by SID:")
   println("=========================")
   let d = scop.get_domain_by_sid("d1hba_")
-  if d.is_some() {
+  if d is Some(_) {
     let domain = d.unwrap()
     println("SID: " + domain.sid())
     println("Sunid: " + domain.sunid().to_string())
@@ -37,7 +37,7 @@ fn main {
     println("PDB ID: " + domain.pdbid())
     println("Description: " + domain.description())
     let res = domain.residues()
-    if res.is_some() {
+    if res is Some(_) {
       let r = res.unwrap()
       println("PDB ID (residues): " + r.pdbid())
       println("Fragments: " + r.fragments().length().to_string())
@@ -50,12 +50,12 @@ fn main {
   // 4. Traverse hierarchy (get ascendents)
   println("\n4. Get Ascendents of Domain:")
   println("============================")
-  if d.is_some() {
+  if d is Some(_) {
     let domain = d.unwrap()
     let types = ["class", "fold", "superfamily", "family", "protein", "species"]
     for t in types {
       let asc = scop.get_ascendent(domain, t)
-      if asc.is_some() {
+      if asc is Some(_) {
         let n = asc.unwrap()
         println(t + ": sunid=" + n.sunid().to_string() + " desc=\"" + n.description() + "\"")
       }

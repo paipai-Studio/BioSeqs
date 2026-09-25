@@ -20,14 +20,14 @@ pub fn split_by_char(s : String, delim : Int) -> Array[String] {
   i = 0
   while i < n {
     if s.unsafe_get(i).to_int() == delim {
-      result[idx] = s[start:i].to_string()
+      result[idx] = s[start:i].to_owned()
       idx = idx + 1
       start = i + 1
     }
     i = i + 1
   }
   if start < n {
-    result[idx] = s[start:n].to_string()
+    result[idx] = s[start:n].to_owned()
   }
   result
 }
@@ -295,10 +295,10 @@ pub fn to_lowercase(s : String) -> String {
         88 => result = result + "x"
         89 => result = result + "y"
         90 => result = result + "z"
-        _ => result = result + s[i:i + 1].to_string()
+        _ => result = result + s[i:i + 1].to_owned()
       }
     } else {
-      result = result + s[i:i + 1].to_string()
+      result = result + s[i:i + 1].to_owned()
     }
     i = i + 1
   }
@@ -344,7 +344,7 @@ pub fn trim(s : String) -> String {
   while end > start && s.unsafe_get(end - 1).to_int() == ' '.to_int() {
     end = end - 1
   }
-  s[start:end].to_string()
+  s[start:end].to_owned()
 }
 ///|
 /// Convert string to uppercase.
@@ -381,10 +381,10 @@ pub fn to_uppercase(s : String) -> String {
         120 => result = result + "X"
         121 => result = result + "Y"
         122 => result = result + "Z"
-        _ => result = result + s[i:i + 1].to_string()
+        _ => result = result + s[i:i + 1].to_owned()
       }
     } else {
-      result = result + s[i:i + 1].to_string()
+      result = result + s[i:i + 1].to_owned()
     }
     i = i + 1
   }

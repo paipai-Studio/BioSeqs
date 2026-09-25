@@ -95,7 +95,7 @@ test "dna_matrix" {
   let m = @src.dna_matrix(2.0, -1.0)
   assert_true((m.get("AA").unwrap() - 2.0).abs() < 0.001)
   assert_true((m.get("AT").unwrap() - -1.0).abs() < 0.001)
-  assert_eq(m.size(), 10) // 10 unique pairs
+  assert_eq(m.length(), 10) // 10 unique pairs
 }
 
 ///|

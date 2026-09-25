@@ -33,7 +33,7 @@ pub struct TreeioTreeData {
 ///|
 /// Simple string to double parser.
 fn treeio_atof(s : String) -> Double {
-  let s_trim = s.trim().to_string()
+  let s_trim = s.trim().to_owned()
   if s_trim.length() == 0 {
     return 0.0
   }
@@ -68,7 +68,7 @@ fn treeio_atof(s : String) -> Double {
 ///|
 /// Parse Newick tree string into TreeioTreeData.
 pub fn treeio_parse_newick(newick : String) -> TreeioTreeData {
-  let s = newick.trim().to_string()
+  let s = newick.trim().to_owned()
   let tree_str = if s.length() > 0 && s[s.length() - 1] == 59 {
     s[0:s.length() - 1].to_owned()
   } else {
@@ -147,7 +147,7 @@ fn treeio_parse_newick_rec(
   edge_lengths : Array[Double],
   next_id : Int,
 ) -> (Array[TreeioNode], Array[(Int, Int)], Array[Double], Int) {
-  let s_trim = s.trim().to_string()
+  let s_trim = s.trim().to_owned()
   if s_trim.length() == 0 {
     return (nodes, edges, edge_lengths, next_id)
   }
@@ -208,7 +208,7 @@ fn treeio_parse_newick_rec(
 
 ///|
 fn treeio_parse_label_blen(s : String) -> (String, Double) {
-  let s_trim = s.trim().to_string()
+  let s_trim = s.trim().to_owned()
   if s_trim.length() == 0 {
     return ("", 0.0)
   }
@@ -229,8 +229,8 @@ fn treeio_parse_label_blen(s : String) -> (String, Double) {
   if colon_pos < 0 {
     return (s_trim, 0.0)
   }
-  let label = s_trim[0:colon_pos].to_owned().trim().to_string()
-  let blen_str = s_trim[colon_pos + 1:s_trim.length()].to_owned().trim().to_string()
+  let label = s_trim[0:colon_pos].to_owned().trim().to_owned()
+  let blen_str = s_trim[colon_pos + 1:s_trim.length()].to_owned().trim().to_owned()
   let blen = treeio_atof(blen_str)
   (label, blen)
 }
@@ -248,13 +248,13 @@ fn treeio_split_top(s : String) -> Array[String] {
     } else if c == 41 {
       depth = depth - 1
     } else if c == 44 && depth == 0 {
-      parts.push(s[start:i].to_owned().trim().to_string())
+      parts.push(s[start:i].to_owned().trim().to_owned())
       start = i + 1
     }
     i = i + 1
   }
   if start < s.length() {
-    parts.push(s[start:s.length()].to_owned().trim().to_string())
+    parts.push(s[start:s.length()].to_owned().trim().to_owned())
   }
   parts
 }
@@ -364,7 +364,7 @@ fn treeio_extract_json(content : String, key : String) -> String {
   while e < content.length() && content[e] != 44 && content[e] != 125 {
     e = e + 1
   }
-  content[s:e].to_owned().trim().to_string()
+  content[s:e].to_owned().trim().to_owned()
 }
 
 ///|
@@ -449,8 +449,8 @@ fn treeio_extract_beast(s : String) -> Array[(String, Map[String, String])] {
         let pair = pairs[pi].trim().to_owned()
         let eq_pos = pair.find("=").unwrap_or(-1)
         if eq_pos >= 0 {
-          let key = pair[0:eq_pos].to_owned().trim().to_string()
-          let val = pair[eq_pos + 1:pair.length()].to_owned().trim().to_string()
+          let key = pair[0:eq_pos].to_owned().trim().to_owned()
+          let val = pair[eq_pos + 1:pair.length()].to_owned().trim().to_owned()
           ann_map[key] = val
         }
         pi = pi + 1
@@ -468,7 +468,7 @@ fn treeio_extract_beast(s : String) -> Array[(String, Map[String, String])] {
           break
         }
       }
-      let label = s[label_start + 1:label_end + 1].to_owned().trim().to_string()
+      let label = s[label_start + 1:label_end + 1].to_owned().trim().to_owned()
       if label.length() > 0 {
         result.push((label, ann_map))
       }
@@ -489,7 +489,7 @@ pub fn treeio_parse_r8s(content : String) -> Array[TreeioTreeData] {
     if line.contains("tree") && line.contains("=") {
       let eq_pos = line.find("=").unwrap_or(-1)
       if eq_pos >= 0 {
-        let tree_str = line[eq_pos + 1:line.length()].to_owned().trim().to_string()
+        let tree_str = line[eq_pos + 1:line.length()].to_owned().trim().to_owned()
         trees.push(treeio_parse_newick(tree_str))
       }
     }

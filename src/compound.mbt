@@ -283,22 +283,22 @@ pub fn parse_formula(formula : String) -> Map[String, Int] {
   let len = formula.length()
 
   while i < len {
-    let c = formula.substring(start=i, end=i + 1)
+    let c = formula[i:i + 1]
 
     if c >= "A" && c <= "Z" {
-      let mut atom = c
+      let mut atom = c.to_owned()
       i = i + 1
       if i < len {
-        let next_c = formula.substring(start=i, end=i + 1)
+        let next_c = formula[i:i + 1]
         if next_c >= "a" && next_c <= "z" {
-          atom = atom + next_c
+          atom = atom + next_c.to_owned()
           i = i + 1
         }
       }
 
       let mut count = ""
       while i < len {
-        let digit = formula.substring(start=i, end=i + 1)
+        let digit = formula[i:i + 1].to_owned()
         if digit >= "0" && digit <= "9" {
           count = count + digit
           i = i + 1

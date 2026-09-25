@@ -7,7 +7,7 @@ fn main {
   println("\n1. Parse Single Medline Record:")
   println("===============================")
   let record = @bio.parse_medline(medline_text)
-  if record.is_some() {
+  if record is Some(_) {
     let r = record.unwrap()
     println("PMID: " + r.pmid)
     println("Title: " + r.title)
@@ -52,14 +52,14 @@ fn main {
 
   println("\n2. APA Citation Format:")
   println("=======================")
-  if record.is_some() {
+  if record is Some(_) {
     let citation = @bio.format_citation_apa(record.unwrap())
     println(citation)
   }
 
   println("\n3. Record Metadata:")
   println("===================")
-  if record.is_some() {
+  if record is Some(_) {
     let r = record.unwrap()
     println("First Author: " + @bio.get_first_author(r))
     println("Has Abstract: " + @bio.has_abstract(r).to_string())

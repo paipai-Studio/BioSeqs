@@ -66,16 +66,16 @@ pub fn PairwiseAlignResult::format_alignment(
   let mut pos = 0
   while pos < len {
     let end = if pos + w < len { pos + w } else { len }
-    let s1 = self.aligned_seq1.substring(start=pos, end~)
-    let s2 = self.aligned_seq2.substring(start=pos, end~)
+    let s1 = self.aligned_seq1[pos:end]
+    let s2 = self.aligned_seq2[pos:end]
     let pos1 = self.seq1_start + pos
     let pos2 = self.seq2_start + pos
 
     let mut mid = ""
     let mut i = pos
     while i < end {
-      let c1 = self.aligned_seq1.substring(start=i, end=i + 1)
-      let c2 = self.aligned_seq2.substring(start=i, end=i + 1)
+      let c1 = self.aligned_seq1[i:i + 1]
+      let c2 = self.aligned_seq2[i:i + 1]
       if c1 == "-" || c2 == "-" {
         mid = mid + " "
       } else if c1 == c2 {
@@ -276,10 +276,10 @@ pub fn pairwise_globalxx(
   // Fill DP matrix
   i = 1
   while i <= n {
-    let c1 = seq1.substring(start=i - 1, end=i).to_upper()
+    let c1 = seq1[i - 1:i].to_upper()
     j = 1
     while j <= m {
-      let c2 = seq2.substring(start=j - 1, end=j).to_upper()
+      let c2 = seq2[j - 1:j].to_upper()
       let s = if c1 == c2 { match_sc } else { mismatch_sc }
 
       let diag = get_flat_double(sc, i - 1, j - 1, m_plus_1) + s
@@ -315,30 +315,30 @@ pub fn pairwise_globalxx(
   while p > 0 && q > 0 {
     let dir = get_flat_int(tb, p, q, m_plus_1)
     if dir == 0 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       p = p - 1
       q = q - 1
     } else if dir == 1 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
       aligned2 = "-" + aligned2
       p = p - 1
     } else {
       aligned1 = "-" + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       q = q - 1
     }
   }
 
   while p > 0 {
-    aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
+    aligned1 = seq1[p - 1:p].to_owned() + aligned1
     aligned2 = "-" + aligned2
     p = p - 1
   }
 
   while q > 0 {
     aligned1 = "-" + aligned1
-    aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+    aligned2 = seq2[q - 1:q].to_owned() + aligned2
     q = q - 1
   }
 
@@ -393,10 +393,10 @@ pub fn pairwise_localxx(
 
   let mut i = 1
   while i <= n {
-    let c1 = seq1.substring(start=i - 1, end=i).to_upper()
+    let c1 = seq1[i - 1:i].to_upper()
     let mut j = 1
     while j <= m {
-      let c2 = seq2.substring(start=j - 1, end=j).to_upper()
+      let c2 = seq2[j - 1:j].to_upper()
       let s = if c1 == c2 { match_sc } else { mismatch_sc }
 
       let diag = get_flat_double(sc, i - 1, j - 1, m_plus_1) + s
@@ -460,20 +460,20 @@ pub fn pairwise_localxx(
         get_flat_double(sc, p, q, m_plus_1) > 0.0 {
     let dir = get_flat_int(tb, p, q, m_plus_1)
     if dir == 0 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       start1 = p - 1
       start2 = q - 1
       p = p - 1
       q = q - 1
     } else if dir == 1 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
       aligned2 = "-" + aligned2
       start1 = p - 1
       p = p - 1
     } else {
       aligned1 = "-" + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       start2 = q - 1
       q = q - 1
     }
@@ -542,10 +542,10 @@ pub fn pairwise_globalms(
   // Fill DP matrix
   i = 1
   while i <= n {
-    let c1 = seq1.substring(start=i - 1, end=i)
+    let c1 = seq1[i - 1:i].to_owned()
     j = 1
     while j <= m {
-      let c2 = seq2.substring(start=j - 1, end=j)
+      let c2 = seq2[j - 1:j].to_owned()
       let s = scorer(c1, c2)
 
       let diag = get_flat_double(sc, i - 1, j - 1, m_plus_1) + s
@@ -581,30 +581,30 @@ pub fn pairwise_globalms(
   while p > 0 && q > 0 {
     let dir = get_flat_int(tb, p, q, m_plus_1)
     if dir == 0 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       p = p - 1
       q = q - 1
     } else if dir == 1 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
       aligned2 = "-" + aligned2
       p = p - 1
     } else {
       aligned1 = "-" + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       q = q - 1
     }
   }
 
   while p > 0 {
-    aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
+    aligned1 = seq1[p - 1:p].to_owned() + aligned1
     aligned2 = "-" + aligned2
     p = p - 1
   }
 
   while q > 0 {
     aligned1 = "-" + aligned1
-    aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+    aligned2 = seq2[q - 1:q].to_owned() + aligned2
     q = q - 1
   }
 
@@ -658,10 +658,10 @@ pub fn pairwise_localms(
 
   let mut i = 1
   while i <= n {
-    let c1 = seq1.substring(start=i - 1, end=i)
+    let c1 = seq1[i - 1:i].to_owned()
     let mut j = 1
     while j <= m {
-      let c2 = seq2.substring(start=j - 1, end=j)
+      let c2 = seq2[j - 1:j].to_owned()
       let s = scorer(c1, c2)
 
       let diag = get_flat_double(sc, i - 1, j - 1, m_plus_1) + s
@@ -725,20 +725,20 @@ pub fn pairwise_localms(
         get_flat_double(sc, p, q, m_plus_1) > 0.0 {
     let dir = get_flat_int(tb, p, q, m_plus_1)
     if dir == 0 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       start1 = p - 1
       start2 = q - 1
       p = p - 1
       q = q - 1
     } else if dir == 1 {
-      aligned1 = seq1.substring(start=p - 1, end=p) + aligned1
+      aligned1 = seq1[p - 1:p].to_owned() + aligned1
       aligned2 = "-" + aligned2
       start1 = p - 1
       p = p - 1
     } else {
       aligned1 = "-" + aligned1
-      aligned2 = seq2.substring(start=q - 1, end=q) + aligned2
+      aligned2 = seq2[q - 1:q].to_owned() + aligned2
       start2 = q - 1
       q = q - 1
     }
@@ -780,8 +780,8 @@ pub fn alignment_summary(result : PairwiseAlignResult) -> String {
 
   let mut i = 0
   while i < len {
-    let c1 = s1.substring(start=i, end=i + 1)
-    let c2 = s2.substring(start=i, end=i + 1)
+    let c1 = s1[i:i + 1]
+    let c2 = s2[i:i + 1]
     if c1 == "-" || c2 == "-" {
       gaps = gaps + 1
     } else if c1 == c2 {

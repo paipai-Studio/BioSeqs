@@ -487,7 +487,7 @@ fn dss_var(arr : Array[Double]) -> Double {
   let mut sum_sq = 0.0
   let mut i = 0
   while i < arr.length() {
-    sum_sq = sum_sq + (arr[i] - m).pow(2.0)
+    sum_sq = sum_sq + @math.pow(arr[i] - m, 2.0)
     i = i + 1
   }
   sum_sq / (arr.length() - 1).to_double()
@@ -510,7 +510,7 @@ pub fn dss_estimate_dispersion(counts_data : DSSCountData) -> DSSDispResult {
     let m = dss_mean(expr)
     let v = dss_var(expr)
 
-    let disp = if m > 0.0 { v / m.pow(2.0) } else { 0.0000000001 }
+    let disp = if m > 0.0 { v / @math.pow(m, 2.0) } else { 0.0000000001 }
 
     dispersions.push(disp)
     i = i + 1
@@ -521,7 +521,7 @@ pub fn dss_estimate_dispersion(counts_data : DSSCountData) -> DSSDispResult {
   let var_disp = dss_var(dispersions)
 
   let prior_df = if var_disp > 0.0 {
-    2.0 * mean_disp.pow(2.0) / var_disp
+    2.0 * @math.pow(mean_disp, 2.0) / var_disp
   } else {
     10.0
   }

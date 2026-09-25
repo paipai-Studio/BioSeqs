@@ -136,7 +136,7 @@ test "noiseq_qc" {
     j = j + 1
   }
   let qc = @src.noiseq_qc(all)
-  assert_true(qc.biotype_counts.size() > 0)
+  assert_true(qc.biotype_counts.length() > 0)
 }
 
 ///|

@@ -78,7 +78,7 @@ fn pd_strip(s : String) -> String {
   while end > start && pd_is_ws(s.unsafe_get(end - 1).to_int()) {
     end = end - 1
   }
-  s[start:end].to_string()
+  s[start:end].to_owned()
 }
 
 ///|
@@ -88,7 +88,7 @@ fn pd_rstrip(s : String) -> String {
   while end > 0 && pd_is_ws(s.unsafe_get(end - 1).to_int()) {
     end = end - 1
   }
-  s[0:end].to_string()
+  s[0:end].to_owned()
 }
 
 ///|
@@ -110,7 +110,7 @@ fn pd_lines(content : String) -> Array[String] {
   for i = 0; i < n; i = i + 1 {
     let mut line = raw[i]
     if line.length() > 0 && line.unsafe_get(line.length() - 1).to_int() == 13 {
-      line = line[0:line.length() - 1].to_string()
+      line = line[0:line.length() - 1].to_owned()
     }
     if i == n - 1 && line.length() == 0 {
       // trailing empty piece produced by a final newline: drop it
@@ -152,11 +152,11 @@ fn pd_split_semicolon_space(s : String) -> Array[String] {
 /// Parse a "[NN] authors..." or "[EN] url..." reference start line.
 fn pd_read_reference_start(record : ProdocRecord, line : String) -> Unit {
   let reference = ProdocReference::new()
-  reference.number = pd_strip(line[1:3].to_string())
+  reference.number = pd_strip(line[1:3].to_owned())
   if starts_with(line, 1, "E") {
-    reference.citation = pd_strip(line[4:line.length()].to_string())
+    reference.citation = pd_strip(line[4:line.length()].to_owned())
   } else {
-    reference.authors = pd_strip(line[4:line.length()].to_string())
+    reference.authors = pd_strip(line[4:line.length()].to_owned())
   }
   record.references.push(reference)
 }
@@ -175,10 +175,10 @@ fn pd_read_reference_line(
     if record.references[last].authors.length() > 0 &&
       pd_ends_with(record.references[last].authors, ",") {
       record.references[last].authors = record.references[last].authors +
-        pd_rstrip(line[4:line.length()].to_string())
+        pd_rstrip(line[4:line.length()].to_owned())
     } else {
       record.references[last].citation = record.references[last].citation +
-        line[5:line.length()].to_string()
+        line[5:line.length()].to_owned()
     }
   } else {
     pd_fail("I don't understand the reference line\n\{line}")
@@ -217,7 +217,7 @@ fn pd_next_record(
   if !pd_ends_with(acc_line, "}") {
     pd_fail("I don't understand accession line\n\{acc_line}")
   }
-  record.accession = acc_line[1:acc_line.length() - 1].to_string()
+  record.accession = acc_line[1:acc_line.length() - 1].to_owned()
   i = i + 1
 
   // PROSITE cross-reference lines: "{PSnnnnn; NAME}".
@@ -227,7 +227,7 @@ fn pd_next_record(
       if !pd_ends_with(rl, "}") {
         pd_fail("I don't understand the Prosite reference on line\n\{rl}")
       }
-      let inner = rl[1:rl.length() - 1].to_string()
+      let inner = rl[1:rl.length() - 1].to_owned()
       let parts = pd_split_semicolon_space(inner)
       if parts.length() != 2 {
         pd_fail("I don't understand the Prosite reference on line\n\{rl}")

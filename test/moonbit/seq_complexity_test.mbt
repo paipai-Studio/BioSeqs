@@ -80,7 +80,7 @@ test "seq_complexity: dust_score" {
 ///|
 test "seq_complexity: sequence_signature" {
   let sig = @src.sequence_signature("ATCG", k=2)
-  assert_eq(sig.size(), 3)
+  assert_eq(sig.length(), 3)
   let freq = sig.get("AT")
   assert_true(freq is Some(_))
   assert_true(freq.unwrap() > 0.32 && freq.unwrap() < 0.34)

@@ -11,7 +11,7 @@ fn main {
   println("=== 1. Load Sample Data ===")
   let fcs = @bio.gage_sample_fold_changes()
   let sets = @bio.gage_sample_gene_sets()
-  println("Gene fold changes: " + fcs.size().to_string())
+  println("Gene fold changes: " + fcs.length().to_string())
   let mut si = 0
   while si < sets.length() {
     println("  " + sets[si].id + " (" + sets[si].name + "): " + sets[si].gene_ids.length().to_string() + " genes")

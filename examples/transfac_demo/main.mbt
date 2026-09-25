@@ -156,7 +156,7 @@ fn main {
     println("  Serialized motif " + m.accession + " (" + lines.length().to_string() + " lines):")
     let mut l = 0
     while l < lines.length() && l < 10 {
-      println("    " + lines[l].to_string())
+      println("    " + lines[l].to_owned())
       l = l + 1
     }
     if lines.length() > 10 {

@@ -163,7 +163,7 @@ pub fn PhyloXMLResult::new(
 /// Strip namespace prefix from a tag name (e.g., "px:name" -> "name").
 fn xml_strip_n(tag : String) -> String {
   let colon = tag.find(":")
-  if colon.is_some() {
+  if colon is Some(_) {
     tag[colon.unwrap() + 1:].to_owned()
   } else {
     tag
@@ -271,7 +271,7 @@ fn xml_find_open_tag(
           after_tag[0:after_tag.length() - 2].to_owned()
         } else {
           let gt_pos = after_tag.find(">")
-          if gt_pos.is_some() {
+          if gt_pos is Some(_) {
             after_tag[0:gt_pos.unwrap()].to_owned()
           } else {
             after_tag
@@ -328,7 +328,7 @@ fn xml_find_close_tag(
         i = i + 1
       } else if rest.has_prefix("!") {
         let gt = rest.find(">")
-        if gt.is_some() {
+        if gt is Some(_) {
           i = i + 1 + gt.unwrap() + 1
         } else {
           return None
@@ -382,7 +382,7 @@ fn find_tag_end(xml : String, open_start : Int, tag_name : String) -> Int {
           return i + j + 2 + 1
         }
         let gt = after.find(">")
-        if gt.is_some() {
+        if gt is Some(_) {
           return i + j + 1 + gt.unwrap() + 1
         }
       }
@@ -408,7 +408,7 @@ fn find_tag_end(xml : String, open_start : Int, tag_name : String) -> Int {
 /// Returns (start_pos, end_pos, content_string) or (0, 0, "").
 pub fn find_element(xml : String, tag : String) -> (Int, Int, String) {
   let open_opt = xml_find_open_tag(xml, tag, 0)
-  if open_opt.is_none() {
+  if open_opt is None {
     return (0, 0, "")
   }
   let (open_start, _, is_self_closing) = open_opt.unwrap()
@@ -417,7 +417,7 @@ pub fn find_element(xml : String, tag : String) -> (Int, Int, String) {
     return (open_start, tag_end, "")
   }
   let close_opt = xml_find_close_tag(xml, tag, open_start)
-  if close_opt.is_none() {
+  if close_opt is None {
     return (open_start, xml.length(), "")
   }
   let close_start = close_opt.unwrap()
@@ -436,7 +436,7 @@ pub fn find_all_elements(xml : String, tag : String) -> Array[(Int, Int)] {
   let n = xml.length()
   while search_start < n {
     let open_opt = xml_find_open_tag(xml, tag, search_start)
-    if open_opt.is_none() {
+    if open_opt is None {
       break
     }
     let (open_start, _, is_self_closing) = open_opt.unwrap()
@@ -446,7 +446,7 @@ pub fn find_all_elements(xml : String, tag : String) -> Array[(Int, Int)] {
       search_start = tag_end
     } else {
       let close_opt = xml_find_close_tag(xml, tag, open_start)
-      if close_opt.is_none() {
+      if close_opt is None {
         break
       }
       let close_start = close_opt.unwrap()
@@ -469,7 +469,7 @@ pub fn get_attribute(xml : String, attr_name : String) -> String {
     return ""
   }
   let gt_pos = trimmed.find(">")
-  if gt_pos.is_none() {
+  if gt_pos is None {
     return ""
   }
   let tag_part = trimmed[1:gt_pos.unwrap()].to_owned()
@@ -490,7 +490,7 @@ pub fn get_element_text(xml : String) -> String {
     return trimmed
   }
   let open_gt = trimmed.find(">")
-  if open_gt.is_none() {
+  if open_gt is None {
     return ""
   }
   let start = open_gt.unwrap() + 1
@@ -567,9 +567,9 @@ pub fn parse_tree_element(xml : String) -> PhyloXMLTree {
   }
 
   let attrs_start = trimmed.find("<phylogeny")
-  let attrs_end = if attrs_start.is_some() {
+  let attrs_end = if attrs_start is Some(_) {
     let gt_opt = trimmed[attrs_start.unwrap():].find(">")
-    if gt_opt.is_some() {
+    if gt_opt is Some(_) {
       Some(attrs_start.unwrap() + gt_opt.unwrap() + 1)
     } else {
       None
@@ -578,7 +578,7 @@ pub fn parse_tree_element(xml : String) -> PhyloXMLTree {
     None
   }
 
-  let attrs_str = if attrs_start.is_some() && attrs_end.is_some() {
+  let attrs_str = if attrs_start is Some(_) && attrs_end is Some(_) {
     trimmed[attrs_start.unwrap():attrs_end.unwrap()].to_owned()
   } else {
     ""
@@ -694,7 +694,7 @@ fn parse_node_from_content(xml : String) -> PhyloXMLNode {
   let n = xml.length()
   while search_start < n {
     let open_opt = xml_find_open_tag(xml, "clade", search_start)
-    if open_opt.is_none() {
+    if open_opt is None {
       break
     }
     let (open_start, _, is_self_closing) = open_opt.unwrap()
@@ -705,7 +705,7 @@ fn parse_node_from_content(xml : String) -> PhyloXMLNode {
       search_start = tag_end
     } else {
       let close_opt = xml_find_close_tag(xml, "clade", open_start)
-      if close_opt.is_none() {
+      if close_opt is None {
         break
       }
       let close_start = close_opt.unwrap()
@@ -1079,23 +1079,23 @@ fn parse_newick_subtree(s : String, start : Int) -> PhyloXMLNode {
           children.push(child)
           let after = trimmed[i + 1:].to_owned()
           let colon_pos = after.find(":")
-          let name_str = if colon_pos.is_some() {
+          let name_str = if colon_pos is Some(_) {
             after[0:colon_pos.unwrap()].to_owned()
           } else {
             let comma_pos = after.find(",")
             let close_pos = after.find(")")
             let semi_pos = after.find(";")
             let end = find_min_pos([comma_pos, close_pos, semi_pos])
-            if end.is_some() {
+            if end is Some(_) {
               after[0:end.unwrap()].to_owned()
             } else {
               after
             }
           }
-          let bl_str = if colon_pos.is_some() {
+          let bl_str = if colon_pos is Some(_) {
             let after_colon = after[colon_pos.unwrap() + 1:].to_owned()
             let end_pos = find_first_of(after_colon, [",", ")", ";"])
-            if end_pos.is_some() {
+            if end_pos is Some(_) {
               after_colon[0:end_pos.unwrap()].to_owned()
             } else {
               after_colon
@@ -1138,12 +1138,12 @@ fn parse_newick_subtree(s : String, start : Int) -> PhyloXMLNode {
     }
   } else {
     let colon_pos = trimmed.find(":")
-    let name = if colon_pos.is_some() {
+    let name = if colon_pos is Some(_) {
       trim(trimmed[0:colon_pos.unwrap()].to_owned())
     } else {
       trim(trimmed)
     }
-    let bl_str = if colon_pos.is_some() {
+    let bl_str = if colon_pos is Some(_) {
       trim(trimmed[colon_pos.unwrap() + 1:].to_owned())
     } else {
       ""
@@ -1169,9 +1169,9 @@ fn parse_newick_subtree(s : String, start : Int) -> PhyloXMLNode {
 fn find_min_pos(positions : Array[Int?]) -> Int? {
   let mut min_val : Int? = None
   for p in positions {
-    if p.is_some() {
+    if p is Some(_) {
       let v = p.unwrap()
-      if min_val.is_none() || v < min_val.unwrap() {
+      if min_val is None || v < min_val.unwrap() {
         min_val = Some(v)
       }
     }
@@ -1184,8 +1184,8 @@ fn find_first_of(s : String, chars : Array[String]) -> Int? {
   let mut result : Int? = None
   for ch in chars {
     let pos = s.find(ch)
-    if pos.is_some() {
-      if result.is_none() || pos.unwrap() < result.unwrap() {
+    if pos is Some(_) {
+      if result is None || pos.unwrap() < result.unwrap() {
         result = pos
       }
     }

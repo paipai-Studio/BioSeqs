@@ -307,7 +307,7 @@ test "um_consensus_string_tata" {
   // and C at the last two).
   let s = @src.consensus_string(um_tata_ppm(), "DNA")
   assert_eq(s.length(), 5)
-  assert_eq(s[0:1].to_string(), "A")
+  assert_eq(s[0:1].to_owned(), "A")
 }
 
 ///|

@@ -52,7 +52,7 @@ pub fn primersearch_read_primers(content : String) -> Array[PrimerPair] {
   let lines = content.split("\n").to_array()
   let mut i = 0
   while i < lines.length() {
-    let line = lines[i].trim(chars=" \t\r").to_string()
+    let line = lines[i].trim(chars=" \t\r").to_owned()
     if line.length() > 0 && line[0] != 35 {
       // '#' comment
       let fields : Array[String] = []
@@ -62,7 +62,7 @@ pub fn primersearch_read_primers(content : String) -> Array[PrimerPair] {
         let is_sep = j == line.length() || line[j] == 32 || line[j] == 9
         if is_sep {
           if j > start {
-            fields.push(line[start:j].to_string())
+            fields.push(line[start:j].to_owned())
           }
           start = j + 1
         }
@@ -132,7 +132,7 @@ pub fn primersearch_find_hits(
   let rc = primersearch_revcomp(primer)
   let mut i = 0
   while i <= seq.length() - plen {
-    let window = seq[i:i + plen].to_string()
+    let window = seq[i:i + plen].to_owned()
     let mm_fwd = primersearch_mismatches(window, primer)
     if mm_fwd <= max_mismatches {
       hits.push(PrimerHit::{ strand: "+", position: i, mismatches: mm_fwd })

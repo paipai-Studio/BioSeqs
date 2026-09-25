@@ -28,7 +28,7 @@ fn hmmer_io_split_whitespace(s : String) -> Array[String] {
     let is_ws = c == ' '.to_int() || c == '\t'.to_int() || c == '\r'.to_int()
     if is_ws {
       if in_token {
-        tokens.push(s[start:i].to_string())
+        tokens.push(s[start:i].to_owned())
         in_token = false
       }
     } else if !in_token {
@@ -38,7 +38,7 @@ fn hmmer_io_split_whitespace(s : String) -> Array[String] {
     i = i + 1
   }
   if in_token {
-    tokens.push(s[start:n].to_string())
+    tokens.push(s[start:n].to_owned())
   }
   tokens
 }
@@ -568,7 +568,7 @@ fn hmmer_io_trim(s : String) -> String {
       break
     }
   }
-  s[start:end].to_string()
+  s[start:end].to_owned()
 }
 
 ///|
@@ -591,7 +591,7 @@ fn hmmer_io_substr_after(s : String, marker : String) -> String {
       j = j + 1
     }
     if matched {
-      return s[i + m:n].to_string()
+      return s[i + m:n].to_owned()
     }
     i = i + 1
   }

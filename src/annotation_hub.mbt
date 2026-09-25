@@ -232,7 +232,7 @@ pub fn annotation_hub_summarize(hub : AnnotationHub) -> String {
     let r = hub.resources[i]
     let key = r.resource_type.to_string()
     let current = type_counts.get(key)
-    if current.is_some() {
+    if current is Some(_) {
       type_counts[key] = current.unwrap() + 1
     } else {
       type_counts[key] = 1

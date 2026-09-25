@@ -9,7 +9,7 @@ fn main {
   // IUPAC ambiguous bases
   println("=== IUPAC Ambiguous DNA Bases ===")
   let dna_amb = @bio.iupac_ambiguous_dna_map()
-  println("Total ambiguous bases: \{dna_amb.size()}")
+  println("Total ambiguous bases: \{dna_amb.length()}")
   println("R (G/A): \{dna_amb.get("R").unwrap()}")
   println("Y (C/T): \{dna_amb.get("Y").unwrap()}")
   println("N (A/C/G/T): \{dna_amb.get("N").unwrap()}")
@@ -17,7 +17,7 @@ fn main {
 
   println("=== IUPAC Ambiguous RNA Bases ===")
   let rna_amb = @bio.iupac_ambiguous_rna_map()
-  println("Total ambiguous bases: \{rna_amb.size()}")
+  println("Total ambiguous bases: \{rna_amb.length()}")
   println("Y (C/U): \{rna_amb.get("Y").unwrap()}")
   println("")
 
@@ -38,14 +38,14 @@ fn main {
   // Amino acid mappings
   println("=== Amino Acid 3-to-1 Letter Code ===")
   let aa_map = @bio.amino_3_to_1()
-  println("Total amino acids: \{aa_map.size()}")
+  println("Total amino acids: \{aa_map.length()}")
   println("Ala -> \{aa_map.get("Ala").unwrap()}")
   println("Ter -> \{aa_map.get("Ter").unwrap()}")
   println("")
 
   println("=== Amino Acid 1-to-3 Letter Code ===")
   let aa1to3 = @bio.amino_1_to_3()
-  println("Total: \{aa1to3.size()}")
+  println("Total: \{aa1to3.length()}")
   println("A -> \{aa1to3.get("A").unwrap()}")
   println("* -> \{aa1to3.get("*").unwrap()}")
   println("")
@@ -72,7 +72,7 @@ fn main {
   // Codon table
   println("=== Standard Codon Table ===")
   let codons = @bio.standard_codon_table()
-  println("Total codons: \{codons.size()}")
+  println("Total codons: \{codons.length()}")
   println("ATG (start) -> \{codons.get("ATG").unwrap()}")
   println("TAA (stop) -> \{codons.get("TAA").unwrap()}")
   println("TAG (stop) -> \{codons.get("TAG").unwrap()}")
@@ -90,7 +90,7 @@ fn main {
   // Reverse codon table
   println("=== Reverse Codon Table ===")
   let rev = @bio.reverse_codon_table()
-  println("Total amino acids: \{rev.size()}")
+  println("Total amino acids: \{rev.length()}")
   println("M (Met) codons: \{rev.get("M").unwrap()}")
   println("L (Leu) codons: \{rev.get("L").unwrap()} (count: \{rev.get("L").unwrap().length()})")
   println("* (Stop) codons: \{rev.get("*").unwrap()}")

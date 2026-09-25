@@ -32,7 +32,7 @@ fn bc_max(a : Double, b : Double) -> Double {
 ///|
 /// Parse a floating point number from a string (mirrors Python float()).
 fn bc_parse_double(s : String) -> Double {
-  let sv = s.trim().to_string()
+  let sv = s.trim().to_owned()
   if sv.length() == 0 {
     return 0.0
   }
@@ -105,7 +105,7 @@ fn bc_parse_double(s : String) -> Double {
 // ---------------------------------------------------------------------------
 
 ///|
-let bc_rng_state : Ref[Int] = Ref::new(987654321)
+let bc_rng_state : Ref[Int] = Ref::Ref(987654321)
 
 ///|
 /// Seed the internal random number generator used by kcluster (npass > 1),
@@ -3587,7 +3587,7 @@ fn bc_strip_eol(line : String) -> String {
   if start == 0 && end == n {
     line
   } else {
-    line.substring(start~, end~).to_string()
+    line[start:end].to_owned()
   }
 }
 
@@ -3596,7 +3596,7 @@ fn bc_strip_eol(line : String) -> String {
 fn bc_split_tabs(line : String) -> Array[String] {
   let parts : Array[String] = Array(capacity=0)
   for part in line.split("\t") {
-    parts.push(part.to_string())
+    parts.push(part.to_owned())
   }
   parts
 }
@@ -3609,7 +3609,7 @@ fn bc_split_tabs(line : String) -> Array[String] {
 pub fn bio_cluster_read(content : String) -> Record raise ClusterError {
   let lines : Array[String] = Array(capacity=0)
   for part in content.split("\n") {
-    lines.push(bc_strip_eol(part.to_string()))
+    lines.push(bc_strip_eol(part.to_owned()))
   }
   // Drop trailing empty lines
   while lines.length() > 0 && lines[lines.length() - 1].length() == 0 {

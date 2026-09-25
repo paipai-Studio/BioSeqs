@@ -31,7 +31,7 @@ pub enum SSType {
   Turn // T
   Bend // S
   Coil // -
-} derive(Eq, Show, Debug)
+} derive(Eq, Debug)
 pub extend SSType with Eq::{equal, not_equal}
 pub extend SSType with @moonbitlang/core/debug.Debug::{to_repr}
 

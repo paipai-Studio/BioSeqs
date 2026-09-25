@@ -195,7 +195,7 @@ pub fn trim_tail(
     i = i - 1
   }
 
-  (sequence[0:trim_pos].to_string(), quality[0:trim_pos].to_string())
+  (sequence[0:trim_pos].to_owned(), quality[0:trim_pos].to_owned())
 }
 
 ///|
@@ -222,7 +222,7 @@ pub fn trim_leading(
     return ("", "")
   }
 
-  (sequence[start:len].to_string(), quality[start:len].to_string())
+  (sequence[start:len].to_owned(), quality[start:len].to_owned())
 }
 
 ///|
@@ -268,7 +268,7 @@ pub fn trim_adapter(
   }
 
   if best_pos >= 0 && best_score >= adapter_len / 2 {
-    (sequence[0:best_pos].to_string(), quality[0:best_pos].to_string())
+    (sequence[0:best_pos].to_owned(), quality[0:best_pos].to_owned())
   } else {
     (sequence, quality)
   }

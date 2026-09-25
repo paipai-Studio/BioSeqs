@@ -14,7 +14,7 @@ fn main {
     "ABC123\tNP_008901\t85.0\t60\t9\t2\t10\t69\t15\t74\t0.000000000000001\t60.0\n"
 
   let tabular_record = @bio.parse_blast_tabular(tabular_data)
-  if tabular_record.is_some() {
+  if tabular_record is Some(_) {
     let record = tabular_record.unwrap()
     println("   Query: " + record.query_id())
     println("   Hits found: " + record.num_hits().to_string())
@@ -24,7 +24,7 @@ fn main {
       let hit = record.hits()[i]
       println("   Hit " + (i + 1).to_string() + ": " + hit.subject_id())
       let hsp = hit.best_hsp()
-      if hsp.is_some() {
+      if hsp is Some(_) {
         let h = hsp.unwrap()
         println("     Bitscore: " + h.bitscore().to_string())
         println("     E-value: " + h.evalue().to_string())
@@ -35,24 +35,24 @@ fn main {
   }
 
   println("\n2. Filtering by E-value (< 1e-20):")
-  if tabular_record.is_some() {
+  if tabular_record is Some(_) {
     let record = tabular_record.unwrap()
     let filtered = record.filter_by_evalue(0.00000000000000000001)
     println("   Hits after filtering: " + filtered.num_hits().to_string())
   }
 
   println("\n3. Filtering by Identity (>= 90%):")
-  if tabular_record.is_some() {
+  if tabular_record is Some(_) {
     let record = tabular_record.unwrap()
     let filtered = record.filter_by_identity(90.0)
     println("   Hits after filtering: " + filtered.num_hits().to_string())
   }
 
   println("\n4. Getting Best Hit:")
-  if tabular_record.is_some() {
+  if tabular_record is Some(_) {
     let record = tabular_record.unwrap()
     let best = record.best_hit()
-    if best.is_some() {
+    if best is Some(_) {
       println("   Best hit: " + best.unwrap().subject_id())
     }
   }
@@ -82,7 +82,7 @@ fn main {
     "</BlastOutput>\n"
 
   let xml_record = @bio.parse_blast_xml(xml_data)
-  if xml_record.is_some() {
+  if xml_record is Some(_) {
     let record = xml_record.unwrap()
     println("   Query: " + record.query_id())
     println("   Description: " + record.query_def())

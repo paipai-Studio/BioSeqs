@@ -155,7 +155,7 @@ fn gds_split_path(path : String) -> Array[String] {
   while i <= path.length() {
     if i == path.length() || path.unsafe_get(i) == '/' {
       if i > start {
-        parts.push(path.substring(start~, end=i))
+        parts.push(path[start:i].to_owned())
       }
       start = i + 1
     }

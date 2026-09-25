@@ -58,7 +58,7 @@ test "residue_depth_get_ca" {
   let residue = @src.RDResidue::new("ALA", 1, atoms)
 
   let ca = residue.get_ca()
-  assert_true(ca.is_some())
+  assert_true(ca is Some(_))
 }
 
 ///|

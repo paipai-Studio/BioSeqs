@@ -258,7 +258,7 @@ fn parse_info_int(info : Map[String, String], key : String) -> Int {
 fn parse_info_double(info : Map[String, String], key : String) -> Double {
   if info.contains(key) {
     let parsed = parse_double(info.get(key).unwrap())
-    if parsed.is_some() {
+    if parsed is Some(_) {
       parsed.unwrap()
     } else {
       0.0

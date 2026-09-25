@@ -216,7 +216,7 @@ fn bcf_decode_values(
   } else if type_ == 7 {
     // BCF_BT_CHAR: a single string of `count` bytes
     bcf_check(data, p, count)
-    values.push(BcfStr(data[p:p + count].to_string()))
+    values.push(BcfStr(data[p:p + count].to_owned()))
     p = p + count
   } else if type_ == 1 || type_ == 2 || type_ == 3 {
     let width = if type_ == 1 { 1 } else if type_ == 2 { 2 } else { 4 }
@@ -256,7 +256,7 @@ fn bcf_read_string(data : String, pos : Int) -> (String, Int) raise BcfError {
     ("", next)
   } else {
     bcf_check(data, next, count)
-    (data[next:next + count].to_string(), next + count)
+    (data[next:next + count].to_owned(), next + count)
   }
 }
 
@@ -300,11 +300,11 @@ fn bcf_lines(text : String) -> Array[String] {
   for line in raw {
     let mut s = line
     if s.length() > 0 && s.unsafe_get(s.length() - 1).to_int() == 13 {
-      s = s[0:s.length() - 1].to_string()
+      s = s[0:s.length() - 1].to_owned()
     }
     // strip a trailing NUL (htslib appends one after the final newline)
     if s.length() > 0 && s.unsafe_get(s.length() - 1).to_int() == 0 {
-      s = s[0:s.length() - 1].to_string()
+      s = s[0:s.length() - 1].to_owned()
     }
     if s.length() > 0 {
       out.push(s)
@@ -528,7 +528,7 @@ pub fn parse_bcf_header(data : String) -> BcfHeader raise BcfError {
   }
   let l_text = bcf_read_u32(data, 5)
   bcf_check(data, 9, l_text)
-  let text = data[9:9 + l_text].to_string()
+  let text = data[9:9 + l_text].to_owned()
   bcf_parse_header_text(text)
 }
 

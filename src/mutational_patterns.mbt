@@ -172,8 +172,8 @@ pub fn get_channel_labels() -> Array[String] {
       let ctx = contexts[ci]
       // ctx is like "A.C" meaning A[C]C
       let parts = ctx.split(".")
-      let left = parts.next().unwrap_or("A").to_string()
-      let right = parts.next().unwrap_or("A").to_string()
+      let left = parts.next().unwrap_or("A").to_owned()
+      let right = parts.next().unwrap_or("A").to_owned()
       labels.push(left + "[" + type_str + "]" + right)
       ci = ci + 1
     }
@@ -234,12 +234,12 @@ pub fn normalize_context(trinucleotide : String) -> String {
   if upper.length() != 3 {
     return upper
   }
-  let middle = upper.substring(start=1, end=2)
+  let middle = upper[1:2]
   if middle == "A" || middle == "G" {
     // Reverse complement
-    let b0 = complement_base(upper.substring(start=0, end=1))
-    let b1 = complement_base(upper.substring(start=1, end=2))
-    let b2 = complement_base(upper.substring(start=2, end=3))
+    let b0 = complement_base(upper[0:1].to_owned())
+    let b1 = complement_base(upper[1:2].to_owned())
+    let b2 = complement_base(upper[2:3].to_owned())
     b2 + b1 + b0
   } else {
     upper
@@ -269,8 +269,8 @@ pub fn get_channel_index(
   }
   // Find context index (0-15)
   // norm_ctx is like "ACT", middle is the ref base
-  let left = norm_ctx.substring(start=0, end=1)
-  let right = norm_ctx.substring(start=2, end=3)
+  let left = norm_ctx[0:1].to_owned()
+  let right = norm_ctx[2:3].to_owned()
   let bases = ["A", "C", "G", "T"]
   let mut left_idx = 0
   let mut right_idx = 0

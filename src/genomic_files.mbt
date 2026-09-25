@@ -76,7 +76,7 @@ pub fn GenomicFile::to_string(self : GenomicFile) -> String {
   while i < self.seqnames.length() {
     let name = self.seqnames[i]
     let len = self.seq_lengths.get(name)
-    let len_str = if len.is_some() { len.unwrap().to_string() } else { "0" }
+    let len_str = if len is Some(_) { len.unwrap().to_string() } else { "0" }
     result = result + "    " + name + ": " + len_str + "\n"
     i = i + 1
   }
@@ -200,7 +200,7 @@ pub fn ReduceResult::to_string(self : ReduceResult) -> String {
   while i < keys.length() {
     let key = keys[i]
     let val = self.summary.get(key)
-    let val_str = if val.is_some() { val.unwrap().to_string() } else { "0" }
+    let val_str = if val is Some(_) { val.unwrap().to_string() } else { "0" }
     result = result + "    " + key + ": " + val_str + "\n"
     i = i + 1
   }
@@ -256,7 +256,7 @@ pub fn genomic_files_parse_bed_line(
   let end = parse_int(parts[2])
   let score = if parts.length() >= 5 {
     let parsed = parse_double(parts[4])
-    if parsed.is_some() {
+    if parsed is Some(_) {
       parsed.unwrap()
     } else {
       0.0
@@ -457,7 +457,7 @@ pub fn genomic_files_scan_vcf(
           let parts = split_by_char(line, 9)
           let qual = if parts.length() >= 6 {
             let parsed = parse_double(parts[5])
-            if parsed.is_some() {
+            if parsed is Some(_) {
               parsed.unwrap()
             } else {
               0.0

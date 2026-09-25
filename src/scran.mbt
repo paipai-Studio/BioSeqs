@@ -119,7 +119,7 @@ pub fn compute_sum_factors(
       while m < target_size && m < n_cells {
         let idx = (seed * 9301 + 49297) % 233280 % n_cells
         let used_idx = used.get(idx)
-        if used_idx.is_none() || !used_idx.unwrap() {
+        if used_idx is None || !used_idx.unwrap() {
           subset.push(idx)
           used[idx] = true
         }
@@ -445,7 +445,7 @@ pub fn leiden_clustering(
   let mut i = 0
   while i < n_cells {
     let mapped = cluster_ids.get(clusters[i])
-    if mapped.is_none() {
+    if mapped is None {
       cluster_ids[clusters[i]] = next_id
       next_id = next_id + 1
     }
@@ -469,7 +469,7 @@ pub fn score_markers(
   let mut i = 0
   while i < n_cells {
     let current = cluster_sizes.get(clusters[i])
-    if current.is_some() {
+    if current is Some(_) {
       cluster_sizes[clusters[i]] = current.unwrap() + 1
     } else {
       cluster_sizes[clusters[i]] = 1

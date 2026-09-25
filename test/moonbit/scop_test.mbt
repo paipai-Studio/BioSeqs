@@ -162,7 +162,7 @@ test "scop_hie_record_creation" {
 test "scop_parse_cla_line" {
   let line = "d1hba_\t1hba\tA:1-141\ta.1.1.1.1.1.1\t1000\tcl=100,cf=200,sf=300,fa=400,dm=500,sp=600,px=1000"
   let r = @src.scop_parse_cla_line(line)
-  assert_true(r.is_some())
+  assert_true(r is Some(_))
   let rec = r.unwrap()
   assert_eq(rec.sid(), "d1hba_")
   assert_eq(rec.pdbid(), "1hba")
@@ -175,20 +175,20 @@ test "scop_parse_cla_line" {
 ///|
 test "scop_parse_cla_line_comment" {
   let r = @src.scop_parse_cla_line("# comment line")
-  assert_true(r.is_none())
+  assert_true(r is None)
 }
 
 ///|
 test "scop_parse_cla_line_empty" {
   let r = @src.scop_parse_cla_line("")
-  assert_true(r.is_none())
+  assert_true(r is None)
 }
 
 ///|
 test "scop_parse_des_line" {
   let line = "1000\tpx\ta.1.1.1.1.1.1\td1hba_\t1hba Hemoglobin alpha chain"
   let r = @src.scop_parse_des_line(line)
-  assert_true(r.is_some())
+  assert_true(r is Some(_))
   let rec = r.unwrap()
   assert_eq(rec.sunid(), 1000)
   assert_eq(rec.nodetype(), "px")
@@ -199,7 +199,7 @@ test "scop_parse_des_line" {
 test "scop_parse_des_line_class" {
   let line = "100\tcl\ta\t-\tAll alpha proteins"
   let r = @src.scop_parse_des_line(line)
-  assert_true(r.is_some())
+  assert_true(r is Some(_))
   let rec = r.unwrap()
   assert_eq(rec.nodetype(), "cl")
   assert_eq(rec.sccs(), "a")
@@ -211,7 +211,7 @@ test "scop_parse_des_line_class" {
 test "scop_parse_hie_line" {
   let line = "600\t500\t1000,1001"
   let r = @src.scop_parse_hie_line(line)
-  assert_true(r.is_some())
+  assert_true(r is Some(_))
   let rec = r.unwrap()
   assert_eq(rec.sunid(), 600)
   assert_eq(rec.parent(), 500)
@@ -222,7 +222,7 @@ test "scop_parse_hie_line" {
 test "scop_parse_hie_line_root" {
   let line = "0\t-\t100"
   let r = @src.scop_parse_hie_line(line)
-  assert_true(r.is_some())
+  assert_true(r is Some(_))
   let rec = r.unwrap()
   assert_eq(rec.sunid(), 0)
   assert_eq(rec.parent(), -1)
@@ -233,7 +233,7 @@ test "scop_parse_hie_line_root" {
 test "scop_parse_hie_line_leaf" {
   let line = "1000\t600\t-"
   let r = @src.scop_parse_hie_line(line)
-  assert_true(r.is_some())
+  assert_true(r is Some(_))
   let rec = r.unwrap()
   assert_eq(rec.sunid(), 1000)
   assert_eq(rec.parent(), 600)
@@ -288,12 +288,12 @@ test "scop_get_node_by_sunid" {
   let hie = @src.scop_parse_hie(@src.scop_sample_hie())
   let scop = @src.Scop::new(cla, des, hie)
   let node = scop.get_node_by_sunid(100)
-  assert_true(node.is_some())
+  assert_true(node is Some(_))
   assert_eq(node.unwrap().nodetype(), "cl")
   assert_eq(node.unwrap().description(), "All alpha proteins")
   // Non-existent
   let none = scop.get_node_by_sunid(99999)
-  assert_true(none.is_none())
+  assert_true(none is None)
 }
 
 ///|
@@ -303,14 +303,14 @@ test "scop_get_domain_by_sid" {
   let hie = @src.scop_parse_hie(@src.scop_sample_hie())
   let scop = @src.Scop::new(cla, des, hie)
   let d = scop.get_domain_by_sid("d1hba_")
-  assert_true(d.is_some())
+  assert_true(d is Some(_))
   assert_eq(d.unwrap().sunid(), 1000)
   assert_eq(d.unwrap().sid(), "d1hba_")
   assert_eq(d.unwrap().pdbid(), "1hba")
   assert_eq(d.unwrap().sccs(), "a.1.1.1.1.1.1")
   // Non-existent
   let none = scop.get_domain_by_sid("d9zzzz_")
-  assert_true(none.is_none())
+  assert_true(none is None)
 }
 
 ///|
@@ -322,12 +322,12 @@ test "scop_get_parent" {
   // Parent of domain 1000 is species 600
   let d = scop.get_domain_by_sid("d1hba_").unwrap()
   let p = scop.get_parent(d)
-  assert_true(p.is_some())
+  assert_true(p is Some(_))
   assert_eq(p.unwrap().sunid(), 600)
   assert_eq(p.unwrap().nodetype(), "sp")
   // Root has no parent
   let root_parent = scop.get_parent(scop.root())
-  assert_true(root_parent.is_none())
+  assert_true(root_parent is None)
 }
 
 ///|
@@ -356,12 +356,12 @@ test "scop_get_ascendent_by_code" {
   let d = scop.get_domain_by_sid("d1hba_").unwrap()
   // Ascendent of type "cl" (class)
   let cl = scop.get_ascendent(d, "cl")
-  assert_true(cl.is_some())
+  assert_true(cl is Some(_))
   assert_eq(cl.unwrap().sunid(), 100)
   assert_eq(cl.unwrap().description(), "All alpha proteins")
   // Ascendent of type "fa" (family)
   let fa = scop.get_ascendent(d, "fa")
-  assert_true(fa.is_some())
+  assert_true(fa is Some(_))
   assert_eq(fa.unwrap().sunid(), 400)
 }
 
@@ -374,7 +374,7 @@ test "scop_get_ascendent_by_long_name" {
   let d = scop.get_domain_by_sid("d1hba_").unwrap()
   // Using long name "fold" instead of "cf"
   let fold = scop.get_ascendent(d, "fold")
-  assert_true(fold.is_some())
+  assert_true(fold is Some(_))
   assert_eq(fold.unwrap().sunid(), 200)
   assert_eq(fold.unwrap().description(), "Globin-like")
 }
@@ -506,6 +506,6 @@ test "scop_empty" {
   assert_eq(scop.root().sunid(), 0)
   assert_eq(scop.root().nodetype(), "ro")
   assert_eq(scop.get_domains().length(), 0)
-  assert_true(scop.get_node_by_sunid(100).is_none())
-  assert_true(scop.get_domain_by_sid("d1hba_").is_none())
+  assert_true(scop.get_node_by_sunid(100) is None)
+  assert_true(scop.get_domain_by_sid("d1hba_") is None)
 }

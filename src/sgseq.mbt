@@ -258,7 +258,7 @@ pub fn sgseq_parse_junctions(text : String) -> Array[SGSeqJunction] {
   let junctions = Array(capacity=0)
   let lines = text.split("\n").to_array()
   for line in lines {
-    let trimmed = line.to_string()
+    let trimmed = line.to_owned()
     if trimmed.length() == 0 {
       continue
     }

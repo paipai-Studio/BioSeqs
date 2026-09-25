@@ -38,7 +38,7 @@ test "neighbor_search_nearest" {
   let center = @src.Vector3::new(0.5, 0.0, 0.0)
   let nearest = ns.nearest(center)
 
-  assert_true(nearest.is_some())
+  assert_true(nearest is Some(_))
 }
 
 ///|
@@ -53,7 +53,7 @@ test "neighbor_search_empty" {
   assert_eq(result.length(), 0)
 
   let nearest = ns.nearest(center)
-  assert_true(nearest.is_none())
+  assert_true(nearest is None)
 }
 
 ///|

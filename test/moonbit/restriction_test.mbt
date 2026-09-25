@@ -9,7 +9,7 @@ test "restriction_builtin_enzymes" {
 test "restriction_get_enzyme_by_name" {
   let enzyme = @src.get_enzyme_by_name("EcoRI")
 
-  assert_eq(enzyme.is_some(), true)
+  assert_eq(enzyme is Some(_), true)
 }
 
 ///|
@@ -110,8 +110,8 @@ fn br_catalyse(
 test "bio_restriction_database_count" {
   assert_eq(@src.bio_restriction_enzyme_count(), 1088)
   assert_eq(@src.restriction_db_size, 1088)
-  assert_true(@src.get_bio_restriction_enzyme("EcoRI").is_some())
-  assert_true(@src.get_bio_restriction_enzyme("Nope123").is_none())
+  assert_true(@src.get_bio_restriction_enzyme("EcoRI") is Some(_))
+  assert_true(@src.get_bio_restriction_enzyme("Nope123") is None)
   let raised = try {
     ignore(@src.require_bio_restriction_enzyme("Nope123"))
     false

@@ -470,7 +470,7 @@ pub fn scop_dom_parse(text : String) -> Array[DomRecord] raise ScopDomError {
     if line.length() == 0 {
       continue
     }
-    if line[0:1].to_string() == "#" {
+    if line[0:1].to_owned() == "#" {
       continue
     }
     if line.trim().length() == 0 {

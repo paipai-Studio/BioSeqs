@@ -175,7 +175,7 @@ fn gp_trim(s : String) -> String {
       break
     }
   }
-  s[start:end].to_string()
+  s[start:end].to_owned()
 }
 
 ///|
@@ -191,7 +191,7 @@ fn gp_split_whitespace(s : String) -> Array[String] {
     let is_ws = c == ' '.to_int() || c == '\t'.to_int() || c == '\r'.to_int()
     if is_ws {
       if in_token {
-        tokens.push(s[start:i].to_string())
+        tokens.push(s[start:i].to_owned())
         in_token = false
       }
     } else if !in_token {
@@ -201,7 +201,7 @@ fn gp_split_whitespace(s : String) -> Array[String] {
     i = i + 1
   }
   if in_token {
-    tokens.push(s[start:n].to_string())
+    tokens.push(s[start:n].to_owned())
   }
   tokens
 }
@@ -223,16 +223,16 @@ fn gp_parse_locus_token(token : String) -> GenePopGenotype {
   }
   // 3-digit diploid: "AAABBB"
   if n == 6 {
-    let a1_str = token[0:3].to_string()
-    let a2_str = token[3:6].to_string()
+    let a1_str = token[0:3].to_owned()
+    let a2_str = token[3:6].to_owned()
     let a1 = gp_parse_allele(a1_str)
     let a2 = gp_parse_allele(a2_str)
     return GenePopGenotype::diploid(a1, a2)
   }
   // 2-digit diploid: "AABB"
   if n == 4 {
-    let a1_str = token[0:2].to_string()
-    let a2_str = token[2:4].to_string()
+    let a1_str = token[0:2].to_owned()
+    let a2_str = token[2:4].to_owned()
     let a1 = gp_parse_allele(a1_str)
     let a2 = gp_parse_allele(a2_str)
     return GenePopGenotype::diploid(a1, a2)
@@ -338,7 +338,7 @@ pub fn parse_genepop(content : String) -> GenePopRecord {
     }
     // Check for locus name comment line: "#Loci: L1 L2 L3"
     if gp_starts_with(trimmed, "#Loci:") {
-      let rest = trimmed[6:trimmed.length()].to_string()
+      let rest = trimmed[6:trimmed.length()].to_owned()
       loci_names = gp_split_whitespace(rest)
       i = i + 1
       continue
@@ -380,7 +380,7 @@ pub fn parse_genepop(content : String) -> GenePopRecord {
       // Detect digit size from the first genotype token's length.
       let comma_pos = gp_find_char(trimmed, ',')
       let geno_str = if comma_pos >= 0 {
-        gp_trim(trimmed[comma_pos + 1:trimmed.length()].to_string())
+        gp_trim(trimmed[comma_pos + 1:trimmed.length()].to_owned())
       } else {
         trimmed
       }
@@ -453,8 +453,8 @@ fn gp_parse_individual(line : String) -> GenePopIndividual {
   let comma_pos = gp_find_char(line, ',')
   let (name_str, geno_str) = if comma_pos >= 0 {
     (
-      gp_trim(line[0:comma_pos].to_string()),
-      gp_trim(line[comma_pos + 1:line.length()].to_string()),
+      gp_trim(line[0:comma_pos].to_owned()),
+      gp_trim(line[comma_pos + 1:line.length()].to_owned()),
     )
   } else {
     // No comma: treat the whole line as genotype data with empty name.

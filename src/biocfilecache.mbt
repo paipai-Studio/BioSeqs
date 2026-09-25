@@ -17,7 +17,7 @@ pub(all) enum BfcResourceType {
   Relative
   Remote
   Web
-} derive(Eq, Show, Debug)
+} derive(Eq, Debug)
 pub extend BfcResourceType with Eq::{equal, not_equal}
 pub extend BfcResourceType with @moonbitlang/core/debug.Debug::{to_repr}
 
@@ -35,7 +35,7 @@ pub struct BfcEntry {
   create_time : Int
   access_time : Int
   tags : Map[String, String]
-} derive(Eq, Show, Debug)
+} derive(Eq, Debug)
 pub extend BfcEntry with Eq::{equal, not_equal}
 pub extend BfcEntry with @moonbitlang/core/debug.Debug::{to_repr}
 
@@ -47,7 +47,7 @@ pub struct BfcCache {
   mut hits : Int
   mut misses : Int
   mut next_rid : Int
-} derive(Eq, Show, Debug)
+} derive(Eq, Debug)
 pub extend BfcCache with Eq::{equal, not_equal}
 pub extend BfcCache with @moonbitlang/core/debug.Debug::{to_repr}
 

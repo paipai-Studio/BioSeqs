@@ -78,7 +78,7 @@ fn main {
   // Step 5: gene frequency (hub genes)
   println("--- Step 5: Hub Genes Across Sets ---")
   let freq = @src.msig_gene_frequency(@src.msig_hallmark())
-  println("  distinct genes in H collection: " + freq.size().to_string())
+  println("  distinct genes in H collection: " + freq.length().to_string())
   match freq.get("TP53") {
     Some(n) => println("  TP53 appears in " + n.to_string() + " sets")
     None => println("  TP53 not present")

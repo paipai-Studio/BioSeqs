@@ -125,7 +125,7 @@ fn main {
   while k < keys.length() && k < 5 {
     let probe = keys[k]
     let loc = loc_map.get(probe)
-    if loc.is_some() {
+    if loc is Some(_) {
       let (chr_s, pos_i) = loc.unwrap()
       println("  " + probe + " -> " + chr_s + ":" + pos_i.to_string())
     }

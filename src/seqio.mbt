@@ -111,21 +111,20 @@ pub fn seqio_write(
     "ig" => write_ig_records(records)
     "imgt" => write_imgt_records(records)
     "phd" => write_phd_records(records)
-    _ =>
+    _ => {
       // Known but non-writable formats (e.g. 2bit, uniprot-xml) list the
       // writable set; truly unknown formats keep the legacy message.
-      match (try? seqio_normalize_format(format)) {
-        Ok(_) => {
-          let supported = seqio_writable_formats().join(", ")
-          raise SeqIOError(
-            "format does not support writing:\n" +
-            format +
-            "。Supported: " +
-            supported,
-          )
-        }
-        Err(SeqIOError(msg)) => raise SeqIOError(msg)
+      let _ = try seqio_normalize_format(format) catch {
+        SeqIOError(msg) => raise SeqIOError(msg)
       }
+      let supported = seqio_writable_formats().join(", ")
+      raise SeqIOError(
+        "format does not support writing:\n" +
+        format +
+        "。Supported: " +
+        supported,
+      )
+    }
   }
 }
 

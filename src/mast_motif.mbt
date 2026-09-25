@@ -216,7 +216,7 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
   let mut section = "" // current section name
   while i < n {
     let line = lines[i]
-    let trimmed = line.trim().to_string()
+    let trimmed = line.trim().to_owned()
     if trimmed.length() == 0 {
       i = i + 1
       continue
@@ -225,10 +225,10 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
     if trimmed.has_prefix("MAST") && trimmed.contains("version") {
       let parts = trimmed.split(" ").to_array()
       for p in parts {
-        let s = p.trim().to_string()
+        let s = p.trim().to_owned()
         if s.length() > 0 {
           if s.has_prefix("v") ||
-            (s[0:1].to_string() >= "0" && s[0:1].to_string() <= "9") {
+            (s[0:1].to_owned() >= "0" && s[0:1].to_owned() <= "9") {
             record.version = s
           }
         }
@@ -241,12 +241,12 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
       if trimmed.contains("=") {
         let parts = trimmed.split("=").to_array()
         if parts.length() >= 2 {
-          record.database = parts[1].trim().to_string()
+          record.database = parts[1].trim().to_owned()
         }
       } else {
         let parts = trimmed.split(" ").to_array()
         if parts.length() >= 2 {
-          record.database = parts[1].trim().to_string()
+          record.database = parts[1].trim().to_owned()
         }
       }
       i = i + 1
@@ -265,12 +265,12 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
         let mut motif_id = ""
         let mut width = 0
         for p in parts {
-          let s = p.trim().to_string()
+          let s = p.trim().to_owned()
           if s.has_prefix("width=") {
-            let w_str = s.substring(start=6)
+            let w_str = s[6:].to_owned()
             width = parse_int(w_str)
           } else if s.has_prefix("Motif") {
-            motif_id = s.substring(start=5)
+            motif_id = s[5:].to_owned()
           }
         }
         if motif_id.length() > 0 {
@@ -287,7 +287,7 @@ pub fn mast_motif_parse(text : String) -> MastMotifRecord {
       let parts = trimmed.split(" ").to_array()
       let filtered : Array[String] = Array(capacity=0)
       for p in parts {
-        let s = p.trim().to_string()
+        let s = p.trim().to_owned()
         if s.length() > 0 {
           filtered.push(s)
         }

@@ -37,7 +37,7 @@ fn m2d_strip(s : String) -> String {
   while end > start && m2d_is_ws(s.unsafe_get(end - 1).to_int()) {
     end = end - 1
   }
-  s[start:end].to_string()
+  s[start:end].to_owned()
 }
 
 ///|
@@ -46,7 +46,7 @@ fn m2d_rstrip(s : String) -> String {
   while end > 0 && m2d_is_ws(s.unsafe_get(end - 1).to_int()) {
     end = end - 1
   }
-  s[0:end].to_string()
+  s[0:end].to_owned()
 }
 
 ///|
@@ -70,7 +70,7 @@ fn m2d_lines(content : String) -> Array[String] {
   for i = 0; i < n; i = i + 1 {
     let mut line = raw[i]
     if line.length() > 0 && line.unsafe_get(line.length() - 1).to_int() == 13 {
-      line = line[0:line.length() - 1].to_string()
+      line = line[0:line.length() - 1].to_owned()
     }
     if i == n - 1 && line.length() == 0 {
       // drop the trailing empty piece produced by a final newline
@@ -96,7 +96,7 @@ fn m2d_split_line(line : String) -> Array[String] raise Mmcif2DictError {
     if m2d_is_ws(cp) {
       if in_token && quote_open < 0 {
         in_token = false
-        tokens.push(line[start_i:i].to_string())
+        tokens.push(line[start_i:i].to_owned())
       }
     } else if m2d_is_quote(cp) {
       if quote_open < 0 && !in_token {
@@ -107,7 +107,7 @@ fn m2d_split_line(line : String) -> Array[String] raise Mmcif2DictError {
         (i + 1 == n || m2d_is_ws(line.unsafe_get(i + 1).to_int())) {
         quote_open = -1
         in_token = false
-        tokens.push(line[start_i:i].to_string())
+        tokens.push(line[start_i:i].to_owned())
       }
     } else if cp == 35 && !in_token {
       // '#' comment: skip the rest of the line
@@ -121,7 +121,7 @@ fn m2d_split_line(line : String) -> Array[String] raise Mmcif2DictError {
     i = i + 1
   }
   if in_token {
-    tokens.push(line[start_i:n].to_string())
+    tokens.push(line[start_i:n].to_owned())
   }
   if quote_open >= 0 {
     m2d_fail("Line ended with quote open: \{line}")
@@ -146,7 +146,7 @@ fn m2d_tokenize(content : String) -> Array[String] raise Mmcif2DictError {
     }
     if starts_with(line, 0, ";") {
       let buffer : Array[String] = []
-      buffer.push(m2d_rstrip(line[1:line.length()].to_string()))
+      buffer.push(m2d_rstrip(line[1:line.length()].to_owned()))
       let mut closed = false
       while i < lines.length() {
         let l2 = lines[i]
@@ -154,7 +154,7 @@ fn m2d_tokenize(content : String) -> Array[String] raise Mmcif2DictError {
         let l2s = m2d_rstrip(l2)
         if starts_with(l2s, 0, ";") {
           tokens.push(m2d_join(buffer, "\n"))
-          line = l2s[1:l2s.length()].to_string()
+          line = l2s[1:l2s.length()].to_owned()
           if line.length() > 0 && !m2d_is_ws(line.unsafe_get(0).to_int()) {
             m2d_fail("Missing whitespace")
           }
@@ -195,7 +195,7 @@ pub fn mmcif2dict_parse(
   if !starts_with(first, 0, "data_") {
     m2d_fail("The input mmCIF file must begin with a 'data_' directive.")
   }
-  result.set("data_", [first[5:first.length()].to_string()])
+  result.set("data_", [first[5:first.length()].to_owned()])
 
   let mut loop_flag = false
   let mut key : String? = None

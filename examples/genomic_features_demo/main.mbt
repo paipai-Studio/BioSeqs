@@ -11,7 +11,7 @@ fn main {
   let tp53 = @src.genome_annotation_get_gene_by_id(
     annotation, "ENSG00000130203",
   )
-  if tp53.is_some() {
+  if tp53 is Some(_) {
     println(tp53.unwrap().to_string())
   }
 

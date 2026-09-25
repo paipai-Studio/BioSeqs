@@ -11,11 +11,11 @@ fn main {
 
   println("\n2. Allele frequencies:")
   let allele_freqs = @bio.allele_frequencies(population)
-  println("   Number of alleles: \{allele_freqs.size()}")
+  println("   Number of alleles: \{allele_freqs.length()}")
 
   println("\n3. Genotype frequencies:")
   let geno_freqs = @bio.genotype_frequencies(population)
-  println("   Number of genotypes: \{geno_freqs.size()}")
+  println("   Number of genotypes: \{geno_freqs.length()}")
 
   println("\n4. Hardy-Weinberg test:")
   let chi_sq = @bio.hardy_weinberg_test(population)

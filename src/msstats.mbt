@@ -382,8 +382,8 @@ pub fn ms_summarize(
     let key = key_list[ki]
     let feats = groups.get(key).unwrap()
     let parts = key.split("::")
-    let protein = parts.next().unwrap_or("").to_string()
-    let run = parts.next().unwrap_or("").to_string()
+    let protein = parts.next().unwrap_or("").to_owned()
+    let run = parts.next().unwrap_or("").to_owned()
     let group = if feats.length() > 0 { feats[0].group } else { "" }
 
     let intensities : Array[Double] = Array(capacity=0)
@@ -608,7 +608,7 @@ pub fn ms_group_comparison(
       ps.set(all_results[pi].protein, ())
       pi = pi + 1
     }
-    ps.size()
+    ps.length()
   } else {
     0
   }

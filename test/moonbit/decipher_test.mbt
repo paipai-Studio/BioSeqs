@@ -192,7 +192,7 @@ test "decipher database operations" {
   let db3 = @src.db_add_seq(db2, "TTTTGGGG", description="test2")
   assert_eq(@src.db_size(db3), 2)
   let entry = @src.db_get(db3, 0)
-  assert_true(entry.is_some())
+  assert_true(entry is Some(_))
   assert_eq(entry.unwrap().description, "test1")
 }
 
@@ -240,6 +240,6 @@ test "decipher example database" {
   let db = @src.create_example_database()
   assert_eq(@src.db_size(db), 4)
   let entry = @src.db_get(db, 0)
-  assert_true(entry.is_some())
+  assert_true(entry is Some(_))
   assert_eq(entry.unwrap().description, "E_coli_16S")
 }

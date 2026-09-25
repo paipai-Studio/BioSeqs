@@ -129,7 +129,7 @@ test "aggregate" {
     seed=42,
   )
   let agg = @src.cellchat_aggregate(result)
-  assert_true(agg.size() > 0)
+  assert_true(agg.length() > 0)
 }
 
 ///|

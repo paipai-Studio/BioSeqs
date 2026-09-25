@@ -43,8 +43,8 @@ fn main {
   let mut ppi = 0
   while ppi < per_pos.length() {
     let position = model1.order + ppi
-    let prev = test_dna[position - 1:position].to_string()
-    let next = test_dna[position:position + 1].to_string()
+    let prev = test_dna[position - 1:position].to_owned()
+    let next = test_dna[position:position + 1].to_owned()
     println("  pos " + position.to_string() + ": P(" + next + " | " + prev + ")_log = " + per_pos[ppi].to_string())
     ppi = ppi + 1
   }

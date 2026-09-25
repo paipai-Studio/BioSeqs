@@ -136,7 +136,7 @@ pub fn run_spia(
   fdr_threshold? : Double = 0.05,
 ) -> SpiaResults {
   let n_total = if total_genes > 0 { total_genes } else { 1 }
-  let n_de = de_genes.size()
+  let n_de = de_genes.length()
   let all_results : Array[SpiaResult] = Array(capacity=0)
   let mut pi = 0
   while pi < pathways.length() {

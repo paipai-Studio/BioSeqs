@@ -483,7 +483,7 @@ pub fn reverse_complement_iupac(seq : String) -> String {
   let mut result = ""
   let mut i = seq.length() - 1
   while i >= 0 {
-    let base = seq.substring(start=i, end=i + 1)
+    let base = seq[i:i + 1].to_owned()
     let upper = base.to_upper()
     let comp_base = match comp.get(upper) {
       Some(c) => c

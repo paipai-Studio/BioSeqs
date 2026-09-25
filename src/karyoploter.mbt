@@ -500,9 +500,9 @@ pub fn KaryotypePlot::to_ascii(
           } else {
             "."
           }
-          data_bar = data_bar.substring(start=0, end=rel_pos).to_string() +
+          data_bar = data_bar[0:rel_pos].to_owned() +
             ch +
-            data_bar.substring(start=rel_pos + 1, end=w).to_string()
+            data_bar[rel_pos + 1:w].to_owned()
         }
         p = p + 1
       }

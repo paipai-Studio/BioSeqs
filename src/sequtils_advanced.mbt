@@ -98,7 +98,7 @@ pub struct GC123Result {
   gc1 : Double
   gc2 : Double
   gc3 : Double
-} derive(Eq, Show)
+} derive(Eq, Debug)
 pub extend GC123Result with Eq::{equal, not_equal}
 
 ///|
@@ -182,7 +182,7 @@ pub fn gc123(seq : String) -> GC123Result {
 pub struct NtSearchResult {
   pattern : String
   positions : Array[Int]
-} derive(Eq, Show)
+} derive(Eq, Debug)
 pub extend NtSearchResult with Eq::{equal, not_equal}
 
 ///|
@@ -230,7 +230,7 @@ pub fn nt_search(
   for i = 0; i < subseq.length(); i = i + 1 {
     let ci = subseq.unsafe_get(i).to_int()
     let upper = if ci >= 97 && ci <= 122 { ci - 32 } else { ci }
-    let key = Char::from_int(upper).to_string()
+    let key = (upper).unsafe_to_char().to_string()
     match sequtils_ambiguous_dna_values.get(key) {
       Some(value) => {
         if value.length() == 1 {
@@ -247,7 +247,7 @@ pub fn nt_search(
       None =>
         raise SeqError(
           "not an IUPAC DNA nucleotide: '" +
-          Char::from_int(ci).to_string() +
+          (ci).unsafe_to_char().to_string() +
           "'",
         )
     }
@@ -363,15 +363,15 @@ pub fn six_frame_translations(
   let frames : FixedArray[String] = FixedArray::make(6, "")
   for i = 0; i < 3; i = i + 1 {
     let fragment_length = 3 * ((length - i) / 3)
-    let fwd = Seq::new(seq.substring(start=i, end=i + fragment_length)).translate().data
-    let rev_src = Seq::new(anti.substring(start=i, end=i + fragment_length)).translate().data
+    let fwd = Seq::new(seq[i:i + fragment_length].to_owned()).translate().data
+    let rev_src = Seq::new(anti[i:i + fragment_length].to_owned()).translate().data
     frames[i] = fwd
     frames[3 + i] = sequtils_reverse_str(rev_src)
   }
 
   // Create header
   let short = if length > 20 {
-    seq.substring(start=0, end=10) + " ... " + seq.substring(start=length - 10)
+    seq[0:10] + " ... " + seq[length - 10:]
   } else {
     seq
   }
@@ -389,7 +389,7 @@ pub fn six_frame_translations(
   let gc = 100.0 * gc_fraction(seq, ambiguous="ignore")
   header = header +
     "\nSequence: " +
-    short.to_lower() +
+    short.to_lower().to_owned() +
     ", " +
     length.to_string() +
     " nt, " +
@@ -423,16 +423,16 @@ pub fn six_frame_translations(
   let mut i = 0
   while i < length {
     let stop = if i + 60 < length { i + 60 } else { length }
-    let subseq = seq.substring(start=i, end=stop)
-    let csubseq = comp.substring(start=i, end=stop)
+    let subseq = seq[i:stop]
+    let csubseq = comp[i:stop]
     let p = i / 3
     res.write_string((i + 1).to_string() + "/" + (i / 3 + 1).to_string() + "\n")
     res.write_string(frame_line(frames[2], p, 2) + "\n")
     res.write_string(frame_line(frames[1], p, 1) + "\n")
     res.write_string(frame_line(frames[0], p, 0) + "\n")
     // seq
-    res.write_string(subseq.to_lower() + sequtils_pad5(gc.to_int()) + " %\n")
-    res.write_string(csubseq.to_lower() + "\n")
+    res.write_string(subseq.to_lower().to_owned() + sequtils_pad5(gc.to_int()) + " %\n")
+    res.write_string(csubseq.to_lower().to_owned() + "\n")
     // - frames
     res.write_string(frame_line(frames[4], p, 0) + "\n")
     res.write_string(frame_line(frames[3], p, 1) + "\n")

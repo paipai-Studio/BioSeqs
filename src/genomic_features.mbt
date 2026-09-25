@@ -281,7 +281,7 @@ pub fn genome_annotation_summarize(annotation : GenomeAnnotation) -> String {
     let gene = annotation.genes[i]
     let key = gene.gene_biotype
     let current = biotype_counts.get(key)
-    if current.is_some() {
+    if current is Some(_) {
       biotype_counts[key] = current.unwrap() + 1
     } else {
       biotype_counts[key] = 1
@@ -337,14 +337,14 @@ pub fn parse_gtf_line(
   while j < attr_pairs.length() {
     let pair = attr_pairs[j]
     let eq_idx = pair.find("=")
-    if eq_idx.is_some() {
+    if eq_idx is Some(_) {
       let pos = eq_idx.unwrap()
-      let key = trim(pair[0:pos].to_string())
-      let mut value = trim(pair[pos + 1:].to_string())
+      let key = trim(pair[0:pos].to_owned())
+      let mut value = trim(pair[pos + 1:].to_owned())
       if value.length() >= 2 &&
         value.unsafe_get(0).to_int() == '\"'.to_int() &&
         value.unsafe_get(value.length() - 1).to_int() == '\"'.to_int() {
-        value = value[1:value.length() - 1].to_string()
+        value = value[1:value.length() - 1].to_owned()
       }
       attributes[key] = value
     }
@@ -363,7 +363,7 @@ pub fn gf_parse_gtf(content : String) -> GenomeAnnotation {
   while i < lines.length() {
     let line = lines[i]
     let parsed = parse_gtf_line(line)
-    if parsed.is_some() {
+    if parsed is Some(_) {
       let (chromosome, _, feature_type, start, end, strand, attributes) = parsed.unwrap()
 
       if feature_type == "gene" {
@@ -373,17 +373,17 @@ pub fn gf_parse_gtf(content : String) -> GenomeAnnotation {
         let description = attributes.get("gene_description")
 
         let gene = GFGene::new(
-          if gene_id.is_some() {
+          if gene_id is Some(_) {
             gene_id.unwrap()
           } else {
             "unknown"
           },
-          if gene_name.is_some() {
+          if gene_name is Some(_) {
             gene_name.unwrap()
           } else {
             "unknown"
           },
-          if gene_biotype.is_some() {
+          if gene_biotype is Some(_) {
             gene_biotype.unwrap()
           } else {
             "protein_coding"
@@ -392,7 +392,7 @@ pub fn gf_parse_gtf(content : String) -> GenomeAnnotation {
           start,
           end,
           strand,
-          if description.is_some() {
+          if description is Some(_) {
             description.unwrap()
           } else {
             ""
@@ -405,17 +405,17 @@ pub fn gf_parse_gtf(content : String) -> GenomeAnnotation {
         let gene_id = attributes.get("gene_id")
 
         let transcript = GFTranscript::new(
-          if transcript_id.is_some() {
+          if transcript_id is Some(_) {
             transcript_id.unwrap()
           } else {
             "unknown"
           },
-          if transcript_name.is_some() {
+          if transcript_name is Some(_) {
             transcript_name.unwrap()
           } else {
             "unknown"
           },
-          if gene_id.is_some() {
+          if gene_id is Some(_) {
             gene_id.unwrap()
           } else {
             "unknown"

@@ -193,7 +193,7 @@ pub fn pcd_parse(content : String) -> PcdFile {
   let mut current_spectrum : PcdSpectrum? = None
   while i < lines.length() {
     let line = lines[i]
-    let trimmed = line.trim().to_string()
+    let trimmed = line.trim().to_owned()
     if trimmed.length() == 0 {
       match current_spectrum {
         Some(s) => {
@@ -244,12 +244,12 @@ pub fn pcd_parse(content : String) -> PcdFile {
 ///|
 /// Parse a PCD header line and add to file.
 fn pcd_parse_header_into(line : String, file : PcdFile) -> Unit {
-  let content = line[1:line.length()].trim().to_string()
+  let content = line[1:line.length()].trim().to_owned()
   let colon_pos = content.find(":")
   match colon_pos {
     Some(pos) => {
-      let key = content[0:pos].trim().to_string()
-      let val = content[pos + 1:content.length()].trim().to_string()
+      let key = content[0:pos].trim().to_owned()
+      let val = content[pos + 1:content.length()].trim().to_owned()
       file.set_metadata(key, val)
       if key.contains("version") || key.contains("Version") {
         file.set_version(val)
@@ -539,7 +539,7 @@ fn pcd_split_lines(content : String) -> Array[String] {
     let ch = content[i:i + 1].to_owned()
     if ch == "\n" || ch == "\r" {
       if start < i {
-        lines.push(content[start:i].trim().to_string())
+        lines.push(content[start:i].trim().to_owned())
       }
       if ch == "\r" &&
         i + 1 < content.length() &&
@@ -551,7 +551,7 @@ fn pcd_split_lines(content : String) -> Array[String] {
     i = i + 1
   }
   if start < content.length() {
-    lines.push(content[start:content.length()].trim().to_string())
+    lines.push(content[start:content.length()].trim().to_owned())
   }
   lines
 }
@@ -566,7 +566,7 @@ fn pcd_split_whitespace(line : String) -> Array[String] {
     let ch = line[i:i + 1].to_owned()
     if ch == " " || ch == "\t" {
       if start >= 0 {
-        cols.push(line[start:i].to_string())
+        cols.push(line[start:i].to_owned())
         start = -1
       }
     } else if start < 0 {
@@ -575,7 +575,7 @@ fn pcd_split_whitespace(line : String) -> Array[String] {
     i = i + 1
   }
   if start >= 0 {
-    cols.push(line[start:line.length()].to_string())
+    cols.push(line[start:line.length()].to_owned())
   }
   cols
 }

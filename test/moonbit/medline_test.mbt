@@ -34,7 +34,7 @@ test "medline_parse" {
 
   let record = @src.parse_medline(text)
 
-  assert_true(record.is_some())
+  assert_true(record is Some(_))
   assert_eq(record.unwrap().pmid, "12345678")
   assert_eq(record.unwrap().title, "Title of the article")
   assert_eq(record.unwrap().authors.length(), 2)

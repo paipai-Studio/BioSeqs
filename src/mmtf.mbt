@@ -811,7 +811,7 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
   let mut current_chain : MmtfChain? = None
   let mut current_group : MmtfGroup? = None
   for line in lines {
-    let trimmed = line.to_string()
+    let trimmed = line.to_owned()
     if trimmed.length() == 0 {
       continue
     }
@@ -819,33 +819,33 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
       continue
     }
     if trimmed.has_prefix("structureId=") {
-      structure.structure_id = trimmed.substring(start=12)
+      structure.structure_id = trimmed[12:].to_owned()
     } else if trimmed.has_prefix("totalNumBonds=") {
-      structure.total_num_bonds = parse_int(trimmed.substring(start=14))
+      structure.total_num_bonds = parse_int(trimmed[14:].to_owned())
     } else if trimmed.has_prefix("totalNumAtoms=") {
-      structure.total_num_atoms = parse_int(trimmed.substring(start=14))
+      structure.total_num_atoms = parse_int(trimmed[14:].to_owned())
     } else if trimmed.has_prefix("totalNumGroups=") {
-      structure.total_num_groups = parse_int(trimmed.substring(start=15))
+      structure.total_num_groups = parse_int(trimmed[15:].to_owned())
     } else if trimmed.has_prefix("totalNumChains=") {
-      structure.total_num_chains = parse_int(trimmed.substring(start=15))
+      structure.total_num_chains = parse_int(trimmed[15:].to_owned())
     } else if trimmed.has_prefix("totalNumModels=") {
-      structure.total_num_models = parse_int(trimmed.substring(start=15))
+      structure.total_num_models = parse_int(trimmed[15:].to_owned())
     } else if trimmed.has_prefix("title=") {
-      header.title = trimmed.substring(start=6)
+      header.title = trimmed[6:].to_owned()
     } else if trimmed.has_prefix("depositionDate=") {
-      header.deposition_date = trimmed.substring(start=15)
+      header.deposition_date = trimmed[15:].to_owned()
     } else if trimmed.has_prefix("releaseDate=") {
-      header.release_date = trimmed.substring(start=12)
+      header.release_date = trimmed[12:].to_owned()
     } else if trimmed.has_prefix("resolution=") {
-      header.resolution = parse_double(trimmed.substring(start=11)).unwrap_or(
+      header.resolution = parse_double(trimmed[11:].to_owned()).unwrap_or(
         0.0,
       )
     } else if trimmed.has_prefix("rWork=") {
-      header.r_work = parse_double(trimmed.substring(start=6)).unwrap_or(0.0)
+      header.r_work = parse_double(trimmed[6:].to_owned()).unwrap_or(0.0)
     } else if trimmed.has_prefix("rFree=") {
-      header.r_free = parse_double(trimmed.substring(start=6)).unwrap_or(0.0)
+      header.r_free = parse_double(trimmed[6:].to_owned()).unwrap_or(0.0)
     } else if trimmed.has_prefix("spaceGroup=") {
-      xtal.space_group = trimmed.substring(start=11)
+      xtal.space_group = trimmed[11:].to_owned()
     } else if trimmed.has_prefix("MODEL ") {
       // Save previous group/chain/model
       match current_group {
@@ -875,7 +875,7 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
         .to_array()
         .filter(fn(s) -> Bool { s.length() > 0 })
       let model_id = if parts.length() >= 2 {
-        parse_int(parts[1].to_string())
+        parse_int(parts[1].to_owned())
       } else {
         0
       }
@@ -904,9 +904,9 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
         .split(" ")
         .to_array()
         .filter(fn(s) -> Bool { s.length() > 0 })
-      let chain_id = if parts.length() >= 3 { parts[2].to_string() } else { "" }
+      let chain_id = if parts.length() >= 3 { parts[2].to_owned() } else { "" }
       let chain_name = if parts.length() >= 4 {
-        parts[3].to_string()
+        parts[3].to_owned()
       } else {
         chain_id
       }
@@ -926,18 +926,18 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
         .to_array()
         .filter(fn(s) -> Bool { s.length() > 0 })
       let group_name = if parts.length() >= 2 {
-        parts[1].to_string()
+        parts[1].to_owned()
       } else {
         ""
       }
       let group_number = if parts.length() >= 3 {
-        parse_int(parts[2].to_string())
+        parse_int(parts[2].to_owned())
       } else {
         0
       }
-      let slc = if parts.length() >= 4 { parts[3].to_string() } else { "" }
+      let slc = if parts.length() >= 4 { parts[3].to_owned() } else { "" }
       let ss_str = if parts.length() >= 5 {
-        parts[4].to_string()
+        parts[4].to_owned()
       } else {
         "undefined"
       }
@@ -965,30 +965,30 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
         .split(" ")
         .to_array()
         .filter(fn(s) -> Bool { s.length() > 0 })
-      let name = if parts.length() >= 2 { parts[1].to_string() } else { "" }
+      let name = if parts.length() >= 2 { parts[1].to_owned() } else { "" }
       let serial = if parts.length() >= 3 {
-        parse_int(parts[2].to_string())
+        parse_int(parts[2].to_owned())
       } else {
         0
       }
       let x = if parts.length() >= 4 {
-        parse_double(parts[3].to_string()).unwrap_or(0.0)
+        parse_double(parts[3].to_owned()).unwrap_or(0.0)
       } else {
         0.0
       }
       let y = if parts.length() >= 5 {
-        parse_double(parts[4].to_string()).unwrap_or(0.0)
+        parse_double(parts[4].to_owned()).unwrap_or(0.0)
       } else {
         0.0
       }
       let z = if parts.length() >= 6 {
-        parse_double(parts[5].to_string()).unwrap_or(0.0)
+        parse_double(parts[5].to_owned()).unwrap_or(0.0)
       } else {
         0.0
       }
-      let element = if parts.length() >= 7 { parts[6].to_string() } else { "" }
+      let element = if parts.length() >= 7 { parts[6].to_owned() } else { "" }
       let charge = if parts.length() >= 8 {
-        parse_int(parts[7].to_string())
+        parse_int(parts[7].to_owned())
       } else {
         0
       }
@@ -1003,17 +1003,17 @@ pub fn mmtf_read_text(text : String) -> MmtfStructure {
         .to_array()
         .filter(fn(s) -> Bool { s.length() > 0 })
       let a1 = if parts.length() >= 2 {
-        parse_int(parts[1].to_string())
+        parse_int(parts[1].to_owned())
       } else {
         0
       }
       let a2 = if parts.length() >= 3 {
-        parse_int(parts[2].to_string())
+        parse_int(parts[2].to_owned())
       } else {
         0
       }
       let order = if parts.length() >= 4 {
-        parse_int(parts[3].to_string())
+        parse_int(parts[3].to_owned())
       } else {
         1
       }
@@ -1211,9 +1211,9 @@ pub fn mmtf_to_pdb_structure(mmtf : MmtfStructure) -> Structure {
     let pdb_chains = Array(capacity=0)
     for mmtf_chain in mmtf_model.chains {
       let chain_id : Char = if mmtf_chain.chain_name.length() > 0 {
-        Char::from_int(mmtf_chain.chain_name.unsafe_get(0).to_int())
+        (mmtf_chain.chain_name.unsafe_get(0).to_int()).unsafe_to_char()
       } else if mmtf_chain.chain_id.length() > 0 {
-        Char::from_int(mmtf_chain.chain_id.unsafe_get(0).to_int())
+        (mmtf_chain.chain_id.unsafe_get(0).to_int()).unsafe_to_char()
       } else {
         'A'
       }

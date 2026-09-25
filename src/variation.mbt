@@ -411,7 +411,7 @@ fn variation_to_uppercase(s : String) -> String {
     let c_int = c.to_int()
     if c_int >= 'a'.to_int() && c_int <= 'z'.to_int() {
       result = result +
-        (c_int - 'a'.to_int() + 'A'.to_int()).to_char().to_string()
+        (c_int - 'a'.to_int() + 'A'.to_int()).unsafe_to_char().to_string()
     } else {
       result = result + c.to_string()
     }
@@ -496,14 +496,14 @@ pub fn analyze_amino_acid_substitution(
   let grantham = grantham_matrix()
 
   let blosum_val = blosum62.get(original)
-  let blosum_score = if blosum_val.is_some() {
+  let blosum_score = if blosum_val is Some(_) {
     blosum_val.unwrap().get(mutated).unwrap_or(0)
   } else {
     0
   }
 
   let grantham_val = grantham.get(original)
-  let grantham_dist = if grantham_val.is_some() {
+  let grantham_dist = if grantham_val is Some(_) {
     grantham_val.unwrap().get(mutated).unwrap_or(0.0)
   } else {
     0.0

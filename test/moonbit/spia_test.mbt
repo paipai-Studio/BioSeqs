@@ -83,7 +83,7 @@ test "spia_sample_pathways" {
 ///|
 test "spia_sample_de_genes" {
   let de = @src.spia_sample_de_genes()
-  assert_eq(de.size(), 4)
+  assert_eq(de.length(), 4)
   assert_true(de.contains("Gene1"))
   assert_true(de.contains("Gene2"))
   assert_true(de.contains("Gene5"))

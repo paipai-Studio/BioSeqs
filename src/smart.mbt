@@ -105,7 +105,7 @@ pub fn smart_parse(content : String) -> SmartResult {
   let mut i = 0
   while i < lines.length() {
     let line = lines[i]
-    let trimmed = line.trim().to_string()
+    let trimmed = line.trim().to_owned()
     if trimmed.length() == 0 {
       i = i + 1
       continue
@@ -353,7 +353,7 @@ fn smart_split_lines(content : String) -> Array[String] {
     let ch = content[i:i + 1].to_owned()
     if ch == "\n" || ch == "\r" {
       if start < i {
-        lines.push(content[start:i].trim().to_string())
+        lines.push(content[start:i].trim().to_owned())
       }
       if ch == "\r" &&
         i + 1 < content.length() &&
@@ -365,7 +365,7 @@ fn smart_split_lines(content : String) -> Array[String] {
     i = i + 1
   }
   if start < content.length() {
-    lines.push(content[start:content.length()].trim().to_string())
+    lines.push(content[start:content.length()].trim().to_owned())
   }
   lines
 }
@@ -378,12 +378,12 @@ fn smart_split_tab(line : String) -> Array[String] {
   let mut i = 0
   while i < line.length() {
     if line[i:i + 1].to_owned() == "\t" {
-      cols.push(line[start:i].to_string())
+      cols.push(line[start:i].to_owned())
       start = i + 1
     }
     i = i + 1
   }
-  cols.push(line[start:line.length()].to_string())
+  cols.push(line[start:line.length()].to_owned())
   cols
 }
 
@@ -398,7 +398,7 @@ fn smart_split_semicolon(s : String) -> Array[String] {
   let mut i = 0
   while i < s.length() {
     if s[i:i + 1].to_owned() == ";" {
-      let item = s[start:i].trim().to_string()
+      let item = s[start:i].trim().to_owned()
       if item.length() > 0 {
         items.push(item)
       }
@@ -406,7 +406,7 @@ fn smart_split_semicolon(s : String) -> Array[String] {
     }
     i = i + 1
   }
-  let last = s[start:s.length()].trim().to_string()
+  let last = s[start:s.length()].trim().to_owned()
   if last.length() > 0 {
     items.push(last)
   }
@@ -418,12 +418,12 @@ fn smart_split_semicolon(s : String) -> Array[String] {
 fn smart_extract_value(line : String) -> String {
   let colon_pos = line.find(":")
   match colon_pos {
-    Some(pos) => line[pos + 1:line.length()].trim().to_string()
+    Some(pos) => line[pos + 1:line.length()].trim().to_owned()
     None => {
       let tab_pos = line.find("\t")
       match tab_pos {
-        Some(tp) => line[tp + 1:line.length()].trim().to_string()
-        None => line.trim().to_string()
+        Some(tp) => line[tp + 1:line.length()].trim().to_owned()
+        None => line.trim().to_owned()
       }
     }
   }

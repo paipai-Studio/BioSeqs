@@ -103,8 +103,8 @@ fn crc_u32_to_hex8(value : UInt) -> String {
   let digits = "0123456789ABCDEF"
   let buf = StringBuilder()
   for shift in [28, 24, 20, 16, 12, 8, 4, 0] {
-    let nibble = ((value >> shift) & 0xFU).to_int()
-    buf.write_char(Char::from_int(digits.unsafe_get(nibble).to_int()))
+    let nibble = ((value >> shift) & 0xFU).reinterpret_as_int()
+    buf.write_char((digits.unsafe_get(nibble).to_int()).unsafe_to_char())
   }
   buf.to_string()
 }
@@ -122,7 +122,7 @@ pub fn checksum_crc32(seq : String) -> CheckSumResult {
   let n = seq_upper.length()
   while idx < n {
     let b = seq_upper.unsafe_get(idx).to_int() & 0xFF
-    crc = (crc >> 8) ^ checksum_crc32_table[(crc ^ b.to_uint()).to_int() & 0xFF]
+    crc = (crc >> 8) ^ checksum_crc32_table[(crc ^ b.reinterpret_as_uint()).reinterpret_as_int() & 0xFF]
     idx = idx + 1
   }
   crc = crc ^ 0xFFFFFFFFU
@@ -145,8 +145,8 @@ pub fn checksum_crc64(seq : String) -> CheckSumResult {
     let shr : UInt = (crch & 0xFFU) << 24
     let temp1h : UInt = crch >> 8
     let temp1l : UInt = (crcl >> 8) | shr
-    let idx_b = (crcl ^ c.to_uint()) & 0xFFU
-    crch = temp1h ^ checksum_crc64_table_h[idx_b.to_int()]
+    let idx_b = (crcl ^ c.reinterpret_as_uint()) & 0xFFU
+    crch = temp1h ^ checksum_crc64_table_h[idx_b.reinterpret_as_int()]
     crcl = temp1l
     idx = idx + 1
   }

@@ -167,7 +167,7 @@ fn power_iteration_pca(
     let mut v : Array[Double] = Array(capacity=0)
     let mut ii = 0
     while ii < p {
-      let vv = if ii == comp { 1.0 } else { 0.5.pow(comp.to_double()) }
+      let vv = if ii == comp { 1.0 } else { @math.pow(0.5, comp.to_double()) }
       v.push(vv)
       ii = ii + 1
     }

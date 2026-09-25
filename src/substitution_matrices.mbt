@@ -280,14 +280,14 @@ pub fn SubsMatrix::to_table_string(self : SubsMatrix) -> String {
 
 ///|
 /// Registry of named matrices. Stores (name, matrix) pairs.
-let registry_keys : Ref[Array[String]] = Ref::new([])
+let registry_keys : Ref[Array[String]] = Ref::Ref([])
 
 ///|
-let registry_matrices : Ref[Array[SubsMatrix]] = Ref::new([])
+let registry_matrices : Ref[Array[SubsMatrix]] = Ref::Ref([])
 
 ///|
 /// Whether the built-in matrices have already been registered.
-let registry_initialized : Ref[Bool] = Ref::new(false)
+let registry_initialized : Ref[Bool] = Ref::Ref(false)
 
 ///|
 /// Register a substitution matrix by name.
@@ -724,7 +724,7 @@ pub fn parse_ncbi_matrix(content : String) -> SubsMatrix? {
       // This might be the header line
       for p in parts {
         if p.length() == 1 {
-          alphabet.push(p.to_string())
+          alphabet.push(p.to_owned())
         }
       }
       continue
@@ -734,17 +734,17 @@ pub fn parse_ncbi_matrix(content : String) -> SubsMatrix? {
       // First non-comment line is the header
       for p in parts {
         if p.length() >= 1 {
-          alphabet.push(p.to_string())
+          alphabet.push(p.to_owned())
         }
       }
       continue
     }
     // Data row: first part is letter, rest are scores
     if parts.length() >= 2 {
-      let row_letter = parts[0].to_string()
+      let row_letter = parts[0].to_owned()
       let scores : Array[Double] = []
       for i in 1..<parts.length() {
-        match parse_double(parts[i].to_string()) {
+        match parse_double(parts[i].to_owned()) {
           Some(v) => scores.push(v)
           None => continue
         }

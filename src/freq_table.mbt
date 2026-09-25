@@ -318,7 +318,7 @@ pub fn freq_table_read_freq(text : String) -> FreqTable {
 ///|
 /// Build a `FreqTable` from a count dictionary (Map[String, Int]).
 pub fn freq_table_from_counts(counts : Map[String, Int]) -> FreqTable {
-  let in_dict : Map[String, Double] = Map([], capacity=counts.size())
+  let in_dict : Map[String, Double] = Map([], capacity=counts.length())
   for k in counts.keys() {
     in_dict[k] = counts[k].to_double()
   }
@@ -349,7 +349,7 @@ pub fn freq_table_from_sequence(
       }
     None => ()
   }
-  let has_restrict = restrict.size() > 0
+  let has_restrict = restrict.length() > 0
   let n = sequence.length()
   let mut i = 0
   while i < n {
@@ -415,7 +415,7 @@ pub fn freq_table_normalize(table : FreqTable) -> FreqTable {
   for k in table.data.keys() {
     total = total + table.data[k]
   }
-  let out : Map[String, Double] = Map([], capacity=table.data.size())
+  let out : Map[String, Double] = Map([], capacity=table.data.length())
   for k in table.data.keys() {
     if total > 0.0 {
       out[k] = table.data[k] / total

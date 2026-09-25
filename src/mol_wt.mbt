@@ -120,7 +120,7 @@ pub fn mol_weight_dna(sequence : String) -> Double {
   let mut total = 0.0
   let mut i = 0
   while i < n {
-    let base = sequence.substring(start=i, end=i + 1)
+    let base = sequence[i:i + 1].to_owned()
     total = total + nucleotide_weight(base)
     i = i + 1
   }
@@ -148,7 +148,7 @@ pub fn mol_weight_protein(sequence : String) -> Double {
   let mut total = 0.0
   let mut i = 0
   while i < n {
-    let aa = sequence.substring(start=i, end=i + 1)
+    let aa = sequence[i:i + 1].to_owned()
     total = total + amino_acid_weight(aa)
     i = i + 1
   }
@@ -171,7 +171,7 @@ pub fn extinction_coefficient_280(sequence : String) -> Double {
   let mut n_cys = 0
   let mut i = 0
   while i < n {
-    let aa = sequence.substring(start=i, end=i + 1)
+    let aa = sequence[i:i + 1]
     match aa.to_upper() {
       "W" => n_trp = n_trp + 1
       "Y" => n_tyr = n_tyr + 1
@@ -226,7 +226,7 @@ pub fn mol_wt_isoelectric_point(sequence : String) -> Double {
   let mut n_tyr = 0 // Y
   let mut i = 0
   while i < n {
-    let aa = sequence.substring(start=i, end=i + 1)
+    let aa = sequence[i:i + 1]
     match aa.to_upper() {
       "D" => n_asp = n_asp + 1
       "E" => n_glu = n_glu + 1

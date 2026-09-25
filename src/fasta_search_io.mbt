@@ -79,7 +79,7 @@ fn fasta_sio_trim(s : String) -> String {
       break
     }
   }
-  s[start:end].to_string()
+  s[start:end].to_owned()
 }
 
 ///|
@@ -95,7 +95,7 @@ fn fasta_sio_split_whitespace(s : String) -> Array[String] {
     let is_ws = c == ' '.to_int() || c == '\t'.to_int() || c == '\r'.to_int()
     if is_ws {
       if in_token {
-        tokens.push(s[start:i].to_string())
+        tokens.push(s[start:i].to_owned())
         in_token = false
       }
     } else if !in_token {
@@ -105,7 +105,7 @@ fn fasta_sio_split_whitespace(s : String) -> Array[String] {
     i = i + 1
   }
   if in_token {
-    tokens.push(s[start:n].to_string())
+    tokens.push(s[start:n].to_owned())
   }
   tokens
 }
@@ -314,7 +314,7 @@ pub fn parse_fasta_m9(content : String) -> FastaSearchResult {
       meta.comments.push(comment)
       // "# FASTA 36.3.8h May 10, 2023"
       if fasta_sio_starts_with(comment, "# FASTA ") {
-        let rest = comment[2:comment.length()].to_string()
+        let rest = comment[2:comment.length()].to_owned()
         let parts = fasta_sio_split_whitespace(rest)
         if parts.length() > 0 {
           meta.program = parts[0]
@@ -376,7 +376,7 @@ fn fasta_sio_substr_after(s : String, marker : String) -> String {
       j = j + 1
     }
     if matched {
-      return s[i + m:n].to_string()
+      return s[i + m:n].to_owned()
     }
     i = i + 1
   }

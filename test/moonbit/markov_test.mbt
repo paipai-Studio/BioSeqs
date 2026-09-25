@@ -139,7 +139,7 @@ test "markov_generate_sequence_length_and_alphabet" {
   }
   let mut ci = 0
   while ci < g.length() {
-    let ch = g[ci:ci + 1].to_string()
+    let ch = g[ci:ci + 1].to_owned()
     assert_true(states_set.contains(ch))
     ci = ci + 1
   }

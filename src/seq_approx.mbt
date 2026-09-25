@@ -89,8 +89,8 @@ pub fn count_mismatches(s1 : String, s2 : String) -> Int {
   let mut count = 0
   let mut i = 0
   while i < len {
-    let c1 = s1.substring(start=i, end=i + 1).to_upper()
-    let c2 = s2.substring(start=i, end=i + 1).to_upper()
+    let c1 = s1[i:i + 1].to_upper()
+    let c2 = s2[i:i + 1].to_upper()
     if c1 != c2 {
       count = count + 1
     }
@@ -126,7 +126,7 @@ pub fn approx_search(
   let max_pos = qry_len - pat_len
 
   while pos <= max_pos {
-    let substr = query.substring(start=pos, end=pos + pat_len)
+    let substr = query[pos:pos + pat_len].to_owned()
     let mm = count_mismatches(pattern, substr)
 
     if mm <= max_mismatches {
@@ -216,7 +216,7 @@ pub fn approx_search_with_indels(
     let init_end = if min_end > start { min_end } else { start + 1 }
     let mut end = init_end
     while end <= max_end {
-      let seg = query.substring(start~, end~)
+      let seg = query[start:end].to_owned()
       let errors = levenshtein_distance(pattern, seg)
       if errors <= max_errors && errors < best_errors {
         best_errors = errors
@@ -241,7 +241,7 @@ pub fn approx_search_with_indels(
   }
 
   if found {
-    let seg = query.substring(start=best_start, end=best_end)
+    let seg = query[best_start:best_end]
     let score = pat_len - best_errors
     ApproxMatch::{
       pattern,
@@ -291,11 +291,11 @@ pub fn levenshtein_distance(s1 : String, s2 : String) -> Int {
   while i <= len1 {
     row = Array(capacity=0)
     row.push(i)
-    let c1 = s1.substring(start=i - 1, end=i).to_upper()
+    let c1 = s1[i - 1:i].to_upper()
 
     let mut j = 1
     while j <= len2 {
-      let c2 = s2.substring(start=j - 1, end=j).to_upper()
+      let c2 = s2[j - 1:j].to_upper()
       let cost = if c1 == c2 { 0 } else { 1 }
       let deletion = prev[j] + 1
       let insertion = row[j - 1] + 1
@@ -341,7 +341,7 @@ pub fn approx_find_all(
   let max_pos = qry_len - pat_len
 
   while pos <= max_pos {
-    let substr = query.substring(start=pos, end=pos + pat_len)
+    let substr = query[pos:pos + pat_len].to_owned()
     let mm = count_mismatches(pattern, substr)
 
     if mm <= max_mismatches {
@@ -406,7 +406,7 @@ pub fn approx_word_search(
     }
     let mut end = start + len
     while end <= max_end {
-      let seg = text.substring(start~, end~)
+      let seg = text[start:end].to_owned()
       let dist = levenshtein_distance(word, seg)
       if dist <= max_errors && dist < best_dist {
         best_dist = dist

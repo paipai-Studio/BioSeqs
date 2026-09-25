@@ -126,7 +126,7 @@ test "msig_map_collection" {
 test "msig_gene_frequency" {
   let col = @src.msig_hallmark()
   let freq = @src.msig_gene_frequency(col)
-  assert_true(freq.size() > 0)
+  assert_true(freq.length() > 0)
   let tp53 = freq.get("TP53")
   assert_true(tp53 is Some(_))
 }

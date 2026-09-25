@@ -85,7 +85,7 @@ fn main {
   // Sort and display
   println("Cell-type pair communication strengths:")
   // Since Map doesn't have iteration order, just print size
-  println("  Number of cell-type pairs: " + agg.size().to_string())
+  println("  Number of cell-type pairs: " + agg.length().to_string())
   println("")
 
   // ---- Section 7: Summary ----

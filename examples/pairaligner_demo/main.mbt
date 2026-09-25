@@ -33,7 +33,7 @@ fn main {
   let long_target = "XXXXXXXXXXACGTACGTXXXXXXXXXX"
   let short_query = "ACGTACGT"
   let aln_local = @bio.pairaligner_align(long_target, short_query, config=local_cfg)
-  println("Target context: ..." + long_target[10:18].to_string() + "...")
+  println("Target context: ..." + long_target[10:18].to_owned() + "...")
   println("Query:          " + short_query)
   println("Score: " + aln_local.score().to_string())
   println("Local alignment:")

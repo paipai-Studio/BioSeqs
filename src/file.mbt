@@ -333,9 +333,9 @@ pub fn has_compression_extension(path : String) -> Bool {
 pub fn strip_compression_extension(path : String) -> String {
   let lower = path.to_lower()
   if lower.has_suffix(".gz") {
-    path.substring(start=0, end=path.length() - 3)
+    path[0:path.length() - 3].to_owned()
   } else if lower.has_suffix(".bz2") {
-    path.substring(start=0, end=path.length() - 4)
+    path[0:path.length() - 4].to_owned()
   } else {
     path
   }

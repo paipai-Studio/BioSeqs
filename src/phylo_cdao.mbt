@@ -277,7 +277,7 @@ fn cdao_parse_children(
     let text_content = if is_self_closing {
       ""
     } else if close_pos >= 0 {
-      inner[tag_end + 1:close_pos].trim().to_string()
+      inner[tag_end + 1:close_pos].trim().to_owned()
     } else {
       ""
     }
@@ -691,8 +691,8 @@ pub fn cdao_sample_xml() -> String {
 pub fn cdao_document_summary(doc : CdaoDocument) -> String {
   let mut s = "=== CDAO Document Summary ===\n"
   s = s + "Trees: " + doc.trees.length().to_string() + "\n"
-  s = s + "Nodes: " + doc.nodes.size().to_string() + "\n"
-  s = s + "TUs: " + doc.tus.size().to_string() + "\n"
+  s = s + "Nodes: " + doc.nodes.length().to_string() + "\n"
+  s = s + "TUs: " + doc.tus.length().to_string() + "\n"
   let mut i = 0
   while i < doc.trees.length() {
     let tree = doc.trees[i]
@@ -771,10 +771,10 @@ fn cdao_get_attribute(tag_content : String, attr_name : String) -> String? {
 ///|
 /// Parse a double from a string.
 fn cdao_parse_double(s : String) -> Double {
-  let trimmed = s.trim().to_string()
+  let trimmed = s.trim().to_owned()
   let neg = trimmed[0:1].to_owned() == "-"
   let digits = if neg {
-    trimmed[1:trimmed.length()].to_string()
+    trimmed[1:trimmed.length()].to_owned()
   } else {
     trimmed
   }

@@ -233,7 +233,7 @@ pub fn graph_shortest_path(
     while i < neighbors.length() && !found {
       let neighbor = neighbors[i]
       let visited_neighbor = visited.get(neighbor)
-      if visited_neighbor.is_none() || !visited_neighbor.unwrap() {
+      if visited_neighbor is None || !visited_neighbor.unwrap() {
         visited[neighbor] = true
         parent[neighbor] = current
         if neighbor == end_id {
@@ -255,7 +255,7 @@ pub fn graph_shortest_path(
   while current != start_id {
     path.push(current)
     let p = parent.get(current)
-    if p.is_none() {
+    if p is None {
       return None
     }
     current = p.unwrap()
@@ -281,7 +281,7 @@ pub fn graph_connected_components(graph : Graph) -> Array[Array[String]] {
   while i < graph.nodes.length() {
     let node = graph.nodes[i]
     let visited_node = visited.get(node.node_id)
-    if visited_node.is_none() || !visited_node.unwrap() {
+    if visited_node is None || !visited_node.unwrap() {
       let component : Array[String] = Array(capacity=0)
       let queue : Array[String] = Array(capacity=0)
 
@@ -297,7 +297,7 @@ pub fn graph_connected_components(graph : Graph) -> Array[Array[String]] {
         while j < neighbors.length() {
           let neighbor = neighbors[j]
           let visited_neighbor = visited.get(neighbor)
-          if visited_neighbor.is_none() || !visited_neighbor.unwrap() {
+          if visited_neighbor is None || !visited_neighbor.unwrap() {
             visited[neighbor] = true
             queue.push(neighbor)
           }

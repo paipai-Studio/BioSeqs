@@ -118,7 +118,7 @@ pub fn mt_nearest_neighbor(
   // Sum over dinucleotide steps
   let mut i = 0
   while i < n - 1 {
-    let dinuc = seq_upper[i:i + 2].to_string()
+    let dinuc = seq_upper[i:i + 2].to_owned()
     let (dh_step, ds_step) = mt_nn_params(dinuc)
     dH = dH + dh_step
     dS = dS + ds_step

@@ -68,7 +68,7 @@ fn main {
   println("Fe2O3: Fe=\{f3.get("Fe").unwrap()}, O=\{f3.get("O").unwrap()}")
 
   let f4 = @bio.parse_formula("")
-  println("Empty formula: size=\{f4.size()}")
+  println("Empty formula: size=\{f4.length()}")
   println("")
 
   // Molecular weight

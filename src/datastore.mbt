@@ -93,7 +93,7 @@ pub fn Datastore::root(self : Datastore) -> String {
 ///|
 /// Number of payloads held in the bag.
 pub fn Datastore::length(self : Datastore) -> Int {
-  self.entries.size()
+  self.entries.length()
 }
 
 ///|
@@ -234,7 +234,7 @@ pub fn Datastore::total_octets(self : Datastore) -> Int {
 pub fn Datastore::payload_oxum(self : Datastore) -> String {
   datastore_int_to_string(self.total_octets()) +
   "." +
-  datastore_int_to_string(self.entries.size())
+  datastore_int_to_string(self.entries.length())
 }
 
 ///|
@@ -304,7 +304,7 @@ pub fn Datastore::verify(self : Datastore) -> Bool {
       return false
     }
   }
-  self.manifest.size() == self.entries.size()
+  self.manifest.length() == self.entries.length()
 }
 
 ///|
@@ -342,10 +342,10 @@ pub fn Datastore::load_bag(
       datastore_fail("Manifest checksum is not MD5: " + checksum)
     }
     let prefix_len = "data/".length()
-    if path.length() <= prefix_len || path[0:prefix_len].to_string() != "data/" {
+    if path.length() <= prefix_len || path[0:prefix_len].to_owned() != "data/" {
       datastore_fail("Manifest payload must live under data/: " + path)
     }
-    let name = path[prefix_len:path.length()].to_string()
+    let name = path[prefix_len:path.length()].to_owned()
     match loader(name) {
       Some(data) => {
         bag.entries[name] = data
@@ -487,7 +487,7 @@ fn datastore_byte_hex(b : Int) -> String {
   let digits = "0123456789abcdef"
   let hi = (b >> 4) & 0xF
   let lo = b & 0xF
-  digits[hi:hi + 1].to_string() + digits[lo:lo + 1].to_string()
+  digits[hi:hi + 1].to_owned() + digits[lo:lo + 1].to_owned()
 }
 
 ///|
@@ -556,7 +556,7 @@ fn datastore_rstrip(text : String) -> String {
       break
     }
   }
-  text[0:end].to_string()
+  text[0:end].to_owned()
 }
 
 ///|
@@ -569,13 +569,13 @@ fn datastore_split_lines(text : String) -> Array[String] {
   while i < n {
     let c = char_at(text, i)
     if c == "\n" {
-      lines.push(text[start:i].to_string())
+      lines.push(text[start:i].to_owned())
       start = i + 1
     }
     i = i + 1
   }
   if start < n {
-    lines.push(text[start:n].to_string())
+    lines.push(text[start:n].to_owned())
   }
   lines
 }

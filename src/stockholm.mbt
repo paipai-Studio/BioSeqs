@@ -122,7 +122,7 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
   let mut done = false
 
   while i < n && !done {
-    let line = lines[i].to_string()
+    let line = lines[i].to_owned()
     let trimmed = trim(line)
 
     if trimmed.length() == 0 {
@@ -164,7 +164,7 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
     }
 
     if starts_with(trimmed, 0, "#=GF") {
-      let rest = trim(trimmed[4:].to_string())
+      let rest = trim(trimmed[4:].to_owned())
       let parts = split_by_char(rest, ' '.to_int())
       let filtered = stockholm_filter_parts(parts)
       if filtered.length() >= 2 {
@@ -194,7 +194,7 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
     }
 
     if starts_with(trimmed, 0, "#=GC") {
-      let rest = trim(trimmed[4:].to_string())
+      let rest = trim(trimmed[4:].to_owned())
       let gc_parts = split_by_char(rest, ' '.to_int())
       let gc_filtered = stockholm_filter_parts(gc_parts)
       if gc_filtered.length() >= 2 {
@@ -220,7 +220,7 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
     }
 
     if starts_with(trimmed, 0, "#=GR") {
-      let rest = trim(trimmed[4:].to_string())
+      let rest = trim(trimmed[4:].to_owned())
       let gr_parts = split_by_char(rest, ' '.to_int())
       let gr_filtered = stockholm_filter_parts(gr_parts)
       if gr_filtered.length() >= 2 {
@@ -246,7 +246,7 @@ pub fn stockholm_parse(content : String) -> StockholmAlignment {
     }
 
     if starts_with(trimmed, 0, "#=GS") {
-      let rest = trim(trimmed[4:].to_string())
+      let rest = trim(trimmed[4:].to_owned())
       let gs_parts = split_by_char(rest, ' '.to_int())
       let gs_filtered = stockholm_filter_parts(gs_parts)
       if gs_filtered.length() >= 2 {
