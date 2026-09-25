@@ -501,3 +501,131 @@ pub fn vcf_stats(file : VcfFile) -> VcfStats {
     qual_mean: if qual_count > 0 { qual_sum / qual_count.to_double() } else { 0.0 },
   }
 }
+// ============================================================
+// bcftools annotate — add/remove/modify annotations
+// ============================================================
+
+///|
+/// Set an INFO field on every record in the VCF.
+/// If the key already exists, its value is overwritten.
+/// Mirrors `bcftools annotate --set-info KEY=VALUE`.
+pub fn vcf_annotate_set_info(file : VcfFile, key : String, value : String) -> VcfFile {
+  for rec in file.records {
+    rec.info[key] = value
+  }
+  file
+}
+
+///|
+/// Remove an INFO field from every record.
+/// Mirrors `bcftools annotate --remove-info KEY`.
+pub fn vcf_annotate_remove_info(file : VcfFile, key : String) -> VcfFile {
+  for rec in file.records {
+    rec.info.remove(key)
+  }
+  file
+}
+
+///|
+/// Rename an INFO field key across all records.
+/// Mirrors `bcftools annotate --rename-info OLD:NEW`.
+pub fn vcf_annotate_rename_info(file : VcfFile, old_key : String, new_key : String) -> VcfFile {
+  for rec in file.records {
+    match rec.info.get(old_key) {
+      Some(v) => {
+        rec.info.remove(old_key)
+        rec.info[new_key] = v
+      }
+      None => ()
+    }
+  }
+  file
+}
+
+///|
+/// Set the ID column on every record.
+/// Existing IDs are replaced. Use "." to clear.
+/// Mirrors `bcftools annotate --set-id ID`.
+pub fn vcf_annotate_set_id(file : VcfFile, id : String) -> VcfFile {
+  for rec in file.records {
+    rec.id = if id == "." { [] } else { [id] }
+  }
+  file
+}
+
+///|
+/// Set the FILTER column on every record.
+/// Mirrors `bcftools annotate --set-filter FILTER`.
+pub fn vcf_annotate_set_filter(file : VcfFile, filter_name : String) -> VcfFile {
+  for rec in file.records {
+    if filter_name == "." {
+      rec.filter = []
+    } else {
+      rec.filter = [filter_name]
+    }
+  }
+  file
+}
+
+///|
+/// Build a lookup key from CHROM:POS:REF:ALT for matching records.
+fn variant_key(chrom : String, pos : Int, ref_allele : String, alt : Array[String]) -> String {
+  let alt_str = alt.join(",")
+  chrom + ":" + pos.to_string() + ":" + ref_allele + ":" + alt_str
+}
+
+///|
+/// Copy INFO annotations from a source VCF to a target VCF by matching
+/// CHROM:POS:REF:ALT. Only keys present in the source record are copied;
+/// existing keys in the target are overwritten.
+/// Mirrors `bcftools annotate --annotations source.vcf`.
+pub fn vcf_annotate_from(target : VcfFile, source : VcfFile) -> VcfFile {
+  // Build lookup table from source
+  let lookup : Map[String, Map[String, String]] = {}
+  for rec in source.records {
+    let key = variant_key(rec.chrom, rec.pos, rec.ref_seq, rec.alt)
+    lookup[key] = rec.info
+  }
+  // Apply to target
+  for rec in target.records {
+    let key = variant_key(rec.chrom, rec.pos, rec.ref_seq, rec.alt)
+    match lookup.get(key) {
+      Some(src_info) => {
+        for k, v in src_info {
+          rec.info[k] = v
+        }
+      }
+      None => ()
+    }
+  }
+  target
+}
+
+///|
+/// Set QUAL on every record.
+/// Useful for resetting quality scores after filtering.
+/// Mirrors `bcftools annotate --set-qual VALUE`.
+pub fn vcf_annotate_set_qual(file : VcfFile, qual : Double) -> VcfFile {
+  for rec in file.records {
+    rec.qual = Some(qual)
+  }
+  file
+}
+
+///|
+/// Add an INFO field only to records that match a given FILTER tag.
+/// Useful for tagging filtered variants, e.g. adding "CONSEQUENCE=low"
+/// to all records with FILTER=LowQual.
+pub fn vcf_annotate_info_if_filter(
+  file : VcfFile,
+  filter_name : String,
+  key : String,
+  value : String
+) -> VcfFile {
+  for rec in file.records {
+    if rec.has_filter(filter_name) {
+      rec.info[key] = value
+    }
+  }
+  file
+}

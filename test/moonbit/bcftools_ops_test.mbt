@@ -209,3 +209,124 @@ test "vcf_concat" {
   assert_eq(result.records[0].pos, 100)
   assert_eq(result.records[3].chrom, "chr2")
 }
+
+// ============================================================
+// bcftools annotate tests
+// ============================================================
+
+test "vcf_annotate_set_info" {
+  let vcf = make_test_vcf()
+  let annotated = @src.vcf_annotate_set_info(vcf, "AF", "0.01")
+  for rec in annotated.records {
+    match rec.info.get("AF") {
+      Some(_) => ()
+      None => fail("expected Some")
+    }
+    assert_eq(rec.info["AF"], "0.01")
+  }
+}
+
+test "vcf_annotate_remove_info" {
+  let vcf = make_test_vcf()
+  // Record 3 has DP=20;AF=0.5
+  match vcf.records[2].info.get("AF") {
+      Some(_) => ()
+      None => fail("expected Some")
+    }
+  let cleaned = @src.vcf_annotate_remove_info(vcf, "AF")
+  for rec in cleaned.records {
+    match rec.info.get("AF") {
+      None => ()
+      Some(_) => fail("expected None")
+    }
+  }
+}
+
+test "vcf_annotate_rename_info" {
+  let vcf = make_test_vcf()
+  let renamed = @src.vcf_annotate_rename_info(vcf, "DP", "DEPTH")
+  for rec in renamed.records {
+    match rec.info.get("DP") {
+      None => ()
+      Some(_) => fail("expected None")
+    }
+    match rec.info.get("DEPTH") {
+      Some(_) => ()
+      None => fail("expected Some")
+    }
+  }
+}
+
+test "vcf_annotate_set_id" {
+  let vcf = make_test_vcf()
+  let annotated = @src.vcf_annotate_set_id(vcf, "rs12345")
+  for rec in annotated.records {
+    assert_eq(rec.id.length(), 1)
+    assert_eq(rec.id[0], "rs12345")
+  }
+  // Clear with "."
+  let cleared = @src.vcf_annotate_set_id(vcf, ".")
+  for rec in cleared.records {
+    assert_eq(rec.id.length(), 0)
+  }
+}
+
+test "vcf_annotate_set_filter" {
+  let vcf = make_test_vcf()
+  let annotated = @src.vcf_annotate_set_filter(vcf, "LowQual")
+  for rec in annotated.records {
+    assert_eq(rec.filter.length(), 1)
+    assert_eq(rec.filter[0], "LowQual")
+  }
+  // Clear with "."
+  let cleared = @src.vcf_annotate_set_filter(vcf, ".")
+  for rec in cleared.records {
+    assert_eq(rec.filter.length(), 0)
+  }
+}
+
+test "vcf_annotate_set_qual" {
+  let vcf = make_test_vcf()
+  let annotated = @src.vcf_annotate_set_qual(vcf, 99.0)
+  for rec in annotated.records {
+    match rec.qual {
+      Some(q) => assert_eq(q, 99.0)
+      None => fail("qual should be set")
+    }
+  }
+}
+
+test "vcf_annotate_info_if_filter" {
+  let vcf = make_test_vcf()
+  // Record 2 has LowQual filter
+  let annotated = @src.vcf_annotate_info_if_filter(vcf, "LowQual", "CONSEQUENCE", "low")
+  // Record 2 should have the new info
+  assert_eq(annotated.records[1].info["CONSEQUENCE"], "low")
+  // Other records should NOT have it
+  match annotated.records[0].info.get("CONSEQUENCE") {
+      None => ()
+      Some(_) => fail("expected None")
+    }
+}
+
+test "vcf_annotate_from" {
+  let target = make_test_vcf()
+  // Source has matching record at chr1:100 with extra INFO
+  let source_text =
+    #|##fileformat=VCFv4.2
+    #|#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+    #|chr1	100	.	A	G	50	PASS	DP=10;GENE=BRCA1;IMPACT=HIGH
+    #|chr1	200	.	AT	A	30	PASS	DP=5;GENE=TP53
+  let source = @src.parse_vcf(source_text)
+  let annotated = @src.vcf_annotate_from(target, source)
+  // Record at chr1:100 should now have GENE and IMPACT
+  assert_eq(annotated.records[0].info["GENE"], "BRCA1")
+  assert_eq(annotated.records[0].info["IMPACT"], "HIGH")
+  // Record at chr1:200 should have GENE
+  assert_eq(annotated.records[1].info["GENE"], "TP53")
+  // Record at chr1:300 has no match in source → no new annotations
+  match annotated.records[2].info.get("GENE") {
+      None => ()
+      Some(_) => fail("expected None")
+    }
+}

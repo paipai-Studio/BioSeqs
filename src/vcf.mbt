@@ -28,11 +28,11 @@ pub struct VcfFixedHeader {
 pub struct VcfRecord {
   chrom : String
   pos : Int
-  id : Array[String]
+  mut id : Array[String]
   ref_seq : String
   alt : Array[String]
-  qual : Double?
-  filter : Array[String]
+  mut qual : Double?
+  mut filter : Array[String]
   info : Map[String, String]
   format : Array[String]?
   samples : Map[String, Array[String]]
