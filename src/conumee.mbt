@@ -245,11 +245,11 @@ pub fn cnm_compare_samples(a : CnmSample, b : CnmSample) -> CnmComparison {
   }
   let mut correlation = 0.0
   if corr_pairs.length() > 1 {
-    var sum_x = 0.0
-    var sum_y = 0.0
-    var sum_xy = 0.0
-    var sum_x2 = 0.0
-    var sum_y2 = 0.0
+    let mut sum_x = 0.0
+    let mut sum_y = 0.0
+    let mut sum_xy = 0.0
+    let mut sum_x2 = 0.0
+    let mut sum_y2 = 0.0
     for p in corr_pairs {
       let (x, y) = p
       sum_x = sum_x + x
@@ -299,7 +299,7 @@ pub fn cnm_segments_tsv(segments : Array[CnmSegment]) -> String {
   let sb = StringBuilder()
   sb.write_string("chr\tstart\tend\tn_probes\tmean_logratio\tcopy_number\tgenes\n")
   for seg in segments {
-    var gene_list = ""
+    let mut gene_list = ""
     for i in 0..<seg.genes.length() {
       if i > 0 { gene_list = gene_list + "," }
       gene_list = gene_list + seg.genes[i]
@@ -333,8 +333,8 @@ pub fn cnm_ascii_plot(
   if chr_segs.length() == 0 {
     return chr + ": no segments"
   }
-  var min_pos = chr_segs[0].start
-  var max_pos = chr_segs[0].end
+  let mut min_pos = chr_segs[0].start
+  let mut max_pos = chr_segs[0].end
   for seg in chr_segs {
     if seg.start < min_pos { min_pos = seg.start }
     if seg.end > max_pos { max_pos = seg.end }

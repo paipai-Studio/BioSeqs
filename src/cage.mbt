@@ -301,9 +301,9 @@ pub fn cage_annotate_tss(
   let downstream = promoter_downstream
   let annotations : Array[CageAnnotation] = Array(capacity=0)
   for cl in clusters {
-    var min_dist = 1000000000
-    var nearest_gene = ""
-    var nearest_feature = "intergenic"
+    let mut min_dist = 1000000000
+    let mut nearest_gene = ""
+    let mut nearest_feature = "intergenic"
     for g in gene_tss {
       let (gene, tss_pos, g_strand, g_chr) = g
       if g_chr != cl.chr || g_strand != cl.strand {
@@ -344,9 +344,9 @@ pub fn cage_cluster_summary(
   if n == 0 {
     return (0, 0, 0.0, 0.0, 0.0)
   }
-  var total_tags = 0
-  var total_ctss = 0
-  var total_shape = 0.0
+  let mut total_tags = 0
+  let mut total_ctss = 0
+  let mut total_shape = 0.0
   for cl in clusters {
     total_tags = total_tags + cl.total_tags
     total_ctss = total_ctss + cl.n_ctss
