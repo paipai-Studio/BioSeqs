@@ -99,13 +99,13 @@ test "lmm_fit_variance_components_finite" {
   let y = [1.0, 1.2, 2.1, 3.0, 2.2, 1.1]
   let x = lmm_intercept(n)
   let model = @src.lmm_fit(y, x, k)
-  assert_true(not(model.sigma2_g().is_nan()))
-  assert_true(not(model.sigma2_e().is_nan()))
+  assert_true(!(model.sigma2_g().is_nan()))
+  assert_true(!(model.sigma2_e().is_nan()))
   assert_true(model.sigma2_g() >= 0.0)
   assert_true(model.sigma2_e() >= 0.0)
   let h = model.heritability()
   assert_true(h >= 0.0 && h <= 1.0)
-  assert_true(not(model.log_likelihood().is_nan()))
+  assert_true(!(model.log_likelihood().is_nan()))
 }
 
 // ============================================================
@@ -188,7 +188,7 @@ test "lmm_associate_structured_kinship" {
   let model = @src.lmm_fit(y, x, k)
   let results = @src.lmm_associate(model, [causal, null_snp])
   assert_eq(results.length(), 2)
-  assert_true(not(results[0].p_value().is_nan()))
-  assert_true(not(results[1].p_value().is_nan()))
+  assert_true(!(results[0].p_value().is_nan()))
+  assert_true(!(results[1].p_value().is_nan()))
   assert_true(results[0].p_value() < results[1].p_value())
 }

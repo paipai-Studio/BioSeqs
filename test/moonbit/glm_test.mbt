@@ -82,7 +82,7 @@ test "glm_poisson_log_likelihood_finite" {
   // Log-likelihood should be a finite negative number.
   let ll = result.log_likelihood()
   assert_true(ll < 0.0)
-  assert_true(not(ll.is_nan()))
+  assert_true(!(ll.is_nan()))
 }
 
 // ============================================================
