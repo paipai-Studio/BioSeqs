@@ -192,3 +192,22 @@ test "lmm_associate_structured_kinship" {
   assert_true(!(results[1].p_value().is_nan()))
   assert_true(results[0].p_value() < results[1].p_value())
 }
+
+// ============================================================
+// 解析解对拍：K=I 时 LMM beta 退化为 OLS
+// ============================================================
+
+test "lmm_identity_kinship_matches_ols" {
+  // 同一组数据 y=0.8+2.3x；K=I 时 GLS 固定效应应退化为 OLS 解。
+  let xs = [0.0, 1.0, 2.0, 3.0]
+  let ys = [1.0, 3.0, 5.0, 8.0]
+  let x : Array[Array[Double]] = []
+  for v in xs {
+    x.push([1.0, v])
+  }
+  let k = lmm_identity(4)
+  let model = @src.lmm_fit(ys, x, k)
+  let b = model.beta()
+  assert_true(lmm_approx(b[0], 0.8, 1.0e-3))
+  assert_true(lmm_approx(b[1], 2.3, 1.0e-3))
+}

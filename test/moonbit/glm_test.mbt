@@ -222,3 +222,58 @@ test "glm_default_links" {
   assert_eq(@src.glm_default_link(@src.glm_family_poisson()), @src.glm_link_log())
   assert_eq(@src.glm_default_link(@src.glm_family_binomial()), @src.glm_link_logit())
 }
+
+// ============================================================
+// 解析解对拍（验证 IRLS 正确性，而非仅自查一致）
+// ============================================================
+
+test "glm_ols_matches_analytic_closed_form" {
+  // y = 0.8 + 2.3x 的最小二乘精确解（数据 y=[1,3,5,8], x=[0,1,2,3]）
+  let xs = [0.0, 1.0, 2.0, 3.0]
+  let ys = [1.0, 3.0, 5.0, 8.0]
+  let x = glm_design(xs)
+  let result = @src.glm_fit_irls(x, ys, @src.glm_family_gaussian())
+  let b = result.coefficients()
+  // 解析：beta1 = 11.5/5 = 2.3, beta0 = 4.25 - 2.3*1.5 = 0.8
+  assert_true(approx(b[0], 0.8, 1.0e-4))
+  assert_true(approx(b[1], 2.3, 1.0e-4))
+  // 解析：RSS = 0.30, scale = RSS/(n-2) = 0.15
+  assert_true(approx(result.deviance(), 0.30, 1.0e-6))
+  assert_true(approx(result.scale(), 0.15, 1.0e-6))
+  assert_eq(result.df_residual(), 2)
+}
+
+test "glm_ols_wald_matches_t_statistic" {
+  // SE(beta1) = sqrt(scale * [(X'X)^-1]_11) = sqrt(0.15 * 0.2) = sqrt(0.03)
+  // z = 2.3 / sqrt(0.03) ≈ 13.279
+  let xs = [0.0, 1.0, 2.0, 3.0]
+  let ys = [1.0, 3.0, 5.0, 8.0]
+  let x = glm_design(xs)
+  let result = @src.glm_fit_irls(x, ys, @src.glm_family_gaussian())
+  let wald = @src.glm_wald_test(result, 1)
+  assert_true(approx(wald.statistic(), 2.3 / 0.03.sqrt(), 0.02))
+  assert_true(wald.p_value() < 0.0001)
+}
+
+test "glm_poisson_intercept_matches_log_mean" {
+  // Poisson(intercept only)：beta0 = ln(mean(y))，这是 MLE 的解析解。
+  let ys = [1.0, 2.0, 3.0, 4.0]
+  let x0 : Array[Array[Double]] = []
+  for _ in 0..<ys.length() {
+    x0.push([1.0])
+  }
+  let result = @src.glm_fit_irls(x0, ys, @src.glm_family_poisson())
+  assert_true(approx(result.coefficients()[0], @math.ln(2.5), 1.0e-4))
+}
+
+test "glm_logistic_intercept_matches_logit" {
+  // Binomial/Bernoulli(intercept only)：beta0 = logit(mean(y))，解析解。
+  let ys = [0.0, 0.0, 1.0, 1.0, 1.0]
+  let x0 : Array[Array[Double]] = []
+  for _ in 0..<ys.length() {
+    x0.push([1.0])
+  }
+  let result = @src.glm_fit_irls(x0, ys, @src.glm_family_binomial())
+  // mean = 0.6, logit = ln(0.6/0.4) = ln(1.5)
+  assert_true(approx(result.coefficients()[0], @math.ln(1.5), 1.0e-4))
+}
