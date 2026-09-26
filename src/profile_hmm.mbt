@@ -56,7 +56,7 @@ pub struct ProfileHMM {
   background : Map[String, Double]
   /// Number of sequences the profile was built from.
   n_seqs : Int
-} derive(Show)
+} derive(Debug)
 
 ///|
 /// Get the number of match states (profile length).
@@ -225,7 +225,7 @@ enum PState {
   M(Int) // M_k, k >= 1
   I(Int) // I_k, k >= 0
   D(Int) // D_k, k >= 1
-} derive(Eq, Show)
+} derive(Eq, Debug)
 
 ///|
 /// Count a single transition between two path states, incrementing the

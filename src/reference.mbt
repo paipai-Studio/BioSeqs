@@ -357,7 +357,7 @@ pub fn ReferenceList::bibliography(self : ReferenceList) -> String {
   let mut s = ""
   let mut i = 0
   while i < self.refs.length() {
-    s = s + (i + 1).to_string() + ". " + self.refs[i].citation() + "\n"
+    s = s + (i + 1).to_string() + ". " + AbstractReference::citation(self.refs[i]) + "\n"
     i = i + 1
   }
   s

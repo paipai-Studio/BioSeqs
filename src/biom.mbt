@@ -574,7 +574,7 @@ fn biom_parse_double(s : String) -> Double {
       } else {
         int_part = int_part * 10.0 + digit
       }
-    } else if c == 46 && not(in_frac) { // '.'
+    } else if c == 46 && !(in_frac) { // '.'
       in_frac = true
     } else if c == 101 || c == 69 { // 'e' or 'E'
       // Simple exponent handling
@@ -584,7 +584,7 @@ fn biom_parse_double(s : String) -> Double {
     }
     i = i + 1
   }
-  if not(seen_digit) {
+  if !(seen_digit) {
     return 0.0
   }
   let result = int_part + frac_part
@@ -617,7 +617,7 @@ pub fn parse_biom_tsv(text : String) -> BiomTable? {
     k = 0
     while k < lines.length() {
       let line = lines[k].trim()
-      if line.length() > 0 && not(line.has_prefix("#")) {
+      if line.length() > 0 && !(line.has_prefix("#")) {
         header_idx = k
         break
       }
@@ -688,13 +688,13 @@ pub fn BiomTable::merge(
   let all_sample_ids : Array[String] = []
   let samp_seen : Map[String, Int] = {}
   for id in self.sample_ids {
-    if not(samp_seen.contains(id)) {
+    if !(samp_seen.contains(id)) {
       samp_seen[id] = all_sample_ids.length()
       all_sample_ids.push(id)
     }
   }
   for id in other.sample_ids {
-    if not(samp_seen.contains(id)) {
+    if !(samp_seen.contains(id)) {
       samp_seen[id] = all_sample_ids.length()
       all_sample_ids.push(id)
     }
@@ -703,13 +703,13 @@ pub fn BiomTable::merge(
   let all_obs_ids : Array[String] = []
   let obs_seen : Map[String, Int] = {}
   for id in self.observation_ids {
-    if not(obs_seen.contains(id)) {
+    if !(obs_seen.contains(id)) {
       obs_seen[id] = all_obs_ids.length()
       all_obs_ids.push(id)
     }
   }
   for id in other.observation_ids {
-    if not(obs_seen.contains(id)) {
+    if !(obs_seen.contains(id)) {
       obs_seen[id] = all_obs_ids.length()
       all_obs_ids.push(id)
     }
