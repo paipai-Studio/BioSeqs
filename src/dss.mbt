@@ -5,14 +5,6 @@
 /// and differential methylation analysis for bisulfite sequencing data.
 
 ///|
-/// Dispersion estimation methods
-pub enum DSSDispMethod {
-  /// Maximum likelihood estimation
-  ML
-  /// Shrinkage estimator
-  Shrink
-}
-
 ///|
 /// Result of dispersion estimation
 pub struct DSSDispResult {

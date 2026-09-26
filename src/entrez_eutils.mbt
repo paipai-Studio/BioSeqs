@@ -731,7 +731,7 @@ pub fn elink(
 
 ///|
 /// Parse an ELink XML response.
-pub fn parse_elink(xml : String) -> Array[EntrezLinkSet] raise EntrezUtilError {
+pub fn parse_elink(xml : String) -> Array[EntrezLinkSet] {
   let result : Array[EntrezLinkSet] = Array(capacity=0)
   for block in entrez_blocks(xml, "LinkSet") {
     let db_from = entrez_extract_text(block, "DbFrom").unwrap_or("")

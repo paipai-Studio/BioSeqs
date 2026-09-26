@@ -2,14 +2,6 @@
 /// VCF format parsing module, matching pysam VCF specification.
 
 ///|
-/// VCF header line type.
-pub enum VcfHeaderType {
-  Meta
-  Fixed
-} derive(Eq)
-pub extend VcfHeaderType with Eq::{equal, not_equal}
-
-///|
 /// VCF meta header record (## lines).
 pub struct VcfMetaHeader {
   key : String

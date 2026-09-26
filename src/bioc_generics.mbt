@@ -4,13 +4,6 @@
 /// Provides generic functions shared across Bioconductor packages.
 
 ///|
-pub enum NAValue {
-  NAInt
-  NADouble
-  NAString
-  NABool
-}
-
 ///|
 pub fn na_int() -> Int {
   -2147483648

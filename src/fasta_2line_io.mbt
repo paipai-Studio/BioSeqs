@@ -17,14 +17,14 @@
 /// and the description is the remainder. A sequence unexpectedly split
 /// over several lines is handled like standard multi-line FASTA (the
 /// lines are concatenated).
-pub fn parse_fasta_2line(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_fasta_2line(content : String) -> Array[SeqRecord] {
   parse_fasta(content)
 }
 
 ///|
 /// Write records as two-line FASTA: one ">" header line plus one single
 /// unwrapped sequence line per record.
-pub fn write_fasta_2line(records : Array[SeqRecord]) -> String raise SeqIOError {
+pub fn write_fasta_2line(records : Array[SeqRecord]) -> String {
   let buf = StringBuilder()
   for rec in records {
     buf.write_char('>')

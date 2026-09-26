@@ -10,19 +10,9 @@ pub enum SCnormMethod {
   Quantile
   /// LOESS-based normalization
   Loess
-  /// Spline-based normalization
-  Spline
 }
 
 ///|
-/// Gene filtering method
-pub enum SCnormFilterMethod {
-  /// Filter by expression threshold
-  Threshold
-  /// Filter by percentage of cells expressing
-  Percent
-}
-
 ///|
 /// Result of quantile regression
 pub struct SCnormQuantFit {

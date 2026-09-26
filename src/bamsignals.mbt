@@ -12,8 +12,6 @@ pub enum BamsigCountMode {
   Sense
   /// Only count reads on opposite strand
   Antisense
-  /// Count paired-end reads as single events
-  PairedEnd
 } derive(Eq)
 pub extend BamsigCountMode with Eq::{equal, not_equal}
 

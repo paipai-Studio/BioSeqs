@@ -53,7 +53,7 @@ fn writeext_split_annotation(value : String) -> Array[String] {
 /// round-trips through parse_swiss_records.
 pub fn write_swiss_records(
   records : Array[SeqRecord],
-) -> String raise SeqIOError {
+) -> String {
   let buf = StringBuilder()
   for rec in records {
     let seq = rec.seq.to_string()
@@ -121,7 +121,7 @@ pub fn write_swiss_records(
 ///|
 /// Write records in PIR/NBRF format: ">P1;<id>" header, description line,
 /// and the sequence wrapped at 60 columns with a trailing '*'.
-pub fn write_pir_records(records : Array[SeqRecord]) -> String raise SeqIOError {
+pub fn write_pir_records(records : Array[SeqRecord]) -> String {
   let buf = StringBuilder()
   for rec in records {
     let seq = rec.seq.to_string()
@@ -168,7 +168,7 @@ fn writeext_location_string(feature : SeqFeature) -> String {
 /// the InsdcFeature feature table.
 pub fn write_embl_records(
   records : Array[SeqRecord],
-) -> String raise SeqIOError {
+) -> String {
   let buf = StringBuilder()
   for rec in records {
     let seq = rec.seq.to_string()
@@ -209,7 +209,7 @@ pub fn write_embl_records(
 /// existing imgt_write serializer.
 pub fn write_imgt_records(
   records : Array[SeqRecord],
-) -> String raise SeqIOError {
+) -> String {
   let imgt_records : Array[ImgtRecord] = Array(capacity=0)
   for rec in records {
     let header = ImgtHeader::new(
@@ -235,7 +235,7 @@ pub fn write_imgt_records(
 ///|
 /// Write records in IntelliGenetics format, reusing the existing
 /// SeqRecord -> IgRecord conversion and file serializer.
-pub fn write_ig_records(records : Array[SeqRecord]) -> String raise SeqIOError {
+pub fn write_ig_records(records : Array[SeqRecord]) -> String {
   ig_records_to_string(ig_from_seq_records(records), None)
 }
 
@@ -244,7 +244,7 @@ pub fn write_ig_records(records : Array[SeqRecord]) -> String raise SeqIOError {
 /// SeqXmlDocument conversion and serializer.
 pub fn write_seqxml_records(
   records : Array[SeqRecord],
-) -> String raise SeqIOError {
+) -> String {
   seqxml_to_xml(seqxml_from_seq_records(records))
 }
 

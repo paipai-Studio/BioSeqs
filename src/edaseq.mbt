@@ -19,10 +19,6 @@ pub enum EDASeqNormType {
 pub enum EDASeqWithinMethod {
   /// GC content normalization
   GCContent
-  /// Gene length normalization
-  GeneLength
-  /// Both GC and length (loess)
-  Both
 }
 
 ///|

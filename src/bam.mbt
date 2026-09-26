@@ -931,7 +931,7 @@ pub struct CramFile {
 fn cram_parse_version(
   data : String,
   pos : Int,
-) -> (CramVersion, Int) raise CramError {
+) -> (CramVersion, Int) {
   let (major, pos1) = read_uint32_le(data, pos)
   let (minor, pos2) = read_uint32_le(data, pos1)
   (CramVersion::{ major, minor, }, pos2)

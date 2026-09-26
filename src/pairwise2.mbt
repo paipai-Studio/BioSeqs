@@ -4,15 +4,6 @@
 /// Provides customizable global/local alignment with arbitrary scoring matrices.
 
 ///|
-/// Global vs local alignment mode.
-pub enum PairwiseMode {
-  Global
-  Local
-  GlobalMS
-  LocalMS
-}
-
-///|
 /// Alignment result from Pairwise2.
 pub struct PairwiseAlignResult {
   aligned_seq1 : String

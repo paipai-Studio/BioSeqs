@@ -42,7 +42,7 @@ fn unify_set_annotation(
 
 ///|
 /// Normalize a Swiss-Prot record into a SeqRecord.
-fn unify_swiss_to_record(entry : SwissProtRecord) -> SeqRecord raise SeqIOError {
+fn unify_swiss_to_record(entry : SwissProtRecord) -> SeqRecord {
   let annotations : Map[String, String] = Map([], capacity=16)
   unify_set_annotation(
     annotations,
@@ -138,7 +138,7 @@ pub fn parse_swiss_records(
 /// `parse_uniprot_xml` + `uniprot_to_seqrecord` pair.
 pub fn parse_uniprot_xml_records(
   content : String,
-) -> Array[SeqRecord] raise SeqIOError {
+) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }
@@ -160,7 +160,7 @@ pub fn parse_uniprot_xml_records(
 /// `seqxml_parse` + `seqxml_to_seq_records` pair.
 pub fn parse_seqxml_records(
   content : String,
-) -> Array[SeqRecord] raise SeqIOError {
+) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }
@@ -172,7 +172,7 @@ pub fn parse_seqxml_records(
 /// 13 header fields mirrored into annotations (spec design 1.2.3).
 pub fn parse_imgt_records(
   content : String,
-) -> Array[SeqRecord] raise SeqIOError {
+) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }
@@ -215,7 +215,7 @@ pub fn parse_imgt_records(
 ///|
 /// Parse IntelliGenetics content into SeqRecords, bridging the existing
 /// `ig_parse` + `ig_to_seq_records` pair.
-pub fn parse_ig_records(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_ig_records(content : String) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }
@@ -342,7 +342,7 @@ pub fn parse_insdc_records(
 ///|
 /// Parse PHD content into SeqRecords: one record per read with per-base
 /// qualities stored in letter_annotations["phred_quality"].
-pub fn parse_phd_records(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_phd_records(content : String) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }
@@ -372,7 +372,7 @@ pub fn parse_phd_records(content : String) -> Array[SeqRecord] raise SeqIOError 
 /// sequence, with the contig name as id and read counts etc. in
 /// annotations. Contig base qualities are attached as phred_quality when
 /// their length matches the consensus.
-pub fn parse_ace_records(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_ace_records(content : String) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }
@@ -417,7 +417,7 @@ pub fn parse_ace_records(content : String) -> Array[SeqRecord] raise SeqIOError 
 ///|
 /// Parse GFA content into SeqRecords, bridging the existing
 /// `gfa_parse` + `gfa_get_segments_as_records` pair.
-pub fn parse_gfa_records(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_gfa_records(content : String) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }
@@ -429,7 +429,7 @@ pub fn parse_gfa_records(content : String) -> Array[SeqRecord] raise SeqIOError 
 /// parser already produces SeqRecord).
 pub fn parse_pdb_seqres_records(
   content : String,
-) -> Array[SeqRecord] raise SeqIOError {
+) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }
@@ -441,7 +441,7 @@ pub fn parse_pdb_seqres_records(
 /// already produces SeqRecord).
 pub fn parse_pdb_atom_records(
   content : String,
-) -> Array[SeqRecord] raise SeqIOError {
+) -> Array[SeqRecord] {
   if content.trim() == "" {
     return []
   }

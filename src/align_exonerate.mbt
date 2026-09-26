@@ -773,7 +773,7 @@ fn align_exonerate_format_header(
 ///|
 fn align_exonerate_format_vulgar(
   alignment : AlignExonerateAlignment,
-) -> String raise AlignExonerateError {
+) -> String {
   let words = ["vulgar:"]
   for word in align_exonerate_format_header(alignment) {
     words.push(word)

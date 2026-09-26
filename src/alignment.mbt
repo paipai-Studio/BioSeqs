@@ -1,10 +1,4 @@
 ///|
-/// Error raised by skbio alignment operations.
-pub suberror AlignError {
-  AlignError(String)
-}
-
-///|
 /// DNA sequence type.
 pub struct DNA {
   seq : Seq

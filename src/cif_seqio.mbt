@@ -49,7 +49,7 @@ fn cif_category(
 /// 1-letter code via `three_to_one_aa` (unknown residues become "X").
 /// When the category is missing the function returns an empty array
 /// without raising (spec 5.2.3.2).
-pub fn parse_cif_seqres(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_cif_seqres(content : String) -> Array[SeqRecord] {
   let block = parse_mmcif(content)
   let records : Array[SeqRecord] = Array(capacity=0)
   let (headers, rows) = cif_category(block, "entity_poly_seq")
@@ -148,7 +148,7 @@ pub fn parse_cif_seqres(content : String) -> Array[SeqRecord] raise SeqIOError {
 /// Water molecules are skipped and non-standard residues become "X".
 /// Chains with no atomic coordinates are omitted; a missing `atom_site`
 /// category returns an empty array (spec 5.2.3.2).
-pub fn parse_cif_atom(content : String) -> Array[SeqRecord] raise SeqIOError {
+pub fn parse_cif_atom(content : String) -> Array[SeqRecord] {
   let block = parse_mmcif(content)
   let records : Array[SeqRecord] = Array(capacity=0)
   let (headers, rows) = cif_category(block, "atom_site")

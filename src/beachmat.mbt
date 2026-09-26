@@ -21,8 +21,6 @@
 /// Storage modes for matrix data.
 enum BmatStorageMode {
   Dense
-  Sparse
-  Delayed
 }
 
 ///|

@@ -242,16 +242,6 @@ pub fn NucDynamicResult::nuc_direction(self : NucDynamicResult) -> Int {
 }
 
 ///|
-/// Smoothing methods
-pub enum NucSmoothMethod {
-  /// Moving average
-  MovingAverage
-  /// Gaussian kernel
-  Gaussian
-  /// Savitzky-Golay
-  SavitzkyGolay
-}
-
 ///|
 /// Nucleosome calling parameters
 pub struct NucCallParams {

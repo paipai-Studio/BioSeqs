@@ -9,12 +9,6 @@
 pub enum CswNormMethod {
   /// TMM (trimmed mean of M-values)
   TMM
-  /// Loess normalization based on input
-  Loess
-  /// Simple library size normalization
-  Library
-  /// No normalization
-  None
 }
 
 ///|
@@ -26,8 +20,6 @@ pub enum CswFilterStatus {
   LowAbundance
   /// Window fails spatial filter (merged with neighbor)
   Merged
-  /// Window excluded
-  Excluded
 } derive(Eq)
 pub extend CswFilterStatus with Eq::{equal, not_equal}
 

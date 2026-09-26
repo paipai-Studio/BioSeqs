@@ -18,16 +18,6 @@ pub struct ResidueId {
 pub extend ResidueId with Eq::{equal, not_equal}
 
 ///|
-/// Selection level enum for structure traversal.
-pub enum SelectionLevel {
-  AtomLevel
-  ResidueLevel
-  ChainLevel
-  ModelLevel
-  StructureLevel
-}
-
-///|
 /// Dice selection result containing extracted structure info.
 pub struct DiceResult {
   structure_id : String
