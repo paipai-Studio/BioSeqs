@@ -541,28 +541,28 @@ fn alignment_counts_add_gap(
 ) -> Unit {
   let side = if start == left { 0 } else if end == right { 2 } else { 1 }
   let open = if continuation { 0 } else { 1 }
-  let extend = if continuation { size } else { size - 1 }
+  let ext = if continuation { size } else { size - 1 }
   if insertion {
     if side == 0 {
       counts.open_left_insertions = counts.open_left_insertions + open
-      counts.extend_left_insertions = counts.extend_left_insertions + extend
+      counts.extend_left_insertions = counts.extend_left_insertions + ext
     } else if side == 1 {
       counts.open_internal_insertions = counts.open_internal_insertions + open
       counts.extend_internal_insertions = counts.extend_internal_insertions +
-        extend
+        ext
     } else {
       counts.open_right_insertions = counts.open_right_insertions + open
-      counts.extend_right_insertions = counts.extend_right_insertions + extend
+      counts.extend_right_insertions = counts.extend_right_insertions + ext
     }
   } else if side == 0 {
     counts.open_left_deletions = counts.open_left_deletions + open
-    counts.extend_left_deletions = counts.extend_left_deletions + extend
+    counts.extend_left_deletions = counts.extend_left_deletions + ext
   } else if side == 1 {
     counts.open_internal_deletions = counts.open_internal_deletions + open
-    counts.extend_internal_deletions = counts.extend_internal_deletions + extend
+    counts.extend_internal_deletions = counts.extend_internal_deletions + ext
   } else {
     counts.open_right_deletions = counts.open_right_deletions + open
-    counts.extend_right_deletions = counts.extend_right_deletions + extend
+    counts.extend_right_deletions = counts.extend_right_deletions + ext
   }
 }
 

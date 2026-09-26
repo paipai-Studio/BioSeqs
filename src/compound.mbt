@@ -156,10 +156,10 @@ pub fn Compound::get_aliases(self : Compound) -> Array[String] {
 
 ///|
 /// Add an alias.
-pub fn Compound::add_alias(self : Compound, alias : String) -> Compound {
+pub fn Compound::add_alias(self : Compound, alias_ : String) -> Compound {
   let c = self
   let new_aliases = c.aliases.copy()
-  new_aliases.push(alias)
+  new_aliases.push(alias_)
   Compound::{
     id: c.id,
     name: c.name,

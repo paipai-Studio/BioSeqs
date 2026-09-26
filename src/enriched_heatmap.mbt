@@ -164,7 +164,7 @@ pub struct NormalizedMatrix {
   /// Column indices for downstream region.
   downstreamIndex : Array[Int]
   /// Extension in bp [up, down].
-  extend : (Int, Int)
+  extent : (Int, Int)
   /// Whether smoothing was applied.
   smooth : Bool
   /// Background value used.
@@ -549,7 +549,7 @@ pub fn normalize_to_matrix(
       upstreamIndex: [],
       targetIndex: [],
       downstreamIndex: [],
-      extend: (config.extendUp, config.extendDown),
+      extent: (config.extendUp, config.extendDown),
       smooth: config.smooth,
       background: config.background,
       nRows: 0,
@@ -630,7 +630,7 @@ pub fn normalize_to_matrix(
     upstreamIndex,
     targetIndex,
     downstreamIndex,
-    extend: (config.extendUp, config.extendDown),
+    extent: (config.extendUp, config.extendDown),
     smooth: config.smooth,
     background: config.background,
     nRows: n_targets,
@@ -712,9 +712,9 @@ pub fn enriched_heatmap_summary(mat : NormalizedMatrix) -> String {
   )
   buf.write_string(
     "  Extension: " +
-    mat.extend.0.to_string() +
+    mat.extent.0.to_string() +
     " up, " +
-    mat.extend.1.to_string() +
+    mat.extent.1.to_string() +
     " down\n",
   )
   buf.write_string("  Smoothed: " + mat.smooth.to_string() + "\n")

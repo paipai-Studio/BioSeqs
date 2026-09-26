@@ -127,7 +127,7 @@ test "scop_raf_seqmap_extend_and_flags" {
     raf_line("1sct", "B", "0.01", "150212", [("1", "V", "V")]),
   )
   // matching everything: flags kept
-  a.extend(b)
+  a.merge(b)
   assert_eq(a.length(), 2)
   assert_eq(a.get(1).chainid, "B")
   assert_eq(a.flags, "150212")
@@ -135,7 +135,7 @@ test "scop_raf_seqmap_extend_and_flags" {
   let c = @src.scop_raf_seqmap_parse(
     raf_line("1sct", "C", "0.01", "      ", [("2", "L", "L")]),
   )
-  a.extend(c)
+  a.merge(c)
   assert_eq(a.length(), 3)
   assert_eq(a.flags, "")
   // different proteins are rejected
@@ -143,7 +143,7 @@ test "scop_raf_seqmap_extend_and_flags" {
     raf_line("1xyz", "A", "0.01", "      ", [("1", "A", "A")]),
   )
   let r = try {
-    a.extend(d)
+    a.merge(d)
     false
   } catch {
     ScopRafError(msg) => msg == "Cannot add fragments from different proteins"

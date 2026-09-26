@@ -318,9 +318,9 @@ fn pqs_score_pqs(
   features.ll1 = l[0]
   features.ll2 = l[1]
   features.ll3 = l[2]
-  let final = score - loop_penalties[l[0] + l[1] + l[2]]
-  if final > 0 {
-    final
+  let score_final = score - loop_penalties[l[0] + l[1] + l[2]]
+  if score_final > 0 {
+    score_final
   } else {
     0
   }

@@ -296,7 +296,7 @@ pub fn build_regulons(
 ///   - motif_ranked_genes: gene names sorted by motif score (best first)
 ///   - rank_threshold: keep genes in top N of motif ranking (default: 5% of all genes)
 pub fn prune_by_motif_ranking(
-  module : CoExpressionModule,
+  regulon_module : CoExpressionModule,
   motif_ranked_genes : Array[String],
   rank_threshold? : Int = 0,
 ) -> ScenicRegulon {
@@ -317,8 +317,8 @@ pub fn prune_by_motif_ranking(
   // Keep targets that are in top-ranked set
   let keep_targets : Array[String] = []
   let keep_weights : Array[Double] = []
-  for i in 0..<module.targets.length() {
-    let target = module.targets[i]
+  for i in 0..<regulon_module.targets.length() {
+    let target = regulon_module.targets[i]
     let mut found = false
     for k in 0..<top_genes_keys.length() {
       if top_genes_keys[k] == target {
@@ -328,10 +328,10 @@ pub fn prune_by_motif_ranking(
     }
     if found {
       keep_targets.push(target)
-      keep_weights.push(module.weights[i])
+      keep_weights.push(regulon_module.weights[i])
     }
   }
-  scenic_regulon(module.tf_name, keep_targets, keep_weights)
+  scenic_regulon(regulon_module.tf_name, keep_targets, keep_weights)
 }
 
 ///|

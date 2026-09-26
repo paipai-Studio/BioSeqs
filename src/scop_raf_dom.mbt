@@ -271,13 +271,13 @@ pub fn ScopSeqMap::add(
   other : ScopSeqMap,
 ) -> ScopSeqMap raise ScopRafError {
   let out = self.slice(0, self.res.length())
-  self.extend(other)
+  self.merge(other)
   out
 }
 
 ///|
 /// Append another SeqMap onto the end of self (in place).
-pub fn ScopSeqMap::extend(
+pub fn ScopSeqMap::merge(
   self : ScopSeqMap,
   other : ScopSeqMap,
 ) -> Unit raise ScopRafError {
@@ -338,7 +338,7 @@ pub fn scop_raf_get_seqmap(
     }
     sm = sm.slice(start, end_)
     match seqmap {
-      Some(s) => s.extend(sm)
+      Some(s) => s.merge(sm)
       None => seqmap = Some(sm)
     }
   }

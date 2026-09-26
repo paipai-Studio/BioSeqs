@@ -277,8 +277,8 @@ pub fn ReferenceList::new() -> ReferenceList {
 
 ///|
 /// Add a reference.
-pub fn ReferenceList::add(self : ReferenceList, ref : BioReference) -> Unit {
-  self.refs.push(ref)
+pub fn ReferenceList::add(self : ReferenceList, reference : BioReference) -> Unit {
+  self.refs.push(reference)
 }
 
 ///|

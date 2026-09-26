@@ -208,17 +208,17 @@ fn scmap_extract_cell(
 ///|
 /// Compute the centroid (mean expression) for each cell type.
 /// Returns: cell_types × genes centroid matrix (as Array of cell-type vectors).
-fn scmap_centroids(ref : ScmapReference) -> Array[(String, Array[Double])] {
-  let unique_types = ref.unique_cell_types()
-  let n_genes = ref.gene_names.length()
+fn scmap_centroids(reference : ScmapReference) -> Array[(String, Array[Double])] {
+  let unique_types = reference.unique_cell_types()
+  let n_genes = reference.gene_names.length()
   let centroids : Array[(String, Array[Double])] = []
   for ctype in unique_types {
     let sum : Array[Double] = Array::make(n_genes, 0.0)
     let mut count = 0
-    for c in 0..<ref.cell_types.length() {
-      if ref.cell_types[c] == ctype {
+    for c in 0..<reference.cell_types.length() {
+      if reference.cell_types[c] == ctype {
         for g in 0..<n_genes {
-          sum[g] = sum[g] + ref.expression[g][c]
+          sum[g] = sum[g] + reference.expression[g][c]
         }
         count = count + 1
       }

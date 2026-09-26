@@ -523,7 +523,7 @@ pub fn SparseArray::subset(
   let mut entry_index = 0
   while entry_index < self.entries.length() {
     let matches : Array[Array[Int]] = []
-    let mut include = true
+    let mut keep = true
     dimension = 0
     while dimension < self.ndim() {
       let positions : Array[Int] = []
@@ -536,12 +536,12 @@ pub fn SparseArray::subset(
         output_index = output_index + 1
       }
       if positions.length() == 0 {
-        include = false
+        keep = false
       }
       matches.push(positions)
       dimension = dimension + 1
     }
-    if include {
+    if keep {
       let mut combination_count = 1
       dimension = 0
       while dimension < matches.length() {
