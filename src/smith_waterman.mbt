@@ -14,8 +14,9 @@ pub enum TraceDirection {
   Diag // match/mismatch: comes from (i-1, j-1)
   Up // gap in seq2 (deletion): comes from (i-1, j)
   Left // gap in seq1 (insertion): comes from (i, j-1)
-} derive(Eq, Show)
+} derive(Eq, Debug)
 pub extend TraceDirection with Eq::{equal, not_equal}
+pub extend TraceDirection with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Scoring scheme for sequence alignment.

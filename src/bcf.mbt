@@ -30,7 +30,8 @@ pub enum BcfValue {
   BcfFloat(Double)
   BcfStr(String)
   BcfFlag
-} derive(Show)
+} derive(Debug)
+pub extend BcfValue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// A parsed BCF header: the raw text plus the name dictionaries derived from

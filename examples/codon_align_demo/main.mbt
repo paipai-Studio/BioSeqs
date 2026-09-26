@@ -20,8 +20,8 @@ fn main {
   println("   GAA -> \{@bio.codon_to_aa("GAA")}")
 
   println("\n3. Classify codon substitution:")
-  println("   TCT vs TCC: \{@bio.classify_codon_substitution("TCT", "TCC")}")
-  println("   TCT vs TTT: \{@bio.classify_codon_substitution("TCT", "TTT")}")
+  println("   TCT vs TCC: " + @bio.classify_codon_substitution("TCT", "TCC").to_string())
+  println("   TCT vs TTT: " + @bio.classify_codon_substitution("TCT", "TTT").to_string())
 
   println("\n4. Count codon substitutions:")
   let counts = @bio.count_codon_substitutions(seq1, seq3)

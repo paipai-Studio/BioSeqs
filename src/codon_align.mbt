@@ -8,8 +8,19 @@ pub enum CodonSubstitution {
   Synonymous // dS - no amino acid change
   NonSynonymous // dN - amino acid change
   Unknown // ambiguous or stop codon
-} derive(Eq, Show)
+} derive(Eq, Debug)
 pub extend CodonSubstitution with Eq::{equal, not_equal}
+pub extend CodonSubstitution with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+/// String representation (ordinary method, replacing the deprecated Show derive).
+pub fn CodonSubstitution::to_string(self : CodonSubstitution) -> String {
+  match self {
+    Synonymous => "Synonymous"
+    NonSynonymous => "NonSynonymous"
+    Unknown => "Unknown"
+  }
+}
 
 ///|
 /// Construct Synonymous CodonSubstitution.

@@ -715,7 +715,7 @@ fn bc_kendall(
 }
 
 ///|
-priv type BCMetric = (
+type BCMetric = (
   Int,
   Array[Array[Double]],
   Array[Array[Double]],

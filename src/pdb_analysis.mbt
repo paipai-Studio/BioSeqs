@@ -545,9 +545,19 @@ pub enum RamachandranRegion {
   Favored // Most favorable region
   Allowed // Allowed region
   Generous // Generous/outlier region
-} derive(Eq, Show, Debug)
+} derive(Eq, Debug)
 pub extend RamachandranRegion with Eq::{equal, not_equal}
 pub extend RamachandranRegion with @moonbitlang/core/debug.Debug::{to_repr}
+
+///|
+/// String representation (ordinary method, replacing the deprecated Show derive).
+pub fn RamachandranRegion::to_string(self : RamachandranRegion) -> String {
+  match self {
+    Favored => "Favored"
+    Allowed => "Allowed"
+    Generous => "Generous"
+  }
+}
 
 ///|
 /// Construct Favored RamachandranRegion.

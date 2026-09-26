@@ -11,8 +11,9 @@ pub enum EntrezDB {
   Gene // Gene information
   SNP // Single nucleotide polymorphisms
   Taxonomy // Taxonomy data
-} derive(Eq, Show)
+} derive(Eq, Debug)
 pub extend EntrezDB with Eq::{equal, not_equal}
+pub extend EntrezDB with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Construct Pubmed EntrezDB.
