@@ -9,19 +9,13 @@
 /// Peak file format enumeration.
 pub enum PeakFormat {
   BedFormat
-  NarrowPeak
-  BroadPeak
-  MacsXls
 } derive(Eq)
 pub extend PeakFormat with Eq::{equal, not_equal}
 
 ///|
 /// Score type enumeration for peak scoring.
 pub enum ScoreType {
-  DBA_SCORE_TISSUE_MINUS
   DBA_SCORE_READS
-  DBA_SCORE_RPKM
-  DBA_SCORE_NORMALIZED
 } derive(Eq)
 pub extend ScoreType with Eq::{equal, not_equal}
 
@@ -128,9 +122,6 @@ pub fn DBAConfig::new(samples : Array[DBASample]) -> DBAConfig {
 pub fn PeakFormat::to_string(self : PeakFormat) -> String {
   match self {
     PeakFormat::BedFormat => "BED"
-    PeakFormat::NarrowPeak => "NarrowPeak"
-    PeakFormat::BroadPeak => "BroadPeak"
-    PeakFormat::MacsXls => "MACS xls"
   }
 }
 
@@ -138,10 +129,7 @@ pub fn PeakFormat::to_string(self : PeakFormat) -> String {
 /// String representation of ScoreType.
 pub fn ScoreType::to_string(self : ScoreType) -> String {
   match self {
-    ScoreType::DBA_SCORE_TISSUE_MINUS => "TissueMinus"
     ScoreType::DBA_SCORE_READS => "Reads"
-    ScoreType::DBA_SCORE_RPKM => "RPKM"
-    ScoreType::DBA_SCORE_NORMALIZED => "Normalized"
   }
 }
 

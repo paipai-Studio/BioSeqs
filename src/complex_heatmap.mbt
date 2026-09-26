@@ -4,8 +4,6 @@
 ///|
 pub enum AnnotationType {
   RowAnnotation
-  ColumnAnnotation
-  CellAnnotation
 }
 
 ///|
@@ -239,8 +237,6 @@ pub fn ch_max(arr : Array[Double]) -> Double {
 pub fn AnnotationType::to_string(self : AnnotationType) -> String {
   match self {
     RowAnnotation => "RowAnnotation"
-    ColumnAnnotation => "ColumnAnnotation"
-    CellAnnotation => "CellAnnotation"
   }
 }
 
@@ -739,7 +735,7 @@ pub fn ch_create_annotation(
   annot : HeatmapAnnotation,
 ) -> HeatmapAnnotationResult {
   let mut row_annot = ""
-  let mut col_annot = ""
+  let col_annot = ""
   let mut legend = ""
 
   match annot.annot_type {
@@ -750,15 +746,6 @@ pub fn ch_create_annotation(
         i = i + 1
       }
     }
-    ColumnAnnotation => {
-      let mut i = 0
-      while i < annot.labels.length() {
-        col_annot = col_annot + annot.labels[i] + ": " + annot.colors[i] + "\n"
-        i = i + 1
-      }
-    }
-    CellAnnotation =>
-      legend = "Cell annotations: " + annot.labels.length().to_string()
   }
 
   legend = "Legend:\n"

@@ -6,10 +6,6 @@
 ///|
 /// Normalization type
 pub enum EDASeqNormType {
-  /// Within-lane normalization (GC content or gene length)
-  WithinLane
-  /// Between-lane normalization
-  BetweenLane
   /// Full normalization (within + between)
   Full
 }
@@ -26,10 +22,6 @@ pub enum EDASeqWithinMethod {
 pub enum EDASeqBetweenMethod {
   /// Median ratio normalization
   MedianRatio
-  /// Quantile normalization
-  Quantile
-  /// Library size normalization
-  Library
 }
 
 ///|
@@ -584,42 +576,6 @@ fn eda_compute_size_factors(
         s2 = s2 + 1
       }
     }
-    EDASeqBetweenMethod::Quantile => {
-      // Quantile normalization
-      let mut s = 0
-      while s < n_samples {
-        let col : Array[Double] = Array(capacity=0)
-        let mut g = 0
-        while g < n_genes {
-          col.push(counts[g][s])
-          g = g + 1
-        }
-        size_factors.push(eda_mean(col))
-        s = s + 1
-      }
-    }
-    EDASeqBetweenMethod::Library => {
-      // Library size normalization
-      let total : Array[Double] = Array(capacity=0)
-      let mut s = 0
-      while s < n_samples {
-        let mut sum = 0.0
-        let mut g = 0
-        while g < n_genes {
-          sum = sum + counts[g][s]
-          g = g + 1
-        }
-        total.push(sum)
-        s = s + 1
-      }
-      let mean_total = eda_mean(total)
-      let mut s2 = 0
-      while s2 < n_samples {
-        let sf = if total[s2] > 0.0 { total[s2] / mean_total } else { 1.0 }
-        size_factors.push(sf)
-        s2 = s2 + 1
-      }
-    }
   }
   size_factors
 }
@@ -685,28 +641,6 @@ pub fn eda_run(data : EDASeqDataSet, params : EDASeqParams) -> EDASeqResult {
   let between_counts : Array[Array[Double]] = Array(capacity=0)
 
   match params.norm_type {
-    EDASeqNormType::WithinLane => {
-      let within = eda_normalize_within_lane(data, params)
-      EDASeqResult::{
-        within_norm_counts: within.norm_counts,
-        between_norm_counts: Array(capacity=0),
-        norm_counts: within.norm_counts,
-        norm_type: params.norm_type,
-        gene_ids: data.gene_ids,
-        sample_ids: data.sample_ids,
-      }
-    }
-    EDASeqNormType::BetweenLane => {
-      let between = eda_normalize_between_lane(data, params)
-      EDASeqResult::{
-        within_norm_counts: Array(capacity=0),
-        between_norm_counts: between.norm_counts,
-        norm_counts: between.norm_counts,
-        norm_type: params.norm_type,
-        gene_ids: data.gene_ids,
-        sample_ids: data.sample_ids,
-      }
-    }
     EDASeqNormType::Full => {
       // Apply within-lane first, then between-lane
       let within = eda_normalize_within_lane(data, params)

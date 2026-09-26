@@ -9,8 +9,6 @@ pub enum FileType {
   BAM
   BED
   VCF
-  BigWig
-  Unknown
 }
 
 ///|
@@ -20,8 +18,6 @@ pub fn FileType::to_string(self : FileType) -> String {
     FileType::BAM => "BAM"
     FileType::BED => "BED"
     FileType::VCF => "VCF"
-    FileType::BigWig => "BigWig"
-    FileType::Unknown => "Unknown"
   }
 }
 
@@ -742,8 +738,6 @@ pub fn genomic_files_summarize_ranges(
       FileType::BAM => genomic_files_scan_bam(file, ranges)
       FileType::BED => genomic_files_scan_bed(file, ranges)
       FileType::VCF => genomic_files_scan_vcf(file, ranges)
-      FileType::BigWig => genomic_files_scan_bam(file, ranges)
-      FileType::Unknown => genomic_files_scan_bam(file, ranges)
     }
     result.push(scan_result)
     i = i + 1

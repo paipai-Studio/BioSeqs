@@ -46,10 +46,6 @@ pub enum ChrFeatureType {
   CDS
   UTR
   Promoter
-  Enhancer
-  Repetitive
-  Marker
-  Breakpoint
 } derive(Eq)
 pub extend ChrFeatureType with Eq::{equal, not_equal}
 
@@ -1203,10 +1199,6 @@ fn chr_feature_type_name(ft : ChrFeatureType) -> String {
     CDS => "cds"
     UTR => "utr"
     Promoter => "promoter"
-    Enhancer => "enhancer"
-    Repetitive => "repetitive"
-    Marker => "marker"
-    Breakpoint => "breakpoint"
   }
 }
 

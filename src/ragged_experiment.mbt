@@ -15,14 +15,8 @@ pub enum MutationType {
   Nonsense_Mutation
   Frame_Shift_Ins
   Frame_Shift_Del
-  In_Frame_Ins
-  In_Frame_Del
   Splice_Site
-  Translation_Start_Site
-  Translation_Stop_Site
-  Multi_Hit_Mutation
   Silent_Mutation
-  Other
 } derive(Eq, Debug)
 pub extend MutationType with Eq::{equal, not_equal}
 pub extend MutationType with @moonbitlang/core/debug.Debug::{to_repr}
@@ -71,14 +65,8 @@ pub fn MutationType::to_string(self : MutationType) -> String {
     MutationType::Nonsense_Mutation => "Nonsense_Mutation"
     MutationType::Frame_Shift_Ins => "Frame_Shift_Ins"
     MutationType::Frame_Shift_Del => "Frame_Shift_Del"
-    MutationType::In_Frame_Ins => "In_Frame_Ins"
-    MutationType::In_Frame_Del => "In_Frame_Del"
     MutationType::Splice_Site => "Splice_Site"
-    MutationType::Translation_Start_Site => "Translation_Start_Site"
-    MutationType::Translation_Stop_Site => "Translation_Stop_Site"
-    MutationType::Multi_Hit_Mutation => "Multi_Hit_Mutation"
     MutationType::Silent_Mutation => "Silent_Mutation"
-    MutationType::Other => "Other"
   }
 }
 
@@ -182,7 +170,6 @@ pub fn MutationRecord::is_loss_of_function(self : MutationRecord) -> Bool {
     MutationType::Frame_Shift_Ins => true
     MutationType::Frame_Shift_Del => true
     MutationType::Splice_Site => true
-    MutationType::Translation_Start_Site => true
     _ => false
   }
 }

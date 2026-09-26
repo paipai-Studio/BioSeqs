@@ -6,7 +6,6 @@ pub enum ResourceType {
   Sequence
   Alignment
   Expression
-  Other(String)
 }
 
 ///|
@@ -18,7 +17,6 @@ pub fn ResourceType::to_string(self : ResourceType) -> String {
     Sequence => "Sequence"
     Alignment => "Alignment"
     Expression => "Expression"
-    Other(s) => s
   }
 }
 
@@ -30,7 +28,6 @@ pub enum DataProvider {
   EBI
   ENCODE
   GEO
-  Other(String)
 }
 
 ///|
@@ -42,7 +39,6 @@ pub fn DataProvider::to_string(self : DataProvider) -> String {
     EBI => "EBI"
     ENCODE => "ENCODE"
     GEO => "GEO"
-    Other(s) => s
   }
 }
 

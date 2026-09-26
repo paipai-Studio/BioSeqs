@@ -18,14 +18,8 @@ pub extend BamsigCountMode with Eq::{equal, not_equal}
 ///|
 /// Normalization method for signal
 pub enum BamsigNormMethod {
-  /// No normalization
-  None
   /// RPM (reads per million)
   RPM
-  /// RPKM (reads per kilobase per million)
-  RPKM
-  /// CPM (counts per million)
-  CPM
 }
 
 ///|
@@ -602,22 +596,9 @@ pub fn bamsig_normalize_signals(
       let total = if j < total_reads.length() { total_reads[j] } else { 1.0 }
 
       let norm_val = match norm_method {
-        BamsigNormMethod::None => c
         BamsigNormMethod::RPM =>
           if total > 0.0 {
             c / total * 1000000.0
-          } else {
-            0.0
-          }
-        BamsigNormMethod::CPM =>
-          if total > 0.0 {
-            c / total * 1000000.0
-          } else {
-            0.0
-          }
-        BamsigNormMethod::RPKM =>
-          if total > 0.0 {
-            c / total * 1000000.0 / 1000.0
           } else {
             0.0
           }

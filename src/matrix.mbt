@@ -8,7 +8,6 @@ pub enum BiocMatrixType {
   BiocDenseMatrix
   BiocSparseMatrixCSC
   BiocSparseMatrixCSR
-  BiocDiagonalMatrix
 }
 
 ///|
@@ -289,12 +288,6 @@ pub fn BiocMatrix::get(self : BiocMatrix, i : Int, j : Int) -> Double {
       }
       0.0
     }
-    BiocDiagonalMatrix =>
-      if i == j && i < self.data.length() {
-        self.data[i]
-      } else {
-        0.0
-      }
   }
 }
 
@@ -364,7 +357,6 @@ pub fn BiocMatrix::transpose(self : BiocMatrix) -> BiocMatrix {
         self.ncol,
         self.nrow,
       )
-    BiocDiagonalMatrix => self
   }
 }
 
@@ -492,13 +484,6 @@ pub fn BiocMatrix::norm(self : BiocMatrix, p : Double) -> Double {
       }
     }
     BiocSparseMatrixCSC | BiocSparseMatrixCSR => {
-      let mut i = 0
-      while i < self.data.length() {
-        sum = sum + @math.pow((self.data[i]).abs(), p)
-        i = i + 1
-      }
-    }
-    BiocDiagonalMatrix => {
       let mut i = 0
       while i < self.data.length() {
         sum = sum + @math.pow((self.data[i]).abs(), p)

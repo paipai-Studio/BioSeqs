@@ -130,10 +130,6 @@ pub fn flow_core_asinh(x : Double) -> Double {
 /// Gate type enumeration.
 pub enum GateType {
   RectangleGate
-  PolygonGate
-  EllipsoidGate
-  QuadrantGate
-  BooleanGate
 } derive(Eq)
 pub extend GateType with Eq::{equal, not_equal}
 
@@ -152,10 +148,6 @@ pub extend TransformType with Eq::{equal, not_equal}
 pub fn GateType::to_string(self : GateType) -> String {
   match self {
     RectangleGate => "RectangleGate"
-    PolygonGate => "PolygonGate"
-    EllipsoidGate => "EllipsoidGate"
-    QuadrantGate => "QuadrantGate"
-    BooleanGate => "BooleanGate"
   }
 }
 
@@ -1438,10 +1430,6 @@ pub fn flow_core_quadrant_gate(frame : FlowFrame, gate : Gate) -> GatingResult {
 pub fn flow_core_filter_events(frame : FlowFrame, gate : Gate) -> GatingResult {
   match gate.gate_type {
     RectangleGate => flow_core_rectangle_gate(frame, gate)
-    PolygonGate => flow_core_polygon_gate(frame, gate)
-    EllipsoidGate => flow_core_ellipsoid_gate(frame, gate)
-    QuadrantGate => flow_core_quadrant_gate(frame, gate)
-    BooleanGate => flow_core_rectangle_gate(frame, gate)
   }
 }
 
