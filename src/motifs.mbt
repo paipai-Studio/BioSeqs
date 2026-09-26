@@ -54,7 +54,10 @@ pub fn count_matrix(sites : Array[String]) -> Array[Array[Int]] {
   }
   let width = sites[0].length()
   let alphabet_size = dna_alphabet.length()
-  let counts = Array::make(width, Array::make(alphabet_size, 0))
+  let counts = Array::make(width, Array::make(0, 0))
+  for idx in 0..<width {
+    counts[idx] = Array::make(alphabet_size, 0)
+  }
 
   for idx = 0; idx < sites.length(); idx = idx + 1 {
     let site = sites[idx]
@@ -81,7 +84,10 @@ pub fn pwm_from_counts(
   }
   let width = counts.length()
   let alphabet_size = counts[0].length()
-  let pwm = Array::make(width, Array::make(alphabet_size, 0.0))
+  let pwm = Array::make(width, Array::make(0, 0.0))
+  for idx in 0..<width {
+    pwm[idx] = Array::make(alphabet_size, 0.0)
+  }
 
   for pos = 0; pos < width; pos = pos + 1 {
     let row = counts[pos]
@@ -110,7 +116,10 @@ pub fn pssm_from_pwm(
   }
   let width = pwm.length()
   let alphabet_size = pwm[0].length()
-  let pssm = Array::make(width, Array::make(alphabet_size, 0.0))
+  let pssm = Array::make(width, Array::make(0, 0.0))
+  for idx in 0..<width {
+    pssm[idx] = Array::make(alphabet_size, 0.0)
+  }
 
   for pos = 0; pos < width; pos = pos + 1 {
     let row = pwm[pos]
@@ -302,7 +311,10 @@ pub fn meme_to_motif(meme_content : String) -> Motif {
   }
 
   let width = sites.length()
-  let pwm = Array::make(width, Array::make(4, 0.0))
+  let pwm = Array::make(width, Array::make(0, 0.0))
+  for idx in 0..<width {
+    pwm[idx] = Array::make(4, 0.0)
+  }
 
   for pos = 0; pos < width; pos = pos + 1 {
     let probs = sites[pos].split(" ").to_array()

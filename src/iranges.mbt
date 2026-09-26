@@ -587,7 +587,10 @@ pub fn ir_coverage_rle(ir : IRanges, max_end : Int) -> Array[(Int, Int, Int)] {
 pub fn ir_distance(ir1 : IRanges, ir2 : IRanges) -> Array[Array[Int]] {
   let n1 = ir1.starts.length()
   let n2 = ir2.starts.length()
-  let distances : Array[Array[Int]] = Array::make(n1, Array::make(n2, -1))
+  let distances : Array[Array[Int]] = Array::make(n1, Array::make(0, -1))
+  for idx in 0..<n1 {
+    distances[idx] = Array::make(n2, -1)
+  }
 
   let mut i = 0
   while i < n1 {

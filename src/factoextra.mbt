@@ -66,7 +66,10 @@ pub fn facto_pca(
   // Center and scale
   let centered = facto_center_scale(data, center, scale)
   // Compute covariance matrix (p x p)
-  let cov : Array[Array[Double]] = Array::make(p, Array::make(p, 0.0))
+  let cov : Array[Array[Double]] = Array::make(p, Array::make(0, 0.0))
+  for idx in 0..<p {
+    cov[idx] = Array::make(p, 0.0)
+  }
   let mut i = 0
   while i < n {
     let mut j = 0
@@ -215,7 +218,10 @@ fn facto_center_scale(
     }
     j = j + 1
   }
-  let result : Array[Array[Double]] = Array::make(n, Array::make(p, 0.0))
+  let result : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    result[idx] = Array::make(p, 0.0)
+  }
   let mut i = 0
   while i < n {
     let mut j2 = 0
@@ -383,7 +389,10 @@ fn facto_cos2(coords : Array[Array[Double]]) -> Array[Array[Double]] {
     return []
   }
   let ncp = coords[0].length()
-  let cos2 : Array[Array[Double]] = Array::make(n, Array::make(ncp, 0.0))
+  let cos2 : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    cos2[idx] = Array::make(ncp, 0.0)
+  }
   let mut i = 0
   while i < n {
     let mut total = 0.0
@@ -413,7 +422,10 @@ fn facto_contrib_ind(coords : Array[Array[Double]]) -> Array[Array[Double]] {
     return []
   }
   let ncp = coords[0].length()
-  let contrib : Array[Array[Double]] = Array::make(n, Array::make(ncp, 0.0))
+  let contrib : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    contrib[idx] = Array::make(ncp, 0.0)
+  }
   let total_contrib : Array[Double] = Array::make(ncp, 0.0)
   let mut i = 0
   while i < n {
@@ -450,7 +462,10 @@ fn facto_contrib_var(
     return []
   }
   let ncp = coords[0].length()
-  let contrib : Array[Array[Double]] = Array::make(n, Array::make(ncp, 0.0))
+  let contrib : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    contrib[idx] = Array::make(ncp, 0.0)
+  }
   let mut i = 0
   while i < n {
     let mut j = 0

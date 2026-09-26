@@ -541,7 +541,12 @@ pub fn edit_distance(seq1 : String, seq2 : String) -> Int {
   }
 
   // Dynamic programming approach
-  let dp : Array[Array[Int]] = Array::make(m + 1, Array::make(n + 1, 0))
+  let dp : Array[Array[Int]] = Array::make(m + 1, Array::make(0, 0))
+  let mut idx = 0
+  while idx < m + 1 {
+    dp[idx] = Array::make(n + 1, 0)
+    idx = idx + 1
+  }
 
   let mut i = 0
   while i <= m {

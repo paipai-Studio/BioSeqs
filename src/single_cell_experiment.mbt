@@ -668,7 +668,10 @@ fn sce_vec_norm(v : Array[Double]) -> Double {
 fn sce_covariance(centered : Array[Array[Double]]) -> Array[Array[Double]] {
   let rows = centered.length()
   let cols = if rows > 0 { centered[0].length() } else { 0 }
-  let cov : Array[Array[Double]] = Array::make(cols, Array::make(cols, 0.0))
+  let cov : Array[Array[Double]] = Array::make(cols, Array::make(0, 0.0))
+  for idx in 0..<cols {
+    cov[idx] = Array::make(cols, 0.0)
+  }
   let mut i = 0
   while i < cols {
     let mut j = 0
@@ -730,7 +733,10 @@ pub fn sce_compute_pca(
       iter = iter + 1
     }
     let eigenvalue = sce_vec_norm(sce_matmul_vec(cov, v))
-    let outer : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+    let outer : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+    for idx in 0..<n {
+      outer[idx] = Array::make(n, 0.0)
+    }
     let mut k = 0
     while k < n {
       let mut l = 0
@@ -740,7 +746,10 @@ pub fn sce_compute_pca(
       }
       k = k + 1
     }
-    let new_cov : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+    let new_cov : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+    for idx in 0..<n {
+      new_cov[idx] = Array::make(n, 0.0)
+    }
     k = 0
     while k < n {
       let mut l = 0
@@ -854,7 +863,10 @@ pub fn sce_compute_tsne(
     i = i + 1
   }
   let n = y.length()
-  let d : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+  let d : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    d[idx] = Array::make(n, 0.0)
+  }
   let mut a = 0
   while a < n {
     let mut b = 0
@@ -871,7 +883,10 @@ pub fn sce_compute_tsne(
     }
     a = a + 1
   }
-  let p : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+  let p : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    p[idx] = Array::make(n, 0.0)
+  }
   a = 0
   while a < n {
     let mut b = 0

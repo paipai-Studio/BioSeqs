@@ -334,7 +334,10 @@ fn power_iteration_top2(
   let (eval1, evec1) = power_iteration_single(mat, n, None)
 
   // Deflate: remove the first eigenvector's contribution
-  let deflated : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+  let deflated : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    deflated[idx] = Array::make(n, 0.0)
+  }
   for i = 0; i < n; i = i + 1 {
     for j = 0; j < n; j = j + 1 {
       deflated[i][j] = mat[i][j] - eval1 * evec1[i] * evec1[j]

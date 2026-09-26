@@ -116,7 +116,10 @@ pub fn HMMcopyModel::new(
     i = i + 1
   }
   // Default transition: high self-transition, low cross-transition
-  let transition = Array::make(num_states, Array::make(num_states, 0.0))
+  let transition = Array::make(num_states, Array::make(0, 0.0))
+  for idx in 0..<num_states {
+    transition[idx] = Array::make(num_states, 0.0)
+  }
   i = 0
   while i < num_states {
     let mut j = 0

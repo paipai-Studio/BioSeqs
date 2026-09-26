@@ -302,7 +302,10 @@ pub fn parse_jaspar_pfm(content : String) -> Array[JasparMotif] {
 
       let width = a_counts.length()
       if width > 0 {
-        let pwm = Array::make(width, Array::make(4, 0.0))
+        let pwm = Array::make(width, Array::make(0, 0.0))
+        for idx in 0..<width {
+          pwm[idx] = Array::make(4, 0.0)
+        }
         for pos = 0; pos < width; pos = pos + 1 {
           pwm[pos][0] = a_counts[pos]
           pwm[pos][1] = c_counts[pos]
@@ -389,7 +392,10 @@ pub fn jaspar_pfm_to_pwm(
   }
   let width = pfm.length()
   let alphabet_size = pfm[0].length()
-  let pwm = Array::make(width, Array::make(alphabet_size, 0.0))
+  let pwm = Array::make(width, Array::make(0, 0.0))
+  for idx in 0..<width {
+    pwm[idx] = Array::make(alphabet_size, 0.0)
+  }
 
   for pos = 0; pos < width; pos = pos + 1 {
     let row = pfm[pos]
@@ -464,7 +470,10 @@ pub fn parse_transfac(content : String) -> Array[TransfacMotif] {
 
       if matrix_rows.length() > 0 {
         let width = matrix_rows.length()
-        let pwm = Array::make(width, Array::make(4, 0.0))
+        let pwm = Array::make(width, Array::make(0, 0.0))
+        for idx in 0..<width {
+          pwm[idx] = Array::make(4, 0.0)
+        }
         for pos = 0; pos < width; pos = pos + 1 {
           pwm[pos][0] = matrix_rows[pos][0]
           pwm[pos][1] = matrix_rows[pos][1]
@@ -583,7 +592,10 @@ fn reverse_complement_pwm(pwm : Array[Array[Double]]) -> Array[Array[Double]] {
     return []
   }
   let alphabet_size = pwm[0].length()
-  let rev_pwm = Array::make(width, Array::make(alphabet_size, 0.0))
+  let rev_pwm = Array::make(width, Array::make(0, 0.0))
+  for idx in 0..<width {
+    rev_pwm[idx] = Array::make(alphabet_size, 0.0)
+  }
 
   for pos = 0; pos < width; pos = pos + 1 {
     let orig_pos = width - 1 - pos
@@ -696,7 +708,10 @@ pub fn cluster_motifs(
     return []
   }
 
-  let similarity_matrix = Array::make(n, Array::make(n, 0.0))
+  let similarity_matrix = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    similarity_matrix[idx] = Array::make(n, 0.0)
+  }
   for i = 0; i < n; i = i + 1 {
     for j = 0; j < n; j = j + 1 {
       if i == j {
@@ -832,7 +847,10 @@ pub fn randomize_motif(
   width : Int,
   alphabet_size : Int,
 ) -> Array[Array[Double]] {
-  let pwm = Array::make(width, Array::make(alphabet_size, 0.0))
+  let pwm = Array::make(width, Array::make(0, 0.0))
+  for idx in 0..<width {
+    pwm[idx] = Array::make(alphabet_size, 0.0)
+  }
 
   for pos = 0; pos < width; pos = pos + 1 {
     let row : Array[Double] = Array(capacity=0)

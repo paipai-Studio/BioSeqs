@@ -206,7 +206,10 @@ pub fn fst(subpop1 : Array[String], subpop2 : Array[String]) -> Double {
 ///|
 pub fn pairwise_fst(populations : Array[Array[String]]) -> Array[Array[Double]] {
   let n = populations.length()
-  let matrix = Array::make(n, Array::make(n, 0.0))
+  let matrix = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    matrix[idx] = Array::make(n, 0.0)
+  }
 
   for i = 0; i < n; i = i + 1 {
     for j = i + 1; j < n; j = j + 1 {

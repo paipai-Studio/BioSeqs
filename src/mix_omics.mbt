@@ -699,8 +699,14 @@ pub fn run_spls(
   let y_loadings = make_zero_matrix(q, effective_ncomp)
   let x_weights = make_zero_matrix(p, effective_ncomp)
   let y_weights = make_zero_matrix(q, effective_ncomp)
-  let x_selected = Array::make(p, Array::make(effective_ncomp, false))
-  let y_selected = Array::make(q, Array::make(effective_ncomp, false))
+  let x_selected = Array::make(p, Array::make(0, false))
+  for idx in 0..<p {
+    x_selected[idx] = Array::make(effective_ncomp, false)
+  }
+  let y_selected = Array::make(q, Array::make(0, false))
+  for idx in 0..<q {
+    y_selected[idx] = Array::make(effective_ncomp, false)
+  }
   let explained_variance = Array::make(effective_ncomp, (0.0, 0.0))
 
   for comp = 0; comp < effective_ncomp; comp = comp + 1 {
@@ -983,7 +989,10 @@ pub fn run_diablo(
     let pb = block_sizes[b]
     block_loadings.push(make_zero_matrix(pb, effective_ncomp))
     block_weights.push(make_zero_matrix(pb, effective_ncomp))
-    let sel_block = Array::make(pb, Array::make(effective_ncomp, false))
+    let sel_block = Array::make(pb, Array::make(0, false))
+    for idx in 0..<pb {
+      sel_block[idx] = Array::make(effective_ncomp, false)
+    }
     block_selected.push(sel_block)
   }
 

@@ -1533,7 +1533,10 @@ fn diffbind_pca(
   }
 
   let eigvals : Array[Double] = Array::make(k, 0.0)
-  let eigvecs : Array[Array[Double]] = Array::make(k, Array::make(n_peaks, 0.0))
+  let eigvecs : Array[Array[Double]] = Array::make(k, Array::make(0, 0.0))
+  for idx in 0..<k {
+    eigvecs[idx] = Array::make(n_peaks, 0.0)
+  }
 
   let mut comp = 0
   while comp < k {

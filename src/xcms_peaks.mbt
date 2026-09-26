@@ -423,7 +423,10 @@ pub fn xcp_ascii_plot(
   if mx - mn < 0.000000000001 {
     return ""
   }
-  let plot : Array[Array[Char]] = Array::make(height, Array::make(width, ' '))
+  let plot : Array[Array[Char]] = Array::make(height, Array::make(0, ' '))
+  for idx in 0..<height {
+    plot[idx] = Array::make(width, ' ')
+  }
   for y in 0..<height {
     for x in 0..<width {
       plot[y][x] = ' '

@@ -330,7 +330,10 @@ pub fn paml_calculate_substitution_matrix(
   kappa : Double,
   pi : Map[String, Double],
 ) -> Array[Array[Double]] {
-  let q = Array::make(4, Array::make(4, 0.0))
+  let q = Array::make(4, Array::make(0, 0.0))
+  for idx in 0..<4 {
+    q[idx] = Array::make(4, 0.0)
+  }
 
   let pi_A = pi.get("pi_A").unwrap_or(0.25)
   let pi_T = pi.get("pi_T").unwrap_or(0.25)

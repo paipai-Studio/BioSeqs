@@ -229,14 +229,20 @@ fn eigen_decomposition(
     Array::make(n, 0.0),
   )
 
-  let mut v : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+  let mut v : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    v[idx] = Array::make(n, 0.0)
+  }
   let mut i = 0
   while i < n {
     v[i][i] = 1.0
     i = i + 1
   }
 
-  let mut a : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+  let mut a : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    a[idx] = Array::make(n, 0.0)
+  }
   i = 0
   while i < n {
     let mut j = 0
@@ -276,7 +282,10 @@ fn eigen_decomposition(
     let cos_theta = @math.cos(theta)
     let sin_theta = @math.sin(theta)
 
-    let p : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+    let p : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+    for idx in 0..<n {
+      p[idx] = Array::make(n, 0.0)
+    }
     i = 0
     while i < n {
       p[i][i] = 1.0
@@ -346,7 +355,10 @@ fn monocle_matmul(
     return Array(capacity=0)
   }
 
-  let result : Array[Array[Double]] = Array::make(m, Array::make(p, 0.0))
+  let result : Array[Array[Double]] = Array::make(m, Array::make(0, 0.0))
+  for idx in 0..<m {
+    result[idx] = Array::make(p, 0.0)
+  }
 
   let mut i = 0
   while i < m {
@@ -376,7 +388,10 @@ fn monocle_transpose(m : Array[Array[Double]]) -> Array[Array[Double]] {
     return Array(capacity=0)
   }
 
-  let result : Array[Array[Double]] = Array::make(cols, Array::make(rows, 0.0))
+  let result : Array[Array[Double]] = Array::make(cols, Array::make(0, 0.0))
+  for idx in 0..<cols {
+    result[idx] = Array::make(rows, 0.0)
+  }
 
   let mut i = 0
   while i < rows {

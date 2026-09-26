@@ -384,8 +384,14 @@ fn harmony_batch_corrections(
   let n_batches = unique_batches.length()
   let corrections : Array[Array[Array[Double]]] = Array::make(
     n_clusters,
-    Array::make(n_batches, Array::make(n_dims, 0.0)),
+    Array::make(0, Array::make(n_dims, 0.0)),
   )
+  for idx in 0..<n_clusters {
+    corrections[idx] = Array::make(n_batches, Array::make(0, 0.0))
+    for jdx in 0..<n_batches {
+      corrections[idx][jdx] = Array::make(n_dims, 0.0)
+    }
+  }
 
   let mut k = 0
   while k < n_clusters {

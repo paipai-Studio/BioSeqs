@@ -347,7 +347,10 @@ pub fn ch_distance_matrix(
   dist_method : String,
 ) -> Array[Array[Double]] {
   let n = matrix.length()
-  let dist_matrix : Array[Array[Double]] = Array::make(n, Array::make(n, 0.0))
+  let dist_matrix : Array[Array[Double]] = Array::make(n, Array::make(0, 0.0))
+  for idx in 0..<n {
+    dist_matrix[idx] = Array::make(n, 0.0)
+  }
   let mut i = 0
   while i < n {
     let mut j = i + 1
