@@ -100,6 +100,7 @@ pub struct GC123Result {
   gc3 : Double
 } derive(Eq, Debug)
 pub extend GC123Result with Eq::{equal, not_equal}
+pub extend GC123Result with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Calculate G+C content: total, for first, second and third codon positions.
@@ -184,6 +185,7 @@ pub struct NtSearchResult {
   positions : Array[Int]
 } derive(Eq, Debug)
 pub extend NtSearchResult with Eq::{equal, not_equal}
+pub extend NtSearchResult with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// IUPAC ambiguous DNA values, mirroring Bio.Data.IUPACData.ambiguous_dna_values.

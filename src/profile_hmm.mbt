@@ -57,6 +57,7 @@ pub struct ProfileHMM {
   /// Number of sequences the profile was built from.
   n_seqs : Int
 } derive(Debug)
+pub extend ProfileHMM with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Get the number of match states (profile length).
@@ -226,6 +227,8 @@ enum PState {
   I(Int) // I_k, k >= 0
   D(Int) // D_k, k >= 1
 } derive(Eq, Debug)
+pub extend PState with Eq::{equal, not_equal}
+pub extend PState with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Count a single transition between two path states, incrementing the

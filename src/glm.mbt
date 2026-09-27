@@ -26,6 +26,8 @@ pub enum GlmLink {
   Log
   Logit
 } derive(Eq, Debug)
+pub extend GlmLink with Eq::{equal, not_equal}
+pub extend GlmLink with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Exponential-family distribution (with variance function).
@@ -37,6 +39,8 @@ pub enum GlmFamily {
   /// Binomial with a single trial (Bernoulli), V(mu) = mu(1-mu).
   Binomial
 } derive(Eq, Debug)
+pub extend GlmFamily with Eq::{equal, not_equal}
+pub extend GlmFamily with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Constructor functions for link and family (enum variants cannot be

@@ -95,6 +95,7 @@ pub fn Seq::length(self : Seq) -> Int {
 pub impl Add for Seq with fn add(self, other) {
   Seq::{ data: self.data + other.data, }
 }
+pub extend Seq with Add::{add}
 
 ///|
 /// Concatenate a Seq with a String.

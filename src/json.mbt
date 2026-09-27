@@ -12,6 +12,7 @@ pub enum JsonValue {
   JsonArr(Array[JsonValue])
   JsonObj(Map[String, JsonValue])
 } derive(Debug)
+pub extend JsonValue with @moonbitlang/core/debug.Debug::{to_repr}
 
 ///|
 /// Skip JSON whitespace (space, tab, LF, CR).

@@ -162,6 +162,7 @@ pub impl AbstractReference for BioReference with fn citation(
   }
   s
 }
+pub extend BioReference with AbstractReference::{title, authors, journal, year, pubmed_id, doi, reference_type, citation}
 
 // ============================================================================
 // BioReference Methods
