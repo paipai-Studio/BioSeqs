@@ -361,7 +361,7 @@ pub fn SeqFeature::new(
     None => None
   }
   let strand_val = match strand {
-    Some(s) => strand
+    Some(_s) => strand
     None =>
       match location {
         Some(l) => l.strand()

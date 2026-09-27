@@ -91,7 +91,7 @@ pub fn normalize_total(obj : SeuratObject) -> SeuratObject {
 ///|
 pub fn find_variable_features(obj : SeuratObject) -> SeuratObject {
   let n_genes = obj.row_names.length()
-  let n_cells = obj.col_names.length()
+  let _n_cells = obj.col_names.length()
 
   let gene_indices : Array[(Double, Int)] = Array(capacity=0)
   let mut k = 0
@@ -259,9 +259,9 @@ pub fn find_neighbors(obj : SeuratObject) -> SeuratObject {
 
 ///|
 fn find_neighbors_helper(
-  pca : Array[Array[Double]],
+  _pca : Array[Array[Double]],
   n_cells : Int,
-  n_dims : Int,
+  _n_dims : Int,
   k_param : Int,
 ) -> Array[Array[Int]] {
   let neighbors : Array[Array[Int]] = Array(capacity=0)
@@ -441,7 +441,7 @@ pub fn find_integration_anchors(
 pub fn integrate_data(
   reference_obj : SeuratObject,
   query_obj : SeuratObject,
-  anchors : IntegrationAnchors,
+  _anchors : IntegrationAnchors,
 ) -> SeuratObject {
   let n_ref_genes = reference_obj.row_names.length()
   let n_query_genes = query_obj.row_names.length()
@@ -465,7 +465,7 @@ pub fn integrate_data(
   let n_common = common_genes.length()
   let n_ref_cells = reference_obj.col_names.length()
   let n_query_cells = query_obj.col_names.length()
-  let n_total_cells = n_ref_cells + n_query_cells
+  let _n_total_cells = n_ref_cells + n_query_cells
 
   let integrated_counts : Array[Array[Int]] = Array(capacity=0)
   let row_names : Array[String] = Array(capacity=0)

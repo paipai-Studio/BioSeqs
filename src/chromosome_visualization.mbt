@@ -110,15 +110,6 @@ pub struct ChrRegion {
 }
 
 ///|
-/// A chromosome arm (p or q).
-pub struct ChrArm {
-  arm_type : String
-  start : Double
-  end : Double
-  centromere : Double
-}
-
-///|
 /// A chromosome with features.
 pub struct Chromosome {
   name : String
@@ -850,7 +841,7 @@ pub fn ChrDiagram::to_svg(self : ChrDiagram) -> String {
   let scale = if max_length > 0.0 { available_width / max_length } else { 1.0 }
 
   // Calculate spacing
-  let total_height_needed = n_chr.to_double() *
+  let _total_height_needed = n_chr.to_double() *
     (layout.chromosome_thickness + 80.0)
   let available_height = layout.height -
     layout.margin_top -

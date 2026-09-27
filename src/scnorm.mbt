@@ -356,7 +356,7 @@ pub fn sc_norm_normalize_gene(
 /// Check if a gene passes filter criteria.
 fn sc_norm_check_filter(
   raw_counts : Array[Double],
-  norm_counts : Array[Double],
+  _norm_counts : Array[Double],
   params : SCnormParams,
 ) -> (Bool, String) {
   if !params.filter_genes {
@@ -394,7 +394,7 @@ pub fn sc_norm_run(
   params : SCnormParams,
 ) -> SCnormResult {
   let n_genes = count_matrix.length()
-  let n_cells = if n_genes > 0 { count_matrix[0].length() } else { 0 }
+  let _n_cells = if n_genes > 0 { count_matrix[0].length() } else { 0 }
   // Compute library sizes
   let lib_sizes = sc_norm_library_sizes(count_matrix)
   // Normalize each gene
@@ -469,7 +469,7 @@ pub fn sc_norm_loess_smooth(
     let ys : Array[Double] = Array(capacity=0)
     let mut k = 0
     while k < eff_neighbors {
-      let idx = if k < n_neighbors { k } else { k }
+      let _idx = if k < n_neighbors { k } else { k }
       let (xn, yn) = if k < n_neighbors { neighbors[k] } else { (x[k], y[k]) }
       let dist = (xn - xi).abs()
       let weight = if half_span > 0.0 {
@@ -516,7 +516,7 @@ pub fn sc_norm_spline_smooth(
   if n < 4 {
     return y.copy()
   }
-  let sorted_x = sc_norm_sort_indices(x)
+  let _sorted_x = sc_norm_sort_indices(x)
   // Create knot positions
   let x_min = sc_norm_min(x)
   let x_max = sc_norm_max(x)
@@ -552,7 +552,7 @@ fn sc_norm_spline_interpolate(
   x : Array[Double],
   y : Array[Double],
 ) -> Double {
-  let n_knots = knots.length()
+  let _n_knots = knots.length()
   let n = x.length()
   // Find the two nearest data points
   let mut best_idx = 0

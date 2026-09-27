@@ -277,7 +277,7 @@ pub fn correct_errors(
   let n = reads.length()
   let corrected : Array[String] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    let read = reads[i]
+    let _read = reads[i]
     let corrected_read = correct_read(reads, i, min_overlap)
     corrected.push(corrected_read)
   }

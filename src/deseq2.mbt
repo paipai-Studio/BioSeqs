@@ -255,7 +255,7 @@ fn pnorm(x : Double) -> Double {
 pub fn deseq(dds : DESeqDataSet) -> DESeqResults {
   let n_genes = dds.counts.length()
   let n_samples = dds.col_names.length()
-  let n_coefs = if dds.design.length() > 0 { dds.design[0].length() } else { 0 }
+  let _n_coefs = if dds.design.length() > 0 { dds.design[0].length() } else { 0 }
 
   let base_mean : Array[Double] = Array(capacity=0)
   let log2_fold_change : Array[Double] = Array(capacity=0)
@@ -341,7 +341,7 @@ pub fn deseq(dds : DESeqDataSet) -> DESeqResults {
 }
 
 ///|
-pub fn results(dds : DESeqDataSet, contrast? : Int = -1) -> DESeqResults {
+pub fn results(dds : DESeqDataSet, _contrast? : Int = -1) -> DESeqResults {
   deseq(dds)
 }
 
@@ -509,7 +509,7 @@ fn _ds2_estimate_prior_var(logfcs : Array[Double], ses : Array[Double]) -> Doubl
 ///   let res_shrunk = lfc_shrink(dds, res)
 ///   // res_shrunk.log2_fold_change 比 res.log2_fold_change 更接近 0
 pub fn lfc_shrink(
-  dds : DESeqDataSet,
+  _dds : DESeqDataSet,
   res : DESeqResults,
   coef? : Int = -1,
 ) -> DESeqResults {

@@ -629,9 +629,9 @@ fn gviz_render_data(
 ///|
 /// Render ideogram track.
 fn gviz_render_ideogram(
-  track : GvizTrack,
-  region_start : Int,
-  region_end : Int,
+  _track : GvizTrack,
+  _region_start : Int,
+  _region_end : Int,
   width : Int,
 ) -> String {
   // Simplified ideogram: draw a chromosome bar with centromere marker
@@ -660,7 +660,7 @@ fn gviz_render_ideogram(
 ///|
 /// Render sequence track.
 fn gviz_render_sequence(
-  track : GvizTrack,
+  _track : GvizTrack,
   region_start : Int,
   region_end : Int,
   width : Int,

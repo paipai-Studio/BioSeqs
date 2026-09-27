@@ -22,7 +22,7 @@ pub type PSSM = Array[Array[Double]]
 let dna_alphabet : Array[String] = ["A", "C", "G", "T"]
 
 ///|
-let protein_alphabet : Array[String] = [
+let _protein_alphabet : Array[String] = [
   "A", "R", "N", "D", "C", "E", "Q", "G", "H", "I", "L", "K", "M", "F", "P", "S",
   "T", "W", "Y", "V",
 ]
@@ -717,7 +717,7 @@ fn log2_val(x : Double) -> Double {
   }
   // Use natural log conversion: log2(x) = ln(x) / ln(2)
   let ln2 = 0.6931471805599453
-  let mut result = 0.0
+  let mut _result = 0.0
   let term = (x - 1.0) / (x + 1.0)
   let term2 = term * term
   let mut sum = term

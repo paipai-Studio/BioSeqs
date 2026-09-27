@@ -279,7 +279,7 @@ fn check_genotype_quality(
   let len = genotypes.length()
   let mut i = 0
   while i < len {
-    let (sample, gt) = genotypes[i]
+    let (_sample, gt) = genotypes[i]
     if gt != "./." {
       total = total + 1
 

@@ -364,7 +364,7 @@ pub fn detect_hydrogen_bonds(
         let acceptor = residues[j]
         let o_atom = acceptor.find_atom("O")
         match (n_atom, ca_atom, c_atom, o_atom) {
-          (Some(n), Some(ca), Some(c), Some(o)) => {
+          (Some(n), Some(ca), Some(_), Some(o)) => {
             let dist = n.coord.distance(o.coord)
             if dist <= max_dist {
               // Simplified angle check: N-H...O angle
@@ -602,7 +602,7 @@ pub fn classify_ramachandran(phi : Double, psi : Double) -> RamachandranRegion {
 /// Create a demo protein structure for testing.
 pub fn create_demo_structure() -> Structure {
   // Create a small beta-hairpin-like structure
-  let chain_a = Chain::new(id='A')
+  let _chain_a = Chain::new(id='A')
   // Residue 1: ALA
   let res1 = Residue::new(resname="ALA", chainid='A', resseq=1, atoms=[
     Atom::new(name="N", coord=Vector3::new(0.0, 0.0, 0.0)),
@@ -817,12 +817,12 @@ pub fn calc_residue_sasa(
   let atom_sasa = calc_sasa(chain, probe_radius~)
 
   // Map atoms back to residues
-  let atom_idx = {
+  let _atom_idx = {
     let mut idx = 0
     let res_atom_map : Map[Int, Double] = Map([], capacity=residues.length())
     for res in residues {
       let mut res_sasa = 0.0
-      for atom in res.atoms {
+      for _ in res.atoms {
         if idx < atom_sasa.length() {
           let (_, sasa) = atom_sasa[idx]
           res_sasa = res_sasa + sasa

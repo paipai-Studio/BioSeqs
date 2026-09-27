@@ -257,7 +257,6 @@ fn profile_count_transition(
         D(k2) => if k2 == k + 1 && k <= nmat - 1 {
           md_c[k - 1] = md_c[k - 1] + 1.0
         }
-        _ => ()
       }
     I(k) =>
       match to {
@@ -387,7 +386,7 @@ pub fn build_profile_hmm(
 
   let background = profile_background(msa, alphabet)
   let alpha = pseudocount
-  let a_len = alphabet.length().to_double()
+  let _a_len = alphabet.length().to_double()
 
   // Normalize match emissions.
   for k in 0..<n_match {

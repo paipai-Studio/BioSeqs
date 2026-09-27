@@ -212,7 +212,7 @@ fn harmony_init_centroids(
   if n_cells == 0 {
     return Array::make(n_clusters, Array::make(0, 0.0))
   }
-  let n_dims = data.embeddings[0].length()
+  let _n_dims = data.embeddings[0].length()
 
   let centroids : Array[Array[Double]] = Array(capacity=0)
   let mut rng_state = seed
@@ -359,7 +359,7 @@ fn harmony_update_centroids(
 fn harmony_batch_corrections(
   data : HarmonyData,
   membership : Array[Array[Double]],
-  centroids : Array[Array[Double]],
+  _centroids : Array[Array[Double]],
   n_clusters : Int,
   ridge_penalty : Double,
 ) -> Array[Array[Array[Double]]] {

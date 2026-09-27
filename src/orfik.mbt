@@ -157,7 +157,7 @@ fn orff_scan_frame(
   start_codons : Array[String], stop_codons : Array[String],
 ) -> Array[OrffORF] {
   let orfs : Array[OrffORF] = Array(capacity=0)
-  let n = seq.length()
+  let _n = seq.length()
   let offset = orff_frame_offset(frame)
   let is_rev = orff_is_reverse(frame)
   let work_seq = if is_rev { orff_revcomp(seq) } else { seq }

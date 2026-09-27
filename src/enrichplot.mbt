@@ -319,7 +319,7 @@ pub fn bio_enrichplot_dotplot(
 pub fn bio_enrichplot_heatmap(
   data : EnrichResult,
   top_n : Int,
-  gene_count : Int,
+  _gene_count : Int,
   title : String,
 ) -> String {
   let terms = copy_enrich_term_array(data.terms)

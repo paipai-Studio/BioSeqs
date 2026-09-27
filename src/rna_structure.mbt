@@ -258,7 +258,7 @@ pub fn get_mfe(result : RNAStructureResult) -> Double {
 pub fn identify_loop_regions(
   sequence : Array[UInt16],
   base_pairs : Array[(Int, Int)],
-  predictor : RNAStructurePredictor,
+  _predictor : RNAStructurePredictor,
 ) -> Array[LoopRegion] {
   let loop_regions : Array[LoopRegion] = Array(capacity=0)
   let n = sequence.length()

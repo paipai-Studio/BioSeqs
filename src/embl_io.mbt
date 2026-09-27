@@ -209,7 +209,7 @@ pub fn parse_embl(content : String) -> Array[SeqRecord] {
 
         // Parse SQ sequence lines: start with spaces, then digits optional, then bases
         if in_sq {
-          let l_start = if lt > 5 { 5 } else { lt }
+          let _l_start = if lt > 5 { 5 } else { lt }
           // Check if this is a sequence line (not all whitespace, contains bases)
           let mut has_base = false
           let mut k = 0

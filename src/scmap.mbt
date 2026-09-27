@@ -191,7 +191,7 @@ pub fn ScmapAssignment::method_(self : ScmapAssignment) -> String {
 /// Extract a single cell's expression vector (over common genes).
 fn scmap_extract_cell(
   expression : Array[Array[Double]],
-  gene_names : Array[String],
+  _gene_names : Array[String],
   cell_idx : Int,
 ) -> Array[Double] {
   let n_genes = expression.length()
@@ -493,7 +493,7 @@ pub fn scmap_sample_reference() -> ScmapReference {
   // NK cells: low GENE1-3, low GENE4-6, high GENE7-10
   let expression : Array[Array[Double]] = []
   // GENE1-3: T cell markers
-  for g in 0..<3 {
+  for _ in 0..<3 {
     let row : Array[Double] = []
     for c in 0..<9 {
       let val = if c < 3 { 8.0 + c.to_double() * 0.5 } else { 0.5 }
@@ -502,7 +502,7 @@ pub fn scmap_sample_reference() -> ScmapReference {
     expression.push(row)
   }
   // GENE4-6: B cell markers
-  for g in 0..<3 {
+  for _ in 0..<3 {
     let row : Array[Double] = []
     for c in 0..<9 {
       let val = if c >= 3 && c < 6 { 8.0 + c.to_double() * 0.5 } else { 0.5 }
@@ -511,7 +511,7 @@ pub fn scmap_sample_reference() -> ScmapReference {
     expression.push(row)
   }
   // GENE7-10: NK cell markers
-  for g in 0..<4 {
+  for _ in 0..<4 {
     let row : Array[Double] = []
     for c in 0..<9 {
       let val = if c >= 6 { 8.0 + c.to_double() * 0.5 } else { 0.5 }
@@ -533,7 +533,7 @@ pub fn scmap_sample_query() -> ScmapQuery {
   // gene × cell (10 genes × 3 query cells)
   let expression : Array[Array[Double]] = []
   // GENE1-3: high in query_T
-  for g in 0..<3 {
+  for _ in 0..<3 {
     let row : Array[Double] = []
     row.push(7.5) // query_T
     row.push(0.6) // query_B
@@ -541,7 +541,7 @@ pub fn scmap_sample_query() -> ScmapQuery {
     expression.push(row)
   }
   // GENE4-6: high in query_B
-  for g in 0..<3 {
+  for _ in 0..<3 {
     let row : Array[Double] = []
     row.push(0.6)
     row.push(7.5)
@@ -549,7 +549,7 @@ pub fn scmap_sample_query() -> ScmapQuery {
     expression.push(row)
   }
   // GENE7-10: low in all query cells
-  for g in 0..<4 {
+  for _ in 0..<4 {
     let row : Array[Double] = []
     row.push(0.5)
     row.push(0.5)

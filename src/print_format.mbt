@@ -274,7 +274,7 @@ fn pf_make_map_only(
   ls : Array[(String, Array[Int])],
   title : String,
   sequence : String,
-  cfg : PrintFormatConfig,
+  _cfg : PrintFormatConfig,
 ) -> String {
   if ls.length() == 0 {
     return title

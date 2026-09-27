@@ -44,11 +44,11 @@ pub fn cp_enrich_generic(
     let mut j = 0
     while j < gene_list.length() {
       let gene = gene_list[j]
-      let mut found = false
+      let mut _found = false
       let mut m = 0
       while m < term_genes.length() {
         if term_genes[m] == gene {
-          found = true
+          _found = true
           overlap_count = overlap_count + 1
           overlap_genes.push(gene)
         }

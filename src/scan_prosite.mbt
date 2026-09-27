@@ -241,7 +241,7 @@ pub fn scanprosite_scan(
 ///|
 priv enum SpXmlToken {
   Open(String, Map[String, String])
-  Close(String)
+  Close
   Text(String)
 }
 
@@ -270,8 +270,7 @@ fn sp_tokenize(xml : String) -> Array[SpXmlToken] raise ScanPrositeError {
       }
       if i + 1 < n && xml.unsafe_get(i + 1).to_int() == 47 {
         // closing tag </name>
-        let name = sp_ws_strip(xml[i + 2:j].to_owned())
-        tokens.push(Close(name))
+        tokens.push(Close)
         i = j + 1
       } else {
         let (name, attrs) = sp_parse_open_tag(xml[i + 1:j].to_owned())
@@ -335,7 +334,7 @@ fn sp_parse_node(
       let tb = StringBuilder()
       while i < tokens.length() {
         match tokens[i] {
-          Close(_) => {
+          Close => {
             node.text = tb.to_string()
             return (node, i + 1)
           }

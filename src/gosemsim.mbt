@@ -674,7 +674,7 @@ pub fn gosemsim_example_graph() -> GOGraph {
       term_name="cellular_process",
     ),
   )
-  let g5 = g4.add_term(
+  let _g5 = g4.add_term(
     GOTermNode::new(
       "GO:0006810",
       ic=0.7,
@@ -690,7 +690,7 @@ pub fn gosemsim_example_graph() -> GOGraph {
       term_name="signaling",
     ),
   )
-  let g7 = g6.add_term(
+  let _g7 = g6.add_term(
     GOTermNode::new(
       "GO:0007165",
       ic=0.6,

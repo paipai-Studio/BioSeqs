@@ -623,7 +623,7 @@ pub fn scater_run_pca(
       iter = iter + 1
     }
 
-    let scores : Array[Double] = Array::make(n_cells, 0.0)
+    let _scores : Array[Double] = Array::make(n_cells, 0.0)
     let mut i = 0
     while i < n_cells {
       let mut dot = 0.0

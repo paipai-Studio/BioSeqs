@@ -320,8 +320,8 @@ pub fn build_pathway_matrix(
 /// Uses L2-regularized linear regression (Ridge regression).
 /// Solution: β = (X^T X + λI)^(-1) X^T y
 pub fn run_progeny(data : ProgenyData) -> ProgenyResult {
-  let n_samples = data.sample_names.length()
-  let n_genes = data.gene_names.length()
+  let _n_samples = data.sample_names.length()
+  let _n_genes = data.gene_names.length()
   let n_pathways = data.pathways.length()
 
   // Build pathway weight matrix X (genes × pathways)

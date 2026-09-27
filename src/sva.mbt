@@ -395,7 +395,7 @@ fn pca_simple(
 
 ///|
 /// Estimate number of surrogate variables.
-fn num_sv(dat : Array[Array[Double]], mod : Array[Array[Double]]) -> Int {
+fn num_sv(dat : Array[Array[Double]], _mod : Array[Array[Double]]) -> Int {
   let nrow = dat.length()
   let ncol = dat[0].length()
   let (s_data, _, _) = standardize_rows(dat)
@@ -435,7 +435,7 @@ fn num_sv(dat : Array[Array[Double]], mod : Array[Array[Double]]) -> Int {
 pub fn sva(
   dat : Array[Array[Double]],
   mod : Array[Array[Double]],
-  mod0? : Array[Array[Double]] = [],
+  _mod0? : Array[Array[Double]] = [],
   n_sv? : Int = 0,
 ) -> SvaResult {
   let nrow = dat.length()

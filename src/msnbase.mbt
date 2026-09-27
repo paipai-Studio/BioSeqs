@@ -714,7 +714,7 @@ pub fn MSnSet::normalize_sum(
   let n_s = self.n_samples
   // First fill rows with copies of original data
   let new_exprs : Array[Array[Double]] = []
-  for i in 0..<n_f {
+  for _ in 0..<n_f {
     let row : Array[Double] = []
     for _j in 0..<n_s {
       row.push(0.0)
@@ -752,7 +752,7 @@ pub fn MSnSet::normalize_median_center(self : MSnSet) -> MSnSet {
   let n_f = self.n_features
   let n_s = self.n_samples
   let new_exprs : Array[Array[Double]] = []
-  for i in 0..<n_f {
+  for _ in 0..<n_f {
     let row : Array[Double] = []
     for _j in 0..<n_s {
       row.push(0.0)
@@ -975,7 +975,7 @@ pub fn Spectrum::centroid_simple(
     return self
   }
   // Estimate noise as median of small differences
-  let noise_estimate = 0.0
+  let _noise_estimate = 0.0
   // Compute median intensity / 50 as simple noise floor
   let sorted_int = mbn_sort_dbl(self.intensity)
   let noise_estimate = sorted_int[n / 4]

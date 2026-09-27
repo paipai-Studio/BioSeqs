@@ -27,16 +27,6 @@ pub struct KernelMatrix {
 }
 
 ///|
-pub struct DiffusionMapData {
-  cells : Array[String]
-  eigen_values : Array[Double]
-  eigen_vectors : Array[Array[Double]]
-  diffusion_components : Array[Array[Double]]
-  sigma : Double
-  n_components : Int
-}
-
-///|
 pub struct DiffusionResult {
   embedding : Array[Array[Double]]
   eigenvalues : Array[Double]

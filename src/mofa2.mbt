@@ -584,8 +584,8 @@ fn mofa_update_alpha(
   loadings : Array[Array[Array[Double]]],
   n_factors : Int,
   n_views : Int,
-  mu : Double,
-  tau : Double,
+  _mu : Double,
+  _tau : Double,
 ) -> Array[Double] {
   let new_alpha : Array[Double] = Array::make(n_factors, 0.0)
   let mut k = 0
@@ -622,7 +622,7 @@ fn mofa_compute_elbo(
   z : Array[Array[Double]],
   loadings : Array[Array[Array[Double]]],
   sigma : Array[Array[Double]],
-  alpha : Array[Double],
+  _alpha : Array[Double],
   n_factors : Int,
   n_views : Int,
   n_samples : Int,

@@ -813,7 +813,7 @@ fn micro_welch_t_test(x : Array[Double], y : Array[Double]) -> Double {
   let df_num = (var_x / n1 + var_y / n2) * (var_x / n1 + var_y / n2)
   let df_den = var_x / n1 * (var_x / n1) / (n1 - 1.0) +
     var_y / n2 * (var_y / n2) / (n2 - 1.0)
-  let df = if df_den > 0.0 { df_num / df_den } else { n1 + n2 - 2.0 }
+  let _df = if df_den > 0.0 { df_num / df_den } else { n1 + n2 - 2.0 }
 
   // Approximate p-value using normal approximation (two-tailed)
   let p_val = 2.0 * (1.0 - micro_normal_cdf(t_stat.abs()))

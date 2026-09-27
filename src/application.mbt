@@ -120,7 +120,7 @@ pub fn AbstractCommandline::build_command(self : AbstractCommandline) -> String 
 }
 
 ///|
-pub fn AbstractCommandline::run(self : AbstractCommandline) -> Int {
+pub fn AbstractCommandline::run(_self : AbstractCommandline) -> Int {
   0
 }
 
@@ -151,7 +151,7 @@ pub fn BioApplication::new(executable : String) -> BioApplication {
 }
 
 ///|
-pub fn BioApplication::run(self : BioApplication) -> (String, String) {
+pub fn BioApplication::run(_self : BioApplication) -> (String, String) {
   ("stdout output", "stderr output")
 }
 

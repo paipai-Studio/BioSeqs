@@ -705,7 +705,7 @@ pub fn gsva_run(
   )
 
   let n_sets = filtered_sets.length()
-  let n_samples = data.sample_names.length()
+  let _n_samples = data.sample_names.length()
   let scores = Array::make(n_sets, [])
   let gene_set_names = Array::make(n_sets, "")
 

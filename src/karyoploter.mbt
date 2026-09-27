@@ -525,7 +525,7 @@ pub fn KaryotypePlot::summary(plot : KaryotypePlot) -> String {
   s = s + "Regions: " + plot.regions.length().to_string() + "\n"
 
   let mut i = 0
-  let total_bp = 0
+  let _total_bp = 0
   while i < plot.chromosomes.length() {
     let chr = plot.chromosomes[i]
     s = s +

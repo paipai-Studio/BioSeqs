@@ -58,14 +58,6 @@ pub fn scenic_regulon(
 }
 
 ///|
-/// AUC matrix entry: regulon activity score for one cell.
-pub struct AUCEntry {
-  regulon_name : String
-  cell_name : String
-  auc : Double // normalized AUC in [0, 1]
-}
-
-///|
 /// SCENIC input: expression matrix + gene/cell names + TF list.
 pub struct SCENICInput {
   n_genes : Int
@@ -417,7 +409,7 @@ fn compute_auc(
   // Count how many targets appear in top max_rank positions
   let mut hits = 0
   let mut recovery_area = 0.0
-  let prev_recovery = 0
+  let _prev_recovery = 0
   for i in 0..<max_rank {
     let gene_idx = gene_ranking[i]
     let mut is_target = false

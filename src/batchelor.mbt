@@ -24,7 +24,7 @@ pub fn BatchCorrectionResult::new(
 ///|
 pub fn rescale_batches(
   batches : Array[Array[Array[Double]]],
-  batch_names : Array[String],
+  _batch_names : Array[String],
 ) -> BatchCorrectionResult {
   let n_batches = batches.length()
   if n_batches == 0 {
@@ -244,7 +244,7 @@ pub fn find_mutual_nearest_neighbors(
 ///|
 pub fn fast_mnn(
   batches : Array[Array[Array[Double]]],
-  batch_names : Array[String],
+  _batch_names : Array[String],
   k : Int,
   d : Int,
 ) -> BatchCorrectionResult {
@@ -670,7 +670,7 @@ pub fn compute_batch_mixing_score(
       unique_batches.push(idx)
     }
   }
-  let n_batches = unique_batches.length()
+  let _n_batches = unique_batches.length()
 
   let mut score = 0.0
   let mut i = 0

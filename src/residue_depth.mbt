@@ -186,7 +186,7 @@ pub fn calculate_sasa(
       let y = total_radius * @math.sin(theta) * @math.sin(phi)
       let z = total_radius * @math.cos(phi)
 
-      let test_point = RDPoint3D::new(
+      let _test_point = RDPoint3D::new(
         atom.coord.x + x,
         atom.coord.y + y,
         atom.coord.z + z,
@@ -285,7 +285,7 @@ pub fn calculate_residue_depth(
   residue : RDResidue,
   all_residues : Array[RDResidue],
   probe_radius : Double,
-  grid_spacing : Double,
+  _grid_spacing : Double,
 ) -> RDResult {
   let all_atoms = collect_all_atoms(all_residues)
 

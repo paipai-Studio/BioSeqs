@@ -320,13 +320,6 @@ pub fn mash_distance_matrix(sketches : Array[MashSketch]) -> Array[Double] {
 }
 
 ///|
-/// A neighbor in a simple clustering result.
-pub struct MashClusterMember {
-  name : String
-  distance : Double
-}
-
-///|
 /// Simple single-linkage clustering from a Mash distance matrix.
 /// Given a threshold, two genomes are in the same cluster if their
 /// Mash distance is <= threshold. This is equivalent to connected
@@ -375,7 +368,7 @@ pub fn mash_cluster(
   }
 
   // Group by root
-  let groups : Map[Int, Array[String]] = {}
+  let groups : Map[Int, Array[String]] = Map([], capacity=0)
   for i = 0; i < n; i = i + 1 {
     let root = find(parent, i)
     match groups.get(root) {

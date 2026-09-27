@@ -891,7 +891,7 @@ pub fn diffcyt_testDS(
         )
         let se = if se < 0.0000001 { 0.0000001 } else { se }
         let t_stat = mean_diff / se
-        let df = prior_d0 + d0
+        let _df = prior_d0 + d0
         // Convert t to p-value using normal approximation for large df.
         let p_value = 2.0 * (1.0 - dc_normal_cdf(dc_abs(t_stat)))
         let p_value = if p_value < 0.0 {

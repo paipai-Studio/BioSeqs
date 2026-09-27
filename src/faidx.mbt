@@ -156,7 +156,7 @@ pub fn build_fai(content : String) -> FastaIndex {
       continue
     }
     // Found header line '>'
-    let header_start = pos
+    let _header_start = pos
     // Find end of header line
     let mut header_end = pos + 1
     while header_end < n && content.unsafe_get(header_end) != nl {

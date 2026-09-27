@@ -239,7 +239,7 @@ pub fn Datastore::payload_oxum(self : Datastore) -> String {
 
 ///|
 /// The `bagit.txt` tag file contents.
-pub fn Datastore::bagit_txt(self : Datastore) -> String {
+pub fn Datastore::bagit_txt(_self : Datastore) -> String {
   "BagIt-Version: 1.0\nTag-File-Character-Encoding: UTF-8\n"
 }
 

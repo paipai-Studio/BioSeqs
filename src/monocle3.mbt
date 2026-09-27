@@ -15,15 +15,6 @@ pub struct CellDataSet {
 }
 
 ///|
-pub struct TrajectoryResult {
-  pseudotime : Array[Double]
-  partitions : Array[Int]
-  num_partitions : Int
-  principal_graph_nodes : Array[Array[Double]]
-  principal_graph_edges : Array[(Int, Int)]
-}
-
-///|
 pub struct DiffExprResult {
   gene : Array[String]
   pseudotime : Array[Double]

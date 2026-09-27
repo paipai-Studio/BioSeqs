@@ -657,11 +657,11 @@ fn build_newick(
 
   // Find node label
   let mut node_label = ""
-  let mut node_length : Double? = None
+  let mut _node_length : Double? = None
   for i = 0; i < tree.nodes.length(); i = i + 1 {
     if tree.nodes[i].id == node_id {
       node_label = tree.nodes[i].label
-      node_length = tree.nodes[i].length
+      _node_length = tree.nodes[i].length
       break
     }
   }

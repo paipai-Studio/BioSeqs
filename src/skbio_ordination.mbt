@@ -493,7 +493,7 @@ pub fn skbio_rda(
   let (_l, s, u) = skb_svd_qbar(y_hat)
   let rank = s.length()
   let f = skb_mul(y_c, u)
-  let z = skb_mul(y_hat, u)
+  let _z = skb_mul(y_hat, u)
   // residual
   let y_res : Array[Array[Double]] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {

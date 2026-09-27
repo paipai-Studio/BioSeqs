@@ -629,7 +629,7 @@ pub fn oc_em_t_mixture_1d(
     for i in 0..<n {
       let mut sum = 0.0
       for k in 0..<n_clusters {
-        let d = data[i] - means[k]
+        let _d = data[i] - means[k]
         let v = variances[k]
         // t-density (simplified): weight * t_pdf(x; mean, var_, df)
         let t_pdf = oc_t_pdf(data[i], means[k], v, df) * weights[k]

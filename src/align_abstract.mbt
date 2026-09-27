@@ -785,7 +785,7 @@ pub fn abstract_trim(
 ///|
 /// Generate a summary report for the alignment.
 pub fn abstract_summary(alignment : AbstractAlignment) -> String {
-  let (valid, msg) = alignment.validate()
+  let (valid, _msg) = alignment.validate()
   let n_seqs = alignment.n_seqs.to_string()
   let alen = alignment.alignment_length.to_string()
   let coverage = abstract_coverage(alignment).to_string()

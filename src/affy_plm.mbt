@@ -198,14 +198,14 @@ pub fn fit_plm(
     chip[j] = grand_mean
   }
   let weights : Array[Array[Double]] = Array(capacity=0)
-  for i in 0..<n_probes {
+  for _ in 0..<n_probes {
     let row : Array[Double] = Array::make(n_samples, 1.0)
     weights.push(row)
   }
   let mut sigma = 1.0
   let mut iter = 0
   let residuals : Array[Array[Double]] = Array(capacity=0)
-  for i in 0..<n_probes {
+  for _ in 0..<n_probes {
     let row : Array[Double] = Array::make(n_samples, 0.0)
     residuals.push(row)
   }

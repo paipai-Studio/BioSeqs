@@ -295,7 +295,7 @@ pub fn run_tradeseq_analysis(
   trajectory_data : TrajectoryData,
   genes : Array[String],
   conditions : Array[String],
-  n_knots : Int,
+  _n_knots : Int,
   fdr : Double,
 ) -> TradeSeqResult {
   let gene_results : Array[DifferentialExpressionResult] = Array(capacity=0)
@@ -442,7 +442,7 @@ pub fn calculate_gene_smooth(
 
   let pt_range = max_pt - min_pt
   let k = gam_fit.degrees_of_freedom.to_int()
-  let basis = tradeseq_create_basis(pseudotime, if k > 0 { k } else { 4 })
+  let _basis = tradeseq_create_basis(pseudotime, if k > 0 { k } else { 4 })
 
   let mut l = 0
   while l < n_points {

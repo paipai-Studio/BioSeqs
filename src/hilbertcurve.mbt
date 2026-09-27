@@ -64,7 +64,7 @@ fn hilbert_inverse(hc : HilbertCurve, x : Array[Int], s : Int) -> Unit {
   let n = hc.dimension
 
   let shift_amount = log2_int(s)
-  let bits = (x[0] >> shift_amount) & 1
+  let _bits = (x[0] >> shift_amount) & 1
   let mut i = 1
   while i < n {
     let bit_i = (x[i] >> shift_amount) & 1

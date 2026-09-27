@@ -131,7 +131,7 @@ pub fn KMeans::fit(self : KMeans, data : Array[Point]) -> KMeans {
     return KMeans::{ ..self, centroids: [], labels: [], }
   }
 
-  let dim = data[0].length()
+  let _dim = data[0].length()
 
   let mut centroids = []
   for i = 0; i < self.k; i = i + 1 {
@@ -222,7 +222,7 @@ pub fn silhouette_score(data : Array[Point], labels : Array[Int]) -> Double {
       max_label = l
     }
   }
-  let k = max_label + 1
+  let _k = max_label + 1
 
   for i = 0; i < n; i = i + 1 {
     let label = labels[i]

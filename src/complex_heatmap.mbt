@@ -671,7 +671,7 @@ pub fn ch_draw_heatmap(
   let min_val = ch_min(all_values)
   let max_val = ch_max(all_values)
 
-  let cmap = ColorMap::new(
+  let _cmap = ColorMap::new(
     [
       "#313695", "#4575B4", "#74ADD1", "#ABD9E9", "#E0F3F8", "#FFFFBF", "#FEE090",
       "#FDAE61", "#F46D43", "#D73027", "#A50026",
@@ -908,7 +908,7 @@ pub fn ch_add_annotation(
 
 ///|
 pub fn ch_annotate_rows(
-  data : HeatmapData,
+  _data : HeatmapData,
   annotations : Array[HeatmapAnnotation],
 ) -> String {
   let mut result = "Row Annotations:\n"
@@ -924,7 +924,7 @@ pub fn ch_annotate_rows(
 
 ///|
 pub fn ch_annotate_cols(
-  data : HeatmapData,
+  _data : HeatmapData,
   annotations : Array[HeatmapAnnotation],
 ) -> String {
   let mut result = "Column Annotations:\n"

@@ -43,7 +43,7 @@ pub fn dge_list(
 
 ///|
 pub fn calc_norm_factors(dge : DGEList) -> DGEList {
-  let n_genes = dge.counts.length()
+  let _n_genes = dge.counts.length()
   let n_cols = dge.lib_size.length()
 
   let ref_lib_size = dge.lib_size[0]

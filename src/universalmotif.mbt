@@ -533,7 +533,7 @@ fn um_to_ppm(
   motif : Array[Array[Double]],
   motif_type : UMotifType,
   pseudocount : Double,
-  nsites : Double,
+  _nsites : Double,
   bkg : Array[Double],
 ) -> Array[Array[Double]] {
   match motif_type {

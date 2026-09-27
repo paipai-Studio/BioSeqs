@@ -417,7 +417,7 @@ pub fn dataframe_summarize(
 
   let mut i = 0
   while i < agg_columns.length() {
-    let (name, agg_func) = agg_columns[i]
+    let (name, _agg_func) = agg_columns[i]
     let agg_col = Column::{ name, dtype: DoubleType, values: [], }
     result_cols.push(agg_col)
     i = i + 1

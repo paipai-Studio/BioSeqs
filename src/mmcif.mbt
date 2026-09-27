@@ -274,7 +274,7 @@ pub fn MmcifDataBlock::to_atoms(self : MmcifDataBlock) -> Array[Atom] {
   }
 
   let headers = sites[0]
-  let rows_len = sites.length() - 1
+  let _rows_len = sites.length() - 1
   let rows : Array[Array[String]] = Array(capacity=0)
   let mut k = 1
   while k < sites.length() {

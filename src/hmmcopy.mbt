@@ -188,7 +188,7 @@ pub fn HMMcopyModel::set_initial(
 
 ///|
 /// Get the copy number for a state index.
-pub fn HMMcopyModel::state_to_copy(self : HMMcopyModel, state : Int) -> Int {
+pub fn HMMcopyModel::state_to_copy(_self : HMMcopyModel, state : Int) -> Int {
   state
 }
 

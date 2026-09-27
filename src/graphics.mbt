@@ -401,7 +401,7 @@ pub fn feature_plot_generate_ascii(plot : FeaturePlot) -> String {
 
   let mut feat_idx = 0
   while feat_idx < plot.features.length() {
-    let (name, start, end, feat_type, strand) = plot.features[feat_idx]
+    let (name, start, end, _feat_type, strand) = plot.features[feat_idx]
 
     let mut line = ""
     let mut pos = 0

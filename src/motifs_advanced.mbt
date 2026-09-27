@@ -873,7 +873,7 @@ pub fn randomize_motif(
 ///|
 fn adv_sin(x : Double) -> Double {
   let mut result = 0.0
-  let mut term = x
+  let mut _term = x
   let mut sign = 1.0
   let mut factorial = 1.0
   let mut power = x

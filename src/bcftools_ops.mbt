@@ -581,7 +581,7 @@ fn variant_key(chrom : String, pos : Int, ref_allele : String, alt : Array[Strin
 /// Mirrors `bcftools annotate --annotations source.vcf`.
 pub fn vcf_annotate_from(target : VcfFile, source : VcfFile) -> VcfFile {
   // Build lookup table from source
-  let lookup : Map[String, Map[String, String]] = {}
+  let lookup : Map[String, Map[String, String]] = Map([], capacity=0)
   for rec in source.records {
     let key = variant_key(rec.chrom, rec.pos, rec.ref_seq, rec.alt)
     lookup[key] = rec.info

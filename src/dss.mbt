@@ -661,8 +661,8 @@ pub fn dss_dml(methyl_data : DSSMethylData) -> DSSDMResult {
     j = j + 1
   }
 
-  let n1 = group1_idx.length().to_double()
-  let n2 = group2_idx.length().to_double()
+  let _n1 = group1_idx.length().to_double()
+  let _n2 = group2_idx.length().to_double()
 
   let meth_mean1_arr : Array[Double] = Array(capacity=0)
   let meth_mean2_arr : Array[Double] = Array(capacity=0)

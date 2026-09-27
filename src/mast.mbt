@@ -396,7 +396,7 @@ fn gamma_regularized_q(a : Double, x : Double) -> Double {
 
 ///|
 fn fisher_exact_test(a : Int, b : Int, c : Int, d : Int) -> Double {
-  let n = a + b + c + d
+  let _n = a + b + c + d
   let r1 = a + b
   let r2 = c + d
   let c1 = a + c

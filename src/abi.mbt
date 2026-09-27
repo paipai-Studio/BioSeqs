@@ -31,13 +31,13 @@ let abi_version_1 : Int = 0x0200
 
 ///|
 /// Directory entry size in bytes (always 128 in ABIF).
-let abi_dir_entry_size : Int = 128
+let _abi_dir_entry_size : Int = 128
 
 // ===== Element type codes =====
 
 ///|
 /// ABIF element type 1: byte (1 byte unsigned).
-let abi_type_byte : Int = 1
+let _abi_type_byte : Int = 1
 
 ///|
 /// ABIF element type 2: char (1 byte signed).
@@ -49,27 +49,27 @@ let abi_type_word : Int = 3
 
 ///|
 /// ABIF element type 4: short (2 byte signed).
-let abi_type_short : Int = 4
+let _abi_type_short : Int = 4
 
 ///|
 /// ABIF element type 5: long (4 byte signed).
-let abi_type_long : Int = 5
+let _abi_type_long : Int = 5
 
 ///|
 /// ABIF element type 7: float (4 bytes).
-let abi_type_float : Int = 7
+let _abi_type_float : Int = 7
 
 ///|
 /// ABIF element type 8: double (8 bytes).
-let abi_type_double : Int = 8
+let _abi_type_double : Int = 8
 
 ///|
 /// ABIF element type 10: date (4 bytes).
-let abi_type_date : Int = 10
+let _abi_type_date : Int = 10
 
 ///|
 /// ABIF element type 11: time (4 bytes).
-let abi_type_time : Int = 11
+let _abi_type_time : Int = 11
 
 ///|
 /// ABIF element type 12: pstring (Pascal string, length-prefixed).
@@ -77,11 +77,11 @@ let abi_type_pstring : Int = 12
 
 ///|
 /// ABIF element type 13: cstring (null-terminated string).
-let abi_type_cstring : Int = 13
+let _abi_type_cstring : Int = 13
 
 ///|
 /// ABIF element type 18: bool (1 byte).
-let abi_type_bool : Int = 18
+let _abi_type_bool : Int = 18
 
 // ===== Data structures =====
 
@@ -572,8 +572,8 @@ pub fn abi_parse(bytes : Array[Int]) -> AbiTrace {
   // But I already defined abi_dir_entry_size as 128 above.
   // I'll fix the constant.
   // For now, let me try reading with the standard offset (6) and 28-byte entries.
-  let dir_offset = 6 // First directory entry starts at byte 6
-  let num_entries = 1 // Start with 1, will read more as we go
+  let _dir_offset = 6 // First directory entry starts at byte 6
+  let _num_entries = 1 // Start with 1, will read more as we go
   // Actually, the ABIF header is more complex. Let me re-read:
   // After "ABIF" and version, the next bytes might be the directory info.
   // According to the spec, the header is:
@@ -866,7 +866,7 @@ pub fn abi_encode(trace : AbiTrace) -> Array[Int] {
   //   2 bytes: version
   abi_write_u16(bytes, abi_version_1)
   //   4 bytes: dir offset (right after this header)
-  let dir_offset_pos = bytes.length()
+  let _dir_offset_pos = bytes.length()
   abi_write_u32(bytes, 16) // directory starts at byte 16
   //   4 bytes: dir length (28 * num_entries)
   abi_write_u32(bytes, num_entries * 28)

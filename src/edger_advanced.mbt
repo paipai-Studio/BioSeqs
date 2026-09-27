@@ -71,8 +71,8 @@ pub fn glm_qlf_fit(dge : DGEList) -> QLFData {
   // Design matrix: intercept + group indicator (2-group design)
   // For simplicity, we use a 2-column design: [1, group_indicator]
   let group_labels : Array[String] = Array(capacity=0)
-  let mut has_group0 = false
-  let mut has_group1 = false
+  let mut _has_group0 = false
+  let mut _has_group1 = false
   for g in dge.group {
     if !group_labels.contains(g) {
       group_labels.push(g)
@@ -772,7 +772,7 @@ fn sort_indices(arr : Array[Double]) -> Array[Int] {
 pub fn camera(
   qlf_result : QLFResult,
   gene_set : Array[String],
-  _n_perm? : Int = 1000,
+  n_perm? : Int = 1000,
 ) -> (Double, Double, String) {
   let n_genes = qlf_result.genes.length()
 

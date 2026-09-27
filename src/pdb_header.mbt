@@ -409,7 +409,7 @@ pub fn parse_pdb_header(pdb_text : String) -> PDBHeader {
 pub fn parse_pdb_header_lines(lines : Array[String]) -> PDBHeader {
   let mut pdb_id = ""
   let mut date_deposited = ""
-  let mut title_start = ""
+  let mut _title_start = ""
 
   let mut i = 0
   while i < lines.length() {
@@ -418,7 +418,7 @@ pub fn parse_pdb_header_lines(lines : Array[String]) -> PDBHeader {
       let (id, date, ts) = parse_header_record(line)
       pdb_id = id
       date_deposited = date
-      title_start = ts
+      _title_start = ts
       break
     }
     i = i + 1
@@ -844,7 +844,7 @@ fn extract_chain_ids_from_compound(compound : CompoundInfo) -> Array[String] {
 
 ///|
 /// Extract chain IDs from DBREF entries as fallback.
-fn extract_chain_ids_from_dbref(dbrefs : Array[DBRefEntry]) -> Array[String] {
+fn extract_chain_ids_from_dbref(_dbrefs : Array[DBRefEntry]) -> Array[String] {
   let result : Array[String] = []
   result
 }

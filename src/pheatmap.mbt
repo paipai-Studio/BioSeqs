@@ -255,15 +255,6 @@ pub fn pheatmap_column_distance_matrix(
 }
 
 ///|
-/// Simple hierarchical clustering using complete linkage.
-pub struct HclustNode {
-  left : Int
-  right : Int
-  height : Double
-  size : Int
-}
-
-///|
 pub struct HclustResult {
   merge : Array[(Int, Int)]
   height : Array[Double]
@@ -1185,7 +1176,7 @@ fn pheatmap_build_text(
       j = j + 1
     }
     // Actually, let's build it as a single line
-    let header_parts : Array[String] = Array(capacity=0)
+    let _header_parts : Array[String] = Array(capacity=0)
     let _ = header
     let mut header_line = "      "
     let mut k = 0
@@ -1295,7 +1286,7 @@ fn pheatmap_color_cell(color : String) -> String {
 }
 
 ///|
-fn pheatmap_format_value(val : Double, format : String) -> String {
+fn pheatmap_format_value(val : Double, _format : String) -> String {
   // Simple format: show 2 decimal places
   let s = val.to_string()
   // Truncate to 5 chars

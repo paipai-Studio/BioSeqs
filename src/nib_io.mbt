@@ -19,7 +19,7 @@
 
 ///|
 /// nib format version this implementation reads and writes.
-let nib_version : Int = 1
+let _nib_version : Int = 1
 
 // ============================================================================
 // Base encoding / decoding

@@ -108,7 +108,7 @@ pub fn scm_find_seg(
   }
 
   let n_genes = batches[0][0].length()
-  let n_cells_total = batches[0].length()
+  let _n_cells_total = batches[0].length()
   if n_genes == 0 {
     return Array(capacity=0)
   }

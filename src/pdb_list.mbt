@@ -66,7 +66,7 @@ pub fn PDBList::download_all_pdbs(
 }
 
 ///|
-pub fn PDBList::get_all_obsolete(self : PDBList) -> Array[String] {
+pub fn PDBList::get_all_obsolete(_self : PDBList) -> Array[String] {
   let obsolete : Array[String] = Array(capacity=0)
   obsolete
 }
@@ -85,13 +85,13 @@ pub fn PDBList::update_pdb(self : PDBList) -> (PDBList, String) {
 }
 
 ///|
-pub fn PDBList::get_recent_changes(self : PDBList, days : Int) -> Array[String] {
+pub fn PDBList::get_recent_changes(_self : PDBList, _days : Int) -> Array[String] {
   let changes : Array[String] = Array(capacity=0)
   changes
 }
 
 ///|
-pub fn PDBList::resolve_obsolete(self : PDBList, pdb_code : String) -> String {
+pub fn PDBList::resolve_obsolete(_self : PDBList, pdb_code : String) -> String {
   let obsolete_map = Map([("1XYZ", "2XYZ"), ("3ABC", "4ABC")], capacity=2)
 
   if obsolete_map.contains(pdb_code) {

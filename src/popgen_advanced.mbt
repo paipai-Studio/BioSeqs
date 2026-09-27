@@ -234,7 +234,7 @@ pub fn popgen_tajima_d(
   theta_pi : Double,
   segregating_sites : Int,
   sample_size : Int,
-  sequence_length : Int,
+  _sequence_length : Int,
 ) -> NeutralityTestResult {
   let theta_w = popgen_watterson_theta(segregating_sites, sample_size)
   let se = tajima_d_standard_error(sample_size, segregating_sites, theta_w)

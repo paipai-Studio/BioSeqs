@@ -52,7 +52,7 @@ pub fn scanpy_normalize_total(
     }
     let nor : Array[Double] = Array(capacity=0)
     if s == 0.0 {
-      for v in row {
+      for _ in row {
         nor.push(0.0)
       }
     } else {

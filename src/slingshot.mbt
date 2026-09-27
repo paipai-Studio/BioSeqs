@@ -415,7 +415,7 @@ pub fn sling_fit_principal_curve(
   if n_points == 0 {
     return Array(capacity=0)
   }
-  let dim = points[0].length()
+  let _dim = points[0].length()
   // Initialize curve segments along the first principal component
   let (pc1_min, pc1_max) = sling_pc1_range(points)
   let curve : Array[Array[Double]] = Array(capacity=0)
@@ -435,7 +435,7 @@ pub fn sling_fit_principal_curve(
   let max_iter = 20
   let mut iter = 0
   while iter < max_iter {
-    let (new_curve, changed) = sling_refine_curve(points, curve)
+    let (_new_curve, changed) = sling_refine_curve(points, curve)
     if !changed {
       break
     }
@@ -567,10 +567,10 @@ fn sling_refine_curve(
         curve[start_seg],
         curve[end_seg],
       )
-      let dist2 = 0.0
+      let _dist2 = 0.0
       let mut dd = 0
       while dd < dim {
-        let diff = points[pi][dd] - proj[dd]
+        let _diff = points[pi][dd] - proj[dd]
         // Use distance to determine weight
         dd = dd + 1
       }
@@ -777,9 +777,9 @@ fn sling_euclid_dist(a : Array[Double], b : Array[Double]) -> Double {
 pub fn slingshot_run(
   cell_coords : Array[Array[Double]],
   cluster_labels : Array[String],
-  params : SlingshotParams,
+  _params : SlingshotParams,
 ) -> SlingshotResult {
-  let n_cells = cell_coords.length()
+  let _n_cells = cell_coords.length()
   let n_clusters = sling_unique_labels(cluster_labels)
   // Build cluster centers
   let nodes = sling_build_nodes(cell_coords, cluster_labels, n_clusters)
@@ -1179,7 +1179,7 @@ fn sling_assign_cell_to_curve(
 ///|
 fn sling_curve_contains_cluster(
   curve : SlingshotCurve,
-  nodes : Array[SlingshotNode],
+  _nodes : Array[SlingshotNode],
   cluster_id : String,
 ) -> Bool {
   // Check if start or end node of curve matches the cluster

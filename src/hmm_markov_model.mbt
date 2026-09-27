@@ -1658,7 +1658,7 @@ pub fn KnownStateTrainer::train(
 ///|
 /// Add emissions from the training sequence to the current counts.
 pub fn KnownStateTrainer::count_emissions(
-  self : KnownStateTrainer,
+  _self : KnownStateTrainer,
   training_seq : TrainingSequence,
   emission_counts : Map[String, Map[String, Double]],
 ) -> Map[String, Map[String, Double]] raise HmmError {
@@ -1678,7 +1678,7 @@ pub fn KnownStateTrainer::count_emissions(
 ///|
 /// Add transitions from the training sequence to the current counts.
 pub fn KnownStateTrainer::count_transitions(
-  self : KnownStateTrainer,
+  _self : KnownStateTrainer,
   state_seq : Array[String],
   transition_counts : Map[String, Map[String, Double]],
 ) -> Map[String, Map[String, Double]] raise HmmError {

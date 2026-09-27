@@ -152,7 +152,6 @@ pub fn parse_hmmer3_domtab(content : String) -> Array[QueryResult] {
     let hit = HmmerDomHit::{
       target_name,
       target_acc,
-      query_name,
       query_acc,
       evalue_full,
       score_full,
@@ -316,7 +315,6 @@ pub fn parse_hmmer3_domtab(content : String) -> Array[QueryResult] {
 priv struct HmmerDomHit {
   target_name : String
   target_acc : String
-  query_name : String
   query_acc : String
   evalue_full : Double
   score_full : Double

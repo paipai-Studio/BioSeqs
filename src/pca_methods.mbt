@@ -301,7 +301,7 @@ pub fn ppca(
     m.push(row)
   }
   // deterministic init: C = first k rows transposed (D×k)
-  let c0 = pm_transpose(Array::make(0, [])) // placeholder
+  let _c0 = pm_transpose(Array::make(0, [])) // placeholder
   let c_init : Array[Array[Double]] = Array(capacity=0)
   for j = 0; j < d; j = j + 1 {
     let row = Array::make(k, 0.0)
@@ -524,7 +524,7 @@ pub fn bpca(
           dyo_vals.push(matrix[idx][j] - mean[j])
         }
       }
-      let d_o = obs.length()
+      let _d_o = obs.length()
       // Wm = PA[missing rows] (d_m × k), Wo = PA[observed rows] (d_o × k)
       let wm : Array[Array[Double]] = Array(capacity=0)
       let wo : Array[Array[Double]] = Array(capacity=0)

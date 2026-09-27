@@ -355,7 +355,7 @@ pub fn pairwise_localxx(
   seq2 : String,
   match_sc : Double,
   mismatch_sc : Double,
-  gap_open : Double,
+  _gap_open : Double,
   gap_extend : Double,
 ) -> PairwiseAlignResult {
   let n = seq1.length()
@@ -619,7 +619,7 @@ pub fn pairwise_localms(
   seq1 : String,
   seq2 : String,
   matrix : Map[String, Double],
-  gap_open : Double,
+  _gap_open : Double,
   gap_extend : Double,
 ) -> PairwiseAlignResult {
   let scorer = matrix_score(matrix, 0.0)

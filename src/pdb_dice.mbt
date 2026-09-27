@@ -157,7 +157,6 @@ pub fn extract_residues(
   for i = 0; i < structure.models.length(); i = i + 1 {
     let model = structure.models[i]
     let new_chains : Array[Chain] = []
-    let chain_residues_map = Map([], capacity=8) // chain_id -> Array[Residue]
 
     for j = 0; j < model.chains.length(); j = j + 1 {
       let chain = model.chains[j]

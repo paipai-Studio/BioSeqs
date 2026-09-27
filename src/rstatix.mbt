@@ -911,13 +911,13 @@ fn rstatix_ibeta(a : Double, b : Double, x : Double) -> Double {
   if x == 0.0 || x == 1.0 {
     return x
   }
-  let g = 7.0
-  let c = [
+  let _g = 7.0
+  let _c = [
     0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
     -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6,
     1.5056327351493116e-7,
   ]
-  let pi = 3.14159265358979323846
+  let _pi = 3.14159265358979323846
   let lbeta = rstatix_lgamma(a) + rstatix_lgamma(b) - rstatix_lgamma(a + b)
   let front = @math.exp(a * @math.ln(x) + b * @math.ln(1.0 - x) - lbeta) / a
   let max_iter = 100

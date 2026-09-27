@@ -331,8 +331,8 @@ pub fn ic_build_extended_chain(sequence : Array[String]) -> ICToCartesianResult 
   let bond_ca_c = 1.52
   let bond_c_n = 1.33
   let angle_n_ca_c = ic_deg_to_rad(110.0)
-  let angle_ca_c_n = ic_deg_to_rad(116.0)
-  let angle_c_n_ca = ic_deg_to_rad(121.0)
+  let _angle_ca_c_n = ic_deg_to_rad(116.0)
+  let _angle_c_n_ca = ic_deg_to_rad(121.0)
 
   // Extended chain: phi = -150, psi = 150, omega = 180 (in radians)
   let phi_ext = ic_deg_to_rad(-150.0)

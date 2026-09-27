@@ -466,7 +466,7 @@ pub fn run_ds_analysis(
   }
   let adjusted = muscat_bh_adjust(p_values)
 
-  let n_sig = 0
+  let _n_sig = 0
   let mut si2 = 0
   while si2 < all_results.length() {
     all_results[si2].p_adj = adjusted[si2]

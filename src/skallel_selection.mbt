@@ -66,7 +66,7 @@ pub fn skallel_ehh_decay(h : Array[Array[Int]]) -> Array[Double] {
 fn ssl2ihh(
   ssl : Array[Int],
   n_pairs : Int,
-  l_max : Int,
+  _l_max : Int,
   variant_idx : Int,
   gaps : Array[Double],
   min_ehh : Double,

@@ -307,7 +307,7 @@ pub fn glm_pseudobulk(
 
   // Assign samples to groups
   let sample_groups : Array[Array[String]] = []
-  for g in 0..<n_groups {
+  for _ in 0..<n_groups {
     sample_groups.push([])
   }
   for s in 0..<n_samples {
@@ -317,7 +317,7 @@ pub fn glm_pseudobulk(
 
   // Aggregate counts
   let agg_counts : Array[Array[Double]] = []
-  for g in 0..<n_groups {
+  for _ in 0..<n_groups {
     agg_counts.push(Array::make(n_genes, 0.0))
   }
   for i in 0..<n_genes {
@@ -480,7 +480,7 @@ pub fn glm_initial_estimates(
   // Simple least squares: solve X^T X beta = X^T y
   // Build X^T X (k x k) and X^T y (k)
   let xtx : Array[Array[Double]] = []
-  for i in 0..<n_coefs {
+  for _ in 0..<n_coefs {
     xtx.push(Array::make(n_coefs, 0.0))
   }
   let xty : Array[Double] = Array::make(n_coefs, 0.0)
@@ -553,7 +553,7 @@ pub fn glm_iwlcs_fit(
 
   let coefs = initial_coefs.copy()
 
-  for iter in 0..<max_iter {
+  for _ in 0..<max_iter {
     // Compute fitted values
     let fitted : Array[Double] = Array::make(n, 0.0)
     for s in 0..<n {
@@ -584,7 +584,7 @@ pub fn glm_iwlcs_fit(
 
     // Weighted least squares: solve (X^T W X) delta = X^T W (z - X beta)
     let xtwx : Array[Array[Double]] = []
-    for i in 0..<n_coefs {
+    for _ in 0..<n_coefs {
       xtwx.push(Array::make(n_coefs, 0.0))
     }
     let xtwr : Array[Double] = Array::make(n_coefs, 0.0)
@@ -633,7 +633,7 @@ pub fn glm_compute_se(
   design : GlmDesign,
   dispersion : Double,
   coefs : Array[Double],
-  size_factors : Array[Double],
+  _size_factors : Array[Double],
 ) -> Array[Double] {
   let n = design.n_samples()
   let n_coefs = design.n_coefs()
@@ -654,7 +654,7 @@ pub fn glm_compute_se(
   // Compute weight matrix inverse diagonal elements
   // Var(beta_j) = (X^T W X)^{-1}_{jj}
   let xtwx : Array[Array[Double]] = []
-  for i in 0..<n_coefs {
+  for _ in 0..<n_coefs {
     xtwx.push(Array::make(n_coefs, 0.0))
   }
 

@@ -241,7 +241,7 @@ pub fn approx_search_with_indels(
   }
 
   if found {
-    let seg = query[best_start:best_end]
+    let _seg = query[best_start:best_end]
     let score = pat_len - best_errors
     ApproxMatch::{
       pattern,

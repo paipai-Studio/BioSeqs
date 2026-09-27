@@ -193,7 +193,6 @@ priv struct Window {
   end_ : Int
   targetIndex : Int // index of the parent target region
   windowIndex : Int // window index within the target (0-based)
-  isTarget : Bool // true for target body windows, false for flanking
 }
 
 ///|
@@ -228,7 +227,6 @@ fn make_windows(
         end_: w_end,
         targetIndex: ti,
         windowIndex: actual_wi,
-        isTarget: false,
       })
       wi = wi + 1
     }
@@ -251,7 +249,6 @@ fn make_windows(
           end_: w_end,
           targetIndex: ti,
           windowIndex: n_up + actual_ki,
-          isTarget: true,
         })
         ki = ki + 1
       }
@@ -274,7 +271,6 @@ fn make_windows(
         end_: w_end,
         targetIndex: ti,
         windowIndex: base_idx + actual_di,
-        isTarget: false,
       })
       di = di + 1
     }

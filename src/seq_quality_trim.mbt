@@ -774,7 +774,7 @@ test "sqt_trim_by_length_keep" {
   let seq = "ACGTACGTACGTACGT"
   let qual = "IIIIIIIIIIIIIIII"
   let result = sqt_trim_by_length(seq, qual, min_length=5)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|
@@ -790,7 +790,7 @@ test "sqt_trim_by_length_exact" {
   let seq = "ACGTACGT"
   let qual = "IIIIIIII"
   let result = sqt_trim_by_length(seq, qual, min_length=8)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|
@@ -798,7 +798,7 @@ test "sqt_trim_by_gc_within_range" {
   let seq = "ACGTACGT"
   let qual = "IIIIIIII"
   let result = sqt_trim_by_gc(seq, qual, gc_min=0.3, gc_max=0.7)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|
@@ -822,7 +822,7 @@ test "sqt_trim_by_gc_mid_range" {
   let seq = "ACGTACGTACGT"
   let qual = "IIIIIIIIIIII"
   let result = sqt_trim_by_gc(seq, qual, gc_min=0.4, gc_max=0.6)
-  assert_true(result is Some)
+  assert_true(result is Some(_))
 }
 
 ///|

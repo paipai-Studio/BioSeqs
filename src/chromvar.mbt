@@ -456,7 +456,7 @@ pub fn chromvar_deviation_score(
 pub fn chromvar_compute_deviations(
   data : ChromVARData,
   motifs : Array[ChromVARMotif],
-  bias : BiasCorrection,
+  _bias : BiasCorrection,
 ) -> DeviationResult {
   let n_cells = data.counts.length()
   let n_motifs = motifs.length()
@@ -609,7 +609,7 @@ pub fn chromvar_differential_deviation(
 pub fn chromvar_enrichment_analysis(
   data : ChromVARData,
   motifs : Array[ChromVARMotif],
-  groups : Array[String],
+  _groups : Array[String],
 ) -> Array[MotifEnrichment] {
   let result : Array[MotifEnrichment] = Array(capacity=0)
   let mut i = 0
@@ -837,7 +837,7 @@ pub fn chromvar_find_highly_variable_motifs(
 ///|
 pub fn chromvar_cluster_cells(
   deviations : Array[Array[Double]],
-  cluster_method : String,
+  _cluster_method : String,
 ) -> Array[Int] {
   let n_cells = if deviations.length() > 0 { deviations[0].length() } else { 0 }
   let clusters : Array[Int] = Array(capacity=0)

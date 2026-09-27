@@ -735,7 +735,7 @@ pub fn snapgene_from_bytes(data : Array[Int]) -> SnapgeneFile {
   let file = SnapgeneFile::new()
   let n = data.length()
   let mut offset = 0
-  let mut first_packet = true
+  let mut _first_packet = true
   while offset + 5 <= n {
     let pkt_type = data[offset] & 0xFF
     let pkt_len = sg_read_u32_be(data, offset + 1)
@@ -793,7 +793,7 @@ pub fn snapgene_from_bytes(data : Array[Int]) -> SnapgeneFile {
       }
     }
     offset = offset + pkt_len
-    first_packet = false
+    _first_packet = false
   }
   file
 }

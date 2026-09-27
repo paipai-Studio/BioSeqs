@@ -354,12 +354,12 @@ pub fn CircSeq::circ_design_primers(
   let rev_seq = self.circ_slice(rev_start, primer_len)
 
   // Calculate GC content of primers
-  let fwd_gc = calc_gc(fwd_seq)
-  let rev_gc = calc_gc(rev_seq)
+  let _fwd_gc = calc_gc(fwd_seq)
+  let _rev_gc = calc_gc(rev_seq)
 
   // Adjust primer length to reach target GC content
-  let adj_fwd_len = adjust_primer_length(self, fwd_start, primer_len, gc_target)
-  let adj_rev_len = adjust_primer_length(self, rev_start, primer_len, gc_target)
+  let _adj_fwd_len = adjust_primer_length(self, fwd_start, primer_len, gc_target)
+  let _adj_rev_len = adjust_primer_length(self, rev_start, primer_len, gc_target)
 
   // Return the positions (primer_start position, not the primer sequence)
   (fwd_start, rev_start, product_len)
@@ -656,7 +656,7 @@ pub fn circ_tm(
 ) -> Double {
   let seq = template.circ_slice(start, len)
   let gc = calc_gc(seq)
-  let at = 1.0 - gc
+  let _at = 1.0 - gc
 
   // Nearest-neighbor Tm calculation (simplified)
   // Tm = 64.9 + 41 * (GC - 0.16) for sequences with < 14 bases

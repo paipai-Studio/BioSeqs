@@ -344,8 +344,8 @@ pub fn sgseq_build_splice_graph(
   //   - downstream exon starts at 'end' (first base of exon)
   // So exon between two junctions: [j1.end, j2.start]
   let exons = Array(capacity=0)
-  let chr = junctions[0].chr
-  let strand = junctions[0].strand
+  let _chr = junctions[0].chr
+  let _strand = junctions[0].strand
   // Group junctions by chr
   let by_chr : Map[String, Array[SGSeqJunction]] = Map([], capacity=10)
   for j in junctions {

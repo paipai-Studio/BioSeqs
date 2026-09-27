@@ -84,7 +84,7 @@ fn lefse_rank(data : Array[Double]) -> Array[Double] {
 ///|
 /// Standard normal CDF using Abramowitz & Stegun approximation.
 fn lefse_normal_cdf(x : Double) -> Double {
-  let sign = if x < 0.0 { -1.0 } else { 1.0 }
+  let _sign = if x < 0.0 { -1.0 } else { 1.0 }
   let abs_x = x.abs()
   let t = 1.0 / (1.0 + 0.2316419 * abs_x)
   let d = 0.3989423 * @math.exp(-abs_x * abs_x / 2.0)
@@ -627,7 +627,7 @@ pub fn lefse_run(
       ci2 = ci2 + 1
     }
 
-    let (h_stat, kw_p) = lefse_kruskal_wallis(kw_groups)
+    let (_h_stat, kw_p) = lefse_kruskal_wallis(kw_groups)
 
     // If KW test is not significant, skip this feature
     if kw_p >= alpha {

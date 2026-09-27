@@ -673,7 +673,7 @@ pub fn stat_mann_whitney(
   }
   let ranks = stat_rank(combined)
 
-  let n = n1 + n2
+  let _n = n1 + n2
   let mut r1 = 0.0
   let mut i = 0
   while i < n1 {
@@ -748,18 +748,18 @@ pub fn stat_fisher_exact(table : Array[Array[Int]]) -> (Double, Double) {
 ///|
 /// Compute Fisher's exact test p-value using hypergeometric distribution.
 fn stat_fisher_exact_pvalue(a : Int, b : Int, c : Int, d : Int) -> Double {
-  let n = (a + b + c + d).to_double()
-  let a_d = a.to_double()
-  let b_d = b.to_double()
-  let c_d = c.to_double()
-  let d_d = d.to_double()
+  let _n = (a + b + c + d).to_double()
+  let _a_d = a.to_double()
+  let _b_d = b.to_double()
+  let _c_d = c.to_double()
+  let _d_d = d.to_double()
 
   // Probability of the observed table
   let p_obs = stat_mult_hypergeom_pmf(a, b, c, d)
 
   // Enumerate all tables with same margins
   let row1_total = a + b
-  let row2_total = c + d
+  let _row2_total = c + d
   let col1_total = a + c
   let col2_total = b + d
 
@@ -849,7 +849,7 @@ fn stat_ln_factorial(x : Double) -> Double {
   } else {
     // Stirling's approximation
     let pi = 3.141592653589793
-    let e = 2.718281828459045
+    let _e = 2.718281828459045
     let x1 = x + 1.0
     (x1 - 0.5) * @math.ln(x1) - x1 + 0.5 * @math.ln(2.0 * pi)
   }
@@ -1733,7 +1733,7 @@ pub fn stat_logrank_test(
 
   i = 0
   while i < n {
-    let t_i = indexed[i].0
+    let _t_i = indexed[i].0
     let d = if indexed[i].1 { 1.0 } else { 0.0 }
     let at_risk = n1 + n2
 

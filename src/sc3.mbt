@@ -451,7 +451,7 @@ pub fn sc3_calculate_gap_statistics(
   data : Array[Array[Double]],
   k : Int,
 ) -> Array[Double] {
-  let n = data.length()
+  let _n = data.length()
 
   let gaps : Array[Double] = Array(capacity=0)
 

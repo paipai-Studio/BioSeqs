@@ -305,13 +305,13 @@ fn eda_apply_within_norm(
   params : EDASeqParams,
 ) -> (Array[Double], EDASeqFit, EDASeqFit) {
   let n = log_counts.length()
-  let gc_fit_default = EDASeqFit::{
+  let _gc_fit_default = EDASeqFit::{
     span: params.loess_span,
     fitted: Array(capacity=0),
     residuals: Array(capacity=0),
     converged: false,
   }
-  let len_fit_default = EDASeqFit::{
+  let _len_fit_default = EDASeqFit::{
     span: params.loess_span,
     fitted: Array(capacity=0),
     residuals: Array(capacity=0),
@@ -635,10 +635,10 @@ fn eda_sort(arr : Array[Double]) -> Array[Double] {
 ///|
 /// Run the complete EDASeq normalization pipeline.
 pub fn eda_run(data : EDASeqDataSet, params : EDASeqParams) -> EDASeqResult {
-  let n_genes = data.gene_ids.length()
-  let n_samples = data.sample_ids.length()
-  let within_counts : Array[Array[Double]] = Array(capacity=0)
-  let between_counts : Array[Array[Double]] = Array(capacity=0)
+  let _n_genes = data.gene_ids.length()
+  let _n_samples = data.sample_ids.length()
+  let _within_counts : Array[Array[Double]] = Array(capacity=0)
+  let _between_counts : Array[Array[Double]] = Array(capacity=0)
 
   match params.norm_type {
     EDASeqNormType::Full => {
@@ -702,7 +702,7 @@ pub fn eda_rpkm(
 pub fn eda_tpm(
   counts : Array[Array[Double]],
   annotations : Array[EDASeqGeneAnno],
-  lib_sizes : Array[Double],
+  _lib_sizes : Array[Double],
 ) -> Array[Array[Double]] {
   let n_genes = counts.length()
   let n_samples = if n_genes > 0 { counts[0].length() } else { 0 }

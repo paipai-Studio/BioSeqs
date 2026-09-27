@@ -141,7 +141,6 @@ priv struct CdaoTriple {
   subject : String
   predicate : String
   object : String
-  is_literal : Bool
 }
 
 ///|
@@ -221,7 +220,6 @@ fn cdao_extract_elements(xml : String, triples : Array[CdaoTriple]) -> Unit {
           subject,
           predicate: "rdf:type",
           object: tag_name,
-          is_literal: false,
         })
         if is_self_closing {
           pos = tag_end + 1
@@ -286,14 +284,12 @@ fn cdao_parse_children(
         subject,
         predicate: tag_name,
         object: res,
-        is_literal: false,
       })
     } else if text_content.length() > 0 {
       triples.push(CdaoTriple::{
         subject,
         predicate: tag_name,
         object: text_content,
-        is_literal: true,
       })
     }
     if is_self_closing {

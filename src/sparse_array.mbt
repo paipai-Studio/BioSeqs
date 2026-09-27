@@ -314,7 +314,7 @@ pub fn SparseArray::density(
 }
 
 ///|
-pub fn SparseArray::is_sparse(self : SparseArray) -> Bool {
+pub fn SparseArray::is_sparse(_self : SparseArray) -> Bool {
   true
 }
 

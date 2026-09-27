@@ -138,7 +138,7 @@ pub fn bp_mean_simple(data : Array[Double], workers : Int) -> Double {
 ///|
 pub fn bp_colsum(
   data : Array[Array[Double]],
-  params : BPPARAM,
+  _params : BPPARAM,
 ) -> Array[Double] {
   if data.length() == 0 {
     return Array(capacity=0)
@@ -167,7 +167,7 @@ pub fn bp_colsum(
 ///|
 pub fn bp_rowsum(
   data : Array[Array[Double]],
-  params : BPPARAM,
+  _params : BPPARAM,
 ) -> Array[Double] {
   let results : Array[Double] = Array(capacity=0)
 

@@ -521,7 +521,7 @@ pub fn twobit_to_bytes(tbf : TwoBitFile) -> Array[Int] {
     bytes.push(cnt_bytes[i])
   }
   // Reserved
-  for i in 0..<4 {
+  for _ in 0..<4 {
     bytes.push(0)
   }
   // ---- Index ----
@@ -584,7 +584,7 @@ pub fn twobit_to_bytes(tbf : TwoBitFile) -> Array[Int] {
       }
     }
     // Reserved
-    for j in 0..<4 {
+    for _ in 0..<4 {
       bytes.push(0)
     }
   }
@@ -608,7 +608,7 @@ pub fn twobit_from_bytes(data : Array[Int]) -> TwoBitFile {
   let names : Array[String] = Array(capacity=0)
   let offsets : Array[Int] = Array(capacity=0)
   let mut pos = 16
-  for i in 0..<seq_count {
+  for _ in 0..<seq_count {
     let name_len = data[pos]
     pos = pos + 1
     let name_sb = StringBuilder()
@@ -628,14 +628,14 @@ pub fn twobit_from_bytes(data : Array[Int]) -> TwoBitFile {
     let packed_size = (dna_size + 3) / 4
     let packed : Array[Int] = Array(capacity=0)
     let mut q = p + 4
-    for j in 0..<packed_size {
+    for _ in 0..<packed_size {
       packed.push(data[q])
       q = q + 1
     }
     let n_count = twobit_read_u32_le(data, q)
     q = q + 4
     let n_blocks : Array[TwoBitNBlock] = Array(capacity=0)
-    for j in 0..<n_count {
+    for _ in 0..<n_count {
       let start = twobit_read_u32_le(data, q)
       let size = twobit_read_u32_le(data, q + 4)
       q = q + 8
@@ -644,7 +644,7 @@ pub fn twobit_from_bytes(data : Array[Int]) -> TwoBitFile {
     let mask_count = twobit_read_u32_le(data, q)
     q = q + 4
     let mask_blocks : Array[TwoBitMaskBlock] = Array(capacity=0)
-    for j in 0..<mask_count {
+    for _ in 0..<mask_count {
       let start = twobit_read_u32_le(data, q)
       let size = twobit_read_u32_le(data, q + 4)
       q = q + 8

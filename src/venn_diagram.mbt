@@ -210,7 +210,7 @@ fn region_description(region_id : Int, set_names : Array[String]) -> String {
 ///   E = number of edges
 ///   F = number of faces (regions)
 fn compute_euler_characteristic(
-  n_sets : Int,
+  _n_sets : Int,
   regions : Array[VennRegion],
 ) -> Double {
   // Simplified: just use number of non-empty regions

@@ -316,7 +316,7 @@ pub fn velocity_kinetic_model(
   for _ in 0..<n_iterations {
     // E-step: assign phases based on unspliced vs spliced relationship.
     // At steady state, u = gamma/beta * s.
-    let threshold = ss_u / scale
+    let _threshold = ss_u / scale
     for i in 0..<n {
       let expected_u_steady = gamma / beta * norm_s[i]
       let diff = norm_u[i] - expected_u_steady
@@ -443,7 +443,7 @@ pub fn velocity_compute(
     return []
   }
   let n_cells = gene_data[0].spliced.length()
-  let cell_ids = Array::make(n_cells, "cell_0")
+  let _cell_ids = Array::make(n_cells, "cell_0")
   // Build per-cell velocity vectors.
   let result : Array[CellVelocity] = Array(capacity=0)
   for ci in 0..<n_cells {
@@ -550,7 +550,7 @@ pub fn velocity_embedding(
         emb_diff[d] = embeddings[n_idx][d] - embeddings[ci][d]
       }
       // Cosine similarity between velocity and emb_diff (using embedding as proxy).
-      let vel_vec = velocities[ci].velocity
+      let _vel_vec = velocities[ci].velocity
       let emb_diff_mag = vr_sqrt(vr_dot(emb_diff, emb_diff))
       let vel_mag = velocities[ci].speed
       if emb_diff_mag > 0.0000001 && vel_mag > 0.0000001 {

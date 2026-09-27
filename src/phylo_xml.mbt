@@ -278,7 +278,7 @@ fn xml_find_open_tag(
           }
         }
         let attrs = xml_parse_attrs(attr_str)
-        let tag_end = if is_self_closing {
+        let _tag_end = if is_self_closing {
           i + 1 + j + 1 + attr_str.length() + 1
         } else {
           i + 1 + j + 1 + attr_str.length() + 1
@@ -1055,7 +1055,7 @@ fn parse_newick_to_node(content : String) -> PhyloXMLNode {
 }
 
 ///|
-fn parse_newick_subtree(s : String, start : Int) -> PhyloXMLNode {
+fn parse_newick_subtree(s : String, _start : Int) -> PhyloXMLNode {
   let trimmed = trim(s).replace(old=";", new="")
   let n = trimmed.length()
   if n == 0 {

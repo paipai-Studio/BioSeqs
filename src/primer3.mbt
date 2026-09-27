@@ -416,7 +416,7 @@ pub fn primer3_hairpin_3prime(seq : String, end_len : Int) -> Int {
 /// Higher is better. The score rewards proximity to the Tm mid-point,
 /// GC mid-point, and penalises self-complementarity.
 pub fn primer3_score(
-  seq : String,
+  _seq : String,
   tm : Double,
   gc : Double,
   self_comp : Int,
@@ -622,7 +622,7 @@ pub fn primer3_design_primers(
 /// a reverse primer template start/length.
 pub fn primer3_amplicon_length(
   fwd_start : Int,
-  fwd_len : Int,
+  _fwd_len : Int,
   rev_start : Int,
   rev_len : Int,
 ) -> Int {

@@ -134,7 +134,7 @@ pub fn xms_counts(motif : XmsMotif) -> Array[Array[Double]] {
     }
   }
   let mat : Array[Array[Double]] = Array(capacity=0)
-  for i in 0..<length {
+  for _ in 0..<length {
     mat.push([0.0, 0.0, 0.0, 0.0])
   }
   for s in motif.sites {

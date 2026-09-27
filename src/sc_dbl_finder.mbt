@@ -33,10 +33,10 @@ pub fn DoubletScore::new(
 ///|
 pub fn scdf_compute_doublet_score(
   data : SingleCellData,
-  k : Int,
+  _k : Int,
 ) -> Array[DoubletScore] {
   let n_cells = data.cell_names.length()
-  let n_genes = data.gene_names.length()
+  let _n_genes = data.gene_names.length()
 
   let scores : Array[DoubletScore] = Array(capacity=0)
 

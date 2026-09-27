@@ -1122,7 +1122,7 @@ pub fn contrasts_fit(fit : EBayesResult, contrasts : Matrix) -> EBayesResult {
 ///|
 /// voom transformation for RNA-seq counts.
 /// Converts counts to log2 CPM with precision weights.
-pub fn voom(counts : Matrix, design : Matrix) -> Matrix {
+pub fn voom(counts : Matrix, _design : Matrix) -> Matrix {
   let n_genes = counts.rows
   let n_samples = counts.cols
 
@@ -1915,7 +1915,7 @@ pub fn limma_combat(
     }
 
     // Compute prior variance of batch offsets
-    let offset_mean = limma_stat_mean(batch_offset)
+    let _offset_mean = limma_stat_mean(batch_offset)
     let offset_var = limma_stat_variance(batch_offset)
     let prior_var = if offset_var > 0.0 { offset_var } else { 1.0 }
 

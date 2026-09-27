@@ -468,8 +468,8 @@ fn classify_mutation(original : String, mutated : String) -> String {
 
 ///|
 fn predict_impact(
-  original : String,
-  mutated : String,
+  _original : String,
+  _mutated : String,
   mutation_type : String,
 ) -> String {
   if mutation_type == "Nonsense" {

@@ -164,7 +164,7 @@ fn parse_vcf_record(line : String, sample_names : Array[String]) -> VcfRecord? {
 
   let samples = Map([], capacity=0)
   if parts.length() > 9 && format is Some(_) {
-    let format_cols = format.unwrap()
+    let _format_cols = format.unwrap()
     let mut i = 9
     while i < parts.length() {
       let sample_name = if i - 9 < sample_names.length() {

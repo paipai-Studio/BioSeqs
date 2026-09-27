@@ -35,7 +35,7 @@ pub fn HiCContact::new(
   bin1 : Int,
   bin2 : Int,
   count : Int,
-  bin_size : Int,
+  _bin_size : Int,
 ) -> HiCContact {
   let distance = if bin2 > bin1 { bin2 - bin1 } else { bin1 - bin2 }
   HiCContact::{
@@ -309,33 +309,6 @@ fn hc_normal_cdf(x : Double) -> Double {
 
 
 
-///|
-/// Sine function via Taylor series.
-fn hc_sin(x : Double) -> Double {
-  let mut v = x
-  // Reduce to [-pi, pi]
-  let pi = 3.141592653589793
-  while v > pi {
-    v = v - 2.0 * pi
-  }
-  while v < -pi {
-    v = v + 2.0 * pi
-  }
-  let mut sum = v
-  let mut term = v
-  let v2 = v * v
-  let mut i = 1
-  while i < 20 {
-    term = -term * v2 / ((2 * i).to_double() * (2 * i + 1).to_double())
-    sum = sum + term
-    if hc_abs(term) < 0.0000000000001 {
-      break
-    }
-    i = i + 1
-  }
-  sum
-}
-
 // ===========================================================================
 // Negative binomial background model
 // ===========================================================================
@@ -483,7 +456,7 @@ pub fn hicdc_test_significance(
   beta_map : Double,
   dispersion : Double,
 ) -> Array[HiCDCResult] {
-  let n = contacts.length()
+  let _n = contacts.length()
   let results : Array[HiCDCResult] = Array(capacity=0)
   for c in contacts {
     let eta = intercept +

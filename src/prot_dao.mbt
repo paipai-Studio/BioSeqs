@@ -401,7 +401,7 @@ pub fn DisorderResult::to_ascii(
   self : DisorderResult,
   width? : Int = 80,
 ) -> String {
-  let w = if width > 0 { width } else { 80 }
+  let _w = if width > 0 { width } else { 80 }
   let seq_len = self.sequence.length()
   if seq_len == 0 {
     return "Empty sequence"

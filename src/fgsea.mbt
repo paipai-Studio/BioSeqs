@@ -64,7 +64,7 @@ fn gene_stat_map(ranks : Array[(String, Double)]) -> Map[String, Double] {
 fn calc_enrichment_score(
   ranks : Array[(String, Double)],
   gene_set : Array[String],
-  gene_map : Map[String, Double],
+  _gene_map : Map[String, Double],
 ) -> (Double, Int) {
   let n = ranks.length()
   let gene_in_set : Array[Bool] = []
@@ -150,7 +150,7 @@ fn extract_leading_edge(
 fn permute_es(
   ranks : Array[(String, Double)],
   gene_set : Array[String],
-  gene_map : Map[String, Double],
+  _gene_map : Map[String, Double],
   seed : Int,
 ) -> Double {
   let n = ranks.length()
@@ -381,7 +381,7 @@ pub fn fgsea_top_down(
 /// Collapse (average) redundant gene sets based on leading edge similarity.
 pub fn fgsea_collapse_pathways(
   results : Array[FgseaResult],
-  pathways : Array[GeneSet],
+  _pathways : Array[GeneSet],
   threshold? : Double = 0.5,
 ) -> Array[Array[Int]] {
   let n = results.length()

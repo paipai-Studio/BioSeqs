@@ -127,7 +127,7 @@ pub fn map_ids(
   db : AnnotationDb,
   ids : Array[String],
   from_type : String,
-  to_type : String,
+  _to_type : String,
 ) -> Map[String, String] {
   let result = Map([], capacity=ids.length())
 
@@ -236,7 +236,7 @@ pub fn annotation_dbi_keys(db : AnnotationDb) -> Array[String] {
 }
 
 ///|
-pub fn annotation_dbi_columns(db : AnnotationDb) -> Array[String] {
+pub fn annotation_dbi_columns(_db : AnnotationDb) -> Array[String] {
   [
     "gene_id", "symbol", "description", "chr", "start", "end", "strand", "biotype",
   ]
@@ -248,7 +248,7 @@ pub fn nrow(db : AnnotationDb) -> Int {
 }
 
 ///|
-pub fn ncol(db : AnnotationDb) -> Int {
+pub fn ncol(_db : AnnotationDb) -> Int {
   8
 }
 

@@ -360,7 +360,7 @@ pub fn SuffixTree::new(text : String) -> SuffixTree {
 }
 
 ///|
-pub fn SuffixTree::root(self : SuffixTree) -> String {
+pub fn SuffixTree::root(_self : SuffixTree) -> String {
   "root"
 }
 
@@ -429,7 +429,7 @@ pub fn SuffixTree::longest_repeated_substring(self : SuffixTree) -> String {
 }
 
 ///|
-pub fn SuffixTree::to_dot(self : SuffixTree) -> String {
+pub fn SuffixTree::to_dot(_self : SuffixTree) -> String {
   let buf = StringBuilder()
   buf.write_string("digraph SuffixTree {\n")
   buf.write_string("  node [shape=circle, label=\"\"];\n")

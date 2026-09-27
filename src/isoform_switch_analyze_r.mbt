@@ -392,7 +392,7 @@ pub fn bio_isoform_find_switches(
 
 ///|
 fn calculate_pvalue(
-  dpsi : Double,
+  _dpsi : Double,
   iso1 : IsoformExpression,
   iso2 : IsoformExpression,
   cond1 : Array[Int],

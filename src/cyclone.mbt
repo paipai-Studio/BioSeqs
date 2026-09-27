@@ -328,7 +328,7 @@ pub fn cyclone_create_test_data() -> (
   let n_cells = 20
 
   // Create expression data with phase-specific patterns
-  let counts : Array[Array[Double]] = Array(capacity=0)
+  let _counts : Array[Array[Double]] = Array(capacity=0)
   let cell_ids : Array[String] = Array(capacity=0)
 
   // Create cells for each phase: 5 G1, 5 S, 5 G2, 5 M

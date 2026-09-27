@@ -273,7 +273,7 @@ pub fn ce_center_columns(m : Array[Array[Double]]) -> Array[Array[Double]] {
   }
   let p = m[0].length()
   let out = Array(capacity=0)
-  for row in m {
+  for _ in m {
     out.push(Array::make(p, 0.0))
   }
   for j in 0..<p {
@@ -475,7 +475,7 @@ fn ce_kmeans_single(
     // update
     let sums : Array[Array[Double]] = Array(capacity=0)
     let counts = Array::make(k, 0)
-    for c in 0..<k {
+    for _ in 0..<k {
       sums.push(Array::make(data[0].length(), 0.0))
     }
     for i in 0..<n {

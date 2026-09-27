@@ -669,7 +669,7 @@ pub fn tgr_inner_join(
   right : TidifiedGRanges,
 ) -> TidifiedGRanges {
   let overlaps = tgr_join_overlap(left, right)
-  let n = overlaps.length()
+  let _n = overlaps.length()
   let keep : Array[Bool] = Array::make(left.seqnames.length(), false)
   for pair in overlaps {
     keep[pair.0] = true

@@ -499,7 +499,7 @@ pub fn single_r_fine_tune_annotation(
   cell_expression : Array[Double],
   reference : ReferenceDataset,
   initial_label : String,
-  n_markers : Int,
+  _n_markers : Int,
   method_ : String,
 ) -> (String, Double) {
   // Find profiles matching the initial label
@@ -610,10 +610,10 @@ pub fn single_r_annotate_cell(
 
   // Get initial prediction
   let (best_label, best_score) = single_r_get_best_label(agg_scores)
-  let delta = single_r_compute_delta_score(agg_scores)
+  let _delta = single_r_compute_delta_score(agg_scores)
 
   // Fine-tune if enabled
-  let (final_label, final_score) = if params.fine_tune && best_score > 0.0 {
+  let (final_label, _final_score) = if params.fine_tune && best_score > 0.0 {
     single_r_fine_tune_annotation(
       cell_expression,
       reference,

@@ -247,7 +247,7 @@ fn find_sigma(
 /// Build the fuzzy simplicial set (high-dimensional graph).
 fn build_graph(
   data : Array[Array[Double]],
-  dist_matrix : Array[Array[Double]],
+  _dist_matrix : Array[Array[Double]],
   knn_indices : Array[Array[Int]],
   knn_distances : Array[Array[Double]],
   config : UmapConfig,
@@ -341,7 +341,7 @@ fn build_graph(
 
 ///|
 /// Find a and b parameters based on min_dist and spread.
-fn find_ab(min_dist : Double, spread : Double) -> (Double, Double) {
+fn find_ab(_min_dist : Double, spread : Double) -> (Double, Double) {
   // Curve: 1 / (1 + a * x^(2b))
   // At x = min_dist: y = 0.5 (approximately)
   // At x = spread: y is small

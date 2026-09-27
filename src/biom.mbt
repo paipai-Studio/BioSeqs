@@ -686,7 +686,7 @@ pub fn BiomTable::merge(
 ) -> BiomTable {
   // Union of sample IDs
   let all_sample_ids : Array[String] = []
-  let samp_seen : Map[String, Int] = {}
+  let samp_seen : Map[String, Int] = Map([], capacity=0)
   for id in self.sample_ids {
     if !(samp_seen.contains(id)) {
       samp_seen[id] = all_sample_ids.length()
@@ -701,7 +701,7 @@ pub fn BiomTable::merge(
   }
   // Union of observation IDs
   let all_obs_ids : Array[String] = []
-  let obs_seen : Map[String, Int] = {}
+  let obs_seen : Map[String, Int] = Map([], capacity=0)
   for id in self.observation_ids {
     if !(obs_seen.contains(id)) {
       obs_seen[id] = all_obs_ids.length()
