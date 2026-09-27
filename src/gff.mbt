@@ -634,3 +634,57 @@ pub fn GFFRecord::calculate_gene_length(
   }
   total_length
 }
+
+
+///|
+/// Serialize a single feature to one GFF3 line (no trailing newline). This is
+/// `str(feature)` from Python gffutils; the 9th column (attributes) is emitted
+/// only when non-empty.
+pub fn GFFFeature::to_gff_line(self : GFFFeature) -> String {
+  let mut result = self.seqid + "\t" + self.source + "\t" + self.feature_type + "\t" +
+    self.start.to_string() + "\t" + self.end.to_string() + "\t"
+
+  match self.score {
+    Some(s) => result = result + s.to_string()
+    None => result = result + "."
+  }
+  result = result + "\t" + self.strand + "\t"
+
+  match self.phase {
+    Some(p) => result = result + p.to_string()
+    None => result = result + "."
+  }
+
+  let attrs = self.attributes.iter().collect()
+  if attrs.length() > 0 {
+    result = result + "\t"
+    let mut j = 0
+    while j < attrs.length() {
+      let (key, value) = attrs[j]
+      if j > 0 {
+        result = result + ";"
+      }
+      result = result + key + "=" + escape_attribute_value(value)
+      j = j + 1
+    }
+  }
+
+  result
+}
+
+///|
+/// Count features of a given type (`gffutils.FeatureDB.count_features_of_type`).
+pub fn GFFRecord::count_features_of_type(
+  self : GFFRecord,
+  feature_type : String,
+) -> Int {
+  let mut n = 0
+  let mut i = 0
+  while i < self.features.length() {
+    if self.features[i].feature_type == feature_type {
+      n = n + 1
+    }
+    i = i + 1
+  }
+  n
+}
