@@ -333,3 +333,58 @@ pub fn gffutils_record_to_bed(record : GFFRecord) -> String {
   }
   sb.to_string()
 }
+
+///|
+/// Query features overlapping a genomic region (`gffutils.FeatureDB.region`).
+///
+/// Coordinates are 1-based inclusive (GFF convention). By default a feature is
+/// returned when it overlaps the region (`f.start <= end && f.end >= start`);
+/// with `completely_within=true` only features fully contained in the region
+/// are returned.
+pub fn gffutils_region(
+  record : GFFRecord,
+  seqid : String,
+  start : Int,
+  end : Int,
+  completely_within~ : Bool = false,
+) -> Array[GFFFeature] {
+  let out : Array[GFFFeature] = Array(capacity=0)
+  for f in record.features {
+    if f.seqid != seqid {
+      continue
+    }
+    if completely_within {
+      if f.start >= start && f.end <= end {
+        out.push(f)
+      }
+    } else {
+      if f.start <= end && f.end >= start {
+        out.push(f)
+      }
+    }
+  }
+  out
+}
+
+///|
+/// Generate adjacent feature pairs (`gffutils.FeatureDB.interfeatures`).
+/// Features are sorted (by `seqid`, then `start`, then `end`) and adjacent
+/// features on the same `seqid` are paired, which is the base for feature-gap
+/// statistics such as intergenic/promoter spacing.
+pub fn gffutils_interfeatures(
+  record : GFFRecord,
+) -> Array[(GFFFeature, GFFFeature)] {
+  let sorted = gffutils_sort_features(record)
+  let out : Array[(GFFFeature, GFFFeature)] = Array(capacity=0)
+  let mut i = 0
+  while i + 1 < sorted.length() {
+    let a = sorted[i]
+    let b = sorted[i + 1]
+    // 只配对不同 seqid 的相邻 feature
+    if a.seqid == b.seqid {
+      out.push((a, b))
+    }
+    i = i + 1
+  }
+  out
+}

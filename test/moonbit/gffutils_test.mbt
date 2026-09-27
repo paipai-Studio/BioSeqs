@@ -97,3 +97,47 @@ test "gffutils_to_bed" {
   // GFF [100,200] 1-based -> BED [99,200) 0-based half-open
   assert_eq(@src.gffutils_to_bed(f), "chr1\t99\t200\tgene1\t.\t+")
 }
+
+// ============================================================
+// gffutils region / interfeatures
+// ============================================================
+
+test "gffutils_region_overlap" {
+  let gene = @src.GFFFeature::new("chr1", "src", "gene", 100, 500, "+")
+  let exon1 = @src.GFFFeature::new("chr1", "src", "exon", 150, 200, "+")
+  let exon2 = @src.GFFFeature::new("chr1", "src", "exon", 300, 350, "+")
+  let other = @src.GFFFeature::new("chr2", "src", "gene", 50, 150, "+")
+  let rec = @src.GFFRecord::new().add_feature(gene).add_feature(exon1).add_feature(exon2).add_feature(other)
+
+  // 重叠 140-360：gene + exon1 + exon2；chr2 的不同 seqid 不算
+  let hits = @src.gffutils_region(rec, "chr1", 140, 360)
+  assert_eq(hits.length(), 3)
+
+  // 完全包含在 140-360：exon1(150-200) + exon2(300-350)，gene(100-500) 不算
+  let within = @src.gffutils_region(rec, "chr1", 140, 360, completely_within=true)
+  assert_eq(within.length(), 2)
+}
+
+test "gffutils_interfeatures" {
+  let f1 = @src.GFFFeature::new("chr1", "src", "exon", 100, 200, "+")
+  let f2 = @src.GFFFeature::new("chr1", "src", "exon", 300, 400, "+")
+  let f3 = @src.GFFFeature::new("chr1", "src", "exon", 500, 600, "+")
+  let rec = @src.GFFRecord::new().add_feature(f1).add_feature(f2).add_feature(f3)
+
+  let pairs = @src.gffutils_interfeatures(rec)
+  assert_eq(pairs.length(), 2)
+  // 第一对 (100-200, 300-400)
+  assert_eq(pairs[0].0.start, 100)
+  assert_eq(pairs[0].1.start, 300)
+  // 第二对 (300-400, 500-600)
+  assert_eq(pairs[1].0.start, 300)
+  assert_eq(pairs[1].1.start, 500)
+}
+
+test "gffutils_interfeatures_cross_seqid" {
+  let a = @src.GFFFeature::new("chr1", "src", "exon", 100, 200, "+")
+  let b = @src.GFFFeature::new("chr2", "src", "exon", 100, 200, "+")
+  let rec = @src.GFFRecord::new().add_feature(a).add_feature(b)
+  // 不同 seqid 不成对
+  assert_eq(@src.gffutils_interfeatures(rec).length(), 0)
+}
