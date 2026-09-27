@@ -159,3 +159,44 @@ test "guide_tree_leaf_count" {
   }
   assert_eq(leaf_count, 4)
 }
+
+
+// ============================================================
+// substitution-matrix scoring (BLOSUM62)
+// ============================================================
+
+test "align_pairwise_with_matrix_blosum62" {
+  let m = @src.subs_blosum62_matrix()
+  // BLOSUM62[A][A] = 4；自比对不开 gap
+  let (a1, a2, s1) = @src.align_pairwise_with_matrix("A", "A", m, -4.0, -1.0)
+  assert_eq(a1, "A")
+  assert_eq(a2, "A")
+  assert_true(assert_close(s1, 4.0, 1.0e-6))
+
+  // BLOSUM62[A][C] = 0；比开 gap（-4）优，所以直接对齐
+  let (b1, b2, s2) = @src.align_pairwise_with_matrix("A", "C", m, -4.0, -1.0)
+  assert_eq(b1, "A")
+  assert_eq(b2, "C")
+  assert_true(assert_close(s2, 0.0, 1.0e-6))
+}
+
+test "progressive_alignment_with_matrix_basic" {
+  let c = @src.align_cluster_new()
+  let m = @src.subs_blosum62_matrix()
+  // H/E/L/P/A 都是标准氨基酸
+  let seqs = ["HELL", "HELP", "HEAL"]
+  let ids = ["s1", "s2", "s3"]
+  let msa = @src.progressive_alignment_with_matrix(c, seqs, ids, m)
+  assert_eq(msa.num_records(), 3)
+  assert_true(msa.get_alignment_length() >= 4)
+}
+
+test "progressive_alignment_with_matrix_identical" {
+  let c = @src.align_cluster_new()
+  let m = @src.subs_blosum62_matrix()
+  let seqs = ["ACDF", "ACDF"]
+  let ids = ["s1", "s2"]
+  let msa = @src.progressive_alignment_with_matrix(c, seqs, ids, m)
+  assert_eq(msa.num_records(), 2)
+  assert_true(msa.get_alignment_length() >= 4)
+}

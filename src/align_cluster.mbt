@@ -975,3 +975,407 @@ fn repeat_char(c : Char, n : Int) -> String {
   }
   buf.to_string()
 }
+
+
+// ============================================================================
+// Substitution-matrix scoring (ClustalW/muscle-style biological scoring)
+// ============================================================================
+
+///|
+/// Convert a single `UInt16` character code to a one-character `String`.
+fn uint16_to_string(c : UInt16) -> String {
+  let sb = StringBuilder()
+  sb.write_char(c.unsafe_to_char())
+  sb.to_string()
+}
+
+///|
+/// First `UInt16` code unit of a string (used to map matrix alphabet labels
+/// back to profile indices).
+fn string_first_uint16(s : String) -> UInt16 {
+  if s.length() == 0 { 45 } else { s.unsafe_get(0) }
+}
+
+///|
+/// Align two sequences with Needleman–Wunsch scored by a substitution matrix
+/// (e.g. BLOSUM62), with affine gap penalties. This is `align_pairwise`'s
+/// biological sibling: residue pairs are scored via the matrix instead of a
+/// flat match/mismatch.
+pub fn align_pairwise_with_matrix(
+  seq1 : String,
+  seq2 : String,
+  matrix : SubsMatrix,
+  open_gap : Double,
+  extend_gap : Double,
+) -> (String, String, Double) {
+  let n = seq1.length()
+  let m = seq2.length()
+
+  if n == 0 && m == 0 {
+    return ("", "", 0.0)
+  }
+  if n == 0 {
+    let gap_seq = repeat_char('-', m)
+    return (gap_seq, seq2, extend_gap * m.to_double())
+  }
+  if m == 0 {
+    let gap_seq = repeat_char('-', n)
+    return (seq1, gap_seq, extend_gap * n.to_double())
+  }
+
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[Int]] = Array(capacity=0)
+  for i = 0; i <= n; i = i + 1 {
+    let drow : Array[Double] = Array(capacity=0)
+    let trow : Array[Int] = Array(capacity=0)
+    for j = 0; j <= m; j = j + 1 {
+      drow.push(0.0)
+      trow.push(0)
+    }
+    dp.push(drow)
+    trace.push(trow)
+  }
+
+  dp[0][0] = 0.0
+  trace[0][0] = 0
+  for i = 1; i <= n; i = i + 1 {
+    dp[i][0] = open_gap + (i - 1).to_double() * extend_gap
+    trace[i][0] = 2
+  }
+  for j = 1; j <= m; j = j + 1 {
+    dp[0][j] = open_gap + (j - 1).to_double() * extend_gap
+    trace[0][j] = 1
+  }
+
+  for i = 1; i <= n; i = i + 1 {
+    for j = 1; j <= m; j = j + 1 {
+      let c1 = seq1.unsafe_get(i - 1)
+      let c2 = seq2.unsafe_get(j - 1)
+      let sub_score = matrix.get_score(uint16_to_string(c1), uint16_to_string(c2))
+
+      let diag = dp[i - 1][j - 1] + sub_score
+      let up = dp[i - 1][j] +
+        (if trace[i - 1][j] == 2 { extend_gap } else { open_gap })
+      let left = dp[i][j - 1] +
+        (if trace[i][j - 1] == 1 { extend_gap } else { open_gap })
+
+      let (val, dir) = if diag >= up && diag >= left {
+        (diag, 0)
+      } else if up >= left {
+        (up, 2)
+      } else {
+        (left, 1)
+      }
+      dp[i][j] = val
+      trace[i][j] = dir
+    }
+  }
+
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
+  let mut i = n
+  let mut j = m
+  while i > 0 || j > 0 {
+    if i > 0 && j > 0 && trace[i][j] == 0 {
+      r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
+      r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
+      i = i - 1
+      j = j - 1
+    } else if i > 0 && trace[i][j] == 2 {
+      r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
+      r2.write_char('-')
+      i = i - 1
+    } else if j > 0 && trace[i][j] == 1 {
+      r1.write_char('-')
+      r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
+      j = j - 1
+    } else if i > 0 {
+      r1.write_char(seq1.unsafe_get(i - 1).unsafe_to_char())
+      r2.write_char('-')
+      i = i - 1
+    } else if j > 0 {
+      r1.write_char('-')
+      r2.write_char(seq2.unsafe_get(j - 1).unsafe_to_char())
+      j = j - 1
+    } else {
+      break
+    }
+  }
+
+  (reverse_string(r1.to_string()), reverse_string(r2.to_string()), dp[n][m])
+}
+
+///|
+/// Score two profile columns by expected substitution score under a matrix:
+/// `sum_i sum_j p1[i] * p2[j] * S(i,j)` over the matrix alphabet. This replaces
+/// the identity dot product with the biological residue-similarity model.
+fn score_profile_position_with_matrix(
+  prof1_col : Array[Double],
+  prof2_col : Array[Double],
+  matrix : SubsMatrix,
+) -> Double {
+  let alpha = matrix.alphabet()
+  let mut score = 0.0
+  for i = 0; i < alpha.length(); i = i + 1 {
+    let ai = alpha[i]
+    let idx1 = char_to_profile_index(string_first_uint16(ai))
+    let p1 = prof1_col[idx1]
+    for j = 0; j < alpha.length(); j = j + 1 {
+      let aj = alpha[j]
+      let idx2 = char_to_profile_index(string_first_uint16(aj))
+      let p2 = prof2_col[idx2]
+      score = score + p1 * p2 * matrix.get_score(ai, aj)
+    }
+  }
+  score
+}
+
+///|
+/// Align two profiles with substitution-matrix scoring (biological variant of
+/// `align_profiles`). Consensus sequences are emitted the same way; only the
+/// column score and gap penalty differ.
+pub fn align_profiles_with_matrix(
+  profile1 : Array[String],
+  profile2 : Array[String],
+  matrix : SubsMatrix,
+  gap_penalty : Double,
+) -> (String, String, Double) {
+  if profile1.length() == 0 && profile2.length() == 0 {
+    return ("", "", 0.0)
+  }
+  if profile1.length() == 0 {
+    let rep2 = if profile2.length() > 0 { profile2[0] } else { "" }
+    let gap1 = repeat_char('-', rep2.length())
+    return (gap1, rep2, 0.0)
+  }
+  if profile2.length() == 0 {
+    let rep1 = if profile1.length() > 0 { profile1[0] } else { "" }
+    let gap2 = repeat_char('-', rep1.length())
+    return (rep1, gap2, 0.0)
+  }
+
+  let profile1_matrix = profile_from_sequences(profile1)
+  let profile2_matrix = profile_from_sequences(profile2)
+  let len1 = profile1_matrix.length()
+  let len2 = profile2_matrix.length()
+
+  let dp : Array[Array[Double]] = Array(capacity=0)
+  let trace : Array[Array[Int]] = Array(capacity=0)
+  for i = 0; i <= len1; i = i + 1 {
+    let drow : Array[Double] = Array(capacity=0)
+    let trow : Array[Int] = Array(capacity=0)
+    for j = 0; j <= len2; j = j + 1 {
+      drow.push(0.0)
+      trow.push(0)
+    }
+    dp.push(drow)
+    trace.push(trow)
+  }
+
+  dp[0][0] = 0.0
+  trace[0][0] = 0
+  for i = 1; i <= len1; i = i + 1 {
+    dp[i][0] = i.to_double() * gap_penalty
+    trace[i][0] = 2
+  }
+  for j = 1; j <= len2; j = j + 1 {
+    dp[0][j] = j.to_double() * gap_penalty
+    trace[0][j] = 1
+  }
+
+  for i = 1; i <= len1; i = i + 1 {
+    for j = 1; j <= len2; j = j + 1 {
+      let col1 = profile1_matrix[i - 1]
+      let col2 = profile2_matrix[j - 1]
+      let sub_score = score_profile_position_with_matrix(col1, col2, matrix)
+      let diag = dp[i - 1][j - 1] + sub_score
+      let up = dp[i - 1][j] + gap_penalty
+      let left = dp[i][j - 1] + gap_penalty
+      let (val, dir) = if diag >= up && diag >= left {
+        (diag, 0)
+      } else if up >= left {
+        (up, 2)
+      } else {
+        (left, 1)
+      }
+      dp[i][j] = val
+      trace[i][j] = dir
+    }
+  }
+
+  let r1 = StringBuilder()
+  let r2 = StringBuilder()
+  let mut i = len1
+  let mut j = len2
+  while i > 0 || j > 0 {
+    if i > 0 && j > 0 && trace[i][j] == 0 {
+      let col1 = profile1_matrix[i - 1]
+      let col2 = profile2_matrix[j - 1]
+      let consensus_idx1 = argmax(col1)
+      let consensus_idx2 = argmax(col2)
+      r1.write_char(profile_index_to_uint16(consensus_idx1).unsafe_to_char())
+      r2.write_char(profile_index_to_uint16(consensus_idx2).unsafe_to_char())
+      i = i - 1
+      j = j - 1
+    } else if i > 0 && trace[i][j] == 2 {
+      let col1 = profile1_matrix[i - 1]
+      let consensus_idx = argmax(col1)
+      r1.write_char(profile_index_to_uint16(consensus_idx).unsafe_to_char())
+      r2.write_char('-')
+      i = i - 1
+    } else if j > 0 && trace[i][j] == 1 {
+      let col2 = profile2_matrix[j - 1]
+      let consensus_idx = argmax(col2)
+      r1.write_char('-')
+      r2.write_char(profile_index_to_uint16(consensus_idx).unsafe_to_char())
+      j = j - 1
+    } else if i > 0 {
+      let col1 = profile1_matrix[i - 1]
+      let consensus_idx = argmax(col1)
+      r1.write_char(profile_index_to_uint16(consensus_idx).unsafe_to_char())
+      r2.write_char('-')
+      i = i - 1
+    } else if j > 0 {
+      let col2 = profile2_matrix[j - 1]
+      let consensus_idx = argmax(col2)
+      r1.write_char('-')
+      r2.write_char(profile_index_to_uint16(consensus_idx).unsafe_to_char())
+      j = j - 1
+    } else {
+      break
+    }
+  }
+
+  (reverse_string(r1.to_string()), reverse_string(r2.to_string()), dp[len1][len2])
+}
+
+
+///|
+/// Progressive multiple sequence alignment scored by a substitution matrix
+/// (biological variant of `progressive_alignment`): same distance matrix +
+/// UPGMA guide tree + bottom-up profile merge, but profile steps use
+/// `align_profiles_with_matrix` so residue pairs are scored via BLOSUM62/PAM
+/// rather than identity.
+pub fn progressive_alignment_with_matrix(
+  clusterer : AlignClusterer,
+  sequences : Array[String],
+  sequence_ids : Array[String],
+  matrix : SubsMatrix,
+) -> MultipleSeqAlignment {
+  let n = sequences.length()
+  if n == 0 {
+    return create_msa_safe([])
+  }
+  if n == 1 {
+    let rec = SeqRecord::new(Seq::new(sequences[0]), id=sequence_ids[0])
+    return create_msa_safe([rec])
+  }
+
+  let dist_matrix = build_distance_matrix(clusterer, sequences, sequence_ids)
+  let tree = upgma_tree(dist_matrix)
+
+  let alignment_map : Map[Int, Array[String]] = Map([], capacity=n * 2)
+  for i = 0; i < n; i = i + 1 {
+    alignment_map[i] = [sequences[i]]
+  }
+
+  let nodes = tree.nodes
+  let processed : Map[Int, Bool] = Map([], capacity=n * 2)
+  let sorted_nodes = topological_sort_nodes(nodes)
+  let gap_penalty = -1.0
+
+  for node_idx in sorted_nodes {
+    let node = nodes[node_idx]
+    if node.is_leaf {
+      processed[node_idx] = true
+    } else {
+      let child_results : Array[Array[String]] = Array(capacity=0)
+      let mut all_processed = true
+      for child_idx in node.children {
+        match processed.get(child_idx) {
+          Some(true) =>
+            match alignment_map.get(child_idx) {
+              Some(profile) => child_results.push(profile)
+              None => all_processed = false
+            }
+          _ => all_processed = false
+        }
+      }
+      if all_processed && node.children.length() >= 2 {
+        let left_profile = child_results[0]
+        let right_profile = child_results[1]
+        let (aligned_left, aligned_right, _) = align_profiles_with_matrix(
+          left_profile, right_profile, matrix, gap_penalty,
+        )
+        let left_aligned_profile : Array[String] = Array(capacity=0)
+        let right_aligned_profile : Array[String] = Array(capacity=0)
+        for s in left_profile {
+          let new_s = apply_alignment_to_sequence(s, aligned_left)
+          left_aligned_profile.push(new_s)
+        }
+        for s in right_profile {
+          let new_s = apply_alignment_to_sequence(s, aligned_right)
+          right_aligned_profile.push(new_s)
+        }
+        let combined : Array[String] = Array(capacity=0)
+        for s in left_aligned_profile {
+          combined.push(s)
+        }
+        for s in right_aligned_profile {
+          combined.push(s)
+        }
+        alignment_map[node_idx] = combined
+        processed[node_idx] = true
+      } else if node.children.length() == 1 {
+        match alignment_map.get(node.children[0]) {
+          Some(profile) => {
+            alignment_map[node_idx] = profile
+            processed[node_idx] = true
+          }
+          None => ()
+        }
+      }
+    }
+  }
+
+  let root_idx = nodes.length() - 1
+  let final_profiles = match alignment_map.get(root_idx) {
+    Some(p) => p
+    None => {
+      let profiles : Array[Array[String]] = Array(capacity=0)
+      for i = 0; i < n; i = i + 1 {
+        profiles.push([sequences[i]])
+      }
+      let mut result = profiles[0]
+      for i = 1; i < n; i = i + 1 {
+        let (a1, a2, _) = align_profiles_with_matrix(result, profiles[i], matrix, gap_penalty)
+        let new_result : Array[String] = Array(capacity=0)
+        for s in result {
+          new_result.push(apply_alignment_to_sequence(s, a1))
+        }
+        let new_i : Array[String] = Array(capacity=0)
+        for s in profiles[i] {
+          new_i.push(apply_alignment_to_sequence(s, a2))
+        }
+        result = new_result
+        for s in new_i {
+          result.push(s)
+        }
+      }
+      result
+    }
+  }
+
+  let records : Array[SeqRecord] = Array(capacity=0)
+  let mut seq_id_idx = 0
+  for s in final_profiles {
+    let id = if seq_id_idx < sequence_ids.length() {
+      sequence_ids[seq_id_idx]
+    } else {
+      "seq_" + seq_id_idx.to_string()
+    }
+    records.push(SeqRecord::new(Seq::new(s), id~))
+    seq_id_idx = seq_id_idx + 1
+  }
+  create_msa_safe(records)
+}
