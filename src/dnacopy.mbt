@@ -93,7 +93,7 @@ pub struct DnaCopyResult {
 ///|
 /// Deterministic Lehmer (MINSTD) PRNG with Schrage decomposition for the
 /// permutation tests - the same generator scheme used across this library.
-struct DcRng {
+priv struct DcRng {
   mut state : Int
 }
 

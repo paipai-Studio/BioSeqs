@@ -1011,7 +1011,7 @@ fn lisa_update_centroids(
 }
 
 ///|
-struct LisaKmeansFit {
+priv struct LisaKmeansFit {
   labels : Array[Int]
   centroids : Array[Array[Double]]
   inertia : Double

@@ -130,7 +130,7 @@ pub fn seqio_index(data : String, format : String) -> SeqIndex raise SeqIOError 
 // ============================================================================
 
 ///|
-struct IndexedLine {
+priv struct IndexedLine {
   start : Int
   text : String
 }

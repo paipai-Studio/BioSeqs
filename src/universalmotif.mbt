@@ -1450,7 +1450,7 @@ fn um_rc_ppm(ppm : Array[Array[Double]]) -> Array[Array[Double]] {
 }
 
 ///|
-struct UmOffset {
+priv struct UmOffset {
   offset : Int
   rc : Bool
   score : Double
@@ -1819,7 +1819,7 @@ pub fn read_meme(text : String) -> Array[UniversalMotif] {
 }
 
 ///|
-struct UmLpmHeader {
+priv struct UmLpmHeader {
   alength : Int
   width : Int
   nsites : Double

@@ -1923,7 +1923,7 @@ pub fn bedtools_nuc(
 }///|
 /// Per-chromosome interval index over a B set (chroms / trees / global-index
 /// lookup), shared by the intersect report modes below.
-struct BedIndex {
+priv struct BedIndex {
   chroms : Array[String]
   trees : Array[IntervalTree]
   b_per_chrom : Array[Array[Int]]

@@ -167,7 +167,7 @@ fn _lb_dtrsl_01(
 // ===========================================================================
 
 ///|
-struct LbInterval {
+priv struct LbInterval {
   mut stx : Double
   mut fx : Double
   mut dx : Double
@@ -304,7 +304,7 @@ fn _lb_dcstep(v : LbInterval, fp : Double, dp : Double) -> Unit {
 ///|
 /// dcsrch state. status: 1 = FG (evaluate f,g at stp), 0 = CONVERGENCE,
 /// 2 = WARNING.
-struct LbDcsrch {
+priv struct LbDcsrch {
   mut stage : Int
   mut brackt : Bool
   mut finit : Double
@@ -504,7 +504,7 @@ fn LbDcsrch::_lb_dcsrch_apply(
 // ===========================================================================
 
 ///|
-struct Lbfgsb {
+priv struct Lbfgsb {
   n : Int
   m : Int
   factr : Double

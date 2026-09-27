@@ -289,7 +289,7 @@ pub fn cellosaurus_sample_text() -> String {
 }
 
 ///|
-struct CellosaurusBuilder {
+priv struct CellosaurusBuilder {
   mut identifier : String
   mut accession : String
   mut secondary_accessions : String

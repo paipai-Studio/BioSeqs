@@ -365,7 +365,7 @@ pub fn cealign_similarity_matrix(
 }
 
 ///|
-struct CePathCandidate {
+priv struct CePathCandidate {
   reference_starts : Array[Int]
   mobile_starts : Array[Int]
   fragment_count : Int

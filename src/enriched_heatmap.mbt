@@ -187,7 +187,7 @@ pub struct NormalizedMatrix {
 
 ///|
 /// A genomic window with a reference to its parent target.
-struct Window {
+priv struct Window {
   chr : String
   start : Int
   end_ : Int

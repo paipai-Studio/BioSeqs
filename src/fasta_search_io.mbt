@@ -385,7 +385,7 @@ fn fasta_sio_substr_after(s : String, marker : String) -> String {
 
 ///|
 /// Parsed FASTA tabular row.
-struct FastaRow {
+priv struct FastaRow {
   query_id : String
   subject_id : String
   percent_identity : Double

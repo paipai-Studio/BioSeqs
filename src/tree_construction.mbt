@@ -5,7 +5,7 @@
 
 ///|
 /// Represents a node in the tree construction process.
-struct BuildNode {
+priv struct BuildNode {
   id : Int
   name : String
   height : Double

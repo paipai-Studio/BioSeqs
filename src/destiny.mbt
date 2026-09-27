@@ -299,7 +299,7 @@ fn destiny_normalize_kernel(kernel : KernelMatrix) -> KernelMatrix {
 }
 
 ///|
-struct EigenResult {
+priv struct EigenResult {
   eigen_values : Array[Double]
   eigen_vectors : Array[Array[Double]]
 }

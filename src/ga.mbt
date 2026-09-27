@@ -209,7 +209,7 @@ pub fn ga_random_sequence(length : Int, alphabet : String) -> String {
 
 ///|
 /// Simple pseudo-random number generator state.
-struct GARNGState {
+priv struct GARNGState {
   state : Int
 }
 

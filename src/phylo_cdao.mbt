@@ -137,7 +137,7 @@ pub fn cdao_parse(xml : String) -> CdaoDocument {
 
 ///|
 /// An RDF triple (subject, predicate, object).
-struct CdaoTriple {
+priv struct CdaoTriple {
   subject : String
   predicate : String
   object : String
@@ -469,7 +469,7 @@ fn cdao_build_clade(doc : CdaoDocument, node_id : String) -> Clade {
 
 ///|
 /// Mutable counter holder for CDAO writer.
-struct CdaoWriteState {
+priv struct CdaoWriteState {
   mut node_counter : Int
   mut tu_counter : Int
   tu_map : Map[String, String]

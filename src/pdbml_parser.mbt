@@ -80,7 +80,7 @@ pub struct PdbmlStructure {
 // ---------------------------------------------------------------------------
 
 ///|
-struct PdbmlXmlElem {
+priv struct PdbmlXmlElem {
   name : String
   attributes : Map[String, String]
   text : String
@@ -418,7 +418,7 @@ fn pdbml_parse_atom(elem : PdbmlXmlElem) -> PdbmlAtom {
 // ---------------------------------------------------------------------------
 
 ///|
-struct PdbmlAtomEntry {
+priv struct PdbmlAtomEntry {
   model_number : Int
   chain_id : String
   component_id : String

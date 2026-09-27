@@ -9,7 +9,7 @@
 
 ///|
 /// One residue of an entity_poly_seq row: residue number and monomer id.
-struct CifResidue {
+priv struct CifResidue {
   num : Int
   has_num : Bool
   mon : String

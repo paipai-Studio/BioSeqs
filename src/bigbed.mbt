@@ -1066,14 +1066,14 @@ fn bigbed_adler32(data : Array[Int]) -> Int {
 }
 
 ///|
-struct BigBedBitReader {
+priv struct BigBedBitReader {
   data : Array[Int]
   bit_position : Int
   bit_limit : Int
 }
 
 ///|
-struct BigBedHuffman {
+priv struct BigBedHuffman {
   counts : Array[Int]
   symbols : Array[Int]
 }

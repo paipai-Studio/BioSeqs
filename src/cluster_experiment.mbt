@@ -607,7 +607,7 @@ pub fn ce_cluster_many(
 
 ///|
 /// Subsample result.
-struct CeSubsample {
+priv struct CeSubsample {
   data : Array[Array[Double]]
   indices : Array[Int]
 }

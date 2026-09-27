@@ -667,7 +667,7 @@ pub fn ropls_pca(
 // ============================================================================
 
 ///|
-struct RoplsPrepared {
+priv struct RoplsPrepared {
   n : Int
   p : Int
   q : Int
@@ -972,7 +972,7 @@ fn rop_signif(r2y_a : Double, q2_a : Double, threshold : Double) -> String {
 
 ///|
 /// Column-oriented storage of component matrices (p x h / n x h).
-struct RoplsPlsFit {
+priv struct RoplsPlsFit {
   w : Array[Array[Double]]
   t : Array[Array[Double]]
   p : Array[Array[Double]]
@@ -1415,7 +1415,7 @@ fn rop_opls_tw(
 }
 
 ///|
-struct RoplsOplsFit {
+priv struct RoplsOplsFit {
   w : Array[Double]
   t : Array[Double]
   pm : Array[Double]

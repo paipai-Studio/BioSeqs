@@ -111,7 +111,7 @@ pub struct PermTestResult {
 ///|
 /// Deterministic Lehmer (MINSTD) PRNG with Schrage decomposition for the
 /// randomizations - the same generator scheme used across this library.
-struct RrRng {
+priv struct RrRng {
   mut state : Int
 }
 
@@ -264,7 +264,7 @@ fn rr_pick_start(
 ///|
 /// Allowed intervals for one cache entry plus, in global-pool mode, the
 /// chromosome index each interval belongs to.
-struct RrAllowed {
+priv struct RrAllowed {
   ivs : Array[(Int, Int)]
   chrom_ids : Array[Int]
 }

@@ -433,7 +433,7 @@ pub fn AlignmentCounts::summary(self : AlignmentCounts) -> String {
 }
 
 ///|
-struct AlignmentCountsAccumulator {
+priv struct AlignmentCountsAccumulator {
   mut open_left_insertions : Int
   mut extend_left_insertions : Int
   mut open_left_deletions : Int

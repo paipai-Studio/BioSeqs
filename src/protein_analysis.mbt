@@ -52,7 +52,7 @@ fn protein_get_kd(c : Char) -> Double {
 // ============================================================================
 
 ///|
-struct GorParams {
+priv struct GorParams {
   pa : Double
   pb : Double
   pt : Double
@@ -90,7 +90,7 @@ fn protein_get_gor(c : Char) -> GorParams {
 // ============================================================================
 
 ///|
-struct TmParams {
+priv struct TmParams {
   inside : Double
   outside : Double
   tm : Double

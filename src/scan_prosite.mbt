@@ -239,7 +239,7 @@ pub fn scanprosite_scan(
 // ---------------------------------------------------------------------------
 
 ///|
-enum SpXmlToken {
+priv enum SpXmlToken {
   Open(String, Map[String, String])
   Close(String)
   Text(String)
@@ -315,7 +315,7 @@ fn sp_parse_open_tag(inner : String) -> (String, Map[String, String]) {
 ///|
 /// A small DOM node: element name, attributes, child elements, and the text
 /// accumulated directly under it (not including children).
-struct SpNode {
+priv struct SpNode {
   name : String
   attrs : Map[String, String]
   children : Array[SpNode]

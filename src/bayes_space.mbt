@@ -146,7 +146,7 @@ pub fn bayes_space_square_neighbors(
 
 ///|
 /// Simple deterministic pseudo-random number generator (Linear Congruential).
-struct BayesRng {
+priv struct BayesRng {
   mut state : Int
 }
 

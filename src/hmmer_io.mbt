@@ -313,7 +313,7 @@ pub fn parse_hmmer3_domtab(content : String) -> Array[QueryResult] {
 
 ///|
 /// Intermediate domain-table row record.
-struct HmmerDomHit {
+priv struct HmmerDomHit {
   target_name : String
   target_acc : String
   query_name : String

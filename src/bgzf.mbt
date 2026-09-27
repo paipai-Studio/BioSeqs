@@ -49,7 +49,7 @@ let fixed_distance_lengths : FixedArray[Int] = {
 
 ///|
 /// Bit reader for DEFLATE stream.
-struct BitReader {
+priv struct BitReader {
   data : String
   pos : Int
   bit_pos : Int
@@ -136,7 +136,7 @@ fn bit_reader_remaining(br : BitReader) -> Int {
 
 ///|
 /// Huffman decoder using a lookup table.
-struct HuffmanDecoder {
+priv struct HuffmanDecoder {
   codes : FixedArray[Int]
   lens : FixedArray[Int]
 }

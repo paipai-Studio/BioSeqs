@@ -201,7 +201,7 @@ pub fn RankProdResult::is_rank_product(self : RankProdResult) -> Bool {
 // value generator uses the byte-identical construction.
 // ---------------------------------------------------------------------------
 
-struct RpLcg {
+priv struct RpLcg {
   mut state : Int64
 }
 
@@ -449,7 +449,7 @@ fn rp_log10_value(v : Double) -> Double {
 // Exact rank-product p-values: rankprodbounds (Eisinga et al. 2017)
 // ---------------------------------------------------------------------------
 
-struct RpParam {
+priv struct RpParam {
   a : Array[Double]
   b : Array[Double]
   c : Array[Double]
