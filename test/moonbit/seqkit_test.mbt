@@ -63,3 +63,32 @@ test "seqkit_amplicon_inverted_empty" {
     Some(_) => fail("should be None for inverted region")
   }
 }
+
+
+// ============================================================
+// seqkit bam
+// ============================================================
+
+let seqkit_test_bam_base64 = "QkFNAR8AAABASEQJVk46MS42CkBTUQlTTjpjaHIxCUxOOjEwMDAKAQAAAAUAAABjaHIxAOgDAABNAAAAAAAAAGQAAAAGPEkSAQADAAgAAAD//////////wAAAAByZWFkMQCAAAAAEkgSSAAAAAAAAAAATk1pAAAAAE1EWjgAQVNpCAAAAFhTQStXAAAAAAAAAMgAAAAGFEkSAgAABgUAAAD//////////wAAAAByZWFkMgBAAAAAEQAAABJIEAAAAAAATk1pAQAAAEFTZgAAkEBSR1pncnAxAFhBQkMDAAAAAQIDRQAAAAAAAAAsAQAABihJEgEAEAAGAAAA//////////8AAAAAcmVhZDMAYAAAAP///wAAAAAAAE1DYwFTQ0P6U0lz/f9VSVNg6g=="
+
+test "seqkit_bam_to_records" {
+  let bam = @src.parse_bam_base64(seqkit_test_bam_base64)
+  // 样本无 secondary/supplementary，默认不过滤 → 3 条
+  let records = @src.seqkit_bam_to_records(bam)
+  assert_eq(records.length(), 3)
+  assert_eq(records[0].id, "read1")
+  assert_eq(records[0].seq.to_string(), "ACGTACGT")
+  assert_eq(records[1].id, "read2")
+  assert_eq(records[1].seq.to_string(), "ACGTA")
+  assert_eq(records[2].id, "read3")
+  assert_eq(records[2].seq.to_string(), "NNNNNN")
+}
+
+test "seqkit_bam_to_fasta" {
+  let bam = @src.parse_bam_base64(seqkit_test_bam_base64)
+  let fa = @src.seqkit_bam_to_fasta(bam)
+  assert_true(fa.contains(">read1"))
+  assert_true(fa.contains(">read2"))
+  assert_true(fa.contains(">read3"))
+  assert_true(fa.contains("ACGTACGT"))
+}

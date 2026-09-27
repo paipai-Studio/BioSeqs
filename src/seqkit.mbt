@@ -194,3 +194,55 @@ pub fn seqkit_amplicon(
   }
   Some(seq[start:end].to_owned())
 }
+
+
+// ============================================================================
+// seqkit bam
+// ============================================================================
+
+///|
+/// Extract reads from a BAM file as `SeqRecord`s (`seqkit bam`, FASTA view).
+/// Each record's id is the read query name and the sequence is the stored read
+/// sequence. Secondary and supplementary alignments are skipped by default
+/// (they duplicate the same read).
+pub fn seqkit_bam_to_records(
+  bam : BamFile,
+  skip_secondary~ : Bool = true,
+  skip_supplementary~ : Bool = true,
+) -> Array[SeqRecord] {
+  let out : Array[SeqRecord] = Array(capacity=0)
+  for rec in bam.records {
+    if skip_secondary && rec.is_secondary() {
+      continue
+    }
+    if skip_supplementary && rec.is_supplementary() {
+      continue
+    }
+    out.push(SeqRecord::{
+      seq: Seq::new(rec.seq),
+      id: rec.qname,
+      name: rec.qname,
+      description: "",
+      letter_annotations: Map([], capacity=0),
+      annotations: Map([], capacity=0),
+      features: [],
+    })
+  }
+  out
+}
+
+///|
+/// Write a BAM file's reads as FASTA text (`seqkit bam` default output).
+pub fn seqkit_bam_to_fasta(
+  bam : BamFile,
+  skip_secondary~ : Bool = true,
+  skip_supplementary~ : Bool = true,
+) -> String {
+  write_fasta(
+    seqkit_bam_to_records(
+      bam,
+      skip_secondary=skip_secondary,
+      skip_supplementary=skip_supplementary,
+    ),
+  )
+}
