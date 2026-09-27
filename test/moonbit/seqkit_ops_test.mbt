@@ -98,3 +98,27 @@ test "seqkit_shuffle_sample" {
   // sampling is without replacement (distinct ids)
   assert_true(s[0].id != s[1].id)
 }
+
+// ============================================================
+// seqkit concat / replace
+// ============================================================
+
+test "seqkit_concat" {
+  let a = @src.parse_fasta(">a1\nAC\n>a2\nGT\n")
+  let b = @src.parse_fasta(">b1\nTT\n")
+  let c = @src.seqkit_concat([a, b, []])
+  assert_eq(c.length(), 3)
+  assert_eq(c[0].id, "a1")
+  assert_eq(c[1].id, "a2")
+  assert_eq(c[2].id, "b1")
+}
+
+test "seqkit_replace_name" {
+  let r = @src.parse_fasta(">sample1_x desc\nAC\n>sample2_x\nGT\n")
+  let out = @src.seqkit_replace_name(r, "_x", "")
+  assert_eq(out[0].id, "sample1")
+  assert_eq(out[1].id, "sample2")
+  assert_eq(out[0].name, "sample1")
+  // 序列不变
+  assert_eq(out[0].seq.to_string(), "AC")
+}

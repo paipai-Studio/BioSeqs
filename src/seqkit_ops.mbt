@@ -291,3 +291,78 @@ pub fn seqkit_shuffle(records : Array[SeqRecord], seed : Int) -> Array[SeqRecord
 pub fn seqkit_sample(records : Array[SeqRecord], n : Int, seed : Int) -> Array[SeqRecord] {
   seqkit_head(seqkit_shuffle(records, seed), n)
 }
+
+// ============================================================================
+// seqkit concat / replace
+// ============================================================================
+
+///|
+/// Concatenate multiple record groups into one sequence (the record-level view
+/// of `seqkit concat` over several input files). Occurrence order is preserved.
+pub fn seqkit_concat(groups : Array[Array[SeqRecord]]) -> Array[SeqRecord] {
+  let out : Array[SeqRecord] = Array(capacity=0)
+  for group in groups {
+    for rec in group {
+      out.push(rec)
+    }
+  }
+  out
+}
+
+///|
+/// Replace every occurrence of `pattern` with `replacement` in a string
+/// (literal substring replacement, no regex).
+fn seqkit_str_replace_all(s : String, pattern : String, replacement : String) -> String {
+  if pattern.length() == 0 {
+    return s
+  }
+  let sb = StringBuilder()
+  let n = s.length()
+  let p = pattern.length()
+  let mut i = 0
+  while i < n {
+    // 匹配 pattern？
+    let mut matched = false
+    if i + p <= n {
+      let mut j = 0
+      while j < p && s.unsafe_get(i + j) == pattern.unsafe_get(j) {
+        j = j + 1
+      }
+      if j == p {
+        sb.write_string(replacement)
+        i = i + p
+        matched = true
+      }
+    }
+    if not(matched) {
+      sb.write_char(s.unsafe_get(i).unsafe_to_char())
+      i = i + 1
+    }
+  }
+  sb.to_string()
+}
+
+///|
+/// Rename records by literal substring replacement on the ID
+/// (`seqkit replace -p pattern -r replacement --by-name`, literal mode).
+/// Both `id` and `name` are updated; other metadata is preserved.
+pub fn seqkit_replace_name(
+  records : Array[SeqRecord],
+  pattern : String,
+  replacement : String,
+) -> Array[SeqRecord] {
+  let out : Array[SeqRecord] = Array(capacity=0)
+  for rec in records {
+    let new_id = seqkit_str_replace_all(rec.id, pattern, replacement)
+    out.push(SeqRecord::{
+      seq: rec.seq,
+      id: new_id,
+      name: new_id,
+      description: rec.description,
+      letter_annotations: rec.letter_annotations,
+      annotations: rec.annotations,
+      features: rec.features,
+    })
+  }
+  out
+}

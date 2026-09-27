@@ -138,3 +138,59 @@ pub fn seqkit_subseq(fasta : Fasta, chrom : String, start : Int, end : Int) -> S
     }
   }
 }
+
+// ============================================================================
+// seqkit amplicon
+// ============================================================================
+
+///|
+/// Find the first occurrence of `sub` in `s`; returns the 0-based start index
+/// or -1 when absent. Naive scan (no regex).
+fn seqkit_index_of(s : String, sub : String) -> Int {
+  let m = sub.length()
+  if m == 0 {
+    return 0
+  }
+  let n = s.length()
+  let mut i = 0
+  while i + m <= n {
+    let mut j = 0
+    while j < m && s.unsafe_get(i + j) == sub.unsafe_get(j) {
+      j = j + 1
+    }
+    if j == m {
+      return i
+    }
+    i = i + 1
+  }
+  -1
+}
+
+///|
+/// Extract the amplicon between a forward primer and the reverse complement of
+/// a reverse primer (`seqkit amplicon -F fwd -R rev`).
+///
+/// The returned sequence spans from the 3' end of the forward-primer match to
+/// the 5' start of the reverse-primer (reverse-complement) match. Returns None
+/// when either primer is not found or the region is empty/inverted.
+pub fn seqkit_amplicon(
+  seq : String,
+  forward_primer : String,
+  reverse_primer : String,
+) -> String? {
+  let fwd_pos = seqkit_index_of(seq, forward_primer)
+  if fwd_pos < 0 {
+    return None
+  }
+  let rev_rc = seqkit_reverse_complement(reverse_primer)
+  let rev_pos = seqkit_index_of(seq, rev_rc)
+  if rev_pos < 0 {
+    return None
+  }
+  let start = fwd_pos + forward_primer.length()
+  let end = rev_pos
+  if end <= start {
+    return None
+  }
+  Some(seq[start:end].to_owned())
+}
