@@ -137,3 +137,38 @@ test "build_consensus_empty" {
     None => ()
   }
 }
+
+
+// ============================================================
+// split_frequencies (DendroPy sumtrees split-frequency table)
+// ============================================================
+
+test "split_frequencies" {
+  let trees = @src.create_example_trees()
+  let freqs = @src.split_frequencies(trees)
+
+  // tree1/3/5 共享 ((A,B),(C,D))；tree2、tree4 各自独有拓扑
+  // unique splits：{A,B},{C,D},{A,C},{B,D},{A,B,C} = 5
+  assert_eq(freqs.length(), 5)
+
+  // {A,B} 和 {C,D} 出现在 3/5 棵树 → support 0.6，应排最前
+  assert_eq(freqs[0].support, 0.6)
+  assert_eq(freqs[1].support, 0.6)
+
+  // 降序：开头两个 0.6 >= 后面（0.2）
+  assert_true(freqs[1].support >= freqs[2].support)
+  assert_true(freqs[4].support >= 0.0 && freqs[4].support <= 1.0)
+}
+
+test "split_frequencies_sum_to_one_top" {
+  // 单棵树：它的两个互补 split 都 support=1.0
+  let tree = [@src.newick_to_tree("((A,B),(C,D));")]
+  let freqs = @src.split_frequencies(tree)
+  assert_eq(freqs.length(), 2)
+  assert_eq(freqs[0].support, 1.0)
+  assert_eq(freqs[1].support, 1.0)
+}
+
+test "split_frequencies_empty" {
+  assert_eq(@src.split_frequencies([]).length(), 0)
+}

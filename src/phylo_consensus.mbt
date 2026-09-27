@@ -638,3 +638,35 @@ pub fn get_all_splits_from_trees(trees : Array[ConsensusTree]) -> Array[Split] {
 
   seen.values().collect()
 }
+
+
+///|
+/// Build the full split-frequency table over a set of trees (`DendroPy
+/// sumtrees` core output): every unique split plus its support (the fraction of
+/// input trees in which that split appears), sorted by support descending.
+pub fn split_frequencies(trees : Array[ConsensusTree]) -> Array[Split] {
+  let unique = get_all_splits_from_trees(trees)
+  let out : Array[Split] = Array(capacity=0)
+  let mut i = 0
+  while i < unique.length() {
+    let s = unique[i]
+    let support = calculate_consensus_support(trees, s)
+    out.push(s.set_support(support))
+    i = i + 1
+  }
+
+  // 按 support 降序（稳定插入排序）
+  let mut a = 1
+  while a < out.length() {
+    let key = out[a]
+    let mut b = a - 1
+    while b >= 0 && out[b].support < key.support {
+      out[b + 1] = out[b]
+      b = b - 1
+    }
+    out[b + 1] = key
+    a = a + 1
+  }
+
+  out
+}
