@@ -523,3 +523,148 @@ pub fn skbio_bioenv(dm : Array[Array[Double]], data : Array[Array[Double]]) -> B
   }
   BioenvResult::{ best_subsets, correlations }
 }
+
+
+///|
+/// Spatial median (L1 median) of a set of points via Weiszfeld iteration,
+/// minimizing sum of Euclidean distances. Initialized at the centroid.
+fn skbd_spatial_median(points : Array[Array[Double]]) -> Array[Double] {
+  let n = points.length()
+  let d = if n > 0 { points[0].length() } else { 0 }
+  let m = Array::make(d, 0.0)
+  for j = 0; j < d; j = j + 1 {
+    let mut s = 0.0
+    for p in points {
+      s = s + p[j]
+    }
+    m[j] = s / n.to_double()
+  }
+  for _k = 0; _k < 60; _k = _k + 1 {
+    let num = Array::make(d, 0.0)
+    let mut denom = 0.0
+    for p in points {
+      let mut dist = 0.0
+      for j = 0; j < d; j = j + 1 {
+        let diff = p[j] - m[j]
+        dist = dist + diff * diff
+      }
+      dist = dist.sqrt()
+      let w = if dist < 1.0e-12 { 1.0e12 } else { 1.0 / dist }
+      for j = 0; j < d; j = j + 1 {
+        num[j] = num[j] + p[j] * w
+      }
+      denom = denom + w
+    }
+    if denom == 0.0 {
+      break
+    }
+    let mut diff2 = 0.0
+    for j = 0; j < d; j = j + 1 {
+      let nm = num[j] / denom
+      let diff = nm - m[j]
+      diff2 = diff2 + diff * diff
+      m[j] = nm
+    }
+    if diff2.sqrt() < 1.0e-9 {
+      break
+    }
+  }
+  m
+}
+
+///|
+/// Grouped distance-to-spatial-median for PERMDISP's median variant.
+fn skbd_permdisp_distances_median(
+  pc : Array[Array[Double]],
+  grouping : Array[Int],
+) -> Array[Array[Double]] {
+  let n = pc.length()
+  let d = if n > 0 { pc[0].length() } else { 0 }
+  let seen : Array[Int] = Array(capacity=0)
+  let result : Array[Array[Double]] = Array(capacity=0)
+  for g in grouping {
+    let mut dup = false
+    for s in seen {
+      if s == g {
+        dup = true
+        break
+      }
+    }
+    if dup {
+      continue
+    }
+    seen.push(g)
+    let members : Array[Int] = Array(capacity=0)
+    let points : Array[Array[Double]] = Array(capacity=0)
+    for i = 0; i < n; i = i + 1 {
+      if grouping[i] == g {
+        members.push(i)
+        points.push(pc[i])
+      }
+    }
+    let median = skbd_spatial_median(points)
+    let dists : Array[Double] = Array(capacity=0)
+    for m in members {
+      let mut sq = 0.0
+      for j = 0; j < d; j = j + 1 {
+        let diff = pc[m][j] - median[j]
+        sq = sq + diff * diff
+      }
+      dists.push(sq.sqrt())
+    }
+    result.push(dists)
+  }
+  result
+}
+
+///|
+/// PERMDISP with the spatial-median center (median variant of the dispersion
+/// test). Otherwise identical to `skbio_permdisp` (permutation p-value,
+/// two-sided).
+pub fn skbio_permdisp_median(
+  dm : Array[Array[Double]],
+  grouping : Array[Int],
+  permutations : Int,
+  seed : Int,
+) -> PermdispResult {
+  let n = dm.length()
+  let b = skbio_center_distance_matrix(dm)
+  let (raw_evals, raw_evecs) = eigh_symmetric(b, n)
+  let (evals, evecs) = linalg_sort_eigen(raw_evals, raw_evecs, n)
+  let mut d = 0
+  while d < n && evals[d] > 1.0e-12 {
+    d = d + 1
+  }
+  let pc : Array[Array[Double]] = Array(capacity=0)
+  for i = 0; i < n; i = i + 1 {
+    let row = Array::make(d, 0.0)
+    for j = 0; j < d; j = j + 1 {
+      row[j] = evecs[i][j] * evals[j].sqrt()
+    }
+    pc.push(row)
+  }
+  let obs = skbd_one_way_anova_f(skbd_permdisp_distances_median(pc, grouping))
+  let mut count_better = 0
+  let mut rng = seed
+  for _p = 0; _p < permutations; _p = _p + 1 {
+    let g = grouping.copy()
+    let mut i = n - 1
+    while i > 0 {
+      rng = skbd_lcg(rng)
+      let j = rng % (i + 1)
+      let t = g[i]
+      g[i] = g[j]
+      g[j] = t
+      i = i - 1
+    }
+    if skbd_one_way_anova_f(skbd_permdisp_distances_median(pc, g)) >= obs {
+      count_better = count_better + 1
+    }
+  }
+  let p_value = if permutations == 0 {
+    skbd_nan()
+  } else {
+    (count_better + 1).to_double() / (permutations + 1).to_double()
+  }
+  PermdispResult::{ statistic: obs, p_value, n, num_groups: skbd_num_groups(grouping) }
+}

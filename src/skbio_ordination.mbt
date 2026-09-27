@@ -988,3 +988,69 @@ pub fn skbio_pcoa_biplot(
   }
   out
 }
+
+
+///|
+/// Partial Mantel test: correlation between two distance matrices `x` and `y`
+/// while controlling for a third distance matrix `c`. The reported coefficient
+/// is the partial correlation, with a two-sided permutation p-value (rows of
+/// `x` are permuted while `y` and `c` stay fixed).
+pub fn skbio_pwmantel(
+  x : Array[Array[Double]],
+  y : Array[Array[Double]],
+  c : Array[Array[Double]],
+  permutations : Int,
+  seed : Int,
+) -> MantelResult {
+  let n = x.length()
+  let x_flat = skb_condensed(x)
+  let y_flat = skb_condensed(y)
+  let c_flat = skb_condensed(c)
+  let corr = skb_partial_corr(x_flat, y_flat, c_flat)
+
+  let mut count_better = 0
+  let mut rng = seed
+  let base_order = Array::make(n, 0)
+  for i = 0; i < n; i = i + 1 {
+    base_order[i] = i
+  }
+  for _p = 0; _p < permutations; _p = _p + 1 {
+    let order = Array::make(n, 0)
+    for i = 0; i < n; i = i + 1 {
+      order[i] = base_order[i]
+    }
+    let mut i = n - 1
+    while i > 0 {
+      rng = skb_lcg(rng)
+      let j = rng % (i + 1)
+      let t = order[i]
+      order[i] = order[j]
+      order[j] = t
+      i = i - 1
+    }
+    let xp = skb_permute_matrix(x, order)
+    let rp = skb_partial_corr(skb_condensed(xp), y_flat, c_flat)
+    if rp.abs() >= corr.abs() {
+      count_better = count_better + 1
+    }
+  }
+  let p_value = if permutations == 0 {
+    0.0 / 0.0
+  } else {
+    (count_better + 1).to_double() / (permutations + 1).to_double()
+  }
+  MantelResult::{ corr_coeff: corr, p_value, n }
+}
+
+///|
+/// Partial correlation of three vectors: corr(x, y) controlling for `c`.
+fn skb_partial_corr(x : Array[Double], y : Array[Double], c : Array[Double]) -> Double {
+  let r_xy = skb_pearson(x, y)
+  let r_xc = skb_pearson(x, c)
+  let r_yc = skb_pearson(y, c)
+  let denom = (1.0 - r_xc * r_xc) * (1.0 - r_yc * r_yc)
+  if denom <= 0.0 {
+    return 0.0 / 0.0
+  }
+  (r_xy - r_xc * r_yc) / denom.sqrt()
+}

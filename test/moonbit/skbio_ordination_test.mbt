@@ -251,3 +251,28 @@ test "skbio_scale_corr_meanstd_svdrank" {
   // svd_rank
   assert_eq(@src.skbio_svd_rank([3.0, 2.0, 0.0, 0.0], 4, 4), 2)
 }
+
+
+// ============================================================
+// skbio_pwmantel (partial Mantel)
+// ============================================================
+
+test "skbio_pwmantel_identical_x_y" {
+  let x = [[0.0, 1.0, 2.0], [1.0, 0.0, 1.0], [2.0, 1.0, 0.0]]
+  let c = [[0.0, 3.0, 1.0], [3.0, 0.0, 2.0], [1.0, 2.0, 0.0]]
+  // x == y → partial corr 恒为 1（只要 x 与 c 不完全线性相关）
+  let r = @src.skbio_pwmantel(x, x, c, 999, 42)
+  assert_true(assert_close(r.corr_coeff, 1.0, 1.0e-6))
+  assert_eq(r.n, 3)
+  assert_true(r.p_value > 0.0 && r.p_value <= 1.0)
+}
+
+test "skbio_pwmantel_bounds" {
+  let x = [[0.0, 1.0, 2.0], [1.0, 0.0, 1.0], [2.0, 1.0, 0.0]]
+  let y = [[0.0, 2.0, 7.0], [2.0, 0.0, 5.0], [7.0, 5.0, 0.0]]
+  let c = [[0.0, 2.0, 1.0], [2.0, 0.0, 3.0], [1.0, 3.0, 0.0]]
+  let r = @src.skbio_pwmantel(x, y, c, 99, 7)
+  assert_eq(r.n, 3)
+  assert_true(r.corr_coeff >= -1.0 && r.corr_coeff <= 1.0)
+  assert_true(r.p_value > 0.0 && r.p_value <= 1.0)
+}
