@@ -25,3 +25,22 @@ test "scanpy_rank_genes_groups" {
   assert_eq(res[1].t_stat, 0.0)
   assert_eq(res[1].p_value, 1.0)
 }
+
+// ============================================================
+// tsne / dendrogram
+// ============================================================
+
+test "scanpy_tsne" {
+  let x = [[1.0, 0.0], [0.0, 1.0], [1.0, 1.0], [0.0, 0.0]]
+  let emb = @src.scanpy_tsne(x, perplexity=2.0, dims=2)
+  assert_eq(emb.length(), 4)
+  assert_eq(emb[0].length(), 2)
+}
+
+test "scanpy_dendrogram" {
+  // 2 cells × 3 genes → 3 个基因的聚类树，merge 长度 = 2
+  let x = [[1.0, 2.0, 3.0], [3.0, 2.0, 1.0]]
+  let tree = @src.scanpy_dendrogram(x)
+  assert_eq(tree.n, 3)
+  assert_eq(tree.merge.length(), 2)
+}

@@ -287,3 +287,108 @@ pub fn scanpy_regress_out(
   }
   resid
 }
+
+
+// ============================================================================
+// filter_cells / filter_genes / one-hot / regress_out categorical
+// ============================================================================
+
+///|
+/// Keep only cells expressing at least `min_genes` genes (`pp.filter_cells`).
+/// `x` is n_obs × n_vars; a gene is "expressed" when its count is > 0.
+pub fn scanpy_filter_cells(
+  x : Array[Array[Double]],
+  min_genes : Int,
+) -> Array[Array[Double]] {
+  let out : Array[Array[Double]] = Array(capacity=0)
+  for row in x {
+    let mut n_expressed = 0
+    for v in row {
+      if v > 0.0 {
+        n_expressed = n_expressed + 1
+      }
+    }
+    if n_expressed >= min_genes {
+      out.push(row)
+    }
+  }
+  out
+}
+
+///|
+/// Keep only genes expressed in at least `min_cells` cells (`pp.filter_genes`).
+/// `x` is n_obs × n_vars.
+pub fn scanpy_filter_genes(
+  x : Array[Array[Double]],
+  min_cells : Int,
+) -> Array[Array[Double]] {
+  let n_cells = x.length()
+  let n_genes = if n_cells > 0 { x[0].length() } else { 0 }
+  let expressed : Array[Int] = Array::make(n_genes, 0)
+  for j = 0; j < n_genes; j = j + 1 {
+    let mut c = 0
+    for i = 0; i < n_cells; i = i + 1 {
+      if x[i][j] > 0.0 {
+        c = c + 1
+      }
+    }
+    expressed[j] = c
+  }
+  let out : Array[Array[Double]] = Array(capacity=0)
+  for i = 0; i < n_cells; i = i + 1 {
+    let row : Array[Double] = Array(capacity=0)
+    for j = 0; j < n_genes; j = j + 1 {
+      if expressed[j] >= min_cells {
+        row.push(x[i][j])
+      }
+    }
+    out.push(row)
+  }
+  out
+}
+
+///|
+/// One-hot encode a categorical covariate (used to feed `regress_out` with
+/// categories). Levels are kept in first-appearance order.
+pub fn scanpy_one_hot(categories : Array[String]) -> Array[Array[Double]] {
+  let levels : Array[String] = Array(capacity=0)
+  for c in categories {
+    let mut found = false
+    for l in levels {
+      if l == c {
+        found = true
+        break
+      }
+    }
+    if !found {
+      levels.push(c)
+    }
+  }
+  let nlev = levels.length()
+  let out : Array[Array[Double]] = Array(capacity=0)
+  for c in categories {
+    let mut idx = 0
+    for j = 0; j < nlev; j = j + 1 {
+      if levels[j] == c {
+        idx = j
+        break
+      }
+    }
+    let row : Array[Double] = Array(capacity=0)
+    for j = 0; j < nlev; j = j + 1 {
+      row.push(if j == idx { 1.0 } else { 0.0 })
+    }
+    out.push(row)
+  }
+  out
+}
+
+///|
+/// Regress out a categorical covariate by one-hot encoding it and calling
+/// `scanpy_regress_out`.
+pub fn scanpy_regress_out_categorical(
+  x : Array[Array[Double]],
+  categories : Array[String],
+) -> Array[Array[Double]] {
+  scanpy_regress_out(x, scanpy_one_hot(categories))
+}

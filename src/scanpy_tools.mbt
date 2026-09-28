@@ -103,3 +103,46 @@ pub fn scanpy_rank_genes_groups(
   }
   out
 }
+
+// ============================================================================
+// tsne / dendrogram
+// ============================================================================
+
+///|
+/// t-SNE embedding of `x` (n_obs × n_vars) into `dims` dimensions
+/// (`tl.tsne`), a thin wrapper over the repo's Barnes–Hut t-SNE.
+pub fn scanpy_tsne(
+  x : Array[Array[Double]],
+  perplexity~ : Double = 30.0,
+  dims~ : Int = 2,
+) -> Array[Array[Double]] {
+  let config = TsneConfig::new_custom(perplexity, 1000, dims, 42)
+  let result = tsne(x, config)
+  result.embedding
+}
+
+///|
+/// Hierarchical clustering of genes (`tl.dendrogram`): complete linkage over
+/// the Euclidean distances between gene expression vectors, returned as a
+/// merge/height/order tree.
+pub fn scanpy_dendrogram(x : Array[Array[Double]]) -> HclustResult {
+  let n_cells = x.length()
+  let n_genes = if n_cells > 0 { x[0].length() } else { 0 }
+  let dist : Array[Array[Double]] = Array::make(n_genes, [])
+  for j = 0; j < n_genes; j = j + 1 {
+    dist[j] = Array::make(n_genes, 0.0)
+  }
+  for a = 0; a < n_genes; a = a + 1 {
+    for b = a + 1; b < n_genes; b = b + 1 {
+      let mut d2 = 0.0
+      for i = 0; i < n_cells; i = i + 1 {
+        let diff = x[i][a] - x[i][b]
+        d2 = d2 + diff * diff
+      }
+      let d = d2.sqrt()
+      dist[a][b] = d
+      dist[b][a] = d
+    }
+  }
+  hclust_complete(dist)
+}

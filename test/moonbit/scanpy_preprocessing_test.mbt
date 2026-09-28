@@ -76,3 +76,37 @@ test "scanpy_highly_variable_genes" {
   assert_eq(hv.highly_variable[2], false)
   assert_eq(hv.highly_variable[3], false)
 }
+
+// ============================================================
+// filter_cells / filter_genes / one-hot / regress_out categorical
+// ============================================================
+
+test "scanpy_filter_cells" {
+  // 3 cells × 4 genes：表达基因数 2 / 1 / 4
+  let x = [[1.0, 1.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0]]
+  let out = @src.scanpy_filter_cells(x, 2)
+  assert_eq(out.length(), 2)
+}
+
+test "scanpy_filter_genes" {
+  // 3 cells × 4 genes：表达细胞数 3 / 2 / 1 / 1
+  let x = [[1.0, 1.0, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0], [1.0, 1.0, 1.0, 1.0]]
+  let out = @src.scanpy_filter_genes(x, 2)
+  assert_eq(out.length(), 3)
+  assert_eq(out[0].length(), 2)  // 保留 gene0、gene1
+}
+
+test "scanpy_one_hot" {
+  let oh = @src.scanpy_one_hot(["a", "b", "a"])
+  assert_eq(oh.length(), 3)
+  assert_eq(oh[0], [1.0, 0.0])
+  assert_eq(oh[1], [0.0, 1.0])
+  assert_eq(oh[2], [1.0, 0.0])
+}
+
+test "scanpy_regress_out_categorical" {
+  let x = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
+  let out = @src.scanpy_regress_out_categorical(x, ["a", "b", "a"])
+  assert_eq(out.length(), 3)
+  assert_eq(out[0].length(), 2)
+}
