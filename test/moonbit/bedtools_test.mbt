@@ -602,3 +602,86 @@ test "bedtools_intersect_wb_either" {
   assert_eq(@src.bedtools_intersect_either(a2, b2, 0.5).length(), 1)
   assert_eq(@src.bedtools_intersect_either(a2, b2, 0.6).length(), 0)
 }
+
+// ============================================================
+// bedtools sort / shuffle / random / annotate
+// ============================================================
+
+test "bedtools_sort" {
+  let ivs = [iv("chr2", 0, 10), iv("chr1", 100, 200), iv("chr1", 0, 50)]
+  let s = @src.bedtools_sort(ivs)
+  assert_eq(s[0].chrom, "chr1")
+  assert_eq(s[0].start, 0)
+  assert_eq(s[1].start, 100)
+  assert_eq(s[2].chrom, "chr2")
+}
+
+test "bedtools_shuffle_keeps_length" {
+  let ivs = [iv("chr1", 100, 200)]  // 长度 100
+  let sizes = [("chr1", 1000)]
+  let moved = @src.bedtools_shuffle(ivs, sizes, 42)
+  assert_eq(moved.length(), 1)
+  assert_eq(moved[0].end - moved[0].start, 100)  // 长度保持
+  assert_true(moved[0].end <= 1000)  // 不越界
+}
+
+test "bedtools_random" {
+  let r = @src.bedtools_random(3, 10, [("chr1", 1000)], 7)
+  assert_eq(r.length(), 3)
+  for x in r {
+    assert_eq(x.end - x.start, 10)
+    assert_true(x.end <= 1000)
+  }
+}
+
+test "bedtools_annotate" {
+  let a = [iv("chr1", 0, 100), iv("chr1", 200, 300)]
+  let b = [iv("chr1", 50, 60), iv("chr1", 210, 220), iv("chr1", 500, 600)]
+  let counts = @src.bedtools_annotate(a, b)
+  assert_eq(counts, [1, 1])
+}
+
+
+// ============================================================
+// bedtools cluster / unionbedg
+// ============================================================
+
+test "bedtools_cluster" {
+  let ivs = [iv("chr1", 0, 100), iv("chr1", 50, 150), iv("chr1", 200, 300)]
+  let clustered = @src.bedtools_cluster(ivs)
+  // 0-100 与 50-150 重叠 → 簇 1；200-300 → 簇 2
+  assert_eq(clustered[0].1, 1)
+  assert_eq(clustered[1].1, 1)
+  assert_eq(clustered[2].1, 2)
+}
+
+test "bedtools_cluster_transitive" {
+  // A 与 B 重叠，B 与 C 重叠 → 三者同簇
+  let ivs = [iv("chr1", 0, 10), iv("chr1", 5, 20), iv("chr1", 15, 30)]
+  let clustered = @src.bedtools_cluster(ivs)
+  assert_eq(clustered[0].1, 1)
+  assert_eq(clustered[1].1, 1)
+  assert_eq(clustered[2].1, 1)
+}
+
+test "bedtools_unionbedg" {
+  let s1 = [(iv("chr1", 0, 100), 5.0)]
+  let s2 = [(iv("chr1", 50, 150), 3.0)]
+  let uni = @src.bedtools_unionbedg([s1, s2])
+  assert_eq(uni.length(), 3)
+  // [0,50)：s1 有值、s2 无
+  assert_eq(uni[0].0.start, 0)
+  match uni[0].1[0] {
+    Some(v) => assert_true(assert_close(v, 5.0, 1.0e-9))
+    None => fail("s1 should cover [0,50)")
+  }
+  assert_true(uni[0].1[1] is None)
+  // [50,100)：都覆盖
+  assert_eq(uni[1].0.start, 50)
+  match uni[1].1[1] {
+    Some(v) => assert_true(assert_close(v, 3.0, 1.0e-9))
+    None => fail("s2 should cover [50,100)")
+  }
+  // [100,150)：只有 s2
+  assert_true(uni[2].1[0] is None)
+}

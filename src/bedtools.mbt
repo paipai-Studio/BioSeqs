@@ -2192,3 +2192,192 @@ pub fn bedtools_intersect_either(
   }
   out
 }
+
+// ============================================================================
+// bedtools sort / shuffle / random / annotate
+// ============================================================================
+
+///|
+/// Deterministic LCG random source (same constants as elsewhere in the repo).
+fn bedtools_lcg(state : Int) -> Int {
+  (state * 1103515245 + 12345) & 0x7fffffff
+}
+
+///|
+/// Sort intervals by (chrom, start, end) — `bedtools sort` (lexicographic
+/// chromosome order).
+pub fn bedtools_sort(intervals : Array[BedInterval]) -> Array[BedInterval] {
+  sort_bed_intervals(intervals)
+}
+
+///|
+/// Randomly relocate each interval to a new position within the genome
+/// (`bedtools shuffle`), keeping its length. `chrom_sizes` gives each
+/// chromosome's length; oversize intervals are dropped.
+pub fn bedtools_shuffle(
+  intervals : Array[BedInterval],
+  chrom_sizes : Array[(String, Int)],
+  seed : Int,
+) -> Array[BedInterval] {
+  let mut rng = seed
+  let out : Array[BedInterval] = Array(capacity=0)
+  for iv in intervals {
+    let len = iv.end - iv.start
+    let ci = rng % chrom_sizes.length()
+    rng = bedtools_lcg(rng)
+    let (chrom, size) = chrom_sizes[ci]
+    let max_start = size - len
+    if max_start <= 0 {
+      continue
+    }
+    let s = rng % (max_start + 1)
+    rng = bedtools_lcg(rng)
+    out.push(BedInterval::new(chrom, s, s + len))
+  }
+  out
+}
+
+///|
+/// Generate `n` random intervals of a fixed length across the genome
+/// (`bedtools random`).
+pub fn bedtools_random(
+  n : Int,
+  length : Int,
+  chrom_sizes : Array[(String, Int)],
+  seed : Int,
+) -> Array[BedInterval] {
+  let mut rng = seed
+  let out : Array[BedInterval] = Array(capacity=0)
+  let mut k = 0
+  while k < n {
+    let ci = rng % chrom_sizes.length()
+    rng = bedtools_lcg(rng)
+    let (chrom, size) = chrom_sizes[ci]
+    let max_start = size - length
+    if max_start > 0 {
+      let s = rng % (max_start + 1)
+      rng = bedtools_lcg(rng)
+      out.push(BedInterval::new(chrom, s, s + length))
+    }
+    k = k + 1
+  }
+  out
+}
+
+///|
+/// For each interval in `a`, count how many intervals in `b` it overlaps
+/// (`bedtools annotate -counts`).
+pub fn bedtools_annotate(
+  a : Array[BedInterval],
+  b : Array[BedInterval],
+) -> Array[Int] {
+  let out : Array[Int] = Array(capacity=0)
+  for ai in a {
+    let mut count = 0
+    for bi in b {
+      if ai.chrom == bi.chrom && ai.start < bi.end && bi.start < ai.end {
+        count = count + 1
+      }
+    }
+    out.push(count)
+  }
+  out
+}
+
+
+// ============================================================================
+// bedtools cluster / unionbedg
+// ============================================================================
+
+///|
+/// Assign a cluster id to each interval (`bedtools cluster`): intervals are
+/// sorted, and transitively overlapping intervals on the same chromosome share
+/// a cluster id (1-based).
+pub fn bedtools_cluster(
+  intervals : Array[BedInterval],
+) -> Array[(BedInterval, Int)] {
+  let sorted = sort_bed_intervals(intervals)
+  let out : Array[(BedInterval, Int)] = Array(capacity=0)
+  let mut cluster_id = 0
+  let mut cluster_max_end = -1
+  let mut cluster_chrom = ""
+  let mut first = true
+  for iv in sorted {
+    if first || iv.chrom != cluster_chrom || iv.start >= cluster_max_end {
+      cluster_id = cluster_id + 1
+      cluster_max_end = iv.end
+      cluster_chrom = iv.chrom
+    } else {
+      if iv.end > cluster_max_end {
+        cluster_max_end = iv.end
+      }
+    }
+    out.push((iv, cluster_id))
+    first = false
+  }
+  out
+}
+
+///|
+fn bedtools_push_unique(vals : Array[Int], x : Int) -> Array[Int] {
+  for v in vals {
+    if v == x {
+      return vals
+    }
+  }
+  vals.push(x)
+  vals
+}
+
+///|
+/// Union of several bedgraphs (`bedtools unionbedg`): the genome is split at
+/// every interval boundary across all samples, and for each resulting segment
+/// the per-sample value is reported (`None` where a sample has no record). Each
+/// sample is an array of `(interval, value)`.
+pub fn bedtools_unionbedg(
+  files : Array[Array[(BedInterval, Double)]],
+) -> Array[(BedInterval, Array[Double?])] {
+  // 收集所有染色体
+  let chroms : Array[String] = Array(capacity=0)
+  for sample in files {
+    for (iv, _) in sample {
+      if index_of(chroms, iv.chrom) < 0 {
+        chroms.push(iv.chrom)
+      }
+    }
+  }
+  let result : Array[(BedInterval, Array[Double?])] = Array(capacity=0)
+  for chrom in chroms {
+    let mut breakpoints : Array[Int] = Array(capacity=0)
+    for sample in files {
+      for (iv, _) in sample {
+        if iv.chrom == chrom {
+          breakpoints = bedtools_push_unique(breakpoints, iv.start)
+          breakpoints = bedtools_push_unique(breakpoints, iv.end)
+        }
+      }
+    }
+    let bp = sort_ints_asc(breakpoints)
+    let mut i = 0
+    while i + 1 < bp.length() {
+      let s = bp[i]
+      let e = bp[i + 1]
+      if s < e {
+        let values : Array[Double?] = Array(capacity=0)
+        for sample in files {
+          let mut found : Double? = None
+          for (iv, v) in sample {
+            if iv.chrom == chrom && iv.start <= s && iv.end >= e {
+              found = Some(v)
+              break
+            }
+          }
+          values.push(found)
+        }
+        result.push((BedInterval::new(chrom, s, e), values))
+      }
+      i = i + 1
+    }
+  }
+  result
+}
