@@ -417,3 +417,149 @@ pub fn md_dihedral_forces(
   }
   forces
 }
+
+
+// ============================================================================
+// Temperature + thermostats (NVT)
+// ============================================================================
+
+///|
+/// Boltzmann constant in kcal/(mol·K).
+const MD_KB : Double = 0.001987204
+
+///|
+/// Instantaneous temperature `T = 2 KE / (kB N_dof)` from the velocities.
+pub fn md_temperature(
+  velocities : Array[Array[Double]],
+  masses : Array[Double],
+  n_dof : Int,
+) -> Double {
+  if n_dof == 0 {
+    return 0.0
+  }
+  let ke = md_kinetic_energy(velocities, masses)
+  2.0 * ke / (MD_KB * n_dof.to_double())
+}
+
+///|
+/// Berendsen velocity rescaling toward `t_target`. The scale factor is
+/// `sqrt(1 + (dt/tau) (T_target/T_current - 1))`. Returns rescaled velocities.
+pub fn md_berendsen_scale(
+  velocities : Array[Array[Double]],
+  t_current : Double,
+  t_target : Double,
+  dt : Double,
+  tau : Double,
+) -> Array[Array[Double]] {
+  let lambda = if t_current <= 0.0 {
+    1.0
+  } else {
+    let r = 1.0 + (dt / tau) * (t_target / t_current - 1.0)
+    if r < 0.0 { 0.0 } else { r.sqrt() }
+  }
+  let out : Array[Array[Double]] = Array(capacity=0)
+  for v in velocities {
+    out.push([v[0] * lambda, v[1] * lambda, v[2] * lambda])
+  }
+  out
+}
+
+///|
+/// Run a harmonic-bond simulation under a Berendsen thermostat and return the
+/// temperature at each step. The temperature should relax toward `target_t`.
+pub fn md_simulate_berendsen(
+  positions : Array[Array[Double]],
+  velocities : Array[Array[Double]],
+  masses : Array[Double],
+  bonds : Array[(Int, Int, Double, Double)],
+  dt : Double,
+  tau : Double,
+  target_t : Double,
+  steps : Int,
+  n_dof : Int,
+) -> Array[Double] {
+  let temps : Array[Double] = Array(capacity=0)
+  let mut pos = positions
+  let mut vel = velocities
+  for _s = 0; _s < steps; _s = _s + 1 {
+    let t = md_temperature(vel, masses, n_dof)
+    vel = md_berendsen_scale(vel, t, target_t, dt, tau)
+    temps.push(md_temperature(vel, masses, n_dof))
+    let forces = md_bond_forces(pos, bonds)
+    let (pos_new, v_half) = md_verlet_move(pos, vel, forces, masses, dt)
+    let new_forces = md_bond_forces(pos_new, bonds)
+    vel = md_verlet_finish(v_half, new_forces, masses, dt)
+    pos = pos_new
+  }
+  temps
+}
+
+///|
+/// Run a harmonic-bond simulation under a Nosé-Hoover thermostat (extended
+/// system, Trotter-split Verlet). Returns the temperature at each step.
+pub fn md_simulate_nose_hoover(
+  positions : Array[Array[Double]],
+  velocities : Array[Array[Double]],
+  masses : Array[Double],
+  bonds : Array[(Int, Int, Double, Double)],
+  dt : Double,
+  target_t : Double,
+  tau : Double,
+  steps : Int,
+  n_dof : Int,
+) -> Array[Double] {
+  let q = MD_KB * target_t * tau * tau
+  let temps : Array[Double] = Array(capacity=0)
+  let mut pos = positions
+  let mut vel = velocities
+  let mut zeta = 0.0
+  let n = pos.length()
+  for _s = 0; _s < steps; _s = _s + 1 {
+    let ke = md_kinetic_energy(vel, masses)
+    let g = (2.0 * ke - MD_KB * target_t * n_dof.to_double()) / q
+    let zeta_half = zeta + 0.5 * dt * g
+
+    let forces = md_bond_forces(pos, bonds)
+    let v_half = md_new_forces(n)
+    let mut i = 0
+    while i < n {
+      let mut d = 0
+      while d < 3 {
+        v_half[i][d] = vel[i][d] + 0.5 * dt * (forces[i][d] / masses[i] - zeta_half * vel[i][d])
+        d = d + 1
+      }
+      i = i + 1
+    }
+    let pos_new = md_new_forces(n)
+    let mut i2 = 0
+    while i2 < n {
+      let mut d = 0
+      while d < 3 {
+        pos_new[i2][d] = pos[i2][d] + dt * v_half[i2][d]
+        d = d + 1
+      }
+      i2 = i2 + 1
+    }
+    let new_forces = md_bond_forces(pos_new, bonds)
+    let ke_new = md_kinetic_energy(v_half, masses)
+    let g_new = (2.0 * ke_new - MD_KB * target_t * n_dof.to_double()) / q
+    let zeta_new = zeta_half + 0.5 * dt * g_new
+
+    let vel_new = md_new_forces(n)
+    let inv = 1.0 / (1.0 + 0.5 * dt * zeta_new)
+    let mut i3 = 0
+    while i3 < n {
+      let mut d = 0
+      while d < 3 {
+        vel_new[i3][d] = (v_half[i3][d] + 0.5 * dt * new_forces[i3][d] / masses[i3]) * inv
+        d = d + 1
+      }
+      i3 = i3 + 1
+    }
+    pos = pos_new
+    vel = vel_new
+    zeta = zeta_new
+    temps.push(md_temperature(vel, masses, n_dof))
+  }
+  temps
+}

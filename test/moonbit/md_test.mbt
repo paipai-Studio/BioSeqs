@@ -154,3 +154,76 @@ test "md_dihedral_forces_conserved" {
   }
   assert_true(mag > 1.0e-3)
 }
+
+
+// ============================================================
+// temperature + thermostat
+// ============================================================
+
+test "md_temperature" {
+  // masses=[1,1]，v=(1,0,0)/(-1,0,0)：KE=1，n_dof=1
+  let vel = [[1.0, 0.0, 0.0], [-1.0, 0.0, 0.0]]
+  let masses = [1.0, 1.0]
+  let t = @src.md_temperature(vel, masses, 1)
+  // T = 2 / 0.001987204
+  assert_true(assert_close(t, 2.0 / 0.001987204, 1.0e-3))
+}
+
+test "md_berendsen_scale_direction" {
+  let vel = [[1.0, 0.0, 0.0], [-1.0, 0.0, 0.0]]
+  // 当前 T=300 目标 310 → λ > 1（升温）；反之 λ < 1
+  let up = @src.md_berendsen_scale(vel, 300.0, 310.0, 0.001, 0.1)
+  assert_true(up[0][0] > 1.0)
+  let down = @src.md_berendsen_scale(vel, 310.0, 300.0, 0.001, 0.1)
+  assert_true(down[0][0] < 1.0)
+}
+
+test "md_simulate_berendsen_free_particle" {
+  // 自由粒子（无 bonds）：Berendsen 纯速度重标定，温度应精确收敛到目标
+  let pos = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+  let v = (100.0 * 0.001987204 / 2.0).sqrt()
+  let vel = [[v, 0.0, 0.0], [-v, 0.0, 0.0]]
+  let masses = [1.0, 1.0]
+  let no_bonds : Array[(Int, Int, Double, Double)] = []
+  let temps = @src.md_simulate_berendsen(pos, vel, masses, no_bonds, 0.001, 0.1, 300.0, 5000, 1)
+  let n = temps.length()
+  assert_true(assert_close(temps[n - 1], 300.0, 1.0e-3))
+}
+
+test "md_simulate_berendsen_heats_up" {
+  // 谐振子从 T≈100 出发：Berendsen 升温（含已知的振动冷却偏移，方向正确但不精确到目标）
+  let pos = [[0.0, 0.0, 0.0], [1.1, 0.0, 0.0]]
+  let v = (100.0 * 0.001987204 / 2.0).sqrt()
+  let vel = [[v, 0.0, 0.0], [-v, 0.0, 0.0]]
+  let masses = [1.0, 1.0]
+  let bonds = [(0, 1, 1.0, 10.0)]
+  let temps = @src.md_simulate_berendsen(pos, vel, masses, bonds, 0.001, 0.1, 300.0, 5000, 1)
+  // 末段平均温度（瞬时值在谐振子中振荡，取均值）
+  let n = temps.length()
+  let mut sum = 0.0
+  let mut i = n / 2
+  while i < n {
+    sum = sum + temps[i]
+    i = i + 1
+  }
+  let mean = sum / (n - n / 2).to_double()
+  assert_true(mean > 120.0 && mean < 300.0)
+}
+
+test "md_simulate_nose_hoover_converges" {
+  let pos = [[0.0, 0.0, 0.0], [1.1, 0.0, 0.0]]
+  let v = (100.0 * 0.001987204 / 2.0).sqrt()
+  let vel = [[v, 0.0, 0.0], [-v, 0.0, 0.0]]
+  let masses = [1.0, 1.0]
+  let bonds = [(0, 1, 1.0, 10.0)]
+  let temps = @src.md_simulate_nose_hoover(pos, vel, masses, bonds, 0.001, 300.0, 0.5, 5000, 1)
+  let n = temps.length()
+  let mut sum = 0.0
+  let mut i = n / 2
+  while i < n {
+    sum = sum + temps[i]
+    i = i + 1
+  }
+  let mean = sum / (n - n / 2).to_double()
+  assert_true(mean > 200.0 && mean < 450.0)
+}
