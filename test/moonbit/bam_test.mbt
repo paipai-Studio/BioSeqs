@@ -206,3 +206,74 @@ test "bam_write_roundtrip" {
   let bam3 = @src.parse_bam_from_bgzf(bgzf)
   assert_eq(bam3.to_sam(), bam.to_sam())
 }
+
+// ============================================================
+// samtools 子命令：sort / merge / depth / fastq
+// ============================================================
+
+test "bam_sort" {
+  let bam = @src.parse_bam_base64(test_bam_base64)
+  // 手工乱序：swap 0 和 2（pos 100 与 300）
+  let recs = bam.records.copy()
+  let tmp = recs[0]
+  recs[0] = recs[2]
+  recs[2] = tmp
+  let shuffled = @src.BamFile::new(bam.header, recs)
+  let sorted = @src.bam_sort(shuffled)
+  assert_eq(sorted.records[0].pos, 100)
+  assert_eq(sorted.records[1].pos, 200)
+  assert_eq(sorted.records[2].pos, 300)
+}
+
+test "bam_merge" {
+  let bam1 = @src.parse_bam_base64(test_bam_base64)
+  let bam2 = @src.parse_bam_base64(test_bam_base64)
+  let merged = @src.bam_merge([bam1, bam2])
+  assert_eq(merged.records.length(), 6)
+}
+
+test "bam_depth" {
+  let bam = @src.parse_bam_base64(test_bam_base64)
+  // read1 [100,108) read2 [200,204) read3 [300,306)（0-based），深度 1
+  let d = @src.bam_depth(bam, "chr1")
+  assert_eq(d.length(), 8 + 4 + 6)
+  assert_eq(d[0], (101, 1))
+  assert_eq(d[7], (108, 1))
+  // read2 起点
+  assert_eq(d[8], (201, 1))
+}
+
+test "bam_fastq" {
+  let bam = @src.parse_bam_base64(test_bam_base64)
+  let fq = @src.bam_fastq(bam)
+  assert_true(fq.contains("@read1"))
+  assert_true(fq.contains("ACGTACGT"))  // read1 序列
+  assert_true(fq.contains("@read3"))
+}
+
+
+// ============================================================
+// samtools 子命令：markdup / stats
+// ============================================================
+
+test "bam_markdup" {
+  let bam = @src.parse_bam_base64(test_bam_base64)
+  // read1 两次 + read2（制造重复）
+  let recs = [bam.records[0], bam.records[0], bam.records[2]]
+  let dup_bam = @src.BamFile::new(bam.header, recs)
+  let marked = @src.bam_markdup(dup_bam)
+  // 第一个 read1 不标，第二个 read1 标 dup，read3 不标
+  assert_true(not(marked.records[0].is_duplicate()))
+  assert_true(marked.records[1].is_duplicate())
+  assert_true(not(marked.records[2].is_duplicate()))
+}
+
+test "bam_stats" {
+  let bam = @src.parse_bam_base64(test_bam_base64)
+  let s = @src.bam_stats(bam)
+  assert_eq(s.total_reads, 3)
+  assert_eq(s.mapped_reads, 3)
+  assert_eq(s.duplicate_reads, 1)  // read2 是 duplicate
+  // 平均读长 (8 + 5 + 6) / 3
+  assert_true(assert_close(s.avg_read_length, 19.0 / 3.0, 1.0e-9))
+}

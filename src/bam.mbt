@@ -1947,3 +1947,223 @@ pub fn BamFile::mpileup(
   }
   lines
 }
+
+// ============================================================================
+// samtools 子命令：sort / merge / depth / fastq
+// ============================================================================
+
+///|
+/// Construct a BamFile from a header and records.
+pub fn BamFile::new(header : BamHeader, records : Array[BamRecord]) -> BamFile {
+  BamFile::{ header, records }
+}
+
+///|
+/// Coordinate-sort a BAM file by `(ref_id, pos)` — `samtools sort` (header
+/// preserved, records reordered in place).
+pub fn bam_sort(bam : BamFile) -> BamFile {
+  let records = bam.records.copy()
+  let mut i = 1
+  while i < records.length() {
+    let key = records[i]
+    let mut j = i - 1
+    while j >= 0 && bam_record_less(key, records[j]) {
+      records[j + 1] = records[j]
+      j = j - 1
+    }
+    records[j + 1] = key
+    i = i + 1
+  }
+  BamFile::{ header: bam.header, records }
+}
+
+///|
+fn bam_record_less(a : BamRecord, b : BamRecord) -> Bool {
+  if a.ref_id != b.ref_id {
+    a.ref_id < b.ref_id
+  } else {
+    a.pos < b.pos
+  }
+}
+
+///|
+/// Merge multiple BAM files into one (`samtools merge`): records concatenated,
+/// header taken from the first file.
+pub fn bam_merge(files : Array[BamFile]) -> BamFile {
+  if files.length() == 0 {
+    return BamFile::{
+      header: BamHeader::{ text: "", references: FixedArray::make(0, BamReference::{ name: "", length: 0, }) },
+      records: [],
+    }
+  }
+  let header = files[0].header
+  let records : Array[BamRecord] = Array(capacity=0)
+  for f in files {
+    for r in f.records {
+      records.push(r)
+    }
+  }
+  BamFile::{ header, records }
+}
+
+///|
+/// Per-base coverage depth on one contig — `samtools depth`. Returns
+/// `(1-based position, depth)` for positions with depth > 0, via a difference
+/// array over each record's reference span.
+pub fn bam_depth(bam : BamFile, contig : String) -> Array[(Int, Int)] {
+  let mut ref_id = -1
+  let mut ref_len = 0
+  for j = 0; j < bam.header.references.length(); j = j + 1 {
+    if bam.header.references[j].name == contig {
+      ref_id = j
+      ref_len = bam.header.references[j].length
+      break
+    }
+  }
+  if ref_id < 0 {
+    return []
+  }
+  let diff : Array[Int] = Array::make(ref_len + 1, 0)
+  for r in bam.records {
+    if r.ref_id != ref_id {
+      continue
+    }
+    let s = r.pos
+    let e = r.get_end() + 1
+    if e > s {
+      diff[s] = diff[s] + 1
+      diff[e] = diff[e] - 1
+    }
+  }
+  let out : Array[(Int, Int)] = Array(capacity=0)
+  let mut depth = 0
+  let mut p = 0
+  while p < ref_len {
+    depth = depth + diff[p]
+    if depth > 0 {
+      out.push((p + 1, depth))
+    }
+    p = p + 1
+  }
+  out
+}
+
+///|
+/// Write reads from a BAM file as FASTQ (`samtools fastq`); unmapped reads are
+/// skipped. Sequences carry their phred qualities.
+pub fn bam_fastq(bam : BamFile) -> String raise SeqIOError {
+  let records : Array[SeqRecord] = Array(capacity=0)
+  for rec in bam.records {
+    if rec.is_unmapped() {
+      continue
+    }
+    let qual_arr : Array[Int] = Array(capacity=0)
+    let qn = rec.qual.length()
+    let mut qi = 0
+    while qi < qn {
+      qual_arr.push(rec.qual.unsafe_get(qi).to_int() - 33)
+      qi = qi + 1
+    }
+    let letter_ann : Map[String, Array[Int]] = Map([], capacity=0)
+    letter_ann.set("phred_quality", qual_arr)
+    records.push(SeqRecord::{
+      seq: Seq::new(rec.seq),
+      id: rec.qname,
+      name: rec.qname,
+      description: "",
+      letter_annotations: letter_ann,
+      annotations: Map([], capacity=0),
+      features: [],
+    })
+  }
+  write_fastq(records)
+}
+
+
+// ============================================================================
+// samtools 子命令：markdup / stats
+// ============================================================================
+
+///|
+fn bam_record_with_flag(rec : BamRecord, flag : Int) -> BamRecord {
+  BamRecord::{
+    ref_id: rec.ref_id,
+    pos: rec.pos,
+    bin: rec.bin,
+    mapq: rec.mapq,
+    flag,
+    l_read_name: rec.l_read_name,
+    cigar_len: rec.cigar_len,
+    l_seq: rec.l_seq,
+    next_ref_id: rec.next_ref_id,
+    next_pos: rec.next_pos,
+    tlen: rec.tlen,
+    qname: rec.qname,
+    cigar: rec.cigar,
+    seq: rec.seq,
+    qual: rec.qual,
+    tags: rec.tags,
+  }
+}
+
+///|
+/// Mark duplicate reads (`samtools markdup`, simplified): after coordinate
+/// sorting, a read identical in `(ref_id, pos, seq)` to its predecessor is
+/// flagged as duplicate (`0x400`).
+pub fn bam_markdup(bam : BamFile) -> BamFile {
+  let sorted = bam_sort(bam)
+  let records = sorted.records.copy()
+  let out : Array[BamRecord] = Array(capacity=0)
+  let mut i = 0
+  while i < records.length() {
+    let r = records[i]
+    let is_dup = if i > 0 {
+      let prev = records[i - 1]
+      prev.ref_id == r.ref_id && prev.pos == r.pos && prev.seq == r.seq
+    } else {
+      false
+    }
+    if is_dup {
+      out.push(bam_record_with_flag(r, r.flag | 0x400))
+    } else {
+      out.push(r)
+    }
+    i = i + 1
+  }
+  BamFile::{ header: bam.header, records: out }
+}
+
+///|
+/// Summary statistics.
+pub struct BamStatsResult {
+  total_reads : Int
+  mapped_reads : Int
+  duplicate_reads : Int
+  avg_read_length : Double
+}
+
+///|
+/// Basic BAM summary (`samtools stats` subset): total / mapped / duplicate
+/// counts plus average read length.
+pub fn bam_stats(bam : BamFile) -> BamStatsResult {
+  let mut total = 0
+  let mut mapped = 0
+  let mut dup = 0
+  let mut total_len = 0
+  for r in bam.records {
+    total = total + 1
+    if not(r.is_unmapped()) {
+      mapped = mapped + 1
+    }
+    if r.is_duplicate() {
+      dup = dup + 1
+    }
+    total_len = total_len + r.seq.length()
+  }
+  let avg = if total == 0 {
+    0.0
+  } else {
+    total_len.to_double() / total.to_double()
+  }
+  BamStatsResult::{ total_reads: total, mapped_reads: mapped, duplicate_reads: dup, avg_read_length: avg }
+}
