@@ -142,3 +142,134 @@ pub fn signac_nucleosome_signal(fragments : Array[SignacFragment]) -> Double {
     mono.to_double() / nuc_free.to_double()
   }
 }
+
+// ============================================================================
+// Signac 深化：peak calling + gene activity
+// ============================================================================
+
+///|
+/// Insertion-sort 事件列表（按位置升序，delta 不参与比较）。
+fn signac_sort_events(events : Array[(Int, Int)]) -> Array[(Int, Int)] {
+  let out = events.copy()
+  let mut i = 1
+  while i < out.length() {
+    let key = out[i]
+    let mut j = i - 1
+    while j >= 0 && out[j].0 > key.0 {
+      out[j + 1] = out[j]
+      j = j - 1
+    }
+    out[j + 1] = key
+    i = i + 1
+  }
+  out
+}
+
+///|
+/// Call peaks from Tn5 fragments by fragment-coverage thresholding (a
+/// simplified `Signac::CallPeaks` / MACS-style scan). For each chromosome the
+/// per-base coverage is encoded as `+1` at a fragment start and `-1` at its
+/// end; contiguous regions with coverage `>= threshold` and length `>=
+/// min_length` become peaks (0-based half-open).
+pub fn signac_call_peaks(
+  fragments : Array[SignacFragment],
+  threshold : Int,
+  min_length : Int,
+) -> Array[BedInterval] {
+  // 去重染色体
+  let chroms : Array[String] = Array(capacity=0)
+  for f in fragments {
+    if index_of(chroms, f.chrom) < 0 {
+      chroms.push(f.chrom)
+    }
+  }
+
+  let result : Array[BedInterval] = Array(capacity=0)
+  for chrom in chroms {
+    let events : Array[(Int, Int)] = Array(capacity=0)
+    for f in fragments {
+      if f.chrom != chrom {
+        continue
+      }
+      events.push((f.start, 1))
+      events.push((f.end, -1))
+    }
+    if events.length() == 0 {
+      continue
+    }
+    let sorted = signac_sort_events(events)
+    let mut coverage = 0
+    let mut peak_start = -1
+    let mut i = 0
+    while i < sorted.length() {
+      let pos = sorted[i].0
+      // 累加同位置的所有 delta
+      let mut j = i
+      while j < sorted.length() && sorted[j].0 == pos {
+        coverage = coverage + sorted[j].1
+        j = j + 1
+      }
+      if coverage >= threshold {
+        if peak_start < 0 {
+          peak_start = pos
+        }
+      } else {
+        if peak_start >= 0 {
+          if pos - peak_start >= min_length {
+            result.push(BedInterval::new(chrom, peak_start, pos))
+          }
+          peak_start = -1
+        }
+      }
+      i = j
+    }
+    // 末尾未闭合的峰（coverage 直到最后仍达标）
+    if peak_start >= 0 {
+      let last = sorted[sorted.length() - 1].0
+      if last - peak_start >= min_length {
+        result.push(BedInterval::new(chrom, peak_start, last))
+      }
+    }
+  }
+  result
+}
+
+///|
+/// Gene-activity matrix produced by `signac_gene_activity` (gene × cell).
+pub struct GeneActivityMatrix {
+  genes : Array[String]
+  cells : Array[String]
+  activity : Array[Array[Int]]
+}
+
+///|
+/// Aggregate a peak × cell matrix into gene activity (`Signac::GeneActivity`):
+/// every peak overlapping a gene's interval extended `upstream` bp (the
+/// promoter) contributes its per-cell counts to that gene. Returns activity
+/// indexed `[gene][cell]`.
+pub fn signac_gene_activity(
+  fm : FeatureMatrix,
+  genes : Array[BedInterval],
+  gene_names : Array[String],
+  upstream : Int,
+) -> GeneActivityMatrix {
+  let ngenes = genes.length()
+  let ncells = fm.cells.length()
+  let activity : Array[Array[Int]] = Array::make(ngenes, Array(capacity=0))
+  for gi = 0; gi < ngenes; gi = gi + 1 {
+    activity[gi] = Array::make(ncells, 0)
+  }
+  for pi = 0; pi < fm.peaks.length(); pi = pi + 1 {
+    let pk = fm.peaks[pi]
+    for gi = 0; gi < ngenes; gi = gi + 1 {
+      let g = genes[gi]
+      let promoter_start = g.start - upstream
+      if pk.chrom == g.chrom && pk.start < g.end && promoter_start < pk.end {
+        for ci = 0; ci < ncells; ci = ci + 1 {
+          activity[gi][ci] = activity[gi][ci] + fm.counts[pi][ci]
+        }
+      }
+    }
+  }
+  GeneActivityMatrix::{ genes: gene_names, cells: fm.cells, activity }
+}

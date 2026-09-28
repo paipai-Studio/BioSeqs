@@ -73,3 +73,64 @@ test "signac_tss_enrichment" {
   ]
   assert_eq(@src.signac_tss_enrichment(fragments, tss, 100, 1000), 3.0)
 }
+
+// ============================================================
+// Signac 深化：peak calling + gene activity
+// ============================================================
+
+test "signac_call_peaks" {
+  // chr1 两个重叠 fragment [0,100) 与 [50,150)：coverage>=2 仅在 [50,100)
+  let frags = [
+    sfrag("chr1", 0, 100, "c1"),
+    sfrag("chr1", 50, 150, "c1"),
+    sfrag("chr2", 0, 10, "c1"),
+  ]
+  let peaks = @src.signac_call_peaks(frags, 2, 10)
+  assert_eq(peaks.length(), 1)
+  assert_eq(peaks[0].chrom, "chr1")
+  assert_eq(peaks[0].start, 50)
+  assert_eq(peaks[0].end, 100)
+}
+
+test "signac_call_peaks_chroms_separate" {
+  // 每个染色体各有一个独立峰
+  let frags = [
+    sfrag("chr1", 0, 100, "c1"),
+    sfrag("chr1", 50, 150, "c1"),
+    sfrag("chr2", 0, 100, "c1"),
+    sfrag("chr2", 50, 150, "c1"),
+  ]
+  let peaks = @src.signac_call_peaks(frags, 2, 10)
+  assert_eq(peaks.length(), 2)
+}
+
+test "signac_gene_activity" {
+  let peaks = [siv("chr1", 0, 100), siv("chr1", 200, 300)]
+  let cells = ["c1", "c2"]
+  let fragments = [
+    sfrag("chr1", 10, 50, "c1"),
+    sfrag("chr1", 30, 80, "c1"),
+    sfrag("chr1", 210, 220, "c2"),
+  ]
+  let fm = @src.signac_feature_matrix(fragments, peaks, cells)
+  // gene1 覆盖 peak0（含 upstream promoter），gene2 覆盖 peak1
+  let genes = [siv("chr1", 0, 100), siv("chr1", 200, 300)]
+  let ga = @src.signac_gene_activity(fm, genes, ["g1", "g2"], 50)
+  // peak0 → c1 计数 2，peak1 → c2 计数 1
+  assert_eq(ga.activity[0][0], 2)
+  assert_eq(ga.activity[0][1], 0)
+  assert_eq(ga.activity[1][0], 0)
+  assert_eq(ga.activity[1][1], 1)
+}
+
+test "signac_gene_activity_promoter_upstream" {
+  // peak 落在 gene 的 upstream 区（不在 body 内）也应计入
+  let peaks = [siv("chr1", 150, 180)]
+  let cells = ["c1"]
+  let fragments = [sfrag("chr1", 160, 170, "c1")]
+  let fm = @src.signac_feature_matrix(fragments, peaks, cells)
+  // gene body [200,300]，upstream 100 → promoter 范围 [100,300]，peak[150,180] 在内
+  let genes = [siv("chr1", 200, 300)]
+  let ga = @src.signac_gene_activity(fm, genes, ["g_up"], 100)
+  assert_eq(ga.activity[0][0], 1)
+}
