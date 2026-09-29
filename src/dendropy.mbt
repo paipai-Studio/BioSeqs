@@ -517,3 +517,121 @@ pub fn dendropy_pybus_harvey_gamma(clade : Clade) -> Double {
     numerator / c
   }
 }
+
+// ============================================================================
+// DendroPy treemeasure / treecompare 补齐：treeness / euclidean / fusco_cronk
+// ============================================================================
+
+///|
+/// Canonical split key for a clade: sorted, comma-joined terminal names.
+fn dendropy_split_key(clade : Clade) -> String {
+  let names : Array[String] = Array(capacity=0)
+  for t in clade.get_terminals() {
+    match t.name {
+      Some(n) => names.push(n)
+      None => ()
+    }
+  }
+  let sorted = dendropy_sort_strings(names)
+  let sb = StringBuilder()
+  for n in sorted {
+    sb.write_string(n)
+    sb.write_char(',')
+  }
+  sb.to_string()
+}
+
+///|
+/// Treeness: proportion of total tree length that is internal branch length
+/// (`dendropy.calculate.treemeasure.treeness`).
+pub fn dendropy_treeness(clade : Clade) -> Double {
+  let mut internal = 0.0
+  let mut external = 0.0
+  for leaf in clade.get_terminals() {
+    match leaf.branch_length {
+      Some(l) => external = external + l
+      None => ()
+    }
+  }
+  for nonterm in clade.get_nonterminals() {
+    match nonterm.branch_length {
+      Some(l) => internal = internal + l
+      None => ()
+    }
+  }
+  let total = internal + external
+  if total == 0.0 {
+    0.0
+  } else {
+    internal / total
+  }
+}
+
+///|
+fn dendropy_collect_splits(clade : Clade, out : Map[String, Double]) -> Unit {
+  if clade.clades.length() == 0 {
+    return
+  }
+  let key = dendropy_split_key(clade)
+  let length = match clade.branch_length {
+    Some(l) => l
+    None => 0.0
+  }
+  out.set(key, length)
+  for c in clade.clades {
+    dendropy_collect_splits(c, out)
+  }
+}
+
+///|
+/// Euclidean branch-length distance between two trees (Felsenstein 2004 /
+/// `dendropy.calculate.treecompare.euclidean_distance`): sqrt of the sum of
+/// squared branch-length differences over the union of bipartitions (a split
+/// present in one tree only is treated as length 0 in the other).
+pub fn dendropy_euclidean_distance(clade1 : Clade, clade2 : Clade) -> Double {
+  let s1 : Map[String, Double] = Map([], capacity=0)
+  let s2 : Map[String, Double] = Map([], capacity=0)
+  dendropy_collect_splits(clade1, s1)
+  dendropy_collect_splits(clade2, s2)
+  let mut sum_sq = 0.0
+  for (key, l1) in s1 {
+    let l2 = match s2.get(key) {
+      Some(l) => l
+      None => 0.0
+    }
+    let d = l1 - l2
+    sum_sq = sum_sq + d * d
+  }
+  for (key, l2) in s2 {
+    if !s1.contains(key) {
+      sum_sq = sum_sq + l2 * l2
+    }
+  }
+  sum_sq.sqrt()
+}
+
+///|
+/// Fusco-Cronk balance statistic: mean over bifurcating interior nodes of
+/// `Im = |m_L - m_R| / (m_L + m_R - 2)`, where m_L/m_R are the child clade's
+/// terminal counts (Fusco & Cronk 1995 tree-shape imbalance).
+pub fn dendropy_fusco_cronk(clade : Clade) -> Double {
+  let mut sum_im = 0.0
+  let mut count = 0
+  for nonterm in clade.get_nonterminals() {
+    if nonterm.clades.length() == 2 {
+      let ml = nonterm.clades[0].count_terminals()
+      let mr = nonterm.clades[1].count_terminals()
+      let diff = if ml > mr { ml - mr } else { mr - ml }
+      let denom = ml + mr - 2
+      if denom > 0 {
+        sum_im = sum_im + diff.to_double() / denom.to_double()
+        count = count + 1
+      }
+    }
+  }
+  if count == 0 {
+    0.0
+  } else {
+    sum_im / count.to_double()
+  }
+}

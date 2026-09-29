@@ -91,3 +91,29 @@ test "dendropy_pybus_harvey_gamma" {
   let expect = -(24.0).sqrt() / 9.0
   assert_true(assert_close(@src.dendropy_pybus_harvey_gamma(root), expect, 1.0e-6))
 }
+
+// ============================================================
+// treeness / euclidean_distance / fusco_cronk
+// ============================================================
+
+test "dendropy_treeness" {
+  // internal edge = inner(1)，external = A/B/C（各 1）→ treeness = 1/4
+  let inner = tnode_len([tleaf_len("B", 1.0), tleaf_len("C", 1.0)], 1.0)
+  let root = tnode([tleaf_len("A", 1.0), inner])
+  assert_true(assert_close(@src.dendropy_treeness(root), 0.25, 1.0e-9))
+}
+
+test "dendropy_euclidean_distance" {
+  let t1 = tnode([tnode([tleaf("A"), tleaf("B")]), tleaf("C")])
+  let t2 = tnode([tnode([tleaf("A"), tleaf("B")]), tleaf("C")])
+  assert_true(assert_close(@src.dendropy_euclidean_distance(t1, t2), 0.0, 1.0e-9))
+}
+
+test "dendropy_fusco_cronk" {
+  // 完全平衡 → 所有 Im=0
+  let balanced = tnode([tnode([tleaf("A"), tleaf("B")]), tnode([tleaf("C"), tleaf("D")])])
+  assert_true(assert_close(@src.dendropy_fusco_cronk(balanced), 0.0, 1.0e-9))
+  // caterpillar → 两个内部节点 Im=1 → 均值 1
+  let cat = tnode([tnode([tnode([tleaf("A"), tleaf("B")]), tleaf("C")]), tleaf("D")])
+  assert_true(assert_close(@src.dendropy_fusco_cronk(cat), 1.0, 1.0e-9))
+}
