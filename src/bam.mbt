@@ -2167,3 +2167,99 @@ pub fn bam_stats(bam : BamFile) -> BamStatsResult {
   }
   BamStatsResult::{ total_reads: total, mapped_reads: mapped, duplicate_reads: dup, avg_read_length: avg }
 }
+
+
+// ============================================================================
+// pysam 高频访问：fetch / count_coverage / get_base_counts
+// ============================================================================
+
+///|
+/// Fetch reads overlapping a region (`AlignmentFile.fetch`): 0-based half-open
+/// `[start, stop)`. Returns records in file order whose reference span
+/// intersects the region.
+pub fn bam_fetch(
+  bam : BamFile,
+  contig : String,
+  start : Int,
+  stop : Int,
+) -> Array[BamRecord] {
+  let mut ref_id = -1
+  for j = 0; j < bam.header.references.length(); j = j + 1 {
+    if bam.header.references[j].name == contig {
+      ref_id = j
+      break
+    }
+  }
+  let out : Array[BamRecord] = Array(capacity=0)
+  for r in bam.records {
+    if r.ref_id == ref_id && r.pos < stop && r.get_end() + 1 > start {
+      out.push(r)
+    }
+  }
+  out
+}
+
+///|
+/// Per-base read coverage split by base (`AlignmentFile.count_coverage`):
+/// returns four arrays (A, C, G, T) of length `stop - start`, each entry the
+/// number of reads with that base at the position (deletions/ref-skips do not
+/// contribute a base).
+pub fn bam_count_coverage(
+  bam : BamFile,
+  contig : String,
+  start : Int,
+  stop : Int,
+) -> (Array[Int], Array[Int], Array[Int], Array[Int]) {
+  let n = stop - start
+  let a = Array::make(n, 0)
+  let c = Array::make(n, 0)
+  let g = Array::make(n, 0)
+  let t = Array::make(n, 0)
+  let columns = bam.pileup(contig, start, stop)
+  for col in columns {
+    let idx = col.reference_pos - start
+    if idx < 0 || idx >= n {
+      continue
+    }
+    for pu in col.pileups {
+      match pu.query_position {
+        Some(qp) => {
+          let read = bam.records[pu.record_index]
+          let seq = read.query_sequence()
+          if qp >= 0 && qp < seq.length() {
+            let base = seq.unsafe_get(qp)
+            let upper = if base >= 97 && base <= 122 { base - 32 } else { base }
+            if upper == 65 {
+              a[idx] = a[idx] + 1
+            } else if upper == 67 {
+              c[idx] = c[idx] + 1
+            } else if upper == 71 {
+              g[idx] = g[idx] + 1
+            } else if upper == 84 {
+              t[idx] = t[idx] + 1
+            }
+          }
+        }
+        None => ()
+      }
+    }
+  }
+  (a, c, g, t)
+}
+
+///|
+/// Base counts at a single position (`(A, C, G, T)`), the per-position slice of
+/// `bam_count_coverage`.
+pub fn bam_get_base_counts(
+  bam : BamFile,
+  contig : String,
+  pos : Int,
+) -> (Int, Int, Int, Int) {
+  let (a, c, g, t) = bam_count_coverage(bam, contig, pos, pos + 1)
+  let va = if a.length() > 0 { a[0] } else { 0 }
+  let vc = if c.length() > 0 { c[0] } else { 0 }
+  let vg = if g.length() > 0 { g[0] } else { 0 }
+  let vt = if t.length() > 0 { t[0] } else { 0 }
+  (va, vc, vg, vt)
+}
+

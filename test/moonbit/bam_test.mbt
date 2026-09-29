@@ -277,3 +277,38 @@ test "bam_stats" {
   // 平均读长 (8 + 5 + 6) / 3
   assert_true(assert_close(s.avg_read_length, 19.0 / 3.0, 1.0e-9))
 }
+
+
+// ============================================================
+// pysam 高频访问：fetch / count_coverage / get_base_counts
+// ============================================================
+
+test "bam_fetch" {
+  let bam = @src.parse_bam_base64(test_bam_base64)
+  // read1 覆盖 [100,108)，read2 [200,204)，read3 [300,306)
+  let hits = @src.bam_fetch(bam, "chr1", 0, 150)
+  assert_eq(hits.length(), 1)
+  assert_eq(hits[0].qname, "read1")
+  // 缩小到 [0,100) → 无（read1 起点是 100，半开不重叠）
+  let none = @src.bam_fetch(bam, "chr1", 0, 100)
+  assert_eq(none.length(), 0)
+}
+
+test "bam_count_coverage" {
+  let bam = @src.parse_bam_base64(test_bam_base64)
+  // read1 seq=ACGTACGT 覆盖 [100,108)
+  let (a, c, g, t) = @src.bam_count_coverage(bam, "chr1", 100, 108)
+  assert_eq(a.length(), 8)
+  assert_eq(a[0], 1)  // pos100 = A
+  assert_eq(c[1], 1)  // pos101 = C
+  assert_eq(g[2], 1)  // pos102 = G
+  assert_eq(t[3], 1)  // pos103 = T
+  assert_eq(a[4], 1)  // pos104 = A
+}
+
+test "bam_get_base_counts" {
+  let bam = @src.parse_bam_base64(test_bam_base64)
+  assert_eq(@src.bam_get_base_counts(bam, "chr1", 100), (1, 0, 0, 0))  // A
+  assert_eq(@src.bam_get_base_counts(bam, "chr1", 101), (0, 1, 0, 0))  // C
+}
+
