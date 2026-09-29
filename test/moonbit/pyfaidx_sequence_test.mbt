@@ -85,3 +85,28 @@ test "pyfaidx_sequence_orientation" {
   assert_eq(@src.pyfaidx_seq_orientation(@src.pyfaidx_seq_reverse(x)), None)
   assert_eq(@src.pyfaidx_seq_orientation(@src.pyfaidx_seq_complement(x)), None)
 }
+
+// ============================================================
+// MutableFastaRecord + FastaVariant
+// ============================================================
+
+test "mutable_fasta_record_edit" {
+  let r = @src.MutableFastaRecord::new("chr1", "ACGTACGT")
+  assert_eq(r.replace(2, 4, "NN").to_string(), "ACNNACGT")
+  let d = @src.MutableFastaRecord::new("chr1", "ACGTACGT")
+  assert_eq(d.delete(2, 4).to_string(), "ACACGT")
+  let i = @src.MutableFastaRecord::new("chr1", "ACGTACGT")
+  assert_eq(i.insert(4, "TT").to_string(), "ACGTTTACGT")
+}
+
+test "pyfaidx_fasta_variant_snp" {
+  // pos 3（1-based）的 G → A
+  let r = @src.pyfaidx_fasta_variant("ACGTACGT", [(3, "G", "A")])
+  assert_eq(r, "ACATACGT")
+}
+
+test "pyfaidx_fasta_variant_multi" {
+  // pos 2 C→T + pos 5 A→G，从高到低应用，坐标不漂移
+  let r = @src.pyfaidx_fasta_variant("ACGTACGT", [(2, "C", "T"), (5, "A", "G")])
+  assert_eq(r, "ATGTGCGT")
+}

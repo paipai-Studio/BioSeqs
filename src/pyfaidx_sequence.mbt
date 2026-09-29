@@ -233,3 +233,105 @@ pub fn pyfaidx_seq_orientation(seq : PyfaidxSequence) -> Int? {
     _ => None
   }
 }
+
+// ============================================================================
+// MutableFastaRecord + FastaVariant
+// ============================================================================
+
+///|
+/// A mutable FASTA record supporting in-place-style sequence edits
+/// (replace / delete / insert). Coordinates are 0-based half-open, matching
+/// `Fasta::fetch`.
+pub struct MutableFastaRecord {
+  name : String
+  seq : String
+}
+
+///|
+pub fn MutableFastaRecord::new(name : String, seq : String) -> MutableFastaRecord {
+  MutableFastaRecord::{ name, seq }
+}
+
+///|
+pub fn MutableFastaRecord::get_name(self : MutableFastaRecord) -> String {
+  self.name
+}
+
+///|
+pub fn MutableFastaRecord::length(self : MutableFastaRecord) -> Int {
+  self.seq.length()
+}
+
+///|
+pub fn MutableFastaRecord::to_string(self : MutableFastaRecord) -> String {
+  self.seq
+}
+
+///|
+/// Replace `[start, end)` with `new_seq` (0-based half-open).
+pub fn MutableFastaRecord::replace(
+  self : MutableFastaRecord,
+  start : Int,
+  end : Int,
+  new_seq : String,
+) -> MutableFastaRecord {
+  let s = self.seq[0:start].to_owned() + new_seq + self.seq[end:].to_owned()
+  MutableFastaRecord::{ name: self.name, seq: s }
+}
+
+///|
+/// Delete `[start, end)` (0-based half-open).
+pub fn MutableFastaRecord::delete(
+  self : MutableFastaRecord,
+  start : Int,
+  end : Int,
+) -> MutableFastaRecord {
+  let s = self.seq[0:start].to_owned() + self.seq[end:].to_owned()
+  MutableFastaRecord::{ name: self.name, seq: s }
+}
+
+///|
+/// Insert `new_seq` before 0-based position `pos`.
+pub fn MutableFastaRecord::insert(
+  self : MutableFastaRecord,
+  pos : Int,
+  new_seq : String,
+) -> MutableFastaRecord {
+  let s = self.seq[0:pos].to_owned() + new_seq + self.seq[pos:].to_owned()
+  MutableFastaRecord::{ name: self.name, seq: s }
+}
+
+///|
+fn pyfaidx_variant_pos_greater(a : (Int, String, String), b : (Int, String, String)) -> Bool {
+  a.0 > b.0
+}
+
+///|
+/// Apply a list of variants (SNP/indel) to a reference sequence
+/// (`pyfaidx.FastaVariant`). Each variant is `(pos, ref, alt)` with 1-based
+/// `pos`; the reference `ref` is replaced by `alt`. Variants are applied from
+/// the highest position down so earlier edits do not shift later coordinates.
+pub fn pyfaidx_fasta_variant(
+  ref_seq : String,
+  variants : Array[(Int, String, String)],
+) -> String {
+  // 按 pos 降序（插入排序）
+  let sorted = variants.copy()
+  let mut i = 1
+  while i < sorted.length() {
+    let key = sorted[i]
+    let mut j = i - 1
+    while j >= 0 && pyfaidx_variant_pos_greater(key, sorted[j]) {
+      sorted[j + 1] = sorted[j]
+      j = j - 1
+    }
+    sorted[j + 1] = key
+    i = i + 1
+  }
+  let mut result = ref_seq
+  for (pos, ref_base, alt) in sorted {
+    let s = pos - 1
+    result = result[0:s].to_owned() + alt + result[s + ref_base.length():].to_owned()
+  }
+  result
+}
