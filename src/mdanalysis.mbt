@@ -170,3 +170,85 @@ pub fn mdanalysis_msd(traj : Array[Array[Array[Double]]]) -> Array[Double] {
   }
   out
 }
+
+///|
+/// Hydrogen-bond detection (`analysis.hydrogenbonds.HydrogenBondAnalysis`):
+/// for each donor–hydrogen pair and acceptor, a hydrogen bond exists when the
+/// donor–acceptor distance ≤ `d_a_cutoff` (default 3.0 Å) and the D-H···A
+/// angle at the donor ≥ `angle_cutoff_deg` (default 150°).
+/// Returns `(donor_idx, hydrogen_idx, acceptor_idx, d_a_dist, dha_angle_deg)`.
+pub fn mdanalysis_hydrogen_bonds(
+  coords : Array[Array[Double]],
+  donor_hydrogen_pairs : Array[(Int, Int)],
+  acceptors : Array[Int],
+  d_a_cutoff : Double,
+  angle_cutoff_deg : Double,
+) -> Array[(Int, Int, Int, Double, Double)] {
+  let result : Array[(Int, Int, Int, Double, Double)] = Array(capacity=0)
+  for pair in donor_hydrogen_pairs {
+    let (d_idx, h_idx) = pair
+    let d = coords[d_idx]
+    let h = coords[h_idx]
+    for a_idx in acceptors {
+      if a_idx != d_idx {
+        let a = coords[a_idx]
+        let da = mda_euclid(d, a)
+        if da <= d_a_cutoff {
+          let dh_x = d[0] - h[0]
+          let dh_y = d[1] - h[1]
+          let dh_z = d[2] - h[2]
+          let ah_x = a[0] - h[0]
+          let ah_y = a[1] - h[1]
+          let ah_z = a[2] - h[2]
+          let dot = dh_x * ah_x + dh_y * ah_y + dh_z * ah_z
+          let mag_dh = (dh_x * dh_x + dh_y * dh_y + dh_z * dh_z).sqrt()
+          let mag_ah = (ah_x * ah_x + ah_y * ah_y + ah_z * ah_z).sqrt()
+          if mag_dh > 0.0 && mag_ah > 0.0 {
+            let cos_t = dot / (mag_dh * mag_ah)
+            let cos_c = if cos_t > 1.0 {
+              1.0
+            } else if cos_t < -1.0 {
+              -1.0
+            } else {
+              cos_t
+            }
+            let angle_deg = @math.acos(cos_c) * 57.29577951308232
+            if angle_deg >= angle_cutoff_deg {
+              result.push((d_idx, h_idx, a_idx, da, angle_deg))
+            }
+          }
+        }
+      }
+    }
+  }
+  result
+}
+
+///|
+/// Protein backbone φ/ψ dihedrals (`analysis.dihedrals.Ramachandran`):
+/// φ(i) = C'(i-1)–N–CA–C, ψ(i) = N–CA–C–N'(i+1), in degrees.
+/// Input is one (N, CA, C) coordinate triple per residue; the first residue's
+/// φ and the last residue's ψ are `None` (no flanking atom).
+pub fn mdanalysis_phi_psi(
+  backbone : Array[(Array[Double], Array[Double], Array[Double])],
+) -> Array[(Double?, Double?)] {
+  let n = backbone.length()
+  let result : Array[(Double?, Double?)] = Array(capacity=0)
+  for i = 0; i < n; i = i + 1 {
+    let (n_i, ca_i, c_i) = backbone[i]
+    let phi : Double? = if i > 0 {
+      let (_, _, c_prev) = backbone[i - 1]
+      Some(chem_dihedral_angle(c_prev, n_i, ca_i, c_i))
+    } else {
+      None
+    }
+    let psi : Double? = if i < n - 1 {
+      let (n_next, _, _) = backbone[i + 1]
+      Some(chem_dihedral_angle(n_i, ca_i, c_i, n_next))
+    } else {
+      None
+    }
+    result.push((phi, psi))
+  }
+  result
+}
