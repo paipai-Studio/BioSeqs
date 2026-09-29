@@ -80,3 +80,19 @@ test "skbio_alpha_single_taxon_edge" {
   assert_true(assert_close_e6(@src.skbio_alpha_tsallis(s, 2.0), 0.0))
   assert_true(assert_close_e6(@src.skbio_alpha_hill(s, 2.0), 1.0))
 }
+
+// ============================================================
+// subsample_power
+// ============================================================
+
+test "skbio_subsample_power" {
+  let counts = [4.0, 4.0, 4.0]
+  let curve = @src.skbio_subsample_power(counts, 1, 12, 1)
+  assert_eq(curve.length(), 12)
+  assert_eq(curve[0].0, 1)
+  assert_eq(curve[11].0, 12)
+  // 满深度 = 3 个物种；曲线随深度单调递增
+  assert_true(assert_close(curve[11].1, 3.0, 1.0e-9))
+  assert_true(curve[1].1 >= curve[0].1)
+  assert_true(curve[2].1 >= curve[1].1)
+}

@@ -417,3 +417,26 @@ pub fn skbio_alpha_hill(counts : Array[Double], order : Double) -> Double {
     @math.pow(sum, 1.0 / (1.0 - order))
   }
 }
+
+// ============================================================================
+// subsample_power（测序饱和度功效曲线）
+// ============================================================================
+
+///|
+/// Sampling-depth power curve (`skbio.stats.power.subsample_power`, with the
+/// `observed_otus` metric): expected observed species at increasing depths,
+/// via without-replacement rarefaction. Returns `(depth, expected_species)`.
+pub fn skbio_subsample_power(
+  counts : Array[Double],
+  minimum : Int,
+  maximum : Int,
+  interval : Int,
+) -> Array[(Int, Double)] {
+  let out : Array[(Int, Double)] = Array(capacity=0)
+  let mut d = minimum
+  while d <= maximum {
+    out.push((d, vegan_rarefy(counts, d)))
+    d = d + interval
+  }
+  out
+}

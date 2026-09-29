@@ -240,3 +240,57 @@ pub fn skbio_weighted_unifrac(
   }
   wu
 }
+
+// ============================================================================
+// faith_pd（系统发育多样性）
+// ============================================================================
+
+///|
+fn skbio_faith_accumulate(
+  node : SkbioNode,
+  taxa : Array[String],
+  counts : Array[Double],
+  lengths : Array[Double],
+  observed : Array[Double],
+) -> Double {
+  let mut c = 0.0
+  if node.is_tip() {
+    match node.name {
+      None => ()
+      Some(n) => {
+        let idx = skbio_taxon_index(taxa, n)
+        if idx >= 0 {
+          c = counts[idx]
+        }
+      }
+    }
+  }
+  for child in node.children {
+    c = c + skbio_faith_accumulate(child, taxa, counts, lengths, observed)
+  }
+  lengths.push(node.length)
+  observed.push(c)
+  c
+}
+
+///|
+/// Faith's Phylogenetic Diversity (`skbio.diversity.alpha.faith_pd`): the
+/// total branch length of the minimal subtree connecting the root to all
+/// observed species (count > 0). Root length is normally 0 and contributes
+/// nothing.
+pub fn skbio_faith_pd(
+  counts : Array[Double],
+  taxa : Array[String],
+  tree : SkbioNode,
+) -> Double {
+  let lengths : Array[Double] = Array(capacity=0)
+  let observed : Array[Double] = Array(capacity=0)
+  let (_) = skbio_faith_accumulate(tree, taxa, counts, lengths, observed)
+  let mut total = 0.0
+  for i = 0; i < lengths.length(); i = i + 1 {
+    if observed[i] > 0.0 {
+      total = total + lengths[i]
+    }
+  }
+  total
+}
