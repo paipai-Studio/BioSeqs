@@ -15,8 +15,8 @@ fn main raise {
     println("--- record \{i}: \{r.accession} ---")
     println("  text: \{r.text}")
     for j = 0; j < r.references.length(); j = j + 1 {
-      let ref = r.references[j]
-      println("  [\{ref.number}] \{ref.authors} \{ref.citation}")
+      let reference = r.references[j]
+      println("  [\{reference.number}] \{reference.authors} \{reference.citation}")
     }
   }
 

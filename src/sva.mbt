@@ -113,6 +113,7 @@ pub fn combat(
   batch : Array[Int],
   mod? : Array[Array[Double]] = [],
 ) -> ComBatResult {
+  ignore(mod)
   let nrow = dat.length()
   let ncol = dat[0].length()
 

@@ -11,7 +11,7 @@ fn nan() -> Double {
 }
 
 ///|
-fn main raise {
+fn main {
   let data : Array[Array[Double]] = [
     [0.508, 0.242, -0.142, 0.320, 0.012],
     [-0.234, 0.469, nan(), -0.501, -0.751],

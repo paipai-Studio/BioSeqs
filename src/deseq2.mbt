@@ -513,6 +513,7 @@ pub fn lfc_shrink(
   res : DESeqResults,
   coef? : Int = -1,
 ) -> DESeqResults {
+  ignore(coef)
   let n_genes = res.log2_fold_change.length()
 
   let shrunk_lfc : Array[Double] = Array(capacity=0)

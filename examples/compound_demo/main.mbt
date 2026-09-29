@@ -141,12 +141,12 @@ fn main {
   }
 
   let not_found_c = p2.find_compound("C9999")
-  println("Non-existent compound found: \{not_found_c is Option::Some}")
+  println("Non-existent compound found: \{not_found_c is Option::Some(_)}")
 
   let found_r = p2.find_reaction("R0001")
-  println("Reaction found: \{found_r is Option::Some}")
+  println("Reaction found: \{found_r is Option::Some(_)}")
   let not_found_r = p2.find_reaction("R9999")
-  println("Non-existent reaction found: \{not_found_r is Option::Some}")
+  println("Non-existent reaction found: \{not_found_r is Option::Some(_)}")
   println("")
 
   // Pathway summary

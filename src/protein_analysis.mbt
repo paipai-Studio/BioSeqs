@@ -90,36 +90,31 @@ fn protein_get_gor(c : Char) -> GorParams {
 // ============================================================================
 
 ///|
-priv struct TmParams {
-  inside : Double
-  outside : Double
-  tm : Double
-}
-
-///|
-fn protein_get_tm(c : Char) -> TmParams {
+/// Transmembrane propensity score for each amino acid.
+/// (Original TM scale also has inside/outside values; only the tm score is used.)
+fn protein_get_tm(c : Char) -> Double {
   match c {
-    'A' => TmParams::{ inside: 1.1, outside: 0.56, tm: 1.32, }
-    'R' => TmParams::{ inside: 0.0, outside: 1.0, tm: 0.0, }
-    'N' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.6, }
-    'D' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.7, }
-    'C' => TmParams::{ inside: 1.1, outside: 0.56, tm: 0.62, }
-    'Q' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.2, }
-    'E' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.3, }
-    'G' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.48, }
-    'H' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.5, }
-    'I' => TmParams::{ inside: 1.0, outside: 0.32, tm: 1.0, }
-    'L' => TmParams::{ inside: 1.0, outside: 0.36, tm: 1.24, }
-    'K' => TmParams::{ inside: 0.1, outside: 1.0, tm: 0.0, }
-    'M' => TmParams::{ inside: 1.0, outside: 0.36, tm: 1.11, }
-    'F' => TmParams::{ inside: 1.0, outside: 0.42, tm: 1.02, }
-    'P' => TmParams::{ inside: 0.5, outside: 0.2, tm: -0.3, }
-    'S' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.38, }
-    'T' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.38, }
-    'W' => TmParams::{ inside: 1.0, outside: 0.44, tm: 1.0, }
-    'Y' => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.69, }
-    'V' => TmParams::{ inside: 1.0, outside: 0.32, tm: 1.19, }
-    _ => TmParams::{ inside: 0.5, outside: 0.2, tm: 0.0, }
+    'A' => 1.32
+    'R' => 0.0
+    'N' => -0.6
+    'D' => -0.7
+    'C' => 0.62
+    'Q' => -0.2
+    'E' => -0.3
+    'G' => 0.48
+    'H' => -0.5
+    'I' => 1.0
+    'L' => 1.24
+    'K' => 0.0
+    'M' => 1.11
+    'F' => 1.02
+    'P' => -0.3
+    'S' => 0.38
+    'T' => 0.38
+    'W' => 1.0
+    'Y' => 0.69
+    'V' => 1.19
+    _ => 0.0
   }
 }
 
@@ -309,6 +304,7 @@ pub fn protein_transmembrane(
   window? : Int = 19,
   threshold? : Double = 1.6,
 ) -> Array[Double] {
+  ignore(threshold)
   let seq = sequence.to_upper()
   let w = if window <= 0 { 19 } else { window }
   let result : Array[Double] = Array(capacity=0)
@@ -322,7 +318,7 @@ pub fn protein_transmembrane(
     while j < w {
       let c = seq.unsafe_get(i + j).unsafe_to_char()
       let tm = protein_get_tm(c)
-      sum = sum + tm.tm
+      sum = sum + tm
       j = j + 1
     }
     let score = sum / w.to_double()
@@ -335,8 +331,7 @@ pub fn protein_transmembrane(
 ///|
 /// Get the transmembrane propensity score for a specific amino acid.
 pub fn protein_transmembrane_propensity(c : Char) -> Double {
-  let tm = protein_get_tm(c)
-  tm.tm
+  protein_get_tm(c)
 }
 
 ///|

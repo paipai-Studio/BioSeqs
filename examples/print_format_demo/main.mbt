@@ -6,7 +6,7 @@
 /// `RestrictionBatch::search`) in the three supported layouts.
 
 ///|
-fn main raise {
+fn main {
   let seq = "GGTACCGGGCCCCCCCTCGAGGTCGACGGTATCGATAAGCTTGATATCGAATTC"
   // This map has the same shape as RestrictionBatch::search(seq).
   let dct : Map[String, Array[Int]] = Map([], capacity=3)

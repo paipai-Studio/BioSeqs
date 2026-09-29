@@ -2,7 +2,7 @@
 /// DMRcate module demo - Differentially Methylated Region calling.
 ///
 /// Run: moon run examples/dmrcate_demo
-fn main raise {
+fn main {
   println("=== DMRcate Module Demo ===")
   println("Differentially Methylated Region calling with spatial kernel smoothing")
   println("Reference: Peters TJ et al. (2015) Epigenetics & Chromatin 8:6")

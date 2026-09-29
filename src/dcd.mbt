@@ -202,7 +202,7 @@ pub fn write_dcd(traj : Trajectory) -> String {
 /// Parse X-PLOR DCD bytes into a Trajectory.
 pub fn parse_dcd(content : String) -> Trajectory {
   let mut pos = 0
-  let n = content.length()
+  ignore(content.length())
 
   // header record
   let (hdr_len, p1) = dcd_read_int32_le(content, pos)
@@ -230,7 +230,7 @@ pub fn parse_dcd(content : String) -> Trajectory {
   let frames : Array[Array[Array[Double]]] = Array(capacity=0)
   let mut f = 0
   while f < n_set {
-    let (flen, p4) = dcd_read_int32_le(content, pos)
+    let (_, p4) = dcd_read_int32_le(content, pos)
     pos = p4
     let frame : Array[Array[Double]] = Array(capacity=0)
     let mut a = 0

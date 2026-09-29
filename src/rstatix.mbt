@@ -342,6 +342,7 @@ pub fn rstatix_cor_test(
   cor_method? : String = "pearson",
   conf_level? : Double = 0.95,
 ) -> RstatixCorTestResult {
+  ignore(conf_level)
   let n = x.length()
   if n != y.length() || n < 3 {
     return RstatixCorTestResult::{
@@ -411,6 +412,7 @@ pub fn rstatix_anova_test(
   groups : Array[Array[Double]],
   group_names? : Array[String] = [],
 ) -> RstatixAnovaResult {
+  ignore(group_names)
   let k = groups.length()
   if k < 3 {
     return RstatixAnovaResult::{

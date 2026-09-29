@@ -86,7 +86,7 @@ pub fn vegan_rarefaction_curve(
 /// - `"frequency"`  — alias of `"total"`
 pub fn vegan_decostand(
   matrix : Array[Array[Double]],
-  method : String,
+  method_ : String,
 ) -> Array[Array[Double]] {
   let out : Array[Array[Double]] = Array(capacity=0)
   for row in matrix {
@@ -102,15 +102,15 @@ pub fn vegan_decostand(
     let new_row : Array[Double] = Array(capacity=0)
     for j = 0; j < n; j = j + 1 {
       let v = row[j]
-      let v_new = if method == "pa" {
+      let v_new = if method_ == "pa" {
         if v > 0.0 { 1.0 } else { 0.0 }
-      } else if method == "total" || method == "frequency" {
+      } else if method_ == "total" || method_ == "frequency" {
         if total > 0.0 { v / total } else { 0.0 }
-      } else if method == "max" {
+      } else if method_ == "max" {
         if max_v > 0.0 { v / max_v } else { 0.0 }
-      } else if method == "hellinger" {
+      } else if method_ == "hellinger" {
         if total > 0.0 && v > 0.0 { (v / total).sqrt() } else { 0.0 }
-      } else if method == "normalize" {
+      } else if method_ == "normalize" {
         if norm > 0.0 { v / norm } else { 0.0 }
       } else {
         v

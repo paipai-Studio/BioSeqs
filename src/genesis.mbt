@@ -457,5 +457,6 @@ pub fn bio_genetic_distance(
   genotypes : Array[Array[Double]],
   distance_type? : String,
 ) -> GSDistanceResult {
+  ignore(distance_type)
   gs_calculate_genetic_distance(genotypes)
 }

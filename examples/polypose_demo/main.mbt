@@ -50,7 +50,7 @@ fn main {
     Some(mat) => {
       println("RMSD matrix: " + mat.length().to_string() + " x " + mat[0].length().to_string())
       for i in 0..<mat.length() {
-        var line = ""
+        let mut line = ""
         for j in 0..<mat[i].length() {
           line = line + " " + mat[i][j].to_string()
         }

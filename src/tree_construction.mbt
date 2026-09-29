@@ -6,7 +6,6 @@
 ///|
 /// Represents a node in the tree construction process.
 priv struct BuildNode {
-  id : Int
   name : String
   height : Double
   children : Array[BuildNode]
@@ -15,14 +14,13 @@ priv struct BuildNode {
 
 ///|
 /// Create a leaf build node.
-fn build_node_leaf(id : Int, name : String) -> BuildNode {
-  BuildNode::{ id, name, height: 0.0, children: [], branch_lengths: [], }
+fn build_node_leaf(name : String) -> BuildNode {
+  BuildNode::{ name, height: 0.0, children: [], branch_lengths: [], }
 }
 
 ///|
 /// Create an internal build node from two children.
 fn build_node_internal(
-  id : Int,
   left : BuildNode,
   right : BuildNode,
   left_branch : Double,
@@ -30,7 +28,6 @@ fn build_node_internal(
   height : Double,
 ) -> BuildNode {
   BuildNode::{
-    id,
     name: "",
     height,
     children: [left, right],
@@ -458,7 +455,7 @@ fn build_upgma(
 
   let mut clusters : Array[BuildNode] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    clusters.push(build_node_leaf(i, names[i]))
+    clusters.push(build_node_leaf(names[i]))
   }
 
   let mut dist = copy_matrix(distances)
@@ -472,7 +469,6 @@ fn build_upgma(
     let ni = clusters.length()
 
     let new_cluster = build_node_internal(
-      next_id,
       clusters[i],
       clusters[j],
       height - clusters[i].height,
@@ -553,7 +549,7 @@ fn build_wpgma(
 
   let mut clusters : Array[BuildNode] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    clusters.push(build_node_leaf(i, names[i]))
+    clusters.push(build_node_leaf(names[i]))
   }
 
   let mut dist = copy_matrix(distances)
@@ -567,7 +563,6 @@ fn build_wpgma(
     let ni = clusters.length()
 
     let new_cluster = build_node_internal(
-      next_id,
       clusters[i],
       clusters[j],
       height - clusters[i].height,
@@ -651,7 +646,7 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
   let mut dist = copy_matrix(distances)
   let nodes : Array[BuildNode] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    nodes.push(build_node_leaf(i, names[i]))
+    nodes.push(build_node_leaf(names[i]))
   }
   let mut next_id = n
 
@@ -689,7 +684,6 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
     let dju = dij - diu
 
     let new_node = build_node_internal(
-      next_id,
       nodes[active[min_i]],
       nodes[active[min_j]],
       diu,
@@ -745,7 +739,7 @@ fn build_nj(distances : Array[Array[Double]], names : Array[String]) -> Clade {
     let n1 = nodes[active[0]]
     let n2 = nodes[active[1]]
 
-    let root = build_node_internal(next_id, n1, n2, d / 2.0, d / 2.0, 0.0)
+    let root = build_node_internal(n1, n2, d / 2.0, d / 2.0, 0.0)
     build_node_to_clade(root)
   } else {
     build_node_to_clade(nodes[active[0]])

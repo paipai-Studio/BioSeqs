@@ -983,7 +983,6 @@ priv struct RoplsPlsFit {
   q2 : Array[Double]
   sig : Array[String]
   ncomp : Int
-  iters : Array[Int]
 }
 
 ///|
@@ -1116,7 +1115,6 @@ fn rop_fit_pls(
     q2: rop_take(q2v, trim),
     sig: rop_take(sig, trim),
     ncomp: trim,
-    iters: rop_take(iters, trim),
   }
 }
 

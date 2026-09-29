@@ -774,6 +774,7 @@ pub fn camera(
   gene_set : Array[String],
   n_perm? : Int = 1000,
 ) -> (Double, Double, String) {
+  ignore(n_perm)
   let n_genes = qlf_result.genes.length()
 
   // Identify genes in the set

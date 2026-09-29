@@ -427,6 +427,7 @@ pub fn venn_counts_only(
   sets : Array[Array[String]],
   names? : Array[String] = [],
 ) -> Array[Int] {
+  ignore(names)
   let n_sets = sets.length()
   let n_regions = 1 << n_sets
   let counts = Array::make(n_regions, 0)

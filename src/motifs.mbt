@@ -535,6 +535,7 @@ pub fn motif_enrichment(
   sequences : Array[String],
   background? : Array[String] = [],
 ) -> Array[(String, Double, Double)] {
+  ignore(background)
   let results : Array[(String, Double, Double)] = Array(capacity=0)
 
   // Count motif occurrences in target sequences

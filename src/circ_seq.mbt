@@ -654,6 +654,7 @@ pub fn circ_tm(
   len : Int,
   oligo_conc? : Double = 5.0e-8,
 ) -> Double {
+  ignore(oligo_conc)
   let seq = template.circ_slice(start, len)
   let gc = calc_gc(seq)
   let _at = 1.0 - gc

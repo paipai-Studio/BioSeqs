@@ -1824,6 +1824,7 @@ pub fn limma_combat(
   batch : Array[String],
   group? : Array[String] = Array(capacity=0),
 ) -> Matrix {
+  ignore(group)
   let n_genes = y.rows
   let n_samples = y.cols
 

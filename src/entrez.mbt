@@ -585,6 +585,7 @@ pub fn get_gene_info(
   gene_symbol : String,
   organism? : String = "Homo sapiens",
 ) -> GeneRecord? {
+  ignore(organism)
   let lower = gene_symbol
   if lower == "tp53" || lower == "p53" || lower == "TP53" || lower == "P53" {
     Some(
