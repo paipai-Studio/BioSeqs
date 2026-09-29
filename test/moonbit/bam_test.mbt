@@ -312,3 +312,13 @@ test "bam_get_base_counts" {
   assert_eq(@src.bam_get_base_counts(bam, "chr1", 101), (0, 1, 0, 0))  // C
 }
 
+
+// ============================================================
+// get_alignment_quality
+// ============================================================
+
+test "bam_alignment_quality" {
+  let bam = @src.parse_bam_base64(test_bam_base64)
+  // read1：mapq=60，NM:i:0 → quality = 60
+  assert_true(assert_close(@src.bam_alignment_quality(bam.records[0]), 60.0, 1.0e-9))
+}

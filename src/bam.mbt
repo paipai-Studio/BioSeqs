@@ -2263,3 +2263,26 @@ pub fn bam_get_base_counts(
   (va, vc, vg, vt)
 }
 
+
+// ============================================================================
+// get_alignment_quality（NM tag 校准）
+// ============================================================================
+
+///|
+/// Alignment quality (`AlignedSegment.get_alignment_quality`): `mapq` penalized
+/// by 10 per edit (the NM tag), clamped to `[0, 100]`. Returns the raw mapq
+/// when no NM tag is present.
+pub fn bam_alignment_quality(rec : BamRecord) -> Double {
+  let nm = match rec.get_tag("NM") {
+    Some(BamTagValue::Int(v)) => v
+    _ => 0
+  }
+  let q = rec.mapq.to_double() - 10.0 * nm.to_double()
+  if q < 0.0 {
+    0.0
+  } else if q > 100.0 {
+    100.0
+  } else {
+    q
+  }
+}
