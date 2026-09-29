@@ -795,3 +795,73 @@ pub fn skallel_patterson_fst(
   }
   (num, den)
 }
+
+
+// ============================================================================
+// scikit-allel 补齐：single-point Tajima's D / patterson_f4 / LD between
+// ============================================================================
+
+///|
+/// Whole-callset Tajima's D (`allel.tajima_d`): the single-point variant of
+/// `skallel_windowed_tajima_d` over all variants. Returns the standard
+/// neutrality-test result (D statistic, theta_w, p-value).
+pub fn skallel_tajima_d(
+  ac : Array[Array[Int]],
+  n_haplotypes : Int,
+) -> NeutralityTestResult {
+  let pi = skallel_mean_pairwise_difference(ac)
+  let mut pi_sum = 0.0
+  let mut s = 0
+  for i = 0; i < ac.length(); i = i + 1 {
+    pi_sum = pi_sum + pi[i]
+    if ac[i].length() >= 2 && ac[i][1] > 0 && ac[i][0] > 0 {
+      s = s + 1
+    }
+  }
+  popgen_tajima_d(pi_sum, s, n_haplotypes, ac.length())
+}
+
+///|
+/// Four-population f4 statistic (`allel.patterson_f4`): the block average
+/// `Σ (p1-p2)(p3-p4) / n_variants`, with the per-variant allele frequencies
+/// from the four input call sets.
+pub fn skallel_patterson_f4(
+  ac1 : Array[Array[Int]],
+  ac2 : Array[Array[Int]],
+  ac3 : Array[Array[Int]],
+  ac4 : Array[Array[Int]],
+) -> Double {
+  let mut n = ac1.length()
+  n = if n < ac2.length() { n } else { ac2.length() }
+  n = if n < ac3.length() { n } else { ac3.length() }
+  n = if n < ac4.length() { n } else { ac4.length() }
+  if n == 0 {
+    return 0.0
+  }
+  let mut sn = 0.0
+  for i = 0; i < n; i = i + 1 {
+    let a = alt_freq(ac1[i])
+    let b = alt_freq(ac2[i])
+    let c = alt_freq(ac3[i])
+    let d = alt_freq(ac4[i])
+    sn = sn + (a - b) * (c - d)
+  }
+  sn / n.to_double()
+}
+
+///|
+/// Linkage disequilibrium (squared Pearson r) between every variant in `gn1`
+/// and every variant in `gn2` (`allel.rogers_huff_r_between`). Returns
+/// `n1 × n2` values in row-major order; each `gn` is n_variants × n_samples.
+pub fn skallel_rogers_huff_r_between(
+  gn1 : Array[Array[Int]],
+  gn2 : Array[Array[Int]],
+) -> Array[Double] {
+  let out : Array[Double] = Array(capacity=0)
+  for i = 0; i < gn1.length(); i = i + 1 {
+    for j = 0; j < gn2.length(); j = j + 1 {
+      out.push(pearson_r_pairwise(gn1[i], gn2[j]))
+    }
+  }
+  out
+}

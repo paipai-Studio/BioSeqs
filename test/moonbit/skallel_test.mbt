@@ -38,3 +38,31 @@ test "skallel_pca" {
   let s = pca.explained_variance_ratio[0] + pca.explained_variance_ratio[1]
   assert_true(assert_close(s, 1.0, 1.0e-6))
 }
+
+// ============================================================
+// 单点 tajima_d / patterson_f4 / LD between
+// ============================================================
+
+test "skallel_tajima_d_single_point" {
+  let ac = [[2, 2], [3, 1], [1, 3], [2, 2]]
+  let r = @src.skallel_tajima_d(ac, 4)
+  assert_eq(r.test_name, "Tajima's D")
+  assert_true(r.statistic == r.statistic)  // 有限（非 NaN）
+}
+
+test "skallel_patterson_f4_identical" {
+  // 四个群体完全相同时，f4 = Σ(p-p)(p-p) = 0
+  let ac = [[2, 2], [3, 1], [1, 3]]
+  let f = @src.skallel_patterson_f4(ac, ac, ac, ac)
+  assert_true(assert_close(f, 0.0, 1.0e-12))
+}
+
+test "skallel_rogers_huff_r_between" {
+  let gn = [[0, 2, 0], [0, 2, 0], [2, 0, 2]]
+  let r = @src.skallel_rogers_huff_r_between(gn, gn)
+  assert_eq(r.length(), 9)  // 3 × 3
+  // 对角线（同一位点自身）r² = 1
+  assert_true(assert_close(r[0], 1.0, 1.0e-6))
+  assert_true(assert_close(r[4], 1.0, 1.0e-6))
+  assert_true(assert_close(r[8], 1.0, 1.0e-6))
+}
