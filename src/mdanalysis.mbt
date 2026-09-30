@@ -573,3 +573,353 @@ pub fn mdanalysis_persistence_length(
   }
   (lp, lb, autocorr, fit)
 }
+
+// ============================================================================
+// PCA (MDAnalysis.analysis.pca.PCA)
+// ============================================================================
+
+///|
+/// Principal Component Analysis of a trajectory.
+/// `frames` is an array of frames, each frame being N atoms × 3D coordinates.
+/// Builds the N×N covariance matrix of atomic fluctuations (each atom's
+/// position minus its time-average), then performs eigendecomposition.
+///
+/// Returns `(eigenvalues, eigenvectors, variance_fraction)` where:
+/// - `eigenvalues`     — sorted descending (variance per component)
+/// - `eigenvectors[i]` — i-th principal component (N-dimensional unit vector)
+/// - `variance_fraction` — cumulative fraction of variance explained
+///
+/// For very large N this is O(N³); use on CA atoms or other reduced sets.
+pub fn mdanalysis_pca(
+  frames : Array[Array[Array[Double]]],
+) -> (Array[Double], Array[Array[Double]], Array[Double]) {
+  let n_frames = frames.length()
+  if n_frames < 2 {
+    return ([], [], [])
+  }
+  let n_atoms = frames[0].length()
+  if n_atoms == 0 {
+    return ([], [], [])
+  }
+  // Compute mean position per atom
+  let mean : Array[Array[Double]] = Array::make(n_atoms, [0.0, 0.0, 0.0])
+  for f in frames {
+    for i = 0; i < n_atoms; i = i + 1 {
+      mean[i][0] = mean[i][0] + f[i][0]
+      mean[i][1] = mean[i][1] + f[i][1]
+      mean[i][2] = mean[i][2] + f[i][2]
+    }
+  }
+  for i = 0; i < n_atoms; i = i + 1 {
+    mean[i][0] = mean[i][0] / n_frames.to_double()
+    mean[i][1] = mean[i][1] / n_frames.to_double()
+    mean[i][2] = mean[i][2] / n_frames.to_double()
+  }
+  // Build N×N covariance matrix: C[i][j] = <Δr_i · Δr_j>
+  let cov : Array[Array[Double]] = Array::makei(n_atoms, fn(_) {
+    Array::make(n_atoms, 0.0)
+  })
+  for f in frames {
+    for i = 0; i < n_atoms; i = i + 1 {
+      let dxi = f[i][0] - mean[i][0]
+      let dyi = f[i][1] - mean[i][1]
+      let dzi = f[i][2] - mean[i][2]
+      for j = 0; j < n_atoms; j = j + 1 {
+        let dxj = f[j][0] - mean[j][0]
+        let dyj = f[j][1] - mean[j][1]
+        let dzj = f[j][2] - mean[j][2]
+        cov[i][j] = cov[i][j] + dxi * dxj + dyi * dyj + dzi * dzj
+      }
+    }
+  }
+  let denom = (n_frames - 1).to_double()
+  for i = 0; i < n_atoms; i = i + 1 {
+    for j = 0; j < n_atoms; j = j + 1 {
+      cov[i][j] = cov[i][j] / denom
+    }
+  }
+  // Eigendecomposition (symmetric → Jacobi)
+  let (evals, evects) = eigh_symmetric(cov, n_atoms)
+  // Sort descending
+  let indices : Array[Int] = []
+  for i = 0; i < n_atoms; i = i + 1 {
+    indices.push(i)
+  }
+  indices.sort_by(fn(a, b) {
+    if evals[b] > evals[a] {
+      1
+    } else if evals[b] < evals[a] {
+      -1
+    } else {
+      0
+    }
+  })
+  let sorted_evals : Array[Double] = Array(capacity=n_atoms)
+  let sorted_evects : Array[Array[Double]] = Array(capacity=n_atoms)
+  for idx in indices {
+    sorted_evals.push(evals[idx])
+    sorted_evects.push(evects[idx])
+  }
+  // Cumulative variance fraction
+  let total = {
+    let mut s = 0.0
+    for v in sorted_evals {
+      if v > 0.0 {
+        s = s + v
+      }
+    }
+    s
+  }
+  let var_frac : Array[Double] = Array(capacity=n_atoms)
+  let mut cumul = 0.0
+  for v in sorted_evals {
+    if v > 0.0 {
+      cumul = cumul + v
+    }
+    var_frac.push(if total > 0.0 { cumul / total } else { 0.0 })
+  }
+  (sorted_evals, sorted_evects, var_frac)
+}
+
+// ============================================================================
+// GNM (MDAnalysis.analysis.gnm.GNMAnalysis)
+// ============================================================================
+
+///|
+/// Build the Kirchhoff (connectivity) matrix for a Gaussian Network Model.
+/// `positions` are CA atom coordinates; atoms within `cutoff` Å are connected.
+/// The Kirchhoff matrix Γ has:
+/// - Γ[i][j] = -1  if i≠j and atoms i,j are within cutoff
+/// - Γ[i][i] = number of neighbors of atom i
+/// - Γ[i][j] = 0   otherwise
+pub fn mdanalysis_gnm_kirchhoff(
+  positions : Array[Array[Double]],
+  cutoff : Double,
+) -> Array[Array[Double]] {
+  let n = positions.length()
+  let matrix : Array[Array[Double]] = Array::makei(n, fn(_) { Array::make(n, 0.0) })
+  let cutoff_sq = cutoff * cutoff
+  for i = 0; i < n; i = i + 1 {
+    for j = i + 1; j < n; j = j + 1 {
+      if mda_sq_dist(positions[i], positions[j]) < cutoff_sq {
+        matrix[i][j] = -1.0
+        matrix[j][i] = -1.0
+        matrix[i][i] = matrix[i][i] + 1.0
+        matrix[j][j] = matrix[j][j] + 1.0
+      }
+    }
+  }
+  matrix
+}
+
+///|
+/// Gaussian Network Model analysis.
+/// Builds the Kirchhoff matrix from `positions` with `cutoff`, then
+/// performs eigendecomposition.  The smallest eigenvalue is ~0 (rigid-body
+/// translation); the remaining modes describe internal fluctuations.
+///
+/// Returns `(eigenvalues, eigenvectors)` sorted ascending.
+/// B-factors can be estimated as B_i ∝ Σ_k (1/λ_k) * v_k[i]²  (k > 0).
+pub fn mdanalysis_gnm(
+  positions : Array[Array[Double]],
+  cutoff : Double,
+) -> (Array[Double], Array[Array[Double]]) {
+  let n = positions.length()
+  if n < 2 {
+    return ([], [])
+  }
+  let matrix = mdanalysis_gnm_kirchhoff(positions, cutoff)
+  let (evals, evects) = eigh_symmetric(matrix, n)
+  // Sort ascending (smallest mode first — mode 0 ≈ 0)
+  let indices : Array[Int] = []
+  for i = 0; i < n; i = i + 1 {
+    indices.push(i)
+  }
+  indices.sort_by(fn(a, b) {
+    if evals[a] < evals[b] {
+      -1
+    } else if evals[a] > evals[b] {
+      1
+    } else {
+      0
+    }
+  })
+  let sorted_evals : Array[Double] = Array(capacity=n)
+  let sorted_evects : Array[Array[Double]] = Array(capacity=n)
+  for idx in indices {
+    sorted_evals.push(evals[idx])
+    sorted_evects.push(evects[idx])
+  }
+  (sorted_evals, sorted_evects)
+}
+
+///|
+/// Estimate B-factors from GNM eigenvalues/eigenvectors.
+/// B_i ∝ Σ_k (1/λ_k) * v_k[i]²  (sum over non-zero modes k > 0).
+/// Returns an array of N B-factor values (arbitrary units).
+pub fn mdanalysis_gnm_bfactors(
+  eigenvalues : Array[Double],
+  eigenvectors : Array[Array[Double]],
+) -> Array[Double] {
+  let n_modes = eigenvalues.length()
+  if n_modes == 0 {
+    return []
+  }
+  let n_atoms = eigenvectors[0].length()
+  let bfactors : Array[Double] = Array::make(n_atoms, 0.0)
+  for k = 1; k < n_modes; k = k + 1 {
+    let lambda = eigenvalues[k]
+    if lambda.abs() < 1.0e-10 {
+      continue
+    }
+    let inv_lambda = 1.0 / lambda
+    let vk = eigenvectors[k]
+    for i = 0; i < n_atoms; i = i + 1 {
+      bfactors[i] = bfactors[i] + inv_lambda * vk[i] * vk[i]
+    }
+  }
+  bfactors
+}
+
+// ============================================================================
+// Helix Analysis (MDAnalysis.analysis.helix_analysis.helix_analysis)
+// ============================================================================
+
+///|
+/// Helix analysis result.
+/// All `local_*` arrays have length N-3 (sliding window of 4 atoms),
+/// except `local_bends` which has length N-6.
+pub struct MdanalysisHelixResult {
+  /// Twist angle (degrees) per local window
+  local_twists : Array[Double]
+  /// Residues per turn per local window
+  local_nres_per_turn : Array[Double]
+  /// Helix axis unit vector per local window
+  local_axes : Array[Array[Double]]
+  /// Bending angle between axes 3 windows apart (degrees)
+  local_bends : Array[Double]
+  /// Rise per residue per local window (Å)
+  local_heights : Array[Double]
+  /// Radius of local cylinder per window (Å)
+  local_radii : Array[Double]
+}
+
+///|
+/// Calculate helix properties from atomic coordinates.
+/// Mirrors `MDAnalysis.analysis.helix_analysis.helix_analysis`.
+/// Each property is calculated from a sliding window of 4 atoms.
+/// `positions` should be ordered backbone atoms (e.g. CA) of a helix.
+pub fn mdanalysis_helix_analysis(
+  positions : Array[Array[Double]],
+) -> MdanalysisHelixResult {
+  let n = positions.length()
+  let empty = MdanalysisHelixResult::{
+    local_twists: [],
+    local_nres_per_turn: [],
+    local_axes: [],
+    local_bends: [],
+    local_heights: [],
+    local_radii: [],
+  }
+  if n < 4 {
+    return empty
+  }
+  // vectors: positions[1:] - positions[:-1]  → (N-1, 3)
+  let vectors : Array[Array[Double]] = Array(capacity=n - 1)
+  for i = 0; i < n - 1; i = i + 1 {
+    vectors.push([
+      positions[i + 1][0] - positions[i][0],
+      positions[i + 1][1] - positions[i][1],
+      positions[i + 1][2] - positions[i][2],
+    ])
+  }
+  // bisectors: vectors[:-1] - vectors[1:]  → (N-2, 3)
+  let bisectors : Array[Array[Double]] = Array(capacity=n - 2)
+  for i = 0; i < n - 2; i = i + 1 {
+    bisectors.push([
+      vectors[i][0] - vectors[i + 1][0],
+      vectors[i][1] - vectors[i + 1][1],
+      vectors[i][2] - vectors[i + 1][2],
+    ])
+  }
+  // bimags: norm of bisectors → (N-2,)
+  let bimags : Array[Double] = Array(capacity=n - 2)
+  for b in bisectors {
+    bimags.push((b[0] * b[0] + b[1] * b[1] + b[2] * b[2]).sqrt())
+  }
+  let n_windows = n - 3 // number of 4-atom windows
+  // cos_theta between adjacent bisectors → (N-3,)
+  let cos_theta : Array[Double] = Array(capacity=n_windows)
+  let adjacent_mag : Array[Double] = Array(capacity=n_windows)
+  for i = 0; i < n_windows; i = i + 1 {
+    let bi = bisectors[i]
+    let bi1 = bisectors[i + 1]
+    let dot = bi[0] * bi1[0] + bi[1] * bi1[1] + bi[2] * bi1[2]
+    let mag = bimags[i] * bimags[i + 1]
+    adjacent_mag.push(mag)
+    let ct = if mag > 0.0 { dot / mag } else { 1.0 }
+    // clip to [-1, 1]
+    cos_theta.push(if ct > 1.0 { 1.0 } else if ct < -1.0 { -1.0 } else { ct })
+  }
+  // twists (radians) → local_twists (degrees)
+  let local_twists : Array[Double] = Array(capacity=n_windows)
+  let local_nres_per_turn : Array[Double] = Array(capacity=n_windows)
+  let twists_rad : Array[Double] = Array(capacity=n_windows)
+  for i = 0; i < n_windows; i = i + 1 {
+    let twist = @math.acos(cos_theta[i])
+    twists_rad.push(twist)
+    local_twists.push(twist * 180.0 / @math.pi)
+    local_nres_per_turn.push(if twist > 0.0 { 2.0 * @math.pi / twist } else { 0.0 })
+  }
+  // local_axes: cross product of adjacent bisectors, normalized → (N-3, 3)
+  let local_axes : Array[Array[Double]] = Array(capacity=n_windows)
+  for i = 0; i < n_windows; i = i + 1 {
+    let bi = bisectors[i]
+    let bi1 = bisectors[i + 1]
+    let cx = bi[1] * bi1[2] - bi[2] * bi1[1]
+    let cy = bi[2] * bi1[0] - bi[0] * bi1[2]
+    let cz = bi[0] * bi1[1] - bi[1] * bi1[0]
+    let mag = (cx * cx + cy * cy + cz * cz).sqrt()
+    if mag > 0.0 {
+      local_axes.push([cx / mag, cy / mag, cz / mag])
+    } else {
+      local_axes.push([0.0, 0.0, 0.0])
+    }
+  }
+  // local_bends: angles between axes 3 windows apart → (N-6,)
+  let local_bends : Array[Double] = Array(capacity=0)
+  for i = 0; i + 3 < n_windows; i = i + 1 {
+    let a = local_axes[i]
+    let b = local_axes[i + 3]
+    let dot = a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
+    let clipped = if dot > 1.0 { 1.0 } else if dot < -1.0 { -1.0 } else { dot }
+    local_bends.push(@math.acos(clipped) * 180.0 / @math.pi)
+  }
+  // radii: (adjacent_mag^0.5) / (2 * (1 - cos_theta)) → (N-3,)
+  let local_radii : Array[Double] = Array(capacity=n_windows)
+  for i = 0; i < n_windows; i = i + 1 {
+    let am = adjacent_mag[i]
+    let ct = cos_theta[i]
+    if (1.0 - ct).abs() > 1.0e-10 {
+      local_radii.push(am.sqrt() / (2.0 * (1.0 - ct)))
+    } else {
+      local_radii.push(am.sqrt() / 2.0)
+    }
+  }
+  // heights: |dot(vectors[1:-1], local_axes)| → (N-3,)
+  let local_heights : Array[Double] = Array(capacity=n_windows)
+  for i = 0; i < n_windows; i = i + 1 {
+    let v = vectors[i + 1]
+    let ax = local_axes[i]
+    let h = v[0] * ax[0] + v[1] * ax[1] + v[2] * ax[2]
+    local_heights.push(h.abs())
+  }
+  MdanalysisHelixResult::{
+    local_twists,
+    local_nres_per_turn,
+    local_axes,
+    local_bends,
+    local_heights,
+    local_radii,
+  }
+}
