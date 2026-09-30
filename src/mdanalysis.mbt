@@ -1297,3 +1297,300 @@ pub fn mdanalysis_bat_internal(
   }
   (bonds, angles, torsions)
 }
+
+// ============================================================================
+// Density 3D Grid (MDAnalysis.analysis.density.DensityAnalysis)
+// ============================================================================
+
+///|
+/// 3D density grid result.
+pub struct MdanalysisDensityResult {
+  /// Grid values (bins_x × bins_y × bins_z), row-major
+  grid : Array[Double]
+  /// Number of bins per dimension
+  bins : (Int, Int, Int)
+  /// Grid edges (min/max per dimension)
+  edges : (Array[Double], Array[Double], Array[Double])
+  /// Voxel volume
+  voxel_volume : Double
+}
+
+///|
+/// Compute a 3D number density from atomic positions across frames.
+/// `frames` is an array of frames, each frame being N atoms × 3D.
+/// `grid_min`/`grid_max` define the bounding box; `bins` is bins per axis.
+/// The result grid contains density (count/Å³) averaged over frames.
+pub fn mdanalysis_density(
+  frames : Array[Array[Array[Double]]],
+  grid_min : Array[Double],
+  grid_max : Array[Double],
+  bins : (Int, Int, Int),
+) -> MdanalysisDensityResult {
+  let (nx, ny, nz) = bins
+  let n_frames = frames.length()
+  let empty = MdanalysisDensityResult::{
+    grid: [],
+    bins: (0, 0, 0),
+    edges: ([], [], []),
+    voxel_volume: 0.0,
+  }
+  if n_frames == 0 || nx == 0 || ny == 0 || nz == 0 {
+    return empty
+  }
+  // Grid edges
+  let ex : Array[Double] = Array(capacity=nx + 1)
+  let ey : Array[Double] = Array(capacity=ny + 1)
+  let ez : Array[Double] = Array(capacity=nz + 1)
+  let dx = (grid_max[0] - grid_min[0]) / nx.to_double()
+  let dy = (grid_max[1] - grid_min[1]) / ny.to_double()
+  let dz = (grid_max[2] - grid_min[2]) / nz.to_double()
+  for i = 0; i <= nx; i = i + 1 {
+    ex.push(grid_min[0] + i.to_double() * dx)
+  }
+  for i = 0; i <= ny; i = i + 1 {
+    ey.push(grid_min[1] + i.to_double() * dy)
+  }
+  for i = 0; i <= nz; i = i + 1 {
+    ez.push(grid_min[2] + i.to_double() * dz)
+  }
+  // Accumulate histogram
+  let total_bins = nx * ny * nz
+  let grid : Array[Double] = Array::make(total_bins, 0.0)
+  for frame in frames {
+    for atom in frame {
+      let ix = ((atom[0] - grid_min[0]) / dx).floor().to_int()
+      let iy = ((atom[1] - grid_min[1]) / dy).floor().to_int()
+      let iz = ((atom[2] - grid_min[2]) / dz).floor().to_int()
+      if ix >= 0 && ix < nx && iy >= 0 && iy < ny && iz >= 0 && iz < nz {
+        grid[ix * ny * nz + iy * nz + iz] = grid[ix * ny * nz + iy * nz + iz] + 1.0
+      }
+    }
+  }
+  // Average over frames and divide by voxel volume → density
+  let voxel_vol = dx * dy * dz
+  let scale = 1.0 / (n_frames.to_double() * voxel_vol)
+  for i = 0; i < total_bins; i = i + 1 {
+    grid[i] = grid[i] * scale
+  }
+  MdanalysisDensityResult::{
+    grid,
+    bins,
+    edges: (ex, ey, ez),
+    voxel_volume: voxel_vol,
+  }
+}
+
+// ============================================================================
+// Diffusion Map (MDAnalysis.analysis.diffusionmap)
+// ============================================================================
+
+///|
+/// Diffusion map result.
+pub struct MdanalysisDiffusionMapResult {
+  /// Eigenvalues sorted descending
+  eigenvalues : Array[Double]
+  /// Eigenvectors (each is a row)
+  eigenvectors : Array[Array[Double]]
+}
+
+///|
+/// Diffusion map dimensionality reduction.
+/// `dist_matrix` is a symmetric n×n distance matrix (e.g. RMSD between frames).
+/// `epsilon` is the kernel bandwidth parameter.
+///
+/// Algorithm:
+/// 1. Kernel K = exp(-D²/ε)
+/// 2. Normalize: diff = D_inv × K  (D_inv = diag(1/row_sum(K)))
+/// 3. Symmetrize: (diff + diff^T)/2  for Jacobi eigendecomposition
+/// 4. Sort eigenvalues descending
+pub fn mdanalysis_diffusionmap(
+  dist_matrix : Array[Array[Double]],
+  epsilon : Double,
+) -> MdanalysisDiffusionMapResult {
+  let n = dist_matrix.length()
+  if n < 2 {
+    return MdanalysisDiffusionMapResult::{ eigenvalues: [], eigenvectors: [] }
+  }
+  let eps = if epsilon > 0.0 { epsilon } else { 1.0 }
+  // Kernel K = exp(-D^2 / epsilon)
+  let kernel : Array[Array[Double]] = Array::makei(n, fn(_) { Array::make(n, 0.0) })
+  for i = 0; i < n; i = i + 1 {
+    for j = 0; j < n; j = j + 1 {
+      let d = dist_matrix[i][j]
+      kernel[i][j] = @math.exp(-(d * d) / eps)
+    }
+  }
+  // Row sums
+  let row_sum : Array[Double] = Array::make(n, 0.0)
+  for i = 0; i < n; i = i + 1 {
+    let mut s = 0.0
+    for j = 0; j < n; j = j + 1 {
+      s = s + kernel[i][j]
+    }
+    row_sum[i] = s
+  }
+  // Diffusion matrix: diff = D_inv * K, then symmetrize for Jacobi
+  let diff : Array[Array[Double]] = Array::makei(n, fn(_) { Array::make(n, 0.0) })
+  for i = 0; i < n; i = i + 1 {
+    for j = 0; j < n; j = j + 1 {
+      let val = if row_sum[i] > 0.0 { kernel[i][j] / row_sum[i] } else { 0.0 }
+      diff[i][j] = val
+    }
+  }
+  // Symmetrize: (diff + diff^T) / 2
+  let sym : Array[Array[Double]] = Array::makei(n, fn(_) { Array::make(n, 0.0) })
+  for i = 0; i < n; i = i + 1 {
+    for j = 0; j < n; j = j + 1 {
+      sym[i][j] = (diff[i][j] + diff[j][i]) / 2.0
+    }
+  }
+  // Eigendecomposition
+  let (evals, evects) = eigh_symmetric(sym, n)
+  // Sort descending
+  let indices : Array[Int] = []
+  for i = 0; i < n; i = i + 1 {
+    indices.push(i)
+  }
+  indices.sort_by(fn(a, b) {
+    if evals[b] > evals[a] { 1 } else if evals[b] < evals[a] { -1 } else { 0 }
+  })
+  let sorted_evals : Array[Double] = Array(capacity=n)
+  let sorted_evects : Array[Array[Double]] = Array(capacity=n)
+  for idx in indices {
+    sorted_evals.push(evals[idx])
+    sorted_evects.push(evects[idx])
+  }
+  MdanalysisDiffusionMapResult::{
+    eigenvalues: sorted_evals,
+    eigenvectors: sorted_evects,
+  }
+}
+
+///|
+/// Embed frames into diffusion map coordinates.
+/// `result` is from `mdanalysis_diffusionmap`.
+/// `n_eigenvectors` is the number of dominant eigenvectors to use.
+/// `time` is the exponent for eigenvalues (diffusion time).
+/// Returns n_frames × n_eigenvectors embedding coordinates.
+pub fn mdanalysis_diffusionmap_transform(
+  result : MdanalysisDiffusionMapResult,
+  n_eigenvectors : Int,
+  time : Double,
+) -> Array[Array[Double]] {
+  let n = result.eigenvalues.length()
+  if n == 0 {
+    return []
+  }
+  let n_ev = if n_eigenvectors < n { n_eigenvectors } else { n }
+  let n_frames = result.eigenvectors[0].length()
+  let embedding : Array[Array[Double]] = Array::makei(n_frames, fn(_) {
+    Array::make(n_ev, 0.0)
+  })
+  for k = 1; k <= n_ev; k = k + 1 {
+    if k >= n {
+      break
+    }
+    let lambda_t = @math.pow(result.eigenvalues[k], time)
+    let vk = result.eigenvectors[k]
+    for i = 0; i < n_frames; i = i + 1 {
+      embedding[i][k - 1] = lambda_t * vk[i]
+    }
+  }
+  embedding
+}
+
+// ============================================================================
+// Dielectric Constant (MDAnalysis.analysis.dielectric)
+// ============================================================================
+
+///|
+/// Dielectric constant result.
+pub struct MdanalysisDielectricResult {
+  /// Mean dipole moment vector (3D)
+  mean_dipole : Array[Double]
+  /// Dipole fluctuation vector (⟨M²⟩ - ⟨M⟩², per component)
+  fluctuation : Array[Double]
+  /// Dielectric constant per component (x, y, z)
+  eps : Array[Double]
+  /// Mean dielectric constant
+  eps_mean : Double
+}
+
+///|
+/// Compute the static dielectric constant from dipole moment fluctuations.
+/// `charges` are partial charges per atom (in e).
+/// `frames` is an array of frames, each frame being N atoms × 3D positions.
+/// `temperature` is in Kelvin.
+/// `volume` is the system volume in Å³.
+///
+/// Formula: ε = (⟨M²⟩ - ⟨M⟩²) / (k_B * T * V * ε_0) + 1
+/// where k_B = 8.617e-5 eV/K, ε_0 = 0.00552635 e/(eV·Å)
+pub fn mdanalysis_dielectric(
+  charges : Array[Double],
+  frames : Array[Array[Array[Double]]],
+  temperature : Double,
+  volume : Double,
+) -> MdanalysisDielectricResult {
+  let n_frames = frames.length()
+  let empty = MdanalysisDielectricResult::{
+    mean_dipole: [0.0, 0.0, 0.0],
+    fluctuation: [0.0, 0.0, 0.0],
+    eps: [1.0, 1.0, 1.0],
+    eps_mean: 1.0,
+  }
+  if n_frames == 0 || temperature <= 0.0 || volume <= 0.0 {
+    return empty
+  }
+  let n_atoms = charges.length()
+  // Accumulate M = sum(q_i * r_i) and M^2 per frame
+  let mut mx_sum = 0.0
+  let mut my_sum = 0.0
+  let mut mz_sum = 0.0
+  let mut mx2_sum = 0.0
+  let mut my2_sum = 0.0
+  let mut mz2_sum = 0.0
+  for frame in frames {
+    let mut mx = 0.0
+    let mut my = 0.0
+    let mut mz = 0.0
+    for i = 0; i < n_atoms; i = i + 1 {
+      let q = charges[i]
+      mx = mx + q * frame[i][0]
+      my = my + q * frame[i][1]
+      mz = mz + q * frame[i][2]
+    }
+    mx_sum = mx_sum + mx
+    my_sum = my_sum + my
+    mz_sum = mz_sum + mz
+    mx2_sum = mx2_sum + mx * mx
+    my2_sum = my2_sum + my * my
+    mz2_sum = mz2_sum + mz * mz
+  }
+  // Averages
+  let nf = n_frames.to_double()
+  let mean_mx = mx_sum / nf
+  let mean_my = my_sum / nf
+  let mean_mz = mz_sum / nf
+  let mean_mx2 = mx2_sum / nf
+  let mean_my2 = my2_sum / nf
+  let mean_mz2 = mz2_sum / nf
+  // Fluctuations
+  let fluct_x = mean_mx2 - mean_mx * mean_mx
+  let fluct_y = mean_my2 - mean_my * mean_my
+  let fluct_z = mean_mz2 - mean_mz * mean_mz
+  // Dielectric constant: eps = fluct / (k_B * T * V * eps_0) + 1
+  // k_B = 8.617333262e-5 eV/K
+  // eps_0 = 0.00552634959 e^2/(eV*Angstrom) (vacuum permittivity)
+  let k_b = 8.617333262e-5
+  let eps_0 = 0.00552634959
+  let denom = k_b * temperature * volume * eps_0
+  let eps_x = if denom > 0.0 { fluct_x / denom + 1.0 } else { 1.0 }
+  let eps_y = if denom > 0.0 { fluct_y / denom + 1.0 } else { 1.0 }
+  let eps_z = if denom > 0.0 { fluct_z / denom + 1.0 } else { 1.0 }
+  MdanalysisDielectricResult::{
+    mean_dipole: [mean_mx, mean_my, mean_mz],
+    fluctuation: [fluct_x, fluct_y, fluct_z],
+    eps: [eps_x, eps_y, eps_z],
+    eps_mean: (eps_x + eps_y + eps_z) / 3.0,
+  }
+}
