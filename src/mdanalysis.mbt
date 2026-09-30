@@ -923,3 +923,377 @@ pub fn mdanalysis_helix_analysis(
     local_radii,
   }
 }
+
+// ============================================================================
+// Nucleic Acid Backbone Torsions (MDAnalysis.analysis.nuclinfo)
+// ============================================================================
+
+///|
+/// Compute a dihedral angle modulo 360 (matching MDAnalysis convention).
+fn mda_dihedral_mod360(
+  a1 : Array[Double],
+  a2 : Array[Double],
+  a3 : Array[Double],
+  a4 : Array[Double],
+) -> Double {
+  let d = chem_dihedral_angle(a1, a2, a3, a4)
+  let r = d % 360.0
+  if r < 0.0 { r + 360.0 } else { r }
+}
+
+///|
+/// Nucleic acid backbone torsion alpha: O3'(i-1) - P(i) - O5'(i) - C5'(i)
+pub fn mdanalysis_tors_alpha(
+  o3p_prev : Array[Double],
+  p : Array[Double],
+  o5p : Array[Double],
+  c5p : Array[Double],
+) -> Double {
+  mda_dihedral_mod360(o3p_prev, p, o5p, c5p)
+}
+
+///|
+/// Nucleic acid backbone torsion beta: P(i) - O5'(i) - C5'(i) - C4'(i)
+pub fn mdanalysis_tors_beta(
+  p : Array[Double],
+  o5p : Array[Double],
+  c5p : Array[Double],
+  c4p : Array[Double],
+) -> Double {
+  mda_dihedral_mod360(p, o5p, c5p, c4p)
+}
+
+///|
+/// Nucleic acid backbone torsion gamma: O5'(i) - C5'(i) - C4'(i) - C3'(i)
+pub fn mdanalysis_tors_gamma(
+  o5p : Array[Double],
+  c5p : Array[Double],
+  c4p : Array[Double],
+  c3p : Array[Double],
+) -> Double {
+  mda_dihedral_mod360(o5p, c5p, c4p, c3p)
+}
+
+///|
+/// Nucleic acid backbone torsion delta: C5'(i) - C4'(i) - C3'(i) - O3'(i)
+pub fn mdanalysis_tors_delta(
+  c5p : Array[Double],
+  c4p : Array[Double],
+  c3p : Array[Double],
+  o3p : Array[Double],
+) -> Double {
+  mda_dihedral_mod360(c5p, c4p, c3p, o3p)
+}
+
+///|
+/// Nucleic acid backbone torsion epsilon: C4'(i) - C3'(i) - O3'(i) - P(i+1)
+pub fn mdanalysis_tors_epsilon(
+  c4p : Array[Double],
+  c3p : Array[Double],
+  o3p : Array[Double],
+  p_next : Array[Double],
+) -> Double {
+  mda_dihedral_mod360(c4p, c3p, o3p, p_next)
+}
+
+///|
+/// Nucleic acid backbone torsion zeta: C3'(i) - O3'(i) - P(i+1) - O5'(i+1)
+pub fn mdanalysis_tors_zeta(
+  c3p : Array[Double],
+  o3p : Array[Double],
+  p_next : Array[Double],
+  o5p_next : Array[Double],
+) -> Double {
+  mda_dihedral_mod360(c3p, o3p, p_next, o5p_next)
+}
+
+///|
+/// Nucleic acid glycosidic torsion chi (purine): O4'(i) - C1'(i) - N9(i) - C4(i)
+pub fn mdanalysis_tors_chi(
+  o4p : Array[Double],
+  c1p : Array[Double],
+  n9 : Array[Double],
+  c4 : Array[Double],
+) -> Double {
+  mda_dihedral_mod360(o4p, c1p, n9, c4)
+}
+
+///|
+/// Compute all 7 backbone torsions at once.
+/// `atoms` maps atom name to 3D coords for residue i,
+/// `atoms_prev` for residue i-1 (needs O3'),
+/// `atoms_next` for residue i+1 (needs P, O5').
+pub fn mdanalysis_tors_all(
+  atoms_prev : Map[String, Array[Double]],
+  atoms : Map[String, Array[Double]],
+  atoms_next : Map[String, Array[Double]],
+) -> (Double, Double, Double, Double, Double, Double, Double) {
+  let alpha = mda_dihedral_mod360(atoms_prev["O3'"], atoms["P"], atoms["O5'"], atoms["C5'"])
+  let beta = mda_dihedral_mod360(atoms["P"], atoms["O5'"], atoms["C5'"], atoms["C4'"])
+  let gamma = mda_dihedral_mod360(atoms["O5'"], atoms["C5'"], atoms["C4'"], atoms["C3'"])
+  let delta = mda_dihedral_mod360(atoms["C5'"], atoms["C4'"], atoms["C3'"], atoms["O3'"])
+  let eps = mda_dihedral_mod360(atoms["C4'"], atoms["C3'"], atoms["O3'"], atoms_next["P"])
+  let zeta = mda_dihedral_mod360(atoms["C3'"], atoms["O3'"], atoms_next["P"], atoms_next["O5'"])
+  let chi = mda_dihedral_mod360(atoms["O4'"], atoms["C1'"], atoms["N9"], atoms["C4"])
+  (alpha, beta, gamma, delta, eps, zeta, chi)
+}
+
+// ============================================================================
+// Sugar Pucker Phase (MDAnalysis.analysis.nuclinfo.phase_cp / phase_as)
+// ============================================================================
+
+///|
+/// Sugar pucker phase angle using the CP (Cremer-Pople) method.
+/// `sugar_atoms` = [O4', C1', C2', C3', C4'] — the 5 ribose ring atoms.
+/// Returns phase angle in degrees [0, 360).
+pub fn mdanalysis_phase_cp(
+  sugar_atoms : Array[Array[Double]],
+) -> Double {
+  if sugar_atoms.length() < 5 {
+    return 0.0
+  }
+  let r1 = sugar_atoms[0]
+  let r2 = sugar_atoms[1]
+  let r3 = sugar_atoms[2]
+  let r4 = sugar_atoms[3]
+  let r5 = sugar_atoms[4]
+  // Centroid
+  let r0 = [
+    (r1[0] + r2[0] + r3[0] + r4[0] + r5[0]) / 5.0,
+    (r1[1] + r2[1] + r3[1] + r4[1] + r5[1]) / 5.0,
+    (r1[2] + r2[2] + r3[2] + r4[2] + r5[2]) / 5.0,
+  ]
+  // Centered coordinates
+  let pts : Array[Array[Double]] = []
+  for r in [r1, r2, r3, r4, r5] {
+    pts.push([r[0] - r0[0], r[1] - r0[1], r[2] - r0[2]])
+  }
+  // R1 = sum r_j * sin(2pi*j/5), R2 = sum r_j * cos(2pi*j/5)
+  let mut r1x = 0.0
+  let mut r1y = 0.0
+  let mut r1z = 0.0
+  let mut r2x = 0.0
+  let mut r2y = 0.0
+  let mut r2z = 0.0
+  for j = 0; j < 5; j = j + 1 {
+    let angle = 2.0 * @math.pi * j.to_double() / 5.0
+    let s = @math.sin(angle)
+    let c = @math.cos(angle)
+    r1x = r1x + pts[j][0] * s
+    r1y = r1y + pts[j][1] * s
+    r1z = r1z + pts[j][2] * s
+    r2x = r2x + pts[j][0] * c
+    r2y = r2y + pts[j][1] * c
+    r2z = r2z + pts[j][2] * c
+  }
+  // n = (R1 x R2) normalized
+  let nx = r1y * r2z - r1z * r2y
+  let ny = r1z * r2x - r1x * r2z
+  let nz = r1x * r2y - r1y * r2x
+  let nmag = (nx * nx + ny * ny + nz * nz).sqrt()
+  if nmag < 1.0e-10 {
+    return 0.0
+  }
+  let n = [nx / nmag, ny / nmag, nz / nmag]
+  // Project onto n
+  let ds : Array[Double] = []
+  for p in pts {
+    ds.push(p[0] * n[0] + p[1] * n[1] + p[2] * n[2])
+  }
+  // D = -sqrt(2/5) * sum d_j * sin(4pi*j/5)
+  // C =  sqrt(2/5) * sum d_j * cos(4pi*j/5)
+  let mut d_val = 0.0
+  let mut c_val = 0.0
+  for j = 0; j < 5; j = j + 1 {
+    let angle = 4.0 * @math.pi * j.to_double() / 5.0
+    d_val = d_val + ds[j] * @math.sin(angle)
+    c_val = c_val + ds[j] * @math.cos(angle)
+  }
+  let sqrt_2_5 = (2.0 / 5.0).sqrt()
+  d_val = d_val * -1.0 * sqrt_2_5
+  c_val = c_val * sqrt_2_5
+  let phase = (@math.atan2(d_val, c_val) + @math.pi / 2.0) * 180.0 / @math.pi
+  let result = phase % 360.0
+  if result < 0.0 { result + 360.0 } else { result }
+}
+
+///|
+/// Sugar pucker phase angle using the AS (Altona-Sundaralingam) method.
+/// `sugar_atoms` = [O4', C1', C2', C3', C4'] — the 5 ribose ring atoms.
+/// Computes 5 pseudo-torsion angles from consecutive quadruples,
+/// then Fourier-transforms them. Returns phase angle in degrees [0, 360).
+pub fn mdanalysis_phase_as(
+  sugar_atoms : Array[Array[Double]],
+) -> Double {
+  if sugar_atoms.length() < 5 {
+    return 0.0
+  }
+  let o4p = sugar_atoms[0]
+  let c1p = sugar_atoms[1]
+  let c2p = sugar_atoms[2]
+  let c3p = sugar_atoms[3]
+  let c4p = sugar_atoms[4]
+  // 5 pseudo-torsions nu0..nu4
+  let nu0 = chem_dihedral_angle(c4p, o4p, c1p, c2p)
+  let nu1 = chem_dihedral_angle(o4p, c1p, c2p, c3p)
+  let nu2 = chem_dihedral_angle(c1p, c2p, c3p, c4p)
+  let nu3 = chem_dihedral_angle(c2p, c3p, c4p, o4p)
+  let nu4 = chem_dihedral_angle(c3p, c4p, o4p, c1p)
+  let nus = [nu0, nu1, nu2, nu3, nu4]
+  // B = -2/5 * sum nu_j * sin(4pi*j/5)
+  // A =  2/5 * sum nu_j * cos(4pi*j/5)
+  let mut b_val = 0.0
+  let mut a_val = 0.0
+  for j = 0; j < 5; j = j + 1 {
+    let angle = 4.0 * @math.pi * j.to_double() / 5.0
+    b_val = b_val + nus[j] * @math.sin(angle)
+    a_val = a_val + nus[j] * @math.cos(angle)
+  }
+  b_val = b_val * -2.0 / 5.0
+  a_val = a_val * 2.0 / 5.0
+  let phase = @math.atan2(b_val, a_val) * 180.0 / @math.pi
+  let result = phase % 360.0
+  if result < 0.0 { result + 360.0 } else { result }
+}
+
+// ============================================================================
+// Leaflet Finder (MDAnalysis.analysis.leaflet.LeafletFinder)
+// ============================================================================
+
+///|
+/// Identify lipid bilayer leaflets using a distance-based connectivity graph.
+/// `head_positions` are the 3D coordinates of lipid head-group atoms.
+/// Atoms within `cutoff` Angstroms of each other are considered connected;
+/// connected components define the leaflets.
+/// Returns an array of leaflet indices (0-based) per atom.
+pub fn mdanalysis_leaflet_finder(
+  head_positions : Array[Array[Double]],
+  cutoff : Double,
+) -> Array[Int] {
+  let n = head_positions.length()
+  if n == 0 {
+    return []
+  }
+  // Union-Find
+  let parent : Array[Int] = Array::makei(n, fn(i) { i })
+  let find = fn(parent : Array[Int], x : Int) -> Int {
+    let mut root = x
+    while parent[root] != root {
+      root = parent[root]
+    }
+    let mut curr = x
+    while parent[curr] != root {
+      let next = parent[curr]
+      parent[curr] = root
+      curr = next
+    }
+    root
+  }
+  let cutoff_sq = cutoff * cutoff
+  for i = 0; i < n; i = i + 1 {
+    for j = i + 1; j < n; j = j + 1 {
+      if mda_sq_dist(head_positions[i], head_positions[j]) < cutoff_sq {
+        let ri = find(parent, i)
+        let rj = find(parent, j)
+        if ri != rj {
+          parent[ri] = rj
+        }
+      }
+    }
+  }
+  // Assign leaflet indices
+  let labels : Array[Int] = Array::make(n, -1)
+  let mut n_leaflets = 0
+  for i = 0; i < n; i = i + 1 {
+    let root = find(parent, i)
+    if labels[root] == -1 {
+      labels[root] = n_leaflets
+      n_leaflets = n_leaflets + 1
+    }
+    labels[i] = labels[root]
+  }
+  labels
+}
+
+// ============================================================================
+// BAT: Bond-Angle-Torsion Internal Coordinates
+// (MDAnalysis.analysis.bat.BAT)
+// ============================================================================
+
+///|
+/// BAT root-atom parameters from 3 root atoms.
+/// Returns (phi, theta, omega, r01, r12, a012) where:
+/// - phi, theta: polar angles of the bond vector p0->p1
+/// - omega: rotation angle about the bond axis
+/// - r01: distance p0-p1
+/// - r12: distance p1-p2
+/// - a012: angle p0-p1-p2 (radians)
+pub fn mdanalysis_bat_root(
+  p0 : Array[Double],
+  p1 : Array[Double],
+  p2 : Array[Double],
+) -> (Double, Double, Double, Double, Double, Double) {
+  let v01 = [p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]]
+  let v21 = [p1[0] - p2[0], p1[1] - p2[1], p1[2] - p2[2]]
+  let r01 = (v01[0] * v01[0] + v01[1] * v01[1] + v01[2] * v01[2]).sqrt()
+  let r12 = (v21[0] * v21[0] + v21[1] * v21[1] + v21[2] * v21[2]).sqrt()
+  let dot = v01[0] * v21[0] + v01[1] * v21[1] + v01[2] * v21[2]
+  let cos_a = if r01 > 0.0 && r12 > 0.0 {
+    let c = dot / (r01 * r12)
+    if c > 1.0 { 1.0 } else if c < -1.0 { -1.0 } else { c }
+  } else {
+    1.0
+  }
+  let a012 = @math.acos(cos_a)
+  let phi = @math.atan2(v01[1], v01[0])
+  let theta = @math.acos(if r01 > 0.0 { v01[2] / r01 } else { 1.0 })
+  // Rotation to z axis: Rz . (p2 - p1)
+  let cp = @math.cos(phi)
+  let sp = @math.sin(phi)
+  let ct = @math.cos(theta)
+  let st = @math.sin(theta)
+  let dp = [p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]]
+  let pos2_0 = cp * ct * dp[0] + ct * sp * dp[1] - st * dp[2]
+  let pos2_1 = -sp * dp[0] + cp * dp[1]
+  let omega = @math.atan2(pos2_1, pos2_0)
+  (phi, theta, omega, r01, r12, a012)
+}
+
+///|
+/// BAT internal coordinates for a chain of atoms.
+/// Given 4 arrays of consecutive atom positions (ag1, ag2, ag3, ag4),
+/// computes bonds (ag1-ag2), angles (ag1-ag2-ag3), and torsions (ag1-ag2-ag3-ag4).
+/// Returns (bonds, angles, torsions) where each array has length = len(ag1).
+pub fn mdanalysis_bat_internal(
+  ag1 : Array[Array[Double]],
+  ag2 : Array[Array[Double]],
+  ag3 : Array[Array[Double]],
+  ag4 : Array[Array[Double]],
+) -> (Array[Double], Array[Double], Array[Double]) {
+  let n = ag1.length()
+  let bonds : Array[Double] = Array(capacity=n)
+  let angles : Array[Double] = Array(capacity=n)
+  let torsions : Array[Double] = Array(capacity=n)
+  for i = 0; i < n; i = i + 1 {
+    // Bond: dist(ag1[i], ag2[i])
+    let dx = ag2[i][0] - ag1[i][0]
+    let dy = ag2[i][1] - ag1[i][1]
+    let dz = ag2[i][2] - ag1[i][2]
+    bonds.push((dx * dx + dy * dy + dz * dz).sqrt())
+    // Angle: ag1[i]-ag2[i]-ag3[i]
+    let v1 = [ag1[i][0] - ag2[i][0], ag1[i][1] - ag2[i][1], ag1[i][2] - ag2[i][2]]
+    let v2 = [ag3[i][0] - ag2[i][0], ag3[i][1] - ag2[i][1], ag3[i][2] - ag2[i][2]]
+    let m1 = (v1[0] * v1[0] + v1[1] * v1[1] + v1[2] * v1[2]).sqrt()
+    let m2 = (v2[0] * v2[0] + v2[1] * v2[1] + v2[2] * v2[2]).sqrt()
+    let cos_ang = if m1 > 0.0 && m2 > 0.0 {
+      let c = (v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2]) / (m1 * m2)
+      if c > 1.0 { 1.0 } else if c < -1.0 { -1.0 } else { c }
+    } else {
+      1.0
+    }
+    angles.push(@math.acos(cos_ang))
+    // Torsion: ag1[i]-ag2[i]-ag3[i]-ag4[i]
+    torsions.push(chem_dihedral_angle(ag1[i], ag2[i], ag3[i], ag4[i]) * @math.pi / 180.0)
+  }
+  (bonds, angles, torsions)
+}
