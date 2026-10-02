@@ -326,3 +326,563 @@ pub fn morgan_fingerprint(mol : Molecule, radius : Int) -> Array[Int] {
 
   fingerprint
 }
+
+// ============================================================================
+// Adjacency list, distance matrix, ring perception
+// ============================================================================
+
+///|
+/// Build an adjacency list: neighbors[i] = array of (neighbor, bond_order).
+pub fn mol_adjacency(mol : Molecule) -> Array[Array[(Int, Int)]] {
+  let n = mol.atoms.length()
+  let neighbors : Array[Array[(Int, Int)]] = Array(capacity=0)
+  for _k = 0; _k < n; _k = _k + 1 {
+    neighbors.push([])
+  }
+  for b in mol.bonds {
+    neighbors[b.from].push((b.to, b.order))
+    neighbors[b.to].push((b.from, b.order))
+  }
+  neighbors
+}
+
+///|
+/// BFS shortest path from a single source. Returns dist array (-1 = unreachable).
+fn mol_bfs_single(
+  neighbors : Array[Array[(Int, Int)]],
+  src : Int,
+  n : Int,
+) -> Array[Int] {
+  let dist = Array::make(n, -1)
+  dist[src] = 0
+  let queue : Array[Int] = [src]
+  let mut head = 0
+  while head < queue.length() {
+    let u = queue[head]
+    head = head + 1
+    for (v, _) in neighbors[u] {
+      if dist[v] == -1 {
+        dist[v] = dist[u] + 1
+        queue.push(v)
+      }
+    }
+  }
+  dist
+}
+
+///|
+/// Topological distance matrix (all-pairs shortest path via BFS).
+/// Returns n x n matrix; dist[i][j] = number of bonds between atoms i and j.
+/// -1 means unreachable (disconnected graph).
+pub fn mol_distance_matrix(mol : Molecule) -> Array[Array[Int]] {
+  let n = mol.atoms.length()
+  let neighbors = mol_adjacency(mol)
+  let matrix : Array[Array[Int]] = Array(capacity=0)
+  for i = 0; i < n; i = i + 1 {
+    matrix.push(mol_bfs_single(neighbors, i, n))
+  }
+  matrix
+}
+
+///|
+/// Get the bond order between two atoms (0 if not bonded).
+pub fn mol_bond_order(mol : Molecule, a : Int, b : Int) -> Int {
+  for bond in mol.bonds {
+    if (bond.from == a && bond.to == b) || (bond.from == b && bond.to == a) {
+      return bond.order
+    }
+  }
+  0
+}
+
+///|
+/// Degree (number of neighbors) of an atom.
+pub fn mol_degree(mol : Molecule, atom : Int) -> Int {
+  let mut count = 0
+  for b in mol.bonds {
+    if b.from == atom || b.to == atom {
+      count = count + 1
+    }
+  }
+  count
+}
+
+///|
+/// Find all unique rings via cycle basis (SSSR-lite).
+/// For each non-tree edge, find the fundamental cycle.
+/// Returns array of rings, each ring is an array of atom indices.
+pub fn mol_find_rings(mol : Molecule) -> Array[Array[Int]] {
+  let n = mol.atoms.length()
+  let neighbors = mol_adjacency(mol)
+  let parent = Array::make(n, -1)
+  let visited = Array::make(n, false)
+  let tree_edges : Array[(Int, Int)] = Array(capacity=0)
+  let non_tree_edges : Array[(Int, Int)] = Array(capacity=0)
+  let queue : Array[Int] = Array(capacity=0)
+  for start = 0; start < n; start = start + 1 {
+    if visited[start] {
+      continue
+    }
+    visited[start] = true
+    queue.push(start)
+    let mut head = 0
+    while head < queue.length() {
+      let u = queue[head]
+      head = head + 1
+      for (v, _) in neighbors[u] {
+        if not(visited[v]) {
+          visited[v] = true
+          parent[v] = u
+          tree_edges.push((u, v))
+          queue.push(v)
+        } else if v > u {
+          let mut is_tree = false
+          for (te1, te2) in tree_edges {
+            if (te1 == u && te2 == v) || (te1 == v && te2 == u) {
+              is_tree = true
+              break
+            }
+          }
+          if not(is_tree) {
+            non_tree_edges.push((u, v))
+          }
+        }
+      }
+    }
+  }
+  let rings : Array[Array[Int]] = Array(capacity=0)
+  for (u, v) in non_tree_edges {
+    let path = mol_tree_path(parent, u, v)
+    if path.length() > 2 {
+      rings.push(path)
+    }
+  }
+  rings
+}
+
+///|
+/// Find path between two nodes in a tree via parent pointers.
+fn mol_tree_path(
+  parent : Array[Int],
+  u : Int,
+  v : Int,
+) -> Array[Int] {
+  let path_u : Array[Int] = Array(capacity=0)
+  let mut cur = u
+  while cur != -1 {
+    path_u.push(cur)
+    cur = parent[cur]
+  }
+  let path_v : Array[Int] = Array(capacity=0)
+  cur = v
+  while cur != -1 {
+    path_v.push(cur)
+    cur = parent[cur]
+  }
+  let set_u : Map[Int, Bool] = Map([], capacity=0)
+  for a in path_u {
+    set_u[a] = true
+  }
+  let mut lca = -1
+  let mut lca_v_idx = -1
+  for i = 0; i < path_v.length(); i = i + 1 {
+    match set_u.get(path_v[i]) {
+      Some(_) => {
+        lca = path_v[i]
+        lca_v_idx = i
+        break
+      }
+      None => ()
+    }
+  }
+  if lca == -1 {
+    return [u, v]
+  }
+  let result : Array[Int] = Array(capacity=0)
+  let mut idx_u = 0
+  while path_u[idx_u] != lca {
+    result.push(path_u[idx_u])
+    idx_u = idx_u + 1
+  }
+  result.push(lca)
+  let mut j = lca_v_idx - 1
+  while j >= 0 {
+    result.push(path_v[j])
+    j = j - 1
+  }
+  result
+}
+
+///|
+/// Check if an atom is in a ring.
+pub fn mol_is_in_ring(mol : Molecule, atom : Int) -> Bool {
+  let rings = mol_find_rings(mol)
+  for ring in rings {
+    for a in ring {
+      if a == atom {
+        return true
+      }
+    }
+  }
+  false
+}
+
+///|
+/// Count the number of rings (ring count = number of fundamental cycles).
+pub fn mol_ring_count(mol : Molecule) -> Int {
+  mol_find_rings(mol).length()
+}
+
+///|
+/// Check if a ring is aromatic (all atoms aromatic or Huckel 4n+2 rule).
+fn mol_is_aromatic_ring(
+  mol : Molecule,
+  ring : Array[Int],
+) -> Bool {
+  let mut all_aromatic = true
+  for a in ring {
+    if not(mol.atoms[a].aromatic) {
+      all_aromatic = false
+    }
+  }
+  if all_aromatic {
+    return true
+  }
+  let ring_size = ring.length()
+  if ring_size < 3 || ring_size > 7 {
+    return false
+  }
+  let mut pi_electrons = 0
+  for i = 0; i < ring_size; i = i + 1 {
+    let atom = ring[i]
+    let a = mol.atoms[atom]
+    let deg = mol_degree(mol, atom)
+    if a.aromatic {
+      pi_electrons += 1
+    } else if a.symbol == "N" && deg == 3 {
+      pi_electrons += 2
+    } else if a.symbol == "O" && deg == 2 {
+      pi_electrons += 2
+    } else if a.symbol == "S" && deg == 2 {
+      pi_electrons += 2
+    } else if a.symbol == "N" && deg == 2 {
+      pi_electrons += 1
+    } else if a.symbol == "C" {
+      pi_electrons += 1
+    } else {
+      pi_electrons += 1
+    }
+  }
+  let mut n = 0
+  while 4 * n + 2 <= pi_electrons {
+    if 4 * n + 2 == pi_electrons {
+      return true
+    }
+    n = n + 1
+  }
+  false
+}
+
+///|
+/// Count aromatic rings.
+pub fn mol_aromatic_ring_count(mol : Molecule) -> Int {
+  let rings = mol_find_rings(mol)
+  let mut count = 0
+  for ring in rings {
+    if mol_is_aromatic_ring(mol, ring) {
+      count = count + 1
+    }
+  }
+  count
+}
+
+///|
+/// Count saturated rings (all single bonds).
+pub fn mol_saturated_ring_count(mol : Molecule) -> Int {
+  let rings = mol_find_rings(mol)
+  let mut count = 0
+  for ring in rings {
+    let mut all_single = true
+    let rs = ring.length()
+    for i = 0; i < rs; i = i + 1 {
+      let j = (i + 1) % rs
+      let bo = mol_bond_order(mol, ring[i], ring[j])
+      if bo != 1 && bo != 0 {
+        all_single = false
+      }
+    }
+    if all_single {
+      count = count + 1
+    }
+  }
+  count
+}
+
+// ============================================================================
+// Kekulization / Aromaticity perception
+// ============================================================================
+
+///|
+/// Perceive aromaticity: mark atoms as aromatic if in aromatic rings (Huckel 4n+2).
+pub fn mol_perceive_aromaticity(mol : Molecule) -> Molecule {
+  let rings = mol_find_rings(mol)
+  let new_atoms : Array[MolAtom] = Array(capacity=0)
+  for a in mol.atoms {
+    new_atoms.push(MolAtom::{ symbol: a.symbol, charge: a.charge, aromatic: a.aromatic })
+  }
+  for ring in rings {
+    if mol_is_aromatic_ring(mol, ring) {
+      for a_idx in ring {
+        new_atoms[a_idx] = MolAtom::{
+          symbol: new_atoms[a_idx].symbol,
+          charge: new_atoms[a_idx].charge,
+          aromatic: true,
+        }
+      }
+    }
+  }
+  Molecule::{ atoms: new_atoms, bonds: mol.bonds }
+}
+
+///|
+/// Kekulize: assign alternating single/double bonds to aromatic rings.
+pub fn mol_kekulize(mol : Molecule) -> Molecule {
+  let rings = mol_find_rings(mol)
+  let new_bonds : Array[MolBond] = Array(capacity=0)
+  for b in mol.bonds {
+    new_bonds.push(MolBond::{ from: b.from, to: b.to, order: b.order })
+  }
+  for ring in rings {
+    if not(mol_is_aromatic_ring(mol, ring)) {
+      continue
+    }
+    let rs = ring.length()
+    for i = 0; i < rs; i = i + 1 {
+      let j = (i + 1) % rs
+      let a1 = ring[i]
+      let a2 = ring[j]
+      for bi = 0; bi < new_bonds.length(); bi = bi + 1 {
+        let b = new_bonds[bi]
+        if (b.from == a1 && b.to == a2) || (b.from == a2 && b.to == a1) {
+          if i % 2 == 0 {
+            new_bonds[bi] = MolBond::{ from: b.from, to: b.to, order: 2 }
+          } else {
+            new_bonds[bi] = MolBond::{ from: b.from, to: b.to, order: 1 }
+          }
+          break
+        }
+      }
+    }
+  }
+  let new_atoms : Array[MolAtom] = Array(capacity=0)
+  for a in mol.atoms {
+    new_atoms.push(MolAtom::{ symbol: a.symbol, charge: a.charge, aromatic: false })
+  }
+  Molecule::{ atoms: new_atoms, bonds: new_bonds }
+}
+
+// ============================================================================
+// Canonical SMILES generation
+// ============================================================================
+
+///|
+/// Compute Morgan canonical ranks for atoms.
+fn mol_canonical_ranks(mol : Molecule) -> Array[Int] {
+  let n = mol.atoms.length()
+  let neighbors = mol_adjacency(mol)
+  let mut invariants : Array[Int] = Array(capacity=0)
+  for k = 0; k < n; k = k + 1 {
+    let a = mol.atoms[k]
+    let deg = neighbors[k].length()
+    let arom_bit = if a.aromatic { 1 } else { 0 }
+    let elem_val = match a.symbol {
+      "C" => 6
+      "N" => 7
+      "O" => 8
+      "S" => 16
+      "P" => 15
+      "F" => 9
+      "Cl" => 17
+      "Br" => 35
+      "I" => 53
+      "H" => 1
+      "B" => 5
+      _ => 99
+    }
+    invariants.push(elem_val * 1000 + deg * 10 + a.charge * 100 + arom_bit)
+  }
+  let mut changed = true
+  let mut iter = 0
+  while changed && iter < n + 10 {
+    changed = false
+    let new_inv : Array[Int] = Array(capacity=0)
+    for k = 0; k < n; k = k + 1 {
+      let neighbor_invs : Array[Int] = Array(capacity=0)
+      for (nb, order) in neighbors[k] {
+        neighbor_invs.push(invariants[nb] * 10 + order)
+      }
+      for i = 0; i < neighbor_invs.length(); i = i + 1 {
+        for j = i + 1; j < neighbor_invs.length(); j = j + 1 {
+          if neighbor_invs[j] < neighbor_invs[i] {
+            let tmp = neighbor_invs[i]
+            neighbor_invs[i] = neighbor_invs[j]
+            neighbor_invs[j] = tmp
+          }
+        }
+      }
+      let mut combined = invariants[k] * 31
+      for ni in neighbor_invs {
+        combined = combined * 17 + ni
+      }
+      new_inv.push(combined)
+    }
+    for k = 0; k < n; k = k + 1 {
+      if new_inv[k] != invariants[k] {
+        changed = true
+      }
+    }
+    invariants = new_inv
+    iter = iter + 1
+  }
+  let indices : Array[Int] = Array(capacity=0)
+  for k = 0; k < n; k = k + 1 {
+    indices.push(k)
+  }
+  for i = 0; i < n; i = i + 1 {
+    for j = i + 1; j < n; j = j + 1 {
+      if invariants[indices[j]] > invariants[indices[i]] {
+        let tmp = indices[i]
+        indices[i] = indices[j]
+        indices[j] = tmp
+      }
+    }
+  }
+  let ranks = Array::make(n, 0)
+  for i = 0; i < n; i = i + 1 {
+    ranks[indices[i]] = i
+  }
+  ranks
+}
+
+///|
+/// SMILES symbol for an atom (lowercase if aromatic).
+fn mol_smiles_symbol(a : MolAtom) -> String {
+  if a.aromatic {
+    let mut s = a.symbol
+    if s.length() == 1 {
+      let c = s[0].unsafe_to_char().to_int()
+      if c >= 65 && c <= 90 {
+        let lower = (c + 32).unsafe_to_char()
+        s = lower.to_string()
+      }
+    }
+    s
+  } else {
+    a.symbol
+  }
+}
+
+///|
+/// Bond symbol for SMILES output.
+fn mol_bond_symbol(order : Int, aromatic : Bool) -> String {
+  if aromatic {
+    ""
+  } else {
+    match order {
+      1 => ""
+      2 => "="
+      3 => "#"
+      _ => ""
+    }
+  }
+}
+///|
+/// Recursive DFS helper for SMILES generation.
+fn mol_smiles_dfs(
+  mol : Molecule,
+  atom : Int,
+  parent : Int,
+  visited : Array[Bool],
+  neighbors : Array[Array[(Int, Int)]],
+  ranks : Array[Int],
+  ring_num : Map[(Int, Int), Int],
+  ring_counter : Ref[Int],
+  result : StringBuilder,
+) -> Unit {
+  visited[atom] = true
+  if parent >= 0 {
+    let bo = mol_bond_order(mol, parent, atom)
+    let arom = mol.atoms[parent].aromatic && mol.atoms[atom].aromatic
+    result.write_string(mol_bond_symbol(bo, arom))
+  }
+  result.write_string(mol_smiles_symbol(mol.atoms[atom]))
+  // Collect ring closures and unvisited neighbors
+  let ring_neighbors : Array[Int] = Array(capacity=0)
+  let unvisited : Array[Int] = Array(capacity=0)
+  for (nb, _) in neighbors[atom] {
+    if visited[nb] && nb != parent {
+      ring_neighbors.push(nb)
+    } else if not(visited[nb]) {
+      unvisited.push(nb)
+    }
+  }
+  // Handle ring closures
+  for rn in ring_neighbors {
+    let key = if atom < rn { (atom, rn) } else { (rn, atom) }
+    match ring_num.get(key) {
+      Some(num) => result.write_string(num.to_string())
+      None => {
+        ring_num[key] = ring_counter.val
+        result.write_string(ring_counter.val.to_string())
+        ring_counter.val = ring_counter.val + 1
+      }
+    }
+  }
+  // Sort unvisited by rank (ascending = best first)
+  for i = 0; i < unvisited.length(); i = i + 1 {
+    for j = i + 1; j < unvisited.length(); j = j + 1 {
+      if ranks[unvisited[j]] < ranks[unvisited[i]] {
+        let tmp = unvisited[i]
+        unvisited[i] = unvisited[j]
+        unvisited[j] = tmp
+      }
+    }
+  }
+  // Visit first child inline, rest as branches
+  for i = 0; i < unvisited.length(); i = i + 1 {
+    if i > 0 {
+      result.write_string("(")
+    }
+    mol_smiles_dfs(mol, unvisited[i], atom, visited, neighbors, ranks, ring_num, ring_counter, result)
+    if i > 0 {
+      result.write_string(")")
+    }
+  }
+}
+
+///|
+/// Generate canonical SMILES from a Molecule.
+/// Uses Morgan invariant-based atom ordering + DFS traversal.
+pub fn mol_to_smiles(mol : Molecule) -> String {
+  let n = mol.atoms.length()
+  if n == 0 {
+    return ""
+  }
+  if n == 1 {
+    return mol_smiles_symbol(mol.atoms[0])
+  }
+  let neighbors = mol_adjacency(mol)
+  let ranks = mol_canonical_ranks(mol)
+  let mut start = 0
+  for k = 1; k < n; k = k + 1 {
+    if ranks[k] < ranks[start] {
+      start = k
+    }
+  }
+  let visited = Array::make(n, false)
+  let ring_num : Map[(Int, Int), Int] = Map([], capacity=0)
+  let ring_counter = Ref::new(1)
+  let result : StringBuilder = StringBuilder()
+  mol_smiles_dfs(mol, start, -1, visited, neighbors, ranks, ring_num, ring_counter, result)
+  result.to_string()
+}
