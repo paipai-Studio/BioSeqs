@@ -85,6 +85,43 @@ fn mol_digit_value(c : UInt16) -> Int {
 /// Lowercase letters are aromatic atoms (c/n/o/s/p); uppercase starts a normal
 /// element (1 or 2 letters), and a bracket `[...]` is handled inline by taking
 /// the first element symbol inside.
+fn mol_is_valid_element(s : String) -> Bool {
+  match s {
+    "Cl" => true
+    "Br" => true
+    "Si" => true
+    "Na" => true
+    "Ca" => true
+    "Fe" => true
+    "Mg" => true
+    "Al" => true
+    "Zn" => true
+    "Cu" => true
+    "Ni" => true
+    "Li" => true
+    "He" => true
+    "Ne" => true
+    "Ar" => true
+    "Kr" => true
+    "Xe" => true
+    "Rb" => true
+    "Sr" => true
+    "Ag" => true
+    "Cd" => true
+    "Sn" => true
+    "Sb" => true
+    "Cs" => true
+    "Ba" => true
+    "Hg" => true
+    "Pb" => true
+    "Bi" => true
+    "Se" => true
+    "Te" => true
+    _ => false
+  }
+}
+
+///|
 fn mol_parse_element(s : String, i : Int) -> (String, Bool, Int) {
   let n = s.length()
   let c = s.unsafe_get(i)
@@ -93,12 +130,19 @@ fn mol_parse_element(s : String, i : Int) -> (String, Bool, Int) {
     let sym = mol_upper_symbol(c)
     (sym, true, 1)
   } else if mol_is_upper(c) {
-    // 两字母元素（Cl/Br/Si...）
+    // 两字母元素（Cl/Br/Si...）— only if valid two-letter element
     if i + 1 < n && mol_is_lower(s.unsafe_get(i + 1)) {
       let sb = StringBuilder()
       sb.write_char(c.unsafe_to_char())
       sb.write_char(s.unsafe_get(i + 1).unsafe_to_char())
-      (sb.to_string(), false, 2)
+      let two = sb.to_string()
+      if mol_is_valid_element(two) {
+        (two, false, 2)
+      } else {
+        let sb2 = StringBuilder()
+        sb2.write_char(c.unsafe_to_char())
+        (sb2.to_string(), false, 1)
+      }
     } else {
       let sb = StringBuilder()
       sb.write_char(c.unsafe_to_char())
