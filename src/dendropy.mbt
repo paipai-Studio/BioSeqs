@@ -958,3 +958,57 @@ pub fn dendropy_cherry_count(clade : Clade) -> Int {
   }
   count
 }
+
+
+///|
+// =========================================================================
+// B2 index (Shao & Sokal 1990)
+//   B2(T) = -Σ_{x ∈ leaves} p_x * log(p_x)
+//   where p_x = Π_{v ∈ anc(x)} 1/|child(v)| is the probability of
+//   reaching leaf x under equiprobable branching.
+//   Default log base 2 (standard for binary trees).
+// Reference: Shao & Sokal, Systematic Zoology 39(3):266, 1990.
+// =========================================================================
+
+///|
+/// Compute B2 index with log base 2 (standard for binary trees).
+pub fn dendropy_b2(clade : Clade) -> Double {
+  dendropy_b2_base(clade, 2.0)
+}
+
+///|
+/// Compute B2 index with a custom log base.
+pub fn dendropy_b2_base(clade : Clade, log_base : Double) -> Double {
+  // Collect (probability) for each leaf
+  let probs : Array[Double] = Array(capacity=0)
+  b2_collect_probs(clade, 1.0, probs)
+  if probs.length() <= 1 {
+    return 0.0
+  }
+  let log_b = @math.ln(log_base) // ln(base) for change of base
+  let mut b2 = 0.0
+  for p in probs {
+    if p > 0.0 {
+      b2 = b2 - p * (@math.ln(p) / log_b)
+    }
+  }
+  b2
+}
+
+///|
+/// Recursively collect leaf probabilities.
+fn b2_collect_probs(
+  clade : Clade,
+  prob : Double,
+  probs : Array[Double],
+) -> Unit {
+  if clade.is_terminal() {
+    probs.push(prob)
+    return
+  }
+  let n_children = clade.clades.length()
+  let child_prob = prob / n_children.to_double()
+  for ch in clade.clades {
+    b2_collect_probs(ch, child_prob, probs)
+  }
+}
