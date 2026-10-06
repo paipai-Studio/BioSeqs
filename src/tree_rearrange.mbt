@@ -249,3 +249,226 @@ pub fn phylo_nni_neighbors(clade : Clade) -> Array[Clade] {
   }
   neighbors
 }
+
+
+///|
+// =========================================================================
+// SPR (Subtree Prune and Regraft) move (ete3)
+//   1. Prune: cut the edge above a non-root node, detaching its subtree
+//   2. Suppress any unary node left in the remaining tree
+//   3. Regraft: insert the pruned subtree on a different edge
+//   Uses a mutable parent-array representation for clean manipulation.
+// =========================================================================
+
+///|
+/// Apply an SPR move: prune the subtree at `prune_node` and regraft it
+/// onto the edge above `regraft_node` in the remaining tree.
+/// Both are node IDs from a preorder flattening (0 = root).
+/// Returns the modified tree, or the original if the move is invalid.
+pub fn phylo_spr_move(
+  clade : Clade,
+  prune_node : Int,
+  regraft_node : Int,
+) -> Clade {
+  let nodes = flatten_tree(clade)
+  let n = nodes.length()
+  if n <= 2 || prune_node <= 0 || prune_node >= n {
+    return clade
+  }
+  if regraft_node <= 0 || regraft_node >= n || regraft_node == prune_node {
+    return clade
+  }
+  // Check regraft_node is not in the pruned subtree
+  if spr_is_descendant(nodes, prune_node, regraft_node) {
+    return clade
+  }
+  // Mutable parent array and branch length array
+  let parent : Array[Int] = Array(capacity=n)
+  let bl : Array[Double] = Array(capacity=n)
+  for i in 0..<n {
+    parent.push(nodes[i].parent_id)
+    bl.push(nodes[i].branch_length)
+  }
+  // Step 1: Prune — detach prune_node from its parent
+  let prune_parent = parent[prune_node]
+  let prune_bl = bl[prune_node]
+  parent[prune_node] = -1
+  bl[prune_node] = 0.0
+  // Step 2: Suppress unary node at prune_parent in remaining tree
+  // Count children of prune_parent (excluding pruned subtree)
+  let mut root_id = 0
+  let mut pp_children = 0
+  let mut pp_remaining_child = -1
+  for i in 0..<n {
+    if i != prune_node && parent[i] == prune_parent {
+      // Check i is not in pruned subtree
+      if not(spr_is_descendant_arr(parent, prune_node, i)) {
+        pp_children = pp_children + 1
+        pp_remaining_child = i
+      }
+    }
+  }
+  if pp_children == 1 && prune_parent != 0 {
+    // Suppress: connect remaining child to prune_parent's parent
+    let pp_parent = parent[prune_parent]
+    let combined_bl = bl[prune_parent] + bl[pp_remaining_child]
+    parent[pp_remaining_child] = pp_parent
+    bl[pp_remaining_child] = combined_bl
+    // Mark prune_parent as removed
+    parent[prune_parent] = -2
+  } else if pp_children == 1 && prune_parent == 0 {
+    // Root became unary — remaining child is new root
+    root_id = pp_remaining_child
+    parent[pp_remaining_child] = -1
+    bl[pp_remaining_child] = 0.0
+    parent[prune_parent] = -2
+  }
+  // Step 3: Regraft — insert pruned subtree on edge above regraft_node
+  // Find regraft_node's current parent (may have changed due to suppression)
+  let rg_parent = parent[regraft_node]
+  if rg_parent < 0 {
+    return clade
+  }
+  let rg_bl = bl[regraft_node]
+  // Create a new node (index n)
+  parent.push(-1)
+  bl.push(0.0)
+  let new_node = n
+  // Insert new_node on the edge: rg_parent → new_node → regraft_node
+  // and new_node → prune_node
+  parent[new_node] = rg_parent
+  bl[new_node] = rg_bl / 2.0
+  parent[regraft_node] = new_node
+  bl[regraft_node] = rg_bl / 2.0
+  parent[prune_node] = new_node
+  bl[prune_node] = prune_bl
+  // Step 4: Rebuild Clade tree from root_id
+  spr_rebuild_from_parent(root_id, -1, 0.0, parent, bl, nodes, new_node)
+}
+
+///|
+/// Check if `desc` is a descendant of `anc` using the flat node array.
+fn spr_is_descendant(
+  nodes : Array[FlatNode],
+  anc : Int,
+  desc : Int,
+) -> Bool {
+  if desc == anc {
+    return true
+  }
+  let mut cur = nodes[desc].parent_id
+  while cur >= 0 {
+    if cur == anc {
+      return true
+    }
+    cur = nodes[cur].parent_id
+  }
+  false
+}
+
+///|
+/// Check if `desc` is a descendant of `anc` using a parent array.
+fn spr_is_descendant_arr(
+  parent : Array[Int],
+  anc : Int,
+  desc : Int,
+) -> Bool {
+  if desc == anc {
+    return true
+  }
+  let mut cur = parent[desc]
+  let mut count = 0
+  while cur >= 0 && count < parent.length() + 1 {
+    if cur == anc {
+      return true
+    }
+    cur = parent[cur]
+    count = count + 1
+  }
+  false
+}
+
+///|
+/// Rebuild a Clade tree from a parent array, starting at root.
+fn spr_rebuild_from_parent(
+  node_id : Int,
+  parent_id : Int,
+  bl_to_parent : Double,
+  parent : Array[Int],
+  bl : Array[Double],
+  nodes : Array[FlatNode],
+  new_node_id : Int,
+) -> Clade {
+  let node_name : String? = if node_id == new_node_id {
+    Some("spr_node")
+  } else {
+    nodes[node_id].name
+  }
+  // Find all children (nodes whose parent is node_id)
+  let children : Array[Clade] = Array(capacity=0)
+  for i in 0..<parent.length() {
+    if parent[i] == node_id {
+      children.push(spr_rebuild_from_parent(
+        i, node_id, bl[i], parent, bl, nodes, new_node_id,
+      ))
+    }
+  }
+  Clade::new(
+    branch_length=Some(bl_to_parent),
+    name=node_name,
+    clades=children,
+  )
+}
+
+///|
+/// Generate all SPR neighbor trees by enumerating valid prune/regraft pairs.
+pub fn phylo_spr_neighbors(clade : Clade) -> Array[Clade] {
+  let nodes = flatten_tree(clade)
+  let n = nodes.length()
+  let neighbors : Array[Clade] = Array(capacity=0)
+  for prune_node in 1..<n {
+    for regraft_node in 1..<n {
+      if regraft_node != prune_node {
+        if not(spr_is_descendant(nodes, prune_node, regraft_node)) {
+          let result = phylo_spr_move(clade, prune_node, regraft_node)
+          if spr_tree_changed(clade, result) {
+            neighbors.push(result)
+          }
+        }
+      }
+    }
+  }
+  neighbors
+}
+
+///|
+/// Check if two trees differ (by leaf name ordering).
+fn spr_tree_changed(a : Clade, b : Clade) -> Bool {
+  let names_a : Array[String] = Array(capacity=0)
+  let names_b : Array[String] = Array(capacity=0)
+  spr_collect_names(a, names_a)
+  spr_collect_names(b, names_b)
+  if names_a.length() != names_b.length() {
+    return true
+  }
+  for i in 0..<names_a.length() {
+    if names_a[i] != names_b[i] {
+      return true
+    }
+  }
+  false
+}
+
+///|
+fn spr_collect_names(clade : Clade, names : Array[String]) -> Unit {
+  if clade.is_terminal() {
+    match clade.name {
+      Some(n) => names.push(n)
+      None => names.push("?")
+    }
+    return
+  }
+  for ch in clade.clades {
+    spr_collect_names(ch, names)
+  }
+}
