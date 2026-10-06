@@ -677,3 +677,238 @@ pub fn phylo_scale_tree(clade : Clade, factor : Double) -> Clade {
     clades=children,
   )
 }
+
+
+///|
+// =========================================================================
+// Random tree generation (DendroPy / ete3)
+//   Yule model: at each step, a random leaf is chosen and split into two.
+//   PDA (Proportional to Distinguishable Arrangements) / uniform model:
+//   at each step, a random edge is chosen to attach a new leaf.
+// =========================================================================
+
+///|
+/// Simple LCG (Linear Congruential Generator) for reproducible randomness.
+pub struct Rng {
+  mut state : UInt64
+}
+
+///|
+/// Create a new RNG with a seed.
+pub fn Rng::new(seed : UInt64) -> Rng {
+  Rng::{ state: seed }
+}
+
+///|
+/// Next random UInt64 (simple LCG).
+pub fn Rng::next_u64(self : Rng) -> UInt64 {
+  self.state = self.state * 6364136223846793005UL + 1442695040888963407UL
+  self.state
+}
+
+///|
+/// Next random Double in [0, 1).
+pub fn Rng::next_double(self : Rng) -> Double {
+  let v = self.next_u64()
+  // Use modulo to get a value in [0, 1000000), then divide
+  (v % 1000000UL).to_double() / 1000000.0
+}
+
+///|
+/// Random integer in [0, n).
+pub fn Rng::randint(self : Rng, n : Int) -> Int {
+  if n <= 0 {
+    return 0
+  }
+  (self.next_double() * n.to_double()).to_int()
+}
+
+///|
+/// Generate a random Yule tree with n leaves.
+/// At each step, a random leaf is chosen and split into two new leaves.
+/// Branch lengths are set to 1.0 (can be scaled afterwards).
+pub fn phylo_random_yule(n : Int, rng : Rng) -> Clade {
+  if n <= 1 {
+    return Clade::new(name=Some("t1"))
+  }
+  // Start with a single leaf
+  let mut tree = Clade::new(name=Some("t1"))
+  // Collect leaves as we grow the tree
+  // We maintain a flat list of leaf references (by path)
+  // Since Clade is immutable, we rebuild the tree at each step
+  for i in 1..<n {
+    tree = yule_add_leaf(tree, i + 1, rng)
+  }
+  tree
+}
+
+///|
+/// Add a new leaf to a random leaf in the tree (Yule process).
+fn yule_add_leaf(tree : Clade, new_id : Int, rng : Rng) -> Clade {
+  // Count leaves
+  let n_leaves = phylo_count_leaves(tree)
+  // Pick a random leaf to split (0-indexed)
+  let target = rng.randint(n_leaves)
+  yule_split_leaf(tree, target, new_id, Counter::new(0))
+}
+
+///|
+/// Mutable counter for tracking leaf index during traversal.
+struct Counter {
+  mut val : Int
+}
+
+///|
+fn Counter::new(v : Int) -> Counter {
+  Counter::{ val: v }
+}
+
+///|
+/// Split the target-th leaf into a cherry with a new leaf.
+fn yule_split_leaf(
+  clade : Clade,
+  target : Int,
+  new_id : Int,
+  counter : Counter,
+) -> Clade {
+  if clade.is_terminal() {
+    if counter.val == target {
+      // Split this leaf into a cherry
+      counter.val = counter.val + 1
+      return Clade::new(
+        name=Some("internal"),
+        clades=[
+          Clade::new(name=clade.name, branch_length=Some(1.0)),
+          Clade::new(name=Some("t" + new_id.to_string()), branch_length=Some(1.0)),
+        ],
+      )
+    }
+    counter.val = counter.val + 1
+    return clade
+  }
+  // Internal node: recurse into children
+  let children : Array[Clade] = Array(capacity=clade.clades.length())
+  for ch in clade.clades {
+    children.push(yule_split_leaf(ch, target, new_id, counter))
+  }
+  Clade::new(
+    branch_length=clade.branch_length,
+    name=clade.name,
+    confidence=clade.confidence,
+    clades=children,
+  )
+}
+
+///|
+/// Generate a random PDA (uniform) tree with n leaves.
+/// At each step, a random edge is chosen and a new leaf is attached to it.
+/// For a rooted tree, edges include all branches (including the root stem).
+pub fn phylo_random_pda(n : Int, rng : Rng) -> Clade {
+  if n <= 1 {
+    return Clade::new(name=Some("t1"))
+  }
+  // Start with a 2-leaf tree
+  let mut tree = Clade::new(
+    name=Some("root"),
+    clades=[
+      Clade::new(name=Some("t1"), branch_length=Some(1.0)),
+      Clade::new(name=Some("t2"), branch_length=Some(1.0)),
+    ],
+  )
+  for i in 2..<n {
+    tree = pda_add_leaf(tree, i + 1, rng)
+  }
+  tree
+}
+
+///|
+/// Add a new leaf to a random edge in the tree (PDA process).
+/// Edges = number of nodes (each node has one edge to its parent,
+/// plus one root stem edge).
+fn pda_add_leaf(tree : Clade, new_id : Int, rng : Rng) -> Clade {
+  // Count edges: for a rooted tree with k leaves, edges = 2*k - 1
+  // (k-1 internal edges + k leaf edges + 1 root stem = 2k)
+  // Actually for PDA on rooted trees, we count all edges including
+  // the root stem. For a tree with n leaves, there are 2n-1 edges
+  // (n leaf edges + (n-1) internal edges + 1 root stem = 2n).
+  // But the standard PDA model counts 2n-1 edges (without root stem).
+  // Let's use 2n-1 edges (no root stem).
+  let n_leaves = phylo_count_leaves(tree)
+  let n_edges = 2 * n_leaves - 1
+  let target_edge = rng.randint(n_edges)
+  let counter = Counter::new(0)
+  pda_insert_on_edge(tree, target_edge, new_id, counter, false)
+}
+
+///|
+/// Insert a new leaf on the target-th edge.
+/// Edges are numbered: 0 = root stem (if include_root), then for each node:
+/// the edge to its parent. We traverse in order.
+fn pda_insert_on_edge(
+  clade : Clade,
+  target : Int,
+  new_id : Int,
+  counter : Counter,
+  include_root_stem : Bool,
+) -> Clade {
+  // Check root stem edge first (if included)
+  if include_root_stem {
+    if counter.val == target {
+      // Insert on root stem: create new root with old tree and new leaf
+      counter.val = counter.val + 1
+      return Clade::new(
+        name=Some("root"),
+        clades=[
+          clade,
+          Clade::new(name=Some("t" + new_id.to_string()), branch_length=Some(1.0)),
+        ],
+      )
+    }
+    counter.val = counter.val + 1
+  }
+  // Check this node's edge to parent (the branch_length edge)
+  if clade.is_terminal() {
+    if counter.val == target {
+      // Insert on leaf edge: split this leaf into cherry
+      counter.val = counter.val + 1
+      return Clade::new(
+        name=Some("internal"),
+        clades=[
+          Clade::new(name=clade.name, branch_length=Some(0.5)),
+          Clade::new(name=Some("t" + new_id.to_string()), branch_length=Some(0.5)),
+        ],
+      )
+    }
+    counter.val = counter.val + 1
+    return clade
+  }
+  // Internal node: check its edge, then recurse
+  if counter.val == target {
+    // Insert on internal edge: split this node
+    counter.val = counter.val + 1
+    return Clade::new(
+      name=Some("internal"),
+      clades=[
+        Clade::new(
+          branch_length=Some(0.5),
+          name=clade.name,
+          confidence=clade.confidence,
+          clades=clade.clades,
+        ),
+        Clade::new(name=Some("t" + new_id.to_string()), branch_length=Some(0.5)),
+      ],
+    )
+  }
+  counter.val = counter.val + 1
+  // Recurse into children
+  let children : Array[Clade] = Array(capacity=clade.clades.length())
+  for ch in clade.clades {
+    children.push(pda_insert_on_edge(ch, target, new_id, counter, false))
+  }
+  Clade::new(
+    branch_length=clade.branch_length,
+    name=clade.name,
+    confidence=clade.confidence,
+    clades=children,
+  )
+}
