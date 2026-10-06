@@ -324,3 +324,156 @@ pub fn phylo_midpoint_root(clade : Clade) -> Clade {
     clades=[subtree_prev, subtree_next],
   )
 }
+
+
+///|
+// =========================================================================
+// Root / Unroot (ete3)
+//   unroot: remove root bifurcation (merge two root children)
+//   root_at_leaf: re-root using a specified outgroup leaf
+// =========================================================================
+
+///|
+/// Unroot a tree: if the root has exactly two children, merge them
+/// into a single multifurcation. One child becomes the new root and
+/// the other is attached with combined branch length.
+/// If the root has != 2 children, the tree is already unrooted — return as-is.
+pub fn phylo_unroot(clade : Clade) -> Clade {
+  if clade.is_terminal() {
+    return clade
+  }
+  if clade.clades.length() != 2 {
+    return clade
+  }
+  let c1 = clade.clades[0]
+  let c2 = clade.clades[1]
+  let bl1 = match c1.branch_length {
+    Some(v) => v
+    None => 0.0
+  }
+  let bl2 = match c2.branch_length {
+    Some(v) => v
+    None => 0.0
+  }
+  let combined_bl = bl1 + bl2
+  // Prefer internal node as new root (to keep root as internal node)
+  let (new_root, other) = if c1.is_terminal() {
+    (c2, c1)
+  } else {
+    (c1, c2)
+  }
+  // If both are leaves (2-leaf tree), can't meaningfully unroot
+  if new_root.is_terminal() {
+    return clade
+  }
+  // Attach `other` as a child of `new_root` with combined branch length
+  let other_with_bl = Clade::new(
+    branch_length=Some(combined_bl),
+    name=other.name,
+    confidence=other.confidence,
+    clades=other.clades,
+  )
+  let children : Array[Clade] = Array(capacity=new_root.clades.length() + 1)
+  for ch in new_root.clades {
+    children.push(ch)
+  }
+  children.push(other_with_bl)
+  Clade::new(
+    branch_length=Some(0.0),
+    name=new_root.name,
+    confidence=new_root.confidence,
+    clades=children,
+  )
+}
+
+///|
+/// Root a tree at a specified outgroup leaf.
+/// Places a new root on the edge above the named leaf, making it the
+/// outgroup. If the leaf is not found, returns the original tree.
+pub fn phylo_root_at_leaf(clade : Clade, outgroup_name : String) -> Clade {
+  let nodes = flatten_tree(clade)
+  let n = nodes.length()
+  if n <= 2 {
+    return clade
+  }
+  // Find the leaf with the given name
+  let mut target_id = -1
+  for i in 0..<n {
+    if nodes[i].is_leaf {
+      match nodes[i].name {
+        Some(nm) => if nm == outgroup_name {
+          target_id = i
+        }
+        None => ()
+      }
+    }
+  }
+  if target_id < 0 {
+    return clade
+  }
+  // If target is already a direct child of root (node 0) and root has 2 children,
+  // the tree is already rooted at this outgroup
+  if nodes[target_id].parent_id == 0 && nodes[0].children.length() == 2 {
+    return clade
+  }
+  let adj = build_adjacency(nodes)
+  let parent_of_target = nodes[target_id].parent_id
+  if parent_of_target < 0 {
+    // target is the root itself
+    return clade
+  }
+  // Get branch length on edge (parent, target)
+  let mut edge_len = 0.0
+  for pair in adj[target_id] {
+    if pair.0 == parent_of_target {
+      edge_len = pair.1
+    }
+  }
+  // Place new root at the midpoint of this edge (or at the parent node)
+  // For outgroup rooting, we place the root at the parent node,
+  // making the outgroup one child and everything else the other child.
+  // If parent is the current root and has 3+ children, just split them.
+  // If parent is deeper, we need to re-root at the parent.
+  // Use the same approach as midpoint: split the edge above target
+  // at distance 0 from target (i.e., at the parent node) — but that
+  // doesn't create a new root on the edge. Instead, let's place the
+  // new root on the edge, at the parent end (distance 0 from parent).
+  // This effectively makes parent the new root with outgroup as one child.
+  // But if parent is the old root, we need to handle it specially.
+  // Simplest: place new root on the edge, splitting it.
+  // Root is at distance edge_len from target (i.e., at parent).
+  // Actually, for outgroup rooting, the standard approach is:
+  // - Put new root on the edge above the outgroup
+  // - Outgroup gets branch_length = edge_len (or edge_len/2)
+  // - The rest gets branch_length = 0 (or edge_len/2)
+  // Let's split at the parent: outgroup keeps its branch_length,
+  // and the rest of the tree is rebuilt from parent avoiding target.
+  // Build subtree from target (the outgroup) — it's a leaf
+  let outgroup_subtree = rebuild_clade(target_id, parent_of_target, edge_len, nodes, adj)
+  // Build subtree from parent (everything except target)
+  let rest_subtree = rebuild_clade(parent_of_target, target_id, 0.0, nodes, adj)
+  // If rest_subtree has only 1 child, collapse it (unroot the rest)
+  let rest_final = if not(rest_subtree.is_terminal()) && rest_subtree.clades.length() == 1 {
+    let child = rest_subtree.clades[0]
+    let child_bl = match child.branch_length {
+      Some(v) => v
+      None => 0.0
+    }
+    let parent_bl = match rest_subtree.branch_length {
+      Some(v) => v
+      None => 0.0
+    }
+    Clade::new(
+      branch_length=Some(child_bl + parent_bl),
+      name=child.name,
+      confidence=child.confidence,
+      clades=child.clades,
+    )
+  } else {
+    rest_subtree
+  }
+  Clade::new(
+    name=Some("root"),
+    clades=[outgroup_subtree, rest_final],
+  )
+}
