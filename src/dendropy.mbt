@@ -928,3 +928,33 @@ fn cl_colless_like_rec(
   }
   total
 }
+
+
+///|
+// =========================================================================
+// Cherry count
+//   A cherry is a pair of sister leaf nodes (an internal node with
+//   exactly two children, both leaves). This is a basic tree shape
+//   statistic used in ete3 and DendroPy.
+// =========================================================================
+
+///|
+/// Count the number of cherries in a rooted tree.
+/// A cherry is an internal node with exactly two children that are both leaves.
+pub fn dendropy_cherry_count(clade : Clade) -> Int {
+  if clade.is_terminal() {
+    return 0
+  }
+  let mut count = 0
+  // Check if this node is a cherry
+  if clade.clades.length() == 2 {
+    if clade.clades[0].is_terminal() && clade.clades[1].is_terminal() {
+      count = 1
+    }
+  }
+  // Recurse into children
+  for ch in clade.clades {
+    count = count + dendropy_cherry_count(ch)
+  }
+  count
+}
