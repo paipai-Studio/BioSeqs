@@ -399,7 +399,9 @@ fn spr_rebuild_from_parent(
   nodes : Array[FlatNode],
   new_node_id : Int,
 ) -> Clade {
-  let node_name : String? = if node_id == new_node_id {
+  let node_name : String? = if node_id >= nodes.length() {
+    Some("tbr_node")
+  } else if node_id == new_node_id {
     Some("spr_node")
   } else {
     nodes[node_id].name
@@ -471,4 +473,185 @@ fn spr_collect_names(clade : Clade, names : Array[String]) -> Unit {
   for ch in clade.clades {
     spr_collect_names(ch, names)
   }
+}
+
+///|
+// =========================================================================
+// TBR (Tree Bisection and Reconnection) move (ete3)
+//   1. Bisect: cut an edge, splitting tree into T1 and T2
+//   2. Reconnect: reroot T1 at an arbitrary edge, then regraft onto T2
+//   TBR is the most general rearrangement; NNI ⊂ SPR ⊂ TBR.
+// =========================================================================
+
+///|
+/// Apply a TBR move:
+/// - `bisect_node`: node whose edge to parent is cut (bisection point)
+/// - `reconnect1`: node in T1 (pruned subtree) to reroot at
+/// - `reconnect2`: node in T2 (remaining tree) to regraft onto
+/// Returns the modified tree, or original if invalid.
+pub fn phylo_tbr_move(
+  clade : Clade,
+  bisect_node : Int,
+  reconnect1 : Int,
+  reconnect2 : Int,
+) -> Clade {
+  let nodes = flatten_tree(clade)
+  let n = nodes.length()
+  if n <= 2 || bisect_node <= 0 || bisect_node >= n {
+    return clade
+  }
+  if reconnect2 <= 0 || reconnect2 >= n || reconnect2 == bisect_node {
+    return clade
+  }
+  // reconnect2 must not be in the pruned subtree (T1)
+  if spr_is_descendant(nodes, bisect_node, reconnect2) {
+    return clade
+  }
+  // reconnect1 must be in T1 (the pruned subtree)
+  if not(spr_is_descendant(nodes, bisect_node, reconnect1)) {
+    return clade
+  }
+  // Mutable parent and branch length arrays
+  let parent : Array[Int] = Array(capacity=n)
+  let bl : Array[Double] = Array(capacity=n)
+  for i in 0..<n {
+    parent.push(nodes[i].parent_id)
+    bl.push(nodes[i].branch_length)
+  }
+  // Step 1: Bisect — detach bisect_node from its parent
+  let bisect_bl = bl[bisect_node]
+  parent[bisect_node] = -1
+  bl[bisect_node] = 0.0
+  // Step 2: Suppress unary node at bisect_parent in T2
+  let bisect_parent = nodes[bisect_node].parent_id
+  let mut root_id = 0
+  // Count remaining children of bisect_parent
+  let mut bp_children = 0
+  let mut bp_remaining = -1
+  for i in 0..<n {
+    if i != bisect_node && parent[i] == bisect_parent && parent[i] >= 0 {
+      bp_children = bp_children + 1
+      bp_remaining = i
+    }
+  }
+  if bp_children == 1 && bisect_parent != 0 {
+    let bp_parent = parent[bisect_parent]
+    let combined = bl[bisect_parent] + bl[bp_remaining]
+    parent[bp_remaining] = bp_parent
+    bl[bp_remaining] = combined
+    parent[bisect_parent] = -2 // removed
+  } else if bp_children == 1 && bisect_parent == 0 {
+    root_id = bp_remaining
+    parent[bp_remaining] = -1
+    bl[bp_remaining] = 0.0
+    parent[bisect_parent] = -2
+  }
+  // Step 3: Reroot T1 at reconnect1
+  // T1 is the subtree rooted at bisect_node.
+  // If reconnect1 == bisect_node, no rerooting needed.
+  // Otherwise, detach reconnect1 from its parent in T1,
+  // and create a new root for T1 with reconnect1 and the rest.
+  let mut t1_root = bisect_node
+  if reconnect1 != bisect_node {
+    // Detach reconnect1 from its parent
+    let r1_parent = parent[reconnect1]
+    let r1_bl = bl[reconnect1]
+    parent[reconnect1] = -1
+    bl[reconnect1] = 0.0
+    // Suppress unary node at r1_parent in the remaining T1
+    let mut r1p_children = 0
+    let mut r1p_remaining = -1
+    for i in 0..<n {
+      if parent[i] == r1_parent && i != reconnect1 && parent[i] >= 0 {
+        // Check i is in T1
+        if spr_is_descendant_arr(parent, bisect_node, i) || i == bisect_node {
+          r1p_children = r1p_children + 1
+          r1p_remaining = i
+        }
+      }
+    }
+    if r1p_children == 1 {
+      if r1_parent == bisect_node {
+        // The root of T1 became unary — remaining child is new T1 root
+        t1_root = r1p_remaining
+        parent[r1p_remaining] = -1
+        bl[r1p_remaining] = 0.0
+      } else {
+        // Suppress: connect remaining child to r1_parent's parent
+        let r1p_parent = parent[r1_parent]
+        let combined = bl[r1_parent] + bl[r1p_remaining]
+        parent[r1p_remaining] = r1p_parent
+        bl[r1p_remaining] = combined
+        parent[r1_parent] = -2
+      }
+    }
+    // Create new T1 root connecting reconnect1 and the rest of T1
+    parent.push(-1)
+    bl.push(0.0)
+    let new_t1_root = parent.length() - 1
+    t1_root = new_t1_root
+    // Connect new_t1_root to reconnect1 and t1_root (the old root)
+    parent[reconnect1] = new_t1_root
+    bl[reconnect1] = r1_bl / 2.0
+    // Find the old T1 root (which is now a child of the new root)
+    // Actually, t1_root might have been updated above
+    // We need to connect the remaining T1 (rooted at the old t1_root or r1p_remaining)
+    // to the new root
+    // The rest of T1: if r1_parent was the bisect_node (root of T1),
+    // it became unary and r1p_remaining is the rest.
+    // Otherwise, the rest is still rooted at bisect_node (suppression was internal).
+    let old_t1 = if r1p_children == 1 && r1_parent == bisect_node {
+      r1p_remaining
+    } else {
+      bisect_node
+    }
+    parent[old_t1] = new_t1_root
+    bl[old_t1] = r1_bl / 2.0
+  }
+  // Step 4: Regraft T1 onto T2 at reconnect2's edge
+  let rg_parent = parent[reconnect2]
+  if rg_parent < 0 || rg_parent == -2 {
+    return clade
+  }
+  let rg_bl = bl[reconnect2]
+  // Create new node on the regraft edge
+  parent.push(-1)
+  bl.push(0.0)
+  let new_node = parent.length() - 1
+  parent[new_node] = rg_parent
+  bl[new_node] = rg_bl / 2.0
+  parent[reconnect2] = new_node
+  bl[reconnect2] = rg_bl / 2.0
+  // Attach T1 root to new_node
+  parent[t1_root] = new_node
+  bl[t1_root] = bisect_bl
+  // Step 5: Rebuild from root_id
+  spr_rebuild_from_parent(root_id, -1, 0.0, parent, bl, nodes, -1)
+}
+
+///|
+/// Generate all TBR neighbor trees.
+/// Enumerates valid (bisect, reconnect1, reconnect2) triples.
+/// Note: this can produce O(n³) candidates, so use sparingly for large trees.
+pub fn phylo_tbr_neighbors(clade : Clade) -> Array[Clade] {
+  let nodes = flatten_tree(clade)
+  let n = nodes.length()
+  let neighbors : Array[Clade] = Array(capacity=0)
+  for bisect_node in 1..<n {
+    // Find all nodes in T1 (subtree at bisect_node)
+    for reconnect1 in 0..<n {
+      if spr_is_descendant(nodes, bisect_node, reconnect1) {
+        // Find all nodes in T2 (not in T1)
+        for reconnect2 in 1..<n {
+          if reconnect2 != bisect_node && not(spr_is_descendant(nodes, bisect_node, reconnect2)) {
+            let result = phylo_tbr_move(clade, bisect_node, reconnect1, reconnect2)
+            if spr_tree_changed(clade, result) {
+              neighbors.push(result)
+            }
+          }
+        }
+      }
+    }
+  }
+  neighbors
 }
