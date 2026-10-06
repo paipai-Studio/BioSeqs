@@ -57,3 +57,270 @@ pub fn phylo_ladderize(
     clades=children,
   )
 }
+
+
+///|
+// =========================================================================
+// Midpoint rooting (ete3 / DendroPy)
+//   Find the longest path between any two leaves, then re-root at
+//   the midpoint of that path. If the midpoint falls on an edge,
+//   split the edge and insert a new root node.
+// =========================================================================
+
+///|
+/// Flat node representation for tree manipulation.
+struct FlatNode {
+  id : Int
+  parent_id : Int // -1 for root
+  branch_length : Double // length to parent
+  children : Array[Int]
+  name : String?
+  is_leaf : Bool
+}
+
+///|
+/// Flatten a Clade tree into a flat node array.
+fn flatten_tree(clade : Clade) -> Array[FlatNode] {
+  let nodes : Array[FlatNode] = Array(capacity=0)
+  ignore(flatten_rec(clade, -1, 0.0, nodes))
+  nodes
+}
+
+///|
+fn flatten_rec(
+  clade : Clade,
+  parent_id : Int,
+  branch_length : Double,
+  nodes : Array[FlatNode],
+) -> Int {
+  let id = nodes.length()
+  let is_leaf = clade.is_terminal()
+  let node = FlatNode::{
+    id,
+    parent_id,
+    branch_length,
+    children: Array(capacity=0),
+    name: clade.name,
+    is_leaf,
+  }
+  nodes.push(node)
+  for ch in clade.clades {
+    let child_bl = match ch.branch_length {
+      Some(v) => v
+      None => 0.0
+    }
+    let child_id = flatten_rec(ch, id, child_bl, nodes)
+    nodes[id].children.push(child_id)
+  }
+  id
+}
+
+///|
+/// Build undirected adjacency list from flat nodes.
+/// Returns (neighbor_id, branch_length) pairs for each node.
+fn build_adjacency(
+  nodes : Array[FlatNode],
+) -> Array[Array[(Int, Double)]] {
+  let n = nodes.length()
+  let adj : Array[Array[(Int, Double)]] = Array(capacity=n)
+  for i in 0..<n {
+    adj.push(Array(capacity=0))
+  }
+  for i in 0..<n {
+    // Edge to parent
+    let pid = nodes[i].parent_id
+    if pid >= 0 {
+      adj[i].push((pid, nodes[i].branch_length))
+      adj[pid].push((i, nodes[i].branch_length))
+    }
+  }
+  adj
+}
+
+///|
+/// BFS to find farthest node and record distances + predecessors.
+/// Returns (farthest_node_id, distance_array, predecessor_array).
+fn bfs_farthest(
+  start : Int,
+  adj : Array[Array[(Int, Double)]],
+  n : Int,
+) -> (Int, Array[Double], Array[Int]) {
+  let dist : Array[Double] = Array(capacity=n)
+  let pred : Array[Int] = Array(capacity=n)
+  let visited : Array[Bool] = Array(capacity=n)
+  for i in 0..<n {
+    dist.push(-1.0)
+    pred.push(-1)
+    visited.push(false)
+  }
+  // Simple BFS using a queue (array-based)
+  let queue : Array[Int] = Array(capacity=n)
+  queue.push(start)
+  dist[start] = 0.0
+  visited[start] = true
+  let mut head = 0
+  while head < queue.length() {
+    let u = queue[head]
+    head = head + 1
+    for pair in adj[u] {
+      let v = pair.0
+      let w = pair.1
+      if not(visited[v]) {
+        visited[v] = true
+        dist[v] = dist[u] + w
+        pred[v] = u
+        queue.push(v)
+      }
+    }
+  }
+  // Find farthest
+  let mut farthest = start
+  let mut max_dist = 0.0
+  for i in 0..<n {
+    if dist[i] > max_dist {
+      max_dist = dist[i]
+      farthest = i
+    }
+  }
+  (farthest, dist, pred)
+}
+
+///|
+/// Reconstruct path from start to end using predecessor array.
+fn reconstruct_path(
+  start : Int,
+  end : Int,
+  pred : Array[Int],
+) -> Array[Int] {
+  let path : Array[Int] = Array(capacity=0)
+  let mut cur = end
+  while cur != start && cur != -1 {
+    path.push(cur)
+    cur = pred[cur]
+  }
+  path.push(start)
+  // Reverse to get path from start to end
+  let result : Array[Int] = Array(capacity=path.length())
+  for i in 0..<path.length() {
+    result.push(path[path.length() - 1 - i])
+  }
+  result
+}
+
+///|
+/// Rebuild a Clade tree from the flat representation, rooted at new_root.
+/// `new_parent` is the parent id to avoid (for DFS direction).
+fn rebuild_clade(
+  node_id : Int,
+  parent_to_avoid : Int,
+  bl_to_parent : Double,
+  nodes : Array[FlatNode],
+  adj : Array[Array[(Int, Double)]],
+) -> Clade {
+  let node = nodes[node_id]
+  // Collect children (all neighbors except parent)
+  let children : Array[Clade] = Array(capacity=0)
+  for pair in adj[node_id] {
+    let neighbor = pair.0
+    let bl = pair.1
+    if neighbor != parent_to_avoid {
+      children.push(rebuild_clade(neighbor, node_id, bl, nodes, adj))
+    }
+  }
+  Clade::new(
+    branch_length=Some(bl_to_parent),
+    name=node.name,
+    clades=children,
+  )
+}
+
+///|
+/// Midpoint rooting: re-root the tree at the midpoint of the longest path.
+///
+/// Finds the two most distant nodes (via double BFS on the unrooted tree),
+/// then places the new root at the midpoint of the path between them.
+/// If the midpoint falls on an edge, that edge is split and a new root
+/// node is inserted.
+pub fn phylo_midpoint_root(clade : Clade) -> Clade {
+  let nodes = flatten_tree(clade)
+  let n = nodes.length()
+  if n <= 1 {
+    return clade
+  }
+  if n == 2 {
+    return clade
+  }
+  let adj = build_adjacency(nodes)
+  // Double BFS to find longest path
+  // Start from node 0 (arbitrary)
+  let (far1, _, _) = bfs_farthest(0, adj, n)
+  let (far2, _, pred2) = bfs_farthest(far1, adj, n)
+  // Path from far1 to far2 is the longest
+  let path = reconstruct_path(far1, far2, pred2)
+  // Compute cumulative distances along path
+  let path_dist : Array[Double] = Array(capacity=path.length())
+  path_dist.push(0.0)
+  for i in 1..<path.length() {
+    let u = path[i - 1]
+    let v = path[i]
+    let mut edge_len = 0.0
+    for pair in adj[u] {
+      if pair.0 == v {
+        edge_len = pair.1
+      }
+    }
+    path_dist.push(path_dist[i - 1] + edge_len)
+  }
+  let total_dist = path_dist[path.length() - 1]
+  let half_dist = total_dist / 2.0
+  // Find where the midpoint falls
+  // Look for the edge (path[i-1], path[i]) where cumulative dist crosses half
+  let mut mid_idx = 0
+  for i in 1..<path.length() {
+    if path_dist[i] >= half_dist {
+      mid_idx = i
+      break
+    }
+  }
+  let dist_to_mid_from_prev = half_dist - path_dist[mid_idx - 1]
+  let edge_node_prev = path[mid_idx - 1]
+  let edge_node_next = path[mid_idx]
+  // Check if midpoint is exactly at a node
+  if dist_to_mid_from_prev < 0.0000000001 {
+    // Midpoint is at edge_node_prev
+    return rebuild_clade(edge_node_prev, -1, 0.0, nodes, adj)
+  }
+  // Get edge length
+  let mut edge_len = 0.0
+  for pair in adj[edge_node_prev] {
+    if pair.0 == edge_node_next {
+      edge_len = pair.1
+    }
+  }
+  let dist_from_next = edge_len - dist_to_mid_from_prev
+  if dist_from_next < 0.0000000001 {
+    // Midpoint is at edge_node_next
+    return rebuild_clade(edge_node_next, -1, 0.0, nodes, adj)
+  }
+  // Midpoint is on the edge — split it and create a new root
+  // Build subtree from edge_node_prev (avoiding edge_node_next)
+  let subtree_prev = rebuild_clade(
+    edge_node_prev,
+    edge_node_next,
+    dist_to_mid_from_prev,
+    nodes,
+    adj,
+  )
+  // Build subtree from edge_node_next (avoiding edge_node_prev)
+  let subtree_next = rebuild_clade(
+    edge_node_next,
+    edge_node_prev,
+    dist_from_next,
+    nodes,
+    adj,
+  )
+  Clade::new(
+    name=Some("midpoint_root"),
+    clades=[subtree_prev, subtree_next],
+  )
+}
