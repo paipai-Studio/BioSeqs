@@ -635,3 +635,156 @@ pub fn dendropy_fusco_cronk(clade : Clade) -> Double {
     sum_im / count.to_double()
   }
 }
+
+
+///|
+// =========================================================================
+// s-shape statistic (Bortolussi et al. 2005 / Blum & François 2006)
+//   σ(T) = Σ_{u ∈ internal} log(n_u - 1)
+//   where n_u = number of leaves in the pending subtree rooted at u.
+// Source: apTreeshape/R/shape.statistic.R, treebalance::sShapeI
+// =========================================================================
+
+///|
+/// Returns (total_leaves, sum_of_log(n_u - 1)) for the subtree.
+fn dendropy_shape_stat_rec(clade : Clade) -> (Int, Double) {
+  if clade.is_terminal() {
+    return (1, 0.0)
+  }
+  let mut total_leaves = 0
+  let mut sigma = 0.0
+  for ch in clade.clades {
+    let (leaves, s) = dendropy_shape_stat_rec(ch)
+    total_leaves = total_leaves + leaves
+    sigma = sigma + s
+  }
+  // Add log(n_u - 1) for this internal node (if n_u > 1)
+  if total_leaves > 1 {
+    sigma = sigma + @math.ln(total_leaves.to_double() - 1.0)
+  }
+  (total_leaves, sigma)
+}
+
+///|
+/// s-shape statistic (raw): Σ log(n_u - 1) over all internal nodes u,
+/// where n_u is the number of leaves in the pending subtree at u.
+/// Uses natural logarithm. For a single leaf returns 0.
+pub fn dendropy_shape_statistic(clade : Clade) -> Double {
+  dendropy_shape_stat_rec(clade).1
+}
+
+///|
+/// s-shape statistic with Yule-model normalization.
+/// σ'_yule = (σ - 1.204*(n+1) + log(n) + 2) / sqrt(0.168*(n+1) - 0.71)
+/// where n = number of internal nodes (= leaves - 1 for binary trees).
+/// Under the Yule model this is approximately Standard Normal.
+pub fn dendropy_shape_statistic_yule(clade : Clade) -> Double {
+  let n_leaves = dendropy_count_leaves(clade)
+  let n = n_leaves - 1 // internal nodes for binary tree
+  if n < 1 {
+    return 0.0
+  }
+  let sigma = dendropy_shape_statistic(clade)
+  let numerator = sigma - 1.204 * (n.to_double() + 1.0) + @math.ln(n.to_double()) + 2.0
+  let denom_sq = 0.168 * (n.to_double() + 1.0) - 0.71
+  if denom_sq <= 0.0 {
+    return 0.0
+  }
+  numerator / denom_sq.sqrt()
+}
+
+///|
+/// s-shape statistic with PDA-model normalization.
+/// σ'_pda = (σ - 2.03*(n+1) + 3.545*sqrt(n)) / sqrt(1.570*n*log(n) - 5.674*n + 3.602*sqrt(n) + 14.915)
+/// where n = number of internal nodes (= leaves - 1 for binary trees).
+/// Under the PDA (uniform) model this is approximately Standard Normal.
+pub fn dendropy_shape_statistic_pda(clade : Clade) -> Double {
+  let n_leaves = dendropy_count_leaves(clade)
+  let n = n_leaves - 1
+  if n < 1 {
+    return 0.0
+  }
+  let nd = n.to_double()
+  let sigma = dendropy_shape_statistic(clade)
+  let sqrt_n = nd.sqrt()
+  let numerator = sigma - 2.03 * (nd + 1.0) + 3.545 * sqrt_n
+  let denom_sq = 1.570 * nd * @math.ln(nd) - 5.674 * nd + 3.602 * sqrt_n + 14.915
+  if denom_sq <= 0.0 {
+    return 0.0
+  }
+  numerator / denom_sq.sqrt()
+}
+
+///|
+// =========================================================================
+// Normalized Colless index (Yule / PDA)
+//   Source: DendroPy colless_tree_imbalance, apTreeshape colless.R
+// =========================================================================
+
+/// Euler–Mascheroni constant γ ≈ 0.5772156649
+let dendropy_euler_gamma : Double = 0.5772156649015329
+
+///|
+/// Colless index with Yule-model normalization.
+/// Ic' = (Ic - n*log(n) - n*(γ - 1 - log(2))) / n
+/// where n = number of leaves. Under Yule, Ic' ≈ Standard Normal.
+pub fn dendropy_colless_yule(clade : Clade) -> Double {
+  let n = dendropy_count_leaves(clade)
+  if n < 2 {
+    return 0.0
+  }
+  let nd = n.to_double()
+  let ic = dendropy_colless(clade).to_double()
+  (ic - nd * @math.ln(nd) - nd * (dendropy_euler_gamma - 1.0 - @math.ln(2.0))) / nd
+}
+
+///|
+/// Colless index with PDA-model normalization.
+/// Ic_pda = Ic / n^(3/2)
+pub fn dendropy_colless_pda(clade : Clade) -> Double {
+  let n = dendropy_count_leaves(clade)
+  if n < 2 {
+    return 0.0
+  }
+  let nd = n.to_double()
+  let ic = dendropy_colless(clade).to_double()
+  ic / nd.sqrt() * nd
+}
+
+///|
+// =========================================================================
+// Normalized Sackin index (Yule / PDA)
+//   Source: DendroPy sackin_index, apTreeshape sackin.R
+// =========================================================================
+
+///|
+/// Sackin index with Yule-model normalization.
+/// Is' = (S - 2n * Σ_{j=2}^{n} 1/j) / n
+/// where n = number of leaves. Under Yule, Is' ≈ Standard Normal.
+pub fn dendropy_sackin_yule(clade : Clade) -> Double {
+  let n = dendropy_count_leaves(clade)
+  if n < 2 {
+    return 0.0
+  }
+  let nd = n.to_double()
+  let s = dendropy_sackin(clade).to_double()
+  // Compute harmonic sum H_n - 1 = Σ_{j=2}^{n} 1/j
+  let mut h = 0.0
+  for j in 2..=n {
+    h = h + 1.0 / j.to_double()
+  }
+  (s - 2.0 * nd * h) / nd
+}
+
+///|
+/// Sackin index with PDA-model normalization.
+/// Is_pda = S / n^(3/2)
+pub fn dendropy_sackin_pda(clade : Clade) -> Double {
+  let n = dendropy_count_leaves(clade)
+  if n < 2 {
+    return 0.0
+  }
+  let nd = n.to_double()
+  let s = dendropy_sackin(clade).to_double()
+  s / nd.sqrt() * nd
+}
