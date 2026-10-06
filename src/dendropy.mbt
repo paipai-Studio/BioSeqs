@@ -1173,3 +1173,49 @@ pub fn dendropy_spr_distance(clade1 : Clade, clade2 : Clade) -> Int {
   // Should never reach here for trees with same taxon set
   -1
 }
+
+
+///|
+/// NNI distance: minimum number of nearest-neighbor interchange moves to
+/// transform tree1 into tree2 (topological, branch lengths ignored).
+/// Uses BFS over NNI-neighbor space; feasible for small trees (≤ ~8 taxa).
+/// Returns -1 if trees have different taxon counts.
+pub fn dendropy_nni_distance(clade1 : Clade, clade2 : Clade) -> Int {
+  let n1 = clade1.count_terminals()
+  let n2 = clade2.count_terminals()
+  if n1 != n2 {
+    return -1
+  }
+  // Trees with < 4 taxa: only one unrooted topology, distance is 0
+  if n1 < 4 {
+    return 0
+  }
+  let key1 = dendropy_topology_key(clade1)
+  let key2 = dendropy_topology_key(clade2)
+  if key1 == key2 {
+    return 0
+  }
+  // BFS
+  let visited : Map[String, Bool] = Map([], capacity=0)
+  visited.set(key1, true)
+  let queue : Array[(Clade, Int)] = Array(capacity=0)
+  queue.push((clade1, 0))
+  let mut head = 0
+  while head < queue.length() {
+    let (cur, dist) = queue[head]
+    head = head + 1
+    let next_dist = dist + 1
+    let neighbors = phylo_nni_neighbors(cur)
+    for nb in neighbors {
+      let nk = dendropy_topology_key(nb)
+      if nk == key2 {
+        return next_dist
+      }
+      if not(visited.contains(nk)) {
+        visited.set(nk, true)
+        queue.push((nb, next_dist))
+      }
+    }
+  }
+  -1
+}

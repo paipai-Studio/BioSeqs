@@ -150,11 +150,26 @@ fn nni_move_rec(
     let g1 = child.clades[0]
     let g2 = child.clades[1]
 
-    // swap 0: exchange sibling and g1
-    //   child's children become [g2, sibling], parent's other child becomes g1
-    // swap 1: exchange sibling and g2
-    //   child's children become [g1, sibling], parent's other child becomes g2
-    let (new_child_grandchildren, new_sibling) = if swap == 0 {
+    // When sibling is also internal with 2 children: swap grandchildren
+    // (unrooted NNI on the edge between child and sibling)
+    // Otherwise: swap a grandchild with the sibling (rooted NNI)
+    let (new_child_grandchildren, new_sibling) = if not(sibling.is_terminal()) && sibling.clades.length() == 2 {
+      let s1 = sibling.clades[0]
+      let s2 = sibling.clades[1]
+      if swap == 0 {
+        // ((g1,s1),(g2,s2))
+        (
+          [g1, s1],
+          Clade::new(branch_length=sibling.branch_length, name=sibling.name, confidence=sibling.confidence, clades=[g2, s2]),
+        )
+      } else {
+        // ((g1,s2),(g2,s1))
+        (
+          [g1, s2],
+          Clade::new(branch_length=sibling.branch_length, name=sibling.name, confidence=sibling.confidence, clades=[g2, s1]),
+        )
+      }
+    } else if swap == 0 {
       (
         [g2, sibling],
         g1,
