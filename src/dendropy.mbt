@@ -1012,3 +1012,70 @@ fn b2_collect_probs(
     b2_collect_probs(ch, child_prob, probs)
   }
 }
+
+///|
+/// Collect only non-trivial internal bipartitions (both sides ≥ 2 taxa).
+/// Used by Kuhner-Felsenstein distance; skips the root and any split where
+/// one side has a single taxon.
+fn dendropy_collect_internal_splits(
+  clade : Clade,
+  total_taxa : Int,
+  is_root : Bool,
+  out : Map[String, Double]
+) -> Unit {
+  if clade.clades.length() == 0 {
+    return
+  }
+  if not(is_root) {
+    let k = clade.count_terminals()
+    // Non-trivial: 2 ≤ k ≤ total-2
+    if k >= 2 && k <= total_taxa - 2 {
+      let key = dendropy_split_key(clade)
+      let length = match clade.branch_length {
+        Some(l) => l
+        None => 0.0
+      }
+      out.set(key, length)
+    }
+  }
+  for c in clade.clades {
+    dendropy_collect_internal_splits(c, total_taxa, false, out)
+  }
+}
+
+///|
+/// Kuhner-Felsenstein branch-score distance (Kuhner & Felsenstein 1994):
+/// sqrt of the sum of squared branch-length differences over the union of
+/// **non-trivial internal bipartitions** only (both sides ≥ 2 taxa).
+/// Unlike `dendropy_euclidean_distance`, pendant branches and the root are
+/// excluded — only splits that affect topology contribute.
+pub fn dendropy_kuhner_felsenstein_distance(
+  clade1 : Clade,
+  clade2 : Clade
+) -> Double {
+  let n1 = clade1.count_terminals()
+  let n2 = clade2.count_terminals()
+  // Trees must have the same number of taxa to be comparable
+  if n1 != n2 {
+    return -1.0
+  }
+  let s1 : Map[String, Double] = Map([], capacity=0)
+  let s2 : Map[String, Double] = Map([], capacity=0)
+  dendropy_collect_internal_splits(clade1, n1, true, s1)
+  dendropy_collect_internal_splits(clade2, n2, true, s2)
+  let mut sum_sq = 0.0
+  for (key, l1) in s1 {
+    let l2 = match s2.get(key) {
+      Some(l) => l
+      None => 0.0
+    }
+    let d = l1 - l2
+    sum_sq = sum_sq + d * d
+  }
+  for (key, l2) in s2 {
+    if not(s1.contains(key)) {
+      sum_sq = sum_sq + l2 * l2
+    }
+  }
+  sum_sq.sqrt()
+}
