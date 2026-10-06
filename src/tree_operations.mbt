@@ -650,3 +650,30 @@ fn collapse_rec(
     clades=flat_children,
   )]
 }
+
+
+///|
+// =========================================================================
+// Scale tree (DendroPy)
+//   Multiply all branch lengths by a constant factor.
+// =========================================================================
+
+///|
+/// Scale all branch lengths in the tree by `factor`.
+/// Returns a new tree with scaled branch lengths.
+pub fn phylo_scale_tree(clade : Clade, factor : Double) -> Clade {
+  let scaled_bl = match clade.branch_length {
+    Some(v) => Some(v * factor)
+    None => None
+  }
+  let children : Array[Clade] = Array(capacity=clade.clades.length())
+  for ch in clade.clades {
+    children.push(phylo_scale_tree(ch, factor))
+  }
+  Clade::new(
+    branch_length=scaled_bl,
+    name=clade.name,
+    confidence=clade.confidence,
+    clades=children,
+  )
+}
