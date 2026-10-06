@@ -1079,3 +1079,97 @@ pub fn dendropy_kuhner_felsenstein_distance(
   }
   sum_sq.sqrt()
 }
+
+
+///|
+/// Canonical topology key: sorted non-trivial bipartition split keys.
+/// Two unrooted trees share the same topology iff their keys are equal.
+fn dendropy_topology_key(clade : Clade) -> String {
+  let n = clade.count_terminals()
+  let splits : Array[String] = Array(capacity=0)
+  dendropy_collect_topology_splits(clade, n, true, splits)
+  // Sort for canonical order
+  for i in 0..<splits.length() {
+    for j in (i + 1)..<splits.length() {
+      if splits[j] < splits[i] {
+        let tmp = splits[i]
+        splits[i] = splits[j]
+        splits[j] = tmp
+      }
+    }
+  }
+  let sb = StringBuilder()
+  for s in splits {
+    sb.write_string(s)
+    sb.write_char(';')
+  }
+  sb.to_string()
+}
+
+///|
+fn dendropy_collect_topology_splits(
+  clade : Clade,
+  total : Int,
+  is_root : Bool,
+  out : Array[String]
+) -> Unit {
+  if clade.clades.length() == 0 {
+    return
+  }
+  if not(is_root) {
+    let k = clade.count_terminals()
+    if k >= 2 && k <= total - 2 {
+      out.push(dendropy_split_key(clade))
+    }
+  }
+  for c in clade.clades {
+    dendropy_collect_topology_splits(c, total, false, out)
+  }
+}
+
+///|
+/// SPR distance: minimum number of subtree-prune-and-regraft moves to
+/// transform tree1 into tree2 (topological, branch lengths ignored).
+/// Uses BFS over SPR-neighbor space; feasible for small trees (≤ ~8 taxa).
+/// Returns -1 if trees have different taxon counts.
+pub fn dendropy_spr_distance(clade1 : Clade, clade2 : Clade) -> Int {
+  let n1 = clade1.count_terminals()
+  let n2 = clade2.count_terminals()
+  if n1 != n2 {
+    return -1
+  }
+  // Trees with < 4 taxa: only one unrooted topology, distance is 0
+  if n1 < 4 {
+    return 0
+  }
+  let key1 = dendropy_topology_key(clade1)
+  let key2 = dendropy_topology_key(clade2)
+  if key1 == key2 {
+    return 0
+  }
+  // BFS
+  let visited : Map[String, Bool] = Map([], capacity=0)
+  visited.set(key1, true)
+  // Queue: array of (tree, distance)
+  let queue : Array[(Clade, Int)] = Array(capacity=0)
+  queue.push((clade1, 0))
+  let mut head = 0
+  while head < queue.length() {
+    let (cur, dist) = queue[head]
+    head = head + 1
+    let next_dist = dist + 1
+    let neighbors = phylo_spr_neighbors(cur)
+    for nb in neighbors {
+      let nk = dendropy_topology_key(nb)
+      if nk == key2 {
+        return next_dist
+      }
+      if not(visited.contains(nk)) {
+        visited.set(nk, true)
+        queue.push((nb, next_dist))
+      }
+    }
+  }
+  // Should never reach here for trees with same taxon set
+  -1
+}
