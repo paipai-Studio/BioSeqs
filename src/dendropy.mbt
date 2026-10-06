@@ -788,3 +788,143 @@ pub fn dendropy_sackin_pda(clade : Clade) -> Double {
   let s = dendropy_sackin(clade).to_double()
   s / nd.sqrt() * nd
 }
+
+
+///|
+// =========================================================================
+// Colless-like index (Mir, Rotger & Rossello 2018)
+//   Generalizes Colless to multifurcating trees.
+//   CL(T) = Σ_{v ∈ internal} D(fs(T_{v1}), ..., fs(T_{vk}))
+//   where fs(T) = Σ_{v ∈ V(T)} f(deg+(v)) is the f.size,
+//   and D is a dissimilarity (mdm, var, or sd).
+// Source: treebalance::collesslikeI, Mir et al. PLOSONE 2018
+// =========================================================================
+
+///|
+/// Weight function f for f.size computation.
+pub(all) enum CollessLikeFSize {
+  FExp // f(x) = e^x
+  FLn  // f(x) = ln(x + e)
+}
+
+///|
+/// Dissimilarity D for balance value computation.
+pub(all) enum CollessLikeDissim {
+  DMdm // mean deviation from median: Σ|x_i - median| / n
+  DVar // sample variance: Σ(x_i - mean)^2 / (n-1)
+  DSd  // sample standard deviation: sqrt(var)
+}
+
+///|
+/// Evaluate the weight function f at integer x.
+fn cl_fsize_eval(f : CollessLikeFSize, x : Int) -> Double {
+  match f {
+    FExp => @math.exp(x.to_double())
+    FLn => @math.ln(x.to_double() + @math.exp(1.0))
+  }
+}
+
+///|
+/// Evaluate the dissimilarity D on a vector of doubles.
+fn cl_dissim_eval(d : CollessLikeDissim, xs : Array[Double]) -> Double {
+  let n = xs.length()
+  if n <= 1 {
+    return 0.0
+  }
+  // Compute mean
+  let mut sum = 0.0
+  for x in xs {
+    sum = sum + x
+  }
+  let mean = sum / n.to_double()
+  match d {
+    DMdm => {
+      // Median: sort copy, pick middle (or average of two middles)
+      let sorted = Array(capacity=n)
+      for x in xs {
+        sorted.push(x)
+      }
+      sorted.sort_by(fn(a, b) { compare(a, b) })
+      let median = if n % 2 == 1 {
+        sorted[n / 2]
+      } else {
+        (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0
+      }
+      let mut dev = 0.0
+      for x in xs {
+        dev = dev + (x - median).abs()
+      }
+      dev / n.to_double()
+    }
+    DVar => {
+      let mut ss = 0.0
+      for x in xs {
+        ss = ss + (x - mean) * (x - mean)
+      }
+      ss / (n - 1).to_double()
+    }
+    DSd => {
+      let mut ss = 0.0
+      for x in xs {
+        ss = ss + (x - mean) * (x - mean)
+      }
+      (ss / (n - 1).to_double()).sqrt()
+    }
+  }
+}
+
+///|
+/// Compute f.size of a subtree: fs(T) = Σ_{v ∈ V(T)} f(deg+(v)).
+/// Returns (f_size, ) for the subtree rooted at clade.
+fn cl_compute_fsize(
+  clade : Clade,
+  f : CollessLikeFSize,
+) -> Double {
+  let outdeg = clade.clades.length()
+  let mut fs = cl_fsize_eval(f, outdeg)
+  for ch in clade.clades {
+    fs = fs + cl_compute_fsize(ch, f)
+  }
+  fs
+}
+
+///|
+/// Colless-like index CL(T) for a rooted (possibly multifurcating) tree.
+///
+/// CL(T) = Σ_{v ∈ internal} D(fs(T_{v1}), ..., fs(T_{vk}))
+///
+/// where fs is the f.size with weight function `f`, and D is the
+/// dissimilarity. For binary trees with f=exp and D=mdm, this reduces
+/// to a variant of the Colless index.
+///
+/// Reference: Mir, Rotger & Rossello. PLOSONE 13(9):e0203401, 2018.
+pub fn dendropy_colless_like(
+  clade : Clade,
+  f : CollessLikeFSize,
+  dissim : CollessLikeDissim,
+) -> Double {
+  cl_colless_like_rec(clade, f, dissim)
+}
+
+///|
+fn cl_colless_like_rec(
+  clade : Clade,
+  f : CollessLikeFSize,
+  dissim : CollessLikeDissim,
+) -> Double {
+  if clade.is_terminal() {
+    return 0.0
+  }
+  // Compute balance value at this node
+  let child_fsizes : Array[Double] = Array(capacity=0)
+  for ch in clade.clades {
+    child_fsizes.push(cl_compute_fsize(ch, f))
+  }
+  let bal = cl_dissim_eval(dissim, child_fsizes)
+  // Recurse into children
+  let mut total = bal
+  for ch in clade.clades {
+    total = total + cl_colless_like_rec(ch, f, dissim)
+  }
+  total
+}
