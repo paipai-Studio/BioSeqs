@@ -441,3 +441,240 @@ fn recon_depth_rec(
   }
   -1
 }
+
+// =========================================================================
+// Dup/Loss Inference: comprehensive reconciliation result (ete3)
+//   Combines LCA mapping, duplication detection, and loss counting into
+//   a structured result with per-node information and summary output.
+// =========================================================================
+
+///|
+/// Per-node reconciliation information.
+pub(all) struct NodeReconciliation {
+  gene_leaves : String         // sorted gene leaf names in this subtree
+  species_leaves : String      // sorted species leaf names under LCA
+  is_duplication : Bool        // true if this node is a duplication
+  is_speciation : Bool         // true if this node is a speciation
+  edge_losses : Int            // losses on edges from this node to its children
+  species_names : Array[String]
+}
+
+///|
+/// Comprehensive reconciliation result.
+pub(all) struct ReconciliationResult {
+  duplication_count : Int
+  loss_count : Int
+  speciation_count : Int
+  total_cost : Int             // duplication_count + loss_count
+  node_count : Int             // total gene tree nodes
+  leaf_count : Int             // gene tree leaves
+  nodes : Array[NodeReconciliation]
+}
+
+///|
+/// Reconcile a gene tree with a species tree.
+/// Returns a comprehensive result with per-node duplication/loss information.
+/// Species names are extracted from gene leaf names using `sep`.
+pub fn phylo_reconcile(
+  gene_tree : Clade,
+  species_tree : Clade,
+  sep : String
+) -> ReconciliationResult {
+  let gene_to_species : Map[String, String] = Map([], capacity=0)
+  phylo_reconcile_explicit(gene_tree, species_tree, gene_to_species, sep)
+}
+
+///|
+/// Reconcile with explicit gene-to-species map.
+pub fn phylo_reconcile_explicit(
+  gene_tree : Clade,
+  species_tree : Clade,
+  gene_to_species : Map[String, String],
+  sep : String
+) -> ReconciliationResult {
+  // First, get LCA mapping results
+  let lca_maps = phylo_lca_mapping_explicit(
+    gene_tree,
+    species_tree,
+    gene_to_species,
+    sep
+  )
+  // Build per-node reconciliation with edge losses
+  let nodes : Array[NodeReconciliation] = Array(capacity=0)
+  let (_, _, edge_loss_map) = phylo_reconcile_rec(
+    gene_tree,
+    species_tree,
+    gene_to_species,
+    sep,
+    nodes
+  )
+  // Count summary statistics
+  let mut dup_count = 0
+  let mut spec_count = 0
+  let mut total_losses = 0
+  for node in nodes {
+    if node.is_duplication {
+      dup_count = dup_count + 1
+    }
+    if node.is_speciation {
+      spec_count = spec_count + 1
+    }
+    total_losses = total_losses + node.edge_losses
+  }
+  let leaf_count = gene_tree.count_terminals()
+  ReconciliationResult::{
+    duplication_count: dup_count,
+    loss_count: total_losses,
+    speciation_count: spec_count,
+    total_cost: dup_count + total_losses,
+    node_count: nodes.length(),
+    leaf_count,
+    nodes,
+  }
+}
+
+///|
+/// Recursive helper for reconciliation.
+/// Returns (species_key, species_names, edge_loss_map).
+/// Populates `nodes` array with per-node information.
+fn phylo_reconcile_rec(
+  node : Clade,
+  species_tree : Clade,
+  gene_to_species : Map[String, String],
+  sep : String,
+  out : Array[NodeReconciliation]
+) -> (String, Array[String], Map[String, Int]) {
+  if node.is_terminal() {
+    let gene_name = match node.name {
+      Some(n) => n
+      None => "?"
+    }
+    let species_name = match gene_to_species.get(gene_name) {
+      Some(s) => s
+      None => phylo_extract_species(gene_name, sep)
+    }
+    let gene_key = gene_name + ","
+    let species_key = species_name + ","
+    out.push(NodeReconciliation::{
+      gene_leaves: gene_key,
+      species_leaves: species_key,
+      is_duplication: false,
+      is_speciation: false,
+      edge_losses: 0,
+      species_names: [species_name],
+    })
+    let m : Map[String, Int] = Map([], capacity=0)
+    return (species_key, [species_name], m)
+  }
+  // Internal node: recurse into children
+  let child_results : Array[(String, Array[String], Map[String, Int])] = Array(
+    capacity=0
+  )
+  for ch in node.clades {
+    child_results.push(
+      phylo_reconcile_rec(ch, species_tree, gene_to_species, sep, out)
+    )
+  }
+  // Collect all species names
+  let unique_species : Map[String, Bool] = Map([], capacity=0)
+  for cr in child_results {
+    for sn in cr.1 {
+      unique_species.set(sn, true)
+    }
+  }
+  let dedup : Array[String] = Array(capacity=0)
+  for (sn, _) in unique_species {
+    dedup.push(sn)
+  }
+  let parent_key = recon_find_lca_key(species_tree, dedup)
+  // Check duplication
+  let mut is_dup = false
+  for cr in child_results {
+    if cr.0 == parent_key && child_results.length() > 1 {
+      is_dup = true
+    }
+  }
+  let is_spec = not(is_dup) && child_results.length() > 1
+  // Count edge losses
+  let mut edge_losses = 0
+  for cr in child_results {
+    let child_key = cr.0
+    if child_key != parent_key && child_key != "" && parent_key != "" {
+      let p_depth = recon_depth(species_tree, parent_key)
+      let c_depth = recon_depth(species_tree, child_key)
+      let diff = c_depth - p_depth
+      if diff > 0 {
+        if is_dup {
+          edge_losses = edge_losses + diff
+        } else {
+          edge_losses = edge_losses + diff - 1
+        }
+      }
+    }
+  }
+  // Build gene leaf key
+  let all_gene_names = recon_collect_leaf_names(node)
+  let gene_key = recon_leaf_key(all_gene_names)
+  out.push(NodeReconciliation::{
+    gene_leaves: gene_key,
+    species_leaves: parent_key,
+    is_duplication: is_dup,
+    is_speciation: is_spec,
+    edge_losses,
+    species_names: dedup,
+  })
+  // Build edge loss map (gene_key → edge_losses for this node)
+  let loss_map : Map[String, Int] = Map([], capacity=0)
+  loss_map.set(gene_key, edge_losses)
+  (parent_key, dedup, loss_map)
+}
+
+///|
+/// Format a reconciliation result as a human-readable summary.
+pub fn phylo_reconciliation_summary(result : ReconciliationResult) -> String {
+  let sb = StringBuilder()
+  sb.write_string("Reconciliation Summary:\n")
+  sb.write_string("  Gene tree nodes: ")
+  sb.write_string(result.node_count.to_string())
+  sb.write_string(" (")
+  sb.write_string(result.leaf_count.to_string())
+  sb.write_string(" leaves)\n")
+  sb.write_string("  Duplications: ")
+  sb.write_string(result.duplication_count.to_string())
+  sb.write_string("\n")
+  sb.write_string("  Speciations:  ")
+  sb.write_string(result.speciation_count.to_string())
+  sb.write_string("\n")
+  sb.write_string("  Losses:        ")
+  sb.write_string(result.loss_count.to_string())
+  sb.write_string("\n")
+  sb.write_string("  Total cost:    ")
+  sb.write_string(result.total_cost.to_string())
+  sb.write_string(" (D + L)\n")
+  // Per-node details
+  sb.write_string("  Per-node details:\n")
+  for i in 0..<result.nodes.length() {
+    let n = result.nodes[i]
+    sb.write_string("    [")
+    sb.write_string(i.to_string())
+    sb.write_string("] ")
+    if n.is_duplication {
+      sb.write_string("DUP   ")
+    } else if n.is_speciation {
+      sb.write_string("SPEC  ")
+    } else {
+      sb.write_string("LEAF  ")
+    }
+    sb.write_string("losses=")
+    sb.write_string(n.edge_losses.to_string())
+    sb.write_string("  species={")
+    for j in 0..<n.species_names.length() {
+      if j > 0 {
+        sb.write_char(',')
+      }
+      sb.write_string(n.species_names[j])
+    }
+    sb.write_string("}\n")
+  }
+  sb.to_string()
+}
