@@ -68,3 +68,58 @@ test "ml_nni_search_monotonic" {
   let after = @src.ml_tree_log_likelihood(result, m)
   assert_true(after >= before - 1.0e-9)
 }
+
+///|
+// ===== Tree.results Metadata Tests =====
+
+///|
+test "tree results: set and get" {
+  let root = mt_internal([mt_leaf("A"), mt_leaf("B")])
+  let tree = mt_tree(root)
+  let t2 = tree.set_result("tajima_d", "0.38")
+  assert_true(t2.has_result("tajima_d"))
+  match t2.get_result("tajima_d") {
+    Some(v) => assert_eq(v, "0.38")
+    None => assert_true(false)
+  }
+}
+
+///|
+test "tree results: get nonexistent" {
+  let root = mt_internal([mt_leaf("A"), mt_leaf("B")])
+  let tree = mt_tree(root)
+  assert_false(tree.has_result("sfs"))
+  match tree.get_result("sfs") {
+    Some(_) => assert_true(false)
+    None => assert_true(true)
+  }
+}
+
+///|
+test "tree results: chaining" {
+  let root = mt_internal([mt_leaf("A"), mt_leaf("B")])
+  let tree = mt_tree(root)
+  let t2 = tree
+    .set_result("tajima_d", "0.38")
+    .set_result("fu_li_d", "0.04")
+    .set_result("fay_wu_h", "0.83")
+  assert_true(t2.has_result("tajima_d"))
+  assert_true(t2.has_result("fu_li_d"))
+  assert_true(t2.has_result("fay_wu_h"))
+  match t2.get_result("fu_li_d") {
+    Some(v) => assert_eq(v, "0.04")
+    None => assert_true(false)
+  }
+}
+
+///|
+test "tree results: overwrite" {
+  let root = mt_internal([mt_leaf("A"), mt_leaf("B")])
+  let tree = mt_tree(root)
+  let t1 = tree.set_result("x", "1.0")
+  let t2 = t1.set_result("x", "2.0")
+  match t2.get_result("x") {
+    Some(v) => assert_eq(v, "2.0")
+    None => assert_true(false)
+  }
+}

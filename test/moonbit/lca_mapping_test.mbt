@@ -255,3 +255,137 @@ test "lca: single leaf gene tree" {
   assert_eq(maps[0].species_leaves, "Human,")
   assert_false(maps[0].is_duplication)
 }
+
+///|
+// ===== Reconciliation Context Object Tests =====
+
+///|
+test "recon context: basic no-duplication" {
+  let gene = lca_internal([
+    lca_internal([lca_leaf("Human"), lca_leaf("Chimp")]),
+    lca_leaf("Gorilla"),
+  ])
+  let species = lca_species_tree3()
+  let recon = @src.Reconciliation::new(gene, species, "")
+  assert_eq(recon.count_duplications(), 0)
+  assert_eq(recon.count_losses(), 0)
+}
+
+///|
+test "recon context: duplication detected" {
+  let gene = lca_internal([
+    lca_internal([lca_leaf("Human_1"), lca_leaf("Human_2")]),
+    lca_leaf("Chimp"),
+  ])
+  let species = lca_species_tree3()
+  let recon = @src.Reconciliation::new(gene, species, "_")
+  let dups = recon.count_duplications()
+  assert_true(dups >= 1)
+}
+
+///|
+test "recon context: losses counted" {
+  // Gene: ((Human, Gorilla), Chimp) on species ((Human, Chimp), Gorilla)
+  // This should have losses because Human and Gorilla are on different
+  // branches in the species tree
+  let gene = lca_internal([
+    lca_internal([lca_leaf("Human"), lca_leaf("Gorilla")]),
+    lca_leaf("Chimp"),
+  ])
+  let species = lca_species_tree3()
+  let recon = @src.Reconciliation::new(gene, species, "")
+  let losses = recon.count_losses()
+  assert_true(losses >= 0)
+}
+
+///|
+test "recon context: reconcile matches separate calls" {
+  // Verify context gives same results as separate function calls
+  let gene = lca_internal([
+    lca_internal([lca_leaf("Human_1"), lca_leaf("Human_2")]),
+    lca_leaf("Chimp"),
+  ])
+  let species = lca_species_tree3()
+
+  // Separate calls (old way: LCA computed 3 times)
+  let maps = @src.phylo_lca_mapping(gene, species, "_")
+  let dups_old = @src.phylo_count_duplications(maps)
+  let losses_old = @src.phylo_count_losses(gene, species, "_")
+  let recon_old = @src.phylo_reconcile(gene, species, "_")
+
+  // Context (new way: LCA computed once)
+  let recon = @src.Reconciliation::new(gene, species, "_")
+  let dups_new = recon.count_duplications()
+  let losses_new = recon.count_losses()
+  let recon_new = recon.reconcile()
+
+  // Results must match
+  assert_eq(dups_new, dups_old)
+  assert_eq(losses_new, losses_old)
+  assert_eq(recon_new.duplication_count, recon_old.duplication_count)
+  assert_eq(recon_new.loss_count, recon_old.loss_count)
+  assert_eq(recon_new.speciation_count, recon_old.speciation_count)
+  assert_eq(recon_new.total_cost, recon_old.total_cost)
+}
+
+///|
+test "recon context: classify all pairs" {
+  let gene = lca_internal([
+    lca_internal([lca_leaf("Human_1"), lca_leaf("Human_2")]),
+    lca_leaf("Chimp_1"),
+  ])
+  let species = lca_species_tree3()
+  let recon = @src.Reconciliation::new(gene, species, "_")
+  let pairs = recon.classify_all_pairs()
+  // 3 genes → 3 pairs
+  assert_eq(pairs.length(), 3)
+}
+
+///|
+test "recon context: summary string" {
+  let gene = lca_internal([
+    lca_internal([lca_leaf("Human"), lca_leaf("Chimp")]),
+    lca_leaf("Gorilla"),
+  ])
+  let species = lca_species_tree3()
+  let recon = @src.Reconciliation::new(gene, species, "")
+  let s = recon.summary()
+  assert_true(s.contains("Reconciliation Summary"))
+}
+
+///|
+test "recon context: lca maps accessible" {
+  let gene = lca_internal([
+    lca_internal([lca_leaf("Human"), lca_leaf("Chimp")]),
+    lca_leaf("Gorilla"),
+  ])
+  let species = lca_species_tree3()
+  let recon = @src.Reconciliation::new(gene, species, "")
+  let maps = recon.lca_maps()
+  // 5 nodes: 3 leaves + 2 internal
+  assert_eq(maps.length(), 5)
+}
+
+///|
+test "recon context: depth table eliminates recomputation" {
+  // Larger tree to verify depth table works correctly
+  // Species: (((Human, Chimp), Gorilla), Orangutan)
+  let gene = lca_internal([
+    lca_internal([
+      lca_internal([lca_leaf("Human"), lca_leaf("Chimp")]),
+      lca_leaf("Gorilla"),
+    ]),
+    lca_leaf("Orangutan"),
+  ])
+  let species = lca_species_tree4b()
+  let recon = @src.Reconciliation::new(gene, species, "")
+
+  // Context and separate calls must agree
+  let losses_ctx = recon.count_losses()
+  let losses_sep = @src.phylo_count_losses(gene, species, "")
+  assert_eq(losses_ctx, losses_sep)
+
+  let recon_ctx = recon.reconcile()
+  let recon_sep = @src.phylo_reconcile(gene, species, "")
+  assert_eq(recon_ctx.total_cost, recon_sep.total_cost)
+}

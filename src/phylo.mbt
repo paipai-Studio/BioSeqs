@@ -300,6 +300,7 @@ pub struct Tree {
   rooted : Bool
   name : String?
   weight : Double
+  results : Map[String, String]
 }
 
 ///|
@@ -310,13 +311,35 @@ pub fn Tree::new(
   name? : String? = None,
   weight? : Double = 1.0,
 ) -> Tree {
-  Tree::{ root, rooted, name, weight, }
+  Tree::{ root, rooted, name, weight, results: Map([], capacity=0), }
 }
 
 ///|
 /// Check if this tree is rooted.
 pub fn Tree::is_rooted(self : Tree) -> Bool {
   self.rooted
+}
+
+///|
+/// Store a named analysis result on this tree (metadata attachment).
+/// Inspired by AnnData.uns / Seurat meta_data — analysis results
+/// (e.g. tajima_d, sfs, reconciliation summary) can be cached on
+/// the tree object so downstream functions read without recomputing.
+pub fn Tree::set_result(self : Tree, key : String, value : String) -> Tree {
+  self.results[key] = value
+  self
+}
+
+///|
+/// Retrieve a named analysis result, or None if not set.
+pub fn Tree::get_result(self : Tree, key : String) -> String? {
+  self.results.get(key)
+}
+
+///|
+/// Check whether a named result has been stored.
+pub fn Tree::has_result(self : Tree, key : String) -> Bool {
+  self.results.contains(key)
 }
 
 ///|
