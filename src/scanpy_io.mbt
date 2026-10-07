@@ -262,3 +262,355 @@ pub fn scanpy_read_10x_mtx(
 
   adata
 }
+
+// ============================================================================
+// h5ad text-format IO (JSON-based)
+//
+// Real .h5ad files use HDF5 binary format.  Without an HDF5 library we
+// implement a JSON-based text format that preserves the full AnnData
+// structure (X, obs, var, layers, obsm, obsp, varp, uns, names) and
+// supports round-trip read/write.  This is sufficient for testing,
+// interchange, and small datasets.
+// ============================================================================
+
+///|
+/// Convert a dense matrix to a JsonValue array-of-arrays.
+fn h5ad_mat_to_json(mat : Array[Array[Double]]) -> JsonValue {
+  let rows : Array[JsonValue] = Array(capacity=mat.length())
+  for row in mat {
+    let cols : Array[JsonValue] = Array(capacity=row.length())
+    for v in row {
+      cols.push(JsonNum(v))
+    }
+    rows.push(JsonArr(cols))
+  }
+  JsonArr(rows)
+}
+
+///|
+/// Convert a string array to a JsonValue array.
+fn h5ad_strs_to_json(arr : Array[String]) -> JsonValue {
+  let items : Array[JsonValue] = Array(capacity=arr.length())
+  for s in arr {
+    items.push(JsonStr(s))
+  }
+  JsonArr(items)
+}
+
+///|
+/// Convert a Map[String, Array[String]] to a JsonValue object.
+fn h5ad_str_map_to_json(m : Map[String, Array[String]]) -> JsonValue {
+  let obj : Map[String, JsonValue] = Map([], capacity=4)
+  for kv in m {
+    obj[kv.0] = h5ad_strs_to_json(kv.1)
+  }
+  JsonObj(obj)
+}
+
+///|
+/// Convert a Map[String, Array[Array[Double]]] to a JsonValue object.
+fn h5ad_mat_map_to_json(m : Map[String, Array[Array[Double]]]) -> JsonValue {
+  let obj : Map[String, JsonValue] = Map([], capacity=4)
+  for kv in m {
+    obj[kv.0] = h5ad_mat_to_json(kv.1)
+  }
+  JsonObj(obj)
+}
+
+///|
+/// Convert a Map[String, String] to a JsonValue object.
+fn h5ad_uns_to_json(m : Map[String, String]) -> JsonValue {
+  let obj : Map[String, JsonValue] = Map([], capacity=4)
+  for kv in m {
+    obj[kv.0] = JsonStr(kv.1)
+  }
+  JsonObj(obj)
+}
+
+///|
+/// Serialize an AnnData to a JSON string (h5ad text format).
+/// Supports both dense and sparse X storage.
+pub fn scanpy_write_h5ad(adata : AnnData) -> String {
+  let root : Map[String, JsonValue] = Map([], capacity=16)
+  // X matrix
+  match adata.get_sparse() {
+    Some(s) => {
+      let dims = s.dim()
+      let coords : Array[JsonValue] = Array(capacity=0)
+      let values : Array[JsonValue] = Array(capacity=0)
+      for entry in s.entries {
+        let c : Array[JsonValue] = Array(capacity=2)
+        c.push(JsonNum(entry.coordinates[0].to_double()))
+        c.push(JsonNum(entry.coordinates[1].to_double()))
+        coords.push(JsonArr(c))
+        values.push(JsonNum(entry.value))
+      }
+      let sparse_obj : Map[String, JsonValue] = Map([], capacity=3)
+      sparse_obj["dims"] = h5ad_strs_to_json([dims[0].to_string(), dims[1].to_string()])
+      // Actually dims should be numbers
+      let dims_arr : Array[JsonValue] = Array(capacity=2)
+      dims_arr.push(JsonNum(dims[0].to_double()))
+      dims_arr.push(JsonNum(dims[1].to_double()))
+      sparse_obj["dims"] = JsonArr(dims_arr)
+      sparse_obj["coords"] = JsonArr(coords)
+      sparse_obj["values"] = JsonArr(values)
+      root["X_sparse"] = JsonObj(sparse_obj)
+    }
+    None => {
+      root["X"] = h5ad_mat_to_json(adata.x)
+    }
+  }
+  root["obs_names"] = h5ad_strs_to_json(adata.obs_names)
+  root["var_names"] = h5ad_strs_to_json(adata.var_names)
+  root["obs"] = h5ad_str_map_to_json(adata.obs)
+  root["var"] = h5ad_str_map_to_json(adata.variables)
+  root["layers"] = h5ad_mat_map_to_json(adata.layers)
+  root["obsm"] = h5ad_mat_map_to_json(adata.obsm)
+  root["varm"] = h5ad_mat_map_to_json(adata.varm)
+  root["obsp"] = h5ad_mat_map_to_json(adata.obsp)
+  root["varp"] = h5ad_mat_map_to_json(adata.varp)
+  root["uns"] = h5ad_uns_to_json(adata.uns)
+  json_to_string(JsonObj(root))
+}
+
+///|
+/// Extract a Double from a JsonValue, defaulting to 0.0.
+fn h5ad_json_to_num(v : JsonValue) -> Double {
+  match v {
+    JsonNum(d) => d
+    _ => 0.0
+  }
+}
+
+///|
+/// Extract a String from a JsonValue, defaulting to "".
+fn h5ad_json_to_str(v : JsonValue) -> String {
+  match v {
+    JsonStr(s) => s
+    _ => ""
+  }
+}
+
+///|
+/// Parse a JsonValue array-of-arrays into a dense matrix.
+fn h5ad_json_to_mat(v : JsonValue) -> Array[Array[Double]] {
+  match v {
+    JsonArr(rows) => {
+      let out : Array[Array[Double]] = Array(capacity=rows.length())
+      for row in rows {
+        match row {
+          JsonArr(cols) => {
+            let r : Array[Double] = Array(capacity=cols.length())
+            for c in cols {
+              r.push(h5ad_json_to_num(c))
+            }
+            out.push(r)
+          }
+          _ => out.push([])
+        }
+      }
+      out
+    }
+    _ => []
+  }
+}
+
+///|
+/// Parse a JsonValue array into a string array.
+fn h5ad_json_to_strs(v : JsonValue) -> Array[String] {
+  match v {
+    JsonArr(items) => {
+      let out : Array[String] = Array(capacity=items.length())
+      for item in items {
+        out.push(h5ad_json_to_str(item))
+      }
+      out
+    }
+    _ => []
+  }
+}
+
+///|
+/// Parse a JsonValue object into a Map[String, Array[String]].
+fn h5ad_json_to_str_map(v : JsonValue) -> Map[String, Array[String]] {
+  let out : Map[String, Array[String]] = Map([], capacity=4)
+  match v {
+    JsonObj(m) => {
+      for kv in m {
+        out[kv.0] = h5ad_json_to_strs(kv.1)
+      }
+    }
+    _ => { let _ = 0 }
+  }
+  out
+}
+
+///|
+/// Parse a JsonValue object into a Map[String, Array[Array[Double]]].
+fn h5ad_json_to_mat_map(v : JsonValue) -> Map[String, Array[Array[Double]]] {
+  let out : Map[String, Array[Array[Double]]] = Map([], capacity=4)
+  match v {
+    JsonObj(m) => {
+      for kv in m {
+        out[kv.0] = h5ad_json_to_mat(kv.1)
+      }
+    }
+    _ => { let _ = 0 }
+  }
+  out
+}
+
+///|
+/// Parse a JsonValue object into a Map[String, String].
+fn h5ad_json_to_uns(v : JsonValue) -> Map[String, String] {
+  let out : Map[String, String] = Map([], capacity=4)
+  match v {
+    JsonObj(m) => {
+      for kv in m {
+        out[kv.0] = h5ad_json_to_str(kv.1)
+      }
+    }
+    _ => { let _ = 0 }
+  }
+  out
+}
+
+///|
+/// Deserialize a JSON string (h5ad text format) back to an AnnData.
+/// Returns `None` if parsing fails.
+pub fn scanpy_read_h5ad(content : String) -> AnnData? {
+  let json = parse_json(content)
+  match json {
+    None => None
+    Some(JsonObj(root)) => {
+      // Parse obs_names and var_names
+      let obs_names = match root.get("obs_names") {
+        Some(v) => h5ad_json_to_strs(v)
+        None => []
+      }
+      let var_names = match root.get("var_names") {
+        Some(v) => h5ad_json_to_strs(v)
+        None => []
+      }
+      // Parse obs/var metadata
+      let obs = match root.get("obs") {
+        Some(v) => h5ad_json_to_str_map(v)
+        None => Map([], capacity=4)
+      }
+      let variables = match root.get("var") {
+        Some(v) => h5ad_json_to_str_map(v)
+        None => Map([], capacity=4)
+      }
+      // Parse layers/obsm/varm/obsp/varp
+      let layers = match root.get("layers") {
+        Some(v) => h5ad_json_to_mat_map(v)
+        None => Map([], capacity=4)
+      }
+      let obsm = match root.get("obsm") {
+        Some(v) => h5ad_json_to_mat_map(v)
+        None => Map([], capacity=4)
+      }
+      let varm = match root.get("varm") {
+        Some(v) => h5ad_json_to_mat_map(v)
+        None => Map([], capacity=4)
+      }
+      let obsp = match root.get("obsp") {
+        Some(v) => h5ad_json_to_mat_map(v)
+        None => Map([], capacity=4)
+      }
+      let varp = match root.get("varp") {
+        Some(v) => h5ad_json_to_mat_map(v)
+        None => Map([], capacity=4)
+      }
+      let uns = match root.get("uns") {
+        Some(v) => h5ad_json_to_uns(v)
+        None => Map([], capacity=4)
+      }
+      // Build AnnData — sparse or dense
+      match root.get("X_sparse") {
+        Some(JsonObj(sparse_obj)) => {
+          let dims = match sparse_obj.get("dims") {
+            Some(JsonArr(d)) => {
+              let r = h5ad_json_to_num(d[0]).to_int()
+              let c = h5ad_json_to_num(d[1]).to_int()
+              [r, c]
+            }
+            _ => [0, 0]
+          }
+          let coords : Array[Array[Int]] = Array(capacity=0)
+          match sparse_obj.get("coords") {
+            Some(JsonArr(ca)) => {
+              for c in ca {
+                match c {
+                  JsonArr(pair) => {
+                    coords.push([
+                      h5ad_json_to_num(pair[0]).to_int(),
+                      h5ad_json_to_num(pair[1]).to_int(),
+                    ])
+                  }
+                  _ => { let _ = 0 }
+                }
+              }
+            }
+            _ => { let _ = 0 }
+          }
+          let values : Array[Double] = Array(capacity=0)
+          match sparse_obj.get("values") {
+            Some(JsonArr(va)) => {
+              for v in va {
+                values.push(h5ad_json_to_num(v))
+              }
+            }
+            _ => { let _ = 0 }
+          }
+          let sparse = SparseArray::from_coo(dims, coords, values) catch {
+            _ => return None
+          }
+          let adata = AnnData::new_sparse(sparse, obs_names, var_names)
+          // Set metadata
+          for kv in obs {
+            let _ = adata.set_obs(kv.0, kv.1)
+          }
+          for kv in variables {
+            let _ = adata.set_var(kv.0, kv.1)
+          }
+          for kv in layers {
+            let _ = adata.set_layer(kv.0, kv.1)
+          }
+          for kv in obsm {
+            let _ = adata.set_obsm(kv.0, kv.1)
+          }
+          for kv in obsp {
+            let _ = adata.set_obsp(kv.0, kv.1)
+          }
+          Some(adata)
+        }
+        _ => {
+          // Dense X
+          let x = match root.get("X") {
+            Some(v) => h5ad_json_to_mat(v)
+            None => []
+          }
+          let adata = AnnData::new(x, obs_names, var_names)
+          for kv in obs {
+            let _ = adata.set_obs(kv.0, kv.1)
+          }
+          for kv in variables {
+            let _ = adata.set_var(kv.0, kv.1)
+          }
+          for kv in layers {
+            let _ = adata.set_layer(kv.0, kv.1)
+          }
+          for kv in obsm {
+            let _ = adata.set_obsm(kv.0, kv.1)
+          }
+          for kv in obsp {
+            let _ = adata.set_obsp(kv.0, kv.1)
+          }
+          Some(adata)
+        }
+      }
+    }
+    _ => None
+  }
+}

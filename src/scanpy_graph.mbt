@@ -70,3 +70,13 @@ pub fn sparse_graph_from_dense(m : Array[Array[Double]]) -> SparseGraph {
   }
   SparseGraph::{ n, diag, adj, }
 }
+
+///|
+/// Construct a SparseGraph from its components (for testing / direct use).
+pub fn SparseGraph::new(
+  n : Int,
+  diag : Array[Double],
+  adj : Array[Array[(Int, Double)]],
+) -> SparseGraph {
+  SparseGraph::{ n, diag, adj }
+}
