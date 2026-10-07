@@ -432,3 +432,391 @@ pub fn phylo_coalescent_summary(result : CoalescentResult) -> String {
   }
   sb.to_string()
 }
+
+// =========================================================================
+// Site Frequency Spectrum (SFS)
+//   Expected SFS under standard neutral model: E[ξ_i] = θ / i
+//   Folded SFS: E[η_i] = θ/i + θ/(n-i)  for i < n/2
+//   Plus classic test statistics: Watterson θ, Tajima D, Fu & Li D/F.
+// =========================================================================
+
+///|
+/// Expected unfolded SFS: array of E[ξ_i] for i = 1..n-1.
+/// Under the standard neutral coalescent, E[ξ_i] = θ / i.
+pub fn phylo_expected_sfs(n : Int, theta : Double) -> Array[Double] {
+  if n <= 1 {
+    return []
+  }
+  let result : Array[Double] = Array(capacity=n - 1)
+  for i in 1..<n {
+    result.push(theta / i.to_double())
+  }
+  result
+}
+
+///|
+/// Expected folded SFS: array of E[η_i] for i = 1..floor(n/2).
+/// η_i = ξ_i + ξ_{n-i} for i < n/2, η_i = ξ_i for i = n/2.
+pub fn phylo_expected_sfs_folded(n : Int, theta : Double) -> Array[Double] {
+  if n <= 1 {
+    return []
+  }
+  let half = n / 2
+  let result : Array[Double] = Array(capacity=half)
+  for i in 1..<(half + 1) {
+    let val = if i == n - i {
+      // i == n/2 (only when n is even and i = n/2)
+      theta / i.to_double()
+    } else {
+      theta / i.to_double() + theta / (n - i).to_double()
+    }
+    result.push(val)
+  }
+  result
+}
+
+///|
+/// Observe SFS from aligned sequences.
+/// `sequences` is an array of equal-length strings (DNA).
+/// Ancestral state is taken as the first sequence's base at each position.
+/// Returns array of counts for derived allele frequency i = 1..n-1.
+pub fn phylo_observed_sfs(sequences : Array[String]) -> Array[Int] {
+  let n = sequences.length()
+  if n <= 1 {
+    return []
+  }
+  let seq_len = sequences[0].length()
+  let sfs : Array[Int] = Array(capacity=n - 1)
+  for _ in 1..<n {
+    sfs.push(0)
+  }
+  for pos in 0..<seq_len {
+    let ancestral = sequences[0].char_to_at(pos)
+    let mut derived_count = 0
+    for i in 1..<n {
+      if sequences[i].char_to_at(pos) != ancestral {
+        derived_count = derived_count + 1
+      }
+    }
+    if derived_count > 0 && derived_count < n {
+      sfs[derived_count - 1] = sfs[derived_count - 1] + 1
+    }
+  }
+  sfs
+}
+
+///|
+/// Observe folded SFS from aligned sequences.
+/// For each segregating site, the minor allele count is min(derived, n-derived).
+/// Returns array of counts for minor allele frequency i = 1..floor(n/2).
+pub fn phylo_observed_sfs_folded(sequences : Array[String]) -> Array[Int] {
+  let n = sequences.length()
+  if n <= 1 {
+    return []
+  }
+  let seq_len = sequences[0].length()
+  let half = n / 2
+  let sfs : Array[Int] = Array(capacity=half)
+  for _ in 1..<(half + 1) {
+    sfs.push(0)
+  }
+  for pos in 0..<seq_len {
+    // Count allele frequencies
+    let counts : Map[Int, Int] = Map([], capacity=4)
+    for i in 0..<n {
+      let c = sequences[i].char_to_at(pos)
+      match counts.get(c) {
+        Some(v) => counts.set(c, v + 1)
+        None => counts.set(c, 1)
+      }
+    }
+    if counts.size() == 2 {
+      // Biallelic: get minor count
+      let mut minor = n
+      for (_, v) in counts {
+        if v < minor {
+          minor = v
+        }
+      }
+      if minor >= 1 && minor <= half {
+        sfs[minor - 1] = sfs[minor - 1] + 1
+      }
+    }
+  }
+  sfs
+}
+
+///|
+/// Helper: get character code at position.
+fn String::char_to_at(self : String, pos : Int) -> Int {
+  self.unsafe_get(pos).to_int()
+}
+
+///|
+/// Count segregating sites from aligned sequences.
+pub fn phylo_segregating_sites(sequences : Array[String]) -> Int {
+  let n = sequences.length()
+  if n <= 1 {
+    return 0
+  }
+  let seq_len = sequences[0].length()
+  let mut count = 0
+  for pos in 0..<seq_len {
+    let first = sequences[0].char_to_at(pos)
+    let mut seg = false
+    for i in 1..<n {
+      if sequences[i].char_to_at(pos) != first {
+        seg = true
+      }
+    }
+    if seg {
+      count = count + 1
+    }
+  }
+  count
+}
+
+///|
+/// Count singletons (derived allele frequency = 1) from aligned sequences.
+pub fn phylo_count_singletons(sequences : Array[String]) -> Int {
+  let n = sequences.length()
+  if n <= 1 {
+    return 0
+  }
+  let seq_len = sequences[0].length()
+  let mut count = 0
+  for pos in 0..<seq_len {
+    let ancestral = sequences[0].char_to_at(pos)
+    let mut derived_count = 0
+    for i in 1..<n {
+      if sequences[i].char_to_at(pos) != ancestral {
+        derived_count = derived_count + 1
+      }
+    }
+    if derived_count == 1 {
+      count = count + 1
+    }
+  }
+  count
+}
+
+///|
+/// Watterson's estimator: θ_W = S / H_{n-1}.
+pub fn phylo_watterson_theta(s : Int, n : Int) -> Double {
+  if n <= 1 || s == 0 {
+    return 0.0
+  }
+  let mut harmonic = 0.0
+  for i in 1..<n {
+    harmonic = harmonic + 1.0 / i.to_double()
+  }
+  s.to_double() / harmonic
+}
+
+///|
+/// Nucleotide diversity π: average pairwise differences.
+/// π = (2 / (n*(n-1))) * Σ_{i<j} d(i,j)
+pub fn phylo_pi(sequences : Array[String]) -> Double {
+  let n = sequences.length()
+  if n <= 1 {
+    return 0.0
+  }
+  let seq_len = sequences[0].length()
+  let mut total_diff = 0
+  for i in 0..<n {
+    for j in (i + 1)..<n {
+      for pos in 0..<seq_len {
+        if sequences[i].char_to_at(pos) != sequences[j].char_to_at(pos) {
+          total_diff = total_diff + 1
+        }
+      }
+    }
+  }
+  let num_pairs = n.to_double() * (n - 1).to_double() / 2.0
+  total_diff.to_double() / num_pairs
+}
+
+///|
+/// Tajima's D test statistic.
+/// D = (π - S/a1) / sqrt(e1*S + e2*S*(S-1))
+pub fn phylo_tajima_d(s : Int, n : Int, pi : Double) -> Double {
+  if n <= 1 || s == 0 {
+    return 0.0
+  }
+  let a1 = sfs_harmonic(n - 1)
+  let a2 = sfs_harmonic_sq(n - 1)
+  let b1 = (n.to_double() + 1.0) / (3.0 * (n.to_double() - 1.0))
+  let b2 = 2.0 * (
+    n.to_double() * n.to_double() + n.to_double() + 3.0
+  ) / (9.0 * n.to_double() * (n.to_double() - 1.0))
+  let c1 = b1 - 1.0 / a1
+  let c2 = b2 - (n.to_double() + 2.0) / (a1 * n.to_double()) + a2 / (a1 * a1)
+  let e1 = c1 / a1
+  let e2 = c2 / (a1 * a1 + a2)
+  let s_d = s.to_double()
+  let numerator = pi - s_d / a1
+  let denominator = sfs_sqrt(e1 * s_d + e2 * s_d * (s_d - 1.0))
+  if denominator == 0.0 {
+    return 0.0
+  }
+  numerator / denominator
+}
+
+///|
+/// Fu and Li's D test statistic.
+/// D_FL = (S - a1*η) / sqrt(u1*S + u2*S*(S-1))
+/// where η = number of singletons (external mutations).
+pub fn phylo_fu_li_d(s : Int, n : Int, singletons : Int) -> Double {
+  if n <= 1 || s == 0 {
+    return 0.0
+  }
+  let a_n = sfs_harmonic(n - 1)
+  let b_n = sfs_harmonic(n - 1) // same as a_n for this formula
+  let v_d = 1.0 + a_n * a_n / (b_n * b_n * (n.to_double() - 2.0)) -
+    2.0 * a_n / ((n.to_double() - 1.0) * b_n)
+  let u_d = a_n - 1.0 - v_d
+  let s_d = s.to_double()
+  let eta = singletons.to_double()
+  let numerator = s_d - a_n * eta
+  let denominator = sfs_sqrt(u_d * s_d + v_d * s_d * s_d)
+  if denominator == 0.0 {
+    return 0.0
+  }
+  numerator / denominator
+}
+
+///|
+/// Fu and Li's F test statistic.
+/// F_FL = (π - η) / sqrt(v1*S + v2*S*(S-1))
+pub fn phylo_fu_li_f(
+  s : Int,
+  n : Int,
+  pi : Double,
+  singletons : Int
+) -> Double {
+  if n <= 1 || s == 0 {
+    return 0.0
+  }
+  let a_n = sfs_harmonic(n - 1)
+  let b_n = sfs_harmonic(n - 1)
+  let v_f = 1.0 + (n.to_double() * n.to_double() - 3.0 * n.to_double() + 2.0) /
+    (3.0 * (n.to_double() - 1.0) * (n.to_double() - 2.0)) -
+    2.0 * a_n / (n.to_double() - 1.0) +
+    2.0 * a_n * a_n / ((n.to_double() - 1.0) * (n.to_double() - 1.0) * b_n)
+  let u_f = 1.0 + (n.to_double() + 1.0) / (3.0 * (n.to_double() - 1.0)) -
+    4.0 * (n.to_double() + 1.0) / (
+      (n.to_double() - 1.0) * (n.to_double() - 1.0)
+    ) * (a_n - 1.0) - v_f
+  let s_d = s.to_double()
+  let eta = singletons.to_double()
+  let numerator = pi - eta
+  let denominator = sfs_sqrt(u_f * s_d + v_f * s_d * (s_d - 1.0))
+  if denominator == 0.0 {
+    return 0.0
+  }
+  numerator / denominator
+}
+
+///|
+/// Fay and Wu's H test statistic.
+/// H = π - θ_H, where θ_H = (2 / (n-1)) * Σ i² * ξ_i
+/// `sfs` is the observed unfolded SFS (counts for i=1..n-1).
+pub fn phylo_fay_wu_h(sfs : Array[Int], n : Int, pi : Double) -> Double {
+  if n <= 1 || sfs.length() == 0 {
+    return 0.0
+  }
+  let mut theta_h = 0.0
+  for i in 0..<sfs.length() {
+    let freq = (i + 1).to_double()
+    theta_h = theta_h + freq * freq * sfs[i].to_double()
+  }
+  theta_h = theta_h * 2.0 / (n.to_double() - 1.0)
+  pi - theta_h
+}
+
+///|
+/// Zeng's E test statistic (E = θ_π - θ_L).
+/// θ_L = (1 / (n-1)) * Σ i * ξ_i
+pub fn phylo_zeng_e(sfs : Array[Int], n : Int, pi : Double) -> Double {
+  if n <= 1 || sfs.length() == 0 {
+    return 0.0
+  }
+  let mut theta_l = 0.0
+  for i in 0..<sfs.length() {
+    let freq = (i + 1).to_double()
+    theta_l = theta_l + freq * sfs[i].to_double()
+  }
+  theta_l = theta_l / (n.to_double() - 1.0)
+  pi - theta_l
+}
+
+///|
+/// Sturge's rule for optimal number of bins for SFS histogram.
+/// k = 1 + log2(n)
+pub fn phylo_sfs_num_bins(n : Int) -> Int {
+  if n <= 1 {
+    return 0
+  }
+  // log2(n) = ln(n) / ln(2)
+  let log2n = @math.ln(n.to_double()) / @math.ln(2.0)
+  1 + log2n.to_int()
+}
+
+///|
+/// Format SFS as a table string.
+pub fn phylo_sfs_to_string(sfs : Array[Double]) -> String {
+  let sb = StringBuilder()
+  sb.write_string("Site Frequency Spectrum:\n")
+  sb.write_string("  i    E[ξ_i]\n")
+  sb.write_string("  ───────────\n")
+  for i in 0..<sfs.length() {
+    sb.write_string("  ")
+    let freq = (i + 1).to_string()
+    sb.write_string(freq)
+    // Pad
+    let pad = if freq.length() < 4 { 4 - freq.length() } else { 1 }
+    for _ in 0..<pad {
+      sb.write_char(' ')
+    }
+    let val = (sfs[i] * 10000.0).to_int().to_double() / 10000.0
+    sb.write_string(val.to_string())
+    sb.write_char('\n')
+  }
+  sb.to_string()
+}
+
+// --- helper functions ---
+
+///|
+/// Harmonic number H_k = sum_{i=1}^{k} 1/i.
+fn sfs_harmonic(k : Int) -> Double {
+  let mut h = 0.0
+  for i in 1..<(k + 1) {
+    h = h + 1.0 / i.to_double()
+  }
+  h
+}
+
+///|
+/// Sum of 1/i^2 for i=1..k.
+fn sfs_harmonic_sq(k : Int) -> Double {
+  let mut h = 0.0
+  for i in 1..<(k + 1) {
+    let d = i.to_double()
+    h = h + 1.0 / (d * d)
+  }
+  h
+}
+
+///|
+/// Square root via Newton's method.
+fn sfs_sqrt(x : Double) -> Double {
+  if x <= 0.0 {
+    return 0.0
+  }
+  let mut guess = x
+  for _ in 0..<50 {
+    guess = (guess + x / guess) / 2.0
+  }
+  guess
+}
