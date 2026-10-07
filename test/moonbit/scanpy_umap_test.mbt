@@ -24,3 +24,36 @@ test "scanpy_umap_separates_clusters" {
   let within = if d_1 > d_2 { d_1 } else { d_2 }
   assert_true(d_c > within + 0.5)
 }
+///|
+/// Empty graph (0 vertices) → empty embedding.
+test "scanpy_umap_empty_graph" {
+  let g = @src.SparseGraph::new(0, [], [])
+  let emb = @src.scanpy_umap(g, 100)
+  assert_eq(emb.length(), 0)
+}
+
+///|
+/// Single vertex (n < 3): returns the trivial layout [[0.0, 0.0]].
+test "scanpy_umap_single_vertex" {
+  let g = @src.SparseGraph::new(1, [1.0], [[]])
+  let emb = @src.scanpy_umap(g, 100)
+  assert_eq(emb.length(), 1)
+  assert_eq(emb[0].length(), 2)
+  assert_true(assert_close(emb[0][0], 0.0, 1.0e-10))
+  assert_true(assert_close(emb[0][1], 0.0, 1.0e-10))
+}
+
+///|
+/// Two vertices (n < 3): returns the trivial layout [[0,0], [1,0]].
+/// The function short-circuits for n < 3 without running SGD.
+test "scanpy_umap_two_vertices" {
+  let g = @src.SparseGraph::new(2, [1.0, 1.0], [[(1, 0.5)], [(0, 0.5)]])
+  let emb = @src.scanpy_umap(g, 100)
+  assert_eq(emb.length(), 2)
+  assert_eq(emb[0].length(), 2)
+  // trivial layout: vertex 0 at (0,0), vertex 1 at (1,0)
+  assert_true(assert_close(emb[0][0], 0.0, 1.0e-10))
+  assert_true(assert_close(emb[0][1], 0.0, 1.0e-10))
+  assert_true(assert_close(emb[1][0], 1.0, 1.0e-10))
+  assert_true(assert_close(emb[1][1], 0.0, 1.0e-10))
+}

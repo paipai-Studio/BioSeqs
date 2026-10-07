@@ -44,3 +44,48 @@ test "scanpy_pca" {
     }
   }
 }
+///|
+/// Empty matrix (0 rows) → all output arrays empty.
+test "scanpy_pca_empty_matrix" {
+  let x : Array[Array[Double]] = []
+  let pca = @src.scanpy_pca(x, 3)
+  assert_eq(pca.coords.length(), 0)
+  assert_eq(pca.loadings.length(), 0)
+  assert_eq(pca.variance_ratio.length(), 0)
+}
+
+///|
+/// Single sample (1 row): after column centring every entry is 0, so the
+/// covariance is the zero matrix and all variance ratios are 0.
+test "scanpy_pca_single_sample" {
+  let x = [[1.0, 5.0, 3.0]]
+  let pca = @src.scanpy_pca(x, 2)
+  // coords has 1 row, but n_comps clamped to min(2, 3) = 2
+  assert_eq(pca.coords.length(), 1)
+  assert_eq(pca.coords[0].length(), 2)
+  // with zero covariance, all coords are 0 and variance_ratio is 0
+  for c = 0; c < 2; c = c + 1 {
+    assert_true(assert_close(pca.coords[0][c], 0.0, 1.0e-10))
+    assert_true(assert_close(pca.variance_ratio[c], 0.0, 1.0e-10))
+  }
+}
+
+///|
+/// n_comps > n_vars: the function should silently clamp to n_vars
+/// rather than indexing out of bounds.
+test "scanpy_pca_n_comps_exceeds_n_vars" {
+  let x = [[1.0, 2.0], [3.0, 1.0], [0.0, 5.0]]
+  let pca = @src.scanpy_pca(x, 10) // n_comps=10, n_vars=2
+  // clamped to n_vars = 2
+  assert_eq(pca.loadings.length(), 2)
+  assert_eq(pca.loadings[0].length(), 2)
+  assert_eq(pca.coords.length(), 3)
+  assert_eq(pca.coords[0].length(), 2)
+  assert_eq(pca.variance_ratio.length(), 2)
+  // variance ratio still sums to 1 (two non-degenerate components)
+  let mut s = 0.0
+  for v in pca.variance_ratio {
+    s = s + v
+  }
+  assert_true(assert_close(s, 1.0, 1.0e-6))
+}
