@@ -10,6 +10,7 @@
 ///|
 pub struct AnnData {
   x : Array[Array[Double]]
+  x_sparse : SparseArray?            // sparse storage (when set, x is empty)
   obs : Map[String, Array[String]]
   variables : Map[String, Array[String]]
   layers : Map[String, Array[Array[Double]]]
@@ -33,6 +34,7 @@ pub fn AnnData::new(
 ) -> AnnData {
   AnnData::{
     x,
+    x_sparse: None,
     obs: Map([], capacity=4),
     variables: Map([], capacity=4),
     layers: Map([], capacity=4),
@@ -48,15 +50,29 @@ pub fn AnnData::new(
 
 ///|
 pub fn AnnData::n_obs(self : AnnData) -> Int {
-  self.x.length()
+  match self.x_sparse {
+    Some(s) => {
+      let dims = s.dim()
+      if dims.length() >= 1 { dims[0] } else { 0 }
+    }
+    None => self.x.length()
+  }
 }
 
 ///|
 pub fn AnnData::n_vars(self : AnnData) -> Int {
-  if self.x.length() == 0 {
-    0
-  } else {
-    self.x[0].length()
+  match self.x_sparse {
+    Some(s) => {
+      let dims = s.dim()
+      if dims.length() >= 2 { dims[1] } else { 0 }
+    }
+    None => {
+      if self.x.length() == 0 {
+        0
+      } else {
+        self.x[0].length()
+      }
+    }
   }
 }
 
@@ -243,8 +259,18 @@ pub fn AnnData::subset(
   obs_idx : Array[Int],
   var_idx : Array[Int],
 ) -> AnnData {
+  let x_sparse_new = match self.x_sparse {
+    Some(s) => {
+      Some(s.subset([obs_idx, var_idx]) catch { _ => s })
+    }
+    None => None
+  }
   AnnData::{
-    x: pick_rc(self.x, obs_idx, var_idx),
+    x: match x_sparse_new {
+      Some(_) => []
+      None => pick_rc(self.x, obs_idx, var_idx)
+    },
+    x_sparse: x_sparse_new,
     obs: pick_str_map_rows(self.obs, obs_idx),
     variables: pick_str_map_rows(self.variables, var_idx),
     layers: pick_rc_map(self.layers, obs_idx, var_idx),
@@ -282,7 +308,11 @@ fn copy_mat_map(m : Map[String, Array[Array[Double]]]) -> Map[String, Array[Arra
 /// Deep copy of the AnnData object.
 pub fn AnnData::copy(self : AnnData) -> AnnData {
   AnnData::{
-    x: pick_rows(self.x, range(self.x.length())),
+    x: match self.x_sparse {
+      Some(_) => []
+      None => pick_rows(self.x, range(self.x.length()))
+    },
+    x_sparse: self.x_sparse,
     obs: copy_str_map(self.obs),
     variables: copy_str_map(self.variables),
     layers: copy_mat_map(self.layers),
@@ -319,8 +349,14 @@ fn copy_string_map(m : Map[String, String]) -> Map[String, String] {
 
 ///|
 /// Return the dense `n_obs × n_vars` expression matrix.
+/// If sparse storage is used, materializes the dense matrix on demand.
 pub fn AnnData::x_matrix(self : AnnData) -> Array[Array[Double]] {
-  self.x
+  match self.x_sparse {
+    Some(s) => {
+      s.to_dense_matrix() catch { _ => [] }
+    }
+    None => self.x
+  }
 }
 
 ///|
@@ -333,4 +369,241 @@ pub fn AnnData::get_obs_names(self : AnnData) -> Array[String] {
 /// Variable (gene) names.
 pub fn AnnData::get_var_names(self : AnnData) -> Array[String] {
   self.var_names
+}
+
+
+// ============================================================================
+// Sparse storage support (P3 optimization)
+//
+// Single-cell expression matrices are ~90% zeros.  Storing them as a dense
+// Array[Array[Double]] wastes memory: 10K cells × 20K genes ≈ 1.6 GB dense
+// vs ~50 MB sparse.  When `x_sparse` is `Some(s)`, the dense `x` field is
+// empty and all shape/matrix queries are served from the SparseArray.
+// ============================================================================
+
+///|
+/// Construct an AnnData backed by a SparseArray (CSR-like COO internally).
+/// The dense `x` field is left empty; `x_matrix()` materializes on demand.
+pub fn AnnData::new_sparse(
+  x_sparse : SparseArray,
+  obs_names : Array[String],
+  var_names : Array[String],
+) -> AnnData {
+  AnnData::{
+    x: [],
+    x_sparse: Some(x_sparse),
+    obs: Map([], capacity=4),
+    variables: Map([], capacity=4),
+    layers: Map([], capacity=4),
+    obsm: Map([], capacity=4),
+    varm: Map([], capacity=4),
+    obsp: Map([], capacity=4),
+    varp: Map([], capacity=4),
+    obs_names,
+    var_names,
+    uns: Map([], capacity=4),
+  }
+}
+
+///|
+/// True when the expression matrix is stored sparsely.
+pub fn AnnData::is_sparse(self : AnnData) -> Bool {
+  match self.x_sparse {
+    Some(_) => true
+    None => false
+  }
+}
+
+///|
+/// Underlying SparseArray, or `None` if dense storage is used.
+pub fn AnnData::get_sparse(self : AnnData) -> SparseArray? {
+  self.x_sparse
+}
+
+///|
+/// Number of non-zero entries in the expression matrix.
+/// For dense storage, counts non-zero elements in `x`.
+pub fn AnnData::nnz(self : AnnData) -> Int {
+  match self.x_sparse {
+    Some(s) => s.nnzero()
+    None => {
+      let mut count = 0
+      for row in self.x {
+        for v in row {
+          if v != 0.0 {
+            count = count + 1
+          }
+        }
+      }
+      count
+    }
+  }
+}
+
+///|
+/// Fill density (nnz / total).  Returns 0.0 for empty matrices.
+pub fn AnnData::density(self : AnnData) -> Double {
+  let n = self.n_obs()
+  let m = self.n_vars()
+  if n == 0 || m == 0 {
+    return 0.0
+  }
+  let total = n * m
+  self.nnz().to_double() / total.to_double()
+}
+
+///|
+/// Row (per-cell) sums of the expression matrix.
+/// Uses sparse-native operation when available.
+pub fn AnnData::row_sums(self : AnnData) -> Array[Double] {
+  match self.x_sparse {
+    Some(s) => s.row_sums() catch { _ => [] }
+    None => {
+      let out : Array[Double] = Array(capacity=self.x.length())
+      for row in self.x {
+        let mut sum = 0.0
+        for v in row {
+          sum = sum + v
+        }
+        out.push(sum)
+      }
+      out
+    }
+  }
+}
+
+///|
+/// Column (per-gene) sums of the expression matrix.
+/// Uses sparse-native operation when available.
+pub fn AnnData::col_sums(self : AnnData) -> Array[Double] {
+  match self.x_sparse {
+    Some(s) => s.column_sums() catch { _ => [] }
+    None => {
+      let n = self.n_vars()
+      let out : Array[Double] = Array::make(n, 0.0)
+      for row in self.x {
+        for j in 0..<row.length() {
+          out[j] = out[j] + row[j]
+        }
+      }
+      out
+    }
+  }
+}
+
+///|
+/// Row (per-cell) means of the expression matrix.
+pub fn AnnData::row_means(self : AnnData) -> Array[Double] {
+  let n_vars = self.n_vars().to_double()
+  let sums = self.row_sums()
+  if n_vars == 0.0 {
+    return Array::make(sums.length(), 0.0)
+  }
+  let out : Array[Double] = Array(capacity=sums.length())
+  for s in sums {
+    out.push(s / n_vars)
+  }
+  out
+}
+
+///|
+/// Column (per-gene) means of the expression matrix.
+pub fn AnnData::col_means(self : AnnData) -> Array[Double] {
+  let n_obs = self.n_obs().to_double()
+  let sums = self.col_sums()
+  if n_obs == 0.0 {
+    return Array::make(sums.length(), 0.0)
+  }
+  let out : Array[Double] = Array(capacity=sums.length())
+  for s in sums {
+    out.push(s / n_obs)
+  }
+  out
+}
+
+///|
+/// Convert dense storage to sparse.  Returns a new AnnData whose `x_sparse`
+/// is populated and `x` is empty.  If already sparse, returns a copy.
+pub fn AnnData::to_sparse(self : AnnData) -> AnnData {
+  match self.x_sparse {
+    Some(_) => self.copy()
+    None => {
+      let sparse = SparseArray::from_matrix(self.x) catch {
+        _ => return self.copy()
+      }
+      AnnData::{
+        x: [],
+        x_sparse: Some(sparse),
+        obs: copy_str_map(self.obs),
+        variables: copy_str_map(self.variables),
+        layers: copy_mat_map(self.layers),
+        obsm: copy_mat_map(self.obsm),
+        varm: copy_mat_map(self.varm),
+        obsp: copy_mat_map(self.obsp),
+        varp: copy_mat_map(self.varp),
+        obs_names: self.obs_names.copy(),
+        var_names: self.var_names.copy(),
+        uns: copy_string_map(self.uns),
+      }
+    }
+  }
+}
+
+///|
+/// Convert sparse storage to dense.  Returns a new AnnData whose `x` is
+/// populated and `x_sparse` is `None`.  If already dense, returns a copy.
+pub fn AnnData::to_dense(self : AnnData) -> AnnData {
+  match self.x_sparse {
+    None => self.copy()
+    Some(s) => {
+      let dense = s.to_dense_matrix() catch { _ => [] }
+      AnnData::{
+        x: dense,
+        x_sparse: None,
+        obs: copy_str_map(self.obs),
+        variables: copy_str_map(self.variables),
+        layers: copy_mat_map(self.layers),
+        obsm: copy_mat_map(self.obsm),
+        varm: copy_mat_map(self.varm),
+        obsp: copy_mat_map(self.obsp),
+        varp: copy_mat_map(self.varp),
+        obs_names: self.obs_names.copy(),
+        var_names: self.var_names.copy(),
+        uns: copy_string_map(self.uns),
+      }
+    }
+  }
+}
+
+///|
+/// Get a single element `x[i, j]` from the expression matrix.
+/// Works for both sparse and dense storage.
+pub fn AnnData::get_x(self : AnnData, i : Int, j : Int) -> Double {
+  match self.x_sparse {
+    Some(s) => s.get([i, j]) catch { _ => 0.0 }
+    None => {
+      if i < self.x.length() && j < self.x[i].length() {
+        self.x[i][j]
+      } else {
+        0.0
+      }
+    }
+  }
+}
+
+///|
+/// Total sum of all elements in the expression matrix.
+pub fn AnnData::x_sum(self : AnnData) -> Double {
+  match self.x_sparse {
+    Some(s) => s.sum()
+    None => {
+      let mut total = 0.0
+      for row in self.x {
+        for v in row {
+          total = total + v
+        }
+      }
+      total
+    }
+  }
 }
