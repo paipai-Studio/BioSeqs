@@ -130,6 +130,39 @@ pub fn AnnData::set_obsp(
 }
 
 ///|
+/// Set a gene-embedding matrix under `name` (`n_vars × d`). Returns `self`.
+pub fn AnnData::set_varm(
+  self : AnnData,
+  name : String,
+  mat : Array[Array[Double]],
+) -> AnnData {
+  self.varm[name] = mat
+  self
+}
+
+///|
+/// Set a gene × gene pairwise matrix under `name`. Returns `self`.
+pub fn AnnData::set_varp(
+  self : AnnData,
+  name : String,
+  mat : Array[Array[Double]],
+) -> AnnData {
+  self.varp[name] = mat
+  self
+}
+
+///|
+/// Set an unstructured annotation (`uns`) key-value pair. Returns `self`.
+pub fn AnnData::set_uns(
+  self : AnnData,
+  key : String,
+  value : String,
+) -> AnnData {
+  self.uns[key] = value
+  self
+}
+
+///|
 /// Obs (cell) annotation column, or `None` if absent.
 pub fn AnnData::obs_column(self : AnnData, key : String) -> Array[String]? {
   match self.obs.get(key) {
@@ -369,6 +402,42 @@ pub fn AnnData::get_obs_names(self : AnnData) -> Array[String] {
 /// Variable (gene) names.
 pub fn AnnData::get_var_names(self : AnnData) -> Array[String] {
   self.var_names
+}
+
+///|
+/// Unstructured annotation value, or `None` if absent.
+pub fn AnnData::get_uns(self : AnnData, key : String) -> String? {
+  match self.uns.get(key) {
+    Some(v) => Some(v)
+    None => None
+  }
+}
+
+///|
+/// Layer matrix, or `None` if absent.
+pub fn AnnData::get_layer(self : AnnData, name : String) -> Array[Array[Double]]? {
+  match self.layers.get(name) {
+    Some(v) => Some(v)
+    None => None
+  }
+}
+
+///|
+/// Cell embedding matrix, or `None` if absent.
+pub fn AnnData::get_obsm(self : AnnData, name : String) -> Array[Array[Double]]? {
+  match self.obsm.get(name) {
+    Some(v) => Some(v)
+    None => None
+  }
+}
+
+///|
+/// Gene embedding matrix, or `None` if absent.
+pub fn AnnData::get_varm(self : AnnData, name : String) -> Array[Array[Double]]? {
+  match self.varm.get(name) {
+    Some(v) => Some(v)
+    None => None
+  }
 }
 
 
