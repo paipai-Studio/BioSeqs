@@ -678,3 +678,364 @@ pub fn phylo_reconciliation_summary(result : ReconciliationResult) -> String {
   }
   sb.to_string()
 }
+
+// =========================================================================
+// Ortholog/Paralog classification (ete3)
+//   For each pair of genes, find their LCA in the gene tree.
+//   If the LCA is a speciation → orthologs (diverged via speciation).
+//   If the LCA is a duplication → paralogs (diverged via duplication).
+//   Super-paralog: duplication within the same species (in-paralog).
+//   Ultra-paralog: super-paralog with no intervening speciation.
+// =========================================================================
+
+///|
+/// Gene relationship type.
+pub(all) enum GeneRelationship {
+  Ortholog       // diverged via speciation
+  Paralog        // diverged via duplication (out-paralog)
+  SuperParalog   // in-paralog: duplication within same species
+  UltraParalog   // super-paralog with no intervening speciation
+}
+
+///|
+/// Classification result for a pair of genes.
+pub(all) struct PairClassification {
+  gene1 : String
+  gene2 : String
+  species1 : String
+  species2 : String
+  relationship : GeneRelationship
+  lca_species : String   // species LCA of the gene-tree LCA node
+}
+
+///|
+/// Classify a pair of genes as ortholog or paralog.
+/// Returns None if either gene is not found.
+pub fn phylo_classify_pair(
+  gene_tree : Clade,
+  species_tree : Clade,
+  gene1 : String,
+  gene2 : String,
+  sep : String
+) -> PairClassification? {
+  let gene_to_species : Map[String, String] = Map([], capacity=0)
+  phylo_classify_pair_explicit(
+    gene_tree, species_tree, gene_to_species, gene1, gene2, sep
+  )
+}
+
+///|
+/// Classify a pair with explicit gene-to-species map.
+pub fn phylo_classify_pair_explicit(
+  gene_tree : Clade,
+  species_tree : Clade,
+  gene_to_species : Map[String, String],
+  gene1 : String,
+  gene2 : String,
+  sep : String
+) -> PairClassification? {
+  // Find LCA of gene1 and gene2 in the gene tree
+  let lca = recon_find_lca_node(gene_tree, [gene1, gene2])
+  match lca {
+    None => None
+    Some(lca_node) => {
+      // Get species names for both genes
+      let s1 = match gene_to_species.get(gene1) {
+        Some(s) => s
+        None => phylo_extract_species(gene1, sep)
+      }
+      let s2 = match gene_to_species.get(gene2) {
+        Some(s) => s
+        None => phylo_extract_species(gene2, sep)
+      }
+      // Determine if LCA is a duplication
+      let is_dup = phylo_is_duplication_node(
+        lca_node, species_tree, gene_to_species, sep
+      )
+      // Get LCA's species map
+      let lca_gene_leaves = recon_collect_leaf_names(lca_node)
+      let lca_species_names : Array[String] = Array(capacity=0)
+      for g in lca_gene_leaves {
+        let sn = match gene_to_species.get(g) {
+          Some(s) => s
+          None => phylo_extract_species(g, sep)
+        }
+        lca_species_names.push(sn)
+      }
+      let lca_species_key = recon_find_lca_key(species_tree, lca_species_names)
+      // Classify
+      let rel = if not(is_dup) {
+        Ortholog
+      } else if s1 == s2 {
+        // Duplication within same species → super-paralog
+        // Check for ultra-paralog: no speciation between dup and LCA of species
+        if phylo_is_ultra_paralog(
+          gene_tree, lca_node, species_tree, gene_to_species, sep
+        ) {
+          UltraParalog
+        } else {
+          SuperParalog
+        }
+      } else {
+        Paralog
+      }
+      Some(PairClassification::{
+        gene1,
+        gene2,
+        species1: s1,
+        species2: s2,
+        relationship: rel,
+        lca_species: lca_species_key,
+      })
+    }
+  }
+}
+
+///|
+/// Check if an internal node in the gene tree is a duplication.
+/// A node is a duplication if its LCA map equals any child's LCA map.
+fn phylo_is_duplication_node(
+  node : Clade,
+  species_tree : Clade,
+  gene_to_species : Map[String, String],
+  sep : String
+) -> Bool {
+  if node.is_terminal() || node.clades.length() < 2 {
+    return false
+  }
+  // Get species names for this node
+  let all_leaves = recon_collect_leaf_names(node)
+  let species_names : Array[String] = Array(capacity=0)
+  for g in all_leaves {
+    let sn = match gene_to_species.get(g) {
+      Some(s) => s
+      None => phylo_extract_species(g, sep)
+    }
+    species_names.push(sn)
+  }
+  let parent_key = recon_find_lca_key(species_tree, species_names)
+  // Check each child
+  for ch in node.clades {
+    let ch_leaves = recon_collect_leaf_names(ch)
+    let ch_species : Array[String] = Array(capacity=0)
+    for g in ch_leaves {
+      let sn = match gene_to_species.get(g) {
+        Some(s) => s
+        None => phylo_extract_species(g, sep)
+      }
+      ch_species.push(sn)
+    }
+    let ch_key = recon_find_lca_key(species_tree, ch_species)
+    if ch_key == parent_key {
+      return true
+    }
+  }
+  false
+}
+
+///|
+/// Check if a super-paralog is an ultra-paralog.
+/// Ultra-paralog: all ancestors up to the root are also duplications
+/// (no intervening speciation).
+fn phylo_is_ultra_paralog(
+  gene_tree : Clade,
+  dup_node : Clade,
+  species_tree : Clade,
+  gene_to_species : Map[String, String],
+  sep : String
+) -> Bool {
+  // Find path from root to dup_node, check all ancestors are duplications
+  let dup_key = recon_leaf_key(recon_collect_leaf_names(dup_node))
+  phylo_check_ancestors(
+    gene_tree, dup_key, species_tree, gene_to_species, sep, true
+  )
+}
+
+///|
+/// Recursively check if all ancestors of the node with `target_key` are
+/// duplications. The first call starts with `is_ancestor=true` meaning
+/// we haven't found the target yet.
+fn phylo_check_ancestors(
+  node : Clade,
+  target_key : String,
+  species_tree : Clade,
+  gene_to_species : Map[String, String],
+  sep : String,
+  found_target : Bool
+) -> Bool {
+  let my_key = recon_leaf_key(recon_collect_leaf_names(node))
+  if my_key == target_key {
+    // Found the target node — all ancestors were duplications
+    return true
+  }
+  if found_target {
+    // We're above the target — check if this node is a duplication
+    if node.clades.length() >= 2 {
+      if not(phylo_is_duplication_node(
+        node, species_tree, gene_to_species, sep
+      )) {
+        // Found a speciation ancestor → not ultra-paralog
+        return false
+      }
+    }
+  }
+  // Recurse into children
+  for ch in node.clades {
+    let ch_key = recon_leaf_key(recon_collect_leaf_names(ch))
+    // Check if target is in this subtree
+    if phylo_key_contains(ch_key, target_key) {
+      return phylo_check_ancestors(
+        ch, target_key, species_tree, gene_to_species, sep, true
+      )
+    }
+  }
+  false
+}
+
+///|
+/// Check if `outer` key contains `inner` key (all inner species in outer).
+fn phylo_key_contains(outer : String, inner : String) -> Bool {
+  let outer_names = recon_key_to_names(outer)
+  let inner_names = recon_key_to_names(inner)
+  let outer_set : Map[String, Bool] = Map([], capacity=0)
+  for n in outer_names {
+    outer_set.set(n, true)
+  }
+  for n in inner_names {
+    if not(outer_set.contains(n)) {
+      return false
+    }
+  }
+  true
+}
+
+///|
+/// Classify all pairs of gene leaves in the gene tree.
+pub fn phylo_classify_all_pairs(
+  gene_tree : Clade,
+  species_tree : Clade,
+  sep : String
+) -> Array[PairClassification] {
+  let gene_to_species : Map[String, String] = Map([], capacity=0)
+  phylo_classify_all_pairs_explicit(gene_tree, species_tree, gene_to_species, sep)
+}
+
+///|
+/// Classify all pairs with explicit gene-to-species map.
+pub fn phylo_classify_all_pairs_explicit(
+  gene_tree : Clade,
+  species_tree : Clade,
+  gene_to_species : Map[String, String],
+  sep : String
+) -> Array[PairClassification] {
+  let leaves = recon_collect_leaf_names(gene_tree)
+  let results : Array[PairClassification] = Array(capacity=0)
+  for i in 0..<leaves.length() {
+    for j in (i + 1)..<leaves.length() {
+      match phylo_classify_pair_explicit(
+        gene_tree, species_tree, gene_to_species, leaves[i], leaves[j], sep
+      ) {
+        Some(cls) => results.push(cls)
+        None => ()
+      }
+    }
+  }
+  results
+}
+
+///|
+/// Extract only ortholog pairs from classifications.
+pub fn phylo_orthologs(
+  classifications : Array[PairClassification]
+) -> Array[PairClassification] {
+  let result : Array[PairClassification] = Array(capacity=0)
+  for c in classifications {
+    match c.relationship {
+      Ortholog => result.push(c)
+      _ => ()
+    }
+  }
+  result
+}
+
+///|
+/// Extract only paralog pairs (including super/ultra) from classifications.
+pub fn phylo_paralogs(
+  classifications : Array[PairClassification]
+) -> Array[PairClassification] {
+  let result : Array[PairClassification] = Array(capacity=0)
+  for c in classifications {
+    match c.relationship {
+      Paralog => result.push(c)
+      SuperParalog => result.push(c)
+      UltraParalog => result.push(c)
+      _ => ()
+    }
+  }
+  result
+}
+
+///|
+/// Format a pair classification as a string.
+pub fn phylo_pair_to_string(cls : PairClassification) -> String {
+  let rel_str = match cls.relationship {
+    Ortholog => "Ortholog"
+    Paralog => "Paralog"
+    SuperParalog => "SuperParalog"
+    UltraParalog => "UltraParalog"
+  }
+  let sb = StringBuilder()
+  sb.write_string(cls.gene1)
+  sb.write_string(" -- ")
+  sb.write_string(cls.gene2)
+  sb.write_string(": ")
+  sb.write_string(rel_str)
+  sb.write_string(" (")
+  sb.write_string(cls.species1)
+  sb.write_string(", ")
+  sb.write_string(cls.species2)
+  sb.write_string(")")
+  sb.to_string()
+}
+
+///|
+/// Format all pair classifications as a summary.
+pub fn phylo_pairs_summary(
+  classifications : Array[PairClassification]
+) -> String {
+  let mut ortho_count = 0
+  let mut para_count = 0
+  let mut super_count = 0
+  let mut ultra_count = 0
+  for c in classifications {
+    match c.relationship {
+      Ortholog => ortho_count = ortho_count + 1
+      Paralog => para_count = para_count + 1
+      SuperParalog => super_count = super_count + 1
+      UltraParalog => ultra_count = ultra_count + 1
+    }
+  }
+  let sb = StringBuilder()
+  sb.write_string("Ortholog/Paralog Classification:\n")
+  sb.write_string("  Total pairs: ")
+  sb.write_string(classifications.length().to_string())
+  sb.write_string("\n")
+  sb.write_string("  Orthologs:     ")
+  sb.write_string(ortho_count.to_string())
+  sb.write_string("\n")
+  sb.write_string("  Paralogs:      ")
+  sb.write_string(para_count.to_string())
+  sb.write_string("\n")
+  sb.write_string("  SuperParalogs: ")
+  sb.write_string(super_count.to_string())
+  sb.write_string("\n")
+  sb.write_string("  UltraParalogs: ")
+  sb.write_string(ultra_count.to_string())
+  sb.write_string("\n")
+  for c in classifications {
+    sb.write_string("  ")
+    sb.write_string(phylo_pair_to_string(c))
+    sb.write_string("\n")
+  }
+  sb.to_string()
+}
