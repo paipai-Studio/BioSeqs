@@ -1,5 +1,69 @@
 ///|
 /// Bio.Phylo - Phylogenetic tree data structures.
+///
+/// # API Layer Convention (pp / tl / pl)
+///
+/// Inspired by Scanpy's `sc.pp.*` / `sc.tl.*` / `sc.pl.*` separation,
+/// BioSeqs phylogenetic functions follow a three-layer convention.
+/// Functions are not renamed, but their `phylo_` prefix maps to a layer:
+///
+/// ## pp — Preprocessing (tree manipulation before analysis)
+///   | Function                  | Description                        |
+///   |---------------------------|------------------------------------|
+///   | phylo_ladderize           | Sort clades by leaf count          |
+///   | phylo_midpoint_root       | Re-root at midpoint of longest path|
+///   | phylo_collapse_weak       | Collapse nodes with low confidence |
+///   | phylo_collapse_weak_nodes | Collapse nodes below threshold     |
+///   | phylo_scale_tree          | Scale all branch lengths by factor |
+///   | phylo_unroot              | Remove root from bifurcating tree  |
+///   | phylo_root_at_leaf        | Re-root at a specified leaf        |
+///
+/// ## tl — Tools / Analysis (statistics & reconciliation)
+///   | Function                  | Description                        |
+///   |---------------------------|------------------------------------|
+///   | phylo_segregating_sites   | Count segregating sites S          |
+///   | phylo_count_singletons    | Count singletons η = ξ₁            |
+///   | phylo_pi                  | Nucleotide diversity π             |
+///   | phylo_watterson_theta     | Watterson's θ_W = S / H_{n-1}      |
+///   | phylo_tajima_d            | Tajima's D neutrality test         |
+///   | phylo_fu_li_d             | Fu & Li's D                        |
+///   | phylo_fu_li_f             | Fu & Li's F                        |
+///   | phylo_fay_wu_h            | Fay & Wu's H                       |
+///   | phylo_zeng_e              | Zeng's E                           |
+///   | phylo_observed_sfs        | Observed SFS from sequences        |
+///   | phylo_expected_sfs        | Expected SFS under neutral model   |
+///   | phylo_lca_mapping         | LCA mapping (gene → species tree)  |
+///   | phylo_count_duplications  | Count duplication events           |
+///   | phylo_count_losses        | Count loss events                  |
+///   | phylo_reconcile           | Full reconciliation result         |
+///   | phylo_classify_pair       | Ortholog/paralog for one pair      |
+///   | phylo_classify_all_pairs  | Classify all gene pairs            |
+///   | phylo_simulate_coalescent | Kingman coalescent simulation      |
+///   | SfsStats                  | Cached stats context (one pass)    |
+///   | Reconciliation            | Cached reconciliation context      |
+///
+/// ## pl — Plotting / Visualization
+///   | Function                  | Description                        |
+///   |---------------------------|------------------------------------|
+///   | phylo_layout_rectangular  | Compute (x,y) for rectangular draw |
+///   | phylo_layout_circular     | Compute (r,θ,x,y) for radial draw  |
+///   | phylo_render_rectangular  | ASCII art rectangular              |
+///   | phylo_render_circular     | ASCII art circular                 |
+///   | phylo_to_svg_rect         | SVG output rectangular             |
+///   | phylo_to_svg_circ         | SVG output circular                |
+///   | phylo_draw_ascii_enhanced | Enhanced ASCII tree                |
+///   | phylo_draw_cladogram      | ASCII cladogram                    |
+///   | phylo_draw_rectangular    | ASCII rectangular                  |
+///   | phylo_draw_barplot        | ASCII barplot                      |
+///
+/// ## Context Objects (compute once, query many)
+///   | Object          | Caches                    | Methods              |
+///   |-----------------|---------------------------|----------------------|
+///   | SfsStats        | SFS, S, π, η              | tajima_d, fu_li_d/f, |
+///   |                 |                           | fay_wu_h, zeng_e     |
+///   | Reconciliation  | LCA mapping, depth table  | count_dups, losses,  |
+///   |                 |                           | reconcile, classify  |
+///   | Tree.results    | arbitrary key→value       | set_result, get_result|
 
 ///|
 /// A clade (node) in a phylogenetic tree.
