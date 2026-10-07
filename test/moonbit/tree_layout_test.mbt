@@ -327,3 +327,97 @@ test "layout: circular 6 leaves" {
     }
   }
 }
+
+///|
+// ===== SVG Output Tests =====
+
+///|
+test "svg rect: basic structure" {
+  let tree = tl_internal([tl_leaf("A"), tl_leaf("B")])
+  let layout = @src.phylo_layout_rectangular(tree)
+  let svg = @src.phylo_to_svg_rect(layout, 400, 300)
+  assert_true(svg.contains("<svg"))
+  assert_true(svg.contains("</svg>"))
+  assert_true(svg.contains("<line"))
+  assert_true(svg.contains("stroke=\"black\""))
+}
+
+///|
+test "svg rect: leaf labels present" {
+  let tree = tl_internal([tl_leaf("A"), tl_leaf("B")])
+  let layout = @src.phylo_layout_rectangular(tree)
+  let svg = @src.phylo_to_svg_rect(layout, 400, 300)
+  assert_true(svg.contains(">A<"))
+  assert_true(svg.contains(">B<"))
+}
+
+///|
+test "svg rect: 4 leaf tree" {
+  let tree = tl_internal([
+    tl_internal([tl_leaf("A"), tl_leaf("B")]),
+    tl_internal([tl_leaf("C"), tl_leaf("D")]),
+  ])
+  let layout = @src.phylo_layout_rectangular(tree)
+  let svg = @src.phylo_to_svg_rect(layout, 600, 400)
+  assert_true(svg.contains("<svg"))
+  assert_true(svg.contains(">A<"))
+  assert_true(svg.contains(">D<"))
+  // Should have multiple line elements for branches
+  let mut line_count = 0
+  for i in 0..<svg.length() {
+    if i + 5 <= svg.length() {
+      if svg.substring(start=i, end=i + 5) == "<line" {
+        line_count = line_count + 1
+      }
+    }
+  }
+  assert_true(line_count >= 6) // 4 leaves + 2 internal = 6 edges
+}
+
+///|
+test "svg rect: empty layout" {
+  let tree = tl_leaf("A")
+  let layout = @src.phylo_layout_rectangular(tree)
+  let svg = @src.phylo_to_svg_rect(layout, 400, 300)
+  // Single leaf: no branches, just label
+  assert_true(svg.contains("<svg"))
+  assert_true(svg.contains(">A<"))
+}
+
+///|
+test "svg rect: invalid dimensions" {
+  let tree = tl_internal([tl_leaf("A"), tl_leaf("B")])
+  let layout = @src.phylo_layout_rectangular(tree)
+  let svg = @src.phylo_to_svg_rect(layout, 0, 0)
+  assert_eq(svg, "")
+}
+
+///|
+test "svg circ: basic structure" {
+  let tree = tl_internal([tl_leaf("A"), tl_leaf("B"), tl_leaf("C")])
+  let layout = @src.phylo_layout_circular(tree)
+  let svg = @src.phylo_to_svg_circ(layout, 400, 400)
+  assert_true(svg.contains("<svg"))
+  assert_true(svg.contains("</svg>"))
+  assert_true(svg.contains("<line"))
+}
+
+///|
+test "svg circ: leaf labels" {
+  let tree = tl_internal([
+    tl_internal([tl_leaf("A"), tl_leaf("B")]),
+    tl_internal([tl_leaf("C"), tl_leaf("D")]),
+  ])
+  let layout = @src.phylo_layout_circular(tree)
+  let svg = @src.phylo_to_svg_circ(layout, 500, 500)
+  assert_true(svg.contains(">A<"))
+  assert_true(svg.contains(">D<"))
+}
+
+///|
+test "svg circ: invalid dimensions" {
+  let tree = tl_internal([tl_leaf("A"), tl_leaf("B")])
+  let layout = @src.phylo_layout_circular(tree)
+  let svg = @src.phylo_to_svg_circ(layout, -1, 100)
+  assert_eq(svg, "")
+}

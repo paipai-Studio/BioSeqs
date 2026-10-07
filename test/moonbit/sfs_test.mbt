@@ -329,3 +329,153 @@ test "sfs: fu li d n too small" {
   let d3 = @src.phylo_fu_li_d(5, 3, 1)
   assert_true(not(d3.is_nan()))
 }
+
+///|
+// ===== SFS Stats Context Tests =====
+
+///|
+test "sfs stats: basic from sequences" {
+  // seq[0] = ancestral
+  // pos 0: A/A/A/A → not segregating
+  // pos 1: A/A/G/G → ξ_2 = 1
+  // pos 2: A/G/G/G → ξ_3 = 1
+  // pos 3: A/G/G/G → ξ_3 = 1
+  let seqs = ["AAAA", "AAGG", "AGGG", "AGGG"]
+  let stats = @src.SfsStats::from_sequences(seqs)
+  assert_eq(stats.n_sequences(), 4)
+  assert_eq(stats.segregating_sites(), 3)
+  // singletons: no position has derived_count == 1
+  assert_eq(stats.singleton_count(), 0)
+}
+
+///|
+test "sfs stats: singletons detected" {
+  // pos 0: A/G/A/A → ξ_1 = 1 (singleton)
+  // pos 1: A/A/A/G → ξ_1 = 1 (singleton)
+  let seqs = ["AA", "GA", "AA", "AG"]
+  let stats = @src.SfsStats::from_sequences(seqs)
+  assert_eq(stats.segregating_sites(), 2)
+  assert_eq(stats.singleton_count(), 2)
+}
+
+///|
+test "sfs stats: pi matches separate call" {
+  let seqs = ["AAAA", "AAGG", "AGGG", "AGGG"]
+  let stats = @src.SfsStats::from_sequences(seqs)
+  let pi_sep = @src.phylo_pi(seqs)
+  assert_true((stats.nucleotide_diversity() - pi_sep).abs() < 1.0e-10)
+}
+
+///|
+test "sfs stats: s matches separate call" {
+  let seqs = ["AAAA", "AAGG", "AGGG", "AGGG"]
+  let stats = @src.SfsStats::from_sequences(seqs)
+  let s_sep = @src.phylo_segregating_sites(seqs)
+  assert_eq(stats.segregating_sites(), s_sep)
+}
+
+///|
+test "sfs stats: sfs matches separate call" {
+  let seqs = ["AAAA", "AAGG", "AGGG", "AGGG"]
+  let stats = @src.SfsStats::from_sequences(seqs)
+  let sfs_sep = @src.phylo_observed_sfs(seqs)
+  let sfs_ctx = stats.sfs()
+  assert_eq(sfs_ctx.length(), sfs_sep.length())
+  for i in 0..<sfs_ctx.length() {
+    assert_eq(sfs_ctx[i], sfs_sep[i])
+  }
+}
+
+///|
+test "sfs stats: tajima d matches" {
+  let seqs = ["AAAA", "AAGG", "AGGG", "AGGG"]
+  let stats = @src.SfsStats::from_sequences(seqs)
+  let d_ctx = stats.tajima_d()
+  let d_sep = @src.phylo_tajima_d(
+    stats.segregating_sites(), stats.n_sequences(),
+    stats.nucleotide_diversity()
+  )
+  assert_true((d_ctx - d_sep).abs() < 1.0e-10)
+}
+
+///|
+test "sfs stats: fu li d matches" {
+  let seqs = ["AA", "GA", "AA", "AG"]
+  let stats = @src.SfsStats::from_sequences(seqs)
+  let d_ctx = stats.fu_li_d()
+  let d_sep = @src.phylo_fu_li_d(
+    stats.segregating_sites(), stats.n_sequences(),
+    stats.singleton_count()
+  )
+  assert_true((d_ctx - d_sep).abs() < 1.0e-10)
+}
+
+///|
+test "sfs stats: fu li f matches" {
+  let seqs = ["AA", "GA", "AA", "AG"]
+  let stats = @src.SfsStats::from_sequences(seqs)
+  let f_ctx = stats.fu_li_f()
+  let f_sep = @src.phylo_fu_li_f(
+    stats.segregating_sites(), stats.n_sequences(),
+    stats.nucleotide_diversity(), stats.singleton_count()
+  )
+  assert_true((f_ctx - f_sep).abs() < 1.0e-10)
+}
+
+///|
+test "sfs stats: fay wu h matches" {
+  let seqs = ["AAAA", "AAGG", "AGGG", "AGGG"]
+  let stats = @src.SfsStats::from_sequences(seqs)
+  let h_ctx = stats.fay_wu_h()
+  let h_sep = @src.phylo_fay_wu_h(
+    stats.sfs(), stats.n_sequences(), stats.nucleotide_diversity()
+  )
+  assert_true((h_ctx - h_sep).abs() < 1.0e-10)
+}
+
+///|
+test "sfs stats: zeng e matches" {
+  let seqs = ["AAAA", "AAGG", "AGGG", "AGGG"]
+  let stats = @src.SfsStats::from_sequences(seqs)
+  let e_ctx = stats.zeng_e()
+  let e_sep = @src.phylo_zeng_e(
+    stats.sfs(), stats.n_sequences(), stats.nucleotide_diversity()
+  )
+  assert_true((e_ctx - e_sep).abs() < 1.0e-10)
+}
+
+///|
+test "sfs stats: all statistics from one pass" {
+  // The key benefit: all stats computed from one SfsStats
+  let seqs = ["ACGTACGT", "ACGTACGA", "ACGTACAA", "ACGTAAAA"]
+  let stats = @src.SfsStats::from_sequences(seqs)
+  // All methods reuse cached S, π, η, SFS — no rescanning
+  let _ = stats.tajima_d()
+  let _ = stats.fu_li_d()
+  let _ = stats.fu_li_f()
+  let _ = stats.fay_wu_h()
+  let _ = stats.zeng_e()
+  let _ = stats.watterson_theta()
+  // Just verify no crash and values are finite
+  assert_true(not(stats.tajima_d().is_nan()))
+  assert_true(not(stats.fu_li_d().is_nan()))
+  assert_true(not(stats.fu_li_f().is_nan()))
+  assert_true(not(stats.fay_wu_h().is_nan()))
+  assert_true(not(stats.zeng_e().is_nan()))
+}
+
+///|
+test "sfs stats: identical sequences" {
+  let seqs = ["AAAA", "AAAA", "AAAA"]
+  let stats = @src.SfsStats::from_sequences(seqs)
+  assert_eq(stats.segregating_sites(), 0)
+  assert_eq(stats.singleton_count(), 0)
+  assert_true(stats.nucleotide_diversity() < 1.0e-10)
+}
+
+///|
+test "sfs stats: single sequence" {
+  let stats = @src.SfsStats::from_sequences(["AAAA"])
+  assert_eq(stats.n_sequences(), 1)
+  assert_eq(stats.segregating_sites(), 0)
+}

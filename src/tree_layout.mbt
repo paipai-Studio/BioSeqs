@@ -500,3 +500,176 @@ fn first_char(s : String) -> Char {
   }
   s.unsafe_get(0).unsafe_to_char()
 }
+
+// =========================================================================
+// SVG Output (P1 optimization)
+//   Coordinates are already computed by phylo_layout_rectangular /
+//   phylo_layout_circular. This module serializes them as SVG —
+//   upgrading visualization from ASCII art to publication-quality vector.
+// =========================================================================
+
+///|
+/// Render a rectangular tree layout as an SVG string.
+/// Uses the pre-computed (x, y) coordinates from TreeLayoutRect.
+/// `width` and `height` are the SVG viewport dimensions in pixels.
+pub fn phylo_to_svg_rect(
+  layout : TreeLayoutRect,
+  width : Int,
+  height : Int
+) -> String {
+  if width <= 0 || height <= 0 || layout.nodes.length() == 0 {
+    return ""
+  }
+  let margin = 20
+  let w = width - margin * 2
+  let h = height - margin * 2
+  let x_scale = if layout.width > 0.0 {
+    w.to_double() / layout.width
+  } else {
+    1.0
+  }
+  let y_scale = if layout.height > 0.0 {
+    h.to_double() / layout.height
+  } else {
+    1.0
+  }
+  let sb = StringBuilder()
+  sb.write_string(
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"")
+  sb.write_string(width.to_string())
+  sb.write_string("\" height=\"")
+  sb.write_string(height.to_string())
+  sb.write_string("\">\n")
+  // Draw branches: for each node, draw line to each child
+  // Rectangular layout: horizontal line (parent.y → child.y at parent.x)
+  // then horizontal line (parent.x → child.x at child.y)
+  for i in 0..<layout.nodes.length() {
+    let node = layout.nodes[i]
+    let px = margin + (node.x * x_scale).to_int()
+    let py = margin + (node.y * y_scale).to_int()
+    for ci in node.children {
+      let child = layout.nodes[ci]
+      let cx = margin + (child.x * x_scale).to_int()
+      let cy = margin + (child.y * y_scale).to_int()
+      // Vertical segment: (px, py) → (px, cy)
+      sb.write_string("  <line x1=\"")
+      sb.write_string(px.to_string())
+      sb.write_string("\" y1=\"")
+      sb.write_string(py.to_string())
+      sb.write_string("\" x2=\"")
+      sb.write_string(px.to_string())
+      sb.write_string("\" y2=\"")
+      sb.write_string(cy.to_string())
+      sb.write_string("\" stroke=\"black\" stroke-width=\"1\"/>\n")
+      // Horizontal segment: (px, cy) → (cx, cy)
+      sb.write_string("  <line x1=\"")
+      sb.write_string(px.to_string())
+      sb.write_string("\" y1=\"")
+      sb.write_string(cy.to_string())
+      sb.write_string("\" x2=\"")
+      sb.write_string(cx.to_string())
+      sb.write_string("\" y2=\"")
+      sb.write_string(cy.to_string())
+      sb.write_string("\" stroke=\"black\" stroke-width=\"1\"/>\n")
+    }
+  }
+  // Draw leaf labels
+  for node in layout.nodes {
+    if node.is_leaf && node.name != "" {
+      let nx = margin + (node.x * x_scale).to_int() + 4
+      let ny = margin + (node.y * y_scale).to_int() + 4
+      sb.write_string("  <text x=\"")
+      sb.write_string(nx.to_string())
+      sb.write_string("\" y=\"")
+      sb.write_string(ny.to_string())
+      sb.write_string("\" font-size=\"12\" font-family=\"sans-serif\">")
+      sb.write_string(svg_escape(node.name))
+      sb.write_string("</text>\n")
+    }
+  }
+  sb.write_string("</svg>")
+  sb.to_string()
+}
+
+///|
+/// Render a circular tree layout as an SVG string.
+/// Uses the pre-computed (x, y) coordinates from TreeLayoutCirc.
+pub fn phylo_to_svg_circ(
+  layout : TreeLayoutCirc,
+  width : Int,
+  height : Int
+) -> String {
+  if width <= 0 || height <= 0 || layout.nodes.length() == 0 {
+    return ""
+  }
+  let cx = width / 2
+  let cy = height / 2
+  let max_r = if layout.max_radius > 0.0 {
+    layout.max_radius
+  } else {
+    1.0
+  }
+  let scale = (width.to_double() / 2.0 - 20.0) / max_r
+  let sb = StringBuilder()
+  sb.write_string(
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"")
+  sb.write_string(width.to_string())
+  sb.write_string("\" height=\"")
+  sb.write_string(height.to_string())
+  sb.write_string("\">\n")
+  // Draw branches as straight lines from parent to child
+  for i in 0..<layout.nodes.length() {
+    let node = layout.nodes[i]
+    let px = cx + (node.x * scale).to_int()
+    let py = cy + (node.y * scale).to_int()
+    for ci in node.children {
+      let child = layout.nodes[ci]
+      let chx = cx + (child.x * scale).to_int()
+      let chy = cy + (child.y * scale).to_int()
+      sb.write_string("  <line x1=\"")
+      sb.write_string(px.to_string())
+      sb.write_string("\" y1=\"")
+      sb.write_string(py.to_string())
+      sb.write_string("\" x2=\"")
+      sb.write_string(chx.to_string())
+      sb.write_string("\" y2=\"")
+      sb.write_string(chy.to_string())
+      sb.write_string("\" stroke=\"black\" stroke-width=\"1\"/>\n")
+    }
+  }
+  // Draw leaf labels
+  for node in layout.nodes {
+    if node.is_leaf && node.name != "" {
+      let nx = cx + (node.x * scale).to_int() + 4
+      let ny = cy + (node.y * scale).to_int() + 4
+      sb.write_string("  <text x=\"")
+      sb.write_string(nx.to_string())
+      sb.write_string("\" y=\"")
+      sb.write_string(ny.to_string())
+      sb.write_string("\" font-size=\"12\" font-family=\"sans-serif\">")
+      sb.write_string(svg_escape(node.name))
+      sb.write_string("</text>\n")
+    }
+  }
+  sb.write_string("</svg>")
+  sb.to_string()
+}
+
+///|
+/// Escape special XML characters for SVG text content.
+fn svg_escape(s : String) -> String {
+  let sb = StringBuilder()
+  for i in 0..<s.length() {
+    let c = s.char_to_at(i)
+    if c == 60 { // <
+      sb.write_string("&lt;")
+    } else if c == 62 { // >
+      sb.write_string("&gt;")
+    } else if c == 38 { // &
+      sb.write_string("&amp;")
+    } else {
+      sb.write_char(c.unsafe_to_char())
+    }
+  }
+  sb.to_string()
+}

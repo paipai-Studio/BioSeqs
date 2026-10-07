@@ -827,3 +827,163 @@ fn sfs_sqrt(x : Double) -> Double {
   }
   guess
 }
+
+// =========================================================================
+// SFS Stats Context (P1 optimization)
+//   Inspired by Scanpy's "compute once, query many" pattern.
+//   phylo_observed_sfs / phylo_segregating_sites / phylo_count_singletons /
+//   phylo_pi each scan the entire alignment independently. When computing
+//   multiple test statistics (Tajima D + Fu&Li D/F + Fay&Wu H + Zeng E),
+//   the alignment is scanned 4 times redundantly.
+//
+//   SfsStats computes SFS, S, π, η in a single pass, then exposes all
+//   test statistics as methods that reuse the cached values.
+// =========================================================================
+
+///|
+/// Cached SFS statistics context: computes SFS, S, π, singletons in one
+/// pass over the alignment, then provides all neutrality test statistics.
+///
+/// Usage:
+///   let stats = SfsStats::from_sequences(seqs)
+///   let d = stats.tajima_d()
+///   let f = stats.fu_li_f()
+///   let h = stats.fay_wu_h()
+///   let e = stats.zeng_e()
+pub struct SfsStats {
+  n : Int                        // number of sequences
+  sfs : Array[Int]               // observed SFS (ξ_1, ξ_2, ..., ξ_{n-1})
+  s : Int                        // segregating sites = Σ ξ_i
+  pi : Double                    // nucleotide diversity
+  singletons : Int               // η = ξ_1
+}
+
+///|
+/// Construct an SfsStats by scanning the alignment once.
+/// Computes SFS, S, π, and singletons in a single pass.
+pub fn SfsStats::from_sequences(sequences : Array[String]) -> SfsStats {
+  let n = sequences.length()
+  if n <= 1 {
+    return SfsStats::{ n, sfs: [], s: 0, pi: 0.0, singletons: 0 }
+  }
+  let seq_len = sequences[0].length()
+  // SFS: ξ_1 .. ξ_{n-1}
+  let sfs : Array[Int] = Array(capacity=n - 1)
+  for _ in 1..<n {
+    sfs.push(0)
+  }
+  let mut s = 0
+  let mut singletons = 0
+  // For π: accumulate pairwise differences
+  let mut total_pairwise_diff = 0
+  // Single pass over all positions
+  for pos in 0..<seq_len {
+    let ancestral = sequences[0].char_to_at(pos)
+    let mut derived_count = 0
+    // For π: count pairwise differences at this position
+    // d(i,j) = 1 if seq[i][pos] != seq[j][pos]
+    // Instead of nested loop per position, collect allele counts
+    let allele_counts : Map[Int, Int] = Map([], capacity=4)
+    for i in 0..<n {
+      let c = sequences[i].char_to_at(pos)
+      match allele_counts.get(c) {
+        Some(v) => allele_counts.set(c, v + 1)
+        None => allele_counts.set(c, 1)
+      }
+    }
+    // Pairwise differences at this position = total pairs - same-allele pairs
+    // = C(n,2) - Σ C(count[c], 2)
+    let total_pairs = n * (n - 1) / 2
+    let mut same_pairs = 0
+    for (_, cnt) in allele_counts {
+      same_pairs = same_pairs + cnt * (cnt - 1) / 2
+    }
+    total_pairwise_diff = total_pairwise_diff + (total_pairs - same_pairs)
+    // SFS and singletons (using first sequence as ancestral)
+    for i in 1..<n {
+      if sequences[i].char_to_at(pos) != ancestral {
+        derived_count = derived_count + 1
+      }
+    }
+    if derived_count > 0 && derived_count < n {
+      sfs[derived_count - 1] = sfs[derived_count - 1] + 1
+      s = s + 1
+      if derived_count == 1 {
+        singletons = singletons + 1
+      }
+    }
+  }
+  let num_pairs = n.to_double() * (n - 1).to_double() / 2.0
+  let pi = if num_pairs > 0.0 {
+    total_pairwise_diff.to_double() / num_pairs
+  } else {
+    0.0
+  }
+  SfsStats::{ n, sfs, s, pi, singletons }
+}
+
+///|
+/// Number of sequences.
+pub fn SfsStats::n_sequences(self : SfsStats) -> Int {
+  self.n
+}
+
+///|
+/// Segregating sites S = Σ ξ_i.
+pub fn SfsStats::segregating_sites(self : SfsStats) -> Int {
+  self.s
+}
+
+///|
+/// Observed SFS array (ξ_1, ..., ξ_{n-1}).
+pub fn SfsStats::sfs(self : SfsStats) -> Array[Int] {
+  self.sfs
+}
+
+///|
+/// Nucleotide diversity π.
+pub fn SfsStats::nucleotide_diversity(self : SfsStats) -> Double {
+  self.pi
+}
+
+///|
+/// Singleton count η = ξ_1.
+pub fn SfsStats::singleton_count(self : SfsStats) -> Int {
+  self.singletons
+}
+
+///|
+/// Watterson's θ_W = S / H_{n-1}.
+pub fn SfsStats::watterson_theta(self : SfsStats) -> Double {
+  phylo_watterson_theta(self.s, self.n)
+}
+
+///|
+/// Tajima's D from cached S and π.
+pub fn SfsStats::tajima_d(self : SfsStats) -> Double {
+  phylo_tajima_d(self.s, self.n, self.pi)
+}
+
+///|
+/// Fu & Li's D from cached S and singletons.
+pub fn SfsStats::fu_li_d(self : SfsStats) -> Double {
+  phylo_fu_li_d(self.s, self.n, self.singletons)
+}
+
+///|
+/// Fu & Li's F from cached S, π, and singletons.
+pub fn SfsStats::fu_li_f(self : SfsStats) -> Double {
+  phylo_fu_li_f(self.s, self.n, self.pi, self.singletons)
+}
+
+///|
+/// Fay & Wu's H from cached SFS and π.
+pub fn SfsStats::fay_wu_h(self : SfsStats) -> Double {
+  phylo_fay_wu_h(self.sfs, self.n, self.pi)
+}
+
+///|
+/// Zeng's E from cached SFS and π.
+pub fn SfsStats::zeng_e(self : SfsStats) -> Double {
+  phylo_zeng_e(self.sfs, self.n, self.pi)
+}
