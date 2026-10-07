@@ -113,16 +113,7 @@ fn layout_rect_rec(
   for ch in node.clades {
     child_indices.push(layout_rect_rec(ch, my_x, depth + 1, out))
   }
-  out[my_idx] = NodePosRect::{
-    name: out[my_idx].name,
-    x: out[my_idx].x,
-    y: out[my_idx].y,
-    is_leaf: out[my_idx].is_leaf,
-    branch_length: out[my_idx].branch_length,
-    depth: out[my_idx].depth,
-    confidence: out[my_idx].confidence,
-    children: child_indices,
-  }
+  out[my_idx] = NodePosRect::{ ..out[my_idx], children: child_indices }
   my_idx
 }
 
@@ -133,16 +124,7 @@ fn layout_rect_assign_y(
   leaf_counter : Int
 ) -> Int {
   if nodes[idx].is_leaf {
-    nodes[idx] = NodePosRect::{
-      name: nodes[idx].name,
-      x: nodes[idx].x,
-      y: leaf_counter.to_double(),
-      is_leaf: nodes[idx].is_leaf,
-      branch_length: nodes[idx].branch_length,
-      depth: nodes[idx].depth,
-      confidence: nodes[idx].confidence,
-      children: nodes[idx].children,
-    }
+    nodes[idx] = NodePosRect::{ ..nodes[idx], y: leaf_counter.to_double() }
     return leaf_counter + 1
   }
   let mut next_leaf = leaf_counter
@@ -156,16 +138,7 @@ fn layout_rect_assign_y(
       sum_y = sum_y + nodes[ci].y
     }
     let avg_y = sum_y / children.length().to_double()
-    nodes[idx] = NodePosRect::{
-      name: nodes[idx].name,
-      x: nodes[idx].x,
-      y: avg_y,
-      is_leaf: nodes[idx].is_leaf,
-      branch_length: nodes[idx].branch_length,
-      depth: nodes[idx].depth,
-      confidence: nodes[idx].confidence,
-      children: nodes[idx].children,
-    }
+    nodes[idx] = NodePosRect::{ ..nodes[idx], y: avg_y }
   }
   next_leaf
 }
@@ -201,6 +174,15 @@ pub fn phylo_layout_circular_range(
   let nodes : Array[NodePosCirc] = Array(capacity=0)
   let _ = layout_circ_rec(tree, 0.0, 0, nodes)
   let n_leaves = circ_leaf_count(nodes)
+  if n_leaves == 0 {
+    return TreeLayoutCirc::{
+      nodes,
+      max_radius: 0.0,
+      n_leaves: 0,
+      start_angle,
+      end_angle,
+    }
+  }
   let _ = layout_circ_assign_angle(
     nodes, 0, 0, n_leaves, start_angle, end_angle
   )
@@ -252,18 +234,7 @@ fn layout_circ_rec(
   for ch in node.clades {
     child_indices.push(layout_circ_rec(ch, my_r, depth + 1, out))
   }
-  out[my_idx] = NodePosCirc::{
-    name: out[my_idx].name,
-    radius: out[my_idx].radius,
-    angle: out[my_idx].angle,
-    x: out[my_idx].x,
-    y: out[my_idx].y,
-    is_leaf: out[my_idx].is_leaf,
-    branch_length: out[my_idx].branch_length,
-    depth: out[my_idx].depth,
-    confidence: out[my_idx].confidence,
-    children: child_indices,
-  }
+  out[my_idx] = NodePosCirc::{ ..out[my_idx], children: child_indices }
   my_idx
 }
 
@@ -280,20 +251,9 @@ fn layout_circ_assign_angle(
   if nodes[idx].is_leaf {
     let angle = start_angle +
       leaf_counter.to_double() / n_leaves.to_double() * angle_span
-    let x = nodes[idx].radius * cos_approx(angle)
-    let y = nodes[idx].radius * sin_approx(angle)
-    nodes[idx] = NodePosCirc::{
-      name: nodes[idx].name,
-      radius: nodes[idx].radius,
-      angle,
-      x,
-      y,
-      is_leaf: nodes[idx].is_leaf,
-      branch_length: nodes[idx].branch_length,
-      depth: nodes[idx].depth,
-      confidence: nodes[idx].confidence,
-      children: nodes[idx].children,
-    }
+    let x = nodes[idx].radius * @math.cos(angle)
+    let y = nodes[idx].radius * @math.sin(angle)
+    nodes[idx] = NodePosCirc::{ ..nodes[idx], angle, x, y }
     return leaf_counter + 1
   }
   let mut next_leaf = leaf_counter
@@ -309,20 +269,9 @@ fn layout_circ_assign_angle(
       sum_a = sum_a + nodes[ci].angle
     }
     let avg_a = sum_a / children.length().to_double()
-    let x = nodes[idx].radius * cos_approx(avg_a)
-    let y = nodes[idx].radius * sin_approx(avg_a)
-    nodes[idx] = NodePosCirc::{
-      name: nodes[idx].name,
-      radius: nodes[idx].radius,
-      angle: avg_a,
-      x,
-      y,
-      is_leaf: nodes[idx].is_leaf,
-      branch_length: nodes[idx].branch_length,
-      depth: nodes[idx].depth,
-      confidence: nodes[idx].confidence,
-      children: nodes[idx].children,
-    }
+    let x = nodes[idx].radius * @math.cos(avg_a)
+    let y = nodes[idx].radius * @math.sin(avg_a)
+    nodes[idx] = NodePosCirc::{ ..nodes[idx], angle: avg_a, x, y }
   }
   next_leaf
 }
@@ -338,39 +287,6 @@ fn circ_leaf_count(nodes : Array[NodePosCirc]) -> Int {
   c
 }
 
-// =========================================================================
-// Trig helpers (Taylor series)
-// =========================================================================
-
-///|
-fn cos_approx(x : Double) -> Double {
-  let pi = 3.141592653589793
-  let two_pi = 2.0 * pi
-  let mut y = x
-  while y > pi {
-    y = y - two_pi
-  }
-  while y < -pi {
-    y = y + two_pi
-  }
-  let y2 = y * y
-  1.0 - y2 / 2.0 + y2 * y2 / 24.0 - y2 * y2 * y2 / 720.0
-}
-
-///|
-fn sin_approx(x : Double) -> Double {
-  let pi = 3.141592653589793
-  let two_pi = 2.0 * pi
-  let mut y = x
-  while y > pi {
-    y = y - two_pi
-  }
-  while y < -pi {
-    y = y + two_pi
-  }
-  let y2 = y * y
-  y * (1.0 - y2 / 6.0 + y2 * y2 / 120.0 - y2 * y2 * y2 / 5040.0)
-}
 
 // =========================================================================
 // ASCII Rendering
@@ -450,7 +366,7 @@ pub fn phylo_render_circular(
     return ""
   }
   let grid = make_grid(width, height)
-  let mut max_abs = 1.0
+  let mut max_abs = 0.0
   for n in layout.nodes {
     let ax = n.x.abs()
     let ay = n.y.abs()
@@ -461,11 +377,14 @@ pub fn phylo_render_circular(
       max_abs = ay
     }
   }
+  if max_abs == 0.0 {
+    max_abs = 1.0
+  }
   let cx = width / 2
   let cy = height / 2
   let scale = {
-    let sx = (cx - 1).to_double() / max_abs
-    let sy = (cy - 1).to_double() / max_abs
+    let sx = if cx > 0 { (cx - 1).to_double() / max_abs } else { 0.0 }
+    let sy = if cy > 0 { (cy - 1).to_double() / max_abs } else { 0.0 }
     if sx < sy {
       sx
     } else {

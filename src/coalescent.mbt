@@ -43,6 +43,14 @@ pub fn phylo_simulate_coalescent_ne(
       n_lineages: 0,
     }
   }
+  if ne <= 0.0 {
+    return CoalescentResult::{
+      tree: Clade::new(name=Some("t1")),
+      coalescent_times: [],
+      total_depth: 0.0,
+      n_lineages: n,
+    }
+  }
   if n == 1 {
     return CoalescentResult::{
       tree: Clade::new(name=Some("t1")),
@@ -75,7 +83,7 @@ pub fn phylo_simulate_coalescent_ne(
     let i1 = rng.randint(k)
     let mut i2 = rng.randint(k)
     if i2 == i1 {
-      i2 = (i2 + 1) % k
+      i2 = (i1 + 1 + rng.randint(k - 1)) % k
     }
     let idx1 = if i1 < i2 { i1 } else { i2 }
     let idx2 = if i1 < i2 { i2 } else { i1 }
@@ -137,6 +145,9 @@ pub fn phylo_coalescent_mean_depth(
   replicates : Int,
   rng : Rng
 ) -> Double {
+  if replicates <= 0 {
+    return 0.0
+  }
   let mut total = 0.0
   for _ in 0..<replicates {
     let result = phylo_simulate_coalescent_ne(n, ne, rng)
@@ -185,8 +196,7 @@ pub fn phylo_watterson_expected(n : Int, theta : Double) -> Double {
 ///   t3 ───────────────────────┘
 pub fn phylo_draw_rectangular(tree : Clade) -> String {
   let lines : Array[String] = Array(capacity=0)
-  let depths : Array[Int] = Array(capacity=0)
-  phylo_rect_helper(tree, "", 0, lines, depths)
+  phylo_rect_helper(tree, "", 0, lines)
   let sb = StringBuilder()
   for i in 0..<lines.length() {
     sb.write_string(lines[i])
@@ -200,8 +210,7 @@ fn phylo_rect_helper(
   node : Clade,
   prefix : String,
   depth : Int,
-  lines : Array[String],
-  depths : Array[Int]
+  lines : Array[String]
 ) -> Unit {
   let bl_str = match node.branch_length {
     Some(bl) => {
@@ -223,7 +232,6 @@ fn phylo_rect_helper(
       None => ""
     }
     lines.push(prefix + "── " + name + bl_str)
-    depths.push(depth)
   } else {
     let name = match node.name {
       Some(n) => n
@@ -240,10 +248,9 @@ fn phylo_rect_helper(
         // First child: add branch info on the connector line
         if name != "" || conf_str != "" {
           lines.push(prefix + connector + bl_str + conf_str + " " + name)
-          depths.push(depth)
         }
       }
-      phylo_rect_helper(child, child_prefix, depth + 1, lines, depths)
+      phylo_rect_helper(child, child_prefix, depth + 1, lines)
     }
   }
 }
@@ -664,15 +671,15 @@ pub fn phylo_tajima_d(s : Int, n : Int, pi : Double) -> Double {
 
 ///|
 /// Fu and Li's D test statistic.
-/// D_FL = (S - a1*η) / sqrt(u1*S + u2*S*(S-1))
+/// D_FL = (S - a_n*η) / sqrt(u_D*S + v_D*S²)
 /// where η = number of singletons (external mutations).
 pub fn phylo_fu_li_d(s : Int, n : Int, singletons : Int) -> Double {
-  if n <= 1 || s == 0 {
+  if n <= 2 || s == 0 {
     return 0.0
   }
   let a_n = sfs_harmonic(n - 1)
-  let b_n = sfs_harmonic(n - 1) // same as a_n for this formula
-  let v_d = 1.0 + a_n * a_n / (b_n * b_n * (n.to_double() - 2.0)) -
+  let b_n = sfs_harmonic_sq(n - 1) // sum of 1/i^2
+  let v_d = 1.0 + a_n * a_n / (b_n * (n.to_double() - 2.0)) -
     2.0 * a_n / ((n.to_double() - 1.0) * b_n)
   let u_d = a_n - 1.0 - v_d
   let s_d = s.to_double()
@@ -687,18 +694,18 @@ pub fn phylo_fu_li_d(s : Int, n : Int, singletons : Int) -> Double {
 
 ///|
 /// Fu and Li's F test statistic.
-/// F_FL = (π - η) / sqrt(v1*S + v2*S*(S-1))
+/// F_FL = (π - η) / sqrt(u_F*S + v_F*S²)
 pub fn phylo_fu_li_f(
   s : Int,
   n : Int,
   pi : Double,
   singletons : Int
 ) -> Double {
-  if n <= 1 || s == 0 {
+  if n <= 2 || s == 0 {
     return 0.0
   }
   let a_n = sfs_harmonic(n - 1)
-  let b_n = sfs_harmonic(n - 1)
+  let b_n = sfs_harmonic_sq(n - 1) // sum of 1/i^2
   let v_f = 1.0 + (n.to_double() * n.to_double() - 3.0 * n.to_double() + 2.0) /
     (3.0 * (n.to_double() - 1.0) * (n.to_double() - 2.0)) -
     2.0 * a_n / (n.to_double() - 1.0) +
@@ -710,7 +717,7 @@ pub fn phylo_fu_li_f(
   let s_d = s.to_double()
   let eta = singletons.to_double()
   let numerator = pi - eta
-  let denominator = sfs_sqrt(u_f * s_d + v_f * s_d * (s_d - 1.0))
+  let denominator = sfs_sqrt(u_f * s_d + v_f * s_d * s_d)
   if denominator == 0.0 {
     return 0.0
   }
@@ -719,7 +726,7 @@ pub fn phylo_fu_li_f(
 
 ///|
 /// Fay and Wu's H test statistic.
-/// H = π - θ_H, where θ_H = (2 / (n-1)) * Σ i² * ξ_i
+/// H = π - θ_H, where θ_H = (2 / (n(n-1))) * Σ i² * ξ_i
 /// `sfs` is the observed unfolded SFS (counts for i=1..n-1).
 pub fn phylo_fay_wu_h(sfs : Array[Int], n : Int, pi : Double) -> Double {
   if n <= 1 || sfs.length() == 0 {
@@ -730,7 +737,7 @@ pub fn phylo_fay_wu_h(sfs : Array[Int], n : Int, pi : Double) -> Double {
     let freq = (i + 1).to_double()
     theta_h = theta_h + freq * freq * sfs[i].to_double()
   }
-  theta_h = theta_h * 2.0 / (n.to_double() - 1.0)
+  theta_h = theta_h * 2.0 / (n.to_double() * (n.to_double() - 1.0))
   pi - theta_h
 }
 

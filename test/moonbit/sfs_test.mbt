@@ -199,11 +199,11 @@ test "sfs: fu li f basic" {
 ///|
 test "sfs: fay wu h basic" {
   // SFS = [3, 1, 0] (3 singletons, 1 doubleton, 0 tripleton)
-  // θ_H = 2/(n-1) * (1²*3 + 2²*1 + 3²*0) = 2/3 * 7 = 14/3
+  // θ_H = 2/(n(n-1)) * (1²*3 + 2²*1 + 3²*0) = 2/12 * 7 = 7/6
   // H = π - θ_H
   let sfs = [3, 1, 0]
   let h = @src.phylo_fay_wu_h(sfs, 4, 2.0)
-  let theta_h = 2.0 / 3.0 * (1.0 * 3.0 + 4.0 * 1.0 + 9.0 * 0.0)
+  let theta_h = 2.0 / (4.0 * 3.0) * (1.0 * 3.0 + 4.0 * 1.0 + 9.0 * 0.0)
   assert_true((h - (2.0 - theta_h)).abs() < 0.001)
 }
 
@@ -288,4 +288,44 @@ test "sfs: all sequences identical" {
   assert_eq(pi, 0.0)
   let singletons = @src.phylo_count_singletons(seqs)
   assert_eq(singletons, 0)
+}
+
+///|
+test "sfs: fu li d known value" {
+  // Reference: n=10, S=15, eta=3
+  // a_n = H_9 = 2.828968, b_n = sum 1/i^2 = 1.539768
+  // v_D = 1 + a_n^2/(b_n*(n-2)) - 2*a_n/((n-1)*b_n) = 1.241415
+  // u_D = a_n - 1 - v_D = 0.587553
+  // D = (15 - 2.828968*3) / sqrt(0.587553*15 + 1.241415*225) = 0.383700
+  let d = @src.phylo_fu_li_d(15, 10, 3)
+  assert_true((d - 0.383700).abs() < 0.001)
+}
+
+///|
+test "sfs: fu li f known value" {
+  // Reference: n=10, S=15, eta=3, pi=3.5
+  // F = (pi - eta) / sqrt(u_F*S + v_F*S^2) = 0.037150
+  let f = @src.phylo_fu_li_f(15, 10, 3.5, 3)
+  assert_true((f - 0.037150).abs() < 0.001)
+}
+
+///|
+test "sfs: fay wu h known value" {
+  // SFS = [3, 1, 0], n=4, pi=2.0
+  // theta_H = 2/(4*3) * (1*3 + 4*1 + 0) = 2/12 * 7 = 7/6 = 1.166667
+  // H = 2.0 - 1.166667 = 0.833333
+  let sfs = [3, 1, 0]
+  let h = @src.phylo_fay_wu_h(sfs, 4, 2.0)
+  assert_true((h - 0.833333).abs() < 0.001)
+}
+
+///|
+test "sfs: fu li d n too small" {
+  // n=2: Fu & Li D requires n >= 3 (n-2 in denominator)
+  // Should return 0.0 for n <= 2
+  let d = @src.phylo_fu_li_d(5, 2, 1)
+  assert_eq(d, 0.0)
+  // n=3 should work
+  let d3 = @src.phylo_fu_li_d(5, 3, 1)
+  assert_true(not(d3.is_nan()))
 }

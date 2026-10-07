@@ -267,12 +267,13 @@ fn phylo_lca_mapping_rec(
   for (sn, _) in unique_species {
     dedup_species.push(sn)
   }
+  recon_sort_strings(dedup_species)
   // Find LCA in species tree
   let species_key = recon_find_lca_key(species_tree, dedup_species)
   // Check for duplication: LCA map equals any child's LCA map
   let mut is_dup = false
   for cr in child_results {
-    if cr.1 == species_key && child_results.length() > 1 {
+    if cr.1 == species_key && child_results.length() > 1 && species_key != "" {
       is_dup = true
     }
   }
@@ -369,11 +370,12 @@ fn phylo_count_losses_rec(
   for (sn, _) in unique_species {
     dedup.push(sn)
   }
+  recon_sort_strings(dedup)
   let parent_key = recon_find_lca_key(species_tree, dedup)
   // Check if this node is a duplication
   let mut is_dup = false
   for cr in child_results {
-    if cr.0 == parent_key && child_results.length() > 1 {
+    if cr.0 == parent_key && child_results.length() > 1 && parent_key != "" {
       is_dup = true
     }
   }
@@ -492,13 +494,6 @@ pub fn phylo_reconcile_explicit(
   gene_to_species : Map[String, String],
   sep : String
 ) -> ReconciliationResult {
-  // First, get LCA mapping results
-  let lca_maps = phylo_lca_mapping_explicit(
-    gene_tree,
-    species_tree,
-    gene_to_species,
-    sep
-  )
   // Build per-node reconciliation with edge losses
   let nodes : Array[NodeReconciliation] = Array(capacity=0)
   let (_, _, edge_loss_map) = phylo_reconcile_rec(
@@ -586,11 +581,12 @@ fn phylo_reconcile_rec(
   for (sn, _) in unique_species {
     dedup.push(sn)
   }
+  recon_sort_strings(dedup)
   let parent_key = recon_find_lca_key(species_tree, dedup)
   // Check duplication
   let mut is_dup = false
   for cr in child_results {
-    if cr.0 == parent_key && child_results.length() > 1 {
+    if cr.0 == parent_key && child_results.length() > 1 && parent_key != "" {
       is_dup = true
     }
   }

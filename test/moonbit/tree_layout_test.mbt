@@ -142,43 +142,13 @@ test "layout: circular cartesian coords" {
   // Each node should have x, y computed
   for n in layout.nodes {
     // x = radius * cos(angle), y = radius * sin(angle)
-    let expected_x = n.radius * tl_cos(n.angle)
-    let expected_y = n.radius * tl_sin(n.angle)
+    let expected_x = n.radius * @math.cos(n.angle)
+    let expected_y = n.radius * @math.sin(n.angle)
     assert_true((n.x - expected_x).abs() < 0.01)
     assert_true((n.y - expected_y).abs() < 0.01)
   }
 }
 
-///|
-/// Approximate cos for test verification.
-fn tl_cos(x : Double) -> Double {
-  let pi = 3.141592653589793
-  let two_pi = 2.0 * pi
-  let mut y = x
-  while y > pi {
-    y = y - two_pi
-  }
-  while y < -pi {
-    y = y + two_pi
-  }
-  let y2 = y * y
-  1.0 - y2 / 2.0 + y2 * y2 / 24.0 - y2 * y2 * y2 / 720.0
-}
-
-///|
-fn tl_sin(x : Double) -> Double {
-  let pi = 3.141592653589793
-  let two_pi = 2.0 * pi
-  let mut y = x
-  while y > pi {
-    y = y - two_pi
-  }
-  while y < -pi {
-    y = y + two_pi
-  }
-  let y2 = y * y
-  y * (1.0 - y2 / 6.0 + y2 * y2 / 120.0 - y2 * y2 * y2 / 5040.0)
-}
 
 ///|
 test "layout: circular custom range" {
