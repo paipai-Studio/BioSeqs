@@ -170,17 +170,10 @@ pub fn scanpy_read_10x_mtx(
   let features_u = gunzip_if_needed(features) catch { _ => features }
   let barcodes_u = gunzip_if_needed(barcodes) catch { _ => barcodes }
   let (gmat, n_genes, n_cells) = scanpy_parse_mtx(mtx_u)
-  // transpose genes × cells -> cells × genes
-  let x : Array[Array[Double]] = Array(capacity=0)
-  for c = 0; c < n_cells; c = c + 1 {
-    let row : Array[Double] = Array(capacity=0)
-    for g = 0; g < n_genes; g = g + 1 {
-      row.push(gmat[g][c])
-    }
-    x.push(row)
-  }
 
-  // parse features.tsv (3 columns)
+  // parse features.tsv (3 columns) — P2 fix: parse before matrix construction
+  // so gex_only can skip non-GEX columns during transpose, avoiding a full
+  // matrix build + filter pass.
   let gene_ids : Array[String] = Array(capacity=0)
   let gene_symbols : Array[String] = Array(capacity=0)
   let feature_types : Array[String] = Array(capacity=0)
@@ -195,6 +188,33 @@ pub fn scanpy_read_10x_mtx(
     feature_types.push(if cols.length() > 2 { cols[2] } else { "" })
   }
 
+  // Determine which gene columns to keep
+  let keep : Array[Int] = if gex_only {
+    let k : Array[Int] = Array(capacity=0)
+    for gi = 0; gi < feature_types.length(); gi = gi + 1 {
+      if feature_types[gi] == "Gene Expression" {
+        k.push(gi)
+      }
+    }
+    k
+  } else {
+    let k : Array[Int] = Array(capacity=n_genes)
+    for gi = 0; gi < n_genes; gi = gi + 1 {
+      k.push(gi)
+    }
+    k
+  }
+
+  // transpose genes × cells -> cells × genes, keeping only `keep` columns
+  let x : Array[Array[Double]] = Array(capacity=0)
+  for c = 0; c < n_cells; c = c + 1 {
+    let row : Array[Double] = Array(capacity=keep.length())
+    for k in keep {
+      row.push(gmat[k][c])
+    }
+    x.push(row)
+  }
+
   // parse barcodes.tsv (1 column)
   let obs_names : Array[String] = Array(capacity=0)
   for line in barcodes_u.split("\n") {
@@ -205,60 +225,31 @@ pub fn scanpy_read_10x_mtx(
     obs_names.push(t)
   }
 
-  // choose var_names + the companion annotation
-  let var_names_arr = if var_names == "gene_ids" {
-    gene_ids
+  // Build var_names and companion annotation for kept features only
+  let var_names_arr : Array[String] = Array(capacity=keep.length())
+  let companion_vals : Array[String] = Array(capacity=keep.length())
+  let kept_ftypes : Array[String] = Array(capacity=keep.length())
+  let companion_key = if var_names == "gene_ids" {
+    "gene_symbols"
   } else {
-    gene_symbols
+    "gene_ids"
+  }
+  for k in keep {
+    let vn = if var_names == "gene_ids" { gene_ids[k] } else { gene_symbols[k] }
+    let cv = if var_names == "gene_ids" { gene_symbols[k] } else { gene_ids[k] }
+    var_names_arr.push(vn)
+    companion_vals.push(cv)
+    kept_ftypes.push(feature_types[k])
   }
   let unique_names = if make_unique {
     scanpy_make_index_unique(var_names_arr)
   } else {
     var_names_arr
   }
-  let companion_key = if var_names == "gene_ids" {
-    "gene_symbols"
-  } else {
-    "gene_ids"
-  }
-  let companion_vals = if var_names == "gene_ids" {
-    gene_symbols
-  } else {
-    gene_ids
-  }
 
   let mut adata = AnnData::new(x, obs_names, unique_names)
   adata = adata.set_var(companion_key, companion_vals)
-  adata = adata.set_var("feature_types", feature_types)
-
-  if gex_only {
-    // keep only "Gene Expression" features (rows of adata → filter columns of X)
-    let keep : Array[Int] = Array(capacity=0)
-    for gi = 0; gi < feature_types.length(); gi = gi + 1 {
-      if feature_types[gi] == "Gene Expression" {
-        keep.push(gi)
-      }
-    }
-    let new_var_names : Array[String] = Array(capacity=0)
-    let new_companion : Array[String] = Array(capacity=0)
-    let new_ftypes : Array[String] = Array(capacity=0)
-    for k in keep {
-      new_var_names.push(unique_names[k])
-      new_companion.push(companion_vals[k])
-      new_ftypes.push(feature_types[k])
-    }
-    let new_x : Array[Array[Double]] = Array(capacity=0)
-    for c = 0; c < x.length(); c = c + 1 {
-      let row : Array[Double] = Array(capacity=0)
-      for k in keep {
-        row.push(x[c][k])
-      }
-      new_x.push(row)
-    }
-    adata = AnnData::new(new_x, obs_names, new_var_names)
-    adata = adata.set_var(companion_key, new_companion)
-    adata = adata.set_var("feature_types", new_ftypes)
-  }
+  adata = adata.set_var("feature_types", kept_ftypes)
 
   adata
 }
@@ -318,11 +309,11 @@ fn h5ad_mat_map_to_json(m : Map[String, Array[Array[Double]]]) -> JsonValue {
 }
 
 ///|
-/// Convert a Map[String, String] to a JsonValue object.
-fn h5ad_uns_to_json(m : Map[String, String]) -> JsonValue {
+/// Convert a Map[String, JsonValue] to a JsonValue object (shallow copy).
+fn h5ad_uns_to_json(m : Map[String, JsonValue]) -> JsonValue {
   let obj : Map[String, JsonValue] = Map([], capacity=4)
   for kv in m {
-    obj[kv.0] = JsonStr(kv.1)
+    obj[kv.0] = kv.1
   }
   JsonObj(obj)
 }
@@ -461,13 +452,13 @@ fn h5ad_json_to_mat_map(v : JsonValue) -> Map[String, Array[Array[Double]]] {
 }
 
 ///|
-/// Parse a JsonValue object into a Map[String, String].
-fn h5ad_json_to_uns(v : JsonValue) -> Map[String, String] {
-  let out : Map[String, String] = Map([], capacity=4)
+/// Parse a JsonValue object into a Map[String, JsonValue].
+fn h5ad_json_to_uns(v : JsonValue) -> Map[String, JsonValue] {
+  let out : Map[String, JsonValue] = Map([], capacity=4)
   match v {
     JsonObj(m) => {
       for kv in m {
-        out[kv.0] = h5ad_json_to_str(kv.1)
+        out[kv.0] = kv.1
       }
     }
     _ => { let _ = 0 }
@@ -758,13 +749,13 @@ fn BinWriter::write_mat_map(
 ///|
 fn BinWriter::write_uns_map(
   self : BinWriter,
-  m : Map[String, String],
+  m : Map[String, JsonValue],
 ) -> Unit {
   let keys = m.keys().collect()
   self.write_int32(keys.length())
   for k in keys {
     self.write_string(k)
-    self.write_string(m[k])
+    self.write_string(json_to_string(m[k]))
   }
 }
 
@@ -870,12 +861,16 @@ fn BinReader::read_mat_map(self : BinReader) -> Map[String, Array[Array[Double]]
 }
 
 ///|
-fn BinReader::read_uns_map(self : BinReader) -> Map[String, String] {
+fn BinReader::read_uns_map(self : BinReader) -> Map[String, JsonValue] {
   let n = self.read_int32()
-  let out : Map[String, String] = Map([], capacity=n)
+  let out : Map[String, JsonValue] = Map([], capacity=n)
   for _i = 0; _i < n; _i = _i + 1 {
     let k = self.read_string()
-    out[k] = self.read_string()
+    let v = self.read_string()
+    out[k] = match parse_json(v) {
+      Some(jv) => jv
+      None => JsonStr(v)
+    }
   }
   out
 }

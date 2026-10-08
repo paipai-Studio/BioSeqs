@@ -79,7 +79,7 @@ fn main {
   println("tl.dpt pseudotime (root cell1) = \{fmt_d(dpt)}")
 
   // sc.tl.umap (2D)
-  let emb = @src.scanpy_umap(conn, 200)
+  let emb = @src.scanpy_umap(conn, 200, 42, None)
   println("\ntl.umap 2D coordinates:\n\{fmt_m(emb)}")
 
   // sc.tl.paga (cluster connectivity, 2 x 2)

@@ -70,6 +70,12 @@ pub fn scanpy_louvain(graph : SparseGraph) -> Array[Int] {
           None => 0.0
           Some(x) => x
         }
+        // Modularity gain ΔQ (Blondel et al. 2008).  Convention: k_{u,c}
+        // counts each edge once (undirected adjacency list), m = total
+        // edge weight.  Formula: ΔQ = (k_{u,c}−k_{u,a})/m −
+        // k_u·(Σ_c−Σ_a+k_u)/(2m²).  This yields the true ΔQ; the
+        // textbook variant with 2m and 4m² denominators assumes
+        // k_{u,c} counts each edge twice (A_{ij}+A_{ji}).
         let gain = (c.1 - kin_a) / m -
           k_u * (stot_c - stot_cu + k_u) / (2.0 * m * m)
         if gain > best_gain {

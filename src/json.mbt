@@ -4,7 +4,7 @@
 /// string extraction.
 
 ///|
-pub enum JsonValue {
+pub(all) enum JsonValue {
   JsonNull
   JsonBool(Bool)
   JsonNum(Double)

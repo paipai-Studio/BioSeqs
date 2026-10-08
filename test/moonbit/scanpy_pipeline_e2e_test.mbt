@@ -131,7 +131,7 @@ test "scanpy_pipeline_e2e" {
       n_hvg = n_hvg + 1
     }
   }
-  assert_true(n_hvg >= 2)
+  assert_eq(n_hvg, 6)  // marker genes 0-4 + 5-9 = 10, but HVG selects 6 after bin normalization
 
   // ── Step 5: Subset to HVGs ──
   let hvg_indices : Array[Int] = Array(capacity=0)
@@ -204,7 +204,7 @@ test "scanpy_pipeline_e2e" {
   }
 
   // ── Step 10: UMAP embedding (n_epochs = 100) ──
-  let umap = @src.scanpy_umap(graph, 100)
+  let umap = @src.scanpy_umap(graph, 100, 42, None)
   assert_eq(umap.length(), 20)
   assert_eq(umap[0].length(), 2)
   // All embedding values should be finite (not NaN)

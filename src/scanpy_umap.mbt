@@ -26,6 +26,8 @@ fn scanpy_umap_clip(x : Double) -> Double {
 pub fn scanpy_umap(
   graph : SparseGraph,
   n_epochs : Int,
+  seed : Int,
+  init_pos : Array[Array[Double]]?,
 ) -> Array[Array[Double]] {
   let n = graph.num_vertices()
   if n < 3 {
@@ -52,14 +54,48 @@ pub fn scanpy_umap(
   }
   let n_edges = head.length()
 
-  // spectral init: eigenvectors 1 and 2 of the diffmap (skip the constant 0)
-  let dm = scanpy_diffmap(graph, 3)
-  let embedding : Array[Array[Double]] = Array(capacity=0)
-  for i = 0; i < n; i = i + 1 {
-    embedding.push([
-      dm.eigen_basis[i][1],
-      if dm.eigen_values.length() > 2 { dm.eigen_basis[i][2] } else { 0.0 },
-    ])
+  // initialization: use provided init_pos if available, otherwise spectral init
+  let embedding : Array[Array[Double]] = match init_pos {
+    Some(pos) => {
+      if pos.length() == n && pos[0].length() >= 2 {
+        let emb : Array[Array[Double]] = Array(capacity=n)
+        for i = 0; i < n; i = i + 1 {
+          emb.push([pos[i][0], pos[i][1]])
+        }
+        emb
+      } else {
+        // init_pos size mismatch → fall back to spectral
+        let dm = scanpy_diffmap(graph, 3)
+        let emb : Array[Array[Double]] = Array(capacity=0)
+        for i = 0; i < n; i = i + 1 {
+          emb.push([
+            dm.eigen_basis[i][1],
+            if dm.eigen_values.length() > 2 {
+              dm.eigen_basis[i][2]
+            } else {
+              0.0
+            },
+          ])
+        }
+        emb
+      }
+    }
+    None => {
+      // spectral init: eigenvectors 1 and 2 of the diffmap (skip the constant 0)
+      let dm = scanpy_diffmap(graph, 3)
+      let emb : Array[Array[Double]] = Array(capacity=0)
+      for i = 0; i < n; i = i + 1 {
+        emb.push([
+          dm.eigen_basis[i][1],
+          if dm.eigen_values.length() > 2 {
+            dm.eigen_basis[i][2]
+          } else {
+            0.0
+          },
+        ])
+      }
+      emb
+    }
   }
   if n_edges == 0 {
     return embedding
@@ -88,8 +124,11 @@ pub fn scanpy_umap(
     eps_neg[i] = eps[i] / neg_rate
   }
   let next_neg = eps_neg.copy()
+  // P2 fix: accumulate fractional negative-sampling counts to avoid
+  // systematic under-sampling from truncation.
+  let neg_counter = Array::make(n_edges, 0.0)
 
-  let mut seed = 42
+  let mut seed = seed
   let mut alpha = 1.0
   for e = 0; e < n_epochs; e = e + 1 {
     for i = 0; i < n_edges; i = i + 1 {
@@ -117,7 +156,10 @@ pub fn scanpy_umap(
 
         let n_neg_f = (e.to_double() - next_neg[i]) / eps_neg[i]
         if n_neg_f > 0.0 {
-          let n_neg = n_neg_f.to_int()
+          // P2 fix: accumulate fractional count, take floor, keep remainder
+          neg_counter[i] = neg_counter[i] + n_neg_f
+          let n_neg = neg_counter[i].to_int()
+          neg_counter[i] = neg_counter[i] - n_neg.to_double()
           for _p = 0; _p < n_neg; _p = _p + 1 {
             seed = scanpy_umap_lcg(seed)
             let kk = seed % n
@@ -142,8 +184,8 @@ pub fn scanpy_umap(
               }
             }
           }
+          next_neg[i] = next_neg[i] + n_neg.to_double() * eps_neg[i]
         }
-        next_neg[i] = next_neg[i] + n_neg_f.to_int().to_double() * eps_neg[i]
       }
     }
     alpha = 1.0 * (1.0 - e.to_double() / n_epochs.to_double())

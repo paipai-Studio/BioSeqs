@@ -29,9 +29,35 @@ fn scanpy_argsort(dist_row : Array[Double]) -> Array[Int] {
 
 ///|
 /// kNN indices and distances (each row sorted ascending; index 0 is self at
-/// distance 0). Computed row-by-row so no `n × n` distance matrix is ever
-/// materialized: peak transient memory is `O(n)` per row instead of `O(n²)`.
+/// distance 0).
+///
+/// **Dispatch**: uses a kd-tree when `n > 64` and `d ≤ 20` (typical
+/// PCA-reduced single-cell data), giving O(n·log n) total query time.
+/// Otherwise falls back to brute-force O(n²).  Both paths produce
+/// bit-identical output (same distances, same tie-breaking by index
+/// ascending).
 fn scanpy_knn_distances(
+  x : Array[Array[Double]],
+  k : Int,
+) -> (Array[Array[Int]], Array[Array[Double]]) {
+  let n = x.length()
+  if n == 0 {
+    return (Array(capacity=0), Array(capacity=0))
+  }
+  let d = x[0].length()
+  // kd-tree: beneficial for low-dimensional data with enough points
+  if n > 64 && d > 0 && d <= 20 {
+    return scanpy_knn_distances_kdtree(x, k, n, d)
+  }
+  // Brute-force fallback (high-dim or small-n)
+  scanpy_knn_distances_brute(x, k)
+}
+
+///|
+/// Brute-force kNN: O(n²) distance computation, row-by-row (no n×n matrix
+/// materialized).  Used as fallback when kd-tree is not beneficial
+/// (d > 20 or n ≤ 64).
+fn scanpy_knn_distances_brute(
   x : Array[Array[Double]],
   k : Int,
 ) -> (Array[Array[Int]], Array[Array[Double]]) {

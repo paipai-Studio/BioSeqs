@@ -590,3 +590,71 @@ test "sparse_array: sample and summary" {
   assert_true(summary.contains("nnzero=5"))
   assert_true(summary.contains("density=0.125"))
 }
+
+///|
+test "sparse_array: empty matmul boundary" {
+  // 0×2 matmul 2×3 = 0×3
+  let a = @src.SparseArray::zeros([0, 2]) catch { _ => abort("zeros failed") }
+  let b = @src.SparseArray::from_matrix([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]) catch {
+    _ => abort("from_matrix failed")
+  }
+  let c = a.matmul(b) catch { _ => abort("matmul failed") }
+  // matmul returns dense Array[Array[Double]]
+  assert_eq(c.length(), 0)
+}
+
+///|
+test "sparse_array: single element operations" {
+  // 1×1 matrix transpose, matmul
+  let a = @src.SparseArray::from_coo([1, 1], [[0, 0]], [3.0]) catch {
+    _ => abort("from_coo failed")
+  }
+  let at = a.transpose() catch { _ => abort("transpose failed") }
+  assert_eq(at.dim()[0], 1)
+  assert_eq(at.dim()[1], 1)
+  let v = at.get([0, 0]) catch { _ => 0.0 }
+  assert_eq(v, 3.0)
+  // matmul: [3] × [3] = [9] (returns dense)
+  let c = a.matmul(at) catch { _ => abort("matmul failed") }
+  assert_eq(c[0][0], 9.0)
+}
+
+///|
+test "sparse_array: subset with empty index" {
+  let a = @src.SparseArray::from_matrix([[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]) catch {
+    _ => abort("from_matrix failed")
+  }
+  // subset with empty row index → 0 rows
+  let sub = a.subset([[], [0, 1]]) catch { _ => abort("subset failed") }
+  assert_eq(sub.dim()[0], 0)
+  assert_eq(sub.dim()[1], 2)
+}
+
+///|
+test "sparse_array: addition of empty arrays" {
+  let a = @src.SparseArray::zeros([3, 3]) catch { _ => abort("zeros failed") }
+  let b = @src.SparseArray::zeros([3, 3]) catch { _ => abort("zeros failed") }
+  let c = a.add(b) catch { _ => abort("add failed") }
+  assert_eq(c.nnzero(), 0)
+}
+
+///|
+test "sparse_array: matmul with identity" {
+  // 3×3 matrix × identity = original
+  let a = @src.SparseArray::from_coo(
+    [3, 3],
+    [[0, 0], [1, 2], [2, 1]],
+    [5.0, 7.0, 3.0],
+  ) catch { _ => abort("from_coo failed") }
+  let id = @src.SparseArray::from_coo(
+    [3, 3],
+    [[0, 0], [1, 1], [2, 2]],
+    [1.0, 1.0, 1.0],
+  ) catch { _ => abort("from_coo failed") }
+  // matmul returns dense Array[Array[Double]]
+  let c = a.matmul(id) catch { _ => abort("matmul failed") }
+  assert_eq(c[0][0], 5.0)
+  assert_eq(c[1][2], 7.0)
+  assert_eq(c[2][1], 3.0)
+  assert_eq(c[0][1], 0.0)
+}

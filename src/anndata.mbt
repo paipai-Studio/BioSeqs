@@ -20,7 +20,7 @@ pub struct AnnData {
   varp : Map[String, Array[Array[Double]]]
   obs_names : Array[String]
   var_names : Array[String]
-  uns : Map[String, String]
+  uns : Map[String, JsonValue]
 }
 
 ///|
@@ -152,11 +152,13 @@ pub fn AnnData::set_varp(
 }
 
 ///|
-/// Set an unstructured annotation (`uns`) key-value pair. Returns `self`.
+/// Set an unstructured annotation (`uns`) key-value pair. The value can be any
+/// `JsonValue` (string, number, array, nested object, etc.), mirroring anndata's
+/// arbitrary nested-dict `uns`. Returns `self`.
 pub fn AnnData::set_uns(
   self : AnnData,
   key : String,
-  value : String,
+  value : JsonValue,
 ) -> AnnData {
   self.uns[key] = value
   self
@@ -355,7 +357,7 @@ pub fn AnnData::copy(self : AnnData) -> AnnData {
     varp: copy_mat_map(self.varp),
     obs_names: self.obs_names.copy(),
     var_names: self.var_names.copy(),
-    uns: copy_string_map(self.uns),
+    uns: copy_uns_map(self.uns),
   }
 }
 ///|
@@ -371,9 +373,9 @@ fn range(n : Int) -> Array[Int] {
 }
 
 ///|
-fn copy_string_map(m : Map[String, String]) -> Map[String, String] {
+fn copy_uns_map(m : Map[String, JsonValue]) -> Map[String, JsonValue] {
   let keys = m.keys().collect()
-  let out : Map[String, String] = Map([], capacity=keys.length())
+  let out : Map[String, JsonValue] = Map([], capacity=keys.length())
   for k in keys {
     out[k] = m[k]
   }
@@ -406,7 +408,7 @@ pub fn AnnData::get_var_names(self : AnnData) -> Array[String] {
 
 ///|
 /// Unstructured annotation value, or `None` if absent.
-pub fn AnnData::get_uns(self : AnnData, key : String) -> String? {
+pub fn AnnData::get_uns(self : AnnData, key : String) -> JsonValue? {
   match self.uns.get(key) {
     Some(v) => Some(v)
     None => None
@@ -612,7 +614,7 @@ pub fn AnnData::to_sparse(self : AnnData) -> AnnData {
         varp: copy_mat_map(self.varp),
         obs_names: self.obs_names.copy(),
         var_names: self.var_names.copy(),
-        uns: copy_string_map(self.uns),
+        uns: copy_uns_map(self.uns),
       }
     }
   }
@@ -638,7 +640,7 @@ pub fn AnnData::to_dense(self : AnnData) -> AnnData {
         varp: copy_mat_map(self.varp),
         obs_names: self.obs_names.copy(),
         var_names: self.var_names.copy(),
-        uns: copy_string_map(self.uns),
+        uns: copy_uns_map(self.uns),
       }
     }
   }

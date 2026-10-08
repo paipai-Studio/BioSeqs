@@ -44,7 +44,16 @@ pub fn linalg_lanczos_topk(
     for i = 0; i < n; i = i + 1 {
       r[i] = r[i] - a_j * q[i]
     }
-    // full re-orthogonalization against all previous Lanczos vectors
+    // selective re-orthogonalization (Kahan's "twice is enough"):
+    // first full pass against all previous Lanczos vectors, then a second
+    // pass if the first removed a significant component (norm ratio <
+    // sqrt(eps) ≈ 1.5e-8).  Handles ill-conditioned matrices where a
+    // single pass loses orthogonality due to catastrophic cancellation.
+    let mut nr_before = 0.0
+    for i = 0; i < n; i = i + 1 {
+      nr_before = nr_before + r[i] * r[i]
+    }
+    // first re-orthogonalization pass
     for t = 0; t < j; t = t + 1 {
       let vv = v[t]
       let mut dot = 0.0
@@ -58,6 +67,25 @@ pub fn linalg_lanczos_topk(
     let mut nr = 0.0
     for i = 0; i < n; i = i + 1 {
       nr = nr + r[i] * r[i]
+    }
+    // second pass if the first was insufficient (orthogonality lost).
+    // Condition: ||r_after|| / ||r_before|| < sqrt(eps) ≈ 1.49e-8,
+    // i.e. nr < eps * nr_before (eps ≈ 2.22e-16 for IEEE 754 double).
+    if nr_before > 0.0 && nr < 2.22e-16 * nr_before {
+      for t = 0; t < j; t = t + 1 {
+        let vv = v[t]
+        let mut dot = 0.0
+        for i = 0; i < n; i = i + 1 {
+          dot = dot + vv[i] * r[i]
+        }
+        for i = 0; i < n; i = i + 1 {
+          r[i] = r[i] - dot * vv[i]
+        }
+      }
+      nr = 0.0
+      for i = 0; i < n; i = i + 1 {
+        nr = nr + r[i] * r[i]
+      }
     }
     let bj = nr.sqrt()
     alpha.push(a_j)

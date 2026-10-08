@@ -41,17 +41,19 @@ test "anndata_set_varp" {
 test "anndata_set_uns" {
   let x = [[1.0, 2.0], [3.0, 4.0]]
   let ad = @src.AnnData::new(x, ["c1", "c2"], ["g1", "g2"])
-    .set_uns("title", "Sample experiment")
-    .set_uns("date", "2024-01-15")
-    .set_uns("n_clusters", "3")
+    .set_uns("title", @src.JsonStr("Sample experiment"))
+    .set_uns("date", @src.JsonStr("2024-01-15"))
+    .set_uns("n_clusters", @src.JsonStr("3"))
   let title = ad.get_uns("title")
   match title {
-    Some(s) => assert_eq(s, "Sample experiment")
+    Some(@src.JsonStr(s)) => assert_eq(s, "Sample experiment")
+    Some(_) => assert_true(false)
     None => assert_true(false)
   }
   let date = ad.get_uns("date")
   match date {
-    Some(s) => assert_eq(s, "2024-01-15")
+    Some(@src.JsonStr(s)) => assert_eq(s, "2024-01-15")
+    Some(_) => assert_true(false)
     None => assert_true(false)
   }
   let missing = ad.get_uns("nonexistent")
@@ -167,7 +169,7 @@ test "h5ad_binary_with_all_fields" {
     .set_varm("VF", [[1.0, 0.0], [0.0, 1.0]])
     .set_obsp("conn", [[1.0, 0.5], [0.5, 1.0]])
     .set_varp("corr", [[1.0, 0.8], [0.8, 1.0]])
-    .set_uns("title", "test experiment")
+    .set_uns("title", @src.JsonStr("test experiment"))
   let bytes = @src.scanpy_write_h5ad_binary(ad)
   let ad2 = match @src.scanpy_read_h5ad_binary(bytes) {
     Some(a) => a
@@ -208,7 +210,8 @@ test "h5ad_binary_with_all_fields" {
   // uns
   let title = ad2.get_uns("title")
   match title {
-    Some(s) => assert_eq(s, "test experiment")
+    Some(@src.JsonStr(s)) => assert_eq(s, "test experiment")
+    Some(_) => assert_true(false)
     None => assert_true(false)
   }
 }
@@ -243,7 +246,7 @@ test "h5ad_json_with_varm_varp_uns_roundtrip" {
   let ad = @src.AnnData::new(x, ["c1", "c2"], ["g1", "g2"])
     .set_varm("VF", [[1.0, 0.0], [0.0, 1.0]])
     .set_varp("corr", [[1.0, 0.8], [0.8, 1.0]])
-    .set_uns("title", "test")
+    .set_uns("title", @src.JsonStr("test"))
   let json = @src.scanpy_write_h5ad(ad)
   let ad2 = match @src.scanpy_read_h5ad(json) {
     Some(a) => a
@@ -259,7 +262,8 @@ test "h5ad_json_with_varm_varp_uns_roundtrip" {
   // uns
   let title = ad2.get_uns("title")
   match title {
-    Some(s) => assert_eq(s, "test")
+    Some(@src.JsonStr(s)) => assert_eq(s, "test")
+    Some(_) => assert_true(false)
     None => assert_true(false)
   }
 }
