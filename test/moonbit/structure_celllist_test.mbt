@@ -1,49 +1,49 @@
-test "celllist_neighbors" {
-  // Place atoms in a grid
-  let coords : Array[@src.Vector3] = Array(capacity=8)
-  for i = 0; i < 2; i = i + 1 {
-    for j = 0; j < 2; j = j + 1 {
-      for k = 0; k < 2; k = k + 1 {
-        coords.push(@src.Vector3::new(i.to_double() * 3.0, j.to_double() * 3.0, k.to_double() * 3.0))
-      }
-    }
-  }
-  let cl = @src.CellList::new(coords, cell_size=5.0)
-  // Find neighbors of atom 0 within 3.5 Å
-  let neighbors = cl.get_neighbors(coords, 0, radius=3.5)
-  // Atom 0 at (0,0,0): neighbors at (3,0,0), (0,3,0), (0,0,3) — all distance 3.0
-  assert_eq(neighbors.length(), 3)
+test "celllist_basic" {
+  // 3 atoms in a line: 0, 1, 2 at x=0, 5, 10
+  let coords = [
+    [0.0, 0.0, 0.0],
+    [5.0, 0.0, 0.0],
+    [10.0, 0.0, 0.0],
+  ]
+  let cl = @src.celllist_new(coords, 3.0)
+  // Neighbors of atom 0 within radius 6: should find atom 1
+  let n0 = @src.celllist_neighbors(cl, 0, 6.0)
+  assert_true(n0.length() == 1)
+  assert_true(n0[0] == 1)
+  // Neighbors of atom 1 within radius 6: should find atoms 0 and 2
+  let n1 = @src.celllist_neighbors(cl, 1, 6.0)
+  assert_true(n1.length() == 2)
 }
 
-test "celllist_pairs" {
-  let coords : Array[@src.Vector3] = [
-    @src.Vector3::new(0.0, 0.0, 0.0),
-    @src.Vector3::new(1.5, 0.0, 0.0),
-    @src.Vector3::new(10.0, 10.0, 10.0),
+test "celllist_all_pairs" {
+  let coords = [
+    [0.0, 0.0, 0.0],
+    [1.0, 0.0, 0.0],
+    [5.0, 0.0, 0.0],
+    [6.0, 0.0, 0.0],
   ]
-  let cl = @src.CellList::new(coords, cell_size=3.0)
-  let pairs = cl.get_all_pairs(coords, radius=2.0)
-  // Only (0,1) should be within 2.0 Å
-  assert_eq(pairs.length(), 1)
-  assert_eq(pairs[0].0, 0)
-  assert_eq(pairs[0].1, 1)
+  let cl = @src.celllist_new(coords, 3.0)
+  let pairs = @src.celllist_all_pairs(cl, 2.0)
+  // Should find (0,1) and (2,3)
+  assert_true(pairs.length() == 2)
 }
 
-test "celllist_coordination" {
-  // Central atom with 3 neighbors at distance 1.0
-  let coords : Array[@src.Vector3] = [
-    @src.Vector3::new(0.0, 0.0, 0.0),
-    @src.Vector3::new(1.0, 0.0, 0.0),
-    @src.Vector3::new(0.0, 1.0, 0.0),
-    @src.Vector3::new(0.0, 0.0, 1.0),
+test "celllist_point_query" {
+  let coords = [
+    [0.0, 0.0, 0.0],
+    [1.0, 1.0, 1.0],
+    [10.0, 10.0, 10.0],
   ]
-  let cl = @src.CellList::new(coords, cell_size=2.0)
-  let cn = cl.coordination_numbers(coords, radius=1.1)
-  // Atom 0 has 3 neighbors at distance 1.0
-  assert_eq(cn[0], 3)
-  // Atoms 1-3 each have 1 neighbor (atom 0) at distance 1.0
-  // (distance between atom 1 and atom 2 is sqrt(2) ≈ 1.41 > 1.1)
-  assert_eq(cn[1], 1)
-  assert_eq(cn[2], 1)
-  assert_eq(cn[3], 1)
+  let cl = @src.celllist_new(coords, 2.0)
+  // Query point near atom 0
+  let neighbors = @src.celllist_neighbors_point(cl, 0.5, 0.5, 0.5, 2.0, -1)
+  // Should find atoms 0 and 1
+  assert_true(neighbors.length() == 2)
+}
+
+test "celllist_empty" {
+  let coords : Array[Array[Double]] = []
+  let cl = @src.celllist_new(coords, 1.0)
+  let pairs = @src.celllist_all_pairs(cl, 1.0)
+  assert_true(pairs.length() == 0)
 }

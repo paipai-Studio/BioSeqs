@@ -1,283 +1,308 @@
 ///|
-/// PDBQT format — PDB with AutoDock atom types and partial charges.
+/// PDBQT format reader/writer for AutoDock Vina.
 /// Ported from biotite.structure.io.pdbqt.
 ///
-/// PDBQT extends PDB with:
-///   - Partial charges in the B-factor column (columns 66-76)
-///   - Atom type in columns 78-79 (e.g. HD, OA, N, A)
-///   - ROOT/BRANCH/ENDBRANCH/TORSDOF directives for flexible torsions
+/// PDBQT extends PDB with partial charges (Q) and AutoDock atom
+/// types (T) in columns 71-79.
 
 ///|
-/// AutoDock atom type mapping.
-/// Maps PDB element + atom name to AutoDock atom type.
-fn autodock_atom_type(element : String, atom_name : String) -> String {
-  let e = to_uppercase(element)
-  let a = to_uppercase(atom_name)
-  // Hydrogen
-  if e == "H" {
-    return "HD"
-  }
-  // Carbon: aromatic vs aliphatic
-  if e == "C" {
-    // Aromatic carbons (ring atoms in PHE, TYR, TRP, HIS)
-    if a == "CG" || a == "CD1" || a == "CD2" || a == "CE1" || a == "CE2" || a == "CZ" || a == "CE3" || a == "CH2" || a == "CZ2" || a == "CZ3" || a == "NE1" {
-      return "A"
-    }
-    return "C"
-  }
-  // Oxygen: acceptor vs hydroxyl
-  if e == "O" {
-    // Hydroxyl oxygens
-    if a == "OG" || a == "OG1" || a == "OH" {
-      return "OA"
-    }
-    return "OA"
-  }
-  // Nitrogen: donor vs acceptor
-  if e == "N" {
-    return "NA"
-  }
-  // Sulfur
-  if e == "S" {
-    return "SA"
-  }
-  // F, Cl, Br, I
-  if e == "F" {
-    return "F"
-  }
-  if e == "CL" {
-    return "CL"
-  }
-  if e == "BR" {
-    return "BR"
-  }
-  if e == "I" {
-    return "I"
-  }
-  // Metals
-  if e == "MG" || e == "MN" || e == "ZN" || e == "CA" || e == "FE" {
-    return "M"
-  }
-  // Default: use element
-  e
+/// A PDBQT atom record.
+pub struct PdbqtAtom {
+  serial : Int
+  atom_name : String
+  res_name : String
+  chain : String
+  res_id : Int
+  x : Double
+  y : Double
+  z : Double
+  partial_charge : Double
+  atom_type : String // AutoDock type: A, C, HD, HS, N, NA, OA, OS, SA, etc.
+  is_hetatm : Bool
+  // For flexible docking: root/branch markers
+  branch_marker : String // "", "ROOT", "ENDROOT", "BRANCH", "ENDBRANCH", "TORSDOF"
+  branch_data : (Int, Int) // For BRANCH: (start, end) atom serials
 }
 
 ///|
-/// Estimate partial charge for an atom (very rough — for real use, read from input).
-fn estimate_partial_charge(resname : String, atom_name : String) -> Double {
-  let r = to_uppercase(resname)
-  let a = to_uppercase(atom_name)
-  // Backbone
-  if a == "N" {
-    return -0.3
-  }
-  if a == "CA" {
-    return 0.1
-  }
-  if a == "C" {
-    return 0.2
-  }
-  if a == "O" {
-    return -0.4
-  }
-  if a == "OXT" {
-    return -0.4
-  }
-  // Side chain charges
-  if r == "ASP" && (a == "OD1" || a == "OD2") {
-    return -0.5
-  }
-  if r == "GLU" && (a == "OE1" || a == "OE2") {
-    return -0.5
-  }
-  if r == "LYS" && a == "NZ" {
-    return 0.5
-  }
-  if r == "ARG" && (a == "NE" || a == "NH1" || a == "NH2") {
-    return 0.3
-  }
-  0.0
-}
-
-///|
-/// Write PDBQT string from atoms.
-/// Includes AutoDock atom types and partial charges.
-pub fn write_pdbqt(atoms : Array[Atom]) -> String {
-  let sb = StringBuilder()
-  sb.write_string("ROOT\n")
-  for i = 0; i < atoms.length(); i = i + 1 {
-    let a = atoms[i]
-    let ad_type = autodock_atom_type(a.element, a.name)
-    let charge = estimate_partial_charge(a.resname, a.name)
-    sb.write_string(format_pdbqt_line(i + 1, a, ad_type, charge))
-  }
-  sb.write_string("ENDROOT\n")
-  sb.write_string("TER\n")
-  sb.write_string("END\n")
-  sb.to_string()
-}
-
-///|
-/// Format a single PDBQT atom line.
-fn format_pdbqt_line(
-  serial : Int,
-  atom : Atom,
-  ad_type : String,
-  charge : Double,
-) -> String {
-  let sb = StringBuilder()
-  // Record name: "ATOM  "
-  sb.write_string("ATOM  ")
-  // Serial: %5d
-  sb.write_string(format_int_field(serial, 5))
-  // Space
-  sb.write_char(' ')
-  // Atom name: %-4s
-  sb.write_string(format_str_field(atom.name, 4))
-  // Alternate location indicator
-  sb.write_char(' ')
-  // Residue name: %3s
-  sb.write_string(format_str_field_right(atom.resname, 3))
-  // Space
-  sb.write_char(' ')
-  // Chain ID
-  sb.write_char(atom.chainid)
-  // Residue sequence: %4d
-  sb.write_string(format_int_field(atom.resseq, 4))
-  // iCode
-  sb.write_char(' ')
-  // Space
-  sb.write_char(' ')
-  // X: %8.3f
-  sb.write_string(format_double_field(atom.coord.x, 8, 3))
-  // Y: %8.3f
-  sb.write_string(format_double_field(atom.coord.y, 8, 3))
-  // Z: %8.3f
-  sb.write_string(format_double_field(atom.coord.z, 8, 3))
-  // Occupancy: %6.2f
-  sb.write_string(format_double_field(atom.occupancy, 6, 2))
-  // B-factor (partial charge): %6.3f
-  sb.write_string(format_double_field(charge, 6, 3))
-  // Space + atom type
-  sb.write_char(' ')
-  sb.write_string(format_str_field_right(ad_type, 2))
-  sb.write_char('\n')
-  sb.to_string()
-}
-
-///|
-/// Parse PDBQT string into atoms.
-/// Extracts coordinates, atom types, and partial charges.
-pub fn parse_pdbqt(content : String) -> Array[Atom] {
-  let atoms : Array[Atom] = Array(capacity=0)
-  let raw = content.split("\n").to_array()
-  for sv in raw {
-    let line = sv.to_owned()
-    if line.length() < 6 {
+/// Parse a PDBQT file string into atom records.
+pub fn pdbqt_parse(content : String) -> Array[PdbqtAtom] {
+  let lines = content.split("\n").to_array()
+  let atoms : Array[PdbqtAtom] = Array(capacity=0)
+  for line in lines {
+    let trimmed = line.trim()
+    if trimmed.length() == 0 {
       continue
     }
-    // Check for ATOM or HETATM record
-    let record = substring_safe(line, 0, 6).trim().to_owned()
-    if record != "ATOM" && record != "HETATM" {
-      continue
+    let rlen = trimmed.length()
+    let cut = if rlen < 6 { rlen } else { 6 }
+    let record = trimmed[0:cut]
+    if record == "ATOM  " || record == "ATOM" || record == "HETATM" || record == "HETATM" {
+      atoms.push(parse_pdbqt_atom_line(line))
     }
-    if line.length() < 54 {
-      continue
-    }
-    // Parse fields
-    let name = substring_safe(line, 12, 16).trim().to_owned()
-    let resname = substring_safe(line, 17, 20).trim().to_owned()
-    let chainid = if line.length() > 21 {
-      line.unsafe_get(21).unsafe_to_char()
-    } else {
-      ' '
-    }
-    let resseq = parse_int(substring_safe(line, 22, 26).trim().to_owned())
-    let x = parse_double_field(line, 30, 38)
-    let y = parse_double_field(line, 38, 46)
-    let z = parse_double_field(line, 46, 54)
-    let coord = Vector3::new(x, y, z)
-    // Partial charge (columns 70-76)
-    let charge = if line.length() >= 76 {
-      parse_double_field(line, 70, 76)
-    } else {
-      0.0
-    }
-    // Atom type (columns 77-79)
-    let ad_type = if line.length() >= 79 {
-      substring_safe(line, 77, 79).trim().to_owned()
-    } else {
-      ""
-    }
-    // Derive element from atom type
-    let element = ad_type_to_element(ad_type)
-    atoms.push(Atom::new(
-      name=name,
-      coord=coord,
-      resname=resname,
-      chainid=chainid,
-      resseq=resseq,
-      element=element,
-      charge=charge.to_int(),
-    ))
   }
   atoms
 }
 
 ///|
-/// Convert AutoDock atom type to element symbol.
-fn ad_type_to_element(ad_type : String) -> String {
-  let t = to_uppercase(ad_type)
-  if t == "HD" {
-    return "H"
+/// Parse a single PDBQT ATOM/HETATM line.
+fn parse_pdbqt_atom_line(line : StringView) -> PdbqtAtom {
+  let len = line.length()
+  let cut6 = if len < 6 { len } else { 6 }
+  let is_hetatm = line[0:cut6].trim() == "HETATM"
+  let serial = if len >= 11 {
+    pdb_parse_int_fast(line[6:11].trim())
+  } else {
+    0
   }
-  if t == "C" || t == "A" {
-    return "C"
+  let atom_name = if len >= 16 {
+    line[12:16].trim().to_string()
+  } else {
+    ""
   }
-  if t == "OA" || t == "OS" || t == "O" {
-    return "O"
+  let res_name = if len >= 20 {
+    line[17:20].trim().to_string()
+  } else {
+    ""
   }
-  if t == "NA" || t == "NS" || t == "N" {
-    return "N"
+  let chain = if len >= 22 {
+    let c = line[21:22]
+    if c.trim().length() == 0 {
+      " "
+    } else {
+      c.to_string()
+    }
+  } else {
+    " "
   }
-  if t == "SA" || t == "S" {
-    return "S"
+  let res_id = if len >= 26 {
+    pdb_parse_int_fast(line[22:26].trim())
+  } else {
+    0
   }
-  if t == "P" {
-    return "P"
+  let x = if len >= 38 {
+    pdb_parse_double_fast(line[30:38].trim())
+  } else {
+    0.0
   }
-  if t == "F" {
-    return "F"
+  let y = if len >= 46 {
+    pdb_parse_double_fast(line[38:46].trim())
+  } else {
+    0.0
   }
-  if t == "CL" {
-    return "CL"
+  let z = if len >= 54 {
+    pdb_parse_double_fast(line[46:54].trim())
+  } else {
+    0.0
   }
-  if t == "BR" {
-    return "BR"
+  // Partial charge and atom type: last two whitespace-separated fields
+  let (partial_charge, atom_type) = parse_pdbqt_charge_type(line, len)
+  PdbqtAtom::{
+    serial,
+    atom_name,
+    res_name,
+    chain,
+    res_id,
+    x,
+    y,
+    z,
+    partial_charge,
+    atom_type,
+    is_hetatm,
+    branch_marker: "",
+    branch_data: (0, 0),
   }
-  if t == "I" {
-    return "I"
-  }
-  if t == "M" {
-    return "MG"
-  }
-  // Default: first character
-  if t.length() > 0 {
-    return t[0:1].to_owned()
-  }
-  ""
 }
 
 ///|
-/// Format string right-justified in a fixed-width field.
-fn format_str_field_right(s : String, width : Int) -> String {
-  if s.length() >= width {
-    return s.substring(start=0, end=width)
+/// Parse partial charge and atom type from the tail of a PDBQT line.
+fn parse_pdbqt_charge_type(line : StringView, len : Int) -> (Double, String) {
+  // The last two whitespace-separated fields are charge and type
+  let tokens : Array[StringView] = Array(capacity=0)
+  let parts = line.split(" ")
+  for p in parts {
+    let t = p.trim()
+    if t.length() > 0 {
+      tokens.push(t)
+    }
   }
+  let n = tokens.length()
+  if n >= 2 {
+    let type_str = tokens[n - 1]
+    let charge_str = tokens[n - 2]
+    let charge = pdb_parse_double_fast(charge_str)
+    if type_str.length() <= 4 {
+      return (charge, type_str.to_string())
+    }
+  }
+  (0.0, "")
+}
+
+///|
+/// Write PDBQT atoms to a PDBQT format string.
+pub fn pdbqt_write(atoms : Array[PdbqtAtom]) -> String {
   let sb = StringBuilder()
-  for _i = 0; _i < width - s.length(); _i = _i + 1 {
-    sb.write_char(' ')
+  for i = 0; i < atoms.length(); i = i + 1 {
+    sb.write_string(format_pdbqt_atom_line(atoms[i], i + 1))
+    sb.write_char('\n')
   }
-  sb.write_string(s)
   sb.to_string()
+}
+
+///|
+/// Format a PDBQT ATOM/HETATM line.
+fn format_pdbqt_atom_line(a : PdbqtAtom, serial : Int) -> String {
+  let sb = StringBuilder()
+  // Record name
+  if a.is_hetatm {
+    sb.write_string("HETATM")
+  } else {
+    sb.write_string("ATOM  ")
+  }
+  // Serial (5 chars, right-aligned)
+  sb.write_string(format_int_field(a.serial, 5))
+  // Space
+  sb.write_char(' ')
+  // Atom name (4 chars)
+  sb.write_string(format_atom_name_field(a.atom_name))
+  // AltLoc
+  sb.write_char(' ')
+  // Res name (3 chars, right-aligned)
+  sb.write_string(format_str_field(a.res_name, 3))
+  // Space
+  sb.write_char(' ')
+  // Chain
+  sb.write_string(a.chain)
+  // Res seq (4 chars, right-aligned)
+  sb.write_string(format_int_field(a.res_id, 4))
+  // iCode
+  sb.write_char(' ')
+  // Spaces 27-30
+  sb.write_string("   ")
+  // x (8 chars, 3 decimal)
+  sb.write_string(format_float_field(a.x, 8, 3))
+  // y
+  sb.write_string(format_float_field(a.y, 8, 3))
+  // z
+  sb.write_string(format_float_field(a.z, 8, 3))
+  // Partial charge (7 chars, 3 decimal) + space
+  sb.write_string(format_float_field(a.partial_charge, 7, 3))
+  sb.write_char(' ')
+  // Atom type (2 chars, right-aligned)
+  sb.write_string(format_str_field(a.atom_type, 2))
+  sb.to_string()
+}
+
+///|
+/// Format integer right-aligned in width chars.
+fn format_int_field(n : Int, width : Int) -> String {
+  let s = n.to_string()
+  if s.length() >= width {
+    return s
+  }
+  let mut pad = ""
+  for _i = 0; _i < width - s.length(); _i = _i + 1 {
+    pad = pad + " "
+  }
+  pad + s
+}
+
+///|
+/// Format string right-aligned in width chars.
+fn format_str_field(s : String, width : Int) -> String {
+  if s.length() >= width {
+    return s
+  }
+  let mut pad = ""
+  for _i = 0; _i < width - s.length(); _i = _i + 1 {
+    pad = pad + " "
+  }
+  pad + s
+}
+
+///|
+/// Format atom name: 4 chars, with special handling for elements.
+fn format_atom_name_field(name : String) -> String {
+  if name.length() >= 4 {
+    return name
+  }
+  // If name starts with a digit (e.g. "1HE2"), left-align
+  if name.length() > 0 {
+    let first = name.substring(start=0, end=1)
+    if first >= "0" && first <= "9" {
+      let mut pad = name
+      for _i = 0; _i < 4 - name.length(); _i = _i + 1 {
+        pad = pad + " "
+      }
+      return pad
+    }
+  }
+  // Otherwise, right-align in 4 chars
+  let mut pad = ""
+  for _i = 0; _i < 4 - name.length(); _i = _i + 1 {
+    pad = pad + " "
+  }
+  pad + name
+}
+
+///|
+/// Format float in width chars with precision decimal places.
+fn format_float_field(x : Double, width : Int, precision : Int) -> String {
+  // Format with precision decimal places
+  let mut s = x.to_string()
+  let dot_opt = s.find(".")
+  let dot = match dot_opt { Some(d) => d; None => -1 }
+  if dot < 0 {
+    s = s + "."
+    for _i = 0; _i < precision; _i = _i + 1 {
+      s = s + "0"
+    }
+  } else {
+    let int_part = s.substring(start=0, end=dot)
+    let frac_part = s.substring(start=dot + 1, end=s.length())
+    let frac_p = if frac_part.length() >= precision {
+      frac_part.substring(start=0, end=precision)
+    } else {
+      let mut f = frac_part
+      for _i = 0; _i < precision - frac_part.length(); _i = _i + 1 {
+        f = f + "0"
+      }
+      f
+    }
+    s = int_part + "." + frac_p
+  }
+  // Pad to width
+  if s.length() >= width {
+    return s
+  }
+  let mut pad = ""
+  for _i = 0; _i < width - s.length(); _i = _i + 1 {
+    pad = pad + " "
+  }
+  pad + s
+}
+
+///|
+/// Get the AutoDock atom type from element and context.
+/// Simplified mapping — full PDBQT typing requires AD4 type rules.
+pub fn pdbqt_atom_type(element : String, is_aromatic : Bool) -> String {
+  let e = to_uppercase(element)
+  match e {
+    "H" => "HD" // polar hydrogen (default)
+    "C" => if is_aromatic { "A" } else { "C" }
+    "N" => "NA" // acceptor (default)
+    "O" => "OA" // acceptor
+    "S" => "SA"
+    "F" => "F"
+    "CL" => "CL"
+    "BR" => "BR"
+    "I" => "I"
+    "P" => "P"
+    "MG" => "MG"
+    "ZN" => "ZN"
+    "CA" => "CA"
+    "MN" => "MN"
+    "FE" => "FE"
+    _ => e
+  }
 }

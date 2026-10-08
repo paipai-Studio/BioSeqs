@@ -212,7 +212,7 @@ fn pdb_trim_string(s : StringView) -> String {
 
 ///|
 /// Fast integer parser for PDB format (no error checking).
-fn pdb_parse_int_fast(s : StringView) -> Int {
+pub fn pdb_parse_int_fast(s : StringView) -> Int {
   let n = s.length()
   if n == 0 {
     return 0
@@ -246,7 +246,7 @@ fn pdb_parse_int_fast(s : StringView) -> Int {
 
 ///|
 /// Fast double parser for PDB format (no error checking).
-fn pdb_parse_double_fast(s : StringView) -> Double {
+pub fn pdb_parse_double_fast(s : StringView) -> Double {
   let n = s.length()
   if n == 0 {
     return 0.0
