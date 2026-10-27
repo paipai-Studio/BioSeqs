@@ -131,7 +131,7 @@ pub fn find_cavities(
         let mut occupied = false
         let mut ai = 0
         while ai < n_atoms {
-          if not(occupied) {
+          if !(occupied) {
             let dx = gx - atom_coords[ai].x
             let dy = gy - atom_coords[ai].y
             let dz = gz - atom_coords[ai].z
@@ -204,7 +204,7 @@ pub fn find_cavities(
   let cell_volume = grid_spacing * grid_spacing * grid_spacing
   let mut c2 = 0
   while c2 < total_cells {
-    if grid[c2] == 3 && not(visited[c2]) {
+    if grid[c2] == 3 && !(visited[c2]) {
       // BFS to collect this cluster
       let cluster = Array(capacity=0)
       let cqueue = Array(capacity=0)
@@ -226,7 +226,7 @@ pub fn find_cavities(
         for (ni, nj, nk) in neighbors {
           if ni >= 0 && ni < nx && nj >= 0 && nj < ny && nk >= 0 && nk < nz {
             let nidx = ni * (ny * nz) + nj * nz + nk
-            if grid[nidx] == 3 && not(visited[nidx]) {
+            if grid[nidx] == 3 && !(visited[nidx]) {
               visited[nidx] = true
               cqueue.push(nidx)
             }

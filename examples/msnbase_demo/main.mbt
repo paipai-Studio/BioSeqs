@@ -44,7 +44,7 @@ fn fmt_fixed(d : Double, decimals : Int) -> String {
   let dot_idx = string_index_of(s, ".")
   if dot_idx >= 0 {
     let end = if dot_idx + 1 + decimals < s.length() { dot_idx + 1 + decimals } else { s.length() }
-    s.substring(start=0, end=end)
+    s[0:end].to_owned()
   } else {
     let mut r = s + "."
     while r.length() < s.length() + 1 + decimals { r = r + "0" }
@@ -338,7 +338,7 @@ fn main {
   }
 
   // (d) Median centering normalization
-  let med_norm = msnset.normalize_median_center()
+  let _med_norm = msnset.normalize_median_center()
   println("\n  d) Median-centering normalization applied.")
 
   println("\n=== 6. Peptide-to-Protein Summarization ===")

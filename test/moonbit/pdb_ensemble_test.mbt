@@ -75,32 +75,32 @@ fn make_full_chain() -> @src.Chain {
 // ===== AtomMap tests =====
 
 test "atommap_basic" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob = make_perturbed_chain(0.5, 0.1)
-  let map = @src.AtomMap::new(ref.get_atoms(), mob.get_atoms())
+  let map = @src.AtomMap::new(reference.get_atoms(), mob.get_atoms())
   assert_eq(@src.AtomMap::num_mapped(map), 5)
   assert_true(@src.AtomMap::coverage(map, 5) - 1.0 < 0.001)
 }
 
 test "atommap_missing" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob = make_missing_res_chain()
-  let map = @src.AtomMap::new(ref.get_atoms(), mob.get_atoms())
+  let map = @src.AtomMap::new(reference.get_atoms(), mob.get_atoms())
   assert_eq(@src.AtomMap::num_mapped(map), 4)
   assert_true(@src.AtomMap::coverage(map, 5) - 0.8 < 0.001)
 }
 
 test "atommap_reordered" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob = make_reordered_chain()
-  let map = @src.AtomMap::new(ref.get_atoms(), mob.get_atoms())
+  let map = @src.AtomMap::new(reference.get_atoms(), mob.get_atoms())
   assert_eq(@src.AtomMap::num_mapped(map), 5)
 }
 
 test "atommap_indices" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob = make_reordered_chain()
-  let map = @src.AtomMap::new(ref.get_atoms(), mob.get_atoms())
+  let map = @src.AtomMap::new(reference.get_atoms(), mob.get_atoms())
   let ri = @src.AtomMap::ref_indices(map)
   let mi = @src.AtomMap::mob_indices(map)
   assert_eq(ri.length(), 5)
@@ -113,8 +113,8 @@ test "atommap_indices" {
 // ===== PDBEnsemble construction =====
 
 test "pdb_ensemble_construction" {
-  let ref = make_ref_chain()
-  match @src.PDBEnsemble::new(ref, true) {
+  let reference = make_ref_chain()
+  match @src.PDBEnsemble::new(reference, true) {
     Some(ens) => {
       assert_eq(@src.PDBEnsemble::num_atoms(ens), 5)
       assert_eq(@src.PDBEnsemble::num_conformations(ens), 0)
@@ -125,8 +125,8 @@ test "pdb_ensemble_construction" {
 }
 
 test "pdb_ensemble_add_chain" {
-  let ref = make_ref_chain()
-  match @src.PDBEnsemble::new(ref, true) {
+  let reference = make_ref_chain()
+  match @src.PDBEnsemble::new(reference, true) {
     Some(ens) => {
       let mob = make_perturbed_chain(0.5, 0.1)
       let ens2 = ens.add_chain(mob)
@@ -137,10 +137,10 @@ test "pdb_ensemble_add_chain" {
 }
 
 test "pdb_ensemble_from_chains" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob1: @src.Chain = make_perturbed_chain(0.5, 0.1)
   let mob2: @src.Chain = make_perturbed_chain(-0.3, 0.2)
-  match @src.PDBEnsemble::from_chains([ref, mob1, mob2], true) {
+  match @src.PDBEnsemble::from_chains([reference, mob1, mob2], true) {
     Some(ens) => {
       assert_eq(@src.PDBEnsemble::num_atoms(ens), 5)
       assert_eq(@src.PDBEnsemble::num_conformations(ens), 2)
@@ -150,8 +150,8 @@ test "pdb_ensemble_from_chains" {
 }
 
 test "pdb_ensemble_add_coordset" {
-  let ref = make_ref_chain()
-  match @src.PDBEnsemble::new(ref, true) {
+  let reference = make_ref_chain()
+  match @src.PDBEnsemble::new(reference, true) {
     Some(ens) => {
       let coords = [
         @src.Vector3::new(0.5, 0.1, 0.0),
@@ -168,10 +168,10 @@ test "pdb_ensemble_add_coordset" {
 }
 
 test "pdb_ensemble_add_mapped" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob = make_reordered_chain()
-  let map = @src.AtomMap::new(ref.get_atoms(), mob.get_atoms())
-  match @src.PDBEnsemble::new(ref, true) {
+  let map = @src.AtomMap::new(reference.get_atoms(), mob.get_atoms())
+  match @src.PDBEnsemble::new(reference, true) {
     Some(ens) => {
       let ens2 = ens.add_mapped(mob.get_atoms(), map)
       assert_eq(@src.PDBEnsemble::num_conformations(ens2), 1)
@@ -183,9 +183,9 @@ test "pdb_ensemble_add_mapped" {
 // ===== Superimposition =====
 
 test "pdb_ensemble_superimpose" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob = make_perturbed_chain(0.5, 0.1)
-  match @src.PDBEnsemble::from_chains([ref, mob], true) {
+  match @src.PDBEnsemble::from_chains([reference, mob], true) {
     Some(ens) => {
       let aligned = ens.superimpose()
       assert_true(@src.PDBEnsemble::is_aligned(aligned))
@@ -198,8 +198,8 @@ test "pdb_ensemble_superimpose" {
 }
 
 test "pdb_ensemble_superimpose_identity" {
-  let ref = make_ref_chain()
-  match @src.PDBEnsemble::from_chains([ref, ref], true) {
+  let reference = make_ref_chain()
+  match @src.PDBEnsemble::from_chains([reference, reference], true) {
     Some(ens) => {
       let aligned = ens.superimpose()
       let rmsd = @src.PDBEnsemble::get_rmsd(aligned)
@@ -210,10 +210,10 @@ test "pdb_ensemble_superimpose_identity" {
 }
 
 test "pdb_ensemble_iterative_superimpose" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob1: @src.Chain = make_perturbed_chain(0.5, 0.1)
   let mob2: @src.Chain = make_perturbed_chain(-0.3, 0.2)
-  match @src.PDBEnsemble::from_chains([ref, mob1, mob2], true) {
+  match @src.PDBEnsemble::from_chains([reference, mob1, mob2], true) {
     Some(ens) => {
       let aligned = ens.iterative_superimpose(3)
       assert_true(@src.PDBEnsemble::is_aligned(aligned))
@@ -227,9 +227,9 @@ test "pdb_ensemble_iterative_superimpose" {
 // ===== RMSD =====
 
 test "pdb_ensemble_rmsd" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob = make_perturbed_chain(0.5, 0.1)
-  match @src.PDBEnsemble::from_chains([ref, mob], true) {
+  match @src.PDBEnsemble::from_chains([reference, mob], true) {
     Some(ens) => {
       let rmsd = @src.PDBEnsemble::get_rmsd(ens)
       assert_true(rmsd[0] > 0.01)
@@ -239,10 +239,10 @@ test "pdb_ensemble_rmsd" {
 }
 
 test "pdb_ensemble_rmsd_matrix" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob1: @src.Chain = make_perturbed_chain(0.5, 0.1)
   let mob2: @src.Chain = make_perturbed_chain(-0.3, 0.2)
-  match @src.PDBEnsemble::from_chains([ref, mob1, mob2], true) {
+  match @src.PDBEnsemble::from_chains([reference, mob1, mob2], true) {
     Some(ens) => {
       let aligned = ens.superimpose()
       let matrix = @src.PDBEnsemble::get_rmsd_matrix(aligned)
@@ -259,10 +259,10 @@ test "pdb_ensemble_rmsd_matrix" {
 // ===== RMSF =====
 
 test "pdb_ensemble_rmsf" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob1: @src.Chain = make_perturbed_chain(0.5, 0.1)
   let mob2: @src.Chain = make_perturbed_chain(-0.3, 0.2)
-  match @src.PDBEnsemble::from_chains([ref, mob1, mob2], true) {
+  match @src.PDBEnsemble::from_chains([reference, mob1, mob2], true) {
     Some(ens) => {
       let aligned = ens.superimpose()
       let rmsf = @src.PDBEnsemble::get_rmsf(aligned)
@@ -276,8 +276,8 @@ test "pdb_ensemble_rmsf" {
 }
 
 test "pdb_ensemble_rmsf_identical" {
-  let ref = make_ref_chain()
-  match @src.PDBEnsemble::from_chains([ref, ref, ref], true) {
+  let reference = make_ref_chain()
+  match @src.PDBEnsemble::from_chains([reference, reference, reference], true) {
     Some(ens) => {
       let aligned = ens.superimpose()
       let rmsf = @src.PDBEnsemble::get_rmsf(aligned)
@@ -292,8 +292,8 @@ test "pdb_ensemble_rmsf_identical" {
 // ===== Mean structure =====
 
 test "pdb_ensemble_mean_structure" {
-  let ref = make_ref_chain()
-  match @src.PDBEnsemble::from_chains([ref, ref], true) {
+  let reference = make_ref_chain()
+  match @src.PDBEnsemble::from_chains([reference, reference], true) {
     Some(ens) => {
       let aligned = ens.superimpose()
       let mean = @src.PDBEnsemble::get_mean_structure(aligned)
@@ -309,9 +309,9 @@ test "pdb_ensemble_mean_structure" {
 }
 
 test "pdb_ensemble_coord_deviations" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob = make_perturbed_chain(0.0, 0.5)
-  match @src.PDBEnsemble::from_chains([ref, mob], true) {
+  match @src.PDBEnsemble::from_chains([reference, mob], true) {
     Some(ens) => {
       let aligned = ens.superimpose()
       let dev = @src.PDBEnsemble::get_coord_deviations(aligned)
@@ -327,9 +327,9 @@ test "pdb_ensemble_coord_deviations" {
 // ===== Missing atoms =====
 
 test "pdb_ensemble_missing_atoms" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob = make_missing_res_chain()
-  match @src.PDBEnsemble::from_chains([ref, mob], true) {
+  match @src.PDBEnsemble::from_chains([reference, mob], true) {
     Some(ens) => {
       let coverage = @src.PDBEnsemble::get_coverage(ens)
       assert_eq(coverage.length(), 1)
@@ -343,9 +343,9 @@ test "pdb_ensemble_missing_atoms" {
 }
 
 test "pdb_ensemble_reordered_mapping" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob = make_reordered_chain()
-  match @src.PDBEnsemble::from_chains([ref, mob], true) {
+  match @src.PDBEnsemble::from_chains([reference, mob], true) {
     Some(ens) => {
       let coverage = @src.PDBEnsemble::get_coverage(ens)
       assert_true(coverage[0] - 1.0 < 0.001)
@@ -357,11 +357,11 @@ test "pdb_ensemble_reordered_mapping" {
 // ===== Full atom ensemble =====
 
 test "pdb_ensemble_full_atoms" {
-  let ref = make_full_chain()
-  match @src.PDBEnsemble::new(ref, false) {
+  let reference = make_full_chain()
+  match @src.PDBEnsemble::new(reference, false) {
     Some(ens) => {
       assert_eq(@src.PDBEnsemble::num_atoms(ens), 15)
-      let ens2 = ens.add_chain(ref)
+      let ens2 = ens.add_chain(reference)
       assert_eq(@src.PDBEnsemble::num_conformations(ens2), 1)
     }
     None => assert_true(false)
@@ -371,10 +371,10 @@ test "pdb_ensemble_full_atoms" {
 // ===== Utility =====
 
 test "pdb_ensemble_remove_conformation" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob1: @src.Chain = make_perturbed_chain(0.5, 0.1)
   let mob2: @src.Chain = make_perturbed_chain(-0.3, 0.2)
-  match @src.PDBEnsemble::from_chains([ref, mob1, mob2], true) {
+  match @src.PDBEnsemble::from_chains([reference, mob1, mob2], true) {
     Some(ens) => {
       assert_eq(@src.PDBEnsemble::num_conformations(ens), 2)
       let ens2 = ens.remove_conformation(0)
@@ -385,8 +385,8 @@ test "pdb_ensemble_remove_conformation" {
 }
 
 test "pdb_ensemble_weights" {
-  let ref = make_ref_chain()
-  match @src.PDBEnsemble::new(ref, true) {
+  let reference = make_ref_chain()
+  match @src.PDBEnsemble::new(reference, true) {
     Some(ens) => {
       let ens2 = ens.set_weights([1.0, 2.0, 1.0, 2.0, 1.0])
       let wts = @src.PDBEnsemble::get_weights(ens2)
@@ -398,8 +398,8 @@ test "pdb_ensemble_weights" {
 }
 
 test "pdb_ensemble_metadata" {
-  let ref = make_full_chain()
-  match @src.PDBEnsemble::new(ref, false) {
+  let reference = make_full_chain()
+  match @src.PDBEnsemble::new(reference, false) {
     Some(ens) => {
       let names = @src.PDBEnsemble::get_atom_names(ens)
       let chains = @src.PDBEnsemble::get_atom_chains(ens)
@@ -416,9 +416,9 @@ test "pdb_ensemble_metadata" {
 }
 
 test "pdb_ensemble_get_coords" {
-  let ref = make_ref_chain()
+  let reference = make_ref_chain()
   let mob = make_perturbed_chain(0.5, 0.1)
-  match @src.PDBEnsemble::from_chains([ref, mob], true) {
+  match @src.PDBEnsemble::from_chains([reference, mob], true) {
     Some(ens) => {
       let coords = @src.PDBEnsemble::get_coords(ens, 0)
       assert_eq(coords.length(), 5)

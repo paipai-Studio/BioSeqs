@@ -26,7 +26,7 @@ pub fn murcko_scaffold(mol : Molecule) -> MurckoResult {
   while changed {
     changed = false
     for k = 0; k < n; k = k + 1 {
-      if not(is_scaffold[k]) {
+      if !(is_scaffold[k]) {
         continue
       }
       // Count scaffold neighbors
@@ -58,7 +58,7 @@ pub fn murcko_scaffold(mol : Molecule) -> MurckoResult {
   for ring in rings {
     let mut all_scaffold = true
     for a in ring {
-      if not(is_scaffold[a]) {
+      if !(is_scaffold[a]) {
         all_scaffold = false
       }
     }

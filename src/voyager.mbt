@@ -52,7 +52,7 @@ fn voy_copy_double_matrix(
 
 ///|
 fn voy_copy_string_map(values : Map[String, String]) -> Map[String, String] {
-  let output : Map[String, String] = Map([], capacity=values.keys().length())
+  let output : Map[String, String] = Map([], capacity=values.keys().count())
   for key in values.keys() {
     output[key] = values[key]
   }

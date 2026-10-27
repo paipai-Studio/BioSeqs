@@ -44,22 +44,22 @@ test "hts_header find_line_id" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@SQ\tSN:chr2\tLN:200\n@RG\tID:rg1\tSM:s1\n"
   let h = @src.sam_hrecs_parse(hdr)
   let line = h.find_line_id("SQ", "SN", "chr1")
-  assert_true(line.is_some())
+  assert_true(line is Some(_))
   let line2 = h.find_line_id("SQ", "SN", "chrX")
-  assert_true(line2.is_none())
+  assert_true(line2 is None)
   let line3 = h.find_line_id("RG", "ID", "rg1")
-  assert_true(line3.is_some())
+  assert_true(line3 is Some(_))
 }
 
 test "hts_header find_line_pos" {
   let hdr = "@SQ\tSN:chr1\tLN:100\n@SQ\tSN:chr2\tLN:200\n@SQ\tSN:chr3\tLN:300\n"
   let h = @src.sam_hrecs_parse(hdr)
   let line0 = h.find_line_pos("SQ", 0)
-  assert_true(line0.is_some())
+  assert_true(line0 is Some(_))
   let line2 = h.find_line_pos("SQ", 2)
-  assert_true(line2.is_some())
+  assert_true(line2 is Some(_))
   let line3 = h.find_line_pos("SQ", 3)
-  assert_true(line3.is_none())
+  assert_true(line3 is None)
 }
 
 test "hts_header find_tag_id" {

@@ -165,7 +165,7 @@ test "dada2 remove chimeras" {
   let chimera = "AAAAAAACCCCCCC"
   let asvs = [parent_a, parent_b, chimera]
   let abundances = [100, 100, 10]
-  let (clean, clean_abund, flags) = @src.remove_chimeras(asvs, abundances)
+  let (clean, _clean_abund, flags) = @src.remove_chimeras(asvs, abundances)
   assert_eq(clean.length(), 2)
   assert_true(flags[2]) // chimera flagged
   assert_true(!flags[0]) // parent_a not flagged

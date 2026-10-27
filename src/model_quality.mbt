@@ -322,14 +322,14 @@ pub fn calc_dockq(
     for (nri, nlj) in native_contacts {
       if nri == ri && nlj == lj { is_native = true; break }
     }
-    if not(is_native) { non_native = non_native + 1 }
+    if !(is_native) { non_native = non_native + 1 }
   }
   let fnonnat = if model_contacts.length() > 0 {
     non_native.to_double() / model_contacts.length().to_double()
   } else { 1.0 }
   // iRMS: interface RMSD
-  let rec_iface = Map::new()
-  let lig_iface = Map::new()
+  let rec_iface = Map([])
+  let lig_iface = Map([])
   for (ri, lj) in native_contacts { rec_iface[ri] = true; lig_iface[lj] = true }
   for (ri, lj) in model_contacts { rec_iface[ri] = true; lig_iface[lj] = true }
   let ref_interface = Array(capacity=0)

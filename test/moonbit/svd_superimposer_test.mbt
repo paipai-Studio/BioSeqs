@@ -32,7 +32,7 @@ test "svd_superimposer_identical_coords" {
   ]
   let atoms2 = atoms1.copy()
 
-  let (transformed, rmsd) = @src.superimpose(atoms1, atoms2)
+  let (_transformed, rmsd) = @src.superimpose(atoms1, atoms2)
 
   assert_eq(rmsd < 0.5, true)
 }
@@ -50,7 +50,7 @@ test "svd_superimposer_translated_coords" {
     @src.AtomCoordinate::new(2.0, 2.0, 2.0),
   ]
 
-  let (transformed, rmsd) = @src.superimpose(atoms1, atoms2)
+  let (_transformed, rmsd) = @src.superimpose(atoms1, atoms2)
 
   assert_eq(rmsd < 0.5, true)
 }
@@ -68,7 +68,7 @@ test "svd_superimposer_rotated_coords" {
     @src.AtomCoordinate::new(0.0, 0.0, 1.0),
   ]
 
-  let (transformed, rmsd) = @src.superimpose(atoms1, atoms2)
+  let (_transformed, rmsd) = @src.superimpose(atoms1, atoms2)
 
   assert_eq(rmsd < 0.5, true)
 }

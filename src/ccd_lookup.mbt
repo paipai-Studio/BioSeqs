@@ -99,7 +99,7 @@ fn ccd_guess_element(atom_name : String) -> String {
   }
   // Check 2-char elements first (metals, halogens with 2-letter symbols)
   if atom_name.length() >= 2 {
-    let two = atom_name.substring(start=0, end=2)
+    let two = atom_name[0:2].to_owned()
     let two_char = ["FE", "CL", "BR", "ZN", "MG", "MN", "CU", "NA", "NI", "CO",
       "SE", "MO", "RU", "OS", "IR", "PT", "AU", "HG", "PB", "SR",
       "BA", "AL", "SI", "LI", "BE", "NE", "AR", "KR", "XE", "CS",

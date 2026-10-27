@@ -78,7 +78,7 @@ fn main {
   let tsv = @src.cnm_segments_tsv(annotated.segments)
   println("TSV (first 200 chars):")
   let end = if tsv.length() > 200 { 200 } else { tsv.length() }
-  println(tsv.substring(start=0, end=end))
+  println(tsv[0:end])
   println("")
 
   // Example 7: ASCII plot

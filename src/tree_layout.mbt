@@ -347,7 +347,7 @@ pub fn phylo_render_rectangular(
     if gx >= 0 && gx < width && gy >= 0 && gy < height {
       if node.is_leaf && node.name != "" {
         grid[gy][gx] = first_char(node.name)
-      } else if not(node.is_leaf) && grid[gy][gx] == ' ' {
+      } else if !(node.is_leaf) && grid[gy][gx] == ' ' {
         grid[gy][gx] = '+'
       }
     }
@@ -408,7 +408,7 @@ pub fn phylo_render_circular(
     if gx >= 0 && gx < width && gy >= 0 && gy < height {
       if node.is_leaf && node.name != "" {
         grid[gy][gx] = first_char(node.name)
-      } else if not(node.is_leaf) && grid[gy][gx] == ' ' {
+      } else if !(node.is_leaf) && grid[gy][gx] == ' ' {
         grid[gy][gx] = '+'
       }
     }
@@ -472,7 +472,7 @@ fn draw_line_grid(
   let mut x = x0
   let mut y = y0
   let mut done = false
-  while not(done) {
+  while !(done) {
     if x >= 0 && x < width && y >= 0 && y < height {
       if grid[y][x] == ' ' {
         grid[y][x] = '/'

@@ -190,13 +190,13 @@ fn main {
   let mut term_total = 0
   let mut gi = 0
   while gi < term_with_bias.gene_ids.length() {
-    let mut found = false
+    let mut _found = false
     let mut g = 0
     while g < n_genes {
       if gene_names[g] == term_with_bias.gene_ids[gi] {
         if de_status[g] == 1 { term_de = term_de + 1 }
         term_total = term_total + 1
-        found = true
+        _found = true
         g = n_genes // break
       }
       g = g + 1

@@ -378,19 +378,19 @@ pub fn PDBTrajectory::superpose_frames(
   self : PDBTrajectory,
   ref_coords? : Array[Vector3] = [],
 ) -> PDBTrajectory {
-  let ref = if ref_coords.length() > 0 {
+  let reference = if ref_coords.length() > 0 {
     ref_coords
   } else if self.n_frames > 0 {
     self.frames[0]
   } else {
     []
   }
-  if ref.length() == 0 || ref.length() != self.n_atoms {
+  if reference.length() == 0 || reference.length() != self.n_atoms {
     return self
   }
   let aligned : Array[Array[Vector3]] = Array(capacity=self.n_frames)
   for f = 0; f < self.n_frames; f = f + 1 {
-    let (rot, trans) = vector_superposition_transform(self.frames[f], ref)
+    let (rot, trans) = vector_superposition_transform(self.frames[f], reference)
     let frame : Array[Vector3] = Array(capacity=self.n_atoms)
     for i = 0; i < self.n_atoms; i = i + 1 {
       frame.push(rot.transform(self.frames[f][i]).add(trans))

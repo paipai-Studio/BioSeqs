@@ -304,7 +304,7 @@ test "hc_empty_contacts" {
 ///|
 test "hc_single_contact" {
   let c = @src.HiCContact::new("chr1", 0, 1, 50, 1)
-  let (intercept, beta_dist, beta_gc, beta_map, dispersion) = @src.hicdc_fit_background([
+  let (intercept, _beta_dist, _beta_gc, _beta_map, dispersion) = @src.hicdc_fit_background([
       c,
     ],
   )

@@ -263,9 +263,9 @@ test "bam_markdup" {
   let dup_bam = @src.BamFile::new(bam.header, recs)
   let marked = @src.bam_markdup(dup_bam)
   // 第一个 read1 不标，第二个 read1 标 dup，read3 不标
-  assert_true(not(marked.records[0].is_duplicate()))
+  assert_true(!(marked.records[0].is_duplicate()))
   assert_true(marked.records[1].is_duplicate())
-  assert_true(not(marked.records[2].is_duplicate()))
+  assert_true(!(marked.records[2].is_duplicate()))
 }
 
 test "bam_stats" {

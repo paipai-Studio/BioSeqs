@@ -6,7 +6,7 @@ test "kmer_frequency" {
   assert_eq(freq.get("AT").unwrap_or(0.0), 0.3333333333333333)
   assert_eq(freq.get("TG").unwrap_or(0.0), 0.3333333333333333)
   assert_eq(freq.get("GC").unwrap_or(0.0), 0.3333333333333333)
-  assert_eq(freq.keys().length(), 3)
+  assert_eq(freq.keys().count(), 3)
 }
 
 ///|
@@ -20,7 +20,7 @@ test "kmer_frequency_non_normalized" {
 ///|
 test "kmer_frequency_empty" {
   let freq = @src.kmer_frequency("", 2, true)
-  assert_eq(freq.keys().length(), 0)
+  assert_eq(freq.keys().count(), 0)
 }
 
 ///|

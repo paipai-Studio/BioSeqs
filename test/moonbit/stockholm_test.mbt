@@ -11,7 +11,7 @@ test "stockholm_parse_header" {
 test "stockholm_parse_empty" {
   let ali = @src.stockholm_parse("")
   assert_eq(ali.blocks.length(), 0)
-  assert_eq(ali.gf_annotations.keys().length(), 0)
+  assert_eq(ali.gf_annotations.keys().count(), 0)
 }
 
 ///|
@@ -54,7 +54,7 @@ test "stockholm_parse_gf_annotations" {
     "seq1/1-10 ACGTACGTAC\n" +
     "//\n"
   let ali = @src.stockholm_parse(content)
-  assert_eq(ali.gf_annotations.keys().length(), 3)
+  assert_eq(ali.gf_annotations.keys().count(), 3)
   assert_eq(ali.gf_annotations["ID"], "TestFamily")
   assert_eq(ali.gf_annotations["AC"], "PF00001.20")
   assert_eq(ali.gf_annotations["DE"], "A test protein family")
@@ -77,7 +77,7 @@ test "stockholm_parse_gr_annotation" {
     "#=GR seq1    ........\n" +
     "//\n"
   let ali = @src.stockholm_parse(content)
-  assert_true(ali.blocks[0].gr_annotations.keys().length() > 0)
+  assert_true(ali.blocks[0].gr_annotations.keys().count() > 0)
 }
 
 ///|
@@ -87,7 +87,7 @@ test "stockholm_parse_gs_annotation" {
     "seq1/1-10 ACGTACGTAC\n" +
     "//\n"
   let ali = @src.stockholm_parse(content)
-  assert_true(ali.gs_annotations.keys().length() > 0)
+  assert_true(ali.gs_annotations.keys().count() > 0)
 }
 
 ///|
@@ -306,7 +306,7 @@ test "stockholm_sample_content" {
   let content = @src.sample_stockholm_content()
   let ali = @src.stockholm_parse(content)
   assert_eq(ali.blocks.length(), 1)
-  assert_eq(ali.gf_annotations.keys().length(), 3)
+  assert_eq(ali.gf_annotations.keys().count(), 3)
   assert_eq(ali.blocks[0].sequences.length(), 3)
 }
 
@@ -326,7 +326,7 @@ test "stockholm_multiline_gf" {
     "seq1/1-5 ACGTG\n" +
     "//\n"
   let ali = @src.stockholm_parse(content)
-  assert_true(ali.gf_annotations.keys().length() > 0)
+  assert_true(ali.gf_annotations.keys().count() > 0)
 }
 
 ///|

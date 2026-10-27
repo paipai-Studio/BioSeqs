@@ -13,7 +13,7 @@ fn main() -> Unit {
   // Cluster 0: 10 samples centered at (1, 1, 1, 1, 1)
   for i in 0..<10 {
     let pt = Array(capacity=0)
-    for j in 0..<5 {
+    for _j in 0..<5 {
       pt.push(1.0 + (i.to_double() - 5.0) * 0.05)
     }
     data.push(pt)
@@ -22,7 +22,7 @@ fn main() -> Unit {
   // Cluster 1: 10 samples centered at (5, 5, 5, 5, 5)
   for i in 0..<10 {
     let pt = Array(capacity=0)
-    for j in 0..<5 {
+    for _j in 0..<5 {
       pt.push(5.0 + (i.to_double() - 5.0) * 0.05)
     }
     data.push(pt)

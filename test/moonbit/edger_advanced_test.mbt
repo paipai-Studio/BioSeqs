@@ -151,7 +151,7 @@ test "camera_with_real_gene_set" {
   )
   let qlf = @src.glm_qlf_fit(dge)
   let result = @src.glm_qlf_test(qlf)
-  let (stat, pval, dir) = @src.camera(result, ["GeneA", "GeneB"])
+  let (_stat, pval, dir) = @src.camera(result, ["GeneA", "GeneB"])
   assert_true(pval >= 0.0 && pval <= 1.0)
   assert_true(dir == "up" || dir == "down")
 }
@@ -180,7 +180,7 @@ test "camera_with_all_genes_in_set" {
   )
   let qlf = @src.glm_qlf_fit(dge)
   let result = @src.glm_qlf_test(qlf)
-  let (stat, pval, dir) = @src.camera(result, [
+  let (_stat, pval, dir) = @src.camera(result, [
     "GeneA", "GeneB", "GeneC", "GeneD",
   ])
   assert_true(pval >= 0.0 && pval <= 1.0)

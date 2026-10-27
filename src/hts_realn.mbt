@@ -75,12 +75,12 @@ pub fn seq_to_ints(seq : String) -> Array[Int] {
 ///
 /// Returns: ProbalnResult with score, state, and quality arrays
 pub fn probaln_glocal(
-  ref : Array[Int],
+  reference : Array[Int],
   query : Array[Int],
   qual : Array[Int],
   params : ProbalnPar,
 ) -> ProbalnResult {
-  let l_ref = ref.length()
+  let l_ref = reference.length()
   let l_query = query.length()
   if l_ref == 0 || l_query == 0 {
     return ProbalnResult::{ score: 0, state: Array::make(l_query, 0), q: Array::make(l_query, 0) }
@@ -131,9 +131,9 @@ pub fn probaln_glocal(
     let mut sum = 0.0
     let end1 = if l_ref < bw + 1 { l_ref } else { bw + 1 }
     for k = 1; k <= end1; k = k + 1 {
-      let e = if ref[k - 1] > 3 || query[0] > 3 {
+      let e = if reference[k - 1] > 3 || query[0] > 3 {
         1.0
-      } else if ref[k - 1] == query[0] {
+      } else if reference[k - 1] == query[0] {
         1.0 - qual_prob[0]
       } else {
         qual_prob[0] * probaln_EM
@@ -186,10 +186,10 @@ pub fn probaln_glocal(
     let mut l_x2 = m[8] * f[fi_offset + xi + 2]
 
     for k = beg; k <= end; k = k + 1 {
-      let cond = if ref[k - 1] > 3 || qyi > 3 {
-        2 + (if ref[k - 1] == qyi { 1 } else { 0 })
+      let cond = if reference[k - 1] > 3 || qyi > 3 {
+        2 + (if reference[k - 1] == qyi { 1 } else { 0 })
       } else {
-        if ref[k - 1] == qyi { 1 } else { 0 }
+        if reference[k - 1] == qyi { 1 } else { 0 }
       }
 
       let z0 = xm0 * f[fi1_offset + yi]
@@ -290,10 +290,10 @@ pub fn probaln_glocal(
       let e = if k >= l_ref {
         0.0
       } else {
-        let cond = if ref[k] > 3 || qyi1 > 3 {
-          2 + (if ref[k] == qyi1 { 1 } else { 0 })
+        let cond = if reference[k] > 3 || qyi1 > 3 {
+          2 + (if reference[k] == qyi1 { 1 } else { 0 })
         } else {
-          if ref[k] == qyi1 { 1 } else { 0 }
+          if reference[k] == qyi1 { 1 } else { 0 }
         }
         e_arr[cond] * b[bi1_offset + yi + 3]
       }
@@ -413,7 +413,7 @@ pub fn errmod_init(depcorr : Double) -> ErrMod {
 ///|
 /// Compute beta value on demand (instead of precomputing 32MB table).
 /// beta[q][n][k] = -10/ln(10) * log(sum of binomial terms)
-fn errmod_beta(em : ErrMod, qual : Int, n : Int, k : Int) -> Double {
+fn errmod_beta(_em : ErrMod, qual : Int, n : Int, k : Int) -> Double {
   if n <= 0 || k > n {
     return 0.0
   }
@@ -558,7 +558,7 @@ pub fn errmod_cal(
 ///
 /// Returns: capped mapping quality, or -1 if below threshold
 pub fn sam_cap_mapq(
-  ref : String,
+  reference : String,
   query : String,
   qual : Array[Int],
   cigar_ops : Array[(Int, Int)],
@@ -566,7 +566,7 @@ pub fn sam_cap_mapq(
   thres : Int,
 ) -> Int {
   let thres = if thres < 0 { 40 } else { thres }
-  let ref_len = ref.length()
+  let ref_len = reference.length()
   let mut mm = 0
   let mut q_sum = 0
   let mut len = 0
@@ -582,7 +582,7 @@ pub fn sam_cap_mapq(
         if x + j >= ref_len {
           break
         }
-        let ref_base = base_to_int(ref.unsafe_get(x + j).to_char().unwrap())
+        let ref_base = base_to_int(reference.unsafe_get(x + j).to_char().unwrap())
         let query_base = base_to_int(query.unsafe_get(y + j).to_char().unwrap())
         let qval = if y + j < qual.length() { qual[y + j] } else { 30 }
         if ref_base != 4 && query_base != 4 && qval >= 13 {

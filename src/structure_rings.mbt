@@ -103,7 +103,7 @@ fn dfs_find_rings(
         ring.push(path[i])
       }
       rings.push(ring)
-    } else if not(visited[neighbor]) {
+    } else if !(visited[neighbor]) {
       dfs_find_rings(neighbor, current, adj, visited, path, rings, max_size)
     }
   }

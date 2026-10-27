@@ -22,7 +22,7 @@ fn main {
   let ali = @bio.stockholm_parse(stockholm_content)
   println("   Version: \{ali.version}")
   println("   Blocks: \{ali.blocks.length()}")
-  println("   GF annotations: \{ali.gf_annotations.keys().length()}")
+  println("   GF annotations: \{ali.gf_annotations.keys().count()}")
 
   println("")
   println("2. GF Annotations:")

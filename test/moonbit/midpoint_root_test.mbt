@@ -12,7 +12,7 @@ fn mp_leaf0(name : String) -> @src.Clade {
 }
 
 ///|
-fn mp_internal(children : Array[@src.Clade], bl : Double) -> @src.Clade {
+fn _mp_internal(children : Array[@src.Clade], bl : Double) -> @src.Clade {
   @src.Clade::new(name=Some("internal"), branch_length=Some(bl), clades=children)
 }
 

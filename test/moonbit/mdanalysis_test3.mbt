@@ -83,18 +83,18 @@ test "mdanalysis ramachandran multi frame" {
   // First residue has no phi (None), last has no psi (None)
   let (p0, _) = angles[0][0]
   let (_, s2) = angles[0][2]
-  assert_true(p0.is_empty())
-  assert_true(s2.is_empty())
+  assert_true(p0 is None)
+  assert_true(s2 is None)
   // Middle residue has both phi and psi
   let (p1, _) = angles[0][1]
   let (_, s1) = angles[0][1]
-  assert_true(p1.is_some())
-  assert_true(s1.is_some())
+  assert_true(p1 is Some(_))
+  assert_true(s1 is Some(_))
   // Middle residue region should be Some
-  assert_true(regions[0][1].is_some())
+  assert_true(regions[0][1] is Some(_))
   // First/last residue region is None (missing phi or psi)
-  assert_true(regions[0][0].is_empty())
-  assert_true(regions[0][2].is_empty())
+  assert_true(regions[0][0] is None)
+  assert_true(regions[0][2] is None)
 }
 
 ///|

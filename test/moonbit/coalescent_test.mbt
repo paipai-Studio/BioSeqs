@@ -70,7 +70,7 @@ fn coal_check_positive_branches(node : @src.Clade) -> Bool {
     None => ()
   }
   for ch in node.clades {
-    if not(coal_check_positive_branches(ch)) {
+    if !(coal_check_positive_branches(ch)) {
       return false
     }
   }
@@ -239,12 +239,12 @@ fn coal_count_blocks(s : String, prefix : String) -> Int {
   while i < n {
     // Check if this line starts with prefix
     let plen = prefix.length()
-    if i + plen <= n && s.substring(start=i, end=i + plen) == prefix {
+    if i + plen <= n && s[i:i + plen] == prefix {
       // Count block chars until newline
       let mut count = 0
       let mut j = i
       while j < n {
-        let c = s.substring(start=j, end=j + 1)
+        let c = s[j:j + 1]
         if c == "\n" {
           break
         }
@@ -256,7 +256,7 @@ fn coal_count_blocks(s : String, prefix : String) -> Int {
       return count
     }
     // Skip to next line
-    while i < n && s.substring(start=i, end=i + 1) != "\n" {
+    while i < n && s[i:i + 1] != "\n" {
       i = i + 1
     }
     i = i + 1

@@ -815,7 +815,7 @@ test "ips_roundtrip_group_and_filter" {
   let records = @src.parse_interproscan(data)
   let groups = @src.interproscan_group_by_protein(records)
   // Filter the first group's records by Pfam.
-  let (pid, recs) = groups[0]
+  let (_pid, recs) = groups[0]
   let pfam = @src.interproscan_filter_by_analysis(recs, "Pfam")
   assert_eq(pfam.length(), 1)
   assert_eq(pfam[0].signature_acc(), "PF00001")

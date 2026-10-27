@@ -74,7 +74,7 @@ fn main {
   println("")
 
   println("8. Log2 Transform")
-  let log2_data = @bio.geo_data_log2_transform(geo_data)
+  let _log2_data = @bio.geo_data_log2_transform(geo_data)
   println("   Log2 transformed data computed")
   println("")
 

@@ -1,6 +1,6 @@
 ///|
 test "scran_compute_sum_factors" {
-  let (counts, gene_names) = @src.create_example_scran_data()
+  let (counts, _gene_names) = @src.create_example_scran_data()
   let sizes = [10]
   let sf = @src.compute_sum_factors(counts, sizes)
   assert_eq(sf.factors.length(), 100)
@@ -8,7 +8,7 @@ test "scran_compute_sum_factors" {
 
 ///|
 test "scran_log_normalize" {
-  let (counts, gene_names) = @src.create_example_scran_data()
+  let (counts, _gene_names) = @src.create_example_scran_data()
   let size_factors = Array::make(100, 1.0)
   let normalized = @src.scran_log_normalize(counts, size_factors)
   assert_eq(normalized.length(), 100)
@@ -17,7 +17,7 @@ test "scran_log_normalize" {
 
 ///|
 test "scran_build_snn_graph" {
-  let (counts, gene_names) = @src.create_example_scran_data()
+  let (counts, _gene_names) = @src.create_example_scran_data()
   let size_factors = Array::make(100, 1.0)
   let normalized = @src.scran_log_normalize(counts, size_factors)
   let (adjacency, weights) = @src.build_snn_graph(normalized, 10)
@@ -27,7 +27,7 @@ test "scran_build_snn_graph" {
 
 ///|
 test "scran_leiden_clustering" {
-  let (counts, gene_names) = @src.create_example_scran_data()
+  let (counts, _gene_names) = @src.create_example_scran_data()
   let size_factors = Array::make(100, 1.0)
   let normalized = @src.scran_log_normalize(counts, size_factors)
   let (adjacency, weights) = @src.build_snn_graph(normalized, 10)

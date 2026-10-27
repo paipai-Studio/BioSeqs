@@ -327,7 +327,7 @@ test "sfs: fu li d n too small" {
   assert_eq(d, 0.0)
   // n=3 should work
   let d3 = @src.phylo_fu_li_d(5, 3, 1)
-  assert_true(not(d3.is_nan()))
+  assert_true(!(d3.is_nan()))
 }
 
 ///|
@@ -457,11 +457,11 @@ test "sfs stats: all statistics from one pass" {
   let _ = stats.zeng_e()
   let _ = stats.watterson_theta()
   // Just verify no crash and values are finite
-  assert_true(not(stats.tajima_d().is_nan()))
-  assert_true(not(stats.fu_li_d().is_nan()))
-  assert_true(not(stats.fu_li_f().is_nan()))
-  assert_true(not(stats.fay_wu_h().is_nan()))
-  assert_true(not(stats.zeng_e().is_nan()))
+  assert_true(!(stats.tajima_d().is_nan()))
+  assert_true(!(stats.fu_li_d().is_nan()))
+  assert_true(!(stats.fu_li_f().is_nan()))
+  assert_true(!(stats.fay_wu_h().is_nan()))
+  assert_true(!(stats.zeng_e().is_nan()))
 }
 
 ///|

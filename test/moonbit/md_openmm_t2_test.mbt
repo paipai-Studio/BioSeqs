@@ -7,16 +7,16 @@ test "openmm rmsd identical structures" {
 test "openmm rmsd translated structures" {
   // RMSD should be 0 for translated copies (optimal superposition)
   let pos = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
-  let ref = [[5.0, 3.0, 2.0], [6.0, 3.0, 2.0], [5.0, 4.0, 2.0]]
-  let rmsd_val = @src.md_rmsd(pos, ref)
+  let reference = [[5.0, 3.0, 2.0], [6.0, 3.0, 2.0], [5.0, 4.0, 2.0]]
+  let rmsd_val = @src.md_rmsd(pos, reference)
   assert_true(rmsd_val < 1.0e-6)
 }
 
 test "openmm rmsd scaled structures" {
   // RMSD should be nonzero for scaled structures
   let pos = [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]
-  let ref = [[0.0, 0.0, 0.0], [2.0, 0.0, 0.0], [0.0, 2.0, 0.0]]
-  let rmsd_val = @src.md_rmsd(pos, ref)
+  let reference = [[0.0, 0.0, 0.0], [2.0, 0.0, 0.0], [0.0, 2.0, 0.0]]
+  let rmsd_val = @src.md_rmsd(pos, reference)
   assert_true(rmsd_val > 0.1)
 }
 

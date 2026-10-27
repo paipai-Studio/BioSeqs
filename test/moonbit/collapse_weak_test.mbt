@@ -17,7 +17,7 @@ fn cw_internal_conf(children : Array[@src.Clade], conf : Double) -> @src.Clade {
 }
 
 ///|
-fn cw_internal_bl(children : Array[@src.Clade], bl : Double) -> @src.Clade {
+fn _cw_internal_bl(children : Array[@src.Clade], bl : Double) -> @src.Clade {
   @src.Clade::new(name=Some("internal"), branch_length=Some(bl), clades=children)
 }
 
@@ -193,7 +193,7 @@ test "collapse: partial nested collapse" {
   // Root has 2 children: (A,B,C) and D
   assert_eq(result.clades.length(), 2)
   // First child should have 3 children (A, B, C)
-  assert_true(not(result.clades[0].is_terminal()))
+  assert_true(!(result.clades[0].is_terminal()))
   assert_eq(result.clades[0].clades.length(), 3)
 }
 
@@ -201,7 +201,7 @@ test "collapse: partial nested collapse" {
 test "collapse: branch lengths merged" {
   // ((A:1,B:1):2, C:3) with support 30, threshold 50
   // After collapse: A gets bl=1+2=3, B gets bl=1+2=3
-  let tree = cw_internal([
+  let _tree = cw_internal([
     cw_internal_conf([
       @src.Clade::new(name=Some("A"), branch_length=Some(1.0)),
       @src.Clade::new(name=Some("B"), branch_length=Some(1.0)),

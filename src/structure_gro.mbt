@@ -89,8 +89,8 @@ fn parse_gro_atom_line(line : StringView) -> GroAtom {
   // Try fixed-column format if we have at least through atom_id (20 chars)
   if len >= 20 {
     let res_id = pdb_parse_int_fast(gro_safe_slice(line, 0, 5).trim())
-    let res_name = gro_safe_slice(line, 5, 10).trim().to_string()
-    let atom_name = gro_safe_slice(line, 10, 15).trim().to_string()
+    let res_name = gro_safe_slice(line, 5, 10).trim().to_owned()
+    let atom_name = gro_safe_slice(line, 10, 15).trim().to_owned()
     let atom_id = pdb_parse_int_fast(gro_safe_slice(line, 15, 20).trim())
     // Parse coordinates from whatever remains
     let x = if len > 20 {
@@ -125,8 +125,8 @@ fn parse_gro_atom_line(line : StringView) -> GroAtom {
   // res_id res_name atom_name atom_id x y z
   GroAtom::{
     res_id: pdb_parse_int_fast(nums[0]),
-    res_name: nums[1].to_string(),
-    atom_name: nums[2].to_string(),
+    res_name: nums[1].to_owned(),
+    atom_name: nums[2].to_owned(),
     atom_id: pdb_parse_int_fast(nums[3]),
     x: pdb_parse_double_fast(nums[4]),
     y: pdb_parse_double_fast(nums[5]),
@@ -180,7 +180,7 @@ pub fn gro_write(frame : GroFrame) -> String {
 
 ///|
 /// Format a GRO atom line (fixed-column).
-fn format_gro_atom_line(a : GroAtom, serial : Int) -> String {
+fn format_gro_atom_line(a : GroAtom, _serial : Int) -> String {
   let sb = StringBuilder()
   // res_id (5 chars, right-aligned)
   sb.write_string(format_int_right(a.res_id, 5))
@@ -208,19 +208,19 @@ fn format_gro_num(x : Double) -> String {
     // No decimal point
     return s + ".000"
   }
-  let int_part = s.substring(start=0, end=dot)
-  let frac_part = s.substring(start=dot + 1, end=s.length())
+  let int_part = s[0:dot].to_owned()
+  let frac_part = s[dot + 1:s.length()].to_owned()
   let frac3 = if frac_part.length() >= 3 {
-    frac_part.substring(start=0, end=3)
+    frac_part[0:3].to_owned()
   } else {
-    frac_part + "000".substring(start=0, end=3 - frac_part.length())
+    frac_part + "000"[0:3 - frac_part.length()].to_owned()
   }
   let num_str = int_part + "." + frac3
   // Pad to 8 chars
   if num_str.length() >= 8 {
     return num_str
   }
-  "        ".substring(start=0, end=8 - num_str.length()) + num_str
+  "        "[0:8 - num_str.length()].to_owned() + num_str
 }
 
 ///|
@@ -230,7 +230,7 @@ fn format_int_right(n : Int, width : Int) -> String {
   if s.length() >= width {
     return s
   }
-  "     ".substring(start=0, end=width - s.length()) + s
+  "     "[0:width - s.length()].to_owned() + s
 }
 
 ///|
@@ -239,7 +239,7 @@ fn format_str_left(s : String, width : Int) -> String {
   if s.length() >= width {
     return s
   }
-  s + "     ".substring(start=0, end=width - s.length())
+  s + "     "[0:width - s.length()].to_owned()
 }
 
 ///|

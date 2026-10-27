@@ -124,7 +124,7 @@ pub fn se_num_cols(se : SpatialExperiment) -> Int {
 
 ///|
 pub fn se_num_assays(se : SpatialExperiment) -> Int {
-  se.assay.keys().length()
+  se.assay.keys().count()
 }
 
 ///|

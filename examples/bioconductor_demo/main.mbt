@@ -520,7 +520,7 @@ fn main {
   println("")
 
   println("8. Run UMAP")
-  let seurat_umap = @bio.run_umap(seurat_pca)
+  let _seurat_umap = @bio.run_umap(seurat_pca)
   println("   UMAP completed with 2 dimensions")
   println("")
 

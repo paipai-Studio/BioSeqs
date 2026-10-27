@@ -188,7 +188,7 @@ test "ga_evolution_loop_improves_fitness" {
 
 ///|
 test "ga_result_creation" {
-  let best = @src.GAIndividual::new(
+  let _best = @src.GAIndividual::new(
     sequence="ACGT",
     fitness=1.0,
     generation=10,

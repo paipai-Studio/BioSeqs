@@ -101,14 +101,14 @@ pub fn rotamer_bin_name(bin : RotamerBin) -> String {
 /// Check if a residue type has a chi1 angle.
 pub fn has_chi1(resname : String) -> Bool {
   let r = to_lowercase(resname)
-  not(r == "gly" || r == "ala")
+  !(r == "gly" || r == "ala")
 }
 
 ///|
 /// Check if a residue type has a chi2 angle.
 pub fn has_chi2(resname : String) -> Bool {
   let r = to_lowercase(resname)
-  not(r == "gly" || r == "ala" || r == "ser" || r == "cys" || r == "pro" || r == "thr" || r == "val")
+  !(r == "gly" || r == "ala" || r == "ser" || r == "cys" || r == "pro" || r == "thr" || r == "val")
 }
 
 ///|

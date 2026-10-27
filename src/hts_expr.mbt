@@ -56,7 +56,7 @@ fn ExprVal::exists(self : ExprVal) -> Bool {
 ///|
 /// Check if value exists and is truthy.
 fn ExprVal::exists_t(self : ExprVal) -> Bool {
-  self.is_true > 0 || (self.is_true == 0 && self.is_str && self.s.length() > 0) || (self.is_true == 0 && not(self.is_str) && self.d != 0.0)
+  self.is_true > 0 || (self.is_true == 0 && self.is_str && self.s.length() > 0) || (self.is_true == 0 && !(self.is_str) && self.d != 0.0)
 }
 
 ///|
@@ -143,7 +143,7 @@ fn Parser::parse_number(self : Parser) -> ExprVal? {
   if self.pos == start {
     return None
   }
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   for i = start; i < self.pos; i = i + 1 {
     sb.write_char(self.chars[i])
   }
@@ -161,7 +161,7 @@ fn Parser::parse_string(self : Parser) -> ExprVal? {
     return None
   }
   self.pos = self.pos + 1
-  let result = StringBuilder::new()
+  let result = StringBuilder()
   while self.pos < self.chars.length() && self.chars[self.pos] != '"' {
     if self.chars[self.pos] == '\\' && self.pos + 1 < self.chars.length() {
       self.pos = self.pos + 1
@@ -202,7 +202,7 @@ fn Parser::parse_identifier(self : Parser) -> String {
     }
   }
   {
-    let sb2 = StringBuilder::new()
+    let sb2 = StringBuilder()
     for i = start; i < self.pos; i = i + 1 {
       sb2.write_char(self.chars[i])
     }
@@ -248,13 +248,13 @@ fn Parser::parse_func(self : Parser, name : String) -> ExprVal? {
   // Apply function
   match name {
     "length" => {
-      if not(result.is_str) {
+      if !(result.is_str) {
         return None
       }
       result = ExprVal::num(result.s.length().to_double())
     }
     "min" => {
-      if not(result.is_str) {
+      if !(result.is_str) {
         return None
       }
       let mut v = 999999
@@ -267,7 +267,7 @@ fn Parser::parse_func(self : Parser, name : String) -> ExprVal? {
       result = if v == 999999 { ExprVal::undef() } else { ExprVal::num(v.to_double()) }
     }
     "max" => {
-      if not(result.is_str) {
+      if !(result.is_str) {
         return None
       }
       let mut v = -1
@@ -280,7 +280,7 @@ fn Parser::parse_func(self : Parser, name : String) -> ExprVal? {
       result = if v == -1 { ExprVal::undef() } else { ExprVal::num(v.to_double()) }
     }
     "avg" => {
-      if not(result.is_str) {
+      if !(result.is_str) {
         return None
       }
       let mut sum = 0.0
@@ -326,7 +326,7 @@ fn Parser::parse_func(self : Parser, name : String) -> ExprVal? {
     "default" => {
       match arg2 {
         Some(v2) => {
-          if not(result.exists()) {
+          if !(result.exists()) {
             result = v2
           }
         }
@@ -392,7 +392,7 @@ fn Parser::parse_unary(self : Parser) -> ExprVal? {
     match self.parse_simple() {
       Some(v0) => {
         let mut v = v0
-        if not(v.exists()) {
+        if !(v.exists()) {
           return Some(ExprVal::undef())
         }
         if v.is_str {
@@ -411,7 +411,7 @@ fn Parser::parse_unary(self : Parser) -> ExprVal? {
       Some(v) => {
         if v.is_true > 0 {
           Some(ExprVal::num(0.0))
-        } else if not(v.exists()) {
+        } else if !(v.exists()) {
           Some(ExprVal::num(1.0))
         } else if v.is_str {
           Some(ExprVal::num(if v.s.length() == 0 { 1.0 } else { 0.0 }))
@@ -425,7 +425,7 @@ fn Parser::parse_unary(self : Parser) -> ExprVal? {
     self.pos = self.pos + 1
     match self.parse_unary() {
       Some(v) => {
-        if not(v.exists()) || v.is_str {
+        if !(v.exists()) || v.is_str {
           return Some(ExprVal::undef())
         }
         Some(ExprVal::num((v.d.to_int().lnot()).to_double()))
@@ -450,7 +450,7 @@ fn Parser::parse_mul(self : Parser) -> ExprVal? {
           self.pos = self.pos + 1
           match self.parse_unary() {
             Some(v) => {
-              if not(v.exists()) || not(result.exists()) || v.is_str || result.is_str {
+              if !(v.exists()) || !(result.exists()) || v.is_str || result.is_str {
                 return Some(ExprVal::undef())
               }
               match c {
@@ -490,7 +490,7 @@ fn Parser::parse_add(self : Parser) -> ExprVal? {
           self.pos = self.pos + 1
           match self.parse_mul() {
             Some(v) => {
-              if not(v.exists()) || not(result.exists()) || v.is_str || result.is_str {
+              if !(v.exists()) || !(result.exists()) || v.is_str || result.is_str {
                 return Some(ExprVal::undef())
               }
               match c {
@@ -523,7 +523,7 @@ fn Parser::parse_bitand(self : Parser) -> ExprVal? {
           self.pos = self.pos + 1
           match self.parse_add() {
             Some(v) => {
-              if not(v.exists()) || not(result.exists()) || v.is_str || result.is_str {
+              if !(v.exists()) || !(result.exists()) || v.is_str || result.is_str {
                 return Some(ExprVal::undef())
               }
               result = ExprVal::num((result.d.to_int() & v.d.to_int()).to_double())
@@ -552,7 +552,7 @@ fn Parser::parse_bitxor(self : Parser) -> ExprVal? {
           self.pos = self.pos + 1
           match self.parse_bitand() {
             Some(v) => {
-              if not(v.exists()) || not(result.exists()) || v.is_str || result.is_str {
+              if !(v.exists()) || !(result.exists()) || v.is_str || result.is_str {
                 return Some(ExprVal::undef())
               }
               result = ExprVal::num((result.d.to_int() ^ v.d.to_int()).to_double())
@@ -581,7 +581,7 @@ fn Parser::parse_bitor(self : Parser) -> ExprVal? {
           self.pos = self.pos + 1
           match self.parse_bitxor() {
             Some(v) => {
-              if not(v.exists()) || not(result.exists()) || v.is_str || result.is_str {
+              if !(v.exists()) || !(result.exists()) || v.is_str || result.is_str {
                 return Some(ExprVal::undef())
               }
               result = ExprVal::num((result.d.to_int() | v.d.to_int()).to_double())
@@ -611,7 +611,7 @@ fn Parser::parse_cmp(self : Parser) -> ExprVal? {
         self.pos = self.pos + 2
         match self.parse_bitor() {
           Some(v) => {
-            if not(v.exists()) || not(result.exists()) {
+            if !(v.exists()) || !(result.exists()) {
               return Some(ExprVal::undef())
             }
             if result.is_str && v.is_str {
@@ -629,7 +629,7 @@ fn Parser::parse_cmp(self : Parser) -> ExprVal? {
         self.pos = self.pos + 1
         match self.parse_bitor() {
           Some(v) => {
-            if not(v.exists()) || not(result.exists()) {
+            if !(v.exists()) || !(result.exists()) {
               return Some(ExprVal::undef())
             }
             if result.is_str && v.is_str {
@@ -647,7 +647,7 @@ fn Parser::parse_cmp(self : Parser) -> ExprVal? {
         self.pos = self.pos + 2
         match self.parse_bitor() {
           Some(v) => {
-            if not(v.exists()) || not(result.exists()) {
+            if !(v.exists()) || !(result.exists()) {
               return Some(ExprVal::undef())
             }
             if result.is_str && v.is_str {
@@ -665,7 +665,7 @@ fn Parser::parse_cmp(self : Parser) -> ExprVal? {
         self.pos = self.pos + 1
         match self.parse_bitor() {
           Some(v) => {
-            if not(v.exists()) || not(result.exists()) {
+            if !(v.exists()) || !(result.exists()) {
               return Some(ExprVal::undef())
             }
             if result.is_str && v.is_str {
@@ -699,7 +699,7 @@ fn Parser::parse_eq(self : Parser) -> ExprVal? {
         self.pos = self.pos + 2
         match self.parse_cmp() {
           Some(v) => {
-            if not(v.exists()) || not(result.exists()) {
+            if !(v.exists()) || !(result.exists()) {
               return Some(ExprVal::undef())
             }
             if result.is_str && v.is_str {
@@ -716,7 +716,7 @@ fn Parser::parse_eq(self : Parser) -> ExprVal? {
         self.pos = self.pos + 2
         match self.parse_cmp() {
           Some(v) => {
-            if not(v.exists()) || not(result.exists()) {
+            if !(v.exists()) || !(result.exists()) {
               return Some(ExprVal::undef())
             }
             if result.is_str && v.is_str {

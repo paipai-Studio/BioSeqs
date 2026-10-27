@@ -57,10 +57,10 @@ fn dm_write_i32_le(sb : StringBuilder, v : Int) -> Unit {
 ///|
 fn dm_write_f32_le(sb : StringBuilder, v : Double) -> Unit {
   if v == 0.0 {
-    sb.write_char('\x00')
-    sb.write_char('\x00')
-    sb.write_char('\x00')
-    sb.write_char('\x00')
+    sb.write_char('\u{00}')
+    sb.write_char('\u{00}')
+    sb.write_char('\u{00}')
+    sb.write_char('\u{00}')
     return
   }
   let sign : Int = if v < 0.0 { 1 } else { 0 }
@@ -68,16 +68,16 @@ fn dm_write_f32_le(sb : StringBuilder, v : Double) -> Unit {
   let log2v = @math.ln(absv) / @math.ln(2.0)
   let exponent = floor_d(log2v).to_int() + 127
   if exponent <= 0 {
-    sb.write_char('\x00')
-    sb.write_char('\x00')
-    sb.write_char('\x00')
-    sb.write_char('\x00')
+    sb.write_char('\u{00}')
+    sb.write_char('\u{00}')
+    sb.write_char('\u{00}')
+    sb.write_char('\u{00}')
     return
   }
   if exponent >= 255 {
-    sb.write_char('\x00')
-    sb.write_char('\x00')
-    sb.write_char('\x80')
+    sb.write_char('\u{00}')
+    sb.write_char('\u{00}')
+    sb.write_char('\u{80}')
     sb.write_char((if sign == 1 { 0xFF } else { 0x7F }).to_uint16().unsafe_to_char())
     return
   }
@@ -787,12 +787,12 @@ pub fn write_ccp4(map : DensityMap) -> String {
     }
   }
   while written < 200 {
-    sb.write_char('\x00')
+    sb.write_char('\u{00}')
     written = written + 1
   }
   // Symmetry records (if any)
   for _i = 0; _i < map.nsymbt; _i = _i + 1 {
-    sb.write_char('\x00')
+    sb.write_char('\u{00}')
   }
   // Density data (float32, x fastest, z slowest)
   for i = 0; i < map.data.length(); i = i + 1 {
@@ -882,10 +882,10 @@ pub fn parse_xplor(content : String) -> DensityMap raise DensityMapError {
     raise DensityMapError("Empty X-PLOR map")
   }
   // Line 1: title
-  let title = lines[idx].trim().to_string()
+  let title = lines[idx].trim().to_owned()
   idx = idx + 1
   // Remark lines until '!'
-  while idx < lines.length() && !lines[idx].trim().starts_with("!") {
+  while idx < lines.length() && !lines[idx].trim().has_prefix("!") {
     idx = idx + 1
   }
   if idx >= lines.length() {
@@ -898,7 +898,7 @@ pub fn parse_xplor(content : String) -> DensityMap raise DensityMapError {
   }
   let grid_parts = lines[idx].trim().split(" ").to_array().filter(
     fn(s) { s.length() > 0 },
-  ).map(fn(s) { s.to_string() })
+  ).map(fn(s) { s.to_owned() })
   if grid_parts.length() < 9 {
     raise DensityMapError("X-PLOR: malformed grid line")
   }
@@ -918,7 +918,7 @@ pub fn parse_xplor(content : String) -> DensityMap raise DensityMapError {
   }
   let cell_parts = lines[idx].trim().split(" ").to_array().filter(
     fn(s) { s.length() > 0 },
-  ).map(fn(s) { s.to_string() })
+  ).map(fn(s) { s.to_owned() })
   if cell_parts.length() < 6 {
     raise DensityMapError("X-PLOR: malformed cell line")
   }
@@ -950,7 +950,7 @@ pub fn parse_xplor(content : String) -> DensityMap raise DensityMapError {
     while row < ny && idx < lines.length() {
       let parts = lines[idx].trim().split(" ").to_array().filter(
         fn(s) { s.length() > 0 },
-      ).map(fn(s) { s.to_string() })
+      ).map(fn(s) { s.to_owned() })
       for p in parts {
         if data.length() < nvox {
           data.push(dm_safe_parse_double(p))
@@ -1063,7 +1063,7 @@ pub fn density_from_atoms(
   let jcut = (cutoff / dy).to_int() + 1
   let kcut = (cutoff / dz).to_int() + 1
   // For orthorhombic cell (most common case)
-  let inv_four_b = 1.0 / (4.0 * b_total / (8.0 * 3.141592653589793 * 3.141592653589793))
+  let _inv_four_b = 1.0 / (4.0 * b_total / (8.0 * 3.141592653589793 * 3.141592653589793))
   // Actually: Gaussian = exp(-|r-ri|^2 / (2*sigma^2))
   // With B = 8*pi^2*sigma^2, sigma^2 = B/(8*pi^2)
   // 1/(2*sigma^2) = 4*pi^2/B

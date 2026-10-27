@@ -37,7 +37,7 @@ fn main {
   // Example 3: Extract Cα coordinates
   println("--- Step 3: Cα Coordinates ---")
   let coords1 = @src.ppy_coords(c1, "CA")
-  let coords2 = @src.ppy_coords(c2, "CA")
+  let _coords2 = @src.ppy_coords(c2, "CA")
   println("Conformer 1 Cα coords: " + coords1.length().to_string() + " points")
   for i in 0..<coords1.length() {
     println("  ALA " + (i+1).to_string() + ": (" + coords1[i].x.to_string() + ", " + coords1[i].y.to_string() + ", " + coords1[i].z.to_string() + ")")

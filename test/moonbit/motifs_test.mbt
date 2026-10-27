@@ -61,7 +61,7 @@ test "score_sequence" {
   let sites = ["ACGT"]
   let motif = @src.create_motif("test", sites)
   let pssm = @src.pssm_from_pwm(motif.pwm, [0.25, 0.25, 0.25, 0.25])
-  let score = @src.score_sequence(pssm, "ACGT", motif.alphabet)
+  let _score = @src.score_sequence(pssm, "ACGT", motif.alphabet)
   assert_true(pssm.length() > 0)
 }
 

@@ -50,7 +50,7 @@ fn main {
 
   // Example 5: Cluster summary
   println("--- Step 5: Cluster Summary ---")
-  let (n, total_tags, avg_tags, avg_ctss, avg_shape) = @src.cage_cluster_summary(clusters)
+  let (n, total_tags, avg_tags, _avg_ctss, avg_shape) = @src.cage_cluster_summary(clusters)
   println("Total clusters: " + n.to_string())
   println("Total tags: " + total_tags.to_string())
   println("Avg tags/cluster: " + avg_tags.to_string())
@@ -74,7 +74,7 @@ fn main {
   let diff = @src.cage_diff_tss(sample, sample2)
   println("Differential TSS: " + diff.length().to_string() + " positions")
   if diff.length() > 0 {
-    let (chr, pos, strand, log2fc, total) = diff[0]
+    let (chr, pos, strand, log2fc, _total) = diff[0]
     println("  " + chr + ":" + pos.to_string() + " " + strand + " log2FC=" + log2fc.to_string())
   }
   println("")

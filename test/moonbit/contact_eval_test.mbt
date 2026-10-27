@@ -226,7 +226,7 @@ test "coupling_distance_correlation" {
   // Perfect anti-correlation: high score → short distance
   let scores = [[0.0, 10.0, 1.0], [10.0, 0.0, 5.0], [1.0, 5.0, 0.0]]
   let dist = [[0.0, 1.0, 5.0], [1.0, 0.0, 2.0], [5.0, 2.0, 0.0]]
-  let (pearson, spearman) = @src.coupling_distance_correlation(scores, dist, 1)
+  let (pearson, _spearman) = @src.coupling_distance_correlation(scores, dist, 1)
   // Score and 1/distance should be positively correlated
   assert_true(pearson > 0.0)
 }

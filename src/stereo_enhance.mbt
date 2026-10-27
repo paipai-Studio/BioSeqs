@@ -220,7 +220,7 @@ pub fn standard_bond_length(atom1 : String, atom2 : String) -> Double {
 
 ///|
 /// Standard bond angles for protein backbone (in degrees).
-pub fn standard_bond_angle(atom1 : String, atom2 : String, atom3 : String) -> Double {
+pub fn standard_bond_angle(_atom1 : String, atom2 : String, _atom3 : String) -> Double {
   let a2 = to_lowercase(atom2) // central atom
   match a2 {
     "n" => 121.0 // C-N-CA
@@ -274,7 +274,7 @@ pub fn stereo_summary(
   for r in chirality_results {
     if r.has_chirality {
       num_chiral = num_chiral + 1
-      if not(r.is_correct) {
+      if !(r.is_correct) {
         num_wrong = num_wrong + 1
       }
     }
@@ -299,7 +299,7 @@ pub fn stereo_summary(
   }
   let mut num_nonplanar = 0
   for r in planarity_results {
-    if not(r.is_planar) {
+    if !(r.is_planar) {
       num_nonplanar = num_nonplanar + 1
     }
   }

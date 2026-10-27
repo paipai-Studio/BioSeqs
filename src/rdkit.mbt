@@ -474,7 +474,7 @@ pub fn mol_find_rings(mol : Molecule) -> Array[Array[Int]] {
       let u = queue[head]
       head = head + 1
       for (v, _) in neighbors[u] {
-        if not(visited[v]) {
+        if !(visited[v]) {
           visited[v] = true
           parent[v] = u
           tree_edges.push((u, v))
@@ -487,7 +487,7 @@ pub fn mol_find_rings(mol : Molecule) -> Array[Array[Int]] {
               break
             }
           }
-          if not(is_tree) {
+          if !(is_tree) {
             non_tree_edges.push((u, v))
           }
         }
@@ -585,7 +585,7 @@ fn mol_is_aromatic_ring(
 ) -> Bool {
   let mut all_aromatic = true
   for a in ring {
-    if not(mol.atoms[a].aromatic) {
+    if !(mol.atoms[a].aromatic) {
       all_aromatic = false
     }
   }
@@ -697,7 +697,7 @@ pub fn mol_kekulize(mol : Molecule) -> Molecule {
     new_bonds.push(MolBond::{ from: b.from, to: b.to, order: b.order })
   }
   for ring in rings {
-    if not(mol_is_aromatic_ring(mol, ring)) {
+    if !(mol_is_aromatic_ring(mol, ring)) {
       continue
     }
     let rs = ring.length()
@@ -866,7 +866,7 @@ fn mol_smiles_dfs(
   for (nb, _) in neighbors[atom] {
     if visited[nb] && nb != parent {
       ring_neighbors.push(nb)
-    } else if not(visited[nb]) {
+    } else if !(visited[nb]) {
       unvisited.push(nb)
     }
   }
@@ -925,7 +925,7 @@ pub fn mol_to_smiles(mol : Molecule) -> String {
   }
   let visited = Array::make(n, false)
   let ring_num : Map[(Int, Int), Int] = Map([], capacity=0)
-  let ring_counter = Ref::new(1)
+  let ring_counter = Ref(1)
   let result : StringBuilder = StringBuilder()
   mol_smiles_dfs(mol, start, -1, visited, neighbors, ranks, ring_num, ring_counter, result)
   result.to_string()

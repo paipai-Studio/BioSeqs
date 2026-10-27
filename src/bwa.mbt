@@ -110,14 +110,14 @@ pub fn fm_index_build(text : String) -> FmIndex {
   }
   // Get sorted unique characters
   let chars : Array[Char] = Array(capacity=0)
-  for k, v in char_counts {
+  for k, _v in char_counts {
     chars.push(k)
   }
   chars.sort_by(fn(a, b) {
     if a < b { -1 } else if a > b { 1 } else { 0 }
   })
   // C[c] = cumulative count of chars before c
-  let c_map : Map[Char, Int] = Map::new()
+  let c_map : Map[Char, Int] = Map([])
   let mut cum = 0
   for ch in chars {
     c_map[ch] = cum
@@ -131,7 +131,7 @@ pub fn fm_index_build(text : String) -> FmIndex {
   for i = 0; i < n; i = i + 1 {
     let ch = bwt[i].unsafe_to_char()
     // Copy previous counts
-    for k, v in occ {
+    for _k, v in occ {
       v[i + 1] = v[i]
     }
     match occ.get(ch) {
@@ -169,7 +169,7 @@ fn fm_occ(index : FmIndex, c : Char, i : Int) -> Int {
 
 ///|
 /// LF-mapping: LF(i) = C[BWT[i]] + Occ(BWT[i], i)
-fn fm_lf(index : FmIndex, i : Int) -> Int {
+fn _fm_lf(index : FmIndex, i : Int) -> Int {
   let c = index.bwt[i].unsafe_to_char()
   let c_val = match index.c.get(c) {
     Some(v) => v
@@ -303,7 +303,7 @@ pub fn fm_inexact_search(
     }
     let c = pattern[entry.pos].unsafe_to_char()
     // 1. Match (or mismatch)
-    for ch, occ_arr in index.occ {
+    for ch, _occ_arr in index.occ {
       
       let c_val = match index.c.get(ch) {
         Some(v) => v

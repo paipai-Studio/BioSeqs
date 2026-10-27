@@ -537,7 +537,7 @@ pub fn phylo_observed_sfs_folded(sequences : Array[String]) -> Array[Int] {
         None => counts.set(c, 1)
       }
     }
-    if counts.size() == 2 {
+    if counts.length() == 2 {
       // Biallelic: get minor count
       let mut minor = n
       for (_, v) in counts {

@@ -331,7 +331,7 @@ test "bmat_foreach" {
   let data = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
   let values : Array[Double] = []
-  @src.bmat_foreach(bmat, fn(row, col, val) { values.push(val) })
+  @src.bmat_foreach(bmat, fn(_row, _col, val) { values.push(val) })
   assert_eq(values.length(), 6)
   assert_eq(values[0], 1.0)
   assert_eq(values[1], 2.0)
@@ -867,7 +867,7 @@ test "bmat_foreach_empty" {
   let data : Array[Array[Double]] = []
   let bmat = @src.Bmat::new(data, @src.BmatParam::new())
   let values : Array[Double] = []
-  @src.bmat_foreach(bmat, fn(row, col, val) { values.push(val) })
+  @src.bmat_foreach(bmat, fn(_row, _col, val) { values.push(val) })
   assert_eq(values.length(), 0)
 }
 

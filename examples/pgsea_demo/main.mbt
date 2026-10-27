@@ -44,7 +44,7 @@ fn main {
   // Example 4: Export TSV
   println("--- Step 4: Export TSV ---")
   let tsv = @src.pgsea_export(results)
-  println("TSV (first 200 chars): " + tsv.substring(start=0, end=if tsv.length() > 200 { 200 } else { tsv.length() }))
+  println("TSV (first 200 chars): " + tsv[0:if tsv.length() > 200 { 200 } else { tsv.length() }].to_owned())
   println("")
 
   // Example 5: t-distribution p-value

@@ -80,7 +80,7 @@ fn main raise {
     SeqError(msg) => {
       let short =
         if msg.length() > 70 {
-          msg.substring(start=0, end=70) + "..."
+          msg[0:70] + "..."
         } else {
           msg
         }

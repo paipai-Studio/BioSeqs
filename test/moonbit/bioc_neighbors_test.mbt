@@ -558,7 +558,7 @@ test "knn_annoy_approximately_correct" {
     [11.0, 11.0],
   ]
   let query = [[0.0, 0.0]]
-  let brute_result = @src.knn_brute_force(data, 8, 2, query, 1, 3, "euclidean")
+  let _brute_result = @src.knn_brute_force(data, 8, 2, query, 1, 3, "euclidean")
   let opts = @src.knn_options_full(@src.annoy_method(), 3, "euclidean", 10, -1)
   let index = @src.build_annoy_index(data, 8, 2, opts)
   let annoy_result = @src.knn_annoy(index, query, 1, opts)

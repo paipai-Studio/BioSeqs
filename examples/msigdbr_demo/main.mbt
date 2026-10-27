@@ -46,7 +46,7 @@ fn main {
     Some(line) => {
       let owned = line.to_owned()
       let end = if owned.length() > 80 { 80 } else { owned.length() }
-      println("  GMT line 1 (truncated): " + owned.substring(start=0, end=end) + "...")
+      println("  GMT line 1 (truncated): " + owned[0:end].to_owned() + "...")
     }
     None => println("  empty GMT")
   }

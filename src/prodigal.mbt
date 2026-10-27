@@ -21,43 +21,43 @@
 ///|
 /// A predicted gene.
 pub struct ProdigalGene {
-  pub seqid : String
-  pub start : Int         // 1-based start position (inclusive)
-  pub end_ : Int          // 1-based end position (inclusive)
-  pub strand : String     // "+" or "-"
-  pub frame : Int         // 0, 1, or 2
-  pub start_codon : String
-  pub stop_codon : String
-  pub length : Int        // gene length in nucleotides (including stop)
-  pub score : Double      // overall gene score
-  pub partial : Bool      // partial gene at sequence boundary
-  pub rbs_score : Double  // RBS motif score
-  pub gc_content : Double // GC content of the gene
-  pub protein : String    // translated protein sequence
-  pub gene_id : String    // assigned gene ID
+  seqid : String
+  start : Int         // 1-based start position (inclusive)
+  end_ : Int          // 1-based end position (inclusive)
+  strand : String     // "+" or "-"
+  frame : Int         // 0, 1, or 2
+  start_codon : String
+  stop_codon : String
+  length : Int        // gene length in nucleotides (including stop)
+  score : Double      // overall gene score
+  partial : Bool      // partial gene at sequence boundary
+  rbs_score : Double  // RBS motif score
+  gc_content : Double // GC content of the gene
+  protein : String    // translated protein sequence
+  gene_id : String    // assigned gene ID
 }
 
 ///|
 /// Gene prediction result.
 pub struct ProdigalResult {
-  pub seqid : String
-  pub sequence_length : Int
-  pub genes : Array[ProdigalGene]
-  pub method : String
-  pub num_genes : Int
-  pub mean_gc : Double
+  seqid : String
+  sequence_length : Int
+  genes : Array[ProdigalGene]
+  method_ : String
+  num_genes : Int
+  mean_gc : Double
 }
 
 ///|
 /// Parameters for gene prediction.
 pub struct ProdigalParams {
-  pub min_gene_len : Int      // minimum gene length (nt)
-  pub max_overlap : Int       // maximum allowed overlap (nt)
-  pub start_codons : Array[String]
-  pub stop_codons : Array[String]
-  pub use_rbs : Bool          // use RBS scoring
-  pub allow_partial : Bool    // allow partial genes at boundaries
-  pub closed_ends : Bool      // closed ends (no partial genes)
+  min_gene_len : Int      // minimum gene length (nt)
+  max_overlap : Int       // maximum allowed overlap (nt)
+  start_codons : Array[String]
+  stop_codons : Array[String]
+  use_rbs : Bool          // use RBS scoring
+  allow_partial : Bool    // allow partial genes at boundaries
+  closed_ends : Bool      // closed ends (no partial genes)
 }
 
 ///|
@@ -193,7 +193,7 @@ fn find_orfs_forward_frame(
         }
         j += 3
       }
-      if not(found_stop) {
+      if !(found_stop) {
         // Partial ORF (no stop codon found before end)
         if params.allow_partial && n - i >= params.min_gene_len {
           result.push({
@@ -220,7 +220,7 @@ fn find_orfs_forward_frame(
 ///|
 /// Find all ORFs in one reverse frame.
 fn find_orfs_reverse_frame(
-  seq : String,
+  _seq : String,
   rc_seq : String,
   frame : Int,
   params : ProdigalParams,
@@ -259,7 +259,7 @@ fn find_orfs_reverse_frame(
         }
         j += 3
       }
-      if not(found_stop) {
+      if !(found_stop) {
         if params.allow_partial && n - i >= params.min_gene_len {
           let fwd_start = 0
           let fwd_end = n - i
@@ -560,7 +560,7 @@ fn score_orf(
 
 ///|
 /// Check if two ORF candidates overlap.
-fn orfs_overlap(a : OrfCandidate, b : OrfCandidate) -> Bool {
+fn _orfs_overlap(a : OrfCandidate, b : OrfCandidate) -> Bool {
   // Different strands can overlap in Prodigal (but we avoid it for simplicity)
   if a.strand != b.strand {
     // On different strands, overlap if they share any position
@@ -571,7 +571,7 @@ fn orfs_overlap(a : OrfCandidate, b : OrfCandidate) -> Bool {
 
 ///|
 /// Compute overlap length between two ORF candidates.
-fn overlap_len(a : OrfCandidate, b : OrfCandidate) -> Int {
+fn _overlap_len(a : OrfCandidate, b : OrfCandidate) -> Int {
   let overlap_start = if a.start_pos > b.start_pos { a.start_pos } else { b.start_pos }
   let overlap_end = if a.end_pos < b.end_pos { a.end_pos } else { b.end_pos }
   if overlap_end > overlap_start {
@@ -667,7 +667,7 @@ pub fn prodigal_predict_with_params(
       seqid,
       sequence_length: n,
       genes: [],
-      method: "prodigal",
+      method_: "prodigal",
       num_genes: 0,
       mean_gc: 0.0,
     }
@@ -697,7 +697,7 @@ pub fn prodigal_predict_with_params(
     seqid,
     sequence_length: n,
     genes: selected,
-    method: "prodigal",
+    method_: "prodigal",
     num_genes: selected.length(),
     mean_gc,
   }

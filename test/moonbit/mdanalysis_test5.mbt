@@ -41,7 +41,7 @@ test "mdanalysis phase cp planar" {
   // Regular pentagon in xy-plane
   let atoms : Array[Array[Double]] = []
   for i = 0; i < 5; i = i + 1 {
-    let angle = 2.0 * @math.pi * i.to_double() / 5.0
+    let angle = 2.0 * @math.PI * i.to_double() / 5.0
     atoms.push([@math.cos(angle), @math.sin(angle), 0.0])
   }
   let phase = @src.mdanalysis_phase_cp(atoms)
@@ -123,17 +123,17 @@ test "mdanalysis bat root" {
   let p0 = [0.0, 0.0, 0.0]
   let p1 = [1.0, 0.0, 0.0]
   let p2 = [1.0, 1.0, 0.0]
-  let (phi, theta, omega, r01, r12, a012) = @src.mdanalysis_bat_root(p0, p1, p2)
+  let (phi, theta, _omega, r01, r12, a012) = @src.mdanalysis_bat_root(p0, p1, p2)
   // r01 = dist(p0,p1) = 1.0
   assert_true((r01 - 1.0).abs() < 1.0e-9)
   // r12 = dist(p1,p2) = 1.0
   assert_true((r12 - 1.0).abs() < 1.0e-9)
   // a012 = angle p0-p1-p2 = 90° = π/2
-  assert_true((a012 - @math.pi / 2.0).abs() < 1.0e-9)
+  assert_true((a012 - @math.PI / 2.0).abs() < 1.0e-9)
   // phi = atan2(0, 1) = 0 (v01 points along x)
   assert_true(phi.abs() < 1.0e-9)
   // theta = acos(0) = π/2 (v01 has z=0)
-  assert_true((theta - @math.pi / 2.0).abs() < 1.0e-9)
+  assert_true((theta - @math.PI / 2.0).abs() < 1.0e-9)
 }
 
 ///|
@@ -150,5 +150,5 @@ test "mdanalysis bat internal" {
   // Bond = 1.0
   assert_true((bonds[0] - 1.0).abs() < 1.0e-9)
   // Angle = 90° = π/2
-  assert_true((angles[0] - @math.pi / 2.0).abs() < 1.0e-9)
+  assert_true((angles[0] - @math.PI / 2.0).abs() < 1.0e-9)
 }

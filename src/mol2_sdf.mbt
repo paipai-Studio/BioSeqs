@@ -82,7 +82,7 @@ fn mol2_trim(s : StringView) -> String {
   if end <= start {
     ""
   } else {
-    s[start:end].to_string()
+    s[start:end].to_owned()
   }
 }
 
@@ -111,7 +111,7 @@ fn split_fields_sv(line : StringView) -> Array[String] {
       }
       i = i + 1
     }
-    result.push(line[start:i].to_string())
+    result.push(line[start:i].to_owned())
   }
   result
 }
@@ -222,7 +222,7 @@ pub fn parse_mol2(content : String) -> Array[Mol2Molecule] {
 ///|
 /// Convert a Mol2Molecule to a Mol2 file string.
 pub fn mol2_to_string(mol : Mol2Molecule) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("@<TRIPOS>MOLECULE\n")
   sb.write_string(mol.name)
   sb.write_char('\n')
@@ -299,7 +299,7 @@ pub fn mol2_to_chain(mol : Mol2Molecule) -> Chain {
         let pdb_atoms : Array[Atom] = Array(capacity=0)
         for a in atoms {
           let elem_parts = a.sybyl_type.split(".").to_array()
-          let elem = if elem_parts.length() > 0 { elem_parts[0].to_string() } else { "C" }
+          let elem = if elem_parts.length() > 0 { elem_parts[0].to_owned() } else { "C" }
           pdb_atoms.push(Atom::new(
             name=a.name,
             coord=Vector3::new(a.x, a.y, a.z),
@@ -338,7 +338,7 @@ fn format_int_3d(n : Int) -> String {
 fn format_double_10d(d : Double) -> String {
   let s = d.to_string()
   if s.length() >= 10 {
-    s.substring(start=0, end=10)
+    s[0:10].to_owned()
   } else {
     let mut result = ""
     let padding = 10 - s.length()
@@ -365,7 +365,7 @@ fn mol2_pad_left(s : String, width : Int) -> String {
 ///|
 /// Convert an SdfMolecule to an SDF file string.
 pub fn sdf_to_string(mol : SdfMolecule) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string(mol.name)
   sb.write_char('\n')
   sb.write_string("  BioSeqs\n")

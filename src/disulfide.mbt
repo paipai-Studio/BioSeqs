@@ -88,13 +88,13 @@ fn compute_disulfide_bond(
   let ca2 = res2.find_atom("CA")
   let cb2 = res2.find_atom("CB")
   // SG atoms required
-  if sg1.is_empty() || sg2.is_empty() {
+  if sg1 is None || sg2 is None {
     return None
   }
   let sg1c = sg1.unwrap().get_coord()
   let sg2c = sg2.unwrap().get_coord()
   // Compute dihedral angles (default 0 if atoms missing)
-  let chi1 = if n1.is_some() && ca1.is_some() && cb1.is_some() {
+  let chi1 = if n1 is Some(_) && ca1 is Some(_) && cb1 is Some(_) {
     calc_dihedral(
       n1.unwrap().get_coord(),
       ca1.unwrap().get_coord(),
@@ -102,7 +102,7 @@ fn compute_disulfide_bond(
       sg1c,
     )
   } else { 0.0 }
-  let chi2 = if ca1.is_some() && cb1.is_some() {
+  let chi2 = if ca1 is Some(_) && cb1 is Some(_) {
     calc_dihedral(
       ca1.unwrap().get_coord(),
       cb1.unwrap().get_coord(),
@@ -110,7 +110,7 @@ fn compute_disulfide_bond(
       sg2c,
     )
   } else { 0.0 }
-  let chi_ss = if cb1.is_some() && cb2.is_some() {
+  let chi_ss = if cb1 is Some(_) && cb2 is Some(_) {
     calc_dihedral(
       cb1.unwrap().get_coord(),
       sg1c,
@@ -118,7 +118,7 @@ fn compute_disulfide_bond(
       cb2.unwrap().get_coord(),
     )
   } else { 0.0 }
-  let chi2p = if ca2.is_some() && cb2.is_some() {
+  let chi2p = if ca2 is Some(_) && cb2 is Some(_) {
     calc_dihedral(
       sg1c,
       sg2c,
@@ -126,7 +126,7 @@ fn compute_disulfide_bond(
       ca2.unwrap().get_coord(),
     )
   } else { 0.0 }
-  let chi1p = if n2.is_some() && ca2.is_some() && cb2.is_some() {
+  let chi1p = if n2 is Some(_) && ca2 is Some(_) && cb2 is Some(_) {
     calc_dihedral(
       sg2c,
       cb2.unwrap().get_coord(),

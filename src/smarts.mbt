@@ -220,7 +220,7 @@ fn smarts_atom_matches(
     }
     match query.in_ring {
       Some(true) =>
-        if not(mol_is_in_ring(mol, atom_idx)) {
+        if !(mol_is_in_ring(mol, atom_idx)) {
           result = false
         }
       Some(false) =>
@@ -245,7 +245,7 @@ fn smarts_atom_matches(
     }
   }
   if query.not_match {
-    not(result)
+    !(result)
   } else {
     result
   }
@@ -336,7 +336,7 @@ fn smarts_match_from(
   if pattern.atoms.length() == 0 {
     return false
   }
-  if not(smarts_atom_matches(mol, start_atom, pattern.atoms[0])) {
+  if !(smarts_atom_matches(mol, start_atom, pattern.atoms[0])) {
     return false
   }
   if pattern.atoms.length() == 1 {
@@ -370,10 +370,10 @@ fn smarts_dfs(
     if matched[nb] {
       continue
     }
-    if not(smarts_bond_matches(mol, prev_atom, nb, bond_query)) {
+    if !(smarts_bond_matches(mol, prev_atom, nb, bond_query)) {
       continue
     }
-    if not(smarts_atom_matches(mol, nb, pattern.atoms[pat_idx])) {
+    if !(smarts_atom_matches(mol, nb, pattern.atoms[pat_idx])) {
       continue
     }
     matched[nb] = true

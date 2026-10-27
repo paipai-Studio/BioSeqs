@@ -112,7 +112,7 @@ pub fn estimate_karlin_altschul(
     }
     hi = hi * 2.0
   }
-  if not(found_upper) {
+  if !(found_upper) {
     return None
   }
   // Binary search

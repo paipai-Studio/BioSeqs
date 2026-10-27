@@ -58,7 +58,7 @@ test "layout: rectangular internal y is average" {
   let layout = @src.phylo_layout_rectangular(tree)
   // Find the internal node that is not root
   for n in layout.nodes {
-    if not(n.is_leaf) && n.children.length() == 2 {
+    if !(n.is_leaf) && n.children.length() == 2 {
       // This should be the (A,B) node with y = 0.5
       let mut has_a = false
       let mut has_b = false
@@ -366,7 +366,7 @@ test "svg rect: 4 leaf tree" {
   let mut line_count = 0
   for i in 0..<svg.length() {
     if i + 5 <= svg.length() {
-      if svg.substring(start=i, end=i + 5) == "<line" {
+      if svg[i:i + 5] == "<line" {
         line_count = line_count + 1
       }
     }

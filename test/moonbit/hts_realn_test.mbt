@@ -1,11 +1,11 @@
 ///|
 test "probaln_glocal exact match" {
   // Reference and query are identical
-  let ref = @src.seq_to_ints("ACGTACGT")
+  let reference = @src.seq_to_ints("ACGTACGT")
   let query = @src.seq_to_ints("ACGTACGT")
   let qual = [30, 30, 30, 30, 30, 30, 30, 30]
   let params = @src.ProbalnPar::make(0.001, 0.1, 10)
-  let result = @src.probaln_glocal(ref, query, qual, params)
+  let result = @src.probaln_glocal(reference, query, qual, params)
   // Score should be relatively good (low) for exact match
   assert_true(result.score < 50)
   // State should indicate matches (bit 0-1 = 0) for all positions
@@ -16,11 +16,11 @@ test "probaln_glocal exact match" {
 
 ///|
 test "probaln_glocal one_mismatch" {
-  let ref = @src.seq_to_ints("ACGTACGT")
+  let reference = @src.seq_to_ints("ACGTACGT")
   let query = @src.seq_to_ints("ACTTACGT")  // position 2: G->T
   let qual = [30, 30, 30, 30, 30, 30, 30, 30]
   let params = @src.ProbalnPar::make(0.001, 0.1, 10)
-  let result = @src.probaln_glocal(ref, query, qual, params)
+  let result = @src.probaln_glocal(reference, query, qual, params)
   // Should still align all positions as matches
   assert_eq(result.state.length(), 8)
 }
@@ -28,32 +28,32 @@ test "probaln_glocal one_mismatch" {
 ///|
 test "probaln_glocal insertion" {
   // Query has an extra base
-  let ref = @src.seq_to_ints("ACGT")
+  let reference = @src.seq_to_ints("ACGT")
   let query = @src.seq_to_ints("ACAGT")  // A inserted at position 2
   let qual = [30, 30, 30, 30, 30]
   let params = @src.ProbalnPar::make(0.001, 0.1, 10)
-  let result = @src.probaln_glocal(ref, query, qual, params)
+  let result = @src.probaln_glocal(reference, query, qual, params)
   assert_eq(result.state.length(), 5)
 }
 
 ///|
 test "probaln_glocal empty" {
-  let ref : Array[Int] = []
+  let reference : Array[Int] = []
   let query : Array[Int] = []
   let qual : Array[Int] = []
   let params = @src.ProbalnPar::make(0.001, 0.1, 10)
-  let result = @src.probaln_glocal(ref, query, qual, params)
+  let result = @src.probaln_glocal(reference, query, qual, params)
   assert_eq(result.score, 0)
   assert_eq(result.state.length(), 0)
 }
 
 ///|
 test "probaln_glocal short_match" {
-  let ref = @src.seq_to_ints("ACTTC")
+  let reference = @src.seq_to_ints("ACTTC")
   let query = @src.seq_to_ints("ATTC")
   let qual = [30, 30, 30, 30]
   let params = @src.ProbalnPar::make(0.001, 0.1, 10)
-  let result = @src.probaln_glocal(ref, query, qual, params)
+  let result = @src.probaln_glocal(reference, query, qual, params)
   assert_eq(result.state.length(), 4)
   // Score should be reasonable
   assert_true(result.score >= 0)
@@ -62,13 +62,13 @@ test "probaln_glocal short_match" {
 ///|
 test "probaln_glocal quality_effect" {
   // Same sequences, different qualities
-  let ref = @src.seq_to_ints("ACGTACGT")
+  let reference = @src.seq_to_ints("ACGTACGT")
   let query = @src.seq_to_ints("ACGTACGT")
   let qual_high = [40, 40, 40, 40, 40, 40, 40, 40]
   let qual_low = [10, 10, 10, 10, 10, 10, 10, 10]
   let params = @src.ProbalnPar::make(0.001, 0.1, 10)
-  let result_high = @src.probaln_glocal(ref, query, qual_high, params)
-  let result_low = @src.probaln_glocal(ref, query, qual_low, params)
+  let result_high = @src.probaln_glocal(reference, query, qual_high, params)
+  let result_low = @src.probaln_glocal(reference, query, qual_low, params)
   // Both should succeed
   assert_eq(result_high.state.length(), 8)
   assert_eq(result_low.state.length(), 8)
@@ -143,33 +143,33 @@ test "errmod_cal empty" {
 
 ///|
 test "sam_cap_mapq exact_match" {
-  let ref = "ACGTACGTACGT"
+  let reference = "ACGTACGTACGT"
   let query = "ACGTACGTACGT"
   let qual = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
   let cigar = [(0, 12)]  // 12M
-  let result = @src.sam_cap_mapq(ref, query, qual, cigar, 0, 40)
+  let result = @src.sam_cap_mapq(reference, query, qual, cigar, 0, 40)
   // No mismatches, should return high quality
   assert_true(result >= 0)
 }
 
 ///|
 test "sam_cap_mapq with_mismatch" {
-  let ref = "ACGTACGTACGT"
+  let reference = "ACGTACGTACGT"
   let query = "ACTTACGTACGT"  // mismatch at position 2
   let qual = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
   let cigar = [(0, 12)]
-  let result = @src.sam_cap_mapq(ref, query, qual, cigar, 0, 40)
+  let result = @src.sam_cap_mapq(reference, query, qual, cigar, 0, 40)
   // Should still be valid
   assert_true(result >= -1)
 }
 
 ///|
 test "sam_cap_mapq many_mismatches" {
-  let ref = "ACGTACGTACGT"
+  let reference = "ACGTACGTACGT"
   let query = "TTTTTTTTTTTT"  // many mismatches
   let qual = [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
   let cigar = [(0, 12)]
-  let result = @src.sam_cap_mapq(ref, query, qual, cigar, 0, 40)
+  let result = @src.sam_cap_mapq(reference, query, qual, cigar, 0, 40)
   // Should return -1 (too many mismatches)
   assert_eq(result, -1)
 }

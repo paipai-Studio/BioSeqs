@@ -259,5 +259,5 @@ test "synced_reader get_line none" {
   let sr = @src.bcf_sr_init()
   let sr2 = sr.add_reader("f.vcf", [mk_variant("chr1", 100, "A", ["T"])])
   // Before next_line, get_line should return None
-  assert_true(sr2.get_line(0).is_none())
+  assert_true(sr2.get_line(0) is None)
 }

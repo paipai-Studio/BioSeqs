@@ -184,7 +184,7 @@ test "mafft_align preserves residues" {
 test "mafft MsaResult fields" {
   let seqs = ["ACDEFG", "ACDEAG"]
   let result = @src.mafft_align(seqs, ["a", "b"])
-  assert_eq(result.method, "mafft")
+  assert_eq(result.method_, "mafft")
   assert_eq(result.names.length(), 2)
   assert_true(result.score != 0.0)
 }

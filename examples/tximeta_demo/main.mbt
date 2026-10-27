@@ -46,7 +46,7 @@ fn main {
 
   println("\n5. Summarize to gene level")
   let tx2gene = @src.tximeta_sample_tx2gene()
-  let (genes, counts, abundance) = @src.tximeta_summarize_to_gene(data, tx2gene~)
+  let (genes, counts, _abundance) = @src.tximeta_summarize_to_gene(data, tx2gene~)
   println("   " + genes.length().to_string() + " genes")
   for i in 0..<genes.length() {
     let mut row = ""

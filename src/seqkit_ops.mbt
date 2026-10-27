@@ -334,7 +334,7 @@ fn seqkit_str_replace_all(s : String, pattern : String, replacement : String) ->
         matched = true
       }
     }
-    if not(matched) {
+    if !(matched) {
       sb.write_char(s.unsafe_get(i).unsafe_to_char())
       i = i + 1
     }

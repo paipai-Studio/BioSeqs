@@ -68,12 +68,12 @@ fn main {
   println("")
 
   println("7. Normalize (z-score)")
-  let normalized = @bio.expression_set_normalize(eset)
+  let _normalized = @bio.expression_set_normalize(eset)
   println("   Normalized assay data computed")
   println("")
 
   println("8. Log2 Transform")
-  let log2_transformed = @bio.expression_set_log2(eset)
+  let _log2_transformed = @bio.expression_set_log2(eset)
   println("   Log2 transformed assay data computed")
   println("")
 

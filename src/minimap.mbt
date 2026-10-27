@@ -27,7 +27,7 @@ pub struct Minimizer {
 
 ///|
 /// DNA complement table.
-fn dna_complement(c : Char) -> Char {
+fn _dna_complement(c : Char) -> Char {
   match c {
     'A' => 'T'
     'a' => 't'
@@ -113,7 +113,7 @@ pub fn minimap_minimizers(seq : String, k : Int, w : Int) -> Array[Minimizer] {
   }
   // Sliding window minimum
   let result : Array[Minimizer] = Array(capacity=0)
-  let mut last_min_hash = -2
+  let mut _last_min_hash = -2
   let mut last_min_pos = -1
   for win_start = 0; win_start <= n_kmers - w; win_start = win_start + 1 {
     let win_end = win_start + w
@@ -130,7 +130,7 @@ pub fn minimap_minimizers(seq : String, k : Int, w : Int) -> Array[Minimizer] {
     }
     if best_pos >= 0 && best_pos != last_min_pos {
       result.push({ hash: best_hash, pos: best_pos, strand: best_strand })
-      last_min_hash = best_hash
+      _last_min_hash = best_hash
       last_min_pos = best_pos
     }
   }
@@ -161,8 +161,8 @@ pub fn minimap_minimizers(seq : String, k : Int, w : Int) -> Array[Minimizer] {
 ///|
 /// A reference sequence in the index.
 pub struct MinimapRefSeq {
-  pub name : String
-  pub seq : String
+  name : String
+  seq : String
 }
 
 ///|
@@ -577,11 +577,11 @@ pub fn minimap_align(
     let q_pad = index.k * 2
     let q_start = if chain.q_start - q_pad < 0 { 0 } else { chain.q_start - q_pad }
     let q_end = if chain.q_end + q_pad > query.length() { query.length() } else { chain.q_end + q_pad }
-    let ref_region = ref_seq[r_start:r_end].to_string()
+    let ref_region = ref_seq[r_start:r_end].to_owned()
     let query_region = if chain.strand == 0 {
-      query[q_start:q_end].to_string()
+      query[q_start:q_end].to_owned()
     } else {
-      reverse_complement(query[q_start:q_end].to_string())
+      reverse_complement(query[q_start:q_end].to_owned())
     }
     let aln = banded_sw(
       ref_region, query_region, index.k * 5,
@@ -647,8 +647,8 @@ pub fn minimap_align_batch(
 ) -> String {
   let buf : StringBuilder = StringBuilder()
   // SAM header
-  for ref in index.refs {
-    buf.write_string("@SQ\tSN:" + ref.name + "\tLN:" + ref.seq.length().to_string() + "\n")
+  for reference in index.refs {
+    buf.write_string("@SQ\tSN:" + reference.name + "\tLN:" + reference.seq.length().to_string() + "\n")
   }
   for (name, seq) in queries {
     let results = minimap_align(index, seq, name)

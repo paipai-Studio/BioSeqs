@@ -55,7 +55,7 @@ pub fn BioKmerCounter::total_kmers(self : BioKmerCounter) -> Int {
 
 ///|
 pub fn BioKmerCounter::unique_kmers(self : BioKmerCounter) -> Int {
-  self.counts.keys().length()
+  self.counts.keys().count()
 }
 
 ///|

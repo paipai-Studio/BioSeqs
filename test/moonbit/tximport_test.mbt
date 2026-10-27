@@ -4,7 +4,7 @@ test "tximport_parse_quant_sf" {
     "tx1\t1000\t900\t10.5\t100\n" +
     "tx2\t2000\t1800\t20.3\t200\n"
 
-  let (tx_names, abundance, counts, length) = @src.parse_quant_sf(content)
+  let (tx_names, abundance, counts, _length) = @src.parse_quant_sf(content)
 
   assert_eq(tx_names.length(), 2)
   assert_eq(tx_names[0], "tx1")

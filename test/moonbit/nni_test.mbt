@@ -56,7 +56,7 @@ fn nni_same_leaves(a : @src.Clade, b : @src.Clade) -> Bool {
         found = true
       }
     }
-    if not(found) {
+    if !(found) {
       return false
     }
   }
@@ -205,7 +205,7 @@ test "nni_move: changes tree topology" {
   // The first two leaves should NOT be A,B (cherry broken)
   let is_ab_cherry = names[0] == "A" && names[1] == "B"
   let is_cd_cherry = names[2] == "C" && names[3] == "D"
-  assert_true(not(is_ab_cherry && is_cd_cherry))
+  assert_true(!(is_ab_cherry && is_cd_cherry))
 }
 
 // =====================

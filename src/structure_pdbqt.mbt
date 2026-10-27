@@ -56,12 +56,12 @@ fn parse_pdbqt_atom_line(line : StringView) -> PdbqtAtom {
     0
   }
   let atom_name = if len >= 16 {
-    line[12:16].trim().to_string()
+    line[12:16].trim().to_owned()
   } else {
     ""
   }
   let res_name = if len >= 20 {
-    line[17:20].trim().to_string()
+    line[17:20].trim().to_owned()
   } else {
     ""
   }
@@ -70,7 +70,7 @@ fn parse_pdbqt_atom_line(line : StringView) -> PdbqtAtom {
     if c.trim().length() == 0 {
       " "
     } else {
-      c.to_string()
+      c.to_owned()
     }
   } else {
     " "
@@ -116,7 +116,7 @@ fn parse_pdbqt_atom_line(line : StringView) -> PdbqtAtom {
 
 ///|
 /// Parse partial charge and atom type from the tail of a PDBQT line.
-fn parse_pdbqt_charge_type(line : StringView, len : Int) -> (Double, String) {
+fn parse_pdbqt_charge_type(line : StringView, _len : Int) -> (Double, String) {
   // The last two whitespace-separated fields are charge and type
   let tokens : Array[StringView] = Array(capacity=0)
   let parts = line.split(" ")
@@ -132,7 +132,7 @@ fn parse_pdbqt_charge_type(line : StringView, len : Int) -> (Double, String) {
     let charge_str = tokens[n - 2]
     let charge = pdb_parse_double_fast(charge_str)
     if type_str.length() <= 4 {
-      return (charge, type_str.to_string())
+      return (charge, type_str.to_owned())
     }
   }
   (0.0, "")
@@ -151,7 +151,7 @@ pub fn pdbqt_write(atoms : Array[PdbqtAtom]) -> String {
 
 ///|
 /// Format a PDBQT ATOM/HETATM line.
-fn format_pdbqt_atom_line(a : PdbqtAtom, serial : Int) -> String {
+fn format_pdbqt_atom_line(a : PdbqtAtom, _serial : Int) -> String {
   let sb = StringBuilder()
   // Record name
   if a.is_hetatm {
@@ -228,7 +228,7 @@ fn format_atom_name_field(name : String) -> String {
   }
   // If name starts with a digit (e.g. "1HE2"), left-align
   if name.length() > 0 {
-    let first = name.substring(start=0, end=1)
+    let first = name[0:1]
     if first >= "0" && first <= "9" {
       let mut pad = name
       for _i = 0; _i < 4 - name.length(); _i = _i + 1 {
@@ -258,10 +258,10 @@ fn format_float_field(x : Double, width : Int, precision : Int) -> String {
       s = s + "0"
     }
   } else {
-    let int_part = s.substring(start=0, end=dot)
-    let frac_part = s.substring(start=dot + 1, end=s.length())
+    let int_part = s[0:dot].to_owned()
+    let frac_part = s[dot + 1:s.length()].to_owned()
     let frac_p = if frac_part.length() >= precision {
-      frac_part.substring(start=0, end=precision)
+      frac_part[0:precision].to_owned()
     } else {
       let mut f = frac_part
       for _i = 0; _i < precision - frac_part.length(); _i = _i + 1 {

@@ -629,7 +629,7 @@ test "Bio.Align.bed writes complete document" {
     AlignBedError(message) =>
       abort("valid BED document writing failed: " + message)
   }
-  assert_eq(output.split("\n").length(), 4)
+  assert_eq(output.split("\n").count(), 4)
 }
 
 ///|

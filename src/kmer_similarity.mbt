@@ -34,13 +34,13 @@ pub fn kmer_table_build(
     for j = 0; j < k; j = j + 1 {
       let c = seq.unsafe_get(i + j).unsafe_to_char()
       let key = c.to_string()
-      if not(valid_chars.contains(key)) {
+      if !(valid_chars.contains(key)) {
         valid = false
         break
       }
     }
     if valid {
-      let kmer = seq.substring(start=i, end=i + k)
+      let kmer = seq[i:i + k].to_owned()
       let cur = match counts.get(kmer) {
         Some(v) => v + 1
         None => 1
@@ -75,7 +75,7 @@ pub fn kmer_jaccard(a : KmerTable, b : KmerTable) -> Double {
   let keys_b = b.counts.keys().collect()
   for i = 0; i < keys_b.length(); i = i + 1 {
     let key = keys_b[i]
-    if not(a.counts.contains(key)) {
+    if !(a.counts.contains(key)) {
       union = union + b.counts.get(key).unwrap()
     }
   }
@@ -139,7 +139,7 @@ pub fn kmer_bray_curtis(a : KmerTable, b : KmerTable) -> Double {
   let keys_b = b.counts.keys().collect()
   for i = 0; i < keys_b.length(); i = i + 1 {
     let key = keys_b[i]
-    if not(a.counts.contains(key)) {
+    if !(a.counts.contains(key)) {
       let cb = b.counts.get(key).unwrap().to_double()
       diff_sum = diff_sum + cb
       total_sum = total_sum + cb

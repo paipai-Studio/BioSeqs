@@ -1199,7 +1199,7 @@ test "bigpsl: file PSL export includes every query" {
   let text = bigpsl_test_file().to_psl() catch {
     _ => abort("PSL export should succeed")
   }
-  assert_eq(text.split("\n").length(), 4)
+  assert_eq(text.split("\n").count(), 4)
   assert_true(text.contains("rna-forward"))
   assert_true(text.contains("rna-reverse"))
   assert_true(text.contains("protein-reverse"))

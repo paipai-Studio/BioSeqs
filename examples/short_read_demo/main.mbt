@@ -30,7 +30,7 @@ fn main {
   println("\n3. Trim tail (quality threshold 20):")
   let seq = "ACGTACGT##"
   let qual = "IIIIIIII##"
-  let (trimmed_seq, trimmed_qual) = @src.trim_tail(seq, qual, 20)
+  let (trimmed_seq, _trimmed_qual) = @src.trim_tail(seq, qual, 20)
   println("  Original: " + seq + " (" + seq.length().to_string() + "bp)")
   println(
     "  Trimmed:  " +
@@ -43,7 +43,7 @@ fn main {
   println("\n4. Trim leading (quality threshold 20):")
   let seq2 = "##ACGTACGT"
   let qual2 = "##IIIIIIII"
-  let (trimmed_seq2, trimmed_qual2) = @src.trim_leading(seq2, qual2, 20)
+  let (trimmed_seq2, _trimmed_qual2) = @src.trim_leading(seq2, qual2, 20)
   println("  Original: " + seq2 + " (" + seq2.length().to_string() + "bp)")
   println(
     "  Trimmed:  " +
@@ -77,7 +77,7 @@ fn main {
   )
 
   println("\n6. Filter reads (min quality 30, min length 20, max N 2):")
-  let (filtered_seqs, filtered_quals) = @src.filter_reads(
+  let (filtered_seqs, _filtered_quals) = @src.filter_reads(
     sequences, qualities, 30.0, 20, 2,
   )
   println("  Input reads:  " + sequences.length().to_string())

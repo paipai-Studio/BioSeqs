@@ -123,7 +123,7 @@ fn build_adjacency(
 ) -> Array[Array[(Int, Double)]] {
   let n = nodes.length()
   let adj : Array[Array[(Int, Double)]] = Array(capacity=n)
-  for i in 0..<n {
+  for _i in 0..<n {
     adj.push(Array(capacity=0))
   }
   for i in 0..<n {
@@ -148,7 +148,7 @@ fn bfs_farthest(
   let dist : Array[Double] = Array(capacity=n)
   let pred : Array[Int] = Array(capacity=n)
   let visited : Array[Bool] = Array(capacity=n)
-  for i in 0..<n {
+  for _i in 0..<n {
     dist.push(-1.0)
     pred.push(-1)
     visited.push(false)
@@ -165,7 +165,7 @@ fn bfs_farthest(
     for pair in adj[u] {
       let v = pair.0
       let w = pair.1
-      if not(visited[v]) {
+      if !(visited[v]) {
         visited[v] = true
         dist[v] = dist[u] + w
         pred[v] = u
@@ -453,7 +453,7 @@ pub fn phylo_root_at_leaf(clade : Clade, outgroup_name : String) -> Clade {
   // Build subtree from parent (everything except target)
   let rest_subtree = rebuild_clade(parent_of_target, target_id, 0.0, nodes, adj)
   // If rest_subtree has only 1 child, collapse it (unroot the rest)
-  let rest_final = if not(rest_subtree.is_terminal()) && rest_subtree.clades.length() == 1 {
+  let rest_final = if !(rest_subtree.is_terminal()) && rest_subtree.clades.length() == 1 {
     let child = rest_subtree.clades[0]
     let child_bl = match child.branch_length {
       Some(v) => v

@@ -445,7 +445,7 @@ fn read_number(p : SelParser) -> Double {
 }
 
 ///|
-fn is_keyword(w : String) -> Bool {
+fn _is_keyword(w : String) -> Bool {
   match w {
     "and" | "or" | "not" | "all" | "none" |
     "calpha" | "ca" | "backbone" | "bb" | "sidechain" | "sc" |

@@ -49,7 +49,7 @@ fn main {
     println("   Organism: \{entry.organism}")
     println("   Sequence length: \{entry.seq_length}")
     let seq_str = entry.sequence
-    let prefix = if seq_str.length() > 20 { seq_str.substring(start=0, end=20) + "..." } else { seq_str }
+    let prefix = if seq_str.length() > 20 { seq_str[0:20] + "..." } else { seq_str }
     println("   Sequence (first 20 chars): \{prefix}")
 
     println("\n3. Gene names:")
@@ -68,7 +68,7 @@ fn main {
     }
 
     println("\n6. Convert to SeqRecord-compatible format:")
-    let (header, id, desc, kwargs) = @bio.uniprot_to_seqrecord(entry)
+    let (header, id, desc, _kwargs) = @bio.uniprot_to_seqrecord(entry)
     println("   Header: \{header}")
     println("   ID: \{id}")
     println("   Description: \{desc}")

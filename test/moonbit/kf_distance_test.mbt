@@ -218,8 +218,8 @@ test "kf: completely different topology 4 leaves" {
 
 ///|
 test "kf: non-negativity" {
-  let t1 = kf_tree5()
-  let t2 = kf_tree6()
+  let _t1 = kf_tree5()
+  let _t2 = kf_tree6()
   // Different taxon counts return -1, so test with same count
   let t3 = kf_internal([
     kf_internal([kf_leaf("A", 2.0), kf_leaf("B", 0.5)], 1.0),

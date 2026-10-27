@@ -61,5 +61,5 @@ test "morgan_fingerprint_distinguishes" {
   let co = @src.parse_smiles("CO")
   let fp_cc = @src.morgan_fingerprint(cc, 1)
   let fp_co = @src.morgan_fingerprint(co, 1)
-  assert_true(not(fp_equal(fp_cc, fp_co)))
+  assert_true(!(fp_equal(fp_cc, fp_co)))
 }

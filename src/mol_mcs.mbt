@@ -149,7 +149,7 @@ pub fn find_mcs(mol1 : Molecule, mol2 : Molecule) -> McsResult {
   for i = 0; i < nodes.length(); i = i + 1 {
     initial_p.push(i)
   }
-  let best = Ref::new(Array(capacity=0))
+  let best = Ref(Array(capacity=0))
   mcs_bron_kerbosch(adj, [], initial_p, best)
   // Build mapping from best clique
   let mapping : Array[(Int, Int)] = Array(capacity=0)

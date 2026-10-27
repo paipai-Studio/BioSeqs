@@ -116,48 +116,48 @@ pub fn snpeff_so_impact(so : SnpEffSO) -> SnpEffImpact {
 ///|
 /// A single variant effect prediction.
 pub(all) struct SnpEffEffect {
-  pub allele : String
-  pub so_term : SnpEffSO
-  pub impact : SnpEffImpact
-  pub gene_name : String
-  pub gene_id : String
-  pub feature_type : String     // "transcript" or "gene" or "intergenic"
-  pub feature_id : String       // transcript_id or gene_id
-  pub transcript_biotype : String
-  pub rank : Int                // exon rank (0 if not applicable)
-  pub hgvs_c : String           // HGVS c. notation
-  pub hgvs_p : String           // HGVS p. notation
-  pub cdna_pos : Int            // cDNA position
-  pub cdna_len : Int            // cDNA length
-  pub cds_pos : Int             // CDS position
-  pub cds_len : Int             // CDS length
-  pub aa_pos : Int              // amino acid position
-  pub aa_len : Int              // protein length
-  pub distance : Int            // distance to feature (for upstream/downstream)
-  pub original_codon : String
-  pub mutated_codon : String
-  pub original_aa : String
-  pub mutated_aa : String
+  allele : String
+  so_term : SnpEffSO
+  impact : SnpEffImpact
+  gene_name : String
+  gene_id : String
+  feature_type : String     // "transcript" or "gene" or "intergenic"
+  feature_id : String       // transcript_id or gene_id
+  transcript_biotype : String
+  rank : Int                // exon rank (0 if not applicable)
+  hgvs_c : String           // HGVS c. notation
+  hgvs_p : String           // HGVS p. notation
+  cdna_pos : Int            // cDNA position
+  cdna_len : Int            // cDNA length
+  cds_pos : Int             // CDS position
+  cds_len : Int             // CDS length
+  aa_pos : Int              // amino acid position
+  aa_len : Int              // protein length
+  distance : Int            // distance to feature (for upstream/downstream)
+  original_codon : String
+  mutated_codon : String
+  original_aa : String
+  mutated_aa : String
 }
 
 ///|
 /// Annotation result for a single variant.
 pub struct SnpEffVariantResult {
-  pub chrom : String
-  pub pos : Int
-  pub ref_allele : String
-  pub alt_allele : String
-  pub effects : Array[SnpEffEffect]
+  chrom : String
+  pos : Int
+  ref_allele : String
+  alt_allele : String
+  effects : Array[SnpEffEffect]
 }
 
 ///|
 /// Full annotation result.
 pub struct SnpEffResult {
-  pub seqid : String
-  pub num_variants : Int
-  pub num_annotated : Int
-  pub variant_results : Array[SnpEffVariantResult]
-  pub summary : Map[String, Int]  // SO term -> count
+  seqid : String
+  num_variants : Int
+  num_annotated : Int
+  variant_results : Array[SnpEffVariantResult]
+  summary : Map[String, Int]  // SO term -> count
 }
 
 // ============================================================================
@@ -251,7 +251,7 @@ fn is_splice_region(pos : Int, exon_start : Int, exon_end : Int) -> Bool {
 ///|
 /// Predict the effect of a single variant on a transcript.
 fn predict_effect_on_transcript(
-  chrom : String,
+  _chrom : String,
   pos : Int,          // 1-based VCF position
   ref_allele : String,
   alt_allele : String,
@@ -306,7 +306,7 @@ fn predict_effect_on_transcript(
     if is_splice_region(pos, exon.start, exon.end) {
       // Only if not already donor/acceptor
       let in_exon = in_range(pos, exon.start, exon.end)
-      if not(in_exon) {
+      if !(in_exon) {
         return { ..empty_effect, so_term: SpliceRegionVariant, impact: Moderate }
       }
     }
@@ -375,7 +375,7 @@ fn predict_effect_on_transcript(
         "c." + cds_pos.to_string() + "_" + (cds_pos + del_len - 1).to_string() + "del"
       } else if alt_allele.length() > ref_allele.length() {
         // Insertion
-        "c." + (cds_pos - 1).to_string() + "_" + cds_pos.to_string() + "ins" + alt_allele[1:].to_string()
+        "c." + (cds_pos - 1).to_string() + "_" + cds_pos.to_string() + "ins" + alt_allele[1:].to_owned()
       } else {
         "c." + cds_pos.to_string() + "delins" + alt_allele
       }
@@ -447,7 +447,7 @@ fn predict_effect_on_transcript(
       in_exon = true
     }
   }
-  if in_transcript && not(in_exon) && tx.exons.length() > 1 {
+  if in_transcript && !(in_exon) && tx.exons.length() > 1 {
     return { ..empty_effect, so_term: IntronVariant, impact: Modifier }
   }
 
@@ -464,7 +464,7 @@ fn predict_effect_on_transcript(
 fn predict_intergenic(
   chrom : String,
   pos : Int,
-  ref_allele : String,
+  _ref_allele : String,
   alt_allele : String,
   annotation : GenomeAnnotation,
 ) -> Array[SnpEffEffect] {
@@ -688,7 +688,7 @@ pub fn snpeff_predict_variant(
     }
   }
   // If no overlapping gene, find intergenic/upstream/downstream
-  if not(found_gene) || effects.length() == 0 {
+  if !(found_gene) || effects.length() == 0 {
     let intergenic = predict_intergenic(
       chrom,
       pos,
@@ -776,7 +776,7 @@ pub fn snpeff_annotate_vcf(
   buf.write_string("##INFO=<ID=ANN,Number=1,Type=String,Description=\"Functional annotations: 'Allele|Annotation|Annotation_Impact|Gene_Name|Gene_ID|Feature_Type|Feature_ID|Transcript_BioType|Rank|HGVS.c|HGVS.p|cDNA.pos|cDNA.length|CDS.pos|CDS.length|AA.pos|AA.length|Distance'\">\n")
   // Copy existing meta headers
   for header in vcf.meta_headers {
-    if header.key != "INFO" || not(header.value.contains("ANN")) {
+    if header.key != "INFO" || !(header.value.contains("ANN")) {
       buf.write_string("##")
       buf.write_string(header.key)
       buf.write_string("=")
@@ -867,7 +867,7 @@ pub fn snpeff_annotate_vcf(
         has_info = true
       }
     }
-    if not(has_info) {
+    if !(has_info) {
       buf.write_char('.')
     }
     // FORMAT + samples

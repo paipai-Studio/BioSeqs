@@ -66,7 +66,7 @@ fn main {
 
   println("\n4. Filter cells (default params):")
   let params = @src.QCFilterParams::new()
-  let (kept_indices, keep_cells) = @src.scater_filter_cells(cell_stats, params)
+  let (kept_indices, _keep_cells) = @src.scater_filter_cells(cell_stats, params)
   println(
     "  Cells kept: " +
     kept_indices.length().to_string() +
@@ -75,7 +75,7 @@ fn main {
   )
 
   println("\n5. Filter features (min 3 cells detected):")
-  let (kept_genes, keep_genes) = @src.scater_filter_features(feature_stats, 3)
+  let (kept_genes, _keep_genes) = @src.scater_filter_features(feature_stats, 3)
   println(
     "  Genes kept: " +
     kept_genes.length().to_string() +

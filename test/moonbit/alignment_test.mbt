@@ -92,7 +92,7 @@ test "alignment_global_pairwise_nucleotide" {
   let seq1 = @src.DNA::new("ACGT")
   let seq2 = @src.DNA::new("AGT")
 
-  let (msa, score, pos1, pos2) = @src.global_pairwise_align_nucleotide(
+  let (msa, _score, pos1, pos2) = @src.global_pairwise_align_nucleotide(
     seq1, seq2,
   )
 
@@ -108,7 +108,7 @@ test "alignment_local_pairwise_nucleotide" {
   let seq1 = @src.DNA::new("ACGTACGT")
   let seq2 = @src.DNA::new("CGT")
 
-  let (msa, score, pos1, pos2) = @src.local_pairwise_align_nucleotide(
+  let (msa, _score, _pos1, _pos2) = @src.local_pairwise_align_nucleotide(
     seq1, seq2,
   )
 
@@ -127,7 +127,7 @@ test "alignment_global_pairwise_protein" {
   let seq1 = @src.Protein::new("ACDE")
   let seq2 = @src.Protein::new("ACE")
 
-  let (msa, score, pos1, pos2) = @src.global_pairwise_align_protein(seq1, seq2)
+  let (msa, _score, _pos1, _pos2) = @src.global_pairwise_align_protein(seq1, seq2)
 
   assert_eq(msa.num_records(), 2)
 }
@@ -137,7 +137,7 @@ test "alignment_local_pairwise_protein" {
   let seq1 = @src.Protein::new("ACDEFGHI")
   let seq2 = @src.Protein::new("EFG")
 
-  let (msa, score, pos1, pos2) = @src.local_pairwise_align_protein(seq1, seq2)
+  let (msa, _score, _pos1, _pos2) = @src.local_pairwise_align_protein(seq1, seq2)
 
   assert_eq(msa.num_records(), 2)
 }

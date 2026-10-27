@@ -13,9 +13,9 @@ fn main {
   println("   v1: (\{v1.get_x()}, \{v1.get_y()}, \{v1.get_z()})")
   println("   v2: (\{v2.get_x()}, \{v2.get_y()}, \{v2.get_z()})")
 
-  let unit_x = @bio.Vector3::unit_x()
-  let unit_y = @bio.Vector3::unit_y()
-  let unit_z = @bio.Vector3::unit_z()
+  let _unit_x = @bio.Vector3::unit_x()
+  let _unit_y = @bio.Vector3::unit_y()
+  let _unit_z = @bio.Vector3::unit_z()
   println("   Unit vectors created successfully")
 
   // 2. Vector arithmetic

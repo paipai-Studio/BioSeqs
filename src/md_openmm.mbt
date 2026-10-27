@@ -14,7 +14,7 @@
 // ============================================================================
 
 ///|
-let md_rand_state : Ref[Int64] = Ref::new(88172645463325252L)
+let md_rand_state : Ref[Int64] = Ref(88172645463325252L)
 
 ///|
 pub fn md_rand_double() -> Double {
@@ -660,7 +660,7 @@ pub fn md_minimize_bonds(
       }
       step = step * 0.5
     }
-    if not(accepted) {
+    if !(accepted) {
       return x
     }
     // Update history
@@ -804,7 +804,7 @@ pub fn md_gbsa_obc_energy(
       let dy = positions[i][1] - positions[j][1]
       let dz = positions[i][2] - positions[j][2]
       let r2 = dx * dx + dy * dy + dz * dz
-      let r = r2.sqrt()
+      let _r = r2.sqrt()
       let bi = born_radii[i]
       let bj = born_radii[j]
       let fij = r2 + bi * bj
@@ -1150,7 +1150,7 @@ pub fn md_rmsd_force(
   }
   // Center both
   let c_p = md_centroid(positions)
-  let c_r = md_centroid(reference)
+  let _c_r = md_centroid(reference)
   // Force on atom i: F_i = -k*(rmsd - r0) / (N * rmsd) * (p_i - c_p - R*(r_i - c_r))
   // where R is the optimal rotation. For simplicity, use the gradient
   // approximation: F_i = -k*(rmsd - r0) / (N * rmsd) * (p_i - c_p)
@@ -1317,7 +1317,7 @@ pub fn md_tabulated1d_discrete(
 ///|
 /// Convert a slice of chars to a string.
 fn md_chars_to_string(chars : Array[Char], start : Int, end : Int) -> String {
-  let buf : StringBuilder = StringBuilder::new()
+  let buf : StringBuilder = StringBuilder()
   for i = start; i < end; i = i + 1 {
     buf.write_char(chars[i])
   }

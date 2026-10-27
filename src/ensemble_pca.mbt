@@ -78,14 +78,14 @@ pub fn Ensemble::superimpose(self : Ensemble) -> Ensemble {
   if self.n_conf <= 1 {
     return Ensemble::{ ..self, is_aligned: true }
   }
-  let ref = self.coords[0]
+  let reference = self.coords[0]
   let aligned : Array[Array[(Double, Double, Double)]] = Array(capacity=0)
-  aligned.push(ref) // reference stays
+  aligned.push(reference) // reference stays
   for c = 1; c < self.n_conf; c = c + 1 {
     let conf = self.coords[c]
     // Simple superimpose: translate to common centroid, then Kabsch-like
     // For simplicity, just translate to ref centroid (full Kabsch is in svd_superimposer)
-    let (rx, ry, rz) = centroid_3d(ref)
+    let (rx, ry, rz) = centroid_3d(reference)
     let (cx, cy, cz) = centroid_3d(conf)
     let dx = rx - cx
     let dy = ry - cy

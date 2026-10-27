@@ -162,8 +162,8 @@ test "fssp_parse_second_alignment" {
 test "fssp_parse_reference" {
   let text = @src.fssp_sample_text()
   let data = @src.fssp_parse(text)
-  let ref = data.reference().unwrap()
-  assert_eq(ref.pdbid(), "1dfa_A")
+  let reference = data.reference().unwrap()
+  assert_eq(reference.pdbid(), "1dfa_A")
 }
 
 ///|

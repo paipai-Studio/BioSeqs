@@ -156,7 +156,7 @@ pub fn ml_nni_search(
       best_tree = local_best
       improved = true
     }
-    if not(improved) {
+    if !(improved) {
       break
     }
     iter = iter + 1

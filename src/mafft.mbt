@@ -114,10 +114,10 @@ pub fn mafft_distance_matrix(
 ///|
 /// Guide tree node for MSA.
 pub struct MsaTreeNode {
-  pub children : Array[MsaTreeNode]
-  pub is_leaf : Bool
-  pub seq_index : Int
-  pub height : Double
+  children : Array[MsaTreeNode]
+  is_leaf : Bool
+  seq_index : Int
+  height : Double
 }
 
 ///|
@@ -234,7 +234,7 @@ pub fn mafft_align_profiles(
   if m == 0 {
     let gap_seq = "-".repeat(n)
     let result : Array[String] = []
-    for s in profile1 {
+    for _s in profile1 {
       result.push(gap_seq)
     }
     for s in profile2 {
@@ -248,7 +248,7 @@ pub fn mafft_align_profiles(
     for s in profile1 {
       result.push(s)
     }
-    for s in profile2 {
+    for _s in profile2 {
       result.push(gap_seq)
     }
     return result
@@ -548,10 +548,10 @@ fn refine_once(
 ///|
 /// MSA result: aligned sequences, names, and score.
 pub struct MsaResult {
-  pub aligned_sequences : Array[String]
-  pub names : Array[String]
-  pub score : Double
-  pub method : String
+  aligned_sequences : Array[String]
+  names : Array[String]
+  score : Double
+  method_ : String
 }
 
 ///|
@@ -564,10 +564,10 @@ pub fn mafft_align(
 ) -> MsaResult {
   let n = sequences.length()
   if n == 0 {
-    return { aligned_sequences: [], names: [], score: 0.0, method: "mafft" }
+    return { aligned_sequences: [], names: [], score: 0.0, method_: "mafft" }
   }
   if n == 1 {
-    return { aligned_sequences: [sequences[0]], names, score: 0.0, method: "mafft" }
+    return { aligned_sequences: [sequences[0]], names, score: 0.0, method_: "mafft" }
   }
   let matrix = @data.blosum62()
   let gap_open = -10.0
@@ -583,7 +583,7 @@ pub fn mafft_align(
   let refined = refine_once(alignment, matrix, gap_open)
   let cleaned = remove_all_gap_columns(refined)
   let score = sp_score(cleaned, matrix)
-  { aligned_sequences: cleaned, names, score, method: "mafft" }
+  { aligned_sequences: cleaned, names, score, method_: "mafft" }
 }
 
 ///|
@@ -597,10 +597,10 @@ pub fn mafft_align_with_params(
 ) -> MsaResult {
   let n = sequences.length()
   if n == 0 {
-    return { aligned_sequences: [], names: [], score: 0.0, method: "mafft" }
+    return { aligned_sequences: [], names: [], score: 0.0, method_: "mafft" }
   }
   if n == 1 {
-    return { aligned_sequences: [sequences[0]], names, score: 0.0, method: "mafft" }
+    return { aligned_sequences: [sequences[0]], names, score: 0.0, method_: "mafft" }
   }
   let matrix = @data.blosum62()
   let dist = mafft_distance_matrix(sequences, k)
@@ -613,7 +613,7 @@ pub fn mafft_align_with_params(
   }
   let cleaned = remove_all_gap_columns(refined)
   let score = sp_score(cleaned, matrix)
-  { aligned_sequences: cleaned, names, score, method: "mafft" }
+  { aligned_sequences: cleaned, names, score, method_: "mafft" }
 }
 
 ///|
@@ -643,7 +643,7 @@ pub fn msa_to_clustal(result : MsaResult) -> String {
     let end = if pos + block_size < m { pos + block_size } else { m }
     for i = 0; i < n; i = i + 1 {
       let name = if i < result.names.length() { result.names[i] } else { "seq" + i.to_string() }
-      let seq_part = result.aligned_sequences[i][pos:end].to_string()
+      let seq_part = result.aligned_sequences[i][pos:end].to_owned()
       buf.write_string(name + "\t" + seq_part + "\n")
     }
     buf.write_string("\n")

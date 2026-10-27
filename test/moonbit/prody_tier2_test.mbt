@@ -389,23 +389,23 @@ test "rotamer_bin_name" {
 
 test "has_chi1_serine" {
   assert_true(@src.has_chi1("SER"))
-  assert_true(not(@src.has_chi1("GLY")))
-  assert_true(not(@src.has_chi1("ALA")))
+  assert_true(!(@src.has_chi1("GLY")))
+  assert_true(!(@src.has_chi1("ALA")))
 }
 
 test "has_chi2_valine" {
-  assert_true(not(@src.has_chi2("VAL")))
+  assert_true(!(@src.has_chi2("VAL")))
   assert_true(@src.has_chi2("PHE"))
 }
 
 test "has_chi3_lysine" {
   assert_true(@src.has_chi3("LYS"))
-  assert_true(not(@src.has_chi3("VAL")))
+  assert_true(!(@src.has_chi3("VAL")))
 }
 
 test "has_chi4_arginine" {
   assert_true(@src.has_chi4("ARG"))
-  assert_true(not(@src.has_chi4("MET")))
+  assert_true(!(@src.has_chi4("MET")))
 }
 
 test "compute_chi_angles_basic" {
@@ -436,7 +436,7 @@ test "classify_rotamer_outlier" {
 test "classify_rotamer_normal" {
   let nan = 0.0 / 0.0
   let r = @src.classify_rotamer(1, "SER", 60.0, nan, nan, nan)
-  assert_true(not(r.is_outlier))
+  assert_true(!(r.is_outlier))
 }
 
 test "rotamer_outliers_filter" {
@@ -478,7 +478,7 @@ test "detect_chirality_l_amino" {
 
 test "detect_chirality_missing" {
   let r = @src.detect_chirality(1, "GLY", None, None, None, None)
-  assert_true(not(r.has_chirality))
+  assert_true(!(r.has_chirality))
 }
 
 test "detect_cis_peptide_trans" {
@@ -487,12 +487,12 @@ test "detect_cis_peptide_trans" {
   let ca = Some(@src.Vector3::new(1.5, 0.5, 0.0))
   let c = Some(@src.Vector3::new(2.0, 0.0, 0.0))
   let r = @src.detect_cis_peptide(1, 2, cp, n, ca, c)
-  assert_true(not(r.is_cis))
+  assert_true(!(r.is_cis))
 }
 
 test "detect_cis_peptide_missing" {
   let r = @src.detect_cis_peptide(1, 2, None, None, None, None)
-  assert_true(not(r.is_cis))
+  assert_true(!(r.is_cis))
 }
 
 test "count_cis_peptides" {
@@ -509,7 +509,7 @@ test "validate_bond_length_normal" {
   let p1 = Some(@src.Vector3::new(0.0, 0.0, 0.0))
   let p2 = Some(@src.Vector3::new(1.5, 0.0, 0.0))
   let r = @src.validate_bond_length("CA", "CB", 1, p1, p2, 1.54, 0.1)
-  assert_true(not(r.is_outlier))
+  assert_true(!(r.is_outlier))
 }
 
 test "validate_bond_length_outlier" {
@@ -521,7 +521,7 @@ test "validate_bond_length_outlier" {
 
 test "validate_bond_length_missing" {
   let r = @src.validate_bond_length("CA", "CB", 1, None, None, 1.54, 0.1)
-  assert_true(not(r.is_outlier))
+  assert_true(!(r.is_outlier))
 }
 
 test "validate_bond_angle_normal" {
@@ -529,7 +529,7 @@ test "validate_bond_angle_normal" {
   let p2 = Some(@src.Vector3::new(0.0, 0.0, 0.0))
   let p3 = Some(@src.Vector3::new(0.0, 1.0, 0.0))
   let r = @src.validate_bond_angle("N", "CA", "C", 1, p1, p2, p3, 90.0, 15.0)
-  assert_true(not(r.is_outlier))
+  assert_true(!(r.is_outlier))
 }
 
 test "validate_bond_angle_outlier" {
@@ -547,7 +547,7 @@ test "peptide_planarity_trans" {
 
 test "peptide_planarity_nonplanar" {
   let r = @src.peptide_planarity(1, 90.0, 10.0)
-  assert_true(not(r.is_planar))
+  assert_true(!(r.is_planar))
 }
 
 test "standard_bond_length_peptide" {

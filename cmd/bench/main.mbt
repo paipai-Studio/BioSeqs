@@ -579,7 +579,7 @@ fn main {
 
   // BAM to_sam
   let bam_file_opt = @lib.try_parse_bam_base64(test_bam_base64)
-  if bam_file_opt.is_some() {
+  if bam_file_opt is Some(_) {
     let bam_file = bam_file_opt.unwrap()
     ignore(
       bench("BamFile::to_sam", iters_find, fn() { ignore(bam_file.to_sam()) }),

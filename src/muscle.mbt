@@ -17,7 +17,7 @@
 ///|
 /// Compute column letter frequencies for a profile.
 /// Returns a map from character to frequency at each column.
-fn profile_frequencies(
+fn _profile_frequencies(
   aligned_seqs : Array[String],
 ) -> Array[Map[Char, Double]] {
   let n = aligned_seqs.length()
@@ -47,7 +47,7 @@ fn profile_frequencies(
 ///|
 /// Log-expectation score between two columns.
 /// LE = sum over all pairs (a,b) of f1[a] * f2[b] * score(a,b)
-fn log_expectation_score(
+fn _log_expectation_score(
   freqs1 : Map[Char, Double],
   freqs2 : Map[Char, Double],
   matrix : @data.SubstitutionMatrix,
@@ -72,7 +72,7 @@ fn le_distance(
   aligned_seqs : Array[String],
   i : Int,
   j : Int,
-  matrix : @data.SubstitutionMatrix,
+  _matrix : @data.SubstitutionMatrix,
 ) -> Double {
   let seq_i = remove_gaps_from_seq(aligned_seqs[i])
   let seq_j = remove_gaps_from_seq(aligned_seqs[j])
@@ -316,10 +316,10 @@ pub fn muscle_align(
 ) -> MsaResult {
   let n = sequences.length()
   if n == 0 {
-    return { aligned_sequences: [], names: [], score: 0.0, method: "muscle" }
+    return { aligned_sequences: [], names: [], score: 0.0, method_: "muscle" }
   }
   if n == 1 {
-    return { aligned_sequences: [sequences[0]], names, score: 0.0, method: "muscle" }
+    return { aligned_sequences: [sequences[0]], names, score: 0.0, method_: "muscle" }
   }
   let matrix = @data.blosum62()
   let gap_open = -10.0
@@ -340,7 +340,7 @@ pub fn muscle_align(
   let refined = muscle_refine(improved_cleaned, tree2, matrix, gap_open)
   let cleaned = remove_all_gap_cols(refined)
   let score = muscle_sp_score(cleaned, matrix)
-  { aligned_sequences: cleaned, names, score, method: "muscle" }
+  { aligned_sequences: cleaned, names, score, method_: "muscle" }
 }
 
 ///|
@@ -354,10 +354,10 @@ pub fn muscle_align_with_params(
 ) -> MsaResult {
   let n = sequences.length()
   if n == 0 {
-    return { aligned_sequences: [], names: [], score: 0.0, method: "muscle" }
+    return { aligned_sequences: [], names: [], score: 0.0, method_: "muscle" }
   }
   if n == 1 {
-    return { aligned_sequences: [sequences[0]], names, score: 0.0, method: "muscle" }
+    return { aligned_sequences: [sequences[0]], names, score: 0.0, method_: "muscle" }
   }
   let matrix = @data.blosum62()
   let dist1 = mafft_distance_matrix(sequences, k)
@@ -376,7 +376,7 @@ pub fn muscle_align_with_params(
   }
   let cleaned = remove_all_gap_cols(refined)
   let score = muscle_sp_score(cleaned, matrix)
-  { aligned_sequences: cleaned, names, score, method: "muscle" }
+  { aligned_sequences: cleaned, names, score, method_: "muscle" }
 }
 
 ///|
@@ -420,10 +420,10 @@ pub fn muscle_stage1(
 ) -> MsaResult {
   let n = sequences.length()
   if n == 0 {
-    return { aligned_sequences: [], names: [], score: 0.0, method: "muscle-s1" }
+    return { aligned_sequences: [], names: [], score: 0.0, method_: "muscle-s1" }
   }
   if n == 1 {
-    return { aligned_sequences: [sequences[0]], names, score: 0.0, method: "muscle-s1" }
+    return { aligned_sequences: [sequences[0]], names, score: 0.0, method_: "muscle-s1" }
   }
   let matrix = @data.blosum62()
   let gap_open = -10.0
@@ -434,7 +434,7 @@ pub fn muscle_stage1(
   let draft = reorder_alignment(draft_raw, order)
   let cleaned = remove_all_gap_cols(draft)
   let score = muscle_sp_score(cleaned, matrix)
-  { aligned_sequences: cleaned, names, score, method: "muscle-s1" }
+  { aligned_sequences: cleaned, names, score, method_: "muscle-s1" }
 }
 
 ///|
@@ -445,10 +445,10 @@ pub fn muscle_stage2(
 ) -> MsaResult {
   let n = sequences.length()
   if n == 0 {
-    return { aligned_sequences: [], names: [], score: 0.0, method: "muscle-s2" }
+    return { aligned_sequences: [], names: [], score: 0.0, method_: "muscle-s2" }
   }
   if n == 1 {
-    return { aligned_sequences: [sequences[0]], names, score: 0.0, method: "muscle-s2" }
+    return { aligned_sequences: [sequences[0]], names, score: 0.0, method_: "muscle-s2" }
   }
   let matrix = @data.blosum62()
   let gap_open = -10.0
@@ -464,5 +464,5 @@ pub fn muscle_stage2(
   let improved = reorder_alignment(improved_raw, order2)
   let cleaned = remove_all_gap_cols(improved)
   let score = muscle_sp_score(cleaned, matrix)
-  { aligned_sequences: cleaned, names, score, method: "muscle-s2" }
+  { aligned_sequences: cleaned, names, score, method_: "muscle-s2" }
 }

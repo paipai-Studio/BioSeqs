@@ -2152,7 +2152,7 @@ pub fn bam_stats(bam : BamFile) -> BamStatsResult {
   let mut total_len = 0
   for r in bam.records {
     total = total + 1
-    if not(r.is_unmapped()) {
+    if !(r.is_unmapped()) {
       mapped = mapped + 1
     }
     if r.is_duplicate() {

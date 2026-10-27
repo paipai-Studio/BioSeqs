@@ -23,7 +23,7 @@ fn rt_is_binary(clade : @src.Clade) -> Bool {
     return false
   }
   for ch in clade.clades {
-    if not(rt_is_binary(ch)) {
+    if !(rt_is_binary(ch)) {
       return false
     }
   }
@@ -65,7 +65,7 @@ test "rng: produces different values" {
 test "rng: deterministic with same seed" {
   let rng1 = @src.Rng::new(123UL)
   let rng2 = @src.Rng::new(123UL)
-  for i in 0..<10 {
+  for _i in 0..<10 {
     assert_true((rng1.next_double() - rng2.next_double()).abs() < 0.0000000001)
   }
 }
@@ -75,7 +75,7 @@ test "rng: different seeds give different sequences" {
   let rng1 = @src.Rng::new(1UL)
   let rng2 = @src.Rng::new(2UL)
   let mut diff = false
-  for i in 0..<10 {
+  for _i in 0..<10 {
     if (rng1.next_double() - rng2.next_double()).abs() > 0.001 {
       diff = true
     }
@@ -86,7 +86,7 @@ test "rng: different seeds give different sequences" {
 ///|
 test "rng: randint in range" {
   let rng = @src.Rng::new(42UL)
-  for i in 0..<100 {
+  for _i in 0..<100 {
     let v = rng.randint(10)
     assert_true(v >= 0)
     assert_true(v < 10)

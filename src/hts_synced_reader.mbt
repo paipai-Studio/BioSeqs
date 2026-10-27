@@ -36,7 +36,7 @@ let max_csi_coor : Int = 1073741823 // (1 << 30) - 1
 
 ///|
 /// Find or create a sequence index in the regions collection.
-fn find_or_add_seq(
+fn _find_or_add_seq(
   seqs : Array[SeqRegions],
   name : String
 ) -> Int {

@@ -312,7 +312,7 @@ test "fit_beta_finds_known" {
 test "compare_anm_gnm" {
   let chain = make_fit_chain()
   let observed = make_synthetic_bfactors(chain, 10.0, 1.0)
-  let (anm_corr, gnm_corr) = @src.compare_anm_gnm(chain, observed, 10.0)
+  let (anm_corr, _gnm_corr) = @src.compare_anm_gnm(chain, observed, 10.0)
   // ANM should correlate well with its own B-factors
   assert_true(anm_corr > 0.5)
 }

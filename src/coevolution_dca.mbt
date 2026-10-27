@@ -416,7 +416,7 @@ fn compute_covariance(
 fn extract_couplings(
   inv_c : Matrix,
   q : Int,
-  l : Int,
+  _l : Int,
   i : Int,
   j : Int,
 ) -> Array[Array[Double]] {

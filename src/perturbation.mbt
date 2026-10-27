@@ -147,7 +147,7 @@ pub fn PerturbationResponse::hotspot_residues(
     let mut best_idx = -1
     let mut best_val = -1.0
     for i = 0; i < self.n; i = i + 1 {
-      if not(used[i]) && sensitivities[i].1 > best_val {
+      if !(used[i]) && sensitivities[i].1 > best_val {
         best_val = sensitivities[i].1
         best_idx = i
       }

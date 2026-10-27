@@ -46,7 +46,7 @@ fn main {
       println("description : " + record.description)
       println(
         "sequence    : " +
-        record.seq.to_string().substring(start=0, end=30) +
+        record.seq.to_string()[0:30].to_owned() +
         "... (" + record.seq.to_string().length().to_string() + " bp)",
       )
     } catch {

@@ -107,7 +107,7 @@ test "mdanalysis helix analysis ideal alpha" {
   let positions : Array[Array[Double]] = []
   let rise = 1.5
   let radius = 2.3
-  let twist = 100.0 * @math.pi / 180.0 // 100° per residue
+  let twist = 100.0 * @math.PI / 180.0 // 100° per residue
   for i = 0; i < n_res; i = i + 1 {
     let angle = i.to_double() * twist
     let x = radius * @math.cos(angle)

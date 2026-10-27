@@ -12,7 +12,7 @@ fn logp_atom_contribution(
   symbol : String,
   degree : Int,
   aromatic : Bool,
-  in_ring : Bool,
+  _in_ring : Bool,
 ) -> Double {
   if aromatic {
     match symbol {
@@ -56,7 +56,7 @@ pub fn mol_logp(mol : Molecule) -> Double {
     let contrib = logp_atom_contribution(a.symbol, deg, a.aromatic, in_ring)
     logp = logp + contrib
     // Ring correction
-    if in_ring && not(a.aromatic) {
+    if in_ring && !(a.aromatic) {
       logp = logp - 0.05
     }
   }
@@ -77,7 +77,7 @@ pub fn mol_logp(mol : Molecule) -> Double {
 fn tpsa_atom_contribution(
   symbol : String,
   degree : Int,
-  num_h_bonds : Int,
+  _num_h_bonds : Int,
   in_ring : Bool,
 ) -> Double {
   // N types
@@ -164,7 +164,7 @@ pub fn mol_hba_count(mol : Molecule) -> Int {
 /// A rotatable bond is a single bond, not in a ring, not to a terminal H,
 /// and both endpoints have at least 2 heavy neighbors.
 pub fn mol_rotatable_bonds(mol : Molecule) -> Int {
-  let n = mol.num_atoms()
+  let _n = mol.num_atoms()
   let neighbors = mol_adjacency(mol)
   let mut count = 0
   for b in mol.bonds {
@@ -234,7 +234,7 @@ pub fn mol_fraction_sp3(mol : Molecule) -> Double {
           all_single = false
         }
       }
-      if all_single && not(a.aromatic) {
+      if all_single && !(a.aromatic) {
         sp3_c = sp3_c + 1
       }
     }

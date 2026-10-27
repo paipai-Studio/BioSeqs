@@ -13,7 +13,7 @@
 
 
 fn format_score(s : Double) -> String {
-  s.to_string().substring(start=0, end=if s < 0.0 { 7 } else { 6 })
+  s.to_string()[0:if s < 0.0 { 7 } else { 6 }].to_owned()
 }
 
 fn pad_right(s : String, n : Int) -> String {

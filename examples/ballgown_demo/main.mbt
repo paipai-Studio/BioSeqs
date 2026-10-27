@@ -43,7 +43,7 @@ fn main {
 
   println("")
   println("FPKM matrix (first 5 transcripts):")
-  let fpkm_mat = bg.get_fpkm_matrix()
+  let _fpkm_mat = bg.get_fpkm_matrix()
   i = 0
   while i < 5 && i < bg.transcripts.length() {
     let t = bg.transcripts[i]

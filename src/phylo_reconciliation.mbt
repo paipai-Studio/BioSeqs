@@ -39,7 +39,7 @@ pub fn phylo_extract_species(gene_name : String, sep : String) -> String {
     }
   }
   if idx > 0 {
-    gene_name.substring(start=0, end=idx)
+    gene_name[0:idx].to_owned()
   } else {
     gene_name
   }
@@ -127,7 +127,7 @@ fn recon_contains_all(clade : Clade, names : Array[String]) -> Bool {
     leaf_set.set(l, true)
   }
   for n in names {
-    if not(leaf_set.contains(n)) {
+    if !(leaf_set.contains(n)) {
       return false
     }
   }
@@ -165,7 +165,7 @@ fn recon_find_lca_node(
   clade : Clade,
   names : Array[String]
 ) -> Clade? {
-  if not(recon_contains_all(clade, names)) {
+  if !(recon_contains_all(clade, names)) {
     return None
   }
   // Check if any child contains all names (deeper LCA)
@@ -410,7 +410,7 @@ fn recon_key_to_names(key : String) -> Array[String] {
   for i in 0..<key.length() {
     if key[i] == 44 { // ','
       if i > start {
-        names.push(key.substring(start=start, end=i))
+        names.push(key[start:i].to_owned())
       }
       start = i + 1
     }
@@ -496,7 +496,7 @@ pub fn phylo_reconcile_explicit(
 ) -> ReconciliationResult {
   // Build per-node reconciliation with edge losses
   let nodes : Array[NodeReconciliation] = Array(capacity=0)
-  let (_, _, edge_loss_map) = phylo_reconcile_rec(
+  let (_, _, _edge_loss_map) = phylo_reconcile_rec(
     gene_tree,
     species_tree,
     gene_to_species,
@@ -590,7 +590,7 @@ fn phylo_reconcile_rec(
       is_dup = true
     }
   }
-  let is_spec = not(is_dup) && child_results.length() > 1
+  let is_spec = !(is_dup) && child_results.length() > 1
   // Count edge losses
   let mut edge_losses = 0
   for cr in child_results {
@@ -760,7 +760,7 @@ pub fn phylo_classify_pair_explicit(
       }
       let lca_species_key = recon_find_lca_key(species_tree, lca_species_names)
       // Classify
-      let rel = if not(is_dup) {
+      let rel = if !(is_dup) {
         Ortholog
       } else if s1 == s2 {
         // Duplication within same species → super-paralog
@@ -867,7 +867,7 @@ fn phylo_check_ancestors(
   if found_target {
     // We're above the target — check if this node is a duplication
     if node.clades.length() >= 2 {
-      if not(phylo_is_duplication_node(
+      if !(phylo_is_duplication_node(
         node, species_tree, gene_to_species, sep
       )) {
         // Found a speciation ancestor → not ultra-paralog
@@ -898,7 +898,7 @@ fn phylo_key_contains(outer : String, inner : String) -> Bool {
     outer_set.set(n, true)
   }
   for n in inner_names {
-    if not(outer_set.contains(n)) {
+    if !(outer_set.contains(n)) {
       return false
     }
   }
@@ -1319,7 +1319,7 @@ fn recon_reconcile_cached(
       is_dup = true
     }
   }
-  let is_spec = not(is_dup) && child_results.length() > 1
+  let is_spec = !(is_dup) && child_results.length() > 1
   let mut edge_loss = 0
   for cr in child_results {
     let child_key = cr.0

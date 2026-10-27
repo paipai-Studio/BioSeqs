@@ -163,7 +163,7 @@ fn read_ltf8(data : String, pos : Int) -> (Int, Int) {
 
 ///|
 test "read_itf8_positive" {
-  let data = "\x02"
+  let data = "\u{02}"
   let (val, pos) = read_itf8(data, 0)
   assert_eq(val, 1)
   assert_eq(pos, 1)
@@ -171,7 +171,7 @@ test "read_itf8_positive" {
 
 ///|
 test "read_itf8_negative" {
-  let data = "\x03"
+  let data = "\u{03}"
   let (val, pos) = read_itf8(data, 0)
   assert_eq(val, -1)
   assert_eq(pos, 1)
@@ -179,7 +179,7 @@ test "read_itf8_negative" {
 
 ///|
 test "read_ltf8" {
-  let data = "\x02"
+  let data = "\u{02}"
   let (val, pos) = read_ltf8(data, 0)
   assert_eq(val, 1)
   assert_eq(pos, 1)

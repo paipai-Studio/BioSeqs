@@ -19,7 +19,7 @@ fn main {
   let mut i = 0
   while i < 5 {
     let chr = chroms[i]
-    let size = plot.get_chromosome_size(chr)
+    let _size = plot.get_chromosome_size(chr)
     println("  \{chr}: @{size} bp")
     i = i + 1
   }
@@ -67,7 +67,7 @@ fn main {
 
   // Filter tracks by chromosome
   println("=== Chromosome Filtering ===")
-  let chr1_tracks = plot4.tracks // just check what we have
+  let _chr1_tracks = plot4.tracks // just check what we have
   println("Total tracks: \{plot4.get_n_tracks()}")
   println("Total regions: \{plot4.get_n_regions()}")
   println("")

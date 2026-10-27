@@ -402,12 +402,12 @@ pub fn find_hydrophobic_interactions(
   let mut i = 0
   while i < n {
     let res1 = residues[i]
-    if not(is_hydrophobic(res1.resname)) { i = i + 1; continue }
+    if !(is_hydrophobic(res1.resname)) { i = i + 1; continue }
     let atoms1 = get_hydrophobic_atoms(res1.resname)
     let mut j = i + 1
     while j < n {
       let res2 = residues[j]
-      if not(is_hydrophobic(res2.resname)) { j = j + 1; continue }
+      if !(is_hydrophobic(res2.resname)) { j = j + 1; continue }
       let atoms2 = get_hydrophobic_atoms(res2.resname)
       for a1 in atoms1 {
         match res1.find_atom(a1) {

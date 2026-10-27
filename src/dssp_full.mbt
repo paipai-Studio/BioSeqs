@@ -268,7 +268,7 @@ pub fn dssp_find_hbonds(backbones : Array[BackboneAtoms]) -> Array[DSSPHBond] {
   let n = backbones.length()
   let result : Array[DSSPHBond] = Array(capacity=0)
   for i = 0; i < n; i = i + 1 {
-    if not(backbones[i].has_atoms) {
+    if !(backbones[i].has_atoms) {
       continue
     }
     for j = 0; j < n; j = j + 1 {
@@ -277,7 +277,7 @@ pub fn dssp_find_hbonds(backbones : Array[BackboneAtoms]) -> Array[DSSPHBond] {
       if abs_diff < 2 {
         continue
       }
-      if not(backbones[j].has_atoms) {
+      if !(backbones[j].has_atoms) {
         continue
       }
       let e = dssp_residue_hbond_energy(
@@ -382,7 +382,7 @@ pub fn dssp_find_bridges(
       let hb_ji = has_hbond(donor_map, j, i)
       if hb_ij && hb_ji {
         let key = bridge_key(i, j)
-        if not(seen.contains(key)) {
+        if !(seen.contains(key)) {
           seen[key] = ()
           result.push(BetaBridge::{ i, j, bridge_type: 'E' })
         }
@@ -390,7 +390,7 @@ pub fn dssp_find_bridges(
       if hb_ij && j > 0 && i + 1 < n_residues {
         if has_hbond(donor_map, j - 1, i + 1) {
           let key = bridge_key(i, j)
-          if not(seen.contains(key)) {
+          if !(seen.contains(key)) {
             seen[key] = ()
             result.push(BetaBridge::{ i, j, bridge_type: 'P' })
           }
@@ -399,7 +399,7 @@ pub fn dssp_find_bridges(
       if hb_ji && i > 0 && j + 1 < n_residues {
         if has_hbond(donor_map, i - 1, j + 1) {
           let key = bridge_key(i, j)
-          if not(seen.contains(key)) {
+          if !(seen.contains(key)) {
             seen[key] = ()
             result.push(BetaBridge::{ i, j, bridge_type: 'P' })
           }

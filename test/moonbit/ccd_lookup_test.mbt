@@ -40,9 +40,9 @@ test "ccd_is_amino_acid" {
   assert_true(@src.ccd_is_amino_acid("ALA"))
   assert_true(@src.ccd_is_amino_acid("GLY"))
   assert_true(@src.ccd_is_amino_acid("TRP"))
-  assert_true(not(@src.ccd_is_amino_acid("HOH")))
-  assert_true(not(@src.ccd_is_amino_acid("ATP")))
-  assert_true(not(@src.ccd_is_amino_acid("XYZ")))
+  assert_true(!(@src.ccd_is_amino_acid("HOH")))
+  assert_true(!(@src.ccd_is_amino_acid("ATP")))
+  assert_true(!(@src.ccd_is_amino_acid("XYZ")))
 }
 
 test "ccd_is_nucleotide" {
@@ -50,15 +50,15 @@ test "ccd_is_nucleotide" {
   assert_true(@src.ccd_is_nucleotide("DT"))
   assert_true(@src.ccd_is_nucleotide("A"))
   assert_true(@src.ccd_is_nucleotide("U"))
-  assert_true(not(@src.ccd_is_nucleotide("ALA")))
-  assert_true(not(@src.ccd_is_nucleotide("HOH")))
+  assert_true(!(@src.ccd_is_nucleotide("ALA")))
+  assert_true(!(@src.ccd_is_nucleotide("HOH")))
 }
 
 test "ccd_is_water" {
   assert_true(@src.ccd_is_water("HOH"))
   assert_true(@src.ccd_is_water("WAT"))
   assert_true(@src.ccd_is_water("H2O"))
-  assert_true(not(@src.ccd_is_water("ALA")))
+  assert_true(!(@src.ccd_is_water("ALA")))
 }
 
 test "ccd_atom_element" {
@@ -100,7 +100,7 @@ test "ccd_lookup_ion" {
   match ca {
     Some(e) => {
       assert_eq(e.name, "CALCIUM ION")
-      assert_true(not(@src.ccd_is_amino_acid("CA")))
+      assert_true(!(@src.ccd_is_amino_acid("CA")))
     }
     None => fail("expected CA entry")
   }

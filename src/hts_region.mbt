@@ -91,11 +91,11 @@ pub fn hts_parse_region_list(s : String) -> Array[HtsRegion] {
   let mut start = 0
   for i = 0; i < s.length(); i = i + 1 {
     if s[i] == ',' {
-      parts.push(s[start:i].to_string())
+      parts.push(s[start:i].to_owned())
       start = i + 1
     }
   }
-  parts.push(s[start:].to_string())
+  parts.push(s[start:].to_owned())
   for part in parts {
     match hts_parse_region_str(part) {
       Some(r) => result.push(r)
@@ -116,7 +116,7 @@ pub struct HtsRegIdx {
 ///|
 /// Create an empty region index.
 pub fn HtsRegIdx::new() -> HtsRegIdx {
-  HtsRegIdx::{ chroms: Map::new() }
+  HtsRegIdx::{ chroms: Map([]) }
 }
 
 ///|
@@ -155,7 +155,7 @@ pub fn HtsRegIdx::insert_bed_line(self : HtsRegIdx, line : String) -> Unit {
   let mut start = 0
   for i = 0; i < line.length(); i = i + 1 {
     if line[i] == '\t' {
-      fields.push(line[start:i].to_string())
+      fields.push(line[start:i].to_owned())
       start = i + 1
     }
   }
@@ -310,7 +310,7 @@ pub fn hts_regidx_from_bed(content : String) -> HtsRegIdx {
   let mut start = 0
   for i = 0; i < content.length(); i = i + 1 {
     if content[i] == '\n' {
-      lines.push(content[start:i].to_string())
+      lines.push(content[start:i].to_owned())
       start = i + 1
     }
   }
@@ -318,7 +318,7 @@ pub fn hts_regidx_from_bed(content : String) -> HtsRegIdx {
   for line in lines {
     let trimmed = line.trim()
     if trimmed.length() > 0 && trimmed[0] != '#' {
-      idx.insert_bed_line(trimmed.to_string())
+      idx.insert_bed_line(trimmed.to_owned())
     }
   }
   idx.compact_all()

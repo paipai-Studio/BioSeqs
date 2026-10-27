@@ -16,9 +16,9 @@ test "format_registry_alias_matches_canonical_parse" {
     ("s1\tACGT", "tab", "tab"),
   ]
   for case in alias_cases {
-    let (content, alias, canonical) = case
-    let via_alias = @src.seqio_normalize_format(alias) catch {
-      SeqIOError(msg) => fail("normalize alias '" + alias + "' raised: " + msg)
+    let (content, alias_, canonical) = case
+    let via_alias = @src.seqio_normalize_format(alias_) catch {
+      SeqIOError(msg) => fail("normalize alias '" + alias_ + "' raised: " + msg)
     }
     let via_canonical = @src.seqio_normalize_format(canonical) catch {
       SeqIOError(msg) =>
@@ -26,8 +26,8 @@ test "format_registry_alias_matches_canonical_parse" {
     }
     assert_eq(via_alias, via_canonical)
     // Both paths must also produce identical results through the entry point
-    let a = @src.seqio_parse(content, alias) catch {
-      SeqIOError(msg) => fail("parse alias '" + alias + "' raised: " + msg)
+    let a = @src.seqio_parse(content, alias_) catch {
+      SeqIOError(msg) => fail("parse alias '" + alias_ + "' raised: " + msg)
     }
     let b = @src.seqio_parse(content, canonical) catch {
       SeqIOError(msg) =>

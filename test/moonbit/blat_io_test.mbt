@@ -14,7 +14,7 @@ fn blat_parse_raises(content : String, pslx : Bool) -> Bool {
 }
 
 ///|
-fn blat_write_raises(
+fn _blat_write_raises(
   qresults : Array[@src.BlatQueryResult],
   pslx : Bool,
 ) -> Bool {

@@ -4,7 +4,7 @@ test "muscle_stage1 basic" {
   let names = ["s1", "s2", "s3"]
   let result = @src.muscle_stage1(seqs, names)
   assert_eq(result.aligned_sequences.length(), 3)
-  assert_eq(result.method, "muscle-s1")
+  assert_eq(result.method_, "muscle-s1")
   let len = result.aligned_sequences[0].length()
   for s in result.aligned_sequences {
     assert_eq(s.length(), len)
@@ -17,7 +17,7 @@ test "muscle_stage2 basic" {
   let names = ["s1", "s2", "s3"]
   let result = @src.muscle_stage2(seqs, names)
   assert_eq(result.aligned_sequences.length(), 3)
-  assert_eq(result.method, "muscle-s2")
+  assert_eq(result.method_, "muscle-s2")
   let len = result.aligned_sequences[0].length()
   for s in result.aligned_sequences {
     assert_eq(s.length(), len)
@@ -30,7 +30,7 @@ test "muscle_align basic" {
   let names = ["s1", "s2", "s3"]
   let result = @src.muscle_align(seqs, names)
   assert_eq(result.aligned_sequences.length(), 3)
-  assert_eq(result.method, "muscle")
+  assert_eq(result.method_, "muscle")
   let len = result.aligned_sequences[0].length()
   for s in result.aligned_sequences {
     assert_eq(s.length(), len)
@@ -148,7 +148,7 @@ test "muscle vs mafft comparison" {
 test "muscle MsaResult fields" {
   let seqs = ["ACDEFG", "ACDEAG"]
   let result = @src.muscle_align(seqs, ["a", "b"])
-  assert_eq(result.method, "muscle")
+  assert_eq(result.method_, "muscle")
   assert_eq(result.names.length(), 2)
 }
 

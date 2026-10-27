@@ -220,7 +220,7 @@ test "prodigal result fields" {
   let seq = "ATG" + "GCT".repeat(20) + "TAA"
   let result = @src.prodigal_predict(seq, "seq1")
   assert_eq(result.seqid, "seq1")
-  assert_eq(result.method, "prodigal")
+  assert_eq(result.method_, "prodigal")
   assert_eq(result.sequence_length, seq.length())
   assert_eq(result.genes.length(), result.num_genes)
 }

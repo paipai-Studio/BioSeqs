@@ -87,7 +87,7 @@ test "protparam_charge_at_ph" {
 ///|
 test "protparam_secondary_structure" {
   let protein = @src.ProteinAnalysis::new("AEAEAE")
-  let (h, s, c) = protein.secondary_structure()
+  let (h, _s, _c) = protein.secondary_structure()
   assert_true(h > 1.0)
 }
 

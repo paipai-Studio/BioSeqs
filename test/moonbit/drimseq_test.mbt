@@ -140,7 +140,7 @@ test "drimseq_wald_test_same" {
   b.push(0.5)
   b.push(0.5)
 
-  let (stat, pval, _) = @src.drimseq_wald_test(a, b)
+  let (_stat, pval, _) = @src.drimseq_wald_test(a, b)
   assert_true(pval >= 0.99) // Should not be significant
 }
 

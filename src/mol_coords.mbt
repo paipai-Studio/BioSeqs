@@ -54,7 +54,7 @@ pub fn generate_2d_coords(mol : Molecule) -> Array[(Double, Double)] {
     // Count unplaced neighbors
     let unplaced : Array[Int] = Array(capacity=0)
     for (nb, _) in neighbors[current] {
-      if not(placed[nb]) {
+      if !(placed[nb]) {
         unplaced.push(nb)
       }
     }
@@ -76,7 +76,7 @@ pub fn generate_2d_coords(mol : Molecule) -> Array[(Double, Double)] {
   }
   // Step 3: Handle any remaining unplaced atoms (disconnected)
   for k = 0; k < n; k = k + 1 {
-    if not(placed[k]) {
+    if !(placed[k]) {
       coords[k] = (k.to_double() * 2.0, 0.0)
       placed[k] = true
     }

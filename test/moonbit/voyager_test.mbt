@@ -880,7 +880,7 @@ test "Voyager example SpatialExperiment has the expected shape" {
 ///|
 test "Voyager univariate SFE Moran writes back local results without mutating input" {
   let se = @src.voyager_example_spatial_experiment()
-  let original_keys = se.col_data[0].keys().length()
+  let original_keys = se.col_data[0].keys().count()
   let output = @src.voyager_run_univariate_sfe(
     se,
     [0],
@@ -893,7 +893,7 @@ test "Voyager univariate SFE Moran writes back local results without mutating in
     _ => abort("Voyager SFE Moran integration should run")
   }
   // Input SpatialExperiment unchanged.
-  assert_eq(se.col_data[0].keys().length(), original_keys)
+  assert_eq(se.col_data[0].keys().count(), original_keys)
   assert_true(!se.col_data[0].contains("voy.moran.local.gene_gradient"))
   // Output SpatialExperiment carries the write-back.
   assert_true(

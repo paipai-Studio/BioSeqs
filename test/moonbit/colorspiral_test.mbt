@@ -83,7 +83,7 @@ test "spiral_new_with" {
 
 test "spiral_hsv_at" {
   let sp = @src.spiral_new()
-  let (h, s, v) = @src.spiral_hsv_at(sp, 0)
+  let (h, s, _v) = @src.spiral_hsv_at(sp, 0)
   assert_true(h >= 0.0)
   assert_true(s > 0.0)
 }

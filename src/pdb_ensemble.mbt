@@ -254,16 +254,16 @@ pub fn PDBEnsemble::superimpose(self : PDBEnsemble) -> PDBEnsemble {
 ///|
 /// Get mapped (non-NaN) coordinates for a conformation.
 fn get_mapped_coords(ens : PDBEnsemble, conf : Int) -> (Array[Vector3], Array[Vector3]) {
-  let ref : Array[Vector3] = Array(capacity=0)
+  let reference : Array[Vector3] = Array(capacity=0)
   let mob : Array[Vector3] = Array(capacity=0)
   for i = 0; i < ens.n_atoms; i = i + 1 {
     let c = ens.coordsets[conf][i]
     if is_valid_coord(c) {
-      ref.push(ens.ref_coords[i])
+      reference.push(ens.ref_coords[i])
       mob.push(c)
     }
   }
-  (ref, mob)
+  (reference, mob)
 }
 
 ///|
@@ -597,14 +597,14 @@ fn get_mapped_coords_to_mean(
   conf : Int,
   mean : Array[Vector3],
 ) -> (Array[Vector3], Array[Vector3]) {
-  let ref : Array[Vector3] = Array(capacity=0)
+  let reference : Array[Vector3] = Array(capacity=0)
   let mob : Array[Vector3] = Array(capacity=0)
   for i = 0; i < ens.n_atoms; i = i + 1 {
     let c = ens.coordsets[conf][i]
     if is_valid_coord(c) {
-      ref.push(mean[i])
+      reference.push(mean[i])
       mob.push(c)
     }
   }
-  (ref, mob)
+  (reference, mob)
 }

@@ -186,7 +186,7 @@ pub fn compute_gc_lookup_table(
     lookup.set(gc, new_arr)
     i = i + 1
   }
-  let result : Map[Int, Double] = Map([], capacity=lookup.keys().length())
+  let result : Map[Int, Double] = Map([], capacity=lookup.keys().count())
   for key in lookup.keys() {
     let arr = lookup.get_or_default(key, [])
     result.set(key, _median(arr))
@@ -418,7 +418,7 @@ pub fn gcrma_summarize(
 ) -> Map[String, Array[Double]] {
   let result : Map[String, Array[Double]] = Map(
     [],
-    capacity=probe_sets.keys().length(),
+    capacity=probe_sets.keys().count(),
   )
   for probe_set_id in probe_sets.keys() {
     let indices = probe_sets.get_or_default(probe_set_id, [])

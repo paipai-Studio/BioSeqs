@@ -1026,7 +1026,7 @@ fn dendropy_collect_internal_splits(
   if clade.clades.length() == 0 {
     return
   }
-  if not(is_root) {
+  if !(is_root) {
     let k = clade.count_terminals()
     // Non-trivial: 2 ≤ k ≤ total-2
     if k >= 2 && k <= total_taxa - 2 {
@@ -1073,7 +1073,7 @@ pub fn dendropy_kuhner_felsenstein_distance(
     sum_sq = sum_sq + d * d
   }
   for (key, l2) in s2 {
-    if not(s1.contains(key)) {
+    if !(s1.contains(key)) {
       sum_sq = sum_sq + l2 * l2
     }
   }
@@ -1116,7 +1116,7 @@ fn dendropy_collect_topology_splits(
   if clade.clades.length() == 0 {
     return
   }
-  if not(is_root) {
+  if !(is_root) {
     let k = clade.count_terminals()
     if k >= 2 && k <= total - 2 {
       out.push(dendropy_split_key(clade))
@@ -1164,7 +1164,7 @@ pub fn dendropy_spr_distance(clade1 : Clade, clade2 : Clade) -> Int {
       if nk == key2 {
         return next_dist
       }
-      if not(visited.contains(nk)) {
+      if !(visited.contains(nk)) {
         visited.set(nk, true)
         queue.push((nb, next_dist))
       }
@@ -1211,7 +1211,7 @@ pub fn dendropy_nni_distance(clade1 : Clade, clade2 : Clade) -> Int {
       if nk == key2 {
         return next_dist
       }
-      if not(visited.contains(nk)) {
+      if !(visited.contains(nk)) {
         visited.set(nk, true)
         queue.push((nb, next_dist))
       }

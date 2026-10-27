@@ -51,21 +51,6 @@ test "ic_nerf right_angle" {
   assert_true((dist - 1.0).abs() < 1.0e-6)
 }
 
-test "ic_nerf right_angle" {
-  // Non-collinear reference: A=(0,0,0), B=(1,0,0), C=(1,1,0)
-  // bond_length=1, bond_angle=pi/2 (90°), dihedral=0
-  let a = @src.IcPoint::new(0.0, 0.0, 0.0)
-  let b = @src.IcPoint::new(1.0, 0.0, 0.0)
-  let c = @src.IcPoint::new(1.0, 1.0, 0.0)
-  let d = @src.ic_nerf(a, b, c, 1.0, 1.57079632679490, 0.0)
-  // D = C + d2.x*bc_unit + d2.y*m + d2.z*n
-  // bc_unit=(0,1,0), n=(0,0,1), m=(-1,0,0)
-  // d2=(cos(pi/2), cos(0)*sin(pi/2), sin(0)*sin(pi/2)) ≈ (0, 1, 0)
-  // D = (1,1,0) + 0*(0,1,0) + 1*(-1,0,0) + 0*(0,0,1) = (0, 1, 0)
-  let dist = @src.ic_point_distance(c, d)
-  // |CD| should be 1 (bond_length)
-  assert_true((dist - 1.0).abs() < 1.0e-6)
-}
 
 test "ic_compute_bond_length" {
   let a = @src.IcPoint::new(0.0, 0.0, 0.0)

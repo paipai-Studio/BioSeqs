@@ -23,7 +23,7 @@ pub fn phylo_nni_count(clade : Clade) -> Int {
   }
   let mut count = 0
   for ch in clade.clades {
-    if not(ch.is_terminal()) {
+    if !(ch.is_terminal()) {
       count = count + 1 // this is an internal edge
       count = count + phylo_nni_count(ch)
     }
@@ -62,7 +62,7 @@ fn nni_apply_rec(
   // Process children, looking for the target internal edge
   let children : Array[Clade] = Array(capacity=clade.clades.length())
   for ch in clade.clades {
-    if not(ch.is_terminal()) && counter.val == edge_idx {
+    if !(ch.is_terminal()) && counter.val == edge_idx {
       // Found the target edge: clade → ch
       counter.val = counter.val + 1
       // ch is the "child", we need the "sibling" (other child of clade)
@@ -80,7 +80,7 @@ fn nni_apply_rec(
       } else {
         children.push(nni_apply_rec(ch, edge_idx, swap, counter))
       }
-    } else if not(ch.is_terminal()) {
+    } else if !(ch.is_terminal()) {
       counter.val = counter.val + 1
       children.push(nni_apply_rec(ch, edge_idx, swap, counter))
     } else {
@@ -131,7 +131,7 @@ fn nni_move_rec(
   let mut found = false
   let mut found_idx = -1
   for i in 0..<clade.clades.length() {
-    if not(clade.clades[i].is_terminal()) {
+    if !(clade.clades[i].is_terminal()) {
       if counter.val == edge_idx {
         found = true
         found_idx = i
@@ -153,7 +153,7 @@ fn nni_move_rec(
     // When sibling is also internal with 2 children: swap grandchildren
     // (unrooted NNI on the edge between child and sibling)
     // Otherwise: swap a grandchild with the sibling (rooted NNI)
-    let (new_child_grandchildren, new_sibling) = if not(sibling.is_terminal()) && sibling.clades.length() == 2 {
+    let (new_child_grandchildren, new_sibling) = if !(sibling.is_terminal()) && sibling.clades.length() == 2 {
       let s1 = sibling.clades[0]
       let s2 = sibling.clades[1]
       if swap == 0 {
@@ -213,11 +213,11 @@ fn nni_move_rec(
   }
 
   // Target edge is deeper — recurse into children
-  let counter3 = NniCounter::{ val: 0 }
+  let _counter3 = NniCounter::{ val: 0 }
   // Recount to get the right counter state for children
   let mut c = 0
   for i in 0..<clade.clades.length() {
-    if not(clade.clades[i].is_terminal()) {
+    if !(clade.clades[i].is_terminal()) {
       if c == edge_idx {
         // This shouldn't happen (found would be true)
         c = c + 1
@@ -230,7 +230,7 @@ fn nni_move_rec(
   let counter4 = NniCounter::{ val: 0 }
   let children : Array[Clade] = Array(capacity=clade.clades.length())
   for ch in clade.clades {
-    if not(ch.is_terminal()) {
+    if !(ch.is_terminal()) {
       // Check if this edge is the target
       if counter4.val == edge_idx {
         // Already handled above (found=true), shouldn't reach here
@@ -317,7 +317,7 @@ pub fn phylo_spr_move(
   for i in 0..<n {
     if i != prune_node && parent[i] == prune_parent {
       // Check i is not in pruned subtree
-      if not(spr_is_descendant_arr(parent, prune_node, i)) {
+      if !(spr_is_descendant_arr(parent, prune_node, i)) {
         pp_children = pp_children + 1
         pp_remaining_child = i
       }
@@ -407,7 +407,7 @@ fn spr_is_descendant_arr(
 /// Rebuild a Clade tree from a parent array, starting at root.
 fn spr_rebuild_from_parent(
   node_id : Int,
-  parent_id : Int,
+  _parent_id : Int,
   bl_to_parent : Double,
   parent : Array[Int],
   bl : Array[Double],
@@ -444,7 +444,7 @@ pub fn phylo_spr_neighbors(clade : Clade) -> Array[Clade] {
   for prune_node in 1..<n {
     for regraft_node in 1..<n {
       if regraft_node != prune_node {
-        if not(spr_is_descendant(nodes, prune_node, regraft_node)) {
+        if !(spr_is_descendant(nodes, prune_node, regraft_node)) {
           let result = phylo_spr_move(clade, prune_node, regraft_node)
           if spr_tree_changed(clade, result) {
             neighbors.push(result)

@@ -2885,7 +2885,7 @@ test "ropls input validation rejects invalid calls" {
     _ => true
   }
   let one : Array[String] = []
-  for i in 0..<ropls_x.length() {
+  for _i in 0..<ropls_x.length() {
     one.push("same")
   }
   let ok2 = try {

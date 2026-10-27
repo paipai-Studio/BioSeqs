@@ -402,7 +402,7 @@ test "all_valid_tables_accessible" {
     let tid = ids[i]
     let t = @src.codon_table(tid)
     // 每个表必须有 64 个密码子
-    assert_true(t.keys().length() == 64)
+    assert_true(t.keys().count() == 64)
     // 必须有 name
     let name = @src.codon_table_name(tid)
     assert_true(name.length() > 0)

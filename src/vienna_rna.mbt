@@ -246,12 +246,12 @@ pub fn vienna_bp_distance(
   }
   let mut dist = 0
   for k in pairs1.keys() {
-    if not(pairs2.contains(k)) {
+    if !(pairs2.contains(k)) {
       dist = dist + 1
     }
   }
   for k in pairs2.keys() {
-    if not(pairs1.contains(k)) {
+    if !(pairs1.contains(k)) {
       dist = dist + 1
     }
   }
@@ -389,7 +389,7 @@ pub fn vienna_structure_energy(
           k = k + 1
         }
       }
-      if not(has_inner) {
+      if !(has_inner) {
         // Hairpin loop penalty
         energy = energy + 0.5 * unpaired_count.to_double()
       }

@@ -430,7 +430,7 @@ pub fn mdanalysis_linear_density_1d(
   if bin_width <= 0.0 {
     return hist
   }
-  let has_weights = weights.is_some()
+  let has_weights = weights is Some(_)
   let w = weights.unwrap_or([])
   for i = 0; i < coords.length(); i = i + 1 {
     let val = coords[i][axis]
@@ -868,8 +868,8 @@ pub fn mdanalysis_helix_analysis(
   for i = 0; i < n_windows; i = i + 1 {
     let twist = @math.acos(cos_theta[i])
     twists_rad.push(twist)
-    local_twists.push(twist * 180.0 / @math.pi)
-    local_nres_per_turn.push(if twist > 0.0 { 2.0 * @math.pi / twist } else { 0.0 })
+    local_twists.push(twist * 180.0 / @math.PI)
+    local_nres_per_turn.push(if twist > 0.0 { 2.0 * @math.PI / twist } else { 0.0 })
   }
   // local_axes: cross product of adjacent bisectors, normalized → (N-3, 3)
   let local_axes : Array[Array[Double]] = Array(capacity=n_windows)
@@ -893,7 +893,7 @@ pub fn mdanalysis_helix_analysis(
     let b = local_axes[i + 3]
     let dot = a[0] * b[0] + a[1] * b[1] + a[2] * b[2]
     let clipped = if dot > 1.0 { 1.0 } else if dot < -1.0 { -1.0 } else { dot }
-    local_bends.push(@math.acos(clipped) * 180.0 / @math.pi)
+    local_bends.push(@math.acos(clipped) * 180.0 / @math.PI)
   }
   // radii: (adjacent_mag^0.5) / (2 * (1 - cos_theta)) → (N-3,)
   let local_radii : Array[Double] = Array(capacity=n_windows)
@@ -1076,7 +1076,7 @@ pub fn mdanalysis_phase_cp(
   let mut r2y = 0.0
   let mut r2z = 0.0
   for j = 0; j < 5; j = j + 1 {
-    let angle = 2.0 * @math.pi * j.to_double() / 5.0
+    let angle = 2.0 * @math.PI * j.to_double() / 5.0
     let s = @math.sin(angle)
     let c = @math.cos(angle)
     r1x = r1x + pts[j][0] * s
@@ -1105,14 +1105,14 @@ pub fn mdanalysis_phase_cp(
   let mut d_val = 0.0
   let mut c_val = 0.0
   for j = 0; j < 5; j = j + 1 {
-    let angle = 4.0 * @math.pi * j.to_double() / 5.0
+    let angle = 4.0 * @math.PI * j.to_double() / 5.0
     d_val = d_val + ds[j] * @math.sin(angle)
     c_val = c_val + ds[j] * @math.cos(angle)
   }
   let sqrt_2_5 = (2.0 / 5.0).sqrt()
   d_val = d_val * -1.0 * sqrt_2_5
   c_val = c_val * sqrt_2_5
-  let phase = (@math.atan2(d_val, c_val) + @math.pi / 2.0) * 180.0 / @math.pi
+  let phase = (@math.atan2(d_val, c_val) + @math.PI / 2.0) * 180.0 / @math.PI
   let result = phase % 360.0
   if result < 0.0 { result + 360.0 } else { result }
 }
@@ -1145,13 +1145,13 @@ pub fn mdanalysis_phase_as(
   let mut b_val = 0.0
   let mut a_val = 0.0
   for j = 0; j < 5; j = j + 1 {
-    let angle = 4.0 * @math.pi * j.to_double() / 5.0
+    let angle = 4.0 * @math.PI * j.to_double() / 5.0
     b_val = b_val + nus[j] * @math.sin(angle)
     a_val = a_val + nus[j] * @math.cos(angle)
   }
   b_val = b_val * -2.0 / 5.0
   a_val = a_val * 2.0 / 5.0
-  let phase = @math.atan2(b_val, a_val) * 180.0 / @math.pi
+  let phase = @math.atan2(b_val, a_val) * 180.0 / @math.PI
   let result = phase % 360.0
   if result < 0.0 { result + 360.0 } else { result }
 }
@@ -1293,7 +1293,7 @@ pub fn mdanalysis_bat_internal(
     }
     angles.push(@math.acos(cos_ang))
     // Torsion: ag1[i]-ag2[i]-ag3[i]-ag4[i]
-    torsions.push(chem_dihedral_angle(ag1[i], ag2[i], ag3[i], ag4[i]) * @math.pi / 180.0)
+    torsions.push(chem_dihedral_angle(ag1[i], ag2[i], ag3[i], ag4[i]) * @math.PI / 180.0)
   }
   (bonds, angles, torsions)
 }

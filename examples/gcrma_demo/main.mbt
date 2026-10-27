@@ -41,7 +41,7 @@ fn main {
 
   println("\n=== 2. Compute GC Lookup Table ===")
   let gc_lookup = @bio.compute_gc_lookup_table(probes)
-  println("  GC lookup table size: \{gc_lookup.keys().length()}")
+  println("  GC lookup table size: \{gc_lookup.keys().count()}")
   let keys = gc_lookup.keys().collect()
   keys.sort()
   let mut ki = 0

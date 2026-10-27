@@ -30,7 +30,7 @@ fn cip_atomic_number(symbol : String) -> Int {
 ///|
 /// Compare two atoms by CIP priority (higher = higher priority).
 /// Returns positive if atom1 > atom2, negative if atom1 < atom2, 0 if equal.
-fn cip_compare(
+fn _cip_compare(
   mol : Molecule,
   a1 : Int,
   a2 : Int,
@@ -58,17 +58,17 @@ fn cip_compare(
   let neighbors = mol_adjacency(mol)
   let n1_priorities : Array[Int] = Array(capacity=0)
   for (nb, _) in neighbors[a1] {
-    if not(visited[nb]) {
+    if !(visited[nb]) {
       visited[nb] = true
-      n1_priorities.push(cip_compare(mol, nb, -1, visited))
+      n1_priorities.push(_cip_compare(mol, nb, -1, visited))
       visited[nb] = false
     }
   }
   let n2_priorities : Array[Int] = Array(capacity=0)
   for (nb, _) in neighbors[a2] {
-    if not(visited[nb]) {
+    if !(visited[nb]) {
       visited[nb] = true
-      n2_priorities.push(cip_compare(mol, nb, -1, visited))
+      n2_priorities.push(_cip_compare(mol, nb, -1, visited))
       visited[nb] = false
     }
   }
@@ -184,7 +184,7 @@ pub fn is_tetrahedral_center(mol : Molecule, atom : Int) -> Bool {
 /// the configuration from the atom ordering in the molecular graph.
 /// Returns R, S, or None if not a stereocenter.
 pub fn cip_tetrahedral(mol : Molecule, atom : Int) -> StereoDescriptor {
-  if not(is_tetrahedral_center(mol, atom)) {
+  if !(is_tetrahedral_center(mol, atom)) {
     return None
   }
   let neighbors = mol_adjacency(mol)

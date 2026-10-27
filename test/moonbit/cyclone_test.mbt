@@ -36,7 +36,7 @@ test "cyclone_count_pairs_by_phase" {
 test "cyclone_score_phase" {
   let pairs = @src.cyclone_get_gene_pairs()
   let test_data = @src.cyclone_create_test_data()
-  let (counts, cell_ids, gene_names) = test_data
+  let (counts, _cell_ids, gene_names) = test_data
 
   // Score the first cell (should be G1 phase)
   let cell_expr : Array[Double] = Array(capacity=0)
@@ -56,7 +56,7 @@ test "cyclone_score_phase" {
 test "cyclone_score_cell" {
   let pairs = @src.cyclone_get_gene_pairs()
   let test_data = @src.cyclone_create_test_data()
-  let (counts, cell_ids, gene_names) = test_data
+  let (counts, _cell_ids, gene_names) = test_data
 
   let cell_expr : Array[Double] = Array(capacity=0)
   let n_genes = counts.length()
@@ -92,7 +92,7 @@ test "cyclone_assign_phase_best" {
 test "cyclone_score_single_cell" {
   let pairs = @src.cyclone_get_gene_pairs()
   let test_data = @src.cyclone_create_test_data()
-  let (counts, cell_ids, gene_names) = test_data
+  let (counts, _cell_ids, gene_names) = test_data
 
   let cell_expr : Array[Double] = Array(capacity=0)
   let n_genes = counts.length()

@@ -45,7 +45,7 @@ test "glm_gaussian_intercept_only_is_mean" {
   // Intercept-only linear model = the mean of y.
   let xs = [1.0, 2.0, 3.0, 4.0, 5.0, 6.0]
   let ys = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0]
-  let x = glm_design(xs)
+  let _x = glm_design(xs)
   // Intercept-only: fit with just intercept column.
   let x0 : Array[Array[Double]] = []
   for _ in 0..<ys.length() {

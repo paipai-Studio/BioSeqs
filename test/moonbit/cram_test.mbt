@@ -42,7 +42,7 @@ test "itf8 two bytes" {
   let data = sb.to_string()
   let (v0, p0) = @src.itf8_decode(data, 0)
   assert_eq(v0, 128)
-  let (v1, p1) = @src.itf8_decode(data, p0)
+  let (v1, _p1) = @src.itf8_decode(data, p0)
   assert_eq(v1, 16383)
 }
 

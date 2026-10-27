@@ -34,7 +34,7 @@ pub fn RTBANM::new(
   // Partition into blocks
   let block_assignments : Array[Int] = Array::make(n, 0)
   let block_sizes : Array[Int] = Array(capacity=0)
-  let n_blocks = (n + block_size - 1) / block_size
+  let _n_blocks = (n + block_size - 1) / block_size
   let mut current_block = 0
   let mut count_in_block = 0
   for i = 0; i < n; i = i + 1 {

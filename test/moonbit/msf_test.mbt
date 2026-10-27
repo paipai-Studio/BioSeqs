@@ -97,7 +97,7 @@ fn msf_test_single_text() -> String {
 }
 
 ///|
-fn msf_test_protein_text() -> String {
+fn _msf_test_protein_text() -> String {
   "!!AA_MULTIPLE_ALIGNMENT 1.0\n" +
   "\n" +
   "Protein fixture MSF: 12 Type: P Check: 8342 ..\n" +

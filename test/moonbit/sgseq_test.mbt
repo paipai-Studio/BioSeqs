@@ -285,10 +285,10 @@ test "sg_detect_se" {
   // Should detect at least one SE event (E3 is skipped)
   // The sample data has a skipping junction from 2100 to 4000
   // E3 is at 3000-3100
-  let mut has_se = false
+  let mut _has_se = false
   for v in variants {
     if v.type_name() == "SE" {
-      has_se = true
+      _has_se = true
     }
   }
   // SE detection depends on junction/exon alignment

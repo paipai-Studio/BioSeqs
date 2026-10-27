@@ -57,7 +57,7 @@ test "scater_filter_cells_basic" {
   let gene_names = ["Gene1", "Gene2", "Gene3"]
   let stats = @src.scater_calculate_qc_metrics(counts, cell_ids, gene_names)
   let params = @src.QCFilterParams::new()
-  let (kept_indices, keep) = @src.scater_filter_cells(stats, params)
+  let (_kept_indices, keep) = @src.scater_filter_cells(stats, params)
   assert_eq(keep.length(), 3)
 }
 
@@ -68,7 +68,7 @@ test "scater_filter_cells_custom_params" {
   let gene_names = ["Gene1", "Gene2", "Gene3"]
   let stats = @src.scater_calculate_qc_metrics(counts, cell_ids, gene_names)
   let params = @src.QCFilterParams::with_params(50.0, 1000.0, 2, 100, 20.0, 2)
-  let (kept_indices, keep) = @src.scater_filter_cells(stats, params)
+  let (kept_indices, _keep) = @src.scater_filter_cells(stats, params)
   assert_true(kept_indices.length() >= 1)
 }
 

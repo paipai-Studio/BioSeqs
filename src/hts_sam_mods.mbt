@@ -250,7 +250,7 @@ pub fn BaseModState::mod_codes(self : BaseModState) -> Array[Char] {
         break
       }
     }
-    if not(found) {
+    if !(found) {
       result.push(t.code)
     }
   }

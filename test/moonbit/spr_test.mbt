@@ -64,7 +64,7 @@ fn spr_same_leaves(a : @src.Clade, b : @src.Clade) -> Bool {
         found = true
       }
     }
-    if not(found) {
+    if !(found) {
       return false
     }
   }

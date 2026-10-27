@@ -20,11 +20,11 @@ fn format_matrix(m : Array[Array[Double]]) -> String {
       if j > 0 { row_str = row_str + ", " }
       let v = m[i][j]
       let val_str = if v >= 1000.0 {
-        v.to_string().substring(start=0, end=6)
+        v.to_string()[0:6].to_owned()
       } else if v >= 100.0 {
-        v.to_string().substring(start=0, end=5)
+        v.to_string()[0:5].to_owned()
       } else {
-        v.to_string().substring(start=0, end=4)
+        v.to_string()[0:4].to_owned()
       }
       row_str = row_str + val_str
     }
@@ -99,7 +99,7 @@ fn fmt_fixed(d : Double, decimals : Int) -> String {
   let dot_idx = string_index_of(s, ".")
   if dot_idx >= 0 {
     let end = if dot_idx + 1 + decimals < s.length() { dot_idx + 1 + decimals } else { s.length() }
-    s.substring(start=0, end=end)
+    s[0:end].to_owned()
   } else {
     let mut r = s + "."
     while r.length() < s.length() + 1 + decimals { r = r + "0" }

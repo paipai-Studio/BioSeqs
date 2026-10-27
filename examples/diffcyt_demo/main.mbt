@@ -30,7 +30,7 @@ fn main {
   // ------------------------------------------------------------------
   println("=== 2. Cluster Cells (FlowSOM) ===")
   let n_clusters = 5
-  let codebooks = @bio.diffcyt_cluster_cells(cells, n_clusters, 10)
+  let _codebooks = @bio.diffcyt_cluster_cells(cells, n_clusters, 10)
   println("Number of clusters: " + n_clusters.to_string())
   // Count cells per cluster.
   let cluster_counts = Array::make(n_clusters, 0)

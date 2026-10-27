@@ -46,7 +46,7 @@ fn main {
   println("Selected metadata columns")
 
   // Rename
-  let renamed = @src.tgr_rename(selected, "gc_content", "GC")
+  let _renamed = @src.tgr_rename(selected, "gc_content", "GC")
   println("Renamed gc_content to GC")
 
   // Summary

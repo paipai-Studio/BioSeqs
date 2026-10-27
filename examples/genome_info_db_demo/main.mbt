@@ -10,7 +10,7 @@ fn main {
   println("\n2. Getting chromosome information...")
   let names = @src.GenomeInfoDb::seqnames(hg38)
   println("   Total chromosomes: \{names.length()}")
-  println("   First 5: \{names[0:5].to_array().join(", ")}")
+  println("   First 5: \{names[0:5].to_owned().join(", ")}")
   match @src.GenomeInfoDb::seqLength(hg38, "chr1") {
     Some(len) => println("   chr1 length: \{len} bp")
     None => println("   chr1 not found")

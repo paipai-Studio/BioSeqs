@@ -95,7 +95,7 @@ pub fn is_ion_resname(resname : String) -> Bool {
     let minus = '-'.to_int()
     if last == plus || last == minus {
       // Strip trailing + or -
-      let base = resname.substring(start=0, end=n - 1)
+      let base = resname[0:n - 1].to_owned()
       if base != resname {
         return is_metal_ion(base) || is_halide_ion(base)
       }
@@ -106,7 +106,7 @@ pub fn is_ion_resname(resname : String) -> Bool {
       let zero = '0'.to_int()
       let nine = '9'.to_int()
       if last_char >= zero && last_char <= nine {
-        let base2 = resname.substring(start=0, end=n - 1)
+        let base2 = resname[0:n - 1].to_owned()
         return is_metal_ion(base2) || is_halide_ion(base2)
       }
     }
@@ -461,7 +461,7 @@ pub fn SeparationResult::summary(self : SeparationResult) -> SeparationSummary {
 ///|
 /// Pretty-print a summary as a human-readable string.
 pub fn SeparationSummary::to_string(self : SeparationSummary) -> String {
-  let sb = StringBuilder::new()
+  let sb = StringBuilder()
   sb.write_string("Component Separation Summary:\n")
   sb.write_string("  Protein residues: ")
   sb.write_string(self.num_protein.to_string())

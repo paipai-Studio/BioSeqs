@@ -72,7 +72,7 @@ test "kf_betai known values" {
 ///|
 test "hts_parse_region_str full" {
   let r = @src.hts_parse_region_str("chr1:100-200")
-  assert_true(r.is_some())
+  assert_true(r is Some(_))
   let rr = r.unwrap()
   assert_eq(rr.chrom, "chr1")
   assert_eq(rr.beg, 99) // 1-based → 0-based
@@ -132,10 +132,10 @@ test "hts_regidx overlap" {
   assert_true(idx.overlap("chr1", 190, 210))
   assert_true(idx.overlap("chr1", 350, 360))
   // Non-overlapping
-  assert_true(not(idx.overlap("chr1", 200, 300)))
-  assert_true(not(idx.overlap("chr1", 250, 290)))
+  assert_true(!(idx.overlap("chr1", 200, 300)))
+  assert_true(!(idx.overlap("chr1", 250, 290)))
   // Different chrom
-  assert_true(not(idx.overlap("chr2", 150, 160)))
+  assert_true(!(idx.overlap("chr2", 150, 160)))
 }
 
 ///|
@@ -164,7 +164,7 @@ test "hts_regidx from_string" {
   assert_eq(idx.nregs(), 2)
   assert_true(idx.overlap("chr1", 150, 160))
   assert_true(idx.overlap("chr2", 350, 360))
-  assert_true(not(idx.overlap("chr1", 250, 290)))
+  assert_true(!(idx.overlap("chr1", 250, 290)))
 }
 
 ///|

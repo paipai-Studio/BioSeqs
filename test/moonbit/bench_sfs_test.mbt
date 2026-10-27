@@ -18,7 +18,7 @@ fn bench_make_sequences(n : Int, seq_len : Int) -> Array[String] {
   seqs.push(ancestral)
   for i in 1..<n {
     let chars : Array[Int] = Array(capacity=seq_len)
-    for j in 0..<seq_len {
+    for _j in 0..<seq_len {
       chars.push(65) // 'A'
     }
     // Introduce mutations at positions unique to this sequence
@@ -80,7 +80,7 @@ test "bench: SfsStats 20 seqs x 200 sites" {
   let _ = stats.fu_li_f()
   let _ = stats.fay_wu_h()
   let _ = stats.zeng_e()
-  assert_true(not(stats.tajima_d().is_nan()))
+  assert_true(!(stats.tajima_d().is_nan()))
 }
 
 ///|
@@ -90,7 +90,7 @@ test "bench: SfsStats 50 seqs x 500 sites" {
   let _ = stats.tajima_d()
   let _ = stats.fu_li_f()
   let _ = stats.fay_wu_h()
-  assert_true(not(stats.tajima_d().is_nan()))
+  assert_true(!(stats.tajima_d().is_nan()))
 }
 
 ///|

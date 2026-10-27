@@ -44,7 +44,7 @@ fn make_vcf(text : String) -> @src.VcfFile {
 
 ///|
 /// Helper: make a single-variant VCF.
-fn make_single_variant_vcf(chrom : String, pos : Int, ref_ : String, alt : String) -> @src.VcfFile {
+fn _make_single_variant_vcf(chrom : String, pos : Int, ref_ : String, alt : String) -> @src.VcfFile {
   let text =
     "##fileformat=VCFv4.2\n#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n" +
     chrom + "\t" + pos.to_string() + "\t.\t" + ref_ + "\t" + alt + "\t.\t.\t.\n"
@@ -316,7 +316,7 @@ test "snpeff end-to-end annotation" {
   let result = @src.snpeff_annotate(vcf, ann, ref_map)
   assert_eq(result.num_variants, 2)
   assert_true(result.num_annotated >= 1)
-  assert_true(result.summary.size() > 0)
+  assert_true(result.summary.length() > 0)
 }
 
 ///|
@@ -348,7 +348,7 @@ test "snpeff count by impact" {
   ref_map["chr1"] = ref_seq
   let result = @src.snpeff_annotate(vcf, ann, ref_map)
   let counts = @src.snpeff_count_by_impact(result)
-  assert_true(counts.size() > 0)
+  assert_true(counts.length() > 0)
 }
 
 ///|

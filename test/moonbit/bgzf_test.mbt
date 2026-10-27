@@ -11,10 +11,10 @@ test "bgzf_decompress_empty" {
 ///|
 /// Test is_bgzf function.
 test "bgzf_is_bgzf" {
-  let bgzf_magic = "\x1f\x8b\x08\x04"
+  let bgzf_magic = "\u{1f}\u{8b}\u{08}\u{04}"
   assert_true(@src.is_bgzf(bgzf_magic))
 
-  let not_bgzf = "BAM\x01"
+  let not_bgzf = "BAM\u{01}"
   assert_true(!@src.is_bgzf(not_bgzf))
 }
 
@@ -23,9 +23,9 @@ test "bgzf_is_bgzf" {
 /// reference implementation for the 20-byte payload "Hello BGZF\nLine two\n".
 fn bgzf_reference_block() -> String {
   // 51-byte data block (stored DEFLATE)
-  "\x1f\x8b\x08\x04\x00\x00\x00\x00\x00\xff\x06\x00\x42\x43\x02\x00\x32\x00\x01\x14\x00\xeb\xff\x48\x65\x6c\x6c\x6f\x20\x42\x47\x5a\x46\x0a\x4c\x69\x6e\x65\x20\x74\x77\x6f\x0a\x90\xef\xcb\x4d\x14\x00\x00\x00" +
+  "\u{1f}\u{8b}\u{08}\u{04}\u{00}\u{00}\u{00}\u{00}\u{00}\u{ff}\u{06}\u{00}\u{42}\u{43}\u{02}\u{00}\u{32}\u{00}\u{01}\u{14}\u{00}\u{eb}\u{ff}\u{48}\u{65}\u{6c}\u{6c}\u{6f}\u{20}\u{42}\u{47}\u{5a}\u{46}\u{0a}\u{4c}\u{69}\u{6e}\u{65}\u{20}\u{74}\u{77}\u{6f}\u{0a}\u{90}\u{ef}\u{cb}\u{4d}\u{14}\u{00}\u{00}\u{00}" +
   // 28-byte canonical EOF block
-  "\x1f\x8b\x08\x04\x00\x00\x00\x00\x00\xff\x06\x00\x42\x43\x02\x00\x1b\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+  "\u{1f}\u{8b}\u{08}\u{04}\u{00}\u{00}\u{00}\u{00}\u{00}\u{ff}\u{06}\u{00}\u{42}\u{43}\u{02}\u{00}\u{1b}\u{00}\u{03}\u{00}\u{00}\u{00}\u{00}\u{00}\u{00}\u{00}\u{00}\u{00}"
 }
 
 ///|

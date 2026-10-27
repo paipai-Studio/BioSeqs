@@ -178,7 +178,7 @@ pub fn calc_best_fit_line(
   }
   let center = centroid(coords)
   let cov = helix_covariance_matrix(coords, center)
-  let (evals, evecs) = jacobi_eigen3x3(cov)
+  let (_evals, evecs) = jacobi_eigen3x3(cov)
   // Largest eigenvalue is first (sorted descending)
   let dir = Vector3::new(evecs[0][0], evecs[0][1], evecs[0][2])
   // Normalize
@@ -207,7 +207,7 @@ pub fn calc_best_fit_plane(
   }
   let center = centroid(coords)
   let cov = helix_covariance_matrix(coords, center)
-  let (evals, evecs) = jacobi_eigen3x3(cov)
+  let (_evals, evecs) = jacobi_eigen3x3(cov)
   // Smallest eigenvalue is last (sorted descending)
   let normal_raw = Vector3::new(evecs[2][0], evecs[2][1], evecs[2][2])
   let mag = hg_sqrt(normal_raw.x * normal_raw.x + normal_raw.y * normal_raw.y + normal_raw.z * normal_raw.z)

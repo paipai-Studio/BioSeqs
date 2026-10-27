@@ -53,7 +53,7 @@ test "cage_cluster_summary" {
   let s = @src.CageSample::new("s1", cage_example_ctss())
   let cs = @src.cage_add_sample(@src.cage_new("test"), s)
   let clusters = @src.cage_cluster(cs)
-  let (n, total_tags, avg_tags, avg_ctss, avg_shape) = @src.cage_cluster_summary(clusters)
+  let (n, total_tags, _avg_tags, _avg_ctss, _avg_shape) = @src.cage_cluster_summary(clusters)
   assert_true(n >= 0)
   assert_true(total_tags >= 0)
 }
