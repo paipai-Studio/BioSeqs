@@ -157,7 +157,7 @@ pub fn AlignmentGapScores::directional(
 /// configuration is present.
 pub struct AlignmentCountsConfig {
   wildcard : Char?
-  substitution_matrix : SubstitutionMatrix?
+  substitution_matrix : @data.SubstitutionMatrix?
   match_score : Double?
   mismatch_score : Double?
   gap_scores : AlignmentGapScores?
@@ -166,7 +166,7 @@ pub struct AlignmentCountsConfig {
 ///|
 pub fn AlignmentCountsConfig::create(
   wildcard? : Char? = None,
-  substitution_matrix? : SubstitutionMatrix? = None,
+  substitution_matrix? : @data.SubstitutionMatrix? = None,
   match_score? : Double? = None,
   mismatch_score? : Double? = None,
   gap_scores? : AlignmentGapScores? = None,
@@ -219,7 +219,7 @@ pub fn AlignmentCountsConfig::with_wildcard(
 ///|
 /// Configure substitution scoring and positive-match counting.
 pub fn AlignmentCountsConfig::with_matrix(
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
   wildcard? : Char? = None,
 ) -> AlignmentCountsConfig {
   AlignmentCountsConfig::{
@@ -253,7 +253,7 @@ pub fn AlignmentCountsConfig::scored(
 ///|
 /// Configure complete substitution-matrix and affine gap scoring.
 pub fn AlignmentCountsConfig::scored_matrix(
-  matrix~ : SubstitutionMatrix,
+  matrix~ : @data.SubstitutionMatrix,
   gap_scores~ : AlignmentGapScores,
   wildcard? : Char? = None,
 ) -> AlignmentCountsConfig {

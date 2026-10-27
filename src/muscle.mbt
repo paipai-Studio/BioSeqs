@@ -50,7 +50,7 @@ fn profile_frequencies(
 fn log_expectation_score(
   freqs1 : Map[Char, Double],
   freqs2 : Map[Char, Double],
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
 ) -> Double {
   let mut total = 0.0
   for a, fa in freqs1 {
@@ -72,7 +72,7 @@ fn le_distance(
   aligned_seqs : Array[String],
   i : Int,
   j : Int,
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
 ) -> Double {
   let seq_i = remove_gaps_from_seq(aligned_seqs[i])
   let seq_j = remove_gaps_from_seq(aligned_seqs[j])
@@ -110,7 +110,7 @@ fn remove_gaps_from_seq(seq : String) -> String {
 /// Build a distance matrix from an alignment using LE distance.
 fn le_distance_matrix(
   aligned_seqs : Array[String],
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
 ) -> Array[Array[Double]] {
   let n = aligned_seqs.length()
   let result : Array[Array[Double]] = Array(capacity=n)
@@ -163,7 +163,7 @@ fn extract_subset(alignment : Array[String], indices : Array[Int]) -> Array[Stri
 /// SP score for MUSCLE.
 fn muscle_sp_score(
   alignment : Array[String],
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
 ) -> Double {
   if alignment.length() < 2 {
     return 0.0
@@ -199,7 +199,7 @@ fn muscle_sp_score(
 fn muscle_refine(
   alignment : Array[String],
   tree : MsaTreeNode,
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
   gap_open : Double,
 ) -> Array[String] {
   let n = alignment.length()
@@ -227,7 +227,7 @@ fn muscle_refine(
 fn collect_refinements(
   node : MsaTreeNode,
   alignment : Array[String],
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
   gap_open : Double,
   candidates : Array[Array[String]],
 ) -> Unit {
@@ -321,7 +321,7 @@ pub fn muscle_align(
   if n == 1 {
     return { aligned_sequences: [sequences[0]], names, score: 0.0, method: "muscle" }
   }
-  let matrix = blosum62()
+  let matrix = @data.blosum62()
   let gap_open = -10.0
   let k = 6
   // Stage 1: Draft progressive
@@ -359,7 +359,7 @@ pub fn muscle_align_with_params(
   if n == 1 {
     return { aligned_sequences: [sequences[0]], names, score: 0.0, method: "muscle" }
   }
-  let matrix = blosum62()
+  let matrix = @data.blosum62()
   let dist1 = mafft_distance_matrix(sequences, k)
   let tree1 = mafft_upgma_tree(dist1)
   let (draft_raw, order1) = muscle_progressive(tree1, sequences, matrix, gap_open)
@@ -384,7 +384,7 @@ pub fn muscle_align_with_params(
 fn muscle_progressive(
   tree : MsaTreeNode,
   sequences : Array[String],
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
   gap_open : Double,
 ) -> (Array[String], Array[Int]) {
   if tree.is_leaf {
@@ -425,7 +425,7 @@ pub fn muscle_stage1(
   if n == 1 {
     return { aligned_sequences: [sequences[0]], names, score: 0.0, method: "muscle-s1" }
   }
-  let matrix = blosum62()
+  let matrix = @data.blosum62()
   let gap_open = -10.0
   let k = 6
   let dist = mafft_distance_matrix(sequences, k)
@@ -450,7 +450,7 @@ pub fn muscle_stage2(
   if n == 1 {
     return { aligned_sequences: [sequences[0]], names, score: 0.0, method: "muscle-s2" }
   }
-  let matrix = blosum62()
+  let matrix = @data.blosum62()
   let gap_open = -10.0
   let k = 6
   let dist1 = mafft_distance_matrix(sequences, k)

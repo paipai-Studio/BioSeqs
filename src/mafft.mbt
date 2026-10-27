@@ -205,7 +205,7 @@ pub fn mafft_upgma_tree(
 
 ///|
 /// Score for aligning two columns (characters, possibly gaps).
-fn mafft_col_score(c1 : Char, c2 : Char, matrix : SubstitutionMatrix) -> Double {
+fn mafft_col_score(c1 : Char, c2 : Char, matrix : @data.SubstitutionMatrix) -> Double {
   if c1 == '-' && c2 == '-' {
     return 0.0
   }
@@ -220,7 +220,7 @@ fn mafft_col_score(c1 : Char, c2 : Char, matrix : SubstitutionMatrix) -> Double 
 pub fn mafft_align_profiles(
   profile1 : Array[String],
   profile2 : Array[String],
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
   gap_open : Double,
 ) -> Array[String] {
   if profile1.length() == 0 {
@@ -398,7 +398,7 @@ fn apply_profile_ops(seq : String, ops : Array[Int], side : Int) -> String {
 fn progressive_align(
   tree : MsaTreeNode,
   sequences : Array[String],
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
   gap_open : Double,
 ) -> (Array[String], Array[Int]) {
   if tree.is_leaf {
@@ -446,7 +446,7 @@ fn reorder_alignment(
 
 ///|
 /// Compute the SP (sum-of-pairs) score of an alignment.
-fn sp_score(alignment : Array[String], matrix : SubstitutionMatrix) -> Double {
+fn sp_score(alignment : Array[String], matrix : @data.SubstitutionMatrix) -> Double {
   if alignment.length() < 2 {
     return 0.0
   }
@@ -513,7 +513,7 @@ fn remove_all_gap_columns(alignment : Array[String]) -> Array[String] {
 /// One round of iterative refinement.
 fn refine_once(
   alignment : Array[String],
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
   gap_open : Double,
 ) -> Array[String] {
   let n = alignment.length()
@@ -569,7 +569,7 @@ pub fn mafft_align(
   if n == 1 {
     return { aligned_sequences: [sequences[0]], names, score: 0.0, method: "mafft" }
   }
-  let matrix = blosum62()
+  let matrix = @data.blosum62()
   let gap_open = -10.0
   let k = 6
   // Step 1: k-mer distance
@@ -602,7 +602,7 @@ pub fn mafft_align_with_params(
   if n == 1 {
     return { aligned_sequences: [sequences[0]], names, score: 0.0, method: "mafft" }
   }
-  let matrix = blosum62()
+  let matrix = @data.blosum62()
   let dist = mafft_distance_matrix(sequences, k)
   let tree = mafft_upgma_tree(dist)
   let (alignment_raw, order) = progressive_align(tree, sequences, matrix, gap_open)

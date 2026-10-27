@@ -309,7 +309,7 @@ pub fn smith_waterman_protein(seq1 : String, seq2 : String) -> SWResult {
 /// Run Smith-Waterman local alignment using a substitution matrix.
 ///
 /// `seq1`, `seq2` — protein sequences (single-letter code strings).
-/// `matrix` — substitution matrix (e.g., `blosum62()`).
+/// `matrix` — substitution matrix (e.g., `@data.blosum62()`).
 /// `gap_penalty` — penalty for a gap (typically negative).
 ///
 /// Returns a `SWResult` containing aligned sequences, score, positions,
@@ -317,7 +317,7 @@ pub fn smith_waterman_protein(seq1 : String, seq2 : String) -> SWResult {
 pub fn smith_waterman_with_matrix(
   seq1 : String,
   seq2 : String,
-  matrix : SubstitutionMatrix,
+  matrix : @data.SubstitutionMatrix,
   gap_penalty : Double,
 ) -> SWResult {
   let n = seq1.length()
@@ -412,7 +412,7 @@ pub fn smith_waterman_blosum62(
   seq2 : String,
   gap_penalty : Double,
 ) -> SWResult {
-  smith_waterman_with_matrix(seq1, seq2, blosum62(), gap_penalty)
+  smith_waterman_with_matrix(seq1, seq2, @data.blosum62(), gap_penalty)
 }
 
 ///|
@@ -422,7 +422,7 @@ pub fn smith_waterman_pam250(
   seq2 : String,
   gap_penalty : Double,
 ) -> SWResult {
-  smith_waterman_with_matrix(seq1, seq2, pam250(), gap_penalty)
+  smith_waterman_with_matrix(seq1, seq2, @data.pam250(), gap_penalty)
 }
 
 ///|

@@ -50,7 +50,7 @@ test "mafft_upgma_tree single sequence" {
 
 ///|
 test "mafft_align_profiles basic" {
-  let matrix = @src.blosum62()
+  let matrix = @data.blosum62()
   let p1 = ["ACDE"]
   let p2 = ["ACGE"]
   let result = @src.mafft_align_profiles(p1, p2, matrix, -10.0)

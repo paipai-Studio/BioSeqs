@@ -7,7 +7,7 @@ fn main {
   println("=== Substitution Matrix Demo ===\n")
 
   println("1. BLOSUM62 Matrix Lookup:")
-  let blosum62 = @bio.blosum62()
+  let blosum62 = @data.blosum62()
   println("   Matrix name: " + blosum62.name())
   println("   A-A score: " + blosum62.get_score("A", "A").to_string())
   println("   R-R score: " + blosum62.get_score("R", "R").to_string())
@@ -15,7 +15,7 @@ fn main {
   println("   W-W score: " + blosum62.get_score("W", "W").to_string())
 
   println("\n2. PAM250 Matrix Lookup:")
-  let pam250 = @bio.pam250()
+  let pam250 = @data.pam250()
   println("   Matrix name: " + pam250.name())
   println("   A-A score: " + pam250.get_score("A", "A").to_string())
   println("   W-W score: " + pam250.get_score("W", "W").to_string())

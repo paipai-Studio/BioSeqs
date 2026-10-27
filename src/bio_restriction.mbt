@@ -1,7 +1,7 @@
 ///|
 /// Bio.Restriction — Biopython 1.88 compatible restriction enzyme analysis.
 ///
-/// 1088 REBASE enzymes (see `restriction_db.mbt`), IUPAC ambiguous sites,
+/// 1088 REBASE enzymes (see `src/data/restriction_db.mbt`), IUPAC ambiguous sites,
 /// linear and circular search, one-cut / two-cut / uncharacterised enzymes,
 /// catalyse fragments, elucidate annotations, compatible ends and
 /// isoschizomer/neoschizomer relationships, RestrictionBatch search and
@@ -39,7 +39,7 @@ pub extend BioRestrictionEnzyme with Eq::{equal, not_equal}
 
 ///|
 /// All 1088 enzymes as records.
-pub let bio_restriction_enzyme_list : Array[BioRestrictionEnzyme] = restriction_db.map(fn(
+pub let bio_restriction_enzyme_list : Array[BioRestrictionEnzyme] = @data.restriction_db.map(fn(
     r,
   ) {
     BioRestrictionEnzyme::{
@@ -66,7 +66,7 @@ pub let bio_restriction_enzyme_list : Array[BioRestrictionEnzyme] = restriction_
 pub let bio_restriction_enzyme_map : Map[String, BioRestrictionEnzyme] = {
   let m : Map[String, BioRestrictionEnzyme] = Map(
     [],
-    capacity=restriction_db_size,
+    capacity=@data.restriction_db_size,
   )
   for e in bio_restriction_enzyme_list {
     m[e.name] = e
@@ -77,7 +77,7 @@ pub let bio_restriction_enzyme_map : Map[String, BioRestrictionEnzyme] = {
 ///|
 /// Number of characterised / ambiguous / uncharacterised enzymes.
 pub fn bio_restriction_enzyme_count() -> Int {
-  restriction_db_size
+  @data.restriction_db_size
 }
 
 ///|

@@ -73,7 +73,7 @@ fn main {
     _ => abort("failed to build protein alignment")
   }
   let protein_counts = protein.alignment_counts(
-    config=@src.AlignmentCountsConfig::with_matrix(@src.blosum45()),
+    config=@src.AlignmentCountsConfig::with_matrix(@data.blosum45()),
   ) catch {
     _ => abort("failed to score protein alignment")
   }
